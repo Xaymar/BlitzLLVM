@@ -1,0 +1,4 @@
+# Build Directories
+/build
+/build32
+/build64
