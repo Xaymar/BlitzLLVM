@@ -2,17 +2,15 @@ cmake_minimum_required(VERSION 2.8.12)
 project(CodeCompiler)
 
 # Configuration
-SET(THIRDPARTY_LLVM "${CMAKE_SOURCE_DIR}/thirdparty/llvm" CACHE PATH "Path to LLVM source code")
 
 ## Dependencies
 # LLVM
-SET(LLVM_BUILD_TOOLS OFF)
-SET(LLVM_BUILD_EXAMPLES OFF)
-SET(LLVM_BUILD_TESTS OFF)
-SET(LLVM_INCLUDE_TESTS OFF)
-SET(BUILD_SHARED_LIBS OFF)
-SET(LLVM_BUILD_LLVM_DYLIB OFF)
-ADD_SUBDIRECTORY("${DEPENDENCY_LLVM}")
+find_package(LLVM REQUIRED CONFIG)
+llvm_map_components_to_libnames(llvm_libs support core irreader)
+
+# Boost
+SET(Boost_USE_STATIC_LIBS ON)
+find_package(Boost REQUIRED COMPONENTS program_options)
 
 ## Version
 INCLUDE("CMakeVersion.txt")
@@ -23,22 +21,34 @@ SET(SOURCE
 	"source/main.cpp"
 )
 SET(DATA
-	"templates/version.h"
+	"CMakeVersion.txt"
 )
 
-# Include Directories
+# Definitions
+ADD_DEFINITIONS(
+	${LLVM_DEFINITIONS}
+)
+
+# Directories
 INCLUDE_DIRECTORIES(
-	"${CMAKE_SOURCE_DIR}"
-	"${PROJECT_SOURCE_DIR}"
 	"${PROJECT_SOURCE_DIR}/source"
-	"${THIRDPARTY_LLVM}/include"
 	"${PROJECT_BINARY_DIR}"
+	${LLVM_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIRS}
+)
+LINK_DIRECTORIES(
+	${LLVM_LIBRARY_DIRS}
+	${Boost_LIBRARY_DIRS}
 )
 
 # Building
-add_executable(${PROJECT_NAME} ${SOURCE})
+ADD_EXECUTABLE(cc
+	${SOURCE}
+	${DATA}
+)
 
 # Linking
-TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-	LLVM
+TARGET_LINK_LIBRARIES(cc
+	${Boost_LIBRARIES}
+	${llvm_libs}
 )
