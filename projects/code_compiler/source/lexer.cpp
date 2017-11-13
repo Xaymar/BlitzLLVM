@@ -17,11 +17,6 @@
 #include "lexer.hpp"
 #include <codecvt>
 
-char g_whitespaceCharacters[] = {
-	' ',
-	'\t',
-};
-
 std::pair<char, BlitzLLVM::Lexer::Token> g_symbolCharacters[] = {
 	//{ '\"', BlitzLLVM::Lexer::Token::TokenDoubleQuote }, // Has special meaning.
 	{ '+', BlitzLLVM::Lexer::Token::TokenPlus },
@@ -82,15 +77,14 @@ std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken()
 			break;
 		} else if (!m_isStringMode && !m_isTextMode && !m_isNumberMode) {
 			// Whitespace
-			bool isWhitespace = false;
-			for (char v : g_whitespaceCharacters) {
-				if (v == chr) {
-					isWhitespace = true;
-					break;
-				}
-			}
-			if (isWhitespace)
+			if (isspace(chr))
 				continue;
+
+			// Control Code
+			if (iscntrl(chr)) {
+				tkn = Token::TokenUnknown;
+				buf = chr;
+			}
 
 			// Symbol
 			for (auto v : g_symbolCharacters) {
@@ -136,6 +130,10 @@ std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken()
 				m_overrideText = chr;
 				m_isStringMode = false;
 				tkn = Token::TokenQuotedText;
+				break;
+			} else if (iscntrl(chr) || !isprint(chr)) {
+				m_fileStream.putback(chr);
+				m_isStringMode = false;
 				break;
 			} else {
 				buf += chr;
