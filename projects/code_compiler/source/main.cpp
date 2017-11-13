@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include "boost/program_options.hpp"
+#include "compiler.hpp"
 #include "version.h"
 
 #define LICENSE "Copyright (C) 2017 Michael Fabian Dirks\n\
@@ -97,9 +98,8 @@ int main(int argc, char** argv) {
 #pragma endregion Header, Warranty, Help
 
 #pragma region Process Input
-
-
-
+	BlitzLLVM::Compiler comp;
+	comp.Compile(optInput, optInput + ".exe");
 #pragma endregion Process Input
 
 #ifdef _DEBUG
