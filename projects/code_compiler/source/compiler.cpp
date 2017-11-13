@@ -78,7 +78,7 @@ bool BlitzLLVM::Compiler::Compile(std::string in, std::string out) {
 				break;
 			case Lexer::Token::TokenUnknown:
 			default:
-				std::cout << "Unknown" << std::endl;
+				std::cout << "Unknown(" << tkn.second << ") ";
 				break;
 		}
 	}
