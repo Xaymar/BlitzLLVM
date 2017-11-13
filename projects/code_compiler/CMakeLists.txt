@@ -19,6 +19,12 @@ INCLUDE("CMakeVersion.txt")
 # Source Files
 SET(SOURCE
 	"source/main.cpp"
+	"source/lexer.hpp"
+	"source/lexer.cpp"
+	"source/parser.hpp"
+	"source/parser.cpp"
+	"source/compiler.hpp"
+	"source/compiler.cpp"
 )
 SET(DATA
 	"CMakeVersion.txt"
