@@ -31,5 +31,3 @@ DoVar(Variable)
 
 Global Variable3# = 7.2
 Variable3 = Variable3 / 4 * 5 - 2 + 8 ^ 22
-;~IDEal Editor Parameters:
-;~C#BlitzNext
