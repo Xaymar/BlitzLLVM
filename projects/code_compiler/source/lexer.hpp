@@ -59,12 +59,13 @@ namespace BlitzLLVM {
 			TokenNumber,
 			TokenDecimal,
 			TokenQuotedText, // Text encapsulated by TokenDoubleQuote
+			TokenComment,
 
 			// Binary
 			TokenNot,
 			TokenAnd, TokenOr, TokenXor,
 			TokenShl, TokenShr,
-			TokenSar, TokenSal,
+			TokenSal, TokenSar,
 			TokenFalse, TokenTrue,
 
 			// Conversion
@@ -103,7 +104,7 @@ namespace BlitzLLVM {
 			TokenLocal,
 
 			// Including files.
-			TokenInclude,			
+			TokenInclude,		
 		};
 
 		public:
@@ -113,11 +114,15 @@ namespace BlitzLLVM {
 		std::pair<Token, std::string> GetNextToken();
 		
 		private:
+		BlitzLLVM::Lexer::Token ConvertTextToToken(Token in, std::string text);
+
+		private:
 		std::istream& m_fileStream;
 
 		bool m_isTextMode = false;
 		bool m_isNumberMode = false;
 		bool m_isStringMode = false;
+		bool m_isCommentMode = false;
 		bool m_numberModeHasDecimal = false;
 
 		Token m_overrideToken = Token::TokenUnknown;

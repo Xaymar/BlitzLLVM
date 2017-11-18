@@ -39,7 +39,7 @@ bool BlitzLLVM::Compiler::Compile(std::string in, std::string out) {
 				std::cout << "EOF" << std::endl;
 				break;
 			case Lexer::Token::TokenNewLine:
-				std::cout << "NewLine" << std::endl;
+				std::cout << "" << std::endl;
 				break;
 			case Lexer::Token::TokenPlus:
 			case Lexer::Token::TokenMinus:
@@ -61,7 +61,65 @@ bool BlitzLLVM::Compiler::Compile(std::string in, std::string out) {
 			case Lexer::Token::TokenComma:
 			case Lexer::Token::TokenSemicolon:
 			case Lexer::Token::TokenCaret:
+			case Lexer::Token::TokenBitNot:
 			case Lexer::Token::TokenDoubleQuote:
+			case Lexer::Token::TokenNot:
+			case Lexer::Token::TokenAnd:
+			case Lexer::Token::TokenOr:
+			case Lexer::Token::TokenXor:
+			case Lexer::Token::TokenShl:
+			case Lexer::Token::TokenShr:
+			case Lexer::Token::TokenSal:
+			case Lexer::Token::TokenFalse:
+			case Lexer::Token::TokenTrue:
+			case Lexer::Token::TokenFloat:
+			case Lexer::Token::TokenString:
+			case Lexer::Token::TokenHex:
+			case Lexer::Token::TokenInt:
+			case Lexer::Token::TokenIf:
+			case Lexer::Token::TokenThen:
+			case Lexer::Token::TokenElseIf:
+			case Lexer::Token::TokenElse:
+			case Lexer::Token::TokenEndIf:
+			case Lexer::Token::TokenSelect:
+			case Lexer::Token::TokenCase:
+			case Lexer::Token::TokenDefault:
+			case Lexer::Token::TokenGoto:
+			case Lexer::Token::TokenGosub:
+			case Lexer::Token::TokenReturn:
+			case Lexer::Token::TokenFunction:
+			case Lexer::Token::TokenEnd:
+			case Lexer::Token::TokenStop:
+			case Lexer::Token::TokenFor:
+			case Lexer::Token::TokenTo:
+			case Lexer::Token::TokenNext:
+			case Lexer::Token::TokenWhile:
+			case Lexer::Token::TokenWend:
+			case Lexer::Token::TokenRepeat:
+			case Lexer::Token::TokenUntil:
+			case Lexer::Token::TokenForever:
+			case Lexer::Token::TokenExit:
+			case Lexer::Token::TokenAbs:
+			case Lexer::Token::TokenSign:
+			case Lexer::Token::TokenCos:
+			case Lexer::Token::TokenSin:
+			case Lexer::Token::TokenTan:
+			case Lexer::Token::TokenACos:
+			case Lexer::Token::TokenASin:
+			case Lexer::Token::TokenATan:
+			case Lexer::Token::TokenATan2:
+			case Lexer::Token::TokenLog:
+			case Lexer::Token::TokenLog10:
+			case Lexer::Token::TokenCeil:
+			case Lexer::Token::TokenFloor:
+			case Lexer::Token::TokenMod:
+			case Lexer::Token::TokenPi:
+			case Lexer::Token::TokenExp:
+			case Lexer::Token::TokenSqr:
+			case Lexer::Token::TokenConst:
+			case Lexer::Token::TokenGlobal:
+			case Lexer::Token::TokenLocal:
+			case Lexer::Token::TokenInclude:
 				std::cout << tkn.second << ' ';
 				break;
 			case Lexer::Token::TokenText:
@@ -75,6 +133,9 @@ bool BlitzLLVM::Compiler::Compile(std::string in, std::string out) {
 				break;
 			case Lexer::Token::TokenQuotedText:
 				std::cout << "QuotedText(" << tkn.second << ")" << ' ';
+				break;
+			case Lexer::Token::TokenComment:
+				std::cout << "Comment(" << tkn.second << ")" << ' ';
 				break;
 			case Lexer::Token::TokenUnknown:
 			default:
