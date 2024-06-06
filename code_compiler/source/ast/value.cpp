@@ -1,59 +1,43 @@
-//	Code Compiler for BlitzLLVM
-//	Copyright(C) 2017 Michael Fabian Dirks
-//
-//	This program is free software : you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation, either version 3 of the License, or
-//	(at your option) any later version.
-//
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with this program.If not, see <https://www.gnu.org/licenses/>.
-
 #include "value.hpp"
 
-BlitzLLVM::AST::VariableExpression::VariableExpression(std::string& name, ValueType type /*= ValueType::Number*/)
+blitz::AST::VariableExpression::VariableExpression(std::string& name, ValueType type /*= ValueType::Number*/)
 	: m_name(name), m_type(type) {}
 
-BlitzLLVM::AST::VariableExpression::~VariableExpression() {}
+blitz::AST::VariableExpression::~VariableExpression() {}
 
-BlitzLLVM::AST::ValueType BlitzLLVM::AST::VariableExpression::GetType() {
+blitz::AST::ValueType blitz::AST::VariableExpression::GetType() {
 	return m_type;
 }
 
-BlitzLLVM::AST::NumberExpression::NumberExpression(int32_t value) : value(value) {}
+blitz::AST::NumberExpression::NumberExpression(int32_t value) : value(value) {}
 
-BlitzLLVM::AST::NumberExpression::~NumberExpression() {}
+blitz::AST::NumberExpression::~NumberExpression() {}
 
-BlitzLLVM::AST::ValueType BlitzLLVM::AST::NumberExpression::GetType() {
+blitz::AST::ValueType blitz::AST::NumberExpression::GetType() {
 	return ValueType::Number;
 }
 
-BlitzLLVM::AST::DecimalExpression::DecimalExpression(float_t value) : value(value) {}
+blitz::AST::DecimalExpression::DecimalExpression(float_t value) : value(value) {}
 
-BlitzLLVM::AST::DecimalExpression::~DecimalExpression() {}
+blitz::AST::DecimalExpression::~DecimalExpression() {}
 
-BlitzLLVM::AST::ValueType BlitzLLVM::AST::DecimalExpression::GetType() {
+blitz::AST::ValueType blitz::AST::DecimalExpression::GetType() {
 	return ValueType::Decimal;
 }
 
-BlitzLLVM::AST::StringExpression::StringExpression(std::string value) : value(value) {}
+blitz::AST::StringExpression::StringExpression(std::string value) : value(value) {}
 
-BlitzLLVM::AST::StringExpression::~StringExpression() {}
+blitz::AST::StringExpression::~StringExpression() {}
 
-BlitzLLVM::AST::ValueType BlitzLLVM::AST::StringExpression::GetType() {
+blitz::AST::ValueType blitz::AST::StringExpression::GetType() {
 	return ValueType::String;
 }
 
-BlitzLLVM::AST::ConstExpression::ConstExpression(std::string& name, std::unique_ptr<ValueExpression> value)
+blitz::AST::ConstExpression::ConstExpression(std::string& name, std::unique_ptr<ValueExpression> value)
 	: m_name(name), m_value(std::move(value)) {}
 
-BlitzLLVM::AST::ConstExpression::~ConstExpression() {}
+blitz::AST::ConstExpression::~ConstExpression() {}
 
-BlitzLLVM::AST::ValueType BlitzLLVM::AST::ConstExpression::GetType() {
+blitz::AST::ValueType blitz::AST::ConstExpression::GetType() {
 	return m_value->GetType();
 }

@@ -1,24 +1,7 @@
-cmake_minimum_required(VERSION 3.0.2)
-project(CodeCompiler)
+project(code_compiler)
+add_executable(${PROJECT_NAME})
 
-# Configuration
-
-## Dependencies
-# LLVM
-#find_package(LLVM REQUIRED CONFIG)
-#llvm_map_components_to_libnames(llvm_libs support core irreader)
-
-# Boost
-#SET(BOOST_ROOT "" CACHE PATH "Path to Boost")
-#SET(Boost_USE_STATIC_LIBS ON)
-#find_package(Boost REQUIRED COMPONENTS program_options)
-
-## Version
-INCLUDE("CMakeVersion.txt")
-
-## Compiling
-# Source Files
-SET(SOURCE
+target_sources(${PROJECT_NAME} PRIVATE
 	"source/main.cpp"
 	"source/lexer.hpp"
 	"source/lexer.cpp"
@@ -35,38 +18,10 @@ SET(SOURCE
 	"source/compiler.hpp"
 	"source/compiler.cpp"
 )
-SET(DATA
-	"CMakeVersion.txt"
-)
-
-# Source Grouping
-SOURCE_GROUP(TREE ${PROJECT_SOURCE_DIR}/source PREFIX Source FILES ${SOURCE})
-
-# Definitions
-ADD_DEFINITIONS(
-	${LLVM_DEFINITIONS}
-)
-
-# Directories
-INCLUDE_DIRECTORIES(
+target_include_directories(${PROJECT_NAME} PRIVATE
 	"${PROJECT_SOURCE_DIR}/source"
 	"${PROJECT_BINARY_DIR}"
-	${LLVM_INCLUDE_DIRS}
-	${Boost_INCLUDE_DIRS}
-)
-LINK_DIRECTORIES(
-	${LLVM_LIBRARY_DIRS}
-	${Boost_LIBRARY_DIRS}
 )
 
-# Building
-ADD_EXECUTABLE(cc
-	${SOURCE}
-	${DATA}
-)
-
-# Linking
-TARGET_LINK_LIBRARIES(cc
-	${Boost_LIBRARIES}
-	${llvm_libs}
-)
+get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})

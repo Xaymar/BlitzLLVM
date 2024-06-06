@@ -1,7 +1,8 @@
+cmake_minimum_required(VERSION 3.26...3.29.2 FATAL_ERROR)
+
 ################################################################################
 # CMake Setup
 ################################################################################
-cmake_minimum_required(VERSION 3.26...)
 project(BlitzLLVM)
 list(APPEND CMAKE_MESSAGE_INDENT "[${PROJECT_NAME}] ")
 
@@ -22,7 +23,6 @@ include("version")
 
 #- CMake-based Clang integration
 include("clang")
-
 
 SET_PROPERTY( GLOBAL PROPERTY USE_FOLDERS ON)
 

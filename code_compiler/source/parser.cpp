@@ -1,26 +1,10 @@
-//	Code Compiler for BlitzLLVM
-//	Copyright(C) 2017 Michael Fabian Dirks
-//
-//	This program is free software : you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation, either version 3 of the License, or
-//	(at your option) any later version.
-//
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with this program.If not, see <https://www.gnu.org/licenses/>.
-
 #include "parser.hpp"
 #include "ast/function.hpp"
 #include <iostream>
 #include <vector>
 #include <stdarg.h>
 
-BlitzLLVM::Parser::Parser(std::string file) {
+blitz::parser::parser(std::string file) {
 	// Try and load the file
 	std::shared_ptr<std::ifstream> instream = std::make_shared<std::ifstream>(file);
 	if (instream->bad() || !instream->good()) {
@@ -29,7 +13,7 @@ BlitzLLVM::Parser::Parser(std::string file) {
 	m_files.push(std::make_pair(file, instream));
 }
 
-BlitzLLVM::Parser::~Parser() {
+blitz::parser::~parser() {
 	while (m_files.size() > 0) {
 		std::shared_ptr<std::ifstream> file = std::dynamic_pointer_cast<std::ifstream>(m_files.top().second);
 		file->close();
@@ -37,18 +21,18 @@ BlitzLLVM::Parser::~Parser() {
 	}
 }
 
-std::unique_ptr<BlitzLLVM::AST::Expression> BlitzLLVM::Parser::Parse() {
+std::unique_ptr<blitz::AST::Expression> blitz::parser::Parse() {
 	std::unique_ptr<AST::ScopeExpression> scope = std::make_unique<AST::ScopeExpression>();
 
 	std::unique_ptr<AST::Expression> expr;
-	while ((expr = std::move(ParseExpression())) != nullptr) {
+	while ((expr = std::move(parse_expression())) != nullptr) {
 		scope->AddExpression(std::move(expr));
 	}
 
 	return std::move(scope);
 }
 
-void BlitzLLVM::Parser::LogMessage(const char* msg, ...) {
+void blitz::parser::LogMessage(const char* msg, ...) {
 	std::vector<char> buf(65535);
 	va_list val;
 	va_start(val, msg);
@@ -57,7 +41,7 @@ void BlitzLLVM::Parser::LogMessage(const char* msg, ...) {
 	std::cout << buf.data() << '\n';
 }
 
-void BlitzLLVM::Parser::LogError(const char* msg, ...) {
+void blitz::parser::LogError(const char* msg, ...) {
 	std::vector<char> buf(65535);
 	va_list val;
 	va_start(val, msg);
@@ -66,33 +50,33 @@ void BlitzLLVM::Parser::LogError(const char* msg, ...) {
 	std::cerr << buf.data() << '\n';
 }
 
-std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Parser::GetNextToken() {
+std::pair<blitz::Lexer::Token, std::string> blitz::parser::GetNextToken() {
 	return m_lexer.GetNextToken(m_files.top().second);
 }
 
-std::unique_ptr<BlitzLLVM::AST::Expression> BlitzLLVM::Parser::ParseExpression() {
+std::unique_ptr<blitz::AST::Expression> blitz::parser::parse_expression() {
 	while (true) {
 		auto tkn = GetNextToken();
 
 		switch (tkn.first) {
-			case BlitzLLVM::Lexer::Token::TokenNewLine:
-			case BlitzLLVM::Lexer::Token::TokenComment:
+			case blitz::Lexer::Token::TokenNewLine:
+			case blitz::Lexer::Token::TokenComment:
 				// Skip Comments, since we don't really need them for the AST.
 				continue;
-			case BlitzLLVM::Lexer::Token::TokenPlus:
-			case BlitzLLVM::Lexer::Token::TokenMinus:
+			case blitz::Lexer::Token::TokenPlus:
+			case blitz::Lexer::Token::TokenMinus:
 
 
 			default: // End Of File / Unknown
-			case BlitzLLVM::Lexer::Token::TokenUnknown:
-			case BlitzLLVM::Lexer::Token::TokenEOF:
+			case blitz::Lexer::Token::TokenUnknown:
+			case blitz::Lexer::Token::TokenEOF:
 				return nullptr;
 				break;
 		}
 	}
 }
 
-std::unique_ptr<BlitzLLVM::AST::NumberExpression> BlitzLLVM::Parser::ParseNumber(BlitzLLVM::Lexer::Token token, std::string value) {
+std::unique_ptr<blitz::AST::NumberExpression> blitz::parser::parse_number(blitz::Lexer::Token token, std::string value) {
 	if (token != Lexer::Token::TokenNumber) {
 		LogError("Unexpected Token during parsing, expected number.");
 		return nullptr;
@@ -105,10 +89,10 @@ std::unique_ptr<BlitzLLVM::AST::NumberExpression> BlitzLLVM::Parser::ParseNumber
 		return nullptr;
 	}
 
-	return std::make_unique<BlitzLLVM::AST::NumberExpression>(parsed);
+	return std::make_unique<blitz::AST::NumberExpression>(parsed);
 }
 
-std::unique_ptr<BlitzLLVM::AST::DecimalExpression> BlitzLLVM::Parser::ParseDecimal(BlitzLLVM::Lexer::Token token, std::string value) {
+std::unique_ptr<blitz::AST::DecimalExpression> blitz::parser::parse_decimal(blitz::Lexer::Token token, std::string value) {
 	if (token != Lexer::Token::TokenNumber) {
 		LogError("Unexpected Token during parsing, expected number.");
 		return nullptr;
@@ -121,5 +105,5 @@ std::unique_ptr<BlitzLLVM::AST::DecimalExpression> BlitzLLVM::Parser::ParseDecim
 		return nullptr;
 	}
 
-	return std::make_unique<BlitzLLVM::AST::DecimalExpression>(parsed);
+	return std::make_unique<blitz::AST::DecimalExpression>(parsed);
 }

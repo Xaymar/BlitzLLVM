@@ -1,57 +1,40 @@
-//	Code Compiler for BlitzLLVM
-//	Copyright(C) 2017 Michael Fabian Dirks
-//
-//	This program is free software : you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation, either version 3 of the License, or
-//	(at your option) any later version.
-//
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with this program.If not, see <https://www.gnu.org/licenses/>.
-
 #include "lexer.hpp"
 #include <codecvt>
-#include <boost/algorithm/string/predicate.hpp>
 
-std::pair<char, BlitzLLVM::Lexer::Token> g_symbolCharacters[] = {
+std::pair<char, blitz::Lexer::Token> g_symbolCharacters[] = {
 	//{ '\"', BlitzLLVM::Lexer::Token::TokenDoubleQuote }, // Has special meaning.
-	{ '+', BlitzLLVM::Lexer::Token::TokenPlus },
-	{ '-', BlitzLLVM::Lexer::Token::TokenMinus },
-	{ '/', BlitzLLVM::Lexer::Token::TokenSlashForward },
-	{ '\\', BlitzLLVM::Lexer::Token::TokenSlashBackward },
-	{ '*', BlitzLLVM::Lexer::Token::TokenMultiply },
-	{ '=', BlitzLLVM::Lexer::Token::TokenEqual },
-	{ '#', BlitzLLVM::Lexer::Token::TokenOctothorp },
-	{ '%', BlitzLLVM::Lexer::Token::TokenPercent },
-	{ '$', BlitzLLVM::Lexer::Token::TokenDollar },
-	{ '(', BlitzLLVM::Lexer::Token::TokenRoundBracketOpen },
-	{ ')', BlitzLLVM::Lexer::Token::TokenRoundBracketClose },
-	{ '[', BlitzLLVM::Lexer::Token::TokenSquareBracketOpen },
-	{ ']', BlitzLLVM::Lexer::Token::TokenSquareBracketClose },
-	{ '<', BlitzLLVM::Lexer::Token::TokenAngleBracketOpen },
-	{ '>', BlitzLLVM::Lexer::Token::TokenAngleBracketClose },
+	{ '+', blitz::Lexer::Token::TokenPlus },
+	{ '-', blitz::Lexer::Token::TokenMinus },
+	{ '/', blitz::Lexer::Token::TokenSlashForward },
+	{ '\\', blitz::Lexer::Token::TokenSlashBackward },
+	{ '*', blitz::Lexer::Token::TokenMultiply },
+	{ '=', blitz::Lexer::Token::TokenEqual },
+	{ '#', blitz::Lexer::Token::TokenOctothorp },
+	{ '%', blitz::Lexer::Token::TokenPercent },
+	{ '$', blitz::Lexer::Token::TokenDollar },
+	{ '(', blitz::Lexer::Token::TokenRoundBracketOpen },
+	{ ')', blitz::Lexer::Token::TokenRoundBracketClose },
+	{ '[', blitz::Lexer::Token::TokenSquareBracketOpen },
+	{ ']', blitz::Lexer::Token::TokenSquareBracketClose },
+	{ '<', blitz::Lexer::Token::TokenAngleBracketOpen },
+	{ '>', blitz::Lexer::Token::TokenAngleBracketClose },
 	//{ '.', BlitzLLVM::Lexer::Token::TokenDot }, // Special meaning.
-	{ ':', BlitzLLVM::Lexer::Token::TokenColon },
-	{ ',', BlitzLLVM::Lexer::Token::TokenComma },
+	{ ':', blitz::Lexer::Token::TokenColon },
+	{ ',', blitz::Lexer::Token::TokenComma },
 	//{ ';', BlitzLLVM::Lexer::Token::TokenSemicolon },
-	{ '^', BlitzLLVM::Lexer::Token::TokenCaret },
-	{ '~', BlitzLLVM::Lexer::Token::TokenBitNot },
+	{ '^', blitz::Lexer::Token::TokenCaret },
+	{ '~', blitz::Lexer::Token::TokenBitNot },
 };
 
-BlitzLLVM::Lexer::Lexer() {}
+blitz::Lexer::Lexer() {}
 
-BlitzLLVM::Lexer::~Lexer() {}
+blitz::Lexer::~Lexer() {}
 
-std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetCurrentToken() {
+std::pair<blitz::Lexer::Token, std::string> blitz::Lexer::GetCurrentToken() {
 	return std::make_pair(m_currentToken, m_currentText);
 }
 
-std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken(std::shared_ptr<std::istream> fs) {
+std::pair<blitz::Lexer::Token, std::string> blitz::Lexer::GetNextToken(std::shared_ptr<std::istream> fs) {
 	std::string buf;
 	Token tkn = Token::TokenEOF;
 	bool haveResult = false;
@@ -213,7 +196,7 @@ std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken(s
 	return std::make_pair(tkn, buf);
 }
 
-BlitzLLVM::Lexer::Token BlitzLLVM::Lexer::ConvertTextToToken(Token in, std::string text) {
+blitz::Lexer::Token blitz::Lexer::ConvertTextToToken(Token in, std::string text) {
 	static std::pair<const char*, Token> l_textToTokenList[] = {
 		// Binary
 		{ "not", Token::TokenNot },

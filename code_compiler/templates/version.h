@@ -1,6 +1,0 @@
-#pragma once
-
-#define VERSION_MAJOR	@VERSION_MAJOR@
-#define VERSION_MINOR	@VERSION_MINOR@
-#define VERSION_PATCH	@VERSION_PATCH@
-#define VERSION_FULL		(((uint64_t)VERSION_MAJOR << 48ull) | ((uint64_t)VERSION_MINOR << 32ull) | ((uint64_t)VERSION_PATCH << 16ull) | ((uint64_t)VERSION_BUILD))
