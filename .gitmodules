@@ -1,0 +1,6 @@
+[submodule "cmake/cmake-version"]
+	path = cmake/cmake-version
+	url = https://github.com/Xaymar/cmake-version.git
+[submodule "cmake/cmake-clang"]
+	path = cmake/cmake-clang
+	url = https://github.com/Xaymar/cmake-clang.git

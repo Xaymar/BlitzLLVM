@@ -2,3 +2,13 @@
 /build
 /build32
 /build64
+/tests/*.zip
+/tests/*.jpg
+/tests/*.jpeg
+/tests/*.png
+/tests/*.bmp
+/tests/*.tga
+/tests/*.exe
+/tests/*.dll
+/tests/*.bin
+/tests/*.dat

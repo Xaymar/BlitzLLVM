@@ -14,19 +14,28 @@
 //	You should have received a copy of the GNU General Public License
 //	along with this program.If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include "compiler.hpp"
+#include "parser.hpp"
 #include "lexer.hpp"
-#include <istream>
+#include <fstream>
+#include <iostream>
 
-namespace BlitzLLVM {
-	class Parser {
-		public:
-		Parser(std::istream& in);
-		~Parser();
+BlitzLLVM::Compiler::Compiler() {}
 
+BlitzLLVM::Compiler::~Compiler() {}
 
+bool BlitzLLVM::Compiler::Compile(std::string in, std::string out) {
+	/*std::ifstream infile;
+	infile.open(in);
+	if (infile.bad() || !infile.good() || infile.eof()) {
+		std::cerr << "Failed to open file: " << in << std::endl;
+		return false;
+	}*/
 
-		private:
-		Lexer m_lexer;
-	};
+	Parser psr = Parser(in);
+	if (!psr.Parse()) {
+
+	}
+
+	return true;
 }

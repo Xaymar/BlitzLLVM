@@ -1,0 +1,2 @@
+== What is BlitzLLVM?
+BlitzLLVM is an attempt at a functional transpiler for BlitzBasic (Blitz2D, Blitz3D, and BlitzPlus).

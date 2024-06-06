@@ -20,7 +20,8 @@
 #include "version.h"
 
 #define LICENSE "Copyright (C) 2017 Michael Fabian Dirks\n\
-This program comes with ABSOLUTELY NO WARRANTY, for details launch with `--warranty`. This is free software, and you are welcome to redistribute it under certain conditions."
+This program comes with ABSOLUTELY NO WARRANTY, for details launch with `--warranty`.\n\
+This is free software, and you are welcome to redistribute it under certain conditions."
 
 #define WARRANTY "\
 THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.EXCEPT WHEN OTHERWISE STATED IN \

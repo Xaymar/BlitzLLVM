@@ -43,11 +43,15 @@ std::pair<char, BlitzLLVM::Lexer::Token> g_symbolCharacters[] = {
 	{ '~', BlitzLLVM::Lexer::Token::TokenBitNot },
 };
 
-BlitzLLVM::Lexer::Lexer(std::istream& fs) : m_fileStream(fs) {}
+BlitzLLVM::Lexer::Lexer() {}
 
 BlitzLLVM::Lexer::~Lexer() {}
 
-std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken() {
+std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetCurrentToken() {
+	return std::make_pair(m_currentToken, m_currentText);
+}
+
+std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken(std::shared_ptr<std::istream> fs) {
 	std::string buf;
 	Token tkn = Token::TokenEOF;
 	bool haveResult = false;
@@ -60,8 +64,13 @@ std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken()
 		haveResult = true;
 	}
 
-	while (((m_fileStream.eof() == false) && (m_fileStream.good())) && !haveResult) {
-		char chr = m_fileStream.get();
+	bool m_isTextMode = false;
+	bool m_isNumberMode = false;
+	bool m_isStringMode = false;
+	bool m_isCommentMode = false;
+	bool m_numberModeHasDecimal = false;
+	while (((fs->eof() == false) && (fs->good())) && !haveResult) {
+		char chr = fs->get();
 
 		if (chr == '\r' || chr == '\n') {
 			if (tkn != Token::TokenEOF) {
@@ -85,7 +94,7 @@ std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken()
 				tkn = Token::TokenQuotedText;
 				break;
 			} else if (iscntrl(chr) || !isprint(chr)) {
-				m_fileStream.putback(chr);
+				fs->putback(chr);
 				m_isStringMode = false;
 				break;
 			} else {
@@ -95,7 +104,7 @@ std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken()
 			if (isalnum(chr) || (chr == '_')) {
 				buf += chr;
 			} else {
-				m_fileStream.putback(chr);
+				fs->putback(chr);
 				m_isTextMode = false;
 				break;
 			}
@@ -108,12 +117,12 @@ std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken()
 					tkn = Token::TokenDecimal;
 					buf += chr;
 				} else {
-					m_fileStream.putback(chr);
+					fs->putback(chr);
 					m_isNumberMode = false;
 					break;
 				}
 			} else {
-				m_fileStream.putback(chr);
+				fs->putback(chr);
 				m_isNumberMode = false;
 				break;
 			}
@@ -129,6 +138,26 @@ std::pair<BlitzLLVM::Lexer::Token, std::string> BlitzLLVM::Lexer::GetNextToken()
 			if (iscntrl(chr)) {
 				tkn = Token::TokenUnknown;
 				buf = chr;
+			}
+
+			// Special handling for + and -, due to numbers and decimals.
+			if (chr == '+' || chr == '-') {
+				char chr2 = fs->get();
+				if (isdigit(chr2)) {
+					m_isNumberMode = true;
+					m_numberModeHasDecimal = false;
+					tkn = Token::TokenNumber;
+					buf = chr + chr2;
+					break;
+				} else if (chr2 == '.') {
+					m_isNumberMode = true;
+					m_numberModeHasDecimal = true;
+					tkn = Token::TokenDecimal;
+					buf = chr + "0" + chr2;
+					break;
+				} else {
+					fs->putback(chr2);
+				}
 			}
 
 			// Symbol

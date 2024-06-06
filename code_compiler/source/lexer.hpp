@@ -15,10 +15,11 @@
 //	along with this program.If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include <list>
-#include <istream>
-#include <string>
 #include <inttypes.h>
+#include <istream>
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace BlitzLLVM {	
 	class Lexer {
@@ -104,27 +105,22 @@ namespace BlitzLLVM {
 			TokenLocal,
 
 			// Including files.
-			TokenInclude,		
+			TokenInclude,
 		};
 
 		public:
-		Lexer(std::istream& fs);
+		Lexer();
 		~Lexer();
 
-		std::pair<Token, std::string> GetNextToken();
+		std::pair<Token, std::string> GetCurrentToken();
+		std::pair<Token, std::string> GetNextToken(std::shared_ptr<std::istream> fs);
 		
 		private:
 		BlitzLLVM::Lexer::Token ConvertTextToToken(Token in, std::string text);
 
 		private:
-		std::istream& m_fileStream;
-
-		bool m_isTextMode = false;
-		bool m_isNumberMode = false;
-		bool m_isStringMode = false;
-		bool m_isCommentMode = false;
-		bool m_numberModeHasDecimal = false;
-
+		Token m_currentToken = Token::TokenUnknown;
+		std::string m_currentText = "";
 		Token m_overrideToken = Token::TokenUnknown;
 		std::string m_overrideText = "";
 	};

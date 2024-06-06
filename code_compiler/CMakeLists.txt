@@ -1,16 +1,17 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0.2)
 project(CodeCompiler)
 
 # Configuration
 
 ## Dependencies
 # LLVM
-find_package(LLVM REQUIRED CONFIG)
-llvm_map_components_to_libnames(llvm_libs support core irreader)
+#find_package(LLVM REQUIRED CONFIG)
+#llvm_map_components_to_libnames(llvm_libs support core irreader)
 
 # Boost
-SET(Boost_USE_STATIC_LIBS ON)
-find_package(Boost REQUIRED COMPONENTS program_options)
+#SET(BOOST_ROOT "" CACHE PATH "Path to Boost")
+#SET(Boost_USE_STATIC_LIBS ON)
+#find_package(Boost REQUIRED COMPONENTS program_options)
 
 ## Version
 INCLUDE("CMakeVersion.txt")
@@ -21,6 +22,14 @@ SET(SOURCE
 	"source/main.cpp"
 	"source/lexer.hpp"
 	"source/lexer.cpp"
+	"source/ast/ast.hpp"
+	"source/ast/ast.cpp"
+	"source/ast/arithmetic.hpp"
+	"source/ast/arithmetic.cpp"
+	"source/ast/function.hpp"
+	"source/ast/function.cpp"
+	"source/ast/value.hpp"
+	"source/ast/value.cpp"
 	"source/parser.hpp"
 	"source/parser.cpp"
 	"source/compiler.hpp"
@@ -29,6 +38,9 @@ SET(SOURCE
 SET(DATA
 	"CMakeVersion.txt"
 )
+
+# Source Grouping
+SOURCE_GROUP(TREE ${PROJECT_SOURCE_DIR}/source PREFIX Source FILES ${SOURCE})
 
 # Definitions
 ADD_DEFINITIONS(
