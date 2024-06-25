@@ -13,11 +13,11 @@
 namespace blitz {
 	namespace ast {
 		enum class ValueType : int8_t {
-			Unknown,
-			Number,
-			Decimal,
-			String,
-			Type,
+			UNKNOWN,
+			INTEGER,
+			REAL,
+			STRING,
+			TYPE,
 		};
 
 		class ValueExpression : public expression {
@@ -39,7 +39,7 @@ namespace blitz {
 
 		class VariableExpression : public ValueExpression {
 			public:
-			VariableExpression(std::string& name, ValueType type = ValueType::Number);
+			VariableExpression(std::string& name, ValueType type = ValueType::INTEGER);
 			virtual ~VariableExpression();
 
 			virtual ValueType GetType() override;

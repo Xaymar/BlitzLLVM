@@ -17,7 +17,7 @@ blitz::ast::NumberExpression::NumberExpression(int32_t value) : value(value) {}
 blitz::ast::NumberExpression::~NumberExpression() {}
 
 blitz::ast::ValueType blitz::ast::NumberExpression::GetType() {
-	return ValueType::Number;
+	return ValueType::INTEGER;
 }
 
 blitz::ast::DecimalExpression::DecimalExpression(float_t value) : value(value) {}
@@ -25,7 +25,7 @@ blitz::ast::DecimalExpression::DecimalExpression(float_t value) : value(value) {
 blitz::ast::DecimalExpression::~DecimalExpression() {}
 
 blitz::ast::ValueType blitz::ast::DecimalExpression::GetType() {
-	return ValueType::Decimal;
+	return ValueType::REAL;
 }
 
 blitz::ast::StringExpression::StringExpression(std::string value) : value(value) {}
@@ -33,7 +33,7 @@ blitz::ast::StringExpression::StringExpression(std::string value) : value(value)
 blitz::ast::StringExpression::~StringExpression() {}
 
 blitz::ast::ValueType blitz::ast::StringExpression::GetType() {
-	return ValueType::String;
+	return ValueType::STRING;
 }
 
 blitz::ast::ConstExpression::ConstExpression(std::string& name, std::unique_ptr<ValueExpression> value)

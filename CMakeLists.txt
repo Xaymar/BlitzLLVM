@@ -207,12 +207,13 @@ function(init_project TARGET)
 		)
 	endif()
 
-	if(MSVC) # Microsoft Visual C/C++		
-		target_compile_options(${TARGET} PRIVATE
+	if(MSVC) # Microsoft Visual C/C++
+		target_compile_definitions(${TARGET} PRIVATE
 			# Disable useless/terrible behavior from MSVC
 			_CRT_SECURE_NO_WARNINGS
 			_ENABLE_EXTENDED_ALIGNED_STORAGE
-
+		)
+		target_compile_options(${TARGET} PRIVATE
 			# Dynamically link Microsoft C/C++ Redistributable.
 			$<$<CONFIG:>:/MD>
 			$<$<CONFIG:Debug>:/MDd>
