@@ -1,0 +1,10 @@
+Include "004-incl.bb"
+; Should be parsed as:
+;  Include(String("test.bb"))
+; which should then jump to parsing "test.bb" relative to the current file.
+
+iValue = iValue + 4
+; Should be parsed as Assign(Variable(iValue), Add(Variable(iValue), Int32(4)))
+
+Print iValue
+; Should be parsed as Call(Function(Print), Variable(iValue))
