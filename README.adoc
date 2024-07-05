@@ -1,2 +1,92 @@
 == What is BlitzLLVM?
-BlitzLLVM is an attempt at a functional transpiler for BlitzBasic (Blitz2D, Blitz3D, and BlitzPlus).
+BlitzLLVM is an attempt at a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler using the LLVM compiler backend to enable support for many architectures and platforms. The LLVM backend enables us to take advantage of optimizations and architecture targets that LLVM already provides for other languages, and may even enable further functionality previously considered impossible.
+
+=== Features
+++++
+<table width="100%">
+    <colgroup>
+	  <col width="20%">
+	  <col width="60%">
+	  <col width="10%">
+	  <col width="10%">
+	</colgroup>
+	<tr>
+		<th align=left>Feature</th>
+		<th>Description</th>
+		<th>Target Version</th>
+		<th>Status</th>
+	</tr>
+	<tr>
+		<td>Unicode Support</td>
+		<td>Convert all ASCII functionality to support UTF-8 Unicode instead.</td>
+		<td>1.0</td>
+		<td>❌</td>
+	</tr>
+	<tr>
+		<td>User Library Handling</td>
+		<td>Allow users to provide their own user libraries to load at runtime.</td>
+		<td>1.0</td>
+		<td>❌</td>
+	</tr>
+	<tr>
+		<th colspan=2>Lexer / Tokenizer</th>
+	</tr>
+	<tr>
+		<td>Basic Functionality</td>
+		<td>Handling the necessary basic functionality, like turning text and symbols into tokens</td>
+		<td>0.1</td>
+		<td>✅</td>
+	</tr>
+	<tr>
+		<td>Common Types</td>
+		<td>Lexing for the basic types that BlitzBasic supports: Integers, Reals, Strings.</td>
+		<td>0.1</td>
+		<td>✅</td>
+	</tr>
+	<tr>
+		<td>Location Tracking</td>
+		<td>Properly tracking Line and Character location within a provided file to provide better errors and warnings later on.</td>
+		<td>0.1</td>
+		<td>✅</td>
+	</tr>
+	<tr>
+		<td>Error Handling</td>
+		<td>Throw a proper exception when unexpected behavior occurs, providing necessary information about the error.</td>
+		<td>0.1</td>
+		<td>✅</td>
+	</tr>
+	<tr>
+		<th colspan=2>Parser (AST)</th>
+	</tr>
+	<tr>
+		<td>Global Variables</td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Local Variables</td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Global Functions</td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Local Functions</td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>Math Expressions</td>
+		<td></td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+++++
