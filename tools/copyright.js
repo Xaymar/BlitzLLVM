@@ -194,7 +194,7 @@ class RateLimiter {
 }
 
 let abortAllWork = false;
-let gitRL = new RateLimiter(3);
+let gitRL = new RateLimiter(2);
 let workRL = new RateLimiter();
 let gitCurrentFiles;
 let gitUserName;
@@ -496,7 +496,6 @@ async function updateFile(file) {
 				//startHeader = contentBuf.lastIndexOf(eolBuf, startHeader);
 				//startHeader += eolb.byteLength;
 			}
-			console.log(sectionStart, startHeader);
 
 			// Find the ending point.
 			let endHeader = contentBuf.lastIndexOf(Buffer.from(header[header.length - 1], "utf8"));
@@ -504,7 +503,6 @@ async function updateFile(file) {
 				endHeader += Buffer.from(header[header.length - 1], "utf8").byteLength;
 				endHeader += Buffer.byteLength(eol, "utf8");
 			}
-			console.log(sectionEnd, endHeader);
 
 			// Last check for early-exit here.
 			if (abortAllWork) {
@@ -513,17 +511,17 @@ async function updateFile(file) {
 			
 			let fd = await FSPROMISES.open(file, "w");
 			if (startHeader == -1 || (endHeader < startHeader)) {
-				fd.write(headerBuf, 0, null, 0);
-				fd.write(contentBuf, 0, null, headerBuf.byteLength);
+				await fd.write(headerBuf, 0, null, 0);
+				await fd.write(contentBuf, 0, null, headerBuf.byteLength);
 			} else {
 				let pos = 0;
 
 				if (startHeader > 0) {
-					fd.write(contentBuf, 0, startHeader - Buffer.byteLength(eol, "utf8").byteLength, 0);
+					await fd.write(contentBuf, 0, startHeader, 0);
 					pos += startHeader;
 				}
-				fd.write(headerBuf, 0, null, pos); pos += headerBuf.byteLength;
-				fd.write(contentBuf, endHeader, null, pos);
+				await fd.write(headerBuf, 0, null, pos); pos += headerBuf.byteLength;
+				await fd.write(contentBuf, endHeader, null, pos);
 			}
 			await fd.close();
 		} catch (ex) {
