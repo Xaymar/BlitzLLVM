@@ -4,26 +4,3 @@
 #include "ast.hpp"
 #include <cstdlib>
 
-
-blitz::ast::value_expression::value_expression(blitz::token token) : expression(token) {}
-
-blitz::ast::integer_expression::integer_expression(blitz::token token) : value_expression(token), _value(0)
-{
-	if (_token.text.length() > 0) {
-		_value = atol(_token.text.c_str());
-	}
-}
-
-blitz::ast::real_expression::real_expression(blitz::token token) : value_expression(token), _value(0.0f)
-{
-	if (_token.text.length() > 0) {
-		_value = atof(_token.text.c_str());
-	}
-}
-
-blitz::ast::string_expression::string_expression(blitz::token token) : value_expression(token), _value()
-{
-	_value = _token.text;
-}
-
-blitz::ast::variable_expression::variable_expression(blitz::token token) : expression(token) {}
