@@ -6,20 +6,6 @@
 #include <cstdarg>
 #include <sstream>
 
-std::string format(const char* format, ...)
-{
-	va_list arg1;
-	va_list arg2;
-	va_start(arg1, format);
-	va_copy(arg2, arg1);
-	int               length = vsnprintf(nullptr, 0, format, arg1);
-	std::vector<char> buffer(length + 1);
-	vsnprintf(buffer.data(), buffer.size(), format, arg2);
-	va_end(arg1);
-	va_end(arg2);
-	return {buffer.data(), buffer.data() + length};
-}
-
 std::string blitz::token::to_string()
 {
 	std::string name;
@@ -55,15 +41,25 @@ std::string blitz::token::to_string()
 		name = "Symbol";
 		break;
 	default:
-		name = "How the fuck?!";
+		name = "Invalid";
 		break;
 	}
 
 	if (type == variant::NEWLINE || type == variant::CONTROL) {
-		return format("%s(%llu@%llu, %d)", name.c_str(), location.first, location.second, text[0]);
+		return blitz::format("%s(%llu@%llu, %d)", name.c_str(), location.first, location.second, text[0]);
 	} else {
-		return format("%s(%llu@%llu, %s)", name.c_str(), location.first, location.second, text.c_str());
+		return blitz::format("%s(%llu@%llu, %s)", name.c_str(), location.first, location.second, text.c_str());
 	}
+}
+
+bool blitz::token::operator==(variant rhs)
+{
+	return type == rhs;
+}
+
+bool blitz::token::operator==(std::string const& rhs)
+{
+	return text == rhs;
 }
 
 blitz::lexer::~lexer() {}
@@ -77,7 +73,7 @@ blitz::lexer::lexer(std::filesystem::path file)
 	_file   = file;
 	_stream = std::ifstream(_file, std::ios_base::binary); // We use binary so we can eventually support UTF-8.
 	if (!_stream.good() || _stream.eof() || _stream.bad() || _stream.fail()) {
-		throw std::runtime_error(format("Reading file '%s' failed.", file.generic_string().c_str()));
+		throw std::runtime_error(blitz::format("Reading file '%s' failed.", file.generic_string().c_str()));
 	}
 
 	// Initialize token storage to a default token.
@@ -94,6 +90,12 @@ blitz::token blitz::lexer::current()
 }
 
 blitz::token blitz::lexer::next()
+{
+	_current = peek();
+	return _current;
+}
+
+blitz::token blitz::lexer::peek()
 {
 	enum class stage {
 		DEFAULT,
@@ -204,14 +206,14 @@ blitz::token blitz::lexer::next()
 				complete       = true;
 				_stream.get();
 				_location.second++;
-			} else if (chr == ':') {
+			/*} else if (chr == ':') {
 				// Allows code writers to pretend it's all one line.
 				token.location = _location;
 				token.type     = blitz::token::variant::SEPARATOR;
 				token.text     = {1, char(chr)};
 				complete       = true;
 				_stream.get();
-				_location.second++;
+				_location.second++;*/
 			} else if (chr == ';') {
 				// A comment, which ends at the next new line.
 				state          = stage::COMMENT;
@@ -308,14 +310,14 @@ blitz::token blitz::lexer::next()
 						token.type = blitz::token::variant::REAL;
 					} else {
 						token.text = buffer.str();
-						throw blitz::error(_file, token.location, _location, format("In token %s: Expected [0-9], got '%s' instead.", token.to_string().c_str(), std::string{1, (char)chr}.c_str()));
+						throw blitz::error(_file, token.location, _location, blitz::format("In token %s: Expected [0-9], got '%s' instead.", token.to_string().c_str(), std::string{1, (char)chr}.c_str()));
 					}
 				}
 			} else if (issymbol(chr)) {
 				complete = true;
 			} else {
 				token.text = buffer.str();
-				throw blitz::error(_file, token.location, _location, format("In token %s: Expected [0-9.], got '%s' instead.", token.to_string().c_str(), std::string{1, (char)chr}.c_str()));
+				throw blitz::error(_file, token.location, _location, blitz::format("In token %s: Expected [0-9.], got '%s' instead.", token.to_string().c_str(), std::string{1, (char)chr}.c_str()));
 			}
 
 			if (complete) {
@@ -331,7 +333,7 @@ blitz::token blitz::lexer::next()
 				_location.second++;
 			} else {
 				token.text = buffer.str();
-				throw blitz::error(_file, token.location, _location, format("In token %s: Expected [a-zA-Z0-9_], got '%s' instead.", token.to_string().c_str(), std::string{1, (char)chr}.c_str()));
+				throw blitz::error(_file, token.location, _location, blitz::format("In token %s: Expected [a-zA-Z0-9_], got '%s' instead.", token.to_string().c_str(), std::string{1, (char)chr}.c_str()));
 			}
 
 			if (complete) {
@@ -372,281 +374,5 @@ blitz::token blitz::lexer::next()
 		}
 	}
 
-	_current = token;
-	return _current;
+	return token;
 }
-
-/*
-std::pair<blitz::tokentype, std::string> blitz::lexer::current() {
-	return _current;
-}
-
-std::pair<blitz::tokentype, std::string> blitz::lexer::next(std::istream& fs) {
-	std::stringstream buffer;
-	blitz::tokentype token;
-
-	enum class parserState {
-		DEFAULT,
-		TEXT,
-		NUMBER,
-		STRING,
-		COMMENT,
-	} state = parserState::DEFAULT;
-
-	while ((token == blitz::tokentype::TokenUnknown) && !fs.eof() && fs.good()) {
-		auto chr = fs.get();
-
-
-
-
-
-	}
-
-}
-
-
-/*
-std::pair<blitz::lexer::token, std::string> blitz::lexer::next(std::shared_ptr<std::istream> fs) {
-	std::string buf;
-	token tkn = token::TokenUnknown;
-	bool haveResult = false;
-
-	// Allow "overriding" the next retrieved Token.
-	if (m_overrideToken != token::TokenUnknown) {
-		buf = m_overrideText;
-		tkn = m_overrideToken;
-		m_overrideToken = token::TokenUnknown;
-		haveResult = true;
-	}
-
-	bool m_isTextMode = false;
-	bool m_isNumberMode = false;
-	bool m_isStringMode = false;
-	bool m_isCommentMode = false;
-	bool m_numberModeHasDecimal = false;
-	while (((fs->eof() == false) && (fs->good())) && !haveResult) {
-		char chr = fs->get();
-
-		if (chr == '\r' || chr == '\n') {
-			if (tkn != token::TokenEOF) {
-				m_overrideToken = token::TokenNewLine;
-				m_overrideText = "";
-			} else {
-				tkn = token::TokenNewLine;
-				buf = "";
-			}
-
-			m_isStringMode = false;
-			m_isNumberMode = false;
-			m_isTextMode = false;
-			m_isCommentMode = false;
-			break;
-		} else if (m_isStringMode) {
-			if (chr == '\"') {
-				m_overrideToken = token::TokenDoubleQuote;
-				m_overrideText = chr;
-				m_isStringMode = false;
-				tkn = token::TokenQuotedText;
-				break;
-			} else if (iscntrl(chr) || !isprint(chr)) {
-				fs->putback(chr);
-				m_isStringMode = false;
-				break;
-			} else {
-				buf += chr;
-			}
-		} else if (m_isTextMode) {
-			if (isalnum(chr) || (chr == '_')) {
-				buf += chr;
-			} else {
-				fs->putback(chr);
-				m_isTextMode = false;
-				break;
-			}
-		} else if (m_isNumberMode) {
-			if (isdigit(chr)) {
-				buf += chr;
-			} else if (chr == '.') {
-				if (m_numberModeHasDecimal == false) {
-					m_numberModeHasDecimal = true;
-					tkn = token::TokenDecimal;
-					buf += chr;
-				} else {
-					fs->putback(chr);
-					m_isNumberMode = false;
-					break;
-				}
-			} else {
-				fs->putback(chr);
-				m_isNumberMode = false;
-				break;
-			}
-		} else if (m_isCommentMode) {
-			buf += chr;
-			tkn = token::TokenComment;
-		} else {
-			// Whitespace
-			if (isspace(chr))
-				continue;
-
-			// Control Code
-			if (iscntrl(chr)) {
-				tkn = token::TokenUnknown;
-				buf = chr;
-			}
-
-			// Special handling for + and -, due to numbers and decimals.
-			if (chr == '+' || chr == '-') {
-				char chr2 = fs->get();
-				if (isdigit(chr2)) {
-					m_isNumberMode = true;
-					m_numberModeHasDecimal = false;
-					tkn = token::TokenNumber;
-					buf = chr + chr2;
-					break;
-				} else if (chr2 == '.') {
-					m_isNumberMode = true;
-					m_numberModeHasDecimal = true;
-					tkn = token::TokenDecimal;
-					buf = chr + "0" + chr2;
-					break;
-				} else {
-					fs->putback(chr2);
-				}
-			}
-
-			// Symbol
-			for (auto v : g_symbolCharacters) {
-				if (v.first == chr) {
-					tkn = v.second;
-					buf = v.first;
-					break;
-				}
-			}
-			if (tkn != token::TokenEOF) {
-				haveResult = true;
-				break;
-			}
-
-			// Strings, Text, Numbers
-			if (chr == ';') {
-				m_isCommentMode = true;
-				tkn = token::TokenSemicolon;
-				buf = chr;
-				break;
-			} else if (chr == '\"') {
-				m_isStringMode = true;
-				tkn = token::TokenDoubleQuote;
-				buf = chr;
-				break;
-			} else if (isalpha(chr)) {
-				m_isTextMode = true;
-				tkn = token::TokenText;
-				buf = chr;
-			} else if (isdigit(chr)) {
-				m_isNumberMode = true;
-				m_numberModeHasDecimal = false;
-				tkn = token::TokenNumber;
-				buf = chr;
-			} else if (chr == '.') {
-				m_isNumberMode = true;
-				m_numberModeHasDecimal = true;
-				tkn = token::TokenDecimal;
-				buf = "0" + chr;
-			} else {
-				tkn = token::TokenUnknown;
-				buf = chr;
-				break;
-			}
-		}
-	}
-
-	// Convert from Text into native Token.
-	if (tkn == token::TokenText)
-		tkn = to_token(tkn, buf);
-
-	return std::make_pair(tkn, buf);
-}
-
-blitz::lexer::token blitz::lexer::to_token(token in, std::string text) {
-	static std::pair<const char*, token> l_textToTokenList[] = {
-		// Binary
-		{ "not", token::TokenNot },
-		{ "and", token::TokenAnd },
-		{ "or", token::TokenOr },
-		{ "xor", token::TokenXor },
-		{ "shl", token::TokenShl },
-		{ "shr", token::TokenShr },
-		{ "sal", token::TokenSal },
-		{ "sar", token::TokenSar },
-		{ "false", token::TokenFalse },
-		{ "true", token::TokenTrue },
-
-		// Conversion
-		{ "float", token::TokenFloat },
-		{ "string", token::TokenString },
-		{ "hex", token::TokenHex },
-		{ "int", token::TokenInt },
-
-		// Control
-		{ "if", token::TokenIf },
-		{ "then", token::TokenThen },
-		{ "elseif", token::TokenElseIf },
-		{ "else", token::TokenElse },
-		{ "endif", token::TokenEndIf },
-		{ "select", token::TokenSelect },
-		{ "case", token::TokenCase },
-		{ "default", token::TokenDefault },
-		{ "goto", token::TokenGoto },
-		{ "gosub", token::TokenGosub },
-		{ "return", token::TokenReturn },
-		{ "function", token::TokenFunction },
-		{ "end", token::TokenEnd },
-		{ "stop", token::TokenStop },
-
-		// Loop
-		{ "for", token::TokenFor },
-		{ "to", token::TokenTo },
-		{ "next", token::TokenNext },
-		{ "while", token::TokenWhile },
-		{ "wend", token::TokenWend },
-		{ "repeat", token::TokenRepeat },
-		{ "until", token::TokenUntil },
-		{ "forever", token::TokenForever },
-		{ "exit", token::TokenExit },
-
-		// Math
-		{ "abs", token::TokenAbs },
-		{ "sign", token::TokenSign },
-		{ "cos", token::TokenCos },
-		{ "sin", token::TokenSin },
-		{ "tan", token::TokenTan },
-		{ "acos", token::TokenACos },
-		{ "asin", token::TokenASin },
-		{ "atan", token::TokenATan },
-		{ "atan2", token::TokenATan2 },
-		{ "log", token::TokenLog },
-		{ "log10", token::TokenLog10 },
-		{ "ceil", token::TokenCeil },
-		{ "floor", token::TokenFloor },
-		{ "mod", token::TokenMod },
-		{ "pi", token::TokenPi },
-		{ "exp", token::TokenExp },
-		{ "sqr", token::TokenSqr },
-
-		// Variables
-		{ "const", token::TokenConst },
-		{ "global", token::TokenGlobal },
-		{ "local", token::TokenLocal },
-
-		// Includes
-		{ "include", token::TokenInclude },
-	};
-	for (auto v : l_textToTokenList) {
-		if (stricmp(text.c_str(), v.first)) {
-			return v.second;
-		}
-	}
-	return in;
-}
-*/

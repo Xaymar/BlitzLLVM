@@ -24,4 +24,6 @@ namespace blitz {
 
 		std::pair<uint64_t, uint64_t> const& at() const;
 	};
+
+	std::string format(const char* format, ...);
 } // namespace blitz

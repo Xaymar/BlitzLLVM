@@ -35,6 +35,9 @@ namespace blitz {
 		} type;
 
 		std::string to_string();
+
+		bool operator==(blitz::token::variant rhs);
+		bool operator==(std::string const& rhs);
 	};
 
 	class lexer {
@@ -60,5 +63,11 @@ namespace blitz {
 		 * This will replace the current token.
 		 */
 		blitz::token next();
+
+		/** Peek at the next token in the given stream.
+		 *
+		 * The current token will remain in-tact.
+		 */
+		blitz::token peek();
 	};
 } // namespace blitz

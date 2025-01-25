@@ -4,3 +4,11 @@
 #include "ast.hpp"
 #include <cstdlib>
 
+blitz::ast::variable::~variable() {}
+
+blitz::ast::variable::variable(blitz::token token) : _token(token), _value(nullptr) {}
+
+void blitz::ast::variable::set_value(std::shared_ptr<blitz::ast::expression> value)
+{
+	_value = value;
+}

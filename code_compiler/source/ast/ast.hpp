@@ -30,85 +30,34 @@
 
 namespace blitz {
 	namespace ast {
-		class expression {
+		class node {
 			public:
-			virtual ~expression() = default;
+			virtual ~node() = default;
 		};
 
-		// Values
-		class value_expression : public expression {
-			protected:
-			blitz::token _token;
+		class expression : public node {};
 
-			public:
-			virtual ~value_expression() = default;
-			value_expression(blitz::token token);
-		};
-
-		class integer_expression : public value_expression {
-			protected:
-			int32_t _value;
+		class variable : public node {
+			blitz::token                      _token;
+			std::shared_ptr<blitz::ast::expression> _value;
 
 			public:
-			virtual ~integer_expression() = default;
-			integer_expression(blitz::token token);
+			virtual ~variable();
+			variable(blitz::token token);
+
+			void set_value(std::shared_ptr<blitz::ast::expression> value);
 		};
 
-		class real_expression : public value_expression {
-			protected:
-			float _value;
+		class call : public node {};
 
+		class local : public node {
 			public:
-			virtual ~real_expression() = default;
-			real_expression(blitz::token token);
+			~local();
+			local();
 		};
 
-		class string_expression : public value_expression {
-			std::string _value;
+		class global : public node {};
 
-			public:
-			virtual ~string_expression() = default;
-			string_expression(blitz::token token);
-		};
-
-		/** One or more constant values
-		 *
-		 * Const var = Value, var2 = value
-		 */
-		class const_expression : public expression {
-			std::list<std::shared_ptr<variable_expression>> _values;
-
-		};
-
-		/** One or more local variables
-		 *
-		 * Local var, var2 = value, var3
-		 */
-		class local_expression : public expression {
-			std::list<std::shared_ptr<variable_expression>> _values;
-		};
-
-		/** One or more global variables
-		 *
-		 * Local var, var2 = value, var3
-		 */
-		class global_expression : public expression {
-			std::list<std::shared_ptr<variable_expression>> _values;
-		};
-
-		/** A variable definition
-		 *
-		 * 
-		 */
-		class variable_expression : public expression {
-			blitz::token                      _assign;
-			std::string                       _name;
-			std::shared_ptr<value_expression> _value;
-
-			public:
-			virtual ~variable_expression() = default;
-			variable_expression(blitz::token token);
-		};
 
 	} // namespace ast
 } // namespace blitz
