@@ -271,7 +271,22 @@ blitz::token blitz::lexer::peek()
 				if ((chr == EOF) || (chr < 32) || is_newline || iswhitespace(chr) || (chr == ';')) {
 					// EOF, Control, NL, Whitespace, and Comments should return to default parsing.
 					complete = true;
-				} else if (isdigit(chr) || (chr == '.') || (chr == 'b') || (chr == 'x')) {
+				} else if (chr == 'f') {
+					_stream.get();
+					token.type = blitz::token::variant::REAL;
+					complete   = true;
+				} else if (chr == 'u') {
+					_stream.get();
+					buffer << (char)chr;
+					token.type = blitz::token::variant::INTEGER;
+					complete   = true;
+				} else if ((chr == 'b') || (chr == 'x')) {
+					_stream.get();
+					buffer << (char)chr;
+					if (buffer.tellp() > 2) {
+						throw blitz::error(_file, token.location, _location, blitz::format("In token %s: Expected [0-9], got '%s' instead.", token.to_string().c_str(), std::string{ 1, (char)chr }.c_str()));
+					}
+				} else if (isdigit(chr) || (chr == '.')) {
 					_stream.get();
 					buffer << (char)chr;
 					if (chr == '.') {

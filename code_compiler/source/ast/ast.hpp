@@ -29,6 +29,8 @@
 // - Function, Return, End Function: Defines a function, and allows returning values. Yes, I know, End itself terminates the program, this is a special case. Thanks younger Sibly.
 // - And, Or, Not: Logical operator, self-explanatory really.
 
+#undef NULL
+
 namespace blitz {
 	namespace ast {
 		struct node {
@@ -72,7 +74,17 @@ namespace blitz {
 			static std::shared_ptr<blitz::ast::node> try_parse(std::shared_ptr<blitz::lexer> lexer);
 		};
 
-		struct expression : public node {};
+		struct declare : public node {
+			// Local, Global
+			bool                                         global;
+			std::list<std::shared_ptr<blitz::ast::node>> nodes;
 
+			virtual ~declare();
+
+			static bool                              can_parse(std::shared_ptr<blitz::lexer> lexer);
+			static std::shared_ptr<blitz::ast::node> try_parse(std::shared_ptr<blitz::lexer> lexer);
+		};
+
+		struct expression : public node {};
 	} // namespace ast
 } // namespace blitz

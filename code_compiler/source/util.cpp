@@ -6,7 +6,7 @@
 
 bool blitz::utility::is_symbol(int code)
 {
-	switch (chr) {
+	switch (code) {
 	case ';':  // Comment
 	case ':':  // Command Separator
 	case '=':  // Equal
@@ -39,7 +39,7 @@ bool blitz::utility::is_symbol(int code)
 
 bool blitz::utility::is_white_space(int code)
 {
-	switch (chr) {
+	switch (code) {
 	case ' ':
 	case '\t':
 		return true;
@@ -56,4 +56,12 @@ bool blitz::utility::is_digit(int code)
 
 bool blitz::utility::is_alpha(int code) {
 	return isalpha(code);
+}
+
+char blitz::utility::utf8_safe_tolower(char code)
+{
+	if (code & 0b10000000) { // Exclude Unicode
+		return code;
+	}
+	return (char)std::tolower(code);
 }

@@ -12,8 +12,6 @@ blitz::parser::~parser() {}
 blitz::parser::parser(std::filesystem::path file) : _file(file), _lexer(), _expr()
 {
 	_lexer = std::make_shared<blitz::lexer>(file);
-	_lexer->next();
-	blitz::ast::variable::try_parse(_lexer);
 }
 
 

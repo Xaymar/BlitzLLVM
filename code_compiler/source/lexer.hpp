@@ -25,7 +25,7 @@ namespace blitz {
 			UNKNOWN, // We have absolutely no fucking clue.
 			ENDOFFILE, // End of the file.
 			NEWLINE, // New Line.
-			SEPARATOR, // Command Separator.
+			//SEPARATOR, // Command Separator.
 			CONTROL, // All kinds of control signals
 			SYMBOL, // All kinds of symbols.
 			COMMENT, // ; Whatever

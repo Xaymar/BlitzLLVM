@@ -14,48 +14,34 @@ int main(int argc, char** argv)
 		std::setlocale(LC_ALL, "en_US.UTF-8");
 
 		std::cout << argv[1] << std::endl;
+		std::list<std::shared_ptr<blitz::ast::node>> nodes;
 
-		blitz::lexer lex(argv[1]);
-		for (blitz::token token = lex.next(); (token.type != blitz::token::variant::ENDOFFILE); token = lex.next()) {
-			switch (token.type) {
-			case blitz::token::variant::COMMENT:
-				std::cout << token.text;
-				break;
-			case blitz::token::variant::SYMBOL:
-				std::cout << token.text << " ";
-				break;
-			case blitz::token::variant::TEXT:
-			case blitz::token::variant::INTEGER:
-			case blitz::token::variant::REAL:
-				std::cout << token.text << " ";
-				break;
-			case blitz::token::variant::STRING:
-				std::cout << "\"" << token.text << "\""
-						  << " ";
-				break;
-			case blitz::token::variant::NEWLINE:
+		std::shared_ptr<blitz::lexer> lex2 = std::make_shared<blitz::lexer>(argv[1]);
+		for (blitz::token token = lex2->next(); (token.type != blitz::token::variant::ENDOFFILE); token = lex2->next()) {
+			std::cout << token.to_string() << " ";
+			if (token.type == blitz::token::variant::NEWLINE) {
 				std::cout << std::endl;
-				break;
-
-			default:
-				std::cout << token.to_string() << " ";
-				break;
 			}
+
 			if (token.type == blitz::token::variant::UNKNOWN) {
 				std::cin.get();
+			} else if (blitz::ast::declare::can_parse(lex2)) {
+				nodes.push_back(blitz::ast::declare::try_parse(lex2));
+			} else if (blitz::ast::value::can_parse(lex2)) {
+				nodes.push_back(blitz::ast::value::try_parse(lex2));
+			} else if (blitz::ast::variable::can_parse(lex2)) {
+				nodes.push_back(blitz::ast::variable::try_parse(lex2));
 			}
 		}
-
-		blitz::parser pars(argv[1]);
 
 		//std::cin.get();
 		return 0;
 	} catch (blitz::error const& ex) {
-		std::cout << ex.file() << std::endl;
+		std::cout << std::endl << ex.file() << std::endl;
 		std::cout << "Line " << ex.at().first << ", Char " << ex.at().second << ": " << ex.what() << std::endl;
 		return 1;
 	} catch (std::runtime_error const& ex) {
-		std::cout << ex.what() << std::endl;
+		std::cout << std::endl << ex.what() << std::endl;
 		return 1;
 	}
 }

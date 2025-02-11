@@ -10,4 +10,6 @@ namespace blitz::utility {
 	bool is_digit(int code);
 
 	bool is_alpha(int code);
+
+	char utf8_safe_tolower(char code);
 } // namespace blitz::utility
