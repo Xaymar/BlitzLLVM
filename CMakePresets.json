@@ -23,8 +23,7 @@
             "toolchainFile": "cmake/toolchains/llvm.cmake",
             "generator": "Ninja Multi-Config",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/llvm.cmake",
-                "CMAKE_MAKE_PROGRAM": "build/windows-x64-llvm/toolchains/ninja/ninja.exe"
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/llvm.cmake"
             }
         },
         {

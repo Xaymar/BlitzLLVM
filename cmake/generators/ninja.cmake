@@ -72,6 +72,7 @@ if(IS_EXECUTABLE "${NINJA_BIN}")
 	string(REGEX REPLACE "[\r\n]+" "" NINJA_VERSION_INSTALLED "${NINJA_VERSION_INSTALLED}")
 	if((EXISTS NINJA_BIN) AND (NINJA_VERSION_INSTALLED VERSION_LESS NINJA_VERSION))
 		message(STATUS "Found outdated v${NINJA_VERSION_INSTALLED}.")
+		unset(NINJA_BIN)
 	else()
 		message(STATUS "Found v${NINJA_VERSION_INSTALLED}.")
 	endif()
@@ -112,6 +113,7 @@ if((NOT IS_EXECUTABLE "${NINJA_BIN}") OR (NINJA_VERSION_INSTALLED VERSION_LESS N
 	file(DOWNLOAD
 		"https://github.com/ninja-build/ninja/releases/download/v${NINJA_VERSION}/${_FILE_NAME}.${_FILE_EXT}"
 		"${NINJA_DIR}.${_FILE_EXT}"
+		SHOW_PROGRESS
 	)
 
 	# Extract it.
