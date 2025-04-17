@@ -168,11 +168,11 @@ project(
 	${PROJECT_NAME}
 	VERSION ${PROJECT_VERSION}
 )
-set(PROJECT_IDENTIFER "com.xaymar.BlitzLLVM")
+set(PROJECT_IDENTIFER "com.xaymar.blitzllvm")
 set(PROJECT_TITLE "BlitzLLVM")
-set(PROJECT_AUTHORS "See AUTHORS file")
-set(PROJECT_COPYRIGHT "All Rights Reserved. See LICENSE file for more information")
-set(PROJECT_TRADEMARKS "")
+set(PROJECT_AUTHORS "Xaymar <info@xaymar.com>") # ToDo: Generate from AUTHORS
+set(PROJECT_COPYRIGHT "All Rights Reserved. See LICENSE file for more information") # ToDo: Generate from LICENSE
+set(PROJECT_TRADEMARKS "") 
 
 function(init_project TARGET)
 	set_target_properties(${TARGET} PROPERTIES
