@@ -16,7 +16,7 @@
 # This is a script file that installs the necessary "Ninja" and "Ninja Multi-Config" generators.
 # Run with `cmake -P cmake/generators/ninja.cmake` from the source directory.
 
-cmake_minimum_required(VERSION 3.30...4.0)
+cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 include_guard(GLOBAL)
 list(APPEND CMAKE_MESSAGE_INDENT "[Ninja] ")
 

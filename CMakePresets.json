@@ -6,14 +6,14 @@
         "patch": 0
     },
     "configurePresets": [
-		{
-			"name": "default",
-			"cacheVariables": {
+        {
+            "name": "default",
+            "cacheVariables": {
                 "__CMAKE_VERBOSE_MAKEFILE": "ON",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
-			},
-			"hidden": true
-		},
+            },
+            "hidden": true
+        },
         {
             "inherits": "default",
             "name": "windows-x64-llvm",
@@ -23,18 +23,16 @@
             "toolchainFile": "cmake/toolchains/llvm.cmake",
             "generator": "Ninja Multi-Config",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/llvm.cmake"
             }
         },
         {
             "inherits": "default",
-            "name": "windows-x64-msvc",
+            "name": "windows-x64-msvc2022",
             "description": "Windows, x86-64 (MSVC 2022)",
-            "binaryDir": "build/windows-x64-msvc",
-            "installDir": "distrib/windows-x64-msvc",
+            "binaryDir": "build/windows-x64-msvc2022",
+            "installDir": "distrib/windows-x64-msvc2022",
             "generator": "Visual Studio 17 2022",
-            "cacheVariables": {
-            }
+            "cacheVariables": {}
         }
     ],
     "buildPresets": [
@@ -45,10 +43,23 @@
             "displayName": "Windows, x64 (LLVM)"
         },
         {
-            "configurePreset": "windows-x64-msvc",
-            "name": "windows-x64-msvc",
+            "configurePreset": "windows-x64-msvc2022",
+            "name": "windows-x64-msvc2022",
             "description": "",
             "displayName": "Windows, x64 (MSVC 2022)"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "windows-x64-llvm",
+            "description": "",
+            "displayName": "",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "windows-x64-llvm"
+                }
+            ]
         }
     ]
 }

@@ -16,7 +16,7 @@
 # This is a (mostly) self-contained toolchain file that sets up everything necessary to compile with LLVM/Clang.
 # cmake --fresh -C cmake/generators/ninja.cmake  --preset windows-x64-llvm
 
-cmake_minimum_required(VERSION 3.30...4.0)
+cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 include_guard(GLOBAL)
 list(APPEND CMAKE_MESSAGE_INDENT "[LLVM] ")
 
@@ -351,7 +351,6 @@ if(
 	else()
 		message(FATAL_ERROR "Failed to find or provide a compatible LLVM installation.")
 	endif()
-
 endif()
 
 list(POP_BACK CMAKE_MESSAGE_INDENT)

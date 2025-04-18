@@ -1,0 +1,5 @@
+{
+    "cmake.configureArgs": [
+        "-C ${workspaceFolder}/cmake/generators/ninja.cmake"
+    ]
+}
