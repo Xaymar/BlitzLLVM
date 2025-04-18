@@ -74,7 +74,7 @@ if(IS_EXECUTABLE "${NINJA_BIN}")
 		message(STATUS "Found outdated v${NINJA_VERSION_INSTALLED}.")
 		unset(NINJA_BIN)
 	else()
-		message(STATUS "Found v${NINJA_VERSION_INSTALLED}.")
+		#message(STATUS "Found v${NINJA_VERSION_INSTALLED}.")
 	endif()
 endif()
 
@@ -109,12 +109,16 @@ if((NOT IS_EXECUTABLE "${NINJA_BIN}") OR (NINJA_VERSION_INSTALLED VERSION_LESS N
 	endif()
 
 	# Download the ideal version.
-	message(STATUS "Downloading Ninja v${NINJA_VERSION}...")
-	file(DOWNLOAD
-		"https://github.com/ninja-build/ninja/releases/download/v${NINJA_VERSION}/${_FILE_NAME}.${_FILE_EXT}"
-		"${NINJA_DIR}.${_FILE_EXT}"
-		SHOW_PROGRESS
-	)
+	if(NOT EXISTS "${NINJA_DIR}.${_FILE_EXT}")
+		message(STATUS "Downloading Ninja v${NINJA_VERSION}...")
+		file(DOWNLOAD
+			"https://github.com/ninja-build/ninja/releases/download/v${NINJA_VERSION}/${_FILE_NAME}.${_FILE_EXT}"
+			"${NINJA_DIR}.${_FILE_EXT}"
+			SHOW_PROGRESS
+		)
+	else()
+		message(STATUS "Skipping download as file already exists.")
+	endif()
 
 	# Extract it.
 	message(STATUS "Extracting...")
@@ -147,11 +151,10 @@ if((NOT IS_EXECUTABLE "${NINJA_BIN}") OR (NINJA_VERSION_INSTALLED VERSION_LESS N
 endif()
 
 if((NOT IS_EXECUTABLE "${NINJA_BIN}") OR (NINJA_VERSION_INSTALLED VERSION_LESS NINJA_VERSION))
-	message(STATUS "NINJA_DIR=${NINJA_DIR}")
-	message(STATUS "NINJA_BIN=${NINJA_BIN}")
-	message(STATUS "NINJA_VERSION=${NINJA_VERSION}")
-	message(STATUS "NINJA_VERSION_INSTALLED=${NINJA_VERSION_INSTALLED}")
 	message(FATAL_ERROR "Failed to install newer version of Ninja.")
+elseif(IS_EXECUTABLE "${NINJA_BIN}")
+	message(STATUS "Found v${NINJA_VERSION_INSTALLED}.")
 endif()
 
 set(CMAKE_MAKE_PROGRAM "${NINJA_BIN}" CACHE STRING "" FORCE)
+list(POP_BACK CMAKE_MESSAGE_INDENT)

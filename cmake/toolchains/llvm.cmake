@@ -13,7 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# This is a self-contained toolchain file that sets up everything necessary to compile with LLVM/Clang.
+# This is a (mostly) self-contained toolchain file that sets up everything necessary to compile with LLVM/Clang.
+# cmake --fresh -C cmake/generators/ninja.cmake  --preset windows-x64-llvm
 
 cmake_minimum_required(VERSION 3.30...4.0)
 include_guard(GLOBAL)
@@ -36,6 +37,22 @@ if(CMAKE_HOST_SYSTEM_NAME MATCHES "[Ww]indows")
 		set(_FILE_NAME "LLVM-${LLVM_VERSION}-woa64")
 	endif()
 	set(_FILE_EXT "exe")
+
+	#Computer\HKEY_CURRENT_USER\SOFTWARE\7-Zip\Path64
+	cmake_host_system_information(
+		RESULT 7ZIP_DIR
+		QUERY WINDOWS_REGISTRY "HKCU/SOFTWARE/7-Zip" VALUE "Path64"
+		VIEW HOST
+	)
+	find_program(7ZIP_BIN
+		NAMES 
+			7z
+			7za
+		HINTS
+			"${7ZIP_DIR}"
+			"C:/Program Files/7-Zip"
+			"C:/Program Files (x86)/7-Zip"
+	)
 elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "[Dd]arwin")
 	set(_OS "macos")
 	execute_process(
@@ -88,116 +105,99 @@ else()
 endif()
 set(LLVM_DIR "${CMAKE_SOURCE_DIR}/extra/llvm-${LLVM_VERSION}-${_OS}-${_ARCH}")
 
-foreach(_T IN ITEMS LLVM_VERSION LLVM_VERSION_INSTALLED LLVM_DIR LLVM_AR LLVM_LD LLVM_RANLIB LLVM_OBJCOPY LLVM_OBJDUMP LLVM_STRIP LLVM_CLANG LLVM_CLANGPP)
-	message(STATUS "${_T}=${${_T}}")
-endforeach()
-
-function(validator_llvm_bin _var _item)
-	message(STATUS "${_var} ${_item}")
-	if(NOT IS_EXECUTABLE "${_item}")
-		set("${_var}" FALSE PARENT_SCOPE)
-		return()
-	endif()
-	execute_process(
-		COMMAND "${_item}" --version
-		OUTPUT_VARIABLE _OUT
-		RESULT_VARIABLE _RES
-		OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-	message(STATUS "${_OUT} ${_RES}")
-	if(NOT _RES EQUAL 0)
-		set("${_var}" FALSE PARENT_SCOPE)
-		return()
-	endif()
-	if(_OUT VERSION_LESS LLVM_VERSION)
-		set("${_var}" FALSE PARENT_SCOPE)
-		return()
-	endif()
-	set("${_var}" TRUE PARENT_SCOPE)
-	set(LLVM_VERSION_INSTALLED "${_OUT}" PARENT_SCOPE)
-endfunction()
-
 macro(find_llvm)
-	set(LLVM_FOUND "NOT-FOUND")
+	set(LLVM_FOUND "FALSE")
+
 	# - AR
 	find_program(
 		LLVM_AR
 		NAMES 
 			llvm-ar
-		HINTS
-			"${LLVM_DIR}/bin"
-		#VALIDATOR validator_llvm_bin
-		NO_CACHE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_FIND_ROOT_PATH
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE 
 	)
+
 	# - Library Randomizer
 	find_program(
 		LLVM_RANLIB
 		NAMES
 			llvm-ranlib
-		HINTS
-			"${LLVM_DIR}/bin"
-		#VALIDATOR validator_llvm_bin
-		NO_CACHE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_FIND_ROOT_PATH
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE 
 	)
+
 	# - Linker
-	find_program(
-		LLVM_LD
-		NAMES
-			ld.lld
-		HINTS
-			"${LLVM_DIR}/bin"
-		#VALIDATOR validator_llvm_bin
-		NO_CACHE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_FIND_ROOT_PATH
-	)
+	if(_ARCH MATCHES "[xX]64")
+		find_program(
+			LLVM_LD
+			NAMES
+				ld64.lld
+				ld.lld
+			PATHS
+				"${LLVM_DIR}/bin/"
+			NO_CACHE 
+		)
+	else()
+		find_program(
+			LLVM_LD
+			NAMES
+				ld.lld
+			PATHS
+				"${LLVM_DIR}/bin/"
+			NO_CACHE 
+		)
+	endif()
+
 	# - Object Copy
 	find_program(
 		LLVM_OBJCOPY
 		NAMES
 			llvm-objcopy
-		HINTS
-			"${LLVM_DIR}/bin"
-		#VALIDATOR validator_llvm_bin
-		NO_CACHE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_FIND_ROOT_PATH
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE 
 	)
+
 	# - Object Dump
 	find_program(
 		LLVM_OBJDUMP
 		NAMES
 			llvm-objdump
-		HINTS
-			"${LLVM_DIR}/bin"
-		#VALIDATOR validator_llvm_bin
-		NO_CACHE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_FIND_ROOT_PATH
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE 
 	)
+
 	# - Strip Debug Info
 	find_program(
 		LLVM_STRIP
 		NAMES
 			llvm-strip
-		HINTS
-			"${LLVM_DIR}/bin"
-		#VALIDATOR validator_llvm_bin
-		NO_CACHE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_FIND_ROOT_PATH
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE 
 	)
+
 	# - C Compiler
 	find_program(
 		LLVM_CLANG
 		NAMES
 			clang
-		HINTS
-			"${LLVM_DIR}/bin"
-		#VALIDATOR validator_llvm_bin
-		NO_CACHE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_FIND_ROOT_PATH
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE 
 	)
+
 	# - C++ Compiler
 	find_program(
 		LLVM_CLANGPP
 		NAMES
 			clang++
-		HINTS
-			"${LLVM_DIR}/bin"
-		#VALIDATOR validator_llvm_bin
-		NO_CACHE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_FIND_ROOT_PATH
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE 
 	)
 
 	set(LLVM_FOUND TRUE)
@@ -210,91 +210,126 @@ macro(find_llvm)
 		"LLVM_STRIP"
 		"LLVM_CLANG"
 		"LLVM_CLANGPP")
-		message(STATUS "${_TEST}=${${_TEST}}")
 		if(NOT IS_EXECUTABLE ${${_TEST}})
 			set(LLVM_FOUND FALSE)
-			foreach(_TEST IN ITEMS 
-				"LLVM_AR"
-				"LLVM_LD"
-				"LLVM_RANLIB"
-				"LLVM_OBJCOPY"
-				"LLVM_OBJDUMP"
-				"LLVM_STRIP"
-				"LLVM_CLANG"
-				"LLVM_CLANGPP")
-				unset(${_TEST})
-			endforeach()
+			break()
+		else()
+			execute_process(
+				COMMAND "${${_TEST}}" --version
+				OUTPUT_VARIABLE ${_TEST}_VERSION
+				RESULT_VARIABLE _RES
+			)
+			if(NOT _RES EQUAL 0)
+				set(LLVM_FOUND FALSE)
+				break()
+			endif()
+
+			string(REGEX MATCH "[1-9+]?[0-9+]\.[1-9+]?[0-9+]\.[1-9+]?[0-9+]\." "${_TEST}_VERSION" "${${_TEST}_VERSION}")
+			string(REGEX REPLACE "[\r\n]+" "" "${_TEST}_VERSION" "${${_TEST}_VERSION}")
+			if(${_TEST}_VERSION VERSION_LESS LLVM_VERSION)
+				set(LLVM_FOUND FALSE)
+			endif()
 		endif()
 	endforeach()
+
+#	foreach(_T IN ITEMS LLVM_VERSION LLVM_DIR LLVM_AR LLVM_LD LLVM_RANLIB LLVM_OBJCOPY LLVM_OBJDUMP LLVM_STRIP LLVM_CLANG LLVM_CLANGPP LLVM_AR_VERSION LLVM_LD_VERSION LLVM_RANLIB_VERSION LLVM_OBJCOPY_VERSION LLVM_OBJDUMP_VERSION LLVM_STRIP_VERSION LLVM_CLANG_VERSION LLVM_CLANGPP)
+#		message(STATUS "${_T}=${${_T}}")
+#	endforeach()
 endmacro()
 
 # Try and find an existing LLVM installation.
 find_llvm()
-foreach(_T IN ITEMS LLVM_VERSION LLVM_VERSION_INSTALLED LLVM_DIR LLVM_AR LLVM_LD LLVM_RANLIB LLVM_OBJCOPY LLVM_OBJDUMP LLVM_STRIP LLVM_CLANG LLVM_CLANGPP)
-	message(STATUS "${_T}=${${_T}}")
-endforeach()
-if(LLVM_FOUND)
-	message(STATUS "Found v${LLVM_VERSION_INSTALLED}.")
-elseif(LLVM_VERSION_INSTALLED AND LLVM_VERSION_INSTALLED VERSION_LESS LLVM_VERSION)
-	message(STATUS "Found outdated v${LLVM_VERSION_INSTALLED}.")
-elseif(NOT LLVM_FOUND AND NOT LLVM_VERSION_INSTALLED)
+if(LLVM_CLANG_VERSION AND LLVM_CLANG_VERSION VERSION_LESS LLVM_VERSION)
+	message(STATUS "Found outdated v${LLVM_CLANG_VERSION}.")
+elseif(NOT LLVM_FOUND)
 	message(STATUS "No installed LLVM found.")
 endif()
 
-if(NOT LLVM_FOUND)
+if(NOT LLVM_FOUND OR (LLVM_CLANG_VERSION VERSION_LESS LLVM_VERSION))
 	# It isn't up to date or doesn't exist, so try to download the latest version.
+	if((_FILE_EXT MATCHES "exe") AND NOT 7ZIP_BIN)
+		message(FATAL_ERROR "7-Zip is required to continue setting up LLVM. Please provide '7z.exe' in PATH or by installing the latest version from https://www.7-zip.org/.")
+	endif()
 
 	# Download the ideal version.
-	message(STATUS "Downloading LLVM v${LLVM_VERSION}...")
-	file(DOWNLOAD
-		"https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/${_FILE_NAME}.${_FILE_EXT}"
-		"${LLVM_DIR}.${_FILE_EXT}"
-		SHOW_PROGRESS
-	)
+	if(NOT EXISTS "${LLVM_DIR}.${_FILE_EXT}")
+		message(STATUS "Downloading LLVM v${LLVM_VERSION}...")
+		file(DOWNLOAD
+			"https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/${_FILE_NAME}.${_FILE_EXT}"
+			"${LLVM_DIR}.${_FILE_EXT}"
+			SHOW_PROGRESS
+		)
+	else()
+		message(STATUS "Skipping download as file already exists.")
+	endif()
 
 	# Extract it.
 	message(STATUS "Extracting...")
-	file(ARCHIVE_EXTRACT
-		INPUT "${LLVM_DIR}.${_FILE_EXT}"
-		DESTINATION "${LLVM_DIR}/"
-	)
+	if(_FILE_EXT MATCHES "exe")
+		execute_process(
+			COMMAND ${7ZIP_BIN} x -y -aoa "-o${LLVM_DIR}/" "${LLVM_DIR}.${_FILE_EXT}"
+			COMMAND_ERROR_IS_FATAL ANY
+			OUTPUT_QUIET
+			ERROR_QUIET
+		)
+	else()
+		file(ARCHIVE_EXTRACT
+			INPUT "${LLVM_DIR}.${_FILE_EXT}"
+			DESTINATION "${LLVM_DIR}/"
+		)
+	endif()
 
+	# Delete the archive itself.
+	message(STATUS "Cleaning...")
+	file(REMOVE "${LLVM_DIR}.${_FILE_EXT}")
+	
+	# Final stuff
+	#message(STATUS "Testing...")
+	find_llvm()
 endif()
 
+if(LLVM_FOUND AND (LLVM_CLANG_VERSION VERSION_GREATER_EQUAL LLVM_VERSION))
+	message(STATUS "Found v${LLVM_CLANG_VERSION}.")
+	
+	set(CMAKE_AR "${LLVM_AR}" CACHE STRING "" FORCE)	
+	set(CMAKE_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
+	set(CMAKE_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
 
+	set(CMAKE_C_COMPILER "${LLVM_CLANG}" CACHE STRING "" FORCE)
+	set(CMAKE_C_COMPILER_AR "${LLVM_AR}" CACHE STRING "" FORCE)
+	set(CMAKE_C_COMPILER_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
+	set(CMAKE_C_COMPILER_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
+	set(CMAKE_C_COMPILER_LINKER_ID "LLD" CACHE STRING "" FORCE)
+	set(CMAKE_C_COMPILER_LINKER_VERSION "${LLVM_LD_VERSION}" CACHE STRING "" FORCE)
 
-# set(CMAKE_C_COMPILER_AR "${CMAKE_AR}" CACHE STRING "" FORCE)
-# #set(CMAKE_C_COMPILER_CLANG_SCAN_DEPS "NOT-FOUND" CACHE STRING "" FORCE)
-# set(CMAKE_C_COMPILER_RANLIB "${CMAKE_RANLIB}" CACHE STRING "" FORCE)
-# set(CMAKE_C_LINKER "${CMAKE_LINKER}" CACHE STRING "" FORCE)
-# set(CMAKE_C_LINKER_ID "LDD" CACHE STRING "" FORCE)
-# set(CMAKE_C_LINKER_FRONTEND_VARIANT "LLD" CACHE STRING "" FORCE)
-# set(CMAKE_CXX_COMPILER_AR "${CMAKE_AR}" CACHE STRING "" FORCE)
-# #set(CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS "NOT-FOUND" CACHE STRING "" FORCE)
-# set(CMAKE_CXX_SCAN_FOR_MODULES OFF CACHE BOOL "" FORCE)
-# set(CMAKE_CXX_COMPILER_RANLIB "${CMAKE_RANLIB}" CACHE STRING "" FORCE)
-# set(CMAKE_CXX_LINKER "${CMAKE_C_LINKER}" CACHE STRING "" FORCE)
-# set(CMAKE_CXX_LINKER_ID "LLD" CACHE STRING "" FORCE)
-# set(CMAKE_CXX_LINKER_FRONTEND_VARIANT "LLD" CACHE STRING "" FORCE)
-# # - Assembly Compiler
-# set(CMAKE_ASM_COMPILER "${CMAKE_C_COMPILER}" CACHE STRING "" FORCE)
-# set(CMAKE_ASM_COMPILER_AR "${CMAKE_AR}" CACHE STRING "" FORCE)
-# #set(CMAKE_ASM_COMPILER_CLANG_SCAN_DEPS "NOT-FOUND" CACHE STRING "" FORCE)
-# set(CMAKE_ASM_COMPILER_RANLIB "${CMAKE_RANLIB}" CACHE STRING "" FORCE)
-# set(CMAKE_ASM_LINKER "${CMAKE_C_LINKER}" CACHE STRING "" FORCE)
-# set(CMAKE_ASM_LINKER_ID "LLD" CACHE STRING "" FORCE)
-# set(CMAKE_ASM_LINKER_FRONTEND_VARIANT "LLD" CACHE STRING "" FORCE)
-# #mark_as_advanced(CLANG_C_COMPILER CLANG_CPP_COMPILER CLANG__AR CLANG__LD_LDD)
-# set(CMAKE_EXE_LINKER_FLAGS_INIT "-fuse-ld=\"${CMAKE_C_LINKER}\"")
-# set(CMAKE_STATIC_LINKER_FLAGS_INIT "-fuse-ld=\"${CMAKE_C_LINKER}\"")
-# set(CMAKE_MODULE_LINKER_FLAGS_INIT "-fuse-ld=\"${CMAKE_C_LINKER}\"")
-# set(CMAKE_SHARED_LINKER_FLAGS_INIT "-fuse-ld=\"${CMAKE_C_LINKER}\"")
+	set(CMAKE_CXX_COMPILER "${LLVM_CLANGPP}" CACHE STRING "" FORCE)
+	set(CMAKE_CXX_COMPILER_AR "${LLVM_AR}" CACHE STRING "" FORCE)
+	set(CMAKE_CXX_COMPILER_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
+	set(CMAKE_CXX_COMPILER_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
+	set(CMAKE_CXX_COMPILER_LINKER_ID "LLD" CACHE STRING "" FORCE)
+	set(CMAKE_CXX_COMPILER_LINKER_VERSION "${LLVM_LD_VERSION}" CACHE STRING "" FORCE)
 
-# execute_process(
-# 	COMMAND "${CMAKE_C_COMPILER}" "--version"
-# 	OUTPUT_VARIABLE _VERSION_INSTALLED
-# 	OUTPUT_STRIP_TRAILING_WHITESPACE
-# )
-# string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _VERSION_INSTALLED "${LLVM_VERSION_INSTALLED}")
-# message(STATUS "v${LLVM_VERSION_INSTALLED}")
-# list(POP_BACK CMAKE_MESSAGE_INDENT)
+	set(CMAKE_ASM_COMPILER "${LLVM_CLANG}" CACHE STRING "" FORCE)
+	set(CMAKE_ASM_COMPILER_AR "${LLVM_AR}" CACHE STRING "" FORCE)
+	set(CMAKE_ASM_COMPILER_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
+	set(CMAKE_ASM_COMPILER_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
+	set(CMAKE_ASM_COMPILER_LINKER_ID "LLD" CACHE STRING "" FORCE)
+	set(CMAKE_ASM_COMPILER_LINKER_VERSION "${LLVM_LD_VERSION}" CACHE STRING "" FORCE)
+
+	set(CMAKE_RC_COMPILER "${LLVM_CLANG}" CACHE STRING "" FORCE)
+	set(CMAKE_RC_COMPILER_AR "${LLVM_AR}" CACHE STRING "" FORCE)
+	set(CMAKE_RC_COMPILER_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
+	set(CMAKE_RC_COMPILER_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
+	set(CMAKE_RC_COMPILER_LINKER_ID "LLD" CACHE STRING "" FORCE)
+	set(CMAKE_RC_COMPILER_LINKER_VERSION "${LLVM_LD_VERSION}" CACHE STRING "" FORCE)
+	
+	# Needed otherwise CMake will attempt to use GNU ld, MSVC link.exe, or AppleClangs lld
+#	set(CMAKE_EXE_LINKER_FLAGS_INIT "-fuse-ld=\"${LLVM_LD}\"")
+#	set(CMAKE_STATIC_LINKER_FLAGS_INIT "-fuse-ld=\"${LLVM_LD}\"")
+#	set(CMAKE_MODULE_LINKER_FLAGS_INIT "-fuse-ld=\"${LLVM_LD}\"")
+#	set(CMAKE_SHARED_LINKER_FLAGS_INIT "-fuse-ld=\"${LLVM_LD}\"")
+else()
+	message(FATAL_ERROR "Failed to find or provide a compatible LLVM installation.")
+endif()
+
+list(POP_BACK CMAKE_MESSAGE_INDENT)
