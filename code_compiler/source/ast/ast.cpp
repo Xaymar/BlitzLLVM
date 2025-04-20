@@ -53,7 +53,7 @@ blitz::ast::variable::~variable()
 	 * - Struct Variable
 	 *     Variable.StructName
 	 *     Variable:StructName
-	 *  
+	 *
 	 * Access:
 	 * - Struct Access:
 	 *     Variable\Key
@@ -165,6 +165,8 @@ bool blitz::ast::value::can_parse(std::shared_ptr<blitz::lexer> lexer)
 		}
 		break;
 	}
+	default:
+		break;
 	}
 
 	return false;

@@ -9,7 +9,6 @@
         {
             "name": "default",
             "cacheVariables": {
-                "__CMAKE_VERBOSE_MAKEFILE": "ON",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
             },
             "hidden": true

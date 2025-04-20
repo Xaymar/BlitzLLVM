@@ -27,7 +27,7 @@ foreach(_T IN ITEMS CMAKE_MAKE_PROGRAM)
 	endif()
 endforeach()
 
-	if(NOT IS_EXECUTABLE CMAKE_MAKE_PROGRAM)
+if(NOT CMAKE_MAKE_PROGRAM)
 	# Try and figure out what processor we need to get binaries for.
 	if(CMAKE_HOST_SYSTEM_NAME MATCHES "[Ww]indows")
 		string(TOLOWER "$ENV{PROCESSOR_ARCHITECTURE}" _ARCH)
@@ -137,7 +137,7 @@ endforeach()
 
 		# Delete the archive itself.
 		message(STATUS "Cleaning...")
-		file(REMOVE "${NINJA_DIR}.${_FILE_EXT}")
+		#file(REMOVE "${NINJA_DIR}.${_FILE_EXT}")
 
 		# Check if Ninja is present and if it is up to date.
 		message(STATUS "Testing...")

@@ -85,4 +85,4 @@ int main(int argc, char** argv)
 // Print Int(myName) ; <- Prints the address of the object contained in myName.
 // ```
 //
-// As this is a Basic language, there is no concept of undefined or uninitialized anything. Every behavior is well defined.
+// As this is a Basic language, there is no concept of undefined or uninitialized anything. Every behavior is "well" defined even if confusing.

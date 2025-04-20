@@ -15,33 +15,196 @@
 
 # This is a (mostly) self-contained toolchain file that sets up everything necessary to compile with LLVM/Clang.
 # cmake --fresh -C cmake/generators/ninja.cmake  --preset windows-x64-llvm
+# !BUG: try_compile downloads the whole thing again, which it shouldn't. Why is CMake not passing the compiler stuff on?
+
+# Which version of LLVM do we want to have (or newer)?
+set(LLVM_VERSION "19.1.7")
 
 cmake_minimum_required(VERSION 4.0 FATAL_ERROR)
 include_guard(GLOBAL)
 list(APPEND CMAKE_MESSAGE_INDENT "[LLVM] ")
 
-# Necessary for propagation into the try_compile CMake subprocesses. It's unclear why this is not the default behavior.
-foreach(_T IN ITEMS CMAKE_AR CMAKE_RANLIB CMAKE_LINKER CMAKE_C_COMPILER CMAKE_C_COMPILER_AR CMAKE_C_COMPILER_RANLIB CMAKE_C_COMPILER_LINKER CMAKE_C_COMPILER_LINKER_ID CMAKE_C_COMPILER_LINKER_VERSION CMAKE_CXX_COMPILER CMAKE_CXX_COMPILER_AR CMAKE_CXX_COMPILER_RANLIB CMAKE_CXX_COMPILER_LINKER CMAKE_CXX_COMPILER_LINKER_ID CMAKE_CXX_COMPILER_LINKER_VERSION CMAKE_ASM_COMPILER CMAKE_ASM_COMPILER_AR CMAKE_ASM_COMPILER_RANLIB CMAKE_ASM_COMPILER_LINKER CMAKE_ASM_COMPILER_LINKER_ID CMAKE_ASM_COMPILER_LINKER_VERSION CMAKE_RC_COMPILER CMAKE_RC_COMPILER_AR CMAKE_RC_COMPILER_RANLIB CMAKE_RC_COMPILER_LINKER CMAKE_RC_COMPILER_LINKER_ID CMAKE_RC_COMPILER_LINKER_VERSION)
-	if(DEFINED ENV{${_T}})
-		set(${_T} "$ENV{${_T}}")
-	endif()
-endforeach()
-
-if(
-	(NOT IS_EXECUTABLE CMAKE_C_COMPILER) OR
-	(NOT IS_EXECUTABLE CMAKE_C_COMPILER_AR) OR
-	(NOT IS_EXECUTABLE CMAKE_C_COMPILER_RANLIB) OR
-	(NOT IS_EXECUTABLE CMAKE_C_COMPILER_LINKER) OR
-	(NOT IS_EXECUTABLE CMAKE_CXX_COMPILER) OR
-	(NOT IS_EXECUTABLE CMAKE_CXX_COMPILER_AR) OR
-	(NOT IS_EXECUTABLE CMAKE_CXX_COMPILER_RANLIB) OR
-	(NOT IS_EXECUTABLE CMAKE_CXX_COMPILER_LINKER) OR
-	(NOT IS_EXECUTABLE CMAKE_LINKER) OR
-	(NOT IS_EXECUTABLE CMAKE_RANLIB) OR
-	(NOT IS_EXECUTABLE CMAKE_AR)
+# CMake 3.6: Force variables to be propagated to try_compile sub-processes.
+list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
+	LLVM_CLANG
+	LLVM_CLANGPP
+	LLVM_AR
+	LLVM_RANLIB
+	LLVM_NM
+	LLVM_READELF
+	LLVM_OBJCOPY
+	LLVM_OBJDUMP
+	LLVM_STRIP
+	LLVM_DIR
+	CMAKE_CXX_COMPILER
+	CMAKE_C_COMPILER
+	CMAKE_ASM_COMPILER
+	CMAKE_RC_COMPILER
+	CMAKE_LINKER
+	CMAKE_C_COMPILER_LINKER
+	CMAKE_CXX_COMPILER_LINKER
+	CMAKE_RC_COMPILER_LINKER
+	CMAKE_ASM_COMPILER_LINKER
+	CMAKE_NM
+	CMAKE_OBJDUMP
+	CMAKE_OBJCOPY
+	CMAKE_RANLIB
+	CMAKE_C_COMPILER_RANLIB
+	CMAKE_CXX_COMPILER_RANLIB
+	CMAKE_RC_COMPILER_RANLIB
+	CMAKE_ASM_COMPILER_RANLIB
+	CMAKE_AR
+	CMAKE_C_COMPILER_AR
+	CMAKE_CXX_COMPILER_AR
+	CMAKE_RC_COMPILER_AR
+	CMAKE_ASM_COMPILER_AR
 )
+set(CMAKE_TRY_COMPILE_NO_PLATFORM_VARIABLES OFF)
+
+# Macro for common stuff
+macro(find_llvm)
+	set(LLVM_FOUND "FALSE")
+
+	# - AR
+	find_program(
+		LLVM_AR
+		NAMES
+			llvm-ar
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	# - Library Randomizer
+	find_program(
+		LLVM_RANLIB
+		NAMES
+			llvm-ranlib
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	# - Linker
+	if(_ARCH MATCHES "[xX]64")
+		find_program(
+			LLVM_LD
+			NAMES
+				ld64.lld
+				ld.lld
+			PATHS
+				"${LLVM_DIR}/bin/"
+			NO_CACHE
+		)
+	else()
+		find_program(
+			LLVM_LD
+			NAMES
+				ld.lld
+			PATHS
+				"${LLVM_DIR}/bin/"
+			NO_CACHE
+		)
+	endif()
+
+	# - Object Copy
+	find_program(
+		LLVM_OBJCOPY
+		NAMES
+			llvm-objcopy
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	# - Object Dump
+	find_program(
+		LLVM_OBJDUMP
+		NAMES
+			llvm-objdump
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	# - NM
+	find_program(
+		LLVM_NM
+		NAMES
+			llvm-nm
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	# - ReadELF
+	find_program(
+		LLVM_READELF
+		NAMES
+			llvm-readelf
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	# - Strip Debug Info
+	find_program(
+		LLVM_STRIP
+		NAMES
+			llvm-strip
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	# - C Compiler
+	find_program(
+		LLVM_CLANG
+		NAMES
+			clang
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	# - C++ Compiler
+	find_program(
+		LLVM_CLANGPP
+		NAMES
+			clang++
+		PATHS
+			"${LLVM_DIR}/bin/"
+		NO_CACHE
+	)
+
+	set(LLVM_FOUND TRUE)
+	foreach(_TEST IN ITEMS
+		"LLVM_AR"
+		"LLVM_LD"
+		"LLVM_CLANG"
+		"LLVM_CLANGPP")
+		if(NOT IS_EXECUTABLE ${${_TEST}})
+			set(LLVM_FOUND FALSE)
+			break()
+		else()
+			execute_process(
+				COMMAND "${${_TEST}}" --version
+				OUTPUT_VARIABLE ${_TEST}_VERSION
+				RESULT_VARIABLE _RES
+			)
+			if(NOT _RES EQUAL 0)
+				set(LLVM_FOUND FALSE)
+				break()
+			endif()
+
+			string(REGEX MATCH "[1-9+]?[0-9+]\.[1-9+]?[0-9+]\.[1-9+]?[0-9+]\." "${_TEST}_VERSION" "${${_TEST}_VERSION}")
+			string(REGEX REPLACE "[\r\n]+" "" "${_TEST}_VERSION" "${${_TEST}_VERSION}")
+		endif()
+	endforeach()
+endmacro()
+
+if(NOT CMAKE_C_COMPILER OR NOT CMAKE_CXX_COMPILER OR NOT CMAKE_LINKER OR NOT CMAKE_AR)
 	# Try and figure out what processor we need to get binaries for.
-	set(LLVM_VERSION "19.1.7")
 	if(CMAKE_HOST_SYSTEM_NAME MATCHES "[Ww]indows")
 		set(_OS "windows")
 		string(TOLOWER "$ENV{PROCESSOR_ARCHITECTURE}" _ARCH)
@@ -121,138 +284,6 @@ if(
 	endif()
 	set(LLVM_DIR "${CMAKE_SOURCE_DIR}/extra/llvm-${LLVM_VERSION}-${_OS}-${_ARCH}")
 
-	macro(find_llvm)
-		set(LLVM_FOUND "FALSE")
-
-		# - AR
-		find_program(
-			LLVM_AR
-			NAMES
-				llvm-ar
-			PATHS
-				"${LLVM_DIR}/bin/"
-			NO_CACHE
-		)
-
-		# - Library Randomizer
-		find_program(
-			LLVM_RANLIB
-			NAMES
-				llvm-ranlib
-			PATHS
-				"${LLVM_DIR}/bin/"
-			NO_CACHE
-		)
-
-		# - Linker
-		if(_ARCH MATCHES "[xX]64")
-			find_program(
-				LLVM_LD
-				NAMES
-					ld64.lld
-					ld.lld
-				PATHS
-					"${LLVM_DIR}/bin/"
-				NO_CACHE
-			)
-		else()
-			find_program(
-				LLVM_LD
-				NAMES
-					ld.lld
-				PATHS
-					"${LLVM_DIR}/bin/"
-				NO_CACHE
-			)
-		endif()
-
-		# - Object Copy
-		find_program(
-			LLVM_OBJCOPY
-			NAMES
-				llvm-objcopy
-			PATHS
-				"${LLVM_DIR}/bin/"
-			NO_CACHE
-		)
-
-		# - Object Dump
-		find_program(
-			LLVM_OBJDUMP
-			NAMES
-				llvm-objdump
-			PATHS
-				"${LLVM_DIR}/bin/"
-			NO_CACHE
-		)
-
-		# - Strip Debug Info
-		find_program(
-			LLVM_STRIP
-			NAMES
-				llvm-strip
-			PATHS
-				"${LLVM_DIR}/bin/"
-			NO_CACHE
-		)
-
-		# - C Compiler
-		find_program(
-			LLVM_CLANG
-			NAMES
-				clang
-			PATHS
-				"${LLVM_DIR}/bin/"
-			NO_CACHE
-		)
-
-		# - C++ Compiler
-		find_program(
-			LLVM_CLANGPP
-			NAMES
-				clang++
-			PATHS
-				"${LLVM_DIR}/bin/"
-			NO_CACHE
-		)
-
-		set(LLVM_FOUND TRUE)
-		foreach(_TEST IN ITEMS
-			"LLVM_AR"
-			"LLVM_LD"
-			"LLVM_RANLIB"
-			"LLVM_OBJCOPY"
-			"LLVM_OBJDUMP"
-			"LLVM_STRIP"
-			"LLVM_CLANG"
-			"LLVM_CLANGPP")
-			if(NOT IS_EXECUTABLE ${${_TEST}})
-				set(LLVM_FOUND FALSE)
-				break()
-			else()
-				execute_process(
-					COMMAND "${${_TEST}}" --version
-					OUTPUT_VARIABLE ${_TEST}_VERSION
-					RESULT_VARIABLE _RES
-				)
-				if(NOT _RES EQUAL 0)
-					set(LLVM_FOUND FALSE)
-					break()
-				endif()
-
-				string(REGEX MATCH "[1-9+]?[0-9+]\.[1-9+]?[0-9+]\.[1-9+]?[0-9+]\." "${_TEST}_VERSION" "${${_TEST}_VERSION}")
-				string(REGEX REPLACE "[\r\n]+" "" "${_TEST}_VERSION" "${${_TEST}_VERSION}")
-				if(${_TEST}_VERSION VERSION_LESS LLVM_VERSION)
-					set(LLVM_FOUND FALSE)
-				endif()
-			endif()
-		endforeach()
-
-	#	foreach(_T IN ITEMS LLVM_VERSION LLVM_DIR LLVM_AR LLVM_LD LLVM_RANLIB LLVM_OBJCOPY LLVM_OBJDUMP LLVM_STRIP LLVM_CLANG LLVM_CLANGPP LLVM_AR_VERSION LLVM_LD_VERSION LLVM_RANLIB_VERSION LLVM_OBJCOPY_VERSION LLVM_OBJDUMP_VERSION LLVM_STRIP_VERSION LLVM_CLANG_VERSION LLVM_CLANGPP)
-	#		message(STATUS "${_T}=${${_T}}")
-	#	endforeach()
-	endmacro()
-
 	# Try and find an existing LLVM installation.
 	find_llvm()
 	if(LLVM_CLANG_VERSION AND LLVM_CLANG_VERSION VERSION_LESS LLVM_VERSION)
@@ -261,7 +292,7 @@ if(
 		message(STATUS "No installed LLVM found.")
 	endif()
 
-	if(NOT LLVM_FOUND OR (LLVM_CLANG_VERSION VERSION_LESS LLVM_VERSION))
+	if((NOT LLVM_FOUND) OR (LLVM_CLANG_VERSION VERSION_LESS LLVM_VERSION))
 		# It isn't up to date or doesn't exist, so try to download the latest version.
 		if((_FILE_EXT MATCHES "exe") AND NOT 7ZIP_BIN)
 			message(FATAL_ERROR "7-Zip is required to continue setting up LLVM. Please provide '7z.exe' in PATH or by installing the latest version from https://www.7-zip.org/.")
@@ -297,7 +328,7 @@ if(
 
 		# Delete the archive itself.
 		message(STATUS "Cleaning...")
-		file(REMOVE "${LLVM_DIR}.${_FILE_EXT}")
+		#file(REMOVE "${LLVM_DIR}.${_FILE_EXT}")
 
 		# Final stuff
 		#message(STATUS "Testing...")
@@ -307,47 +338,59 @@ if(
 	if(LLVM_FOUND AND (LLVM_CLANG_VERSION VERSION_GREATER_EQUAL LLVM_VERSION))
 		message(STATUS "Found v${LLVM_CLANG_VERSION}.")
 
-		set(CMAKE_AR "${LLVM_AR}" CACHE STRING "" FORCE)
-		set(CMAKE_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
-		set(CMAKE_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
-
-		set(CMAKE_C_COMPILER "${LLVM_CLANG}" CACHE STRING "" FORCE)
-		set(CMAKE_C_COMPILER_AR "${LLVM_AR}" CACHE STRING "" FORCE)
-		set(CMAKE_C_COMPILER_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
-		set(CMAKE_C_COMPILER_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
-		set(CMAKE_C_COMPILER_LINKER_ID "LLD" CACHE STRING "" FORCE)
-		set(CMAKE_C_COMPILER_LINKER_VERSION "${LLVM_LD_VERSION}" CACHE STRING "" FORCE)
-
-		set(CMAKE_CXX_COMPILER "${LLVM_CLANGPP}" CACHE STRING "" FORCE)
-		set(CMAKE_CXX_COMPILER_AR "${LLVM_AR}" CACHE STRING "" FORCE)
-		set(CMAKE_CXX_COMPILER_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
-		set(CMAKE_CXX_COMPILER_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
-		set(CMAKE_CXX_COMPILER_LINKER_ID "LLD" CACHE STRING "" FORCE)
-		set(CMAKE_CXX_COMPILER_LINKER_VERSION "${LLVM_LD_VERSION}" CACHE STRING "" FORCE)
-
-		set(CMAKE_ASM_COMPILER "${LLVM_CLANG}" CACHE STRING "" FORCE)
-		set(CMAKE_ASM_COMPILER_AR "${LLVM_AR}" CACHE STRING "" FORCE)
-		set(CMAKE_ASM_COMPILER_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
-		set(CMAKE_ASM_COMPILER_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
-		set(CMAKE_ASM_COMPILER_LINKER_ID "LLD" CACHE STRING "" FORCE)
-		set(CMAKE_ASM_COMPILER_LINKER_VERSION "${LLVM_LD_VERSION}" CACHE STRING "" FORCE)
-
-		set(CMAKE_RC_COMPILER "${LLVM_CLANG}" CACHE STRING "" FORCE)
-		set(CMAKE_RC_COMPILER_AR "${LLVM_AR}" CACHE STRING "" FORCE)
-		set(CMAKE_RC_COMPILER_RANLIB "${LLVM_RANLIB}" CACHE STRING "" FORCE)
-		set(CMAKE_RC_COMPILER_LINKER "${LLVM_LD}" CACHE STRING "" FORCE)
-		set(CMAKE_RC_COMPILER_LINKER_ID "LLD" CACHE STRING "" FORCE)
-		set(CMAKE_RC_COMPILER_LINKER_VERSION "${LLVM_LD_VERSION}" CACHE STRING "" FORCE)
-
-		# Needed otherwise CMake will attempt to use GNU ld, MSVC link.exe, or AppleClangs lld
-	#	set(CMAKE_EXE_LINKER_FLAGS_INIT "-fuse-ld=\"${LLVM_LD}\"")
-	#	set(CMAKE_STATIC_LINKER_FLAGS_INIT "-fuse-ld=\"${LLVM_LD}\"")
-	#	set(CMAKE_MODULE_LINKER_FLAGS_INIT "-fuse-ld=\"${LLVM_LD}\"")
-	#	set(CMAKE_SHARED_LINKER_FLAGS_INIT "-fuse-ld=\"${LLVM_LD}\"")
-
-		foreach(_T IN ITEMS CMAKE_AR CMAKE_RANLIB CMAKE_LINKER CMAKE_C_COMPILER CMAKE_C_COMPILER_AR CMAKE_C_COMPILER_RANLIB CMAKE_C_COMPILER_LINKER CMAKE_C_COMPILER_LINKER_ID CMAKE_C_COMPILER_LINKER_VERSION CMAKE_CXX_COMPILER CMAKE_CXX_COMPILER_AR CMAKE_CXX_COMPILER_RANLIB CMAKE_CXX_COMPILER_LINKER CMAKE_CXX_COMPILER_LINKER_ID CMAKE_CXX_COMPILER_LINKER_VERSION CMAKE_ASM_COMPILER CMAKE_ASM_COMPILER_AR CMAKE_ASM_COMPILER_RANLIB CMAKE_ASM_COMPILER_LINKER CMAKE_ASM_COMPILER_LINKER_ID CMAKE_ASM_COMPILER_LINKER_VERSION CMAKE_RC_COMPILER CMAKE_RC_COMPILER_AR CMAKE_RC_COMPILER_RANLIB CMAKE_RC_COMPILER_LINKER CMAKE_RC_COMPILER_LINKER_ID CMAKE_RC_COMPILER_LINKER_VERSION)
-			set(ENV{${_T}} "${${_T}}")
+		foreach(_T IN ITEMS CMAKE_AR CMAKE_C_COMPILER_AR CMAKE_CXX_COMPILER_AR CMAKE_RC_COMPILER_AR CMAKE_ASM_COMPILER_AR)
+			set(${_T} "${LLVM_AR}")
+			#set(${_T} "${LLVM_AR}" PARENT_SCOPE)
+			set(${_T} "${LLVM_AR}" CACHE STRING "" FORCE)
+			set(ENV{${_T}} "${LLVM_AR}")
 		endforeach()
+		foreach(_T IN ITEMS CMAKE_RANLIB CMAKE_C_COMPILER_RANLIB CMAKE_CXX_COMPILER_RANLIB CMAKE_RC_COMPILER_RANLIB CMAKE_ASM_COMPILER_RANLIB)
+			set(${_T} "${LLVM_RANLIB}")
+			#set(${_T} "${LLVM_RANLIB}" PARENT_SCOPE)
+			set(${_T} "${LLVM_RANLIB}" CACHE STRING "" FORCE)
+			set(ENV{${_T}} "${LLVM_RANLIB}")
+		endforeach()
+		foreach(_T IN ITEMS CMAKE_OBJCOPY)
+			set(${_T} "${LLVM_OBJCOPY}")
+			#set(${_T} "${LLVM_OBJCOPY}" PARENT_SCOPE)
+			set(${_T} "${LLVM_OBJCOPY}" CACHE STRING "" FORCE)
+			set(ENV{${_T}} "${LLVM_OBJCOPY}")
+		endforeach()
+		foreach(_T IN ITEMS CMAKE_OBJDUMP)
+			set(${_T} "${LLVM_OBJDUMP}")
+			#set(${_T} "${LLVM_OBJDUMP}" PARENT_SCOPE)
+			set(${_T} "${LLVM_OBJDUMP}" CACHE STRING "" FORCE)
+			set(ENV{${_T}} "${LLVM_OBJDUMP}")
+		endforeach()
+		foreach(_T IN ITEMS CMAKE_NM)
+			set(${_T} "${LLVM_NM}")
+			#set(${_T} "${LLVM_NM}" PARENT_SCOPE)
+			set(${_T} "${LLVM_NM}" CACHE STRING "" FORCE)
+			set(ENV{${_T}} "${LLVM_NM}")
+		endforeach()
+		foreach(_T IN ITEMS CMAKE_LINKER CMAKE_C_COMPILER_LINKER CMAKE_CXX_COMPILER_LINKER CMAKE_RC_COMPILER_LINKER CMAKE_ASM_COMPILER_LINKER)
+			set(${_T} "${LLVM_LD}")
+			#set(${_T} "${LLVM_LD}" PARENT_SCOPE)
+			set(${_T} "${LLVM_LD}" CACHE STRING "" FORCE)
+			set(ENV{${_T}} "${LLVM_LD}")
+		endforeach()
+		foreach(_T IN ITEMS CMAKE_C_COMPILER CMAKE_ASM_COMPILER CMAKE_RC_COMPILER)
+			set(${_T} "${LLVM_CLANG}")
+			#set(${_T} "${LLVM_CLANG}" PARENT_SCOPE)
+			set(${_T} "${LLVM_CLANG}" CACHE STRING "" FORCE)
+			set(ENV{${_T}} "${LLVM_CLANG}")
+		endforeach()
+		foreach(_T IN ITEMS CMAKE_CXX_COMPILER)
+			set(${_T} "${LLVM_CLANGPP}")
+			#set(${_T} "${LLVM_CLANGPP}" PARENT_SCOPE)
+			set(${_T} "${LLVM_CLANGPP}" CACHE STRING "" FORCE)
+			set(ENV{${_T}} "${LLVM_CLANGPP}")
+		endforeach()
+		foreach(_T IN ITEMS LLVM_CLANG LLVM_CLANGPP LLVM_AR LLVM_RANLIB LLVM_NM LLVM_READELF LLVM_OBJCOPY LLVM_OBJDUMP LLVM_STRIP LLVM_DIR)
+			set(${_T} "${${_T}}" CACHE STRING "" FORCE)
+			set(ENV${_T} "${${_T}}")
+		endforeach()
+
 	else()
 		message(FATAL_ERROR "Failed to find or provide a compatible LLVM installation.")
 	endif()
