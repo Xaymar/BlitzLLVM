@@ -39,6 +39,63 @@ namespace blitz {
 			virtual ~node() = default;
 		};
 
+		/* Variable Parsing
+		 *
+		 * Declaration:
+		 * - 8bit Signed Integer Variable
+		 *     Variable.Byte
+		 *     Variable.Int8
+		 * - 8bit Unsigned Integer Variable
+		 *     Variable.UByte
+		 *     Variable.UInt8
+		 * - 16bit Signed Integer Variable
+		 *     Variable.Short
+		 *     Variable.Int16
+		 * - 16bit Unsigned Integer Variable
+		 *     Variable.UShort
+		 *     Variable.UInt16
+		 * - 32bit Signed Integer Variable
+		 *     Variable
+		 *     Variable%
+		 *     Variable.Int
+		 *     Variable.Int32
+		 * - 32bit Unsigned Integer Variable
+		 *     Variable.UInt
+		 *     Variable.UInt32
+		 * - 64bit Signed Integer Variable
+		 *     Variable%%
+		 *     Variable.Long
+		 *     Variable.Int64
+		 * - 64bit Unsigned Integer Variable
+		 *     Variable.ULong
+		 *     Variable.UInt64
+		 * - 32bit Real Variable
+		 *     Variable#
+		 *     Variable.Float
+		 *     Variable.Float32
+		 *     Variable.Real
+		 *     Variable.Real32
+		 * - 64bit Real Variable
+		 *     Variable##
+		 *     Variable.Double
+		 *     Variable.Float64
+		 *     Variable.Real64
+		 * - UTF-8 String Variable
+		 *     Variable$
+		 *     Variable.String
+		 * - Struct Variable
+		 *     Variable.StructName
+		 *
+		 * Access:
+		 * - Struct Access:
+		 *     Variable\Key
+		 * - Array Access:
+		 *     Variable[IntegerIndex]
+		 * - Dynamic Array Access:
+		 *     Variable(IntegerIndex)
+		 * - Direct Access:
+		 *     Variable
+		 */
 		struct variable : public node {
 			std::string        name;
 			blitz::types::type type;
@@ -49,7 +106,17 @@ namespace blitz {
 			static bool                              can_parse(std::shared_ptr<blitz::lexer> lexer);
 			static std::shared_ptr<blitz::ast::node> try_parse(std::shared_ptr<blitz::lexer> lexer);
 		};
-
+		
+		/** Value Parsing
+		 *
+		 * Handles parsing of:
+		 * - True
+		 * - False
+		 * - Null
+		 * - Any Integer Values including 0x, 0b and 0 notation with or without u suffix for unsigned.
+		 * - Any Real Values
+		 * - Any String Values
+		 */
 		struct value : public node {
 			enum class variant {
 				UNKNOWN,
@@ -74,6 +141,16 @@ namespace blitz {
 			static std::shared_ptr<blitz::ast::node> try_parse(std::shared_ptr<blitz::lexer> lexer);
 		};
 
+		/* Variable Declaration
+		 *
+		 * Examples:
+		 * - Local myVar1, myVar2%, myVar3 = "Help", myVar4$ = "Me"
+		 * - Global myVar2g# = 3.147
+		 * - Dim myDynamicArray[128]
+		 *
+		 *
+		 *
+		 */
 		struct declare : public node {
 			// Local, Global
 			bool                                         global;

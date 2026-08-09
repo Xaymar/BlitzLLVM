@@ -25,7 +25,7 @@ namespace blitz {
 			UNKNOWN, // We have absolutely no fucking clue.
 			ENDOFFILE, // End of the file.
 			NEWLINE, // New Line.
-			//SEPARATOR, // Command Separator.
+			SEPARATOR, // Command Separator. (':')
 			CONTROL, // All kinds of control signals
 			SYMBOL, // All kinds of symbols.
 			COMMENT, // ; Whatever
@@ -54,6 +54,21 @@ namespace blitz {
 		public:
 		~lexer();
 		lexer(std::filesystem::path file);
+
+		struct state {
+			std::streampos location;
+			std::ios_base::iostate state;
+			blitz::token current;
+			blitz::token next;
+		};
+
+		/** Save the current state for future failure recovery.
+		 */
+		blitz::lexer::state save_state();
+
+		/** Try and restore the saved state in case parsing failed.
+		 */
+		void load_state(blitz::lexer::state);
 
 		/** Retrieve the current token information.
 		 */

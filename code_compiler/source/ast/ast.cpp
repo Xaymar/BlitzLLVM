@@ -6,64 +6,6 @@
 
 blitz::ast::variable::~variable()
 {
-	/* Variable Parsing
-	 *
-	 * Declaration:
-	 * - 8bit Signed Integer Variable
-	 *     Variable:Byte
-	 *     Variable:Int8
-	 * - 8bit Unsigned Integer Variable
-	 *     Variable:UByte
-	 *     Variable:UInt8
-	 * - 16bit Signed Integer Variable
-	 *     Variable:Short
-	 *     Variable:Int16
-	 * - 16bit Unsigned Integer Variable
-	 *     Variable:UShort
-	 *     Variable:UInt16
-	 * - 32bit Signed Integer Variable
-	 *     Variable
-	 *     Variable%
-	 *     Variable:Int
-	 *     Variable:Int32
-	 * - 32bit Unsigned Integer Variable
-	 *     Variable:UInt
-	 *     Variable:UInt32
-	 * - 64bit Signed Integer Variable
-	 *     Variable%%
-	 *     Variable:Long
-	 *     Variable:Int64
-	 * - 64bit Unsigned Integer Variable
-	 *     Variable:ULong
-	 *     Variable:UInt64
-	 * - 32bit Real Variable
-	 *     Variable#
-	 *     Variable:Float
-	 *     Variable:Float32
-	 *     Variable:Real
-	 *     Variable:Real32
-	 * - 64bit Real Variable
-	 *     Variable##
-	 *     Variable:Double
-	 *     Variable:Float64
-	 *     Variable:Real64
-	 * - UTF-8 String Variable
-	 *     Variable$
-	 *     Variable:String
-	 * - Struct Variable
-	 *     Variable.StructName
-	 *     Variable:StructName
-	 *
-	 * Access:
-	 * - Struct Access:
-	 *     Variable\Key
-	 * - Array Access:
-	 *     Variable[IntegerIndex]
-	 * - Dynamic Array Access:
-	 *     Variable(IntegerIndex)
-	 * - Direct Access:
-	 *     Variable
-	 */
 }
 
 bool blitz::ast::variable::can_parse(std::shared_ptr<blitz::lexer> lexer)
@@ -195,13 +137,13 @@ std::shared_ptr<blitz::ast::node> blitz::ast::value::try_parse(std::shared_ptr<b
 		int         base = 10;
 		const char* text = tk.text.c_str();
 		if ((tk.text.length() > 1) && (text[0] == '0')) {
-			if (text[1] == 'x') { // Base 16
+			if (text[1] == 'x') { // Base 16 (Hexadecimal)
 				base = 16;
 				text = text += 2;
-			} else if (text[1] == 'b') { // Base 2
+			} else if (text[1] == 'b') { // Base 2 (Binary)
 				base = 2;
 				text = text += 2;
-			} else if (isdigit(text[1])) {
+			} else if (isdigit(text[1])) { // Base 8 (Octal)
 				base = 8;
 				text = text += 1;
 			}
@@ -247,15 +189,6 @@ std::shared_ptr<blitz::ast::node> blitz::ast::value::try_parse(std::shared_ptr<b
 
 blitz::ast::declare::~declare()
 {
-	/* Variable Declaration
-	 *
-	 * Examples:
-	 * - Local myVar1, myVar2%, myVar3 = "Help", myVar4$ = "Me"
-	 * - Global myVar2g# = 3.147
-	 *
-	 *
-	 *
-	 */
 }
 
 bool blitz::ast::declare::can_parse(std::shared_ptr<blitz::lexer> lexer)
@@ -324,7 +257,7 @@ std::shared_ptr<blitz::ast::node> blitz::ast::declare::try_parse(std::shared_ptr
 
 		// Peek at what's coming up and decide on behavior.
 		tk = lexer->peek();
-		if ((tk.type == blitz::token::variant::NEWLINE) || ((tk.type == blitz::token::variant::SYMBOL) && (tk.text == ":")) || (tk.type == blitz::token::variant::ENDOFFILE)) {
+		if ((tk.type == blitz::token::variant::NEWLINE) || ((tk.type == blitz::token::variant::SYMBOL) && (tk.text == blitz::token::variant::SEPARATOR)) || (tk.type == blitz::token::variant::ENDOFFILE)) {
 			// Nothing useful, break out here.
 			break;
 		} else if ((tk.type == blitz::token::variant::SYMBOL) && (tk.text == ",")) {

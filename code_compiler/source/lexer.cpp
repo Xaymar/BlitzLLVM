@@ -85,6 +85,23 @@ blitz::lexer::lexer(std::filesystem::path file)
 	};
 }
 
+blitz::lexer::state blitz::lexer::save_state()
+{
+	state st  = {};
+	st.location = _stream.tellg();
+	st.state    = _stream.rdstate();
+	st.current  = _current;
+	st.next     = _next;
+	return st;
+}
+
+void blitz::lexer::load_state(blitz::lexer::state state) {
+	_stream.setstate(state.state, true);
+	_stream.seekg(state.location);
+	_current = state.current;
+	_next    = state.next;
+}
+
 blitz::token blitz::lexer::current()
 {
 	return _current;
@@ -175,14 +192,14 @@ blitz::token blitz::lexer::peek()
 					complete       = true;
 					_stream.get();
 					_location.second++;
-					/*} else if (chr == ':') {
-				// Allows code writers to pretend it's all one line.
-				token.location = _location;
-				token.type     = blitz::token::variant::SEPARATOR;
-				token.text     = {1, char(chr)};
-				complete       = true;
-				_stream.get();
-				_location.second++;*/
+				} else if (chr == ':') {
+					// Line separator, like ; in C/C++. Allows code writers to pretend it's all one line!
+					token.location = _location;
+					token.type     = blitz::token::variant::SEPARATOR;
+					token.text     = { 1, char(chr) };
+					complete       = true;
+					_stream.get();
+					_location.second++;
 				} else if (chr == ';') {
 					// A comment, which ends at the next new line.
 					state          = stage::COMMENT;
