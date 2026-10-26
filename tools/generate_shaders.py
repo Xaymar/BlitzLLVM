@@ -19,9 +19,11 @@ OP = dict(
     TypePointer=32, TypeFunction=33, Constant=43, ConstantComposite=44, Function=54, FunctionEnd=56, Variable=59,
     Load=61, Store=62, AccessChain=65, Decorate=71, MemberDecorate=72, CompositeConstruct=80, CompositeExtract=81,
     ImageSampleImplicitLod=87, FSub=131, FMul=133, Label=248, Return=253,
+    ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
+    VectorTimesScalar=142, MatrixTimesVector=145, Dot=148,
 )
-STORAGE = dict(UniformConstant=0, Input=1, Output=3, PushConstant=9)
-DECORATION = dict(Block=2, BuiltIn=11, Location=30, Binding=33, DescriptorSet=34, Offset=35)
+STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
+DECORATION = dict(Block=2, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Location=30, Binding=33, DescriptorSet=34, Offset=35)
 
 
 def string_words(text):
@@ -237,6 +239,233 @@ def fragment_shader():
     return m.assemble()
 
 
+class Builder:
+    """Small helper for straight-line shader code: types and constants are created (and shared) on demand."""
+
+    def __init__(self):
+        self.m = Module()
+        self.cache = {}
+        self.glsl = self.m.id()
+        self.m.header.append(Module.inst("Capability", 1))
+        self.m.header.append(Module.inst("ExtInstImport", self.glsl, string_words("GLSL.std.450")))
+        self.m.header.append(Module.inst("MemoryModel", 0, 1))
+
+    def new_type(self, key, op, *operands):
+        if key not in self.cache:
+            i = self.m.id()
+            self.cache[key] = i
+            self.m.types.append(Module.inst(op, i, *operands))
+        return self.cache[key]
+
+    def void(self): return self.new_type("void", "TypeVoid")
+    def float(self): return self.new_type("float", "TypeFloat", 32)
+    def int(self): return self.new_type("int", "TypeInt", 32, 1)
+    def vec(self, n): return self.new_type(("vec", n), "TypeVector", self.float(), n)
+    def mat4(self): return self.new_type("mat4", "TypeMatrix", self.vec(4), 4)
+    def fn(self): return self.new_type("fn", "TypeFunction", self.void())
+
+    def array(self, element, count, name):
+        return self.new_type(("array", name), "TypeArray", element, self.const_int(count))
+
+    def struct(self, name, *members):
+        return self.new_type(("struct", name), "TypeStruct", *members)
+
+    def pointer(self, storage, target):
+        return self.new_type(("ptr", storage, target), "TypePointer", STORAGE[storage], target)
+
+    def const_float(self, value):
+        key = ("f", float_bits(value))
+        if key not in self.cache:
+            i = self.m.id()
+            self.cache[key] = i
+            self.m.types.append(Module.inst("Constant", self.float(), i, float_bits(value)))
+        return self.cache[key]
+
+    def const_int(self, value):
+        key = ("i", value)
+        if key not in self.cache:
+            i = self.m.id()
+            self.cache[key] = i
+            self.m.types.append(Module.inst("Constant", self.int(), i, value & 0xFFFFFFFF))
+        return self.cache[key]
+
+    def const_vec(self, n, value):
+        key = ("v", n, float_bits(value))
+        if key not in self.cache:
+            i = self.m.id()
+            self.cache[key] = i
+            c = self.const_float(value)
+            self.m.types.append(Module.inst("ConstantComposite", self.vec(n), i, *([c] * n)))
+        return self.cache[key]
+
+    def variable(self, storage, target, decorations=()):
+        i = self.m.id()
+        self.m.types.append(Module.inst("Variable", self.pointer(storage, target), i, STORAGE[storage]))
+        for decoration in decorations:
+            self.m.annotations.append(Module.inst("Decorate", i, *decoration))
+        return i
+
+    def emit(self, op, result_type, *operands):
+        i = self.m.id()
+        self.m.code.append(Module.inst(op, result_type, i, *operands))
+        return i
+
+    def load(self, type_id, pointer): return self.emit("Load", type_id, pointer)
+    def store(self, pointer, value): self.m.code.append(Module.inst("Store", pointer, value))
+    def access(self, storage, target, base, *indices): return self.emit("AccessChain", self.pointer(storage, target), base, *indices)
+    def extract(self, composite, index): return self.emit("CompositeExtract", self.float(), composite, index)
+    def construct(self, n, *parts): return self.emit("CompositeConstruct", self.vec(n), *parts)
+    def swizzle(self, vector, n): return self.emit("VectorShuffle", self.vec(n), vector, vector, *range(n))
+    def ext(self, type_id, number, *operands): return self.emit("ExtInst", type_id, self.glsl, number, *operands)
+    def fadd(self, t, a, b): return self.emit("FAdd", t, a, b)
+    def fsub(self, t, a, b): return self.emit("FSub", t, a, b)
+    def fmul(self, t, a, b): return self.emit("FMul", t, a, b)
+    def fdiv(self, t, a, b): return self.emit("FDiv", t, a, b)
+    def scale(self, n, vector, scalar): return self.emit("VectorTimesScalar", self.vec(n), vector, scalar)
+    def dot(self, a, b): return self.emit("Dot", self.float(), a, b)
+
+
+# GLSL.std.450 instruction numbers
+GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
+
+
+def vertex_shader_3d():
+    """
+    Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights.
+
+    #version 450
+    layout(location = 0) in vec3 inPosition;
+    layout(location = 1) in vec3 inNormal;
+    layout(location = 2) in vec2 inUV;
+    layout(location = 3) in vec4 inColor;
+    layout(set = 1, binding = 0) uniform Scene {
+        mat4 viewProjection;
+        vec4 ambient;
+        vec4 lightPosition[8];   // Direction towards the light if w == 0, position and range (w) otherwise.
+        vec4 lightColor[8];
+    } scene;
+    layout(push_constant) uniform Entity {
+        vec4 model0, model1, model2; // Rows of the 4x3 model matrix.
+        vec4 material;               // Color and alpha of the entity.
+        vec4 params;                 // x: fullbright
+    } entity;
+    layout(location = 0) out vec2 outUV;
+    layout(location = 1) out vec4 outColor;
+    void main() {
+        vec4 p = vec4(inPosition, 1.0);
+        vec3 world = vec3(dot(entity.model0, p), dot(entity.model1, p), dot(entity.model2, p));
+        vec3 n = normalize(vec3(dot(entity.model0.xyz, inNormal), dot(entity.model1.xyz, inNormal), dot(entity.model2.xyz, inNormal)));
+        gl_Position = scene.viewProjection * vec4(world, 1.0);
+        vec3 lit = scene.ambient.xyz;
+        for (int i = 0; i < 8; i++) {
+            float isPoint = clamp(scene.lightPosition[i].w * 1000.0, 0.0, 1.0);
+            vec3 delta = scene.lightPosition[i].xyz - world;
+            float dist = length(delta);
+            vec3 direction = mix(scene.lightPosition[i].xyz, delta / max(dist, 1e-4), isPoint);
+            float falloff = clamp(1.0 - dist / max(scene.lightPosition[i].w, 1e-4), 0.0, 1.0);
+            lit += scene.lightColor[i].xyz * max(dot(n, direction), 0.0) * mix(1.0, falloff, isPoint);
+        }
+        lit = mix(lit, vec3(1.0), entity.params.x);
+        outColor = vec4(clamp(entity.material.xyz * inColor.xyz * lit, 0.0, 1.0), entity.material.w * inColor.w);
+        outUV = inUV;
+    }
+    """
+    b = Builder()
+    f, v2, v3, v4 = b.float(), b.vec(2), b.vec(3), b.vec(4)
+    void, fn = b.void(), b.fn()
+    c0, c1 = b.const_float(0.0), b.const_float(1.0)
+
+    # Uniform block
+    lights = b.array(v4, 8, "lights")
+    scene = b.struct("scene", b.mat4(), v4, lights, lights)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", scene, 0, DECORATION["Offset"], 0),
+        Module.inst("MemberDecorate", scene, 0, DECORATION["ColMajor"]),
+        Module.inst("MemberDecorate", scene, 0, DECORATION["MatrixStride"], 16),
+        Module.inst("MemberDecorate", scene, 1, DECORATION["Offset"], 64),
+        Module.inst("MemberDecorate", scene, 2, DECORATION["Offset"], 80),
+        Module.inst("MemberDecorate", scene, 3, DECORATION["Offset"], 208),
+        Module.inst("Decorate", lights, DECORATION["ArrayStride"], 16),
+        Module.inst("Decorate", scene, DECORATION["Block"]),
+    ]
+    ubo = b.variable("Uniform", scene, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
+
+    # Push constants
+    entity = b.struct("entity", v4, v4, v4, v4, v4)
+    for index in range(5):
+        b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
+    b.m.annotations.append(Module.inst("Decorate", entity, DECORATION["Block"]))
+    push = b.variable("PushConstant", entity)
+
+    # Inputs and outputs
+    in_pos = b.variable("Input", v3, [(DECORATION["Location"], 0)])
+    in_normal = b.variable("Input", v3, [(DECORATION["Location"], 1)])
+    in_uv = b.variable("Input", v2, [(DECORATION["Location"], 2)])
+    in_color = b.variable("Input", v4, [(DECORATION["Location"], 3)])
+    out_uv = b.variable("Output", v2, [(DECORATION["Location"], 0)])
+    out_color = b.variable("Output", v4, [(DECORATION["Location"], 1)])
+    per_vertex = b.struct("pervertex", v4, f)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
+        Module.inst("MemberDecorate", per_vertex, 1, DECORATION["BuiltIn"], 1),
+        Module.inst("Decorate", per_vertex, DECORATION["Block"]),
+    ]
+    out_vertex = b.variable("Output", per_vertex)
+
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, out_uv, out_color, out_vertex))
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+
+    def push_member(index):
+        return b.load(v4, b.access("PushConstant", v4, push, b.const_int(index)))
+
+    pos, normal = b.load(v3, in_pos), b.load(v3, in_normal)
+    color = b.load(v4, in_color)
+    row0, row1, row2, material, params = (push_member(i) for i in range(5))
+
+    p4 = b.construct(4, b.extract(pos, 0), b.extract(pos, 1), b.extract(pos, 2), c1)
+    world = b.construct(3, b.dot(row0, p4), b.dot(row1, p4), b.dot(row2, p4))
+    r0, r1, r2 = b.swizzle(row0, 3), b.swizzle(row1, 3), b.swizzle(row2, 3)
+    nw = b.construct(3, b.dot(r0, normal), b.dot(r1, normal), b.dot(r2, normal))
+    n_len = b.ext(f, GLSL_LENGTH, nw)
+    n = b.scale(3, nw, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, n_len, b.const_float(1e-6))))
+
+    vp = b.load(b.mat4(), b.access("Uniform", b.mat4(), ubo, b.const_int(0)))
+    world4 = b.construct(4, b.extract(world, 0), b.extract(world, 1), b.extract(world, 2), c1)
+    clip = b.emit("MatrixTimesVector", v4, vp, world4)
+    b.store(b.access("Output", v4, out_vertex, b.const_int(0)), clip)
+    b.store(b.access("Output", f, out_vertex, b.const_int(1)), c1)
+
+    lit = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(1))), 3)
+    ones, zeros = b.const_vec(3, 1.0), b.const_vec(3, 0.0)
+    for light in range(8):
+        lp = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(2), b.const_int(light)))
+        lc = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(3), b.const_int(light)))
+        lpos, w = b.swizzle(lp, 3), b.extract(lp, 3)
+        delta = b.fsub(v3, lpos, world)
+        dist = b.ext(f, GLSL_LENGTH, delta)
+        to_point = b.scale(3, delta, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4))))
+        is_point = b.ext(f, GLSL_FCLAMP, b.fmul(f, w, b.const_float(1000.0)), c0, c1)
+        direction = b.fadd(v3, b.scale(3, lpos, b.fsub(f, c1, is_point)), b.scale(3, to_point, is_point))
+        ndotl = b.ext(f, GLSL_FMAX, b.dot(n, direction), c0)
+        range_ = b.ext(f, GLSL_FMAX, w, b.const_float(1e-4))
+        falloff = b.ext(f, GLSL_FCLAMP, b.fsub(f, c1, b.fdiv(f, dist, range_)), c0, c1)
+        attenuation = b.fadd(f, c1, b.fmul(f, b.fsub(f, falloff, c1), is_point))
+        contribution = b.scale(3, b.swizzle(lc, 3), b.fmul(f, ndotl, attenuation))
+        lit = b.fadd(v3, lit, contribution)
+
+    fullbright = b.extract(params, 0)
+    lit = b.fadd(v3, lit, b.scale(3, b.fsub(v3, ones, lit), fullbright))
+    base = b.fmul(v3, b.swizzle(material, 3), b.swizzle(color, 3))
+    rgb = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, base, lit), zeros, ones)
+    alpha = b.fmul(f, b.extract(material, 3), b.extract(color, 3))
+    b.store(out_color, b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), alpha))
+    b.store(out_uv, b.load(v2, in_uv))
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def emit(name, words, out):
     out.write("static const unsigned int %s[] = {\n" % name)
     for index in range(0, len(words), 8):
@@ -248,3 +477,4 @@ with open(sys.argv[1], "w", newline="\n") as out:
     out.write("// Generated by tools/generate_shaders.py, do not edit.\n")
     emit("bb_shader_vertex", vertex_shader(), out)
     emit("bb_shader_fragment", fragment_shader(), out)
+    emit("bb_shader_vertex_3d", vertex_shader_3d(), out)
