@@ -247,6 +247,9 @@ const char* bb_read_line(int32_t handle)
 		if (c == '\n') {
 			break;
 		}
+		if (len + 1 >= 16 * 1024 * 1024) {
+			break; // A line that never ends, from a stream that never stops.
+		}
 		if (len + 1 >= cap) {
 			cap *= 2;
 			buffer = (char*)realloc(buffer, cap);
@@ -266,6 +269,21 @@ const char* bb_read_string(int32_t handle)
 	int32_t length = bb_read_int(handle);
 	if (length < 0) {
 		length = 0;
+	}
+	// A length that is more than what is there, as in a broken file or from a stranger on the network, is the end.
+	bb_stream* stream = bb_stream_get(handle, "ReadString");
+	size_t     limit  = 16 * 1024 * 1024;
+	if (stream->kind == BB_STREAM_FILE) {
+		long here = ftell(stream->file);
+		if (here >= 0) {
+			fseek(stream->file, 0, SEEK_END);
+			long end = ftell(stream->file);
+			fseek(stream->file, here, SEEK_SET);
+			limit = (end > here) ? (size_t)(end - here) : 0;
+		}
+	}
+	if ((size_t)length > limit) {
+		length = (int32_t)limit;
 	}
 	char* buffer = (char*)malloc((size_t)length + 1);
 	size_t got   = bb_read_bytes(handle, buffer, (size_t)length, "ReadString");

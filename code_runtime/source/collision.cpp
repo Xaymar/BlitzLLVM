@@ -545,6 +545,20 @@ namespace {
 			area.add(line.o + line.d);
 			area.lo = area.lo - vec3{ radius, radius, radius };
 			area.hi = area.hi + vec3{ radius, radius, radius };
+			// Most objects are nowhere near, so they are skipped from the box around them before looking at triangles.
+			if (!e.terrain) {
+				float lo[3], hi[3];
+				if (!mesh_bounds(e, lo, hi)) {
+					return false;
+				}
+				box3 world;
+				for (int corner = 0; corner < 8; corner++) {
+					world.add(transform(tform, { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] }));
+				}
+				if (!world.overlaps(area)) {
+					return false;
+				}
+			}
 			bool hit = false;
 			each_triangle_matrix(e, tform, area, [&](triangle const& t) {
 				if (hit_triangle(c, line, radius, t.a, t.b, t.c)) {

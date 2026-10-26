@@ -167,6 +167,32 @@ Check "A small sprite", R(80, 60), 255, 6
 Check "A small sprite leaves the edge", R(60, 60), 10, 3
 FreeEntity sprite
 
+; A model can have a solid surface and a see-through one, like a tree has a trunk and leaves. What is solid still hides
+; what is behind it, even if the see-through part of the same model is drawn later.
+mixed = CreateMesh()
+solid = CreateSurface(mixed)
+v0 = AddVertex(solid, -2, -2, 0) : v1 = AddVertex(solid, -2, 2, 0) : v2 = AddVertex(solid, 2, 2, 0) : v3 = AddVertex(solid, 2, -2, 0)
+AddTriangle solid, v0, v1, v2
+AddTriangle solid, v0, v2, v3
+glass = CreateSurface(mixed)
+g0 = AddVertex(glass, -2, -2, 2) : g1 = AddVertex(glass, -2, 2, 2) : g2 = AddVertex(glass, 2, 2, 2) : g3 = AddVertex(glass, 2, -2, 2)
+AddTriangle glass, g0, g1, g2
+AddTriangle glass, g0, g2, g3
+solid_brush = CreateBrush(0, 0, 255)
+BrushFX solid_brush, 1
+PaintSurface solid, solid_brush
+glass_brush = CreateBrush(255, 0, 0)
+BrushFX glass_brush, 1
+BrushAlpha glass_brush, 0.5
+PaintSurface glass, glass_brush
+EntityFX mixed, 1 + 16
+RenderWorld
+Check "A solid surface hides what is behind it: blue", B(80, 60), 255, 3
+Check "A solid surface hides what is behind it: red", R(80, 60), 0, 3
+FreeEntity mixed
+FreeBrush solid_brush
+FreeBrush glass_brush
+
 ; A part of the buffer
 cube = CreateCube()
 EntityFX cube, 1

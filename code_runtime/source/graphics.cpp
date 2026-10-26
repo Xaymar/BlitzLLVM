@@ -265,6 +265,11 @@ namespace {
 		int     mouse_queue[16] = {}; // Mouse buttons that were pressed, for GetMouse.
 		int     mouse_head = 0, mouse_tail = 0;
 		float   mouse_dx = 0, mouse_dy = 0, mouse_dz = 0; // Movement since it was asked for last.
+		// While a program puts the mouse back in the middle every frame, the mouse is kept in the window, hidden, and only
+		// how far it moved is looked at, as DirectInput does for the original. The position is then made up from that.
+		bool    mouse_relative = false;
+		float   mouse_px = 0, mouse_py = 0;
+		Uint64  mouse_move_tick = 0;
 		int     mouse_z = 0;
 		uint32_t triangles_drawn = 0;
 	};
@@ -1377,10 +1382,18 @@ namespace {
 				// Mouse position is reported in window coordinates, programs expect buffer coordinates.
 				int ww = 1, wh = 1;
 				SDL_GetWindowSize(g.window, &ww, &wh);
-				g.mouse_x = int(event.motion.x * float(g.width) / float(ww));
-				g.mouse_y = int(event.motion.y * float(g.height) / float(wh));
-				g.mouse_dx += event.motion.xrel * float(g.width) / float(ww);
-				g.mouse_dy += event.motion.yrel * float(g.height) / float(wh);
+				float dx = event.motion.xrel * float(g.width) / float(ww), dy = event.motion.yrel * float(g.height) / float(wh);
+				if (g.mouse_relative) {
+					g.mouse_px = fminf(fmaxf(g.mouse_px + dx, 0.0f), float(g.width - 1));
+					g.mouse_py = fminf(fmaxf(g.mouse_py + dy, 0.0f), float(g.height - 1));
+					g.mouse_x  = int(g.mouse_px);
+					g.mouse_y  = int(g.mouse_py);
+				} else {
+					g.mouse_x = int(event.motion.x * float(g.width) / float(ww));
+					g.mouse_y = int(event.motion.y * float(g.height) / float(wh));
+				}
+				g.mouse_dx += dx;
+				g.mouse_dy += dy;
 				break;
 			}
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: {
@@ -1406,6 +1419,15 @@ namespace {
 			default:
 				break;
 			}
+		}
+		// When the program stops putting the mouse back, it is let go and put where the program thinks it is.
+		if (g.mouse_relative && (SDL_GetTicks() - g.mouse_move_tick > 300)) {
+			g.mouse_relative = false;
+			SDL_SetWindowRelativeMouseMode(g.window, false);
+			int ww = 1, wh = 1;
+			SDL_GetWindowSize(g.window, &ww, &wh);
+			SDL_WarpMouseInWindow(g.window, float(g.mouse_x) * float(ww) / float(g.width), float(g.mouse_y) * float(wh) / float(g.height));
+			g.mouse_dx = g.mouse_dy = 0;
 		}
 	}
 
@@ -1998,6 +2020,17 @@ namespace {
 		const float* view;
 	};
 
+	// Whether the surface has to be drawn with the see-through things, after what is solid.
+	bool surface_is_blended(bb::entity const& e, bb::surface const& s, float alpha)
+	{
+		int            texture_handle = (s.painted && s.paint.texture) ? s.paint.texture : e.texture;
+		int            blend          = (s.painted && s.paint.blend) ? s.paint.blend : e.blend;
+		float          paint_alpha    = s.painted ? s.paint.alpha : 1.0f;
+		texture_entry* texture        = texture_of(texture_handle);
+		bool           see_through    = texture && (texture->flags & TEXTURE_ALPHA) && !(texture->flags & TEXTURE_MASKED);
+		return (alpha * paint_alpha < 0.999f) || (blend != 1) || see_through;
+	}
+
 	void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
@@ -2019,27 +2052,28 @@ namespace {
 			return;
 		}
 
-		texture_entry* texture = texture_of(mesh.texture);
-		bool translucent       = texture && (texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED));
-		bool blended           = (alpha < 0.999f) || translucent || (mesh.blend != 1);
-		for (uint32_t i = 0; i < mesh.surfaces.size && !blended; i++) {
-			// Painted surfaces can be see-through even if the entity is not.
-			bb::surface const& surface = *mesh.surfaces[i];
-			if (surface.painted) {
-				texture_entry* painted = texture_of(surface.paint.texture);
-				blended = (surface.paint.alpha < 0.999f) || (surface.paint.blend > 1) || (painted && (painted->flags & (TEXTURE_ALPHA | TEXTURE_MASKED)));
+		// Each surface is either solid or see-through, and a model can have both: the trunk of a tree and its leaves.
+		bb::update_terrain(mesh);
+		bool has_solid = mesh.surfaces.size == 0, has_blended = false;
+		for (uint32_t i = 0; i < mesh.surfaces.size; i++) {
+			if (surface_is_blended(mesh, *mesh.surfaces[i], alpha)) {
+				has_blended = true;
+			} else {
+				has_solid = true;
 			}
 		}
-		bb::update_terrain(mesh);
 		draw_item item         = { handle, alpha, depth, mesh.order };
 		if (mesh.order > 0) {
 			c->list->behind.push(item);
 		} else if (mesh.order < 0) {
 			c->list->front.push(item);
-		} else if (blended) {
-			c->list->blended.push(item);
 		} else {
-			c->list->opaque.push(item);
+			if (has_solid) {
+				c->list->opaque.push(item);
+			}
+			if (has_blended) {
+				c->list->blended.push(item);
+			}
 		}
 	}
 
@@ -2071,7 +2105,8 @@ namespace {
 		}
 	}
 
-	void draw_entity(draw_item const& item, bool blended, bool depth_test)
+	// pass: 0 draws what is solid, 1 what is see-through, 2 everything (for what has an order).
+	void draw_entity(draw_item const& item, int pass, bool depth_test)
 	{
 		bb::entity* e = bb::get_entity(item.handle);
 		if (!e) {
@@ -2155,7 +2190,10 @@ namespace {
 			}
 			int  texture_handle = paint.texture ? paint.texture : e->texture;
 			int  blend          = paint.blend ? paint.blend : e->blend;
-			bool surface_blended = blended || (paint.alpha < 0.999f) || (blend != 1);
+			bool surface_blended = surface_is_blended(*e, surface, item.alpha);
+			if (((pass == 0) && surface_blended) || ((pass == 1) && !surface_blended)) {
+				continue;
+			}
 
 			push.material[0] = e->color[0] * paint.color[0];
 			push.material[1] = e->color[1] * paint.color[1];
@@ -2167,9 +2205,9 @@ namespace {
 			push.uv[1] = texture ? texture->uv[1] : 1.0f;
 			push.uv[2] = texture ? texture->uv[2] : 0.0f;
 			push.uv[3] = texture ? texture->uv[3] : 0.0f;
-			// Textures with see-through parts cut out what is nearly invisible, so that what is behind it can still be seen.
-			bool cutout = texture && (texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED)) && (blend == 1) && !e->sprite_mode && (item.alpha * paint.alpha >= 0.999f);
-			push.mask[0] = cutout ? 0.4f : 0.0f;
+			// Masked textures are cut out where they are nearly not there, which is what makes leaves and fences solid.
+			bool cutout = texture && (texture->flags & TEXTURE_MASKED);
+			push.mask[0] = cutout ? 0.5f * item.alpha * paint.alpha : 0.0f;
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
@@ -2256,18 +2294,16 @@ namespace {
 		scene.first_draw = draws.size;
 		// Entities with an order are drawn behind or in front of everything, without looking at the depth.
 		for (uint32_t i = 0; i < list.behind.size; i++) {
-			bb::entity* e = bb::get_entity(list.behind[i].handle);
-			draw_entity(list.behind[i], e && ((list.behind[i].alpha < 0.999f) || (e->blend != 1)), false);
+			draw_entity(list.behind[i], 2, false);
 		}
 		for (uint32_t i = 0; i < list.opaque.size; i++) {
-			draw_entity(list.opaque[i], false, true);
+			draw_entity(list.opaque[i], 0, true);
 		}
 		for (uint32_t i = 0; i < list.blended.size; i++) {
-			draw_entity(list.blended[i], true, true);
+			draw_entity(list.blended[i], 1, true);
 		}
 		for (uint32_t i = 0; i < list.front.size; i++) {
-			bb::entity* e = bb::get_entity(list.front[i].handle);
-			draw_entity(list.front[i], e && ((list.front[i].alpha < 0.999f) || (e->blend != 1)), false);
+			draw_entity(list.front[i], 2, false);
 		}
 		list.release();
 
@@ -2747,6 +2783,11 @@ int32_t bb_mouse_x_speed(void)
 	if (active()) {
 		pump();
 	}
+	if (g.mouse_relative) {
+		int32_t v  = int32_t(g.mouse_dx);
+		g.mouse_dx -= float(v);
+		return v;
+	}
 	int32_t v    = g.mouse_x - mouse_ref_x; // Moving the mouse with MoveMouse is not speed.
 	mouse_ref_x = g.mouse_x;
 	return v;
@@ -2756,6 +2797,11 @@ int32_t bb_mouse_y_speed(void)
 {
 	if (active()) {
 		pump();
+	}
+	if (g.mouse_relative) {
+		int32_t v  = int32_t(g.mouse_dy);
+		g.mouse_dy -= float(v);
+		return v;
 	}
 	int32_t v    = g.mouse_y - mouse_ref_y; // Moving the mouse with MoveMouse is not speed.
 	mouse_ref_y = g.mouse_y;
@@ -2785,11 +2831,18 @@ void bb_move_mouse(int32_t x, int32_t y)
 	if (!active()) {
 		return;
 	}
-	int ww = 1, wh = 1;
-	SDL_GetWindowSize(g.window, &ww, &wh);
-	SDL_WarpMouseInWindow(g.window, float(x) * float(ww) / float(g.width), float(y) * float(wh) / float(g.height));
-	g.mouse_x = x;
-	g.mouse_y = y;
+	// A program that puts the mouse somewhere every frame is looking at how far it moves. Warping it does not work for
+	// that, as the warp is an event as well, so the mouse is kept in the window and the position is made up.
+	g.mouse_move_tick = SDL_GetTicks();
+	if (!g.mouse_relative) {
+		g.mouse_relative = true;
+		g.mouse_dx = g.mouse_dy = 0;
+		SDL_SetWindowRelativeMouseMode(g.window, true);
+	}
+	g.mouse_px = float(x);
+	g.mouse_py = float(y);
+	g.mouse_x  = x;
+	g.mouse_y  = y;
 	mouse_ref_x = x;
 	mouse_ref_y = y;
 }
@@ -2864,7 +2917,11 @@ const char* bb_get_clipboard_data(int32_t format)
 			return copy;
 		}
 	}
-	return clipboard_fallback ? clipboard_fallback : "";
+	const char* fallback = clipboard_fallback ? clipboard_fallback : "";
+	size_t      length   = strlen(fallback);
+	char*       copy     = static_cast<char*>(malloc(length + 1));
+	memcpy(copy, fallback, length + 1);
+	return copy;
 }
 
 int32_t bb_set_clipboard_data(int32_t format, const char* text)
@@ -3737,52 +3794,80 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 }
 
 // LoadTexture(file, flags): flags are 1 = color, 2 = alpha channel, 4 = masked (black is transparent), 16/32 = clamp U/V.
-int32_t bb_load_texture(const char* file, int32_t flags)
+// TextureFilter: every texture whose file name has the text in it (in lower case) gets these flags as well.
+struct texture_filter {
+	char*   match;
+	int32_t flags;
+};
+static bb::buffer<texture_filter> texture_filters;
+
+int32_t bb_filter_texture_flags(const char* file, int32_t flags)
+{
+	if (!file) {
+		return flags;
+	}
+	size_t length = strlen(file);
+	char*  lower  = static_cast<char*>(malloc(length + 1));
+	for (size_t i = 0; i <= length; i++) {
+		char c   = file[i];
+		lower[i] = (c >= 'A' && c <= 'Z') ? char(c + 32) : c;
+	}
+	for (uint32_t i = 0; i < texture_filters.size; i++) {
+		if (strstr(lower, texture_filters[i].match)) {
+			flags |= texture_filters[i].flags;
+		}
+	}
+	free(lower);
+	return flags;
+}
+
+// Loads a texture with exactly these flags. Where alpha comes from is what the original does: nothing, if the flag is
+// not there, and with it the alpha channel of the image if it has one, and otherwise how bright each pixel is.
+int32_t bb_load_texture_flags(const char* file, int32_t flags)
 {
 	if (!file) {
 		return 0;
+	}
+	if (flags & TEXTURE_MASKED) {
+		flags |= 1 | TEXTURE_ALPHA;
 	}
 	SDL_Surface* loaded = IMG_Load(file);
 	if (!loaded) {
 		return 0; // Blitz gives 0 for missing files.
 	}
-	// Files named like sprite_a.bmp are always see-through, which is what Blitz3D does.
-	for (const char* c = file; *c; c++) {
-		if ((c[0] == '_') && ((c[1] == 'a') || (c[1] == 'A')) && (c[2] == '.')) {
-			flags |= TEXTURE_ALPHA;
-		}
-	}
-	bool has_alpha = SDL_ISPIXELFORMAT_ALPHA(loaded->format);
-	SDL_Surface* rgba = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
+	bool         has_alpha = SDL_ISPIXELFORMAT_ALPHA(loaded->format);
+	SDL_Surface* rgba      = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
 	SDL_DestroySurface(loaded);
 	if (!rgba) {
 		return 0;
 	}
-	if (has_alpha && !(flags & TEXTURE_MASKED) && !(flags & TEXTURE_ALPHA)) {
-		// Images with a real alpha channel are see-through even if the program did not ask, like in Blitz3D.
-		for (int y = 0; y < rgba->h && !(flags & TEXTURE_ALPHA); y++) {
+
+	// Pictures with a palette can have see-through colors, which only shows once they are converted.
+	if (!has_alpha) {
+		for (int y = 0; y < rgba->h && !has_alpha; y++) {
 			const uint8_t* row = static_cast<const uint8_t*>(rgba->pixels) + size_t(y) * size_t(rgba->pitch);
 			for (int x = 0; x < rgba->w; x++) {
 				if (row[x * 4 + 3] != 255) {
-					flags |= TEXTURE_ALPHA;
+					has_alpha = true;
 					break;
 				}
 			}
 		}
 	}
-
-	// Without the alpha flag, the image's own alpha is ignored. Masked textures treat black as transparent.
+	bool whiten = !(flags & 1); // Only alpha was asked for, so the picture has no color of its own.
 	for (int y = 0; y < rgba->h; y++) {
 		uint8_t* row = static_cast<uint8_t*>(rgba->pixels) + size_t(y) * size_t(rgba->pitch);
 		for (int x = 0; x < rgba->w; x++) {
 			uint8_t* px = row + x * 4;
-			if (flags & TEXTURE_MASKED) {
-				px[3] = (px[0] || px[1] || px[2]) ? 255 : 0;
-			} else if (!(flags & TEXTURE_ALPHA)) {
+			if (!(flags & TEXTURE_ALPHA)) {
 				px[3] = 255;
+			} else if (flags & TEXTURE_MASKED) {
+				px[3] = (px[0] || px[1] || px[2]) ? 255 : 0; // Black is not there.
 			} else if (!has_alpha) {
-				// Without an alpha channel, how bright a pixel is says how solid it is.
 				px[3] = uint8_t((px[0] + px[1] + px[2]) / 3);
+				if (whiten) {
+					px[0] = px[1] = px[2] = 255;
+				}
 			}
 		}
 	}
@@ -3806,6 +3891,11 @@ int32_t bb_load_texture(const char* file, int32_t flags)
 	}
 	texture_table.push(entry);
 	return int32_t(texture_table.size);
+}
+
+int32_t bb_load_texture(const char* file, int32_t flags)
+{
+	return bb_load_texture_flags(file, bb_filter_texture_flags(file, flags));
 }
 
 void bb_free_texture(int32_t handle)
@@ -3872,8 +3962,14 @@ void bb_texture_blend(int32_t handle, int32_t mode)
 
 void bb_texture_filter(const char* match, int32_t flags)
 {
-	(void)match;
-	(void)flags;
+	const char* text   = match ? match : "";
+	size_t      length = strlen(text);
+	char*       lower  = static_cast<char*>(malloc(length + 1));
+	for (size_t i = 0; i <= length; i++) {
+		char c   = text[i];
+		lower[i] = (c >= 'A' && c <= 'Z') ? char(c + 32) : c;
+	}
+	texture_filters.push({ lower, flags });
 }
 
 void bb_set_cube_face(int32_t handle, int32_t face)
@@ -3952,30 +4048,8 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 	float center[3] = { 0, 0, 0 }, radius = 0;
 	if (e->kind == bb::MESH) {
 		bb::update_terrain(*e);
-		float lo[3] = { 1e30f, 1e30f, 1e30f }, hi[3] = { -1e30f, -1e30f, -1e30f };
-		for (uint32_t i = 0; i < e->surfaces.size; i++) {
-			bb::surface& surface = *e->surfaces[i];
-			if (!surface.bound_valid) {
-				float slo[3] = { 1e30f, 1e30f, 1e30f }, shi[3] = { -1e30f, -1e30f, -1e30f };
-				for (uint32_t v = 0; v < surface.vertices.size; v++) {
-					const bb::vertex3d& vert = surface.vertices[v];
-					const float         c[3] = { vert.x, vert.y, vert.z };
-					for (int k = 0; k < 3; k++) {
-						slo[k] = c[k] < slo[k] ? c[k] : slo[k];
-						shi[k] = c[k] > shi[k] ? c[k] : shi[k];
-					}
-				}
-				memcpy(surface.bound_min, slo, sizeof(slo));
-				memcpy(surface.bound_max, shi, sizeof(shi));
-				surface.bound_valid = true;
-			}
-			if (surface.vertices.size) {
-				for (int k = 0; k < 3; k++) {
-					lo[k] = surface.bound_min[k] < lo[k] ? surface.bound_min[k] : lo[k];
-					hi[k] = surface.bound_max[k] > hi[k] ? surface.bound_max[k] : hi[k];
-				}
-			}
-		}
+		float lo[3], hi[3];
+		bb::mesh_bounds(*e, lo, hi);
 		if (lo[0] <= hi[0]) {
 			for (int k = 0; k < 3; k++) {
 				center[k] = (lo[k] + hi[k]) * 0.5f;
