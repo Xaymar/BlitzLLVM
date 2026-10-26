@@ -94,7 +94,7 @@ namespace {
 				  << "                        or -fuse-ld=lld. Can be given multiple times.\n"
 				  << "  --llvm-arg <arg>      Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times.\n"
 				  << "  --cc <path>           Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'.\n"
-				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler.\n"
+				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler, then '../lib/blitzllvm/runtime'.\n"
 				  << "  --keep-temps          Don't delete the intermediate files.\n"
 				  << "  --dump-tokens         Only print the tokens of the input file, for debugging the lexer.\n"
 				  << "  -v, --verbose         Print the commands that are run.\n"
@@ -271,7 +271,15 @@ int main(int argc, char** argv)
 		write_file(ir_file, ir);
 
 		// Everything in the runtime directory is part of the runtime, and gets linked in.
-		auto runtime_dir = opt.runtime_dir.empty() ? executable_path().parent_path() / "runtime" : opt.runtime_dir;
+		// Next to the compiler for the portable layout (bin/runtime), in ../lib/blitzllvm/runtime for the system layout of packages.
+		auto runtime_dir = opt.runtime_dir;
+		if (runtime_dir.empty()) {
+			auto bin_dir = executable_path().parent_path();
+			runtime_dir  = bin_dir / "runtime";
+			if (!std::filesystem::is_directory(runtime_dir) && std::filesystem::is_directory(bin_dir / ".." / "lib" / "blitzllvm" / "runtime")) {
+				runtime_dir = std::filesystem::weakly_canonical(bin_dir / ".." / "lib" / "blitzllvm" / "runtime");
+			}
+		}
 		std::vector<std::string> libraries;
 		if (std::filesystem::is_directory(runtime_dir)) {
 			for (auto const& entry : std::filesystem::directory_iterator(runtime_dir)) {

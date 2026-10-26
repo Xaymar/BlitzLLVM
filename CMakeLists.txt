@@ -107,3 +107,36 @@ endfunction()
 ################################################################################
 add_subdirectory("code_runtime")
 add_subdirectory("code_compiler")
+
+################################################################################
+# Packaging
+#
+# cpack -G DEB|RPM|productbuild -D CPACK_COMPONENTS_ALL=system   packages with the system layout (Linux and macOS)
+################################################################################
+set(CPACK_PACKAGE_NAME "blitzllvm")
+set(CPACK_PACKAGE_VENDOR "Xaymar")
+set(CPACK_PACKAGE_CONTACT "Xaymar <info@xaymar.com>")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "BlitzBasic compiler built on LLVM")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/Xaymar/BlitzLLVM")
+set(CPACK_PACKAGE_VERSION "0.1.0" CACHE STRING "Version of the packages")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.adoc" "${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt" COPYONLY)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt")
+set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
+if(APPLE)
+	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
+elseif(UNIX)
+	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+endif()
+
+# blitzcc hands everything to clang, and programs load the Vulkan loader when they start.
+set(CPACK_DEB_COMPONENT_INSTALL ON)
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "clang, libvulkan1")
+set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
+set(CPACK_RPM_COMPONENT_INSTALL ON)
+set(CPACK_RPM_FILE_NAME RPM-DEFAULT)
+set(CPACK_RPM_PACKAGE_REQUIRES "clang, vulkan-loader")
+set(CPACK_RPM_PACKAGE_LICENSE "BSD-3-Clause")
+set(CPACK_RPM_PACKAGE_GROUP "Development/Languages")
+set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/lib/blitzllvm;/usr/share/blitzllvm")
+include(CPack)

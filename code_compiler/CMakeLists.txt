@@ -40,6 +40,12 @@ install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION bin/runtime)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
 
+# System layout for packages (deb, rpm, pkg), left out of a plain install: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime
+# and <prefix>/share/blitzllvm/userlibs. Only the packaging step installs this component, see the end of the top level CMakeLists.txt.
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)
+install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime COMPONENT system EXCLUDE_FROM_ALL)
+install(FILES "userlibs/README.txt" DESTINATION share/blitzllvm/userlibs COMPONENT system EXCLUDE_FROM_ALL)
+
 get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})
 

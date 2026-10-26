@@ -50,6 +50,39 @@ jobs:
         with:
           name: blitzllvm-${{ matrix.name }}
           path: dist
+      - name: Install packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install -y rpm libarchive-tools zstd
+          sudo gem install --no-document fpm
+      - name: Build packages (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          VERSION="0.1.0.$(date -u +%Y%m%d)"
+          mkdir packages
+          # deb and rpm
+          for generator in DEB RPM; do
+            (cd build && cpack -G $generator -C Release -D CPACK_COMPONENTS_ALL=system -D CPACK_PACKAGE_VERSION="$VERSION" -B "$PWD/../packages")
+          done
+          # Arch Linux
+          DESTDIR="$PWD/stage" cmake --install build --config Release --component system --prefix /usr
+          fpm -s dir -t pacman -n blitzllvm -v "$VERSION" --description "BlitzBasic compiler built on LLVM" \
+            --url https://github.com/Xaymar/BlitzLLVM --license BSD-3-Clause --depends clang --depends vulkan-icd-loader \
+            -p "packages/blitzllvm-${VERSION}-1-x86_64.pkg.tar.zst" -C stage usr
+          rm -rf packages/_CPack_Packages
+          ls -l packages
+      - name: Build packages (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir packages
+          (cd build && cpack -G productbuild -C Release -D CPACK_COMPONENTS_ALL=system -D CPACK_PACKAGE_VERSION="0.1.0.$(date -u +%Y%m%d)" -B "$PWD/../packages")
+          rm -rf packages/_CPack_Packages
+          ls -l packages
+      - uses: actions/upload-artifact@v4
+        if: runner.os != 'Windows'
+        with:
+          name: package-${{ matrix.name }}
+          path: packages
 
   release:
     needs: build
@@ -65,10 +98,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          for d in artifacts/*; do (cd "$d" && zip -r "../$(basename "$d").zip" .); done
+          for d in artifacts/blitzllvm-*; do (cd "$d" && zip -r "../$(basename "$d").zip" .); done
           gh release delete nightly --yes || true
           # The tag points at a commit with no files, so it can never collide with real history.
           git init -q
           git -c user.name=github-actions -c user.email=actions@github.com commit -q --allow-empty -m "Nightly ${GITHUB_SHA}"
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git" HEAD:refs/tags/nightly
-          gh release create nightly artifacts/*.zip --prerelease --verify-tag             --title "Nightly (${GITHUB_SHA::7})"             --notes "Automated build of ${GITHUB_SHA}"
+          gh release create nightly artifacts/*.zip artifacts/package-*/* --prerelease --verify-tag             --title "Nightly (${GITHUB_SHA::7})"             --notes "Automated build of ${GITHUB_SHA}"
