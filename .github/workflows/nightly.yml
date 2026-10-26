@@ -133,11 +133,23 @@ jobs:
             esac
           done
           ls -l release
-          gh release delete nightly --yes || true
-          # The tag points at a commit with no files, so it can never collide with real history.
-          git init -q
-          git -c user.name=github-actions -c user.email=actions@github.com commit -q --allow-empty -m "Nightly ${GITHUB_SHA}"
-          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git" HEAD:refs/tags/nightly
-          gh release create nightly release/* --prerelease --verify-tag \
-            --title "Nightly ${VERSION} (${GITHUB_SHA::7})" \
-            --notes "Automated build of ${GITHUB_SHA}, version ${VERSION}."
+          TITLE="Nightly ${VERSION} (${GITHUB_SHA::7})"
+          NOTES="Automated build of ${GITHUB_SHA}, version ${VERSION}."
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git"
+          # The tag stays on a single blank commit that has no files, so it can never collide with real history. It is only
+          # created once; later builds just update the release and its assets.
+          if [ -z "$(git ls-remote --tags "$REMOTE" refs/tags/nightly)" ]; then
+            git init -q
+            git -c user.name=github-actions -c user.email=actions@github.com commit -q --allow-empty -m "Nightly"
+            git push -q "$REMOTE" HEAD:refs/tags/nightly
+          fi
+          if gh release view nightly >/dev/null 2>&1; then
+            # Asset names contain the version, so remove the previous ones instead of leaving them behind.
+            gh release view nightly --json assets --jq '.assets[].name' | while read -r name; do
+              gh release delete-asset nightly "$name" --yes
+            done
+            gh release edit nightly --prerelease --title "$TITLE" --notes "$NOTES"
+            gh release upload nightly release/* --clobber
+          else
+            gh release create nightly release/* --prerelease --verify-tag --title "$TITLE" --notes "$NOTES"
+          fi
