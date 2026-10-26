@@ -1,0 +1,42 @@
+name: Copyright
+
+on:
+  push:
+    branches: ['**']
+
+concurrency:
+  group: copyright-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  copyright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          # The authors and years are taken from the history, so all of it is needed.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Use the author of the pushed commit
+        # Commits made here are authored by whoever pushed, so the bot never ends up in a copyright header.
+        run: |
+          git config user.name "$(git log -1 --format=%aN)"
+          git config user.email "$(git log -1 --format=%aE)"
+      - name: Update copyright headers
+        run: node tools/copyright.js
+      - name: Commit and push
+        run: |
+          if git diff --quiet; then
+            echo "Copyright headers are up to date."
+            exit 0
+          fi
+          git add -A
+          git -c committer.name=github-actions[bot] -c committer.email=41898282+github-actions[bot]@users.noreply.github.com \
+            commit -m "Update copyright headers"
+          git push origin "HEAD:${{ github.ref_name }}"
