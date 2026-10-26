@@ -53,6 +53,15 @@ Useful options:
 blitzcc -O3 program.bb         # optimise
 blitzcc -S program.bb          # only write the LLVM IR (program.ll)
 blitzcc --target <triple> program.bb   # cross-compile
+blitzcc -q program.bb          # quiet: no version banner
+blitzcc +q program.bb          # very quiet: only errors
+blitzcc -c program.bb          # compile only: check the program, don't create an executable (unless -o is given)
+blitzcc -d program.bb          # debug: no optimization, with debug information (there is no debugger yet)
+blitzcc -k                     # list all keywords, runtime functions and userlib functions
+blitzcc +k                     # same, with the syntax of the functions
+blitzcc -v                     # print the version
 ```
+
+`-v` prints the version; the verbose output of the commands that are run is `--verbose`. The userlibs for `-k` and `+k` are the `.decls` files in `userlibs` next to `bin` (or in `share/blitzllvm/userlibs`), or in the directory given with `--userlibs-dir`. They are only listed so far, calling their functions is not supported yet.
 
 `blitzcc --help` lists all of them.
