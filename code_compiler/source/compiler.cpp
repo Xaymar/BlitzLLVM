@@ -493,7 +493,7 @@ blitz::compiler::variable* blitz::compiler::find(std::string const& name)
 	return nullptr;
 }
 
-blitz::compiler::variable blitz::compiler::create_local(std::string const& name, type t, bool is_constant, ast::location const& where, std::string const& sname)
+blitz::compiler::variable blitz::compiler::create_local(std::string const& name, type t, bool is_constant, ast::location const& where, std::string const& sname, uint32_t count)
 {
 	auto key = lower(name);
 	if (_locals.count(key) || _global_variables.count(key)) {
@@ -503,10 +503,16 @@ blitz::compiler::variable blitz::compiler::create_local(std::string const& name,
 	// Allocas live in the entry block, so that loops don't grow the stack.
 	auto ptr  = "%v" + std::to_string(_counter++);
 	auto llvm = blitz::types::to_llvm(t);
-	_allocas << "  " << ptr << " = alloca " << llvm << "\n";
-	_allocas << "  store " << llvm << " " << zero(t).repr << ", ptr " << ptr << "\n";
+	if (count) {
+		auto array = "[" + std::to_string(count) + " x " + llvm + "]";
+		_allocas << "  " << ptr << " = alloca " << array << "\n";
+		_allocas << "  store " << array << " zeroinitializer, ptr " << ptr << "\n";
+	} else {
+		_allocas << "  " << ptr << " = alloca " << llvm << "\n";
+		_allocas << "  store " << llvm << " " << zero(t).repr << ", ptr " << ptr << "\n";
+	}
 
-	variable var{ ptr, t, is_constant, lower(sname) };
+	variable var{ ptr, t, is_constant, lower(sname), count };
 	_locals[key] = var;
 	return var;
 }
@@ -537,13 +543,34 @@ void blitz::compiler::collect_globals(ast::block const& block)
 				if (t == type::UNKNOWN) {
 					t = d->constant ? static_type(decl.initial.get()) : type::INT32;
 				}
-				auto symbol = "@bb.g" + std::to_string(_counter++);
-				_globals << symbol << " = internal global " << blitz::types::to_llvm(t) << " " << zero(t).repr << "\n";
-				_global_variables[key] = variable{ symbol, t, d->constant, lower(decl.struct_name) };
+				auto     symbol = "@bb.g" + std::to_string(_counter++);
+				uint32_t count  = decl.array_size ? array_count(decl.array_size.get(), decl.where) : 0;
+				if (count) {
+					_globals << symbol << " = internal global [" << count << " x " << blitz::types::to_llvm(t) << "] zeroinitializer\n";
+				} else {
+					_globals << symbol << " = internal global " << blitz::types::to_llvm(t) << " " << zero(t).repr << "\n";
+				}
+				_global_variables[key] = variable{ symbol, t, d->constant, lower(decl.struct_name), count };
 				int64_t folded;
 				if (d->constant && decl.initial && fold_int(decl.initial.get(), folded)) {
 					_const_values[key] = folded;
 				}
+			}
+		} else if (auto dim = dynamic_cast<ast::dim_statement const*>(stmt.get())) {
+			for (auto const& decl : dim->arrays) {
+				auto key = lower(decl.name);
+				auto old = _global_variables.find(key);
+				if (old != _global_variables.end()) {
+					// Dimensioning an array again is fine, as long as it stays the same kind of array.
+					if ((old->second.dims != decl.sizes.size()) || (old->second.type != decl.type)) {
+						throw err(decl.where, "'" + decl.name + "' has already been declared as something else.");
+					}
+					continue;
+				}
+				auto symbol = "@bb.d" + std::to_string(_counter++);
+				_globals << symbol << " = internal global { ptr, i32, i32, i32, i32 } zeroinitializer\n";
+				variable var{ symbol, decl.type, false, lower(decl.struct_name), 0, uint32_t(decl.sizes.size()) };
+				_global_variables[key] = var;
 			}
 		} else if (auto i = dynamic_cast<ast::if_statement const*>(stmt.get())) {
 			for (auto const& b : i->branches) {
@@ -653,6 +680,9 @@ blitz::compiler::value blitz::compiler::gen_literal(ast::literal const* node)
 blitz::compiler::value blitz::compiler::gen_reference(ast::reference const* node)
 {
 	if (auto var = find(node->name)) {
+		if (var->dims || var->count) {
+			throw err(node->where, "'" + node->name + "' is an array, it needs an index.");
+		}
 		auto r = tmp();
 		emit(r + " = load " + blitz::types::to_llvm(var->type) + ", ptr " + var->pointer);
 		return { r, var->type, var->sname };
@@ -774,6 +804,9 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 {
 	auto key = lower(node->name);
+	if (find_dim(key)) {
+		return load_address(gen_dim_address(node));
+	}
 
 	// Functions in the program take priority over built-in ones.
 	auto it = _functions.find(key);
@@ -1057,6 +1090,8 @@ void blitz::compiler::gen_statement(ast::statement const* node)
 		gen_select(n);
 	} else if (auto n = dynamic_cast<ast::return_statement const*>(node)) {
 		gen_return(n);
+	} else if (auto n = dynamic_cast<ast::dim_statement const*>(node)) {
+		gen_dim(n);
 	} else if (auto n = dynamic_cast<ast::delete_statement const*>(node)) {
 		gen_delete(n);
 	} else if (auto n = dynamic_cast<ast::insert_statement const*>(node)) {
@@ -1082,10 +1117,19 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 			var = _global_variables.at(lower(decl.name));
 		} else {
 			type t = (decl.type == type::UNKNOWN) ? type::INT32 : decl.type;
-			var    = create_local(decl.name, t, false, decl.where, decl.struct_name);
+			uint32_t count = decl.array_size ? array_count(decl.array_size.get(), decl.where) : 0;
+			var            = create_local(decl.name, t, false, decl.where, decl.struct_name, count);
 		}
-		if (decl.array_size) {
-			throw err(decl.where, "Arrays are not supported yet.");
+		if (var.count) {
+			if (decl.initial) {
+				throw err(decl.where, "Arrays can't have a value.");
+			}
+			if (!node->global) {
+				// Like other locals, arrays start out empty every time they are declared.
+				auto array = "[" + std::to_string(var.count) + " x " + blitz::types::to_llvm(var.type) + "]";
+				emit("store " + array + " zeroinitializer, ptr " + var.pointer);
+			}
+			continue;
 		}
 
 		auto llvm = blitz::types::to_llvm(var.type);
@@ -1452,6 +1496,11 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 			var = find(r->name);
 		}
 		return { var->pointer, var->type, var->sname, var->count, var->constant };
+	} else if (auto c = dynamic_cast<ast::call const*>(expr)) {
+		if (!find_dim(c->name)) {
+			throw err(c->where, "'" + c->name + "' is not an array.");
+		}
+		return gen_dim_address(c);
 	} else if (auto f = dynamic_cast<ast::field_access const*>(expr)) {
 		auto object = gen(f->object.get());
 		if ((object.type != type::STRUCT) || object.sname.empty()) {
@@ -1612,6 +1661,92 @@ void blitz::compiler::gen_insert(ast::insert_statement const* node)
 	}
 	auto& info = need_type(sname, node->where);
 	call_runtime("bb_object_insert", type::UNKNOWN, { object, other, { node->after ? "1" : "0", type::INT32 }, { info.list, type::STRUCT } });
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Arrays
+////////////////////////////////////////////////////////////////////////////////
+// Arrays made with Dim are global, and know their size at run time.
+blitz::compiler::variable* blitz::compiler::find_dim(std::string const& name)
+{
+	auto it = _global_variables.find(lower(name));
+	if ((it != _global_variables.end()) && it->second.dims) {
+		return &it->second;
+	}
+	return nullptr;
+}
+
+// How many elements an array of the given upper bound has.
+uint32_t blitz::compiler::array_count(ast::expression const* size, ast::location const& where)
+{
+	int64_t bound;
+	if (!fold_int(size, bound) || (bound < 0) || (bound > 100000000)) {
+		throw err(where, "The size of this array has to be a constant number, use Dim for others.");
+	}
+	return uint32_t(bound) + 1; // Like Dim, the upper bound is included.
+}
+
+blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
+{
+	variable* var = find_dim(node->name);
+	if (node->arguments.size() != var->dims) {
+		throw err(node->where, "Array '" + node->name + "' has " + std::to_string(var->dims) + " dimensions, not " + std::to_string(node->arguments.size()) + ".");
+	}
+
+	auto field = [&](uint32_t index, const char* llvm_type) {
+		auto p = tmp(), v = tmp();
+		emit(p + " = getelementptr inbounds { ptr, i32, i32, i32, i32 }, ptr " + var->pointer + ", i32 0, i32 " + std::to_string(index));
+		emit(v + " = load " + llvm_type + ", ptr " + p);
+		return v;
+	};
+
+	std::string linear;
+	for (uint32_t dim = 0; dim < var->dims; dim++) {
+		auto index = convert(gen(node->arguments[dim].get()), type::INT32, node->arguments[dim]->where, true);
+		auto size  = field(dim + 1, "i32");
+		call_runtime("bb_check_index", type::UNKNOWN, { index, { size, type::INT32 } });
+
+		auto wide = tmp();
+		emit(wide + " = sext i32 " + index.repr + " to i64");
+		if (dim == 0) {
+			linear = wide;
+		} else {
+			auto wide_size = tmp(), scaled = tmp(), sum = tmp();
+			emit(wide_size + " = sext i32 " + size + " to i64");
+			emit(scaled + " = mul i64 " + linear + ", " + wide_size);
+			emit(sum + " = add i64 " + scaled + ", " + wide);
+			linear = sum;
+		}
+	}
+	auto data = field(0, "ptr");
+	auto p    = tmp();
+	emit(p + " = getelementptr inbounds " + blitz::types::to_llvm(var->type) + ", ptr " + data + ", i64 " + linear);
+	return { p, var->type, var->sname, 0, false };
+}
+
+void blitz::compiler::gen_dim(ast::dim_statement const* node)
+{
+	for (auto const& decl : node->arrays) {
+		variable* var = find_dim(decl.name);
+		if (!var) {
+			throw err(decl.where, "'" + decl.name + "' is not an array.");
+		}
+
+		// Element size, without having to know the target.
+		auto end = tmp(), size = tmp();
+		emit(end + " = getelementptr " + blitz::types::to_llvm(var->type) + ", ptr null, i32 1");
+		emit(size + " = ptrtoint ptr " + end + " to i64");
+
+		std::vector<value> args = { { var->pointer, type::STRUCT }, { size, type::INT64 }, { std::to_string(decl.sizes.size()), type::INT32 } };
+		for (uint32_t dim = 0; dim < 4; dim++) {
+			if (dim < decl.sizes.size()) {
+				args.push_back(convert(gen(decl.sizes[dim].get()), type::INT32, decl.sizes[dim]->where, true));
+			} else {
+				args.push_back({ "0", type::INT32 });
+			}
+		}
+		call_runtime("bb_dim", type::UNKNOWN, args);
+	}
 }
 
 std::string blitz::compiler::generate(ast::program const& program)

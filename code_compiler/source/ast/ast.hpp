@@ -173,6 +173,20 @@ namespace blitz {
 			std::vector<declaration> variables;
 		};
 
+		/** One array in `Dim Name(Size, Size), Name2$(Size)`. */
+		struct dim_declaration {
+			location                    where;
+			std::string                 name;
+			blitz::types::type          type = blitz::types::type::INT32;
+			std::string                 struct_name;
+			std::vector<expression_ptr> sizes; // The highest valid index of each dimension.
+		};
+
+		/** `Dim`: allocates (or reallocates) global arrays. */
+		struct dim_statement : public statement {
+			std::vector<dim_declaration> arrays;
+		};
+
 		/** `Name = Expression` */
 		struct assign : public statement {
 			expression_ptr target; // A reference, field, or array element.

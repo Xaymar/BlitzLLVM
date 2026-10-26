@@ -34,7 +34,8 @@ namespace blitz {
 			blitz::types::type type;
 			bool               constant;
 			std::string        sname;     // Lower case name of the Type for objects.
-			uint32_t           count = 0; // For arrays: how many elements there are.
+			uint32_t           count = 0; // For fixed arrays: how many elements there are.
+			uint32_t           dims  = 0; // For Dim arrays: how many dimensions there are. The pointer is the descriptor.
 		};
 
 		struct field_info {
@@ -126,7 +127,11 @@ namespace blitz {
 		// Variables
 		variable&   lookup(std::string const& name, blitz::types::type hint, std::string const& sname = std::string());
 		variable*   find(std::string const& name);
-		variable    create_local(std::string const& name, blitz::types::type type, bool constant, ast::location const& where, std::string const& sname = std::string());
+		variable    create_local(std::string const& name, blitz::types::type type, bool constant, ast::location const& where, std::string const& sname = std::string(), uint32_t count = 0);
+		variable*   find_dim(std::string const& name);
+		address     gen_dim_address(ast::call const* node);
+		uint32_t    array_count(ast::expression const* size, ast::location const& where);
+		void        gen_dim(ast::dim_statement const* node);
 		bool        fold_int(ast::expression const* expr, int64_t& out);
 		type_info&  need_type(std::string const& name, ast::location const& where);
 		void        register_types(ast::program const& program);

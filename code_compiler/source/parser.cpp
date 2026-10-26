@@ -21,12 +21,12 @@ namespace {
 		"then",  "to",     "step",   "else",    "elseif", "endif",     "end",    "wend",  "next", "until", "forever", "case",
 		"default", "local", "global", "const",   "if",     "while",     "repeat", "for",   "select", "function", "endfunction", "endselect",
 		"return", "exit",  "include", "dim",    "type",   "and",       "or",     "xor",   "mod",  "shl",   "shr",     "sar",
-		"not",    "type",   "endtype", "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
+		"not",    "dim",    "type",   "endtype", "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
 	};
 
 	// Things that exist in Blitz, but that we do not (yet) know how to compile.
 	const std::set<std::string> unsupported = {
-		"dim", "goto", "gosub", "data", "read", "restore",
+		"goto", "gosub", "data", "read", "restore",
 	};
 } // namespace
 
@@ -278,6 +278,8 @@ void blitz::parser::parse_statement(ast::block& into)
 		parse_include(into);
 	} else if (word == "type") {
 		parse_type_decl();
+	} else if (word == "dim") {
+		parse_dim(into);
 	} else if (word == "delete") {
 		parse_delete(into);
 	} else if (word == "insert") {
@@ -679,6 +681,52 @@ void blitz::parser::parse_type_decl()
 		}
 	}
 	_program->types.push_back(std::move(decl));
+}
+
+void blitz::parser::parse_dim(ast::block& into)
+{
+	auto first = tk();
+	advance();
+
+	auto node   = std::make_unique<ast::dim_statement>();
+	node->where = here(first);
+	while (true) {
+		auto name = tk();
+		if ((name.type != blitz::token::variant::TEXT) || reserved.count(lower(name.text))) {
+			throw error(name, blitz::format("Unexpected %s, expected an array name.", name.to_string().c_str()));
+		}
+		advance();
+
+		ast::dim_declaration decl;
+		decl.where       = here(name);
+		decl.name        = name.text;
+		decl.type        = parse_type_suffix(name);
+		decl.struct_name = _struct_name;
+		if (decl.type == blitz::types::type::UNKNOWN) {
+			decl.type = blitz::types::type::INT32;
+		}
+		expect_symbol("(");
+		while (true) {
+			decl.sizes.push_back(parse_expression());
+			if (is_symbol(tk(), ",")) {
+				advance();
+				continue;
+			}
+			break;
+		}
+		expect_symbol(")");
+		if (decl.sizes.size() > 4) {
+			throw error(name, "Arrays can have up to 4 dimensions.");
+		}
+		node->arrays.push_back(std::move(decl));
+
+		if (is_symbol(tk(), ",")) {
+			advance();
+			continue;
+		}
+		break;
+	}
+	into.push_back(std::move(node));
 }
 
 void blitz::parser::parse_delete(ast::block& into)

@@ -266,6 +266,35 @@ void bb_check_index(int32_t index, int32_t count)
 	}
 }
 
+// Dim: describes an array, see gen_dim_address in the compiler. The upper bounds are given, and each dimension has one
+// element more than that. Dimensioning again discards what was in the array.
+typedef struct bb_array {
+	void*   data;
+	int32_t size[4];
+} bb_array;
+
+void bb_dim(bb_array* array, int64_t element_size, int32_t dimensions, int32_t b0, int32_t b1, int32_t b2, int32_t b3)
+{
+	int32_t bounds[4] = { b0, b1, b2, b3 };
+	int64_t total     = 1;
+	for (int32_t i = 0; i < 4; i++) {
+		if (i < dimensions) {
+			if (bounds[i] < 0) {
+				bb_runtime_error("Array sizes can't be negative.");
+			}
+			array->size[i] = bounds[i] + 1;
+			total *= array->size[i];
+		} else {
+			array->size[i] = 0;
+		}
+	}
+	free(array->data);
+	array->data = calloc((size_t)total, (size_t)element_size);
+	if (!array->data) {
+		bb_runtime_error("Out of memory.");
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Strings and conversion
 ////////////////////////////////////////////////////////////////////////////////
