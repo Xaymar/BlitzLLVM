@@ -40,8 +40,6 @@ const formatStyleList = {
 			".iss",
 			".iss.in",
 			".bb",
-			".b3d",
-			".b2d",
 			".bpl"
 		],
 		prepend: [
