@@ -21,7 +21,7 @@ namespace {
 
 	buffer<entity*>  entities; // Handle - 1, null if freed.
 	buffer<surface*> surface_table;
-	buffer<int>      surface_owner; // Entity handle that owns each surface.
+	float            tformed[3] = { 0, 0, 0 };
 
 	float rad(float degrees) { return degrees * (pi / 180.0f); }
 	float deg(float radians) { return radians * (180.0f / pi); }
@@ -190,16 +190,32 @@ namespace {
 		out[2]  = deg(atan2f(-x[1], y[1]));
 	}
 
-	void free_surface(int handle)
+	// An entity lets go of a surface: it is gone once the last entity that has it is.
+	void release_surface(surface* s)
 	{
-		surface* s = surface_table[uint32_t(handle) - 1];
-		if (s) {
-			bb_release_surface_gpu(s->gpu);
-			s->vertices.release();
-			s->indices.release();
-			delete s;
-			surface_table[uint32_t(handle) - 1] = nullptr;
+		if (--s->refs > 0) {
+			return;
 		}
+		for (uint32_t i = 0; i < surface_table.size; i++) {
+			if (surface_table[i] == s) {
+				surface_table[i] = nullptr;
+			}
+		}
+		bb_release_surface_gpu(s->gpu);
+		s->vertices.release();
+		s->indices.release();
+		delete s;
+	}
+
+	int surface_handle(surface* s)
+	{
+		for (uint32_t i = 0; i < surface_table.size; i++) {
+			if (surface_table[i] == s) {
+				return int(i) + 1;
+			}
+		}
+		surface_table.push(s);
+		return int(surface_table.size);
 	}
 
 	void destroy_entity(int handle)
@@ -214,13 +230,11 @@ namespace {
 				destroy_entity(int(i) + 1);
 			}
 		}
-		for (uint32_t i = 0; i < surface_table.size; i++) {
-			if (surface_owner[i] == handle) {
-				free_surface(int(i) + 1);
-				surface_owner[i] = 0;
-			}
+		for (uint32_t i = 0; i < e->surfaces.size; i++) {
+			release_surface(e->surfaces[i]);
 		}
 		e->surfaces.release();
+		free(e->name);
 		delete e;
 		entities[uint32_t(handle) - 1] = nullptr;
 	}
@@ -237,12 +251,10 @@ namespace {
 		for (uint32_t i = 0; i < surface_table.size; i++) {
 			if (!surface_table[i]) {
 				surface_table[i] = s;
-				surface_owner[i] = mesh_handle;
 				return int(i) + 1;
 			}
 		}
 		surface_table.push(s);
-		surface_owner.push(mesh_handle);
 		return int(surface_table.size);
 	}
 
@@ -959,5 +971,333 @@ void bb_rotate_mesh(int32_t mesh, float pitch, float yaw, float roll)
 		}
 		s->dirty = true;
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Looking at meshes
+////////////////////////////////////////////////////////////////////////////////
+int32_t bb_count_surfaces(int32_t mesh)
+{
+	return int32_t(need_kind(mesh, MESH, "CountSurfaces")->surfaces.size);
+}
+
+// Surfaces are counted from 1 here, as they are in Blitz.
+int32_t bb_get_surface(int32_t mesh, int32_t index)
+{
+	entity* e = need_kind(mesh, MESH, "GetSurface");
+	if ((index < 1) || (uint32_t(index) > e->surfaces.size)) {
+		bb_runtime_error("GetSurface: the mesh does not have that surface.");
+	}
+	return surface_handle(e->surfaces[uint32_t(index) - 1]);
+}
+
+int32_t bb_count_vertices(int32_t surface)
+{
+	return int32_t(need_surface(surface, "CountVertices")->vertices.size);
+}
+
+int32_t bb_count_triangles(int32_t surface)
+{
+	return int32_t(need_surface(surface, "CountTriangles")->indices.size / 3);
+}
+
+static vertex3d const& read_vertex(int32_t handle, int32_t index, const char* what)
+{
+	surface* s = need_surface(handle, what);
+	if ((index < 0) || (uint32_t(index) >= s->vertices.size)) {
+		bb_runtime_error("Vertex index out of range.");
+	}
+	return s->vertices[uint32_t(index)];
+}
+
+float bb_vertex_x(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexX").x; }
+float bb_vertex_y(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexY").y; }
+float bb_vertex_z(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexZ").z; }
+float bb_vertex_nx(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNX").nx; }
+float bb_vertex_ny(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNY").ny; }
+float bb_vertex_nz(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNZ").nz; }
+float bb_vertex_u(int32_t surface, int32_t index, int32_t set) { (void)set; return read_vertex(surface, index, "VertexU").u; }
+float bb_vertex_v(int32_t surface, int32_t index, int32_t set) { (void)set; return read_vertex(surface, index, "VertexV").v; }
+float bb_vertex_red(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexRed").r); }
+float bb_vertex_green(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexGreen").g); }
+float bb_vertex_blue(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexBlue").b); }
+float bb_vertex_alpha(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexAlpha").a) / 255.0f; }
+
+// The vertex at a corner (0, 1 or 2) of a triangle.
+int32_t bb_triangle_vertex(int32_t handle, int32_t triangle, int32_t corner)
+{
+	surface* s = need_surface(handle, "TriangleVertex");
+	if ((triangle < 0) || (uint32_t(triangle) * 3 + 2 >= s->indices.size) || (corner < 0) || (corner > 2)) {
+		bb_runtime_error("TriangleVertex: there is no such triangle or corner.");
+	}
+	return int32_t(s->indices[uint32_t(triangle) * 3 + uint32_t(corner)]);
+}
+
+static float mesh_extent(int32_t mesh, int axis, const char* what)
+{
+	entity* e = need_kind(mesh, MESH, what);
+	float   lo = 0, hi = 0;
+	bool    first = true;
+	for (uint32_t i = 0; i < e->surfaces.size; i++) {
+		surface* s = e->surfaces[i];
+		for (uint32_t v = 0; v < s->vertices.size; v++) {
+			float value = (&s->vertices[v].x)[axis];
+			if (first || (value < lo)) {
+				lo = value;
+			}
+			if (first || (value > hi)) {
+				hi = value;
+			}
+			first = false;
+		}
+	}
+	return hi - lo;
+}
+
+float bb_mesh_width(int32_t mesh) { return mesh_extent(mesh, 0, "MeshWidth"); }
+float bb_mesh_height(int32_t mesh) { return mesh_extent(mesh, 1, "MeshHeight"); }
+float bb_mesh_depth(int32_t mesh) { return mesh_extent(mesh, 2, "MeshDepth"); }
+
+////////////////////////////////////////////////////////////////////////////////
+// Names, copies, and appearance
+////////////////////////////////////////////////////////////////////////////////
+void bb_name_entity(int32_t handle, const char* name)
+{
+	entity* e = need(handle, "NameEntity");
+	free(e->name);
+	size_t length = name ? strlen(name) : 0;
+	e->name       = static_cast<char*>(malloc(length + 1));
+	memcpy(e->name, name ? name : "", length + 1);
+}
+
+const char* bb_entity_name(int32_t handle)
+{
+	entity* e = need(handle, "EntityName");
+	return e->name ? e->name : "";
+}
+
+static bool same_name(const char* a, const char* b)
+{
+	for (; *a && *b; a++, b++) {
+		char x = (*a >= 'A' && *a <= 'Z') ? char(*a + 32) : *a, y = (*b >= 'A' && *b <= 'Z') ? char(*b + 32) : *b;
+		if (x != y) {
+			return false;
+		}
+	}
+	return !*a && !*b;
+}
+
+// Looks for a child (or a child of a child, and so on) with the name.
+int32_t bb_find_child(int32_t parent, const char* name)
+{
+	need(parent, "FindChild");
+	for (uint32_t i = 0; i < entities.size; i++) {
+		if (entities[i] && (entities[i]->parent == parent)) {
+			if (entities[i]->name && name && same_name(entities[i]->name, name)) {
+				return int32_t(i) + 1;
+			}
+			int32_t found = bb_find_child(int32_t(i) + 1, name);
+			if (found) {
+				return found;
+			}
+		}
+	}
+	return 0;
+}
+
+static int copy_entity(int source, int parent)
+{
+	entity* from = get_entity(source);
+	int     handle = add_entity(from->kind, parent);
+	entity* to     = get_entity(handle);
+
+	// Everything is copied over, except what owns memory.
+	entity copy = *from;
+	copy.parent = parent;
+	copy.name   = nullptr;
+	copy.surfaces.data = nullptr;
+	copy.surfaces.size = copy.surfaces.cap = 0;
+	for (uint32_t i = 0; i < from->surfaces.size; i++) {
+		from->surfaces[i]->refs++; // The copy shares the geometry.
+		copy.surfaces.push(from->surfaces[i]);
+	}
+	if (from->name) {
+		size_t length = strlen(from->name);
+		copy.name     = static_cast<char*>(malloc(length + 1));
+		memcpy(copy.name, from->name, length + 1);
+	}
+	*to = copy;
+
+	for (uint32_t i = 0; i < entities.size; i++) {
+		if (entities[i] && (entities[i]->parent == source) && (int(i) + 1 != handle)) {
+			copy_entity(int(i) + 1, handle);
+		}
+	}
+	return handle;
+}
+
+int32_t bb_copy_entity(int32_t handle, int32_t parent)
+{
+	need(handle, "CopyEntity");
+	if (parent) {
+		need(parent, "CopyEntity");
+	}
+	return copy_entity(handle, parent);
+}
+
+void bb_entity_order(int32_t handle, int32_t order)
+{
+	need(handle, "EntityOrder")->order = order;
+}
+
+void bb_entity_blend(int32_t handle, int32_t blend)
+{
+	need(handle, "EntityBlend")->blend = (blend < 1 || blend > 3) ? 1 : blend;
+}
+
+void bb_entity_shininess(int32_t handle, float shininess)
+{
+	need(handle, "EntityShininess")->shininess = shininess;
+}
+
+void bb_entity_auto_fade(int32_t handle, float near_distance, float far_distance)
+{
+	entity* e   = need(handle, "EntityAutoFade");
+	e->fade_near = near_distance;
+	e->fade_far  = far_distance;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Angles and conversions between spaces
+////////////////////////////////////////////////////////////////////////////////
+static float wrap_angle(float angle)
+{
+	while (angle > 180.0f) {
+		angle -= 360.0f;
+	}
+	while (angle <= -180.0f) {
+		angle += 360.0f;
+	}
+	return angle;
+}
+
+// How far entity would have to turn to look at the target.
+float bb_delta_yaw(int32_t handle, int32_t target)
+{
+	need(handle, "DeltaYaw");
+	need(target, "DeltaYaw");
+	float me[16], to[16], angles[3];
+	world_matrix(handle, me);
+	world_matrix(target, to);
+	euler_from_matrix(me, angles);
+	return wrap_angle(deg(atan2f(to[12] - me[12], to[14] - me[14])) - angles[1]);
+}
+
+float bb_delta_pitch(int32_t handle, int32_t target)
+{
+	need(handle, "DeltaPitch");
+	need(target, "DeltaPitch");
+	float me[16], to[16], angles[3];
+	world_matrix(handle, me);
+	world_matrix(target, to);
+	euler_from_matrix(me, angles);
+	float d[3] = { to[12] - me[12], to[13] - me[13], to[14] - me[14] };
+	float len  = sqrtf(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
+	if (len < 1e-9f) {
+		return 0;
+	}
+	return wrap_angle(deg(asinf(-d[1] / len)) - angles[0]);
+}
+
+// Moves a point (or direction) from the space of one entity to that of another. 0 is the world.
+static void transform_between(float x, float y, float z, int32_t source, int32_t destination, bool point, bool normalize)
+{
+	float p[3] = { x, y, z }, out[3];
+	float m[16], inverse[16];
+	if (source) {
+		world_matrix(source, m);
+		if (point) {
+			transform_point(m, p, out);
+		} else {
+			for (int row = 0; row < 3; row++) {
+				out[row] = m[0 + row] * p[0] + m[4 + row] * p[1] + m[8 + row] * p[2];
+			}
+		}
+		memcpy(p, out, sizeof(p));
+	}
+	if (destination) {
+		world_matrix(destination, m);
+		affine_inverse(m, inverse);
+		if (point) {
+			transform_point(inverse, p, out);
+		} else {
+			for (int row = 0; row < 3; row++) {
+				out[row] = inverse[0 + row] * p[0] + inverse[4 + row] * p[1] + inverse[8 + row] * p[2];
+			}
+		}
+		memcpy(p, out, sizeof(p));
+	}
+	if (normalize) {
+		length_normalize(p);
+	}
+	memcpy(tformed, p, sizeof(p));
+}
+
+void bb_tform_point(float x, float y, float z, int32_t source, int32_t destination)
+{
+	if (source) {
+		need(source, "TFormPoint");
+	}
+	if (destination) {
+		need(destination, "TFormPoint");
+	}
+	transform_between(x, y, z, source, destination, true, false);
+}
+
+void bb_tform_vector(float x, float y, float z, int32_t source, int32_t destination)
+{
+	if (source) {
+		need(source, "TFormVector");
+	}
+	if (destination) {
+		need(destination, "TFormVector");
+	}
+	transform_between(x, y, z, source, destination, false, false);
+}
+
+void bb_tform_normal(float x, float y, float z, int32_t source, int32_t destination)
+{
+	if (source) {
+		need(source, "TFormNormal");
+	}
+	if (destination) {
+		need(destination, "TFormNormal");
+	}
+	transform_between(x, y, z, source, destination, false, true);
+}
+
+float bb_tformed_x(void) { return tformed[0]; }
+float bb_tformed_y(void) { return tformed[1]; }
+float bb_tformed_z(void) { return tformed[2]; }
+
+// Camera fog.
+void bb_camera_fog_mode(int32_t handle, int32_t mode)
+{
+	need_kind(handle, CAMERA, "CameraFogMode")->fog_mode = mode ? 1 : 0;
+}
+
+void bb_camera_fog_range(int32_t handle, float near_distance, float far_distance)
+{
+	entity* e   = need_kind(handle, CAMERA, "CameraFogRange");
+	e->fog_near = near_distance;
+	e->fog_far  = far_distance;
+}
+
+void bb_camera_fog_color(int32_t handle, float r, float g, float b)
+{
+	entity* e = need_kind(handle, CAMERA, "CameraFogColor");
+	e->fog_color[0] = clamp255(r);
+	e->fog_color[1] = clamp255(g);
+	e->fog_color[2] = clamp255(b);
 }
 }

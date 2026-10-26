@@ -59,6 +59,8 @@ namespace bb {
 		buffer<vertex3d> vertices;
 		buffer<uint32_t> indices;
 
+		int refs = 1; // Copies of an entity share its surfaces.
+
 		// Set by the renderer for its own use, and cleared whenever the geometry changes.
 		bool dirty = true;
 		void* gpu  = nullptr;
@@ -70,6 +72,7 @@ namespace bb {
 		int         kind   = PIVOT;
 		int         parent = 0; // Handle, 0 for none.
 		bool        hidden = false;
+		char*       name   = nullptr;
 
 		float position[3] = { 0, 0, 0 };
 		float rotation[3] = { 0, 0, 0 }; // Pitch, Yaw, Roll
@@ -80,6 +83,10 @@ namespace bb {
 		float alpha    = 1;
 		int   fx       = 0; // 1 = fullbright, 16 = two-sided
 		int   texture  = 0; // Handle, 0 for none.
+		int   order    = 0; // Entities with a higher order are drawn first, and those with 0 are drawn normally.
+		int   blend    = 1; // 1 = alpha, 2 = multiply, 3 = add
+		float shininess = 0;
+		float fade_near = 0, fade_far = 0; // Fades out between these distances to the camera, if far is not 0.
 		buffer<surface*> surfaces;
 
 		// Camera
@@ -88,6 +95,9 @@ namespace bb {
 		bool  cam_clear_color = true, cam_clear_depth = true;
 		int   cam_viewport[4] = { 0, 0, -1, -1 }; // Width and height of -1 use the whole buffer.
 		int   cam_projection = 1; // 0 = disabled, 1 = perspective
+		int   fog_mode = 0;       // 0 = off, 1 = linear
+		float fog_near = 1, fog_far = 1000;
+		float fog_color[3] = { 0, 0, 0 };
 
 		// Light
 		int   light_type = 1; // 1 = directional, 2 = point, 3 = spot (drawn as point)
