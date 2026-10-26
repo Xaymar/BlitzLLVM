@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "scene.hpp"
 #include "font8x8.inc"
 #include "shaders.inc"
 
@@ -116,7 +117,11 @@ void bb_runtime_error(const char* message);
 	X(vkCmdClearAttachments) \
 	X(vkCmdCopyImage) \
 	X(vkCmdBlitImage) \
-	X(vkCmdCopyBufferToImage)
+	X(vkCmdCopyBufferToImage) \
+	X(vkCmdDrawIndexed) \
+	X(vkCmdBindIndexBuffer) \
+	X(vkCmdSetCullMode) \
+	X(vkCmdSetDepthWriteEnable)
 
 #define BB_VK_DECLARE(name) static PFN_##name name;
 BB_VK_GLOBAL(BB_VK_DECLARE)
@@ -204,6 +209,17 @@ namespace {
 
 		// Buffers
 		gpu_image buffers[2]; // [0] front, [1] back
+		gpu_image depth;      // Depth for 3D, as big as the buffers.
+
+		// 3D
+		VkDescriptorSetLayout scene_layout   = VK_NULL_HANDLE;
+		VkDescriptorSet       scene_set      = VK_NULL_HANDLE;
+		VkPipelineLayout      layout3d       = VK_NULL_HANDLE;
+		VkPipeline            opaque3d       = VK_NULL_HANDLE;
+		VkPipeline            blend3d        = VK_NULL_HANDLE;
+		VkBuffer              scene_buffer   = VK_NULL_HANDLE;
+		VkDeviceMemory        scene_memory   = VK_NULL_HANDLE;
+		void*                 scene_mapped   = nullptr;
 		int   target = back_buffer;
 		uint32_t width = 0, height = 0;
 
@@ -271,7 +287,7 @@ namespace {
 		check(vkBindBufferMemory(g.device, buffer, memory, 0), "vkBindBufferMemory");
 	}
 
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage)
+	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT)
 	{
 		gpu_image img;
 		img.width  = width;
@@ -279,7 +295,7 @@ namespace {
 
 		VkImageCreateInfo info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
 		info.imageType         = VK_IMAGE_TYPE_2D;
-		info.format            = VK_FORMAT_R8G8B8A8_UNORM;
+		info.format            = format;
 		info.extent            = { width, height, 1 };
 		info.mipLevels         = 1;
 		info.arrayLayers       = 1;
@@ -302,7 +318,7 @@ namespace {
 		view.image                         = img.image;
 		view.viewType                      = VK_IMAGE_VIEW_TYPE_2D;
 		view.format                        = info.format;
-		view.subresourceRange.aspectMask   = VK_IMAGE_ASPECT_COLOR_BIT;
+		view.subresourceRange.aspectMask   = aspect;
 		view.subresourceRange.levelCount   = 1;
 		view.subresourceRange.layerCount   = 1;
 		check(vkCreateImageView(g.device, &view, nullptr, &img.view), "vkCreateImageView");
@@ -352,7 +368,7 @@ namespace {
 		check(vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
 	}
 
-	void barrier(VkImage img, VkImageLayout from, VkImageLayout to)
+	void barrier(VkImage img, VkImageLayout from, VkImageLayout to, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT)
 	{
 		VkImageMemoryBarrier2 b            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
 		b.srcStageMask                     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
@@ -364,7 +380,7 @@ namespace {
 		b.srcQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
 		b.dstQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
 		b.image                            = img;
-		b.subresourceRange.aspectMask      = VK_IMAGE_ASPECT_COLOR_BIT;
+		b.subresourceRange.aspectMask      = aspect;
 		b.subresourceRange.levelCount      = 1;
 		b.subresourceRange.layerCount      = 1;
 
@@ -481,6 +497,8 @@ namespace {
 
 	void create_swapchain();
 	void destroy_swapchain();
+	void create_3d();
+	void create_depth(uint32_t width, uint32_t height);
 
 	// Draws everything that has been asked for to the current buffer.
 	void flush()
@@ -720,6 +738,7 @@ namespace {
 			submit_commands();
 		}
 		g.target = back_buffer;
+		create_depth(width, height);
 	}
 
 	void create_swapchain()
@@ -945,11 +964,11 @@ namespace {
 		set_info.pBindings                       = &binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorPoolSize pool_size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, TEXTURES };
+		VkDescriptorPoolSize pool_sizes[2] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 256 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1 } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
-		dpool_info.maxSets                    = TEXTURES;
-		dpool_info.poolSizeCount              = 1;
-		dpool_info.pPoolSizes                 = &pool_size;
+		dpool_info.maxSets                    = 257;
+		dpool_info.poolSizeCount              = 2;
+		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
 
 		VkPushConstantRange push = { VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(float) * 2 };
@@ -989,6 +1008,8 @@ namespace {
 		void* mapped;
 		check(vkMapMemory(g.device, g.vertex_memory, 0, VK_WHOLE_SIZE, 0, &mapped), "vkMapMemory");
 		g.vertices = static_cast<vertex*>(mapped);
+
+		create_3d();
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -1142,6 +1163,449 @@ namespace {
 		set_vertex(v[4], x + 8, y + 8, u1, v1);
 		set_vertex(v[5], x, y + 8, u0, v1);
 	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// 3D
+	////////////////////////////////////////////////////////////////////////////
+	constexpr VkFormat depth_format = VK_FORMAT_D32_SFLOAT;
+	constexpr uint32_t max_lights   = 8;
+
+	// What the vertex shader reads as the scene: matches the uniform block in tools/generate_shaders.py.
+	struct scene_data {
+		float viewprojection[16];
+		float ambient[4];
+		float light_position[max_lights][4];
+		float light_color[max_lights][4];
+	};
+
+	// Per-entity values, pushed to the vertex shader.
+	struct entity_push {
+		float model[3][4]; // Rows of the model matrix.
+		float material[4];
+		float params[4];
+	};
+
+	struct surface_gpu {
+		VkBuffer       vertex_buffer = VK_NULL_HANDLE;
+		VkDeviceMemory vertex_memory = VK_NULL_HANDLE;
+		VkBuffer       index_buffer  = VK_NULL_HANDLE;
+		VkDeviceMemory index_memory  = VK_NULL_HANDLE;
+		uint32_t       index_count   = 0;
+	};
+
+	void release_surface_gpu(surface_gpu* gpu)
+	{
+		if (!gpu) {
+			return;
+		}
+		vkDeviceWaitIdle(g.device);
+		if (gpu->vertex_buffer) {
+			vkDestroyBuffer(g.device, gpu->vertex_buffer, nullptr);
+			vkFreeMemory(g.device, gpu->vertex_memory, nullptr);
+		}
+		if (gpu->index_buffer) {
+			vkDestroyBuffer(g.device, gpu->index_buffer, nullptr);
+			vkFreeMemory(g.device, gpu->index_memory, nullptr);
+		}
+		delete gpu;
+	}
+
+	// Makes sure the GPU has the current geometry of the surface.
+	surface_gpu* upload_surface(bb::surface& s)
+	{
+		if (!s.dirty && s.gpu) {
+			return static_cast<surface_gpu*>(s.gpu);
+		}
+		release_surface_gpu(static_cast<surface_gpu*>(s.gpu));
+		s.gpu   = nullptr;
+		s.dirty = false;
+		if ((s.vertices.size == 0) || (s.indices.size == 0)) {
+			return nullptr;
+		}
+
+		surface_gpu* gpu = new surface_gpu();
+		VkMemoryPropertyFlags host = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		void* mapped;
+
+		VkDeviceSize vsize = VkDeviceSize(s.vertices.size) * sizeof(bb::vertex3d);
+		create_buffer(vsize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, host, gpu->vertex_buffer, gpu->vertex_memory);
+		check(vkMapMemory(g.device, gpu->vertex_memory, 0, vsize, 0, &mapped), "vkMapMemory");
+		memcpy(mapped, s.vertices.data, size_t(vsize));
+		vkUnmapMemory(g.device, gpu->vertex_memory);
+
+		VkDeviceSize isize = VkDeviceSize(s.indices.size) * sizeof(uint32_t);
+		create_buffer(isize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, host, gpu->index_buffer, gpu->index_memory);
+		check(vkMapMemory(g.device, gpu->index_memory, 0, isize, 0, &mapped), "vkMapMemory");
+		memcpy(mapped, s.indices.data, size_t(isize));
+		vkUnmapMemory(g.device, gpu->index_memory);
+
+		gpu->index_count = s.indices.size;
+		s.gpu            = gpu;
+		return gpu;
+	}
+
+	VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, bool alpha_blend)
+	{
+		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
+		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
+		stages[0].module                          = vs;
+		stages[0].pName                           = "main";
+		stages[1].stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
+		stages[1].module                          = fs;
+		stages[1].pName                           = "main";
+
+		VkVertexInputBindingDescription   binding       = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
+		VkVertexInputAttributeDescription attributes[4] = {
+			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, x) },
+			{ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, nx) },
+			{ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u) },
+			{ 3, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(bb::vertex3d, r) },
+		};
+		VkPipelineVertexInputStateCreateInfo input = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
+		input.vertexBindingDescriptionCount        = 1;
+		input.pVertexBindingDescriptions           = &binding;
+		input.vertexAttributeDescriptionCount      = 4;
+		input.pVertexAttributeDescriptions         = attributes;
+
+		VkPipelineInputAssemblyStateCreateInfo assembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
+		assembly.topology                               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+		VkPipelineViewportStateCreateInfo viewport = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };
+		viewport.viewportCount                     = 1;
+		viewport.scissorCount                      = 1;
+
+		// Blitz3D's front faces are clockwise as seen from the front. The projection flips Y, which flips this once more.
+		VkPipelineRasterizationStateCreateInfo raster = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
+		raster.polygonMode                            = VK_POLYGON_MODE_FILL;
+		raster.cullMode                               = VK_CULL_MODE_BACK_BIT;
+		raster.frontFace                              = VK_FRONT_FACE_CLOCKWISE;
+		raster.lineWidth                              = 1.0f;
+
+		VkPipelineMultisampleStateCreateInfo multisample = { VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
+		multisample.rasterizationSamples                 = VK_SAMPLE_COUNT_1_BIT;
+
+		VkPipelineDepthStencilStateCreateInfo depth = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
+		depth.depthTestEnable                       = VK_TRUE;
+		depth.depthWriteEnable                      = VK_TRUE;
+		depth.depthCompareOp                        = VK_COMPARE_OP_LESS_OR_EQUAL;
+
+		VkPipelineColorBlendAttachmentState blend = {};
+		blend.blendEnable                         = alpha_blend ? VK_TRUE : VK_FALSE;
+		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
+		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
+		blend.srcAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE;
+		blend.dstAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		blend.alphaBlendOp                        = VK_BLEND_OP_ADD;
+		blend.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		VkPipelineColorBlendStateCreateInfo blending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
+		blending.attachmentCount                     = 1;
+		blending.pAttachments                        = &blend;
+
+		VkDynamicState dynamic_states[4] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE };
+		VkPipelineDynamicStateCreateInfo dynamic = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
+		dynamic.dynamicStateCount                = 4;
+		dynamic.pDynamicStates                   = dynamic_states;
+
+		VkFormat                      format    = VK_FORMAT_R8G8B8A8_UNORM;
+		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
+		rendering.colorAttachmentCount          = 1;
+		rendering.pColorAttachmentFormats       = &format;
+		rendering.depthAttachmentFormat         = depth_format;
+
+		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
+		info.pNext                        = &rendering;
+		info.stageCount                   = 2;
+		info.pStages                      = stages;
+		info.pVertexInputState            = &input;
+		info.pInputAssemblyState          = &assembly;
+		info.pViewportState               = &viewport;
+		info.pRasterizationState          = &raster;
+		info.pMultisampleState            = &multisample;
+		info.pDepthStencilState           = &depth;
+		info.pColorBlendState             = &blending;
+		info.pDynamicState                = &dynamic;
+		info.layout                       = g.layout3d;
+
+		VkPipeline pipeline;
+		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines (3D)");
+		return pipeline;
+	}
+
+	void create_3d()
+	{
+		// Scene uniform buffer, with its descriptor set.
+		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr };
+		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+		set_info.bindingCount                    = 1;
+		set_info.pBindings                       = &binding;
+		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.scene_layout), "vkCreateDescriptorSetLayout");
+
+		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+		alloc.descriptorPool              = g.set_pool;
+		alloc.descriptorSetCount          = 1;
+		alloc.pSetLayouts                 = &g.scene_layout;
+		check(vkAllocateDescriptorSets(g.device, &alloc, &g.scene_set), "vkAllocateDescriptorSets");
+
+		create_buffer(sizeof(scene_data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.scene_buffer, g.scene_memory);
+		check(vkMapMemory(g.device, g.scene_memory, 0, VK_WHOLE_SIZE, 0, &g.scene_mapped), "vkMapMemory");
+
+		VkDescriptorBufferInfo buffer_info = { g.scene_buffer, 0, sizeof(scene_data) };
+		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                       = g.scene_set;
+		write.descriptorCount              = 1;
+		write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		write.pBufferInfo                  = &buffer_info;
+		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+
+		VkDescriptorSetLayout layouts[2]   = { g.set_layout, g.scene_layout };
+		VkPushConstantRange   push         = { VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(entity_push) };
+		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+		layout_info.setLayoutCount         = 2;
+		layout_info.pSetLayouts            = layouts;
+		layout_info.pushConstantRangeCount = 1;
+		layout_info.pPushConstantRanges    = &push;
+		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
+
+		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
+		VkShaderModule fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
+		g.opaque3d        = create_pipeline_3d(vs, fs, false);
+		g.blend3d         = create_pipeline_3d(vs, fs, true);
+		vkDestroyShaderModule(g.device, vs, nullptr);
+		vkDestroyShaderModule(g.device, fs, nullptr);
+	}
+
+	void create_depth(uint32_t width, uint32_t height)
+	{
+		g.depth = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
+		begin_commands();
+		barrier(g.depth.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+		submit_commands();
+	}
+
+	// Collects what has to be drawn.
+	struct draw_list {
+		bb::buffer<int>   opaque;
+		bb::buffer<int>   blended;
+		bb::buffer<float> distance; // For the blended entities.
+	};
+
+	struct light_collector {
+		scene_data* data;
+		uint32_t    count;
+	};
+
+	void collect_light(int handle, bb::entity& light, void* user)
+	{
+		light_collector* c = static_cast<light_collector*>(user);
+		if (c->count >= max_lights) {
+			return;
+		}
+		float m[16];
+		bb::world_matrix(handle, m);
+		float* position = c->data->light_position[c->count];
+		float* color    = c->data->light_color[c->count];
+		if (light.light_type == 1) {
+			// Direction towards the light: the opposite of where it faces.
+			float len = sqrtf(m[8] * m[8] + m[9] * m[9] + m[10] * m[10]);
+			len       = len > 1e-9f ? len : 1.0f;
+			position[0] = -m[8] / len;
+			position[1] = -m[9] / len;
+			position[2] = -m[10] / len;
+			position[3] = 0;
+		} else {
+			position[0] = m[12];
+			position[1] = m[13];
+			position[2] = m[14];
+			position[3] = light.light_range > 1e-3f ? light.light_range : 1e-3f;
+		}
+		color[0] = light.light_color[0];
+		color[1] = light.light_color[1];
+		color[2] = light.light_color[2];
+		color[3] = 1;
+		c->count++;
+	}
+
+	struct mesh_collector {
+		draw_list*  list;
+		const float* view;
+	};
+
+	void collect_mesh(int handle, bb::entity& mesh, void* user)
+	{
+		mesh_collector* c = static_cast<mesh_collector*>(user);
+		if (mesh.alpha < 0.999f) {
+			float m[16];
+			bb::world_matrix(handle, m);
+			// Distance along the camera's view direction, to draw far things first.
+			float depth = c->view[2] * m[12] + c->view[6] * m[13] + c->view[10] * m[14] + c->view[14];
+			c->list->blended.push(handle);
+			c->list->distance.push(depth);
+		} else {
+			c->list->opaque.push(handle);
+		}
+	}
+
+	void draw_entity(int handle, bool blended)
+	{
+		bb::entity* e = bb::get_entity(handle);
+		if (!e || (e->alpha <= 0.001f)) {
+			return;
+		}
+		float m[16];
+		bb::world_matrix(handle, m);
+		entity_push push = {};
+		// The rows of the 4x3 matrix: row r is (m[0 + r], m[4 + r], m[8 + r], m[12 + r]) in column-major order.
+		for (int row = 0; row < 3; row++) {
+			push.model[row][0] = m[0 + row];
+			push.model[row][1] = m[4 + row];
+			push.model[row][2] = m[8 + row];
+			push.model[row][3] = m[12 + row];
+		}
+		push.material[0] = e->color[0];
+		push.material[1] = e->color[1];
+		push.material[2] = e->color[2];
+		push.material[3] = e->alpha;
+		push.params[0]   = (e->fx & 1) ? 1.0f : 0.0f;
+		vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(push), &push);
+		vkCmdSetCullMode(g.cmd, (e->fx & 16) ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
+		vkCmdSetDepthWriteEnable(g.cmd, blended ? VK_FALSE : VK_TRUE);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &g.sets[TEXTURE_WHITE], 0, nullptr);
+
+		for (uint32_t i = 0; i < e->surfaces.size; i++) {
+			surface_gpu* gpu = upload_surface(*e->surfaces[i]);
+			if (!gpu) {
+				continue;
+			}
+			VkDeviceSize offset = 0;
+			vkCmdBindVertexBuffers(g.cmd, 0, 1, &gpu->vertex_buffer, &offset);
+			vkCmdBindIndexBuffer(g.cmd, gpu->index_buffer, 0, VK_INDEX_TYPE_UINT32);
+			vkCmdDrawIndexed(g.cmd, gpu->index_count, 1, 0, 0, 0);
+		}
+	}
+
+	// Perspective projection for Blitz3D: looking down +Z, X to the right, Y up, depth from 0 to 1 for Vulkan.
+	void projection(float* p, bb::entity const& cam, float width, float height)
+	{
+		float sx = cam.cam_zoom, sy = cam.cam_zoom * (width / height);
+		float n = cam.cam_near, f = cam.cam_far;
+		memset(p, 0, sizeof(float) * 16);
+		p[0]  = sx;
+		p[5]  = -sy; // Vulkan's Y points down.
+		p[10] = f / (f - n);
+		p[11] = 1;
+		p[14] = -f * n / (f - n);
+	}
+
+	void render_camera(int handle, bb::entity& cam, scene_data& data)
+	{
+		gpu_image& target = g.buffers[g.target == front_buffer ? 0 : 1];
+
+		// Viewport in pixels, clipped to the buffer.
+		int vx = cam.cam_viewport[0], vy = cam.cam_viewport[1];
+		int vw = cam.cam_viewport[2] < 0 ? int(target.width) : cam.cam_viewport[2];
+		int vh = cam.cam_viewport[3] < 0 ? int(target.height) : cam.cam_viewport[3];
+		if (vx < 0) { vw += vx; vx = 0; }
+		if (vy < 0) { vh += vy; vy = 0; }
+		if (vx + vw > int(target.width)) { vw = int(target.width) - vx; }
+		if (vy + vh > int(target.height)) { vh = int(target.height) - vy; }
+		if ((vw <= 0) || (vh <= 0) || (cam.cam_projection == 0)) {
+			return;
+		}
+
+		float world[16], view[16], proj[16];
+		bb::world_matrix(handle, world);
+		bb::mat_affine_inverse(world, view);
+		projection(proj, cam, float(vw), float(vh));
+		bb::mat_multiply(data.viewprojection, proj, view);
+		memcpy(g.scene_mapped, &data, sizeof(data));
+
+		draw_list list;
+		mesh_collector collector = { &list, view };
+		bb::for_each_visible(bb::MESH, collect_mesh, &collector);
+
+		// Far to near for blended entities.
+		for (uint32_t i = 1; i < list.blended.size; i++) {
+			for (uint32_t j = i; j > 0 && list.distance[j - 1] < list.distance[j]; j--) {
+				int   h = list.blended[j];
+				float d = list.distance[j];
+				list.blended[j] = list.blended[j - 1];
+				list.distance[j] = list.distance[j - 1];
+				list.blended[j - 1] = h;
+				list.distance[j - 1] = d;
+			}
+		}
+
+		begin_commands();
+		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		color.imageView                 = target.view;
+		color.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		color.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
+		color.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
+		VkRenderingAttachmentInfo depth = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		depth.imageView                 = g.depth.view;
+		depth.imageLayout               = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		depth.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
+		depth.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
+
+		VkRenderingInfo info      = { VK_STRUCTURE_TYPE_RENDERING_INFO };
+		info.renderArea           = { { 0, 0 }, { target.width, target.height } };
+		info.layerCount           = 1;
+		info.colorAttachmentCount = 1;
+		info.pColorAttachments    = &color;
+		info.pDepthAttachment     = &depth;
+		vkCmdBeginRendering(g.cmd, &info);
+
+		VkViewport viewport = { float(vx), float(vy), float(vw), float(vh), 0, 1 };
+		VkRect2D   scissor  = { { vx, vy }, { uint32_t(vw), uint32_t(vh) } };
+		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+
+		VkClearRect rect = { scissor, 0, 1 };
+		if (cam.cam_clear_color) {
+			VkClearAttachment clear = {};
+			clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
+			clear.clearValue.color  = { { cam.cam_color[0], cam.cam_color[1], cam.cam_color[2], 1.0f } };
+			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+		}
+		if (cam.cam_clear_depth) {
+			VkClearAttachment clear         = {};
+			clear.aspectMask                = VK_IMAGE_ASPECT_DEPTH_BIT;
+			clear.clearValue.depthStencil   = { 1.0f, 0 };
+			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+		}
+
+		VkDescriptorSet scene_set = g.scene_set;
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &scene_set, 0, nullptr);
+
+		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.opaque3d);
+		for (uint32_t i = 0; i < list.opaque.size; i++) {
+			draw_entity(list.opaque[i], false);
+		}
+		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.blend3d);
+		for (uint32_t i = 0; i < list.blended.size; i++) {
+			draw_entity(list.blended[i], true);
+		}
+		vkCmdEndRendering(g.cmd);
+
+		if (g.target == front_buffer) {
+			present_front(false);
+		} else {
+			submit_commands();
+		}
+		list.opaque.release();
+		list.blended.release();
+		list.distance.release();
+	}
+
+	struct camera_collector {
+		bb::buffer<int> handles;
+	};
+
+	void collect_camera(int handle, bb::entity&, void* user)
+	{
+		static_cast<camera_collector*>(user)->handles.push(handle);
+	}
 } // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1200,6 +1664,13 @@ void bb_end_graphics(void)
 		for (int i = 0; i < 2; i++) {
 			destroy_image(g.buffers[i]);
 		}
+		destroy_image(g.depth);
+		vkDestroyBuffer(g.device, g.scene_buffer, nullptr);
+		vkFreeMemory(g.device, g.scene_memory, nullptr);
+		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
+		vkDestroyPipeline(g.device, g.blend3d, nullptr);
+		vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
+		vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
 		for (int i = 0; i < TEXTURES; i++) {
 			destroy_image(g.textures[i]);
 		}
@@ -1485,6 +1956,42 @@ int32_t bb_mouse_hit(int32_t button)
 		return 1;
 	}
 	return 0;
+}
+
+// RenderWorld: draws everything the cameras see into the current buffer.
+void bb_render_world(float tween)
+{
+	(void)tween;
+	if (!active()) {
+		return;
+	}
+	flush(); // Whatever was drawn before comes first.
+
+	scene_data data = {};
+	data.ambient[0] = bb::ambient_light[0];
+	data.ambient[1] = bb::ambient_light[1];
+	data.ambient[2] = bb::ambient_light[2];
+	data.ambient[3] = 1;
+	light_collector lights = { &data, 0 };
+	bb::for_each_visible(bb::LIGHT, collect_light, &lights);
+
+	camera_collector cameras;
+	bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
+	for (uint32_t i = 0; i < cameras.handles.size; i++) {
+		bb::entity* cam = bb::get_entity(cameras.handles[i]);
+		if (cam) {
+			render_camera(cameras.handles[i], *cam, data);
+		}
+	}
+	cameras.handles.release();
+}
+
+// The scene lets go of a surface: its GPU buffers go with it.
+void bb_release_surface_gpu(void* gpu)
+{
+	if (gpu && g.device) {
+		release_surface_gpu(static_cast<surface_gpu*>(gpu));
+	}
 }
 
 // Called by Delay, so programs that wait keep their window alive and showing what they drew.

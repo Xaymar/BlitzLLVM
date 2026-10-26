@@ -7,6 +7,7 @@
 
 extern "C" {
 void bb_runtime_error(const char* message);
+void bb_release_surface_gpu(void* gpu);
 }
 
 namespace bb {
@@ -193,6 +194,7 @@ namespace {
 	{
 		surface* s = surface_table[uint32_t(handle) - 1];
 		if (s) {
+			bb_release_surface_gpu(s->gpu);
 			s->vertices.release();
 			s->indices.release();
 			delete s;
@@ -421,6 +423,11 @@ void bb::mat_multiply(float* out, const float* a, const float* b)
 		}
 	}
 	memcpy(out, r, sizeof(r));
+}
+
+void bb::mat_affine_inverse(const float* m, float* out)
+{
+	affine_inverse(m, out);
 }
 
 int bb::entity_count()

@@ -98,6 +98,7 @@ namespace bb {
 	// Matrices are 4x4, column-major, for column vectors.
 	void mat_identity(float* m);
 	void mat_multiply(float* out, const float* a, const float* b);
+	void mat_affine_inverse(const float* m, float* out);
 
 	/** Highest entity handle in use. Handles start at 1. */
 	int          entity_count();
