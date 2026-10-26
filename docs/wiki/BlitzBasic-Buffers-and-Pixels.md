@@ -10,22 +10,22 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [BackBuffer](BlitzBasic-Buffers-and-Pixels#backbuffer) | Int |  |
-| [BufferDirty](BlitzBasic-Buffers-and-Pixels#bufferdirty) | None |  |
-| [CopyPixel](BlitzBasic-Buffers-and-Pixels#copypixel) | None |  |
-| [CopyPixelFast](BlitzBasic-Buffers-and-Pixels#copypixelfast) | None |  |
-| [CopyRect](BlitzBasic-Buffers-and-Pixels#copyrect) | None |  |
-| [FrontBuffer](BlitzBasic-Buffers-and-Pixels#frontbuffer) | Int |  |
-| [GraphicsBuffer](BlitzBasic-Buffers-and-Pixels#graphicsbuffer) | Int |  |
-| [LoadBuffer](BlitzBasic-Buffers-and-Pixels#loadbuffer) | Int |  |
-| [LockBuffer](BlitzBasic-Buffers-and-Pixels#lockbuffer) | None |  |
-| [ReadPixel](BlitzBasic-Buffers-and-Pixels#readpixel) | Int |  |
-| [ReadPixelFast](BlitzBasic-Buffers-and-Pixels#readpixelfast) | Int |  |
-| [SaveBuffer](BlitzBasic-Buffers-and-Pixels#savebuffer) | Int |  |
-| [SetBuffer](BlitzBasic-Buffers-and-Pixels#setbuffer) | None |  |
-| [UnlockBuffer](BlitzBasic-Buffers-and-Pixels#unlockbuffer) | None |  |
-| [WritePixel](BlitzBasic-Buffers-and-Pixels#writepixel) | None |  |
-| [WritePixelFast](BlitzBasic-Buffers-and-Pixels#writepixelfast) | None |  |
+| [BackBuffer](BlitzBasic-Buffers-and-Pixels#backbuffer) | Int | Returns the back buffer: the hidden picture that all drawing goes to when it is selected with [SetBuffer](BlitzBasic-Buffers-and-Pixels#setbuffer). |
+| [BufferDirty](BlitzBasic-Buffers-and-Pixels#bufferdirty) | None | Tells the system that a buffer was changed behind its back so that it has to be refreshed. |
+| [CopyPixel](BlitzBasic-Buffers-and-Pixels#copypixel) | None | Copies one pixel from a buffer to another, or inside the same buffer. |
+| [CopyPixelFast](BlitzBasic-Buffers-and-Pixels#copypixelfast) | None | The quick form of [CopyPixel](BlitzBasic-Buffers-and-Pixels#copypixel). |
+| [CopyRect](BlitzBasic-Buffers-and-Pixels#copyrect) | None | Copies a rectangle from one buffer to another, or inside the same buffer, even when the two areas overlap. |
+| [FrontBuffer](BlitzBasic-Buffers-and-Pixels#frontbuffer) | Int | Returns the front buffer: the picture that is on the screen. |
+| [GraphicsBuffer](BlitzBasic-Buffers-and-Pixels#graphicsbuffer) | Int | Returns the buffer that drawing commands currently draw to, which is the one that the last [SetBuffer](BlitzBasic-Buffers-and-Pixels#setbuffer) chose. |
+| [LoadBuffer](BlitzBasic-Buffers-and-Pixels#loadbuffer) | Int | Loads a picture file into a buffer, stretched to cover all of it. |
+| [LockBuffer](BlitzBasic-Buffers-and-Pixels#lockbuffer) | None | Makes a copy of the pixels of a buffer that [ReadPixelFast](BlitzBasic-Buffers-and-Pixels#readpixelfast) and [WritePixelFast](BlitzBasic-Buffers-and-Pixels#writepixelfast) can use quickly. |
+| [ReadPixel](BlitzBasic-Buffers-and-Pixels#readpixel) | Int | Returns the color of a pixel of a buffer as an ARGB number: red, green and blue are in the lower three bytes, `(color And $FFFFFF)`, and the top byte is the alpha, which is 255 for the screen. |
+| [ReadPixelFast](BlitzBasic-Buffers-and-Pixels#readpixelfast) | Int | Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](BlitzBasic-Buffers-and-Pixels#readpixel). |
+| [SaveBuffer](BlitzBasic-Buffers-and-Pixels#savebuffer) | Int | Writes the content of a buffer into a picture file. |
+| [SetBuffer](BlitzBasic-Buffers-and-Pixels#setbuffer) | None | Chooses where drawing commands such as `Rect`, `Text`, [DrawImage](BlitzBasic-Images#drawimage) and `Plot` draw to: the back buffer, the front buffer, or the buffer of an image or texture. |
+| [UnlockBuffer](BlitzBasic-Buffers-and-Pixels#unlockbuffer) | None | Ends the lock of [LockBuffer](BlitzBasic-Buffers-and-Pixels#lockbuffer) and writes the pixels that were changed into the buffer. |
+| [WritePixel](BlitzBasic-Buffers-and-Pixels#writepixel) | None | Sets a pixel of a buffer to a color given as an ARGB number, for example `(red Shl 16) Or (green Shl 8) Or blue`. |
+| [WritePixelFast](BlitzBasic-Buffers-and-Pixels#writepixelfast) | None | Sets a pixel of a locked buffer. |
 
 ### BackBuffer
 
@@ -35,7 +35,21 @@ BackBuffer  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Returns the back buffer: the hidden picture that all drawing goes to when it is selected with [SetBuffer](BlitzBasic-Buffers-and-Pixels#setbuffer). Draw a whole frame into it and show it with [Flip](BlitzBasic-Display#flip). This is the usual way to animate without flicker.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local x = 0
+While Not KeyHit(1)
+	Cls
+	Rect x, 100, 40, 40, 1
+	x = (x + 2) Mod 320
+	Flip
+Wend
+```
+
+**Returns:** The handle of the back buffer.
 
 ### BufferDirty
 
@@ -45,11 +59,15 @@ BufferDirty buffer%
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Tells the system that a buffer was changed behind its back so that it has to be refreshed. The original needed this for buffers that were kept in two places. Nothing is kept twice here, so the call is accepted and does nothing.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | required |  |
+| `buffer` | Int | required | The buffer that was changed. |
+
+**Differences and known gaps:**
+
+* Has no effect.
 
 ### CopyPixel
 
@@ -59,16 +77,33 @@ CopyPixel src_x%, src_y%, src_buffer%, dest_x%, dest_y%, dest_buffer%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Copies one pixel from a buffer to another, or inside the same buffer. Each call has to work out where both pixels are, so for many pixels lock the buffers and use [CopyPixelFast](BlitzBasic-Buffers-and-Pixels#copypixelfast).
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+Color 255, 0, 0
+Rect 0, 0, 20, 20, 1
+For i = 0 To 19
+	CopyPixel i, i, BackBuffer(), 100 + i, 50, BackBuffer()
+Next
+Flip
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_x` | Int | required |  |
-| `src_y` | Int | required |  |
-| `src_buffer` | Int | required |  |
-| `dest_x` | Int | required |  |
-| `dest_y` | Int | required |  |
-| `dest_buffer` | Int | `0` |  |
+| `src_x` | Int | required | Horizontal position of the pixel to copy. |
+| `src_y` | Int | required | Vertical position of the pixel to copy. |
+| `src_buffer` | Int | required | The buffer to copy from. |
+| `dest_x` | Int | required | Horizontal position to copy to. |
+| `dest_y` | Int | required | Vertical position to copy to. |
+| `dest_buffer` | Int | `0` | The buffer to copy to. Defaults to the current buffer. |
+
+**Differences and known gaps:**
+
+* A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
 
 ### CopyPixelFast
 
@@ -78,16 +113,20 @@ CopyPixelFast src_x%, src_y%, src_buffer%, dest_x%, dest_y%, dest_buffer%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The quick form of [CopyPixel](BlitzBasic-Buffers-and-Pixels#copypixel). Both buffers must be locked with [LockBuffer](BlitzBasic-Buffers-and-Pixels#lockbuffer) first, and the position is not checked against the edges of the original.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_x` | Int | required |  |
-| `src_y` | Int | required |  |
-| `src_buffer` | Int | required |  |
-| `dest_x` | Int | required |  |
-| `dest_y` | Int | required |  |
-| `dest_buffer` | Int | `0` |  |
+| `src_x` | Int | required | Horizontal position of the pixel to copy. |
+| `src_y` | Int | required | Vertical position of the pixel to copy. |
+| `src_buffer` | Int | required | The locked buffer to copy from. |
+| `dest_x` | Int | required | Horizontal position to copy to. |
+| `dest_y` | Int | required | Vertical position to copy to. |
+| `dest_buffer` | Int | `0` | The locked buffer to copy to. Defaults to the current buffer. |
+
+**Differences and known gaps:**
+
+* A buffer that is not locked stops the program with an error message. Positions outside of a buffer are ignored instead of writing into other memory like the original could.
 
 ### CopyRect
 
@@ -97,18 +136,38 @@ CopyRect source_x%, source_y%, width%, height%, dest_x%, dest_y%, src_buffer%=0,
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Copies a rectangle from one buffer to another, or inside the same buffer, even when the two areas overlap. It is much quicker than copying pixel by pixel, and the way to scroll a picture or to save a part of the screen.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+For i = 0 To 5
+	Color 255 - i * 40, 80 + i * 30, 60 + i * 30
+	Oval 10 + i * 8, 10 + i * 8, 80 - i * 12, 80 - i * 12, 1
+Next
+CopyRect 0, 0, 100, 100, 130, 40
+CopyRect 0, 0, 100, 100, 220, 120
+Flip
+WaitKey
+```
+
+![CopyRect](media/buffers/copyrect.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `source_x` | Int | required |  |
-| `source_y` | Int | required |  |
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `dest_x` | Int | required |  |
-| `dest_y` | Int | required |  |
-| `src_buffer` | Int | `0` |  |
-| `dest_buffer` | Int | `0` |  |
+| `source_x` | Int | required | Left edge of the area to copy. |
+| `source_y` | Int | required | Top edge of the area to copy. |
+| `width` | Int | required | Width of the area. |
+| `height` | Int | required | Height of the area. |
+| `dest_x` | Int | required | Left edge of the target area. |
+| `dest_y` | Int | required | Top edge of the target area. |
+| `src_buffer` | Int | `0` | The buffer to copy from. Defaults to the current buffer. |
+| `dest_buffer` | Int | `0` | The buffer to copy to. Defaults to the current buffer. |
+
+**Differences and known gaps:**
+
+* Parts of the rectangle that lie outside of either buffer are cut off.
 
 ### FrontBuffer
 
@@ -118,7 +177,13 @@ FrontBuffer  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Returns the front buffer: the picture that is on the screen. [Flip](BlitzBasic-Display#flip) updates it from the back buffer.
+
+**Returns:** The handle of the front buffer.
+
+**Differences and known gaps:**
+
+* The front buffer holds what the last Flip showed. [SaveBuffer](BlitzBasic-Buffers-and-Pixels#savebuffer) of it is the way to take a screenshot.
 
 ### GraphicsBuffer
 
@@ -128,7 +193,24 @@ GraphicsBuffer  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Returns the buffer that drawing commands currently draw to, which is the one that the last [SetBuffer](BlitzBasic-Buffers-and-Pixels#setbuffer) chose. Use it to remember the target and go back to it later.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local img = CreateImage(32, 32)
+Local old = GraphicsBuffer()
+SetBuffer ImageBuffer(img)
+Color 255, 255, 0
+Rect 0, 0, 32, 32, 1
+SetBuffer old
+Cls
+DrawImage img, 100, 100
+Flip
+WaitKey
+```
+
+**Returns:** The handle of the current buffer.
 
 ### LoadBuffer
 
@@ -138,12 +220,32 @@ LoadBuffer buffer%, bmpfile$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Loads a picture file into a buffer, stretched to cover all of it. Returns whether the file could be loaded.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+; Save the screen of the first part to a file and load it again, stretched into a smaller image.
+Color 255, 120, 0
+Oval 20, 20, 200, 200, 1
+SaveBuffer BackBuffer(), "shot.bmp"
+Cls
+Local small = CreateImage(64, 64)
+If LoadBuffer(ImageBuffer(small), "shot.bmp") Then DrawBlock small, 128, 88
+Flip
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | required |  |
-| `bmpfile` | String | required |  |
+| `buffer` | Int | required | The buffer to fill. |
+| `bmpfile` | String | required | The path of the picture file. |
+
+**Returns:** 1 if the picture was loaded, otherwise 0.
+
+**Differences and known gaps:**
+
+* Formats other than BMP load as well. The picture is always scaled to the size of the buffer, with smooth filtering.
 
 ### LockBuffer
 
@@ -153,11 +255,33 @@ LockBuffer buffer%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Makes a copy of the pixels of a buffer that [ReadPixelFast](BlitzBasic-Buffers-and-Pixels#readpixelfast) and [WritePixelFast](BlitzBasic-Buffers-and-Pixels#writepixelfast) can use quickly. What the program writes reaches the buffer when [UnlockBuffer](BlitzBasic-Buffers-and-Pixels#unlockbuffer) is called, so do not forget it. Do not use the other drawing commands while a buffer is locked.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+LockBuffer BackBuffer()
+For y = 0 To 239
+	For x = 0 To 319
+		WritePixelFast x, y, ((x * 255 / 319) Shl 16) Or ((y * 255 / 239) Shl 8) Or 128
+	Next
+Next
+UnlockBuffer BackBuffer()
+Flip
+WaitKey
+```
+
+![LockBuffer](media/buffers/lockbuffer.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | `0` |  |
+| `buffer` | Int | `0` | The buffer to lock. Defaults to the current buffer. |
+
+**Differences and known gaps:**
+
+* Up to 8 buffers can be locked at the same time.
+* The lock works on a copy: drawing commands and [ReadPixel](BlitzBasic-Buffers-and-Pixels#readpixel) do not see what was written until the buffer is unlocked, and when pixels were written, the whole copy replaces the buffer on unlocking, which discards anything that drawing commands drew meanwhile.
 
 ### ReadPixel
 
@@ -167,13 +291,30 @@ ReadPixel x%, y%, buffer%=0  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Returns the color of a pixel of a buffer as an ARGB number: red, green and blue are in the lower three bytes, `(color And $FFFFFF)`, and the top byte is the alpha, which is 255 for the screen. Take the parts apart with `Shr` and `And`. For many pixels, lock the buffer and use [ReadPixelFast](BlitzBasic-Buffers-and-Pixels#readpixelfast).
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+Color 200, 100, 50
+Plot 10, 10
+Local c = ReadPixel(10, 10) And $FFFFFF
+Print "Red " + ((c Shr 16) And $FF) + " Green " + ((c Shr 8) And $FF) + " Blue " + (c And $FF)
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
-| `buffer` | Int | `0` |  |
+| `x` | Int | required | Horizontal position of the pixel. |
+| `y` | Int | required | Vertical position of the pixel. |
+| `buffer` | Int | `0` | The buffer to read from. Defaults to the current buffer. |
+
+**Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
+
+**Differences and known gaps:**
+
+* Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
 
 ### ReadPixelFast
 
@@ -183,13 +324,19 @@ ReadPixelFast x%, y%, buffer%=0  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](BlitzBasic-Buffers-and-Pixels#readpixel). The buffer has to be locked with [LockBuffer](BlitzBasic-Buffers-and-Pixels#lockbuffer).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
-| `buffer` | Int | `0` |  |
+| `x` | Int | required | Horizontal position of the pixel. |
+| `y` | Int | required | Vertical position of the pixel. |
+| `buffer` | Int | `0` | The locked buffer to read from. Defaults to the current buffer. |
+
+**Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
+
+**Differences and known gaps:**
+
+* A buffer that is not locked stops the program with an error message. In the original a position outside of the buffer reads other memory.
 
 ### SaveBuffer
 
@@ -199,12 +346,29 @@ SaveBuffer buffer%, bmpfile$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes the content of a buffer into a picture file. Saving the front buffer after a [Flip](BlitzBasic-Display#flip) makes a screenshot.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+Color 255, 255, 255
+Text 160, 120, "Screenshot", 1, 1
+Flip
+If SaveBuffer(FrontBuffer(), "screenshot.bmp") Then Print "saved" Else Print "failed"
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | required |  |
-| `bmpfile` | String | required |  |
+| `buffer` | Int | required | The buffer to save. |
+| `bmpfile` | String | required | The path of the file to write. |
+
+**Returns:** 1 if the file was written, otherwise 0.
+
+**Differences and known gaps:**
+
+* A name that ends with `.png` gives a PNG file and any other name a BMP file.
 
 ### SetBuffer
 
@@ -214,11 +378,35 @@ SetBuffer buffer%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Chooses where drawing commands such as `Rect`, `Text`, [DrawImage](BlitzBasic-Images#drawimage) and `Plot` draw to: the back buffer, the front buffer, or the buffer of an image or texture. A program usually calls `SetBuffer BackBuffer()` once after `Graphics`. Switching the buffer puts the [Origin](BlitzBasic-Drawing#origin) and the viewport back to their defaults and the text cursor of `Print` to the top left corner.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local img = CreateImage(100, 100)
+SetBuffer ImageBuffer(img)
+Color 255, 160, 0
+Oval 0, 0, 100, 100, 1
+Color 0, 0, 0
+Text 50, 50, "image", 1, 1
+SetBuffer BackBuffer()
+Cls
+For i = 0 To 2
+	DrawImage img, 10 + i * 100, 30 + i * 30
+Next
+Flip
+WaitKey
+```
+
+![SetBuffer](media/buffers/setbuffer.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | required |  |
+| `buffer` | Int | required | A buffer from [BackBuffer](BlitzBasic-Buffers-and-Pixels#backbuffer), [FrontBuffer](BlitzBasic-Buffers-and-Pixels#frontbuffer), [ImageBuffer](BlitzBasic-Images#imagebuffer) or `TextureBuffer`. |
+
+**Differences and known gaps:**
+
+* A buffer that does not exist stops the program with an error message.
 
 ### UnlockBuffer
 
@@ -228,11 +416,11 @@ UnlockBuffer buffer%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Ends the lock of [LockBuffer](BlitzBasic-Buffers-and-Pixels#lockbuffer) and writes the pixels that were changed into the buffer. It does nothing if the buffer is not locked.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | `0` |  |
+| `buffer` | Int | `0` | The buffer to unlock. Defaults to the current buffer. |
 
 ### WritePixel
 
@@ -242,14 +430,29 @@ WritePixel x%, y%, argb%, buffer%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets a pixel of a buffer to a color given as an ARGB number, for example `(red Shl 16) Or (green Shl 8) Or blue`. This works without a lock, but each call is slow. Lock the buffer and use [WritePixelFast](BlitzBasic-Buffers-and-Pixels#writepixelfast) for many pixels.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+For i = 0 To 255
+	WritePixel 32 + i, 120, (i Shl 16) Or ((255 - i) Shl 8) Or 128
+Next
+Flip
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
-| `argb` | Int | required |  |
-| `buffer` | Int | `0` |  |
+| `x` | Int | required | Horizontal position of the pixel. |
+| `y` | Int | required | Vertical position of the pixel. |
+| `argb` | Int | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
+| `buffer` | Int | `0` | The buffer to write to. Defaults to the current buffer. |
+
+**Differences and known gaps:**
+
+* A position outside of the buffer is ignored.
 
 ### WritePixelFast
 
@@ -259,11 +462,38 @@ WritePixelFast x%, y%, argb%, buffer%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets a pixel of a locked buffer. The buffer has to be locked with [LockBuffer](BlitzBasic-Buffers-and-Pixels#lockbuffer) first and the result shows after [UnlockBuffer](BlitzBasic-Buffers-and-Pixels#unlockbuffer).
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local n = 0
+While n < 30
+	LockBuffer BackBuffer()
+	For y = 0 To 239 Step 2
+		For x = 0 To 319 Step 2
+			Local v = 128 + 127 * Sin(x * 1.5 + n * 12) * Cos(y * 1.5 - n * 8)
+			WritePixelFast x, y, (v Shl 16) Or ((255 - v) Shl 8) Or 200
+			WritePixelFast x + 1, y, (v Shl 16) Or ((255 - v) Shl 8) Or 200
+			WritePixelFast x, y + 1, (v Shl 16) Or ((255 - v) Shl 8) Or 200
+			WritePixelFast x + 1, y + 1, (v Shl 16) Or ((255 - v) Shl 8) Or 200
+		Next
+	Next
+	UnlockBuffer BackBuffer()
+	Flip
+	n = n + 1
+Wend
+```
+
+![WritePixelFast](media/buffers/writepixelfast.gif)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
-| `argb` | Int | required |  |
-| `buffer` | Int | `0` |  |
+| `x` | Int | required | Horizontal position of the pixel. |
+| `y` | Int | required | Vertical position of the pixel. |
+| `argb` | Int | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
+| `buffer` | Int | `0` | The locked buffer to write to. Defaults to the current buffer. |
+
+**Differences and known gaps:**
+
+* A buffer that is not locked stops the program with an error message. A position outside of the buffer is ignored instead of writing into other memory.
