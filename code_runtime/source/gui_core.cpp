@@ -7,9 +7,16 @@
 
 #include "gui_internal.hpp"
 
+#include <SDL3/SDL.h>
+
 extern "C" {
 int32_t bb_graphics_width(void);
 int32_t bb_graphics_height(void);
+int32_t bb_graphics_buffer(void);
+int32_t bb_native_window(void);
+void    bb_set_buffer(int32_t buffer);
+void    bb_clscolor(int32_t r, int32_t g, int32_t b);
+void    bb_cls(void);
 }
 
 namespace bb::gui {
@@ -20,6 +27,10 @@ namespace bb::gui {
 	buffer<icon_strip*> strips;
 
 	static int desktop = 0;
+
+	// What the program drew on the desktop with DesktopBuffer. It is the backdrop of the windows, so that it stays
+	// when the gadgets are drawn again.
+	static int desktop_image = 0, desktop_image_w = 0, desktop_image_h = 0;
 
 	char* copy_string(const char* s)
 	{
@@ -138,6 +149,56 @@ namespace bb::gui {
 		return desktop;
 	}
 
+	// The size of the screen, where there is a display to ask. The desktop of Windows is the screen, while the one here
+	// has the size of the window that the windows are drawn in.
+	void screen_size(int* w, int* h)
+	{
+		*w = bb_graphics_width();
+		*h = bb_graphics_height();
+		if (SDL_WasInit(SDL_INIT_VIDEO)) {
+			SDL_DisplayID display = SDL_GetPrimaryDisplay();
+			if (const SDL_DisplayMode* mode = display ? SDL_GetDesktopDisplayMode(display) : nullptr) {
+				if ((mode->w > 0) && (mode->h > 0)) {
+					*w = mode->w;
+					*h = mode->h;
+				}
+			}
+		}
+	}
+
+	// The buffer of what was drawn on the desktop, or 0 if nothing was.
+	int desktop_backdrop()
+	{
+		if (!desktop_image) {
+			return 0;
+		}
+		if ((desktop_image_w != bb_graphics_width()) || (desktop_image_h != bb_graphics_height())) {
+			return 0; // The window changed size since.
+		}
+		return bb_image_buffer(desktop_image, 0);
+	}
+
+	int desktop_buffer()
+	{
+		int w = bb_graphics_width(), h = bb_graphics_height();
+		if (desktop_image && ((desktop_image_w != w) || (desktop_image_h != h))) {
+			bb_free_image(desktop_image);
+			desktop_image = 0;
+		}
+		if (!desktop_image) {
+			desktop_image   = bb_create_image(w, h, 1);
+			desktop_image_w = w;
+			desktop_image_h = h;
+			// It starts as the desktop is without anything on it.
+			int saved = bb_graphics_buffer();
+			bb_set_buffer(bb_image_buffer(desktop_image, 0));
+			bb_clscolor(58, 110, 165);
+			bb_cls();
+			bb_set_buffer(saved);
+		}
+		return bb_image_buffer(desktop_image, 0);
+	}
+
 	static bool is_group(int kind)
 	{
 		return (kind == K_DESKTOP) || (kind == K_WINDOW) || (kind == K_PANEL) || (kind == K_TABBER) || (kind == K_CANVAS);
@@ -147,7 +208,7 @@ namespace bb::gui {
 	{
 		int frame = (g.style & 1) ? ((g.style & 2) ? frame_width : 3) : 1;
 		*left = *right = frame;
-		*top    = frame + ((g.style & 1) ? title_height : 0) + ((g.style & 4) ? menu_height : 0);
+		*top    = frame + ((g.style & 1) ? title_bar_height(g) : 0) + ((g.style & 4) ? menu_height : 0);
 		*bottom = frame + ((g.style & 8) ? status_height : 0);
 	}
 
@@ -530,6 +591,13 @@ void bb_set_gadget_shape(int32_t handle, int32_t x, int32_t y, int32_t w, int32_
 		if (g->maximized || g->minimized) {
 			g->maximized = g->minimized = false;
 		}
+		// A window can't be made smaller than SetMinWindowSize says, which is the size with the frame.
+		if (w < g->min_w) {
+			w = g->min_w;
+		}
+		if (h < g->min_h) {
+			h = g->min_h;
+		}
 	}
 	set_shape(handle, x, y, w, h);
 	lock_layout(*gadget_of(handle));
@@ -599,12 +667,24 @@ int32_t bb_gadget_y(int32_t handle)
 
 int32_t bb_gadget_width(int32_t handle)
 {
-	return need_gadget(handle, "GadgetWidth")->w;
+	gadget* g = need_gadget(handle, "GadgetWidth");
+	if (g->kind == K_DESKTOP) {
+		int w, h;
+		screen_size(&w, &h);
+		return w;
+	}
+	return g->w;
 }
 
 int32_t bb_gadget_height(int32_t handle)
 {
-	return need_gadget(handle, "GadgetHeight")->h;
+	gadget* g = need_gadget(handle, "GadgetHeight");
+	if (g->kind == K_DESKTOP) {
+		int w, h;
+		screen_size(&w, &h);
+		return h;
+	}
+	return g->h;
 }
 
 int32_t bb_gadget_group(int32_t handle)
@@ -614,18 +694,36 @@ int32_t bb_gadget_group(int32_t handle)
 
 int32_t bb_client_width(int32_t handle)
 {
-	need_gadget(handle, "ClientWidth");
+	gadget* g = need_gadget(handle, "ClientWidth");
 	int x, y, w, h;
+	if (g->kind == K_DESKTOP) {
+		screen_size(&w, &h);
+		return w;
+	}
 	client_rect(handle, &x, &y, &w, &h);
 	return w;
 }
 
 int32_t bb_client_height(int32_t handle)
 {
-	need_gadget(handle, "ClientHeight");
+	gadget* g = need_gadget(handle, "ClientHeight");
 	int x, y, w, h;
+	if (g->kind == K_DESKTOP) {
+		screen_size(&w, &h);
+		return h;
+	}
 	client_rect(handle, &x, &y, &w, &h);
 	return h;
+}
+
+// What the system has for a gadget: the window it is in (1 and 2), which is the one window of the program. There is no
+// handle for fonts (3), or for what is not a gadget.
+int32_t bb_gui_query(int32_t handle, int32_t query)
+{
+	if (!gadget_of(handle) || ((query != 1) && (query != 2))) {
+		return 0;
+	}
+	return bb_native_window();
 }
 
 int32_t bb_desktop(void)
@@ -637,12 +735,12 @@ int32_t bb_desktop(void)
 }
 
 extern "C" {
-int32_t bb_front_buffer(void);
-
-// The buffer of the whole desktop, which is the window of the program.
+// The buffer of the whole desktop. What is drawn there stays behind the windows.
 int32_t bb_desktop_buffer(void)
 {
+	gui_used = true;
 	ensure_graphics();
-	return bb_front_buffer();
+	dirty();
+	return bb::gui::desktop_buffer();
 }
 }

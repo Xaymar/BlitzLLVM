@@ -38,6 +38,7 @@ int32_t bb_live_textures(void);
 int32_t bb_live_fonts(void);
 int32_t bb_live_timers(void);
 int32_t bb_live_objects(void);
+int32_t bb_gui_query(int32_t handle, int32_t query);
 }
 
 namespace {
@@ -177,11 +178,11 @@ void bb_debug_objects(void)
 	}
 }
 
-// The interface of an object for other programs, which there are none of here.
+// The system's own handle for an object of the program. The window of the program is what every gadget is in (query 1
+// and 2), so they are its handle (an HWND on Windows). Fonts (3) are drawn here and have none. What is not an object
+// that has one gives 0.
 int32_t bb_query_object(int32_t object, int32_t query)
 {
-	(void)object;
-	(void)query;
-	return 0;
+	return bb_gui_query(object, query);
 }
 }
