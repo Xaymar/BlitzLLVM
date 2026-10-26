@@ -320,10 +320,6 @@ Wend
 |---|---|---|---|
 | `elapsed_time` | Float | `1` | Animation speed of the whole world: 1 plays animations at their own speed, 2 at double speed, 0.5 at half. Defaults to 1. |
 
-**Differences and known gaps:**
-
-* Animations follow the clock here and not the number of UpdateWorld calls, see [Animate](Blitz3D-Animation#animate). The value changes the speed but not how often a step is made.
-
 ### WBuffer
 
 ```blitzbasic

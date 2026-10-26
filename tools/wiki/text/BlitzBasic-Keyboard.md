@@ -19,7 +19,7 @@ WaitKey
 ```
 
 ## GetKey
-Takes the next typed character out of the keyboard queue and returns its character code, or 0 when nothing was typed since the last call. It follows what the keyboard layout produces, so Shift+A gives 65 and plain A gives 97. A few keys that do not type a character still give a code: Enter 13, Backspace 8, Tab 9, Escape 27 and Delete 127. Keys without any character, such as Shift, the arrows and the function keys, are not reported here, so use [KeyDown](BlitzBasic-Keyboard#keydown) or [KeyHit](BlitzBasic-Keyboard#keyhit) for those.
+Takes the next typed character out of the keyboard queue and returns its character code, or 0 when nothing was typed since the last call. It follows what the keyboard layout produces, so Shift+A gives 65 and plain A gives 97. A few keys that do not type a character still give a code: Enter 13, Backspace 8, Tab 9 and Escape 27, and the editing keys give the codes of the original: Home 1, End 2, Insert 3, Delete 4, Page Up 5, Page Down 6, and the arrows Up 28, Down 29, Left 30 and Right 31. Keys without any character, such as Shift and the function keys, are not reported here, so use [KeyDown](BlitzBasic-Keyboard#keydown) or [KeyHit](BlitzBasic-Keyboard#keyhit) for those.
 
 The character code is not the scancode that KeyDown and KeyHit use.
 
@@ -81,7 +81,6 @@ Wend
 ```
 @param key  The scancode of the key, 1 to 255.
 @returns How many times the key was pressed since the last call.
-@gap Holding a key down gives one hit, but a key pressed several times between two calls is counted as one hit and not as the real number of presses.
 
 ## WaitKey
 Stops the program until a character is typed and returns its character code. The window stays responsive while it waits, and keys that were typed before the call are ignored, so it always waits for a fresh key. Like [GetKey](BlitzBasic-Keyboard#getkey) it only reacts to keys that type a character, so Shift, Ctrl and the arrow keys do not end the wait.

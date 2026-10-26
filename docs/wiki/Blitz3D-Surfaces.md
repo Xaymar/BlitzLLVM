@@ -650,7 +650,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* Only one set of coordinates exists: `coord_set` is ignored, so set 1 reads and writes set 0. `w` is ignored.
+* `w` is ignored.
 
 ### VertexU
 
@@ -670,10 +670,6 @@ _Not documented yet._
 
 **Returns:** The horizontal texture coordinate of the vertex.
 
-**Differences and known gaps:**
-
-* `coord_set` is ignored, the one set of coordinates is always read.
-
 ### VertexV
 
 ```blitzbasic
@@ -691,10 +687,6 @@ _Not documented yet._
 | `coord_set` | Int | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
 
 **Returns:** The vertical texture coordinate of the vertex.
-
-**Differences and known gaps:**
-
-* `coord_set` is ignored, the one set of coordinates is always read.
 
 ### VertexW
 

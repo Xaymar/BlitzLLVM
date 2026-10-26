@@ -128,10 +128,6 @@ Turns the camera's fog on or off. Fog fades everything toward the fog color with
 | `camera` | Int | required | Camera handle. |
 | `mode` | Int | required | 0 for no fog, 1 for linear fog. |
 
-**Differences and known gaps:**
-
-* The `EntityFX` flag that exempts an entity from fog is ignored, so every entity is fogged.
-
 ### CameraFogRange
 
 ```blitzbasic
@@ -225,10 +221,6 @@ Switches the camera between not drawing at all, perspective and orthographic pro
 |---|---|---|---|
 | `camera` | Int | required | Camera handle. |
 | `mode` | Int | required | 0 disables the camera, 1 is perspective, 2 is orthographic. |
-
-**Differences and known gaps:**
-
-* Orthographic projection (2) is not implemented yet and behaves like perspective projection (1). Only 0 and non-zero values are told apart.
 
 ### CameraRange
 

@@ -12,7 +12,7 @@ AppTitle "My game"
 ```
 @param title         The window title.
 @param close_prompt  The question the original asked before closing the window.
-@gap `close_prompt` is accepted but never shown, the window closes without asking. Only the title is used, and only once a graphics mode is open.
+@gap The title is only used once a graphics mode is open. The question is asked when somebody closes the window, see [Differences](Differences#apptitle).
 
 ## CommandLine
 @returns The arguments the program was started with as one string, with a space between them. It is empty when there are none. A program run by `blitzcc` gets the arguments given after `--args`.
@@ -139,7 +139,7 @@ Sets an environment variable for this program and for the programs it starts wit
 
 ## Stop
 In the original this paused the program in the debugger so that you could look at its variables, and ran on when you continued.
-@gap Not implemented yet: a program that uses `Stop` does not compile ("Stop" does not exist). Use `End` or `DebugLog` for now.
+@gap Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached. In any other build `Stop` does nothing. See [Differences](Differences#stop).
 
 ## SystemProperty
 Asks for the path of a system folder.
@@ -149,7 +149,7 @@ Print "Temporary files go to " + SystemProperty$("tempdir")
 ```
 @param property  One of `tempdir`, `appdir`, `windowsdir` or `systemdir`.
 @returns The path, or an empty string for a name that is not known.
-@gap `windowsdir` and `systemdir` only have a value on Windows and are empty elsewhere. `appdir` is the current folder, not the folder of the program.
+@gap Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders. See [Differences](Differences#systemproperty).
 
 ## WaitTimer
 Waits for the next tick of a timer and returns how many ticks went by since the last call, which is 1 when your loop keeps up and more when it fell behind. Do not call it on a timer that is paused.

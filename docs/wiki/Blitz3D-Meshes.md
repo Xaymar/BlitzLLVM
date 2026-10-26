@@ -135,10 +135,6 @@ WaitKey
 
 **Returns:** The handle of the new cone.
 
-**Differences and known gaps:**
-
-* The base is drawn as a fan around a center point, so a closed cone has `2 * segments` triangles and an open one `segments`. The original uses `segments + (segments - 2)` for a closed one, for example 14 instead of 16 at 8 segments.
-
 ### CreateCube
 
 ```blitzbasic
@@ -213,10 +209,6 @@ WaitKey
 
 **Returns:** The handle of the new cylinder.
 
-**Differences and known gaps:**
-
-* The closed ends are drawn as fans around a center point, so a closed cylinder has `4 * segments` triangles and a tube `2 * segments`. The original uses `(segments + (segments - 2)) * 2` for a closed one, for example 28 instead of 32 at 8 segments.
-
 ### CreateMesh
 
 ```blitzbasic
@@ -272,10 +264,6 @@ Creates a mirror entity: an endless horizontal floor that is invisible but flips
 
 **Returns:** The handle of the mirror.
 
-**Differences and known gaps:**
-
-* A mirror is only an entity: nothing is reflected. [EntityClass](Blitz3D-Entities#entityclass) still reports `Mirror`, so programs run unchanged, but the floor looks empty.
-
 ### CreatePlane
 
 ```blitzbasic
@@ -315,7 +303,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* The plane is one very large square, 20000 units wide, and `segments` is ignored. It looks endless unless you travel far from the origin.
+* Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that. Drawing is not limited: the part of the plane that a camera sees is made again for every frame.
 
 ### CreateSphere
 

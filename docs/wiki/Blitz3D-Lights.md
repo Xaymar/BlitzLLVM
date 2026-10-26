@@ -29,7 +29,7 @@ Creates a light and returns its handle. Without a light everything in the world 
 
 * **1, directional** (the default) is like the sun. Only its rotation matters, it shines along its own forward direction (+Z) and has no position or range.
 * **2, point** is like a light bulb. It shines in all directions from its position and fades out until its range.
-* **3, spot** is meant to be a cone of light. See the gap below.
+* **3, spot** is a cone of light that shines along its forward direction (+Z). See [LightConeAngles](Blitz3D-Lights#lightconeangles).
 
 A new light is white, sits at the origin and has a range of 1000. Any other value for `type` creates a directional light. Only the 8 lights that come first in the world affect a frame, so plan with 8 at most.
 
@@ -59,10 +59,6 @@ WaitKey
 
 **Returns:** The handle of the new light.
 
-**Differences and known gaps:**
-
-* Spot lights (3) are drawn like point lights, see [LightConeAngles](Blitz3D-Lights#lightconeangles).
-
 ### LightColor
 
 ```blitzbasic
@@ -80,10 +76,6 @@ Sets the color of the light. 255, 255, 255 is full white light, 0, 0, 0 adds not
 | `green` | Float | required | Green part of the light. |
 | `blue` | Float | required | Blue part of the light. |
 
-**Differences and known gaps:**
-
-* Each part is clamped to 0 through 255 here, so negative lights do not darken anything yet.
-
 ### LightConeAngles
 
 ```blitzbasic
@@ -99,10 +91,6 @@ Sets the inner and outer angle of a spot light in degrees. Inside the inner angl
 | `light` | Int | required | Light handle. |
 | `inner_angle` | Float | required | Angle of the fully lit center of the cone. |
 | `outer_angle` | Float | required | Angle where the light has faded out. |
-
-**Differences and known gaps:**
-
-* The angles are stored, but spot lights are drawn as point lights that shine in all directions, ignoring the cone.
 
 ### LightMesh
 

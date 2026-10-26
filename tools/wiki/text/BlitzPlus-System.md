@@ -18,7 +18,7 @@ Until WaitEvent() = $803
 @gap Windows and gadgets are not counted here.
 
 ## AutoSuspend
-Switches whether the program stops when its window is not the active one and carries on when it is back. It is off by default, and a program can also react to the events $2001 and $2002 itself.
+Switches whether the program stops when its window is not the active one and carries on when it is back. It is off by default, except for programs that run full screen, which have it on until they turn it off. The program also waits while its window is minimized. A program can also react to the events $2001 and $2002 itself.
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -28,7 +28,6 @@ Repeat
 Until WaitEvent() = $803
 ```
 @param enable  1 turns it on, 0 turns it off.
-@gap Accepted but does nothing: the program keeps running when it is not in front.
 
 ## Confirm
 Shows a question with an OK and a Cancel button and waits for the answer. Lines can be split with `Chr$(13)`. The second parameter chooses a warning symbol instead of the information symbol.
@@ -45,15 +44,14 @@ EndIf
 @gap The box is a message box of the operating system and not part of the program window. When the program runs without a screen it writes the text to the error output and answers 0.
 
 ## CreateProcess
-Starts another program and gives you a stream to read what it writes.
+Starts another program and gives you a stream to its input and output: what the program writes can be read from the stream, and what is written to the stream is what the program reads.
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
 If CreateProcess("notepad.exe") = 0 Then Notify "Could not start it."
 ```
 @param file  The program to run, with arguments if needed.
-@returns The official version gives a stream with the output of the program. 
-@gap Here the result is only 1 when the program was started and 0 when it was not, and its output is not available. The program is started on its own and not waited for.
+@returns A stream for [ReadLine](BlitzBasic-Streams#readline), [WriteLine](BlitzBasic-Streams#writeline), [ReadAvail](BlitzBasic-Streams#readavail), [Eof](BlitzBasic-Streams#eof) and [CloseFile](BlitzBasic-Files#closefile), or 0 if the program could not be started. The program is not waited for.
 
 ## DebugObjects
 Writes how many objects of each kind are alive into the debug log, one line per kind. Together with [ActiveObjects](BlitzPlus-System#activeobjects) it helps to find things that were forgotten to be freed.
@@ -173,7 +171,7 @@ Until WaitEvent() = $803
 ```
 @param object  A window, gadget or font.
 @param query   1 for the window handle, 2 for the client handle, 3 for the font handle.
-@gap Always returns 0, because gadgets are drawn by the program and are no objects of the operating system.
+@gap All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget. Fonts (3) have no handle of the operating system and give 0, and so does anything that is not a gadget.
 
 ## ResetTimer
 Sets the tick count of a timer back to 0 and starts counting again from now.

@@ -96,7 +96,7 @@ Input prompt$=\  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-Reads a line of text that the user types, ended with Enter, and returns it without the line end. The prompt is shown first.
+Reads a line of text that the user types, ended with Enter, and returns it without the line end. The prompt is shown first. When a graphics window is open the prompt and the typed line are drawn into it like [Print](BlitzBasic-Fonts-and-Text#print) does, with a blinking block as cursor. Return ends the line, Escape clears it, and Backspace, Delete, Home, End, Left and Right edit it.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -106,8 +106,7 @@ Reads a line of text that the user types, ended with Enter, and returns it witho
 
 **Differences and known gaps:**
 
-* The prompt is written to the console (standard output) and the line is read from the console (standard input), even when a graphics window is open. The original shows the prompt and the typed characters on the graphics screen. For input inside a window, build a text field from [GetKey](BlitzBasic-Keyboard#getkey) as shown in that example.
-* Without a console, for example when the program was started from a menu, the result is an empty string.
+* Without a graphics window the prompt is written to the console (standard output) and the line is read from the console (standard input). If there is no console either, for example when the program was started from a menu, the result is an empty string.
 
 ### LoadFont
 

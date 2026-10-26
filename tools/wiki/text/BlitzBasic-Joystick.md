@@ -84,16 +84,14 @@ Wend
 @returns How many times the button was pressed since the last call.
 
 ## JoyPitch
-The rotation of the joystick around its X axis, from -180 to 180. Most gamepads have no such axis and give 0. See the note on the extra axes at [JoyZ](BlitzBasic-Joystick#joyz).
+The rotation of the joystick around its X axis, from -180 to 180. Most gamepads have no such axis and give -180. See the note on the extra axes at [JoyZ](BlitzBasic-Joystick#joyz).
 @param port  The joystick to ask, counted from 0. Defaults to 0.
-@returns The pitch in degrees, or 0 if the joystick has no such axis.
-@gap The original gives -180 for a missing axis. Here it is 0, which is the middle position.
+@returns The pitch in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
 
 ## JoyRoll
 The rotation around the long axis of the stick, from -180 to 180. On many joysticks this is the twist of the handle or a rudder pedal.
 @param port  The joystick to ask, counted from 0. Defaults to 0.
-@returns The roll in degrees, or 0 if the joystick has no such axis.
-@gap The original gives -180 for a missing axis. Here it is 0.
+@returns The roll in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
 
 ## JoyType
 Tells whether a joystick is connected to the port and what kind it is.
@@ -121,7 +119,7 @@ WaitKey
 ## JoyU
 The first extra axis of the joystick, from -1 to 1. On a gamepad this is usually a second stick or a trigger. The axes are numbered in the order of DirectInput: [JoyX](BlitzBasic-Joystick#joyx), [JoyY](BlitzBasic-Joystick#joyy), [JoyZ](BlitzBasic-Joystick#joyz), JoyU, [JoyV](BlitzBasic-Joystick#joyv), then pitch, yaw and roll. Which physical control is which axis depends on the device.
 @param port  The joystick to ask, counted from 0. Defaults to 0.
-@returns The axis position from -1 to 1, or 0 if the joystick has no such axis.
+@returns The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
 
 ## JoyUDir
 Like [JoyU](BlitzBasic-Joystick#joyu), but as a direction only: -1 when the axis is pushed more than a third of the way to its low end, 1 when it is pushed more than a third of the way to its high end, otherwise 0.
@@ -131,7 +129,7 @@ Like [JoyU](BlitzBasic-Joystick#joyu), but as a direction only: -1 when the axis
 ## JoyV
 The second extra axis of the joystick, from -1 to 1. See [JoyU](BlitzBasic-Joystick#joyu).
 @param port  The joystick to ask, counted from 0. Defaults to 0.
-@returns The axis position from -1 to 1, or 0 if the joystick has no such axis.
+@returns The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
 
 ## JoyVDir
 Like [JoyV](BlitzBasic-Joystick#joyv), but as a direction only: -1, 0 or 1.
@@ -179,8 +177,7 @@ The vertical position of the main stick, from -1 (up) to 1 (down).
 ## JoyYaw
 The rotation around the vertical axis, from -180 to 180. Most joysticks do not have this axis.
 @param port  The joystick to ask, counted from 0. Defaults to 0.
-@returns The yaw in degrees, or 0 if the joystick has no such axis.
-@gap The original gives -180 for a missing axis. Here it is 0.
+@returns The yaw in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
 
 ## JoyYDir
 Like [JoyY](BlitzBasic-Joystick#joyy), but as a direction only: -1 for up, 1 for down, 0 in the middle.
@@ -190,7 +187,7 @@ Like [JoyY](BlitzBasic-Joystick#joyy), but as a direction only: -1 for up, 1 for
 ## JoyZ
 The third axis of the joystick, from -1 to 1. On a joystick it is usually the throttle slider, on a gamepad often a trigger. The yaw, pitch and roll commands read the axes after the five position axes, and scale them to degrees.
 @param port  The joystick to ask, counted from 0. Defaults to 0.
-@returns The axis position from -1 to 1, or 0 if the joystick has no such axis.
+@returns The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
 
 ## JoyZDir
 Like [JoyZ](BlitzBasic-Joystick#joyz), but as a direction only: -1, 0 or 1.

@@ -31,11 +31,10 @@ Releases a font that was loaded with [LoadFont](BlitzBasic-Fonts-and-Text#loadfo
 @gap A font that does not exist stops the program with an error message.
 
 ## Input
-Reads a line of text that the user types, ended with Enter, and returns it without the line end. The prompt is shown first.
+Reads a line of text that the user types, ended with Enter, and returns it without the line end. The prompt is shown first. When a graphics window is open the prompt and the typed line are drawn into it like [Print](BlitzBasic-Fonts-and-Text#print) does, with a blinking block as cursor. Return ends the line, Escape clears it, and Backspace, Delete, Home, End, Left and Right edit it.
 @param prompt  Text to show before the input. Defaults to nothing.
 @returns The line that was typed.
-@gap The prompt is written to the console (standard output) and the line is read from the console (standard input), even when a graphics window is open. The original shows the prompt and the typed characters on the graphics screen. For input inside a window, build a text field from [GetKey](BlitzBasic-Keyboard#getkey) as shown in that example.
-@gap Without a console, for example when the program was started from a menu, the result is an empty string.
+@gap Without a graphics window the prompt is written to the console (standard output) and the line is read from the console (standard input). If there is no console either, for example when the program was started from a menu, the result is an empty string.
 
 ## LoadFont
 Chooses a font by its name and size and returns a handle to use with [SetFont](BlitzBasic-Fonts-and-Text#setfont). The height is measured in pixels of a character, and the default is 12.

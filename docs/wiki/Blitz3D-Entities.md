@@ -360,10 +360,6 @@ WaitKey
 | `entity` | Int | required | Entity handle. |
 | `fx` | Int | required | Sum of the effect flags, 0 for none. |
 
-**Differences and known gaps:**
-
-* Flags 4 (flat shading), 8 (ignore fog) and 32 are ignored. Vertex colors are always used, as if flag 2 were set, so flag 2 changes nothing and the entity color is multiplied with them instead of being replaced. Flags 1 and 16 work.
-
 ### EntityInView
 
 ```blitzbasic
@@ -380,10 +376,6 @@ Tells if an entity is inside the picture of a camera, which is handy for skippin
 | `camera` | Int | required | Camera handle. |
 
 **Returns:** 1 if the entity is visible to the camera, otherwise 0.
-
-**Differences and known gaps:**
-
-* Meshes are tested with a sphere around them, so the result can say 1 for an entity whose corner just misses the picture.
 
 ### EntityName
 
@@ -508,10 +500,6 @@ Sets how strongly lights shine back from the entity as highlights. 0, the defaul
 |---|---|---|---|
 | `entity` | Int | required | Entity handle. |
 | `shininess` | Float | required | Strength of the highlight, 0 to 1. |
-
-**Differences and known gaps:**
-
-* The value is stored and passed on to brushes, but nothing is drawn with it: there are no specular highlights yet, so every entity looks matt.
 
 ### EntityTexture
 
@@ -904,10 +892,6 @@ WaitKey
 | `y_scale` | Float | required | Size along Y. |
 | `z_scale` | Float | required | Size along Z. |
 | `global` | Int | `0` | 1 to scale independent of the parent. Defaults to 0. |
-
-**Differences and known gaps:**
-
-* The `global` parameter is accepted but ignored: the scale is always relative to the parent.
 
 ### ShowEntity
 

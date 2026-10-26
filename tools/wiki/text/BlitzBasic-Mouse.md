@@ -85,7 +85,6 @@ Wend
 ```
 @param button  1 for the left, 2 for the right, 3 for the middle button.
 @returns How many times the button was pressed since the last call.
-@gap The result is never more than 1: two clicks between two calls count as one.
 
 ## MouseWait
 The older name of [WaitMouse](BlitzBasic-Mouse#waitmouse). It stops the program until a mouse button is pressed and returns the button.

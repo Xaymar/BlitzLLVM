@@ -96,7 +96,7 @@ Notify "Window: " + ClientWidth(win) + " x " + ClientHeight(win) + Chr$(13) + "D
 
 **Differences and known gaps:**
 
-* The desktop is the window of your program, so it is as big as the mode given to `Graphics`, not the screen of the computer.
+* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
 
 ### ClientWidth
 
@@ -125,7 +125,7 @@ Until WaitEvent() = $803
 
 **Differences and known gaps:**
 
-* The desktop is the window of your program, so it is as big as the mode given to `Graphics`, not the screen of the computer.
+* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
 
 ### CreateWindow
 
@@ -143,9 +143,9 @@ The style is a sum of these flags, and 15 is the default:
 | --- | --- |
 | 1 | Title bar |
 | 2 | The user can resize the window |
-| 4 | Room for a menu bar, see [WindowMenu](BlitzPlus-Windows#windowmenu) |
+| 4 | Menu bar, shown with a line under it even before menus are added, see [WindowMenu](BlitzPlus-Windows#windowmenu) |
 | 8 | Status bar at the bottom, see [SetStatusText](BlitzPlus-Windows#setstatustext) |
-| 16 | Tool window with a smaller title bar |
+| 16 | Tool window with a smaller title bar and only a close box |
 | 32 | Width and height are the size of the inside, not of the whole window |
 
 Windows send events when they move ($801), change size ($802), are closed ($803) or are activated ($804). Closing does not remove a window by itself, your program decides what to do with the $803 event.
@@ -182,8 +182,6 @@ Until asked = 2
 **Differences and known gaps:**
 
 * All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries. Windows are drawn in the order they were activated.
-* Flag 16 is accepted but the title bar looks like a normal one.
-* A window with flag 4 only shows the menu bar once menus were added.
 
 ### Desktop
 
@@ -207,7 +205,7 @@ Until WaitEvent() = $803
 
 **Differences and known gaps:**
 
-* The desktop is the program's own window, which has the size you gave `Graphics`. Windows cannot be placed outside of it.
+* The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](BlitzPlus-Windows#clientwidth) and [ClientHeight](BlitzPlus-Windows#clientheight) tell the size of the screen. Windows cannot be placed outside of the program's window.
 
 ### MaximizeWindow
 
@@ -313,7 +311,6 @@ Until WaitEvent() = $803
 **Differences and known gaps:**
 
 * The help lists height before width in its syntax line, the real order is width then height.
-* Making a window smaller with `SetGadgetShape` is not limited by it, only the user dragging the frame is.
 
 ### SetStatusText
 

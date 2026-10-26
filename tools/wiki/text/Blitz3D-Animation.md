@@ -41,7 +41,6 @@ Wend
 @param sequence    Number of the sequence to play. Defaults to 0.
 @param transition  Frames to blend from the current pose to the first frame. Defaults to 0.
 @gap The transition argument is accepted but ignored: the entity jumps to the first frame of the new animation.
-@gap The original moves an animation by one frame per UpdateWorld call at speed 1. Here the animation follows the clock: at speed 1 it plays 60 frames per second (or the frame rate stored in the model file), however often UpdateWorld runs. A single slow update never advances more than a tenth of a second.
 
 ## Animating
 @returns True while the entity is playing an animation, and False when it is stopped, has finished a one-shot animation or has no animation at all.
@@ -143,7 +142,6 @@ Wend
 @param last_frame   Last frame of the clip.
 @param anim_seq     Sequence to take the frames from. Defaults to 0.
 @returns The number of the new sequence, or -1 if the entity has no animation.
-@gap An entity without animation gives 0 here, not -1.
 
 ## LoadAnimSeq
 Loads the animation of a second file, such as a separate walk cycle, and appends it to an entity as a new sequence. The file must have the same bones as the model it is added to.
@@ -218,7 +216,6 @@ A transition above 0 blends from the pose the model is in now to the first frame
 @param last_frame   Last frame of the clip. Defaults to the last frame of the model.
 @param transition   Frames of blending into the first frame. Defaults to 0.
 @gap The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
-@gap Like Animate, the model advances with the clock (60 frames per second at speed 1) and not once per UpdateWorld.
 
 ## MD2Animating
 @returns True while the MD2 model is playing an animation, otherwise False.

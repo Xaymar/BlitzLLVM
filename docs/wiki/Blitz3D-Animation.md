@@ -96,7 +96,6 @@ Wend
 **Differences and known gaps:**
 
 * The transition argument is accepted but ignored: the entity jumps to the first frame of the new animation.
-* The original moves an animation by one frame per UpdateWorld call at speed 1. Here the animation follows the clock: at speed 1 it plays 60 frames per second (or the frame rate stored in the model file), however often UpdateWorld runs. A single slow update never advances more than a tenth of a second.
 
 ### AnimateMD2
 
@@ -122,7 +121,6 @@ A transition above 0 blends from the pose the model is in now to the first frame
 **Differences and known gaps:**
 
 * The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
-* Like Animate, the model advances with the clock (60 frames per second at speed 1) and not once per UpdateWorld.
 
 ### Animating
 
@@ -228,10 +226,6 @@ Wend
 | `anim_seq` | Int | `0` | Sequence to take the frames from. Defaults to 0. |
 
 **Returns:** The number of the new sequence, or -1 if the entity has no animation.
-
-**Differences and known gaps:**
-
-* An entity without animation gives 0 here, not -1.
 
 ### LoadAnimSeq
 

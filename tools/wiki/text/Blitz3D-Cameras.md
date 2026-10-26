@@ -177,11 +177,9 @@ WaitKey
 Switches the camera between not drawing at all, perspective and orthographic projection. 0 turns the camera off, which is faster than hiding it with `HideEntity`. 1 is normal perspective and the default.
 @param camera  Camera handle.
 @param mode    0 disables the camera, 1 is perspective, 2 is orthographic.
-@gap Orthographic projection (2) is not implemented yet and behaves like perspective projection (1). Only 0 and non-zero values are told apart.
 
 ## CameraFogMode
 Turns the camera's fog on or off. Fog fades everything toward the fog color with distance, which hides objects popping into view at the far limit. Every camera has its own fog, so two cameras can show the same world with and without it. Set the range with [CameraFogRange](Blitz3D-Cameras#camerafogrange) and the color with [CameraFogColor](Blitz3D-Cameras#camerafogcolor); entities can opt out with the fog flag of `EntityFX`.
-@gap The `EntityFX` flag that exempts an entity from fog is ignored, so every entity is fogged.
 @param camera  Camera handle.
 @param mode    0 for no fog, 1 for linear fog.
 

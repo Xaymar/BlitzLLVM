@@ -50,7 +50,7 @@ AppTitle "My game"
 
 **Differences and known gaps:**
 
-* `close_prompt` is accepted but never shown, the window closes without asking. Only the title is used, and only once a graphics mode is open.
+* The title is only used once a graphics mode is open. The question is asked when somebody closes the window, see [Differences](Differences#apptitle).
 
 ### CommandLine
 
@@ -287,7 +287,7 @@ In the original this paused the program in the debugger so that you could look a
 
 **Differences and known gaps:**
 
-* Not implemented yet: a program that uses `Stop` does not compile ("Stop" does not exist). Use `End` or `DebugLog` for now.
+* Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached. In any other build `Stop` does nothing. See [Differences](Differences#stop).
 
 ### SystemProperty
 
@@ -311,7 +311,7 @@ Print "Temporary files go to " + SystemProperty$("tempdir")
 
 **Differences and known gaps:**
 
-* `windowsdir` and `systemdir` only have a value on Windows and are empty elsewhere. `appdir` is the current folder, not the folder of the program.
+* Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders. See [Differences](Differences#systemproperty).
 
 ### WaitTimer
 
