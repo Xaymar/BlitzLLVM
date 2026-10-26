@@ -501,6 +501,16 @@ void bb_update_world(float speed)
 }
 
 // Entities
+// For the sound system, which has no business knowing about entities.
+int bb_entity_world_matrix(int32_t handle, float* matrix)
+{
+	if (!get_entity(handle)) {
+		return 0;
+	}
+	world_matrix(handle, matrix);
+	return 1;
+}
+
 int32_t bb_create_pivot(int32_t parent)
 {
 	return add_entity(PIVOT, parent);

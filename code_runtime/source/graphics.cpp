@@ -32,6 +32,7 @@
 
 extern "C" {
 void bb_runtime_error(const char* message);
+void bb_sound_update(void);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2130,6 +2131,7 @@ void bb_release_surface_gpu(void* gpu)
 // Called by Delay, so programs that wait keep their window alive and showing what they drew.
 void bb_graphics_idle(void)
 {
+	bb_sound_update();
 	if (active()) {
 		flush();
 		pump();

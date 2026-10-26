@@ -62,21 +62,38 @@ ExternalContent(
 	INSTALL_ARGS --config Release
 )
 
+# Plays the sounds. Decoders for WAV, MP3, OGG (stb_vorbis) and FLAC are built in, the others need libraries that aren't vendored.
+ExternalContent(
+	NAME SDL3_mixer
+	GIT_URL "https://github.com/libsdl-org/SDL_mixer"
+	GIT_REF "release-3.2.4"
+	GIT_CLONE_OPTIONS --depth 1
+	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${SDL3_INSTALL_PATH}/cmake"
+		-DBUILD_SHARED_LIBS=OFF -DSDLMIXER_VENDORED=OFF -DSDLMIXER_DEPS_SHARED=OFF -DSDLMIXER_STRICT=OFF
+		-DSDLMIXER_SAMPLES=OFF -DSDLMIXER_TESTS=OFF -DSDLMIXER_INSTALL=ON
+		-DSDLMIXER_OPUS=OFF -DSDLMIXER_GME=OFF -DSDLMIXER_MIDI=OFF -DSDLMIXER_MOD=OFF -DSDLMIXER_WAVPACK=OFF
+		-DSDLMIXER_FLAC_LIBFLAC=OFF -DSDLMIXER_VORBIS_VORBISFILE=OFF -DSDLMIXER_VORBIS_STB=ON
+	BUILD_ARGS --config Release --parallel
+	INSTALL_ARGS --config Release
+)
+
 if(WIN32)
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
 	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/SDL3_image-static.lib")
+	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/SDL3_mixer-static.lib")
 else()
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/libSDL3.a")
 	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/libSDL3_image.a")
+	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/libSDL3_mixer.a")
 endif()
-foreach(_LIBRARY IN ITEMS "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}")
+foreach(_LIBRARY IN ITEMS "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" "${_SDL3_MIXER_LIBRARY}")
 	if(NOT EXISTS "${_LIBRARY}")
 		message(FATAL_ERROR "A dependency was not built: '${_LIBRARY}' is missing.")
 	endif()
 endforeach()
 
 # Libraries that programs have to link to, which the compiler copies next to itself.
-set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" PARENT_SCOPE)
+set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" "${_SDL3_MIXER_LIBRARY}" PARENT_SCOPE)
 
 ################################################################################
 # Runtime Library
@@ -90,6 +107,7 @@ target_sources(blitzrt PRIVATE
 	"source/runtime.c"
 	"source/files.c"
 	"source/network.c"
+	"source/sound.c"
 	"source/streams.h"
 	"source/graphics.cpp"
 	"source/scene.cpp"
@@ -103,6 +121,7 @@ target_include_directories(blitzrt PRIVATE
 target_include_directories(blitzrt SYSTEM PRIVATE
 	"${SDL3_INSTALL_PATH}/include"
 	"${SDL3_image_INSTALL_PATH}/include"
+	"${SDL3_mixer_INSTALL_PATH}/include"
 	"${VulkanHeaders_INSTALL_PATH}/include"
 )
 if(MSVC)
