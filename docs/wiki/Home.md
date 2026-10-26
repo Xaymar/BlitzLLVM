@@ -6,4 +6,11 @@ BlitzLLVM is a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler built on the LL
 * [[Building]]: compile BlitzLLVM from source on Windows, Linux and macOS.
 * [[Installation]]: install a nightly build or your own build, and compile your first program.
 
+## Command reference
+
+* [[Command-Index]]: every command from A to Z.
+* [[BlitzBasic]]: what all three dialects share, such as math, strings, files, 2D graphics, input and audio.
+* [[Blitz3D]]: entities, cameras, lights, meshes, textures, collisions and the rest of the 3D world.
+* [[BlitzPlus]]: windows, gadgets, events and system access.
+
 The README in the repository lists the supported commands and the compiler options.
