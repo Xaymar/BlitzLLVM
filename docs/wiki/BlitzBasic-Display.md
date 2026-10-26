@@ -11,33 +11,33 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [AvailVidMem](BlitzBasic-Display#availvidmem) | Int |  |
-| [CountGfxDrivers](BlitzBasic-Display#countgfxdrivers) | Int |  |
-| [CountGfxModes](BlitzBasic-Display#countgfxmodes) | Int |  |
-| [EndGraphics](BlitzBasic-Display#endgraphics) | None |  |
-| [Flip](BlitzBasic-Display#flip) | None |  |
-| [GammaBlue](BlitzBasic-Display#gammablue) | Float |  |
-| [GammaGreen](BlitzBasic-Display#gammagreen) | Float |  |
-| [GammaRed](BlitzBasic-Display#gammared) | Float |  |
-| [GfxDriverName](BlitzBasic-Display#gfxdrivername) | String |  |
-| [GfxModeDepth](BlitzBasic-Display#gfxmodedepth) | Int |  |
-| [GfxModeExists](BlitzBasic-Display#gfxmodeexists) | Int |  |
-| [GfxModeFormat](BlitzBasic-Display#gfxmodeformat) | Int |  |
-| [GfxModeHeight](BlitzBasic-Display#gfxmodeheight) | Int |  |
-| [GfxModeWidth](BlitzBasic-Display#gfxmodewidth) | Int |  |
-| [Graphics](BlitzBasic-Display#graphics) | None |  |
-| [GraphicsDepth](BlitzBasic-Display#graphicsdepth) | Int |  |
-| [GraphicsFormat](BlitzBasic-Display#graphicsformat) | Int |  |
-| [GraphicsHeight](BlitzBasic-Display#graphicsheight) | Int |  |
-| [GraphicsLost](BlitzBasic-Display#graphicslost) | Int |  |
-| [GraphicsWidth](BlitzBasic-Display#graphicswidth) | Int |  |
-| [HidePointer](BlitzBasic-Display#hidepointer) | None |  |
-| [SetGamma](BlitzBasic-Display#setgamma) | None |  |
-| [SetGfxDriver](BlitzBasic-Display#setgfxdriver) | None |  |
-| [ShowPointer](BlitzBasic-Display#showpointer) | None |  |
-| [TotalVidMem](BlitzBasic-Display#totalvidmem) | Int |  |
-| [UpdateGamma](BlitzBasic-Display#updategamma) | None |  |
-| [VWait](BlitzBasic-Display#vwait) | None |  |
+| [AvailVidMem](BlitzBasic-Display#availvidmem) | Int | The amount of video memory that is free, in bytes. |
+| [CountGfxDrivers](BlitzBasic-Display#countgfxdrivers) | Int | The number of graphics drivers that can be chosen with [SetGfxDriver](BlitzBasic-Display#setgfxdriver). |
+| [CountGfxModes](BlitzBasic-Display#countgfxmodes) | Int | The number of full screen display modes. |
+| [EndGraphics](BlitzBasic-Display#endgraphics) | None | Closes the graphics window, which returns the program to the state it had before [Graphics](BlitzBasic-Display#graphics): everything that was drawn is gone and all images and textures are freed. |
+| [Flip](BlitzBasic-Display#flip) | None | Shows what was drawn into the back buffer in the window. |
+| [GammaBlue](BlitzBasic-Display#gammablue) | Float | The output value of the blue gamma table for an input value, as set by [SetGamma](BlitzBasic-Display#setgamma). |
+| [GammaGreen](BlitzBasic-Display#gammagreen) | Float | The output value of the green gamma table for an input value, as set by [SetGamma](BlitzBasic-Display#setgamma). |
+| [GammaRed](BlitzBasic-Display#gammared) | Float | The output value of the red gamma table for an input value, as set by [SetGamma](BlitzBasic-Display#setgamma). |
+| [GfxDriverName](BlitzBasic-Display#gfxdrivername) | String | The name of a graphics driver. |
+| [GfxModeDepth](BlitzBasic-Display#gfxmodedepth) | Int | The color depth in bits of a display mode. |
+| [GfxModeExists](BlitzBasic-Display#gfxmodeexists) | Int | Tells whether the display has a mode of this size and color depth, so that a program can ask before it opens that mode. |
+| [GfxModeFormat](BlitzBasic-Display#gfxmodeformat) | Int | How the pixels of a display mode are stored, as a number that BlitzPlus uses with its pixel commands: 1 is 16 bit 5-6-5, 2 is 16 bit 5-5-5, 3 is 24 bit and 4 is 32 bit. |
+| [GfxModeHeight](BlitzBasic-Display#gfxmodeheight) | Int | The height in pixels of a display mode. |
+| [GfxModeWidth](BlitzBasic-Display#gfxmodewidth) | Int | The width in pixels of a display mode. |
+| [Graphics](BlitzBasic-Display#graphics) | None | Opens the graphics window and has to be called before any drawing command. |
+| [GraphicsDepth](BlitzBasic-Display#graphicsdepth) | Int | The color depth of the graphics mode in bits. |
+| [GraphicsFormat](BlitzBasic-Display#graphicsformat) | Int | How the pixels of the graphics window are stored, as a number that BlitzPlus uses: 1 is 16 bit 5-6-5, 2 is 16 bit 5-5-5, 3 is 24 bit and 4 is 32 bit. |
+| [GraphicsHeight](BlitzBasic-Display#graphicsheight) | Int | The height of the graphics window in pixels, as given to [Graphics](BlitzBasic-Display#graphics). |
+| [GraphicsLost](BlitzBasic-Display#graphicslost) | Int | Tells whether the graphics were lost, which happened to the original when another program took over the display. |
+| [GraphicsWidth](BlitzBasic-Display#graphicswidth) | Int | The width of the graphics window in pixels, as given to [Graphics](BlitzBasic-Display#graphics). |
+| [HidePointer](BlitzBasic-Display#hidepointer) | None | Hides the mouse pointer while it is over the window. |
+| [SetGamma](BlitzBasic-Display#setgamma) | None | Sets one entry of the gamma tables: color value `src` of a channel is shown as the output value, which can be a fractional number from 0 to 255. |
+| [SetGfxDriver](BlitzBasic-Display#setgfxdriver) | None | Chooses the graphics driver for the next [Graphics](BlitzBasic-Display#graphics) call. |
+| [ShowPointer](BlitzBasic-Display#showpointer) | None | Shows the mouse pointer again after [HidePointer](BlitzBasic-Display#hidepointer). |
+| [TotalVidMem](BlitzBasic-Display#totalvidmem) | Int | The total amount of video memory in bytes. |
+| [UpdateGamma](BlitzBasic-Display#updategamma) | None | Applies the gamma tables that [SetGamma](BlitzBasic-Display#setgamma) changed to the display. |
+| [VWait](BlitzBasic-Display#vwait) | None | Waits for the display to finish showing a picture, which is used to keep a program at the speed of the display. |
 
 ### AvailVidMem
 
@@ -47,7 +47,13 @@ AvailVidMem  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The amount of video memory that is free, in bytes. Every image and texture uses some of it.
+
+**Returns:** The free video memory in bytes.
+
+**Differences and known gaps:**
+
+* The graphics card cannot be asked how much of its memory is still free. This returns the same number as [TotalVidMem](BlitzBasic-Display#totalvidmem), and 0 when no graphics window is open.
 
 ### CountGfxDrivers
 
@@ -57,7 +63,21 @@ CountGfxDrivers  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The number of graphics drivers that can be chosen with [SetGfxDriver](BlitzBasic-Display#setgfxdriver). In the original every video card was a driver, which mattered to 3D programs on computers with two cards.
+
+```blitzbasic
+Print "Graphics drivers: " + CountGfxDrivers()
+For d = 1 To CountGfxDrivers()
+	Print d + ": " + GfxDriverName(d)
+Next
+WaitKey
+```
+
+**Returns:** The number of drivers.
+
+**Differences and known gaps:**
+
+* Always 1. The one driver is the graphics card that Vulkan uses.
 
 ### CountGfxModes
 
@@ -67,7 +87,21 @@ CountGfxModes  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The number of full screen display modes. Use [GfxModeWidth](BlitzBasic-Display#gfxmodewidth), [GfxModeHeight](BlitzBasic-Display#gfxmodeheight) and [GfxModeDepth](BlitzBasic-Display#gfxmodedepth) with a number from 1 to this value to learn what each mode is.
+
+```blitzbasic
+Print CountGfxModes() + " graphics modes"
+For m = 1 To CountGfxModes()
+	Print m + ": " + GfxModeWidth(m) + " x " + GfxModeHeight(m) + " x " + GfxModeDepth(m)
+Next
+WaitKey
+```
+
+**Returns:** The number of modes.
+
+**Differences and known gaps:**
+
+* The modes are the ones of the main display. When they cannot be asked, for example without a display, a list of common sizes is given: 640x480, 800x600, 1024x768, 1280x720, 1280x1024 and 1920x1080.
 
 ### EndGraphics
 
@@ -77,7 +111,21 @@ EndGraphics
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Closes the graphics window, which returns the program to the state it had before [Graphics](BlitzBasic-Display#graphics): everything that was drawn is gone and all images and textures are freed. Use `Graphics` again to open a new window, for example to switch between a window and full screen.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Text 10, 10, "Press a key to close the window"
+Flip
+WaitKey
+EndGraphics
+Print "The window is closed, this goes to the console"
+```
+
+**Differences and known gaps:**
+
+* The original opens a new window of the default size, or a console. Here the window is closed and [Print](BlitzBasic-Fonts-and-Text#print) writes to the console.
 
 ### Flip
 
@@ -87,11 +135,32 @@ Flip vwait%=1
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Shows what was drawn into the back buffer in the window. A program draws a complete picture into the back buffer after `SetBuffer BackBuffer()` and calls Flip once per frame, which keeps the picture free of flicker. The frame rate of the program follows the display when `vwait` is on.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local x = 0
+While x < 160
+	Cls
+	Color 255, 160, 0
+	Oval x * 2, 100, 40, 40, 1
+	Color 255, 255, 255
+	Text 10, 10, "Frame " + x
+	Flip
+	x = x + 4
+Wend
+```
+
+![Flip](media/display/flip.gif)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `vwait` | Int | `1` |  |
+| `vwait` | Int | `1` | 1 waits for the display to be ready before flipping, which avoids tearing. 0 does not wait. Defaults to 1. |
+
+**Differences and known gaps:**
+
+* Without a graphics window nothing happens.
 
 ### GammaBlue
 
@@ -101,11 +170,17 @@ GammaBlue blue%  ; returns Float
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The output value of the blue gamma table for an input value, as set by [SetGamma](BlitzBasic-Display#setgamma). By default every value gives itself.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `blue` | Int | required |  |
+| `blue` | Int | required | The input value, 0 to 255. |
+
+**Returns:** The output value for the input.
+
+**Differences and known gaps:**
+
+* The gamma tables are only remembered. They never change how the display looks.
 
 ### GammaGreen
 
@@ -115,11 +190,17 @@ GammaGreen green%  ; returns Float
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The output value of the green gamma table for an input value, as set by [SetGamma](BlitzBasic-Display#setgamma). By default every value gives itself.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `green` | Int | required |  |
+| `green` | Int | required | The input value, 0 to 255. |
+
+**Returns:** The output value for the input.
+
+**Differences and known gaps:**
+
+* The gamma tables are only remembered. They never change how the display looks.
 
 ### GammaRed
 
@@ -129,11 +210,26 @@ GammaRed red%  ; returns Float
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The output value of the red gamma table for an input value, as set by [SetGamma](BlitzBasic-Display#setgamma). By default every value gives itself.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetGamma 100, 100, 100, 200, 200, 200
+UpdateGamma
+Print GammaRed(100) + " " + GammaGreen(100) + " " + GammaBlue(100)
+Print GammaRed(101)
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `red` | Int | required |  |
+| `red` | Int | required | The input value, 0 to 255. |
+
+**Returns:** The output value for the input.
+
+**Differences and known gaps:**
+
+* The gamma tables are only remembered. They never change how the display looks.
 
 ### GfxDriverName
 
@@ -143,11 +239,17 @@ GfxDriverName driver%  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](BlitzBasic-Display#countgfxdrivers).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `driver` | Int | required |  |
+| `driver` | Int | required | The driver number, starting at 1. |
+
+**Returns:** The name of the driver.
+
+**Differences and known gaps:**
+
+* The name is the one of the graphics card Vulkan uses (once a graphics window is open), otherwise "Default". Any number except 1 stops the program with an error message.
 
 ### GfxModeDepth
 
@@ -157,11 +259,17 @@ GfxModeDepth mode%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The color depth in bits of a display mode.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mode` | Int | required |  |
+| `mode` | Int | required | The mode number, from 1 to [CountGfxModes](BlitzBasic-Display#countgfxmodes). |
+
+**Returns:** The depth in bits, for example 32.
+
+**Differences and known gaps:**
+
+* A mode number that does not exist stops the program with an error message.
 
 ### GfxModeExists
 
@@ -171,13 +279,29 @@ GfxModeExists width%, height%, depth%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Tells whether the display has a mode of this size and color depth, so that a program can ask before it opens that mode.
+
+```blitzbasic
+If GfxModeExists(800, 600, 32) Then
+	Print "800x600 is available"
+Else
+	Print "800x600 is not available"
+EndIf
+If GfxModeExists(0, 0, 32) Then Print "There is at least one 32 bit mode"
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `depth` | Int | required |  |
+| `width` | Int | required | The width, or 0 for any width. |
+| `height` | Int | required | The height, or 0 for any height. |
+| `depth` | Int | required | The color depth in bits, or 0 for any depth. |
+
+**Returns:** 1 if a mode like that exists, otherwise 0.
+
+**Differences and known gaps:**
+
+* A 0 for any of the three numbers means "anything fits", like in BlitzPlus. A window of any size can be opened here whether or not it is in the list: the list only has the modes for full screen.
 
 ### GfxModeFormat
 
@@ -187,11 +311,17 @@ GfxModeFormat mode%  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+How the pixels of a display mode are stored, as a number that BlitzPlus uses with its pixel commands: 1 is 16 bit 5-6-5, 2 is 16 bit 5-5-5, 3 is 24 bit and 4 is 32 bit.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mode` | Int | required |  |
+| `mode` | Int | required | The mode number, from 1 to [CountGfxModes](BlitzBasic-Display#countgfxmodes). |
+
+**Returns:** The format number.
+
+**Differences and known gaps:**
+
+* Always 4, as the window is always 32 bit.
 
 ### GfxModeHeight
 
@@ -201,11 +331,17 @@ GfxModeHeight mode%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The height in pixels of a display mode.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mode` | Int | required |  |
+| `mode` | Int | required | The mode number, from 1 to [CountGfxModes](BlitzBasic-Display#countgfxmodes). |
+
+**Returns:** The height in pixels.
+
+**Differences and known gaps:**
+
+* A mode number that does not exist stops the program with an error message.
 
 ### GfxModeWidth
 
@@ -215,11 +351,17 @@ GfxModeWidth mode%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The width in pixels of a display mode.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mode` | Int | required |  |
+| `mode` | Int | required | The mode number, from 1 to [CountGfxModes](BlitzBasic-Display#countgfxmodes). |
+
+**Returns:** The width in pixels.
+
+**Differences and known gaps:**
+
+* A mode number that does not exist stops the program with an error message.
 
 ### Graphics
 
@@ -229,14 +371,33 @@ Graphics width%, height%, depth%=0, mode%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Opens the graphics window and has to be called before any drawing command. Calling it again closes the window and opens a new one, and then all images and textures are gone, so load them again. It also puts the colors and the current buffer back to their defaults.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+SetBuffer BackBuffer()
+Cls
+Text 160, 100, "Graphics 320, 240, 32, 2", 1, 1
+Text 160, 120, "Width " + GraphicsWidth() + ", Height " + GraphicsHeight(), 1, 1
+Flip
+WaitKey
+```
+
+![Graphics](media/display/graphics.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `depth` | Int | `0` |  |
-| `mode` | Int | `0` |  |
+| `width` | Int | required | Width of the picture in pixels. |
+| `height` | Int | required | Height of the picture in pixels. |
+| `depth` | Int | `0` | Color depth in bits: 0, 16, 24 or 32. Defaults to 0, which lets the system choose. |
+| `mode` | Int | `0` | 0 opens a window, 1 uses full screen, 2 opens a window and 3 opens a window that the user can resize. Defaults to 0. |
+
+**Differences and known gaps:**
+
+* The color depth is accepted but not used: the picture always has 32 bits per pixel.
+* In a resizable window (mode 3) the picture is scaled to the size of the window, and the mouse position is converted to picture pixels.
+* The modes 6 and 7 of Blitz3D, which pause the program while the window is in the background, act like 2 and 3. The program keeps running.
+* A width or height below 1 stops the program with an error message.
 
 ### GraphicsDepth
 
@@ -246,7 +407,13 @@ GraphicsDepth  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The color depth of the graphics mode in bits.
+
+**Returns:** The depth in bits.
+
+**Differences and known gaps:**
+
+* Always 32.
 
 ### GraphicsFormat
 
@@ -256,7 +423,13 @@ GraphicsFormat  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+How the pixels of the graphics window are stored, as a number that BlitzPlus uses: 1 is 16 bit 5-6-5, 2 is 16 bit 5-5-5, 3 is 24 bit and 4 is 32 bit.
+
+**Returns:** The format number.
+
+**Differences and known gaps:**
+
+* Always 4.
 
 ### GraphicsHeight
 
@@ -266,7 +439,9 @@ GraphicsHeight  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The height of the graphics window in pixels, as given to [Graphics](BlitzBasic-Display#graphics).
+
+**Returns:** The height in pixels.
 
 ### GraphicsLost
 
@@ -276,7 +451,13 @@ GraphicsLost  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Tells whether the graphics were lost, which happened to the original when another program took over the display. The program then had to draw its images again.
+
+**Returns:** 1 if the graphics were lost, otherwise 0.
+
+**Differences and known gaps:**
+
+* Always 0. Images are kept in video memory that other programs cannot take.
 
 ### GraphicsWidth
 
@@ -286,7 +467,9 @@ GraphicsWidth  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The width of the graphics window in pixels, as given to [Graphics](BlitzBasic-Display#graphics).
+
+**Returns:** The width in pixels.
 
 ### HidePointer
 
@@ -296,7 +479,21 @@ HidePointer
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Hides the mouse pointer while it is over the window. Programs that draw their own pointer or look around with the mouse use this. The pointer is shown again by [ShowPointer](BlitzBasic-Display#showpointer).
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+HidePointer
+While Not KeyHit(1)
+	Cls
+	Color 255, 255, 255
+	Text 10, 10, "Own pointer, Escape ends"
+	Oval MouseX() - 4, MouseY() - 4, 8, 8, 1
+	Flip
+Wend
+ShowPointer
+```
 
 ### SetGamma
 
@@ -306,16 +503,20 @@ SetGamma src_red%, src_green%, src_blue%, dest_red#, dest_green#, dest_blue#
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets one entry of the gamma tables: color value `src` of a channel is shown as the output value, which can be a fractional number from 0 to 255. Call [UpdateGamma](BlitzBasic-Display#updategamma) after changing the entries.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_red` | Int | required |  |
-| `src_green` | Int | required |  |
-| `src_blue` | Int | required |  |
-| `dest_red` | Float | required |  |
-| `dest_green` | Float | required |  |
-| `dest_blue` | Float | required |  |
+| `src_red` | Int | required | The input value for the red table, 0 to 255. |
+| `src_green` | Int | required | The input value for the green table, 0 to 255. |
+| `src_blue` | Int | required | The input value for the blue table, 0 to 255. |
+| `dest_red` | Float | required | The output value for red. |
+| `dest_green` | Float | required | The output value for green. |
+| `dest_blue` | Float | required | The output value for blue. |
+
+**Differences and known gaps:**
+
+* The tables are only stored for [GammaRed](BlitzBasic-Display#gammared) and the others. A window cannot change the gamma of the display, so nothing looks different. The original only worked in full screen as well.
 
 ### SetGfxDriver
 
@@ -325,11 +526,15 @@ SetGfxDriver driver%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Chooses the graphics driver for the next [Graphics](BlitzBasic-Display#graphics) call.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `driver` | Int | required |  |
+| `driver` | Int | required | The driver number, starting at 1. |
+
+**Differences and known gaps:**
+
+* Only 1 exists. Any other number stops the program with an error message.
 
 ### ShowPointer
 
@@ -339,7 +544,7 @@ ShowPointer
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Shows the mouse pointer again after [HidePointer](BlitzBasic-Display#hidepointer).
 
 ### TotalVidMem
 
@@ -349,7 +554,19 @@ TotalVidMem  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The total amount of video memory in bytes.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+Print "Video memory: " + (TotalVidMem() / 1048576) + " MB"
+WaitKey
+```
+
+**Returns:** The size of the video memory in bytes.
+
+**Differences and known gaps:**
+
+* The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer. It is 0 when no graphics window is open.
 
 ### UpdateGamma
 
@@ -359,11 +576,15 @@ UpdateGamma calibrate%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Applies the gamma tables that [SetGamma](BlitzBasic-Display#setgamma) changed to the display.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `calibrate` | Int | `0` |  |
+| `calibrate` | Int | `0` | 1 to use the calibration of the display. Defaults to 0. |
+
+**Differences and known gaps:**
+
+* Does nothing, see SetGamma.
 
 ### VWait
 
@@ -373,8 +594,20 @@ VWait frames%=1
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Waits for the display to finish showing a picture, which is used to keep a program at the speed of the display.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+Local t = MilliSecs()
+VWait 30
+Print "30 frames took " + (MilliSecs() - t) + " ms"
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `frames` | Int | `1` |  |
+| `frames` | Int | `1` | How many frames to wait for. Defaults to 1. |
+
+**Differences and known gaps:**
+
+* There is no vertical blank to wait for, so VWait waits 16 milliseconds for each frame (60 frames per second). Use `Flip` with `vwait` for the real display timing.
