@@ -244,14 +244,6 @@ int32_t bb_graphics_depth(void)
 	return 32;
 }
 
-int32_t bb_gfx_mode_3d_exists(int32_t width, int32_t height, int32_t depth)
-{
-	(void)width;
-	(void)height;
-	(void)depth;
-	return 1;
-}
-
 int32_t bb_windowed_3d(void)
 {
 	return 1;

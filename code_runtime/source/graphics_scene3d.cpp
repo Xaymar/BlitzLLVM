@@ -751,6 +751,7 @@ namespace bb::gfx {
 			push.mask[0] = cutout ? 0.5f * item.alpha * paint.alpha : 0.0f;
 			push.mask[1] = (fx & 8) ? 1.0f : 0.0f; // No fog.
 			push.mask[2] = (fx & 4) ? 1.0f : 0.0f; // Flat shading.
+			push.mask[3] = cutout ? 1.0f : 0.0f;   // Black is not there in a masked texture, also where the picture was drawn by the program.
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
@@ -780,6 +781,7 @@ namespace bb::gfx {
 				more.push.params[0]  = 1; // Not lit again.
 				more.push.params[3]  = 0;
 				more.push.mask[2]    = 0;
+				more.push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
 				texture_uv(extra, extra_handle, more.push.uv);
 				more.push.mask[0]    = 0;
 				more.push.mask[1]    = 1; // No fog again either, the first layer has it.

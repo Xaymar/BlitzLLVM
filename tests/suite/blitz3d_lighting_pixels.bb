@@ -200,5 +200,25 @@ RenderWorld
 Check "A plane can not be seen from below", G(80, 100), 20, 3
 FreeEntity plane
 
+; A masked texture (flag 4) has no black, also when the picture is drawn by the program.
+PositionEntity camera, 0, 0, -5
+RotateEntity camera, 0, 0, 0
+masked = CreateTexture(4, 4, 1 + 4)
+SetBuffer TextureBuffer(masked)
+Color 0, 0, 0
+Rect 0, 0, 4, 4, True
+Color 0, 255, 0
+Rect 2, 0, 2, 4, True
+SetBuffer BackBuffer()
+cube = CreateCube()
+EntityFX cube, 1
+EntityTexture cube, masked
+RenderWorld
+Check "The black part of a masked texture is not there", R(70, 60), 10, 3
+Check "The black part of a masked texture shows what is behind", B(70, 60), 30, 3
+Check "The rest of a masked texture", G(90, 60), 255, 3
+FreeEntity cube
+FreeTexture masked
+
 EndGraphics
 Done "blitz3d_lighting_pixels"

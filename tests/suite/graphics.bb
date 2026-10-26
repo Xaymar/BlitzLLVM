@@ -224,10 +224,13 @@ Check "CountGfxDrivers", CountGfxDrivers(), 1
 CheckTrue "GfxDriverName", Len(GfxDriverName$(1)) > 0
 SetGfxDriver 1
 Check "GfxDriver3D", GfxDriver3D(1), 1
-CheckTrue "GfxDriverCaps3D", GfxDriverCaps3D() >= 100
+; 110 would say that cube maps work, which they do not.
+Check "GfxDriverCaps3D", GfxDriverCaps3D(), 100
 CheckTrue "HWTexUnits", HWTexUnits() >= 1
 modes = CountGfxModes()
 CheckTrue "CountGfxModes", modes > 0
+CheckTrue "GfxMode3DExists of a mode in the list", GfxMode3DExists(GfxModeWidth(1), GfxModeHeight(1), GfxModeDepth(1))
+CheckFalse "GfxMode3DExists of a mode that is not in the list", GfxMode3DExists(7, 7, 32)
 Check "CountGfxModes3D", CountGfxModes3D(), modes
 For mode = 1 To modes
 	w = GfxModeWidth(mode)

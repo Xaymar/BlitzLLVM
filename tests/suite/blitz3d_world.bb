@@ -198,20 +198,31 @@ Animate man, 1, 1, loaded
 Check "LoadAnimSeq has the frames of the file", AnimLength(man), 30
 Animate man, 0
 
-; Once plays to the end and then stops, with time passing as UpdateWorld is called.
+; An animation moves on by its speed in frames with each UpdateWorld, whatever the time between them is, and by a
+; part of that if UpdateWorld is given less than 1.
+Animate man, 1, 2, 0
+SetAnimTime man, 0, 0
+Delay 100
+UpdateWorld
+Check "UpdateWorld moves on by the speed", AnimTime(man), 2, 0.01
+UpdateWorld 0.5
+Check "UpdateWorld with half", AnimTime(man), 3, 0.01
+UpdateWorld 0
+Check "UpdateWorld with none", AnimTime(man), 3, 0.01
+
+; Once plays to the end and then stops.
 Animate man, 3, 4, 0
 For i = 1 To 100
-	Delay 20
 	UpdateWorld
 	If Animating(man) = 0 Then Exit
 Next
 Check "Animate once ends", Animating(man), 0
 CheckTrue "Animate once stays at the end", AnimTime(man) >= 29
+Check "Animate once ends after the frames of the sequence", i, 8
 
 ; Looping goes on.
 Animate man, 1, 4, 0
 For i = 1 To 20
-	Delay 20
 	UpdateWorld
 Next
 Check "Animate in a loop goes on", Animating(man), 1
@@ -227,6 +238,10 @@ Check "The original is not stopped", Animating(man), 1
 ; Things that can not be animated say so.
 plain = CreateCube()
 Check "A cube is not animated", Animating(plain), 0
+Check "AnimSeq of a cube", AnimSeq(plain), -1
+Check "AnimTime of a cube", AnimTime(plain), -1
+Check "AnimLength of a cube", AnimLength(plain), -1
+Check "ExtractAnimSeq of a cube", ExtractAnimSeq(plain, 0, 5), -1
 Animate plain, 1
 Check "Animate does nothing for a cube", Animating(plain), 0
 
