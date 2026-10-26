@@ -25,6 +25,4 @@
 /tests/*.dll
 /tests/*.bin
 /tests/*.dat
-/tests/013_files
-/tests/017_grab.bmp
 /tests/suite/suite_tmp_*

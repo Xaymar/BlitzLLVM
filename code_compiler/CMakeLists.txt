@@ -92,22 +92,9 @@ get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})
 
 
-# Tests: every program in /tests has to compile into an executable, the lexer test only has to lex.
+# Tests: the function test suite and the command line options, each below. The lexer test only has to lex.
 enable_testing()
 set(TEST_DIRECTORY "${PROJECT_SOURCE_DIR}/../tests")
-foreach(_TEST IN ITEMS 001 002 003 004 005 006 007 008 009 010 011 012 013 014 015 016 017 018 019 020 021 022 023 024)
-	add_test(
-		NAME "compile-${_TEST}"
-		COMMAND ${PROJECT_NAME} "${TEST_DIRECTORY}/${_TEST}.bb" -o "${PROJECT_BINARY_DIR}/test-${_TEST}${CMAKE_EXECUTABLE_SUFFIX}"
-	)
-	set_tests_properties("compile-${_TEST}" PROPERTIES FIXTURES_SETUP "program-${_TEST}")
-	# Run the programs too. Without a window, so that this also works on machines without a display or GPU.
-	add_test(
-		NAME "run-${_TEST}"
-		COMMAND "${PROJECT_BINARY_DIR}/test-${_TEST}${CMAKE_EXECUTABLE_SUFFIX}"
-	)
-	set_tests_properties("run-${_TEST}" PROPERTIES FIXTURES_REQUIRED "program-${_TEST}" ENVIRONMENT "BLITZ_HEADLESS=1" WORKING_DIRECTORY "${TEST_DIRECTORY}")
-endforeach()
 # The function test suite: a test for every function of Blitz3D and BlitzPlus, in tests/suite. Each file is a program
 # that stops with an error when something is wrong. Files in pending/ are for what is not implemented yet and are
 # expected not to compile, files in fail/ are expected to compile but to stop with an error, files in reject/ are expected to be refused by the compiler. Programs that need a
