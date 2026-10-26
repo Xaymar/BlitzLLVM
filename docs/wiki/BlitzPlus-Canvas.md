@@ -6,6 +6,7 @@
 
 Drawing surfaces inside windows and locked pixel access.
 
+
 Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

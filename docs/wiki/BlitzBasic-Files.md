@@ -6,27 +6,29 @@
 
 Opening, reading, writing and listing files and directories.
 
+Files and folders are used through handles. [ReadFile](BlitzBasic-Files#readfile), [WriteFile](BlitzBasic-Files#writefile) and [OpenFile](BlitzBasic-Files#openfile) give you a file handle that you must close with [CloseFile](BlitzBasic-Files#closefile) when you are done, and [ReadDir](BlitzBasic-Files#readdir) gives a folder handle for [CloseDir](BlitzBasic-Files#closedir). What you read and write through a file handle is described on [[BlitzBasic-Streams]]. Paths may use `/` on every platform, and are relative to the current folder unless they are complete.
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [ChangeDir](BlitzBasic-Files#changedir) | None |  |
-| [CloseDir](BlitzBasic-Files#closedir) | None |  |
-| [CloseFile](BlitzBasic-Files#closefile) | None |  |
-| [CopyFile](BlitzBasic-Files#copyfile) | None |  |
-| [CreateDir](BlitzBasic-Files#createdir) | None |  |
+| [ChangeDir](BlitzBasic-Files#changedir) | None | Makes another folder the current one, which is where relative paths start. |
+| [CloseDir](BlitzBasic-Files#closedir) | None | Closes a folder that was opened with [ReadDir](BlitzBasic-Files#readdir). |
+| [CloseFile](BlitzBasic-Files#closefile) | None | Closes a file and writes out everything that is still waiting to be written. |
+| [CopyFile](BlitzBasic-Files#copyfile) | None | Copies a file. |
+| [CreateDir](BlitzBasic-Files#createdir) | None | Creates a folder. |
 | [CurrentDir](BlitzBasic-Files#currentdir) | String |  |
-| [DeleteDir](BlitzBasic-Files#deletedir) | None |  |
-| [DeleteFile](BlitzBasic-Files#deletefile) | None |  |
+| [DeleteDir](BlitzBasic-Files#deletedir) | None | Deletes a folder. |
+| [DeleteFile](BlitzBasic-Files#deletefile) | None | Deletes a file for good. |
 | [FilePos](BlitzBasic-Files#filepos) | Int |  |
 | [FileSize](BlitzBasic-Files#filesize) | Int |  |
-| [FileType](BlitzBasic-Files#filetype) | Int |  |
-| [NextFile](BlitzBasic-Files#nextfile) | String |  |
-| [OpenFile](BlitzBasic-Files#openfile) | Int |  |
-| [ReadDir](BlitzBasic-Files#readdir) | Int |  |
-| [ReadFile](BlitzBasic-Files#readfile) | Int |  |
-| [SeekFile](BlitzBasic-Files#seekfile) | Int |  |
-| [WriteFile](BlitzBasic-Files#writefile) | Int |  |
+| [FileType](BlitzBasic-Files#filetype) | Int | Tells what is at a path, so you can check for something before you open it. |
+| [NextFile](BlitzBasic-Files#nextfile) | String | Returns the name of the next entry of a folder opened with [ReadDir](BlitzBasic-Files#readdir). |
+| [OpenFile](BlitzBasic-Files#openfile) | Int | Opens an existing file for reading and writing at once, keeping what is in it. |
+| [ReadDir](BlitzBasic-Files#readdir) | Int | Opens a folder so its entries can be listed with [NextFile](BlitzBasic-Files#nextfile). |
+| [ReadFile](BlitzBasic-Files#readfile) | Int | Opens an existing file for reading, starting at its beginning. |
+| [SeekFile](BlitzBasic-Files#seekfile) | Int | Moves the position where the next read or write happens. |
+| [WriteFile](BlitzBasic-Files#writefile) | Int | Creates a file for writing. |
 
 ### ChangeDir
 
@@ -36,11 +38,24 @@ ChangeDir dir$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Makes another folder the current one, which is where relative paths start. Use [CurrentDir](BlitzBasic-Files#currentdir) to see where you are.
+
+```blitzbasic
+start$ = CurrentDir$()
+CreateDir "files_change_example"
+ChangeDir "files_change_example"
+Print FileType(start$) <> 0
+ChangeDir start$
+DeleteDir "files_change_example"
+```
+
+```text
+1
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dir` | String | required |  |
+| `dir` | String | required | The folder to go to. |
 
 ### CloseDir
 
@@ -50,11 +65,11 @@ CloseDir dir%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Closes a folder that was opened with [ReadDir](BlitzBasic-Files#readdir).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dir` | Int | required |  |
+| `dir` | Int | required | The folder handle. |
 
 ### CloseFile
 
@@ -64,11 +79,11 @@ CloseFile file_stream%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Closes a file and writes out everything that is still waiting to be written. Always close the files you opened.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file_stream` | Int | required |  |
+| `file_stream` | Int | required | The file handle. |
 
 ### CopyFile
 
@@ -78,12 +93,26 @@ CopyFile file$, to$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Copies a file. An existing file at the destination is overwritten.
+
+```blitzbasic
+file = WriteFile("files_copy_a.tmp")
+WriteInt file, 42
+CloseFile file
+CopyFile "files_copy_a.tmp", "files_copy_b.tmp"
+Print FileSize("files_copy_b.tmp")
+DeleteFile "files_copy_a.tmp"
+DeleteFile "files_copy_b.tmp"
+```
+
+```text
+4
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file` | String | required |  |
-| `to` | String | required |  |
+| `file` | String | required | The file to copy. |
+| `to` | String | required | The name of the copy. |
 
 ### CreateDir
 
@@ -93,11 +122,21 @@ CreateDir dir$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Creates a folder. Nothing happens when it already exists.
+
+```blitzbasic
+CreateDir "files_create_example"
+Print FileType("files_create_example")
+DeleteDir "files_create_example"
+```
+
+```text
+2
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dir` | String | required |  |
+| `dir` | String | required | The folder to create. |
 
 ### CurrentDir
 
@@ -109,6 +148,8 @@ CurrentDir  ; returns String
 
 _Not documented yet._
 
+**Returns:** The full path of the current folder, which is where relative paths start.
+
 ### DeleteDir
 
 ```blitzbasic
@@ -117,11 +158,11 @@ DeleteDir dir$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Deletes a folder. The folder has to be empty.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dir` | String | required |  |
+| `dir` | String | required | The folder to delete. |
 
 ### DeleteFile
 
@@ -131,11 +172,22 @@ DeleteFile file$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Deletes a file for good. It does not go to a recycle bin.
+
+```blitzbasic
+file = WriteFile("files_delete_example.tmp")
+CloseFile file
+DeleteFile "files_delete_example.tmp"
+Print FileType("files_delete_example.tmp")
+```
+
+```text
+0
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file` | String | required |  |
+| `file` | String | required | The file to delete. |
 
 ### FilePos
 
@@ -149,7 +201,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file_stream` | Int | required |  |
+| `file_stream` | Int | required | The file handle. |
+
+**Returns:** The position in the file where the next read or write happens, counted in bytes from the start. A newly opened file is at 0.
 
 ### FileSize
 
@@ -159,11 +213,23 @@ FileSize file$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+```blitzbasic
+file = WriteFile("files_size_example.tmp")
+WriteString file, "hello"
+CloseFile file
+Print FileSize("files_size_example.tmp")
+DeleteFile "files_size_example.tmp"
+```
+
+```text
+9
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file` | String | required |  |
+| `file` | String | required | The name of the file. Strings are stored with a 4 byte length in front, so "hello" takes 9 bytes. |
+
+**Returns:** The size of a file in bytes, or 0 when it does not exist.
 
 ### FileType
 
@@ -173,11 +239,25 @@ FileType file$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Tells what is at a path, so you can check for something before you open it.
+
+```blitzbasic
+Print FileType("files_type_nothing_here")
+CreateDir "files_type_folder"
+Print FileType("files_type_folder")
+DeleteDir "files_type_folder"
+```
+
+```text
+0
+2
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file` | String | required |  |
+| `file` | String | required | The path to look at. |
+
+**Returns:** 0 when nothing is there, 1 for a file, 2 for a folder.
 
 ### NextFile
 
@@ -187,11 +267,32 @@ NextFile dir%  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Returns the name of the next entry of a folder opened with [ReadDir](BlitzBasic-Files#readdir). The names `.` and `..` are among them, and the order is up to the file system. An empty string means there are no more.
+
+```blitzbasic
+CreateDir "files_next_example"
+file = WriteFile("files_next_example/only.txt")
+CloseFile file
+dir = ReadDir("files_next_example")
+Repeat
+	name$ = NextFile$(dir)
+	If name$ = "" Then Exit
+	If name$ <> "." And name$ <> ".." Then Print name$
+Forever
+CloseDir dir
+DeleteFile "files_next_example/only.txt"
+DeleteDir "files_next_example"
+```
+
+```text
+only.txt
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dir` | Int | required |  |
+| `dir` | Int | required | The folder handle from [ReadDir](BlitzBasic-Files#readdir). |
+
+**Returns:** A file or folder name without its path, or an empty string at the end.
 
 ### OpenFile
 
@@ -201,11 +302,33 @@ OpenFile filename$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Opens an existing file for reading and writing at once, keeping what is in it. Use [SeekFile](BlitzBasic-Files#seekfile) to move around before you read or write.
+
+```blitzbasic
+file = WriteFile("files_open_example.tmp")
+WriteByte file, 1
+WriteByte file, 2
+CloseFile file
+file = OpenFile("files_open_example.tmp")
+SeekFile file, 1
+WriteByte file, 9
+SeekFile file, 0
+Print ReadByte(file)
+Print ReadByte(file)
+CloseFile file
+DeleteFile "files_open_example.tmp"
+```
+
+```text
+1
+9
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `filename` | String | required |  |
+| `filename` | String | required | The file to open. |
+
+**Returns:** A file handle, or 0 when the file does not exist.
 
 ### ReadDir
 
@@ -215,11 +338,13 @@ ReadDir dirname$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Opens a folder so its entries can be listed with [NextFile](BlitzBasic-Files#nextfile).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dirname` | String | required |  |
+| `dirname` | String | required | The folder to list. |
+
+**Returns:** A folder handle, or 0 when the folder does not exist.
 
 ### ReadFile
 
@@ -229,11 +354,21 @@ ReadFile filename$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Opens an existing file for reading, starting at its beginning.
+
+```blitzbasic
+Print ReadFile("files_read_nothing_here")
+```
+
+```text
+0
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `filename` | String | required |  |
+| `filename` | String | required | The file to open. |
+
+**Returns:** A file handle, or 0 when the file does not exist, which you should always check.
 
 ### SeekFile
 
@@ -243,12 +378,12 @@ SeekFile file_stream%, pos%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Moves the position where the next read or write happens. Positions count bytes from the start of the file.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file_stream` | Int | required |  |
-| `pos` | Int | required |  |
+| `file_stream` | Int | required | The file handle. |
+| `pos` | Int | required | The new position in bytes. |
 
 ### WriteFile
 
@@ -258,8 +393,27 @@ WriteFile filename$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Creates a file for writing. A file that already exists is emptied first.
+
+```blitzbasic
+file = WriteFile("files_write_example.tmp")
+WriteLine file, "first"
+WriteLine file, "second"
+CloseFile file
+file = ReadFile("files_write_example.tmp")
+Print ReadLine$(file)
+Print ReadLine$(file)
+CloseFile file
+DeleteFile "files_write_example.tmp"
+```
+
+```text
+first
+second
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `filename` | String | required |  |
+| `filename` | String | required | The file to create. |
+
+**Returns:** A file handle, or 0 when the file cannot be created.

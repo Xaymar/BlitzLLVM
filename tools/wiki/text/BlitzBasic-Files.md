@@ -1,0 +1,222 @@
+Files and folders are used through handles. [ReadFile](BlitzBasic-Files#readfile), [WriteFile](BlitzBasic-Files#writefile) and [OpenFile](BlitzBasic-Files#openfile) give you a file handle that you must close with [CloseFile](BlitzBasic-Files#closefile) when you are done, and [ReadDir](BlitzBasic-Files#readdir) gives a folder handle for [CloseDir](BlitzBasic-Files#closedir). What you read and write through a file handle is described on [[BlitzBasic-Streams]]. Paths may use `/` on every platform, and are relative to the current folder unless they are complete.
+
+## ChangeDir
+Makes another folder the current one, which is where relative paths start. Use [CurrentDir](BlitzBasic-Files#currentdir) to see where you are.
+
+```blitzbasic
+;run
+start$ = CurrentDir$()
+CreateDir "files_change_example"
+ChangeDir "files_change_example"
+Print FileType(start$) <> 0
+ChangeDir start$
+DeleteDir "files_change_example"
+```
+
+```text
+1
+```
+@param dir  The folder to go to.
+
+## CloseDir
+Closes a folder that was opened with [ReadDir](BlitzBasic-Files#readdir).
+@param dir  The folder handle.
+
+## CloseFile
+Closes a file and writes out everything that is still waiting to be written. Always close the files you opened.
+@param file_stream  The file handle.
+
+## CopyFile
+Copies a file. An existing file at the destination is overwritten.
+
+```blitzbasic
+;run
+file = WriteFile("files_copy_a.tmp")
+WriteInt file, 42
+CloseFile file
+CopyFile "files_copy_a.tmp", "files_copy_b.tmp"
+Print FileSize("files_copy_b.tmp")
+DeleteFile "files_copy_a.tmp"
+DeleteFile "files_copy_b.tmp"
+```
+
+```text
+4
+```
+@param file  The file to copy.
+@param to    The name of the copy.
+
+## CreateDir
+Creates a folder. Nothing happens when it already exists.
+
+```blitzbasic
+;run
+CreateDir "files_create_example"
+Print FileType("files_create_example")
+DeleteDir "files_create_example"
+```
+
+```text
+2
+```
+@param dir  The folder to create.
+
+## CurrentDir
+@returns The full path of the current folder, which is where relative paths start.
+
+## DeleteDir
+Deletes a folder. The folder has to be empty.
+@param dir  The folder to delete.
+
+## DeleteFile
+Deletes a file for good. It does not go to a recycle bin.
+
+```blitzbasic
+;run
+file = WriteFile("files_delete_example.tmp")
+CloseFile file
+DeleteFile "files_delete_example.tmp"
+Print FileType("files_delete_example.tmp")
+```
+
+```text
+0
+```
+@param file  The file to delete.
+
+## FilePos
+@returns The position in the file where the next read or write happens, counted in bytes from the start. A newly opened file is at 0.
+@param file_stream  The file handle.
+
+## FileSize
+@returns The size of a file in bytes, or 0 when it does not exist.
+
+```blitzbasic
+;run
+file = WriteFile("files_size_example.tmp")
+WriteString file, "hello"
+CloseFile file
+Print FileSize("files_size_example.tmp")
+DeleteFile "files_size_example.tmp"
+```
+
+```text
+9
+```
+@param file  The name of the file. Strings are stored with a 4 byte length in front, so "hello" takes 9 bytes.
+
+## FileType
+Tells what is at a path, so you can check for something before you open it.
+
+```blitzbasic
+;run
+Print FileType("files_type_nothing_here")
+CreateDir "files_type_folder"
+Print FileType("files_type_folder")
+DeleteDir "files_type_folder"
+```
+
+```text
+0
+2
+```
+@param file  The path to look at.
+@returns 0 when nothing is there, 1 for a file, 2 for a folder.
+
+## NextFile
+Returns the name of the next entry of a folder opened with [ReadDir](BlitzBasic-Files#readdir). The names `.` and `..` are among them, and the order is up to the file system. An empty string means there are no more.
+
+```blitzbasic
+;run
+CreateDir "files_next_example"
+file = WriteFile("files_next_example/only.txt")
+CloseFile file
+dir = ReadDir("files_next_example")
+Repeat
+	name$ = NextFile$(dir)
+	If name$ = "" Then Exit
+	If name$ <> "." And name$ <> ".." Then Print name$
+Forever
+CloseDir dir
+DeleteFile "files_next_example/only.txt"
+DeleteDir "files_next_example"
+```
+
+```text
+only.txt
+```
+@param dir  The folder handle from [ReadDir](BlitzBasic-Files#readdir).
+@returns A file or folder name without its path, or an empty string at the end.
+
+## OpenFile
+Opens an existing file for reading and writing at once, keeping what is in it. Use [SeekFile](BlitzBasic-Files#seekfile) to move around before you read or write.
+
+```blitzbasic
+;run
+file = WriteFile("files_open_example.tmp")
+WriteByte file, 1
+WriteByte file, 2
+CloseFile file
+file = OpenFile("files_open_example.tmp")
+SeekFile file, 1
+WriteByte file, 9
+SeekFile file, 0
+Print ReadByte(file)
+Print ReadByte(file)
+CloseFile file
+DeleteFile "files_open_example.tmp"
+```
+
+```text
+1
+9
+```
+@param filename  The file to open.
+@returns A file handle, or 0 when the file does not exist.
+
+## ReadDir
+Opens a folder so its entries can be listed with [NextFile](BlitzBasic-Files#nextfile).
+@param dirname  The folder to list.
+@returns A folder handle, or 0 when the folder does not exist.
+
+## ReadFile
+Opens an existing file for reading, starting at its beginning.
+
+```blitzbasic
+;run
+Print ReadFile("files_read_nothing_here")
+```
+
+```text
+0
+```
+@param filename  The file to open.
+@returns A file handle, or 0 when the file does not exist, which you should always check.
+
+## SeekFile
+Moves the position where the next read or write happens. Positions count bytes from the start of the file.
+@param file_stream  The file handle.
+@param pos          The new position in bytes.
+
+## WriteFile
+Creates a file for writing. A file that already exists is emptied first.
+
+```blitzbasic
+;run
+file = WriteFile("files_write_example.tmp")
+WriteLine file, "first"
+WriteLine file, "second"
+CloseFile file
+file = ReadFile("files_write_example.tmp")
+Print ReadLine$(file)
+Print ReadLine$(file)
+CloseFile file
+DeleteFile "files_write_example.tmp"
+```
+
+```text
+first
+second
+```
+@param filename  The file to create.
+@returns A file handle, or 0 when the file cannot be created.

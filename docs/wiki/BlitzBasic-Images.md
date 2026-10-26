@@ -6,6 +6,7 @@
 
 Loading, drawing, transforming and colliding images.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

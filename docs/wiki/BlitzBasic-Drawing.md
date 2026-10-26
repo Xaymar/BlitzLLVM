@@ -6,6 +6,7 @@
 
 Colors, shapes, text positioning and the viewport.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
