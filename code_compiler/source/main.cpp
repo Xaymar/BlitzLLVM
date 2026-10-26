@@ -78,7 +78,8 @@ namespace {
 	struct options {
 		std::filesystem::path    input;
 		std::filesystem::path    output;
-		std::string              optimization = "-O2";
+		std::string              optimization = "-O3";
+		std::string              fast_math    = "safe"; // --fast-math
 		std::string              target;
 		std::string              cc;
 		std::filesystem::path    runtime_dir;
@@ -113,7 +114,10 @@ namespace {
 				  << "                        blitzcc returns the exit code of the program.\n"
 				  << "  --args <arg>...       Everything after this is passed to the program that is run.\n"
 				  << "  -O0 -O1 -O2 -O3 -Os -Oz\n"
-				  << "                        LLVM optimization level, defaults to -O2.\n"
+				  << "                        LLVM optimization level, defaults to -O3 (-O0 with -d).\n"
+				  << "  --fast-math <mode>    How Float math is optimized: full (reassociation, reciprocals, contraction and the\n"
+				  << "                        assumption of no NaN or Infinity, which breaks 'x <> x' NaN checks), safe (default, everything but the NaN and Infinity assumptions) or\n"
+				  << "                        off (exact IEEE behavior). Always off with -d.\n"
 				  << "  -q                    Quiet mode, doesn't print the version banner and no warnings.\n"
 				  << "  +q                    Very quiet mode, doesn't print anything of the compiler, errors included (a failure\n"
 				  << "                        still returns a non-zero exit code).\n"
@@ -226,6 +230,11 @@ namespace {
 				opt.quiet = opt.very_quiet = true;
 			} else if (lowered == "-c") {
 				opt.compile_only = true;
+			} else if (lowered == "--fast-math") {
+				opt.fast_math = value();
+				if ((opt.fast_math != "full") && (opt.fast_math != "safe") && (opt.fast_math != "off")) {
+					throw std::runtime_error("--fast-math needs full, safe or off.");
+				}
 			} else if (lowered == "-d") {
 				opt.debug = true;
 			} else if (lowered == "-g") {
@@ -340,6 +349,7 @@ int main(int argc, char** argv)
 		// A debug build isn't optimized, so that it can be followed in a debugger.
 		if (opt.debug) {
 			opt.optimization = "-O0";
+			opt.fast_math    = "off";
 			opt.debug_info   = true;
 		}
 		if (opt.debug_info) {
@@ -379,6 +389,7 @@ int main(int argc, char** argv)
 		blitz::compiler compiler;
 		compiler.debug      = opt.debug;
 		compiler.debug_info = opt.debug_info;
+		compiler.fast_math  = (opt.fast_math == "full") ? "fast" : ((opt.fast_math == "safe") ? "reassoc nsz arcp contract afn" : "");
 		compiler.codeview   = windows_msvc;
 		compiler.source     = opt.input;
 		compiler.quiet      = opt.quiet;
@@ -471,6 +482,10 @@ int main(int argc, char** argv)
 		}
 
 		std::vector<std::string> command{ cc, opt.optimization, "-w" };
+		if (opt.optimization != "-O0") {
+			// O3 already vectorizes; unrolling loops of a known length is what it leaves to the heuristics at -Os/-Oz.
+			command.push_back("-funroll-loops");
+		}
 		if (!opt.target.empty()) {
 			command.push_back("--target=" + opt.target);
 		}

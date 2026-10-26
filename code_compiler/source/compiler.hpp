@@ -156,6 +156,9 @@ namespace blitz {
 		/** Whether this is a debug build, where Stop breaks into the debugger. */
 		bool debug = false;
 
+		/** LLVM fast-math flags (such as "fast" or "reassoc nsz arcp contract afn") put on every Float operation, empty for exact IEEE behavior. */
+		std::string fast_math;
+
 		/** Functions of the userlibs that the program may call, set before generating. */
 		std::vector<blitz::keywords::user_function> userlibs;
 
