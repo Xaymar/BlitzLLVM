@@ -20,6 +20,7 @@ OP = dict(
     Load=61, Store=62, AccessChain=65, Decorate=71, MemberDecorate=72, CompositeConstruct=80, CompositeExtract=81,
     ImageSampleImplicitLod=87, FSub=131, FMul=133, Label=248, Return=253,
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
+    TypeBool=20, FOrdLessThan=184, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
@@ -542,6 +543,19 @@ def fragment_shader_masked(mask_offset, fog=False):
     alpha = b.fmul(f, b.extract(t, 3), b.fsub(f, c1, same))
     visible = b.construct(4, b.extract(t, 0), b.extract(t, 1), b.extract(t, 2), alpha)
     result = b.fmul(v4, color, visible)
+    if fog:
+        # Pixels that are less solid than the first value of the mask are not drawn at all, which is what makes
+        # leaves and fences work with depth.
+        boolean = b.new_type("bool", "TypeBool")
+        cut = b.emit("FOrdLessThan", boolean, b.extract(result, 3), b.extract(mask, 0))
+        kill_label, merge_label = b.m.id(), b.m.id()
+        b.m.code += [
+            Module.inst("SelectionMerge", merge_label, 0),
+            Module.inst("BranchConditional", cut, kill_label, merge_label),
+            Module.inst("Label", kill_label),
+            Module.inst("Kill"),
+            Module.inst("Label", merge_label),
+        ]
     if fog:
         # Linear between the near and far distance (x and y), if it is on (z). This is per pixel, so that it also
         # works for things that are much bigger than they look.

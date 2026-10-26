@@ -1910,6 +1910,9 @@ namespace {
 			push.uv[1] = texture ? texture->uv[1] : 1.0f;
 			push.uv[2] = texture ? texture->uv[2] : 0.0f;
 			push.uv[3] = texture ? texture->uv[3] : 0.0f;
+			// Textures with see-through parts cut out what is nearly invisible, so that what is behind it can still be seen.
+			bool cutout = texture && (texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED)) && (blend == 1) && !e->sprite_mode && (item.alpha * paint.alpha >= 0.999f);
+			push.mask[0] = cutout ? 0.4f : 0.0f;
 			vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
@@ -1917,7 +1920,7 @@ namespace {
 			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 			vkCmdSetCullMode(g.cmd, (two_sided || ((e->fx | paint.fx) & 16)) ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
 			vkCmdSetDepthTestEnable(g.cmd, depth_test ? VK_TRUE : VK_FALSE);
-			vkCmdSetDepthWriteEnable(g.cmd, (surface_blended || !depth_test) ? VK_FALSE : VK_TRUE);
+			vkCmdSetDepthWriteEnable(g.cmd, ((surface_blended && !cutout) || !depth_test) ? VK_FALSE : VK_TRUE);
 			VkDescriptorSet set = (texture && texture->set) ? texture->set : g.sets[TEXTURE_WHITE];
 			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
 
@@ -3535,6 +3538,9 @@ int32_t bb_load_texture(const char* file, int32_t flags)
 				px[3] = (px[0] || px[1] || px[2]) ? 255 : 0;
 			} else if (!(flags & TEXTURE_ALPHA)) {
 				px[3] = 255;
+			} else if (!has_alpha) {
+				// Without an alpha channel, how bright a pixel is says how solid it is.
+				px[3] = uint8_t((px[0] + px[1] + px[2]) / 3);
 			}
 		}
 	}
