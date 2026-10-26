@@ -52,21 +52,21 @@ PositionEntity parent, 10, 0, 0
 RotateEntity parent, 0, 90, 0
 TFormPoint 1, 0, 0, parent, 0
 Check "point to world x", TFormedX(), 10
-Check "point to world z", TFormedZ(), -1
+Check "point to world z", TFormedZ(), 1
 TFormPoint 10, 0, -1, 0, parent
-Check "point from world x", TFormedX(), 1
+Check "point from world x", TFormedX(), -1
 Check "point from world z", TFormedZ(), 0
 TFormVector 0, 0, 1, parent, 0
-Check "vector", TFormedX(), 1
+Check "vector", TFormedX(), -1
 TFormNormal 0, 0, 5, parent, 0
-Check "normal length", TFormedX(), 1
+Check "normal length", TFormedX(), -1
 
 ; Turning to face things.
 Local looker = CreatePivot()
 Local target = CreatePivot()
 PositionEntity target, 10, 0, 0
-Check "yaw to face", DeltaYaw(looker, target), 90
-RotateEntity looker, 0, 90, 0
+Check "yaw to face", DeltaYaw(looker, target), -90
+RotateEntity looker, 0, -90, 0
 Check "already facing", DeltaYaw(looker, target), 0
 PositionEntity target, 0, 10, 0
 Check "pitch up", DeltaPitch(looker, target), -90

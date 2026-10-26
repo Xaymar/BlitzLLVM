@@ -96,8 +96,8 @@ namespace {
 			float* v = in[c];
 			// Rx: y' = y cp - z sp, z' = y sp + z cp
 			float x1 = v[0], y1 = v[1] * cp - v[2] * sp, z1 = v[1] * sp + v[2] * cp;
-			// Ry: x' = x cy + z sy, z' = -x sy + z cy
-			float x2 = x1 * cy + z1 * sy, y2 = y1, z2 = -x1 * sy + z1 * cy;
+			// Ry, turned the way Blitz does it (a positive yaw turns left): x' = x cy - z sy, z' = x sy + z cy
+			float x2 = x1 * cy - z1 * sy, y2 = y1, z2 = x1 * sy + z1 * cy;
 			r[c * 3 + 0] = x2;
 			r[c * 3 + 1] = y2;
 			r[c * 3 + 2] = z2;
@@ -187,7 +187,7 @@ namespace {
 		float s = -z[1];
 		s       = s > 1 ? 1 : (s < -1 ? -1 : s);
 		out[0]  = deg(asinf(s));
-		out[1]  = deg(atan2f(z[0], z[2]));
+		out[1]  = deg(atan2f(-z[0], z[2]));
 		out[2]  = deg(atan2f(-x[1], y[1]));
 	}
 
@@ -821,7 +821,7 @@ void bb_point_entity(int32_t handle, int32_t target, float roll)
 	if (len < 1e-9f) {
 		return;
 	}
-	float pitch = deg(asinf(-d[1] / len)), yaw = deg(atan2f(d[0], d[2]));
+	float pitch = deg(asinf(-d[1] / len)), yaw = deg(atan2f(-d[0], d[2]));
 	(void)e;
 	bb_rotate_entity(handle, pitch, yaw, roll, 1);
 }
@@ -1309,7 +1309,7 @@ float bb_delta_yaw(int32_t handle, int32_t target)
 	world_matrix(handle, me);
 	world_matrix(target, to);
 	euler_from_matrix_impl(me, angles);
-	return wrap_angle(deg(atan2f(to[12] - me[12], to[14] - me[14])) - angles[1]);
+	return wrap_angle(deg(atan2f(me[12] - to[12], to[14] - me[14])) - angles[1]);
 }
 
 float bb_delta_pitch(int32_t handle, int32_t target)

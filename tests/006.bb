@@ -8,10 +8,10 @@ Check "EntityX", EntityX(cube), 1
 Check "EntityY", EntityY(cube), 2
 Check "EntityZ", EntityZ(cube), 3
 
-; Moving goes in the direction that the entity faces: a quarter turn to the right turns forward into +X.
+; Moving goes in the direction that the entity faces: a quarter turn to the left (positive yaw) turns forward into -X.
 RotateEntity cube, 0, 90, 0
 MoveEntity cube, 0, 0, 1
-Check "MoveEntity X", EntityX(cube), 2
+Check "MoveEntity X", EntityX(cube), 0
 Check "MoveEntity Z", EntityZ(cube), 3
 Check "EntityYaw", EntityYaw(cube), 90
 
@@ -19,9 +19,9 @@ Check "EntityYaw", EntityYaw(cube), 90
 Local child = CreatePivot(cube)
 PositionEntity child, 1, 0, 0
 ScaleEntity cube, 2, 2, 2
-Check "child global X", EntityX(child, True), 2
+Check "child global X", EntityX(child, True), 0
 Check "child global Y", EntityY(child, True), 2
-Check "child global Z", EntityZ(child, True), 1
+Check "child global Z", EntityZ(child, True), 5
 Check "child local X", EntityX(child), 1
 Check "child global yaw", EntityYaw(child, True), 90
 
@@ -35,7 +35,7 @@ Local looker = CreatePivot()
 Local target = CreatePivot()
 PositionEntity target, 5, 0, 5
 PointEntity looker, target
-Check "PointEntity yaw", EntityYaw(looker), 45
+Check "PointEntity yaw", EntityYaw(looker), -45
 Check "EntityDistance", EntityDistance(looker, target), Sqr(50)
 
 ; Freeing a parent frees its children as well.

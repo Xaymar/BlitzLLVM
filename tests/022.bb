@@ -105,7 +105,7 @@ Check "line pick that misses", LinePick(0, 10, 0, 0, 5, 0), 0
 Check "nothing picked", PickedEntity(), 0
 Local looker = CreatePivot()
 PositionEntity looker, -8, 2, 0
-RotateEntity looker, 0, 90, 0
+RotateEntity looker, 0, -90, 0
 Check "entity pick", EntityPick(looker, 30), wall
 Check "entity pick too short", EntityPick(looker, 5), 0
 
