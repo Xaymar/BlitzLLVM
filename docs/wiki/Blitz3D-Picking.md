@@ -209,10 +209,6 @@ WaitKey
 
 **Returns:** The entity found, or 0.
 
-**Differences and known gaps:**
-
-* The radius widens the line only against entities that are picked as a sphere. Against polygon and box picking it behaves like a line of no thickness, whereas the original also thickens those.
-
 ### PickedEntity
 
 ```blitzbasic

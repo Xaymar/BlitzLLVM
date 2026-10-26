@@ -11,8 +11,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [CreateListener](Blitz3D-3D-Sound#createlistener) | Int |  |
-| [EmitSound](Blitz3D-3D-Sound#emitsound) | Int |  |
+| [CreateListener](Blitz3D-3D-Sound#createlistener) | Int | Creates the ear that 3D sounds are heard with. |
+| [EmitSound](Blitz3D-3D-Sound#emitsound) | Int | Plays a sound from an entity, which becomes quieter and more to one side the further away the entity is from the listener, and keeps following the entity while the sound plays. |
 
 ### CreateListener
 
@@ -22,14 +22,39 @@ CreateListener parent%, rolloff_factor#=1, doppler_scale#=1, distance_scale#=1  
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Creates the ear that 3D sounds are heard with. It is carried by another entity, usually the camera, so that sounds get quieter with distance and move between the left and right speaker as the listener moves and turns. Only one listener is used at a time. The listener has to exist before [EmitSound](Blitz3D-3D-Sound#emitsound) is used.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+listener = CreateListener(camera)
+
+source = CreateSphere()
+PositionEntity source, 10, 0, 20
+sound = Load3DSound("engine.wav")
+LoopSound sound
+EmitSound sound, source
+
+While Not KeyHit(1)
+	TurnEntity camera, 0, 0.5, 0
+	RenderWorld
+	Flip
+Wend
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `parent` | Int | required |  |
-| `rolloff_factor` | Float | `1` |  |
-| `doppler_scale` | Float | `1` |  |
-| `distance_scale` | Float | `1` |  |
+| `parent` | Int | required | The entity that carries the listener, typically the camera. |
+| `rolloff_factor` | Float | `1` | How fast sounds get quiet with distance: 0 means they do not, 1 is the normal rate and above that makes them fade faster. Defaults to 1. |
+| `doppler_scale` | Float | `1` | How strong the pitch change of moving sounds is. Defaults to 1. |
+| `distance_scale` | Float | `1` | Scales distances, to match the size of your world to the sounds. Defaults to 1. |
+
+**Returns:** A handle for the listener.
+
+**Differences and known gaps:**
+
+* Only the rolloff factor is used. Doppler shifting is not made and distances are always in the units of the world, so doppler_scale and distance_scale have no effect. Volume falls off as 1 / (1 + rolloff * distance * 0.05).
 
 ### EmitSound
 
@@ -39,9 +64,13 @@ EmitSound sound%, entity%  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Plays a sound from an entity, which becomes quieter and more to one side the further away the entity is from the listener, and keeps following the entity while the sound plays. The sound should come from [Load3DSound](BlitzBasic-Audio#load3dsound). The returned channel can be stopped or changed with the usual channel commands.
+
+The example is the one under [CreateListener](Blitz3D-3D-Sound#createlistener).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required |  |
-| `entity` | Int | required |  |
+| `sound` | Int | required | A sound handle. |
+| `entity` | Int | required | The entity the sound comes from. |
+
+**Returns:** A channel handle for the playing sound.
