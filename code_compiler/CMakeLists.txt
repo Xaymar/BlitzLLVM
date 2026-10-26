@@ -135,6 +135,13 @@ find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_FOUND)
 	add_test(NAME suite-coverage COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/suite_functions.py" check)
 	set_tests_properties(suite-coverage PROPERTIES LABELS "suite")
+	# Needs an X server and xdotool to take the focus away from the window, so it is skipped (77) without them.
+	if(BLITZ_TEST_GPU)
+		foreach(_MODE IN ITEMS on off)
+			add_test(NAME "gui-autosuspend-${_MODE}" COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/gui/autosuspend.py" $<TARGET_FILE:${PROJECT_NAME}> ${_MODE} "${PROJECT_BINARY_DIR}/gui/autosuspend-${_MODE}")
+			set_tests_properties("gui-autosuspend-${_MODE}" PROPERTIES LABELS "gui;gpu" SKIP_RETURN_CODE 77 RUN_SERIAL TRUE)
+		endforeach()
+	endif()
 endif()
 
 # Closing a window that has an AppTitle close prompt needs a window, so it only runs with the GPU tests.

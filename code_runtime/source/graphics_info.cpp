@@ -299,10 +299,11 @@ void bb_hw_multi_tex(int32_t enable)
 	(void)enable;
 }
 
-// Whether the program is paused when its window is not in front. It keeps running.
+// Whether the program waits while its window is not in front or is minimized. Programs that are fullscreen do by
+// default.
 void bb_auto_suspend(int32_t enable)
 {
-	(void)enable;
+	g.auto_suspend = enable != 0;
 }
 
 // There is no video playback: a movie can't be opened, which is what programs get when the file can't be played.
