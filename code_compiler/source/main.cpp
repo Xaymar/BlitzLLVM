@@ -6,12 +6,20 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <vector>
 #include "compiler.hpp"
 #include "error.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
-#include "runtime_source.hpp"
+
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
+#endif
 
 // BlitzBasic is a strange but powerful language in the right hands. While it has
 // somewhat unusual syntax and rules at times, it does not usually have ambigious
@@ -61,6 +69,7 @@ namespace {
 		std::string              optimization = "-O2";
 		std::string              target;
 		std::string              cc;
+		std::filesystem::path    runtime_dir;
 		std::vector<std::string> flags; // Passed to clang as-is.
 		bool                     emit_ir    = false;
 		bool                     keep_temps = false;
@@ -84,12 +93,32 @@ namespace {
 				  << "                        or -fuse-ld=lld. Can be given multiple times.\n"
 				  << "  --llvm-arg <arg>      Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times.\n"
 				  << "  --cc <path>           Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'.\n"
+				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler.\n"
 				  << "  --keep-temps          Don't delete the intermediate files.\n"
 				  << "  --dump-tokens         Only print the tokens of the input file, for debugging the lexer.\n"
 				  << "  -v, --verbose         Print the commands that are run.\n"
 				  << "  -h, --help            Show this text.\n"
 				  << "\n"
 				  << "Everything after a lone '--' is passed to clang as-is.\n";
+	}
+
+	std::filesystem::path executable_path()
+	{
+#if defined(_WIN32)
+		wchar_t buffer[32768];
+		DWORD   length = GetModuleFileNameW(nullptr, buffer, DWORD(std::size(buffer)));
+		return std::filesystem::path(std::wstring(buffer, length));
+#elif defined(__APPLE__)
+		char     buffer[4096];
+		uint32_t size = sizeof(buffer);
+		if (_NSGetExecutablePath(buffer, &size) == 0) {
+			return std::filesystem::weakly_canonical(buffer);
+		}
+		return {};
+#else
+		std::error_code ec;
+		return std::filesystem::read_symlink("/proc/self/exe", ec);
+#endif
 	}
 
 	std::string quote(std::string const& arg)
@@ -160,6 +189,8 @@ namespace {
 				opt.flags.push_back(value());
 			} else if (arg == "--cc") {
 				opt.cc = value();
+			} else if (arg == "--runtime-dir") {
+				opt.runtime_dir = value();
 			} else if (arg == "--dump-tokens") {
 				opt.tokens = true;
 			} else if (arg == "--keep-temps") {
@@ -235,10 +266,24 @@ int main(int argc, char** argv)
 		// Back-end: LLVM IR + Runtime -> Executable
 		temp_dir = std::filesystem::temp_directory_path() / ("blitzllvm-" + std::to_string(std::hash<std::string>{}(opt.input.generic_string() + opt.output.generic_string())));
 		std::filesystem::create_directories(temp_dir);
-		auto ir_file      = temp_dir / "program.ll";
-		auto runtime_file = temp_dir / "runtime.c";
+		auto ir_file = temp_dir / "program.ll";
 		write_file(ir_file, ir);
-		write_file(runtime_file, blitz::runtime_source);
+
+		// Everything in the runtime directory is part of the runtime, and gets linked in.
+		auto runtime_dir = opt.runtime_dir.empty() ? executable_path().parent_path() / "runtime" : opt.runtime_dir;
+		std::vector<std::string> libraries;
+		if (std::filesystem::is_directory(runtime_dir)) {
+			for (auto const& entry : std::filesystem::directory_iterator(runtime_dir)) {
+				auto ext = entry.path().extension().string();
+				if ((ext == ".lib") || (ext == ".a")) {
+					libraries.push_back(entry.path().generic_string());
+				}
+			}
+			std::sort(libraries.begin(), libraries.end());
+		}
+		if (libraries.empty()) {
+			throw std::runtime_error("No runtime libraries found in '" + runtime_dir.generic_string() + "', use --runtime-dir.");
+		}
 
 		std::string cc = opt.cc;
 		if (cc.empty()) {
@@ -254,7 +299,9 @@ int main(int argc, char** argv)
 			command.push_back(flag);
 		}
 		command.push_back(ir_file.generic_string());
-		command.push_back(runtime_file.generic_string());
+		for (auto const& lib : libraries) {
+			command.push_back(lib);
+		}
 		command.push_back("-o");
 		command.push_back(opt.output.generic_string());
 		if (!windows_target) {
