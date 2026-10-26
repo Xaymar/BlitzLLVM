@@ -7,12 +7,14 @@
 import cmath
 import math
 import os
+import shutil
 import struct
 import subprocess
 import sys
 import wave
 
 blitzcc, work = sys.argv[1:3]
+fixtures = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(work, exist_ok=True)
 os.chdir(work)
 
@@ -130,5 +132,17 @@ check("classic: pitch %.1f Hz is %.1f Hz" % (frequency, expected), abs(frequency
 check("classic: looped for %.2f s" % length, length > 1.0)
 clean, classic = image_energy(clean_samples), image_energy(classic_samples)
 check("classic adds images above the file's bandwidth (%.5f vs %.5f)" % (classic, clean), classic > clean * 10)
+
+# Opus decodes at 48 kHz whatever the file was recorded at, so it has to be resampled to play at the right pitch. The fixtures are a
+# 960 Hz tone (50 samples per cycle at 48 kHz) of half a second, as .opus (Ogg Opus) and as Opus packets in an .ogg file.
+for fixture in ("tone.opus", "tone_in_ogg.ogg"):
+	shutil.copyfile(os.path.join(fixtures, fixture), fixture)
+	samples, log = play(fixture)
+	frequency, smoothness, length = analyze(samples)
+	check("%s: pitch %.1f Hz is 960 Hz" % (fixture, frequency), abs(frequency - 960.0) < 960.0 * 0.01)
+	check("%s: looped for %.2f s of a 0.5 s file" % (fixture, length), length > 1.0 and "playing 1" in log)
+	samples, log = play(fixture, loop=False)
+	frequency, smoothness, length = analyze(samples)
+	check("%s: one shot of %.2f s lasts as long as the 0.5 s file" % (fixture, length), 0.4 < length < 0.65 and "playing 0" in log)
 
 sys.exit(1 if failures else 0)
