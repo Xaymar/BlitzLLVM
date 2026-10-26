@@ -130,5 +130,14 @@ Check "EnableDirectInput off", DirectInputEnabled(), 0
 EnableDirectInput True
 Check "EnableDirectInput on", DirectInputEnabled(), 1
 
+; The clipboard holds text. It has to be opened before it is used.
+OpenClipboard 0
+EmptyClipboard
+Check "ExamineClipboard when empty", ExamineClipboard(1), 0
+SetClipboardData 1, "from Blitz"
+Check "ExamineClipboard with text", ExamineClipboard(1), 1
+CheckS "GetClipboardData", GetClipboardData(1), "from Blitz"
+CloseClipboard
+
 EndGraphics
 Done "input"
