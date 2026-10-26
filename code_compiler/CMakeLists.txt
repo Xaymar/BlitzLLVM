@@ -17,6 +17,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME blitzcc)
 
 target_sources(${PROJECT_NAME} PRIVATE
 	"source/main.cpp"
+	"source/keywords.hpp"
+	"source/keywords.cpp"
 	"source/lexer.hpp"
 	"source/lexer.cpp"
 	"source/error.hpp"
@@ -45,6 +47,9 @@ target_sources(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
 	"${PROJECT_SOURCE_DIR}/source"
 )
+
+# What 'blitzcc -v' reports. PROJECT_VERSION is reset by project() above, so take the one of the top level project.
+target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${CMAKE_PROJECT_VERSION}")
 
 # The runtime library has to live next to the compiler, which links it into every program it produces.
 add_dependencies(${PROJECT_NAME} blitzrt)
@@ -123,6 +128,21 @@ if(Python3_FOUND)
 	add_test(NAME suite-coverage COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/suite_functions.py" check)
 	set_tests_properties(suite-coverage PROPERTIES LABELS "suite")
 endif()
+
+# The command line options of the compiler: -q, +q, -c, -d, -k, +k, -v. Each case is in tests/cli/cli.cmake.
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug keywords keywords_syntax keywords_bad_userlib version verbose_long_only help)
+	add_test(
+		NAME "cli-${_CASE}"
+		COMMAND ${CMAKE_COMMAND}
+			"-DCASE=${_CASE}"
+			"-DBLITZCC=$<TARGET_FILE:${PROJECT_NAME}>"
+			"-DTESTS=${TEST_DIRECTORY}"
+			"-DWORK=${PROJECT_BINARY_DIR}/cli/${_CASE}"
+			"-DVERSION=${CMAKE_PROJECT_VERSION}"
+			-P "${TEST_DIRECTORY}/cli/cli.cmake"
+	)
+	set_tests_properties("cli-${_CASE}" PROPERTIES LABELS "cli")
+endforeach()
 
 add_test(
 	NAME "lex-test"

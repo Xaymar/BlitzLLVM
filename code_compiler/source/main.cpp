@@ -19,6 +19,7 @@
 #include <vector>
 #include "compiler.hpp"
 #include "error.hpp"
+#include "keywords.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
 
@@ -84,6 +85,15 @@ namespace {
 		bool                     keep_temps = false;
 		bool                     verbose    = false;
 		bool                     tokens     = false;
+		std::filesystem::path    userlibs_dir;
+		bool                     help         = false;
+		bool                     quiet        = false; // -q: No banner.
+		bool                     very_quiet   = false; // +q: Nothing but errors.
+		bool                     compile_only = false; // -c
+		bool                     debug        = false; // -d
+		bool                     dump_keys    = false; // -k
+		bool                     dump_syntax  = false; // +k
+		bool                     version      = false; // -v
 	};
 
 	void usage(const char* self)
@@ -96,6 +106,14 @@ namespace {
 				  << "  -o <file>             Name of the output file. Defaults to the input name.\n"
 				  << "  -O0 -O1 -O2 -O3 -Os -Oz\n"
 				  << "                        LLVM optimization level, defaults to -O2.\n"
+				  << "  -q                    Quiet mode, doesn't print the version banner.\n"
+				  << "  +q                    Very quiet mode, only prints errors.\n"
+				  << "  -c                    Compile only: Check the program and generate the code, but don't create an executable\n"
+				  << "                        unless -o is given.\n"
+				  << "  -d                    Debug compile: Always -O0 and with debug information. There is no debugger to attach yet.\n"
+				  << "  -k                    Dump all keywords: The language, the runtime and the functions of the userlibs.\n"
+				  << "  +k                    Dump all keywords, followed by their syntax.\n"
+				  << "  -v                    Print the version of the compiler and runtime.\n"
 				  << "  -S, --emit-llvm       Only write the generated LLVM IR (.ll), don't build an executable.\n"
 				  << "  --target <triple>     Build for another target, such as x86_64-linux-gnu or aarch64-apple-darwin.\n"
 				  << "  --llvm-flag <flag>    Pass <flag> to the LLVM/clang driver as-is, such as -flto, -march=native\n"
@@ -103,10 +121,13 @@ namespace {
 				  << "  --llvm-arg <arg>      Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times.\n"
 				  << "  --cc <path>           Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'.\n"
 				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler, then '../lib/blitzllvm/runtime'.\n"
+				  << "  --userlibs-dir <dir>  Where the userlibs (*.decls) to list with -k and +k are. Defaults to 'userlibs' next to 'bin', then '../share/blitzllvm/userlibs'.\n"
 				  << "  --keep-temps          Don't delete the intermediate files.\n"
 				  << "  --dump-tokens         Only print the tokens of the input file, for debugging the lexer.\n"
-				  << "  -v, --verbose         Print the commands that are run.\n"
+				  << "  --verbose             Print the commands that are run.\n"
 				  << "  -h, --help            Show this text.\n"
+				  << "\n"
+				  << "Options are not case sensitive for -q, +q, -c, -d, -k, +k and -v.\n"
 				  << "\n"
 				  << "Everything after a lone '--' is passed to clang as-is.\n";
 	}
@@ -181,8 +202,27 @@ namespace {
                 return argv[++idx];
 			};
 
+			std::string lowered = arg;
+			std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c) { return char(std::tolower(c)); });
+
 			if ((arg == "-h") || (arg == "--help")) {
-				return false;
+				opt.help = true;
+			} else if (lowered == "-q") {
+				opt.quiet = true;
+			} else if (lowered == "+q") {
+				opt.quiet = opt.very_quiet = true;
+			} else if (lowered == "-c") {
+				opt.compile_only = true;
+			} else if (lowered == "-d") {
+				opt.debug = true;
+			} else if (lowered == "-k") {
+				opt.dump_keys = true;
+			} else if (lowered == "+k") {
+				opt.dump_keys = opt.dump_syntax = true;
+			} else if (lowered == "-v") {
+				opt.version = true;
+			} else if (arg == "--userlibs-dir") {
+				opt.userlibs_dir = value();
 			} else if (arg == "-o") {
 				opt.output = value();
 			} else if ((arg == "-O0") || (arg == "-O1") || (arg == "-O2") || (arg == "-O3") || (arg == "-Os") || (arg == "-Oz")) {
@@ -204,7 +244,7 @@ namespace {
 				opt.tokens = true;
 			} else if (arg == "--keep-temps") {
 				opt.keep_temps = true;
-			} else if ((arg == "-v") || (arg == "--verbose")) {
+			} else if (arg == "--verbose") {
 				opt.verbose = true;
 			} else if (arg == "--") {
 				for (idx++; idx < argc; idx++) {
@@ -218,7 +258,22 @@ namespace {
 				throw std::runtime_error("Only one input file is supported.");
 			}
 		}
-		return !opt.input.empty();
+		return true;
+	}
+
+	// The 'userlibs' directory of the installation: <prefix>/userlibs for the portable layout, <prefix>/share/blitzllvm/userlibs for packages.
+	std::filesystem::path find_userlibs(options const& opt)
+	{
+		if (!opt.userlibs_dir.empty()) {
+			return opt.userlibs_dir;
+		}
+		auto bin_dir = executable_path().parent_path();
+		for (auto const& candidate : { bin_dir / ".." / "userlibs", bin_dir / ".." / "share" / "blitzllvm" / "userlibs" }) {
+			if (std::filesystem::is_directory(candidate)) {
+				return std::filesystem::weakly_canonical(candidate);
+			}
+		}
+		return {};
 	}
 } // namespace
 
@@ -230,11 +285,34 @@ int main(int argc, char** argv)
 		std::setlocale(LC_ALL, "en_US.UTF-8");
 
 		options opt;
-		if (!parse_arguments(argc, argv, opt)) {
-			usage(argv[0]);
-			return (argc > 1) ? 0 : 1;
-		}
+		parse_arguments(argc, argv, opt);
 		keep = opt.keep_temps;
+
+		// Like the original, keywords and version are printed and then it stops, unless there is a file to compile too.
+		if (opt.help) {
+			usage(argv[0]);
+			return 0;
+		}
+		if (opt.dump_keys) {
+			blitz::keywords::dump(std::cout, opt.dump_syntax, find_userlibs(opt));
+		}
+		if (opt.version) {
+			std::cout << "Compiler version:" << BLITZLLVM_VERSION << "\n"
+					  << "Runtime version:" << BLITZLLVM_VERSION << std::endl;
+		}
+		if (opt.input.empty()) {
+			if (!(opt.dump_keys || opt.version)) {
+				usage(argv[0]);
+				return (argc > 1) ? 0 : 1;
+			}
+			return 0;
+		}
+
+		// A debug build isn't optimized, so that it can be followed in a debugger (which doesn't exist yet).
+		if (opt.debug) {
+			opt.optimization = "-O0";
+			opt.flags.insert(opt.flags.begin(), "-g");
+		}
 
 		if (opt.tokens) {
 			blitz::lexer lexer(opt.input);
@@ -246,10 +324,25 @@ int main(int argc, char** argv)
 		}
 
 		// Front-end: Source -> AST -> LLVM IR
+		if (!opt.quiet) {
+			std::cout << "BlitzCC V" << BLITZLLVM_VERSION << "\n"
+					  << "Compiling \"" << opt.input.generic_string() << "\"" << std::endl;
+		}
+		if (!opt.very_quiet) {
+			std::cout << "Parsing..." << std::endl;
+		}
 		blitz::parser   parser;
 		auto            program = parser.parse(opt.input);
+		if (!opt.very_quiet) {
+			std::cout << "Generating..." << std::endl;
+		}
 		blitz::compiler compiler;
 		std::string     ir = compiler.generate(*program);
+
+		// Compile only checks the program, like the original, where -o still creates the executable.
+		if (opt.compile_only && opt.output.empty() && !opt.emit_ir) {
+			return 0;
+		}
 
 		// Default output names
 		bool windows_target = opt.target.empty() ?
@@ -268,11 +361,17 @@ int main(int argc, char** argv)
 		}
 
 		if (opt.emit_ir) {
+			if (!opt.very_quiet) {
+				std::cout << "Creating LLVM IR \"" << opt.output.generic_string() << "\"..." << std::endl;
+			}
 			write_file(opt.output, ir);
 			return 0;
 		}
 
 		// Back-end: LLVM IR + Runtime -> Executable
+		if (!opt.very_quiet) {
+			std::cout << "Creating executable \"" << opt.output.generic_string() << "\"..." << std::endl;
+		}
 		temp_dir = std::filesystem::temp_directory_path() / ("blitzllvm-" + std::to_string(std::hash<std::string>{}(opt.input.generic_string() + opt.output.generic_string())));
 		std::filesystem::create_directories(temp_dir);
 		auto ir_file = temp_dir / "program.ll";
