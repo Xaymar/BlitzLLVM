@@ -70,6 +70,8 @@ init_project(blitzrt)
 target_sources(blitzrt PRIVATE
 	"source/runtime.c"
 	"source/graphics.cpp"
+	"source/scene.cpp"
+	"source/scene.hpp"
 	"source/font8x8.inc"
 	"source/shaders.inc"
 )

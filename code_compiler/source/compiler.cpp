@@ -25,7 +25,7 @@ namespace {
 		char        ret;
 		const char* params;
 		int         required; // How many parameters have to be provided, the rest uses defaults.
-		double      defaults[5]; // Defaults for the parameters that were not provided.
+		double      defaults[8]; // Defaults for the parameters that were not provided.
 		bool        lead; // If only one argument is provided for two parameters, it is the second one (Rand(10) == Rand(1, 10)).
 	};
 
@@ -91,6 +91,62 @@ namespace {
 		{ "oval", "bb_oval", 'v', "iiiii", 4, { 0, 0, 0, 0, 1 }, false },
 		{ "line", "bb_line", 'v', "iiii", 4, {}, false },
 		{ "plot", "bb_plot", 'v', "ii", 2, {}, false },
+		// 3D: World
+		{ "ambientlight", "bb_ambient_light", 'v', "fff", 3, {}, false },
+		{ "updateworld", "bb_update_world", 'v', "f", 0, { 1 }, false },
+		// 3D: Entities
+		{ "createpivot", "bb_create_pivot", 'i', "i", 0, { 0 }, false },
+		{ "createcamera", "bb_create_camera", 'i', "i", 0, { 0 }, false },
+		{ "createlight", "bb_create_light", 'i', "ii", 0, { 1, 0 }, false },
+		{ "freeentity", "bb_free_entity", 'v', "i", 1, {}, false },
+		{ "entityparent", "bb_entity_parent", 'v', "iii", 2, { 0, 0, 1 }, false },
+		{ "positionentity", "bb_position_entity", 'v', "ifffi", 4, { 0, 0, 0, 0, 0 }, false },
+		{ "translateentity", "bb_translate_entity", 'v', "ifffi", 4, { 0, 0, 0, 0, 0 }, false },
+		{ "moveentity", "bb_move_entity", 'v', "ifff", 4, {}, false },
+		{ "rotateentity", "bb_rotate_entity", 'v', "ifffi", 4, { 0, 0, 0, 0, 0 }, false },
+		{ "turnentity", "bb_turn_entity", 'v', "ifffi", 4, { 0, 0, 0, 0, 0 }, false },
+		{ "scaleentity", "bb_scale_entity", 'v', "ifffi", 4, { 0, 0, 0, 0, 0 }, false },
+		{ "entityx", "bb_entity_x", 'f', "ii", 1, { 0, 0 }, false },
+		{ "entityy", "bb_entity_y", 'f', "ii", 1, { 0, 0 }, false },
+		{ "entityz", "bb_entity_z", 'f', "ii", 1, { 0, 0 }, false },
+		{ "entitypitch", "bb_entity_pitch", 'f', "ii", 1, { 0, 0 }, false },
+		{ "entityyaw", "bb_entity_yaw", 'f', "ii", 1, { 0, 0 }, false },
+		{ "entityroll", "bb_entity_roll", 'f', "ii", 1, { 0, 0 }, false },
+		{ "hideentity", "bb_hide_entity", 'v', "i", 1, {}, false },
+		{ "showentity", "bb_show_entity", 'v', "i", 1, {}, false },
+		{ "entitycolor", "bb_entity_color", 'v', "ifff", 4, {}, false },
+		{ "entityalpha", "bb_entity_alpha", 'v', "if", 2, {}, false },
+		{ "entityfx", "bb_entity_fx", 'v', "ii", 2, {}, false },
+		{ "entitytexture", "bb_entity_texture", 'v', "ii", 2, {}, false },
+		{ "entitydistance", "bb_entity_distance", 'f', "ii", 2, {}, false },
+		{ "pointentity", "bb_point_entity", 'v', "iif", 2, { 0, 0, 0 }, false },
+		// 3D: Cameras
+		{ "cameraclscolor", "bb_camera_cls_color", 'v', "ifff", 4, {}, false },
+		{ "cameraclsmode", "bb_camera_cls_mode", 'v', "iii", 3, {}, false },
+		{ "camerarange", "bb_camera_range", 'v', "iff", 3, {}, false },
+		{ "cameraviewport", "bb_camera_viewport", 'v', "iiiii", 5, {}, false },
+		{ "camerazoom", "bb_camera_zoom", 'v', "if", 2, {}, false },
+		{ "cameraprojmode", "bb_camera_proj_mode", 'v', "ii", 2, {}, false },
+		// 3D: Lights
+		{ "lightcolor", "bb_light_color", 'v', "ifff", 4, {}, false },
+		{ "lightrange", "bb_light_range", 'v', "if", 2, {}, false },
+		// 3D: Meshes
+		{ "createcube", "bb_create_cube", 'i', "i", 0, { 0 }, false },
+		{ "createsphere", "bb_create_sphere", 'i', "ii", 0, { 8, 0 }, false },
+		{ "createcylinder", "bb_create_cylinder", 'i', "iii", 0, { 8, 1, 0 }, false },
+		{ "createcone", "bb_create_cone", 'i', "iii", 0, { 8, 1, 0 }, false },
+		{ "createmesh", "bb_create_mesh", 'i', "i", 0, { 0 }, false },
+		{ "createsurface", "bb_create_surface", 'i', "i", 1, {}, false },
+		{ "addvertex", "bb_add_vertex", 'i', "iffffff", 4, { 0, 0, 0, 0, 0, 0, 0 }, false },
+		{ "addtriangle", "bb_add_triangle", 'i', "iiii", 4, {}, false },
+		{ "vertexcolor", "bb_vertex_color", 'v', "iiffff", 5, { 0, 0, 0, 0, 0, 1 }, false },
+		{ "vertexnormal", "bb_vertex_normal", 'v', "iifff", 5, {}, false },
+		{ "vertextexcoords", "bb_vertex_tex_coords", 'v', "iifffi", 4, { 0, 0, 0, 0, 0, 0 }, false },
+		{ "updatenormals", "bb_update_normals", 'v', "i", 1, {}, false },
+		{ "flipmesh", "bb_flip_mesh", 'v', "i", 1, {}, false },
+		{ "scalemesh", "bb_scale_mesh", 'v', "ifff", 4, {}, false },
+		{ "positionmesh", "bb_position_mesh", 'v', "ifff", 4, {}, false },
+		{ "rotatemesh", "bb_rotate_mesh", 'v', "ifff", 4, {}, false },
 		// Input
 		{ "waitkey", "bb_wait_key", 'i', "", 0, {}, false },
 		{ "keydown", "bb_key_down", 'i', "i", 1, {}, false },
