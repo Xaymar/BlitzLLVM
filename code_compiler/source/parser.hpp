@@ -66,6 +66,7 @@ namespace blitz {
 		void parse_type_decl();
 		void parse_dim(ast::block& into);
 		void parse_label(ast::block& into);
+		void parse_data(ast::block& into);
 		void parse_jump(ast::block& into);
 		void parse_delete(ast::block& into);
 		void parse_insert(ast::block& into);

@@ -80,6 +80,11 @@ namespace blitz {
 		std::map<std::string, type_info>     _types;
 		std::map<std::string, int64_t>       _const_values;
 		std::string                          _return_sname;
+
+		// Data, in the order it appears in the program.
+		std::vector<std::string>             _data_items;  // LLVM constants, `{ i32, i64 }`.
+		std::map<std::string, size_t>        _data_labels; // Index of the first item after a label, keyed by scope and label.
+		std::string                          _scope;       // Which function is being generated, empty for the main program.
 		size_t                               _counter;
 		size_t                               _warnings;
 
@@ -180,6 +185,9 @@ namespace blitz {
 		void gen_function(ast::function const& fn);
 		void gen_main(ast::program const& program);
 		void begin_function();
+		void collect_data(std::string const& scope, ast::block const& block);
+		void gen_read(ast::read_statement const* node);
+		void gen_restore(ast::restore_statement const* node);
 		void prepare_flow(ast::block const& block);
 		void gen_label(ast::label_statement const* node);
 		void gen_goto(ast::goto_statement const* node);

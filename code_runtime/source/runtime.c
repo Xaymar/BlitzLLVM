@@ -295,6 +295,71 @@ void bb_dim(bb_array* array, int64_t element_size, int32_t dimensions, int32_t b
 	}
 }
 
+// Data, Read and Restore. The compiler collects the items of all Data statements into a table.
+typedef struct bb_data_item {
+	int32_t tag; // 0 = integer, 1 = real (the bits of a double), 2 = string (a pointer)
+	int64_t value;
+} bb_data_item;
+
+static const bb_data_item* bb_data_take(const bb_data_item* table, int32_t count, int32_t* position)
+{
+	if (*position >= count) {
+		bb_runtime_error("Out of data.");
+	}
+	return &table[(*position)++];
+}
+
+const char* bb_str_from_i64(int64_t v);
+const char* bb_str_from_f64(double v);
+int64_t     bb_str_to_i64(const char* s);
+double      bb_str_to_f64(const char* s);
+
+static double bb_data_double(const bb_data_item* item)
+{
+	double d;
+	memcpy(&d, &item->value, sizeof(d));
+	return d;
+}
+
+int32_t bb_data_int(const bb_data_item* table, int32_t count, int32_t* position)
+{
+	const bb_data_item* item = bb_data_take(table, count, position);
+	switch (item->tag) {
+	case 1:
+		return (int32_t)bb_data_double(item);
+	case 2:
+		return (int32_t)bb_str_to_i64((const char*)(intptr_t)item->value);
+	default:
+		return (int32_t)item->value;
+	}
+}
+
+float bb_data_float(const bb_data_item* table, int32_t count, int32_t* position)
+{
+	const bb_data_item* item = bb_data_take(table, count, position);
+	switch (item->tag) {
+	case 1:
+		return (float)bb_data_double(item);
+	case 2:
+		return (float)bb_str_to_f64((const char*)(intptr_t)item->value);
+	default:
+		return (float)item->value;
+	}
+}
+
+const char* bb_data_string(const bb_data_item* table, int32_t count, int32_t* position)
+{
+	const bb_data_item* item = bb_data_take(table, count, position);
+	switch (item->tag) {
+	case 1:
+		return bb_str_from_f64(bb_data_double(item));
+	case 2:
+		return (const char*)(intptr_t)item->value;
+	default:
+		return bb_str_from_i64(item->value);
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Strings and conversion
 ////////////////////////////////////////////////////////////////////////////////

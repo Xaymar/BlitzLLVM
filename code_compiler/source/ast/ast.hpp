@@ -253,6 +253,21 @@ namespace blitz {
 
 		struct exit_statement : public statement {};
 
+		/** `Data 1, 2.5, "Text"`: constants for Read, in the order they appear in the program. */
+		struct data_statement : public statement {
+			std::vector<expression_ptr> items;
+		};
+
+		/** `Read a, b$` */
+		struct read_statement : public statement {
+			std::vector<expression_ptr> targets;
+		};
+
+		/** `Restore Label`: Read starts again at the Data after that label. */
+		struct restore_statement : public statement {
+			std::string label;
+		};
+
 		/** `.Name`: a place that Goto and Gosub can jump to. */
 		struct label_statement : public statement {
 			std::string name;

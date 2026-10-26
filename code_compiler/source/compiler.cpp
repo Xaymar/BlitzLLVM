@@ -1090,6 +1090,12 @@ void blitz::compiler::gen_statement(ast::statement const* node)
 		gen_select(n);
 	} else if (auto n = dynamic_cast<ast::return_statement const*>(node)) {
 		gen_return(n);
+	} else if (dynamic_cast<ast::data_statement const*>(node)) {
+		// Data does nothing when it is run, it was collected before.
+	} else if (auto n = dynamic_cast<ast::read_statement const*>(node)) {
+		gen_read(n);
+	} else if (auto n = dynamic_cast<ast::restore_statement const*>(node)) {
+		gen_restore(n);
 	} else if (auto n = dynamic_cast<ast::label_statement const*>(node)) {
 		gen_label(n);
 	} else if (auto n = dynamic_cast<ast::goto_statement const*>(node)) {
@@ -1463,6 +1469,7 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	_in_main      = false;
 	_return_type  = fn.type;
 	_return_sname = lower(fn.struct_name);
+	_scope        = lower(fn.name);
 
 	auto const& info = _functions.at(lower(fn.name));
 	std::string params;
@@ -1492,6 +1499,7 @@ void blitz::compiler::gen_main(ast::program const& program)
 	_in_main      = true;
 	_return_type  = type::INT32;
 	_return_sname = "";
+	_scope        = "";
 
 	prepare_flow(program.main);
 	call_runtime("bb_init", type::UNKNOWN, {});
@@ -1878,6 +1886,105 @@ void blitz::compiler::gen_dim(ast::dim_statement const* node)
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Data
+////////////////////////////////////////////////////////////////////////////////
+void blitz::compiler::collect_data(std::string const& scope, ast::block const& block)
+{
+	for (auto const& stmt : block) {
+		if (auto data = dynamic_cast<ast::data_statement const*>(stmt.get())) {
+			for (auto const& item : data->items) {
+				// Only constants are allowed, optionally negative.
+				bool                  negative = false;
+				ast::expression const* expr     = item.get();
+				if (auto u = dynamic_cast<ast::unary const*>(expr)) {
+					if ((u->kind == ast::unary::op::NEGATE) || (u->kind == ast::unary::op::PLUS)) {
+						negative = (u->kind == ast::unary::op::NEGATE);
+						expr     = u->operand.get();
+					}
+				}
+				auto lit = dynamic_cast<ast::literal const*>(expr);
+				if (!lit) {
+					throw err(item->where, "Data can only contain constants.");
+				}
+				switch (lit->kind) {
+				case ast::literal::variant::INTEGER:
+					_data_items.push_back("{ i32 0, i64 " + std::to_string(negative ? -lit->i : lit->i) + " }");
+					break;
+				case ast::literal::variant::UNSIGNED_INTEGER:
+					_data_items.push_back("{ i32 0, i64 " + std::to_string((long long)(negative ? -int64_t(lit->u) : int64_t(lit->u))) + " }");
+					break;
+				case ast::literal::variant::REAL: {
+					double   d = negative ? -lit->f : lit->f;
+					uint64_t bits;
+					memcpy(&bits, &d, sizeof(bits));
+					_data_items.push_back("{ i32 1, i64 " + std::to_string((long long)bits) + " }");
+					break;
+				}
+				case ast::literal::variant::STRING:
+					if (negative) {
+						throw err(item->where, "Strings can't be negative.");
+					}
+					_data_items.push_back("{ i32 2, i64 ptrtoint (ptr " + string_constant(lit->text) + " to i64) }");
+					break;
+				default:
+					throw err(item->where, "Data can only contain numbers and strings.");
+				}
+			}
+		} else if (auto label = dynamic_cast<ast::label_statement const*>(stmt.get())) {
+			_data_labels[scope + ":" + lower(label->name)] = _data_items.size();
+		} else if (auto i = dynamic_cast<ast::if_statement const*>(stmt.get())) {
+			for (auto const& b : i->branches) {
+				collect_data(scope, b.body);
+			}
+		} else if (auto w = dynamic_cast<ast::while_statement const*>(stmt.get())) {
+			collect_data(scope, w->body);
+		} else if (auto r = dynamic_cast<ast::repeat_statement const*>(stmt.get())) {
+			collect_data(scope, r->body);
+		} else if (auto f = dynamic_cast<ast::for_statement const*>(stmt.get())) {
+			collect_data(scope, f->body);
+		} else if (auto sel = dynamic_cast<ast::select_statement const*>(stmt.get())) {
+			for (auto const& c : sel->cases) {
+				collect_data(scope, c.body);
+			}
+		}
+	}
+}
+
+void blitz::compiler::gen_read(ast::read_statement const* node)
+{
+	std::string count = std::to_string(_data_items.size());
+	for (auto const& target : node->targets) {
+		auto addr = gen_address(target.get());
+		if (addr.count || (addr.type == type::STRUCT)) {
+			throw err(target->where, "Read can only read numbers and strings.");
+		}
+		std::vector<value> args = { { "@bb.data", type::STRUCT }, { count, type::INT32 }, { "@bb.data.pos", type::STRUCT } };
+		value              v;
+		if (addr.type == type::STRING) {
+			v = call_runtime("bb_data_string", type::STRING, args);
+		} else if (blitz::types::is_real(addr.type)) {
+			v = convert(call_runtime("bb_data_float", type::FLOAT32, args), addr.type, node->where, false);
+		} else {
+			v = convert(call_runtime("bb_data_int", type::INT32, args), addr.type, node->where, false);
+		}
+		emit("store " + blitz::types::to_llvm(addr.type) + " " + v.repr + ", ptr " + addr.pointer);
+	}
+}
+
+void blitz::compiler::gen_restore(ast::restore_statement const* node)
+{
+	size_t index = 0;
+	if (!node->label.empty()) {
+		auto it = _data_labels.find(_scope + ":" + lower(node->label));
+		if (it == _data_labels.end()) {
+			throw err(node->where, "Label '" + node->label + "' does not exist in this function.");
+		}
+		index = it->second;
+	}
+	emit("store i32 " + std::to_string(index) + ", ptr @bb.data.pos");
+}
+
 std::string blitz::compiler::generate(ast::program const& program)
 {
 	// Make all functions known first, so they can be used before they are defined.
@@ -1895,11 +2002,27 @@ std::string blitz::compiler::generate(ast::program const& program)
 		collect_globals(fn->body);
 	}
 	register_types(program);
+	collect_data("", program.main);
+	for (auto const& fn : program.functions) {
+		collect_data(lower(fn->name), fn->body);
+	}
 
 	for (auto const& fn : program.functions) {
 		gen_function(*fn);
 	}
 	gen_main(program);
+
+	// What Read reads.
+	if (_data_items.empty()) {
+		_globals << "@bb.data = internal constant [1 x { i32, i64 }] zeroinitializer\n";
+	} else {
+		_globals << "@bb.data = internal constant [" << _data_items.size() << " x { i32, i64 }] [";
+		for (size_t i = 0; i < _data_items.size(); i++) {
+			_globals << (i ? ", " : " ") << "{ i32, i64 } " << _data_items[i];
+		}
+		_globals << " ]\n";
+	}
+	_globals << "@bb.data.pos = internal global i32 0\n";
 
 	std::string out = "; Generated by BlitzLLVM\n";
 	out += _constants.str() + "\n" + _globals.str() + "\n" + _declarations.str() + "\n" + _definitions.str();

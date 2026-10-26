@@ -21,12 +21,12 @@ namespace {
 		"then",  "to",     "step",   "else",    "elseif", "endif",     "end",    "wend",  "next", "until", "forever", "case",
 		"default", "local", "global", "const",   "if",     "while",     "repeat", "for",   "select", "function", "endfunction", "endselect",
 		"return", "exit",  "include", "dim",    "type",   "and",       "or",     "xor",   "mod",  "shl",   "shr",     "sar",
-		"not",    "goto",   "gosub",  "dim",    "type",   "endtype", "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
+		"not",    "data",   "read",   "restore", "goto",   "gosub",  "dim",    "type",   "endtype", "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
 	};
 
 	// Things that exist in Blitz, but that we do not (yet) know how to compile.
 	const std::set<std::string> unsupported = {
-		"data", "read", "restore",
+		
 	};
 } // namespace
 
@@ -264,6 +264,47 @@ void blitz::parser::parse_label(ast::block& into)
 	into.push_back(std::move(node));
 }
 
+void blitz::parser::parse_data(ast::block& into)
+{
+	auto first = tk();
+	auto word  = lower(first.text);
+	advance();
+
+	if (word == "restore") {
+		auto node   = std::make_unique<ast::restore_statement>();
+		node->where = here(first);
+		if (tk().type == blitz::token::variant::TEXT) {
+			node->label = tk().text;
+			advance();
+		}
+		into.push_back(std::move(node));
+	} else if (word == "read") {
+		auto node   = std::make_unique<ast::read_statement>();
+		node->where = here(first);
+		while (true) {
+			node->targets.push_back(parse_primary());
+			if (is_symbol(tk(), ",")) {
+				advance();
+				continue;
+			}
+			break;
+		}
+		into.push_back(std::move(node));
+	} else {
+		auto node   = std::make_unique<ast::data_statement>();
+		node->where = here(first);
+		while (true) {
+			node->items.push_back(parse_expression());
+			if (is_symbol(tk(), ",")) {
+				advance();
+				continue;
+			}
+			break;
+		}
+		into.push_back(std::move(node));
+	}
+}
+
 void blitz::parser::parse_jump(ast::block& into)
 {
 	auto first  = tk();
@@ -321,6 +362,8 @@ void blitz::parser::parse_statement(ast::block& into)
 		parse_dim(into);
 	} else if ((word == "goto") || (word == "gosub")) {
 		parse_jump(into);
+	} else if ((word == "data") || (word == "read") || (word == "restore")) {
+		parse_data(into);
 	} else if (word == "delete") {
 		parse_delete(into);
 	} else if (word == "insert") {
