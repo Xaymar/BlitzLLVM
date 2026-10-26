@@ -58,6 +58,7 @@ namespace bb::gfx {
 		} else if (handle >= texture_buffer_base) {
 			texture_entry* tex = texture_of((handle - texture_buffer_base) >> 10);
 			if (tex && tex->set && texture_frame_rect(*tex, (handle - texture_buffer_base) & 1023, t.x, t.y, t.w, t.h)) {
+				ensure_color_image(tex->image, tex->set);
 				t.image = &tex->image;
 			}
 		} else if (handle >= image_buffer_base) {
@@ -65,6 +66,7 @@ namespace bb::gfx {
 			int          frame = (handle - image_buffer_base) & 1023;
 			image_entry* e     = image_of(id);
 			if (e && e->set && (frame < e->frames)) {
+				ensure_color_image(e->image, e->set);
 				t.image = &e->image;
 				frame_position(*e, frame, t.x, t.y);
 				t.w = e->frame_w;
@@ -118,7 +120,7 @@ namespace bb::gfx {
 		check(vkBindBufferMemory(g.device, buffer, memory, 0), "vkBindBufferMemory");
 	}
 
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect)
+	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components)
 	{
 		gpu_image img;
 		img.width  = width;
@@ -149,6 +151,9 @@ namespace bb::gfx {
 		view.image                         = img.image;
 		view.viewType                      = VK_IMAGE_VIEW_TYPE_2D;
 		view.format                        = info.format;
+		if (components) {
+			view.components = *components;
+		}
 		view.subresourceRange.aspectMask   = aspect;
 		view.subresourceRange.levelCount   = 1;
 		view.subresourceRange.layerCount   = 1;
@@ -262,9 +267,28 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	// Creates a texture from RGBA pixels, ready to be sampled.
-	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler)
+	static void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler)
+	{
+		VkDescriptorImageInfo image_info = { sampler, view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                     = set;
+		write.descriptorCount            = 1;
+		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		write.pImageInfo                 = &image_info;
+		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+	}
+
+	static void allocate_descriptor(VkDescriptorSet& set)
+	{
+		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+		alloc.descriptorPool              = g.set_pool;
+		alloc.descriptorSetCount          = 1;
+		alloc.pSetLayouts                 = &g.set_layout;
+		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets (too many textures?)");
+	}
+
+	// Uploads RGBA pixels into a new image that can be sampled and drawn to.
+	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels)
 	{
 		VkDeviceSize size = VkDeviceSize(width) * height * 4;
 		VkBuffer       staging;
@@ -289,20 +313,123 @@ namespace bb::gfx {
 
 		vkDestroyBuffer(g.device, staging, nullptr);
 		vkFreeMemory(g.device, staging_memory, nullptr);
+	}
 
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = g.set_pool;
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &g.set_layout;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets (too many textures?)");
+	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler)
+	{
+		upload_pixels(image, width, height, pixels);
+		allocate_descriptor(set);
+		write_descriptor(set, image.view, sampler);
+	}
 
-		VkDescriptorImageInfo image_info = { sampler, image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                     = set;
-		write.descriptorCount            = 1;
-		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		write.pImageInfo                 = &image_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+	static VkFormat vulkan_format(block_format format)
+	{
+		switch (format) {
+		case block_format::bc1: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+		case block_format::bc2: return VK_FORMAT_BC2_UNORM_BLOCK;
+		case block_format::bc3: return VK_FORMAT_BC3_UNORM_BLOCK;
+		case block_format::bc4: return VK_FORMAT_BC4_UNORM_BLOCK;
+		case block_format::bc5: return VK_FORMAT_BC5_UNORM_BLOCK;
+		default: return VK_FORMAT_BC7_UNORM_BLOCK;
+		}
+	}
+
+	bool compressed_supported(block_format format)
+	{
+		if ((format == block_format::none) || !g.device || !g.physical) {
+			return false;
+		}
+		VkFormatProperties properties;
+		vkGetPhysicalDeviceFormatProperties(g.physical, vulkan_format(format), &properties);
+		VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+		return (properties.optimalTilingFeatures & needed) == needed;
+	}
+
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque)
+	{
+		VkDeviceSize   size = p.size;
+		VkBuffer       staging;
+		VkDeviceMemory staging_memory;
+		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging, staging_memory);
+		void* mapped;
+		check(vkMapMemory(g.device, staging_memory, 0, size, 0, &mapped), "vkMapMemory");
+		memcpy(mapped, p.blocks, p.size);
+		vkUnmapMemory(g.device, staging_memory);
+
+		// One channel is shown as grey, and alpha is 1 where the file has none to use.
+		VkComponentMapping mapping = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY };
+		if (p.block == block_format::bc4) {
+			mapping.g = mapping.b = VK_COMPONENT_SWIZZLE_R;
+			opaque = true;
+		}
+		if (opaque) {
+			mapping.a = VK_COMPONENT_SWIZZLE_ONE;
+		}
+		image = create_image(uint32_t(p.width), uint32_t(p.height), VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, vulkan_format(p.block), VK_IMAGE_ASPECT_COLOR_BIT, &mapping);
+		image.block   = p.block;
+		image.opaque  = opaque;
+		image.sampler = sampler;
+
+		begin_commands();
+		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		VkBufferImageCopy copy = {};
+		copy.bufferRowLength   = uint32_t((p.width + 3) / 4 * 4);
+		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		copy.imageExtent       = { uint32_t(p.width), uint32_t(p.height), 1 };
+		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+		barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		submit_commands();
+
+		vkDestroyBuffer(g.device, staging, nullptr);
+		vkFreeMemory(g.device, staging_memory, nullptr);
+
+		allocate_descriptor(set);
+		write_descriptor(set, image.view, sampler);
+	}
+
+	void ensure_color_image(gpu_image& image, VkDescriptorSet set)
+	{
+		if ((image.block == block_format::none) || !image.image) {
+			return;
+		}
+		// What was recorded may use the image as it is.
+		flush();
+		VkDeviceSize   size = block_bytes(image.block, int(image.width), int(image.height));
+		VkBuffer       staging;
+		VkDeviceMemory staging_memory;
+		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging, staging_memory);
+
+		begin_commands();
+		transition(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		VkBufferImageCopy copy = {};
+		copy.bufferRowLength   = (image.width + 3) / 4 * 4;
+		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		copy.imageExtent       = { image.width, image.height, 1 };
+		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging, 1, &copy);
+		submit_commands();
+
+		void* mapped;
+		check(vkMapMemory(g.device, staging_memory, 0, size, 0, &mapped), "vkMapMemory");
+		uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(image.width) * image.height * 4));
+		decode_blocks(image.block, int(image.width), int(image.height), static_cast<const uint8_t*>(mapped), pixels);
+		vkUnmapMemory(g.device, staging_memory);
+		vkDestroyBuffer(g.device, staging, nullptr);
+		vkFreeMemory(g.device, staging_memory, nullptr);
+		if (image.opaque) {
+			for (size_t i = 0; i < size_t(image.width) * image.height; i++) {
+				pixels[i * 4 + 3] = 255;
+			}
+		}
+
+		VkSampler sampler = image.sampler;
+		uint32_t  width = image.width, height = image.height;
+		vkDeviceWaitIdle(g.device);
+		destroy_image(image);
+		upload_pixels(image, width, height, pixels);
+		free(pixels);
+		write_descriptor(set, image.view, sampler);
 	}
 
 	static void create_texture(int slot, uint32_t width, uint32_t height, const uint8_t* pixels)

@@ -107,7 +107,7 @@ namespace bb::gfx {
 	}
 
 	// Uploads the pixels (RGBA, the whole sheet) as a new image with the given frames.
-	static int32_t make_image(int sheet_w, int sheet_h, int frame_w, int frame_h, int frames, int first, const uint8_t* pixels)
+	static int32_t make_image(int sheet_w, int sheet_h, int frame_w, int frame_h, int frames, int first, const uint8_t* pixels, picture const* compressed = nullptr)
 	{
 		image_entry entry;
 		entry.used    = true;
@@ -122,17 +122,18 @@ namespace bb::gfx {
 			entry.handle_y = frame_h / 2;
 		}
 		if (active()) {
-			upload_texture(entry.image, entry.set, uint32_t(sheet_w), uint32_t(sheet_h), pixels, g.sampler);
+			if (compressed) {
+				upload_compressed(entry.image, entry.set, *compressed, g.sampler, false);
+			} else {
+				upload_texture(entry.image, entry.set, uint32_t(sheet_w), uint32_t(sheet_h), pixels, g.sampler);
+			}
 		}
 		return add_image(entry);
 	}
 
-	static uint8_t* load_pixels(const char* file, int& width, int& height)
+	static uint8_t* picture_pixels(picture& source, int& width, int& height)
 	{
-		if (!file) {
-			return nullptr;
-		}
-		SDL_Surface* loaded = IMG_Load(file);
+		SDL_Surface* loaded = picture_surface(source);
 		if (!loaded) {
 			return nullptr;
 		}
@@ -149,6 +150,22 @@ namespace bb::gfx {
 		}
 		SDL_DestroySurface(rgba);
 		return out;
+	}
+
+	static uint8_t* load_pixels(const char* file, int& width, int& height)
+	{
+		picture source;
+		if (!file || !load_picture(file, source)) {
+			return nullptr;
+		}
+		return picture_pixels(source, width, height);
+	}
+
+	// Whether a picture can go to the GPU as the blocks it has, which saves the memory of the pixels. BC5 has to be decoded as its third
+	// channel is rebuilt.
+	static bool keeps_blocks(picture const& source)
+	{
+		return source.blocks && active() && (source.block != block_format::bc5) && compressed_supported(source.block);
 	}
 
 	// Draws a part of a frame, with its top left corner at the destination.
@@ -217,8 +234,17 @@ extern "C" {
 
 int32_t bb_load_image(const char* file)
 {
+	picture source;
+	if (!file || !load_picture(file, source)) {
+		return 0;
+	}
+	if (keeps_blocks(source)) {
+		int32_t handle = make_image(source.width, source.height, source.width, source.height, 1, 0, nullptr, &source);
+		free_picture(source);
+		return handle;
+	}
 	int      w = 0, h = 0;
-	uint8_t* pixels = load_pixels(file, w, h);
+	uint8_t* pixels = picture_pixels(source, w, h);
 	if (!pixels) {
 		return 0;
 	}
@@ -230,8 +256,20 @@ int32_t bb_load_image(const char* file)
 // LoadAnimImage(file, width, height, first, count): a sheet of frames that are width x height.
 int32_t bb_load_anim_image(const char* file, int32_t frame_w, int32_t frame_h, int32_t first, int32_t count)
 {
+	picture source;
+	if (!file || !load_picture(file, source)) {
+		return 0;
+	}
+	if (keeps_blocks(source)) {
+		int32_t handle = 0;
+		if ((frame_w > 0) && (frame_h > 0) && (count > 0) && (frame_w <= source.width) && (frame_h <= source.height) && (first >= 0)) {
+			handle = make_image(source.width, source.height, frame_w, frame_h, count, first, nullptr, &source);
+		}
+		free_picture(source);
+		return handle;
+	}
 	int      w = 0, h = 0;
-	uint8_t* pixels = load_pixels(file, w, h);
+	uint8_t* pixels = picture_pixels(source, w, h);
 	if (!pixels) {
 		return 0;
 	}
@@ -412,6 +450,7 @@ void bb_resize_image(int32_t handle, float new_width, float new_height)
 	int sheet_w = int(int64_t(e->sheet_w) * width / e->frame_w), sheet_h = int(int64_t(e->sheet_h) * height / e->frame_h);
 	if (active() && e->set) {
 		flush();
+		ensure_color_image(e->image, e->set);
 		gpu_image target = create_image(uint32_t(sheet_w), uint32_t(sheet_h), VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
 		begin_commands();
@@ -473,6 +512,7 @@ void bb_grab_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
 	int fx, fy;
 	frame_position(*e, frame, fx, fy);
 
+	ensure_color_image(e->image, e->set);
 	begin_commands();
 	VkImageLayout previous_source = source.image->layout;
 	transition(*source.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
@@ -521,6 +561,7 @@ int32_t bb_save_image(int32_t handle, const char* file, int32_t frame)
 	flush();
 	int fx, fy;
 	frame_position(*e, frame, fx, fy);
+	ensure_color_image(e->image, e->set);
 	uint8_t* pixels = read_pixels(e->image, fx, fy, e->frame_w, e->frame_h);
 	int32_t  result = save_pixels(pixels, e->frame_w, e->frame_h, file);
 	free(pixels);
@@ -571,6 +612,7 @@ static const uint8_t* solid_pixels(image_entry* e)
 	memset(e->solid, 1, count);
 	if (active() && e->set && e->masked) {
 		flush();
+		ensure_color_image(e->image, e->set);
 		uint8_t* rgba = read_pixels(e->image, 0, 0, e->sheet_w, e->sheet_h);
 		for (size_t i = 0; i < count; i++) {
 			e->solid[i] = (rgba[i * 4] == e->mask[0] && rgba[i * 4 + 1] == e->mask[1] && rgba[i * 4 + 2] == e->mask[2]) ? 0 : 1;
@@ -671,6 +713,7 @@ int32_t bb_copy_image(int32_t handle)
 	uint8_t*     pixels = nullptr;
 	if (active() && e->set) {
 		flush();
+		ensure_color_image(e->image, e->set);
 		pixels = read_pixels(e->image, 0, 0, e->sheet_w, e->sheet_h);
 	}
 	image_entry copy;
@@ -740,6 +783,7 @@ void bb_tform_image(int32_t handle, float a, float b, float c, float d)
 	uint8_t* old = nullptr;
 	if (active() && e->set) {
 		flush();
+		ensure_color_image(e->image, e->set);
 		old = read_pixels(e->image, 0, 0, e->sheet_w, e->sheet_h);
 	}
 	uint8_t outside[3] = { e->masked ? e->mask[0] : uint8_t(0), e->masked ? e->mask[1] : uint8_t(0), e->masked ? e->mask[2] : uint8_t(0) };
