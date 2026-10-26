@@ -1,0 +1,121 @@
+# Copyright 2026 Michael Fabian 'Xaymar' Dirks <info@xaymar.com>
+#
+# Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+# 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+################################################################################
+# Timestamp based versioning
+#
+# The version is YEAR.MONTH.DAY.TWEAK of the UTC commit date, where TWEAK is the time of day in units of 2 seconds. Every
+# component must fit into 16 bits (Windows VERSIONINFO), and a day has 86400 seconds, which does not fit.
+#
+# Order of precedence:
+# 1. The BlitzLLVM_VERSION cache variable, for out-of-repository builds and CI (format: A.B.C.D).
+# 2. The first line of version.ignore in the source root.
+# 3. The date of the last commit, or the current time if the tree has uncommitted changes.
+# 4. The current time.
+#
+# Usable as a script too: 'cmake -P cmake/version.cmake' prints the version to stdout.
+################################################################################
+
+set(_BLITZLLVM_VERSION_ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
+
+# Get the UTC date of the last commit as "Y;M;D;h;m;s", or FALSE if git or the repository is unavailable.
+function(blitzllvm_git_date RESULT)
+	set(${RESULT} FALSE PARENT_SCOPE)
+
+	find_program(GIT NAMES git git.exe)
+	if((NOT GIT) OR (NOT EXISTS "${GIT}"))
+		return()
+	endif()
+
+	# Check if this is even a git repository and abort if it isn't.
+	execute_process(
+		COMMAND "${GIT}" rev-parse --git-dir
+		WORKING_DIRECTORY "${_BLITZLLVM_VERSION_ROOT}"
+		RESULT_VARIABLE GIT_RESULT
+		OUTPUT_QUIET
+		ERROR_QUIET
+	)
+	if(NOT GIT_RESULT EQUAL 0)
+		return()
+	endif()
+
+	# Check if there are dirty files in the tree.
+	execute_process(
+		COMMAND "${GIT}" diff-index --quiet HEAD --
+		WORKING_DIRECTORY "${_BLITZLLVM_VERSION_ROOT}"
+		RESULT_VARIABLE GIT_RESULT
+		OUTPUT_QUIET
+		ERROR_QUIET
+	)
+	if(NOT GIT_RESULT EQUAL 0)
+		# The tree is dirty, so take the current time instead.
+		string(TIMESTAMP _DATE "%Y;%m;%d;%H;%M;%S" UTC)
+		set(${RESULT} "${_DATE}" PARENT_SCOPE)
+		return()
+	endif()
+
+	# Get the commit date in UTC. 'format-local' is required for TZ to apply, 'format' would use the committer's time zone
+	# instead, which would disagree with the UTC timestamps used for dirty trees.
+	set(ENV{TZ} "UTC0")
+	execute_process(
+		COMMAND "${GIT}" log -1 "--format=%cd" "--date=format-local:%Y;%m;%d;%H;%M;%S"
+		WORKING_DIRECTORY "${_BLITZLLVM_VERSION_ROOT}"
+		RESULT_VARIABLE GIT_RESULT
+		OUTPUT_VARIABLE GIT_OUTPUT
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		ERROR_QUIET
+	)
+	if(GIT_RESULT EQUAL 0)
+		set(${RESULT} "${GIT_OUTPUT}" PARENT_SCOPE)
+	endif()
+endfunction()
+
+# Turn a "Y;M;D;h;m;s" timestamp into "Y.M.D.TWEAK".
+function(blitzllvm_timestamp_version RESULT TIMESTAMP)
+	# Strip leading zeros, but keep at least one digit. A plain "^0" would turn "00" into "", as CMake applies "^" again
+	# after each replacement.
+	list(TRANSFORM TIMESTAMP REPLACE "^0+([0-9])" "\\1")
+	list(GET TIMESTAMP 0 _YEAR)
+	list(GET TIMESTAMP 1 _MONTH)
+	list(GET TIMESTAMP 2 _DAY)
+	list(GET TIMESTAMP 3 _HOUR)
+	list(GET TIMESTAMP 4 _MINUTE)
+	list(GET TIMESTAMP 5 _SECOND)
+	math(EXPR _TWEAK "((${_HOUR} * 60 + ${_MINUTE}) * 60 + ${_SECOND}) / 2" OUTPUT_FORMAT DECIMAL)
+	set(${RESULT} "${_YEAR}.${_MONTH}.${_DAY}.${_TWEAK}" PARENT_SCOPE)
+endfunction()
+
+# Allow developers to manually override the version for out-of-repository builds.
+set(BlitzLLVM_VERSION "" CACHE STRING "Version of BlitzLLVM (format: A.B.C.D). Leave empty to derive it from the commit date.")
+set(_VERSION "${BlitzLLVM_VERSION}")
+if((_VERSION STREQUAL "") AND (EXISTS "${_BLITZLLVM_VERSION_ROOT}/version.ignore"))
+	file(STRINGS "${_BLITZLLVM_VERSION_ROOT}/version.ignore" _VERSION LIMIT_COUNT 1)
+endif()
+if(NOT _VERSION STREQUAL "")
+	if(NOT _VERSION MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$")
+		message(WARNING "Version '${_VERSION}' is not in the format A.B.C.D, using the current time instead.")
+		string(TIMESTAMP _DATE "%Y;%m;%d;%H;%M;%S" UTC)
+		blitzllvm_timestamp_version(_VERSION "${_DATE}")
+	endif()
+else()
+	blitzllvm_git_date(_DATE)
+	if(NOT _DATE)
+		string(TIMESTAMP _DATE "%Y;%m;%d;%H;%M;%S" UTC)
+	endif()
+	blitzllvm_timestamp_version(_VERSION "${_DATE}")
+endif()
+set(BlitzLLVM_VERSION_DETECTED "${_VERSION}")
+unset(_VERSION)
+unset(_DATE)
+
+if(CMAKE_SCRIPT_MODE_FILE STREQUAL CMAKE_CURRENT_LIST_FILE)
+	# message() writes to stderr, so echo instead to keep stdout clean for scripts.
+	execute_process(COMMAND "${CMAKE_COMMAND}" -E echo "${BlitzLLVM_VERSION_DETECTED}")
+endif()

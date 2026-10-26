@@ -9,7 +9,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Determine the version
+        id: version
+        # Computed once from the commit date (see cmake/version.cmake), and handed to every build, so all artifacts of a
+        # run carry the same version.
+        run: |
+          VERSION="$(cmake -P cmake/version.cmake)"
+          echo "Version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: version
     strategy:
       fail-fast: false
       matrix:
@@ -18,6 +34,10 @@ jobs:
           - { name: linux-x64, os: ubuntu-latest }
           - { name: macos-arm64, os: macos-latest }
     runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      # Every file a run produces is named blitzllvm-<version>-<platform>.<extension>.
+      ARTIFACT: blitzllvm-${{ needs.version.outputs.version }}-${{ matrix.name }}
     steps:
       - uses: actions/checkout@v4
       - uses: jwlawson/actions-setup-cmake@v2
@@ -35,9 +55,9 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            cmake -S . -B build -G "Visual Studio 18 2026" -A x64
+            cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DBlitzLLVM_VERSION="$VERSION"
           else
-            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBlitzLLVM_VERSION="$VERSION"
           fi
       - name: Build
         run: cmake --build build --config Release
@@ -48,7 +68,7 @@ jobs:
           cp LICENSE.adoc README.adoc dist/
       - uses: actions/upload-artifact@v4
         with:
-          name: blitzllvm-${{ matrix.name }}
+          name: ${{ env.ARTIFACT }}
           path: dist
       - name: Install packaging tools
         if: runner.os == 'Linux'
@@ -58,34 +78,36 @@ jobs:
       - name: Build packages (Linux)
         if: runner.os == 'Linux'
         run: |
-          VERSION="0.1.0.$(date -u +%Y%m%d)"
           mkdir packages
           # deb and rpm
           for generator in DEB RPM; do
-            (cd build && cpack -G $generator -C Release -D CPACK_COMPONENTS_ALL=system -D CPACK_PACKAGE_VERSION="$VERSION" -B "$PWD/../packages")
+            (cd build && cpack -G $generator -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
           done
           # Arch Linux
           DESTDIR="$PWD/stage" cmake --install build --config Release --component system --prefix /usr
           fpm -s dir -t pacman -n blitzllvm -v "$VERSION" --description "BlitzBasic compiler built on LLVM" \
             --url https://github.com/Xaymar/BlitzLLVM --license BSD-3-Clause --depends clang --depends vulkan-icd-loader \
-            -p "packages/blitzllvm-${VERSION}-1-x86_64.pkg.tar.zst" -C stage usr
+            -p "packages/${ARTIFACT}.pkg.tar.zst" -C stage usr
           rm -rf packages/_CPack_Packages
+          mv packages/*.deb "packages/${ARTIFACT}.deb"
+          mv packages/*.rpm "packages/${ARTIFACT}.rpm"
           ls -l packages
       - name: Build packages (macOS)
         if: runner.os == 'macOS'
         run: |
           mkdir packages
-          (cd build && cpack -G productbuild -C Release -D CPACK_COMPONENTS_ALL=system -D CPACK_PACKAGE_VERSION="0.1.0.$(date -u +%Y%m%d)" -B "$PWD/../packages")
+          (cd build && cpack -G productbuild -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
           rm -rf packages/_CPack_Packages
+          mv packages/*.pkg "packages/${ARTIFACT}.pkg"
           ls -l packages
       - uses: actions/upload-artifact@v4
         if: runner.os != 'Windows'
         with:
-          name: package-${{ matrix.name }}
+          name: ${{ env.ARTIFACT }}-packages
           path: packages
 
   release:
-    needs: build
+    needs: [version, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -97,11 +119,22 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.version.outputs.version }}
         run: |
-          for d in artifacts/blitzllvm-*; do (cd "$d" && zip -r "../$(basename "$d").zip" .); done
+          mkdir release
+          for d in artifacts/*; do
+            case "$d" in
+              # Packages are already named after their version and platform.
+              *-packages) mv "$d"/* release/ ;;
+              *) (cd "$d" && zip -qr "../../release/$(basename "$d").zip" .) ;;
+            esac
+          done
+          ls -l release
           gh release delete nightly --yes || true
           # The tag points at a commit with no files, so it can never collide with real history.
           git init -q
           git -c user.name=github-actions -c user.email=actions@github.com commit -q --allow-empty -m "Nightly ${GITHUB_SHA}"
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git" HEAD:refs/tags/nightly
-          gh release create nightly artifacts/*.zip artifacts/package-*/* --prerelease --verify-tag             --title "Nightly (${GITHUB_SHA::7})"             --notes "Automated build of ${GITHUB_SHA}"
+          gh release create nightly release/* --prerelease --verify-tag \
+            --title "Nightly ${VERSION} (${GITHUB_SHA::7})" \
+            --notes "Automated build of ${GITHUB_SHA}, version ${VERSION}."

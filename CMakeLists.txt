@@ -37,9 +37,12 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ################################################################################
 
 # Metadata
+include("version")
 project(
 	${PROJECT_NAME}
+	VERSION "${BlitzLLVM_VERSION_DETECTED}"
 )
+message(STATUS "Version ${PROJECT_VERSION}")
 set(PROJECT_IDENTIFER "com.xaymar.blitzllvm")
 set(PROJECT_TITLE "BlitzLLVM")
 set(PROJECT_AUTHORS "Xaymar <info@xaymar.com>") # ToDo: Generate from AUTHORS
@@ -118,7 +121,7 @@ set(CPACK_PACKAGE_VENDOR "Xaymar")
 set(CPACK_PACKAGE_CONTACT "Xaymar <info@xaymar.com>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "BlitzBasic compiler built on LLVM")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/Xaymar/BlitzLLVM")
-set(CPACK_PACKAGE_VERSION "0.1.0" CACHE STRING "Version of the packages")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.adoc" "${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt" COPYONLY)
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_BINARY_DIR}/LICENSE.txt")
 set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)
