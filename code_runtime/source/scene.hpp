@@ -67,6 +67,7 @@ namespace bb {
 		float   nx, ny, nz;
 		float   u, v;
 		uint8_t r, g, b, a;
+		float   u2, v2; // The second set of texture coordinates, for textures that ask for it.
 	};
 
 	// What a brush says about how something looks, and what a surface remembers of the brush it was painted with.

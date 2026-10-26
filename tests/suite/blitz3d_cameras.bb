@@ -90,6 +90,17 @@ CheckFalse "EntityInView for a mesh to the side", EntityInView(big, camera)
 FreeEntity big
 FreeEntity thing
 
+; The box around the mesh decides, and not the sphere around that: its corner can be empty.
+view = CreateCamera()
+edge = CreateCube()
+ScaleEntity edge, 10, 10, 10
+PositionEntity edge, -43, 0, 20
+CheckFalse "EntityInView for a box outside of the view", EntityInView(edge, view)
+PositionEntity edge, -38, 0, 20
+CheckTrue "EntityInView for a box reaching into the view", EntityInView(edge, view)
+FreeEntity edge
+FreeEntity view
+
 ; Clearing and fog are what is told to the camera, which is seen in graphics_pixels... in blitz3d_pixels.bb.
 CameraClsColor camera, 10, 20, 30
 CameraClsMode camera, True, False

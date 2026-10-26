@@ -78,6 +78,12 @@ Check "VertexColor without alpha", VertexAlpha(surface, v1), 1
 VertexTexCoords surface, v0, 0.25, 0.75
 Check "VertexTexCoords u", VertexU(surface, v0), 0.25
 Check "VertexTexCoords v", VertexV(surface, v0), 0.75
+; There is a second set, which AddVertex gives the same coordinates as the first and is changed on its own.
+Check "VertexU of the second set is from AddVertex", VertexU(surface, v0, 1), 0
+VertexTexCoords surface, v0, 0.5, 0.125, 1, 1
+Check "VertexU of the second set", VertexU(surface, v0, 1), 0.5
+Check "VertexV of the second set", VertexV(surface, v0, 1), 0.125
+Check "The first set does not change", VertexU(surface, v0, 0), 0.25
 
 ; Normals are made from the triangles. This one faces away from the side that clockwise triangles are seen from.
 UpdateNormals mesh

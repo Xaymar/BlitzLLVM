@@ -131,6 +131,8 @@ namespace {
 		v.nz = n[2];
 		v.u  = b.v[3];
 		v.v  = b.v[4];
+		v.u2 = b.v[5]; // Where the lightmap is.
+		v.v2 = b.v[6];
 		v.r  = uint8_t(b.v[10] + 0.5f);
 		v.g  = uint8_t(b.v[11] + 0.5f);
 		v.b  = uint8_t(b.v[12] + 0.5f);

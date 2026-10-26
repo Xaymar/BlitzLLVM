@@ -220,5 +220,77 @@ Check "The rest of a masked texture", G(90, 60), 255, 3
 FreeEntity cube
 FreeTexture masked
 
+; Textures that ask for the second set of coordinates (flag 65536) use it instead of the first.
+Function HalvesTexture(flags)
+	texture = CreateTexture(4, 4, flags)
+	SetBuffer TextureBuffer(texture)
+	Color 0, 0, 0
+	Rect 0, 0, 4, 4, True
+	Color 0, 255, 0
+	Rect 2, 0, 2, 4, True
+	SetBuffer BackBuffer()
+	Return texture
+End Function
+quad = CreateMesh()
+face = CreateSurface(quad)
+For i = 0 To 3
+	AddVertex face, -1 + (i Mod 2) * 2, -1 + (i / 2) * 2, 0
+	VertexTexCoords face, i, 0.25, 0.5, 1, 0
+	VertexTexCoords face, i, 0.75, 0.5, 1, 1
+Next
+AddTriangle face, 0, 3, 1
+AddTriangle face, 0, 2, 3
+EntityFX quad, 1
+plain = HalvesTexture(1)
+second = HalvesTexture(1 + 65536)
+EntityTexture quad, plain
+RenderWorld
+Check "The first set of coordinates", G(80, 60), 0, 3
+EntityTexture quad, second
+RenderWorld
+Check "The second set of coordinates", G(80, 60), 255, 3
+FreeEntity quad
+FreeTexture plain
+FreeTexture second
+
+; A mirror shows the world again as seen from the other side of its ground, below it when the thing is above.
+PositionEntity camera, 0, 0, -10
+cube = CreateCube()
+EntityFX cube, 1
+EntityColor cube, 255, 0, 0
+RenderWorld
+Check "The cube", R(80, 60), 255, 3
+Check "There is nothing below the cube without a mirror", R(80, 84), 10, 3
+mirror = CreateMirror()
+PositionEntity mirror, 0, -1.5, 0
+RenderWorld
+Check "The cube is still where it was", R(80, 60), 255, 3
+Check "The mirror shows the cube again below", R(80, 84), 255, 3
+Check "The mirror does not show it above", R(80, 36), 10, 3
+HideEntity mirror
+RenderWorld
+Check "A hidden mirror shows nothing", R(80, 84), 10, 3
+FreeEntity mirror
+FreeEntity cube
+
+; What a mirror shows has its triangles the right way around, so one that can only be seen from the front still is.
+tri = CreateMesh()
+face = CreateSurface(tri)
+v0 = AddVertex(face, -1, -1, 0)
+v1 = AddVertex(face, 1, -1, 0)
+v2 = AddVertex(face, 0, 1, 0)
+AddTriangle face, v0, v2, v1
+EntityFX tri, 1
+EntityColor tri, 255, 0, 0
+RenderWorld
+Check "A triangle that faces the camera", R(80, 60), 255, 3
+Check "Nothing is below it", R(80, 80), 10, 3
+mirror = CreateMirror()
+PositionEntity mirror, 0, -1.5, 0
+RenderWorld
+Check "The mirror shows the triangle from the front", R(80, 80), 255, 3
+FreeEntity mirror
+FreeEntity tri
+
 EndGraphics
 Done "blitz3d_lighting_pixels"
