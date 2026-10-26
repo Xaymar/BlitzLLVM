@@ -88,10 +88,6 @@ Switches extra effects on or off with a sum of flags: 1 full-bright (no lighting
 | `brush` | Int | required | The brush. |
 | `fx` | Int | required | Sum of the flags above. |
 
-**Differences and known gaps:**
-
-* Full -bright (1) and double-sided (16) work. Flat shading (4) and fog disabling (8) are stored but do not change the picture. Vertex colors are always used when a mesh has them, with or without flag 2.
-
 ### BrushShininess
 
 ```blitzbasic
@@ -241,11 +237,11 @@ Returns the texture on one layer of the brush, or 0 if there is none. Combine it
 | `brush` | Int | required | The brush. |
 | `index` | Int | `0` | Layer number, 0 to 7. Defaults to 0. |
 
-**Returns:** A texture handle, or 0.
+**Returns:** A new handle for the texture of that layer, or 0. Free it separately when you no longer need it; the brush keeps its texture.
 
 **Differences and known gaps:**
 
-* The original makes a new texture handle that you have to free. Here you get the handle of the very texture that is on the brush, so do not call FreeTexture on it unless you want it gone for everything that uses it.
+* A layer without a texture gives 0. The original hands out a handle to an empty texture instead.
 
 ### GetEntityBrush
 

@@ -61,15 +61,14 @@ WaitKey
 @param frames  Number of animation frames. Defaults to 1.
 @returns A texture handle.
 @gap Only flags 2, 4, 16 and 32 change how the texture looks. Mipmapping (8), environment maps (64 and 128), video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering and no mipmaps.
-@gap The frames argument is accepted, but the texture always has a single frame.
 @gap The alpha (2) and masked (4) flags are only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, including where you drew black.
 
 ## FreeTexture
-Releases a texture and its memory. In the original, entities that were already painted with the texture keep showing it; only the handle becomes unusable. Do not use the handle itself after freeing it.
+Releases a texture and its memory. Entities and brushes that were already painted with the texture keep showing it; only the handle becomes unusable, and the image goes away once nothing uses it any more. Do not use the handle itself after freeing it.
 
 Textures are also freed by [ClearWorld](Blitz3D-World#clearworld) and when the program ends, but freeing the ones you no longer need keeps memory use down.
 @param texture  The texture to free.
-@gap After FreeTexture the image is really gone: entities and brushes that used the texture are drawn plain white instead of keeping it. Free a texture only when nothing uses it any more.
+@gap [ActiveTextures](Blitz3D-World#activetextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
 
 ## LoadAnimTexture
 Loads one picture that holds several frames laid out left to right, top to bottom, and returns a texture that can show any of them. Choose the frame to show with the frame argument of [EntityTexture](Blitz3D-Entities#entitytexture), [BrushTexture](Blitz3D-Brushes#brushtexture) or [TextureBuffer](Blitz3D-Textures#texturebuffer). The flags are the same as for [CreateTexture](Blitz3D-Textures#createtexture).
@@ -120,7 +119,6 @@ Next
 @param first_frame  Cell of the sheet that is frame 0.
 @param frame_count  How many frames the texture has.
 @returns A texture handle, or 0 if the file could not be loaded.
-@gap Frame sizes or counts that do not fit into the picture stop the program with a runtime error here. The original does not check this and only returns 0 when the file cannot be loaded.
 @gap TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
 
 ## LoadTexture
@@ -164,7 +162,6 @@ WaitKey
 @param file   Picture file to load.
 @param flags  Sum of the texture flags, see CreateTexture. Defaults to 1.
 @returns A texture handle, or 0 if the file could not be loaded.
-@gap The built-in default filter of the original, `TextureFilter "", 1 + 8`, is not installed, so loaded textures only have the flags you pass or that a filter you added contributes.
 @gap Mipmapping, environment map, video memory, high color and point sampling flags are stored but have no effect, see CreateTexture.
 
 ## PositionTexture
@@ -322,8 +319,7 @@ Returns a buffer handle for the texture so that the normal 2D drawing commands c
 Remember to set the buffer back to [BackBuffer](BlitzBasic-Buffers-and-Pixels#backbuffer) before you render the world or flip.
 @param texture  The texture.
 @param frame    Frame of an animated texture. Defaults to 0.
-@returns A buffer handle for SetBuffer, SaveBuffer, CopyRect and the pixel commands.
-@gap The frame argument is ignored. The buffer always covers the whole texture, which for a LoadAnimTexture sheet means all frames together.
+@returns A buffer handle for SetBuffer, SaveBuffer, CopyRect and the pixel commands. Every frame has its own buffer; a frame that the texture does not have gives 0.
 
 ## TextureCoords
 Chooses which set of texture coordinates of the mesh the texture reads: 0 for the first set, 1 for the second.
@@ -332,16 +328,14 @@ Chooses which set of texture coordinates of the mesh the texture reads: 0 for th
 @gap Meshes only have a single set of texture coordinates here. The call checks the texture and otherwise has no effect.
 
 ## TextureFilter
-Adds a rule: every texture loaded afterwards whose file name contains the given text gets the extra flags. The test ignores upper and lower case, an empty text matches every file, and the rules add up, so a file that matches several rules gets all of their flags. The rules are only applied by [LoadTexture](Blitz3D-Textures#loadtexture), [LoadAnimTexture](Blitz3D-Textures#loadanimtexture), brushes and mesh loading, and they do not change textures that already exist. [ClearTextureFilters](Blitz3D-Textures#cleartexturefilters) removes them all.
+Adds a rule: every texture loaded afterwards whose file name contains the given text gets the extra flags. The test ignores upper and lower case, an empty text matches every file, and the rules add up, so a file that matches several rules gets all of their flags. The rules are only applied by [LoadTexture](Blitz3D-Textures#loadtexture), [LoadAnimTexture](Blitz3D-Textures#loadanimtexture), brushes and mesh loading, and they do not change textures that already exist. [ClearTextureFilters](Blitz3D-Textures#cleartexturefilters) removes them all. At the start, and again every time a graphics mode is opened with Graphics or Graphics3D, there is one rule that matches every file and adds the flags 1 + 8 (color and mipmaps), and it replaces the rules you added before.
 
 This is mostly useful when loading a mesh, since you do not choose the flags of the textures it pulls in. A rule such as `TextureFilter "_alpha", 1 + 2` makes every file with `_alpha` in its name an alpha texture.
 @param match_text  Text to look for in the file name.
 @param flags       Flags to add to a matching texture, see CreateTexture.
-@gap The original starts with the rule `TextureFilter "", 1 + 8`. That rule is not present here.
 
 ## ClearTextureFilters
 Removes every rule that was added with [TextureFilter](Blitz3D-Textures#texturefilter). Textures loaded after this call only get the flags you pass.
-@gap Because the default rule is not installed here, there is nothing to restore after a graphics mode change, as the original does.
 
 ## TextureHeight
 @returns The height of the texture in pixels, as it was created or loaded. For a texture made with LoadAnimTexture it is the height of one frame. Returns 0 for a handle that does not exist.
@@ -350,8 +344,8 @@ Removes every rule that was added with [TextureFilter](Blitz3D-Textures#texturef
 ## TextureName
 Tells you which file the texture was loaded from, which is handy after loading a mesh that brings its own textures. Textures made with CreateTexture have no file and give an empty string.
 @param texture  The texture.
-@returns The file name, as it was given when the texture was loaded.
-@gap The original returns the absolute path of the file. Here the name comes back exactly as it was passed to LoadTexture.
+@returns The full path of the file, without any `.` or `..` parts.
+@gap The original turns the path into lower case. The case is kept here, since file names matter on Linux.
 
 ## TextureWidth
 @returns The width of the texture in pixels, as it was created or loaded. For a texture made with LoadAnimTexture it is the width of one frame. Returns 0 for a handle that does not exist.
