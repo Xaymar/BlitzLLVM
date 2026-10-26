@@ -30,7 +30,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 add_dependencies(${PROJECT_NAME} blitzrt)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/"
 )
 
 get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
