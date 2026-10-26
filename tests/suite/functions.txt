@@ -52,8 +52,8 @@ brushcolor	blitz3d	done	BrushColor%brush#red#green#blue
 brushfx	blitz3d	done	BrushFX%brush%fx
 brushshininess	blitz3d	done	BrushShininess%brush#shininess
 brushtexture	blitz3d	done	BrushTexture%brush%texture%frame=0%index=0
-bspambientlight	blitz3d	pending	BSPAmbientLight%bsp#red#green#blue
-bsplighting	blitz3d	pending	BSPLighting%bsp%use_lightmaps
+bspambientlight	blitz3d	done	BSPAmbientLight%bsp#red#green#blue
+bsplighting	blitz3d	done	BSPLighting%bsp%use_lightmaps
 cameraclscolor	blitz3d	done	CameraClsColor%camera#red#green#blue
 cameraclsmode	blitz3d	done	CameraClsMode%camera%cls_color%cls_zbuffer
 camerafogcolor	blitz3d	done	CameraFogColor%camera#red#green#blue
@@ -164,7 +164,7 @@ loadanimmesh	blitz3d	done	%LoadAnimMesh$file%parent=0
 loadanimseq	blitz3d	done	%LoadAnimSeq%entity$file
 loadanimtexture	blitz3d	done	%LoadAnimTexture$file%flags%width%height%first%count
 loadbrush	blitz3d	done	%LoadBrush$file%texture_flags=1#u_scale=1#v_scale=1
-loadbsp	blitz3d	pending	%LoadBSP$file#gamma_adj=0%parent=0
+loadbsp	blitz3d	done	%LoadBSP$file#gamma_adj=0%parent=0
 loadermatrix	blitz3d	done	LoaderMatrix$file_ext#xx#xy#xz#yx#yy#yz#zx#zy#zz
 loadmd2	blitz3d	done	%LoadMD2$file%parent=0
 loadmesh	blitz3d	done	%LoadMesh$file%parent=0

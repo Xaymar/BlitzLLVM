@@ -140,6 +140,7 @@ target_sources(blitzrt PRIVATE
 	"source/scene_terrain.cpp"
 	"source/animation.cpp"
 	"source/md2.cpp"
+	"source/bsp.cpp"
 	"source/collision.cpp"
 	"source/scene.hpp"
 	"source/font8x8.inc"
