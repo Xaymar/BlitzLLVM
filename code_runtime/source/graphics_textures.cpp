@@ -450,8 +450,9 @@ const char* bb_texture_name(int32_t handle)
 // Which set of texture coordinates the texture uses. There is only one set.
 void bb_texture_coords(int32_t handle, int32_t coords)
 {
-	(void)coords;
-	need_texture(handle, "TextureCoords");
+	// Like flag 65536 of LoadTexture, a 1 makes the texture read the second set of coordinates.
+	texture_entry* t = need_texture(handle, "TextureCoords");
+	t->flags         = coords ? (t->flags | 0x10000) : (t->flags & ~0x10000);
 }
 
 // Cube maps are not supported, the mode is accepted so programs that set it still run.

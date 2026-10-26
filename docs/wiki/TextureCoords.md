@@ -21,7 +21,7 @@ Chooses which set of texture coordinates of the mesh the texture reads: 0 for th
 
 **Differences and known gaps:**
 
-* The call checks the texture and otherwise has no effect. Only the flag 65536 makes a texture read the second set of coordinates, the call does not change that.
+* Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
 
 ## Related commands
 

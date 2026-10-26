@@ -248,6 +248,13 @@ Check "The first set of coordinates", G(80, 60), 0, 3
 EntityTexture quad, second
 RenderWorld
 Check "The second set of coordinates", G(80, 60), 255, 3
+TextureCoords second, 0
+RenderWorld
+Check "TextureCoords 0 goes back to the first set", G(80, 60), 0, 3
+TextureCoords plain, 1
+EntityTexture quad, plain
+RenderWorld
+Check "TextureCoords 1 switches to the second set", G(80, 60), 255, 3
 FreeEntity quad
 FreeTexture plain
 FreeTexture second
