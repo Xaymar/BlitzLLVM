@@ -239,7 +239,7 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 		VkDeviceSize size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
 		if (size > scratch_size) {
 			flush(); // What was recorded may use the old one.
-			vkDeviceWaitIdle(g.device);
+			gpu_idle();
 			if (scratch) {
 				vkDestroyBuffer(g.device, scratch, nullptr);
 				vkFreeMemory(g.device, scratch_memory, nullptr);

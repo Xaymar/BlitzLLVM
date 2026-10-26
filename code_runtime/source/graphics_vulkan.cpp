@@ -526,7 +526,7 @@ namespace bb::gfx {
 		VkSampler sampler = image.sampler;
 		uint32_t  width = image.width, height = image.height;
 		bool      mipmaps = image.mips > 1; // Only the first level was read, the others are made from it.
-		vkDeviceWaitIdle(g.device);
+		gpu_idle();
 		destroy_image(image);
 		upload_pixels(image, width, height, pixels, mipmaps);
 		free(pixels);
@@ -660,7 +660,7 @@ namespace bb::gfx {
 	void destroy_swapchain()
 	{
 
-		vkDeviceWaitIdle(g.device);
+		gpu_idle();
 		for (uint32_t i = 0; i < g.swap_count; i++) {
 			vkDestroySemaphore(g.device, g.swap_done[i], nullptr);
 		}
@@ -867,6 +867,9 @@ namespace bb::gfx {
 		void* mapped;
 		check(vkMapMemory(g.device, g.vertex_memory, 0, VK_WHOLE_SIZE, 0, &mapped), "vkMapMemory");
 		g.vertices = static_cast<vertex*>(mapped);
+		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.vertex_buffer_alt, g.vertex_memory_alt);
+		check(vkMapMemory(g.device, g.vertex_memory_alt, 0, VK_WHOLE_SIZE, 0, &mapped), "vkMapMemory");
+		g.vertices_alt = static_cast<vertex*>(mapped);
 
 		create_3d();
 	}

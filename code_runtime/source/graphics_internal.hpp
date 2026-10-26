@@ -256,6 +256,9 @@ namespace bb::gfx {
 		VkBuffer       vertex_buffer = VK_NULL_HANDLE;
 		VkDeviceMemory vertex_memory = VK_NULL_HANDLE;
 		vertex*        vertices      = nullptr;
+		VkBuffer       vertex_buffer_alt = VK_NULL_HANDLE; // The other of two, one is written while the other is read by the GPU.
+		VkDeviceMemory vertex_memory_alt = VK_NULL_HANDLE;
+		vertex*        vertices_alt      = nullptr;
 		uint32_t       vertex_count  = 0;
 		bool           front_touched = false; // Something was drawn to the front buffer, which has to be shown.
 
@@ -590,6 +593,10 @@ namespace bb::gfx {
 	void destroy_swapchain();
 	void create_vulkan();
 	void empty_graveyard();
+	void wait_commands();
+	void wait_gpu();
+	void gpu_idle();
+	void stop_gpu_thread();
 	void begin_commands();
 	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE);
 	void barrier(VkImage img, VkImageLayout from, VkImageLayout to, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT);

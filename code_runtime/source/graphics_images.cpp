@@ -468,7 +468,7 @@ void bb_resize_image(int32_t handle, float new_width, float new_height)
 		submit_commands();
 
 
-		vkDeviceWaitIdle(g.device);
+		gpu_idle();
 		destroy_image(e->image);
 		e->image = target;
 		VkDescriptorImageInfo image_info = { g.sampler, e->image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
@@ -827,7 +827,7 @@ void bb_tform_image(int32_t handle, float a, float b, float c, float d)
 	free(old);
 
 	if (active() && e->set) {
-		vkDeviceWaitIdle(g.device);
+		gpu_idle();
 		vkFreeDescriptorSets(g.device, g.set_pool, 1, &e->set);
 		destroy_image(e->image);
 		upload_texture(e->image, e->set, uint32_t(sheet_w), uint32_t(ih), out, g.sampler);

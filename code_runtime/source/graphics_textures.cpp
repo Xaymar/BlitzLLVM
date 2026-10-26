@@ -67,7 +67,7 @@ namespace bb::gfx {
 	{
 		if (g.device && e.set) {
 			flush(); // What was asked to be drawn with it comes first.
-			vkDeviceWaitIdle(g.device);
+			gpu_idle();
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &e.set);
 			destroy_image(e.image);
 		}
@@ -79,7 +79,7 @@ namespace bb::gfx {
 	{
 		if (g.device && t.set) {
 			flush(); // What was asked to be drawn with it comes first.
-			vkDeviceWaitIdle(g.device);
+			gpu_idle();
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
 			destroy_image(t.image);
 		}
