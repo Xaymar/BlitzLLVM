@@ -86,6 +86,12 @@ void blitz::compiler::gen_statement_inner(ast::statement const* node)
 			throw err(node->where, "Exit can only be used inside of a loop.");
 		}
 		emit_terminator("br label %" + _exits.back());
+	} else if (dynamic_cast<ast::stop_statement const*>(node)) {
+		// Stop is for the debugger: a debug build breaks here, any other build carries on.
+		if (debug) {
+			declare("llvm.debugtrap", "declare void @llvm.debugtrap()");
+			emit("call void @llvm.debugtrap()");
+		}
 	} else if (dynamic_cast<ast::end_statement const*>(node)) {
 		call_runtime("bb_end", type::UNKNOWN, {});
 		emit_terminator("unreachable");

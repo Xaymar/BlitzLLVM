@@ -293,6 +293,7 @@ namespace blitz {
 
 		/** `End`, terminates the program. */
 		struct end_statement : public statement {};
+		struct stop_statement : public statement {};
 
 		struct return_statement : public statement {
 			expression_ptr value; // Optional

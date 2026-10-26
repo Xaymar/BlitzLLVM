@@ -27,6 +27,21 @@ CheckTrue "CommandLine$ is a string", Len(command) >= 0
 ; Some of the properties of the system are paths.
 CheckTrue "SystemProperty$ tempdir", Len(SystemProperty$("tempdir")) > 0
 CheckTrue "SystemProperty$ appdir", Len(SystemProperty$("appdir")) > 0
+CheckTrue "SystemProperty$ windowsdir", Len(SystemProperty$("windowsdir")) > 0
+CheckTrue "SystemProperty$ systemdir", Len(SystemProperty$("systemdir")) > 0
+
+; appdir is where the program is, not where it was started from, and ends with a separator.
+appdir$ = SystemProperty$("appdir")
+CheckTrue "appdir ends with a separator", Right$(appdir, 1) = "/" Or Right$(appdir, 1) = "\"
+program$ = GetEnv$("BLITZ_SUITE_PROGRAM")
+If Len(program) > 0
+	; The test is started from tests/suite, the program is in the build folder.
+	slash = 0
+	For i = 1 To Len(program)
+		If Mid$(program, i, 1) = "/" Or Mid$(program, i, 1) = "\" Then slash = i
+	Next
+	CheckS "appdir is the folder of the program", Lower$(appdir), Lower$(Left$(program, slash))
+EndIf
 CheckS "SystemProperty$ unknown", SystemProperty$("this property does not exist"), ""
 
 ; Environment variables
@@ -39,6 +54,10 @@ CheckTrue "GetEnv$ of what the system has", Len(GetEnv$("PATH")) > 0
 
 ; ExecFile starts a program and tells whether that worked.
 CheckFalse "ExecFile of something that is not there", ExecFile("suite_does_not_exist.exe")
+
+; Stop does nothing in a build that is not a debug build.
+Stop
+suite_checks = suite_checks + 1
 
 ; These do not give anything back, so all that can be checked is that they work.
 AppTitle "BlitzLLVM suite"
