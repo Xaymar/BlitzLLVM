@@ -320,6 +320,12 @@ int main(int argc, char** argv)
 			}
 		} else {
 			command.push_back("-lm");
+			// The runtime is partly C++, which the C driver does not link the library of.
+#ifdef __APPLE__
+			command.push_back("-lc++");
+#else
+			command.push_back("-lstdc++");
+#endif
 		}
 
 		int result = run(command, opt.verbose);
