@@ -4044,30 +4044,8 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 	float center[3] = { 0, 0, 0 }, radius = 0;
 	if (e->kind == bb::MESH) {
 		bb::update_terrain(*e);
-		float lo[3] = { 1e30f, 1e30f, 1e30f }, hi[3] = { -1e30f, -1e30f, -1e30f };
-		for (uint32_t i = 0; i < e->surfaces.size; i++) {
-			bb::surface& surface = *e->surfaces[i];
-			if (!surface.bound_valid) {
-				float slo[3] = { 1e30f, 1e30f, 1e30f }, shi[3] = { -1e30f, -1e30f, -1e30f };
-				for (uint32_t v = 0; v < surface.vertices.size; v++) {
-					const bb::vertex3d& vert = surface.vertices[v];
-					const float         c[3] = { vert.x, vert.y, vert.z };
-					for (int k = 0; k < 3; k++) {
-						slo[k] = c[k] < slo[k] ? c[k] : slo[k];
-						shi[k] = c[k] > shi[k] ? c[k] : shi[k];
-					}
-				}
-				memcpy(surface.bound_min, slo, sizeof(slo));
-				memcpy(surface.bound_max, shi, sizeof(shi));
-				surface.bound_valid = true;
-			}
-			if (surface.vertices.size) {
-				for (int k = 0; k < 3; k++) {
-					lo[k] = surface.bound_min[k] < lo[k] ? surface.bound_min[k] : lo[k];
-					hi[k] = surface.bound_max[k] > hi[k] ? surface.bound_max[k] : hi[k];
-				}
-			}
-		}
+		float lo[3], hi[3];
+		bb::mesh_bounds(*e, lo, hi);
 		if (lo[0] <= hi[0]) {
 			for (int k = 0; k < 3; k++) {
 				center[k] = (lo[k] + hi[k]) * 0.5f;

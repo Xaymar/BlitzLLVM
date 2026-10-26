@@ -770,6 +770,40 @@ float bb_entity_roll(int32_t handle, int32_t global) { return entity_angle(handl
 
 void bb_hide_entity(int32_t handle) { need(handle, "HideEntity")->hidden = true; }
 extern "C++" {
+bool bb::mesh_bounds(entity& e, float* lo, float* hi)
+{
+	lo[0] = lo[1] = lo[2] = 1e30f;
+	hi[0] = hi[1] = hi[2] = -1e30f;
+	bool any = false;
+	for (uint32_t i = 0; i < e.surfaces.size; i++) {
+		surface& s = *e.surfaces[i];
+		if (s.vertices.size == 0) {
+			continue;
+		}
+		// The box of a surface is kept until it changes, which is when it is marked as dirty.
+		if (s.dirty || !s.bound_valid) {
+			float slo[3] = { 1e30f, 1e30f, 1e30f }, shi[3] = { -1e30f, -1e30f, -1e30f };
+			for (uint32_t v = 0; v < s.vertices.size; v++) {
+				const vertex3d& vert = s.vertices[v];
+				const float     c[3] = { vert.x, vert.y, vert.z };
+				for (int k = 0; k < 3; k++) {
+					slo[k] = c[k] < slo[k] ? c[k] : slo[k];
+					shi[k] = c[k] > shi[k] ? c[k] : shi[k];
+				}
+			}
+			memcpy(s.bound_min, slo, sizeof(slo));
+			memcpy(s.bound_max, shi, sizeof(shi));
+			s.bound_valid = !s.dirty;
+		}
+		for (int k = 0; k < 3; k++) {
+			lo[k] = s.bound_min[k] < lo[k] ? s.bound_min[k] : lo[k];
+			hi[k] = s.bound_max[k] > hi[k] ? s.bound_max[k] : hi[k];
+		}
+		any = true;
+	}
+	return any;
+}
+
 void bb::reset_movement(int handle)
 {
 	entity* e = get_entity(handle);

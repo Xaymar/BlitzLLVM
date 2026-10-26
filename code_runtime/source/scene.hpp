@@ -157,6 +157,8 @@ namespace bb {
 	int          entity_count();
 	entity*      get_entity(int handle);
 	void         world_matrix(int handle, float* out);
+	/** The box around the vertices of the surfaces of an entity, in its own space. False if there are none. */
+	bool         mesh_bounds(entity& e, float* lo, float* hi);
 	/** Makes where an entity is now the place that it moves from for collisions, like ResetEntity. */
 	void         reset_movement(int handle);
 	extern float ambient_light[3];
