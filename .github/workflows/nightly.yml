@@ -66,7 +66,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           for d in artifacts/*; do (cd "$d" && zip -r "../$(basename "$d").zip" .); done
-          gh release delete nightly --cleanup-tag --yes || true
-          gh release create nightly artifacts/*.zip --prerelease --target "$GITHUB_SHA" \
-            --title "Nightly ($(git rev-parse --short "$GITHUB_SHA" 2>/dev/null || echo "${GITHUB_SHA::7}"))" \
-            --notes "Automated build of ${GITHUB_SHA}"
+          gh release delete nightly --yes || true
+          # The tag points at a commit with no files, so it can never collide with real history.
+          git init -q
+          git -c user.name=github-actions -c user.email=actions@github.com commit -q --allow-empty -m "Nightly ${GITHUB_SHA}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git" HEAD:refs/tags/nightly
+          gh release create nightly artifacts/*.zip --prerelease --verify-tag             --title "Nightly (${GITHUB_SHA::7})"             --notes "Automated build of ${GITHUB_SHA}"
