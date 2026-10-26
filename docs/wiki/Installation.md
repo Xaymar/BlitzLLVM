@@ -55,7 +55,8 @@ Useful options:
 ```sh
 blitzcc program.bb              # build and run right away (arguments for the program go after --args)
 blitzcc -o program program.bb  # only build the executable
-blitzcc -O3 -o program program.bb   # optimise
+blitzcc -O2 -o program program.bb   # a lower optimization level (the default is -O3)
+blitzcc --fast-math full -o program program.bb   # also assume that Float math never produces NaN or Infinity (see below)
 blitzcc -S program.bb          # only write the LLVM IR (program.ll)
 blitzcc --target <triple> program.bb   # cross-compile
 blitzcc -q program.bb          # quiet: no version banner and no warnings
@@ -74,3 +75,7 @@ blitzcc -v                     # print the version
 Userlibs work like they do in Blitz3D: a program that calls a function from a `.decls` file loads the library it names when it runs, with `LoadLibrary` (Windows) or `dlopen` (Linux, macOS), and looks the function up with `GetProcAddress` or `dlsym`. The library is loaded on the first call of one of its functions, so it does not have to exist when the program is built. It is looked for in the userlibs directory, next to the program, next to the source file, and then by the system, so `user32.dll` or `libm.so.6` work without being copied anywhere. The name in the `.lib` line is tried as written, and with the extension of the platform (`mylib.dll` finds `libmylib.so` or `libmylib.dylib`), so one `.decls` file works everywhere. If the library or the function can not be found, the program stops with a runtime error when the function is called. The directory is `--userlibs-dir`, then the environment variable `BLITZLLVM_USERLIBS`, then the one of the installation. Functions use the C calling convention; strings are C strings, banks and objects are passed as the address of their memory, and a decorated name (`_Name@8`) falls back to `Name` if the library does not export it as written. Static libraries (`.a`, `.lib`) can not be loaded this way.
 
 `blitzcc --help` lists all of them.
+
+### Optimization
+
+Programs are built with `-O3` and loop unrolling by default; `-d` builds without optimization. Float math is compiled with the LLVM fast-math flags `reassoc nsz arcp contract afn` (`--fast-math safe`, the default), which allows reordering, fused multiply-add and reciprocal math. Results may differ from the original in the last digits. `--fast-math full` also assumes that NaN and Infinity never occur, which makes checks like `x <> x` (is this NaN?) always false, so it is opt-in. `--fast-math off` keeps exact IEEE behavior. The default targets a generic CPU of the architecture; add `--llvm-flag -march=native` for a program that only runs on the machine that built it.

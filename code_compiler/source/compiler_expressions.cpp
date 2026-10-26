@@ -370,7 +370,7 @@ blitz::compiler::value blitz::compiler::gen_unary(ast::unary const* node)
 		return v;
 	case ast::unary::op::NEGATE:
 		if (t::is_real(promoted)) {
-			emit(r + " = fneg " + llvm + " " + v.repr);
+			emit(r + " = fneg " + (fast_math.empty() ? std::string() : fast_math + " ") + llvm + " " + v.repr);
 		} else {
 			emit(r + " = sub " + llvm + " 0, " + v.repr);
 		}
@@ -438,7 +438,7 @@ std::string blitz::compiler::compare(ast::binary::op kind, value lhs, value rhs,
 	auto a = convert(lhs, t, where, false);
 	auto b = convert(rhs, t, where, false);
 	if (blitz::types::is_real(t)) {
-		emit(r + " = fcmp " + pred_f + " " + blitz::types::to_llvm(t) + " " + a.repr + ", " + b.repr);
+		emit(r + " = fcmp " + (fast_math.empty() ? std::string() : fast_math + " ") + pred_f + " " + blitz::types::to_llvm(t) + " " + a.repr + ", " + b.repr);
 	} else {
 		emit(r + " = icmp " + (blitz::types::is_signed(t) ? pred_s : pred_u) + " " + blitz::types::to_llvm(t) + " " + a.repr + ", " + b.repr);
 	}
@@ -477,7 +477,7 @@ blitz::compiler::value blitz::compiler::gen_binary(ast::binary const* node)
 		auto b      = convert(rhs, type::FLOAT64, node->where, false);
 		declare("llvm.pow.f64", "declare double @llvm.pow.f64(double, double)");
 		auto r = tmp();
-		emit(r + " = call double @llvm.pow.f64(double " + a.repr + ", double " + b.repr + ")");
+		emit(r + " = call " + (fast_math.empty() ? std::string() : fast_math + " ") + "double @llvm.pow.f64(double " + a.repr + ", double " + b.repr + ")");
 		return convert({ r, type::FLOAT64 }, result, node->where, false);
 	}
 
@@ -564,6 +564,6 @@ blitz::compiler::value blitz::compiler::gen_binary(ast::binary const* node)
 	}
 
 	auto r = tmp();
-	emit(r + " = " + name + " " + llvm + " " + a.repr + ", " + b.repr);
+	emit(r + " = " + name + (real && !fast_math.empty() ? " " + fast_math : std::string()) + " " + llvm + " " + a.repr + ", " + b.repr);
 	return { r, result };
 }
