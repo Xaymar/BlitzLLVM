@@ -55,7 +55,7 @@ CheckTrue "GetEnv$ of what the system has", Len(GetEnv$("PATH")) > 0
 ; ExecFile starts a program and tells whether that worked.
 CheckFalse "ExecFile of something that is not there", ExecFile("suite_does_not_exist.exe")
 
-; Stop does nothing without a debugger.
+; Stop does nothing in a build that is not a debug build.
 Stop
 suite_checks = suite_checks + 1
 

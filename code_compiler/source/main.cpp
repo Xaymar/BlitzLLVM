@@ -347,6 +347,7 @@ int main(int argc, char** argv)
 			std::cout << "Generating..." << std::endl;
 		}
 		blitz::compiler compiler;
+		compiler.debug = opt.debug;
 		std::string     ir = compiler.generate(*program);
 
 		// Compile only checks the program, like the original, where -o still creates the executable.

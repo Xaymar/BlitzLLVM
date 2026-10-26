@@ -20,7 +20,7 @@ The multiplayer commands (`StartNetGame`, `HostNetGame`, `JoinNetGame`, `StopNet
 
 ## Stop
 
-`Stop` hands over to the debugger in the originals. BlitzLLVM has no debugger, so `Stop` flushes the output, lets the window handle its events and carries on, which is what the originals do in a program that was built without debugging.
+`Stop` is a breakpoint for a debugger. In a debug build (`-d`) it is a breakpoint instruction (`llvm.debugtrap`), which stops in an attached debugger and ends the program with a signal when there is none. In any other build it does nothing.
 
 ## AppTitle
 

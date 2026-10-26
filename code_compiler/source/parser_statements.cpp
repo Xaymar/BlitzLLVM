@@ -232,6 +232,11 @@ void blitz::parser::parse_statement(ast::block& into)
 		node->where = here(first);
 		advance();
 		into.push_back(std::move(node));
+	} else if (word == "stop") {
+		auto node   = std::make_unique<ast::stop_statement>();
+		node->where = here(first);
+		advance();
+		into.push_back(std::move(node));
 	} else if (word == "end") {
 		auto node   = std::make_unique<ast::end_statement>();
 		node->where = here(first);

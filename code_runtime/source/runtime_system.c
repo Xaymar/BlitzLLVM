@@ -141,15 +141,6 @@ int32_t bb_millisecs(void)
 void bb_graphics_idle(void);
 void bb_debug_log(const char* text);
 
-// Stop: the original hands over to its debugger here and does nothing in a program that was built without one, which
-// is every program of BlitzLLVM. Output is flushed and the window gets to handle its events, so that stopping at a
-// line looks the same in either case.
-void bb_stop(void)
-{
-	fflush(stdout);
-	bb_graphics_idle();
-}
-
 void bb_delay(int32_t ms)
 {
 	fflush(stdout);
