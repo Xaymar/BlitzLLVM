@@ -72,6 +72,8 @@ namespace bb::scene {
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" {
 int32_t bb_load_texture(const char* file, int32_t flags);
+int32_t bb_texture_alias(int32_t handle);
+void bb_collect_textures(void);
 void bb_scale_texture(int32_t handle, float u, float v);
 int32_t bb_create_brush(float r, float g, float b);
 void bb_brush_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index);

@@ -30,6 +30,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		bb_end_graphics();
 	}
 
+	bb_reset_texture_filters();
 	g.headless = getenv("BLITZ_HEADLESS") != nullptr;
 	g.width    = uint32_t(width);
 	g.height   = uint32_t(height);
@@ -270,7 +271,7 @@ int32_t bb_active_textures(void)
 {
 	int32_t count = 0;
 	for (uint32_t i = 0; i < texture_table.size; i++) {
-		count += texture_table[i].used ? 1 : 0;
+		count += (texture_table[i].used && !texture_table[i].alias) ? 1 : 0;
 	}
 	return count;
 }
