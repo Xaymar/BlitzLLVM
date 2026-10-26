@@ -130,7 +130,7 @@ if(Python3_FOUND)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -k, +k, -v. Each case is in tests/cli/cli.cmake.
-foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug keywords keywords_syntax keywords_bad_userlib version verbose_long_only help)
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug keywords keywords_syntax keywords_bad_userlib version verbose_long_only run run_exit_code help)
 	add_test(
 		NAME "cli-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}

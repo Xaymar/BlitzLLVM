@@ -40,17 +40,20 @@ Save this as `hello.bb`:
 Print "Hello from BlitzLLVM"
 ```
 
-and compile it:
+and run it (blitzcc builds it in a temporary directory and runs it, like the original), or build an executable:
 
 ```sh
 blitzcc hello.bb
+blitzcc -o hello hello.bb
 ./hello          # hello.exe on Windows
 ```
 
 Useful options:
 
 ```sh
-blitzcc -O3 program.bb         # optimise
+blitzcc program.bb              # build and run right away (arguments for the program go after --args)
+blitzcc -o program program.bb  # only build the executable
+blitzcc -O3 -o program program.bb   # optimise
 blitzcc -S program.bb          # only write the LLVM IR (program.ll)
 blitzcc --target <triple> program.bb   # cross-compile
 blitzcc -q program.bb          # quiet: no version banner
