@@ -484,6 +484,17 @@ int main(int argc, char** argv)
 #else
 		bool grouped = false;
 #endif
+		// Drop what the program does not use: without a window the 3D renderer, the GUI and most of the image decoders are not needed.
+		// The libraries are built with a section per function, which this works on. The linker of Windows does this by itself.
+#if defined(__APPLE__)
+		if (!windows_target) {
+			command.push_back("-Wl,-dead_strip");
+		}
+#else
+		if (!windows_target) {
+			command.push_back("-Wl,--gc-sections");
+		}
+#endif
 		if (grouped) {
 			command.push_back("-Wl,--start-group");
 		}

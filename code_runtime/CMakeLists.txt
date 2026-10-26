@@ -90,6 +90,10 @@ target_include_directories(blitzrt SYSTEM PRIVATE
 	"${SDL3_mixer_INSTALL_PATH}/include"
 	"${VulkanHeaders_INSTALL_PATH}/include"
 )
+if(NOT MSVC AND NOT APPLE)
+	# See dependencies.cmake: programs are linked with --gc-sections, which only drops what is in a section of its own.
+	target_compile_options(blitzrt PRIVATE -ffunction-sections -fdata-sections)
+endif()
 if(MSVC)
 	# No C++ runtime dependencies: the library is linked by clang into programs.
 	target_compile_options(blitzrt PRIVATE /GR- /EHs-c- /Zc:preprocessor)

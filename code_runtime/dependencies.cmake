@@ -49,6 +49,11 @@ endif()
 if(CMAKE_TOOLCHAIN_FILE)
 	list(APPEND _DEPENDENCY_ARGS "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
 endif()
+# A section per function and variable lets the linker of blitzcc drop everything a program does not use (--gc-sections, see main.cpp).
+# MSVC puts functions in their own sections already (/Gy), and Mach-O drops unused symbols without help.
+if(NOT MSVC AND NOT APPLE)
+	list(APPEND _DEPENDENCY_ARGS "-DCMAKE_C_FLAGS=-ffunction-sections -fdata-sections" "-DCMAKE_CXX_FLAGS=-ffunction-sections -fdata-sections")
+endif()
 if(NOT CMAKE_GENERATOR MATCHES "Visual Studio")
 	list(APPEND _DEPENDENCY_ARGS "-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}" "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
 endif()
