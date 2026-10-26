@@ -66,21 +66,28 @@ Check "VertexGreen default", VertexGreen(surface, v0), 255
 Check "VertexBlue default", VertexBlue(surface, v0), 255
 Check "VertexAlpha default", VertexAlpha(surface, v0), 1
 VertexColor surface, v0, 10, 20, 30, 0.5
-Check "VertexColor red", VertexRed(surface, v0), 10
-Check "VertexColor green", VertexGreen(surface, v0), 20
-Check "VertexColor blue", VertexBlue(surface, v0), 30
+Check "VertexColor red", VertexRed(surface, v0), 10, 0.1
+Check "VertexColor green", VertexGreen(surface, v0), 20, 0.1
+Check "VertexColor blue", VertexBlue(surface, v0), 30, 0.1
 Check "VertexColor alpha", VertexAlpha(surface, v0), 0.5, 0.01
 Check "VertexColor is for one vertex", VertexRed(surface, v1), 255
 VertexColor surface, v1, 1, 2, 3
 Check "VertexColor without alpha", VertexAlpha(surface, v1), 1
 VertexColor surface, v1, 12.25, 100.5, 200.75, 0.123
-Check "VertexColor keeps fractions of red", VertexRed(surface, v1), 12.25, 0.001
-Check "VertexColor keeps fractions of green", VertexGreen(surface, v1), 100.5, 0.001
-Check "VertexColor keeps fractions of blue", VertexBlue(surface, v1), 200.75, 0.001
+Check "VertexColor keeps fractions of red", VertexRed(surface, v1), 12.25, 0.02
+Check "VertexColor keeps fractions of green", VertexGreen(surface, v1), 100.5, 0.07
+Check "VertexColor keeps fractions of blue", VertexBlue(surface, v1), 200.75, 0.15
 Check "VertexColor keeps fractions of alpha", VertexAlpha(surface, v1), 0.123, 0.0005
 VertexColor surface, v1, 300, -5, 0.001
 Check "VertexColor clamps above 255", VertexRed(surface, v1), 255
 Check "VertexColor clamps below 0", VertexGreen(surface, v1), 0
+VertexColor surface, v1, 1, 128, 254
+Check "VertexColor keeps single steps of red", VertexRed(surface, v1), 1, 0.01
+Check "VertexColor keeps single steps of green", VertexGreen(surface, v1), 128, 0.1
+Check "VertexColor keeps single steps of blue", VertexBlue(surface, v1), 254, 0.15
+VertexColor surface, v1, 128, 128.5, 129
+Check "VertexColor tells a half step apart", VertexGreen(surface, v1) - VertexRed(surface, v1) > 0.1, 1
+VertexColor surface, v1, 300, -5, 0.001
 Check "VertexColor keeps tiny values", VertexBlue(surface, v1), 0.001, 0.0001
 
 ; Texture coordinates can be changed.
@@ -316,9 +323,9 @@ For v = 0 To CountVertices(surf) - 1
 	VertexColor surf, v, 0, 0, 0
 Next
 LightMesh lit, 50, 100, 150
-Check "LightMesh red", VertexRed(surf, 0), 50
-Check "LightMesh green", VertexGreen(surf, 0), 100
-Check "LightMesh blue", VertexBlue(surf, CountVertices(surf) - 1), 150
+Check "LightMesh red", VertexRed(surf, 0), 50, 0.1
+Check "LightMesh green", VertexGreen(surf, 0), 100, 0.1
+Check "LightMesh blue", VertexBlue(surf, CountVertices(surf) - 1), 150, 0.1
 LightMesh lit, 255, 255, 255
 Check "LightMesh stays within bounds", VertexRed(surf, 0), 255
 lit = CreateCube()

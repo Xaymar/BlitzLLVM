@@ -162,7 +162,7 @@ Check "LoadBSP triangles", CountTriangles(surf), 2 + 128
 Check "LoadBSP turns the axes: x", VertexX(surf, 1), 0
 Check "LoadBSP turns the axes: z", VertexZ(surf, 1), 64
 Check "LoadBSP turns the axes: -y to x", VertexX(surf, 2), -64
-Check "LoadBSP vertex color", VertexGreen(surf, 0), 128
+Check "LoadBSP vertex color", VertexGreen(surf, 0), 128, 0.1
 Check "LoadBSP vertex color blue", VertexBlue(surf, 0), 0
 Check "LoadBSP curved face: first control point", VertexY(surf, 4), 10, 0.01
 Check "LoadBSP curved face: the last", VertexX(surf, 4 + 80), -64, 0.01

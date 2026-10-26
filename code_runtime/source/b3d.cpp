@@ -478,10 +478,10 @@ namespace {
 					out.v = v.uv[1];
 					out.u2 = v.uv2[0];
 					out.v2 = v.uv2[1];
-					out.r = v.color[0];
-					out.g = v.color[1];
-					out.b = v.color[2];
-					out.a = v.color[3];
+					out.r = float_to_half(v.color[0]);
+					out.g = float_to_half(v.color[1]);
+					out.b = float_to_half(v.color[2]);
+					out.a = float_to_half(v.color[3]);
 					remap[original] = int(s->vertices.size);
 					s->vertices.push(out);
 					source.push(original);

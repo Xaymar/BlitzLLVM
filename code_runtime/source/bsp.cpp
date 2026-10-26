@@ -134,10 +134,10 @@ namespace {
 		v.v  = b.v[4];
 		v.u2 = b.v[5]; // Where the lightmap is.
 		v.v2 = b.v[6];
-		v.r  = b.v[10] / 255.0f;
-		v.g  = b.v[11] / 255.0f;
-		v.b  = b.v[12] / 255.0f;
-		v.a  = 1;
+		v.r  = float_to_half(b.v[10] / 255.0f);
+		v.g  = float_to_half(b.v[11] / 255.0f);
+		v.b  = float_to_half(b.v[12] / 255.0f);
+		v.a  = half_one;
 		s.vertices.push(v);
 	}
 
