@@ -21,12 +21,12 @@ namespace {
 		"then",  "to",     "step",   "else",    "elseif", "endif",     "end",    "wend",  "next", "until", "forever", "case",
 		"default", "local", "global", "const",   "if",     "while",     "repeat", "for",   "select", "function", "endfunction", "endselect",
 		"return", "exit",  "include", "dim",    "type",   "and",       "or",     "xor",   "mod",  "shl",   "shr",     "sar",
-		"not",    "dim",    "type",   "endtype", "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
+		"not",    "goto",   "gosub",  "dim",    "type",   "endtype", "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
 	};
 
 	// Things that exist in Blitz, but that we do not (yet) know how to compile.
 	const std::set<std::string> unsupported = {
-		"goto", "gosub", "data", "read", "restore",
+		"data", "read", "restore",
 	};
 } // namespace
 
@@ -252,9 +252,48 @@ void blitz::parser::parse_line(ast::block& into)
 	_depth--;
 }
 
+void blitz::parser::parse_label(ast::block& into)
+{
+	auto dot = tk();
+	advance();
+	auto name = tk();
+	advance();
+	auto node   = std::make_unique<ast::label_statement>();
+	node->where = here(dot);
+	node->name  = name.text;
+	into.push_back(std::move(node));
+}
+
+void blitz::parser::parse_jump(ast::block& into)
+{
+	auto first  = tk();
+	bool gosub  = is_keyword(first, "gosub");
+	advance();
+	auto label = tk();
+	if (label.type != blitz::token::variant::TEXT) {
+		throw error(label, blitz::format("Unexpected %s, expected a label name.", label.to_string().c_str()));
+	}
+	advance();
+	if (gosub) {
+		auto node   = std::make_unique<ast::gosub_statement>();
+		node->where = here(first);
+		node->label = label.text;
+		into.push_back(std::move(node));
+	} else {
+		auto node   = std::make_unique<ast::goto_statement>();
+		node->where = here(first);
+		node->label = label.text;
+		into.push_back(std::move(node));
+	}
+}
+
 void blitz::parser::parse_statement(ast::block& into)
 {
 	auto const& first = tk();
+	if (is_symbol(first, ".") && (tk(1).type == blitz::token::variant::TEXT) && adjacent(first, tk(1))) {
+		parse_label(into);
+		return;
+	}
 	if (first.type != blitz::token::variant::TEXT) {
 		throw error(first, blitz::format("Unexpected %s, expected a statement.", first.to_string().c_str()));
 	}
@@ -280,6 +319,8 @@ void blitz::parser::parse_statement(ast::block& into)
 		parse_type_decl();
 	} else if (word == "dim") {
 		parse_dim(into);
+	} else if ((word == "goto") || (word == "gosub")) {
+		parse_jump(into);
 	} else if (word == "delete") {
 		parse_delete(into);
 	} else if (word == "insert") {

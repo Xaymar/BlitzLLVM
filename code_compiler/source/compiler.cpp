@@ -1090,6 +1090,12 @@ void blitz::compiler::gen_statement(ast::statement const* node)
 		gen_select(n);
 	} else if (auto n = dynamic_cast<ast::return_statement const*>(node)) {
 		gen_return(n);
+	} else if (auto n = dynamic_cast<ast::label_statement const*>(node)) {
+		gen_label(n);
+	} else if (auto n = dynamic_cast<ast::goto_statement const*>(node)) {
+		gen_goto(n);
+	} else if (auto n = dynamic_cast<ast::gosub_statement const*>(node)) {
+		gen_gosub(n);
 	} else if (auto n = dynamic_cast<ast::dim_statement const*>(node)) {
 		gen_dim(n);
 	} else if (auto n = dynamic_cast<ast::delete_statement const*>(node)) {
@@ -1306,8 +1312,13 @@ void blitz::compiler::gen_select(ast::select_statement const* node)
 
 void blitz::compiler::gen_return(ast::return_statement const* node)
 {
+	// Without a value, Return ends a Gosub if there is one to end.
+	if (!node->value && !_gosub_stack.empty()) {
+		gen_gosub_return(node->where);
+		return;
+	}
 	if (_in_main) {
-		throw err(node->where, "Return can only be used inside of a function.");
+		throw err(node->where, "Return can only be used inside of a function, or after a Gosub.");
 	}
 	auto llvm = blitz::types::to_llvm(_return_type);
 	if (node->value) {
@@ -1327,7 +1338,123 @@ void blitz::compiler::begin_function()
 	_allocas.str("");
 	_locals.clear();
 	_exits.clear();
+	_labels.clear();
+	_gosubs.clear();
+	_gosub_stack.clear();
+	_gosub_depth.clear();
 	_terminated = false;
+}
+
+// Finds the labels and Gosubs of a function (or the main program), and sets up what Gosub needs.
+void blitz::compiler::prepare_flow(ast::block const& block)
+{
+	std::function<void(ast::block const&)> walk = [&](ast::block const& statements) {
+		for (auto const& stmt : statements) {
+			if (auto label = dynamic_cast<ast::label_statement const*>(stmt.get())) {
+				if (!_labels.insert(lower(label->name)).second) {
+					throw err(label->where, "Label '" + label->name + "' already exists.");
+				}
+			} else if (auto gosub = dynamic_cast<ast::gosub_statement const*>(stmt.get())) {
+				int id         = int(_gosubs.size());
+				_gosubs[gosub] = id;
+			} else if (auto i = dynamic_cast<ast::if_statement const*>(stmt.get())) {
+				for (auto const& b : i->branches) {
+					walk(b.body);
+				}
+			} else if (auto w = dynamic_cast<ast::while_statement const*>(stmt.get())) {
+				walk(w->body);
+			} else if (auto r = dynamic_cast<ast::repeat_statement const*>(stmt.get())) {
+				walk(r->body);
+			} else if (auto f = dynamic_cast<ast::for_statement const*>(stmt.get())) {
+				walk(f->body);
+			} else if (auto s = dynamic_cast<ast::select_statement const*>(stmt.get())) {
+				for (auto const& c : s->cases) {
+					walk(c.body);
+				}
+			}
+		}
+	};
+	walk(block);
+
+	if (!_gosubs.empty()) {
+		_gosub_stack = "%gosub.stack";
+		_gosub_depth = "%gosub.depth";
+		_allocas << "  " << _gosub_stack << " = alloca [256 x i32]\n";
+		_allocas << "  " << _gosub_depth << " = alloca i32\n";
+		_allocas << "  store i32 0, ptr " << _gosub_depth << "\n";
+	}
+}
+
+void blitz::compiler::gen_label(ast::label_statement const* node)
+{
+	begin_label("lbl." + lower(node->name));
+}
+
+void blitz::compiler::gen_goto(ast::goto_statement const* node)
+{
+	if (!_labels.count(lower(node->label))) {
+		throw err(node->where, "Label '" + node->label + "' does not exist in this function.");
+	}
+	emit_terminator("br label %lbl." + lower(node->label));
+}
+
+void blitz::compiler::gen_gosub(ast::gosub_statement const* node)
+{
+	if (!_labels.count(lower(node->label))) {
+		throw err(node->where, "Label '" + node->label + "' does not exist in this function.");
+	}
+	int id = _gosubs.at(node);
+
+	auto depth = tmp(), full = tmp(), slot = tmp(), next = tmp();
+	auto ok_l = label("gosub.ok"), overflow_l = label("gosub.overflow");
+	emit(depth + " = load i32, ptr " + _gosub_depth);
+	emit(full + " = icmp sge i32 " + depth + ", 256");
+	emit_terminator("br i1 " + full + ", label %" + overflow_l + ", label %" + ok_l);
+	begin_label(overflow_l);
+	call_runtime("bb_runtime_error", type::UNKNOWN, { { string_constant("Too many Gosubs without Return."), type::STRING } });
+	emit_terminator("unreachable");
+	begin_label(ok_l);
+	emit(slot + " = getelementptr inbounds [256 x i32], ptr " + _gosub_stack + ", i32 0, i32 " + depth);
+	emit("store i32 " + std::to_string(id) + ", ptr " + slot);
+	emit(next + " = add i32 " + depth + ", 1");
+	emit("store i32 " + next + ", ptr " + _gosub_depth);
+	emit_terminator("br label %lbl." + lower(node->label));
+
+	// Where Return comes back to.
+	begin_label("gosub.back." + std::to_string(id));
+}
+
+// Return from a Gosub: jumps to the block behind the Gosub that was called last.
+void blitz::compiler::gen_gosub_return(ast::location const& where)
+{
+	(void)where;
+	auto depth = tmp(), any = tmp();
+	auto pop_l = label("return.pop"), none_l = label("return.none");
+	emit(depth + " = load i32, ptr " + _gosub_depth);
+	emit(any + " = icmp sgt i32 " + depth + ", 0");
+	emit_terminator("br i1 " + any + ", label %" + pop_l + ", label %" + none_l);
+
+	begin_label(none_l);
+	if (_in_main) {
+		call_runtime("bb_runtime_error", type::UNKNOWN, { { string_constant("Return without Gosub."), type::STRING } });
+		emit_terminator("unreachable");
+	} else {
+		// In a function, Return also means returning from the function itself.
+		auto llvm = blitz::types::to_llvm(_return_type);
+		emit_terminator("ret " + llvm + " " + zero(_return_type).repr);
+	}
+
+	begin_label(pop_l);
+	auto last = tmp(), slot = tmp(), id = tmp();
+	emit(last + " = sub i32 " + depth + ", 1");
+	emit("store i32 " + last + ", ptr " + _gosub_depth);
+	emit(slot + " = getelementptr inbounds [256 x i32], ptr " + _gosub_stack + ", i32 0, i32 " + last);
+	emit(id + " = load i32, ptr " + slot);
+	std::string cases;
+	for (size_t i = 0; i < _gosubs.size(); i++) {
+		cases += " i32 " + std::to_string(i) + ", label %gosub.back." + std::to_string(i);
+	}
+	emit_terminator("switch i32 " + id + ", label %" + none_l + " [" + cases + " ]");
 }
 
 void blitz::compiler::gen_function(ast::function const& fn)
@@ -1343,6 +1470,7 @@ void blitz::compiler::gen_function(ast::function const& fn)
 		params += (idx ? ", " : "") + blitz::types::to_llvm(fn.parameters[idx].type) + " %a" + std::to_string(idx);
 	}
 
+	prepare_flow(fn.body);
 	for (size_t idx = 0; idx < fn.parameters.size(); idx++) {
 		auto const& param = fn.parameters[idx];
 		auto        var   = create_local(param.name, param.type, false, param.where, param.struct_name);
@@ -1365,6 +1493,7 @@ void blitz::compiler::gen_main(ast::program const& program)
 	_return_type  = type::INT32;
 	_return_sname = "";
 
+	prepare_flow(program.main);
 	call_runtime("bb_init", type::UNKNOWN, {});
 	gen_block(program.main);
 	if (!_terminated) {

@@ -253,6 +253,20 @@ namespace blitz {
 
 		struct exit_statement : public statement {};
 
+		/** `.Name`: a place that Goto and Gosub can jump to. */
+		struct label_statement : public statement {
+			std::string name;
+		};
+
+		struct goto_statement : public statement {
+			std::string label;
+		};
+
+		/** Jumps to a label, and comes back at the next Return. */
+		struct gosub_statement : public statement {
+			std::string label;
+		};
+
 		/** `End`, terminates the program. */
 		struct end_statement : public statement {};
 
