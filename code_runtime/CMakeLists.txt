@@ -139,6 +139,8 @@ target_sources(blitzrt PRIVATE
 	"source/scene_brushes.cpp"
 	"source/scene_terrain.cpp"
 	"source/animation.cpp"
+	"source/b3d.cpp"
+	"source/animation_internal.hpp"
 	"source/md2.cpp"
 	"source/bsp.cpp"
 	"source/collision.cpp"

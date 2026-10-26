@@ -253,6 +253,11 @@ int32_t bb_color_green(void)
 	return g.color[1];
 }
 
+int32_t bb_color_blue(void)
+{
+	return g.color[2];
+}
+
 // BlitzPlus gives the pixels of a locked buffer as a bank: 4 bytes for each pixel, blue first, one row after the other.
 // What is done to the bank is written to the buffer when it is unlocked.
 int32_t bb_locked_pixels(int32_t buffer)

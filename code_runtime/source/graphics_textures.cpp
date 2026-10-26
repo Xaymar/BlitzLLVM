@@ -82,11 +82,6 @@ namespace bb::gfx {
 
 extern "C" {
 
-int32_t bb_color_blue(void)
-{
-	return g.color[2];
-}
-
 // CreateTexture(width, height, flags, frames): an empty texture to draw on, with TextureBuffer.
 int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t frames)
 {

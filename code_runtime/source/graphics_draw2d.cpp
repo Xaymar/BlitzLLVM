@@ -9,15 +9,6 @@
 using namespace bb::gfx;
 
 namespace bb::gfx {
-
-	void ensure_swapchain()
-	{
-		if (g.resized || (g.swapchain == VK_NULL_HANDLE)) {
-			destroy_swapchain();
-			create_swapchain();
-		}
-	}
-
 	// There is only the built-in font. Fonts that are loaded are that font in the size that was asked for.
 	struct font_entry {
 		bool  used   = false;

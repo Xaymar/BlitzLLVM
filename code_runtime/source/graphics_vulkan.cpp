@@ -333,6 +333,14 @@ namespace bb::gfx {
 		g.target = back_buffer;
 	}
 
+	void ensure_swapchain()
+	{
+		if (g.resized || (g.swapchain == VK_NULL_HANDLE)) {
+			destroy_swapchain();
+			create_swapchain();
+		}
+	}
+
 	void create_swapchain()
 	{
 		VkSurfaceCapabilitiesKHR caps;
