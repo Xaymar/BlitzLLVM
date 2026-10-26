@@ -30,6 +30,8 @@ Not there yet for 3D: model files (`LoadMesh`, `LoadAnimMesh`), sprites, terrain
 
 Tests: `ctest` compiles and runs (headless) every program in `tests/` and lexes `tests/test.bb` (a token-level lexer fixture rather than a program).
 
+The function test suite is in `tests/suite`. It has a test for every function that Blitz3D and BlitzPlus provide, taken from the original sources in `extra/`: one file per part (`math.bb`, `strings.bb`, `blitz3d_meshes.bb` and so on) that stops with an error as soon as something is wrong, and `check.bb` with what they share. Tests that look at pixels end in `_pixels` and need a window and a GPU, they are skipped when headless and run for real with `-DBLITZ_TEST_GPU=ON`. Functions that are not implemented yet have a placeholder in `tests/suite/pending`, which is expected not to compile; once a function exists, write its test in the file of its part and delete the placeholder. `tools/suite_functions.py list` rewrites `tests/suite/functions.txt` from the originals and `check` (also run by `ctest`) makes sure that every implemented function has a test. `tools/suite_signatures.py` compares the arguments of every function in `builtins.inc` with the original.
+
 === Features
 ++++
 <table width="100%">

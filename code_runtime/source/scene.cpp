@@ -1484,6 +1484,7 @@ int32_t bb_create_plane(int32_t divisions, int32_t parent)
 struct brush_entry {
 	bool     used = false;
 	material look;
+	int      layers[8] = {}; // The textures on each layer. Only the first is drawn.
 };
 static buffer<brush_entry> brush_table;
 
@@ -1553,6 +1554,10 @@ void bb_brush_texture(int32_t handle, int32_t texture, int32_t frame, int32_t in
 {
 	(void)frame;
 	brush_entry& e = need_brush(handle, "BrushTexture");
+	if ((index < 0) || (index > 7)) {
+		bb_runtime_error("BrushTexture: the layer has to be 0 to 7.");
+	}
+	e.layers[index] = texture;
 	if (index == 0) {
 		e.look.texture = texture;
 	}
@@ -1560,7 +1565,8 @@ void bb_brush_texture(int32_t handle, int32_t texture, int32_t frame, int32_t in
 
 int32_t bb_get_brush_texture(int32_t handle, int32_t index)
 {
-	return (index == 0) ? need_brush(handle, "GetBrushTexture").look.texture : 0;
+	brush_entry& e = need_brush(handle, "GetBrushTexture");
+	return ((index >= 0) && (index < 8)) ? e.layers[index] : 0;
 }
 
 void bb_paint_surface(int32_t surface_handle, int32_t brush)
@@ -1597,7 +1603,8 @@ int32_t bb_get_surface_brush(int32_t surface_handle)
 	surface* s = need_surface(surface_handle, "GetSurfaceBrush");
 	int32_t  b = bb_create_brush(255, 255, 255);
 	if (s->painted) {
-		brush_table[uint32_t(b) - 1].look = s->paint;
+		brush_table[uint32_t(b) - 1].look      = s->paint;
+		brush_table[uint32_t(b) - 1].layers[0] = s->paint.texture;
 	}
 	return b;
 }
@@ -1631,8 +1638,9 @@ int32_t bb_create_terrain(int32_t size, int32_t parent)
 	return mesh;
 }
 
-void bb_modify_terrain(int32_t handle, int32_t x, int32_t z, float height)
+void bb_modify_terrain(int32_t handle, int32_t x, int32_t z, float height, int32_t realtime)
 {
+	(void)realtime; // The terrain is always updated when it is drawn next.
 	entity* e = need_terrain(handle, "ModifyTerrain");
 	int     n = e->terrain->size;
 	if ((x < 0) || (z < 0) || (x > n) || (z > n)) {

@@ -716,7 +716,9 @@ namespace {
 	int set_pick(pick const& p)
 	{
 		if ((p.entity == 0) || (p.time > 1)) {
-			last_pick = pick();
+			// Like the original, a miss only says that nothing was hit, and that it took the whole line.
+			last_pick.entity = 0;
+			last_pick.time   = 1;
 			return 0;
 		}
 		last_pick = p;
@@ -864,7 +866,7 @@ int32_t bb_entity_pick(int32_t handle, float range)
 	need(handle, "EntityPick");
 	float m[16];
 	world_matrix(handle, m);
-	vec3 forward = normalized({ m[8], m[9], m[10] });
+	vec3 forward = { m[8], m[9], m[10] }; // Not made one long, so a scaled entity looks further.
 	return set_pick(find_pick({ m[12], m[13], m[14] }, forward * range, 0, handle, 0, false));
 }
 

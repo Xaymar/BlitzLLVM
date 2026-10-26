@@ -3295,8 +3295,9 @@ void bb_tile_block(int32_t handle, int32_t x, int32_t y, int32_t frame)
 	}
 }
 
-void bb_resize_image(int32_t handle, int32_t width, int32_t height)
+void bb_resize_image(int32_t handle, float new_width, float new_height)
 {
+	int32_t width = int32_t(new_width + 0.5f), height = int32_t(new_height + 0.5f);
 	image_entry* e = need_image(handle, "ResizeImage");
 	if ((width <= 0) || (height <= 0)) {
 		bb_runtime_error("ResizeImage: needs a size.");
@@ -3340,7 +3341,7 @@ void bb_resize_image(int32_t handle, int32_t width, int32_t height)
 }
 
 // Copies what is in the current buffer, starting at x and y, into the first frame of the image.
-void bb_grab_image(int32_t handle, int32_t x, int32_t y)
+void bb_grab_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
 {
 	image_entry* e = need_image(handle, "GrabImage");
 	if (!active() || !e->set) {
@@ -3359,8 +3360,11 @@ void bb_grab_image(int32_t handle, int32_t x, int32_t y)
 	if ((w <= 0) || (h <= 0)) {
 		return;
 	}
+	if ((frame < 0) || (frame >= e->frames)) {
+		bb_runtime_error("GrabImage: the frame does not exist.");
+	}
 	int fx, fy;
-	frame_position(*e, 0, fx, fy);
+	frame_position(*e, frame, fx, fy);
 
 	begin_commands();
 	VkImageLayout previous_source = source.image->layout;

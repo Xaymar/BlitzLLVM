@@ -179,9 +179,13 @@ int32_t bb_file_pos(int32_t handle)
 	return (int32_t)ftell(bb_file(handle, "FilePos"));
 }
 
-void bb_seek_file(int32_t handle, int32_t position)
+int32_t bb_seek_file(int32_t handle, int32_t position)
 {
-	fseek(bb_file(handle, "SeekFile"), position, SEEK_SET);
+	FILE* file = bb_file(handle, "SeekFile");
+	if (fseek(file, position, SEEK_SET) != 0) {
+		return -1;
+	}
+	return (int32_t)ftell(file);
 }
 
 // Reads from a stream, returns how many bytes it managed to read.
