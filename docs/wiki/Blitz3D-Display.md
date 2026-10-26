@@ -6,6 +6,7 @@
 
 Opening 3D modes and querying driver capabilities.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

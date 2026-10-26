@@ -6,6 +6,7 @@
 
 Creating, loading, transforming and filtering textures.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
