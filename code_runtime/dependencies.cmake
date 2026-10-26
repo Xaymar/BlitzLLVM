@@ -223,19 +223,49 @@ blitz_dependency(SDL3_image SDL_image
 
 blitz_check_licenses(SDL3_image AFTER ${_SDL3_IMAGE_LICENSES})
 
-# Plays the sounds. Decoders for WAV, MP3, OGG (stb_vorbis) and FLAC are built in, the others need libraries that aren't vendored.
-blitz_check_licenses(SDL3_mixer BEFORE SDL3_mixer/LICENSE.txt)
+# SDL_mixer builds libopus, opusfile and libogg itself when it is told to use its vendored copies, which are submodules of its
+# repository that a clone does not fetch. Only those three are fetched, as no other decoder that needs a library is used. A stamp
+# next to the build directory records the revision that was prepared, so that a restored dependency cache skips this.
+function(blitz_fetch_audio_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH)
+	execute_process(
+		COMMAND "${GIT_EXECUTABLE}" -C "${SOURCE_PATH}" rev-parse HEAD
+		OUTPUT_VARIABLE _REVISION OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	set(_STAMP "${BINARY_PATH}.codecs")
+	if(EXISTS "${_STAMP}")
+		file(READ "${_STAMP}" _STAMPED)
+		if(_STAMPED STREQUAL _REVISION)
+			return()
+		endif()
+	endif()
+	execute_process(
+		COMMAND "${GIT_EXECUTABLE}" submodule update --init --depth 1 external/ogg external/opus external/opusfile
+		WORKING_DIRECTORY "${SOURCE_PATH}"
+		RESULT_VARIABLE _RESULT
+	)
+	if(NOT _RESULT EQUAL 0)
+		message(FATAL_ERROR "Fetching the audio codecs in '${SOURCE_PATH}' failed.")
+	endif()
+	file(WRITE "${_STAMP}" "${_REVISION}")
+endfunction()
+
+# Plays the sounds. Decoders for WAV, MP3 (dr_mp3), OGG Vorbis (stb_vorbis) and FLAC (dr_flac) are built in, Opus (libopus and
+# opusfile, which play .opus files and Opus in .ogg files) is linked in statically from the vendored copies.
+set(_SDL3_MIXER_LICENSES SDL3_mixer/LICENSE.txt SDL3_mixer/optional/LICENSE.opus.txt SDL3_mixer/optional/LICENSE.opusfile.txt
+	SDL3_mixer/optional/LICENSE.ogg-vorbis.txt)
+blitz_check_licenses(SDL3_mixer BEFORE ${_SDL3_MIXER_LICENSES})
 blitz_dependency(SDL3_mixer SDL_mixer
+	PATCH_FUNCTION blitz_fetch_audio_codecs
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
-		-DBUILD_SHARED_LIBS=OFF -DSDLMIXER_VENDORED=OFF -DSDLMIXER_DEPS_SHARED=OFF -DSDLMIXER_STRICT=OFF
+		-DBUILD_SHARED_LIBS=OFF -DSDLMIXER_VENDORED=ON -DSDLMIXER_DEPS_SHARED=OFF -DSDLMIXER_STRICT=OFF
 		-DSDLMIXER_SAMPLES=OFF -DSDLMIXER_TESTS=OFF -DSDLMIXER_INSTALL=ON
-		-DSDLMIXER_OPUS=OFF -DSDLMIXER_GME=OFF -DSDLMIXER_MIDI=OFF -DSDLMIXER_MOD=OFF -DSDLMIXER_WAVPACK=OFF
+		-DSDLMIXER_OPUS=ON -DSDLMIXER_GME=OFF -DSDLMIXER_MIDI=OFF -DSDLMIXER_MOD=OFF -DSDLMIXER_WAVPACK=OFF -DSDLMIXER_MP3_MPG123=OFF
 		-DSDLMIXER_FLAC_LIBFLAC=OFF -DSDLMIXER_VORBIS_VORBISFILE=OFF -DSDLMIXER_VORBIS_STB=ON
 	BUILD_ARGS --config Release --parallel
 	INSTALL_ARGS --config Release
 )
 
-blitz_check_licenses(SDL3_mixer AFTER SDL3_mixer/LICENSE.txt)
+blitz_check_licenses(SDL3_mixer AFTER ${_SDL3_MIXER_LICENSES})
 
 if(WIN32)
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
@@ -254,12 +284,14 @@ foreach(_LIBRARY IN ITEMS "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" "${_SDL3_M
 	endif()
 endforeach()
 
-# SDL_image installs the libraries of its codecs (libavif, dav1d, aom, libjxl, brotli, highway and libwebp) next to itself, and programs
-# have to link to those as well.
+# SDL_image and SDL_mixer install the libraries of their codecs (libavif, dav1d, libjxl, brotli, highway and libwebp; libopus,
+# opusfile and libogg) next to themselves, and programs have to link to those as well.
 file(GLOB _SDL3_IMAGE_CODECS "${SDL3_image_INSTALL_PATH}/lib/${_LIBRARY_PATTERN}")
 list(REMOVE_ITEM _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_LIBRARY}")
+file(GLOB _SDL3_MIXER_CODECS "${SDL3_mixer_INSTALL_PATH}/lib/${_LIBRARY_PATTERN}")
+list(REMOVE_ITEM _SDL3_MIXER_CODECS "${_SDL3_MIXER_LIBRARY}")
 
 # Libraries that programs have to link to, which the compiler copies next to itself.
 # The licenses of SDL_image and SDL_mixer and of the codecs built into them, whose notices have to be shipped with programs that include them.
 set(BLITZRT_LICENSES "${SDL3_image_INSTALL_PATH}/share/licenses" "${SDL3_mixer_INSTALL_PATH}/share/licenses" PARENT_SCOPE)
-set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" ${_SDL3_IMAGE_CODECS} "${_SDL3_MIXER_LIBRARY}" PARENT_SCOPE)
+set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" ${_SDL3_IMAGE_CODECS} "${_SDL3_MIXER_LIBRARY}" ${_SDL3_MIXER_CODECS} PARENT_SCOPE)

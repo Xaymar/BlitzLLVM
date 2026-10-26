@@ -16,6 +16,9 @@ required=(
 	SDL3_image/optional/LICENSE.jxl.txt
 	SDL3_image/optional/LICENSE.webp.txt
 	SDL3_mixer/LICENSE.txt
+	SDL3_mixer/optional/LICENSE.opus.txt
+	SDL3_mixer/optional/LICENSE.opusfile.txt
+	SDL3_mixer/optional/LICENSE.ogg-vorbis.txt
 	Vulkan-Headers/LICENSE.md
 )
 status=0

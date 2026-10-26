@@ -12,7 +12,7 @@ LoadSound filename$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-Loads a sound file into memory and returns a handle that [PlaySound](PlaySound) uses. WAV, MP3, OGG and FLAC files can be loaded. Load sounds once at the start of the program and play them as often as needed.
+Loads a sound file into memory and returns a handle that [PlaySound](PlaySound) uses. WAV, MP3, OGG (Vorbis), Opus and FLAC files can be loaded. Opus files (`.opus`, or `.ogg` files that contain Opus) are always decoded at 48000 Hz, which is the frequency that [SoundPitch](SoundPitch) and [ChannelPitch](ChannelPitch) change from. Load sounds once at the start of the program and play them as often as needed.
 
 The example writes a short beep as `beep.wav` first, so that it needs no other file. The other audio examples use this file.
 
