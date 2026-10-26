@@ -109,11 +109,28 @@ jobs:
           rm -rf packages/_CPack_Packages
           mv packages/*.pkg "packages/${ARTIFACT}.pkg"
           ls -l packages
-      - uses: actions/upload-artifact@v4
-        if: runner.os != 'Windows'
+      # Every package is uploaded on its own with 'archive: false', so it is a separate entry that is not zipped. The artifact is
+      # named after the file.
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'Linux'
         with:
-          name: ${{ env.ARTIFACT }}-packages
-          path: packages
+          path: packages/${{ env.ARTIFACT }}.deb
+          archive: false
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'Linux'
+        with:
+          path: packages/${{ env.ARTIFACT }}.rpm
+          archive: false
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'Linux'
+        with:
+          path: packages/${{ env.ARTIFACT }}.pkg.tar.zst
+          archive: false
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'macOS'
+        with:
+          path: packages/${{ env.ARTIFACT }}.pkg
+          archive: false
 
   # Hands the pull request number to pull-request-comment.yml, which runs outside of the pull request's context.
   info:
