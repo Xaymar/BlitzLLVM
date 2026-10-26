@@ -2521,10 +2521,54 @@ void bb_line(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 	if (!active()) {
 		return;
 	}
-	// Pixel centers are at +0.5.
-	vertex* v = add_vertices(OP_LINES, TEXTURE_WHITE, 2);
-	set_vertex(v[0], float(x1) + 0.5f, float(y1) + 0.5f, 0.5f, 0.5f);
-	set_vertex(v[1], float(x2) + 0.5f, float(y2) + 0.5f, 0.5f, 0.5f);
+	// Lines are made of whole pixels with both ends included, the way the original draws them, which the GPU does not
+	// do for lines. The part of the line outside the buffer is cut off first.
+	target_ref target = resolve_target(g.target);
+	if (!target.image) {
+		return;
+	}
+	int cx1 = target.w - 1, cy1 = target.h - 1;
+	for (;;) {
+		int clip0 = 0, clip1 = 0;
+		if (y1 > cy1) clip0 |= 1; else if (y1 < 0) clip0 |= 2;
+		if (x1 > cx1) clip0 |= 4; else if (x1 < 0) clip0 |= 8;
+		if (y2 > cy1) clip1 |= 1; else if (y2 < 0) clip1 |= 2;
+		if (x2 > cx1) clip1 |= 4; else if (x2 < 0) clip1 |= 8;
+		if ((clip0 | clip1) == 0) break;
+		if ((clip0 & clip1) != 0) return;
+		if (clip0 & 1) { x1 = x1 + int(int64_t(x2 - x1) * (cy1 - y1) / (y2 - y1)); y1 = cy1; continue; }
+		if (clip0 & 2) { x1 = x1 + int(int64_t(x2 - x1) * (0 - y1) / (y2 - y1)); y1 = 0; continue; }
+		if (clip0 & 4) { y1 = y1 + int(int64_t(y2 - y1) * (cx1 - x1) / (x2 - x1)); x1 = cx1; continue; }
+		if (clip0 & 8) { y1 = y1 + int(int64_t(y2 - y1) * (0 - x1) / (x2 - x1)); x1 = 0; continue; }
+		if (clip1 & 1) { x2 = x1 + int(int64_t(x2 - x1) * (cy1 - y1) / (y2 - y1)); y2 = cy1; continue; }
+		if (clip1 & 2) { x2 = x1 + int(int64_t(x2 - x1) * (0 - y1) / (y2 - y1)); y2 = 0; continue; }
+		if (clip1 & 4) { y2 = y1 + int(int64_t(y2 - y1) * (cx1 - x1) / (x2 - x1)); x2 = cx1; continue; }
+		if (clip1 & 8) { y2 = y1 + int(int64_t(y2 - y1) * (0 - x1) / (x2 - x1)); x2 = 0; continue; }
+	}
+	int dx = x2 - x1, dy = y2 - y1;
+	if ((dx | dy) == 0) {
+		add_rect(float(x1), float(y1), 1, 1);
+		return;
+	}
+	int sx = dx >= 0 ? 1 : -1, ax = dx >= 0 ? dx : -dx;
+	int sy = dy >= 0 ? 1 : -1, ay = dy >= 0 ? dy : -dy;
+	if (ax > ay) {
+		int ddf = -ax, sadj = ax + ax, padj = ay + ay;
+		while (ax-- >= 0) {
+			add_rect(float(x1), float(y1), 1, 1);
+			x1 += sx;
+			ddf += padj;
+			if (ddf >= 0) { y1 += sy; ddf -= sadj; }
+		}
+	} else {
+		int ddf = -ay, sadj = ay + ay, padj = ax + ax;
+		while (ay-- >= 0) {
+			add_rect(float(x1), float(y1), 1, 1);
+			y1 += sy;
+			ddf += padj;
+			if (ddf >= 0) { x1 += sx; ddf -= sadj; }
+		}
+	}
 }
 
 void bb_rect(int32_t x, int32_t y, int32_t w, int32_t h, int32_t solid)
@@ -2753,7 +2797,7 @@ void bb_show_pointer(void)
 int32_t bb_get_joy(int32_t port)
 {
 	(void)port;
-	return -1;
+	return 0; // There is no joystick, like in the original when none is plugged in.
 }
 
 void bb_flush_joy(void) {}

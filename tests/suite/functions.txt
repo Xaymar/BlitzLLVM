@@ -654,10 +654,10 @@ delay	runtime	done	Delay%millisecs
 end	runtime	done	End
 execfile	runtime	done	ExecFile$command
 freetimer	runtime	pending	FreeTimer%timer
-getenv	runtime	pending	$GetEnv$env_var
+getenv	runtime	done	$GetEnv$env_var
 millisecs	runtime	done	%MilliSecs
 runtimeerror	runtime	done	RuntimeError$message
-setenv	runtime	pending	SetEnv$env_var$value
+setenv	runtime	done	SetEnv$env_var$value
 stop	runtime	done	Stop
 systemproperty	runtime	done	$SystemProperty$property
 waittimer	runtime	pending	%WaitTimer%timer

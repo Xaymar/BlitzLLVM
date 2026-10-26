@@ -313,6 +313,8 @@
 		{ "commandline", "bb_command_line", 's', "", 0, {}, false },
 		{ "systemproperty", "bb_system_property", 's', "s", 1, {}, false },
 		{ "debuglog", "bb_debug_log", 'v', "s", 1, {}, false },
+		{ "getenv", "bb_get_env", 's', "s", 1, {}, false },
+		{ "setenv", "bb_set_env", 'v', "ss", 2, {}, false },
 		{ "currentdate", "bb_current_date", 's', "", 0, {}, false },
 		{ "currenttime", "bb_current_time", 's', "", 0, {}, false },
 		{ "execfile", "bb_exec_file", 'i', "s", 1, {}, false },

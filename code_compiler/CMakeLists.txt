@@ -53,6 +53,44 @@ foreach(_TEST IN ITEMS 001 002 003 004 005 006 007 008 009 010 011 012 013 014 0
 	)
 	set_tests_properties("run-${_TEST}" PROPERTIES FIXTURES_REQUIRED "program-${_TEST}" ENVIRONMENT "BLITZ_HEADLESS=1" WORKING_DIRECTORY "${TEST_DIRECTORY}")
 endforeach()
+# The function test suite: a test for every function of Blitz3D and BlitzPlus, in tests/suite. Each file is a program
+# that stops with an error when something is wrong. Files in pending/ are for what is not implemented yet and are
+# expected not to compile, files in fail/ are expected to compile but to stop with an error. Programs that need a
+# window and a GPU end with _pixels, and only run for real with -DBLITZ_TEST_GPU=ON.
+option(BLITZ_TEST_GPU "Also run the tests that need a window and a GPU" OFF)
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/suite")
+file(GLOB_RECURSE _SUITE_TESTS CONFIGURE_DEPENDS "${TEST_DIRECTORY}/suite/*.bb")
+foreach(_FILE IN LISTS _SUITE_TESTS)
+	file(RELATIVE_PATH _RELATIVE "${TEST_DIRECTORY}/suite" "${_FILE}")
+	if(_RELATIVE STREQUAL "check.bb")
+		continue()
+	endif()
+	string(REGEX REPLACE "\.bb$" "" _NAME "${_RELATIVE}")
+	string(REPLACE "/" "-" _NAME "${_NAME}")
+	set(_EXE "${PROJECT_BINARY_DIR}/suite/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
+	add_test(NAME "suite-compile-${_NAME}" COMMAND ${PROJECT_NAME} "${_FILE}" -o "${_EXE}")
+	if(_RELATIVE MATCHES "^pending/")
+		set_tests_properties("suite-compile-${_NAME}" PROPERTIES WILL_FAIL TRUE LABELS "pending")
+		continue()
+	endif()
+	set_tests_properties("suite-compile-${_NAME}" PROPERTIES FIXTURES_SETUP "suite-${_NAME}" LABELS "suite")
+	add_test(NAME "suite-run-${_NAME}" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
+	set_tests_properties("suite-run-${_NAME}" PROPERTIES FIXTURES_REQUIRED "suite-${_NAME}" LABELS "suite")
+	if(_NAME MATCHES "_pixels$" AND BLITZ_TEST_GPU)
+		set_tests_properties("suite-run-${_NAME}" PROPERTIES LABELS "suite;gpu")
+	else()
+		set_tests_properties("suite-run-${_NAME}" PROPERTIES ENVIRONMENT "BLITZ_HEADLESS=1")
+	endif()
+	if(_RELATIVE MATCHES "^fail/")
+		set_tests_properties("suite-run-${_NAME}" PROPERTIES WILL_FAIL TRUE)
+	endif()
+endforeach()
+find_package(Python3 QUIET COMPONENTS Interpreter)
+if(Python3_FOUND)
+	add_test(NAME suite-coverage COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/suite_functions.py" check)
+	set_tests_properties(suite-coverage PROPERTIES LABELS "suite")
+endif()
+
 add_test(
 	NAME "lex-test"
 	COMMAND ${PROJECT_NAME} --dump-tokens "${TEST_DIRECTORY}/test.bb"

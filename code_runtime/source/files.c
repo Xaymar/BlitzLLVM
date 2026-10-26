@@ -709,6 +709,23 @@ const char* bb_system_property(const char* name)
 	return bb_copy(value ? value : "", value ? strlen(value) : 0);
 }
 
+// GetEnv$(name): the value of an environment variable, empty if there is none.
+const char* bb_get_env(const char* name)
+{
+	const char* value = getenv(bb_s(name));
+	return bb_copy(value ? value : "", value ? strlen(value) : 0);
+}
+
+// SetEnv name, value: sets an environment variable for this program and what it starts.
+void bb_set_env(const char* name, const char* value)
+{
+#if defined(_WIN32)
+	_putenv_s(bb_s(name), bb_s(value));
+#else
+	setenv(bb_s(name), bb_s(value), 1);
+#endif
+}
+
 void bb_debug_log(const char* text)
 {
 	fprintf(stderr, "%s\n", bb_s(text));
