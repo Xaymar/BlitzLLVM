@@ -58,7 +58,7 @@ def run(*args, **kw):
 
 
 class Session:
-    def __init__(self, exe):
+    def __init__(self, exe, cwd):
         r, w = os.pipe()
         self.xvfb = subprocess.Popen(["Xvfb", "-displayfd", str(w), "-screen", "0", "640x480x24", "-nolisten", "tcp"],
                                      pass_fds=(w,), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -66,7 +66,7 @@ class Session:
         self.display = ":" + os.read(r, 16).decode().strip()
         os.close(r)
         self.env = dict(os.environ, DISPLAY=self.display, XDG_RUNTIME_DIR=tempfile.mkdtemp())
-        self.app = subprocess.Popen([exe], env=self.env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        self.app = subprocess.Popen([exe], env=self.env, cwd=cwd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         self.window = None
         for _ in range(100):
             time.sleep(0.1)
@@ -115,7 +115,7 @@ def play(blitzcc, rel, fps, steps, src):
         if r.returncode != 0:
             return r.stdout + r.stderr
         frames = []
-        s = Session(exe)
+        s = Session(exe, d)
         try:
             def shot():
                 p = os.path.join(d, "f%04d.png" % len(frames))

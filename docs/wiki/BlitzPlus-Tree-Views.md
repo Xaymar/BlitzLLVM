@@ -11,18 +11,18 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [AddTreeViewNode](BlitzPlus-Tree-Views#addtreeviewnode) | Int |  |
-| [CollapseTreeViewNode](BlitzPlus-Tree-Views#collapsetreeviewnode) | None |  |
-| [CountTreeViewNodes](BlitzPlus-Tree-Views#counttreeviewnodes) | Int |  |
-| [CreateTreeView](BlitzPlus-Tree-Views#createtreeview) | Int |  |
-| [ExpandTreeViewNode](BlitzPlus-Tree-Views#expandtreeviewnode) | None |  |
-| [FreeTreeViewNode](BlitzPlus-Tree-Views#freetreeviewnode) | None |  |
-| [InsertTreeViewNode](BlitzPlus-Tree-Views#inserttreeviewnode) | Int |  |
-| [ModifyTreeViewNode](BlitzPlus-Tree-Views#modifytreeviewnode) | None |  |
+| [AddTreeViewNode](BlitzPlus-Tree-Views#addtreeviewnode) | Int | Adds a node at the end of the children of another node. |
+| [CollapseTreeViewNode](BlitzPlus-Tree-Views#collapsetreeviewnode) | None | Folds a node so its children are hidden. |
+| [CountTreeViewNodes](BlitzPlus-Tree-Views#counttreeviewnodes) | Int | Counts the children a node has directly, without the nodes below them. |
+| [CreateTreeView](BlitzPlus-Tree-Views#createtreeview) | Int | Makes a list of nodes that can be opened and closed, like a folder view. |
+| [ExpandTreeViewNode](BlitzPlus-Tree-Views#expandtreeviewnode) | None | Opens a node so that its children are seen. |
+| [FreeTreeViewNode](BlitzPlus-Tree-Views#freetreeviewnode) | None | Removes a node together with all nodes below it. |
+| [InsertTreeViewNode](BlitzPlus-Tree-Views#inserttreeviewnode) | Int | Puts a node before the child with the given number of a parent. |
+| [ModifyTreeViewNode](BlitzPlus-Tree-Views#modifytreeviewnode) | None | Changes the text of a node. |
 | [SelectedTreeViewNode](BlitzPlus-Tree-Views#selectedtreeviewnode) | Int |  |
-| [SelectTreeViewNode](BlitzPlus-Tree-Views#selecttreeviewnode) | None |  |
+| [SelectTreeViewNode](BlitzPlus-Tree-Views#selecttreeviewnode) | None | Selects a node, as if the user clicked it. |
 | [TreeViewNodeText](BlitzPlus-Tree-Views#treeviewnodetext) | String |  |
-| [TreeViewRoot](BlitzPlus-Tree-Views#treeviewroot) | Int |  |
+| [TreeViewRoot](BlitzPlus-Tree-Views#treeviewroot) | Int | Gives the invisible node at the top of a tree. |
 
 ### AddTreeViewNode
 
@@ -32,13 +32,31 @@ AddTreeViewNode text$, parent_node%, icon%=-1  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Adds a node at the end of the children of another node. To add one at the top level, give [TreeViewRoot](BlitzPlus-Tree-Views#treeviewroot) as the parent.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Files", 10, 10, 300, 200, Desktop(), 3)
+tree = CreateTreeView(10, 10, 270, 140, win)
+root = TreeViewRoot(tree)
+docs = AddTreeViewNode("Documents", root)
+AddTreeViewNode "Letter.txt", docs
+AddTreeViewNode "Notes.txt", docs
+AddTreeViewNode "Pictures", root
+ExpandTreeViewNode docs
+Repeat
+Until WaitEvent() = $803
+```
+
+![AddTreeViewNode](media/treeviews/addtreeviewnode.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `text` | String | required |  |
+| `text` | String | required | Text of the node. |
 | `parent_node` | Int | required |  |
-| `icon` | Int | `-1` |  |
+| `icon` | Int | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+
+**Returns:** A handle for the new node.
 
 ### CollapseTreeViewNode
 
@@ -48,11 +66,23 @@ CollapseTreeViewNode node%
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Folds a node so its children are hidden. They keep existing, and [ExpandTreeViewNode](BlitzPlus-Tree-Views#expandtreeviewnode) shows them again. A node deep in the tree is only seen when everything above it is open.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Fold", 10, 10, 300, 200, Desktop(), 3)
+tree = CreateTreeView(10, 10, 270, 140, win)
+a = AddTreeViewNode("Branch", TreeViewRoot(tree))
+AddTreeViewNode "Leaf", a
+ExpandTreeViewNode a
+CollapseTreeViewNode a
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required |  |
+| `node` | Int | required | Handle of a node. |
 
 ### CountTreeViewNodes
 
@@ -62,11 +92,13 @@ CountTreeViewNodes parent_node%  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Counts the children a node has directly, without the nodes below them.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `parent_node` | Int | required |  |
+
+**Returns:** The number of children.
 
 ### CreateTreeView
 
@@ -76,16 +108,33 @@ CreateTreeView x%, y%, width%, height%, group%, style%=0  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Makes a list of nodes that can be opened and closed, like a folder view. Clicking a node sends $401 with the tree as the source, and [SelectedTreeViewNode](BlitzPlus-Tree-Views#selectedtreeviewnode) tells which. The tree starts out empty: add nodes below the node that [TreeViewRoot](BlitzPlus-Tree-Views#treeviewroot) gives.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Tree", 10, 10, 300, 200, Desktop(), 3)
+tree = CreateTreeView(10, 10, 270, 140, win)
+fruit = AddTreeViewNode("Fruit", TreeViewRoot(tree))
+AddTreeViewNode "Apple", fruit
+AddTreeViewNode "Pear", fruit
+Repeat
+	e = WaitEvent()
+	If e = $401 Then SetGadgetText win, "Node " + TreeViewNodeText(SelectedTreeViewNode(tree))
+Until e = $803
+```
+
+![CreateTreeView](media/treeviews/createtreeview.gif)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `group` | Int | required |  |
-| `style` | Int | `0` |  |
+| `x` | Int | required | Horizontal position inside the group. |
+| `y` | Int | required | Vertical position inside the group. |
+| `width` | Int | required | Width of the tree. |
+| `height` | Int | required | Height of the tree. |
+| `group` | Int | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
+
+**Returns:** A handle for the tree view.
 
 ### ExpandTreeViewNode
 
@@ -95,11 +144,11 @@ ExpandTreeViewNode node%
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Opens a node so that its children are seen. See [CollapseTreeViewNode](BlitzPlus-Tree-Views#collapsetreeviewnode).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required |  |
+| `node` | Int | required | Handle of a node. |
 
 ### FreeTreeViewNode
 
@@ -109,11 +158,22 @@ FreeTreeViewNode node%
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Removes a node together with all nodes below it. The root must not be freed.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Free", 10, 10, 300, 200, Desktop(), 3)
+tree = CreateTreeView(10, 10, 270, 140, win)
+a = AddTreeViewNode("Keep", TreeViewRoot(tree))
+b = AddTreeViewNode("Remove", TreeViewRoot(tree))
+FreeTreeViewNode b
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required |  |
+| `node` | Int | required | Handle of a node. |
 
 ### InsertTreeViewNode
 
@@ -123,14 +183,28 @@ InsertTreeViewNode index%, text$, parent_node%, icon%=-1  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Puts a node before the child with the given number of a parent.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Insert", 10, 10, 300, 200, Desktop(), 3)
+tree = CreateTreeView(10, 10, 270, 140, win)
+root = TreeViewRoot(tree)
+AddTreeViewNode "First", root
+AddTreeViewNode "Third", root
+InsertTreeViewNode 1, "Second", root
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `index` | Int | required |  |
-| `text` | String | required |  |
+| `index` | Int | required | Where the node goes among the children, starting at 0. |
+| `text` | String | required | Text of the node. |
 | `parent_node` | Int | required |  |
-| `icon` | Int | `-1` |  |
+| `icon` | Int | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+
+**Returns:** A handle for the new node.
 
 ### ModifyTreeViewNode
 
@@ -140,13 +214,23 @@ ModifyTreeViewNode node%, text$, icon%=-1
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Changes the text of a node.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Modify", 10, 10, 300, 200, Desktop(), 3)
+tree = CreateTreeView(10, 10, 270, 140, win)
+n = AddTreeViewNode("Old", TreeViewRoot(tree))
+ModifyTreeViewNode n, "New"
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required |  |
-| `text` | String | required |  |
-| `icon` | Int | `-1` |  |
+| `node` | Int | required | Handle of a node. |
+| `text` | String | required | The new text. |
+| `icon` | Int | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
 
 ### SelectedTreeViewNode
 
@@ -160,7 +244,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `treeview` | Int | required |  |
+| `treeview` | Int | required | Handle of a tree view. |
+
+**Returns:** The handle of the selected node, or 0 if none is selected.
 
 ### SelectTreeViewNode
 
@@ -170,11 +256,11 @@ SelectTreeViewNode node%
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Selects a node, as if the user clicked it. There is no way to remove the selection afterwards other than selecting another node.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required |  |
+| `node` | Int | required | Handle of a node. |
 
 ### TreeViewNodeText
 
@@ -188,7 +274,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required |  |
+| `node` | Int | required | Handle of a node. |
+
+**Returns:** The text of the node.
 
 ### TreeViewRoot
 
@@ -198,8 +286,10 @@ TreeViewRoot treeview%  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives the invisible node at the top of a tree. It is the parent of the top level nodes and cannot be freed or selected.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `treeview` | Int | required |  |
+| `treeview` | Int | required | Handle of a tree view. |
+
+**Returns:** The handle of the root node.
