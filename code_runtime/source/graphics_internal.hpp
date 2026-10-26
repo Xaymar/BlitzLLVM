@@ -266,6 +266,13 @@ namespace bb::gfx {
 		VkDescriptorSetLayout scene_layout   = VK_NULL_HANDLE;
 		VkDescriptorSet       scene_set      = VK_NULL_HANDLE;
 		VkPipelineLayout      layout3d       = VK_NULL_HANDLE;
+		// What differs for each draw (entity_push), read by the shaders with the number of the draw as instance.
+		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
+		VkDescriptorSet       entity_set      = VK_NULL_HANDLE;
+		VkBuffer              entity_buffer   = VK_NULL_HANDLE;
+		VkDeviceMemory        entity_memory   = VK_NULL_HANDLE;
+		void*                 entity_mapped   = nullptr;
+		uint32_t              entity_capacity = 0;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
@@ -438,6 +445,12 @@ namespace bb::gfx {
 	};
 
 
+	// What the draws of a frame cost the GPU: calls, and how often what they use had to change.
+	struct draw_stats {
+		uint32_t draws = 0, pipelines = 0, textures = 0, buffers = 0;
+	};
+	extern draw_stats stats3d;
+
 	struct surface_gpu {
 		VkBuffer       vertex_buffer = VK_NULL_HANDLE;
 		VkDeviceMemory vertex_memory = VK_NULL_HANDLE;
@@ -465,6 +478,7 @@ namespace bb::gfx {
 		int         texture; // Handle, 0 for none.
 		VkPipeline  pipeline;
 		bool        cull, depth_test, depth_write;
+		bool        unit_start; // First of the draws of a surface: the ones after it that are not are layers over it and stay behind it.
 	};
 
 
@@ -520,6 +534,8 @@ namespace bb::gfx {
 	struct mesh_collector {
 		draw_list*   list;
 		const float* view;
+		const float* origin; // Where the camera is, which positions are relative to on the GPU.
+		const float* planes; // 6 planes of what the camera sees (4 floats each) for camera-relative positions, or nothing.
 	};
 
 

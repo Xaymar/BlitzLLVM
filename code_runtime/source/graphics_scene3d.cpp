@@ -17,9 +17,15 @@
 
 #include "shaders.inc"
 
+#include <algorithm>
+#include <tuple>
+#include <vector>
+
 using namespace bb::gfx;
 
 namespace bb::gfx {
+
+	draw_stats stats3d; // What the recorded draws cost, for Stats3D and BLITZ_FPS.
 
 	static uint32_t flush_number = 0; // Counts flushes, to know whether something that waits to be drawn uses a buffer.
 
@@ -185,6 +191,33 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
+	// Makes room in the buffer of draw data for that many draws. This is only done while nothing is being recorded, and
+	// what was drawn before has been waited for, so the old buffer can go. It is filled when the draws are recorded.
+	static void ensure_entities(uint32_t count)
+	{
+		if (count <= g.entity_capacity) {
+			return;
+		}
+		uint32_t capacity = g.entity_capacity ? g.entity_capacity : 1024;
+		while (capacity < count) {
+			capacity *= 2;
+		}
+		if (g.entity_buffer) {
+			graveyard.push({ g.entity_buffer, g.entity_memory });
+		}
+		create_buffer(VkDeviceSize(capacity) * sizeof(entity_push), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.entity_buffer, g.entity_memory);
+		check(vkMapMemory(g.device, g.entity_memory, 0, VK_WHOLE_SIZE, 0, &g.entity_mapped), "vkMapMemory");
+		g.entity_capacity = capacity;
+
+		VkDescriptorBufferInfo buffer_info = { g.entity_buffer, 0, VK_WHOLE_SIZE };
+		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                       = g.entity_set;
+		write.descriptorCount              = 1;
+		write.descriptorType               = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		write.pBufferInfo                  = &buffer_info;
+		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+	}
+
 	void create_3d()
 	{
 		// Scene uniform buffer, with its descriptor set.
@@ -211,13 +244,18 @@ namespace bb::gfx {
 		write.pBufferInfo                  = &buffer_info;
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 
-		VkDescriptorSetLayout layouts[2]   = { g.set_layout, g.scene_layout };
-		VkPushConstantRange   push         = { VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(entity_push) };
+		// The data of each draw is in a buffer, so that draws of the same thing can be a single call.
+		VkDescriptorSetLayoutBinding entity_binding = { 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		set_info.pBindings                          = &entity_binding;
+		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.entity_layout), "vkCreateDescriptorSetLayout");
+		alloc.pSetLayouts = &g.entity_layout;
+		check(vkAllocateDescriptorSets(g.device, &alloc, &g.entity_set), "vkAllocateDescriptorSets");
+		ensure_entities(1024);
+
+		VkDescriptorSetLayout layouts[3]   = { g.set_layout, g.scene_layout, g.entity_layout };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount         = 2;
+		layout_info.setLayoutCount         = 3;
 		layout_info.pSetLayouts            = layouts;
-		layout_info.pushConstantRangeCount = 1;
-		layout_info.pPushConstantRanges    = &push;
 		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
 
 		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
@@ -263,6 +301,13 @@ namespace bb::gfx {
 		draws.clear();
 		scenes.clear();
 		copies.clear();
+	}
+
+	// Whether two draws only differ in their data, which makes them instances of the same call.
+	static bool same_draw_state(draw_record const& a, draw_record const& b)
+	{
+		return (a.pipeline == b.pipeline) && (a.vertex_buffer == b.vertex_buffer) && (a.index_buffer == b.index_buffer) && (a.index_count == b.index_count)
+			&& (a.texture == b.texture) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write);
 	}
 
 	// Draws what a camera had waiting.
@@ -333,21 +378,63 @@ namespace bb::gfx {
 		uint32_t scene_offset = scene.slot * scene_stride;
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &g.scene_set, 1, &scene_offset);
 
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, 1, &g.entity_set, 0, nullptr);
+
+		// The data of every draw goes to the buffer in the order of the draws, and the number of the draw is the first
+		// instance of its call: draws that are the same in everything but their data are one call of many instances.
+		entity_push* entities = static_cast<entity_push*>(g.entity_mapped);
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
+			entities[scene.first_draw + i] = draws[scene.first_draw + i].push;
+		}
+
+		VkPipeline      bound_pipeline = VK_NULL_HANDLE;
+		VkDescriptorSet bound_set      = VK_NULL_HANDLE;
+		VkBuffer        bound_vertices = VK_NULL_HANDLE, bound_indices = VK_NULL_HANDLE;
+		int             bound_cull = -1, bound_test = -1, bound_write = -1;
+		for (uint32_t i = 0; i < scene.draw_count;) {
 			draw_record& d = draws[scene.first_draw + i];
-			vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(d.push), &d.push);
-			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.pipeline);
-			vkCmdSetCullMode(g.cmd, d.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE);
-			vkCmdSetDepthTestEnable(g.cmd, d.depth_test ? VK_TRUE : VK_FALSE);
-			vkCmdSetDepthWriteEnable(g.cmd, d.depth_write ? VK_TRUE : VK_FALSE);
+
+			uint32_t instances = 1;
+			while ((i + instances < scene.draw_count) && same_draw_state(d, draws[scene.first_draw + i + instances])) {
+				instances++;
+			}
+
+			if (d.pipeline != bound_pipeline) {
+				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.pipeline);
+				bound_pipeline = d.pipeline;
+				stats3d.pipelines++;
+			}
+			int cull = d.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;
+			if (cull != bound_cull) {
+				vkCmdSetCullMode(g.cmd, VkCullModeFlags(cull));
+				bound_cull = cull;
+			}
+			if (int(d.depth_test) != bound_test) {
+				vkCmdSetDepthTestEnable(g.cmd, d.depth_test ? VK_TRUE : VK_FALSE);
+				bound_test = d.depth_test;
+			}
+			if (int(d.depth_write) != bound_write) {
+				vkCmdSetDepthWriteEnable(g.cmd, d.depth_write ? VK_TRUE : VK_FALSE);
+				bound_write = d.depth_write;
+			}
 			texture_entry*  tex = texture_of(d.texture);
 			VkDescriptorSet set = (tex && tex->set && (tex->image.image != target.image->image)) ? tex->set : g.sets[TEXTURE_WHITE];
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
-
-			VkDeviceSize offset = 0;
-			vkCmdBindVertexBuffers(g.cmd, 0, 1, &d.vertex_buffer, &offset);
-			vkCmdBindIndexBuffer(g.cmd, d.index_buffer, 0, VK_INDEX_TYPE_UINT32);
-			vkCmdDrawIndexed(g.cmd, d.index_count, 1, 0, 0, 0);
+			if (set != bound_set) {
+				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
+				bound_set = set;
+				stats3d.textures++;
+			}
+			if ((d.vertex_buffer != bound_vertices) || (d.index_buffer != bound_indices)) {
+				VkDeviceSize offset = 0;
+				vkCmdBindVertexBuffers(g.cmd, 0, 1, &d.vertex_buffer, &offset);
+				vkCmdBindIndexBuffer(g.cmd, d.index_buffer, 0, VK_INDEX_TYPE_UINT32);
+				bound_vertices = d.vertex_buffer;
+				bound_indices  = d.index_buffer;
+				stats3d.buffers++;
+			}
+			vkCmdDrawIndexed(g.cmd, d.index_count, instances, 0, 0, scene.first_draw + i);
+			stats3d.draws++;
+			i += instances;
 		}
 		vkCmdEndRendering(g.cmd);
 	}
@@ -453,6 +540,35 @@ namespace bb::gfx {
 		return (alpha * paint_alpha < 0.999f) || (blend != 1) || see_through || vertex_alpha;
 	}
 
+	// Whether the box around a mesh is completely outside of what the camera sees, so that drawing it could not change
+	// a pixel. Sprites and planes are made when they are drawn, so they are always drawn.
+	static bool mesh_outside_view(bb::entity& mesh, const float* m, mesh_collector const& c)
+	{
+		float lo[3], hi[3];
+		if (!c.planes || mesh.sprite_mode || mesh.plane_divs || !bb::mesh_bounds(mesh, lo, hi) || (lo[0] > hi[0])) {
+			return false;
+		}
+		float corners[8][3];
+		for (int corner = 0; corner < 8; corner++) {
+			float local[3] = { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] };
+			for (int row = 0; row < 3; row++) {
+				corners[corner][row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + float(double(m[12 + row]) - double(c.origin[row]));
+			}
+		}
+		for (int plane = 0; plane < 6; plane++) {
+			const float* p       = c.planes + plane * 4;
+			bool         outside = true;
+			for (int corner = 0; corner < 8 && outside; corner++) {
+				// A bit of room, so that what only touches the edge of the view is still drawn.
+				outside = p[0] * corners[corner][0] + p[1] * corners[corner][1] + p[2] * corners[corner][2] + p[3] < -0.01f;
+			}
+			if (outside) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	static void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
@@ -476,6 +592,9 @@ namespace bb::gfx {
 
 		// Each surface is either solid or see-through, and a model can have both: the trunk of a tree and its leaves.
 		bb::update_terrain(mesh);
+		if (mesh_outside_view(mesh, m, *c)) {
+			return;
+		}
 		bool has_solid = mesh.surfaces.size == 0, has_blended = false;
 		for (uint32_t i = 0; i < mesh.surfaces.size; i++) {
 			if (surface_is_blended(mesh, *mesh.surfaces[i], alpha)) {
@@ -499,19 +618,43 @@ namespace bb::gfx {
 		}
 	}
 
-	// Insertion sort, which is fine for the number of things that are drawn and keeps the order of equal ones.
+	// Far to near for depth, and from the highest order to the lowest. Equal ones keep their order.
 	static void sort_items(bb::buffer<draw_item>& items, bool by_order)
 	{
-		for (uint32_t i = 1; i < items.size; i++) {
-			for (uint32_t j = i; j > 0; j--) {
-				bool swap = by_order ? (items[j - 1].order < items[j].order) : (items[j - 1].depth < items[j].depth);
-				if (!swap) {
-					break;
-				}
-				draw_item t  = items[j];
-				items[j]     = items[j - 1];
-				items[j - 1] = t;
+		if (items.size < 2) {
+			return;
+		}
+		auto before = [by_order](draw_item const& a, draw_item const& b) { return by_order ? (a.order > b.order) : (a.depth > b.depth); };
+		std::stable_sort(items.data, items.data + items.size, before);
+	}
+
+	// What is solid does not depend on the order it is drawn in, so the draws that are the same in what the GPU has to be
+	// told are put next to each other, which makes the calls and changes of state fewer. A surface and the layers that are
+	// drawn over it stay together, in the order they were in.
+	static void group_draws(uint32_t first, uint32_t last)
+	{
+		if (last - first < 2) {
+			return;
+		}
+		std::vector<uint32_t> units; // Where each unit starts.
+		for (uint32_t i = first; i < last; i++) {
+			if (draws[i].unit_start) {
+				units.push_back(i);
 			}
+		}
+		auto key = [](draw_record const& d) {
+			return std::make_tuple(uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+		};
+		std::stable_sort(units.begin(), units.end(), [&](uint32_t a, uint32_t b) { return key(draws[a]) < key(draws[b]); });
+		std::vector<draw_record> sorted;
+		sorted.reserve(last - first);
+		for (size_t u = 0; u < units.size(); u++) {
+			for (uint32_t i = units[u]; (i < last) && ((i == units[u]) || !draws[i].unit_start); i++) {
+				sorted.push_back(draws[i]);
+			}
+		}
+		for (uint32_t i = 0; i < sorted.size(); i++) {
+			draws[first + i] = sorted[i];
 		}
 	}
 
@@ -773,7 +916,9 @@ namespace bb::gfx {
 			record.cull         = !(two_sided || ((e->fx | paint.fx) & 16));
 			record.depth_test   = depth_test;
 			record.depth_write  = ((!surface_blended || cutout) && depth_test);
+			record.unit_start   = true;
 			static_cast<surface_gpu*>(surface.gpu)->used_by_flush = flush_number;
+			ensure_entities(draws.size + 1 + 7);
 			draws.push(record);
 			g.triangles_drawn += gpu->index_count / 3;
 
@@ -797,6 +942,7 @@ namespace bb::gfx {
 				more.push.mask[1]    = 1; // No fog again either, the first layer has it.
 				more.texture         = extra_handle;
 				more.depth_write     = false;
+				more.unit_start      = false;
 				switch (extra->blend) {
 				case 3:
 					more.pipeline = g.add3d;
@@ -811,6 +957,7 @@ namespace bb::gfx {
 					more.pipeline = g.mul3d;
 					break;
 				}
+				ensure_entities(draws.size + 1);
 				draws.push(more);
 			}
 		}
@@ -909,7 +1056,33 @@ namespace bb::gfx {
 		memcpy(static_cast<char*>(g.scene_mapped) + size_t(scene.slot) * scene_stride, &data, sizeof(data));
 
 		draw_list list;
-		mesh_collector collector = { &list, view };
+		// The planes of the view with the normals of length 1, from the rows of the matrix: left, right, bottom, top,
+		// far and near (the depth is reversed).
+		float planes[6][4];
+		{
+			const float* vp = data.viewprojection;
+			float row[4][4];
+			for (int r = 0; r < 4; r++) {
+				for (int c = 0; c < 4; c++) {
+					row[r][c] = vp[c * 4 + r];
+				}
+			}
+			for (int c = 0; c < 4; c++) {
+				planes[0][c] = row[3][c] + row[0][c];
+				planes[1][c] = row[3][c] - row[0][c];
+				planes[2][c] = row[3][c] + row[1][c];
+				planes[3][c] = row[3][c] - row[1][c];
+				planes[4][c] = row[2][c];
+				planes[5][c] = row[3][c] - row[2][c];
+			}
+			for (int i = 0; i < 6; i++) {
+				float len = sqrtf(planes[i][0] * planes[i][0] + planes[i][1] * planes[i][1] + planes[i][2] * planes[i][2]);
+				for (int c = 0; c < 4 && len > 1e-12f; c++) {
+					planes[i][c] /= len;
+				}
+			}
+		}
+		mesh_collector collector = { &list, view, current_origin, &planes[0][0] };
 		bb::for_each_visible(bb::MESH, collect_mesh, &collector);
 		sort_items(list.behind, true);
 		sort_items(list.blended, false);
@@ -920,9 +1093,11 @@ namespace bb::gfx {
 		for (uint32_t i = 0; i < list.behind.size; i++) {
 			draw_entity(list.behind[i], 2, false);
 		}
+		uint32_t opaque_first = draws.size;
 		for (uint32_t i = 0; i < list.opaque.size; i++) {
 			draw_entity(list.opaque[i], 0, true);
 		}
+		group_draws(opaque_first, draws.size);
 		for (uint32_t i = 0; i < list.blended.size; i++) {
 			draw_entity(list.blended[i], 1, true);
 		}
@@ -1120,6 +1295,22 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 	return 1;
 }
 
+// Stats3D 1000 to 1003: draw calls, pipeline binds, texture binds and buffer binds of what RenderWorld drew since it began.
+int32_t bb_draw_stats(int32_t which)
+{
+	if (!active()) {
+		return 0;
+	}
+	flush(); // What waits to be drawn counts too.
+	switch (which) {
+	case 0: return int32_t(stats3d.draws);
+	case 1: return int32_t(stats3d.pipelines);
+	case 2: return int32_t(stats3d.textures);
+	case 3: return int32_t(stats3d.buffers);
+	}
+	return 0;
+}
+
 // Draw only the edges of everything, if the GPU can.
 void bb_wire_frame(int32_t on)
 {
@@ -1158,6 +1349,7 @@ void bb_render_world(float tween)
 		fail("RenderWorld can not draw to an image, use a texture.");
 	}
 	g.triangles_drawn = 0;
+	stats3d           = {};
 
 	scene_data data = {};
 	data.ambient[0] = bb::ambient_light[0];

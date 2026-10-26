@@ -20,11 +20,12 @@ OP = dict(
     Load=61, Store=62, AccessChain=65, Decorate=71, MemberDecorate=72, CompositeConstruct=80, CompositeExtract=81,
     ImageSampleImplicitLod=87, FSub=131, FMul=133, Label=248, Return=253,
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
-    TypeBool=20, FOrdLessThan=184, SelectionMerge=247, BranchConditional=250, Kill=252,
+    TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
-DECORATION = dict(Block=2, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, Location=30, Binding=33, DescriptorSet=34, Offset=35)
+DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35)
+BUILTIN_INSTANCE_INDEX = 43
 
 
 def string_words(text):
@@ -353,6 +354,32 @@ def declare_scene(b):
     return b.variable("Uniform", scene, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
 
 
+def declare_entities(b):
+    """
+    What differs for each draw: the entity_push of graphics_internal.hpp, one for each instance in a buffer that is read
+    with the index of the instance, which is where the draw call says it starts (firstInstance) plus the number of the
+    instance. This is not a push constant so that many draws of the same thing can be one call.
+    Returns the variable of the buffer.
+    """
+    v4 = b.vec(4)
+    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4)
+    for index in range(8):
+        b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
+    entities = b.new_type("entities", "TypeRuntimeArray", entity)
+    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], 128))
+    block = b.struct("entity_block", entities)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
+        Module.inst("MemberDecorate", block, 0, DECORATION["NonWritable"]),
+        Module.inst("Decorate", block, DECORATION["BufferBlock"]),
+    ]
+    return b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 2), (DECORATION["Binding"], 0)]), entity
+
+
+def entity_member(b, entities, instance, index):
+    return b.load(b.vec(4), b.access("Uniform", b.vec(4), entities, b.const_int(0), instance, b.const_int(index)))
+
+
 def vertex_shader_3d():
     """
     Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights.
@@ -373,14 +400,17 @@ def vertex_shader_3d():
         vec4 eye;                // Where the camera is.
         vec4 lightDirection[8];  // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
     } scene;
-    layout(push_constant) uniform Entity {
+    struct Entity {
         vec4 model0, model1, model2; // Rows of the 4x3 model matrix.
         vec4 material;               // Color and alpha of the entity.
         vec4 params;                 // x: fullbright, y: vertex color, z: vertex alpha, w: shininess
         vec4 uv;                     // Scale (x, y) and offset (z, w) of the texture coordinates.
         vec4 mask;                   // For the fragment shader.
         vec4 extra;                  // x: whether the second set of texture coordinates is used.
-    } entity;
+    };
+    layout(set = 2, binding = 0) readonly buffer Entities { Entity entities[]; };
+    #define entity entities[gl_InstanceIndex]
+    layout(location = 6) flat out vec4 outMask; // What the fragment shader needs of the entity, so that it does not read the buffer.
     layout(location = 0) out vec2 outUV;
     layout(location = 1) out vec4 outColor;
     void main() {
@@ -409,12 +439,10 @@ def vertex_shader_3d():
 
     ubo = declare_scene(b)
 
-    # Push constants
-    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4)
-    for index in range(8):
-        b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
-    b.m.annotations.append(Module.inst("Decorate", entity, DECORATION["Block"]))
-    push = b.variable("PushConstant", entity)
+    # What differs for each draw
+    entities, _ = declare_entities(b)
+    in_instance = b.variable("Input", b.int(), [(DECORATION["BuiltIn"], BUILTIN_INSTANCE_INDEX)])
+    out_mask = b.variable("Output", b.vec(4), [(DECORATION["Location"], 6), (DECORATION["Flat"],)])
 
     # Inputs and outputs
     in_pos = b.variable("Input", v3, [(DECORATION["Location"], 0)])
@@ -437,12 +465,15 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
+    instance = b.load(b.int(), in_instance)
+    b.store(out_mask, entity_member(b, entities, instance, 6))
+
     def push_member(index):
-        return b.load(v4, b.access("PushConstant", v4, push, b.const_int(index)))
+        return entity_member(b, entities, instance, index)
 
     pos, normal = b.load(v3, in_pos), b.load(v3, in_normal)
     color = b.load(v4, in_color)
@@ -540,6 +571,7 @@ def fragment_shader_masked(mask_offset, fog=False):
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
     layout(push_constant) uniform Mask { layout(offset = mask_offset) vec4 mask; } pc;
+    // In 3D (fog), the mask is read from the buffer of entities with layout(location = 6) flat in int inInstance instead.
     layout(location = 0) in vec2 inUV;
     layout(location = 1) in vec4 inColor;
     layout(location = 0) out vec4 outColor;
@@ -559,11 +591,12 @@ def fragment_shader_masked(mask_offset, fog=False):
     image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
     sampled = b.new_type("sampled", "TypeSampledImage", image)
     mask_block = b.struct("mask", v4)
-    b.m.annotations += [
-        Module.inst("MemberDecorate", mask_block, 0, DECORATION["Offset"], mask_offset),
-        Module.inst("Decorate", mask_block, DECORATION["Block"]),
-    ]
-    push = b.variable("PushConstant", mask_block)
+    if not fog:
+        b.m.annotations += [
+            Module.inst("MemberDecorate", mask_block, 0, DECORATION["Offset"], mask_offset),
+            Module.inst("Decorate", mask_block, DECORATION["Block"]),
+        ]
+    push = None if fog else b.variable("PushConstant", mask_block)
     tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
     in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
     in_color = b.variable("Input", v4, [(DECORATION["Location"], 1)])
@@ -575,7 +608,8 @@ def fragment_shader_masked(mask_offset, fog=False):
         in_color_flat = b.variable("Input", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
         in_spec = b.variable("Input", v3, [(DECORATION["Location"], 4)])
         in_spec_flat = b.variable("Input", v3, [(DECORATION["Location"], 5), (DECORATION["Flat"],)])
-        interface += [in_depth, in_color_flat, in_spec, in_spec_flat]
+        in_mask = b.variable("Input", v4, [(DECORATION["Location"], 6), (DECORATION["Flat"],)])
+        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask]
 
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
@@ -585,7 +619,10 @@ def fragment_shader_masked(mask_offset, fog=False):
 
     uv, color = b.load(v2, in_uv), b.load(v4, in_color)
     t = b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), uv)
-    mask = b.load(v4, b.access("PushConstant", v4, push, b.const_int(0)))
+    if fog:
+        mask = b.load(v4, in_mask)
+    else:
+        mask = b.load(v4, b.access("PushConstant", v4, push, b.const_int(0)))
     if fog:
         # The third value of the mask asks for flat shading: the color of the first vertex of the triangle.
         flat = b.extract(mask, 2)
