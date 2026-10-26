@@ -244,6 +244,13 @@ namespace {
 		bool    mouse[4]      = {};
 		bool    mouse_hits[4] = {};
 		int     last_char     = 0;
+		int     key_queue[64] = {}; // Characters that were typed, for GetKey and WaitKey.
+		int     key_head = 0, key_tail = 0;
+		int     mouse_queue[16] = {}; // Mouse buttons that were pressed, for GetMouse.
+		int     mouse_head = 0, mouse_tail = 0;
+		float   mouse_dx = 0, mouse_dy = 0, mouse_dz = 0; // Movement since it was asked for last.
+		int     mouse_z = 0;
+		uint32_t triangles_drawn = 0;
 	};
 
 	state g;
@@ -504,6 +511,7 @@ namespace {
 	void destroy_swapchain();
 	void create_3d();
 	void create_depth(uint32_t width, uint32_t height);
+	void push_key(int code);
 
 	// Draws everything that has been asked for to the current buffer.
 	void flush()
@@ -1098,15 +1106,56 @@ namespace {
 					}
 					g.keys[key] = true;
 				}
-				if (!event.key.repeat) {
-					SDL_Keycode code = event.key.key;
-					g.last_char      = (code > 0 && code < 128) ? int(code) : 0;
-					if (event.key.scancode == SDL_SCANCODE_RETURN) {
-						g.last_char = 13;
+				// Keys that don't type a character, but still give one.
+				int special = 0;
+				switch (event.key.scancode) {
+				case SDL_SCANCODE_RETURN:
+				case SDL_SCANCODE_KP_ENTER:
+					special = 13;
+					break;
+				case SDL_SCANCODE_BACKSPACE:
+					special = 8;
+					break;
+				case SDL_SCANCODE_TAB:
+					special = 9;
+					break;
+				case SDL_SCANCODE_ESCAPE:
+					special = 27;
+					break;
+				case SDL_SCANCODE_DELETE:
+					special = 127;
+					break;
+				default:
+					break;
+				}
+				if (special) {
+					push_key(special);
+				}
+				break;
+			}
+			case SDL_EVENT_TEXT_INPUT: {
+				// UTF-8 for what was typed. Blitz only knows about 8 bit characters.
+				const unsigned char* text = reinterpret_cast<const unsigned char*>(event.text.text);
+				while (*text) {
+					int code = *text++;
+					if (code >= 0xC0 && *text) {
+						code = ((code & 0x1F) << 6) | (*text++ & 0x3F);
+					} else if (code >= 0x80) {
+						code = 0;
+						while ((*text & 0xC0) == 0x80) {
+							text++;
+						}
+					}
+					if (code > 0 && code < 256) {
+						push_key(code);
 					}
 				}
 				break;
 			}
+			case SDL_EVENT_MOUSE_WHEEL:
+				g.mouse_dz += event.wheel.y;
+				g.mouse_z += int(event.wheel.y);
+				break;
 			case SDL_EVENT_KEY_UP: {
 				int key = blitz_key(event.key.scancode);
 				if (key) {
@@ -1120,6 +1169,8 @@ namespace {
 				SDL_GetWindowSize(g.window, &ww, &wh);
 				g.mouse_x = int(event.motion.x * float(g.width) / float(ww));
 				g.mouse_y = int(event.motion.y * float(g.height) / float(wh));
+				g.mouse_dx += event.motion.xrel * float(g.width) / float(ww);
+				g.mouse_dy += event.motion.yrel * float(g.height) / float(wh);
 				break;
 			}
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: {
@@ -1127,6 +1178,11 @@ namespace {
 				if (b) {
 					g.mouse[b]      = true;
 					g.mouse_hits[b] = true;
+					g.mouse_queue[g.mouse_tail] = b;
+					g.mouse_tail = (g.mouse_tail + 1) % 16;
+					if (g.mouse_tail == g.mouse_head) {
+						g.mouse_head = (g.mouse_head + 1) % 16; // Forget the oldest.
+					}
 				}
 				break;
 			}
@@ -1146,6 +1202,15 @@ namespace {
 	bool active()
 	{
 		return g.created && !g.headless;
+	}
+
+	void push_key(int code)
+	{
+		g.key_queue[g.key_tail] = code;
+		g.key_tail              = (g.key_tail + 1) % 64;
+		if (g.key_tail == g.key_head) {
+			g.key_head = (g.key_head + 1) % 64; // Forget the oldest.
+		}
 	}
 
 	void ensure_swapchain()
@@ -1537,6 +1602,7 @@ namespace {
 			vkCmdBindVertexBuffers(g.cmd, 0, 1, &gpu->vertex_buffer, &offset);
 			vkCmdBindIndexBuffer(g.cmd, gpu->index_buffer, 0, VK_INDEX_TYPE_UINT32);
 			vkCmdDrawIndexed(g.cmd, gpu->index_count, 1, 0, 0, 0);
+			g.triangles_drawn += gpu->index_count / 3;
 		}
 	}
 
@@ -1704,6 +1770,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	if (!g.window) {
 		fail(SDL_GetError());
 	}
+	SDL_StartTextInput(g.window);
 
 	create_vulkan();
 	create_buffers(uint32_t(width), uint32_t(height));
@@ -1951,14 +2018,262 @@ int32_t bb_wait_key(void)
 		return 0;
 	}
 	flush();
-	g.last_char = 0;
+	// Whatever was typed before doesn't count: WaitKey waits for a key to be pressed now.
+	pump();
+	g.key_head = g.key_tail;
 	while (true) {
 		pump();
-		if (g.last_char) {
-			return g.last_char;
+		if (g.key_head != g.key_tail) {
+			int code   = g.key_queue[g.key_head];
+			g.key_head = (g.key_head + 1) % 64;
+			return code;
 		}
 		SDL_Delay(5);
 	}
+}
+
+// The next character that was typed, or 0 if there is none.
+int32_t bb_get_key(void)
+{
+	if (!active()) {
+		return 0;
+	}
+	pump();
+	if (g.key_head == g.key_tail) {
+		return 0;
+	}
+	int code   = g.key_queue[g.key_head];
+	g.key_head = (g.key_head + 1) % 64;
+	return code;
+}
+
+void bb_flush_keys(void)
+{
+	if (!active()) {
+		return;
+	}
+	pump();
+	g.key_head = g.key_tail;
+	memset(g.keys, 0, sizeof(g.keys));
+	memset(g.key_hits, 0, sizeof(g.key_hits));
+}
+
+// The next mouse button that was pressed (1 = left, 2 = right, 3 = middle), or 0.
+int32_t bb_get_mouse(void)
+{
+	if (!active()) {
+		return 0;
+	}
+	pump();
+	if (g.mouse_head == g.mouse_tail) {
+		return 0;
+	}
+	int button   = g.mouse_queue[g.mouse_head];
+	g.mouse_head = (g.mouse_head + 1) % 16;
+	return button;
+}
+
+void bb_flush_mouse(void)
+{
+	if (!active()) {
+		return;
+	}
+	pump();
+	g.mouse_head = g.mouse_tail;
+	memset(g.mouse_hits, 0, sizeof(g.mouse_hits));
+	g.mouse_dx = g.mouse_dy = g.mouse_dz = 0;
+}
+
+// How far the mouse moved since the last time this was asked.
+int32_t bb_mouse_x_speed(void)
+{
+	if (active()) {
+		pump();
+	}
+	int32_t v  = int32_t(g.mouse_dx);
+	g.mouse_dx -= float(v);
+	return v;
+}
+
+int32_t bb_mouse_y_speed(void)
+{
+	if (active()) {
+		pump();
+	}
+	int32_t v  = int32_t(g.mouse_dy);
+	g.mouse_dy -= float(v);
+	return v;
+}
+
+int32_t bb_mouse_z_speed(void)
+{
+	if (active()) {
+		pump();
+	}
+	int32_t v  = int32_t(g.mouse_dz);
+	g.mouse_dz -= float(v);
+	return v;
+}
+
+int32_t bb_mouse_z(void)
+{
+	if (active()) {
+		pump();
+	}
+	return g.mouse_z;
+}
+
+void bb_move_mouse(int32_t x, int32_t y)
+{
+	if (!active()) {
+		return;
+	}
+	int ww = 1, wh = 1;
+	SDL_GetWindowSize(g.window, &ww, &wh);
+	SDL_WarpMouseInWindow(g.window, float(x) * float(ww) / float(g.width), float(y) * float(wh) / float(g.height));
+	g.mouse_x = x;
+	g.mouse_y = y;
+}
+
+void bb_hide_pointer(void)
+{
+	if (active()) {
+		SDL_HideCursor();
+	}
+}
+
+void bb_show_pointer(void)
+{
+	if (active()) {
+		SDL_ShowCursor();
+	}
+}
+
+// There is no joystick support yet.
+int32_t bb_get_joy(int32_t port)
+{
+	(void)port;
+	return -1;
+}
+
+void bb_flush_joy(void) {}
+
+////////////////////////////////////////////////////////////////////////////////
+// Clipboard
+//
+// Stranded II talks to the Windows clipboard through a user library. Only text is supported, and without a window
+// the clipboard is only shared within the program.
+////////////////////////////////////////////////////////////////////////////////
+static char* clipboard_fallback = nullptr;
+
+int32_t bb_open_clipboard(int32_t window)
+{
+	(void)window;
+	return 1;
+}
+
+void bb_close_clipboard(void) {}
+
+void bb_empty_clipboard(void)
+{
+	free(clipboard_fallback);
+	clipboard_fallback = nullptr;
+	if (active()) {
+		SDL_SetClipboardText("");
+	}
+}
+
+int32_t bb_examine_clipboard(int32_t format)
+{
+	(void)format;
+	if (active()) {
+		return SDL_HasClipboardText() ? 1 : 0;
+	}
+	return (clipboard_fallback && *clipboard_fallback) ? 1 : 0;
+}
+
+const char* bb_get_clipboard_data(int32_t format)
+{
+	(void)format;
+	if (active()) {
+		char* text = SDL_GetClipboardText();
+		if (text) {
+			size_t length = strlen(text);
+			char*  copy   = static_cast<char*>(malloc(length + 1));
+			memcpy(copy, text, length + 1);
+			SDL_free(text);
+			return copy;
+		}
+	}
+	return clipboard_fallback ? clipboard_fallback : "";
+}
+
+int32_t bb_set_clipboard_data(int32_t format, const char* text)
+{
+	(void)format;
+	free(clipboard_fallback);
+	size_t length      = text ? strlen(text) : 0;
+	clipboard_fallback = static_cast<char*>(malloc(length + 1));
+	memcpy(clipboard_fallback, text ? text : "", length + 1);
+	if (active()) {
+		SDL_SetClipboardText(clipboard_fallback);
+	}
+	return 1;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Information about the graphics
+////////////////////////////////////////////////////////////////////////////////
+int32_t bb_graphics_depth(void)
+{
+	return 32;
+}
+
+int32_t bb_gfx_mode_3d_exists(int32_t width, int32_t height, int32_t depth)
+{
+	(void)width;
+	(void)height;
+	(void)depth;
+	return 1;
+}
+
+int32_t bb_windowed_3d(void)
+{
+	return 1;
+}
+
+// Video memory in bytes, as much as the GPU says it has (and what is left of it can't be asked for).
+int32_t bb_total_vid_mem(void)
+{
+	if (!active()) {
+		return 0;
+	}
+	uint64_t total = 0;
+	for (uint32_t i = 0; i < g.memory.memoryHeapCount; i++) {
+		if (g.memory.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+			total += g.memory.memoryHeaps[i].size;
+		}
+	}
+	return total > 0x7FFFFFFFull ? 0x7FFFFFFF : int32_t(total);
+}
+
+int32_t bb_avail_vid_mem(void)
+{
+	return bb_total_vid_mem();
+}
+
+int32_t bb_tris_rendered(void)
+{
+	return int32_t(g.triangles_drawn);
+}
+
+int32_t bb_active_textures(void)
+{
+	int32_t count = 0;
+	for (uint32_t i = 0; i < texture_table.size; i++) {
+		count += texture_table[i].used ? 1 : 0;
+	}
+	return count;
 }
 
 int32_t bb_key_down(int32_t key)
@@ -2100,6 +2415,7 @@ void bb_render_world(float tween)
 		return;
 	}
 	flush(); // Whatever was drawn before comes first.
+	g.triangles_drawn = 0;
 
 	scene_data data = {};
 	data.ambient[0] = bb::ambient_light[0];
