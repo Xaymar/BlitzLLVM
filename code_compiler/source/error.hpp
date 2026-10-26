@@ -41,6 +41,6 @@ namespace blitz {
 	 * files that can't be read. Without a column (0) only the line is shown. Long lines are cut around the column. */
 	std::string source_excerpt(std::filesystem::path const& file, uint64_t line, uint64_t column);
 
-	/** "file:line:column: kind: reason" followed by the source_excerpt, without a trailing new line. */
+	/** "file:line:column: kind: reason", with the file lexically normalized (no "." or ".." parts), followed by the source_excerpt, without a trailing new line. */
 	std::string diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason);
 } // namespace blitz
