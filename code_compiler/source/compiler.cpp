@@ -291,7 +291,9 @@ std::string blitz::compiler::truthy(value v, ast::location const& where)
 	if (blitz::types::is_integer(v.type)) {
 		emit(r + " = icmp ne " + blitz::types::to_llvm(v.type) + " " + v.repr + ", 0");
 	} else if (blitz::types::is_real(v.type)) {
-		emit(r + " = fcmp une " + blitz::types::to_llvm(v.type) + " " + v.repr + ", 0.0");
+		// A condition is an integer in Blitz, so a real is rounded first and 0.4 is false.
+		auto num = convert(v, type::INT32, where, false);
+		emit(r + " = icmp ne i32 " + num.repr + ", 0");
 	} else if (v.type == type::STRING) {
 		// Conditions are integers in Blitz, so a string is true when it starts with a number that is not 0.
 		auto num = convert(v, type::INT32, where, false);
@@ -382,7 +384,7 @@ void blitz::compiler::collect_globals(ast::block const& block)
 				}
 				type t = decl.type;
 				if (t == type::UNKNOWN) {
-					t = d->constant ? static_type(decl.initial.get()) : type::INT32;
+					t = type::INT32; // Also for a Const, so `Const Half = 0.5` is 0 like in the original.
 				}
 				auto     symbol = "@bb.g" + std::to_string(_counter++);
 				uint32_t count  = decl.array_size ? array_count(decl.array_size.get(), decl.where) : 0;
@@ -430,40 +432,6 @@ void blitz::compiler::collect_globals(ast::block const& block)
 			}
 		}
 	}
-}
-
-// The type that an expression will have, without generating any code. Used for constants, which have to be known early.
-type blitz::compiler::static_type(ast::expression const* expr)
-{
-	if (auto l = dynamic_cast<ast::literal const*>(expr)) {
-		switch (l->kind) {
-		case ast::literal::variant::REAL:
-			return type::FLOAT32;
-		case ast::literal::variant::STRING:
-			return type::STRING;
-		case ast::literal::variant::UNSIGNED_INTEGER:
-			return (l->u > UINT32_MAX) ? type::UINT64 : type::UINT32;
-		default:
-			return ((l->i > INT32_MAX) || (l->i < INT32_MIN)) ? type::INT64 : type::INT32;
-		}
-	} else if (auto u = dynamic_cast<ast::unary const*>(expr)) {
-		return (u->kind == ast::unary::op::NOT) ? type::INT32 : static_type(u->operand.get());
-	} else if (auto b = dynamic_cast<ast::binary const*>(expr)) {
-		auto lt = static_type(b->lhs.get()), rt = static_type(b->rhs.get());
-		if (b->kind >= ast::binary::op::EQUAL) {
-			return type::INT32;
-		} else if ((lt == type::STRING) || (rt == type::STRING)) {
-			return type::STRING;
-		} else if ((b->kind == ast::binary::op::POWER) || blitz::types::is_real(lt) || blitz::types::is_real(rt)) {
-			return type::FLOAT32;
-		}
-		return type::INT32;
-	} else if (auto r = dynamic_cast<ast::reference const*>(expr)) {
-		if (auto var = find(r->name)) {
-			return var->type;
-		}
-	}
-	return type::INT32;
 }
 
 std::string blitz::compiler::generate(ast::program const& program)

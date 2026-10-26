@@ -109,7 +109,6 @@ namespace blitz {
 		std::vector<ast::expression_ptr>   parse_arguments();
 		ast::expression_ptr                parse_expression();
 		ast::expression_ptr                parse_or();
-		ast::expression_ptr                parse_and();
 		ast::expression_ptr                parse_not();
 		ast::expression_ptr                parse_comparison();
 		ast::expression_ptr                parse_shift();

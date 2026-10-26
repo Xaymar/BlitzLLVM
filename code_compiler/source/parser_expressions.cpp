@@ -102,37 +102,41 @@ blitz::ast::expression_ptr blitz::parser::make_binary(blitz::token const& at, as
 
 blitz::ast::expression_ptr blitz::parser::parse_expression()
 {
+	// Not is the loosest operator: it applies to a whole chain of And, Or and Xor, so `Not a And b` is `Not (a And b)`.
+	if (is_keyword(tk(), "not")) {
+		auto op = tk();
+		advance();
+		auto node     = std::make_unique<ast::unary>();
+		node->where   = here(op);
+		node->kind    = ast::unary::op::NOT;
+		node->operand = parse_or();
+		return node;
+	}
 	return parse_or();
 }
 
+// And, Or and Xor share a single level and go from left to right, so `a Or b And c` is `(a Or b) And c`.
 blitz::ast::expression_ptr blitz::parser::parse_or()
 {
-	auto lhs = parse_and();
+	auto lhs = parse_not();
 	while (true) {
 		auto op = tk();
+		ast::binary::op kind;
 		if (is_keyword(op, "or")) {
-			advance();
-			lhs = make_binary(op, ast::binary::op::OR, std::move(lhs), parse_and());
+			kind = ast::binary::op::OR;
 		} else if (is_keyword(op, "xor")) {
-			advance();
-			lhs = make_binary(op, ast::binary::op::XOR, std::move(lhs), parse_and());
+			kind = ast::binary::op::XOR;
+		} else if (is_keyword(op, "and")) {
+			kind = ast::binary::op::AND;
 		} else {
 			return lhs;
 		}
-	}
-}
-
-blitz::ast::expression_ptr blitz::parser::parse_and()
-{
-	auto lhs = parse_not();
-	while (is_keyword(tk(), "and")) {
-		auto op = tk();
 		advance();
-		lhs = make_binary(op, ast::binary::op::AND, std::move(lhs), parse_not());
+		lhs = make_binary(op, kind, std::move(lhs), parse_not());
 	}
-	return lhs;
 }
 
+// The original only allows Not in front of a whole expression. Behind And, Or and Xor it is accepted here too, and applies to the comparison after it.
 blitz::ast::expression_ptr blitz::parser::parse_not()
 {
 	if (is_keyword(tk(), "not")) {
@@ -149,7 +153,7 @@ blitz::ast::expression_ptr blitz::parser::parse_not()
 
 blitz::ast::expression_ptr blitz::parser::parse_comparison()
 {
-	auto lhs = parse_shift();
+	auto lhs = parse_additive();
 	while (true) {
 		auto op = tk();
 		if (op.type != blitz::token::variant::SYMBOL) {
@@ -172,13 +176,14 @@ blitz::ast::expression_ptr blitz::parser::parse_comparison()
 			return lhs;
 		}
 		advance();
-		lhs = make_binary(op, kind, std::move(lhs), parse_shift());
+		lhs = make_binary(op, kind, std::move(lhs), parse_additive());
 	}
 }
 
+// Shifts bind tighter than + and -, so `1 + 2 Shl 3` is `1 + (2 Shl 3)`.
 blitz::ast::expression_ptr blitz::parser::parse_shift()
 {
-	auto lhs = parse_additive();
+	auto lhs = parse_multiplicative();
 	while (true) {
 		auto op = tk();
 		ast::binary::op kind;
@@ -192,17 +197,17 @@ blitz::ast::expression_ptr blitz::parser::parse_shift()
 			return lhs;
 		}
 		advance();
-		lhs = make_binary(op, kind, std::move(lhs), parse_additive());
+		lhs = make_binary(op, kind, std::move(lhs), parse_multiplicative());
 	}
 }
 
 blitz::ast::expression_ptr blitz::parser::parse_additive()
 {
-	auto lhs = parse_multiplicative();
+	auto lhs = parse_shift();
 	while (is_symbol(tk(), "+") || is_symbol(tk(), "-")) {
 		auto op = tk();
 		advance();
-		lhs = make_binary(op, (op.text == "+") ? ast::binary::op::ADD : ast::binary::op::SUBTRACT, std::move(lhs), parse_multiplicative());
+		lhs = make_binary(op, (op.text == "+") ? ast::binary::op::ADD : ast::binary::op::SUBTRACT, std::move(lhs), parse_shift());
 	}
 	return lhs;
 }
@@ -343,6 +348,17 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 		text.pop_back();
 	}
 	int base = 10;
+	if ((text.length() >= 2) && ((text[0] == '$') || (text[0] == '%'))) {
+		// Like in the original, `$` and `%` numbers only keep their lowest 32 bits, so $FFFFFFFF is -1 and not 4294967295.
+		base                  = (text[0] == '$') ? 16 : 2;
+		uint32_t     wrapped  = 0;
+		for (size_t idx = 1; idx < text.length(); idx++) {
+			wrapped = (base == 16) ? ((wrapped << 4) | uint32_t(isdigit((unsigned char)text[idx]) ? (text[idx] & 0xf) : ((text[idx] & 7) + 9))) : ((wrapped << 1) | uint32_t(text[idx] == '1'));
+		}
+		node->kind = ast::literal::variant::INTEGER;
+		node->i    = int32_t(wrapped);
+		return node;
+	}
 	if ((text.length() >= 2) && (text[0] == '0') && ((text[1] == 'x') || (text[1] == 'X'))) {
 		base = 16;
 		text = text.substr(2);
