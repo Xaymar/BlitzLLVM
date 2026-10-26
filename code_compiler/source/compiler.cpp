@@ -247,8 +247,11 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 			warn(where, "Implicit conversion from string to number.");
 		}
 		if (to_int) {
-			auto wide = call_runtime("bb_str_to_i64", type::INT64, { from });
-			return convert(wide, to, where, false);
+			// Like atoi: what does not fit stops at the largest number, and 64 bit targets get more room.
+			if (t::bits(to) > 32) {
+				return convert(call_runtime("bb_str_to_i64", type::INT64, { from }), to, where, false);
+			}
+			return convert(call_runtime("bb_str_to_i32", type::INT32, { from }), to, where, false);
 		}
 		auto wide = call_runtime("bb_str_to_f64", type::FLOAT64, { from });
 		return convert(wide, to, where, false);
@@ -287,8 +290,9 @@ std::string blitz::compiler::truthy(value v, ast::location const& where)
 	} else if (blitz::types::is_real(v.type)) {
 		emit(r + " = fcmp une " + blitz::types::to_llvm(v.type) + " " + v.repr + ", 0.0");
 	} else if (v.type == type::STRING) {
-		auto len = call_runtime("bb_len", type::INT32, { v });
-		emit(r + " = icmp ne i32 " + len.repr + ", 0");
+		// Conditions are integers in Blitz, so a string is true when it starts with a number that is not 0.
+		auto num = convert(v, type::INT32, where, false);
+		emit(r + " = icmp ne i32 " + num.repr + ", 0");
 	} else if (v.type == type::STRUCT) {
 		emit(r + " = icmp ne ptr " + v.repr + ", null");
 	} else {

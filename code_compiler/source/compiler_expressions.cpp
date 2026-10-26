@@ -341,6 +341,10 @@ blitz::compiler::value blitz::compiler::gen_unary(ast::unary const* node)
 	auto v      = gen(node->operand.get());
 
 	if (node->kind == ast::unary::op::NOT) {
+		if (v.type == type::STRING) {
+			// Not x is x = 0 in Blitz, which compares a string with "0" as text.
+			return from_bool(compare(ast::binary::op::EQUAL, v, { "0", type::INT32 }, node->where));
+		}
 		auto cond = truthy(v, node->where);
 		auto r    = tmp();
 		emit(r + " = xor i1 " + cond + ", true");
@@ -450,8 +454,9 @@ blitz::compiler::value blitz::compiler::gen_binary(ast::binary const* node)
 		return from_bool(compare(node->kind, lhs, rhs, node->where));
 	}
 
-	// Strings can be added to each other, and to numbers.
-	if ((lhs.type == type::STRING) || (rhs.type == type::STRING)) {
+	// Strings can be added to each other, and to numbers. The bitwise operators below take them as integers.
+	bool bitwise = (node->kind == op::AND) || (node->kind == op::OR) || (node->kind == op::XOR) || (node->kind == op::SHL) || (node->kind == op::SHR) || (node->kind == op::SAR);
+	if (!bitwise && ((lhs.type == type::STRING) || (rhs.type == type::STRING))) {
 		if (node->kind != op::ADD) {
 			throw err(node->where, "Strings only support adding and comparing.");
 		}
@@ -472,10 +477,10 @@ blitz::compiler::value blitz::compiler::gen_binary(ast::binary const* node)
 
 	// Bitwise and logical operators work on integers only. Reals are truncated.
 	if ((node->kind == op::AND) || (node->kind == op::OR) || (node->kind == op::XOR) || (node->kind == op::SHL) || (node->kind == op::SHR) || (node->kind == op::SAR)) {
-		if (t::is_real(lhs.type)) {
+		if (t::is_real(lhs.type) || (lhs.type == type::STRING)) {
 			lhs = convert(lhs, type::INT32, node->where, false);
 		}
-		if (t::is_real(rhs.type)) {
+		if (t::is_real(rhs.type) || (rhs.type == type::STRING)) {
 			rhs = convert(rhs, type::INT32, node->where, false);
 		}
 		auto result = common_type(lhs.type, rhs.type, node->where);
