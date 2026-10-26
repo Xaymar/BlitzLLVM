@@ -7,10 +7,38 @@ include(ExternalContent)
 ################################################################################
 # Dependencies
 #
-# Built in isolation through ExternalContent, so that neither their options nor
-# their targets leak into this project. Only Release builds are used, as the
+# Taken from the git submodules in third_party/ (git submodule update --init) and built in
+# isolation through ExternalContent, so that neither their options nor their targets leak into
+# this project. Only Release builds are used, as the
 # result is linked into programs by clang which uses the release C runtime.
 ################################################################################
+find_package(Git REQUIRED)
+foreach(_DEPENDENCY IN ITEMS Vulkan-Headers SDL SDL_image SDL_mixer)
+	if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/${_DEPENDENCY}/CMakeLists.txt")
+		message(FATAL_ERROR "The submodule 'third_party/${_DEPENDENCY}' is missing, run 'git submodule update --init' first.")
+	endif()
+endforeach()
+
+# Builds a submodule from third_party/. A macro, so that the <NAME>_INSTALL_PATH variables reach the caller.
+# The checked out commit is passed to the configure step as an unused definition, as ExternalContent only rebuilds when its
+# arguments change, which makes a submodule update rebuild the dependency.
+macro(blitz_dependency NAME DIRECTORY)
+	execute_process(
+		COMMAND "${GIT_EXECUTABLE}" -C "${PROJECT_SOURCE_DIR}/third_party/${DIRECTORY}" rev-parse HEAD
+		OUTPUT_VARIABLE _DEPENDENCY_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	set(_DEPENDENCY_ARGUMENTS ${ARGN})
+	list(FIND _DEPENDENCY_ARGUMENTS CONFIGURE_ARGS _DEPENDENCY_INDEX)
+	math(EXPR _DEPENDENCY_INDEX "${_DEPENDENCY_INDEX} + 1")
+	list(INSERT _DEPENDENCY_ARGUMENTS ${_DEPENDENCY_INDEX} "-DBLITZLLVM_SOURCE_REVISION=${_DEPENDENCY_REVISION}")
+	ExternalContent(
+		NAME ${NAME}
+		SKIP_DOWNLOAD
+		SOURCE_PATH "${PROJECT_SOURCE_DIR}/third_party/${DIRECTORY}"
+		${_DEPENDENCY_ARGUMENTS}
+	)
+endmacro()
+
 set(_DEPENDENCY_ARGS -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE=Release)
 if(CMAKE_GENERATOR_PLATFORM)
 	list(APPEND _DEPENDENCY_ARGS -A "${CMAKE_GENERATOR_PLATFORM}")
@@ -26,22 +54,14 @@ if(NOT CMAKE_GENERATOR MATCHES "Visual Studio")
 endif()
 
 # Vulkan headers. The Vulkan loader itself is never linked: SDL loads it at runtime.
-ExternalContent(
-	NAME VulkanHeaders
-	GIT_URL "https://github.com/KhronosGroup/Vulkan-Headers"
-	GIT_REF "vulkan-sdk-1.4.363.0"
-	GIT_CLONE_OPTIONS --depth 1
+blitz_dependency(VulkanHeaders Vulkan-Headers
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} -DBUILD_TESTS=OFF
 	BUILD_ARGS --config Release
 	INSTALL_ARGS --config Release
 )
 
 # SDL3, statically linked so that the programs we produce are a single file.
-ExternalContent(
-	NAME SDL3
-	GIT_URL "https://github.com/libsdl-org/SDL"
-	GIT_REF "release-3.4.18"
-	GIT_CLONE_OPTIONS --depth 1
+blitz_dependency(SDL3 SDL
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS}
 		-DSDL_STATIC=ON -DSDL_SHARED=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF -DSDL_INSTALL_DOCS=OFF
 	BUILD_ARGS --config Release --parallel
@@ -59,7 +79,23 @@ cmake_path(GET _SDL3_CONFIG PARENT_PATH _SDL3_CONFIG_DIR)
 #
 # SDL_image also always builds the AV1 encoder (aom) when it builds libavif, which is only needed to save AVIF files and makes up
 # half of every program, so it is turned off by changing the lines of its CMakeLists.txt that turn it on.
+#
+# The source is the third_party/SDL_image submodule, which this changes in place (its git status is ignored through .gitmodules).
+# A stamp next to the build directory records the revision that was prepared, so that a restored dependency cache skips this.
 function(blitz_fetch_image_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH)
+	execute_process(
+		COMMAND "${GIT_EXECUTABLE}" -C "${SOURCE_PATH}" rev-parse HEAD
+		OUTPUT_VARIABLE _REVISION OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	set(_STAMP "${BINARY_PATH}.codecs")
+	if(EXISTS "${_STAMP}")
+		file(READ "${_STAMP}" _STAMPED)
+		if(_STAMPED STREQUAL _REVISION)
+			return()
+		endif()
+	endif()
+	execute_process(COMMAND "${GIT_EXECUTABLE}" -C "${SOURCE_PATH}" checkout -- CMakeLists.txt)
+
 	foreach(_STEP IN ITEMS
 		"${SOURCE_PATH}|external/libwebp external/libavif external/dav1d external/libjxl"
 		# libjxl is built without skcms, which makes it use lcms2 instead.
@@ -100,14 +136,11 @@ function(blitz_fetch_image_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH
 			message(FATAL_ERROR "SDL_image changed, '${_FROM}' is no longer in its CMakeLists.txt.")
 		endif()
 	endforeach()
+	file(WRITE "${_STAMP}" "${_REVISION}")
 endfunction()
 
 # Loads the image files for textures. PNG and JPEG are handled by the built in stb_image, AVIF (libavif with dav1d to decode), JPEG XL (libjxl) and WebP (libwebp) by the vendored libraries, which are all linked in statically.
-ExternalContent(
-	NAME SDL3_image
-	GIT_URL "https://github.com/libsdl-org/SDL_image"
-	GIT_REF "release-3.4.8"
-	GIT_CLONE_OPTIONS --depth 1
+blitz_dependency(SDL3_image SDL_image
 	PATCH_FUNCTION blitz_fetch_image_codecs
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
 		-DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_DEPS_SHARED=OFF -DSDLIMAGE_STRICT=OFF
@@ -118,11 +151,7 @@ ExternalContent(
 )
 
 # Plays the sounds. Decoders for WAV, MP3, OGG (stb_vorbis) and FLAC are built in, the others need libraries that aren't vendored.
-ExternalContent(
-	NAME SDL3_mixer
-	GIT_URL "https://github.com/libsdl-org/SDL_mixer"
-	GIT_REF "release-3.2.4"
-	GIT_CLONE_OPTIONS --depth 1
+blitz_dependency(SDL3_mixer SDL_mixer
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
 		-DBUILD_SHARED_LIBS=OFF -DSDLMIXER_VENDORED=OFF -DSDLMIXER_DEPS_SHARED=OFF -DSDLMIXER_STRICT=OFF
 		-DSDLMIXER_SAMPLES=OFF -DSDLMIXER_TESTS=OFF -DSDLMIXER_INSTALL=ON

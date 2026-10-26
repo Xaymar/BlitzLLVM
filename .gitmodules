@@ -31,3 +31,20 @@
 	path = cmake/externalcontent
 	url = https://github.com/Xaymar/cmake-externalcontent.git
 	shallow = true
+[submodule "third_party/Vulkan-Headers"]
+	path = third_party/Vulkan-Headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers
+	shallow = true
+[submodule "third_party/SDL"]
+	path = third_party/SDL
+	url = https://github.com/libsdl-org/SDL
+	shallow = true
+[submodule "third_party/SDL_image"]
+	path = third_party/SDL_image
+	url = https://github.com/libsdl-org/SDL_image
+	shallow = true
+	ignore = all
+[submodule "third_party/SDL_mixer"]
+	path = third_party/SDL_mixer
+	url = https://github.com/libsdl-org/SDL_mixer
+	shallow = true
