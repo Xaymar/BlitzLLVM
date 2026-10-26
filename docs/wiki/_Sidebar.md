@@ -6,8 +6,7 @@
 
 <hr>
 
-<ul>
-<li><details><summary><b><a href="BlitzBasic">BlitzBasic</a></b></summary>
+<details><summary><b><a href="BlitzBasic">BlitzBasic</a></b></summary>
 <ul>
 <li><details><summary><a href="BlitzBasic-Audio">Audio</a> (17)</summary>
 <ul>
@@ -386,8 +385,9 @@
 </ul>
 </details></li>
 </ul>
-</details></li>
-<li><details><summary><b><a href="Blitz3D">Blitz3D</a></b></summary>
+</details>
+
+<details><summary><b><a href="Blitz3D">Blitz3D</a></b></summary>
 <ul>
 <li><details><summary><a href="Blitz3D-3D-Sound">3D Sound</a> (2)</summary>
 <ul>
@@ -700,8 +700,9 @@
 </ul>
 </details></li>
 </ul>
-</details></li>
-<li><details><summary><b><a href="BlitzPlus">BlitzPlus</a></b></summary>
+</details>
+
+<details><summary><b><a href="BlitzPlus">BlitzPlus</a></b></summary>
 <ul>
 <li><details><summary><a href="BlitzPlus-Canvas">Canvas</a> (7)</summary>
 <ul>
@@ -888,5 +889,4 @@
 </ul>
 </details></li>
 </ul>
-</details></li>
-</ul>
+</details>
