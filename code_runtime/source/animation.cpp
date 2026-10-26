@@ -19,7 +19,8 @@
 
 extern "C" {
 void    bb_runtime_error(const char* message);
-int32_t bb_load_texture(const char* file, int32_t flags);
+int32_t bb_load_texture_flags(const char* file, int32_t flags);
+int32_t bb_filter_texture_flags(const char* file, int32_t flags);
 void    bb_name_entity(int32_t handle, const char* name);
 }
 
@@ -182,9 +183,9 @@ namespace {
 		float xx = x * x, yy = y * y, zz = z * z, xy = x * y, xz = x * z, yz = y * z, wx = w * x, wy = w * y, wz = w * z;
 		float r[3][3] = {
 			// The quaternions of the original turn the other way round than the usual ones.
-			{ 1 - 2 * (yy + zz), 2 * (xy + wz), 2 * (xz - wy) },
-			{ 2 * (xy - wz), 1 - 2 * (xx + zz), 2 * (yz + wx) },
-			{ 2 * (xz + wy), 2 * (yz - wx), 1 - 2 * (xx + yy) },
+			{ 1 - 2 * (yy + zz), 2 * (xy - wz), 2 * (xz + wy) },
+			{ 2 * (xy + wz), 1 - 2 * (xx + zz), 2 * (yz - wx) },
+			{ 2 * (xz - wy), 2 * (yz + wx), 1 - 2 * (xx + yy) },
 		};
 		memset(m, 0, sizeof(float) * 16);
 		for (int col = 0; col < 3; col++) {
@@ -765,15 +766,17 @@ namespace {
 
 		size_t dir_length = strlen(m.directory);
 		char*  path       = static_cast<char*>(malloc(dir_length + strlen(name) + 2));
+		// The filters of TextureFilter look at the name that the model has for it.
+		int32_t     flags         = bb_filter_texture_flags(t.name, t.flags ? t.flags : 1);
 		const char* candidates[2] = { plain, base };
 		for (const char* candidate : candidates) {
 			sprintf(path, "%s%s", m.directory, candidate);
 			if (file_exists(path)) {
-				t.handle = bb_load_texture(path, t.flags ? t.flags : 1);
+				t.handle = bb_load_texture_flags(path, flags);
 				break;
 			}
 			if (file_exists(candidate)) {
-				t.handle = bb_load_texture(candidate, t.flags ? t.flags : 1);
+				t.handle = bb_load_texture_flags(candidate, flags);
 				break;
 			}
 		}
