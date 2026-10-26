@@ -24,6 +24,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 CountGfxModes3D  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### GfxDriver3D
@@ -31,6 +33,8 @@ _Not documented yet._
 ```blitzbasic
 GfxDriver3D driver%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -44,6 +48,8 @@ _Not documented yet._
 GfxDriverCaps3D  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### GfxMode3D
@@ -51,6 +57,8 @@ _Not documented yet._
 ```blitzbasic
 GfxMode3D mode%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -63,6 +71,8 @@ _Not documented yet._
 ```blitzbasic
 GfxMode3DExists width%, height%, depth%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -78,6 +88,8 @@ _Not documented yet._
 Graphics3D width%, height%, depth%=0, mode%=0
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -92,5 +104,7 @@ _Not documented yet._
 ```blitzbasic
 Windowed3D  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._

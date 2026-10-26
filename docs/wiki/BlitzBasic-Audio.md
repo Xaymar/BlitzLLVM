@@ -34,6 +34,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 ChannelPan channel%, pan#
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -46,6 +48,8 @@ _Not documented yet._
 ```blitzbasic
 ChannelPitch channel%, pitch%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -60,6 +64,8 @@ _Not documented yet._
 ChannelPlaying channel%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -71,6 +77,8 @@ _Not documented yet._
 ```blitzbasic
 ChannelVolume channel%, volume#
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -85,6 +93,8 @@ _Not documented yet._
 FreeSound sound%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -96,6 +106,8 @@ _Not documented yet._
 ```blitzbasic
 Load3DSound filename$  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -109,6 +121,8 @@ _Not documented yet._
 LoadSound filename$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -120,6 +134,8 @@ _Not documented yet._
 ```blitzbasic
 LoopSound sound%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -133,6 +149,8 @@ _Not documented yet._
 PauseChannel channel%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -144,6 +162,8 @@ _Not documented yet._
 ```blitzbasic
 PlayCDTrack track%, mode%=1  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -158,6 +178,8 @@ _Not documented yet._
 PlayMusic midifile$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -169,6 +191,8 @@ _Not documented yet._
 ```blitzbasic
 PlaySound sound%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -182,6 +206,8 @@ _Not documented yet._
 ResumeChannel channel%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -193,6 +219,8 @@ _Not documented yet._
 ```blitzbasic
 SoundPan sound%, pan#
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -207,6 +235,8 @@ _Not documented yet._
 SoundPitch sound%, pitch%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -220,6 +250,8 @@ _Not documented yet._
 SoundVolume sound%, volume#
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -232,6 +264,8 @@ _Not documented yet._
 ```blitzbasic
 StopChannel channel%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

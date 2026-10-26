@@ -23,6 +23,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 CreateSprite parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -34,6 +36,8 @@ _Not documented yet._
 ```blitzbasic
 HandleSprite sprite%, x_handle#, y_handle#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -49,6 +53,8 @@ _Not documented yet._
 LoadSprite file$, texture_flags%=1, parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -63,6 +69,8 @@ _Not documented yet._
 RotateSprite sprite%, angle#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -75,6 +83,8 @@ _Not documented yet._
 ```blitzbasic
 ScaleSprite sprite%, x_scale#, y_scale#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -89,6 +99,8 @@ _Not documented yet._
 ```blitzbasic
 SpriteViewMode sprite%, view_mode%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

@@ -26,6 +26,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 CheckMenu menu%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -37,6 +39,8 @@ _Not documented yet._
 ```blitzbasic
 CreateMenu text$, menu_id%, parent_menu%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -52,6 +56,8 @@ _Not documented yet._
 DisableMenu menu%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -63,6 +69,8 @@ _Not documented yet._
 ```blitzbasic
 EnableMenu menu%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -76,6 +84,8 @@ _Not documented yet._
 MenuChecked menu%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -87,6 +97,8 @@ _Not documented yet._
 ```blitzbasic
 MenuEnabled menu%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -100,6 +112,8 @@ _Not documented yet._
 MenuText menu%  ; returns String
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -111,6 +125,8 @@ _Not documented yet._
 ```blitzbasic
 SetMenuText menu%, text$
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -124,6 +140,8 @@ _Not documented yet._
 ```blitzbasic
 UncheckMenu menu%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

@@ -32,6 +32,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 AddAnimSeq entity%, length%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -44,6 +46,8 @@ _Not documented yet._
 ```blitzbasic
 Animate entity%, mode%=1, speed#=1, sequence%=0, transition#=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -60,6 +64,8 @@ _Not documented yet._
 ```blitzbasic
 AnimateMD2 md2%, mode%=1, speed#=1, first_frame%=0, last_frame%=9999, transition#=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -78,6 +84,8 @@ _Not documented yet._
 Animating entity%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -89,6 +97,8 @@ _Not documented yet._
 ```blitzbasic
 AnimLength entity%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -102,6 +112,8 @@ _Not documented yet._
 AnimSeq entity%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -114,6 +126,8 @@ _Not documented yet._
 AnimTime entity%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -125,6 +139,8 @@ _Not documented yet._
 ```blitzbasic
 ExtractAnimSeq entity%, first_frame%, last_frame%, anim_seq%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -141,6 +157,8 @@ _Not documented yet._
 LoadAnimSeq entity%, file$  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -153,6 +171,8 @@ _Not documented yet._
 ```blitzbasic
 LoadMD2 file$, parent%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -167,6 +187,8 @@ _Not documented yet._
 MD2Animating md2%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -178,6 +200,8 @@ _Not documented yet._
 ```blitzbasic
 MD2AnimLength md2%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -191,6 +215,8 @@ _Not documented yet._
 MD2AnimTime md2%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -202,6 +228,8 @@ _Not documented yet._
 ```blitzbasic
 SetAnimKey entity%, frame%, pos_key%=1, rot_key%=1, scale_key%=1
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -218,6 +246,8 @@ _Not documented yet._
 ```blitzbasic
 SetAnimTime entity%, time#, anim_seq%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

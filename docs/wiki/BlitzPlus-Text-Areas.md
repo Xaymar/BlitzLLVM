@@ -35,6 +35,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 AddTextAreaText textarea%, text$
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -47,6 +49,8 @@ _Not documented yet._
 ```blitzbasic
 CreateTextArea x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -65,6 +69,8 @@ _Not documented yet._
 CreateTextField x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -81,6 +87,8 @@ _Not documented yet._
 ```blitzbasic
 FormatTextAreaText textarea%, red%, green%, blue%, flags%, pos%=0, len%=-1, units%=1
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -101,6 +109,8 @@ _Not documented yet._
 LockTextArea textarea%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -112,6 +122,8 @@ _Not documented yet._
 ```blitzbasic
 SetTextAreaColor textarea%, red%, green%, blue%, background%=0
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -129,6 +141,8 @@ _Not documented yet._
 SetTextAreaFont textarea%, font%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -142,6 +156,8 @@ _Not documented yet._
 SetTextAreaTabs textarea%, tabs%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -154,6 +170,8 @@ _Not documented yet._
 ```blitzbasic
 SetTextAreaText textarea%, text$, pos%=0, len%=-1, units%=1
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -171,6 +189,8 @@ _Not documented yet._
 TextAreaChar textarea%, line%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -183,6 +203,8 @@ _Not documented yet._
 ```blitzbasic
 TextAreaCursor textarea%, units%=1  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -197,6 +219,8 @@ _Not documented yet._
 TextAreaLen textarea%, units%=1  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -209,6 +233,8 @@ _Not documented yet._
 ```blitzbasic
 TextAreaLine textarea%, char%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -223,6 +249,8 @@ _Not documented yet._
 TextAreaLineLen textarea%, line%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -236,6 +264,8 @@ _Not documented yet._
 TextAreaSelLen textarea%, units%=1  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -248,6 +278,8 @@ _Not documented yet._
 ```blitzbasic
 TextAreaText textarea%, pos%=0, len%=-1, units%=1  ; returns String
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -264,6 +296,8 @@ _Not documented yet._
 TextFieldText textfield%  ; returns String
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -275,6 +309,8 @@ _Not documented yet._
 ```blitzbasic
 UnlockTextArea textarea%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

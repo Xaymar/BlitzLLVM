@@ -29,6 +29,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 BrushAlpha brush%, alpha#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -42,6 +44,8 @@ _Not documented yet._
 BrushBlend brush%, blend%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -54,6 +58,8 @@ _Not documented yet._
 ```blitzbasic
 BrushColor brush%, red#, green#, blue#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -70,6 +76,8 @@ _Not documented yet._
 BrushFX brush%, fx%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -83,6 +91,8 @@ _Not documented yet._
 BrushShininess brush%, shininess#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -95,6 +105,8 @@ _Not documented yet._
 ```blitzbasic
 BrushTexture brush%, texture%, frame%=0, index%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -111,6 +123,8 @@ _Not documented yet._
 CreateBrush red#=255, green#=255, blue#=255  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -125,6 +139,8 @@ _Not documented yet._
 FreeBrush brush%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -136,6 +152,8 @@ _Not documented yet._
 ```blitzbasic
 GetBrushTexture brush%, index%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -150,6 +168,8 @@ _Not documented yet._
 GetEntityBrush entity%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -162,6 +182,8 @@ _Not documented yet._
 GetSurfaceBrush surface%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -173,6 +195,8 @@ _Not documented yet._
 ```blitzbasic
 LoadBrush file$, texture_flags%=1, u_scale#=1, v_scale#=1  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

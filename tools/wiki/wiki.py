@@ -140,6 +140,10 @@ def page_for(dialect, category, cmds):
         free, doc = split_text(re.sub(r"^;media .*\n", "", c.text, flags=re.M))
         out.append("### %s\n" % c.name)
         out.append("```blitzbasic\n%s%s\n```\n" % (c.signature(), "" if c.ret == "None" else "  ; returns " + c.ret))
+        import helpref
+        ref = helpref.read(c.key)
+        if ref and ref["dialects"]:
+            out.append("**Works in:** %s\n" % ", ".join(ref["dialects"]))
         out.append(free + "\n" if free else "_Not documented yet._\n")
         if c.params:
             out.append("| Parameter | Type | Default | Description |\n|---|---|---|---|")

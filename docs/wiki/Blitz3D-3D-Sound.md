@@ -19,6 +19,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 CreateListener parent%, rolloff_factor#=1, doppler_scale#=1, distance_scale#=1  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -33,6 +35,8 @@ _Not documented yet._
 ```blitzbasic
 EmitSound sound%, entity%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

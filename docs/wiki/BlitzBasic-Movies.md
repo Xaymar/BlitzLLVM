@@ -23,6 +23,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 CloseMovie movie%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -34,6 +36,8 @@ _Not documented yet._
 ```blitzbasic
 DrawMovie movie%, x%=0, y%=0, w%=-1, h%=-1  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -51,6 +55,8 @@ _Not documented yet._
 MovieHeight movie%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -62,6 +68,8 @@ _Not documented yet._
 ```blitzbasic
 MoviePlaying movie%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -75,6 +83,8 @@ _Not documented yet._
 MovieWidth movie%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -86,6 +96,8 @@ _Not documented yet._
 ```blitzbasic
 OpenMovie file$  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

@@ -24,6 +24,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 RequestColor red%=255, green%=255, blue%=255  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -38,6 +40,8 @@ _Not documented yet._
 RequestDir prompt$=\  ; returns String
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -50,6 +54,8 @@ _Not documented yet._
 RequestedBlue  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### RequestedGreen
@@ -57,6 +63,8 @@ _Not documented yet._
 ```blitzbasic
 RequestedGreen  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -66,6 +74,8 @@ _Not documented yet._
 RequestedRed  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### RequestFile
@@ -73,6 +83,8 @@ _Not documented yet._
 ```blitzbasic
 RequestFile prompt$=\  ; returns String
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -85,5 +97,7 @@ _Not documented yet._
 ```blitzbasic
 RequestFont  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._

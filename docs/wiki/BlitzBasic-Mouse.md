@@ -32,6 +32,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 DirectInputEnabled  ; returns Int
 ```
 
+**Works in:** Blitz2D, Blitz3D
+
 _Not documented yet._
 
 ### EnableDirectInput
@@ -39,6 +41,8 @@ _Not documented yet._
 ```blitzbasic
 EnableDirectInput enable%
 ```
+
+**Works in:** Blitz2D, Blitz3D
 
 _Not documented yet._
 
@@ -52,6 +56,8 @@ _Not documented yet._
 FlushMouse
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### GetMouse
@@ -60,6 +66,8 @@ _Not documented yet._
 GetMouse  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### MouseDown
@@ -67,6 +75,8 @@ _Not documented yet._
 ```blitzbasic
 MouseDown button%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -80,6 +90,8 @@ _Not documented yet._
 MouseHit button%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -92,6 +104,8 @@ _Not documented yet._
 MouseWait  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### MouseX
@@ -99,6 +113,8 @@ _Not documented yet._
 ```blitzbasic
 MouseX  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -108,6 +124,8 @@ _Not documented yet._
 MouseXSpeed  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### MouseY
@@ -115,6 +133,8 @@ _Not documented yet._
 ```blitzbasic
 MouseY  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -124,6 +144,8 @@ _Not documented yet._
 MouseYSpeed  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### MouseZ
@@ -131,6 +153,8 @@ _Not documented yet._
 ```blitzbasic
 MouseZ  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -140,6 +164,8 @@ _Not documented yet._
 MouseZSpeed  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### MoveMouse
@@ -147,6 +173,8 @@ _Not documented yet._
 ```blitzbasic
 MoveMouse x%, y%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -160,5 +188,7 @@ _Not documented yet._
 ```blitzbasic
 WaitMouse  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._

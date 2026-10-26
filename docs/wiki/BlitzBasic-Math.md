@@ -34,6 +34,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 ACos float#  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -45,6 +47,8 @@ _Not documented yet._
 ```blitzbasic
 ASin float#  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -58,6 +62,8 @@ _Not documented yet._
 ATan float#  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -69,6 +75,8 @@ _Not documented yet._
 ```blitzbasic
 ATan2 floata#, floatb#  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -83,6 +91,8 @@ _Not documented yet._
 Ceil float#  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -94,6 +104,8 @@ _Not documented yet._
 ```blitzbasic
 Cos degrees#  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -107,6 +119,8 @@ _Not documented yet._
 Exp float#  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -118,6 +132,8 @@ _Not documented yet._
 ```blitzbasic
 Floor float#  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -131,6 +147,8 @@ _Not documented yet._
 Log float#  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -143,6 +161,8 @@ _Not documented yet._
 Log10 float#  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -154,6 +174,8 @@ _Not documented yet._
 ```blitzbasic
 Rand from%, to%=1  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -168,6 +190,8 @@ _Not documented yet._
 Rnd from#, to#=0  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -181,6 +205,8 @@ _Not documented yet._
 RndSeed  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### SeedRnd
@@ -188,6 +214,8 @@ _Not documented yet._
 ```blitzbasic
 SeedRnd seed%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -201,6 +229,8 @@ _Not documented yet._
 Sin degrees#  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -213,6 +243,8 @@ _Not documented yet._
 Sqr float#  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -224,6 +256,8 @@ _Not documented yet._
 ```blitzbasic
 Tan degrees#  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

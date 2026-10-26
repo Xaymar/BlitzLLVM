@@ -57,6 +57,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 AlignToVector entity%, vector_x#, vector_y#, vector_z#, axis%, rate#=1
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -74,6 +76,8 @@ _Not documented yet._
 CopyEntity entity%, parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -87,6 +91,8 @@ _Not documented yet._
 CountChildren entity%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -98,6 +104,8 @@ _Not documented yet._
 ```blitzbasic
 CountVertices surface%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -111,6 +119,8 @@ _Not documented yet._
 CreatePivot parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -122,6 +132,8 @@ _Not documented yet._
 ```blitzbasic
 EntityAlpha entity%, alpha#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -135,6 +147,8 @@ _Not documented yet._
 ```blitzbasic
 EntityAutoFade entity%, near#, far#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -150,6 +164,8 @@ _Not documented yet._
 EntityBlend entity%, blend%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -163,6 +179,8 @@ _Not documented yet._
 EntityClass entity%  ; returns String
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -174,6 +192,8 @@ _Not documented yet._
 ```blitzbasic
 EntityColor entity%, red#, green#, blue#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -190,6 +210,8 @@ _Not documented yet._
 EntityDistance source_entity%, destination_entity%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -202,6 +224,8 @@ _Not documented yet._
 ```blitzbasic
 EntityFX entity%, fx%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -216,6 +240,8 @@ _Not documented yet._
 EntityInView entity%, camera%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -229,6 +255,8 @@ _Not documented yet._
 EntityName entity%  ; returns String
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -240,6 +268,8 @@ _Not documented yet._
 ```blitzbasic
 EntityOrder entity%, order%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -253,6 +283,8 @@ _Not documented yet._
 ```blitzbasic
 EntityParent entity%, parent%, global%=1
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -268,6 +300,8 @@ _Not documented yet._
 EntityPitch entity%, global%=0  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -280,6 +314,8 @@ _Not documented yet._
 ```blitzbasic
 EntityRoll entity%, global%=0  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -294,6 +330,8 @@ _Not documented yet._
 EntityShininess entity%, shininess#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -306,6 +344,8 @@ _Not documented yet._
 ```blitzbasic
 EntityTexture entity%, texture%, frame%=0, index%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -322,6 +362,8 @@ _Not documented yet._
 EntityX entity%, global%=0  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -334,6 +376,8 @@ _Not documented yet._
 ```blitzbasic
 EntityY entity%, global%=0  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -348,6 +392,8 @@ _Not documented yet._
 EntityYaw entity%, global%=0  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -360,6 +406,8 @@ _Not documented yet._
 ```blitzbasic
 EntityZ entity%, global%=0  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -374,6 +422,8 @@ _Not documented yet._
 FindChild entity%, name$  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -387,6 +437,8 @@ _Not documented yet._
 FreeEntity entity%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -398,6 +450,8 @@ _Not documented yet._
 ```blitzbasic
 GetChild entity%, index%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -411,6 +465,8 @@ _Not documented yet._
 ```blitzbasic
 GetMatElement entity%, row%, column%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -426,6 +482,8 @@ _Not documented yet._
 GetParent entity%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -438,6 +496,8 @@ _Not documented yet._
 HideEntity entity%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -449,6 +509,8 @@ _Not documented yet._
 ```blitzbasic
 MoveEntity entity%, x#, y#, z#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -465,6 +527,8 @@ _Not documented yet._
 NameEntity entity%, name$
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -477,6 +541,8 @@ _Not documented yet._
 ```blitzbasic
 PaintEntity entity%, brush%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -491,6 +557,8 @@ _Not documented yet._
 PointEntity entity%, target%, roll#=0
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -504,6 +572,8 @@ _Not documented yet._
 ```blitzbasic
 PositionEntity entity%, x#, y#, z#, global%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -521,6 +591,8 @@ _Not documented yet._
 RotateEntity entity%, pitch#, yaw#, roll#, global%=0
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -536,6 +608,8 @@ _Not documented yet._
 ```blitzbasic
 ScaleEntity entity%, x_scale#, y_scale#, z_scale#, global%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -553,6 +627,8 @@ _Not documented yet._
 ShowEntity entity%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -564,6 +640,8 @@ _Not documented yet._
 ```blitzbasic
 TranslateEntity entity%, x#, y#, z#, global%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -580,6 +658,8 @@ _Not documented yet._
 ```blitzbasic
 TurnEntity entity%, pitch#, yaw#, roll#, global%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

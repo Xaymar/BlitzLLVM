@@ -18,4 +18,6 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 RuntimeStats
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._

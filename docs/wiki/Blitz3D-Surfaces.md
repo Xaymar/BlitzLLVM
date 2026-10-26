@@ -45,6 +45,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 AddTriangle surface%, v0%, v1%, v2%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -59,6 +61,8 @@ _Not documented yet._
 ```blitzbasic
 AddVertex surface%, x#, y#, z#, u#=0, v#=0, w#=1  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -78,6 +82,8 @@ _Not documented yet._
 ClearSurface surface%, clear_vertices%=1, clear_triangles%=1
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -92,6 +98,8 @@ _Not documented yet._
 CountSurfaces mesh%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -104,6 +112,8 @@ _Not documented yet._
 CountTriangles surface%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -115,6 +125,8 @@ _Not documented yet._
 ```blitzbasic
 CreateSurface mesh%, brush%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -129,6 +141,8 @@ _Not documented yet._
 FindSurface mesh%, brush%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -141,6 +155,8 @@ _Not documented yet._
 ```blitzbasic
 GetSurface mesh%, surface_index%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -155,6 +171,8 @@ _Not documented yet._
 PaintSurface surface%, brush%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -167,6 +185,8 @@ _Not documented yet._
 ```blitzbasic
 TriangleVertex surface%, index%, vertex%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -182,6 +202,8 @@ _Not documented yet._
 UpdateNormals mesh%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -193,6 +215,8 @@ _Not documented yet._
 ```blitzbasic
 VertexAlpha surface%, index%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -207,6 +231,8 @@ _Not documented yet._
 VertexBlue surface%, index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -219,6 +245,8 @@ _Not documented yet._
 ```blitzbasic
 VertexColor surface%, index%, red#, green#, blue#, alpha#=1
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -237,6 +265,8 @@ _Not documented yet._
 VertexCoords surface%, index%, x#, y#, z#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -253,6 +283,8 @@ _Not documented yet._
 VertexGreen surface%, index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -265,6 +297,8 @@ _Not documented yet._
 ```blitzbasic
 VertexNormal surface%, index%, nx#, ny#, nz#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -282,6 +316,8 @@ _Not documented yet._
 VertexNX surface%, index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -294,6 +330,8 @@ _Not documented yet._
 ```blitzbasic
 VertexNY surface%, index%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -308,6 +346,8 @@ _Not documented yet._
 VertexNZ surface%, index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -321,6 +361,8 @@ _Not documented yet._
 VertexRed surface%, index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -333,6 +375,8 @@ _Not documented yet._
 ```blitzbasic
 VertexTexCoords surface%, index%, u#, v#, w#=1, coord_set%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -351,6 +395,8 @@ _Not documented yet._
 VertexU surface%, index%, coord_set%=0  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -364,6 +410,8 @@ _Not documented yet._
 ```blitzbasic
 VertexV surface%, index%, coord_set%=0  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -379,6 +427,8 @@ _Not documented yet._
 VertexW surface%, index%, coord_set%=0  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -393,6 +443,8 @@ _Not documented yet._
 VertexX surface%, index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -406,6 +458,8 @@ _Not documented yet._
 VertexY surface%, index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -418,6 +472,8 @@ _Not documented yet._
 ```blitzbasic
 VertexZ surface%, index%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

@@ -31,6 +31,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 CreateNetPlayer name$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -42,6 +44,8 @@ _Not documented yet._
 ```blitzbasic
 DeleteNetPlayer player%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -55,6 +59,8 @@ _Not documented yet._
 HostNetGame game_name$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -66,6 +72,8 @@ _Not documented yet._
 ```blitzbasic
 JoinNetGame game_name$, ip_address$  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -80,6 +88,8 @@ _Not documented yet._
 NetMsgData  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### NetMsgFrom
@@ -87,6 +97,8 @@ _Not documented yet._
 ```blitzbasic
 NetMsgFrom  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -96,6 +108,8 @@ _Not documented yet._
 NetMsgTo  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### NetMsgType
@@ -104,6 +118,8 @@ _Not documented yet._
 NetMsgType  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### NetPlayerLocal
@@ -111,6 +127,8 @@ _Not documented yet._
 ```blitzbasic
 NetPlayerLocal player%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -124,6 +142,8 @@ _Not documented yet._
 NetPlayerName player%  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -136,6 +156,8 @@ _Not documented yet._
 RecvNetMsg  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### SendNetMsg
@@ -143,6 +165,8 @@ _Not documented yet._
 ```blitzbasic
 SendNetMsg type%, msg$, from_player%, to_player%=0, reliable%=1  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -160,6 +184,8 @@ _Not documented yet._
 StartNetGame  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### StopNetGame
@@ -167,5 +193,7 @@ _Not documented yet._
 ```blitzbasic
 StopNetGame
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._

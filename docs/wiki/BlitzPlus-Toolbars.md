@@ -24,6 +24,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 CreateToolBar icons$, x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -42,6 +44,8 @@ _Not documented yet._
 DisableToolBarItem toolbar%, index%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -54,6 +58,8 @@ _Not documented yet._
 ```blitzbasic
 EnableToolBarItem toolbar%, index%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -68,6 +74,8 @@ _Not documented yet._
 FreeIconStrip icon_strip%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -79,6 +87,8 @@ _Not documented yet._
 ```blitzbasic
 LoadIconStrip file$  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -92,6 +102,8 @@ _Not documented yet._
 SetGadgetIconStrip gadget%, icon_strip%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -104,6 +116,8 @@ _Not documented yet._
 ```blitzbasic
 SetToolBarTips toolbar%, tips$
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

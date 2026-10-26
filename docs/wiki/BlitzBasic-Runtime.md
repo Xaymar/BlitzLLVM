@@ -32,6 +32,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 AppTitle title$, close_prompt$=\
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -45,6 +47,8 @@ _Not documented yet._
 CommandLine  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### CreateTimer
@@ -52,6 +56,8 @@ _Not documented yet._
 ```blitzbasic
 CreateTimer hertz%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -65,6 +71,8 @@ _Not documented yet._
 DebugLog text$
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -76,6 +84,8 @@ _Not documented yet._
 ```blitzbasic
 Delay millisecs%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -89,6 +99,8 @@ _Not documented yet._
 End
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### ExecFile
@@ -96,6 +108,8 @@ _Not documented yet._
 ```blitzbasic
 ExecFile command$
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -109,6 +123,8 @@ _Not documented yet._
 FreeTimer timer%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -120,6 +136,8 @@ _Not documented yet._
 ```blitzbasic
 GetEnv env_var$  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -133,6 +151,8 @@ _Not documented yet._
 MilliSecs  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### RuntimeError
@@ -140,6 +160,8 @@ _Not documented yet._
 ```blitzbasic
 RuntimeError message$
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -152,6 +174,8 @@ _Not documented yet._
 ```blitzbasic
 SetEnv env_var$, value$
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -166,6 +190,8 @@ _Not documented yet._
 Stop
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### SystemProperty
@@ -173,6 +199,8 @@ _Not documented yet._
 ```blitzbasic
 SystemProperty property$  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -185,6 +213,8 @@ _Not documented yet._
 ```blitzbasic
 WaitTimer timer%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

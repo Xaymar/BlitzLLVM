@@ -32,6 +32,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 CameraPick camera%, viewport_x#, viewport_y#  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -46,6 +48,8 @@ _Not documented yet._
 EntityPick entity%, range#  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -58,6 +62,8 @@ _Not documented yet._
 ```blitzbasic
 EntityPickMode entity%, pick_geometry%, obscurer%=1
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -73,6 +79,8 @@ _Not documented yet._
 EntityVisible src_entity%, dest_entity%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -85,6 +93,8 @@ _Not documented yet._
 ```blitzbasic
 LinePick x#, y#, z#, dx#, dy#, dz#, radius#=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -104,6 +114,8 @@ _Not documented yet._
 PickedEntity  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### PickedNX
@@ -111,6 +123,8 @@ _Not documented yet._
 ```blitzbasic
 PickedNX  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -120,6 +134,8 @@ _Not documented yet._
 PickedNY  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### PickedNZ
@@ -127,6 +143,8 @@ _Not documented yet._
 ```blitzbasic
 PickedNZ  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -136,6 +154,8 @@ _Not documented yet._
 PickedSurface  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### PickedTime
@@ -143,6 +163,8 @@ _Not documented yet._
 ```blitzbasic
 PickedTime  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -152,6 +174,8 @@ _Not documented yet._
 PickedTriangle  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### PickedX
@@ -159,6 +183,8 @@ _Not documented yet._
 ```blitzbasic
 PickedX  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -168,6 +194,8 @@ _Not documented yet._
 PickedY  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### PickedZ
@@ -175,5 +203,7 @@ _Not documented yet._
 ```blitzbasic
 PickedZ  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._

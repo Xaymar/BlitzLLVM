@@ -29,6 +29,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 FontHeight  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### FontWidth
@@ -37,6 +39,8 @@ _Not documented yet._
 FontWidth  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### FreeFont
@@ -44,6 +48,8 @@ _Not documented yet._
 ```blitzbasic
 FreeFont font%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -57,6 +63,8 @@ _Not documented yet._
 Input prompt$=\  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -68,6 +76,8 @@ _Not documented yet._
 ```blitzbasic
 LoadFont fontname$, height%=12, bold%=0, italic%=0, underline%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -85,6 +95,8 @@ _Not documented yet._
 Locate x%, y%
 ```
 
+**Works in:** Blitz2D, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -98,6 +110,8 @@ _Not documented yet._
 Print string$=\
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -109,6 +123,8 @@ _Not documented yet._
 ```blitzbasic
 SetFont font%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -122,6 +138,8 @@ _Not documented yet._
 StringHeight string$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -134,6 +152,8 @@ _Not documented yet._
 StringWidth string$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -145,6 +165,8 @@ _Not documented yet._
 ```blitzbasic
 Text x%, y%, text$, centre_x%=0, centre_y%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -161,6 +183,8 @@ _Not documented yet._
 ```blitzbasic
 Write string$
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

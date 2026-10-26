@@ -32,6 +32,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 ActivateWindow window%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -44,6 +46,8 @@ _Not documented yet._
 ActiveWindow  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### ClientHeight
@@ -51,6 +55,8 @@ _Not documented yet._
 ```blitzbasic
 ClientHeight group%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -64,6 +70,8 @@ _Not documented yet._
 ClientWidth group%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -75,6 +83,8 @@ _Not documented yet._
 ```blitzbasic
 CreateWindow text$, x%, y%, width%, height%, group%=0, style%=15  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -94,6 +104,8 @@ _Not documented yet._
 Desktop  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### MaximizeWindow
@@ -101,6 +113,8 @@ _Not documented yet._
 ```blitzbasic
 MaximizeWindow window%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -114,6 +128,8 @@ _Not documented yet._
 MinimizeWindow window%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -126,6 +142,8 @@ _Not documented yet._
 RestoreWindow window%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -137,6 +155,8 @@ _Not documented yet._
 ```blitzbasic
 SetMinWindowSize window%, width%=-1, height%=-1
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -152,6 +172,8 @@ _Not documented yet._
 SetStatusText window%, text$  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -165,6 +187,8 @@ _Not documented yet._
 UpdateWindowMenu window%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -176,6 +200,8 @@ _Not documented yet._
 ```blitzbasic
 WindowMaximized window%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -189,6 +215,8 @@ _Not documented yet._
 WindowMenu window%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -200,6 +228,8 @@ _Not documented yet._
 ```blitzbasic
 WindowMinimized window%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

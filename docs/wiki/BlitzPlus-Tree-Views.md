@@ -29,6 +29,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 AddTreeViewNode text$, parent_node%, icon%=-1  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -43,6 +45,8 @@ _Not documented yet._
 CollapseTreeViewNode node%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -55,6 +59,8 @@ _Not documented yet._
 CountTreeViewNodes parent_node%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -66,6 +72,8 @@ _Not documented yet._
 ```blitzbasic
 CreateTreeView x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -84,6 +92,8 @@ _Not documented yet._
 ExpandTreeViewNode node%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -96,6 +106,8 @@ _Not documented yet._
 FreeTreeViewNode node%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -107,6 +119,8 @@ _Not documented yet._
 ```blitzbasic
 InsertTreeViewNode index%, text$, parent_node%, icon%=-1  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -123,6 +137,8 @@ _Not documented yet._
 ModifyTreeViewNode node%, text$, icon%=-1
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -137,6 +153,8 @@ _Not documented yet._
 SelectedTreeViewNode treeview%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -148,6 +166,8 @@ _Not documented yet._
 ```blitzbasic
 SelectTreeViewNode node%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -161,6 +181,8 @@ _Not documented yet._
 TreeViewNodeText node%  ; returns String
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -172,6 +194,8 @@ _Not documented yet._
 ```blitzbasic
 TreeViewRoot treeview%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

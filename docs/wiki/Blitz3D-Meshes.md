@@ -40,6 +40,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 AddMesh source_mesh%, dest_mesh%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -53,6 +55,8 @@ _Not documented yet._
 CopyMesh mesh%, parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -65,6 +69,8 @@ _Not documented yet._
 ```blitzbasic
 CreateCone segments%=8, solid%=1, parent%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -80,6 +86,8 @@ _Not documented yet._
 CreateCube parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -91,6 +99,8 @@ _Not documented yet._
 ```blitzbasic
 CreateCylinder segments%=8, solid%=1, parent%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -106,6 +116,8 @@ _Not documented yet._
 CreateMesh parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -118,6 +130,8 @@ _Not documented yet._
 CreateMirror parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -129,6 +143,8 @@ _Not documented yet._
 ```blitzbasic
 CreatePlane segments%=1, parent%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -143,6 +159,8 @@ _Not documented yet._
 CreateSphere segments%=8, parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -155,6 +173,8 @@ _Not documented yet._
 ```blitzbasic
 FitMesh mesh%, x#, y#, z#, width#, height#, depth#, uniform%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -175,6 +195,8 @@ _Not documented yet._
 FlipMesh mesh%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -186,6 +208,8 @@ _Not documented yet._
 ```blitzbasic
 LoadAnimMesh file$, parent%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -199,6 +223,8 @@ _Not documented yet._
 ```blitzbasic
 LoaderMatrix file_ext$, xx#, xy#, xz#, yx#, yy#, yz#, zx#, zy#, zz#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -221,6 +247,8 @@ _Not documented yet._
 LoadMesh file$, parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -233,6 +261,8 @@ _Not documented yet._
 ```blitzbasic
 MeshCullBox mesh%, x#, y#, z#, width#, height#, depth#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -252,6 +282,8 @@ _Not documented yet._
 MeshDepth mesh%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -263,6 +295,8 @@ _Not documented yet._
 ```blitzbasic
 MeshesIntersect mesh_a%, mesh_b%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -277,6 +311,8 @@ _Not documented yet._
 MeshHeight mesh%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -288,6 +324,8 @@ _Not documented yet._
 ```blitzbasic
 MeshWidth mesh%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -301,6 +339,8 @@ _Not documented yet._
 PaintMesh mesh%, brush%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -313,6 +353,8 @@ _Not documented yet._
 ```blitzbasic
 PositionMesh mesh%, x#, y#, z#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -329,6 +371,8 @@ _Not documented yet._
 RotateMesh mesh%, pitch#, yaw#, roll#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -343,6 +387,8 @@ _Not documented yet._
 ```blitzbasic
 ScaleMesh mesh%, x_scale#, y_scale#, z_scale#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

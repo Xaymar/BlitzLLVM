@@ -34,6 +34,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 ChangeDir dir$
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -45,6 +47,8 @@ _Not documented yet._
 ```blitzbasic
 CloseDir dir%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -58,6 +62,8 @@ _Not documented yet._
 CloseFile file_stream%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -69,6 +75,8 @@ _Not documented yet._
 ```blitzbasic
 CopyFile file$, to$
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -83,6 +91,8 @@ _Not documented yet._
 CreateDir dir$
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -95,6 +105,8 @@ _Not documented yet._
 CurrentDir  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### DeleteDir
@@ -102,6 +114,8 @@ _Not documented yet._
 ```blitzbasic
 DeleteDir dir$
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -115,6 +129,8 @@ _Not documented yet._
 DeleteFile file$
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -126,6 +142,8 @@ _Not documented yet._
 ```blitzbasic
 FilePos file_stream%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -139,6 +157,8 @@ _Not documented yet._
 FileSize file$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -150,6 +170,8 @@ _Not documented yet._
 ```blitzbasic
 FileType file$  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -163,6 +185,8 @@ _Not documented yet._
 NextFile dir%  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -174,6 +198,8 @@ _Not documented yet._
 ```blitzbasic
 OpenFile filename$  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -187,6 +213,8 @@ _Not documented yet._
 ReadDir dirname$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -198,6 +226,8 @@ _Not documented yet._
 ```blitzbasic
 ReadFile filename$  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -211,6 +241,8 @@ _Not documented yet._
 SeekFile file_stream%, pos%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -223,6 +255,8 @@ _Not documented yet._
 ```blitzbasic
 WriteFile filename$  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

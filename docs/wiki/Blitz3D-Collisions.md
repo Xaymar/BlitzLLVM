@@ -36,6 +36,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 ClearCollisions
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### CollisionEntity
@@ -43,6 +45,8 @@ _Not documented yet._
 ```blitzbasic
 CollisionEntity entity%, collision_index%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -57,6 +61,8 @@ _Not documented yet._
 CollisionNX entity%, collision_index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -69,6 +75,8 @@ _Not documented yet._
 ```blitzbasic
 CollisionNY entity%, collision_index%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -83,6 +91,8 @@ _Not documented yet._
 CollisionNZ entity%, collision_index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -95,6 +105,8 @@ _Not documented yet._
 ```blitzbasic
 Collisions source_type%, destination_type%, method%, response%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -111,6 +123,8 @@ _Not documented yet._
 CollisionSurface entity%, collision_index%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -123,6 +137,8 @@ _Not documented yet._
 ```blitzbasic
 CollisionTime entity%, collision_index%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -137,6 +153,8 @@ _Not documented yet._
 CollisionTriangle entity%, collision_index%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -149,6 +167,8 @@ _Not documented yet._
 ```blitzbasic
 CollisionX entity%, collision_index%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -163,6 +183,8 @@ _Not documented yet._
 CollisionY entity%, collision_index%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -175,6 +197,8 @@ _Not documented yet._
 ```blitzbasic
 CollisionZ entity%, collision_index%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -189,6 +213,8 @@ _Not documented yet._
 CountCollisions entity%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -200,6 +226,8 @@ _Not documented yet._
 ```blitzbasic
 EntityBox entity%, x#, y#, z#, width#, height#, depth#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -219,6 +247,8 @@ _Not documented yet._
 EntityCollided entity%, type%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -231,6 +261,8 @@ _Not documented yet._
 ```blitzbasic
 EntityRadius entity%, x_radius#, y_radius#=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -246,6 +278,8 @@ _Not documented yet._
 EntityType entity%, collision_type%, recursive%=0
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -260,6 +294,8 @@ _Not documented yet._
 GetEntityType entity%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -271,6 +307,8 @@ _Not documented yet._
 ```blitzbasic
 ResetEntity entity%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

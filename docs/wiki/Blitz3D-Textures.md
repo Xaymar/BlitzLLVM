@@ -34,6 +34,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 ClearTextureFilters
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### CreateTexture
@@ -41,6 +43,8 @@ _Not documented yet._
 ```blitzbasic
 CreateTexture width%, height%, flags%=0, frames%=1  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -57,6 +61,8 @@ _Not documented yet._
 FreeTexture texture%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -68,6 +74,8 @@ _Not documented yet._
 ```blitzbasic
 LoadAnimTexture file$, flags%, width%, height%, first%, count%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -86,6 +94,8 @@ _Not documented yet._
 LoadTexture file$, flags%=1  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -98,6 +108,8 @@ _Not documented yet._
 ```blitzbasic
 PositionTexture texture%, u_offset#, v_offset#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -113,6 +125,8 @@ _Not documented yet._
 RotateTexture texture%, angle#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -125,6 +139,8 @@ _Not documented yet._
 ```blitzbasic
 ScaleTexture texture%, u_scale#, v_scale#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -140,6 +156,8 @@ _Not documented yet._
 SetCubeFace texture%, face%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -152,6 +170,8 @@ _Not documented yet._
 ```blitzbasic
 SetCubeMode texture%, mode%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -166,6 +186,8 @@ _Not documented yet._
 TextureBlend texture%, blend%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -178,6 +200,8 @@ _Not documented yet._
 ```blitzbasic
 TextureBuffer texture%, frame%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -192,6 +216,8 @@ _Not documented yet._
 TextureCoords texture%, coords%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -204,6 +230,8 @@ _Not documented yet._
 ```blitzbasic
 TextureFilter match_text$, texture_flags%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -218,6 +246,8 @@ _Not documented yet._
 TextureHeight texture%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -230,6 +260,8 @@ _Not documented yet._
 TextureName texture%  ; returns String
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -241,6 +273,8 @@ _Not documented yet._
 ```blitzbasic
 TextureWidth texture%  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

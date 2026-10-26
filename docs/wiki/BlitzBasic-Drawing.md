@@ -31,6 +31,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 Cls
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 Clears the current buffer with the color set by [ClsColor](BlitzBasic-Drawing#clscolor). Call it at the start of every frame when you redraw the whole picture.
 
 ```blitzbasic
@@ -52,6 +54,8 @@ WaitKey
 ClsColor red%, green%, blue%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 Sets the color that [Cls](BlitzBasic-Drawing#cls) clears with. It does not change the drawing color of [Color](BlitzBasic-Drawing#color). Values are clamped to 0 through 255.
 
 | Parameter | Type | Default | Description |
@@ -65,6 +69,8 @@ Sets the color that [Cls](BlitzBasic-Drawing#cls) clears with. It does not chang
 ```blitzbasic
 Color red%, green%, blue%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets the color that `Plot`, `Line`, `Rect`, `Oval` and `Text` draw with.
 
@@ -94,6 +100,8 @@ WaitKey
 ColorBlue  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 **Returns:** The blue part, 0 to 255, of the current drawing color.
@@ -103,6 +111,8 @@ _Not documented yet._
 ```blitzbasic
 ColorGreen  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -114,6 +124,8 @@ _Not documented yet._
 ColorRed  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 **Returns:** The red part, 0 to 255, of the current drawing color.
@@ -123,6 +135,8 @@ _Not documented yet._
 ```blitzbasic
 GetColor x%, y%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Reads the pixel at a position of the current buffer and makes it the drawing color. Use [ColorRed](BlitzBasic-Drawing#colorred), [ColorGreen](BlitzBasic-Drawing#colorgreen) and [ColorBlue](BlitzBasic-Drawing#colorblue) afterwards to see what it was.
 
@@ -136,6 +150,8 @@ Reads the pixel at a position of the current buffer and makes it the drawing col
 ```blitzbasic
 Line x1%, y1%, x2%, y2%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws a line between two points. Both end points are drawn, and the line is made of whole pixels like in the original.
 
@@ -165,6 +181,8 @@ WaitKey
 ```blitzbasic
 Origin x%, y%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Moves the point that counts as 0, 0 for everything you draw after it. Shapes, text and images move with it, the viewport does not.
 
@@ -197,6 +215,8 @@ WaitKey
 Oval x%, y%, width%, height%, solid%=1
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 Draws an ellipse inside the box given by position and size.
 
 ```blitzbasic
@@ -227,6 +247,8 @@ WaitKey
 Plot x%, y%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 Draws a single pixel in the drawing color.
 
 | Parameter | Type | Default | Description |
@@ -239,6 +261,8 @@ Draws a single pixel in the drawing color.
 ```blitzbasic
 Rect x%, y%, width%, height%, solid%=1
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws a rectangle.
 
@@ -271,6 +295,8 @@ Next
 ScanLine  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 **Returns:** Always 0. The original returned the line the monitor was drawing, which a modern display cannot tell.
@@ -284,6 +310,8 @@ _Not documented yet._
 ```blitzbasic
 Viewport x%, y%, width%, height%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Limits all drawing to a part of the buffer. Anything outside it is cut off, and [Cls](BlitzBasic-Drawing#cls) only clears the inside. The part that sticks out of the buffer is cut off as well. Call `Viewport 0, 0, GraphicsWidth(), GraphicsHeight()` to reset it.
 

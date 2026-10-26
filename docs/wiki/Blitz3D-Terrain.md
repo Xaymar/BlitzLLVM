@@ -27,6 +27,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 CreateTerrain grid_size%, parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -40,6 +42,8 @@ _Not documented yet._
 LoadTerrain heightmap_file$, parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -52,6 +56,8 @@ _Not documented yet._
 ```blitzbasic
 ModifyTerrain terrain%, terrain_x%, terrain_z%, height#, realtime%=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -69,6 +75,8 @@ _Not documented yet._
 TerrainDetail terrain%, detail_level%, morph%=0
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -82,6 +90,8 @@ _Not documented yet._
 ```blitzbasic
 TerrainHeight terrain%, terrain_x%, terrain_z%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -97,6 +107,8 @@ _Not documented yet._
 TerrainShading terrain%, enable%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -110,6 +122,8 @@ _Not documented yet._
 TerrainSize terrain%  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -121,6 +135,8 @@ _Not documented yet._
 ```blitzbasic
 TerrainX terrain%, world_x#, world_y#, world_z#  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -137,6 +153,8 @@ _Not documented yet._
 TerrainY terrain%, world_x#, world_y#, world_z#  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -151,6 +169,8 @@ _Not documented yet._
 ```blitzbasic
 TerrainZ terrain%, world_x#, world_y#, world_z#  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

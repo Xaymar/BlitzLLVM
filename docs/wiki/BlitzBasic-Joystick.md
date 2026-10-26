@@ -38,6 +38,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 FlushJoy
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### GetJoy
@@ -45,6 +47,8 @@ _Not documented yet._
 ```blitzbasic
 GetJoy port%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, Blitz3D
 
 _Not documented yet._
 
@@ -57,6 +61,8 @@ _Not documented yet._
 ```blitzbasic
 JoyDown button%, port%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -71,6 +77,8 @@ _Not documented yet._
 JoyHat port%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -82,6 +90,8 @@ _Not documented yet._
 ```blitzbasic
 JoyHit button%, port%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -96,6 +106,8 @@ _Not documented yet._
 JoyPitch port%=0  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -107,6 +119,8 @@ _Not documented yet._
 ```blitzbasic
 JoyRoll port%=0  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -120,6 +134,8 @@ _Not documented yet._
 JoyType port%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -131,6 +147,8 @@ _Not documented yet._
 ```blitzbasic
 JoyU port%=0  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -144,6 +162,8 @@ _Not documented yet._
 JoyUDir port%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -155,6 +175,8 @@ _Not documented yet._
 ```blitzbasic
 JoyV port%=0  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -168,6 +190,8 @@ _Not documented yet._
 JoyVDir port%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -179,6 +203,8 @@ _Not documented yet._
 ```blitzbasic
 JoyWait port%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, Blitz3D
 
 _Not documented yet._
 
@@ -192,6 +218,8 @@ _Not documented yet._
 JoyX port%=0  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -203,6 +231,8 @@ _Not documented yet._
 ```blitzbasic
 JoyXDir port%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -216,6 +246,8 @@ _Not documented yet._
 JoyY port%=0  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -227,6 +259,8 @@ _Not documented yet._
 ```blitzbasic
 JoyYaw port%=0  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -240,6 +274,8 @@ _Not documented yet._
 JoyYDir port%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -251,6 +287,8 @@ _Not documented yet._
 ```blitzbasic
 JoyZ port%=0  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -264,6 +302,8 @@ _Not documented yet._
 JoyZDir port%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -275,6 +315,8 @@ _Not documented yet._
 ```blitzbasic
 WaitJoy port%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, Blitz3D
 
 _Not documented yet._
 

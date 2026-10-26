@@ -32,6 +32,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 CopyStream src_stream%, dest_stream%, buffer_size%=16384
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -46,6 +48,8 @@ _Not documented yet._
 Eof stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -57,6 +61,8 @@ _Not documented yet._
 ```blitzbasic
 ReadAvail stream%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -70,6 +76,8 @@ _Not documented yet._
 ReadByte stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -81,6 +89,8 @@ _Not documented yet._
 ```blitzbasic
 ReadFloat stream%  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -94,6 +104,8 @@ _Not documented yet._
 ReadInt stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -105,6 +117,8 @@ _Not documented yet._
 ```blitzbasic
 ReadLine stream%  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -118,6 +132,8 @@ _Not documented yet._
 ReadShort stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -130,6 +146,8 @@ _Not documented yet._
 ReadString stream%  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -141,6 +159,8 @@ _Not documented yet._
 ```blitzbasic
 WriteByte stream%, byte%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -155,6 +175,8 @@ _Not documented yet._
 WriteFloat stream%, float#
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -167,6 +189,8 @@ _Not documented yet._
 ```blitzbasic
 WriteInt stream%, int%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -181,6 +205,8 @@ _Not documented yet._
 WriteLine stream%, string$
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -194,6 +220,8 @@ _Not documented yet._
 WriteShort stream%, short%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -206,6 +234,8 @@ _Not documented yet._
 ```blitzbasic
 WriteString stream%, string$
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

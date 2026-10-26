@@ -24,6 +24,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 CanvasBuffer canvas%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -35,6 +37,8 @@ _Not documented yet._
 ```blitzbasic
 CreateCanvas x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -53,6 +57,8 @@ _Not documented yet._
 DesktopBuffer  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### FlipCanvas
@@ -60,6 +66,8 @@ _Not documented yet._
 ```blitzbasic
 FlipCanvas canvas%, vwait%=0
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -74,6 +82,8 @@ _Not documented yet._
 LockedFormat buffer%=0  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -86,6 +96,8 @@ _Not documented yet._
 LockedPitch buffer%=0  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -97,6 +109,8 @@ _Not documented yet._
 ```blitzbasic
 LockedPixels buffer%=0  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

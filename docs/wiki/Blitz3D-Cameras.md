@@ -28,6 +28,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 CameraClsColor camera%, red#, green#, blue#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -43,6 +45,8 @@ _Not documented yet._
 CameraClsMode camera%, cls_color%, cls_zbuffer%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -56,6 +60,8 @@ _Not documented yet._
 ```blitzbasic
 CameraFogColor camera%, red#, green#, blue#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -72,6 +78,8 @@ _Not documented yet._
 CameraFogMode camera%, mode%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -84,6 +92,8 @@ _Not documented yet._
 ```blitzbasic
 CameraFogRange camera%, near#, far#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -98,6 +108,8 @@ _Not documented yet._
 ```blitzbasic
 CameraProject camera%, x#, y#, z#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -114,6 +126,8 @@ _Not documented yet._
 CameraProjMode camera%, mode%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -126,6 +140,8 @@ _Not documented yet._
 ```blitzbasic
 CameraRange camera%, near#, far#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -140,6 +156,8 @@ _Not documented yet._
 ```blitzbasic
 CameraViewport camera%, x%, y%, width%, height%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -157,6 +175,8 @@ _Not documented yet._
 CameraZoom camera%, zoom#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -169,6 +189,8 @@ _Not documented yet._
 ```blitzbasic
 CreateCamera parent%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

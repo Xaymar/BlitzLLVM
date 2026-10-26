@@ -59,6 +59,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 ActivateGadget gadget%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -70,6 +72,8 @@ _Not documented yet._
 ```blitzbasic
 AddGadgetItem gadget%, item$, select%=0, icon%=-1
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -86,6 +90,8 @@ _Not documented yet._
 ButtonState button%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -97,6 +103,8 @@ _Not documented yet._
 ```blitzbasic
 ClearGadgetItems gadget%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -110,6 +118,8 @@ _Not documented yet._
 CountGadgetItems gadget%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -121,6 +131,8 @@ _Not documented yet._
 ```blitzbasic
 CreateButton text$, x%, y%, width%, height%, group%, style%=1  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -140,6 +152,8 @@ _Not documented yet._
 CreateComboBox x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -156,6 +170,8 @@ _Not documented yet._
 ```blitzbasic
 CreateLabel text$, x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -175,6 +191,8 @@ _Not documented yet._
 CreateListBox x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -191,6 +209,8 @@ _Not documented yet._
 ```blitzbasic
 CreatePanel x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -209,6 +229,8 @@ _Not documented yet._
 CreateProgBar x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -225,6 +247,8 @@ _Not documented yet._
 ```blitzbasic
 CreateSlider x%, y%, width%, height%, group%, style%=1  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -243,6 +267,8 @@ _Not documented yet._
 CreateTabber x%, y%, width%, height%, group%, style%=0  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -260,6 +286,8 @@ _Not documented yet._
 DisableGadget gadget%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -271,6 +299,8 @@ _Not documented yet._
 ```blitzbasic
 EnableGadget gadget%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -284,6 +314,8 @@ _Not documented yet._
 FreeGadget gadget%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -295,6 +327,8 @@ _Not documented yet._
 ```blitzbasic
 GadgetFont gadget%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -308,6 +342,8 @@ _Not documented yet._
 GadgetGroup gadget%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -320,6 +356,8 @@ _Not documented yet._
 GadgetHeight gadget%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -331,6 +369,8 @@ _Not documented yet._
 ```blitzbasic
 GadgetItemText gadget%, index%  ; returns String
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -345,6 +385,8 @@ _Not documented yet._
 GadgetText gadget%  ; returns String
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -356,6 +398,8 @@ _Not documented yet._
 ```blitzbasic
 GadgetWidth gadget%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -369,6 +413,8 @@ _Not documented yet._
 GadgetX gadget%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -380,6 +426,8 @@ _Not documented yet._
 ```blitzbasic
 GadgetY gadget%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -393,6 +441,8 @@ _Not documented yet._
 HideGadget gadget%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -404,6 +454,8 @@ _Not documented yet._
 ```blitzbasic
 InsertGadgetItem gadget%, index%, item$, icon%=-1
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -420,6 +472,8 @@ _Not documented yet._
 ModifyGadgetItem gadget%, index%, item$, icon%=-1
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -435,6 +489,8 @@ _Not documented yet._
 RemoveGadgetItem gadget%, index%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -448,6 +504,8 @@ _Not documented yet._
 SelectedGadgetItem gadget%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -459,6 +517,8 @@ _Not documented yet._
 ```blitzbasic
 SelectGadgetItem gadget%, index%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -473,6 +533,8 @@ _Not documented yet._
 SetButtonState button%, state%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -486,6 +548,8 @@ _Not documented yet._
 SetGadgetFont gadget%, font%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -498,6 +562,8 @@ _Not documented yet._
 ```blitzbasic
 SetGadgetLayout gadget%, left%, right%, top%, bottom%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -515,6 +581,8 @@ _Not documented yet._
 SetGadgetShape gadget%, x%, y%, width%, height%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -531,6 +599,8 @@ _Not documented yet._
 SetGadgetText gadget%, text$
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -543,6 +613,8 @@ _Not documented yet._
 ```blitzbasic
 SetPanelColor panel%, red%, green%, blue%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -559,6 +631,8 @@ _Not documented yet._
 SetPanelImage panel%, file$
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -571,6 +645,8 @@ _Not documented yet._
 ```blitzbasic
 SetSliderRange slider%, visible%, total%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -586,6 +662,8 @@ _Not documented yet._
 SetSliderValue slider%, value%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -599,6 +677,8 @@ _Not documented yet._
 ShowGadget gadget%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -611,6 +691,8 @@ _Not documented yet._
 SliderValue slider%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -622,6 +704,8 @@ _Not documented yet._
 ```blitzbasic
 UpdateProgBar progbar%, progress#
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

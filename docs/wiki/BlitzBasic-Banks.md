@@ -33,6 +33,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 BankSize bank%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -44,6 +46,8 @@ _Not documented yet._
 ```blitzbasic
 CallDLL dll_name$, func_name$, in_bank%=0, out_bank%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -59,6 +63,8 @@ _Not documented yet._
 ```blitzbasic
 CopyBank src_bank%, src_offset%, dest_bank%, dest_offset%, count%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -76,6 +82,8 @@ _Not documented yet._
 CreateBank size%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -88,6 +96,8 @@ _Not documented yet._
 FreeBank bank%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -99,6 +109,8 @@ _Not documented yet._
 ```blitzbasic
 PeekByte bank%, offset%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -113,6 +125,8 @@ _Not documented yet._
 PeekFloat bank%, offset%  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -125,6 +139,8 @@ _Not documented yet._
 ```blitzbasic
 PeekInt bank%, offset%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -139,6 +155,8 @@ _Not documented yet._
 PeekShort bank%, offset%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -151,6 +169,8 @@ _Not documented yet._
 ```blitzbasic
 PokeByte bank%, offset%, value%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -166,6 +186,8 @@ _Not documented yet._
 PokeFloat bank%, offset%, value#
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -179,6 +201,8 @@ _Not documented yet._
 ```blitzbasic
 PokeInt bank%, offset%, value%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -194,6 +218,8 @@ _Not documented yet._
 PokeShort bank%, offset%, value%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -207,6 +233,8 @@ _Not documented yet._
 ```blitzbasic
 ReadBytes bank%, file%, offset%, count%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -223,6 +251,8 @@ _Not documented yet._
 ResizeBank bank%, size%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -235,6 +265,8 @@ _Not documented yet._
 ```blitzbasic
 WriteBytes bank%, file%, offset%, count%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

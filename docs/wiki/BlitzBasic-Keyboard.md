@@ -23,6 +23,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 FlushKeys
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### GetKey
@@ -31,6 +33,8 @@ _Not documented yet._
 GetKey  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### KeyDown
@@ -38,6 +42,8 @@ _Not documented yet._
 ```blitzbasic
 KeyDown key%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -51,6 +57,8 @@ _Not documented yet._
 KeyHit key%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -63,6 +71,8 @@ _Not documented yet._
 KeyWait  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### WaitKey
@@ -70,5 +80,7 @@ _Not documented yet._
 ```blitzbasic
 WaitKey  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._

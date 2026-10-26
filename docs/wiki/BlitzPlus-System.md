@@ -37,6 +37,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 ActiveObjects  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### AutoSuspend
@@ -44,6 +46,8 @@ _Not documented yet._
 ```blitzbasic
 AutoSuspend enable%
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -56,6 +60,8 @@ _Not documented yet._
 ```blitzbasic
 Confirm text$, serious%=0  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -70,6 +76,8 @@ _Not documented yet._
 CreateProcess command$  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -82,6 +90,8 @@ _Not documented yet._
 DebugObjects
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### FlushEvents
@@ -89,6 +99,8 @@ _Not documented yet._
 ```blitzbasic
 FlushEvents kind%=-1, source%=0
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -103,6 +115,8 @@ _Not documented yet._
 FontAscent font%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -114,6 +128,8 @@ _Not documented yet._
 ```blitzbasic
 FontDescent font%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -127,6 +143,8 @@ _Not documented yet._
 FontName font%  ; returns String
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -138,6 +156,8 @@ _Not documented yet._
 ```blitzbasic
 FontSize font%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -151,6 +171,8 @@ _Not documented yet._
 FontStyle font%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -162,6 +184,8 @@ _Not documented yet._
 ```blitzbasic
 HotKeyEvent rawkey%, modifier%, ev_id%, ev_data%=0, ev_x%=0, ev_y%=0, ev_z%=0, ev_source%=0
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -182,6 +206,8 @@ _Not documented yet._
 MoreFiles dir%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -193,6 +219,8 @@ _Not documented yet._
 ```blitzbasic
 Notify text$, serious%=0
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -207,6 +235,8 @@ _Not documented yet._
 PauseTimer timer%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -218,6 +248,8 @@ _Not documented yet._
 ```blitzbasic
 Proceed text$, serious%=0  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -232,6 +264,8 @@ _Not documented yet._
 QueryObject object%, query_id%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -245,6 +279,8 @@ _Not documented yet._
 ResetTimer timer%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -257,6 +293,8 @@ _Not documented yet._
 ResumeTimer timer%
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -268,6 +306,8 @@ _Not documented yet._
 ```blitzbasic
 TimerTicks timer%  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

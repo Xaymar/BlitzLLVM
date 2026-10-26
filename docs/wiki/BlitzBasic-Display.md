@@ -44,6 +44,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 AvailVidMem  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### CountGfxDrivers
@@ -51,6 +53,8 @@ _Not documented yet._
 ```blitzbasic
 CountGfxDrivers  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -60,6 +64,8 @@ _Not documented yet._
 CountGfxModes  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### EndGraphics
@@ -68,6 +74,8 @@ _Not documented yet._
 EndGraphics
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### Flip
@@ -75,6 +83,8 @@ _Not documented yet._
 ```blitzbasic
 Flip vwait%=1
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -88,6 +98,8 @@ _Not documented yet._
 GammaBlue blue%  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -99,6 +111,8 @@ _Not documented yet._
 ```blitzbasic
 GammaGreen green%  ; returns Float
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -112,6 +126,8 @@ _Not documented yet._
 GammaRed red%  ; returns Float
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -123,6 +139,8 @@ _Not documented yet._
 ```blitzbasic
 GfxDriverName driver%  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -136,6 +154,8 @@ _Not documented yet._
 GfxModeDepth mode%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -147,6 +167,8 @@ _Not documented yet._
 ```blitzbasic
 GfxModeExists width%, height%, depth%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -162,6 +184,8 @@ _Not documented yet._
 GfxModeFormat mode%  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -173,6 +197,8 @@ _Not documented yet._
 ```blitzbasic
 GfxModeHeight mode%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -186,6 +212,8 @@ _Not documented yet._
 GfxModeWidth mode%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -197,6 +225,8 @@ _Not documented yet._
 ```blitzbasic
 Graphics width%, height%, depth%=0, mode%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -213,6 +243,8 @@ _Not documented yet._
 GraphicsDepth  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### GraphicsFormat
@@ -220,6 +252,8 @@ _Not documented yet._
 ```blitzbasic
 GraphicsFormat  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -229,6 +263,8 @@ _Not documented yet._
 GraphicsHeight  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### GraphicsLost
@@ -236,6 +272,8 @@ _Not documented yet._
 ```blitzbasic
 GraphicsLost  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -245,6 +283,8 @@ _Not documented yet._
 GraphicsWidth  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### HidePointer
@@ -253,6 +293,8 @@ _Not documented yet._
 HidePointer
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### SetGamma
@@ -260,6 +302,8 @@ _Not documented yet._
 ```blitzbasic
 SetGamma src_red%, src_green%, src_blue%, dest_red#, dest_green#, dest_blue#
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -278,6 +322,8 @@ _Not documented yet._
 SetGfxDriver driver%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -290,6 +336,8 @@ _Not documented yet._
 ShowPointer
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### TotalVidMem
@@ -298,6 +346,8 @@ _Not documented yet._
 TotalVidMem  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### UpdateGamma
@@ -305,6 +355,8 @@ _Not documented yet._
 ```blitzbasic
 UpdateGamma calibrate%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -317,6 +369,8 @@ _Not documented yet._
 ```blitzbasic
 VWait frames%=1
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

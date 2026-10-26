@@ -22,6 +22,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 CreateLight type%=1, parent%=0  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -34,6 +36,8 @@ _Not documented yet._
 ```blitzbasic
 LightColor light%, red#, green#, blue#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -50,6 +54,8 @@ _Not documented yet._
 LightConeAngles light%, inner_angle#, outer_angle#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -63,6 +69,8 @@ _Not documented yet._
 ```blitzbasic
 LightMesh mesh%, red#, green#, blue#, range#=0, x#=0, y#=0, z#=0
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -82,6 +90,8 @@ _Not documented yet._
 ```blitzbasic
 LightRange light%, range#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

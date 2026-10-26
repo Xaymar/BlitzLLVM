@@ -49,6 +49,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 AutoMidHandle enable%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -61,6 +63,8 @@ _Not documented yet._
 CopyImage image%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -72,6 +76,8 @@ _Not documented yet._
 ```blitzbasic
 CreateImage width%, height%, frames%=1  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -87,6 +93,8 @@ _Not documented yet._
 DrawBlock image%, x%, y%, frame%=0
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -101,6 +109,8 @@ _Not documented yet._
 ```blitzbasic
 DrawBlockRect image%, x%, y%, rect_x%, rect_y%, rect_width%, rect_height%, frame%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -121,6 +131,8 @@ _Not documented yet._
 DrawImage image%, x%, y%, frame%=0
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -135,6 +147,8 @@ _Not documented yet._
 ```blitzbasic
 DrawImageRect image%, x%, y%, rect_x%, rect_y%, rect_width%, rect_height%, frame%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -155,6 +169,8 @@ _Not documented yet._
 FreeImage image%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -166,6 +182,8 @@ _Not documented yet._
 ```blitzbasic
 GrabImage image%, x%, y%, frame%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -182,6 +200,8 @@ _Not documented yet._
 HandleImage image%, x%, y%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -196,6 +216,8 @@ _Not documented yet._
 ImageBuffer image%, frame%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -209,6 +231,8 @@ _Not documented yet._
 ImageHeight image%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -220,6 +244,8 @@ _Not documented yet._
 ```blitzbasic
 ImageRectCollide image%, x%, y%, frame%, rect_x%, rect_y%, rect_width%, rect_height%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -240,6 +266,8 @@ _Not documented yet._
 ImageRectOverlap image%, x%, y%, rect_x%, rect_y%, rect_width%, rect_height%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -257,6 +285,8 @@ _Not documented yet._
 ```blitzbasic
 ImagesCollide image1%, x1%, y1%, frame1%, image2%, x2%, y2%, frame2%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -277,6 +307,8 @@ _Not documented yet._
 ImagesOverlap image1%, x1%, y1%, image2%, x2%, y2%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -294,6 +326,8 @@ _Not documented yet._
 ImageWidth image%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -305,6 +339,8 @@ _Not documented yet._
 ```blitzbasic
 ImageXHandle image%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -318,6 +354,8 @@ _Not documented yet._
 ImageYHandle image%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -329,6 +367,8 @@ _Not documented yet._
 ```blitzbasic
 LoadAnimImage bmpfile$, cellwidth%, cellheight%, first%, count%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -346,6 +386,8 @@ _Not documented yet._
 LoadImage bmpfile$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -357,6 +399,8 @@ _Not documented yet._
 ```blitzbasic
 MaskImage image%, red%, green%, blue%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -373,6 +417,8 @@ _Not documented yet._
 MidHandle image%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -384,6 +430,8 @@ _Not documented yet._
 ```blitzbasic
 RectsOverlap x1%, y1%, width1%, height1%, x2%, y2%, width2%, height2%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -404,6 +452,8 @@ _Not documented yet._
 ResizeImage image%, width#, height#
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -418,6 +468,8 @@ _Not documented yet._
 RotateImage image%, angle#
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -430,6 +482,8 @@ _Not documented yet._
 ```blitzbasic
 SaveImage image%, bmpfile$, frame%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -445,6 +499,8 @@ _Not documented yet._
 ScaleImage image%, xscale#, yscale#
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -459,6 +515,8 @@ _Not documented yet._
 TFormFilter enable%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -470,6 +528,8 @@ _Not documented yet._
 ```blitzbasic
 TFormImage image%, a#, b#, c#, d#
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -487,6 +547,8 @@ _Not documented yet._
 TileBlock image%, x%=0, y%=0, frame%=0
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -501,6 +563,8 @@ _Not documented yet._
 ```blitzbasic
 TileImage image%, x%=0, y%=0, frame%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

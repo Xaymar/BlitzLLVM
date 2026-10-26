@@ -30,6 +30,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 DeltaPitch src_entity%, dest_entity%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -42,6 +44,8 @@ _Not documented yet._
 ```blitzbasic
 DeltaYaw src_entity%, dest_entity%  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -56,6 +60,8 @@ _Not documented yet._
 ProjectedX  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### ProjectedY
@@ -63,6 +69,8 @@ _Not documented yet._
 ```blitzbasic
 ProjectedY  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -72,6 +80,8 @@ _Not documented yet._
 ProjectedZ  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### TFormedX
@@ -79,6 +89,8 @@ _Not documented yet._
 ```blitzbasic
 TFormedX  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -88,6 +100,8 @@ _Not documented yet._
 TFormedY  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### TFormedZ
@@ -96,6 +110,8 @@ _Not documented yet._
 TFormedZ  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### TFormNormal
@@ -103,6 +119,8 @@ _Not documented yet._
 ```blitzbasic
 TFormNormal x#, y#, z#, source_entity%, dest_entity%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -120,6 +138,8 @@ _Not documented yet._
 TFormPoint x#, y#, z#, source_entity%, dest_entity%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -135,6 +155,8 @@ _Not documented yet._
 ```blitzbasic
 TFormVector x#, y#, z#, source_entity%, dest_entity%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -152,6 +174,8 @@ _Not documented yet._
 VectorPitch x#, y#, z#  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -165,6 +189,8 @@ _Not documented yet._
 ```blitzbasic
 VectorYaw x#, y#, z#  ; returns Float
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

@@ -37,6 +37,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 AcceptTCPStream tcp_server%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -48,6 +50,8 @@ _Not documented yet._
 ```blitzbasic
 CloseTCPServer tcp_server%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -61,6 +65,8 @@ _Not documented yet._
 CloseTCPStream tcp_stream%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -72,6 +78,8 @@ _Not documented yet._
 ```blitzbasic
 CloseUDPStream udp_stream%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -85,6 +93,8 @@ _Not documented yet._
 CountHostIPs host_name$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -96,6 +106,8 @@ _Not documented yet._
 ```blitzbasic
 CreateTCPServer port%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -109,6 +121,8 @@ _Not documented yet._
 CreateUDPStream port%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -120,6 +134,8 @@ _Not documented yet._
 ```blitzbasic
 DottedIP IP%  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -133,6 +149,8 @@ _Not documented yet._
 HostIP host_index%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -144,6 +162,8 @@ _Not documented yet._
 ```blitzbasic
 OpenTCPStream server$, server_port%, local_port%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -159,6 +179,8 @@ _Not documented yet._
 RecvUDPMsg udp_stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -170,6 +192,8 @@ _Not documented yet._
 ```blitzbasic
 SendUDPMsg udp_stream%, dest_ip%, dest_port%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -185,6 +209,8 @@ _Not documented yet._
 TCPStreamIP tcp_stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -197,6 +223,8 @@ _Not documented yet._
 TCPStreamPort tcp_stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -208,6 +236,8 @@ _Not documented yet._
 ```blitzbasic
 TCPTimeouts read_millis%, accept_millis%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -222,6 +252,8 @@ _Not documented yet._
 UDPMsgIP udp_stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -233,6 +265,8 @@ _Not documented yet._
 ```blitzbasic
 UDPMsgPort udp_stream%  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -246,6 +280,8 @@ _Not documented yet._
 UDPStreamIP udp_stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -258,6 +294,8 @@ _Not documented yet._
 UDPStreamPort udp_stream%  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -269,6 +307,8 @@ _Not documented yet._
 ```blitzbasic
 UDPTimeouts recv_timeout%
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

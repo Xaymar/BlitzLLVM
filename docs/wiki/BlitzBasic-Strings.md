@@ -35,6 +35,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 Asc string$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -46,6 +48,8 @@ _Not documented yet._
 ```blitzbasic
 Bin value%  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -59,6 +63,8 @@ _Not documented yet._
 Chr ascii%  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -71,6 +77,8 @@ _Not documented yet._
 CurrentDate  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### CurrentTime
@@ -79,6 +87,8 @@ _Not documented yet._
 CurrentTime  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### Hex
@@ -86,6 +96,8 @@ _Not documented yet._
 ```blitzbasic
 Hex value%  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -98,6 +110,8 @@ _Not documented yet._
 ```blitzbasic
 Instr string$, find$, from%=1  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -113,6 +127,8 @@ _Not documented yet._
 Left string$, count%  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -126,6 +142,8 @@ _Not documented yet._
 Len string$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -137,6 +155,8 @@ _Not documented yet._
 ```blitzbasic
 Lower string$  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -150,6 +170,8 @@ _Not documented yet._
 LSet string$, size%  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -162,6 +184,8 @@ _Not documented yet._
 ```blitzbasic
 Mid string$, start%, count%=-1  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -177,6 +201,8 @@ _Not documented yet._
 Replace string$, from$, to$  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -191,6 +217,8 @@ _Not documented yet._
 Right string$, count%  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -203,6 +231,8 @@ _Not documented yet._
 ```blitzbasic
 RSet string$, size%  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -217,6 +247,8 @@ _Not documented yet._
 String string$, repeat%  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -230,6 +262,8 @@ _Not documented yet._
 Trim string$  ; returns String
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -241,6 +275,8 @@ _Not documented yet._
 ```blitzbasic
 Upper string$  ; returns String
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

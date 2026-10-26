@@ -20,6 +20,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 BSPAmbientLight bsp%, red#, green#, blue#
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -35,6 +37,8 @@ _Not documented yet._
 BSPLighting bsp%, use_lightmaps%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -47,6 +51,8 @@ _Not documented yet._
 ```blitzbasic
 LoadBSP file$, gamma_adj#=0, parent%=0  ; returns Int
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 

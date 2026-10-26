@@ -33,6 +33,8 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 BackBuffer  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### BufferDirty
@@ -40,6 +42,8 @@ _Not documented yet._
 ```blitzbasic
 BufferDirty buffer%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -52,6 +56,8 @@ _Not documented yet._
 ```blitzbasic
 CopyPixel src_x%, src_y%, src_buffer%, dest_x%, dest_y%, dest_buffer%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -70,6 +76,8 @@ _Not documented yet._
 CopyPixelFast src_x%, src_y%, src_buffer%, dest_x%, dest_y%, dest_buffer%=0
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -86,6 +94,8 @@ _Not documented yet._
 ```blitzbasic
 CopyRect source_x%, source_y%, width%, height%, dest_x%, dest_y%, src_buffer%=0, dest_buffer%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -106,6 +116,8 @@ _Not documented yet._
 FrontBuffer  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### GraphicsBuffer
@@ -114,6 +126,8 @@ _Not documented yet._
 GraphicsBuffer  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 ### LoadBuffer
@@ -121,6 +135,8 @@ _Not documented yet._
 ```blitzbasic
 LoadBuffer buffer%, bmpfile$  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -135,6 +151,8 @@ _Not documented yet._
 LockBuffer buffer%=0
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -146,6 +164,8 @@ _Not documented yet._
 ```blitzbasic
 ReadPixel x%, y%, buffer%=0  ; returns Int
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -161,6 +181,8 @@ _Not documented yet._
 ReadPixelFast x%, y%, buffer%=0  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -175,6 +197,8 @@ _Not documented yet._
 SaveBuffer buffer%, bmpfile$  ; returns Int
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -188,6 +212,8 @@ _Not documented yet._
 SetBuffer buffer%
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -200,6 +226,8 @@ _Not documented yet._
 UnlockBuffer buffer%=0
 ```
 
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -211,6 +239,8 @@ _Not documented yet._
 ```blitzbasic
 WritePixel x%, y%, argb%, buffer%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
@@ -226,6 +256,8 @@ _Not documented yet._
 ```blitzbasic
 WritePixelFast x%, y%, argb%, buffer%=0
 ```
+
+**Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 

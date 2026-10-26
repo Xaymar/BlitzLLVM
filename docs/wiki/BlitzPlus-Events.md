@@ -25,6 +25,8 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 EventData  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### EventID
@@ -32,6 +34,8 @@ _Not documented yet._
 ```blitzbasic
 EventID  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -41,6 +45,8 @@ _Not documented yet._
 EventSource  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### EventX
@@ -48,6 +54,8 @@ _Not documented yet._
 ```blitzbasic
 EventX  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -57,6 +65,8 @@ _Not documented yet._
 EventY  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### EventZ
@@ -64,6 +74,8 @@ _Not documented yet._
 ```blitzbasic
 EventZ  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 
@@ -73,6 +85,8 @@ _Not documented yet._
 PeekEvent  ; returns Int
 ```
 
+**Works in:** BlitzPlus
+
 _Not documented yet._
 
 ### WaitEvent
@@ -80,6 +94,8 @@ _Not documented yet._
 ```blitzbasic
 WaitEvent timeout%=-1  ; returns Int
 ```
+
+**Works in:** BlitzPlus
 
 _Not documented yet._
 

@@ -31,6 +31,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 ActiveTextures  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### AmbientLight
@@ -38,6 +40,8 @@ _Not documented yet._
 ```blitzbasic
 AmbientLight red#, green#, blue#
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -53,6 +57,8 @@ _Not documented yet._
 AntiAlias enable%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -65,6 +71,8 @@ _Not documented yet._
 CaptureWorld
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### ClearWorld
@@ -72,6 +80,8 @@ _Not documented yet._
 ```blitzbasic
 ClearWorld entities%=1, brushes%=1, textures%=1
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -87,6 +97,8 @@ _Not documented yet._
 Dither enable%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -98,6 +110,8 @@ _Not documented yet._
 ```blitzbasic
 HWMultiTex enable%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -111,6 +125,8 @@ _Not documented yet._
 HWTexUnits  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### RenderWorld
@@ -118,6 +134,8 @@ _Not documented yet._
 ```blitzbasic
 RenderWorld tween#=1
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -131,6 +149,8 @@ _Not documented yet._
 Stats3D type%  ; returns Float
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -143,6 +163,8 @@ _Not documented yet._
 TrisRendered  ; returns Int
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 ### UpdateWorld
@@ -150,6 +172,8 @@ _Not documented yet._
 ```blitzbasic
 UpdateWorld elapsed_time#=1
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
@@ -163,6 +187,8 @@ _Not documented yet._
 WBuffer enable%
 ```
 
+**Works in:** Blitz3D
+
 _Not documented yet._
 
 | Parameter | Type | Default | Description |
@@ -174,6 +200,8 @@ _Not documented yet._
 ```blitzbasic
 WireFrame enable%
 ```
+
+**Works in:** Blitz3D
 
 _Not documented yet._
 
