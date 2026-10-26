@@ -218,23 +218,26 @@ def category_page(dialect, category, cmds):
 
 def sidebar(cats):
     """The GitHub wiki shows _Sidebar.md next to every page. Dialects and categories fold open with <details>, so the
-    sidebar stays short until a submenu is opened. Each <details> sits inside the <li> of a list and holds the <ul> of
-    its children, so that a submenu is indented under its parent. The menu is HTML because Markdown does not render
-    inside <details>, and it uses no styling because the wiki strips it."""
-    out = ['<a href="Home">Home</a> · <a href="Command-Index">Command Index</a>', "", "<hr>", "", "<ul>"]
+    sidebar stays short until a submenu is opened. A dialect is a <details> with a bold title. Below it, each
+    category is a <details> inside the <li> of a list, and holds the <ul> of its commands, so that a submenu is
+    indented under its parent. There are no headings, because their anchors get in the way of the page navigation.
+    The menu is HTML because Markdown does not render inside <details>, and it uses no styling because the wiki strips
+    it."""
+    out = ['<a href="Home">Home</a> · <a href="Command-Index">Command Index</a>', "", "<hr>", ""]
     for dialect in DIALECT_ORDER:
-        out.append('<li><details><summary><b><a href="%s">%s</a></b></summary>' % (dialect, dialect))
+        out.append('<details><summary><b><a href="%s">%s</a></b></summary>' % (dialect, dialect))
         out.append("<ul>")
         for category in sorted(cats[dialect]):
             cmds = sorted(cats[dialect][category], key=lambda c: c.key)
-            out.append('<li><details><summary><a href="%s">%s</a> (%d)</summary>' % (cmds[0].page, category, len(cmds)))
+            out.append('<li><details><summary><a href="%s">%s</a> (%d)</summary>' %
+                       (cmds[0].page, category, len(cmds)))
             out.append("<ul>")
             out.extend('<li><a href="%s">%s</a></li>' % (c.name, c.name) for c in cmds)
             out.append("</ul>")
             out.append("</details></li>")
         out.append("</ul>")
-        out.append("</details></li>")
-    out.append("</ul>")
+        out.append("</details>")
+        out.append("")
     return "\n".join(out)
 
 
