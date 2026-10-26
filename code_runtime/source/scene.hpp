@@ -55,7 +55,20 @@ namespace bb {
 		uint8_t r, g, b, a;
 	};
 
+	// What a brush says about how something looks, and what a surface remembers of the brush it was painted with.
+	struct material {
+		float color[3]  = { 1, 1, 1 };
+		float alpha     = 1;
+		float shininess = 0;
+		int   texture   = 0; // Handle, 0 for none.
+		int   blend     = 0; // 0 = whatever the entity says.
+		int   fx        = 0;
+	};
+
 	struct surface {
+		bool     painted = false;
+		material paint;
+
 		buffer<vertex3d> vertices;
 		buffer<uint32_t> indices;
 
@@ -67,6 +80,14 @@ namespace bb {
 	};
 
 	enum entity_kind { PIVOT = 0, CAMERA = 1, LIGHT = 2, MESH = 3 };
+
+	// A heightmap that is drawn as a mesh. Heights go from 0 to 1.
+	struct terrain_data {
+		int    size   = 0; // Cells along each side, there is one more row of heights.
+		float* heights = nullptr;
+		bool   dirty  = true;
+		bool   smooth = true;
+	};
 
 	struct entity {
 		int         kind   = PIVOT;
@@ -91,6 +112,7 @@ namespace bb {
 		float shininess = 0;
 		float fade_near = 0, fade_far = 0; // Fades out between these distances to the camera, if far is not 0.
 		buffer<surface*> surfaces;
+		terrain_data*    terrain = nullptr;
 
 		// Camera
 		float cam_near = 1, cam_far = 1000, cam_zoom = 1;
@@ -118,6 +140,9 @@ namespace bb {
 	entity*      get_entity(int handle);
 	void         world_matrix(int handle, float* out);
 	extern float ambient_light[3];
+
+	/** Makes the mesh of a terrain match its heights, if they changed. */
+	void update_terrain(entity& e);
 
 	/** Calls the function for every visible entity of the given kind. */
 	void         for_each_visible(int kind, void (*visit)(int handle, entity& e, void* user), void* user);

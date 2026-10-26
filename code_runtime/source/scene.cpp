@@ -8,6 +8,7 @@
 extern "C" {
 void bb_runtime_error(const char* message);
 void bb_release_surface_gpu(void* gpu);
+void bb_paint_surface(int32_t surface, int32_t brush);
 }
 
 namespace bb {
@@ -234,6 +235,10 @@ namespace {
 			release_surface(e->surfaces[i]);
 		}
 		e->surfaces.release();
+		if (e->terrain) {
+			free(e->terrain->heights);
+			delete e->terrain;
+		}
 		free(e->name);
 		delete e;
 		entities[uint32_t(handle) - 1] = nullptr;
@@ -473,6 +478,56 @@ void bb::world_matrix(int handle, float* out)
 	}
 }
 
+void bb::update_terrain(entity& e)
+{
+	if (!e.terrain || !e.terrain->dirty || (e.surfaces.size == 0)) {
+		return;
+	}
+	terrain_data& t = *e.terrain;
+	surface*      s = e.surfaces[0];
+	int           n = t.size;
+	e.terrain->dirty = false;
+
+	// One vertex for each height. The triangles stay the same, and are made only once.
+	bool first = (s->vertices.size == 0);
+	if (first) {
+		for (int z = 0; z <= n; z++) {
+			for (int x = 0; x <= n; x++) {
+				add_vertex(s, float(x), 0, float(z), 0, 1, 0, float(x) / float(n), float(z) / float(n));
+			}
+		}
+		for (int z = 0; z < n; z++) {
+			for (int x = 0; x < n; x++) {
+				uint32_t a = uint32_t(z * (n + 1) + x), b = a + 1, c = a + uint32_t(n + 1), d = c + 1;
+				add_oriented_triangle(s, a, b, c);
+				add_oriented_triangle(s, b, d, c);
+			}
+		}
+	}
+	for (int z = 0; z <= n; z++) {
+		for (int x = 0; x <= n; x++) {
+			vertex3d& v = s->vertices[uint32_t(z * (n + 1) + x)];
+			v.y         = t.heights[z * (n + 1) + x];
+		}
+	}
+	// With smooth shading, the normals follow the height around a vertex. Flat shading is not supported separately.
+	for (int z = 0; z <= n; z++) {
+		for (int x = 0; x <= n; x++) {
+			float hl = t.heights[z * (n + 1) + (x > 0 ? x - 1 : x)], hr = t.heights[z * (n + 1) + (x < n ? x + 1 : x)];
+			float hu = t.heights[(z > 0 ? z - 1 : z) * (n + 1) + x], hd = t.heights[(z < n ? z + 1 : z) * (n + 1) + x];
+			// The shader scales normals like the entity, so that is undone here to end up with the real slope.
+			float sx = e.scale[0] != 0 ? e.scale[0] : 1, sy = e.scale[1] != 0 ? e.scale[1] : 1, sz = e.scale[2] != 0 ? e.scale[2] : 1;
+			float nx = (hl - hr) / 2.0f * sy / sx / sx, nz = (hu - hd) / 2.0f * sy / sz / sz, ny = 1 / sy;
+			float len = sqrtf(nx * nx + ny * ny + nz * nz);
+			vertex3d& v = s->vertices[uint32_t(z * (n + 1) + x)];
+			v.nx = nx / len;
+			v.ny = ny / len;
+			v.nz = nz / len;
+		}
+	}
+	s->dirty = true;
+}
+
 void bb::for_each_visible(int kind, void (*visit)(int, entity&, void*), void* user)
 {
 	for (uint32_t i = 0; i < entities.size; i++) {
@@ -652,6 +707,9 @@ void bb_scale_entity(int32_t handle, float x, float y, float z, int32_t global)
 {
 	(void)global;
 	entity* e = need(handle, "ScaleEntity");
+	if (e->terrain) {
+		e->terrain->dirty = true; // Its normals depend on the scale.
+	}
 	e->scale[0] = x;
 	e->scale[1] = y;
 	e->scale[2] = z;
@@ -839,8 +897,11 @@ int32_t bb_create_mesh(int32_t parent)
 
 int32_t bb_create_surface(int32_t mesh, int32_t brush)
 {
-	(void)brush; // Brushes are not supported yet.
-	return new_surface(mesh);
+	int32_t handle = new_surface(mesh);
+	if (brush) {
+		bb_paint_surface(handle, brush);
+	}
+	return handle;
 }
 
 int32_t bb_add_vertex(int32_t handle, float x, float y, float z, float u, float v, float w)
@@ -1114,6 +1175,13 @@ static int copy_entity(int source, int parent)
 	// Everything is copied over, except what owns memory.
 	entity copy = *from;
 	copy.parent = parent;
+	copy.terrain = nullptr;
+	if (from->terrain) {
+		copy.terrain          = new terrain_data(*from->terrain);
+		size_t count          = size_t(from->terrain->size + 1) * size_t(from->terrain->size + 1);
+		copy.terrain->heights = static_cast<float*>(malloc(count * sizeof(float)));
+		memcpy(copy.terrain->heights, from->terrain->heights, count * sizeof(float));
+	}
 	copy.name   = nullptr;
 	copy.surfaces.data = nullptr;
 	copy.surfaces.size = copy.surfaces.cap = 0;
@@ -1354,5 +1422,246 @@ int32_t bb_create_plane(int32_t divisions, int32_t parent)
 	add_oriented_triangle(s, 0, 1, 2);
 	add_oriented_triangle(s, 0, 2, 3);
 	return mesh;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Brushes
+////////////////////////////////////////////////////////////////////////////////
+struct brush_entry {
+	bool     used = false;
+	material look;
+};
+static buffer<brush_entry> brush_table;
+
+static brush_entry& need_brush(int32_t handle, const char* what)
+{
+	if ((handle < 1) || (uint32_t(handle) > brush_table.size) || !brush_table[uint32_t(handle) - 1].used) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: the brush does not exist.", what);
+		bb_runtime_error(message);
+		exit(1);
+	}
+	return brush_table[uint32_t(handle) - 1];
+}
+
+int32_t bb_create_brush(float r, float g, float b)
+{
+	brush_entry entry;
+	entry.used          = true;
+	entry.look.color[0] = clamp255(r);
+	entry.look.color[1] = clamp255(g);
+	entry.look.color[2] = clamp255(b);
+	for (uint32_t i = 0; i < brush_table.size; i++) {
+		if (!brush_table[i].used) {
+			brush_table[i] = entry;
+			return int32_t(i) + 1;
+		}
+	}
+	brush_table.push(entry);
+	return int32_t(brush_table.size);
+}
+
+void bb_free_brush(int32_t handle)
+{
+	need_brush(handle, "FreeBrush") = brush_entry();
+}
+
+void bb_brush_color(int32_t handle, float r, float g, float b)
+{
+	brush_entry& e = need_brush(handle, "BrushColor");
+	e.look.color[0] = clamp255(r);
+	e.look.color[1] = clamp255(g);
+	e.look.color[2] = clamp255(b);
+}
+
+void bb_brush_alpha(int32_t handle, float alpha)
+{
+	need_brush(handle, "BrushAlpha").look.alpha = alpha < 0 ? 0 : (alpha > 1 ? 1 : alpha);
+}
+
+void bb_brush_shininess(int32_t handle, float shininess)
+{
+	need_brush(handle, "BrushShininess").look.shininess = shininess;
+}
+
+void bb_brush_blend(int32_t handle, int32_t blend)
+{
+	need_brush(handle, "BrushBlend").look.blend = (blend < 1 || blend > 3) ? 0 : blend;
+}
+
+void bb_brush_fx(int32_t handle, int32_t fx)
+{
+	need_brush(handle, "BrushFX").look.fx = fx;
+}
+
+// Only the first texture of a brush is used.
+void bb_brush_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index)
+{
+	(void)frame;
+	brush_entry& e = need_brush(handle, "BrushTexture");
+	if (index == 0) {
+		e.look.texture = texture;
+	}
+}
+
+int32_t bb_get_brush_texture(int32_t handle, int32_t index)
+{
+	return (index == 0) ? need_brush(handle, "GetBrushTexture").look.texture : 0;
+}
+
+void bb_paint_surface(int32_t surface_handle, int32_t brush)
+{
+	surface* s = need_surface(surface_handle, "PaintSurface");
+	s->paint   = need_brush(brush, "PaintSurface").look;
+	s->painted = true;
+}
+
+void bb_paint_mesh(int32_t mesh, int32_t brush)
+{
+	entity*  e    = need_kind(mesh, MESH, "PaintMesh");
+	material look = need_brush(brush, "PaintMesh").look;
+	for (uint32_t i = 0; i < e->surfaces.size; i++) {
+		e->surfaces[i]->paint   = look;
+		e->surfaces[i]->painted = true;
+	}
+}
+
+void bb_paint_entity(int32_t handle, int32_t brush)
+{
+	entity*   e    = need(handle, "PaintEntity");
+	material& look = need_brush(brush, "PaintEntity").look;
+	memcpy(e->color, look.color, sizeof(e->color));
+	e->alpha     = look.alpha;
+	e->shininess = look.shininess;
+	e->texture   = look.texture;
+	e->blend     = look.blend ? look.blend : 1;
+	e->fx        = look.fx;
+}
+
+int32_t bb_get_surface_brush(int32_t surface_handle)
+{
+	surface* s = need_surface(surface_handle, "GetSurfaceBrush");
+	int32_t  b = bb_create_brush(255, 255, 255);
+	if (s->painted) {
+		brush_table[uint32_t(b) - 1].look = s->paint;
+	}
+	return b;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Terrain
+////////////////////////////////////////////////////////////////////////////////
+static entity* need_terrain(int32_t handle, const char* what)
+{
+	entity* e = need_kind(handle, MESH, what);
+	if (!e->terrain) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: this is not a terrain.", what);
+		bb_runtime_error(message);
+		exit(1);
+	}
+	return e;
+}
+
+int32_t bb_create_terrain(int32_t size, int32_t parent)
+{
+	if ((size < 2) || (size > 4096)) {
+		bb_runtime_error("CreateTerrain: the size has to be between 2 and 4096.");
+	}
+	int     mesh = new_mesh(parent);
+	entity* e    = get_entity(mesh);
+	e->terrain   = new terrain_data();
+	e->terrain->size    = size;
+	e->terrain->heights = static_cast<float*>(calloc(size_t(size + 1) * size_t(size + 1), sizeof(float)));
+	new_surface(mesh);
+	return mesh;
+}
+
+void bb_modify_terrain(int32_t handle, int32_t x, int32_t z, float height)
+{
+	entity* e = need_terrain(handle, "ModifyTerrain");
+	int     n = e->terrain->size;
+	if ((x < 0) || (z < 0) || (x > n) || (z > n)) {
+		return;
+	}
+	e->terrain->heights[z * (n + 1) + x] = height < 0 ? 0 : (height > 1 ? 1 : height);
+	e->terrain->dirty                    = true;
+}
+
+float bb_terrain_height(int32_t handle, int32_t x, int32_t z)
+{
+	entity* e = need_terrain(handle, "TerrainHeight");
+	int     n = e->terrain->size;
+	x         = x < 0 ? 0 : (x > n ? n : x);
+	z         = z < 0 ? 0 : (z > n ? n : z);
+	return e->terrain->heights[z * (n + 1) + x];
+}
+
+int32_t bb_terrain_size(int32_t handle)
+{
+	return need_terrain(handle, "TerrainSize")->terrain->size;
+}
+
+void bb_terrain_shading(int32_t handle, int32_t smooth)
+{
+	entity* e         = need_terrain(handle, "TerrainShading");
+	e->terrain->smooth = smooth != 0;
+	e->terrain->dirty  = true;
+}
+
+// Terrains are always drawn in full detail, this is accepted for programs that set it.
+void bb_terrain_detail(int32_t handle, int32_t detail, int32_t morph)
+{
+	(void)detail;
+	(void)morph;
+	need_terrain(handle, "TerrainDetail");
+}
+
+// The height of the terrain (between the cells it is linear) at a point of the local x/z plane.
+static float terrain_local_height(entity const& e, float x, float z)
+{
+	int n = e.terrain->size;
+	x     = x < 0 ? 0 : (x > float(n) ? float(n) : x);
+	z     = z < 0 ? 0 : (z > float(n) ? float(n) : z);
+	int   x0 = int(x), z0 = int(z);
+	int   x1 = x0 < n ? x0 + 1 : x0, z1 = z0 < n ? z0 + 1 : z0;
+	float fx = x - float(x0), fz = z - float(z0);
+	const float* h = e.terrain->heights;
+	float top    = h[z0 * (n + 1) + x0] * (1 - fx) + h[z0 * (n + 1) + x1] * fx;
+	float bottom = h[z1 * (n + 1) + x0] * (1 - fx) + h[z1 * (n + 1) + x1] * fx;
+	return top * (1 - fz) + bottom * fz;
+}
+
+// The point of the terrain that is above or below a point in the world.
+static void terrain_point(int32_t handle, float x, float y, float z, float* out, const char* what)
+{
+	entity* e = need_terrain(handle, what);
+	float   world[16], inverse[16], p[3] = { x, y, z }, local[3];
+	world_matrix(handle, world);
+	affine_inverse(world, inverse);
+	transform_point(inverse, p, local);
+	float on_terrain[3] = { local[0], terrain_local_height(*e, local[0], local[2]), local[2] };
+	transform_point(world, on_terrain, out);
+}
+
+float bb_terrain_x(int32_t handle, float x, float y, float z)
+{
+	float p[3];
+	terrain_point(handle, x, y, z, p, "TerrainX");
+	return p[0];
+}
+
+float bb_terrain_y(int32_t handle, float x, float y, float z)
+{
+	float p[3];
+	terrain_point(handle, x, y, z, p, "TerrainY");
+	return p[1];
+}
+
+float bb_terrain_z(int32_t handle, float x, float y, float z)
+{
+	float p[3];
+	terrain_point(handle, x, y, z, p, "TerrainZ");
+	return p[2];
 }
 }

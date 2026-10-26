@@ -44,6 +44,7 @@ void bb_sound_update(void);
 #define BB_VK_INSTANCE(X) \
 	X(vkDestroyInstance) \
 	X(vkEnumeratePhysicalDevices) \
+	X(vkGetPhysicalDeviceFeatures) \
 	X(vkGetPhysicalDeviceProperties) \
 	X(vkGetPhysicalDeviceQueueFamilyProperties) \
 	X(vkGetPhysicalDeviceMemoryProperties) \
@@ -229,6 +230,9 @@ namespace {
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
 		VkPipeline            add3d          = VK_NULL_HANDLE;
+		VkPipeline            wire3d[4]      = {};  // The same, drawing only the edges.
+		bool                  can_wireframe  = false;
+		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE;
 		VkDeviceMemory        scene_memory   = VK_NULL_HANDLE;
 		void*                 scene_mapped   = nullptr;
@@ -1073,6 +1077,12 @@ namespace {
 		queue_info.queueCount               = 1;
 		queue_info.pQueuePriorities         = &priority;
 
+		// Drawing edges only is an optional feature.
+		VkPhysicalDeviceFeatures supported = {}, enabled = {};
+		vkGetPhysicalDeviceFeatures(g.physical, &supported);
+		g.can_wireframe        = supported.fillModeNonSolid == VK_TRUE;
+		enabled.fillModeNonSolid = supported.fillModeNonSolid;
+
 		VkPhysicalDeviceVulkan13Features features13 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
 		features13.dynamicRendering                 = VK_TRUE;
 		features13.synchronization2                 = VK_TRUE;
@@ -1080,6 +1090,7 @@ namespace {
 		const char*        device_extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		VkDeviceCreateInfo device_info         = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 		device_info.pNext                      = &features13;
+		device_info.pEnabledFeatures           = &enabled;
 		device_info.queueCreateInfoCount       = 1;
 		device_info.pQueueCreateInfos          = &queue_info;
 		device_info.enabledExtensionCount      = 1;
@@ -1503,7 +1514,7 @@ namespace {
 		return gpu;
 	}
 
-	VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode)
+	VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
@@ -1535,7 +1546,7 @@ namespace {
 
 		// Blitz3D's front faces are clockwise as seen from the front. The projection flips Y, which flips this once more.
 		VkPipelineRasterizationStateCreateInfo raster = { VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
-		raster.polygonMode                            = VK_POLYGON_MODE_FILL;
+		raster.polygonMode                            = wire ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
 		raster.cullMode                               = VK_CULL_MODE_BACK_BIT;
 		raster.frontFace                              = VK_FRONT_FACE_CLOCKWISE;
 		raster.lineWidth                              = 1.0f;
@@ -1641,6 +1652,11 @@ namespace {
 		g.blend3d         = create_pipeline_3d(vs, fs, 1);
 		g.mul3d           = create_pipeline_3d(vs, fs, 2);
 		g.add3d           = create_pipeline_3d(vs, fs, 3);
+		if (g.can_wireframe) {
+			for (int mode = 0; mode < 4; mode++) {
+				g.wire3d[mode] = create_pipeline_3d(vs, fs, mode, true);
+			}
+		}
 		vkDestroyShaderModule(g.device, vs, nullptr);
 		vkDestroyShaderModule(g.device, fs, nullptr);
 	}
@@ -1741,6 +1757,15 @@ namespace {
 		texture_entry* texture = texture_of(mesh.texture);
 		bool translucent       = texture && (texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED));
 		bool blended           = (alpha < 0.999f) || translucent || (mesh.blend != 1);
+		for (uint32_t i = 0; i < mesh.surfaces.size && !blended; i++) {
+			// Painted surfaces can be see-through even if the entity is not.
+			bb::surface const& surface = *mesh.surfaces[i];
+			if (surface.painted) {
+				texture_entry* painted = texture_of(surface.paint.texture);
+				blended = (surface.paint.alpha < 0.999f) || (surface.paint.blend > 1) || (painted && (painted->flags & (TEXTURE_ALPHA | TEXTURE_MASKED)));
+			}
+		}
+		bb::update_terrain(mesh);
 		draw_item item         = { handle, alpha, depth, mesh.order };
 		if (mesh.order > 0) {
 			c->list->behind.push(item);
@@ -1827,35 +1852,44 @@ namespace {
 			push.model[row][2] = m[8 + row];
 			push.model[row][3] = m[12 + row];
 		}
-		push.material[0] = e->color[0];
-		push.material[1] = e->color[1];
-		push.material[2] = e->color[2];
-		push.material[3] = item.alpha;
-		push.params[0]   = fullbright ? 1.0f : 0.0f;
-
-		texture_entry* texture = texture_of(e->texture);
-		push.uv[0] = texture ? texture->uv[0] : 1.0f;
-		push.uv[1] = texture ? texture->uv[1] : 1.0f;
-		push.uv[2] = texture ? texture->uv[2] : 0.0f;
-		push.uv[3] = texture ? texture->uv[3] : 0.0f;
-		vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
-
-		VkPipeline pipeline = g.opaque3d;
-		if (blended) {
-			pipeline = (e->blend == 2) ? g.mul3d : ((e->blend == 3) ? g.add3d : g.blend3d);
-		}
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-		vkCmdSetCullMode(g.cmd, two_sided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
-		vkCmdSetDepthTestEnable(g.cmd, depth_test ? VK_TRUE : VK_FALSE);
-		vkCmdSetDepthWriteEnable(g.cmd, (blended || !depth_test) ? VK_FALSE : VK_TRUE);
-		VkDescriptorSet set = (texture && texture->set) ? texture->set : g.sets[TEXTURE_WHITE];
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
 
 		for (uint32_t i = 0; i < e->surfaces.size; i++) {
-			surface_gpu* gpu = upload_surface(*e->surfaces[i]);
+			bb::surface& surface = *e->surfaces[i];
+			surface_gpu* gpu     = upload_surface(surface);
 			if (!gpu) {
 				continue;
 			}
+
+			// A painted surface changes what the entity looks like.
+			bb::material paint;
+			if (surface.painted) {
+				paint = surface.paint;
+			}
+			int  texture_handle = paint.texture ? paint.texture : e->texture;
+			int  blend          = paint.blend ? paint.blend : e->blend;
+			bool surface_blended = blended || (paint.alpha < 0.999f) || (blend != 1);
+
+			push.material[0] = e->color[0] * paint.color[0];
+			push.material[1] = e->color[1] * paint.color[1];
+			push.material[2] = e->color[2] * paint.color[2];
+			push.material[3] = item.alpha * paint.alpha;
+			push.params[0]   = (fullbright || ((e->fx | paint.fx) & 1)) ? 1.0f : 0.0f;
+			texture_entry* texture = texture_of(texture_handle);
+			push.uv[0] = texture ? texture->uv[0] : 1.0f;
+			push.uv[1] = texture ? texture->uv[1] : 1.0f;
+			push.uv[2] = texture ? texture->uv[2] : 0.0f;
+			push.uv[3] = texture ? texture->uv[3] : 0.0f;
+			vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
+
+			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
+			VkPipeline pipeline = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? g.opaque3d : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
+			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+			vkCmdSetCullMode(g.cmd, (two_sided || ((e->fx | paint.fx) & 16)) ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
+			vkCmdSetDepthTestEnable(g.cmd, depth_test ? VK_TRUE : VK_FALSE);
+			vkCmdSetDepthWriteEnable(g.cmd, (surface_blended || !depth_test) ? VK_FALSE : VK_TRUE);
+			VkDescriptorSet set = (texture && texture->set) ? texture->set : g.sets[TEXTURE_WHITE];
+			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
+
 			VkDeviceSize offset = 0;
 			vkCmdBindVertexBuffers(g.cmd, 0, 1, &gpu->vertex_buffer, &offset);
 			vkCmdBindIndexBuffer(g.cmd, gpu->index_buffer, 0, VK_INDEX_TYPE_UINT32);
@@ -1928,6 +1962,12 @@ namespace {
 				texture_entry* tex = e ? texture_of(e->texture) : nullptr;
 				if (tex && tex->set) {
 					transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+				}
+				for (uint32_t surface = 0; e && (surface < e->surfaces.size); surface++) {
+					texture_entry* painted = e->surfaces[surface]->painted ? texture_of(e->surfaces[surface]->paint.texture) : nullptr;
+					if (painted && painted->set) {
+						transition(painted->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+					}
 				}
 			}
 		}
@@ -2081,6 +2121,11 @@ void bb_end_graphics(void)
 		vkDestroyPipeline(g.device, g.blend3d, nullptr);
 		vkDestroyPipeline(g.device, g.mul3d, nullptr);
 		vkDestroyPipeline(g.device, g.add3d, nullptr);
+		for (VkPipeline pipeline : g.wire3d) {
+			if (pipeline) {
+				vkDestroyPipeline(g.device, pipeline, nullptr);
+			}
+		}
 		vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
 		vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
 		for (int i = 0; i < TEXTURES; i++) {
@@ -3549,6 +3594,12 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 	int vx, vy, vw, vh;
 	camera_viewport(*cam, int(g.width), int(g.height), vx, vy, vw, vh);
 	return ((p[0] >= float(vx)) && (p[0] <= float(vx + vw)) && (p[1] >= float(vy)) && (p[1] <= float(vy + vh)) && (p[2] <= cam->cam_far)) ? 1 : 0;
+}
+
+// Draw only the edges of everything, if the GPU can.
+void bb_wire_frame(int32_t on)
+{
+	g.wireframe = (on != 0) && g.can_wireframe;
 }
 
 // RenderWorld: draws everything the cameras see into the current buffer.
