@@ -6,17 +6,15 @@
 
 Commands that only BlitzPlus has: windows, gadgets, events and system access.
 
-Back to [[Home]] or the [[Command-Index]].
+Back to [Home](Home) or the [Command Index](Command-Index).
 
-| Category | Commands | |
-|---|---|---|
-| [Canvas](BlitzPlus-Canvas) | 7 | Drawing surfaces inside windows and locked pixel access. |
-| [Dialogs](BlitzPlus-Dialogs) | 7 | File, folder, color and font requesters and message boxes. |
-| [Events](BlitzPlus-Events) | 8 | Waiting for and reading window and gadget events. |
-| [Gadgets](BlitzPlus-Gadgets) | 42 | Buttons, labels, lists, sliders and the other controls. |
-| [Menus](BlitzPlus-Menus) | 9 | Window menus and menu items. |
-| [System](BlitzPlus-System) | 19 | Timers, processes, objects and fonts of the operating system. |
-| [Text Areas](BlitzPlus-Text-Areas) | 18 | Multi-line text editing and formatting. |
-| [Toolbars](BlitzPlus-Toolbars) | 7 | Toolbars and icon strips. |
-| [Tree Views](BlitzPlus-Tree-Views) | 12 | Hierarchical lists. |
-| [Windows](BlitzPlus-Windows) | 15 | Creating and controlling windows. |
+* [Canvas](BlitzPlus-Canvas) (7): Drawing surfaces inside windows and locked pixel access.
+* [Dialogs](BlitzPlus-Dialogs) (7): File, folder, color and font requesters and message boxes.
+* [Events](BlitzPlus-Events) (8): Waiting for and reading window and gadget events.
+* [Gadgets](BlitzPlus-Gadgets) (42): Buttons, labels, lists, sliders and the other controls.
+* [Menus](BlitzPlus-Menus) (9): Window menus and menu items.
+* [System](BlitzPlus-System) (19): Timers, processes, objects and fonts of the operating system.
+* [Text Areas](BlitzPlus-Text-Areas) (18): Multi-line text editing and formatting.
+* [Toolbars](BlitzPlus-Toolbars) (7): Toolbars and icon strips.
+* [Tree Views](BlitzPlus-Tree-Views) (12): Hierarchical lists.
+* [Windows](BlitzPlus-Windows) (15): Creating and controlling windows.

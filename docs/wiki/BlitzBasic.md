@@ -6,26 +6,24 @@
 
 Commands that exist in BlitzBasic, Blitz3D and BlitzPlus alike.
 
-Back to [[Home]] or the [[Command-Index]].
+Back to [Home](Home) or the [Command Index](Command-Index).
 
-| Category | Commands | |
-|---|---|---|
-| [Audio](BlitzBasic-Audio) | 17 | Sounds, channels and music. |
-| [Banks](BlitzBasic-Banks) | 16 | Raw memory blocks you can peek, poke and pass to libraries. |
-| [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels) | 16 | Drawing targets, locking and reading or writing single pixels. |
-| [Display](BlitzBasic-Display) | 27 | Opening a graphics mode, listing drivers and modes, gamma and video memory. |
-| [Drawing](BlitzBasic-Drawing) | 14 | Colors, shapes, text positioning and the viewport. |
-| [Files](BlitzBasic-Files) | 18 | Opening, reading, writing and listing files and directories. |
-| [Fonts and Text](BlitzBasic-Fonts-and-Text) | 12 | Loading fonts and measuring or printing text. |
-| [Images](BlitzBasic-Images) | 32 | Loading, drawing, transforming and colliding images. |
-| [Joystick](BlitzBasic-Joystick) | 21 | Joystick and gamepad axes, buttons and hats. |
-| [Keyboard](BlitzBasic-Keyboard) | 6 | Key state, key hits and waiting for keys. |
-| [Language](BlitzBasic-Language) | 1 | Statistics and helpers that belong to the language itself. |
-| [Math](BlitzBasic-Math) | 17 | Trigonometry, rounding, random numbers and other numeric helpers. |
-| [Mouse](BlitzBasic-Mouse) | 15 | Mouse position, speed and buttons. |
-| [Movies](BlitzBasic-Movies) | 6 | Playing back movie files. |
-| [Multiplayer](BlitzBasic-Multiplayer) | 14 | Hosting and joining a network game and exchanging messages. |
-| [Network](BlitzBasic-Network) | 20 | TCP and UDP streams, servers and host lookup. |
-| [Runtime](BlitzBasic-Runtime) | 15 | Timers, delays, program information and the environment. |
-| [Streams](BlitzBasic-Streams) | 15 | Reading and writing bytes, numbers and text on files, TCP and UDP streams. |
-| [Strings](BlitzBasic-Strings) | 18 | Searching, slicing, converting and formatting text. |
+* [Audio](BlitzBasic-Audio) (17): Sounds, channels and music.
+* [Banks](BlitzBasic-Banks) (16): Raw memory blocks you can peek, poke and pass to libraries.
+* [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels) (16): Drawing targets, locking and reading or writing single pixels.
+* [Display](BlitzBasic-Display) (27): Opening a graphics mode, listing drivers and modes, gamma and video memory.
+* [Drawing](BlitzBasic-Drawing) (14): Colors, shapes, text positioning and the viewport.
+* [Files](BlitzBasic-Files) (18): Opening, reading, writing and listing files and directories.
+* [Fonts and Text](BlitzBasic-Fonts-and-Text) (12): Loading fonts and measuring or printing text.
+* [Images](BlitzBasic-Images) (32): Loading, drawing, transforming and colliding images.
+* [Joystick](BlitzBasic-Joystick) (21): Joystick and gamepad axes, buttons and hats.
+* [Keyboard](BlitzBasic-Keyboard) (6): Key state, key hits and waiting for keys.
+* [Language](BlitzBasic-Language) (1): Statistics and helpers that belong to the language itself.
+* [Math](BlitzBasic-Math) (17): Trigonometry, rounding, random numbers and other numeric helpers.
+* [Mouse](BlitzBasic-Mouse) (15): Mouse position, speed and buttons.
+* [Movies](BlitzBasic-Movies) (6): Playing back movie files.
+* [Multiplayer](BlitzBasic-Multiplayer) (14): Hosting and joining a network game and exchanging messages.
+* [Network](BlitzBasic-Network) (20): TCP and UDP streams, servers and host lookup.
+* [Runtime](BlitzBasic-Runtime) (15): Timers, delays, program information and the environment.
+* [Streams](BlitzBasic-Streams) (15): Reading and writing bytes, numbers and text on files, TCP and UDP streams.
+* [Strings](BlitzBasic-Strings) (18): Searching, slicing, converting and formatting text.
