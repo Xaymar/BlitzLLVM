@@ -22,7 +22,8 @@ The color depth of the graphics mode in bits.
 
 ## Related commands
 
-* [EndGraphics](EndGraphics)
+* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
+* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
 * [GfxModeDepth](GfxModeDepth)
 * [Graphics](Graphics)
 * [GraphicsFormat](GraphicsFormat)

@@ -127,11 +127,14 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [Cos](Cos)
 * [CountChildren](CountChildren)
 * [CountCollisions](CountCollisions)
+* [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕
+* [CountDisplays](CountDisplays) 〔BlitzLLVM〕
 * [CountGadgetItems](CountGadgetItems)
 * [CountGfxDrivers](CountGfxDrivers)
 * [CountGfxModes](CountGfxModes)
 * [CountGfxModes3D](CountGfxModes3D)
 * [CountHostIPs](CountHostIPs)
+* [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
 * [CountSurfaces](CountSurfaces)
 * [CountTreeViewNodes](CountTreeViewNodes)
 * [CountTriangles](CountTriangles)
@@ -195,6 +198,18 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [DisableGadget](DisableGadget)
 * [DisableMenu](DisableMenu)
 * [DisableToolBarItem](DisableToolBarItem)
+* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
+* [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
+* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
+* [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
+* [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕
+* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
+* [DisplayName](DisplayName) 〔BlitzLLVM〕
+* [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
+* [DisplayScale](DisplayScale) 〔BlitzLLVM〕
+* [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕
+* [DisplayX](DisplayX) 〔BlitzLLVM〕
+* [DisplayY](DisplayY) 〔BlitzLLVM〕
 * [Dither](Dither)
 * [DottedIP](DottedIP)
 * [DrawBlock](DrawBlock)
@@ -525,6 +540,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PositionEntity](PositionEntity)
 * [PositionMesh](PositionMesh)
 * [PositionTexture](PositionTexture)
+* [PrimaryDisplay](PrimaryDisplay) 〔BlitzLLVM〕
 * [Print](Print)
 * [Proceed](Proceed)
 * [ProjectedX](ProjectedX)
@@ -554,6 +570,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [RectsOverlap](RectsOverlap)
 * [RecvNetMsg](RecvNetMsg)
 * [RecvUDPMsg](RecvUDPMsg)
+* [RefreshRateAt](RefreshRateAt) 〔BlitzLLVM〕
 * [RemoveGadgetItem](RemoveGadgetItem)
 * [RenderWorld](RenderWorld)
 * [Replace](Replace)

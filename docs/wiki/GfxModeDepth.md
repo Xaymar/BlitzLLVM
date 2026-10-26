@@ -26,8 +26,8 @@ The color depth in bits of a display mode.
 
 ## Related commands
 
-* [CountGfxDrivers](CountGfxDrivers)
-* [CountGfxModes](CountGfxModes)
+* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
+* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)

@@ -18,7 +18,8 @@ The width of the graphics window in pixels, as given to [Graphics](Graphics).
 
 ## Related commands
 
-* [EndGraphics](EndGraphics)
+* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
+* [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕
 * [GfxModeWidth](GfxModeWidth)
 * [Graphics](Graphics)
 * [GraphicsDepth](GraphicsDepth)

@@ -32,7 +32,7 @@ ShowPointer
 
 * [GraphicsLost](GraphicsLost)
 * [GraphicsWidth](GraphicsWidth)
-* [SetGamma](SetGamma)
+* [PrimaryDisplay](PrimaryDisplay) 〔BlitzLLVM〕
 * [ShowPointer](ShowPointer)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)

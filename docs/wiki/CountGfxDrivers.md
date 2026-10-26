@@ -30,13 +30,13 @@ WaitKey
 
 ## Related commands
 
+* [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕
+* [CountDisplays](CountDisplays) 〔BlitzLLVM〕
 * [CountGfxModes](CountGfxModes)
+* [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)
-* [GfxModeHeight](GfxModeHeight)
-* [GfxModeWidth](GfxModeWidth)
-* [SetGfxDriver](SetGfxDriver)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)

@@ -69,3 +69,12 @@ The 3D commands that take a color (`EntityColor`, `BrushColor`, `VertexColor`, `
 ## Sound resampling
 
 The original played sounds through FMOD, which brings them to the rate of the sound device with linear interpolation. That leaves mirror images of the sound above its own bandwidth, which makes sounds with a low rate (11025 Hz files like the rain of Stranded II) bright and crisp, and takes a little off the top of the rest. SDL_mixer resamples cleanly, so the same files sound duller. Set the environment variable `BLITZ_AUDIO_CLASSIC` (to anything) before the program starts to do what the original did. Pitch and looping are the same either way.
+
+## Displays
+
+The originals only know the main display: `CountGfxModes` and the other `GfxMode` commands list its modes, and `Graphics` always opens on it. BlitzLLVM adds commands for every connected display (`CountDisplays`, `PrimaryDisplay`, `DisplayName`, `DisplayX`, `DisplayY`, `DisplayWidth`, `DisplayHeight`, `DisplayDepth`, `DisplayRefreshRate`, `DisplayScale`), for the modes each one supports (`CountDisplayModes`, `DisplayModeWidth`, `DisplayModeHeight`, `DisplayModeDepth`, `DisplayModeRefreshRate`) and for the refresh rates of a size (`CountRefreshRates`, `RefreshRateAt`).
+
+* Displays and modes are numbered from 1, like the modes of `GfxModeWidth`. A number that does not exist gives 0 (or an empty text for `DisplayName`) instead of stopping the program, because a display can be unplugged while the program runs. `CountDisplays` looks at the displays again each time it is called.
+* The mode lists have every combination of size, depth and refresh rate once, from the smallest width to the largest, and always include the mode the display is in now. Refresh rates are rounded to whole Hz, and a display that does not tell its rate is taken to have 60 Hz.
+* The commands can be asked before `Graphics` opens a window. When no display driver is available there is one display called "Default" with the sizes `CountGfxModes` gives.
+* `Graphics` can not be told which display to open on yet; it opens on the main display.

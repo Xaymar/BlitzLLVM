@@ -41,7 +41,7 @@ Wend
 
 ## Related commands
 
-* [CountGfxModes](CountGfxModes)
+* [DisplayY](DisplayY) 〔BlitzLLVM〕
 * [EndGraphics](EndGraphics)
 * [GammaBlue](GammaBlue)
 * [GammaGreen](GammaGreen)

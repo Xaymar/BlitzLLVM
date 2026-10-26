@@ -27,7 +27,7 @@ The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDr
 ## Related commands
 
 * [CountGfxDrivers](CountGfxDrivers)
-* [CountGfxModes](CountGfxModes)
+* [DisplayName](DisplayName) 〔BlitzLLVM〕
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)
