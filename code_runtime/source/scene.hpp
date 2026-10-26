@@ -124,7 +124,7 @@ namespace bb {
 		// Appearance (meshes)
 		float color[3] = { 1, 1, 1 };
 		float alpha    = 1;
-		int   fx       = 0; // 1 = fullbright, 16 = two-sided
+		int   fx       = 0; // 1 = fullbright, 2 = vertex colors, 4 = flat shading, 8 = no fog, 16 = two-sided, 32 = vertex alpha
 		int   texture  = 0; // Handle, 0 for none.
 		int   layers[7] = {}; // The textures on the layers after the first, which are drawn over it.
 		// Collisions and picking, see collision.cpp
@@ -155,6 +155,8 @@ namespace bb {
 		float fade_near = 0, fade_far = 0; // Fades out between these distances to the camera, if far is not 0.
 		buffer<surface*> surfaces;
 		terrain_data*    terrain = nullptr;
+		int              plane_divs = 0;        // Above 0 for a plane, which is drawn as the part of the ground that a camera sees.
+		surface*         plane_draw = nullptr;  // Where that part is made for the renderer, as it depends on the camera.
 		animation*       anim    = nullptr; // Of the top of an animated model, see animation.cpp
 		md2_state*       md2     = nullptr; // Of a model from an .md2 file, see md2.cpp
 		anim_node*       pending_keys = nullptr; // The keys that SetAnimKey made, which become a sequence with AddAnimSeq.
@@ -164,16 +166,16 @@ namespace bb {
 		float cam_color[3] = { 0, 0, 0 };
 		bool  cam_clear_color = true, cam_clear_depth = true;
 		int   cam_viewport[4] = { 0, 0, -1, -1 }; // Width and height of -1 use the whole buffer.
-		int   cam_projection = 1; // 0 = disabled, 1 = perspective
+		int   cam_projection = 1; // 0 = disabled, 1 = perspective, 2 = orthographic
 		int   fog_mode = 0;       // 0 = off, 1 = linear
 		float fog_near = 1, fog_far = 1000;
 		float fog_color[3] = { 0, 0, 0 };
 
 		// Light
-		int   light_type = 1; // 1 = directional, 2 = point, 3 = spot (drawn as point)
+		int   light_type = 1; // 1 = directional, 2 = point, 3 = spot
 		float light_color[3] = { 1, 1, 1 };
 		float light_range    = 1000;
-		float light_cone[2]  = { 0, 45 }; // Inner and outer angle of a spot light, in degrees.
+		float light_cone[2]  = { 0, 90 }; // Inner and outer angle of a spot light, in degrees.
 	};
 
 	// Matrices are 4x4, column-major, for column vectors.

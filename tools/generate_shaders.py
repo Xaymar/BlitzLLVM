@@ -327,6 +327,7 @@ class Builder:
 
 
 # GLSL.std.450 instruction numbers
+GLSL_FABS, GLSL_POW, GLSL_STEP = 4, 26, 48
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
 
 
@@ -334,7 +335,7 @@ def declare_scene(b):
     """The block that holds what is the same for everything a camera draws, see scene_data in graphics.cpp."""
     v4 = b.vec(4)
     lights = b.array(v4, 8, "lights")
-    scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4)
+    scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4, v4, lights)
     b.m.annotations += [
         Module.inst("MemberDecorate", scene, 0, DECORATION["Offset"], 0),
         Module.inst("MemberDecorate", scene, 0, DECORATION["ColMajor"]),
@@ -344,6 +345,8 @@ def declare_scene(b):
         Module.inst("MemberDecorate", scene, 3, DECORATION["Offset"], 208),
         Module.inst("MemberDecorate", scene, 4, DECORATION["Offset"], 336),
         Module.inst("MemberDecorate", scene, 5, DECORATION["Offset"], 352),
+        Module.inst("MemberDecorate", scene, 6, DECORATION["Offset"], 368),
+        Module.inst("MemberDecorate", scene, 7, DECORATION["Offset"], 384),
         Module.inst("Decorate", lights, DECORATION["ArrayStride"], 16),
         Module.inst("Decorate", scene, DECORATION["Block"]),
     ]
@@ -366,17 +369,17 @@ def vertex_shader_3d():
         vec4 lightColor[8];
         vec4 fog;                // Near, far and whether it is on.
         vec4 fogColor;
+        vec4 eye;                // Where the camera is.
+        vec4 lightDirection[8];  // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
     } scene;
     layout(push_constant) uniform Entity {
         vec4 model0, model1, model2; // Rows of the 4x3 model matrix.
         vec4 material;               // Color and alpha of the entity.
-        vec4 params;                 // x: fullbright, y: use the colors of the vertices, z: flat shaded
+        vec4 params;                 // x: fullbright, y: vertex color, z: vertex alpha, w: shininess
         vec4 uv;                     // Scale (x, y) and offset (z, w) of the texture coordinates.
     } entity;
     layout(location = 0) out vec2 outUV;
     layout(location = 1) out vec4 outColor;
-    layout(location = 3) flat out vec4 outFlatColor; // What the first vertex of the triangle has, for flat shading.
-    layout(location = 4) flat out float outFlat;
     void main() {
         vec4 p = vec4(inPosition, 1.0);
         vec3 world = vec3(dot(entity.model0, p), dot(entity.model1, p), dot(entity.model2, p));
@@ -392,10 +395,7 @@ def vertex_shader_3d():
             lit += scene.lightColor[i].xyz * max(dot(n, direction), 0.0) * mix(1.0, falloff, isPoint);
         }
         lit = mix(lit, vec3(1.0), entity.params.x);
-        vec4 vertexColor = mix(vec4(1.0), inColor, entity.params.y);
-        outColor = vec4(clamp(entity.material.xyz * vertexColor.xyz * lit, 0.0, 1.0), entity.material.w * vertexColor.w);
-        outFlatColor = outColor;
-        outFlat = entity.params.z;
+        outColor = vec4(clamp(entity.material.xyz * inColor.xyz * lit, 0.0, 1.0), entity.material.w * inColor.w);
         outUV = inUV;
     }
     """
@@ -421,8 +421,9 @@ def vertex_shader_3d():
     out_uv = b.variable("Output", v2, [(DECORATION["Location"], 0)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 1)])
     out_depth = b.variable("Output", f, [(DECORATION["Location"], 2)])
-    out_flat_color = b.variable("Output", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
-    out_flat = b.variable("Output", f, [(DECORATION["Location"], 4), (DECORATION["Flat"],)])
+    out_color_flat = b.variable("Output", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
+    out_spec = b.variable("Output", v3, [(DECORATION["Location"], 4)])
+    out_spec_flat = b.variable("Output", v3, [(DECORATION["Location"], 5), (DECORATION["Flat"],)])
     per_vertex = b.struct("pervertex", v4, f)
     b.m.annotations += [
         Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
@@ -432,7 +433,7 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, out_uv, out_color, out_depth, out_flat_color, out_flat, out_vertex))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -458,9 +459,16 @@ def vertex_shader_3d():
 
     lit = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(1))), 3)
     ones, zeros = b.const_vec(3, 1.0), b.const_vec(3, 0.0)
+    eye = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(6))), 3)
+    to_eye = b.fsub(v3, eye, world)
+    view = b.scale(3, to_eye, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, to_eye), b.const_float(1e-4))))
+    shininess = b.extract(params, 3)
+    power = b.ext(f, GLSL_FMAX, b.fmul(f, shininess, b.const_float(128.0)), b.const_float(1e-3))
+    specular = zeros
     for light in range(8):
         lp = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(2), b.const_int(light)))
         lc = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(3), b.const_int(light)))
+        ld = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(7), b.const_int(light)))
         lpos, w = b.swizzle(lp, 3), b.extract(lp, 3)
         delta = b.fsub(v3, lpos, world)
         dist = b.ext(f, GLSL_LENGTH, delta)
@@ -471,23 +479,42 @@ def vertex_shader_3d():
         range_ = b.ext(f, GLSL_FMAX, w, b.const_float(1e-4))
         falloff = b.ext(f, GLSL_FCLAMP, b.fsub(f, c1, b.fdiv(f, dist, range_)), c0, c1)
         attenuation = b.fadd(f, c1, b.fmul(f, b.fsub(f, falloff, c1), is_point))
+        # Spot lights fade between the cosines of the half angles of the cone: ld.w is the outer and lc.w the inner one,
+        # and ld.w is below -1 for lights that are not spots.
+        rho = b.fsub(f, c0, b.dot(direction, b.swizzle(ld, 3)))
+        cone_span = b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(lc, 3), b.extract(ld, 3)), b.const_float(1e-4))
+        cone = b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, rho, b.extract(ld, 3)), cone_span), c0, c1)
+        is_spot = b.ext(f, GLSL_STEP, b.const_float(-1.5), b.extract(ld, 3))
+        spot = b.fadd(f, c1, b.fmul(f, b.fsub(f, cone, c1), is_spot))
+        attenuation = b.fmul(f, attenuation, spot)
         contribution = b.scale(3, b.swizzle(lc, 3), b.fmul(f, ndotl, attenuation))
         lit = b.fadd(v3, lit, contribution)
+        # Blinn-Phong with the viewer where the camera is, and the light itself white.
+        half = b.fadd(v3, direction, view)
+        half = b.scale(3, half, b.fdiv(f, c1, b.ext(f, GLSL_FMAX, b.ext(f, GLSL_LENGTH, half), b.const_float(1e-4))))
+        ndoth = b.ext(f, GLSL_FMAX, b.dot(n, half), b.const_float(1e-4))
+        facing = b.ext(f, GLSL_STEP, b.const_float(1e-6), ndotl)
+        highlight = b.fmul(f, b.fmul(f, b.ext(f, GLSL_POW, ndoth, power), facing), attenuation)
+        specular = b.fadd(v3, specular, b.scale(3, ones, highlight))
 
     fullbright = b.extract(params, 0)
     lit = b.fadd(v3, lit, b.scale(3, b.fsub(v3, ones, lit), fullbright))
-    # The colors of the vertices count only if the entity says so.
-    use_vertex = b.extract(params, 1)
-    ones4 = b.const_vec(4, 1.0)
-    color = b.fadd(v4, ones4, b.scale(4, b.fsub(v4, color, ones4), use_vertex))
-    base = b.fmul(v3, b.swizzle(material, 3), b.swizzle(color, 3))
+    strength = b.ext(f, GLSL_FCLAMP, shininess, c0, c1)
+    specular = b.scale(3, specular, b.fmul(f, strength, b.fsub(f, c1, fullbright)))
+    # The vertex color replaces the color of the entity if the effect says so, and only then does its alpha count.
+    use_vertex_color, use_vertex_alpha = b.extract(params, 1), b.extract(params, 2)
+    entity_rgb = b.swizzle(material, 3)
+    vertex_rgb = b.swizzle(color, 3)
+    base = b.fadd(v3, entity_rgb, b.scale(3, b.fsub(v3, vertex_rgb, entity_rgb), use_vertex_color))
     rgb = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, base, lit), zeros, ones)
 
-    alpha = b.fmul(f, b.extract(material, 3), b.extract(color, 3))
-    shaded = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), alpha)
-    b.store(out_color, shaded)
-    b.store(out_flat_color, shaded)
-    b.store(out_flat, b.extract(params, 2))
+    vertex_alpha = b.fadd(f, c1, b.fmul(f, b.fsub(f, b.extract(color, 3), c1), use_vertex_alpha))
+    alpha = b.fmul(f, b.extract(material, 3), vertex_alpha)
+    final = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), alpha)
+    b.store(out_color, final)
+    b.store(out_color_flat, final)
+    b.store(out_spec, specular)
+    b.store(out_spec_flat, specular)
     # Textures can be scaled and moved: the first two are factors, the last two offsets.
     uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
     b.store(out_uv, b.fadd(v2, b.fmul(v2, b.load(v2, in_uv), uv_scale), uv_offset))
@@ -496,7 +523,6 @@ def vertex_shader_3d():
     return b.m.assemble()
 
 
-GLSL_FABS, GLSL_STEP = 4, 48
 
 
 def fragment_shader_masked(mask_offset, fog=False):
@@ -509,14 +535,12 @@ def fragment_shader_masked(mask_offset, fog=False):
     layout(push_constant) uniform Mask { layout(offset = mask_offset) vec4 mask; } pc;
     layout(location = 0) in vec2 inUV;
     layout(location = 1) in vec4 inColor;
-    layout(location = 3) flat in vec4 inFlatColor;  // 3D only: flat shaded entities take this and not inColor.
-    layout(location = 4) flat in float inFlat;
     layout(location = 0) out vec4 outColor;
     void main() {
         vec4 t = texture(tex, inUV);
         vec3 d = abs(t.rgb - pc.mask.rgb);
         float same = step(max(max(d.x, d.y), d.z), 0.002) * pc.mask.w;
-        outColor = mix(inColor, inFlatColor, inFlat) * vec4(t.rgb, t.a * (1.0 - same));
+        outColor = inColor * vec4(t.rgb, t.a * (1.0 - same));
     }
     """
     b = Builder()
@@ -539,13 +563,12 @@ def fragment_shader_masked(mask_offset, fog=False):
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
     interface = [in_uv, in_color, out_color]
     if fog:
-        in_flat_color = b.variable("Input", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
-        in_flat = b.variable("Input", f, [(DECORATION["Location"], 4), (DECORATION["Flat"],)])
-        interface += [in_flat_color, in_flat]
-    if fog:
         scene = declare_scene(b)
         in_depth = b.variable("Input", f, [(DECORATION["Location"], 2)])
-        interface.append(in_depth)
+        in_color_flat = b.variable("Input", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
+        in_spec = b.variable("Input", v3, [(DECORATION["Location"], 4)])
+        in_spec_flat = b.variable("Input", v3, [(DECORATION["Location"], 5), (DECORATION["Flat"],)])
+        interface += [in_depth, in_color_flat, in_spec, in_spec_flat]
 
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
@@ -554,11 +577,14 @@ def fragment_shader_masked(mask_offset, fog=False):
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
     uv, color = b.load(v2, in_uv), b.load(v4, in_color)
-    if fog:
-        flat_color, flat = b.load(v4, in_flat_color), b.load(f, in_flat)
-        color = b.fadd(v4, color, b.scale(4, b.fsub(v4, flat_color, color), flat))
     t = b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), uv)
     mask = b.load(v4, b.access("PushConstant", v4, push, b.const_int(0)))
+    if fog:
+        # The third value of the mask asks for flat shading: the color of the first vertex of the triangle.
+        flat = b.extract(mask, 2)
+        color = b.fadd(v4, color, b.scale(4, b.fsub(v4, b.load(v4, in_color_flat), color), flat))
+        spec = b.load(v3, in_spec)
+        spec = b.fadd(v3, spec, b.scale(3, b.fsub(v3, b.load(v3, in_spec_flat), spec), flat))
 
     diff = b.ext(v3, GLSL_FABS, b.fsub(v3, b.swizzle(t, 3), b.swizzle(mask, 3)))
     biggest = b.ext(f, GLSL_FMAX, b.ext(f, GLSL_FMAX, b.extract(diff, 0), b.extract(diff, 1)), b.extract(diff, 2))
@@ -567,6 +593,9 @@ def fragment_shader_masked(mask_offset, fog=False):
     visible = b.construct(4, b.extract(t, 0), b.extract(t, 1), b.extract(t, 2), alpha)
     result = b.fmul(v4, color, visible)
     if fog:
+        # The highlight of lights is added to what the texture made of the color.
+        lit_rgb = b.fadd(v3, b.swizzle(result, 3), spec)
+        result = b.construct(4, b.extract(lit_rgb, 0), b.extract(lit_rgb, 1), b.extract(lit_rgb, 2), b.extract(result, 3))
         # Pixels that are less solid than the first value of the mask are not drawn at all, which is what makes
         # leaves and fences work with depth.
         boolean = b.new_type("bool", "TypeBool")

@@ -9,6 +9,15 @@
 ; GetSurfaceBrush AddMesh CopyMesh FitMesh MeshCullBox ClearSurface VertexCoords VertexW LightMesh.
 Include "check.bb"
 
+; The triangles of all the surfaces of a mesh.
+Function MeshTriangles(mesh)
+	total = 0
+	For i = 1 To CountSurfaces(mesh)
+		total = total + CountTriangles(GetSurface(mesh, i))
+	Next
+	Return total
+End Function
+
 Graphics3D 320, 240, 32, 2
 SetBuffer BackBuffer()
 
@@ -115,10 +124,21 @@ cylinder = CreateCylinder()
 Check "Cylinder width", MeshWidth(cylinder), 2, 0.001
 Check "Cylinder height", MeshHeight(cylinder), 2, 0.001
 open = CreateCylinder(8, False)
-CheckTrue "A cylinder without caps has fewer triangles", CountTriangles(GetSurface(open, 1)) < CountTriangles(GetSurface(cylinder, 1))
+; The sides are a surface of their own, and the caps are another with a triangle less than they have corners.
+Check "Open cylinder surfaces", CountSurfaces(open), 1
+Check "Open cylinder triangles", MeshTriangles(open), 16
+Check "Cylinder surfaces", CountSurfaces(cylinder), 2
+Check "Cylinder triangles", MeshTriangles(cylinder), 4 * 8 - 4
 cone = CreateCone()
 Check "Cone width", MeshWidth(cone), 2, 0.001
 Check "Cone height", MeshHeight(cone), 2, 0.001
+open_cone = CreateCone(8, False)
+Check "Open cone surfaces", CountSurfaces(open_cone), 1
+Check "Open cone triangles", MeshTriangles(open_cone), 8
+Check "Cone surfaces", CountSurfaces(cone), 2
+Check "Cone triangles", MeshTriangles(cone), 2 * 8 - 2
+Check "Cone with 20 segments", MeshTriangles(CreateCone(20)), 2 * 20 - 2
+Check "Cylinder with 3 segments", MeshTriangles(CreateCylinder(3)), 4 * 3 - 4
 plane = CreatePlane()
 CheckTrue "CreatePlane", plane <> 0
 CheckTrue "A plane has triangles", CountTriangles(GetSurface(plane, 1)) >= 2

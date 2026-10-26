@@ -134,6 +134,9 @@ namespace bb::scene {
 			release_surface(e->surfaces[i]);
 		}
 		e->surfaces.release();
+		if (e->plane_draw) {
+			release_surface(e->plane_draw);
+		}
 		if (e->anim) {
 			destroy_animation(e->anim);
 		}
@@ -210,6 +213,7 @@ namespace bb::scene {
 		if (copy_was.size == 1) {
 			copy.hidden = false; // The copy of a hidden model, which is how programs keep their templates, can be seen.
 		}
+		copy.plane_draw = nullptr; // Made again when it is drawn.
 		copy.terrain = nullptr;
 		if (from->terrain) {
 			copy.terrain          = new terrain_data(*from->terrain);
@@ -481,14 +485,27 @@ void bb_turn_entity(int32_t handle, float pitch, float yaw, float roll, int32_t 
 
 void bb_scale_entity(int32_t handle, float x, float y, float z, int32_t global)
 {
-	(void)global;
 	entity* e = need(handle, "ScaleEntity");
 	if (e->terrain) {
 		e->terrain->dirty = true; // Its normals depend on the scale.
 	}
-	e->scale[0] = x;
-	e->scale[1] = y;
-	e->scale[2] = z;
+	float target[3] = { x, y, z };
+	if (global) {
+		// The scale in the world is that of all the parents multiplied with its own, so the entity has what is left.
+		for (int p = e->parent; p;) {
+			entity* parent = get_entity(p);
+			if (!parent) {
+				break;
+			}
+			for (int axis = 0; axis < 3; axis++) {
+				target[axis] /= parent->scale[axis];
+			}
+			p = parent->parent;
+		}
+	}
+	e->scale[0] = target[0];
+	e->scale[1] = target[1];
+	e->scale[2] = target[2];
 }
 
 float bb_entity_x(int32_t handle, int32_t global) { return entity_axis(handle, 0, global, "EntityX"); }

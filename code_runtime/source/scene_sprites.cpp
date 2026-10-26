@@ -58,10 +58,10 @@ void bb_sprite_view_mode(int32_t handle, int32_t mode)
 	}
 }
 
-// A plane that has no end in Blitz. Here it is very large, which is the same unless you go and look for the edge.
+// A plane that has no end in Blitz. The renderer makes the part of it that the camera can see out of squares, as many
+// per side as the segments say, which is also why lights show on it. The large square here is for collisions and picking.
 int32_t bb_create_plane(int32_t divisions, int32_t parent)
 {
-	(void)divisions;
 	int      mesh = new_mesh(parent);
 	surface* s    = surface_of(new_surface(mesh));
 	const float size = 10000.0f;
@@ -71,7 +71,9 @@ int32_t bb_create_plane(int32_t divisions, int32_t parent)
 	}
 	add_oriented_triangle(s, 0, 1, 2);
 	add_oriented_triangle(s, 0, 2, 3);
-	get_entity(mesh)->cls = "Plane";
+	entity* e     = get_entity(mesh);
+	e->cls        = "Plane";
+	e->plane_divs = divisions < 1 ? 1 : (divisions > 20 ? 20 : divisions);
 	return mesh;
 }
 
