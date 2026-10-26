@@ -120,14 +120,14 @@ set(BLITZ_REQUIRED_LICENSES
 install(CODE "
 	foreach(_LICENSE IN ITEMS ${BLITZ_REQUIRED_LICENSES})
 		if(NOT EXISTS \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/licenses/\${_LICENSE}\")
-			message(FATAL_ERROR \"The license '\${_LICENSE}' was not installed.\")
+			message(FATAL_ERROR \"The license '\${_LICENSE}' was not installed. Delete the build directory's ExternalContentFiles directory and configure again, or check the license install rules in code_compiler/CMakeLists.txt.\")
 		endif()
 	endforeach()
 ")
 install(CODE "
 	foreach(_LICENSE IN ITEMS ${BLITZ_REQUIRED_LICENSES})
 		if(NOT EXISTS \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/share/licenses/blitzllvm/\${_LICENSE}\")
-			message(FATAL_ERROR \"The license '\${_LICENSE}' was not installed.\")
+			message(FATAL_ERROR \"The license '\${_LICENSE}' was not installed. Delete the build directory's ExternalContentFiles directory and configure again, or check the license install rules in code_compiler/CMakeLists.txt.\")
 		endif()
 	endforeach()
 " COMPONENT system EXCLUDE_FROM_ALL)
