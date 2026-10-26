@@ -53,17 +53,66 @@ file(GLOB_RECURSE _SDL3_CONFIG "${SDL3_INSTALL_PATH}/SDL3Config.cmake")
 list(GET _SDL3_CONFIG 0 _SDL3_CONFIG)
 cmake_path(GET _SDL3_CONFIG PARENT_PATH _SDL3_CONFIG_DIR)
 
-# Loads the image files for textures.
+# SDL_image builds the libraries for AVIF, JPEG XL and WebP itself when it is told to use its vendored copies, which are submodules
+# of its repository. A clone does not fetch them, and fetching all of them (with everything they in turn depend on, some of which is
+# hosted by Google and not on GitHub) is slow, so only the ones that are used are fetched.
+#
+# SDL_image also always builds the AV1 encoder (aom) when it builds libavif, which is only needed to save AVIF files and makes up
+# half of every program, so it is turned off by changing the lines of its CMakeLists.txt that turn it on.
+function(blitz_fetch_image_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH)
+	foreach(_STEP IN ITEMS
+		"${SOURCE_PATH}|external/libwebp external/libavif external/dav1d external/libjxl"
+		# libjxl is built without skcms, which makes it use lcms2 instead.
+		"${SOURCE_PATH}/external/libjxl|third_party/brotli third_party/highway third_party/lcms"
+	)
+		string(REPLACE "|" ";" _STEP "${_STEP}")
+		list(GET _STEP 0 _DIRECTORY)
+		list(GET _STEP 1 _MODULES)
+		separate_arguments(_MODULES)
+		execute_process(
+			COMMAND "${GIT_EXECUTABLE}" submodule update --init --depth 1 ${_MODULES}
+			WORKING_DIRECTORY "${_DIRECTORY}"
+			RESULT_VARIABLE _RESULT
+		)
+		if(NOT _RESULT EQUAL 0)
+			message(FATAL_ERROR "Fetching the image codecs in '${_DIRECTORY}' failed.")
+		endif()
+	endforeach()
+
+	set(_FILE "${SOURCE_PATH}/CMakeLists.txt")
+	file(READ "${_FILE}" _CONTENT)
+	foreach(_CHANGE IN ITEMS
+		"set(SDLIMAGE_AOM ON)|set(SDLIMAGE_AOM OFF)"
+		"set(SDLIMAGE_AOM_VENDORED ON)|set(SDLIMAGE_AOM_VENDORED OFF)"
+		"set(AVIF_CODEC_AOM \"SYSTEM\" CACHE|set(AVIF_CODEC_AOM OFF CACHE"
+		"set(AVIF_CODEC_AOM_ENCODE ON CACHE|set(AVIF_CODEC_AOM_ENCODE OFF CACHE"
+	)
+		string(REPLACE "|" ";" _CHANGE "${_CHANGE}")
+		list(GET _CHANGE 0 _FROM)
+		list(GET _CHANGE 1 _TO)
+		string(FIND "${_CONTENT}" "${_FROM}" _AT)
+		if(NOT _AT EQUAL -1)
+			string(REPLACE "${_FROM}" "${_TO}" _CONTENT "${_CONTENT}")
+			file(WRITE "${_FILE}" "${_CONTENT}")
+		endif()
+		string(FIND "${_CONTENT}" "${_TO}" _AT)
+		if(_AT EQUAL -1)
+			message(FATAL_ERROR "SDL_image changed, '${_FROM}' is no longer in its CMakeLists.txt.")
+		endif()
+	endforeach()
+endfunction()
+
+# Loads the image files for textures. PNG and JPEG are handled by the built in stb_image, AVIF (libavif with dav1d to decode), JPEG XL (libjxl) and WebP (libwebp) by the vendored libraries, which are all linked in statically.
 ExternalContent(
 	NAME SDL3_image
 	GIT_URL "https://github.com/libsdl-org/SDL_image"
 	GIT_REF "release-3.4.8"
 	GIT_CLONE_OPTIONS --depth 1
+	PATCH_FUNCTION blitz_fetch_image_codecs
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
-		-DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=OFF -DSDLIMAGE_DEPS_SHARED=OFF -DSDLIMAGE_STRICT=OFF
+		-DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_DEPS_SHARED=OFF -DSDLIMAGE_STRICT=OFF
 		-DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF -DSDLIMAGE_INSTALL=ON
-		# stb_image is built in, and handles PNG and JPEG. The others need libraries that aren't vendored.
-		-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_AVIF=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_WEBP=OFF -DSDLIMAGE_JXL=OFF
+		-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_AVIF=ON -DSDLIMAGE_AVIF_SAVE=OFF -DSDLIMAGE_JXL=ON -DSDLIMAGE_WEBP=ON
 	BUILD_ARGS --config Release --parallel
 	INSTALL_ARGS --config Release
 )
@@ -86,10 +135,12 @@ ExternalContent(
 if(WIN32)
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
 	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/SDL3_image-static.lib")
+	set(_LIBRARY_PATTERN "*.lib")
 	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/SDL3_mixer-static.lib")
 else()
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/libSDL3.a")
 	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/libSDL3_image.a")
+	set(_LIBRARY_PATTERN "*.a")
 	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/libSDL3_mixer.a")
 endif()
 foreach(_LIBRARY IN ITEMS "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" "${_SDL3_MIXER_LIBRARY}")
@@ -98,5 +149,12 @@ foreach(_LIBRARY IN ITEMS "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" "${_SDL3_M
 	endif()
 endforeach()
 
+# SDL_image installs the libraries of its codecs (libavif, dav1d, aom, libjxl, brotli, highway and libwebp) next to itself, and programs
+# have to link to those as well.
+file(GLOB _SDL3_IMAGE_CODECS "${SDL3_image_INSTALL_PATH}/lib/${_LIBRARY_PATTERN}")
+list(REMOVE_ITEM _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_LIBRARY}")
+
 # Libraries that programs have to link to, which the compiler copies next to itself.
-set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" "${_SDL3_MIXER_LIBRARY}" PARENT_SCOPE)
+# The licenses of the codecs, whose notices have to be shipped with programs that include them.
+set(BLITZRT_LICENSES "${SDL3_image_INSTALL_PATH}/share/licenses/SDL3_image/optional" PARENT_SCOPE)
+set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" ${_SDL3_IMAGE_CODECS} "${_SDL3_MIXER_LIBRARY}" PARENT_SCOPE)
