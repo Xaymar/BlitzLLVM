@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FreeSound 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>FreeSound</b> sound 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+sound
+</td>
+<td>
+Identität des Sounds (z.B. mit <a href="LoadSound.htm"><b>LoadSound</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung entfernt eine vorher mit <a href="LoadSound.htm"><b>LoadSound</b><img src="../../html/images/quicklink.gif" /></a> geladene Sounddatei aus dem Speicher. Dadurch wird mehr Speicher frei. Dies sollte möglichst angewendet werden, um den Speicher zu schonen - besonders bei älteren Rechnern wird es da kritisch.<br /><br /><div class="hint">Das manuelle Löschen eines Sounds muss nicht angewendet werden. BlitzBasic macht es automatisch, wenn das Programm beendet wird. Allerdings kann man somit während des Spiels den unnötigen Speicher freigeben.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel lädt einen Sound und spielt ihn ab. Danach wird es aus dem Speicher gelöscht:<br />
+			<div class="syntax-code">
+				sound = <a href="LoadSound.htm"><b>LoadSound</b></a> ("effekt.wav")<br /><br />chn = <a href="PlaySound.htm"><b>PlaySound</b></a>(sound)<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /><br /><a href="FreeSound.htm"><b>FreeSound</b></a> sound<br /><br /><a href="END.htm"><b>END</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="LoadSound.htm" title="Lädt eine Sounddatei in den Speicher">LoadSound</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_6.html">Sound</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_11.html">Samples</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		MD2AnimLength 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			zeit% = <b>MD2AnimLength</b> (md2%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+md2%
+</td>
+<td>
+Identität eines MD2-Objekts
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Aktuelle Animationszeit eines MD2-Objekts in msek (relativ zur aktuellen Animationssequenz). 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>MD2AnimLength</b> ermittelt die aktuelle Animationszeit eines MD2-Objekts (relativ zur aktuellen Animationssequenz). Für diese Funktion muss man nur die Identität eines MD2-Objekts angeben. Diese Funktion kann nur mit MD2-Objekten benutzt werden. Benutze für andere Objekte den Befehl <a href="AnimLength.htm"><b>AnimLength</b><img src="../../html/images/quicklink.gif" /></a>. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />gargoyle = <a href="LoadMD2.htm"><b>LoadMD2</b></a>("media/gargoyle/gargoyle.md2")<br />garg_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/gargoyle/gargoyle.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> gargoyle, garg_tex<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> gargoyle, 0, - 45, 100<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> gargoyle, 0, 180, 0<br /><a href="AnimateMD2.htm"><b>AnimateMD2</b></a> gargoyle, start, 0.1, 32, 46<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="UpdateWorld.htm"><b>UpdateWorld</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "MD2AnimLength: " + <a href="MD2AnimLength.htm"><b>MD2AnimLength</b></a>(gargoyle)<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AnimateMD2.htm" title="Ändert die Animationsart eines MD2-Objekts">AnimateMD2</a>, <a href="LoadMD2.htm" title="Lädt ein MD2-Objekt in den Speicher">LoadMD2</a>, <a href="MD2AnimTime.htm" title="Ermittelt aktuelle Animationszeit eines MD2-Objekts">MD2AnimTime</a>, <a href="AnimLength.htm" title="Ermittelt aktuelle, relative Animationszeit eines 3D-Objekts">AnimLength</a>, <a href="MD2Animating.htm" title="Ermittelt, ob ein MD2-Objekt gerade animiert wird">MD2Animating</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_65.html">MD2-Meshs</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

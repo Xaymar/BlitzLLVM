@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EntityPick 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			objekt% = <b>EntityPick</b> (entity%, reischw#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+reichw#
+</td>
+<td>
+Reichweite bis wohin nach Objekten gesucht werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des nächsten Objekts (welches den Blickstrahl berührt hat). 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>EntityPick</b> liefert die Identität eines Objekts zurück, das am nächsten zum ausgewählten Objekt liegt.<br /><br />Der Parameter "entity%" gibt die Identität eines Objekts an.<br /><br />Der Parameter "reichw#" stellt die Suchreichweite ein.<br /><br />Bei diesem Befehl ist die Blickrichtung des Entity-Objekts ganz wichtig. Man kann es sich wie einen Strahl vorstellen. Berührt ein anderes Objekt diesen Blickstrahl, dann wird seine Objektnummer zurückgeliefert.<br /><br /><div class="caution">Ein Entity muss mit ENTITYPICKMODE auf einen größeren Wert als Null gesetzt werden, damit diese Funktion korrekt arbeitet.<br />&nbsp;</div>  
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 800, 600, 16, 0<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />cube1 = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityPickMode.htm"><b>EntityPickMode</b></a> cube1, 2, 0<br /><a href="NameEntity.htm"><b>NameEntity</b></a> cube1, "Cube1"<br /><br />cube2 = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityPickMode.htm"><b>EntityPickMode</b></a> cube2, 2, 0<br /><a href="NameEntity.htm"><b>NameEntity</b></a> cube2, "Cube2"<br /><br />sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(8)<br /><a href="EntityPickMode.htm"><b>EntityPickMode</b></a> sphere, 2, 0<br /><a href="TurnEntity.htm"><b>TurnEntity</b></a> sphere, 0, - 90, 0 ;< - - - DREHEN!!!<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 20, - 20<br /><a href="PointEntity.htm"><b>PointEntity</b></a> camera, sphere<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="TurnEntity.htm"><b>TurnEntity</b></a> light, 45, 45, 45<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;count# = count# + 1<br />&nbsp; &nbsp;<a href="PositionEntity.htm"><b>PositionEntity</b></a> cube1, 10, 0, <a href="Sin.htm"><b>Sin</b></a>#(count) * 10<br />&nbsp; &nbsp;<a href="PositionEntity.htm"><b>PositionEntity</b></a> cube2, 20, 0, <a href="Cos.htm"><b>Cos</b></a>#(count) * 10<br />&nbsp; &nbsp;picked = <a href="EntityPick.htm"><b>EntityPick</b></a>(sphere, 100)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> picked <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;txt$ = <a href="EntityName.htm"><b>EntityName</b></a>$(picked)<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;txt$ = "nichts"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="UpdateWorld.htm"><b>UpdateWorld</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 10, txt$<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CameraPick.htm" title="Ermittelt Identität eines 3D-Objekts anhand von 2D-Bildschirmkoordinaten">CameraPick</a>, <a href="Collisions.htm" title="Aktiviert Kollision zwischen zwei Objekttypen">Collisions</a>, <a href="EntityCollided.htm" title="Liefert Identität eines kollidierten 3D-Objekts zurück">EntityCollided</a>, <a href="EntityPickMode.htm" title="Stellt die Auswahlart für ein 3D-Objekt ein">EntityPickMode</a>, <a href="LinePick.htm" title="Sucht ein 3D-Objekt, welches eine 3D-Linie berührt">LinePick</a>, <a href="PickedEntity.htm" title="Liefert Identität des zuletzt ausgewählten 3D-Objekts">PickedEntity</a>, <a href="PickedNX.htm" title="Liefert X-Koordinate des Normals des zuletzt ausgewählten 3D-Objekts">PickedNX</a>, <a href="PickedNY.htm" title="Liefert Y-Koordinate des Normals des zuletzt ausgewählten 3D-Objekts">PickedNY</a>, <a href="PickedNZ.htm" title="Liefert Z-Koordinate des Normals des zuletzt ausgewählten 3D-Objekts">PickedNZ</a>, <a href="PickedSurface.htm" title="Liefert Index der Gitteroberfläche des zuletzt ausgewählten 3D-Objekts">PickedSurface</a>, <a href="PickedTime.htm" title="Liefert benötigte Zeit der letzten Auswahl zurück">PickedTime</a>, <a href="PickedTriangle.htm" title="Liefert Index des Dreiecks des zuletzt ausgewählten 3D-Objekts">PickedTriangle</a>, <a href="PickedX.htm" title="Liefert X-Koordinate des zuletzt ausgewählten 3D-Objekts">PickedX</a>, <a href="PickedY.htm" title="Liefert Y-Koordinate des zuletzt ausgewählten 3D-Objekts">PickedY</a>, <a href="PickedZ.htm" title="Liefert Z-Koordinate des zuletzt ausgewählten 3D-Objekts">PickedZ</a>, <a href="EntityInView.htm" title="Fragt ab, ob ein Objekt im Sichtbereich liegt">EntityInView</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_71.html">Pick</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

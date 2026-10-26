@@ -1,0 +1,141 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateTexture 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			textur% = <b>CreateTexture</b> (breite%, hoehe% [, modus%] [, frames%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+breite%
+</td>
+<td>
+Breite der Textur in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+hoehe%
+</td>
+<td>
+Höhe der Textur in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+modus%
+</td>
+<td>
+Optionale Textur-Einstellungen:<br />+1=Color<br />+2=Alpha<br />+4=Masked<br />+8=Mipmapped<br />+16=Clamp U<br />+32=Clamp V<br />+64=Spherical Reflection Map<br />+128=Cubic Environment Mapping<br />+256=Speichert Textur in VRAM<br />+512=HighColor-Textur
+</td>
+</tr>
+<tr>
+<td width="100">
+frames%
+</td>
+<td>
+Anzahl der Einzelbilder bei animierten Texturen (min 1)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität der Textur zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateTexture</b> erstellt eine Textur im Speicher und liefert die Identität der Textur zurück.<br /><br />Die Breite und Höhe in Pixel beschreiben die Größe der Textur. Beachte, dass die aktuelle Texturgröße anders sein kann als die benötigte Größe, da Grafikkarten unterschiedliche Texturgrößen verarbeiten können.<br /><br />Der optionale Parameter "modus%" stellt Textureffekte ein. Mehrere Effekte können kombiniert werden, indem die Zahlen addiert werden.<br /><br />Hier eine kurze Beschreibung:<br />[1] Color Map = Die Textur wird so eingezeichnet wie man die sieht<br />[2] Alpha Map = Die Textur benutzt Alpha Map für Transparenz. Wenn Alpha Map nicht vorhanden ist, dann erscheinen dunkle Stellen transparenter.<br />[4] Masked = Schwarze Flächen werden nicht eingezeichnet.<br />[8] Mipmapped = für weite Entfernungen wird eine Textur mit weniger Details benutzt.<br />[16] Clamp U = Textur-Koordinate U wird fixiert.<br />[32] Clamp V = Textur-Koordinate V wird fixiert.<br />[64] Spherical Reflection Map = Reflektionseffekt<br />[128] Cubic Environment Mapping = Echtzeitreflektion<br />[256] Speichert Textur in VRAM = schneller<br />[512] Erstellt HighColor-Textur. So kann die Textur auch bei 16-Bit Farbtiefe weiterhin Alpha-Informationen enthalten.<br /><br />Nachdem eine Textur erstellt wurde, sollten die Befehle <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a> <a href="TextureBuffer.htm"><b>TextureBuffer</b><img src="../../html/images/quicklink.gif" /></a> benutzt werden, um die Textur mit Inhalt zu füllen. Sollen 3D-Grafiken dargestellt werden, dann muss man einen Ausschnitt von <a href="BackBuffer.htm"><b>BackBuffer</b><img src="../../html/images/quicklink.gif" /></a> in eine Textur kopieren.<br /><br /><div class="caution">Die Grafikkarte kann nur Texturen mit folgender Breite/Höhe verarbeiten: 1,2,4,8,16,32,64,128,256,512,1024. Wurde eine andere Texturgröße angegeben, dann wird es von BlitzBasic automatisch korrigiert. Dies bedeutet dann:<br />-Geschwindigkeitsverlust<br />-Unnötiger Speicherverbrauch<br />&nbsp;</div><br /><br /><img src="../../images/gfx_textur.gif" /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Wenn eine Textur mit Flag 2 (Alpha) geladen wird, kommt es zu Problemen mit dem Z-Buffer. Die Texturen werden nicht mehr nach Kameraentfernung gezeichnet, sondern in der Erstellreihenfolge, wodurch eigentlich verdeckte Texturen sichtbar seien können.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br />tex = <a href="CreateTexture.htm"><b>CreateTexture</b></a>(256, 256)<br /><br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(tex)<br /><a href="ClsColor.htm"><b>ClsColor</b></a> 255, 255, 255<br /><a href="Cls.htm"><b>Cls</b></a><br />font = <a href="LoadFont.htm"><b>LoadFont</b></a>("arial", 24)<br /><a href="SetFont.htm"><b>SetFont</b></a> font<br /><a href="Color.htm"><b>Color</b></a> 0, 0, 0<br /><a href="Text.htm"><b>Text</b></a> 0, 0, "Diese Textur"<br /><a href="Text.htm"><b>Text</b></a> 0, 40, "wurde erstellt mit"<br /><a href="Color.htm"><b>Color</b></a> 0, 0, 255<br /><a href="Text.htm"><b>Text</b></a> 0, 80, "CREATETEXTURE()"<br /><a href="Color.htm"><b>Color</b></a> 0, 0, 0<br /><a href="Text.htm"><b>Text</b></a> 0, 120, "und eingezeichnet mit"<br /><a href="Color.htm"><b>Color</b></a> 0, 0, 255<br /><a href="Text.htm"><b>Text</b></a> 0, 160, "SETBUFFER TEXTUREBUFFER()"<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> cube, tex<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;pitch# = 0<br />&nbsp; &nbsp;yaw# = 0<br />&nbsp; &nbsp;roll# = 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> pitch# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> pitch# = 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> yaw# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> yaw# = 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(45) = 1 <a href="Then.htm"><b>Then</b></a> roll# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = 1 <a href="Then.htm"><b>Then</b></a> roll# = 1<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, pitch#, yaw#, roll#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Drehe den Würfel mit Cursortasten" <a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FreeTexture.htm" title="Löscht eine Textur aus dem Speicher">FreeTexture</a>, <a href="LoadAnimTexture.htm" title="Lädt eine Texture mit Animation">LoadAnimTexture</a>, <a href="LoadTexture.htm" title="Lädt eine Textur in den Speicher">LoadTexture</a>, <a href="TextureBuffer.htm" title="Ermittelt Identität des Buffers einer Textur">TextureBuffer</a>, <a href="RotateTexture.htm" title="Ändert Drehwinkel einer Textur">RotateTexture</a>, <a href="ScaleTexture.htm" title="Ändert Skalierungsfaktor einer Textur">ScaleTexture</a>, <a href="TextureBlend.htm" title="Setzt einen Blendmodus für eine Textur">TextureBlend</a>, <a href="TextureHeight.htm" title="Ermittelt Höhe einer Textur">TextureHeight</a>, <a href="TextureWidth.htm" title="Ermittelt Breite einer Textur">TextureWidth</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_56.html">Texturen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

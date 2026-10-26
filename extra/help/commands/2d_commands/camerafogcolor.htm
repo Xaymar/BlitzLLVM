@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CameraFogColor 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CameraFogColor</b> kamera%, rot#, gruen#, blau# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+kamera%
+</td>
+<td>
+Identität einer Kamera
+</td>
+</tr>
+<tr>
+<td width="100">
+rot#
+</td>
+<td>
+Rotanteil 0-255
+</td>
+</tr>
+<tr>
+<td width="100">
+grün#
+</td>
+<td>
+Grünanteil 0-255
+</td>
+</tr>
+<tr>
+<td width="100">
+blau#
+</td>
+<td>
+Blauanteil 0-255
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit <b>CameraFogColor</b> wird die Nebelfarbe einer Kamera eingestellt. Die einzelnen Farbanteile können nur im Bereich von 0-255 liegen.<br /><br />Je weiter ein Objekt von der Kamera entfernt ist, desto mehr Nebelfarbe wird hinzugerechnet. Dadurch haben weit entfernte Objekte weniger unterschiedlichere Farben - es entsteht ein Nebeleffekt.<br /><br />Dieser Effekt wird meistens dazu benutzt, einen Pop-Up-Effekt zu verhindern, wenn ein Objekt in den Kamerabereich kommt.<br /><br />Die Standard-Nebelfarbe ist schwarz (0,0,0) und die Standard-Entfernung des Nebels ist 1-1000. Die Entfernung kann mit <a href="CameraFogRange.htm"><b>CameraFogRange</b><img src="../../html/images/quicklink.gif" /></a> geändert werden.<br /><br /><img src="../../images/gfx_nebel.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Hier wird demonstriert, wie die Farb- und Nebeleffekte der Kamera wirken<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 1, 0<br /><a href="CameraClsColor.htm"><b>CameraClsColor</b></a> camera, 190, 185, 180<br /><a href="CameraFogColor.htm"><b>CameraFogColor</b></a> camera, 180, 175, 170<br /><a href="CameraFogRange.htm"><b>CameraFogRange</b></a> camera, 1, 10<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />plane = <a href="CreatePlane.htm"><b>CreatePlane</b></a>()<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 10, 30, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube, 100, 150, 200<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(057) = 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;fog_mode = 1 - fog_mode<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="CameraFogMode.htm"><b>CameraFogMode</b></a> camera, fog_mode<br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, - 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, - 0.05<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, 0.05<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Mit Cursortasten kannst du dich bewegen"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "Mit Leertaste kann Nebel eingeschaltet werden"<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> fog_mode = 0 <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 40, "CameraFogMode 0"<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> fog_mode = 1 <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 40, "CameraFogMode 1"<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CameraClsColor.htm" title="Ändert Hintergrundfarbe einer Kamera">CameraClsColor</a>, <a href="CameraFogMode.htm" title="Schaltet Nebel ein oder aus">CameraFogMode</a>, <a href="CameraFogRange.htm" title="Stellt Nebelentfernung einer Kamera ein">CameraFogRange</a>, <a href="CreateCamera.htm" title="Erstellt eine neue Kamera">CreateCamera</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_66.html">Kamera</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ReadAvail 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			byte = <b>ReadAvail</b> (stream) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+stream
+</td>
+<td>
+Identität des Datenstroms (ermittelt mit <a href="CreateTCPServer.htm"><b>CreateTCPServer</b><img src="../../html/images/quicklink.gif" /></a>, <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a>, <a href="OpenTCPStream.htm"><b>OpenTCPStream</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ReadFile.htm"><b>ReadFile</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Anzahl der Bytes, die garantiert ausgelesen werden können. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion kann für Datei- und Netzwerkzugriffe benutzt werden. <a href="ReadAvail.htm"><b>ReadAvail</b><img src="../../html/images/quicklink.gif" /></a> ermittelt dabei die Anzahl der Bytes, die garantiert ausgelesen werden können. Wurde eine Datei geöffnet, so liefert diese Funktion die Anzahl der Bytes, die in den Speicher abgelegt wurden. Wenn diese Funktion mit einer Internetverbindung benutzt wird, dann liefert es die Anzahl der Bytes, die über das Internet angekommen sind.<br /><br />Benutze auch <a href="Eof.htm"><b>Eof</b><img src="../../html/images/quicklink.gif" /></a>. Diese Funktion ermittelt, ob das Ende einer Datei erreicht ist.<br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm demonstriert eine Verbindung mit Internet:<br />
+			<div class="syntax-code">
+				<a href="Print.htm"><b>Print</b></a> "Verbinde..."<br /><br />tcp = <a href="OpenTCPStream.htm"><b>OpenTCPStream</b></a> ("www.blitzbasement.com",80)<br /><a href="If.htm"><b>If</b></a> <a href="Not.htm"><b>Not</b></a> tcp <a href="Print.htm"><b>Print</b></a> "Fehlgeschlagen": <a href="WaitKey.htm"><b>WaitKey</b></a> : <a href="End.htm"><b>End</b></a><br /><br /><a href="Print.htm"><b>Print</b></a> "Verbunden! Sende Anfrage..."<br /><br /><a href="WriteLine.htm"><b>WriteLine</b></a> tcp, "GET http://www.blitzbasement.com HTTP/1.0"<br /><a href="WriteLine.htm"><b>WriteLine</b></a> tcp, <a href="Chr.htm"><b>Chr</b></a>$ (10)<br /><br /><a href="If.htm"><b>If</b></a> <a href="Eof.htm"><b>Eof</b></a> (tcp) <a href="Print.htm"><b>Print</b></a> "Fehlgeschlagen.": <a href="WaitKey.htm"><b>WaitKey</b></a> : <a href="End.htm"><b>End</b></a><br /><a href="Print.htm"><b>Print</b></a> "Anfrage gesendet! Warte auf Antwort..."<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="Eof.htm"><b>Eof</b></a> (tcp)<br />   <a href="Print.htm"><b>Print</b></a> ReadLine$ (tcp )<br />   <a href="Print.htm"><b>Print</b></a> "Bytes verfügbar:" +<a href="ReadAvail.htm"><b>ReadAvail</b></a>(tcp)<br /><a href="Wend.htm"><b>Wend</b></a><br /><br /><a href="If.htm"><b>If</b></a> <a href="Eof.htm"><b>Eof</b></a> (tcp) = 1 <a href="Then.htm"><b>Then</b></a> <a href="Print.htm"><b>Print</b></a> "Erfolgreich!" ELSE PRINT "Fehler!"<br /><a href="CloseTCPStream.htm"><b>CloseTCPStream</b></a> tcp<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> ()<br /><br /><a href="End.htm"><b>End</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Eof.htm" title="Prüft ob das Ende einer Datei erreicht wurde">Eof</a>, <a href="ReadByte.htm" title="Liest ein &quot;Byte&quot; aus einer Datei">ReadByte</a>, <a href="ReadBytes.htm" title="Liest Daten aus einer Datei in ein Speicherfeld ein">ReadBytes</a>, <a href="ReadFloat.htm" title="Liest einen &quot;Float&quot; Wert aus einer Datei">ReadFloat</a>, <a href="ReadInt.htm" title="Liest einen &quot;Integerwert&quot; aus einer Datei">ReadInt</a>, <a href="ReadLine.htm" title="Liest einen &quot;Zeile&quot; aus einer Datei">ReadLine</a>, <a href="ReadShort.htm" title="Liest einen &quot;Short&quot; Wert aus einer Datei">ReadShort</a>, <a href="ReadString.htm" title="Liest ein &quot;String&quot; aus einer Datei">ReadString</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

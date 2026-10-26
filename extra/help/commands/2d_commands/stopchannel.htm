@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		StopChannel 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>StopChannel</b> kanal 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+kanal
+</td>
+<td>
+Identität des Sounds (ermittelt z.B. mit <a href="PlaySound.htm"><b>PlaySound</b><img src="../../html/images/quicklink.gif" /></a> oder mit <a href="PlayCDTrack.htm"><b>PlayCDTrack</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl stoppt die Wiedergabe eines Sounds (Wav, Midi, Mp3 oder CD-Audio). Beim nächsten Abspielen wird dieser Sound vom Anfang abgespielt.<br /><br />Natürlich sollte vorher <a href="PlaySound.htm"><b>PlaySound</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="PlayCDTrack.htm"><b>PlayCDTrack</b><img src="../../html/images/quicklink.gif" /></a> ausgeführt worden sein. Diese Befehle liefern dann eine Kanalidentität für den Sound. Die Identität wird dann mit <b>StopChannel</b> verwendet. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm demonstriert viele Abspielmöglichkeiten:<br />
+			<div class="syntax-code">
+				<a href="Print.htm"><b>Print</b></a> "Lade Sound..."<br />sndWave = <a href="LoadSound.htm"><b>LoadSound</b></a> ("level.wav")<br /><br /><a href="LoopSound.htm"><b>LoopSound</b></a> sndWave<br />chnWave = <a href="PlaySound.htm"><b>PlaySound</b></a> (sndWave)<br /><br /><a href="Print.htm"><b>Print</b></a> "Spiele den Sound 2sek ab..."<br /><a href="Delay.htm"><b>Delay</b></a> 2000<br /><br /><a href="Print.htm"><b>Print</b></a> "Sound für 2sek anhalten..."<br /><a href="PauseChannel.htm"><b>PauseChannel</b></a> chnWave<br /><a href="Delay.htm"><b>Delay</b></a> 2000<br /><br /><a href="Print.htm"><b>Print</b></a> "Weiterspielen..."<br /><a href="ResumeChannel.htm"><b>ResumeChannel</b></a> chnWave<br /><a href="Delay.htm"><b>Delay</b></a> 2000<br /><br /><a href="Print.htm"><b>Print</b></a> "Ändere Samplerate..."<br /><a href="ChannelPitch.htm"><b>ChannelPitch</b></a> chnWave, 22000<br /><a href="Delay.htm"><b>Delay</b></a> 2000<br /><br /><a href="Print.htm"><b>Print</b></a> "Spiele den Sound links..."<br /><a href="ChannelPan.htm"><b>ChannelPan</b></a> chnWave,-1<br /><a href="Delay.htm"><b>Delay</b></a> 2000<br /><br /><a href="Print.htm"><b>Print</b></a> "Spiele den Sound rechts..."<br /><a href="ChannelPan.htm"><b>ChannelPan</b></a> chnWave,1<br /><a href="Delay.htm"><b>Delay</b></a> 2000<br /><br /><a href="Print.htm"><b>Print</b></a> "Fertig"<br /><a href="StopChannel.htm"><b>StopChannel</b></a> chnWave<br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ResumeChannel.htm" title="Spielt eine angehaltene Musik weiter ab">ResumeChannel</a>, <a href="PauseChannel.htm" title="Hält die Wiedergabe eines Sounds an">PauseChannel</a>, <a href="PlaySound.htm" title="Spielt einen Sound ab">PlaySound</a>, <a href="PlayCDTrack.htm" title="Spielt eine AudioCD ab">PlayCDTrack</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_6.html">Sound</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_13.html">Channels</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

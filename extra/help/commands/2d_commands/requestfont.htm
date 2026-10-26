@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		RequestFont 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			font = <b>RequestFont</b> () 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität einer Schrift wird zurückgeliefert. Bei 0 wurde die Auswahl abgebrochen. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>RequestFont</b> blendet einen Standarddialog zur Auswahl einer Schrift ein. Wurde eine Schrift ausgewählt und auf OK geklickt, dann wird diese Schrift geladen und die Identität der Schrift zurückgeliefert. Wurde die Auswahl abgebrochen, dann wird 0 zurückgeliefert.<br /><br /><img src="../../images/gfx_font.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Zeigt den Font-Dialog. Bei einer Auswahl wird ein Fenster mit Textarea erstellt und Schrift geändert:<br />
+			<div class="syntax-code">
+				font = <a href="RequestFont.htm"><b>RequestFont</b></a>()<br /><a href="If.htm"><b>If</b></a> font = 0 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><br />window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>(\"Window\", 050, 050, 300, 300, 0, 3)<br />windoww = <a href="ClientWidth.htm"><b>ClientWidth</b></a>(window)<br />windowh = <a href="ClientHeight.htm"><b>ClientHeight</b></a>(window)<br />textarea = <a href="CreateTextArea.htm"><b>CreateTextArea</b></a>(5, 5, windoww - 10, windowh - 10, window)<br /><a href="SetTextAreaFont.htm"><b>SetTextAreaFont</b></a> textarea, font<br /><a href="SetGadgetLayout.htm"><b>SetGadgetLayout</b></a> textarea, 1, 1, 1, 1<br /><a href="AddTextAreaText.htm"><b>AddTextAreaText</b></a> textarea, \"Test\"<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GetKey.htm"><b>GetKey</b></a>() = 27 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>() = $803 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><a href="Forever.htm"><b>Forever</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Confirm.htm" title="Standardfenster mit Button OK / Abbrechen">Confirm</a>, <a href="Notify.htm" title="Standardfenster mit Button OK">Notify</a>, <a href="Proceed.htm" title="Standardfenster mit Button OK / Nein / Abbrechen">Proceed</a>, <a href="RequestColor.htm" title="Standardfenster zur Auswahl einer Farbe">RequestColor</a>, <a href="RequestFile.htm" title="Auswahl einer Datei zum lesen/schreiben">RequestFile</a>, <a href="RequestDir.htm" title="Standardfenster zur Auswahl eines Ordners">RequestDir</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_42.html">Request</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

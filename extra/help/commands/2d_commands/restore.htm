@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Restore 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Restore</b> [sprungmarke] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+sprungmarke
+</td>
+<td>
+Beliebige Sprungmarke, welche bereits im Programm definiert wurde. Die Sprungmarke muss einen Punkt vor dem Namen haben. Wird dieser Parameter weggelassen, dann wird der Daten-Zeiger an den Anfang gesetzt.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>Restore</b> wird zusammen mit den Befehlen <a href="Read.htm"><b>Read</b><img src="../../html/images/quicklink.gif" /></a> und <a href="Data.htm"><b>Data</b><img src="../../html/images/quicklink.gif" /></a> verwendet. In den <a href="Data.htm"><b>Data</b><img src="../../html/images/quicklink.gif" /></a> Zeilen stehen einige Daten. Mit dem <a href="Read.htm"><b>Read</b><img src="../../html/images/quicklink.gif" /></a> Befehl können diese Daten nacheinander ausgelesen werden. Will man die später nochmal einlesen, so geht das nicht direkt. Man muss den Daten-Zeiger vor der Stelle platzieren, die dann ausgelesen werden soll. Dazu wird <b>Restore</b> benutzt, wobei man nur die Sprungmarke vor dem <a href="Data.htm"><b>Data</b><img src="../../html/images/quicklink.gif" /></a> Befehl angeben muss.<br /><br /><div class="hint">Es ist empfehlenswert, den <b>Restore</b> Befehl vor <a href="Read.htm"><b>Read</b><img src="../../html/images/quicklink.gif" /></a> Befehlen zu verwenden.<br />&nbsp;</div><br /><br /><div class="hint">Übrigens werden die Sprungmarken in BlitzBasic mit einem Punkt vor dem Namen definiert. Bei <b>Restore</b> braucht man diesen Punkt aber nicht anzugeben.<br />&nbsp;</div><br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm demonstriert die Benutzung der Befehle Data, Read und Restore. Das Beispiel liest nur die Leveldaten ein:<br />
+			<div class="syntax-code">
+				<a href="Restore.htm"><b>Restore</b></a> Leveldaten<br /><br /><a href="Dim.htm"><b>Dim</b></a> Gegner (3), Monster (3), Vampire (3), Spinnen (3)<br /><br /><a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> 3<br />&nbsp; &nbsp;<a href="Read.htm"><b>Read</b></a> Level, Gegner (i), Monster (i), Vampire (i), Spinnen (i)<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="End.htm"><b>End</b></a><br /><br />.Spieldaten<br /><a href="Data.htm"><b>Data</b></a> 1,2,3,4,5,6,7,8,9<br /><br />.Leveldaten<br /><a href="Data.htm"><b>Data</b></a> 1, 2,1,1,1<br /><a href="Data.htm"><b>Data</b></a> 2, 3,2,1,2<br /><a href="Data.htm"><b>Data</b></a> 3, 4,2,5,3<br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Data.htm" title="Beliebige Daten im Programm notieren">Data</a>, <a href="Read.htm" title="Datenwerte aus einem Programm auslesen">Read</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_35.html">Datenblöcke</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CountChildren 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Anzahl = <b>CountChildren</b> (Entity) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Entity
+</td>
+<td>
+Identität eines Entitys
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Anzahl der angehangenen Objekte 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>CountChildren</b> ermittelt die Anzahl der hinzugefügten Objekte.<br /><br />Objekte können hierarchisch aufgebaut sein - das bedeutet, dass ein Objekt (z.B. Finger) zu einem anderen Objekt (z.B. Arm) hinzugefügt werden kann. Dieser Arm kann wiederum zu einem Körper hinzugefügt werden. Wird nun dieser Körper bewegt, dann werde alle hinzugefügten Objekte automatisch mitverschoben. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />planet=<a href="CreateSphere.htm"><b>CreateSphere</b></a>(8)<br /><a href="EntityColor.htm"><b>EntityColor</b></a> planet, 200, 200, 250<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> planet, 0, 0, 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> planet, 10, 10, 10<br /><br />moon1 = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(8, planet)<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> moon1, .2, .2, .2<br /><a href="MoveEntity.htm"><b>MoveEntity</b></a> moon1, 0, 0, 2<br /><br />moon2 = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(8, planet)<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> moon2, .4, .4, .4<br /><a href="MoveEntity.htm"><b>MoveEntity</b></a> moon2, 0, 0, -3<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> planet, 0, 1, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Angehängte Objekte:" + <a href="CountChildren.htm"><b>CountChildren</b></a>(planet)<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="GetChild.htm" title="Liefert die ID eines Child-Objekts">GetChild</a>, <a href="FindChild.htm" title="Sucht nach einem an ein anderes Objekt angefügtes Entity">FindChild</a>, <a href="EntityParent.htm" title="Fügt ein Objekt einem anderen Objekt an">EntityParent</a>, <a href="GetParent.htm" title="Liefert die ID des Parent-Objekts">GetParent</a>, <a href="CountSurfaces.htm" title="Ermittelt die Anzahl der Oberflächen eines Gitterobjekts">CountSurfaces</a>, <a href="CountTriangles.htm" title="Ermittelt die Anzahl der Dreiecke einer Oberfläche">CountTriangles</a>, <a href="CountVertices.htm" title="Ermittelt die Anzahl der Vertexpunkte einer Oberfläche">CountVertices</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_74.html">Status</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

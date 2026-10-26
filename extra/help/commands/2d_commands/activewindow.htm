@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ActiveWindow 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			win = <b>ActiveWindow</b>() 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des letzten aktiven Fensters als Integer 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>ActiveWindow</b> liefert die Identität eines ausgewählten Fensters. Es werden allerdings nur BB-Fenster berücksichtigt. Sollte gerade kein BB-Fenster ausgewählt sein, dann wird die Identität des letzten BB-Fensters zurückgeliefert.<br /><br /><img src="../../images/gfx_window.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Hier werden drei Fenster erstellt und in der Statusleiste des ersten Fensters steht die ID des aktiven Fensters:<br /><br />window1=<a href="CreateWindow.htm"><b>CreateWindow</b></a>("Win1",050,050,200,200,0,9)<br />window2=<a href="CreateWindow.htm"><b>CreateWindow</b></a>("Win2",100,100,200,200,0,9)<br />window3=<a href="CreateWindow.htm"><b>CreateWindow</b></a>("Win3",150,150,200,200,0,9)<br /><a href="SetStatusText.htm"><b>SetStatusText</b></a> window1,"FensterID: "+<a href="ActiveWindow.htm"><b>ActiveWindow</b></a>()<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GetKey.htm"><b>GetKey</b></a>()=27 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $803 : <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $804 : <a href="SetStatusText.htm"><b>SetStatusText</b></a> window1,"FensterID: "+<a href="ActiveWindow.htm"><b>ActiveWindow</b></a>()<br />&nbsp; &nbsp;<a href="End.htm"><b>End</b></a> <a href="Select.htm"><b>Select</b></a><br /><a href="Forever.htm"><b>Forever</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="WindowMinimized.htm" title="Prüft, ob ein Fenster minimiert ist">WindowMinimized</a>, <a href="WindowMaximized.htm" title="Prüft, ob ein Fenster maximiert ist">WindowMaximized</a>, <a href="ActivateWindow.htm" title="Aktiviert ein Fenster">ActivateWindow</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_25.html">Window</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

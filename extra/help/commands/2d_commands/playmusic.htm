@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		PlayMusic 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			kanal = <b>PlayMusic</b> (datei$ [, modus]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+datei
+</td>
+<td>
+beliebige Musikdatei (raw/mod/s3m/xm/it/mid/rmi/wav/mp2/mp3/ogg/wma/asf) Zusätzlich kann auch ein Pfad angegeben werden
+</td>
+</tr>
+<tr>
+<td width="100">
+modus
+</td>
+<td>
+wie die Musik abgespielt werden soll<br />0=Spielt nur 1x ab (Standard)<br />1=Musik im Loop abspielen<br />2=Musik beim Start anhalten<br />3=Nach jedem Loop Musik anhalten
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Kanal Identität für Channel-Befehle.<br /><br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl lädt eine Hintergrundmusik und spielt die sofort ab. Nachdem die Musik abgespielt wurde, wird der Speicher freigegeben und die Musik muss erneut mit <a href="PlayMusic.htm"><b>PlayMusic</b><img src="../../html/images/quicklink.gif" /></a> gestartet werden. Allerdings kann immer nur eine Musik mit diesem Befehl gleichzeitig abgespielt werden.<br /><br />Mit dem Parameter "modus" kann ein Sound automatisch angehalten werden. Erst nach <a href="ResumeChannel.htm"><b>ResumeChannel</b><img src="../../html/images/quicklink.gif" /></a> wird die Musik weiter abgespielt.<br /><br /><div class="caution">Der Parameter "modus" steht in Blitzbasic (B2D) nicht zur Verfügung.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Beispiel zum Abspielen einer Hintergrundmusik:<br />
+			<div class="syntax-code">
+				levelmusik = <a href="PlayMusic.htm"><b>PlayMusic</b></a> ("music\background.wav")<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="PauseChannel.htm" title="Hält die Wiedergabe eines Sounds an">PauseChannel</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_6.html">Sound</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_10.html">Musik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

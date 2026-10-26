@@ -1,0 +1,67 @@
+#menu li ul {
+	filter: Alpha(opacity=90, style=0);
+}
+
+/* IE einzeln; gute Browser verstehen "Vererbung" richtig */
+#menu li.over a {
+	background-position: 0 -30px;
+}
+
+#menu li.over ul li a {
+	background: none; /* IE-Vererbung fixen */
+}
+
+#thread div.postheader img.avatar {
+	margin: 5px 5px 0 0;
+}
+
+#gallery div.image {
+	width: 100%;
+
+	margin-right: 32px;
+}
+
+#gallery #gallery {
+	width: 100%;
+
+
+}
+
+button {
+	background-color: #F5F3E9;
+	border: 1px solid #d8d8d8;
+	padding: 1px;
+	font-size: 13px;
+}
+
+button:hover {
+	border: 1px solid #999;
+}
+
+input, textarea {
+	border: 1px solid #d8d8d8;
+}
+
+input:focus, textarea:focus {
+	border: 1px solid #999;
+}
+
+#sidebar_search form fieldset input.text {
+	width: 140px;
+}
+
+#sidebar_search form fieldset input.button {
+	background-color: #F5F3E9;
+	border: 1px solid #d8d8d8;
+	padding-top: 1px;
+	font-size: 0.8em;
+}
+
+
+#login {
+	height: 69px;
+}
+
+#postform table td.centered_form_content div {
+	width: 500px;
+}

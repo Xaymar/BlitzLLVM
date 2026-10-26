@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		StopNetGame 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>StopNetGame</b> 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Eine Netzwerkverbindung kann mit <a href="HostNetGame.htm"><b>HostNetGame</b><img src="../../html/images/quicklink.gif" /></a>, <a href="JoinNetGame.htm"><b>JoinNetGame</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="StartNetGame.htm"><b>StartNetGame</b><img src="../../html/images/quicklink.gif" /></a> erstellt wurde. Dieser Befehl beendet danach die Verbindung zum Netzwerk. Falls möglich wird die Hosting-Session an einen anderen angeschlossenen Rechner übertragen. Benutze diesen Befehl für eine saubere Trennung vom Netzwerk (es ist besser als ein einfacher <a href="End.htm"><b>End</b><img src="../../html/images/quicklink.gif" /></a>-Befehl). 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Dieses Programm erstellt eine Netzwerkverbindung, die nach einem Tastendruck wieder beendet wird:<br /><br />newGame = <a href="StartNetGame.htm"><b>StartNetGame</b></a>()<br /><a href="If.htm"><b>If</b></a> newGame = 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Konnte keine Verbindung herstellen"<br /><a href="ElseIf.htm"><b>ElseIf</b></a> newGame = 1<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Erfolgreich mit Netzwerk verbunden"<br /><a href="ElseIf.htm"><b>ElseIf</b></a> newGame = 2<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Eine Netzwerk verbundung gestartet"<br /><a href="EndIf.htm"><b>EndIf</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="StopNetGame.htm"><b>StopNetGame</b></a>()<br /><a href="Print.htm"><b>Print</b></a> "Die Verbindung wurde unterbrochen" 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="HostNetGame.htm" title="Erstellt ein neues Netzwerkspiel">HostNetGame</a>, <a href="JoinNetGame.htm" title="Lässt einen Teilnehmer einem Host beitreten">JoinNetGame</a>, <a href="StartNetGame.htm" title="Startet ein Netzwerkspiel">StartNetGame</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_18.html">DirectPlay</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

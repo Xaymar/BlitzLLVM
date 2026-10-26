@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		VWait 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>VWait</b> [Frames] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Frames
+</td>
+<td>
+Optionaler Wert, der die Anzahl der Frames angibt, für die das Programm angehalten werden soll (Standard=1).
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung wartet solange, bis sich das komplette Bild auf dem Bildschirm aufgebaut hat. Ein Monitor zeichnet das Bild Pixel für Pixel von oben nach unten. Wurde die Letzte Zeile gezeichnet, dann wird die Programmausführung fortgesetzt. Zusätzlich kann man die Anzahl der Frames angeben, die das Programm abwarten soll.<br /><br /><div class="hint">Für Doublebuffering ist dieser Befehl nicht erforderlich. BlitzBasic erledigt es mit dem <a href="Flip.htm"><b>Flip</b><img src="../../html/images/quicklink.gif" /></a>-Befehl automatisch.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 800, 600<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255)<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(800), <a href="Rnd.htm"><b>Rnd</b></a>(600), <a href="Rnd.htm"><b>Rnd</b></a>(800), <a href="Rnd.htm"><b>Rnd</b></a>(600)<br />&nbsp; &nbsp;<a href="VWait.htm"><b>VWait</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Flip.htm" title="Tauscht die Bufferinhalte des Front- und Backbuffers">Flip</a>, <a href="ScanLine.htm" title="Liefert die Zeile des Bildschirms, die gerade vom Monitor aktualisiert wird">ScanLine</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

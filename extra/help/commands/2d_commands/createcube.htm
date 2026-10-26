@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateCube 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wuerfel% = <b>CreateCube</b> ([parent%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+parent%
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll (optional)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des Würfels zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateCube</b> erstellt ein Würfel-Gitterobjekt und liefert die Identität des Würfels zurück.<br /><br />Der Würfel wird an der Position 0,0,0 erstellt und reicht von -1,-1,-1 bis +1,+1,+1.<br /><br />Wurde der Parameter "parent%" angegeben, dann wird dieser Würfel zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br /><br />Der Würfel wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt.<br /><br /><img src="../../images/gfx_wuerfel.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 20, 50, 50<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateCone.htm" title="Erstellt einen neuen Kegel">CreateCone</a>, <a href="CreateCylinder.htm" title="Erstellt einen neuen Zylinder">CreateCylinder</a>, <a href="CreateSphere.htm" title="Erstellt eine neue Kugel">CreateSphere</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_70.html">Mesh</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

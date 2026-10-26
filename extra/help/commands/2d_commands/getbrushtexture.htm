@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GetBrushTexture 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			textur% = <b>GetBrushTexture</b> (brush% [, index%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+brush%
+</td>
+<td>
+Brush-Identität
+</td>
+</tr>
+<tr>
+<td width="100">
+index%
+</td>
+<td>
+Multitextur-Index (0-7, 0 ist Standard)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Textur-Identität wird zurückgeliefert 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>GetBrushTexture</b> liefert die Identität einer Textur zurück, die vorher zu einem Brush zugewiesen wurde. Index kann ein Wert 0-7 sein, um auch Multitexturen verarbeiten zu können.<br /><br />Nach Benutzung sollte diese Textur wieder mit <a href="FreeTexture.htm"><b>FreeTexture</b><img src="../../html/images/quicklink.gif" /></a> gelöscht werden, um MemoryLeaks zu verhindern!<br /><br />Benutze eventuell <a href="TextureName.htm"><b>TextureName</b><img src="../../html/images/quicklink.gif" /></a>, um den Texturnamen zu ermitteln. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />crate = <a href="LoadMesh.htm"><b>LoadMesh</b></a>("media/wood-crate/wcrate1.3ds")<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> crate, 0, 0, 100<br />surf = <a href="GetSurface.htm"><b>GetSurface</b></a>(crate, 1)<br />crate_brush = <a href="GetSurfaceBrush.htm"><b>GetSurfaceBrush</b></a>(surf)<br />crate_tex = <a href="GetBrushTexture.htm"><b>GetBrushTexture</b></a>(crate_brush, 0)<br /><br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>( 1 )<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Texture name, as returned by TEXTURENAME$():"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, <a href="TextureName.htm"><b>TextureName</b></a>$(crate_tex)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "Texture name with path stripped:"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 60, StripPath$(<a href="TextureName.htm"><b>TextureName</b></a>$(crate_tex))<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><br /><a href="End.htm"><b>End</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> StripPath$(file$)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="Len.htm"><b>Len</b></a>(file$)>0<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = <a href="Len.htm"><b>Len</b></a>(file$) <a href="To.htm"><b>To</b></a> 1 <a href="Step.htm"><b>Step</b></a> - 1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;mi$ = <a href="Mid.htm"><b>Mid</b></a>$(file$, i, 1)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> mi$ = "\" <a href="Or.htm"><b>Or</b></a> mi$ = "/" <a href="Then.htm"><b>Then</b></a> <a href="Return.htm"><b>Return</b></a> name$ <a href="Else.htm"><b>Else</b></a> name$ = mi$ + name$<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> name$<br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="BrushTexture.htm" title="Weist einem Pinsel eine Textur zu">BrushTexture</a>, <a href="CreateBrush.htm" title="Erstellt einen neuen Pinsel">CreateBrush</a>, <a href="GetEntityBrush.htm" title="Ermittelt Pinsel eines 3D-Objekts">GetEntityBrush</a>, <a href="GetSurfaceBrush.htm" title="Ermittelt Pinsel einer Oberfläche">GetSurfaceBrush</a>, <a href="GetEntityBrush.htm" title="Ermittelt Pinsel eines 3D-Objekts">GetEntityBrush</a>, <a href="TextureName.htm" title="Ermittelt Texturnamen">TextureName</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_61.html">Brush</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

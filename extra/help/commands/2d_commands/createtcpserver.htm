@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateTCPServer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Stream = <b>CreateTCPServer</b> (Port) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Port
+</td>
+<td>
+Portnummer, die für eine Kommunikation benutzt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des Datenstroms, die für weitere Befehle verwendet wird. Falls eine 0 zurückgeliefert wird, dann konnte der Server nicht erstellt werden. Sollte das der Fall sein, liegt es vermutlich an Firewall-Einstellungen oder an anderen Programmen, die eventuell die Netzwerkkommunikation blockieren können. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl erstellt einen TCP/IP-Server. Ein Server wird für Kommunikation mit Clients über eine Netzwerkverbindung benötigt. Für diesen Befehl muss man nur die Portnummer angeben, über die die Kommunikation stattfinden soll.<br />CreateTCPServer liefert einen Wert, der die Identität des Datenstroms angibt. Dieser Wert kann z.B. mit Read/Write-Befehlen verwendet werden. Sollte nur eine 0 zurückgeliefert werden, so konnte kein Server erstellt werden. Mit <a href="CloseTCPServer.htm"><b>CloseTCPServer</b><img src="../../html/images/quicklink.gif" /></a> kann eine Verbindung wieder geschlossen werden. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiele</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Server<br />
+			<div class="syntax-code">
+				; Beispiel / Demo<br />;&nbsp; &nbsp;- CreateTCPServer<br />;&nbsp; &nbsp;- OpenTCPStream<br />;&nbsp; &nbsp;- AcceptTCPStream<br />;<br />; Server<br />;<br />; Ausgelegt für lokalen Betrieb mit<br />;  einem Client<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 400,300,0,2<br /><a href="Global.htm"><b>Global</b></a> Timer = <a href="CreateTimer.htm"><b>CreateTimer</b></a>(2)<br /><a href="AppTitle.htm"><b>AppTitle</b></a> "Server"<br /><br />; Server eröffnen<br /><a href="Local.htm"><b>Local</b></a> Stream = <a href="CreateTCPServer.htm"><b>CreateTCPServer</b></a>( 12345 )<br /><a href="Color.htm"><b>Color</b></a> 160, 160, 160<br /><a href="Print.htm"><b>Print</b></a> "Server eröffnet"<br /><br /><a href="Local.htm"><b>Local</b></a> NewClient, ClientStream<br /><a href="Local.htm"><b>Local</b></a> MsgCount = 1<br /><a href="Local.htm"><b>Local</b></a> txt$<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;; Client verbinden lassen<br />&nbsp; &nbsp;NewClient = <a href="AcceptTCPStream.htm"><b>AcceptTCPStream</b></a>( Stream )<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="NewClient.htm"><b>NewClient</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;ClientStream = NewClient<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 160, 160, 160<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Client verbunden"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;; Stream auslesen<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> ClientStream<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="While.htm"><b>While</b></a> <a href="ReadAvail.htm"><b>ReadAvail</b></a>( ClientStream )<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;; Empfangene Nachricht ausgeben<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 0, 255, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="CurrentTime.htm"><b>CurrentTime</b></a>() +", Empfange: " +<a href="ReadLine.htm"><b>ReadLine</b></a>( ClientStream )&nbsp; &nbsp;; Readline liest den übertragenen Text aus<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;; und antworten<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;txt$ = "Antwort Nr. " +MsgCount<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;MsgCount = MsgCount +1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="WriteLine.htm"><b>WriteLine</b></a> ClientStream, txt$&nbsp; &nbsp;; WriteLine überträgt den Text<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 0, 0, 255<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="CurrentTime.htm"><b>CurrentTime</b></a>() +", Sende: " +txt$<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Wend.htm"><b>Wend</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><br />&nbsp; &nbsp;<a href="WaitTimer.htm"><b>WaitTimer</b></a>(Timer)<br /><a href="Wend.htm"><b>Wend</b></a><br /><br />; Streams schliessen<br /><a href="If.htm"><b>If</b></a> ClientStream <a href="Then.htm"><b>Then</b></a> <a href="CloseTCPStream.htm"><b>CloseTCPStream</b></a>( ClientStream )<br /><a href="CloseTCPServer.htm"><b>CloseTCPServer</b></a>( Stream )<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		<p style="margin-left: 20px;">
+			Client<br />
+			<div class="syntax-code">
+				; Beispiel / Demo<br />;&nbsp; &nbsp;- CreateTCPServer<br />;&nbsp; &nbsp;- OpenTCPStream<br />;&nbsp; &nbsp;- AcceptTCPStream<br />;<br />; Client<br />;<br />; Ausgelegt für lokalen Betrieb mit<br />;  einem Client<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 400,300,0,2<br /><a href="Global.htm"><b>Global</b></a> Timer = <a href="CreateTimer.htm"><b>CreateTimer</b></a>(2)<br /><a href="AppTitle.htm"><b>AppTitle</b></a> "Client"<br /><br />; Zum Server verbinden<br /><a href="Local.htm"><b>Local</b></a> Stream = <a href="OpenTCPStream.htm"><b>OpenTCPStream</b></a>( "127.0.0.1", 12345 )<br /><a href="If.htm"><b>If</b></a> <a href="Not.htm"><b>Not</b></a> Stream <a href="Then.htm"><b>Then</b></a> <a href="RuntimeError.htm"><b>RuntimeError</b></a> "Verbindung konnte nicht hergestellt werden."<br /><br /><a href="Color.htm"><b>Color</b></a> 160, 160, 160<br /><a href="Print.htm"><b>Print</b></a> "Verbinde..."<br /><br /><a href="Local.htm"><b>Local</b></a> MsgCount = 1, MsgSendTime = <a href="MilliSecs.htm"><b>MilliSecs</b></a>() +1000<br /><a href="Local.htm"><b>Local</b></a> txt$<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;; Im Sekundetakt eine Nachricht schreiben<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a>() > MsgSendTime<br />&nbsp; &nbsp;&nbsp; &nbsp;txt$ = "Nachricht Nr. " +MsgCount<br />&nbsp; &nbsp;&nbsp; &nbsp;MsgCount = MsgCount +1<br /><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="WriteLine.htm"><b>WriteLine</b></a> Stream, txt$&nbsp; &nbsp;; WriteLine überträgt den Text<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 0, 0, 255<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="CurrentTime.htm"><b>CurrentTime</b></a>() +", Sende: " +txt$<br /><br />&nbsp; &nbsp;&nbsp; &nbsp;MsgSendTime = <a href="MilliSecs.htm"><b>MilliSecs</b></a>() +1000<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><br />&nbsp; &nbsp;; Antworten auslesen<br />&nbsp; &nbsp;<a href="While.htm"><b>While</b></a> <a href="ReadAvail.htm"><b>ReadAvail</b></a>( Stream )<br />&nbsp; &nbsp;&nbsp; &nbsp;; Empfangene Nachricht ausgeben<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 0, 255, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="CurrentTime.htm"><b>CurrentTime</b></a>() +", Empfange: " +<a href="ReadLine.htm"><b>ReadLine</b></a>( Stream )&nbsp; &nbsp;; ReadLine liest den übertragenen Text aus<br />&nbsp; &nbsp;<a href="Wend.htm"><b>Wend</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="WaitTimer.htm"><b>WaitTimer</b></a>(Timer)<br /><a href="Wend.htm"><b>Wend</b></a><br /><br />; Stream schliessen<br /><a href="CloseTCPStream.htm"><b>CloseTCPStream</b></a>( Stream )<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateUDPStream.htm" title="Erstellt eine UDP-Netzwerkverbindung">CreateUDPStream</a>, <a href="CloseUDPStream.htm" title="Schließt eine UDP-Verbindung">CloseUDPStream</a>, <a href="OpenTCPStream.htm" title="Erstellt eine TCP/IP-Verbindung mit einem Server">OpenTCPStream</a>, <a href="AcceptTCPStream.htm" title="Prüft Serververbindung zu einem TCP/IP Server">AcceptTCPStream</a>, <a href="CloseTCPServer.htm" title="Schließt einen TCP/IP-Server">CloseTCPServer</a>, <a href="CloseTCPStream.htm" title="Schließt eine TCP/IP-Verbindung">CloseTCPStream</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_2.html">TCP</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

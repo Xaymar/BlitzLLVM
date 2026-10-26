@@ -1,0 +1,121 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Cos 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert# = <b>Cos</b>#(Winkel#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Winkel#
+</td>
+<td>
+Ein beliebiger Winkel in Grad
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Liefert den Cosinuswert, der zwischen -1 und 1 liegt (siehe Grafik)<br /><img src="../../images/gfx_sinuskurve.gif" /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion berechnet den Cosinuswert aus einem Winkel. Dies ist eine der wichtigsten mathematischen Funktionen für Spiele. Damit kann man z.B. die horizontale Bewegungsrichtung aus einem Winkel ermitteln.<br /><br />Hat man die Längen eines Dreiecks, so kann man den Cosinuswert ausrechnen, indem man die Ankathete eines rechtwinkligen Dreiecks durch die Hypotenuse teilt. Wenn man aber nur einen Winkel hat, so kann man den Cosinuswert auch mit der <b>Cos</b>-Funktion berechnen. Somit ergibt sich folgende Formel:<br /><br />Cos alpha = Ankathete : Hypotenuse<br /><br /><img src="../../images/gfx_dreieck.gif" /><br /><br />Zur Erklärung: Ankathete ist die Seite des Dreiecks, die neben dem gesuchten Winkel liegt. Hypotenuse ist die Seite mit der größten Länge. <br /> <br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformationen</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann man aus einem Winkel die horizontale Bewegung eines Objekts berechnen. Dazu muss man den Winkel und die Geschwindigkeit des Objekts wissen:<br /><br />Winkel = 123<br />Geschw = 5<br />VerschX = Cos(Winkel)* Geschw<br />VerschY = Sin(Winkel)* -Geschw<br /> 
+		</p>
+		 
+		<p style="margin-left: 20px;">
+			Diese Berechnung funktioniert fast wie die Berechnung der Objektbewegung. Nur wird statt der Geschwindigkeit ein Radius angegeben:<br /><br />Winkel = 123<br />Radius = 100<br />AbstX = Cos(Winkel) * Radius<br />AbstY = Sin(Winkel)* -Radius 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm demonstriert eine sanfte Bewegung eines Kreises, definiert nur durch Sin- und Cos-Funktionen:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 0, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="While.htm"><b>While</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1) = 0<br />&nbsp; &nbsp;Winkel1 = (Winkel1 + 5) <a href="Mod.htm"><b>Mod</b></a> 360<br />&nbsp; &nbsp;Winkel2 = (Winkel2 + 2) <a href="Mod.htm"><b>Mod</b></a> 360<br />&nbsp; &nbsp;X = 320 + <a href="Cos.htm"><b>Cos</b></a>(Winkel1) * 200 + <a href="Cos.htm"><b>Cos</b></a>(Winkel2) * 120<br />&nbsp; &nbsp;Y = 240 + <a href="Sin.htm"><b>Sin</b></a>(Winkel1) * 160 + <a href="Sin.htm"><b>Sin</b></a>(Winkel2) * 80<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="Oval.htm"><b>Oval</b></a> X - 10, Y - 10, 20, 20, 1<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ACos.htm" title="ACos liefert den Winkel in Grad aus einem Cosinuswert">ACos</a>, <a href="ASin.htm" title="ASin liefert den Winkel eines Sinuswertes">ASin</a>, <a href="ATan.htm" title="ATan liefert den passenden Winkel zu einem Tangenswert">ATan</a>, <a href="ATan2.htm" title="ATan2 berechnet den Winkel aus X- und Y-Längen">ATan2</a>, <a href="Sin.htm" title="Berechnet den Sinuswert eines Winkels">Sin</a>, <a href="Tan.htm" title="Berechnet den Tangenswert aus einem Winkel">Tan</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_5.html">Mathematik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

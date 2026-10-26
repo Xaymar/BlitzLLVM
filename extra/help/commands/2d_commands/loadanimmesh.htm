@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LoadAnimMesh 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			mesh% = <b>LoadAnimMesh</b> (datei$ [, parent%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+datei$
+</td>
+<td>
+Dateiname eines 3D-Modells (X-, 3DS- oder B3D-Datei)
+</td>
+</tr>
+<tr>
+<td width="100">
+parent%
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des Gitterobjekts (mesh). Falls eine Null zurückgeliefert wird, dann wurde die Datei nicht gefunden. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>LoadAnimMesh</b> lädt ein Gitterobjekt. Es können nur X-, 3DS- oder B3D-Dateien geladen werden.<br /><br />Wenn die Datei Information zur Animation des Objekts enthält, dann wird die Animation des Objekts automatisch geladen. Falls dies nicht erwünscht ist, dann muss man den Befehl <a href="LoadMesh.htm"><b>LoadMesh</b><img src="../../html/images/quicklink.gif" /></a> benutzen.<br /><br />Wurde der Parameter "parent%" angegeben, dann wird dieser Mesh zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br /><br />Das geladene Gitterobjekt wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />main_cam = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="CameraViewport.htm"><b>CameraViewport</b></a> main_cam, 0, 0, 640, 480<br /><a href="CameraClsColor.htm"><b>CameraClsColor</b></a> main_cam, 63, 63, 127<br /><br />main_light = <a href="CreateLight.htm"><b>CreateLight</b></a>(2, main_cam)<br /><a href="LightRange.htm"><b>LightRange</b></a> main_light, 50<br /><br />anim_obj = <a href="LoadAnimMesh.htm"><b>LoadAnimMesh</b></a>("animation.b3d")<br />textur = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("textur.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> anim_obj, textur<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> main_cam, 0, 30, - 80<br /><a href="PointEntity.htm"><b>PointEntity</b></a> main_cam, anim_obj<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> main_cam, 0, 50, - 80<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> anim_speed> = 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;anim_speed = - 1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Animate.htm"><b>Animate</b></a> anim_obj, 1, anim_speed, 1, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Else If.htm"><b>Else If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> anim_speed< = 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;anim_speed = 1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Animate.htm"><b>Animate</b></a> anim_obj, 1, anim_speed, 1, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Animate.htm"><b>Animate</b></a> obj, 1, 1, 0, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;anim_speed = 0<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> anim_obj, 0, 2, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> anim_obj, 0, - 2, 0<br />&nbsp; &nbsp;<a href="UpdateWorld.htm"><b>UpdateWorld</b></a>()<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a>()<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Pfeiltasten"<br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="Until.htm"><b>Until</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AddMesh.htm" title="Fügt Quell-Mesh einem Ziel-Mesh hinzu">AddMesh</a>, <a href="CreateMesh.htm" title="Erstellt ein neues Gitterobjekt">CreateMesh</a>, <a href="Animate.htm" title="ändert die Animationsart eines Objekts">Animate</a>, <a href="CopyMesh.htm" title="Kopiert ein Mesh im Speicher">CopyMesh</a>, <a href="LoadMesh.htm" title="Lädt ein Gitterobjekt in den Speicher">LoadMesh</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_70.html">Mesh</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

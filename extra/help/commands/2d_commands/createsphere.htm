@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateSphere 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			kugel% = <b>CreateSphere</b> ([segmente%] [, parent%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+segmente%
+</td>
+<td>
+Anzahl der Segmente (Standard=8)
+</td>
+</tr>
+<tr>
+<td width="100">
+parent%
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität der Kugel zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateSphere</b> erstellt ein Kugel-Gitterobjekt und liefert danach die Identität der Kugel zurück.<br /><br />Eine Kugel wird auf der Koordinate 0,0,0 erstellt und hat danach einen Radius von 1.<br /><br />Der optionale Parameter "segment%" gibt die Anzahl der Segmente an. Je höher dieser Wert, desto glatter erscheint das Objekt - allerdings benötigt so ein Objekt mehr Polygone. Der Wert kann nur im Bereich von 2-100 liegen. Dies wird nur im Debug-Modus überprüft. Ein größerer Wert wird bei ausgeschaltetem Debugger aber akzeptiert. Wird ein viel zu großer Wert übergeben, dann kann der Computer sogar abstürzen! Eine Kugel benötigt enorm viele Polygone. Die Polygonanzahl verhält sich exponential zur Segmentanzahl.<br /><br />Berechnung der Polygonanzahl:<br />Polygone=(Segmente*2*(Segmente-1))*2<br /><br />8 Segmente: 224 Polygone - minimale Anzahl der Segmente<br />16 Segmente: 960 Polygone - glatte Kugel (mittlere Entfernung)<br />32 Segmente: 3968 Polygone - glatte Kugel (nahe Entfernung)<br /><br />Wurde der Parameter "parent%" angegeben, dann wird diese Kugel zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br /><br />Die Kugel wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt.<br /><br /><img src="../../images/gfx_kugel.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="WireFrame.htm"><b>WireFrame</b></a> 1<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(2)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> light, 0, 10, 10<br /><br />sphere1 = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(8)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> sphere1, 30, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sphere1, - 2, 0, 5<br /><br />sphere2 = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(16)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> sphere2, 30, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sphere2, 2, 0, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateCone.htm" title="Erstellt einen neuen Kegel">CreateCone</a>, <a href="CreateCube.htm" title="Erstellt einen neuen Würfel">CreateCube</a>, <a href="CreateCylinder.htm" title="Erstellt einen neuen Zylinder">CreateCylinder</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_70.html">Mesh</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

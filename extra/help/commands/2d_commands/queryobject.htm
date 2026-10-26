@@ -1,0 +1,112 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		QueryObject 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			handle = <b>QueryObject</b> (objekt, art) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+objekt
+</td>
+<td>
+Identität eines Objekts/Gadgets
+</td>
+</tr>
+<tr>
+<td width="100">
+art
+</td>
+<td>
+1=Win32 HWND (für Gadgets)<br />2=Win32 Client HWND (für Parent)<br />3=Win32 HFONT (für Font)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Liefert Windows-Handle zurück 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>QueryObject</b> liefert Windows-Handle (platformspezifisch) eines Objekts zurück. Handle-Nummer wird aus Objekt-Handle (platformneutral) und Art-Nummer ermittelt. Windows-Handle wird oft für WinApi-Funktionen benötigt (bei Benutzung von Userlibs).<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>( "My Window", 0, 0, 640, 480 )<br />hwnd = <a href="QueryObject.htm"><b>QueryObject</b></a>( window, 1 )<br /><a href="Notify.htm"><b>Notify</b></a> "Win32 HWND=" + <a href="Hex.htm"><b>Hex</b></a>$(hwnd) 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_80.html">Gadget</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CopyStream 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CopyStream</b> quelle, ziel [, buffer] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+quelle
+</td>
+<td>
+Quell-Identität des Streams
+</td>
+</tr>
+<tr>
+<td width="100">
+ziel
+</td>
+<td>
+Ziel-Identität des Streams
+</td>
+</tr>
+<tr>
+<td width="100">
+buffer
+</td>
+<td>
+Buffergröße in Byte (Standard = 16384)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann man Daten von einem Stream zum anderen kopieren. Das Ganze funktioniert nur mit Netzwerk-Streams. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel schickt allen über Port 8080 eingehenden Verbindungen den Streaminhalt eines anderen Streams:<br />
+			<div class="syntax-code">
+				server = <a href="CreateTCPServer.htm"><b>CreateTCPServer</b></a>(8080)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;stream_in = <a href="AcceptTCPStream.htm"><b>AcceptTCPStream</b></a>(server)<br /><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a>  stream_in <> 0 <a href="And.htm"><b>And</b></a> <a href="ReadAvail.htm"><b>ReadAvail</b></a>(stream_in) <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;stream_out = <a href="OpenTCPStream.htm"><b>OpenTCPStream</b></a>("123.123.123.123", 80)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> stream_out <> 0 <a href="Then.htm"><b>Then</b></a> <a href="RuntimeError.htm"><b>RuntimeError</b></a>("Verbindung konnte nicht hergestellt werden")<br /><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="While.htm"><b>While</b></a> <a href="ReadAvail.htm"><b>ReadAvail</b></a>(stream_in)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="CopyStream.htm"><b>CopyStream</b></a>(stream_in, stream_out)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Wend.htm"><b>Wend</b></a><br /><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="CloseTCPStream.htm"><b>CloseTCPStream</b></a> stream_out<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="CloseTCPStream.htm"><b>CloseTCPStream</b></a>  stream_in<br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br /><br />&nbsp; &nbsp;<a href="Delay.htm"><b>Delay</b></a> 10<br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_17.html">Allgemein</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

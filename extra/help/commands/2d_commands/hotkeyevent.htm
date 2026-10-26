@@ -1,0 +1,166 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		HotKeyEvent 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>HotKeyEvent</b> scancode, steuerung, id [,data] [,x] [,y] [,z] [,source] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+scancode
+</td>
+<td>
+Tastatur-Scancode
+</td>
+</tr>
+<tr>
+<td width="100">
+steuerung
+</td>
+<td>
++1=Shift<br />+2=Strg<br />+4=Alt
+</td>
+</tr>
+<tr>
+<td width="100">
+id
+</td>
+<td>
+EventID, das generiert werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+data
+</td>
+<td>
+EventData, das generiert werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+x
+</td>
+<td>
+EventX, das generiert werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+EventY, das generiert werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+z
+</td>
+<td>
+EventZ, das generiert werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+source
+</td>
+<td>
+EventSource, das generiert werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>HotKeyEvent</b> generiert ein Event, wenn eine bestimmte Tastenkombination gedrückt wird. Notwendige Parameter sind Scancode, Steuerung (Sondertasten) und ID (<a href="EventID.htm"><b>EventID</b><img src="../../html/images/quicklink.gif" /></a>). Optionale Parameter können angegeben werden - diese können dann mit <a href="EventData.htm"><b>EventData</b><img src="../../html/images/quicklink.gif" /></a>, <a href="EventSource.htm"><b>EventSource</b><img src="../../html/images/quicklink.gif" /></a>, <a href="EventX.htm"><b>EventX</b><img src="../../html/images/quicklink.gif" /></a>, <a href="EventY.htm"><b>EventY</b><img src="../../html/images/quicklink.gif" /></a>, <a href="EventZ.htm"><b>EventZ</b><img src="../../html/images/quicklink.gif" /></a> ausgelesen werden.<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>( "", 0, 0, 640, 480 )<br />file_menu = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("File", 0, <a href="WindowMenu.htm"><b>WindowMenu</b></a>(window))<br />open_menu = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Open", 1, file_menu)<br /><a href="UpdateWindowMenu.htm"><b>UpdateWindowMenu</b></a> window<br /><br /><a href="HotKeyEvent.htm"><b>HotKeyEvent</b></a> 59, 0, $1001, 1<br /><a href="HotKeyEvent.htm"><b>HotKeyEvent</b></a> 1, 0, $803, 0, 0, 0, 0, window<br /><br /><a href="Notify.htm"><b>Notify</b></a> "ESC TO close window, F1 TO SELECT File/Open menu"<br /><br /><a href="While.htm"><b>While</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>()<>$803<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="EventID.htm"><b>EventID</b></a>() = $1001 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="EventData.htm"><b>EventData</b></a>() = 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Notify.htm"><b>Notify</b></a> "File/Open selected!"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="EventID.htm" title="liefert den letzten Event-Code zurück">EventID</a>, <a href="EventSource.htm" title="liefert das Handle eines Objekts zurück">EventSource</a>, <a href="EventX.htm" title="liefert die X-Koordinate nach dem Event $203, $801 oder $802">EventX</a>, <a href="EventData.htm" title="liefert mehr Informationen zu einem erfolgten Event">EventData</a>, <a href="EventY.htm" title="liefert die Y-Koordinate nach dem Event $203, $801 oder $802">EventY</a>, <a href="EventZ.htm" title="liefert die Z-Koordinate nach dem Event $203, $801 oder $802">EventZ</a>, <a href="FlushEvents.htm" title="löscht alle Events eines Types">FlushEvents</a>, <a href="PeekEvent.htm" title="prüft ob ein Event verfügbar ist">PeekEvent</a>, <a href="WaitEvent.htm" title="liefert die Identität des Events zurück (Eventart)">WaitEvent</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_82.html">Event</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		BackBuffer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Id = <b>BackBuffer</b>() 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Wert, der die Identität angibt 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion liefert einen Zahlenwert, der die Identität des Grafikbuffers angibt. In BlitzBasic gibt es nur zwei Bildschirmbuffer - das sichtbare <a href="Frontbuffer.htm"><b>Frontbuffer</b><img src="../../html/images/quicklink.gif" /></a> und das unsichtbare Backbuffer<br /><br />Der ermittelte Wert kann mit vielen weiteren Befehlen verwendet werden. Wird es z.B. mit <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a> verwendet, so erfolgt die Grafikausgabe zuerst auf einer unsichtbaren Bildschirmseite. Erst nach dem <a href="Flip.htm"><b>Flip</b><img src="../../html/images/quicklink.gif" /></a>-Befehl wird die Grafik dann sichtbar. Dies ist besonders bei Spielen praktisch, ja sogar notwendig, um eine ruhige und ruckelfreie Grafik zu erstellen. Diese Methode nennt man Pageflipping.<br /><br /><img src="../../images/gfx_pageflipping1.gif" /><br /><br /><div class="caution">Wird ein Grafikfenster nicht im Vollbild angezeigt, so übernimmt Windows das Pageflipping der Grafik von <b>BackBuffer</b> (siehe <a href="Flip.htm"><b>Flip</b><img src="../../html/images/quicklink.gif" /></a>).<br />&nbsp;</div><br /><div class="caution">Die Bildschirmseiten werden nicht einfach kopiert, sondern vertauscht. Um den unschönen Flimmereffekt zu verhindern, muss man das Bild immer komplett neuzeichnen.<br />&nbsp;</div><br /><div class="caution">Bei Pageflipping kann es zu unterschiedlichen Programmgeschwindigkeiten kommen. Man kann es so erklären: Stell dir vor du hast einen Monitor, der 100x pro Sekunde das Bild aufbaut. Dein neuer PC schafft sogar wahnsinnige 200 Bilder pro Sekunde. Aber dein uralter Rechner kann nur 50 Bilder liefern. So, nun wird das Spiel auf dem schnellen PC 100x aufgebaut (Bildschirmgrenze), auf dem alten aber nur 50x !!! Um eine gleiche Geschwindigkeit zu erzeugen, muss man die Framerate runterdrosseln, die auch ein langsamer Rechner noch vernünftig schafft. Benutze dafür den Befehl <a href="CreateTimer.htm"><b>CreateTimer</b><img src="../../html/images/quicklink.gif" /></a>. Danach muss man die Objekte mit einer neuen Geschwindigkeit bewegen lassen.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm zeichnet eine Linie auf Backbuffer, welche aber unsichtbar bleibt. Dann wird Frontbuffer aktiviert und ein Oval gezeichnet - es wird sofort sichtbar:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 0, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="Line.htm"><b>Line</b></a> 0, 0, 639, 349<br /><a href="Waitkey.htm"><b>Waitkey</b></a>()<br /><a href="Setbuffer.htm"><b>Setbuffer</b></a> <a href="FrontBuffer.htm"><b>FrontBuffer</b></a>()<br /><a href="Oval.htm"><b>Oval</b></a> 100, 100, 50, 50<br /><a href="Waitkey.htm"><b>Waitkey</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Graphics3D.htm" title="Initialisiert die 3D Grafik">Graphics3D</a>, <a href="LoadBuffer.htm" title="Lädt eine Grafik in einen Grafikbuffer">LoadBuffer</a>, <a href="SetBuffer.htm" title="Setzt den Buffer für die Grafikausgabe">SetBuffer</a>, <a href="SaveBuffer.htm" title="Speichert einen Grafikbuffer als Bitmap">SaveBuffer</a>, <a href="Flip.htm" title="Tauscht die Bufferinhalte des Front- und Backbuffers">Flip</a>, <a href="ImageBuffer.htm" title="Ermittelt die Identität eines Buffers eines Bildes">ImageBuffer</a>, <a href="FrontBuffer.htm" title="Liefert die ID des Buffers">FrontBuffer</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

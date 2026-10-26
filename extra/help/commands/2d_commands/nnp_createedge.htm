@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		NNP_CreateEdge 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>NNP_CreateEdge</b>.TEdge( Parent.TEntity, V1.TVertex, V2.TVertex [, CollisionEdge] [, Force#] ) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Parent.TEntity
+</td>
+<td>
+Das Entity, in dem die Edge erstellt werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+V1.TVertex
+</td>
+<td>
+Der Anfangspunkt der Edge
+</td>
+</tr>
+<tr>
+<td width="100">
+V2.TVertex
+</td>
+<td>
+Der Endpunkt der Edge
+</td>
+</tr>
+<tr>
+<td width="100">
+CollisionEdge
+</td>
+<td>
+Ob die Edge für die Kollisionsberechnung überprüft werden soll (True oder False, Standard=True)
+</td>
+</tr>
+<tr>
+<td width="100">
+Force#
+</td>
+<td>
+Federstärke der Edge (0-1, Standard=1)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Die erstellte Edge. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl erstellt eine Edge, die die beiden angegebenen Punkte verbindet und fügt sie zum übergebenen Entity hinzu.<br /><br />Mithilfe der Federstärke lässt sich das Verhalten der Edge steuern. Mit einer Federstärke von 0 hat die Edge überhaupt keine Auswirkung, mit einer Federstärke von 1 verhält sich die Edge wie eine starre Stange, welche die beiden Vertices auseinanderhält.<br />Werte dazwischen führen zu verschieden starken Edges, die sich wie Federn verhalten. Damit könnte man beispielsweise einen Gummiball erstellen - die Anwendungen sind vielfältig.<br /><br />Der Parameter <i>CollisionEdge</i> ist dafür gedacht, Performance einzusparen.<br />Bei Edges, die komplett im Objekt sind (wie beispielsweise die Diagonalen von der mit NNP_CreateBox erstellten Box), kann man diesen Parameter auf False setzen. Damit wird die Edge bei der Kollisionsberechnung verworfen und Rechenzeit eingespart.<br />Setzt man aber bei einer Edge, die zur Aussenhülle gehört, den Parameter auf False, so führt dies zu Fehlern - im Zweifelsfalle sollte man ihn also lieber auf True belassen.<br /><br /><div class="caution">Ist die Anzahl Edges grösser als die durch NNP_CreatePhysics festgelegte maximale Anzahl, so wird keine neue Edge erstellt, um einen Absturz zu vermeiden, und die Funktion liefert Null zurück.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_12.html">NooNooPhysics</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_85.html">Objekterstellung</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

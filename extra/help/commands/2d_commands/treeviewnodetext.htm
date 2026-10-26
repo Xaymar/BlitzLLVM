@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TreeViewNodeText 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Text $ = <b>TreeViewNodeText</b>$(node) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+node
+</td>
+<td>
+Identität eines TreeViewNodes (durch <a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b><img src="../../html/images/quicklink.gif" /></a> erstellt)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Die Bezeichnung eines Zweiges 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Liefert den zum TreeViewNode gehörende Bezeichnung zurück. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 50, 50, 300, 300, 0)<br />treeview = <a href="CreateTreeView.htm"><b>CreateTreeView</b></a>(10, 10, 270, 200, window)<br />node1 = <a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Posteingang", <a href="TreeViewRoot.htm"><b>TreeViewRoot</b></a>(treeview))<br />node2 = <a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Postausgang", <a href="TreeViewRoot.htm"><b>TreeViewRoot</b></a>(treeview))<br />node3 = <a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Papierkorb", <a href="TreeViewRoot.htm"><b>TreeViewRoot</b></a>(treeview))<br /><br /><a href="Notify.htm"><b>Notify</b></a> <a href="TreeViewNodeText.htm"><b>TreeViewNodeText</b></a>(node2)  
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AddTreeViewNode.htm" title="Die Funktion fügt einen neuen Zweig in ein Treeview-Objekt ein.">AddTreeViewNode</a>, <a href="InsertTreeViewNode.htm" title="InsertTreeViewNode fügt einen Eintrag an beliebige Position in ein Treeview-Objekt ein">InsertTreeViewNode</a>, <a href="ModifyTreeViewNode.htm" title="ModifyTreeViewNode ändert die Bezeichnung eines Treeview-Zweiges">ModifyTreeViewNode</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_46.html">Treeview</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

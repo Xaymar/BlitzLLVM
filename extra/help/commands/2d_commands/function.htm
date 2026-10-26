@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Function 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Function</b> name (variable, variable ...) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+name
+</td>
+<td>
+Beliebiger Name für das Unterprogramm
+</td>
+</tr>
+<tr>
+<td width="100">
+variable
+</td>
+<td>
+Beliebige Variablen um Werte an das Unterprogramm zu übergeben
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Mit Hilfe des Befehls <a href="Return.htm"><b>Return</b><img src="../../html/images/quicklink.gif" /></a> kann ein Wert zurückgeliefert werden<br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung definiert ein eigenständiges, vom Hauptprogramm unabhängiges Unterprogramm. Eine Funktion muss mit <a href="End Function.htm"><b>End Function</b><img src="../../html/images/quicklink.gif" /></a> abgeschlossen werden. Funktionen sind komfortabler als <a href="Gosub.htm"><b>Gosub</b><img src="../../html/images/quicklink.gif" /></a> <a href="Return.htm"><b>Return</b><img src="../../html/images/quicklink.gif" /></a>. Dazu kann man an die Funktion Werte übergeben und ein Wert empfangen (siehe <a href="Return.htm"><b>Return</b><img src="../../html/images/quicklink.gif" /></a>).<br /><br />Von einem Unterprogramm kann man nicht auf die Hauptprogramm-Variablen und Sprungmarken zugreifen. Um dennoch Variablen zu erstellen, die auch in Unterprogrammen lesbar bleiben, muss der Befehl <a href="Global.htm"><b>Global</b><img src="../../html/images/quicklink.gif" /></a> benutzt werden. Felder, die mit <a href="Dim.htm"><b>Dim</b><img src="../../html/images/quicklink.gif" /></a> definiert werden, sind automatisch global. Die können aber nur nicht in einem Unterprogramm erstellt werden.<br /><br /><div class="hint">Mit <a href="Return.htm"><b>Return</b><img src="../../html/images/quicklink.gif" /></a> kann ein Wert zurückgeliefert werden. Soll ein Integerwert übergeben werden, so kann man ein % Zeichen am Ende der Funktionbezeichnung einfügen (man kann es aber auch ganz weglassen). Soll ein Floatwert übergeben werden, dann muss man # Zeichen angeben. Für einen Stringwert muss man ein $ Zeichen verwenden.<br />&nbsp;</div><br /><br /><div class="hint">Mit diesem Befehl lassen sich auch optionale Parameter definieren. Diese Parameter müssen dann nicht angegeben werden. Wird es weggelassen, so übergibt BlitzBasic einen vorher eingestellten Wert. In diesem Beispiel ist "d" ein optionaler Parameter, mit voreingestelltem Wert "100". Beispiel: <a href="Function.htm"><b>Function</b><img src="../../html/images/quicklink.gif" /></a> Test (a, b, c, d=100)<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zeigt die Verwendung einer Funktion:<br />
+			<div class="syntax-code">
+				<a href="Print.htm"><b>Print</b></a> Rechnen (15, 3)<br /><br /><a href="End.htm"><b>End</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> Rechnen (zahl1, zahl2)<br /><br />&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> zahl1*zahl2<br /><br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="End Function.htm" title="Kennzeichnet das Ende eines Unterprogramms">End Function</a>, <a href="Gosub.htm" title="Erzwingt Programmspung mit &quot;Return&quot;">Gosub</a>, <a href="Goto.htm" title="Erzwingt Programmsprung ohne &quot;Return&quot;">Goto</a>, <a href="Return.htm" title="Wird zusammen mit &quot;Gosub&quot; oder &quot;Function&quot; verwendet">Return</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_27.html">Programmstruktur</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

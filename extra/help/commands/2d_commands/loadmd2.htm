@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LoadMD2 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			md2% = <b>LoadMD2</b> (datei$ [, parent%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+datei%
+</td>
+<td>
+Dateiname des MD2-Modells (*.MD2)
+</td>
+</tr>
+<tr>
+<td width="100">
+parent%
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll (optional)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des MD2-Objekts wird zurückgeliefert. Falls eine Null zurückgeliefert wird, dann wurde die Datei nicht gefunden. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>LoadMD2</b> lädt ein MD2-Modell und liefert danach die Identität des Objekts zurück.<br /><br />MD2-Modelle haben ihre eigene Animations-Befehle, darum kann man auf diese Modelle die normalen Befehle nicht anwenden.<br /><br />Die Textur muss separat geladen werden. Nach dem Laden muss man das Modell damit texturieren - andernfalls bleibt dieses Objekt ohne Textur.<br /><br />Wurde der Parameter "parent%" angegeben, dann wird dieses Modell zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br /><br />Dieses Objekt wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />gargoyle = <a href="LoadMD2.htm"><b>LoadMD2</b></a>("media/gargoyle/gargoyle.md2")<br />garg_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/gargoyle/gargoyle.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> gargoyle, garg_tex<br /><br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> gargoyle, 0, - 45, 100<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> gargoyle, 0, 180, 0<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AnimateMD2.htm" title="Ändert die Animationsart eines MD2-Objekts">AnimateMD2</a>, <a href="MD2Animating.htm" title="Ermittelt, ob ein MD2-Objekt gerade animiert wird">MD2Animating</a>, <a href="MD2AnimLength.htm" title="Ermittelt aktuelle, relative Animationszeit eines MD2-Objekts">MD2AnimLength</a>, <a href="MD2AnimTime.htm" title="Ermittelt aktuelle Animationszeit eines MD2-Objekts">MD2AnimTime</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_65.html">MD2-Meshs</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

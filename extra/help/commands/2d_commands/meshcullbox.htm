@@ -1,0 +1,152 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		MeshCullBox 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>MeshCullBox</b> mesh, x#, y#, z#, breite#, höhe#, tiefe# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+mesh
+</td>
+<td>
+das Objekt für das die Box gelten soll
+</td>
+</tr>
+<tr>
+<td width="100">
+x
+</td>
+<td>
+x Koordinate der Box
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+y Koordinate der Box
+</td>
+</tr>
+<tr>
+<td width="100">
+z
+</td>
+<td>
+z Koordinate der Box
+</td>
+</tr>
+<tr>
+<td width="100">
+breite
+</td>
+<td>
+Breite der Box
+</td>
+</tr>
+<tr>
+<td width="100">
+höhe
+</td>
+<td>
+höhe der Box
+</td>
+</tr>
+<tr>
+<td width="100">
+tiefe
+</td>
+<td>
+tiefe der Box
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			MeshCullBox erstellt eine Box für ein festgelegtes Objekt. Dadurch ist es möglich die Grenze, ab der das bestimmte Objekt gerendert werden soll, zu verändern. (mesh culling)<br />Dies ist z.B. wichtig bei Bone animierten Objekten, denn bei diesen wird die Box auf Basis von Frame 0 gemacht, wenn aber diese Pose zb eine stehende Figur mit herunterhängenden Armen ist, wird es sehr häufig zu Fehlern kommen denn der ausgestreckte Arm hätte dann keinen Einfluss auf das Renderverhalten was dazu führt das die Figur häufig gar nicht da ist und dann auf einmal der Arm "mitten im Bild" erscheinen kann. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Demonstriert die Verwendung von MeshCullBox<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />box = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> box, 0, 0, 5<br /><a href="EntityAlpha.htm"><b>EntityAlpha</b></a> box, 0.5<br />box_cull = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> box_cull, 0, 0, 5<br /><a href="EntityAlpha.htm"><b>EntityAlpha</b></a> box_cull, 0.5<br /><a href="EntityColor.htm"><b>EntityColor</b></a> box_cull, 255, 100, 100<br />scale# = 1<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />   <a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> box, 0.1, 0, 0 : <a href="MoveEntity.htm"><b>MoveEntity</b></a> box_cull, 0.1, 0, 0<br />   <a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> box, -0.1, 0, 0 : <a href="MoveEntity.htm"><b>MoveEntity</b></a> box_cull, -0.1, 0, 0<br />   <a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> box, 0, 0.1, 0 : <a href="MoveEntity.htm"><b>MoveEntity</b></a> box_cull, 0, 0.1, 0<br />   <a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> box, 0, -0.1, 0 : <a href="MoveEntity.htm"><b>MoveEntity</b></a> box_cull, 0, -0.1, 0<br />   <a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = 1 <a href="Then.htm"><b>Then</b></a> scale# = scale# - 0.1<br />   <a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(30) = 1 <a href="Then.htm"><b>Then</b></a> scale# = scale# + 0.1<br />   <a href="ScaleEntity.htm"><b>ScaleEntity</b></a> box_cull, scale#, scale#, scale#<br />   <a href="MeshCullBox.htm"><b>MeshCullBox</b></a> box, <a href="EntityX.htm"><b>EntityX</b></a>(box), <a href="EntityY.htm"><b>EntityY</b></a>(box), <a href="EntityZ.htm"><b>EntityZ</b></a>(box), scale#, scale#, scale#<br />   <a href="RenderWorld.htm"><b>RenderWorld</b></a><br />   <a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Cursortasten/A/Z"<br />   <a href="Text.htm"><b>Text</b></a> 0, 20, "CullBox Scale: " + scale#<br />   <a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_70.html">Mesh</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

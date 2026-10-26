@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ATan 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Winkel# = <b>ATan</b> (Zahl1#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Zahl1#
+</td>
+<td>
+Beliebige Floatzahl
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Winkel eines Tangenswertes in Grad. Die Grafik zeigt den Zusammenhang zwischen Winkel und Tangens-Wert.<br /><img src="../../images/gfx_tangenskurve.gif" /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion berechnet den Winkel aus einem Tangenswert. Es ist somit die Umkehrfunktion für Tangens. Mathematiker nennen es Arcustangens.<br /><br />Man kann den Tangenswert ausrechnen, indem man die Gegenkathete eines rechtwinkligen Dreiecks durch die Ankathete teilt. Kotangens rechnet man aus, indem man die Ankathete durch die Gegenkathete teil. Aus diesem Wert wird danach der Winkel berechnet.<br /><br />Zur Erklärung: Gegenkathete ist die Seite des Dreiecks, die gegenüber dem gesuchten Winkel liegt. Ankathete ist dagegen neben dem Winkel.<br /><br /><img src="../../images/gfx_dreieck.gif" /><br /><br />Allerdings sind nicht alle Winkel im Umkreis von 0 bis 360° möglich. Erst durch logische und mathematische Überlegungen ist es trotzdem möglich. Um sich diesen Vorgang zu ersparen gibt es in BlitzBasic die Funktion <a href="ATan2.htm"><b>ATan2</b><img src="../../html/images/quicklink.gif" /></a>. <br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Demonstiert die Verwendung von ATan<br />
+			<div class="syntax-code">
+				<a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />x=0<br />y=0<br />xSpeed#=<a href="Rand.htm"><b>Rand</b></a>(3)<br />ySpeed#=<a href="Rand.htm"><b>Rand</b></a>(3)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1) <a href="O.htm"><b>O</b></a>r y>480 <a href="Or.htm"><b>Or</b></a> x>640<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> x,y,10,10,1<br />&nbsp; &nbsp;x=x+xSpeed<br />&nbsp; &nbsp;y=y+yspeed<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0,0,<a href="ATan.htm"><b>ATan</b></a>(yspeed/xspeed)<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ACos.htm" title="ACos liefert den Winkel in Grad aus einem Cosinuswert">ACos</a>, <a href="ASin.htm" title="ASin liefert den Winkel eines Sinuswertes">ASin</a>, <a href="ATan2.htm" title="ATan2 berechnet den Winkel aus X- und Y-Längen">ATan2</a>, <a href="Cos.htm" title="Cos liefert den Cosinuswert eines Winkels">Cos</a>, <a href="Sin.htm" title="Berechnet den Sinuswert eines Winkels">Sin</a>, <a href="Tan.htm" title="Berechnet den Tangenswert aus einem Winkel">Tan</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_5.html">Mathematik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

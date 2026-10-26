@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EntityShininess 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>EntityShininess</b> entity%, glanz# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+glanz#
+</td>
+<td>
+Reflektierender Glanz 0.0-1.0 (Standard=0.0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann man reflektierenden Glanz einem Objekt zuweisen.<br /><br />Der Wert Glanz sollte nur im Bereich von 0.0 bis 1.0 liegen. Der Standardwert ist 0.<br /><br />Damit kann man einstellen, wie stark die Reflexion aussehen soll, wenn die Seite einer Fläche zur Lichtquelle zeigt.<br /><br />Beispiel:<br />Wird einer Kugel (sphere) der Wert 1 zugewiesen, so erscheint es wie eine Billardkugel, wenn das Licht aus richtiger Richtung fällt.<br /><br /><img src="../../images/gfx_glanz.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cube1 = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityShininess.htm"><b>EntityShininess</b></a> cube1, 1<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube1, 100, 100, 255<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube1, - 2, 0, 5<br /><br />cube2 = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube2, 255, 100, 100<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube2, 2, 0, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube1, 1, 1, 1<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube2, 1, 1, 1<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="EntityAlpha.htm" title="Ändert den Alphawert eines 3D-Objekts">EntityAlpha</a>, <a href="EntityBlend.htm" title="Setzt einen anderen Zeichenmodus für ein 3D-Objekt">EntityBlend</a>, <a href="EntityColor.htm" title="Ändert Farbe eines 3D-Objekts">EntityColor</a>, <a href="EntityFX.htm" title="Weist einem 3D-Objekt bestimmte Effekte zu">EntityFX</a>, <a href="EntityTexture.htm" title="Weist einem 3D-Objekt eine Textur zu">EntityTexture</a>, <a href="BrushShininess.htm" title="Weist einem Pinsel einen Glanzwert zu">BrushShininess</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_68.html">Kontrolle</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

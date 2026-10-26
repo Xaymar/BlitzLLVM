@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SaveImage 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert = <b>SaveImage</b> (Bild, Datei$ [,Frame]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Bild
+</td>
+<td>
+Identität eines Bildes (z.B. ermittelt mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a>
+</td>
+</tr>
+<tr>
+<td width="100">
+Datei$
+</td>
+<td>
+Beliebiger Dateiname mit .bmp am Ende
+</td>
+</tr>
+<tr>
+<td width="100">
+Frame
+</td>
+<td>
+Frame für Animationsbild (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 = Bild konnte nicht abgespeichert werden<br />1 = Bild wurde abgespeichert 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl speichert ein Bild, welches vorher geladen bzw. erstellt wurde. Das Bild kann nur als 24-Bit BMP-Datei abgespeichert werden.<br /><br />Für "Name" wird die Identität angegeben, die z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt wurde. "Frame"-Parameter ist Optional und wird für Animationsbilder benutzt. Ein Animationsbild fängt mit 0 an.<br /><div class="hint">Dieser Befehl ist nicht dazu gedacht, ein Monitorbild abzuspeichern. Benutze dafür einen ähnlichen Befehl: <a href="SaveBuffer.htm"><b>SaveBuffer</b><img src="../../html/images/quicklink.gif" /></a>.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm lädt ein Bild und speichert es in einer Datei ab. Danach erscheint eine Meldung:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 800, 600, 16<br />gfxBall = <a href="LoadImage.htm"><b>LoadImage</b></a>("ball.bmp")<br />ok = <a href="SaveImage.htm"><b>SaveImage</b></a> (gfxBall, "c:\newball.bmp")<br /><a href="If.htm"><b>If</b></a> ok = 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "gespeichert"<br /><a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "nicht gespeichert"<br /><a href="EndIf.htm"><b>EndIf</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a>() 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="GrabImage.htm" title="Kopiert Ausschnitt auf Grafikbuffer in ein Bild">GrabImage</a>, <a href="SaveBuffer.htm" title="Speichert einen Grafikbuffer als Bitmap">SaveBuffer</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

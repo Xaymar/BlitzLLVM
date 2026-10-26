@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		RSet 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			neu$ = <b>RSet</b>$ (text$, anzahl) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+text$
+</td>
+<td>
+beliebiger Text, der geändert werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+anzahl
+</td>
+<td>
+neue Zeichenanzahl
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			String mit übergebener Anzahl von Zeichen 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Stringfunktion ändert die Zeichenanzahl eines Textes. Hat ein Text zu wenig Zeichen, so werden einfach vor dem Text einige Leerzeichen hinzugefügt - somit hat ein Text dann genau die voreingestellte Zeichenanzahl. Ist ein Text dagegen zu lang, so wird der rechtsbündig zurechtgeschnitten. Beachte, dass der Text immer rechtsbündig zurückgeliefert wird! 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel manipuliert die Leerzeichen eines Strings:<br />
+			<div class="syntax-code">
+				txt$ = "Größtenteils harmlos."<br /><br />;Leerzeichen hinten anfügen, bis String 30 Zeichen hat<br />txt$ = <a href="LSet.htm"><b>LSet</b></a>(txt$,30)<br /><a href="Print.htm"><b>Print</b></a> "_" + txt$ + "_"<br /><br />;Leerzeichen vorne anfügen, bis String 50 Zeichen hat (also 20 Leerzeichen)<br />txt$ = <a href="RSet.htm"><b>RSet</b></a>(txt$,50)<br /><a href="Print.htm"><b>Print</b></a> "_" + txt$ + "_"<br /><br />;alle Leerzeichen mit einem Befehl wieder entfernen<br />txt$ = <a href="Trim.htm"><b>Trim</b></a>(txt$)<br /><a href="Print.htm"><b>Print</b></a> "_" + txt$ + "_" 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="LSet.htm" title="Schneidet einen String linksbündig zurecht">LSet</a>, <a href="Trim.htm" title="Entfernt führende und folgende Leerzeichen eines Textes">Trim</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_21.html">Zeichenketten</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

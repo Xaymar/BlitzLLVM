@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TCPStreamIP 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			IP = <b>TCPStreamIP</b> (Stream) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Stream
+</td>
+<td>
+Identität des TCP/IP-Streams
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird eine Integer-IP-Adresse zurückgeliefert. Benutze <a href="DottedIP.htm"><b>DottedIP</b><img src="../../html/images/quicklink.gif" /></a>, um daraus die normale IP-Adresse zu ermitteln. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt die IP-Adresse eines TCP/IP-Streams. Zurückgeliefert wird ein Integerwert. Mit <a href="DottedIP.htm"><b>DottedIP</b><img src="../../html/images/quicklink.gif" /></a> kann es in eine normale IP-Adresse umgewandelt werden. Die IP-Adresse ist immer von der Client-Maschine. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				stream = OpenTCPStream("http://www.blitzbasic.ch",80)<br />stream_ip = TCPStreamIP( stream )<br />dotted_ip$ = DottedIP( stream_ip )<br />stream_port = TCPStreamPort( stream )<br /><br />Print stream_ip<br />Print dotted_ip<br />Print stream_port<br /><br />WaitKey()<br />CloseTCPStream(stream)<br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="TCPStreamPort.htm" title="Ermittelt den Client-Port eines Streams">TCPStreamPort</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_2.html">TCP</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

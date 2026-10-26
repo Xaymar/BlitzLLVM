@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GfxModeFormat 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert = <b>GfxModeFormat</b> (modus) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+modus
+</td>
+<td>
+Bildschirmmodus (ab 1). Die maximale Anzahl der Bildschirmmodi kann mit <a href="CountGfxModes.htm"><b>CountGfxModes</b><img src="../../html/images/quicklink.gif" /></a> ermittelt werden
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			1	=	16 Bit RGB (5 Bit R, 6 Bit G, 5 Bit B)<br />2	=	16 Bit RGB (5 Bit R, 5 Bit G, 5 Bit B, 1 Bit ungenutzt)<br />3	=	24 Bit RGB (8 Bit R, 8 Bit G, 8 Bit B)<br />4	=	32 Bit RGB (8 Bit R, 8 Bit G, 8 Bit B, 8 Bit ungenutzt) 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt die Farbtiefe eines Bildschirmmodi. Ein PC unterstützt eine Vielzahl an Auflösungen. Mit <a href="CountGfxModes.htm"><b>CountGfxModes</b><img src="../../html/images/quicklink.gif" /></a> wird die Anzahl der möglichen Auflösungen ermittelt.<br /><br />Anders als <a href="GfxModeDepth.htm"><b>GfxModeDepth</b><img src="../../html/images/quicklink.gif" /></a> gibt diese Funktion die Farbtiefe als Codenummer zurück (nützlich für Pixelbefehle).<br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Dies ist ein undokumentierter Befehl. Sollte dieser Befehl wieder offiziell entfernt werden, wären Programme zu allen zukünftigen Updates nicht mehr kompatibel und müssten umgeschrieben werden. Die Anwendung ist daher auf eigenes Risiko.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Zeigt alle Bildschirmmodi an:<br />
+			<div class="syntax-code">
+				anz = <a href="CountGfxModes.htm"><b>CountGfxModes</b></a> ()<br /><a href="Print.htm"><b>Print</b></a> "Anzahl der Bildschirmmodi: "+anz<br /><br /><a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> anz<br /><br />&nbsp; &nbsp;txt$="["+<a href="Str.htm"><b>Str</b></a>$(i)+"] "<br />&nbsp; &nbsp;txt$=txt$+<a href="Str.htm"><b>Str</b></a>$(<a href="GfxModeWidth.htm"><b>GfxModeWidth</b></a>(i)) +"x"<br />&nbsp; &nbsp;txt$=txt$+<a href="Str.htm"><b>Str</b></a>$(<a href="GfxModeHeight.htm"><b>GfxModeHeight</b></a> (i)) +"x"<br />&nbsp; &nbsp;txt$=txt$+<a href="Str.htm"><b>Str</b></a>$(<a href="GfxModeDepth.htm"><b>GfxModeDepth</b></a> (i)) +" ("<br />&nbsp; &nbsp;txt$=txt$+<a href="Str.htm"><b>Str</b></a>$(<a href="GfxModeFormat.htm"><b>GfxModeFormat</b></a> (i)) +")"<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> txt$<br /><br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CountGfxModes.htm" title="Ermittelt Anzahl der Grafikmodi">CountGfxModes</a>, <a href="GfxModeDepth.htm" title="Ermittelt die Farbtiefe eines Bildschirmmodi">GfxModeDepth</a>, <a href="GfxModeExists.htm" title="Prüft einen bestimmter Grafikmodus">GfxModeExists</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_1.html">Anzeige</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CountTriangles 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			anzahl% = <b>CountTriangles</b> (surface%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+surface%
+</td>
+<td>
+Identität einer Oberfläche (surface)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Anzahl der Dreiecke (triangles) 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>CountTriangles</b> ermittelt die Anzahl der Dreiecke (triangles), die eine Oberfläche (surface) enthält.<br /><br />Dreiecke sind Teile einer Oberfläche. Eine Oberfläche ist dagegen Teil eines Gitterobjekts. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cone = <a href="CreateCone.htm"><b>CreateCone</b></a>(16)<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cone, 200, 200, 250<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone, 0, 0, 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cone, 10, 10, 10<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cone, 1, 1, 1<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Surfaces:" + <a href="CountSurfaces.htm"><b>CountSurfaces</b></a>(cone)<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> <a href="CountSurfaces.htm"><b>CountSurfaces</b></a>(cone)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, i * 20, "Dreiecke in Surface " + i + ":" + <a href="CountTriangles.htm"><b>CountTriangles</b></a>(<a href="GetSurface.htm"><b>GetSurface</b></a>(cone, i))<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CountSurfaces.htm" title="Ermittelt die Anzahl der Oberflächen eines Gitterobjekts">CountSurfaces</a>, <a href="CountVertices.htm" title="Ermittelt die Anzahl der Vertexpunkte einer Oberfläche">CountVertices</a>, <a href="CountChildren.htm" title="Ermittelt die Anzahl der Childs eines Objekts">CountChildren</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

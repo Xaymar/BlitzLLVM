@@ -1,0 +1,125 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Delete 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Delete</b> variable[.typename] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+variable
+</td>
+<td>
+Container-Variable der Type Kollektion
+</td>
+</tr>
+<tr>
+<td width="100">
+typename
+</td>
+<td>
+Name der Type Kollektion
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl ist für <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Felder gedacht. Es löscht einen Eintrag aus dem Speicher. Die nachfolgenden Einträge werden dann aufgerückt.<br /><br /><img src="../../images/gfx_type1.gif" /><br /><br /><div class="hint">Man kann auch alle Einträge eines Types mittels <b>Delete</b> <a href="Each.htm"><b>Each</b><img src="../../html/images/quicklink.gif" /></a> Typename löschen.<br />&nbsp;</div><br /><br />Ein <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Feld ist ein dynamisches Feld, welches die Einträge automatisch verwaltet. Die Einträge in <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Feldern kann man nicht sofort ansprechen. Man muss zuerst zum richtigen Eintrag wechseln, und erst dann auslesen oder speichern. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint"><a href="Dim.htm"><b>Dim</b><img src="../../html/images/quicklink.gif" /></a> Felder sind einfacher zu benutzen und sollen bevorzugt angewendet werden.<br />&nbsp;</div><br /> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel speichert 5 Zahlen im Speicher. Dann wird die dritte gelöscht und alle Werte ausgegeben. Wie man sieht ist die Type Handhabung etwas kompliziert:<br />
+			<div class="syntax-code">
+				<a href="Type.htm"><b>Type</b></a> zahl<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> nr$<br /><a href="End Type.htm"><b>End Type</b></a><br /><br /><a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> 5<br />&nbsp; &nbsp;feld.zahl = <a href="New.htm"><b>New</b></a> zahl<br />&nbsp; &nbsp;feld\nr = <a href="Str.htm"><b>Str</b></a>$(i)<br /><a href="Next.htm"><b>Next</b></a><br /><br />feld.zahl = <a href="First.htm"><b>First</b></a> zahl<br />feld = <a href="After.htm"><b>After</b></a> feld<br />feld = <a href="After.htm"><b>After</b></a> feld<br /><a href="Delete.htm"><b>Delete</b></a> feld.zahl<br /><br /><a href="For.htm"><b>For</b></a> feld.zahl = <a href="Each.htm"><b>Each</b></a> zahl<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> feld\nr<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Before.htm" title="Wechselt zum vorherigen Eintrag eines &quot;Types&quot;">Before</a>, <a href="Each.htm" title="Arbeitet alle Einträge eines &quot;Type&quot; Feldes ab">Each</a>, <a href="After.htm" title="Wechselt zum nächsten Eintrag eines &quot;Types&quot;">After</a>, <a href="Dim.htm" title="Diese Anweisung definiert ein &quot;Dim&quot; Feld">Dim</a>, <a href="Field.htm" title="Weist einer &quot;Type&quot; Kollektion eine Eigenschaft zu">Field</a>, <a href="New.htm" title="Fügt einen neuen Eintrag zu einer &quot;Type&quot; Kollektion hinzu">New</a>, <a href="End Type.htm" title="Markiert das Ende einer &quot;Type&quot; Definition">End Type</a>, <a href="Insert.htm" title="Verschiebt einen bereits existierenden &quot;Type&quot; Eintrag">Insert</a>, <a href="First.htm" title="Springt zum ersten Feld eines &quot;Type&quot; Eintrags">First</a>, <a href="Type.htm" title="Definiert ein &quot;Type&quot;">Type</a>, <a href="Last.htm" title="Wechselt zum letzten &quot;Type&quot; Eintrag">Last</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_39.html">Types & Felder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

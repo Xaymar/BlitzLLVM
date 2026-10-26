@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EventX 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			x = <b>EventX</b> () 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			X-Koordinate wird zurückgeliefert 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>EventX</b> liefert die X-Koordinate nach dem Event $203, $801 oder $802. Weitere Anweisungen wie <a href="EventData.htm"><b>EventData</b><img src="../../html/images/quicklink.gif" /></a> (liefert weitere Event-Informationen) und <a href="EventSource.htm"><b>EventSource</b><img src="../../html/images/quicklink.gif" /></a> (liefert Handle des Objekts) vervollständigen diese Funktion. Die untere Tabelle listet alle Events auf:<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 0, 0, 300, 300, 0, 1 + 2 + 8)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $801, $802<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;x = <a href="EventX.htm"><b>EventX</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;y = <a href="EventY.htm"><b>EventY</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, <a href="Str.htm"><b>Str</b></a>$(x) + "x" + <a href="Str.htm"><b>Str</b></a>$(y)<br />&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="EventData.htm" title="liefert mehr Informationen zu einem erfolgten Event">EventData</a>, <a href="EventID.htm" title="liefert den letzten Event-Code zurück">EventID</a>, <a href="EventSource.htm" title="liefert das Handle eines Objekts zurück">EventSource</a>, <a href="EventY.htm" title="liefert die Y-Koordinate nach dem Event $203, $801 oder $802">EventY</a>, <a href="EventZ.htm" title="liefert die Z-Koordinate nach dem Event $203, $801 oder $802">EventZ</a>, <a href="FlushEvents.htm" title="löscht alle Events eines Types">FlushEvents</a>, <a href="PeekEvent.htm" title="prüft ob ein Event verfügbar ist">PeekEvent</a>, <a href="WaitEvent.htm" title="liefert die Identität des Events zurück (Eventart)">WaitEvent</a>, <a href="HotKeyEvent.htm" title="generiert ein Event für eine bestimmte Tastenkombination">HotKeyEvent</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_82.html">Event</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Viewport 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Viewport</b> x, y, breite, höhe 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x
+</td>
+<td>
+Horizontale Startkoordinate
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+Vertikale Startkoordinate
+</td>
+</tr>
+<tr>
+<td width="100">
+breite
+</td>
+<td>
+Horizontale Ausdehnung in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+höhe
+</td>
+<td>
+Vertikale Ausdehnung in Pixel
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit <b>Viewport</b> kann man einen Bereich auf dem Bildschirm eingrenzen in dem Grafiken ausgegeben werden sollen. Die Grafik erscheint nur innerhalb dieses Rechtecks. Sollte eine Grafik über den <b>Viewport</b>-Bereich hinausgehen, so wird die einfach abgeschnitten. Profis nennen das auch 'windowing', 'portaling' oder 'clipping'. Der Grafikbereich außerhalb des <b>Viewport</b>-Bereichs wird dagegen nicht geändert. Dieser Befehl wirkt sich auf den aktuell zum Zeichnen verwendeten Buffer aus. Um <b>Viewport</b> zu deaktivieren, muss man einfach den kompletten Buffer markieren.<br /><br />Für diesen Befehl gibt es Tausende von Anwendungsmöglichkeiten. So kann man z.B. Einen Splitscreen für zwei Spieler bauen, oder auch ein Scrollbereich ist somit realisierbar. Eine weitere Anwendungsmöglichkeit ist das Schützen eines Grafikbereichs. Somit kann man keine Bildschirmbereiche "aus versehen" übermalen.<br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 800, 600<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="Viewport.htm"><b>Viewport</b></a> 100, 100, 200, 200<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />   <a href="Cls.htm"><b>Cls</b></a><br />   <a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> 100<br />      <a href="Color.htm"><b>Color</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255)<br />      <a href="Rect.htm"><b>Rect</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(800), <a href="Rnd.htm"><b>Rnd</b></a>(600), <a href="Rnd.htm"><b>Rnd</b></a>(300), <a href="Rnd.htm"><b>Rnd</b></a>(300),<a href="Rnd.htm"><b>Rnd</b></a>(0,1)<br />   <a href="Next.htm"><b>Next</b></a><br />   <a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Graphics.htm" title="Intialisiert ein 2D-Grafikfenster">Graphics</a>, <a href="Origin.htm" title="Versetzt den Ursprung der Bildkoordinaten">Origin</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

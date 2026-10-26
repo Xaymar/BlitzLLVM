@@ -1,0 +1,136 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		NewVK 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			HANDLE.VK = <b>NewVK</b>.VK (handle, k1_connect, k2_connect, suspension#, attenuation#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+handle
+</td>
+<td>
+Identität einer Textur (siehe dazu <a href="Line3D.htm"><b>Line3D</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+<tr>
+<td width="100">
+k1_connect
+</td>
+<td>
+Start-KP von wo aus eine Verbindung aus geht
+</td>
+</tr>
+<tr>
+<td width="100">
+k2_connect
+</td>
+<td>
+End-KP wohin eine Verbindung hingeht (Vektor)
+</td>
+</tr>
+<tr>
+<td width="100">
+suspension#
+</td>
+<td>
+Federkraft der VK. Ist der Wert = 1, so ist es am härtesten (Wertebereich >= 1)
+</td>
+</tr>
+<tr>
+<td width="100">
+attenuation#
+</td>
+<td>
+Dämpfungskraft der VK. Ist der Wert = 1, so ist es am härtesten (Wertebereich >= 1)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			HANDLE.VK = Die Identität des erstellten VK 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Erstellt eine neue VK (VerKlinkung). Eine VK verbindet zwei KP miteinander. Die Physix -Routine wird dann immer stetts versuchen, den Abstand zwischen beiden einzuhalten. Dadurch entsteht ein vergittertes Objekt mit nahezu korrekten physikalischen Eigenschaften.<br /><br />Bei der Vergabe der Federung und Dämpfung gilt: Sind beide Werte gleich, so ist es recht federlich mit leichter Allgemeindämpfung. Ist ''suspension'' größer als ''attenuation'', so springt das Objekt fast wie ein Flummi durch die gegend. Ist  ''suspension'' kleiner als ''attenuation'', so verhält sich das Objekt eher wie Knete. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Siehe dazu ''Physix, box testing.bb'' 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_8.html">Draw3D</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_83.html">Physix</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ChangeDir 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ChangeDir</b> Pfad$ 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Pfad$
+</td>
+<td>
+String mit einem beliebigen Verzeichnispfad
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung wechselt das aktuelle Verzeichnis. Sollte dieses Verzeichnis nicht existieren, so passiert gar nichts. <b>ChangeDir</b> funktioniert somit genau wie der alte DOS-Befehl CD. Um das aktuelle Verzeichnis zu ermitteln, sollte <a href="CurrentDir.htm"><b>CurrentDir</b><img src="../../html/images/quicklink.gif" /></a> verwendet werden.<br /><br /><div class="hint">Um problemlos in das höhere Verzeichnis zu gelangen, kann man auch ".." eingeben. Sollte das aktuelle Verzeichnis bereits das Root-Verzeichnis sein (z.B. C:), so passiert gar nichts. Auch komplexere Pfadangaben wie "../../grafik" sind möglich!<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Dieses Beispiel überprüft, ob ein Verzeichnis existiert (Ersatz für <a href="FileType.htm"><b>FileType</b></a>):<br /><br /><a href="ChangeDir.htm"><b>ChangeDir</b></a> "C:\Verz"<br /><a href="If.htm"><b>If</b></a> <a href="CurrentDir.htm"><b>CurrentDir</b></a>$() <> "C:\Verz" <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 0, "Verzeichnis nicht gefunden" 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateDir.htm" title="Erstellt ein Verzeichnis">CreateDir</a>, <a href="CurrentDir.htm" title="Pfad des aktuellen Verzeichnisses">CurrentDir</a>, <a href="DeleteDir.htm" title="Löscht ein Verzeichnis">DeleteDir</a>, <a href="ReadDir.htm" title="Öffnet ein Verzeichnis">ReadDir</a>, <a href="CloseDir.htm" title="Schließt ein mit ReadDir geöffnetes Verzeichnis">CloseDir</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

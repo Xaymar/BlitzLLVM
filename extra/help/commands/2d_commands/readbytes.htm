@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ReadBytes 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			byte = <b>ReadBytes</b> (bank, stream, start, anzahl) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bank
+</td>
+<td>
+Identität der Bank, ermittelt mit <a href="CreateBank.htm"><b>CreateBank</b><img src="../../html/images/quicklink.gif" /></a>
+</td>
+</tr>
+<tr>
+<td width="100">
+stream
+</td>
+<td>
+Identität der Datei, ermittel mit <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="ReadFile.htm"><b>ReadFile</b><img src="../../html/images/quicklink.gif" /></a>
+</td>
+</tr>
+<tr>
+<td width="100">
+start
+</td>
+<td>
+Startposition in Byte (ab 0)
+</td>
+</tr>
+<tr>
+<td width="100">
+anzahl
+</td>
+<td>
+Anzahl der Bytes (ab 1)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion liefert die Anzahl der erfolgreich eingelesenen Bytes zurück.<br />Zusätzlich wird die Speicherbank mit den gelesenen Werten gefüllt. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl liest Daten aus einer Datei in ein Speicherfeld ein. Die Datei muss vorher mit <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a>/<a href="ReadFile.htm"><b>ReadFile</b><img src="../../html/images/quicklink.gif" /></a> geöffnet werden. Zudem muss auch ein Speicherfeld mit <a href="CreateBank.htm"><b>CreateBank</b><img src="../../html/images/quicklink.gif" /></a> definiert werden. "Start" gibt die Startposition in Byte an. Es können beliebig viele Bytes eingelesen werden.<br /><br />Diese Methode wird z.B. für das Einlesen von Levels benutzt. Mit <a href="WriteBytes.htm"><b>WriteBytes</b><img src="../../html/images/quicklink.gif" /></a> können die Daten abgespeichert werden. Benutze Peek/Poke-Befehle, um Daten zu lesen/speichern.<br /><br /><div class="caution">Die Datei muss bereits existieren, da sonst eine Fehlermeldung nach einem Lesevorgang erscheint. Benutze vorher den Befehl <a href="FileType.htm"><b>FileType</b><img src="../../html/images/quicklink.gif" /></a>.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel demonstriert die BANK-Möglichkeiten:<br />
+			<div class="syntax-code">
+				bnkTest = <a href="CreateBank.htm"><b>CreateBank</b></a>(100)<br /><br /><a href="PokeByte.htm"><b>PokeByte</b></a> bnkTest,1,255<br /><a href="PokeInt.htm"><b>PokeInt</b></a> bnkTest,2,12345678<br /><a href="PokeShort.htm"><b>PokeShort</b></a> bnkTest,6,12345<br /><a href="PokeFloat.htm"><b>PokeFloat</b></a> bnkTest,8,12345.6789<br /><br />file = <a href="WriteFile.htm"><b>WriteFile</b></a>("test.txt")<br /><a href="WriteBytes.htm"><b>WriteBytes</b></a> bnkTest, file, 0, 100<br /><a href="CloseFile.htm"><b>CloseFile</b></a> file<br /><br /><a href="FreeBank.htm"><b>FreeBank</b></a> bnkTest<br /><br />bnkTest = <a href="CreateBank.htm"><b>CreateBank</b></a>(100)<br /><br />file = <a href="ReadFile.htm"><b>ReadFile</b></a>("test.txt")<br /><a href="ReadBytes.htm"><b>ReadBytes</b></a> bnkTest, file, 0, 100<br /><a href="CloseFile.htm"><b>CloseFile</b></a> file<br /><br /><a href="Print.htm"><b>Print</b></a> <a href="PeekByte.htm"><b>PeekByte</b></a> (bnkTest,1)<br /><a href="Print.htm"><b>Print</b></a> <a href="PeekInt.htm"><b>PeekInt</b></a> (bnkTest,2)<br /><a href="Print.htm"><b>Print</b></a> <a href="PeekShort.htm"><b>PeekShort</b></a> (bnkTest,6)<br /><a href="Print.htm"><b>Print</b></a> <a href="PeekFloat.htm"><b>PeekFloat</b></a> (bnkTest,8)<br /><br /><a href="FreeBank.htm"><b>FreeBank</b></a> bnkTest<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="PokeShort.htm" title="Speichert einen Short-Wert in einer Bank">PokeShort</a>, <a href="PokeByte.htm" title="Speichert ein Byte in eine Bank">PokeByte</a>, <a href="PeekFloat.htm" title="Liest einen Float-Wert aus einer Bank">PeekFloat</a>, <a href="CreateBank.htm" title="Erstellt eine neue Bank">CreateBank</a>, <a href="PokeInt.htm" title="Speichert einen Integer-Wert in einer Bank">PokeInt</a>, <a href="PeekShort.htm" title="Liest einen Short-Wert aus einer Bank">PeekShort</a>, <a href="PeekByte.htm" title="Liest ein Byte aus einer Bank">PeekByte</a>, <a href="PokeFloat.htm" title="Speichert einen Float-Wert in einer Bank">PokeFloat</a>, <a href="PeekInt.htm" title="Liest einen Integer Wert aus einer Bank">PeekInt</a>, <a href="FreeBank.htm" title="Löscht eine Bank">FreeBank</a>, <a href="WriteBytes.htm" title="Schreibt mehrere Bytes aus einer Bank in einen Stream">WriteBytes</a>, <a href="Eof.htm" title="Prüft ob das Ende einer Datei erreicht wurde">Eof</a>, <a href="ReadByte.htm" title="Liest ein &quot;Byte&quot; aus einer Datei">ReadByte</a>, <a href="ReadFloat.htm" title="Liest einen &quot;Float&quot; Wert aus einer Datei">ReadFloat</a>, <a href="ReadInt.htm" title="Liest einen &quot;Integerwert&quot; aus einer Datei">ReadInt</a>, <a href="ReadLine.htm" title="Liest einen &quot;Zeile&quot; aus einer Datei">ReadLine</a>, <a href="ReadShort.htm" title="Liest einen &quot;Short&quot; Wert aus einer Datei">ReadShort</a>, <a href="ReadAvail.htm" title="Ermittelt die garantierte Anzahl der Bytes">ReadAvail</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_4.html">Speicherbänke</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

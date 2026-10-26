@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		VertexX 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			x# = <b>VertexX</b># (surface%, vertex%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+surface%
+</td>
+<td>
+Identität einer Gitteroberfläche (surface)
+</td>
+</tr>
+<tr>
+<td width="100">
+vertex%
+</td>
+<td>
+Indexnummer eines Vertexpunktes
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			X-Koordinate des Vertexpunktes wird zurückgeliefert (von Objektmitte). 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>VertexX</b> liefert die X-Koordinate eines Vertexpunktes zurück. Diese Koordinate beschreibt die Position des Vertexpunktes von Objektmitte. Die Anweisung <a href="VertexCoords.htm"><b>VertexCoords</b><img src="../../html/images/quicklink.gif" /></a> kann die Koordinaten eines Vertex ändern. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Mit VertexX/Y/Z werden die Vertexkoordinaten ausgelesen. Dieses Beispiel zeigt wie es geht:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube, 100, 100, 255<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 30, 30, 30<br />surface = <a href="GetSurface.htm"><b>GetSurface</b></a>(cube, 1)<br />vertex = <a href="CountVertices.htm"><b>CountVertices</b></a>(surface)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, .1, 1, 2<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> vertex - 1<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 000, i * 15, "Vertex " + i<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 150, i * 15, <a href="VertexX.htm"><b>VertexX</b></a>#(surface, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 300, i * 15, <a href="VertexY.htm"><b>VertexY</b></a>#(surface, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 450, i * 15, <a href="VertexZ.htm"><b>VertexZ</b></a>#(surface, i)<br />   <a href="Next.htm"><b>Next</b></a><br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="VertexCoords.htm" title="Ändert Koordinate eines Vertexpunkts">VertexCoords</a>, <a href="VertexU.htm" title="Liefert U-Koordinate eines Vertexpunkts zurück">VertexU</a>, <a href="VertexV.htm" title="Liefert V-Koordinate eines Vertexpunkts zurück">VertexV</a>, <a href="VertexW.htm" title="Liefert W-Koordinate eines Vertexpunkts zurück">VertexW</a>, <a href="VertexY.htm" title="Liefert Y-Koordinate eines Vertexpunkts zurück">VertexY</a>, <a href="VertexZ.htm" title="Liefert Z-Koordinate eines Vertexpunkts zurück">VertexZ</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

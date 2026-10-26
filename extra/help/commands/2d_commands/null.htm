@@ -1,0 +1,109 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Null 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			variable[.typename] = <b>Null</b> 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Die Type Variable wird auf <b>Null</b> zurückgesetzt<br /><br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Eine <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Variable wird automatisch mit einem Eintrag der <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Kollektion verlinkt, wenn die Befehle <a href="After.htm"><b>After</b><img src="../../html/images/quicklink.gif" /></a>, <a href="Before.htm"><b>Before</b><img src="../../html/images/quicklink.gif" /></a>, <a href="First.htm"><b>First</b><img src="../../html/images/quicklink.gif" /></a>, <a href="Last.htm"><b>Last</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="New.htm"><b>New</b><img src="../../html/images/quicklink.gif" /></a> ausgeführt werden. Diese Verlinkung kann mit <b>Null</b> wieder aufgehoben werden. Der Eintrag in <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Kollektion bleibt aber noch erhalten! <a href="Delete.htm"><b>Delete</b><img src="../../html/images/quicklink.gif" /></a> funktioniert ähnlich, löscht aber gleich den verlinkten Eintrag mit.<br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint"><a href="Dim.htm"><b>Dim</b><img src="../../html/images/quicklink.gif" /></a> Felder sind einfacher zu benutzen und sollen bevorzugt angewendet werden.<br />&nbsp;</div><br /> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm demonstriert die Type Befehle:<br />
+			<div class="syntax-code">
+				<a href="Type.htm"><b>Type</b></a> crafts<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> x<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> y<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> dead<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> graphic<br /><a href="End Type.htm"><b>End Type</b></a><br /><br /><a href="Local.htm"><b>Local</b></a> Alien.Crafts<br /><br /><a href="If.htm"><b>If</b></a> Alien = <a href="Null.htm"><b>Null</b></a>  <a href="Text.htm"><b>Text</b></a> 0, 0, "Alien wurde noch zu keinem Eintrag verlinkt." <br /><br /><a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> 100<br />&nbsp; &nbsp;alien.crafts = <a href="New.htm"><b>New</b></a> crafts<br />&nbsp; &nbsp;alien\x = <a href="Rnd.htm"><b>Rnd</b></a> (0 ,640)<br />&nbsp; &nbsp;alien\y = <a href="Rnd.htm"><b>Rnd</b></a> (0 ,480)<br />&nbsp; &nbsp;alien\dead = 0<br />&nbsp; &nbsp;alien\graphic = 1<br /><a href="Next.htm"><b>Next</b></a><br /><br />alien.crafts = <a href="First.htm"><b>First</b></a> crafts<br /><a href="Text.htm"><b>Text</b></a> 0, 10,  alien\x<br /><a href="Text.htm"><b>Text</b></a> 0, 20,  alien\y<br /><a href="Text.htm"><b>Text</b></a> 0, 30,  alien\dead<br /><a href="Text.htm"><b>Text</b></a> 0, 40,  alien\graphic<br /><br />alien = <a href="After.htm"><b>After</b></a> alien<br /><a href="Text.htm"><b>Text</b></a> 0, 60,  alien\x<br /><a href="Text.htm"><b>Text</b></a> 0, 70,  alien\y<br /><a href="Text.htm"><b>Text</b></a> 0, 80,  alien\dead<br /><a href="Text.htm"><b>Text</b></a> 0, 90,  alien\graphic<br /><br />alien.crafts = <a href="Last.htm"><b>Last</b></a> crafts<br /><a href="Text.htm"><b>Text</b></a> 0, 100,  alien\x<br /><a href="Text.htm"><b>Text</b></a> 0, 110,  alien\y<br /><a href="Text.htm"><b>Text</b></a> 0, 120,  alien\dead<br /><a href="Text.htm"><b>Text</b></a> 0, 130,  alien\graphic<br /><br />alien = <a href="Before.htm"><b>Before</b></a> alien<br /><a href="Text.htm"><b>Text</b></a> 0, 140,  alien\x<br /><a href="Text.htm"><b>Text</b></a> 0, 150,  alien\y<br /><a href="Text.htm"><b>Text</b></a> 0, 160,  alien\dead<br /><a href="Text.htm"><b>Text</b></a> 0, 170,  alien\graphic<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="After.htm" title="Wechselt zum nächsten Eintrag eines &quot;Types&quot;">After</a>, <a href="Before.htm" title="Wechselt zum vorherigen Eintrag eines &quot;Types&quot;">Before</a>, <a href="First.htm" title="Springt zum ersten Feld eines &quot;Type&quot; Eintrags">First</a>, <a href="Last.htm" title="Wechselt zum letzten &quot;Type&quot; Eintrag">Last</a>, <a href="New.htm" title="Fügt einen neuen Eintrag zu einer &quot;Type&quot; Kollektion hinzu">New</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_39.html">Types & Felder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

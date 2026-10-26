@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GfxDriverCaps3D 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			code% = <b>GfxDriverCaps3D</b> () 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			100 = Grafikkarte unterstützt alle Standard 3D-Techniken<br />110 = Grafikkarte ist zusätzlich Cubemapping-fähig<br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>GfxDriverCaps3D</b> ermittelt die Fähigkeiten einer 3D-Grafikkarte. Diese Werte werden zurückgeliefert:<br /><br />100 = Grafikkarte unterstützt alle Standard 3D-Techniken<br />110 = Grafikkarte ist zusätzlich Cubemapping-fähig<br /><br />Hinweis: Vor der Benutzung muss <a href="Graphics3D.htm"><b>Graphics3D</b><img src="../../html/images/quicklink.gif" /></a> ausgeführt werden! 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br />caps = <a href="GfxDriverCaps3D.htm"><b>GfxDriverCaps3D</b></a>()<br /><a href="Select.htm"><b>Select</b></a> caps<br />&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 100 : msg$ = "Your GRAPHICS card does NOT support cubic environment mapping."<br />&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 110 : msg$ = "Your GRAPHICS card does support cubic environment mapping."<br /><a href="End Select.htm"><b>End Select</b></a><br /><a href="Print.htm"><b>Print</b></a> msg$<br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Graphics3D.htm" title="Initialisiert die 3D Grafik">Graphics3D</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_72.html">Screen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

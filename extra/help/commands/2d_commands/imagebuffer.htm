@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ImageBuffer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			buffer = <b>ImageBuffer</b> (bild [, frame]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bild
+</td>
+<td>
+Identität eines Bildes (z.B. mit <a href="CreateImage.htm"><b>CreateImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+<tr>
+<td width="100">
+frame
+</td>
+<td>
+Nummer des Frames, wenn es ein Animationsbild ist (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Wert, der die Identität des Bild-Buffers für <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a> angibt 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Normalerweise wird die Grafik auf dem Bildschirm ausgegeben. Dieser Befehl, der zusammen mit <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a> verwendet wird, leitet die Grafik in ein Bild um, welches im Speicher abgelegt ist. Es ist sehr praktisch, wenn die Grafik programmiert wird und dann auf dem Bildschirm ausgegeben wird.<br /><br /><div class="caution">Der Rückgabewert dieser Funktion sollte nicht zwischengespeichert werden, da er sich nach <a href="ResizeImage.htm"><b>ResizeImage</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ScaleImage.htm"><b>ScaleImage</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="RotateImage.htm"><b>RotateImage</b><img src="../../html/images/quicklink.gif" /></a> ändern kann.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Global.htm"><b>Global</b></a> gfxStarfield, tmrScreen<br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16<br />gfxStarfield = <a href="CreateImage.htm"><b>CreateImage</b></a>(32, 32, 10)<br /><a href="For.htm"><b>For</b></a> t = 0 <a href="To.htm"><b>To</b></a> 9<br />&nbsp; &nbsp;<a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="ImageBuffer.htm"><b>ImageBuffer</b></a>(gfxStarfield, t)<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> y = 1 <a href="To.htm"><b>To</b></a> 50<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Plot.htm"><b>Plot</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(32), <a href="Rnd.htm"><b>Rnd</b></a>(32)<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br /><a href="Next.htm"><b>Next</b></a><br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a>() > tmrScreen + 300 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="TileImage.htm"><b>TileImage</b></a> gfxStarfield, 0, 0, <a href="Rnd.htm"><b>Rnd</b></a>(9)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;tmrScreen = <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Graphics3D.htm" title="Initialisiert die 3D Grafik">Graphics3D</a>, <a href="SetBuffer.htm" title="Setzt den Buffer für die Grafikausgabe">SetBuffer</a>, <a href="SaveBuffer.htm" title="Speichert einen Grafikbuffer als Bitmap">SaveBuffer</a>, <a href="LoadBuffer.htm" title="Lädt eine Grafik in einen Grafikbuffer">LoadBuffer</a>, <a href="FrontBuffer.htm" title="Liefert die ID des Buffers">FrontBuffer</a>, <a href="BackBuffer.htm" title="Liefert die ID des Backbuffers">BackBuffer</a>, <a href="GrabImage.htm" title="Kopiert Ausschnitt auf Grafikbuffer in ein Bild">GrabImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

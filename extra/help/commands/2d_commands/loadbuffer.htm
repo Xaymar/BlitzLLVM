@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LoadBuffer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert = <b>LoadBuffer</b>(buffer, datei$) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+buffer
+</td>
+<td>
+Beliebiger Grafikbuffer
+</td>
+</tr>
+<tr>
+<td width="100">
+datei$
+</td>
+<td>
+Datei- und eventuell Pfadname der Grafikdatei ( .bmp .png .jpg)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 - Fehler beim Laden aufgetreten<br />1 - Laden erfolgreich 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl lädt eine Grafikdatei in ein Buffer. Diese Buffer können verwendet werden:<br /><ul><li><a href="FrontBuffer.htm"><b>FrontBuffer</b><img src="../../html/images/quicklink.gif" /></a>- Grafik wird sofort sichtbar</li><br /><li><a href="BackBuffer.htm"><b>BackBuffer</b><img src="../../html/images/quicklink.gif" /></a>- Grafik bleibt bis zum FLIP-Befehl unsichtbar</li><br /><li><a href="ImageBuffer.htm"><b>ImageBuffer</b><img src="../../html/images/quicklink.gif" /></a>- wird wie ein Bild geladen (wie <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a>)</li></ul><br /><br /><div class="caution">Sollte das Bild eine andere Größe haben, so wird es an das Buffer angepasst. Ein sehr kleines Bild wird gestreckt, ein großes dagegen gestaucht. Dies sollte möglichst vermieden werden, da es viel Rechenzeit kostet<br />&nbsp;</div><br /><div class="hint">Diese Funktion kann dazu benutzt werden, einfache Titelbilder mit nur einem Befehl anzeigen zu lassen.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 800, 600, 16, 1<br /><a href="LoadBuffer.htm"><b>LoadBuffer</b></a> (<a href="FrontBuffer.htm"><b>FrontBuffer</b></a>(), "title.bmp")<br /><a href="WaitKey.htm"><b>WaitKey</b></a>() 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="BackBuffer.htm" title="Liefert die ID des Backbuffers">BackBuffer</a>, <a href="FrontBuffer.htm" title="Liefert die ID des Buffers">FrontBuffer</a>, <a href="ImageBuffer.htm" title="Ermittelt die Identität eines Buffers eines Bildes">ImageBuffer</a>, <a href="SetBuffer.htm" title="Setzt den Buffer für die Grafikausgabe">SetBuffer</a>, <a href="SaveBuffer.htm" title="Speichert einen Grafikbuffer als Bitmap">SaveBuffer</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

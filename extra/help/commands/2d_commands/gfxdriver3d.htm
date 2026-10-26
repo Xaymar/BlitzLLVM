@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GfxDriver3D 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert% = <b>GfxDriver3D</b> (nummer%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+nummer%
+</td>
+<td>
+Die Nummer des Grafiktreibers. Die Anzahl der Treiber kann mit <a href="CountGfxDrivers.htm"><b>CountGfxDrivers</b><img src="../../html/images/quicklink.gif" /></a> ermittelt werden.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0=Der Grafiktreiber ist nicht für 3D geeignet<br />1=Der Grafiktreiber ist für 3D geeignet  
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>GfxDriver3D</b> prüft, ob ein Treiber für 3D geeignet ist. Wenn es 3D-fähig ist, dann wird 1, andernfalls wird nur 0 zurückgeliefert.<br /><br />Einige Rechner können mehrere Grafikkarten haben - mit unterschiedlichen Treibern. Mit <a href="SetGfxDriver.htm"><b>SetGfxDriver</b><img src="../../html/images/quicklink.gif" /></a> kann ein Treiber ausgewählt werden.<br /><br />Benutze <a href="CountGfxDrivers.htm"><b>CountGfxDrivers</b><img src="../../html/images/quicklink.gif" /></a>, um die Anzahl der unterschiedlichen Treiber festzustellen. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="For.htm"><b>For</b></a> a = 1 <a href="To.htm"><b>To</b></a> <a href="CountGfxDrivers.htm"><b>CountGfxDrivers</b></a>()<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GfxDriver3D.htm"><b>GfxDriver3D</b></a>(a) = 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="GfxDriverName.htm"><b>GfxDriverName</b></a>$(a) + " 3D-Karte"<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="GfxDriverName.htm"><b>GfxDriverName</b></a>$(a) + " Keine 3D-Karte"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><a href="Next.htm"><b>Next</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="GfxDriverName.htm" title="Ermittelt den Namen eines installierten Grafiktreibers">GfxDriverName</a>, <a href="CountGfxDrivers.htm" title="Ermittelt die Anzahl der Grafiktreiber">CountGfxDrivers</a>, <a href="GfxMode3D.htm" title="Prüft, ob ein Grafikmodus für 3D geeignet ist">GfxMode3D</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_72.html">Screen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

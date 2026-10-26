@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Eof 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert = <b>Eof</b> (stream) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+stream
+</td>
+<td>
+Identität einer Datei (z.B. mit <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ReadFile.htm"><b>ReadFile</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="OpenTCPStream.htm"><b>OpenTCPStream</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			-1 = Beim Auslesen kam es zu einem Fehler (wichtig bei Internetverbindungen mit <a href="OpenTCPStream.htm"><b>OpenTCPStream</b><img src="../../html/images/quicklink.gif" /></a>)<br />0 = Dateiende noch nicht erreicht<br />1 = Dateiende erreicht 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl überprüft, ob das Ende einer Datei oder eines Datenstreams (das z.B. mit <a href="OpenTCPStream.htm"><b>OpenTCPStream</b><img src="../../html/images/quicklink.gif" /></a> geöffnet wurde) bereits erreicht wurde. Dies ist für Daten mit unbekannter Größe sehr nützlich. Dadurch werden Programmfehler beim Einlesen vermieden.<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm liest die Datei &quot;Autoexec.bat&quot; Zeile für Zeile ein und schreibt den Text auf dem Bildschirm:<br />
+			<div class="syntax-code">
+				datei$ = "C:\Autoexec.bat"<br /><br />dateiID = <a href="ReadFile.htm"><b>ReadFile</b></a> (Datei$)<br /><br /><a href="Print.htm"><b>Print</b></a> "Dateiinhalt:"<br /><a href="Print.htm"><b>Print</b></a> "------------"<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="Eof.htm"><b>Eof</b></a> (dateiID)<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="ReadLine.htm"><b>ReadLine</b></a>$ (dateiID)<br /><a href="Wend.htm"><b>Wend</b></a><br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ReadByte.htm" title="Liest ein &quot;Byte&quot; aus einer Datei">ReadByte</a>, <a href="ReadBytes.htm" title="Liest Daten aus einer Datei in ein Speicherfeld ein">ReadBytes</a>, <a href="ReadFloat.htm" title="Liest einen &quot;Float&quot; Wert aus einer Datei">ReadFloat</a>, <a href="ReadInt.htm" title="Liest einen &quot;Integerwert&quot; aus einer Datei">ReadInt</a>, <a href="ReadLine.htm" title="Liest einen &quot;Zeile&quot; aus einer Datei">ReadLine</a>, <a href="ReadShort.htm" title="Liest einen &quot;Short&quot; Wert aus einer Datei">ReadShort</a>, <a href="ReadString.htm" title="Liest ein &quot;String&quot; aus einer Datei">ReadString</a>, <a href="FilePos.htm" title="Liefert die aktuelle Position in einer Datei">FilePos</a>, <a href="FileSize.htm" title="Ermittelt die Größe einer Datei">FileSize</a>, <a href="ReadAvail.htm" title="Ermittelt die garantierte Anzahl der Bytes">ReadAvail</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

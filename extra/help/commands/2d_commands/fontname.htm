@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FontName 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			name$ = <b>FontName</b>$ (font) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+font
+</td>
+<td>
+Identität einer Schriftart
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Name der Schriftart 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Liefert Name einer Schriftart aus dem Font-Handle zurück. Handle ist ein Rückgabewert von <a href="LoadFont.htm"><b>LoadFont</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="RequestFont.htm"><b>RequestFont</b><img src="../../html/images/quicklink.gif" /></a>. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel demonstriert die Funktionsweise der zusätzlichen Font-Funktionen von BlitzPlus<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 400,200,32,2<br /><br />;große Schriftart laden und setzen<br />font = <a href="LoadFont.htm"><b>LoadFont</b></a>("Verdana",40,1)<br /><a href="SetFont.htm"><b>SetFont</b></a> font<br /><br />;kleine Schriftart laden zum Anzeigen der Infos<br />smallfont = <a href="LoadFont.htm"><b>LoadFont</b></a>("Verdana", 12)<br /><br />;einige Infos vorspeichern<br />ascent = <a href="FontAscent.htm"><b>FontAscent</b></a>( font )<br />descent = <a href="FontDescent.htm"><b>FontDescent</b></a>( font )<br />style = <a href="FontStyle.htm"><b>FontStyle</b></a>( font )<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<br /><br />&nbsp; &nbsp;<a href="SetFont.htm"><b>SetFont</b></a> font<br /><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,50,"ABC abc PQY pqy"<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="SetFont.htm"><b>SetFont</b></a> smallfont<br />&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,100, "Name: " + <a href="FontName.htm"><b>FontName</b></a>$( font )<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,115, "Größe: " + <a href="FontSize.htm"><b>FontSize</b></a>( font )<br /><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> style <a href="And.htm"><b>And</b></a> 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,130, "fett"<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,130, "nicht fett"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> style <a href="And.htm"><b>And</b></a> 2 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,145, "kursiv"<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,145, "nicht kursiv"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> style <a href="And.htm"><b>And</b></a> 4 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,160, "unterstrichen"<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 50,160, "nicht unterstrichen"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 220,100, "Ascent: " + ascent<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 220,115, "Descent: " + descent<br /><br />&nbsp; &nbsp;;rote Linien zur Markierung der Grundline einzeichnen&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255,0,0<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> 50, 50,360,50<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> 50, 50 + ascent, 360, 50 + ascent<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> 50, 50 + ascent + descent, 360, 50 + ascent + descent<br /><br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255,255,255<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FontAscent.htm" title="Ermittelt Ascent-Wert einer Schriftart">FontAscent</a>, <a href="FontDescent.htm" title="Ermittelt Descent-Wert einer Schriftart">FontDescent</a>, <a href="FontSize.htm" title="Ermittelt Größe einer Schriftart">FontSize</a>, <a href="FontStyle.htm" title="Ermittelt Style einer Schriftart">FontStyle</a>, <a href="LoadFont.htm" title="Lädt eine Schriftart in den Speicher">LoadFont</a>, <a href="SetFont.htm" title="Wählt eine Schriftart aus">SetFont</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_33.html">Text</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

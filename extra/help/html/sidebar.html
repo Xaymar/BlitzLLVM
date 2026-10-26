@@ -1,0 +1,330 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="ie.css" rel="stylesheet" type="text/css" />
+
+	<script language="Javascript" type="text/javascript">
+		minus = new Image(16,16);
+		minus.src = "images/minus.png";
+	
+		function togglecat( ID )
+		{
+			if(document.getElementById("cat_"+ID).style.display == "none")
+			{
+				document.getElementById("cat_"+ID).style.display = "block";
+				document.images["img_"+ID].src = minus.src;
+			}
+			else
+			{
+				document.getElementById("cat_"+ID).style.display = "none";
+				document.images["img_"+ID].src = "images/plus.png";
+			}
+		}
+	</script>
+
+</head>
+<body>
+
+<div id="sidebar">
+
+	<dl id="sidebar_help">
+
+		<dt>BlitzBasic Hilfe</dt>
+		
+		<dd>
+			<a href="home.html" target="main">Übersicht</a><br />
+			<a href="all.html" target="main">Alle Befehle</a><br />
+		</dd><br />
+
+		<dt>Navigation</dt>
+	 
+		 
+		<dd>
+			<a href="javascript:togglecat(1)">
+			<img name="img_1" src="images/plus.png" alt="" />
+			<b>2D Grafik</b></a><br />
+			<p id="cat_1" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_1.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_1.html" target="main">Anzeige</a><br />
+			 
+				<a href="categories/subcat_15.html" target="main">Bilder</a><br />
+			 
+				<a href="categories/subcat_20.html" target="main">Gamma</a><br />
+			 
+				<a href="categories/subcat_59.html" target="main">Grafik</a><br />
+			 
+				<a href="categories/subcat_34.html" target="main">Pixel</a><br />
+			 
+				<a href="categories/subcat_33.html" target="main">Text</a><br />
+			 
+				<a href="categories/subcat_31.html" target="main">Videos</a><br />
+			 
+			</p>
+		</dd>
+		 
+		<dd>
+			<a href="javascript:togglecat(2)">
+			<img name="img_2" src="images/plus.png" alt="" />
+			<b>3D Grafik</b></a><br />
+			<p id="cat_2" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_2.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_57.html" target="main">Animation</a><br />
+			 
+				<a href="categories/subcat_60.html" target="main">Bewegung</a><br />
+			 
+				<a href="categories/subcat_61.html" target="main">Brush</a><br />
+			 
+				<a href="categories/subcat_62.html" target="main">BSP-Maps</a><br />
+			 
+				<a href="categories/subcat_63.html" target="main">Diverses</a><br />
+			 
+				<a href="categories/subcat_64.html" target="main">Global</a><br />
+			 
+				<a href="categories/subcat_66.html" target="main">Kamera</a><br />
+			 
+				<a href="categories/subcat_67.html" target="main">Kollision</a><br />
+			 
+				<a href="categories/subcat_68.html" target="main">Kontrolle</a><br />
+			 
+				<a href="categories/subcat_69.html" target="main">Licht</a><br />
+			 
+				<a href="categories/subcat_65.html" target="main">MD2-Meshs</a><br />
+			 
+				<a href="categories/subcat_70.html" target="main">Mesh</a><br />
+			 
+				<a href="categories/subcat_71.html" target="main">Pick</a><br />
+			 
+				<a href="categories/subcat_72.html" target="main">Screen</a><br />
+			 
+				<a href="categories/subcat_73.html" target="main">Sprite</a><br />
+			 
+				<a href="categories/subcat_74.html" target="main">Status</a><br />
+			 
+				<a href="categories/subcat_75.html" target="main">Surface</a><br />
+			 
+				<a href="categories/subcat_76.html" target="main">Terrain</a><br />
+			 
+				<a href="categories/subcat_56.html" target="main">Texturen</a><br />
+			 
+				<a href="categories/subcat_77.html" target="main">Transform</a><br />
+			 
+			</p>
+		</dd>
+		 
+		<dd>
+			<a href="javascript:togglecat(11)">
+			<img name="img_11" src="images/plus.png" alt="" />
+			<b>Datenverwaltung</b></a><br />
+			<p id="cat_11" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_11.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_14.html" target="main">Dateien & Streams</a><br />
+			 
+				<a href="categories/subcat_35.html" target="main">Datenblöcke</a><br />
+			 
+				<a href="categories/subcat_4.html" target="main">Speicherbänke</a><br />
+			 
+				<a href="categories/subcat_39.html" target="main">Types & Felder</a><br />
+			 
+			</p>
+		</dd>
+		 
+		<dd>
+			<a href="javascript:togglecat(4)">
+			<img name="img_4" src="images/plus.png" alt="" />
+			<b>Eingabe</b></a><br />
+			<p id="cat_4" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_4.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_36.html" target="main">Gamepad</a><br />
+			 
+				<a href="categories/subcat_32.html" target="main">Maus</a><br />
+			 
+				<a href="categories/subcat_37.html" target="main">Tastatur</a><br />
+			 
+			</p>
+		</dd>
+		 
+		<dd>
+			<a href="javascript:togglecat(5)">
+			<img name="img_5" src="images/plus.png" alt="" />
+			<b>Grundlagen</b></a><br />
+			<p id="cat_5" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_5.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_7.html" target="main">Bedingungen</a><br />
+			 
+				<a href="categories/subcat_5.html" target="main">Mathematik</a><br />
+			 
+				<a href="categories/subcat_27.html" target="main">Programmstruktur</a><br />
+			 
+				<a href="categories/subcat_26.html" target="main">Schleifen</a><br />
+			 
+				<a href="categories/subcat_30.html" target="main">Schlüsselwörter</a><br />
+			 
+				<a href="categories/subcat_38.html" target="main">Sonstiges</a><br />
+			 
+				<a href="categories/subcat_21.html" target="main">Zeichenketten</a><br />
+			 
+				<a href="categories/subcat_8.html" target="main">Zeit & Zufall</a><br />
+			 
+			</p>
+		</dd>
+		 
+		<dd>
+			<a href="javascript:togglecat(9)">
+			<img name="img_9" src="images/plus.png" alt="" />
+			<b>GUI</b></a><br />
+			<p id="cat_9" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_9.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_22.html" target="main">Button</a><br />
+			 
+				<a href="categories/subcat_23.html" target="main">Canvas</a><br />
+			 
+				<a href="categories/subcat_24.html" target="main">Desktop</a><br />
+			 
+				<a href="categories/subcat_81.html" target="main">Diverses</a><br />
+			 
+				<a href="categories/subcat_82.html" target="main">Event</a><br />
+			 
+				<a href="categories/subcat_80.html" target="main">Gadget</a><br />
+			 
+				<a href="categories/subcat_54.html" target="main">HTML</a><br />
+			 
+				<a href="categories/subcat_79.html" target="main">IconStrip</a><br />
+			 
+				<a href="categories/subcat_53.html" target="main">Listen & Registerkarten</a><br />
+			 
+				<a href="categories/subcat_78.html" target="main">Menü</a><br />
+			 
+				<a href="categories/subcat_58.html" target="main">Panel</a><br />
+			 
+				<a href="categories/subcat_45.html" target="main">Progbar</a><br />
+			 
+				<a href="categories/subcat_42.html" target="main">Request</a><br />
+			 
+				<a href="categories/subcat_41.html" target="main">Slider</a><br />
+			 
+				<a href="categories/subcat_47.html" target="main">TextArea</a><br />
+			 
+				<a href="categories/subcat_48.html" target="main">TextField</a><br />
+			 
+				<a href="categories/subcat_55.html" target="main">Toolbar</a><br />
+			 
+				<a href="categories/subcat_46.html" target="main">Treeview</a><br />
+			 
+				<a href="categories/subcat_25.html" target="main">Window</a><br />
+			 
+			</p>
+		</dd>
+		 
+		<dd>
+			<a href="javascript:togglecat(3)">
+			<img name="img_3" src="images/plus.png" alt="" />
+			<b>Netzwerk</b></a><br />
+			<p id="cat_3" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_3.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_17.html" target="main">Allgemein</a><br />
+			 
+				<a href="categories/subcat_18.html" target="main">DirectPlay</a><br />
+			 
+				<a href="categories/subcat_2.html" target="main">TCP</a><br />
+			 
+				<a href="categories/subcat_3.html" target="main">UDP</a><br />
+			 
+			</p>
+		</dd>
+		 
+		<dd>
+			<a href="javascript:togglecat(6)">
+			<img name="img_6" src="images/plus.png" alt="" />
+			<b>Sound</b></a><br />
+			<p id="cat_6" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_6.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_12.html" target="main">3D Sound</a><br />
+			 
+				<a href="categories/subcat_13.html" target="main">Channels</a><br />
+			 
+				<a href="categories/subcat_10.html" target="main">Musik</a><br />
+			 
+				<a href="categories/subcat_11.html" target="main">Samples</a><br />
+			 
+			</p>
+		</dd>
+		 
+
+				<br />
+		<dt>Zusatzdokumentation</dt>
+
+		 
+		<dd>
+			<a href="javascript:togglecat(8)">
+			<img name="img_8" src="images/plus.png" alt="" />
+			<b>Draw3D</b></a><br />
+			<p id="cat_8" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_8.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_50.html" target="main">Grafik</a><br />
+			 
+				<a href="categories/subcat_49.html" target="main">Native</a><br />
+			 
+				<a href="categories/subcat_83.html" target="main">Physix</a><br />
+			 
+				<a href="categories/subcat_51.html" target="main">Sonstige</a><br />
+			 
+				<a href="categories/subcat_52.html" target="main">Text</a><br />
+			 
+			</p>
+		</dd>
+		 
+		<dd>
+			<a href="javascript:togglecat(12)">
+			<img name="img_12" src="images/plus.png" alt="" />
+			<b>NooNooPhysics</b></a><br />
+			<p id="cat_12" style="padding-left:22px; display:none;">
+			 
+				<a href="categories/cat_12.html" target="main">Details anzeigen</a><br />
+			 
+				<a href="categories/subcat_85.html" target="main">Objekterstellung</a><br />
+			 
+				<a href="categories/subcat_86.html" target="main">Objektmanipulation</a><br />
+			 
+				<a href="categories/subcat_84.html" target="main">Sonstige</a><br />
+			 
+			</p>
+		</dd>
+		 
+
+
+
+	</dl>
+	
+	<p class="copy">
+		&copy; 2008 &ndash; <a href="about.html" target="main">Über die BB Hilfe</a><br />
+	</p>
+	<p class="version">
+		BB Hilfe Release 0140<br />
+		Stand: 14.09.2009<br />
+		<b><a href="update.html" target="main" />Nach Update suchen</a></b>
+	</p>
+
+
+</div>
+</body>
+</html>

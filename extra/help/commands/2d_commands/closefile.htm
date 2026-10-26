@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CloseFile 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CloseFile</b> stream% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+stream
+</td>
+<td>
+mit OPENFILE, READFILE oder WRITEFILE ermittelte Identität
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung schließt den Zugriff auf eine Datei, welche mit OPENFILE, READFILE oder WRITEFILE geöffnet wurde.<br /><br /><div class="caution">Das Schließen einer Datei sollte auf jeden Fall nach dem Schreiben bzw. Lesen erfolgen - sonst können Datenträgerfehler nach einem Absturz entstehen - verlorene Dateifragmente genannt.<br />&nbsp;</div> <br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Schreibt und liest eine Highscore:<br />
+			<div class="syntax-code">
+				fileout = <a href="WriteFile.htm"><b>WriteFile</b></a>("mydata.dat")<br /><br /><a href="WriteString.htm"><b>WriteString</b></a>(fileout, "Klaus Dieter Pohl")<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(fileout, "10000")<br /><a href="WriteByte.htm"><b>WriteByte</b></a>(fileout, "12")<br /><br /><a href="WriteString.htm"><b>WriteString</b></a>(fileout, "Super Ingo")<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(fileout, "12345")<br /><a href="WriteByte.htm"><b>WriteByte</b></a>(fileout, "10")<br /><br />Name$ = "Mario von Peach"<br />punkte% = "81502"<br />Level% = 15<br /><a href="WriteString.htm"><b>WriteString</b></a>(fileout, Name$)<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(fileout, punkte%)<br /><a href="WriteByte.htm"><b>WriteByte</b></a>(fileout, Level%)<br /><br /><a href="CloseFile.htm"><b>CloseFile</b></a>(fileout)<br /><br />filein = <a href="ReadFile.htm"><b>ReadFile</b></a>("mydata.dat")<br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;Name$ = <a href="ReadString.htm"><b>ReadString</b></a>$(filein)<br />&nbsp; &nbsp;Punkte% = <a href="ReadInt.htm"><b>ReadInt</b></a>(filein)<br />&nbsp; &nbsp;Level% = <a href="ReadByte.htm"><b>ReadByte</b></a>(filein)<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> level + "  -  " + Punkte + "  -  " + Name<br /><a href="Until.htm"><b>Until</b></a> <a href="Eof.htm"><b>Eof</b></a>(filein)<br /><a href="CloseFile.htm"><b>CloseFile</b></a>(filein) 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CloseDir.htm" title="Schließt ein mit ReadDir geöffnetes Verzeichnis">CloseDir</a>, <a href="OpenFile.htm" title="Öffnet eine Datei zum Lesen/Schreiben">OpenFile</a>, <a href="ReadFile.htm" title="Öffnet eine Datei zum auslesen">ReadFile</a>, <a href="WriteFile.htm" title="Öffnet eine Datei für den Schreibzugriff">WriteFile</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateMenu 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			menü = <b>CreateMenu</b> (text$, nummer, parent) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+text
+</td>
+<td>
+Text, der im Menü erscheinen soll
+</td>
+</tr>
+<tr>
+<td width="100">
+nummer
+</td>
+<td>
+Eine einzigartige Nummer für das Menü
+</td>
+</tr>
+<tr>
+<td width="100">
+parent
+</td>
+<td>
+Identität des Parent-Menüs
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des Menü-Objekts wird zurückgeliefert 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>CreateMenu</b> erstellt ein Menü oder Menüpunkt. Parameter "nummer" muss eine einzigartige Nummer für Menü oder Menüpunkt sein. Diese Nummer wird nur für Windows und für Event-Handling benötigt. "parent" ist die Identität eines Menüs, zu dem dieses Menü hinzugefügt werden soll. Für Menüs wie Datei, Bearbeiten oder Ansicht muss <a href="WindowMenu.htm"><b>WindowMenu</b><img src="../../html/images/quicklink.gif" /></a> angegeben werden. Danach können weitere Menüpunkte zu diesen Menüs hinzugefügt werden. Verschachtelte Menüs sind ebenfalls möglich (siehe Beispiel).<br /><br />Eine Trennlinie wird erzeugt, indem einfach ein leerer Text angegeben wird. Menüpunkte lassen sich mit <a href="EnableMenu.htm"><b>EnableMenu</b><img src="../../html/images/quicklink.gif" /></a> / <a href="DisableMenu.htm"><b>DisableMenu</b><img src="../../html/images/quicklink.gif" /></a> ein- oder ausschalten. Mit <a href="CheckMenu.htm"><b>CheckMenu</b><img src="../../html/images/quicklink.gif" /></a> / <a href="UncheckMenu.htm"><b>UncheckMenu</b><img src="../../html/images/quicklink.gif" /></a> kann man einen Haken setzten oder löschen. Ein Menü muss auf jeden Fall nach einer Änderung mit <a href="UpdateWindowMenu.htm"><b>UpdateWindowMenu</b><img src="../../html/images/quicklink.gif" /></a> aktualisiert werden.<br /><br /><img src="../../images/gfx_menu.gif" /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 50, 50, 200, 200, 0, 5)<br />menu1 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Datei", 1, <a href="WindowMenu.htm"><b>WindowMenu</b></a>(window))<br />menu2 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Ansicht", 2, <a href="WindowMenu.htm"><b>WindowMenu</b></a>(window))<br />menu3 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Neu", 3, menu1)<br />menu4 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Dummy", 4, menu3)<br />menu5 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Menüpunkt", 5, menu2)<br />menu6 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("", 6, menu2)<br />menu7 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Deaktiviert", 7, menu2)<br />menu8 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Check", 8, menu2)<br /><br /><a href="DisableMenu.htm"><b>DisableMenu</b></a> menu7<br /><a href="CheckMenu.htm"><b>CheckMenu</b></a> menu8<br /><a href="UpdateWindowMenu.htm"><b>UpdateWindowMenu</b></a> window<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1) = 1 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CheckMenu.htm" title="CheckMenu setzt einen Hacken vor einem Menüpunkt">CheckMenu</a>, <a href="DisableMenu.htm" title="DisableMenu schaltet ein Menü aus">DisableMenu</a>, <a href="EnableMenu.htm" title="EnableMenu schaltet ein Menü ein">EnableMenu</a>, <a href="MenuChecked.htm" title="MenuChecked ermittelt, ob ein Haken vor einem Menü gesetzt wurde">MenuChecked</a>, <a href="MenuEnabled.htm" title="MenuEnabled ermittelt, ob ein Menü ausgeschaltet ist">MenuEnabled</a>, <a href="MenuText.htm" title="MenuText liefert die Bezeichnung eines Menüs zurück">MenuText</a>, <a href="SetMenuText.htm" title="SetMenuText ändert die Bezeichnung eines Menüs">SetMenuText</a>, <a href="UncheckMenu.htm" title="UncheckMenu entfernt einen Haken vor einem Menüpunkt">UncheckMenu</a>, <a href="UpdateWindowMenu.htm" title="UpdateWindowMenu aktualisiert das Menü in einem Fenster">UpdateWindowMenu</a>, <a href="WindowMenu.htm" title="WindowMenu ermittelt die Identität eines Root-Menüs">WindowMenu</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_78.html">Menü</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

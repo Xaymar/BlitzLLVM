@@ -1,0 +1,121 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		JoyWait 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			knopf = <b>JoyWait</b>( [port] ) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+port
+</td>
+<td>
+Nummer des Joysticks (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Joystickknopf, der betätigt wurde. Wird 0 zurückgeliefert, so gibt es keinen korrekt angeschlossenen Joystick im System. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion stoppt das ganze Programm und wartet so lange, bis ein Joystick-Knopf gedrückt wird.<br />Um während der Wartezeit Grafikausgaben oder ähnliches machen zu können. Sollte man deshalb auf eine Alternative (<a href="JoyHit.htm"><b>JoyHit</b><img src="../../html/images/quicklink.gif" /></a>) ausweichen.<br /><br /><div class="hint">Diese Funktion ist ein Alias von <a href="WaitJoy.htm"><b>WaitJoy</b><img src="../../html/images/quicklink.gif" /></a>.<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformationen</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Bevor du diese Funktion nutzt solltest du mittels <a href="JoyType.htm"><b>JoyType</b><img src="../../html/images/quicklink.gif" /></a> prüfen, ob überhaupt ein Joystick angeschlossen ist.<br />Du solltest auch immer an eine alternative Tastatur/Maus-Steuerung denken.<br />&nbsp;</div> 
+		</p>
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Dies ist ein undokumentierter Befehl. Sollte dieser Befehl wieder offiziell entfernt werden, wären Programme zu allen zukünftigen Updates nicht mehr kompatibel und müssten umgeschrieben werden. Die Anwendung ist daher auf eigenes Risiko.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Print.htm"><b>Print</b></a> "Drücke beliebigen Joystickknopf"<br />Knopf = <a href="JoyWait.htm"><b>JoyWait</b></a>()<br /><a href="Print.htm"><b>Print</b></a> "Betätigter Joystickknopf: " + Knopf<br /><a href="WaitKey.htm"><b>WaitKey</b></a>() 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FlushJoy.htm" title="Löscht alle Tastenbetätigungen des Joysticks aus dem internen Puffer">FlushJoy</a>, <a href="GetJoy.htm" title="Überprüft ob ein Joystickknopf gedrückt wird">GetJoy</a>, <a href="JoyDown.htm" title="Überprüft ob ein Joystickknopf gedrückt wird">JoyDown</a>, <a href="JoyHit.htm" title="Gibt die Anzahl der Knopfbetätigungen zurück">JoyHit</a>, <a href="WaitJoy.htm" title="Wartet bis ein Joystick-Knopf betätigt wird">WaitJoy</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_4.html">Eingabe</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_36.html">Gamepad</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

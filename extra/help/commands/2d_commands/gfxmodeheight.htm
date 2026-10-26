@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GfxModeHeight 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			höhe = <b>GfxModeHeight</b> (modus) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+modus
+</td>
+<td>
+Bildschirmmodus (ab 1). Die maximale Anzahl der Bildschirmmodi kann mit <a href="CountGfxModes.htm"><b>CountGfxModes</b><img src="../../html/images/quicklink.gif" /></a> ermittelt werden
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Höhe in Pixel zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt die Höhe eines Bildschirmmodi. Ein PC unterstützt eine Vielzahl an Auflösungen. Mit <a href="CountGfxModes.htm"><b>CountGfxModes</b><img src="../../html/images/quicklink.gif" /></a> kann die Anzahl der möglichen Auflösungen ermittelt werden. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Es könnte sein, dass zwar die Grafikkarte diesen Modus unterstützt, der Monitor aber nicht. So können manche Monitore große Auflösungen wie 1600x1200 nicht darstellen.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm zeigt die Anzahl der Grafiktreiber und alle unterstützten Auflösungen des zur Zeit aktiven Treibers:<br />
+			<div class="syntax-code">
+				anzahl = <a href="CountGfxDrivers.htm"><b>CountGfxDrivers</b></a> ()<br /><a href="Print.htm"><b>Print</b></a> "Anzahl der Treiber: "+Anzahl<br /><br />anz = <a href="CountGfxModes.htm"><b>CountGfxModes</b></a> ()<br /><a href="Print.htm"><b>Print</b></a> "Anzahl der Bildschirmmodi: "+anz<br /><br /><a href="For.htm"><b>For</b></a>  i = 1 <a href="to.htm"><b>to</b></a> anz<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Modus " + i + ": "<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Breite = " + <a href="GfxModeWidth.htm"><b>GfxModeWidth</b></a> (i)<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Höhe = " + <a href="GfxModeHeight.htm"><b>GfxModeHeight</b></a> (i)<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Tiefe = " + <a href="GfxModeDepth.htm"><b>GfxModeDepth</b></a> (i)<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a><br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="GfxModeWidth.htm" title="Ermittelt die Breite eines Bildschirmmodi">GfxModeWidth</a>, <a href="GfxModeExists.htm" title="Prüft einen bestimmter Grafikmodus">GfxModeExists</a>, <a href="GfxModeDepth.htm" title="Ermittelt die Farbtiefe eines Bildschirmmodi">GfxModeDepth</a>, <a href="GraphicsBuffer.htm" title="Ermittelt die Identität des aktuellen Buffers">GraphicsBuffer</a>, <a href="CountGfxModes.htm" title="Ermittelt Anzahl der Grafikmodi">CountGfxModes</a>, <a href="GraphicsDepth.htm" title="Ermittelt die aktuelle Farbtiefe">GraphicsDepth</a>, <a href="GraphicsWidth.htm" title="Ermittelt die Breite des Grafikfensters in Pixel">GraphicsWidth</a>, <a href="GraphicsHeight.htm" title="Ermittelt die Höhe des Grafikfensters in Pixel">GraphicsHeight</a>, <a href="GfxMode3DExists.htm" title="Prüft, ob ein 3D-Grafikmodus von der Grafikkarte unterstützt wird">GfxMode3DExists</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_1.html">Anzeige</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ClearWorld 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ClearWorld</b> [entity%] [, brush%] [, textur%] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+0=Objekte nicht löschen<br />1=Objekte löschen (Standard)
+</td>
+</tr>
+<tr>
+<td width="100">
+brush%
+</td>
+<td>
+0=Pinsel nicht löschen<br />1=Pinsel löschen (Standard)
+</td>
+</tr>
+<tr>
+<td width="100">
+textur%
+</td>
+<td>
+0=Texturen nicht löschen<br />1=Texturen löschen (Standard)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Löscht alle Objekte, Pinsel und/oder Texturen.<br /><br />Dies ist dann sinnvoll, wenn ein Level beendet wurde und dann alle Objekte gelöscht werden sollen. Die Objekte, Pinsel oder Texturen können dann neu erstellt/geladen werden, ohne die alten Objekte einzeln löschen zu müssen.  
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br /><a href="Dim.htm"><b>Dim</b></a> c(100)<br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 100<br />&nbsp; &nbsp;c(i) = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br />&nbsp; &nbsp;<a href="PositionEntity.htm"><b>PositionEntity</b></a> c(i), <a href="Rnd.htm"><b>Rnd</b></a>( - 10, 10), <a href="Rnd.htm"><b>Rnd</b></a>( - 10, 10), <a href="Rnd.htm"><b>Rnd</b></a>(10, 100)<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> c(i), <a href="Rnd.htm"><b>Rnd</b></a>(360), <a href="Rnd.htm"><b>Rnd</b></a>(360), <a href="Rnd.htm"><b>Rnd</b></a>(360)<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="ClearWorld.htm"><b>ClearWorld</b></a><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 30, 30, 30<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FreeBrush.htm" title="Löscht einen Pinsel aus dem Speicher">FreeBrush</a>, <a href="FreeEntity.htm" title="Löscht ein 3D-Objekt aus dem Speicher">FreeEntity</a>, <a href="FreeTexture.htm" title="Löscht eine Textur aus dem Speicher">FreeTexture</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_64.html">Global</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

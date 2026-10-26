@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		DottedIP 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			ipnummer$ = <b>DottedIP</b> (ip) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+ip
+</td>
+<td>
+IP-Nummer als Integer
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			IP-Nummer als String. Es besteht aus 4 Zahlen die durch Punkte getrennt sind. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion wandelt einen Integerwert in eine IP-Nummer. Eine IP-Nummer besteht aus 4 Zahlen - die alle durch Punkte getrennt sind. Diese Nummer ist 32 Bit breit (=Integer). Die Umwandlung ist relativ simpel. Es werden nur die einzelnen Byte-Werte "gesplittet" und als dezimale Zahlen ausgegeben. Aus dem Integerwert 1234567 entsteht somit der String: "0.18.214.135". 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm berechnet aus einem Integerwert eine IP-Nummer:<br />
+			<div class="syntax-code">
+				wert = 1234567<br /><a href="Print.htm"><b>Print</b></a> "Integer-IP: "+wert<br /><a href="Print.htm"><b>Print</b></a> "IP-Nummer: "+<a href="DottedIP.htm"><b>DottedIP</b></a>$(wert) 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CountHostIPs.htm" title="Sucht nach Hosts">CountHostIPs</a>, <a href="HostIP.htm" title="Ermittelt die IP-Adresse eines Hostes">HostIP</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_17.html">Allgemein</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

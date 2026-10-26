@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		DeleteFile 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>DeleteFile</b> Datei$ 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Datei
+</td>
+<td>
+Datei, die gelöscht werden soll (evtl. mit Pfadangabe)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl löscht eine Datei. Beachte, dass die Datei bereits existieren muss (überprüfen mit FILETYPE) und gerade nicht verwendet wird. Sollte das nicht der Fall sein, so passiert gar nichts. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Löscht und erstellt eine Datei<br />
+			<div class="syntax-code">
+				quellpfad$ = "c:\windows\notepad.exe"<br />zielpfad$ = "c:\copy_test_notepad.exe"<br /><a href="CopyFile.htm"><b>CopyFile</b></a> quellpfad$, zielpfad$ ; wir kopieren die Datei<br /><a href="execfile.htm"><b>execfile</b></a>(zielpfad$) ; wir führen sie aus, um zu sehen ob sie wirklich besteht<br /><a href="Print.htm"><b>Print</b></a> "Drücke eine Taste"<br /><a href="waitkey.htm"><b>waitkey</b></a>()<br /><a href="deletefile.htm"><b>deletefile</b></a> zielpfad$ ; wir löschen unsere kopierte Datei! 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyFile.htm" title="Kopieren einer Datei">CopyFile</a>, <a href="DeleteDir.htm" title="Löscht ein Verzeichnis">DeleteDir</a>, <a href="FileType.htm" title="Ermittelt ob eine Datei existiert">FileType</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

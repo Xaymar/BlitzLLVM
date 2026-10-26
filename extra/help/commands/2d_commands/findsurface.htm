@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FindSurface 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			surface% = <b>FindSurface</b> (mesh%, brush%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+mesh%
+</td>
+<td>
+Identität eines Gitterobjekts (mesh)
+</td>
+</tr>
+<tr>
+<td width="100">
+brush%
+</td>
+<td>
+Identität eines Pinsels (brush)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität einer Oberfläche zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>FindSurface</b> sucht eine Gitteroberfläche (surface) in einem Gitterobjekt (mesh).<br /><br />Dazu wird zuerst die Identität eines Gitterobjekts (mesh) angegeben. Danach wird die Identität eines Pinsels angegeben.<br /><br />BlitzBasic versucht nun eine Oberfläche zu finden, die den beiden Suchangaben entspricht. Danach wird die Identität der Oberfläche zurückgeliefert. Wenn nichts gefunden wurde, dann wird nur eine 0 zurückgeliefert. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cone = <a href="CreateCone.htm"><b>CreateCone</b></a>(16)<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cone, 200, 200, 250<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone, 0, 0, 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cone, 0, - 30, 0<br /><br />brush = <a href="CreateBrush.htm"><b>CreateBrush</b></a>()<br /><a href="BrushColor.htm"><b>BrushColor</b></a> brush, 255, 0, 0<br /><a href="PaintSurface.htm"><b>PaintSurface</b></a> <a href="GetSurface.htm"><b>GetSurface</b></a>(cone, 1), brush<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cone, 1, 1, 1<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Surface der rot markierten Fläche:" + <a href="FindSurface.htm"><b>FindSurface</b></a>(cone, brush)<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CountSurfaces.htm" title="Ermittelt die Anzahl der Oberflächen eines Gitterobjekts">CountSurfaces</a>, <a href="GetSurface.htm" title="Ermittelt die Identität einer Oberfläche">GetSurface</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

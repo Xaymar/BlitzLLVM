@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		NextFile 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Datei$ = <b>NextFile</b>$ (Verzeichnis) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Verzeichnis
+</td>
+<td>
+Identität eines Verzeichniszugriffs (ermittelt mit <a href="ReadDir.htm"><b>ReadDir</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			String mit einem Verzeichniseintrag 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Dateifunktion ermittelt den nächsten Dateieintrag aus einem Verzeichnis. Bevor man diesen Befehl anwenden kann, muss man zuerst <a href="ReadDir.htm"><b>ReadDir</b><img src="../../html/images/quicklink.gif" /></a> ausführen. <a href="ReadDir.htm"><b>ReadDir</b><img src="../../html/images/quicklink.gif" /></a> liefert dann eine Identität, die mit diesem Befehl verwendet werden kann.<br /><br /><div class="hint"> Es gibt keine Möglichkeit einen vorherigen Dateieintag zu ermitteln. Alle mit <b>NextFile</b> eingelesenen Einträge sollen deshalb in ein Datenfeld (siehe <a href="Dim.htm"><b>Dim</b><img src="../../html/images/quicklink.gif" /></a>) eingelesen werden. Beachte auch, dass die Einträge unsortiert ausgelesen werden. Um zu ermitteln, ob dieser Eintag eine Datei oder ein Ordner ist, muss man <a href="FileType.htm"><b>FileType</b><img src="../../html/images/quicklink.gif" /></a> benutzen. Wird nur ein leerer String zurückgeliefert, so gab es keine weiteren Dateien in diesem Verzeichnis. Benutze danach <a href="CloseDir.htm"><b>CloseDir</b><img src="../../html/images/quicklink.gif" /></a>, um den Zugriff auf ein Verzeichnis zu beenden. <br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Dieses Programm zeigt den Dateiinhalt im Verzeichnis C:\<br /><br />Verz = <a href="ReadDir.htm"><b>ReadDir</b></a>("C:\")<br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;i = i + 1<br />&nbsp; &nbsp;Datei$ = <a href="NextFile.htm"><b>NextFile</b></a>$(Verz)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Datei$ = "" <a href="Then.htm"><b>Then</b></a> <a href="Exit.htm"><b>Exit</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="FileType.htm"><b>FileType</b></a>("C:\" + Datei$) = 2 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, i * 10, "Ordner:" + Datei$<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, i * 10,"Datei:" + Datei$<br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br /><a href="Forever.htm"><b>Forever</b></a><br /><a href="CloseDir.htm"><b>CloseDir</b></a> Verz<br /><a href="Print.htm"><b>Print</b></a><br />Print "-Ende-" 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="MoreFiles.htm" title="Ermittelt ob weitere Dateien ausgelesen werden können">MoreFiles</a>, <a href="CloseDir.htm" title="Schließt ein mit ReadDir geöffnetes Verzeichnis">CloseDir</a>, <a href="FileType.htm" title="Ermittelt ob eine Datei existiert">FileType</a>, <a href="FileSize.htm" title="Ermittelt die Größe einer Datei">FileSize</a>, <a href="ReadDir.htm" title="Öffnet ein Verzeichnis">ReadDir</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

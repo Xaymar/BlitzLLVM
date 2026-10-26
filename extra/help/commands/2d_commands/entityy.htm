@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EntityY 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Y# = <b>EntityY</b># (Entity [,Global]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Entity
+</td>
+<td>
+Identität eines Entitys
+</td>
+</tr>
+<tr>
+<td width="100">
+Global
+</td>
+<td>
+0=absolut (Standard)<br />1=relativ
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Y-Koordinate eines Objekts zurückgeliefert. <br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>EntityY</b> ermittelt die Y-Koordinate eines Objekts.<br /><br />Dazu muss man zuerst die Identität eines Entitys angeben. Der optionale Parameter "Global" gibt an, ob eine absolute oder relative Koordinate ausgegeben werden soll. Eine absolute Koordinate ist immer auf das globale 3D-Koordinatensystem ausgerichtet. Eine relative Koordinate ist dagegen abhängig von der Position eines Parent-Objekts.<br /><br />Siehe auch <a href="EntityX.htm"><b>EntityX</b><img src="../../html/images/quicklink.gif" /></a> und <a href="EntityZ.htm"><b>EntityZ</b><img src="../../html/images/quicklink.gif" /></a>. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm erstellt ein Kegelobjekt, welches dann verschoben werden kann. Die Positionen werden angezeigt:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />cone = <a href="CreateCone.htm"><b>CreateCone</b></a>(32)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone, 0, 0, 10<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;x# = 0<br />&nbsp; &nbsp;y# = 0<br />&nbsp; &nbsp;z# = 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> x# = -0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> x# = 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> y# = -0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> y# = 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = 1 <a href="Then.htm"><b>Then</b></a> z# = -0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(30) = 1 <a href="Then.htm"><b>Then</b></a> z# = 0.1<br />&nbsp; &nbsp;<a href="MoveEntity.htm"><b>MoveEntity</b></a> cone, x#, y#, z#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Cursortasten, A und Z"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "X Position: " + <a href="EntityX.htm"><b>EntityX</b></a>#(cone)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "Y Position: " + <a href="EntityY.htm"><b>EntityY</b></a>#(cone)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 60, "Z Position: " + <a href="EntityZ.htm"><b>EntityZ</b></a>#(cone)<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="EntityX.htm" title="Ermittelt die X-Koordinate eines Objekts">EntityX</a>, <a href="EntityZ.htm" title="Ermittelt die Z-Koordinate eines Objekts">EntityZ</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_74.html">Status</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

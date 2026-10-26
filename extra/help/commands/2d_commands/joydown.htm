@@ -1,0 +1,125 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		JoyDown 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			gedrueckt = <b>JoyDown</b>( knopf [, port] ) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+knopf
+</td>
+<td>
+Die Nummer des Joystickknopfs
+</td>
+</tr>
+<tr>
+<td width="100">
+port
+</td>
+<td>
+Die Nummer des Joysticks (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 - Der Knopf wird nicht gedrückt.<br />1 - Der Knopf wird gedrückt. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt, ob ein bestimmter Joystickknopf gedrückt wird. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Bevor du diese Funktion nutzt solltest du mittels <a href="JoyType.htm"><b>JoyType</b><img src="../../html/images/quicklink.gif" /></a> prüfen, ob überhaupt ein Joystick angeschlossen ist.<br />Du solltest auch immer an eine alternative Tastatur/Maus-Steuerung denken.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="Locate.htm"><b>Locate</b></a> 0,0<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Joystickknöpfe:"<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> 5<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="JoyDown.htm"><b>JoyDown</b></a>(t) <a href="Then.htm"><b>Then</b></a> <a href="Print.htm"><b>Print</b></a> t <a href="Else.htm"><b>Else</b></a> <a href="Print.htm"><b>Print</b></a> "-"<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FlushJoy.htm" title="Löscht alle Tastenbetätigungen des Joysticks aus dem internen Puffer">FlushJoy</a>, <a href="GetJoy.htm" title="Überprüft ob ein Joystickknopf gedrückt wird">GetJoy</a>, <a href="JoyHit.htm" title="Gibt die Anzahl der Knopfbetätigungen zurück">JoyHit</a>, <a href="JoyWait.htm" title="Wartet bis ein Joystick-Knopf betätigt wird">JoyWait</a>, <a href="WaitJoy.htm" title="Wartet bis ein Joystick-Knopf betätigt wird">WaitJoy</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_4.html">Eingabe</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_36.html">Gamepad</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

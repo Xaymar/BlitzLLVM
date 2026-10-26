@@ -1,0 +1,129 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Handle 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert = <b>Handle</b> (variable[.typename]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+variable
+</td>
+<td>
+Container-Variable der Type Kollektion
+</td>
+</tr>
+<tr>
+<td width="100">
+typename
+</td>
+<td>
+Name der Type Kollektion
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des Type-Objekts 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann man Integerwert (<b>Handle</b>) eines <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Eintrags ermitteln. Diesen Wert kann nur ein Eintrag gleichzeitig annehmen, es ist somit die Identität des Eintrags. Mit <a href="Object.htm"><b>Object</b><img src="../../html/images/quicklink.gif" /></a> kann man aus diesem Wert eine Container-Variable erzeugen, die genau auf diesen Eintrag zeigt.<br /><br />Ein <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Feld ist ein dynamisches Feld, welches die Einträge automatisch verwaltet. Die Einträge in <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Feldern kann man nicht sofort ansprechen. Man muss zuerst zum richtigen Eintrag wechseln, und erst dann auslesen oder speichern.<br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformationen</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint"><a href="Dim.htm"><b>Dim</b><img src="../../html/images/quicklink.gif" /></a> Felder sind einfacher zu benutzen und sollen bevorzugt angewendet werden.<br />&nbsp;</div><br /> 
+		</p>
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Dies ist ein undokumentierter Befehl. Sollte dieser Befehl wieder offiziell entfernt werden, wären Programme zu allen zukünftigen Updates nicht mehr kompatibel und müssten umgeschrieben werden. Die Anwendung ist daher auf eigenes Risiko.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm erstellt ein Type Objekt in einer Funktion. Es wird die Identität als Integerwert zurückgeliefert. Über diese Identität kann es dann angesprochen werden:<br />
+			<div class="syntax-code">
+				<a href="Type.htm"><b>Type</b></a> window<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> x<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> y<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> w<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> h<br /><a href="End Type.htm"><b>End Type</b></a><br /><br />win = createwindow (x,y,w,h)<br />drawwindow (win)<br /><br /><a href="Function.htm"><b>Function</b></a> createwindow (x,y,w,h)<br />&nbsp; &nbsp;obj.window = <a href="New.htm"><b>New</b></a> window<br />&nbsp; &nbsp;obj\x = x<br />&nbsp; &nbsp;obj\y = y<br />&nbsp; &nbsp;obj\w = w<br />&nbsp; &nbsp;obj\h = h<br />&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> <a href="Handle.htm"><b>Handle</b></a> (obj)<br /><a href="End Function.htm"><b>End Function</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> drawwindow (id)<br />&nbsp; &nbsp;obj.window = <a href="Object.htm"><b>Object</b></a>.window(id)<br />&nbsp; &nbsp;;...<br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Field.htm" title="Weist einer &quot;Type&quot; Kollektion eine Eigenschaft zu">Field</a>, <a href="Object.htm" title="Ermittelt den &quot;Type&quot; Eintrag aus einem Integer-Handle">Object</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_39.html">Types & Felder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

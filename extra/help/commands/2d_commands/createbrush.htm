@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateBrush 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			brush% = <b>CreateBrush</b> ([rot#] [, gruen#] [, blau#]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+rot#
+</td>
+<td>
+Rotanteil einer Farbe (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+gruen#
+</td>
+<td>
+Grünanteil einer Farbe (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+blau#
+</td>
+<td>
+Blauanteil einer Farbe (0-255)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität eines Pinsels (brush) zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateBrush</b> erstellt einen Pinsel (brush) und liefert danach die Identität des Pinsels zurück.<br /><br />Mit den optionalen Parametern kann man die Pinselfarbe einstellen. Die Werte der Farbanteile können nur im Bereich von 0-255 liegen. Standardfarbe ist 255,255,255.<br /><br />Ein Pinsel ist eine Ansammlung von vielen Informationen wie: Farbe, Transparenz, Glanz, Textur usw. Nach der Definition eines Pinsels kann man ein Objekt (entity), Gitterobjekt (mesh) oder Oberfläche (surface) mit dem Pinsel "bemalen" - alle Eigenschaften werden dann auf diese Objekte übertragen. Dazu muss man diese Befehle benutzen: <a href="PaintEntity.htm"><b>PaintEntity</b><img src="../../html/images/quicklink.gif" /></a>, <a href="PaintMesh.htm"><b>PaintMesh</b><img src="../../html/images/quicklink.gif" /></a>, <a href="PaintSurface.htm"><b>PaintSurface</b><img src="../../html/images/quicklink.gif" /></a>.<br /><br />Wenn ein Gitterobjekt erstellt wird, dann möchte man die einzelnen Oberflächen unterschiedlich bemalen. Benutzt man dagegen die Befehle <a href="EntityColor.htm"><b>EntityColor</b><img src="../../html/images/quicklink.gif" /></a>, <a href="EntityAlpha.htm"><b>EntityAlpha</b><img src="../../html/images/quicklink.gif" /></a> usw., dann werden alle Oberflächen eines Gitterobjekts einheitlich geändert. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel demonstriert den Umgang mit Brushes<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br />tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/b3dlogo.jpg")<br />brush = <a href="CreateBrush.htm"><b>CreateBrush</b></a>()<br /><a href="BrushTexture.htm"><b>BrushTexture</b></a> brush, tex<br /><a href="PaintMesh.htm"><b>PaintMesh</b></a> cube, brush<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;pitch# = 0<br />&nbsp; &nbsp;yaw# = 0<br />&nbsp; &nbsp;roll# = 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> pitch# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> pitch# = 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> yaw# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> yaw# = 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(45) = 1 <a href="Then.htm"><b>Then</b></a> roll# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = 1 <a href="Then.htm"><b>Then</b></a> roll# = 1<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, pitch#, yaw#, roll#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FreeBrush.htm" title="Löscht einen Pinsel aus dem Speicher">FreeBrush</a>, <a href="LoadBrush.htm" title="Erstellt einen Pinsel und weist Eigenschaften zu">LoadBrush</a>, <a href="GetBrushTexture.htm" title="Ermittelt Textur eines Pinsels">GetBrushTexture</a>, <a href="PaintEntity.htm" title="Übergibt alle Eigenschaften eines Pinsels an ein 3D-Objekt">PaintEntity</a>, <a href="PaintMesh.htm" title="Übergibt alle Eigenschaften eines Pinsels an ein Gitterobjekt">PaintMesh</a>, <a href="PaintSurface.htm" title="Übergibt alle Eigenschaften eines Pinsels an eine Oberfläche">PaintSurface</a>, <a href="CreateSurface.htm" title="Erstellt eine neue Oberfläche">CreateSurface</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_61.html">Brush</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

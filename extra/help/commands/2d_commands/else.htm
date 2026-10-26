@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Else 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Else</b> 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl kann zusammen mit <a href="If.htm"><b>If</b><img src="../../html/images/quicklink.gif" /></a> Befehlen verwendet werden. Bei einer Nichterfüllung der <a href="If.htm"><b>If</b><img src="../../html/images/quicklink.gif" /></a> Bedingung werden die Befehle hinter <b>Else</b> ausgeführt.<br /><br />Eine einfache <a href="If.htm"><b>If</b><img src="../../html/images/quicklink.gif" /></a> <a href="Then.htm"><b>Then</b><img src="../../html/images/quicklink.gif" /></a> <b>Else</b> Konstruktion sieht so aus: Nach dem Befehl <a href="If.htm"><b>If</b><img src="../../html/images/quicklink.gif" /></a> folgt sofort die Bedingung. Dahinter steht <a href="Then.htm"><b>Then</b><img src="../../html/images/quicklink.gif" /></a> mit den Befehlen die ausgeführt werden sollen. Hinter diesen Befehlen kann <a href="Else.htm"><b>Else</b><img src="../../html/images/quicklink.gif" /></a> mit weiteren Befehlen stehen.<br /><br />Bei einer bestimmten Nichterfüllung ist der Befehl <a href="ElseIf.htm"><b>ElseIf</b><img src="../../html/images/quicklink.gif" /></a> besser. Bei sehr vielen Bedingungen ist <a href="Select.htm"><b>Select</b><img src="../../html/images/quicklink.gif" /></a> ... <a href="Case.htm"><b>Case</b><img src="../../html/images/quicklink.gif" /></a> noch besser.<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			In diesem Beispiel wird die Funktionsweise der logischen Operatoren demonstriert.<br />
+			<div class="syntax-code">
+				Door1_open = <a href="True.htm"><b>True</b></a><br />Door2_open = <a href="False.htm"><b>False</b></a><br />Door3_open = <a href="False.htm"><b>False</b></a><br /><br />;Öffnet nur die dritte Tür, wenn 1 und 2 geöffnet sind.<br /><a href="If.htm"><b>If</b></a> Door1_open = <a href="True.htm"><b>True</b></a> <a href="And.htm"><b>And</b></a> Door2_open = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;Door3_open = <a href="True.htm"><b>True</b></a><br />;Öffnet nur die dritte Tür, wenn 1 und/oder 2 geöffnet sind.<br /><a href="ElseIf.htm"><b>ElseIf</b></a> Door1_open = <a href="True.htm"><b>True</b></a> <a href="Or.htm"><b>Or</b></a> Door2_open = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;Door3_open = <a href="True.htm"><b>True</b></a><br />;Öffnet nur die dritte Tür, wenn nur 1 oder nur 2 geöffnet ist, aber nicht wenn beide geöffnet sind.<br /><a href="ElseIf.htm"><b>ElseIf</b></a>  Door1_open = <a href="True.htm"><b>True</b></a> <a href="Xor.htm"><b>Xor</b></a> Door2_open = <a href="True.htm"><b>True</b></a><br />&nbsp; &nbsp;Door3_open = <a href="True.htm"><b>True</b></a><br />;Ansonsten kann Tür 3 nicht geöffnet werden<br /><a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;Door3_open = <a href="False.htm"><b>False</b></a><br /><a href="EndIf.htm"><b>EndIf</b></a><br /><br /><a href="If.htm"><b>If</b></a> Door1_open = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 0, "Tür 1 ist offen"<br /><a href="If.htm"><b>If</b></a> Door2_open = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 10, "Tür 2 ist offen"<br /><a href="If.htm"><b>If</b></a> Door3_open = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 20,  "Tür 3 ist offen"<br /><a href="If.htm"><b>If</b></a> <a href="Not.htm"><b>Not</b></a> Door1_open = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 0,  "Tür 1 ist geschlossen"<br /><a href="If.htm"><b>If</b></a> <a href="Not.htm"><b>Not</b></a> Door2_open = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 10, "Tür 2 ist geschlossen"<br /><a href="If.htm"><b>If</b></a> <a href="Not.htm"><b>Not</b></a> Door3_open = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 20, "Tür 3 ist geschlossen"<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a>() 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Case.htm" title="Dieser Befehl kann nur mit &quot;Select&quot; verwendet werden">Case</a>, <a href="Default.htm" title="Dieser Befehl kann nur mit &quot;Select&quot; verwendet werden">Default</a>, <a href="If.htm" title="Prüft ob Bedingungen erfüllt sind">If</a>, <a href="Select.htm" title="Definiert eine &quot;Select&quot; Konstruktion">Select</a>, <a href="Then.htm" title="Definiert eine &quot;If&quot; &quot;Then&quot; Konstruktion">Then</a>, <a href="ElseIf.htm" title="Kann zusammen mit &quot;If&quot;-Bedingungen benutzt werden">ElseIf</a>, <a href="EndIf.htm" title="Schließt einen &quot;If&quot; Block ab">EndIf</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_7.html">Bedingungen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

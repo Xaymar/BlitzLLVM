@@ -1,0 +1,109 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EventID 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			id = <b>EventID</b> () 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Liefert den letzten Event-Code zurück 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>EventID</b> liefert den letzte Event-Code zurück, der mit <a href="WaitEvent.htm"><b>WaitEvent</b><img src="../../html/images/quicklink.gif" /></a>ermittelt wurde. Weitere Funktionen wie <a href="EventData.htm"><b>EventData</b><img src="../../html/images/quicklink.gif" /></a>, <a href="EventSource.htm"><b>EventSource</b><img src="../../html/images/quicklink.gif" /></a>, <a href="EventX.htm"><b>EventX</b><img src="../../html/images/quicklink.gif" /></a> oder EventY erweitern diese Funktion.<br /><br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Hier ist eine Übersicht der Events in BlitzPlus:<br /><br /><table cellspacing="0" style="padding-left:50px;"><tr><th>Bezeichnung</th><th>ID</th><th>Data</th><th>Source</th><th>X/Y/Z</th></tr><tr><td>KeyDown</td><td>$101</td><td>Scancode</td><td>-</td><td>-</td></tr><tr><td>KeyUp</td><td>$102</td><td>Scancode</td><td>-</td><td>-</td></tr><tr><td>KeyStoke</td><td>$103</td><td>ASCII-Code</td><td>-</td><td>-</td></tr><tr><td>MouseDown</td><td>$201</td><td>Maustaste</td><td>Gadget-Handle</td><td>-</td></tr><tr><td>MouseUp</td><td>$202</td><td>Maustaste</td><td>Gadget-Handle</td><td>-</td></tr><tr><td>MouseMove</td><td>$203</td><td>-</td><td>Canvas-Handle</td><td>Mauskoordinaten</td></tr><tr><td>MouseWheel</td><td>$204</td><td>Drehung</td><td>-</td><td>-</td></tr><tr><td>MouseEnter</td><td>$205</td><td>-</td><td>Canvas-Handle</td><td>Mauskoordinaten</td></tr><tr><td>MouseLeave</td><td>$206</td><td>-</td><td>Canvas-Handle</td><td>-</td></tr><tr><td>GadgetAction</td><td>$401</td><td>Eingabe</td><td>Gadget-Handle</td><td>-</td></tr><tr><td>WindowMove</td><td>$801</td><td>-</td><td>Window-Handle</td><td>Fensterkoordinaten</td></tr><tr><td>WindowSize</td><td>$802</td><td>-</td><td>Window-Handle</td><td>Fenstergröße</td></tr><tr><td>WindowClose</td><td>$803</td><td>-</td><td>Window-Handle</td><td>-</td></tr><tr><td>WindowActivate</td><td>$804</td><td>-</td><td>Window-Handle</td><td>-</td></tr><tr><td>MenuEvent</td><td>$1001</td><td>Menunummer</td><td>-</td><td>-</td></tr><tr><td>AppSuspend</td><td>$2001</td><td>-</td><td>-</td><td>-</td></tr><tr><td>AppResume</td><td>$2002</td><td>-</td><td>-</td><td>-</td></tr><tr><td>AppBeginModal</td><td>$2004</td><td>-</td><td>-</td><td>-</td></tr><tr><td>AppEndModal</td><td>$2005</td><td>-</td><td>-</td><td>-</td></tr><tr><td>TimerTick</td><td>$4001</td><td>Ticks</td><td>Timer-Handle</td><td>-</td></tr></table> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 0, 0, 300, 300, 0, 1 + 2 + 8)<br />button = <a href="CreateButton.htm"><b>CreateButton</b></a>("Button", 10, 10, 100, 30, window)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $101<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, "Event: KeyDown"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $102<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, "Event: KeyUp"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $103<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, "Event: KeyStoke"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $401<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, "Event: GadgetAction"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $801<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, "Event: WindowMove"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $802<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, "Event: WindowSize"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $804<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, "Event: WindowActivate"<br />&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="EventData.htm" title="liefert mehr Informationen zu einem erfolgten Event">EventData</a>, <a href="EventSource.htm" title="liefert das Handle eines Objekts zurück">EventSource</a>, <a href="EventX.htm" title="liefert die X-Koordinate nach dem Event $203, $801 oder $802">EventX</a>, <a href="EventY.htm" title="liefert die Y-Koordinate nach dem Event $203, $801 oder $802">EventY</a>, <a href="EventZ.htm" title="liefert die Z-Koordinate nach dem Event $203, $801 oder $802">EventZ</a>, <a href="FlushEvents.htm" title="löscht alle Events eines Types">FlushEvents</a>, <a href="PeekEvent.htm" title="prüft ob ein Event verfügbar ist">PeekEvent</a>, <a href="WaitEvent.htm" title="liefert die Identität des Events zurück (Eventart)">WaitEvent</a>, <a href="HotKeyEvent.htm" title="generiert ein Event für eine bestimmte Tastenkombination">HotKeyEvent</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_82.html">Event</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

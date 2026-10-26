@@ -1,0 +1,133 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ReadPixel 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			rgb = <b>ReadPixel</b> (x, y [,buffer]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x
+</td>
+<td>
+X-Koordinate
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+Y-Koordinate
+</td>
+</tr>
+<tr>
+<td width="100">
+buffer
+</td>
+<td>
+Grafikbuffer, aus dem gelesen werden soll. Standard=aktueller Buffer
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Integerwert, der einen Farbcode als RGB-Wert beinhaltet. Siehe Zusatzinformationen, um zu sehen wie man es ausrechnet. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion liest die Farbe eines Pixels an der X/Y-Koordinate aus. Dabei wird die Farbe immer aus dem aktuellen Buffer ermitteln. Wenn man möchte, dann kann man einen speziellen Grafikbuffer mit dem optionalen Parameter "Buffer" angeben - dann wird daraus die Farbe ausgelesen. (siehe <a href="BackBuffer.htm"><b>BackBuffer</b><img src="../../html/images/quicklink.gif" /></a>, <a href="FrontBuffer.htm"><b>FrontBuffer</b><img src="../../html/images/quicklink.gif" /></a> und <a href="ImageBuffer.htm"><b>ImageBuffer</b><img src="../../html/images/quicklink.gif" /></a>).<br /><br />Benutze <a href="WritePixel.htm"><b>WritePixel</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="WritePixelFast.htm"><b>WritePixelFast</b><img src="../../html/images/quicklink.gif" /></a>, um die ausgelesene Farbe wieder einzuzeichnen.<br /><br /><div class="caution">Der ermittelte Farbcode wird sofort an die Variable übergeben. Die einzelnen RGB-Anteile können <b>nicht</b> mit den Befehlen <a href="ColorRed.htm"><b>ColorRed</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ColorGreen.htm"><b>ColorGreen</b><img src="../../html/images/quicklink.gif" /></a> und <a href="ColorBlue.htm"><b>ColorBlue</b><img src="../../html/images/quicklink.gif" /></a> ermittelt werden. Sie können allerdings aus dem Farbcode berechnet werden (siehe Zusatzinformationen).<br />&nbsp;</div><br /><br /><div class="hint">Benutze den Befehl <a href="ReadPixelFast.htm"><b>ReadPixelFast</b><img src="../../html/images/quicklink.gif" /></a> für einen noch schnellere Ermittlung des Farbwerts. Die Deaktivierung des Debuggers bringt eine enorme Geschwindigkeitssteigerung. <b>ReadPixel</b> ist schneller als <a href="GetColor.htm"><b>GetColor</b><img src="../../html/images/quicklink.gif" /></a>.<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<b>So wird ein Farbcode abgespeichert:</b><br />Es wird ein Integerwert übergeben. Ein Integerwert besteht aus 4 Byte. Das erste Byte (von rechts!) gibt den Blauanteil einer Farbe wieder, das zweite Byte den Grünanteil und das dritte Byte den Rotanteil. Die Farbanteile sind Werte im Bereich von 0-255. Das vierte Byte gibt den Alpha-Wert wieder. Alpha ist ein Transparenzwert, der erst ab Blitz3D voll verfügbar sein wird. Es sind Werte zwischen 0 (transparent) bis 255 (normal) möglich. Blitz2D kann keine Transparenz darstellen, somit hat es den Wert 255. Bis V1.53 gab es keinen Alphawert.<br /><br />FF FF FF FF - Farbcode in einem Integerwert<br />=> vier Informationen (je 00-FF = 256 Werte pro Information)<br />1.: Beinhaltet Alpha-Information 255 (FFh), erst ab Blitz3D ist Alpha voll verfügbar<br />2.: Rotanteil 0-255 (0h-FFh)<br />3.: Grünanteil 0-255 (0h-FFh)<br />4.: Blauanteil 0-255 (0h-FFh)<br /><br /><br /><b>Berechnung der Farbanteile aus einem Farbcode:</b><br />a = (rgb AND $FF000000)/$1000000<br />r = (rgb AND $FF0000)/$10000<br />g = (rgb AND $FF00)/$100<br />b = rgb AND $FF<br /><br /><b>Berechnung des Farbcodes aus den Farbanteilen:</b><br />rgb = a*$1000000 + r*$10000 + g*$100 + b<br /><br /><b>Berechnung der Farbwerte ohne Alpha:</b><br />rgb2 = rgb AND $FFFFFF 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				rgb = <a href="ReadPixel.htm"><b>ReadPixel</b></a>(x, y)<br />r = (rgb <a href="And.htm"><b>And</b></a> $FF0000) / $10000<br />g = (rgb <a href="And.htm"><b>And</b></a> $FF00) / $100<br />b = rgb <a href="And.htm"><b>And</b></a> $FF<br /><a href="Text.htm"><b>Text</b></a> 0, 0,  r + " " + g + " " + b 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyPixel.htm" title="Kopiert einen Pixel">CopyPixel</a>, <a href="CopyPixelFast.htm" title="Kopiert einen Pixel">CopyPixelFast</a>, <a href="GetColor.htm" title="Ändert die aktuelle Zeichenfarbe in die Farbe eines Pixels auf dem Bildschirm">GetColor</a>, <a href="Plot.htm" title="Zeichnet einen Punkt auf den Bildschirm">Plot</a>, <a href="ReadPixelFast.htm" title="Liest die Farbe eines Pixels aus">ReadPixelFast</a>, <a href="WritePixel.htm" title="Zeichnet einen Punkt auf den Bildschirm">WritePixel</a>, <a href="WritePixelFast.htm" title="Zeichnet einen Punkt auf den Bildschirm">WritePixelFast</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_34.html">Pixel</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Rnd 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert# = <b>Rnd</b># ([min#,] max#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+min
+</td>
+<td>
+der niedrigste Wert, der zurückgeliefert werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+max
+</td>
+<td>
+der höchste Wert, der zurückgeliefert werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Eine zufällige Kommazahl, die zwischen den eingestellten Werten liegt. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt eine Zufallszahl. Der minimale und maximale Wert kann eingestellt werden. An eine Float-Variable wird eine Kommazahl übergeben. An eine Integer-Variable wird dagegen eine Ganzzahl übergeben. Die Funktion <a href="Rand.htm"><b>Rand</b><img src="../../html/images/quicklink.gif" /></a> funktioniert ähnlich, liefert aber immer Ganzzahlen.<br /><br /><div class="caution">Bei jedem Start werden immer die selben Werte zurückgeliefert. Um dies zu umgehen, sollte vorher <a href="SeedRnd.htm"><b>SeedRnd</b><img src="../../html/images/quicklink.gif" /></a> benutzt werden. <a href="SeedRnd.htm"><b>SeedRnd</b><img src="../../html/images/quicklink.gif" /></a> kann auch benutzt werden, um ein bestimmtes Spiel (Kartenspiel usw.) nochmal zu spielen.<br />&nbsp;</div><br /><br /><div class="hint">Übergibt man der Funktion nur einen Parameter, so erzeugt sie eine Zufalls zwischen 0 und der übergebenen Zahl.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel erstellt einen Regen. Die Koordinate für Punkte werden in Feldern abgespeichert:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640,480,0,1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a> ()<br /><br /><a href="Dim.htm"><b>Dim</b></a> x(100), y(100), v(100)<br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 100<br />&nbsp; &nbsp;x(i) = <a href="Rnd.htm"><b>Rnd</b></a> (0,639)<br />&nbsp; &nbsp;y(i) = <a href="Rnd.htm"><b>Rnd</b></a> (0,479)<br />&nbsp; &nbsp;v(i) = <a href="Rnd.htm"><b>Rnd</b></a> (1,10)<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="While.htm"><b>While</b></a> <a href=" Keyhit.htm"><b> Keyhit</b></a> (1) = 0<br /><a href="Cls.htm"><b>Cls</b></a><br /><br /><a href="For.htm"><b>For</b></a> i = 0 TO 100<br />&nbsp; &nbsp;y(i) = y(i) + v(i)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> y(i) > 479 <a href="Then.htm"><b>Then</b></a> y(i) = 0 : v(i) = <a href="Rnd.htm"><b>Rnd</b></a> (1,10)<br />&nbsp; &nbsp;<a href="Plot.htm"><b>Plot</b></a> x(i),y(i)<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Rand.htm" title="Erzeugt eine ganzzahlige Zufallszahl">Rand</a>, <a href="SeedRnd.htm" title="Initialisiert den Zufallsgenerator">SeedRnd</a>, <a href="RndSeed.htm" title="Gibt Initialisierungswert des Zufallsgenerators zurück">RndSeed</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_8.html">Zeit & Zufall</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

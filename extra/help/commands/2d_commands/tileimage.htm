@@ -1,0 +1,141 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TileImage 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>TileImage</b> Bild [,X] [,Y] [,Frame] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Bild
+</td>
+<td>
+Identität des Bildes (z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+<tr>
+<td width="100">
+X
+</td>
+<td>
+Verschiebung in X-Richtung
+</td>
+</tr>
+<tr>
+<td width="100">
+Y
+</td>
+<td>
+Verschiebung in Y-Richtung
+</td>
+</tr>
+<tr>
+<td width="100">
+Frame
+</td>
+<td>
+Framebild bei Animationsbildern (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Grafikbefehl wird auf den kompletten Grafikbereich angewendet. Dabei wird der Grafikbereich mit einem Bild texturiert. Das heißt: das Bild wird solange wiederholt nebeneinander gezeichnet, bis der komplette Grafikbereich gefüllt ist (so ähnlich wie das Desktop-Hintergrundbild von Windows).<br /><br />Die Transparenzfarbe wird bei diesem Befehl mit berücksichtigt (wird ausgeblendet). Benutze dagegen <a href="TileBlock.htm"><b>TileBlock</b><img src="../../html/images/quicklink.gif" /></a>, wenn nur eine Textur eingezeichnet werden soll.<br /><br /><div class="hint">Benutze den Befehl <a href="ViewPort.htm"><b>ViewPort</b><img src="../../html/images/quicklink.gif" /></a>, wenn nur ein Teil des Buffers mit Grafik gefüllt werden soll. Benutze <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a>, wenn ein anderer Grafikbuffer ausgewählt werden soll.<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Diese Fehlermeldungen erscheinen, wenn ein Bild im Grafikspeicher nicht gefunden werden konnte. Dafür gibt es mehrere Gründe:<br /><br />- Ein Bild konnte auf dem Datenträger nicht gefunden werden<br />- Die Grafikdatei ist fehlerhaft<br />- Der Grafikspeicher wurde mit <a href="Graphics.htm"><b>Graphics</b><img src="../../html/images/quicklink.gif" /></a> gelöscht<br />- Wert der Variable "Bild" wurde gelöscht<br />- Die Variable "Bild" hat einen falschen Namen<br />- Die Variable "Bild" wurde nicht als <a href="Global.htm"><b>Global</b><img src="../../html/images/quicklink.gif" /></a> definiert<br />- Siehe auch <a href="GraphicsLost.htm"><b>GraphicsLost</b><img src="../../html/images/quicklink.gif" /></a> (nur Blitz3D) <br />&nbsp;</div><br /><img src="../../images/scr_illegalmemory.gif" /> <img src="../../images/scr_image.gif" /><br />Alternativ könnte auch die Fehlermeldung "Memory access violation" stehen, diese taucht jedoch meist nur bei ausgeschaltetem Debugger auf. Es empfiehlt sich dann den Debugger zu aktivieren um genauere Erkenntnisse über den Fehler zu erhalten.<br /> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm erstellt 10 Punkte - Bilder, die immer wieder überlagert eingezeichnet werden:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16, 1<br />gfxStarfield = <a href="CreateImage.htm"><b>CreateImage</b></a>(32, 32, 10)<br /><a href="For.htm"><b>For</b></a> t = 0 <a href="To.htm"><b>To</b></a> 9<br />&nbsp; &nbsp;<a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="ImageBuffer.htm"><b>ImageBuffer</b></a>(gfxStarfield, t)<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> y = 1 <a href="To.htm"><b>To</b></a> 50<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Plot.htm"><b>Plot</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(32), <a href="Rnd.htm"><b>Rnd</b></a>(32)<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />Next<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="FrontBuffer.htm"><b>FrontBuffer</b></a>()<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a>() > tmrScreen + 300 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="TileImage.htm"><b>TileImage</b></a> gfxStarfield, <a href="Rnd.htm"><b>Rnd</b></a>(9), <a href="Rnd.htm"><b>Rnd</b></a>(9), <a href="Rnd.htm"><b>Rnd</b></a>(9)<br />&nbsp; &nbsp;&nbsp; &nbsp;tmrScreen = <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="TileBlock.htm" title="Texturiert den kompletten Grafikbereich mit einem Bild">TileBlock</a>, <a href="DrawBlock.htm" title="Zeichnet ein geladenes/erstelltes Bild auf dem Bildschirm">DrawBlock</a>, <a href="DrawImage.htm" title="Zeichnet ein Bild auf den Bildschirm (mit Maske)">DrawImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

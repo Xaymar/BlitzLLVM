@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		MouseXSpeed 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			bewegung = <b>MouseXSpeed</b>( [canvas] ) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+canvas
+</td>
+<td>
+<i>Nur für BlitzPlus</i>: Handle eines Canvas. Die Bewegung wird dann für das Canvas angegeben.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Die horizontale Verschiebung der Maus in Pixel:<br />negativ - Bewegung nach links<br />positiv - Bewegung nach rechts 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion gibt die Anzahl an Pixeln zurück, um die die Maus seit dem letzten Aufruf verschoben wurde.<br />Für die vertikale Bewegung muss <a href="MouseYSpeed.htm"><b>MouseYSpeed</b><img src="../../html/images/quicklink.gif" /></a> benutzt werden.<br /><br /><div class="hint">Bei BlitzPlus wird im Fenstermodus die Bewegung auf dem Desktops und nicht die im Fensters zurückgeliefert. Um die Bewegung im Fenster zu erhalten benutze den Parameter Canvas<br />&nbsp;</div><br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Wird dieser Wert oft benötigt (mehrmals während eines Schleifendurchgangs), so sollte er am Anfang in einer Variablen gespeichert werden, da immer nur die Verschiebung <b>seit dem letzten Funktionsaufruf</b> zurückgegeben wird.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Malt einen Mauscursor und gibt Informationen über die Position und Tastendrücke der Maus an:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 32, 2<br /><br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br /><a href="HidePointer.htm"><b>HidePointer</b></a><br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> <a href="MouseX.htm"><b>MouseX</b></a>(), <a href="MouseY.htm"><b>MouseY</b></a>(), 3, 3<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 10, "MouseDown(1): " + <a href="MouseDown.htm"><b>MouseDown</b></a>(1) + " - MouseHit(1): " + <a href="MouseHit.htm"><b>MouseHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 25, "MouseDown(2): " + <a href="MouseDown.htm"><b>MouseDown</b></a>(2) + " - MouseHit(2): " + <a href="MouseHit.htm"><b>MouseHit</b></a>(2)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 40, "MouseDown(3): " + <a href="MouseDown.htm"><b>MouseDown</b></a>(3) + " - MouseHit(3): " + <a href="MouseHit.htm"><b>MouseHit</b></a>(3)<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 60, "MouseX: " + <a href="MouseX.htm"><b>MouseX</b></a>() + " - MouseXSpeed: " + <a href="MouseXSpeed.htm"><b>MouseXSpeed</b></a>()<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 75, "MouseY: " + <a href="MouseY.htm"><b>MouseY</b></a>() + " - MouseYSpeed: " + <a href="MouseYSpeed.htm"><b>MouseYSpeed</b></a>()<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 90, "MouseZ: " + <a href="MouseZ.htm"><b>MouseZ</b></a>() + " - MouseZSpeed: " + <a href="MouseZSpeed.htm"><b>MouseZSpeed</b></a>()<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br /><a href="Until.htm"><b>Until</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br /><br /><a href="EndGraphics.htm"><b>EndGraphics</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="MouseX.htm" title="Gibt die X-Koordinate des Mauszeigers zurück">MouseX</a>, <a href="MouseY.htm" title="Gibt die Y-Koordinate des Mauszeigers zurück">MouseY</a>, <a href="MouseZ.htm" title="Gibt die Position des Maus-Scrollrades zurück">MouseZ</a>, <a href="MouseYSpeed.htm" title="Gibt die vertikale Mausbewegung zurück">MouseYSpeed</a>, <a href="MouseZSpeed.htm" title="Gibt die Bewegung des Scrollrades seit dem letzten Aufruf zurück">MouseZSpeed</a>, <a href="MoveMouse.htm" title="Setzt den Mauszeiger an eine neue Position">MoveMouse</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_4.html">Eingabe</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_32.html">Maus</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

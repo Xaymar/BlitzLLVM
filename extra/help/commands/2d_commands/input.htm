@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Input 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert$ = <b>Input</b>$( [text$] ) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+text$
+</td>
+<td>
+Beliebiger Text, der auf dem Bildschirm erscheinen soll. (optional)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Ein Stringwert mit dem eingegebenen Text. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl stellt eine einfache Eingaberoutine zur Verfügung. Der Benutzer kann dann einen Text, so ähnlich wie in der DOS-Box, eingeben. Dieser Text wird dann an eine beliebige Variable übergeben. Die Eingabe muss mit Return-Taste beendet werden.<br /><br /><div class="hint">Die <b>Input</b>-Funktion kann die Eingabe nicht auf eine bestimmte Anzahl von Zeichen begrenzen. Um dies zu erreichen, muss man eine solche Routine selbst programmieren.<br />&nbsp;</div><br /><br /><div class="caution">Dieser Befehl unterbricht den Programmablauf bis zum Abschluss der Eingabe mit Enter. Daher wird empfohlen alternativ eine Funktion auf <a href="GetKey.htm"><b>GetKey</b><img src="../../html/images/quicklink.gif" /></a> aufbauend zu benutzen.<br />&nbsp;</div><br /> <br /><div class="caution">Bei BlitzPlus erfolgt die Eingabe in einer Konsole (DOS-Box)<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Name$ = <a href="Input.htm"><b>Input</b></a>$("Wie ist ihr Name? ")<br /><a href="Write.htm"><b>Write</b></a> "Hallo " + Name$ 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Locate.htm" title="Setzt den Textcursor an angegebene Position">Locate</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_4.html">Eingabe</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_37.html">Tastatur</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

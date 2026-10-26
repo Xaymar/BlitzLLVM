@@ -1,0 +1,150 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CopyPixelFast 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CopyPixelFast</b> x1, y1, quelle, x2, y2 [, ziel] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x1
+</td>
+<td>
+X-Koordinate des Quell-Pixels
+</td>
+</tr>
+<tr>
+<td width="100">
+y1
+</td>
+<td>
+Y-Koordinate des Quell-Pixels
+</td>
+</tr>
+<tr>
+<td width="100">
+quelle
+</td>
+<td>
+Buffer, von dem kopiert werden soll (0=aktuell)
+</td>
+</tr>
+<tr>
+<td width="100">
+x2
+</td>
+<td>
+X-Koordinate des Ziel-Pixels
+</td>
+</tr>
+<tr>
+<td width="100">
+y2
+</td>
+<td>
+Y-Koordinate des Ziel-Pixels
+</td>
+</tr>
+<tr>
+<td width="100">
+ziel
+</td>
+<td>
+Buffer, wohin kopiert werden soll (0=aktuell)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung kopiert einen Pixel von einer Stelle (und Buffer) zur anderen. Es ist schneller als <a href="CopyPixel.htm"><b>CopyPixel</b><img src="../../html/images/quicklink.gif" /></a>.<br /><br />Alternative: <a href="ReadPixelFast.htm"><b>ReadPixelFast</b><img src="../../html/images/quicklink.gif" /></a> und <a href="WritePixelFast.htm"><b>WritePixelFast</b><img src="../../html/images/quicklink.gif" /></a><br /><br /><div class="caution">Für diesen Befehl ist die Sperrung des Quell- und Zielbuffers mit <a href="LockBuffer.htm"><b>LockBuffer</b><img src="../../html/images/quicklink.gif" /></a> notwendig. Dies erhöht die Geschwindigkeit, indem die Fehlerprüfung deaktiviert wird. Ungültige Werte außerhalb des Buffers können zum Absturz des Rechners führen.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel Zeichnet auf die eine Hälfte des Grafikfensters zufällige Rechtecke, und kopiert diese anschließend mittels CopyPixelFast. Dazu muss der Buffer mit LockBuffer gesperrt werden:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 400,300,32,2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="SeedRnd.htm"><b>SeedRnd</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br /><br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 99<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> <a href="Rand.htm"><b>Rand</b></a>(0,255), <a href="Rand.htm"><b>Rand</b></a>(0,255), <a href="Rand.htm"><b>Rand</b></a>(0,255)<br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> <a href="Rand.htm"><b>Rand</b></a>(0,200), <a href="Rand.htm"><b>Rand</b></a>(0,300), <a href="Rand.htm"><b>Rand</b></a>(100), <a href="Rand.htm"><b>Rand</b></a>(100)<br /><a href="Next.htm"><b>Next</b></a><br /><a href="Color.htm"><b>Color</b></a> 0,0,0 : <a href="Rect.htm"><b>Rect</b></a> 200,0,200,300<br />&nbsp; &nbsp;<br /><br /><a href="LockBuffer.htm"><b>LockBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="For.htm"><b>For</b></a> y = 0 <a href="To.htm"><b>To</b></a> 299<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> x = 0 <a href="To.htm"><b>To</b></a> 199<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="CopyPixelFast.htm"><b>CopyPixelFast</b></a> x, y, <a href="BackBuffer.htm"><b>BackBuffer</b></a>(), x+200, y, <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br /><a href="Next.htm"><b>Next</b></a><br /><a href="UnlockBuffer.htm"><b>UnlockBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ReadPixel.htm" title="Liest die Farbe eines Pixels aus">ReadPixel</a>, <a href="ReadPixelFast.htm" title="Liest die Farbe eines Pixels aus">ReadPixelFast</a>, <a href="WritePixel.htm" title="Zeichnet einen Punkt auf den Bildschirm">WritePixel</a>, <a href="WritePixelFast.htm" title="Zeichnet einen Punkt auf den Bildschirm">WritePixelFast</a>, <a href="CopyPixel.htm" title="Kopiert einen Pixel">CopyPixel</a>, <a href="LockBuffer.htm" title="Sperrt einen Buffer">LockBuffer</a>, <a href="Plot.htm" title="Zeichnet einen Punkt auf den Bildschirm">Plot</a>, <a href="UnlockBuffer.htm" title="Entsperrt einen Buffer">UnlockBuffer</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_34.html">Pixel</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		UnlockBuffer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>UnlockBuffer</b> [buffer] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+buffer
+</td>
+<td>
+Name des zu entsperrenden Buffers wie z.B. <a href="BackBuffer.htm"><b>BackBuffer</b><img src="../../html/images/quicklink.gif" /></a>, <a href="FrontBuffer.htm"><b>FrontBuffer</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="ImageBuffer.htm"><b>ImageBuffer</b><img src="../../html/images/quicklink.gif" /></a>. Wenn es weggelassen wird, dann wird der aktuelle Buffer, der mit <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a> gesetzt wurde, geöffnet.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl öffnet einen Buffer, der mit <a href="LockBuffer.htm"><b>LockBuffer</b><img src="../../html/images/quicklink.gif" /></a> vorher gesperrt wurde. Dadurch können die normalen Grafikbefehle wieder benutzt werden. Die Fehlerprüfung wird wieder aktiviert. <b>UnlockBuffer</b> wurde speziell für <a href="CopyPixelFast.htm"><b>CopyPixelFast</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ReadPixelFast.htm"><b>ReadPixelFast</b><img src="../../html/images/quicklink.gif" /></a> und <a href="WritePixelFast.htm"><b>WritePixelFast</b><img src="../../html/images/quicklink.gif" /></a> geschrieben, um eine noch höhere Geschwindigkeit zu erzielen. Mit LockBuffer kann ein Buffer für normale Grafikbefehle gesperrt werden.<br /><br /><div class="caution">Wurde LockBuffer benutzt, so dürfen die Zeichenbefehle nicht außerhalb des Bildschirm angewendet werden, da sonst der Computer abstürzen kann.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel Zeichnet auf die eine Hälfte des Grafikfensters zufällige Rechtecke, und kopiert diese anschließend mittels CopyPixelFast. Dazu muss der Buffer mit LockBuffer gesperrt werden:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 400,300,32,2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="SeedRnd.htm"><b>SeedRnd</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br /><br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 99<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> <a href="Rand.htm"><b>Rand</b></a>(0,255), <a href="Rand.htm"><b>Rand</b></a>(0,255), <a href="Rand.htm"><b>Rand</b></a>(0,255)<br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> <a href="Rand.htm"><b>Rand</b></a>(0,200), <a href="Rand.htm"><b>Rand</b></a>(0,300), <a href="Rand.htm"><b>Rand</b></a>(100), <a href="Rand.htm"><b>Rand</b></a>(100)<br /><a href="Next.htm"><b>Next</b></a><br /><a href="Color.htm"><b>Color</b></a> 0,0,0 : <a href="Rect.htm"><b>Rect</b></a> 200,0,200,300<br />&nbsp; &nbsp;<br /><br /><a href="LockBuffer.htm"><b>LockBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="For.htm"><b>For</b></a> y = 0 <a href="To.htm"><b>To</b></a> 299<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> x = 0 <a href="To.htm"><b>To</b></a> 199<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="CopyPixelFast.htm"><b>CopyPixelFast</b></a> x, y, <a href="BackBuffer.htm"><b>BackBuffer</b></a>(), x+200, y, <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br /><a href="Next.htm"><b>Next</b></a><br /><a href="UnlockBuffer.htm"><b>UnlockBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyPixelFast.htm" title="Kopiert einen Pixel">CopyPixelFast</a>, <a href="LockBuffer.htm" title="Sperrt einen Buffer">LockBuffer</a>, <a href="LockedFormat.htm" title="Ermittelt die Farbtiefe eines Buffers">LockedFormat</a>, <a href="LockedPitch.htm" title="Ermittelt die Datengröße für eine horizontale Zeile des Buffers">LockedPitch</a>, <a href="LockedPixels.htm" title="Ermittelt die Identität einer Bank, die den Videospeicher repräsentiert">LockedPixels</a>, <a href="ReadPixelFast.htm" title="Liest die Farbe eines Pixels aus">ReadPixelFast</a>, <a href="WritePixelFast.htm" title="Zeichnet einen Punkt auf den Bildschirm">WritePixelFast</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_34.html">Pixel</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

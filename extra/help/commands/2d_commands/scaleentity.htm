@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ScaleEntity 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ScaleEntity</b> entity%, x#, y#, z# [, global%] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+x#
+</td>
+<td>
+Absoluter Skalierungsfaktor X
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Absoluter Skalierungsfaktor Y
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Absoluter Skalierungsfaktor Z
+</td>
+</tr>
+<tr>
+<td width="100">
+global%
+</td>
+<td>
+0=Größe vom Parent abhängig (Standard)<br />1=Größe vom Parent unabhängig
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>ScaleEntity</b> skaliert ein Objekt auf eine bestimmte absolute Größe.<br /><br />Normalerweise wird jedes Objekt mit Skalierungsfaktor 1 erstellt/geladen. Gibt man nun eine kleine Zahl ein, dann wird dieses Objekt entsprechend verkleinert (0.5=50%). Gibt man dagegen größeren Wert ein, dann wird es vergrößert (2.0=200%).<br /><br />Negative Skalierungsfaktoren sind aber auch möglich. Dieses Objekt wird dann in der entsprechenden Achse gespiegelt.<br /><br />Der optionale Parameter "global%" gibt an, ob die Skalierungsfaktoren (un)abhängig von Parent übergeben werden. Gebe 0 ein, wenn Skalierungsgröße vom Parent in Berechnung einfließen soll. Sonst gebe 1 ein, wenn dieses Objekt unabhängig vom Parent skaliert werden soll. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />cone = <a href="CreateCone.htm"><b>CreateCone</b></a>(32)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone, 0, 0, 5<br />x_scale# = 1<br />y_scale# = 1<br />z_scale# = 1<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> x_scale# = x_scale# - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> x_scale# = x_scale# + 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> y_scale# = y_scale# - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> y_scale# = y_scale# + 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = 1 <a href="Then.htm"><b>Then</b></a> z_scale# = z_scale# - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(30) = 1 <a href="Then.htm"><b>Then</b></a> z_scale# = z_scale# + 0.1<br />&nbsp; &nbsp;<a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cone, x_scale#, y_scale#, z_scale#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Cursortasten/A/Z"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "X Scale: " + x_scale#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "Y Scale: " + y_scale#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 60, "Z Scale: " + z_scale#<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FitMesh.htm" title="Passt Gitterobjekt an einen Quader an">FitMesh</a>, <a href="ScaleMesh.htm" title="Skaliert ein Mesh">ScaleMesh</a>, <a href="ScaleSprite.htm" title="Skaliert ein Sprite auf eine absolute Größe">ScaleSprite</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_60.html">Bewegung</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CollisionZ 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			z# = <b>CollisionZ</b># (entity%, index%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+index%
+</td>
+<td>
+Index der Kollisions-Liste (1 bis <a href="CountCollisions.htm"><b>CountCollisions</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Z-Koordinate der Kollision 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>CollisionZ</b> liefert die Z-Koordinate der Kollision. Dabei wird die absolute Koordinate von dem Nullpunkt der 3D-Welt berechnet. Der Befehl <a href="CollisionNZ.htm"><b>CollisionNZ</b><img src="../../html/images/quicklink.gif" /></a> berechnet dagegen die Koordinate des Normals.<br /><br />Dabei muss man zuerst die Identität des ersten Entity-Objekts angeben. Da ein Objekt mit mehreren anderen Objekten gleichzeitig kollidieren kann, muss man die Indexnummer angeben. Dieser Index kann nur von 1 bis <a href="CountCollisions.htm"><b>CountCollisions</b><img src="../../html/images/quicklink.gif" /></a> reichen. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, 45, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 15, - 10<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 45, 0, 0<br /><br />sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(32)<br /><a href="EntityType.htm"><b>EntityType</b></a> sphere, 1<br /><a href="EntityRadius.htm"><b>EntityRadius</b></a> sphere, 1<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sphere, 0, 11, 0<br /><br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityType.htm"><b>EntityType</b></a> cube, 2<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube, 0, 100, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, - 5, 0<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cube, 10, 10, 10<br /><br />cylinder = <a href="CreateCylinder.htm"><b>CreateCylinder</b></a>(32)<br /><a href="EntityType.htm"><b>EntityType</b></a> cylinder, 2<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cylinder, 255, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cylinder, 0, 7, 0<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cylinder, 2, 2, 2<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;x# = 0<br />&nbsp; &nbsp;y# = 0<br />&nbsp; &nbsp;z# = 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> x# = - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> x# = 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> z# = - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> z# = 0.1<br />&nbsp; &nbsp;<a href="MoveEntity.htm"><b>MoveEntity</b></a> sphere, x#, - 0.1, z#<br />&nbsp; &nbsp;<a href="Collisions.htm"><b>Collisions</b></a> 1, 2, 2, 2<br />&nbsp; &nbsp;<a href="UpdateWorld.htm"><b>UpdateWorld</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;col = <a href="CountCollisions.htm"><b>CountCollisions</b></a>(sphere)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Kollision(en):"<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> col<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 000, i * 20, "Entity=" + <a href="CollisionEntity.htm"><b>CollisionEntity</b></a>(sphere, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 150, i * 20, "X=" + <a href="CollisionX.htm"><b>CollisionX</b></a>(sphere, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 300, i * 20, "Y=" + <a href="CollisionY.htm"><b>CollisionY</b></a>(sphere, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 450, i * 20, "Z=" + <a href="CollisionZ.htm"><b>CollisionZ</b></a>(sphere, i)<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CollisionNX.htm" title="Liefert X-Koordinate eines kollidierten Normals">CollisionNX</a>, <a href="CollisionNY.htm" title="Liefert Y-Koordinate eines kollidierten Normals">CollisionNY</a>, <a href="CollisionNZ.htm" title="Liefert Z-Koordinate eines kollidierten Normals">CollisionNZ</a>, <a href="CollisionX.htm" title="Liefert X-Koordinate einer Kollision">CollisionX</a>, <a href="CollisionY.htm" title="Liefert Y-Koordinate einer Kollision">CollisionY</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_67.html">Kollision</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

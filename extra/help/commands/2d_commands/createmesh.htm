@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateMesh 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			mesh% = <b>CreateMesh</b>% ([parent%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+parent%
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll (optional)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des Gitterobjekts zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateMesh</b> erstellt ein Gitterobjekt (mesh) und liefert danach die Identität des Objekts zurück.<br /><br />Ein Mesh besteht aus Oberflächen, die noch mit <a href="CreateSurface.htm"><b>CreateSurface</b><img src="../../html/images/quicklink.gif" /></a> erstellt werden müssen. Diese Oberflächen werden dann an einen Mesh angefügt. Ein Mesh verbindet somit alle Oberflächen zu einer Einheit.<br /><br />Weiterhin besteht eine Oberfläche aus Dreiecken, die durch Vertexpunkte definiert werden. Dazu muss man erst diese Punkte mit <a href="AddVertex.htm"><b>AddVertex</b><img src="../../html/images/quicklink.gif" /></a> definieren und mit <a href="AddTriangle.htm"><b>AddTriangle</b><img src="../../html/images/quicklink.gif" /></a> verbinden.<br /><br />Wurde der Parameter "parent%" angegeben, dann wird dieses Gitterobjekt zu einem anderen Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br /><br />Ein Mesh wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, - 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />brush = <a href="CreateBrush.htm"><b>CreateBrush</b></a>(0, 255, 0)<br />mesh = <a href="CreateMesh.htm"><b>CreateMesh</b></a>()<br />surface = <a href="CreateSurface.htm"><b>CreateSurface</b></a>(mesh, brush)<br />v0 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, 0, 0, 0)<br />v1 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, 1, - 1, 0)<br />v2 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, - 1, - 1, 0)<br /><a href="AddTriangle.htm"><b>AddTriangle</b></a>(surface, v0, v1, v2)<br /><a href="UpdateNormals.htm"><b>UpdateNormals</b></a> mesh<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AddMesh.htm" title="Fügt Quell-Mesh einem Ziel-Mesh hinzu">AddMesh</a>, <a href="CopyMesh.htm" title="Kopiert ein Mesh im Speicher">CopyMesh</a>, <a href="LoadMesh.htm" title="Lädt ein Gitterobjekt in den Speicher">LoadMesh</a>, <a href="LoadAnimMesh.htm" title="Lädt ein animiertes Gitterobjekt in den Speicher">LoadAnimMesh</a>, <a href="AddTriangle.htm" title="Fügt Dreieck einer Oberfläche hinzu">AddTriangle</a>, <a href="AddVertex.htm" title="Fügt ein Vertex einer Oberfläche hinzu">AddVertex</a>, <a href="CreateSurface.htm" title="Erstellt eine neue Oberfläche">CreateSurface</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_70.html">Mesh</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

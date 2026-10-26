@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Dim 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Dim</b> variable$ (index1, index2 ...) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+variable$
+</td>
+<td>
+Die Variable über den das Dim Feld angesprochen werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+index
+</td>
+<td>
+Größe, die die Anzahl der Einträge kennzeichnet
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung definiert ein Feld. Ein Feld ist eine Ansammlung von vielen Variablen. Dabei kann man nicht nur Integer, sondern auch Float- und Stringfelder definieren. Es können auch mehrdimensionale Felder erzeugt werden. Hier einige Beispiele, um den Begriff "Dimension" besser zu verstehen:<br /><br /><img src="../../images/gfx_dim.gif" /><br /><br />* Eindimensionales Feld wie <b>Dim</b> Stundenplan$(7) kann man sich 		als eine Reihe von Werten vorstellen. So kann man z.B. 	einen Stundenplan mit max. 8 Fächern für einen Tag erstellen.<br /><br />* Zweidimensionales Feld wie <b>Dim</b> Stundenplan$(7,4) kann man sich wie eine Tabelle vorstellen. Man kann damit einen Stundenplan für 5 ganze Tage merken.<br /><br />* Dreidimensionales Feld wie <b>Dim</b> Stundenplan$(7,4,11) kann als Tabelle mit mehreren Blätter vorgestellt werden. So kann man z.B. Stundenpläne für 12 Klassen speichern.<br /><br />* Weiterhin können auch Felder mit mehr als drei Dimensionen erstellt werden. Dies wird allerdings selten gebraucht und sollte überlegt eingesetzt werden.<br /><br /><div class="caution">Ein <b>Dim</b> Feld fängt immer ab 0 an. Somit kann <b>Dim</b> feld(49) nicht 49, sondern 50 Einträge speichern (0-49).<br />&nbsp;</div><br /><br /><div class="caution">Ein neues Feld kann nur im Hauptprogramm definiert werden. Dabei wird so ein Feld automatisch global definiert - d.h. es kann auch in den Funktionen ausgelesen oder verändert werden. Ein Feld lässt sich mit nachfolgenden <b>Dim</b> Befehlen in der Größe verändern - allerdings werden dabei alle Daten wieder gelöscht (so kann man auch Speicher wieder freigeben). Diese Methode funktioniert auch in Funktionen.<br />&nbsp;</div><br /><br /><div class="hint">Beachte, dass dadurch jedes Mal Speicher reserviert wird. Die Felder sollen möglichst klein sein. Dies wird besonders von Anfängern nicht beachtet. So wird mit dem Befehl <b>Dim</b> Feld(99,99,99) ein Feld erstellt, das genau 1000000 Werte aufnehmen kann! Da ein Feld immer ab Null anfängt, und dadurch jeder Index in dem Beispiel eine "Tiefe" von 100 hat, ergibt sich nach der Rechnung: 100*100*100=1000000. Jeder Eintrag verbraucht aber wiederum Speicher. So braucht man 4 Byte, um einen Integerwert zu speichern. Dadurch ergibt sich in unserem Beispiel eine benötigte Speichergröße von min. 4000000 Byte - oder 3,81 MegaByte!!! Durch solche kleine "Fehler" kann man einen schwachen Rechner sogar verlangsamen, da die notwendigen Daten aus dem Speicher auf die langsame Festplatte verbannt werden können.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel erstellt einen Regen. Die Koordinate für Punkte werden in Feldern abgespeichert:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640,480,0,1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a> ()<br /><br /><a href="Dim.htm"><b>Dim</b></a> x(100), y(100), v(100)<br /><br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 100<br />&nbsp; &nbsp;x(i) = <a href="Rnd.htm"><b>Rnd</b></a> (0,639)<br />&nbsp; &nbsp;y(i) = <a href="Rnd.htm"><b>Rnd</b></a> (0,479)<br />&nbsp; &nbsp;v(i) = <a href="Rnd.htm"><b>Rnd</b></a> (1,10)<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="While.htm"><b>While</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a> (1) = 0<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 100<br />&nbsp; &nbsp;&nbsp; &nbsp;y(i) = y(i) + v(i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> y(i) > 479 <a href="Then.htm"><b>Then</b></a> y(i) = 0 : v(i) = <a href="Rnd.htm"><b>Rnd</b></a> (1,10)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Plot.htm"><b>Plot</b></a> x(i),y(i)<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="After.htm" title="Wechselt zum nächsten Eintrag eines &quot;Types&quot;">After</a>, <a href="Before.htm" title="Wechselt zum vorherigen Eintrag eines &quot;Types&quot;">Before</a>, <a href="Field.htm" title="Weist einer &quot;Type&quot; Kollektion eine Eigenschaft zu">Field</a>, <a href="Delete.htm" title="Löscht einen Eintrag aus dem Speicher">Delete</a>, <a href="Each.htm" title="Arbeitet alle Einträge eines &quot;Type&quot; Feldes ab">Each</a>, <a href="Insert.htm" title="Verschiebt einen bereits existierenden &quot;Type&quot; Eintrag">Insert</a>, <a href="End Type.htm" title="Markiert das Ende einer &quot;Type&quot; Definition">End Type</a>, <a href="First.htm" title="Springt zum ersten Feld eines &quot;Type&quot; Eintrags">First</a>, <a href="Last.htm" title="Wechselt zum letzten &quot;Type&quot; Eintrag">Last</a>, <a href="Type.htm" title="Definiert ein &quot;Type&quot;">Type</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_35.html">Datenblöcke</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

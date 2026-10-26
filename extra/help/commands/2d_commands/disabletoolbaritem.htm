@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		DisableToolBarItem 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>DisableToolBarItem</b> toolbar, index 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+toolbar
+</td>
+<td>
+Identität eines Toolbar-Objekts
+</td>
+</tr>
+<tr>
+<td width="100">
+index
+</td>
+<td>
+Indexnummer des Symbols (ab -1)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			<img src="../../images/gfx_toolbar.gif" /><br /><br />Die Anweisung <b>DisableToolBarItem</b> schaltet ein Symbol in der Toolbar aus. Es erscheint danach grau und reagiert nicht mehr auf Eingaben. Events werden auch nicht mehr zurückgeliefert. Mit <a href="EnableToolBarItem.htm"><b>EnableToolBarItem</b><img src="../../html/images/quicklink.gif" /></a> kann es wieder eingeschaltet werden.<br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Erstellt eine Toolbar und schaltet das dritte Symbol aus:<br />
+			<div class="syntax-code">
+				img = <a href="CreateImage.htm"><b>CreateImage</b></a>(96, 32)<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="ImageBuffer.htm"><b>ImageBuffer</b></a>(img, 0)<br /><a href="Color.htm"><b>Color</b></a> 255, 0, 0<br /><a href="Rect.htm"><b>Rect</b></a> 1, 1, 30, 30, 1<br /><a href="Color.htm"><b>Color</b></a> 255, 255, 0<br /><a href="Rect.htm"><b>Rect</b></a> 33, 1, 30, 30, 1<br /><a href="Color.htm"><b>Color</b></a> 0, 255, 0<br /><a href="Rect.htm"><b>Rect</b></a> 65, 1, 30, 30, 1<br /><a href="SaveImage.htm"><b>SaveImage</b></a> img, "C:\bild.tmp"<br /><a href="FreeImage.htm"><b>FreeImage</b></a> img<br /><br />window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 0, 0, 300, 300, 0, 1)<br />toolbar = <a href="CreateToolBar.htm"><b>CreateToolBar</b></a>("c:\bild.tmp", 0, 0, 96, 32, window)<br /><a href="DisableToolBarItem.htm"><b>DisableToolBarItem</b></a> toolbar, 1<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GetKey.htm"><b>GetKey</b></a>() = 27 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;nr = <a href="WaitEvent.htm"><b>WaitEvent</b></a>()<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> nr = $803 <a href="Then.htm"><b>Then</b></a> <a href="DeleteFile.htm"><b>DeleteFile</b></a> "c:\bild.tmp" : <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> nr = $401 <a href="And.htm"><b>And</b></a> <a href="EventSource.htm"><b>EventSource</b></a>() = toolbar <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Notify.htm"><b>Notify</b></a> "Symbol=" + <a href="EventData.htm"><b>EventData</b></a>()<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="SetToolBarTips.htm" title="Die Anweisung ändert bzw. setzt Hinweistexte">SetToolBarTips</a>, <a href="CreateToolBar.htm" title="Die Funktion erstellt ein Toolbar-Objekt (Werkzeugleiste)">CreateToolBar</a>, <a href="EnableToolBarItem.htm" title="Die Anweisung schaltet ein Symbol in der Toolbar ein">EnableToolBarItem</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_55.html">Toolbar</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

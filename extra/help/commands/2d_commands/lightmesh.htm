@@ -1,0 +1,166 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LightMesh 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>LightMesh</b> mesh%, rot#, gruen#, blau# [, reichw#] [, x#] [, y#] [, z#] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+mesh%
+</td>
+<td>
+Identität eines Gitterobjekts (mesh)
+</td>
+</tr>
+<tr>
+<td width="100">
+rot#
+</td>
+<td>
+Rotanteil 0-255
+</td>
+</tr>
+<tr>
+<td width="100">
+gruen#
+</td>
+<td>
+Grünanteil 0-255
+</td>
+</tr>
+<tr>
+<td width="100">
+blau#
+</td>
+<td>
+Blauanteil 0-255
+</td>
+</tr>
+<tr>
+<td width="100">
+reichw#
+</td>
+<td>
+Maximale Reichweite des Lichts (Standard=0)
+</td>
+</tr>
+<tr>
+<td width="100">
+x#
+</td>
+<td>
+X-Koordinate des Lichts
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Y-Koordinate des Lichts
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Z-Koordinate des Lichts
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>LightMesh</b> weist einem Gitterobjekt eine andere Lichtquelle zu. Es wird somit ein Licht simuliert, welches aber gar nicht erstellt wurde ('fake' lighting).<br /><br />Der Parameter "mesh%" ist die Identität eines Gitterobjekts.<br /><br />Die Parameter "rot#","gruen#","blau#" sind Farbanteile des Lichts und liegen im Bereich von 0 bis 255.<br /><br />Der Parameter "reichw#" gibt die maximale Entfernung des Lichts an.<br /><br />Die Parameter "x#","y#","z#" geben die Position des Lichts an. Standardmäßig ist es 0,0,0.<br /><br /><div class="caution">Für diesen Befehl muss man FX-Modus 2 aktivieren, sonst gibt es keine Änderungen.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, 0<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 10<br /><a href="EntityPickMode.htm"><b>EntityPickMode</b></a> cube, 2<br /><a href="EntityFX.htm"><b>EntityFX</b></a> cube, 2 + 4<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="LightMesh.htm"><b>LightMesh</b></a> cube, 255, 255, 255<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, 1, 1, 1<br />&nbsp; &nbsp;mx = <a href="MouseX.htm"><b>MouseX</b></a>()<br />&nbsp; &nbsp;my = <a href="MouseY.htm"><b>MouseY</b></a>()<br />&nbsp; &nbsp;entity = <a href="CameraPick.htm"><b>CameraPick</b></a>(camera, mx, my)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> entity>0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;surface = <a href="PickedSurface.htm"><b>PickedSurface</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;triangle = <a href="PickedTriangle.htm"><b>PickedTriangle</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;v0 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(surface, triangle, 0)<br />&nbsp; &nbsp;&nbsp; &nbsp;v1 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(surface, triangle, 1)<br />&nbsp; &nbsp;&nbsp; &nbsp;v2 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(surface, triangle, 2)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="VertexColor.htm"><b>VertexColor</b></a> surface, v0, 255, 0, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="VertexColor.htm"><b>VertexColor</b></a> surface, v1, 255, 0, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="VertexColor.htm"><b>VertexColor</b></a> surface, v2, 255, 0, 0<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateLight.htm" title="Erstellt ein neues Licht">CreateLight</a>, <a href="LightColor.htm" title="Ändert Farbe einer Lichtquelle">LightColor</a>, <a href="LightConeAngles.htm" title="Ändert Winkel einer Lichtquelle">LightConeAngles</a>, <a href="LightRange.htm" title="Setzt maximale Reichweite einer Lichtquelle">LightRange</a>, <a href="UpdateNormals.htm" title="Berechnet alle Normalen eines Gitterobjekts neu">UpdateNormals</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_69.html">Licht</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

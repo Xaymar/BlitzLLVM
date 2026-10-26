@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ExtractAnimSeq 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			nr% = <b>ExtractAnimSeq</b> (entity%, start%, ende% [, animSeq%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objektes (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+start%
+</td>
+<td>
+Start-Frame der Animation (ab 0)
+</td>
+</tr>
+<tr>
+<td width="100">
+ende%
+</td>
+<td>
+End-Frame der Animation (ab 0)
+</td>
+</tr>
+<tr>
+<td width="100">
+animSeq%
+</td>
+<td>
+Nummer der Animationssequenz (ist normalerweise 0, Standard 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Nummer der Animationssequenz zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dank <b>ExtractAnimSeq</b> können einfache Meshanimationen fast wie MD2-Animationen funktionieren. Dazu wird ein Mesh ganz normal geladen - es hat dann bereits eine Animationssequenz. Weitere Animationssequenzen können dann mit <b>ExtractAnimSeq</b> erstellt werden. Mit <a href="Animate.htm"><b>Animate</b><img src="../../html/images/quicklink.gif" /></a> kann dann eine beliebige Animationssequenz abgespielt werden.<br /><br />Beispiel:<br />Mit <a href="LoadAnimMesh.htm"><b>LoadAnimMesh</b><img src="../../html/images/quicklink.gif" /></a> wird eine komplette Animation geladen. Mit <b>ExtractAnimSeq</b> können einzelne "Animationsbereiche" extrahiert werden (z.B. Sprunganimation). Diese Animationssequenz kann dann ganz einfach mit <a href="Animate.htm"><b>Animate</b><img src="../../html/images/quicklink.gif" /></a> abgespielt werden. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Zuerst Mesh laden (AnimSequenz 0!)<br />mesh = <a href="LoadAnimMesh.htm"><b>LoadAnimMesh</b></a>(base_mesh$)<br /><br />;Laufanimation ist Frame 0-30 (AnimSequenz 1!)<br /><a href="ExtractAnimSeq.htm"><b>ExtractAnimSeq</b></a>(mesh, 0, 30 )<br /><br />;Sprunganimation ist Frame 31-40 (AnimSequenz 2!)<br /><a href="ExtractAnimSeq.htm"><b>ExtractAnimSeq</b></a>(mesh, 31, 40)<br /><br />;Sprunganimation 1x abspielen<br /><a href="Animate.htm"><b>Animate</b></a> mesh, 3, 1, 2 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Animate.htm" title="ändert die Animationsart eines Objekts">Animate</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_57.html">Animation</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

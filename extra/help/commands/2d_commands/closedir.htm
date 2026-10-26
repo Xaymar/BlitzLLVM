@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CloseDir 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CloseDir</b> verzeichnis 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+verzeichnis
+</td>
+<td>
+Identität, die mit <a href="ReadDir.htm"><b>ReadDir</b><img src="../../html/images/quicklink.gif" /></a> ermittelt wurde
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung schließt den Zugriff auf ein Verzeichnis, welches mit <a href="ReadDir.htm"><b>ReadDir</b><img src="../../html/images/quicklink.gif" /></a> geöffnet wurde. Das Öffnen eines Verzeichnisses ist zum Auslesen von Dateinamen gedacht. Benutze <a href="NextFile.htm"><b>NextFile</b><img src="../../html/images/quicklink.gif" /></a>, um die Dateinamen auszulesen. Mit <a href="FileSize.htm"><b>FileSize</b><img src="../../html/images/quicklink.gif" /></a> und <a href="FileType.htm"><b>FileType</b><img src="../../html/images/quicklink.gif" /></a> können weitere Informationen ermittelt werden.<br /><div class="hint"> Gute Programmierer, die saubere Programme schreiben wollen, benutzen nach dem Auslesen immer diesen Befehl - alle anderen lassen den weg ;-) <br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Durchsucht einen Ordner auf der Festplatte und schreibt alle Dateien und Ordner auf:<br />
+			<div class="syntax-code">
+				neues_verzeichnis$="C:\" ; Der Name des zu durchsuchenden Verzeichnises<br />Verz=<a href="ReadDir.htm"><b>ReadDir</b></a>(neues_verzeichnis$) ; Laden des Verzeichnisses zum Durchsuchen<br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;Datei$=<a href="NextFile.htm"><b>NextFile</b></a>$(Verz) ; Dateien im Verzeichnis durchgehen<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Datei$="" <a href="Then.htm"><b>Then</b></a> <a href="Exit.htm"><b>Exit</b></a> ; Ende des Verzeichnisses erreicht ?<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="FileType.htm"><b>FileType</b></a>(neues_verzeichnis$+Datei$) = 2 <a href="Then.htm"><b>Then</b></a> ; Ist die Datei ein Ordner?<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Ordner:" + Datei$<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "  Datei:" + Datei$<br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br /><a href="Forever.htm"><b>Forever</b></a><br /><a href="CloseDir.htm"><b>CloseDir</b></a> Verz ; Ordner schließen<br /><a href="Print.htm"><b>Print</b></a><br /><a href="Print.htm"><b>Print</b></a> "-Ende-"<br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ChangeDir.htm" title="Wechselt das Verzeichnis">ChangeDir</a>, <a href="CreateDir.htm" title="Erstellt ein Verzeichnis">CreateDir</a>, <a href="CurrentDir.htm" title="Pfad des aktuellen Verzeichnisses">CurrentDir</a>, <a href="DeleteDir.htm" title="Löscht ein Verzeichnis">DeleteDir</a>, <a href="ReadDir.htm" title="Öffnet ein Verzeichnis">ReadDir</a>, <a href="CloseFile.htm" title="Schließt einen geöffneten Dateistream">CloseFile</a>, <a href="MoreFiles.htm" title="Ermittelt ob weitere Dateien ausgelesen werden können">MoreFiles</a>, <a href="NextFile.htm" title="Ermittelt die nächste Datei in einem Verzeichnis">NextFile</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

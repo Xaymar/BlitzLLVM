@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateMirror 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			spiegel% = <b>CreateMirror</b> ([parent%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+parent%
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll (optional)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des Spiegels zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateMirror</b> erstellt ein Spiegelobjekt und liefert danach die Identität des Objekts zurück.<br /><br />Ein Spiegel ist ein flacher, unendlicher Boden. Dieser Boden ist unsichtbar, stellt aber alle Objekte über/unter dem Spiegel kopiert dar. Es ist überall dort nützlich, wo ein polierter Boden mit einer Reflektion dargestellt werden soll. Benutze für einen noch realistischeren Effekt die Kombination aus Spiegel und texturierter Plane (mit 50% Transparenz).<br /><br />Wurde der Parameter "parent%" angegeben, dann wird dieser Spiegel zu einem anderen Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br /><br />Ein Spiegel wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt.<br /><br /><img src="../../images/scr_bb08.jpg" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 1, - 5<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cone = <a href="CreateCone.htm"><b>CreateCone</b></a>(32)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone, 0, 2, 0<br /><br />plane = <a href="CreatePlane.htm"><b>CreatePlane</b></a>()<br />grass_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/chorme-2.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> plane, grass_tex<br /><a href="EntityAlpha.htm"><b>EntityAlpha</b></a> plane, 0.5<br /><br />mirror = <a href="CreateMirror.htm"><b>CreateMirror</b></a>()<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cone, - 0.1, 0, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cone, 0.1, 0, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cone, 0, - 0.1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cone, 0, 0.1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cone, 0, 0, - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(30) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cone, 0, 0, 0.1<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Cursortasten und A/Z"<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreatePlane.htm" title="Erstellt eine Ebene">CreatePlane</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_63.html">Diverses</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

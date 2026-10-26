@@ -1,0 +1,173 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		DrawBlockRect 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>DrawBlockRect</b> bild, x, y, start_x, start_y, breite, höhe [, frame] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bild
+</td>
+<td>
+Identität des Bildes (z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+<tr>
+<td width="100">
+x
+</td>
+<td>
+Koordinate X auf dem Bildschirm
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+Koordinate Y auf dem Bildschirm
+</td>
+</tr>
+<tr>
+<td width="100">
+start_x
+</td>
+<td>
+Koordinate links für Bildausschnitt
+</td>
+</tr>
+<tr>
+<td width="100">
+start_y
+</td>
+<td>
+Koordinate oben für Bildausschnitt
+</td>
+</tr>
+<tr>
+<td width="100">
+breite
+</td>
+<td>
+Breite des Ausschnitts
+</td>
+</tr>
+<tr>
+<td width="100">
+höhe
+</td>
+<td>
+Höhe des Ausschnitts
+</td>
+</tr>
+<tr>
+<td width="100">
+frame
+</td>
+<td>
+Framebild bei Animationsbildern (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung zeichnet ein geladenes/erstelltes Bild auf dem Bildschirm. Dabei wird nur ein Ausschnitt des Bildes dargestellt. Dieses Bild kann auch außerhalb des sichtbaren Bereichs eingezeichnet werden. Bei Animationsbildern kann zusätzlich das Framebild angegeben werden. Der Unterschied zu <a href="DrawImageRect.htm"><b>DrawImageRect</b><img src="../../html/images/quicklink.gif" /></a> besteht darin, dass das Bild ohne Transparenzfarbe gezeichnet wird. <b>DrawBlockRect</b> kann z.B. für Hintergrundbilder verwendet werden.<br /><br />Besonders praktisch, wenn nur ein Teil des Bildschirms durch ein Bild ersetzt werden soll.<br /><br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Diese Fehlermeldungen erscheinen, wenn ein Bild im Grafikspeicher nicht gefunden werden konnte. Dafür gibt es mehrere Gründe:<br /><br />- Ein Bild konnte auf dem Datenträger nicht gefunden werden<br />- Die Grafikdatei ist fehlerhaft<br />- Der Grafikspeicher wurde mit <a href="Graphics.htm"><b>Graphics</b><img src="../../html/images/quicklink.gif" /></a> gelöscht<br />- Wert der Variable "Bild" wurde gelöscht<br />- Die Variable "Bild" hat einen falschen Namen<br />- Die Variable "Bild" wurde nicht als <a href="Global.htm"><b>Global</b><img src="../../html/images/quicklink.gif" /></a> definiert<br />- Siehe auch <a href="GraphicsLost.htm"><b>GraphicsLost</b><img src="../../html/images/quicklink.gif" /></a> (nur Blitz3D) <br />&nbsp;</div><br /><img src="../../images/scr_illegalmemory.gif" /> <img src="../../images/scr_image.gif" /><br />Alternativ könnte auch die Fehlermeldung "Memory access violation" stehen, diese taucht jedoch meist nur bei ausgeschaltetem Debugger auf. Es empfiehlt sich dann den Debugger zu aktivieren um genauere Erkenntnisse über den Fehler zu erhalten.<br /> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm lädt ein Hintergrundbild und zeichnet einen Teil des Bildes auf dem Bildschirm:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 0, 1<br />Bild = <a href="LoadImage.htm"><b>LoadImage</b></a> ("Hgrund.bmp")<br /><a href="DrawBlockRect.htm"><b>DrawBlockRect</b></a> Bild, 0, 0, 100, 50, 300, 200 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="DrawBlock.htm" title="Zeichnet ein geladenes/erstelltes Bild auf dem Bildschirm">DrawBlock</a>, <a href="DrawImage.htm" title="Zeichnet ein Bild auf den Bildschirm (mit Maske)">DrawImage</a>, <a href="DrawImageRect.htm" title="Zeichnet einen Bildausschnitt auf den Bildschirm (mit Maske)">DrawImageRect</a>, <a href="LoadAnimImage.htm" title="Lädt ein Animationsbild">LoadAnimImage</a>, <a href="LoadImage.htm" title="Lädt eine Grafikdatei">LoadImage</a>, <a href="MaskImage.htm" title="Setzt die Transparenzfarbe eines Bildes">MaskImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

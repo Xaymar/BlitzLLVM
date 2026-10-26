@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FlipMesh 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>FlipMesh</b> mesh% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+mesh%
+</td>
+<td>
+Identität eines Gitterobjekts (mesh)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>FlipMesh</b> kehrt alle Dreiecke eines Gitterobjekts um.<br /><br />Abhängig von der Anordnung der Ecken wird ein Dreieck nur von bestimmter Seite sichtbar. Ein Dreieck hat drei Punkte, die durch Vertex definiert werden. Die Vertexpunkte werden miteinander verbunden v0 bis v2. Ist die Reihenfolge der Punkte im Uhrzeigersinn (relativ zum Betrachter), so ist ein Dreieck sichtbar. Ist die Reihenfolge gegen den Uhrzeigersinn, so bleibt ein Dreieck unsichtbar.<br /><br />Der Grund für die sichtbaren Dreiecke liegt auf der Hand: Dadurch wird die Anzahl der Dreiecke deutlich reduziert. Zudem wird somit nur die Seite gerendert, die auch tatsächlich sichtbar sein kann.<br /><br />Falls nun ein Objekt von innen zu sehen sein soll, dann muss man die Dreiecke nach innen umkehren - mit dem Befehl <b>FlipMesh</b>.<br /><br /><div class="hint">Soll ein Objekt von innen und von außen sichtbar bleiben, dann muss man zwei Objekte erstellen, wobei ein Objekt mit dem Befehl <b>FlipMesh</b> umgekehrt wird. Dadurch wird jedoch die Polygonanzahl verdoppelt!<br />&nbsp;</div><br /><br /><div class="hint">Mit <a href="EntityFX.htm"><b>EntityFX</b><img src="../../html/images/quicklink.gif" /></a> und Flag 16 kann man Backface Culling ganz ausschalten.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>()<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> sphere, 100, 100, 100<br />sky_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("sky.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> sphere, sky_tex<br /><a href="FlipMesh.htm"><b>FlipMesh</b></a> sphere<br /><a href="Color.htm"><b>Color</b></a> 0, 0, 0<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Dies ist die Ansicht einer Kugel - von innen!!!"<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyEntity.htm" title="Kopiert ein 3D-Objekt im Speicher">CopyEntity</a>, <a href="EntityFX.htm" title="Weist einem 3D-Objekt bestimmte Effekte zu">EntityFX</a>, <a href="LoadMesh.htm" title="Lädt ein Gitterobjekt in den Speicher">LoadMesh</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_70.html">Mesh</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

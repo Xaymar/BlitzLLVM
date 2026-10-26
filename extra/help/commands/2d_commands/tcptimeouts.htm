@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TCPTimeouts 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>TCPTimeouts</b> Read, Accept 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Read
+</td>
+<td>
+Zeit in Millisekunden für den Abbruch (Standard=10000)
+</td>
+</tr>
+<tr>
+<td width="100">
+Accept
+</td>
+<td>
+Zeit in Millisekunden für <a href="AcceptTCPStream.htm"><b>AcceptTCPStream</b><img src="../../html/images/quicklink.gif" /></a>-Abbruch (Standard=0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann man die Abbruchzeit für TCP/IP-Verbindung einstellen. Es gibt zwei Parameter:<br /><br />Read - Damit kann man die Zeit in Millisekunden einstellen. Sollte nach dieser Zeit keine erwarteten Daten aus einem TCP/IP-Netzwerk eingehen, so bricht BlitzBasic den Read-Befehl ab. Standardmäßig ist dieser Wert auf 10000 millisek eingestellt (=10sek).<br /><br />Accept - Damit kann man die Abbruchzeit in Millisekunden für den Befehl <a href="AcceptTCPStream.htm"><b>AcceptTCPStream</b><img src="../../html/images/quicklink.gif" /></a> einstellen. Anders als die anderen Read-Befehle wartet es nicht auf eine TCP/IP-Verbindung (Standard=0). <a href="AcceptTCPStream.htm"><b>AcceptTCPStream</b><img src="../../html/images/quicklink.gif" /></a> liefert sofort einen Wert zurück, wenn eine Verbindung existiert. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				TCPTimeouts 5000,0<br />Print "Verbinde..."<br />tcp = OpenTCPStream("www.blitzforum.de", 80)<br />If Not tcp Print "Fehlgeschlagen": WaitKey()  : End<br />Print "Verbunden! Sende Anfrage..."<br />WriteLine tcp, "GET http://www.blitzforum.de HTTP/1.0"<br />WriteLine tcp, Chr$(10)<br />If Eof(tcp) Print "Fehlgeschlagen.": WaitKey() : End<br />Print "Anfrage gesendet! Warte auf Antwort..."<br />While Not Eof(tcp)<br />&nbsp; &nbsp;Print ReadLine$( tcp )<br />&nbsp; &nbsp;Print "Bytes verfügbar:" + ReadAvail(tcp)<br />Wend<br />If Eof(tcp) = 1 Then Print "Erfolgreich!" Else Print "Fehler!"<br />CloseTCPStream tcp<br />WaitKey()<br />End 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AcceptTCPStream.htm" title="Prüft Serververbindung zu einem TCP/IP Server">AcceptTCPStream</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_2.html">TCP</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

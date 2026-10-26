@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GadgetX 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			x = <b>GadgetX</b> (gadget) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+gadget
+</td>
+<td>
+Identität eines Gadget-Objekts
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			X-Koordinate eines Gadget-Objekts 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>GadgetX</b> liefert die X-Koordinate eines Gadget-Objekts - diese Position entspricht den relativen Koordinaten abhängig von Position des Parentobjekts. Die Funktion <a href="GadgetY.htm"><b>GadgetY</b><img src="../../html/images/quicklink.gif" /></a> ergänzt diese Funktion.<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 50, 50, 300, 300, 0, 9)<br />button = <a href="CreateButton.htm"><b>CreateButton</b></a>("Button", 10, 10, 100, 30, window)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>(100)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $801, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;txt$ = "Window:"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;txt$ = txt$ + <a href="Str.htm"><b>Str</b></a>$(<a href="GadgetX.htm"><b>GadgetX</b></a>(window))<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;txt$ = txt$ + "x" + <a href="Str.htm"><b>Str</b></a>$(<a href="GadgetY.htm"><b>GadgetY</b></a>(window))<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;txt$ = txt$ + " Button:"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;txt$ = txt$ + <a href="Str.htm"><b>Str</b></a>$(<a href="GadgetX.htm"><b>GadgetX</b></a>(button))<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;txt$ = txt$ + "x" + <a href="Str.htm"><b>Str</b></a>$(<a href="GadgetY.htm"><b>GadgetY</b></a>(button))<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, txt$<br />&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ClientHeight.htm" title="liefert die Höhe einer Gruppe zurück">ClientHeight</a>, <a href="ClientWidth.htm" title="liefert die Breite einer Gruppe zurück">ClientWidth</a>, <a href="GadgetHeight.htm" title="ermittelt Höhe eines Gadget-Objekts">GadgetHeight</a>, <a href="GadgetWidth.htm" title="ermittelt Breite eines Gadget-Objekts">GadgetWidth</a>, <a href="GadgetY.htm" title="liefert die Y-Koordinate eines Gadget-Objekts">GadgetY</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_80.html">Gadget</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

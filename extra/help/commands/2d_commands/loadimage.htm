@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LoadImage 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Bild = <b>LoadImage</b> (Datei$ [,Modus]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Datei$
+</td>
+<td>
+Beliebige Grafikdatei evtl. mit Pfad (Bmp, Jpg, Png, Pcx, Tga, Iff)
+</td>
+</tr>
+<tr>
+<td width="100">
+Modus
+</td>
+<td>
+Ab BlitzPlus:<br />1=Managed (Standard)<br />2=Dynamic<br />4=Scratch
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des Bildes. Bei Null wurde die Datei nicht geladen/gefunden. <br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl lädt eine Grafikdatei von der Festplatte in den Speicher. Es können Bmp-Dateien geladen werden. Die Vollversion kann zusätzlich noch Jpg, Png, Pcx, Tga, Iff-Dateien laden. Die zurückgelieferte Nummer ist ein ImageHandler, der für alle anderen Image-Befehle unbedingt angegeben werden muss. Ist dieser Wert gleich Null, so konnte die Grafik nicht geladen werden (wurde z.B. nicht gefunden).<br /><br />Um die Grafik dann auf dem Bildschirm sichtbar zu machen, können diese Befehle verwendet werden: <a href="DrawBlock.htm"><b>DrawBlock</b><img src="../../html/images/quicklink.gif" /></a>, <a href="DrawBlockRect.htm"><b>DrawBlockRect</b><img src="../../html/images/quicklink.gif" /></a>, <a href="DrawImage.htm"><b>DrawImage</b><img src="../../html/images/quicklink.gif" /></a>, <a href="DrawImageRect.htm"><b>DrawImageRect</b><img src="../../html/images/quicklink.gif" /></a>.<br /><br />Ab BlitzPlus wurde ein neuer "Modus"-Parameter eingebaut:<br />1=Managed: Grafiken werden in RAM (und VRAM) gehalten und wenn notwendig nach VRAM konvertiert, so können Grafiken nach Änderung der Auflösung erhalten werden. Solche Grafiken werden schnell gezeichnet - aber dafür sind die bei Änderungen langsam.<br />2=Dynamic: Grafiken werden nur im VRAM gehalten - Das ist die schnellste Variante. Grafiken gehen jedoch nach Änderung der Auflösung verloren.<br />4=Scratch: Grafiken werden nur im RAM gehalten - das ist sehr langsam. Das hat jedoch einen Vorteil: Ein PC hat viel mehr RAM als VRAM - Deshalb können TMP-Grafiken im RAM gehalten werden.<br /><br /><div class="caution">Achtung: Jedes geladene Bild kostet ein Stückchen Grafikspeicher. Besonders ältere Rechner mit wenig Speicher können nicht so viele Bilder auf einmal im Speicher behalten. Das Bild kann auch nicht einfach in 16 oder 256 Farben abgespeichert werden - beim Laden wird es der Farbtiefe automatisch angepasst.<br />&nbsp;</div><br /><div class="hint">Eine Bildschirm-Farbtiefe von 16 Bit verbraucht halb soviel Speicher wie 32 Bit. Benutze AvailVidMem, um den freien Speicher zu ermitteln sowie FreeImage, um ein Bild aus dem Speicher zu entfernen.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm lädt ein Bild (evtl. Pfad anpassen!). Es folgt dann jeder Mausbewegung:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />gfxPlayer = <a href="LoadImage.htm"><b>LoadImage</b></a>("player.bmp")<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="DrawImage.htm"><b>DrawImage</b></a> gfxPlayer, <a href="MouseX.htm"><b>MouseX</b></a>(), <a href="MouseY.htm"><b>MouseY</b></a>()<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateImage.htm" title="Erstellt ein neues und leeres Bild im Speicher">CreateImage</a>, <a href="FreeImage.htm" title="Löscht ein Bild aus dem Speicher">FreeImage</a>, <a href="LoadAnimImage.htm" title="Lädt ein Animationsbild">LoadAnimImage</a>, <a href="DrawBlock.htm" title="Zeichnet ein geladenes/erstelltes Bild auf dem Bildschirm">DrawBlock</a>, <a href="DrawBlockRect.htm" title="Zeichnet einen Bildausschnitt auf den Bildschirm">DrawBlockRect</a>, <a href="DrawImage.htm" title="Zeichnet ein Bild auf den Bildschirm (mit Maske)">DrawImage</a>, <a href="DrawImageRect.htm" title="Zeichnet einen Bildausschnitt auf den Bildschirm (mit Maske)">DrawImageRect</a>, <a href="MaskImage.htm" title="Setzt die Transparenzfarbe eines Bildes">MaskImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

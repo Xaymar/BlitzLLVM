@@ -1,0 +1,158 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		AddVertex 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			index% = <b>AddVertex</b> (surface%, x#, y#, z# [,u#] [,v#] [,w#]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+surface%
+</td>
+<td>
+Identität einer Gitteroberfläche (surface)
+</td>
+</tr>
+<tr>
+<td width="100">
+x#
+</td>
+<td>
+X-Koordinate des Vertex
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Y-Koordinate des Vertex
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Z-Koordinate des Vertex
+</td>
+</tr>
+<tr>
+<td width="100">
+u#
+</td>
+<td>
+U-Texturkoordinate des Vertex (Standard=0)
+</td>
+</tr>
+<tr>
+<td width="100">
+v#
+</td>
+<td>
+V-Texturkoordinate des Vertex (Standard=0)
+</td>
+</tr>
+<tr>
+<td width="100">
+w#
+</td>
+<td>
+W-Texturkoordinate des Vertex (reserviert für spätere Verwendung; Standard=1)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Indexnummer des Vertex zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>AddVertex</b> fügt ein Vertex zu einer Oberfläche (surface) hinzu. Dabei wird die Indexnummer des Vertex zurückgeliefert (ab 0).<br /><br />Ein Vertex ist ein Punkt in einem 3D-Raum. Dieser Vertex wird dazu benutzt, um aus Punkten Dreiecke zu erstellen. Ohne Vertexpunkte kann man keine Dreiecke erstellen. Dazu sind logischerweise min. drei Punkte notwendig.<br /><br />Die optionalen Koordinaten u# und v# sind für die Verschiebung der Textur gedacht. Dies funktioniert so: Die untere|linke Texturecke hat die Koordinate 0|0. Die obere|rechte Texturecke hat die Koordinate 1|1. Die Koordinate 0.5|0.5 ist dabei folgerichtig mittig auf der Textur.<br /><br /><div class="caution">Mehrere Dreiecke können auch die selben Vertexpunkte benutzen. Leider verschlechtert es die Schattierung der Objekte. BlitzBasic erstellt standardmäßig mit jedem Dreieck drei Vertexpunkte.<br />&nbsp;</div><br /><br /><img src="../../images/gfx_dreieck3.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, -5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />brush = <a href="CreateBrush.htm"><b>CreateBrush</b></a>(0, 255, 0)<br />mesh = <a href="CreateMesh.htm"><b>CreateMesh</b></a>()<br />surface = <a href="CreateSurface.htm"><b>CreateSurface</b></a>(mesh, brush)<br />v0 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, 0, 0, 0)<br />v1 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, 1, -1, 0)<br />v2 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, -1, -1, 0)<br /><a href="AddTriangle.htm"><b>AddTriangle</b></a>(surface, v0, v1, v2)<br /><a href="UpdateNormals.htm"><b>UpdateNormals</b></a> mesh<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AddTriangle.htm" title="Fügt Dreieck einer Oberfläche hinzu">AddTriangle</a>, <a href="CreateMesh.htm" title="Erstellt ein neues Gitterobjekt">CreateMesh</a>, <a href="CreateSurface.htm" title="Erstellt eine neue Oberfläche">CreateSurface</a>, <a href="UpdateNormals.htm" title="Berechnet alle Normalen eines Gitterobjekts neu">UpdateNormals</a>, <a href="ClearSurface.htm" title="Löscht alle Vertex-Punkte/Dreiecke aus einer Oberfläche">ClearSurface</a>, <a href="TriangleVertex.htm" title="Ermittelt Index eines Verteckpunkts">TriangleVertex</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

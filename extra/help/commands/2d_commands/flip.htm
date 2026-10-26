@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Flip 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Flip</b> [Wert] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Wert
+</td>
+<td>
+0 aktualisiert das Bild sofort (schneller),<br />1 wartet auf VSync (für flimmerfreie Bilder = Standard)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl wird bei Doublebuffering angewendet. Dabei muss man zuerst den Hintergrundbuffer mit <a href="Setbuffer.htm"><b>Setbuffer</b><img src="../../html/images/quicklink.gif" /></a> <a href="Backbuffer.htm"><b>Backbuffer</b><img src="../../html/images/quicklink.gif" /></a>() auswählen. Nun kann man alle Grafikbefehle wie z.B. <a href="Line.htm"><b>Line</b><img src="../../html/images/quicklink.gif" /></a> ausführen. Zuletzt wird der Befehl <a href="Flip.htm"><b>Flip</b><img src="../../html/images/quicklink.gif" /></a> benutzt, um die Grafik sichtbar zu machen. Dabei werden <a href="Backbuffer.htm"><b>Backbuffer</b><img src="../../html/images/quicklink.gif" /></a> und <a href="Frontbuffer.htm"><b>Frontbuffer</b><img src="../../html/images/quicklink.gif" /></a> miteinander vertauscht. Nur so können flimmerfreie Spiele entwickelt werden.<br /><br /><img src="../../images/gfx_pageflipping1.gif" /><br /><br /><div class="caution">Wird ein Grafikfenster nicht im Vollbild angezeigt, so übernimmt Windows das Pageflipping der Grafik von <a href="Backbuffer.htm"><b>Backbuffer</b><img src="../../html/images/quicklink.gif" /></a>.<br />&nbsp;</div><br /><div class="caution">Die Bildschirmseiten werden nicht einfach kopiert, sondern vertauscht. Um den unschönen Flimmereffekt zu verhindern, muss man das Bild immer komplett neuzeichnen.<br />&nbsp;</div><br /><div class="caution">Bei Pageflipping kann es zu unterschiedlichen Programmgeschwindigkeiten kommen. Man kann es so erklären: Stell dir vor du hast einen Monitor, der 100x pro Sekunde das Bild aufbaut. Dein neuer PC schafft sogar wahnsinnige 200 Bilder pro Sekunde. Aber dein uralter Rechner kann nur 50 Bilder liefern. So, nun wird das Spiel auf dem schnellen PC 100x aufgebaut (Bildschirmgrenze), auf dem alten aber nur 50x !!! Um eine gleiche Geschwindigkeit zu erzeugen, muss man die Framerate runterdrosseln, die auch ein langsamer Rechner noch vernünftig schafft. Benutze dafür den Befehl <a href="CreateTimer.htm"><b>CreateTimer</b><img src="../../html/images/quicklink.gif" /></a>. Danach muss man die Objekte mit einer neuen Geschwindigkeit bewegen lassen.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm demonstriert flimmerfreie Bewegung:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 0, 1<br /><a href="Setbuffer.htm"><b>Setbuffer</b></a> <a href="Backbuffer.htm"><b>Backbuffer</b></a>()<br /><a href="While.htm"><b>While</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1) = 0<br />   Winkel1 = (Winkel1 + 5) <a href="Mod.htm"><b>Mod</b></a> 360<br />   Winkel2 = (Winkel2 + 2) <a href="Mod.htm"><b>Mod</b></a> 360<br />   X = 320 + <a href="Cos.htm"><b>Cos</b></a>(Winkel1) * 200 + <a href="Cos.htm"><b>Cos</b></a>(Winkel2) * 120<br />   Y = 240 + [[Sin](Winkel1) * 160 + <a href="Sin.htm"><b>Sin</b></a>(Winkel2) * 80<br />   <a href="Cls.htm"><b>Cls</b></a><br />   <a href="Oval.htm"><b>Oval</b></a> X-10, Y-10, 20, 20, 1<br />   <a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Graphics3D.htm" title="Initialisiert die 3D Grafik">Graphics3D</a>, <a href="VWait.htm" title="Hält solange an, bis der komplette Bildschimbereich aufgebaut ist.">VWait</a>, <a href="SetBuffer.htm" title="Setzt den Buffer für die Grafikausgabe">SetBuffer</a>, <a href="ScanLine.htm" title="Liefert die Zeile des Bildschirms, die gerade vom Monitor aktualisiert wird">ScanLine</a>, <a href="FrontBuffer.htm" title="Liefert die ID des Buffers">FrontBuffer</a>, <a href="BackBuffer.htm" title="Liefert die ID des Backbuffers">BackBuffer</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

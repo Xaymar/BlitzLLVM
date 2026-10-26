@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ACos 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Winkel#= <b> <b>ACos</b># </b> (Zahl#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Zahl
+</td>
+<td>
+eine beliebige Zahl, die zwischen -1 und 1 liegen muss
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Kleinster Winkel in Grad.<br /><img src="../../images/gfx_sinuskurve.gif" /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion berechnet den Winkel aus einem Cosinuswert. Es ist somit die Umkehrfunktion für Cosinus. Mathematiker nennen es ArcusCosinus.<br /><br />Man kann den Cosinuswert ausrechnen, indem man die Ankathete eines rechtwinkligen Dreiecks durch die Hypotenuse teilt. Aus diesem Wert wird danach der Winkel berechnet.<br /><br />Zur Erklärung: Ankathete ist die Seite des Dreiecks, die neben dem gesuchten Winkel liegt. Hypotenuse ist die Seite mit der größten Länge. <br /><br /><img src="../../images/gfx_dreieck.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			In diesem Beispiel wird die Winkelberechnung mit ACos demonstriert<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640,480<br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;x# = <a href="MouseX.htm"><b>MouseX</b></a>()<br />&nbsp; &nbsp;y# = <a href="MouseY.htm"><b>MouseY</b></a>()<br />&nbsp; &nbsp;r# = <a href="Sqr.htm"><b>Sqr</b></a>((x#*x#)+(y#*y#))<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 104,104,104<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> x#,0,x#,y#<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> 0,y#,x#,y#<br />&nbsp; &nbsp;<a href="Locate.htm"><b>Locate</b></a> x#+10,y#-10 : <a href="Write.htm"><b>Write</b></a> "X=" : <a href="Print.htm"><b>Print</b></a> x#<br />&nbsp; &nbsp;<a href="Locate.htm"><b>Locate</b></a> x#-10,y#+10 : <a href="Write.htm"><b>Write</b></a> "Y=" : <a href="Print.htm"><b>Print</b></a> y#<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Origin.htm"><b>Origin</b></a> 0,0<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255,255,255<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> 0,0,x#,y#<br />&nbsp; &nbsp;theta# = <a href="ACos.htm"><b>ACos</b></a>(x#/r#)<br />&nbsp; &nbsp;<a href="Locate.htm"><b>Locate</b></a> 60,10 : <a href="Write.htm"><b>Write</b></a> "Winkel:" : <a href="Print.htm"><b>Print</b></a> theta<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> degrees#=0 <a href="To.htm"><b>To</b></a> theta#<br />&nbsp; &nbsp;&nbsp; &nbsp;cy=<a href="Sin.htm"><b>Sin</b></a>(degrees#)*50<br />&nbsp; &nbsp;&nbsp; &nbsp;cx=<a href="Cos.htm"><b>Cos</b></a>(degrees#)*50<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Plot.htm"><b>Plot</b></a> cx,cy<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Until.htm"><b>Until</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1) 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ASin.htm" title="ASin liefert den Winkel eines Sinuswertes">ASin</a>, <a href="ATan.htm" title="ATan liefert den passenden Winkel zu einem Tangenswert">ATan</a>, <a href="ATan2.htm" title="ATan2 berechnet den Winkel aus X- und Y-Längen">ATan2</a>, <a href="Cos.htm" title="Cos liefert den Cosinuswert eines Winkels">Cos</a>, <a href="Sin.htm" title="Berechnet den Sinuswert eines Winkels">Sin</a>, <a href="Tan.htm" title="Berechnet den Tangenswert aus einem Winkel">Tan</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_5.html">Mathematik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

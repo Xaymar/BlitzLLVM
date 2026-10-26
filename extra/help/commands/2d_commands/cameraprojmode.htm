@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CameraProjMode 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CameraProjMode</b> kamera%, modus% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+kamera
+</td>
+<td>
+Identität einer Kamera
+</td>
+</tr>
+<tr>
+<td width="100">
+modus%
+</td>
+<td>
+0=Kamera deaktivieren (schneller als <a href="HideEntity.htm"><b>HideEntity</b><img src="../../html/images/quicklink.gif" /></a>)<br />1=Perspektivische Projektion (Standard)<br />2=Orthographische Projektion
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>CameraProjMode</b> schaltet die Projektion einer Kamera um. Projektion ist eine ganz spezielle Technik zur Darstellung der 3D-Welt auf dem Bildschirm.<br /><br />Mit dem Parameter "Modus" kann man nur Werte 0-2 angeben. Wert 0 schaltet die Kamera komplett aus. Dies ist wesentlich schneller als die Kamera mit <a href="HideEntity.htm"><b>HideEntity</b><img src="../../html/images/quicklink.gif" /></a> zu verstecken. Der Wert 1 (Standard) schaltet die normale Projektion ein - die Objekte erscheinen so perspektivisch korrekt auf dem Bildschirm. Der Wert 2 schaltet auf eine ganz spezielle Darstellungsart um. Die 3D-Szene wird als 2D-Grafik, ohne perspektivische Tiefe dargestellt. So werden zwei Objekte mit der selben Größe aber in unterschiedlicher Entfernung trotzdem identisch dargestellt. Orthographische Projektion ist besonders für 3D-Editoren nützlich, wo drei Ansichten (Vorderansicht, Seitenansicht und Draufsicht) ohne Perspektive dargestellt werden müssen.<br /><br /><div class="hint">Benutze <a href="CameraZoom.htm"><b>CameraZoom</b><img src="../../html/images/quicklink.gif" /></a>, um die Skalierung der orthographischen Grafik zu ändern. Der Zoomfaktor 1.0 ist einfach zu hoch. Mit dem Zoomfaktor 0.1 ist die Darstellung dagegen vernünftig.<br />&nbsp;</div><br /> <br /><div class="caution">Leider hat die orthographische Projektion einen Nachteil bei Darstellung von Terrains. Es kann nicht mehr korrekt wegen LOD-Technik (level of detail) dargestellt werden. Dies funktioniert nur mit 3D-Perspektive richtig.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, - 10<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 0, 0, 0<br /><br />cube1 = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube1, 255, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube1, 0, 0, 0<br /><br />cube2 = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube2, 0, 255, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube2, 5, 5, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(57) <a href="Then.htm"><b>Then</b></a> mode = mode + 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> mode = 3 <a href="Then.htm"><b>Then</b></a> mode = 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> mode = 2 <a href="Then.htm"><b>Then</b></a> zoom# = 0.1 <a href="Else.htm"><b>Else</b></a> zoom# = 1<br />&nbsp; &nbsp;<a href="CameraProjMode.htm"><b>CameraProjMode</b></a> camera, mode<br />&nbsp; &nbsp;<a href="CameraZoom.htm"><b>CameraZoom</b></a> camera, zoom#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Mit Leertaste Projektion umschalten"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "CameraProjMode camera," + mode<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "CameraZoom camera," + zoom#<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CameraClsMode.htm" title="Setzt Lösch-Modus einer Kamera">CameraClsMode</a>, <a href="CameraFogMode.htm" title="Schaltet Nebel ein oder aus">CameraFogMode</a>, <a href="CameraRange.htm" title="Stellt min/max Kameraentfernung ein">CameraRange</a>, <a href="CameraViewport.htm" title="Stellt rechteckigen Ausgabebereich einer Kamera ein">CameraViewport</a>, <a href="CameraZoom.htm" title="Stellt Kamera-Zoom ein">CameraZoom</a>, <a href="CreateCamera.htm" title="Erstellt eine neue Kamera">CreateCamera</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_66.html">Kamera</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateImage 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			bild = <b>CreateImage</b> (breite, hoehe [, frames] [, modus]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+breite
+</td>
+<td>
+Breite des Bildes in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+höhe
+</td>
+<td>
+Höhe des Bildes in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+frames
+</td>
+<td>
+Anzahl der Animationsbilder (Standard=1)
+</td>
+</tr>
+<tr>
+<td width="100">
+modus
+</td>
+<td>
+Nur in B+<br />1=Managed <br />2=Dynamic (Standard)<br />4=Scratch
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des neuen Bildes. Wird nur eine Null zurückgeliefert, dann konnte dieses Bild nicht erstellt werden. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Erstellt ein neues und leeres (Animations-) Bild im Speicher. Man kann dann mit Hilfe der Befehle <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a> <a href="ImageBuffer.htm"><b>ImageBuffer</b><img src="../../html/images/quicklink.gif" /></a>() direkt darauf zeichnen. Bei diesem Befehl muss man nur die Breite und Höhe angeben. Soll auch eine Animation erstellt werden, so muss man den Frame-Wert eingeben. Eine Animation enthält nur mehrere Einzelbilder nebeneinander.<br /><br />Die "modus" Parameter sind folgende:<br /><br />1 = Managed: Grafiken werden in RAM (und VRAM) gehalten und wenn notwendig nach VRAM konvertiert, so können Grafiken nach Änderung der Auflösung erhalten werden. Solche Grafiken werden schnell gezeichnet - aber dafür sind die bei Änderungen langsam.<br /><br />2 = Dynamic: Grafiken werden nur im VRAM gehalten - Das ist die schnellste Variante. Grafiken gehen jedoch nach Änderung der Auflösung verloren.<br /><br />4 = Scratch: Grafiken werden nur im RAM gehalten - das ist sehr langsam. Das hat jedoch einen Vorteil: Ein PC hat viel mehr RAM als VRAM - Deshalb können TMP-Grafiken im RAM gehalten werden.<br /><br /><div class="caution">Beachte, dass dieser Befehl überlegt eingesetzt werden muss. Jedes Bild kostet etwas an Grafikspeicher. Bei vielen älteren Rechnern ist die Grenze schnell erreicht. Benutze <a href="FreeImage.htm"><b>FreeImage</b><img src="../../html/images/quicklink.gif" /></a>, um ein Bild wieder zu löschen.<br />&nbsp;</div><br /><br /><div class="caution">Der Parameter "modus" steht nur in Blitzplus (B+) zur Verfügung.<br />&nbsp;</div><br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm erzeugt ein Bild im Speicher. Danach wird es sofort eingezeichnet:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640,480<br /><br />bild = <a href="CreateImage.htm"><b>CreateImage</b></a> (160,120)<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href=" ImageBuffer.htm"><b> ImageBuffer</b></a> (bild)<br /><br /><a href="Color.htm"><b>Color</b></a> 0,0,255<br /><br /><a href="For.htm"><b>For</b></a> a = 0 TO 119<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> a*2,a*2,255<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> 0,a,159,a<br /><a href="NExt.htm"><b>NExt</b></a><br /><br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="FrontBuffer.htm"><b>FrontBuffer</b></a> ()<br /><a href="DrawImage.htm"><b>DrawImage</b></a> bild,240,180<br /><br /><a href="WAITKEY.htm"><b>WAITKEY</b></a>  
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyImage.htm" title="Diese Anweisung dupliziert ein Bild">CopyImage</a>, <a href="FreeImage.htm" title="Löscht ein Bild aus dem Speicher">FreeImage</a>, <a href="LoadAnimImage.htm" title="Lädt ein Animationsbild">LoadAnimImage</a>, <a href="LoadImage.htm" title="Lädt eine Grafikdatei">LoadImage</a>, <a href="GrabImage.htm" title="Kopiert Ausschnitt auf Grafikbuffer in ein Bild">GrabImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

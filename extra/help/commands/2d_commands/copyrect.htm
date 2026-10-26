@@ -1,0 +1,166 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CopyRect 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CopyRect</b> X1, Y1, width, heigth, X2, Y2 [,Quelle] [,Ziel] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+X1
+</td>
+<td>
+Horizontale Koordinate des Ausschnitts
+</td>
+</tr>
+<tr>
+<td width="100">
+Y1
+</td>
+<td>
+Vertikale Koordinate des Ausschnitts
+</td>
+</tr>
+<tr>
+<td width="100">
+width
+</td>
+<td>
+Breite des Ausschnitts in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+height
+</td>
+<td>
+Höhe des Ausschnitts in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+X2
+</td>
+<td>
+Horizontale Ziel-Koordinate
+</td>
+</tr>
+<tr>
+<td width="100">
+Y2
+</td>
+<td>
+Vertikale ZielKoordinate
+</td>
+</tr>
+<tr>
+<td width="100">
+Quelle
+</td>
+<td>
+Identität des Quell-Buffers (0=aktuell)
+</td>
+</tr>
+<tr>
+<td width="100">
+Ziel
+</td>
+<td>
+dentität des Ziel-Buffers (0=aktuell)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl kopiert einen Bildausschnitt von einem Buffer zum anderen. Es kann aber auch ein und der selbe Buffer verwendet werden. Benutze für Buffer z.B. <a href="Backbuffer.htm"><b>Backbuffer</b><img src="../../html/images/quicklink.gif" /></a>, <a href="Frontbuffer.htm"><b>Frontbuffer</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="Imagebuffer.htm"><b>Imagebuffer</b><img src="../../html/images/quicklink.gif" /></a>. Werden Buffer-Parameter weggelassen, so wird der aktuelle Buffer verwendet. Die Koordinate X1/Y1 ist oben/links im Quellbuffer. Die Koordinate X2/Y2 ist dagegen oben/links im Zielbuffer.<br /><br />Benutze auch <a href="Grabimage.htm"><b>Grabimage</b><img src="../../html/images/quicklink.gif" /></a>, um einfach einen Bildschirmausschnitt in ein neu erstelltes Bild zu kopieren.<br /><br /><div class="hint">Der Befehl <b>CopyRect</b> ist eine interessante Alternative für <a href="Flip.htm"><b>Flip</b><img src="../../html/images/quicklink.gif" /></a>. Wird das Bild im <a href="Backbuffer.htm"><b>Backbuffer</b><img src="../../html/images/quicklink.gif" /></a> nie komplett berechnet, so kann man nur einen Teil des Bildes nach <a href="Frontbuffer.htm"><b>Frontbuffer</b><img src="../../html/images/quicklink.gif" /></a> kopieren.<br />&nbsp;</div><br /><br /><div class="hint">Der Befehl <b>CopyRect</b> kann nicht auf einen mittels <a href="LockBuffer.htm"><b>LockBuffer</b><img src="../../html/images/quicklink.gif" /></a> gesperrten Buffer angewendet werden.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm zeichnet verschiedene Rechtecke. Ein Ausschnitt wird dann kopiert. Nach einem Tastendruck erscheint dieser Ausschnitt:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 800, 600<br />gfxBlank = <a href="CreateImage.htm"><b>CreateImage</b></a> (300,300)<br /><a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> 1000<br />  <a href="Rect.htm"><b>Rect</b></a> <a href="Rand.htm"><b>Rand</b></a>(800), <a href="Rand.htm"><b>Rand</b></a>(600), <a href="Rand.htm"><b>Rand</b></a>(100), <a href="Rand.htm"><b>Rand</b></a>(100), <a href="Rand.htm"><b>Rand</b></a>(0,1)<br />   <a href="Color.htm"><b>Color</b></a> <a href="Rand.htm"><b>Rand</b></a>(255), <a href="Rand.htm"><b>Rand</b></a>(255), <a href="Rand.htm"><b>Rand</b></a>(255)<br /><a href="Next.htm"><b>Next</b></a><br /><a href="Delay.htm"><b>Delay</b></a> 2000<br /><a href="CopyRect.htm"><b>CopyRect</b></a>(<a href="Rand.htm"><b>Rand</b></a>(800), <a href="Rand.htm"><b>Rand</b></a>(600), 300, 300, 0, 0, <a href="Frontbuffer.htm"><b>Frontbuffer</b></a>(), <a href="Imagebuffer.htm"><b>Imagebuffer</b></a>(gfxBlank))<br /><a href="Cls.htm"><b>Cls</b></a><br /><a href="DrawImage.htm"><b>DrawImage</b></a> gfxBlank, 0, 0<br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyImage.htm" title="Diese Anweisung dupliziert ein Bild">CopyImage</a>, <a href="GrabImage.htm" title="Kopiert Ausschnitt auf Grafikbuffer in ein Bild">GrabImage</a>, <a href="SaveBuffer.htm" title="Speichert einen Grafikbuffer als Bitmap">SaveBuffer</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

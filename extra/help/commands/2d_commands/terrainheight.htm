@@ -1,0 +1,120 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TerrainHeight 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Height# = <b>TerrainHeight</b># (Terrain, X, Z) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Terrain
+</td>
+<td>
+Identität eines Terrains
+</td>
+</tr>
+<tr>
+<td width="100">
+X
+</td>
+<td>
+X-Koordinate auf dem Terrain
+</td>
+</tr>
+<tr>
+<td width="100">
+Z
+</td>
+<td>
+Z-Koordinate auf dem Terrain
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Der Höhenpunkt auf einer Koordinate des Terrains wird zurückgeliefert (Werte nur von 0 bis 1). 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			 Die Funktion <b>TerrainHeight</b> liefert die Höhe eines Gitterpunktes auf der Koordinate X|Z des ausgewählten Terrains. Dabei kann nur ein Wert von 0 bis 1 zurückgeliefert werden. Mit <a href="ModifyTerrain.htm"><b>ModifyTerrain</b><img src="../../html/images/quicklink.gif" /></a> kann dieser Punkt dann geändert werden. Die Funktion <a href="TerrainY.htm"><b>TerrainY</b><img src="../../html/images/quicklink.gif" /></a> ist meistens sinnvoller. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Function.htm"><b>Function</b></a> setze_obj_auf_terrain(entity, terrain, offset#)<br />&nbsp; &nbsp;temp_x# = <a href="EntityX.htm"><b>EntityX</b></a>(entity)<br />&nbsp; &nbsp;temp_z# = <a href="EntityZ.htm"><b>EntityZ</b></a>(entity)<br />&nbsp; &nbsp;hoehe# = <a href="TerrainHeight.htm"><b>TerrainHeight</b></a>#(terrain, temp_x#, temp_z#) + offset<br />&nbsp; &nbsp;<a href="TranslateEntity.htm"><b>TranslateEntity</b></a> entity, temp_x#, hoehe#, temp_z#<br /><a href="End.htm"><b>End</b></a> <a href="Function.htm"><b>Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_76.html">Terrain</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

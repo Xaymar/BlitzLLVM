@@ -1,0 +1,133 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		PokeFloat 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>PokeFloat</b> bank, pos, wert# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bank
+</td>
+<td>
+Identität der Speicherbank (ermittelt mit <a href="CreateBank.htm"><b>CreateBank</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+<tr>
+<td width="100">
+pos
+</td>
+<td>
+genaue Byteposition (ab 0)
+</td>
+</tr>
+<tr>
+<td width="100">
+wert
+</td>
+<td>
+eine Kommazahl zwischen -2 Mrd. und +2 Mrd.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl schreibt einen Float-Wert in ein Speicherfeld. Ein Speicherfeld wird mit <a href="CreateBank.htm"><b>CreateBank</b><img src="../../html/images/quicklink.gif" /></a> erstellt und funktioniert so ähnlich wie ein Dim-Feld, nur sind die Daten direkt hintereinander gespeichert. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Für diese Funktion muss eine genaue Byte-Position im Speicherfeld angegeben werden. Wird eine falsche Position angegeben, so kann evtl. ein falscher Wert zurückgeliefert werden. Die nachfolgende Tabelle zeigt verschiedene Typen von Werten, die ein Speicherfeld aufnehmen kann:<br />&nbsp;</div><br /><br /><table style="width:auto; margin-left:50px;"><tr><th>Name</th><th>Bytes</th><th>Type</th><th>Min.</th><th>Max.</th></tr><tr><td>Byte</td><td>1</td><td>Ganzzahl</td><td>0</td><td>+255</td></tr><tr><td>Short</td><td>2</td><td>Ganzzahl</td><td>0</td><td>+65535</td></tr><tr><td>Integer</td><td>4</td><td>Ganzzahl</td><td>-2147483648</td><td>+2147483647</td></tr><tr><td>Float</td><td>4</td><td>Kommazahl</td><td>-2 Mrd.</td><td>+2 Mrd.</td></tr></table> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel demonstriert die BANK-Möglichkeiten:<br />
+			<div class="syntax-code">
+				bnkTest = <a href="CreateBank.htm"><b>CreateBank</b></a>(500)<br /><br /><a href="PokeByte.htm"><b>PokeByte</b></a> bnkTest,1,255<br /><a href="PokeInt.htm"><b>PokeInt</b></a> bnkTest,2,12345678<br /><a href="PokeShort.htm"><b>PokeShort</b></a> bnkTest,6,12345<br /><a href="PokeFloat.htm"><b>PokeFloat</b></a> bnkTest,8,12345.6789<br /><br /><a href="Print.htm"><b>Print</b></a> <a href="PeekByte.htm"><b>PeekByte</b></a> (bnkTest,1)<br /><a href="Print.htm"><b>Print</b></a> <a href="PeekInt.htm"><b>PeekInt</b></a> (bnkTest,2)<br /><a href="Print.htm"><b>Print</b></a> <a href="PeekShort.htm"><b>PeekShort</b></a> (bnkTest,6)<br /><a href="Print.htm"><b>Print</b></a> <a href="PeekFloat.htm"><b>PeekFloat</b></a> (bnkTest,8)<br /><br /><a href="FreeBank.htm"><b>FreeBank</b></a> bnkTest<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="PokeByte.htm" title="Speichert ein Byte in eine Bank">PokeByte</a>, <a href="PokeInt.htm" title="Speichert einen Integer-Wert in einer Bank">PokeInt</a>, <a href="PokeShort.htm" title="Speichert einen Short-Wert in einer Bank">PokeShort</a>, <a href="PeekInt.htm" title="Liest einen Integer Wert aus einer Bank">PeekInt</a>, <a href="PeekShort.htm" title="Liest einen Short-Wert aus einer Bank">PeekShort</a>, <a href="PeekByte.htm" title="Liest ein Byte aus einer Bank">PeekByte</a>, <a href="PeekFloat.htm" title="Liest einen Float-Wert aus einer Bank">PeekFloat</a>, <a href="ResizeBank.htm" title="Ändert die Größe einer Bank">ResizeBank</a>, <a href="CreateBank.htm" title="Erstellt eine neue Bank">CreateBank</a>, <a href="ReadBytes.htm" title="Liest Daten aus einer Datei in ein Speicherfeld ein">ReadBytes</a>, <a href="WriteBytes.htm" title="Schreibt mehrere Bytes aus einer Bank in einen Stream">WriteBytes</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_4.html">Speicherbänke</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

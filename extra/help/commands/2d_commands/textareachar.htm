@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TextAreaChar 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			position = <b>TextAreaChar</b> (textarea, zeile) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+textarea
+</td>
+<td>
+Identität von Textarea-Objekt
+</td>
+</tr>
+<tr>
+<td width="100">
+zeile
+</td>
+<td>
+Nummer der Zeile
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Startposition des ersten Zeichens 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>TextAreaChar</b> ermittelt die Position des ersten Zeichens einer Zeile in Textarea-Objekt.<br />Gebe hierzu einfach die Identität von Textarea-Objekt und Nummer der Zeile an. Nach <a href="TextAreaText.htm"><b>TextAreaText</b><img src="../../html/images/quicklink.gif" /></a> kann Text ab dieser Position ausgelesen werden. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Ein kleines Programm zum testen<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>( "", 0, 0, 640, 480 )<br />txtr_menu = <a href="CreateMenu.htm"><b>CreateMenu</b></a>( "Textarea", 0, <a href="WindowMenu.htm"><b>WindowMenu</b></a>(window) )<br />pos_menu = <a href="CreateMenu.htm"><b>CreateMenu</b></a>( "Cursorposition", 1, txtr_menu )<br />textarea = <a href="CreateTextArea.htm"><b>CreateTextArea</b></a>(0, 0, <a href="ClientWidth.htm"><b>ClientWidth</b></a>(window), <a href="ClientHeight.htm"><b>ClientHeight</b></a>(window), window)<br /><a href="UpdateWindowMenu.htm"><b>UpdateWindowMenu</b></a> window<br /><br /><a href="While.htm"><b>While</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>()<>$803<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="EventID.htm"><b>EventID</b></a>() = $1001 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> <a href="EventData.htm"><b>EventData</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Notify.htm"><b>Notify</b></a> "Cursorposition: Spalte = " + (position(textarea, 0) + 1) + " Zeile = " + (position(textarea, 1) + 1)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="SetStatusText.htm"><b>SetStatusText</b></a> window, "Cursorposition: Spalte = " + (position(textarea, 0) + 1) + " Zeile = " + (position(textarea, 1) + 1)<br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> position(gadget, pos = 0)<br />&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> pos<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 0<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> <a href="TextAreaCursor.htm"><b>TextAreaCursor</b></a>(gadget, 1) - <a href="TextAreaChar.htm"><b>TextAreaChar</b></a>(gadget, <a href="TextAreaCursor.htm"><b>TextAreaCursor</b></a>(gadget, 2))<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> <a href="TextAreaCursor.htm"><b>TextAreaCursor</b></a>(gadget, 2)<br />&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br /><a href="End Function.htm"><b>End Function</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="TextAreaSelLen.htm" title="ermittelt die Anzahl markierter Zeichen oder Zeilen">TextAreaSelLen</a>, <a href="TextAreaLineLen.htm" title="ermittelt die Anzahl der Zeichen in einer Zeile">TextAreaLineLen</a>, <a href="TextAreaLine.htm" title="ermittelt die Zeilennummer eines Zeichens">TextAreaLine</a>, <a href="TextAreaLen.htm" title="ermittelt Anzahl der Zeichen/Zeilen in einem Textarea">TextAreaLen</a>, <a href="TextAreaCursor.htm" title="liefert die Position des Textcursors">TextAreaCursor</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_47.html">TextArea</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

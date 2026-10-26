@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		BrushFX 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>BrushFX</b> brush%, effekt% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+brush%
+</td>
+<td>
+Identität eines Pinsels (brush)
+</td>
+</tr>
+<tr>
+<td width="100">
+effekt%
+</td>
+<td>
+Effekt, das zugewiesen werden soll:<br />+1=leuchtend<br />+2=Vertexfarbe statt Pinselfarbe benutzen<br />+4=flache Schattierung<br />+8=Nebeleffekt deaktivieren<br />+16=schaltet Backface Culling aus<br />+32=VertexAlpha aktivieren (ab v1.82)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>BrushFX</b> weist einem Pinsel bestimmte Effekte zu. Mehrere Effekte können kombiniert werden. Dazu muss man nur die einzelnen Werte addieren. Sollen z.B. Effekte 1 und 2 angewendet werden, so muss man den Wert 3 übergeben. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Zeigt die Verwendung von Effekten bei einem Brush<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, - 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />brush = <a href="CreateBrush.htm"><b>CreateBrush</b></a>(0, 255, 0)<br /><a href="BrushAlpha.htm"><b>BrushAlpha</b></a> brush, .8<br /><a href="BrushBlend.htm"><b>BrushBlend</b></a> brush, 0<br /><a href="BrushColor.htm"><b>BrushColor</b></a> brush, 100, 100, 255<br /><a href="BrushFX.htm"><b>BrushFX</b></a> brush, 8<br /><a href="BrushShininess.htm"><b>BrushShininess</b></a> brush, 1<br /><br />sphere1 = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(32)<br />sphere2 = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(32)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sphere2, 1, 1, 1<br /><a href="PaintMesh.htm"><b>PaintMesh</b></a> sphere1, brush<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="BrushAlpha.htm" title="Ändert Alphawert eines Pinsels">BrushAlpha</a>, <a href="BrushBlend.htm" title="Setzt einen anderen Pinselmodus">BrushBlend</a>, <a href="BrushColor.htm" title="Wählt eine andere Pinselfarbe aus">BrushColor</a>, <a href="BrushShininess.htm" title="Weist einem Pinsel einen Glanzwert zu">BrushShininess</a>, <a href="BrushTexture.htm" title="Weist einem Pinsel eine Textur zu">BrushTexture</a>, <a href="EntityFX.htm" title="Weist einem 3D-Objekt bestimmte Effekte zu">EntityFX</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_61.html">Brush</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

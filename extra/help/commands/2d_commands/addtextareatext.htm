@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		AddTextAreaText 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>AddTextAreaText</b> textarea,text$ 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+textarea
+</td>
+<td>
+Identität eines Textarea-Objekts
+</td>
+</tr>
+<tr>
+<td width="100">
+text
+</td>
+<td>
+Text, der eingefügt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>AddTextAreaText</b> fügt Text immer ganz hinten in ein Textarea-Objekt ein. Textarea ist ein RichTextBox-Objekt - somit lässt sich Schriftart oder Schriftfarbe einstellen (siehe dazu <a href="SetTextAreaFont.htm"><b>SetTextAreaFont</b><img src="../../html/images/quicklink.gif" /></a>, <a href="SetTextAreaColor.htm"><b>SetTextAreaColor</b><img src="../../html/images/quicklink.gif" /></a>). Mit <a href="TextAreaText.htm"><b>TextAreaText</b><img src="../../html/images/quicklink.gif" /></a> kann kompletter Text als String wieder ausgelesen werden (ohne Formatierungen!)<br /><div class="hint">Zeilenumbruch lässt sich auch sehr einfach mit Chr$(13)+Chr$(10) einfügen! <br />&nbsp;</div><br /><br /><img src="../../images/gfx_textarea.gif" /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Erstellt ein Textarea-Objekt und fügt zwei Zeilen Text mit einem Befehl ein:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 50, 50, 300, 300, 0)<br />textarea = <a href="CreateTextArea.htm"><b>CreateTextArea</b></a>(10, 10, 270, 200, window)<br /><a href="AddTextAreaText.htm"><b>AddTextAreaText</b></a> textarea, "Zeile1" + <a href="Chr.htm"><b>Chr</b></a>$(13) + <a href="Chr.htm"><b>Chr</b></a>$(10) + "Zeile2"<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GetKey.htm"><b>GetKey</b></a>() = 27 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /> &nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>() = $803 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateTextArea.htm" title="erstellt eine mehrzeilige Textbox">CreateTextArea</a>, <a href="TextAreaText.htm" title="liefert kompletten Text aus Textarea">TextAreaText</a>, <a href="SetTextAreaText.htm" title="fügt Text innerhalb eines Texaraes ein">SetTextAreaText</a>, <a href="SetTextAreaTabs.htm" title="ändert den Tabulatorwert in einem Textarea">SetTextAreaTabs</a>, <a href="SetTextAreaFont.htm" title="Schriftart in einem Teaxarea ändern">SetTextAreaFont</a>, <a href="SetTextAreaColor.htm" title="ändert Hintergrund- und Schriftfarbe in einem Textarea">SetTextAreaColor</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_47.html">TextArea</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

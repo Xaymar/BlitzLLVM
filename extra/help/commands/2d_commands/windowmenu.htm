@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		WindowMenu 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			menü = <b>WindowMenu</b> (fenster) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+fenster
+</td>
+<td>
+Identität eines Fensters
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des "höchsten" Menüs (Root-Menu bzw. Window-Menu) 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>WindowMenu</b> ermittelt die Identität eines Root-Menüs, das zu einem Fenster zugeordnet ist. Wenn ein Fenster mit <a href="CreateWindow.htm"><b>CreateWindow</b><img src="../../html/images/quicklink.gif" /></a> erstellt wird, dann enthält dieses Fenster noch kein Menü. Darum kann mit <b>WindowMenu</b> ein imaginäres Menü ermittelt werden. Dieses Menü stellt die höchste Ebene dar und neue Menüs müssen zu diesem Root-Menü hinzugefügt werden.<br /><br /><img src="../../images/gfx_menu.gif" /><br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 50, 50, 200, 200, 0, 5)<br />menu1 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Datei", 1, <a href="WindowMenu.htm"><b>WindowMenu</b></a>(window))<br />menu2 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Ansicht", 2, <a href="WindowMenu.htm"><b>WindowMenu</b></a>(window))<br />menu3 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Neu", 3, menu1)<br />menu4 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Dummy", 4, menu3)<br />menu5 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Menüpunkt", 5, menu2)<br />menu6 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("", 6, menu2)<br />menu7 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Deaktiviert", 7, menu2)<br />menu8 = <a href="CreateMenu.htm"><b>CreateMenu</b></a>("Check", 8, menu2)<br /><br /><a href="DisableMenu.htm"><b>DisableMenu</b></a> menu7<br /><a href="CheckMenu.htm"><b>CheckMenu</b></a> menu8<br /><a href="UpdateWindowMenu.htm"><b>UpdateWindowMenu</b></a> window<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1) = 1 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CheckMenu.htm" title="CheckMenu setzt einen Hacken vor einem Menüpunkt">CheckMenu</a>, <a href="CreateMenu.htm" title="CreateMenu erstellt ein Menü oder Menüpunkt">CreateMenu</a>, <a href="DisableMenu.htm" title="DisableMenu schaltet ein Menü aus">DisableMenu</a>, <a href="EnableMenu.htm" title="EnableMenu schaltet ein Menü ein">EnableMenu</a>, <a href="MenuChecked.htm" title="MenuChecked ermittelt, ob ein Haken vor einem Menü gesetzt wurde">MenuChecked</a>, <a href="MenuEnabled.htm" title="MenuEnabled ermittelt, ob ein Menü ausgeschaltet ist">MenuEnabled</a>, <a href="MenuText.htm" title="MenuText liefert die Bezeichnung eines Menüs zurück">MenuText</a>, <a href="SetMenuText.htm" title="SetMenuText ändert die Bezeichnung eines Menüs">SetMenuText</a>, <a href="UncheckMenu.htm" title="UncheckMenu entfernt einen Haken vor einem Menüpunkt">UncheckMenu</a>, <a href="UpdateWindowMenu.htm" title="UpdateWindowMenu aktualisiert das Menü in einem Fenster">UpdateWindowMenu</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_78.html">Menü</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

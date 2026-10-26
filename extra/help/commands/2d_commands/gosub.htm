@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Gosub 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Gosub</b> sprungmarke 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+sprungmarke
+</td>
+<td>
+Beliebige Sprungmarke, welche bereits im Programm definiert wurde. Die Sprungmarke muss einen Punkt vor dem Namen haben. Bei <a href="Gosub.htm"><b>Gosub</b><img src="../../html/images/quicklink.gif" /></a> braucht man diesen Punkt aber nicht anzugeben (siehe Beispiel).
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung erzwingt die Programmausführung an anderer Stelle im Programm. <b>WICHTIG:</b> Es muss ein Rücksprung mit <a href="Return.htm"><b>Return</b><img src="../../html/images/quicklink.gif" /></a> nach der Ausführung erfolgen. Sollte ein Programm unbeabsichtigt ohne die <b>Gosub</b> Anweisung auf eine <a href="Return.htm"><b>Return</b><img src="../../html/images/quicklink.gif" /></a>Anweisung auftreffen, so kommt es in BlitzBasic nicht zu einem Fehler (anders als bei anderen Basic-Varianten). Dies kommt daher, weil <a href="Return.htm"><b>Return</b><img src="../../html/images/quicklink.gif" /></a> zwei unterschiedliche Bedeutungen in BlitzBasic hat.<br /><br />Die Alternative zu <b>Gosub</b> ist <a href="Function.htm"><b>Function</b><img src="../../html/images/quicklink.gif" /></a> (definiert ein Unterprogramm). Der Unterschied liegt daran, dass man für <b>Gosub</b> keine globalen Variablen definieren muss. Die Funktion ist aber dem <b>Gosub</b> Befehl vorzuziehen.<br /><br /><div class="hint">Übrigens werden die Sprungmarken in BlitzBasic mit einem Punkt vor dem Namen definiert. Bei <b>Gosub</b> braucht man diesen Punkt aber nicht anzugeben.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel demonstriert die Funktionsweise von &quot;Gosub&quot; und &quot;Return&quot;:<br />
+			<div class="syntax-code">
+				<a href="Gosub.htm"><b>Gosub</b></a> Hallo<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /><br /><a href="End.htm"><b>End</b></a><br /><br />.Hallo<br /><br /><a href="Print.htm"><b>Print</b></a> "Wer ist da?"<br /><br /><a href="Return.htm"><b>Return</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="End Function.htm" title="Kennzeichnet das Ende eines Unterprogramms">End Function</a>, <a href="Function.htm" title="Definiert ein Unterprogramm">Function</a>, <a href="Goto.htm" title="Erzwingt Programmsprung ohne &quot;Return&quot;">Goto</a>, <a href="Return.htm" title="Wird zusammen mit &quot;Gosub&quot; oder &quot;Function&quot; verwendet">Return</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_27.html">Programmstruktur</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		While 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>While</b> bedingung 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bedingung
+</td>
+<td>
+Beliebige Bedingung, wie bei der <a href="If.htm"><b>If</b><img src="../../html/images/quicklink.gif" /></a> Anweisung
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl definiert eine <b>While</b> <a href="Wend.htm"><b>Wend</b><img src="../../html/images/quicklink.gif" /></a> Schleife. Am Anfang der Schleife steht <b>While</b>, das zusammen mit einer Bedingung angegeben wird. Am Ende steht <a href="Wend.htm"><b>Wend</b><img src="../../html/images/quicklink.gif" /></a>, das das Schleifenende kennzeichnet. Dazwischen stehen mehrere Befehle, die innerhalb dieser Schleife ausgeführt werden sollen.<br /><br />Die Prüfung der Bedingung geschieht bei <b>While</b> <a href="Wend.htm"><b>Wend</b><img src="../../html/images/quicklink.gif" /></a> Schleife immer am Anfang. Sollte die Bedingung erfüllt werden, so werden alle Befehle in der Schleife ausgeführt.<br /><br /><div class="hint">Die Befehle <a href="Repeat.htm"><b>Repeat</b><img src="../../html/images/quicklink.gif" /></a> und <a href="Until.htm"><b>Until</b><img src="../../html/images/quicklink.gif" /></a> stellen eine andere Schleifenart zur Verfügung. Die Prüfung geschieht am Ende der Schleife. Die <a href="Repeat.htm"><b>Repeat</b><img src="../../html/images/quicklink.gif" /></a> <a href="Until.htm"><b>Until</b><img src="../../html/images/quicklink.gif" /></a> Schleife wird bei Nichterfüllung der Bedingung ausgeführt.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zeichnet bunte Linien. Erst nach einem Tastendruck wird die Schleife beendet:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 800,600<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a> (1)<br /><br /><a href="Color.htm"><b>Color</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255)<br /><br /><a href="Line.htm"><b>Line</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(800), <a href="Rnd.htm"><b>Rnd</b></a>(600), <a href="Rnd.htm"><b>Rnd</b></a>(800), <a href="Rnd.htm"><b>Rnd</b></a>(600)<br /><br /><a href="Wend.htm"><b>Wend</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Exit.htm" title="Beendet bestimmte Programmschleifen">Exit</a>, <a href="Forever.htm" title="Wird zusammen mit &quot;Repeat&quot; verwendet">Forever</a>, <a href="Repeat.htm" title="Definiert eine &quot;Repeat&quot; Schleife">Repeat</a>, <a href="Until.htm" title="Definiert eine Schleife mit &quot;Repeat&quot;">Until</a>, <a href="Wend.htm" title="Kann nur zusammen mit &quot;While&quot; verwendet werden">Wend</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_26.html">Schleifen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ShowEntity 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ShowEntity</b> entity% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines 3D-Objekts (entity)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>ShowEntity</b> schaltet ein ausgeschaltetes Objekt wieder ein - es wird dadurch sichtbar. Eingeschaltete Objekte werden zudem auf eine Kollision mit anderen Objekten geprüft.<br /><br />Am Anfang des Programms kann man beliebig viele Objekte erstellen. Diese Objekte können danach ausgeschaltet werden. Wird ein Objekt benötigt, dann kann es wieder eingeschaltet werden. Dies ist wesentlich besser, als wenn man neue Objekte mitten im Spiel erstellt. Das ist auch der Hauptzweck dieser Anweisung.<br /><br />Wenn ein Objekt weitere angehängte Objekte (child-entitys) hat, dann werden diese ebenfalls automatisch aktiviert. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 1<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />sprite = <a href="CreateSprite.htm"><b>CreateSprite</b></a>()<br />texture = <a href="CreateTexture.htm"><b>CreateTexture</b></a>(256, 256)<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> sprite, texture<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sprite, 0, 0, 10<br /><br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(texture)<br /><a href="Color.htm"><b>Color</b></a> 255, 0, 0<br /><a href="Oval.htm"><b>Oval</b></a> 0, 0, 256, 256, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />t = <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;t2 = <a href="MilliSecs.htm"><b>MilliSecs</b></a>() - t<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> t2>200 <a href="Then.htm"><b>Then</b></a> <a href="HideEntity.htm"><b>HideEntity</b></a> sprite<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> t2>400 <a href="Then.htm"><b>Then</b></a> <a href="ShowEntity.htm"><b>ShowEntity</b></a> sprite:t = <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br />&nbsp; &nbsp;win = win + 2<br />&nbsp; &nbsp;<a href="HandleSprite.htm"><b>HandleSprite</b></a> sprite, <a href="Cos.htm"><b>Cos</b></a>#(win) * 2, <a href="Sin.htm"><b>Sin</b></a>#(win) * 2<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="HideEntity.htm" title="Schaltet ein 3D-Objekt aus">HideEntity</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_68.html">Kontrolle</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

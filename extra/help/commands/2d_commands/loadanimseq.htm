@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LoadAnimSeq 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			nr% = <b>LoadAnimSeq</b> (entity%, datei$) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+datei$
+</td>
+<td>
+Dateiname eines 3D-Modells (X-, 3DS- oder B3D-Datei)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Nummer der Animationssequenz zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>LoadAnimSeq</b> lädt eine Animationssequenz aus einer Datei aus und fügt die zu einem Objekt (entity) hinzu.<br /><br />Der Parameter "entity%" ist die Identität eines Objekts, zu dem die Animationssequenz hinzugefügt werden soll.<br /><br />Die Animation kann nur aus X-, 3DS- oder B3D-Dateien geladen werden.<br /><br />Wenn es keine Probleme gab, dann wird die Nummer der Animationssequenz zurückgeliefert. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Graphics3D 640,480,0,2<br />SetBuffer BackBuffer()<br />main_cam=CreateCamera()<br />CameraViewport main_cam,0,0,640,480<br />CameraClsColor main_cam,63,63,127<br />main_light=CreateLight(2,main_cam)<br />LightRange main_light,50<br /><br />anim_obj=LoadAnimMesh("animation.b3d")<br />anim_obj_walk=LoadAnimSeq(anim_obj,"walk_animation.b3d")<br />anim_obj_idle=LoadAnimSeq(anim_obj,"idle_animation.b3d")<br />textur=LoadTexture("optionale_textur.bmp")<br />EntityTexture anim_obj,textur<br />PositionEntity main_cam,0,30,-80<br />PointEntity main_cam,anim_obj<br />PositionEntity main_cam,0,50,-80<br /><br />Repeat<br />&nbsp; &nbsp;If KeyDown(208) Then<br />&nbsp; &nbsp;&nbsp; &nbsp;If anim_speed>=0 Then<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;anim_speed=-1<br />&nbsp; &nbsp;&nbsp; &nbsp;Animate anim_obj,1,anim_speed,anim_obj_walk,0<br />&nbsp; &nbsp;EndIf<br />&nbsp; &nbsp;Else If KeyDown(200) Then<br />&nbsp; &nbsp;&nbsp; &nbsp;If anim_speed<=0 Then<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;anim_speed=1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;Animate anim_obj,1,anim_speed,anim_obj_walk,0<br />&nbsp; &nbsp;&nbsp; &nbsp;EndIf<br />&nbsp; &nbsp;Else<br />&nbsp; &nbsp;&nbsp; &nbsp;Animate anim_obj,1,0,anim_obj_walk,0<br />&nbsp; &nbsp;&nbsp; &nbsp;Animate anim_obj,1,1,anim_obj_idle,0<br />&nbsp; &nbsp;&nbsp; &nbsp;anim_speed=0<br />&nbsp; &nbsp;EndIf<br />&nbsp; &nbsp;If KeyDown(203) Then TurnEntity anim_obj,0,2,0<br />&nbsp; &nbsp;If KeyDown(205) Then TurnEntity anim_obj,0,-2,0<br />&nbsp; &nbsp;UpdateWorld()<br />&nbsp; &nbsp;RenderWorld()<br />&nbsp; &nbsp;Text 0,0,"Benutze Pfeiltasten"<br />&nbsp; &nbsp;Flip<br />Until KeyHit(1)<br />End 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AddAnimSeq.htm" title="Fügt eine Animationssequenz an ein Objekt an">AddAnimSeq</a>, <a href="Animate.htm" title="ändert die Animationsart eines Objekts">Animate</a>, <a href="AnimLength.htm" title="Ermittelt aktuelle, relative Animationszeit eines 3D-Objekts">AnimLength</a>, <a href="AnimSeq.htm" title="Ermittelt aktuelle Animationssequenz eines 3D-Objekts">AnimSeq</a>, <a href="AnimTime.htm" title="Ermittelt aktuelle Animationszeit eines 3D-Objekts">AnimTime</a>, <a href="SetAnimKey.htm" title="Setzt Animationsparameter für ein 3D-Objekt">SetAnimKey</a>, <a href="SetAnimTime.htm" title="Ändert Animationszeit eines 3D-Objekts">SetAnimTime</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_57.html">Animation</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

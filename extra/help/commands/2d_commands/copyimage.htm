@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CopyImage 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			neuesBild = <b>CopyImage</b> (bild) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bild
+</td>
+<td>
+Identität eines Bildes (z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des neuen Bildes zurückgeliefert. Sollte eine Null zurückgeliefert werden, dann konnte das Bild nicht kopiert werden.<br /><br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung dupliziert ein Bild, welches bereits im Speicher abgelegt ist. So kann man dann z.B. ein Originalbild für spätere Verwendung erhalten, während das kopierte Bild ständig verändert wird. Um ein Bild direkt vom Bildschirm zu kopieren, muss man <a href="CopyRect.htm"><b>CopyRect</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="GrabImage.htm"><b>GrabImage</b><img src="../../html/images/quicklink.gif" /></a> verwenden.<br /><br /><div class="caution">Beachte, dass dieser Befehl überlegt eingesetzt werden muss. Jedes Bild kostet etwas an Grafikspeicher. Bei vielen älteren Rechnern ist die Grenze schnell erreicht. Benutze <a href="FreeImage.htm"><b>FreeImage</b><img src="../../html/images/quicklink.gif" /></a>, um ein Bild wieder zu löschen.<br />&nbsp;</div><br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zeigt laden, kopieren und anzeigen von Bildern:<br />
+			<div class="syntax-code">
+				<a href="Graphic.htm"><b>Graphic</b></a> 640, 480<br /><br />original = <a href="LoadImage.htm"><b>LoadImage</b></a> ("bild.bmp")<br /><br />kopie = <a href="CopyImage.htm"><b>CopyImage</b></a> (original)<br /><br /><a href="DrawImage.htm"><b>DrawImage</b></a> original, 0, 0<br /><br /><a href="DrawImage.htm"><b>DrawImage</b></a> kopie, 130, 0<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyRect.htm" title="Kopiert einen Ausschnitt im Buffer">CopyRect</a>, <a href="CreateImage.htm" title="Erstellt ein neues und leeres Bild im Speicher">CreateImage</a>, <a href="GrabImage.htm" title="Kopiert Ausschnitt auf Grafikbuffer in ein Bild">GrabImage</a>, <a href="FreeImage.htm" title="Löscht ein Bild aus dem Speicher">FreeImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
