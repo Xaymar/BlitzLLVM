@@ -70,9 +70,11 @@ namespace {
 		// Time
 		{ "millisecs", "bb_millisecs", 'i', "", 0, {}, false },
 		{ "delay", "bb_delay", 'v', "i", 1, {}, false },
-		// Graphics (without a window system backend for now)
+		// Graphics
 		{ "graphics", "bb_graphics", 'v', "iiii", 2, { 0, 0, 0, 0 }, false },
 		{ "graphics3d", "bb_graphics", 'v', "iiii", 2, { 0, 0, 0, 0 }, false },
+		{ "endgraphics", "bb_end_graphics", 'v', "", 0, {}, false },
+		{ "apptitle", "bb_app_title", 'v', "ss", 1, {}, false },
 		{ "graphicswidth", "bb_graphics_width", 'i', "", 0, {}, false },
 		{ "graphicsheight", "bb_graphics_height", 'i', "", 0, {}, false },
 		{ "setbuffer", "bb_set_buffer", 'v', "i", 1, {}, false },
@@ -82,15 +84,21 @@ namespace {
 		{ "cls", "bb_cls", 'v', "", 0, {}, false },
 		{ "color", "bb_color", 'v', "iii", 3, {}, false },
 		{ "clscolor", "bb_clscolor", 'v', "iii", 3, {}, false },
-		{ "text", "bb_text", 'v', "iis", 3, {}, false },
+		{ "text", "bb_text", 'v', "iisii", 3, {}, false },
+		{ "stringwidth", "bb_string_width", 'i', "s", 1, {}, false },
+		{ "stringheight", "bb_string_height", 'i', "s", 1, {}, false },
 		{ "rect", "bb_rect", 'v', "iiiii", 4, { 0, 0, 0, 0, 1 }, false },
+		{ "oval", "bb_oval", 'v', "iiiii", 4, { 0, 0, 0, 0, 1 }, false },
 		{ "line", "bb_line", 'v', "iiii", 4, {}, false },
 		{ "plot", "bb_plot", 'v', "ii", 2, {}, false },
+		// Input
 		{ "waitkey", "bb_wait_key", 'i', "", 0, {}, false },
 		{ "keydown", "bb_key_down", 'i', "i", 1, {}, false },
 		{ "keyhit", "bb_key_hit", 'i', "i", 1, {}, false },
 		{ "mousex", "bb_mouse_x", 'i', "", 0, {}, false },
 		{ "mousey", "bb_mouse_y", 'i', "", 0, {}, false },
+		{ "mousedown", "bb_mouse_down", 'i', "i", 1, {}, false },
+		{ "mousehit", "bb_mouse_hit", 'i', "i", 1, {}, false },
 	};
 
 	builtin const* find_builtin(std::string const& name)
