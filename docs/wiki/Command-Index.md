@@ -479,7 +479,7 @@ Every command from A to Z. See [[Home]] to browse by dialect and category.
 | [ModifyGadgetItem](BlitzPlus-Gadgets#modifygadgetitem) | BlitzPlus | Gadgets |
 | [ModifyTerrain](Blitz3D-Terrain#modifyterrain) | Blitz3D | Terrain |
 | [ModifyTreeViewNode](BlitzPlus-Tree-Views#modifytreeviewnode) | BlitzPlus | Tree Views |
-| [MoreFiles](BlitzPlus-System#morefiles) | BlitzPlus | System |
+| [MoreFiles](BlitzBasic-Files#morefiles) | BlitzBasic | Files |
 | [MouseDown](BlitzBasic-Mouse#mousedown) | BlitzBasic | Mouse |
 | [MouseHit](BlitzBasic-Mouse#mousehit) | BlitzBasic | Mouse |
 | [MouseWait](BlitzBasic-Mouse#mousewait) | BlitzBasic | Mouse |
