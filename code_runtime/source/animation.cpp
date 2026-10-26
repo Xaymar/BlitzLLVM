@@ -654,6 +654,10 @@ namespace {
 		fseek(file, 0, SEEK_END);
 		long length = ftell(file);
 		fseek(file, 0, SEEK_SET);
+		if (length < 0) {
+			fclose(file);
+			return false; // Not something that has a size, like a folder.
+		}
 		uint8_t* data = static_cast<uint8_t*>(malloc(size_t(length) + 1));
 		size_t   got  = fread(data, 1, size_t(length), file);
 		fclose(file);
