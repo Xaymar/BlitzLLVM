@@ -50,6 +50,9 @@ def originals():
                 if not name.endswith(".cpp") or name not in MODULES:
                     continue
                 text = open(os.path.join(directory, name), errors="replace").read()
+                # What the original has commented out is not registered, and so does not exist for programs.
+                text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+                text = re.sub(r"^\s*//.*$", "", text, flags=re.M)
                 for match in SYMBOL.finditer(text):
                     n = NAME.match(match.group(1))
                     if not n or n.group(1).startswith("_"):
