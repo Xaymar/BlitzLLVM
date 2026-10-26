@@ -9,7 +9,10 @@
 ; HidePointer ShowPointer LoadFont SetFont FreeFont FontWidth FontHeight FontName FontSize FontStyle FontAscent
 ; FontDescent Origin Viewport Locate
 ; ImageXHandle ImageYHandle RectsOverlap ImagesOverlap ImageRectOverlap CopyImage ScaleImage RotateImage TFormImage
-; TFormFilter. What ends up on the screen is in graphics_pixels.bb.
+; TFormFilter CountGfxDrivers GfxDriverName SetGfxDriver GfxDriver3D GfxDriverCaps3D HWTexUnits CountGfxModes
+; CountGfxModes3D GfxModeWidth GfxModeHeight GfxModeDepth GfxModeFormat GfxMode3D GfxModeExists SetGamma UpdateGamma
+; GammaRed GammaGreen GammaBlue VWait ScanLine GraphicsLost GraphicsBuffer BufferDirty GraphicsFormat Dither AntiAlias
+; WBuffer HWMultiTex AutoSuspend OpenMovie CloseMovie DrawMovie MovieWidth MovieHeight MoviePlaying LoadBuffer. What ends up on the screen is in graphics_pixels.bb.
 Include "check.bb"
 
 ; Opening a window, and what it says about itself.
@@ -215,6 +218,88 @@ Check "TFormImage matrix height", ImageHeight(plain), 10, 1
 FreeImage shape
 FreeImage other
 FreeImage plain
+
+; There is one graphics driver, and the modes are the ones of the display.
+Check "CountGfxDrivers", CountGfxDrivers(), 1
+CheckTrue "GfxDriverName", Len(GfxDriverName$(1)) > 0
+SetGfxDriver 1
+Check "GfxDriver3D", GfxDriver3D(1), 1
+CheckTrue "GfxDriverCaps3D", GfxDriverCaps3D() >= 100
+CheckTrue "HWTexUnits", HWTexUnits() >= 1
+modes = CountGfxModes()
+CheckTrue "CountGfxModes", modes > 0
+Check "CountGfxModes3D", CountGfxModes3D(), modes
+For mode = 1 To modes
+	w = GfxModeWidth(mode)
+	h = GfxModeHeight(mode)
+	d = GfxModeDepth(mode)
+	CheckTrue "GfxMode size " + mode, w > 0 And h > 0
+	CheckTrue "GfxModeDepth " + mode, d >= 16
+	Check "GfxModeExists " + mode, GfxModeExists(w, h, d), 1
+	Check "GfxMode3D " + mode, GfxMode3D(mode), 1
+	CheckTrue "GfxModeFormat " + mode, GfxModeFormat(mode) > 0
+Next
+Check "GfxModeExists missing", GfxModeExists(7, 7, 32), 0
+Check "GfxModeExists any depth", GfxModeExists(GfxModeWidth(1), GfxModeHeight(1), 0), 1
+
+; Gamma is remembered, a value for every step of every color.
+Check "GammaRed at the start", GammaRed(5), 5
+SetGamma 10, 20, 30, 100.5, 120, 140
+Check "GammaRed", GammaRed(10), 100.5
+Check "GammaGreen", GammaGreen(20), 120
+Check "GammaBlue", GammaBlue(30), 140
+Check "GammaGreen elsewhere", GammaGreen(10), 10
+SetGamma 1, 1, 1, 300, -5, 255
+Check "GammaRed is cut", GammaRed(1), 255
+Check "GammaGreen is cut", GammaGreen(1), 0
+UpdateGamma
+UpdateGamma True
+suite_checks = suite_checks + 1
+
+; Settings that were made for the hardware of the time can be given, and a GPU does what it wants.
+Dither True
+AntiAlias True
+WBuffer True
+HWMultiTex True
+AutoSuspend True
+Dither False
+AntiAlias False
+WBuffer False
+HWMultiTex False
+AutoSuspend False
+suite_checks = suite_checks + 1
+
+; Things that always have the same answer.
+Check "GraphicsLost", GraphicsLost(), 0
+Check "ScanLine", ScanLine(), 0
+CheckTrue "GraphicsFormat", GraphicsFormat() > 0
+SetBuffer BackBuffer()
+Check "GraphicsBuffer", GraphicsBuffer(), BackBuffer()
+SetBuffer FrontBuffer()
+Check "GraphicsBuffer front", GraphicsBuffer(), FrontBuffer()
+SetBuffer BackBuffer()
+BufferDirty BackBuffer()
+suite_checks = suite_checks + 1
+start = MilliSecs()
+VWait
+VWait 2
+CheckTrue "VWait waits", MilliSecs() - start >= 40
+Check "Stats3D", Stats3D(0), 0
+Check "Stats3D other", Stats3D(5), 0
+
+; A movie can't be played. What programs get for one that can't is no movie, which every function can take.
+movie = OpenMovie("suite_does_not_exist.avi")
+Check "OpenMovie", movie, 0
+Check "MovieWidth", MovieWidth(movie), 0
+Check "MovieHeight", MovieHeight(movie), 0
+Check "MoviePlaying", MoviePlaying(movie), 0
+DrawMovie movie, 0, 0
+DrawMovie movie, 10, 10, 50, 50
+CloseMovie movie
+suite_checks = suite_checks + 1
+
+; A picture that is not there does not fill anything.
+Check "LoadBuffer missing", LoadBuffer(BackBuffer(), "suite_does_not_exist.bmp"), 0
 
 ; Origin, Viewport and Locate take what they are given. What they do is in graphics_pixels.bb.
 Origin 5, 5

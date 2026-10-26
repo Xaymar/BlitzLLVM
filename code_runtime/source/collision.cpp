@@ -30,6 +30,7 @@ void bb_animation_update(float speed);
 }
 
 namespace {
+	uint32_t triangles_tested = 0; // For Stats3D.
 	using namespace bb;
 
 	struct vec3 {
@@ -562,6 +563,7 @@ namespace {
 			}
 			bool hit = false;
 			each_triangle_matrix(e, tform, area, [&](triangle const& t) {
+				triangles_tested++;
 				if (hit_triangle(c, line, radius, t.a, t.b, t.c)) {
 					c.surface  = t.surface;
 					c.triangle = t.index;
@@ -950,9 +952,17 @@ namespace {
 extern "C" {
 int32_t bb_line_pick(float x, float y, float z, float dx, float dy, float dz, float radius);
 
+// Stats3D: 0 is how many triangles the collisions of the last UpdateWorld looked at. The original also counts the
+// vertices and triangles of terrains that were drawn, which are not counted here.
+float bb_stats_3d(int32_t type)
+{
+	return type == 0 ? float(triangles_tested) : 0.0f;
+}
+
 // UpdateWorld: collisions, and what is animated.
 void bb_update_world(float speed)
 {
+	triangles_tested = 0;
 	{
 		bb::profile_scope timer(bb::PROFILE_ANIMATION);
 		bb_animation_update(speed);

@@ -759,4 +759,51 @@ void bb_rotate_image(int32_t handle, float angle)
 	float radians = -angle * 3.14159265358979f / 180.0f;
 	bb_tform_image(handle, cosf(radians), -sinf(radians), sinf(radians), cosf(radians));
 }
+
+// Fills a buffer with a picture, stretched to the size of the buffer. Returns whether the file could be loaded.
+int32_t bb_load_buffer(int32_t buffer, const char* file)
+{
+	int      width = 0, height = 0;
+	uint8_t* pixels = load_pixels(file, width, height);
+	if (!pixels) {
+		return 0;
+	}
+	if (!active()) {
+		free(pixels);
+		return 1;
+	}
+	target_ref target = resolve_target(buffer);
+	if (!target.image) {
+		free(pixels);
+		bb_runtime_error("LoadBuffer: the buffer does not exist.");
+	}
+
+	// Looks every pixel of the buffer up in the picture, blending the four around it.
+	uint8_t* scaled = static_cast<uint8_t*>(malloc(size_t(target.w) * size_t(target.h) * 4));
+	for (int y = 0; y < target.h; y++) {
+		float sy = (float(y) + 0.5f) * float(height) / float(target.h) - 0.5f;
+		int   y0 = int(floorf(sy));
+		float fy = sy - float(y0);
+		for (int x = 0; x < target.w; x++) {
+			float sx = (float(x) + 0.5f) * float(width) / float(target.w) - 0.5f;
+			int   x0 = int(floorf(sx));
+			float fx = sx - float(x0);
+			for (int ch = 0; ch < 4; ch++) {
+				auto at = [&](int px, int py) -> float {
+					px = px < 0 ? 0 : (px >= width ? width - 1 : px);
+					py = py < 0 ? 0 : (py >= height ? height - 1 : py);
+					return pixels[(size_t(py) * size_t(width) + size_t(px)) * 4 + size_t(ch)];
+				};
+				float v = at(x0, y0) * (1 - fx) * (1 - fy) + at(x0 + 1, y0) * fx * (1 - fy) + at(x0, y0 + 1) * (1 - fx) * fy + at(x0 + 1, y0 + 1) * fx * fy;
+				scaled[(size_t(y) * size_t(target.w) + size_t(x)) * 4 + size_t(ch)] = uint8_t(int(v + 0.5f));
+			}
+		}
+	}
+	free(pixels);
+
+	flush();
+	write_pixels(*target.image, target.x, target.y, target.w, target.h, scaled);
+	free(scaled);
+	return 1;
+}
 }

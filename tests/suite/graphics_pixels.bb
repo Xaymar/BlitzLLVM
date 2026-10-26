@@ -6,7 +6,7 @@
 ; Oval Text Cls ClsColor ReadPixel WritePixel ReadPixelFast WritePixelFast CopyPixel CopyPixelFast CopyRect GetColor
 ; LockBuffer UnlockBuffer DrawImage DrawImageRect DrawBlock DrawBlockRect TileBlock GrabImage SaveBuffer SaveImage
 ; FrontBuffer Flip Origin Viewport Locate Print Write ImagesCollide ImageRectCollide ImageRectOverlap TileImage CopyImage
-; ScaleImage RotateImage.
+; ScaleImage RotateImage LoadBuffer.
 Include "check.bb"
 
 If GetEnv$("BLITZ_HEADLESS") <> "" Then
@@ -388,6 +388,36 @@ Check "RotateImage lower right", Px(100 - 4 + 6, 60 - 4 + 6), BLACK
 FreeImage turned
 FreeImage quarter_a
 FreeImage quarter_b
+
+; LoadBuffer fills a buffer with a picture from a file, stretched to the size of the buffer: here four colors in four
+; pixels, saved and loaded back.
+picture = CreateImage(2, 2)
+SetBuffer ImageBuffer(picture)
+Color 255, 0, 0
+Plot 0, 0
+Color 0, 255, 0
+Plot 1, 0
+Color 0, 0, 255
+Plot 0, 1
+Color 255, 255, 0
+Plot 1, 1
+SetBuffer BackBuffer()
+Check "SaveBuffer for LoadBuffer", SaveBuffer(ImageBuffer(picture), "suite_loadbuffer.bmp"), 1
+ClsColor 0, 0, 0
+Cls
+Check "LoadBuffer", LoadBuffer(BackBuffer(), "suite_loadbuffer.bmp"), 1
+Check "LoadBuffer upper left", Px(5, 5), RED
+Check "LoadBuffer upper right", Px(150, 5), GREEN
+Check "LoadBuffer lower left", Px(5, 110), BLUE
+Check "LoadBuffer lower right", Px(150, 110), $FFFF00
+target = CreateImage(4, 4)
+Check "LoadBuffer into an image", LoadBuffer(ImageBuffer(target), "suite_loadbuffer.bmp"), 1
+DrawBlock target, 20, 20
+Check "LoadBuffer image upper left", Px(20, 20), RED
+Check "LoadBuffer image lower right", Px(23, 23), $FFFF00
+FreeImage target
+FreeImage picture
+DeleteFile "suite_loadbuffer.bmp"
 
 ; Print and Write show their text in the window, on the front buffer, from where Locate put the cursor.
 SetBuffer FrontBuffer()
