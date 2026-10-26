@@ -185,5 +185,5 @@ list(REMOVE_ITEM _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_LIBRARY}")
 
 # Libraries that programs have to link to, which the compiler copies next to itself.
 # The licenses of the codecs, whose notices have to be shipped with programs that include them.
-set(BLITZRT_LICENSES "${SDL3_image_INSTALL_PATH}/share/licenses/SDL3_image/optional" PARENT_SCOPE)
+set(BLITZRT_LICENSES "${SDL3_image_INSTALL_PATH}/share/licenses" PARENT_SCOPE)
 set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" ${_SDL3_IMAGE_CODECS} "${_SDL3_MIXER_LIBRARY}" PARENT_SCOPE)
