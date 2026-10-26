@@ -1,0 +1,76 @@
+name: Nightly
+
+on:
+  push:
+    branches: [root]
+
+concurrency:
+  group: nightly
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: windows-x64, os: windows-latest }
+          - { name: linux-x64, os: ubuntu-latest }
+          - { name: macos-arm64, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: latest
+      - name: Install Linux dependencies for SDL
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: brew install ninja
+      - name: Configure
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then
+            cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+          else
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          fi
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Package
+        shell: bash
+        run: |
+          exe=$(find build/code_compiler -maxdepth 2 -type f \( -name compiler -o -name compiler.exe \) | head -1)
+          dir=$(dirname "$exe")
+          mkdir dist
+          cp "$exe" dist/
+          cp -r "$dir/runtime" dist/
+          cp LICENSE.adoc README.adoc dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blitzllvm-${{ matrix.name }}
+          path: dist
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Publish nightly release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          for d in artifacts/*; do (cd "$d" && zip -r "../$(basename "$d").zip" .); done
+          gh release delete nightly --cleanup-tag --yes || true
+          gh release create nightly artifacts/*.zip --prerelease --target "$GITHUB_SHA" \
+            --title "Nightly ($(git rev-parse --short "$GITHUB_SHA" 2>/dev/null || echo "${GITHUB_SHA::7}"))" \
+            --notes "Automated build of ${GITHUB_SHA}"
