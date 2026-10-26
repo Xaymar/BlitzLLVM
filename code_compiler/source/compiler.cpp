@@ -267,8 +267,13 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		if (warn_lossy) {
 			warn(where, "Implicit conversion from real to integer, the fractional part is lost.");
 		}
+		// Blitz rounds to the nearest whole number (halves go to the even one) instead of cutting off the fraction.
+		std::string rounder = from_llvm == "float" ? "llvm.nearbyint.f32" : "llvm.nearbyint.f64";
+		declare(rounder, "declare " + from_llvm + " @" + rounder + "(" + from_llvm + ")");
+		auto rounded = tmp();
+		emit(rounded + " = call " + from_llvm + " @" + rounder + "(" + from_llvm + " " + from.repr + ")");
 		auto r = tmp();
-		emit(r + " = " + (t::is_signed(to) ? "fptosi " : "fptoui ") + from_llvm + " " + from.repr + " to " + to_llvm);
+		emit(r + " = " + (t::is_signed(to) ? "fptosi " : "fptoui ") + from_llvm + " " + rounded + " to " + to_llvm);
 		return { r, to };
 	} else if (from_real && to_real) {
 		auto r = tmp();

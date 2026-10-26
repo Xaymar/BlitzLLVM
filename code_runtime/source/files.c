@@ -135,8 +135,7 @@ int32_t bb_write_file(const char* path)
 
 int32_t bb_open_file(const char* path)
 {
-	int32_t handle = bb_open(path, "r+b");
-	return handle ? handle : bb_open(path, "w+b");
+	return bb_open(path, "r+b"); // Like the original, this does not make a file that is missing.
 }
 
 void bb_close_file(int32_t handle)

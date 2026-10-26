@@ -80,15 +80,16 @@ static int32_t bb_available(bb_socket sock)
 
 static int32_t bb_ip_to_int(struct in_addr address)
 {
-	int32_t ip;
+	uint32_t ip;
 	memcpy(&ip, &address, sizeof(ip));
-	return ip;
+	return (int32_t)ntohl(ip); // The first part of the address is the highest byte, as in the original.
 }
 
 static struct in_addr bb_int_to_ip(int32_t ip)
 {
 	struct in_addr address;
-	memcpy(&address, &ip, sizeof(ip));
+	uint32_t       network = htonl((uint32_t)ip);
+	memcpy(&address, &network, sizeof(network));
 	return address;
 }
 
@@ -110,9 +111,7 @@ static int bb_resolve(const char* name, struct in_addr* out)
 const char* bb_dotted_ip(int32_t ip)
 {
 	char          buffer[32];
-	unsigned char b[4];
-	memcpy(b, &ip, 4);
-	int n = snprintf(buffer, sizeof(buffer), "%u.%u.%u.%u", b[0], b[1], b[2], b[3]);
+	int n = snprintf(buffer, sizeof(buffer), "%u.%u.%u.%u", ((unsigned)ip >> 24) & 255, ((unsigned)ip >> 16) & 255, ((unsigned)ip >> 8) & 255, (unsigned)ip & 255);
 	char* out = (char*)malloc((size_t)n + 1);
 	memcpy(out, buffer, (size_t)n + 1);
 	return out;
