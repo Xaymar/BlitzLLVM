@@ -14,7 +14,7 @@ The compiler emits textual LLVM IR and hands it, together with the embedded runt
 
 Not supported yet: `Type`/`Field`/`New`, `Dim` arrays, `Goto`/`Gosub`, `Data`, and 2D images (`LoadImage`, `DrawImage`).
 
-Graphics are drawn through Vulkan 1.3 into an SDL3 window. SDL3 and SDL3_image are linked statically, including the decoders for PNG, JPEG, BMP, TGA, WebP, AVIF (dav1d) and JPEG XL (libjxl), whose licenses are installed in `licenses/`, and the Vulkan loader is loaded when the program starts, so programs remain a single executable. Set `BLITZ_HEADLESS=1` to run a program without a window or GPU.
+Graphics are drawn through Vulkan 1.3 into an SDL3 window. SDL3 and SDL3_image are linked statically, including the decoders for PNG, JPEG, BMP, TGA, WebP, AVIF (dav1d) and JPEG XL (libjxl), whose licenses, and those of BlitzLLVM, SDL3, SDL3_mixer and the Vulkan headers, are installed in `licenses/` (`share/licenses/blitzllvm` in packages), and the Vulkan loader is loaded when the program starts, so programs remain a single executable. Set `BLITZ_HEADLESS=1` to run a program without a window or GPU.
 
 [cols="1,3"]
 |===
