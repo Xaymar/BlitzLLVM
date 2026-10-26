@@ -29,6 +29,7 @@ target_sources(blitzrt PRIVATE
 	"source/files.c"
 	"source/filesystem.c"
 	"source/banks.c"
+	"source/userlib.c"
 	"source/process.c"
 	"source/files_internal.h"
 	"source/events.cpp"
