@@ -444,10 +444,15 @@ using namespace bb::collision;
 extern "C" {
 int32_t bb_line_pick(float x, float y, float z, float dx, float dy, float dz, float radius);
 
+extern "C" int32_t bb_draw_stats(int32_t which);
+
 // Stats3D: 0 is how many triangles the collisions of the last UpdateWorld looked at. The original also counts the
 // vertices and triangles of terrains that were drawn, which are not counted here.
 float bb_stats_3d(int32_t type)
 {
+	if ((type >= 1000) && (type <= 1003)) {
+		return bb_draw_stats(type - 1000);
+	}
 	return type == 0 ? float(triangles_tested) : 0.0f;
 }
 
