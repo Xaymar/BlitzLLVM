@@ -34,7 +34,7 @@ MODULES = {
 # Functions the compiler provides itself, or that only exist as syntax, so they are not in builtins.inc.
 BY_COMPILER = {
     "abs", "sgn", "mod", "int", "float", "str", "handle", "object", "before", "after", "first", "last", "new", "delete",
-    "insert", "each", "pi", "true", "false", "null", "dim", "restore", "read", "end",
+    "insert", "each", "pi", "true", "false", "null", "dim", "restore", "read", "end", "stop",
 }
 
 SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')
