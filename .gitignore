@@ -16,3 +16,4 @@
 /tests/*.bin
 /tests/*.dat
 /tests/013_files
+/tests/017_grab.bmp

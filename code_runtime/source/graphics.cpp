@@ -124,7 +124,8 @@ void bb_sound_update(void);
 	X(vkCmdBindIndexBuffer) \
 	X(vkCmdSetCullMode) \
 	X(vkCmdSetDepthWriteEnable) \
-	X(vkFreeDescriptorSets)
+	X(vkFreeDescriptorSets) \
+	X(vkCmdCopyImageToBuffer)
 
 #define BB_VK_DECLARE(name) static PFN_##name name;
 BB_VK_GLOBAL(BB_VK_DECLARE)
@@ -146,6 +147,7 @@ namespace {
 		VkDeviceMemory memory = VK_NULL_HANDLE;
 		VkImageView    view   = VK_NULL_HANDLE;
 		uint32_t       width = 0, height = 0;
+		VkImageLayout  layout = VK_IMAGE_LAYOUT_UNDEFINED; // What it was last transitioned to.
 	};
 
 	enum op_kind { OP_CLEAR, OP_TRIANGLES, OP_LINES };
@@ -156,6 +158,8 @@ namespace {
 		int      texture;
 		uint32_t first, count;
 		float    color[4]; // OP_CLEAR only
+		int      image;    // If not 0, the image to draw instead of an internal texture.
+		float    mask[4];  // The mask color of the image, and whether it is on.
 	};
 
 	constexpr uint32_t max_swapchain_images = 8;
@@ -254,6 +258,90 @@ namespace {
 	};
 
 	state g;
+
+	////////////////////////////////////////////////////////////////////////////
+	// Textures, images and buffers
+	////////////////////////////////////////////////////////////////////////////
+	struct texture_entry {
+		bool            used = false;
+		int             flags = 0;
+		int             width = 0, height = 0;
+		gpu_image       image;
+		VkDescriptorSet set = VK_NULL_HANDLE;
+	};
+	bb::buffer<texture_entry> texture_table;
+
+	// Images are what 2D drawing uses. They can have frames, which are cells of one sheet.
+	struct image_entry {
+		bool            used = false;
+		int             frames = 1, frame_w = 0, frame_h = 0;
+		int             sheet_w = 0, sheet_h = 0;
+		int             first = 0; // Index of the first frame in the sheet.
+		int             handle_x = 0, handle_y = 0;
+		uint8_t         mask[3] = { 0, 0, 0 };
+		bool            masked  = true;
+		gpu_image       image;
+		VkDescriptorSet set = VK_NULL_HANDLE;
+	};
+	bb::buffer<image_entry> image_table;
+
+	texture_entry* texture_of(int handle);
+
+	image_entry* image_of(int handle)
+	{
+		if ((handle < 1) || (uint32_t(handle) > image_table.size) || !image_table[uint32_t(handle) - 1].used) {
+			return nullptr;
+		}
+		return &image_table[uint32_t(handle) - 1];
+	}
+
+	// Where the pixels of a frame are in the sheet of its image.
+	void frame_position(image_entry const& e, int frame, int& x, int& y)
+	{
+		int cells = e.sheet_w / (e.frame_w > 0 ? e.frame_w : 1);
+		cells     = cells > 0 ? cells : 1;
+		int index = e.first + frame;
+		x         = (index % cells) * e.frame_w;
+		y         = (index / cells) * e.frame_h;
+	}
+
+	// Buffers are numbers. 1 and 2 are the front and back buffer, the others say which image (or texture) and frame.
+	constexpr int image_buffer_base   = 0x10000000;
+	constexpr int texture_buffer_base = 0x20000000;
+
+	// Part of an image that can be drawn to.
+	struct target_ref {
+		gpu_image* image = nullptr;
+		int        x = 0, y = 0, w = 0, h = 0;
+	};
+
+	target_ref resolve_target(int handle)
+	{
+		target_ref t;
+		if ((handle == front_buffer) || (handle == back_buffer)) {
+			t.image = &g.buffers[handle == front_buffer ? 0 : 1];
+			t.w     = int(t.image->width);
+			t.h     = int(t.image->height);
+		} else if (handle >= texture_buffer_base) {
+			texture_entry* tex = texture_of((handle - texture_buffer_base) >> 10);
+			if (tex && tex->set) {
+				t.image = &tex->image;
+				t.w     = tex->width;
+				t.h     = tex->height;
+			}
+		} else if (handle >= image_buffer_base) {
+			int          id    = (handle - image_buffer_base) >> 10;
+			int          frame = (handle - image_buffer_base) & 1023;
+			image_entry* e     = image_of(id);
+			if (e && e->set && (frame < e->frames)) {
+				t.image = &e->image;
+				frame_position(*e, frame, t.x, t.y);
+				t.w = e->frame_w;
+				t.h = e->frame_h;
+			}
+		}
+		return t;
+	}
 
 	[[noreturn]] void fail(const char* what)
 	{
@@ -402,31 +490,58 @@ namespace {
 		vkCmdPipelineBarrier2(g.cmd, &dep);
 	}
 
+	// Moves the image to the layout, from the one it is in.
+	void transition(gpu_image& img, VkImageLayout to)
+	{
+		if (img.layout != to) {
+			barrier(img.image, img.layout, to);
+			img.layout = to;
+		}
+	}
+
 	// Replays the collected operations into the command buffer, drawing to the current buffer.
 	void record_operations()
 	{
-		gpu_image& target = g.buffers[g.target == front_buffer ? 0 : 1];
+		target_ref target = resolve_target(g.target);
+		if (!target.image) {
+			// The buffer was freed in the meantime.
+			g.op_count     = 0;
+			g.vertex_count = 0;
+			return;
+		}
+
+		// Everything that is sampled has to be readable, and what is drawn to has to be a color attachment.
+		for (uint32_t i = 0; i < g.op_count; i++) {
+			if ((g.ops[i].kind != OP_CLEAR) && g.ops[i].image) {
+				image_entry* e = image_of(g.ops[i].image);
+				if (e && e->set && (e->image.image != target.image->image)) {
+					transition(e->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+				}
+			}
+		}
+		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		VkRenderingAttachmentInfo attachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		attachment.imageView                 = target.view;
+		attachment.imageView                 = target.image->view;
 		attachment.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachment.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachment.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
 
 		VkRenderingInfo info      = { VK_STRUCTURE_TYPE_RENDERING_INFO };
-		info.renderArea           = { { 0, 0 }, { target.width, target.height } };
+		info.renderArea           = { { 0, 0 }, { target.image->width, target.image->height } };
 		info.layerCount           = 1;
 		info.colorAttachmentCount = 1;
 		info.pColorAttachments    = &attachment;
 		vkCmdBeginRendering(g.cmd, &info);
 
-		VkViewport viewport = { 0, 0, float(target.width), float(target.height), 0, 1 };
-		VkRect2D   scissor  = { { 0, 0 }, { target.width, target.height } };
+		// Drawing is limited to the part of the image that this buffer is.
+		VkViewport viewport = { float(target.x), float(target.y), float(target.w), float(target.h), 0, 1 };
+		VkRect2D   scissor  = { { target.x, target.y }, { uint32_t(target.w), uint32_t(target.h) } };
 		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
 
-		float scale[2] = { 1.0f / float(target.width), 1.0f / float(target.height) };
-		vkCmdPushConstants(g.cmd, g.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(scale), scale);
+		float scale[2] = { 1.0f / float(target.w), 1.0f / float(target.h) };
+		vkCmdPushConstants(g.cmd, g.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(scale), scale);
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(g.cmd, 0, 1, &g.vertex_buffer, &offset);
 
@@ -436,12 +551,22 @@ namespace {
 				VkClearAttachment clear = {};
 				clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
 				memcpy(clear.clearValue.color.float32, op.color, sizeof(op.color));
-				VkClearRect rect = { { { 0, 0 }, { target.width, target.height } }, 0, 1 };
+				VkClearRect rect = { scissor, 0, 1 };
 				vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
 				continue;
 			}
+
+			VkDescriptorSet set = g.sets[op.texture];
+			if (op.image) {
+				image_entry* e = image_of(op.image);
+				if (!e || !e->set) {
+					continue; // Freed since it was asked to be drawn.
+				}
+				set = e->set;
+			}
 			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, op.kind == OP_LINES ? g.lines : g.triangles);
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, 1, &g.sets[op.texture], 0, nullptr);
+			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout, 0, 1, &set, 0, nullptr);
+			vkCmdPushConstants(g.cmd, g.layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 16, sizeof(op.mask), op.mask);
 			vkCmdDraw(g.cmd, op.count, 1, op.first, 0);
 		}
 		vkCmdEndRendering(g.cmd);
@@ -540,15 +665,19 @@ namespace {
 	////////////////////////////////////////////////////////////////////////////
 	// Operations
 	////////////////////////////////////////////////////////////////////////////
-	operation& add_operation(op_kind kind, int texture, uint32_t vertices)
+	operation& add_operation(op_kind kind, int texture, uint32_t vertices, int image = 0, const float* mask = nullptr)
 	{
+		static const float no_mask[4] = { 0, 0, 0, 0 };
+		if (!mask) {
+			mask = no_mask;
+		}
 		if (g.vertex_count + vertices > max_vertices) {
 			flush();
 		}
 		// Merge with the previous operation if possible.
 		if (g.op_count > 0) {
 			operation& last = g.ops[g.op_count - 1];
-			if ((last.kind == kind) && (last.texture == texture) && (kind != OP_CLEAR)) {
+			if ((last.kind == kind) && (last.texture == texture) && (last.image == image) && (kind != OP_CLEAR) && (memcmp(last.mask, mask, sizeof(last.mask)) == 0)) {
 				last.count += vertices;
 				g.vertex_count += vertices;
 				return last;
@@ -564,15 +693,17 @@ namespace {
 		operation& op = g.ops[g.op_count++];
 		op.kind       = kind;
 		op.texture    = texture;
+		op.image      = image;
+		memcpy(op.mask, mask, sizeof(op.mask));
 		op.first      = g.vertex_count;
 		op.count      = vertices;
 		g.vertex_count += vertices;
 		return op;
 	}
 
-	vertex* add_vertices(op_kind kind, int texture, uint32_t count)
+	vertex* add_vertices(op_kind kind, int texture, uint32_t count, int image = 0, const float* mask = nullptr)
 	{
-		add_operation(kind, texture, count);
+		add_operation(kind, texture, count, image, mask);
 		return g.vertices + (g.vertex_count - count);
 	}
 
@@ -697,7 +828,7 @@ namespace {
 		memcpy(mapped, pixels, size_t(size));
 		vkUnmapMemory(g.device, staging_memory);
 
-		image = create_image(width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+		image = create_image(width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
 		begin_commands();
 		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -706,6 +837,7 @@ namespace {
 		copy.imageExtent       = { width, height, 1 };
 		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 		barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		submit_commands();
 
 		vkDestroyBuffer(g.device, staging, nullptr);
@@ -743,6 +875,7 @@ namespace {
 		begin_commands();
 		for (int i = 0; i < 2; i++) {
 			barrier(g.buffers[i].image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			g.buffers[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		}
 		submit_commands();
 		g.op_count     = 0;
@@ -999,7 +1132,7 @@ namespace {
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
 
-		VkPushConstantRange push = { VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(float) * 2 };
+		VkPushConstantRange push = { VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 32 }; // Scale for the vertices, mask color for the fragments.
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 		layout_info.setLayoutCount             = 1;
 		layout_info.pSetLayouts                = &g.set_layout;
@@ -1254,21 +1387,22 @@ namespace {
 	////////////////////////////////////////////////////////////////////////////
 	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32 };
 
-	struct texture_entry {
-		bool            used = false;
-		int             flags = 0;
-		int             width = 0, height = 0;
-		gpu_image       image;
-		VkDescriptorSet set = VK_NULL_HANDLE;
-	};
-	bb::buffer<texture_entry> texture_table;
-
 	texture_entry* texture_of(int handle)
 	{
 		if ((handle < 1) || (uint32_t(handle) > texture_table.size) || !texture_table[uint32_t(handle) - 1].used) {
 			return nullptr;
 		}
 		return &texture_table[uint32_t(handle) - 1];
+	}
+
+	void free_image(image_entry& e)
+	{
+		if (g.device && e.set) {
+			vkDeviceWaitIdle(g.device);
+			vkFreeDescriptorSets(g.device, g.set_pool, 1, &e.set);
+			destroy_image(e.image);
+		}
+		e = image_entry();
 	}
 
 	void free_texture(texture_entry& t)
@@ -1300,6 +1434,7 @@ namespace {
 		float model[3][4]; // Rows of the model matrix.
 		float material[4];
 		float params[4];
+		float mask[4]; // For the fragment shader, always off.
 	};
 
 	struct surface_gpu {
@@ -1476,7 +1611,7 @@ namespace {
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 
 		VkDescriptorSetLayout layouts[2]   = { g.set_layout, g.scene_layout };
-		VkPushConstantRange   push         = { VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(entity_push) };
+		VkPushConstantRange   push         = { VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(entity_push) };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 		layout_info.setLayoutCount         = 2;
 		layout_info.pSetLayouts            = layouts;
@@ -1485,7 +1620,7 @@ namespace {
 		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
 
 		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
-		VkShaderModule fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
+		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
 		g.opaque3d        = create_pipeline_3d(vs, fs, false);
 		g.blend3d         = create_pipeline_3d(vs, fs, true);
 		vkDestroyShaderModule(g.device, vs, nullptr);
@@ -1586,7 +1721,7 @@ namespace {
 		push.material[2] = e->color[2];
 		push.material[3] = e->alpha;
 		push.params[0]   = (e->fx & 1) ? 1.0f : 0.0f;
-		vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(push), &push);
+		vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
 		vkCmdSetCullMode(g.cmd, (e->fx & 16) ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
 		vkCmdSetDepthWriteEnable(g.cmd, blended ? VK_FALSE : VK_TRUE);
 		texture_entry* texture = texture_of(e->texture);
@@ -1659,6 +1794,13 @@ namespace {
 		}
 
 		begin_commands();
+		for (uint32_t i = 0; i < list.opaque.size + list.blended.size; i++) {
+			bb::entity* e       = bb::get_entity(i < list.opaque.size ? list.opaque[i] : list.blended[i - list.opaque.size]);
+			texture_entry* tex  = e ? texture_of(e->texture) : nullptr;
+			if (tex && tex->set) {
+				transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			}
+		}
 		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
 		color.imageView                 = target.view;
 		color.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -1792,6 +1934,11 @@ void bb_end_graphics(void)
 				free_texture(texture_table[i]);
 			}
 		}
+		for (uint32_t i = 0; i < image_table.size; i++) {
+			if (image_table[i].used) {
+				free_image(image_table[i]);
+			}
+		}
 		destroy_image(g.depth);
 		vkDestroyBuffer(g.device, g.scene_buffer, nullptr);
 		vkFreeMemory(g.device, g.scene_memory, nullptr);
@@ -1848,8 +1995,8 @@ int32_t bb_back_buffer(void)
 
 void bb_set_buffer(int32_t buffer)
 {
-	if ((buffer != front_buffer) && (buffer != back_buffer)) {
-		fail("SetBuffer: unknown buffer.");
+	if (active() && !resolve_target(buffer).image) {
+		fail("SetBuffer: the buffer does not exist.");
 	}
 	if (buffer != g.target) {
 		flush();
@@ -2336,6 +2483,493 @@ int32_t bb_mouse_hit(int32_t button)
 	return 0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Images
+////////////////////////////////////////////////////////////////////////////////
+static bool auto_mid_handle = false;
+
+// Copies the pixels of a rectangle of an image into new memory, as RGBA.
+static uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h)
+{
+	VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
+	VkBuffer       staging;
+	VkDeviceMemory staging_memory;
+	create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging, staging_memory);
+
+	begin_commands();
+	VkImageLayout previous = img.layout;
+	transition(img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	VkBufferImageCopy copy = {};
+	copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	copy.imageOffset       = { x, y, 0 };
+	copy.imageExtent       = { uint32_t(w), uint32_t(h), 1 };
+	vkCmdCopyImageToBuffer(g.cmd, img.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging, 1, &copy);
+	transition(img, previous);
+	submit_commands();
+
+	uint8_t* out = static_cast<uint8_t*>(malloc(size_t(size)));
+	void*    mapped;
+	check(vkMapMemory(g.device, staging_memory, 0, size, 0, &mapped), "vkMapMemory");
+	memcpy(out, mapped, size_t(size));
+	vkUnmapMemory(g.device, staging_memory);
+	vkDestroyBuffer(g.device, staging, nullptr);
+	vkFreeMemory(g.device, staging_memory, nullptr);
+	return out;
+}
+
+// The other way around.
+static void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba)
+{
+	VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
+	VkBuffer       staging;
+	VkDeviceMemory staging_memory;
+	create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging, staging_memory);
+	void* mapped;
+	check(vkMapMemory(g.device, staging_memory, 0, size, 0, &mapped), "vkMapMemory");
+	memcpy(mapped, rgba, size_t(size));
+	vkUnmapMemory(g.device, staging_memory);
+
+	begin_commands();
+	VkImageLayout previous = img.layout;
+	transition(img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	VkBufferImageCopy copy = {};
+	copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	copy.imageOffset       = { x, y, 0 };
+	copy.imageExtent       = { uint32_t(w), uint32_t(h), 1 };
+	vkCmdCopyBufferToImage(g.cmd, staging, img.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	transition(img, previous);
+	submit_commands();
+
+	vkDestroyBuffer(g.device, staging, nullptr);
+	vkFreeMemory(g.device, staging_memory, nullptr);
+}
+
+static int32_t add_image(image_entry const& entry)
+{
+	for (uint32_t i = 0; i < image_table.size; i++) {
+		if (!image_table[i].used) {
+			image_table[i] = entry;
+			return int32_t(i) + 1;
+		}
+	}
+	image_table.push(entry);
+	return int32_t(image_table.size);
+}
+
+static image_entry* need_image(int32_t handle, const char* what)
+{
+	image_entry* e = image_of(handle);
+	if (!e) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: the image does not exist.", what);
+		bb_runtime_error(message);
+	}
+	return e;
+}
+
+// Uploads the pixels (RGBA, the whole sheet) as a new image with the given frames.
+static int32_t make_image(int sheet_w, int sheet_h, int frame_w, int frame_h, int frames, int first, const uint8_t* pixels)
+{
+	image_entry entry;
+	entry.used    = true;
+	entry.frames  = frames;
+	entry.frame_w = frame_w;
+	entry.frame_h = frame_h;
+	entry.sheet_w = sheet_w;
+	entry.sheet_h = sheet_h;
+	entry.first   = first;
+	if (auto_mid_handle) {
+		entry.handle_x = frame_w / 2;
+		entry.handle_y = frame_h / 2;
+	}
+	if (active()) {
+		upload_texture(entry.image, entry.set, uint32_t(sheet_w), uint32_t(sheet_h), pixels, g.sampler);
+	}
+	return add_image(entry);
+}
+
+static uint8_t* load_pixels(const char* file, int& width, int& height)
+{
+	if (!file) {
+		return nullptr;
+	}
+	SDL_Surface* loaded = IMG_Load(file);
+	if (!loaded) {
+		return nullptr;
+	}
+	SDL_Surface* rgba = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
+	SDL_DestroySurface(loaded);
+	if (!rgba) {
+		return nullptr;
+	}
+	width        = rgba->w;
+	height       = rgba->h;
+	uint8_t* out = static_cast<uint8_t*>(malloc(size_t(width) * size_t(height) * 4));
+	for (int y = 0; y < height; y++) {
+		memcpy(out + size_t(y) * size_t(width) * 4, static_cast<uint8_t*>(rgba->pixels) + size_t(y) * size_t(rgba->pitch), size_t(width) * 4);
+	}
+	SDL_DestroySurface(rgba);
+	return out;
+}
+
+int32_t bb_load_image(const char* file)
+{
+	int      w = 0, h = 0;
+	uint8_t* pixels = load_pixels(file, w, h);
+	if (!pixels) {
+		return 0;
+	}
+	int32_t handle = make_image(w, h, w, h, 1, 0, pixels);
+	free(pixels);
+	return handle;
+}
+
+// LoadAnimImage(file, width, height, first, count): a sheet of frames that are width x height.
+int32_t bb_load_anim_image(const char* file, int32_t frame_w, int32_t frame_h, int32_t first, int32_t count)
+{
+	int      w = 0, h = 0;
+	uint8_t* pixels = load_pixels(file, w, h);
+	if (!pixels) {
+		return 0;
+	}
+	if ((frame_w <= 0) || (frame_h <= 0) || (count <= 0) || (frame_w > w) || (frame_h > h) || (first < 0)) {
+		free(pixels);
+		return 0;
+	}
+	int32_t handle = make_image(w, h, frame_w, frame_h, count, first, pixels);
+	free(pixels);
+	return handle;
+}
+
+int32_t bb_create_image(int32_t width, int32_t height, int32_t frames)
+{
+	if ((width <= 0) || (height <= 0) || (frames <= 0)) {
+		bb_runtime_error("CreateImage: needs a size and at least one frame.");
+	}
+	size_t   sheet_w = size_t(width) * size_t(frames);
+	uint8_t* pixels  = static_cast<uint8_t*>(calloc(sheet_w * size_t(height), 4));
+	for (size_t i = 0; i < sheet_w * size_t(height); i++) {
+		pixels[i * 4 + 3] = 255; // Black, which is what is masked by default.
+	}
+	int32_t handle = make_image(int(sheet_w), height, width, height, frames, 0, pixels);
+	free(pixels);
+	return handle;
+}
+
+void bb_free_image(int32_t handle)
+{
+	free_image(*need_image(handle, "FreeImage"));
+}
+
+int32_t bb_image_width(int32_t handle)
+{
+	return need_image(handle, "ImageWidth")->frame_w;
+}
+
+int32_t bb_image_height(int32_t handle)
+{
+	return need_image(handle, "ImageHeight")->frame_h;
+}
+
+void bb_handle_image(int32_t handle, int32_t x, int32_t y)
+{
+	image_entry* e = need_image(handle, "HandleImage");
+	e->handle_x    = x;
+	e->handle_y    = y;
+}
+
+void bb_mid_handle(int32_t handle)
+{
+	image_entry* e = need_image(handle, "MidHandle");
+	e->handle_x    = e->frame_w / 2;
+	e->handle_y    = e->frame_h / 2;
+}
+
+void bb_auto_mid_handle(int32_t on)
+{
+	auto_mid_handle = on != 0;
+}
+
+void bb_mask_image(int32_t handle, int32_t r, int32_t green, int32_t b)
+{
+	image_entry* e = need_image(handle, "MaskImage");
+	e->mask[0]     = uint8_t(r < 0 ? 0 : (r > 255 ? 255 : r));
+	e->mask[1]     = uint8_t(green < 0 ? 0 : (green > 255 ? 255 : green));
+	e->mask[2]     = uint8_t(b < 0 ? 0 : (b > 255 ? 255 : b));
+	e->masked      = true;
+}
+
+// Draws a part of a frame, with its top left corner at the destination.
+static void draw_part(image_entry* e, int32_t handle, int dx, int dy, int rx, int ry, int rw, int rh, int frame, bool masked)
+{
+	if (!active()) {
+		return;
+	}
+	if ((frame < 0) || (frame >= e->frames)) {
+		bb_runtime_error("DrawImage: the frame does not exist.");
+	}
+	// Only what is in the frame can be drawn.
+	if (rx < 0) {
+		dx -= rx;
+		rw += rx;
+		rx = 0;
+	}
+	if (ry < 0) {
+		dy -= ry;
+		rh += ry;
+		ry = 0;
+	}
+	rw = (rx + rw > e->frame_w) ? e->frame_w - rx : rw;
+	rh = (ry + rh > e->frame_h) ? e->frame_h - ry : rh;
+	if ((rw <= 0) || (rh <= 0)) {
+		return;
+	}
+
+	int cx, cy;
+	frame_position(*e, frame, cx, cy);
+	float u0 = float(cx + rx) / float(e->sheet_w), v0 = float(cy + ry) / float(e->sheet_h);
+	float u1 = float(cx + rx + rw) / float(e->sheet_w), v1 = float(cy + ry + rh) / float(e->sheet_h);
+	float x0 = float(dx), y0 = float(dy), x1 = float(dx + rw), y1 = float(dy + rh);
+
+	float mask[4] = { 0, 0, 0, 0 };
+	if (masked && e->masked) {
+		mask[0] = float(e->mask[0]) / 255.0f;
+		mask[1] = float(e->mask[1]) / 255.0f;
+		mask[2] = float(e->mask[2]) / 255.0f;
+		mask[3] = 1.0f;
+	}
+	vertex* v = add_vertices(OP_TRIANGLES, TEXTURE_WHITE, 6, handle, mask);
+	v[0]      = { x0, y0, u0, v0, 255, 255, 255, 255 };
+	v[1]      = { x1, y0, u1, v0, 255, 255, 255, 255 };
+	v[2]      = { x0, y1, u0, v1, 255, 255, 255, 255 };
+	v[3]      = { x1, y0, u1, v0, 255, 255, 255, 255 };
+	v[4]      = { x1, y1, u1, v1, 255, 255, 255, 255 };
+	v[5]      = { x0, y1, u0, v1, 255, 255, 255, 255 };
+}
+
+void bb_draw_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
+{
+	image_entry* e = need_image(handle, "DrawImage");
+	draw_part(e, handle, x - e->handle_x, y - e->handle_y, 0, 0, e->frame_w, e->frame_h, frame, true);
+}
+
+void bb_draw_block(int32_t handle, int32_t x, int32_t y, int32_t frame)
+{
+	image_entry* e = need_image(handle, "DrawBlock");
+	draw_part(e, handle, x - e->handle_x, y - e->handle_y, 0, 0, e->frame_w, e->frame_h, frame, false);
+}
+
+void bb_draw_image_rect(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t rw, int32_t rh, int32_t frame)
+{
+	draw_part(need_image(handle, "DrawImageRect"), handle, x, y, rx, ry, rw, rh, frame, true);
+}
+
+void bb_draw_block_rect(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t rw, int32_t rh, int32_t frame)
+{
+	draw_part(need_image(handle, "DrawBlockRect"), handle, x, y, rx, ry, rw, rh, frame, false);
+}
+
+// Fills the whole buffer with the image, as many times as needed.
+void bb_tile_block(int32_t handle, int32_t x, int32_t y, int32_t frame)
+{
+	image_entry* e = need_image(handle, "TileBlock");
+	if (!active()) {
+		return;
+	}
+	target_ref target = resolve_target(g.target);
+	if (!target.image || (e->frame_w <= 0) || (e->frame_h <= 0)) {
+		return;
+	}
+	int start_x = x % e->frame_w, start_y = y % e->frame_h;
+	if (start_x > 0) {
+		start_x -= e->frame_w;
+	}
+	if (start_y > 0) {
+		start_y -= e->frame_h;
+	}
+	for (int ty = start_y; ty < target.h; ty += e->frame_h) {
+		for (int tx = start_x; tx < target.w; tx += e->frame_w) {
+			draw_part(e, handle, tx, ty, 0, 0, e->frame_w, e->frame_h, frame, false);
+		}
+	}
+}
+
+void bb_resize_image(int32_t handle, int32_t width, int32_t height)
+{
+	image_entry* e = need_image(handle, "ResizeImage");
+	if ((width <= 0) || (height <= 0)) {
+		bb_runtime_error("ResizeImage: needs a size.");
+	}
+	int sheet_w = int(int64_t(e->sheet_w) * width / e->frame_w), sheet_h = int(int64_t(e->sheet_h) * height / e->frame_h);
+	if (active() && e->set) {
+		flush();
+		gpu_image target = create_image(uint32_t(sheet_w), uint32_t(sheet_h), VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+
+		begin_commands();
+		transition(e->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		barrier(target.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		VkImageBlit blit    = {};
+		blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		blit.srcOffsets[1]  = { e->sheet_w, e->sheet_h, 1 };
+		blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		blit.dstOffsets[1]  = { sheet_w, sheet_h, 1 };
+		vkCmdBlitImage(g.cmd, e->image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, target.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+		barrier(target.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		target.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		submit_commands();
+
+		vkDeviceWaitIdle(g.device);
+		destroy_image(e->image);
+		e->image = target;
+		VkDescriptorImageInfo image_info = { g.sampler, e->image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                     = e->set;
+		write.descriptorCount            = 1;
+		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		write.pImageInfo                 = &image_info;
+		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+	}
+	e->handle_x = e->handle_x * width / e->frame_w;
+	e->handle_y = e->handle_y * height / e->frame_h;
+	e->sheet_w  = sheet_w;
+	e->sheet_h  = sheet_h;
+	e->frame_w  = width;
+	e->frame_h  = height;
+}
+
+// Copies what is in the current buffer, starting at x and y, into the first frame of the image.
+void bb_grab_image(int32_t handle, int32_t x, int32_t y)
+{
+	image_entry* e = need_image(handle, "GrabImage");
+	if (!active() || !e->set) {
+		return;
+	}
+	flush();
+	target_ref source = resolve_target(g.target);
+	if (!source.image) {
+		return;
+	}
+	int sx = x, sy = y, dx = 0, dy = 0, w = e->frame_w, h = e->frame_h;
+	if (sx < 0) { dx -= sx; w += sx; sx = 0; }
+	if (sy < 0) { dy -= sy; h += sy; sy = 0; }
+	if (sx + w > source.w) { w = source.w - sx; }
+	if (sy + h > source.h) { h = source.h - sy; }
+	if ((w <= 0) || (h <= 0)) {
+		return;
+	}
+	int fx, fy;
+	frame_position(*e, 0, fx, fy);
+
+	begin_commands();
+	VkImageLayout previous_source = source.image->layout;
+	transition(*source.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	transition(e->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	VkImageCopy copy    = {};
+	copy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	copy.srcOffset      = { source.x + sx, source.y + sy, 0 };
+	copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	copy.dstOffset      = { fx + dx, fy + dy, 0 };
+	copy.extent         = { uint32_t(w), uint32_t(h), 1 };
+	vkCmdCopyImage(g.cmd, source.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, e->image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	transition(*source.image, previous_source);
+	transition(e->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	submit_commands();
+}
+
+// The buffer that draws to a frame of an image.
+int32_t bb_image_buffer(int32_t handle, int32_t frame)
+{
+	image_entry* e = need_image(handle, "ImageBuffer");
+	if ((frame < 0) || (frame >= e->frames) || (frame > 1023)) {
+		bb_runtime_error("ImageBuffer: the frame does not exist.");
+	}
+	return image_buffer_base + handle * 1024 + frame;
+}
+
+int32_t bb_texture_buffer(int32_t handle, int32_t frame)
+{
+	(void)frame;
+	if (!texture_of(handle)) {
+		bb_runtime_error("TextureBuffer: the texture does not exist.");
+	}
+	return texture_buffer_base + handle * 1024;
+}
+
+static int32_t save_pixels(const uint8_t* rgba, int w, int h, const char* file)
+{
+	SDL_Surface* surface = SDL_CreateSurfaceFrom(w, h, SDL_PIXELFORMAT_RGBA32, const_cast<uint8_t*>(rgba), w * 4);
+	if (!surface) {
+		return 0;
+	}
+	size_t length = strlen(file);
+	bool   png    = (length > 4) && !SDL_strcasecmp(file + length - 4, ".png");
+	bool   done   = png ? IMG_SavePNG(surface, file) : SDL_SaveBMP(surface, file);
+	SDL_DestroySurface(surface);
+	return done ? 1 : 0;
+}
+
+int32_t bb_save_image(int32_t handle, const char* file, int32_t frame)
+{
+	image_entry* e = need_image(handle, "SaveImage");
+	if (!active() || !e->set || !file || (frame < 0) || (frame >= e->frames)) {
+		return 0;
+	}
+	flush();
+	int fx, fy;
+	frame_position(*e, frame, fx, fy);
+	uint8_t* pixels = read_pixels(e->image, fx, fy, e->frame_w, e->frame_h);
+	int32_t  result = save_pixels(pixels, e->frame_w, e->frame_h, file);
+	free(pixels);
+	return result;
+}
+
+int32_t bb_save_buffer(int32_t buffer, const char* file)
+{
+	if (!active() || !file) {
+		return 0;
+	}
+	flush();
+	target_ref target = resolve_target(buffer);
+	if (!target.image) {
+		return 0;
+	}
+	uint8_t* pixels = read_pixels(*target.image, target.x, target.y, target.w, target.h);
+	int32_t  result = save_pixels(pixels, target.w, target.h, file);
+	free(pixels);
+	return result;
+}
+
+// CreateTexture(width, height, flags, frames): an empty texture to draw on, with TextureBuffer.
+int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t frames)
+{
+	(void)frames;
+	if ((width <= 0) || (height <= 0)) {
+		bb_runtime_error("CreateTexture: needs a size.");
+	}
+	texture_entry entry;
+	entry.used   = true;
+	entry.flags  = flags;
+	entry.width  = width;
+	entry.height = height;
+	if (active()) {
+		uint8_t* pixels = static_cast<uint8_t*>(calloc(size_t(width) * size_t(height), 4));
+		for (size_t i = 0; i < size_t(width) * size_t(height); i++) {
+			pixels[i * 4 + 3] = 255;
+		}
+		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
+		upload_texture(entry.image, entry.set, uint32_t(width), uint32_t(height), pixels, sampler);
+		free(pixels);
+	}
+	for (uint32_t i = 0; i < texture_table.size; i++) {
+		if (!texture_table[i].used) {
+			texture_table[i] = entry;
+			return int32_t(i) + 1;
+		}
+	}
+	texture_table.push(entry);
+	return int32_t(texture_table.size);
+}
+
 // LoadTexture(file, flags): flags are 1 = color, 2 = alpha channel, 4 = masked (black is transparent), 16/32 = clamp U/V.
 int32_t bb_load_texture(const char* file, int32_t flags)
 {
@@ -2413,6 +3047,9 @@ void bb_render_world(float tween)
 	(void)tween;
 	if (!active()) {
 		return;
+	}
+	if ((g.target != front_buffer) && (g.target != back_buffer)) {
+		fail("RenderWorld can only draw to the front or back buffer.");
 	}
 	flush(); // Whatever was drawn before comes first.
 	g.triangles_drawn = 0;
