@@ -61,9 +61,20 @@ blitz_dependency(VulkanHeaders Vulkan-Headers
 )
 
 # SDL3, statically linked so that the programs we produce are a single file.
+#
+# The runtime draws with Vulkan directly and never creates an SDL_Renderer, so on Windows the Direct3D and OpenGL render drivers
+# (and OpenGL itself, which only they and OpenGL windows need) are left out. SDL has no option for the DirectSound audio driver
+# (WASAPI is used instead) or the Direct3D 12 GPU driver (the runtime does not use SDL_GPU either), so the header checks that
+# enable them are answered in advance.
+set(_SDL3_ARGS -DSDL_STATIC=ON -DSDL_SHARED=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF -DSDL_INSTALL_DOCS=OFF)
+if(WIN32)
+	list(APPEND _SDL3_ARGS
+		-DSDL_RENDER_D3D=OFF -DSDL_RENDER_D3D11=OFF -DSDL_RENDER_D3D12=OFF -DSDL_OPENGL=OFF -DSDL_OPENGLES=OFF
+		-DHAVE_DSOUND_H=0 -DHAVE_DXGI1_6_H=0
+	)
+endif()
 blitz_dependency(SDL3 SDL
-	CONFIGURE_ARGS ${_DEPENDENCY_ARGS}
-		-DSDL_STATIC=ON -DSDL_SHARED=OFF -DSDL_TESTS=OFF -DSDL_EXAMPLES=OFF -DSDL_INSTALL_DOCS=OFF
+	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} ${_SDL3_ARGS}
 	BUILD_ARGS --config Release --parallel
 	INSTALL_ARGS --config Release
 )
