@@ -55,8 +55,8 @@ Wend
 * [GfxDriverCaps3D](GfxDriverCaps3D)
 * [GfxMode3D](GfxMode3D)
 * [GfxMode3DExists](GfxMode3DExists)
-* [GfxMode3DHeight](GfxMode3DHeight)
-* [GfxMode3DWidth](GfxMode3DWidth)
+* [GfxMode3DHeight](GfxMode3DHeight) 〔BlitzLLVM〕
+* [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
 * [Windowed3D](Windowed3D)
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)

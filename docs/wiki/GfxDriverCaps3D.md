@@ -26,8 +26,8 @@ Tells what the 3D driver is able to do. The result is a version number: 100 mean
 * [GfxDriver3D](GfxDriver3D)
 * [GfxMode3D](GfxMode3D)
 * [GfxMode3DExists](GfxMode3DExists)
-* [GfxMode3DHeight](GfxMode3DHeight)
-* [GfxMode3DWidth](GfxMode3DWidth)
+* [GfxMode3DHeight](GfxMode3DHeight) 〔BlitzLLVM〕
+* [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
 * [Graphics3D](Graphics3D)
 * [Windowed3D](Windowed3D)
 

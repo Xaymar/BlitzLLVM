@@ -31,7 +31,9 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(HERE, ".."))
 import categories  # noqa: E402
+import suite_functions  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 LIST = os.path.join(ROOT, "tests", "suite", "functions.txt")
@@ -55,6 +57,9 @@ DIALECT_TEXT = {
 
 
 INTROS = {}
+# Appended to every list entry and title of a command that the original Blitz products do not have. Which commands
+# those are comes from EXTENSIONS in tools/suite_functions.py, the list of what BlitzLLVM adds.
+EXTENSION_MARK = "\u3014BlitzLLVM\u3015"
 
 
 class Command:
@@ -73,8 +78,16 @@ class Command:
         return "%s-%s" % (self.dialect, self.category.replace(" ", "-"))
 
     @property
+    def extension(self):
+        return self.key in suite_functions.EXTENSIONS
+
+    @property
+    def mark(self):
+        return " " + EXTENSION_MARK if self.extension else ""
+
+    @property
     def link(self):
-        return "[%s](%s)" % (self.name, self.name)
+        return "[%s](%s)%s" % (self.name, self.name, self.mark)
 
     def signature(self):
         if not self.params:
@@ -182,13 +195,16 @@ def related(c, siblings, limit=8):
 
 def command_page(c, siblings):
     free, doc = split_text(re.sub(r"^;(media .*|run)\n", "", c.text, flags=re.M))
-    out = ["# %s\n" % c.name,
+    out = ["# %s%s\n" % (c.name, c.mark),
            "[Command Index](Command-Index) · [%s](%s) · [%s](%s)\n" % (c.dialect, c.dialect, c.category, c.page),
            "```blitzbasic\n%s%s\n```\n" % (c.signature(), "" if c.ret == "None" else "  ; returns " + c.ret)]
     import helpref
     ref = helpref.read(c.key)
     if ref and ref["dialects"]:
         out.append("**Works in:** %s\n" % ", ".join(ref["dialects"]))
+    if c.extension:
+        out.append("**%s** This command does not exist in the original Blitz products. BlitzLLVM adds it.\n" %
+                   EXTENSION_MARK)
     out.append(free + "\n" if free else "_Not documented yet._\n")
     if c.params:
         out.append("| Parameter | Type | Default | Description |\n|---|---|---|---|")
@@ -232,7 +248,7 @@ def sidebar(cats):
             out.append('<li><details><summary><a href="%s">%s</a> (%d)</summary>' %
                        (cmds[0].page, category, len(cmds)))
             out.append("<ul>")
-            out.extend('<li><a href="%s">%s</a></li>' % (c.name, c.name) for c in cmds)
+            out.extend('<li><a href="%s">%s</a>%s</li>' % (c.name, c.name, c.mark) for c in cmds)
             out.append("</ul>")
             out.append("</details></li>")
         out.append("</ul>")

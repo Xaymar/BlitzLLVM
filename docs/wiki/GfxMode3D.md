@@ -26,8 +26,8 @@ Tells whether the given mode from the list of modes can be used for 3D.
 * [GfxDriver3D](GfxDriver3D)
 * [GfxDriverCaps3D](GfxDriverCaps3D)
 * [GfxMode3DExists](GfxMode3DExists)
-* [GfxMode3DHeight](GfxMode3DHeight)
-* [GfxMode3DWidth](GfxMode3DWidth)
+* [GfxMode3DHeight](GfxMode3DHeight) 〔BlitzLLVM〕
+* [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
 * [Graphics3D](Graphics3D)
 * [Windowed3D](Windowed3D)
 

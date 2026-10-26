@@ -318,8 +318,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GfxDriverName](GfxDriverName)
 * [GfxMode3D](GfxMode3D)
 * [GfxMode3DExists](GfxMode3DExists)
-* [GfxMode3DHeight](GfxMode3DHeight)
-* [GfxMode3DWidth](GfxMode3DWidth)
+* [GfxMode3DHeight](GfxMode3DHeight) 〔BlitzLLVM〕
+* [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)

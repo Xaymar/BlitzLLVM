@@ -41,8 +41,8 @@ WaitKey
 * [GfxDriver3D](GfxDriver3D)
 * [GfxDriverCaps3D](GfxDriverCaps3D)
 * [GfxMode3D](GfxMode3D)
-* [GfxMode3DHeight](GfxMode3DHeight)
-* [GfxMode3DWidth](GfxMode3DWidth)
+* [GfxMode3DHeight](GfxMode3DHeight) 〔BlitzLLVM〕
+* [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
 * [Graphics3D](Graphics3D)
 * [Windowed3D](Windowed3D)
 
