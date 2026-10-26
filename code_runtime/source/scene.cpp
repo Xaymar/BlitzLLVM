@@ -789,9 +789,13 @@ void bb_entity_fx(int32_t handle, int32_t fx)
 	need(handle, "EntityFX")->fx = fx;
 }
 
-void bb_entity_texture(int32_t handle, int32_t texture)
+void bb_entity_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index)
 {
-	need(handle, "EntityTexture")->texture = texture;
+	(void)frame;
+	entity* e = need(handle, "EntityTexture");
+	if (index == 0) { // Only one texture layer is drawn.
+		e->texture = texture;
+	}
 }
 
 float bb_entity_distance(int32_t a, int32_t b)
