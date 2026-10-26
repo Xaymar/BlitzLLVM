@@ -35,7 +35,7 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+            cmake -S . -B build -G "Visual Studio 18 2026" -A x64
           else
             cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
           fi
