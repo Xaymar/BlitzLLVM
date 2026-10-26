@@ -25,6 +25,7 @@ using namespace blitz::compiler_detail;
 ////////////////////////////////////////////////////////////////////////////////
 blitz::compiler::value blitz::compiler::gen(ast::expression const* expr)
 {
+	at here(*this, expr->where);
 	if (auto n = dynamic_cast<ast::literal const*>(expr)) {
 		return gen_literal(n);
 	} else if (auto n = dynamic_cast<ast::reference const*>(expr)) {

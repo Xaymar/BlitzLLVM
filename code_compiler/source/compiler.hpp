@@ -122,6 +122,33 @@ namespace blitz {
 		std::string                                           _gosub_stack; // Pointer to the return addresses, empty if there are no Gosubs.
 		std::string                                           _gosub_depth; // Pointer to how many there are.
 
+		// Debug information, see compiler_debug.cpp.
+		std::vector<std::string>                     _md;       // Metadata nodes, the index is their number.
+		std::map<std::string, size_t>                _md_index; // Where the nodes that can be shared are.
+		std::map<std::string, std::string>           _di_blocks; // Per file other than the function's own: the block for it.
+		std::string                                  _di_cu;
+		std::vector<std::string>                     _di_globals;
+		std::string                                  _di_scope;
+		std::filesystem::path                        _di_sp_file;
+		ast::location                                _loc;       // Where the instructions that are emitted come from.
+		uint32_t                                     _arg = 0;   // Number of the parameter that is being declared, 0 for variables.
+
+		// Everything generated while it is alive belongs to the given location.
+		struct at {
+			compiler&     c;
+			ast::location saved;
+			at(compiler& c, ast::location const& where) : c(c), saved(c._loc)
+			{
+				if (where.line) {
+					c._loc = where;
+				}
+			}
+			~at()
+			{
+				c._loc = saved;
+			}
+		};
+
 		public:
 		compiler();
 		~compiler();
@@ -135,6 +162,15 @@ namespace blitz {
 		/** Libraries (as named by the .lib directive) of the userlib functions that the program called, set by generating. */
 		std::set<std::string> userlibs_used;
 
+		/** Whether to describe the program to debuggers, with metadata that maps every instruction back to its file, line and column. */
+		bool debug_info = false;
+
+		/** Whether that metadata is CodeView (for Windows with MSVC) instead of DWARF. */
+		bool codeview = false;
+
+		/** The file that is being compiled, which the other files are included from. */
+		std::filesystem::path source;
+
 		/** Generate LLVM IR for the given program. Throws blitz::error on failure. */
 		std::string generate(ast::program const& program);
 
@@ -145,6 +181,19 @@ namespace blitz {
 		// Errors and warnings
 		blitz::error err(ast::location const& where, std::string const& reason) const;
 		void         warn(ast::location const& where, std::string const& reason);
+
+		// Debug information
+		std::string md(std::string const& node, bool distinct = false);
+		std::string dbg();
+		std::string di_file(std::filesystem::path const& path);
+		std::string di_location(ast::location const& where);
+		std::string di_type(blitz::types::type t, std::string const& sname, uint32_t count);
+		std::string di_begin_function(std::string const& name, std::string const& symbol, ast::location const& where, blitz::types::type ret, std::string const& ret_sname, std::vector<ast::parameter> const* params, bool local);
+		void        di_end_function();
+		void        di_declare_local(std::string const& name, std::string const& pointer, blitz::types::type t, std::string const& sname, uint32_t count, ast::location const& where, uint32_t arg);
+		std::string di_global(std::string const& name, blitz::types::type t, std::string const& sname, uint32_t count, ast::location const& where);
+		void        di_begin_module();
+		std::string di_end_module();
 
 		// Emission
 		std::string tmp();
