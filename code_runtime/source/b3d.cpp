@@ -94,6 +94,7 @@ namespace {
 		float normal[3] = { 0, 0, 0 };
 		float color[4]  = { 1, 1, 1, 1 };
 		float uv[2]     = { 0, 0 };
+		float uv2[2]    = { 0, 0 }; // The second set, the first if there is none.
 	};
 
 	struct triangle_group {
@@ -192,7 +193,14 @@ namespace {
 							if ((s == 0) && (i < 2)) {
 								v.uv[i] = c;
 							}
+							if ((s == 1) && (i < 2)) {
+								v.uv2[i] = c;
+							}
 						}
+					}
+					if (sets < 2) {
+						v.uv2[0] = v.uv[0];
+						v.uv2[1] = v.uv[1];
 					}
 					node.vertices.push(v);
 				}
@@ -467,6 +475,8 @@ namespace {
 					}
 					out.u = v.uv[0];
 					out.v = v.uv[1];
+					out.u2 = v.uv2[0];
+					out.v2 = v.uv2[1];
 					out.r = uint8_t(v.color[0] * 255 + 0.5f);
 					out.g = uint8_t(v.color[1] * 255 + 0.5f);
 					out.b = uint8_t(v.color[2] * 255 + 0.5f);

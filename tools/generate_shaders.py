@@ -362,6 +362,7 @@ def vertex_shader_3d():
     layout(location = 1) in vec3 inNormal;
     layout(location = 2) in vec2 inUV;
     layout(location = 3) in vec4 inColor;
+    layout(location = 4) in vec2 inUV2;
     layout(set = 1, binding = 0) uniform Scene {
         mat4 viewProjection;
         vec4 ambient;
@@ -377,6 +378,8 @@ def vertex_shader_3d():
         vec4 material;               // Color and alpha of the entity.
         vec4 params;                 // x: fullbright, y: vertex color, z: vertex alpha, w: shininess
         vec4 uv;                     // Scale (x, y) and offset (z, w) of the texture coordinates.
+        vec4 mask;                   // For the fragment shader.
+        vec4 extra;                  // x: whether the second set of texture coordinates is used.
     } entity;
     layout(location = 0) out vec2 outUV;
     layout(location = 1) out vec4 outColor;
@@ -407,8 +410,8 @@ def vertex_shader_3d():
     ubo = declare_scene(b)
 
     # Push constants
-    entity = b.struct("entity", v4, v4, v4, v4, v4, v4)
-    for index in range(6):
+    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4)
+    for index in range(8):
         b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
     b.m.annotations.append(Module.inst("Decorate", entity, DECORATION["Block"]))
     push = b.variable("PushConstant", entity)
@@ -418,6 +421,7 @@ def vertex_shader_3d():
     in_normal = b.variable("Input", v3, [(DECORATION["Location"], 1)])
     in_uv = b.variable("Input", v2, [(DECORATION["Location"], 2)])
     in_color = b.variable("Input", v4, [(DECORATION["Location"], 3)])
+    in_uv2 = b.variable("Input", v2, [(DECORATION["Location"], 4)])
     out_uv = b.variable("Output", v2, [(DECORATION["Location"], 0)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 1)])
     out_depth = b.variable("Output", f, [(DECORATION["Location"], 2)])
@@ -433,7 +437,7 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -443,6 +447,7 @@ def vertex_shader_3d():
     pos, normal = b.load(v3, in_pos), b.load(v3, in_normal)
     color = b.load(v4, in_color)
     row0, row1, row2, material, params, uvparams = (push_member(i) for i in range(6))
+    extra = push_member(7)
 
     p4 = b.construct(4, b.extract(pos, 0), b.extract(pos, 1), b.extract(pos, 2), c1)
     world = b.construct(3, b.dot(row0, p4), b.dot(row1, p4), b.dot(row2, p4))
@@ -517,7 +522,9 @@ def vertex_shader_3d():
     b.store(out_spec_flat, specular)
     # Textures can be scaled and moved: the first two are factors, the last two offsets.
     uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
-    b.store(out_uv, b.fadd(v2, b.fmul(v2, b.load(v2, in_uv), uv_scale), uv_offset))
+    first_uv, second_uv = b.load(v2, in_uv), b.load(v2, in_uv2)
+    chosen_uv = b.fadd(v2, first_uv, b.scale(2, b.fsub(v2, second_uv, first_uv), b.extract(extra, 0)))
+    b.store(out_uv, b.fadd(v2, b.fmul(v2, chosen_uv, uv_scale), uv_offset))
     b.store(out_depth, b.extract(clip, 3))  # For the fog, which the fragment shader takes care of.
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()

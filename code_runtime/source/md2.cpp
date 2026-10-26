@@ -408,6 +408,8 @@ int32_t bb_load_md2(const char* file, int32_t parent)
 		vertex3d v = {};
 		v.u        = d->uvs[uint32_t(i) * 2];
 		v.v        = d->uvs[uint32_t(i) * 2 + 1];
+		v.u2       = v.u;
+		v.v2       = v.v;
 		v.r = v.g = v.b = v.a = 255;
 		s->vertices.push(v);
 	}

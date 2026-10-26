@@ -94,16 +94,17 @@ namespace bb::gfx {
 		stages[1].pName                           = "main";
 
 		VkVertexInputBindingDescription   binding       = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
-		VkVertexInputAttributeDescription attributes[4] = {
+		VkVertexInputAttributeDescription attributes[5] = {
 			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, x) },
 			{ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, nx) },
 			{ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u) },
 			{ 3, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(bb::vertex3d, r) },
+			{ 4, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u2) },
 		};
 		VkPipelineVertexInputStateCreateInfo input = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 		input.vertexBindingDescriptionCount        = 1;
 		input.pVertexBindingDescriptions           = &binding;
-		input.vertexAttributeDescriptionCount      = 4;
+		input.vertexAttributeDescriptionCount      = 5;
 		input.pVertexAttributeDescriptions         = attributes;
 
 		VkPipelineInputAssemblyStateCreateInfo assembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
@@ -333,7 +334,7 @@ namespace bb::gfx {
 			draw_record& d = draws[scene.first_draw + i];
 			vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(d.push), &d.push);
 			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.pipeline);
-			vkCmdSetCullMode(g.cmd, d.cull ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE);
+			vkCmdSetCullMode(g.cmd, d.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE);
 			vkCmdSetDepthTestEnable(g.cmd, d.depth_test ? VK_TRUE : VK_FALSE);
 			vkCmdSetDepthWriteEnable(g.cmd, d.depth_write ? VK_TRUE : VK_FALSE);
 			texture_entry*  tex = texture_of(d.texture);
@@ -601,7 +602,7 @@ namespace bb::gfx {
 				}
 				uint32_t first = s.vertices.size;
 				for (int k = 0; k < count; k++) {
-					bb::vertex3d v = { out[k][0], 0, out[k][2], 0, 1, 0, out[k][0], out[k][2], 255, 255, 255, 255 };
+					bb::vertex3d v = { out[k][0], 0, out[k][2], 0, 1, 0, out[k][0], out[k][2], 255, 255, 255, 255, out[k][0], out[k][2] };
 					s.vertices.push(v);
 				}
 				for (int k = 2; k < count; k++) {
@@ -751,6 +752,7 @@ namespace bb::gfx {
 			push.mask[0] = cutout ? 0.5f * item.alpha * paint.alpha : 0.0f;
 			push.mask[1] = (fx & 8) ? 1.0f : 0.0f; // No fog.
 			push.mask[2] = (fx & 4) ? 1.0f : 0.0f; // Flat shading.
+			push.extra[0] = (texture && (texture->flags & 0x10000)) ? 1.0f : 0.0f;
 			push.mask[3] = cutout ? 1.0f : 0.0f;   // Black is not there in a masked texture, also where the picture was drawn by the program.
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
@@ -782,6 +784,7 @@ namespace bb::gfx {
 				more.push.params[3]  = 0;
 				more.push.mask[2]    = 0;
 				more.push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
+				more.push.extra[0]   = (extra->flags & 0x10000) ? 1.0f : 0.0f;
 				texture_uv(extra, extra_handle, more.push.uv);
 				more.push.mask[0]    = 0;
 				more.push.mask[1]    = 1; // No fog again either, the first layer has it.
@@ -844,39 +847,39 @@ namespace bb::gfx {
 		return (vw > 0) && (vh > 0) && (cam.cam_projection != 0);
 	}
 
-	static void render_camera(int handle, bb::entity& cam, scene_data& data)
+	// Mirrors are pivots of the class Mirror, and show the world as it would be seen from the other side of their ground.
+	static void collect_mirror(int handle, bb::entity& e, void* user)
 	{
-		target_ref target = resolve_target(g.target);
-		if (!target.image) {
-			return;
+		if (e.cls && !strcmp(e.cls, "Mirror")) {
+			static_cast<camera_collector*>(user)->handles.push(handle);
 		}
+	}
 
-		int vx, vy, vw, vh;
-		if (!camera_viewport(cam, target.w, target.h, vx, vy, vw, vh)) {
-			return;
-		}
+	// Draws the world for a camera that is at cam_world and looks through view. The pictures that mirrors make are
+	// drawn first and keep to the depth of each other, with the triangles the other way around as the image is reversed.
+	static void render_pass(bb::entity& cam, scene_data& data, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
+	{
 		if (scenes.size >= max_scenes) {
 			flush();
 		}
 
-		float world[16], view[16], proj[16];
-		bb::world_matrix(handle, world);
-		memcpy(current_camera, world, sizeof(world));
+		float proj[16];
+		memcpy(current_camera, cam_world, sizeof(float) * 16);
 		current_view[0] = cam.cam_zoom;
 		current_view[1] = cam.cam_far;
 		current_view[2] = float(vh) / float(vw);
-		bb::mat_affine_inverse(world, view);
 		projection(proj, cam, float(vw), float(vh));
 		bb::mat_multiply(data.viewprojection, proj, view);
 		data.fog[0] = cam.fog_near;
 		data.fog[1] = cam.fog_far;
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
 		data.fog[3] = 0;
-		memcpy(data.eye, world + 12, sizeof(float) * 3);
+		memcpy(data.eye, cam_world + 12, sizeof(float) * 3);
 		memcpy(data.fog_color, cam.fog_color, sizeof(cam.fog_color));
 
 		scene_record scene = {};
 		scene.slot         = scenes.size;
+		scene.reflected    = reflected;
 		memcpy(static_cast<char*>(g.scene_mapped) + size_t(scene.slot) * scene_stride, &data, sizeof(data));
 
 		draw_list list;
@@ -903,8 +906,8 @@ namespace bb::gfx {
 		list.release();
 
 		scene.draw_count  = draws.size - scene.first_draw;
-		scene.clear_color = cam.cam_clear_color;
-		scene.clear_depth = cam.cam_clear_depth;
+		scene.clear_color = clear_color;
+		scene.clear_depth = clear_depth;
 		memcpy(scene.color, cam.cam_color, sizeof(scene.color));
 		scene.x = target.x + vx;
 		scene.y = target.y + vy;
@@ -914,6 +917,41 @@ namespace bb::gfx {
 
 		operation& op = add_operation(OP_SCENE, 0, 0);
 		op.first      = scenes.size - 1;
+	}
+
+	static void render_camera(int handle, bb::entity& cam, scene_data& data, bb::buffer<int> const& mirrors)
+	{
+		target_ref target = resolve_target(g.target);
+		if (!target.image) {
+			return;
+		}
+
+		int vx, vy, vw, vh;
+		if (!camera_viewport(cam, target.w, target.h, vx, vy, vw, vh)) {
+			return;
+		}
+
+		float world[16], view[16];
+		bb::world_matrix(handle, world);
+		bb::mat_affine_inverse(world, view);
+
+		// The camera is cleared once, before anything is drawn.
+		bool clear_color = cam.cam_clear_color, clear_depth = cam.cam_clear_depth;
+		for (uint32_t i = 0; i < mirrors.size; i++) {
+			// Where the camera would have to be to see what a mirror shows: on the other side of its ground.
+			float t[16], inverse[16], flip[16], reflect[16], steps[16], mirrored[16], mirrored_view[16];
+			bb::world_matrix(mirrors[i], t);
+			bb::mat_affine_inverse(t, inverse);
+			bb::mat_identity(flip);
+			flip[5] = -1;
+			bb::mat_multiply(steps, t, flip);
+			bb::mat_multiply(reflect, steps, inverse);
+			bb::mat_multiply(mirrored, reflect, world);
+			bb::mat_affine_inverse(mirrored, mirrored_view);
+			render_pass(cam, data, mirrored, mirrored_view, true, clear_color, clear_depth, vx, vy, vw, vh, target);
+			clear_color = clear_depth = false;
+		}
+		render_pass(cam, data, world, view, false, clear_color, clear_depth, vx, vy, vw, vh, target);
 	}
 
 	static void collect_camera(int handle, bb::entity&, void* user)
@@ -990,39 +1028,35 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 		return 0;
 	}
 
-	// The sphere around the surfaces, in the space of the entity.
-	float center[3] = { 0, 0, 0 }, radius = 0;
+	// The box around the surfaces, in the space of the entity. Like in the original, what is not a mesh is a point.
+	float lo[3] = { 0, 0, 0 }, hi[3] = { 0, 0, 0 };
 	if (e->kind == bb::MESH) {
 		bb::update_terrain(*e);
-		float lo[3], hi[3];
-		bb::mesh_bounds(*e, lo, hi);
+		float mesh_lo[3], mesh_hi[3];
+		bool  any = bb::mesh_bounds(*e, mesh_lo, mesh_hi);
 		if (e->has_cull_box) {
 			// MeshCullBox says what box decides.
 			for (int k = 0; k < 3; k++) {
-				lo[k] = e->cull_box[k];
-				hi[k] = e->cull_box[k] + e->cull_box[3 + k];
+				mesh_lo[k] = e->cull_box[k];
+				mesh_hi[k] = e->cull_box[k] + e->cull_box[3 + k];
 			}
+			any = true;
 		}
-		if (lo[0] <= hi[0]) {
-			for (int k = 0; k < 3; k++) {
-				center[k] = (lo[k] + hi[k]) * 0.5f;
-			}
-			radius = 0.5f * sqrtf((hi[0] - lo[0]) * (hi[0] - lo[0]) + (hi[1] - lo[1]) * (hi[1] - lo[1]) + (hi[2] - lo[2]) * (hi[2] - lo[2]));
+		if (any) {
+			memcpy(lo, mesh_lo, sizeof(lo));
+			memcpy(hi, mesh_hi, sizeof(hi));
 		}
 	}
 
 	float m[16];
 	bb::world_matrix(entity, m);
-	float world_center[3];
-	for (int row = 0; row < 3; row++) {
-		world_center[row] = m[0 + row] * center[0] + m[4 + row] * center[1] + m[8 + row] * center[2] + m[12 + row];
+	float corners[8][3];
+	for (int corner = 0; corner < 8; corner++) {
+		float local[3] = { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] };
+		for (int row = 0; row < 3; row++) {
+			corners[corner][row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + m[12 + row];
+		}
 	}
-	float scale = 0;
-	for (int col = 0; col < 3; col++) {
-		float len = sqrtf(m[col * 4] * m[col * 4] + m[col * 4 + 1] * m[col * 4 + 1] + m[col * 4 + 2] * m[col * 4 + 2]);
-		scale     = len > scale ? len : scale;
-	}
-	radius *= scale;
 
 	float world[16], view[16], proj[16], vp[16];
 	bb::world_matrix(camera, world);
@@ -1046,10 +1080,14 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 		planes[4][c] = row[2][c];
 		planes[5][c] = row[3][c] - row[2][c];
 	}
+	// It is seen unless all of the corners of the box are on the outside of one of the planes.
 	for (int i = 0; i < 6; i++) {
-		float length = sqrtf(planes[i][0] * planes[i][0] + planes[i][1] * planes[i][1] + planes[i][2] * planes[i][2]);
-		float distance = planes[i][0] * world_center[0] + planes[i][1] * world_center[1] + planes[i][2] * world_center[2] + planes[i][3];
-		if (distance < -radius * length) {
+		int outside = 0;
+		for (int corner = 0; corner < 8; corner++) {
+			float distance = planes[i][0] * corners[corner][0] + planes[i][1] * corners[corner][1] + planes[i][2] * corners[corner][2] + planes[i][3];
+			outside += distance < 0 ? 1 : 0;
+		}
+		if (outside == 8) {
 			return 0;
 		}
 	}
@@ -1107,13 +1145,16 @@ void bb_render_world(float tween)
 
 	camera_collector cameras;
 	bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
+	camera_collector mirrors;
+	bb::for_each_visible(bb::PIVOT, collect_mirror, &mirrors);
 	for (uint32_t i = 0; i < cameras.handles.size; i++) {
 		bb::entity* cam = bb::get_entity(cameras.handles[i]);
 		if (cam) {
-			render_camera(cameras.handles[i], *cam, data);
+			render_camera(cameras.handles[i], *cam, data, mirrors.handles);
 		}
 	}
 	cameras.handles.release();
+	mirrors.handles.release();
 	bb::render_tween = 1.0f;
 }
 

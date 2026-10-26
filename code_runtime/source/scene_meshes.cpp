@@ -45,7 +45,7 @@ namespace bb::scene {
 
 	uint32_t add_vertex(surface* s, float x, float y, float z, float nx, float ny, float nz, float u, float v)
 	{
-		vertex3d vert = { x, y, z, nx, ny, nz, u, v, 255, 255, 255, 255 };
+		vertex3d vert = { x, y, z, nx, ny, nz, u, v, 255, 255, 255, 255, u, v };
 		s->vertices.push(vert);
 		s->dirty = true;
 		return s->vertices.size - 1;
@@ -259,6 +259,14 @@ namespace bb::scene {
 		return s->vertices[uint32_t(index)];
 	}
 
+	static void check_set(int32_t set)
+	{
+		if ((set < 0) || (set > 1)) {
+			bb_runtime_error("Texture coordinate set out of range");
+			exit(1);
+		}
+	}
+
 	static float mesh_extent(int32_t mesh, int axis, const char* what)
 	{
 		entity* e = need_kind(mesh, MESH, what);
@@ -412,10 +420,15 @@ void bb_vertex_normal(int32_t handle, int32_t index, float x, float y, float z)
 void bb_vertex_tex_coords(int32_t handle, int32_t index, float u, float v, float w, int32_t set)
 {
 	(void)w;
-	(void)set;
 	vertex3d& vert = vertex_of(handle, index, "VertexTexCoords");
-	vert.u = u;
-	vert.v = v;
+	check_set(set);
+	if (set == 1) {
+		vert.u2 = u;
+		vert.v2 = v;
+	} else {
+		vert.u = u;
+		vert.v = v;
+	}
 }
 
 void bb_update_normals(int32_t mesh)
@@ -511,8 +524,8 @@ float bb_vertex_z(int32_t surface, int32_t index) { return read_vertex(surface, 
 float bb_vertex_nx(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNX").nx; }
 float bb_vertex_ny(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNY").ny; }
 float bb_vertex_nz(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNZ").nz; }
-float bb_vertex_u(int32_t surface, int32_t index, int32_t set) { (void)set; return read_vertex(surface, index, "VertexU").u; }
-float bb_vertex_v(int32_t surface, int32_t index, int32_t set) { (void)set; return read_vertex(surface, index, "VertexV").v; }
+float bb_vertex_u(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexU"); check_set(set); return set == 1 ? v.u2 : v.u; }
+float bb_vertex_v(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexV"); check_set(set); return set == 1 ? v.v2 : v.v; }
 float bb_vertex_red(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexRed").r); }
 float bb_vertex_green(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexGreen").g); }
 float bb_vertex_blue(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexBlue").b); }

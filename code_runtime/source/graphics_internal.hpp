@@ -419,7 +419,8 @@ namespace bb::gfx {
 		float material[4];
 		float params[4];
 		float uv[4];   // Scale and offset of the texture coordinates.
-		float mask[4]; // For the fragment shader, always off.
+		float mask[4]; // For the fragment shader: where pixels are cut off, whether there is fog, flat shading and whether black is not there.
+		float extra[4]; // x: whether the texture uses the second set of coordinates.
 	};
 
 
@@ -458,6 +459,7 @@ namespace bb::gfx {
 		uint32_t first_draw, draw_count;
 		uint32_t slot; // Where its scene data is.
 		bool     clear_color, clear_depth;
+		bool     reflected; // Seen in a mirror, which turns the triangles around.
 		float    color[3];
 		int      x, y, w, h; // Area of the target image that it draws to.
 	};
