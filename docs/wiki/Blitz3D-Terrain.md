@@ -11,16 +11,16 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [CreateTerrain](Blitz3D-Terrain#createterrain) | Int |  |
-| [LoadTerrain](Blitz3D-Terrain#loadterrain) | Int |  |
-| [ModifyTerrain](Blitz3D-Terrain#modifyterrain) | None |  |
-| [TerrainDetail](Blitz3D-Terrain#terraindetail) | None |  |
+| [CreateTerrain](Blitz3D-Terrain#createterrain) | Int | Creates a flat terrain with `grid_size` squares along each side. |
+| [LoadTerrain](Blitz3D-Terrain#loadterrain) | Int | Creates a terrain from a picture. |
+| [ModifyTerrain](Blitz3D-Terrain#modifyterrain) | None | Sets the height of one grid point of the terrain. |
+| [TerrainDetail](Blitz3D-Terrain#terraindetail) | None | Chooses how many triangles the terrain may use at a time, about 2000 being typical, and whether the vertices blend smoothly between levels of detail to hide the changes. |
 | [TerrainHeight](Blitz3D-Terrain#terrainheight) | Float |  |
-| [TerrainShading](Blitz3D-Terrain#terrainshading) | None |  |
+| [TerrainShading](Blitz3D-Terrain#terrainshading) | None | Turns shading of the terrain on or off. |
 | [TerrainSize](Blitz3D-Terrain#terrainsize) | Int |  |
-| [TerrainX](Blitz3D-Terrain#terrainx) | Float |  |
-| [TerrainY](Blitz3D-Terrain#terrainy) | Float |  |
-| [TerrainZ](Blitz3D-Terrain#terrainz) | Float |  |
+| [TerrainX](Blitz3D-Terrain#terrainx) | Float | Looks at the terrain from straight above a point in the world and returns the X coordinate of the point of the ground that lies there. |
+| [TerrainY](Blitz3D-Terrain#terrainy) | Float | Gives the height of the ground at a point of the world, including the terrain's position, scale and the blending between grid points. |
+| [TerrainZ](Blitz3D-Terrain#terrainz) | Float | Returns the Z coordinate of the ground below or above a point of the world. |
 
 ### CreateTerrain
 
@@ -30,12 +30,53 @@ CreateTerrain grid_size%, parent%=0  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Creates a flat terrain with `grid_size` squares along each side. Terrain heights are numbers from 0 to 1 at each corner of the grid; set them with [ModifyTerrain](Blitz3D-Terrain#modifyterrain) or load them from a picture with [LoadTerrain](Blitz3D-Terrain#loadterrain). The terrain spans from 0, 0, 0 to `grid_size`, 1, `grid_size`, so scale it with [ScaleEntity](Blitz3D-Entities#scaleentity) to make it taller or wider: a scale of 1, 40, 1 makes the highest point 40 units up.
+
+A texture with a scale of 1 covers one grid square, so scale the texture by the grid size to stretch it over the whole terrain. See [ScaleTexture](Blitz3D-Textures#scaletexture).
+
+A parent makes the terrain follow another entity. The terrain is still created at 0, 0, 0, not at the parent's position.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsColor camera, 120, 160, 210
+PositionEntity camera, 20, 24, -24
+RotateEntity camera, 30, 0, 0
+light = CreateLight()
+RotateEntity light, 50, 20, 0
+
+size = 32
+land = CreateTerrain(size)
+ScaleEntity land, 1, 10, 1
+PositionEntity land, 4, 0, 0
+EntityColor land, 90, 170, 80
+
+; Hills made from two waves.
+For z = 0 To size
+	For x = 0 To size
+		h# = 0.5 + 0.25 * Sin(x * 14) + 0.25 * Sin(z * 22 + x * 5)
+		ModifyTerrain land, x, z, h
+	Next
+Next
+
+RenderWorld
+Flip
+WaitKey
+```
+
+![CreateTerrain](media/terrain/createterrain.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `grid_size` | Int | required |  |
-| `parent` | Int | `0` |  |
+| `grid_size` | Int | required | Number of grid squares along each side. |
+| `parent` | Int | `0` | Optional parent entity. |
+
+**Returns:** An entity handle for the terrain.
+
+**Differences and known gaps:**
+
+* The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise. Here any size from 2 to 4096 is accepted.
 
 ### LoadTerrain
 
@@ -45,12 +86,52 @@ LoadTerrain heightmap_file$, parent%=0  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Creates a terrain from a picture. Each pixel of the picture becomes one height point: the brightest of its red, green and blue values is divided by 255, so a white pixel is the full height of 1 and black is 0. The grid size is the width of the picture, the top row of the picture becomes the far edge of the terrain, and the picture has to be square with a power of two size, for example 64 by 64, or the program stops with a runtime error. A blurred height map gives smoother land than a noisy one.
+
+A parent makes the terrain follow another entity, and the terrain is created at 0, 0, 0 regardless of where the parent is.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsColor camera, 120, 160, 210
+PositionEntity camera, 32, 42, -50
+RotateEntity camera, 30, 0, 0
+light = CreateLight()
+RotateEntity light, 50, 20, 0
+
+; Draw a height map: soft white blobs on black.
+map = CreateTexture(64, 64)
+SetBuffer TextureBuffer(map)
+ClsColor 0, 0, 0
+Cls
+For i = 8 To 1 Step -1
+	Color 255 - i * 28, 255 - i * 28, 255 - i * 28
+	Oval 32 - i * 5, 28 - i * 4, i * 10, i * 8, 1
+Next
+SaveBuffer TextureBuffer(map), "wiki_heightmap.bmp"
+SetBuffer BackBuffer()
+
+land = LoadTerrain("wiki_heightmap.bmp")
+ScaleEntity land, 1, 16, 1
+EntityColor land, 200, 170, 90
+RenderWorld
+Flip
+WaitKey
+```
+
+![LoadTerrain](media/terrain/loadterrain.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `heightmap_file` | String | required |  |
-| `parent` | Int | `0` |  |
+| `parent` | Int | `0` | Optional parent entity. |
+
+**Returns:** An entity handle for the terrain.
+
+**Differences and known gaps:**
+
+* The official help says that the red channel is used. The engine, and this runtime, use the brightest of the three channels.
 
 ### ModifyTerrain
 
@@ -60,15 +141,19 @@ ModifyTerrain terrain%, terrain_x%, terrain_z%, height#, realtime%=0
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Sets the height of one grid point of the terrain. Heights are between 0 and 1 and are clamped to that range; the real height in the world is the height times the terrain's Y scale. Calls with a grid position outside the terrain do nothing.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required |  |
+| `terrain` | Int | required | The terrain. |
 | `terrain_x` | Int | required |  |
 | `terrain_z` | Int | required |  |
-| `height` | Float | required |  |
-| `realtime` | Int | `0` |  |
+| `height` | Float | required | New height, 0 to 1. |
+| `realtime` | Int | `0` | True to apply the change immediately instead of at the next render. Defaults to False. |
+
+**Differences and known gaps:**
+
+* The realtime argument has no effect. Changes always show at the next RenderWorld.
 
 ### TerrainDetail
 
@@ -78,13 +163,17 @@ TerrainDetail terrain%, detail_level%, morph%=0
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Chooses how many triangles the terrain may use at a time, about 2000 being typical, and whether the vertices blend smoothly between levels of detail to hide the changes.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required |  |
-| `detail_level` | Int | required |  |
+| `terrain` | Int | required | The terrain. |
+| `detail_level` | Int | required | Number of triangles to use. |
 | `morph` | Int | `0` |  |
+
+**Differences and known gaps:**
+
+* The terrain has no level of detail here. All of its triangles are always drawn, so the call is accepted and does nothing.
 
 ### TerrainHeight
 
@@ -98,9 +187,11 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required |  |
+| `terrain` | Int | required | The terrain. |
 | `terrain_x` | Int | required |  |
 | `terrain_z` | Int | required |  |
+
+**Returns:** The height of one grid point of the terrain, from 0 to 1, before the entity's scale is applied. Positions outside the grid are moved to the nearest edge. This reads the points you set with ModifyTerrain; use [TerrainY](Blitz3D-Terrain#terrainy) to find the height at any world position.
 
 ### TerrainShading
 
@@ -110,12 +201,16 @@ TerrainShading terrain%, enable%
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Turns shading of the terrain on or off. Shaded terrains cost a little more speed in the original and can make the changes between detail levels more visible.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required |  |
-| `enable` | Int | required |  |
+| `terrain` | Int | required | The terrain. |
+| `enable` | Int | required | True to enable shading. The default is False. |
+
+**Differences and known gaps:**
+
+* The terrain is always lit with normals that follow the height, whatever this is set to.
 
 ### TerrainSize
 
@@ -129,7 +224,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required |  |
+| `terrain` | Int | required | The terrain. |
+
+**Returns:** The grid size that the terrain was created with, which is the width of the picture for [LoadTerrain](Blitz3D-Terrain#loadterrain).
 
 ### TerrainX
 
@@ -139,14 +236,16 @@ TerrainX terrain%, world_x#, world_y#, world_z#  ; returns Float
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Looks at the terrain from straight above a point in the world and returns the X coordinate of the point of the ground that lies there. For a terrain that is not rotated, this is simply the X you passed in; with a rotated terrain it tells you where the ground really is.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required |  |
+| `terrain` | Int | required | The terrain. |
 | `world_x` | Float | required |  |
 | `world_y` | Float | required |  |
 | `world_z` | Float | required |  |
+
+**Returns:** The world X coordinate of the ground below or above the point.
 
 ### TerrainY
 
@@ -156,14 +255,51 @@ TerrainY terrain%, world_x#, world_y#, world_z#  ; returns Float
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Gives the height of the ground at a point of the world, including the terrain's position, scale and the blending between grid points. The Y you pass in does not matter for an upright terrain. This is the simple way to keep something standing on the ground.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsColor camera, 120, 160, 210
+PositionEntity camera, 8, 11, -13
+RotateEntity camera, 28, 0, 0
+light = CreateLight()
+RotateEntity light, 50, 20, 0
+
+land = CreateTerrain(16)
+ScaleEntity land, 1, 6, 1
+EntityColor land, 90, 170, 80
+For z = 0 To 16
+	For x = 0 To 16
+		ModifyTerrain land, x, z, 0.5 + 0.5 * Sin(x * 24) * Cos(z * 24)
+	Next
+Next
+
+; Put a row of poles on the ground, whatever its height.
+For x = 1 To 15 Step 2
+	pole = CreateCylinder(8)
+	ScaleEntity pole, 0.25, 1, 0.25
+	z# = 8
+	PositionEntity pole, x, TerrainY(land, x, 0, z) + 1, z
+	EntityColor pole, 220, 70, 60
+Next
+
+RenderWorld
+Flip
+WaitKey
+```
+
+![TerrainY](media/terrain/terrainy.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required |  |
+| `terrain` | Int | required | The terrain. |
 | `world_x` | Float | required |  |
 | `world_y` | Float | required |  |
 | `world_z` | Float | required |  |
+
+**Returns:** The world Y coordinate of the ground at that position.
 
 ### TerrainZ
 
@@ -173,11 +309,13 @@ TerrainZ terrain%, world_x#, world_y#, world_z#  ; returns Float
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Returns the Z coordinate of the ground below or above a point of the world. As with [TerrainX](Blitz3D-Terrain#terrainx) this only differs from the Z you passed in when the terrain is rotated.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required |  |
+| `terrain` | Int | required | The terrain. |
 | `world_x` | Float | required |  |
 | `world_y` | Float | required |  |
 | `world_z` | Float | required |  |
+
+**Returns:** The world Z coordinate of the ground at that position.

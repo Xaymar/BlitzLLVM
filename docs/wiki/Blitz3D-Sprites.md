@@ -11,12 +11,12 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [CreateSprite](Blitz3D-Sprites#createsprite) | Int |  |
-| [HandleSprite](Blitz3D-Sprites#handlesprite) | None |  |
-| [LoadSprite](Blitz3D-Sprites#loadsprite) | Int |  |
-| [RotateSprite](Blitz3D-Sprites#rotatesprite) | None |  |
-| [ScaleSprite](Blitz3D-Sprites#scalesprite) | None |  |
-| [SpriteViewMode](Blitz3D-Sprites#spriteviewmode) | None |  |
+| [CreateSprite](Blitz3D-Sprites#createsprite) | Int | Creates a sprite: a flat square of two triangles that extends from -1, -1 to 1, 1 around its position. |
+| [HandleSprite](Blitz3D-Sprites#handlesprite) | None | Moves the point that the sprite is held at, which is also the point it turns and scales around. |
+| [LoadSprite](Blitz3D-Sprites#loadsprite) | Int | Creates a sprite and gives it a texture loaded from a picture file in one step. |
+| [RotateSprite](Blitz3D-Sprites#rotatesprite) | None | Rolls a sprite around the line from the camera to it. |
+| [ScaleSprite](Blitz3D-Sprites#scalesprite) | None | Changes the width and height of a sprite. |
+| [SpriteViewMode](Blitz3D-Sprites#spriteviewmode) | None | Chooses how a sprite turns in relation to the camera. |
 
 ### CreateSprite
 
@@ -26,11 +26,51 @@ CreateSprite parent%=0  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Creates a sprite: a flat square of two triangles that extends from -1, -1 to 1, 1 around its position. A sprite has no mesh to edit, so it is very cheap and suited to particles, lens flares, trees in the distance and 2D games drawn in 3D. By default a sprite turns to face the camera, see [SpriteViewMode](Blitz3D-Sprites#spriteviewmode), so a round texture makes it look like a sphere from every side.
+
+Sprites have their own commands for scale, rotation and handle: [ScaleSprite](Blitz3D-Sprites#scalesprite), [RotateSprite](Blitz3D-Sprites#rotatesprite) and [HandleSprite](Blitz3D-Sprites#handlesprite). Everything else, such as position, texture and color, works as for any entity.
+
+A parent makes the sprite follow another entity. The sprite is still created at 0, 0, 0, not at the parent's position.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsColor camera, 40, 50, 90
+
+; A texture of a soft red disc on black.
+tex = CreateTexture(64, 64)
+SetBuffer TextureBuffer(tex)
+ClsColor 0, 0, 0
+Cls
+For i = 0 To 12
+	Color 255 - i * 14, 40 + i * 4, 40
+	Oval 2 + i * 2, 2 + i * 2, 60 - i * 4, 60 - i * 4, 1
+Next
+SetBuffer BackBuffer()
+
+For i = 0 To 4
+	sprite = CreateSprite()
+	EntityTexture sprite, tex
+	PositionEntity sprite, -4 + i * 2, 0, 8
+	ScaleSprite sprite, 0.4 + i * 0.2, 0.4 + i * 0.2
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![CreateSprite](media/sprites/createsprite.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `parent` | Int | `0` |  |
+| `parent` | Int | `0` | Optional parent entity. |
+
+**Returns:** An entity handle for the sprite.
+
+**Differences and known gaps:**
+
+* Sprites are always drawn full-bright and visible from both sides, whatever [EntityFX](Blitz3D-Entities#entityfx) says. The original only does this for sprites made with LoadSprite.
 
 ### HandleSprite
 
@@ -40,13 +80,13 @@ HandleSprite sprite%, x_handle#, y_handle#
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Moves the point that the sprite is held at, which is also the point it turns and scales around. 0, 0 is the middle. The handle is measured in half the size of the sprite, so -1, -1 is one corner and 1, 1 the opposite one.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sprite` | Int | required |  |
-| `x_handle` | Float | required |  |
-| `y_handle` | Float | required |  |
+| `sprite` | Int | required | The sprite. |
+| `x_handle` | Float | required | Horizontal handle position. The default is 0. |
+| `y_handle` | Float | required | Vertical handle position. The default is 0. |
 
 ### LoadSprite
 
@@ -56,13 +96,48 @@ LoadSprite file$, texture_flags%=1, parent%=0  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Creates a sprite and gives it a texture loaded from a picture file in one step. The sprite is drawn without lighting. How it blends depends on the flags: with the alpha flag (2) or the masked flag (4) it is blended by its alpha, otherwise it is added to what is behind it, which suits glows and flares.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsColor camera, 40, 50, 90
+
+; Make a file of a yellow star on black, then load it as a sprite with the black cut away.
+src = CreateTexture(64, 64)
+SetBuffer TextureBuffer(src)
+ClsColor 0, 0, 0
+Cls
+Color 255, 220, 60
+For i = 0 To 28
+	Rect 32 - i, 32 - (28 - i) / 3, i * 2, (28 - i) / 3 * 2 + 1, 1
+Next
+Oval 18, 18, 28, 28, 1
+SaveBuffer TextureBuffer(src), "wiki_star.bmp"
+SetBuffer BackBuffer()
+
+sprite = LoadSprite("wiki_star.bmp", 1 + 4)
+PositionEntity sprite, 0, 0, 5
+ScaleSprite sprite, 2, 2
+RenderWorld
+Flip
+WaitKey
+```
+
+![LoadSprite](media/sprites/loadsprite.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required |  |
 | `texture_flags` | Int | `1` |  |
-| `parent` | Int | `0` |  |
+| `parent` | Int | `0` | Optional parent entity. |
+
+**Returns:** An entity handle for the sprite, or 0 if the file could not be loaded.
+
+**Differences and known gaps:**
+
+* A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending. The result looks the same unless the sprite is moved over other transparent things.
 
 ### RotateSprite
 
@@ -72,12 +147,12 @@ RotateSprite sprite%, angle#
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Rolls a sprite around the line from the camera to it. The angle is absolute, in degrees, and not added to the old one. A rolling sprite is the usual way to make spinning smoke or sparks.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sprite` | Int | required |  |
-| `angle` | Float | required |  |
+| `sprite` | Int | required | The sprite. |
+| `angle` | Float | required | Roll angle in degrees. |
 
 ### ScaleSprite
 
@@ -87,13 +162,13 @@ ScaleSprite sprite%, x_scale#, y_scale#
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Changes the width and height of a sprite. A sprite starts as 2 by 2 units, so a scale of 1 keeps that size. Unlike [ScaleEntity](Blitz3D-Entities#scaleentity) it is the only way to scale a sprite and it keeps the sprite facing the camera.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sprite` | Int | required |  |
-| `x_scale` | Float | required |  |
-| `y_scale` | Float | required |  |
+| `sprite` | Int | required | The sprite. |
+| `x_scale` | Float | required | Width factor. |
+| `y_scale` | Float | required | Height factor. |
 
 ### SpriteViewMode
 
@@ -103,9 +178,61 @@ SpriteViewMode sprite%, view_mode%
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Chooses how a sprite turns in relation to the camera.
+
+| Mode | Behavior |
+|---|---|
+| 1 | Faces the camera and turns with it, so it always looks flat towards you. This is the default. |
+| 2 | Free: keeps the orientation of the entity itself and ignores the camera, so it can be seen edge-on. |
+| 3 | Faces the camera but keeps the entity's own up direction. |
+| 4 | Only turns around the vertical axis to face the camera. It stays upright, like a billboard tree. |
+
+The example shows all four modes while the camera circles them and tilts from side to side. The arrow on each sprite points to its up direction.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsColor camera, 70, 100, 160
+pivot = CreatePivot()
+EntityParent camera, pivot
+PositionEntity camera, 0, 3, -8
+RotateEntity camera, 15, 0, 0
+
+; One sprite for every view mode, labeled with its number.
+For mode = 1 To 4
+	tex = CreateTexture(64, 64)
+	SetBuffer TextureBuffer(tex)
+	ClsColor 40 + mode * 40, 200 - mode * 30, 90
+	Cls
+	Color 255, 255, 255
+	For i = 0 To 12
+		Rect 32 - i, 4 + i, i * 2 + 1, 1, 1
+	Next
+	Text 32, 40, Str(mode), 1, 1
+	SetBuffer BackBuffer()
+
+	sprite = CreateSprite()
+	SpriteViewMode sprite, mode
+	EntityTexture sprite, tex
+	PositionEntity sprite, -3.6 + (mode - 1) * 2.4, 0, 0
+Next
+
+For frame = 0 To 39
+	RotateEntity pivot, 0, frame * 4.5, 0
+	RotateEntity camera, 15, 0, Sin(frame * 18) * 35
+	RenderWorld
+	Flip
+Next
+```
+
+![SpriteViewMode](media/sprites/spriteviewmode.gif)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sprite` | Int | required |  |
-| `view_mode` | Int | required |  |
+| `sprite` | Int | required | The sprite. |
+| `view_mode` | Int | required | 1 to 4, see the table. Values outside that range select mode 1. |
+
+**Differences and known gaps:**
+
+* The descriptions in the official help do not exactly match the engine. This page describes what the engine does, and so does this runtime.
