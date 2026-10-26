@@ -52,6 +52,50 @@ Check "SetGadgetShape width", GadgetWidth(plain), 200
 Check "SetGadgetShape height", GadgetHeight(plain), 100
 CheckTrue "Window follows its shape", ClientWidth(plain) > 150 And ClientWidth(plain) <= 200
 
+; A window can't be made smaller than its minimum size, by the program or by the person using it.
+small = CreateWindow("Small", 0, 0, 300, 200, 0, 1 + 2)
+SetMinWindowSize small, 200, 150
+SetGadgetShape small, 10, 20, 100, 50
+Check "Minimum width", GadgetWidth(small), 200
+Check "Minimum height", GadgetHeight(small), 150
+Check "Minimum keeps x", GadgetX(small), 10
+Check "Minimum keeps y", GadgetY(small), 20
+SetGadgetShape small, 0, 0, 400, 50
+Check "Bigger than the minimum width", GadgetWidth(small), 400
+Check "Minimum height again", GadgetHeight(small), 150
+SetMinWindowSize small
+SetGadgetShape small, 0, 0, 10, 10
+Check "Minimum from the current width", GadgetWidth(small), 400
+Check "Minimum from the current height", GadgetHeight(small), 150
+SetMinWindowSize small, 120, 90
+SetGadgetShape small, 0, 0, 50, 50
+Check "A new minimum width", GadgetWidth(small), 120
+Check "A new minimum height", GadgetHeight(small), 90
+; Windows that were asked for by the size inside are held to the minimum as a whole.
+inner = CreateWindow("Inner", 0, 0, 300, 200, 0, 1 + 2 + 32)
+SetMinWindowSize inner, 250, 220
+SetGadgetShape inner, 0, 0, 50, 50
+Check "Minimum with the size inside", GadgetWidth(inner), 250
+Check "Minimum with the size inside, height", GadgetHeight(inner), 220
+FreeGadget inner
+FreeGadget small
+
+; Tool windows have a thinner title than the others, so they are lower by the difference with the same inside.
+normal = CreateWindow("Normal", 0, 0, 300, 200, 0, 1 + 2 + 32)
+tool = CreateWindow("Tool", 0, 0, 300, 200, 0, 1 + 2 + 16 + 32)
+Check "Tool window inside width", ClientWidth(tool), 300
+Check "Tool window inside height", ClientHeight(tool), 200
+CheckTrue "Tool window is thinner", GadgetHeight(tool) < GadgetHeight(normal)
+Check "Tool window is as wide", GadgetWidth(tool), GadgetWidth(normal)
+FreeGadget tool
+FreeGadget normal
+
+; The desktop is the screen when there is one to ask, and as big as the program's window if not.
+CheckTrue "Desktop width", ClientWidth(desk) > 0
+CheckTrue "Desktop height", ClientHeight(desk) > 0
+Check "Desktop GadgetWidth", GadgetWidth(desk), ClientWidth(desk)
+Check "Desktop GadgetHeight", GadgetHeight(desk), ClientHeight(desk)
+
 ; Minimize, maximize and restore.
 CheckFalse "WindowMinimized at first", WindowMinimized(win)
 CheckFalse "WindowMaximized at first", WindowMaximized(win)

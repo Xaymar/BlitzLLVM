@@ -22,6 +22,7 @@ void    bb_oval(int32_t x, int32_t y, int32_t w, int32_t h, int32_t solid);
 void    bb_viewport(int32_t x, int32_t y, int32_t w, int32_t h);
 void    bb_origin(int32_t x, int32_t y);
 void    bb_flip(int32_t vwait);
+void    bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int32_t dy, int32_t source, int32_t destination);
 void    bb_gui_text(int32_t x, int32_t y, const char* s, int32_t size);
 void    bb_draw_block(int32_t handle, int32_t x, int32_t y, int32_t frame);
 void    bb_draw_image_rect(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t rw, int32_t rh, int32_t frame);
@@ -54,6 +55,7 @@ namespace bb::gui {
 		constexpr rgb grey_text  = { 128, 128, 128 };
 
 		bool needs_draw = true;
+		int  last_render = 0;
 		rect clip;
 		int  overlay_combo = 0;
 
@@ -686,10 +688,13 @@ namespace bb::gui {
 		////////////////////////////////////////////////////////////////////
 		// Windows
 		////////////////////////////////////////////////////////////////////
-		void title_box(int x, int y, int glyph)
+		// The glyphs are made for boxes of 18 by 16, and are centered in smaller ones.
+		void title_box(int x, int y, int glyph, int width = 18, int height = 16)
 		{
-			fill(x, y, 18, 16, face);
-			edge(x, y, 18, 16, false);
+			fill(x, y, width, height, face);
+			edge(x, y, width, height, false);
+			x += (width - 18) / 2;
+			y += (height - 16) / 2;
 			switch (glyph) {
 			case 0: // Close
 				color(black);
@@ -714,21 +719,22 @@ namespace bb::gui {
 			if (g.style & 1) {
 				edge(x, y, g.w, g.h, false);
 				int frame = (g.style & 2) ? frame_width : 3;
-				fill(x + frame, y + frame, g.w - 2 * frame, title_height, active ? highlight : shadow);
+				fill(x + frame, y + frame, g.w - 2 * frame, title_bar_height(g), active ? highlight : shadow);
 				char text[1024];
 				shown_text(g.text, text, sizeof(text));
 				int size = 12;
 				rect saved = clip;
 				int  close_x, max_x, min_x, by;
 				int  buttons = window_buttons(g, &close_x, &max_x, &min_x, &by);
-				clip_to(intersect(saved, { x + frame, y + frame, g.w - 2 * frame - buttons * 18, title_height }));
-				text_run(x + frame + 4, y + frame + (title_height - size) / 2, text, int(strlen(text)), size, white);
+				clip_to(intersect(saved, { x + frame, y + frame, g.w - 2 * frame - buttons * title_box_width(g), title_bar_height(g) }));
+				text_run(x + frame + 4, y + frame + (title_bar_height(g) - size) / 2, text, int(strlen(text)), size, white);
 				clip_to(saved);
 				if (buttons) {
-					title_box(x + close_x, y + by, 0);
+					int bw = title_box_width(g), bh = title_box_height(g);
+					title_box(x + close_x, y + by, 0, bw, bh);
 					if (buttons == 3) {
-						title_box(x + max_x, y + by, 1);
-						title_box(x + min_x, y + by, 2);
+						title_box(x + max_x, y + by, 1, bw, bh);
+						title_box(x + min_x, y + by, 2, bw, bh);
 					}
 				}
 			} else {
@@ -736,12 +742,15 @@ namespace bb::gui {
 			}
 			// The menu bar.
 			menu* root = menu_of(g.menu);
-			if ((g.style & 4) && root) {
+			if (g.style & 4) {
+				// The bar is there with or without menus in it, as it is on Windows: a line under it sets it apart.
 				int handle = handle_of(&g);
 				int bx, by, bw, bh;
 				menu_bar_rect(handle, 0, &bx, &by, &bw, &bh);
 				fill(x + bx, y + by, g.w - 2 * bx, bh, face);
-				for (uint32_t i = 0; i < root->kids.size; i++) {
+				hline(x + bx, y + by + bh - 2, g.w - 2 * bx, shadow);
+				hline(x + bx, y + by + bh - 1, g.w - 2 * bx, light);
+				for (uint32_t i = 0; root && (i < root->kids.size); i++) {
 					menu* m = menu_of(root->kids[i]);
 					menu_bar_rect(handle, int(i), &bx, &by, &bw, &bh);
 					bool open = (ui.menu_window == handle) && ui.menu_path.size && (ui.menu_path[0] == root->kids[i]);
@@ -941,8 +950,13 @@ namespace bb::gui {
 		bb_origin(0, 0);
 		rect screen = { 0, 0, w, h };
 		clip_to(screen);
-		bb_clscolor(desktop_bg.r, desktop_bg.g, desktop_bg.b);
-		bb_cls();
+		if (int backdrop = desktop_backdrop()) {
+			bb_copy_rect(0, 0, w, h, 0, 0, backdrop, bb_back_buffer());
+		} else {
+			bb_clscolor(desktop_bg.r, desktop_bg.g, desktop_bg.b);
+			bb_cls();
+		}
+		last_render = bb_millisecs();
 		gadget* desk = gadget_of(desktop_handle());
 		for (uint32_t i = 0; desk && (i < desk->kids.size); i++) {
 			draw_window(desk->kids[i], screen);
@@ -976,7 +990,8 @@ namespace bb::gui {
 				needs_draw = true;
 			}
 		}
-		if (needs_draw) {
+		// What was drawn on the desktop by the program is shown a bit after, as nothing says when it was drawn.
+		if (needs_draw || (desktop_backdrop() && (bb_millisecs() - last_render >= 16))) {
 			render();
 		}
 	}

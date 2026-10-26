@@ -5,7 +5,7 @@
 ; CreateWindow CreatePanel SetPanelColor SetPanelImage CreateLabel CreateButton CreateProgBar UpdateProgBar CreateSlider
 ; CreateCanvas CanvasBuffer FlipCanvas CreateToolBar SetToolBarTips EnableToolBarItem DisableToolBarItem LoadIconStrip
 ; FreeIconStrip SetGadgetIconStrip HideGadget ShowGadget MinimizeWindow RestoreWindow SetStatusText CreateListBox
-; AddGadgetItem SelectGadgetItem DesktopBuffer.
+; AddGadgetItem SelectGadgetItem DesktopBuffer ClientWidth ClientHeight GadgetWidth GadgetHeight QueryObject.
 Include "check.bb"
 
 If GetEnv$("BLITZ_HEADLESS") <> "" Then
@@ -140,7 +140,71 @@ FreeGadget win
 Show()
 Check "A window that was freed is gone", Px(60, 50), DESKTOP
 
-DesktopBufferCheck = DesktopBuffer()
-CheckTrue "DesktopBuffer", DesktopBufferCheck <> 0
+; What a program draws on the desktop is behind the windows and stays when the gadgets are drawn again.
+MAGENTA = $FF00FF
+SetBuffer DesktopBuffer()
+Color 255, 0, 255
+Rect 4, 4, 20, 20, 1
+SetBuffer BackBuffer()
+Show()
+Check "What was drawn on the desktop is shown", Px(10, 10), MAGENTA
+Check "The rest of the desktop is as it was", Px(100, 10), DESKTOP
+cover = CreateWindow("Cover", 0, 0, 60, 60, 0, 0)
+Show()
+Check "A window is over what was drawn on the desktop", Px(10, 10), $D4D0C8
+SetGadgetShape cover, 100, 100, 60, 60
+Show()
+Check "What was drawn on the desktop is back when the window leaves", Px(10, 10), MAGENTA
+Check "A window moved over the rest of the desktop", Px(110, 110), $D4D0C8
+; Drawing later is shown without anything else changing.
+SetBuffer DesktopBuffer()
+Color 0, 255, 255
+Rect 200, 4, 20, 20, 1
+SetBuffer BackBuffer()
+Delay 50
+Show()
+Check "Drawing on the desktop later", Px(210, 10), $00FFFF
+Check "What was drawn earlier is still there", Px(10, 10), MAGENTA
+FreeGadget cover
+
+; The desktop is the screen, which is bigger than the window of the program.
+CheckTrue "The desktop is as big as the screen", ClientWidth(Desktop()) > GraphicsWidth()
+CheckTrue "The desktop is as high as the screen", ClientHeight(Desktop()) > GraphicsHeight()
+Check "GadgetWidth of the desktop", GadgetWidth(Desktop()), ClientWidth(Desktop())
+Check "GadgetHeight of the desktop", GadgetHeight(Desktop()), ClientHeight(Desktop())
+
+; The system has a handle for the window, the same for every gadget as they are all in the one window.
+qwin = CreateWindow("Query", 0, 0, 100, 60, 0, 0)
+CheckTrue "QueryObject of a window", QueryObject(qwin, 1) <> 0
+Check "QueryObject of the client of a window", QueryObject(qwin, 2), QueryObject(qwin, 1)
+Check "QueryObject of the desktop", QueryObject(Desktop(), 1), QueryObject(qwin, 1)
+Check "QueryObject of a font query", QueryObject(qwin, 3), 0
+Check "QueryObject of a query that is not known", QueryObject(qwin, 99), 0
+FreeGadget qwin
+Check "QueryObject of a gadget that was freed", QueryObject(qwin, 1), 0
+
+; Tool windows have a thinner title, which is all there is to see of them.
+tool = CreateWindow("Tool", 40, 30, 200, 150, 0, 1 + 16)
+Show()
+Check "A tool window has a title", Px(100, 40), $0A246A
+Check "A tool window has a thin title", Px(100, 53), $D4D0C8
+FreeGadget tool
+normal = CreateWindow("Normal", 40, 30, 200, 150, 0, 1)
+Show()
+Check "A window has a title", Px(100, 40), $0A246A
+Check "A window has a thick title", Px(100, 53), $0A246A
+FreeGadget normal
+
+; A menu bar is there when the window is made for one, even with no menus in it.
+bar = CreateWindow("Bar", 40, 30, 200, 150, 0, 4)
+Show()
+Check "The line under an empty menu bar", Px(100, 30 + 1 + 22 - 2), $808080
+Check "The empty menu bar", Px(100, 30 + 1 + 10), $D4D0C8
+Check "Under the menu bar", Px(100, 30 + 1 + 22 + 5), $D4D0C8
+FreeGadget bar
+plain = CreateWindow("Plain", 40, 30, 200, 150, 0, 0)
+Show()
+Check "A window without a menu bar has no line", Px(100, 30 + 1 + 22 - 2), $D4D0C8
+FreeGadget plain
 
 Done "plusgui_pixels"

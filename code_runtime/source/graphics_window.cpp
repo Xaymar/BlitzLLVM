@@ -135,6 +135,20 @@ void bb_end_graphics(void)
 	g = state();
 }
 
+// The window of the program as the system knows it (HWND on Windows, the window number on X11), 0 where there is none.
+int32_t bb_native_window(void)
+{
+	if (!g.window) {
+		return 0;
+	}
+	SDL_PropertiesID properties = SDL_GetWindowProperties(g.window);
+#if defined(_WIN32)
+	return int32_t(reinterpret_cast<intptr_t>(SDL_GetPointerProperty(properties, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)));
+#else
+	return int32_t(SDL_GetNumberProperty(properties, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0));
+#endif
+}
+
 int32_t bb_graphics_width(void)
 {
 	return int32_t(g.width);
