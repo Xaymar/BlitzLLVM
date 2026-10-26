@@ -4,4 +4,4 @@
 Chooses which set of texture coordinates of the mesh the texture reads: 0 for the first set, 1 for the second.
 @param texture  The texture.
 @param coords   0 or 1.
-@gap The call checks the texture and otherwise has no effect. Only the flag 65536 makes a texture read the second set of coordinates, the call does not change that.
+@gap Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
