@@ -56,8 +56,8 @@ blitzcc -o program program.bb  # only build the executable
 blitzcc -O3 -o program program.bb   # optimise
 blitzcc -S program.bb          # only write the LLVM IR (program.ll)
 blitzcc --target <triple> program.bb   # cross-compile
-blitzcc -q program.bb          # quiet: no version banner
-blitzcc +q program.bb          # very quiet: only errors
+blitzcc -q program.bb          # quiet: no version banner and no warnings
+blitzcc +q program.bb          # very quiet: no messages from the compiler at all, errors included (it still returns a non-zero exit code)
 blitzcc -c program.bb          # compile only: check the program, don't create an executable (unless -o is given)
 blitzcc -d program.bb          # debug: no optimization, with debug information (DWARF, or CodeView for Windows MSVC)
 blitzcc -g -O2 program.bb      # debug information in an optimized build

@@ -89,8 +89,8 @@ namespace {
 		bool                     tokens     = false;
 		std::filesystem::path    userlibs_dir;
 		bool                     help         = false;
-		bool                     quiet        = false; // -q: No banner.
-		bool                     very_quiet   = false; // +q: Nothing but errors.
+		bool                     quiet        = false; // -q: No banner and no warnings.
+		bool                     very_quiet   = false; // +q: No messages at all, errors included. A failure still returns 1.
 		bool                     compile_only = false; // -c
 		bool                     debug        = false; // -d
 		bool                     debug_info   = false; // -g
@@ -113,8 +113,9 @@ namespace {
 				  << "  --args <arg>...       Everything after this is passed to the program that is run.\n"
 				  << "  -O0 -O1 -O2 -O3 -Os -Oz\n"
 				  << "                        LLVM optimization level, defaults to -O2.\n"
-				  << "  -q                    Quiet mode, doesn't print the version banner.\n"
-				  << "  +q                    Very quiet mode, only prints errors.\n"
+				  << "  -q                    Quiet mode, doesn't print the version banner and no warnings.\n"
+				  << "  +q                    Very quiet mode, doesn't print anything of the compiler, errors included (a failure\n"
+				  << "                        still returns a non-zero exit code).\n"
 				  << "  -c                    Compile only: Check the program and generate the code, but don't run it or create an\n"
 				  << "                        executable unless -o is given.\n"
 				  << "  -d                    Debug compile: Always -O0 and with debug information, which maps instructions back to the\n"
@@ -320,12 +321,14 @@ int main(int argc, char** argv)
 {
 	std::filesystem::path temp_dir;
 	bool                  keep = false;
+	bool                  silent = false; // +q
 	try {
 		std::setlocale(LC_ALL, "en_US.UTF-8");
 
 		options opt;
 		parse_arguments(argc, argv, opt);
-		keep = opt.keep_temps;
+		keep   = opt.keep_temps;
+		silent = opt.very_quiet;
 
 		// Like the original, keywords and version are printed and then it stops, unless there is a file to compile too.
 		if (opt.help) {
@@ -391,6 +394,7 @@ int main(int argc, char** argv)
 		compiler.debug_info = opt.debug_info;
 		compiler.codeview   = windows_msvc;
 		compiler.source     = opt.input;
+		compiler.quiet      = opt.quiet;
 		auto userlibs_dir = find_userlibs(opt);
 		compiler.userlibs = blitz::keywords::load_userlibs(userlibs_dir);
 		std::string     ir = compiler.generate(*program);
@@ -538,7 +542,9 @@ int main(int argc, char** argv)
 
 		int result = run(command, opt.verbose);
 		if (result != 0) {
-			std::cerr << "Building the executable failed (" << cc << " returned " << result << ")." << std::endl;
+			if (!opt.very_quiet) {
+				std::cerr << "Building the executable failed (" << cc << " returned " << result << ")." << std::endl;
+			}
 			if (!keep) {
 				std::error_code ec;
 				std::filesystem::remove_all(temp_dir, ec);
@@ -573,9 +579,13 @@ int main(int argc, char** argv)
 		}
 		return run_it ? result : 0;
 	} catch (blitz::error const& ex) {
-		std::cerr << ex.file().generic_string() << ":" << ex.at().first << ":" << ex.at().second << ": error: " << ex.what() << std::endl;
+		if (!silent) {
+			std::cerr << blitz::diagnostic(ex.file(), ex.at().first, ex.at().second, "error", ex.what()) << std::endl;
+		}
 	} catch (std::exception const& ex) {
-		std::cerr << "error: " << ex.what() << std::endl;
+		if (!silent) {
+			std::cerr << "error: " << ex.what() << std::endl;
+		}
 	}
 	if (!temp_dir.empty() && !keep) {
 		std::error_code ec;

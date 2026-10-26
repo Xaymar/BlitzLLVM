@@ -41,7 +41,10 @@ blitz::error blitz::compiler::err(ast::location const& where, std::string const&
 void blitz::compiler::warn(ast::location const& where, std::string const& reason)
 {
 	_warnings++;
-	std::cerr << (where.file ? where.file->generic_string() : std::string("<unknown>")) << ":" << where.line << ":" << where.column << ": warning: " << reason << std::endl;
+	if (quiet) {
+		return;
+	}
+	std::cerr << blitz::diagnostic(where.file ? *where.file : std::filesystem::path("<unknown>"), where.line, where.column, "warning", reason) << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
