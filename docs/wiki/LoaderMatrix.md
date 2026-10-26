@@ -29,7 +29,7 @@ Sets a 3x3 matrix that is applied to every model loaded from files with a certai
 
 **Differences and known gaps:**
 
-* The matrix is remembered but never used. Since only `.b3d` files can be loaded, and those are not changed by it in the original either, there is no visible effect yet.
+* The matrix is remembered but never used. `.3ds` files always get Y and Z swapped, the default, and `.x` files can not be loaded.
 
 ## Related commands
 
