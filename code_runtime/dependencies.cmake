@@ -150,7 +150,37 @@ function(blitz_fetch_image_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH
 	file(WRITE "${_STAMP}" "${_REVISION}")
 endfunction()
 
+# ExternalContent only redoes a stage when its arguments change, so a dependency that was installed by an older version of this file
+# keeps the install tree it had, even when that lacks files that are shipped now (the licenses of the codecs). Before building
+# one, throw away what ExternalContent remembers of it when a required file is missing, which makes it configure, build and install again.
+# Afterwards, a file that is still missing is an error, as the license notices have to be shipped with every program.
+function(blitz_check_licenses NAME STAGE)
+	set(_INSTALL "${CMAKE_BINARY_DIR}/ExternalContentFiles/${NAME}.dst")
+	set(_MISSING "")
+	foreach(_FILE IN LISTS ARGN)
+		if(NOT EXISTS "${_INSTALL}/share/licenses/${_FILE}")
+			list(APPEND _MISSING "${_FILE}")
+		endif()
+	endforeach()
+	if(NOT _MISSING)
+		return()
+	endif()
+	if(STAGE STREQUAL "BEFORE")
+		if(EXISTS "${_INSTALL}")
+			message(STATUS "${NAME} was installed without '${_MISSING}', building it again.")
+			file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/${NAME}.tmp/*.sha3")
+			file(REMOVE ${_STAMPS})
+			file(REMOVE_RECURSE "${_INSTALL}")
+		endif()
+	else()
+		message(FATAL_ERROR "${NAME} did not install the licenses '${_MISSING}'. Delete the directory '${CMAKE_BINARY_DIR}/ExternalContentFiles' and configure again.")
+	endif()
+endfunction()
+
 # Loads the image files for textures. PNG and JPEG are handled by the built in stb_image, AVIF (libavif with dav1d to decode), JPEG XL (libjxl) and WebP (libwebp) by the vendored libraries, which are all linked in statically.
+set(_SDL3_IMAGE_LICENSES SDL3_image/LICENSE.txt SDL3_image/optional/LICENSE.dav1d.txt SDL3_image/optional/LICENSE.avif.txt
+	SDL3_image/optional/LICENSE.jxl.txt SDL3_image/optional/LICENSE.webp.txt)
+blitz_check_licenses(SDL3_image BEFORE ${_SDL3_IMAGE_LICENSES})
 blitz_dependency(SDL3_image SDL_image
 	PATCH_FUNCTION blitz_fetch_image_codecs
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
@@ -161,7 +191,10 @@ blitz_dependency(SDL3_image SDL_image
 	INSTALL_ARGS --config Release
 )
 
+blitz_check_licenses(SDL3_image AFTER ${_SDL3_IMAGE_LICENSES})
+
 # Plays the sounds. Decoders for WAV, MP3, OGG (stb_vorbis) and FLAC are built in, the others need libraries that aren't vendored.
+blitz_check_licenses(SDL3_mixer BEFORE SDL3_mixer/LICENSE.txt)
 blitz_dependency(SDL3_mixer SDL_mixer
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
 		-DBUILD_SHARED_LIBS=OFF -DSDLMIXER_VENDORED=OFF -DSDLMIXER_DEPS_SHARED=OFF -DSDLMIXER_STRICT=OFF
@@ -171,6 +204,8 @@ blitz_dependency(SDL3_mixer SDL_mixer
 	BUILD_ARGS --config Release --parallel
 	INSTALL_ARGS --config Release
 )
+
+blitz_check_licenses(SDL3_mixer AFTER SDL3_mixer/LICENSE.txt)
 
 if(WIN32)
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
