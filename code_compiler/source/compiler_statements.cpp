@@ -296,7 +296,12 @@ void blitz::compiler::gen_select(ast::select_statement const* node)
 		}
 		for (auto const& expr : entry.values) {
 			auto next_l = label("select.next");
-			auto match  = compare(ast::binary::op::EQUAL, subject, gen(expr.get()), expr->where);
+			auto given  = gen(expr.get());
+			if (is_number(subject.type) || (subject.type == type::STRING)) {
+				// The cases are converted to the type of what is selected, so Select 2 Case 2.4 matches.
+				given = convert(given, subject.type, expr->where, false);
+			}
+			auto match = compare(ast::binary::op::EQUAL, subject, given, expr->where);
 			emit_terminator("br i1 " + match + ", label %" + body_labels[idx] + ", label %" + next_l);
 			begin_label(next_l);
 		}

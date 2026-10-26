@@ -344,8 +344,15 @@ blitz::compiler::value blitz::compiler::gen_unary(ast::unary const* node)
 			// Not x is x = 0 in Blitz, which compares a string with "0" as text.
 			return from_bool(compare(ast::binary::op::EQUAL, v, { "0", type::INT32 }, node->where));
 		}
-		auto cond = truthy(v, node->where);
-		auto r    = tmp();
+		std::string cond;
+		if (blitz::types::is_real(v.type)) {
+			// Not x is x = 0 in Blitz, which compares a real with 0 as a real.
+			cond = tmp();
+			emit(cond + " = fcmp une " + t::to_llvm(v.type) + " " + v.repr + ", 0.0");
+		} else {
+			cond = truthy(v, node->where);
+		}
+		auto r = tmp();
 		emit(r + " = xor i1 " + cond + ", true");
 		return from_bool(r);
 	}
@@ -488,6 +495,12 @@ blitz::compiler::value blitz::compiler::gen_binary(ast::binary const* node)
 		}
 		auto a = convert(lhs, result, node->where, false);
 		auto b = convert(rhs, result, node->where, false);
+		if ((node->kind == op::SHL) || (node->kind == op::SHR) || (node->kind == op::SAR)) {
+			// The processor only looks at the lowest bits of the count, so 1 Shl 32 is 1. LLVM makes a count that is too large undefined.
+			auto masked = tmp();
+			emit(masked + " = and " + t::to_llvm(result) + " " + b.repr + ", " + std::to_string(t::bits(result) - 1));
+			b = { masked, result };
+		}
 		const char* name;
 		switch (node->kind) {
 		case op::AND:
@@ -540,6 +553,10 @@ blitz::compiler::value blitz::compiler::gen_binary(ast::binary const* node)
 		break;
 	}
 
+	if (((node->kind == op::DIVIDE) || (node->kind == op::MODULO)) && (is_zero_constant(rhs.repr) || (rhs.repr == "0x0000000000000000") || (rhs.repr == "0x8000000000000000"))) {
+		// The original refuses to compile a division by a constant zero.
+		throw err(node->where, "Division by zero.");
+	}
 	if (!real && ((node->kind == op::DIVIDE) || (node->kind == op::MODULO)) && !is_nonzero_constant(b.repr)) {
 		// Dividing by zero is undefined in LLVM, but a runtime error in Blitz.
 		auto wide = convert(b, type::INT64, node->where, false);

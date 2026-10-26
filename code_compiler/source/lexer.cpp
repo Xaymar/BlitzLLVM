@@ -237,7 +237,7 @@ blitz::token blitz::lexer::scan()
 			advance();
 		}
 		token.type = blitz::token::variant::INTEGER;
-		token.text = std::string(hex ? "0x" : "0b") + _data.substr(start, _offset - start);
+		token.text = std::string(hex ? "$" : "%") + _data.substr(start, _offset - start); // Kept apart from 0x and 0b, as these wrap around instead of becoming unsigned.
 		if (hex && (at() == '$')) {
 			advance(); // A stray type character behind the number, which Blitz allows.
 		}

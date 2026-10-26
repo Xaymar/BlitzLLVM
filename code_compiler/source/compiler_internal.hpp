@@ -75,6 +75,12 @@ namespace blitz::compiler_detail {
 		return blitz::types::is_integer(t) || blitz::types::is_real(t);
 	}
 
+	// Is this operand an integer constant that is zero?
+	inline bool is_zero_constant(std::string const& repr)
+	{
+		return repr == "0" || repr == "-0";
+	}
+
 	// Is this operand an integer constant that is not zero?
 	inline bool is_nonzero_constant(std::string const& repr)
 	{

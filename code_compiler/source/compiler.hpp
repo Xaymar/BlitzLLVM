@@ -241,7 +241,6 @@ namespace blitz {
 		address     gen_address(ast::expression const* expr);
 		value       load_address(address const& addr);
 		void        collect_globals(ast::block const& block);
-		blitz::types::type static_type(ast::expression const* expr);
 
 		// Expressions
 		value gen(ast::expression const* expr);
