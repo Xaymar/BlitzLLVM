@@ -2082,36 +2082,51 @@ namespace {
 		bool fullbright = (e->fx & 1) != 0;
 		bool two_sided  = (e->fx & 16) != 0;
 
-		if (e->sprite_mode && (e->sprite_mode != 2)) {
-			// Sprites turn towards the camera, and are not lit.
-			float right[3] = { current_camera[0], current_camera[1], current_camera[2] };
-			float up[3]    = { current_camera[4], current_camera[5], current_camera[6] };
-			float front[3] = { current_camera[8], current_camera[9], current_camera[10] };
-			normalize3(right);
-			normalize3(up);
-			normalize3(front);
-			if (e->sprite_mode == 4) {
-				// Upright: only turns around the vertical axis.
-				up[0] = 0; up[1] = 1; up[2] = 0;
-				right[0] = front[2]; right[1] = 0; right[2] = -front[0];
-				normalize3(right);
+		if (e->sprite_mode) {
+			// Sprites are a square of 2 by 2 that is turned by what the mode says, rolled and then scaled.
+			float cm[3][3] = { { current_camera[0], current_camera[1], current_camera[2] }, { current_camera[4], current_camera[5], current_camera[6] }, { current_camera[8], current_camera[9], current_camera[10] } };
+			float em[3][3] = { { m[0], m[1], m[2] }, { m[4], m[5], m[6] }, { m[8], m[9], m[10] } };
+			float t[3][3];
+			memcpy(t, em, sizeof(t));
+			if (e->sprite_mode == 1) {
+				// Faces the camera from any side.
+				memcpy(t, cm, sizeof(t));
+			} else if (e->sprite_mode == 3) {
+				// Faces the camera, but stays up like the entity says.
+				memcpy(t[2], cm[2], sizeof(t[2]));
+				normalize3(t[2]);
+				float cx = t[1][1] * t[2][2] - t[1][2] * t[2][1], cy = t[1][2] * t[2][0] - t[1][0] * t[2][2], cz = t[1][0] * t[2][1] - t[1][1] * t[2][0];
+				t[0][0] = cx; t[0][1] = cy; t[0][2] = cz;
+				normalize3(t[0]);
+				t[1][0] = t[2][1] * t[0][2] - t[2][2] * t[0][1];
+				t[1][1] = t[2][2] * t[0][0] - t[2][0] * t[0][2];
+				t[1][2] = t[2][0] * t[0][1] - t[2][1] * t[0][0];
+			} else if (e->sprite_mode == 4) {
+				// Turns around the way the camera looks, but not further than that.
+				float yaw_x = cm[2][0], yaw_z = cm[2][2];
+				float len   = sqrtf(yaw_x * yaw_x + yaw_z * yaw_z);
+				if (len > 1e-9f) {
+					yaw_x /= len;
+					yaw_z /= len;
+				} else {
+					yaw_x = 0;
+					yaw_z = 1;
+				}
+				// The matrix of that yaw, with its columns in the order of the entity.
+				float r[3][3] = { { yaw_z, 0, -yaw_x }, { 0, 1, 0 }, { yaw_x, 0, yaw_z } };
+				for (int col = 0; col < 3; col++) {
+					for (int row = 0; row < 3; row++) {
+						t[col][row] = r[0][row] * em[col][0] + r[1][row] * em[col][1] + r[2][row] * em[col][2];
+					}
+				}
 			}
 			float angle = e->sprite_angle * 3.14159265358979f / 180.0f, ca = cosf(angle), sa = sinf(angle);
-			float sx = e->sprite_scale[0] * e->scale[0], sy = e->sprite_scale[1] * e->scale[1];
 			float position[3] = { m[12], m[13], m[14] };
 			for (int axis = 0; axis < 3; axis++) {
-				m[0 + axis]  = (right[axis] * ca + up[axis] * sa) * sx;
-				m[4 + axis]  = (up[axis] * ca - right[axis] * sa) * sy;
-				m[8 + axis]  = front[axis];
+				m[0 + axis]  = (t[0][axis] * ca + t[1][axis] * sa) * e->sprite_scale[0];
+				m[4 + axis]  = (t[1][axis] * ca - t[0][axis] * sa) * e->sprite_scale[1];
+				m[8 + axis]  = t[2][axis];
 				m[12 + axis] = position[axis];
-			}
-			fullbright = true;
-			two_sided  = true;
-		} else if (e->sprite_mode == 2) {
-			// Fixed sprites keep the orientation of their entity, but are still sized by ScaleSprite.
-			for (int axis = 0; axis < 3; axis++) {
-				m[0 + axis] *= e->sprite_scale[0];
-				m[4 + axis] *= e->sprite_scale[1];
 			}
 			fullbright = true;
 			two_sided  = true;

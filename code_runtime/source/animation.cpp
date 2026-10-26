@@ -181,9 +181,10 @@ namespace {
 		}
 		float xx = x * x, yy = y * y, zz = z * z, xy = x * y, xz = x * z, yz = y * z, wx = w * x, wy = w * y, wz = w * z;
 		float r[3][3] = {
-			{ 1 - 2 * (yy + zz), 2 * (xy - wz), 2 * (xz + wy) },
-			{ 2 * (xy + wz), 1 - 2 * (xx + zz), 2 * (yz - wx) },
-			{ 2 * (xz - wy), 2 * (yz + wx), 1 - 2 * (xx + yy) },
+			// The quaternions of the original turn the other way round than the usual ones.
+			{ 1 - 2 * (yy + zz), 2 * (xy + wz), 2 * (xz - wy) },
+			{ 2 * (xy - wz), 1 - 2 * (xx + zz), 2 * (yz + wx) },
+			{ 2 * (xz + wy), 2 * (yz - wx), 1 - 2 * (xx + yy) },
 		};
 		memset(m, 0, sizeof(float) * 16);
 		for (int col = 0; col < 3; col++) {

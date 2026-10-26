@@ -37,7 +37,7 @@ Check "MoveEntity right", EntityX(pivot), 3
 MoveEntity pivot, 0, -1, 0
 Check "MoveEntity down", EntityY(pivot), 2
 
-; Rotating: a positive yaw turns to the left, a positive pitch looks down, and a positive roll tilts to the right.
+; Rotating: a positive yaw turns to the left, a positive pitch looks down, and a positive roll tilts to the left.
 RotateEntity pivot, 10, 20, 30
 Check "RotateEntity pitch", EntityPitch(pivot), 10, 0.001
 Check "RotateEntity yaw", EntityYaw(pivot), 20, 0.001
@@ -57,7 +57,7 @@ TFormVector 0, 0, 1, turner, 0
 Check "Pitch 90 looks down", TFormedY(), -1, 0.001
 RotateEntity turner, 0, 0, 90
 TFormVector 0, 1, 0, turner, 0
-Check "Roll 90 tilts right", TFormedX(), 1, 0.001
+Check "Roll 90 tilts left", TFormedX(), -1, 0.001
 RotateEntity turner, 0, 0, 0
 
 ; Entities turn around their own axes, so moving goes where they face.

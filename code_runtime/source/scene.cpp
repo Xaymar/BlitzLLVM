@@ -89,8 +89,8 @@ namespace {
 		float cy = cosf(rad(rotation[1])), sy = sinf(rad(rotation[1]));
 		float cr = cosf(rad(rotation[2])), sr = sinf(rad(rotation[2]));
 		// The columns of Ry * Rx * Rz are the images of +X, +Y and +Z. Start with those of Rz:
-		// +X -> (cr, -sr, 0), +Y -> (sr, cr, 0), +Z -> (0, 0, 1)
-		float x0[3] = { cr, -sr, 0 }, y0[3] = { sr, cr, 0 }, z0[3] = { 0, 0, 1 };
+		// +X -> (cr, sr, 0), +Y -> (-sr, cr, 0), +Z -> (0, 0, 1). A positive roll turns the top to the left, like a positive yaw.
+		float x0[3] = { cr, sr, 0 }, y0[3] = { -sr, cr, 0 }, z0[3] = { 0, 0, 1 };
 		float* in[3] = { x0, y0, z0 };
 		for (int c = 0; c < 3; c++) {
 			float* v = in[c];
@@ -188,7 +188,7 @@ namespace {
 		s       = s > 1 ? 1 : (s < -1 ? -1 : s);
 		out[0]  = deg(asinf(s));
 		out[1]  = deg(atan2f(-z[0], z[2]));
-		out[2]  = deg(atan2f(-x[1], y[1]));
+		out[2]  = deg(atan2f(x[1], y[1]));
 	}
 
 	// An entity lets go of a surface: it is gone once the last entity that has it is.
