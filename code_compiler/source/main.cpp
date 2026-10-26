@@ -316,8 +316,20 @@ int main(int argc, char** argv)
 			command.push_back(flag);
 		}
 		command.push_back(ir_file.generic_string());
+		// The libraries depend on each other in no particular order, which the GNU linker only resolves within a group.
+#ifndef __APPLE__
+		bool grouped = !windows_target;
+#else
+		bool grouped = false;
+#endif
+		if (grouped) {
+			command.push_back("-Wl,--start-group");
+		}
 		for (auto const& lib : libraries) {
 			command.push_back(lib);
+		}
+		if (grouped) {
+			command.push_back("-Wl,--end-group");
 		}
 		command.push_back("-o");
 		command.push_back(opt.output.generic_string());
