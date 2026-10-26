@@ -6,7 +6,8 @@
 ; GraphicsDepth GfxMode3DExists Windowed3D AvailVidMem TotalVidMem SetBuffer BackBuffer FrontBuffer Flip Cls ClsColor
 ; Color ColorRed ColorGreen ColorBlue GetColor StringWidth StringHeight Text Print Write Input CreateImage LoadImage
 ; LoadAnimImage FreeImage ImageWidth ImageHeight ResizeImage MaskImage MidHandle HandleImage AutoMidHandle ImageBuffer
-; HidePointer ShowPointer. What ends up on the screen is in graphics_pixels.bb.
+; HidePointer ShowPointer LoadFont SetFont FreeFont FontWidth FontHeight FontName FontSize FontStyle FontAscent
+; FontDescent Origin Viewport Locate. What ends up on the screen is in graphics_pixels.bb.
 Include "check.bb"
 
 ; Opening a window, and what it says about itself.
@@ -133,6 +134,44 @@ FreeImage image
 HidePointer
 ShowPointer
 suite_checks = suite_checks + 2
+
+; Fonts are the built-in font, in the height that was asked for.
+Check "FontHeight built in", FontHeight(), 8
+Check "FontWidth built in", FontWidth(), 8
+font = LoadFont("Arial", 16, 1, 0, 1)
+CheckTrue "LoadFont", font <> 0
+SetFont font
+Check "FontHeight", FontHeight(), 16
+Check "FontWidth", FontWidth(), 16
+Check "StringWidth with a font", StringWidth("abc"), 48
+Check "StringHeight with a font", StringHeight("abc"), 16
+CheckS "FontName", FontName$(font), "Arial"
+Check "FontSize", FontSize(font), 16
+Check "FontStyle", FontStyle(font), 5
+Check "FontAscent", FontAscent(font), 12
+Check "FontDescent", FontDescent(font), 4
+second = LoadFont("Courier", 24)
+CheckTrue "LoadFont again", second <> font
+Check "FontStyle plain", FontStyle(second), 0
+SetFont second
+Check "SetFont", FontHeight(), 24
+SetFont 0
+Check "SetFont 0", FontHeight(), 8
+; A font that is freed while it is in use is not used any more.
+SetFont font
+FreeFont font
+Check "FreeFont while in use", FontHeight(), 8
+FreeFont second
+FreeFont 0
+suite_checks = suite_checks + 1
+
+; Origin, Viewport and Locate take what they are given. What they do is in graphics_pixels.bb.
+Origin 5, 5
+Viewport 10, 10, 20, 20
+Locate 3, 4
+Origin 0, 0
+Viewport 0, 0, GraphicsWidth(), GraphicsHeight()
+suite_checks = suite_checks + 1
 
 EndGraphics
 Done "graphics"

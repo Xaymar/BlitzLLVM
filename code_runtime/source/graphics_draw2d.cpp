@@ -18,7 +18,30 @@ namespace bb::gfx {
 		}
 	}
 
-	static void glyph_vertices(vertex* v, float x, float y, int c)
+	// There is only the built-in font. Fonts that are loaded are that font in the size that was asked for.
+	struct font_entry {
+		bool  used   = false;
+		char* name   = nullptr;
+		int   height = 8;
+		int   style  = 0; // 1 bold, 2 italic, 4 underline
+	};
+	static bb::buffer<font_entry> font_table;
+
+	static font_entry* font_of(int handle)
+	{
+		if ((handle < 1) || (uint32_t(handle) > font_table.size) || !font_table[uint32_t(handle) - 1].used) {
+			return nullptr;
+		}
+		return &font_table[uint32_t(handle) - 1];
+	}
+
+	static float font_scale()
+	{
+		font_entry* f = font_of(g.font);
+		return f ? float(f->height) / 8.0f : 1.0f;
+	}
+
+	static void glyph_vertices(vertex* v, float x, float y, int c, float scale)
 	{
 		int index;
 		if ((c <= 32) || ((c >= 127) && (c <= 160))) {
@@ -38,12 +61,13 @@ namespace bb::gfx {
 			u1 = u0 + 8.0f / atlas_w;
 			v1 = v0 + 8.0f / atlas_h;
 		}
+		float size = 8 * scale;
 		set_vertex(v[0], x, y, u0, v0);
-		set_vertex(v[1], x + 8, y, u1, v0);
-		set_vertex(v[2], x, y + 8, u0, v1);
-		set_vertex(v[3], x + 8, y, u1, v0);
-		set_vertex(v[4], x + 8, y + 8, u1, v1);
-		set_vertex(v[5], x, y + 8, u0, v1);
+		set_vertex(v[1], x + size, y, u1, v0);
+		set_vertex(v[2], x, y + size, u0, v1);
+		set_vertex(v[3], x + size, y, u1, v0);
+		set_vertex(v[4], x + size, y + size, u1, v1);
+		set_vertex(v[5], x, y + size, u0, v1);
 	}
 } // namespace bb::gfx
 
@@ -186,13 +210,13 @@ void bb_oval(int32_t x, int32_t y, int32_t w, int32_t h, int32_t solid)
 
 int32_t bb_string_width(const char* s)
 {
-	return s ? int32_t(strlen(s)) * 8 : 0;
+	return s ? int32_t(float(strlen(s)) * 8 * font_scale() + 0.5f) : 0;
 }
 
 int32_t bb_string_height(const char* s)
 {
 	(void)s;
-	return 8;
+	return int32_t(8 * font_scale() + 0.5f);
 }
 
 // Text x, y, string [, center x] [, center y]
@@ -202,19 +226,200 @@ void bb_text(int32_t x, int32_t y, const char* s, int32_t center_x, int32_t cent
 		return;
 	}
 	size_t length = strlen(s);
+	float  scale  = font_scale();
 	float  px = float(x), py = float(y);
 	if (center_x) {
-		px -= float(length * 8) / 2;
+		px -= float(length) * 8 * scale / 2;
 	}
 	if (center_y) {
-		py -= 4;
+		py -= 4 * scale;
 	}
 	px = floorf(px);
 	py = floorf(py);
 
 	vertex* v = add_vertices(OP_TRIANGLES, TEXTURE_FONT, uint32_t(length) * 6);
 	for (size_t i = 0; i < length; i++) {
-		glyph_vertices(v + i * 6, px + float(i * 8), py, int(static_cast<unsigned char>(s[i])));
+		glyph_vertices(v + i * 6, px + float(i) * 8 * scale, py, int(static_cast<unsigned char>(s[i])), scale);
 	}
+}
+
+// Fonts. The name and the style are only remembered: text is always drawn with the built-in font, in the height
+// that was asked for.
+int32_t bb_load_font(const char* name, int32_t height, int32_t bold, int32_t italic, int32_t underline)
+{
+	font_entry entry;
+	entry.used   = true;
+	entry.height = height < 1 ? 1 : height;
+	entry.style  = (bold ? 1 : 0) | (italic ? 2 : 0) | (underline ? 4 : 0);
+	if (name) {
+		entry.name = static_cast<char*>(malloc(strlen(name) + 1));
+		strcpy(entry.name, name);
+	}
+	for (uint32_t i = 0; i < font_table.size; i++) {
+		if (!font_table[i].used) {
+			font_table[i] = entry;
+			return int32_t(i) + 1;
+		}
+	}
+	font_table.push(entry);
+	return int32_t(font_table.size);
+}
+
+void bb_set_font(int32_t handle)
+{
+	if (handle && !font_of(handle)) {
+		bb_runtime_error("SetFont: the font does not exist.");
+	}
+	g.font = handle;
+}
+
+void bb_free_font(int32_t handle)
+{
+	if (!handle) {
+		return;
+	}
+	font_entry* f = font_of(handle);
+	if (!f) {
+		bb_runtime_error("FreeFont: the font does not exist.");
+	}
+	free(f->name);
+	*f = font_entry();
+	if (g.font == handle) {
+		g.font = 0;
+	}
+}
+
+// All characters of a font are as wide as the font is high, a font is a bitmap font that is scaled.
+int32_t bb_font_width(void)
+{
+	return int32_t(8 * font_scale() + 0.5f);
+}
+
+int32_t bb_font_height(void)
+{
+	return int32_t(8 * font_scale() + 0.5f);
+}
+
+static font_entry* need_font(int32_t handle, const char* what)
+{
+	font_entry* f = font_of(handle);
+	if (!f) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: the font does not exist.", what);
+		bb_runtime_error(message);
+	}
+	return f;
+}
+
+const char* bb_font_name(int32_t handle)
+{
+	const char* name = need_font(handle, "FontName")->name;
+	char*       copy = static_cast<char*>(malloc(strlen(name ? name : "") + 1));
+	strcpy(copy, name ? name : "");
+	return copy;
+}
+
+int32_t bb_font_size(int32_t handle)
+{
+	return need_font(handle, "FontSize")->height;
+}
+
+int32_t bb_font_style(int32_t handle)
+{
+	return need_font(handle, "FontStyle")->style;
+}
+
+int32_t bb_font_ascent(int32_t handle)
+{
+	return need_font(handle, "FontAscent")->height * 3 / 4;
+}
+
+int32_t bb_font_descent(int32_t handle)
+{
+	font_entry* f = need_font(handle, "FontDescent");
+	return f->height - f->height * 3 / 4;
+}
+
+// Origin x, y: where 0, 0 is for what is drawn after.
+void bb_origin(int32_t x, int32_t y)
+{
+	g.origin_x = x;
+	g.origin_y = y;
+}
+
+// Viewport x, y, width, height: drawing is limited to this part of the buffer.
+void bb_viewport(int32_t x, int32_t y, int32_t w, int32_t h)
+{
+	if (!active()) {
+		return;
+	}
+	target_ref target = resolve_target(g.target);
+	int        x1     = x + w, y1 = y + h;
+	x                 = x < 0 ? 0 : x;
+	y                 = y < 0 ? 0 : y;
+	x1                = x1 > target.w ? target.w : x1;
+	y1                = y1 > target.h ? target.h : y1;
+	g.view_x          = x;
+	g.view_y          = y;
+	g.view_w          = x1 > x ? x1 - x : 0;
+	g.view_h          = y1 > y ? y1 - y : 0;
+}
+
+// Locate x, y: where Print and Write continue, in the window.
+void bb_locate(int32_t x, int32_t y)
+{
+	if (!g.created) {
+		return;
+	}
+	gpu_image& front = g.buffers[0];
+	int        w = front.width ? int(front.width) : int(g.width), h = front.height ? int(front.height) : int(g.height);
+	g.cursor_x = x < 0 ? 0 : (x > w ? w : x);
+	g.cursor_y = y < 0 ? 0 : (y > h ? h : y);
+}
+
+// Print and Write show their text in the window, from where Locate put the cursor, on the front buffer. Returns 0 if
+// there is no window to show it in.
+int32_t bb_screen_print(const char* s, int32_t newline)
+{
+	if (!active()) {
+		return 0;
+	}
+	float      scale  = font_scale();
+	int        height = int(8 * scale + 0.5f);
+	gpu_image& front  = g.buffers[0];
+	int        width = int(front.width), screen = int(front.height);
+
+	int    saved_target = g.target, ox = g.origin_x, oy = g.origin_y, vx = g.view_x, vy = g.view_y, vw = g.view_w, vh = g.view_h;
+	uint8_t saved_color[3] = { g.color[0], g.color[1], g.color[2] };
+	g.target = front_buffer;
+	g.origin_x = g.origin_y = g.view_x = g.view_y = 0;
+	g.view_w = g.view_h = -1;
+
+	int scroll = g.cursor_y + height - screen;
+	if (scroll > 0) {
+		g.cursor_y = screen - height;
+		bb_copy_rect(0, scroll, width, screen - scroll, 0, 0, front_buffer, front_buffer);
+		memcpy(g.color, g.clscolor, 3);
+		add_rect(0, float(screen - scroll), float(width), float(scroll));
+		memcpy(g.color, saved_color, 3);
+	}
+	if (s && *s) {
+		bb_text(g.cursor_x, g.cursor_y, s, 0, 0);
+	}
+	if (newline) {
+		g.cursor_x = 0;
+		g.cursor_y += height;
+	} else {
+		g.cursor_x += bb_string_width(s);
+	}
+
+	g.target = saved_target;
+	g.origin_x = ox;
+	g.origin_y = oy;
+	g.view_x = vx;
+	g.view_y = vy;
+	g.view_w = vw;
+	g.view_h = vh;
+	return 1;
 }
 }

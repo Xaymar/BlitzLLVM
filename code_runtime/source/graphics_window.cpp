@@ -150,6 +150,10 @@ void bb_set_buffer(int32_t buffer)
 		fail("SetBuffer: the buffer does not exist.");
 	}
 	g.target = buffer; // What is drawn to it is only recorded for now, each operation knows its buffer.
+	g.origin_x = g.origin_y = 0;
+	g.view_x = g.view_y = 0;
+	g.view_w = g.view_h = -1;
+	g.cursor_x = g.cursor_y = 0;
 }
 
 void bb_app_title(const char* title, const char* close_prompt)

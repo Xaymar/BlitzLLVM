@@ -159,6 +159,7 @@ namespace bb::gfx {
 		float    color[4]; // OP_CLEAR only
 		int      image;    // If not 0, the image to draw instead of an internal texture.
 		float    mask[4];  // The mask color of the image, and whether it is on.
+		int      clip[4];  // The viewport when it was drawn: x, y, width and height, with a width below 0 for none.
 	};
 
 
@@ -252,6 +253,12 @@ namespace bb::gfx {
 		// Drawing state
 		uint8_t color[3]    = { 255, 255, 255 };
 		uint8_t clscolor[3] = { 0, 0, 0 };
+
+		// Where 2D drawing goes, which SetBuffer puts back.
+		int origin_x = 0, origin_y = 0;
+		int view_x = 0, view_y = 0, view_w = -1, view_h = -1; // The viewport, with a width below 0 for the whole buffer.
+		int cursor_x = 0, cursor_y = 0;                       // Where Print and Write go on.
+		int font = 0;                                          // What text is drawn with, 0 is the built-in font.
 
 		// Input
 		bool    keys[256]   = {};

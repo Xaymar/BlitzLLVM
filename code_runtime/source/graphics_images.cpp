@@ -169,7 +169,7 @@ namespace bb::gfx {
 		frame_position(*e, frame, cx, cy);
 		float u0 = float(cx + rx) / float(e->sheet_w), v0 = float(cy + ry) / float(e->sheet_h);
 		float u1 = float(cx + rx + rw) / float(e->sheet_w), v1 = float(cy + ry + rh) / float(e->sheet_h);
-		float x0 = float(dx), y0 = float(dy), x1 = float(dx + rw), y1 = float(dy + rh);
+		float x0 = float(dx + g.origin_x), y0 = float(dy + g.origin_y), x1 = float(dx + rw + g.origin_x), y1 = float(dy + rh + g.origin_y);
 
 		float mask[4] = { 0, 0, 0, 0 };
 		if (masked && e->masked) {

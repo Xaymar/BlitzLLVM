@@ -135,13 +135,29 @@ namespace bb::gfx {
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(g.cmd, 0, 1, &g.vertex_buffer, &offset);
 
+		VkRect2D  current  = scissor;
 		for (uint32_t i = first; i < end; i++) {
 			operation& op = g.ops[i];
+
+			// Only the viewport of the buffer is drawn to.
+			VkRect2D wanted = scissor;
+			if (op.clip[2] >= 0) {
+				int x0 = op.clip[0] < 0 ? 0 : op.clip[0], y0 = op.clip[1] < 0 ? 0 : op.clip[1];
+				int x1 = op.clip[0] + op.clip[2], y1 = op.clip[1] + op.clip[3];
+				x1     = x1 > target.w ? target.w : x1;
+				y1     = y1 > target.h ? target.h : y1;
+				wanted = { { target.x + x0, target.y + y0 }, { uint32_t(x1 > x0 ? x1 - x0 : 0), uint32_t(y1 > y0 ? y1 - y0 : 0) } };
+			}
+			if (memcmp(&wanted, &current, sizeof(wanted)) != 0) {
+				vkCmdSetScissor(g.cmd, 0, 1, &wanted);
+				current = wanted;
+			}
+
 			if (op.kind == OP_CLEAR) {
 				VkClearAttachment clear = {};
 				clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
 				memcpy(clear.clearValue.color.float32, op.color, sizeof(op.color));
-				VkClearRect rect = { scissor, 0, 1 };
+				VkClearRect rect = { current, 0, 1 };
 				vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
 				continue;
 			}
@@ -288,7 +304,8 @@ namespace bb::gfx {
 		// Merge with the previous operation if possible.
 		if (g.op_count > 0) {
 			operation& last = g.ops[g.op_count - 1];
-			if ((last.kind == kind) && ((kind == OP_TRIANGLES) || (kind == OP_LINES)) && (last.target == g.target) && (last.texture == texture) && (last.image == image) && (memcmp(last.mask, mask, sizeof(last.mask)) == 0)) {
+			if ((last.kind == kind) && ((kind == OP_TRIANGLES) || (kind == OP_LINES)) && (last.target == g.target) && (last.texture == texture) && (last.image == image) && (memcmp(last.mask, mask, sizeof(last.mask)) == 0)
+			    && (last.clip[0] == g.view_x) && (last.clip[1] == g.view_y) && (last.clip[2] == g.view_w) && (last.clip[3] == g.view_h)) {
 				last.count += vertices;
 				g.vertex_count += vertices;
 				return last;
@@ -307,6 +324,10 @@ namespace bb::gfx {
 		op.texture    = texture;
 		op.image      = image;
 		memcpy(op.mask, mask, sizeof(op.mask));
+		op.clip[0]    = g.view_x;
+		op.clip[1]    = g.view_y;
+		op.clip[2]    = g.view_w;
+		op.clip[3]    = g.view_h;
 		op.first      = g.vertex_count;
 		op.count      = vertices;
 		g.vertex_count += vertices;
@@ -321,7 +342,7 @@ namespace bb::gfx {
 
 	void set_vertex(vertex& v, float x, float y, float u, float vv)
 	{
-		v = { x, y, u, vv, g.color[0], g.color[1], g.color[2], 255 };
+		v = { x + float(g.origin_x), y + float(g.origin_y), u, vv, g.color[0], g.color[1], g.color[2], 255 };
 	}
 
 	void add_rect(float x, float y, float w, float h)

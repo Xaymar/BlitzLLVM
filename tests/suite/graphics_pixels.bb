@@ -5,7 +5,7 @@
 ; What 2D drawing puts on the screen, which needs a window and a GPU, so this is skipped without one: Plot Line Rect
 ; Oval Text Cls ClsColor ReadPixel WritePixel ReadPixelFast WritePixelFast CopyPixel CopyPixelFast CopyRect GetColor
 ; LockBuffer UnlockBuffer DrawImage DrawImageRect DrawBlock DrawBlockRect TileBlock GrabImage SaveBuffer SaveImage
-; FrontBuffer Flip.
+; FrontBuffer Flip Origin Viewport Locate Print Write.
 Include "check.bb"
 
 If GetEnv$("BLITZ_HEADLESS") <> "" Then
@@ -252,5 +252,101 @@ Flip
 FreeImage image
 FreeImage tile
 FreeImage grabbed
+
+; Origin moves where 0, 0 is, for everything that is drawn, until the buffer is set again.
+SetBuffer BackBuffer()
+ClsColor 0, 0, 0
+Cls
+Color 255, 0, 0
+Origin 10, 20
+Plot 0, 0
+Rect 5, 5, 3, 3
+Text 30, 30, "O"
+Origin 0, 0
+Check "Origin plot", Px(10, 20), RED
+Check "Origin plot moved", Px(0, 0), BLACK
+Check "Origin rect", Px(16, 26), RED
+Check "Origin rect edge", Px(18, 28), BLACK
+SetBuffer BackBuffer()
+Origin 40, 40
+SetBuffer BackBuffer()
+Plot 1, 1
+Check "SetBuffer resets Origin", Px(1, 1), RED
+
+; Viewport limits drawing to a part of the buffer, Cls included.
+ClsColor 0, 0, 255
+Cls
+Viewport 20, 30, 10, 10
+Color 0, 255, 0
+Rect 0, 0, 100, 100
+Check "Viewport inside", Px(25, 35), GREEN
+Check "Viewport corner", Px(20, 30), GREEN
+Check "Viewport last pixel", Px(29, 39), GREEN
+Check "Viewport left of it", Px(19, 35), BLUE
+Check "Viewport right of it", Px(30, 35), BLUE
+Check "Viewport above it", Px(25, 29), BLUE
+Check "Viewport below it", Px(25, 40), BLUE
+ClsColor 255, 255, 0
+Cls
+Check "Cls inside the viewport", Px(25, 35), $FFFF00
+Check "Cls leaves the rest", Px(5, 5), BLUE
+Line 0, 0, 159, 119
+Check "Viewport lines", Px(5, 5), BLUE
+Viewport 0, 0, 160, 120
+Color 255, 255, 255
+Plot 5, 5
+Check "Viewport back to everything", Px(5, 5), WHITE
+; A viewport that is larger than the buffer is cut to it, and one outside draws nothing.
+Viewport -10, -10, 500, 500
+Plot 6, 6
+Check "Viewport larger", Px(6, 6), WHITE
+Viewport 200, 200, 10, 10
+Color 255, 0, 0
+Rect 0, 0, 160, 120
+Check "Viewport outside", Px(80, 60), BLUE
+Viewport 0, 0, 160, 120
+
+; Print and Write show their text in the window, on the front buffer, from where Locate put the cursor.
+SetBuffer FrontBuffer()
+ClsColor 0, 0, 0
+Cls
+Color 255, 255, 255
+Locate 8, 16
+Print "XX"
+Locate 40, 40
+Write "A"
+Write "B"
+Function Lit(x, y, w, h)
+	n = 0
+	For yy = y To y + h - 1
+		For xx = x To x + w - 1
+			If Px(xx, yy) = WHITE Then n = n + 1
+		Next
+	Next
+	Return n
+End Function
+CheckTrue "Print draws at Locate", Lit(8, 16, 16, 8) > 10
+Check "Print leaves the line above", Lit(8, 8, 16, 8), 0
+Check "Print leaves the left", Lit(0, 16, 8, 8), 0
+Locate 8, 24
+Print "Y"
+CheckTrue "Print goes on in the next line", Lit(8, 24, 8, 8) > 3
+Check "Print goes to the start of the line", Lit(0, 24, 8, 8), 0
+Locate 40, 48
+Write "AB"
+CheckTrue "Write draws at Locate", Lit(40, 48, 16, 8) > 10
+Write "C"
+CheckTrue "Write goes on after the last", Lit(56, 48, 8, 8) > 3
+; Print past the bottom scrolls the window.
+Cls
+Color 255, 255, 255
+Rect 0, 100, 10, 10
+Color 255, 255, 255
+Locate 0, 200
+Print ""
+Check "Print scrolls", Px(5, 92), WHITE
+Check "Print scroll clears", Px(5, 105), BLACK
+SetBuffer BackBuffer()
+
 EndGraphics
 Done "graphics_pixels"

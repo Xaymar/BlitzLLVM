@@ -704,14 +704,22 @@ const char* bb_bin(int32_t v)
 ////////////////////////////////////////////////////////////////////////////////
 // Console
 ////////////////////////////////////////////////////////////////////////////////
+extern int32_t bb_screen_print(const char* s, int32_t newline);
+
 void bb_print(const char* s)
 {
+	if (bb_screen_print(s, 1)) {
+		return;
+	}
 	fputs(bb_s(s), stdout);
 	fputc('\n', stdout);
 }
 
 void bb_write(const char* s)
 {
+	if (bb_screen_print(s, 0)) {
+		return;
+	}
 	fputs(bb_s(s), stdout);
 }
 
