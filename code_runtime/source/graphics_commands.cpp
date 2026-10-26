@@ -301,6 +301,9 @@ namespace bb::gfx {
 		if (g.target == front_buffer) {
 			g.front_touched = true;
 		}
+		if ((kind == OP_COPY) || (g.target >= image_buffer_base)) {
+			image_generation++;
+		}
 		// Merge with the previous operation if possible.
 		if (g.op_count > 0) {
 			operation& last = g.ops[g.op_count - 1];

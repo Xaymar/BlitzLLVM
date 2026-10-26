@@ -7,7 +7,9 @@
 ; Color ColorRed ColorGreen ColorBlue GetColor StringWidth StringHeight Text Print Write Input CreateImage LoadImage
 ; LoadAnimImage FreeImage ImageWidth ImageHeight ResizeImage MaskImage MidHandle HandleImage AutoMidHandle ImageBuffer
 ; HidePointer ShowPointer LoadFont SetFont FreeFont FontWidth FontHeight FontName FontSize FontStyle FontAscent
-; FontDescent Origin Viewport Locate. What ends up on the screen is in graphics_pixels.bb.
+; FontDescent Origin Viewport Locate
+; ImageXHandle ImageYHandle RectsOverlap ImagesOverlap ImageRectOverlap CopyImage ScaleImage RotateImage TFormImage
+; TFormFilter. What ends up on the screen is in graphics_pixels.bb.
 Include "check.bb"
 
 ; Opening a window, and what it says about itself.
@@ -164,6 +166,55 @@ Check "FreeFont while in use", FontHeight(), 8
 FreeFont second
 FreeFont 0
 suite_checks = suite_checks + 1
+
+; Handles, and which rectangles touch. An image is drawn with its handle at the position it is given.
+shape = CreateImage(16, 8, 3)
+HandleImage shape, 5, 3
+Check "ImageXHandle", ImageXHandle(shape), 5
+Check "ImageYHandle", ImageYHandle(shape), 3
+Check "RectsOverlap", RectsOverlap(0, 0, 10, 10, 5, 5, 10, 10), 1
+Check "RectsOverlap inside", RectsOverlap(0, 0, 10, 10, 2, 2, 3, 3), 1
+Check "RectsOverlap touching", RectsOverlap(0, 0, 10, 10, 10, 0, 10, 10), 0
+Check "RectsOverlap apart", RectsOverlap(0, 0, 10, 10, 20, 20, 5, 5), 0
+other = CreateImage(8, 8)
+Check "ImagesOverlap", ImagesOverlap(shape, 100, 100, other, 100, 100), 1
+Check "ImagesOverlap edge", ImagesOverlap(shape, 100, 100, other, 110, 100), 1
+Check "ImagesOverlap touching", ImagesOverlap(shape, 100, 100, other, 111, 100), 0
+Check "ImagesOverlap above", ImagesOverlap(shape, 100, 100, other, 100, 89), 0
+Check "ImageRectOverlap", ImageRectOverlap(shape, 100, 100, 90, 90, 6, 8), 1
+Check "ImageRectOverlap touching", ImageRectOverlap(shape, 100, 100, 90, 90, 5, 8), 0
+
+; Copies have the same frames and handle, and are their own image.
+copy = CopyImage(shape)
+CheckTrue "CopyImage", copy <> 0 And copy <> shape
+Check "CopyImage width", ImageWidth(copy), 16
+Check "CopyImage height", ImageHeight(copy), 8
+Check "CopyImage handle x", ImageXHandle(copy), 5
+Check "CopyImage handle y", ImageYHandle(copy), 3
+DrawImage copy, 50, 50, 2
+HandleImage copy, 0, 0
+Check "CopyImage is separate", ImageXHandle(shape), 5
+FreeImage copy
+
+; Scaling and rotating make a new picture of the frames, with the handle going along.
+ScaleImage other, 2, 3
+Check "ScaleImage width", ImageWidth(other), 16
+Check "ScaleImage height", ImageHeight(other), 24
+plain = CreateImage(20, 10, 2)
+RotateImage plain, 90
+Check "RotateImage width", ImageWidth(plain), 10, 1
+Check "RotateImage height", ImageHeight(plain), 20, 1
+DrawImage plain, 10, 10, 1
+TFormFilter False
+TFormImage plain, 1, 0, 0, 1
+Check "TFormImage keeps the size", ImageWidth(plain), 10, 1
+TFormFilter True
+TFormImage plain, 0.5, 0, 0, 0.5
+Check "TFormImage matrix", ImageWidth(plain), 5, 1
+Check "TFormImage matrix height", ImageHeight(plain), 10, 1
+FreeImage shape
+FreeImage other
+FreeImage plain
 
 ; Origin, Viewport and Locate take what they are given. What they do is in graphics_pixels.bb.
 Origin 5, 5

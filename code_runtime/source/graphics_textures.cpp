@@ -26,6 +26,7 @@ namespace bb::gfx {
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &e.set);
 			destroy_image(e.image);
 		}
+		free(e.solid);
 		e = image_entry();
 	}
 

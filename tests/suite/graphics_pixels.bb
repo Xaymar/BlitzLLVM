@@ -5,7 +5,8 @@
 ; What 2D drawing puts on the screen, which needs a window and a GPU, so this is skipped without one: Plot Line Rect
 ; Oval Text Cls ClsColor ReadPixel WritePixel ReadPixelFast WritePixelFast CopyPixel CopyPixelFast CopyRect GetColor
 ; LockBuffer UnlockBuffer DrawImage DrawImageRect DrawBlock DrawBlockRect TileBlock GrabImage SaveBuffer SaveImage
-; FrontBuffer Flip Origin Viewport Locate Print Write.
+; FrontBuffer Flip Origin Viewport Locate Print Write ImagesCollide ImageRectCollide ImageRectOverlap TileImage CopyImage
+; ScaleImage RotateImage.
 Include "check.bb"
 
 If GetEnv$("BLITZ_HEADLESS") <> "" Then
@@ -305,6 +306,88 @@ Color 255, 0, 0
 Rect 0, 0, 160, 120
 Check "Viewport outside", Px(80, 60), BLUE
 Viewport 0, 0, 160, 120
+
+; Collisions look at the pixels that are not the mask color: here the lower right quarter of one, the upper left of the other.
+SetBuffer BackBuffer()
+quarter_a = CreateImage(8, 8)
+SetBuffer ImageBuffer(quarter_a)
+Color 0, 0, 0
+Rect 0, 0, 8, 8
+Color 255, 255, 255
+Rect 4, 4, 4, 4
+quarter_b = CreateImage(8, 8)
+SetBuffer ImageBuffer(quarter_b)
+Color 0, 0, 0
+Rect 0, 0, 8, 8
+Color 255, 255, 255
+Rect 0, 0, 4, 4
+SetBuffer BackBuffer()
+Check "ImagesOverlap sees the rectangles", ImagesOverlap(quarter_a, 0, 0, quarter_b, 0, 0), 1
+Check "ImagesCollide empty parts", ImagesCollide(quarter_a, 0, 0, 0, quarter_b, 0, 0, 0), 0
+Check "ImagesCollide solid parts", ImagesCollide(quarter_a, 0, 0, 0, quarter_b, 4, 4, 0), 1
+Check "ImagesCollide one pixel", ImagesCollide(quarter_a, 0, 0, 0, quarter_b, 7, 7, 0), 1
+Check "ImagesCollide next to it", ImagesCollide(quarter_a, 0, 0, 0, quarter_b, 8, 8, 0), 0
+Check "ImagesCollide other corner", ImagesCollide(quarter_a, 0, 0, 0, quarter_b, 7, 0, 0), 0
+Check "ImageRectOverlap sees the rectangle", ImageRectOverlap(quarter_a, 0, 0, 0, 0, 4, 4), 1
+Check "ImageRectCollide empty part", ImageRectCollide(quarter_a, 0, 0, 0, 0, 0, 4, 4), 0
+Check "ImageRectCollide solid part", ImageRectCollide(quarter_a, 0, 0, 0, 4, 4, 4, 4), 1
+Check "ImageRectCollide edge", ImageRectCollide(quarter_a, 0, 0, 0, 7, 7, 1, 1), 1
+; Drawing on an image changes what collides.
+SetBuffer ImageBuffer(quarter_a)
+Color 255, 255, 255
+Rect 0, 0, 4, 4
+SetBuffer BackBuffer()
+Check "ImageRectCollide after drawing", ImageRectCollide(quarter_a, 0, 0, 0, 0, 0, 4, 4), 1
+; A different mask color changes it too: now white is the mask and black is solid.
+MaskImage quarter_a, 255, 255, 255
+Check "ImageRectCollide with another mask", ImageRectCollide(quarter_a, 0, 0, 0, 0, 0, 4, 4), 0
+SetBuffer ImageBuffer(quarter_a)
+Color 255, 255, 255
+Rect 0, 0, 8, 8
+Color 0, 0, 0
+Rect 2, 2, 2, 2
+SetBuffer BackBuffer()
+Check "ImageRectCollide black in white", ImageRectCollide(quarter_a, 0, 0, 0, 2, 2, 1, 1), 1
+Check "ImageRectCollide white around it", ImageRectCollide(quarter_a, 0, 0, 0, 5, 5, 1, 1), 0
+
+; TileImage leaves out the mask color, TileBlock does not.
+ClsColor 0, 0, 255
+Cls
+TileImage quarter_b, 0, 0
+Check "TileImage solid", Px(1, 1), WHITE
+Check "TileImage masked", Px(5, 1), BLUE
+Check "TileImage next tile", Px(9, 1), WHITE
+Check "TileImage last row", Px(1, 113), WHITE
+TileBlock quarter_b, 0, 0
+Check "TileBlock keeps the mask color", Px(5, 1), BLACK
+
+; Copies, scaled images and rotated images have the pixels of the original.
+Color 255, 255, 255
+copy = CopyImage(quarter_b)
+DrawBlock copy, 40, 40
+Check "CopyImage solid", Px(41, 41), WHITE
+Check "CopyImage mask", Px(46, 41), BLACK
+FreeImage copy
+scaled = CopyImage(quarter_b)
+ScaleImage scaled, 2, 2
+Check "ScaleImage width", ImageWidth(scaled), 16
+DrawBlock scaled, 60, 60
+Check "ScaleImage solid", Px(62, 62), WHITE
+Check "ScaleImage mask", Px(75, 61), BLACK
+FreeImage scaled
+; Turned around the middle, the quarter at the upper left goes to the upper right: the right of the image goes down,
+; so the top of it goes right.
+turned = CopyImage(quarter_b)
+MidHandle turned
+RotateImage turned, 90
+Check "RotateImage keeps the size", ImageWidth(turned), 8
+DrawBlock turned, 100, 60
+Check "RotateImage upper right", Px(100 - 4 + 6, 60 - 4 + 1), WHITE
+Check "RotateImage upper left", Px(100 - 4 + 1, 60 - 4 + 1), BLACK
+Check "RotateImage lower right", Px(100 - 4 + 6, 60 - 4 + 6), BLACK
+FreeImage turned
+FreeImage quarter_a
+FreeImage quarter_b
 
 ; Print and Write show their text in the window, on the front buffer, from where Locate put the cursor.
 SetBuffer FrontBuffer()

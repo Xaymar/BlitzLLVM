@@ -307,7 +307,12 @@ namespace bb::gfx {
 		bool            masked  = true;
 		gpu_image       image;
 		VkDescriptorSet set = VK_NULL_HANDLE;
+		uint8_t*        solid = nullptr;        // For collisions: one byte per pixel of the sheet, 1 where it is not the mask color.
+		uint32_t        solid_generation = 0;   // What image_generation was when solid was made.
 	};
+
+	// Counts changes to images, so that collision data that was made from them is made again.
+	extern uint32_t image_generation;
 
 
 	// Buffers are numbers. 1 and 2 are the front and back buffer, the others say which image (or texture) and frame.

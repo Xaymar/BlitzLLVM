@@ -14,6 +14,8 @@ namespace bb::gfx {
 	// Images
 	////////////////////////////////////////////////////////////////////////////////
 	static bool auto_mid_handle = false;
+	uint32_t    image_generation = 1;
+	static bool transform_filter = true; // TFormFilter: whether TFormImage and the others blend neighbouring pixels.
 
 	// Copies the pixels of a rectangle of an image into new memory, as RGBA.
 	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h)
@@ -47,6 +49,7 @@ namespace bb::gfx {
 	// The other way around.
 	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba)
 	{
+		image_generation++;
 		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
 		VkBuffer       staging;
 		VkDeviceMemory staging_memory;
@@ -292,6 +295,7 @@ void bb_mask_image(int32_t handle, int32_t r, int32_t green, int32_t b)
 	e->mask[1]     = uint8_t(green < 0 ? 0 : (green > 255 ? 255 : green));
 	e->mask[2]     = uint8_t(b < 0 ? 0 : (b > 255 ? 255 : b));
 	e->masked      = true;
+	image_generation++;
 }
 
 void bb_draw_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
@@ -317,9 +321,9 @@ void bb_draw_block_rect(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_
 }
 
 // Fills the whole buffer with the image, as many times as needed.
-void bb_tile_block(int32_t handle, int32_t x, int32_t y, int32_t frame)
+static void tile(int32_t handle, int32_t x, int32_t y, int32_t frame, bool masked, const char* what)
 {
-	image_entry* e = need_image(handle, "TileBlock");
+	image_entry* e = need_image(handle, what);
 	if (!active()) {
 		return;
 	}
@@ -336,9 +340,19 @@ void bb_tile_block(int32_t handle, int32_t x, int32_t y, int32_t frame)
 	}
 	for (int ty = start_y; ty < target.h; ty += e->frame_h) {
 		for (int tx = start_x; tx < target.w; tx += e->frame_w) {
-			draw_part(e, handle, tx, ty, 0, 0, e->frame_w, e->frame_h, frame, false);
+			draw_part(e, handle, tx, ty, 0, 0, e->frame_w, e->frame_h, frame, masked);
 		}
 	}
+}
+
+void bb_tile_block(int32_t handle, int32_t x, int32_t y, int32_t frame)
+{
+	tile(handle, x, y, frame, false, "TileBlock");
+}
+
+void bb_tile_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
+{
+	tile(handle, x, y, frame, true, "TileImage");
 }
 
 void bb_resize_image(int32_t handle, float new_width, float new_height)
@@ -476,5 +490,273 @@ int32_t bb_save_buffer(int32_t buffer, const char* file)
 	int32_t  result = save_pixels(pixels, target.w, target.h, file);
 	free(pixels);
 	return result;
+}
+
+int32_t bb_image_x_handle(int32_t handle)
+{
+	return need_image(handle, "ImageXHandle")->handle_x;
+}
+
+int32_t bb_image_y_handle(int32_t handle)
+{
+	return need_image(handle, "ImageYHandle")->handle_y;
+}
+
+int32_t bb_rects_overlap(int32_t x1, int32_t y1, int32_t w1, int32_t h1, int32_t x2, int32_t y2, int32_t w2, int32_t h2)
+{
+	return ((x1 + w1 <= x2) || (x1 >= x2 + w2) || (y1 + h1 <= y2) || (y1 >= y2 + h2)) ? 0 : 1;
+}
+
+// Which pixels of a frame count in collisions: the ones that are not the mask color. The mask is made once, and again
+// after anything was drawn to an image.
+static const uint8_t* solid_pixels(image_entry* e)
+{
+	if (e->solid && (e->solid_generation == image_generation)) {
+		return e->solid;
+	}
+	free(e->solid);
+	size_t count = size_t(e->sheet_w) * size_t(e->sheet_h);
+	e->solid     = static_cast<uint8_t*>(malloc(count ? count : 1));
+	memset(e->solid, 1, count);
+	if (active() && e->set && e->masked) {
+		flush();
+		uint8_t* rgba = read_pixels(e->image, 0, 0, e->sheet_w, e->sheet_h);
+		for (size_t i = 0; i < count; i++) {
+			e->solid[i] = (rgba[i * 4] == e->mask[0] && rgba[i * 4 + 1] == e->mask[1] && rgba[i * 4 + 2] == e->mask[2]) ? 0 : 1;
+		}
+		free(rgba);
+	}
+	e->solid_generation = image_generation;
+	return e->solid;
+}
+
+static bool frame_solid(image_entry* e, int frame, int x, int y)
+{
+	int fx, fy;
+	frame_position(*e, frame, fx, fy);
+	return solid_pixels(e)[size_t(fy + y) * size_t(e->sheet_w) + size_t(fx + x)] != 0;
+}
+
+// Whether the rectangles of two images touch, and with pixels also whether pixels that are not masked do.
+static int32_t images_touch(int32_t first, int x1, int y1, int f1, int32_t second, int x2, int y2, int f2, bool pixels, const char* what)
+{
+	image_entry* a = need_image(first, what);
+	image_entry* b = need_image(second, what);
+	if ((f1 < 0) || (f1 >= a->frames) || (f2 < 0) || (f2 >= b->frames)) {
+		bb_runtime_error("The frame of the image does not exist.");
+	}
+	x1 -= a->handle_x;
+	y1 -= a->handle_y;
+	x2 -= b->handle_x;
+	y2 -= b->handle_y;
+	if ((x1 + a->frame_w <= x2) || (x1 >= x2 + b->frame_w) || (y1 + a->frame_h <= y2) || (y1 >= y2 + b->frame_h)) {
+		return 0;
+	}
+	if (!pixels) {
+		return 1;
+	}
+	int left = x1 > x2 ? x1 : x2, right = (x1 + a->frame_w < x2 + b->frame_w) ? x1 + a->frame_w : x2 + b->frame_w;
+	int top = y1 > y2 ? y1 : y2, bottom = (y1 + a->frame_h < y2 + b->frame_h) ? y1 + a->frame_h : y2 + b->frame_h;
+	for (int y = top; y < bottom; y++) {
+		for (int x = left; x < right; x++) {
+			if (frame_solid(a, f1, x - x1, y - y1) && frame_solid(b, f2, x - x2, y - y2)) {
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+int32_t bb_images_overlap(int32_t first, int32_t x1, int32_t y1, int32_t second, int32_t x2, int32_t y2)
+{
+	return images_touch(first, x1, y1, 0, second, x2, y2, 0, false, "ImagesOverlap");
+}
+
+int32_t bb_images_collide(int32_t first, int32_t x1, int32_t y1, int32_t f1, int32_t second, int32_t x2, int32_t y2, int32_t f2)
+{
+	return images_touch(first, x1, y1, f1, second, x2, y2, f2, true, "ImagesCollide");
+}
+
+static int32_t image_touches_rect(int32_t handle, int x, int y, int frame, int rx, int ry, int rw, int rh, bool pixels, const char* what)
+{
+	image_entry* e = need_image(handle, what);
+	if ((frame < 0) || (frame >= e->frames)) {
+		bb_runtime_error("The frame of the image does not exist.");
+	}
+	x -= e->handle_x;
+	y -= e->handle_y;
+	if ((x + e->frame_w <= rx) || (x >= rx + rw) || (y + e->frame_h <= ry) || (y >= ry + rh)) {
+		return 0;
+	}
+	if (!pixels) {
+		return 1;
+	}
+	int left = x > rx ? x : rx, right = (x + e->frame_w < rx + rw) ? x + e->frame_w : rx + rw;
+	int top = y > ry ? y : ry, bottom = (y + e->frame_h < ry + rh) ? y + e->frame_h : ry + rh;
+	for (int yy = top; yy < bottom; yy++) {
+		for (int xx = left; xx < right; xx++) {
+			if (frame_solid(e, frame, xx - x, yy - y)) {
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+int32_t bb_image_rect_overlap(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t rw, int32_t rh)
+{
+	return image_touches_rect(handle, x, y, 0, rx, ry, rw, rh, false, "ImageRectOverlap");
+}
+
+int32_t bb_image_rect_collide(int32_t handle, int32_t x, int32_t y, int32_t frame, int32_t rx, int32_t ry, int32_t rw, int32_t rh)
+{
+	return image_touches_rect(handle, x, y, frame, rx, ry, rw, rh, true, "ImageRectCollide");
+}
+
+// A new image with the same frames, handle and mask.
+int32_t bb_copy_image(int32_t handle)
+{
+	image_entry* e = need_image(handle, "CopyImage");
+	uint8_t*     pixels = nullptr;
+	if (active() && e->set) {
+		flush();
+		pixels = read_pixels(e->image, 0, 0, e->sheet_w, e->sheet_h);
+	}
+	image_entry copy;
+	copy.used     = true;
+	copy.frames   = e->frames;
+	copy.frame_w  = e->frame_w;
+	copy.frame_h  = e->frame_h;
+	copy.sheet_w  = e->sheet_w;
+	copy.sheet_h  = e->sheet_h;
+	copy.first    = e->first;
+	copy.handle_x = e->handle_x;
+	copy.handle_y = e->handle_y;
+	memcpy(copy.mask, e->mask, 3);
+	copy.masked = e->masked;
+	if (pixels) {
+		upload_texture(copy.image, copy.set, uint32_t(copy.sheet_w), uint32_t(copy.sheet_h), pixels, g.sampler);
+		free(pixels);
+	}
+	return add_image(copy);
+}
+
+void bb_tform_filter(int32_t enable)
+{
+	transform_filter = enable != 0;
+}
+
+// Makes the frames of an image from a matrix: every pixel of the result is looked up in the image through the inverse.
+void bb_tform_image(int32_t handle, float a, float b, float c, float d)
+{
+	image_entry* e = need_image(handle, "TFormImage");
+	float        determinant = a * d - c * b;
+	if (determinant == 0.0f) {
+		bb_runtime_error("TFormImage: the matrix can't be undone.");
+	}
+	float m[2][2] = { { a, c }, { b, d } };
+	float inverse[2][2];
+	float dt        = 1.0f / determinant;
+	inverse[0][0] = dt * m[1][1];
+	inverse[1][0] = -dt * m[1][0];
+	inverse[0][1] = -dt * m[0][1];
+	inverse[1][1] = dt * m[0][0];
+
+	// Where the corners of a frame go.
+	float ox = float(e->handle_x), oy = float(e->handle_y);
+	float cx[4] = { -ox, float(e->frame_w) - ox, float(e->frame_w) - ox, -ox };
+	float cy[4] = { -oy, -oy, float(e->frame_h) - oy, float(e->frame_h) - oy };
+	float minx = 1e30f, miny = 1e30f, maxx = -1e30f, maxy = -1e30f;
+	for (int i = 0; i < 4; i++) {
+		float x = m[0][0] * cx[i] + m[0][1] * cy[i], y = m[1][0] * cx[i] + m[1][1] * cy[i];
+		minx = x < minx ? x : minx;
+		maxx = x > maxx ? x : maxx;
+		miny = y < miny ? y : miny;
+		maxy = y > maxy ? y : maxy;
+	}
+	minx = floorf(minx);
+	miny = floorf(miny);
+	maxx = ceilf(maxx);
+	maxy = ceilf(maxy);
+	int iw = int(maxx - minx), ih = int(maxy - miny);
+	if ((iw < 1) || (ih < 1) || (iw > 8192) || (ih > 8192)) {
+		bb_runtime_error("TFormImage: the result would be too big or too small.");
+	}
+
+	int      frames = e->frames;
+	size_t   sheet_w = size_t(iw) * size_t(frames);
+	uint8_t* out = static_cast<uint8_t*>(calloc(sheet_w * size_t(ih), 4));
+	uint8_t* old = nullptr;
+	if (active() && e->set) {
+		flush();
+		old = read_pixels(e->image, 0, 0, e->sheet_w, e->sheet_h);
+	}
+	uint8_t outside[3] = { e->masked ? e->mask[0] : uint8_t(0), e->masked ? e->mask[1] : uint8_t(0), e->masked ? e->mask[2] : uint8_t(0) };
+
+	for (int frame = 0; frame < frames; frame++) {
+		int fx, fy;
+		frame_position(*e, frame, fx, fy);
+		// A pixel of this frame, outside of it there is nothing.
+		auto fetch = [&](int px, int py, int channel) -> float {
+			if (!old || (px < 0) || (py < 0) || (px >= e->frame_w) || (py >= e->frame_h)) {
+				return outside[channel];
+			}
+			return old[(size_t(fy + py) * size_t(e->sheet_w) + size_t(fx + px)) * 4 + size_t(channel)];
+		};
+		for (int y = 0; y < ih; y++) {
+			for (int x = 0; x < iw; x++) {
+				float vx = minx + float(x) + 0.5f, vy = miny + float(y) + 0.5f;
+				float qx = inverse[0][0] * vx + inverse[0][1] * vy + ox;
+				float qy = inverse[1][0] * vx + inverse[1][1] * vy + oy;
+				uint8_t* pixel = out + (size_t(y) * sheet_w + size_t(frame) * size_t(iw) + size_t(x)) * 4;
+				if (transform_filter) {
+					float sx = qx - 0.5f, sy = qy - 0.5f;
+					float flx = floorf(sx), fly = floorf(sy);
+					int   ix = int(flx), iy = int(fly);
+					float tx = sx - flx, ty = sy - fly;
+					float w1 = (1 - tx) * (1 - ty), w2 = tx * (1 - ty), w3 = (1 - tx) * ty, w4 = tx * ty;
+					for (int ch = 0; ch < 3; ch++) {
+						float v = fetch(ix, iy, ch) * w1 + fetch(ix + 1, iy, ch) * w2 + fetch(ix, iy + 1, ch) * w3 + fetch(ix + 1, iy + 1, ch) * w4;
+						pixel[ch] = uint8_t(int(v + 0.5f));
+					}
+				} else {
+					for (int ch = 0; ch < 3; ch++) {
+						pixel[ch] = uint8_t(fetch(int(floorf(qx)), int(floorf(qy)), ch));
+					}
+				}
+				pixel[3] = 255;
+			}
+		}
+	}
+	free(old);
+
+	if (active() && e->set) {
+		vkDeviceWaitIdle(g.device);
+		vkFreeDescriptorSets(g.device, g.set_pool, 1, &e->set);
+		destroy_image(e->image);
+		upload_texture(e->image, e->set, uint32_t(sheet_w), uint32_t(ih), out, g.sampler);
+	}
+	free(out);
+	e->sheet_w  = int(sheet_w);
+	e->sheet_h  = ih;
+	e->frame_w  = iw;
+	e->frame_h  = ih;
+	e->first    = 0;
+	e->handle_x = int(-minx);
+	e->handle_y = int(-miny);
+	image_generation++;
+}
+
+void bb_scale_image(int32_t handle, float w, float h)
+{
+	need_image(handle, "ScaleImage");
+	bb_tform_image(handle, w, 0, 0, h);
+}
+
+void bb_rotate_image(int32_t handle, float angle)
+{
+	need_image(handle, "RotateImage");
+	float radians = -angle * 3.14159265358979f / 180.0f;
+	bb_tform_image(handle, cosf(radians), -sinf(radians), sinf(radians), cosf(radians));
 }
 }
