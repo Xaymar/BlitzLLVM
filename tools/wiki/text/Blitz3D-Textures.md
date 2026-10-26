@@ -116,7 +116,7 @@ Next
 @param first_frame  Cell of the sheet that is frame 0.
 @param frame_count  How many frames the texture has.
 @returns A texture handle, or 0 if the file could not be loaded.
-@gap Frames that do not fit into the picture stop the program with a runtime error here, instead of returning 0.
+@gap Frame sizes or counts that do not fit into the picture stop the program with a runtime error here. The original does not check this and only returns 0 when the file cannot be loaded.
 @gap TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
 
 ## LoadTexture

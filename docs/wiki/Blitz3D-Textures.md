@@ -200,7 +200,7 @@ Next
 
 **Differences and known gaps:**
 
-* Frames that do not fit into the picture stop the program with a runtime error here, instead of returning 0.
+* Frame sizes or counts that do not fit into the picture stop the program with a runtime error here. The original does not check this and only returns 0 when the file cannot be loaded.
 * TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
 
 ### LoadTexture
