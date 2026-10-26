@@ -50,8 +50,11 @@ static char* bb_copy(const char* data, size_t length)
 ////////////////////////////////////////////////////////////////////////////////
 // Program
 ////////////////////////////////////////////////////////////////////////////////
-void bb_init(void)
+extern void bb_set_arguments(int32_t argc, char** argv);
+
+void bb_init(int32_t argc, char** argv)
 {
+	bb_set_arguments(argc, argv);
 #if defined(_WIN32)
 	SetConsoleOutputCP(65001);
 #endif

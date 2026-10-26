@@ -15,3 +15,4 @@
 /tests/*.dll
 /tests/*.bin
 /tests/*.dat
+/tests/013_files
