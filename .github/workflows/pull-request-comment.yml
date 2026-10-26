@@ -1,7 +1,8 @@
 name: Pull Request Comment
 
 # Reports the result of the 'Pull Request' workflow in the pull request, with links to the built binaries. A single comment
-# is kept per pull request and updated by every run.
+# is kept per pull request. pull-request-pending.yml creates it as "Build pending" when the pull request is opened or updated,
+# and this replaces it with the result.
 #
 # This runs on workflow_run, in the context of the base repository, so that it can comment on pull requests from forks too.
 # For the same reason it never checks out or executes anything from the pull request. The only thing taken from the run is the
@@ -20,8 +21,8 @@ permissions:
 jobs:
   comment:
     runs-on: ubuntu-latest
-    # A cancelled run was superseded by a newer push and has nothing to report.
-    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion != 'cancelled'
+    # A run that was superseded by a newer push is skipped below, as it is no longer the head of the pull request.
+    if: github.event.workflow_run.event == 'pull_request'
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -51,7 +52,11 @@ jobs:
           fi
 
           MARKER='<!-- blitzllvm-pr-build -->'
-          if [ "$CONCLUSION" = success ]; then STATUS='✅ Build succeeded'; else STATUS='❌ Build failed'; fi
+          case "$CONCLUSION" in
+            success) STATUS='✅ Build succeeded' ;;
+            cancelled) STATUS='⚪ Build cancelled' ;;
+            *) STATUS='❌ Build failed' ;;
+          esac
           {
             echo "$MARKER"
             echo "## ${STATUS}"
