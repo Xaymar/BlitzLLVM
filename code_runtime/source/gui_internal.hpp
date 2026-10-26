@@ -197,6 +197,9 @@ namespace bb::gui {
 	void    set_shape(int handle, int x, int y, int w, int h);
 	void    update_client(int handle);
 	int     desktop_handle();
+	int     desktop_backdrop();                  // The buffer of what was drawn on the desktop, 0 if nothing was.
+	int     desktop_buffer();
+	void    screen_size(int* w, int* h); // Of the display that the program is on, the graphics size without one.
 	void    client_rect(int handle, int* x, int* y, int* w, int* h); // Relative to the gadget.
 	void    absolute_position(int handle, int* x, int* y);           // Of the top left of the gadget, on the screen.
 	void    absolute_client(int handle, int* x, int* y);             // Of the top left of its client area.
@@ -226,6 +229,12 @@ namespace bb::gui {
 	constexpr int status_height = 22;
 	constexpr int frame_width   = 4;
 	constexpr int tab_height    = 26;
+
+	// Tool windows (style 16) have a thinner title with a close box only, like the small caption of Windows.
+	constexpr int tool_title_height = 16;
+	inline int    title_bar_height(gadget const& g) { return (g.style & 16) ? tool_title_height : title_height; }
+	inline int    title_box_width(gadget const& g) { return (g.style & 16) ? 14 : 18; }
+	inline int    title_box_height(gadget const& g) { return (g.style & 16) ? 12 : 16; }
 
 	void window_decoration(gadget const& g, int* left, int* top, int* right, int* bottom);
 

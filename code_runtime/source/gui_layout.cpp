@@ -380,7 +380,7 @@ namespace bb::gui {
 			at += width;
 		}
 		int frame = g ? ((g->style & 1) ? ((g->style & 2) ? frame_width : 3) : 1) : 0;
-		*y        = frame + ((g && (g->style & 1)) ? title_height : 0);
+		*y        = frame + ((g && (g->style & 1)) ? title_bar_height(*g) : 0);
 		*h        = menu_height;
 	}
 
@@ -437,11 +437,13 @@ namespace bb::gui {
 			return 0;
 		}
 		int frame = (g.style & 2) ? frame_width : 3;
-		*y        = frame + 4;
-		*close_x  = g.w - frame - 2 - 18;
-		*max_x    = *close_x - 18;
-		*min_x    = *max_x - 18;
-		return (g.style & 2) ? 3 : 1;
+		int bw    = title_box_width(g);
+		*y        = frame + (title_bar_height(g) - title_box_height(g)) / 2;
+		*close_x  = g.w - frame - 2 - bw;
+		*max_x    = *close_x - bw;
+		*min_x    = *max_x - bw;
+		// Tool windows can be sized, but have no boxes for maximizing and minimizing.
+		return ((g.style & 2) && !(g.style & 16)) ? 3 : 1;
 	}
 
 	// Windows that are minimized are bars at the bottom of the desktop, next to each other.

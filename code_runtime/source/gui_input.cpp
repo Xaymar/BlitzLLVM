@@ -197,19 +197,20 @@ namespace bb::gui {
 				if (w->style & 1) {
 					int close_x, max_x, min_x, by;
 					int buttons = window_buttons(*w, &close_x, &max_x, &min_x, &by);
-					if (inside(rx, ry, close_x, by, 18, 16)) {
+					int bw = title_box_width(*w), bh = title_box_height(*w);
+					if (inside(rx, ry, close_x, by, bw, bh)) {
 						t.part = PART_CLOSE;
 						return t;
 					}
-					if ((buttons == 3) && inside(rx, ry, max_x, by, 18, 16)) {
+					if ((buttons == 3) && inside(rx, ry, max_x, by, bw, bh)) {
 						t.part = PART_MAX;
 						return t;
 					}
-					if ((buttons == 3) && inside(rx, ry, min_x, by, 18, 16)) {
+					if ((buttons == 3) && inside(rx, ry, min_x, by, bw, bh)) {
 						t.part = PART_MIN;
 						return t;
 					}
-					if (inside(rx, ry, frame, frame, w->w - 2 * frame, title_height)) {
+					if (inside(rx, ry, frame, frame, w->w - 2 * frame, title_bar_height(*w))) {
 						t.part = PART_TITLE;
 						return t;
 					}
