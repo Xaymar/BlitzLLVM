@@ -55,6 +55,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		fail(SDL_GetError());
 	}
 	SDL_StartTextInput(g.window);
+	g.auto_suspend = (mode == 1); // Fullscreen programs are suspended when they are not in front, unless they say not.
 
 	create_vulkan();
 	create_buffers(uint32_t(width), uint32_t(height));

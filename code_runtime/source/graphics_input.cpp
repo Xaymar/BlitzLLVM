@@ -130,7 +130,7 @@ namespace bb::gfx {
 		SDL_free(copy);
 	}
 
-	void pump()
+	static void drain()
 	{
 		SDL_Event event;
 		push_test_events();
@@ -151,10 +151,18 @@ namespace bb::gfx {
 				fflush(stdout);
 				exit(0); // Closing the window ends the program, like in Blitz.
 			case SDL_EVENT_WINDOW_FOCUS_LOST:
+				g.suspended = true;
 				bb_event_post(0x2001, 0, 0, 0, 0, 0);
 				break;
 			case SDL_EVENT_WINDOW_FOCUS_GAINED:
+				g.suspended = false;
 				bb_event_post(0x2002, 0, 0, 0, 0, 0);
+				break;
+			case SDL_EVENT_WINDOW_MINIMIZED:
+				g.suspended = true;
+				break;
+			case SDL_EVENT_WINDOW_RESTORED:
+				g.suspended = !(SDL_GetWindowFlags(g.window) & SDL_WINDOW_INPUT_FOCUS);
 				break;
 			case SDL_EVENT_WINDOW_MOUSE_ENTER:
 				bb_event_post(0x205, 0, g.mouse_x, g.mouse_y, 0, 0);
@@ -320,6 +328,17 @@ namespace bb::gfx {
 			SDL_GetWindowSize(g.window, &ww, &wh);
 			SDL_WarpMouseInWindow(g.window, float(g.mouse_x) * float(ww) / float(g.width), float(g.mouse_y) * float(wh) / float(g.height));
 			g.mouse_dx = g.mouse_dy = 0;
+		}
+	}
+
+	// Brings in what happened in the window. A program that is suspended (see AutoSuspend) waits here until its window
+	// is in front again, while the window goes on working.
+	void pump()
+	{
+		drain();
+		while (g.auto_suspend && g.suspended && g.window) {
+			SDL_WaitEventTimeout(nullptr, 50);
+			drain();
 		}
 	}
 

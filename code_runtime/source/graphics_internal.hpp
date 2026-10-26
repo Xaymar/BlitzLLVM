@@ -204,6 +204,8 @@ namespace bb::gfx {
 		// Window
 		SDL_Window* window = nullptr;
 		bool        resized = false;
+		bool        auto_suspend = false; // Whether the program waits while its window is not in front.
+		bool        suspended    = false; // Whether the window is not in front (or is minimized).
 
 		// Vulkan
 		VkInstance       instance = VK_NULL_HANDLE;
