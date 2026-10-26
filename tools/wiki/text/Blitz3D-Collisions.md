@@ -1,0 +1,173 @@
+## EntityType
+Gives an entity a collision type, a number from 1 to 999 that [Collisions](Blitz3D-Collisions#collisions) uses to decide which entities may hit which. Type 0 is the default and takes the entity out of collision checking altogether. Entities of the same type do not collide with each other unless you add a rule for that pair.
+
+With `recursive` set, the type is also given to every child of the entity, and to their children.
+
+Changing the type resets the entity's collision movement, as [ResetEntity](Blitz3D-Collisions#resetentity) does.
+@param entity          The entity.
+@param collision_type  Collision type, 0 to 999.
+@param recursive       True to give the type to all children as well. Defaults to False.
+
+## GetEntityType
+@returns The collision type that was given to the entity with EntityType, or 0 if it never got one.
+@param entity  The entity.
+
+## EntityRadius
+Sets the size of the entity's collision ellipsoid. Every entity that moves into other things needs one, because collision always happens between an ellipsoid and something else. An entity that is hit by an ellipsoid-to-ellipsoid check (method 1 of [Collisions](Blitz3D-Collisions#collisions)) needs one as well.
+
+The horizontal radius applies to both width and depth. Leave out the second radius to get a sphere.
+@param entity    The entity.
+@param x_radius  Radius in the X and Z directions.
+@param y_radius  Radius in the Y direction. Defaults to x_radius.
+
+## EntityBox
+Sets the box that other entities hit when a [Collisions](Blitz3D-Collisions#collisions) rule uses method 3 (ellipsoid-to-box). The box is placed relative to the entity and scales with it.
+
+Without a call to EntityBox the box runs from -1 to 1 on every axis around the entity's origin.
+@param entity  The entity.
+@param x       Left side of the box, relative to the entity.
+@param y       Bottom of the box.
+@param z       Front of the box.
+@param width   Size of the box along X.
+@param height  Size of the box along Y.
+@param depth   Size of the box along Z.
+
+## Collisions
+Switches on collision checking between two entity types, and says how it should work. All checking, and the movement that follows from it, happens inside [UpdateWorld](Blitz3D-World#updateworld). Between calls, the entity can be moved freely with [MoveEntity](Blitz3D-Entities#moveentity), [TranslateEntity](Blitz3D-Entities#translateentity) and so on; UpdateWorld then walks the entity from where it was at the last update to where you put it, and stops or slides it if something is in the way.
+
+The source type is the one that moves and gets pushed back. The destination type is what it bumps into. A pair of types can only have one rule: if you call Collisions again for the same pair, the new call is ignored until [ClearCollisions](Blitz3D-Collisions#clearcollisions) removes the rules. Collisions work in one direction only, so `Collisions 2, 1, ...` does not make type 1 react to type 2.
+
+| Method | The source ellipsoid hits | Destination needs |
+|---|---|---|
+| 1 | The destination's ellipsoid | [EntityRadius](Blitz3D-Collisions#entityradius) |
+| 2 | The triangles of the destination mesh | Nothing, but it has to be a mesh |
+| 3 | The destination's box | [EntityBox](Blitz3D-Collisions#entitybox) |
+
+| Response | What the source does |
+|---|---|
+| 1 | Stops where it hit. |
+| 2 | Slides along the surface. |
+| 3 | Slides, but only sideways and upwards: it does not slip down slopes. |
+
+Hidden entities, and entities with a hidden parent, are not collided with.
+
+```blitzbasic
+;media gif collisions/collisions.gif 50 20
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsColor camera, 30, 40, 70
+PositionEntity camera, 0, 14, 0
+RotateEntity camera, 90, 0, 0
+light = CreateLight()
+RotateEntity light, 60, 30, 0
+
+; A wall of type 1 and two balls of type 2 and 3.
+wall = CreateCube()
+ScaleEntity wall, 0.5, 1, 5
+PositionEntity wall, 3, 0, 0
+EntityColor wall, 200, 200, 200
+EntityType wall, 1
+
+stopper = CreateSphere(16)
+EntityColor stopper, 220, 70, 60
+EntityRadius stopper, 1
+EntityType stopper, 2
+PositionEntity stopper, -6, 0, -1.5
+
+slider = CreateSphere(16)
+EntityColor slider, 70, 200, 110
+EntityRadius slider, 1
+EntityType slider, 3
+PositionEntity slider, -6, 0, 1.5
+
+; Polygon collisions with the wall; type 2 stops, type 3 slides.
+Collisions 2, 1, 2, 1
+Collisions 3, 1, 2, 2
+
+For frame = 0 To 49
+	TranslateEntity stopper, 0.2, 0, -0.08
+	TranslateEntity slider, 0.2, 0, 0.08
+	UpdateWorld
+	RenderWorld
+	Color 255, 255, 255
+	Text 8, 8, "red: Collisions 2, 1, 2, 1 (stop)"
+	Text 8, 24, "green: Collisions 3, 1, 2, 2 (slide)"
+	Flip
+Next
+```
+
+![Collisions](media/collisions/collisions.gif)
+@param source_type       Collision type of the entities that move.
+@param destination_type  Collision type of the entities they can hit.
+@param method            1 ellipsoid, 2 polygon, 3 box, see the table.
+@param response          1 stop, 2 slide, 3 slide without slipping down slopes.
+@gap Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
+
+## ClearCollisions
+Removes every rule made with [Collisions](Blitz3D-Collisions#collisions), so that nothing collides until you add rules again. The types, radii and boxes of entities are not touched.
+
+## ResetEntity
+Forgets the entity's collision history. UpdateWorld normally moves a colliding entity along the path from its previous position to the current one. If you teleport an entity with [PositionEntity](Blitz3D-Entities#positionentity), call ResetEntity afterwards so that it does not get stopped by whatever lies between the two places. It also clears the entity's list of recent collisions.
+@param entity  The entity.
+
+## CountCollisions
+@returns How many collisions the entity was involved in during the last [UpdateWorld](Blitz3D-World#updateworld). The entity that was hit gets the collision recorded too, so the destination of a collision also reports a count. Use it as the upper bound for the index of the `Collision...` commands, which count from 1.
+@param entity  The entity.
+
+## EntityCollided
+Finds out whether the entity hit something of a given collision type during the last [UpdateWorld](Blitz3D-World#updateworld), and which one. It is the quick way to ask "am I standing on ground?" without looping over every collision.
+@param entity  The entity that moved.
+@param type    Collision type to look for.
+@returns The first colliding entity of that type, or 0 if there was none.
+
+## CollisionEntity
+@returns The other entity of one of the collisions that happened to this entity in the last [UpdateWorld](Blitz3D-World#updateworld). The index runs from 1 to [CountCollisions](Blitz3D-Collisions#countcollisions).
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+
+## CollisionX
+@returns The world X coordinate of the point where the numbered collision touched. All Collision commands take the entity that moved and the number of the collision, from 1 to CountCollisions.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+
+## CollisionY
+@returns The world Y coordinate of the point where the numbered collision touched.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+
+## CollisionZ
+@returns The world Z coordinate of the point where the numbered collision touched.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+
+## CollisionNX
+@returns The X part of the surface normal at the numbered collision, the direction the other surface pushes back. Together with CollisionNY and CollisionNZ it is a vector of length 1.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+
+## CollisionNY
+@returns The Y part of the surface normal at the numbered collision. Ground that you stand on has a value close to 1.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+
+## CollisionNZ
+@returns The Z part of the surface normal at the numbered collision.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+
+## CollisionTime
+@returns How far along its path the entity was when it touched, as a fraction of the move done in that update, from 0 to 1. A value near 1 means it traveled almost the whole way before touching.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+@gap The official help says this is the time taken to calculate the collision. The engine does not measure time; the value is the fraction of the move described above, which is what the original returns as well.
+
+## CollisionSurface
+@returns The handle of the surface of the other entity that was closest to the touching point, for use with the surface commands such as [CountTriangles](Blitz3D-Surfaces#counttriangles). It is 0 when the other entity is hit as an ellipsoid or box, since those have no surface.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
+
+## CollisionTriangle
+@returns The number of the triangle, in the surface from CollisionSurface, that was hit. Triangle numbers start at 0, like the ones used by [TriangleVertex](Blitz3D-Surfaces#trianglevertex). It is 0 for collisions with ellipsoids and boxes.
+@param entity  The entity that moved.
+@param index   Number of the collision, starting at 1.
