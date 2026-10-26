@@ -288,7 +288,8 @@ namespace bb::gfx {
 		// BLITZ_SYNC_GPU=1 waits for every frame, as if there was no thread (for comparing and for finding errors).
 		static int synchronous = -1;
 		if (synchronous < 0) {
-			synchronous = getenv("BLITZ_SYNC_GPU") ? 1 : 0;
+			const char* value = getenv("BLITZ_SYNC_GPU");
+			synchronous       = (value && value[0] && (value[0] != '0')) ? 1 : 0;
 		}
 		if (synchronous) {
 			wait_gpu();
