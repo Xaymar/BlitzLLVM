@@ -124,7 +124,7 @@ CountHostIPs host_name$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-Looks up a host name and returns how many addresses it has. Use [HostIP](BlitzBasic-Network#hostip) to get them. A name that cannot be found returns 0.
+Looks up a host name and returns how many addresses it has. Use [HostIP](BlitzBasic-Network#hostip) to get them. A name that cannot be found returns 0. An empty name is this computer, which has one address for every network interface that is up, with the loopback address (127.0.0.1) last.
 
 ```blitzbasic
 Print CountHostIPs("localhost") >= 1
@@ -142,7 +142,7 @@ Print CountHostIPs("localhost") >= 1
 
 **Differences and known gaps:**
 
-* Returns 1 when the name resolves and 0 otherwise, never more, even for hosts with several addresses.
+* Only IPv4 addresses are counted. See [Differences](Differences#network-addresses).
 
 ### CreateTCPServer
 
@@ -238,7 +238,7 @@ _Not documented yet._
 
 **Differences and known gaps:**
 
-* Only index 1 gives an address, and it is always the one of `localhost` (127.0.0.1) whatever name was asked for in [CountHostIPs](BlitzBasic-Network#counthostips). Every other index returns 0.
+* Without a call of [CountHostIPs](BlitzBasic-Network#counthostips) the addresses of this computer are used. Only IPv4 addresses are returned, and an index past the last one returns 0.
 
 ### OpenTCPStream
 
@@ -396,7 +396,7 @@ _Not documented yet._
 
 **Differences and known gaps:**
 
-* Always the `localhost` address (127.0.0.1) and not the address of a network adapter, so it cannot be given to other computers.
+* It is the first address of this computer that [CountHostIPs](BlitzBasic-Network#counthostips) finds with an empty name, one that other computers can reach if there is any. See [Differences](Differences#network-addresses).
 
 ### UDPStreamPort
 

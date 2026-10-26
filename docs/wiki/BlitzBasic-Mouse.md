@@ -179,10 +179,6 @@ Wend
 
 **Returns:** How many times the button was pressed since the last call.
 
-**Differences and known gaps:**
-
-* The result is never more than 1: two clicks between two calls count as one.
-
 ### MouseWait
 
 ```blitzbasic

@@ -66,7 +66,6 @@ While Not KeyHit(1)
 Wend
 ```
 @param elapsed_time  Animation speed of the whole world: 1 plays animations at their own speed, 2 at double speed, 0.5 at half. Defaults to 1.
-@gap Animations follow the clock here and not the number of UpdateWorld calls, see [Animate](Blitz3D-Animation#animate). The value changes the speed but not how often a step is made.
 
 ## ClearWorld
 Frees entities, brushes and textures in one call, which suits changing from one level to the next. After it, handles of the cleared kind are no longer valid, so do not use them again. Cameras and lights are entities too, so create them again afterwards.

@@ -14,7 +14,7 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 | [ActiveObjects](BlitzPlus-System#activeobjects) | Int | Counts what your program has made and not freed yet: banks, streams, sounds, images, textures, fonts, timers and objects of your own types. |
 | [AutoSuspend](BlitzPlus-System#autosuspend) | None | Switches whether the program stops when its window is not the active one and carries on when it is back. |
 | [Confirm](BlitzPlus-System#confirm) | Int | Shows a question with an OK and a Cancel button and waits for the answer. |
-| [CreateProcess](BlitzPlus-System#createprocess) | Int | Starts another program and gives you a stream to read what it writes. |
+| [CreateProcess](BlitzPlus-System#createprocess) | Int | Starts another program and gives you a stream to its input and output: what the program writes can be read from the stream, and what is written to the stream is what the program reads. |
 | [DebugObjects](BlitzPlus-System#debugobjects) | None | Writes how many objects of each kind are alive into the debug log, one line per kind. |
 | [FlushEvents](BlitzPlus-System#flushevents) | None | Throws away events that are waiting, so they are never delivered by [WaitEvent](BlitzPlus-Events#waitevent). |
 | [FontAscent](BlitzPlus-System#fontascent) | Int |  |
@@ -66,7 +66,7 @@ AutoSuspend enable%
 
 **Works in:** BlitzPlus
 
-Switches whether the program stops when its window is not the active one and carries on when it is back. It is off by default, and a program can also react to the events $2001 and $2002 itself.
+Switches whether the program stops when its window is not the active one and carries on when it is back. It is off by default, except for programs that run full screen, which have it on until they turn it off. The program also waits while its window is minimized. A program can also react to the events $2001 and $2002 itself.
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -79,10 +79,6 @@ Until WaitEvent() = $803
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int | required | 1 turns it on, 0 turns it off. |
-
-**Differences and known gaps:**
-
-* Accepted but does nothing: the program keeps running when it is not in front.
 
 ### Confirm
 
@@ -120,7 +116,7 @@ CreateProcess command$  ; returns Int
 
 **Works in:** BlitzPlus
 
-Starts another program and gives you a stream to read what it writes.
+Starts another program and gives you a stream to its input and output: what the program writes can be read from the stream, and what is written to the stream is what the program reads.
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -131,11 +127,7 @@ If CreateProcess("notepad.exe") = 0 Then Notify "Could not start it."
 |---|---|---|---|
 | `command` | String | required |  |
 
-**Returns:** The official version gives a stream with the output of the program.
-
-**Differences and known gaps:**
-
-* Here the result is only 1 when the program was started and 0 when it was not, and its output is not available. The program is started on its own and not waited for.
+**Returns:** A stream for [ReadLine](BlitzBasic-Streams#readline), [WriteLine](BlitzBasic-Streams#writeline), [ReadAvail](BlitzBasic-Streams#readavail), [Eof](BlitzBasic-Streams#eof) and [CloseFile](BlitzBasic-Files#closefile), or 0 if the program could not be started. The program is not waited for.
 
 ### DebugObjects
 
@@ -395,7 +387,7 @@ Until WaitEvent() = $803
 
 **Differences and known gaps:**
 
-* Always returns 0, because gadgets are drawn by the program and are no objects of the operating system.
+* All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget. Fonts (3) have no handle of the operating system and give 0, and so does anything that is not a gadget.
 
 ### ResetTimer
 

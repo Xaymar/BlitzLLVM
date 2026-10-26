@@ -32,7 +32,7 @@ Notify "Window: " + ClientWidth(win) + " x " + ClientHeight(win) + Chr$(13) + "D
 ```
 @param group  Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers.
 @returns The usable height in pixels.
-@gap The desktop is the window of your program, so it is as big as the mode given to `Graphics`, not the screen of the computer.
+@gap Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
 
 ## ClientWidth
 Gives the width of the area of a group that gadgets can use, without frame or scroll bars. For [Desktop](BlitzPlus-Windows#desktop) it is the width of the screen.
@@ -47,7 +47,7 @@ Until WaitEvent() = $803
 ```
 @param group  Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers.
 @returns The usable width in pixels.
-@gap The desktop is the window of your program, so it is as big as the mode given to `Graphics`, not the screen of the computer.
+@gap Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
 
 ## CreateWindow
 Makes a window and shows it. Windows are the parents of every other gadget: pass the window as the group of a button, label or list to put it inside. The position is relative to the group, which is [Desktop](BlitzPlus-Windows#desktop) for a normal window or another window to make a child that belongs to it.
@@ -58,9 +58,9 @@ The style is a sum of these flags, and 15 is the default:
 | --- | --- |
 | 1 | Title bar |
 | 2 | The user can resize the window |
-| 4 | Room for a menu bar, see [WindowMenu](BlitzPlus-Windows#windowmenu) |
+| 4 | Menu bar, shown with a line under it even before menus are added, see [WindowMenu](BlitzPlus-Windows#windowmenu) |
 | 8 | Status bar at the bottom, see [SetStatusText](BlitzPlus-Windows#setstatustext) |
-| 16 | Tool window with a smaller title bar |
+| 16 | Tool window with a smaller title bar and only a close box |
 | 32 | Width and height are the size of the inside, not of the whole window |
 
 Windows send events when they move ($801), change size ($802), are closed ($803) or are activated ($804). Closing does not remove a window by itself, your program decides what to do with the $803 event.
@@ -95,8 +95,6 @@ Until asked = 2
 @param style   Sum of the flags above. Defaults to 15.
 @returns A handle for the window.
 @gap All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries. Windows are drawn in the order they were activated.
-@gap Flag 16 is accepted but the title bar looks like a normal one.
-@gap A window with flag 4 only shows the menu bar once menus were added.
 
 ## Desktop
 Gives the handle of the desktop, the group that top level windows live in. Pass it as the group of [CreateWindow](BlitzPlus-Windows#createwindow). With [ClientWidth](BlitzPlus-Windows#clientwidth) and [ClientHeight](BlitzPlus-Windows#clientheight) it tells the size of the screen. [DesktopBuffer](BlitzPlus-Canvas#desktopbuffer) is what you draw to if you want to paint on it.
@@ -109,7 +107,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 @returns A handle that stands for the desktop.
-@gap The desktop is the program's own window, which has the size you gave `Graphics`. Windows cannot be placed outside of it.
+@gap The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](BlitzPlus-Windows#clientwidth) and [ClientHeight](BlitzPlus-Windows#clientheight) tell the size of the screen. Windows cannot be placed outside of the program's window.
 
 ## MaximizeWindow
 Makes a window as big as the desktop. [RestoreWindow](BlitzPlus-Windows#restorewindow) brings back the size it had before, and [WindowMaximized](BlitzPlus-Windows#windowmaximized) says whether it is in this state.
@@ -167,7 +165,6 @@ Until WaitEvent() = $803
 @param width   Smallest width. Defaults to -1, which takes the current width.
 @param height  Smallest height. Defaults to -1, which takes the current height.
 @gap The help lists height before width in its syntax line, the real order is width then height.
-@gap Making a window smaller with `SetGadgetShape` is not limited by it, only the user dragging the frame is.
 
 ## SetStatusText
 Writes text into the status bar at the bottom of a window, which was asked for with flag 8 of [CreateWindow](BlitzPlus-Windows#createwindow). The text cannot be read back.

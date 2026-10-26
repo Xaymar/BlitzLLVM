@@ -62,7 +62,6 @@ WaitKey
 @param height  Height in pixels.
 @param depth  Color depth in bits.
 @returns True if a full screen mode of that size can be used.
-@gap Always True, whatever size and depth are asked for: the picture is scaled to the screen.
 
 ## Windowed3D
 @returns True if the 3D picture can be shown in a window, which is the case on every desktop and always here. If it is False the program can only run full screen.
@@ -70,4 +69,4 @@ WaitKey
 ## GfxDriverCaps3D
 Tells what the 3D driver is able to do. The result is a version number: 100 means all of the standard Blitz3D features, 110 adds cube environment maps. Graphics3D has to have been called before.
 @returns 100 or 110.
-@gap It reports 110, but cube maps are not drawn: the texture flag for them is accepted and ignored.
+@gap It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.

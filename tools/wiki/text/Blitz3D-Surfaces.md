@@ -370,21 +370,19 @@ WaitKey
 @param v          Vertical texture coordinate.
 @param w          Third coordinate, unused. Defaults to 1.
 @param coord_set  Set of coordinates, 0 or 1. Defaults to 0.
-@gap Only one set of coordinates exists: `coord_set` is ignored, so set 1 reads and writes set 0. `w` is ignored.
+@gap `w` is ignored.
 
 ## VertexU
 @returns The horizontal texture coordinate of the vertex.
 @param surface    Surface handle.
 @param index      Index of the vertex, from 0.
 @param coord_set  Set of coordinates, 0 or 1. Defaults to 0.
-@gap `coord_set` is ignored, the one set of coordinates is always read.
 
 ## VertexV
 @returns The vertical texture coordinate of the vertex.
 @param surface    Surface handle.
 @param index      Index of the vertex, from 0.
 @param coord_set  Set of coordinates, 0 or 1. Defaults to 0.
-@gap `coord_set` is ignored, the one set of coordinates is always read.
 
 ## VertexW
 @returns The third texture coordinate of the vertex, a value that is reserved for later use and does nothing in rendering.

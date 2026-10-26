@@ -19,6 +19,7 @@ The flags are added together, so `1 + 2` is a color texture that also has an alp
 | 256 | Keep the texture in video memory. |
 | 512 | Use a high color format even in low color modes. |
 | 1024 | Point sampling: no smoothing between texels. |
+| 65536 | Use the second set of texture coordinates of the mesh, see [TextureCoords](Blitz3D-Textures#texturecoords). |
 
 The texture is created at the size you ask for, so [TextureWidth](Blitz3D-Textures#texturewidth) and [TextureHeight](Blitz3D-Textures#textureheight) return exactly what you passed. Power-of-two sizes are the safest choice for other Blitz3D implementations.
 
@@ -60,8 +61,8 @@ WaitKey
 @param flags   Sum of the flags above. Defaults to 1.
 @param frames  Number of animation frames. Defaults to 1.
 @returns A texture handle.
-@gap Only flags 2, 4, 16 and 32 change how the texture looks. Mipmapping (8), environment maps (64 and 128), video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering and no mipmaps.
-@gap The alpha (2) and masked (4) flags are only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, including where you drew black.
+@gap Only flags 2, 4, 16, 32 and 65536 change how the texture looks. Mipmapping (8), environment maps (64 and 128), video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering and no mipmaps.
+@gap The alpha (2) flag is only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, also where you drew black, unless it is masked (4): the masked flag does cut out black there.
 
 ## FreeTexture
 Releases a texture and its memory. Entities and brushes that were already painted with the texture keep showing it; only the handle becomes unusable, and the image goes away once nothing uses it any more. Do not use the handle itself after freeing it.
@@ -325,7 +326,7 @@ Remember to set the buffer back to [BackBuffer](BlitzBasic-Buffers-and-Pixels#ba
 Chooses which set of texture coordinates of the mesh the texture reads: 0 for the first set, 1 for the second.
 @param texture  The texture.
 @param coords   0 or 1.
-@gap Meshes only have a single set of texture coordinates here. The call checks the texture and otherwise has no effect.
+@gap The call checks the texture and otherwise has no effect. Only the flag 65536 makes a texture read the second set of coordinates, the call does not change that.
 
 ## TextureFilter
 Adds a rule: every texture loaded afterwards whose file name contains the given text gets the extra flags. The test ignores upper and lower case, an empty text matches every file, and the rules add up, so a file that matches several rules gets all of their flags. The rules are only applied by [LoadTexture](Blitz3D-Textures#loadtexture), [LoadAnimTexture](Blitz3D-Textures#loadanimtexture), brushes and mesh loading, and they do not change textures that already exist. [ClearTextureFilters](Blitz3D-Textures#cleartexturefilters) removes them all. At the start, and again every time a graphics mode is opened with Graphics or Graphics3D, there is one rule that matches every file and adds the flags 1 + 8 (color and mipmaps), and it replaces the rules you added before.

@@ -61,7 +61,7 @@ Tells what the 3D driver is able to do. The result is a version number: 100 mean
 
 **Differences and known gaps:**
 
-* It reports 110, but cube maps are not drawn: the texture flag for them is accepted and ignored.
+* It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
 
 ### GfxMode3D
 
@@ -109,10 +109,6 @@ WaitKey
 | `depth` | Int | required | Color depth in bits. |
 
 **Returns:** True if a full screen mode of that size can be used.
-
-**Differences and known gaps:**
-
-* Always True, whatever size and depth are asked for: the picture is scaled to the screen.
 
 ### Graphics3D
 

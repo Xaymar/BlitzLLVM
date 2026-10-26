@@ -131,7 +131,7 @@ Until WaitEvent() = $803
 
 **Differences and known gaps:**
 
-* The desktop is the window of the program, so this is the same buffer as `FrontBuffer()`, not the screen of the computer. The interface paints the desktop again whenever something changes, so what you draw here does not stay yet. The original draws on the Windows desktop with the DirectDraw driver only.
+* The desktop is the window of the program, so this is the same buffer as `FrontBuffer()`, not the screen of the computer. What you draw here is the backdrop of the windows: it stays when the interface is drawn again, and drawing later shows up. The original draws on the Windows desktop with the DirectDraw driver only.
 
 ### FlipCanvas
 

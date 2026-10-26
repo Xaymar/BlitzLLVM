@@ -183,17 +183,13 @@ JoyPitch port%=0  ; returns Float
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-The rotation of the joystick around its X axis, from -180 to 180. Most gamepads have no such axis and give 0. See the note on the extra axes at [JoyZ](BlitzBasic-Joystick#joyz).
+The rotation of the joystick around its X axis, from -180 to 180. Most gamepads have no such axis and give -180. See the note on the extra axes at [JoyZ](BlitzBasic-Joystick#joyz).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
-**Returns:** The pitch in degrees, or 0 if the joystick has no such axis.
-
-**Differences and known gaps:**
-
-* The original gives -180 for a missing axis. Here it is 0, which is the middle position.
+**Returns:** The pitch in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
 
 ### JoyRoll
 
@@ -209,11 +205,7 @@ The rotation around the long axis of the stick, from -180 to 180. On many joysti
 |---|---|---|---|
 | `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
-**Returns:** The roll in degrees, or 0 if the joystick has no such axis.
-
-**Differences and known gaps:**
-
-* The original gives -180 for a missing axis. Here it is 0.
+**Returns:** The roll in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
 
 ### JoyType
 
@@ -266,7 +258,7 @@ The first extra axis of the joystick, from -1 to 1. On a gamepad this is usually
 |---|---|---|---|
 | `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
-**Returns:** The axis position from -1 to 1, or 0 if the joystick has no such axis.
+**Returns:** The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
 
 ### JoyUDir
 
@@ -298,7 +290,7 @@ The second extra axis of the joystick, from -1 to 1. See [JoyU](BlitzBasic-Joyst
 |---|---|---|---|
 | `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
-**Returns:** The axis position from -1 to 1, or 0 if the joystick has no such axis.
+**Returns:** The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
 
 ### JoyVDir
 
@@ -414,11 +406,7 @@ The rotation around the vertical axis, from -180 to 180. Most joysticks do not h
 |---|---|---|---|
 | `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
-**Returns:** The yaw in degrees, or 0 if the joystick has no such axis.
-
-**Differences and known gaps:**
-
-* The original gives -180 for a missing axis. Here it is 0.
+**Returns:** The yaw in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
 
 ### JoyYDir
 
@@ -450,7 +438,7 @@ The third axis of the joystick, from -1 to 1. On a joystick it is usually the th
 |---|---|---|---|
 | `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
-**Returns:** The axis position from -1 to 1, or 0 if the joystick has no such axis.
+**Returns:** The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
 
 ### JoyZDir
 

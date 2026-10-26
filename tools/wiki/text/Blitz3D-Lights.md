@@ -6,7 +6,7 @@ Creates a light and returns its handle. Without a light everything in the world 
 
 * **1, directional** (the default) is like the sun. Only its rotation matters, it shines along its own forward direction (+Z) and has no position or range.
 * **2, point** is like a light bulb. It shines in all directions from its position and fades out until its range.
-* **3, spot** is meant to be a cone of light. See the gap below.
+* **3, spot** is a cone of light that shines along its forward direction (+Z). See [LightConeAngles](Blitz3D-Lights#lightconeangles).
 
 A new light is white, sits at the origin and has a range of 1000. Any other value for `type` creates a directional light. Only the 8 lights that come first in the world affect a frame, so plan with 8 at most.
 
@@ -32,7 +32,6 @@ WaitKey
 @param type    1 for a directional light, 2 for a point light, 3 for a spot light. Defaults to 1.
 @param parent  Entity the light follows, or 0 for none. Defaults to 0.
 @returns       The handle of the new light.
-@gap Spot lights (3) are drawn like point lights, see [LightConeAngles](Blitz3D-Lights#lightconeangles).
 
 ## LightColor
 Sets the color of the light. 255, 255, 255 is full white light, 0, 0, 0 adds nothing. The original accepts values from -255 to 255 where negative values darken what the light touches, which lets you fake shadows.
@@ -40,7 +39,6 @@ Sets the color of the light. 255, 255, 255 is full white light, 0, 0, 0 adds not
 @param red    Red part of the light.
 @param green  Green part of the light.
 @param blue   Blue part of the light.
-@gap Each part is clamped to 0 through 255 here, so negative lights do not darken anything yet.
 
 ## LightRange
 Sets how far a point or spot light reaches. The light is full strength next to the light and fades steadily to nothing at the range, so everything beyond it stays dark. The original calls the value approximate, so try a few values until the scene looks right. The default is 1000. Directional lights ignore it.
@@ -74,7 +72,6 @@ Sets the inner and outer angle of a spot light in degrees. Inside the inner angl
 @param light        Light handle.
 @param inner_angle  Angle of the fully lit center of the cone.
 @param outer_angle  Angle where the light has faded out.
-@gap The angles are stored, but spot lights are drawn as point lights that shine in all directions, ignoring the cone.
 
 ## LightMesh
 Lights a mesh without any light in the world, by adding color to its vertices once. It is a fast way to bake the look of a light into static geometry, or to fake lights beyond the limit of 8. The mesh must have vertex colors switched on with `EntityFX mesh, 2` or the change stays invisible. New meshes have white vertices, so the added light has nothing to brighten until you darken them with [VertexColor](Blitz3D-Surfaces#vertexcolor).

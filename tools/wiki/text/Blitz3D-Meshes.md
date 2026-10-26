@@ -80,7 +80,6 @@ WaitKey
 @param solid     1 for a cylinder with ends, 0 for a tube. Defaults to 1.
 @param parent    Entity the cylinder follows, or 0 for none. Defaults to 0.
 @returns         The handle of the new cylinder.
-@gap The closed ends are drawn as fans around a center point, so a closed cylinder has `4 * segments` triangles and a tube `2 * segments`. The original uses `(segments + (segments - 2)) * 2` for a closed one, for example 28 instead of 32 at 8 segments.
 
 ## CreateCone
 Creates a cone with a base radius of 1 and its tip pointing up the Y axis. With `solid` set to 0 the base is left open. 4 segments make a pyramid and 16 looks smooth. Valid values are 3 to 100.
@@ -112,7 +111,6 @@ WaitKey
 @param solid     1 for a cone with a base, 0 for an open one. Defaults to 1.
 @param parent    Entity the cone follows, or 0 for none. Defaults to 0.
 @returns         The handle of the new cone.
-@gap The base is drawn as a fan around a center point, so a closed cone has `2 * segments` triangles and an open one `segments`. The original uses `segments + (segments - 2)` for a closed one, for example 14 instead of 16 at 8 segments.
 
 ## CreatePlane
 Creates a flat, endless ground at height 0 that faces up. It is handy for outdoor scenes where the player should never see an edge. The plane is one-sided, so it is not seen from below. More `segments` split it into smaller squares, which gives lights and fog more vertices to work with and hides problems some graphics cards have with big flat triangles.
@@ -140,13 +138,12 @@ WaitKey
 @param segments  How many pieces the plane is divided into per side, 1 to 16. Defaults to 1.
 @param parent    Entity the plane follows, or 0 for none. Defaults to 0.
 @returns         The handle of the new plane.
-@gap The plane is one very large square, 20000 units wide, and `segments` is ignored. It looks endless unless you travel far from the origin.
+@gap Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that. Drawing is not limited: the part of the plane that a camera sees is made again for every frame.
 
 ## CreateMirror
 Creates a mirror entity: an endless horizontal floor that is invisible but flips everything above it to the other side, which is how a polished, reflecting floor was drawn in the original. Position it with [PositionEntity](Blitz3D-Entities#positionentity) to set its height.
 @param parent  Entity the mirror follows, or 0 for none. Defaults to 0.
 @returns       The handle of the mirror.
-@gap A mirror is only an entity: nothing is reflected. [EntityClass](Blitz3D-Entities#entityclass) still reports `Mirror`, so programs run unchanged, but the floor looks empty.
 
 ## CreateMesh
 Creates an empty mesh with no surfaces, vertices or triangles. Fill it with [CreateSurface](Blitz3D-Surfaces#createsurface), [AddVertex](Blitz3D-Surfaces#addvertex) and [AddTriangle](Blitz3D-Surfaces#addtriangle) to build your own geometry, or with [AddMesh](Blitz3D-Meshes#addmesh) to put other meshes together.
