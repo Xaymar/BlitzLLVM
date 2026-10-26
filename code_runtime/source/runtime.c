@@ -78,6 +78,195 @@ void bb_check_div(int64_t divisor)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Objects (Types)
+//
+// Every object starts with this header, which the compiler knows about (see register_types). Objects of a type are
+// in a doubly linked list. Deleted objects are taken out of the list and flagged, but their memory is kept, so that
+// variables that still point at them can be detected, and loops over the list can carry on.
+////////////////////////////////////////////////////////////////////////////////
+#define BB_OBJECT_DELETED 1
+
+typedef struct bb_object {
+	struct bb_object* next;
+	struct bb_object* prev;
+	int32_t           handle;
+	int32_t           flags;
+} bb_object;
+
+typedef struct bb_list {
+	bb_object* first;
+	bb_object* last;
+} bb_list;
+
+// Handles are numbers that stand in for objects. Index 0 is never used.
+static bb_object** bb_handles     = NULL;
+static int32_t     bb_handle_count = 1;
+static int32_t     bb_handle_cap   = 0;
+
+static void bb_list_append(bb_list* list, bb_object* object)
+{
+	object->prev = list->last;
+	object->next = NULL;
+	if (list->last) {
+		list->last->next = object;
+	} else {
+		list->first = object;
+	}
+	list->last = object;
+}
+
+static void bb_list_unlink(bb_list* list, bb_object* object)
+{
+	// The object keeps its own next and previous pointers, so that a loop standing on it can continue.
+	if (object->prev) {
+		object->prev->next = object->next;
+	} else {
+		list->first = object->next;
+	}
+	if (object->next) {
+		object->next->prev = object->prev;
+	} else {
+		list->last = object->prev;
+	}
+}
+
+void* bb_object_new(int64_t size, bb_list* list)
+{
+	bb_object* object = (bb_object*)calloc(1, (size_t)size);
+	if (!object) {
+		bb_runtime_error("Out of memory.");
+	}
+	bb_list_append(list, object);
+	return object;
+}
+
+void bb_check_object(void* pointer)
+{
+	bb_object* object = (bb_object*)pointer;
+	if (!object || (object->flags & BB_OBJECT_DELETED)) {
+		bb_runtime_error("Object does not exist.");
+	}
+}
+
+void bb_object_delete(bb_object* object, bb_list* list)
+{
+	if (!object || (object->flags & BB_OBJECT_DELETED)) {
+		return;
+	}
+	bb_list_unlink(list, object);
+	object->flags |= BB_OBJECT_DELETED;
+	if (object->handle > 0) {
+		bb_handles[object->handle] = NULL;
+	}
+}
+
+void bb_list_clear(bb_list* list)
+{
+	while (list->first) {
+		bb_object_delete(list->first, list);
+	}
+}
+
+bb_object* bb_list_first(bb_list* list)
+{
+	return list->first;
+}
+
+bb_object* bb_list_last(bb_list* list)
+{
+	return list->last;
+}
+
+bb_object* bb_object_next(bb_object* object)
+{
+	if (!object) {
+		return NULL;
+	}
+	bb_object* next = object->next;
+	while (next && (next->flags & BB_OBJECT_DELETED)) {
+		next = next->next;
+	}
+	return next;
+}
+
+bb_object* bb_object_prev(bb_object* object)
+{
+	if (!object) {
+		return NULL;
+	}
+	bb_object* prev = object->prev;
+	while (prev && (prev->flags & BB_OBJECT_DELETED)) {
+		prev = prev->prev;
+	}
+	return prev;
+}
+
+// Insert object Before/After other: moves the object within its list.
+void bb_object_insert(bb_object* object, bb_object* other, int32_t after, bb_list* list)
+{
+	bb_check_object(object);
+	bb_check_object(other);
+	if (object == other) {
+		return;
+	}
+	bb_list_unlink(list, object);
+	if (after) {
+		object->prev = other;
+		object->next = other->next;
+		if (other->next) {
+			other->next->prev = object;
+		} else {
+			list->last = object;
+		}
+		other->next = object;
+	} else {
+		object->next = other;
+		object->prev = other->prev;
+		if (other->prev) {
+			other->prev->next = object;
+		} else {
+			list->first = object;
+		}
+		other->prev = object;
+	}
+}
+
+int32_t bb_handle(bb_object* object)
+{
+	if (!object || (object->flags & BB_OBJECT_DELETED)) {
+		return 0;
+	}
+	if (object->handle == 0) {
+		if (bb_handle_count >= bb_handle_cap) {
+			bb_handle_cap = bb_handle_cap ? bb_handle_cap * 2 : 1024;
+			bb_handles    = (bb_object**)realloc(bb_handles, (size_t)bb_handle_cap * sizeof(bb_object*));
+			if (!bb_handles) {
+				bb_runtime_error("Out of memory.");
+			}
+		}
+		object->handle              = bb_handle_count;
+		bb_handles[bb_handle_count] = object;
+		bb_handle_count++;
+	}
+	return object->handle;
+}
+
+bb_object* bb_object_from_handle(int32_t handle)
+{
+	if ((handle <= 0) || (handle >= bb_handle_count)) {
+		return NULL;
+	}
+	return bb_handles[handle];
+}
+
+void bb_check_index(int32_t index, int32_t count)
+{
+	if ((index < 0) || (index >= count)) {
+		bb_runtime_error("Array index out of bounds.");
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Strings and conversion
 ////////////////////////////////////////////////////////////////////////////////
 int32_t bb_len(const char* s)

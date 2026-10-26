@@ -345,12 +345,30 @@ blitz::compiler::value blitz::compiler::call_runtime(const char* symbol, type re
 	return { r, ret };
 }
 
-blitz::compiler::value blitz::compiler::convert(value from, type to, ast::location const& where, bool warn_lossy)
+blitz::compiler::value blitz::compiler::convert(value from, type to, ast::location const& where, bool warn_lossy, std::string const& to_sname)
 {
 	if (from.type == type::UNKNOWN) {
 		throw err(where, "Expression does not return a value.");
 	} else if (from.type == to) {
+		if (to == type::STRUCT) {
+			std::string wanted = lower(to_sname);
+			if (!from.sname.empty() && !wanted.empty() && (from.sname != wanted)) {
+				throw err(where, "Type mismatch: '" + from.sname + "' is not '" + wanted + "'.");
+			}
+			if (from.sname.empty()) {
+				from.sname = wanted; // Null becomes whatever it is assigned to.
+			}
+		}
 		return from;
+	} else if ((from.type == type::STRUCT) && from.sname.empty() && (from.repr == "null")) {
+		// Null
+		if (blitz::types::is_integer(to)) {
+			return { "0", to };
+		} else if (blitz::types::is_real(to)) {
+			return { "0.0", to };
+		} else if (to == type::STRING) {
+			return { "null", to };
+		}
 	}
 
 	namespace t    = blitz::types;
@@ -443,6 +461,8 @@ std::string blitz::compiler::truthy(value v, ast::location const& where)
 	} else if (v.type == type::STRING) {
 		auto len = call_runtime("bb_len", type::INT32, { v });
 		emit(r + " = icmp ne i32 " + len.repr + ", 0");
+	} else if (v.type == type::STRUCT) {
+		emit(r + " = icmp ne ptr " + v.repr + ", null");
 	} else {
 		throw err(where, "Expression has no value.");
 	}
@@ -473,7 +493,7 @@ blitz::compiler::variable* blitz::compiler::find(std::string const& name)
 	return nullptr;
 }
 
-blitz::compiler::variable blitz::compiler::create_local(std::string const& name, type t, bool is_constant, ast::location const& where)
+blitz::compiler::variable blitz::compiler::create_local(std::string const& name, type t, bool is_constant, ast::location const& where, std::string const& sname)
 {
 	auto key = lower(name);
 	if (_locals.count(key) || _global_variables.count(key)) {
@@ -486,18 +506,18 @@ blitz::compiler::variable blitz::compiler::create_local(std::string const& name,
 	_allocas << "  " << ptr << " = alloca " << llvm << "\n";
 	_allocas << "  store " << llvm << " " << zero(t).repr << ", ptr " << ptr << "\n";
 
-	variable var{ ptr, t, is_constant };
+	variable var{ ptr, t, is_constant, lower(sname) };
 	_locals[key] = var;
 	return var;
 }
 
-blitz::compiler::variable& blitz::compiler::lookup(std::string const& name, type hint)
+blitz::compiler::variable& blitz::compiler::lookup(std::string const& name, type hint, std::string const& sname)
 {
 	if (auto var = find(name)) {
 		return *var;
 	}
 	// Variables that were not declared are automatically declared as local.
-	create_local(name, (hint == type::UNKNOWN) ? type::INT32 : hint, false, ast::location{});
+	create_local(name, (hint == type::UNKNOWN) ? type::INT32 : hint, false, ast::location{}, sname);
 	return _locals[lower(name)];
 }
 
@@ -519,7 +539,11 @@ void blitz::compiler::collect_globals(ast::block const& block)
 				}
 				auto symbol = "@bb.g" + std::to_string(_counter++);
 				_globals << symbol << " = internal global " << blitz::types::to_llvm(t) << " " << zero(t).repr << "\n";
-				_global_variables[key] = variable{ symbol, t, d->constant };
+				_global_variables[key] = variable{ symbol, t, d->constant, lower(decl.struct_name) };
+				int64_t folded;
+				if (d->constant && decl.initial && fold_int(decl.initial.get(), folded)) {
+					_const_values[key] = folded;
+				}
 			}
 		} else if (auto i = dynamic_cast<ast::if_statement const*>(stmt.get())) {
 			for (auto const& b : i->branches) {
@@ -588,6 +612,18 @@ blitz::compiler::value blitz::compiler::gen(ast::expression const* expr)
 		return gen_unary(n);
 	} else if (auto n = dynamic_cast<ast::binary const*>(expr)) {
 		return gen_binary(n);
+	} else if (auto n = dynamic_cast<ast::field_access const*>(expr)) {
+		return gen_field(n);
+	} else if (auto n = dynamic_cast<ast::index_access const*>(expr)) {
+		return gen_index(n);
+	} else if (auto n = dynamic_cast<ast::new_object const*>(expr)) {
+		return gen_new(n);
+	} else if (auto n = dynamic_cast<ast::list_end const*>(expr)) {
+		return gen_list_end(n);
+	} else if (auto n = dynamic_cast<ast::list_neighbor const*>(expr)) {
+		return gen_neighbor(n);
+	} else if (auto n = dynamic_cast<ast::object_from_handle const*>(expr)) {
+		return gen_from_handle(n);
 	}
 	throw err(expr->where, "Unsupported expression.");
 }
@@ -597,6 +633,8 @@ blitz::compiler::value blitz::compiler::gen_literal(ast::literal const* node)
 	switch (node->kind) {
 	case ast::literal::variant::STRING:
 		return { string_constant(node->text), type::STRING };
+	case ast::literal::variant::NULLPTR:
+		return { "null", type::STRUCT, "" };
 	case ast::literal::variant::REAL:
 		return constant(type::FLOAT32, node->f);
 	case ast::literal::variant::UNSIGNED_INTEGER:
@@ -617,7 +655,7 @@ blitz::compiler::value blitz::compiler::gen_reference(ast::reference const* node
 	if (auto var = find(node->name)) {
 		auto r = tmp();
 		emit(r + " = load " + blitz::types::to_llvm(var->type) + ", ptr " + var->pointer);
-		return { r, var->type };
+		return { r, var->type, var->sname };
 	}
 
 	// Not a variable: a function can be called without parenthesis.
@@ -634,7 +672,7 @@ blitz::compiler::value blitz::compiler::gen_reference(ast::reference const* node
 	}
 
 	// Automatically declare the variable.
-	create_local(node->name, (node->type == type::UNKNOWN) ? type::INT32 : node->type, false, node->where);
+	create_local(node->name, (node->type == type::UNKNOWN) ? type::INT32 : node->type, false, node->where, node->struct_name);
 	return gen_reference(node);
 }
 
@@ -650,7 +688,14 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 		}
 	};
 
-	if (key == "int") {
+	if (key == "handle") {
+		need(1, 1);
+		auto object = gen(node->arguments[0].get());
+		if (object.type != type::STRUCT) {
+			throw err(node->where, "Handle needs an object.");
+		}
+		return call_runtime("bb_handle", type::INT32, { object });
+	} else if (key == "int") {
 		need(1, 1);
 		return convert(gen(node->arguments[0].get()), type::INT32, node->where, false);
 	} else if (key == "float") {
@@ -757,9 +802,9 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 		auto const& param = fn.parameters[idx];
 		value       v;
 		if (idx < node->arguments.size()) {
-			v = convert(gen(node->arguments[idx].get()), param.type, node->arguments[idx]->where, true);
+			v = convert(gen(node->arguments[idx].get()), param.type, node->arguments[idx]->where, true, param.struct_name);
 		} else {
-			v = convert(gen(param.initial.get()), param.type, param.where, true);
+			v = convert(gen(param.initial.get()), param.type, param.where, true, param.struct_name);
 		}
 		list += (idx ? ", " : "") + blitz::types::to_llvm(param.type) + " " + v.repr;
 	}
@@ -767,7 +812,7 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 	auto ret = fn.type;
 	auto r   = tmp();
 	emit(r + " = call " + blitz::types::to_llvm(ret) + " " + it->second.symbol + "(" + list + ")");
-	return { r, ret };
+	return { r, ret, lower(fn.struct_name) };
 }
 
 blitz::compiler::value blitz::compiler::gen_unary(ast::unary const* node)
@@ -838,6 +883,19 @@ std::string blitz::compiler::compare(ast::binary::op kind, value lhs, value rhs,
 	}
 
 	auto r = tmp();
+	if ((lhs.type == type::STRUCT) || (rhs.type == type::STRUCT)) {
+		if ((lhs.type != type::STRUCT) || (rhs.type != type::STRUCT)) {
+			throw err(where, "Objects can only be compared with objects and Null.");
+		}
+		if (!lhs.sname.empty() && !rhs.sname.empty() && (lhs.sname != rhs.sname)) {
+			throw err(where, "Type mismatch: '" + lhs.sname + "' can't be compared with '" + rhs.sname + "'.");
+		}
+		if ((kind != op::EQUAL) && (kind != op::NOT_EQUAL)) {
+			throw err(where, "Objects can only be checked for being equal or not.");
+		}
+		emit(r + " = icmp " + pred_s + " ptr " + lhs.repr + ", " + rhs.repr);
+		return r;
+	}
 	if ((lhs.type == type::STRING) || (rhs.type == type::STRING)) {
 		auto a   = convert(lhs, type::STRING, where, false);
 		auto b   = convert(rhs, type::STRING, where, false);
@@ -999,6 +1057,10 @@ void blitz::compiler::gen_statement(ast::statement const* node)
 		gen_select(n);
 	} else if (auto n = dynamic_cast<ast::return_statement const*>(node)) {
 		gen_return(n);
+	} else if (auto n = dynamic_cast<ast::delete_statement const*>(node)) {
+		gen_delete(n);
+	} else if (auto n = dynamic_cast<ast::insert_statement const*>(node)) {
+		gen_insert(n);
 	} else if (dynamic_cast<ast::exit_statement const*>(node)) {
 		if (_exits.empty()) {
 			throw err(node->where, "Exit can only be used inside of a loop.");
@@ -1020,12 +1082,15 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 			var = _global_variables.at(lower(decl.name));
 		} else {
 			type t = (decl.type == type::UNKNOWN) ? type::INT32 : decl.type;
-			var    = create_local(decl.name, t, false, decl.where);
+			var    = create_local(decl.name, t, false, decl.where, decl.struct_name);
+		}
+		if (decl.array_size) {
+			throw err(decl.where, "Arrays are not supported yet.");
 		}
 
 		auto llvm = blitz::types::to_llvm(var.type);
 		if (decl.initial) {
-			auto v = convert(gen(decl.initial.get()), var.type, decl.initial->where, true);
+			auto v = convert(gen(decl.initial.get()), var.type, decl.initial->where, true, var.sname);
 			emit("store " + llvm + " " + v.repr + ", ptr " + var.pointer);
 		} else if (!node->global) {
 			// Locals start out as zero every time the declaration is executed.
@@ -1037,18 +1102,15 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 void blitz::compiler::gen_assign(ast::assign const* node)
 {
 	auto rhs  = gen(node->value.get());
-	auto& var = [&]() -> variable& {
-		if (auto found = find(node->target->name)) {
-			return *found;
-		}
-		create_local(node->target->name, (node->target->type == type::UNKNOWN) ? type::INT32 : node->target->type, false, node->target->where);
-		return _locals[lower(node->target->name)];
-	}();
-	if (var.constant) {
-		throw err(node->where, "'" + node->target->name + "' is a constant and can't be changed.");
+	auto addr = gen_address(node->target.get());
+	if (addr.constant) {
+		throw err(node->where, "This is a constant and can't be changed.");
 	}
-	auto v = convert(rhs, var.type, node->value->where, true);
-	emit("store " + blitz::types::to_llvm(var.type) + " " + v.repr + ", ptr " + var.pointer);
+	if (addr.count) {
+		throw err(node->where, "Arrays can't be assigned as a whole, use an index.");
+	}
+	auto v = convert(rhs, addr.type, node->value->where, true, addr.sname);
+	emit("store " + blitz::types::to_llvm(addr.type) + " " + v.repr + ", ptr " + addr.pointer);
 }
 
 void blitz::compiler::gen_if(ast::if_statement const* node)
@@ -1113,6 +1175,10 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 {
 	namespace t = blitz::types;
 
+	if (!node->each_type.empty()) {
+		gen_for_each(node);
+		return;
+	}
 	auto& var = lookup(node->variable->name, node->variable->type);
 	if (!is_number(var.type)) {
 		throw err(node->where, "The variable of a For loop has to be a number.");
@@ -1201,7 +1267,7 @@ void blitz::compiler::gen_return(ast::return_statement const* node)
 	}
 	auto llvm = blitz::types::to_llvm(_return_type);
 	if (node->value) {
-		auto v = convert(gen(node->value.get()), _return_type, node->value->where, true);
+		auto v = convert(gen(node->value.get()), _return_type, node->value->where, true, _return_sname);
 		emit_terminator("ret " + llvm + " " + v.repr);
 	} else {
 		emit_terminator("ret " + llvm + " " + zero(_return_type).repr);
@@ -1223,8 +1289,9 @@ void blitz::compiler::begin_function()
 void blitz::compiler::gen_function(ast::function const& fn)
 {
 	begin_function();
-	_in_main     = false;
-	_return_type = fn.type;
+	_in_main      = false;
+	_return_type  = fn.type;
+	_return_sname = lower(fn.struct_name);
 
 	auto const& info = _functions.at(lower(fn.name));
 	std::string params;
@@ -1234,7 +1301,7 @@ void blitz::compiler::gen_function(ast::function const& fn)
 
 	for (size_t idx = 0; idx < fn.parameters.size(); idx++) {
 		auto const& param = fn.parameters[idx];
-		auto        var   = create_local(param.name, param.type, false, param.where);
+		auto        var   = create_local(param.name, param.type, false, param.where, param.struct_name);
 		emit("store " + blitz::types::to_llvm(param.type) + " %a" + std::to_string(idx) + ", ptr " + var.pointer);
 	}
 	gen_block(fn.body);
@@ -1250,8 +1317,9 @@ void blitz::compiler::gen_function(ast::function const& fn)
 void blitz::compiler::gen_main(ast::program const& program)
 {
 	begin_function();
-	_in_main     = true;
-	_return_type = type::INT32;
+	_in_main      = true;
+	_return_type  = type::INT32;
+	_return_sname = "";
 
 	call_runtime("bb_init", type::UNKNOWN, {});
 	gen_block(program.main);
@@ -1262,6 +1330,288 @@ void blitz::compiler::gen_main(ast::program const& program)
 	_definitions << "define i32 @main(i32 %argc, ptr %argv) {\n"
 				 << "entry:\n"
 				 << _allocas.str() << _body.str() << "}\n\n";
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Objects, fields and addresses
+////////////////////////////////////////////////////////////////////////////////
+bool blitz::compiler::fold_int(ast::expression const* expr, int64_t& out)
+{
+	if (auto l = dynamic_cast<ast::literal const*>(expr)) {
+		if (l->kind == ast::literal::variant::INTEGER) {
+			out = l->i;
+			return true;
+		} else if (l->kind == ast::literal::variant::UNSIGNED_INTEGER) {
+			out = int64_t(l->u);
+			return true;
+		}
+	} else if (auto r = dynamic_cast<ast::reference const*>(expr)) {
+		auto it = _const_values.find(lower(r->name));
+		if (it != _const_values.end()) {
+			out = it->second;
+			return true;
+		}
+	} else if (auto u = dynamic_cast<ast::unary const*>(expr)) {
+		int64_t v;
+		if (fold_int(u->operand.get(), v)) {
+			if (u->kind == ast::unary::op::NEGATE) {
+				out = -v;
+				return true;
+			} else if (u->kind == ast::unary::op::PLUS) {
+				out = v;
+				return true;
+			}
+		}
+	} else if (auto b = dynamic_cast<ast::binary const*>(expr)) {
+		int64_t l, r;
+		if (fold_int(b->lhs.get(), l) && fold_int(b->rhs.get(), r)) {
+			switch (b->kind) {
+			case ast::binary::op::ADD:
+				out = l + r;
+				return true;
+			case ast::binary::op::SUBTRACT:
+				out = l - r;
+				return true;
+			case ast::binary::op::MULTIPLY:
+				out = l * r;
+				return true;
+			case ast::binary::op::DIVIDE:
+				if (r != 0) {
+					out = l / r;
+					return true;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	return false;
+}
+
+blitz::compiler::type_info& blitz::compiler::need_type(std::string const& name, ast::location const& where)
+{
+	auto it = _types.find(lower(name));
+	if (it == _types.end()) {
+		throw err(where, "Unknown type '" + name + "'.");
+	}
+	return it->second;
+}
+
+void blitz::compiler::register_types(ast::program const& program)
+{
+	// First make all types known, as fields can refer to types that are defined later.
+	for (auto const& decl : program.types) {
+		auto key = lower(decl->name);
+		if (_types.count(key)) {
+			throw err(decl->where, "Type '" + decl->name + "' has already been defined.");
+		}
+		type_info info;
+		info.name = decl->name;
+		info.llvm = "%bb.t" + std::to_string(_counter);
+		info.list = "@bb.list" + std::to_string(_counter);
+		_counter++;
+		_types[key] = info;
+	}
+
+	for (auto const& decl : program.types) {
+		auto&       info    = _types[lower(decl->name)];
+		std::string members = "ptr, ptr, i32, i32"; // Next, previous, handle and flags: see bb_object in the runtime.
+		uint32_t    index   = 4;
+		for (auto const& f : decl->fields) {
+			field_info field;
+			field.name  = f.name;
+			field.type  = f.type;
+			field.sname = lower(f.struct_name);
+			field.count = 0;
+			field.index = index++;
+			if ((f.type == type::STRUCT) && !_types.count(field.sname)) {
+				throw err(f.where, "Unknown type '" + f.struct_name + "'.");
+			}
+			if (f.array_size) {
+				int64_t size;
+				if (!fold_int(f.array_size.get(), size) || (size < 0) || (size > 100000000)) {
+					throw err(f.where, "The size of an array in a Type has to be a constant number.");
+				}
+				field.count = uint32_t(size) + 1; // Like Dim, the upper bound is included.
+			}
+			members += ", " + (field.count ? "[" + std::to_string(field.count) + " x " + blitz::types::to_llvm(f.type) + "]" : blitz::types::to_llvm(f.type));
+			info.fields.push_back(field);
+		}
+		_constants << info.llvm << " = type { " << members << " }\n";
+		_globals << info.list << " = internal global { ptr, ptr } zeroinitializer\n";
+	}
+}
+
+blitz::compiler::address blitz::compiler::gen_address(ast::expression const* expr)
+{
+	if (auto r = dynamic_cast<ast::reference const*>(expr)) {
+		variable* var = find(r->name);
+		if (!var) {
+			create_local(r->name, (r->type == type::UNKNOWN) ? type::INT32 : r->type, false, r->where, r->struct_name);
+			var = find(r->name);
+		}
+		return { var->pointer, var->type, var->sname, var->count, var->constant };
+	} else if (auto f = dynamic_cast<ast::field_access const*>(expr)) {
+		auto object = gen(f->object.get());
+		if ((object.type != type::STRUCT) || object.sname.empty()) {
+			throw err(f->where, "'\\" + f->name + "' can only be used on an object.");
+		}
+		auto& info = need_type(object.sname, f->where);
+		for (auto const& field : info.fields) {
+			if (lower(field.name) == lower(f->name)) {
+				call_runtime("bb_check_object", type::UNKNOWN, { object });
+				auto p = tmp();
+				emit(p + " = getelementptr inbounds " + info.llvm + ", ptr " + object.repr + ", i32 0, i32 " + std::to_string(field.index));
+				return { p, field.type, field.sname, field.count, false };
+			}
+		}
+		throw err(f->where, "Type '" + info.name + "' has no field '" + f->name + "'.");
+	} else if (auto i = dynamic_cast<ast::index_access const*>(expr)) {
+		auto base = gen_address(i->base.get());
+		if (!base.count) {
+			throw err(i->where, "This is not an array.");
+		}
+		auto index = convert(gen(i->index.get()), type::INT32, i->index->where, true);
+		call_runtime("bb_check_index", type::UNKNOWN, { index, { std::to_string(base.count), type::INT32 } });
+		auto p = tmp();
+		emit(p + " = getelementptr inbounds [" + std::to_string(base.count) + " x " + blitz::types::to_llvm(base.type) + "], ptr " + base.pointer + ", i32 0, i32 " + index.repr);
+		return { p, base.type, base.sname, 0, base.constant };
+	}
+	throw err(expr->where, "This can't be assigned to.");
+}
+
+blitz::compiler::value blitz::compiler::load_address(address const& addr)
+{
+	if (addr.count) {
+		throw blitz::error(std::filesystem::path(), { 0, 0 }, { 0, 0 }, "An array can only be used with an index.");
+	}
+	auto r = tmp();
+	emit(r + " = load " + blitz::types::to_llvm(addr.type) + ", ptr " + addr.pointer);
+	return { r, addr.type, addr.sname };
+}
+
+blitz::compiler::value blitz::compiler::gen_field(ast::field_access const* node)
+{
+	auto addr = gen_address(node);
+	if (addr.count) {
+		throw err(node->where, "An array can only be used with an index.");
+	}
+	return load_address(addr);
+}
+
+blitz::compiler::value blitz::compiler::gen_index(ast::index_access const* node)
+{
+	return load_address(gen_address(node));
+}
+
+blitz::compiler::value blitz::compiler::gen_new(ast::new_object const* node)
+{
+	auto& info = need_type(node->type_name, node->where);
+	auto  end  = tmp(), size = tmp();
+	emit(end + " = getelementptr " + info.llvm + ", ptr null, i32 1");
+	emit(size + " = ptrtoint ptr " + end + " to i64");
+	auto object = call_runtime("bb_object_new", type::STRUCT, { { size, type::INT64 }, { info.list, type::STRUCT } });
+	object.sname = lower(info.name);
+	return object;
+}
+
+blitz::compiler::value blitz::compiler::gen_list_end(ast::list_end const* node)
+{
+	auto& info   = need_type(node->type_name, node->where);
+	auto  object = call_runtime(node->last ? "bb_list_last" : "bb_list_first", type::STRUCT, { { info.list, type::STRUCT } });
+	object.sname = lower(info.name);
+	return object;
+}
+
+blitz::compiler::value blitz::compiler::gen_neighbor(ast::list_neighbor const* node)
+{
+	auto object = gen(node->object.get());
+	if (object.type != type::STRUCT) {
+		throw err(node->where, "Before and After need an object.");
+	}
+	auto result  = call_runtime(node->after ? "bb_object_next" : "bb_object_prev", type::STRUCT, { object });
+	result.sname = object.sname;
+	return result;
+}
+
+blitz::compiler::value blitz::compiler::gen_from_handle(ast::object_from_handle const* node)
+{
+	auto& info   = need_type(node->type_name, node->where);
+	auto  handle = convert(gen(node->handle.get()), type::INT32, node->handle->where, true);
+	auto  result = call_runtime("bb_object_from_handle", type::STRUCT, { handle });
+	result.sname = lower(info.name);
+	return result;
+}
+
+void blitz::compiler::gen_for_each(ast::for_statement const* node)
+{
+	auto& info = need_type(node->each_type, node->where);
+	auto& var  = lookup(node->variable->name, type::STRUCT, node->each_type);
+	if ((var.type != type::STRUCT) || (var.sname != lower(info.name))) {
+		throw err(node->where, "The variable of 'For Each " + info.name + "' has to be of that type.");
+	}
+	auto pointer = var.pointer;
+
+	auto first = call_runtime("bb_list_first", type::STRUCT, { { info.list, type::STRUCT } });
+	emit("store ptr " + first.repr + ", ptr " + pointer);
+
+	auto cond_l = label("each.cond"), body_l = label("each.body"), step_l = label("each.step"), end_l = label("each.end");
+	begin_label(cond_l);
+	auto current = tmp(), more = tmp();
+	emit(current + " = load ptr, ptr " + pointer);
+	emit(more + " = icmp ne ptr " + current + ", null");
+	emit_terminator("br i1 " + more + ", label %" + body_l + ", label %" + end_l);
+
+	begin_label(body_l);
+	_exits.push_back(end_l);
+	gen_block(node->body);
+	_exits.pop_back();
+
+	// The body might have deleted the object, which still knows what comes next.
+	begin_label(step_l);
+	auto at = tmp();
+	emit(at + " = load ptr, ptr " + pointer);
+	auto next = call_runtime("bb_object_next", type::STRUCT, { { at, type::STRUCT } });
+	emit("store ptr " + next.repr + ", ptr " + pointer);
+	emit_terminator("br label %" + cond_l);
+	begin_label(end_l);
+}
+
+void blitz::compiler::gen_delete(ast::delete_statement const* node)
+{
+	if (!node->each_type.empty()) {
+		auto& info = need_type(node->each_type, node->where);
+		call_runtime("bb_list_clear", type::UNKNOWN, { { info.list, type::STRUCT } });
+		return;
+	}
+	auto object = gen(node->object.get());
+	if (object.type != type::STRUCT) {
+		throw err(node->where, "Delete needs an object.");
+	}
+	if (object.sname.empty()) {
+		return; // Deleting Null does nothing.
+	}
+	auto& info = need_type(object.sname, node->where);
+	call_runtime("bb_object_delete", type::UNKNOWN, { object, { info.list, type::STRUCT } });
+}
+
+void blitz::compiler::gen_insert(ast::insert_statement const* node)
+{
+	auto object = gen(node->object.get());
+	auto other  = gen(node->other.get());
+	if ((object.type != type::STRUCT) || (other.type != type::STRUCT)) {
+		throw err(node->where, "Insert needs two objects.");
+	}
+	std::string sname = object.sname.empty() ? other.sname : object.sname;
+	if (sname.empty()) {
+		return;
+	}
+	if (!object.sname.empty() && !other.sname.empty() && (object.sname != other.sname)) {
+		throw err(node->where, "Type mismatch: '" + object.sname + "' can't be inserted next to '" + other.sname + "'.");
+	}
+	auto& info = need_type(sname, node->where);
+	call_runtime("bb_object_insert", type::UNKNOWN, { object, other, { node->after ? "1" : "0", type::INT32 }, { info.list, type::STRUCT } });
 }
 
 std::string blitz::compiler::generate(ast::program const& program)
@@ -1280,6 +1630,7 @@ std::string blitz::compiler::generate(ast::program const& program)
 	for (auto const& fn : program.functions) {
 		collect_globals(fn->body);
 	}
+	register_types(program);
 
 	for (auto const& fn : program.functions) {
 		gen_function(*fn);

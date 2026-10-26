@@ -21,12 +21,12 @@ namespace {
 		"then",  "to",     "step",   "else",    "elseif", "endif",     "end",    "wend",  "next", "until", "forever", "case",
 		"default", "local", "global", "const",   "if",     "while",     "repeat", "for",   "select", "function", "endfunction", "endselect",
 		"return", "exit",  "include", "dim",    "type",   "and",       "or",     "xor",   "mod",  "shl",   "shr",     "sar",
-		"not",
+		"not",    "type",   "endtype", "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
 	};
 
 	// Things that exist in Blitz, but that we do not (yet) know how to compile.
 	const std::set<std::string> unsupported = {
-		"dim", "type", "field", "goto", "gosub", "data", "read", "restore", "new", "delete", "insert", "before", "after", "each", "first", "last", "eachend",
+		"dim", "goto", "gosub", "data", "read", "restore",
 	};
 } // namespace
 
@@ -276,6 +276,12 @@ void blitz::parser::parse_statement(ast::block& into)
 		parse_function();
 	} else if (word == "include") {
 		parse_include(into);
+	} else if (word == "type") {
+		parse_type_decl();
+	} else if (word == "delete") {
+		parse_delete(into);
+	} else if (word == "insert") {
+		parse_insert(into);
 	} else if (word == "exit") {
 		auto node   = std::make_unique<ast::exit_statement>();
 		node->where = here(first);
@@ -325,7 +331,13 @@ void blitz::parser::parse_declare(ast::block& into)
 		ast::declaration decl;
 		decl.where = here(name_tk);
 		decl.name  = name_tk.text;
-		decl.type  = parse_type_suffix(name_tk);
+		decl.type        = parse_type_suffix(name_tk);
+		decl.struct_name = _struct_name;
+		if (is_symbol(tk(), "[")) {
+			advance();
+			decl.array_size = parse_expression();
+			expect_symbol("]");
+		}
 		if (is_symbol(tk(), "=")) {
 			advance();
 			decl.initial = parse_expression();
@@ -446,11 +458,28 @@ void blitz::parser::parse_for(ast::block& into)
 	node->variable->where = here(name);
 	node->variable->name  = name.text;
 	node->variable->type  = parse_type_suffix(name);
+	node->variable->struct_name = _struct_name;
 
-	if (is_keyword(tk(), "each")) {
-		throw error(tk(), "'For Each' is not supported yet.");
-	}
 	expect_symbol("=");
+	if (is_keyword(tk(), "each")) {
+		// For v.Type = Each Type
+		advance();
+		auto type_tk = tk();
+		if ((type_tk.type != blitz::token::variant::TEXT) || reserved.count(lower(type_tk.text))) {
+			throw error(type_tk, blitz::format("Unexpected %s, expected a type name.", type_tk.to_string().c_str()));
+		}
+		advance();
+		node->each_type = type_tk.text;
+		parse_block(node->body);
+		expect_keyword("next");
+		if ((tk().type == blitz::token::variant::TEXT) && !is_keyword(tk(), "else")) {
+			auto var = tk();
+			advance();
+			parse_type_suffix(var);
+		}
+		into.push_back(std::move(node));
+		return;
+	}
 	node->from = parse_expression();
 	expect_keyword("to");
 	node->to = parse_expression();
@@ -526,6 +555,7 @@ void blitz::parser::parse_function()
 	fn->where = here(first);
 	fn->name  = name.text;
 	fn->type  = parse_type_suffix(name);
+	fn->struct_name = _struct_name;
 	if (fn->type == blitz::types::type::UNKNOWN) {
 		fn->type = blitz::types::type::INT32;
 	}
@@ -543,6 +573,7 @@ void blitz::parser::parse_function()
 			param.where = here(pname);
 			param.name  = pname.text;
 			param.type  = parse_type_suffix(pname);
+			param.struct_name = _struct_name;
 			if (param.type == blitz::types::type::UNKNOWN) {
 				param.type = blitz::types::type::INT32;
 			}
@@ -586,26 +617,136 @@ void blitz::parser::parse_include(ast::block& into)
 	parse_file(target, into);
 }
 
+void blitz::parser::parse_type_decl()
+{
+	auto first = tk();
+	if (_depth != 0) {
+		throw error(first, "Types can't be defined inside of other blocks.");
+	}
+	advance();
+
+	auto name = tk();
+	if ((name.type != blitz::token::variant::TEXT) || reserved.count(lower(name.text))) {
+		throw error(name, blitz::format("Unexpected %s, expected a type name.", name.to_string().c_str()));
+	}
+	advance();
+
+	auto decl   = std::make_unique<ast::type_decl>();
+	decl->where = here(first);
+	decl->name  = name.text;
+
+	while (true) {
+		skip_empty();
+		if (is_keyword(tk(), "endtype")) {
+			advance();
+			break;
+		} else if (is_keyword(tk(), "end") && is_keyword(tk(1), "type")) {
+			advance();
+			advance();
+			break;
+		} else if (!is_keyword(tk(), "field")) {
+			throw error(tk(), blitz::format("Unexpected %s, expected 'Field' or 'End Type'.", tk().to_string().c_str()));
+		}
+		advance();
+
+		while (true) {
+			auto fname = tk();
+			if (fname.type != blitz::token::variant::TEXT) {
+				throw error(fname, blitz::format("Unexpected %s, expected a field name.", fname.to_string().c_str()));
+			}
+			advance();
+
+			ast::field_decl field;
+			field.where       = here(fname);
+			field.name        = fname.text;
+			field.type        = parse_type_suffix(fname);
+			field.struct_name = _struct_name;
+			if (field.type == blitz::types::type::UNKNOWN) {
+				field.type = blitz::types::type::INT32;
+			}
+			if (is_symbol(tk(), "[")) {
+				advance();
+				field.array_size = parse_expression();
+				expect_symbol("]");
+			}
+			decl->fields.push_back(std::move(field));
+
+			if (is_symbol(tk(), ",")) {
+				advance();
+				continue;
+			}
+			break;
+		}
+	}
+	_program->types.push_back(std::move(decl));
+}
+
+void blitz::parser::parse_delete(ast::block& into)
+{
+	auto first = tk();
+	advance();
+
+	auto node   = std::make_unique<ast::delete_statement>();
+	node->where = here(first);
+	if (is_keyword(tk(), "each")) {
+		advance();
+		auto type_tk = tk();
+		if (type_tk.type != blitz::token::variant::TEXT) {
+			throw error(type_tk, blitz::format("Unexpected %s, expected a type name.", type_tk.to_string().c_str()));
+		}
+		advance();
+		node->each_type = type_tk.text;
+	} else {
+		node->object = parse_expression();
+	}
+	into.push_back(std::move(node));
+}
+
+void blitz::parser::parse_insert(ast::block& into)
+{
+	auto first = tk();
+	advance();
+
+	auto node    = std::make_unique<ast::insert_statement>();
+	node->where  = here(first);
+	node->object = parse_unary();
+	if (is_keyword(tk(), "before")) {
+		node->after = false;
+	} else if (is_keyword(tk(), "after")) {
+		node->after = true;
+	} else {
+		throw error(tk(), blitz::format("Unexpected %s, expected 'Before' or 'After'.", tk().to_string().c_str()));
+	}
+	advance();
+	node->other = parse_unary();
+	into.push_back(std::move(node));
+}
+
 void blitz::parser::parse_identifier_statement(ast::block& into)
 {
-	auto name = tk();
-	advance();
-	auto type = parse_type_suffix(name);
+	auto name  = tk();
+	size_t start = _pos;
 
-	if (is_symbol(tk(), "=")) {
-		auto node            = std::make_unique<ast::assign>();
-		node->where          = here(name);
-		node->target         = std::make_unique<ast::reference>();
-		node->target->where  = here(name);
-		node->target->name   = name.text;
-		node->target->type   = type;
-		advance();
-		node->value = parse_expression();
-		into.push_back(std::move(node));
-		return;
-	} else if (is_symbol(tk(), "\\") || is_symbol(tk(), "[")) {
-		throw error(tk(), "Fields and arrays are not supported yet.");
+	// Assignment: the left side can be a variable, a field, or an array element.
+	try {
+		auto target = parse_primary();
+		if (is_symbol(tk(), "=")) {
+			auto node    = std::make_unique<ast::assign>();
+			node->where  = here(name);
+			node->target = std::move(target);
+			advance();
+			node->value = parse_expression();
+			into.push_back(std::move(node));
+			return;
+		}
+	} catch (blitz::error const&) {
+		// Not an assignment, the command parsing below reports errors properly.
 	}
+	_pos = start;
+
+	advance();
+	auto type        = parse_type_suffix(name);
+	auto struct_name = _struct_name;
 
 	auto node                = std::make_unique<ast::call_statement>();
 	node->where              = here(name);
@@ -613,6 +754,7 @@ void blitz::parser::parse_identifier_statement(ast::block& into)
 	node->invocation->where  = here(name);
 	node->invocation->name   = name.text;
 	node->invocation->type   = type;
+	node->invocation->struct_name = struct_name;
 
 	if (is_symbol(tk(), "(")) {
 		// Try `Name(Arg, ...)` first. If something follows the `)`, it's actually `Name (Expression)...`.
@@ -646,6 +788,7 @@ void blitz::parser::parse_identifier_statement(ast::block& into)
 ////////////////////////////////////////////////////////////////////////////////
 blitz::types::type blitz::parser::parse_type_suffix(blitz::token const& name)
 {
+	_struct_name.clear();
 	auto const& next = tk();
 	if (next.type == blitz::token::variant::SYMBOL) {
 		if (!adjacent(name, next)) {
@@ -667,7 +810,15 @@ blitz::types::type blitz::parser::parse_type_suffix(blitz::token const& name)
 			advance();
 			return blitz::types::type::STRING;
 		} else if (next.text == ".") {
-			throw error(next, "Custom types are not supported yet.");
+			// `Name.TypeName`
+			auto const& type_tk = tk(1);
+			if ((type_tk.type != blitz::token::variant::TEXT) || !adjacent(next, type_tk)) {
+				throw error(next, "Expected a type name after '.'.");
+			}
+			_struct_name = type_tk.text;
+			advance();
+			advance();
+			return blitz::types::type::STRUCT;
 		}
 	} else if ((next.type == blitz::token::variant::SEPARATOR) && adjacent(name, next)) {
 		// `Name:Type` is only a type if directly attached, and the type is a known one.
@@ -852,6 +1003,32 @@ blitz::ast::expression_ptr blitz::parser::parse_power()
 blitz::ast::expression_ptr blitz::parser::parse_unary()
 {
 	auto op = tk();
+	if (is_keyword(op, "new") || is_keyword(op, "first") || is_keyword(op, "last")) {
+		advance();
+		auto type_tk = tk();
+		if ((type_tk.type != blitz::token::variant::TEXT) || reserved.count(lower(type_tk.text))) {
+			throw error(type_tk, blitz::format("Unexpected %s, expected a type name.", type_tk.to_string().c_str()));
+		}
+		advance();
+		if (is_keyword(op, "new")) {
+			auto node       = std::make_unique<ast::new_object>();
+			node->where     = here(op);
+			node->type_name = type_tk.text;
+			return node;
+		}
+		auto node       = std::make_unique<ast::list_end>();
+		node->where     = here(op);
+		node->type_name = type_tk.text;
+		node->last      = is_keyword(op, "last");
+		return node;
+	} else if (is_keyword(op, "before") || is_keyword(op, "after")) {
+		advance();
+		auto node    = std::make_unique<ast::list_neighbor>();
+		node->where  = here(op);
+		node->after  = is_keyword(op, "after");
+		node->object = parse_unary();
+		return node;
+	}
 	if (is_symbol(op, "-") || is_symbol(op, "+") || is_symbol(op, "~")) {
 		advance();
 		auto node     = std::make_unique<ast::unary>();
@@ -911,6 +1088,40 @@ blitz::ast::expression_ptr blitz::parser::parse_number(blitz::token const& token
 	return node;
 }
 
+// Field access (`Object\Field`) and array elements (`Array[Index]`) that follow something.
+blitz::ast::expression_ptr blitz::parser::parse_postfix(ast::expression_ptr base)
+{
+	while (true) {
+		if (is_symbol(tk(), "\\")) {
+			auto slash = tk();
+			advance();
+			auto field = tk();
+			if (field.type != blitz::token::variant::TEXT) {
+				throw error(field, blitz::format("Unexpected %s, expected a field name.", field.to_string().c_str()));
+			}
+			advance();
+			parse_type_suffix(field); // The field already has a type, the suffix is optional.
+
+			auto node    = std::make_unique<ast::field_access>();
+			node->where  = here(slash);
+			node->object = std::move(base);
+			node->name   = field.text;
+			base         = std::move(node);
+		} else if (is_symbol(tk(), "[")) {
+			auto bracket = tk();
+			advance();
+			auto node   = std::make_unique<ast::index_access>();
+			node->where = here(bracket);
+			node->base  = std::move(base);
+			node->index = parse_expression();
+			expect_symbol("]");
+			base = std::move(node);
+		} else {
+			return base;
+		}
+	}
+}
+
 blitz::ast::expression_ptr blitz::parser::parse_primary()
 {
 	auto token = tk();
@@ -932,7 +1143,7 @@ blitz::ast::expression_ptr blitz::parser::parse_primary()
 			advance();
 			auto inner = parse_expression();
 			expect_symbol(")");
-			return inner;
+			return parse_postfix(std::move(inner));
 		}
 		break;
 	}
@@ -942,7 +1153,7 @@ blitz::ast::expression_ptr blitz::parser::parse_primary()
 			advance();
 			auto node   = std::make_unique<ast::literal>();
 			node->where = here(token);
-			node->kind  = ast::literal::variant::INTEGER;
+			node->kind  = (word == "null") ? ast::literal::variant::NULLPTR : ast::literal::variant::INTEGER;
 			node->i     = (word == "true") ? 1 : 0;
 			return node;
 		} else if (reserved.count(word) || unsupported.count(word)) {
@@ -950,24 +1161,35 @@ blitz::ast::expression_ptr blitz::parser::parse_primary()
 		}
 
 		advance();
-		auto type = parse_type_suffix(token);
+		auto type        = parse_type_suffix(token);
+		auto struct_name = _struct_name;
+		if ((word == "object") && (type == blitz::types::type::STRUCT)) {
+			// Object.TypeName(Handle)
+			expect_symbol("(");
+			auto node        = std::make_unique<ast::object_from_handle>();
+			node->where      = here(token);
+			node->type_name  = struct_name;
+			node->handle     = parse_expression();
+			expect_symbol(")");
+			return parse_postfix(std::move(node));
+		}
 		if (is_symbol(tk(), "(")) {
 			advance();
-			auto node       = std::make_unique<ast::call>();
-			node->where     = here(token);
-			node->name      = token.text;
-			node->type      = type;
-			node->arguments = parse_arguments();
+			auto node         = std::make_unique<ast::call>();
+			node->where       = here(token);
+			node->name        = token.text;
+			node->type        = type;
+			node->struct_name = struct_name;
+			node->arguments   = parse_arguments();
 			expect_symbol(")");
-			return node;
-		} else if (is_symbol(tk(), "\\") || is_symbol(tk(), "[")) {
-			throw error(tk(), "Fields and arrays are not supported yet.");
+			return parse_postfix(std::move(node));
 		}
-		auto node   = std::make_unique<ast::reference>();
-		node->where = here(token);
-		node->name  = token.text;
-		node->type  = type;
-		return node;
+		auto node         = std::make_unique<ast::reference>();
+		node->where       = here(token);
+		node->name        = token.text;
+		node->type        = type;
+		node->struct_name = struct_name;
+		return parse_postfix(std::move(node));
 	}
 	default:
 		break;

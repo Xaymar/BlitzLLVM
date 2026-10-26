@@ -62,7 +62,7 @@ namespace blitz {
 
 		/** Integer, Real and String literals. True, False and Null are Integer literals. */
 		struct literal : public expression {
-			enum class variant { INTEGER, UNSIGNED_INTEGER, REAL, STRING } kind = variant::INTEGER;
+			enum class variant { INTEGER, UNSIGNED_INTEGER, REAL, STRING, NULLPTR } kind = variant::INTEGER;
 			intmax_t    i                                                       = 0;
 			uintmax_t   u                                                       = 0;
 			double      f                                                       = 0;
@@ -73,13 +73,50 @@ namespace blitz {
 		struct reference : public expression {
 			std::string        name;
 			blitz::types::type type = blitz::types::type::UNKNOWN; // UNKNOWN if there is no explicit type.
+			std::string        struct_name;                         // For `Name.TypeName`.
 		};
 
 		/** A function call: `Name(Arg, ...)`. */
 		struct call : public expression {
 			std::string                 name;
 			blitz::types::type          type = blitz::types::type::UNKNOWN;
+			std::string                 struct_name;
 			std::vector<expression_ptr> arguments;
+		};
+
+		/** `Object\Field`. */
+		struct field_access : public expression {
+			expression_ptr object;
+			std::string    name;
+		};
+
+		/** `Array[Index]`, for arrays that are not Dim arrays (fields and local/global arrays). */
+		struct index_access : public expression {
+			expression_ptr base;
+			expression_ptr index;
+		};
+
+		/** `New TypeName` */
+		struct new_object : public expression {
+			std::string type_name;
+		};
+
+		/** `First TypeName`, `Last TypeName` */
+		struct list_end : public expression {
+			std::string type_name;
+			bool        last = false;
+		};
+
+		/** `Before Object`, `After Object` */
+		struct list_neighbor : public expression {
+			expression_ptr object;
+			bool           after = false;
+		};
+
+		/** `Object.TypeName(Handle)` */
+		struct object_from_handle : public expression {
+			std::string    type_name;
+			expression_ptr handle;
 		};
 
 		struct unary : public expression {
@@ -124,6 +161,8 @@ namespace blitz {
 			location           where;
 			std::string        name;
 			blitz::types::type type = blitz::types::type::UNKNOWN;
+			std::string        struct_name;
+			expression_ptr     array_size; // `Name[Size]`
 			expression_ptr     initial;
 		};
 
@@ -136,8 +175,8 @@ namespace blitz {
 
 		/** `Name = Expression` */
 		struct assign : public statement {
-			std::unique_ptr<reference> target;
-			expression_ptr             value;
+			expression_ptr target; // A reference, field, or array element.
+			expression_ptr value;
 		};
 
 		/** `Name Arg, Arg` or `Name(Arg, Arg)` as a statement. */
@@ -170,8 +209,22 @@ namespace blitz {
 			std::unique_ptr<reference> variable;
 			expression_ptr             from;
 			expression_ptr             to;
-			expression_ptr             step; // Optional
+			expression_ptr             step;      // Optional
+			std::string                each_type; // For `For v = Each TypeName`, which has no from, to and step.
 			block                      body;
+		};
+
+		/** `Delete Object` or `Delete Each TypeName` */
+		struct delete_statement : public statement {
+			expression_ptr object;
+			std::string    each_type;
+		};
+
+		/** `Insert Object Before Other` / `Insert Object After Other` */
+		struct insert_statement : public statement {
+			expression_ptr object;
+			expression_ptr other;
+			bool           after = false;
 		};
 
 		struct select_case {
@@ -199,18 +252,35 @@ namespace blitz {
 		struct parameter {
 			location           where;
 			std::string        name;
+			std::string        struct_name;
 			blitz::types::type type = blitz::types::type::INT32;
 			expression_ptr     initial; // Optional default value
 		};
 
+		/** A field of a Type: `Field Name`, `Field Name#`, `Field Name.OtherType`, `Field Name[Size]`. */
+		struct field_decl {
+			location           where;
+			std::string        name;
+			blitz::types::type type = blitz::types::type::INT32;
+			std::string        struct_name;
+			expression_ptr     array_size;
+		};
+
+		struct type_decl : public node {
+			std::string             name;
+			std::vector<field_decl> fields;
+		};
+
 		struct function : public node {
 			std::string            name;
+			std::string            struct_name; // If it returns an object.
 			blitz::types::type     type = blitz::types::type::INT32;
 			std::vector<parameter> parameters;
 			block                  body;
 		};
 
 		struct program {
+			std::vector<std::unique_ptr<type_decl>> types;
 			block                                  main;
 			std::vector<std::unique_ptr<function>> functions;
 		};

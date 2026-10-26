@@ -24,6 +24,7 @@ namespace blitz {
 		std::vector<std::filesystem::path> _include_stack;
 		std::unique_ptr<ast::program>      _program;
 		int                                _depth; // Block nesting depth, functions may only exist at depth 0.
+		std::string                        _struct_name; // Type name found by the last parse_type_suffix, for `Name.TypeName`.
 
 		public:
 		~parser();
@@ -62,6 +63,9 @@ namespace blitz {
 		void parse_select(ast::block& into);
 		void parse_function();
 		void parse_include(ast::block& into);
+		void parse_type_decl();
+		void parse_delete(ast::block& into);
+		void parse_insert(ast::block& into);
 		void parse_identifier_statement(ast::block& into);
 		void expect_block_end(const char* single, const char* first, const char* second);
 
@@ -79,6 +83,7 @@ namespace blitz {
 		ast::expression_ptr                parse_power();
 		ast::expression_ptr                parse_unary();
 		ast::expression_ptr                parse_primary();
+		ast::expression_ptr                parse_postfix(ast::expression_ptr base);
 		ast::expression_ptr                parse_number(blitz::token const& token);
 		ast::expression_ptr                make_binary(blitz::token const& at, ast::binary::op kind, ast::expression_ptr lhs, ast::expression_ptr rhs);
 	};

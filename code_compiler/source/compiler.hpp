@@ -26,12 +26,39 @@ namespace blitz {
 		struct value {
 			std::string        repr; // Operand without type, such as `%t1`, `42` or `@.str.0`.
 			blitz::types::type type = blitz::types::type::UNKNOWN; // UNKNOWN means "no value" (void).
+			std::string        sname;                              // Lower case name of the Type if this is an object. Empty for Null.
 		};
 
 		struct variable {
 			std::string        pointer; // Operand for the storage location.
 			blitz::types::type type;
 			bool               constant;
+			std::string        sname;     // Lower case name of the Type for objects.
+			uint32_t           count = 0; // For arrays: how many elements there are.
+		};
+
+		struct field_info {
+			std::string        name;
+			blitz::types::type type;
+			std::string        sname;
+			uint32_t           count; // 0 if this is not an array.
+			uint32_t           index; // Index of the member in the LLVM structure.
+		};
+
+		struct type_info {
+			std::string             name;
+			std::string             llvm;  // Name of the LLVM structure.
+			std::string             list;  // Global that holds the first and last object.
+			std::vector<field_info> fields;
+		};
+
+		// Where something lives in memory.
+		struct address {
+			std::string        pointer;
+			blitz::types::type type  = blitz::types::type::UNKNOWN;
+			std::string        sname;
+			uint32_t           count = 0; // Not 0 if this is an array and not an element.
+			bool               constant = false;
 		};
 
 		struct function_info {
@@ -48,6 +75,9 @@ namespace blitz {
 		std::map<std::string, std::string>   _strings;
 		std::map<std::string, variable>      _global_variables;
 		std::map<std::string, function_info> _functions;
+		std::map<std::string, type_info>     _types;
+		std::map<std::string, int64_t>       _const_values;
+		std::string                          _return_sname;
 		size_t                               _counter;
 		size_t                               _warnings;
 
@@ -87,16 +117,21 @@ namespace blitz {
 		// Types and values
 		value       zero(blitz::types::type type);
 		value       constant(blitz::types::type type, double number);
-		value       convert(value from, blitz::types::type to, ast::location const& where, bool warn);
+		value       convert(value from, blitz::types::type to, ast::location const& where, bool warn, std::string const& to_sname = std::string());
 		value       call_runtime(const char* symbol, blitz::types::type ret, std::vector<value> const& args);
 		blitz::types::type common_type(blitz::types::type lhs, blitz::types::type rhs, ast::location const& where);
 		std::string truthy(value v, ast::location const& where);
 		value       from_bool(std::string const& i1);
 
 		// Variables
-		variable&   lookup(std::string const& name, blitz::types::type hint);
+		variable&   lookup(std::string const& name, blitz::types::type hint, std::string const& sname = std::string());
 		variable*   find(std::string const& name);
-		variable    create_local(std::string const& name, blitz::types::type type, bool constant, ast::location const& where);
+		variable    create_local(std::string const& name, blitz::types::type type, bool constant, ast::location const& where, std::string const& sname = std::string());
+		bool        fold_int(ast::expression const* expr, int64_t& out);
+		type_info&  need_type(std::string const& name, ast::location const& where);
+		void        register_types(ast::program const& program);
+		address     gen_address(ast::expression const* expr);
+		value       load_address(address const& addr);
 		void        collect_globals(ast::block const& block);
 		blitz::types::type static_type(ast::expression const* expr);
 
@@ -108,6 +143,12 @@ namespace blitz {
 		value gen_builtin(ast::call const* node, bool& handled);
 		value gen_unary(ast::unary const* node);
 		value gen_binary(ast::binary const* node);
+		value gen_field(ast::field_access const* node);
+		value gen_index(ast::index_access const* node);
+		value gen_new(ast::new_object const* node);
+		value gen_list_end(ast::list_end const* node);
+		value gen_neighbor(ast::list_neighbor const* node);
+		value gen_from_handle(ast::object_from_handle const* node);
 		std::string compare(ast::binary::op kind, value lhs, value rhs, ast::location const& where);
 
 		// Statements
@@ -119,6 +160,9 @@ namespace blitz {
 		void gen_while(ast::while_statement const* node);
 		void gen_repeat(ast::repeat_statement const* node);
 		void gen_for(ast::for_statement const* node);
+		void gen_for_each(ast::for_statement const* node);
+		void gen_delete(ast::delete_statement const* node);
+		void gen_insert(ast::insert_statement const* node);
 		void gen_select(ast::select_statement const* node);
 		void gen_return(ast::return_statement const* node);
 		void gen_function(ast::function const& fn);
