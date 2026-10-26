@@ -102,6 +102,8 @@
 		{ "gfxmodedepth", "bb_gfx_mode_depth", 'i', "i", 1, {}, false },
 		{ "gfxmodeformat", "bb_gfx_mode_format", 'i', "i", 1, {}, false },
 		{ "gfxmode3d", "bb_gfx_mode_3d", 'i', "i", 1, {}, false },
+		{ "gfxmode3dwidth", "bb_gfx_mode_3d_width", 'i', "i", 1, {}, false },
+		{ "gfxmode3dheight", "bb_gfx_mode_3d_height", 'i', "i", 1, {}, false },
 		{ "gfxmodeexists", "bb_gfx_mode_exists", 'i', "iii", 3, {}, false },
 		{ "setgamma", "bb_set_gamma", 'v', "iiifff", 6, {}, false },
 		{ "updategamma", "bb_update_gamma", 'v', "i", 0, { 0 }, false },

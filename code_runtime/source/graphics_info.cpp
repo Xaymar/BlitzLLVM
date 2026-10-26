@@ -177,6 +177,17 @@ int32_t bb_gfx_mode_format(int32_t index)
 	return 4;
 }
 
+// BlitzLLVM extensions: the size of a mode from the list that GfxMode3D takes, which is the list of GfxModeWidth.
+int32_t bb_gfx_mode_3d_width(int32_t index)
+{
+	return mode_at(index, "GfxMode3DWidth").width;
+}
+
+int32_t bb_gfx_mode_3d_height(int32_t index)
+{
+	return mode_at(index, "GfxMode3DHeight").height;
+}
+
 int32_t bb_gfx_mode_3d(int32_t index)
 {
 	mode_at(index, "GfxMode3D");
