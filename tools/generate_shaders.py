@@ -586,7 +586,9 @@ def fragment_shader_masked(mask_offset, fog=False):
         spec = b.load(v3, in_spec)
         spec = b.fadd(v3, spec, b.scale(3, b.fsub(v3, b.load(v3, in_spec_flat), spec), flat))
 
-    diff = b.ext(v3, GLSL_FABS, b.fsub(v3, b.swizzle(t, 3), b.swizzle(mask, 3)))
+    # In 3D the first three values of the mask mean other things, and the color that is not there is black.
+    key = b.const_vec(3, 0.0) if fog else b.swizzle(mask, 3)
+    diff = b.ext(v3, GLSL_FABS, b.fsub(v3, b.swizzle(t, 3), key))
     biggest = b.ext(f, GLSL_FMAX, b.ext(f, GLSL_FMAX, b.extract(diff, 0), b.extract(diff, 1)), b.extract(diff, 2))
     same = b.fmul(f, b.ext(f, GLSL_STEP, biggest, epsilon), b.extract(mask, 3))
     alpha = b.fmul(f, b.extract(t, 3), b.fsub(f, c1, same))

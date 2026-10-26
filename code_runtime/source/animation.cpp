@@ -341,23 +341,11 @@ using namespace bb::anim;
 ////////////////////////////////////////////////////////////////////////////////
 // Updating animations
 ////////////////////////////////////////////////////////////////////////////////
-static double last_update_time = -1;
-
-static double now_seconds()
-{
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
-	return double(ts.tv_sec) + double(ts.tv_nsec) / 1.0e9;
-}
-
 extern "C" {
-// The frames are counted in time: how many have passed since the last time this was called.
+// Like in the original, an animation moves on by its speed in frames each time this is called, scaled by the
+// elapsed time that UpdateWorld is given (1 for a frame), and does not look at the clock.
 void bb_animation_update(float world_speed)
 {
-	double now = now_seconds();
-	double dt  = (last_update_time < 0) ? 0 : now - last_update_time;
-	last_update_time = now;
-	dt = dt > 0.1 ? 0.1 : (dt < 0 ? 0 : dt);
 
 	for (int handle = 1; handle <= entity_count(); handle++) {
 		entity* e = get_entity(handle);
@@ -367,7 +355,7 @@ void bb_animation_update(float world_speed)
 		animation& a        = *e->anim;
 		seq_range range    = a.sequences[uint32_t(a.sequence)];
 		float      length   = range.last - range.first;
-		a.time += a.direction * a.speed * world_speed * float(dt) * a.fps;
+		a.time += a.direction * a.speed * world_speed;
 
 		switch (a.mode) {
 		case 1: // Loop
@@ -406,7 +394,7 @@ void bb_animation_update(float world_speed)
 	for (int handle = 1; handle <= entity_count(); handle++) {
 		entity* e = get_entity(handle);
 		if (e && e->md2) {
-			md2_animate(handle, world_speed * float(dt) * 60.0f);
+			md2_animate(handle, world_speed);
 		}
 	}
 }
@@ -465,12 +453,16 @@ int32_t bb_animating(int32_t handle)
 
 int32_t bb_anim_seq(int32_t handle)
 {
-	return need_animation(handle, "AnimSeq").sequence;
+	animation& a = need_animation(handle, "AnimSeq");
+	return a.nodes.size ? a.sequence : -1;
 }
 
 float bb_anim_length(int32_t handle)
 {
 	animation& a = need_animation(handle, "AnimLength");
+	if (a.nodes.size == 0) {
+		return -1;
+	}
 	seq_range  r = a.sequences[uint32_t(a.sequence)];
 	return r.last - r.first;
 }
@@ -478,6 +470,9 @@ float bb_anim_length(int32_t handle)
 float bb_anim_time(int32_t handle)
 {
 	animation& a = need_animation(handle, "AnimTime");
+	if (a.nodes.size == 0) {
+		return -1;
+	}
 	return a.time - a.sequences[uint32_t(a.sequence)].first;
 }
 
@@ -501,7 +496,7 @@ int32_t bb_extract_anim_seq(int32_t handle, int32_t first, int32_t last, int32_t
 {
 	animation& a = need_animation(handle, "ExtractAnimSeq");
 	if (a.nodes.size == 0) {
-		return 0;
+		return -1; // Nothing there to take a part of.
 	}
 	if ((source < 0) || (uint32_t(source) >= a.sequences.size)) {
 		fail("ExtractAnimSeq: that animation sequence does not exist.");

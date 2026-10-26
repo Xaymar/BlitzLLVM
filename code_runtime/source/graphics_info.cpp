@@ -131,10 +131,11 @@ int32_t bb_gfx_driver_3d(int32_t driver)
 	return 1;
 }
 
-// 110 is what the original says for a driver with hardware transform and lighting, which a GPU always has.
+// 100 is what the original says for a driver with hardware transform and lighting, which a GPU always has. It says 110
+// for one that also does cube maps, which there are none of here.
 int32_t bb_gfx_driver_caps_3d(void)
 {
-	return 110;
+	return 100;
 }
 
 int32_t bb_hw_tex_units(void)
@@ -187,6 +188,18 @@ int32_t bb_gfx_mode_exists(int32_t width, int32_t height, int32_t depth)
 	list_modes();
 	for (uint32_t i = 0; i < modes.size; i++) {
 		if ((!width || (width == modes[i].width)) && (!height || (height == modes[i].height)) && (!depth || (depth == modes[i].depth))) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+// Unlike GfxModeExists the three have to be a mode of the list, as they are in the original.
+int32_t bb_gfx_mode_3d_exists(int32_t width, int32_t height, int32_t depth)
+{
+	list_modes();
+	for (uint32_t i = 0; i < modes.size; i++) {
+		if ((width == modes[i].width) && (height == modes[i].height) && (depth == modes[i].depth)) {
 			return 1;
 		}
 	}
