@@ -352,15 +352,6 @@ void bb_show_pointer(void)
 	}
 }
 
-// There is no joystick support yet.
-int32_t bb_get_joy(int32_t port)
-{
-	(void)port;
-	return 0; // There is no joystick, like in the original when none is plugged in.
-}
-
-void bb_flush_joy(void) {}
-
 int32_t bb_key_down(int32_t key)
 {
 	if (!active()) {
@@ -419,5 +410,20 @@ int32_t bb_mouse_hit(int32_t button)
 		return 1;
 	}
 	return 0;
+}
+
+// Waits for a mouse button to be pressed, and says which. The ones that were pressed earlier count.
+int32_t bb_wait_mouse(void)
+{
+	if (!active()) {
+		return 0;
+	}
+	flush();
+	for (;;) {
+		if (int32_t button = bb_get_mouse()) {
+			return button;
+		}
+		SDL_Delay(5);
+	}
 }
 }
