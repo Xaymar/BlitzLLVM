@@ -360,6 +360,18 @@ float bb_tformed_x(void) { return tformed[0]; }
 float bb_tformed_y(void) { return tformed[1]; }
 float bb_tformed_z(void) { return tformed[2]; }
 
+extern "C++" {
+void bb::euler_to_rotation(const float* euler, float* rotation)
+{
+	rotation_matrix(rotation, euler);
+}
+
+void bb::rotation_to_quaternion(const float* rotation, float* quaternion)
+{
+	quaternion_from_rotation(rotation, quaternion);
+}
+}
+
 // The turn that a direction has, as angles.
 float bb_vector_yaw(float x, float y, float z)
 {

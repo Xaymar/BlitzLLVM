@@ -161,11 +161,11 @@ lightmesh	blitz3d	done	LightMesh%mesh#red#green#blue#range=0#x=0#y=0#z=0
 lightrange	blitz3d	done	LightRange%light#range
 linepick	blitz3d	done	%LinePick#x#y#z#dx#dy#dz#radius=0
 loadanimmesh	blitz3d	done	%LoadAnimMesh$file%parent=0
-loadanimseq	blitz3d	pending	%LoadAnimSeq%entity$file
+loadanimseq	blitz3d	done	%LoadAnimSeq%entity$file
 loadanimtexture	blitz3d	done	%LoadAnimTexture$file%flags%width%height%first%count
 loadbrush	blitz3d	done	%LoadBrush$file%texture_flags=1#u_scale=1#v_scale=1
 loadbsp	blitz3d	pending	%LoadBSP$file#gamma_adj=0%parent=0
-loadermatrix	blitz3d	pending	LoaderMatrix$file_ext#xx#xy#xz#yx#yy#yz#zx#zy#zz
+loadermatrix	blitz3d	done	LoaderMatrix$file_ext#xx#xy#xz#yx#yy#yz#zx#zy#zz
 loadmd2	blitz3d	done	%LoadMD2$file%parent=0
 loadmesh	blitz3d	done	%LoadMesh$file%parent=0
 loadsprite	blitz3d	done	%LoadSprite$file%texture_flags=1%parent=0
@@ -212,7 +212,7 @@ scaleentity	blitz3d	done	ScaleEntity%entity#x_scale#y_scale#z_scale%global=0
 scalemesh	blitz3d	done	ScaleMesh%mesh#x_scale#y_scale#z_scale
 scalesprite	blitz3d	done	ScaleSprite%sprite#x_scale#y_scale
 scaletexture	blitz3d	done	ScaleTexture%texture#u_scale#v_scale
-setanimkey	blitz3d	pending	SetAnimKey%entity%frame%pos_key=1%rot_key=1%scale_key=1
+setanimkey	blitz3d	done	SetAnimKey%entity%frame%pos_key=1%rot_key=1%scale_key=1
 setanimtime	blitz3d	done	SetAnimTime%entity#time%anim_seq=0
 setcubeface	blitz3d	done	SetCubeFace%texture%face
 setcubemode	blitz3d	done	SetCubeMode%texture%mode

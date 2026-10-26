@@ -131,6 +131,9 @@ namespace bb::scene {
 		if (e->md2) {
 			destroy_md2(e->md2);
 		}
+		if (e->pending_keys) {
+			destroy_pending_keys(e->pending_keys);
+		}
 		if (e->terrain) {
 			free(e->terrain->heights);
 			delete e->terrain;
@@ -194,6 +197,7 @@ namespace bb::scene {
 		copy.name   = nullptr;
 		copy.anim   = nullptr;
 		copy.md2    = nullptr;
+		copy.pending_keys = nullptr;
 		if (copy_was.size == 1) {
 			copy.hidden = false; // The copy of a hidden model, which is how programs keep their templates, can be seen.
 		}

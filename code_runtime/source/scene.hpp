@@ -52,6 +52,7 @@ namespace bb {
 	struct animation;
 	struct skin_data;
 	struct md2_state;
+	struct anim_node;
 
 	struct vertex3d {
 		float   x, y, z;
@@ -148,6 +149,7 @@ namespace bb {
 		terrain_data*    terrain = nullptr;
 		animation*       anim    = nullptr; // Of the top of an animated model, see animation.cpp
 		md2_state*       md2     = nullptr; // Of a model from an .md2 file, see md2.cpp
+		anim_node*       pending_keys = nullptr; // The keys that SetAnimKey made, which become a sequence with AddAnimSeq.
 
 		// Camera
 		float cam_near = 1, cam_far = 1000, cam_zoom = 1;
@@ -190,6 +192,10 @@ namespace bb {
 	void      euler_from_matrix(const float* m, float* euler);
 	void      destroy_animation(animation* a);
 	void      destroy_md2(md2_state* s);
+	void      destroy_pending_keys(anim_node* n);
+	/** The turn of euler angles as a rotation matrix (3x3, columns), and of such a matrix as a quaternion of w, x, y and z. */
+	void      euler_to_rotation(const float* euler, float* rotation);
+	void      rotation_to_quaternion(const float* rotation, float* quaternion);
 	md2_state* clone_md2(md2_state const& s);
 	/** Moves the animation of an .md2 model on by some frames. */
 	void      md2_animate(int handle, float elapsed);

@@ -42,6 +42,7 @@ namespace bb {
 		int   handle = 0;  // The entity of this node.
 		bool  has_mesh = false;
 		bool  is_bone  = false;
+		bool  user_keys = false; // The keys came from SetAnimKey, so even the first node is moved by them.
 		float pos[3]   = { 0, 0, 0 };
 		float scale[3] = { 1, 1, 1 };
 		float rot[4]   = { 1, 0, 0, 0 };
@@ -117,6 +118,11 @@ namespace bb {
 		n->scale_keys.release();
 		n->rot_keys.release();
 		delete n;
+	}
+
+	void destroy_pending_keys(anim_node* n)
+	{
+		destroy_node(n);
 	}
 
 	void destroy_animation(animation* a)
@@ -299,14 +305,20 @@ namespace {
 			any_bones = any_bones || n.is_bone;
 
 			// The first node is where the whole model is placed, which belongs to the program and not to the animation.
-			if ((i > 0) && get_entity(n.handle)) {
+			if (((i > 0) || n.user_keys) && get_entity(n.handle)) {
 				entity* e = get_entity(n.handle);
-				memcpy(e->position, pos, sizeof(pos));
-				memcpy(e->scale, scale, sizeof(scale));
-				float rotation_matrix[16];
-				float unit[3] = { 1, 1, 1 };
-				compose(rotation_matrix, pos, unit, rot);
-				euler_from_matrix(rotation_matrix, e->rotation);
+				if (n.pos_keys.size) {
+					memcpy(e->position, pos, sizeof(pos));
+				}
+				if (n.scale_keys.size) {
+					memcpy(e->scale, scale, sizeof(scale));
+				}
+				if (n.rot_keys.size) {
+					float rotation_matrix[16];
+					float unit[3] = { 1, 1, 1 };
+					compose(rotation_matrix, pos, unit, rot);
+					euler_from_matrix(rotation_matrix, e->rotation);
+				}
 			}
 		}
 
@@ -1260,14 +1272,230 @@ int32_t bb_extract_anim_seq(int32_t handle, int32_t first, int32_t last, int32_t
 	return int32_t(a.sequences.size) - 1;
 }
 
+static void set_key3(buffer<key3>& keys, int frame, const float* v)
+{
+	uint32_t at = 0;
+	while ((at < keys.size) && (keys[at].frame < float(frame))) {
+		at++;
+	}
+	if ((at < keys.size) && (keys[at].frame == float(frame))) {
+		memcpy(keys[at].v, v, sizeof(keys[at].v));
+		return;
+	}
+	key3 key = { float(frame), { v[0], v[1], v[2] } };
+	keys.push(key); // Makes room, the key is put where it belongs.
+	for (uint32_t i = keys.size - 1; i > at; i--) {
+		keys[i] = keys[i - 1];
+	}
+	keys[at] = key;
+}
+
+static void set_key4(buffer<key4>& keys, int frame, const float* q)
+{
+	uint32_t at = 0;
+	while ((at < keys.size) && (keys[at].frame < float(frame))) {
+		at++;
+	}
+	if ((at < keys.size) && (keys[at].frame == float(frame))) {
+		memcpy(keys[at].q, q, sizeof(keys[at].q));
+		return;
+	}
+	key4 key = { float(frame), { q[0], q[1], q[2], q[3] } };
+	keys.push(key);
+	for (uint32_t i = keys.size - 1; i > at; i--) {
+		keys[i] = keys[i - 1];
+	}
+	keys[at] = key;
+}
+
+// SetAnimKey entity, frame, position key, rotation key, scale key: remembers how the entity is now as a key of a frame,
+// which AddAnimSeq makes the animation of a new sequence.
+void bb_set_anim_key(int32_t handle, int32_t frame, int32_t position, int32_t rotation, int32_t scale)
+{
+	entity* e = get_entity(handle);
+	if (!e) {
+		fail("SetAnimKey: the entity does not exist.");
+	}
+	if (frame < 0) {
+		fail("SetAnimKey: the frame can't be negative.");
+	}
+	if (!e->pending_keys) {
+		e->pending_keys = new anim_node();
+	}
+	anim_node& keys = *e->pending_keys;
+	if (position) {
+		set_key3(keys.pos_keys, frame, e->position);
+	}
+	if (scale) {
+		set_key3(keys.scale_keys, frame, e->scale);
+	}
+	if (rotation) {
+		float r[9], q[4];
+		euler_to_rotation(e->rotation, r);
+		rotation_to_quaternion(r, q);
+		set_key4(keys.rot_keys, frame, q);
+	}
+}
+
+namespace {
+	// Nodes for an entity and everything below it, parents before the children.
+	void add_nodes(animation& a, int handle, int parent)
+	{
+		entity*    e = get_entity(handle);
+		anim_node* n = new anim_node();
+		n->parent    = parent;
+		n->handle    = handle;
+		n->has_mesh  = e->kind == MESH;
+		memcpy(n->pos, e->position, sizeof(n->pos));
+		memcpy(n->scale, e->scale, sizeof(n->scale));
+		float r[9];
+		euler_to_rotation(e->rotation, r);
+		rotation_to_quaternion(r, n->rot);
+		n->user_keys = true;
+		float local[16];
+		compose(local, n->pos, n->scale, n->rot);
+		if (parent >= 0) {
+			mat_multiply(n->bind_model, a.nodes[uint32_t(parent)]->bind_model, local);
+		} else {
+			memcpy(n->bind_model, local, sizeof(local));
+		}
+		mat_affine_inverse(n->bind_model, n->inverse_bind);
+		int index = int(a.nodes.size);
+		a.nodes.push(n);
+		for (int other = 1; other <= entity_count(); other++) {
+			entity* child = get_entity(other);
+			if (child && (child->parent == handle)) {
+				add_nodes(a, other, index);
+			}
+		}
+	}
+
+	// Moves the keys of the entity of a node to the node, for the frames from an offset on, and forgets them.
+	bool take_pending_keys(anim_node& n, float offset)
+	{
+		entity* e = get_entity(n.handle);
+		if (!e || !e->pending_keys) {
+			return false;
+		}
+		anim_node& keys = *e->pending_keys;
+		for (uint32_t i = 0; i < keys.pos_keys.size; i++) {
+			key3 k = keys.pos_keys[i];
+			k.frame += offset;
+			n.pos_keys.push(k);
+		}
+		for (uint32_t i = 0; i < keys.scale_keys.size; i++) {
+			key3 k = keys.scale_keys[i];
+			k.frame += offset;
+			n.scale_keys.push(k);
+		}
+		for (uint32_t i = 0; i < keys.rot_keys.size; i++) {
+			key4 k = keys.rot_keys[i];
+			k.frame += offset;
+			n.rot_keys.push(k);
+		}
+		destroy_pending_keys(e->pending_keys);
+		e->pending_keys = nullptr;
+		return true;
+	}
+} // namespace
+
+// AddAnimSeq entity, length: a new sequence of frames, with the keys that SetAnimKey made since the last one. An entity
+// that has no animation yet gets one, for itself and everything below it.
 int32_t bb_add_anim_seq(int32_t handle, int32_t length)
 {
-	animation& a = need_animation(handle, "AddAnimSeq");
-	if (a.nodes.size == 0) {
+	if (!get_entity(handle)) {
+		fail("AddAnimSeq: the entity does not exist.");
+	}
+	if (length < 0) {
+		fail("AddAnimSeq: the length can't be negative.");
+	}
+	animation* a = animation_of(handle);
+	if (!a) {
+		a         = new animation();
+		a->frames = 0;
+		a->fps    = 60;
+		add_nodes(*a, handle, -1);
+		get_entity(handle)->anim = a;
+		a->sequences.push({ 0, float(length) });
+		for (uint32_t i = 0; i < a->nodes.size; i++) {
+			take_pending_keys(*a->nodes[i], 0);
+		}
+		a->frames = float(length);
 		return 0;
 	}
-	a.sequences.push({ a.frames, a.frames + float(length) });
-	a.frames += float(length);
-	return int32_t(a.sequences.size) - 1;
+	if (a->nodes.size == 0) {
+		return 0;
+	}
+	float offset = a->frames;
+	a->sequences.push({ offset, offset + float(length) });
+	a->frames += float(length);
+	for (uint32_t i = 0; i < a->nodes.size; i++) {
+		if (take_pending_keys(*a->nodes[i], offset)) {
+			a->nodes[i]->user_keys = true; // Even the first node moves by keys that the program made.
+		}
+	}
+	return int32_t(a->sequences.size) - 1;
+}
+
+// LoadAnimSeq entity, file: the animation of a model in a file becomes a new sequence of the entity, for the parts that
+// have the same names. Gives the number of the new sequence, or -1 if the entity has no animation.
+int32_t bb_load_anim_seq(int32_t handle, const char* file)
+{
+	if (!get_entity(handle)) {
+		fail("LoadAnimSeq: the entity does not exist.");
+	}
+	animation* a = animation_of(handle);
+	if (!a) {
+		return -1;
+	}
+	model m;
+	if (!file || !read_model(file, m)) {
+		m.release();
+		return int32_t(a->sequences.size) - 1;
+	}
+	float length = m.frames > 0 ? m.frames : 1;
+	float offset = a->frames;
+	for (uint32_t i = 0; i < a->nodes.size; i++) {
+		anim_node& n    = *a->nodes[i];
+		entity*    e    = get_entity(n.handle);
+		const char* own = e ? e->name : nullptr;
+		if (!own) {
+			continue;
+		}
+		for (uint32_t k = 0; k < m.nodes.size; k++) {
+			node_info& source = *m.nodes[k];
+			if (!source.name || strcmp(source.name, own) != 0) {
+				continue;
+			}
+			for (uint32_t j = 0; j < source.pos_keys.size; j++) {
+				key3 key = source.pos_keys[j];
+				key.frame += offset;
+				n.pos_keys.push(key);
+			}
+			for (uint32_t j = 0; j < source.scale_keys.size; j++) {
+				key3 key = source.scale_keys[j];
+				key.frame += offset;
+				n.scale_keys.push(key);
+			}
+			for (uint32_t j = 0; j < source.rot_keys.size; j++) {
+				key4 key = source.rot_keys[j];
+				key.frame += offset;
+				n.rot_keys.push(key);
+			}
+			break;
+		}
+	}
+	a->sequences.push({ offset, offset + length });
+	a->frames += length;
+	m.release();
+	return int32_t(a->sequences.size) - 1;
+}
+
+// LoaderMatrix extension, the nine numbers of a matrix: how models of that file type are turned when they are loaded.
+// Only .b3d files can be loaded, and the original does not use the matrix for those, so this only remembers it.
+void bb_loader_matrix(const char* extension, float xx, float xy, float xz, float yx, float yy, float yz, float zx, float zy, float zz)
+{
+	(void)extension;
+	(void)xx; (void)xy; (void)xz; (void)yx; (void)yy; (void)yz; (void)zx; (void)zy; (void)zz;
 }
 }
