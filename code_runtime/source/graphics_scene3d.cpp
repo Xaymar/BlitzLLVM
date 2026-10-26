@@ -515,6 +515,7 @@ namespace bb::gfx {
 	}
 
 	static float current_camera[16]; // Where the camera is, for sprites that face it.
+	static float current_origin[3];  // The same place: everything is sent to the GPU relative to it, see render_pass.
 	static float current_view[3];    // Zoom, far plane and height divided by width of the camera, for planes.
 
 	// The part of a plane that the camera sees: a grid over the far end of the view that is let down onto the ground,
@@ -701,12 +702,14 @@ namespace bb::gfx {
 		}
 
 		entity_push push = {};
-		// The rows of the 4x3 matrix: row r is (m[0 + r], m[4 + r], m[8 + r], m[12 + r]) in column-major order.
+		// The rows of the 4x3 matrix: row r is (m[0 + r], m[4 + r], m[8 + r], m[12 + r]) in column-major order. The
+		// matrix moves vertices to where they are relative to the camera, which is subtracted in double precision
+		// here and not for every vertex on the GPU: far from the origin that would leave vertices on a grid.
 		for (int row = 0; row < 3; row++) {
 			push.model[row][0] = m[0 + row];
 			push.model[row][1] = m[4 + row];
 			push.model[row][2] = m[8 + row];
-			push.model[row][3] = m[12 + row];
+			push.model[row][3] = float(double(m[12 + row]) - double(current_origin[row]));
 		}
 
 		bb::surface** surfaces = e->surfaces.data;
@@ -860,24 +863,41 @@ namespace bb::gfx {
 
 	// Draws the world for a camera that is at cam_world and looks through view. The pictures that mirrors make are
 	// drawn first and keep to the depth of each other, with the triangles the other way around as the image is reversed.
-	static void render_pass(bb::entity& cam, scene_data& data, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
+	static void render_pass(bb::entity& cam, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
 	{
 		if (scenes.size >= max_scenes) {
 			flush();
 		}
 
+		scene_data data = shared; // Each pass moves the lights by where its camera is.
 		float proj[16];
 		memcpy(current_camera, cam_world, sizeof(float) * 16);
 		current_view[0] = cam.cam_zoom;
 		current_view[1] = cam.cam_far;
 		current_view[2] = float(vh) / float(vw);
 		projection(proj, cam, float(vw), float(vh));
-		bb::mat_multiply(data.viewprojection, proj, view);
+
+		// Positions are relative to the camera on the GPU, so that the cancellation of a position and the camera
+		// does not happen per vertex with 32-bit floats: the view has no translation, the entities and the lights
+		// are moved by where the camera is, and the camera is at the origin.
+		float view_rotation[16];
+		memcpy(view_rotation, view, sizeof(view_rotation));
+		view_rotation[12] = view_rotation[13] = view_rotation[14] = 0;
+		memcpy(current_origin, cam_world + 12, sizeof(current_origin));
+		bb::mat_multiply(data.viewprojection, proj, view_rotation);
 		data.fog[0] = cam.fog_near;
 		data.fog[1] = cam.fog_far;
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
 		data.fog[3] = 0;
-		memcpy(data.eye, cam_world + 12, sizeof(float) * 3);
+		memset(data.eye, 0, sizeof(float) * 3);
+		for (int i = 0; i < max_lights; i++) {
+			float* light = data.light_position[i];
+			if (light[3] > 0) { // Not a direction.
+				for (int k = 0; k < 3; k++) {
+					light[k] = float(double(light[k]) - double(current_origin[k]));
+				}
+			}
+		}
 		memcpy(data.fog_color, cam.fog_color, sizeof(cam.fog_color));
 
 		scene_record scene = {};
