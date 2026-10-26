@@ -21,6 +21,12 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"source/types.cpp"
 	"source/compiler.hpp"
 	"source/compiler.cpp"
+	"source/compiler_expressions.cpp"
+	"source/compiler_statements.cpp"
+	"source/compiler_functions.cpp"
+	"source/compiler_objects.cpp"
+	"source/compiler_data.cpp"
+	"source/compiler_internal.hpp"
 	"source/ast/ast.hpp"
 )
 
