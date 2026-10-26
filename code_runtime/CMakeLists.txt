@@ -47,17 +47,36 @@ ExternalContent(
 	INSTALL_ARGS --config Release
 )
 
+# Loads the image files for textures.
+ExternalContent(
+	NAME SDL3_image
+	GIT_URL "https://github.com/libsdl-org/SDL_image"
+	GIT_REF "release-3.4.8"
+	GIT_CLONE_OPTIONS --depth 1
+	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${SDL3_INSTALL_PATH}/cmake"
+		-DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=OFF -DSDLIMAGE_DEPS_SHARED=OFF -DSDLIMAGE_STRICT=OFF
+		-DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF -DSDLIMAGE_INSTALL=ON
+		# stb_image is built in, and handles PNG and JPEG. The others need libraries that aren't vendored.
+		-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_AVIF=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_WEBP=OFF -DSDLIMAGE_JXL=OFF
+	BUILD_ARGS --config Release --parallel
+	INSTALL_ARGS --config Release
+)
+
 if(WIN32)
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
+	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/SDL3_image-static.lib")
 else()
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/libSDL3.a")
+	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/libSDL3_image.a")
 endif()
-if(NOT EXISTS "${_SDL3_LIBRARY}")
-	message(FATAL_ERROR "SDL3 was not built: '${_SDL3_LIBRARY}' is missing.")
-endif()
+foreach(_LIBRARY IN ITEMS "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}")
+	if(NOT EXISTS "${_LIBRARY}")
+		message(FATAL_ERROR "A dependency was not built: '${_LIBRARY}' is missing.")
+	endif()
+endforeach()
 
 # Libraries that programs have to link to, which the compiler copies next to itself.
-set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" PARENT_SCOPE)
+set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" PARENT_SCOPE)
 
 ################################################################################
 # Runtime Library
@@ -80,6 +99,7 @@ target_include_directories(blitzrt PRIVATE
 )
 target_include_directories(blitzrt SYSTEM PRIVATE
 	"${SDL3_INSTALL_PATH}/include"
+	"${SDL3_image_INSTALL_PATH}/include"
 	"${VulkanHeaders_INSTALL_PATH}/include"
 )
 if(MSVC)

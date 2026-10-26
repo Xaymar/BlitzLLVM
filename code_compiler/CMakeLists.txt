@@ -40,7 +40,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})
 # Tests: every program in /tests has to compile into an executable, the lexer test only has to lex.
 enable_testing()
 set(TEST_DIRECTORY "${PROJECT_SOURCE_DIR}/../tests")
-foreach(_TEST IN ITEMS 001 002 003 004 005 006 007)
+foreach(_TEST IN ITEMS 001 002 003 004 005 006 007 008)
 	add_test(
 		NAME "compile-${_TEST}"
 		COMMAND ${PROJECT_NAME} "${TEST_DIRECTORY}/${_TEST}.bb" -o "${PROJECT_BINARY_DIR}/test-${_TEST}${CMAKE_EXECUTABLE_SUFFIX}"
@@ -51,7 +51,7 @@ foreach(_TEST IN ITEMS 001 002 003 004 005 006 007)
 		NAME "run-${_TEST}"
 		COMMAND "${PROJECT_BINARY_DIR}/test-${_TEST}${CMAKE_EXECUTABLE_SUFFIX}"
 	)
-	set_tests_properties("run-${_TEST}" PROPERTIES FIXTURES_REQUIRED "program-${_TEST}" ENVIRONMENT "BLITZ_HEADLESS=1")
+	set_tests_properties("run-${_TEST}" PROPERTIES FIXTURES_REQUIRED "program-${_TEST}" ENVIRONMENT "BLITZ_HEADLESS=1" WORKING_DIRECTORY "${TEST_DIRECTORY}")
 endforeach()
 add_test(
 	NAME "lex-test"

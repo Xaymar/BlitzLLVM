@@ -118,7 +118,11 @@ namespace {
 		{ "entitycolor", "bb_entity_color", 'v', "ifff", 4, {}, false },
 		{ "entityalpha", "bb_entity_alpha", 'v', "if", 2, {}, false },
 		{ "entityfx", "bb_entity_fx", 'v', "ii", 2, {}, false },
-		{ "entitytexture", "bb_entity_texture", 'v', "ii", 2, {}, false },
+		{ "entitytexture", "bb_entity_texture", 'v', "iiii", 2, { 0, 0, 0, 0 }, false },
+		{ "loadtexture", "bb_load_texture", 'i', "si", 1, { 0, 9 }, false },
+		{ "freetexture", "bb_free_texture", 'v', "i", 1, {}, false },
+		{ "texturewidth", "bb_texture_width", 'i', "i", 1, {}, false },
+		{ "textureheight", "bb_texture_height", 'i', "i", 1, {}, false },
 		{ "entitydistance", "bb_entity_distance", 'f', "ii", 2, {}, false },
 		{ "pointentity", "bb_point_entity", 'v', "iif", 2, { 0, 0, 0 }, false },
 		// 3D: Cameras

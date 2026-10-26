@@ -18,6 +18,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
+#include <SDL3_image/SDL_image.h>
 
 #include <math.h>
 #include <stdint.h>
@@ -121,7 +122,8 @@ void bb_runtime_error(const char* message);
 	X(vkCmdDrawIndexed) \
 	X(vkCmdBindIndexBuffer) \
 	X(vkCmdSetCullMode) \
-	X(vkCmdSetDepthWriteEnable)
+	X(vkCmdSetDepthWriteEnable) \
+	X(vkFreeDescriptorSets)
 
 #define BB_VK_DECLARE(name) static PFN_##name name;
 BB_VK_GLOBAL(BB_VK_DECLARE)
@@ -198,6 +200,8 @@ namespace {
 		VkPipeline            triangles  = VK_NULL_HANDLE;
 		VkPipeline            lines      = VK_NULL_HANDLE;
 		VkSampler             sampler    = VK_NULL_HANDLE;
+		VkSampler             sampler_repeat = VK_NULL_HANDLE; // Linear, for 3D textures.
+		VkSampler             sampler_clamp  = VK_NULL_HANDLE;
 		gpu_image            textures[TEXTURES];
 		VkDescriptorSet       sets[TEXTURES];
 
@@ -672,7 +676,8 @@ namespace {
 	}
 
 	// Creates a texture from RGBA pixels, ready to be sampled.
-	void create_texture(int slot, uint32_t width, uint32_t height, const uint8_t* pixels)
+	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler)
 	{
 		VkDeviceSize size = VkDeviceSize(width) * height * 4;
 		VkBuffer       staging;
@@ -683,15 +688,15 @@ namespace {
 		memcpy(mapped, pixels, size_t(size));
 		vkUnmapMemory(g.device, staging_memory);
 
-		g.textures[slot] = create_image(width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+		image = create_image(width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
 		begin_commands();
-		barrier(g.textures[slot].image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		VkBufferImageCopy copy = {};
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		copy.imageExtent       = { width, height, 1 };
-		vkCmdCopyBufferToImage(g.cmd, staging, g.textures[slot].image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-		barrier(g.textures[slot].image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+		barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		submit_commands();
 
 		vkDestroyBuffer(g.device, staging, nullptr);
@@ -701,15 +706,20 @@ namespace {
 		alloc.descriptorPool              = g.set_pool;
 		alloc.descriptorSetCount          = 1;
 		alloc.pSetLayouts                 = &g.set_layout;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &g.sets[slot]), "vkAllocateDescriptorSets");
+		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets (too many textures?)");
 
-		VkDescriptorImageInfo image_info = { g.sampler, g.textures[slot].view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		VkDescriptorImageInfo image_info = { sampler, image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                     = g.sets[slot];
+		write.dstSet                     = set;
 		write.descriptorCount            = 1;
 		write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		write.pImageInfo                 = &image_info;
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+	}
+
+	void create_texture(int slot, uint32_t width, uint32_t height, const uint8_t* pixels)
+	{
+		upload_texture(g.textures[slot], g.sets[slot], width, height, pixels, g.sampler);
 	}
 
 	void create_buffers(uint32_t width, uint32_t height)
@@ -958,6 +968,14 @@ namespace {
 		sampler_info.addressModeW        = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler), "vkCreateSampler");
 
+		// Textures of 3D objects are filtered, and repeat unless told not to.
+		sampler_info.magFilter    = VK_FILTER_LINEAR;
+		sampler_info.minFilter    = VK_FILTER_LINEAR;
+		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_repeat), "vkCreateSampler");
+		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_clamp), "vkCreateSampler");
+
 		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
 		set_info.bindingCount                    = 1;
@@ -966,6 +984,7 @@ namespace {
 
 		VkDescriptorPoolSize pool_sizes[2] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 256 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1 } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+		dpool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 		dpool_info.maxSets                    = 257;
 		dpool_info.poolSizeCount              = 2;
 		dpool_info.pPoolSizes                 = pool_sizes;
@@ -1162,6 +1181,38 @@ namespace {
 		set_vertex(v[3], x + 8, y, u1, v0);
 		set_vertex(v[4], x + 8, y + 8, u1, v1);
 		set_vertex(v[5], x, y + 8, u0, v1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// Textures
+	////////////////////////////////////////////////////////////////////////////
+	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32 };
+
+	struct texture_entry {
+		bool            used = false;
+		int             flags = 0;
+		int             width = 0, height = 0;
+		gpu_image       image;
+		VkDescriptorSet set = VK_NULL_HANDLE;
+	};
+	bb::buffer<texture_entry> texture_table;
+
+	texture_entry* texture_of(int handle)
+	{
+		if ((handle < 1) || (uint32_t(handle) > texture_table.size) || !texture_table[uint32_t(handle) - 1].used) {
+			return nullptr;
+		}
+		return &texture_table[uint32_t(handle) - 1];
+	}
+
+	void free_texture(texture_entry& t)
+	{
+		if (g.device && t.set) {
+			vkDeviceWaitIdle(g.device);
+			vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
+			destroy_image(t.image);
+		}
+		t = texture_entry();
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -1434,7 +1485,9 @@ namespace {
 	void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
-		if (mesh.alpha < 0.999f) {
+		texture_entry* texture = texture_of(mesh.texture);
+		bool translucent       = texture && (texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED));
+		if ((mesh.alpha < 0.999f) || translucent) {
 			float m[16];
 			bb::world_matrix(handle, m);
 			// Distance along the camera's view direction, to draw far things first.
@@ -1470,7 +1523,9 @@ namespace {
 		vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(push), &push);
 		vkCmdSetCullMode(g.cmd, (e->fx & 16) ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
 		vkCmdSetDepthWriteEnable(g.cmd, blended ? VK_FALSE : VK_TRUE);
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &g.sets[TEXTURE_WHITE], 0, nullptr);
+		texture_entry* texture = texture_of(e->texture);
+		VkDescriptorSet set    = (texture && texture->set) ? texture->set : g.sets[TEXTURE_WHITE];
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
 
 		for (uint32_t i = 0; i < e->surfaces.size; i++) {
 			surface_gpu* gpu = upload_surface(*e->surfaces[i]);
@@ -1664,6 +1719,11 @@ void bb_end_graphics(void)
 		for (int i = 0; i < 2; i++) {
 			destroy_image(g.buffers[i]);
 		}
+		for (uint32_t i = 0; i < texture_table.size; i++) {
+			if (texture_table[i].used) {
+				free_texture(texture_table[i]);
+			}
+		}
 		destroy_image(g.depth);
 		vkDestroyBuffer(g.device, g.scene_buffer, nullptr);
 		vkFreeMemory(g.device, g.scene_memory, nullptr);
@@ -1683,6 +1743,8 @@ void bb_end_graphics(void)
 		vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
 		vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
 		vkDestroySampler(g.device, g.sampler, nullptr);
+		vkDestroySampler(g.device, g.sampler_repeat, nullptr);
+		vkDestroySampler(g.device, g.sampler_clamp, nullptr);
 		vkDestroySemaphore(g.device, g.acquired, nullptr);
 		vkDestroyFence(g.device, g.fence, nullptr);
 		vkDestroyCommandPool(g.device, g.pool, nullptr);
@@ -1956,6 +2018,77 @@ int32_t bb_mouse_hit(int32_t button)
 		return 1;
 	}
 	return 0;
+}
+
+// LoadTexture(file, flags): flags are 1 = color, 2 = alpha channel, 4 = masked (black is transparent), 16/32 = clamp U/V.
+int32_t bb_load_texture(const char* file, int32_t flags)
+{
+	if (!file) {
+		return 0;
+	}
+	SDL_Surface* loaded = IMG_Load(file);
+	if (!loaded) {
+		return 0; // Blitz gives 0 for missing files.
+	}
+	SDL_Surface* rgba = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
+	SDL_DestroySurface(loaded);
+	if (!rgba) {
+		return 0;
+	}
+
+	// Without the alpha flag, the image's own alpha is ignored. Masked textures treat black as transparent.
+	for (int y = 0; y < rgba->h; y++) {
+		uint8_t* row = static_cast<uint8_t*>(rgba->pixels) + size_t(y) * size_t(rgba->pitch);
+		for (int x = 0; x < rgba->w; x++) {
+			uint8_t* px = row + x * 4;
+			if (flags & TEXTURE_MASKED) {
+				px[3] = (px[0] || px[1] || px[2]) ? 255 : 0;
+			} else if (!(flags & TEXTURE_ALPHA)) {
+				px[3] = 255;
+			}
+		}
+	}
+
+	texture_entry entry;
+	entry.used   = true;
+	entry.flags  = flags;
+	entry.width  = rgba->w;
+	entry.height = rgba->h;
+	if (active()) {
+		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
+		upload_texture(entry.image, entry.set, uint32_t(rgba->w), uint32_t(rgba->h), static_cast<const uint8_t*>(rgba->pixels), sampler);
+	}
+	SDL_DestroySurface(rgba);
+
+	for (uint32_t i = 0; i < texture_table.size; i++) {
+		if (!texture_table[i].used) {
+			texture_table[i] = entry;
+			return int32_t(i) + 1;
+		}
+	}
+	texture_table.push(entry);
+	return int32_t(texture_table.size);
+}
+
+void bb_free_texture(int32_t handle)
+{
+	texture_entry* t = texture_of(handle);
+	if (!t) {
+		bb_runtime_error("FreeTexture: texture does not exist.");
+	}
+	free_texture(*t);
+}
+
+int32_t bb_texture_width(int32_t handle)
+{
+	texture_entry* t = texture_of(handle);
+	return t ? t->width : 0;
+}
+
+int32_t bb_texture_height(int32_t handle)
+{
+	texture_entry* t = texture_of(handle);
+	return t ? t->height : 0;
 }
 
 // RenderWorld: draws everything the cameras see into the current buffer.
