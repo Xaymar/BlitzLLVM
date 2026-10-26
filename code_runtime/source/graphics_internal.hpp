@@ -59,6 +59,7 @@ void bb_gui_idle(void);
 	X(vkEnumeratePhysicalDevices) \
 	X(vkGetPhysicalDeviceFeatures) \
 	X(vkGetPhysicalDeviceProperties) \
+	X(vkGetPhysicalDeviceFormatProperties) \
 	X(vkGetPhysicalDeviceQueueFamilyProperties) \
 	X(vkGetPhysicalDeviceMemoryProperties) \
 	X(vkGetPhysicalDeviceSurfaceSupportKHR) \
@@ -155,7 +156,13 @@ namespace bb::gfx {
 	};
 
 
+	// The block compressed formats that DDS files can be uploaded as.
+	enum class block_format { none, bc1, bc2, bc3, bc4, bc5, bc7 };
+
 	struct gpu_image {
+		block_format   block   = block_format::none; // Not none if the image holds compressed blocks, which can be sampled but not drawn to.
+		bool           opaque  = false;              // Compressed: whether the alpha is forced to 1, which it is when the texture has no alpha flag.
+		VkSampler      sampler = VK_NULL_HANDLE;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
 		VkImage        image  = VK_NULL_HANDLE;
 		VkDeviceMemory memory = VK_NULL_HANDLE;
 		VkImageView    view   = VK_NULL_HANDLE;
@@ -553,7 +560,7 @@ namespace bb::gfx {
 	[[noreturn]] void fail(const char* what);
 	void check(VkResult result, const char* what);
 	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags props, VkBuffer& buffer, VkDeviceMemory& memory);
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT);
+	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr);
 	void destroy_image(gpu_image& img);
 	VkShaderModule create_shader(const unsigned int* words, size_t size);
 	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler);
@@ -593,6 +600,32 @@ namespace bb::gfx {
 	void record_copy(uint32_t index);
 	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h);
 	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba);
+	/** Loads a picture file with SDL_image, and DDS files with our own decoder. The surface is for the caller to destroy. */
+	SDL_Surface* load_surface(const char* file);
+
+	/** A picture file that is either decoded (surface), or a DDS file whose blocks are kept as they are. */
+	struct picture {
+		SDL_Surface* surface   = nullptr;
+		block_format block     = block_format::none;
+		int          width     = 0, height = 0;
+		uint8_t*     blocks    = nullptr; // malloc'ed
+		size_t       size      = 0;
+		bool         has_alpha = false;   // Whether the picture has see-through pixels.
+	};
+	/** Reads a file without decoding the blocks of a DDS file. Returns false if it cannot be read. */
+	bool load_picture(const char* file, picture& out);
+	/** The decoded pixels of a picture. The surface is for the caller to destroy and the picture is empty afterwards. */
+	SDL_Surface* picture_surface(picture& p);
+	void free_picture(picture& p);
+	/** Decodes blocks to RGBA, whose rows have no padding. BC4 is grey, and BC5 is a normal map. */
+	void decode_blocks(block_format format, int width, int height, const uint8_t* blocks, uint8_t* rgba);
+	size_t block_bytes(block_format format, int width, int height);
+	/** Whether the device can sample, and copy to and from, images of this format. */
+	bool compressed_supported(block_format format);
+	/** Uploads blocks into a new image and a descriptor set. With opaque the alpha is always 1. */
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque);
+	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
+	void ensure_color_image(gpu_image& image, VkDescriptorSet set);
 } // namespace bb::gfx
 
 ////////////////////////////////////////////////////////////////////////////////

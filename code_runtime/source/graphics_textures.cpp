@@ -237,6 +237,18 @@ int32_t bb_filter_texture_flags(const char* file, int32_t flags)
 	return flags;
 }
 
+static int32_t add_texture(texture_entry const& entry)
+{
+	for (uint32_t i = 0; i < texture_table.size; i++) {
+		if (!texture_table[i].used) {
+			texture_table[i] = entry;
+			return int32_t(i) + 1;
+		}
+	}
+	texture_table.push(entry);
+	return int32_t(texture_table.size);
+}
+
 // Loads a texture with exactly these flags. Where alpha comes from is what the original does: nothing, if the flag is
 // not there, and with it the alpha channel of the image if it has one, and otherwise how bright each pixel is.
 int32_t bb_load_texture_flags(const char* file, int32_t flags)
@@ -247,9 +259,30 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 	if (flags & TEXTURE_MASKED) {
 		flags |= 1 | TEXTURE_ALPHA;
 	}
-	SDL_Surface* loaded = IMG_Load(file);
-	if (!loaded) {
+	picture source;
+	if (!load_picture(file, source)) {
 		return 0; // Blitz gives 0 for missing files.
+	}
+
+	// A compressed picture goes to the GPU as it is when it has what the flags ask for: without the alpha flag the alpha is
+	// made 1 by the image view, and with it the file needs alpha of its own. Masks, brightness as alpha and BC5, whose third
+	// channel is rebuilt, need the pixels, which are decoded then.
+	if (active() && source.blocks && !(flags & TEXTURE_MASKED) && (source.block != block_format::bc5) && (!(flags & TEXTURE_ALPHA) || source.has_alpha) && compressed_supported(source.block)) {
+		texture_entry entry;
+		entry.used   = true;
+		entry.flags  = flags;
+		entry.width  = source.width;
+		entry.height = source.height;
+		entry.file   = full_path(file);
+		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
+		upload_compressed(entry.image, entry.set, source, sampler, !(flags & TEXTURE_ALPHA));
+		free_picture(source);
+		return add_texture(entry);
+	}
+
+	SDL_Surface* loaded = picture_surface(source);
+	if (!loaded) {
+		return 0;
 	}
 	bool         has_alpha = SDL_ISPIXELFORMAT_ALPHA(loaded->format);
 	SDL_Surface* rgba      = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
@@ -300,14 +333,7 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 	}
 	SDL_DestroySurface(rgba);
 
-	for (uint32_t i = 0; i < texture_table.size; i++) {
-		if (!texture_table[i].used) {
-			texture_table[i] = entry;
-			return int32_t(i) + 1;
-		}
-	}
-	texture_table.push(entry);
-	return int32_t(texture_table.size);
+	return add_texture(entry);
 }
 
 int32_t bb_load_texture(const char* file, int32_t flags)

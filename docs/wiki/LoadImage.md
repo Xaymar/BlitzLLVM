@@ -41,7 +41,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* More file formats load than in the original, which read BMP, PNG, JPEG and TGA. Files are decoded by SDL_image.
+* More file formats load than in the original, which read BMP, PNG, JPEG and TGA. Files are decoded by SDL_image, and DDS files (DXT1 to DXT5, BC4, BC5, BC7 and uncompressed pictures) by the runtime itself, and block compressed ones stay compressed on the graphics card until the image is drawn to. See [LoadTexture](LoadTexture) for the formats of DDS files that are read.
 * Backslashes in paths are changed into slashes on Linux and macOS.
 
 ## Related commands
