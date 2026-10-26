@@ -34,6 +34,7 @@
 extern "C" {
 void bb_event_post(int32_t kind, int32_t data, int32_t x, int32_t y, int32_t z, int32_t source);
 int32_t bb_events_used(void);
+int32_t bb_confirm(const char* text, int32_t serious);
 int32_t bb_event_hotkey(int32_t scan, int32_t mods);
 int32_t bb_create_bank(int32_t size);
 void bb_free_bank(int32_t handle);
@@ -198,6 +199,7 @@ namespace bb::gfx {
 	struct state {
 		bool headless = false;
 		bool created  = false;
+		char close_prompt[256] = ""; // What AppTitle asks before the window is closed, empty to close without asking.
 
 		// Window
 		SDL_Window* window = nullptr;

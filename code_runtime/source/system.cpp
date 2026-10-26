@@ -60,6 +60,12 @@ namespace {
 	// Shows a message with buttons, and says which was pressed: the index in the list, or -1 for none.
 	int ask(const char* title, const char* text, bool serious, const char* const* labels, int count)
 	{
+		// BLITZ_DIALOG_ANSWER=<n> presses the n-th button (counting from 0) without showing anything, for automated runs.
+		if (const char* answer = getenv("BLITZ_DIALOG_ANSWER")) {
+			fprintf(stderr, "%s: %s\n", title, text ? text : "");
+			int pressed = atoi(answer);
+			return ((pressed >= 0) && (pressed < count)) ? pressed : -1;
+		}
 		if (!can_ask()) {
 			fprintf(stderr, "%s: %s\n", title, text ? text : "");
 			return -1;

@@ -125,6 +125,9 @@ namespace blitz {
 		compiler();
 		~compiler();
 
+		/** Whether this is a debug build, where Stop breaks into the debugger. */
+		bool debug = false;
+
 		/** Generate LLVM IR for the given program. Throws blitz::error on failure. */
 		std::string generate(ast::program const& program);
 

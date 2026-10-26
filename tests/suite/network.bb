@@ -19,6 +19,20 @@ ip = HostIP(1)
 CheckTrue "HostIP", ip <> 0
 CheckS "HostIP is an address", Left$(DottedIP$(ip), 3), "127"
 
+; The addresses of this computer are the ones of its network interfaces, and the ones other computers reach it by come first.
+count = CountHostIPs("")
+CheckTrue "CountHostIPs of this computer", count >= 1
+For i = 1 To count
+	CheckTrue "HostIP " + i + " is an address", HostIP(i) <> 0
+Next
+Check "HostIP after the last one", HostIP(count + 1), 0
+Check "HostIP 0", HostIP(0), 0
+If count > 1 Then CheckTrue "HostIP 1 is not the loopback address while there are others", HostIP(1) <> $7F000001
+Check "CountHostIPs of a host that is not there", CountHostIPs("host.invalid"), 0
+Check "HostIP of a host that is not there", HostIP(1), 0
+Check "CountHostIPs of an address", CountHostIPs("127.0.0.1"), 1
+Check "HostIP of an address", HostIP(1), $7F000001
+
 ; TCP: a server, a client that connects, and the stream that the server accepts.
 TCPTimeouts 1000, 1000
 port = 40731
@@ -110,8 +124,14 @@ For i = 1 To 50
 Next
 CheckTrue "UDP reply", size > 0
 Check "UDP reply content", ReadInt(udp_a), 77
-; The stream receives on this computer.
-CheckS "UDPStreamIP", DottedIP$(UDPStreamIP(udp_a)), "127.0.0.1"
+; The stream receives on this computer, so its address is one of the addresses of this computer.
+streamip = UDPStreamIP(udp_a)
+found = False
+count = CountHostIPs("")
+For i = 1 To count
+	If HostIP(i) = streamip Then found = True
+Next
+CheckTrue "UDPStreamIP is an address of this computer", found
 
 ; With a timeout, RecvUDPMsg waits for a message that is not there yet.
 UDPTimeouts 200
