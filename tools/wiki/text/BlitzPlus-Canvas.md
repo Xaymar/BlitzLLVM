@@ -1,0 +1,158 @@
+## CanvasBuffer
+Gives the buffer that a canvas is drawn to. Make it the target with `SetBuffer`, draw with the usual 2D commands like `Rect`, `Line` and `Text`, and then call [FlipCanvas](BlitzPlus-Canvas#flipcanvas) to show the result. The buffer is as big as the canvas was when this was called first.
+
+```blitzbasic
+;media interact canvas/canvasbuffer.png 2
+Graphics 320, 240, 32, 2
+win = CreateWindow("Canvas", 20, 20, 280, 190, Desktop(), 3)
+cv  = CreateCanvas(10, 10, 250, 140, win)
+SetBuffer CanvasBuffer(cv)
+ClsColor 20, 30, 60
+Cls
+Color 255, 200, 0
+Oval 20, 20, 100, 100, 1
+Color 255, 255, 255
+Text 135, 60, "Drawn on a canvas"
+FlipCanvas cv
+Repeat
+Until WaitEvent() = $803
+```
+
+![CanvasBuffer](media/canvas/canvasbuffer.png)
+@param canvas  Handle of a canvas made with [CreateCanvas](BlitzPlus-Canvas#createcanvas).
+@returns A buffer handle that works with `SetBuffer`, `LockBuffer`, `ReadPixel` and the other buffer commands.
+@gap The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit. The original smooths this stretching, here the picture is scaled by the renderer.
+
+## CreateCanvas
+Makes a rectangular area in a window or panel that your program paints on itself, for animations, graphs or anything else the other gadgets cannot show. Canvases also tell you about the mouse: they send $203 when it moves over them and $205 and $206 when it enters or leaves, with the position in [EventX](BlitzPlus-Events#eventx) and [EventY](BlitzPlus-Events#eventy), and they get keyboard events when they have the focus.
+
+Draw with [CanvasBuffer](BlitzPlus-Canvas#canvasbuffer) and [FlipCanvas](BlitzPlus-Canvas#flipcanvas). A canvas can also be the group of other gadgets.
+
+```blitzbasic
+;media interact canvas/createcanvas.gif 8
+;media shots 8 100
+Graphics 320, 240, 32, 2
+win = CreateWindow("Spinner", 20, 20, 280, 190, Desktop(), 3)
+cv  = CreateCanvas(10, 10, 250, 140, win)
+frame = 0
+Repeat
+	SetBuffer CanvasBuffer(cv)
+	ClsColor 0, 0, 0
+	Cls
+	Color 0, 255, 120
+	a# = frame * 15
+	Line 125, 70, 125 + Cos(a) * 55, 70 + Sin(a) * 55
+	Oval 120, 65, 10, 10, 1
+	FlipCanvas cv
+	frame = frame + 1
+	e = WaitEvent(100)
+Until e = $803
+```
+
+![CreateCanvas](media/canvas/createcanvas.gif)
+@param x       Horizontal position inside the group.
+@param y       Vertical position inside the group.
+@param width   Width of the canvas.
+@param height  Height of the canvas.
+@param group   Window, panel or tabber that holds it.
+@param style   0 lets the canvas follow the size of its group when [SetGadgetLayout](BlitzPlus-Gadgets#setgadgetlayout) says so, 65536 keeps it as it is. Defaults to 0.
+@returns A handle for the canvas.
+@gap Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
+
+## DesktopBuffer
+Gives the buffer of the desktop, which is behind all windows. Drawing to it paints on the background that windows sit on.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("In front", 40, 20, 240, 120, Desktop(), 3)
+SetBuffer DesktopBuffer()
+Color 255, 160, 0
+For i = 0 To 7
+	Oval 20 + i * 36, 170, 30, 30, 1
+Next
+Repeat
+Until WaitEvent() = $803
+```
+@returns A buffer handle.
+@gap The desktop is the window of the program, so this is the same buffer as `FrontBuffer()`, not the screen of the computer. The interface paints the desktop again whenever something changes, so what you draw here does not stay yet. The original draws on the Windows desktop with the DirectDraw driver only.
+
+## FlipCanvas
+Shows what was drawn to the buffer of a canvas, like `Flip` does for a window opened with `Graphics`. Until it is called the canvas keeps showing what it showed before.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Flip", 20, 20, 240, 150, Desktop(), 3)
+cv  = CreateCanvas(10, 10, 200, 100, win)
+SetBuffer CanvasBuffer(cv)
+Color 255, 0, 0
+Rect 0, 0, 200, 100, 1
+FlipCanvas cv, 0
+Repeat
+Until WaitEvent() = $803
+```
+@param canvas  Handle of a canvas.
+@param vwait   1 waits for the display to be ready, 0 shows it right away. Defaults to 1.
+@gap The second parameter is accepted, but there is nothing to wait for and it makes no difference.
+
+## LockedFormat
+Says how the pixels of a locked buffer are stored. Lock the buffer first with `LockBuffer`.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Format", 20, 20, 240, 150, Desktop(), 3)
+cv  = CreateCanvas(10, 10, 200, 100, win)
+buf = CanvasBuffer(cv)
+LockBuffer buf
+SetGadgetText win, "Format " + LockedFormat(buf) + ", pitch " + LockedPitch(buf)
+UnlockBuffer buf
+Repeat
+Until WaitEvent() = $803
+```
+@param buffer  Locked buffer. Defaults to the current one.
+@returns A number that tells how the pixels are laid out: 1 is 16 bit with 5-6-5, 2 is 16 bit with 5-5-5, 3 is 24 bit and 4 is 32 bit with an unused byte.
+@gap Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte). Code that handles the other formats still works, it just never runs.
+
+## LockedPitch
+Gives how many bytes one row of pixels of a locked buffer takes, which you need to find the pixel at x, y: `y * pitch + x * 4`.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Pitch", 20, 20, 240, 150, Desktop(), 3)
+cv  = CreateCanvas(10, 10, 200, 100, win)
+buf = CanvasBuffer(cv)
+LockBuffer buf
+SetGadgetText win, "A row is " + LockedPitch(buf) + " bytes"
+UnlockBuffer buf
+Repeat
+Until WaitEvent() = $803
+```
+@param buffer  Locked buffer. Defaults to the current one.
+@returns Bytes in a row. For the buffer of a 200 pixel wide canvas that is 800.
+
+## LockedPixels
+Gives the pixels of a locked buffer as a bank, so you can read and write them with `PeekByte`, `PokeInt` and friends, which is quicker than `ReadPixel` and `WritePixel` for many pixels. Change them, call `UnlockBuffer` and the changes show up in the buffer.
+
+```blitzbasic
+;media interact canvas/lockedpixels.png 2
+Graphics 320, 240, 32, 2
+win = CreateWindow("Gradient", 20, 20, 280, 190, Desktop(), 3)
+cv  = CreateCanvas(10, 10, 256, 100, win)
+buf = CanvasBuffer(cv)
+LockBuffer buf
+bank  = LockedPixels(buf)
+pitch = LockedPitch(buf)
+For y = 0 To 99
+	For x = 0 To 255
+		PokeInt bank, y * pitch + x * 4, $FF000000 Or (x Shl 16) Or (y * 2 Shl 8) Or (255 - x)
+	Next
+Next
+UnlockBuffer buf
+FlipCanvas cv
+Repeat
+Until WaitEvent() = $803
+```
+
+![LockedPixels](media/canvas/lockedpixels.png)
+@param buffer  Locked buffer. Defaults to the current one.
+@returns The handle of a bank with the pixels.
+@gap The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card. Nothing is changed before `UnlockBuffer`.
