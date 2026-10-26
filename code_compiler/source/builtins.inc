@@ -11,6 +11,7 @@
 		{ "write", "bb_write", 'v', "s", 1, {}, false },
 		{ "input", "bb_input", 's', "s", 0, {}, false },
 		{ "runtimeerror", "bb_runtime_error", 'v', "s", 1, {}, false },
+		{ "stop", "bb_stop", 'v', "", 0, {}, false },
 		// Strings
 		{ "len", "bb_len", 'i', "s", 1, {}, false },
 		{ "left", "bb_left", 's', "si", 2, {}, false },

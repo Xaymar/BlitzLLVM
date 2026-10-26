@@ -166,7 +166,7 @@ void bb_set_buffer(int32_t buffer)
 
 void bb_app_title(const char* title, const char* close_prompt)
 {
-	(void)close_prompt;
+	snprintf(g.close_prompt, sizeof(g.close_prompt), "%s", close_prompt ? close_prompt : "");
 	if (active()) {
 		SDL_SetWindowTitle(g.window, title ? title : "");
 	}

@@ -44,6 +44,42 @@ const char* bb_command_line(void)
 	return out;
 }
 
+// The folder that the program is in, with a separator at the end.
+static const char* bb_app_dir(void)
+{
+	char buffer[4096];
+	size_t length = 0;
+#if defined(_WIN32)
+	length = GetModuleFileNameA(NULL, buffer, sizeof(buffer));
+	if (length >= sizeof(buffer)) {
+		length = 0;
+	}
+#else
+	ssize_t n = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+	if (n > 0) {
+		length = (size_t)n;
+	} else if (bb_argc > 0 && bb_argv[0]) {
+		char* resolved = realpath(bb_argv[0], NULL); // Where the system has no /proc (macOS, BSD) and the program was started by path.
+		if (resolved && (strlen(resolved) < sizeof(buffer))) {
+			strcpy(buffer, resolved);
+			length = strlen(buffer);
+		}
+		free(resolved);
+	}
+#endif
+	buffer[length] = 0;
+	while (length && (buffer[length - 1] != '/') && (buffer[length - 1] != '\\')) {
+		buffer[--length] = 0;
+	}
+	if (!length) {
+		return bb_current_dir(); // Nothing is known about where the program is, so this is the best guess.
+	}
+	return bb_copy(buffer, length);
+}
+
+// SystemProperty$(name): tempdir, appdir, windowsdir and systemdir. Off Windows there is no such thing as the Windows
+// folder, so windowsdir is where the system keeps its configuration (/etc/ or /System/ on macOS) and systemdir is
+// where it keeps its libraries (/usr/lib/ or /System/Library/ on macOS). Anything else is an empty string.
 const char* bb_system_property(const char* name)
 {
 	const char* wanted = bb_s(name);
@@ -57,11 +93,28 @@ const char* bb_system_property(const char* name)
 			value = "/tmp";
 		}
 	} else if (!strcmp(wanted, "appdir") || !strcmp(wanted, "APPDIR")) {
-		return bb_current_dir();
+		return bb_app_dir();
 	} else if (!strcmp(wanted, "windowsdir") || !strcmp(wanted, "WINDOWSDIR")) {
+#if defined(_WIN32)
 		value = getenv("SystemRoot");
+#elif defined(__APPLE__)
+		value = "/System/";
+#else
+		value = "/etc/";
+#endif
 	} else if (!strcmp(wanted, "systemdir") || !strcmp(wanted, "SYSTEMDIR")) {
+#if defined(_WIN32)
+		char system[MAX_PATH];
+		UINT length = GetSystemDirectoryA(system, sizeof(system));
+		if (length && (length < sizeof(system))) {
+			return bb_copy(system, length);
+		}
 		value = getenv("SystemRoot");
+#elif defined(__APPLE__)
+		value = "/System/Library/";
+#else
+		value = "/usr/lib/";
+#endif
 	}
 	return bb_copy(value ? value : "", value ? strlen(value) : 0);
 }
