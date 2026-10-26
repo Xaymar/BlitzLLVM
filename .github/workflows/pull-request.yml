@@ -1,6 +1,7 @@
 name: Pull Request
 
-# Builds every pull request to verify that it compiles. The results are reported by pull-request-comment.yml, because
+# Builds every pull request to verify that it compiles. The pull request comment is created by pull-request-pending.yml and
+# filled with the results by pull-request-comment.yml, because
 # pull requests from forks only get a read-only token here and can not comment themselves.
 
 on:
