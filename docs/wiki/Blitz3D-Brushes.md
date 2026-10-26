@@ -6,6 +6,7 @@
 
 Reusable material settings applied to meshes, surfaces and entities.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

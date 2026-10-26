@@ -6,25 +6,29 @@
 
 Reading and writing bytes, numbers and text on files, TCP and UDP streams.
 
+Streams are what the file handles from [[BlitzBasic-Files]] give you, and what [[BlitzBasic-Network]] gives for TCP and UDP. These commands read and write on any of them, so the same code that saves a file can send over a network.
+
+Numbers are stored little-endian in the sizes the commands say. A string written with [WriteString](BlitzBasic-Streams#writestring) has its length in front, a line written with [WriteLine](BlitzBasic-Streams#writeline) ends with a carriage return and a line feed. Everything written can be read back in the same order.
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [CopyStream](BlitzBasic-Streams#copystream) | None |  |
+| [CopyStream](BlitzBasic-Streams#copystream) | None | Copies everything that is left in one stream into another, in pieces of `buffer_size` bytes. |
 | [Eof](BlitzBasic-Streams#eof) | Int |  |
 | [ReadAvail](BlitzBasic-Streams#readavail) | Int |  |
 | [ReadByte](BlitzBasic-Streams#readbyte) | Int |  |
 | [ReadFloat](BlitzBasic-Streams#readfloat) | Float |  |
 | [ReadInt](BlitzBasic-Streams#readint) | Int |  |
-| [ReadLine](BlitzBasic-Streams#readline) | String |  |
+| [ReadLine](BlitzBasic-Streams#readline) | String | Reads text up to the end of the line. |
 | [ReadShort](BlitzBasic-Streams#readshort) | Int |  |
-| [ReadString](BlitzBasic-Streams#readstring) | String |  |
-| [WriteByte](BlitzBasic-Streams#writebyte) | None |  |
-| [WriteFloat](BlitzBasic-Streams#writefloat) | None |  |
-| [WriteInt](BlitzBasic-Streams#writeint) | None |  |
-| [WriteLine](BlitzBasic-Streams#writeline) | None |  |
-| [WriteShort](BlitzBasic-Streams#writeshort) | None |  |
-| [WriteString](BlitzBasic-Streams#writestring) | None |  |
+| [ReadString](BlitzBasic-Streams#readstring) | String | Reads a string that [WriteString](BlitzBasic-Streams#writestring) wrote: first its length, then its text. |
+| [WriteByte](BlitzBasic-Streams#writebyte) | None | Writes one byte. |
+| [WriteFloat](BlitzBasic-Streams#writefloat) | None | Writes a float in 4 bytes. |
+| [WriteInt](BlitzBasic-Streams#writeint) | None | Writes an integer in 4 bytes, low byte first. |
+| [WriteLine](BlitzBasic-Streams#writeline) | None | Writes text followed by a carriage return and a line feed. |
+| [WriteShort](BlitzBasic-Streams#writeshort) | None | Writes a number in 2 bytes, low byte first. |
+| [WriteString](BlitzBasic-Streams#writestring) | None | Writes a string as its length in 4 bytes followed by its text, without a line ending. |
 
 ### CopyStream
 
@@ -34,13 +38,13 @@ CopyStream src_stream%, dest_stream%, buffer_size%=16384
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Copies everything that is left in one stream into another, in pieces of `buffer_size` bytes.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_stream` | Int | required |  |
-| `dest_stream` | Int | required |  |
-| `buffer_size` | Int | `16384` |  |
+| `src_stream` | Int | required | The stream to read from. |
+| `dest_stream` | Int | required | The stream to write to. |
+| `buffer_size` | Int | `16384` | How many bytes to move at a time. Defaults to 16384. |
 
 ### Eof
 
@@ -50,11 +54,29 @@ Eof stream%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+```blitzbasic
+file = WriteFile("streams_eof_example.tmp")
+WriteLine file, "a"
+WriteLine file, "b"
+CloseFile file
+file = ReadFile("streams_eof_example.tmp")
+While Not Eof(file)
+	Print ReadLine$(file)
+Wend
+CloseFile file
+DeleteFile "streams_eof_example.tmp"
+```
+
+```text
+a
+b
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
+| `stream` | Int | required | The stream to check. |
+
+**Returns:** 1 when a file has been read to its end, otherwise 0.
 
 ### ReadAvail
 
@@ -68,7 +90,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
+| `stream` | Int | required | The stream to check. |
+
+**Returns:** How many bytes can be read right now without waiting. It is meant for network streams, where data arrives over time. On a file it gives 0 or what is left.
 
 ### ReadByte
 
@@ -82,7 +106,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
+| `stream` | Int | required | The stream to read from. |
+
+**Returns:** The next byte of the stream, from 0 to 255.
 
 ### ReadFloat
 
@@ -96,7 +122,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
+| `stream` | Int | required | The stream to read from. |
+
+**Returns:** The next 4 bytes of the stream as a float.
 
 ### ReadInt
 
@@ -110,7 +138,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
+| `stream` | Int | required | The stream to read from. |
+
+**Returns:** The next 4 bytes of the stream as an integer.
 
 ### ReadLine
 
@@ -120,11 +150,36 @@ ReadLine stream%  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Reads text up to the end of the line. Lines may end with a line feed or with a carriage return and a line feed, and a last line without an ending is read as well. The line ending is not part of the result.
+
+```blitzbasic
+file = WriteFile("streams_line_example.tmp")
+WriteByte file, Asc("a")
+WriteByte file, 10
+WriteByte file, Asc("b")
+WriteByte file, 13
+WriteByte file, 10
+WriteByte file, Asc("c")
+CloseFile file
+file = ReadFile("streams_line_example.tmp")
+Print ReadLine$(file)
+Print ReadLine$(file)
+Print ReadLine$(file)
+CloseFile file
+DeleteFile "streams_line_example.tmp"
+```
+
+```text
+a
+b
+c
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
+| `stream` | Int | required | The stream to read from. |
+
+**Returns:** The text of the line.
 
 ### ReadShort
 
@@ -138,7 +193,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
+| `stream` | Int | required | The stream to read from. |
+
+**Returns:** The next 2 bytes of the stream as a number from 0 to 65535.
 
 ### ReadString
 
@@ -148,11 +205,13 @@ ReadString stream%  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Reads a string that [WriteString](BlitzBasic-Streams#writestring) wrote: first its length, then its text.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
+| `stream` | Int | required | The stream to read from. |
+
+**Returns:** The string.
 
 ### WriteByte
 
@@ -162,12 +221,12 @@ WriteByte stream%, byte%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes one byte. Values outside 0 to 255 wrap around.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
-| `byte` | Int | required |  |
+| `stream` | Int | required | The stream to write to. |
+| `byte` | Int | required | The value to write. |
 
 ### WriteFloat
 
@@ -177,12 +236,26 @@ WriteFloat stream%, float#
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes a float in 4 bytes.
+
+```blitzbasic
+file = WriteFile("streams_float_example.tmp")
+WriteFloat file, 3.25
+CloseFile file
+file = ReadFile("streams_float_example.tmp")
+Print ReadFloat(file)
+CloseFile file
+DeleteFile "streams_float_example.tmp"
+```
+
+```text
+3.25
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
-| `float` | Float | required |  |
+| `stream` | Int | required | The stream to write to. |
+| `float` | Float | required | The value to write. |
 
 ### WriteInt
 
@@ -192,12 +265,29 @@ WriteInt stream%, int%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes an integer in 4 bytes, low byte first.
+
+```blitzbasic
+file = WriteFile("streams_int_example.tmp")
+WriteInt file, 123456789
+WriteInt file, -42
+CloseFile file
+file = ReadFile("streams_int_example.tmp")
+Print ReadInt(file)
+Print ReadInt(file)
+CloseFile file
+DeleteFile "streams_int_example.tmp"
+```
+
+```text
+123456789
+-42
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
-| `int` | Int | required |  |
+| `stream` | Int | required | The stream to write to. |
+| `int` | Int | required | The value to write. |
 
 ### WriteLine
 
@@ -207,12 +297,12 @@ WriteLine stream%, string$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes text followed by a carriage return and a line feed. Read it back with [ReadLine](BlitzBasic-Streams#readline).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
-| `string` | String | required |  |
+| `stream` | Int | required | The stream to write to. |
+| `string` | String | required | The text to write. |
 
 ### WriteShort
 
@@ -222,12 +312,12 @@ WriteShort stream%, short%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes a number in 2 bytes, low byte first. Values outside 0 to 65535 wrap around.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
-| `short` | Int | required |  |
+| `stream` | Int | required | The stream to write to. |
+| `short` | Int | required | The value to write. |
 
 ### WriteString
 
@@ -237,9 +327,25 @@ WriteString stream%, string$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes a string as its length in 4 bytes followed by its text, without a line ending. Read it back with [ReadString](BlitzBasic-Streams#readstring).
+
+```blitzbasic
+file = WriteFile("streams_string_example.tmp")
+WriteString file, "Hello"
+CloseFile file
+Print FileSize("streams_string_example.tmp")
+file = ReadFile("streams_string_example.tmp")
+Print ReadString$(file)
+CloseFile file
+DeleteFile "streams_string_example.tmp"
+```
+
+```text
+9
+Hello
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required |  |
-| `string` | String | required |  |
+| `stream` | Int | required | The stream to write to. |
+| `string` | String | required | The text to write. |

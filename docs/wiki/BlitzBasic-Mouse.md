@@ -6,6 +6,7 @@
 
 Mouse position, speed and buttons.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

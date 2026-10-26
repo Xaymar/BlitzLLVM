@@ -6,6 +6,7 @@
 
 Light types, color, range and cone angles.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

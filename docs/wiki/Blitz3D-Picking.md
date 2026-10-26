@@ -6,6 +6,7 @@
 
 Finding what lies under a point, line or camera position.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

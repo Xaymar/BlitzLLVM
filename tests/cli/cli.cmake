@@ -18,7 +18,7 @@
 ################################################################################
 cmake_minimum_required(VERSION 3.20)
 
-set(PROGRAM "${TESTS}/001.bb")
+set(PROGRAM "${TESTS}/cli/program.bb")
 set(USERLIBS "${TESTS}/cli/userlibs")
 file(REMOVE_RECURSE "${WORK}")
 file(MAKE_DIRECTORY "${WORK}")

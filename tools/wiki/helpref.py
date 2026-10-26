@@ -84,6 +84,8 @@ def show(c):
     r = read(c.key)
     print("=== %s  (%s)" % (c.name, c.page))
     o = official(c.key)
+    if o:
+        o = re.sub(r"\n{2,}", "\n", o.split("| Example")[0].replace("Blitz3D Docs", "").strip())
     print("-- official help: %s" % (o if o else "(none)"))
     if not r:
         print("(not in the help)\n")

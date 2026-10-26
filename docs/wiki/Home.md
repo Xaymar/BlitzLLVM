@@ -8,6 +8,7 @@ BlitzLLVM is a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler built on the LL
 
 ## Command reference
 
+* [[Language]]: variables, operators, control flow, functions, arrays, types and data.
 * [[Command-Index]]: every command from A to Z.
 * [[BlitzBasic]]: what all three dialects share, such as math, strings, files, 2D graphics, input and audio.
 * [[Blitz3D]]: entities, cameras, lights, meshes, textures, collisions and the rest of the 3D world.

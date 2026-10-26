@@ -6,6 +6,7 @@
 
 Waiting for and reading window and gadget events.
 
+
 Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

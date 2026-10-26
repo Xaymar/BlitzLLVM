@@ -6,25 +6,27 @@
 
 Timers, delays, program information and the environment.
 
+Time, the program itself and the system it runs on. The timers [CreateTimer](BlitzBasic-Runtime#createtimer), [WaitTimer](BlitzBasic-Runtime#waittimer) and [FreeTimer](BlitzBasic-Runtime#freetimer) are the simple way to run a loop at a fixed speed.
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [AppTitle](BlitzBasic-Runtime#apptitle) | None |  |
+| [AppTitle](BlitzBasic-Runtime#apptitle) | None | Sets the title of the program window. |
 | [CommandLine](BlitzBasic-Runtime#commandline) | String |  |
-| [CreateTimer](BlitzBasic-Runtime#createtimer) | Int |  |
-| [DebugLog](BlitzBasic-Runtime#debuglog) | None |  |
-| [Delay](BlitzBasic-Runtime#delay) | None |  |
-| [End](BlitzBasic-Runtime#end) | None |  |
-| [ExecFile](BlitzBasic-Runtime#execfile) | None |  |
-| [FreeTimer](BlitzBasic-Runtime#freetimer) | None |  |
+| [CreateTimer](BlitzBasic-Runtime#createtimer) | Int | Creates a timer that ticks a given number of times per second. |
+| [DebugLog](BlitzBasic-Runtime#debuglog) | None | Writes a line to the debug log. |
+| [Delay](BlitzBasic-Runtime#delay) | None | Pauses the program for a number of milliseconds. |
+| [End](BlitzBasic-Runtime#end) | None | Stops the program right away. |
+| [ExecFile](BlitzBasic-Runtime#execfile) | None | Runs a command or another program and waits until it ends. |
+| [FreeTimer](BlitzBasic-Runtime#freetimer) | None | Deletes a timer you no longer need. |
 | [GetEnv](BlitzBasic-Runtime#getenv) | String |  |
 | [MilliSecs](BlitzBasic-Runtime#millisecs) | Int |  |
-| [RuntimeError](BlitzBasic-Runtime#runtimeerror) | None |  |
-| [SetEnv](BlitzBasic-Runtime#setenv) | None |  |
-| [Stop](BlitzBasic-Runtime#stop) | None |  |
-| [SystemProperty](BlitzBasic-Runtime#systemproperty) | String |  |
-| [WaitTimer](BlitzBasic-Runtime#waittimer) | Int |  |
+| [RuntimeError](BlitzBasic-Runtime#runtimeerror) | None | Shows an error message and ends the program with a non-zero exit code. |
+| [SetEnv](BlitzBasic-Runtime#setenv) | None | Sets an environment variable for this program and for the programs it starts with [ExecFile](BlitzBasic-Runtime#execfile). |
+| [Stop](BlitzBasic-Runtime#stop) | None | In the original this paused the program in the debugger so that you could look at its variables, and ran on when you continued. |
+| [SystemProperty](BlitzBasic-Runtime#systemproperty) | String | Asks for the path of a system folder. |
+| [WaitTimer](BlitzBasic-Runtime#waittimer) | Int | Waits for the next tick of a timer and returns how many ticks went by since the last call, which is 1 when your loop keeps up and more when it fell behind. |
 
 ### AppTitle
 
@@ -34,12 +36,21 @@ AppTitle title$, close_prompt$=\
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets the title of the program window.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+AppTitle "My game"
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `title` | String | required |  |
-| `close_prompt` | String | `\` |  |
+| `title` | String | required | The window title. |
+| `close_prompt` | String | `\` | The question the original asked before closing the window. |
+
+**Differences and known gaps:**
+
+* `close_prompt` is accepted but never shown, the window closes without asking. Only the title is used, and only once a graphics mode is open.
 
 ### CommandLine
 
@@ -49,7 +60,11 @@ CommandLine  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+```blitzbasic
+Print "Started with: " + CommandLine$()
+```
+
+**Returns:** The arguments the program was started with as one string, with a space between them. It is empty when there are none. A program run by `blitzcc` gets the arguments given after `--args`.
 
 ### CreateTimer
 
@@ -59,11 +74,26 @@ CreateTimer hertz%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Creates a timer that ticks a given number of times per second. [WaitTimer](BlitzBasic-Runtime#waittimer) waits for the next tick, which keeps a loop at a steady speed without depending on how fast the computer is.
+
+```blitzbasic
+timer = CreateTimer(50)
+For i = 1 To 5
+	WaitTimer(timer)
+Next
+FreeTimer timer
+Print "five ticks at 50 per second"
+```
+
+```text
+five ticks at 50 per second
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `hertz` | Int | required |  |
+| `hertz` | Int | required | Ticks per second, above 0. |
+
+**Returns:** A timer handle.
 
 ### DebugLog
 
@@ -73,11 +103,15 @@ DebugLog text$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes a line to the debug log. A program started from a terminal shows it on the standard error output, so it does not mix with what `Print` writes.
+
+```blitzbasic
+DebugLog "player is at 10, 20"
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `text` | String | required |  |
+| `text` | String | required | The text to log. |
 
 ### Delay
 
@@ -87,11 +121,21 @@ Delay millisecs%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Pauses the program for a number of milliseconds. The window keeps working while it waits. A value of 0 or less returns right away.
+
+```blitzbasic
+start = MilliSecs()
+Delay 100
+Print MilliSecs() - start >= 95
+```
+
+```text
+1
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `millisecs` | Int | required |  |
+| `millisecs` | Int | required | How long to wait, in milliseconds. |
 
 ### End
 
@@ -101,7 +145,17 @@ End
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Stops the program right away. Everything that is output so far is written out first, and the exit code is 0.
+
+```blitzbasic
+Print "before"
+End
+Print "never printed"
+```
+
+```text
+before
+```
 
 ### ExecFile
 
@@ -111,11 +165,21 @@ ExecFile command$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Runs a command or another program and waits until it ends.
+
+```blitzbasic
+Print ExecFile("this-program-does-not-exist")
+```
+
+```text
+0
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `command` | String | required |  |
+| `command` | String | required | The command line to run. It is run by the system shell. |
+
+**Returns:** 1 when the command ran and ended without an error, otherwise 0.
 
 ### FreeTimer
 
@@ -125,11 +189,11 @@ FreeTimer timer%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Deletes a timer you no longer need. Passing 0 does nothing.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `timer` | Int | required |  |
+| `timer` | Int | required | The timer handle. |
 
 ### GetEnv
 
@@ -139,11 +203,20 @@ GetEnv env_var$  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+```blitzbasic
+SetEnv "WIKI_EXAMPLE", "hello"
+Print GetEnv$("WIKI_EXAMPLE")
+```
+
+```text
+hello
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `env_var` | String | required |  |
+| `env_var` | String | required | The name of the variable. |
+
+**Returns:** The value of an environment variable, or an empty string when it is not set.
 
 ### MilliSecs
 
@@ -153,7 +226,17 @@ MilliSecs  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+```blitzbasic
+start = MilliSecs()
+Delay 50
+Print MilliSecs() - start >= 45
+```
+
+```text
+1
+```
+
+**Returns:** A number of milliseconds that keeps growing while the program runs. Its start is not fixed, so use the difference between two calls to measure time.
 
 ### RuntimeError
 
@@ -163,11 +246,19 @@ RuntimeError message$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Shows an error message and ends the program with a non-zero exit code. Use it for problems your program cannot recover from.
+
+```blitzbasic
+If FileType("level.dat") = 0 Then RuntimeError "level.dat is missing"
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `message` | String | required |  |
+| `message` | String | required | The text that describes what went wrong. |
+
+**Differences and known gaps:**
+
+* The message is printed as `Runtime Error: ...` on the standard error output, not shown in a dialog box.
 
 ### SetEnv
 
@@ -177,12 +268,12 @@ SetEnv env_var$, value$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets an environment variable for this program and for the programs it starts with [ExecFile](BlitzBasic-Runtime#execfile). It is not changed for the rest of the system.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `env_var` | String | required |  |
-| `value` | String | required |  |
+| `env_var` | String | required | The name of the variable. |
+| `value` | String | required | The new value. |
 
 ### Stop
 
@@ -192,7 +283,11 @@ Stop
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+In the original this paused the program in the debugger so that you could look at its variables, and ran on when you continued.
+
+**Differences and known gaps:**
+
+* Not implemented yet: a program that uses `Stop` does not compile ("Stop" does not exist). Use `End` or `DebugLog` for now.
 
 ### SystemProperty
 
@@ -202,11 +297,21 @@ SystemProperty property$  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Asks for the path of a system folder.
+
+```blitzbasic
+Print "Temporary files go to " + SystemProperty$("tempdir")
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `property` | String | required |  |
+| `property` | String | required | One of `tempdir`, `appdir`, `windowsdir` or `systemdir`. |
+
+**Returns:** The path, or an empty string for a name that is not known.
+
+**Differences and known gaps:**
+
+* `windowsdir` and `systemdir` only have a value on Windows and are empty elsewhere. `appdir` is the current folder, not the folder of the program.
 
 ### WaitTimer
 
@@ -216,8 +321,21 @@ WaitTimer timer%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Waits for the next tick of a timer and returns how many ticks went by since the last call, which is 1 when your loop keeps up and more when it fell behind. Do not call it on a timer that is paused.
+
+```blitzbasic
+timer = CreateTimer(100)
+ticks = WaitTimer(timer)
+Print ticks >= 1
+FreeTimer timer
+```
+
+```text
+1
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `timer` | Int | required |  |
+| `timer` | Int | required | The timer handle. |
+
+**Returns:** The number of ticks since the last call, at least 1.

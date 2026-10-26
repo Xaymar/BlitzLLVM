@@ -6,6 +6,7 @@
 
 Loading fonts and measuring or printing text.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

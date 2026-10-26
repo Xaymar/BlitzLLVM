@@ -6,6 +6,7 @@
 
 Rendering, updating and clearing the 3D world.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

@@ -6,6 +6,7 @@
 
 Key state, key hits and waiting for keys.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

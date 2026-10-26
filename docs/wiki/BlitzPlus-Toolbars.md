@@ -6,6 +6,7 @@
 
 Toolbars and icon strips.
 
+
 Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
