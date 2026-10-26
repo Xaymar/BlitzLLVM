@@ -111,6 +111,27 @@ endfunction()
 add_subdirectory("code_runtime")
 add_subdirectory("code_compiler")
 
+# Fail the install when a license is missing, so that rules which silently install nothing (a stale copy of the install
+# rules in code_compiler, say) can not ship a bundle without them. Declared after the sub-projects, so it runs after their installs.
+set(BLITZ_REQUIRED_LICENSES
+	BlitzLLVM/LICENSE.adoc SDL3/LICENSE.txt SDL3_image/LICENSE.txt SDL3_image/optional/LICENSE.dav1d.txt SDL3_image/optional/LICENSE.avif.txt
+	SDL3_image/optional/LICENSE.jxl.txt SDL3_image/optional/LICENSE.webp.txt SDL3_mixer/LICENSE.txt Vulkan-Headers/LICENSE.md
+)
+install(CODE "
+	foreach(_LICENSE IN ITEMS ${BLITZ_REQUIRED_LICENSES})
+		if(NOT EXISTS \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/licenses/\${_LICENSE}\")
+			message(FATAL_ERROR \"The license '\${_LICENSE}' was not installed.\")
+		endif()
+	endforeach()
+")
+install(CODE "
+	foreach(_LICENSE IN ITEMS ${BLITZ_REQUIRED_LICENSES})
+		if(NOT EXISTS \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/share/licenses/blitzllvm/\${_LICENSE}\")
+			message(FATAL_ERROR \"The license '\${_LICENSE}' was not installed.\")
+		endif()
+	endforeach()
+" COMPONENT system EXCLUDE_FROM_ALL)
+
 ################################################################################
 # Packaging
 #
