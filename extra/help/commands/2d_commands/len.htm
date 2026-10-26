@@ -1,0 +1,104 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Len 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			zeichen = <b>Len</b> (text$) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+text$
+</td>
+<td>
+beliebiger Text, von dem die Zeichenanzahl ermittelt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Anzahl der Zeichen 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt die Anzahl der Zeichen in einem Text. Es werden dabei wirklich alle Zeichen (auch Leerzeichen) mitgezählt. Diese Funktion ist dann sinnvoll, wenn nur bestimmte Anzahl von Zeichen erlaubt werden sollen (z.B. bei Namenseingaben mit max. drei Zeichen für eine HighScore). 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zerlegt eine Zeichenkette mit Hilfe verschiedener Stringfunktionen:<br />
+			<div class="syntax-code">
+				;String mit zwei Punkten:<br />txt$ = "vorne.mitte.hinten"<br /><br />p1 = <a href="Instr.htm"><b>Instr</b></a>(txt$, ".")<br />vorn$ = <a href="Left.htm"><b>Left</b></a>$(txt$, p1-1)<br /><br />p2 = <a href="Instr.htm"><b>Instr</b></a>(txt$, ".", p1+1)<br />mitte$ = <a href="Mid.htm"><b>Mid</b></a>$(txt$,p1+1,p2-p1-1)<br /><br />hinten$ = <a href="Right.htm"><b>Right</b></a>$(txt$,<a href="Len.htm"><b>Len</b></a>(txt$)-p2)<br /><br /><a href="Print.htm"><b>Print</b></a> "Länge der Zeichenkette: "+Len(txt$)<br /><a href="Print.htm"><b>Print</b></a> "Vorne:  "+vorn$<br /><a href="Print.htm"><b>Print</b></a> "Mitte:  "+mitte$<br /><a href="Print.htm"><b>Print</b></a> "Hinten: "+hinten$ 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_21.html">Zeichenketten</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

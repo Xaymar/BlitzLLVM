@@ -1,0 +1,129 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		WriteInt 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>WriteInt</b> stream, wert 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+stream
+</td>
+<td>
+Dateiidentität, die mit <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="WriteFile.htm"><b>WriteFile</b><img src="../../html/images/quicklink.gif" /></a> ermittelt wurde
+</td>
+</tr>
+<tr>
+<td width="100">
+wert
+</td>
+<td>
+Ein Wert im Bereich von -2147483648 bis +2147483647
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Dateibefehl speichert einen Integerwert (= 4 Byte) in eine Datei. Diese Datei muss vorher mit <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="WriteFile.htm"><b>WriteFile</b><img src="../../html/images/quicklink.gif" /></a> geöffnet werden. Die möglichen Werte liegen nur im Bereich von -2147483648 bis +2147483647. 
+		</p>
+
+				<br />
+		<b>Zusatzinformationen</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Die folgende Tabelle zeigt verschiedene Typen von Werten, die in eine Datei gespeichert werden können:<br />&nbsp;</div><br /><br /><table style="width:auto; margin-left:50px;"><tr><th>Name</th><th>Bytes</th><th>Type</th><th>Min.</th><th>Max.</th></tr><tr><td>Byte</td><td>1</td><td>Ganzzahl</td><td>0</td><td>+255</td></tr><tr><td>Short</td><td>2</td><td>Ganzzahl</td><td>0</td><td>+65535</td></tr><tr><td>Integer</td><td>4</td><td>Ganzzahl</td><td>-2147483648</td><td>+2147483647</td></tr><tr><td>Float</td><td>4</td><td>Kommazahl</td><td>-2 Mrd.</td><td>+2 Mrd.</td></tr><tr><td>Line</td><td>anz + 2</td><td>String</td><td>-</td><td>-</td></tr><tr><td>String</td><td>anz + 4</td><td>String</td><td>-</td><td>-</td></tr></table> 
+		</p>
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Nach dem Schreiben wird die Dateiposition automatisch verschoben. Benutze <a href="SeekFile.htm"><b>SeekFile</b><img src="../../html/images/quicklink.gif" /></a>, um die Dateiposition manuell zu ändern. Der nächste Schreibvorgang wird ab dieser Position erfolgen.<br />&nbsp;</div><br /> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm speichert diverse Werte in eine Datei. Danach werden sie wieder ausgelesen und ausgegeben:<br />
+			<div class="syntax-code">
+				fileout = <a href="WriteFile.htm"><b>WriteFile</b></a> ("mydata.dat")<br /><br /><a href="WriteByte.htm"><b>WriteByte</b></a> fileout,123<br /><a href="WriteFloat.htm"><b>WriteFloat</b></a> fileout,123.456<br /><a href="WriteInt.htm"><b>WriteInt</b></a> fileout,12345678<br /><a href="WriteLine.htm"><b>WriteLine</b></a> fileout,"Hallo"<br /><a href="WriteShort.htm"><b>WriteShort</b></a> fileout,12345<br /><a href="WriteString.htm"><b>WriteString</b></a> fileout,"Super"<br /><br /><a href="CloseFile.htm"><b>CloseFile</b></a> fileout<br /><br />filein = <a href="ReadFile.htm"><b>ReadFile</b></a> ("mydata.dat")<br /><br />wert1 = <a href="ReadByte.htm"><b>ReadByte</b></a> (filein)<br />wert2# = <a href="ReadFloat.htm"><b>ReadFloat</b></a> (filein)<br />wert3 = <a href="ReadInt.htm"><b>ReadInt</b></a> (filein)<br />wert4$ = <a href="ReadLine.htm"><b>ReadLine</b></a>$ (filein)<br />wert5 = <a href="ReadShort.htm"><b>ReadShort</b></a> (filein)<br />wert6$ = <a href="ReadString.htm"><b>ReadString</b></a>$ (filein)<br /><br /><a href="CloseFile.htm"><b>CloseFile</b></a> filein<br /><br /><a href="Print.htm"><b>Print</b></a> "Byte" +wert1<br /><a href="Print.htm"><b>Print</b></a> "Float" +wert2<br /><a href="Print.htm"><b>Print</b></a> "Int" +wert3<br /><a href="Print.htm"><b>Print</b></a> "Line" +wert4<br /><a href="Print.htm"><b>Print</b></a> "Short" +wert5<br /><a href="Print.htm"><b>Print</b></a> "String" +wert6<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="WriteFloat.htm" title="Schreibt einen &quot;Floatwert&quot; in eine Datei">WriteFloat</a>, <a href="WriteBytes.htm" title="Schreibt mehrere Bytes aus einer Bank in einen Stream">WriteBytes</a>, <a href="WriteShort.htm" title="Schreibt einen &quot;Shortwert&quot; in eine Datei">WriteShort</a>, <a href="WriteString.htm" title="Schreibt einen &quot;Stringwert&quot; in eine Datei">WriteString</a>, <a href="WriteByte.htm" title="Speichert ein &quot;Byte&quot; in eine Datei">WriteByte</a>, <a href="WriteLine.htm" title="Schreibt eine &quot;Zeile&quot; in eine Datei">WriteLine</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SetGfxDriver 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SetGfxDriver</b> nummer 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+nummer
+</td>
+<td>
+Nummer des Treibers
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann ein Grafiktreiber ausgewählt werden. Einige Rechner können mehrere Grafikkarten haben - mit unterschiedlichen Treibern. Mit <a href="CountGfxDrivers.htm"><b>CountGfxDrivers</b><img src="../../html/images/quicklink.gif" /></a> kann die Anzahl der Treiber ermittelt werden.<br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformationen</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Für 2D-Spiele ist die Auswahl des Treibers kaum sinnvoll - fast alle Grafikkarten haben die gleiche Geschwindigkeit. Bei 3D-Leistung gibt es dagegen enorme Unterschiede. Tipp: Erstelle ein Menü, wo der Spieler selbst den Grafiktreiber auswählen muss.<br />&nbsp;</div> 
+		</p>
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Bei BlitzPlus verhalten sich die Befehle <a href="CountGfxDrivers.htm"><b>CountGfxDrivers</b><img src="../../html/images/quicklink.gif" /></a>, <a href="GfxDriverName.htm"><b>GfxDriverName</b><img src="../../html/images/quicklink.gif" /></a> und <a href="SetGfxDriver.htm"><b>SetGfxDriver</b><img src="../../html/images/quicklink.gif" /></a> ein wenig anders. Statt unterschiedliche Teiber für mehrere Grafikkarten zurückzugeben, benutzt man diese Funktionen um OpenGL in B+ zu aktivieren. Es sind immer drei "Treiber" da: Native (1), OpenGL (2) und DirectDraw (3, Standard). Möchte man nun den offiziell nur "zu Testzwecken" eingebauten OpenGL-Modus wählen, muss man "SetGfxDriver 2" ausführen.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Hier wird eine Treiberliste ausgegeben und man kann einen Treiber durch Eingabe auswählen:<br />
+			<div class="syntax-code">
+				totalDrivers = <a href="CountGfxDrivers.htm"><b>CountGfxDrivers</b></a> ()<br /><br /><a href="Print.htm"><b>Print</b></a> "Wähle einen Treiber aus:"<br /><br /><a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> totalDrivers<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> t+") " + <a href="GfxDriverName.htm"><b>GfxDriverName</b></a>$ (t)<br /><a href="Next.htm"><b>Next</b></a><br /><br />driver = <a href="Input.htm"><b>Input</b></a> ("Gebe eine Zahl ein:")<br /><a href="SetGfxDriver.htm"><b>SetGfxDriver</b></a> driver<br /><br /><a href="Print.htm"><b>Print</b></a> "Treiber ausgewählt!"<br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CountGfxDrivers.htm" title="Ermittelt die Anzahl der Grafiktreiber">CountGfxDrivers</a>, <a href="GfxDriverName.htm" title="Ermittelt den Namen eines installierten Grafiktreibers">GfxDriverName</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_1.html">Anzeige</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreatePanel 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Panel=<b>CreatePanel</b> (x, y, breite, höhe, gruppe [,style]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x
+</td>
+<td>
+Koordinate x
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+Koordinate y
+</td>
+</tr>
+<tr>
+<td width="100">
+breite
+</td>
+<td>
+Breite von Panel
+</td>
+</tr>
+<tr>
+<td width="100">
+höhe
+</td>
+<td>
+Höhe von Panel
+</td>
+</tr>
+<tr>
+<td width="100">
+gruppe
+</td>
+<td>
+Identität einer Gruppe
+</td>
+</tr>
+<tr>
+<td width="100">
+style
+</td>
+<td>
++1=Rahmen einschalten<br />+65536=Objekt fixieren
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität eines Panel-Objekts wird zurück geliefert 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>CreatePanel</b> erstellt ein Panel-Objekt. Gebe dazu die Startkoordinate x/y und breite/höhe an. gruppe ist die Identität von Window, Tabber oder Canvas. style 1 schaltet einen Rahmen ein.<br /><br /><img src="../../images/gfx_panel.gif" /><br /><br />Panel ist einfach ein Objekt zum Gruppieren von anderen Objekten. Man kann somit weitere Objekte zu diesem Objekt hinzufügen.<br /><br />Panel-Objekt kann zur Anzeige von Bildern verwendet werden - siehe dazu <a href="SetPanelImage.htm"><b>SetPanelImage</b><img src="../../html/images/quicklink.gif" /></a>. Die Anweisung <a href="SetPanelColor.htm"><b>SetPanelColor</b><img src="../../html/images/quicklink.gif" /></a> ist auch nützlich.<br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Erstellt Panel-Objekt und fügt ein Button hinzu:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 0, 0, 200, 200, 0, 1)<br />panel = <a href="CreatePanel.htm"><b>CreatePanel</b></a>(10, 10, 100, 100, window, 1)<br />button = <a href="CreateButton.htm"><b>CreateButton</b></a>("Test", 0, 0, 50, 50, panel)<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>(1) = $803 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1) = 1 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="SetPanelImage.htm" title="Die Anweisung SetPanelImage weist einem Panel-Objekt eine Hintergrundgrafik zu.">SetPanelImage</a>, <a href="SetPanelColor.htm" title="Die Anweisung SetPanelColor ändert die Hintergrundfarbe von Panel-Objekt.">SetPanelColor</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_58.html">Panel</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

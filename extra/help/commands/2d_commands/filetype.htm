@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FileType 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert = <b>FileType</b> (Datei$) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Datei$
+</td>
+<td>
+gültiger Dateiname (evtl. mit Pfad)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 = Datei existiert nicht<br />1 = Datei existiert<br />2 = Verzeichnis existiert 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt, ob eine bestimmte Datei existiert. Zusätzlich kann man auch erfahren, ob es sich um eine Datei oder um ein Verzeichnis handelt. Bei einer Datei wird 1 zurückgeliefert. Wenn es aber ein Verzeichnis ist, dann wird 2 zurückgeliefert. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm zeigt den Dateiinhalt im Verzeichnis C:\<br /><br />Verz = ReadDir("C:\")<br />Repeat<br />&nbsp; &nbsp;Datei$=NextFile$(Verz)<br />&nbsp; &nbsp;If Datei$="" Then Exit<br />&nbsp; &nbsp;If FileType("C:\"+Datei$) = 2 Then<br />&nbsp; &nbsp;&nbsp; &nbsp;Print "Ordner:" + Datei$<br />&nbsp; &nbsp;Else<br />&nbsp; &nbsp;&nbsp; &nbsp;Print "Datei:" + Datei$<br />&nbsp; &nbsp;End If<br />Forever<br />CloseDir Verz<br />Print<br />Print "-Ende-" 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyFile.htm" title="Kopieren einer Datei">CopyFile</a>, <a href="CreateDir.htm" title="Erstellt ein Verzeichnis">CreateDir</a>, <a href="DeleteFile.htm" title="Löscht eine Datei">DeleteFile</a>, <a href="FileSize.htm" title="Ermittelt die Größe einer Datei">FileSize</a>, <a href="ReadDir.htm" title="Öffnet ein Verzeichnis">ReadDir</a>, <a href="NextFile.htm" title="Ermittelt die nächste Datei in einem Verzeichnis">NextFile</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

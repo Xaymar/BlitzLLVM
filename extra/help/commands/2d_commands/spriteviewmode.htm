@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SpriteViewMode 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SpriteViewMode</b> Sprite, Modus 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Sprite
+</td>
+<td>
+Identität eines Sprites
+</td>
+</tr>
+<tr>
+<td width="100">
+Modus
+</td>
+<td>
+1=fest (pitch und yaw wird geändert)<br />2=frei (kein Winkel wird geändert)<br />3=senkrecht1 (pitch-, yaw und roll wird geändert)<br />4=senkrecht2 (yaw und roll wird geändert)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>SpriteViewMode</b> stellt den Darstellungsmodus eines Sprite-Objekts ein.<br />Ein Sprite ist unabhängig von der Kamera und hat keinerlei Verzerrungen an Bildschirmrändern, die technisch bedingt bei anderen 3D-Modellen auftreten. Möchte man diese Verzerrung einschalten, dann muss man diesen Befehl benutzen.<br /><br />Bei Modus 1 ist ein Objekt unabhängig von der Kamera (Standard).<br />Bei Modus 2 wird ein Sprite genau wie andere 3D-Modelle dargestellt.<br />Bei Modus 3 zeigt es auf die Kamera: Alle Winkel werden geändert.<br />Bei Modus 4 zeigt es auf die Kamera: Pitch-Winkel wird nicht geändert.<br /><br /><div class="caution">Wenn Modus 2 benutzt wird, dann wird ein Sprite wie andere 3D-Objekte behandelt: Wenn ein Sprite von hinten angesehen wird, dann erscheint es unsichtbar. Mit <a href="EntityFx.htm"><b>EntityFx</b><img src="../../html/images/quicklink.gif" /></a> 16 kann es verhindert werden. <br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Beispiel zeigt die grafischen Unterschiede. Ein Sprite erscheint je nach Modus unterschiedlich in der 3D-Welt:<br /><br /><a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />pivot = <a href="CreatePivot.htm"><b>CreatePivot</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> pivot, 0, 1, 0<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>(pivot)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, 10<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />plane = <a href="CreatePlane.htm"><b>CreatePlane</b></a>()<br /><br />ground_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/Chorme-2.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> plane, ground_tex<br /><br />sprite = <a href="LoadSprite.htm"><b>LoadSprite</b></a>("media/b3dlogo.jpg")<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sprite, 0, 1, 0<br />pitch = -15<br />yaw = 180<br />roll = 0<br />view_mode = 1<br />view_mode_info$ = "(fixed)"<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = <a href="True.htm"><b>True</b></a> <a href="And.htm"><b>And</b></a> pitch < 0 <a href="Then.htm"><b>Then</b></a> pitch = pitch + 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = <a href="True.htm"><b>True</b></a> <a href="And.htm"><b>And</b></a> pitch > -89 <a href="Then.htm"><b>Then</b></a> pitch = pitch - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> yaw = yaw + 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> yaw = yaw - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(30) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> roll = roll + 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(31) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> roll = roll - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(2) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> view_mode = 1 : view_mode_info$ = "(fixed)"<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(3) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> view_mode = 2 : view_mode_info$ = "(free)"<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>4) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> view_mode = 3 : view_mode_info$ = "(upright1)"<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(5) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> view_mode = 4 : view_mode_info$ = "(upright2)"<br />&nbsp; &nbsp;<a href="SpriteViewMode.htm"><b>SpriteViewMode</b></a> sprite, view_mode<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> pivot, pitch,yaw, 0<br />&nbsp; &nbsp;<a href="PointEntity.htm"><b>PointEntity</b></a> camera, sprite, roll<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Mit Cursortasten,A und S Kamera drehen"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "Mit 1-4 SPRITEVIEWMODE wählen"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "SPRITEVIEWMODE:"+ view_mode + view_mode_info$<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateSprite.htm" title="Erstellt ein Sprite">CreateSprite</a>, <a href="LoadSprite.htm" title="Lädt ein Sprite aus einer Grafikdatei">LoadSprite</a>, <a href="HandleSprite.htm" title="HandelSprite ändert den Bezugspunkt eines Sprites">HandleSprite</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_73.html">Sprite</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

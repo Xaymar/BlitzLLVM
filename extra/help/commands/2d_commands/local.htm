@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Local 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Local</b> variable [= wert], variable [= wert] ... 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+variable
+</td>
+<td>
+Beliebige Variable, die noch nicht vorher verwendet wurde
+</td>
+</tr>
+<tr>
+<td width="100">
+wert
+</td>
+<td>
+Beliebiger Wert kann sofort zugewiesen werden
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Wurde ein Wert angegeben, so wird der Variable dieser Wert zugewiesen. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung definiert eine lokale Variable, eine nur vom Hauptprogramm oder nur vom Unterprogramm lesbare Variable. Lokale Unterprogrammvariablen können nicht aus einem Hauptprogramm ausgelesen werden (umgekehrt auch nicht). Damit keine "Variablenkonflikte" zwischen Hauptprogrammen und Unterprogrammen entstehen, sollen besser lokale Variablen verwendet werden. <b>Local</b> kann auch entfallen, da alle neuen Variablen automatisch lokal sind.<br /><br /><div class="caution">Wurde bereits eine Variable mit <a href="Global.htm"><b>Global</b><img src="../../html/images/quicklink.gif" /></a> oder <b>Local</b> definiert, so kann die nicht erneut definiert werden, da sonst eine Fehlermeldung erscheint. <b>AUSNAHME:</b> Eine neue lokale Variable mit dem Namen einer globalen Variable kann nur in einer Funktion definiert werden. Somit wird die globale Variable vom Hauptprogramm "ausgesperrt".<br />&nbsp;</div><br /><br /><div class="hint">An die Variable kann sofort ein Wert zugewiesen werden. Es können auch mehrere Variablen auf einmal definiert werden.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zeigt die Unterschiede:<br />
+			<div class="syntax-code">
+				<a href="Local.htm"><b>Local</b></a> zahl1 = 1<br /><br /><a href="Global.htm"><b>Global</b></a> zahl2 = 1<br /><br />Test<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><br /><a href="End.htm"><b>End</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> Test()<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> zahl1<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> zahl2<br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Global.htm" title="Definiert eine globale Variable">Global</a>, <a href="Const.htm" title="Definiert eine globale Konstante">Const</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_30.html">Schlüsselwörter</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

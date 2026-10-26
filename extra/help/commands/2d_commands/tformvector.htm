@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TFormVector 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>TFormVector</b> x#, y#, z#, quelle%, ziel% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x#
+</td>
+<td>
+Koordinate X für Transformation (normal)
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Koordinate Y für Transformation (normal)
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Koordinate Z für Transformation (normal)
+</td>
+</tr>
+<tr>
+<td width="100">
+quelle%
+</td>
+<td>
+Quell-Objekt für Transformation (0=global)
+</td>
+</tr>
+<tr>
+<td width="100">
+ziel%
+</td>
+<td>
+Ziel-Objekt für Transformation (0=global)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>TFormVector</b> wandelt "Vector"-Koordinate eines Quell-Objekts zur Ziel-Koordinate um (ählich <a href="TFormPoint.htm"><b>TFormPoint</b><img src="../../html/images/quicklink.gif" /></a> - nur als Vektor).<br /><br />Wenn Quelle oder Ziel 0 sind, dann wird die globale Weltkoordinate benutzt.<br /><br />Das Ergebnis dieser Transformation kann mit <a href="TFormedX.htm"><b>TFormedX</b><img src="../../html/images/quicklink.gif" /></a>, <a href="TFormedY.htm"><b>TFormedY</b><img src="../../html/images/quicklink.gif" /></a> und <a href="TFormedZ.htm"><b>TFormedZ</b><img src="../../html/images/quicklink.gif" /></a> ermittelt werden.<br /><br />Beispiel: Du möchtest ein Objekt 1 Schritt nach vorne bewegen (0,0,1). Das kann man so machen: <a href="MoveEntity.htm"><b>MoveEntity</b><img src="../../html/images/quicklink.gif" /></a> obj,0,0,1. Wie würde das aber als globale Version aussehen, da der Vektor von Objektwinkel abhängig ist. Den Vektor kann man mit diesen Befehlen transformieren (siehe Beispiel). Dann kann ein Objekt auch mit <a href="TranslateEntity.htm"><b>TranslateEntity</b><img src="../../html/images/quicklink.gif" /></a> obj,x,y,z bewegt werden. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Graphics3D 640, 480<br />p = <a href="CreatePivot.htm"><b>CreatePivot</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> p, 10, 20, 30<br /><a href="TurnEntity.htm"><b>TurnEntity</b></a> p, - 5, - 15, 25<br /><br />;Was würde passieren, wenn wir einen Schritt vorwärts<br />;machen würden? Lokaler Vektor dafür wäre: (0, 0, 1).<br />;Aber wir brauchen globale Version:<br /><br /><a href="TFormVector.htm"><b>TFormVector</b></a> 0, 0, 1, p, 0<br /><br /><a href="Text.htm"><b>Text</b></a> 0, 00, "Vektor für 1 Schritt:"<br /><a href="Text.htm"><b>Text</b></a> 0, 20, <a href="TFormedX.htm"><b>TFormedX</b></a>()<br /><a href="Text.htm"><b>Text</b></a> 0, 40, <a href="TFormedY.htm"><b>TFormedY</b></a>()<br /><a href="Text.htm"><b>Text</b></a> 0, 60, <a href="TFormedZ.htm"><b>TFormedZ</b></a>()<br /><br />;Nun machen wir diesen Schritt. Die neue Position<br />;sollte jetzt (10, 20, 30) plus Vektor sein.<br /><br /><a href="MoveEntity.htm"><b>MoveEntity</b></a> p, 0, 0, 1<br /><br /><a href="Text.htm"><b>Text</b></a> 200, 00, "Neue Position"<br /><a href="Text.htm"><b>Text</b></a> 200, 20, <a href="EntityX.htm"><b>EntityX</b></a>(p)<br /><a href="Text.htm"><b>Text</b></a> 200, 40, <a href="EntityY.htm"><b>EntityY</b></a>(p)<br /><a href="Text.htm"><b>Text</b></a> 200, 60, <a href="EntityZ.htm"><b>EntityZ</b></a>(p)<br /><br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="TFormedX.htm" title="Liefert X-Koordinate des letzen TForm-Aufrufs">TFormedX</a>, <a href="TFormedY.htm" title="Liefert Y-Koordinate des letzen TForm-Aufrufs">TFormedY</a>, <a href="TFormedZ.htm" title="Liefert Z-Koordinate des letzen TForm-Aufrufs">TFormedZ</a>, <a href="TFormNormal.htm" title="Normalisiert Vektor und wandelt es in Koordinaten relativ zum Zielobjekt um">TFormNormal</a>, <a href="TFormPoint.htm" title="Wandelt eine Punkt-Koordinate relativ zu einem Zielobjekt um">TFormPoint</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_77.html">Transform</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

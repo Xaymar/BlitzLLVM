@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TFormPoint 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>TFormPoint</b> x#, y#, z#, quelle%, ziel% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x#
+</td>
+<td>
+Koordinate X für Transformation (normal)
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Koordinate Y für Transformation (normal)
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Koordinate Z für Transformation (normal)
+</td>
+</tr>
+<tr>
+<td width="100">
+quelle%
+</td>
+<td>
+Quell-Objekt für Transformation (0=global)
+</td>
+</tr>
+<tr>
+<td width="100">
+ziel%
+</td>
+<td>
+Ziel-Objekt für Transformation (0=global)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>TFormPoint</b> wandelt "Punkt"-Koordinate eines Quell-Objekts zur Ziel-Koordinate um.<br /><br />Wenn Quelle oder Ziel 0 sind, dann wird die globale Weltkoordinate benutzt.<br /><br />Das Ergebnis dieser Transformation kann mit <a href="TFormedX.htm"><b>TFormedX</b><img src="../../html/images/quicklink.gif" /></a>, <a href="TFormedY.htm"><b>TFormedY</b><img src="../../html/images/quicklink.gif" /></a> und <a href="TFormedZ.htm"><b>TFormedZ</b><img src="../../html/images/quicklink.gif" /></a> ermittelt werden.<br /><br />Beispiel: Stell dir vor, es wird eine Kugel mit <a href="CreateSphere.htm"><b>CreateSphere</b><img src="../../html/images/quicklink.gif" /></a> erstellt. "Nordpol" ist dann Koordinate 0,1,0. Globale und lokale Koordinaten sind darum zuerst gleich. Wenn nun dieses Objekt verschoben, gedreht oder skaliert wird, dann ändert sich die globale Koordinate von diesem Punkt - lokale Koordinate 0,1,0 bleibt jedoch immer unverändert. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Graphics3D 640, 480<br /><br />;Mitte auf (0, 0, 0) - Nordpol auf (0, 1, 0)<br />s = <a href="CreateSphere.htm"><b>CreateSphere</b></a>()<br /><br />;Mitte auf (1, 2, 3) - Nordpol auf (1, 2 + 1, 3)<br /><a href="MoveEntity.htm"><b>MoveEntity</b></a> s, 1, 2, 3<br /><br />;Mitte auf (1, 2, 3) - Nordpol auf (1, 2 + 10, 3)<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> s, 10, 10, 10<br /><br />;Hier sollte Nordpol jetzt auf (1, 12, 3) in 3D - Welt sein<br /><a href="TFormPoint.htm"><b>TFormPoint</b></a> 0, 1, 0, s, 0<br /><a href="Text.htm"><b>Text</b></a> 0, 00, <a href="TFormedX.htm"><b>TFormedX</b></a>()<br /><a href="Text.htm"><b>Text</b></a> 0, 20, <a href="TFormedY.htm"><b>TFormedY</b></a>()<br /><a href="Text.htm"><b>Text</b></a> 0, 40, <a href="TFormedZ.htm"><b>TFormedZ</b></a>()<br /><br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="TFormedX.htm" title="Liefert X-Koordinate des letzen TForm-Aufrufs">TFormedX</a>, <a href="TFormedY.htm" title="Liefert Y-Koordinate des letzen TForm-Aufrufs">TFormedY</a>, <a href="TFormedZ.htm" title="Liefert Z-Koordinate des letzen TForm-Aufrufs">TFormedZ</a>, <a href="TFormNormal.htm" title="Normalisiert Vektor und wandelt es in Koordinaten relativ zum Zielobjekt um">TFormNormal</a>, <a href="TFormVector.htm" title="Wandelt eine Vektor-Koordinate relativ zu einem Ziel-Objekt um">TFormVector</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_77.html">Transform</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

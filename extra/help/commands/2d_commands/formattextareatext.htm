@@ -1,0 +1,166 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FormatTextAreaText 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>FormatTextAreaText</b> textarea, rot, grün, blau, style [,pos] [,länge] [,einheit] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+textarea
+</td>
+<td>
+Identität eines Textarea-Objekts
+</td>
+</tr>
+<tr>
+<td width="100">
+rot
+</td>
+<td>
+Roter Farbanteil (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+grün
+</td>
+<td>
+Grüner Farbanteil (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+blau
+</td>
+<td>
+Blauer Farbanteil (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+style
+</td>
+<td>
+1=Fett<br />2=Kursiv<br />3=Fett+Kursiv
+</td>
+</tr>
+<tr>
+<td width="100">
+pos
+</td>
+<td>
+Startposition (Zeichen oder Zeilen)
+</td>
+</tr>
+<tr>
+<td width="100">
+Länge
+</td>
+<td>
+Änderungslänge (Zeichen oder Zeilen)
+</td>
+</tr>
+<tr>
+<td width="100">
+Einheit
+</td>
+<td>
+1=Einheit in Zeichen (Standard)<br />2=Einheit in Zeilen
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>FormatTextAreaText</b> ändert die Formatierung eines Textes in Textarea-Objekt. Hierzu zählt die Farbänderung und Styleänderung (fett oder kursiv). Die Position und Länge kann bestimmt werden. Die Einheit ist entweder in Zeichen oder Zeilen. Siehe auch <a href="SetTextAreaColor.htm"><b>SetTextAreaColor</b><img src="../../html/images/quicklink.gif" /></a> und <a href="SetTextAreaFont.htm"><b>SetTextAreaFont</b><img src="../../html/images/quicklink.gif" /></a>.<br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zeigt eine einfache Anwendung. Tippe &quot;blitzbasic&quot; ein!<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Fenster", 100, 100, 600, 400, <a href="Desktop.htm"><b>Desktop</b></a>(), 3)<br />textarea = <a href="CreateTextArea.htm"><b>CreateTextArea</b></a>(0, 0, <a href="ClientWidth.htm"><b>ClientWidth</b></a>(window), <a href="ClientHeight.htm"><b>ClientHeight</b></a>(window), window)<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>() = $803 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;temp = <a href="Instr.htm"><b>Instr</b></a>(<a href="Lower.htm"><b>Lower</b></a>$(<a href="TextAreaText.htm"><b>TextAreaText</b></a>$(textarea)), "blitzbasic")<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> temp <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="FormatTextAreaText.htm"><b>FormatTextAreaText</b></a> textarea, 255, 0, 0, 8, temp - 1, 10<br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="SetTextAreaColor.htm" title="ändert Hintergrund- und Schriftfarbe in einem Textarea">SetTextAreaColor</a>, <a href="SetTextAreaFont.htm" title="Schriftart in einem Teaxarea ändern">SetTextAreaFont</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_47.html">TextArea</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Proceed 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert = <b>Proceed</b> (nachricht$ [,warnung]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Nachricht
+</td>
+<td>
+Text, der ausgegeben werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+Warnung
+</td>
+<td>
+0=Information (Standard)<br />1=Warnung
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			 1=Klick auf JA<br /> 0=Klick auf NEIN<br />-1=Klick auf ABBRECHEN<br /><br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>Proceed</b> blendet eine Nachricht ein, die 3 Buttons enthält: JA, NEIN, ABBRECHEN. Gebe dazu einfach einen Text ein. Zeilenumbruch kann mit CHR$(13) erfolgen. Wird Warnung auf 1 gesetzt, dann erscheint ein Warnsymbol statt Infosymbol.<br /><br /><img src="../../images/gfx_proceed.gif" /><br /><br />Wurde auf JA geklickt, dann wird 1 zurückgeliefert.<br />Wurde auf NEIN geklickt, dann wird 0 zurückgeliefert.<br />Wurde auf ABBRECHEN geklickt, dann wird -1 zurückgeliefert.<br /><br /><div class="hint"> Mit <a href="Apptitle.htm"><b>Apptitle</b><img src="../../html/images/quicklink.gif" /></a> kann der Fenstertitel geändert werden<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Zeigt Proceed-Dialog und verarbeitet die Aktion:<br />
+			<div class="syntax-code">
+				answ = <a href="Proceed.htm"><b>Proceed</b></a>("Willst du dieses Programm beenden?")<br />&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> answ<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 0: <a href="Notify.htm"><b>Notify</b></a> "Dann mache ich es selbst"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 1: <a href="Notify.htm"><b>Notify</b></a> "Schade"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> -1:<a href="Notify.htm"><b>Notify</b></a> "Was willst du abbrechen?"<br />&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Confirm.htm" title="Standardfenster mit Button OK / Abbrechen">Confirm</a>, <a href="Notify.htm" title="Standardfenster mit Button OK">Notify</a>, <a href="RequestColor.htm" title="Standardfenster zur Auswahl einer Farbe">RequestColor</a>, <a href="RequestFile.htm" title="Auswahl einer Datei zum lesen/schreiben">RequestFile</a>, <a href="RequestFont.htm" title="Standardfenster zur Auswahl einer Schrift">RequestFont</a>, <a href="RequestDir.htm" title="Standardfenster zur Auswahl eines Ordners">RequestDir</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_42.html">Request</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

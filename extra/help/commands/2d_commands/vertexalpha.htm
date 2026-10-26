@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		VertexAlpha 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			alpha# = <b>VertexAlpha</b># (surface%, vertex%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+surface%
+</td>
+<td>
+Identität einer Gitteroberfläche (surface)
+</td>
+</tr>
+<tr>
+<td width="100">
+vertex%
+</td>
+<td>
+Indexnummer eines Vertexpunktes
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Alphawert des Vertexpunkts. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>VertexAlpha</b> liefert den Alphawert von einem bestimmten Vertexpunkt zurück. Jedem Punkt kann Farbe und Alphainformation zugeordnet werden. Schalte FX-Modus 32 ein, um diesen Effekt zu sehen.<br /><br />Die Anweisung <a href="VertexColor.htm"><b>VertexColor</b><img src="../../html/images/quicklink.gif" /></a> kann dagegen Farbe und Alpha ändern. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, - 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><a href="CameraClsColor.htm"><b>CameraClsColor</b></a> camera, 255, 255, 255<br /><br />mesh = <a href="CreateMesh.htm"><b>CreateMesh</b></a>()<br />surface = <a href="CreateSurface.htm"><b>CreateSurface</b></a>(mesh)<br />v0 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, 0, 0, 0)<br />v1 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, 1, - 1, 0)<br />v2 = <a href="AddVertex.htm"><b>AddVertex</b></a>(surface, - 1, - 1, 0)<br /><a href="VertexColor.htm"><b>VertexColor</b></a> surface, 0, 255, 0, 0, 0<br /><a href="VertexColor.htm"><b>VertexColor</b></a> surface, 1, 0, 255, 0<br /><a href="VertexColor.htm"><b>VertexColor</b></a> surface, 2, 0, 0, 255<br /><a href="AddTriangle.htm"><b>AddTriangle</b></a>(surface, v0, v1, v2)<br /><a href="UpdateNormals.htm"><b>UpdateNormals</b></a> mesh<br /><a href="EntityFX.htm"><b>EntityFX</b></a> mesh, 34<br /><a href="Color.htm"><b>Color</b></a> 0, 0, 0<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 00, <a href="VertexAlpha.htm"><b>VertexAlpha</b></a>#(surface, 0)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, <a href="VertexAlpha.htm"><b>VertexAlpha</b></a>#(surface, 1)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, <a href="VertexAlpha.htm"><b>VertexAlpha</b></a>#(surface, 2)<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="VertexBlue.htm" title="Liefert Blau-Anteil der Farbe eines Vertexpunkts zurück">VertexBlue</a>, <a href="VertexColor.htm" title="Ändert Farbe eines Vertexpunktes einer Oberfläche">VertexColor</a>, <a href="VertexGreen.htm" title="Liefert Grün-Anteil der Farbe eines Vertexpunkts zurück">VertexGreen</a>, <a href="VertexRed.htm" title="Liefert Rot-Anteil der Farbe eines Vertexpunkts zurück">VertexRed</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

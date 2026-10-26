@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		VertexNormal 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>VertexNormal</b> surface%, vertex%, x#, y#, z# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+surface%
+</td>
+<td>
+Identität einer Gitteroberfläche (surface)
+</td>
+</tr>
+<tr>
+<td width="100">
+vertex%
+</td>
+<td>
+Indexnummer eines Vertexpunktes
+</td>
+</tr>
+<tr>
+<td width="100">
+x#
+</td>
+<td>
+Normal-Koordinate X
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Normal-Koordinate Y
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Normal-Koordinate Z
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>VertexNormal</b> ändert Normal-Koordinaten eines Vertexpunktes.<br /><br />Die Funktionen <a href="VertexNX.htm"><b>VertexNX</b><img src="../../html/images/quicklink.gif" /></a>, <a href="VertexNY.htm"><b>VertexNY</b><img src="../../html/images/quicklink.gif" /></a> und <a href="VertexNZ.htm"><b>VertexNZ</b><img src="../../html/images/quicklink.gif" /></a> funktionieren umgekehrt - sie liefern die Normal-Koordinaten zurück.<br /><br />Normals werden hauptsächlich für Lichtschattierungen benötigt. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel verdeutlicht den Umgang mit den Normalenbefehlen eines Vertex<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 800, 600, 16, 2<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, - 2<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="TurnEntity.htm"><b>TurnEntity</b></a> light, 45, 45, 45<br /><br />sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(20)<br /><a href="EntityFX.htm"><b>EntityFX</b></a> sphere, 4<br />surface = <a href="GetSurface.htm"><b>GetSurface</b></a>(sphere, 1)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> sphere, 0, 0.1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(57)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> <a href="CountVertices.htm"><b>CountVertices</b></a>(surface) - 1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;nx# = - <a href="VertexNX.htm"><b>VertexNX</b></a>(surface, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;ny# = - <a href="VertexNY.htm"><b>VertexNY</b></a>(surface, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;nz# = - <a href="VertexNZ.htm"><b>VertexNZ</b></a>(surface, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="VertexNormal.htm"><b>VertexNormal</b></a> surface, i, nx, ny, nz<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="VertexCoords.htm" title="Ändert Koordinate eines Vertexpunkts">VertexCoords</a>, <a href="VertexNX.htm" title="Liefert X-Koordinate des Normals eines Vertexpunkts">VertexNX</a>, <a href="VertexNY.htm" title="Liefert Y-Koordinate des Normals eines Vertexpunkts">VertexNY</a>, <a href="VertexNZ.htm" title="Liefert Z-Koordinate des Normals eines Vertexpunkts">VertexNZ</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

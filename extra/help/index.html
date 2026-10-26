@@ -1,0 +1,27 @@
+<html>
+<head>
+	<title>BlitzBasic Hilfe</title>
+	<script type="text/javascript">
+
+var bbhilfe = 1;
+
+function check(){
+if ((window.location.search) && (bbhilfe == 1)){
+var basis = window.location.href.split ("?");
+if(document.images)
+	top.main.location.replace(basis[1]);
+else 
+	top.main.location.href=basis[1];
+bbhilfe++;
+}}
+
+	</script>
+</head>
+<frameset rows="32,*" border="0">
+	<frame src="html/header.html" scrolling="no" name="header" noresize>
+	<frameset cols="*,225" border="0">
+		<frame src="html/home.html" scrolling="auto" name="main" onload="check(); return true;" noresize>
+		<frame src="html/sidebar.html" scrolling="auto" name="sidebar" noresize>
+	</frameset>
+</frameset>
+</html>

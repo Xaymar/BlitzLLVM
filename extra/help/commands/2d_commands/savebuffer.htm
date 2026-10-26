@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SaveBuffer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert = <b>SaveBuffer</b>(Buffer, Datei$) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Buffer
+</td>
+<td>
+Die ID eine beliebigen Grafikbuffers (Back- Front- oder ImageBuffer)
+</td>
+</tr>
+<tr>
+<td width="100">
+Datei$
+</td>
+<td>
+Beliebiger Dateiname (evtl. plus Pfad) mit .bmp am Ende
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 - Bild konnte nicht gespeichert werden<br />1 - Bild wurde erfolgreich gespeichert 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl speichert einen ganzen Grafikbuffer. Das Bild kann nur als 24-Bit BMP-Datei abgespeichert werden.<br /><br />Für "Buffer" kann <a href="FrontBuffer.htm"><b>FrontBuffer</b><img src="../../html/images/quicklink.gif" /></a> verwendet werden, wobei dann das sichtbare Bild abgespeichert wird. Man kann auch <a href="BackBuffer.htm"><b>BackBuffer</b><img src="../../html/images/quicklink.gif" /></a> angeben, dann wird das unsichtbare Bild gespeichert. Es kann aber auch <a href="ImageBuffer.htm"><b>ImageBuffer</b><img src="../../html/images/quicklink.gif" /></a> angewendet werden, wobei dann ein geladenes/erstelltes Bild abgespeichert wird.<br /><br /><div class="hint">Läuft ein Programm im Vollbildmodus, so kann dann kein Screenshot mit der DRUCK-Taste erstellt werden, da DirectX es nicht zulässt. Dazu sind spezielle ScreenCapture-Programme notwendig, die auch DirectX unterstützen. Verwende <b>SaveBuffer</b> um einen Screenshot ohne ein zusätzliches Programm zu machen.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm speichert einen Screenshot, wenn die F10-Taste gedrückt wird:<br /><br /><a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(68) <a href="Then.htm"><b>Then</b></a><br />   <a href="SaveBuffer.htm"><b>SaveBuffer</b></a> <a href="FrontBuffer.htm"><b>FrontBuffer</b></a>(),  "screenshot.bmp"<br /><a href="Endif.htm"><b>Endif</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="BackBuffer.htm" title="Liefert die ID des Backbuffers">BackBuffer</a>, <a href="FrontBuffer.htm" title="Liefert die ID des Buffers">FrontBuffer</a>, <a href="ImageBuffer.htm" title="Ermittelt die Identität eines Buffers eines Bildes">ImageBuffer</a>, <a href="LoadBuffer.htm" title="Lädt eine Grafik in einen Grafikbuffer">LoadBuffer</a>, <a href="CopyRect.htm" title="Kopiert einen Ausschnitt im Buffer">CopyRect</a>, <a href="GrabImage.htm" title="Kopiert Ausschnitt auf Grafikbuffer in ein Bild">GrabImage</a>, <a href="SaveImage.htm" title="Speichert ein vorhandenes Bild ab">SaveImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

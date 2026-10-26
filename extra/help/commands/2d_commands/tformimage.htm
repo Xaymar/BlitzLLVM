@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TFormImage 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>TFormImage</b> Bild, a#, b#, c#, d# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Bild
+</td>
+<td>
+Identität des Bildes (z.B. ermittelt mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+<tr>
+<td width="100">
+a#
+</td>
+<td>
+horizontale Skalierung
+</td>
+</tr>
+<tr>
+<td width="100">
+b#
+</td>
+<td>
+vertikale Zerrung
+</td>
+</tr>
+<tr>
+<td width="100">
+c#
+</td>
+<td>
+horizontale Zerrung
+</td>
+</tr>
+<tr>
+<td width="100">
+d#
+</td>
+<td>
+vertikale Skalierung
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			So ist die Matrix aufgebaut, die <b>TFormImage</b> zu Grunde liegt:<br />( a# , c# )<br />( b# , d# )<br />Jede Position in der Matrix bedient einen Faktor der Bildtransformation:<br />a# - Horizontale Skalierung des Images. Negative Werte spiegeln es horizontal. 0 ist kein gültiger Wert, 1 ist der Wert für keine Veränderung.<br />b# - Zerrt ein Image vertikal. 0 führt keine Scherung durch.<br />c# - Zerrt ein Image horizontal. 0 führt keine Scherung durch.<br />d# - Vertikale Skalierung des Images. Negative Werte spiegeln es vertikal. 0 ist kein gültiger Wert, 1 ist der Wert für keine Veränderung.<br /><br /><br />Dieser Grafikbefehl kann ein Bild gleichzeitig skalieren, drehen, zerren und spiegeln. Dazu muss man die Identität des Bildes angeben, die z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt wurde. <b>TFormImage</b> ist nicht für einen besonderen Einsatz programmiert worden. Bitte benutze <a href="ResizeImage.htm"><b>ResizeImage</b><img src="../../html/images/quicklink.gif" /></a>, <a href="RotateImage.htm"><b>RotateImage</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="ScaleImage.htm"><b>ScaleImage</b><img src="../../html/images/quicklink.gif" /></a>. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Beispiel zeichnet zuerst ein normales Bild ein. Dann wird die Grafik gedreht,  vergrößert und eingezeichnet:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16, 0<br />bild = <a href="LoadImage.htm"><b>LoadImage</b></a>("bild.bmp")<br /><a href="DrawImage.htm"><b>DrawImage</b></a> bild, 200, 100<br /><a href="TFormImage.htm"><b>TFormImage</b></a> bild, 1, - 1, 1, 1<br /><a href="DrawImage.htm"><b>DrawImage</b></a> bild, 0, 100<br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="TFormFilter.htm" title="Schaltet den bilinearen Filter ein/aus">TFormFilter</a>, <a href="ResizeImage.htm" title="Skaliert ein Bild auf einen absoluten Wert">ResizeImage</a>, <a href="RotateImage.htm" title="Dreht ein Bild um einen Winkel">RotateImage</a>, <a href="ScaleImage.htm" title="Skaliert ein Bild nach relativen Werten">ScaleImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

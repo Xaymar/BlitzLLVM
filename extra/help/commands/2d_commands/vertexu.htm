@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		VertexU 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			u# = <b>VertexU</b> (surface%, vertex% [, set%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+surface%
+</td>
+<td>
+Identität einer Gitteroberfläche (surface)
+</td>
+</tr>
+<tr>
+<td width="100">
+vertex%
+</td>
+<td>
+Indexnummer eines Vertexpunktes
+</td>
+</tr>
+<tr>
+<td width="100">
+set%
+</td>
+<td>
+Koordinaten-Set (entweder 0 oder 1; Standard=0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			U-Koordinate eines Vertexpunktes (entspricht X-Koordinate der Textur) 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>VertexU</b> liefert die U-Koordinate eines Vertexpunktes zurück. Diese Koordinate entspricht der X-Koordinate einer Textur. Mit <a href="VertexTexCoords.htm"><b>VertexTexCoords</b><img src="../../html/images/quicklink.gif" /></a> kann man U-, V- und W-Koordinaten setzten. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 32, 2<br /><br />Sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(12)<br />SaveWire(Sphere, "Texture", 512, 512)<br /><br /><a href="Function.htm"><b>Function</b></a> SaveWire(Entity, File$, ImgWidth, ImgHeight)<br />&nbsp; &nbsp;<a href="Local.htm"><b>Local</b></a> OldBuffer, OldR, OldG, OldB<br />&nbsp; &nbsp;<a href="Local.htm"><b>Local</b></a> S, ImageWire, Surface, T, Vertex2<br />&nbsp; &nbsp;<a href="Local.htm"><b>Local</b></a> VU#2, VV#2, X2, Y2<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;OldBuffer = <a href="GraphicsBuffer.htm"><b>GraphicsBuffer</b></a>()<br />&nbsp; &nbsp;OldR = <a href="ColorRed.htm"><b>ColorRed</b></a>()<br />&nbsp; &nbsp;OldG = <a href="ColorGreen.htm"><b>ColorGreen</b></a>()<br />&nbsp; &nbsp;OldB = <a href="ColorBlue.htm"><b>ColorBlue</b></a>()<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255, 255, 255<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> S = 1 <a href="To.htm"><b>To</b></a> <a href="CountSurfaces.htm"><b>CountSurfaces</b></a>(Entity)<br />&nbsp; &nbsp;ImageWire = <a href="CreateImage.htm"><b>CreateImage</b></a>(ImgWidth, ImgHeight)<br />&nbsp; &nbsp;<a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="ImageBuffer.htm"><b>ImageBuffer</b></a>(ImageWire)<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;Surface = <a href="GetSurface.htm"><b>GetSurface</b></a>(Entity, S)<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> T = 0 <a href="To.htm"><b>To</b></a> <a href="CountTriangles.htm"><b>CountTriangles</b></a>(Surface) - 1<br />&nbsp; &nbsp;Vertex0 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(Surface, T, 0)<br />&nbsp; &nbsp;Vertex1 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(Surface, T, 1)<br />&nbsp; &nbsp;Vertex2 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(Surface, T, 2)<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;VU0 = <a href="VertexU.htm"><b>VertexU</b></a>#(Surface, Vertex0)<br />&nbsp; &nbsp;VV0 = <a href="VertexV.htm"><b>VertexV</b></a>#(Surface, Vertex0)<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;VU1 = <a href="VertexU.htm"><b>VertexU</b></a>#(Surface, Vertex1)<br />&nbsp; &nbsp;VV1 = <a href="VertexV.htm"><b>VertexV</b></a>#(Surface, Vertex1)<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;VU2 = <a href="VertexU.htm"><b>VertexU</b></a>#(Surface, Vertex2)<br />&nbsp; &nbsp;VV2 = <a href="VertexV.htm"><b>VertexV</b></a>#(Surface, Vertex2)<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;X0 = <a href="ImageWidth.htm"><b>ImageWidth</b></a>(ImageWire) * VU0<br />&nbsp; &nbsp;Y0 = <a href="ImageHeight.htm"><b>ImageHeight</b></a>(ImageWire) * VV0<br />&nbsp; &nbsp;X1 = <a href="ImageWidth.htm"><b>ImageWidth</b></a>(ImageWire) * VU1<br />&nbsp; &nbsp;Y1 = <a href="ImageHeight.htm"><b>ImageHeight</b></a>(ImageWire) * VV1<br />&nbsp; &nbsp;X2 = <a href="ImageWidth.htm"><b>ImageWidth</b></a>(ImageWire) * VU2<br />&nbsp; &nbsp;Y2 = <a href="ImageHeight.htm"><b>ImageHeight</b></a>(ImageWire) * VV2<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> X0, Y0, X1, Y1<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> X1, Y1, X2, Y2<br />&nbsp; &nbsp;<a href="Line.htm"><b>Line</b></a> X2, Y2, X0, Y0<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="SaveBuffer.htm"><b>SaveBuffer</b></a>(<a href="ImageBuffer.htm"><b>ImageBuffer</b></a>(ImageWire), File$ + S + ".bmp")<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> OldR, OldG, OldB<br />&nbsp; &nbsp;<a href="SetBuffer.htm"><b>SetBuffer</b></a> OldBuffer<br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="VertexTexCoords.htm" title="Ändert Texturkoordinaten eines Vertexpunkts">VertexTexCoords</a>, <a href="VertexV.htm" title="Liefert V-Koordinate eines Vertexpunkts zurück">VertexV</a>, <a href="VertexW.htm" title="Liefert W-Koordinate eines Vertexpunkts zurück">VertexW</a>, <a href="VertexX.htm" title="Liefert X-Koordinate eines Vertexpunkts zurück">VertexX</a>, <a href="VertexY.htm" title="Liefert Y-Koordinate eines Vertexpunkts zurück">VertexY</a>, <a href="VertexZ.htm" title="Liefert Z-Koordinate eines Vertexpunkts zurück">VertexZ</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

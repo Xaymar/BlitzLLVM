@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Mid 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			neu$ = <b>Mid</b>$ (text$, start [, anzahl]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+text$
+</td>
+<td>
+beliebiger Text, von dem kopiert werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+start
+</td>
+<td>
+Startposition, ab der kopiert wird (ab 1)
+</td>
+</tr>
+<tr>
+<td width="100">
+anzahl
+</td>
+<td>
+Anzahl der zu kopierenden Zeichen (ab 1)<br />Hinweis: bei -1 wird alles bis zum Ende kopiert
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Kopierter Text mit maximal "anzahl" Zeichen 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Stringfunktion kopiert einige Zeichen aus einem Text. Dabei muss man die Startposition angeben und die Anzahl der zu kopierenden Zeichen. Sollte der Text zu wenige Zeichen enthalten, so wird einfach nur bis zum Ende des Textes kopiert. Wird eine Startposition außerhalb der maximalen Textlänge angegeben, so wird gar kein Text kopiert.<br /><br /><div class="hint">Ist neu$ eine andere Variable als text$, so bleibt die text$ unverändert.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zerlegt eine Zeichenkette mit Hilfe verschiedener Stringfunktionen:<br />
+			<div class="syntax-code">
+				;String mit zwei Punkten:<br />txt$ = "vorne.mitte.hinten"<br /><br />p1 = <a href="Instr.htm"><b>Instr</b></a>(txt$, ".")<br />vorn$ = <a href="Left.htm"><b>Left</b></a>$(txt$, p1-1)<br /><br />p2 = <a href="Instr.htm"><b>Instr</b></a>(txt$, ".", p1+1)<br />mitte$ = <a href="Mid.htm"><b>Mid</b></a>$(txt$,p1+1,p2-p1-1)<br /><br />hinten$ = <a href="Right.htm"><b>Right</b></a>$(txt$,<a href="Len.htm"><b>Len</b></a>(txt$)-p2)<br /><br /><a href="Print.htm"><b>Print</b></a> "Länge der Zeichenkette: "+Len(txt$)<br /><a href="Print.htm"><b>Print</b></a> "Vorne:  "+vorn$<br /><a href="Print.htm"><b>Print</b></a> "Mitte:  "+mitte$<br /><a href="Print.htm"><b>Print</b></a> "Hinten: "+hinten$ 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Left.htm" title="Kopiert linken Teil eines Strings">Left</a>, <a href="Right.htm" title="Kopiert rechten Teil eines Strings">Right</a>, <a href="Replace.htm" title="Ersetzt Textstellen in einem String">Replace</a>, <a href="Trim.htm" title="Entfernt führende und folgende Leerzeichen eines Textes">Trim</a>, <a href="Instr.htm" title="Durchsucht einen Text nach einem String">Instr</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_21.html">Zeichenketten</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ImagesCollide 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert = <b>ImagesCollide</b> (bild1, x1, y1, frame1, bild2, x2, y2, frame2) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bild1
+</td>
+<td>
+Identität des ersten Bildes (z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+<tr>
+<td width="100">
+x1
+</td>
+<td>
+horizontale Position des ersten Bildes
+</td>
+</tr>
+<tr>
+<td width="100">
+y1
+</td>
+<td>
+vertikale Position des ersten Bildes
+</td>
+</tr>
+<tr>
+<td width="100">
+frame1
+</td>
+<td>
+Animationsframe des ersten Bildes (ab 0)
+</td>
+</tr>
+<tr>
+<td width="100">
+bild2
+</td>
+<td>
+Identität des zweiten Bildes
+</td>
+</tr>
+<tr>
+<td width="100">
+x2
+</td>
+<td>
+horizontale Position des zweiten Bildes
+</td>
+</tr>
+<tr>
+<td width="100">
+y2
+</td>
+<td>
+vertikale Position des zweiten Bildes
+</td>
+</tr>
+<tr>
+<td width="100">
+frame2
+</td>
+<td>
+Animationsframe des zweiten Bildes (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 = keine Kollision<br />1 = Kollision 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion prüft zwei Bilder auf pixelgenaue Kollision. Dies ist besonders für Objekte mit transparenter Farbe gut geeignet. Das Prüfen geschieht pixelgenau, aber mit einer relativ langsamen Geschwindigkeit. Ist eine so hohe Genauigkeit nicht notwendig, so sollte besser <a href="ImageRectOverlap.htm"><b>ImageRectOverlap</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="ImagesOverlap.htm"><b>ImagesOverlap</b><img src="../../html/images/quicklink.gif" /></a> verwendet werden. Benutze <a href="MaskImage.htm"><b>MaskImage</b><img src="../../html/images/quicklink.gif" /></a>, um eine transparente Farbe auszuwählen!<br /><br />Diese Grafik zeigt eine saubere, pixelgenaue Kollision, die mit dieser Funktion ermittelt werden kann:<br /><img src="../../images/gfx_kollision1.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm zeichnet einen Kreis. Wenn dieser Kreis einen Rechteck berührt, dann wird das Programm gestoppt:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16<br />gfxBox = <a href="CreateImage.htm"><b>CreateImage</b></a>(50, 50)<br />gfxCircle = <a href="CreateImage.htm"><b>CreateImage</b></a>(50, 50)<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="ImageBuffer.htm"><b>ImageBuffer</b></a>(gfxBox)<br /><a href="Color.htm"><b>Color</b></a> 0, 0, 255<br /><a href="Rect.htm"><b>Rect</b></a> 10, 10, 30, 30, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="ImageBuffer.htm"><b>ImageBuffer</b></a>(gfxCircle)<br /><a href="Color.htm"><b>Color</b></a> 255, 0, 0<br /><a href="Oval.htm"><b>Oval</b></a> 10, 10, 30, 30, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />boxX = <a href="Rnd.htm"><b>Rnd</b></a>(50, 610)<br />boxY = <a href="Rnd.htm"><b>Rnd</b></a>(50, 430)<br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;circleX = <a href="MouseX.htm"><b>MouseX</b></a>()<br />&nbsp; &nbsp;circleY = <a href="MouseY.htm"><b>MouseY</b></a>()<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="DrawImage.htm"><b>DrawImage</b></a> gfxBox, boxX, boxY<br />&nbsp; &nbsp;<a href="DrawImage.htm"><b>DrawImage</b></a> gfxCircle, circleX, circleY<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Until.htm"><b>Until</b></a> <a href="ImagesCollide.htm"><b>ImagesCollide</b></a> (gfxBox, boxX, boxY, 0, gfxCircle, circleX, circleY, 0)<br /><a href="Text.htm"><b>Text</b></a> 0, 0, "Kollision! Maustaste drücken"<br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="WaitMouse.htm"><b>WaitMouse</b></a>()<br /><a href="EndGraphics.htm"><b>EndGraphics</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ImageRectCollide.htm" title="Überprüft, ob ein Bild einen rechteckigen Bereich berührt">ImageRectCollide</a>, <a href="ImageRectOverlap.htm" title="Überprüft, ob ein Bild einen rechteckigen Bereich überlappt">ImageRectOverlap</a>, <a href="ImagesOverlap.htm" title="Überprüft zwei Bilder auf Kollision">ImagesOverlap</a>, <a href="RectsOverlap.htm" title="Prüft ob sich zwei Rechtecke überlappen">RectsOverlap</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SeedRnd 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SeedRnd</b> wert 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+wert
+</td>
+<td>
+ein Integerwert, der ein Zufallsmuster kennzeichnet
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl stellt einen Wert für Zufallszahlen ein. Die Zufallszahlen sind nicht wirklich zufällig. Startet man ein Programm, das <a href="Rand.htm"><b>Rand</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="Rnd.htm"><b>Rnd</b><img src="../../html/images/quicklink.gif" /></a> verwendet, so liefert es ständig die selben Zahlen. Mit <b>SeedRnd</b> kann auf andere Zufallsmuster umgestellt werden.<br /><br /><div class="caution">Es ist empfehlenswert diesen Befehl nur einmal bei Programmstart auszuführen. Wird er öfter aufgerufen, zum Beispiel innerhalb einer Schleife, kann nicht gewährleistet werden, dass "gute" Zufallszahlen kommen. So kann es z.B. sein, dass dann nur hohe oder niedrige Zahlen zurückgegeben werden.<br />&nbsp;</div><br /><br /><div class="hint">Verwende diesen Befehl zusammen mit <a href="MilliSecs.htm"><b>MilliSecs</b><img src="../../html/images/quicklink.gif" /></a>. Da ein Programm nie auf die Millisekunde genau gestartet werden kann, erscheinen ständig andere, zufällig wirkende Zahlen.<br />&nbsp;</div><br /><br /><div class="hint">Speichere den Wert, der für diesen Befehl verwendet wurde. Dies kann für eine genaue Wiederholung des Zufallsmusters verwendet werden. Wie wäre es z.B. mit einem Kartenspiel, das der Spieler verloren hat und noch mal spielen (versuchen) darf.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm demonstriert den Sinn:<br />
+			<div class="syntax-code">
+				<a href="Print.htm"><b>Print</b></a> "Diese drei Zahlen sind immer gleich:"<br /><br /><a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> 3<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="Rand.htm"><b>Rand</b></a> (1,10)<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="SeedRnd.htm"><b>SeedRnd</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a> ()<br /><br /><a href="Print.htm"><b>Print</b></a> "-------------------------------------"<br /><a href="Print.htm"><b>Print</b></a> "Diese drei Zahlen sind immer anders:"<br /><br /><a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> 3<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> <a href="Rnd.htm"><b>Rnd</b></a> (1,10)<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Rand.htm" title="Erzeugt eine ganzzahlige Zufallszahl">Rand</a>, <a href="Rnd.htm" title="Erzeugt eine zufällige Kommazahl">Rnd</a>, <a href="RndSeed.htm" title="Gibt Initialisierungswert des Zufallsgenerators zurück">RndSeed</a>, <a href="MilliSecs.htm" title="Ermittelt Zeit seit dem letzten Windowsstart">MilliSecs</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_8.html">Zeit & Zufall</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

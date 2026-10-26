@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EntityInView 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Sichtbar = <b>EntityInView</b> (Entity, Camera) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Entity
+</td>
+<td>
+Identität eines Entitys
+</td>
+</tr>
+<tr>
+<td width="100">
+Camera
+</td>
+<td>
+Identität einer Kamera
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Falls ein Objekt sichtbar ist, dann wird 1 zurückgeliefert, sonst 0. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>EntityInView</b> liefert 1 zurück, wenn ein Objekt in einer Kamera sichtbar ist, ansonsten wird 0 zurückgeliefert.<br />Falls ein Gitterobjekt (Mesh) angegeben wurde, dann werden die äußersten Objektpunkte überprüft. Bei allen anderen Objekten wird nur die Mitte geprüft.<br />Da mehrere Kameras verwendet werden können, muss man zusätzlich noch die Identität einer Kamera angeben. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Erstellt einen drehenden Würfel. Wenn es in der Kamera ist, dann wird ein Text ausgegeben:<br /><br /><a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, 0<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />pivot = <a href="CreatePivot.htm"><b>CreatePivot</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> pivot, 0, 0, 5<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>(pivot)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 10<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 20, 20, 20<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> pivot, 0, 1, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="EntityInView.htm"><b>EntityInView</b></a>(cube, camera) = 1 <a href="Then.htm"><b>Then</b></a> <a href="Text.htm"><b>Text</b></a> 0, 0, "Objekt sichtbar"<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="EntityDistance.htm" title="Liefert die Entfernung zwischen zwei Objekten.">EntityDistance</a>, <a href="CameraProject.htm" title="Errechnet aus 3D-Raumkoordinaten die 2D-Bildschirmkoordinaten">CameraProject</a>, <a href="EntityPick.htm" title="Ermittelt nächstliegendstes Objekt eines Entitys">EntityPick</a>, <a href="EntityVisible.htm" title="Ermittelt ob zwei Objekte sich gegenseitig &quot;sehen&quot; können.">EntityVisible</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_74.html">Status</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

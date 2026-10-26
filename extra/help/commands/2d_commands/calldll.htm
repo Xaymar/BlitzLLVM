@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CallDLL 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert = <b>CallDLL</b> (dll$, funktion$ [, eingabe] [, ausgabe]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+dll$
+</td>
+<td>
+Name der DLL-Datei
+</td>
+</tr>
+<tr>
+<td width="100">
+funktion$
+</td>
+<td>
+Name der DLL-Funktion
+</td>
+</tr>
+<tr>
+<td width="100">
+eingabe
+</td>
+<td>
+Identität einer Bank mit Eingabewerten
+</td>
+</tr>
+<tr>
+<td width="100">
+ausgabe
+</td>
+<td>
+Identität einer Bank mit Ausgabewerten
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Ausgabewert wird zurückgeliefert (Integer). Zusätzlich werden Werte in der Ausgabebank gespeichert.<br /><br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>CallDLL</b> führt eine bestimmte Prozedur in einer bestimmter DLL Datei aus. Die DLL Prozeduren sind wie BB Funktionen und können nicht nur Daten verarbeiten, sondern auch Aktionen ausführen (z.B. Windows Neustart).<br /><br />Gebe einfach den Dateinamen einer DLL Datei an. Der Prozedur Name muss in der DLL Datei enthalten sein (Groß-/Kleinschreibung beachten!).<br /><br />Die optionalen Parameter "Eingabe" und "Ausgabe" sind die Identitäten von 2 Speicherfeldern (banks). Diese können Daten für die Ein-/Ausgabe enthalten.<br /><br /><div class="hint">Dieser Befehl stammt noch aus der Zeit als Blitzbasic keine "UserLibs" nutzen konnte. Da es sich hier fast immer um "Wrapper" handelt die auf eine andere DLL wrappen kommt es zu Tempoverlusten. Es wird daher dringend geraten nur die "echten" Standard DLLs mit "UserLibs" zu nutzen und auf solche zusätzliche <b>CallDLL</b> Wrapper zu verzichten wenn es möglich ist.<br />&nbsp;</div><br /><br /><div class="caution">Es können nicht alle DLLs einfach so benutzt werden. Die DLLs müssen speziell für BlitzBasic entwickelt werden. BlitzBasic übergibt/empfängt nur den Pointer eines Speicherfeldes und die Länge in Byte. Die DLL Funktion muss diese Daten dann verarbeiten können. Aus diesem einfachen Grund können Standard DLLs nicht benutzt werden, da die meistens andere Eingaben erwarten.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dies ist ein Prinzipbeispiel:<br />
+			<div class="syntax-code">
+				inbank = <a href="CreateBank.htm"><b>CreateBank</b></a> (...)<br />outbank = <a href="CreateBank.htm"><b>CreateBank</b></a> (...)<br /><br />;Mit POKE-Befehlen Eingabedaten setzten<br /><br />result = <a href="CallDLL.htm"><b>CallDLL</b></a> ("dllname","dllfunc",inbank,outbank)<br /><br />;Mit PEEK-Befehlen Ausgabedaten lesen<br /><br /><br /><br />So könnte ein Visual-C++ Code für eine DLL aussehen:<br /><br />extern "C"{<br />_declspec(dllexport) int _cdecl my_dll_func( const void *in,int in_size,void *out,int out_size );<br />}<br /><br />"in"-Pointer zeigt auf die Eingabe-Speicherbank. "in_size"-Variable gibt die Länge der Daten an. "out"-Pointer zeigt auf die Ausgabe-Speicherbank. "out_size" gibt die Ausgabe-Länge an.<br /><br />"cdecl"-Kennung deutet auf eine C-Declaration. "stdcall" kann seit v1.77 auch benutzt werden! 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ExecFile.htm" title="Führt ein Programm aus">ExecFile</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_38.html">Sonstiges</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		NNP_CreateEntity 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>NNP_CreateEntity</b>.TEntity( [Friction#] [, VertexCount] [, EdgeCount] ) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Friction#
+</td>
+<td>
+Reibungsfaktor des Objekts (Standard=0)
+</td>
+</tr>
+<tr>
+<td width="100">
+VertexCount
+</td>
+<td>
+Maximale Anzahl Vertices, die dieses Objekt enthalten kann (Standard=64)
+</td>
+</tr>
+<tr>
+<td width="100">
+EdgeCount
+</td>
+<td>
+Maximale Anzahl Edges, die dieses Objekt enthalten kann (Standard=64)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Das Entity, das erstellt wurde. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion erstellt ein neues Entity und liefert es zurück.<br /><br />Bei einer Kollision kann zusätzlich die Reibung berechnet werden. Durch den angegebenen Reibungsfaktor wird bestimmt, wie stark dass sich die Reibung auswirkt. 0 bedeutet keine Reibung, 1 die maximale Reibung. Der Faktor kann auch grösser als 1 sein, um die Reibung auf Höchstwerte zu treiben, jedoch kann das zu Fehlern führen und ist daher nicht empfohlen.<br /><br />VertexCount und EdgeCount bestimmen die Grösse des Buffers, der für das Objekt erstellt wird. Je grösser diese Werte sind, desto mehr Vertices und Edges kann das Objekt aufnehmen, allerdings steigt natürlich auch der Speicherverbrauch.<br /><br /><div class="caution">Die Anzahl Vertices und Edges werden zusätzlich durch die Grösse des Blitzarrays im Type TEntity limitiert. Diese muss man bei Bedarf vergrössern.<br />&nbsp;</div><br /><br /><div class="hint">Ist die Anzahl Entities grösser als die durch NNP_CreatePhysics festgelegte maximale Anzahl, so wird kein neues Entity erstellt, um einen Absturz zu vermeiden, und die Funktion liefert Null zurück.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_12.html">NooNooPhysics</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_85.html">Objekterstellung</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

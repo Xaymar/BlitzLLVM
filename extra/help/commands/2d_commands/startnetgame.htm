@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		StartNetGame 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert = <b>StartNetGame</b> () 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 = Netzwerkspiel nicht gestartet <br />1 = Netzwerkspiel gestartet <br />2 = Netzwerkspiel gestartet (dieser PC ist der Host) <br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			StartNetGame startet ein Netzwerkspiel. Dazu wird ein Windows-Fenster geöffnet, wo man die Verbindung sowie ein Spiel auswählen kann.<br />Dieser Befehl liefert Null zurück, wenn eine Verbindung nicht hergestellt werden konnte. Bei 1 hat alles geklappt und der Spieler ist zum Spiel beigetreten. Bei 2 hostet der Rechner das Spiel.<br /><br /><div class="caution"><br /><a href="HostNetGame.htm"><b>HostNetGame</b><img src="../../html/images/quicklink.gif" /></a>, <a href="JoinNetGame.htm"><b>JoinNetGame</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="StartNetGame.htm"><b>StartNetGame</b><img src="../../html/images/quicklink.gif" /></a> sollte vor allen anderen Netzwerk-Befehlen ausgeführt werden, da die anderen Befehle ohne eine Verbindung nicht funktionieren.<br /><br />&nbsp;</div><br /><div class="hint">Dieser Befehl hat den Nachteil, dass ein neues Fenster erscheint und BlitzBasic-Programmfenster minimiert wird. Dafür braucht man sich um nichts zu kümmern.<br />&nbsp;</div><br /><br /><img src="../../images/scr_multiplayer.gif" /><br />Diese DialogBox erscheint nach der Ausführung. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Startet ein Spiel und wertet den Rückgabewert aus:<br /><br />newGame = <a href="StartNetGame.htm"><b>StartNetGame</b></a>()<br /><a href="If.htm"><b>If</b></a> newGame = 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Keine Verbindung hergestellt"<br /><a href="ElseIf.htm"><b>ElseIf</b></a> newGame = 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Verbindung hergestellt"<br /><a href="ElseIf.htm"><b>ElseIf</b></a> newGame = 2 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Ein neues Spiel wurde erstellt"<br /><a href="EndIf.htm"><b>EndIf</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="StopNetGame.htm" title="Beendet ein Netzwerkspiel sauber">StopNetGame</a>, <a href="HostNetGame.htm" title="Erstellt ein neues Netzwerkspiel">HostNetGame</a>, <a href="JoinNetGame.htm" title="Lässt einen Teilnehmer einem Host beitreten">JoinNetGame</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_18.html">DirectPlay</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

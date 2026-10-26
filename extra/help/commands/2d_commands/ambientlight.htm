@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		AmbientLight 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>AmbientLight</b> rot#, gruen#, blau# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+rot#
+</td>
+<td>
+Rotanteil der Farbe (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+gruen#
+</td>
+<td>
+Grünanteil der Farbe (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+blau#
+</td>
+<td>
+Blauanteil der Farbe (0-255)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>AmbientLight</b> ändert die Farbe des Umgebungslichtes. Die einzelnen Farbanteile können nur im Bereich von 0-255 liegen. Die Standardfarbe ist 127,127,127 (=grau). Mit der Farbe 0,0,0 wird kein Umgebungslicht angezeigt.<br /><br />Alle Objekte werden mit dieser Farbe "beleuchtet". Wird nur das Umgebungslicht benutzt, so erscheinen die Objekte flach/unecht, da keine Schattierungen hinzugefügt werden.<br /><br /><div class="hint">Benutze das Umgebungslicht, um die Helligkeit genau zu bestimmen. Danach füge andere Lichtquellen hinzu, um dadurch realistische Effekte zu erzielen.<br />&nbsp;</div><br /><br /><img src="../../images/gfx_kopf.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(32)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sphere, - 2, 0, 5<br />cone = <a href="CreateCone.htm"><b>CreateCone</b></a>(32)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone, 2, 0, 5<br />red# = 127<br />green# = 127<br />blue# = 127<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(2) = 1 <a href="And.htm"><b>And</b></a> red#>0 <a href="Then.htm"><b>Then</b></a> red# = red# - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(3) = 1 <a href="And.htm"><b>And</b></a> red#<255 <a href="Then.htm"><b>Then</b></a> red# = red# + 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(4) = 1 <a href="And.htm"><b>And</b></a> green#>0 <a href="Then.htm"><b>Then</b></a> green# = green# - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(5) = 1 <a href="And.htm"><b>And</b></a> green#<255 <a href="Then.htm"><b>Then</b></a> green# = green# + 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(6) = 1 <a href="And.htm"><b>And</b></a> blue#>0 <a href="Then.htm"><b>Then</b></a> blue# = blue# - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(7) = 1 <a href="And.htm"><b>And</b></a> blue#<255 <a href="Then.htm"><b>Then</b></a> blue# = blue# + 1<br />&nbsp; &nbsp;<a href="AmbientLight.htm"><b>AmbientLight</b></a> red#, green#, blue#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Drücke 1-6, um die Farbe zu ändern"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "Rot: " + red#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "Grün: " + green#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 60, "Blau: " + blue#<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateLight.htm" title="Erstellt ein neues Licht">CreateLight</a>, <a href="LightRange.htm" title="Setzt maximale Reichweite einer Lichtquelle">LightRange</a>, <a href="LightColor.htm" title="Ändert Farbe einer Lichtquelle">LightColor</a>, <a href="LightConeAngles.htm" title="Ändert Winkel einer Lichtquelle">LightConeAngles</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_69.html">Licht</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

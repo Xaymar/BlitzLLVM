@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SetTextAreaFont 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SetTextAreaFont</b> textarea, schrift 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+textarea
+</td>
+<td>
+Identität von Textarea-Objekt
+</td>
+</tr>
+<tr>
+<td width="100">
+schrift
+</td>
+<td>
+Identität einer Schrift (ermittelt mit <a href="LoadFont.htm"><b>LoadFont</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>SetTextAreaFont</b> setzt andere Schriftart in Textarea-Objekt. Der Parameter "Schrift" ist die Identität einer Schrift, die mit <a href="LoadFont.htm"><b>LoadFont</b><img src="../../html/images/quicklink.gif" /></a> ermittelt wurde. Diese Änderung wird auf kompletten Text angewendet.<br /><br />Der Befehl <a href="SetTextAreaColor.htm"><b>SetTextAreaColor</b><img src="../../html/images/quicklink.gif" /></a> ändert Schriftfarbe oder Hintergrundfarbe.<br />Der Befehl <a href="SetTextAreaTabs.htm"><b>SetTextAreaTabs</b><img src="../../html/images/quicklink.gif" /></a> ändert Tabulatoreinstellung.<br /><br /><img src="../../images/gfx_textarea.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Erstellt ein Textarea-Objekt mit Text und ändert die Schriftart:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 50, 50, 300, 300, 0)<br />textarea = <a href="CreateTextArea.htm"><b>CreateTextArea</b></a>(10, 10, 270, 200, window)<br />font = <a href="LoadFont.htm"><b>LoadFont</b></a>("Arial", 32, 1, 1, 0)<br /><a href="SetTextAreaFont.htm"><b>SetTextAreaFont</b></a> textarea, font<br /><a href="AddTextAreaText.htm"><b>AddTextAreaText</b></a> textarea, "Arial 32 fett+kursiv"<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GetKey.htm"><b>GetKey</b></a>() = 27 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>() = $803 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="TextAreaText.htm" title="liefert kompletten Text aus Textarea">TextAreaText</a>, <a href="SetTextAreaTabs.htm" title="ändert den Tabulatorwert in einem Textarea">SetTextAreaTabs</a>, <a href="AddTextAreaText.htm" title="Text in ein Textarea hinzufügen">AddTextAreaText</a>, <a href="CreateTextArea.htm" title="erstellt eine mehrzeilige Textbox">CreateTextArea</a>, <a href="SetTextAreaColor.htm" title="ändert Hintergrund- und Schriftfarbe in einem Textarea">SetTextAreaColor</a>, <a href="FormatTextAreaText.htm" title="ändert die Formatierung eines Textes innerhalb Textarea">FormatTextAreaText</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_47.html">TextArea</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

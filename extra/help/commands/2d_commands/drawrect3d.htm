@@ -1,0 +1,176 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		DrawRect3D 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>DrawRect3D</b> (handle, x_pos#, y_pos#, u_start#, v_start#, u_size#, v_size# [, button] [, angle#] [, scale#]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+handle
+</td>
+<td>
+Identität einer Textur oder gegrabten Teiltextur
+</td>
+</tr>
+<tr>
+<td width="100">
+x_pos#
+</td>
+<td>
+Mitte X-Position der Textur
+</td>
+</tr>
+<tr>
+<td width="100">
+y_pos#
+</td>
+<td>
+Mitte Y-Position der Textur
+</td>
+</tr>
+<tr>
+<td width="100">
+u_start#
+</td>
+<td>
+U-Startposition des Teilbildes
+</td>
+</tr>
+<tr>
+<td width="100">
+v_start#
+</td>
+<td>
+V-Startposition des Teilbildes
+</td>
+</tr>
+<tr>
+<td width="100">
+u_size#
+</td>
+<td>
+Breite des Teilbildes
+</td>
+</tr>
+<tr>
+<td width="100">
+v_size#
+</td>
+<td>
+Höhe des Teilbildes
+</td>
+</tr>
+<tr>
+<td width="100">
+button
+</td>
+<td>
+Buttonaktivierung (Standard = 0)<br />0 - Textur ist kein Button<br />1 - Textur ist ein Button ohne Glow<br />handle - Textur ist ein Button mit automatischen Glow
+</td>
+</tr>
+<tr>
+<td width="100">
+angle#
+</td>
+<td>
+Rotationswinkel der Teiltextur (Standard = 0)
+</td>
+</tr>
+<tr>
+<td width="100">
+scale#
+</td>
+<td>
+Zusätzliche X/Y-Skallierung der Teiltextur (Standard = 1)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl zeichnet einen Ausschnitt einer Textur auf dem Bildschirm. Er entspricht ziemlich genau <a href="DrawImageRect.htm"><b>DrawImageRect</b><img src="../../html/images/quicklink.gif" /></a>, nur dass bei <b>DrawRect3D</b> auch noch Winkel und Skalierung angegeben werden können.<br /><br />''button'' legt fest, ob das Image als Button behandelt werden soll. Alternativ zu 0 (Image ist kein Button) und 1 (Image ist ein Button ohne Glow) kann auch ein Handle zu einer Textur angegeben werden, welches auf 'Over' und 'Down' über dem Image gezogen reagiert. Ist der Parameter 'Button' auf 1 gesetzt, so stehen in den globalen Variablen wie <a href="MouseOver3D.htm"><b>MouseOver3D</b><img src="../../html/images/quicklink.gif" /></a> etc. Informationen über den Zustand des Buttons. Enthält der Wert nun aber ein Handle auf eine Draw3D -Textur, so wird diese Textur als Glow über das Image gespannt, falls sich die Maus über den Image befindet. Ist die Maus gedrückt über dem Image, so wird die nächste Textur (geladene/erstellte/gegrabbte) als Glow benutzt. Klingt verwirrend? Ein kleines Beispiel: Wir laden eine Grafik, welches wir als normale Textur anzeigen lassen wollen. Dann laden wir eine Grafik, welches den normalen Glow enthält und dann laden wir eine Grafik, welche bei gedrückter Maustaste als Glow benutzt werden soll. Dann führen wir <a href="DrawImage3D.htm"><b>DrawImage3D</b><img src="../../html/images/quicklink.gif" /></a> aus, geben als normales Handle unsere Textur an, welches wir angezeigt haben wollen und bei Button tragen wir unsere Handle der normalen Textur an, das als Glow angezeigt werden soll. Die ganze Positionsabfrage mit der Maus, anzeigen des Glows etc. erledigt nun die Funktion für uns. Man kann auch Teiltexturen (<a href="GrabImage3D.htm"><b>GrabImage3D</b><img src="../../html/images/quicklink.gif" /></a>) für Gloweffekte erstellen. Wichtig ist nur die Framereihenfolge. Alle Informationen über die Buttonabfrage stehen nachher in den globalen Variablen, welche wir nun überprüfen und was auch immer damit machen. Wir können sogar noch den Winkel und die Skalierung angeben, mit dem das Bild gezeichnet werden soll, was sehr praktisch ist (kein Rumgemurkse mehr mit CopyImage/RotateImage). 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Siehe dazu ''Draw3D, DrawRect3D.bb'' 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_8.html">Draw3D</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_50.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

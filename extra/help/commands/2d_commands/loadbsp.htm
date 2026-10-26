@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LoadBSP 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			bsp% = <b>LoadBSP</b> (datei$ [, gamma#] [, parent%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+datei$
+</td>
+<td>
+Dateiname des Quake3-Modells
+</td>
+</tr>
+<tr>
+<td width="100">
+gamma#
+</td>
+<td>
+Gamma-Wert (0.0 bis 1.0; Standard=0.0)
+</td>
+</tr>
+<tr>
+<td width="100">
+parent%
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des Objekts zurückgeliefert. Falls eine Null zurückgeliefert wird, dann wurde die Datei nicht gefunden. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>LoadBSP</b> lädt ein BSP-Modell und liefert danach die Identität des Modells zurück.<br /><br />BSP-Modelle sind Quake3-Levels. Diese können geladen und wie andere Objekte benutzt werden (strecken, positionieren, drehen).<br /><br />Der Parameter "datei$" ist ein Dateiname zur BSP-Datei.<br /><br />Der Parameter "gamma#" bestimmt die Farben des geladenes Modells. Es sind nur Werte zwischen 0 (dunkel) und 1 (hell) möglich. Später kann man noch <a href="BSPAmbientLight.htm"><b>BSPAmbientLight</b><img src="../../html/images/quicklink.gif" /></a> benutzen - es ist allerdings nicht so schöner Effekt wie Gamma.<br /><br />Wurde der Parameter "parent%" angegeben, dann wird dieses Modell zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br /><br />Dieses Objekt wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Zeigt den Umgang mit BSPLevels und deren Ausleuchtung.<br />
+			<div class="syntax-code">
+				Graphics3D 640, 480<br />campiv = <a href="CreatePivot.htm"><b>CreatePivot</b></a>()<br />cam = <a href="CreateCamera.htm"><b>CreateCamera</b></a>(campiv)<br /><a href="CameraRange.htm"><b>CameraRange</b></a> cam, 0.1, 2000<br />level = <a href="LoadBSP.htm"><b>LoadBSP</b></a>("nyk3dm1\nyk3dm1.bsp", .8)<br /><a href="BSPAmbientLight.htm"><b>BSPAmbientLight</b></a> level, 0, 255, 0<br /><a href="BSPLighting.htm"><b>BSPLighting</b></a> level, <a href="False.htm"><b>False</b></a><br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;mys = <a href="MouseYSpeed.htm"><b>MouseYSpeed</b></a>()<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="Abs.htm"><b>Abs</b></a>(<a href="EntityPitch.htm"><b>EntityPitch</b></a>(cam) + mys)<75 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cam, mys, 0, 0<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> campiv, 0, - <a href="MouseXSpeed.htm"><b>MouseXSpeed</b></a>(), 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="MouseDown.htm"><b>MouseDown</b></a>(1) <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="TFormVector.htm"><b>TFormVector</b></a> 0, 0, 3, cam, campiv<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="MoveEntity.htm"><b>MoveEntity</b></a> campiv, <a href="TFormedX.htm"><b>TFormedX</b></a>(), <a href="TFormedY.htm"><b>TFormedY</b></a>(), <a href="TFormedZ.htm"><b>TFormedZ</b></a>()<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="MoveMouse.htm"><b>MoveMouse</b></a> 320, 240<br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="BSPAmbientLight.htm" title="Stellt Umgebungshelligkeit eines BSP-Modells ein">BSPAmbientLight</a>, <a href="BSPLighting.htm" title="Stellt Belichtungsart eines BSP-Modells ein">BSPLighting</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_62.html">BSP-Maps</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

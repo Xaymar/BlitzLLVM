@@ -1,0 +1,109 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		End Type 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>End Type</b> 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl ist für <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Felder gedacht. Am Anfang der <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Definition steht <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> und am Ende <b>End Type</b>. Dazwischen stehen mehrere <a href="Field.htm"><b>Field</b><img src="../../html/images/quicklink.gif" /></a> Befehle.<br /><br />Ein <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Feld ist ein dynamisches Feld, welches die Einträge automatisch verwaltet. Die Einträge in <a href="Type.htm"><b>Type</b><img src="../../html/images/quicklink.gif" /></a> Feldern kann man nicht sofort ansprechen. Man muss zuerst zum richtigen Eintrag wechseln, und erst dann auslesen oder speichern. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint"><a href="Dim.htm"><b>Dim</b><img src="../../html/images/quicklink.gif" /></a> Felder sind einfacher zu benutzen und sollen bevorzugt angewendet werden.<br />&nbsp;</div><br /> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Hier einige Beispiele wie man mit Types umgehen kann:<br />
+			<div class="syntax-code">
+				; Dies ist ein einfaches Beispiel :<br /><br /><a href="Type.htm"><b>Type</b></a> crafts<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> x<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> y<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> dead<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> graphic<br /><a href="End Type.htm"><b>End Type</b></a><br /><br /><a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> 100<br />&nbsp; &nbsp;alien.crafts = <a href="New.htm"><b>New</b></a> crafts<br />&nbsp; &nbsp;alien\x = <a href="Rnd.htm"><b>Rnd</b></a> (0 ,640)<br />&nbsp; &nbsp;alien\y = <a href="Rnd.htm"><b>Rnd</b></a> (0 ,480)<br />&nbsp; &nbsp;alien\dead = 0<br />&nbsp; &nbsp;alien\graphic = 1<br /><a href="Next.htm"><b>Next</b></a><br /><br />alien.crafts = <a href="First.htm"><b>First</b></a> crafts<br /><a href="Print.htm"><b>Print</b></a> alien\x<br /><a href="Print.htm"><b>Print</b></a> alien\y<br /><a href="Print.htm"><b>Print</b></a> alien\dead<br /><a href="Print.htm"><b>Print</b></a> alien\graphic<br /><br />alien = <a href="After.htm"><b>After</b></a> alien<br /><a href="Print.htm"><b>Print</b></a> alien\x<br /><a href="Print.htm"><b>Print</b></a> alien\y<br /><a href="Print.htm"><b>Print</b></a> alien\dead<br /><a href="Print.htm"><b>Print</b></a> alien\graphic<br /><br />alien.crafts = <a href="Last.htm"><b>Last</b></a> crafts<br /><a href="Print.htm"><b>Print</b></a> alien\x<br /><a href="Print.htm"><b>Print</b></a> alien\y<br /><a href="Print.htm"><b>Print</b></a> alien\dead<br /><a href="Print.htm"><b>Print</b></a> alien\graphic<br /><br />alien = <a href="Before.htm"><b>Before</b></a> alien<br /><a href="Print.htm"><b>Print</b></a> alien\x<br /><a href="Print.htm"><b>Print</b></a> alien\y<br /><a href="Print.htm"><b>Print</b></a> alien\dead<br /><a href="Print.htm"><b>Print</b></a> alien\graphic<br /><br />; Dieser Programm demonstriert Type mit Dim Feld:<br /><br /><a href="Type.htm"><b>Type</b></a> tile<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> image<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> extra<br /><a href="End Type.htm"><b>End Type</b></a><br /><br /><a href="Dim.htm"><b>Dim</b></a> map.tile (100,100)<br />map.tile (1,1) = <a href="New.htm"><b>New</b></a> tile<br />map (1,1)\image = 1<br />map (1,1)\extra = 2<br /><br />; Dieses Programm demonstriert angehängte Types :<br /><br /><a href="Type.htm"><b>Type</b></a> fabrik<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> preis<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> flaeche<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> stromkosten<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> papier.papier<br /><a href="End Type.htm"><b>End Type</b></a><br /><br /><a href="Type.htm"><b>Type</b></a> papier<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> holzverbrauch<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> papiermenge<br /><a href="End Type.htm"><b>End Type</b></a><br /><br /><a href="Local.htm"><b>Local</b></a> fabrik.fabrik<br /><br />fabrik = <a href="New.htm"><b>New</b></a> fabrik<br />fabrik\preis = 1000000<br />fabrik\flaeche = 1000<br />fabrik\stromkosten = 9999<br />fabrik\papier = <a href="New.htm"><b>New</b></a> papier<br />fabrik\papier\holzverbrauch = 1111<br />fabrik\papier\papiermenge = 123<br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="After.htm" title="Wechselt zum nächsten Eintrag eines &quot;Types&quot;">After</a>, <a href="Before.htm" title="Wechselt zum vorherigen Eintrag eines &quot;Types&quot;">Before</a>, <a href="Delete.htm" title="Löscht einen Eintrag aus dem Speicher">Delete</a>, <a href="Dim.htm" title="Diese Anweisung definiert ein &quot;Dim&quot; Feld">Dim</a>, <a href="Each.htm" title="Arbeitet alle Einträge eines &quot;Type&quot; Feldes ab">Each</a>, <a href="New.htm" title="Fügt einen neuen Eintrag zu einer &quot;Type&quot; Kollektion hinzu">New</a>, <a href="Type.htm" title="Definiert ein &quot;Type&quot;">Type</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_39.html">Types & Felder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

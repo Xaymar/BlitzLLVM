@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Animate 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Animate</b> entity% [, modus%] [, geschw%] [, seq%] [, trans#] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+modus%
+</td>
+<td>
+Animationsmodus<br />0=stop<br />1=loop<br />2=ping-pong<br />3=start
+</td>
+</tr>
+<tr>
+<td width="100">
+geschw%
+</td>
+<td>
+Animationsgeschwindigkeit<br />(Standard=1)
+</td>
+</tr>
+<tr>
+<td width="100">
+seq%
+</td>
+<td>
+Nummer der Animationssequenz<br />(Standard=0)
+</td>
+</tr>
+<tr>
+<td width="100">
+trans#
+</td>
+<td>
+Animationsübergang zwischen Sequenzen<br />(Standard=0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>Animate</b> ändert die Animationsart eines Objekts.<br /><br />Dazu muss man die Identität eines Objekts angeben.<br /><br />Danach den "Modus" angeben (0=stoppt die Animation, 1=spielt im Loop, 2=spielt eine Animation hin und her, 3=spielt eine Animation nur 1x ab).<br /><br />Mit dem Parameter "Geschw" kann man die Geschwindigkeit ändern (Standard ist 1). Wird eine negative Nummer angegeben, dann wird die Animation rückwärts abgespielt.<br /><br />Ein Entity, das mit <a href="LoadAnimMesh.htm"><b>LoadAnimMesh</b><img src="../../html/images/quicklink.gif" /></a> geladen wurde, hat zu Beginn nur eine Animationssequenz. Weitere können mit <a href="LoadAnimSeq.htm"><b>LoadAnimSeq</b><img src="../../html/images/quicklink.gif" /></a> oder mit <a href="AddAnimSeq.htm"><b>AddAnimSeq</b><img src="../../html/images/quicklink.gif" /></a> hinzugefügt werden. Die Nummer der Sequenz beginnt mit 0.<br /><br />Mit dem Parameter "Trans" kann man den Animationsübergang einstellen. Wird der Wert 0 übergeben, dann erscheint zwischen den Animationssequenzen ein Animationssprung. Bei einem größeren Wert als 0, wird die Animation "geglättet". 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zeigt die Wirkung verschiedener Animationsbefehle:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, - 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube, 150, 200, 250<br /><br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 0, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, - 2, 0, 2<br /><a href="SetAnimKey.htm"><b>SetAnimKey</b></a> cube, 0<br /><br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 30, 30, 30<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 2, 0, 2<br /><a href="SetAnimKey.htm"><b>SetAnimKey</b></a> cube, 100, 1, 1<br /><br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 180, 60, 60<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, - 2, - 2, 5<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cube, 1, .5, 2<br /><br /><a href="SetAnimKey.htm"><b>SetAnimKey</b></a> cube, 200<br /><a href="AddAnimSeq.htm"><b>AddAnimSeq</b></a> cube, 200<br /><a href="Animate.htm"><b>Animate</b></a> cube, 2<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />   <a href="UpdateWorld.htm"><b>UpdateWorld</b></a><br />   <a href="RenderWorld.htm"><b>RenderWorld</b></a><br />   <a href="Text.htm"><b>Text</b></a> 0, 0, "Animating:" + <a href="Animating.htm"><b>Animating</b></a>(cube)<br />   <a href="Text.htm"><b>Text</b></a> 0, 20, "AnimLength:" + <a href="AnimLength.htm"><b>AnimLength</b></a>(cube)<br />   <a href="Text.htm"><b>Text</b></a> 0, 40, "AnimSeq:" + <a href="AnimSeq.htm"><b>AnimSeq</b></a>(cube)<br />   <a href="Text.htm"><b>Text</b></a> 0, 60, "AnimTime:" + <a href="AnimTime.htm"><b>AnimTime</b></a>(cube)<br />   <a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AnimateMD2.htm" title="Ändert die Animationsart eines MD2-Objekts">AnimateMD2</a>, <a href="AddAnimSeq.htm" title="Fügt eine Animationssequenz an ein Objekt an">AddAnimSeq</a>, <a href="UpdateWorld.htm" title="Aktualisiert Animation und Kollision aller 3D-Objekte">UpdateWorld</a>, <a href="Animating.htm" title="Ermittelt, ob ein 3D-Objekt gerade animiert wird">Animating</a>, <a href="AnimLength.htm" title="Ermittelt aktuelle, relative Animationszeit eines 3D-Objekts">AnimLength</a>, <a href="AnimSeq.htm" title="Ermittelt aktuelle Animationssequenz eines 3D-Objekts">AnimSeq</a>, <a href="AnimTime.htm" title="Ermittelt aktuelle Animationszeit eines 3D-Objekts">AnimTime</a>, <a href="LoadAnimSeq.htm" title="Lädt eine Animationssequenz und fügt es einem 3D-Objekt an">LoadAnimSeq</a>, <a href="SetAnimTime.htm" title="Ändert Animationszeit eines 3D-Objekts">SetAnimTime</a>, <a href="ExtractAnimSeq.htm" title="Extrahiert Animationssequenzen">ExtractAnimSeq</a>, <a href="SetAnimKey.htm" title="Setzt Animationsparameter für ein 3D-Objekt">SetAnimKey</a>, <a href="LoadAnimMesh.htm" title="Lädt ein animiertes Gitterobjekt in den Speicher">LoadAnimMesh</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_57.html">Animation</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

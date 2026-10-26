@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		MidHandle 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>MidHandle</b> Bild 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Bild
+</td>
+<td>
+Identität eines Bildes (zum Beispiel mit <a href="LoadImages.htm"><b>LoadImages</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung zentriert ein Bild, welches z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> geladen wurde. Normalerweise ist der Bezugspunkt einer Grafik immer oben/links. Mit <b>MidHandle</b> wird der Bezugspunkt genau auf die Mitte gesetzt. Wenn man dann ein Bild mit <a href="DrawImage.htm"><b>DrawImage</b><img src="../../html/images/quicklink.gif" /></a> einzeichnet, so wird das Bild dann automatisch einige Pixel nach oben und nach links verschoben - das Bild erscheint mittig zur angegeben Koordinate. Diese Funktion ist für runde Objekte wie Kugel oder Ball sehr praktisch.<br /><img src="../../images/gfx_bezugspunkt.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Diese Programm lädt ein Bild und setzt den Bezugspunkt auf die Mitte:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16<br />Ball = <a href="LoadImage.htm"><b>LoadImage</b></a> ("ball.bmp")<br /><a href="MidHandle.htm"><b>MidHandle</b></a> Ball<br /><a href="DrawImage.htm"><b>DrawImage</b></a> Ball, 200, 200, 0 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AutoMidHandle.htm" title="Diese Anweisung definiert den Grafik-Bezugspunkt">AutoMidHandle</a>, <a href="HandleImage.htm" title="Ändert Bezugspunkt eines Bildes">HandleImage</a>, <a href="ImageXHandle.htm" title="Ermittelt horizontale Verschiebung eines Bildes">ImageXHandle</a>, <a href="ImageYHandle.htm" title="Ermittelt vertikale Verschiebung eines Bildes">ImageYHandle</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

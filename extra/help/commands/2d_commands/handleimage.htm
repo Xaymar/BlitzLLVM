@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		HandleImage 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>HandleImage</b> bild, x, y 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bild
+</td>
+<td>
+Identität eines Bildes (z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+<tr>
+<td width="100">
+x
+</td>
+<td>
+Verschiebung in X-Richtung
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+Verschiebung in Y-Richtung
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl wird dazu verwendet, den Bezugspunkt eines Bildes zu ändern. Normalerweise ist der Bezugspunkt immer oben/links. Benutze auch <a href="AutoMidHandle.htm"><b>AutoMidHandle</b><img src="../../html/images/quicklink.gif" /></a> sowie <a href="MidHandle.htm"><b>MidHandle</b><img src="../../html/images/quicklink.gif" /></a>, um ein Bild (automatisch) zu zentrieren.<br /><br /><div class="caution">Wird ein Animationsbild mit mehreren Frames verwendet, so wird der Bezugspunkt für alle Einzelbilder geändert. Man kann nicht für jedes Einzelbild einen anderen Bezugspunkt wählen!<br />&nbsp;</div><br /><br /><img src="../../images/gfx_bezugspunkt.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm lädt ein Bild und setzt den Bezugspunkt:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16, 1<br />Bild = <a href="LoadImage.htm"><b>LoadImage</b></a>("Bild.bmp")<br /><a href="HandleImage.htm"><b>HandleImage</b></a> Bild, 20, 20<br /><a href="DrawImage.htm"><b>DrawImage</b></a> Bild 0, 0<br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AutoMidHandle.htm" title="Diese Anweisung definiert den Grafik-Bezugspunkt">AutoMidHandle</a>, <a href="ImageXHandle.htm" title="Ermittelt horizontale Verschiebung eines Bildes">ImageXHandle</a>, <a href="ImageYHandle.htm" title="Ermittelt vertikale Verschiebung eines Bildes">ImageYHandle</a>, <a href="MidHandle.htm" title="Setzt den Bezugspunkt eines Bildes auf die Mitte">MidHandle</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

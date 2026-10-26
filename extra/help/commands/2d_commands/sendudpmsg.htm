@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SendUDPMsg 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SendUDPMsg</b> Stream, IP [,Port] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Stream
+</td>
+<td>
+Identität eines UDP-Streams (ermittelt mit <a href="CreateUDPStream.htm"><b>CreateUDPStream</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+<tr>
+<td width="100">
+Ip
+</td>
+<td>
+Ziel-Adresse als Integer-IP
+</td>
+</tr>
+<tr>
+<td width="100">
+Port
+</td>
+<td>
+Ziel-Port (optional). Wenn nichts angegeben wird, dann wird automatisch die Port-Nummer benutzt die mit <a href="CreateUDPStream.htm"><b>CreateUDPStream</b><img src="../../html/images/quicklink.gif" /></a> definiert wurde.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann eine Nachricht an eine IP-Adresse (und Port-Adresse) als UDP-Protokoll gesendet werden. Bevor man es benutzen kann, muss man allerdings noch <a href="CreateUDPStream.htm"><b>CreateUDPStream</b><img src="../../html/images/quicklink.gif" /></a> ausführen. Eine Nachricht kann mit normalen Write-Befehlen geschrieben werden. Erst danach kann eine Nachricht mit <a href="SendUDPMsg.htm"><b>SendUDPMsg</b><img src="../../html/images/quicklink.gif" /></a> gesendet werden. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Eine UDP-Beispiel Situation<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 800, 600<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />Inp_Port = 4000<br />Out_Port = 4001<br />ip_count = <a href="CountHostIPs.htm"><b>CountHostIPs</b></a>(<a href="GetEnv.htm"><b>GetEnv</b></a>("localhost"))<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Sample UDP Communications"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 10, "LOCAL IP:"<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> ip_count<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, <a href="DottedIP.htm"><b>DottedIP</b></a>(<a href="HostIP.htm"><b>HostIP</b></a>(1))<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 30, "Enter Destination IP#: xxx.xxx.xxx.xxx"<br />&nbsp; &nbsp;Dest_IP$ = NewInput$(Dest_IP$)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, ">" + Dest_IP$ + "|"<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a>   <br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br /><a href="Until.htm"><b>Until</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(28)<br /><br />IP = INT_IP(Dest_IP$)<br />udp_rd = <a href="CreateUDPStream.htm"><b>CreateUDPStream</b></a>(Inp_Port)<br />udp_wr = <a href="CreateUDPStream.htm"><b>CreateUDPStream</b></a>(Out_Port)<br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "Starting Chat... Press ESC to quit"<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;byte1 = <a href="GetKey.htm"><b>GetKey</b></a>()<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> byte1>0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Byte1 = 13 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="WriteByte.htm"><b>WriteByte</b></a>(udp_wr, byte1)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SendUDPMsg.htm"><b>SendUDPMsg</b></a> udp_wr, IP, Inp_Port<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;drawedSendText$ = drawedSendText$ + <a href="Chr.htm"><b>Chr</b></a>(Byte1)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="WriteByte.htm"><b>WriteByte</b></a>(udp_wr, byte1)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SendUDPMsg.htm"><b>SendUDPMsg</b></a> udp_wr, IP, Inp_Port<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><br />&nbsp; &nbsp;IP_rd = <a href="RecvUDPMsg.htm"><b>RecvUDPMsg</b></a>(udp_rd)<br /><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> IP_rd <> 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;Buflen = <a href="ReadAvail.htm"><b>ReadAvail</b></a>(udp_rd)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Buflen> 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;byte1 = <a href="ReadByte.htm"><b>ReadByte</b></a>(udp_rd)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> byte1 <> 13 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;drawedRecText$ = drawedRecText$ + <a href="Chr.htm"><b>Chr</b></a>$(byte1)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 50, drawedSendText$<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 60, drawedRecText$<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br /><a href="Until.htm"><b>Until</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1) <br /><br /><br /><a href="CloseUDPStream.htm"><b>CloseUDPStream</b></a> udp_wr<br /><a href="CloseUDPStream.htm"><b>CloseUDPStream</b></a> udp_rd<br /><a href="End.htm"><b>End</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> INT_IP(IP$)<br />&nbsp; &nbsp;a1 = <a href="Int.htm"><b>Int</b></a>(<a href="Left.htm"><b>Left</b></a>(IP$, <a href="Instr.htm"><b>Instr</b></a>(IP$, ".") - 1)) : IP$ = <a href="Right.htm"><b>Right</b></a>(IP$, <a href="Len.htm"><b>Len</b></a>(IP$) - <a href="Instr.htm"><b>Instr</b></a>(IP$, "."))<br />&nbsp; &nbsp;a2 = <a href="Int.htm"><b>Int</b></a>(<a href="Left.htm"><b>Left</b></a>(IP$, <a href="Instr.htm"><b>Instr</b></a>(IP$, ".") - 1)) : IP$ = <a href="Right.htm"><b>Right</b></a>(IP$, <a href="Len.htm"><b>Len</b></a>(IP$) - <a href="Instr.htm"><b>Instr</b></a>(IP$, "."))<br />&nbsp; &nbsp;a3 = <a href="Int.htm"><b>Int</b></a>(<a href="Left.htm"><b>Left</b></a>(IP$, <a href="Instr.htm"><b>Instr</b></a>(IP$, ".") - 1)) : IP$ = <a href="Right.htm"><b>Right</b></a>(IP$, <a href="Len.htm"><b>Len</b></a>(IP$) - <a href="Instr.htm"><b>Instr</b></a>(IP$, "."))<br />&nbsp; &nbsp;a4 = <a href="Int.htm"><b>Int</b></a>(IP$)<br />&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> (a1 <a href="Shl.htm"><b>Shl</b></a> 24) + (a2 <a href="Shl.htm"><b>Shl</b></a> 16) + (a3 <a href="Shl.htm"><b>Shl</b></a> 8 ) + a4<br /><a href="End Function.htm"><b>End Function</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> NewInput$(currentText$)<br />&nbsp; &nbsp;localChar = <a href="GetKey.htm"><b>GetKey</b></a>()<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> (localChar > 0) <a href="And.htm"><b>And</b></a> (localChar <> 8 ) <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;currentText$ = currentText$ +  <a href="Chr.htm"><b>Chr</b></a>$(localChar)<br />&nbsp; &nbsp;<a href="ElseIf.htm"><b>ElseIf</b></a> localChar = 8 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;length = <a href="Len.htm"><b>Len</b></a>(currentText)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> length > 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;currentText = <a href="Left.htm"><b>Left</b></a>(currentText, length - 1)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> currentText$<br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateUDPStream.htm" title="Erstellt eine UDP-Netzwerkverbindung">CreateUDPStream</a>, <a href="RecvUDPMsg.htm" title="Empfängt UDP-Nachrichten bzw deren IP">RecvUDPMsg</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_3.html">UDP</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

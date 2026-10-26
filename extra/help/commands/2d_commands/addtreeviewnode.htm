@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		AddTreeViewNode 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			zweig = <b>AddTreeViewNode</b> (text$, zweig [,icon]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+text
+</td>
+<td>
+Textbezeichnung des Zweiges
+</td>
+</tr>
+<tr>
+<td width="100">
+zweig
+</td>
+<td>
+Identität eines Zweiges, zu dem es hinzugefügt werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+icon
+</td>
+<td>
+Iconnummer (ab v1.39 verfügbar!)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des neuen Zweiges zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>AddTreeViewNode</b> fügt einen neuen Zweig in ein Treeview-Objekt ein. Dazu ist nur eine Bezeichnung notwendig.<br />Zusätzlich wird noch die Identität eines Zweiges benötigt, zu dem dieser neue Zweig hinzugefügt werden soll. Eine leere Liste hat jedoch noch keine Einträge - darum kann mit <a href="TreeViewRoot.htm"><b>TreeViewRoot</b><img src="../../html/images/quicklink.gif" /></a> ein imaginärer Zweig ermittelt werden. Mit <a href="InsertTreeViewNode.htm"><b>InsertTreeViewNode</b><img src="../../html/images/quicklink.gif" /></a> kann ein neuer Zweig an eine bestimmte Position eingefügt werden.<br /><br /><img src="../../images/gfx_treeview.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 50, 50, 300, 300, 0)<br />treeview = <a href="CreateTreeView.htm"><b>CreateTreeView</b></a>(10, 10, 270, 200, window)<br />node1 = <a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Posteingang", <a href="TreeViewRoot.htm"><b>TreeViewRoot</b></a>(treeview))<br />node2 = <a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Postausgang", <a href="TreeViewRoot.htm"><b>TreeViewRoot</b></a>(treeview))<br />node3 = <a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Papierkorb", <a href="TreeViewRoot.htm"><b>TreeViewRoot</b></a>(treeview))<br /><br /><a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Du hast Post!", node1)<br /><a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Test", node2)<br /><a href="AddTreeViewNode.htm"><b>AddTreeViewNode</b></a>("Müll", node3)<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GetKey.htm"><b>GetKey</b></a>() = 27 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>() = $803 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="TreeViewRoot.htm" title="TreeViewRoot ermittelt die Identität eines Root-Zweiges aus einem Treeview-Objekt">TreeViewRoot</a>, <a href="CollapseTreeViewNode.htm" title="CollapseTreeViewNode klappt einen Zweig von Treelist-Objekt ein">CollapseTreeViewNode</a>, <a href="CountTreeViewNodes.htm" title="Ermittelt die Anzahl der Einträge, die in einem Treeview-Zweig enthalten sind.">CountTreeViewNodes</a>, <a href="CreateTreeView.htm" title="Die Funktion CreateTreeView erstellt ein Treelist-Objekt">CreateTreeView</a>, <a href="ExpandTreeViewNode.htm" title="ExpandTreeViewNode klappt einen Zweig von Treelist-Objekt auf">ExpandTreeViewNode</a>, <a href="FreeTreeViewNode.htm" title="FreeTreeViewNode löscht einen Zweig aus einem Treeview-Objekt">FreeTreeViewNode</a>, <a href="InsertTreeViewNode.htm" title="InsertTreeViewNode fügt einen Eintrag an beliebige Position in ein Treeview-Objekt ein">InsertTreeViewNode</a>, <a href="SelectedTreeViewNode.htm" title="SelectedTreeViewNode ermittelt ausgewählten Zweig eines Treeview-Objekts">SelectedTreeViewNode</a>, <a href="SelectTreeViewNode.htm" title="SelectTreeViewNode wählt einen Zweig in Treeview-Objekt aus">SelectTreeViewNode</a>, <a href="ModifyTreeViewNode.htm" title="ModifyTreeViewNode ändert die Bezeichnung eines Treeview-Zweiges">ModifyTreeViewNode</a>, <a href="TreeViewNodeText.htm" title="Liefert die Bezeichnung eines TreeView-Zweiges">TreeViewNodeText</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_46.html">Treeview</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

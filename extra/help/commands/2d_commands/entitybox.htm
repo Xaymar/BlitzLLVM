@@ -1,0 +1,158 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EntityBox 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>EntityBox</b> entity%, x#, y#, z#, breite#, hoehe#, tiefe# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+x#
+</td>
+<td>
+X-Koordinate der Kollisionbox
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Y-Koordinate der Kollisionbox
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Z-Koordinate der Kollisionbox
+</td>
+</tr>
+<tr>
+<td width="100">
+breite#
+</td>
+<td>
+Breite der Kollisionbox
+</td>
+</tr>
+<tr>
+<td width="100">
+hoehe#
+</td>
+<td>
+Höhe der Kollisionbox
+</td>
+</tr>
+<tr>
+<td width="100">
+tiefe#
+</td>
+<td>
+Tiefe der Kollisionbox
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>EntityBox</b> definiert eine quaderförmige Kollisionsfläche für ein Objekt.<br /><br />In BlitzBasic gibt es zwei definierbare Kollisionsflächen: Quader (<b>EntityBox</b>) und Kugel (<a href="EntityRadius.htm"><b>EntityRadius</b><img src="../../html/images/quicklink.gif" /></a>). Hat man die Kollisionsfläche gewählt, dann kann man noch zusätzlich mit dem Befehl <a href="EntityType.htm"><b>EntityType</b><img src="../../html/images/quicklink.gif" /></a> den Kollisionstyp einstellen. Mit dem Befehl <a href="Collisions.htm"><b>Collisions</b><img src="../../html/images/quicklink.gif" /></a> wird die Kollisionsprüfung aktiviert. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, 45, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 15, - 10<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 45, 0, 0<br /><br />sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(32)<br /><a href="EntityType.htm"><b>EntityType</b></a> sphere, 1<br /><a href="EntityRadius.htm"><b>EntityRadius</b></a> sphere, 1<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sphere, 0, 15, 0<br /><br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityBox.htm"><b>EntityBox</b></a> cube, - 10, - 10, - 10, 20, 20, 20<br /><a href="EntityType.htm"><b>EntityType</b></a> cube, 2<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube, 0, 100, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, - 5, 0<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cube, 10, 10, 10<br /><br />box = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityBox.htm"><b>EntityBox</b></a> box, - 3, - 3, - 3, 6, 6, 6<br /><a href="EntityType.htm"><b>EntityType</b></a> box, 2<br /><a href="EntityColor.htm"><b>EntityColor</b></a> box, 255, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> box, 0, 7, 0<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> box, 2, 2, 2<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;x# = 0<br />&nbsp; &nbsp;y# = 0<br />&nbsp; &nbsp;z# = 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> x# = - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> x# = 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> z# = - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> z# = 0.1<br />&nbsp; &nbsp;<a href="MoveEntity.htm"><b>MoveEntity</b></a> sphere, x#, - 0.1, z#<br />&nbsp; &nbsp;<a href="Collisions.htm"><b>Collisions</b></a> 1, 2, 3, 2<br />&nbsp; &nbsp;<a href="UpdateWorld.htm"><b>UpdateWorld</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Collisions.htm" title="Aktiviert Kollision zwischen zwei Objekttypen">Collisions</a>, <a href="EntityRadius.htm" title="Definiert einen kugelförmigen Kollisionsbereich für ein 3D-Objekt">EntityRadius</a>, <a href="EntityType.htm" title="Stellt Kollisionstyp eines 3D-Objekts ein">EntityType</a>, <a href="EntityPickMode.htm" title="Stellt die Auswahlart für ein 3D-Objekt ein">EntityPickMode</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_67.html">Kollision</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

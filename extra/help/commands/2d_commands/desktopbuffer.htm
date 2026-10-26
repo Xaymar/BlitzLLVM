@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		DesktopBuffer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			buffer = <b>DesktopBuffer</b> () 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Liefert die Identität des Grafikbuffers "Desktop" zurück 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>DesktopBuffer</b> liefert die Identität des Grafikbuffers "Desktop" zurück. Die Grafik kann somit direkt auf den <a href="Desktop.htm"><b>Desktop</b><img src="../../html/images/quicklink.gif" /></a> eingezeichnet werden.<br /><br />Der ermittelte Wert kann mit vielen weiteren Befehlen verwendet werden. Wird es z.B. mit <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a> verwendet, so wird die Grafikausgabe auf diesen Buffer umgeleitet.<br /><br /><div class="caution">Dieser Befehl funktioniert nur mit dem DirectDraw-Treiber, der auch standardmäßig eingestellt ist. Sollte mit <a href="SetGfxDriver.htm"><b>SetGfxDriver</b><img src="../../html/images/quicklink.gif" /></a> ein anderer (Native/OpenGL) aktiviert werden, stürtzt das Programm beim Aufruf dieser Funktion ab.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>( "Window", <a href="ClientWidth.htm"><b>ClientWidth</b></a>(<a href="Desktop.htm"><b>Desktop</b></a>()) / 2 - 96, <a href="ClientHeight.htm"><b>ClientHeight</b></a>(<a href="Desktop.htm"><b>Desktop</b></a>()) / 2 - 96, 192, 192 )<br /><br />width = <a href="ClientWidth.htm"><b>ClientWidth</b></a>(window)<br />height = <a href="ClientHeight.htm"><b>ClientHeight</b></a>(window)<br /><br />canvas = <a href="CreateCanvas.htm"><b>CreateCanvas</b></a>( 0, 0, width, height, window )<br /><a href="SetGadgetLayout.htm"><b>SetGadgetLayout</b></a> canvas, 1, 1, 1, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="CanvasBuffer.htm"><b>CanvasBuffer</b></a>(canvas)<br /><br /><a href="While.htm"><b>While</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>(10)<>$803<br />&nbsp; &nbsp;mx = <a href="MouseX.htm"><b>MouseX</b></a>() - width / 2<br />&nbsp; &nbsp;my = <a href="MouseY.htm"><b>MouseY</b></a>() - height / 2<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="CopyRect.htm"><b>CopyRect</b></a> mx, my, width, height, 0, 0, <a href="DesktopBuffer.htm"><b>DesktopBuffer</b></a>()<br />&nbsp; &nbsp;<a href="FlipCanvas.htm"><b>FlipCanvas</b></a> canvas<br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Desktop.htm" title="liefert die Identität des Desktops zurück">Desktop</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_24.html">Desktop</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

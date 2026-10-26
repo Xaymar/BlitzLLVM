@@ -1,0 +1,109 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GetMouse 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			maustaste = <b>GetMouse</b>() 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Die Nummer der Maustaste, die gedrückt wurde, oder 0, falls keine Taste gedrückt wurde. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion überprüft, ob eine Maustaste gedrückt wurde. Es wird dann die Nummer der Maustaste zurückgegeben. Wenn 0 zurückgegeben wird, wurde keine Taste gedrückt.<br />Diese Funktion hat den Vorteil gegenüber <a href="MouseHit.htm"><b>MouseHit</b><img src="../../html/images/quicklink.gif" /></a>, dass es alle drei Tasten abfragen kann.<br /><div class="caution">GetMouse gibt nur die Betätigung der Maustaste zurück. Muss überprüft werden, ob eine Maustaste länger gedrückt wird, muss man <a href="MouseDown.htm"><b>MouseDown</b><img src="../../html/images/quicklink.gif" /></a> benutzen.<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Das Scrollrad wird als dritte Taste interpretiert. Mit den Funktionen <a href="MouseZ.htm"><b>MouseZ</b><img src="../../html/images/quicklink.gif" /></a> und <a href="MouseZSpeed.htm"><b>MouseZSpeed</b><img src="../../html/images/quicklink.gif" /></a> kann man herausfinden, ob und wie das Scrollrad gedreht wurde.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Gibt wieder, mit welcher Maustaste die Schleife beendet wurde:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 32, 2<br /><br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br /><a href="Local.htm"><b>Local</b></a> maustaste<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;maustaste = <a href="GetMouse.htm"><b>GetMouse</b></a>()<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> maustaste <> 0 <a href="Then.htm"><b>Then</b></a> <a href="Exit.htm"><b>Exit</b></a><br />&nbsp; &nbsp;<br /><a href="Forever.htm"><b>Forever</b></a><br /><br /><a href="Text.htm"><b>Text</b></a> 10, 10, "Die Maustaste " + maustaste + " wurde gedrückt!"<br /><a href="Flip.htm"><b>Flip</b></a><br /><br /><a href="WaitMouse.htm"><b>WaitMouse</b></a><br /><br /><a href="EndGraphics.htm"><b>EndGraphics</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FlushMouse.htm" title="Löscht alle Mausklicks aus dem internen Puffer">FlushMouse</a>, <a href="MouseDown.htm" title="Überprüft ob eine Maustaste gedrückt wird">MouseDown</a>, <a href="MouseHit.htm" title="Gibt die Anzahl der Tastenbetätigungen zurück">MouseHit</a>, <a href="MouseWait.htm" title="Stoppt das ganze Programm, bis eine Maustaste gedrückt wird">MouseWait</a>, <a href="WaitMouse.htm" title="Stoppt das ganze Programm, bis eine Maustaste gedrückt wird">WaitMouse</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_4.html">Eingabe</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_32.html">Maus</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

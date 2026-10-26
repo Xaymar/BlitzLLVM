@@ -1,0 +1,128 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TerrainX 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			X# = <b>TerrainX</b># (Terrain, X#, Y#, Z#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Terrain
+</td>
+<td>
+Identität eines Terrains
+</td>
+</tr>
+<tr>
+<td width="100">
+X#
+</td>
+<td>
+Globale Weltkoordinate X
+</td>
+</tr>
+<tr>
+<td width="100">
+Y#
+</td>
+<td>
+Globale Weltkoordinate Y
+</td>
+</tr>
+<tr>
+<td width="100">
+Z#
+</td>
+<td>
+Globale Weltkoordinate Z
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die interpolierte X-Koordinate des Terrains zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>TerrainX</b> liefert die interpolierte X-Koordinate auf einem Terrain. Dies ist meistens nur dann sinnvoll, wenn das Terrain gedreht ist. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm zeigt, dass Unterschiede zwischen EntityXYZ und TerrainXYZ bestehen:<br />
+			<div class="syntax-code">
+				Dieses Programm erstellt ein Terrain. Mit einigen Tasten kann man sich über das Terrain bewegen und einige Effekte ausprobieren:<br /><br /><a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera  =  <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 1, 1, 1<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />terrain = <a href="LoadTerrain.htm"><b>LoadTerrain</b></a>("media\001.bmp")<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> terrain, 1, 50, 1<br />grass_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media\002.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> terrain, grass_tex, 0, 1<br />terra_detail = 4000<br />vertex_morph = <a href="True.htm"><b>True</b></a><br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(57) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> vertex_morph = 1 - vertex_morph<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(28) <a href="Then.htm"><b>Then</b></a> terra_shad = 1 - terra_shad<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(2) <a href="Then.htm"><b>Then</b></a> terra_detail = terra_detail - 10<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(3) <a href="Then.htm"><b>Then</b></a> terra_detail = terra_detail + 10<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) =<a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> x# = x# - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> x# = x# + 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> y# = y# - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> y# = y# + 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> z# = z# - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(30) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> z# = z# + 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0,  - 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0,  - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, 0.1<br />&nbsp; &nbsp;<a href="TerrainDetail.htm"><b>TerrainDetail</b></a> terrain, terra_detail, vertex_morph<br />&nbsp; &nbsp;<a href="TerrainShading.htm"><b>TerrainShading</b></a> terrain, terra_shad<br />&nbsp; &nbsp;x# = <a href="EntityX.htm"><b>EntityX</b></a>(camera)<br />&nbsp; &nbsp;y# = <a href="EntityY.htm"><b>EntityY</b></a>(camera)<br />&nbsp; &nbsp;z# = <a href="EntityZ.htm"><b>EntityZ</b></a>(camera)<br />&nbsp; &nbsp;terra_y# = <a href="TerrainY.htm"><b>TerrainY</b></a>(terrain, x#, y#, z#) + 5<br />&nbsp; &nbsp;<a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, x#, terra_y#, z#<br />&nbsp; &nbsp;x# = <a href="EntityX.htm"><b>EntityX</b></a>(camera)<br />&nbsp; &nbsp;y# = <a href="EntityY.htm"><b>EntityY</b></a>(camera)<br />&nbsp; &nbsp;z# = <a href="EntityZ.htm"><b>EntityZ</b></a>(camera)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Cursortasten"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "X:" + x#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 60, "Y:" + y#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 80, "Z:" + z#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 150, 40, "TERRAINX:" + <a href="TerrainX.htm"><b>TerrainX</b></a>(terrain, x#, y#, z#)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 150, 60, "TERRAINY:" + <a href="TerrainY.htm"><b>TerrainY</b></a>(terrain, x#, y#, z#)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 150, 80, "TERRAINZ:" + <a href="TerrainZ.htm"><b>TerrainZ</b></a>(terrain, x#, y#, z#)<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_76.html">Terrain</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

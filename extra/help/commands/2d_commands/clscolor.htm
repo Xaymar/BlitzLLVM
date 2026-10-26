@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ClsColor 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ClsColor</b> red, green, blue 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+red, green, blue
+</td>
+<td>
+ Gibt die Farbintensitäten der jeweiligen Farben an. Es sind nur Werte zwischen 0 und 255 möglich.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung setzt die Füllfarbe für <a href="Cls.htm"><b>Cls</b><img src="../../html/images/quicklink.gif" /></a>-Anweisung. Mit dem Befehl können beliebige Farben zusammengemischt werden. Tipp: verwende Mischwerkzeug aus Paintbrush-Programm, um eine Farbe zu bestimmen.<br /><div class="hint">Ein RGB-Wert, das als Integer gespeichert wird, muss immer umgewandelt werden. Dies kostet viel Rechenzeit. Mit einem Trick kann man es dennoch übergeben: Lass die ersten zwei Parameter frei und übergebe mit dem Parameter "Blau" den Farbwert. Auch ein HEX-Wert kann somit schnell übergeben werden (z.B. <a href="Color.htm"><b>Color</b><img src="../../html/images/quicklink.gif" /></a> 0,0,$FFFFFF).<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Die Farbe auf allen Bildschirmen wird aus den drei Grundfarben des additiven Farbmodells zusammengemischt - rot, grün und blau. Es können somit zwar nicht alle sichtbaren Farben abgedeckt werden, dennoch sind es sehr viele. Je größer der Lichtanteil einer Farbe, desto heller wird das Licht. Werden z.B. alle drei Grundfarben zusammengemischt, so entsteht weißes Licht.<br /><img src="../../images/gfx_rgbfarben.gif" /><br /><br /><div class="caution">Bei einem 16-Bit Grafikmodus können nicht alle Farben dargestellt werden. Dadurch können Farbsprünge entstehen und eine leicht verfälschte Farbe ermittelt werden. Benutze eine höhere Farbtiefe, um dies zu verhindern.<br />&nbsp;</div><br /><br /><div class="hint"><b>Wie 16 Bit-Farben intern verwaltet werden:</b><br />Die Bits 0-4 (5x) speichern den Blauanteil.<br />Die Bits 5-10 (6x) speichern den Grünanteil.<br />Die Bits 11-15 (5x) speichern den Rotanteil.<br />Logischerweise können Blau- und Rotanteile nur 32 verschiedene Abstufungen von 0 bis 248 im Abstand von 8 aufweisen. Grünanteile können dagegen 64 verschiedene Abstufungen von 0 bis 254 im Abstand von 4 aufweisen. Dies kann man für bessere Farben ausnutzen: wähle eine Farbe, die auch im 16 Bit-Modus korrekt dargestellt wird z.B. statt der Farbe 255,255,255 besser 248,248,248 nehmen.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Dieses Programm löscht den Bildschirm mit blauer Farbe:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480<br /><a href="ClsColor.htm"><b>ClsColor</b></a> 0, 0, 255<br /><a href="Cls.htm"><b>Cls</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Color.htm" title="Setzt die Farbe für die Grafikbefehle">Color</a>, <a href="Cls.htm" title="Löscht den Bufferinhalt">Cls</a>, <a href="ColorBlue.htm" title="Ermittelt den Blau-Anteil der aktuellen Zeichenfarbe.">ColorBlue</a>, <a href="ColorGreen.htm" title="Ermittelt den Grün-Anteil der aktuellen Zeichenfarbe.">ColorGreen</a>, <a href="ColorRed.htm" title="Ermittelt den Rot-Anteil der aktuellen Zeichenfarbe.">ColorRed</a>, <a href="GetColor.htm" title="Ändert die aktuelle Zeichenfarbe in die Farbe eines Pixels auf dem Bildschirm">GetColor</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		TriangleVertex 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			vertex% = <b>TriangleVertex</b> (surface%, dreieck%, eckpunkt%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+surface%
+</td>
+<td>
+Identität einer Gitteroberfläche (surface)
+</td>
+</tr>
+<tr>
+<td width="100">
+dreieck%
+</td>
+<td>
+Indexnummer eines Dreiecks
+</td>
+</tr>
+<tr>
+<td width="100">
+eckpunkt%
+</td>
+<td>
+Nummer eines Dreieckpunktes (0-2)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Indexnummer des Vertexpunktes wird zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>TriangleVertex</b> ermittelt die Indexnummer eines Vertexpunktes. Dazu sind folgende Angaben notwendig: Identität der Gitteroberfläche (surface%), Nummer des Dreiecks und Nummer des Dreieckpunktes (0-2). BlitzBasic sucht danach den Vertexpunkt und liefert die Indexnummer zurück. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, 0<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 10<br /><a href="EntityPickMode.htm"><b>EntityPickMode</b></a> cube, 2<br /><a href="EntityFX.htm"><b>EntityFX</b></a> cube, 2 + 4<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="LightMesh.htm"><b>LightMesh</b></a> cube, 255, 255, 255<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, 1, 1, 1<br />&nbsp; &nbsp;mx = <a href="MouseX.htm"><b>MouseX</b></a>()<br />&nbsp; &nbsp;my = <a href="MouseY.htm"><b>MouseY</b></a>()<br />&nbsp; &nbsp;entity = <a href="CameraPick.htm"><b>CameraPick</b></a>(camera, mx, my)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> entity>0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;surface = <a href="PickedSurface.htm"><b>PickedSurface</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;triangle = <a href="PickedTriangle.htm"><b>PickedTriangle</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;v0 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(surface, triangle, 0)<br />&nbsp; &nbsp;&nbsp; &nbsp;v1 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(surface, triangle, 1)<br />&nbsp; &nbsp;&nbsp; &nbsp;v2 = <a href="TriangleVertex.htm"><b>TriangleVertex</b></a>(surface, triangle, 2)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="VertexColor.htm"><b>VertexColor</b></a> surface, v0, 255, 0, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="VertexColor.htm"><b>VertexColor</b></a> surface, v1, 255, 0, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="VertexColor.htm"><b>VertexColor</b></a> surface, v2, 255, 0, 0<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AddVertex.htm" title="Fügt ein Vertex einer Oberfläche hinzu">AddVertex</a>, <a href="GetSurface.htm" title="Ermittelt die Identität einer Oberfläche">GetSurface</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

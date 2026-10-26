@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		DeleteNetPlayer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>DeleteNetPlayer</b> Spieler 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Spieler
+</td>
+<td>
+Identität eines Teilnehmers
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Entfernt einen Spieler aus dem Netzwerk, der vorher mit <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b><img src="../../html/images/quicklink.gif" /></a> eingebunden wurde. Dazu muss man die Identität des Spielers angeben, die von dem Spieler mit <a href="NetMsgFrom.htm"><b>NetMsgFrom</b><img src="../../html/images/quicklink.gif" /></a> empfangen wurde. Außerdem wird eine Nachricht an alle angeschlossene Systeme gesendet (siehe <a href="NetMsgType.htm"><b>NetMsgType</b><img src="../../html/images/quicklink.gif" /></a>). 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Dieses Programm demonstriert eine Netzwerkanmeldung:<br /><br />NewGame  =  <a href="StartNetGame.htm"><b>StartNetGame</b></a>()<br /><a href="If.htm"><b>If</b></a> NewGame  =  0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Konnte kein Netzwerkspiel starten"<br />&nbsp; &nbsp;<a href="End.htm"><b>End</b></a><br /><a href="ElseIf.htm"><b>ElseIf</b></a> NewGame = 1<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Netzwerk-Verbindung gelungen"<br /><a href="ElseIf.htm"><b>ElseIf</b></a> NewGame = 2<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Netzwerkspiel erfolgreich gestartet"<br /><a href="EndIf.htm"><b>EndIf</b></a><br /><br />Name$ = "Player" + <a href="Rand.htm"><b>Rand</b></a>(100)<br />PlayerID = <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b></a>(Name$)<br /><a href="If.htm"><b>If</b></a> PlayerID = 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Spieler konnte nicht erstellt werden"<br /><a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Player " + Name$ + " hat folgende ID-Nr:" + PlayerID<br /><a href="End If.htm"><b>End If</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a>() 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateNetPlayer.htm" title="Erstellt einen neuen Teilnehmer in einem Netzwerk-Spiel">CreateNetPlayer</a>, <a href="NetMsgFrom.htm" title="Liefert die ID des Teilnehmers, der die Nachricht abgeschickt hat.">NetMsgFrom</a>, <a href="NetMsgType.htm" title="Liefert den Code einer gesendeten Nachricht">NetMsgType</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_18.html">DirectPlay</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

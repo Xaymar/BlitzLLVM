@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SetCubeFace 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SetCubeFace</b> textur%, seite% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+textur%
+</td>
+<td>
+Textur-Identität
+</td>
+</tr>
+<tr>
+<td width="100">
+seite%
+</td>
+<td>
+0=links (neg x)<br />1=vorne (pos z)<br />2=rechts (pos x)<br />3=hinten (neg z)<br />4=oben (pos y)<br />5=unten (neg y)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion wird benutzt, um direkt in Cubemap zu zeichnen (für Echtzeitreflexionen). Ansonsten kann eine vorbearbeitete, statische Textur mit <a href="LoadTexture.htm"><b>LoadTexture</b><img src="../../html/images/quicklink.gif" /></a> und Flag 128 geladen werden.<br /><br />Funktionsweise: Cubemap besteht in BlitzBasic aus 6 Bildern - für jede Würfelseite ein Bild. Die Größe muss 32,64,128 usw. sein. Diese Grafiken werden von BlitzBasic automatisch verwaltet - mit einem Unterschied zu normalen Texturen: Man hat immer nur Zugriff auf eine Würfelseite. Mit diesem Befehl kann man ganz einfach die Würfelseite auswählen. Nur auf diese Seite wirkt sich Grafikänderung aus.<br /><br />Textur, die mit <a href="LoadTexture.htm"><b>LoadTexture</b><img src="../../html/images/quicklink.gif" /></a> geladen wird, muss 6 horizontal angeordnete Bilder enthalten - die dann autom. zu den Seiten 0-5 zugewiesen werden.<br /><br />So kannst du Echtzeitspiegelung machen: Render 6 3D-Grafiken und kopiere diese jeweils auf eine Würfelseite. Dies ist jedoch etwas langsam - deaktiviere darum Mip-Mapping oder rendere 1 Würfelseite pro Frame. Zusätzlich kann Texture-Flag 256 eingeschaltet werden.<br /><br /><div class="caution">Während ein Buffer gesperrt ist, darf dieser Befehl nicht ausgeführt werden!<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				width = 640<br />height = 480<br />depth = 0<br />mode = 0<br /><br /><a href="Graphics3D.htm"><b>Graphics3D</b></a> width, height, depth, mode<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br /><a href="If.htm"><b>If</b></a> <a href="GfxDriverCaps3D.htm"><b>GfxDriverCaps3D</b></a>()<110 <a href="Then.htm"><b>Then</b></a> <a href="RuntimeError.htm"><b>RuntimeError</b></a> "Sorry, your GRAPHICS card does NOT support cubic environemnt maps."<br /><br />cam = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cam, 0, 10, - 10<br /><br />cube_cam = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />teapot = <a href="LoadMesh.htm"><b>LoadMesh</b></a>("media/teapot.x")<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> teapot, 3, 3, 3<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> teapot, 0, 10, 0<br /><br />ground = <a href="CreatePlane.htm"><b>CreatePlane</b></a>()<br /><a href="EntityColor.htm"><b>EntityColor</b></a> ground, 168, 133, 55<br />ground_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/sand.bmp")<br /><a href="ScaleTexture.htm"><b>ScaleTexture</b></a> ground_tex, 10, 10<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> ground, ground_tex<br /><br />sky = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(24)<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> sky, 500, 500, 500<br /><a href="FlipMesh.htm"><b>FlipMesh</b></a> sky<br /><a href="EntityFX.htm"><b>EntityFX</b></a> sky, 1<br />sky_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/sky.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> sky, sky_tex<br /><br />cactus = <a href="LoadMesh.htm"><b>LoadMesh</b></a>("media/cactus2.x")<br /><a href="FitMesh.htm"><b>FitMesh</b></a> cactus, - 5, 0, - 5, 2, 6, .5<br /><br />camel = <a href="LoadMesh.htm"><b>LoadMesh</b></a>("media/camel.x")<br /><a href="FitMesh.htm"><b>FitMesh</b></a> camel, 5, 0, - 5, 6, 5, 4<br /><br />ufo_piv = <a href="CreatePivot.htm"><b>CreatePivot</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> ufo_piv, 0, 15, 0<br />ufo = <a href="LoadMesh.htm"><b>LoadMesh</b></a>("media/green_ufo.x", ufo_piv)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> ufo, 0, 0, 10<br /><br />tex = <a href="CreateTexture.htm"><b>CreateTexture</b></a>(256, 256, 1 + 128 + 256)<br /><br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> teapot, tex<br /><br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;mxs# = mxs# + (<a href="MouseXSpeed.htm"><b>MouseXSpeed</b></a>() / 5.0)<br />&nbsp; &nbsp;mys# = mys# + (<a href="MouseYSpeed.htm"><b>MouseYSpeed</b></a>() / 5.0)<br /><br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> cam, mys#, - mxs#, 0<br />&nbsp; &nbsp;<a href="MoveMouse.htm"><b>MoveMouse</b></a> width / 2, height / 2<br /><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cam, 0, 0, .2<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cam, 0, 0, - .2<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cam, .2, 0, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = <a href="True.htm"><b>True</b></a> <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cam, - .2, 0, 0<br /><br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> ufo_piv, 0, 2, 0<br />&nbsp; &nbsp;UpdateCubemap(tex, cube_cam, teapot)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Use mouse TO look around"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "Use cursor keys TO change camera position"<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><br /><br /><a href="Function.htm"><b>Function</b></a> UpdateCubemap(tex, camera, entity)<br />&nbsp; &nbsp;tex_sz = <a href="TextureWidth.htm"><b>TextureWidth</b></a>(tex)<br />&nbsp; &nbsp;<a href="ShowEntity.htm"><b>ShowEntity</b></a> camera<br />&nbsp; &nbsp;<a href="HideEntity.htm"><b>HideEntity</b></a> entity<br />&nbsp; &nbsp;<a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, <a href="EntityX.htm"><b>EntityX</b></a>#(entity), <a href="EntityY.htm"><b>EntityY</b></a>#(entity), <a href="EntityZ.htm"><b>EntityZ</b></a>#(entity)<br />&nbsp; &nbsp;<a href="CameraClsMode.htm"><b>CameraClsMode</b></a> camera, <a href="False.htm"><b>False</b></a>, <a href="True.htm"><b>True</b></a><br />&nbsp; &nbsp;<a href="CameraViewport.htm"><b>CameraViewport</b></a> camera, 0, 0, tex_sz, tex_sz<br /><br />&nbsp; &nbsp;<a href="SetCubeFace.htm"><b>SetCubeFace</b></a> tex, 0<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, 0, 90, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="CopyRect.htm"><b>CopyRect</b></a> 0, 0, tex_sz, tex_sz, 0, 0, <a href="BackBuffer.htm"><b>BackBuffer</b></a>(), <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(tex)<br /><br />&nbsp; &nbsp;<a href="SetCubeFace.htm"><b>SetCubeFace</b></a> tex, 1<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, 0, 0, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="CopyRect.htm"><b>CopyRect</b></a> 0, 0, tex_sz, tex_sz, 0, 0, <a href="BackBuffer.htm"><b>BackBuffer</b></a>(), <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(tex)<br /><br />&nbsp; &nbsp;<a href="SetCubeFace.htm"><b>SetCubeFace</b></a> tex, 2<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, 0, - 90, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="CopyRect.htm"><b>CopyRect</b></a> 0, 0, tex_sz, tex_sz, 0, 0, <a href="BackBuffer.htm"><b>BackBuffer</b></a>(), <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(tex)<br /><br />&nbsp; &nbsp;<a href="SetCubeFace.htm"><b>SetCubeFace</b></a> tex, 3<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, 0, 180, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="CopyRect.htm"><b>CopyRect</b></a> 0, 0, tex_sz, tex_sz, 0, 0, <a href="BackBuffer.htm"><b>BackBuffer</b></a>(), <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(tex)<br /><br />&nbsp; &nbsp;<a href="SetCubeFace.htm"><b>SetCubeFace</b></a> tex, 4<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, - 90, 0, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="CopyRect.htm"><b>CopyRect</b></a> 0, 0, tex_sz, tex_sz, 0, 0, <a href="BackBuffer.htm"><b>BackBuffer</b></a>(), <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(tex)<br /><br />&nbsp; &nbsp;<a href="SetCubeFace.htm"><b>SetCubeFace</b></a> tex, 5<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, 90, 0, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="CopyRect.htm"><b>CopyRect</b></a> 0, 0, tex_sz, tex_sz, 0, 0, <a href="BackBuffer.htm"><b>BackBuffer</b></a>(), <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(tex)<br /><br />&nbsp; &nbsp;<a href="ShowEntity.htm"><b>ShowEntity</b></a> entity<br />&nbsp; &nbsp;<a href="HideEntity.htm"><b>HideEntity</b></a> camera<br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="SetCubeMode.htm" title="Schaltet Darstellungsmodus einer Cubemap-Textur um">SetCubeMode</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_56.html">Texturen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

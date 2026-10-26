@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EntityCollided 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			kollision% = <b>EntityCollided</b> (entity%, type%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+type%
+</td>
+<td>
+Objekttyp, das auf Kollision überprüft werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität eines kollidierten Objekts zurückgeliefert. Wird 0 zurückgeliefert, dann gab es keine Kollision. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>EntityCollided</b> liefert die Identität eines Objekts zurück, das mit einem ausgewählten Objekt kollidiert ist. Wenn nur eine 0 zurückgeliefert wird, dann gab es keine Kollision.<br /><br />Dazu muss man nur die Identität eines Objekts (entity) angeben. Type ist eine einfache Zahl, die mit <a href="EntityType.htm"><b>EntityType</b><img src="../../html/images/quicklink.gif" /></a> gesetzt werden kann. BlitzBasic benutzt diese EntityTypes dann um die Kollision eines Objekts mit anderen zu überprüfen. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> camera, 45, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 15, - 10<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 45, 0, 0<br /><br />sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(32)<br /><a href="EntityType.htm"><b>EntityType</b></a> sphere, 1<br /><a href="EntityRadius.htm"><b>EntityRadius</b></a> sphere, 1<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> sphere, 0, 11, 0<br /><br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="EntityType.htm"><b>EntityType</b></a> cube, 2<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cube, 0, 100, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, - 5, 0<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cube, 10, 10, 10<br /><br />cylinder = <a href="CreateCylinder.htm"><b>CreateCylinder</b></a>(32)<br /><a href="EntityType.htm"><b>EntityType</b></a> cylinder, 2<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cylinder, 255, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cylinder, 0, 7, 0<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cylinder, 2, 2, 2<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;x# = 0<br />&nbsp; &nbsp;y# = 0<br />&nbsp; &nbsp;z# = 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> x# = - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> x# = 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> z# = - 0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> z# = 0.1<br />&nbsp; &nbsp;<a href="MoveEntity.htm"><b>MoveEntity</b></a> sphere, x#, - 0.1, z#<br />&nbsp; &nbsp;<a href="Collisions.htm"><b>Collisions</b></a> 1, 2, 2, 2<br />&nbsp; &nbsp;<a href="UpdateWorld.htm"><b>UpdateWorld</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;col = <a href="CountCollisions.htm"><b>CountCollisions</b></a>(sphere)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Kollision(en):"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 300, 0, "1. Kollision mit:" + <a href="EntityCollided.htm"><b>EntityCollided</b></a>(sphere, 2)<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> col<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 000, i * 20, "Entity=" + <a href="CollisionEntity.htm"><b>CollisionEntity</b></a>(sphere, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 150, i * 20, "Surface=" + <a href="CollisionSurface.htm"><b>CollisionSurface</b></a>(sphere, i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 300, i * 20, "Triangle=" + <a href="CollisionTriangle.htm"><b>CollisionTriangle</b></a>(sphere, i)<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CollisionEntity.htm" title="Ermittelt kollidiertes 3D-Objekt">CollisionEntity</a>, <a href="Collisions.htm" title="Aktiviert Kollision zwischen zwei Objekttypen">Collisions</a>, <a href="CountCollisions.htm" title="Ermittelt Anzahl der Kollisionen">CountCollisions</a>, <a href="EntityType.htm" title="Stellt Kollisionstyp eines 3D-Objekts ein">EntityType</a>, <a href="MeshesIntersect.htm" title="Prüft zwei Gitterobjekte auf Kollision">MeshesIntersect</a>, <a href="EntityPick.htm" title="Ermittelt nächstliegendstes Objekt eines Entitys">EntityPick</a>, <a href="EntityDistance.htm" title="Liefert die Entfernung zwischen zwei Objekten.">EntityDistance</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_67.html">Kollision</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

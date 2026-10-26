@@ -1,0 +1,104 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Physix 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Physix</b> (air_frict#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+air_frict#
+</td>
+<td>
+Vereinfachte Angabe für ein Luftwiederstand
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Führt alle pysikalischen Berechnung der <b>Physix</b> durch. Daher der wichtigste Teil von <b>Physix</b>. Der Parameter ''air_frict'' gibt eine vereinfachte Form eines Luftwiederstandes an, und wird auf alle KP deren Geschwindigkeit angewendet. Drehgeschwindigkeiten der KP werden dabei unberücksichtigt. Bei den Parameter sollte immer ein Wert von 1 oder kleiner angegeben werden. Der Wertebereich ist allerdings subjektiv eingeschränkt. So führt ein Wert von 0.98 schon zu einem sehr starkem Luftwiederstand, welcher eher mit einem Reibungswiderstand mit unter Wasser verglichen werden kann. Diesen Befehl am besten gleich vor <a href="UpdateWorld.htm"><b>UpdateWorld</b><img src="../../html/images/quicklink.gif" /></a> / <a href="RenderWorld.htm"><b>RenderWorld</b><img src="../../html/images/quicklink.gif" /></a> einsetzen.<br /><br />In der ''Physix.bb'' gibt es weitere Einstellmöglichkeiten für <b>Physix</b>. So können erheblich festere Objekte erstellt werden, als mit der Standardvorgabe bisher möglich. Dazu gibt es zwei Konstanten:<br /><br />PHYXLOOPS# Gibt an, wie viele Durchläufe bei einem Aufruf von <b>Physix</b> intern durchgeführt werden sollen. So kann zum Beispiel schon ein Wert von 8 für nahezu unkaputtbare Objekte sorgen. Allerdings auch auf Kosten der Performence. Werden also im Spiele viele KP und VK verwendet, so sollte man diesen Wert nur vorsichtig erhöhen.<br /><br />OVERDRIVE# Gibt an, wie stark Ausgleichsteuerungen intern durchgeführt werden sollen. Der Wert 2 ist dabei Standardvorgabe. Kleinere Werte machen komplizierte Parallelverbindungen durch VK sicherer. Ein Wert von 1 sollte absolute Sicherheit bedeuten. Während ein Wert von 3 mehr Festigkeit bringt, allerdings auch verbunden mit einer größeren Zerstörungswarscheinlichkeit. Bei größeren Werten kann man lediglich nur noch simple Formen berechnen lassen, jedoch ohne Performanceeinbußen auch mehr Festigkeit erreichen. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Siehe dazu ''Physix, box testing.bb'' 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_8.html">Draw3D</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_83.html">Physix</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

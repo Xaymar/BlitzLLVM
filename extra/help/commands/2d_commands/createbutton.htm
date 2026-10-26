@@ -1,0 +1,158 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateButton 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			button = <b>CreateButton</b> (text$, x, y, breite, hoehe, gruppe [, style]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+text$
+</td>
+<td>
+Textbezeichnung, die im Button erscheinen soll
+</td>
+</tr>
+<tr>
+<td width="100">
+x
+</td>
+<td>
+Koordinate X
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+Koordinate Y
+</td>
+</tr>
+<tr>
+<td width="100">
+breite
+</td>
+<td>
+Breite in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+hoehe
+</td>
+<td>
+Höhe in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+gruppe
+</td>
+<td>
+Identität einer Gruppe
+</td>
+</tr>
+<tr>
+<td width="100">
+style
+</td>
+<td>
+1 - Button (Standard)<br />2 - Checkbox<br />3 - Radiobutton<br />4 - ENTER-Taste<br />5 - ESC-Taste<br />+65536 - Objekt fixieren
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des Button-Objekts wird zurückgeliefert 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>CreateButton</b> erstellt einen Button mit einem Text. Gebe dazu die Startkoordinate X/Y und Breite/Höhe an. Gruppe ist die Identität von Window, Panel, Tabber oder Canvas. Mit dieser Funktion lassen sich normale Buttons (Style 1) aber auch Checkboxen (Style 2) oder Radiobuttons (Style 3) erstellen. Wird der Style auf 4 oder 5 gesetzt sendet der Button immer ein Event, sobald innerhalb des Parents (empfehlenswert ist ein Panel) die ENTER bzw. ESC-Taste gedrückt wird. Dies ist besonders hilfreich, da bei GUI-Anwendungen <a href="KeyHit.htm"><b>KeyHit</b><img src="../../html/images/quicklink.gif" /></a>-Abfragen wirkungslos sind.<br /><br />Der Status kann mit <a href="ButtonState.htm"><b>ButtonState</b><img src="../../html/images/quicklink.gif" /></a> abgefragt und mit <a href="SetButtonState.htm"><b>SetButtonState</b><img src="../../html/images/quicklink.gif" /></a> gesetzt werden (für Style 2 oder 3). Mit <a href="SetGadgetText.htm"><b>SetGadgetText</b><img src="../../html/images/quicklink.gif" /></a> kann man später den Text ändern.<br /><br /><img src="../../images/gfx_button.gif" /><br /><br /><div class="hint">Alle Radiobuttons innerhalb einer Gruppe werden automatisch zusammengefasst - dadurch kann nur ein Radiobutton gleichzeitig ausgewählt werden. Erstelle "unsichtbare" Gruppen mit <a href="CreatePanel.htm"><b>CreatePanel</b><img src="../../html/images/quicklink.gif" /></a> und füge Radiobuttons hinzu - dadurch werden die Radiobuttons getrennt.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Erstellt Button, Checkbox und Radiobutton:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 0, 0, 200, 200, 0, 1)<br /><br />button1 = <a href="CreateButton.htm"><b>CreateButton</b></a>("Button", 20, 20, 100, 30, window, 1)<br />button2 = <a href="CreateButton.htm"><b>CreateButton</b></a>("Checkbox", 20, 60, 100, 30, window, 2)<br />button3 = <a href="CreateButton.htm"><b>CreateButton</b></a>("Radiobutton", 20, 100, 100, 30, window, 3)<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ButtonState.htm" title="Ob die CheckBox oder der RadioButton ausgewählt ist">ButtonState</a>, <a href="SetButtonState.htm" title="Ändert den Status einer CheckBox oder eines RadioButtons">SetButtonState</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_22.html">Button</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

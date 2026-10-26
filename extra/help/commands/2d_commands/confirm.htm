@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Confirm 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert = <b>Confirm</b> (nachricht$ [,warnung]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Nachricht
+</td>
+<td>
+Text, der ausgegeben werden soll
+</td>
+</tr>
+<tr>
+<td width="100">
+warnung
+</td>
+<td>
+0=Information (Standard)<br />1=Warnung
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 - Klick auf Abbrechen<br />1 - Klick auf OK 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>Confirm</b> blendet eine Nachricht ein, die 2 Buttons enthält: OK und ABBRECHEN. Gebe dazu einfach einen Text ein. Zeilenumbruch kann mit Chr$(13) erfolgen. Wird Warnung auf 1 gesetzt, dann erscheint ein Warnsymbol statt Infosymbol.<br />Wenn dieses Dialog abgebrochen wurde, dann wird 0 zurückgeliefert - ansonsten 1.<br /><br /><img src="../../images/gfx_confirm.gif" /><br /><br /><div class="hint"> Mit <a href="Apptitle.htm"><b>Apptitle</b><img src="../../html/images/quicklink.gif" /></a> kann der Fenstertitel geändert werden<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				x = <a href="Confirm.htm"><b>Confirm</b></a>("Willst du schon beenden?" + Chr$(13) + Chr$(13) + "Klicke auf OK oder Abbrechen")<br /><a href="If.htm"><b>If</b></a> x = 0 <a href="Then.htm"><b>Then</b></a> <a href="Notify.htm"><b>Notify</b></a>("Abbruch!!!")<br /><a href="If.htm"><b>If</b></a> x = 1 <a href="Then.htm"><b>Then</b></a> <a href="Notify.htm"><b>Notify</b></a>("OK!!!")<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Notify.htm" title="Standardfenster mit Button OK">Notify</a>, <a href="Proceed.htm" title="Standardfenster mit Button OK / Nein / Abbrechen">Proceed</a>, <a href="RequestColor.htm" title="Standardfenster zur Auswahl einer Farbe">RequestColor</a>, <a href="RequestFile.htm" title="Auswahl einer Datei zum lesen/schreiben">RequestFile</a>, <a href="RequestFont.htm" title="Standardfenster zur Auswahl einer Schrift">RequestFont</a>, <a href="RequestDir.htm" title="Standardfenster zur Auswahl eines Ordners">RequestDir</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_42.html">Request</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

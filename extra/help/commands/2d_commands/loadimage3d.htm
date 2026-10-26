@@ -1,0 +1,128 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LoadImage3D 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			HANDLE = <b>LoadImage3D</b> (file$ [, mode] [, blend] [, pivot]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+file$
+</td>
+<td>
+Name der Grafikdatei
+</td>
+</tr>
+<tr>
+<td width="100">
+mode
+</td>
+<td>
+Zum auswählen des Zeichenmodus (Standard = 2)<br />1 - Color Map, die Textur wird so eingezeichnet wie man die sieht<br />2 - Alpha Map, die Textur benutzt Alpha Map für Transparenz<br />3 - Set Alpha, der komplette Aplhachannel wird auf 1 gesetzt.<br />4 - Masked, schwarze Flächen werden nicht eingezeichnet
+</td>
+</tr>
+<tr>
+<td width="100">
+blend
+</td>
+<td>
+Zum einstellen des Blendmodus (Standard = 2)<br />1 - eine Textur<br />2 - Multitextur<br />3 - addierte Multitextur<br />4 - Dot 3 Mapping<br />5 - Multiply Blend
+</td>
+</tr>
+<tr>
+<td width="100">
+pivot
+</td>
+<td>
+Pivotauswahl (Standard = 0)<br />0 - Vordergrundpivot (HUD)<br />1 - Hintergrundpivot (World)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			HANDLE = Identität der geladenen Textur 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl lädt eine Textur und gibt ihr Draw3D - Internes Handle zurück, welches später für <a href="DrawImage3D.htm"><b>DrawImage3D</b><img src="../../html/images/quicklink.gif" /></a> etc. benötigt wird. Die Textur muss dabei als quadratische Grafik mit einer Zweierpotenz als Seitenlänge (wie 128, 256, 512 etc.) vorliegen.<br /><br />Mit ''mode'' wird der Zeichenmodus bestimmt, auf welche Art die Textur geladen werden soll. Bei ''mode = 1'' wird die Textur so eingezeichnet wie sie als Bild vorliegt. Das heißt aber auch, dass keine zusätzliche Transparenz über <a href="ColorG3D.htm"><b>ColorG3D</b><img src="../../html/images/quicklink.gif" /></a> zugewiesen werden kann (dafür Mode 3 nutzen). Bei ''mode = 2'' wird die Alphamap der Textur benutzt. Ist keine vorhanden, so wird anstatt die Colourmap für Alpha verwendet (dunklere Stellen erscheinen dabei transparenter). Bei ''mode = 3'' wird der Textur automatisch ein Vollalpha zugewiesen. Das ist dann Sinnvoll, wenn die Textur kein eigenes Alpha gespeichert hat, aber die Textur dennoch mit <a href="ColorG3D.htm"><b>ColorG3D</b><img src="../../html/images/quicklink.gif" /></a> einfärbbar und transparent machbar sein soll. Bei (mode = 4) werden der Textur schwarze Stellen komplett maskiert (transparent) angezeigt.<br /><br />''blend'' legt fest, wie die Textur auf der internen Surface behandelt werden soll. Bei ''blend = 1'' wird nur eine Textur benutzt. Bei ''blend = 2'' kann Multitexturing benutzt werden. Bei ''blend = 3'' wird addiertes Multitexturing verwendet. Bei ''blend = 4'' wird Dot3 - Mapping eingeschaltet. Bei ''blend = 5'' wird multipliziertes Multitexturing verwendet. Für genauere Informationen dazu sollte man sich die Blitz - Befehle <a href="CreateTexture.htm"><b>CreateTexture</b><img src="../../html/images/quicklink.gif" /></a> und <a href="TextureBlend.htm"><b>TextureBlend</b><img src="../../html/images/quicklink.gif" /></a> anschauen.<br /><br />''pivot'' gibt vor, welcher Pivot zur Positionierung der Textur verwendet wird. Ist er auf ''pivot = 0'' gesetzt, so wird die Textur stets direkt vor der Kamera gezeichnet. Ist er jedoch auf ''pivot = 1'' gesetzt, so bewegt sich die Textur nicht mit der Kamera mit und 'schwebt' in der Landschaft, wenn sich die Kamera bewegt. Für normale Anwendungen kann man Mode, Blend und meist auch Pivot ignorieren.<br /><br /><div class="hint">Ich empfehle stets das laden von quadratischen Texturen mit einer 2^n Kantenlänge.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Siehe dazu ''Draw3D, DrawImage3D.bb'' 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_8.html">Draw3D</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_50.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

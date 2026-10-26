@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CameraViewport 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CameraViewport</b> kamera%, x%, y%, breite%, hoehe% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+kamera%
+</td>
+<td>
+Identität einer Kamera
+</td>
+</tr>
+<tr>
+<td width="100">
+x%
+</td>
+<td>
+Startkoordinate X
+</td>
+</tr>
+<tr>
+<td width="100">
+y%
+</td>
+<td>
+Startkoordinate Y
+</td>
+</tr>
+<tr>
+<td width="100">
+breite%
+</td>
+<td>
+Breite des Fensters in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+hoehe%
+</td>
+<td>
+Höhe des Fensters in Pixel
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit <b>CameraViewport</b> wird ein Bereich des 2D-Bildschirm ausgewählt, wohin die Kameraansicht einer 3D-Welt eingezeichnet werden soll.<br /><br />Benutze diesen Befehl, wenn mehrere Kameraansichten eingezeichnet werden sollen. Dies ist z.B. dann der Fall, wenn mehrere Spieler in einem Splitscreen gegeneinander spielen sollen.<br /><br /><div class="caution">Die Überlappung einer Kamera mit der anderen wird nicht empfohlen und sollte auf jeden Fall vermieden werden.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />cam1 = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="CameraViewport.htm"><b>CameraViewport</b></a> cam1, 0, 0, 640, 240<br />cam2 = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="CameraViewport.htm"><b>CameraViewport</b></a> cam2, 0, 240, 640, 240<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />plane = <a href="CreatePlane.htm"><b>CreatePlane</b></a>()<br />grass_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/mossyground.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> plane, grass_tex<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> plane, 0, - 1, 0<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> cam1, 0, - 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> cam1, 0, 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cam1, 0, 0, - 0.05<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> cam1, 0, 0, 0.05<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Cursortasten!"<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CameraProjMode.htm" title="Schaltet die Projektion einer Kamera um">CameraProjMode</a>, <a href="CameraRange.htm" title="Stellt min/max Kameraentfernung ein">CameraRange</a>, <a href="CameraZoom.htm" title="Stellt Kamera-Zoom ein">CameraZoom</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_66.html">Kamera</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

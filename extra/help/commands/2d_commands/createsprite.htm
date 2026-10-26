@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateSprite 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Sprite = <b>CreateSprite</b> ([Parent]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Parent
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des Objekts zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateSprite</b> erstellt ein Sprite und liefert danach die Identität des Objekts zurück.<br />Ein Sprite wird auf der Koordinate 0,0,0 erstellt und erstreckt sich über -1,-1 bis +1,+1.<br />Sprites sind flache, quadratische (es kann zu einem Rechteck gestreckt werden) 3D-Objekte.<br />Ein Sprite besteht nur aus 2 Polygonen - dadurch können sehr viele Objekte (z.B. für Explosionen) benutzt werden, ohne dass die Geschwindigkeit stark absinkt. Sprites können für 2D-Spiele in 3D-Grafik benutzt werden.<br />Zu einem Sprite kann Ansicht-Modus mit <a href="SpriteViewMode.htm"><b>SpriteViewMode</b><img src="../../html/images/quicklink.gif" /></a> zugewiesen werden. Standardmäßig ist es auf 1 eingestellt. Somit wird es immer vor der Kamera dargestellt - egal wie die Drehwinkel sind.<br />Wurde der Parameter "Parent" angegeben, dann wird dieses Sprite zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br />Das Objekt wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Wenn eine Textur mit Flag 2 (Alpha) geladen wird, kommt es zu Problemen mit dem Z-Buffer. Die Texturen werden nicht mehr nach Kameraentfernung gezeichnet, sondern in der Erstellreihenfolge, wodurch eigentlich verdeckte Texturen sichtbar seien können.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />sprite = <a href="CreateSprite.htm"><b>CreateSprite</b></a>()<br /><a href="MoveEntity.htm"><b>MoveEntity</b></a> sprite, 0, 0, 10<br /><a href="HandleSprite.htm"><b>HandleSprite</b></a> sprite, -1, -1<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;angle = (angle + 1) <a href="Mod.htm"><b>Mod</b></a> 360<br />&nbsp; &nbsp;f# = <a href="Sin.htm"><b>Sin</b></a>#(angle) + 1.5<br />&nbsp; &nbsp;<a href="RotateSprite.htm"><b>RotateSprite</b></a> sprite, angle<br />&nbsp; &nbsp;<a href="ScaleSprite.htm"><b>ScaleSprite</b></a> sprite, f#, f#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="SpriteViewMode.htm" title="Stellt den Darstellungsmodus eines Sprites ein.">SpriteViewMode</a>, <a href="ScaleSprite.htm" title="Skaliert ein Sprite auf eine absolute Größe">ScaleSprite</a>, <a href="RotateSprite.htm" title="Dreht ein Sprite auf einen absoluten Winkel.">RotateSprite</a>, <a href="LoadSprite.htm" title="Lädt ein Sprite aus einer Grafikdatei">LoadSprite</a>, <a href="HandleSprite.htm" title="HandelSprite ändert den Bezugspunkt eines Sprites">HandleSprite</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_73.html">Sprite</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

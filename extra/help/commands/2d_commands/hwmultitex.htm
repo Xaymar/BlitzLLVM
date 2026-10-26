@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		HWMultiTex 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>HWMultiTex</b> wert% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+wert%
+</td>
+<td>
+0=hardware multitexturing ausschalten<br />1=hardware multitexturing einschalten
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>HWMultiTex</b> schaltet hardware multitexturing ein oder aus.<br /><br />Multitextur ist eine spezielle Technik, die mehr als eine Textur auf Objekte projizieren kann. Wenn 3D-Grafikkarte dieses Feature unterstützt, dann sind mehrere Texturen auf einem Objekt kein Problem - auch von Geschwindigkeit her.<br /><br />Manche Grafikkarten haben aber Probleme damit - deshalb kann es mit diesem Befehl deaktiviert werden. Dann benutzt BlitzBasic software multitexturing - es ist aber langsamer als hardware multitexturing! 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 30, 30, 30<br /><br />texture1 = <a href="CreateTexture.htm"><b>CreateTexture</b></a>(128, 128)<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(texture1)<br /><a href="Color.htm"><b>Color</b></a> 255, 0, 0<br /><a href="Oval.htm"><b>Oval</b></a> 0, 0, 128, 128, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />texture2 = <a href="CreateTexture.htm"><b>CreateTexture</b></a>(16, 16)<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(texture2)<br /><a href="Color.htm"><b>Color</b></a> 0, 0, 255<br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 15 <a href="Step.htm"><b>Step</b></a> 2<br /><a href="Rect.htm"><b>Rect</b></a> 0, i, 16, 1, 1<br /><a href="Next.htm"><b>Next</b></a><br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> cube, texture1, 0, 0<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> cube, texture2, 0, 1<br /><a href="TextureBlend.htm"><b>TextureBlend</b></a> texture1, 2<br /><a href="TextureBlend.htm"><b>TextureBlend</b></a> texture2, 3<br /><br /><a href="Color.htm"><b>Color</b></a> 255, 255, 255<br />hw = 1<br /><a href="HWMultiTex.htm"><b>HWMultiTex</b></a> hw<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(57)<br />&nbsp; &nbsp;&nbsp; &nbsp;hw = <a href="Not.htm"><b>Not</b></a> hw<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="HWMultiTex.htm"><b>HWMultiTex</b></a> hw<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, 1, 1, 1<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "HWMULTITEX:" + hw<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AntiAlias.htm" title="Schaltet AntiAliasing ein oder aus">AntiAlias</a>, <a href="Dither.htm" title="Schaltet Dithering ein oder aus">Dither</a>, <a href="WBuffer.htm" title="Schaltet W-Buffering ein oder aus">WBuffer</a>, <a href="WireFrame.htm" title="Schaltet die Wireframe-Darstellung ein oder aus">WireFrame</a>, <a href="TextureBlend.htm" title="Setzt einen Blendmodus für eine Textur">TextureBlend</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_64.html">Global</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

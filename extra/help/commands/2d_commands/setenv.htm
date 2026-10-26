@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SetEnv 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SetEnv</b> variable$, wert$ 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+variable$
+</td>
+<td>
+Name der Variable. Bekannte Variablen sind: Tmp, Temp, Prompt, WinBootDir, ComSpec, Path, WinDir und Blaster. Zusätzlich können benutzerdefinierte Variablen gesetzt werden.
+</td>
+</tr>
+<tr>
+<td width="100">
+wert$
+</td>
+<td>
+Stringwert der Variable
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion setzt/ändert den Wert einer Systemvariable. Diese Systemvariablen gab es bereits zu DOS-Zeiten. Wegen der Kompatibilität sind diese Variablen bis heute geblieben. <br /><br /><div class="caution">Eine mit BlitzBasic definierte Systemvariable bleibt nur solange erhalten, bis das Programm beendet wird. Danach wird die Variable automatisch entfernt. Wurde die Variable mit dem DOS-Befehl "SET" definiert, so bleibt die Variable erhalten!<br />&nbsp;</div><br /><br /><div class="caution">In der Windows NT Reihe (also auch 2000, XP, Vista und 7) werden Umgebungsvariablen vererbt. Setzt du also eine solche Variable, ist sie nur für Programme sichtbar, die dein Programm mit <a href="ExecFile.htm"><b>ExecFile</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="CreateProcess.htm"><b>CreateProcess</b><img src="../../html/images/quicklink.gif" /></a> aufruft.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm zeigt einige Systeminformationen:<br />
+			<div class="syntax-code">
+				<a href="Print.htm"><b>Print</b></a> "Tmp-Ordner: "+<a href="GetEnv.htm"><b>GetEnv</b></a>$ ("Temp")<br /><br /><a href="Print.htm"><b>Print</b></a> "Windows-Ordner: "+<a href="GetEnv.htm"><b>GetEnv</b></a>$ ("WinDir")<br /><br /><a href="SetEnv.htm"><b>SetEnv</b></a> "test", "hallo"<br /><br /><a href="Print.htm"><b>Print</b></a> <a href="GetEnv.htm"><b>GetEnv</b></a>$("test")<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="GetEnv.htm" title="Ermittelt den Wert einer Systemvariable">GetEnv</a>, <a href="SystemProperty.htm" title="Liefert bestimmte Systeminformationen zurück">SystemProperty</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_38.html">Sonstiges</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

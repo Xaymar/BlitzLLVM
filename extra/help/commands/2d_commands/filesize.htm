@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FileSize 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Byte = <b>FileSize</b> (Datei$) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Datei$
+</td>
+<td>
+gültiger Dateiname (evtl. mit Pfad)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Dateigröße in Byte 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt die Dateigröße beliebiger Datei. Es ist für das Kopieren, Speichern und Laden manchmal notwendig zu wissen, wie groß die Datei eigentlich ist.<br /><br />Mit den Befehlen <a href="FileType.htm"><b>FileType</b><img src="../../html/images/quicklink.gif" /></a> und <a href="NextFile.htm"><b>NextFile</b><img src="../../html/images/quicklink.gif" /></a> können weitere Informationen ausgelesen werden. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Wie berechnet man Dateigrößen?<br /><br />Die kleinste Informationseinheit ist Bit. Um ganze Buchstaben zu speichern werden 8 Bit zusammengenommen. Diese 8 Bit nennt man Byte. Ein Byte kann Werte von 0 bis 255 annehmen. Somit sind es genug Zeichnen um Zahlen, Buchstaben und Sonderzeichen zu speichern. Ein Byte ist aber sehr klein. Damit die Zahlen nicht zu groß werden, können die Dateigrößen auch als KiloByte, MegaByte, Gigabyte oder Terabyte angegeben werden. Dabei entspricht ein KiloByte 1024 Byte. Ein MegaByte 1024 KiloByte usw... 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Dieses Programm ermittelt die Größe der Datei Calc.exe (Taschenrechner):<br /><br />Datei$ = "C:\Windows\Calc.exe"<br /><a href="Text.htm"><b>Text</b></a> 0,0, "Dateigrösse: " + <a href="FileSize.htm"><b>FileSize</b></a>(Datei$)<br /><a href="Text.htm"><b>Text</b></a> 0,10, "Beliebige Taste beendet Programm"<br /><a href="WaitKey.htm"><b>WaitKey</b></a>() 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CopyFile.htm" title="Kopieren einer Datei">CopyFile</a>, <a href="Eof.htm" title="Prüft ob das Ende einer Datei erreicht wurde">Eof</a>, <a href="FilePos.htm" title="Liefert die aktuelle Position in einer Datei">FilePos</a>, <a href="FileType.htm" title="Ermittelt ob eine Datei existiert">FileType</a>, <a href="ReadDir.htm" title="Öffnet ein Verzeichnis">ReadDir</a>, <a href="SeekFile.htm" title="Verschiebt die aktuelle Dateiposition einer Datei">SeekFile</a>, <a href="NextFile.htm" title="Ermittelt die nächste Datei in einem Verzeichnis">NextFile</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

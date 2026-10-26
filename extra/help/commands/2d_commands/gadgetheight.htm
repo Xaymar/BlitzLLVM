@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GadgetHeight 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			höhe = <b>GadgetHeight</b> (gadget) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+gadget
+</td>
+<td>
+Identität eines Gadget-Objekts
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Höhe des Objekts mit Rand 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>GadgetHeight</b> ermittelt Höhe eines Gadget-Objekts. Einige Objekte haben einen Rand, der aber nur mit <a href="ClientHeight.htm"><b>ClientHeight</b><img src="../../html/images/quicklink.gif" /></a> berücksichtigt werden kann. Siehe auch <a href="GadgetWidth.htm"><b>GadgetWidth</b><img src="../../html/images/quicklink.gif" /></a>.<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 0, 0, 300, 200, 0, 1)<br /><br />deskw = <a href="ClientWidth.htm"><b>ClientWidth</b></a>(<a href="Desktop.htm"><b>Desktop</b></a>())<br />deskh = <a href="ClientHeight.htm"><b>ClientHeight</b></a>(<a href="Desktop.htm"><b>Desktop</b></a>())<br /><br />winw = <a href="GadgetWidth.htm"><b>GadgetWidth</b></a>(window)<br />winh = <a href="GadgetHeight.htm"><b>GadgetHeight</b></a>(window)<br /><br />cliw = <a href="ClientWidth.htm"><b>ClientWidth</b></a>(window)<br />clih = <a href="ClientHeight.htm"><b>ClientHeight</b></a>(window)<br /><br />txt$ = "Desktop:" + <a href="Str.htm"><b>Str</b></a>$(deskw) + "x" + <a href="Str.htm"><b>Str</b></a>$(deskh)<br />txt$ = txt$ + <a href="Chr.htm"><b>Chr</b></a>$(13) + <a href="Chr.htm"><b>Chr</b></a>$(13)<br />txt$ = txt$ + "Window:" + <a href="Str.htm"><b>Str</b></a>$(winw) + "x" + <a href="Str.htm"><b>Str</b></a>$(winh)<br />txt$ = txt$ + <a href="Chr.htm"><b>Chr</b></a>$(13) + <a href="Chr.htm"><b>Chr</b></a>$(13)<br />txt$ = txt$ + "Client:" + <a href="Str.htm"><b>Str</b></a>$(cliw) + "x" + <a href="Str.htm"><b>Str</b></a>$(clih)<br /><br />label = <a href="CreateLabel.htm"><b>CreateLabel</b></a>(txt$, 10, 10, cliw - 20, clih - 20, window)<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ClientHeight.htm" title="liefert die Höhe einer Gruppe zurück">ClientHeight</a>, <a href="ClientWidth.htm" title="liefert die Breite einer Gruppe zurück">ClientWidth</a>, <a href="GadgetWidth.htm" title="ermittelt Breite eines Gadget-Objekts">GadgetWidth</a>, <a href="GadgetX.htm" title="liefert die X-Koordinate eines Gadget-Objekts">GadgetX</a>, <a href="GadgetY.htm" title="liefert die Y-Koordinate eines Gadget-Objekts">GadgetY</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_80.html">Gadget</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

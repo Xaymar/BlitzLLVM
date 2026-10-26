@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ResetEntity 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ResetEntity</b> entity% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines 3D-Objekts (entity)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>ResetEntity</b> setzt den Kollisionsstatus eines bestimmten Objekts zurück. Dies könnte z.B. dann nützlich sein, wenn man ein Objekt mit <a href="PositionEntity.htm"><b>PositionEntity</b><img src="../../html/images/quicklink.gif" /></a> verschieben möchte und dabei nicht mehr auf Kollision getestet werden soll. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 32, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />Box = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br />Sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(16)<br /><br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> Box, 1, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> Sphere, - 1, 0, 0<br /><br /><a href="EntityType.htm"><b>EntityType</b></a> Box, 1<br /><a href="EntityBox.htm"><b>EntityBox</b></a> Box, - 0.5, - 0.5, - 0.5, 0.5, 0.5, 0.5<br /><a href="EntityType.htm"><b>EntityType</b></a> Sphere, 2<br /><a href="EntityRadius.htm"><b>EntityRadius</b></a> Sphere, 2<br /><br />Camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> Camera, 0, 5, - 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> Camera, 45, 0, 0<br /><br />Light = <a href="CreateLight.htm"><b>CreateLight</b></a>(3, Camera)<br /><a href="LightRange.htm"><b>LightRange</b></a> Light, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> Box, - 0.05, 0, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> Box, 0.05, 0, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> Box, 0, 0, - 0.05<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> Box, 0, 0, 0.05<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(28) <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;Reset = 1<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;Reset = 0<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Collisions.htm"><b>Collisions</b></a> 1, 2, 3, 3<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Reset = 1 <a href="Then.htm"><b>Then</b></a> <a href="ResetEntity.htm"><b>ResetEntity</b></a> Box<br />&nbsp; &nbsp;<a href="UpdateWorld.htm"><b>UpdateWorld</b></a> : <a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Reset = 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Kollision von Box-Entity zurückgesetzt"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ClearCollisions.htm" title="Löscht Kollisions-Liste">ClearCollisions</a>, <a href="Collisions.htm" title="Aktiviert Kollision zwischen zwei Objekttypen">Collisions</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_67.html">Kollision</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

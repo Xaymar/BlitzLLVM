@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SetFont 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SetFont</b> font 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+font
+</td>
+<td>
+Identität der Schriftart
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann eine Schrift ausgewählt werden, die für weitere Textausgabe benutzt werden soll. Die Schrift muss man aber vorher mit <a href="LoadFont.htm"><b>LoadFont</b><img src="../../html/images/quicklink.gif" /></a>/<a href="RequestFont.htm"><b>RequestFont</b><img src="../../html/images/quicklink.gif" /></a> laden. Die somit Identität wird danach für diesen Befehl verwendet. Mit dem <a href="Text.htm"><b>Text</b><img src="../../html/images/quicklink.gif" /></a>-Befehl kann die Schrift gezeichnet werden. Wird die Schrift später nicht mehr gebraucht, so sollte sie dann mit <a href="FreeFont.htm"><b>FreeFont</b><img src="../../html/images/quicklink.gif" /></a> entfernt werden.<br /><br /><div class="caution">BlitzBasic kann keine Symbolschriften wie Webdings oder Wingdings laden :-( Diese Schriften können aber mit vielen Tricks in normale Schriftarten umgewandelt werden.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Hier wird eine Schriftart geladen und deren max. Breite/Höhe ausgegeben:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 32, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />;Schriftart laden und in font speichern<br />font = <a href="LoadFont.htm"><b>LoadFont</b></a>("Arial",15,1)<br /><br />;geladene Schriftart "setzen", also für spätere Textausgaben benutzen<br /><a href="SetFont.htm"><b>SetFont</b></a> font<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br /><br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;;Größe und Breite der Schriftart ausgeben<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 10, "FontHeight: " + <a href="FontHeight.htm"><b>FontHeight</b></a>()<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 30, "FontWidth: " + <a href="FontWidth.htm"><b>FontWidth</b></a>()<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;<br /><a href="Wend.htm"><b>Wend</b></a><br /><br />;Schriftart wieder freigeben<br /><a href="FreeFont.htm"><b>FreeFont</b></a> font<br /><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FontAscent.htm" title="Ermittelt Ascent-Wert einer Schriftart">FontAscent</a>, <a href="FontDescent.htm" title="Ermittelt Descent-Wert einer Schriftart">FontDescent</a>, <a href="FontHeight.htm" title="Ermittelt maximale Höhe der aktuellen Schrift in Pixel">FontHeight</a>, <a href="FontName.htm" title="Ermittelt Name einer Schriftart">FontName</a>, <a href="FontSize.htm" title="Ermittelt Größe einer Schriftart">FontSize</a>, <a href="FontStyle.htm" title="Ermittelt Style einer Schriftart">FontStyle</a>, <a href="FontWidth.htm" title="Ermittelt Breite des breitesten Zeichens der aktuellen Schriftart">FontWidth</a>, <a href="FreeFont.htm" title="Löscht eine geladene Schriftart aus dem Speicher">FreeFont</a>, <a href="LoadFont.htm" title="Lädt eine Schriftart in den Speicher">LoadFont</a>, <a href="Text.htm" title="Gibt einen Text aus">Text</a>, <a href="StringHeight.htm" title="Ermittelt Höhe eines Textes">StringHeight</a>, <a href="StringWidth.htm" title="Ermittelt Breite eines Textes">StringWidth</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_33.html">Text</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

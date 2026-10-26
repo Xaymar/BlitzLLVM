@@ -1,0 +1,160 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		DrawLine3D 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>DrawLine3D</b> (handle, x_start#, y_start#, x_end#, y_end#, size# [, mode] [, frame]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+handle
+</td>
+<td>
+Identität einer Textur oder gegrabten Teiltextur
+</td>
+</tr>
+<tr>
+<td width="100">
+x_start#
+</td>
+<td>
+X-Startkoordinate der Grafiklinie
+</td>
+</tr>
+<tr>
+<td width="100">
+y_start#
+</td>
+<td>
+Y-Startkoordinate der Grafiklinie
+</td>
+</tr>
+<tr>
+<td width="100">
+x_end#
+</td>
+<td>
+X-Endkoordinate der Grafiklinie
+</td>
+</tr>
+<tr>
+<td width="100">
+y_end#
+</td>
+<td>
+Y-Endkoordinate der Grafiklinie
+</td>
+</tr>
+<tr>
+<td width="100">
+size#
+</td>
+<td>
+Zeichenstärke der Grafiklinie
+</td>
+</tr>
+<tr>
+<td width="100">
+mode
+</td>
+<td>
+Zeichenmodus der Grafiklinie (Standard = 0)<br />0 - Bild wird mit Verlauf der Linie gestreckt<br />1 - Bild wird mit Verlauf der Linie ausgerollt<br />2 - Bild wird als Vector zur Zielposition ausgerichtet
+</td>
+</tr>
+<tr>
+<td width="100">
+frame
+</td>
+<td>
+Framebild welches angezeigt werden soll (Standard = 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Befehlname ehemals ''ImageLine3D''. Dieser Befehl zeichnet eine Textur als eine Linie zwischen zwei Punkten, wobei verschiedene Modi ausgewählt werden können. Die Start- und Endkoordinaten funktionieren nach dem gleichen Prinzip wie beim Befehl Line, nur dass sie nach dem Draw3D -Koordinatensystem gerechnet werden. Die Linienstärke bestimmt dabei, wie breit die Textur im Draw3D -Koordinatensystem sein soll.<br /><br />''mode = 0'' bewirkt, dass die Textur entlang der beiden Koordinaten gestreckt wird, so dass es immer perfekt zwischen Start- und Endpunkt passt. ''mode = 1'' bewirkt, dass die Textur zwischen Start- und Endpunkt 'ausgerollt' wird. Es passt immer zwischen den beiden Punkten, jedoch wird es nicht gestreckt, sondern ggf. wiederholt gezeichnet. ''mode = 2'' bewirkt, dass die Textur in seiner vollen Länge gezeichnet wird, aber anhand der Linie ausgerichtet wird. Es fängt also beim Startpunkt an und wird unter dem gleichen Winkel wie dem der Linie gezeichnet.<br /><br />''frame'' legt fest, welches Frame relativ zum Handle angezeigt wird. Ist Frame z.B. = 1, so wird einfach die Textur benutzt, das gleich nach der angegebener Textur geladen/erstellt/gegrabbt wurde. Man kann auch negative Framewerte angeben, wenn diese vorhanden sind. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Siehe dazu ''Draw3D, DrawLine3D.bb'' 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_8.html">Draw3D</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_50.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

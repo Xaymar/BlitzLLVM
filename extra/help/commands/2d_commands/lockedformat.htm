@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LockedFormat 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			farbtiefe = <b>LockedFormat</b> ( [Buffer] ) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+buffer
+</td>
+<td>
+Identität eines Buffers
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Wert zwischen 1 und 4, der die Farbtiefe des Buffers folgendermaßen repräsentiert:<br />1 = 16 Bit RGB (5 Bit R, 6 Bit G, 5 Bit B)<br />2 = 16 Bit RGB (5 Bit R, 5 Bit G, 5 Bit B, 1 Bit ungenutzt)<br />3 = 24 Bit RGB (8 Bit R, 8 Bit G, 8 Bit B)<br />4 = 32 Bit RGB (8 Bit R, 8 Bit G, 8 Bit B, 8 Bit ungenutzt) 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>LockedFormat</b> ermittelt Farbtiefe eines Grafikbuffers. Die Farbtiefe wird als Code zurückgeliefert. Dies ist dann nützlich, wenn Pixel direkt ins Video-RAM mit Poke/Peek-Befehlen gezeichnet/gelesen werden sollen und nicht mir <a href="WritePixel.htm"><b>WritePixel</b><img src="../../html/images/quicklink.gif" /></a>/<a href="ReadPixel.htm"><b>ReadPixel</b><img src="../../html/images/quicklink.gif" /></a>. Dazu ist eine vorherige Sperrung des Grafikbuffers mit <a href="LockBuffer.htm"><b>LockBuffer</b><img src="../../html/images/quicklink.gif" /></a> notwendig.<br /><br />Direktes Zeichnen mit Poke ist deutlich schneller (bis zu 6x schneller als <a href="WritePixelFast.htm"><b>WritePixelFast</b><img src="../../html/images/quicklink.gif" /></a>). Jedoch muss man Speicherposition und Ausgabewert manuell berechnen. Dies ist nicht so einfach und nur mit Hilfe von <b>LockedFormat</b>, <a href="LockedPitch.htm"><b>LockedPitch</b><img src="../../html/images/quicklink.gif" /></a> und <a href="LockedPixels.htm"><b>LockedPixels</b><img src="../../html/images/quicklink.gif" /></a> möglich. Für schnelle Grafikausgabe muss man zudem für jedes Grafikformat eine gesonderte Routine programmieren! 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Die erste Funktion zeichnet eine Linie und zweite Funktion berechnet eine Farbe:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 0, 2<br />SLineBP(50, 50, 300, 200, 255, 0, 0, <a href="BackBuffer.htm"><b>BackBuffer</b></a>())<br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> SLineBP(stx#, sty#, enx#, eny#, r, g, b, Buffer)<br />&nbsp; &nbsp;mvx# = Stx - enx:mvy# = sty - eny<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> mvx<0 mvx = - mvx<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> mvy<0 mvy = - mvy<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> mvy>mvx mv# = mvy <a href="Else.htm"><b>Else</b></a> mv# = mvx<br />&nbsp; &nbsp;stpx# = (mvx / mv):<a href="If.htm"><b>If</b></a> Stx>enx stpx = - stpx<br />&nbsp; &nbsp;stpy# = (mvy / mv):<a href="If.htm"><b>If</b></a> Sty>eny stpy = - stpy<br />&nbsp; &nbsp;<a href="LockBuffer.htm"><b>LockBuffer</b></a> Buffer<br />&nbsp; &nbsp;SL_Pitch = <a href="LockedPitch.htm"><b>LockedPitch</b></a>(Buffer)<br />&nbsp; &nbsp;SL_Bank = <a href="LockedPixels.htm"><b>LockedPixels</b></a>(Buffer)<br />&nbsp; &nbsp;SL_Mode = <a href="LockedFormat.htm"><b>LockedFormat</b></a>(Buffer)<br />&nbsp; &nbsp;Col = ConvertRGB(r, g, b, SL_Mode)<br />&nbsp; &nbsp;<a href="DebugLog.htm"><b>DebugLog</b></a> <a href="Hex.htm"><b>Hex</b></a>(Col)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> SL_Mode = 1 <a href="Or.htm"><b>Or</b></a> SL_Mode = 2<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> nc = 0 <a href="To.htm"><b>To</b></a> <a href="Floor.htm"><b>Floor</b></a>(mv)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="PokeShort.htm"><b>PokeShort</b></a> SL_Bank, (<a href="Floor.htm"><b>Floor</b></a>(stx) * 2) + (<a href="Floor.htm"><b>Floor</b></a>(sty) * SL_Pitch), Col<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;stx = stx + stpx:sty = sty + stpy<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> nc = 0 <a href="To.htm"><b>To</b></a> <a href="Floor.htm"><b>Floor</b></a>(mv)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="PokeInt.htm"><b>PokeInt</b></a> SL_Bank, (<a href="Floor.htm"><b>Floor</b></a>(sty) * SL_Pitch) + (<a href="Floor.htm"><b>Floor</b></a>(stx) * 4), Col<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;stx = stx + stpx:sty = sty + stpy<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="UnlockBuffer.htm"><b>UnlockBuffer</b></a> Buffer<br /><a href="End Function.htm"><b>End Function</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> ConvertRGB(r, g, b, Mode = 0)<br />&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> Mode<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> ((r / 8) <a href="Shl.htm"><b>Shl</b></a> 11) <a href="Or.htm"><b>Or</b></a> ((g / 4) <a href="Shl.htm"><b>Shl</b></a> 5) <a href="Or.htm"><b>Or</b></a> (b / 8)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 2<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> ((r / 8) <a href="Shl.htm"><b>Shl</b></a> 10) <a href="Or.htm"><b>Or</b></a> ((g / 8) <a href="Shl.htm"><b>Shl</b></a> 5) <a href="Or.htm"><b>Or</b></a> (b / 8)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Default.htm"><b>Default</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Return.htm"><b>Return</b></a> (r <a href="Shl.htm"><b>Shl</b></a> 16) <a href="Or.htm"><b>Or</b></a> (g <a href="Shl.htm"><b>Shl</b></a> 8) <a href="Or.htm"><b>Or</b></a> b<br />&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="LockBuffer.htm" title="Sperrt einen Buffer">LockBuffer</a>, <a href="LockedPitch.htm" title="Ermittelt die Datengröße für eine horizontale Zeile des Buffers">LockedPitch</a>, <a href="LockedPixels.htm" title="Ermittelt die Identität einer Bank, die den Videospeicher repräsentiert">LockedPixels</a>, <a href="UnlockBuffer.htm" title="Entsperrt einen Buffer">UnlockBuffer</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_34.html">Pixel</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

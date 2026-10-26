@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FilePos 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>FilePos</b> (Dateistream) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Dateistream
+</td>
+<td>
+Identität einer Datei (ermittelt mit <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ReadFile.htm"><b>ReadFile</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="WriteFile.htm"><b>WriteFile</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Dateiposition von Anfang der Datei in Byte. Null bedeutet: Anfang der Datei (also Byte 1) usw. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt die aktuelle Dateiposition von Anfang einer Datei, die mit <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ReadFile.htm"><b>ReadFile</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="WriteFile.htm"><b>WriteFile</b><img src="../../html/images/quicklink.gif" /></a> geöffnet wurde. Dies kann man fürs Speichern und Laden verwenden, denn ab dieser Position erfolgt der nächste Schreib-/Lesevorgang. Mit <a href="SeekFile.htm"><b>SeekFile</b><img src="../../html/images/quicklink.gif" /></a> kann die Dateiposition dagegen verschoben werden.<br /><br />Dieser Befehl ist besonders für große Dateien gut geeignet, da sich die Position eines Datensatzes speichern lässt. Dadurch können die Datensätze bequem aktualisiert werden, ohne, dass man die ganze Datei einlesen oder kopieren muss. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;lädt eine Datei, verändert die Position und zeigt die aktuelle jeweils an<br /><br />Datei$="C:\test.txt"<br />filestream = <a href="WriteFile.htm"><b>WriteFile</b></a>(Datei$)<br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 255<br />&nbsp; &nbsp;<a href="WriteByte.htm"><b>WriteByte</b></a>(filestream,i)<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Dateiposition: "+<a href="FilePos.htm"><b>FilePos</b></a>(filestream)<br /><a href="Next.htm"><b>Next</b></a><br />Offset=<a href="SeekFile.htm"><b>SeekFile</b></a> (filestream, 10)<br /><a href="Print.htm"><b>Print</b></a> "Neue Dateiposition: "+<a href="FilePos.htm"><b>FilePos</b></a>(filestream)<br /><a href="CloseFile.htm"><b>CloseFile</b></a> (filestream) 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Eof.htm" title="Prüft ob das Ende einer Datei erreicht wurde">Eof</a>, <a href="SeekFile.htm" title="Verschiebt die aktuelle Dateiposition einer Datei">SeekFile</a>, <a href="FileSize.htm" title="Ermittelt die Größe einer Datei">FileSize</a>, <a href="OpenFile.htm" title="Öffnet eine Datei zum Lesen/Schreiben">OpenFile</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

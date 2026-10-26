@@ -1,0 +1,109 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		RuntimeStats 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>RuntimeStats</b> 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Ausgabe in DebugLog 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl gehört nicht offiziell zum Befehlssatz. Es ist nur eine kleine Hilfe, die zeigen soll wieviele Objekte gerade verwendet werden. Wenn <b>RuntimeStats</b> ausgeführt wurde, dann wird im DebugLog eine Meldung ausgegeben. Diese besteht aus:<br /><br /><b>Active strings</b> gibt die Anzahl der gerade verwendeten Strings zurück.<br /><br /><b>Active objects</b> gibt die Anzahl der gerade verwendeten TYPE-Objekte zurück.<br /><br /><b>Unreleased Objs</b> gibt die Anzahl der Objekte an, die nicht freigegeben wurden (Container-Variablen).<br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Dies ist ein undokumentierter Befehl. Sollte dieser Befehl wieder offiziell entfernt werden, wären Programme zu allen zukünftigen Updates nicht mehr kompatibel und müssten umgeschrieben werden. Die Anwendung ist daher auf eigenes Risiko.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			In dem Beispiel sollte 1 activer String, 1 actives Object und 2 &quot;unreleased&quot; Objecte angezeigt werden:<br />
+			<div class="syntax-code">
+				<a href="Type.htm"><b>Type</b></a> obj<br /><a href="Field.htm"><b>Field</b></a> a,b,c<br /><a href="End.htm"><b>End</b></a> <a href="Type.htm"><b>Type</b></a><br /><br />a.obj = <a href="New.htm"><b>New</b></a> obj<br />b.obj = <a href="New.htm"><b>New</b></a> obj<br /><a href="Delete.htm"><b>Delete</b></a> <a href="First.htm"><b>First</b></a> obj<br /><br />x$ = "test"<br /><br /><a href="RuntimeStats.htm"><b>RuntimeStats</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="DebugLog.htm" title="Sendet beliebige Debug Meldungen">DebugLog</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_38.html">Sonstiges</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

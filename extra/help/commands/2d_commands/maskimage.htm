@@ -1,0 +1,145 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		MaskImage 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>MaskImage</b> Bild, red, green, blue 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Bild
+</td>
+<td>
+Identität des Bildes (z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt
+</td>
+</tr>
+<tr>
+<td width="100">
+red
+</td>
+<td>
+Rotanteil einer Farbe (0=wenig, 255=viel)
+</td>
+</tr>
+<tr>
+<td width="100">
+green
+</td>
+<td>
+Grünanteil einer Farbe (0=wenig, 255=viel)
+</td>
+</tr>
+<tr>
+<td width="100">
+blue
+</td>
+<td>
+Blauanteil einer Farbe (0=wenig, 255=viel)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung setzt die Transparenzfarbe eines Bildes. Normalerweise wird ein Objekt als rechteckiges Bild auf dem Bildschirm erscheinen. Mit diesem Befehl wird eine bestimmte Farbe ausgewählt, die dann nicht mehr eingezeichnet wird. Jedem Bild wird zuerst die schwarze Farbe als MaskColor zugewiesen. Da die schwarze Farbe sehr häufig in Bildern vorkommt, kann man auch eine andere Farbe auswählen - z.B. rot oder lila.<br /><br /><div class="caution">Achtung: Im 16 Bit-Modus gibt es nicht so viele Farbabstufungen, wodurch dann auch sehr ähnliche Farben transparent erscheinen. Um dies zu umgehen, sollte man eine bunte Transparentfarbe auswählen (die im Bild sonst nicht vorkommt - z.B. lila).<br />&nbsp;</div><br /><div class="hint">Benutze <a href="DrawImage.htm"><b>DrawImage</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="DrawImageRect.htm"><b>DrawImageRect</b><img src="../../html/images/quicklink.gif" /></a>, um ein solches Bild auf dem Bildschirm darzustellen.<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformationen</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Die Farbe auf allen Bildschirmen wird aus den drei Grundfarben des additiven Farbmodells zusammengemischt - rot, grün und blau. Es können somit zwar nicht alle sichtbaren Farben abgedeckt werden, dennoch sind es sehr viele. Je größer der Lichtanteil einer Farbe, desto heller wird das Licht. Werden z.B. alle drei Grundfarben zusammengemischt, so entsteht weißes Licht.<br /><img src="../../images/gfx_rgbfarben.gif" /><br /><br /><div class="caution">Bei einem 16-Bit Grafikmodus können nicht alle Farben dargestellt werden. Dadurch können Farbsprünge entstehen und eine leicht verfälschte Farbe ermittelt werden. Benutze eine höhere Farbtiefe, um dies zu verhindern.<br />&nbsp;</div><br /><br /><div class="hint"><b>Wie 16 Bit-Farben intern verwaltet werden:</b><br />Die Bits 0-4 (5x) speichern den Blauanteil.<br />Die Bits 5-10 (6x) speichern den Grünanteil.<br />Die Bits 11-15 (5x) speichern den Rotanteil.<br />Logischerweise können Blau- und Rotanteile nur 32 verschiedene Abstufungen von 0 bis 248 im Abstand von 8 aufweisen. Grünanteile können dagegen 64 verschiedene Abstufungen von 0 bis 254 im Abstand von 4 aufweisen. Dies kann man für bessere Farben ausnutzen: wähle eine Farbe, die auch im 16 Bit-Modus korrekt dargestellt wird z.B. statt der Farbe 255,255,255 besser 248,248,248 nehmen.<br />&nbsp;</div> 
+		</p>
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Diese Fehlermeldungen erscheinen, wenn ein Bild im Grafikspeicher nicht gefunden werden konnte. Dafür gibt es mehrere Gründe:<br /><br />- Ein Bild konnte auf dem Datenträger nicht gefunden werden<br />- Die Grafikdatei ist fehlerhaft<br />- Der Grafikspeicher wurde mit <a href="Graphics.htm"><b>Graphics</b><img src="../../html/images/quicklink.gif" /></a> gelöscht<br />- Wert der Variable "Bild" wurde gelöscht<br />- Die Variable "Bild" hat einen falschen Namen<br />- Die Variable "Bild" wurde nicht als <a href="Global.htm"><b>Global</b><img src="../../html/images/quicklink.gif" /></a> definiert<br />- Siehe auch <a href="GraphicsLost.htm"><b>GraphicsLost</b><img src="../../html/images/quicklink.gif" /></a> (nur Blitz3D) <br />&nbsp;</div><br /><img src="../../images/scr_illegalmemory.gif" /> <img src="../../images/scr_image.gif" /><br />Alternativ könnte auch die Fehlermeldung "Memory access violation" stehen, diese taucht jedoch meist nur bei ausgeschaltetem Debugger auf. Es empfiehlt sich dann den Debugger zu aktivieren um genauere Erkenntnisse über den Fehler zu erhalten.<br /> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Beispiel lädt ein Animationsbild (Pfad evtl. anpassen!) und zeichnet es animiert mit einer transparenten Farbe ein:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />gfxSparks = <a href="LoadAnimImage.htm"><b>LoadAnimImage</b></a>("media\spark.bmp", 32, 32, 0, 3)<br /><a href="MaskImage.htm"><b>MaskImage</b></a> gfxSparks, 255, 0, 255<br /><a href="ClsColor.htm"><b>ClsColor</b></a> 0, 0, 255 <a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a>() > tmrSparks + 100 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;tmrSparks = <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;frmSparks = (frmSparks + 1) <a href="Mod.htm"><b>Mod</b></a> 3<br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br />&nbsp; &nbsp;<a href="DrawImage.htm"><b>DrawImage</b></a> gfxSparks, <a href="MouseX.htm"><b>MouseX</b></a>(), <a href="MouseY.htm"><b>MouseY</b></a>(), frmSparks<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="DrawBlock.htm" title="Zeichnet ein geladenes/erstelltes Bild auf dem Bildschirm">DrawBlock</a>, <a href="DrawBlockRect.htm" title="Zeichnet einen Bildausschnitt auf den Bildschirm">DrawBlockRect</a>, <a href="DrawImage.htm" title="Zeichnet ein Bild auf den Bildschirm (mit Maske)">DrawImage</a>, <a href="DrawImageRect.htm" title="Zeichnet einen Bildausschnitt auf den Bildschirm (mit Maske)">DrawImageRect</a>, <a href="LoadAnimImage.htm" title="Lädt ein Animationsbild">LoadAnimImage</a>, <a href="LoadImage.htm" title="Lädt eine Grafikdatei">LoadImage</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

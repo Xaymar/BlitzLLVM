@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SetGadgetLayout 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SetGadgetLayout</b> gadget, links, rechts, oben, unten 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+gadget
+</td>
+<td>
+Identität eines Gadget-Objekts
+</td>
+</tr>
+<tr>
+<td width="100">
+links
+</td>
+<td>
+Linke Verankerung (0-2)
+</td>
+</tr>
+<tr>
+<td width="100">
+rechts
+</td>
+<td>
+Rechte Verankerung (0-2)
+</td>
+</tr>
+<tr>
+<td width="100">
+oben
+</td>
+<td>
+Obere Verankerung (0-2)
+</td>
+</tr>
+<tr>
+<td width="100">
+unten
+</td>
+<td>
+Untere Verankerung (0-2)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>SetGadgetLayout</b> definiert Objektverankerung innerhalb einer Gruppe (parent). Wenn z.B. ein Fenster skaliert wird, dann lässt sich die Größe eines Objekts automatisch anpassen. Dies geschieht über die vier Positionsanker Links, Rechts, Oben und Unten. Jedem Parameter kann dabei 0,1 oder 2 zugewiesen werden.<br /><br />0=frei (Abstand zum Rand verändert sich)<br />1=gesperrt (Abstand zum Rand wird beibehalten)<br />2=proportional (Größe wird proportional verändert)<br /><br />Der Befehl <a href="SetGadgetShape.htm"><b>SetGadgetShape</b><img src="../../html/images/quicklink.gif" /></a> ändert die Größe eines Objekts, falls dieses Feature nicht ausreicht.<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 050, 050, 300, 300, 0, 3)<br />windoww = <a href="ClientWidth.htm"><b>ClientWidth</b></a>(window)<br />windowh = <a href="ClientHeight.htm"><b>ClientHeight</b></a>(window)<br />textarea1 = <a href="CreateTextArea.htm"><b>CreateTextArea</b></a>(5, 5, windoww - 10, 150, window)<br />textarea2 = <a href="CreateTextArea.htm"><b>CreateTextArea</b></a>(5, 160, windoww - 10, windowh - 165, window)<br /><a href="SetGadgetLayout.htm"><b>SetGadgetLayout</b></a> textarea1, 1, 1, 1, 0<br /><a href="SetGadgetLayout.htm"><b>SetGadgetLayout</b></a> textarea2, 1, 1, 1, 1<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GetKey.htm"><b>GetKey</b></a>() = 27 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>() = $803 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="SetGadgetText.htm" title="ändert die Bezeichnung eines Objekts">SetGadgetText</a>, <a href="SetGadgetShape.htm" title="verändert die Größe eines Gadget-Objekts">SetGadgetShape</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_80.html">Gadget</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

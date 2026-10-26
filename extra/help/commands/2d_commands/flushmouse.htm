@@ -1,0 +1,109 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		FlushMouse 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>FlushMouse</b> 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion löscht alle noch im internen Puffer vorhandenen Mausklicks. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">In einem Spiel kann es passieren, dass beim Levelende noch einige Aktionen im internen Puffer gespeichert sind, da man vorher sehr wild geklickt oder Tasten gedrückt hat. Wenn diese Aktionen nicht gelöscht werden, ist es möglich, dass ein Menü beendet wird, bevor man es überhaupt gesehen hat, da das Menü die Aktionen im Puffer auswertet. Aus diesem Grund sollte der Puffer immer gelöscht werden, wenn etwas anderes abgefragt wird als vorher (Menü, Spielstart, Bestätigungsmeldungen, ...).<br />&nbsp;</div><br /><br /><div class="caution">Verwende die Befehle <a href="FlushMouse.htm"><b>FlushMouse</b><img src="../../html/images/quicklink.gif" /></a>, <a href="FlushKeys.htm"><b>FlushKeys</b><img src="../../html/images/quicklink.gif" /></a> und <a href="FlushJoy.htm"><b>FlushJoy</b><img src="../../html/images/quicklink.gif" /></a> niemals in der Hauptschleife, beziehungsweise bei jedem Schleifendurchgang. Das macht es fast unmöglich, dass die Eingaben vom Programm empfangen werden.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Demonstriert, wie wichtig die Benutzung von FlushMouse ist:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 32, 2<br /><br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br /><a href="Text.htm"><b>Text</b></a> 10, 10, "Klick, um fortzufahren!"<br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="Repeat.htm"><b>Repeat</b></a> <a href="Until.htm"><b>Until</b></a> <a href="MouseDown.htm"><b>MouseDown</b></a>(1)<br /><br /><a href="Cls.htm"><b>Cls</b></a><br /><a href="Text.htm"><b>Text</b></a> 10, 10, "Das hier wird nur sehr kurz angezeigt!"<br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="Repeat.htm"><b>Repeat</b></a> <a href="Until.htm"><b>Until</b></a> <a href="MouseDown.htm"><b>MouseDown</b></a>(1)<br /><br /><a href="FlushMouse.htm"><b>FlushMouse</b></a><br /><a href="Cls.htm"><b>Cls</b></a><br /><a href="Text.htm"><b>Text</b></a> 10, 10, "Das hier wird aber wieder angezeigt!"<br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="Repeat.htm"><b>Repeat</b></a> <a href="Until.htm"><b>Until</b></a> <a href="MouseDown.htm"><b>MouseDown</b></a>(1)<br /><br /><a href="FlushMouse.htm"><b>FlushMouse</b></a><br /><a href="Cls.htm"><b>Cls</b></a><br /><a href="Text.htm"><b>Text</b></a> 10, 10, "Und das auch!"<br /><a href="Flip.htm"><b>Flip</b></a><br /><a href="Repeat.htm"><b>Repeat</b></a> <a href="Until.htm"><b>Until</b></a> <a href="MouseDown.htm"><b>MouseDown</b></a>(1)<br /><br /><a href="EndGraphics.htm"><b>EndGraphics</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="GetMouse.htm" title="Überprüft, welche Maustaste gedrückt wurde">GetMouse</a>, <a href="MouseDown.htm" title="Überprüft ob eine Maustaste gedrückt wird">MouseDown</a>, <a href="MouseHit.htm" title="Gibt die Anzahl der Tastenbetätigungen zurück">MouseHit</a>, <a href="MouseWait.htm" title="Stoppt das ganze Programm, bis eine Maustaste gedrückt wird">MouseWait</a>, <a href="WaitMouse.htm" title="Stoppt das ganze Programm, bis eine Maustaste gedrückt wird">WaitMouse</a>, <a href="FlushJoy.htm" title="Löscht alle Tastenbetätigungen des Joysticks aus dem internen Puffer">FlushJoy</a>, <a href="FlushKeys.htm" title="Löscht alle Tastaturbetätigungen">FlushKeys</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_4.html">Eingabe</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_32.html">Maus</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

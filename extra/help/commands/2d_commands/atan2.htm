@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ATan2 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Winkel# = <b>ATan2</b>(Y#, X#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Y#
+</td>
+<td>
+vertikaler Abstand (Gegenkathete)
+</td>
+</tr>
+<tr>
+<td width="100">
+X#
+</td>
+<td>
+horizontaler Abstand (Ankathete)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird ein Winkel in Grad zurückgeliefert. Es sind alle Winkel im Berech von 0 bis 360° möglich (bzw. -180° bis 180°). Die Grafik zeigt den Zusammenhang zwischen Winkel und Tangenswert.<br /><img src="../../images/gfx_tangenskurve.gif" /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion berechnet den Winkel aus X- und Y-Längen. Es ist somit die erweiterte Tangensfunktion. Beachte, dass diese Funktion etwas anders als ATAN funktioniert, und keine Arcustangens-Funktion ist.<br /><br />Der Winkel wird nicht aus einem Tangenswert ermittelt, sondern aus den zwei Katheten eines rechtwinkligen Dreiecks.<br /><br /><img src="../../images/gfx_dreieck.gif" /><br /><br />Diese Funktion kann einen Winkel im Umkreis von -180° bis 180° berechnen. Dadurch ist es wesentlich einfacher, als die ATan-Funktion, wo man erst durch logische Überlegungen den Winkel ausrechnen kann. Um einen vollen Winkel im Bereich von 0° bis 360° auszurechnen, muss man nur diese Formel anwenden:<br />Winkel# = (<b>ATan2</b>(y#, x#) + 360) MOD 360 <br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel zeigt zwei bewegende Kreise. Der erste und schnellere Kreis läuft quer über dem ganzen Bildschirm. Der zweite ist langsamer und versucht ständig den ersten über möglicht direkten Weg zu erreichen:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="SeedRnd.htm"><b>SeedRnd</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br /><a href="Dim.htm"><b>Dim</b></a> x(1), y(1), w(1), s(1)<br />x(0) = <a href="Rand.htm"><b>Rand</b></a>(0, 639)<br />y(0) = <a href="Rand.htm"><b>Rand</b></a>(0, 639)<br />w(0) = <a href="Rand.htm"><b>Rand</b></a>(0, 359)<br />s(0) = 3<br />x(1) = <a href="Rand.htm"><b>Rand</b></a>(0, 639)<br />y(1) = <a href="Rand.htm"><b>Rand</b></a>(0, 639)<br />s(1) = 2<br /><a href="While.htm"><b>While</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1) = 0<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 0, 0, 0<br />&nbsp; &nbsp;<a href="Rect .htm"><b>Rect </b></a>0, 0, 640, 480<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255, 255, 255<br />&nbsp; &nbsp;w(0) = w(0) + <a href="Rand.htm"><b>Rand</b></a>(-10, 10)<br />&nbsp; &nbsp;minx = x(0) - x(1)<br />&nbsp; &nbsp;miny = y(0) - y(1)<br />&nbsp; &nbsp;minx2 = -(x(1) - 640 - x(0))<br />&nbsp; &nbsp;miny2 = -(y(1) - 480 - y(0))<br />&nbsp; &nbsp;minx3 = x(0) - 640 - x(1)<br />&nbsp; &nbsp;miny3 = y(0) - 480 - y(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="Abs.htm"><b>Abs</b></a>(minx2) < <a href="Abs.htm"><b>Abs</b></a>(minx) <a href="Then.htm"><b>Then</b></a> minx = minx2<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="Abs.htm"><b>Abs</b></a>(miny2) < <a href="Abs.htm"><b>Abs</b></a>(miny) <a href="Then.htm"><b>Then</b></a> miny = miny2<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="Abs.htm"><b>Abs</b></a>(minx3) < <a href="Abs.htm"><b>Abs</b></a>(minx) <a href="Then.htm"><b>Then</b></a> minx = minx3<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="Abs.htm"><b>Abs</b></a>(miny3) < <a href="Abs.htm"><b>Abs</b></a>(miny) <a href="Then.htm"><b>Then</b></a> miny = miny3<br />&nbsp; &nbsp;w(1) = <a href="ATan2.htm"><b>ATan2</b></a>(miny, minx)<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 1<br />&nbsp; &nbsp;&nbsp; &nbsp;x(i) = x(i) + <a href="Cos.htm"><b>Cos</b></a>(w(i)) * s(i)<br />&nbsp; &nbsp;&nbsp; &nbsp;y(i) = y(i) + <a href="Sin.htm"><b>Sin</b></a>(w(i)) * s(i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> x(i) < 0 <a href="Then.htm"><b>Then</b></a> x(i) = 640 + x(i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> x(i) > 639 <a href="Then.htm"><b>Then</b></a> x(i) = x(i) - 640<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If .htm"><b>If </b></a>y(i) < 0 <a href="Then.htm"><b>Then</b></a> y(i) = 480 + y(i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> y(i) > 479 <a href="Then.htm"><b>Then</b></a> y(i) = y(i) - 480<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Oval.htm"><b>Oval</b></a> x(i) - 5,y(i) - 5, 10, 10, 1<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ACos.htm" title="ACos liefert den Winkel in Grad aus einem Cosinuswert">ACos</a>, <a href="ASin.htm" title="ASin liefert den Winkel eines Sinuswertes">ASin</a>, <a href="ATan.htm" title="ATan liefert den passenden Winkel zu einem Tangenswert">ATan</a>, <a href="Cos.htm" title="Cos liefert den Cosinuswert eines Winkels">Cos</a>, <a href="Sin.htm" title="Berechnet den Sinuswert eines Winkels">Sin</a>, <a href="Tan.htm" title="Berechnet den Tangenswert aus einem Winkel">Tan</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_5.html">Mathematik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

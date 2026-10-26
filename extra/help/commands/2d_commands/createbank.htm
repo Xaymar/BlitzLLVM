@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateBank 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			bank = <b>CreateBank</b>([byte]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+byte
+</td>
+<td>
+Speichergröße in Byte (Standard=0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität der Speicherbank. Wenn eine Null zurückgeliefert wird, dann konnte dieses Speicherfeld nicht erstellt werden. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Definiert ein neues Speicherfeld. Es funktioniert so ähnlich wie DIM, muss aber über spezielle Peek/Poke-Befehle angesprochen werden. Diese Funktion liefert einen Integerwert, der für weitere Befehle notwendig ist. Mit <a href="FreeBank.htm"><b>FreeBank</b><img src="../../html/images/quicklink.gif" /></a> kann dieses Speicherfeld wieder gelöscht werden.<br /><br /><div class="caution">Beachte, dass man bei <b>CreateBank</b> die Größe in Byte angibt. Short verbraucht aber 2 Byte, Integer verbraucht 4 Byte und Float verbraucht 4 Byte. Werden Poke-Befehle angewendet, so dürfen die Werte nicht an die falsche Stelle platziert werden, da andere Werte dadurch überschrieben werden können.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Programm erstellt ein Speicherfeld. Es werden dann zufällige Zahlen gespeichert. Danach wird die Größe sowie die Daten des Speicherfeldes verdoppelt. Zum Schluss erscheint die Größe des Speicherfeldes in Byte:<br />
+			<div class="syntax-code">
+				BankID = <a href="CreateBank.htm"><b>CreateBank</b></a>(5000)<br /><br /><a href="For.htm"><b>For</b></a> t = 0 <a href="To.htm"><b>To</b></a> 4999<br /><br />&nbsp; &nbsp;<a href="PokeByte.htm"><b>PokeByte</b></a> BankID,t,RAND(9)<br /><br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="ResizeBank.htm"><b>ResizeBank</b></a> BankID,10000<br /><br /><a href="CopyBank.htm"><b>CopyBank</b></a> BankID,0,BankID,5000,5000<br /><br /><a href="Print.htm"><b>Print</b></a> <a href="BankSize.htm"><b>BankSize</b></a>(BankID)<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="FreeBank.htm" title="Löscht eine Bank">FreeBank</a>, <a href="WriteBytes.htm" title="Schreibt mehrere Bytes aus einer Bank in einen Stream">WriteBytes</a>, <a href="CopyBank.htm" title="Kopiert Daten einer Bank in eine andere">CopyBank</a>, <a href="ReadBytes.htm" title="Liest Daten aus einer Datei in ein Speicherfeld ein">ReadBytes</a>, <a href="BankSize.htm" title="Ermittelt Größe einer Bank in Bytes">BankSize</a>, <a href="ResizeBank.htm" title="Ändert die Größe einer Bank">ResizeBank</a>, <a href="PeekInt.htm" title="Liest einen Integer Wert aus einer Bank">PeekInt</a>, <a href="PeekShort.htm" title="Liest einen Short-Wert aus einer Bank">PeekShort</a>, <a href="PokeByte.htm" title="Speichert ein Byte in eine Bank">PokeByte</a>, <a href="PokeFloat.htm" title="Speichert einen Float-Wert in einer Bank">PokeFloat</a>, <a href="PokeInt.htm" title="Speichert einen Integer-Wert in einer Bank">PokeInt</a>, <a href="PokeShort.htm" title="Speichert einen Short-Wert in einer Bank">PokeShort</a>, <a href="PeekByte.htm" title="Liest ein Byte aus einer Bank">PeekByte</a>, <a href="PeekFloat.htm" title="Liest einen Float-Wert aus einer Bank">PeekFloat</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_4.html">Speicherbänke</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

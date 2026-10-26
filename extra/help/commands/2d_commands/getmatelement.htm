@@ -1,0 +1,127 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GetMatElement 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			wert# = <b>GetMatElement</b># (entity%, zeile%, spalte%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+zeile%
+</td>
+<td>
+Matrixzeile (0-3)
+</td>
+</tr>
+<tr>
+<td width="100">
+spalte%
+</td>
+<td>
+Matrixspalte (0-2)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es liefert Wert eines Matrix-Eintrags zurück 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>GetMatElement</b> gibt den Wert eines Matrix-Elements zurück. Ein Entity hat folgende Hauptinformationen: Skalierung, Drehung und Verschiebung. Alle diese Werte sind in einer 3x4-Matrix verschmolzen. Man kann nun diese Werte auslesen. Es gibt nur wenige Gründe, wo man diese Informationen benötigt. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Dies ist ein undokumentierter Befehl. Sollte dieser Befehl wieder offiziell entfernt werden, wären Programme zu allen zukünftigen Updates nicht mehr kompatibel und müssten umgeschrieben werden. Die Anwendung ist daher auf eigenes Risiko.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cube, 1, 2, 3<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 4, 5, 6<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 10, 20, 30<br /><br /><a href="For.htm"><b>For</b></a> y = 0 <a href="To.htm"><b>To</b></a> 3<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> x = 0 <a href="To.htm"><b>To</b></a> 2<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> x * 100, y * 20, <a href="GetMatElement.htm"><b>GetMatElement</b></a>#(cube, y, x)<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />Next<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_63.html">Diverses</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

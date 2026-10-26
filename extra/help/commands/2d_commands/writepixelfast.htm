@@ -1,0 +1,141 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		WritePixelFast 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>WritePixelFast</b> x, y, rgb [, buffer] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x
+</td>
+<td>
+X-Koordinate
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+Y-Koordinate
+</td>
+</tr>
+<tr>
+<td width="100">
+rgb
+</td>
+<td>
+Farbcode mit Rot-, Grün- und Blauanteilen
+</td>
+</tr>
+<tr>
+<td width="100">
+buffer
+</td>
+<td>
+Grafikbuffer, wohin der Punkt eingezeichnet werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung zeichnet einen Punkt an der X/Y-Koordinate ein. Für die Ausgabe wird immer der aktuelle Buffer verwendet. Mit der Buffer-Option kann die Grafikausgabe auf einem anderen Buffer erfolgen (siehe <a href="BackBuffer.htm"><b>BackBuffer</b><img src="../../html/images/quicklink.gif" /></a>, <a href="FrontBuffer.htm"><b>FrontBuffer</b><img src="../../html/images/quicklink.gif" /></a> und <a href="ImageBuffer.htm"><b>ImageBuffer</b><img src="../../html/images/quicklink.gif" /></a>).<br /><br />Bevor man <a href="ReadPixelFast.htm"><b>ReadPixelFast</b><img src="../../html/images/quicklink.gif" /></a> / <a href="WritePixelFast.htm"><b>WritePixelFast</b><img src="../../html/images/quicklink.gif" /></a> verwenden kann, muss man noch den Befehl <a href="LockBuffer.htm"><b>LockBuffer</b><img src="../../html/images/quicklink.gif" /></a> verwenden. Dadurch wird ein Buffer für andere Befehle gesperrt und die Fehlerprüfung deaktiviert. Danach muss ein Buffer mit <a href="UnlockBuffer.htm"><b>UnlockBuffer</b><img src="../../html/images/quicklink.gif" /></a> wieder geöffnet werden.<br /><br />Benutze <a href="ReadPixel.htm"><b>ReadPixel</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="ReadPixelFast.htm"><b>ReadPixelFast</b><img src="../../html/images/quicklink.gif" /></a>, um die Farbe eines Pixels zu ermitteln.<br /><br /><div class="hint"><a href="WritePixel.htm"><b>WritePixel</b><img src="../../html/images/quicklink.gif" /></a> kann genau wie <b>WritePixelFast</b> verwendet werden. Es ist nur etwas langsamer. Die Deaktivierung des Debuggers bringt eine enorme Geschwindigkeitssteigerung. <b>WritePixelFast</b> ist die schnellste Variante (bis zu 2000% schneller als <a href="Plot.htm"><b>Plot</b><img src="../../html/images/quicklink.gif" /></a>).<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<b>So wird ein Farbcode abgespeichert:</b><br />Es wird ein Integerwert übergeben. Ein Integerwert besteht aus 4 Byte. Das erste Byte (von rechts!) gibt den Blauanteil einer Farbe wieder, das zweite Byte den Grünanteil und das dritte Byte den Rotanteil. Die Farbanteile sind Werte im Bereich von 0-255. Das vierte Byte gibt den Alpha-Wert wieder. Alpha ist ein Transparenzwert, der erst ab Blitz3D voll verfügbar sein wird. Es sind Werte zwischen 0 (transparent) bis 255 (normal) möglich. Blitz2D kann keine Transparenz darstellen, somit hat es den Wert 255. Bis V1.53 gab es keinen Alphawert.<br /><br />FF FF FF FF - Farbcode in einem Integerwert<br />=> vier Informationen (je 00-FF = 256 Werte pro Information)<br />1.: Beinhaltet Alpha-Information 255 (FFh), erst ab Blitz3D ist Alpha voll verfügbar<br />2.: Rotanteil 0-255 (0h-FFh)<br />3.: Grünanteil 0-255 (0h-FFh)<br />4.: Blauanteil 0-255 (0h-FFh)<br /><br /><br /><b>Berechnung der Farbanteile aus einem Farbcode:</b><br />a = (rgb AND $FF000000)/$1000000<br />r = (rgb AND $FF0000)/$10000<br />g = (rgb AND $FF00)/$100<br />b = rgb AND $FF<br /><br /><b>Berechnung des Farbcodes aus den Farbanteilen:</b><br />rgb = a*$1000000 + r*$10000 + g*$100 + b<br /><br /><b>Berechnung der Farbwerte ohne Alpha:</b><br />rgb2 = rgb AND $FFFFFF 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 0, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="Dim.htm"><b>Dim</b></a> X(299),  Y#(299), V#(299)<br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 299<br />&nbsp; &nbsp;X (i) = <a href="Rnd.htm"><b>Rnd</b></a>(0, 639)<br />&nbsp; &nbsp;Y#(i) = <a href="Rnd.htm"><b>Rnd</b></a>(0, 479)<br />&nbsp; &nbsp;V#(i) = <a href="Rnd.htm"><b>Rnd</b></a>(1, 5)<br /><a href="Next.htm"><b>Next</b></a><br /><a href="Color.htm"><b>Color</b></a> 0, 0, 0<br /><a href="While.htm"><b>While</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1) = 0<br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> 0, 0, 640, 480<br />&nbsp; &nbsp;<a href="LockBuffer.htm"><b>LockBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 299<br />&nbsp; &nbsp;&nbsp; &nbsp;Y#(i) = Y#(i) + V#(i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Y#(i)>479 <a href="Then.htm"><b>Then</b></a> X(i) = <a href="Rand.htm"><b>Rand</b></a>(0, 639) : Y#(i) = Y#(i) - 480 : V#(i) = <a href="Rnd.htm"><b>Rnd</b></a>(1, 5)<br />&nbsp; &nbsp;&nbsp; &nbsp;Grau = <a href="Int.htm"><b>Int</b></a>(V#(i)) * 50<br />&nbsp; &nbsp;&nbsp; &nbsp;Farbe = Grau * $10000 + Grau * $100 + Grau<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="WritePixelFast.htm"><b>WritePixelFast</b></a> X(i), Y#(i), Farbe<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="UnlockBuffer.htm"><b>UnlockBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ReadPixel.htm" title="Liest die Farbe eines Pixels aus">ReadPixel</a>, <a href="ReadPixelFast.htm" title="Liest die Farbe eines Pixels aus">ReadPixelFast</a>, <a href="WritePixel.htm" title="Zeichnet einen Punkt auf den Bildschirm">WritePixel</a>, <a href="CopyPixel.htm" title="Kopiert einen Pixel">CopyPixel</a>, <a href="CopyPixelFast.htm" title="Kopiert einen Pixel">CopyPixelFast</a>, <a href="GetColor.htm" title="Ändert die aktuelle Zeichenfarbe in die Farbe eines Pixels auf dem Bildschirm">GetColor</a>, <a href="Plot.htm" title="Zeichnet einen Punkt auf den Bildschirm">Plot</a>, <a href="LockBuffer.htm" title="Sperrt einen Buffer">LockBuffer</a>, <a href="UnlockBuffer.htm" title="Entsperrt einen Buffer">UnlockBuffer</a>, <a href="BufferDirty.htm" title="Verhindert Verlust von manipulierten Bildern">BufferDirty</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_34.html">Pixel</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

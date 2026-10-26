@@ -1,0 +1,136 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ModifyTerrain 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ModifyTerrain</b> Terrain, X, Z, Height# [,Realtime] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Terrain
+</td>
+<td>
+Identität eines Terrains
+</td>
+</tr>
+<tr>
+<td width="100">
+X
+</td>
+<td>
+X-Koordinate des Terrains
+</td>
+</tr>
+<tr>
+<td width="100">
+Z
+</td>
+<td>
+Z-Koordinate des Terrains
+</td>
+</tr>
+<tr>
+<td width="100">
+Height#
+</td>
+<td>
+Höhe des Punktes (nur Werte 0-1)
+</td>
+</tr>
+<tr>
+<td width="100">
+Realtime
+</td>
+<td>
+0=erst bei <a href="RenderWorld.htm"><b>RenderWorld</b><img src="../../html/images/quicklink.gif" /></a> aktualisieren (Standard)<br />1=sofort aktualisieren
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>ModifyTerrain</b> ändert die Höhe eines Terrain-Punktes.<br />Dazu muss man erst die Identität des Terrains angeben. Danach folgt die Koordinate des Punktes. Die Höhe kann nur zwischen 0 (=tief) und 1 (=hoch) sein.<br />Wenn bei Realtime 1 angegeben wird, dann wird die Änderung sofort ausgeführt. Normalerweise wird das Terrain erst bei RenderWorld aktualisiert (meistens sinnvoller). 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 1, 0<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />terrain = <a href="CreateTerrain.htm"><b>CreateTerrain</b></a>(16)<br />grass_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("bild.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> terrain, grass_tex<br /><a href="ModifyTerrain.htm"><b>ModifyTerrain</b></a> terrain, 8,  8, 1<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> <a href="terrain.htm"><b>terrain</b></a>,  1,  5,  1<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, -1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, -0.05<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, 0.05<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Cursortasten..."<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_76.html">Terrain</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

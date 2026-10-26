@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		PlaySound 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			kanal = <b>PlaySound</b> sound [, modus] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+sound
+</td>
+<td>
+Soundidentität (z.B. ermittelt mit <a href="LoadSound.htm"><b>LoadSound</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+<tr>
+<td width="100">
+modus
+</td>
+<td>
+unbekannt
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Eine Kanal Identität für Channel-Befehle. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl spielt einen Soundeffekt ab, der vorher mit <a href="LoadSound.htm"><b>LoadSound</b><img src="../../html/images/quicklink.gif" /></a> geladen wurde. Es können viele Musikeffekte auf einmal abgespielt werden. Um einen Sound im Loop abzuspielen, kann der Befehl <a href="LoopSound.htm"><b>LoopSound</b><img src="../../html/images/quicklink.gif" /></a> verwendet werden.<br /><br />Benutze <a href="StopChannel.htm"><b>StopChannel</b><img src="../../html/images/quicklink.gif" /></a>, um den Soundeffekt anzuhalten. Siehe auch weitere Channel-Befehle. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel lädt einen Sound und spielt ihn ab. Danach wird es aus dem Speicher gelöscht:<br />
+			<div class="syntax-code">
+				sound = <a href="LoadSound.htm"><b>LoadSound</b></a> ("effekt.wav")<br /><br />chn = <a href="PlaySound.htm"><b>PlaySound</b></a>(sound)<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /><br /><a href="FreeSound.htm"><b>FreeSound</b></a> sound<br /><br /><a href="END.htm"><b>END</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ChannelVolume.htm" title="Die Lautstärke eines Sounds ändern">ChannelVolume</a>, <a href="ChannelPlaying.htm" title="Ermittelt ob ein Sound gerade abgespielt wird">ChannelPlaying</a>, <a href="ChannelPitch.htm" title="Die Sample-Frequenz eines Sounds festlegen">ChannelPitch</a>, <a href="ResumeChannel.htm" title="Spielt eine angehaltene Musik weiter ab">ResumeChannel</a>, <a href="ChannelPan.htm" title="Setzt den Balance-Wert eines Sounds">ChannelPan</a>, <a href="LoadSound.htm" title="Lädt eine Sounddatei in den Speicher">LoadSound</a>, <a href="LoopSound.htm" title="Spielt einen Sound ununterbrochen">LoopSound</a>, <a href="PauseChannel.htm" title="Hält die Wiedergabe eines Sounds an">PauseChannel</a>, <a href="StopChannel.htm" title="Stoppt die Wiedergabe eines Sounds">StopChannel</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_6.html">Sound</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_11.html">Samples</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		LoadTerrain 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Terrain = <b>LoadTerrain</b> (Datei$ [,Parent]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Datei$
+</td>
+<td>
+Dateiname und gegebenenfalls Pfadangabe einer Grafikdatei (bmp, jpg, png)
+</td>
+</tr>
+<tr>
+<td width="100">
+Parent
+</td>
+<td>
+Identität des Objekts, an das es angehängt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Die Identität des Terrains wird zurückgeliefert. Wenn eine Null zurückgeliefert wird, dann konnte die Grafikdatei nicht geladen werden. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl lädt ein Terrain und liefert die Identität des Terrains zurück. Die rote Farbe des Bildes bestimmt dabei die Höhe des Terrains. Das erstellte Terrain hat danach die selbe Größe wie das Bild. Die Höhe des Terrains ist 1.<br />Tipps zur Erstellung eines guten Terrains:<br />-Glätte das Terrain (Weichzeichnen)<br />-Reduziere Y-Größe des Terrains<br />-Erhöhe X/Z-Größe des Terrains<br />-Reduziere <a href="CameraRange.htm"><b>CameraRange</b><img src="../../html/images/quicklink.gif" /></a><br /><br />Wurde der Parameter "Parent" angegeben, dann wird dieses Terrain zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br />Das geladene Terrain wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt.<br /><br /><img src="../../images/gfx_heightmap.gif" /><br />Heighmap-Beispiel 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Erstellt ein Terrain aus einer heightmap. Die Kamera lässt sich mit Tasten verschieben:<br /><br /><a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 1, 1, 1<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />terrain = <a href="LoadTerrain.htm"><b>LoadTerrain</b></a>("media/height_map.bmp")<br /><a href="TerrainDetail.htm"><b>TerrainDetail</b></a> terrain, 4000, <a href="True.htm"><b>True</b></a><br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> terrain, 1, 50, 1<br />grass_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/mossyground.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> terrain,grass_tex, 0, 1<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, -1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1  <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1  <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, -0.1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, 0.1<br />&nbsp; &nbsp;x# = <a href="EntityX.htm"><b>EntityX</b></a>(camera)<br />&nbsp; &nbsp;y# = <a href="EntityY.htm"><b>EntityY</b></a>(camera)<br />&nbsp; &nbsp;z# = <a href="EntityZ.htm"><b>EntityZ</b></a>(camera)<br />&nbsp; &nbsp;terra_y# = <a href="TerrainY.htm"><b>TerrainY</b></a>(terrain, x#, y#, z#) + 5<br />&nbsp; &nbsp;<a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, x#, terra_y#, z#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_76.html">Terrain</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

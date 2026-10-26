@@ -1,0 +1,109 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		NetMsgType 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Code = <b>NetMsgType</b> () 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			1-99 = benutzerdefinierte Nachricht, die von anderem Computer geschickt wurde <br />100 = ein neuer Spieler ist dem Spiel beigetreten <br />101 = ein Spieler hat das Netzwerkspiel verlassen <br />102 = Der Host hat das Spiel verlassen und dieser Computer ist nun der neue Host <br />200 = Ein Problem ist aufgetreten und das Netzwerkspiel muss beendet werden <br /> 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion liefert einen Code der gesendeten Nachricht. 1-99 sind benutzerdefinierte Nachrichten, die von anderen Computern geschickt wurden. 100 bedeutet, dass ein neuer Spieler auf einem anderen Rechner erstellt wurde. <a href="NetMsgFrom.htm"><b>NetMsgFrom</b><img src="../../html/images/quicklink.gif" /></a> liefert dann die Identität des neuen Spielers. Bei 101 hat ein Spieler das Netzwerkspiel verlassen. <a href="NetMsgFrom.htm"><b>NetMsgFrom</b><img src="../../html/images/quicklink.gif" /></a> liefert auch hier die Identität des gelöschten Spielers. Diese Identität darf dann aber auf keinen Fall vom Programm benutzt werden. 102 Bedeutet: Der Host hat das Spiel verlassen und dieser Computer ist nun der neue Host. Ganz schlimm ist der Code 200: denn dann ist irgend etwas ganz schreckliches passiert und das Spiel muss beendet werden.<br /> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Um diesen Befehl zu benutzen, muss man vorher entweder <a href="StartNetGame.htm"><b>StartNetGame</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="JoinNetGame.htm"><b>JoinNetGame</b><img src="../../html/images/quicklink.gif" /></a> ausführen. Danach muss man mit <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b><img src="../../html/images/quicklink.gif" /></a> einen Spieler erstellen. Die Nachricht wird mit <a href="RecvNetMsg.htm"><b>RecvNetMsg</b><img src="../../html/images/quicklink.gif" /></a> empfangen. Benutze danach <a href="NetMsgFrom.htm"><b>NetMsgFrom</b><img src="../../html/images/quicklink.gif" /></a> um die Spieler-Identität zu ermitteln.<br />Benutze <a href="NetMsgData.htm"><b>NetMsgData</b><img src="../../html/images/quicklink.gif" /></a>, <a href="NetMsgFrom.htm"><b>NetMsgFrom</b><img src="../../html/images/quicklink.gif" /></a> <a href="NetMsgTo.htm"><b>NetMsgTo</b><img src="../../html/images/quicklink.gif" /></a> und <a href="NetMsgType.htm"><b>NetMsgType</b><img src="../../html/images/quicklink.gif" /></a>, um weitere wichtige Informationen zu ermitteln. Benutze auch <a href="SendNetMsg.htm"><b>SendNetMsg</b><img src="../../html/images/quicklink.gif" /></a>, um eine Nachricht ins Netzwerk zu verschicken. 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Dieses Programm ermittelt gesendete Informationen (nur ein Prinzipbeispiel):<br /><br /><a href="StartNetGame.htm"><b>StartNetGame</b></a>()<br />playerID = <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b></a>("Shane")<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="RecvNetMsg.htm"><b>RecvNetMsg</b></a>() <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;msgType = <a href="NetMsgType.htm"><b>NetMsgType</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> msgType > 0 <a href="And.htm"><b>And</b></a> msgType < 100 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "(Nachricht zugeschickt von: " + <a href="NetMsgFrom.htm"><b>NetMsgFrom</b></a>() + ")"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "(Nachricht zugeschickt an: " + <a href="NetMsgTo.htm"><b>NetMsgTo</b></a>() + ")"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Nachricht: " + <a href="NetMsgData.htm"><b>NetMsgData</b></a>$()<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="SendNetMsg.htm" title="Sendet eine Nachricht zu einem Teilnehmer">SendNetMsg</a>, <a href="RecvNetMsg.htm" title="Ermittelt ob eine Nachricht empfangen worden ist">RecvNetMsg</a>, <a href="NetPlayerName.htm" title="Ermittelt den Namen eines Teilnehmers">NetPlayerName</a>, <a href="NetPlayerLocal.htm" title="Prüft ob der Teilnehmer sich auf dem lokalen Rechner befindet">NetPlayerLocal</a>, <a href="NetMsgData.htm" title="Liefert die Daten einer Netzwerk-Nachricht">NetMsgData</a>, <a href="NetMsgFrom.htm" title="Liefert die ID des Teilnehmers, der die Nachricht abgeschickt hat.">NetMsgFrom</a>, <a href="NetMsgTo.htm" title="Ermittelt die Identität des Teilnehmers, an den eine Nachricht gesendet worden ist.">NetMsgTo</a>, <a href="DeleteNetPlayer.htm" title="Löscht einen Teilnehmer aus einem Netzwerkspiel">DeleteNetPlayer</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_18.html">DirectPlay</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

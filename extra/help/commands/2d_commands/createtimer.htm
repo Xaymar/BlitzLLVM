@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateTimer 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			timer = <b>CreateTimer</b> (frequenz#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+frequenz#
+</td>
+<td>
+Takte pro Sekunde (Empfehlung: min. 50 für Grafikausgabe)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität des Timers. Falls eine Null zurückgeliefert wird, dann konnte dieser Timer nicht erstellt werden. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion definiert einen Zeitgeber. Der Computer zählt dann intern mit dieser Frequenz. Das Programm kann danach mit <a href="WaitTimer.htm"><b>WaitTimer</b><img src="../../html/images/quicklink.gif" /></a> angehalten werden, solange kein weiterer "Zählimpuls" ankommt. Mit <a href="FreeTimer.htm"><b>FreeTimer</b><img src="../../html/images/quicklink.gif" /></a> kann dieser Timer wieder deaktiviert werden.<br /><br />Diese Befehle sind besonders für die Grafikausgabe nützlich. Damit kann man die Grafikausgabe auf bestimmte Bilderanzahl pro Sekunde drosseln. Somit wird das Spiel genau so schnell auch auf anderen Rechnern erscheinen.<br /><br /><div class="caution">In Blitzbasic (B2D) kann als Frequenz nur eine Zahl ohne Komma angegeben werden (int). In BlitzPlus und Blitz3D dagegen ist auch eine Kommazahl (float) möglich.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Das erzeugen, abfragen und löschen eines Timers. In diesem Fall wird der Bildschirm genau 60 mal pro Sekunde gezeichnet:<br />
+			<div class="syntax-code">
+				frameTimer = <a href="CreateTimer.htm"><b>CreateTimer</b></a> (60)<br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480<br /><br /><a href="While.htm"><b>While</b></a> <a href=" Not.htm"><b> Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a> (1)<br /><br />&nbsp; &nbsp;<a href="CLS.htm"><b>CLS</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0 ,"Dies ist ein Timer Test"<br />&nbsp; &nbsp;<a href="WaitTimer.htm"><b>WaitTimer</b></a> (frameTimer)<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a> 0<br /><br /><a href="Wend.htm"><b>Wend</b></a><br /><br /><a href="FreeTimer.htm"><b>FreeTimer</b></a> frameTimer<br /><a href="End.htm"><b>End</b></a><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Delay.htm" title="Stoppt Programm für eine bestimmte Zeit">Delay</a>, <a href="CurrentTime.htm" title="Ermittelt die aktuelle Uhrzeit">CurrentTime</a>, <a href="FreeTimer.htm" title="Diese Anweisung löscht einen Timer">FreeTimer</a>, <a href="MilliSecs.htm" title="Ermittelt Zeit seit dem letzten Windowsstart">MilliSecs</a>, <a href="WaitTimer.htm" title="Dieser Befehl wartet bis ein Zeitimpuls ankommt">WaitTimer</a>, <a href="PauseTimer.htm" title="Diese Anweisung hält einen Zeitgeber an">PauseTimer</a>, <a href="ResetTimer.htm" title="Diese Anweisung setzt einen Zeitgeber zurück">ResetTimer</a>, <a href="ResumeTimer.htm" title="Diese Anweisung setzt die Ausführung eines Zeitgebers fort">ResumeTimer</a>, <a href="TimerTicks.htm" title="Liefert die Ticks die ein Zeitgeber produziert hat">TimerTicks</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_8.html">Zeit & Zufall</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

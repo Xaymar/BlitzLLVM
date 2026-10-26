@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CameraClsMode 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CameraClsMode</b> kamera%, farbe%, zbuffer% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+kamera%
+</td>
+<td>
+Identität einer Kamera
+</td>
+</tr>
+<tr>
+<td width="100">
+farbe%
+</td>
+<td>
+Löschen des Color-Buffers (0=nein, 1=ja)
+</td>
+</tr>
+<tr>
+<td width="100">
+zbuffer%
+</td>
+<td>
+Löschen des ZBuffers (0=nein, 1=ja)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>CameraClsMode</b> setzt den Lösch-Modus einer Kamera.<br /><br />Mit dem Parameter Farbe kann man das Löschen des Szenen-Hintergrundes ausschalten. Dann wird der Bereich, wo sich keine Objekte befinden, überhaupt nicht gelöscht! Das kann zu schweren Grafikfehlern führen, wenn es nicht richtig angewendet wird. Es ist dann sinnvoll, wenn zuerst 2D-Hintergrundbild gemalt wird und dann 3D-Objekte darauf gezeichnet werden. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, 0<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br /><br /><a href="Dim.htm"><b>Dim</b></a> X(299), Y#(299), V#(299)<br /><a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 299<br />&nbsp; &nbsp;X(i) = <a href="Rnd.htm"><b>Rnd</b></a>(0, 639)<br />&nbsp; &nbsp;Y#(i) = <a href="Rnd.htm"><b>Rnd</b></a>(0, 479)<br />&nbsp; &nbsp;V#(i) = <a href="Rnd.htm"><b>Rnd</b></a>(1, 5)<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="CameraClsMode.htm"><b>CameraClsMode</b></a> camera, 0, 1<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="LockBuffer.htm"><b>LockBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 299<br />&nbsp; &nbsp;&nbsp; &nbsp;Y#(i) = Y#(i) + V#(i)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Y#(i)>479 <a href="Then.htm"><b>Then</b></a> X(i) = <a href="Rand.htm"><b>Rand</b></a>(0, 639):Y#(i) = Y#(i) - 480:V#(i) = <a href="Rnd.htm"><b>Rnd</b></a>(1, 5)<br />&nbsp; &nbsp;&nbsp; &nbsp;Grau = <a href="Int.htm"><b>Int</b></a>(v#(i)) * 50<br />&nbsp; &nbsp;&nbsp; &nbsp;Farbe = Grau * $10000 + Grau * $100 + Grau<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="WritePixelFast.htm"><b>WritePixelFast</b></a> x(i), y#(i), Farbe<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="UnlockBuffer.htm"><b>UnlockBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, .5, 1, 2<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CameraClsColor.htm" title="Ändert Hintergrundfarbe einer Kamera">CameraClsColor</a>, <a href="CameraProjMode.htm" title="Schaltet die Projektion einer Kamera um">CameraProjMode</a>, <a href="CreateCamera.htm" title="Erstellt eine neue Kamera">CreateCamera</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_66.html">Kamera</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

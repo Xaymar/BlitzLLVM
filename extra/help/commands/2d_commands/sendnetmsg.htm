@@ -1,0 +1,149 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SendNetMsg 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert = <b>SendNetMsg</b> (Code, Nachricht$, Von [,Nach] [,Wichtig]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Code
+</td>
+<td>
+Nachrichtkennung 1-99
+</td>
+</tr>
+<tr>
+<td width="100">
+Nachricht$
+</td>
+<td>
+beliebige Textnachricht
+</td>
+</tr>
+<tr>
+<td width="100">
+Von
+</td>
+<td>
+Identität des Spielers (ermittelt mit <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b><img src="../../html/images/quicklink.gif" /></a>)
+</td>
+</tr>
+<tr>
+<td width="100">
+Nach
+</td>
+<td>
+Identität des Spielers (ermittelt mit <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b><img src="../../html/images/quicklink.gif" /></a>). Bei 0 wird es an alle gesendet!
+</td>
+</tr>
+<tr>
+<td width="100">
+Wichtig
+</td>
+<td>
+0=normal, 1=wichtige Nachricht (schneller und Standard)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Liefert bei erfolgreichem übertragen eine 1 zurück 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl sendet eine Nachricht über ein Netzwerk zu einem Spieler.<br />"Code" kann nur ein Wert von 1 bis 99 sein, der eine benutzerdefinierte Kennung angibt. "Von" und "Nach" sind Integerwerte, die mit <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b><img src="../../html/images/quicklink.gif" /></a> ermittelt wurden. Wird "Wichtig" auf 1 gesetzt, dann wird die Nachricht 3x schneller übertragen. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Um diesen Befehl zu benutzen, muss man vorher entweder <a href="StartNetGame.htm"><b>StartNetGame</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="JoinNetGame.htm"><b>JoinNetGame</b><img src="../../html/images/quicklink.gif" /></a> ausführen. Danach muss man mit <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b><img src="../../html/images/quicklink.gif" /></a> einen Spieler erstellen. Die Nachricht wird mit <a href="RecvNetMsg.htm"><b>RecvNetMsg</b><img src="../../html/images/quicklink.gif" /></a> empfangen. Benutze danach <a href="NetMsgFrom.htm"><b>NetMsgFrom</b><img src="../../html/images/quicklink.gif" /></a> um die Spieler-Identität zu ermitteln.<br />Benutze <a href="NetMsgData.htm"><b>NetMsgData</b><img src="../../html/images/quicklink.gif" /></a>, <a href="NetMsgFrom.htm"><b>NetMsgFrom</b><img src="../../html/images/quicklink.gif" /></a> <a href="NetMsgTo.htm"><b>NetMsgTo</b><img src="../../html/images/quicklink.gif" /></a> und <a href="NetMsgType.htm"><b>NetMsgType</b><img src="../../html/images/quicklink.gif" /></a>, um weitere wichtige Informationen zu ermitteln. Benutze auch <a href="SendNetMsg.htm"><b>SendNetMsg</b><img src="../../html/images/quicklink.gif" /></a>, um eine Nachricht ins Netzwerk zu verschicken. 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="Type.htm"><b>Type</b></a> multi<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> x<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> y<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> id<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> name$<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> xspeed<br />&nbsp; &nbsp;<a href="Field.htm"><b>Field</b></a> boxColor<br /><a href="End Type.htm"><b>End Type</b></a><br /><br />joinStatus = <a href="HostNetGame.htm"><b>HostNetGame</b></a>("ShaneGame")<br /><a href="If.htm"><b>If</b></a> joinStatus = 2 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Spiel gestartet... "<br /><a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Spiel konnte nicht gestartet werden!"<br />&nbsp; &nbsp;<a href="End.htm"><b>End</b></a><br /><a href="EndIf.htm"><b>EndIf</b></a><br /><br /><a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> 5<br />&nbsp; &nbsp;player.multi = <a href="New.htm"><b>New</b></a> multi<br />&nbsp; &nbsp;player\ID = <a href="CreateNetPlayer.htm"><b>CreateNetPlayer</b></a>("Player" + t)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> player\ID <> 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;player\name$ = "Player" + t<br />&nbsp; &nbsp;&nbsp; &nbsp;player\x = <a href="Rand.htm"><b>Rand</b></a>(640)<br />&nbsp; &nbsp;&nbsp; &nbsp;player\y = <a href="Rand.htm"><b>Rand</b></a>(480)<br />&nbsp; &nbsp;&nbsp; &nbsp;player\boxColor = <a href="Rand.htm"><b>Rand</b></a>(255)<br />&nbsp; &nbsp;&nbsp; &nbsp;player\xspeed = <a href="Rand.htm"><b>Rand</b></a>(1, 5)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Spieler " + t + " hat ID=" + player\ID<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> "Spieler konnte nicht erstellt werden!"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="Print.htm"><b>Print</b></a> "Alle Spieler eingebunden..."<br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> player = <a href="Each.htm"><b>Each</b></a> multi<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> player\boxColor, player\boxColor, player\boxColor<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> player\x, player\y, 10, 10, 1<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> player\x - 10, player\y - 15, player\name$<br />&nbsp; &nbsp;&nbsp; &nbsp;player\x = player\x + player\xspeed<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> player\x > 640 <a href="Or.htm"><b>Or</b></a> player\x < 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;player\xspeed = - player\xspeed<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;message$ = "Spieler ID #" + player\ID + " beruhrte Wand"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SendNetMsg.htm"><b>SendNetMsg</b></a> (<a href="Rand.htm"><b>Rand</b></a>(1, 99), message$, player\id, 0)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="NetMsgData.htm" title="Liefert die Daten einer Netzwerk-Nachricht">NetMsgData</a>, <a href="NetMsgFrom.htm" title="Liefert die ID des Teilnehmers, der die Nachricht abgeschickt hat.">NetMsgFrom</a>, <a href="NetMsgTo.htm" title="Ermittelt die Identität des Teilnehmers, an den eine Nachricht gesendet worden ist.">NetMsgTo</a>, <a href="NetMsgType.htm" title="Liefert den Code einer gesendeten Nachricht">NetMsgType</a>, <a href="RecvNetMsg.htm" title="Ermittelt ob eine Nachricht empfangen worden ist">RecvNetMsg</a>, <a href="NetPlayerName.htm" title="Ermittelt den Namen eines Teilnehmers">NetPlayerName</a>, <a href="NetPlayerLocal.htm" title="Prüft ob der Teilnehmer sich auf dem lokalen Rechner befindet">NetPlayerLocal</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_3.html">Netzwerk</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_18.html">DirectPlay</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

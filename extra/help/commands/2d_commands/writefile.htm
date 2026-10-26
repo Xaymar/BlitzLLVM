@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		WriteFile 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Stream = <b>WriteFile</b> (datei$) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+datei$
+</td>
+<td>
+String mit dem Namen einer Datei, die für diesen Zugriff geöffnet werden soll. Es kann auch ein Pfad angegeben werden.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Identität, die für weitere Dateibefehle unbedingt notwendig ist. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl öffnet eine Datei für einen Schreibzugriff. Somit kann man dann beliebige Daten (Spielstände, HighScore, Leveldaten) in eine Datei speichern.<br /><br />Diese Funktion liefert einen Wert, der für weitere WRITE-Befehle unbedingt notwendig ist. Wird Null zurückgeliefert, dann konnte die Datei nicht erstellt werden.<br /><br /><div class="hint">Benutze <a href="SeekFile.htm"><b>SeekFile</b><img src="../../html/images/quicklink.gif" /></a>, um die Dateiposition zu setzen und <a href="FilePos.htm"><b>FilePos</b><img src="../../html/images/quicklink.gif" /></a>, um die Dateiposition auszulesen. Mit den normalen Befehlen <a href="WriteByte.htm"><b>WriteByte</b><img src="../../html/images/quicklink.gif" /></a>, <a href="WriteBytes.htm"><b>WriteBytes</b><img src="../../html/images/quicklink.gif" /></a>, <a href="WriteFloat.htm"><b>WriteFloat</b><img src="../../html/images/quicklink.gif" /></a>, <a href="WriteInt.htm"><b>WriteInt</b><img src="../../html/images/quicklink.gif" /></a>, <a href="WriteLine.htm"><b>WriteLine</b><img src="../../html/images/quicklink.gif" /></a>, <a href="WriteShort.htm"><b>WriteShort</b><img src="../../html/images/quicklink.gif" /></a> und <a href="WriteString.htm"><b>WriteString</b><img src="../../html/images/quicklink.gif" /></a> können Daten geschrieben werden. Benutze <a href="CloseFile.htm"><b>CloseFile</b><img src="../../html/images/quicklink.gif" /></a>, um die geöffnete Datei wieder zu schließen.<br />&nbsp;</div><br /><div class="caution">Achtung! Wenn <b>WriteFile</b> benutzt wird, dann wird auf jeden Fall eine neue Datei erstellt und alle alten Daten werden vernichtet. Falls Daten in einer Datei geändert werden sollen, dann muss man einfach <a href="OpenFile.htm"><b>OpenFile</b><img src="../../html/images/quicklink.gif" /></a> benutzten. <br />&nbsp;</div><br /><br /><img src="../../images/scr_illegalmemory.gif" /><br />Wird Null zurückgeliefert, dann konnte die Datei nicht erstellt werden. Werden danach Write-Befehle ausgeführt, so erscheint diese Fehlermeldung.<br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				;Dieses Programm demonstriert viele Dateibefehle. Zuerst werden Daten in eine Datei geschrieben, dann verändert und wieder ausgelesen:<br /><br />fileout = <a href="WriteFile.htm"><b>WriteFile</b></a>("mydata.dat")<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(fileout, 1)<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(fileout, 2)<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(fileout, 3)<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(fileout, 4)<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(fileout, 5)<br /><a href="CloseFile.htm"><b>CloseFile</b></a>(fileout)<br /><br />DisplayFile("Originaldatei:", "mydata.dat")<br /><br />file = <a href="OpenFile.htm"><b>OpenFile</b></a>("mydata.dat")<br /><a href="SeekFile.htm"><b>SeekFile</b></a>(file, 8)<br /><a href="WriteInt.htm"><b>WriteInt</b></a>(file, 9999)<br /><a href="CloseFile.htm"><b>CloseFile</b></a>(file)<br /><br />DisplayFile("Geänderte Datei", "mydata.dat")<br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><br /><a href="Function.htm"><b>Function</b></a> DisplayFile(Tittle$, Filename$)<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> Tittle$<br />&nbsp; &nbsp;filein = <a href="ReadFile.htm"><b>ReadFile</b></a>(Filename$)<br />&nbsp; &nbsp;<a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="Eof.htm"><b>Eof</b></a>(filein)<br />&nbsp; &nbsp;&nbsp; &nbsp;Number = <a href="ReadInt.htm"><b>ReadInt</b></a>(filein)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a> Number<br />&nbsp; &nbsp;<a href="Wend.htm"><b>Wend</b></a><br />&nbsp; &nbsp;<a href="CloseFile.htm"><b>CloseFile</b></a>(filein)<br />&nbsp; &nbsp;<a href="Print.htm"><b>Print</b></a><br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CloseFile.htm" title="Schließt einen geöffneten Dateistream">CloseFile</a>, <a href="SeekFile.htm" title="Verschiebt die aktuelle Dateiposition einer Datei">SeekFile</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

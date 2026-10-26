@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		VertexCoords 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>VertexCoords</b> surface%, vertex%, x#, y#, z# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+surface%
+</td>
+<td>
+Identität einer Gitteroberfläche (surface)
+</td>
+</tr>
+<tr>
+<td width="100">
+vertex%
+</td>
+<td>
+Indexnummer eines Vertexpunktes
+</td>
+</tr>
+<tr>
+<td width="100">
+x#
+</td>
+<td>
+Lokale X-Koordinate von Objektmitte
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Lokale Y-Koordinate von Objektmitte
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Lokale Z-Koordinate von Objektmitte
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>VertexCoords</b> ändert die Koordinate eines Vertexpunkts.<br /><br />VertexCoords wird üblicherweise für "dynamische mesh deformationen" benutzt. Dazu wird Vertexpunkt eines Gitterobjekts verschoben. Alle Dreiecke, die mit dem Punkt verbunden sind, werden automatisch geändert. Dadurch entsteht der Eindruck, dass das Objekt deformiert wird.<br /><br />Die Anweisung <a href="VertexNormal.htm"><b>VertexNormal</b><img src="../../html/images/quicklink.gif" /></a> ändert dagegen Normal-Koordinaten (für Lichtschattierungen). 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="WireFrame.htm"><b>WireFrame</b></a> 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cone = <a href="CreateCone.htm"><b>CreateCone</b></a>(16)<br /><a href="EntityColor.htm"><b>EntityColor</b></a> cone, 100, 100, 255<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone, 0, 0, 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cone, - 20, 0, 0<br />surface = <a href="GetSurface.htm"><b>GetSurface</b></a>(cone, 1)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;a = (a + 2) <a href="Mod.htm"><b>Mod</b></a> 360<br />&nbsp; &nbsp;x# = <a href="Cos.htm"><b>Cos</b></a>(a) * 2<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> i = 0 <a href="To.htm"><b>To</b></a> 15<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="VertexCoords.htm"><b>VertexCoords</b></a> surface, i, x#, 1, 0<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="VertexNormal.htm" title="Ändert Normal-Koordinaten eines Vertexpunkts">VertexNormal</a>, <a href="VertexX.htm" title="Liefert X-Koordinate eines Vertexpunkts zurück">VertexX</a>, <a href="VertexY.htm" title="Liefert Y-Koordinate eines Vertexpunkts zurück">VertexY</a>, <a href="VertexZ.htm" title="Liefert Z-Koordinate eines Vertexpunkts zurück">VertexZ</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_75.html">Surface</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ButtonState 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			status = <b>ButtonState</b> (button) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+button
+</td>
+<td>
+Identität eines Buttons
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 = Button hat keinen Haken/Punkt<br />1 = Button hat einen Haken/Punkt 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>ButtonState</b> ermittelt, ob ein Button gerade ein oder aus ist. Mit Button wird hier aber nicht der Button selbst gemeint, sondern eher Checkbox oder Radiobutton. Diese zwei Objekte werden ebenfalls mit <a href="CreateButton.htm"><b>CreateButton</b><img src="../../html/images/quicklink.gif" /></a> erzeugt (Style 2 oder 3). Mit <a href="SetButtonState.htm"><b>SetButtonState</b><img src="../../html/images/quicklink.gif" /></a> kann der Status auch umgeschaltet werden.<br /><br /><img src="../../images/gfx_button.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Erstellt paar Buttons und fragt den Status ab:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Window", 0, 0, 200, 200, 0, 1)<br /><br />button1 = <a href="CreateButton.htm"><b>CreateButton</b></a>("Button", 20, 20, 100, 30, window, 1)<br />button2 = <a href="CreateButton.htm"><b>CreateButton</b></a>("Checkbox", 20, 60, 100, 30, window, 2)<br />button3 = <a href="CreateButton.htm"><b>CreateButton</b></a>("Radiobutton", 20, 100, 100, 30, window, 3)<br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GetKey.htm"><b>GetKey</b></a>() = 27 <a href="Then.htm"><b>Then</b></a> <a href="End.htm"><b>End</b></a><br /><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="WaitEvent.htm"><b>WaitEvent</b></a>() = $401 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> <a href="EventSource.htm"><b>EventSource</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> button1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="ButtonState.htm"><b>ButtonState</b></a>(button1) = 0 <a href="Then.htm"><b>Then</b></a> <a href="SetGadgetText.htm"><b>SetGadgetText</b></a> button1, "aus"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="ButtonState.htm"><b>ButtonState</b></a>(button1) = 1 <a href="Then.htm"><b>Then</b></a> <a href="SetGadgetText.htm"><b>SetGadgetText</b></a> button1, "ein"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> button2<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="ButtonState.htm"><b>ButtonState</b></a>(button2) = 0 <a href="Then.htm"><b>Then</b></a> <a href="SetGadgetText.htm"><b>SetGadgetText</b></a> button2, "aus"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="ButtonState.htm"><b>ButtonState</b></a>(button2) = 1 <a href="Then.htm"><b>Then</b></a> <a href="SetGadgetText.htm"><b>SetGadgetText</b></a> button2, "ein"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> button3<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="ButtonState.htm"><b>ButtonState</b></a>(button3) = 0 <a href="Then.htm"><b>Then</b></a> <a href="SetGadgetText.htm"><b>SetGadgetText</b></a> button3, "aus"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="ButtonState.htm"><b>ButtonState</b></a>(button3) = 1 <a href="Then.htm"><b>Then</b></a> <a href="SetGadgetText.htm"><b>SetGadgetText</b></a> button3, "ein"<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateButton.htm" title="Erstellt eine Schaltfläche">CreateButton</a>, <a href="SetButtonState.htm" title="Ändert den Status einer CheckBox oder eines RadioButtons">SetButtonState</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_22.html">Button</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

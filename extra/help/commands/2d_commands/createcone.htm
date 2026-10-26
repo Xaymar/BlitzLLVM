@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateCone 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			kegel% = <b>CreateCone</b> ([segmente%] [, boden%] [, parent%]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+segmente%
+</td>
+<td>
+Anzahl der Segmente (Standard=8)
+</td>
+</tr>
+<tr>
+<td width="100">
+boden%
+</td>
+<td>
+0=ohne Boden<br />1=mit Boden (Standard)
+</td>
+</tr>
+<tr>
+<td width="100">
+parent%
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des Kegels zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateCone</b> erstellt ein Kegel-Gitterobjekt und liefert danach die Identität des Kegels zurück.<br /><br />Ein Kegel wird auf der Koordinate 0,0,0 erstellt und hat danach einen Radius von 1.<br /><br />Der optionale Parameter "segment%" gibt die Anzahl der Segmente an. Je höher dieser Wert, desto glatter erscheint das Objekt - allerdings benötigt so ein Objekt mehr Polygone. Der Wert kann nur im Bereich von 3-100 liegen. Dies wird nur im Debug-Modus überprüft. Ein größerer Wert wird bei ausgeschaltetem Debugger aber akzeptiert. Wird ein viel zu großer Wert übergeben, dann kann der Computer sogar abstürzen!<br /><br />Berechnung der Polygonanzahl:<br />Polygone=Segmente+(Segmente-2)*Boden<br /><br />4 Segmente: 6 Polygone - Pyramide<br />8 Segmente: 14 Polygone - minimale Anzahl der Segmente<br />16 Segmente: 30 Polygone - glatter Kegel (mittlere Entfernung)<br />32 Segmente: 62 Polygone - glatter Kegel (nahe Entfernung)<br /><br />Mit dem optionalen Parameter "boden%" kann man den Kegelboden ein- oder ausschalten. Ist die Grundfläche des Kegels nie sichtbar, dann sollte es unbedingt ausgeschaltet werden - dadurch wird die Polygonanzahl etwas reduziert.<br /><br />Wurde der Parameter "parent%" angegeben, dann wird dieser Kegel zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br /><br />Der Kegel wird normalerweise an der Position 0,0,0 erstellt. Wurde Parent angegeben, dann wird es an der Position des Parent-Objekts erstellt.<br /><br /><img src="../../images/gfx_kegel.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="WireFrame.htm"><b>WireFrame</b></a> 1<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>(2)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> light, 0, 10, 10<br /><br />cone1 = <a href="CreateCone.htm"><b>CreateCone</b></a>(20, 1)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cone1, 30, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone1, - 2, 0, 5<br /><br />cone2 = <a href="CreateCone.htm"><b>CreateCone</b></a>(100, 0)<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cone2, 30, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone2, 2, 0, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateCube.htm" title="Erstellt einen neuen Würfel">CreateCube</a>, <a href="CreateCylinder.htm" title="Erstellt einen neuen Zylinder">CreateCylinder</a>, <a href="CreateSphere.htm" title="Erstellt eine neue Kugel">CreateSphere</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_70.html">Mesh</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

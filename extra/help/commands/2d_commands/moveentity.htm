@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		MoveEntity 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>MoveEntity</b> entity%, x#, y#, z# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+x#
+</td>
+<td>
+X-Verschiebung (relativ)
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Y-Verschiebung (relativ)
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Z-Verschiebung (relativ)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>MoveEntity</b> verschiebt ein Objekt (entity) um einen bestimmten XYZ-Abstand.<br /><br />Beachte, dass das Objekt relativ zu seiner Position und Drehrichtung verschoben wird. Eine Kamera kann somit immer nach vorne verschoben werden - egal ob man zur Seite guckt oder nach unten oder oben... Auch die Abstände werden relativ zur letzten Position betrachtet.<br /><br /><img src="../../images/gfx_3dkoord.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 2, - 5, 14<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;a1 = (a1 + 1) <a href="Mod.htm"><b>Mod</b></a> 720<br />&nbsp; &nbsp;a2 = (a2 + 5) <a href="Mod.htm"><b>Mod</b></a> 360<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, a1 / 2, 0, a2<br />&nbsp; &nbsp;<a href="MoveEntity.htm"><b>MoveEntity</b></a> cube, .5, 0, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="PositionEntity.htm" title="Setzt ein 3D-Objekt an eine bestimmte Position im Raum">PositionEntity</a>, <a href="TranslateEntity.htm" title="Verschiebt ein 3D-Objekt um einen bestimmten Abstand">TranslateEntity</a>, <a href="PositionMesh.htm" title="Verschiebt ein Gitterobjekt relativ zu seinem Bezugspunkt">PositionMesh</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_60.html">Bewegung</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

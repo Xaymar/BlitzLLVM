@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Case 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Case</b> wert, wert, wert ... 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+wert
+</td>
+<td>
+beliebige Zahl oder String (Anzahl beliebig)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Befehl kann nur mit <a href="Select.htm"><b>Select</b><img src="../../html/images/quicklink.gif" /></a> verwendet werden. Eine <a href="Select.htm"><b>Select</b><img src="../../html/images/quicklink.gif" /></a> Konstruktion besteht aus <a href="Select.htm"><b>Select</b><img src="../../html/images/quicklink.gif" /></a> Anweisung, die am Ende mit <a href="End Select.htm"><b>End Select</b><img src="../../html/images/quicklink.gif" /></a> abgeschlossen werden muss. Dazwischen stehen mehrere <b>Case</b> Bedingungen. Sollte der in <a href="Select.htm"><b>Select</b><img src="../../html/images/quicklink.gif" /></a> angegebene Wert mit <b>Case</b>-Wert übereinstimmen, so werden dann die Befehle, die nach <b>Case</b> kommen, ausgeführt. <b>Case</b> ist eine Alternative für <a href="If.htm"><b>If</b><img src="../../html/images/quicklink.gif" /></a> <a href="Then.htm"><b>Then</b><img src="../../html/images/quicklink.gif" /></a>.<br /><br /><div class="caution">Es wird immer nur die erste zutreffende <b>Case</b> Bedingung ausgeführt und der Block dann verlassen. Sollte die Variable in dem Block geändert werden, so hat das keinen Einfluss auf die Ausführung.<br />&nbsp;</div><br /><br /><div class="hint">Es können auch komplexere Bedingungen überprüft werden. Die Operatoren <,>, <a href="And.htm"><b>And</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="Or.htm"><b>Or</b><img src="../../html/images/quicklink.gif" /></a> liefern eine 1 zurück, wenn die Bedingung erfüllt wird. Wenn es mit dem vorgegebenen Wert 1 übereinstimmt, dann wird es ausgeführt (siehe 2. Beispielcode).<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Beispiel zur Verwendung:<br />
+			<div class="syntax-code">
+				; Einfaches Beispiel<br /><br />Level = 2<br /><a href="Select.htm"><b>Select</b></a> Level<br /><br /><a href="Case.htm"><b>Case</b></a> 1<br /><a href="Print.htm"><b>Print</b></a> "Level 1"<br /><a href="Case.htm"><b>Case</b></a> 2<br /><a href="Print.htm"><b>Print</b></a> "Level 2"<br /><a href="Case.htm"><b>Case</b></a> 3,4<br /><a href="Print.htm"><b>Print</b></a> "Level 3 oder 4"<br /><br /><a href="End Select.htm"><b>End Select</b></a><br /><br /><a href="Print.htm"><b>Print</b></a> "Drücke Taste für nächstes Beispiel"<br /><a href="Waitkey.htm"><b>Waitkey</b></a><br /><br />; Dieses Beispiel demonstriert komplexere Bedingungen:<br /><br />Level = 8<br /><a href="Select.htm"><b>Select</b></a> <a href="True.htm"><b>True</b></a><br /><br /><a href="Case.htm"><b>Case</b></a> Level = 11<br />   <a href="Print.htm"><b>Print</b></a> "Zahl entspricht 11"<br /><a href="Case.htm"><b>Case</b></a> Level =>0 <a href="And.htm"><b>And</b></a> Level <=10<br />   <a href="Print.htm"><b>Print</b></a> "Zahl ist von 0 bis 10"<br /><a href="Case.htm"><b>Case</b></a> Level <0 <br />   <a href="Print.htm"><b>Print</b></a> "Zahl ist kleiner als 0"<br /><br /><a href="Default.htm"><b>Default</b></a> <a href="Print.htm"><b>Print</b></a> "Zahl ist grösser als 10"<br /><br /><a href="End Select.htm"><b>End Select</b></a><br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Default.htm" title="Dieser Befehl kann nur mit &quot;Select&quot; verwendet werden">Default</a>, <a href="End Select.htm" title="Kennzeichnet das Ende einer &quot;Select&quot; Konstruktion">End Select</a>, <a href="Select.htm" title="Definiert eine &quot;Select&quot; Konstruktion">Select</a>, <a href="Else.htm" title="Kann zusammen mit &quot;If&quot; Befehlen verwendet werden">Else</a>, <a href="ElseIf.htm" title="Kann zusammen mit &quot;If&quot;-Bedingungen benutzt werden">ElseIf</a>, <a href="If.htm" title="Prüft ob Bedingungen erfüllt sind">If</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_7.html">Bedingungen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SoundVolume 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SoundVolume</b> sound, volume# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+sound
+</td>
+<td>
+Identität des Sounds (mit <a href="LoadSound.htm"><b>LoadSound</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+<tr>
+<td width="100">
+volume
+</td>
+<td>
+Kann nur zwischen 0 (lautlos) und 1 (laut) liegen
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung ändert die Lautstärke eines Sounds. Somit kann man z.B. die Entfernung eines Objekts im Spiel simulieren. Ist ein Objekt weit entfernt, so ist es leise und in der Nähe laut. <b>SoundVolume</b> kann nur vor dem Abspielen ausgeführt werden.<br /><br /><div class="hint"><a href="ChannelVolume.htm"><b>ChannelVolume</b><img src="../../html/images/quicklink.gif" /></a> funktioniert ähnlich und ist universell.<br />&nbsp;</div> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel spielt einen Sound mit halber Lautstärke links ab:<br />
+			<div class="syntax-code">
+				snd = <a href="LoadSound.htm"><b>LoadSound</b></a> ("sound.wav")<br /><br /><a href="SoundVolume.htm"><b>SoundVolume</b></a> snd,.5<br /><br /><a href="SoundPan.htm"><b>SoundPan</b></a> snd,-1<br /><br /><a href="PlaySound.htm"><b>PlaySound</b></a> snd<br /><br /><a href="WaitKey.htm"><b>WaitKey</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ChannelVolume.htm" title="Die Lautstärke eines Sounds ändern">ChannelVolume</a>, <a href="ChannelPlaying.htm" title="Ermittelt ob ein Sound gerade abgespielt wird">ChannelPlaying</a>, <a href="ChannelPitch.htm" title="Die Sample-Frequenz eines Sounds festlegen">ChannelPitch</a>, <a href="ChannelPan.htm" title="Setzt den Balance-Wert eines Sounds">ChannelPan</a>, <a href="SoundPan.htm" title="Setzt den Balance-Wert eines Sounds">SoundPan</a>, <a href="SoundPitch.htm" title="Legt die Sample-Frequenz eines Sounds fest">SoundPitch</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_6.html">Sound</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_11.html">Samples</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

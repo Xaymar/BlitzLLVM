@@ -1,0 +1,828 @@
+html, body, div, table, tr, td, ol, ul, li, dl, dd, dt, form, input, button, select, textarea, fieldset, p, span, h1, h2, h3, h4, h5, h6, blockquote, cite {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+
+	font-size: 101%; /* IE fix für Größen mit "em" */
+
+	background: #F8F7F4 url("images/sidebar.gif") repeat-y right;
+}
+
+p, dt, dd, li, td, span, cite {
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 0.9em;
+
+	line-height: 1.6em;
+}
+
+a {
+	font-family: Verdana, Arial, sans-serif;
+
+	line-height: 1.6em;
+}
+
+p {
+	margin: 0.5em 0;
+}
+
+abbr {
+	border-bottom: 1px dotted #bbb;
+}
+
+code, pre {
+	font-size: xx-small;
+	font-family: "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+}
+
+a {
+	color:  #526074;
+	
+	text-decoration: none;
+
+	/* color: #1554af; */
+}
+
+a:hover {
+	color: #5A5E56;
+	/* color: #1554af; */
+
+	text-decoration: none;
+}
+
+img {
+	border: 0;
+}
+
+.hidden {
+	display: none;
+}
+
+.clearin, .clear {
+	clear: both;
+
+	/* line-height: 0; */
+}
+
+/**
+ * Formulare
+ */
+fieldset {
+	margin: 0;
+	padding: 0;
+
+	border: 0;
+}
+
+input, textarea, button, label, select {
+	font-family: Verdana, Arial, sans-serif;
+}
+
+textarea {
+	font-size: 1.1em;
+}
+
+input, select {
+	border: 1px solid #B8B5AE;
+}
+
+/*
+button {
+	background: #F8F7F4;
+	border: 1px solid #B8B5AE;
+}
+*/
+
+button, input[type="button"], input[type="submit"], input[type="reset"] {
+	background-color: #F5F3E9;
+	border: 1px solid #d8d8d8;
+	padding: 1px;
+	font-size: 13px;
+}
+
+button:hover, input[type="button"]:hover, input[type="submit"]:hover, input[type="reset"]:hover {
+	border: 1px solid #999;
+}
+
+input[type="text"], input[type="password"], textarea {
+	border: 1px solid #d8d8d8;
+
+	padding: 1px;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="reset"]:focus, textarea:focus {
+	border: 1px solid #999;
+
+	padding: 1px;
+}
+
+input[type="file"] {
+	font-size: 13px;
+}
+
+
+
+/*-----------------------------------------------------------------------
+	Header
+*/
+#header {
+	/* HÖHE! */
+
+	margin: 0;
+	padding: 0;
+}
+
+#header_left {
+	height: 80px;
+	width: 100%;
+
+	float: left;
+
+	margin-right: -225px;
+	/*padding-left: 575px;*/
+
+	text-align: left;
+
+}
+
+#header_left div {
+	padding: 5px 230px 0 0;
+
+	text-align: right;
+}
+
+#header_left h1 {
+	display: none; /* Titel gugunsten von BG verstecken */
+}
+
+
+#header_right {
+	width: 225px;
+	height: 80px;
+
+	background: #F0EDE8 url("images/login.gif") no-repeat bottom left;
+	float: right;
+}
+
+#header_right p {
+	height: 75px;
+
+	margin: 0;
+	margin-left: 2px;
+	padding-top: 4px;
+	padding-left: 12px;
+	padding-right: 5px;
+
+	/* border-bottom: 1px solid #C4C0B5; */
+
+	font-size: 0.7em;
+}
+
+#header_right a {
+	font-size: 0.9em;
+
+	color: #5A5E56;
+}
+
+
+
+/*-----------------------------------------------------------------------
+	Menubar
+*/
+#menubar {
+	height: 30px;
+
+	clear: both; /* <- ansich bloß nötig, wenn wir beim header keine height angeben und die floats nur beenden wollen */
+
+	padding-left: 20px;
+
+    background: #ABA8A1 url("images/menu.gif") top left repeat-x;
+	border-top: 1px solid #DAD5CC; /* #9DB9DE */
+    border-bottom: 1px solid #7C7A7C; /* #53729B */
+
+	font-weight: bold;
+}
+
+#menubar a {
+	border: none;
+
+	text-decoration: none;
+
+	font-size: 0.9em;
+}
+
+
+/*-----------------------------------------------------------------------
+	Menu
+*/
+
+/**
+ * Hauptmenü
+ */
+#menu {
+	list-style: none;
+}
+
+#menu li {
+	height: 30px;
+
+	float: left;
+	position: relative;
+
+	padding-left: 2px;
+
+	background: url("images/menu_sep.gif") top left no-repeat;
+
+	font-family: Verdana, sans-serif;
+	font-size: 13px;
+	font-variant: small-caps;
+
+	line-height: 30px;
+	letter-spacing: 2px;
+}
+
+#menu li a {
+	padding: 8px 15px;
+
+	background: url("images/menu.gif") 0 0 repeat-x;
+
+	color: #F3F0EB; /* #E6D01A */
+
+	line-height: 30px;
+}
+
+#menu>li:hover>a  {
+	background-position: 0 -30px;
+}
+
+
+/**
+ * Untermenü
+ */
+#menu li ul {
+	display: none;
+	position: absolute;
+
+	top: 30px; /* für IE: 30px höhe des menüs (ohne border) */
+	left: 2px;
+
+	background-image: url('images/menubg.png');
+	border: 1px solid #aaa;
+	color: #333;
+
+	list-style: none;
+
+	/* Alpha in IE.css */
+}
+#menu li>ul  {
+	top: auto; /* gute Browser zeigen es gleich drunter */
+}
+
+#menu li:hover ul, #menu li.over ul {
+	display: block;
+}
+
+#menu li ul li {
+	clear: both; /* IE macht sonst width: 100%; o_O */
+
+	background: none;
+}
+
+#menu li:hover ul li a, #menu li.over ul li a {
+	padding: 0 5px;
+
+	background: none;
+
+	color: black;
+}
+
+
+/*-----------------------------------------------------------------------
+	Content
+*/
+#main_wrap {
+	margin: 0;
+	padding: 0;
+}
+
+#content_wrap {
+	width: 100%;
+
+	float: left;
+
+	margin-right: -250px;
+}
+
+#content {
+	margin-right: 0px;
+	padding: 0 0px;
+	padding-top: 15px;
+
+	font-size: 0.9em;
+}
+
+#content h1 {
+	margin-bottom: 20px;
+
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 1.8em;
+}
+
+#content h2 {
+	margin-bottom: 15px;
+
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 1.3em;
+}
+
+
+/*-----------------------------------------------------------------------
+	Seitenzahlen h4xx0r :D
+*/
+
+div.pages {
+	height: 1.2em;
+
+	position: relative;
+
+	padding-left: 1em; /* linke Ecke freilassen */
+
+	line-height: 1.2em;
+}
+
+div.pages ul {
+	height: 1.2em;
+
+	display: block;
+
+	color: #4E4E4E;
+}
+
+#pages_top {
+	margin-top: 1em;
+
+	background: #EBE2D5 url("images/title_ol.gif") top left no-repeat;
+	border-bottom: 1px solid #B2B0AC;
+}
+#pages_top ul {
+	background: url("images/title_or.gif") top right no-repeat;
+}
+
+#pages_bottom {
+	margin-top: 0;
+	margin-bottom: 1em;
+
+	background: #EBE2D5 url("images/title_ul.gif") bottom left no-repeat;
+	border-top: 1px solid #B2B0AC;
+
+	clear: both;
+}
+#pages_bottom ul {
+	background: url("images/title_ur.gif") bottom right no-repeat;
+}
+
+div.pages ul li {
+	font-size: 0.7em;
+	display:inline;
+	/*float: left;*/
+}
+
+div.pages ul li a {
+	font-size: 1.0em;
+
+	color: #526074;
+}
+
+/* Vor und zurück */
+div.pages ul li.prev {
+}
+div.pages ul li.next {
+}
+
+/* Erste und Letzte Seite */
+div.pages ul li.first {
+}
+div.pages ul li.last {
+}
+
+/* ... */
+div.pages ul li.omit {
+}
+
+
+div.pages_bottom, div.pages_top {
+	height: 1.2em;
+
+	position: relative;
+
+	padding-left: 1em; /* linke Ecke freilassen */
+
+	line-height: 1.2em;
+}
+
+div.pages_bottom ul, div.pages_top ul {
+	height: 1.2em;
+
+	display: block;
+
+	color: #4E4E4E;
+}
+
+div.pages_top {
+	margin-top: 1em;
+
+	background: #EBE2D5 url("images/title_ol.gif") top left no-repeat;
+	border-bottom: 1px solid #B2B0AC;
+}
+div.pages_top ul {
+	background: url("images/title_or.gif") top right no-repeat;
+}
+
+div.pages_bottom {
+	margin-top: 0;
+	margin-bottom: 1em;
+
+	background: #EBE2D5 url("images/title_ul.gif") bottom left no-repeat;
+	border-top: 1px solid #B2B0AC;
+
+	clear: both;
+}
+div.pages_bottom ul {
+	background: url("images/title_ur.gif") bottom right no-repeat;
+}
+
+div.pages_bottom ul li, div.pages_top ul li {
+	font-size: 0.7em;
+	display:inline;
+	/*float: left;*/
+}
+
+div.pages_bottom ul li a, div.pages_top ul li a {
+	font-size: 1.0em;
+
+	color: #526074;
+}
+
+
+
+/*-----------------------------------------------------------------------
+	Standard
+*/
+
+#standard {
+	
+	margin: 10px 0px 0 10px;
+	padding: 0px 30px 0 0;
+
+}
+
+#standard div.table {
+	width: 100%;
+}
+
+#standard table {
+	width: 100%;
+
+	margin: 0 0px 0 0px;
+	padding: 0 30px 0 0; 
+
+	border-spacing: 0;
+	border: 0;
+
+	background: #F0EDE8;
+
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 0.9em;
+
+	line-height: 1.6em;
+}
+
+#standard table td {
+	padding: 10px;
+
+	border: 0;
+	border-top: 1px solid #E3DFD8;
+
+	vertical-align: top;
+}
+
+#table table td {
+	padding: 0 10px 0 10px;
+	border: 0;
+	vertical-align: top;
+	}
+
+#standard table th {
+	padding: 5px 0px 5px 15px;
+	margin: 0; 
+
+	background: #E3DFD8;
+	color: #5A5E56;
+
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 1.3em;
+	font-weight: bold;
+
+	text-align: left;
+}
+
+#standard table th.table {
+	padding: 5px;
+
+	text-align: center;
+
+	font-size: 1.0em;
+}
+
+
+#standard p {
+	margin: 0;
+	padding: 10px;
+
+	background: #F0EDE8;
+
+	text-align: left;
+}
+
+#standard div.content {
+	margin: 0;
+	padding: 15px;
+
+	background: #F0EDE8;
+
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 0.9em;
+	text-align: left;
+}
+
+#standard div.content p {
+	padding: 10px 0;
+}
+
+#standard div.content ul li, #standard div.content ol li{
+	margin-left: 20px;
+	margin-top: 6px;
+
+	font-size: 1.0em;
+}
+
+#standard div.head {
+	padding: 5px 0px 5px 15px;
+	margin: 0;
+
+	background: #E3DFD8;
+	color: #5A5E56;
+
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 1.3em;
+	font-weight: bold;
+
+	text-align: left;
+}
+
+#standard table th.search_results {
+	padding: 5px 5px 5px 15px;
+	margin: 0;
+
+	background: #E3DFD8;
+	color: #000000;
+
+	font-family: Verdana, Arial, sans-serif;
+	font-size: 1.0em;
+	font-weight: normal;
+
+	text-align: left;
+}
+
+#standard table th.search_results h1 {
+	padding: 0;
+	margin: 0;
+
+	color: #5A5E56;
+
+	font-size: 1.4em;
+}
+
+#standard table.showcase_list {
+}
+
+#standard table.showcase_list td.info {
+
+}
+
+#standard table.showcase_list td.info i {
+	color: #5A5E56;
+
+	font-size: 0.8em;
+}
+
+#standard table.showcase_list td.info a.title {
+	color: #5A5E56;
+
+	font-size: 1.3em;
+
+	font-weight: bold;
+}
+
+#standard.about div.content {
+	padding-top: 1px;
+}
+
+#standard.about div.content h1 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+
+	font-size: 1.5em;
+	font-weight: normal;
+}
+
+#standard.about div.content h2 {
+	margin-top: 2px;
+	margin-bottom: 10px;
+
+	font-size: 1.3em;
+	font-weight: normal;
+}
+
+#standard.about div.content {
+	text-align: justify;
+}
+
+#standard.about div.thumb_left {
+	padding: 5px;
+	margin: 5px;
+	border: 1px solid #EBE2D5;
+
+	background: #F8F7F4;
+
+	float:left;
+}
+
+#standard.about div.thumb_right {
+	padding: 5px;
+	margin: 5px;
+	border: 1px solid #EBE2D5;
+
+	background: #F8F7F4;
+
+	float:right;
+}
+
+#standard.about div.thumbs_center {
+	padding: 15px;
+	margin: 5px;
+	border: 1px solid #EBE2D5;
+
+	background: #F8F7F4;
+
+	text-align: center;
+}
+
+#standard.about div.thumbs_center table, #standard.about div.thumbs_center table td {
+	padding: 0;
+	margin: 0;
+	border: 0;
+
+	background: #F8F7F4;
+
+	text-align: center;
+}
+
+#standard table.privmsg tr th {
+	 /* background: #E3DFD8; */
+
+	 font-weight: normal;
+	 font-size: 0.9em;
+}
+
+
+/*-----------------------------------------------------------------------
+	Sidebar
+*/
+
+
+#sidebar {
+	width: 225px;
+
+	float: right;
+
+	background: #F4F2EE url("images/sidebar.gif") repeat-y left;
+
+	font-size: 0.9em;
+}
+
+#sidebar a {
+	color: #5A5E56;
+}
+
+#sidebar dl {
+	margin-bottom: 10px;
+}
+
+#sidebar dl dt {
+	padding: 3px 0;
+	margin-bottom: 6px;
+
+	background: #EfEBE6 url("images/sidebar_dt.gif") repeat-y left;
+
+	font-weight: bold;
+
+	text-align: center;
+}
+
+#sidebar dl dd {
+	padding: 0 10px;
+}
+
+#sidebar dl dd.randomimage {
+	padding: 0 28px;
+}
+
+#sidebar_search {
+	/*padding-top: 5px;*/
+	padding-bottom: 8px;
+
+	/*height: 12px;*/
+}
+
+#sidebar_search form fieldset input.text {
+	width: 140px;
+}
+
+#sidebar_search form fieldset input.button {
+	font-size: 0.9em;
+}
+
+#sidebar_news {
+}
+
+#sidebar_news ul {
+	list-style: none;
+}
+
+#sidebar_news ul li {
+	/* background-image links?*/
+}
+
+#sidebar p.copy {
+	margin-top: 15px;
+	margin-left: 10px;
+
+	font-size: 0.7em;
+	font-weight: bold;
+}
+
+#sidebar p.version {
+	margin-top: 15px;
+	margin-left: 23px;
+
+	font-size: 0.7em;
+}
+
+/* Code-Boxen */
+
+.syntax-code {
+	/*font-family: Courier, 'Courier New', sans-serif;
+	font-size: 12px;
+	color: #111111;
+	background-color: #FAFAFA;
+	border: #D1D7DC;
+	border-style: solid;
+	border-left-width: 1px;
+	border-width: 1px;*/
+
+	margin-left: 15px;
+	padding: 5px;
+
+	border: 1px dashed #949b8e;
+
+	background: #F9F9F9;
+
+	overflow: auto;
+
+	font-family: "Bitstream Vera Sans Mono", "Courier New", Courier;
+	font-size: 10pt;
+}
+
+/* Anmerkungs-Boxen */
+
+div .caution {
+
+	padding-left:50px;
+	
+	background: url('images/help_caution.png') no-repeat 0px 3px;
+	
+	min-height:35px;
+}
+
+div .hint {
+
+	padding-left:50px;
+	
+	background: url('images/help_hint.png') no-repeat 0px 3px;
+	
+	min-height:35px;
+}

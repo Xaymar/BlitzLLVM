@@ -1,0 +1,157 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SetGamma 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SetGamma</b> index_r, index_g, index_b, gamma_r#, gamma_g#, gamma_b# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+index_r
+</td>
+<td>
+Rot-Index (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+index_g
+</td>
+<td>
+Grün-Index (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+index_b
+</td>
+<td>
+Blau-Index (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+gamma_r#
+</td>
+<td>
+Rot-Gammawert (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+gamma_g#
+</td>
+<td>
+Grün-Gammawert (0-255)
+</td>
+</tr>
+<tr>
+<td width="100">
+gamma_b#
+</td>
+<td>
+Blau-Gammawert (0-255)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>SetGamma</b> setzt neue Gamma-Werte. Es gibt bekanntlich 256 RGB-Farbabstufungen (0-255). Einige Farbanteile können künstlich aufgehellt oder abgedunkelt werden. Dadurch lassen sich verschiedene Effekte realisieren.<br /><br />index_r, index_g und index_b sind die 256 Farbabstufungen (0-255).<br />gamma_r, gamma_g und gamma_b sind die Gammawerte.<br />Normalerweise entspricht ein Gammawert etwa dem Indexwert.<br /><br />Dem index_r wird neuer Gammawert gamma_r zugewiesen.<br />Dem index_g wird neuer Gammawert gamma_g zugewiesen.<br />Dem index_b wird neuer Gammawert gamma_b zugewiesen.<br /><br />Diese drei Zuweisungen wurden in nur einem Befehl realisiert. Rot-, Grün- und Blau-Zuweisungen werden unabhängig verarbeitet. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Gamma-Funktionen können nur im Vollbildmodus verwendet werden. Im Fenstermodus zeigen diese Befehle keine Wirkung.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Bild kann mit Pfeiltasten (rechts und links) aufgehellt oder abgedunkelt werden. Mit STRG wird nur rote Farbe dargestellt:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 0, 1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />n = 0<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> n=n-1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> n=n+1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(29) = 1 <a href="Then.htm"><b>Then</b></a> SetGammaRed(n)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(29) = 0 <a href="Then.htm"><b>Then</b></a> SetGammaIntensity(n)<br /><br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="SeedRnd.htm"><b>SeedRnd</b></a> 1234<br /><br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> k = 1 <a href="To.htm"><b>To</b></a> 1000<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> <a href="Rand.htm"><b>Rand</b></a>(255), <a href="Rand.htm"><b>Rand</b></a>(255), <a href="Rand.htm"><b>Rand</b></a>(255)<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> <a href="Rand.htm"><b>Rand</b></a>(640), <a href="Rand.htm"><b>Rand</b></a>(480), <a href="Rand.htm"><b>Rand</b></a>(64), <a href="Rand.htm"><b>Rand</b></a>(64)<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br /><br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255, 255, 255<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Intensity offset="+n<br /><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> SetGammaRed(n)<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> k = 0 TO 255<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetGamma.htm"><b>SetGamma</b></a> k, k, k, k+n, 0, 0<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br /><br />&nbsp; &nbsp;<a href="UpdateGamma.htm"><b>UpdateGamma</b></a><br /><a href="End Function.htm"><b>End Function</b></a><br /><br /><a href="Function.htm"><b>Function</b></a> SetGammaIntensity(n)<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> k = 0 TO 255<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="SetGamma.htm"><b>SetGamma</b></a> k, k, k, k+n, k+n, k+n<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br /><br />&nbsp; &nbsp;<a href="UpdateGamma.htm"><b>UpdateGamma</b></a><br /><a href="End Function.htm"><b>End Function</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="GammaGreen.htm" title="Ermittelt aktuellen Gamma-Anteil der Farbe Grün">GammaGreen</a>, <a href="GammaRed.htm" title="Ermittelt aktuellen Gamma-Anteil der Farbe Rot">GammaRed</a>, <a href="UpdateGamma.htm" title="Aktualisiert das Bild mit neuen Gamma-Werten">UpdateGamma</a>, <a href="GammaBlue.htm" title="Ermittelt aktuellen Gamma-Anteil der Farbe Blau">GammaBlue</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_20.html">Gamma</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

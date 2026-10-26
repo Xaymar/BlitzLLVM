@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ScaleTexture 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ScaleTexture</b> textur%, u#, v# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+textur%
+</td>
+<td>
+Identität einer Textur
+</td>
+</tr>
+<tr>
+<td width="100">
+u#
+</td>
+<td>
+Absoluter Skalierungsfaktor U
+</td>
+</tr>
+<tr>
+<td width="100">
+v#
+</td>
+<td>
+Absoluter Skalierungsfaktor V
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>ScaleTexture</b> skaliert eine Textur auf eine bestimmte absolute Größe.<br /><br />Normalerweise wird jede Textur mit Skalierungsfaktor 1 erstellt/geladen. Gibt man nun eine kleine Zahl ein, dann wird diese Textur entsprechend verkleinert (0.5=50%). Gibt man dagegen größeren Wert ein, dann wird die Textur vergrößert (2.0=200%).<br /><br />Negative Skalierungsfaktoren sind aber auch möglich. Diese Textur wird dann entsprechend gespiegelt. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br />tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/b3dlogo.jpg")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> cube, tex<br />u_scale# = 1<br />v_scale# = 1<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> u_scale# = u_scale# - 0.01<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> u_scale# = u_scale# + 0.01<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> v_scale# = v_scale# - 0.01<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> v_scale# = v_scale# + 0.01<br />&nbsp; &nbsp;<a href="ScaleTexture.htm"><b>ScaleTexture</b></a> tex, u_scale#, v_scale#<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, 0.1, 0.1, 0.1<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Mit Cursortasten Skalierung ändern"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "u_scale#=" + u_scale#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "v_scale#=" + v_scale#<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="RotateTexture.htm" title="Ändert Drehwinkel einer Textur">RotateTexture</a>, <a href="CreateTexture.htm" title="Erstellt eine neue Textur">CreateTexture</a>, <a href="LoadTexture.htm" title="Lädt eine Textur in den Speicher">LoadTexture</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_56.html">Texturen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

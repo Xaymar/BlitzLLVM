@@ -1,0 +1,126 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SetAnimTime 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SetAnimTime</b> entity%, zeit# [, seq%] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (Entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+zeit%
+</td>
+<td>
+Zeitangabe in Frames
+</td>
+</tr>
+<tr>
+<td width="100">
+seq%
+</td>
+<td>
+Nummer der Animationssequenz (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>SetAnimTime</b> erlaubt eine manuelle Änderung der Animationszeit. Gebe einfach die Identität eines Objekts, zusammen mit Zeitangabe (in Frames) und evtl. Nummer der Animationssequenz an. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Graphics3D 640,480,32,2<br />SetBuffer BackBuffer()<br /><br />Objekt = LoadAnimMesh("Animation.b3d")<br />Laenge = AnimLength(Objekt)<br /><br />Kamera = CreateCamera()<br />PositionEntity Kamera,0,0,-70<br />PointEntity Kamera,Objekt<br /><br />Licht = CreateLight(1,Kamera)<br /><br />While Not KeyDown(1)<br />&nbsp; &nbsp;If KeyDown(203) Then Frame = Frame - 1<br />&nbsp; &nbsp;If KeyDown(205) Then Frame = Frame + 1<br />&nbsp; &nbsp;If Frame <0 Then Frame = 0<br />&nbsp; &nbsp;If Frame> Laenge Then Frame = Laenge<br />&nbsp; &nbsp;SetAnimTime Objekt,Frame<br />&nbsp; &nbsp;UpdateWorld : RenderWorld : Flip<br />Wend<br />End 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AddAnimSeq.htm" title="Fügt eine Animationssequenz an ein Objekt an">AddAnimSeq</a>, <a href="Animate.htm" title="ändert die Animationsart eines Objekts">Animate</a>, <a href="AnimLength.htm" title="Ermittelt aktuelle, relative Animationszeit eines 3D-Objekts">AnimLength</a>, <a href="AnimTime.htm" title="Ermittelt aktuelle Animationszeit eines 3D-Objekts">AnimTime</a>, <a href="LoadAnimSeq.htm" title="Lädt eine Animationssequenz und fügt es einem 3D-Objekt an">LoadAnimSeq</a>, <a href="SetAnimKey.htm" title="Setzt Animationsparameter für ein 3D-Objekt">SetAnimKey</a>, <a href="Animating.htm" title="Ermittelt, ob ein 3D-Objekt gerade animiert wird">Animating</a>, <a href="AnimSeq.htm" title="Ermittelt aktuelle Animationssequenz eines 3D-Objekts">AnimSeq</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_57.html">Animation</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

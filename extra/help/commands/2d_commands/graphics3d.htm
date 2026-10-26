@@ -1,0 +1,141 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Graphics3D 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Graphics3D</b> breite%, hoehe% [, farbtiefe%] [, modus%] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+breite%
+</td>
+<td>
+Breite der Auflösung in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+hoehe%
+</td>
+<td>
+Höhe der Auflösung in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+farbtiefe%
+</td>
+<td>
+Farbtiefe (0=auto, 16, 24 oder 32 Bit)
+</td>
+</tr>
+<tr>
+<td width="100">
+modus%
+</td>
+<td>
+0-automatisch (Fenstermodus bei Debug, sonst Vollbild)<br />1-Vollbildmodus<br />2-Fenstermodus<br />3-Fenstermodus (skalierbar)<br />6 - Gleicher Modus wie 2 aber mit Auto-Suspend (empfohlen)<br />7 - Gleicher Modus wie 3 aber mit Auto-Suspend (empfohlen)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Graphics3D ist der wichtigste Grafikbefehl überhaupt. Dieser Befehl öffnet ein Grafikfenster oder ändert die Größe des Fensters (Breite, Höhe und Farbtiefe). Die Farbtiefe ist optional und kann weggelassen werden - dann wählt BlitzBasic automatisch die passende Farbtiefe aus. Das Benutzen des <b>Graphics3D</b>-Befehls setzt <a href="Color.htm"><b>Color</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ClsColor.htm"><b>ClsColor</b><img src="../../html/images/quicklink.gif" /></a> und aktive Grafikbuffer auf die Standardwerte zurück.<br /><br /><div class="caution">Die Breite und Höhe der Auflösung hängt von der verwendeten Grafikkarte ab. Problemlos sind die Auflösungen 640x480 und 800x600. Aber solche Auflösungen wie 640x400 usw. werden nicht von allen Grafikkarten unterstützt!<br />&nbsp;</div><br /><br /><div class="caution">Mit der größeren Auflösung steigt auch die Berechnungszeit, sowie der Speicherbedarf. Zudem kann es dadurch häufiger zu "Dropped-Frames" kommen (ausgelassene Bilder einer Animation bei Doublebuffering).<br />&nbsp;</div><br /> <br /><div class="caution">Wird ein Grafikfenster nicht im Vollbild angezeigt, so übernimmt Windows das Pageflipping der Grafik von <a href="BackBuffer.htm"><b>BackBuffer</b><img src="../../html/images/quicklink.gif" /></a> (siehe <a href="Flip.htm"><b>Flip</b><img src="../../html/images/quicklink.gif" /></a>).<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Alle Computerbildschirme haben den Koordinatennullpunkt oben/links. Dies ist etwas anders als beim kartesischen System - die Y-Achse ist gespiegelt.<br />&nbsp;</div><br /><br /><div class="hint">Die beste Farbtiefe ist 24 Bit mit 16,7 Mio. Farben. Leider wird diese Farbtiefe nicht von allen Grafikkarten unterstützt. Die zweitbeste Farbtiefe ist 32 Bit. Diese Farbtiefe wird von mehr Grafikkarten unterstützt, dafür steigt aber der Speicherbedarf sehr stark an. Die 16 Bit-Farbtiefe kann zwar "nur" 65536 Farben anzeigen, dafür ist es aber am schnellsten und verbraucht am wenigsten Speicher.<br />&nbsp;</div><br /><br /><div class="hint">Je größer die Auflösung, desto feiner wirkt die Grafik und desto langsamer erfolgt die Grafikausgabe. Mit der größeren Auflösung steigt auch die Berechnungszeit sowie der Speicherbedarf. Zudem kann es dadurch häufiger zu "Dropped-Frames" kommen.<br />&nbsp;</div> <br /><br /><div class="hint">Da bei einer 2D Ausgabe von Blitzbasic die Grafikkarte keine aktuelle 3D Beschleunigung nutzen kann (DirectX7/DirectDraw), ist das im Vergleich zu "echtem" 3D sehr langsam. Fortgeschrittene können auch mit 3D Befehlen eine sehr viel schnellere 2D Welt erschaffen. Blitzmax zb nutzt von sich aus 3D Unterstützung um 2D anzuzeigen.<br />&nbsp;</div> <br /> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> cube, 20, 50, 50<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CountGfxModes3D.htm" title="Ermittelt Anzahl der 3D-Grafikmodi">CountGfxModes3D</a>, <a href="GfxDriverCaps3D.htm" title="Ermittelt 3D-Fähigkeiten einer Grafikkarte">GfxDriverCaps3D</a>, <a href="GfxMode3D.htm" title="Prüft, ob ein Grafikmodus für 3D geeignet ist">GfxMode3D</a>, <a href="BackBuffer.htm" title="Liefert die ID des Backbuffers">BackBuffer</a>, <a href="EndGraphics.htm" title="Schließt ein Grafikfenster">EndGraphics</a>, <a href="Flip.htm" title="Tauscht die Bufferinhalte des Front- und Backbuffers">Flip</a>, <a href="FrontBuffer.htm" title="Liefert die ID des Buffers">FrontBuffer</a>, <a href="ImageBuffer.htm" title="Ermittelt die Identität eines Buffers eines Bildes">ImageBuffer</a>, <a href="SetBuffer.htm" title="Setzt den Buffer für die Grafikausgabe">SetBuffer</a>, <a href="Windowed3D.htm" title="Prüft, ob die 3D-Grafikausgabe in einem Fenster erfolgen kann">Windowed3D</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_72.html">Screen</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ExecFile 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>ExecFile</b> Datei$ 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Datei
+</td>
+<td>
+ausführbares Programm oder eine Datei (evtl. mit Pfad)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0=Datei nicht gefunden<br />1=Datei gefunden 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Startet ein anderes, externes Programm. Es können beliebige Programme gestartet werden (z.B. Browser, Mediaplayer usw...). Die Ausführung des BlitzBasic-Programms wird solange angehalten, bis das andere Programm wieder beendet wird.<br /><br /><div class="hint">Diese Anweisung benutzt ShellExecute. Dadurch können auch andere Dateien wie .TXT oder .DOC mit dem verknüpften Programm geöffnet werden.<br />&nbsp;</div><br /><br /><div class="hint">Sollte ein Dateipfad Leerzeichen enthalten, muss er mit Anführungszeichen (<a href="Chr.htm"><b>Chr</b><img src="../../html/images/quicklink.gif" /></a>(34)) umschlossen werden.<br />&nbsp;</div><br /><br /><div class="caution">Wenn ein BlitzBasic-Programm im Vollbild läuft und ein anderes Programm ausgeführt wird, dann wird BlitzBasic minimiert und die Programmausführung gestoppt. Falls dies nicht erwünscht ist, dann muss man BlitzBasic mit GRAPHICS in Fenstermodus umschalten und danach ein anderes Programm ausführen.<br />&nbsp;</div><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Führt ein Programm aus<br />
+			<div class="syntax-code">
+				Datei$="notepad.exe"<br /><a href="Print.htm"><b>Print</b></a> "Drücke eine Taste, um ein Programm zu starten"<br /><a href="WaitKey.htm"><b>WaitKey</b></a>()<br /><a href="ExecFile.htm"><b>ExecFile</b></a> Datei$<br /><a href="Print.htm"><b>Print</b></a> "Beliebige Taste beendet BlitzBasic-Programm"<br /><a href="WaitKey.htm"><b>WaitKey</b></a>() 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateProcess.htm" title="startet eine andere Datei und sendet die Daten als Stream zurück">CreateProcess</a>, <a href="CallDLL.htm" title="Ruft eine Funktion einer DLL auf">CallDLL</a>, <a href="Include.htm" title="Lädt einen anderen Quellcode">Include</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_11.html">Datenverwaltung</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_14.html">Dateien & Streams</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

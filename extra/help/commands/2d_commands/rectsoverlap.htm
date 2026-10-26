@@ -1,0 +1,166 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		RectsOverlap 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert = <b>RectsOverlap</b> (X1, Y1, width1, heigth1, X2, Y2, width2, heigth2) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+X1
+</td>
+<td>
+X-Koordinate des ersten Rechtecks
+</td>
+</tr>
+<tr>
+<td width="100">
+Y1
+</td>
+<td>
+Y-Koordinate des ersten Rechtecks
+</td>
+</tr>
+<tr>
+<td width="100">
+width1
+</td>
+<td>
+Breite des ersten Rechtecks
+</td>
+</tr>
+<tr>
+<td width="100">
+heigth1
+</td>
+<td>
+Höhe des ersten Rechtecks
+</td>
+</tr>
+<tr>
+<td width="100">
+X2
+</td>
+<td>
+X-Koordinate des zweiten Rechtecks
+</td>
+</tr>
+<tr>
+<td width="100">
+Y2
+</td>
+<td>
+Y-Koordinate des zweiten Rechtecks
+</td>
+</tr>
+<tr>
+<td width="100">
+width2
+</td>
+<td>
+Breite des zweiten Rechtecks
+</td>
+</tr>
+<tr>
+<td width="100">
+heigth2
+</td>
+<td>
+Höhe des zweiten Rechtecks
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 = keine Kollision<br />1 = Kollision 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion überprüft, ob ein Rechteck einen anderen berührt. Diese Rechtecke müssen sich nicht auf dem Bildschirm befinden. Eigentlich ist dies eine Vereinfachung einer IF...THEN-Prüfung.<br /><br />Um genauere Kollision zu ermitteln, ist der Befehl <a href="ImageRectCollide.htm"><b>ImageRectCollide</b><img src="../../html/images/quicklink.gif" /></a> besser. Für die Kollision zwischen zwei Bildern ist der Befehl <a href="ImagesCollide.htm"><b>ImagesCollide</b><img src="../../html/images/quicklink.gif" /></a> notwendig.<br /><br /><img src="../../images/gfx_kollision3.gif" />Diese Grafik zeigt eine mögliche Kollision, die mit dieser Funktion ermittelt werden kann. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm zeichnet solange zwei Rechtecke,  bis eine Kollision auftritt:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><a href="SeedRnd.htm"><b>SeedRnd</b></a> <a href="MilliSecs.htm"><b>MilliSecs</b></a>()<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;rect1X = <a href="Rnd.htm"><b>Rnd</b></a>(50, 610)<br />&nbsp; &nbsp;rect1Y = <a href="Rnd.htm"><b>Rnd</b></a>(50, 430)<br />&nbsp; &nbsp;rect1W = 50<br />&nbsp; &nbsp;rect1H = 50<br />&nbsp; &nbsp;rect2X = <a href="Rnd.htm"><b>Rnd</b></a>(50, 610)<br />&nbsp; &nbsp;rect2Y = <a href="Rnd.htm"><b>Rnd</b></a>(50, 430)<br />&nbsp; &nbsp;rect2W = 50<br />&nbsp; &nbsp;rect2H = 50<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255)<br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> rect1X, rect1Y, rect1W, rect1H, 0<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255), <a href="Rnd.htm"><b>Rnd</b></a>(255)<br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> rect2X, rect2Y, rect2W, rect2H, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="RectsOverlap.htm"><b>RectsOverlap</b></a> (rect1X, rect1Y, rect1W, rect1H, rect2X, rect2Y, rect2W, rect2H) <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0,  "Kollision gefunden! Maustaste drücken..."<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Exit.htm"><b>Exit</b></a><br />&nbsp; &nbsp;<a href="End If.htm"><b>End If</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;<a href="Delay.htm"><b>Delay</b></a> 100<br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="WaitMouse.htm"><b>WaitMouse</b></a>()<br /><a href="EndGraphics.htm"><b>EndGraphics</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ImageRectCollide.htm" title="Überprüft, ob ein Bild einen rechteckigen Bereich berührt">ImageRectCollide</a>, <a href="ImageRectOverlap.htm" title="Überprüft, ob ein Bild einen rechteckigen Bereich überlappt">ImageRectOverlap</a>, <a href="ImagesCollide.htm" title="Überprüft zwei Bilder auf pixelgenaue Kollision">ImagesCollide</a>, <a href="ImagesOverlap.htm" title="Überprüft zwei Bilder auf Kollision">ImagesOverlap</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

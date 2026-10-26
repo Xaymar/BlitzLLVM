@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		PaintEntity 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>PaintEntity</b> entity%, brush% 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+entity%
+</td>
+<td>
+Identität eines Objekts (entity)
+</td>
+</tr>
+<tr>
+<td width="100">
+brush%
+</td>
+<td>
+Identität eines Pinsels (brush)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>PaintEntity</b> übergibt alle Eigenschaften eines Pinsels (brush%) an ein Objekt (entity%).<br /><br />Normalerweise kann man mit den Befehlen <a href="EntityColor.htm"><b>EntityColor</b><img src="../../html/images/quicklink.gif" /></a>, <a href="EntityShininess.htm"><b>EntityShininess</b><img src="../../html/images/quicklink.gif" /></a> oder <a href="EntityTexture.htm"><b>EntityTexture</b><img src="../../html/images/quicklink.gif" /></a> die Eigenschaften zuweisen. Da dafür jedes Mal ziemlich viele Befehle notwendig sind, gibt es noch das Brush-Feature. Dabei werden die Eigenschaften einfach mit Brush gespeichert. Diese Eigenschaften lassen sich danach sehr einfach mit nur einem Befehl auf beliebig viele Objekte übertragen.<br /><br />Gebe dafür die Identität eines Objekts (entity%) an. Danach muss man noch die Identität eines Pinsels angeben. Dieser Pinsel kann mit <a href="CreateBrush.htm"><b>CreateBrush</b><img src="../../html/images/quicklink.gif" /></a> erstellt oder mit <a href="LoadBrush.htm"><b>LoadBrush</b><img src="../../html/images/quicklink.gif" /></a> geladen werden. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 5<br />brush = <a href="LoadBrush.htm"><b>LoadBrush</b></a>("texture.bmp")<br />PAINTENTITY cube, brush<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;pitch# = 0<br />&nbsp; &nbsp;yaw# = 0<br />&nbsp; &nbsp;roll# = 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> pitch# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> pitch# = 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> yaw# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> yaw# = 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(45) = 1 <a href="Then.htm"><b>Then</b></a> roll# = - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = 1 <a href="Then.htm"><b>Then</b></a> roll# = 1<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, pitch#, yaw#, roll#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateBrush.htm" title="Erstellt einen neuen Pinsel">CreateBrush</a>, <a href="PaintMesh.htm" title="Übergibt alle Eigenschaften eines Pinsels an ein Gitterobjekt">PaintMesh</a>, <a href="PaintSurface.htm" title="Übergibt alle Eigenschaften eines Pinsels an eine Oberfläche">PaintSurface</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_61.html">Brush</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

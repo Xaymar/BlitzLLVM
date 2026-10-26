@@ -1,0 +1,133 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		VectorPitch 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			winkel# = <b>VectorPitch</b># (x#, y#, z#) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x#
+</td>
+<td>
+Vectorkoordinate X
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Vectorkoordinate Y
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Vectorkoordinate Z
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Winkel für die X-Achse (pitch) wird zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>VectorPitch</b> berechnet den absoluten Pitch-Winkel für die X-Achse. Für die Berechnung muss man nur die drei Abstände angeben. Diese werden aus der Differenz von zwei 3D-Weltpunkten berechnet (siehe Beispiel).<br /><br />Die Funktion <a href="VectorYaw.htm"><b>VectorYaw</b><img src="../../html/images/quicklink.gif" /></a> berechnet den zweiten Winkel für die Y-Achse. Ein dritter Winkel wird nicht benötigt. 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="caution">Dies ist ein undokumentierter Befehl. Sollte dieser Befehl wieder offiziell entfernt werden, wären Programme zu allen zukünftigen Updates nicht mehr kompatibel und müssten umgeschrieben werden. Die Anwendung ist daher auf eigenes Risiko.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 16, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, - 5<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />cylinder = <a href="CreateCylinder.htm"><b>CreateCylinder</b></a>(20)<br />sphere = <a href="CreateSphere.htm"><b>CreateSphere</b></a>()<br /><a href="RotateMesh.htm"><b>RotateMesh</b></a> cylinder, 90, 0, 0<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> cylinder, 1, 1, 3<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cylinder, 0, 0, 5<br /><a href="EntityAlpha.htm"><b>EntityAlpha</b></a> sphere, .8<br /><a href="EntityColor.htm"><b>EntityColor</b></a> sphere, 255, 100, 100<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> sphere, 0, .1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> sphere, 0, - .1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> sphere, - .1, 0, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> sphere, .1, 0, 0<br />&nbsp; &nbsp;x# = <a href="EntityX.htm"><b>EntityX</b></a>#(cylinder) - <a href="EntityX.htm"><b>EntityX</b></a>#(sphere)<br />&nbsp; &nbsp;y# = <a href="EntityY.htm"><b>EntityY</b></a>#(cylinder) - <a href="EntityY.htm"><b>EntityY</b></a>#(sphere)<br />&nbsp; &nbsp;z# = <a href="EntityZ.htm"><b>EntityZ</b></a>#(cylinder) - <a href="EntityZ.htm"><b>EntityZ</b></a>#(sphere)<br />&nbsp; &nbsp;pitch# = <a href="VectorPitch.htm"><b>VectorPitch</b></a>#(x#, y#, z#)<br />&nbsp; &nbsp;yaw# = <a href="VectorYaw.htm"><b>VectorYaw</b></a>#(x#, y#, z#)<br />&nbsp; &nbsp;<a href="RotateEntity.htm"><b>RotateEntity</b></a> cylinder, pitch#, yaw#, 0<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="VectorYaw.htm" title="Berechnet absoluten Yaw-Winkel für Y-Achse">VectorYaw</a>, <a href="DeltaPitch.htm" title="Liefert den Winkel auf der X-Achse zwischen zwei Objekten">DeltaPitch</a>, <a href="DeltaYaw.htm" title="Liefert den Winkel auf der Y-Achse zwischen zwei Objekten">DeltaYaw</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_63.html">Diverses</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

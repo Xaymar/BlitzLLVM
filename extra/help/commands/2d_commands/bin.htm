@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Bin 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Wert$ = <b>Bin</b>$(Zahl%) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Zahl%
+</td>
+<td>
+Beliebiger Integer Wert
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			String mit binärer Zahl 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion konvertiert einen beliebigen dezimalen Integerwert zu einem binären Wert. Lese auch die Zusatzinfos für mehr Informationen.<br /><br />Umgekehrt, also die Übergabe eines binären Wertes an eine Variable erfolgt mit einem Prozentzeichen vor dem Wert. Beispiel:<br />Wert=%1011011000 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Ein binärer Wert besteht nur aus Einsen und Nullen. Dadurch entstehen extrem lange Zahlenreihen. Aus diesem Grund liefert diese Funktion einen String zurück.<br /><br />Diese binären Zahlen werden nicht für weitere Berechnungen gebraucht. Der Computer versteht nur binäres System aus Einsen und Nullen. Weil dadurch extrem lange Zahlenreihen entstehen können, werden oft hexadezimale Zahlen statt binären Zahlen verwendet.<br /><br />Eine hexadezimale Ziffer fasst gleich 4 Bit zusammen. Die Konvertierung von Binär zu Hexadezimal ist besonders einfach (und umgekehrt auch).<br /><br />Unser Zahlensystem besteht aus 10 unterschiedlichen Ziffern. Das hexadezimale System besteht dagegen aus 16 Ziffern - für die letzten 6 Ziffern werden darum einfach nur Buchstaben von A-F genommen.<br /><br />Diese Tabelle zeigt die ersten 16 Zahlen:<br /><table border="0" cellpadding="0" cellspacing="0"><tr><td><b>Dezimal&nbsp;&nbsp;</b><br>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br></td><td><b>Hex&nbsp;&nbsp;</b><br>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>A<br>B<br>C<br>D<br>E<br>F<br></td><td><b>Binär&nbsp;&nbsp;</b><br>0000<br>0001<br>0010<br>0011<br>0100<br>0101<br>0110<br>0111<br>1000<br>1001<br>1010<br>1011<br>1100<br>1101<br>1110<br>1111<br></td></tr></table> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Umwandlung Binär<->Integer:<br />
+			<div class="syntax-code">
+				;Das Binäre System besteht nur aus Einsen und Nullen. Die Umwandlung kann auch manuell erfolgen:<br /><br />Zahl = 123<br /><a href="For.htm"><b>For</b></a>  i = 0 <a href="To.htm"><b>To</b></a> 7<br />&nbsp; &nbsp;Txt$ = <a href="St.htm"><b>St</b></a>r$(<a href="Sgn.htm"><b>Sgn</b></a>(Zahl <a href="And.htm"><b>And</b></a> 2 ^ i)) + Txt$<br /><a href="Next.htm"><b>Next</b></a><br /><a href="Print.htm"><b>Print</b></a> "Binäre Zahl: "+Txt$<br /><br />;Einfacher ist aber trotzdem der Bin-Befehl:<br /><br />Zahl = 12345<br />BinZahl$ = <a href="Bin.htm"><b>Bin</b></a>$(Zahl)<br /><a href="Print.htm"><b>Print</b></a> BinZahl$<br /><br />;Umgekehrter Weg ist auch möglich:<br /><br />Zahl$ = <a href="Bin.htm"><b>Bin</b></a>$(123)<br /><a href="For.htm"><b>For</b></a> i = 1 <a href="To.htm"><b>To</b></a> <a href="Len.htm"><b>Len</b></a>(Zahl$)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="Mid.htm"><b>Mid</b></a>$(Zahl$, i, 1)= "1" <a href="Then.htm"><b>Then</b></a>Wert = Wert + 2 ^ (<a href="Len.htm"><b>Len</b></a>(Zahl$) - i)<br /><a href="Next.htm"><b>Next</b></a><br /><a href="Print.htm"><b>Print</b></a> "Zahl: "+ Wert 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Hex.htm" title="Wandelt beliebige Zahlen in Hexadezimale Zahlen um">Hex</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_5.html">Grundlagen</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_5.html">Mathematik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

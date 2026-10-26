@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CameraProject 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>CameraProject</b> kamera%, x#, y#, z# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+kamera%
+</td>
+<td>
+Identität einer Kamera
+</td>
+</tr>
+<tr>
+<td width="100">
+x#
+</td>
+<td>
+X-Koordinate im 3D-Raum
+</td>
+</tr>
+<tr>
+<td width="100">
+y#
+</td>
+<td>
+Y-Koordinate im 3D-Raum
+</td>
+</tr>
+<tr>
+<td width="100">
+z#
+</td>
+<td>
+Z-Koordinate im 3D-Raum
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Die 'Projected'-Funktionen liefern die errechneten Werte zurück. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>CameraProject</b> errechnet aus den absoluten 3D-Raumkoordinaten die 2D-Bildschirmkoordinaten.<br /><br />Nachdem <b>CameraProject</b> ausgeführt wurde, müssen noch Funktionen wie <a href="ProjectedX.htm"><b>ProjectedX</b><img src="../../html/images/quicklink.gif" /></a>, <a href="ProjectedY.htm"><b>ProjectedY</b><img src="../../html/images/quicklink.gif" /></a> und <a href="ProjectedZ.htm"><b>ProjectedZ</b><img src="../../html/images/quicklink.gif" /></a> benutzt werden. Die errechnete X- und Y-Werte sind dabei die 2D-Bildschirmkoordinaten. Der Z-Wert ist entweder 0 oder 1. Bei 0 liegt die Koordinate hinter der Kamera, bei 1 vor der Kamera.<br /><br />Es gibt viele Anwendungsmöglichkeiten dafür. Mithilfe dieser Funktionen kann man z.B. einen Sonnenschweif simulieren.<br /><br /><img src="../../images/gfx_project.jpg" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Hier wird gezeigt, wie die Projected Befehle arbeiten<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />pivot = <a href="CreatePivot.htm"><b>CreatePivot</b></a>()<br />cube = <a href="CreateCube.htm"><b>CreateCube</b></a>(pivot)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 0, 0<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cube, 0, 0, 3<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> pivot, 0, 0, 10<br /><a href="Color.htm"><b>Color</b></a> 255, 0, 0<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(1)<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> pivot, - .2, 2, - 2<br />&nbsp; &nbsp;<a href="TurnEntity.htm"><b>TurnEntity</b></a> cube, .5, 1, 2<br />&nbsp; &nbsp;<a href="CameraProject.htm"><b>CameraProject</b></a> camera, <a href="EntityX.htm"><b>EntityX</b></a>(cube, 1), <a href="EntityY.htm"><b>EntityY</b></a>(cube, 1), <a href="EntityZ.htm"><b>EntityZ</b></a>(cube, 1)<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Oval.htm"><b>Oval</b></a> <a href="ProjectedX.htm"><b>ProjectedX</b></a>() - 10, <a href="ProjectedY.htm"><b>ProjectedY</b></a>() - 10, 20, 20, 0<br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> <a href="ProjectedX.htm"><b>ProjectedX</b></a>(), <a href="ProjectedY.htm"><b>ProjectedY</b></a>() - 15, 1, 30, 1<br />&nbsp; &nbsp;<a href="Rect.htm"><b>Rect</b></a> <a href="ProjectedX.htm"><b>ProjectedX</b></a>() - 15, <a href="ProjectedY.htm"><b>ProjectedY</b></a>(), 30, 1, 1<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> <a href="ProjectedX.htm"><b>ProjectedX</b></a>() + 20, <a href="ProjectedY.htm"><b>ProjectedY</b></a>() - 5, "Mitte Objekt"<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="ProjectedX.htm" title="Liefert projizierte X-Koordinate">ProjectedX</a>, <a href="ProjectedY.htm" title="Liefert projizierte Y-Koordinate">ProjectedY</a>, <a href="ProjectedZ.htm" title="Liefert projizierte Z-Koordinate">ProjectedZ</a>, <a href="EntityInView.htm" title="Fragt ab, ob ein Objekt im Sichtbereich liegt">EntityInView</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_66.html">Kamera</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

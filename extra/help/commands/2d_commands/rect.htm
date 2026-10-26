@@ -1,0 +1,149 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Rect 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Rect</b> x, y, x_size, y_size[, filled] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x
+</td>
+<td>
+Horizontale Position
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+Vertikale Position
+</td>
+</tr>
+<tr>
+<td width="100">
+x_size
+</td>
+<td>
+Horizontale Ausdehnung
+</td>
+</tr>
+<tr>
+<td width="100">
+y_size
+</td>
+<td>
+Vertikale Ausdehnung
+</td>
+</tr>
+<tr>
+<td width="100">
+filled
+</td>
+<td>
+ Fülloption (0=ohne Füllen, 1=mit Füllen)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dieser Grafikbefehl zeichnet einen Rechteck auf dem Bildschirm. Dazu muss man nur die X/Y-Koordinaten für oben/links sowie Breite und Höhe des Rechtecks angeben. Zusätzlich ist die Option Füllen möglich. Wird Null angegeben, so erscheint ein nicht ausgefüllter Rechteck. Bei Eins (Standard) wird ein gefüllter Rechteck gezeichnet.<br /><br /><div class="hint">Wenn nur einfache horizontale oder vertikale Linien gezeichnet werden, dann soll man besser auf <a href="Line.htm"><b>Line</b><img src="../../html/images/quicklink.gif" /></a> verzichten und stattdessen <a href="Rect.htm"><b>Rect</b><img src="../../html/images/quicklink.gif" /></a> nehmen. <a href="Rect.htm"><b>Rect</b><img src="../../html/images/quicklink.gif" /></a> ist je nach BB-Version bis zu 1500% schneller!<br />&nbsp;</div> 
+		</p>
+
+				<br />
+		<b>Zusatzinformation</b><br />
+		 
+		<p style="margin-left: 20px;">
+			<div class="hint">Um die Farbe zu ändern, muss man den Befehl Color benutzen.<br />&nbsp;</div> 
+		</p>
+		 
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Zeichnet ein Rechteck ein, das sich immer in eine Richtung bewegt:<br /><br /><a href="Graphics.htm"><b>Graphics</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />box_x = -20<br />box_y = 100<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br /><a href="Cls.htm"><b>Cls</b></a><br /><a href="Rect.htm"><b>Rect</b></a> box_x, box_y, 20, 20, 1<br /><a href="Flip.htm"><b>Flip</b></a><br />box_x = box_x + 1<br /><a href="If.htm"><b>If</b></a> box_x = 640 <a href="Then.htm"><b>Then</b></a> box_x = -20<br /><a href="Wend.htm"><b>Wend</b></a><br /><br /> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Line.htm" title="Zeichnet eine Linie">Line</a>, <a href="Oval.htm" title="Zeichnet eine Ellipse">Oval</a>, <a href="Plot.htm" title="Zeichnet einen Punkt auf den Bildschirm">Plot</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_59.html">Grafik</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

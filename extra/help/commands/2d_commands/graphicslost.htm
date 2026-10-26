@@ -1,0 +1,102 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		GraphicsLost 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			fehler = <b>GraphicsLost</b> () 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			0 = kein Fehler<br />1 = Fehler, Grafiken sind nicht mehr im Speicher. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Bei einigen Manipulationen (zb. unter Windows das aktive Fenster wechseln, oder die Auflösung ändern) kann es vorkommen das Blitzbasic die Grafiken "verliert". Mit diesem Befehl kann man das Problem abfangen und beheben, indem man die Grafiken neu läd oder den Anwender auffordert das Programm neu zu starten. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses Beispiel bricht das Programm ab wenn die Grafiken nicht mehr im Speicher sind:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640,480,16,1<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a> ()<br /><br />gfxPlayer = <a href="LoadImage.htm"><b>LoadImage</b></a> ("player.bmp")<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="Keyhit.htm"><b>Keyhit</b></a> (1)<br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="GraphicsLost.htm"><b>GraphicsLost</b></a>() <a href="RuntimeError.htm"><b>RuntimeError</b></a> "Bitte neu starten!"<br />&nbsp; &nbsp;<a href="DrawImage.htm"><b>DrawImage</b></a> gfxPlayer, <a href="MouseX.htm"><b>MouseX</b></a> (),<a href="MouseY.htm"><b>MouseY</b></a> ()<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="Graphics.htm" title="Intialisiert ein 2D-Grafikfenster">Graphics</a>, <a href="BufferDirty.htm" title="Verhindert Verlust von manipulierten Bildern">BufferDirty</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_1.html">Anzeige</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

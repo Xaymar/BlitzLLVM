@@ -1,0 +1,134 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		RotateMesh 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>RotateMesh</b> mesh%, pitch#, yaw#, roll# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+mesh%
+</td>
+<td>
+Identität eines Gitterobjekts (mesh)
+</td>
+</tr>
+<tr>
+<td width="100">
+pitch#
+</td>
+<td>
+Pitchwinkel 0-360 Grad (X-Achse)
+</td>
+</tr>
+<tr>
+<td width="100">
+yaw#
+</td>
+<td>
+Yawwinkel 0-360 Grad (Y-Achse)
+</td>
+</tr>
+<tr>
+<td width="100">
+roll#
+</td>
+<td>
+Rollwinkel 0-360 Grad (Z-Achse)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>RotateMesh</b> dreht alle Eckpunkte eines Gitterobjekts um einen bestimmten Winkel. Dadurch funktioniert es völlig anders als <a href="RotateEntity.htm"><b>RotateEntity</b><img src="../../html/images/quicklink.gif" /></a>. Bei <b>RotateMesh</b> werden komplett alle Gitterpunkte auf neuen Winkel umgerechnet.<br /><br />Der Winkel Pitch ist ein Drehwinkel für die X-Achse<br />Der Winkel Yaw ist ein Drehwinkel für die Y-Achse<br />Der Winkel Roll ist ein Drehwinkel für die Z-Achse<br /><br /><img src="../../images/gfx_drehen.gif" /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br />cone = <a href="CreateCone.htm"><b>CreateCone</b></a>(32)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> cone, 0, 0, 5<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> pitch# = pitch# - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> pitch# = pitch# + 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> yaw# = yaw# - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> yaw# = yaw# + 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(45) = 1 <a href="Then.htm"><b>Then</b></a> roll# = roll# - 1<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(44) = 1 <a href="Then.htm"><b>Then</b></a> roll# = roll# + 1<br />&nbsp; &nbsp;<a href="RotateMesh.htm"><b>RotateMesh</b></a> cone, pitch#, yaw#, roll#<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Z/X/Cursortasten"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 20, "Pitch: " + pitch#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 40, "Yaw : " + yaw#<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 60, "Roll : " + roll#<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="LoadMesh.htm" title="Lädt ein Gitterobjekt in den Speicher">LoadMesh</a>, <a href="AlignToVector.htm" title="Richtet eine Objektachse entlang eines Vektors aus">AlignToVector</a>, <a href="PointEntity.htm" title="Richtet Quell-Objekt auf Ziel-Objekt aus">PointEntity</a>, <a href="RotateEntity.htm" title="Ändert Drehwinkel eines 3D-Objekts">RotateEntity</a>, <a href="TurnEntity.htm" title="Dreht ein 3D-Objekt um einen relativen Winkel">TurnEntity</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_70.html">Mesh</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		EntityVisible 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Sichtbar = <b>EntityVisible</b> (Entity1, Entity2) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Entity1
+</td>
+<td>
+Identität eines Entitys
+</td>
+</tr>
+<tr>
+<td width="100">
+Entity2
+</td>
+<td>
+Identität eines anderen Entitys
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion liefert 1 zurück, wenn beide Objekte sich "sehen" können. Sonst wird aber nur eine 0 zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Funktion <b>EntityVisible</b> ermittelt, ob sich zwei Objekte "sehen" können. Wird 0 zurückgeliefert, dann können die sich nicht sehen. Wird 1 zurückgeliefert, dann können die sich sehen.<br /><br />Gebe als Parameter einfach die Identitäten der beiden Objekte an. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 32, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />Sphere1 = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(25)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> Sphere1, 0, 0, -3<br /><a href="EntityColor.htm"><b>EntityColor</b></a> Sphere1, 255, 0, 0<br /><a href="EntityPickMode.htm"><b>EntityPickMode</b></a> Sphere1, 2, 1<br /><br />Box = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> Box, 2.4, 1.5, 0.2<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> Box, 0, 0.75, 0<br /><a href="EntityColor.htm"><b>EntityColor</b></a> Box, 200, 200, 200<br /><a href="EntityPickMode.htm"><b>EntityPickMode</b></a> Box, 2, 1<br /><br />Plain = <a href="CreateCube.htm"><b>CreateCube</b></a>()<br /><a href="ScaleEntity.htm"><b>ScaleEntity</b></a> Plain, 5, 0.000001, 5<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> Plain, 0, -1, 0<br /><br />Texture = <a href="CreateTexture.htm"><b>CreateTexture</b></a>(128, 128)<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="TextureBuffer.htm"><b>TextureBuffer</b></a>(Texture)<br /><a href="ClsColor.htm"><b>ClsColor</b></a> 0, 0, 0 : <a href="Cls.htm"><b>Cls</b></a><br /><br /><a href="For.htm"><b>For</b></a> X = 0 <a href="To.htm"><b>To</b></a> 128 <a href="Step.htm"><b>Step</b></a> 7.7<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255, 0, 0 : <a href="Line.htm"><b>Line</b></a> X, 0, X, 128<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="For.htm"><b>For</b></a> Y = 0 <a href="To.htm"><b>To</b></a> 128 <a href="Step.htm"><b>Step</b></a>  7. 7<br />&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255, 0, 0 : <a href="Line.htm"><b>Line</b></a> 0, Y, 128, Y<br /><a href="Next.htm"><b>Next</b></a><br /><br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> Plain,Texture<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />Sphere2 = <a href="CreateSphere.htm"><b>CreateSphere</b></a>(25)<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> Sphere2, 0, 0,3 <br /><a href="EntityColor.htm"><b>EntityColor</b></a> Sphere2,0, 255, 0<br /><a href="EntityPickMode.htm"><b>EntityPickMode</b></a> Sphere2, 2, 1<br /><br />Camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> Camera, 5, 5, 5<br /><a href="PointEntity.htm"><b>PointEntity</b></a> Camera,Box<br /><br />Light = <a href="CreateLight.htm"><b>CreateLight</b></a>(1, Camera)<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> Box, -0.03, 0, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> Box,  0.03, 0, 0<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;Visible = <a href="EntityVisible.htm"><b>EntityVisible</b></a>(Sphere1,Sphere2)<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="UpdateWorld.htm"><b>UpdateWorld</b></a><br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> Visible = 1 Then<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255,255,255<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Roter Ball sieht grünen Ball"<br />&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Color.htm"><b>Color</b></a> 255, 255, 255<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Roter Ball kann nicht den grünen Ball sehen"<br />&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="EntityInView.htm" title="Fragt ab, ob ein Objekt im Sichtbereich liegt">EntityInView</a>, <a href="EntityDistance.htm" title="Liefert die Entfernung zwischen zwei Objekten.">EntityDistance</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_74.html">Status</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		Text 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>Text</b> x, y, string$ [, zentr_x] [, zentr_y] 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+x
+</td>
+<td>
+horizontale Koordinate in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+y
+</td>
+<td>
+vertikale Koordinate in Pixel
+</td>
+</tr>
+<tr>
+<td width="100">
+string$
+</td>
+<td>
+beliebiger Text
+</td>
+</tr>
+<tr>
+<td width="100">
+zentr_x
+</td>
+<td>
+1 zentriert den Text horizontal (normal: 0)
+</td>
+</tr>
+<tr>
+<td width="100">
+zentr_y
+</td>
+<td>
+1 zentriert den Text vertikal (normal: 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Mit diesem Befehl kann man einen beliebigen <b>Text</b> ausgeben. Dabei wird die aktuelle Schrift benutzt, die mit <a href="SetFont.htm"><b>SetFont</b><img src="../../html/images/quicklink.gif" /></a> eingestellt wurde. Der <b>Text</b> erscheint nur auf dem aktuellen Buffer, der mit <a href="SetBuffer.htm"><b>SetBuffer</b><img src="../../html/images/quicklink.gif" /></a> eingestellt wurde. Der Hintergrund wird mit <b>Text</b>-Befehl nicht gelöscht, so dass ein <b>Text</b> auf das Spielfeld eingezeichnet werden kann. Allerdings gibt es keine Antialiasing-Funktion, wodurch der <b>Text</b> scharfkantig und bei kleinen Auflösungen leicht pixelig wirkt.<br /><br />Die optionalen Parameter zentr_x und zentr_y können einen <b>Text</b> in horizontale bzw. vertikale Richtung zentrieren. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Hier wird eine Schriftart geladen und deren max. Breite/Höhe ausgegeben:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 32, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />;Schriftart laden und in font speichern<br />font = <a href="LoadFont.htm"><b>LoadFont</b></a>("Arial",15,1)<br /><br />;geladene Schriftart "setzen", also für spätere Textausgaben benutzen<br /><a href="SetFont.htm"><b>SetFont</b></a> font<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br /><br />&nbsp; &nbsp;<a href="Cls.htm"><b>Cls</b></a><br />&nbsp; &nbsp;<br />&nbsp; &nbsp;;Größe und Breite der Schriftart ausgeben<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 10, "FontHeight: " + <a href="FontHeight.htm"><b>FontHeight</b></a>()<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 10, 30, "FontWidth: " + <a href="FontWidth.htm"><b>FontWidth</b></a>()<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br />&nbsp; &nbsp;<br /><a href="Wend.htm"><b>Wend</b></a><br /><br />;Schriftart wieder freigeben<br /><a href="FreeFont.htm"><b>FreeFont</b></a> font<br /><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="LoadFont.htm" title="Lädt eine Schriftart in den Speicher">LoadFont</a>, <a href="Locate.htm" title="Setzt den Textcursor an angegebene Position">Locate</a>, <a href="Print.htm" title="Gibt einen Text aus">Print</a>, <a href="SetFont.htm" title="Wählt eine Schriftart aus">SetFont</a>, <a href="Write.htm" title="Gibt einen Text aus">Write</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_33.html">Text</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

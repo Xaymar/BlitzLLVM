@@ -1,0 +1,96 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		NNP_UpdatePhysics 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>NNP_UpdatePhysics</b>() 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Dies ist einer der wichtigsten Befehle von NooNooPhysics.<br />Er berechnet die ganze Physik, von der Formerhaltung der Objekte über die Kollision bis hin zur Reibung, und sollte daher in der Hauptschleife des Programms stehen.<br /><br />Die Genauigkeit wird dabei durch die Globale 'Iterations' bestimmt. Je höher der Wert dieser Variable ist, desto genauer wird die Physik berechnet.<br />Ein höherer Wert bedeutet jedoch auch längere Berechnungszeiten - man muss also einen Kompromiss zwischen Schnelligkeit und Genauigkeit finden.<br /><br />Standardmässig ist Iterations auf 20 eingestellt, was ungefähr das Gleichgewicht zwischen Genauigkeit und Geschwindigkeit darstellt.<br />Diese Variable kann man jederzeit den momentanen Bedürfnissen anpassen. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Graphics 800, 600, 0, 2<br />SetBuffer BackBuffer()<br /><br />Include "NooNooPhysics.bb"<br /><br />NNP_CreatePhysics 512, 1024, 1024 ;Physik initialisieren<br /><br />NNP_SetGravity 0, 0.5 ;Gravitation setzen<br /><br />For X = 0 To 8<br />&nbsp; &nbsp;For Y = 0 To 8<br />&nbsp; &nbsp;&nbsp; &nbsp;NNP_CreateBox 100 + X*60, 100 + Y*60, 50, 50 ;Ein paar Würfel erstellen<br />&nbsp; &nbsp;Next<br />Next<br /><br />Bottom.TEntity = NNP_CreateBox( 400, 600, 800, 10 ) ;Den Boden erstellen<br />&nbsp; &nbsp;Bottom\Locked = True ;Ihn befestigen<br /><br />Timer = CreateTimer( 60 )<br /><br />While Not KeyHit( 1 )<br />&nbsp; &nbsp;Cls<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;NNP_UpdateForces  ;Kräfte berechnen<br />&nbsp; &nbsp;NNP_UpdatePhysics ;Physik berechnen lassen<br />&nbsp; &nbsp;NNP_DebugRender DEBUG_EDGES + DEBUG_VERTICES ;Zeichnen<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;Flip 0<br />&nbsp; &nbsp;WaitTimer Timer<br />Wend<br />End 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_12.html">NooNooPhysics</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_84.html">Sonstige</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

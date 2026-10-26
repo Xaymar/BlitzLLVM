@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		RotateSprite 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>RotateSprite</b> Sprite, Winkel# 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Sprite
+</td>
+<td>
+Identität eines Sprites
+</td>
+</tr>
+<tr>
+<td width="100">
+Winkel#
+</td>
+<td>
+Absoluter Drehwinkel 0-360 Grad
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Die Anweisung <b>RotateSprite</b> dreht ein Sprite auf einen bestimmten absoluten Winkel. Alle Sprites werden nach dem Erstellen auf den Drehwinkel 0 gedreht. Gültige Winkel sind 0-360 Grad.<br />Da Sprites wie 2D-Grafiken behandelt werden, sind andere Drehwinkel nicht notwendig.<br /><br /><div class="caution"> Ein Sprite wird immer um den Bezugspunkt gedreht, der mit <a href="HandleSprite.htm"><b>HandleSprite</b><img src="../../html/images/quicklink.gif" /></a> beliebig gesetzt werden kann.<br />&nbsp;</div><br /><br /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480, 0, 2<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br />sprite = <a href="CreateSprite.htm"><b>CreateSprite</b></a>()<br /><a href="MoveEntity.htm"><b>MoveEntity</b></a> sprite, 0, 0, 10<br /><a href="HandleSprite.htm"><b>HandleSprite</b></a> sprite, -1, -1<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;angle =  (angle + 1) <a href="Mod.htm"><b>Mod</b></a> 360<br />&nbsp; &nbsp;<a href="RotateSprite.htm"><b>RotateSprite</b></a> sprite, angle<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="CreateSprite.htm" title="Erstellt ein Sprite">CreateSprite</a>, <a href="LoadSprite.htm" title="Lädt ein Sprite aus einer Grafikdatei">LoadSprite</a>, <a href="ScaleSprite.htm" title="Skaliert ein Sprite auf eine absolute Größe">ScaleSprite</a>, <a href="HandleSprite.htm" title="HandelSprite ändert den Bezugspunkt eines Sprites">HandleSprite</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_73.html">Sprite</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

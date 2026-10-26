@@ -1,0 +1,112 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		CreateTerrain 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			Terrain = <b>CreateTerrain</b> (Teilung [,Parent]) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+Teilung
+</td>
+<td>
+Anzahl der Segmente an jeder Terrainkante
+</td>
+</tr>
+<tr>
+<td width="100">
+Parent
+</td>
+<td>
+Identität des Objekts zu dem es hinzugefügt werden soll.
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Es wird die Identität des Terrains zurückgeliefert. 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Der Befehl <b>CreateTerrain</b> erstellt ein Terrain und liefert die Identität des Terrains zurück.<br /><br />Das Terrain wird an der Koordinate 0, 0, 0 erstellt. Die Breite und Höhe entsprechen der Teilung.<br /><br />Ein Terrain ist ein spezielles Objekt, welches level-of-detail (LOD) benutzt. Dadurch sind theoretisch Terrains mit Millionen von Polygonen möglich. Dabei werden nahe Terrainstellen sehr detailliert gezeichnet, weite Terrainstellen haben dagegen geringe Details.<br />Die ständige "umordnung" der Polygone ist jedoch deutlich erkennbar - dies ist ein bekannter Nebeneffekt, der dabei auftritt. Dieser "pop-up"-Effekt kann jedoch etwas reduziert werden (mit dem Befehl <a href="TerrainDetail.htm"><b>TerrainDetail</b><img src="../../html/images/quicklink.gif" /></a>).<br /><br />Die Größe des Terrains muss eingegeben werden. Dies kann immer nur ein Exponent von 2 sein (z.B. 2,4,8,16,32,64,128,256...).<br />Wurde der Parameter "Parent" angegeben, dann wird dieses Terrain zu einem Objekt hinzugefügt. Falls nun ein Parent-Objekt bewegt wird, dann werden alle hinzugefügten Objekte automatisch verschoben. Ein Child-Objekt verschiebt dagegen kein Parent-Objekt mit.<br />Das Terrain wird normalerweise an der Position 0, 0, 0 erstellt. Wurde Parent angegeben, dann wird die an der Position des Parent - Objekts erstellt.<br /><img src="../../images/scr_bb09.jpg" /><br /> 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				Dieses Programm erstellt ein Terrain. Mit den Cursortasten kann man eine Kamera bewegen:<br /><br /><a href="Graphics3D.htm"><b>Graphics3D</b></a> 640, 480<br /><a href="SetBuffer.htm"><b>SetBuffer</b></a> <a href="BackBuffer.htm"><b>BackBuffer</b></a>()<br /><br />camera = <a href="CreateCamera.htm"><b>CreateCamera</b></a>()<br /><a href="PositionEntity.htm"><b>PositionEntity</b></a> camera, 0, 1, 0<br /><br />light = <a href="CreateLight.htm"><b>CreateLight</b></a>()<br /><a href="RotateEntity.htm"><b>RotateEntity</b></a> light, 90, 0, 0<br /><br />terrain = <a href="CreateTerrain.htm"><b>CreateTerrain</b></a>(128)<br /><br />grass_tex = <a href="LoadTexture.htm"><b>LoadTexture</b></a>("media/mossyground.bmp")<br /><a href="EntityTexture.htm"><b>EntityTexture</b></a> terrain,grass_tex<br /><br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(205) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, -1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(203) = 1 <a href="Then.htm"><b>Then</b></a> <a href="TurnEntity.htm"><b>TurnEntity</b></a> camera, 0, 1, 0<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(208) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, -0.05<br />&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="KeyDown.htm"><b>KeyDown</b></a>(200) = 1 <a href="Then.htm"><b>Then</b></a> <a href="MoveEntity.htm"><b>MoveEntity</b></a> camera, 0, 0, 0.05<br />&nbsp; &nbsp;<a href="RenderWorld.htm"><b>RenderWorld</b></a><br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Benutze Cursortasten..."<br />&nbsp; &nbsp;<a href="Flip.htm"><b>Flip</b></a><br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="End.htm"><b>End</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_2.html">3D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_76.html">Terrain</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

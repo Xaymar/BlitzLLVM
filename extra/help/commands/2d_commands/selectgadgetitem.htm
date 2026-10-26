@@ -1,0 +1,118 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		SelectGadgetItem 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			<b>SelectGadgetItem</b> gadget, index 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+gadget
+</td>
+<td>
+Identität eines Objekts
+</td>
+</tr>
+<tr>
+<td width="100">
+index
+</td>
+<td>
+Indexnummer des Eintrags (ab 0)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			- 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Anweisung wählt einen Eintrag in einem Gadget-Objekt aus. Das funktioniert nur mit wenigen Objekten - nur dort, wo es sinnvoll ist. So kann diese Anweisung auf ListBox, ComboBox und Tabber angewendet werden. Mit <a href="SelectedGadgetItem.htm"><b>SelectedGadgetItem</b><img src="../../html/images/quicklink.gif" /></a> kann man den (eventuell vom Benutzer) ausgewählten Eintrag ermitteln.<br /><br />Der Startwert von Index liegt bei 0. Null entspricht also dem ersten Eintrag. Wird -1 angegeben, dann wird die Auswahl aufgehoben. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Dieses komplexe Beispiel zeigt den Umgang mit Listboxen, Comboboxen und Tabbern:<br />
+			<div class="syntax-code">
+				window = <a href="CreateWindow.htm"><b>CreateWindow</b></a>("Umgang mit Listen-artigen Objekten", 50, 50, 300, 250, 0, 1 + 32)<br /><br />; Tabber - Objekt erstellen (für Registerkarten)<br />tabber = <a href="CreateTabber.htm"><b>CreateTabber</b></a>(0, 0, 300, 250, window)<br /><br />; Registerkarten hinzufügen<br /><a href="AddGadgetItem.htm"><b>AddGadgetItem</b></a> tabber, "Liste", 1&nbsp; &nbsp;&nbsp; &nbsp;; die 1 gibt an, dass der Eintrag gleich ausgewählt wird<br /><a href="AddGadgetItem.htm"><b>AddGadgetItem</b></a> tabber, "Auswahlbox"<br /><a href="AddGadgetItem.htm"><b>AddGadgetItem</b></a> tabber, "Listen leeren"<br /><br />; ListBox - Objekt erstellen (im ersten "Tab")<br />; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - <br />&nbsp; &nbsp;listbox = <a href="CreateListBox.htm"><b>CreateListBox</b></a>(5, 5, 285, 180, tabber)<br /><br />&nbsp; &nbsp;; ein paar Einträge hinzufügen<br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> 5 <br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="AddGadgetItem.htm"><b>AddGadgetItem</b></a> listbox, "Eintrag #" + t<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br /><br />; ComboBox - Objekt erstllen (für den zweiten "Tab")<br />; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - <br />&nbsp; &nbsp;combobox = <a href="CreateComboBox.htm"><b>CreateComboBox</b></a>(5, 5, 285, 20, tabber)<br />&nbsp; &nbsp;; verstecken, da ja gerade der erste Tab aktiv ist<br />&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> combobox<br /><br />&nbsp; &nbsp;; ein paar Einträge hinzufügen (aber immer an erster Stelle) <br />&nbsp; &nbsp;<a href="For.htm"><b>For</b></a> t = 1 <a href="To.htm"><b>To</b></a> 5<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="InsertGadgetItem.htm"><b>InsertGadgetItem</b></a> combobox, 0, "Eintrag #" + t<br />&nbsp; &nbsp;<a href="Next.htm"><b>Next</b></a><br />&nbsp; &nbsp;<br />; Button zum Leeren der Listen erstellen (für dritten "Tab")<br />; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - <br /><br />&nbsp; &nbsp;button_clear = <a href="CreateButton.htm"><b>CreateButton</b></a>("Liste und Auswahlliste leeren", 10, 10, 275, 25, tabber)<br />&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> button_clear<br /><br /><br />; Buttons erstellen (für den ersten und zweiten "Tab")<br />; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - <br /><br />&nbsp; &nbsp;button_remove = <a href="CreateButton.htm"><b>CreateButton</b></a>("Eintrag löschen", 5, 190, 100, 22, tabber)<br />&nbsp; &nbsp;button_add = <a href="CreateButton.htm"><b>CreateButton</b></a>("Eintrag anfügen", 110, 190, 100, 22, tabber)<br />&nbsp; &nbsp;<br /><br />; Hauptschleife<br />; - - - - - - - - - - - - - <br /><br /><a href="Repeat.htm"><b>Repeat</b></a><br /><br />&nbsp; &nbsp;<a href="WaitEvent.htm"><b>WaitEvent</b></a>()<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> <a href="EventID.htm"><b>EventID</b></a>()<br />&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;;Aktion wurde in einem Gadget ausgelöst<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $401<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Ursprung der Aktion<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;source = <a href="EventSource.htm"><b>EventSource</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;War es das Tabber - Objekt?<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> source = tabber <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;in <a href="EventData.htm"><b>EventData</b></a> steht das neue Item<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;also in Abhängigkeit des Gadgets zeigen und verst<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Select.htm"><b>Select</b></a> <a href="EventData.htm"><b>EventData</b></a>()<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 0<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> combobox<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ShowGadget.htm"><b>ShowGadget</b></a> listbox<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> button_clear<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ShowGadget.htm"><b>ShowGadget</b></a> button_add<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ShowGadget.htm"><b>ShowGadget</b></a> button_remove<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 1<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ShowGadget.htm"><b>ShowGadget</b></a> combobox<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> listbox<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> button_clear<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ShowGadget.htm"><b>ShowGadget</b></a> button_add<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ShowGadget.htm"><b>ShowGadget</b></a> button_remove<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> 2<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> combobox<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> listbox<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ShowGadget.htm"><b>ShowGadget</b></a> button_clear<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> button_add<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="HideGadget.htm"><b>HideGadget</b></a> button_remove<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;War es der Leeren - Button?<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> source = button_clear <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;beide "Listen" leeren<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ClearGadgetItems.htm"><b>ClearGadgetItems</b></a> listbox<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ClearGadgetItems.htm"><b>ClearGadgetItems</b></a> combobox<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Meldung ausgeben<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="AppTitle.htm"><b>AppTitle</b></a> "Hinweis"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Notify.htm"><b>Notify</b></a> "Liste und Auswahlliste wurden geleert."<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;War es der Löschen - Button?<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> source = button_remove <a href="Then.htm"><b>Then</b></a><br /><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Welcher Tab ist aktiv?<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;tab = <a href="SelectedGadgetItem.htm"><b>SelectedGadgetItem</b></a>( tabber )<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;In Abhängigkeit des Tabs den selektierten Eintrag herausfinden<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 0 <a href="Then.htm"><b>Then</b></a> item = <a href="SelectedGadgetItem.htm"><b>SelectedGadgetItem</b></a>( listbox )<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 1 <a href="Then.htm"><b>Then</b></a> item = <a href="SelectedGadgetItem.htm"><b>SelectedGadgetItem</b></a>( combobox )<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Wenn ein Eintrag ausgewählt wurde<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> item > - 1 <a href="Then.htm"><b>Then</b></a><br /><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Bezeichnung des Eintrags herausfinden<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 0 <a href="Then.htm"><b>Then</b></a> name$ = <a href="GadgetItemText.htm"><b>GadgetItemText</b></a>$(listbox, item)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 1 <a href="Then.htm"><b>Then</b></a> name$ = <a href="GadgetItemText.htm"><b>GadgetItemText</b></a>$(combobox, item)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;löschen<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 0 <a href="Then.htm"><b>Then</b></a> <a href="RemoveGadgetItem.htm"><b>RemoveGadgetItem</b></a> listbox, item<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 1 <a href="Then.htm"><b>Then</b></a> <a href="RemoveGadgetItem.htm"><b>RemoveGadgetItem</b></a> combobox, item<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Meldung über erfolgreiche Löschung ausgeben<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="AppTitle.htm"><b>AppTitle</b></a> "Hinweis"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Notify.htm"><b>Notify</b></a> name$ + " wurde erfolgreich gelöscht."<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;bei der Auswahlliste 1. Eintrag wieder selektieren<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Aber nur, wenn überhaupt noch Eintag da ist, <br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;sonst gibt es einen Fehler<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> <a href="CountGadgetItems.htm"><b>CountGadgetItems</b></a>( combobox ) > 0 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="SelectGadgetItem.htm"><b>SelectGadgetItem</b></a> combobox, 0<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Else.htm"><b>Else</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Wenn nicht, dann Benutzer darüber in Kenntnis setzen<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="AppTitle.htm"><b>AppTitle</b></a> "Hinweis"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="Notify.htm"><b>Notify</b></a> "Kein Eintrag selektiert!"<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;War es der Anfügen - Button?<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> source = button_add <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Welcher Tab?<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;tab = <a href="SelectedGadgetItem.htm"><b>SelectedGadgetItem</b></a>( tabber )<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Wie viel Items haben wir? (für neue Nummer)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 0 <a href="Then.htm"><b>Then</b></a> items = <a href="CountGadgetItems.htm"><b>CountGadgetItems</b></a>( listbox )<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 1 <a href="Then.htm"><b>Then</b></a> items = <a href="CountGadgetItems.htm"><b>CountGadgetItems</b></a>( combobox )<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;Eintrag hinzufügen<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 0 <a href="Then.htm"><b>Then</b></a> <a href="AddGadgetItem.htm"><b>AddGadgetItem</b></a> listbox, "Eintrag #" + (items + 1)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;den Eintrag in der Auswahlliste wieder ganz oben hinzufügen:<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 1 <a href="Then.htm"><b>Then</b></a> <a href="InsertGadgetItem.htm"><b>InsertGadgetItem</b></a> combobox, "", 1 <br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;;den frisch hinzugefügten Combobox - Eintrag benennen<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="If.htm"><b>If</b></a> tab = 1 <a href="Then.htm"><b>Then</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="ModifyGadgetItem.htm"><b>ModifyGadgetItem</b></a> combobox, 0, "Eintrag #" + (items + 1)<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="EndIf.htm"><b>EndIf</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;&nbsp; &nbsp;;Fenster wurde geschlossen - > Programm beenden<br />&nbsp; &nbsp;&nbsp; &nbsp;<a href="Case.htm"><b>Case</b></a> $803<br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<a href="End.htm"><b>End</b></a><br />&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;<br />&nbsp; &nbsp;<a href="End Select.htm"><b>End Select</b></a><br /><br /><a href="Forever.htm"><b>Forever</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AddGadgetItem.htm" title="Fügt einen Eintrag einem Objekt hinzu">AddGadgetItem</a>, <a href="ClearGadgetItems.htm" title="Löscht alle Einträge aus einem Objekt">ClearGadgetItems</a>, <a href="CountGadgetItems.htm" title="Ermittelt Anzahl der Einträge eines Objekts">CountGadgetItems</a>, <a href="CreateComboBox.htm" title="Erstellt Combobox-Objekt (Auswahlliste)">CreateComboBox</a>, <a href="CreateListBox.htm" title="Erstellt Listbox-Objekt (Liste mit einer Spalte)">CreateListBox</a>, <a href="CreateTabber.htm" title="Erstellt Tabber-Objekt (für Registerkarten)">CreateTabber</a>, <a href="GadgetItemText.htm" title="Ermittelt Bezeichnung eines Objekt-Eintrags">GadgetItemText</a>, <a href="InsertGadgetItem.htm" title="Fügt einen Eintrag einem Objekt an bestimmter Stelle hinzu">InsertGadgetItem</a>, <a href="ModifyGadgetItem.htm" title="Ändert Bezeichnung eines Eintrags">ModifyGadgetItem</a>, <a href="RemoveGadgetItem.htm" title="Entfernt einen Eintrag aus einem Objekt">RemoveGadgetItem</a>, <a href="SelectedGadgetItem.htm" title="Ermittelt ausgewählten Eintrags eines Objekts">SelectedGadgetItem</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_9.html">GUI</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_53.html">Listen & Registerkarten</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

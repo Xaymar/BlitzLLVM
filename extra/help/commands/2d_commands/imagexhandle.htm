@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+	<link href="../../html/main.css" rel="stylesheet" type="text/css" media="screen" />
+	<link href="../../html/ie.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="../../html/command_frameset.js"></script>
+
+</head>
+<body style="background:#F8F7F4;">
+
+<div id="main_wrap">
+	<div id="content_wrap">
+		<div id="content">
+			<div id="standard">
+
+	<h1>Hilfe</h1>
+
+	<div id="pages_top" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+
+	</div>
+
+	<div class="head">
+		ImageXHandle 
+	</div>
+
+	<p style="margin:0; padding:5px;float:right;">
+		<img src="../../html/images/help_bb.png" alt="B2D" title="Funktioniert unter Blitz2D" /> 
+		<img src="../../html/images/help_bp.png" alt="B+" title="Funktioniert unter BlitzPlus" /> 
+		<img src="../../html/images/help_b3d.png" alt="B3D" title="Funktioniert unter Blitz3D" /> 
+	</p>
+
+	<div class="content">
+
+		<b>Aufruf</b><br /><br />
+		<div class="syntax-code">
+			x = <b>ImageXHandle</b> (bild) 
+		</div>
+
+		<br />
+		<b>Parameter</b><br />
+		<p style="margin-left: 20px;">
+			<table cellspacing=0 style="width: auto; margin-left: 20px;"><tr>
+<td width="100">
+bild
+</td>
+<td>
+Identität eines Bildes (z.B. mit <a href="LoadImage.htm"><b>LoadImage</b><img src="../../html/images/quicklink.gif" /></a> ermittelt)
+</td>
+</tr>
+</table> 
+		</p>
+
+		<br />
+		<b>Rückgabewert</b><br />
+		<p style="margin-left: 20px;">
+			Verschiebung in X-Richtung 
+		</p>
+
+		<br />
+		<b>Beschreibung</b><br />
+		<p style="margin-left: 20px;">
+			Diese Funktion ermittelt die Verschiebung eines Bildes in X-Richtung.<br /><br />Wenn ein Bild gezeichnet wird, dann werden die X- und Y-Koordinaten angegeben. Das Bild kann aber um ein paar Pixel verschoben (kalibriert) werden. Dadurch kann ein Objekt z.B. genau mittig auf der Koordinate dargestellt werden, ohne, dass man irgendwelche Werte zur Position dazurechnen muss. 
+		</p>
+
+		 
+
+		
+				<br />
+		<b>Beispiel</b><br />
+		 
+		<p style="margin-left: 20px;">
+			Standardbeispiel:<br />
+			<div class="syntax-code">
+				<a href="Graphics.htm"><b>Graphics</b></a> 640, 480, 16<br />gfxBall = <a href="LoadImage.htm"><b>LoadImage</b></a> ("ball.bmp")<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Standard Bild-Verschiebung"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 14, "X-Verschiebung: " + <a href="ImageXHandle.htm"><b>ImageXHandle</b></a>(gfxBall)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 28, "Y-Verschiebung: " + <a href="ImageYHandle.htm"><b>ImageYHandle</b></a>(gfxBall)<br />&nbsp; &nbsp;<a href="DrawImage.htm"><b>DrawImage</b></a> gfxBall, 200, 200, 0<br /><a href="Wend.htm"><b>Wend</b></a><br /><a href="Cls.htm"><b>Cls</b></a><br /><a href="MidHandle.htm"><b>MidHandle</b></a> gfxBall<br /><a href="While.htm"><b>While</b></a> <a href="Not.htm"><b>Not</b></a> <a href="KeyHit.htm"><b>KeyHit</b></a>(1)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 0, "Neue Bild-Verschiebung"<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 14, "X-Verschiebung: " + <a href="ImageXHandle.htm"><b>ImageXHandle</b></a>(gfxBall)<br />&nbsp; &nbsp;<a href="Text.htm"><b>Text</b></a> 0, 28, "Y-Verschiebung: " + <a href="ImageYHandle.htm"><b>ImageYHandle</b></a>(gfxBall)<br />&nbsp; &nbsp;<a href="DrawImage.htm"><b>DrawImage</b></a> gfxBall, 200, 200, 0<br /><a href="Wend.htm"><b>Wend</b></a> 
+			</div>
+		</p>
+		 
+		 
+
+
+		 
+		<br />
+		<b>Siehe auch</b><br />
+		<p style="margin-left: 20px;"> 
+			<a href="AutoMidHandle.htm" title="Diese Anweisung definiert den Grafik-Bezugspunkt">AutoMidHandle</a>, <a href="HandleImage.htm" title="Ändert Bezugspunkt eines Bildes">HandleImage</a>, <a href="ImageYHandle.htm" title="Ermittelt vertikale Verschiebung eines Bildes">ImageYHandle</a>, <a href="MidHandle.htm" title="Setzt den Bezugspunkt eines Bildes auf die Mitte">MidHandle</a> 
+		</p>
+		 
+	</div>
+
+	<div id="pages_bottom" class="pages">
+		<ul>
+			<li>
+			</li>
+		</ul>
+	</div>
+
+	<a href="../../html/home.html">Übersicht</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/cat_1.html">2D Grafik</a> <img src="../../html/images/arrow.png" alt="" /> <a href="../../html/categories/subcat_15.html">Bilder</a>
+	
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
