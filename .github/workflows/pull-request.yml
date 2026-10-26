@@ -47,8 +47,14 @@ jobs:
       ARTIFACT: blitzllvm-${{ needs.version.outputs.version }}-${{ matrix.name }}
     steps:
       - uses: actions/checkout@v4
-      - name: Check out cmake-version and cmake-externalcontent
-        run: git submodule update --init --depth 1 cmake/version cmake/externalcontent
+      - name: Check out the submodules
+        # Only the ones the build needs, and shallow. extra/ holds reference sources only.
+        run: git submodule update --init --depth 1 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer
+      - name: Hash the dependency submodules
+        id: dependencies
+        shell: bash
+        # The recorded commits of third_party/, so that updating a submodule changes the cache key.
+        run: echo "hash=$(git ls-tree HEAD third_party/ | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - uses: jwlawson/actions-setup-cmake@v2
         with:
           cmake-version: latest
@@ -67,17 +73,18 @@ jobs:
         run: |
           choco install nasm -y --no-progress
           echo 'C:\Program Files\NASM' >> "$GITHUB_PATH"
-      # SDL3, SDL3_image (with its AVIF, JPEG XL and WebP codecs), SDL3_mixer and the Vulkan headers are cloned and built by ExternalContent (see code_runtime/dependencies.cmake),
+      # SDL3, SDL3_image (with its AVIF, JPEG XL and WebP codecs), SDL3_mixer and the Vulkan headers come from the submodules in third_party/ and are built by ExternalContent (see code_runtime/dependencies.cmake),
       # which skips every stage whose inputs are unchanged. Restoring its directory therefore skips their compilation entirely. Their
-      # versions and build options are all defined in that file, so it is part of the key, and so is the checked out ExternalContent module (hashed by content, so a submodule bump changes the key).
+      # build options are defined in that file, so it is part of the key, and so are the ExternalContent module and the commits of the dependency submodules.
       # Pull requests restore the caches that nightly builds of root save, and only save one of their own when none exists yet.
+      # The prefix is not shared with the caches from before the dependencies were submodules, as those were built from another source directory.
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: build/ExternalContentFiles
-          key: dependencies-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}
+          key: submodule-dependencies-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
           restore-keys: |
-            dependencies-${{ matrix.name }}-
+            submodule-dependencies-${{ matrix.name }}-
       - name: Configure
         shell: bash
         run: |
