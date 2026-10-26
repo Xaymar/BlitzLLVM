@@ -159,8 +159,9 @@ namespace blitz {
 		/** Functions of the userlibs that the program may call, set before generating. */
 		std::vector<blitz::keywords::user_function> userlibs;
 
-		/** Libraries (as named by the .lib directive) of the userlib functions that the program called, set by generating. */
-		std::set<std::string> userlibs_used;
+		/** Where the program looks for the libraries of the userlibs when it runs, after the directory of the program: the userlibs directory and the directory of the source. */
+		std::string userlibs_dir;
+		std::string source_dir;
 
 		/** Whether to describe the program to debuggers, with metadata that maps every instruction back to its file, line and column. */
 		bool debug_info = false;

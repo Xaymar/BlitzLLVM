@@ -221,16 +221,6 @@ blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool&
 	if (args != entry->params.size()) {
 		throw err(node->where, "Function '" + node->name + "' expects " + std::to_string(entry->params.size()) + " arguments, got " + std::to_string(args) + ".");
 	}
-	userlibs_used.insert(entry->lib);
-
-	// The decorated name of 32 bit Windows stdcall (_Name@8) is not what the library exports with the C calling convention.
-	std::string symbol = entry->symbol;
-	if (auto at = symbol.rfind('@'); (at != std::string::npos) && (at > 0) && (symbol.find_first_not_of("0123456789", at + 1) == std::string::npos)) {
-		symbol.erase(at);
-		if (!symbol.empty() && (symbol[0] == '_')) {
-			symbol.erase(0, 1);
-		}
-	}
 
 	std::vector<value> values;
 	for (size_t idx = 0; idx < args; idx++) {
@@ -257,6 +247,16 @@ blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool&
 		}
 	}
 
+	// The function is looked up when the program first calls it: the library is loaded then (LoadLibrary or dlopen), and the pointer is kept.
+	auto slot = "@bb.ul." + std::to_string(_counter++);
+	_globals << slot << " = internal global ptr null\n";
+	auto symbol = call_runtime("bb_userlib_function", type::STRUCT,
+							   { { slot, type::STRUCT },
+								 { string_constant(entry->lib), type::STRUCT },
+								 { string_constant(entry->symbol), type::STRUCT },
+								 { userlibs_dir.empty() ? std::string("null") : string_constant(userlibs_dir), type::STRUCT },
+								 { string_constant(source_dir), type::STRUCT } });
+
 	std::string params, list;
 	for (size_t idx = 0; idx < values.size(); idx++) {
 		auto llvm_type = blitz::types::to_llvm(values[idx].type);
@@ -264,16 +264,15 @@ blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool&
 		list += (idx ? ", " : "") + llvm_type + " " + values[idx].repr;
 	}
 	auto ret = (entry->ret == 'i') ? type::INT32 : (entry->ret == 'f') ? type::FLOAT32 : (entry->ret == 's') ? type::STRING : type::UNKNOWN;
-	declare("lib." + symbol, "declare " + blitz::types::to_llvm(ret) + " @\"" + symbol + "\"(" + params + ")");
+	auto llvm_ret = blitz::types::to_llvm(ret);
 	if (ret == type::UNKNOWN) {
-		emit("call void @\"" + symbol + "\"(" + list + ")");
+		emit("call void (" + params + ") " + symbol.repr + "(" + list + ")");
 		return { "", type::UNKNOWN };
 	}
 	auto r = tmp();
-	emit(r + " = call " + blitz::types::to_llvm(ret) + " @\"" + symbol + "\"(" + list + ")");
+	emit(r + " = call " + llvm_ret + " (" + params + ") " + symbol.repr + "(" + list + ")");
 	if (ret == type::STRING) {
-		auto copy = call_runtime("bb_str_dup", type::STRING, { { r, type::STRING } });
-		return copy;
+		return call_runtime("bb_str_dup", type::STRING, { { r, type::STRING } });
 	}
 	return { r, ret };
 }
