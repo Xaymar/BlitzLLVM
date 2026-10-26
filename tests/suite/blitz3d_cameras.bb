@@ -5,7 +5,7 @@
 ; Cameras, lights, sprites and sound in 3D: CreateCamera CameraRange CameraZoom CameraViewport CameraClsColor
 ; CameraClsMode CameraFogMode CameraFogColor CameraFogRange CameraProjMode CameraProject ProjectedX ProjectedY
 ; ProjectedZ EntityInView CreateLight LightColor LightRange AmbientLight CreateListener EmitSound CreateSprite
-; SpriteViewMode ScaleSprite RotateSprite.
+; SpriteViewMode ScaleSprite RotateSprite LoadSprite HandleSprite LightConeAngles.
 Include "check.bb"
 
 Graphics3D 320, 240, 32, 2
@@ -171,6 +171,25 @@ CheckTrue "CreateSprite with a parent", child <> 0
 FreeEntity child
 FreeEntity sprite
 suite_checks = suite_checks + 5
+
+; Sprites from files, and where they are held.
+from_file = LoadSprite("../checker.png")
+CheckTrue "LoadSprite", from_file <> 0
+CheckS "LoadSprite is a sprite", EntityClass$(from_file), "Sprite"
+Check "LoadSprite missing", LoadSprite("suite_does_not_exist.png"), 0
+holder = CreatePivot()
+held = LoadSprite("../checker.png", 1 + 4, holder)
+Check "LoadSprite parent", GetParent(held), holder
+HandleSprite from_file, 1, -1
+HandleSprite from_file, 0, 0
+suite_checks = suite_checks + 1
+
+; The cone of a spot light.
+cone = CreateLight(3)
+LightConeAngles cone, 10, 20
+LightConeAngles cone, 30, 10
+LightConeAngles cone, -5, 400
+suite_checks = suite_checks + 1
 
 EndGraphics
 Done "blitz3d_cameras"

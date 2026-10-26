@@ -129,6 +129,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_clipboard.cpp"
 	"source/scene_entities.cpp"
 	"source/scene_math.cpp"
+	"source/scene_world.cpp"
 	"source/scene_meshes.cpp"
 	"source/scene_camera.cpp"
 	"source/scene_sprites.cpp"

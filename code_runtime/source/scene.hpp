@@ -87,6 +87,10 @@ namespace bb {
 		void* gpu  = nullptr;
 	};
 
+	// A texture that has frames is bound by a number that has the frame above the handle.
+	constexpr int texture_frame_shift = 20;
+	constexpr int texture_handle_mask  = (1 << texture_frame_shift) - 1;
+
 	enum entity_kind { PIVOT = 0, CAMERA = 1, LIGHT = 2, MESH = 3 };
 
 	// A heightmap that is drawn as a mesh. Heights go from 0 to 1.
@@ -126,6 +130,14 @@ namespace bb {
 
 		int   sprite_mode = 0;           // 0 = not a sprite, 1 = faces the camera, 2 = fixed, 3 = free, 4 = upright
 		float sprite_scale[2] = { 1, 1 };
+		float sprite_handle[2] = { 0, 0 }; // Where the sprite is held, in half the size of it.
+		const char* cls = nullptr;       // What EntityClass says for the entities that are made from another kind.
+		bool  has_cull_box = false;      // MeshCullBox: the box that decides whether the mesh is seen.
+		float cull_box[6]  = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
+		// Where it was at CaptureWorld, to draw it between there and where it is now.
+		bool  captured = false;
+		float capt_pos[3] = { 0, 0, 0 }, capt_scl[3] = { 1, 1, 1 };
+		float capt_rot[4] = { 1, 0, 0, 0 }; // w, x, y, z
 		float sprite_angle    = 0;
 		int   order    = 0; // Entities with a higher order are drawn first, and those with 0 are drawn normally.
 		int   blend    = 1; // 1 = alpha, 2 = multiply, 3 = add
@@ -149,6 +161,7 @@ namespace bb {
 		int   light_type = 1; // 1 = directional, 2 = point, 3 = spot (drawn as point)
 		float light_color[3] = { 1, 1, 1 };
 		float light_range    = 1000;
+		float light_cone[2]  = { 0, 45 }; // Inner and outer angle of a spot light, in degrees.
 	};
 
 	// Matrices are 4x4, column-major, for column vectors.
@@ -165,6 +178,8 @@ namespace bb {
 	/** Makes where an entity is now the place that it moves from for collisions, like ResetEntity. */
 	void         reset_movement(int handle);
 	extern float ambient_light[3];
+	/** How far between CaptureWorld and now entities are drawn, 1 for where they are. Set by RenderWorld. */
+	extern float render_tween;
 
 	// For loading models (animation.cpp), which builds entities and surfaces itself.
 	int       create_entity(int kind, int parent);

@@ -6,7 +6,7 @@
 ; CountSurfaces AddVertex AddTriangle CountVertices CountTriangles VertexX VertexY VertexZ VertexNX VertexNY VertexNZ
 ; VertexNormal VertexColor VertexRed VertexGreen VertexBlue VertexAlpha VertexU VertexV VertexTexCoords TriangleVertex
 ; UpdateNormals FlipMesh PositionMesh RotateMesh ScaleMesh MeshWidth MeshHeight MeshDepth PaintMesh PaintSurface
-; GetSurfaceBrush.
+; GetSurfaceBrush AddMesh CopyMesh FitMesh MeshCullBox ClearSurface VertexCoords VertexW LightMesh.
 Include "check.bb"
 
 Graphics3D 320, 240, 32, 2
@@ -165,6 +165,142 @@ FreeEntity cylinder
 FreeEntity detailed
 FreeEntity sphere
 FreeEntity cube
+
+; The smallest or biggest value of a coordinate in a mesh, 0 for x, 1 for y and 2 for z.
+Function Extreme#(mesh, axis, biggest)
+	result# = 0
+	found = False
+	For s = 1 To CountSurfaces(mesh)
+		surf = GetSurface(mesh, s)
+		For v = 0 To CountVertices(surf) - 1
+			If axis = 0 Then value# = VertexX(surf, v)
+			If axis = 1 Then value# = VertexY(surf, v)
+			If axis = 2 Then value# = VertexZ(surf, v)
+			If (found = False) Or (biggest And value > result) Or ((biggest = False) And value < result) Then result = value
+			found = True
+		Next
+	Next
+	Return result
+End Function
+
+; AddMesh puts a mesh into another, and surfaces that look the same become one.
+target = CreateCube()
+source = CreateCube()
+vertices_each = CountVertices(GetSurface(target, 1))
+triangles_each = CountTriangles(GetSurface(target, 1))
+AddMesh source, target
+Check "AddMesh keeps the surface", CountSurfaces(target), 1
+Check "AddMesh vertices", CountVertices(GetSurface(target, 1)), vertices_each * 2
+Check "AddMesh triangles", CountTriangles(GetSurface(target, 1)), triangles_each * 2
+Check "AddMesh keeps the source", CountVertices(GetSurface(source, 1)), vertices_each
+red = CreateBrush(255, 0, 0)
+painted = CreateCube()
+PaintMesh painted, red
+AddMesh painted, target
+Check "AddMesh adds a surface for another brush", CountSurfaces(target), 2
+Check "AddMesh vertices of the new surface", CountVertices(GetSurface(target, 2)), vertices_each
+Check "AddMesh the source has its surface", CountSurfaces(painted), 1
+; Triangles refer to the vertices of their own surface.
+last_surface = GetSurface(target, 1)
+Check "AddMesh moved the triangles", TriangleVertex(last_surface, triangles_each, 0) >= vertices_each, 1
+
+; A copy is a mesh of its own.
+width# = MeshWidth(target)
+duplicate = CopyMesh(target)
+CheckTrue "CopyMesh", duplicate <> 0 And duplicate <> target
+Check "CopyMesh surfaces", CountSurfaces(duplicate), 2
+Check "CopyMesh vertices", CountVertices(GetSurface(duplicate, 1)), vertices_each * 2
+Check "CopyMesh width", MeshWidth(duplicate), width
+ScaleMesh duplicate, 3, 1, 1
+Check "CopyMesh is separate", MeshWidth(target), width
+Check "ScaleMesh on the copy", MeshWidth(duplicate), width * 3
+holder = CreatePivot()
+kept = CopyMesh(target, holder)
+Check "CopyMesh parent", GetParent(kept), holder
+
+; FitMesh scales and moves a mesh until it fills a box.
+fitted = CreateCube()
+FitMesh fitted, 10, 20, 30, 4, 6, 8
+Check "FitMesh width", MeshWidth(fitted), 4, 0.001
+Check "FitMesh height", MeshHeight(fitted), 6, 0.001
+Check "FitMesh depth", MeshDepth(fitted), 8, 0.001
+Check "FitMesh left", Extreme(fitted, 0, False), 10, 0.001
+Check "FitMesh right", Extreme(fitted, 0, True), 14, 0.001
+Check "FitMesh bottom", Extreme(fitted, 1, False), 20, 0.001
+Check "FitMesh back", Extreme(fitted, 2, True), 38, 0.001
+; Uniform keeps the shape: the cube stays a cube, as big as fits.
+even = CreateCube()
+FitMesh even, 0, 0, 0, 4, 8, 2, True
+Check "FitMesh uniform width", MeshWidth(even), 2, 0.001
+Check "FitMesh uniform height", MeshHeight(even), 2, 0.001
+Check "FitMesh uniform depth", MeshDepth(even), 2, 0.001
+Check "FitMesh uniform middle", Extreme(even, 0, False), 1, 0.001
+Check "FitMesh uniform middle height", Extreme(even, 1, False), 3, 0.001
+
+; The cull box decides whether a mesh is seen: this cube is far to the side, but its box reaches the middle.
+camera = CreateCamera()
+far_off = CreateCube()
+PositionEntity far_off, 30, 0, 10
+Check "Far off, not in view", EntityInView(far_off, camera), 0
+MeshCullBox far_off, -40, -1, -1, 80, 2, 2
+Check "MeshCullBox", EntityInView(far_off, camera), 1
+FreeEntity camera
+
+; Surfaces can be emptied: the vertices, the triangles, or both.
+emptied = CreateCube()
+part = GetSurface(emptied, 1)
+ClearSurface part, False, True
+Check "ClearSurface triangles", CountTriangles(part), 0
+Check "ClearSurface keeps the vertices", CountVertices(part), vertices_each
+ClearSurface part, True, False
+Check "ClearSurface vertices", CountVertices(part), 0
+emptied = CreateCube()
+part = GetSurface(emptied, 1)
+ClearSurface part
+Check "ClearSurface both, vertices", CountVertices(part), 0
+Check "ClearSurface both, triangles", CountTriangles(part), 0
+a = AddVertex(part, 0, 0, 0)
+b = AddVertex(part, 1, 0, 0)
+c = AddVertex(part, 0, 1, 0)
+AddTriangle part, a, b, c
+Check "A cleared surface can be filled again", CountTriangles(part), 1
+
+; Vertices can be moved.
+VertexCoords part, 1, 5, 6, 7
+Check "VertexCoords x", VertexX(part, 1), 5
+Check "VertexCoords y", VertexY(part, 1), 6
+Check "VertexCoords z", VertexZ(part, 1), 7
+Check "VertexCoords leaves the others", VertexX(part, 0), 0
+Check "VertexW", VertexW(part, 1), 1
+Check "VertexW coord set", VertexW(part, 1, 1), 1
+
+; LightMesh adds light to the colors of the vertices: everywhere without a range, and only where it shines with one.
+lit = CreateCube()
+surf = GetSurface(lit, 1)
+For v = 0 To CountVertices(surf) - 1
+	VertexColor surf, v, 0, 0, 0
+Next
+LightMesh lit, 50, 100, 150
+Check "LightMesh red", VertexRed(surf, 0), 50
+Check "LightMesh green", VertexGreen(surf, 0), 100
+Check "LightMesh blue", VertexBlue(surf, CountVertices(surf) - 1), 150
+LightMesh lit, 255, 255, 255
+Check "LightMesh stays within bounds", VertexRed(surf, 0), 255
+lit = CreateCube()
+surf = GetSurface(lit, 1)
+For v = 0 To CountVertices(surf) - 1
+	VertexColor surf, v, 0, 0, 0
+Next
+LightMesh lit, 50, 50, 50, 10, 0, 0, -5
+facing = -1
+away = -1
+For v = 0 To CountVertices(surf) - 1
+	If VertexNZ(surf, v) < -0.5 Then facing = v
+	If VertexNZ(surf, v) > 0.5 Then away = v
+Next
+CheckTrue "The cube has faces to the light and away from it", facing >= 0 And away >= 0
+Check "LightMesh with a range, facing the light", VertexRed(surf, facing), 111, 2
+Check "LightMesh with a range, facing away", VertexRed(surf, away), 0
 
 EndGraphics
 Done "blitz3d_meshes"

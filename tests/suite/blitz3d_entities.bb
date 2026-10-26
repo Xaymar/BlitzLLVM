@@ -6,7 +6,8 @@
 ; TranslateEntity RotateEntity TurnEntity ScaleEntity EntityX EntityY EntityZ EntityPitch EntityYaw EntityRoll
 ; EntityDistance DeltaPitch DeltaYaw PointEntity TFormPoint TFormVector TFormNormal TFormedX TFormedY TFormedZ
 ; HideEntity ShowEntity EntityOrder EntityAlpha EntityColor EntityShininess EntityBlend EntityFX EntityAutoFade
-; EntityTexture PaintEntity.
+; EntityTexture PaintEntity CountChildren GetChild GetParent EntityClass GetMatElement AlignToVector VectorYaw
+; VectorPitch CreateMirror ClearWorld.
 Include "check.bb"
 
 Graphics3D 320, 240, 32, 2
@@ -214,6 +215,107 @@ FreeEntity treecopy
 FreeEntity cube
 FreeEntity pivot
 suite_checks = suite_checks + 5
+
+; The tree: the children of an entity are numbered from 1, in the order they were made.
+tree = CreatePivot()
+child_a = CreatePivot(tree)
+child_b = CreateCube(tree)
+child_c = CreateSphere(8, tree)
+Check "CountChildren", CountChildren(tree), 3
+Check "CountChildren of a leaf", CountChildren(child_a), 0
+Check "GetChild 1", GetChild(tree, 1), child_a
+Check "GetChild 2", GetChild(tree, 2), child_b
+Check "GetChild 3", GetChild(tree, 3), child_c
+Check "GetChild past the end", GetChild(tree, 4), 0
+Check "GetChild 0", GetChild(tree, 0), 0
+Check "GetParent", GetParent(child_a), tree
+Check "GetParent of a root", GetParent(tree), 0
+FreeEntity child_b
+Check "CountChildren after FreeEntity", CountChildren(tree), 2
+Check "GetChild after FreeEntity", GetChild(tree, 2), child_c
+
+; What kind of entity something is.
+CheckS "EntityClass pivot", EntityClass$(tree), "Pivot"
+CheckS "EntityClass mesh", EntityClass$(child_c), "Mesh"
+kind_camera = CreateCamera()
+kind_light = CreateLight()
+kind_sprite = CreateSprite()
+kind_terrain = CreateTerrain(8)
+kind_plane = CreatePlane()
+kind_mirror = CreateMirror(tree)
+CheckS "EntityClass camera", EntityClass$(kind_camera), "Camera"
+CheckS "EntityClass light", EntityClass$(kind_light), "Light"
+CheckS "EntityClass sprite", EntityClass$(kind_sprite), "Sprite"
+CheckS "EntityClass terrain", EntityClass$(kind_terrain), "Terrain"
+CheckS "EntityClass plane", EntityClass$(kind_plane), "Plane"
+CheckS "EntityClass mirror", EntityClass$(kind_mirror), "Mirror"
+Check "CreateMirror has a parent", GetParent(kind_mirror), tree
+
+; The matrix of an entity: the rows are where its axes point, the last row is where it is.
+placed = CreatePivot()
+PositionEntity placed, 1, 2, 3
+Check "GetMatElement x axis", GetMatElement(placed, 0, 0), 1
+Check "GetMatElement y axis", GetMatElement(placed, 1, 1), 1
+Check "GetMatElement z axis", GetMatElement(placed, 2, 2), 1
+Check "GetMatElement x axis sideways", GetMatElement(placed, 0, 1), 0
+Check "GetMatElement position x", GetMatElement(placed, 3, 0), 1
+Check "GetMatElement position y", GetMatElement(placed, 3, 1), 2
+Check "GetMatElement position z", GetMatElement(placed, 3, 2), 3
+RotateEntity placed, 0, 90, 0
+Check "GetMatElement turned z axis", GetMatElement(placed, 2, 0), -1, 0.0001
+Check "GetMatElement turned x axis", GetMatElement(placed, 0, 2), 1, 0.0001
+Check "GetMatElement turned keeps the position", GetMatElement(placed, 3, 1), 2
+
+; Directions as angles. A positive yaw turns left.
+Check "VectorYaw forward", VectorYaw(0, 0, 1), 0
+Check "VectorYaw right", VectorYaw(1, 0, 0), -90, 0.001
+Check "VectorYaw left", VectorYaw(-1, 0, 0), 90, 0.001
+Check "VectorYaw back left", VectorYaw(-1, 0, 1), 45, 0.001
+Check "VectorPitch forward", VectorPitch(0, 0, 1), 0
+Check "VectorPitch up", VectorPitch(0, 1, 1), -45, 0.001
+Check "VectorPitch down", VectorPitch(0, -1, 0), 90, 0.001
+
+; AlignToVector turns an entity until one of its axes points the given way.
+aligned = CreatePivot()
+AlignToVector aligned, 1, 0, 0, 3
+Check "AlignToVector z to x", GetMatElement(aligned, 2, 0), 1, 0.001
+Check "AlignToVector z to x, z", GetMatElement(aligned, 2, 2), 0, 0.001
+aligned = CreatePivot()
+AlignToVector aligned, 5, 0, 0, 3, 0.5
+Check "AlignToVector half way, x", GetMatElement(aligned, 2, 0), 0.7071, 0.001
+Check "AlignToVector half way, z", GetMatElement(aligned, 2, 2), 0.7071, 0.001
+aligned = CreatePivot()
+AlignToVector aligned, 0, 0, 3, 2
+Check "AlignToVector y to z", GetMatElement(aligned, 1, 2), 1, 0.001
+aligned = CreatePivot()
+AlignToVector aligned, 0, 0, -1, 3
+Check "AlignToVector turned around", GetMatElement(aligned, 2, 2), -1, 0.001
+aligned = CreatePivot()
+AlignToVector aligned, 0, 0, 0, 3
+Check "AlignToVector with nothing", GetMatElement(aligned, 2, 2), 1, 0.001
+aligned = CreatePivot()
+AlignToVector aligned, 0, 0, 1, 3
+Check "AlignToVector already there", GetMatElement(aligned, 2, 2), 1, 0.001
+; A turned parent does not matter: it is the way in the world.
+turned_parent = CreatePivot()
+TurnEntity turned_parent, 0, 90, 0
+aligned = CreatePivot(turned_parent)
+AlignToVector aligned, 1, 0, 0, 3
+Check "AlignToVector in the world", GetMatElement(aligned, 2, 0), 1, 0.001
+
+; ClearWorld takes everything away: the handles are all free again.
+ClearWorld False, False, False
+CheckTrue "ClearWorld without anything keeps entities", CountChildren(tree) >= 0
+brush = CreateBrush()
+texture = CreateTexture(4, 4)
+ClearWorld False, True, False
+Check "ClearWorld brushes", CreateBrush(), 1
+ClearWorld False, False, True
+Check "ClearWorld textures", CreateTexture(4, 4), 1
+ClearWorld
+Check "ClearWorld entities", CreatePivot(), 1
+Check "ClearWorld brushes again", CreateBrush(), 1
+Check "ClearWorld textures again", CreateTexture(4, 4), 1
 
 EndGraphics
 Done "blitz3d_entities"

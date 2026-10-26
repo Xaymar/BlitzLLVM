@@ -291,6 +291,10 @@ namespace bb::gfx {
 		int             width = 0, height = 0;
 		float           uv[4] = { 1, 1, 0, 0 }; // Scale (ScaleTexture) and offset (PositionTexture) of the coordinates.
 		int             blend = 2;              // What a texture on a later layer does with what is below: 1 alpha, 2 multiply, 3 add, 5 twice multiply.
+		int             frames = 1;             // More than one for a texture that is a sheet of frames, see LoadAnimTexture.
+		int             frame_w = 0, frame_h = 0; // The size of a frame, if there are frames.
+		int             first_frame = 0;        // The cell of the sheet that is the first frame.
+		char*           file = nullptr;         // Where it was loaded from, for TextureName.
 		gpu_image       image;
 		VkDescriptorSet set = VK_NULL_HANDLE;
 	};
@@ -542,7 +546,9 @@ namespace bb::gfx {
 	bool active();
 	void push_key(int code);
 	void ensure_swapchain();
-	texture_entry* texture_of(int handle);
+	texture_entry* texture_of(int reference);
+	/** The scale and offset of the texture coordinates for a texture, from the reference that has its frame. */
+	void texture_uv(texture_entry const* texture, int reference, float* uv);
 	void free_image(image_entry& e);
 	void free_texture(texture_entry& t);
 	void create_3d();

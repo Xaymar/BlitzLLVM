@@ -760,6 +760,16 @@ void bb_rotate_image(int32_t handle, float angle)
 	bb_tform_image(handle, cosf(radians), -sinf(radians), sinf(radians), cosf(radians));
 }
 
+// The pixels of a picture file as RGBA, which are to be freed, or nothing if it can't be loaded.
+uint8_t* bb_file_pixels(const char* file, int32_t* width, int32_t* height)
+{
+	int w = 0, h = 0;
+	uint8_t* pixels = load_pixels(file, w, h);
+	*width  = w;
+	*height = h;
+	return pixels;
+}
+
 // Fills a buffer with a picture, stretched to the size of the buffer. Returns whether the file could be loaded.
 int32_t bb_load_buffer(int32_t buffer, const char* file)
 {

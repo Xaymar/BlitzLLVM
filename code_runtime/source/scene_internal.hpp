@@ -63,6 +63,14 @@ namespace bb::scene {
 // The Blitz API, which the parts call each other through
 ////////////////////////////////////////////////////////////////////////////////
 extern "C" {
+int32_t bb_load_texture(const char* file, int32_t flags);
+void bb_scale_texture(int32_t handle, float u, float v);
+int32_t bb_create_brush(float r, float g, float b);
+void bb_brush_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index);
+int32_t bb_create_sprite(int32_t parent);
+void bb_entity_blend(int32_t handle, int32_t blend);
+void bb_entity_fx(int32_t handle, int32_t fx);
+uint8_t* bb_file_pixels(const char* file, int32_t* width, int32_t* height);
 void bb_ambient_light(float r, float g, float b);
 int bb_entity_world_matrix(int32_t handle, float* matrix);
 int32_t bb_create_pivot(int32_t parent);

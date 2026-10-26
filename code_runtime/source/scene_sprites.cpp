@@ -63,6 +63,35 @@ int32_t bb_create_plane(int32_t divisions, int32_t parent)
 	}
 	add_oriented_triangle(s, 0, 1, 2);
 	add_oriented_triangle(s, 0, 2, 3);
+	get_entity(mesh)->cls = "Plane";
 	return mesh;
+}
+
+// Where a sprite is held, in half the size of it: the middle is 0, 0. It turns and scales around there.
+void bb_handle_sprite(int32_t handle, float x, float y)
+{
+	entity* e = need_kind(handle, MESH, "HandleSprite");
+	if (!e->sprite_mode) {
+		bb_runtime_error("HandleSprite: the entity is not a sprite.");
+	}
+	e->sprite_handle[0] = x;
+	e->sprite_handle[1] = y;
+}
+
+// A sprite with a texture from a file: lit by nothing, and see-through the way the flags say. 0 if the file can't be loaded.
+int32_t bb_load_sprite(const char* file, int32_t flags, int32_t parent)
+{
+	if (parent) {
+		need(parent, "LoadSprite");
+	}
+	int32_t texture = bb_load_texture(file, flags);
+	if (!texture) {
+		return 0;
+	}
+	int32_t sprite = bb_create_sprite(parent);
+	bb_entity_texture(sprite, texture, 0, 0);
+	bb_entity_fx(sprite, 1);
+	bb_entity_blend(sprite, ((flags & 4) || (flags & 2)) ? 1 : 3);
+	return sprite;
 }
 }

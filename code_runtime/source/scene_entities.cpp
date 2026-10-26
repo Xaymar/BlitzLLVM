@@ -11,6 +11,7 @@ using namespace bb::scene;
 
 namespace bb {
 	float ambient_light[3] = { 0.5f, 0.5f, 0.5f };
+	float render_tween = 1.0f;
 }
 
 namespace bb::scene {
@@ -506,8 +507,10 @@ void bb_entity_fx(int32_t handle, int32_t fx)
 
 void bb_entity_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index)
 {
-	(void)frame;
 	entity* e = need(handle, "EntityTexture");
+	if (texture && (frame > 0)) {
+		texture |= frame << texture_frame_shift;
+	}
 	if (index == 0) {
 		e->texture = texture;
 	} else if ((index > 0) && (index < 8)) {

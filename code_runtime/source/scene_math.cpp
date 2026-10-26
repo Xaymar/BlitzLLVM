@@ -33,19 +33,111 @@ namespace bb::scene {
 		}
 	}
 
+	// The turn of a rotation matrix (3x3, columns) as a quaternion of w, x, y and z, and back.
+	static void quaternion_from_rotation(const float* r, float* q)
+	{
+		float m00 = r[0], m10 = r[1], m20 = r[2], m01 = r[3], m11 = r[4], m21 = r[5], m02 = r[6], m12 = r[7], m22 = r[8];
+		float trace = m00 + m11 + m22;
+		if (trace > 0) {
+			float s = sqrtf(trace + 1) * 2;
+			q[0] = s / 4;
+			q[1] = (m21 - m12) / s;
+			q[2] = (m02 - m20) / s;
+			q[3] = (m10 - m01) / s;
+		} else if (m00 > m11 && m00 > m22) {
+			float s = sqrtf(1 + m00 - m11 - m22) * 2;
+			q[0] = (m21 - m12) / s;
+			q[1] = s / 4;
+			q[2] = (m01 + m10) / s;
+			q[3] = (m02 + m20) / s;
+		} else if (m11 > m22) {
+			float s = sqrtf(1 + m11 - m00 - m22) * 2;
+			q[0] = (m02 - m20) / s;
+			q[1] = (m01 + m10) / s;
+			q[2] = s / 4;
+			q[3] = (m12 + m21) / s;
+		} else {
+			float s = sqrtf(1 + m22 - m00 - m11) * 2;
+			q[0] = (m10 - m01) / s;
+			q[1] = (m02 + m20) / s;
+			q[2] = (m12 + m21) / s;
+			q[3] = s / 4;
+		}
+	}
+
+	static void rotation_from_quaternion(const float* q, float* r)
+	{
+		float w = q[0], x = q[1], y = q[2], z = q[3];
+		r[0] = 1 - 2 * (y * y + z * z);
+		r[1] = 2 * (x * y + w * z);
+		r[2] = 2 * (x * z - w * y);
+		r[3] = 2 * (x * y - w * z);
+		r[4] = 1 - 2 * (x * x + z * z);
+		r[5] = 2 * (y * z + w * x);
+		r[6] = 2 * (x * z + w * y);
+		r[7] = 2 * (y * z - w * x);
+		r[8] = 1 - 2 * (x * x + y * y);
+	}
+
+	// The way between two turns, along the shorter side.
+	static void quaternion_slerp(const float* a, const float* b, float t, float* out)
+	{
+		float dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
+		float end[4] = { b[0], b[1], b[2], b[3] };
+		if (dot < 0) {
+			dot = -dot;
+			for (int i = 0; i < 4; i++) {
+				end[i] = -end[i];
+			}
+		}
+		float wa, wb;
+		if (dot > 0.9995f) {
+			wa = 1 - t;
+			wb = t;
+		} else {
+			float angle = acosf(dot), s = sinf(angle);
+			wa = sinf((1 - t) * angle) / s;
+			wb = sinf(t * angle) / s;
+		}
+		float length = 0;
+		for (int i = 0; i < 4; i++) {
+			out[i] = a[i] * wa + end[i] * wb;
+			length += out[i] * out[i];
+		}
+		length = sqrtf(length);
+		for (int i = 0; i < 4; i++) {
+			out[i] /= length;
+		}
+	}
+
 	void local_matrix(entity const& e, float* m)
 	{
 		float r[9];
-		rotation_matrix(r, e.rotation);
+		float position[3] = { e.position[0], e.position[1], e.position[2] };
+		float scale[3]    = { e.scale[0], e.scale[1], e.scale[2] };
+		if ((render_tween != 1.0f) && e.captured) {
+			// Between where it was at CaptureWorld and where it is.
+			float now[9], turn_now[4], turn[4];
+			rotation_matrix(now, e.rotation);
+			quaternion_from_rotation(now, turn_now);
+			quaternion_slerp(e.capt_rot, turn_now, render_tween, turn);
+			rotation_from_quaternion(turn, r);
+			for (int i = 0; i < 3; i++) {
+				position[i] = (e.position[i] - e.capt_pos[i]) * render_tween + e.capt_pos[i];
+				scale[i]    = (e.scale[i] - e.capt_scl[i]) * render_tween + e.capt_scl[i];
+			}
+		} else {
+			rotation_matrix(r, e.rotation);
+		}
 		for (int c = 0; c < 3; c++) {
 			for (int row = 0; row < 3; row++) {
-				m[c * 4 + row] = r[c * 3 + row] * e.scale[c];
+				m[c * 4 + row] = r[c * 3 + row] * scale[c];
 			}
 			m[c * 4 + 3] = 0;
 		}
-		m[12] = e.position[0];
-		m[13] = e.position[1];
-		m[14] = e.position[2];
+		m[12] = position[0];
+		m[13] = position[1];
+		m[14] = position[2];
 		m[15] = 1;
 	}
 
@@ -267,4 +359,85 @@ void bb_tform_normal(float x, float y, float z, int32_t source, int32_t destinat
 float bb_tformed_x(void) { return tformed[0]; }
 float bb_tformed_y(void) { return tformed[1]; }
 float bb_tformed_z(void) { return tformed[2]; }
+
+// The turn that a direction has, as angles.
+float bb_vector_yaw(float x, float y, float z)
+{
+	(void)y;
+	return deg(-atan2f(x, z));
+}
+
+float bb_vector_pitch(float x, float y, float z)
+{
+	return deg(-atan2f(y, sqrtf(x * x + z * z)));
+}
+
+// Turns an entity, the shortest way, until the axis (1 for x, 2 for y, 3 for z) of it points the way of the vector. A
+// rate below 1 only goes part of the way.
+void bb_align_to_vector(int32_t handle, float nx, float ny, float nz, int32_t axis, float rate)
+{
+	need(handle, "AlignToVector");
+	float length = sqrtf(nx * nx + ny * ny + nz * nz);
+	if (length <= 1e-6f) {
+		return;
+	}
+	float ax[3] = { nx / length, ny / length, nz / length };
+
+	float world[16];
+	world_matrix(handle, world);
+	float c[3][3];
+	for (int col = 0; col < 3; col++) {
+		memcpy(c[col], world + col * 4, sizeof(c[col]));
+		length_normalize(c[col]);
+	}
+	int    index = axis == 1 ? 0 : (axis == 2 ? 1 : 2);
+	float* tv    = c[index];
+	float  dot   = ax[0] * tv[0] + ax[1] * tv[1] + ax[2] * tv[2];
+	if (dot >= 1 - 1e-6f) {
+		return;
+	}
+	float about[3], angle;
+	if (dot <= -1 + 1e-6f) {
+		// Straight away from it: any other axis of the entity will do.
+		memcpy(about, c[axis == 1 ? 1 : (axis == 2 ? 2 : 0)], sizeof(about));
+		angle = pi * rate;
+	} else {
+		about[0] = tv[1] * ax[2] - tv[2] * ax[1];
+		about[1] = tv[2] * ax[0] - tv[0] * ax[2];
+		about[2] = tv[0] * ax[1] - tv[1] * ax[0];
+		length_normalize(about);
+		angle = acosf(dot) * rate;
+	}
+	float cs = cosf(angle), sn = sinf(angle);
+	float turned[16] = {};
+	for (int col = 0; col < 3; col++) {
+		const float* v = c[col];
+		float cross[3] = { about[1] * v[2] - about[2] * v[1], about[2] * v[0] - about[0] * v[2], about[0] * v[1] - about[1] * v[0] };
+		float along    = about[0] * v[0] + about[1] * v[1] + about[2] * v[2];
+		for (int k = 0; k < 3; k++) {
+			turned[col * 4 + k] = v[k] * cs + cross[k] * sn + about[k] * along * (1 - cs);
+		}
+	}
+	turned[15] = 1;
+	float angles[3];
+	euler_from_matrix_impl(turned, angles);
+	bb_rotate_entity(handle, angles[0], angles[1], angles[2], 1);
+}
+
+// Remembers where everything is now, so that RenderWorld can draw things between there and where they are then.
+void bb_capture_world(void)
+{
+	for (int handle = 1; handle <= entity_count(); handle++) {
+		entity* e = get_entity(handle);
+		if (!e) {
+			continue;
+		}
+		float r[9];
+		rotation_matrix(r, e->rotation);
+		quaternion_from_rotation(r, e->capt_rot);
+		memcpy(e->capt_pos, e->position, sizeof(e->capt_pos));
+		memcpy(e->capt_scl, e->scale, sizeof(e->capt_scl));
+		e->captured = true;
+	}
+}
 }

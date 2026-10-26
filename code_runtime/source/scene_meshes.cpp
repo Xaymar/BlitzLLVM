@@ -489,4 +489,187 @@ int32_t bb_triangle_vertex(int32_t handle, int32_t triangle, int32_t corner)
 float bb_mesh_width(int32_t mesh) { return mesh_extent(mesh, 0, "MeshWidth"); }
 float bb_mesh_height(int32_t mesh) { return mesh_extent(mesh, 1, "MeshHeight"); }
 float bb_mesh_depth(int32_t mesh) { return mesh_extent(mesh, 2, "MeshDepth"); }
+
+// Whether two surfaces look the same: they have the same brush.
+static bool same_paint(surface const& a, surface const& b)
+{
+	material none;
+	material const& x = a.painted ? a.paint : none;
+	material const& y = b.painted ? b.paint : none;
+	return !memcmp(x.color, y.color, sizeof(x.color)) && (x.alpha == y.alpha) && (x.shininess == y.shininess)
+	    && (x.texture == y.texture) && !memcmp(x.layers, y.layers, sizeof(x.layers)) && (x.blend == y.blend) && (x.fx == y.fx);
+}
+
+// Puts the surfaces of a mesh into another, where surfaces that look the same become one.
+static void add_surfaces(int32_t destination, entity const& source)
+{
+	entity* to = get_entity(destination);
+	for (uint32_t i = 0; i < source.surfaces.size; i++) {
+		surface const& from = *source.surfaces[i];
+		surface*       into = nullptr;
+		for (uint32_t k = 0; k < to->surfaces.size && !into; k++) {
+			if (same_paint(*to->surfaces[k], from)) {
+				into = to->surfaces[k];
+			}
+		}
+		if (!into) {
+			into          = surface_of(new_surface(destination));
+			into->paint   = from.paint;
+			into->painted = from.painted;
+		}
+		uint32_t base = into->vertices.size;
+		for (uint32_t v = 0; v < from.vertices.size; v++) {
+			into->vertices.push(from.vertices[v]);
+		}
+		for (uint32_t t = 0; t < from.indices.size; t++) {
+			into->indices.push(from.indices[t] + base);
+		}
+		into->dirty       = true;
+		into->bound_valid = false;
+	}
+}
+
+// AddMesh source, destination: what is in the first is put into the second, as it is in the mesh itself.
+void bb_add_mesh(int32_t source, int32_t destination)
+{
+	entity* from = need_kind(source, MESH, "AddMesh");
+	need_kind(destination, MESH, "AddMesh");
+	if (source == destination) {
+		bb_runtime_error("A mesh cannot be added to itself");
+	}
+	add_surfaces(destination, *from);
+}
+
+// A mesh of its own that looks the same, without anything else the entity has.
+int32_t bb_copy_mesh(int32_t mesh, int32_t parent)
+{
+	entity* from = need_kind(mesh, MESH, "CopyMesh");
+	int     copy = new_mesh(parent);
+	add_surfaces(copy, *from);
+	return copy;
+}
+
+// Scales and moves the mesh until its box is the one that was given.
+void bb_fit_mesh(int32_t mesh, float x, float y, float z, float w, float h, float d, int32_t uniform)
+{
+	entity* e = need_kind(mesh, MESH, "FitMesh");
+	float   lo[3], hi[3];
+	if (!mesh_bounds(*e, lo, hi) || (lo[0] > hi[0])) {
+		return;
+	}
+	float scale[3], from[3], to[3];
+	float target[3] = { w, h, d }, origin[3] = { x, y, z };
+	for (int k = 0; k < 3; k++) {
+		float size = hi[k] - lo[k];
+		scale[k]   = size > 0 ? target[k] / size : 1.0f;
+		from[k]    = (lo[k] + hi[k]) * 0.5f;
+		to[k]      = origin[k] + target[k] * 0.5f;
+	}
+	if (uniform) {
+		if (scale[0] < scale[1] && scale[0] < scale[2]) {
+			scale[1] = scale[2] = scale[0];
+		} else if (scale[1] < scale[0] && scale[1] < scale[2]) {
+			scale[0] = scale[2] = scale[1];
+		} else {
+			scale[0] = scale[1] = scale[2];
+		}
+	}
+	for (uint32_t i = 0; i < e->surfaces.size; i++) {
+		surface* s = e->surfaces[i];
+		for (uint32_t v = 0; v < s->vertices.size; v++) {
+			vertex3d& vert = s->vertices[v];
+			float*    p    = &vert.x;
+			for (int k = 0; k < 3; k++) {
+				p[k] = (p[k] - from[k]) * scale[k] + to[k];
+			}
+			// A normal turns by the inverse of how the mesh is stretched.
+			float n[3] = { vert.nx / scale[0], vert.ny / scale[1], vert.nz / scale[2] };
+			length_normalize(n);
+			vert.nx = n[0];
+			vert.ny = n[1];
+			vert.nz = n[2];
+		}
+		s->dirty       = true;
+		s->bound_valid = false;
+	}
+}
+
+void bb_mesh_cull_box(int32_t mesh, float x, float y, float z, float width, float height, float depth)
+{
+	entity* e     = need_kind(mesh, MESH, "MeshCullBox");
+	e->has_cull_box = true;
+	e->cull_box[0]  = x;
+	e->cull_box[1]  = y;
+	e->cull_box[2]  = z;
+	e->cull_box[3]  = width;
+	e->cull_box[4]  = height;
+	e->cull_box[5]  = depth;
+}
+
+void bb_clear_surface(int32_t handle, int32_t vertices, int32_t triangles)
+{
+	surface* s = need_surface(handle, "ClearSurface");
+	if (vertices) {
+		s->vertices.clear();
+	}
+	if (triangles) {
+		s->indices.clear();
+	}
+	s->dirty       = true;
+	s->bound_valid = false;
+}
+
+void bb_vertex_coords(int32_t handle, int32_t index, float x, float y, float z)
+{
+	surface* s = need_surface(handle, "VertexCoords");
+	if ((index < 0) || (uint32_t(index) >= s->vertices.size)) {
+		bb_runtime_error("Vertex index out of range.");
+	}
+	vertex3d& v = s->vertices[uint32_t(index)];
+	v.x         = x;
+	v.y         = y;
+	v.z         = z;
+	s->dirty       = true;
+	s->bound_valid = false;
+}
+
+// The third texture coordinate of a vertex, which there is none of.
+float bb_vertex_w(int32_t handle, int32_t index, int32_t set)
+{
+	(void)set;
+	read_vertex(handle, index, "VertexW");
+	return 1.0f;
+}
+
+// Adds the light of a point to the colors of the vertices, as a light that is not part of the world would.
+void bb_light_mesh(int32_t mesh, float r, float g, float b, float range, float x, float y, float z)
+{
+	entity* e = need_kind(mesh, MESH, "LightMesh");
+	float   light[3] = { r / 255.0f, g / 255.0f, b / 255.0f };
+	for (uint32_t i = 0; i < e->surfaces.size; i++) {
+		surface* s = e->surfaces[i];
+		for (uint32_t v = 0; v < s->vertices.size; v++) {
+			vertex3d& vert = s->vertices[v];
+			float     amount = 1;
+			if (range != 0) {
+				float lv[3] = { x - vert.x, y - vert.y, z - vert.z };
+				float n[3]  = { vert.nx, vert.ny, vert.nz };
+				length_normalize(n);
+				float dot = n[0] * lv[0] + n[1] * lv[1] + n[2] * lv[2];
+				if (dot <= 0) {
+					continue;
+				}
+				float distance = sqrtf(lv[0] * lv[0] + lv[1] * lv[1] + lv[2] * lv[2]);
+				amount         = range / distance * (dot / distance);
+			}
+			uint8_t* color = &vert.r;
+			for (int k = 0; k < 3; k++) {
+				float value = float(color[k]) / 255.0f + light[k] * amount;
+				int   byte  = int(floorf(value * 255.0f));
+				color[k]    = uint8_t(byte < 0 ? 0 : (byte > 255 ? 255 : byte));
+			}
+		}
+		s->dirty = true;
+	}
+}
 }

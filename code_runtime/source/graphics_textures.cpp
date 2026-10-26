@@ -10,12 +10,34 @@ using namespace bb::gfx;
 
 namespace bb::gfx {
 
-	texture_entry* texture_of(int handle)
+	texture_entry* texture_of(int reference)
 	{
+		int handle = reference & bb::texture_handle_mask;
 		if ((handle < 1) || (uint32_t(handle) > texture_table.size) || !texture_table[uint32_t(handle) - 1].used) {
 			return nullptr;
 		}
 		return &texture_table[uint32_t(handle) - 1];
+	}
+
+	// With frames the texture coordinates only cover the cell of a frame in the sheet.
+	void texture_uv(texture_entry const* t, int reference, float* uv)
+	{
+		uv[0] = t ? t->uv[0] : 1.0f;
+		uv[1] = t ? t->uv[1] : 1.0f;
+		uv[2] = t ? t->uv[2] : 0.0f;
+		uv[3] = t ? t->uv[3] : 0.0f;
+		if (t && (t->frame_w > 0) && (t->frame_h > 0)) {
+			int frame = reference >> bb::texture_frame_shift;
+			frame     = frame >= t->frames ? t->frames - 1 : frame;
+			int cols  = t->width / t->frame_w;
+			cols      = cols > 0 ? cols : 1;
+			int cell  = t->first_frame + frame;
+			float fx  = float(t->frame_w) / float(t->width), fy = float(t->frame_h) / float(t->height);
+			uv[0] *= fx;
+			uv[1] *= fy;
+			uv[2] = uv[2] * fx + float(cell % cols) * fx;
+			uv[3] = uv[3] * fy + float(cell / cols) * fy;
+		}
 	}
 
 	void free_image(image_entry& e)
@@ -38,6 +60,7 @@ namespace bb::gfx {
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
 			destroy_image(t.image);
 		}
+		free(t.file);
 		t = texture_entry();
 	}
 	static bb::buffer<texture_filter> texture_filters;
@@ -171,6 +194,8 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 	entry.flags  = flags;
 	entry.width  = rgba->w;
 	entry.height = rgba->h;
+	entry.file   = static_cast<char*>(malloc(strlen(file) + 1));
+	strcpy(entry.file, file);
 	if (active()) {
 		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
 		upload_texture(entry.image, entry.set, uint32_t(rgba->w), uint32_t(rgba->h), static_cast<const uint8_t*>(rgba->pixels), sampler);
@@ -200,16 +225,84 @@ void bb_free_texture(int32_t handle)
 	}
 }
 
+// A texture with frames is as big as one of them.
 int32_t bb_texture_width(int32_t handle)
 {
 	texture_entry* t = texture_of(handle);
-	return t ? t->width : 0;
+	return t ? (t->frame_w > 0 ? t->frame_w : t->width) : 0;
 }
 
 int32_t bb_texture_height(int32_t handle)
 {
 	texture_entry* t = texture_of(handle);
-	return t ? t->height : 0;
+	return t ? (t->frame_h > 0 ? t->frame_h : t->height) : 0;
+}
+
+// LoadAnimTexture(file, flags, width, height, first, count): a picture that is a sheet of frames of this size, with
+// count of them from the first. Where the coordinates wrap around, they do so over the whole sheet.
+int32_t bb_load_anim_texture(const char* file, int32_t flags, int32_t width, int32_t height, int32_t first, int32_t count)
+{
+	int32_t handle = bb_load_texture(file, flags);
+	if (!handle) {
+		return 0;
+	}
+	texture_entry* t = texture_of(handle);
+	if ((width < 1) || (height < 1) || (count < 1) || (first < 0) || (width > t->width) || (height > t->height)) {
+		bb_free_texture(handle);
+		bb_runtime_error("LoadAnimTexture: the frames don't fit in the picture.");
+	}
+	int cells = (t->width / width) * (t->height / height);
+	if (first + count > cells) {
+		bb_free_texture(handle);
+		bb_runtime_error("LoadAnimTexture: there are not that many frames in the picture.");
+	}
+	t->frames      = count;
+	t->frame_w     = width;
+	t->frame_h     = height;
+	t->first_frame = first;
+	return handle;
+}
+
+// The file a texture was loaded from, and nothing for one that was made.
+const char* bb_texture_name(int32_t handle)
+{
+	texture_entry* t    = need_texture(handle, "TextureName");
+	const char*    name = t->file ? t->file : "";
+	char*          copy = static_cast<char*>(malloc(strlen(name) + 1));
+	strcpy(copy, name);
+	return copy;
+}
+
+// Which set of texture coordinates the texture uses. There is only one set.
+void bb_texture_coords(int32_t handle, int32_t coords)
+{
+	(void)coords;
+	need_texture(handle, "TextureCoords");
+}
+
+// Cube maps are not supported, the mode is accepted so programs that set it still run.
+void bb_set_cube_mode(int32_t handle, int32_t mode)
+{
+	(void)mode;
+	need_texture(handle, "SetCubeMode");
+}
+
+void bb_clear_texture_filters(void)
+{
+	for (uint32_t i = 0; i < texture_filters.size; i++) {
+		free(texture_filters[i].match);
+	}
+	texture_filters.clear();
+}
+
+// ClearWorld takes all textures away.
+void bb_clear_textures(void)
+{
+	for (uint32_t i = 0; i < texture_table.size; i++) {
+		if (texture_table[i].used) {
+			free_texture(texture_table[i]);
+		}
+	}
 }
 
 // ScaleTexture makes the texture bigger for numbers above 1: the coordinates are divided.

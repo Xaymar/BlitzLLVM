@@ -79,8 +79,10 @@ void bb_brush_fx(int32_t handle, int32_t fx)
 // Only the first texture of a brush is used.
 void bb_brush_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index)
 {
-	(void)frame;
 	brush_entry& e = need_brush(handle, "BrushTexture");
+	if (texture && (frame > 0)) {
+		texture |= frame << texture_frame_shift;
+	}
 	if ((index < 0) || (index > 7)) {
 		bb_runtime_error("BrushTexture: the layer has to be 0 to 7.");
 	}
@@ -95,7 +97,7 @@ void bb_brush_texture(int32_t handle, int32_t texture, int32_t frame, int32_t in
 int32_t bb_get_brush_texture(int32_t handle, int32_t index)
 {
 	brush_entry& e = need_brush(handle, "GetBrushTexture");
-	return ((index >= 0) && (index < 8)) ? e.layers[index] : 0;
+	return ((index >= 0) && (index < 8)) ? (e.layers[index] & texture_handle_mask) : 0;
 }
 
 void bb_paint_surface(int32_t surface_handle, int32_t brush)
@@ -137,5 +139,67 @@ int32_t bb_get_surface_brush(int32_t surface_handle)
 		brush_table[uint32_t(b) - 1].layers[0] = s->paint.texture;
 	}
 	return b;
+}
+
+// The surface of a mesh that has this brush, or 0.
+int32_t bb_find_surface(int32_t mesh, int32_t brush)
+{
+	entity*        e    = need_kind(mesh, MESH, "FindSurface");
+	material const& look = need_brush(brush, "FindSurface").look;
+	material       none;
+	for (uint32_t i = 0; i < e->surfaces.size; i++) {
+		surface*        s = e->surfaces[i];
+		material const& m = s->painted ? s->paint : none;
+		if (!memcmp(m.color, look.color, sizeof(m.color)) && (m.alpha == look.alpha) && (m.shininess == look.shininess)
+		    && (m.texture == look.texture) && !memcmp(m.layers, look.layers, sizeof(m.layers)) && (m.blend == look.blend) && (m.fx == look.fx)) {
+			return surface_handle(s);
+		}
+	}
+	return 0;
+}
+
+// A brush that has how an entity looks.
+int32_t bb_get_entity_brush(int32_t handle)
+{
+	entity* e     = need(handle, "GetEntityBrush");
+	int32_t brush = bb_create_brush(255, 255, 255);
+	brush_entry& b = brush_table[uint32_t(brush) - 1];
+	memcpy(b.look.color, e->color, sizeof(b.look.color));
+	b.look.alpha     = e->alpha;
+	b.look.shininess = e->shininess;
+	b.look.texture   = e->texture;
+	memcpy(b.look.layers, e->layers, sizeof(b.look.layers));
+	b.look.blend = e->blend;
+	b.look.fx    = e->fx;
+	b.layers[0]  = e->texture;
+	for (int k = 0; k < 7; k++) {
+		b.layers[k + 1] = e->layers[k];
+	}
+	return brush;
+}
+
+// A brush with a texture from a file, which is scaled by the numbers. 0 if the file can't be loaded.
+int32_t bb_load_brush(const char* file, int32_t flags, float u_scale, float v_scale)
+{
+	int32_t texture = bb_load_texture(file, flags);
+	if (!texture) {
+		return 0;
+	}
+	if ((u_scale != 1) || (v_scale != 1)) {
+		bb_scale_texture(texture, u_scale, v_scale);
+	}
+	int32_t brush = bb_create_brush(255, 255, 255);
+	bb_brush_texture(brush, texture, 0, 0);
+	return brush;
+}
+
+// ClearWorld takes all brushes away.
+void bb_clear_brushes(void)
+{
+	for (uint32_t i = 0; i < brush_table.size; i++) {
+		if (brush_table[i].used) {
+			bb_free_brush(int32_t(i) + 1);
+		}
+	}
 }
 }

@@ -6,7 +6,7 @@
 ; the middle of the picture after RenderWorld, for what the commands that change the look of things do: EntityColor
 ; EntityAlpha EntityBlend EntityFX EntityOrder EntityTexture PaintEntity HideEntity ShowEntity CameraClsColor
 ; CameraClsMode CameraFogMode CameraFogColor CameraFogRange CameraViewport CameraRange CameraZoom AmbientLight
-; LightColor Wireframe CopyEntity CreateSprite ScaleSprite EntityAutoFade.
+; LightColor Wireframe CopyEntity CreateSprite ScaleSprite EntityAutoFade CaptureWorld HandleSprite.
 Include "check.bb"
 
 If GetEnv$("BLITZ_HEADLESS") <> "" Then
@@ -251,6 +251,45 @@ Wireframe True
 RenderWorld
 CheckTrue "Wireframe leaves the middle empty of faces", R(80, 60) = 10 Or R(80, 60) = 255
 Wireframe False
+
+; CaptureWorld remembers where things are, and RenderWorld with a tween draws them between there and where they are.
+HideEntity cube
+mover = CreateCube()
+EntityFX mover, 1
+EntityColor mover, 255, 0, 0
+CaptureWorld
+PositionEntity mover, 2, 0, 0
+RenderWorld 1
+Check "Tween 1 is where it is", R(112, 60), 255, 3
+Check "Tween 1 leaves where it was", R(70, 60), 10, 3
+RenderWorld 0
+Check "Tween 0 is where it was", R(70, 60), 255, 3
+Check "Tween 0 leaves where it is", R(112, 60), 10, 3
+RenderWorld 0.5
+Check "Tween half way", R(88, 60), 255, 3
+Check "Tween half way leaves the left", R(70, 60), 10, 3
+Check "Tween half way leaves the right", R(126, 60), 10, 3
+RenderWorld
+Check "RenderWorld without a tween is where it is", R(112, 60), 255, 3
+FreeEntity mover
+
+; HandleSprite moves where a sprite hangs from: the middle of it is 0, 0, and 1 is half of the sprite.
+held = CreateSprite()
+EntityFX held, 1
+EntityColor held, 255, 255, 0
+ScaleSprite held, 1, 1
+RenderWorld
+Check "A sprite is held in the middle", R(88, 60), 255, 6
+Check "A sprite is held in the middle, left", R(72, 60), 255, 6
+HandleSprite held, 1, 0
+RenderWorld
+Check "A sprite held at the right edge hangs to the left", R(56, 60), 255, 6
+Check "A sprite held at the right edge leaves the right", R(88, 60), 10, 3
+HandleSprite held, -1, 0
+RenderWorld
+Check "A sprite held at the left edge hangs to the right", R(104, 60), 255, 6
+Check "A sprite held at the left edge leaves the left", R(72, 60), 10, 3
+FreeEntity held
 
 FreeEntity cube
 EndGraphics

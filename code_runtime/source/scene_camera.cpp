@@ -92,4 +92,14 @@ void bb_camera_fog_color(int32_t handle, float r, float g, float b)
 	e->fog_color[1] = clamp255(g);
 	e->fog_color[2] = clamp255(b);
 }
+
+// The cone of a spot light, which is stored: lights are drawn in all directions.
+void bb_light_cone_angles(int32_t handle, float inner, float outer)
+{
+	entity* e = need_kind(handle, LIGHT, "LightConeAngles");
+	inner     = inner < 0 ? 0 : (inner > 180 ? 180 : inner);
+	outer     = outer < inner ? inner : (outer > 180 ? 180 : outer);
+	e->light_cone[0] = inner;
+	e->light_cone[1] = outer;
+}
 }

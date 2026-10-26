@@ -183,4 +183,39 @@ float bb_terrain_z(int32_t handle, float x, float y, float z)
 	terrain_point(handle, x, y, z, p, "TerrainZ");
 	return p[2];
 }
+
+// A terrain from a picture: how high each point is, is how bright its brightest color is.
+int32_t bb_load_terrain(const char* file, int32_t parent)
+{
+	if (parent) {
+		need(parent, "LoadTerrain");
+	}
+	int32_t  width = 0, height = 0;
+	uint8_t* pixels = bb_file_pixels(file, &width, &height);
+	if (!pixels) {
+		bb_runtime_error("Unable to load heightmap image");
+	}
+	int shift = 0;
+	while ((1 << shift) < width) {
+		shift++;
+	}
+	if (width != height) {
+		free(pixels);
+		bb_runtime_error("Terrain must be square");
+	}
+	if ((1 << shift) != width) {
+		free(pixels);
+		bb_runtime_error("Illegal terrain size");
+	}
+	int32_t terrain = bb_create_terrain(width, parent);
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			const uint8_t* p = pixels + (size_t(y) * size_t(width) + size_t(x)) * 4;
+			uint8_t        m = p[0] > p[1] ? (p[0] > p[2] ? p[0] : p[2]) : (p[1] > p[2] ? p[1] : p[2]);
+			bb_modify_terrain(terrain, x, height - 1 - y, float(m) / 255.0f, 0);
+		}
+	}
+	free(pixels);
+	return terrain;
+}
 }

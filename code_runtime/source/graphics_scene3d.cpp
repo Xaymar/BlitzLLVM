@@ -556,7 +556,8 @@ namespace bb::gfx {
 				m[0 + axis]  = (t[0][axis] * ca + t[1][axis] * sa) * e->sprite_scale[0];
 				m[4 + axis]  = (t[1][axis] * ca - t[0][axis] * sa) * e->sprite_scale[1];
 				m[8 + axis]  = t[2][axis];
-				m[12 + axis] = position[axis];
+				// Held somewhere else than in the middle, it hangs from there.
+				m[12 + axis] = position[axis] - e->sprite_handle[0] * m[0 + axis] - e->sprite_handle[1] * m[4 + axis];
 			}
 			fullbright = true;
 			two_sided  = true;
@@ -596,10 +597,7 @@ namespace bb::gfx {
 			push.material[3] = item.alpha * paint.alpha;
 			push.params[0]   = (fullbright || ((e->fx | paint.fx) & 1)) ? 1.0f : 0.0f;
 			texture_entry* texture = texture_of(texture_handle);
-			push.uv[0] = texture ? texture->uv[0] : 1.0f;
-			push.uv[1] = texture ? texture->uv[1] : 1.0f;
-			push.uv[2] = texture ? texture->uv[2] : 0.0f;
-			push.uv[3] = texture ? texture->uv[3] : 0.0f;
+			texture_uv(texture, texture_handle, push.uv);
 			// Masked textures are cut out where they are nearly not there, which is what makes leaves and fences solid.
 			bool cutout = texture && (texture->flags & TEXTURE_MASKED);
 			push.mask[0] = cutout ? 0.5f * item.alpha * paint.alpha : 0.0f;
@@ -630,10 +628,7 @@ namespace bb::gfx {
 				draw_record more     = record;
 				more.push.material[0] = more.push.material[1] = more.push.material[2] = more.push.material[3] = 1;
 				more.push.params[0]  = 1; // Not lit again.
-				more.push.uv[0]      = extra->uv[0];
-				more.push.uv[1]      = extra->uv[1];
-				more.push.uv[2]      = extra->uv[2];
-				more.push.uv[3]      = extra->uv[3];
+				texture_uv(extra, extra_handle, more.push.uv);
 				more.push.mask[0]    = 0;
 				more.push.mask[1]    = 1; // No fog again either, the first layer has it.
 				more.texture         = extra_handle;
@@ -832,6 +827,13 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 		bb::update_terrain(*e);
 		float lo[3], hi[3];
 		bb::mesh_bounds(*e, lo, hi);
+		if (e->has_cull_box) {
+			// MeshCullBox says what box decides.
+			for (int k = 0; k < 3; k++) {
+				lo[k] = e->cull_box[k];
+				hi[k] = e->cull_box[k] + e->cull_box[3 + k];
+			}
+		}
 		if (lo[0] <= hi[0]) {
 			for (int k = 0; k < 3; k++) {
 				center[k] = (lo[k] + hi[k]) * 0.5f;
@@ -916,7 +918,6 @@ int32_t bb_camera_pick(int32_t camera, float x, float y)
 void bb_render_world(float tween)
 {
 	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
-	(void)tween;
 	if (!active()) {
 		return;
 	}
@@ -930,6 +931,8 @@ void bb_render_world(float tween)
 	data.ambient[1] = bb::ambient_light[1];
 	data.ambient[2] = bb::ambient_light[2];
 	data.ambient[3] = 1;
+	// Things captured by CaptureWorld are drawn between where they were and where they are.
+	bb::render_tween = tween < 0 ? 0 : (tween > 1 ? 1 : tween);
 	light_collector lights = { &data, 0 };
 	bb::for_each_visible(bb::LIGHT, collect_light, &lights);
 
@@ -942,6 +945,7 @@ void bb_render_world(float tween)
 		}
 	}
 	cameras.handles.release();
+	bb::render_tween = 1.0f;
 }
 
 // The scene lets go of a surface: its GPU buffers go with it.
