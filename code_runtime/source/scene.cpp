@@ -562,9 +562,10 @@ void bb_ambient_light(float r, float g, float b)
 	ambient_light[2] = clamp255(b);
 }
 
-void bb_update_world(float speed)
+// Called by UpdateWorld (which is in collision.cpp) to advance what is animated.
+void bb_animation_update(float speed)
 {
-	(void)speed; // Nothing moves on its own yet: no animation or collisions.
+	(void)speed;
 }
 
 // Entities
@@ -627,6 +628,7 @@ void bb_entity_parent(int32_t handle, int32_t parent, int32_t global)
 void bb_position_entity(int32_t handle, float x, float y, float z, int32_t global)
 {
 	entity* e = need(handle, "PositionEntity");
+	e->old_valid = false; // Placing something is not moving it: it does not collide on the way.
 	float   p[3] = { x, y, z };
 	if (global) {
 		world_to_local_point(*e, p, e->position);

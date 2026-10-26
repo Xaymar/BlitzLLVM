@@ -104,6 +104,16 @@ namespace bb {
 		float alpha    = 1;
 		int   fx       = 0; // 1 = fullbright, 16 = two-sided
 		int   texture  = 0; // Handle, 0 for none.
+		// Collisions and picking, see collision.cpp
+		int   coll_type = 0;              // 0 = does not collide
+		float radius[2] = { 0, 0 };       // Of the ellipsoid that collides, and of the sphere that is picked.
+		bool  has_box   = false;
+		float box[6]    = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
+		int   pick_mode = 0;              // 0 = can not be picked, 1 = sphere, 2 = polygons, 3 = box
+		bool  pick_obscure = true;
+		float old_pos[3]   = { 0, 0, 0 }; // Where it was at the last UpdateWorld.
+		bool  old_valid    = false;
+
 		int   sprite_mode = 0;           // 0 = not a sprite, 1 = faces the camera, 2 = fixed, 3 = free, 4 = upright
 		float sprite_scale[2] = { 1, 1 };
 		float sprite_angle    = 0;

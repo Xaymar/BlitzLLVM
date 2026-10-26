@@ -33,6 +33,7 @@
 extern "C" {
 void bb_runtime_error(const char* message);
 void bb_sound_update(void);
+int32_t bb_line_pick(float x, float y, float z, float dx, float dy, float dz, float radius);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3600,6 +3601,27 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 void bb_wire_frame(int32_t on)
 {
 	g.wireframe = (on != 0) && g.can_wireframe;
+}
+
+// Picks what is under a pixel of the camera's view.
+int32_t bb_camera_pick(int32_t camera, float x, float y)
+{
+	bb::entity* cam = need_camera(camera, "CameraPick");
+	int         vx, vy, vw, vh;
+	if (!camera_viewport(*cam, int(g.width), int(g.height), vx, vy, vw, vh)) {
+		return 0;
+	}
+	float sx = cam->cam_zoom, sy = cam->cam_zoom * (float(vw) / float(vh));
+	float ndc_x = (x - float(vx)) / float(vw) * 2 - 1, ndc_y = (y - float(vy)) / float(vh) * 2 - 1;
+	float local[3] = { ndc_x / sx, -ndc_y / sy, 1 };
+	float len      = sqrtf(local[0] * local[0] + local[1] * local[1] + 1);
+	float m[16];
+	bb::world_matrix(camera, m);
+	float range = cam->cam_far;
+	float dx = (m[0] * local[0] + m[4] * local[1] + m[8] * local[2]) / len * range;
+	float dy = (m[1] * local[0] + m[5] * local[1] + m[9] * local[2]) / len * range;
+	float dz = (m[2] * local[0] + m[6] * local[1] + m[10] * local[2]) / len * range;
+	return bb_line_pick(m[12], m[13], m[14], dx, dy, dz, 0);
 }
 
 // RenderWorld: draws everything the cameras see into the current buffer.
