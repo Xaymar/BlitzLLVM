@@ -69,6 +69,9 @@ init_project(blitzrt)
 
 target_sources(blitzrt PRIVATE
 	"source/runtime.c"
+	"source/graphics.cpp"
+	"source/font8x8.inc"
+	"source/shaders.inc"
 )
 target_include_directories(blitzrt PRIVATE
 	"${CMAKE_CURRENT_SOURCE_DIR}/source"
@@ -78,6 +81,9 @@ target_include_directories(blitzrt SYSTEM PRIVATE
 	"${VulkanHeaders_INSTALL_PATH}/include"
 )
 if(MSVC)
+	# No C++ runtime dependencies: the library is linked by clang into programs.
+	target_compile_options(blitzrt PRIVATE /GR- /EHs-c- /Zc:preprocessor)
+	target_compile_definitions(blitzrt PRIVATE _HAS_EXCEPTIONS=0)
 	# Programs are linked by clang, which uses the dynamic release C runtime.
 	target_compile_options(blitzrt PRIVATE /MD)
 endif()

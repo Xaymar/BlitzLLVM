@@ -396,53 +396,26 @@ int32_t bb_millisecs(void)
 	return (int32_t)(((int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000) & 0x7FFFFFFF);
 }
 
+void bb_graphics_idle(void);
+
 void bb_delay(int32_t ms)
 {
 	fflush(stdout);
-	if (ms <= 0) {
-		return;
-	}
+	// Wait in small steps, so that the window stays responsive and shows what was drawn.
+	do {
+		bb_graphics_idle();
+		int32_t step = (ms > 10) ? 10 : ms;
+		if (step > 0) {
 #if defined(_WIN32)
-	Sleep((unsigned long)ms);
+			Sleep((unsigned long)step);
 #else
-	usleep((useconds_t)ms * 1000);
+			usleep((useconds_t)step * 1000);
 #endif
+		}
+		ms -= step;
+	} while (ms > 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Graphics
-//
-// There is no window system backend yet: these keep the state a program expects to be able to query, and otherwise do
-// nothing, so that programs which set up graphics still run.
+// Graphics are in graphics.cpp
 ////////////////////////////////////////////////////////////////////////////////
-static int32_t bb_gfx_width  = 0;
-static int32_t bb_gfx_height = 0;
-static int32_t bb_gfx_buffer = 0;
-
-void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
-{
-	(void)depth;
-	(void)mode;
-	bb_gfx_width  = width;
-	bb_gfx_height = height;
-	bb_gfx_buffer = 1;
-}
-
-int32_t bb_graphics_width(void)  { return bb_gfx_width; }
-int32_t bb_graphics_height(void) { return bb_gfx_height; }
-int32_t bb_front_buffer(void)    { return 1; }
-int32_t bb_back_buffer(void)     { return 2; }
-void    bb_set_buffer(int32_t buffer) { bb_gfx_buffer = buffer; }
-void    bb_flip(int32_t vwait) { (void)vwait; }
-void    bb_cls(void) {}
-void    bb_color(int32_t r, int32_t g, int32_t b) { (void)r; (void)g; (void)b; }
-void    bb_clscolor(int32_t r, int32_t g, int32_t b) { (void)r; (void)g; (void)b; }
-void    bb_text(int32_t x, int32_t y, const char* s) { (void)x; (void)y; (void)s; }
-void    bb_rect(int32_t x, int32_t y, int32_t w, int32_t h, int32_t solid) { (void)x; (void)y; (void)w; (void)h; (void)solid; }
-void    bb_line(int32_t x1, int32_t y1, int32_t x2, int32_t y2) { (void)x1; (void)y1; (void)x2; (void)y2; }
-void    bb_plot(int32_t x, int32_t y) { (void)x; (void)y; }
-int32_t bb_wait_key(void)        { return getchar(); }
-int32_t bb_key_down(int32_t key) { (void)key; return 0; }
-int32_t bb_key_hit(int32_t key)  { (void)key; return 0; }
-int32_t bb_mouse_x(void)         { return 0; }
-int32_t bb_mouse_y(void)         { return 0; }
