@@ -48,3 +48,7 @@ Folders end with a separator, except for the ones of Windows, which are as the s
 ## Colors
 
 The 3D commands that take a color (`EntityColor`, `BrushColor`, `VertexColor`, `LightColor`, `AmbientLight`, `CameraClsColor`, `CameraFogColor`, `BSPAmbientLight` and the color of `LightMesh`) take floats from 0 to 255, so programs that pass whole numbers work as before. Vertex colors are stored as 16-bit floats (also on the GPU) and not as one byte per part, so `VertexColor` followed by `VertexRed`, `VertexGreen`, `VertexBlue` and `VertexAlpha` returns what was set (limited to 0 to 255, and 0 to 1 for alpha) to within about 0.1 of the 0 to 255 scale and `LightMesh` adds light without rounding the colors in between. The 2D commands (`Color`, `ClsColor`, `GetColor` and `ColorRed`, `ColorGreen`, `ColorBlue`) work on pixels and stay whole numbers.
+
+## Sound resampling
+
+The original played sounds through FMOD, which brings them to the rate of the sound device with linear interpolation. That leaves mirror images of the sound above its own bandwidth, which makes sounds with a low rate (11025 Hz files like the rain of Stranded II) bright and crisp, and takes a little off the top of the rest. SDL_mixer resamples cleanly, so the same files sound duller. Set the environment variable `BLITZ_AUDIO_CLASSIC` (to anything) before the program starts to do what the original did. Pitch and looping are the same either way.

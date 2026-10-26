@@ -4,6 +4,7 @@
 # Plays generated test tones through SDL's disk audio driver and checks what actually came out: the pitch (by counting
 # zero crossings), that a looped sound keeps playing without gaps, and that SoundPitch and ChannelPitch are in Hz.
 # Usage: audio_output.py <blitzcc> <work directory>. Skipped (77) when the disk driver is not available.
+import cmath
 import math
 import os
 import struct
@@ -19,20 +20,20 @@ OUTPUT_RATE = 44100  # What the disk driver is fixed to.
 CYCLE = 50  # Samples of a period of the tone, so that the tone is a whole number of cycles and a loop has no seam.
 
 
-def tone(name, rate, channels, bits, cycles=40):
+def tone(name, rate, channels, bits, cycles=40, cycle=CYCLE):
 	with wave.open(name, "wb") as out:
 		out.setnchannels(channels)
 		out.setsampwidth(bits // 8)
 		out.setframerate(rate)
 		frames = bytearray()
-		for i in range(CYCLE * cycles):
-			v = math.sin(2 * math.pi * i / CYCLE)
+		for i in range(cycle * cycles):
+			v = math.sin(2 * math.pi * i / cycle)
 			frames += (struct.pack("B", int(128 + v * 100)) if bits == 8 else struct.pack("<h", int(v * 8000))) * channels
 		out.writeframes(bytes(frames))
-	return rate / CYCLE
+	return rate / cycle
 
 
-def play(name, setup="", after="", loop=True, milliseconds=1500):
+def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False):
 	"""Plays a file and returns the left channel of what was sent to the disk driver."""
 	with open("play.bb", "w") as source:
 		source.write('s = LoadSound("%s")\n%s\n%s\nc = PlaySound(s)\n%s\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, "LoopSound s" if loop else "", setup, after, milliseconds))
@@ -42,6 +43,9 @@ def play(name, setup="", after="", loop=True, milliseconds=1500):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
 	env.pop("BLITZ_HEADLESS", None)
+	env.pop("BLITZ_AUDIO_CLASSIC", None)
+	if classic:
+		env["BLITZ_AUDIO_CLASSIC"] = "1"
 	run = subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
 	if not os.path.exists("sdlaudio.raw"):
 		print("no disk audio driver")
@@ -103,5 +107,28 @@ for what, setup, after, expected in (
 	samples, log = play("tone.wav", setup, after)
 	frequency, smoothness, length = analyze(samples)
 	check("%s: pitch %.1f Hz is %.1f Hz" % (what, frequency, expected), abs(frequency - expected) < expected * 0.01)
+
+# BLITZ_AUDIO_CLASSIC resamples like the original (linear interpolation), which keeps the pitch but adds the mirror images of a low-rate
+# sound above its own bandwidth. SDL_mixer's own resampling leaves them out.
+def image_energy(samples):
+	loud = [i for i, v in enumerate(samples) if abs(v) > 300]
+	segment = samples[loud[0] + 4000 : loud[0] + 4000 + 16384]
+	# A coarse DFT at the tone itself and at frequencies where only mirror images can be.
+	def power(frequency):
+		w = -2j * math.pi * frequency / OUTPUT_RATE
+		return abs(sum(v * cmath.exp(w * i) for i, v in enumerate(segment[:4096]))) ** 2
+	tone_power = power(3000.0)
+	image_power = power(9000.0)
+	return image_power / tone_power
+
+
+expected = tone("tone.wav", 12000, 1, 16, cycles=400, cycle=4)
+clean_samples, log = play("tone.wav")
+classic_samples, log = play("tone.wav", classic=True)
+frequency, smoothness, length = analyze(classic_samples)
+check("classic: pitch %.1f Hz is %.1f Hz" % (frequency, expected), abs(frequency - expected) < expected * 0.01)
+check("classic: looped for %.2f s" % length, length > 1.0)
+clean, classic = image_energy(clean_samples), image_energy(classic_samples)
+check("classic adds images above the file's bandwidth (%.5f vs %.5f)" % (classic, clean), classic > clean * 10)
 
 sys.exit(1 if failures else 0)
