@@ -2841,7 +2841,11 @@ int32_t bb_create_image(int32_t width, int32_t height, int32_t frames)
 
 void bb_free_image(int32_t handle)
 {
-	free_image(*need_image(handle, "FreeImage"));
+	// Freeing what is already gone (or never was) does nothing, as programs rely on.
+	image_entry* e = image_of(handle);
+	if (e) {
+		free_image(*e);
+	}
 }
 
 int32_t bb_image_width(int32_t handle)
@@ -3468,10 +3472,9 @@ int32_t bb_load_texture(const char* file, int32_t flags)
 void bb_free_texture(int32_t handle)
 {
 	texture_entry* t = texture_of(handle);
-	if (!t) {
-		bb_runtime_error("FreeTexture: texture does not exist.");
+	if (t) {
+		free_texture(*t);
 	}
-	free_texture(*t);
 }
 
 int32_t bb_texture_width(int32_t handle)
