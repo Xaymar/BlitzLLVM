@@ -327,6 +327,16 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Textures, images and buffers
 	////////////////////////////////////////////////////////////////////////////
+	// A cube map keeps a picture for each face, which is what its buffers draw to, and a sheet of all six that 3D samples
+	// from: the faces are copied into it whenever a scene that uses the cube map is drawn.
+	struct cube_data {
+		gpu_image faces[6];
+		gpu_image sheet;      // Three columns and two rows of faces.
+		int       face  = 1;  // What SetCubeFace chose: the face that the image of the texture is at the moment.
+		int       mode  = 1;  // SetCubeMode: 1 reflection, 2 normal, 3 position, plus 4 for the space of the camera.
+		uint32_t  stamp = 0;  // The scene that the sheet was last made for.
+	};
+
 	struct texture_entry {
 		bool            used = false;
 		int             flags = 0;
@@ -340,6 +350,8 @@ namespace bb::gfx {
 		char*           file = nullptr;         // Where it was loaded from (the full path), for TextureName.
 		int             alias = 0;              // Another handle to the texture of this one (GetBrushTexture), which has all of its state.
 		bool            freed = false;          // FreeTexture was called while something still uses it, so it only goes once nothing does.
+		cube_data*      cube = nullptr;         // For a cube map: image is the face that is chosen, and set samples the sheet.
+		int             cube_mode = 1;          // SetCubeMode, which is also kept for a texture that is no cube map.
 		gpu_image       image;
 		VkDescriptorSet set = VK_NULL_HANDLE;
 	};
@@ -418,7 +430,7 @@ namespace bb::gfx {
 
 	constexpr uint32_t max_scenes   = 64;  // Cameras that can be waiting to be drawn.
 
-	constexpr uint32_t scene_stride = 512; // Distance between the scene data of each, a multiple of what the GPU wants.
+	constexpr uint32_t scene_stride = 768; // Distance between the scene data of each, a multiple of what the GPU wants.
 
 
 	// What the vertex shader reads as the scene: matches the uniform block in tools/generate_shaders.py.
@@ -431,8 +443,9 @@ namespace bb::gfx {
 		float fog_color[4];
 		float eye[4];                       // Where the camera is, for the highlights of lights.
 		float light_direction[max_lights][4]; // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
+		float camera[3][4];                 // The right, up and forward axes of the camera, for textures that are made from the view.
 	};
-	static_assert(sizeof(scene_data) <= 512, "The scene data has to fit in the stride that is between the cameras.");
+	static_assert(sizeof(scene_data) <= 768, "The scene data has to fit in the stride that is between the cameras.");
 
 
 	// Per-entity values, pushed to the vertex shader.
@@ -443,6 +456,7 @@ namespace bb::gfx {
 		float uv[4];   // Scale and offset of the texture coordinates.
 		float mask[4]; // For the fragment shader: where pixels are cut off, whether there is fog, flat shading and whether black is not there.
 		float extra[4]; // x: whether the texture uses the second set of coordinates, y and z: sine and cosine minus one of the rotation.
+		float texgen[4]; // x: 1 for a sphere map and 2 for a cube map, y: what the cube map shows, z: whether in the space of the camera, w: half a texel of a face.
 	};
 
 
@@ -615,6 +629,13 @@ namespace bb::gfx {
 	/** The scale and offset of the texture coordinates for a texture, from the reference that has its frame. */
 	void texture_uv(texture_entry const* texture, int reference, float* uv);
 	void texture_rotation(texture_entry const* texture, float* extra);
+	void texture_texgen(texture_entry const* texture, float* texgen);
+	/** Copies the faces of a cube map into the sheet that 3D samples. */
+	void cube_refresh(texture_entry& texture);
+	/** Makes the image of a texture the face of the cube map that it shows at the moment. */
+	void cube_store(texture_entry& texture);
+	/** Creates an image of RGBA pixels that can be sampled, drawn to and copied, without a descriptor set. */
+	void create_pixel_image(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels);
 	void free_image(image_entry& e);
 	void free_texture(texture_entry& t);
 	void create_3d();

@@ -70,6 +70,26 @@ namespace bb::gfx {
 		extra[2] = t ? cosf(t->rotation) - 1.0f : 0.0f;
 	}
 
+	// Sphere maps (flag 64) and cube maps (flag 128) make their coordinates from the view, like the original does. A texture
+	// that has both is drawn as a plain one.
+	void texture_texgen(texture_entry const* t, float* texgen)
+	{
+		texgen[0] = texgen[1] = texgen[2] = texgen[3] = 0;
+		if (!t) {
+			return;
+		}
+		bool sphere = (t->flags & 64) != 0, cube = (t->flags & 128) != 0;
+		if (sphere && !cube) {
+			texgen[0] = 1;
+		} else if (cube && !sphere && t->cube) {
+			int mode  = t->cube_mode & 3;
+			texgen[0] = 2;
+			texgen[1] = (mode == 2 || mode == 3) ? float(mode) : 1.0f;
+			texgen[2] = (t->cube_mode & 4) ? 1.0f : 0.0f;
+			texgen[3] = 0.5f / float(t->width);
+		}
+	}
+
 	void free_image(image_entry& e)
 	{
 		if (g.device && e.set) {
@@ -88,10 +108,54 @@ namespace bb::gfx {
 			flush(); // What was asked to be drawn with it comes first.
 			vkDeviceWaitIdle(g.device);
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
-			destroy_image(t.image);
+			if (t.cube) {
+				cube_store(t);
+				for (gpu_image& face : t.cube->faces) {
+					destroy_image(face);
+				}
+				destroy_image(t.cube->sheet);
+			} else {
+				destroy_image(t.image);
+			}
 		}
+		delete t.cube;
 		free(t.file);
 		t = texture_entry();
+	}
+
+	void cube_store(texture_entry& t)
+	{
+		if (t.cube) {
+			t.cube->faces[t.cube->face] = t.image;
+		}
+	}
+
+	// Gives a texture the pictures of a cube map: six faces of the size of the texture, from a strip of faces next to each
+	// other if there is one (the pixels are then strip_width wide), and the sheet that 3D samples.
+	static void make_cube(texture_entry& entry, const uint8_t* strip, int strip_width)
+	{
+		int      w = entry.width, h = entry.height;
+		uint8_t* face_pixels = static_cast<uint8_t*>(calloc(size_t(w) * size_t(h), 4));
+		entry.cube           = new cube_data();
+		for (int face = 0; face < 6; face++) {
+			for (int y = 0; y < h; y++) {
+				for (int x = 0; x < w; x++) {
+					uint8_t* px = face_pixels + (size_t(y) * size_t(w) + size_t(x)) * 4;
+					if (strip) {
+						memcpy(px, strip + (size_t(y) * size_t(strip_width) + size_t(face * w + x)) * 4, 4);
+					} else {
+						px[0] = px[1] = px[2] = 0;
+						px[3] = 255;
+					}
+				}
+			}
+			create_pixel_image(entry.cube->faces[face], uint32_t(w), uint32_t(h), face_pixels);
+		}
+		free(face_pixels);
+		uint8_t* blank = static_cast<uint8_t*>(calloc(size_t(w) * 3 * size_t(h) * 2, 4));
+		upload_texture(entry.cube->sheet, entry.set, uint32_t(w * 3), uint32_t(h * 2), blank, g.sampler_clamp);
+		free(blank);
+		entry.image = entry.cube->faces[entry.cube->face];
 	}
 	static bb::buffer<texture_filter> texture_filters;
 
@@ -205,7 +269,10 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 		entry.frame_w = width;
 		entry.frame_h = height;
 	}
-	if (active()) {
+	if (active() && (flags & 128) && !(flags & 64)) {
+		entry.frames = 1;
+		make_cube(entry, nullptr, 0);
+	} else if (active()) {
 		uint8_t* pixels = static_cast<uint8_t*>(calloc(size_t(entry.width) * size_t(entry.height), 4));
 		for (size_t i = 0; i < size_t(entry.width) * size_t(entry.height); i++) {
 			pixels[i * 4 + 3] = 255;
@@ -274,7 +341,7 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 	// made 1 by the image view, and with it the file needs alpha of its own. Masks, brightness as alpha and BC5, whose third
 	// channel is rebuilt, need the pixels, which are decoded then. So do mip maps (flag 8) that the file does not have, as
 	// they are made from pixels: the ones that are stored in the file are used where there are some.
-	if (active() && source.blocks && !(flags & TEXTURE_MASKED) && (source.block != block_format::bc5) && (!(flags & TEXTURE_ALPHA) || source.has_alpha) && (!(flags & TEXTURE_MIPMAPS) || (source.mips > 1)) && compressed_supported(source.block)) {
+	if (active() && !(flags & 128) && source.blocks && !(flags & TEXTURE_MASKED) && (source.block != block_format::bc5) && (!(flags & TEXTURE_ALPHA) || source.has_alpha) && (!(flags & TEXTURE_MIPMAPS) || (source.mips > 1)) && compressed_supported(source.block)) {
 		texture_entry entry;
 		entry.used   = true;
 		entry.flags  = flags;
@@ -333,7 +400,16 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 	entry.width  = rgba->w;
 	entry.height = rgba->h;
 	entry.file   = full_path(file);
-	if (active()) {
+	if (active() && (flags & 128) && !(flags & 64)) {
+		// Six faces next to each other.
+		if (rgba->w % 6) {
+			SDL_DestroySurface(rgba);
+			free(entry.file);
+			return 0;
+		}
+		entry.width = rgba->w / 6;
+		make_cube(entry, static_cast<const uint8_t*>(rgba->pixels), rgba->pitch / 4);
+	} else if (active()) {
 		upload_texture(entry.image, entry.set, uint32_t(rgba->w), uint32_t(rgba->h), static_cast<const uint8_t*>(rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0);
 	}
 	SDL_DestroySurface(rgba);
@@ -455,11 +531,10 @@ void bb_texture_coords(int32_t handle, int32_t coords)
 	t->flags         = coords ? (t->flags | 0x10000) : (t->flags & ~0x10000);
 }
 
-// Cube maps are not supported, the mode is accepted so programs that set it still run.
+// SetCubeMode: 1 reflection, 2 normal, 3 position, plus 4 for the space of the camera instead of the world.
 void bb_set_cube_mode(int32_t handle, int32_t mode)
 {
-	(void)mode;
-	need_texture(handle, "SetCubeMode");
+	need_texture(handle, "SetCubeMode")->cube_mode = mode;
 }
 
 void bb_clear_texture_filters(void)
@@ -525,10 +600,19 @@ void bb_texture_filter(const char* match, int32_t flags)
 	texture_filters.push({ lower, flags });
 }
 
+// SetCubeFace chooses which face of a cube map the buffer of the texture is. The faces are -X, +Z, +X, -Z, +Y and -Y.
 void bb_set_cube_face(int32_t handle, int32_t face)
 {
-	(void)face;
-	need_texture(handle, "SetCubeFace"); // Cube maps are not supported.
+	texture_entry* t = need_texture(handle, "SetCubeFace");
+	if (!t->cube || (face < 0) || (face > 5) || (face == t->cube->face)) {
+		return;
+	}
+	if (active()) {
+		flush(); // What was asked to be drawn is for the face that was chosen until now.
+	}
+	cube_store(*t);
+	t->cube->face = face;
+	t->image      = t->cube->faces[face];
 }
 
 int32_t bb_live_textures(void)

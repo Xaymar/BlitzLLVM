@@ -310,6 +310,27 @@ namespace bb::gfx {
 			&& (a.texture == b.texture) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write);
 	}
 
+	// Copies the faces of a cube map into its sheet, where 3D samples them from.
+	void cube_refresh(texture_entry& t)
+	{
+		cube_data& c = *t.cube;
+		// The face that is chosen lives in the image of the texture, which is what the buffers draw to and keep the state of.
+		auto face = [&](int i) -> gpu_image& { return i == c.face ? t.image : c.faces[i]; };
+		for (int i = 0; i < 6; i++) {
+			transition(face(i), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		}
+		transition(c.sheet, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		for (int i = 0; i < 6; i++) {
+			VkImageCopy region = {};
+			region.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+			region.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+			region.dstOffset      = { (i % 3) * t.width, (i / 3) * t.height, 0 };
+			region.extent         = { uint32_t(t.width), uint32_t(t.height), 1 };
+			vkCmdCopyImage(g.cmd, face(i).image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, c.sheet.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+		}
+		transition(c.sheet, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
+
 	// Draws what a camera had waiting.
 	void record_scene(uint32_t index, int target_handle)
 	{
@@ -321,9 +342,16 @@ namespace bb::gfx {
 		gpu_image& depth_image = depth_for(target.image->width, target.image->height);
 
 		// What is sampled has to be readable. What it is drawn to can not be.
+		static uint32_t scene_stamp = 0;
+		scene_stamp++;
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
 			texture_entry* tex = texture_of(draws[scene.first_draw + i].texture);
-			if (tex && tex->set && (tex->image.image != target.image->image)) {
+			if (tex && tex->cube) {
+				if (tex->cube->stamp != scene_stamp) {
+					tex->cube->stamp = scene_stamp;
+					cube_refresh(*tex);
+				}
+			} else if (tex && tex->set && (tex->image.image != target.image->image)) {
 				refresh_mips(tex->image); // Whatever was drawn to it since is in its smaller levels as well.
 				transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			}
@@ -418,7 +446,7 @@ namespace bb::gfx {
 				bound_write = d.depth_write;
 			}
 			texture_entry*  tex = texture_of(d.texture);
-			VkDescriptorSet set = (tex && tex->set && (tex->image.image != target.image->image)) ? tex->set : g.sets[TEXTURE_WHITE];
+			VkDescriptorSet set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE];
 			if (set != bound_set) {
 				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
 				bound_set = set;
@@ -904,6 +932,7 @@ namespace bb::gfx {
 			push.mask[2] = (fx & 4) ? 1.0f : 0.0f; // Flat shading.
 			push.extra[0] = (texture && (texture->flags & 0x10000)) ? 1.0f : 0.0f;
 			texture_rotation(texture, push.extra);
+			texture_texgen(texture, push.texgen);
 			push.mask[3] = cutout ? 1.0f : 0.0f;   // Black is not there in a masked texture, also where the picture was drawn by the program.
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
@@ -939,6 +968,7 @@ namespace bb::gfx {
 				more.push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
 				more.push.extra[0]   = (extra->flags & 0x10000) ? 1.0f : 0.0f;
 				texture_rotation(extra, more.push.extra);
+				texture_texgen(extra, more.push.texgen);
 				texture_uv(extra, extra_handle, more.push.uv);
 				more.push.mask[0]    = 0;
 				more.push.mask[1]    = 1; // No fog again either, the first layer has it.
@@ -1037,6 +1067,12 @@ namespace bb::gfx {
 		view_rotation[12] = view_rotation[13] = view_rotation[14] = 0;
 		memcpy(current_origin, cam_world + 12, sizeof(current_origin));
 		bb::mat_multiply(data.viewprojection, proj, view_rotation);
+		for (int axis = 0; axis < 3; axis++) {
+			for (int k = 0; k < 3; k++) {
+				data.camera[axis][k] = view_rotation[k * 4 + axis]; // The rows of the view are the axes of the camera.
+			}
+			data.camera[axis][3] = 0;
+		}
 		data.fog[0] = cam.fog_near;
 		data.fog[1] = cam.fog_far;
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;

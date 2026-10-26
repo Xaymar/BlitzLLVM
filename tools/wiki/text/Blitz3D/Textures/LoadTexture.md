@@ -47,4 +47,4 @@ WaitKey
 @param file   Picture file to load.
 @param flags  Sum of the texture flags, see CreateTexture. Defaults to 1.
 @returns A texture handle, or 0 if the file could not be loaded.
-@gap Environment map, video memory, high color and point sampling flags are stored but have no effect, see CreateTexture.
+@gap Video memory, high color and point sampling flags are stored but have no effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.

@@ -21,7 +21,7 @@ Chooses which of the six faces of a cube map the next drawing on the texture buf
 
 **Differences and known gaps:**
 
-* Cube maps are not implemented. The call checks the texture handle and then does nothing, so drawing always goes to the single image.
+* The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y. On a texture that is no cube map the call does nothing. Drawing to the texture buffer, `RenderWorld` and the pixel commands all go to the face that is chosen.
 
 ## Related commands
 
