@@ -37,6 +37,7 @@ def main():
             results = {}
             for mode in ("thread", "sync"):
                 env = dict(os.environ, BENCH_WORK=str(work))
+                env.pop("BLITZ_SYNC_GPU", None) # What was set in the shell would make both modes the same.
                 if mode == "sync":
                     env["BLITZ_SYNC_GPU"] = "1"
                 times = []
