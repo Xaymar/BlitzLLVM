@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Fails if the list of files on standard input (a directory listing or the contents of a zip, deb, rpm, pkg.tar.zst or pkg)
+# is missing a license file of BlitzLLVM or of a dependency that is part of the bundle. Usage: <command listing files> | check-licenses.sh <name>
+set -u
+name="${1:-bundle}"
+listing="$(cat)"
+required=(
+	BlitzLLVM/LICENSE.adoc
+	SDL3/LICENSE.txt
+	SDL3_image/LICENSE.txt
+	SDL3_image/optional/LICENSE.dav1d.txt
+	SDL3_image/optional/LICENSE.avif.txt
+	SDL3_image/optional/LICENSE.jxl.txt
+	SDL3_image/optional/LICENSE.webp.txt
+	SDL3_mixer/LICENSE.txt
+	Vulkan-Headers/LICENSE.md
+)
+status=0
+for file in "${required[@]}"; do
+	if grep -Eq "(^|/)licenses/(blitzllvm/)?${file//./\\.}\$" <<<"$listing"; then
+		echo "ok       $name: licenses/$file"
+	else
+		echo "MISSING  $name: licenses/$file"
+		status=1
+	fi
+done
+exit $status
