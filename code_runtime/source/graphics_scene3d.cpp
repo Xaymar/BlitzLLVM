@@ -127,7 +127,8 @@ namespace bb::gfx {
 		VkPipelineDepthStencilStateCreateInfo depth = { VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
 		depth.depthTestEnable                       = VK_TRUE;
 		depth.depthWriteEnable                      = VK_TRUE;
-		depth.depthCompareOp                        = VK_COMPARE_OP_LESS_OR_EQUAL;
+		// The depth is reversed: 1 at the near plane and 0 at the far plane, so closer is greater.
+		depth.depthCompareOp                        = VK_COMPARE_OP_GREATER_OR_EQUAL;
 
 		VkPipelineColorBlendAttachmentState blend = {};
 		blend.blendEnable                         = (mode != 0) ? VK_TRUE : VK_FALSE;
@@ -300,7 +301,7 @@ namespace bb::gfx {
 		depth.imageLayout               = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 		depth.loadOp                    = fresh_depth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 		depth.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-		depth.clearValue.depthStencil   = { 1.0f, 0 };
+		depth.clearValue.depthStencil   = { 0.0f, 0 };
 
 		VkRenderingInfo info      = { VK_STRUCTURE_TYPE_RENDERING_INFO };
 		info.renderArea           = { { 0, 0 }, { target.image->width, target.image->height } };
@@ -325,7 +326,7 @@ namespace bb::gfx {
 		if (scene.clear_depth) {
 			VkClearAttachment clear       = {};
 			clear.aspectMask              = VK_IMAGE_ASPECT_DEPTH_BIT;
-			clear.clearValue.depthStencil = { 1.0f, 0 };
+			clear.clearValue.depthStencil = { 0.0f, 0 };
 			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
 		}
 
@@ -812,7 +813,9 @@ namespace bb::gfx {
 		}
 	}
 
-	// Perspective projection for Blitz3D: looking down +Z, X to the right, Y up, depth from 0 to 1 for Vulkan.
+	// Perspective projection for Blitz3D: looking down +Z, X to the right, Y up. The depth is reversed, 1 at the near plane
+	// and 0 at the far plane, which together with the float depth buffer keeps the precision even over the whole range
+	// instead of using most of it close to the camera.
 	static void projection(float* p, bb::entity const& cam, float width, float height)
 	{
 		float sx = cam.cam_zoom, sy = cam.cam_zoom * (width / height);
@@ -824,16 +827,16 @@ namespace bb::gfx {
 			sy    = sx * (width / height);
 			p[0]  = sx;
 			p[5]  = -sy; // Vulkan's Y points down.
-			p[10] = 1 / (f - n);
-			p[14] = -n / (f - n);
+			p[10] = -1 / (f - n);
+			p[14] = f / (f - n);
 			p[15] = 1;
 			return;
 		}
 		p[0]  = sx;
 		p[5]  = -sy; // Vulkan's Y points down.
-		p[10] = f / (f - n);
+		p[10] = -n / (f - n);
 		p[11] = 1;
-		p[14] = -f * n / (f - n);
+		p[14] = f * n / (f - n);
 	}
 
 	// The part of a buffer of the given size that the camera draws to. Returns false if there is none.
@@ -1067,7 +1070,7 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 	projection(proj, *cam, float(vw), float(vh));
 	bb::mat_multiply(vp, proj, view);
 
-	// The planes of the view, from the rows of the matrix: left, right, bottom, top, near and far.
+	// The planes of the view, from the rows of the matrix: left, right, bottom, top, far and near (the depth is reversed).
 	float row[4][4];
 	for (int r = 0; r < 4; r++) {
 		for (int c = 0; c < 4; c++) {

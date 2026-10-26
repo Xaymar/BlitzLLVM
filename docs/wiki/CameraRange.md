@@ -12,7 +12,7 @@ CameraRange camera%, near#, far#
 
 **Works in:** Blitz3D
 
-Sets the nearest and farthest distance in front of the camera that is drawn. Anything closer than `near` or farther than `far` is clipped away. The defaults are 1 and 1000. Raising `near` and lowering `far` gives the depth buffer more precision where it matters, which stops distant surfaces from flickering through each other. The distance is measured along the view direction, not as a radius around the camera.
+Sets the nearest and farthest distance in front of the camera that is drawn. Anything closer than `near` or farther than `far` is clipped away. The defaults are 1 and 1000. Raising `near` and lowering `far` gives the depth buffer more precision where it matters, which stops distant surfaces from flickering through each other. BlitzLLVM draws with a reversed float depth buffer, so the precision is nearly even over the whole range and this is rarely needed. The distance is measured along the view direction, not as a radius around the camera.
 The runtime stops with an error unless `0 < near < far`.
 
 ```blitzbasic
