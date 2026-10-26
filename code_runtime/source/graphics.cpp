@@ -3510,6 +3510,12 @@ int32_t bb_load_texture(const char* file, int32_t flags)
 	if (!loaded) {
 		return 0; // Blitz gives 0 for missing files.
 	}
+	// Files named like sprite_a.bmp are always see-through, which is what Blitz3D does.
+	for (const char* c = file; *c; c++) {
+		if ((c[0] == '_') && ((c[1] == 'a') || (c[1] == 'A')) && (c[2] == '.')) {
+			flags |= TEXTURE_ALPHA;
+		}
+	}
 	bool has_alpha = SDL_ISPIXELFORMAT_ALPHA(loaded->format);
 	SDL_Surface* rgba = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
 	SDL_DestroySurface(loaded);

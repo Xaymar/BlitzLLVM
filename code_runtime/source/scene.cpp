@@ -1207,6 +1207,9 @@ static int copy_entity(int source, int parent)
 	copy.parent = parent;
 	copy.name   = nullptr;
 	copy.anim   = nullptr;
+	if (copy_was.size == 1) {
+		copy.hidden = false; // The copy of a hidden model, which is how programs keep their templates, can be seen.
+	}
 	copy.terrain = nullptr;
 	if (from->terrain) {
 		copy.terrain          = new terrain_data(*from->terrain);

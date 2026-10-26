@@ -1,0 +1,6 @@
+[submodule "extra/blitz3d"]
+	path = extra/blitz3d
+	url = https://github.com/blitz-research/blitz3d.git
+[submodule "extra/blitz3d_soloud"]
+	path = extra/blitz3d_soloud
+	url = https://github.com/blitz-research/blitz3d_soloud.git
