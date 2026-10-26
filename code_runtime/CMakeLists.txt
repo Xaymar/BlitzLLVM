@@ -111,6 +111,10 @@ init_project(blitzrt)
 
 target_sources(blitzrt PRIVATE
 	"source/runtime.c"
+	"source/runtime_objects.c"
+	"source/runtime_strings.c"
+	"source/runtime_system.c"
+	"source/runtime_internal.h"
 	"source/files.c"
 	"source/events.cpp"
 	"source/system.cpp"
