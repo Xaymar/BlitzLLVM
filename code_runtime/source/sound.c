@@ -77,7 +77,12 @@ static float bb_clamp(float v, float lo, float hi)
 
 static bb_sound* bb_sound_get(int32_t handle, const char* what)
 {
-	if ((handle <= 0) || (handle >= bb_sound_count) || !bb_sounds[handle].used) {
+	static bb_sound none; // Programs pass the 0 of a sound that failed to load, which Blitz ignores.
+	if (handle == 0) {
+		memset(&none, 0, sizeof(none));
+		return &none;
+	}
+	if ((handle < 0) || (handle >= bb_sound_count) || !bb_sounds[handle].used) {
 		char message[96];
 		snprintf(message, sizeof(message), "%s: the sound does not exist.", what);
 		bb_runtime_error(message);
