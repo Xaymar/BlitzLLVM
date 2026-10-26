@@ -20,7 +20,8 @@ using namespace bb::gfx;
 extern "C" {
 
 // Graphics width, height, depth, mode.
-// Modes: 0 = windowed (or fullscreen for 3D), 1 = fullscreen, 2 = windowed, 3 = resizable window.
+// Modes: 0 = windowed (or fullscreen for 3D), 1 = fullscreen, 2 = windowed, 3 = resizable window,
+// 4 = window without a border (a BlitzLLVM extension). The depth is not used.
 void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 {
 	(void)depth;
@@ -49,6 +50,8 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		flags |= SDL_WINDOW_FULLSCREEN;
 	} else if (mode == 3) {
 		flags |= SDL_WINDOW_RESIZABLE;
+	} else if (mode == 4) {
+		flags |= SDL_WINDOW_BORDERLESS;
 	}
 	g.window = SDL_CreateWindow("BlitzLLVM", width, height, flags);
 	if (!g.window) {
@@ -56,6 +59,13 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 	SDL_StartTextInput(g.window);
 	g.auto_suspend = (mode == 1); // Fullscreen programs are suspended when they are not in front, unless they say not.
+	if (const char* path = getenv("BLITZ_TEST_WINDOW_FLAGS")) {
+		// Test hook: the flags SDL gave the window, as a number in the named file.
+		if (FILE* file = fopen(path, "w")) {
+			fprintf(file, "%llu", (unsigned long long)SDL_GetWindowFlags(g.window));
+			fclose(file);
+		}
+	}
 
 	create_vulkan();
 	create_buffers(uint32_t(width), uint32_t(height));
