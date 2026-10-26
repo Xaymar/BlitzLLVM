@@ -90,9 +90,9 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DBlitzLLVM_VERSION="$VERSION"
+            cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON
           else
-            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBlitzLLVM_VERSION="$VERSION"
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON
           fi
       - name: Build
         run: cmake --build build --config Release

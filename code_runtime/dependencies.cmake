@@ -177,6 +177,35 @@ function(blitz_check_licenses NAME STAGE)
 	endif()
 endfunction()
 
+# dav1d (which decodes AVIF) has assembly for x86 that needs NASM, which is not installed on most Windows machines. Without it dav1d is
+# built from C only, which works the same but decodes AV1 more slowly. Release builds (CI) have NASM, and set BLITZLLVM_REQUIRE_NASM so
+# that they cannot silently lose it. Install it with 'winget install nasm' (or 'apt install nasm', 'brew install nasm').
+option(BLITZLLVM_REQUIRE_NASM "Fail instead of building dav1d without assembly when NASM is missing on x86" OFF)
+set(_SDL3_IMAGE_ASM_ARGS "")
+if(CMAKE_GENERATOR_PLATFORM)
+	set(_ASM_ARCHITECTURE "${CMAKE_GENERATOR_PLATFORM}")
+else()
+	set(_ASM_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+if(_ASM_ARCHITECTURE MATCHES "^([xX]86|[xX]64|Win32|AMD64|amd64|x86_64|i[3-6]86)$")
+	if(BLITZLLVM_NASM AND NOT EXISTS "${BLITZLLVM_NASM}")
+		unset(BLITZLLVM_NASM CACHE) # Uninstalled since it was found.
+	endif()
+	find_program(BLITZLLVM_NASM nasm
+		HINTS "$ENV{LOCALAPPDATA}/bin/NASM" "$ENV{ProgramFiles}/NASM" "$ENV{ProgramW6432}/NASM" "$ENV{LOCALAPPDATA}/NASM"
+		DOC "NASM, which builds the x86 assembly of dav1d"
+	)
+	if(BLITZLLVM_NASM)
+		message(STATUS "Building dav1d with assembly using NASM: ${BLITZLLVM_NASM}")
+		list(APPEND _SDL3_IMAGE_ASM_ARGS "-DCMAKE_ASM_NASM_COMPILER=${BLITZLLVM_NASM}")
+	elseif(BLITZLLVM_REQUIRE_NASM)
+		message(FATAL_ERROR "NASM was not found, but BLITZLLVM_REQUIRE_NASM is set. Install it ('winget install nasm' on Windows) or set BLITZLLVM_NASM to its path.")
+	else()
+		message(WARNING "NASM was not found, so dav1d is built without assembly and decodes AVIF images more slowly. Install it ('winget install nasm' on Windows) and configure again to avoid that.")
+		list(APPEND _SDL3_IMAGE_ASM_ARGS -DDAV1D_ASM=OFF)
+	endif()
+endif()
+
 # Loads the image files for textures. PNG and JPEG are handled by the built in stb_image, AVIF (libavif with dav1d to decode), JPEG XL (libjxl) and WebP (libwebp) by the vendored libraries, which are all linked in statically.
 set(_SDL3_IMAGE_LICENSES SDL3_image/LICENSE.txt SDL3_image/optional/LICENSE.dav1d.txt SDL3_image/optional/LICENSE.avif.txt
 	SDL3_image/optional/LICENSE.jxl.txt SDL3_image/optional/LICENSE.webp.txt)
@@ -187,6 +216,7 @@ blitz_dependency(SDL3_image SDL_image
 		-DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_DEPS_SHARED=OFF -DSDLIMAGE_STRICT=OFF
 		-DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF -DSDLIMAGE_INSTALL=ON
 		-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_AVIF=ON -DSDLIMAGE_AVIF_SAVE=OFF -DSDLIMAGE_JXL=ON -DSDLIMAGE_WEBP=ON
+		${_SDL3_IMAGE_ASM_ARGS}
 	BUILD_ARGS --config Release --parallel
 	INSTALL_ARGS --config Release
 )
