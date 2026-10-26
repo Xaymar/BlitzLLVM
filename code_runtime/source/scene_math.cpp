@@ -377,6 +377,10 @@ void bb::euler_to_rotation(const float* euler, float* rotation)
 void bb::rotation_to_quaternion(const float* rotation, float* quaternion)
 {
 	quaternion_from_rotation(rotation, quaternion);
+	// The quaternions of Blitz3D, and so of the animation keys, are the conjugates of the usual ones (see compose).
+	quaternion[1] = -quaternion[1];
+	quaternion[2] = -quaternion[2];
+	quaternion[3] = -quaternion[3];
 }
 }
 
