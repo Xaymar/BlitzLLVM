@@ -70,6 +70,8 @@ namespace bb {
 
 	struct surface {
 		skin_data* skin = nullptr; // If the vertices are moved by bones, which makes them different for each copy.
+		bool     bound_valid = false; // The box around the vertices below, which the renderer lets go of when the vertices change.
+		float    bound_min[3] = { 0, 0, 0 }, bound_max[3] = { 0, 0, 0 };
 		bool     painted = false;
 		material paint;
 

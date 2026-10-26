@@ -1511,6 +1511,7 @@ namespace {
 		release_surface_gpu(static_cast<surface_gpu*>(s.gpu));
 		s.gpu   = nullptr;
 		s.dirty = false;
+		s.bound_valid = false;
 		if ((s.vertices.size == 0) || (s.indices.size == 0)) {
 			return nullptr;
 		}
@@ -3685,7 +3686,7 @@ float bb_projected_x(void) { return projected[0]; }
 float bb_projected_y(void) { return projected[1]; }
 float bb_projected_z(void) { return projected[2]; }
 
-// Whether the middle of the entity is in the picture of the camera.
+// Whether any part of the entity is in the picture of the camera. Meshes count with a sphere around them.
 int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 {
 	bb::entity* e = bb::get_entity(entity);
@@ -3693,14 +3694,90 @@ int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 		bb_runtime_error("EntityInView: the entity does not exist.");
 	}
 	bb::entity* cam = need_camera(camera, "EntityInView");
-	float       m[16], p[3];
-	bb::world_matrix(entity, m);
-	if (!project_point(*cam, camera, m[12], m[13], m[14], p)) {
+	int vx, vy, vw, vh;
+	if (!camera_viewport(*cam, int(g.width), int(g.height), vx, vy, vw, vh)) {
 		return 0;
 	}
-	int vx, vy, vw, vh;
-	camera_viewport(*cam, int(g.width), int(g.height), vx, vy, vw, vh);
-	return ((p[0] >= float(vx)) && (p[0] <= float(vx + vw)) && (p[1] >= float(vy)) && (p[1] <= float(vy + vh)) && (p[2] <= cam->cam_far)) ? 1 : 0;
+
+	// The sphere around the surfaces, in the space of the entity.
+	float center[3] = { 0, 0, 0 }, radius = 0;
+	if (e->kind == bb::MESH) {
+		bb::update_terrain(*e);
+		float lo[3] = { 1e30f, 1e30f, 1e30f }, hi[3] = { -1e30f, -1e30f, -1e30f };
+		for (uint32_t i = 0; i < e->surfaces.size; i++) {
+			bb::surface& surface = *e->surfaces[i];
+			if (!surface.bound_valid) {
+				float slo[3] = { 1e30f, 1e30f, 1e30f }, shi[3] = { -1e30f, -1e30f, -1e30f };
+				for (uint32_t v = 0; v < surface.vertices.size; v++) {
+					const bb::vertex3d& vert = surface.vertices[v];
+					const float         c[3] = { vert.x, vert.y, vert.z };
+					for (int k = 0; k < 3; k++) {
+						slo[k] = c[k] < slo[k] ? c[k] : slo[k];
+						shi[k] = c[k] > shi[k] ? c[k] : shi[k];
+					}
+				}
+				memcpy(surface.bound_min, slo, sizeof(slo));
+				memcpy(surface.bound_max, shi, sizeof(shi));
+				surface.bound_valid = true;
+			}
+			if (surface.vertices.size) {
+				for (int k = 0; k < 3; k++) {
+					lo[k] = surface.bound_min[k] < lo[k] ? surface.bound_min[k] : lo[k];
+					hi[k] = surface.bound_max[k] > hi[k] ? surface.bound_max[k] : hi[k];
+				}
+			}
+		}
+		if (lo[0] <= hi[0]) {
+			for (int k = 0; k < 3; k++) {
+				center[k] = (lo[k] + hi[k]) * 0.5f;
+			}
+			radius = 0.5f * sqrtf((hi[0] - lo[0]) * (hi[0] - lo[0]) + (hi[1] - lo[1]) * (hi[1] - lo[1]) + (hi[2] - lo[2]) * (hi[2] - lo[2]));
+		}
+	}
+
+	float m[16];
+	bb::world_matrix(entity, m);
+	float world_center[3];
+	for (int row = 0; row < 3; row++) {
+		world_center[row] = m[0 + row] * center[0] + m[4 + row] * center[1] + m[8 + row] * center[2] + m[12 + row];
+	}
+	float scale = 0;
+	for (int col = 0; col < 3; col++) {
+		float len = sqrtf(m[col * 4] * m[col * 4] + m[col * 4 + 1] * m[col * 4 + 1] + m[col * 4 + 2] * m[col * 4 + 2]);
+		scale     = len > scale ? len : scale;
+	}
+	radius *= scale;
+
+	float world[16], view[16], proj[16], vp[16];
+	bb::world_matrix(camera, world);
+	bb::mat_affine_inverse(world, view);
+	projection(proj, *cam, float(vw), float(vh));
+	bb::mat_multiply(vp, proj, view);
+
+	// The planes of the view, from the rows of the matrix: left, right, bottom, top, near and far.
+	float row[4][4];
+	for (int r = 0; r < 4; r++) {
+		for (int c = 0; c < 4; c++) {
+			row[r][c] = vp[c * 4 + r];
+		}
+	}
+	float planes[6][4];
+	for (int c = 0; c < 4; c++) {
+		planes[0][c] = row[3][c] + row[0][c];
+		planes[1][c] = row[3][c] - row[0][c];
+		planes[2][c] = row[3][c] + row[1][c];
+		planes[3][c] = row[3][c] - row[1][c];
+		planes[4][c] = row[2][c];
+		planes[5][c] = row[3][c] - row[2][c];
+	}
+	for (int i = 0; i < 6; i++) {
+		float length = sqrtf(planes[i][0] * planes[i][0] + planes[i][1] * planes[i][1] + planes[i][2] * planes[i][2]);
+		float distance = planes[i][0] * world_center[0] + planes[i][1] * world_center[1] + planes[i][2] * world_center[2] + planes[i][3];
+		if (distance < -radius * length) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 // Draw only the edges of everything, if the GPU can.
