@@ -10,23 +10,23 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [ChannelPan](BlitzBasic-Audio#channelpan) | None |  |
-| [ChannelPitch](BlitzBasic-Audio#channelpitch) | None |  |
-| [ChannelPlaying](BlitzBasic-Audio#channelplaying) | Int |  |
-| [ChannelVolume](BlitzBasic-Audio#channelvolume) | None |  |
-| [FreeSound](BlitzBasic-Audio#freesound) | None |  |
-| [Load3DSound](BlitzBasic-Audio#load3dsound) | Int |  |
-| [LoadSound](BlitzBasic-Audio#loadsound) | Int |  |
-| [LoopSound](BlitzBasic-Audio#loopsound) | None |  |
-| [PauseChannel](BlitzBasic-Audio#pausechannel) | None |  |
-| [PlayCDTrack](BlitzBasic-Audio#playcdtrack) | Int |  |
-| [PlayMusic](BlitzBasic-Audio#playmusic) | Int |  |
-| [PlaySound](BlitzBasic-Audio#playsound) | Int |  |
-| [ResumeChannel](BlitzBasic-Audio#resumechannel) | None |  |
-| [SoundPan](BlitzBasic-Audio#soundpan) | None |  |
-| [SoundPitch](BlitzBasic-Audio#soundpitch) | None |  |
-| [SoundVolume](BlitzBasic-Audio#soundvolume) | None |  |
-| [StopChannel](BlitzBasic-Audio#stopchannel) | None |  |
+| [ChannelPan](BlitzBasic-Audio#channelpan) | None | Moves a playing channel between the left and the right speaker. |
+| [ChannelPitch](BlitzBasic-Audio#channelpitch) | None | Changes the speed and the pitch of a channel that is playing or paused. |
+| [ChannelPlaying](BlitzBasic-Audio#channelplaying) | Int | Tells whether a channel is still playing. |
+| [ChannelVolume](BlitzBasic-Audio#channelvolume) | None | Sets the volume of one channel. |
+| [FreeSound](BlitzBasic-Audio#freesound) | None | Throws a loaded sound away and frees its memory. |
+| [Load3DSound](BlitzBasic-Audio#load3dsound) | Int | Loads a sound file for use with [EmitSound](Blitz3D-3D-Sound#emitsound), which plays it from an entity so that it gets quieter with distance and moves between the speakers. |
+| [LoadSound](BlitzBasic-Audio#loadsound) | Int | Loads a sound file into memory and returns a handle that [PlaySound](BlitzBasic-Audio#playsound) uses. |
+| [LoopSound](BlitzBasic-Audio#loopsound) | None | Marks a sound so that it plays in an endless loop whenever it is played from now on. |
+| [PauseChannel](BlitzBasic-Audio#pausechannel) | None | Pauses a channel. |
+| [PlayCDTrack](BlitzBasic-Audio#playcdtrack) | Int | Plays a track of an audio CD in the original. |
+| [PlayMusic](BlitzBasic-Audio#playmusic) | Int | Loads a music file and plays it right away. |
+| [PlaySound](BlitzBasic-Audio#playsound) | Int | Starts a sound and returns the channel it plays on. |
+| [ResumeChannel](BlitzBasic-Audio#resumechannel) | None | Continues a channel that [PauseChannel](BlitzBasic-Audio#pausechannel) paused. |
+| [SoundPan](BlitzBasic-Audio#soundpan) | None | Sets the stereo position that channels of this sound start with. |
+| [SoundPitch](BlitzBasic-Audio#soundpitch) | None | Sets the playback frequency that channels of this sound start with, in hertz. |
+| [SoundVolume](BlitzBasic-Audio#soundvolume) | None | Sets the volume that channels of this sound start with. |
+| [StopChannel](BlitzBasic-Audio#stopchannel) | None | Stops a channel and releases it. |
 
 ### ChannelPan
 
@@ -36,12 +36,28 @@ ChannelPan channel%, pan#
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Moves a playing channel between the left and the right speaker. It can be called at any time while the sound plays.
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Local snd = LoadSound("beep.wav")
+LoopSound snd
+Local ch = PlaySound(snd)
+For i = 0 To 100
+	ChannelPan ch, Sin(i * 7.2)
+	Delay 30
+Next
+StopChannel ch
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required |  |
-| `pan` | Float | required |  |
+| `channel` | Int | required | A channel handle from [PlaySound](BlitzBasic-Audio#playsound) or [PlayMusic](BlitzBasic-Audio#playmusic). |
+| `pan` | Float | required | -1 is only left, 0 the middle and 1 only right. Values outside that range are limited to it. |
+
+**Differences and known gaps:**
+
+* Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
 
 ### ChannelPitch
 
@@ -51,12 +67,28 @@ ChannelPitch channel%, pitch%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Changes the speed and the pitch of a channel that is playing or paused. The value is a sampling frequency in hertz: take the frequency of the sound as the middle value, so a 22050 Hz sound that is set to 44100 plays twice as fast and an octave higher.
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Local snd = LoadSound("beep.wav")
+LoopSound snd
+Local ch = PlaySound(snd)
+For f = 11025 To 44100 Step 1000
+	ChannelPitch ch, f
+	Delay 40
+Next
+StopChannel ch
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required |  |
+| `channel` | Int | required | A channel handle from [PlaySound](BlitzBasic-Audio#playsound). |
 | `pitch` | Int | required |  |
+
+**Differences and known gaps:**
+
+* Changing the pitch also changes the speed, because the sound is resampled. There is no way to keep the speed.
 
 ### ChannelPlaying
 
@@ -66,11 +98,34 @@ ChannelPlaying channel%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Tells whether a channel is still playing. A paused channel counts as playing, and a channel that has ended or was stopped does not.
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local snd = LoadSound("beep.wav")
+Local ch = PlaySound(snd)
+While ChannelPlaying(ch) And Not KeyHit(1)
+	Cls
+	Text 10, 10, "Playing..."
+	Flip
+Wend
+Cls
+Text 10, 10, "Finished"
+Flip
+Delay 500
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required |  |
+| `channel` | Int | required | A channel handle from [PlaySound](BlitzBasic-Audio#playsound) or [PlayMusic](BlitzBasic-Audio#playmusic). |
+
+**Returns:** 1 if the channel is playing or paused, otherwise 0.
+
+**Differences and known gaps:**
+
+* A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
 
 ### ChannelVolume
 
@@ -80,12 +135,24 @@ ChannelVolume channel%, volume#
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets the volume of one channel. It can be changed while the sound plays, for example to fade it out.
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Local snd = LoadSound("beep.wav")
+LoopSound snd
+Local ch = PlaySound(snd)
+For i = 10 To 0 Step -1
+	ChannelVolume ch, i / 10.0
+	Delay 150
+Next
+StopChannel ch
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required |  |
-| `volume` | Float | required |  |
+| `channel` | Int | required | A channel handle from [PlaySound](BlitzBasic-Audio#playsound) or [PlayMusic](BlitzBasic-Audio#playmusic). |
+| `volume` | Float | required | 0 is silence and 1 is the full volume of the sound. Values outside that range are limited to it. |
 
 ### FreeSound
 
@@ -95,11 +162,23 @@ FreeSound sound%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Throws a loaded sound away and frees its memory. Channels that are playing this sound are stopped. Sounds are freed when the program ends anyway, so this is for programs that load a lot of sounds, for example one set for each level.
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Local snd = LoadSound("beep.wav")
+PlaySound snd
+Delay 600
+FreeSound snd
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required |  |
+| `sound` | Int | required | A handle from [LoadSound](BlitzBasic-Audio#loadsound) or [Load3DSound](BlitzBasic-Audio#load3dsound). |
+
+**Differences and known gaps:**
+
+* Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
 
 ### Load3DSound
 
@@ -109,11 +188,32 @@ Load3DSound filename$  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Loads a sound file for use with [EmitSound](Blitz3D-3D-Sound#emitsound), which plays it from an entity so that it gets quieter with distance and moves between the speakers. The file formats are the same as for [LoadSound](BlitzBasic-Audio#loadsound).
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local cam = CreateCamera()
+Local cube = CreateCube()
+MoveEntity cube, 0, 0, 5
+CreateListener cam
+Local snd = Load3DSound("beep.wav")
+EmitSound snd, cube
+RenderWorld
+Flip
+Delay 600
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `filename` | String | required |  |
+
+**Returns:** A sound handle, or 0 if the file could not be loaded.
+
+**Differences and known gaps:**
+
+* See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, but there is no doppler effect.
 
 ### LoadSound
 
@@ -123,11 +223,48 @@ LoadSound filename$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Loads a sound file into memory and returns a handle that [PlaySound](BlitzBasic-Audio#playsound) uses. WAV, MP3, OGG and FLAC files can be loaded. Load sounds once at the start of the program and play them as often as needed.
+
+The example writes a short beep as `beep.wav` first, so that it needs no other file. The other audio examples use this file.
+
+```blitzbasic
+MakeBeep("beep.wav")
+Local snd = LoadSound("beep.wav")
+If snd = 0 Then RuntimeError "beep.wav could not be loaded"
+PlaySound snd
+Delay 600
+
+; Writes half a second of a 440 Hz tone as a 22050 Hz mono WAV file.
+Function MakeBeep(path$)
+	Local f = WriteFile(path)
+	Local n = 11025
+	Tag f, "RIFF" : WriteInt f, 36 + n * 2 : Tag f, "WAVE"
+	Tag f, "fmt " : WriteInt f, 16 : WriteShort f, 1 : WriteShort f, 1
+	WriteInt f, 22050 : WriteInt f, 44100 : WriteShort f, 2 : WriteShort f, 16
+	Tag f, "data" : WriteInt f, n * 2
+	For i = 0 To n - 1
+		WriteShort f, Int(Sin(i * 440.0 * 360.0 / 22050.0) * 12000 * (1.0 - i / Float(n)))
+	Next
+	CloseFile f
+End Function
+
+Function Tag(f, s$)
+	For i = 1 To Len(s)
+		WriteByte f, Asc(Mid(s, i, 1))
+	Next
+End Function
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `filename` | String | required |  |
+
+**Returns:** A sound handle, or 0 if the file does not exist or cannot be read.
+
+**Differences and known gaps:**
+
+* MIDI , module and Windows Media files are not supported.
+* Without a sound device (or with the environment variable `BLITZ_HEADLESS` set) a file that exists still gives a handle, but nothing is played and the play commands return channel 0.
 
 ### LoopSound
 
@@ -137,11 +274,24 @@ LoopSound sound%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Marks a sound so that it plays in an endless loop whenever it is played from now on. It does not start the sound: call [PlaySound](BlitzBasic-Audio#playsound) for that. Channels that already play the sound are not changed. Stop a looping sound with [StopChannel](BlitzBasic-Audio#stopchannel).
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Local snd = LoadSound("beep.wav")
+LoopSound snd
+Local ch = PlaySound(snd)
+Delay 1800
+StopChannel ch
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required |  |
+| `sound` | Int | required | A handle from [LoadSound](BlitzBasic-Audio#loadsound). |
+
+**Differences and known gaps:**
+
+* There is no command to switch looping off again.
 
 ### PauseChannel
 
@@ -151,11 +301,24 @@ PauseChannel channel%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Pauses a channel. The sound stays where it is until [ResumeChannel](BlitzBasic-Audio#resumechannel) continues it. A paused channel is still reported as playing by [ChannelPlaying](BlitzBasic-Audio#channelplaying).
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Local snd = LoadSound("beep.wav")
+LoopSound snd
+Local ch = PlaySound(snd)
+Delay 500
+PauseChannel ch
+Delay 500
+ResumeChannel ch
+Delay 500
+StopChannel ch
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required |  |
+| `channel` | Int | required | A channel handle from [PlaySound](BlitzBasic-Audio#playsound) or [PlayMusic](BlitzBasic-Audio#playmusic). |
 
 ### PlayCDTrack
 
@@ -165,12 +328,24 @@ PlayCDTrack track%, mode%=1  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Plays a track of an audio CD in the original. There is no CD playback here.
+
+```blitzbasic
+Local ch = PlayCDTrack(2, 1)
+If ch = 0 Then Print "No CD audio available" Else Print "Playing track 2"
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `track` | Int | required |  |
-| `mode` | Int | `1` |  |
+| `track` | Int | required | The track number, counted from 1. |
+| `mode` | Int | `1` | 1 plays the track once (the default), 2 repeats it and 3 plays on to the end of the disc. |
+
+**Returns:** The channel of the track, or 0 if it could not be played.
+
+**Differences and known gaps:**
+
+* Always returns 0 and plays nothing. Use [PlayMusic](BlitzBasic-Audio#playmusic) with ripped tracks instead.
 
 ### PlayMusic
 
@@ -180,11 +355,28 @@ PlayMusic midifile$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Loads a music file and plays it right away. The returned channel can be paused, resumed, stopped and changed with the Channel commands. Unlike a sound from [LoadSound](BlitzBasic-Audio#loadsound) the file is read again each time the command is used, so a short pause is possible for large files. Music plays once and does not loop.
+
+```blitzbasic
+; Any music file works, change the path to one of your own.
+Local ch = PlayMusic("music.ogg")
+If ch = 0 Then Print "Could not play music.ogg" : WaitKey : End
+While ChannelPlaying(ch) And Not KeyHit(1)
+	Delay 50
+Wend
+StopChannel ch
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `midifile` | String | required |  |
+
+**Returns:** The channel the music plays on, or 0 if the file could not be played.
+
+**Differences and known gaps:**
+
+* MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA. WAV, MP3, OGG and FLAC work.
+* The German help lists a second parameter that picks looping. It is not part of the official command and not accepted here.
 
 ### PlaySound
 
@@ -194,11 +386,26 @@ PlaySound sound%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Starts a sound and returns the channel it plays on. Every call starts a new channel, so the same sound can play several times over itself. The channel starts with the volume and pan that were set on the sound with [SoundVolume](BlitzBasic-Audio#soundvolume) and [SoundPan](BlitzBasic-Audio#soundpan), and a sound that is marked by [LoopSound](BlitzBasic-Audio#loopsound) repeats until the channel is stopped.
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local snd = LoadSound("beep.wav")
+While Not KeyHit(1)
+	If KeyHit(57) Then PlaySound snd
+	Cls
+	Text 10, 10, "Space plays a beep, Escape ends"
+	Flip
+Wend
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required |  |
+| `sound` | Int | required | A handle from [LoadSound](BlitzBasic-Audio#loadsound). |
+
+**Returns:** The channel handle, or 0 if the sound could not be played (for example without a sound device).
 
 ### ResumeChannel
 
@@ -208,11 +415,11 @@ ResumeChannel channel%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Continues a channel that [PauseChannel](BlitzBasic-Audio#pausechannel) paused.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required |  |
+| `channel` | Int | required | A channel handle from [PlaySound](BlitzBasic-Audio#playsound) or [PlayMusic](BlitzBasic-Audio#playmusic). |
 
 ### SoundPan
 
@@ -222,12 +429,12 @@ SoundPan sound%, pan#
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets the stereo position that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelPan](BlitzBasic-Audio#channelpan) for those.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required |  |
-| `pan` | Float | required |  |
+| `sound` | Int | required | A handle from [LoadSound](BlitzBasic-Audio#loadsound). |
+| `pan` | Float | required | -1 is only left, 0 the middle and 1 only right. |
 
 ### SoundPitch
 
@@ -237,11 +444,22 @@ SoundPitch sound%, pitch%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets the playback frequency that channels of this sound start with, in hertz. Channels that are already playing keep theirs: use [ChannelPitch](BlitzBasic-Audio#channelpitch) for those.
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Local snd = LoadSound("beep.wav")
+SoundPitch snd, 44100
+PlaySound snd
+Delay 400
+SoundPitch snd, 11025
+PlaySound snd
+Delay 1000
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required |  |
+| `sound` | Int | required | A handle from [LoadSound](BlitzBasic-Audio#loadsound). |
 | `pitch` | Int | required |  |
 
 ### SoundVolume
@@ -252,12 +470,12 @@ SoundVolume sound%, volume#
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Sets the volume that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelVolume](BlitzBasic-Audio#channelvolume) for those.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required |  |
-| `volume` | Float | required |  |
+| `sound` | Int | required | A handle from [LoadSound](BlitzBasic-Audio#loadsound). |
+| `volume` | Float | required | 0 is silence and 1 is full volume. |
 
 ### StopChannel
 
@@ -267,8 +485,18 @@ StopChannel channel%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Stops a channel and releases it. The handle can not be used afterwards, and commands that are given a channel that has ended are ignored.
+
+```blitzbasic
+; MakeBeep writes beep.wav, see the LoadSound example for the code.
+Local snd = LoadSound("beep.wav")
+LoopSound snd
+Local ch = PlaySound(snd)
+Delay 700
+StopChannel ch
+Print ChannelPlaying(ch)
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required |  |
+| `channel` | Int | required | A channel handle from [PlaySound](BlitzBasic-Audio#playsound) or [PlayMusic](BlitzBasic-Audio#playmusic). |
