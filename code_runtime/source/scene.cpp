@@ -519,7 +519,8 @@ void bb::update_terrain(entity& e)
 	if (first) {
 		for (int z = 0; z <= n; z++) {
 			for (int x = 0; x <= n; x++) {
-				add_vertex(s, float(x), 0, float(z), 0, 1, 0, float(x) / float(n), float(z) / float(n));
+				// Like in the original the coordinates count the cells, and go from the far side, which ScaleTexture then stretches.
+				add_vertex(s, float(x), 0, float(z), 0, 1, 0, float(x), float(n - z));
 			}
 		}
 		for (int z = 0; z < n; z++) {

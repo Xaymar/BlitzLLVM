@@ -265,6 +265,11 @@ namespace {
 		int     mouse_queue[16] = {}; // Mouse buttons that were pressed, for GetMouse.
 		int     mouse_head = 0, mouse_tail = 0;
 		float   mouse_dx = 0, mouse_dy = 0, mouse_dz = 0; // Movement since it was asked for last.
+		// While a program puts the mouse back in the middle every frame, the mouse is kept in the window, hidden, and only
+		// how far it moved is looked at, as DirectInput does for the original. The position is then made up from that.
+		bool    mouse_relative = false;
+		float   mouse_px = 0, mouse_py = 0;
+		Uint64  mouse_move_tick = 0;
 		int     mouse_z = 0;
 		uint32_t triangles_drawn = 0;
 	};
@@ -1377,10 +1382,18 @@ namespace {
 				// Mouse position is reported in window coordinates, programs expect buffer coordinates.
 				int ww = 1, wh = 1;
 				SDL_GetWindowSize(g.window, &ww, &wh);
-				g.mouse_x = int(event.motion.x * float(g.width) / float(ww));
-				g.mouse_y = int(event.motion.y * float(g.height) / float(wh));
-				g.mouse_dx += event.motion.xrel * float(g.width) / float(ww);
-				g.mouse_dy += event.motion.yrel * float(g.height) / float(wh);
+				float dx = event.motion.xrel * float(g.width) / float(ww), dy = event.motion.yrel * float(g.height) / float(wh);
+				if (g.mouse_relative) {
+					g.mouse_px = fminf(fmaxf(g.mouse_px + dx, 0.0f), float(g.width - 1));
+					g.mouse_py = fminf(fmaxf(g.mouse_py + dy, 0.0f), float(g.height - 1));
+					g.mouse_x  = int(g.mouse_px);
+					g.mouse_y  = int(g.mouse_py);
+				} else {
+					g.mouse_x = int(event.motion.x * float(g.width) / float(ww));
+					g.mouse_y = int(event.motion.y * float(g.height) / float(wh));
+				}
+				g.mouse_dx += dx;
+				g.mouse_dy += dy;
 				break;
 			}
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: {
@@ -1406,6 +1419,15 @@ namespace {
 			default:
 				break;
 			}
+		}
+		// When the program stops putting the mouse back, it is let go and put where the program thinks it is.
+		if (g.mouse_relative && (SDL_GetTicks() - g.mouse_move_tick > 300)) {
+			g.mouse_relative = false;
+			SDL_SetWindowRelativeMouseMode(g.window, false);
+			int ww = 1, wh = 1;
+			SDL_GetWindowSize(g.window, &ww, &wh);
+			SDL_WarpMouseInWindow(g.window, float(g.mouse_x) * float(ww) / float(g.width), float(g.mouse_y) * float(wh) / float(g.height));
+			g.mouse_dx = g.mouse_dy = 0;
 		}
 	}
 
@@ -2747,6 +2769,11 @@ int32_t bb_mouse_x_speed(void)
 	if (active()) {
 		pump();
 	}
+	if (g.mouse_relative) {
+		int32_t v  = int32_t(g.mouse_dx);
+		g.mouse_dx -= float(v);
+		return v;
+	}
 	int32_t v    = g.mouse_x - mouse_ref_x; // Moving the mouse with MoveMouse is not speed.
 	mouse_ref_x = g.mouse_x;
 	return v;
@@ -2756,6 +2783,11 @@ int32_t bb_mouse_y_speed(void)
 {
 	if (active()) {
 		pump();
+	}
+	if (g.mouse_relative) {
+		int32_t v  = int32_t(g.mouse_dy);
+		g.mouse_dy -= float(v);
+		return v;
 	}
 	int32_t v    = g.mouse_y - mouse_ref_y; // Moving the mouse with MoveMouse is not speed.
 	mouse_ref_y = g.mouse_y;
@@ -2785,11 +2817,18 @@ void bb_move_mouse(int32_t x, int32_t y)
 	if (!active()) {
 		return;
 	}
-	int ww = 1, wh = 1;
-	SDL_GetWindowSize(g.window, &ww, &wh);
-	SDL_WarpMouseInWindow(g.window, float(x) * float(ww) / float(g.width), float(y) * float(wh) / float(g.height));
-	g.mouse_x = x;
-	g.mouse_y = y;
+	// A program that puts the mouse somewhere every frame is looking at how far it moves. Warping it does not work for
+	// that, as the warp is an event as well, so the mouse is kept in the window and the position is made up.
+	g.mouse_move_tick = SDL_GetTicks();
+	if (!g.mouse_relative) {
+		g.mouse_relative = true;
+		g.mouse_dx = g.mouse_dy = 0;
+		SDL_SetWindowRelativeMouseMode(g.window, true);
+	}
+	g.mouse_px = float(x);
+	g.mouse_py = float(y);
+	g.mouse_x  = x;
+	g.mouse_y  = y;
 	mouse_ref_x = x;
 	mouse_ref_y = y;
 }
