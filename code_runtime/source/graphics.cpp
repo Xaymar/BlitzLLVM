@@ -14,6 +14,7 @@
 // Set BLITZ_HEADLESS=1 to run programs without creating a window, in which case graphics commands do nothing.
 
 #define VK_NO_PROTOTYPES
+#include "profile.hpp"
 #include <vulkan/vulkan.h>
 
 #include <SDL3/SDL.h>
@@ -153,11 +154,14 @@ namespace {
 		VkImageLayout  layout = VK_IMAGE_LAYOUT_UNDEFINED; // What it was last transitioned to.
 	};
 
-	enum op_kind { OP_CLEAR, OP_TRIANGLES, OP_LINES };
+	enum op_kind { OP_CLEAR, OP_TRIANGLES, OP_LINES, OP_SCENE, OP_COPY };
 	enum texture_id { TEXTURE_WHITE, TEXTURE_FONT, TEXTURES };
 
+	// What was asked for, in order. 2D drawing, 3D scenes and copies all end up here and are only recorded and sent to
+	// the GPU when something needs the result: showing the frame, reading pixels or freeing what is used.
 	struct operation {
 		op_kind  kind;
+		int      target;   // Buffer that this is for.
 		int      texture;
 		uint32_t first, count;
 		float    color[4]; // OP_CLEAR only
@@ -218,10 +222,10 @@ namespace {
 		VkDeviceMemory vertex_memory = VK_NULL_HANDLE;
 		vertex*        vertices      = nullptr;
 		uint32_t       vertex_count  = 0;
+		bool           front_touched = false; // Something was drawn to the front buffer, which has to be shown.
 
 		// Buffers
 		gpu_image buffers[2]; // [0] front, [1] back
-		gpu_image depth;      // Depth for 3D, as big as the buffers.
 
 		// 3D
 		VkDescriptorSetLayout scene_layout   = VK_NULL_HANDLE;
@@ -234,7 +238,7 @@ namespace {
 		VkPipeline            wire3d[4]      = {};  // The same, drawing only the edges.
 		bool                  can_wireframe  = false;
 		bool                  wireframe      = false;
-		VkBuffer              scene_buffer   = VK_NULL_HANDLE;
+		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
 		VkDeviceMemory        scene_memory   = VK_NULL_HANDLE;
 		void*                 scene_mapped   = nullptr;
 		int   target = back_buffer;
@@ -451,32 +455,39 @@ namespace {
 	////////////////////////////////////////////////////////////////////////////
 	// Commands
 	////////////////////////////////////////////////////////////////////////////
-	// Copies of rectangles are collected in one command buffer, which is only sent once something else needs the GPU.
-	bool           batch_open   = false;
-	VkBuffer       scratch      = VK_NULL_HANDLE;
+	// Between rectangles of the same image, the pixels take a detour through this buffer.
+	VkBuffer       scratch        = VK_NULL_HANDLE;
 	VkDeviceMemory scratch_memory = VK_NULL_HANDLE;
-	VkDeviceSize   scratch_size = 0;
+	VkDeviceSize   scratch_size   = 0;
 
-	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE);
+	// Buffers of geometry that was replaced or freed, which can only be destroyed once what was recorded has run.
+	struct graveyard_entry {
+		VkBuffer       buffer;
+		VkDeviceMemory memory;
+	};
+	bb::buffer<graveyard_entry> graveyard;
 
-	void end_batch()
+	void empty_graveyard()
 	{
-		if (batch_open) {
-			batch_open = false;
-			submit_commands();
+		for (uint32_t i = 0; i < graveyard.size; i++) {
+			vkDestroyBuffer(g.device, graveyard[i].buffer, nullptr);
+			vkFreeMemory(g.device, graveyard[i].memory, nullptr);
 		}
+		graveyard.clear();
 	}
 
 	void begin_commands()
 	{
-		end_batch();
 		vkResetCommandBuffer(g.cmd, 0);
 		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
 	}
 
-	void submit_commands(VkSemaphore wait, VkSemaphore signal)
+	int    profile_submits = 0;
+	Uint64 profile_wait    = 0;
+
+	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE)
 	{
 		check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
 
@@ -490,8 +501,12 @@ namespace {
 		info.signalSemaphoreCount  = signal ? 1 : 0;
 		info.pSignalSemaphores     = &signal;
 		vkResetFences(g.device, 1, &g.fence);
+		profile_submits++;
+		Uint64 wait_start = SDL_GetPerformanceCounter();
 		check(vkQueueSubmit(g.queue, 1, &info, g.fence), "vkQueueSubmit");
 		check(vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
+		profile_wait += SDL_GetPerformanceCounter() - wait_start;
+		empty_graveyard();
 	}
 
 	void barrier(VkImage img, VkImageLayout from, VkImageLayout to, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT)
@@ -525,19 +540,20 @@ namespace {
 		}
 	}
 
-	// Replays the collected operations into the command buffer, drawing to the current buffer.
-	void record_operations()
+	void record_scene(uint32_t index, int target_handle);
+	void record_copy(uint32_t index);
+	void forget_recorded();
+
+	// Records a run of 2D operations that all draw to the same buffer.
+	void record_2d(uint32_t first, uint32_t end)
 	{
-		target_ref target = resolve_target(g.target);
+		target_ref target = resolve_target(g.ops[first].target);
 		if (!target.image) {
-			// The buffer was freed in the meantime.
-			g.op_count     = 0;
-			g.vertex_count = 0;
-			return;
+			return; // The buffer was freed in the meantime.
 		}
 
 		// Everything that is sampled has to be readable, and what is drawn to has to be a color attachment.
-		for (uint32_t i = 0; i < g.op_count; i++) {
+		for (uint32_t i = first; i < end; i++) {
 			if ((g.ops[i].kind != OP_CLEAR) && g.ops[i].image) {
 				image_entry* e = image_of(g.ops[i].image);
 				if (e && e->set && (e->image.image != target.image->image)) {
@@ -571,7 +587,7 @@ namespace {
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(g.cmd, 0, 1, &g.vertex_buffer, &offset);
 
-		for (uint32_t i = 0; i < g.op_count; i++) {
+		for (uint32_t i = first; i < end; i++) {
 			operation& op = g.ops[i];
 			if (op.kind == OP_CLEAR) {
 				VkClearAttachment clear = {};
@@ -596,9 +612,32 @@ namespace {
 			vkCmdDraw(g.cmd, op.count, 1, op.first, 0);
 		}
 		vkCmdEndRendering(g.cmd);
+	}
 
+	// Replays the collected operations into the command buffer, in the order they were asked for.
+	void record_operations()
+	{
+		uint32_t i = 0;
+		while (i < g.op_count) {
+			operation& op = g.ops[i];
+			if (op.kind == OP_SCENE) {
+				record_scene(op.first, op.target);
+				i++;
+			} else if (op.kind == OP_COPY) {
+				record_copy(op.first);
+				i++;
+			} else {
+				uint32_t end = i;
+				while ((end < g.op_count) && (g.ops[end].kind <= OP_LINES) && (g.ops[end].target == op.target)) {
+					end++;
+				}
+				record_2d(i, end);
+				i = end;
+			}
+		}
 		g.op_count     = 0;
 		g.vertex_count = 0;
+		forget_recorded();
 	}
 
 	// Presents the front buffer in the window. Expects an open command buffer, finishes it.
@@ -661,10 +700,9 @@ namespace {
 	void create_swapchain();
 	void destroy_swapchain();
 	void create_3d();
-	void create_depth(uint32_t width, uint32_t height);
 	void push_key(int code);
 
-	// Draws everything that has been asked for to the current buffer.
+	// Records and sends everything that has been asked for.
 	void flush()
 	{
 		if (g.headless || !g.created || (g.op_count == 0)) {
@@ -672,7 +710,8 @@ namespace {
 		}
 		begin_commands();
 		record_operations();
-		if (g.target == front_buffer) {
+		if (g.front_touched) {
+			g.front_touched = false;
 			// Drawing to the front buffer is visible immediately.
 			if (g.resized || (g.swapchain == VK_NULL_HANDLE)) {
 				submit_commands();
@@ -700,10 +739,13 @@ namespace {
 		if (g.vertex_count + vertices > max_vertices) {
 			flush();
 		}
+		if (g.target == front_buffer) {
+			g.front_touched = true;
+		}
 		// Merge with the previous operation if possible.
 		if (g.op_count > 0) {
 			operation& last = g.ops[g.op_count - 1];
-			if ((last.kind == kind) && (last.texture == texture) && (last.image == image) && (kind != OP_CLEAR) && (memcmp(last.mask, mask, sizeof(last.mask)) == 0)) {
+			if ((last.kind == kind) && ((kind == OP_TRIANGLES) || (kind == OP_LINES)) && (last.target == g.target) && (last.texture == texture) && (last.image == image) && (memcmp(last.mask, mask, sizeof(last.mask)) == 0)) {
 				last.count += vertices;
 				g.vertex_count += vertices;
 				return last;
@@ -718,6 +760,7 @@ namespace {
 		}
 		operation& op = g.ops[g.op_count++];
 		op.kind       = kind;
+		op.target     = g.target;
 		op.texture    = texture;
 		op.image      = image;
 		memcpy(op.mask, mask, sizeof(op.mask));
@@ -915,8 +958,8 @@ namespace {
 			record_operations();
 			submit_commands();
 		}
+		g.front_touched = false;
 		g.target = back_buffer;
-		create_depth(width, height);
 	}
 
 	void create_swapchain()
@@ -1002,7 +1045,7 @@ namespace {
 
 	void destroy_swapchain()
 	{
-		end_batch();
+		
 		vkDeviceWaitIdle(g.device);
 		for (uint32_t i = 0; i < g.swap_count; i++) {
 			vkDestroySemaphore(g.device, g.swap_done[i], nullptr);
@@ -1158,7 +1201,7 @@ namespace {
 		set_info.pBindings                       = &binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorPoolSize pool_sizes[2] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8192 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1 } };
+		VkDescriptorPoolSize pool_sizes[2] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8192 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 		dpool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 		dpool_info.maxSets                    = 8193;
@@ -1429,11 +1472,13 @@ namespace {
 		return &texture_table[uint32_t(handle) - 1];
 	}
 
+	void flush();
+
 	void free_image(image_entry& e)
 	{
 		if (g.device && e.set) {
-			end_batch();
-		vkDeviceWaitIdle(g.device);
+			flush(); // What was asked to be drawn with it comes first.
+			vkDeviceWaitIdle(g.device);
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &e.set);
 			destroy_image(e.image);
 		}
@@ -1443,8 +1488,8 @@ namespace {
 	void free_texture(texture_entry& t)
 	{
 		if (g.device && t.set) {
-			end_batch();
-		vkDeviceWaitIdle(g.device);
+			flush(); // What was asked to be drawn with it comes first.
+			vkDeviceWaitIdle(g.device);
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
 			destroy_image(t.image);
 		}
@@ -1456,6 +1501,9 @@ namespace {
 	////////////////////////////////////////////////////////////////////////////
 	constexpr VkFormat depth_format = VK_FORMAT_D32_SFLOAT;
 	constexpr uint32_t max_lights   = 8;
+
+	constexpr uint32_t max_scenes   = 64;  // Cameras that can be waiting to be drawn.
+	constexpr uint32_t scene_stride = 512; // Distance between the scene data of each, a multiple of what the GPU wants.
 
 	// What the vertex shader reads as the scene: matches the uniform block in tools/generate_shaders.py.
 	struct scene_data {
@@ -1482,22 +1530,26 @@ namespace {
 		VkBuffer       index_buffer  = VK_NULL_HANDLE;
 		VkDeviceMemory index_memory  = VK_NULL_HANDLE;
 		uint32_t       index_count   = 0;
+		// The buffers stay mapped, and are filled again when the surface changes and nothing waits to use them.
+		void*          vertex_mapped = nullptr;
+		void*          index_mapped  = nullptr;
+		uint32_t       vertex_capacity = 0, index_capacity = 0;
+		uint32_t       used_by_flush   = 0xFFFFFFFFu; // The flush that has draws waiting which use the buffers.
 	};
+
+	uint32_t flush_number = 0; // Counts flushes, to know whether something that waits to be drawn uses a buffer.
 
 	void release_surface_gpu(surface_gpu* gpu)
 	{
 		if (!gpu) {
 			return;
 		}
-		end_batch();
-		vkDeviceWaitIdle(g.device);
+		// Things that were asked to be drawn can still use it, so it is only destroyed once they have been drawn.
 		if (gpu->vertex_buffer) {
-			vkDestroyBuffer(g.device, gpu->vertex_buffer, nullptr);
-			vkFreeMemory(g.device, gpu->vertex_memory, nullptr);
+			graveyard.push({ gpu->vertex_buffer, gpu->vertex_memory });
 		}
 		if (gpu->index_buffer) {
-			vkDestroyBuffer(g.device, gpu->index_buffer, nullptr);
-			vkFreeMemory(g.device, gpu->index_memory, nullptr);
+			graveyard.push({ gpu->index_buffer, gpu->index_memory });
 		}
 		delete gpu;
 	}
@@ -1508,29 +1560,39 @@ namespace {
 		if (!s.dirty && s.gpu) {
 			return static_cast<surface_gpu*>(s.gpu);
 		}
-		release_surface_gpu(static_cast<surface_gpu*>(s.gpu));
-		s.gpu   = nullptr;
-		s.dirty = false;
+		s.dirty       = false;
 		s.bound_valid = false;
+		surface_gpu* gpu = static_cast<surface_gpu*>(s.gpu);
 		if ((s.vertices.size == 0) || (s.indices.size == 0)) {
+			release_surface_gpu(gpu);
+			s.gpu = nullptr;
 			return nullptr;
 		}
 
-		surface_gpu* gpu = new surface_gpu();
-		VkMemoryPropertyFlags host = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-		void* mapped;
-
+		// Changing the contents is only fine if nothing that waits to be drawn looks at the buffers, and they are big enough.
 		VkDeviceSize vsize = VkDeviceSize(s.vertices.size) * sizeof(bb::vertex3d);
-		create_buffer(vsize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, host, gpu->vertex_buffer, gpu->vertex_memory);
-		check(vkMapMemory(g.device, gpu->vertex_memory, 0, vsize, 0, &mapped), "vkMapMemory");
-		memcpy(mapped, s.vertices.data, size_t(vsize));
-		vkUnmapMemory(g.device, gpu->vertex_memory);
-
 		VkDeviceSize isize = VkDeviceSize(s.indices.size) * sizeof(uint32_t);
-		create_buffer(isize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, host, gpu->index_buffer, gpu->index_memory);
-		check(vkMapMemory(g.device, gpu->index_memory, 0, isize, 0, &mapped), "vkMapMemory");
-		memcpy(mapped, s.indices.data, size_t(isize));
-		vkUnmapMemory(g.device, gpu->index_memory);
+		if (gpu && (gpu->used_by_flush != flush_number) && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity)) {
+			memcpy(gpu->vertex_mapped, s.vertices.data, size_t(vsize));
+			memcpy(gpu->index_mapped, s.indices.data, size_t(isize));
+			gpu->index_count = s.indices.size;
+			return gpu;
+		}
+		release_surface_gpu(gpu);
+
+		gpu = new surface_gpu();
+		VkMemoryPropertyFlags host = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
+		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
+		gpu->index_capacity  = s.indices.size + s.indices.size / 4 + 48;
+		create_buffer(VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, host, gpu->vertex_buffer, gpu->vertex_memory);
+		check(vkMapMemory(g.device, gpu->vertex_memory, 0, VK_WHOLE_SIZE, 0, &gpu->vertex_mapped), "vkMapMemory");
+		memcpy(gpu->vertex_mapped, s.vertices.data, size_t(vsize));
+
+		create_buffer(VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, host, gpu->index_buffer, gpu->index_memory);
+		check(vkMapMemory(g.device, gpu->index_memory, 0, VK_WHOLE_SIZE, 0, &gpu->index_mapped), "vkMapMemory");
+		memcpy(gpu->index_mapped, s.indices.data, size_t(isize));
 
 		gpu->index_count = s.indices.size;
 		s.gpu            = gpu;
@@ -1637,7 +1699,7 @@ namespace {
 	void create_3d()
 	{
 		// Scene uniform buffer, with its descriptor set.
-		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
 		set_info.bindingCount                    = 1;
 		set_info.pBindings                       = &binding;
@@ -1649,14 +1711,14 @@ namespace {
 		alloc.pSetLayouts                 = &g.scene_layout;
 		check(vkAllocateDescriptorSets(g.device, &alloc, &g.scene_set), "vkAllocateDescriptorSets");
 
-		create_buffer(sizeof(scene_data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.scene_buffer, g.scene_memory);
+		create_buffer(VkDeviceSize(scene_stride) * max_scenes, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.scene_buffer, g.scene_memory);
 		check(vkMapMemory(g.device, g.scene_memory, 0, VK_WHOLE_SIZE, 0, &g.scene_mapped), "vkMapMemory");
 
 		VkDescriptorBufferInfo buffer_info = { g.scene_buffer, 0, sizeof(scene_data) };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                       = g.scene_set;
 		write.descriptorCount              = 1;
-		write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 		write.pBufferInfo                  = &buffer_info;
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 
@@ -1684,12 +1746,192 @@ namespace {
 		vkDestroyShaderModule(g.device, fs, nullptr);
 	}
 
-	void create_depth(uint32_t width, uint32_t height)
+	// Depth is needed for everything that 3D is drawn to, and each size of target has its own.
+	constexpr uint32_t max_depths = 16;
+	gpu_image          depth_cache[max_depths];
+
+	gpu_image& depth_for(uint32_t width, uint32_t height)
 	{
-		g.depth = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
-		begin_commands();
-		barrier(g.depth.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
-		submit_commands();
+		for (uint32_t i = 0; i < max_depths; i++) {
+			if (depth_cache[i].image && (depth_cache[i].width == width) && (depth_cache[i].height == height)) {
+				return depth_cache[i];
+			}
+		}
+		for (uint32_t i = 0; i < max_depths; i++) {
+			if (!depth_cache[i].image) {
+				depth_cache[i] = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
+				return depth_cache[i];
+			}
+		}
+		fail("Too many different sizes of things are drawn to in 3D.");
+	}
+
+	// A model that waits to be drawn: everything that is needed to draw it later.
+	struct draw_record {
+		entity_push push;
+		VkBuffer    vertex_buffer;
+		VkBuffer    index_buffer;
+		uint32_t    index_count;
+		int         texture; // Handle, 0 for none.
+		VkPipeline  pipeline;
+		bool        cull, depth_test, depth_write;
+	};
+
+	// A camera that waits to draw: the draws it has, and where and how it does so.
+	struct scene_record {
+		uint32_t first_draw, draw_count;
+		uint32_t slot; // Where its scene data is.
+		bool     clear_color, clear_depth;
+		float    color[3];
+		int      x, y, w, h; // Area of the target image that it draws to.
+	};
+
+	// Two parts of buffers that wait to be copied.
+	struct copy_record {
+		int source, destination;
+		int sx, sy, w, h, dx, dy;
+	};
+
+	bb::buffer<draw_record>  draws;
+	bb::buffer<scene_record> scenes;
+	bb::buffer<copy_record>  copies;
+
+	void forget_recorded()
+	{
+		flush_number++; // What was recorded has been drawn, so its buffers can be filled again.
+		draws.clear();
+		scenes.clear();
+		copies.clear();
+	}
+
+	// Draws what a camera had waiting.
+	void record_scene(uint32_t index, int target_handle)
+	{
+		scene_record& scene  = scenes[index];
+		target_ref    target = resolve_target(target_handle);
+		if (!target.image) {
+			return;
+		}
+		gpu_image& depth_image = depth_for(target.image->width, target.image->height);
+
+		// What is sampled has to be readable. What it is drawn to can not be.
+		for (uint32_t i = 0; i < scene.draw_count; i++) {
+			texture_entry* tex = texture_of(draws[scene.first_draw + i].texture);
+			if (tex && tex->set && (tex->image.image != target.image->image)) {
+				transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			}
+		}
+		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		bool fresh_depth = depth_image.layout == VK_IMAGE_LAYOUT_UNDEFINED;
+		if (fresh_depth) {
+			barrier(depth_image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+			depth_image.layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		}
+
+		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		color.imageView                 = target.image->view;
+		color.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		color.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
+		color.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
+		VkRenderingAttachmentInfo depth = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		depth.imageView                 = depth_image.view;
+		depth.imageLayout               = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		depth.loadOp                    = fresh_depth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+		depth.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
+		depth.clearValue.depthStencil   = { 1.0f, 0 };
+
+		VkRenderingInfo info      = { VK_STRUCTURE_TYPE_RENDERING_INFO };
+		info.renderArea           = { { 0, 0 }, { target.image->width, target.image->height } };
+		info.layerCount           = 1;
+		info.colorAttachmentCount = 1;
+		info.pColorAttachments    = &color;
+		info.pDepthAttachment     = &depth;
+		vkCmdBeginRendering(g.cmd, &info);
+
+		VkViewport viewport = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
+		VkRect2D   scissor  = { { scene.x, scene.y }, { uint32_t(scene.w), uint32_t(scene.h) } };
+		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+
+		VkClearRect rect = { scissor, 0, 1 };
+		if (scene.clear_color) {
+			VkClearAttachment clear = {};
+			clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
+			clear.clearValue.color  = { { scene.color[0], scene.color[1], scene.color[2], 1.0f } };
+			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+		}
+		if (scene.clear_depth) {
+			VkClearAttachment clear       = {};
+			clear.aspectMask              = VK_IMAGE_ASPECT_DEPTH_BIT;
+			clear.clearValue.depthStencil = { 1.0f, 0 };
+			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
+		}
+
+		uint32_t scene_offset = scene.slot * scene_stride;
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &g.scene_set, 1, &scene_offset);
+
+		for (uint32_t i = 0; i < scene.draw_count; i++) {
+			draw_record& d = draws[scene.first_draw + i];
+			vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(d.push), &d.push);
+			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.pipeline);
+			vkCmdSetCullMode(g.cmd, d.cull ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_NONE);
+			vkCmdSetDepthTestEnable(g.cmd, d.depth_test ? VK_TRUE : VK_FALSE);
+			vkCmdSetDepthWriteEnable(g.cmd, d.depth_write ? VK_TRUE : VK_FALSE);
+			texture_entry*  tex = texture_of(d.texture);
+			VkDescriptorSet set = (tex && tex->set && (tex->image.image != target.image->image)) ? tex->set : g.sets[TEXTURE_WHITE];
+			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
+
+			VkDeviceSize offset = 0;
+			vkCmdBindVertexBuffers(g.cmd, 0, 1, &d.vertex_buffer, &offset);
+			vkCmdBindIndexBuffer(g.cmd, d.index_buffer, 0, VK_INDEX_TYPE_UINT32);
+			vkCmdDrawIndexed(g.cmd, d.index_count, 1, 0, 0, 0);
+		}
+		vkCmdEndRendering(g.cmd);
+	}
+
+	// Copies a part of a buffer to another.
+	void record_copy(uint32_t index)
+	{
+		copy_record& c    = copies[index];
+		target_ref   from = resolve_target(c.source), to = resolve_target(c.destination);
+		if (!from.image || !to.image) {
+			return;
+		}
+		VkImageLayout previous_from = from.image->layout, previous_to = to.image->layout;
+		if (from.image->image == to.image->image) {
+			// The parts may overlap, so the pixels take a detour through a buffer.
+			VkBufferImageCopy part = {};
+			part.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+			part.imageOffset       = { from.x + c.sx, from.y + c.sy, 0 };
+			part.imageExtent       = { uint32_t(c.w), uint32_t(c.h), 1 };
+			transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			vkCmdCopyImageToBuffer(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, scratch, 1, &part);
+			VkMemoryBarrier2 memory = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
+			memory.srcStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+			memory.srcAccessMask    = VK_ACCESS_2_MEMORY_WRITE_BIT;
+			memory.dstStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+			memory.dstAccessMask    = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+			VkDependencyInfo dep    = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+			dep.memoryBarrierCount  = 1;
+			dep.pMemoryBarriers     = &memory;
+			transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			vkCmdPipelineBarrier2(g.cmd, &dep);
+			part.imageOffset = { to.x + c.dx, to.y + c.dy, 0 };
+			vkCmdCopyBufferToImage(g.cmd, scratch, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &part);
+			transition(*to.image, previous_to);
+			return;
+		}
+		transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		VkImageCopy copy    = {};
+		copy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		copy.srcOffset      = { from.x + c.sx, from.y + c.sy, 0 };
+		copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		copy.dstOffset      = { to.x + c.dx, to.y + c.dy, 0 };
+		copy.extent         = { uint32_t(c.w), uint32_t(c.h), 1 };
+		vkCmdCopyImage(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+		transition(*from.image, previous_from);
+		transition(*to.image, previous_to);
 	}
 
 	// Collects what has to be drawn.
@@ -1913,21 +2155,20 @@ namespace {
 			// Textures with see-through parts cut out what is nearly invisible, so that what is behind it can still be seen.
 			bool cutout = texture && (texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED)) && (blend == 1) && !e->sprite_mode && (item.alpha * paint.alpha >= 0.999f);
 			push.mask[0] = cutout ? 0.4f : 0.0f;
-			vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
-			VkPipeline pipeline = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? g.opaque3d : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
-			vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-			vkCmdSetCullMode(g.cmd, (two_sided || ((e->fx | paint.fx) & 16)) ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
-			vkCmdSetDepthTestEnable(g.cmd, depth_test ? VK_TRUE : VK_FALSE);
-			vkCmdSetDepthWriteEnable(g.cmd, ((surface_blended && !cutout) || !depth_test) ? VK_FALSE : VK_TRUE);
-			VkDescriptorSet set = (texture && texture->set) ? texture->set : g.sets[TEXTURE_WHITE];
-			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
-
-			VkDeviceSize offset = 0;
-			vkCmdBindVertexBuffers(g.cmd, 0, 1, &gpu->vertex_buffer, &offset);
-			vkCmdBindIndexBuffer(g.cmd, gpu->index_buffer, 0, VK_INDEX_TYPE_UINT32);
-			vkCmdDrawIndexed(g.cmd, gpu->index_count, 1, 0, 0, 0);
+			draw_record record;
+			record.push         = push;
+			record.vertex_buffer = gpu->vertex_buffer;
+			record.index_buffer = gpu->index_buffer;
+			record.index_count  = gpu->index_count;
+			record.texture      = (texture && texture->set) ? texture_handle : 0;
+			record.pipeline     = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? g.opaque3d : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
+			record.cull         = !(two_sided || ((e->fx | paint.fx) & 16));
+			record.depth_test   = depth_test;
+			record.depth_write  = ((!surface_blended || cutout) && depth_test);
+			static_cast<surface_gpu*>(surface.gpu)->used_by_flush = flush_number;
+			draws.push(record);
 			g.triangles_drawn += gpu->index_count / 3;
 		}
 	}
@@ -1961,11 +2202,17 @@ namespace {
 
 	void render_camera(int handle, bb::entity& cam, scene_data& data)
 	{
-		gpu_image& target = g.buffers[g.target == front_buffer ? 0 : 1];
+		target_ref target = resolve_target(g.target);
+		if (!target.image) {
+			return;
+		}
 
 		int vx, vy, vw, vh;
-		if (!camera_viewport(cam, int(target.width), int(target.height), vx, vy, vw, vh)) {
+		if (!camera_viewport(cam, target.w, target.h, vx, vy, vw, vh)) {
 			return;
+		}
+		if (scenes.size >= max_scenes) {
+			flush();
 		}
 
 		float world[16], view[16], proj[16];
@@ -1979,7 +2226,10 @@ namespace {
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
 		data.fog[3] = 0;
 		memcpy(data.fog_color, cam.fog_color, sizeof(cam.fog_color));
-		memcpy(g.scene_mapped, &data, sizeof(data));
+
+		scene_record scene = {};
+		scene.slot         = scenes.size;
+		memcpy(static_cast<char*>(g.scene_mapped) + size_t(scene.slot) * scene_stride, &data, sizeof(data));
 
 		draw_list list;
 		mesh_collector collector = { &list, view };
@@ -1988,64 +2238,7 @@ namespace {
 		sort_items(list.blended, false);
 		sort_items(list.front, true);
 
-		begin_commands();
-		bb::buffer<draw_item>* groups[4] = { &list.behind, &list.opaque, &list.blended, &list.front };
-		for (bb::buffer<draw_item>* group : groups) {
-			for (uint32_t i = 0; i < group->size; i++) {
-				bb::entity*    e   = bb::get_entity((*group)[i].handle);
-				texture_entry* tex = e ? texture_of(e->texture) : nullptr;
-				if (tex && tex->set) {
-					transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-				}
-				for (uint32_t surface = 0; e && (surface < e->surfaces.size); surface++) {
-					texture_entry* painted = e->surfaces[surface]->painted ? texture_of(e->surfaces[surface]->paint.texture) : nullptr;
-					if (painted && painted->set) {
-						transition(painted->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-					}
-				}
-			}
-		}
-		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		color.imageView                 = target.view;
-		color.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		color.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
-		color.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-		VkRenderingAttachmentInfo depth = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		depth.imageView                 = g.depth.view;
-		depth.imageLayout               = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-		depth.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
-		depth.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
-
-		VkRenderingInfo info      = { VK_STRUCTURE_TYPE_RENDERING_INFO };
-		info.renderArea           = { { 0, 0 }, { target.width, target.height } };
-		info.layerCount           = 1;
-		info.colorAttachmentCount = 1;
-		info.pColorAttachments    = &color;
-		info.pDepthAttachment     = &depth;
-		vkCmdBeginRendering(g.cmd, &info);
-
-		VkViewport viewport = { float(vx), float(vy), float(vw), float(vh), 0, 1 };
-		VkRect2D   scissor  = { { vx, vy }, { uint32_t(vw), uint32_t(vh) } };
-		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
-		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-
-		VkClearRect rect = { scissor, 0, 1 };
-		if (cam.cam_clear_color) {
-			VkClearAttachment clear = {};
-			clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
-			clear.clearValue.color  = { { cam.cam_color[0], cam.cam_color[1], cam.cam_color[2], 1.0f } };
-			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
-		}
-		if (cam.cam_clear_depth) {
-			VkClearAttachment clear         = {};
-			clear.aspectMask                = VK_IMAGE_ASPECT_DEPTH_BIT;
-			clear.clearValue.depthStencil   = { 1.0f, 0 };
-			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
-		}
-
-		VkDescriptorSet scene_set = g.scene_set;
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &scene_set, 0, nullptr);
-
+		scene.first_draw = draws.size;
 		// Entities with an order are drawn behind or in front of everything, without looking at the depth.
 		for (uint32_t i = 0; i < list.behind.size; i++) {
 			bb::entity* e = bb::get_entity(list.behind[i].handle);
@@ -2061,14 +2254,20 @@ namespace {
 			bb::entity* e = bb::get_entity(list.front[i].handle);
 			draw_entity(list.front[i], e && ((list.front[i].alpha < 0.999f) || (e->blend != 1)), false);
 		}
-		vkCmdEndRendering(g.cmd);
-
-		if (g.target == front_buffer) {
-			present_front(false);
-		} else {
-			submit_commands();
-		}
 		list.release();
+
+		scene.draw_count  = draws.size - scene.first_draw;
+		scene.clear_color = cam.cam_clear_color;
+		scene.clear_depth = cam.cam_clear_depth;
+		memcpy(scene.color, cam.cam_color, sizeof(scene.color));
+		scene.x = target.x + vx;
+		scene.y = target.y + vy;
+		scene.w = vw;
+		scene.h = vh;
+		scenes.push(scene);
+
+		operation& op = add_operation(OP_SCENE, 0, 0);
+		op.first      = scenes.size - 1;
 	}
 
 	struct camera_collector {
@@ -2134,7 +2333,7 @@ void bb_end_graphics(void)
 		return;
 	}
 	if (!g.headless) {
-		end_batch();
+		flush(); // What was asked for is drawn before it all goes away.
 		vkDeviceWaitIdle(g.device);
 		for (int i = 0; i < 2; i++) {
 			destroy_image(g.buffers[i]);
@@ -2149,7 +2348,16 @@ void bb_end_graphics(void)
 				free_image(image_table[i]);
 			}
 		}
-		destroy_image(g.depth);
+		for (uint32_t i = 0; i < max_depths; i++) {
+			destroy_image(depth_cache[i]);
+		}
+		if (scratch) {
+			vkDestroyBuffer(g.device, scratch, nullptr);
+			vkFreeMemory(g.device, scratch_memory, nullptr);
+			scratch = VK_NULL_HANDLE;
+			scratch_size = 0;
+		}
+		empty_graveyard();
 		vkDestroyBuffer(g.device, g.scene_buffer, nullptr);
 		vkFreeMemory(g.device, g.scene_memory, nullptr);
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
@@ -2187,6 +2395,7 @@ void bb_end_graphics(void)
 		SDL_Quit();
 	}
 	free(g.ops);
+	forget_recorded();
 	g = state();
 }
 
@@ -2215,10 +2424,7 @@ void bb_set_buffer(int32_t buffer)
 	if (active() && !resolve_target(buffer).image) {
 		fail("SetBuffer: the buffer does not exist.");
 	}
-	if (buffer != g.target) {
-		flush();
-		g.target = buffer;
-	}
+	g.target = buffer; // What is drawn to it is only recorded for now, each operation knows its buffer.
 }
 
 void bb_app_title(const char* title, const char* close_prompt)
@@ -2232,6 +2438,7 @@ void bb_app_title(const char* title, const char* close_prompt)
 // Flip [vwait]: show what was drawn to the back buffer.
 void bb_flip(int32_t vwait)
 {
+	bb::profile_scope timer(bb::PROFILE_FLIP);
 	if (!active()) {
 		return;
 	}
@@ -2242,12 +2449,19 @@ void bb_flip(int32_t vwait)
 		static int    frames  = 0;
 		if (enabled < 0) {
 			enabled = getenv("BLITZ_FPS") ? 1 : 0;
+			bb::profile_start_sampler();
 		}
 		if (enabled) {
 			frames++;
 			Uint64 now = SDL_GetTicks();
 			if (now - last >= 1000) {
-				fprintf(stderr, "fps: %d\n", frames);
+				fprintf(stderr, "fps: %d, submits: %d, waiting: %.1f ms\n", frames, profile_submits, double(profile_wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
+				for (int i = 0; i < bb::PROFILE_COUNT; i++) {
+					fprintf(stderr, "  %s: %.1f ms\n", bb::profile_names[i], double(bb::profile_ticks[i]) * 1000.0 / double(SDL_GetPerformanceFrequency()));
+					bb::profile_ticks[i] = 0;
+				}
+				profile_submits = 0;
+				profile_wait    = 0;
 				frames = 0;
 				last   = now;
 			}
@@ -3061,7 +3275,7 @@ void bb_resize_image(int32_t handle, int32_t width, int32_t height)
 		target.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		submit_commands();
 
-		end_batch();
+		
 		vkDeviceWaitIdle(g.device);
 		destroy_image(e->image);
 		e->image = target;
@@ -3364,6 +3578,7 @@ void bb_copy_pixel(int32_t sx, int32_t sy, int32_t source, int32_t dx, int32_t d
 // CopyRect source_x, source_y, width, height, destination_x, destination_y [, source buffer] [, destination buffer]
 void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int32_t dy, int32_t source, int32_t destination)
 {
+	bb::profile_scope timer(bb::PROFILE_COPY_RECT);
 	if (!active()) {
 		return;
 	}
@@ -3384,20 +3599,11 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 		return;
 	}
 
-	flush();
-	if (!batch_open) {
-		vkResetCommandBuffer(g.cmd, 0);
-		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
-		batch_open = true;
-	}
-	VkImageLayout previous_from = from.image->layout, previous_to = to.image->layout;
+	// The detour for parts of the same image goes through a buffer that is big enough.
 	if (from.image->image == to.image->image) {
-		// The parts may overlap, so the pixels take a detour through a buffer.
 		VkDeviceSize size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
 		if (size > scratch_size) {
-			end_batch();
+			flush(); // What was recorded may use the old one.
 			vkDeviceWaitIdle(g.device);
 			if (scratch) {
 				vkDestroyBuffer(g.device, scratch, nullptr);
@@ -3405,44 +3611,11 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 			}
 			scratch_size = size > (1u << 20) ? size : (1u << 20);
 			create_buffer(scratch_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, scratch, scratch_memory);
-			vkResetCommandBuffer(g.cmd, 0);
-			VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-			info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
-			batch_open = true;
 		}
-		VkBufferImageCopy part = {};
-		part.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		part.imageOffset       = { from.x + sx, from.y + sy, 0 };
-		part.imageExtent       = { uint32_t(w), uint32_t(h), 1 };
-		transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-		vkCmdCopyImageToBuffer(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, scratch, 1, &part);
-		VkMemoryBarrier2 memory = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
-		memory.srcStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-		memory.srcAccessMask    = VK_ACCESS_2_MEMORY_WRITE_BIT;
-		memory.dstStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-		memory.dstAccessMask    = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
-		VkDependencyInfo dep    = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
-		dep.memoryBarrierCount  = 1;
-		dep.pMemoryBarriers     = &memory;
-		transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		vkCmdPipelineBarrier2(g.cmd, &dep);
-		part.imageOffset = { to.x + dx, to.y + dy, 0 };
-		vkCmdCopyBufferToImage(g.cmd, scratch, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &part);
-		transition(*to.image, previous_to);
-		return;
 	}
-	transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	VkImageCopy copy    = {};
-	copy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	copy.srcOffset      = { from.x + sx, from.y + sy, 0 };
-	copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	copy.dstOffset      = { to.x + dx, to.y + dy, 0 };
-	copy.extent         = { uint32_t(w), uint32_t(h), 1 };
-	vkCmdCopyImage(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-	transition(*from.image, previous_from);
-	transition(*to.image, previous_to);
+	copies.push({ buffer_or_current(source), buffer_or_current(destination), sx, sy, w, h, dx, dy });
+	operation& op = add_operation(OP_COPY, 0, 0);
+	op.first      = copies.size - 1;
 }
 
 // Makes the pixel the color that is drawn with.
@@ -3701,6 +3874,7 @@ float bb_projected_z(void) { return projected[2]; }
 // Whether any part of the entity is in the picture of the camera. Meshes count with a sphere around them.
 int32_t bb_entity_in_view(int32_t entity, int32_t camera)
 {
+	bb::profile_scope timer(bb::PROFILE_IN_VIEW);
 	bb::entity* e = bb::get_entity(entity);
 	if (!e) {
 		bb_runtime_error("EntityInView: the entity does not exist.");
@@ -3822,14 +3996,14 @@ int32_t bb_camera_pick(int32_t camera, float x, float y)
 // RenderWorld: draws everything the cameras see into the current buffer.
 void bb_render_world(float tween)
 {
+	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
 	(void)tween;
 	if (!active()) {
 		return;
 	}
-	if ((g.target != front_buffer) && (g.target != back_buffer)) {
-		fail("RenderWorld can only draw to the front or back buffer.");
+	if (resolve_target(g.target).image && (g.target >= image_buffer_base) && (g.target < texture_buffer_base)) {
+		fail("RenderWorld can not draw to an image, use a texture.");
 	}
-	flush(); // Whatever was drawn before comes first.
 	g.triangles_drawn = 0;
 
 	scene_data data = {};

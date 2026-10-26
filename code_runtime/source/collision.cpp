@@ -14,6 +14,7 @@
 //
 // Picking: finds what is along a line or a ray, for entities that have a pick mode.
 
+#include "profile.hpp"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -732,7 +733,11 @@ int32_t bb_line_pick(float x, float y, float z, float dx, float dy, float dz, fl
 // UpdateWorld: collisions, and what is animated.
 void bb_update_world(float speed)
 {
-	bb_animation_update(speed);
+	{
+		bb::profile_scope timer(bb::PROFILE_ANIMATION);
+		bb_animation_update(speed);
+	}
+	bb::profile_scope timer(bb::PROFILE_UPDATE_WORLD);
 	update_collisions();
 }
 
