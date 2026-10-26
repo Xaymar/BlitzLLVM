@@ -103,4 +103,19 @@ For i = 1 To 5
 Next
 Check "Rand single value", Rand(7, 7), 7
 
+; RndSeed gives the state that the next number is made from, and seeding with it repeats the numbers.
+SeedRnd 77
+CheckTrue "RndSeed after SeedRnd", RndSeed() = 77
+a = Rand(1, 1000)
+CheckTrue "RndSeed moves on", RndSeed() <> 77
+state = RndSeed()
+b = Rand(1, 1000)
+SeedRnd state
+Check "RndSeed repeats", Rand(1, 1000), b
+SeedRnd 0
+CheckTrue "SeedRnd 0 is 1", RndSeed() = 1
+; The numbers are the ones that Blitz makes: 0x1234 is the seed a program starts with.
+SeedRnd 4660
+Check "Blitz Rand", Rand(1, 1000), 356
+
 Done "math"

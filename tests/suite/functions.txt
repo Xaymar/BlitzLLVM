@@ -448,7 +448,7 @@ log	math	done	#Log#float
 log10	math	done	#Log10#float
 rand	math	done	%Rand%from%to=1
 rnd	math	done	#Rnd#from#to=0
-rndseed	math	pending	%RndSeed
+rndseed	math	done	%RndSeed
 seedrnd	math	done	SeedRnd%seed
 sin	math	done	#Sin#degrees
 sqr	math	done	#Sqr#float

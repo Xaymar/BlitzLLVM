@@ -747,29 +747,32 @@ float bb_log10(float v) { return log10f(v); }
 ////////////////////////////////////////////////////////////////////////////////
 // Random
 ////////////////////////////////////////////////////////////////////////////////
-static uint64_t bb_rng = 0x9E3779B97F4A7C15ull;
+// The same generator as the original, so that programs which seed it get the numbers that they get in Blitz.
+static int32_t bb_rng = 0x1234;
 
-static uint64_t bb_rng_next(void)
+static float bb_rng_unit(void)
 {
-	// xorshift64*
-	bb_rng ^= bb_rng >> 12;
-	bb_rng ^= bb_rng << 25;
-	bb_rng ^= bb_rng >> 27;
-	return bb_rng * 0x2545F4914F6CDD1Dull;
+	bb_rng = 48271 * (bb_rng % 44488) - 3399 * (bb_rng / 44488);
+	if (bb_rng < 0) {
+		bb_rng += 2147483647;
+	}
+	return (bb_rng & 65535) / 65536.0f + (0.5f / 65536.0f);
 }
 
 void bb_seed_rnd(int32_t seed)
 {
-	bb_rng = 0x9E3779B97F4A7C15ull ^ ((uint64_t)(uint32_t)seed * 0xBF58476D1CE4E5B9ull);
-	if (bb_rng == 0) {
-		bb_rng = 1;
-	}
+	seed &= 0x7fffffff;
+	bb_rng = seed ? seed : 1;
+}
+
+int32_t bb_rnd_seed(void)
+{
+	return bb_rng;
 }
 
 float bb_rnd(float lo, float hi)
 {
-	double unit = (double)(bb_rng_next() >> 11) / 9007199254740992.0;
-	return (float)((double)lo + unit * ((double)hi - (double)lo));
+	return bb_rng_unit() * (hi - lo) + lo;
 }
 
 int32_t bb_rand(int32_t lo, int32_t hi)
@@ -779,8 +782,7 @@ int32_t bb_rand(int32_t lo, int32_t hi)
 		lo        = hi;
 		hi        = t;
 	}
-	uint64_t span = (uint64_t)((int64_t)hi - (int64_t)lo) + 1;
-	return (int32_t)((int64_t)lo + (int64_t)(bb_rng_next() % span));
+	return (int32_t)(bb_rng_unit() * (float)(hi - lo + 1)) + lo;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

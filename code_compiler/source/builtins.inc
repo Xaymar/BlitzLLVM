@@ -43,6 +43,7 @@
 		{ "rand", "bb_rand", 'i', "ii", 1, { 1 }, true },
 		{ "rnd", "bb_rnd", 'f', "ff", 1, { 0 }, true },
 		{ "seedrnd", "bb_seed_rnd", 'v', "i", 1, {}, false },
+		{ "rndseed", "bb_rnd_seed", 'i', "", 0, {}, false },
 		// Time
 		{ "millisecs", "bb_millisecs", 'i', "", 0, {}, false },
 		{ "delay", "bb_delay", 'v', "i", 1, {}, false },
