@@ -48,6 +48,9 @@ namespace bb {
 		}
 	};
 
+	struct animation;
+	struct skin_data;
+
 	struct vertex3d {
 		float   x, y, z;
 		float   nx, ny, nz;
@@ -66,6 +69,7 @@ namespace bb {
 	};
 
 	struct surface {
+		skin_data* skin = nullptr; // If the vertices are moved by bones, which makes them different for each copy.
 		bool     painted = false;
 		material paint;
 
@@ -123,6 +127,7 @@ namespace bb {
 		float fade_near = 0, fade_far = 0; // Fades out between these distances to the camera, if far is not 0.
 		buffer<surface*> surfaces;
 		terrain_data*    terrain = nullptr;
+		animation*       anim    = nullptr; // Of the top of an animated model, see animation.cpp
 
 		// Camera
 		float cam_near = 1, cam_far = 1000, cam_zoom = 1;
@@ -150,6 +155,17 @@ namespace bb {
 	entity*      get_entity(int handle);
 	void         world_matrix(int handle, float* out);
 	extern float ambient_light[3];
+
+	// For loading models (animation.cpp), which builds entities and surfaces itself.
+	int       create_entity(int kind, int parent);
+	surface*  create_surface(int mesh_handle);
+	void      recalculate_normals(surface* s);
+	void      euler_from_matrix(const float* m, float* euler);
+	void      destroy_animation(animation* a);
+	void      destroy_skin(skin_data* s);
+	skin_data* clone_skin(skin_data const& s);
+	// A copy of the animation for a copy of the model: pairs of what an entity was and is now.
+	animation* clone_animation(animation const& a, buffer<int> const& was, buffer<int> const& now);
 
 	/** Makes the mesh of a terrain match its heights, if they changed. */
 	void update_terrain(entity& e);

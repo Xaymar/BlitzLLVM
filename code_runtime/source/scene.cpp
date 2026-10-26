@@ -178,7 +178,7 @@ namespace {
 	}
 
 	// Pitch, yaw and roll that produce the given rotation matrix (columns are the entity's axes).
-	void euler_from_matrix(const float* m, float* out)
+	void euler_from_matrix_impl(const float* m, float* out)
 	{
 		float x[3] = { m[0], m[1], m[2] }, y[3] = { m[4], m[5], m[6] }, z[3] = { m[8], m[9], m[10] };
 		length_normalize(x);
@@ -203,6 +203,9 @@ namespace {
 			}
 		}
 		bb_release_surface_gpu(s->gpu);
+		if (s->skin) {
+			destroy_skin(s->skin);
+		}
 		s->vertices.release();
 		s->indices.release();
 		delete s;
@@ -235,6 +238,9 @@ namespace {
 			release_surface(e->surfaces[i]);
 		}
 		e->surfaces.release();
+		if (e->anim) {
+			destroy_animation(e->anim);
+		}
 		if (e->terrain) {
 			free(e->terrain->heights);
 			delete e->terrain;
@@ -421,6 +427,26 @@ namespace {
 ////////////////////////////////////////////////////////////////////////////////
 // Shared with the renderer
 ////////////////////////////////////////////////////////////////////////////////
+int bb::create_entity(int kind, int parent)
+{
+	return add_entity(kind, parent);
+}
+
+bb::surface* bb::create_surface(int mesh_handle)
+{
+	return surface_of(new_surface(mesh_handle));
+}
+
+void bb::recalculate_normals(surface* s)
+{
+	update_normals(s);
+}
+
+void bb::euler_from_matrix(const float* m, float* euler)
+{
+	::euler_from_matrix_impl(m, euler);
+}
+
 void bb::mat_identity(float* m)
 {
 	memset(m, 0, sizeof(float) * 16);
@@ -562,12 +588,6 @@ void bb_ambient_light(float r, float g, float b)
 	ambient_light[2] = clamp255(b);
 }
 
-// Called by UpdateWorld (which is in collision.cpp) to advance what is animated.
-void bb_animation_update(float speed)
-{
-	(void)speed;
-}
-
 // Entities
 // For the sound system, which has no business knowing about entities.
 int bb_entity_world_matrix(int32_t handle, float* matrix)
@@ -681,7 +701,7 @@ void bb_rotate_entity(int32_t handle, float pitch, float yaw, float roll, int32_
 			}
 		}
 		mat_multiply(local, inv, rot);
-		euler_from_matrix(local, e->rotation);
+		euler_from_matrix_impl(local, e->rotation);
 		return;
 	}
 	e->rotation[0] = pitch;
@@ -696,7 +716,7 @@ void bb_turn_entity(int32_t handle, float pitch, float yaw, float roll, int32_t 
 		float world[16];
 		world_matrix(handle, world);
 		float current[3];
-		euler_from_matrix(world, current);
+		euler_from_matrix_impl(world, current);
 		bb_rotate_entity(handle, current[0] + pitch, current[1] + yaw, current[2] + roll, 1);
 		return;
 	}
@@ -740,7 +760,7 @@ static float entity_angle(int32_t handle, int axis, int32_t global, const char* 
 	}
 	float world[16], angles[3];
 	world_matrix(handle, world);
-	euler_from_matrix(world, angles);
+	euler_from_matrix_impl(world, angles);
 	return angles[axis];
 }
 
@@ -1168,15 +1188,21 @@ int32_t bb_find_child(int32_t parent, const char* name)
 	return 0;
 }
 
+static buffer<int> copy_was, copy_now;
+
 static int copy_entity(int source, int parent)
 {
 	entity* from = get_entity(source);
 	int     handle = add_entity(from->kind, parent);
 	entity* to     = get_entity(handle);
+	copy_was.push(source);
+	copy_now.push(handle);
 
 	// Everything is copied over, except what owns memory.
 	entity copy = *from;
 	copy.parent = parent;
+	copy.name   = nullptr;
+	copy.anim   = nullptr;
 	copy.terrain = nullptr;
 	if (from->terrain) {
 		copy.terrain          = new terrain_data(*from->terrain);
@@ -1184,24 +1210,41 @@ static int copy_entity(int source, int parent)
 		copy.terrain->heights = static_cast<float*>(malloc(count * sizeof(float)));
 		memcpy(copy.terrain->heights, from->terrain->heights, count * sizeof(float));
 	}
-	copy.name   = nullptr;
 	copy.surfaces.data = nullptr;
 	copy.surfaces.size = copy.surfaces.cap = 0;
+	*to = copy;
 	for (uint32_t i = 0; i < from->surfaces.size; i++) {
-		from->surfaces[i]->refs++; // The copy shares the geometry.
-		copy.surfaces.push(from->surfaces[i]);
+		surface* original = from->surfaces[i];
+		if (original->skin) {
+			// The vertices of a skinned mesh follow the bones of this copy, so they can not be shared.
+			surface* own = create_surface(handle);
+			own->vertices.reserve(original->vertices.size);
+			memcpy(own->vertices.data, original->vertices.data, original->vertices.size * sizeof(vertex3d));
+			own->vertices.size = original->vertices.size;
+			own->indices.reserve(original->indices.size);
+			memcpy(own->indices.data, original->indices.data, original->indices.size * sizeof(uint32_t));
+			own->indices.size = original->indices.size;
+			own->painted = original->painted;
+			own->paint   = original->paint;
+			own->skin    = clone_skin(*original->skin);
+		} else {
+			original->refs++; // Shares the geometry.
+			to->surfaces.push(original);
+		}
 	}
 	if (from->name) {
 		size_t length = strlen(from->name);
-		copy.name     = static_cast<char*>(malloc(length + 1));
-		memcpy(copy.name, from->name, length + 1);
+		to->name      = static_cast<char*>(malloc(length + 1));
+		memcpy(to->name, from->name, length + 1);
 	}
-	*to = copy;
 
 	for (uint32_t i = 0; i < entities.size; i++) {
 		if (entities[i] && (entities[i]->parent == source) && (int(i) + 1 != handle)) {
 			copy_entity(int(i) + 1, handle);
 		}
+	}
+	if (from->anim) {
+		to->anim = clone_animation(*from->anim, copy_was, copy_now);
 	}
 	return handle;
 }
@@ -1212,6 +1255,8 @@ int32_t bb_copy_entity(int32_t handle, int32_t parent)
 	if (parent) {
 		need(parent, "CopyEntity");
 	}
+	copy_was.clear();
+	copy_now.clear();
 	return copy_entity(handle, parent);
 }
 
@@ -1259,7 +1304,7 @@ float bb_delta_yaw(int32_t handle, int32_t target)
 	float me[16], to[16], angles[3];
 	world_matrix(handle, me);
 	world_matrix(target, to);
-	euler_from_matrix(me, angles);
+	euler_from_matrix_impl(me, angles);
 	return wrap_angle(deg(atan2f(to[12] - me[12], to[14] - me[14])) - angles[1]);
 }
 
@@ -1270,7 +1315,7 @@ float bb_delta_pitch(int32_t handle, int32_t target)
 	float me[16], to[16], angles[3];
 	world_matrix(handle, me);
 	world_matrix(target, to);
-	euler_from_matrix(me, angles);
+	euler_from_matrix_impl(me, angles);
 	float d[3] = { to[12] - me[12], to[13] - me[13], to[14] - me[14] };
 	float len  = sqrtf(d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
 	if (len < 1e-9f) {

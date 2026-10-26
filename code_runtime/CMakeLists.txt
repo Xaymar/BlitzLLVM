@@ -111,6 +111,7 @@ target_sources(blitzrt PRIVATE
 	"source/streams.h"
 	"source/graphics.cpp"
 	"source/scene.cpp"
+	"source/animation.cpp"
 	"source/collision.cpp"
 	"source/scene.hpp"
 	"source/font8x8.inc"
