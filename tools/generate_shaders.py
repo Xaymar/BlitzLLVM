@@ -406,7 +406,7 @@ def vertex_shader_3d():
         vec4 params;                 // x: fullbright, y: vertex color, z: vertex alpha, w: shininess
         vec4 uv;                     // Scale (x, y) and offset (z, w) of the texture coordinates.
         vec4 mask;                   // For the fragment shader.
-        vec4 extra;                  // x: whether the second set of texture coordinates is used.
+        vec4 extra;                  // x: whether the second set of texture coordinates is used, y and z: sine and cosine minus one of RotateTexture.
     };
     layout(set = 2, binding = 0) readonly buffer Entities { Entity entities[]; };
     #define entity entities[gl_InstanceIndex]
@@ -555,6 +555,12 @@ def vertex_shader_3d():
     uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
     first_uv, second_uv = b.load(v2, in_uv), b.load(v2, in_uv2)
     chosen_uv = b.fadd(v2, first_uv, b.scale(2, b.fsub(v2, second_uv, first_uv), b.extract(extra, 0)))
+    # RotateTexture turns the coordinates first: extra.y is the sine and extra.z the cosine minus one, so that a texture that is not turned has zeros.
+    sine, cosine = b.extract(extra, 1), b.fadd(f, b.extract(extra, 2), b.const_float(1.0))
+    cu, cv = b.extract(chosen_uv, 0), b.extract(chosen_uv, 1)
+    turned_u = b.fadd(f, b.fmul(f, cosine, cu), b.fmul(f, sine, cv))
+    turned_v = b.fsub(f, b.fmul(f, cosine, cv), b.fmul(f, sine, cu))
+    chosen_uv = b.construct(2, turned_u, turned_v)
     b.store(out_uv, b.fadd(v2, b.fmul(v2, chosen_uv, uv_scale), uv_offset))
     b.store(out_depth, b.extract(clip, 3))  # For the fog, which the fragment shader takes care of.
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]

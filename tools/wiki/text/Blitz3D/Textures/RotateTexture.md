@@ -4,4 +4,4 @@
 Turns the texture coordinates by an absolute angle in degrees. Meant for swirling effects such as smoke.
 @param texture  The texture to turn.
 @param angle    Angle in degrees.
-@gap RotateTexture is accepted and checks that the texture exists, but it does nothing. The texture is never rotated.
+The rotation turns the coordinates around their origin (the corner of the picture) before ScaleTexture and PositionTexture are applied, as in the original.
