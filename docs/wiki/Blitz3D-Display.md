@@ -12,11 +12,11 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 | Command | Returns | Summary |
 |---|---|---|
 | [CountGfxModes3D](Blitz3D-Display#countgfxmodes3d) | Int |  |
-| [GfxDriver3D](Blitz3D-Display#gfxdriver3d) | Int |  |
-| [GfxDriverCaps3D](Blitz3D-Display#gfxdrivercaps3d) | Int |  |
-| [GfxMode3D](Blitz3D-Display#gfxmode3d) | Int |  |
-| [GfxMode3DExists](Blitz3D-Display#gfxmode3dexists) | Int |  |
-| [Graphics3D](Blitz3D-Display#graphics3d) | None |  |
+| [GfxDriver3D](Blitz3D-Display#gfxdriver3d) | Int | Tells whether a graphics driver can draw 3D. |
+| [GfxDriverCaps3D](Blitz3D-Display#gfxdrivercaps3d) | Int | Tells what the 3D driver is able to do. |
+| [GfxMode3D](Blitz3D-Display#gfxmode3d) | Int | Tells whether the given mode from the list of modes can be used for 3D. |
+| [GfxMode3DExists](Blitz3D-Display#gfxmode3dexists) | Int | Asks whether a resolution is available for 3D, before opening it with [Graphics3D](Blitz3D-Display#graphics3d). |
+| [Graphics3D](Blitz3D-Display#graphics3d) | None | Opens the window, or full screen mode, that 3D programs are drawn in. |
 | [Windowed3D](Blitz3D-Display#windowed3d) | Int |  |
 
 ### CountGfxModes3D
@@ -29,6 +29,8 @@ CountGfxModes3D  ; returns Int
 
 _Not documented yet._
 
+**Returns:** How many full screen modes the 3D driver offers. The numbers 1 to this value can be given to [GfxMode3D](Blitz3D-Display#gfxmode3d).
+
 ### GfxDriver3D
 
 ```blitzbasic
@@ -37,11 +39,13 @@ GfxDriver3D driver%  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Tells whether a graphics driver can draw 3D.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `driver` | Int | required |  |
+| `driver` | Int | required | Number of the driver, from 1 to the number that [CountGfxDrivers](BlitzBasic-Display#countgfxdrivers) reports. |
+
+**Returns:** True if the driver can draw 3D pictures.
 
 ### GfxDriverCaps3D
 
@@ -51,7 +55,13 @@ GfxDriverCaps3D  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Tells what the 3D driver is able to do. The result is a version number: 100 means all of the standard Blitz3D features, 110 adds cube environment maps. Graphics3D has to have been called before.
+
+**Returns:** 100 or 110.
+
+**Differences and known gaps:**
+
+* It reports 110, but cube maps are not drawn: the texture flag for them is accepted and ignored.
 
 ### GfxMode3D
 
@@ -61,11 +71,13 @@ GfxMode3D mode%  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Tells whether the given mode from the list of modes can be used for 3D.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mode` | Int | required |  |
+| `mode` | Int | required | Number of the mode, 1 to [CountGfxModes3D](Blitz3D-Display#countgfxmodes3d). |
+
+**Returns:** True if the mode can show 3D.
 
 ### GfxMode3DExists
 
@@ -75,13 +87,32 @@ GfxMode3DExists width%, height%, depth%  ; returns Int
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Asks whether a resolution is available for 3D, before opening it with [Graphics3D](Blitz3D-Display#graphics3d). It lets a game offer only the sizes that work.
+
+```blitzbasic
+If GfxMode3DExists(1024, 768, 32) Then
+	Graphics3D 1024, 768, 32, 1
+Else
+	Graphics3D 640, 480, 0, 2
+EndIf
+SetBuffer BackBuffer()
+camera = CreateCamera()
+RenderWorld
+Flip
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `depth` | Int | required |  |
+| `width` | Int | required | Width in pixels. |
+| `height` | Int | required | Height in pixels. |
+| `depth` | Int | required | Color depth in bits. |
+
+**Returns:** True if a full screen mode of that size can be used.
+
+**Differences and known gaps:**
+
+* Always True, whatever size and depth are asked for: the picture is scaled to the screen.
 
 ### Graphics3D
 
@@ -91,14 +122,39 @@ Graphics3D width%, height%, depth%=0, mode%=0
 
 **Works in:** Blitz3D
 
-_Not documented yet._
+Opens the window, or full screen mode, that 3D programs are drawn in. It has to be the first graphics command of a 3D program: every other 3D command fails until it ran. After it, the back buffer is the target of drawing and you draw one frame at a time with [RenderWorld](Blitz3D-World#renderworld) and [Flip](BlitzBasic-Display#flip).
+
+| Mode | Behavior |
+|---|---|
+| 0 | Window while testing and full screen otherwise. This is the default. |
+| 1 | Full screen. |
+| 2 | Window. |
+| 3 | Window whose size can be changed by the user; the picture is scaled to fit. |
+
+```blitzbasic
+Graphics3D 640, 480, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+cube = CreateCube()
+PositionEntity cube, 0, 0, 5
+
+While Not KeyHit(1)
+	TurnEntity cube, 1, 2, 0
+	RenderWorld
+	Flip
+Wend
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `depth` | Int | `0` |  |
-| `mode` | Int | `0` |  |
+| `width` | Int | required | Width of the picture in pixels. |
+| `height` | Int | required | Height of the picture in pixels. |
+| `depth` | Int | `0` | Color depth: 0 for the best, or 16, 24 or 32. Defaults to 0. |
+| `mode` | Int | `0` | Window or full screen as in the table. Defaults to 0. |
+
+**Differences and known gaps:**
+
+* The depth is not used: pictures always have 32 bits per pixel, however much you ask for.
 
 ### Windowed3D
 
@@ -109,3 +165,5 @@ Windowed3D  ; returns Int
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+**Returns:** True if the 3D picture can be shown in a window, which is the case on every desktop and always here. If it is False the program can only run full screen.
