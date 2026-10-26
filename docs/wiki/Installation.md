@@ -18,6 +18,8 @@ Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) 
 
 3. Optionally add the `bin` directory to your `PATH`.
 
+Tagged releases are published at https://github.com/Xaymar/BlitzLLVM/releases with the same files, see [[Releasing]].
+
 If you built it yourself, `cmake --install` produces the same layout, see [[Building]].
 
 ## Clang
