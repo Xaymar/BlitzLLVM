@@ -20,6 +20,7 @@
 #include <vector>
 #include "ast/ast.hpp"
 #include "error.hpp"
+#include "keywords.hpp"
 
 // Compiling requires several steps
 // 1. Lexing to known tokens (lexer.hpp)
@@ -128,6 +129,12 @@ namespace blitz {
 		/** Whether this is a debug build, where Stop breaks into the debugger. */
 		bool debug = false;
 
+		/** Functions of the userlibs that the program may call, set before generating. */
+		std::vector<blitz::keywords::user_function> userlibs;
+
+		/** Libraries (as named by the .lib directive) of the userlib functions that the program called, set by generating. */
+		std::set<std::string> userlibs_used;
+
 		/** Generate LLVM IR for the given program. Throws blitz::error on failure. */
 		std::string generate(ast::program const& program);
 
@@ -189,6 +196,8 @@ namespace blitz {
 		value gen_reference(ast::reference const* node);
 		value gen_call(ast::call const* node);
 		value gen_builtin(ast::call const* node, bool& handled);
+		value gen_userlib(ast::call const* node, bool& handled);
+		blitz::keywords::user_function const* find_userlib(std::string const& key) const;
 		value gen_unary(ast::unary const* node);
 		value gen_binary(ast::binary const* node);
 		value gen_field(ast::field_access const* node);

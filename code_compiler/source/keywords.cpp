@@ -85,6 +85,7 @@ namespace {
 		buffer << in.rdbuf();
 		decls_reader r{ buffer.str() };
 		bool         have_lib = false;
+		std::string  lib;
 
 		r.next();
 		while (r.curr) {
@@ -99,13 +100,16 @@ namespace {
 					throw std::runtime_error("expecting string after lib directive");
 				}
 				have_lib = true;
+				lib      = r.word;
 				r.next();
 			} else if (r.curr == -1) {
 				if (!have_lib) {
 					throw std::runtime_error("function decl without lib directive");
 				}
 				blitz::keywords::user_function fn;
-				fn.name = r.word;
+				fn.name   = r.word;
+				fn.lib    = lib;
+				fn.symbol = r.word;
 				if (!seen.insert(blitz::compiler_detail::lower(fn.name)).second) {
 					throw std::runtime_error("duplicate identifier");
 				}
@@ -141,6 +145,7 @@ namespace {
 					if (r.curr != -1 && r.curr != -2) {
 						throw std::runtime_error("expecting identifier or string after alias");
 					}
+					fn.symbol = r.word;
 					r.next();
 				}
 				into.push_back(std::move(fn));

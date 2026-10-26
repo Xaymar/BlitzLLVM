@@ -86,7 +86,7 @@ blitz::compiler::value blitz::compiler::gen_reference(ast::reference const* node
 
 	// Not a variable: a function can be called without parenthesis.
 	auto key = lower(node->name);
-	if (_functions.count(key) || find_builtin(key) || (key == "int") || (key == "float") || (key == "str")) {
+	if (_functions.count(key) || find_builtin(key) || find_userlib(key) || (key == "int") || (key == "float") || (key == "str")) {
 		ast::call fake;
 		fake.where = node->where;
 		fake.name  = node->name;
@@ -197,6 +197,86 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 	return call_runtime(entry->symbol, builtin_type(entry->ret), values);
 }
 
+blitz::keywords::user_function const* blitz::compiler::find_userlib(std::string const& key) const
+{
+	for (auto const& fn : userlibs) {
+		if (lower(fn.name) == key) {
+			return &fn;
+		}
+	}
+	return nullptr;
+}
+
+// A function that a .decls file declares, called with the C calling convention. Strings are passed as C strings, banks as the
+// address of their memory and objects as the address of the object. A returned string is copied, as the library may reuse it.
+blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool& handled)
+{
+	auto entry = find_userlib(lower(node->name));
+	handled    = (entry != nullptr);
+	if (!entry) {
+		return {};
+	}
+	auto args = node->arguments.size();
+	if (args != entry->params.size()) {
+		throw err(node->where, "Function '" + node->name + "' expects " + std::to_string(entry->params.size()) + " arguments, got " + std::to_string(args) + ".");
+	}
+	userlibs_used.insert(entry->lib);
+
+	// The decorated name of 32 bit Windows stdcall (_Name@8) is not what the library exports with the C calling convention.
+	std::string symbol = entry->symbol;
+	if (auto at = symbol.rfind('@'); (at != std::string::npos) && (at > 0) && (symbol.find_first_not_of("0123456789", at + 1) == std::string::npos)) {
+		symbol.erase(at);
+		if (!symbol.empty() && (symbol[0] == '_')) {
+			symbol.erase(0, 1);
+		}
+	}
+
+	std::vector<value> values;
+	for (size_t idx = 0; idx < args; idx++) {
+		auto const& expr = node->arguments[idx];
+		auto        v    = gen(expr.get());
+		switch (entry->params[idx].second) {
+		case 'p':
+			if (v.type == type::STRUCT) {
+				values.push_back(v);
+			} else {
+				v = convert(v, type::INT32, expr->where, true);
+				values.push_back(call_runtime("bb_bank_pointer", type::STRUCT, { v }));
+			}
+			break;
+		case 'f':
+			values.push_back(convert(v, type::FLOAT32, expr->where, true));
+			break;
+		case 's':
+			values.push_back(convert(v, type::STRING, expr->where, false));
+			break;
+		default:
+			values.push_back(convert(v, type::INT32, expr->where, true));
+			break;
+		}
+	}
+
+	std::string params, list;
+	for (size_t idx = 0; idx < values.size(); idx++) {
+		auto llvm_type = blitz::types::to_llvm(values[idx].type);
+		params += (idx ? ", " : "") + llvm_type;
+		list += (idx ? ", " : "") + llvm_type + " " + values[idx].repr;
+	}
+	auto ret = (entry->ret == 'i') ? type::INT32 : (entry->ret == 'f') ? type::FLOAT32 : (entry->ret == 's') ? type::STRING : type::UNKNOWN;
+	declare("lib." + symbol, "declare " + blitz::types::to_llvm(ret) + " @\"" + symbol + "\"(" + params + ")");
+	if (ret == type::UNKNOWN) {
+		emit("call void @\"" + symbol + "\"(" + list + ")");
+		return { "", type::UNKNOWN };
+	}
+	auto r = tmp();
+	emit(r + " = call " + blitz::types::to_llvm(ret) + " @\"" + symbol + "\"(" + list + ")");
+	if (ret == type::STRING) {
+		auto copy = call_runtime("bb_str_dup", type::STRING, { { r, type::STRING } });
+		return copy;
+	}
+	return { r, ret };
+}
+
 blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 {
 	auto key = lower(node->name);
@@ -209,6 +289,10 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 	if (it == _functions.end()) {
 		bool handled;
 		auto result = gen_builtin(node, handled);
+		if (handled) {
+			return result;
+		}
+		result = gen_userlib(node, handled);
 		if (handled) {
 			return result;
 		}

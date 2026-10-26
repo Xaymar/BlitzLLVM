@@ -127,7 +127,7 @@ namespace {
 				  << "  --llvm-arg <arg>      Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times.\n"
 				  << "  --cc <path>           Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'.\n"
 				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler, then '../lib/blitzllvm/runtime'.\n"
-				  << "  --userlibs-dir <dir>  Where the userlibs (*.decls) to list with -k and +k are. Defaults to 'userlibs' next to 'bin', then '../share/blitzllvm/userlibs'.\n"
+				  << "  --userlibs-dir <dir>  Where the userlibs (*.decls) to list with -k and +k are. Defaults to $BLITZLLVM_USERLIBS, then 'userlibs' next to 'bin', next to the compiler, then '../share/blitzllvm/userlibs'.\n"
 				  << "  --keep-temps          Don't delete the intermediate files.\n"
 				  << "  --dump-tokens         Only print the tokens of the input file, for debugging the lexer.\n"
 				  << "  --verbose             Print the commands that are run.\n"
@@ -271,16 +271,40 @@ namespace {
 		return true;
 	}
 
-	// The 'userlibs' directory of the installation: <prefix>/userlibs for the portable layout, <prefix>/share/blitzllvm/userlibs for packages.
+	// The 'userlibs' directory: --userlibs-dir, else the environment variable BLITZLLVM_USERLIBS, else the one of the installation, which
+	// is <prefix>/userlibs (portable layout, with the compiler in <prefix>/bin), next to the compiler (<prefix>/userlibs for a flat zip) or
+	// <prefix>/share/blitzllvm/userlibs for packages.
 	std::filesystem::path find_userlibs(options const& opt)
 	{
 		if (!opt.userlibs_dir.empty()) {
 			return opt.userlibs_dir;
 		}
+		if (const char* env = std::getenv("BLITZLLVM_USERLIBS"); env && *env) {
+			return env;
+		}
 		auto bin_dir = executable_path().parent_path();
-		for (auto const& candidate : { bin_dir / ".." / "userlibs", bin_dir / ".." / "share" / "blitzllvm" / "userlibs" }) {
+		for (auto const& candidate : { bin_dir / ".." / "userlibs", bin_dir / "userlibs", bin_dir / ".." / "share" / "blitzllvm" / "userlibs" }) {
 			if (std::filesystem::is_directory(candidate)) {
 				return std::filesystem::weakly_canonical(candidate);
+			}
+		}
+		return {};
+	}
+
+	// The file of a library that a .decls file names, which is a .dll for the original. The same name with the extension of the platform
+	// (and 'lib' in front) is used too, so one .decls file works everywhere.
+	std::filesystem::path find_userlib_file(std::filesystem::path const& dir, std::string const& name)
+	{
+		std::filesystem::path stem = std::filesystem::path(name).stem();
+		std::vector<std::filesystem::path> candidates{ dir / name };
+		for (auto const* ext : { ".so", ".dylib", ".dll", ".a", ".lib" }) {
+			candidates.push_back(dir / (stem.string() + ext));
+			candidates.push_back(dir / ("lib" + stem.string() + ext));
+		}
+		for (auto const& candidate : candidates) {
+			std::error_code ec;
+			if (std::filesystem::is_regular_file(candidate, ec)) {
+				return std::filesystem::absolute(candidate);
 			}
 		}
 		return {};
@@ -348,6 +372,8 @@ int main(int argc, char** argv)
 		}
 		blitz::compiler compiler;
 		compiler.debug = opt.debug;
+		auto userlibs_dir = find_userlibs(opt);
+		compiler.userlibs = blitz::keywords::load_userlibs(userlibs_dir);
 		std::string     ir = compiler.generate(*program);
 
 		// Compile only checks the program, like the original, where -o still creates the executable.
@@ -425,6 +451,18 @@ int main(int argc, char** argv)
 			throw std::runtime_error("No runtime libraries found in '" + runtime_dir.generic_string() + "', use --runtime-dir.");
 		}
 
+		// The libraries of the userlib functions that the program calls.
+		std::vector<std::string> userlib_files;
+		std::vector<std::string> userlib_dirs;
+		for (auto const& name : compiler.userlibs_used) {
+			auto file = find_userlib_file(userlibs_dir, name);
+			if (file.empty()) {
+				throw std::runtime_error("The library '" + name + "' of the userlibs was not found in '" + userlibs_dir.generic_string() + "'.");
+			}
+			userlib_files.push_back(file.generic_string());
+			userlib_dirs.push_back(file.parent_path().generic_string());
+		}
+
 		std::string cc = opt.cc;
 		if (cc.empty()) {
 			const char* env = std::getenv("BLITZLLVM_CC");
@@ -448,11 +486,19 @@ int main(int argc, char** argv)
 		if (grouped) {
 			command.push_back("-Wl,--start-group");
 		}
+		for (auto const& lib : userlib_files) {
+			command.push_back(lib);
+		}
 		for (auto const& lib : libraries) {
 			command.push_back(lib);
 		}
 		if (grouped) {
 			command.push_back("-Wl,--end-group");
+		}
+		if (!windows_target) {
+			for (auto const& dir : userlib_dirs) {
+				command.push_back("-Wl,-rpath," + dir); // Shared libraries are found again when the program is run.
+			}
 		}
 		command.push_back("-o");
 		command.push_back(opt.output.generic_string());
@@ -484,6 +530,12 @@ int main(int argc, char** argv)
 			if (!opt.very_quiet) {
 				std::cout << "Executing..." << std::endl;
 			}
+			// Shared libraries of the userlibs are found by the loader of Windows through the path.
+#if defined(_WIN32)
+			for (auto const& dir : userlib_dirs) {
+				_putenv_s("PATH", (dir + ";" + (std::getenv("PATH") ? std::getenv("PATH") : "")).c_str());
+			}
+#endif
 			// Like the original, the program runs in the directory of the source file.
 			std::vector<std::string> program{ opt.output.generic_string() };
 			program.insert(program.end(), opt.run_args.begin(), opt.run_args.end());

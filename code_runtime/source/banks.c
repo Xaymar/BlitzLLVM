@@ -92,6 +92,12 @@ uint8_t* bb_bank_data(int32_t handle, int32_t* size)
 	return bank->data;
 }
 
+// The address of the memory of a bank, for the functions of userlibs. Zero is no bank, and gives NULL.
+uint8_t* bb_bank_pointer(int32_t handle)
+{
+	return handle ? bb_bank_get(handle, "Userlib function")->data : NULL;
+}
+
 void bb_free_bank(int32_t handle)
 {
 	bb_bank* bank = bb_bank_get(handle, "FreeBank");
