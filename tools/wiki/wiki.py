@@ -216,6 +216,22 @@ def category_page(dialect, category, cmds):
     return "\n".join(out)
 
 
+def sidebar(cats):
+    """The GitHub wiki shows _Sidebar.md next to every page. Dialects and categories fold open with <details>, so the
+    sidebar stays short until a submenu is opened. The lists are HTML because Markdown does not render inside them."""
+    out = ['<a href="Home">Home</a> · <a href="Command-Index">Command Index</a>', "", "<hr>", ""]
+    for dialect in DIALECT_ORDER:
+        out.append('<details><summary><b><a href="%s">%s</a></b></summary>' % (dialect, dialect))
+        for category in sorted(cats[dialect]):
+            cmds = sorted(cats[dialect][category], key=lambda c: c.key)
+            out.append('<details><summary><a href="%s">%s</a> (%d)</summary>' % (cmds[0].page, category, len(cmds)))
+            out.append("<ul>" + "".join('<li><a href="%s">%s</a></li>' % (c.name, c.name) for c in cmds) + "</ul>")
+            out.append("</details>")
+        out.append("</details>")
+        out.append("")
+    return "\n".join(out)
+
+
 def build(commands):
     cats = collections.defaultdict(lambda: collections.defaultdict(list))
     for c in commands:
@@ -240,6 +256,7 @@ def build(commands):
     for fn in sorted(os.listdir(PAGES)):
         with open(os.path.join(PAGES, fn), encoding="utf-8") as f:
             write(fn[:-3], re.sub(r"^;(media .*|run)\n", "", COPYRIGHT.sub("", f.read()), flags=re.M))
+    write("_Sidebar", sidebar(cats))
     out = ["# Command Index\n", "Every command from A to Z. See [Home](Home) to browse by dialect and category.\n"]
     letters = collections.defaultdict(list)
     for c in sorted(commands, key=lambda c: c.key):
