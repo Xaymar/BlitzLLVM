@@ -1864,6 +1864,14 @@ namespace {
 			}
 			fullbright = true;
 			two_sided  = true;
+		} else if (e->sprite_mode == 2) {
+			// Fixed sprites keep the orientation of their entity, but are still sized by ScaleSprite.
+			for (int axis = 0; axis < 3; axis++) {
+				m[0 + axis] *= e->sprite_scale[0];
+				m[4 + axis] *= e->sprite_scale[1];
+			}
+			fullbright = true;
+			two_sided  = true;
 		}
 
 		entity_push push = {};
@@ -2454,14 +2462,16 @@ void bb_flush_mouse(void)
 	g.mouse_dx = g.mouse_dy = g.mouse_dz = 0;
 }
 
+static int32_t mouse_ref_x = 0, mouse_ref_y = 0; // Where the mouse was when its speed was asked for last.
+
 // How far the mouse moved since the last time this was asked.
 int32_t bb_mouse_x_speed(void)
 {
 	if (active()) {
 		pump();
 	}
-	int32_t v  = int32_t(g.mouse_dx);
-	g.mouse_dx -= float(v);
+	int32_t v    = g.mouse_x - mouse_ref_x; // Moving the mouse with MoveMouse is not speed.
+	mouse_ref_x = g.mouse_x;
 	return v;
 }
 
@@ -2470,8 +2480,8 @@ int32_t bb_mouse_y_speed(void)
 	if (active()) {
 		pump();
 	}
-	int32_t v  = int32_t(g.mouse_dy);
-	g.mouse_dy -= float(v);
+	int32_t v    = g.mouse_y - mouse_ref_y; // Moving the mouse with MoveMouse is not speed.
+	mouse_ref_y = g.mouse_y;
 	return v;
 }
 
@@ -2503,6 +2513,8 @@ void bb_move_mouse(int32_t x, int32_t y)
 	SDL_WarpMouseInWindow(g.window, float(x) * float(ww) / float(g.width), float(y) * float(wh) / float(g.height));
 	g.mouse_x = x;
 	g.mouse_y = y;
+	mouse_ref_x = x;
+	mouse_ref_y = y;
 }
 
 void bb_hide_pointer(void)
