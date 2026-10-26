@@ -1,0 +1,142 @@
+## TFormPoint
+Converts a point from the coordinate system of one entity to that of another. Every entity has its own space with its origin at the entity's position, and the axes turned and scaled with it. The world is the space of entity 0. The converted point is stored and read back with [TFormedX](Blitz3D-Transforms#tformedx), [TFormedY](Blitz3D-Transforms#tformedy) and [TFormedZ](Blitz3D-Transforms#tformedz).
+
+Use it to find where something attached to an entity is in the world, for example the muzzle of a gun, or to turn a world position into one that is relative to a door or an elevator.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+
+; A pivot at x=10, turned 90 degrees and twice as big as normal.
+ship = CreatePivot()
+PositionEntity ship, 10, 0, 0
+RotateEntity ship, 0, 90, 0
+ScaleEntity ship, 2, 2, 2
+
+; The point one unit in front of the ship, in the world.
+TFormPoint 0, 0, 1, ship, 0
+Text 8, 8, "World: " + TFormedX() + ", " + TFormedY() + ", " + TFormedZ()
+
+; And the world position 12, 0, 0 as seen from the ship.
+TFormPoint 12, 0, 0, 0, ship
+Text 8, 24, "Local: " + TFormedX() + ", " + TFormedY() + ", " + TFormedZ()
+Flip
+WaitKey
+```
+@param x  X of the point in the source space.
+@param y  Y of the point in the source space.
+@param z  Z of the point in the source space.
+@param source_entity  Entity whose space the point is in, or 0 for the world.
+@param dest_entity  Entity whose space the result should be in, or 0 for the world.
+
+## TFormVector
+Converts a direction from one space to another. Unlike [TFormPoint](Blitz3D-Transforms#tformpoint) the position of the entities is ignored: only their rotation and scale are used, so a vector of length 1 turns into a longer one when the source entity is scaled. Read the result with [TFormedX](Blitz3D-Transforms#tformedx), [TFormedY](Blitz3D-Transforms#tformedy) and [TFormedZ](Blitz3D-Transforms#tformedz).
+
+It is the right tool to find which way an entity moves when you push it forward: convert 0, 0, 1 from the entity to the world.
+@param x  X of the vector in the source space.
+@param y  Y of the vector in the source space.
+@param z  Z of the vector in the source space.
+@param source_entity  Entity whose space the vector is in, or 0 for the world.
+@param dest_entity  Entity whose space the result should be in, or 0 for the world.
+
+## TFormNormal
+Converts a surface normal from one space to another, and makes the result exactly 1 unit long again. Where TFormVector would stretch a direction with the scale of the entity, a normal keeps its length, which is what lighting and bouncing calculations need. The result is read back with [TFormedX](Blitz3D-Transforms#tformedx), [TFormedY](Blitz3D-Transforms#tformedy) and [TFormedZ](Blitz3D-Transforms#tformedz).
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+
+ramp = CreateCube()
+RotateEntity ramp, 0, 0, 30
+ScaleEntity ramp, 4, 1, 1
+
+; The top of the cube points up in its own space; in the world it is tilted.
+TFormNormal 0, 1, 0, ramp, 0
+Text 8, 8, "Top normal: " + TFormedX() + ", " + TFormedY() + ", " + TFormedZ()
+Flip
+WaitKey
+```
+@param x  X of the normal in the source space.
+@param y  Y of the normal in the source space.
+@param z  Z of the normal in the source space.
+@param source_entity  Entity whose space the normal is in, or 0 for the world.
+@param dest_entity  Entity whose space the result should be in, or 0 for the world.
+
+## TFormedX
+@returns The X of the result of the last [TFormPoint](Blitz3D-Transforms#tformpoint), [TFormVector](Blitz3D-Transforms#tformvector) or [TFormNormal](Blitz3D-Transforms#tformnormal).
+
+## TFormedY
+@returns The Y of the result of the last [TFormPoint](Blitz3D-Transforms#tformpoint), [TFormVector](Blitz3D-Transforms#tformvector) or [TFormNormal](Blitz3D-Transforms#tformnormal).
+
+## TFormedZ
+@returns The Z of the result of the last [TFormPoint](Blitz3D-Transforms#tformpoint), [TFormVector](Blitz3D-Transforms#tformvector) or [TFormNormal](Blitz3D-Transforms#tformnormal).
+
+## DeltaYaw
+Tells you how far an entity has to turn around its vertical axis to look at another entity. The result is in degrees, between -180 and 180. A positive angle is a turn to the left, as with [EntityYaw](Blitz3D-Entities#entityyaw), so adding the result to the current yaw makes the entity face the target. It only looks at the horizontal direction; the height difference is covered by [DeltaPitch](Blitz3D-Transforms#deltapitch).
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+
+turret = CreatePivot()
+target = CreatePivot()
+PositionEntity target, 5, 0, 5
+
+; The target is up front and to the right, so the turret turns right by 45 degrees (-45).
+TurnEntity turret, DeltaPitch(turret, target), DeltaYaw(turret, target), 0
+Text 8, 8, "Yaw: " + EntityYaw(turret) + "  Pitch: " + EntityPitch(turret)
+Flip
+WaitKey
+```
+@param src_entity  The entity that should turn.
+@param dest_entity  The entity it should look at.
+@returns The turn needed, in degrees.
+
+## DeltaPitch
+Tells you how far an entity has to tilt around its sideways axis to look at another entity. The result is in degrees, between -180 and 180. A positive angle looks down, as with [EntityPitch](Blitz3D-Entities#entitypitch), so a target above the entity gives a negative number.
+@param src_entity  The entity that should tilt.
+@param dest_entity  The entity it should look at.
+@returns The tilt needed, in degrees.
+
+## VectorYaw
+Finds the yaw angle that an entity would need to point along a direction. The direction 0, 0, 1 gives 0, and the angle grows to the left, so 1, 0, 0 gives -90 and -1, 0, 0 gives 90. The result is the same as [EntityYaw](Blitz3D-Entities#entityyaw) of an entity pointing that way. The height of the vector does not matter.
+@param x  X of the direction.
+@param y  Y of the direction.
+@param z  Z of the direction.
+@returns The yaw angle in degrees.
+
+## VectorPitch
+Finds the pitch angle that an entity would need to point along a direction. 0, 0, 1 gives 0, 0, -1, 1 gives 45 (looking down) and 0, 1, 1 gives -45 (looking up). Together with [VectorYaw](Blitz3D-Transforms#vectoryaw) it turns a movement or a difference of two positions into a rotation.
+@param x  X of the direction.
+@param y  Y of the direction.
+@param z  Z of the direction.
+@returns The pitch angle in degrees.
+
+## ProjectedX
+Gives the horizontal screen position of the point that the last [CameraProject](Blitz3D-Cameras#cameraproject) looked at, in pixels from the left edge of the screen.
+
+```blitzbasic
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+ball = CreateSphere()
+PositionEntity ball, 1, 0.5, 5
+
+; Draw a label next to the ball in 2D.
+CameraProject camera, EntityX(ball), EntityY(ball), EntityZ(ball)
+RenderWorld
+Text ProjectedX() + 20, ProjectedY(), "Ball"
+Flip
+WaitKey
+```
+@returns The X position in pixels.
+@gap The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane. Here X and Y are -1000000 for a point behind the camera, so that it is obviously off the screen.
+
+## ProjectedY
+Gives the vertical screen position of the point that the last [CameraProject](Blitz3D-Cameras#cameraproject) looked at, in pixels from the top edge of the screen.
+@returns The Y position in pixels.
+
+## ProjectedZ
+Tells how far in front of the camera the point of the last [CameraProject](Blitz3D-Cameras#cameraproject) is. It is meant to tell you whether the point is visible at all, since a point behind the camera gives a screen position that would be drawn in the wrong place.
+@returns The distance of the point in front of the camera. Negative for points behind it.
+@gap In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible. Here it is the real distance in front of the camera, which is negative or 0 for points that can not be seen.
