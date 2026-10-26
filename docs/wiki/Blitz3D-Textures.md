@@ -39,10 +39,6 @@ ClearTextureFilters
 
 Removes every rule that was added with [TextureFilter](Blitz3D-Textures#texturefilter). Textures loaded after this call only get the flags you pass.
 
-**Differences and known gaps:**
-
-* Because the default rule is not installed here, there is nothing to restore after a graphics mode change, as the original does.
-
 ### CreateTexture
 
 ```blitzbasic
@@ -116,7 +112,6 @@ WaitKey
 **Differences and known gaps:**
 
 * Only flags 2, 4, 16 and 32 change how the texture looks. Mipmapping (8), environment maps (64 and 128), video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering and no mipmaps.
-* The frames argument is accepted, but the texture always has a single frame.
 * The alpha (2) and masked (4) flags are only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, including where you drew black.
 
 ### FreeTexture
@@ -127,7 +122,7 @@ FreeTexture texture%
 
 **Works in:** Blitz3D
 
-Releases a texture and its memory. In the original, entities that were already painted with the texture keep showing it; only the handle becomes unusable. Do not use the handle itself after freeing it.
+Releases a texture and its memory. Entities and brushes that were already painted with the texture keep showing it; only the handle becomes unusable, and the image goes away once nothing uses it any more. Do not use the handle itself after freeing it.
 
 Textures are also freed by [ClearWorld](Blitz3D-World#clearworld) and when the program ends, but freeing the ones you no longer need keeps memory use down.
 
@@ -137,7 +132,7 @@ Textures are also freed by [ClearWorld](Blitz3D-World#clearworld) and when the p
 
 **Differences and known gaps:**
 
-* After FreeTexture the image is really gone: entities and brushes that used the texture are drawn plain white instead of keeping it. Free a texture only when nothing uses it any more.
+* [ActiveTextures](Blitz3D-World#activetextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
 
 ### LoadAnimTexture
 
@@ -201,7 +196,6 @@ Next
 
 **Differences and known gaps:**
 
-* Frame sizes or counts that do not fit into the picture stop the program with a runtime error here. The original does not check this and only returns 0 when the file cannot be loaded.
 * TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
 
 ### LoadTexture
@@ -258,7 +252,6 @@ WaitKey
 
 **Differences and known gaps:**
 
-* The built-in default filter of the original, `TextureFilter "", 1 + 8`, is not installed, so loaded textures only have the flags you pass or that a filter you added contributes.
 * Mipmapping , environment map, video memory, high color and point sampling flags are stored but have no effect, see CreateTexture.
 
 ### PositionTexture
@@ -496,11 +489,7 @@ Remember to set the buffer back to [BackBuffer](BlitzBasic-Buffers-and-Pixels#ba
 | `texture` | Int | required | The texture. |
 | `frame` | Int | `0` | Frame of an animated texture. Defaults to 0. |
 
-**Returns:** A buffer handle for SetBuffer, SaveBuffer, CopyRect and the pixel commands.
-
-**Differences and known gaps:**
-
-* The frame argument is ignored. The buffer always covers the whole texture, which for a LoadAnimTexture sheet means all frames together.
+**Returns:** A buffer handle for SetBuffer, SaveBuffer, CopyRect and the pixel commands. Every frame has its own buffer; a frame that the texture does not have gives 0.
 
 ### TextureCoords
 
@@ -529,7 +518,7 @@ TextureFilter match_text$, texture_flags%=0
 
 **Works in:** Blitz3D
 
-Adds a rule: every texture loaded afterwards whose file name contains the given text gets the extra flags. The test ignores upper and lower case, an empty text matches every file, and the rules add up, so a file that matches several rules gets all of their flags. The rules are only applied by [LoadTexture](Blitz3D-Textures#loadtexture), [LoadAnimTexture](Blitz3D-Textures#loadanimtexture), brushes and mesh loading, and they do not change textures that already exist. [ClearTextureFilters](Blitz3D-Textures#cleartexturefilters) removes them all.
+Adds a rule: every texture loaded afterwards whose file name contains the given text gets the extra flags. The test ignores upper and lower case, an empty text matches every file, and the rules add up, so a file that matches several rules gets all of their flags. The rules are only applied by [LoadTexture](Blitz3D-Textures#loadtexture), [LoadAnimTexture](Blitz3D-Textures#loadanimtexture), brushes and mesh loading, and they do not change textures that already exist. [ClearTextureFilters](Blitz3D-Textures#cleartexturefilters) removes them all. At the start, and again every time a graphics mode is opened with Graphics or Graphics3D, there is one rule that matches every file and adds the flags 1 + 8 (color and mipmaps), and it replaces the rules you added before.
 
 This is mostly useful when loading a mesh, since you do not choose the flags of the textures it pulls in. A rule such as `TextureFilter "_alpha", 1 + 2` makes every file with `_alpha` in its name an alpha texture.
 
@@ -537,10 +526,6 @@ This is mostly useful when loading a mesh, since you do not choose the flags of 
 |---|---|---|---|
 | `match_text` | String | required | Text to look for in the file name. |
 | `texture_flags` | Int | `0` |  |
-
-**Differences and known gaps:**
-
-* The original starts with the rule `TextureFilter "", 1 + 8`. That rule is not present here.
 
 ### TextureHeight
 
@@ -572,11 +557,11 @@ Tells you which file the texture was loaded from, which is handy after loading a
 |---|---|---|---|
 | `texture` | Int | required | The texture. |
 
-**Returns:** The file name, as it was given when the texture was loaded.
+**Returns:** The full path of the file, without any `.` or `..` parts.
 
 **Differences and known gaps:**
 
-* The original returns the absolute path of the file. Here the name comes back exactly as it was passed to LoadTexture.
+* The original turns the path into lower case. The case is kept here, since file names matter on Linux.
 
 ### TextureWidth
 

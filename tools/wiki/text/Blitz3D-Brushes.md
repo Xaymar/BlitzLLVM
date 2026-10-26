@@ -82,7 +82,6 @@ Chooses how painted surfaces are mixed with what is already on the screen: 1 alp
 Switches extra effects on or off with a sum of flags: 1 full-bright (no lighting), 2 vertex colors replace the brush color, 4 flat shading, 8 no fog, 16 no back-face culling, so both sides of a triangle are drawn. A value of 0 removes all effects.
 @param brush  The brush.
 @param fx     Sum of the flags above.
-@gap Full-bright (1) and double-sided (16) work. Flat shading (4) and fog disabling (8) are stored but do not change the picture. Vertex colors are always used when a mesh has them, with or without flag 2.
 
 ## BrushTexture
 Puts a texture on one of the layers of the brush. Layer 0 is the base texture, further layers are blended on top of it using [TextureBlend](Blitz3D-Textures#textureblend). For a texture from [LoadAnimTexture](Blitz3D-Textures#loadanimtexture) the frame chooses the cell to show.
@@ -127,8 +126,8 @@ WaitKey
 Returns the texture on one layer of the brush, or 0 if there is none. Combine it with [TextureName](Blitz3D-Textures#texturename) to find out which file a painted surface uses.
 @param brush  The brush.
 @param index  Layer number, 0 to 7. Defaults to 0.
-@returns A texture handle, or 0.
-@gap The original makes a new texture handle that you have to free. Here you get the handle of the very texture that is on the brush, so do not call FreeTexture on it unless you want it gone for everything that uses it.
+@returns A new handle for the texture of that layer, or 0. Free it separately when you no longer need it; the brush keeps its texture.
+@gap A layer without a texture gives 0. The original hands out a handle to an empty texture instead.
 
 ## GetEntityBrush
 Makes a new brush that has the same look as an entity: its color, alpha, shininess, blend mode, effects and textures. Free the brush with [FreeBrush](Blitz3D-Brushes#freebrush) when you no longer need it.

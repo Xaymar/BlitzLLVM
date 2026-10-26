@@ -94,7 +94,6 @@ WaitKey
 @param dz      How far the line goes along Z.
 @param radius  Thickness of the line. Defaults to 0.
 @returns The entity found, or 0.
-@gap The radius widens the line only against entities that are picked as a sphere. Against polygon and box picking it behaves like a line of no thickness, whereas the original also thickens those.
 
 ## EntityPick
 Looks straight ahead along the entity's own Z axis, as far as the range, and returns the first pickable entity. The entity itself is never found. Use it for shots fired from a gun entity or for "what am I facing" checks. The range is multiplied by the entity's Z scale, so a scaled entity looks proportionally further.
