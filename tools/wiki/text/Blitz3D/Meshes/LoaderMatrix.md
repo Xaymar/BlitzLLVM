@@ -12,4 +12,4 @@ Sets a 3x3 matrix that is applied to every model loaded from files with a certai
 @param zx        Matrix value, row 3, column 1.
 @param zy        Matrix value, row 3, column 2.
 @param zz        Matrix value, row 3, column 3.
-@gap The matrix is remembered but never used. Since only `.b3d` files can be loaded, and those are not changed by it in the original either, there is no visible effect yet.
+@gap The matrix is remembered but never used. `.3ds` files always get Y and Z swapped, the default, and `.x` files can not be loaded.

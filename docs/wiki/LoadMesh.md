@@ -12,7 +12,7 @@ LoadMesh file$, parent%=0  ; returns Int
 
 **Works in:** Blitz3D
 
-Loads a model from a file as one mesh entity. Any hierarchy and animation in the file is thrown away and the whole model is merged into a single mesh, which is what you want for scenery and props. The original reads `.b3d`, `.x` and `.3ds`. The mesh is made at the origin even with a `parent`. If the file cannot be found the result is 0, so check it.
+Loads a model from a file as one mesh entity. Any hierarchy and animation in the file is thrown away and the whole model is merged into a single mesh, which is what you want for scenery and props. The original reads `.b3d`, `.x` and `.3ds`; here `.b3d` and `.3ds` files work. The mesh is made at the origin even with a `parent`. If the file cannot be found the result is 0, so check it.
 
 Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to move on their own.
 
@@ -25,7 +25,7 @@ Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to 
 
 **Differences and known gaps:**
 
-* Only `.b3d` files can be loaded. `.x` and `.3ds` files are not read, so the result is 0.
+* Only `.b3d` and `.3ds` files can be loaded. `.x` files are not read, so the result is 0. The 3D Studio loader is described in [Differences](Differences#3d-studio-models).
 
 ## Related commands
 
