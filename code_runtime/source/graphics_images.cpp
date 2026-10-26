@@ -816,4 +816,13 @@ int32_t bb_load_buffer(int32_t buffer, const char* file)
 	free(scaled);
 	return 1;
 }
+
+int32_t bb_live_images(void)
+{
+	int32_t count = 0;
+	for (uint32_t i = 0; i < image_table.size; i++) {
+		count += image_table[i].used ? 1 : 0;
+	}
+	return count;
+}
 }

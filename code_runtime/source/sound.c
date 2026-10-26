@@ -155,6 +155,15 @@ static int32_t bb_load(const char* path, int is_3d)
 	return bb_sound_count++;
 }
 
+int32_t bb_live_sounds(void)
+{
+	int32_t count = 0;
+	for (int32_t i = 1; i < bb_sound_count; i++) {
+		count += bb_sounds[i].used ? 1 : 0;
+	}
+	return count;
+}
+
 int32_t bb_load_sound(const char* path)
 {
 	return bb_load(path, 0);

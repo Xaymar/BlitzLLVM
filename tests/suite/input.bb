@@ -5,7 +5,7 @@
 ; Keyboard, mouse and joystick: KeyDown KeyHit GetKey WaitKey FlushKeys MouseDown MouseHit GetMouse MouseX MouseY
 ; MouseZ MouseXSpeed MouseYSpeed MouseZSpeed FlushMouse MoveMouse GetJoy FlushJoy HidePointer ShowPointer WaitMouse
 ; MouseWait KeyWait WaitJoy JoyWait JoyType JoyDown JoyHit JoyX JoyY JoyZ JoyU JoyV JoyPitch JoyYaw JoyRoll JoyHat JoyXDir
-; JoyYDir JoyZDir JoyUDir JoyVDir EnableDirectInput DirectInputEnabled. Nobody
+; JoyYDir JoyZDir JoyUDir JoyVDir EnableDirectInput DirectInputEnabled SetPointer. Nobody
 ; presses anything during an automatic test, so this is about what is reported when nothing happens and that the
 ; functions can be called. Pressing keys is covered by the programs in tests/ that people run themselves.
 Include "check.bb"
@@ -116,6 +116,13 @@ EndIf
 Check "JoyType port 9", JoyType(9), 0
 Check "JoyX port 9", JoyX(9), 0
 Check "WaitJoy port 9", WaitJoy(9), 0
+
+; The shape of the pointer can be set, and the pointer hidden.
+For pointer = 0 To 6
+	SetPointer pointer
+Next
+SetPointer 1
+suite_checks = suite_checks + 1
 
 ; DirectInput can be turned off and on.
 EnableDirectInput False

@@ -538,31 +538,63 @@ int32_t bb_read_dir(const char* path)
 	return bb_stream_add(stream);
 }
 
+// The name of the next entry of a directory, to be freed, or nothing if that was the last. MoreFiles looks at it before
+// NextFile gives it, so it waits in the user data of the stream until then.
+static char* bb_dir_advance(bb_stream* stream)
+{
+	if (stream->user) {
+		char* name   = (char*)stream->user;
+		stream->user = NULL;
+		return name;
+	}
+#if defined(_WIN32)
+	bb_find_data* data = (bb_find_data*)stream->dir_data;
+	if (stream->dir_first) {
+		stream->dir_first = 0;
+		return _strdup(data->name);
+	}
+	if (FindNextFileA(stream->dir_handle, data)) {
+		return _strdup(data->name);
+	}
+	return NULL;
+#else
+	struct dirent* entry = readdir((DIR*)stream->dir_handle);
+	return entry ? strdup(entry->d_name) : NULL;
+#endif
+}
+
 const char* bb_next_file(int32_t handle)
 {
 	bb_stream* stream = bb_stream_get(handle, "NextFile");
 	if (stream->kind != BB_STREAM_DIR) {
 		bb_runtime_error("NextFile: this is not a directory.");
 	}
-#if defined(_WIN32)
-	bb_find_data* data = (bb_find_data*)stream->dir_data;
-	if (stream->dir_first) {
-		stream->dir_first = 0;
-		return bb_copy(data->name, strlen(data->name));
+	char* name = bb_dir_advance(stream);
+	if (!name) {
+		return bb_copy("", 0);
 	}
-	if (FindNextFileA(stream->dir_handle, data)) {
-		return bb_copy(data->name, strlen(data->name));
+	const char* result = bb_copy(name, strlen(name));
+	free(name);
+	return result;
+}
+
+// Whether there is another entry in the directory for NextFile to give.
+int32_t bb_more_files(int32_t handle)
+{
+	bb_stream* stream = bb_stream_get(handle, "MoreFiles");
+	if (stream->kind != BB_STREAM_DIR) {
+		bb_runtime_error("MoreFiles: this is not a directory.");
 	}
-	return bb_copy("", 0);
-#else
-	struct dirent* entry = readdir((DIR*)stream->dir_handle);
-	return entry ? bb_copy(entry->d_name, strlen(entry->d_name)) : bb_copy("", 0);
-#endif
+	if (!stream->user) {
+		stream->user = bb_dir_advance(stream);
+	}
+	return stream->user ? 1 : 0;
 }
 
 void bb_close_dir(int32_t handle)
 {
 	bb_stream* stream = bb_stream_get(handle, "CloseDir");
+	free(stream->user);
 #if defined(_WIN32)
 	FindClose(stream->dir_handle);
 	free(stream->dir_data);
@@ -631,6 +663,32 @@ int32_t bb_create_bank(int32_t size)
 	bb_banks[handle].data = data;
 	bb_banks[handle].size = size;
 	return handle;
+}
+
+int32_t bb_live_banks(void)
+{
+	int32_t count = 0;
+	for (int32_t i = 1; i < bb_bank_count; i++) {
+		count += bb_banks[i].data ? 1 : 0;
+	}
+	return count;
+}
+
+int32_t bb_live_streams(void)
+{
+	int32_t count = 0;
+	for (int32_t i = 1; i < bb_stream_count; i++) {
+		count += (bb_streams[i].kind != BB_STREAM_NONE) ? 1 : 0;
+	}
+	return count;
+}
+
+// For the code that gives access to the memory of a bank, like the pixels of a buffer that is locked.
+uint8_t* bb_bank_data(int32_t handle, int32_t* size)
+{
+	bb_bank* bank = bb_bank_get(handle, "Bank");
+	*size         = bank->size;
+	return bank->data;
 }
 
 void bb_free_bank(int32_t handle)

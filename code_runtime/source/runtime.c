@@ -843,6 +843,7 @@ typedef struct bb_timer {
 	double  resumed;   // When it last started running.
 	int     paused;
 	int64_t delivered; // Ticks that WaitTimer has given out.
+	int64_t announced; // Ticks that an event was made for.
 } bb_timer;
 
 static bb_timer* bb_timers      = NULL;
@@ -936,6 +937,37 @@ void bb_reset_timer(int32_t handle)
 	timer->elapsed   = 0;
 	timer->resumed   = bb_seconds();
 	timer->delivered = 0;
+	timer->announced = 0;
+}
+
+// Tells the events about the timers that ticked since they were looked at last.
+void bb_timers_poll(void (*post)(int32_t timer, int32_t ticks))
+{
+	for (int32_t handle = 1; handle < bb_timer_count; handle++) {
+		bb_timer* timer = &bb_timers[handle];
+		if (!timer->used || timer->paused) {
+			continue;
+		}
+		int64_t ticks = bb_timer_ticks(timer);
+		if (ticks > timer->announced) {
+			timer->announced = ticks;
+			post(handle, (int32_t)ticks);
+		}
+	}
+}
+
+int32_t bb_live_timers(void)
+{
+	int32_t count = 0;
+	for (int32_t handle = 1; handle < bb_timer_count; handle++) {
+		count += bb_timers[handle].used ? 1 : 0;
+	}
+	return count;
+}
+
+int32_t bb_live_objects(void)
+{
+	return bb_objects_live;
 }
 
 void bb_pause_timer(int32_t handle)

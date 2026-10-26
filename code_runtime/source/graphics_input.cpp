@@ -47,6 +47,13 @@ namespace bb::gfx {
 		return (button == SDL_BUTTON_LEFT) ? 1 : ((button == SDL_BUTTON_RIGHT) ? 2 : ((button == SDL_BUTTON_MIDDLE) ? 3 : 0));
 	}
 
+	// Which of shift (1), control (2) and alt (4) are held, as events say.
+	static int event_modifiers()
+	{
+		SDL_Keymod mods = SDL_GetModState();
+		return ((mods & SDL_KMOD_SHIFT) ? 1 : 0) | ((mods & SDL_KMOD_CTRL) ? 2 : 0) | ((mods & SDL_KMOD_ALT) ? 4 : 0);
+	}
+
 	void pump()
 	{
 		SDL_Event event;
@@ -54,8 +61,24 @@ namespace bb::gfx {
 			switch (event.type) {
 			case SDL_EVENT_QUIT:
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+				if (bb_events_used()) {
+					bb_event_post(0x803, 0, 0, 0, 0, 0); // A program that asked for events is told instead.
+					break;
+				}
 				fflush(stdout);
 				exit(0); // Closing the window ends the program, like in Blitz.
+			case SDL_EVENT_WINDOW_FOCUS_LOST:
+				bb_event_post(0x2001, 0, 0, 0, 0, 0);
+				break;
+			case SDL_EVENT_WINDOW_FOCUS_GAINED:
+				bb_event_post(0x2002, 0, 0, 0, 0, 0);
+				break;
+			case SDL_EVENT_WINDOW_MOUSE_ENTER:
+				bb_event_post(0x205, 0, g.mouse_x, g.mouse_y, 0, 0);
+				break;
+			case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+				bb_event_post(0x206, 0, 0, 0, 0, 0);
+				break;
 			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 				g.resized = true;
 				break;
@@ -66,6 +89,13 @@ namespace bb::gfx {
 						g.key_hits[key] = true;
 					}
 					g.keys[key] = true;
+					// A key with modifiers can be an event of its own, which is all that happens for it then.
+					bool modifier = (event.key.scancode == SDL_SCANCODE_LSHIFT) || (event.key.scancode == SDL_SCANCODE_RSHIFT)
+					             || (event.key.scancode == SDL_SCANCODE_LCTRL) || (event.key.scancode == SDL_SCANCODE_RCTRL)
+					             || (event.key.scancode == SDL_SCANCODE_LALT) || (event.key.scancode == SDL_SCANCODE_RALT);
+					if (!event.key.repeat && !(modifier || bb_event_hotkey(key, event_modifiers()))) {
+						bb_event_post(0x101, key, 0, 0, 0, 0);
+					}
 				}
 				// Keys that don't type a character, but still give one.
 				int special = 0;
@@ -116,11 +146,13 @@ namespace bb::gfx {
 			case SDL_EVENT_MOUSE_WHEEL:
 				g.mouse_dz += event.wheel.y;
 				g.mouse_z += int(event.wheel.y);
+				bb_event_post(0x204, int(event.wheel.y), g.mouse_x, g.mouse_y, 0, 0);
 				break;
 			case SDL_EVENT_KEY_UP: {
 				int key = blitz_key(event.key.scancode);
 				if (key) {
 					g.keys[key] = false;
+					bb_event_post(0x102, key, 0, 0, 0, 0);
 				}
 				break;
 			}
@@ -140,6 +172,7 @@ namespace bb::gfx {
 				}
 				g.mouse_dx += dx;
 				g.mouse_dy += dy;
+				bb_event_post(0x203, 0, g.mouse_x, g.mouse_y, 0, 0);
 				break;
 			}
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: {
@@ -147,6 +180,7 @@ namespace bb::gfx {
 				if (b) {
 					g.mouse[b]      = true;
 					g.mouse_hits[b] = true;
+					bb_event_post(0x201, b, g.mouse_x, g.mouse_y, event_modifiers(), 0);
 					g.mouse_queue[g.mouse_tail] = b;
 					g.mouse_tail = (g.mouse_tail + 1) % 16;
 					if (g.mouse_tail == g.mouse_head) {
@@ -159,6 +193,7 @@ namespace bb::gfx {
 				int b = button_index(event.button.button);
 				if (b) {
 					g.mouse[b] = false;
+					bb_event_post(0x202, b, g.mouse_x, g.mouse_y, event_modifiers(), 0);
 				}
 				break;
 			}
@@ -184,6 +219,7 @@ namespace bb::gfx {
 
 	void push_key(int code)
 	{
+		bb_event_post(0x103, code, 0, 0, 0, 0);
 		g.key_queue[g.key_tail] = code;
 		g.key_tail              = (g.key_tail + 1) % 64;
 		if (g.key_tail == g.key_head) {
@@ -425,5 +461,30 @@ int32_t bb_wait_mouse(void)
 		}
 		SDL_Delay(5);
 	}
+}
+
+// SetPointer id: 0 hides the pointer, 1 is the arrow, 2 waiting, 3 to the sides, 4 up and down, 5 across and 6 a cross.
+void bb_set_pointer(int32_t id, int32_t canvas)
+{
+	(void)canvas;
+	if (!active()) {
+		return;
+	}
+	static SDL_Cursor* cursors[7];
+	static const SDL_SystemCursor kinds[7] = { SDL_SYSTEM_CURSOR_DEFAULT, SDL_SYSTEM_CURSOR_DEFAULT, SDL_SYSTEM_CURSOR_WAIT, SDL_SYSTEM_CURSOR_EW_RESIZE, SDL_SYSTEM_CURSOR_NS_RESIZE, SDL_SYSTEM_CURSOR_NWSE_RESIZE, SDL_SYSTEM_CURSOR_CROSSHAIR };
+	if ((id < 0) || (id > 6)) {
+		bb_runtime_error("SetPointer: there is no such pointer.");
+	}
+	if (id == 0) {
+		SDL_HideCursor();
+		return;
+	}
+	if (!cursors[id]) {
+		cursors[id] = SDL_CreateSystemCursor(kinds[id]);
+	}
+	if (cursors[id]) {
+		SDL_SetCursor(cursors[id]);
+	}
+	SDL_ShowCursor();
 }
 }

@@ -422,4 +422,13 @@ int32_t bb_screen_print(const char* s, int32_t newline)
 	g.view_h = vh;
 	return 1;
 }
+
+int32_t bb_live_fonts(void)
+{
+	int32_t count = 0;
+	for (uint32_t i = 0; i < font_table.size; i++) {
+		count += font_table[i].used ? 1 : 0;
+	}
+	return count;
+}
 }

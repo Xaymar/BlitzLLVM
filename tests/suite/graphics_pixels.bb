@@ -6,7 +6,7 @@
 ; Oval Text Cls ClsColor ReadPixel WritePixel ReadPixelFast WritePixelFast CopyPixel CopyPixelFast CopyRect GetColor
 ; LockBuffer UnlockBuffer DrawImage DrawImageRect DrawBlock DrawBlockRect TileBlock GrabImage SaveBuffer SaveImage
 ; FrontBuffer Flip Origin Viewport Locate Print Write ImagesCollide ImageRectCollide ImageRectOverlap TileImage CopyImage
-; ScaleImage RotateImage LoadBuffer.
+; ScaleImage RotateImage LoadBuffer LockedPixels LockedPitch LockedFormat.
 Include "check.bb"
 
 If GetEnv$("BLITZ_HEADLESS") <> "" Then
@@ -418,6 +418,32 @@ Check "LoadBuffer image lower right", Px(23, 23), $FFFF00
 FreeImage target
 FreeImage picture
 DeleteFile "suite_loadbuffer.bmp"
+
+; BlitzPlus gives the pixels of a locked buffer as a bank, with 4 bytes for each pixel, blue first. What is done to the
+; bank is in the buffer once it is unlocked.
+SetBuffer BackBuffer()
+ClsColor 0, 0, 0
+Cls
+Color 255, 0, 0
+Plot 3, 2
+LockBuffer BackBuffer()
+pixels = LockedPixels(BackBuffer())
+CheckTrue "LockedPixels", pixels <> 0
+pitch = LockedPitch(BackBuffer())
+Check "LockedPitch", pitch, 160 * 4
+Check "LockedFormat", LockedFormat(BackBuffer()), 4
+Check "LockedPixels size", BankSize(pixels), 160 * 120 * 4
+at = 2 * pitch + 3 * 4
+Check "LockedPixels blue", PeekByte(pixels, at), 0
+Check "LockedPixels green", PeekByte(pixels, at + 1), 0
+Check "LockedPixels red", PeekByte(pixels, at + 2), 255
+Check "LockedPixels the same bank again", LockedPixels(BackBuffer()), pixels
+PokeByte pixels, at + 1, 255
+PokeByte pixels, 5 * pitch + 7 * 4, 255
+UnlockBuffer BackBuffer()
+Check "LockedPixels changes show: yellow", Px(3, 2), $FFFF00
+Check "LockedPixels changes show: blue", Px(7, 5), BLUE
+Check "LockedPixels leaves the rest", Px(0, 0), BLACK
 
 ; Print and Write show their text in the window, on the front buffer, from where Locate put the cursor.
 SetBuffer FrontBuffer()

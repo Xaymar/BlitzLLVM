@@ -349,4 +349,13 @@ void bb_set_cube_face(int32_t handle, int32_t face)
 	(void)face;
 	need_texture(handle, "SetCubeFace"); // Cube maps are not supported.
 }
+
+int32_t bb_live_textures(void)
+{
+	int32_t count = 0;
+	for (uint32_t i = 0; i < texture_table.size; i++) {
+		count += texture_table[i].used ? 1 : 0;
+	}
+	return count;
+}
 }

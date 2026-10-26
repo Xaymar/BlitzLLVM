@@ -81,6 +81,20 @@ void bb_unlock_buffer(int32_t buffer)
 	if (!l) {
 		return;
 	}
+	if (l->bank) {
+		// What the program did to the bank is what the buffer gets.
+		int32_t  size;
+		uint8_t* data   = bb_bank_data(l->bank, &size);
+		size_t   count  = size_t(l->region.w) * size_t(l->region.h);
+		for (size_t i = 0; i < count && (i * 4 + 3 < size_t(size)); i++) {
+			l->pixels[i * 4 + 0] = data[i * 4 + 2];
+			l->pixels[i * 4 + 1] = data[i * 4 + 1];
+			l->pixels[i * 4 + 2] = data[i * 4 + 0];
+			l->pixels[i * 4 + 3] = 255;
+		}
+		bb_free_bank(l->bank);
+		l->changed = true;
+	}
 	if (l->changed) {
 		flush();
 		target_ref target = resolve_target(buffer);
@@ -237,5 +251,56 @@ int32_t bb_color_red(void)
 int32_t bb_color_green(void)
 {
 	return g.color[1];
+}
+
+// BlitzPlus gives the pixels of a locked buffer as a bank: 4 bytes for each pixel, blue first, one row after the other.
+// What is done to the bank is written to the buffer when it is unlocked.
+int32_t bb_locked_pixels(int32_t buffer)
+{
+	if (!active()) {
+		return 0;
+	}
+	locked_buffer* l = find_lock(buffer_or_current(buffer));
+	if (!l) {
+		bb_runtime_error("Buffer is not locked");
+	}
+	if (!l->bank) {
+		size_t  count = size_t(l->region.w) * size_t(l->region.h);
+		int32_t bank  = bb_create_bank(int32_t(count * 4));
+		int32_t size;
+		uint8_t* data = bb_bank_data(bank, &size);
+		for (size_t i = 0; i < count; i++) {
+			data[i * 4 + 0] = l->pixels[i * 4 + 2];
+			data[i * 4 + 1] = l->pixels[i * 4 + 1];
+			data[i * 4 + 2] = l->pixels[i * 4 + 0];
+			data[i * 4 + 3] = 255;
+		}
+		l->bank = bank;
+	}
+	return l->bank;
+}
+
+int32_t bb_locked_pitch(int32_t buffer)
+{
+	if (!active()) {
+		return 0;
+	}
+	locked_buffer* l = find_lock(buffer_or_current(buffer));
+	if (!l) {
+		bb_runtime_error("Buffer is not locked");
+	}
+	return l->region.w * 4;
+}
+
+// 4 is what BlitzPlus calls 32 bits with nothing in the last byte.
+int32_t bb_locked_format(int32_t buffer)
+{
+	if (!active()) {
+		return 0;
+	}
+	if (!find_lock(buffer_or_current(buffer))) {
+		bb_runtime_error("Buffer is not locked");
+	}
+	return 4;
 }
 }

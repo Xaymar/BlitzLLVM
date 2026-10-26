@@ -23,6 +23,12 @@
 #include "font8x8.inc"
 
 extern "C" {
+void bb_event_post(int32_t kind, int32_t data, int32_t x, int32_t y, int32_t z, int32_t source);
+int32_t bb_events_used(void);
+int32_t bb_event_hotkey(int32_t scan, int32_t mods);
+int32_t bb_create_bank(int32_t size);
+void bb_free_bank(int32_t handle);
+uint8_t* bb_bank_data(int32_t handle, int32_t* size);
 void bb_runtime_error(const char* message);
 void bb_sound_update(void);
 int32_t bb_line_pick(float x, float y, float z, float dx, float dy, float dz, float radius);
@@ -498,6 +504,7 @@ namespace bb::gfx {
 		target_ref region;
 		uint8_t*   pixels  = nullptr;
 		bool       changed = false;
+		int        bank    = 0; // The bank that LockedPixels made, which has the pixels the way BlitzPlus has them.
 	};
 
 	// Shared state
