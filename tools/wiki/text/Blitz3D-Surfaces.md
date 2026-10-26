@@ -250,7 +250,7 @@ Wend
 @param index    Index of the vertex, from 0.
 
 ## VertexColor
-Sets the color of a vertex and its alpha. The color is blended smoothly across each triangle between its three vertices, which gives gradients and cheap baked lighting. It is multiplied with the entity color. Colors go from 0 to 255 and the alpha from 0, invisible, to 1, solid. Alpha per vertex needs `EntityFX 32` on the entity in the original.
+Sets the color of a vertex and its alpha. The color is blended smoothly across each triangle between its three vertices, which gives gradients and cheap baked lighting. It is multiplied with the entity color. Colors go from 0 to 255 and the alpha from 0, invisible, to 1, solid. The values can be floats and are kept exactly, instead of being rounded to whole numbers. Alpha per vertex needs `EntityFX 32` on the entity in the original.
 
 ```blitzbasic
 ;media still blitz3d/vertexcolor.png
@@ -283,17 +283,17 @@ WaitKey
 @param alpha    Opacity, 0 to 1. Defaults to 1.
 
 ## VertexRed
-@returns The red part of the vertex color, 0 to 255.
+@returns The red part of the vertex color, 0 to 255, with the fractions that were set.
 @param surface  Surface handle.
 @param index    Index of the vertex, from 0.
 
 ## VertexGreen
-@returns The green part of the vertex color, 0 to 255.
+@returns The green part of the vertex color, 0 to 255, with the fractions that were set.
 @param surface  Surface handle.
 @param index    Index of the vertex, from 0.
 
 ## VertexBlue
-@returns The blue part of the vertex color, 0 to 255.
+@returns The blue part of the vertex color, 0 to 255, with the fractions that were set.
 @param surface  Surface handle.
 @param index    Index of the vertex, from 0.
 

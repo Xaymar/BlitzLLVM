@@ -16,7 +16,7 @@ Back to [[Home]] or the [[Command-Index]].
 | [Brushes](Blitz3D-Brushes) | 12 | Reusable material settings applied to meshes, surfaces and entities. |
 | [Cameras](Blitz3D-Cameras) | 11 | Camera range, viewport, fog and projection. |
 | [Collisions](Blitz3D-Collisions) | 19 | Collision types, responses and results. |
-| [Display](Blitz3D-Display) | 7 | Opening 3D modes and querying driver capabilities. |
+| [Display](Blitz3D-Display) | 9 | Opening 3D modes and querying driver capabilities. |
 | [Entities](Blitz3D-Entities) | 39 | Creating, moving, scaling and querying entities. |
 | [Lights](Blitz3D-Lights) | 5 | Light types, color, range and cone angles. |
 | [Meshes](Blitz3D-Meshes) | 23 | Creating, loading, transforming and querying meshes. |

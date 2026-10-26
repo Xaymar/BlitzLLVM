@@ -66,7 +66,7 @@ namespace bb {
 		float   x, y, z;
 		float   nx, ny, nz;
 		float   u, v;
-		uint8_t r, g, b, a;
+		float   r, g, b, a; // 0 to 1, so colors are not rounded to steps of 1/255.
 		float   u2, v2; // The second set of texture coordinates, for textures that ask for it.
 	};
 

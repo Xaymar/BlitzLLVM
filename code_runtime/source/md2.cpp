@@ -411,7 +411,7 @@ int32_t bb_load_md2(const char* file, int32_t parent)
 		v.v        = d->uvs[uint32_t(i) * 2 + 1];
 		v.u2       = v.u;
 		v.v2       = v.v;
-		v.r = v.g = v.b = v.a = 255;
+		v.r = v.g = v.b = v.a = 1;
 		s->vertices.push(v);
 	}
 	for (uint32_t i = 0; i < d->indices.size; i++) {

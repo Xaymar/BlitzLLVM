@@ -391,7 +391,7 @@ _Not documented yet._
 | `surface` | Int | required | Surface handle. |
 | `index` | Int | required | Index of the vertex, from 0. |
 
-**Returns:** The blue part of the vertex color, 0 to 255.
+**Returns:** The blue part of the vertex color, 0 to 255, with the fractions that were set.
 
 ### VertexColor
 
@@ -401,7 +401,7 @@ VertexColor surface%, index%, red#, green#, blue#, alpha#=1
 
 **Works in:** Blitz3D
 
-Sets the color of a vertex and its alpha. The color is blended smoothly across each triangle between its three vertices, which gives gradients and cheap baked lighting. It is multiplied with the entity color. Colors go from 0 to 255 and the alpha from 0, invisible, to 1, solid. Alpha per vertex needs `EntityFX 32` on the entity in the original.
+Sets the color of a vertex and its alpha. The color is blended smoothly across each triangle between its three vertices, which gives gradients and cheap baked lighting. It is multiplied with the entity color. Colors go from 0 to 255 and the alpha from 0, invisible, to 1, solid. The values can be floats and are kept exactly, instead of being rounded to whole numbers. Alpha per vertex needs `EntityFX 32` on the entity in the original.
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -505,7 +505,7 @@ _Not documented yet._
 | `surface` | Int | required | Surface handle. |
 | `index` | Int | required | Index of the vertex, from 0. |
 
-**Returns:** The green part of the vertex color, 0 to 255.
+**Returns:** The green part of the vertex color, 0 to 255, with the fractions that were set.
 
 ### VertexNormal
 
@@ -591,7 +591,7 @@ _Not documented yet._
 | `surface` | Int | required | Surface handle. |
 | `index` | Int | required | Index of the vertex, from 0. |
 
-**Returns:** The red part of the vertex color, 0 to 255.
+**Returns:** The red part of the vertex color, 0 to 255, with the fractions that were set.
 
 ### VertexTexCoords
 

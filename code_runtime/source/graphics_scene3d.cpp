@@ -98,7 +98,7 @@ namespace bb::gfx {
 			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, x) },
 			{ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(bb::vertex3d, nx) },
 			{ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u) },
-			{ 3, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(bb::vertex3d, r) },
+			{ 3, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(bb::vertex3d, r) },
 			{ 4, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(bb::vertex3d, u2) },
 		};
 		VkPipelineVertexInputStateCreateInfo input = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
@@ -602,7 +602,7 @@ namespace bb::gfx {
 				}
 				uint32_t first = s.vertices.size;
 				for (int k = 0; k < count; k++) {
-					bb::vertex3d v = { out[k][0], 0, out[k][2], 0, 1, 0, out[k][0], out[k][2], 255, 255, 255, 255, out[k][0], out[k][2] };
+					bb::vertex3d v = { out[k][0], 0, out[k][2], 0, 1, 0, out[k][0], out[k][2], 1, 1, 1, 1, out[k][0], out[k][2] };
 					s.vertices.push(v);
 				}
 				for (int k = 2; k < count; k++) {
