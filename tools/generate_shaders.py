@@ -329,6 +329,26 @@ class Builder:
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
 
 
+def declare_scene(b):
+    """The block that holds what is the same for everything a camera draws, see scene_data in graphics.cpp."""
+    v4 = b.vec(4)
+    lights = b.array(v4, 8, "lights")
+    scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", scene, 0, DECORATION["Offset"], 0),
+        Module.inst("MemberDecorate", scene, 0, DECORATION["ColMajor"]),
+        Module.inst("MemberDecorate", scene, 0, DECORATION["MatrixStride"], 16),
+        Module.inst("MemberDecorate", scene, 1, DECORATION["Offset"], 64),
+        Module.inst("MemberDecorate", scene, 2, DECORATION["Offset"], 80),
+        Module.inst("MemberDecorate", scene, 3, DECORATION["Offset"], 208),
+        Module.inst("MemberDecorate", scene, 4, DECORATION["Offset"], 336),
+        Module.inst("MemberDecorate", scene, 5, DECORATION["Offset"], 352),
+        Module.inst("Decorate", lights, DECORATION["ArrayStride"], 16),
+        Module.inst("Decorate", scene, DECORATION["Block"]),
+    ]
+    return b.variable("Uniform", scene, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
+
+
 def vertex_shader_3d():
     """
     Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights.
@@ -343,11 +363,14 @@ def vertex_shader_3d():
         vec4 ambient;
         vec4 lightPosition[8];   // Direction towards the light if w == 0, position and range (w) otherwise.
         vec4 lightColor[8];
+        vec4 fog;                // Near, far and whether it is on.
+        vec4 fogColor;
     } scene;
     layout(push_constant) uniform Entity {
         vec4 model0, model1, model2; // Rows of the 4x3 model matrix.
         vec4 material;               // Color and alpha of the entity.
         vec4 params;                 // x: fullbright
+        vec4 uv;                     // Scale (x, y) and offset (z, w) of the texture coordinates.
     } entity;
     layout(location = 0) out vec2 outUV;
     layout(location = 1) out vec4 outColor;
@@ -375,24 +398,11 @@ def vertex_shader_3d():
     void, fn = b.void(), b.fn()
     c0, c1 = b.const_float(0.0), b.const_float(1.0)
 
-    # Uniform block
-    lights = b.array(v4, 8, "lights")
-    scene = b.struct("scene", b.mat4(), v4, lights, lights)
-    b.m.annotations += [
-        Module.inst("MemberDecorate", scene, 0, DECORATION["Offset"], 0),
-        Module.inst("MemberDecorate", scene, 0, DECORATION["ColMajor"]),
-        Module.inst("MemberDecorate", scene, 0, DECORATION["MatrixStride"], 16),
-        Module.inst("MemberDecorate", scene, 1, DECORATION["Offset"], 64),
-        Module.inst("MemberDecorate", scene, 2, DECORATION["Offset"], 80),
-        Module.inst("MemberDecorate", scene, 3, DECORATION["Offset"], 208),
-        Module.inst("Decorate", lights, DECORATION["ArrayStride"], 16),
-        Module.inst("Decorate", scene, DECORATION["Block"]),
-    ]
-    ubo = b.variable("Uniform", scene, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
+    ubo = declare_scene(b)
 
     # Push constants
-    entity = b.struct("entity", v4, v4, v4, v4, v4)
-    for index in range(5):
+    entity = b.struct("entity", v4, v4, v4, v4, v4, v4)
+    for index in range(6):
         b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
     b.m.annotations.append(Module.inst("Decorate", entity, DECORATION["Block"]))
     push = b.variable("PushConstant", entity)
@@ -404,6 +414,7 @@ def vertex_shader_3d():
     in_color = b.variable("Input", v4, [(DECORATION["Location"], 3)])
     out_uv = b.variable("Output", v2, [(DECORATION["Location"], 0)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 1)])
+    out_depth = b.variable("Output", f, [(DECORATION["Location"], 2)])
     per_vertex = b.struct("pervertex", v4, f)
     b.m.annotations += [
         Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
@@ -413,7 +424,7 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, out_uv, out_color, out_vertex))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, out_uv, out_color, out_depth, out_vertex))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -422,7 +433,7 @@ def vertex_shader_3d():
 
     pos, normal = b.load(v3, in_pos), b.load(v3, in_normal)
     color = b.load(v4, in_color)
-    row0, row1, row2, material, params = (push_member(i) for i in range(5))
+    row0, row1, row2, material, params, uvparams = (push_member(i) for i in range(6))
 
     p4 = b.construct(4, b.extract(pos, 0), b.extract(pos, 1), b.extract(pos, 2), c1)
     world = b.construct(3, b.dot(row0, p4), b.dot(row1, p4), b.dot(row2, p4))
@@ -459,9 +470,13 @@ def vertex_shader_3d():
     lit = b.fadd(v3, lit, b.scale(3, b.fsub(v3, ones, lit), fullbright))
     base = b.fmul(v3, b.swizzle(material, 3), b.swizzle(color, 3))
     rgb = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, base, lit), zeros, ones)
+
     alpha = b.fmul(f, b.extract(material, 3), b.extract(color, 3))
     b.store(out_color, b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), alpha))
-    b.store(out_uv, b.load(v2, in_uv))
+    # Textures can be scaled and moved: the first two are factors, the last two offsets.
+    uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
+    b.store(out_uv, b.fadd(v2, b.fmul(v2, b.load(v2, in_uv), uv_scale), uv_offset))
+    b.store(out_depth, b.extract(clip, 3))  # For the fog, which the fragment shader takes care of.
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
 
@@ -469,7 +484,7 @@ def vertex_shader_3d():
 GLSL_FABS, GLSL_STEP = 4, 48
 
 
-def fragment_shader_masked(mask_offset):
+def fragment_shader_masked(mask_offset, fog=False):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
@@ -505,9 +520,14 @@ def fragment_shader_masked(mask_offset):
     in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
     in_color = b.variable("Input", v4, [(DECORATION["Location"], 1)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    interface = [in_uv, in_color, out_color]
+    if fog:
+        scene = declare_scene(b)
+        in_depth = b.variable("Input", f, [(DECORATION["Location"], 2)])
+        interface.append(in_depth)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, in_color, out_color))
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
     b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
@@ -521,7 +541,18 @@ def fragment_shader_masked(mask_offset):
     same = b.fmul(f, b.ext(f, GLSL_STEP, biggest, epsilon), b.extract(mask, 3))
     alpha = b.fmul(f, b.extract(t, 3), b.fsub(f, c1, same))
     visible = b.construct(4, b.extract(t, 0), b.extract(t, 1), b.extract(t, 2), alpha)
-    b.store(out_color, b.fmul(v4, color, visible))
+    result = b.fmul(v4, color, visible)
+    if fog:
+        # Linear between the near and far distance (x and y), if it is on (z). This is per pixel, so that it also
+        # works for things that are much bigger than they look.
+        parameters = b.load(v4, b.access("Uniform", v4, scene, b.const_int(4)))
+        fog_color = b.swizzle(b.load(v4, b.access("Uniform", v4, scene, b.const_int(5))), 3)
+        span = b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(parameters, 1), b.extract(parameters, 0)), b.const_float(1e-4))
+        amount = b.fmul(f, b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, b.load(f, in_depth), b.extract(parameters, 0)), span), b.const_float(0.0), c1), b.extract(parameters, 2))
+        rgb = b.swizzle(result, 3)
+        rgb = b.fadd(v3, rgb, b.scale(3, b.fsub(v3, fog_color, rgb), amount))
+        result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
+    b.store(out_color, result)
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
 
@@ -538,4 +569,4 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_vertex", vertex_shader(), out)
     emit("bb_shader_fragment", fragment_shader_masked(16), out)
     emit("bb_shader_vertex_3d", vertex_shader_3d(), out)
-    emit("bb_shader_fragment_3d", fragment_shader_masked(80), out)
+    emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)

@@ -83,6 +83,9 @@ namespace bb {
 		float alpha    = 1;
 		int   fx       = 0; // 1 = fullbright, 16 = two-sided
 		int   texture  = 0; // Handle, 0 for none.
+		int   sprite_mode = 0;           // 0 = not a sprite, 1 = faces the camera, 2 = fixed, 3 = free, 4 = upright
+		float sprite_scale[2] = { 1, 1 };
+		float sprite_angle    = 0;
 		int   order    = 0; // Entities with a higher order are drawn first, and those with 0 are drawn normally.
 		int   blend    = 1; // 1 = alpha, 2 = multiply, 3 = add
 		float shininess = 0;

@@ -125,7 +125,8 @@ void bb_sound_update(void);
 	X(vkCmdSetCullMode) \
 	X(vkCmdSetDepthWriteEnable) \
 	X(vkFreeDescriptorSets) \
-	X(vkCmdCopyImageToBuffer)
+	X(vkCmdCopyImageToBuffer) \
+	X(vkCmdSetDepthTestEnable)
 
 #define BB_VK_DECLARE(name) static PFN_##name name;
 BB_VK_GLOBAL(BB_VK_DECLARE)
@@ -226,6 +227,8 @@ namespace {
 		VkPipelineLayout      layout3d       = VK_NULL_HANDLE;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
+		VkPipeline            mul3d          = VK_NULL_HANDLE;
+		VkPipeline            add3d          = VK_NULL_HANDLE;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE;
 		VkDeviceMemory        scene_memory   = VK_NULL_HANDLE;
 		void*                 scene_mapped   = nullptr;
@@ -266,6 +269,7 @@ namespace {
 		bool            used = false;
 		int             flags = 0;
 		int             width = 0, height = 0;
+		float           uv[4] = { 1, 1, 0, 0 }; // Scale (ScaleTexture) and offset (PositionTexture) of the coordinates.
 		gpu_image       image;
 		VkDescriptorSet set = VK_NULL_HANDLE;
 	};
@@ -1427,6 +1431,8 @@ namespace {
 		float ambient[4];
 		float light_position[max_lights][4];
 		float light_color[max_lights][4];
+		float fog[4];       // Near, far and whether it is on.
+		float fog_color[4];
 	};
 
 	// Per-entity values, pushed to the vertex shader.
@@ -1434,6 +1440,7 @@ namespace {
 		float model[3][4]; // Rows of the model matrix.
 		float material[4];
 		float params[4];
+		float uv[4];   // Scale and offset of the texture coordinates.
 		float mask[4]; // For the fragment shader, always off.
 	};
 
@@ -1496,7 +1503,7 @@ namespace {
 		return gpu;
 	}
 
-	VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, bool alpha_blend)
+	VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
@@ -1542,7 +1549,7 @@ namespace {
 		depth.depthCompareOp                        = VK_COMPARE_OP_LESS_OR_EQUAL;
 
 		VkPipelineColorBlendAttachmentState blend = {};
-		blend.blendEnable                         = alpha_blend ? VK_TRUE : VK_FALSE;
+		blend.blendEnable                         = (mode != 0) ? VK_TRUE : VK_FALSE;
 		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
 		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
@@ -1554,9 +1561,18 @@ namespace {
 		blending.attachmentCount                     = 1;
 		blending.pAttachments                        = &blend;
 
-		VkDynamicState dynamic_states[4] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE };
+		// Modes: 0 = no blending, 1 = by alpha, 2 = multiply with what is there, 3 = add to what is there.
+		if (mode == 2) {
+			blend.srcColorBlendFactor = VK_BLEND_FACTOR_DST_COLOR;
+			blend.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+		} else if (mode == 3) {
+			blend.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+			blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+		}
+
+		VkDynamicState dynamic_states[5] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE };
 		VkPipelineDynamicStateCreateInfo dynamic = { VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO };
-		dynamic.dynamicStateCount                = 4;
+		dynamic.dynamicStateCount                = 5;
 		dynamic.pDynamicStates                   = dynamic_states;
 
 		VkFormat                      format    = VK_FORMAT_R8G8B8A8_UNORM;
@@ -1587,7 +1603,7 @@ namespace {
 	void create_3d()
 	{
 		// Scene uniform buffer, with its descriptor set.
-		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr };
+		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
 		set_info.bindingCount                    = 1;
 		set_info.pBindings                       = &binding;
@@ -1621,8 +1637,10 @@ namespace {
 
 		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
 		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
-		g.opaque3d        = create_pipeline_3d(vs, fs, false);
-		g.blend3d         = create_pipeline_3d(vs, fs, true);
+		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
+		g.blend3d         = create_pipeline_3d(vs, fs, 1);
+		g.mul3d           = create_pipeline_3d(vs, fs, 2);
+		g.add3d           = create_pipeline_3d(vs, fs, 3);
 		vkDestroyShaderModule(g.device, vs, nullptr);
 		vkDestroyShaderModule(g.device, fs, nullptr);
 	}
@@ -1636,10 +1654,26 @@ namespace {
 	}
 
 	// Collects what has to be drawn.
+	struct draw_item {
+		int   handle;
+		float alpha; // What is left of it after fading out with distance.
+		float depth; // Distance from the camera along its view direction.
+		int   order;
+	};
+
 	struct draw_list {
-		bb::buffer<int>   opaque;
-		bb::buffer<int>   blended;
-		bb::buffer<float> distance; // For the blended entities.
+		bb::buffer<draw_item> behind;  // Higher entity orders, drawn first and without a depth test.
+		bb::buffer<draw_item> opaque;
+		bb::buffer<draw_item> blended; // Far to near.
+		bb::buffer<draw_item> front;   // Lower entity orders, drawn last and without a depth test.
+
+		void release()
+		{
+			behind.release();
+			opaque.release();
+			blended.release();
+			front.release();
+		}
 	};
 
 	struct light_collector {
@@ -1679,35 +1713,112 @@ namespace {
 	}
 
 	struct mesh_collector {
-		draw_list*  list;
+		draw_list*   list;
 		const float* view;
 	};
 
 	void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
+		float m[16];
+		bb::world_matrix(handle, m);
+		float depth = c->view[2] * m[12] + c->view[6] * m[13] + c->view[10] * m[14] + c->view[14];
+
+		// Things can fade out with distance.
+		float alpha = mesh.alpha;
+		if (mesh.fade_far > 0) {
+			if (depth >= mesh.fade_far) {
+				return;
+			}
+			if (depth > mesh.fade_near) {
+				alpha *= 1.0f - (depth - mesh.fade_near) / (mesh.fade_far - mesh.fade_near);
+			}
+		}
+		if (alpha <= 0.001f) {
+			return;
+		}
+
 		texture_entry* texture = texture_of(mesh.texture);
 		bool translucent       = texture && (texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED));
-		if ((mesh.alpha < 0.999f) || translucent) {
-			float m[16];
-			bb::world_matrix(handle, m);
-			// Distance along the camera's view direction, to draw far things first.
-			float depth = c->view[2] * m[12] + c->view[6] * m[13] + c->view[10] * m[14] + c->view[14];
-			c->list->blended.push(handle);
-			c->list->distance.push(depth);
+		bool blended           = (alpha < 0.999f) || translucent || (mesh.blend != 1);
+		draw_item item         = { handle, alpha, depth, mesh.order };
+		if (mesh.order > 0) {
+			c->list->behind.push(item);
+		} else if (mesh.order < 0) {
+			c->list->front.push(item);
+		} else if (blended) {
+			c->list->blended.push(item);
 		} else {
-			c->list->opaque.push(handle);
+			c->list->opaque.push(item);
 		}
 	}
 
-	void draw_entity(int handle, bool blended)
+	// Insertion sort, which is fine for the number of things that are drawn and keeps the order of equal ones.
+	void sort_items(bb::buffer<draw_item>& items, bool by_order)
 	{
-		bb::entity* e = bb::get_entity(handle);
-		if (!e || (e->alpha <= 0.001f)) {
+		for (uint32_t i = 1; i < items.size; i++) {
+			for (uint32_t j = i; j > 0; j--) {
+				bool swap = by_order ? (items[j - 1].order < items[j].order) : (items[j - 1].depth < items[j].depth);
+				if (!swap) {
+					break;
+				}
+				draw_item t  = items[j];
+				items[j]     = items[j - 1];
+				items[j - 1] = t;
+			}
+		}
+	}
+
+	float current_camera[16]; // Where the camera is, for sprites that face it.
+
+	void normalize3(float* v)
+	{
+		float len = sqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+		if (len > 1e-9f) {
+			v[0] /= len;
+			v[1] /= len;
+			v[2] /= len;
+		}
+	}
+
+	void draw_entity(draw_item const& item, bool blended, bool depth_test)
+	{
+		bb::entity* e = bb::get_entity(item.handle);
+		if (!e) {
 			return;
 		}
 		float m[16];
-		bb::world_matrix(handle, m);
+		bb::world_matrix(item.handle, m);
+		bool fullbright = (e->fx & 1) != 0;
+		bool two_sided  = (e->fx & 16) != 0;
+
+		if (e->sprite_mode && (e->sprite_mode != 2)) {
+			// Sprites turn towards the camera, and are not lit.
+			float right[3] = { current_camera[0], current_camera[1], current_camera[2] };
+			float up[3]    = { current_camera[4], current_camera[5], current_camera[6] };
+			float front[3] = { current_camera[8], current_camera[9], current_camera[10] };
+			normalize3(right);
+			normalize3(up);
+			normalize3(front);
+			if (e->sprite_mode == 4) {
+				// Upright: only turns around the vertical axis.
+				up[0] = 0; up[1] = 1; up[2] = 0;
+				right[0] = front[2]; right[1] = 0; right[2] = -front[0];
+				normalize3(right);
+			}
+			float angle = e->sprite_angle * 3.14159265358979f / 180.0f, ca = cosf(angle), sa = sinf(angle);
+			float sx = e->sprite_scale[0] * e->scale[0], sy = e->sprite_scale[1] * e->scale[1];
+			float position[3] = { m[12], m[13], m[14] };
+			for (int axis = 0; axis < 3; axis++) {
+				m[0 + axis]  = (right[axis] * ca + up[axis] * sa) * sx;
+				m[4 + axis]  = (up[axis] * ca - right[axis] * sa) * sy;
+				m[8 + axis]  = front[axis];
+				m[12 + axis] = position[axis];
+			}
+			fullbright = true;
+			two_sided  = true;
+		}
+
 		entity_push push = {};
 		// The rows of the 4x3 matrix: row r is (m[0 + r], m[4 + r], m[8 + r], m[12 + r]) in column-major order.
 		for (int row = 0; row < 3; row++) {
@@ -1719,13 +1830,25 @@ namespace {
 		push.material[0] = e->color[0];
 		push.material[1] = e->color[1];
 		push.material[2] = e->color[2];
-		push.material[3] = e->alpha;
-		push.params[0]   = (e->fx & 1) ? 1.0f : 0.0f;
-		vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
-		vkCmdSetCullMode(g.cmd, (e->fx & 16) ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
-		vkCmdSetDepthWriteEnable(g.cmd, blended ? VK_FALSE : VK_TRUE);
+		push.material[3] = item.alpha;
+		push.params[0]   = fullbright ? 1.0f : 0.0f;
+
 		texture_entry* texture = texture_of(e->texture);
-		VkDescriptorSet set    = (texture && texture->set) ? texture->set : g.sets[TEXTURE_WHITE];
+		push.uv[0] = texture ? texture->uv[0] : 1.0f;
+		push.uv[1] = texture ? texture->uv[1] : 1.0f;
+		push.uv[2] = texture ? texture->uv[2] : 0.0f;
+		push.uv[3] = texture ? texture->uv[3] : 0.0f;
+		vkCmdPushConstants(g.cmd, g.layout3d, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
+
+		VkPipeline pipeline = g.opaque3d;
+		if (blended) {
+			pipeline = (e->blend == 2) ? g.mul3d : ((e->blend == 3) ? g.add3d : g.blend3d);
+		}
+		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		vkCmdSetCullMode(g.cmd, two_sided ? VK_CULL_MODE_NONE : VK_CULL_MODE_BACK_BIT);
+		vkCmdSetDepthTestEnable(g.cmd, depth_test ? VK_TRUE : VK_FALSE);
+		vkCmdSetDepthWriteEnable(g.cmd, (blended || !depth_test) ? VK_FALSE : VK_TRUE);
+		VkDescriptorSet set = (texture && texture->set) ? texture->set : g.sets[TEXTURE_WHITE];
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
 
 		for (uint32_t i = 0; i < e->surfaces.size; i++) {
@@ -1754,51 +1877,58 @@ namespace {
 		p[14] = -f * n / (f - n);
 	}
 
+	// The part of a buffer of the given size that the camera draws to. Returns false if there is none.
+	bool camera_viewport(bb::entity const& cam, int buffer_w, int buffer_h, int& vx, int& vy, int& vw, int& vh)
+	{
+		vx = cam.cam_viewport[0];
+		vy = cam.cam_viewport[1];
+		vw = cam.cam_viewport[2] < 0 ? buffer_w : cam.cam_viewport[2];
+		vh = cam.cam_viewport[3] < 0 ? buffer_h : cam.cam_viewport[3];
+		if (vx < 0) { vw += vx; vx = 0; }
+		if (vy < 0) { vh += vy; vy = 0; }
+		if (vx + vw > buffer_w) { vw = buffer_w - vx; }
+		if (vy + vh > buffer_h) { vh = buffer_h - vy; }
+		return (vw > 0) && (vh > 0) && (cam.cam_projection != 0);
+	}
+
 	void render_camera(int handle, bb::entity& cam, scene_data& data)
 	{
 		gpu_image& target = g.buffers[g.target == front_buffer ? 0 : 1];
 
-		// Viewport in pixels, clipped to the buffer.
-		int vx = cam.cam_viewport[0], vy = cam.cam_viewport[1];
-		int vw = cam.cam_viewport[2] < 0 ? int(target.width) : cam.cam_viewport[2];
-		int vh = cam.cam_viewport[3] < 0 ? int(target.height) : cam.cam_viewport[3];
-		if (vx < 0) { vw += vx; vx = 0; }
-		if (vy < 0) { vh += vy; vy = 0; }
-		if (vx + vw > int(target.width)) { vw = int(target.width) - vx; }
-		if (vy + vh > int(target.height)) { vh = int(target.height) - vy; }
-		if ((vw <= 0) || (vh <= 0) || (cam.cam_projection == 0)) {
+		int vx, vy, vw, vh;
+		if (!camera_viewport(cam, int(target.width), int(target.height), vx, vy, vw, vh)) {
 			return;
 		}
 
 		float world[16], view[16], proj[16];
 		bb::world_matrix(handle, world);
+		memcpy(current_camera, world, sizeof(world));
 		bb::mat_affine_inverse(world, view);
 		projection(proj, cam, float(vw), float(vh));
 		bb::mat_multiply(data.viewprojection, proj, view);
+		data.fog[0] = cam.fog_near;
+		data.fog[1] = cam.fog_far;
+		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
+		data.fog[3] = 0;
+		memcpy(data.fog_color, cam.fog_color, sizeof(cam.fog_color));
 		memcpy(g.scene_mapped, &data, sizeof(data));
 
 		draw_list list;
 		mesh_collector collector = { &list, view };
 		bb::for_each_visible(bb::MESH, collect_mesh, &collector);
-
-		// Far to near for blended entities.
-		for (uint32_t i = 1; i < list.blended.size; i++) {
-			for (uint32_t j = i; j > 0 && list.distance[j - 1] < list.distance[j]; j--) {
-				int   h = list.blended[j];
-				float d = list.distance[j];
-				list.blended[j] = list.blended[j - 1];
-				list.distance[j] = list.distance[j - 1];
-				list.blended[j - 1] = h;
-				list.distance[j - 1] = d;
-			}
-		}
+		sort_items(list.behind, true);
+		sort_items(list.blended, false);
+		sort_items(list.front, true);
 
 		begin_commands();
-		for (uint32_t i = 0; i < list.opaque.size + list.blended.size; i++) {
-			bb::entity* e       = bb::get_entity(i < list.opaque.size ? list.opaque[i] : list.blended[i - list.opaque.size]);
-			texture_entry* tex  = e ? texture_of(e->texture) : nullptr;
-			if (tex && tex->set) {
-				transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		bb::buffer<draw_item>* groups[4] = { &list.behind, &list.opaque, &list.blended, &list.front };
+		for (bb::buffer<draw_item>* group : groups) {
+			for (uint32_t i = 0; i < group->size; i++) {
+				bb::entity*    e   = bb::get_entity((*group)[i].handle);
+				texture_entry* tex = e ? texture_of(e->texture) : nullptr;
+				if (tex && tex->set) {
+					transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+				}
 			}
 		}
 		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
@@ -1842,13 +1972,20 @@ namespace {
 		VkDescriptorSet scene_set = g.scene_set;
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &scene_set, 0, nullptr);
 
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.opaque3d);
-		for (uint32_t i = 0; i < list.opaque.size; i++) {
-			draw_entity(list.opaque[i], false);
+		// Entities with an order are drawn behind or in front of everything, without looking at the depth.
+		for (uint32_t i = 0; i < list.behind.size; i++) {
+			bb::entity* e = bb::get_entity(list.behind[i].handle);
+			draw_entity(list.behind[i], e && ((list.behind[i].alpha < 0.999f) || (e->blend != 1)), false);
 		}
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.blend3d);
+		for (uint32_t i = 0; i < list.opaque.size; i++) {
+			draw_entity(list.opaque[i], false, true);
+		}
 		for (uint32_t i = 0; i < list.blended.size; i++) {
-			draw_entity(list.blended[i], true);
+			draw_entity(list.blended[i], true, true);
+		}
+		for (uint32_t i = 0; i < list.front.size; i++) {
+			bb::entity* e = bb::get_entity(list.front[i].handle);
+			draw_entity(list.front[i], e && ((list.front[i].alpha < 0.999f) || (e->blend != 1)), false);
 		}
 		vkCmdEndRendering(g.cmd);
 
@@ -1857,9 +1994,7 @@ namespace {
 		} else {
 			submit_commands();
 		}
-		list.opaque.release();
-		list.blended.release();
-		list.distance.release();
+		list.release();
 	}
 
 	struct camera_collector {
@@ -1944,6 +2079,8 @@ void bb_end_graphics(void)
 		vkFreeMemory(g.device, g.scene_memory, nullptr);
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
 		vkDestroyPipeline(g.device, g.blend3d, nullptr);
+		vkDestroyPipeline(g.device, g.mul3d, nullptr);
+		vkDestroyPipeline(g.device, g.add3d, nullptr);
 		vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
 		vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
 		for (int i = 0; i < TEXTURES; i++) {
@@ -3288,6 +3425,130 @@ int32_t bb_texture_height(int32_t handle)
 {
 	texture_entry* t = texture_of(handle);
 	return t ? t->height : 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Textures, a little more
+////////////////////////////////////////////////////////////////////////////////
+static texture_entry* need_texture(int32_t handle, const char* what)
+{
+	texture_entry* t = texture_of(handle);
+	if (!t) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: the texture does not exist.", what);
+		bb_runtime_error(message);
+	}
+	return t;
+}
+
+// ScaleTexture makes the texture bigger for numbers above 1: the coordinates are divided.
+void bb_scale_texture(int32_t handle, float u, float v)
+{
+	texture_entry* t = need_texture(handle, "ScaleTexture");
+	t->uv[0]         = (u != 0) ? 1.0f / u : 1.0f;
+	t->uv[1]         = (v != 0) ? 1.0f / v : 1.0f;
+}
+
+void bb_position_texture(int32_t handle, float u, float v)
+{
+	texture_entry* t = need_texture(handle, "PositionTexture");
+	t->uv[2]         = u;
+	t->uv[3]         = v;
+}
+
+// Rotating textures is not supported, the call is accepted so programs that do it still run.
+void bb_rotate_texture(int32_t handle, float angle)
+{
+	(void)angle;
+	need_texture(handle, "RotateTexture");
+}
+
+void bb_texture_blend(int32_t handle, int32_t mode)
+{
+	(void)mode;
+	need_texture(handle, "TextureBlend");
+}
+
+void bb_texture_filter(const char* match, int32_t flags)
+{
+	(void)match;
+	(void)flags;
+}
+
+void bb_set_cube_face(int32_t handle, int32_t face)
+{
+	(void)face;
+	need_texture(handle, "SetCubeFace"); // Cube maps are not supported.
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Where things are on the screen
+////////////////////////////////////////////////////////////////////////////////
+static float projected[3] = { 0, 0, 0 };
+
+// Where a point in the world ends up on the screen of the camera. Z is the distance in front of the camera.
+static bool project_point(bb::entity const& cam, int cam_handle, float x, float y, float z, float* out)
+{
+	int vx, vy, vw, vh;
+	if (!camera_viewport(cam, int(g.width), int(g.height), vx, vy, vw, vh)) {
+		return false;
+	}
+	float world[16], view[16], proj[16], vp[16];
+	bb::world_matrix(cam_handle, world);
+	bb::mat_affine_inverse(world, view);
+	projection(proj, cam, float(vw), float(vh));
+	bb::mat_multiply(vp, proj, view);
+
+	float clip[4];
+	for (int row = 0; row < 4; row++) {
+		clip[row] = vp[0 + row] * x + vp[4 + row] * y + vp[8 + row] * z + vp[12 + row];
+	}
+	out[2] = clip[3];
+	if (clip[3] <= 1e-6f) {
+		out[0] = out[1] = -1.0e6f; // Behind the camera.
+		return false;
+	}
+	out[0] = float(vx) + (clip[0] / clip[3] * 0.5f + 0.5f) * float(vw);
+	out[1] = float(vy) + (clip[1] / clip[3] * 0.5f + 0.5f) * float(vh);
+	return true;
+}
+
+static bb::entity* need_camera(int32_t handle, const char* what)
+{
+	bb::entity* e = bb::get_entity(handle);
+	if (!e || (e->kind != bb::CAMERA)) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: this is not a camera.", what);
+		bb_runtime_error(message);
+	}
+	return e;
+}
+
+void bb_camera_project(int32_t camera, float x, float y, float z)
+{
+	project_point(*need_camera(camera, "CameraProject"), camera, x, y, z, projected);
+}
+
+float bb_projected_x(void) { return projected[0]; }
+float bb_projected_y(void) { return projected[1]; }
+float bb_projected_z(void) { return projected[2]; }
+
+// Whether the middle of the entity is in the picture of the camera.
+int32_t bb_entity_in_view(int32_t entity, int32_t camera)
+{
+	bb::entity* e = bb::get_entity(entity);
+	if (!e) {
+		bb_runtime_error("EntityInView: the entity does not exist.");
+	}
+	bb::entity* cam = need_camera(camera, "EntityInView");
+	float       m[16], p[3];
+	bb::world_matrix(entity, m);
+	if (!project_point(*cam, camera, m[12], m[13], m[14], p)) {
+		return 0;
+	}
+	int vx, vy, vw, vh;
+	camera_viewport(*cam, int(g.width), int(g.height), vx, vy, vw, vh);
+	return ((p[0] >= float(vx)) && (p[0] <= float(vx + vw)) && (p[1] >= float(vy)) && (p[1] <= float(vy + vh)) && (p[2] <= cam->cam_far)) ? 1 : 0;
 }
 
 // RenderWorld: draws everything the cameras see into the current buffer.
