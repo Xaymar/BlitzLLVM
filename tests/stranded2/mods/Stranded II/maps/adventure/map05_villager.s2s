@@ -1,0 +1,400 @@
+//~villager_alien
+page=alien
+title=Native
+text=start
+Uhna mohnu g'u Lahak!
+
+
+
+!3... I can't understand him!
+text=end
+button=action:close,Errr... ok. See you.
+
+page=unalien
+title=Native
+text=start
+Stranger leave me alone!
+text=end
+button=action:close,If you want so...
+
+
+//~villager_map_script
+on:use {
+	if ($nativelan==0){
+		dialogue "alien","maps/adventure/map05_villager.s2s","villager_alien";
+	}else{
+		if ($nativeq<=2){
+			dialogue "unalien","maps/adventure/map05_villager.s2s","villager_alien";
+		}else{
+			if ($quest_getmap==0){
+				dialogue "start","maps/adventure/map05_villager.s2s","villager_map";
+			}elseif($quest_getmap==1){
+				if (playergotitem(69)>=30){
+					dialogue "success","maps/adventure/map05_villager.s2s","villager_map";
+				}else{
+					dialogue "failure","maps/adventure/map05_villager.s2s","villager_map";
+				}
+			}else{
+				dialogue "postquest","maps/adventure/map05_villager.s2s","villager_map";
+			}
+		}
+	}
+}
+//~villager_map
+page=start
+title=Cartographer
+text=start
+Hello stranger!
+text=end
+button=p1,Who are you?
+button=action:close,Hello 'n' goodbye!
+
+page=p1
+text=start
+Me? Me be cartographer of village. Make fine maps of island. Maps reveal secret places and treasures and are help for orientation.
+text=end
+button=p2a,Secret places and treasures?
+button=p2b,Bla bla bla!
+
+page=p2a
+text=start
+Yes. Island have many secret places and treasures! That be why strong demand for me maps. Everybody want map.
+text=end
+button=p3a,So do I.
+button=p3b,I don't!
+button=action:close,G'bye, you nut!
+
+page=p2b
+text=start
+Why you ask when not interested?
+Unworthy go away!
+text=end
+button=action:close,Bye bye
+
+page=p3a
+text=start
+I knew you have interest!
+Can give you map, but not for free. Me love butterflies. If catch 30 butterflies for me, me give you map.
+text=end
+button=p4,Where can I find so many butterflies?
+
+page=p3b
+text=start
+Your own fault!
+You be sure that you not want?
+text=end
+button=p3a,Must've been a slip of my tongue...
+button=p3a,What? Gimme a damned map! Pronto!
+button=p2b,What do I care!
+button=action:close,Later, perhaps...
+button=action:close,No way, mate. Bye!
+
+page=p4
+text=start
+At beach in south. Just beneath village. You be there within moment, not far!
+You need net for catching. Or you never get them. You can make net with stick and threads.
+Fetch butterflies and me give map!
+text=end
+button=p5,Okay.
+
+page=p5
+script=start
+$quest_getmap=1;
+starttrigger 69;
+diary "The map","maps/adventure/map05_villager.s2s","villager_map_diary";
+script=end
+
+page=success
+title=Cartographer
+text=start
+You have 30 butterflies! Excellent!
+Here is map as promised. Wish success on treasure hunting!
+text=end
+button=action:close,Thankyou, goodbye!
+script=start
+$quest_getmap=2;
+freestored "unit",1,69,30;
+find 73;
+free "info",69;
+extendentry "The map","maps/adventure/map05_villager.s2s","villager_map_diary2";
+script=end
+
+page=failure
+title=Cartographer
+text=start
+Bring me butterflies for map! You not have enough!
+text=end
+button=action:close,Okay!
+
+page=postquest
+title=Cartographer
+text=start
+Hope you have much fun with map!
+text=end
+button=action:close,Yeah, I bet I will...
+
+//~villager_map_diary
+I have met a cartographer in the village. He says that there are many treasures on the island. I do not know for sure wether he told me the truth or if it is just a trick of him to get people to buy his maps. Anyway, he said that he'd mark the positions of the treasures on his maps.
+
+He furthermore offered me a simple deal:
+I must catch 30 butterflies for him and in exchange, I will get a map. With branches and threads I can make a net to be able to catch the little things. There are said to be markedly many at the southern beach.
+
+//~villager_map_diary2
+ - - -
+
+I have brought him the butterflies and received the map!
+//~villager_plum_script
+on:use {
+	if ($nativelan==0){
+		dialogue "alien","maps/adventure/map05_villager.s2s","villager_alien";
+	}else{
+		if ($nativeq<=2){
+			dialogue "unalien","maps/adventure/map05_villager.s2s","villager_alien";
+		}else{
+			if ($quest_getplum==0){
+				dialogue "start","maps/adventure/map05_villager.s2s","villager_plum";
+			}elseif($quest_getplum==1){
+				if (playergotitem(116)>=1){
+					dialogue "success","maps/adventure/map05_villager.s2s","villager_plum";
+				}else{
+					dialogue "failure","maps/adventure/map05_villager.s2s","villager_plum";
+				}
+			}else{
+				dialogue "postquest","maps/adventure/map05_villager.s2s","villager_plum";
+			}
+		}
+	}
+}
+//~villager_plum
+page=start
+title=Native
+text=start
+Ooohhh... oohhhh!
+Ahhhh!
+text=end
+button=p1,What's up?
+button=action:close,What the...?! See you!
+
+page=p1
+text=start
+I feel such an incredible sudden hunger for delicious, juicy plums!
+text=end
+button=p2a,Plums?
+button=p2b,Now that you mention it... me too!
+button=p2c,You piss me off!
+button=action:close,Okay. Interesting. Bye.
+
+page=p2a
+text=start
+Yes, plums. Delicate plums! Yummy!
+text=end
+button=p3,I see...
+button=lan,Why do you speak my language so well?
+
+page=p2b
+text=start
+Really? Do you like plums, too?
+text=end
+button=p3,Yes, tell me anybody who doesn't!
+button=p2c,For god's sake! I wasn't that serious!
+button=lan,Why do you speak my language so well?
+
+page=p2c
+text=start
+Then bugger off!
+text=end
+button=lan,Why do you speak my language so well?
+button=action:close,Okay, see you!
+
+page=lan
+text=start
+This is because I happen to visit the hemp chap at the other side of the island very often. We often have chats for hours. There is not much more to do here, after all.
+text=end
+button=p3,I understand...
+
+page=p3
+text=start
+Yes! Hmm...
+Wait a minute! How about you getting me some plums?
+text=end
+button=p4,Why should I do this?
+button=action:close,Never! Bye bye!
+
+page=p4
+text=start
+Because you are a nice person?
+text=end
+button=p5,Basically not.
+
+page=p5
+text=start
+Perhaps, because you want plums anyway?
+text=end
+button=p6,Rather that...
+
+page=p6
+text=start
+I've got it! Because I would give you something for them!
+text=end
+button=p7,Bingo!
+
+page=p7
+text=start
+Er... what?
+text=end
+button=p8,Forget it... what do you offer me?
+
+page=p8
+text=start
+Well... if you should really manage to get a plum somewhere here, I will brew three potions, each of which will enable you to run faster for some time. This is an undeniable offer!
+text=end
+button=p9,Yes, let's see.
+
+page=p9
+script=start
+$quest_getplum=1;
+diary "The plum chap","maps/adventure/map05_villager.s2s","villager_plum_diary";
+script=end
+
+page=success
+title=Native
+text=start
+Ohh! THANK YOU! I am so thankful for you!
+Here are your potions!
+Come to your daddy, little plum!
+Gna-haa!
+Wonderful!
+text=end
+button=action:close,You're welcome... you freakity freak-freak!
+script=start
+$quest_getplum=2;
+freestored "unit",1,116,1;
+find 112,3;
+extendentry "The plum chap","maps/adventure/map05_villager.s2s","villager_plum_diary2";
+script=end
+
+page=failure
+title=Native
+text=start
+Plums! I want plums! Ahhhh!
+Bring me one! Please!
+text=end
+button=action:close,I'll try to...
+
+page=postquest
+title=Native
+text=start
+Oh, you delicious plums!
+text=end
+button=action:close,Goodbye...
+
+//~villager_plum_diary
+One of the natives will brew me three potions, if I bring him a plum.
+That sounds like a very good deal...
+
+//~villager_plum_diary2
+- - -
+
+Made it! Gave him a plum and received potions as reward.
+Is there anything to add? I think there isn't.
+Nice contact, neat potions, why not come again!
+//~villager_a_script
+on:use {
+	if ($nativelan==0){
+		dialogue "alien","maps/adventure/map05_villager.s2s","villager_alien";
+	}else{
+		if ($nativeq<=2){
+			dialogue "unalien","maps/adventure/map05_villager.s2s","villager_alien";
+		}else{
+			dialogue "start","maps/adventure/map05_villager.s2s","villager_a";
+		}
+	}
+}
+//~villager_a
+page=start
+title=Native
+text=start
+Good day!
+text=end
+button=p1,Yeah, g'day!
+
+page=p1
+text=start
+Goodbye.
+text=end
+button=action:close,Bye then!
+//~villager_b_script
+on:use {
+	if ($nativelan==0){
+		dialogue "alien","maps/adventure/map05_villager.s2s","villager_alien";
+	}else{
+		if ($nativeq<=2){
+			dialogue "unalien","maps/adventure/map05_villager.s2s","villager_alien";
+		}else{
+			dialogue "start","maps/adventure/map05_villager.s2s","villager_b";
+		}
+	}
+}
+//~villager_b
+page=start
+title=Native
+text=start
+Greetings, stranger!
+text=end
+button=p1,Hi!
+button=action:close,Leave me alone!
+
+page=p1
+text=start
+How are you?
+text=end
+button=p2,So-so. It's alright.
+
+page=p2
+text=start
+Nice weather, not is?
+text=end
+button=p3,Yes...
+
+page=p3
+text=start
+What you doing?
+text=end
+button=p4,Let's see, er... talking to you?!
+
+page=p4
+text=start
+I understand. What else going on?
+text=end
+button=p5,Nothing!
+
+page=p5
+text=start
+Everything be proper?
+text=end
+button=p6,I could use a shower...
+
+page=p6
+text=start
+And what else on mind?
+text=end
+button=p7,Argh!
+
+page=p7
+text=start
+All fine with you? Feel good?
+text=end
+button=p8,No. You're annoying.
+
+page=p8
+text=start
+Oh.
+text=end
+button=p9,See you!
+
+page=p9
+text=start
+Wellbye. Till next time.
+Hope we meet again soon.
+text=end
+button=action:close,Yeah, you say it...

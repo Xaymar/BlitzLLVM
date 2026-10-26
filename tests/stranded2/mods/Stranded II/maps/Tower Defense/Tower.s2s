@@ -1,0 +1,75 @@
+// tower script
+
+on:create {
+	// Invulnerable
+	addstate "self",17;
+	// Fire Timer
+	timer "self",3000,0,"fire5";
+	// Positions
+	local $fx,$fy,$fz;
+	$fx=getx("self");
+	$fy=(gety("self")+80);
+	$fz=getz("self");
+	// Levels
+	local $level;
+	$level=1;
+	scale 0.5,0.5,0.5;
+}
+
+on:load {
+	if ($level==1){
+		scale 0.5,0.5,0.5;
+	}elseif($level==2){
+		scale 0.75,0.75,0.75;
+	}elseif($level==3){
+		scale 1,1,1;
+	}else{
+		scale 1,1,1;
+		color 255,150,150;
+	}
+}
+
+on:fire5 { projectile 53,$fx,$fy,$fz,5,300,50,0,10,0.3125,0; }
+
+on:fire7 { projectile 53,$fx,$fy,$fz,5,300,50,0,12,0.4375,0; }
+
+on:fire9 { projectile 53,$fx,$fy,$fz,5,300,50,0,15,0.5625,0; }
+
+on:fire10 { projectile 56,$fx,$fy,$fz,5,300,50,0,15,3.34,0; }
+
+on:use {
+	clear;
+	add "!1Level $level Tower";
+	if ($level<=3){
+		add "Shoots arrows at the enemy";
+	}else{
+		add "Shoots fire arrows at the enemy";
+	}
+	add "";
+	if ($level==1){
+		add "!2Damage: 5";
+		add "!2Rate: 3 sec.";
+		add "!2Arrow Speed: 20 meters/sec.";
+	}elseif($level==2){
+		add "!2Damage: 7";
+		add "!2Rate: 2 sec.";
+		add "!2Arrow Speed: 24 meters/sec.";
+	}elseif($level==3){
+		add "!2Damage: 9";
+		add "!2Rate: 1 sec.";
+		add "!2Arrow Speed: 30 meters/Sec.";
+	}elseif($level==4){
+		add "!2Damage: 10 + FireDamage";
+		add "!2Rate: 1 sec.";
+		add "!2Arrow Speed: 30 meters/sec.";
+	}
+	$ug_id=currentid();
+	$ug_typ=1;
+	$ug_level=$level;
+	msgbox "Level $level Tower";
+	if ($level==1){
+		button 0,"Upgrade to Level 2 (50 Gold)",12,"upgrade";
+	}elseif ($level==2){
+		button 0,"Upgrade to Level 3 (100 Gold)",12,"upgrade";
+	}
+}

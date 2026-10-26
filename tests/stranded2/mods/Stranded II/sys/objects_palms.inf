@@ -1,0 +1,268 @@
+######################################################### Palms
+
+### Palm
+id=1
+name=Palm
+group=palm
+icon=gfx\palm01.bmp
+model=gfx\palm01.b3d
+swayspeed=2
+swaypower=2
+fx=16
+scale=2.3
+mat=wood
+health=300
+find=15,15,3
+behaviour=tree
+healthchange=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Palm
+id=2
+name=Palm
+group=palm
+icon=gfx\palm02.bmp
+model=gfx\palm02.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=2.5
+mat=wood
+health=200
+find=15,10,3
+behaviour=tree
+healthchange=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Palm
+id=3
+name=Palm
+group=palm
+icon=gfx\palm03.bmp
+model=gfx\palm03.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=2.5
+mat=wood
+health=300
+find=15,20,3
+behaviour=tree
+healthchange=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Palm
+id=4
+name=Palm
+group=palm
+icon=gfx\palm04.bmp
+model=gfx\palm04.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=2.5
+mat=wood
+health=350
+find=15,20,3
+behaviour=tree
+healthchange=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),2;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Palm
+id=5
+name=Palm
+group=palm
+icon=gfx\palm05.bmp
+model=gfx\palm05.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=2.5
+mat=wood
+health=300
+find=15,15,3
+behaviour=tree
+healthchange=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Palm
+id=6
+name=Palm
+group=palm
+icon=gfx\palm06.bmp
+model=gfx\palm06.b3d
+swayspeed=1.5
+swaypower=2
+fx=16
+scale=2.5
+mat=wood
+health=400
+behaviour=tree
+healthchange=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Hugepalm
+id=7
+name=big Palm
+group=palm
+icon=gfx\hugepalm01.bmp
+model=gfx\hugepalm01.b3d
+swayspeed=1
+swaypower=3
+fx=16
+mat=wood
+health=500
+behaviour=tree
+healthchange=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),3;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Bananapalm
+id=8
+name=Banana Palm
+group=palm
+icon=gfx\bananapalm.bmp
+model=gfx\bananapalm.b3d
+fx=16
+scale=2.5
+y=4
+mat=wood
+health=300
+find=15,10,3
+spawn=14,3,15,3,125,3,1
+behaviour=tree
+healthchange=15
+growtime=15
+var=max,Monkeys max,1,0
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),2;
+			corona getx("self"),getz("self");
+		}
+	}
+	on:changeday {
+		if (random(5)!=1){
+			if (count_inrange("unit",19,500,"self")<$max){
+				create "unit",19,getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+
+### Coconutpalm
+id=9
+name=Coconut Palm
+group=palm
+icon=gfx\coconutpalm.bmp
+model=gfx\coconutpalm.b3d
+fx=16
+scale=1.5
+mat=wood
+health=300
+find=15,10,3
+spawn=27,3,15,5,126,3,1
+behaviour=tree
+healthchange=15
+growtime=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),2;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Palm
+id=213
+name=Liana Palm
+group=palm
+icon=gfx\lianapalm.bmp
+model=gfx\lianapalm.b3d
+swayspeed=2
+swaypower=2
+fx=16
+scale=2.3
+mat=wood
+health=300
+find=15,15,3
+find=26,60,3
+behaviour=tree
+healthchange=15
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end

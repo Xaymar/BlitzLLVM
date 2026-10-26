@@ -1,0 +1,5 @@
+if ($notusable==0){
+	play "crack3.wav";
+	process "striking tent",3000;
+	timer "self",3000;
+}

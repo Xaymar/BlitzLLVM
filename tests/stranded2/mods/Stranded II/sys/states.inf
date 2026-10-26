@@ -1,0 +1,103 @@
+
+### Bleeding
+id=1
+name=Bleeding
+frame=0
+
+### Intoxication
+id=2
+name=Poisoning
+frame=1
+
+### Pus
+id=3
+name=Pus
+frame=2
+
+### Fire
+id=4
+name=Fire
+frame=3
+
+### Eternal Fire 
+id=5
+name=eternal Fire
+frame=4
+
+### Frostbite
+id=6
+name=Frostbite
+frame=5
+
+### Fracture
+id=7
+name=Fracture
+frame=6
+
+### Electroshock
+id=8
+name=Electroshock
+frame=7
+
+### Bloodrush
+id=9
+name=Blood Rush
+frame=8
+
+### Dizzy
+id=10
+name=Dizziness
+frame=9
+
+### Wet
+id=11
+name=Wet
+frame=10
+
+### fuddle
+id=12
+name=Fuddle
+frame=11
+
+### Healing
+id=16
+name=Healing
+frame=15
+
+### Invulnerability
+id=17
+name=Invulnerability
+frame=16
+
+### Tame
+id=18
+name=Tame
+frame=17
+
+### Action
+id=21
+name=Action
+frame=20
+
+### Flare
+id=22
+name=Flare
+frame=21
+
+### Smoke
+id=23
+name=Smoke
+frame=22
+
+### Light
+id=24
+name=Light
+frame=23
+
+### Partikel
+id=25
+name=Particle
+frame=24
+
+
+

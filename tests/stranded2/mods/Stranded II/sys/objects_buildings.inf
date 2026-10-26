@@ -1,0 +1,1181 @@
+######################################################### Buildings
+
+### Building Site
+id=150
+name=Building Site
+group=building
+icon=gfx\buildplace.bmp
+model=gfx\buildplace.b3d
+behaviour=buildingsite
+col=2
+health=100
+mat=wood
+script=start
+	on:hit {
+		if (getplayerweapon()==30){
+			msg "Press the right mousebutton",3;
+			msg "to build here!",3;
+		}
+	}
+script=end
+maxweight=1000000000
+
+### Building Site
+id=151
+name=Building Site
+group=building
+icon=gfx\buildplace_water.bmp
+model=gfx\buildplace_water.b3d
+behaviour=buildingsite_water
+col=2
+health=100
+mat=wood
+script=start
+	on:hit {
+		if (getplayerweapon()==30){
+			msg "Press the right mousebutton",3;
+			msg "to build here!",3;
+		}
+	}
+script=end
+maxweight=1000000000
+swayspeed=3
+swaypower=2
+
+### Bamboo Hut
+id=160
+name=Bamboo Hut
+group=building
+icon=gfx\bamboohut01.bmp
+model=gfx\bamboohut01.b3d
+fx=16
+health=200
+mat=wood
+behaviour=cover
+description=start
+Offers cover for sleeping
+description=end
+
+### Bamboo Hut
+id=161
+name=Bamboo Hut
+group=building
+icon=gfx\bamboohut02.bmp
+model=gfx\bamboohut02.b3d
+health=200
+mat=wood
+behaviour=cover
+description=start
+Offers cover for sleeping
+description=end
+
+### Bamboo Hut
+id=162
+name=Bamboo Hut
+group=building
+icon=gfx\bamboohut03.bmp
+model=gfx\bamboohut03.b3d
+health=200
+mat=wood
+behaviour=cover
+description=start
+Offers cover for sleeping
+description=end
+
+### Fence
+id=163
+name=Fence
+group=building
+icon=gfx\fence01.bmp
+model=gfx\fence01.b3d
+scale=1
+health=150
+mat=wood
+col=3
+
+### Fence
+id=164
+name=Fence
+group=building
+icon=gfx\fence02.bmp
+model=gfx\fence02.b3d
+scale=1
+health=150
+mat=wood
+col=3
+
+### Shelter
+id=165
+name=Shelter
+group=building
+icon=gfx\shelter01.bmp
+model=gfx\shelter01.b3d
+fx=16
+health=100
+mat=wood
+behaviour=cover
+script=start
+	on:build_finish {
+		event "shelterbuild",0,0;
+	}
+script=end
+description=start
+Offers cover for sleeping
+description=end
+
+### Torch
+id=166
+name=Torch
+group=building
+icon=gfx\torch01.bmp
+model=gfx\torch01.b3d
+scale=0.6
+health=100
+mat=wood
+behaviour=torch
+state=0,39,0
+script=start
+	on:addstate {
+		if (state()==4){
+			statevalue "self",4,0;
+		}elseif (state()==5){
+			statevalue "self",5,0;
+		}
+	}
+	on:use {
+		msgbox "Fackel","sys/scripts/torch.s2s";
+	}
+script=end
+
+### Torch
+id=167
+name=Torch
+group=building
+icon=gfx\torch02.bmp
+model=gfx\torch02.b3d
+scale=0.6
+fx=16
+state=random
+health=100
+mat=wood
+behaviour=torch
+state=0,43,0
+script=start
+	on:addstate {
+		if (state()==4){
+			statevalue "self",4,0;
+		}elseif (state()==5){
+			statevalue "self",5,0;
+		}
+	}
+	on:use {
+		msgbox "Fackel","sys/scripts/torch.s2s";
+	}
+script=end
+
+### Boardwall
+id=168
+name=Boardwall
+group=building
+icon=gfx\boardwall.bmp
+model=gfx\boardwall.b3d
+scale=2
+health=1500
+mat=wood
+col=3
+
+### Boardwall Part
+id=169
+name=Boardwall
+group=building
+icon=gfx\boardwallpart.bmp
+model=gfx\boardwallpart.b3d
+scale=2
+health=250
+mat=wood
+col=3
+
+### Boards
+id=170
+name=Boards
+group=building
+icon=gfx\boards.bmp
+model=gfx\boards.b3d
+scale=2
+health=100
+mat=wood
+
+### Campfire
+id=171
+name=Campfire
+group=building
+icon=gfx\fire01.bmp
+model=gfx\fire01.b3d
+scale=1.6
+state=0,5,0
+health=250
+mat=wood
+behaviour=fireplace
+script=start
+	on:build_finish {
+		event "campfirebuild",0,0;
+	}
+	on:use {
+		if (gotstate("unit",1,6)){
+			if ((gotstate("self",4)+gotstate("self",5))>0){
+				process "warm-up",3000;
+				freestate "unit",1,6;
+			}else{
+				msgbox "Campfire","sys/scripts/fireplace.s2s";
+			}
+		}else{
+			msgbox "Campfire","sys/scripts/fireplace.s2s";
+		}
+	}
+	on:barkbranchfire1 {
+		$tmp=currentid();
+		if (distance("unit",1,"object",$tmp)<100){
+			if ((gotstate("object",$tmp,"fire")+gotstate("object",$tmp,"eternalfire"))==0){
+				$barkbranchfire=$tmp;
+			}
+		}		
+	}
+	on:addstate {
+		if (state()==4){
+			statevalue "self",4,0;
+		}elseif (state()==5){
+			statevalue "self",5,0;
+		}
+	}
+script=end
+
+### Campfire
+id=172
+name=Campfire
+group=building
+icon=gfx\fire02.bmp
+model=gfx\fire02.b3d
+scale=1.6
+state=0,5,0
+health=300
+mat=wood
+behaviour=fireplace
+script=start
+	on:build_finish {
+		event "campfirebuild",0,0;
+	}
+	on:use {
+		if (gotstate("unit",1,6)){
+			if ((gotstate("self",4)+gotstate("self",5))>0){
+				process "warm-up",3000;
+				freestate "unit",1,6;
+			}else{
+				msgbox "Campfire","sys/scripts/fireplace.s2s";
+			}
+		}else{
+			msgbox "Campfire","sys/scripts/fireplace.s2s";
+		}
+	}
+	on:barkbranchfire1 {
+		$tmp=currentid();
+		if (distance("unit",1,"object",$tmp)<100){
+			if ((gotstate("object",$tmp,"fire")+gotstate("object",$tmp,"eternalfire"))==0){
+				$barkbranchfire=$tmp;
+			}
+		}		
+	}
+	on:addstate {
+		if (state()==4){
+			statevalue "self",4,0;
+		}elseif (state()==5){
+			statevalue "self",5,0;
+		}
+	}
+script=end
+
+### Sign
+id=173
+name=Sign
+group=building
+icon=gfx\sign.bmp
+model=gfx\sign.b3d
+scale=1.2
+fx=16
+health=150
+mat=wood
+
+### Guidepost
+id=174
+name=Guidepost
+group=building
+icon=gfx\guidepost01.bmp
+model=gfx\guidepost01.b3d
+scale=1.2
+health=150
+mat=wood
+
+### Guidepost
+id=175
+name=Guidepost
+group=building
+icon=gfx\guidepost02.bmp
+model=gfx\guidepost02.b3d
+scale=1.2
+health=150
+mat=wood
+
+### Jetty
+id=178
+name=Jetty
+group=building
+icon=gfx\jetty01.bmp
+model=gfx\jetty01.b3d
+scale=1.7
+health=500
+mat=wood
+behaviour=aligntowater
+col=3
+
+### Jetty
+id=179
+name=Jetty
+group=building
+icon=gfx\jetty02.bmp
+model=gfx\jetty02.b3d
+scale=1.7
+health=500
+mat=wood
+behaviour=aligntowater
+col=3
+
+### Jetty
+id=180
+name=Jetty
+group=building
+icon=gfx\jetty03.bmp
+model=gfx\jetty03.b3d
+scale=1.7
+health=500
+mat=wood
+behaviour=aligntowater
+col=3
+
+### Storage
+id=181
+name=Storage
+group=building
+icon=gfx\storage.bmp
+model=gfx\storage.b3d
+health=400
+scale=2.2
+mat=wood
+script=start
+	on:use {
+		exchange "self";
+	}
+	on:build_finish {
+		event "storagebuild",0,0;
+	}
+script=end
+maxweight=50000
+description=start
+You can store items inside this storage.
+description=end
+
+### Big Fence
+id=182
+name=Big Fence
+group=building
+icon=gfx\fence03.bmp
+model=gfx\fence03.b3d
+scale=1
+health=500
+mat=wood
+col=3
+
+### Metal Fence
+id=183
+name=Metal Fence
+group=building
+icon=gfx\fence04.bmp
+model=gfx\fence04.b3d
+scale=3
+health=3000
+mat=metal
+col=3
+
+### Tent
+id=184
+name=Tent
+group=building
+icon=gfx\tent.bmp
+model=gfx\tent.b3d
+scale=2
+health=150
+mat=none
+behaviour=cover
+script=start
+	on:use {
+		if ($notusable==0){
+			clear;
+			add "You can strike this tent in order to rebuild it on another place.";
+			add "What do you want to do?";
+			msgbox "Tent";
+			button 0,"Strike the tent",8,"sys/scripts/tent.s2s";
+			add "closemenu;";
+			button 1,"Keep it here",3;
+		}
+	}
+	on:build_finish {
+		event "tentbuild",0,0;
+	}
+	on:timer {
+		local $id;
+		$id=create("item",97);
+		store $id,"unit",1;
+		freevar $id;
+		free "self";
+		closemenu;
+	}
+script=end
+description=start
+Offers cover for sleeping
+description=end
+
+### Waterpipe empty
+id=187
+name=Waterpipe
+group=building
+icon=gfx\waterpipe_empty.bmp
+model=gfx\waterpipe_empty.b3d
+scale=2.5
+health=300
+mat=wood
+behaviour=waterpipe_empty
+
+### Waterpipe full
+id=188
+name=Waterpipe
+group=building
+icon=gfx\waterpipe_full.bmp
+model=gfx\waterpipe_full.b3d
+scale=2.5
+health=300
+mat=wood
+behaviour=waterpipe_full
+script=start
+	on:use {
+		process "drinking",1000;
+		drink 0,0,25,0;
+
+	}
+script=end
+
+### Well
+id=189
+name=Well
+group=building
+icon=gfx\well.bmp
+model=gfx\well.b3d
+scale=0.9
+health=2000
+mat=stone
+behaviour=watersource
+script=start
+	on:build_finish {
+		if ($s2g_stablebuildings==0){
+			local $age;
+			$age=1;
+		}
+	}
+	on:changeday {
+		if ($age>0){
+			$age++;
+			if ($age>15){
+				if (random(10)==1){
+					alterobject "self",208;
+				}
+			}
+		}
+	}
+	on:use {
+		process "drinking",1000;
+		drink 0,0,25,0;
+
+	}
+script=end
+description=start
+Offers freshwater.
+description=end
+
+### Treehouse
+id=190
+name=Tree House
+group=building
+icon=gfx\treehouse.bmp
+model=gfx\treehouse.b3d
+scale=1.5
+health=500
+mat=wood
+behaviour=cover
+script=start
+	on:use {
+		local $y,$ty;
+		$y=gety("unit",1);
+		$ty=gety("self");
+		if ($y<($ty+150)){
+			setpos "unit",1, "self", ($ty+165), "self";
+		}
+		freevar $y,$ty;
+	}
+	on:build_finish {
+		event "treehousebuild",0,0;
+	}
+script=end
+description=start
+Offers cover for sleeping
+description=end
+
+### Bownet
+id=191
+name=Bow Net
+group=building
+icon=gfx\bownet.bmp
+model=gfx\bownet.b3d
+scale=1.7
+health=300
+swayspeed=1.8
+swaypower=5
+mat=wood
+fx=16
+behaviour=aligntowater
+script=start
+	on:build_finish {
+		event "bownetbuild",0,0;
+		if ($s2g_stablebuildings==0){
+			local $age;
+			$age=1;
+		}
+	}
+	on:load {
+		freestate "self",25;
+		if (count_stored("self")>0){
+			addstate "self",25;
+		}
+	}
+	on:changeday {
+		if (count_stored("self")<3){
+			if (random(5)!=1){
+				local $id,$r;
+				$r=random(6);
+				if ($r==1){
+					$id=create("item",102);
+				}elseif($r==2){
+					$id=create("item",109);
+				}else{
+					$id=create("item",89);
+				}
+				store $id,"self";
+				freevar $id,$r;
+				addstate "self",25;		
+			}
+		}
+		if ($age>0){
+			$age++;
+			if ($age>10){
+				if (random(5)==1){
+					alterobject "self",209;
+				}
+			}
+		}
+	}
+	on:use {
+		if (count_stored("self")>0){
+			exchange "self",0;
+			timer "self",100,1,"load"; 
+		}else{
+			speech "negative";
+			msg "It is empty!",3;
+		}
+	}
+script=end
+description=start
+Catches fish over night.
+description=end
+
+### Target
+id=192
+name=Target
+group=building
+icon=gfx\target.bmp
+model=gfx\target.b3d
+detailtex=1
+health=5
+mat=wood
+scale=1.0
+script=start
+	on:kill {
+		explode getx("self"),gety("self"),getz("self");
+	}
+script=end
+
+### Bamboo Tower
+id=193
+name=Bamboo Tower
+group=building
+icon=gfx\bambootower.bmp
+model=gfx\bambootower.b3d
+health=50000
+mat=wood
+y=1.4
+fx=16
+
+### House
+id=194
+name=House
+group=building
+icon=gfx\house.bmp
+model=gfx\house.b3d
+health=100000
+mat=stone
+scale=2.4
+autofade=3000
+behaviour=cover
+description=start
+Offers cover for sleeping
+description=end
+
+### Stance
+id=200
+name=Stance
+group=building
+icon=gfx\stance.bmp
+model=gfx\stance.b3d
+health=500
+mat=wood
+col=4
+behaviour=cover
+script=start
+	on:build_finish {
+		event "stancebuild",0,0;
+	}
+script=end
+description=start
+Offers cover for sleeping
+description=end
+
+### Kiwibreeding
+id=201
+name=Kiwi Breeding
+group=building
+icon=gfx\kiwibreeding.bmp
+model=gfx\kiwibreeding.b3d
+health=100
+mat=wood
+fx=16
+script=start
+	on:build_finish {
+		event "kiwibreedingbuild",0,0;
+	}
+	on:changeday {
+		local $days;
+		if (count_inrange("unit",26,450,"self")<3){
+			$days++;
+			if ($days>=2){
+				$days=0;
+				create "unit",26,getx("self"),getz("self");
+			}
+		}else{
+			$days=0;
+		}
+	}
+	on:use {
+		msgbox "Kiwi Breeding","sys/scripts/kiwibreeding.s2s";
+	}
+script=end
+description=start
+Creates kiwi birds.
+description=end
+
+### Covering
+id=203
+name=Covering
+group=building
+icon=gfx\covering.bmp
+model=gfx\covering.b3d
+health=100
+mat=wood
+fx=16
+
+### Trap
+id=205
+name=Trap
+group=building
+icon=gfx\trap.bmp
+model=gfx\trap.b3d
+health=300
+mat=wood
+fx=16
+scale=1.3,1,1
+script=start
+	on:build_finish {
+		event "trapbuild",0,0;
+	}
+	on:load {
+		local $state;
+		if ($state==1){
+			model "gfx/trap_closed.b3d";
+			scale 1,1,1;
+		}
+	}
+	on:use {
+		local $state;
+		if ($state==0){
+			process "closing trap",500;
+			$state=1;
+			play "vehicle_move.wav";
+			model "gfx/trap_closed.b3d";
+			scale 1,1,1;
+		}else{
+			process "opening trap",500;
+			$state=0;
+			play "vehicle_move.wav";
+			model "gfx/trap.b3d";
+			scale 1,1,1;
+		}
+	}
+	on:changeday {
+		local $state;
+		if ($state==0){
+			if (random(5)!=1){
+				local $r,$x,$z;
+				$x=getx("self");
+				$z=getz("self");
+				$r=random(1,5);
+				if ($r==1){ create "unit",3,$x,$z; }
+				if ($r==2){ create "unit",14,$x,$z; }
+				if ($r==3){ create "unit",18,$x,$z; }
+				if ($r==4){ create "unit",20,$x,$z; }				
+				if ($r==5){ create "unit",26,$x,$z; }
+				freevar $r,$x,$z;
+				$state=1;
+				model "gfx/trap_closed.b3d";
+				scale 1,1,1;
+			}
+		}
+	}
+script=end
+description=start
+Catches little animals if its opened.
+description=end
+
+### Hut
+id=206
+name=Hut
+group=building
+icon=gfx\hut.bmp
+model=gfx\hut.b3d
+health=5000
+mat=wood
+scale=1.7,3.5,1.7
+behaviour=cover
+script=start
+	on:build_finish {
+		event "hutbuild",0,0;
+	}
+script=end
+description=start
+Offers cover for sleeping
+description=end
+
+### Herbal-garden
+id=207
+name=Herb Patch
+group=building
+icon=gfx\herbalgarden.bmp
+model=gfx\herbalgarden.b3d
+health=1000
+mat=dirt
+col=3
+scale=1.5,1,1.5
+script=start
+	on:build_finish {
+		event "herbalgardenbuild",0,0;
+	}
+	//Spawn Herbs
+	on:changeday {
+		local $c;
+		$c+=count_inrange("item",16,20,"self"); // Bloodleaf
+		$c+=count_inrange("item",17,20,"self"); // Healherb
+		$c+=count_inrange("item",18,20,"self"); // Strong Healherb
+		$c+=count_inrange("item",19,20,"self"); // Goldherb
+		$c+=count_inrange("item",20,20,"self"); // Bitterroot
+		if ($c<3){
+			local $htyp,$hx,$hy,$hz,$hid;
+			$c=random(1,20);
+			$htyp=0;
+			if (($c>=1) and ($c<=5)){ $htyp=16; }
+			if (($c>=6) and ($c<=8)){ $htyp=17; }
+			if ($c==9){ $htyp=18; }
+			if (($c>=10) and ($c<=14)){ $htyp=19; }
+			if (($c>=15) and ($c<=20)){ $htyp=20; }
+			if ($htyp>0){
+				$hx=getx("self");
+				$hy=gety("self");
+				$hz=getz("self");
+				$hx+=random(-10,10);
+				$hz+=random(-10,10);
+				$hid=create("item",$htyp,$hx,$hz);
+				$hy+=10;
+				setpos "item",$hid,"self",$hy,"self";
+			}
+			freevar $htyp,$hx,$hy,$hz,$hid;
+		}
+		freevar $c;
+	}
+	on:use {
+		msgbox "Kräuterbeet","sys/scripts/herbalgarden.s2s";
+	}
+script=end
+description=start
+Place where herbs grow.
+description=end
+
+### Broken Well
+id=208
+name=broken Well
+group=building
+icon=gfx\broken_well.bmp
+model=gfx\broken_well.b3d
+scale=0.9
+health=2000
+mat=stone
+script=start
+	on:create {
+		local $mud;
+		$mud=20;
+	}
+	on:use {
+		clear;
+		add "Oh dear! This well is full of mud. I cannot use it in this condition.";
+		add "I have to dig with a spade close to this well in order to remove the mud.";
+		msgbox "Full of mud";
+	}
+	on:dig {
+		$mud--;
+		if ($mud<=0){
+			speech "positive";
+			msg "Well cleaned!",4;
+			alterobject "self",189;
+			local $age;
+			$age=1;
+		}else{
+			msg "You removed mud.",1;
+			msg "( $mud x left )",1;
+		}
+	}
+script=end
+description=start
+A broken well. You have to dig close to it to make it work again.
+description=end
+
+### Broken Bownet
+id=209
+name=broken Bow Net
+group=building
+icon=gfx\broken_bownet.bmp
+model=gfx\broken_bownet.b3d
+scale=1.7
+health=300
+swayspeed=1.8
+swaypower=5
+mat=wood
+fx=16
+behaviour=aligntowater
+script=start
+	on:use {
+		play "mat_wood1.wav";
+		speech "negative";
+		msg "It is broken",3;
+		find 24,random(6,12);
+		find 49,random(15,25);
+		free "self";
+	}
+script=end
+description=start
+A broken bow net.
+description=end
+
+### Table
+id=211
+name=Table
+group=building
+icon=gfx\table.bmp
+model=gfx\table.b3d
+health=300
+mat=wood
+col=3
+
+### Desk
+id=212
+name=Desk
+group=building
+icon=gfx\desk.bmp
+model=gfx\desk.b3d
+health=300
+mat=wood
+col=3
+
+### Big Storage
+id=214
+name=Big Storage
+group=building
+icon=gfx\bigstorage.bmp
+model=gfx\bigstorage.b3d
+health=700
+scale=2.2
+mat=wood
+script=start
+	on:use {
+		exchange "self";
+	}
+	on:build_finish {
+		event "bigstoragebuild",0,0;
+	}
+script=end
+maxweight=250000
+description=start
+You can store items inside this storage.
+description=end
+
+### Butterflygarden
+id=215
+name=Garden
+group=building
+icon=gfx\butterflygarden.bmp
+model=gfx\butterflygarden.b3d
+health=1000
+mat=dirt
+fx=16
+scale=1.5,1,1.5
+script=start
+	on:use {
+		msgbox "Garden","sys/scripts/butterflygarden.s2s";
+	}
+	on:build_finish {
+		event "gardenbuild",0,0;
+	}
+	on:changeday {
+		local $c;
+		$c+=count_inrange("unit",6,250,"self");
+		$c+=count_inrange("unit",7,250,"self");
+		if ($c<3){
+			create "unit",random(6,7),getx("self"),getz("self");
+			if (random(2)==1){
+				create "unit",random(6,7),getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+description=start
+Creates butterflies
+description=end
+
+### Hammock
+id=216
+name=Hammock
+group=building
+icon=gfx\hammock.bmp
+model=gfx\hammock.b3d
+scale=2
+health=150
+mat=none
+behaviour=cover
+fx=16
+script=start
+	on:build_finish {
+		event "hammockbuild",0,0;
+	}
+script=end
+description=start
+A great place for sleeping
+description=end
+
+### Monkey School
+id=217
+name=Monkey School
+group=building
+icon=gfx\monkeyschool.bmp
+model=gfx\monkeyschool.b3d
+scale=2
+health=500
+mat=wood
+script=start
+	on:build_finish {
+		event "monkeyschoolbuild",0,0;
+	}
+	on:use {
+		clear;
+		add "Welcome to the monkey school!";
+		add "At this place you can train transport monkeys.";
+		add "These will follow you all the time so that you can give them items which they will carry for you.";
+		add "";
+		add "You need a tamed monkey and enough bananas to train your own transport monkey!";
+		msgbox "Monkey School";
+		button 0,"Train transport monkey (15 bananas)",8,"sys/scripts/train_monkey.s2s";
+		add "closemenu; ";
+		button 1,"Leave monkey school",3;
+	}
+script=end
+
+### Palisade
+id=218
+name=Palisade
+group=building
+icon=gfx\palisade.bmp
+model=gfx\palisade.b3d
+scale=2
+health=8000
+mat=wood
+col=3
+script=start
+	on:build_finish {
+		event "palisadebuild",0,0;
+	}
+script=end
+
+### Gate
+id=219
+name=Gate
+group=building
+icon=gfx\gate.bmp
+model=gfx\gate.b3d
+scale=2
+health=8000
+mat=wood
+col=3
+script=start
+	on:build_finish {
+		event "gatebuild",0,0;
+	}
+	on:load {
+		local $state;
+		if ($state==1){
+			model "gfx/gate_closed.b3d";
+			scale 1,1,1;
+		}
+	}
+	on:use {
+		local $state;
+		if ($notuseable==0){
+			if ($state==0){
+				process "Close gate",500;
+				$state=1;
+				play "vehicle_move.wav";
+				model "gfx/gate_closed.b3d";
+				scale 1,1,1;
+			}else{
+				process "Open gate",500;
+				$state=0;
+				play "vehicle_move.wav";
+				model "gfx/gate.b3d";
+				scale 1,1,1;
+			}
+		}else{
+			speech "negative";
+			msg "I can't move it!",3;
+		}
+	}
+	on:toggle {
+		if ($state==0){
+			$state=1;
+			play "vehicle_move.wav";
+			model "gfx/gate_closed.b3d";
+			scale 1,1,1;
+		}else{
+			$state=0;
+			play "vehicle_move.wav";
+			model "gfx/gate.b3d";
+			scale 1,1,1;
+		}		
+	}
+script=end
+
+### Wood Storage
+id=220
+name=Wood Storage
+group=building
+icon=gfx\woodstorage.bmp
+model=gfx\woodstorage.b3d
+fx=16
+health=3000
+mat=wood
+maxweight=500000
+script=start
+	on:build_finish {
+		event "woodstoragebuild",0,0;
+	}
+	on:use {
+		exchange "self",1,7,24,25,107;
+	}
+script=end
+
+### Stone Storage
+id=222
+name=Stone Storage
+group=building
+icon=gfx\stonestorage.bmp
+model=gfx\stonestorage.b3d
+fx=16
+health=3000
+mat=wood
+maxweight=300000
+script=start
+	on:build_finish {
+		event "stonestoragebuild",0,0;
+	}
+	on:use {
+		exchange "self",1,21,23;
+	}
+script=end
+
+### Defense Tower
+id=223
+name=Defense Tower
+group=building
+icon=gfx\defensetower.bmp
+model=gfx\defensetower.b3d
+scale=1.2
+y=2
+health=3000
+mat=wood
+state=0,28,0
+script=start
+	on:start {
+		timer "self",3000,0;
+		addstate "self",22;
+		statesize "self",22,15;
+	}
+	on:create {
+		timer "self",3000,0;
+		addstate "self",22;
+		statesize "self",22,15;
+	}
+	on:build_finish {
+		event "defensetowerbuild",0,0;
+	}
+	on:use {
+		msgbox "Defense Tower","sys/scripts/defensetower.s2s";
+	}
+	on:timer {
+		local $x,$y,$z;
+		$x=getx("self");
+		$y=gety("self");
+		$z=getz("self");
+		$y+=28;
+		projectile 53,$x,$y,$z,6,350,15,59;
+	}
+script=end
+description=start
+Shoots at enemies
+description=end

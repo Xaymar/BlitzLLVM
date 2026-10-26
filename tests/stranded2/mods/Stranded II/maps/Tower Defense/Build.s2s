@@ -1,0 +1,13 @@
+// build script attached to stone
+
+on:use {
+	if ($gold>=50){
+		$gold-=50;
+		event "ifc","global";
+		play "build_finish.wav";
+		alterobject "self",193;
+	}else{
+		speech "negative";
+		msg "Not enough gold!",3;
+	}
+}

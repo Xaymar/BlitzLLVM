@@ -1,0 +1,538 @@
+######################################################### Stuff
+
+### Bamboo
+id=120
+name=Bamboo
+group=stuff
+icon=gfx\bamboo.bmp
+model=gfx\bamboo.b3d
+fx=16
+health=100
+find=8,100,3
+mat=wood
+script=start
+	//Spawn Bamboo
+	on:kill {
+		create "item",8,getx("self"),getz("self"),5;
+		corona getx("self"),getz("self");
+	}	
+script=end
+
+### Grain
+id=121
+name=Grain
+group=stuff
+icon=gfx\grain.bmp
+model=gfx\grain.b3d
+behaviour=plague_target
+fx=16
+scale=0.8
+swayspeed=2
+swaypower=5
+col=2
+health=45
+mat=leaf
+growtime=5
+script=start
+	on:kill {
+		$tmp=1;
+		$tmp2=spawntimer("self");
+		if ($tmp2>-3){$tmp=2;}
+		if ($tmp2>=0){$tmp=3;}
+		create "item",41,getx("self"),getz("self"),$tmp;
+		corona getx("self"),getz("self");
+		freevar $tmp,$tmp2;
+	}
+	on:plant {
+		spawntimer "self",-4;
+	}
+script=end
+
+### Marble Cylinder
+id=122
+name=Marble Cylinder
+group=stone
+icon=gfx\marble01.bmp
+model=gfx\marble01.b3d
+scale=0.9
+health=300
+mat=stone
+
+### Marble Pillar
+id=123
+name=Marble Pillar
+group=stone
+icon=gfx\marble02.bmp
+model=gfx\marble02.b3d
+scale=0.8
+health=500
+mat=stone
+
+### Marble Plate
+id=124
+name=Marble Plate
+group=stone
+icon=gfx\marble03.bmp
+model=gfx\marble03.b3d
+scale=0.6
+health=100
+mat=stone
+
+### Marble Floor
+id=125
+name=Marble Floor
+group=stone
+icon=gfx\marble04.bmp
+model=gfx\marble04.b3d
+scale=0.6
+health=300
+mat=stone
+
+### Roots
+id=130
+name=Roots
+group=stuff
+icon=gfx\roots01.bmp
+model=gfx\roots01.b3d
+fx=16
+scale=0.85
+health=50
+autofade=200
+mat=wood
+
+### Roots
+id=131
+name=Roots
+group=stuff
+icon=gfx\roots02.bmp
+model=gfx\roots02.b3d
+fx=16
+scale=0.85
+health=50
+autofade=200
+mat=wood
+
+### Stump
+id=132
+name=Stump
+group=stuff
+icon=gfx\stump01.bmp
+model=gfx\stump01.b3d
+scale=0.9
+health=100
+autofade=400
+mat=wood
+
+### Stump
+id=133
+name=Palm Stump
+group=stuff
+icon=gfx\stump02.bmp
+model=gfx\stump02.b3d
+health=100
+autofade=400
+mat=wood
+
+### Hemp
+id=134
+name=Hemp
+group=stuff
+icon=gfx\hemp.bmp
+model=gfx\hemp.b3d
+col=2
+health=100
+autofade=400
+mat=leaf
+growtime=3
+script=start
+	on:plant {
+		spawntimer "self",-2;
+	}
+
+	on:kill {
+		$tmp=spawntimer("self");
+		create "item",83,getx("self"),getz("self"),($tmp+3);
+		corona getx("self"),getz("self");
+	}
+script=end
+description=start
+Liefert Hanfblätter und kann angepflanzt werden. Aus den Hanfblättern können Joints gedreht werden.
+description=end
+
+### Stump
+id=135
+name=long Stump
+group=stuff
+icon=gfx\stump03.bmp
+model=gfx\stump03.b3d
+health=50
+autofade=400
+mat=wood
+script=start
+	// Spawn Trunk
+	on:kill {
+		create "item",7,getx("self"),getz("self");
+		corona getx("self"),getz("self");
+	}
+script=end
+
+### Crate
+id=136
+name=Crate
+group=stuff
+icon=gfx\crate01.bmp
+model=gfx\crate01.b3d
+health=15
+color=300,300,300
+mat=wood
+maxweight=30000
+
+### Barrel
+id=137
+name=Barrel
+group=stuff
+icon=gfx\barrel.bmp
+model=gfx\barrel.b3d
+health=15
+color=300,300,300
+mat=wood
+maxweight=30000
+
+### Wreck
+id=138
+name=Wreck
+group=stuff
+icon=gfx\wreck01.bmp
+model=gfx\wreck01.b3d
+health=300
+mat=wood
+scale=3
+
+### Explosive Barrel
+id=139
+name=explosive Barrel
+group=stuff
+icon=gfx\explosivebarrel.bmp
+model=gfx\explosivebarrel.b3d
+health=5
+color=300,300,300
+mat=wood
+var=radius,Radius of Explosion,100,0
+var=damage,Damage,50,0
+script=start
+	on:kill {
+		explosion getx("self"),gety("self"),getz("self"),$radius,$damage;
+	}
+script=end
+
+### Ruins
+id=140
+name=Ruins
+group=stone
+icon=gfx\ruins01.bmp
+model=gfx\ruins01.b3d
+detailtex=1
+health=2000
+mat=stone
+scale=2
+
+### Ruins
+id=141
+name=Ruins
+group=stone
+icon=gfx\ruins02.bmp
+model=gfx\ruins02.b3d
+detailtex=1
+health=2000
+mat=stone
+scale=2
+
+### Ruins
+id=142
+name=Ruins
+group=stone
+icon=gfx\ruins03.bmp
+model=gfx\ruins03.b3d
+detailtex=1
+health=2000
+mat=stone
+scale=2
+
+### Ruins
+id=143
+name=Ruins
+group=stone
+icon=gfx\ruins04.bmp
+model=gfx\ruins04.b3d
+detailtex=1
+health=2000
+mat=stone
+scale=2
+
+### Ruins
+id=144
+name=Ruins
+group=stone
+icon=gfx\ruins05.bmp
+model=gfx\ruins05.b3d
+detailtex=1
+health=2000
+mat=stone
+scale=2
+
+### Ruins
+id=145
+name=Ruins
+group=stone
+icon=gfx\ruins06.bmp
+model=gfx\ruins06.b3d
+detailtex=1
+health=2000
+mat=stone
+scale=2
+
+### Ruins
+id=146
+name=Ruins
+group=stone
+icon=gfx\ruins07.bmp
+model=gfx\ruins07.b3d
+detailtex=1
+health=2000
+mat=stone
+scale=2
+
+### Ruins
+id=147
+name=Ruins
+group=stone
+icon=gfx\ruins08.bmp
+model=gfx\ruins08.b3d
+detailtex=1
+health=2000
+mat=stone
+scale=2
+
+### Cave
+id=148
+name=Cave
+group=stone
+icon=gfx\cave.bmp
+model=gfx\cave.b3d
+detailtex=1
+health=3000
+mat=stone
+scale=1.8
+behaviour=cover
+
+### Raptornest
+id=196
+name=Raptor Nest
+group=stuff
+icon=gfx\raptornest.bmp
+model=gfx\raptornest.b3d
+health=100
+mat=leaf
+fx=16
+scale=1.6
+var=radius,Radius,500,0
+var=count,Raptors per Day,1,0
+var=max,Raptors max,1,0
+script=start
+	on:changeday {
+		loop("count",$count) {
+			if (count_inrange("unit",2,$radius,"self")<$max){
+				create "unit",2,getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+
+
+### Kiwinest
+id=197
+name=Kiwi Nest
+group=stuff
+icon=gfx\kiwinest.bmp
+model=gfx\kiwinest.b3d
+health=30
+mat=leaf
+fx=16
+scale=0.5
+var=radius,Radius,500,0
+var=count,Kiwis per Day,1,0
+var=max,Kiwis max,1,0
+script=start
+	on:changeday {
+		loop("count",$count) {
+			if (count_inrange("unit",26,$radius,"self")<$max){
+				create "unit",26,getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+
+### Parrotnest
+id=198
+name=Parrot Nest
+group=stuff
+icon=gfx\parrotnest.bmp
+model=gfx\parrotnest.b3d
+health=50
+mat=leaf
+fx=16
+scale=0.6
+var=radius,Radius,700,0
+var=count,Parrots per Day,1,0
+var=max,Parrots max,1,0
+script=start
+	on:changeday {
+		loop("count",$count) {
+			if (count_inrange("unit",36,$radius,"self")<$max){
+				create "unit",36,getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+
+### Lionstone
+id=199
+name=Lion Stone
+group=stuff
+icon=gfx\lionstone.bmp
+model=gfx\lionstone.b3d
+health=300
+mat=stone
+find=23,60,1
+find=21,60,10
+find=11,20
+find=71,15
+scale=1
+var=radius,Radius,500,0
+var=count,Lions per Day,1,0
+var=max,Lions max,1,0
+script=start
+	on:changeday {
+		loop("count",$count) {
+			if (count_inrange("unit",9,$radius,"self")<$max){
+				create "unit",9,getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+
+### Moss
+id=202
+name=Moss
+group=stuff
+icon=gfx\moss.bmp
+model=gfx\moss.b3d
+health=300
+col=0
+mat=plant
+alpha=0.35
+scale=1.5
+fx=16
+var=max,Mushrooms max,3,0
+var=max2,Snails max,1,0
+script=start
+	on:changeday {
+		//Spawn Fungi
+		if (random(2)==1){
+			if (count_inrange("item",33,25,"self")<$max){
+				local $xp,$zp;
+				$xp=getx("self");
+				$zp=getz("self");
+				$xp+=random(-15,15);
+				$zp+=random(-15,15);
+				create "item",33,$xp,$zp;
+				freevar $xp,$zp;
+			}
+		}
+		//Spawn Snail
+		if (random(3)==1){
+			if (count_inrange("unit",18,300,"self")<$max2){
+				create "unit",18,getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+
+### Birdnest
+id=204
+name=Bird Nest
+group=stuff
+icon=gfx\birdnest.bmp
+model=gfx\birdnest.b3d
+health=50
+mat=leaf
+fx=16
+scale=0.6
+var=radius,Radius,700,0
+var=count,Birds per Day,1,0
+var=max,Birds max,1,0
+script=start
+	on:changeday {
+		loop("count",$count) {
+			if (count_inrange("unit",25,$radius,"self")<$max){
+				create "unit",25,getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+
+### Coral
+id=210
+name=Coral
+group=stuff
+icon=gfx\coral01.bmp
+model=gfx\coral01.b3d
+health=50
+mat=leaf
+fx=16
+scale=3.5
+col=2
+swayspeed=2
+swaypower=15
+var=radius,Radius,400,0
+var=count,Fish per Day,1,0
+var=max,Fish max,1,0
+script=start
+	on:start {
+		local $ftype;
+		$ftype=4;
+		if (random(0,1)==1){
+			$ftype=random(11,12);
+		}
+	}
+	on:changeday {
+		loop("count",$count) {
+			if (count_inrange("unit",$ftype,$radius,"self")<$max){
+				create "unit",$ftype,getx("self"),getz("self");
+			}
+		}
+	}
+script=end
+
+### Aerie
+id=221
+name=Adlerhorst
+group=stuff
+icon=gfx\aerie.bmp
+model=gfx\aerie.b3d
+health=500
+mat=stone
+fx=16
+scale=1.6
+var=radius,Radius,1000,0
+var=count,Eagles per Day,1,0
+var=max,Eagles max,1,0
+script=start
+	on:changeday {
+		loop("count",$count) {
+			if (count_inrange("unit",45,$radius,"self")<$max){
+				create "unit",45,getx("self"),getz("self");
+			}
+		}
+	}
+script=end

@@ -1,0 +1,99 @@
+### Hammer (Stone + Branch)
+combi=start
+id=hammer
+req=23
+req=24
+gen=30
+script=start
+	speech "positive";
+	event "hammercombi",0,0;
+script=end
+combi=end
+
+### Fishing Rod ( Bendable Branch + Cord )
+combi=start
+id=fishingrod
+req=25
+req=49
+gen=50
+script=start
+	speech "positive";
+	event "fishingrodcombi",0,0;
+script=end
+combi=end
+
+### Axe ( Branch + Iron + Hammer )
+combi=start
+id=axe
+req=24
+req=85
+req=30,1,stay
+gen=87
+script=start
+	speech "positive";
+	event "axecombi",0,0;
+script=end
+combi=end
+
+### Spade ( Branch + Iron + Hammer )
+combi=start
+id=spade
+req=24
+req=85
+req=30,1,stay
+gen=84
+script=start
+	speech "positive";
+	event "spadecombi",0,0;
+script=end
+combi=end
+
+### Pickaxe ( Branch + Ironbar + Hammer )
+combi=start
+id=pickaxe
+req=24
+req=86
+req=30,1,stay
+gen=88
+script=start
+	speech "positive";
+	event "pickaxecombi",0,0;
+script=end
+combi=end
+
+### Scythe ( Branch + Ironbar + Hammer )
+combi=start
+id=scythe
+req=24
+req=86
+req=30,1,stay
+gen=105
+script=start
+	speech "positive";
+	event "scythecombi",0,0;
+script=end
+combi=end
+
+###97 Tent ( Skin + Branch )
+combi=start
+id=tent
+req=24,10
+req=96,10
+gen=97
+script=start
+	speech "positive";
+	event "tentcombi",0,0;
+script=end
+combi=end
+
+###104 Net (Cord + Branch)
+combi=start
+id=net
+req=24
+req=49,10
+gen=104
+script=start
+	speech "positive";
+	event "netcombi",0,0;
+script=end
+combi=end

@@ -1,0 +1,20 @@
+//~chieftain
+on:use {
+	dialogue "start","sys/scripts/random_char_chieftain.s2s";
+}
+//~hempguy
+on:use {
+	dialogue "start","sys/scripts/random_char_hempguy.s2s";
+}
+//~native
+on:use {
+	dialogue "start","sys/scripts/random_char_native.s2s";
+}
+//~pirate
+on:use {
+	dialogue "start","sys/scripts/random_char_pirate.s2s";
+}
+//~prof
+on:use {
+	dialogue "start","sys/scripts/random_char_prof.s2s";
+}

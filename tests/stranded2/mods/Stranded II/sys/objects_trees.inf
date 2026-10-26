@@ -1,0 +1,383 @@
+######################################################### Trees
+
+### Tree
+id=10
+name=Tree
+group=tree
+icon=gfx\tree01.bmp
+model=gfx\tree01.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=1.6
+mat=wood
+health=600
+find=15,20,3
+find=24,40,5
+find=26,15,1
+find=107,5,1
+find=107,150,3,1,28
+behaviour=tree
+healthchange=300
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),3;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Tree
+id=11
+name=Tree
+group=tree
+icon=gfx\tree02.bmp
+model=gfx\tree02.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=1.3
+mat=wood
+health=150
+find=26,20,3
+find=107,5,1
+find=107,150,3,1,28
+behaviour=tree
+healthchange=75
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Tree
+id=12
+name=Tree
+group=tree
+icon=gfx\tree03.bmp
+model=gfx\tree03.b3d
+swayspeed=0.5
+swaypower=2
+fx=16
+scale=2
+mat=wood
+health=300
+find=15,25,3
+find=24,40,3
+find=107,5,1
+find=107,150,3,1,28
+behaviour=tree
+healthchange=150
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),2;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Tree
+id=13
+name=Tree
+group=tree
+icon=gfx\tree04.bmp
+model=gfx\tree04.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=2
+mat=wood
+health=400
+find=15,10,3
+find=24,25,3
+find=26,10,1
+find=107,5,1
+find=107,150,3,1,28
+behaviour=tree
+healthchange=200
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),3;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Tree
+id=14
+name=Tree
+group=tree
+icon=gfx\tree05.bmp
+model=gfx\tree05.b3d
+swayspeed=1
+swaypower=2
+scale=0.8
+fx=16
+scale=1.6
+mat=wood
+health=600
+find=15,20,3
+find=24,40,5
+find=26,10,1
+find=107,5,1
+find=107,150,3,1,28
+behaviour=tree
+healthchange=300
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),3;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Tree
+id=15
+name=Tree
+group=tree
+icon=gfx\tree06.bmp
+model=gfx\tree06.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=3
+mat=wood
+health=400
+find=15,25,3
+find=24,40,5
+find=107,10,1
+find=107,150,3,1,28
+behaviour=tree
+healthchange=200
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Tree
+id=16
+name=Tree
+group=tree
+icon=gfx\tree07.bmp
+model=gfx\tree07.b3d
+swayspeed=1
+swaypower=2
+scale=0.9
+fx=16
+scale=1.7
+mat=wood
+health=500
+find=15,25,3
+find=24,40,5
+find=107,10,1
+find=107,150,3,1,28
+behaviour=tree
+healthchange=250
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),5;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Tree
+id=17
+name=Liana Tree
+group=tree
+icon=gfx\lianatree.bmp
+model=gfx\lianatree.b3d
+swayspeed=1
+swaypower=1
+scale=2.4
+fx=16
+mat=wood
+health=350
+find=26,40,4
+find=107,10,1
+find=107,150,3,1,28
+behaviour=tree
+healthchange=175
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Cacaotree
+id=18
+name=Cacao Tree
+group=tree
+icon=gfx\cacaotree.bmp
+model=gfx\cacaotree.b3d
+scale=2.5
+fx=16
+mat=wood
+health=300
+find=15,10,3
+find=24,10,5
+find=107,5,1
+find=107,150,3,1,28
+spawn=67,3,15,30,75,3,1
+behaviour=tree
+healthchange=150
+growtime=10
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Coffeetree
+id=19
+name=Coffee Tree
+group=tree
+icon=gfx\coffeetree.bmp
+model=gfx\coffeetree.b3d
+y=1.75
+x=3
+z=3
+fx=16
+mat=wood
+health=300
+find=15,10,3
+find=24,10,5
+find=107,5,1
+find=107,150,3,1,28
+spawn=70,3,30,30,45,3,5
+behaviour=tree
+healthchange=150
+growtime=10
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Plumtree
+id=195
+name=Plum Tree
+group=tree
+icon=gfx\cacaotree.bmp
+model=gfx\cacaotree.b3d
+scale=2.5
+fx=16
+mat=wood
+health=300
+find=15,10,3
+find=24,10,5
+find=107,5,1
+find=107,150,3,1,28
+spawn=116,3,15,30,75,3,1
+behaviour=tree
+healthchange=150
+growtime=10
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self");
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+######################################################### Firs
+
+### Fir
+id=20
+name=Fir
+group=tree
+icon=gfx\fir01.bmp
+model=gfx\fir01.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=2
+mat=wood
+health=300
+find=24,15,3
+find=107,20,1
+find=107,200,3,1,28
+behaviour=tree
+healthchange=300
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),2;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end
+
+### Fir
+id=21
+name=Fir
+group=tree
+icon=gfx\fir01.bmp
+model=gfx\fir02.b3d
+swayspeed=1
+swaypower=2
+fx=16
+scale=3.5
+mat=wood
+health=300
+find=24,15,3
+find=107,20,1
+find=107,200,3,1,28
+behaviour=tree
+healthchange=300
+script=start
+	// Spawn Trunk
+	on:kill {
+		if (spawntimer("self")>=0){
+			event "iskill_wood","global";
+			create "item",7,getx("self"),getz("self"),3;
+			corona getx("self"),getz("self");
+		}
+	}
+script=end

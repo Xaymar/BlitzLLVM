@@ -1,0 +1,98 @@
+### Wooden Arrows (Branch + Feather)
+combi=start
+id=woodenarrow
+req=24
+req=57
+gen=54
+script=start
+	play "mat_leaf2.wav";
+	process "making arrow",300;
+script=end
+combi=end
+
+### Arrows (Branch + Feather + Pebbles)
+combi=start
+id=arrow
+req=24
+req=57
+req=21
+gen=53
+script=start
+	play "mat_leaf2.wav";
+	process "making arrow",300;
+script=end
+combi=end
+
+### Bolts (Branch + Matchet)
+combi=start
+id=bolt
+req=24
+req=28,1,stay
+gen=62,5
+script=start
+	play "mat_wood1.wav";
+	process "carving bolts",1000;
+script=end
+combi=end
+
+### Bolts (bendable Branch + Matchet)
+combi=start
+id=bolt
+req=25
+req=28,1,stay
+gen=62,5
+script=start
+	play "mat_wood1.wav";
+	process "carving bolts",1000;
+script=end
+combi=end
+
+### Bolts (Bamboo + Matchet)
+combi=start
+id=bamboobolt
+req=8
+req=28,1,stay
+gen=62,5
+script=start
+	play "mat_wood1.wav";
+	process "carving bolts",1000;
+script=end
+combi=end
+
+### Iron Bolts (Iron Bar + Hammer)
+combi=start
+id=ironbolt
+req=86
+req=30,1,stay
+gen=63,20
+script=start
+	play "workmetal.wav";
+	process "processing metal",2500;
+script=end
+combi=end
+
+### Poison Arrows (Branch + Feather + Poison)
+combi=start
+id=poisonarrow
+req=24
+req=57
+req=37
+gen=55
+script=start
+	play "mat_leaf2.wav";
+	process "making poison arrow",2500;
+script=end
+combi=end
+
+### Fire Arrows (Branch + Feather + Wool)
+combi=start
+id=firearrow
+req=24
+req=57
+req=48
+gen=56
+script=start
+	play "mat_leaf2.wav";
+	process "making fire arrow",2500;
+script=end
+combi=end

@@ -1,0 +1,103 @@
+### Spear (Stone + Branch)
+combi=start
+id=spear
+req=23
+req=24
+gen=52
+script=start
+	play "mat_leaf2.wav";
+	process "making spear",300;
+	event "spearcombi",0,0;
+script=end
+combi=end
+
+### Bow ( Bendable Branch + Cord )
+combi=start
+id=bow
+req=25
+req=49
+gen=59
+script=start
+	speech "positive";
+	event "bowcombi",0,0;
+script=end
+combi=end
+
+### Slingshot (Branch + Liana)
+combi=start
+id=slingshot
+req=24
+req=26
+gen=51
+script=start
+	speech "positive";
+	event "slingshotcombi",0,0;
+script=end
+combi=end
+
+### Goldbow (10xGoldnugget + Cord + Hammer)
+combi=start
+id=goldbow
+req=4,10
+req=49
+req=30,1,stay
+gen=61
+script=start
+	speech "positive";
+	event "goldbowcombi",0,0;
+script=end
+combi=end
+
+### Longbow (3xBendable Branch + 3xCord + Matchet)
+combi=start
+id=longbow
+req=25,3
+req=49,3
+req=28,1,stay
+gen=60
+script=start
+	speech "positive";
+	event "longbowcombi",0,0;
+script=end
+combi=end
+
+### Matchet ( Branch + Iron + Hammer )
+combi=start
+id=matchet
+req=24
+req=85
+req=30,1,stay
+gen=28
+script=start
+	speech "positive";
+	event "matchetcombi",0,0;
+script=end
+combi=end
+
+### Arbalest ( Branch + Ironbar + Cord + Ironbolt + Hammer)
+combi=start
+id=arbalest
+req=24,3
+req=86,5
+req=49,6
+req=63,10
+req=30,1,stay
+gen=64
+script=start
+	speech "positive";
+	event "arbalestcombi",0,0;
+script=end
+combi=end
+
+### Clawspear (Claw + Branch)
+combi=start
+id=clawspear
+req=95,4
+req=24
+gen=120
+script=start
+	play "mat_leaf2.wav";
+	process "making claw spear",300;
+	event "clawspearcombi",0,0;
+script=end
+combi=end

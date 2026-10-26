@@ -1,0 +1,15 @@
+### Wilson (Volleyball + Branch)
+combi=start
+id=wilson
+req=77
+req=24,10
+gen=78
+script=start
+	speech "positive";
+	clear;
+	add "Wilson!";
+	add "Yeah. Thats how I call him - my new friend.";
+	add "I think we are going to have a lot of fun!";
+	diary "My new friend!";
+script=end
+combi=end

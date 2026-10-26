@@ -1,0 +1,141 @@
+// this file contains the attack-waves for the map "Tower Defense.s2"
+// max wave-events: 001 to 999
+
+on:wave_001 {
+	$tokill=10;
+	timer "info",1,2000,10,"spawn_kiwi";
+	msg "10 Kiwis",3;
+}
+
+on:wave_002 {
+	$tokill=20;
+	timer "info",1,1500,20,"spawn_kiwi";
+	msg "20 Kiwis",3;
+}
+
+on:wave_003 {
+	$tokill=30;
+	timer "info",1,800,30,"spawn_kiwi";
+	msg "30 Kiwis",3;
+}
+
+on:wave_004 {
+	$tokill=5;
+	timer "info",1,5500,5,"spawn_turtle";
+	msg "5 Turtles",3;
+}
+
+on:wave_005 {
+	$tokill=10;
+	timer "info",1,5000,10,"spawn_turtle";
+	msg "10 Turtles",3;
+}
+
+on:wave_006 {
+	$tokill=15;
+	timer "info",1,4500,15,"spawn_turtle";
+	msg "15 Turtles",3;
+}
+
+on:wave_007 {
+	$tokill=5;
+	timer "info",1,3000,5,"spawn_slowmonkey";
+	msg "5 Slow Monkeys",3;
+}
+
+on:wave_008 {
+	$tokill=10;
+	timer "info",1,2750,10,"spawn_slowmonkey";
+	msg "10 Slow Monkeys",3;
+}
+
+on:wave_009 {
+	$tokill=15;
+	timer "info",1,2500,15,"spawn_slowmonkey";
+	msg "15 Slow Monkeys",3;
+}
+
+on:wave_010 {
+	$tokill=1;
+	msg "1 Butterfly Of Death",3; 
+	$id=create("unit",7,$spx,$spz);
+	setlocal "unit",$id,"value",100;
+	setlocal "unit",$id,"dmg",20;
+	maxhealth "unit",$id,330;
+	health "unit",$id,330;
+	scale 3,3,3,"unit",$id;
+}
+
+on:wave_011 {
+	$tokill=3;
+	timer "info",1,5000,3,"spawn_lion";
+	msg "3 Lions",3;
+}
+
+on:wave_012 {
+	$tokill=5;
+	timer "info",1,4800,5,"spawn_lion";
+	msg "5 Lions",3;
+}
+
+on:wave_013 {
+	$tokill=10;
+	timer "info",1,4600,10,"spawn_lion";
+	msg "10 Lions",3;
+}
+
+on:wave_014 {
+	$tokill=3;
+	timer "info",1,5000,3,"spawn_raptor";
+	msg "3 Raptors",3;
+}
+
+on:wave_015 {
+	$tokill=5;
+	timer "info",1,5000,5,"spawn_raptor";
+	msg "5 Raptors",4;
+}
+
+on:wave_016 {
+	$tokill=7;
+	timer "info",1,5000,7,"spawn_raptor";
+	msg "7 Raptors",3;
+}
+
+on:wave_017 {
+	$tokill=10;
+	timer "info",1,5000,10,"spawn_raptor";
+	msg "10 Raptors",3;
+}
+
+on:wave_018 {
+	$tokill=15;
+	timer "info",1,5000,15,"spawn_raptor";
+	msg "15 Raptors",3;
+}
+
+on:wave_019 {
+	$tokill=20;
+	timer "info",1,5000,20,"spawn_raptor";
+	msg "20 Raptors",3;
+}
+
+on:wave_020 {
+	$tokill=1;
+	msg "1 Scary Sheep",3; 
+	$id=create("unit",15,$spx,$spz);
+	setlocal "unit",$id,"value",100;
+	setlocal "unit",$id,"dmg",20;
+	maxhealth "unit",$id,810;
+	health "unit",$id,810;
+	scale 1.5,1.5,1.5,"unit",$id;
+	addstate "unit",$id,"speed";
+	statevalue "unit",$id,"speed",1;
+}
+
+on:wave_021 {
+	speech "positive";
+	msgwin "You win! Congratulations!",4;
+	quit;
+}
+

@@ -1,0 +1,9 @@
+Hello!
+If you want to find out how Stranded 2 works and what you have to do to survive, just follow the path and read the signs. At the various stations, you will be taught everything that you need to know.
+
+!4Interaction
+To use something on the island (i.e. to read a sign), you have to look at it by pointing the cursor on it. Pressing down a button will trigger an action. But keep in mind: Only some certain objects will react if you use them that way.
+[$key_use] - Action
+
+!1Your task
+Follow the path and read the signs!

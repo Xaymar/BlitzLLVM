@@ -1,0 +1,43 @@
+page=start
+title=Professor
+text=start
+Good day! I need something to do at all costs. Just give me the materials and I will construct great stuff for you!
+text=end
+button=trade,What can you build for me?
+button=action:close,No, thanks!
+
+page=trade
+title=Trade with professor
+### Skin, Cord -> Volleyball
+trade=start
+sell=96,10
+sell=49,30
+buy=77,1
+trade=end
+### Iron -> Rocket
+trade=start
+sell=85,8
+buy=79,1
+trade=end
+### Iron, Poison -> Toxic Rocket
+trade=start
+sell=85,8
+sell=37,3
+buy=80,1
+trade=end
+### Iron, Ironbar, Cord, Firestone -> Rocket Launcher
+trade=start
+sell=85,20
+sell=86,15
+sell=49,10
+sell=22,1
+buy=81,1
+trade=end
+### Iron, Cord, Strong Healherb -> Medikit
+trade=start
+sell=85,15
+sell=49,20
+sell=18,10
+buy=118,1
+trade=end
+button=action:close,Bye!

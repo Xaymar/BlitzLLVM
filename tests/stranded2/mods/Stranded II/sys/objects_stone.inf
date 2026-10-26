@@ -1,0 +1,241 @@
+######################################################### Stone
+
+### Stone
+id=60
+name=Stone
+group=stone
+icon=gfx\stone01.bmp
+model=gfx\stone01.b3d
+scale=1.3
+mat=stone
+health=150
+autofade=350
+
+### Stone
+id=61
+name=Stone
+group=stone
+icon=gfx\stone02.bmp
+model=gfx\stone02.b3d
+scale=1.3
+mat=stone
+health=200
+autofade=350
+
+### Stone
+id=62
+name=Stone
+group=stone
+icon=gfx\stone03.bmp
+model=gfx\stone03.b3d
+scale=1.3
+mat=stone
+health=100
+autofade=350
+
+### Rock
+id=63
+name=Rock
+group=stone
+icon=gfx\rock01.bmp
+model=gfx\rock01.b3d
+scale=4
+detailtex=1
+mat=stone
+health=1500
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+
+### Rock
+id=64
+name=Rock
+group=stone
+icon=gfx\rock02.bmp
+model=gfx\rock02.b3d
+detailtex=1
+mat=stone
+health=30000
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+
+### Rock
+id=65
+name=Rock
+group=stone
+icon=gfx\rock03.bmp
+model=gfx\rock03.b3d
+scale=0.8
+detailtex=1
+mat=stone
+health=1500
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+
+### Stone
+id=66
+name=Stone
+group=stone
+icon=gfx\stone05.bmp
+model=gfx\stone05.b3d
+scale=0.55
+health=1500
+mat=stone
+
+### Rock
+id=67
+name=Rock
+group=stone
+icon=gfx\rock04.bmp
+model=gfx\rock04.b3d
+scale=1.1
+detailtex=1
+mat=stone
+health=3000
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+
+### Rock
+id=68
+name=Rock
+group=stone
+icon=gfx\rock05.bmp
+model=gfx\rock05.b3d
+scale=1.2
+detailtex=1
+mat=stone
+health=3000
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+
+### Rock
+id=69
+name=Rock
+group=stone
+icon=gfx\rock06.bmp
+model=gfx\rock06.b3d
+detailtex=1
+mat=stone
+health=3000
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+
+### Metal Rock
+id=70
+name=Metal Rock
+group=stone
+icon=gfx\metalrock.bmp
+model=gfx\metalrock.b3d
+mat=stone
+health=10000
+find=23,40,1
+find=21,50,5
+find=85,30,1
+find=85,200,1,1,88
+
+### Gold Rock
+id=71
+name=Gold Rock
+group=stone
+icon=gfx\goldrock.bmp
+model=gfx\goldrock.b3d
+mat=stone
+health=1000
+find=23,40,1
+find=21,60,5
+find=4,30,1,1,88
+
+### Crystal Rock
+id=72
+name=Crystal Rock
+group=stone
+icon=gfx\crystalrock.bmp
+model=gfx\crystalrock.b3d
+mat=stone
+health=1000
+find=23,40,1
+find=21,60,5
+find=3,30,1,1,88
+
+### Water Rock (Full)
+id=73
+name=Water Rock
+group=stone
+icon=gfx\waterrock.bmp
+model=gfx\waterrock.b3d
+mat=stone
+scale=1.6
+health=1000
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+var=water,Water,5,0
+script=start
+	on:use {
+		process "drinking",1000;
+		drink 0,0,25,0;
+		$water--;
+		if ($water<=0){
+			alterobject "self",74;
+		}
+	}
+	on:changeday {
+		if (getweather()==1){
+			$water=5;
+		}
+	}
+script=end
+behaviour=watersource
+
+### Water Rock (Empty)
+id=74
+name=Water Rock (empty)
+group=stone
+icon=gfx\waterrock0.bmp
+model=gfx\waterrock0.b3d
+mat=stone
+scale=1.6
+health=1000
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+script=start
+	on:use {
+		speech "negative";
+		msg "I cannot drink here",3;
+		msg "because it is empty!",3;
+	}
+	on:changeday {
+		if (getweather()==1){
+			alterobject "self",73;
+			local $water;
+			$water=5;
+		}
+	}
+script=end
+
+### Fountain
+id=75
+name=Fountain
+group=stone
+icon=gfx\fountain.bmp
+model=gfx\fountain.b3d
+mat=stone
+scale=1.6
+health=5000
+find=23,90,2
+find=21,90,7
+find=23,300,1,1,88
+script=start
+	on:use {
+		process "drinking",1000;
+		drink 0,0,25,0;
+
+	}
+script=end
+behaviour=fountain

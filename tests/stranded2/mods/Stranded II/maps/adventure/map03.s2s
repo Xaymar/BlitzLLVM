@@ -1,0 +1,283 @@
+/*
+The island of the pirate. He gives you information when you solve some quests.
+*/
+
+//~diary01
+I only wanted to dig out a treasure, and now this is where I am. Cruising with a pirate.
+Now he has brought me to a different island, but I do not have the slightest clue what he expects me to do here!
+
+//~piratescr01
+on:use {
+	dialogue "start","maps\adventure\map03.s2s","piratedlg01";
+}
+
+//~piratedlg01
+page=start
+title=Welcome
+text=start
+Hohoho!
+Welcome to mine pirate island!
+This is where I plan my raids and repair my magnific ship, if it has been damaged in battle.
+Well... actually, this is what I used to do. But some weeks ago, somebody came hither and ransacked and raided everything. They blew up my entire lighthouse! Arrr! Of course I was on a raid at that time and could not stop them, aye? I saw it when I returned. The fog was so dense that one could cut it in slices. I was doomed, because I didn't have any cuttery. Which was not the main problem; that was rather the missing lighthouse. With a big crush, I ran ashore with at least 10 knots of velocity. Hoho! I spotted my island by far too late. I expected that the lighthouse would warn me. Arrr...
+Anyway, my ship is a complete wreck now. It is down there at the beach. I really am on a run of bad luck. I had not even yet got over the death of my parrot when it happened!
+text=end
+button=why,And what do you want me to do here?
+button=pity,I feel very sorry for you.
+
+page=why
+title=A ship
+text=start
+Harrr! Did ye not listen properly?! I am a dreadful pirate! A pirate without a ship!
+Ye fool shalt help me! I need ye to build a new ship. Won't get far with the olde phantom rudder boat!
+text=end
+button=ok,Alright, I see. It looks like I have no choice.
+button=otherway,Can't we find another way?
+
+page=pity
+title=A ship
+text=start
+Hohoho. Thank ye for being so understanding! At least I have a new parrot now. All more that I need is a ship...
+text=end
+button=why,Um... what do I have to do with that?
+
+page=otherway
+title=Lighthouse
+text=start
+Well... We could surely also solve our problem by rebuilding the lighthouse.
+Then I could send light signals to the next inhabited island and they would send help hither - per ship.
+text=end
+button=ok,Ahem... what shall I do?
+
+page=ok
+title=Torches
+text=start
+Before ye can do anything here, ye must light all torches on the island. There is a pair of firestones in my cottage. If somebody might occasionally come across, he will see us better then.
+Plus, I just like fire. This is why me jacket is red. Lovely, isn't it?
+text=end
+button=action:close,Um... yes, sure... I'm off to work on it.
+script=start
+	def_extend "object",166,"maps\adventure\map03.s2s","torchscr";
+	addscript "unit",$pirate,"maps\adventure\map03.s2s","piratescr02";
+	event "torchq","info",18;
+script=end
+
+//~torchscr
+on:hit {
+	event "torchq","info",18;
+}
+
+//~piratescr02
+on:use {
+	$tt=0;
+	$tl=0;
+	loop ("objects",166){
+		$tt++;
+		$id=loop_id();
+		if (gotstate("object",$id,"fire")>0){
+			$tl++;
+		}
+	}
+	if ($tt==$tl) {
+		dialogue "ok","maps\adventure\map03.s2s","piratedlg02";
+	} else {
+		dialogue "notok","maps\adventure\map03.s2s","piratedlg02";
+	}
+}
+//~piratedlg02
+page=notok
+title=Torches
+text=start
+Arrr! Ye hast not litten all torches yet!
+There are two flintstones in mine cottage, in case ye do not have a pair.
+text=end
+button=action:close,Alright
+
+page=ok
+title=Torches
+text=start
+Warm and illuminated! Hoho! That is how I like it!
+Let's see... er... oh, right. Ye want to get away, don't ye?
+There are two ways:
+Either ye help me to rebuild my lighthouse or we repair my ship.
+It is up to thee to decide.
+For the lighthouse I need 30 stones, for the ship 15 logs should do it.
+Get the stuff and deliver it to me, then we will see how to carry on!
+text=end
+button=action:close,Aye aye!
+script=start
+	freetext 0;
+	$wood=0;
+	$stone=0;
+	addscript "unit",$pirate,"maps\adventure\map03.s2s","piratescr03";
+script=end
+//~piratescr03
+on:use {
+	// Got Items?
+	if (playergotitem(7)>0){
+		if (playergotitem(23)>0){
+			$wood+=playergotitem(7);
+			freestored "unit",1,7;
+			$stone+=playergotitem(23);
+			freestored "unit",1,23;
+			if ($wood>=15){
+				dialogue "wooddone","maps\adventure\map03.s2s","piratedlg03";
+			}elseif ($stone>=30){
+				dialogue "stonedone","maps\adventure\map03.s2s","piratedlg03";
+			}else{
+				dialogue "woodstone","maps\adventure\map03.s2s","piratedlg03";
+			}
+		}else{
+			$wood+=playergotitem(7);
+			freestored "unit",1,7;
+			if ($wood<15){
+				dialogue "wood","maps\adventure\map03.s2s","piratedlg03";
+			}else{
+				dialogue "wooddone","maps\adventure\map03.s2s","piratedlg03";
+			}
+		}
+	}elseif (playergotitem(23)>0){
+		$stone+=playergotitem(23);
+		freestored "unit",1,23;
+		if ($stone<30){
+			dialogue "stone","maps\adventure\map03.s2s","piratedlg03";
+		}else{
+			dialogue "stonedone","maps\adventure\map03.s2s","piratedlg03";
+		}
+	}else{
+		dialogue "nothing","maps\adventure\map03.s2s","piratedlg03";
+	}
+}
+//~piratedlg03
+page=nothing
+title=Got nothing for me?
+text=start
+Hoho! Ye have nothing for me? Talk to me again when ye have trunks or stones! We will not get further otherwise.
+I would do it meself, but I have just one leg, one hand and one eye left. Harharrr!! That does sum up to quite a handicap, I can tell ye!
+text=end
+button=action:close,Okay, I understand
+
+page=wood
+title=Timber
+text=start
+Arrrr! Good timber! Wonderful!
+Ye have collected $wood logs.
+text=end
+button=action:close,Okay
+
+page=stone
+title=Stone
+text=start
+Aye! Stones! Fantastic!
+Ye have collected $stone stones.
+text=end
+button=action:close,Okay
+
+page=woodstone
+title=Both timber and stone
+text=start
+Harrharr! Ye cannot decide, can ye? Ye brought both stones AND logs! I will get mixed up! Har har!
+What luck is it that I have taken down exact notes!
+Trunks: $wood
+Stones: $stone
+If ye carry on like that ye might once become a real buccaneer, lad!
+text=end
+button=action:close,Okay
+
+page=wooddone
+title=Finished?!
+text=start
+Har har! Oops! Ye broughtst me enough timber! It's unbelievable!
+Ye may have a break now. Let's carry on tomorrow in the morning!
+text=end
+script=start
+	addscript "unit",$pirate,"maps\adventure\map03.s2s","piratescr04";
+script=end
+
+page=stonedone
+title=Finished?!
+text=start
+Har har! Oops! Ye broughtst me enough stones! It's unbelievable!
+Ye may have a break now. Let's carry on tomorrow in the morning!
+text=end
+script=start
+	addscript "unit",$pirate,"maps\adventure\map03.s2s","piratescr04";
+script=end
+
+page=tomorrow
+title=No work until tomorrow!
+text=start
+Hoho! Just have a nick first! Tomorrow we shalt carry on, lad.
+text=end
+//~piratescr04
+on:use {
+	dialogue "tomorrow","maps\adventure\map03.s2s","piratedlg03";
+}
+on:sleep {
+	timer 0,8000,1,"pirateaway";
+	$msgid=create("item",73);
+	setat "item",$msgid,"info",20;
+	addstate "item",$msgid,"particles";
+	addstate "item",$msgid,"invulnerability";
+	addscript "item",$msgid,"maps\adventure\map03.s2s","themessage01";
+	free "self";
+	starttrigger 32;
+}
+//~pirateaway
+He is gone! Just gone!
+When I slept, he must just have hopped into his phantom rudder boat and left. The jerk has imposed on my kindness! What a shameless boldness!
+But... wait a minute!
+Over there, he seems to have left a message for me. I should take a look at it.
+//~themessage01
+on:collect {
+	skipevent;
+	damage "object",8,1000000;
+	damage "object",7,1000000;
+	freestate "object",10;
+	damage "object",10,1000000;
+	diary "All broken!","maps\adventure\map03.s2s","jettybreak";
+	addscript "item",$msgid,"maps\adventure\map03.s2s","themessage02";
+}
+//~jettybreak
+Whaaa! Help!
+As I try to grab the message, suddenly I hear a loud cracking below me. The jetty breaks and the message falls down into the water that is filled to the very rim with sharks - and I follow it!
+Now I must grab the message as quickly as possible and then get out of the water, or I can forget the whole survival thing.
+
+//~themessage02
+on:collect {
+	skipevent;
+	$usethestone=1;
+	diary "Message","maps\adventure\map03.s2s","themessage03";
+	free "self";
+}
+//~themessage03
+!1This is what the pirate wrote:
+Fair thea wal, yee dump lubber!
+Thanx for al teh stuf, I kan youse it reely wel.
+If ye want too ged awey too, ye musst ownlee use the stones att the ruins!
+Une of themm is carsted with a telleport spall! It wil bring ye too a FRIEND!!
+
+P.S.: Naver drust a pirrate!! Hohoho!!!
+
+
+!1My opinion:
+I am dumb. Indeed. But at least I have a better orthography than the chap. That is a little consolation.
+I will see if what he wrote about the stones is true. I am breathless of anticipation! It is all so exciting!
+//~hiddenclock01
+A map with a strange text. Perhaps I might find something if I strictly stick to the instructions and dig at the target spot!
+
+The shape of a kind of hat and used for washing
+from there on to the southwest until you are surrounded by fern
+Henceforth southwards you go till the element of beginning
+Northeast is the direction to your hard goal 
+
+//~hiddenclock02
+ - - -
+
+I have found the treasure! A watch and a gold nugget! Awesome!
+//~stoneitems
+Trying to have myself teleported by the rock, I notice lightning and thunder. At closer sight, I see an inscription that reveals important facts that the pirate appears to have kept secret from me:
+
+This worthy teleport stone 2050 XL of the quality brand Neptune needs the power of the water in order to perform long-range teleport. Please place 25 children of the sea at the stone before you use it.
+In case of problems, contact our technical customer service by dialing 0190 ...
+
+... the rest is too weather-beaten to be made out. Hm.

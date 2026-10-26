@@ -1,0 +1,548 @@
+### Firestone
+id=22
+name=Flint
+group=tool
+icon=gfx\firestone.bmp
+model=gfx\firestone.b3d
+scale=0.5
+behaviour=blade
+mat=stone
+weight=500
+info=striking two flint stones together provides the sparks needed to start a fire
+damage=5
+healthchange=0
+script=start
+	//Set on Fire
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//Only "torch" and "fireplace"
+		if (compare_behaviour($tmp,$tmp2,"torch")+compare_behaviour($tmp,$tmp2,"fireplace")>0){
+			//Works only with at least 2 firestones!
+			if (playergotitem(22)>1){
+				if (gotstate($tmp,$tmp2,"fire")+gotstate($tmp,$tmp2,"eternalfire")>0){
+					msg "Already burning";
+				}else{
+					if (addstate($tmp,$tmp2,"fire")==1){
+						statevalue $tmp,$tmp2,"fire",0;
+						msg "Fire started",4;
+					}else{
+						msg "It's too wet!",3;
+					}
+				}
+			}else{
+				msg "I need at least 2",3;
+				msg "flints to start a fire!",3;
+				speech "negative";
+			}
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+script=end
+
+### Hammer
+id=30
+name=Hammer
+group=tool
+icon=gfx\hammer.bmp
+model=gfx\hammer.b3d
+scale=0.6
+behaviour=hammer
+mat=stone
+weight=1000
+damage=6
+info=this hammer can be used to build stuff. It is also needed for combinations with iron
+healthchange=0
+
+### Fishing Rod
+id=50
+name=Fishing Rod
+group=tool
+icon=gfx\fishingrod.bmp
+model=gfx\fishingrod.b3d
+scale=1.4
+mat=wood
+weight=1000
+info=a fishing rod which allows me to fish
+behaviour=fishingrod
+damage=3
+script=start
+	on:attack2 {
+		jade 2.5;
+		event "iskill_fish","global";
+	}
+	on:fish_failure {
+		$tmp=current_id();
+		if (parent_class($tmp)==2){
+			if (parent_id($tmp)==1){
+				speech "negative";
+				msg "I cannot fish here!",3;
+			}
+		}
+	}
+	on:fish_success {
+		$tmp=current_id();
+		if (parent_class($tmp)==2){
+			if (parent_id($tmp)==1){
+				//Bait?
+				if ((playergotitem(98)+playergotitem(119))==0){
+
+					$tmp2=skillvalue("fish");
+					if ($tmp2>=500){
+						find 89,random(1,2);
+						speech "positive";
+					}elseif($tmp2>=200){
+						$tmp3=random(1,6);
+						if ($tmp3==1){
+							find 109;
+							speech "positive";
+						}elseif($tmp3==2){
+							find 102;
+							speech "positive";
+						}elseif($tmp3==3){
+							find 103;
+							speech "positive";
+						}else{
+							find 89;
+							speech "positive";
+						}
+					}elseif($tmp2>=100){
+						$tmp3=random(1,3);
+						if ($tmp3==1){
+							find 109;
+							speech "positive";
+						}elseif($tmp3==2){
+							find 102;
+							speech "positive";
+						}elseif($tmp3==3){
+							find 103;
+							speech "positive";
+						}				
+					}elseif($tmp2>=50){
+						$tmp3=random(1,5);
+						if ($tmp3==1){
+							find 109;
+							speech "positive";
+						}elseif($tmp3==2){
+							find 102;
+							speech "positive";
+						}elseif($tmp3==3){
+							find 103;
+							speech "positive";
+						}
+					}elseif($tmp2>=25){
+						$tmp3=random(1,7);
+						if ($tmp3==1){
+							find 109;
+							speech "positive";
+						}elseif($tmp3==2){
+							find 102;
+							speech "positive";
+						}elseif($tmp3==3){
+							find 103;
+							speech "positive";
+						}
+					}
+				//Use a Bait
+				}else{
+					//Worm
+					if (playergotitem(119)>0){
+						freestored "unit",1,119,1;
+						msg "Used worm as bait!",1;
+					//Insectparts
+					}elseif (playergotitem(98)>0){
+						freestored "unit",1,98,1;
+						msg "Used insect parts as bait!",1;
+					}
+
+					//Get Fish?
+					$tmp2=skillvalue("fish");
+					if ($tmp2>=500){
+						find 89,random(1,3);
+					}elseif($tmp2>=200){
+						find 89,1;
+						speech "positive";
+					}elseif($tmp2>=50){
+						$tmp3=random(1,100);
+						if ($tmp3<=70){
+							find 89;
+							speech "positive";
+						}
+					}elseif($tmp2>=25){
+						$tmp3=random(1,100);
+						if ($tmp3<=50){
+							find 89;
+							speech "positive";
+						}						
+					}else{
+						$tmp3=random(1,100);
+						if ($tmp3<=30){
+							find 89;
+							speech "positive";
+						}
+					}
+				}
+			}
+		}
+	}
+script=end
+healthchange=0
+
+### Watch
+id=65
+name=Watch
+group=tool
+icon=gfx\watch.bmp
+model=gfx\watch.b3d
+scale=0.32
+behaviour=watch
+mat=metal
+weight=40
+info=this thing shows the exact time!
+healthchange=0
+
+### Map
+id=73
+name=Map
+group=tool
+icon=gfx\map.bmp
+model=gfx\map.b3d
+scale=0.5
+fx=16
+behaviour=map
+mat=none
+weight=10
+info=a map! I'll never lose my way again!
+health=100000
+healthchange=0
+
+### Spade
+id=84
+name=Spade
+group=tool
+icon=gfx\spade.bmp
+model=gfx\spade.b3d
+fx=16
+mat=metal
+scale=0.75
+weight=800
+info=this spade can be used to dig
+behaviour=spade
+damage=5
+script=start
+	on:attack2 {
+		jade 3;
+		event "iskill_dig","global";
+	}
+
+	on:dig_failure {
+		$tmp=current_id();
+		if (parent_class($tmp)==2){
+			if (parent_id($tmp)==1){
+				$tmp2=skillvalue("dig");
+				if ($tmp2>=500){
+					$tmp3=random(1,7);
+					if ($tmp3==1){
+						find 21,random(7,20);
+						speech "positive";
+					}elseif($tmp3==2){
+						find 23,random(3,7);
+						speech "positive";
+					}elseif($tmp3==3){
+						find 98,random(7,20);
+						speech "positive";
+					}elseif($tmp3==4){
+						find 33,random(3,7);
+						speech "positive";
+					}elseif($tmp3<=6){
+						find 119,random(2,5);
+						speech "positive";
+					}else{
+						find 20,random(2,6);
+						speech "positive";
+					}
+				}elseif($tmp2>=200){
+					$tmp3=random(1,7);
+					if ($tmp3==1){
+						find 21,random(5,15);
+						speech "positive";
+					}elseif($tmp3==2){
+						find 23,random(1,5);
+						speech "positive";
+					}elseif($tmp3==3){
+						find 98,random(5,15);
+						speech "positive";
+					}elseif($tmp3==4){
+						find 33,random(1,5);
+						speech "positive";
+					}elseif($tmp3<=6){
+						find 119,random(2,4);
+						speech "positive";	
+					}else{
+						find 20,random(1,5);
+						speech "positive";
+					}
+				}elseif($tmp2>=100){
+					$tmp3=random(1,8);
+					if ($tmp3==1){
+						find 21,random(4,10);
+						speech "positive";
+					}elseif($tmp3==2){
+						find 23,random(1,4);
+						speech "positive";
+					}elseif($tmp3==3){
+						find 98,random(3,10);
+						speech "positive";
+					}elseif($tmp3==4){
+						find 33,random(1,4);
+						speech "positive";
+					}elseif($tmp3==5){
+						find 20,random(1,3);
+						speech "positive";
+					}elseif($tmp3<=7){
+						find 119,random(1,4);
+						speech "positive";
+					}
+				}elseif($tmp2>=50){
+					$tmp3=random(1,8);
+					if ($tmp3==1){
+						find 21,random(3,6);
+						speech "positive";
+					}elseif($tmp3==2){
+						find 23,random(1,3);
+						speech "positive";
+					}elseif($tmp3==3){
+						find 98,random(1,5);
+						speech "positive";
+					}elseif($tmp3==4){
+						find 33,random(1,2);
+						speech "positive";
+					}elseif($tmp3<=6){
+						find 119,random(1,3);
+						speech "positive";
+					}
+				}elseif($tmp2>=25){
+					$tmp3=random(1,6);
+					if ($tmp3==1){
+						find 21,random(3,5);
+						speech "positive";
+					}elseif($tmp3==2){
+						find 23,random(1,2);
+						speech "positive";
+					}elseif($tmp3<=4){
+						find 119,random(1,2);
+						speech "positive";
+					}
+				}else{
+					$tmp3=random(1,8);
+					if ($tmp3==1){
+						find 21,random(2,3);
+						speech "positive";
+					}elseif($tmp3==2){
+						find 23;
+						speech "positive";
+					}elseif($tmp3<=4){
+						find 119;
+						speech "positive";
+					}	
+				}
+			}
+		}
+	}
+script=end
+healthchange=0
+
+### Axe
+id=87
+name=Axe
+group=tool
+icon=gfx\axe.bmp
+model=gfx\axe.b3d
+scale=0.6
+behaviour=blade
+mat=stone
+weight=1000
+info=very good to damage things which consist of wood
+damage=5
+healthchange=0
+script=start
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+15 Bonus Damage on Wood
+		if (compare_material($tmp,$tmp2,"wood")==1){
+			$tmp3=15;
+			$tmp4=skillvalue("wood");
+			if ($tmp4>=50){$tmp3+=10;}
+			if ($tmp4>=100){$tmp3+=10;}
+			if ($tmp4>=200){$tmp3+=10;}
+			if ($tmp4>=400){$tmp3+=10;}
+			if ($tmp4>=800){$tmp3+=100;}
+			damage $tmp,$tmp2,$tmp3;
+			freevar $tmp3;
+			freevar $tmp4;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+script=end
+
+### Pickaxe
+id=88
+name=Pickaxe
+group=tool
+icon=gfx\pickaxe.bmp
+model=gfx\pickaxe.b3d
+scale=0.93
+behaviour=blade
+mat=stone
+weight=1000
+info=can be used to get minerals out of rocks more easily
+damage=2
+healthchange=0
+script=start
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+8 Bonus Damage on Stone
+		if (compare_material($tmp,$tmp2,"stone")==1){
+			damage $tmp,$tmp2,8;
+		//+6 Bonus Damage on Flesh
+		}elseif (compare_material($tmp,$tmp2,"flesh")==1){
+			damage $tmp,$tmp2,6;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+script=end
+
+### Key
+id=92
+name=Key
+group=tool
+icon=gfx\key.bmp
+model=gfx\key.b3d
+scale=1.4
+mat=metal
+weight=100
+info=a Key
+health=100000
+healthchange=0
+script=start
+	on:use {
+		speech "negative";
+		msg "Use the object",3;
+		msg "you want to open!",3;
+	}
+script=end
+
+### Lockpick
+id=93
+name=Picklock
+group=tool
+icon=gfx\lockpick.bmp
+model=gfx\lockpick.b3d
+scale=1.4
+mat=metal
+weight=100
+info=a picklock which can be used to crack locks
+health=100000
+healthchange=0
+script=start
+	on:use {
+		speech "negative";
+		msg "Use the object",3;
+		msg "you want to open!",3;
+	}
+script=end
+
+### Net
+id=104
+name=Net
+group=tool
+icon=gfx\net.bmp
+model=gfx\net.b3d
+scale=0.9
+fx=16
+behaviour=net
+mat=wood
+weight=600
+info=makes it possible to catch little animals
+damage=0
+rate=500
+range=150
+healthchange=0
+script=start
+	on:attack1 {
+		msg "Use the right mouse button,",3;
+		msg "to catch animals!",3;
+	}
+script=end
+
+### Scythe
+id=105
+name=Scythe
+group=tool
+icon=gfx\scythe.bmp
+model=gfx\scythe.b3d
+scale=0.75
+behaviour=blade
+mat=metal
+weight=1200
+info=though designed as a harvesting tool, the scythe can be a powerful weapon as well
+damage=2
+healthchange=0
+rate=800
+script=start
+	on:attack1 {
+		jade 0.2;
+	}
+
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+20 Bonus Damage on Grain
+		if (type($tmp,$tmp2)==121){
+			damage $tmp,$tmp2,20;
+		//+10 Damage on Flesh
+		} elseif (compare_material($tmp,$tmp2,"flesh")==1){
+			damage $tmp,$tmp2,10;
+		//+25 Damage on Leaf
+		} elseif (compare_material($tmp,$tmp2,"leaf")==1){
+			damage $tmp,$tmp2,10;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+script=end
+
+### Torch
+id=111
+name=Torch
+group=tool
+icon=gfx\torchitem.bmp
+model=gfx\torchitem.b3d
+scale=0.75
+behaviour=torch
+mat=wood
+weight=500
+rate=1000
+damage=0
+info=besides providing illumination, you can attack with a torch to light other things on fire
+healthchange=0
+script=start
+	on:impact {
+		if (random(5)==1){
+			$tmp=impact_class();
+			$tmp2=impact_id();
+			addstate $tmp,$tmp2,"fire";
+			freevar $tmp;
+			freevar $tmp2;
+		}
+	}
+	on:eat {
+		speech "negative";
+		msg "I'm no fire-eater!",3;
+	}
+script=end

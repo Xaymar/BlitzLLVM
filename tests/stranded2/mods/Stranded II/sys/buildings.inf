@@ -1,0 +1,280 @@
+################################ Stranded II Buildings
+#1   Tent
+#2   Shelter
+#3   Fire
+#4   Torch
+#5   Fence
+#6   Storage
+#7   Well
+#8   Treehouse
+#9   Bownet
+#10  Stance
+#11  Kiwibreeding
+#12  Trap
+#13  Hut
+#14  Herbal-garden
+#15  Big Storage
+#16  Garden
+#17  Hammock
+#18  Monkey School
+#19  Palisade
+#20  Gate
+#21  Woodstorage
+#22  Stonestorage
+#23  Defense Tower
+#100 Dugout
+#101 Sailraft
+
+################################ Buildings Group
+
+### Tent
+id=1
+group=building
+objectid=184
+req=97
+script=start
+	unlockbuilding 3;
+	unlockbuilding 5;
+script=end
+
+### Shelter
+id=2
+group=building
+objectid=165
+req=24,20
+req=15,30
+script=start
+	unlockbuilding 3;
+	unlockbuilding 5;
+script=end
+
+### Treehouse
+id=8
+group=building
+objectid=190
+req=7,10
+req=24,25
+req=26,30
+buildspace=at object
+atobject=13
+atobject=16
+atobject=17
+script=start
+	unlockbuilding 11;
+	unlockbuilding 12;
+	unlockbuilding 101;
+	unlockbuilding 15;
+	unlockbuilding 17;
+script=end
+
+### Hut
+id=13
+group=building
+objectid=206
+req=7,20
+req=24,50
+req=15,60
+req=26,20
+script=start
+	unlockbuilding 11;
+	unlockbuilding 12;
+	unlockbuilding 101;
+	unlockbuilding 15;
+	unlockbuilding 19;
+	unlockbuilding 20;
+	unlockbuilding 17;
+script=end
+
+### Stance
+id=10
+group=building
+objectid=200
+req=7,10
+req=24,20
+req=26,10
+
+################################ Storages Group
+
+### Storage
+id=6
+group=storage
+objectid=181
+req=7,10
+req=24,20
+req=23,40
+req=26,10
+script=start
+	unlockbuilding 7;
+	unlockbuilding 8;
+	unlockbuilding 13;
+	unlockbuilding 23;
+	unlockbuilding 100;
+script=end
+
+### Big Storage
+id=15
+group=storage
+objectid=214
+req=7,20
+req=24,30
+req=23,50
+req=26,15
+script=start
+	unlockbuilding 16;
+script=end
+
+### Woodstorage
+id=21
+group=storage
+objectid=220
+req=24,25
+req=15,35
+
+### Stonestorage
+id=22
+group=storage
+objectid=222
+req=24,25
+req=15,35
+
+################################ Production Group
+
+### Fire 
+id=3
+group=production
+objectid=172 
+req=24,50
+req=23,10
+script=start
+	unlockbuilding 4;
+	unlockbuilding 6;
+	unlockbuilding 21;
+	unlockbuilding 22;
+script=end
+
+### Well
+id=7
+group=production
+objectid=189
+req=23,60
+req=21,200
+script=start
+	unlockbuilding 11;
+	unlockbuilding 16;
+script=end
+
+### Bownet
+id=9
+group=production
+objectid=191
+req=24,20
+req=49,30
+buildspace=water
+
+### Trap
+id=12
+group=production
+objectid=205
+req=24,20
+req=49,25
+
+### Kiwibreeding
+id=11
+group=production
+objectid=201
+req=24,50
+req=15,80
+req=26,10
+
+### Herbal-garden
+id=14
+group=production
+objectid=207
+req=7,5
+req=24,5
+req=21,10
+req=15,30
+
+### Butterflygarden
+id=16
+group=production
+objectid=215
+req=7,5
+req=24,10
+req=21,15
+req=15,50
+
+################################ Misc. Group
+
+### Torch
+id=4
+group=misc
+objectid=166
+req=24,35
+
+### Fence
+id=5
+group=misc
+objectid=163
+req=24,20
+
+### Defense Tower
+id=23
+group=misc
+objectid=223
+req=7,1
+req=86,4
+req=21,10
+req=24,10
+req=57,10
+
+### Palisade
+id=19
+group=misc
+objectid=218
+req=7,10
+
+### Gate
+id=20
+group=misc
+objectid=219
+req=7,14
+
+### Hammock
+id=17
+group=misc
+objectid=216
+req=7,2
+req=49,10
+req=96,10
+
+### Monkey School
+id=18
+group=misc
+objectid=217
+req=7,3
+req=24,20
+req=23,20
+
+################################ Vehicles Group
+
+### Dugout
+id=100
+group=vehicle
+unitid=31
+req=7,5
+buildspace=water
+script=start
+	unlockbuilding 101;
+script=end
+
+### Sailraft
+id=101
+group=vehicle
+unitid=30
+req=7,20
+req=24,30
+req=26,50
+req=49,30
+req=96,25
+buildspace=water

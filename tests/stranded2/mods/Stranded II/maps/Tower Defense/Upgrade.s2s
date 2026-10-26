@@ -1,0 +1,51 @@
+// upgrade handler
+
+on:upgrade {
+	
+	// -> Level 2
+	if ($ug_level==1){
+		if ($gold>=50){
+			$gold-=50;
+			setlocal "object",$ug_id,"level",2;
+			scale 0.75,0.75,0.75,"object",$ug_id;
+			play "build_finish.wav";
+			freetimers "object",$ug_id;
+			timer "object",$ug_id,2000,0,"fire7";
+			msg "Upgraded!",4;
+		}else{
+			speech "negative";
+			msg "Not enough gold!",3;
+		}
+	// -> Level 3
+	}elseif ($ug_level==2){
+		if ($gold>=100){
+			$gold-=100;
+			setlocal "object",$ug_id,"level",3;
+			scale 1,1,1,"object",$ug_id;
+			play "build_finish.wav";
+			freetimers "object",$ug_id;
+			timer "object",$ug_id,1000,0,"fire9";
+			msg "Upgraded!",4;
+		}else{
+			speech "negative";
+			msg "Not enough gold!",3;
+		}
+	// -> Level 4
+	}elseif ($ug_level==3){
+		if ($gold>=150){
+			$gold-=150;
+			setlocal "object",$ug_id,"level",4;
+			scale 1,1,1,"object",$ug_id;
+			color 255,150,150,"object",$ug_id;
+			play "build_finish.wav";
+			freetimers "object",$ug_id;
+			timer "object",$ug_id,1000,0,"fire10";
+			msg "Upgraded!",4;
+		}else{
+			speech "negative";
+			msg "Not enough gold!",3;
+		}
+	}
+	event "ifc","global";
+	closemenu;
+}

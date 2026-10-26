@@ -1,0 +1,3 @@
+directory for map preview images
+map preview images are saved within the map file
+these images are only needed for map editing

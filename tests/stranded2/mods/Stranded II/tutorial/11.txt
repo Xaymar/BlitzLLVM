@@ -1,0 +1,3 @@
+Some plants have to be completely destroyed to gain items. For example, crop and hemp are such cases. Both can be planted just like fruits.
+
+Keep in mind that plants regenerate slowly (overnight). So if you do not want to destroy plants, but only gain items by hitting them, you should give them some days in order to let them regenerate.

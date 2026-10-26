@@ -1,0 +1,41 @@
+############################################# Object Groups
+
+object=tree,Trees
+object=palm,Palms
+object=bush,Bushes
+object=grass,Grass
+object=flower,Flowers
+object=stone,Stones
+object=building,Buildings
+object=stuff,Misc.
+
+############################################# Unit Groups
+
+unit=human,Humans
+unit=animal,Animals
+unit=vehicle,Vehicles
+
+############################################# Item Groups
+
+item=food,Food
+item=potion,Potions
+item=tool,Tools
+item=weapon,Weapons
+item=ammo,Ammo
+item=material,Material
+item=stuff,Misc.
+
+############################################# Info Groups
+
+info=trigger,Triggers
+info=area,Areas
+info=flag,Flags
+info=stuff,Misc.
+
+############################################# Building
+
+building=building,Buildings
+building=storage,Storages
+building=production,Production
+building=vehicle,Vehicles
+building=misc,Miscellaneous

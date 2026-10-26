@@ -1,0 +1,1 @@
+directory for 'checkmap.s2' (map cache for testing maps)

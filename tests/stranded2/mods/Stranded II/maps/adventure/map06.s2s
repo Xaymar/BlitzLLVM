@@ -1,0 +1,24 @@
+//~thecrash
+Nyaarrgh!
+I have run onto a cliff with my ship.
+It looks like I must repair it to go on. But I need iron for that.
+7 pieces of iron should be enough, but I will have to dive for them.
+//~irondef
+on:collect {
+	$stored=count_stored("unit",1,85);
+	if ($stored>=6){
+		diary "Enough iron gathered!","maps/adventure/map06.s2s","foundiron";
+		timer 0,0,1,"endmap";
+	}
+}
+
+on:drop {
+	skipevent;
+	msg "I still need that, remember?",3;
+	speech "negative";
+}
+
+//~foundiron
+I have managed to find enough iron!
+After a short repair, the ship is fully functionable again and I can head homewards again.
+Full speed ahead!

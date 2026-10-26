@@ -1,0 +1,1374 @@
+######################################################### Zeugs
+
+### Player
+#ID 1 IS RESERVED FOR THE PLAYER UNIT!
+id=1
+name=Player
+group=human
+icon=gfx\strandedguy.bmp
+model=gfx\strandedguy.b3d
+colxr=8
+colyr=17
+speed=1.6
+eyes=16
+store=100
+health=100
+damage=3
+attackrange=45
+maxweight=25000
+healthchange=0
+script=start
+	on:kill {
+		$rnd=random(1,3);
+		if ($rnd==1){ play "human_die1.wav"; }
+		if ($rnd==2){ play "human_die2.wav"; }
+		if ($rnd==3){ play "human_die3.wav"; }
+		if (currentid()!=1){
+			event "iskill_hunt","global";
+		}
+		freevar $rnd;
+	}
+	
+	on:cease_healthpotion {
+		freestate "unit",1,16;
+		msg "The potion has",3;
+		msg "lost its effects.",3;
+		play "fxdrain.wav";
+	}
+
+	on:cease_speedpotion {
+		freestate "unit",1,9;
+		msg "The potion has",3;
+		msg "lost its effects.",3;
+		play "fxdrain.wav";
+	}
+
+	on:cease_immortalpotion {
+		freestate "unit",1,17;
+		msg "The potion has",3;
+		msg "lost its effects.",3;
+		play "fxdrain.wav";
+	}
+	on:release_excrement {
+		$id=create("item",72);
+		play "fart.wav";
+	}
+script=end
+
+### Raptor
+id=2
+name=Raptor
+group=animal
+icon=gfx\raptor.bmp
+model=gfx\raptor.b3d
+scale=0.5
+colxr=15
+colyr=30
+behaviour=raptor
+health=110
+speed=2.5
+eyes=10
+turnspeed=3.0
+attackrange=65
+damage=24
+ani_idle1=4,8,0.02
+ani_move=2,3,0.06
+ani_die=8,11,0.05
+ani_attack=12,16,0.07
+sfx=raptor
+rideoffset=5
+acceleration=0.08
+maxdepth=35
+loot=9,3
+loot=94,8
+loot=95,4
+loot=96,1
+script=start
+	on:use { 
+		//Ride when tame!
+		if (gotstate("self","tame")) {
+			ride;
+			freetimers "self";
+			if ($tameness<15){
+				timer "self",random(5000,10000),1,"shakeoff";
+			}elseif ($tameness<20){
+				timer "self",random(20000,30000),1,"shakeoff";
+			}
+		}	
+	}
+
+	on:shakeoff {
+		if (riding()==current_id()){
+			getoff;
+			damage "unit", 1,random(5,10);
+			msg "Ouch ...",3;
+			msg "He dropped me!",3;
+		}
+	}
+
+	on:ai_attack {
+		if (random(8)==1){
+			if (gotstate("unit",1,17)==0){
+				if (random(5)<2){
+					addstate "unit",1,1;	
+				}else{
+					addstate "unit",1,7;
+				}
+			}
+		}
+	}	
+	
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+
+### Crab
+id=3
+name=Crab
+group=animal
+icon=gfx\crab.bmp
+model=gfx\crab.b3d
+health=40
+scale=0.6
+colxr=4
+colyr=2
+behaviour=crab
+speed=0.1
+turnspeed=0.5
+ani_idle1=3,5,0.02
+ani_move=1,2,0.06
+ani_die=5,7,0.1
+loot=11,1
+sfx=crab
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+
+### Fish
+id=4
+name=Fish
+group=animal
+icon=gfx\fish01.bmp
+model=gfx\fish01.b3d
+scale=1.2
+fx=16
+colxr=5
+colyr=5
+behaviour=fish
+speed=1
+turnspeed=0.6
+ani_move=2,4,0.15
+ani_die=5,6,0.01
+loot=11,1
+script=start
+	on:fish {
+		local $id;
+		$id=create("item",89);
+		store $id,"unit",1;
+		free "self";
+		speech "positive";
+		msg "Caught fish!",4;
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Piranha
+id=5
+name=Piranha
+group=animal
+icon=gfx\piranha.bmp
+model=gfx\piranha.b3d
+scale=0.5
+fx=16
+colxr=5
+colyr=5
+behaviour=predatorfish
+speed=1.2
+turnspeed=0.8
+damage=4
+ani_move=2,3,0.03
+ani_attack=6,8,0.25
+ani_die=4,5,0.01
+sfx=piranha
+loot=11,2
+loot=94,2
+script=start
+	on:fish {
+		local $id;
+		$id=create("item",89);
+		store $id,"unit",1;
+		free "self";
+		speech "positive";
+		msg "Caught fish!",4;
+	}
+
+	on:ai_attack {
+		if (random(20)==1){
+			if (gotstate("unit",1,17)==0){
+				addstate "unit",1,1;	
+			}
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Butterfly
+id=6
+name=Butterfly
+group=animal
+icon=gfx\butterfly01.bmp
+model=gfx\butterfly01.b3d
+health=1
+scale=0.5
+colxr=5
+colyr=5
+fx=16
+behaviour=flyinginsect
+mat=leaf
+speed=1.2
+turnspeed=0.8
+ani_move=1,2,0.1
+loot=98,1
+script=start
+	on:catch {
+		if (lives("self")==1){
+			local $id;
+			$id=create("item",69);
+			store $id,"unit",1;
+			speech "positive";
+			msg "Caught butterfly!",4;
+			free "self";
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Butterfly
+id=7
+name=Butterfly
+group=animal
+icon=gfx\butterfly02.bmp
+model=gfx\butterfly02.b3d
+health=1
+scale=0.5
+colxr=5
+colyr=5
+fx=16
+behaviour=flyinginsect
+mat=leaf
+speed=1.2
+turnspeed=0.8
+ani_move=1,2,0.1
+loot=98,1
+script=start
+	on:catch {
+		if (lives("self")==1){
+			local $id;
+			$id=create("item",69);
+			store $id,"unit",1;
+			speech "positive";
+			msg "Caught butterfly!",4;
+			free "self";
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Flora Carnivora
+id=8
+name=Carnivorous Plant
+group=animal
+icon=gfx\floracarnivora.bmp
+model=gfx\floracarnivora.b3d
+colxr=16
+colyr=26
+fx=16
+scale=0.8
+health=18
+mat=leaf
+behaviour=standandsnap
+ani_idle1=1,3,0.01
+ani_idle2=3,6,0.01
+ani_idle3=9,11,0.006
+ani_attack=6,9,0.12
+ani_die=11,12,0.02
+sfx=floracarnivora
+attackrange=65
+damage=23
+loot=94,4
+script=start
+	on:ai_attack {
+		if (random(15)==1){
+			if (gotstate("unit",1,17)==0){
+				addstate "unit",1,1;	
+			}
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Lion
+id=9
+name=Lion
+group=animal
+icon=gfx\lion.bmp
+model=gfx\lion.b3d
+scale=0.3
+colxr=15
+colyr=30
+behaviour=raptor
+health=75
+speed=1.6
+eyes=10
+turnspeed=1.7
+attackrange=65
+ani_move=2,3,0.05
+ani_attack=7,8,0.03
+ani_die=4,5,0.05
+ani_idle1=8,10,0.04
+ani_idle2=10,13,0.04
+ani_idle3=13,15,0.05
+sfx=lion
+damage=9
+loot=9,2
+loot=94,4
+loot=95,4
+loot=96,2
+script=start
+	on:ai_attack {
+		if (random(10)==1){
+			if (gotstate("unit",1,17)==0){
+				addstate "unit",1,1;	
+			}
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Turtle
+id=10
+name=Turtle
+group=animal
+icon=gfx\turtle.bmp
+model=gfx\turtle.b3d
+scale=1.1
+colxr=8
+colyr=20
+behaviour=amphibian
+health=80
+speed=0.2
+turnspeed=0.5
+ani_idle1=4,6,0.02
+ani_idle2=6,10,0.01
+ani_idle3=10,12,0.03
+ani_move=2,3,0.06
+ani_die=12,14,0.3
+loot=9,1
+loot=96,1
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Fish
+id=11
+name=Fish
+group=animal
+icon=gfx\fish02.bmp
+model=gfx\fish02.b3d
+scale=1.2
+colxr=5
+colyr=5
+behaviour=fish
+speed=0.8
+turnspeed=0.6
+ani_move=2,4,0.12
+ani_die=5,6,0.005
+loot=11,1
+script=start
+	on:fish {
+		local $id;
+		$id=create("item",89);
+		store $id,"unit",1;
+		free "self";
+		speech "positive";
+		msg "Caught fish!",4;
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Fish
+id=12
+name=Fish
+group=animal
+icon=gfx\fish03.bmp
+model=gfx\fish03.b3d
+scale=0.9
+colxr=5
+colyr=5
+behaviour=fish
+speed=0.9
+turnspeed=1.5
+ani_move=2,4,0.14
+ani_die=5,6,0.01
+loot=11,1
+script=start
+	on:fish {
+		local $id;
+		$id=create("item",89);
+		store $id,"unit",1;
+		free "self";
+		speech "positive";
+		msg "Caught fish!",4;
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Shark
+id=13
+name=Shark
+group=animal
+icon=gfx\shark.bmp
+model=gfx\shark.b3d
+scale=7
+colxr=50
+colyr=20
+behaviour=predatorfish
+health=80
+speed=2.5
+turnspeed=1.7
+damage=15
+ani_move=2,3,0.03
+ani_die=4,5,0.01
+ani_attack=2,3,0.05
+attackrange=80
+loot=9,3
+loot=94,10
+script=start
+	on:ai_attack {
+		if (random(8)==1){
+			if (gotstate("unit",1,17)==0){
+				if (random(5)<2){
+					addstate "unit",1,1;	
+				}else{
+					addstate "unit",1,7;
+				}
+			}
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Scorpion
+id=14
+name=Scorpion
+group=animal
+icon=gfx\scorpion.bmp
+model=gfx\scorpion.b3d
+scale=1.85
+colxr=9
+colyr=4
+behaviour=raptor
+health=30
+speed=0.6
+eyes=5
+turnspeed=0.5
+ani_idle1=1,3,0.02
+ani_idle2=3,8,0.04
+ani_idle3=8,11,0.03
+ani_move=11,15,0.05
+ani_attack=15,17,0.12
+ani_die=17,19,0.11
+range=100
+attackrange=23
+damage=1
+loot=11,1
+loot=37,3
+sfx=crab
+script=start
+	on:ai_attack {
+		addstate "unit",1,"intoxication";
+		statevalue "unit",1,"intoxication",3;
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Sheep
+id=15
+name=Sheep
+group=animal
+icon=gfx\sheep.bmp
+model=gfx\sheep.b3d
+colxr=25
+colyr=16
+scale=11
+behaviour=animal
+health=100
+speed=0.2
+turnspeed=0.5
+ani_idle1=4,9,0.01
+ani_idle2=9,11,0.01
+ani_idle3=12,15,0.01
+ani_move=2,3,0.02
+ani_die=15,16,0.1
+script=start
+	//Spawn 2xWool at Start
+	on:start {
+		local $id;
+		$id=create("item",48,0,0,2);
+		store $id,"self";
+		freevar $id;
+	}
+	//Add 3xWool per Night
+	on:changeday {
+		if (count_stored("self",48)<15){
+			local $id;
+			$id=create("item",48,0,0,3);
+			store $id,"self";
+			freevar $id;
+		}
+	}
+	//Get Wool on Use
+	on:use {
+		if (count_stored("self")>0){
+			if (health("self")>0){play "sheep_idle1.wav";}
+			exchange "self",0;
+		}else{
+			msg "It has no wool!",3;
+			speech "negative";
+		}
+	}
+	//Whipping
+	on:hit {
+		ai_center;
+	}
+	//Kill
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+sfx=sheep
+loot=9,2
+loot=96,1
+
+### Dragonfly
+id=16
+name=Dragonfly
+group=animal
+icon=gfx\dragonfly.bmp
+model=gfx\dragonfly.b3d
+scale=0.7
+fx=16
+shine=1
+behaviour=flyinginsect
+mat=leaf
+health=3
+speed=1.6
+turnspeed=1.2
+ani_move=2,3,0.3
+ani_die=4,5,0.03
+loot=98,3
+sfx=fly
+script=start
+	on:catch {
+		if (lives("self")==1){
+			local $id;
+			$id=create("item",98);
+			setamount $id,3;
+			store $id,"unit",1;
+			speech "positive";
+			msg "Caught dragonfly",4;
+			msg "... and killed it",3;
+			free "self";
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Fly
+id=17
+name=Fly
+group=animal
+icon=gfx\fly.bmp
+model=gfx\fly.b3d
+scale=0.35
+fx=16
+shine=1
+behaviour=flyinginsect
+mat=leaf
+health=3
+speed=1.0
+turnspeed=3.2
+ani_move=2,3,0.5
+ani_die=4,5,0.03
+loot=98,1
+sfx=fly
+script=start
+	on:catch {
+		if (lives("self")==1){
+			local $id;
+			$id=create("item",98);
+			store $id,"unit",1;
+			speech "positive";
+			msg "Caught fly",4;
+			msg "... and killed it",3;
+			free "self";
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Snail
+id=18
+name=Snail
+group=animal
+icon=gfx\snail.bmp
+model=gfx\snail.b3d
+scale=0.55
+colxr=8
+colyr=5
+shine=0.4
+behaviour=animal
+mat=leaf
+health=3
+speed=0.01
+turnspeed=0.05
+ani_move=7,8,0.01
+ani_idle1=1,3,0.01
+ani_idle2=3,5,0.01
+ani_die=5,6,0.05
+loot=99,1
+script=start
+	on:catch {
+		if (lives("self")==1){
+			local $id;
+			$id=create("item",99);
+			store $id,"unit",1;
+			speech "positive";
+			msg "Caught snail",4;
+			msg "... and killed it",3;
+			free "self";
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Monkey
+id=19
+name=Monkey
+group=animal
+icon=gfx\monkey.bmp
+model=gfx\monkey.b3d
+colxr=18
+colyr=14
+scale=0.51
+behaviour=monkey
+health=50
+speed=2.8
+turnspeed=1.
+sfx=monkey
+ani_move=3,4,0.16
+ani_idle1=5,7,0.13
+ani_idle2=7,14,0.17
+ani_idle3=14,16,0.12
+ani_die=16,17,0.15
+loot=11,4
+loot=94,2
+loot=96,1
+script=start
+	on:use { 
+		//Menu when Tame
+		if (gotstate("self","tame")) {
+			if ($order==0) {
+				msgbox "Monkey Task Menu","sys/scripts/monkey.s2s","start";
+				button 0,"Get water",8,"sys/scripts/monkey.s2s","order_water";
+				button 1,"Get branches",8,"sys/scripts/monkey.s2s","order_branch";
+				button 2,"Get leaves",8,"sys/scripts/monkey.s2s","order_leaf";
+				button 3,"Get stones",8,"sys/scripts/monkey.s2s","order_stone";
+				button 4,"Get food",8,"sys/scripts/monkey.s2s","order_food";
+				temp $menuclass,$menuid;
+				$menuclass=currentclass();
+				$menuid=currentid();
+				play "monkey_idle2.wav";
+			} else {
+				msgbox "Monkey Task Menu","sys/scripts/monkey.s2s","alreadygotjob";
+				play "monkey_idle2.wav";
+			}
+		}	
+	}
+
+	on:changeday {
+		if (gotstate("self","tame")) {
+			if ($order>0){
+				temp $id;
+				if ($order==1){
+					$id=create("item",38);
+				} elseif ($order==2){
+					$id=create("item",24);
+					setamount $id,random(2,6);
+				} elseif ($order==3){
+					$id=create("item",15);
+					setamount $id,random(3,7);
+				} elseif ($order==4){
+					$id=create("item",23);
+					setamount $id,random(2,4);
+				} elseif ($order==5){
+					$id=random(1,5);
+					if ($id<3){
+						$id=create("item",46);
+						setamount $id,random(3,9);
+					} elseif ($id==3){
+						$id=create("item",33);
+						setamount $id,random(2,4);
+					} elseif ($id==4){
+						$id=create("item",27);
+						setamount $id,random(1,3);
+					} elseif ($id==5){
+						$id=create("item",31);
+						setamount $id,random(2,5);
+					}
+				}
+				$order=0;
+			}
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Spider
+id=20
+name=Spider
+group=animal
+icon=gfx\spider.bmp
+model=gfx\spider.b3d
+scale=0.35
+colxr=6
+colyr=3
+behaviour=animal
+mat=leaf
+health=3
+speed=1.0
+turnspeed=3.6
+ani_move=2,3,0.2
+ani_die=5,6,0.1
+loot=98,1
+script=start
+	on:catch {
+		if (lives("self")==1){
+			local $id;
+			$id=create("item",98);
+			store $id,"unit",1;
+			speech "positive";
+			msg "Caught spider",4;
+			msg "... and killed it",3;
+			free "self";
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Firefly
+id=21
+name=Firefly
+group=animal
+icon=gfx\firefly.bmp
+model=gfx\firefly.b3d
+scale=0.35
+fx=17
+shine=1
+behaviour=flyinginsect
+mat=leaf
+health=3
+speed=2.0
+turnspeed=10.0
+ani_move=2,3,0.5
+ani_die=4,5,0.03
+loot=98,1
+sfx=fly
+script=start
+	on:load {
+		addstate "self",22;
+		statesize "self",22,15;
+		statecolor "self",22,255,255,0;
+	}
+
+	on:create {
+		addstate "self",22;
+		statesize "self",22,15;
+		statecolor "self",22,255,255,0;
+	}
+
+	on:catch {
+		if (lives("self")==1){
+			local $id;
+			$id=create("item",98);
+			store $id,"unit",1;
+			speech "positive";
+			msg "Caught firefly",4;
+			msg "... and killed it",3;
+			free "self";
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Bird
+id=25
+name=Bird
+group=animal
+icon=gfx\bird01.bmp
+model=gfx\bird01.b3d
+autofade=1000
+colxr=40
+colyr=7
+fx=24
+speed=2.4
+turnspeed=0.4
+behaviour=bird
+sfx=bird
+health=5
+ani_move=2,20,0.2
+loot=11,2
+loot=57,15
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Kiwi
+id=26
+name=Kiwi
+group=animal
+icon=gfx\kiwi.bmp
+model=gfx\kiwi.b3d
+colxr=10
+colyr=6
+scale=0.26
+behaviour=shy
+health=5
+speed=0.8
+turnspeed=1.
+sfx=kiwi
+ani_move=2,3,0.18
+ani_idle1=4,6,0.2
+ani_idle2=6,8,0.2
+ani_idle3=8,10,0.2
+ani_die=10,11,0.25
+loot=11,1
+loot=57,5
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Sailraft
+id=30
+name=Sailraft
+group=vehicle
+icon=gfx\sailraft.bmp
+model=gfx\sailraft.b3d
+fx=16
+colxr=30
+colyr=20
+mat=wood
+speed=2.2
+turnspeed=1.0
+health=265
+behaviour=watercraft
+rideoffset=60
+maxweight=30000
+sfx=watercraft
+script=start
+	on:use {
+		clear;
+		add "You can drive this raft or store stuff inside.";
+		add "What do you want to do?";
+		msgbox "Sailraft";
+		local $id;
+		$id=current_id();
+		add "exchange 2,$id;";
+		button 0,"Store stuff",19;
+		add "ride $id; closemenu;";
+		button 1,"Drive the raft",8;
+		add "closemenu;";
+		button 2,"Do nothing with this raft",3;
+		freevar $id;
+	}
+	on:kill { free "self"; }
+	on:build_finish {
+		event "sailraftbuild",0,0;
+	}
+script=end
+
+### Dugout
+id=31
+name=Logboat
+group=vehicle
+icon=gfx\dugout.bmp
+model=gfx\dugout.b3d
+scale=1.6
+colxr=12
+colyr=10
+mat=wood
+speed=1.5
+turnspeed=0.8
+health=150
+behaviour=watercraft
+rideoffset=10
+sfx=watercraft
+script=start
+	on:use { ride; }
+	on:kill { free "self"; }
+	on:build_finish {
+		event "dugoutbuild",0,0;
+	}
+script=end
+
+### Soldier
+#unfinished, hidden in editor
+id=33
+name=Soldier
+group=human
+model=gfx\soldier.b3d
+colxr=8
+colyr=17
+behaviour=standandshoot
+speed=2.0
+eyes=10
+health=100
+damage=3
+range=300
+attackrange=300
+maxweight=25000
+ani_attack=1,4,0.1
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+editor=0
+
+### Native
+id=34
+name=Eingeborener
+group=human
+model=gfx\native.b3d
+icon=gfx\native.bmp
+scale=0.9
+colxr=9
+colyr=20
+behaviour=normal
+speed=1.0
+eyes=10
+health=100
+damage=10
+range=150
+attackrange=40
+maxweight=25000
+ani_move=2,3,0.10
+ani_attack=23,25,0.10
+ani_die=4,7,0.15
+ani_idle1=9,13,0.09
+ani_idle2=14,21,0.08
+ani_idle3=21,23,0.12
+sfx=native
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Yacht
+id=35
+name=Yacht
+group=vehicle
+model=gfx\yacht.b3d
+icon=gfx\yacht.bmp
+scale=3.
+fx=16
+colxr=65
+colyr=20
+health=450
+mat=metal
+speed=9.8
+turnspeed=1.1
+behaviour=watercraft
+rideoffset=140
+script=start
+	on:use {
+		if ($s2g_driveblock_yacht==0){
+			ride;
+		}
+	}
+	on:kill { free "self"; }
+script=end
+sfx=watercraft
+autofade=1500
+
+### Parrot
+id=36
+fx=16
+name=Parrot
+group=animal
+icon=gfx\parrot.bmp
+model=gfx\parrot.b3d
+colxr=30
+colyr=10
+scale=0.2
+behaviour=landskybird
+health=5
+speed=3.8
+turnspeed=1.
+sfx=parrot
+loot=11,3
+loot=57,30
+ani_move=13,14,0.2
+ani_idle1=1,4,0.06
+ani_idle2=4,6,0.3
+ani_idle3=6,12,0.3
+ani_die=15,16,0.2
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Pirate
+id=37
+name=Pirate
+group=human
+model=gfx\pirate.b3d
+icon=gfx\pirate.bmp
+colxr=15
+colyr=30
+scale=0.48
+behaviour=normal
+health=100
+speed=1.0
+turnspeed=1.
+ani_move=2,3,0.07
+ani_attack=4,7,0.1
+ani_idle1=7,9,0.04
+ani_idle2=9,11,0.04
+ani_idle3=11,21,0.05
+ani_die=21,23,0.08
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Weedgrandpa
+id=38
+name=Weed Grandpa
+group=human
+model=gfx\weedgrandpa.b3d
+icon=gfx\weedgrandpa.bmp
+colxr=15
+colyr=30
+scale=1.2
+behaviour=normal
+health=100
+speed=1.0
+turnspeed=1.0
+ani_move=2,3,0.03
+ani_idle1=4,6,0.04
+ani_idle2=6,9,0.04
+ani_idle3=9,13,0.05
+ani_die=13,14,0.08
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Airplane
+# special thanks to bizzl for model improvement
+id=39
+name=Airplane
+group=vehicle
+model=gfx\plane.b3d
+icon=gfx\plane.bmp
+colxr=40
+colyr=20
+fx=24
+speed=13
+turnspeed=0.4
+health=200
+ani_move=2,13,2
+ani_idle1=1,1,1
+sfx=plane
+rideoffset=5
+mat=metal
+col=1
+steering=1
+behaviour=aircraft
+script=start
+	on:use { ride; }
+	on:kill { free "self"; }
+script=end
+
+### Chieftain
+id=40
+name=Chieftain
+group=human
+model=gfx\chieftain.b3d
+icon=gfx\chieftain.bmp
+scale=0.8
+colxr=9
+colyr=20
+behaviour=idleturn
+speed=1.0
+eyes=10
+health=100
+damage=3
+range=150
+attackrange=300
+maxweight=25000
+ani_move=2,3,0.10
+ani_die=4,7,0.15
+ani_idle1=9,13,0.09
+ani_idle2=14,21,0.08
+ani_idle3=21,23,0.12
+sfx=native
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Prof
+id=41
+name=Professor
+group=human
+model=gfx\prof.b3d
+icon=gfx\prof.bmp
+colxr=15
+colyr=30
+scale=1.2
+behaviour=normal
+health=100
+speed=0.8
+turnspeed=1.0
+ani_move=2,3,0.03
+ani_idle1=4,6,0.04
+ani_idle2=6,9,0.04
+ani_idle3=9,13,0.05
+ani_die=13,14,0.08
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Clawmonkey
+id=42
+name=Claw Monkey
+group=animal
+icon=gfx\clawmonkey.bmp
+model=gfx\clawmonkey.b3d
+colxr=18
+colyr=14
+scale=0.51
+behaviour=raptor
+health=50
+speed=2.7
+turnspeed=1.5
+attackrange=40
+sfx=monkey
+ani_move=3,4,0.16
+ani_idle1=5,7,0.13
+ani_idle2=7,14,0.17
+ani_idle3=14,16,0.12
+ani_die=16,17,0.15
+ani_attack=18,20,0.1
+loot=11,4
+loot=94,2
+loot=95,4
+loot=96,1
+damage=2
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Grasshopper
+id=43
+name=Grasshopper
+group=animal
+icon=gfx\grasshopper.bmp
+model=gfx\grasshopper.b3d
+health=1
+scale=1.5
+colxr=15
+colyr=15
+fx=16
+behaviour=plague
+range=1000
+mat=leaf
+speed=1.5
+turnspeed=4
+ani_move=1,2,0.13
+ani_attack=1,2,0.07
+ani_die=3,4,0.1
+damage=5
+loot=98,3
+script=start
+	on:catch {
+		if (lives("self")==1){
+			local $id;
+			$id=create("item",98);
+			setamount $id,3;
+			store $id,"unit",1;
+			speech "positive";
+			msg "Caught grasshopper",4;
+			msg "... and killed it",3;
+			free "self";
+		}
+	}
+
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Monkey Carrier
+id=44
+name=Transport Monkey
+group=animal
+icon=gfx\monkey_carrier.bmp
+model=gfx\monkey_carrier.b3d
+colxr=18
+colyr=14
+scale=0.51
+behaviour=monkey
+health=50
+speed=1.4
+turnspeed=1.
+sfx=monkey
+ani_move=3,4,0.09
+ani_idle1=5,7,0.13
+ani_idle2=7,14,0.17
+ani_idle3=14,16,0.12
+ani_die=16,17,0.15
+loot=11,4
+loot=94,2
+loot=96,1
+maxweight=10000
+script=start
+	on:create {
+		timer "self",3000,0;
+	}
+	on:start {
+		timer "self",3000,0;
+	}
+	on:timer {
+		if (health("self")>0){
+			ai_mode "self","goto","unit","1";
+			ai_center;
+		}
+		if (count_stored("self")>0){
+			addstate "self","particles";
+		}else{
+			freestate "self","particles";
+		}
+	}
+	on:use {
+		if (health("self")>0){
+			exchange "self";
+		}
+	}
+	on:kill {
+		freetimers "self";
+		event "iskill_hunt","global";
+	}
+script=end
+
+### Eagle
+id=45
+fx=16
+name=Eagle
+group=animal
+icon=gfx\eagle.bmp
+model=gfx\eagle.b3d
+colxr=30
+colyr=10
+scale=0.2
+behaviour=killerbird
+health=50
+speed=3.4
+turnspeed=1.
+range=400
+damage=15
+attackrange=30
+sfx=eagle
+loot=11,3
+loot=57,35
+loot=95,2
+ani_move=13,14,0.1
+ani_idle1=1,4,0.06
+ani_idle2=4,6,0.3
+ani_idle3=6,12,0.3
+ani_die=15,16,0.2
+script=start
+	on:kill {
+		event "iskill_hunt","global";
+	}
+script=end

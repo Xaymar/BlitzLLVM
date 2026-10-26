@@ -1,0 +1,46 @@
+// spawn scripts for different unit types
+
+on:spawn_kiwi {
+	$id=create("unit",26,$spx,$spz);
+	setlocal "unit",$id,"value",2;
+	setlocal "unit",$id,"dmg",5;
+}
+
+on:spawn_turtle {
+	$id=create("unit",10,$spx,$spz);
+	setlocal "unit",$id,"value",5;
+	setlocal "unit",$id,"dmg",5;
+	addstate "unit",$id,"speed";
+	statevalue "unit",$id,"speed",0.4;
+	health "unit",$id,-20;
+}
+
+on:spawn_slowmonkey {
+	$id=create("unit",19,$spx,$spz);
+	setlocal "unit",$id,"value",10;
+	setlocal "unit",$id,"dmg",5;
+	addstate "unit",$id,"speed";
+	statevalue "unit",$id,"speed",0.95;
+	maxhealth "unit",$id,15;
+	health "unit",$id,15;
+}
+
+on:spawn_lion {
+	$id=create("unit",9,$spx,$spz);
+	setlocal "unit",$id,"value",15;
+	setlocal "unit",$id,"dmg",20;
+	addstate "unit",$id,"speed";
+	statevalue "unit",$id,"speed",1.3;
+	maxhealth "unit",$id,60;
+	health "unit",$id,60;	
+}
+
+on:spawn_raptor {
+	$id=create("unit",2,$spx,$spz);
+	setlocal "unit",$id,"value",15;
+	setlocal "unit",$id,"dmg",20;
+	addstate "unit",$id,"speed";
+	statevalue "unit",$id,"speed",1.45;
+	maxhealth "unit",$id,80;
+	health "unit",$id,80;	
+}

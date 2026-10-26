@@ -1,0 +1,10 @@
+Neat - a tree!
+You can hit many objects in the world of Stranded in order to gain items.
+
+!4Attack
+To strike upon something, you must look at it by pointing at it with the mouse. A left-click will then trigger a stroke.
+[$key_attack1] - Attack
+You only use your hands as long as you do not select something to hold in them. On the right bottom corner, you see if - or what - you are holding in your hand. Details will follow later.
+
+!4Gathering items
+If you often hit objects such as trees, you will get items that are instantly stored in your rucksack (in case you are not carrying too much already). If and how many items you get per hit is decided per random. However, not all objects provide items and furthermore, you will gain far more from some certain objects, if you use the right tool. 

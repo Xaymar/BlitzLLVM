@@ -1,0 +1,330 @@
+on¦basic¦:Ereignis { Befehle }
+if¦basic¦ (Bedingung) {Befehle} elseif (Bedingung) {Befehle} else {Befehle}
+skip¦basic¦
+skipevent¦basic¦
+msg¦interface¦ "Nachricht" [,Schrift] [,Anzeigedauer]
+msgbox¦interface¦ "Titel" [,"Quelle"]
+map¦interface¦
+equip¦interface, player, items¦ [Item Typ]
+diary¦diary¦ "Titel" [,"Quelle"]
+freeentry¦diary, free¦ ["Titel"]
+modifyentry¦diary¦ "Titel" [,"Quelle"]
+extendentry¦diary¦ "Titel" [,"Quelle"]
+modifyentryline¦diary¦ "Titel", Zeile, "Text"
+hideindicator¦map indicators¦ ID
+showindicator¦map indicators¦ ID
+hideindicators¦map indicators¦
+showindicators¦map indicators¦
+setindicatorlook¦map indicators¦ ID, Aussehen
+setindicatorinfo¦map indicators¦ ID, "Info"
+stoptrigger¦infos¦ ID
+starttrigger¦infos¦ ID
+stoptriggers¦infos¦
+starttriggers¦infos¦
+lockbuilding¦buildings¦ Building-ID
+unlockbuilding¦buildings¦ Building-ID
+lockbuildings¦buildings¦
+unlockbuildings¦buildings¦
+eat¦player¦ [Energie] [,Hunger] [,Durst] [,Müdigkeit]
+drink¦player¦ [Energie] [,Hunger] [,Durst] [,Müdigkeit]
+consume¦player¦ [Energie] [,Hunger] [,Durst] [,Müdigkeit]
+maxhealth¦objects, return¦ "Klasse", ID [,Änderung]
+jade¦player¦ Wert
+con¦misc¦ "Befehl"
+exec¦misc¦ "Datei/Befehl"
+def_free¦objects, free¦ "Klasse", Typ
+def_extend¦objects¦ "Klasse", Typ, "Quelle"
+def_override¦objects¦ "Klasse", Typ, "Quelle"
+create¦objects, return¦ "Klasse", Typ [, X, Z] [, Menge]
+add¦buffer¦ "Text"
+clear¦buffer, free¦
+loadfile¦buffer, return¦ "Datei" [,"Bereich"]
+flash¦effects¦ Rot, Grün, Blau [,Geschw.] [,Alpha]
+play¦sounds¦ "Datei" [,Lautstärke] [,Pan] [,Pitch]
+stopsounds¦sounds¦
+music¦sounds¦ "Datei" [,Lautstärke] [,Fade-Dauer]
+stopmusic¦sounds¦
+fademusic¦sounds¦ Dauer
+musicvolume¦sounds¦ Lautstärke
+color¦models¦ Rot, Grün, Blau [, "Klasse", ID]
+blend¦models¦ Modus [, "Klasse", ID]
+alpha¦models¦ Alpha [, "Klasse", ID]
+scale¦models¦ X, Y, Z [, "Klasse", ID]
+fx¦models¦ Modus [, "Klasse", ID]
+shininess¦models¦ Wert [, "Klasse", ID]
+addstate¦states¦ "Klasse", ID, "State"
+freescripts¦free¦
+freevars¦variables, free¦ [Locals]
+free¦free¦ "Klasse" [,ID][,Anzahl]
+freestate¦states, free¦ "Klasse", ID [,"State"]
+playergotitem¦return, player, items¦ Typ
+day¦return¦
+hour¦return¦
+minute¦return¦
+random¦return¦ Obergrenze oder Untergrenze, Obergrenze
+savevars¦variables, return¦ ["Datei"] [, "Variablen"]
+loadvars¦variables, return¦ ["Datei"]
+inrange¦return, player¦ "Klasse", ID [,Radius] [,"Klasse2", ID2]
+count_inrange¦return, player¦ "Klasse", Typ [,Radius] [,"Klasse2", ID2]
+count_behaviourinrange¦return, player, objects¦ "Klasse", "Verhalten" [,Radius] [,"Klasse2",ID2]
+hit_damage¦return¦
+hit_weapon¦return¦
+count_stored¦items, return¦ "Klasse", ID [,Typ]
+gotstate¦states, return¦ "Klasse", ID, "State"
+count_state¦states, return¦ "State"
+distance¦return¦ "Klasse", ID, "Klasse", ID
+playerdistance¦return, player¦ "Klasse", ID
+inview¦return, player¦ "Klasse", ID
+getx¦return¦ "Klasse", ID
+gety¦return¦ "Klasse", ID
+getz¦return¦ "Klasse", ID
+exists¦return¦ "Klasse", ID
+seqstart¦sequences¦ [Streifen], [Überspringbar]
+seqend¦sequences¦ Zeit
+seqmsg¦sequences¦ Zeit, "Text" [,Farbe] [,Position]
+seqmsgclear¦sequences¦ Zeit [,Position]
+seqsound¦sequences¦ Zeit, "Datei" [,Lautstärke] [,Pan] [,Pitch]
+seqbar¦sequences¦ Zeit, Modus
+hidebar¦sequences¦ Zeit
+showbar¦sequences¦ Zeit
+seqflash¦sequences¦ Zeit [,R] [,G] [,B] [,Geschw.] [,Alpha]
+seqevent¦sequences¦ Zeit, "Ereignis" [,"Klasse", ID]
+setcam¦sequences¦ Zeit, ID
+movecam¦sequences¦ Zeit, Zielzeit, ID
+campath¦sequences¦ Zeit, Schrittzeit, ID ... [,ID]
+timedcampath¦sequences¦ Zeit, Schrittzeit, ID ... [,Schrittzeit, ID]
+button¦interface¦ ID, Text [,"Icon"] [,"Script"]
+abs¦variables, return¦ Wert
+varexists¦variables, return¦ "Variable"
+rename¦variables¦ "Variable" "Name"
+quicksave¦misc¦
+quickload¦misc¦
+loadmap¦misc¦ "Map"[,Skills][,Items][,Variablen][,Tagebuch][,States][,Buildlocks]
+msgwin¦interface¦ "Text" [,Schrift][,"Bild"]
+imagewin¦interface¦ "Bild"
+decisionwin¦interface, return¦ "Text" [,Schrift] [,"Abbruch"] [,"Okay"] [,"Bild"]
+echo¦misc¦ "Text"
+alteritem¦items¦ Anzahl, Typ [, neue Anzahl] [, neuer Typ]
+setskill¦skills, player¦ "Skill" [,Wert] [,"Bezeichnung"]
+incskill¦skills, player¦  "Skill" [,Wert] [,"Bezeichnung"]
+gotskill¦skills, player, return¦ "Skill"
+skillvalue¦skills, player, return¦ "Skill"
+freeskill¦skills, player, free¦ "Skill"
+model¦models¦  "Model" [, "Klasse", ID]
+quit¦misc¦
+credits¦misc¦
+temp¦ variables¦ "Variable" ... [,"Variable"]
+tempall¦variables¦
+freevar¦variables, free¦ "Variable" ... [,"Variable"]
+local¦variables¦ "Variable" ... [,"Variable"]
+getlocal¦variables, return¦ "Klasse", ID, "Variable"
+setlocal¦variables¦ "Klasse", ID, "Variable" [,Wert]
+gt¦return¦
+currentclass¦return¦
+currentid¦return¦
+freescript¦free¦ "Klasse", ID
+addscript¦objects¦ "Klasse", ID, "Quelle"
+setpos¦objects¦ "Klasse", ID, X, Y, Z
+store¦items¦ ItemID, "Klasse", ID [,Außen]
+unstore¦items, return¦ ItemID [,Anzahl]
+setrot¦objects¦ "Klasse", ID, Pitch, Yaw, Roll
+getyaw¦return¦ "Klasse", ID
+kill¦objects¦ ID
+damage¦objects¦ "Klasse", ID, Wert
+heal¦objects¦ "Klasse", ID, Wert
+player_speed¦player¦ Wert
+player_damage¦player¦ Wert
+player_attackrange¦player¦ Wert
+player_maxweight¦player¦ Wert
+player_mat¦player¦ "Material"
+inarea_freshwater¦return¦ "Klasse", ID
+inarea_dig¦return¦ "Klasse", ID
+inarea_fish¦return¦ "Klasse", ID
+inarea¦return¦ "Klasse", ID
+freestored¦items, free¦ "Klasse", ID, Typ [,Anzahl]
+setamount¦items¦ ID, Anzahl
+getstored¦items, return¦ "Klasse", ID [, Typ]
+getamount¦items, return¦ ID
+lives¦return¦ "Klasse", ID
+impact_class¦return¦
+impact_id¦return¦
+ride¦player¦ [ID]
+getoff¦player¦
+riding¦player, return¦
+impact_kill¦return¦
+player_weapon¦player¦ Typ
+player_ammo¦player¦ Typ
+getplayerweapon¦player, return¦
+getplayerammo¦player, return¦
+climate¦weather¦ "Klima"
+weather¦weather¦ "Wetter"
+getweather¦weather, return¦
+fry¦effects, player¦
+rainratio¦weather¦ Prozent
+snowratio¦weather¦ Prozent
+texture¦models¦ "Textur" [, "Klasse", ID]
+impact_first¦return¦
+impact_amount¦return¦
+freespace¦return¦ X, Y, Z [,Radius] [,Objects] [,Units] [,Items] [,Infos]
+impact_ground¦return¦
+impact_x¦return¦
+impact_y¦return¦
+impact_z¦return¦
+freebutton¦interface, free¦ ID
+statecolor¦states¦ "Klasse", ID, "State", R, G, B
+statesize¦states¦ "Klasse", ID, "State", Größe
+statevalue¦states¦ "Klasse", ID, "State", Wert
+timer¦timers¦ "Klasse", ID, Dauer [,Wiederholungen] [,Quelle] 
+freetimers¦timers, free¦ "Klasse", ID [,"Quelle"]
+timercount¦timers, return¦ "Klasse", ID
+getstatevalue¦states, return¦ "Klasse", ID, "State" [,Wert]
+downloadfile¦misc, return¦ "Server", "Pfad", "Datei"
+callscript¦misc, return¦ "Server", "Pfad" [,Ausführen]
+fileexists¦misc, return¦ "Pfad"
+getpitch¦return¦ "Klasse", ID
+getroll¦return¦ "Klasse", ID
+showentry¦diary¦ "Titel" [,SFX]
+corona¦effects¦ X, Z [,Radius] [,R,G,B], [Geschw.], [Unit-ID]
+compare_material¦return¦ "Klasse", ID, "Material"
+compare_behaviour¦return, objects¦ "Klasse", ID, "Behaviour"
+exchange¦interface¦ "Klasse", ID [,Einlagern]
+seqfade¦sequences¦ Startzeit, Endzeit [,R] [,G] [,B] [,Modus]
+seqscript¦sequences¦ Zeit, "Quelle"
+selectplace¦interface¦ "Text" [,Kamera-Höhe]
+selectplace_x¦interface, return¦
+selectplace_y¦interface, return¦
+selectplace_z¦interface, return¦
+closemenu¦interface¦
+cammode¦sequences¦ Zeit, Modus [,"Klasse", ID]
+health¦objects, return¦ "Klasse", ID [,Änderung]
+type¦return¦ "Klasse", ID
+int¦return¦ Zahl
+event¦basic¦ "Ereignis" [,"Klasse", ID]
+spawntimer¦objects¦ ObjectID [,Wert]
+use_x¦return¦
+use_y¦return¦
+use_z¦return¦
+areal_event¦basic¦ "Event", X,Y,Z [, Radius] [,Event-Limit]
+terrainy¦return¦ X, Z
+playerspotted¦player, return¦
+getplayervalue¦player, return¦ Wert
+trigger¦infos¦ ID
+seqtimemode¦sequences¦ Modus [,Absolut]
+cracklock¦interface¦ "Text", Modus, "Kombination"
+seqcls¦sequences¦ Zeit, Modus [,R] [,G] [,B]
+process¦interface¦ "Titel" [,Zeit] [,"Ereignis"]
+unitpath¦objects¦ UnitID, ID ... [,ID]
+freeunitpath¦objects, free¦ UnitID
+ai_signal¦objects¦ "KI-Signal" [, Radius] [, "Klasse", ID]
+ai_typesignal¦objects¦ "KI-Signal", Typ [, Radius] [, "Klasse", ID]
+ai_behavioursignal¦ objects¦ "KI-Signal", "Behaviour" [, Radius] [, "Klasse", ID]
+ai_mode¦ objects¦ Unit-ID, "Modus" [, "Ziel-Klasse", Ziel-ID]
+wateralpha¦misc¦ Alpha
+text¦interface¦ ID, "Text" [,Schrift][,X,Y][,Ausrichtung]
+freetext¦interface, free¦ ID
+dialogue¦interface¦ "Startseite", "Quelle"
+terraintexture¦misc¦ "Bilddatei" [,Gras]
+alterobject¦objects¦ Object-ID, Object-Typ
+@¦basic¦Befehl
+thunder¦effects, weather¦
+areal_state¦states¦ "State", X,Y,Z [, Radius]
+explosion¦effects¦ X,Y,Z [, Radius] [, Schaden] [, Style]
+sin¦return¦ Wert
+cos¦return¦ Wert
+tan¦return¦ Wert
+blur¦effects¦ Stärke
+setday¦misc¦ Tag
+sethour¦misc¦ Stunde
+setminute¦misc¦ Minute
+ai_eater¦objects, return¦
+vomit¦objects, effects¦ UnitID
+parent_class¦items, return¦ ItemID
+parent_id¦items, return¦ ItemID
+loop¦basic¦ ("Modus" [,Anzahl/Typ]) { Befehle }
+loop_id¦basic, return¦
+exit¦basic¦
+speech¦misc¦ "Datei", [Abbrechen, Nummer]
+autosave¦misc¦
+autoload¦misc¦
+menu¦interface, return¦
+revive¦objects¦ Unit-ID
+seqimage¦sequences¦ Zeit, "Bild" [,Maskiert]
+ai_stay¦objects¦ Unit-ID [, Modus]
+setat¦objects¦ "Klasse", ID, "Ziel-Klasse", Ziel-ID
+seqhideplayer¦sequences¦ Zeit [,Verstecken]
+scantarget¦player, return¦ [Reichweite]
+targetclass¦player, return¦
+targetid¦player, return¦
+targetx¦player, return¦
+targety¦player, return¦
+targetz¦player, return¦
+targetdistance¦player, return¦
+mapsize¦return¦
+msg_extend¦interface¦ Quelle
+msg_replace¦interface¦ "von", "zu"
+freeze¦object, player¦ [Unit-ID], [Modus]
+terrain¦misc, return¦ X, Z, Modus [, Höhe]
+storage¦objects, items, return¦ "Klasse", ID [,Modus]
+randomcreate¦objects, return¦ "Klasse", Typ [, Y Min, Y Max] [, Menge]
+intersect¦objects, return¦ "Klasse", ID [,"Klasse 2", ID 2]
+air¦player¦ Luft-Zeit
+jumptime¦player¦ Zeit
+jumpfactor¦ player¦ Faktor#
+count¦return¦ "Klasse", Typ
+projectile¦misc¦ Item-Typ,X,Y,Z,Modus, ... ,[,Offset][,Waffe][,Geschw.][,Schaden][,Drag]
+info_sprite¦infos, effects¦ Info-ID [,"Datei"][,X,Y][,R,G,B][,Alpha][,Blend][,Fix]
+builtat¦buildings, return¦ Object-ID
+particle¦effects¦ X,Y,Z,Typ [,Größe][,Alpha]
+particlec¦effects¦ Rot, Grün, Blau
+defparam¦return¦ "Klasse", Typ, "Parameter"
+loadani¦models, objects, return¦ Unit-Typ, Startframe, Endframe
+animate¦models, objects, return¦ Unit-ID, Startframe, Endframe, Geschw. [,Modus]
+info_loudspeaker¦infos, effects¦ Info-ID, "Datei" [,Radius]
+info_spawncontrol¦infos¦ Info-ID, Radius, Klasse, Typ, Teil, Max, Tage
+sleep¦player¦
+sleeping¦player, return¦
+seqimagetext¦sequences¦ Zeit,"Text",X,Y [,Farbe] [,Ausrichtung]
+watertexture¦misc¦ "Bilddatei"
+growtime¦objects, return¦ Typ
+skillname¦skills¦ "Skill", "Bezeichnung"
+viewline¦misc, return¦ X1,Y1,Z1,X2,Y2,Z2
+skytexture¦misc¦ "Himmelname"
+find¦player, items¦ Item-Typ [,Menge]
+state¦states, return¦
+camfollow¦sequences¦ Zeit,"Klasse",ID,X,Y,Z
+ambientsfx¦sounds¦ "Datei"
+text3d¦objects¦ "Klasse",ID,"Text"[,Schrift][,Offset][,Sichtweite]
+lensflares¦misc, effects, weather¦ Modus
+savemap¦misc¦ "Map"[,Skills][,Items][,Variablen][,Tagebuch][,States][,Buildlocks]
+locked¦buildings, items, return¦ Building-ID/Combi-ID
+grasscolor¦misc¦ Rot, Grün, Blau
+lastbuildingsite¦buildings, return¦
+getsetting¦ misc, return¦ Einstellung
+image¦interface¦ ID, "Bild", X, Y [,Maskiert]
+compass¦interface, player¦ Anzeigen
+skycolor¦misc, effects¦ Modus [,Rot,Grün,Blau][,Mischen]
+cscr¦interface¦ ["Bild"] [,Schließbar]
+cscr_text¦interface¦ "Text",X,Y [,Farbe][,"Script"]
+cscr_image¦interface¦ "Bild",X,Y [,"Script"]
+savemapimage¦misc¦ "Pfad", [,Größe]
+lockcombi¦items¦ "Kombinations-ID"
+unlockcombi¦items¦ "Kombinations-ID"
+lockcombis¦items¦
+unlockcombis¦items¦
+loadmaptakeover¦misc, return¦
+buffer¦buffer, return¦
+extendscript¦objects¦ "Klasse", ID, "Quelle"
+behaviour¦objects, return¦ "Klasse",Typ-ID
+name¦objects, return¦ "Klasse", Typ-ID
+debug¦misc, return¦ "Klasse/Modus" [,ID]
+inputwin¦interface, return, strings¦ "Text" [,Schrift] [,"Abbruch"] [,"Okay"] [,"Bild"]
+length¦strings, return¦ "String"
+trim¦strings, return¦ "String"
+replace¦strings, return¦ "String","Von","Zu"
+split¦strings, return¦ "String","Trennzeichen",Teil
+extract¦strings, return¦ "String", Start [,Länge]
+mkdir¦misc, return¦ "Ordner"
+join¦strings, return¦ "Wert" ... [,"Wert"]
+ai_center¦objects¦ [Unit-ID]
+copychildren¦objects¦ "Klasse",ID [,Vars][,Items][,States][,Script][,Hinzufügen]
+pastechildren¦objects¦ "Klasse",ID [,Vars][,Items][,States][,Script]

@@ -1,0 +1,130 @@
+### Bendable Branch (Branch + Water)
+combi=start
+id=bendablebranch
+req=24
+req=38
+gen=25
+script=start
+	process "making bendable",1500;
+script=end
+combi=end
+
+### Flour (9xGrain + Stone)
+combi=start
+id=flour
+req=42,9
+req=23,1,stay
+gen=43
+script=start
+	play "grind.wav";
+	process "grinding",410;
+script=end
+combi=end
+
+### Paste (Flour + Water)
+combi=start
+id=paste
+req=43
+req=38
+gen=82
+script=start
+	play "mat_flesh3.wav";
+	process "making dough",500;
+script=end
+combi=end
+
+### Iron Bar (Iron + Hammer)
+combi=start
+id=ironbar
+req=85
+req=30,1,stay
+gen=86
+script=start
+	play "workmetal.wav";
+	process "processing metal",2500;
+script=end
+combi=end
+
+### Joint (Hempleaf + Leaf)
+combi=start
+id=joint
+req=83
+req=15
+gen=91
+script=start
+	play "mat_leaf1.wav";
+	process "rolling joint",2000;
+script=end
+combi=end
+
+### Poison (toxic Fungus + Stone)
+combi=start
+id=poison
+req=34
+req=23,1,stay
+gen=37
+script=start
+	play "mat_flesh4.wav";
+	process "squeezing",500;
+script=end
+combi=end
+
+### Cacao (Cacaofruit + Stone)
+combi=start
+id=cacao
+req=67
+req=23,1,stay
+gen=68
+script=start
+	play "grind.wav";
+	process "grinding",410;
+script=end
+combi=end
+
+### Branch (Trunk + Matchet)
+combi=start
+id=branch
+req=7
+req=28,1,stay
+gen=24,10
+script=start
+	play "mat_wood1.wav";
+	process "chopping log",2000;
+script=end
+combi=end
+
+### Branch (Trunk + Axe)
+combi=start
+id=branch
+req=7
+req=87,1,stay
+gen=24,10
+script=start
+	play "mat_wood1.wav";
+	process "chopping log",2000;
+script=end
+combi=end
+
+### Pebbles (Stone + Hammer)
+combi=start
+id=pebbles
+req=23
+req=30,1,stay
+gen=21,10
+script=start
+	play "mat_stone1.wav";
+	process "smashing stone",2000;
+script=end
+combi=end
+
+### chocolate paste (Paste + Cacao)
+combi=start
+id=chocolatepaste
+req=82
+req=68
+gen=115,1
+script=start
+	play "mat_flesh3.wav";
+	process "mixing dough",1000;
+script=end
+combi=end

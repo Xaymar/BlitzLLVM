@@ -1,0 +1,396 @@
+######################################################### Bushes
+
+### Bush
+id=30
+name=bald Bush
+group=bush
+icon=gfx\baldbush01.bmp
+model=gfx\baldbush01.b3d
+fx=16
+col=2
+health=100
+find=24,90,5
+autofade=300
+mat=leaf
+growtime=5
+
+### Bush
+id=31
+name=Bush
+group=bush
+icon=gfx\bush01.bmp
+model=gfx\bush01.b3d
+fx=16
+col=2
+health=50
+find=15,50,1
+autofade=300
+mat=leaf
+swayspeed=2
+swaypower=1
+growtime=5
+
+### Bush
+id=32
+name=Bush
+group=bush
+icon=gfx\bush02.bmp
+model=gfx\bush02.b3d
+fx=16
+col=2
+health=90
+find=15,50,1
+autofade=300
+mat=leaf
+swayspeed=2
+swaypower=1
+growtime=5
+
+### Bush
+id=33
+name=Bush
+group=bush
+icon=gfx\bush03.bmp
+model=gfx\bush03.b3d
+fx=16
+col=2
+health=50
+find=15,50,1
+autofade=300
+mat=leaf
+swayspeed=2
+swaypower=1
+growtime=5
+
+### Bush
+id=34
+name=Bush
+group=bush
+icon=gfx\bush04.bmp
+model=gfx\bush04.b3d
+fx=16
+col=2
+health=70
+find=15,50,3
+find=24,40,2
+autofade=300
+mat=leaf
+swayspeed=2
+swaypower=1
+growtime=5
+
+### Bush
+id=35
+name=Blueblossom
+group=bush
+icon=gfx\bush05.bmp
+model=gfx\bush05.b3d
+fx=16
+col=2
+health=30
+find=15,20,1
+find=13,50,1
+autofade=300
+mat=leaf
+growtime=5
+script=start
+	//Spawn Blueblossom Item
+	on:kill {
+		create "item",13,getx("self"),getz("self");
+		corona getx("self"),getz("self");
+	}
+script=end
+
+### Bush
+id=36
+name=Bush
+group=bush
+icon=gfx\bush06.bmp
+model=gfx\bush06.b3d
+fx=16
+col=2
+health=70
+find=15,50,1
+autofade=300
+mat=leaf
+growtime=5
+
+### Bush
+id=37
+name=Bush
+group=bush
+icon=gfx\bush07.bmp
+model=gfx\bush07.b3d
+fx=16
+col=0
+health=50
+find=15,50,1
+autofade=300
+mat=leaf
+growtime=5
+
+### Bush
+id=38
+name=Bush
+group=bush
+icon=gfx\bush08.bmp
+model=gfx\bush08.b3d
+fx=16
+col=2
+health=70
+find=15,50,1
+autofade=300
+mat=leaf
+growtime=5
+
+### Bush
+id=39
+name=Bush
+group=bush
+icon=gfx\bush09.bmp
+model=gfx\bush09.b3d
+fx=16
+col=2
+health=70
+find=15,20,1
+autofade=300
+mat=leaf
+growtime=5
+
+### Bush
+id=40
+name=Bush
+group=bush
+icon=gfx\bush10.bmp
+model=gfx\bush10.b3d
+fx=16
+scale=0.5
+col=2
+health=70
+find=15,50,1
+autofade=300
+mat=leaf
+growtime=5
+
+### Bush
+id=41
+name=Bush
+group=bush
+icon=gfx\bush11.bmp
+model=gfx\bush11.b3d
+fx=16
+scale=0.65
+col=2
+health=70
+find=15,40,1
+find=24,40,1
+autofade=300
+mat=leaf
+growtime=5
+
+### Bush
+id=42
+name=Bush
+group=bush
+icon=gfx\bush12.bmp
+model=gfx\bush12.b3d
+fx=16
+scale=0.5
+col=2
+health=50
+find=15,15,1
+autofade=300
+mat=leaf
+growtime=5
+
+### Reed
+id=43
+name=Reed
+group=bush
+icon=gfx\reed.bmp
+model=gfx\reed.b3d
+fx=16
+col=2
+health=60
+find=15,20,1
+autofade=300
+mat=leaf
+growtime=5
+
+### Grapevine
+id=44
+name=Grapevine
+group=stuff
+icon=gfx\grapevine.bmp
+model=gfx\grapevine.b3d
+fx=16
+scale=1.15
+col=2
+health=100
+autofade=300
+spawn=45,3,4,5,18,3,5
+mat=leaf
+growtime=5
+script=start
+	on:plant {
+		spawntimer "self",-4;
+	}	
+script=end
+
+
+### Bush
+id=45
+name=Bush
+group=bush
+icon=gfx\bush13.bmp
+model=gfx\bush13.b3d
+fx=16
+col=2
+health=200
+find=15,40,1
+autofade=300
+swayspeed=2.5
+swaypower=2
+mat=leaf
+growtime=5
+
+### Berry Bush
+id=46
+name=Berry Bush
+group=bush
+icon=gfx\berrybush.bmp
+model=gfx\bush12.b3d
+fx=16
+scale=0.5
+col=0
+health=150
+find=15,20,1
+autofade=300
+spawn=46,3,10,5,10,3,5
+mat=leaf
+growtime=10
+script=start
+	on:plant {
+		spawntimer "self",-9;
+	}
+script=end
+
+### Cotton Plant
+id=47
+name=Cotton
+group=stuff
+icon=gfx\cottonplant.bmp
+model=gfx\cottonplant.b3d
+fx=16
+scale=2.3
+col=2
+health=150
+find=48,75,5
+autofade=300
+mat=leaf
+swayspeed=3
+swaypower=2
+script=start
+	// Spawn Wool
+	on:kill {
+		create "item",48,getx("self"),getz("self"),10;
+		corona getx("self"),getz("self");
+	}
+script=end
+growtime=5
+
+
+### Seaweed
+id=48
+name=Seaweed
+group=stuff
+icon=gfx\seaweed.bmp
+model=gfx\seaweed.b3d
+fx=16
+scale=2.3
+col=2
+shine=0.2
+alpha=0.6
+health=100
+autofade=300
+mat=leaf
+swayspeed=6
+swaypower=10
+find=109,25,1
+script=start
+	// Spawn Seaweed Item
+	on:kill {
+		create "item",109,getx("self"),getz("self"),5;
+		corona getx("self"),getz("self");
+	}
+script=end
+growtime=5
+
+### Airweed
+id=49
+name=Air Weed
+group=stuff
+icon=gfx\airweed.bmp
+model=gfx\seaweed.b3d
+fx=16
+scale=2.3
+col=2
+shine=0.2
+health=100
+autofade=300
+mat=leaf
+color=0,50,255
+alpha=0.6
+swayspeed=7
+swaypower=15
+script=start
+	on:load {
+		blend 3;
+	}
+
+	on:use {
+		air 20000;
+		play "blubber.wav";
+	}
+script=end
+
+### Bush
+id=185
+name=Bush
+group=bush
+icon=gfx\bush14.bmp
+model=gfx\bush14.b3d
+scale=1.5
+fx=16
+col=2
+health=200
+find=15,40,1
+autofade=300
+mat=leaf
+swayspeed=2
+swaypower=1
+growtime=5
+
+### Bang Fungus
+id=186
+name=Bang Mushroom
+group=stuff
+icon=gfx\bangfungus.bmp
+model=gfx\bangfungus.b3d
+scale=2.
+health=1
+autofade=300
+mat=leaf
+behaviour=closekill
+var=radius,Radius of Explosion,65,0
+var=damage,Damage,25,0
+script=start
+	on:kill {
+		local $ex,$ey,$ez;
+		$ex=getx("self");
+		$ey=gety("self");
+		$ez=getz("self");
+		explosion $ex,$ey,$ez,$radius,$damage,3;
+	}
+script=end
+growtime=3

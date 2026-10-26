@@ -1,0 +1,1059 @@
+//### Stuff:
+// 152 = Unit - Native
+// 100 = Unit - Hemp Grandpa
+// 54 = Info - Hemp Grow Area Center
+// 107 = Object - Hempstorage
+//
+//### Vars
+// $hempstate
+// $nativelan
+// $nativeq
+// $nativeshemp
+// $theship
+
+//~hempdef
+on:kill {
+	$x=getx("self");
+	$z=getz("self");
+	$id=create("info",30,$x,$z);
+	if (distance("info",$id,"info",54)>220){
+		free "info",$id;
+	}
+}
+//~diary01
+Oh no... apart from the fact that I of course didn't land at home by sheer luck, I am noticing that I appear to have lost all items during the teleport. Damn.
+
+//~diary_natives
+Arrows! The bleeding bastards are shooting at me!
+Looks like a village inhabited by natives - and it is guarded by two watch towers. I better ought to keep some distance to them.
+
+//~native_trader_dlg01
+page=start
+title=Native Merchant
+text=start
+Uhna mohnu g'u Lahak!
+
+
+
+!3... I can't understand him!
+text=end
+button=action:close,I'm off!
+//~native_trader_dlg02
+page=start
+title=Native Merchant
+text=start
+Hello, stranger!
+text=end
+button=p2,What do you do here?
+
+page=p2
+text=start
+Me? Question rather what you do! But me not care.
+Me trade with old man who give plants of joy.
+text=end
+button=p3a,Drugs are not good!
+button=p3b,An old man?
+
+page=p3a
+text=start
+What? Me not understand!
+text=end
+button=p4,Do you live in the village?
+
+page=p3b
+text=start
+Yes. Old man with white beard. Live in tent at shore.
+text=end
+button=p4,Do you live in the village?
+
+page=p4
+text=start
+Yes, me home is village of tribe. Here we live.
+Feel safe because safeguard of towers with bowmen.
+Village not for strangers.
+text=end
+button=p5,I want to get into the village!
+
+page=p5
+text=start
+VILLAGE NOT FOR STRANGERS!
+Towers with bowmen shoot at you if you go village!
+text=end
+button=p6a,Oh Shit!
+button=p6b,I will just enter it, whatever you say.
+button=p7,Can't I do something about that?
+
+page=p6a
+text=start
+You talk about brown mass come out bottom?
+Is sanctuary of tribe. We call Pupu. Stranger worship it.
+text=end
+button=p6b,I'll better leave now...
+
+page=p6b
+text=start
+You need help from tribe or you never come onwards.
+Tribe will not help if you stranger. You need me for come in village of tribe.
+As punishment for dumbness me act like not know you.
+You say all again.
+text=end
+button=start,Oh no... alright, in Devil's name...
+
+page=p7
+text=start
+Me can help become friend of tribe. Friend of tribe have free entry to village of tribe.
+Towers with bowmen not shoot at friends, only shoot at foes.
+text=end
+button=p6b,I'll better terminate this, you queer oddball!
+button=p8,Sounds good. What shall I do?
+
+page=p8
+text=start
+That be easy thing.
+You help me then me help you.
+Then we both happy and drink cup o'tea.
+text=end
+button=p9c,Just carry on...
+button=p9a,You have cups?!
+button=p9b,You have tea?
+button=p6b,Come to a point, jackass!
+
+page=p9a
+text=start
+We have find crate lie at beach.
+Good cups. Good good cups..
+text=end
+button=p9c,I see... and what shall I do?
+
+page=p9b
+text=start
+No.
+Me have lied. We not have tea.
+We urine of turtles. Taste magnific.
+Drink yummy cup urine when you be friend of tribe.
+text=end
+button=p9c,I see... and what shall I do?
+
+page=p9c
+text=start
+Me now tell you what must do.
+If you me help me will say my tribe that you friend, not foe.
+But first you must proof that you be true friend.
+
+Me give you list of tasks.
+text=end
+button=p10,Then I shall start to work!
+
+page=p10
+script=start
+diary "The list of tasks","maps/adventure/map05.s2s","thelist";
+$nativeq=1;
+script=end
+
+//~thelist
+!1The list that the native gave me:
+Hello stranger!
+You must me bring follow:
+
+20 feathers - for new arrows of bowmen
+10 branches - for eternal campfire
+3 skins - for soft bed
+4 bananas - for great hunger
+1 stone - for heavier burden
+2 pieces from bark - for hoard
+1 vine - for patching of hut
+
+When you have ALL together, you me search and give me!
+Me wish you success!
+//~native_trader_checkdlg
+page=gotstuff
+title=Native Merchant
+text=start
+Fantastic! You have all get for me! Now it can go on.
+When I come across next time in village I bring tidings that you new friend for tribe.
+You then come into village. But not before. Or towers with bowmen shoot.
+text=end
+script=start
+$makefriend=1;
+script=end
+button=action:close,Great, thank you!
+
+page=nostuff
+title=Native Merchant
+text=start
+Hello stranger on path to friend!
+You not have all from list I have give you. Only talk again to me when have all on list with you.
+Good luck on search.
+text=end
+button=action:close,Thanks...
+
+page=notext
+title=Native Merchant
+text=start
+Hello friend.
+I must trade. Not like to talk to you anymore.
+You bugger off.
+text=end
+button=action:close,How impolite... bye.
+
+//~hemp_dlg01
+page=start
+title=Weed Grandpa
+text=start
+Oh, hello my fellow!
+How are you? Have you stranded here too?
+text=end
+button=yes,Yes!
+
+page=yes
+title=Weed Grandpa
+text=start
+Gee, just like me!
+That is already some years ago. But I don't try to get away anymore since quite a while. This Island is located just about in the middle of nowhere. It seems like there's nothing around.
+You wouldn't stand any chance without a real ship.
+But I have come to an arrangement! I just set up my tent, and now I grow my weed here. The natives are totally crazy about the shit! I channel them some of it off. In exchange, they give me everything I need.
+text=end
+button=natives,What natives?
+
+page=natives
+title=Weed Grandpa
+text=start
+What? You haven't got to know them yet?
+You can call yourself lucky! They are quite... um, well ... let's say precautious towards strangers. Their village is guarded by two watch towers. They shoot on everybody they don't know. When I was there for the first time, they'd nearly have killed me, son!
+By now, they know me and don't attack me anymore. That would be pretty stupid, because they wouldn't get their joints anymore.
+text=end
+button=swap,Alright ... I understand ... Goodbye!
+
+page=swap
+script=start
+	$hempstate=1;
+	diary "The Weed Grandpa","maps/adventure/map05.s2s","diary_hempguy";
+script=end
+
+//~diary_hempguy
+That's odd. A stranded Hippie Grandpa that grows hemp, rolls joints and hucksters them to the natives.
+Anyway, the chap seems to know the ropes. I should let him show them to me.
+//~hemp_dlg02
+page=start
+title=Weed Grandpa
+text=start
+Greetings!
+What can I do for ya, fellow?
+text=end
+script=start
+	if ($nativelan==1){
+		freebutton 2;
+	}
+	$x=random(1,12);
+	clear;
+	if ($x==1){add "Oh... green elephants. They're everywhere. Watch out!";}
+	if ($x==2){add ""; add "... "; add "Over there..."; add "Behind you!"; add "A three-headed monkey!";}
+	if ($x==3){add ""; add "*grunt*";}
+	if ($x==4){add "You smell like caramel bonbons.";}
+	if ($x==5){add "D'you also find cows totally super?";}
+	if ($x==6){add ""; add "All colour water colour."; add "Game good.";}
+	if ($x==7){add "Ngog hari ti pa ku!";}
+	if ($x==8){add ""; add ""; add "..."; add "That's how it works!";}
+	if ($x==9){add "Why do your eyes glow yellow and pink?";}
+	if ($x==10){add ""; add "... you're scary.";}
+	if ($x==11){add "I wonder where I can get new sandals...";}
+	if ($x==12){add "Hahahahaha!";}
+	msg_extend;
+script=end
+button=status,Is everything alright?
+button=teach,Could you teach me something?
+button=natives,How can I get into the village?
+button=sell,Could you sell me something?
+button=action:close,Nothing. Bye!
+
+page=status
+title=Weed Grandpa
+text=start
+Yes, everything's alright with me. I feel fine. Good vibes 'n' stuff.
+Thanks for asking.
+text=end
+button=start,Back
+
+page=teach
+text=start
+In all the time I've been here, I have gathered quite a lot of useful experience. Of course I'm open to share it with you. But I demand your service in return; you have to harvest hemp for me and pile it up in my storage.
+What d'you want to know?
+text=end
+script=start
+if ($teach_hemp==0){
+	button 0,"How to harvest hemp (for free)",17,"teach_hemp";
+}
+if ($teach_bread==0){
+	button 1,"How to bake bread (15 leaves of hemp)",17,"teach_bread_chk";
+}
+if ($teach_fishing==0){
+	button 2,"How to fish (10 leaves of hemp)",17,"teach_fishing_chk";
+}
+if ($teach_heal==0){
+	button 3,"How to heal (20 leaves of hemp)",17,"teach_heal_chk";
+}
+button 9,"Back",17,"start";
+script=end
+
+page=teach_hemp
+text=start
+Harvesting hemp is easy, son!
+You only gotta blow upon the hemp plant per [$key_attack1] until it falls over. The leaves remain on the ground. You can simply pick them up with [$key_use].
+
+If you want to grow new hemp plants on yourself, you just gotta take the leaves into your hand.
+Then you search for a free spot at the ground. Look onto the spot and press [$key_use] to plant a new hemp plant. Let it grow for some days until you reap it again to gain a higher number of hemp leaves.
+text=end
+script=start
+$teach_hemp=1;
+script=end
+button=teach,Okay
+
+page=teach_nohemp
+text=start
+I'm afraid you haven't reaped enough hemp for that.
+Harvest the listed amount and put it into my storage!
+text=end
+button=teach,Okay
+
+page=teach_bread_chk
+script=start
+if (count_stored("object",107,83)>=15){
+	freestored "object",107,83,15;
+	dialogue "teach_bread","maps/adventure/map05.s2s","hemp_dlg02";
+}else{
+	dialogue "teach_nohemp","maps/adventure/map05.s2s","hemp_dlg02";
+}
+script=end
+
+page=teach_bread
+text=start
+Baking bread is a craft of its own. It takes a lot of work, but you will see it's worth all of it.
+
+First among, you need grain. You can harvest it by pounding against it per [$key_attack1]. That way, you get sheaves of crop that you must use in the inventory to get the grains out. The grains can instantly be eaten, which does not make much sense. It's better to grind them or to seed them again.
+To seed them, just take them into the hand and look at a free spot on the ground. Press [$key_use] to place them there. Some days later, you can reap the crop.
+If you want to grind the grains to make flour out of them, you need at least 9 units of grain to combine them with a stone. The flour is edible as well, but you actually shouldn't do that, because it makes you damn thirsty.
+Go to a fountain or to a well and use the flour there to knead it to paste with the water.
+The paste is already quite good to satisfy one's hunger. If you don't have fire at hand, you can just eat it raw. But if it's possible to bake the paste, you should always do that. Just go to a campfire and use the paste to bake it and obtain bread.
+Bread is the best kind of food that you can make on yourself out here. It satisfies even very great hunger.
+text=end
+script=start
+$teach_bread=1;
+script=end
+button=teach,Okay
+
+page=teach_fishing_chk
+script=start
+if (count_stored("object",107,83)>=10){
+	freestored "object",107,83,10;
+	dialogue "teach_fishing","maps/adventure/map05.s2s","hemp_dlg02";
+}else{
+	dialogue "teach_nohemp","maps/adventure/map05.s2s","hemp_dlg02";
+}
+script=end
+
+page=teach_fishing
+text=start
+If you run short of food, fishing often turns out to be the solution.
+It is needless to say that you need a fishing rod to get started.
+
+Combine a branch with water or use it at a wellspring to make it bendable. You can't use sea water for this! The bendable branch is your rod - you only need a fishing line for the completion. Use wool to spin thread out of it and combine it with the bendable branch. Voila, your fishing rod is ready.
+
+Then all that's left to do is take the rod in your hand and angle via [$key_attack2].
+You can fish at any shore you find, but there are not fishes everywhere. There are two ways to spot  fishes:
+- Diving: If the water is deep enough, you can just dive into the water and have a look with your own eyes if there are fishes around.
+- Bubbles: If bubbles rise in the water and spread as concentric waves at the surface, you can also fish successfully at the particular place. Even if you don't see fishes when you dive in!
+
+So choose the spot where you fish wisely, son.
+
+By the way: fishing also increases your fishing skill. This improves your chances for a good gain. Moreover, you can unlock the bow net that way. That's a kind of net trap that can be set up in the water catch fish.
+text=end
+script=start
+$teach_fishing=1;
+script=end
+button=teach,Okay
+
+page=teach_heal_chk
+script=start
+if (count_stored("object",107,83)>=20){
+	freestored "object",107,83,20;
+	dialogue "teach_heal","maps/adventure/map05.s2s","hemp_dlg02";
+}else{
+	dialogue "teach_nohemp","maps/adventure/map05.s2s","hemp_dlg02";
+}
+script=end
+
+page=teach_heal
+text=start
+The art of healing is very important. If you don't cure your wounds correctly, you can die faster than you can imagine.
+
+Treating of fractures:
+When you sustain a fracture, you are strongly handicapped and an easy prey for the creatures of wilderness. But you can quite simply help yourself by splinting the fracture. You only need a stick and a long vine. Combine both and tie the branch to the broken bone with the vine. The splinting makes the two parts heal quicklier and allows you to stress them stronglier.
+
+Staunching of bleeds:
+Deep wounds can cause bleedings that do not heal on themselves. In such a case, you must react quickly and combine a vine with a leaf. Lay the leaf onto the wound and fix it to it with the vine. Pay attention to give the leaf enough pressure.
+
+Medicine against dizziness:
+The golden herb is an efficient means against dizziness. It is easily recognisable by its light yellow colour. It's a real shame that it's so seldom. You must simply eat it to let it affect you.
+
+Medicine against inebriation:
+The bitter root is a plain, dark root that can often be found in the shadow, near to bushes and trees. As its name implies, it has a very bitter taste. If you consume it, you will instantly vomit the whole content of your guts out, including the toxic substances that are making you high, drunk or whichever kind of inebriated.
+
+Brewing health potions:
+There are several ways to brew a health potion. See some of my recipes:
+
+1 strong healing herb, water, stone
+Pound the healing herb with the stone and mix the juice with water
+
+3 healing herbs, water, stone
+Same procedure. You need three normal healing herbs, because their power is weaker than that of a strong healing herb.
+
+5 golden herbs, water, stone
+If you have a lot of golden herbs, this is an alternate way instead of the classical health potion with healing herbs. Separate the golden cusps from the rest of the golden herb, pulverise them and mix them with water. The healing power of the golden herb sadly is quite restricted, which makes the hight amount necessary.
+
+
+Health potions regenerate one's health with the time and are good against intoxications, dizziness and inebriation.
+
+text=end
+script=start
+$teach_heal=1;
+script=end
+button=teach,Okay
+
+page=natives
+script=start
+	if ($nativeshemp!=1){
+		$nativeshemp=1;
+		dialogue "natives_gethemp","maps/adventure/map05.s2s","hemp_dlg02";
+	}else{
+		if (count_stored("object",107,83)>29){
+			dialogue "start","maps/adventure/map05.s2s","hemp_dlg03";
+		}else{
+			dialogue "natives_gethemp_notokay","maps/adventure/map05.s2s","hemp_dlg02";
+		}
+	}
+script=end
+
+page=natives_gethemp
+title=Weed Grandpa
+text=start
+You want to know how to get into the village, son... hahaha...
+I can tell you: You have to learn the language of the natives!
+I can teach it to you, but that'll be a shitload of work.
+
+Hmm...
+If you help me with the harvest and take care that there are at least 30 leaves of hemp in my storage, I will give you lessons.
+text=end
+button=natives_gethemp_okay,Okay... Then I'll better go and do that...
+
+page=natives_gethemp_okay
+script=start
+	diary "The natives' tongue","maps/adventure/map05.s2s","diary_nativelan";
+script=end
+
+page=natives_gethemp_notokay
+title=Hanfopa
+text=start
+Have you already forgotten it?
+There must be 30 leaves of hemp in my storage. Do me that little favour and I'll teach you what you want.
+text=end
+button=action:close,Alright...
+
+page=sell
+text=start
+Yes - I am always open to a fair trade.
+I can offer you health potions, juice and cookies.
+I want to be paid in branches, so that I can fence my plantation.
+text=end
+button=sell_cookie,Buy cookie (5 branches)
+button=sell_juice,Buy juice (15 branches)
+button=sell_potion,Buy health potion (35 branches)
+button=start,Back
+
+page=sell_cookie
+script=start
+if (playergotitem(24)>=5){
+	freestored "unit",1,24,5;
+	$id=create("item",66);
+	store $id,"unit",1;
+	clear;
+	add "Here, take the cookie! And thanks for the branches.";
+	msg_extend;
+}else{
+	clear;
+	add "I can't leave it to you.";
+	add "You must have at least 5 branches for it!";
+	msg_extend;
+}
+script=end
+button=sell,Back
+button=action:close,Goodbye
+
+page=sell_juice
+script=start
+if (playergotitem(24)>=15){
+	freestored "unit",1,24,15;
+	$id=create("item",47);
+	store $id,"unit",1;
+	clear;
+	add "Yummy juice for you and strong wood for me.";
+	msg_extend;
+}else{
+	clear;
+	add "I can't leave it to you.";
+	add "You must have at least 15 branches for it!";
+	msg_extend;
+}
+script=end
+button=sell,Back
+button=action:close,Goodbye
+
+page=sell_potion
+script=start
+if (playergotitem(24)>=35){
+	freestored "unit",1,24,35;
+	$id=create("item",36);
+	store $id,"unit",1;
+	clear;
+	add "Good choice.";
+	add "Here, take your health potion.";
+	add "That makes 35 branches.";
+	msg_extend;
+}else{
+	clear;
+	add "I can't leave it to you.";
+	add "You must have at least 35 branches for it!";
+	msg_extend;
+}
+script=end
+button=sell,Back
+button=action:close,Goodbye
+
+//~diary_nativelan
+The hemp grandfather has offered me to teach me the language of the natives, to make myself understood and get into their village.
+Before the lessons start, I must lend him a hand for the harvest of his weed.
+I must increase his stock to at least 30 leaves.
+
+//~hemp_dlg03
+page=start
+title=Weed Grandpa
+text=start
+Thanks for your aid!
+It looks like the lessons can begin now...
+text=end
+button=diary,Yessir, I'm ready!
+script=start
+	$nativelan=1;
+	freestored "object",107,83,100;
+script=end
+
+page=diary
+script=start
+	extendentry "The natives' tongue","maps/adventure/map05.s2s","diary_nativelanext";
+	showentry "Die Sprache der Eingeborenen";
+script=end
+
+//~diary_nativelanext
+ - - -
+
+I have got the green stuff for the chappy, and he has been true to his word. He gave me a crash course about the language these strange natives speak, and I now feel able to make myself understood in their tongue. The problem is only that a rain of arrows crackles down upon me every time I approach their village. I must find one of them outside the village!
+//~native_ct_dlg01
+page=alien
+title=Chieftain
+text=start
+Hugh harrr Tschack! Gnar gnar! Ignak!
+
+
+
+!3... I can't understand him!
+!3I SUDDENLY BURST INTO FLAMES!
+text=end
+script=start
+addstate "unit",1,4;
+script=end
+button=action:close,Whaaaaaah!
+
+page=unalien
+title=Häuptling
+text=start
+A trespassing illegal immigrant! Go away! Burrrrn!
+
+
+
+!3I SUDDENLY BURST INTO FLAMES!
+text=end
+script=start
+addstate "unit",1,4;
+script=end
+button=action:close,Whaaaaaah!
+
+page=start
+title=Chieftain
+text=start
+Hello. Me ear got news that you now friend of tribe. You be welcome in ours circle.
+Me introduce myself:
+Name is Rootignoot. Me be mighty chieftain of tribe with scary mask full of colourful paint and with strong magical powers!
+Me can make things burn with me magic.
+text=end
+button=p2,Gosh, that's fascinating...
+
+page=p2
+text=start
+Yes. That be about me.
+But what with you? Why you here?
+Tribe seldom have foreign visitor.
+text=end
+button=p3,Stranded, teleported etc...
+
+page=p3
+text=start
+Me understand. Me believe, you not want stay here?
+You want back where you come from. You want get away.
+Me be right?
+text=end
+button=p4a,Yes!
+button=p4b,No...
+
+page=p4a
+text=start
+In this case help you we can.
+Build biiiiig ship for go away. But help not for free. You do drudgery for tribe.
+Then tribe build big ship for escape.
+text=end
+button=p5,Okay
+
+page=p4b
+text=start
+You be liar!
+Me see your thoughts! You want away.
+Only if you come away from this island this game you can win.
+You now know. So away you want?
+text=end
+button=p4a,Yes...
+
+page=p5
+text=start
+You must know the tribe have great starvation. You must help tribe.
+Seed 10 plants of crop in village, build 3 new bow nets before village so we have 5 of them and bring 15 bread to me.
+Then we ready to build big boat for you.
+text=end
+button=p6,At your command!
+
+page=p6
+script=start
+	$nativeq=4;
+	diary "The famine","maps/adventure/map05.s2s","diary_food";
+script=end
+
+//~diary_food
+The tribe of the local natives wants to help me to escape by building me a big ship.
+To make them do it I must first help them to solve their shortness of food.
+
+There are 3 conditions to fulfill:
+- 5 bow nets before the village
+- 10 plants of crop within the village
+- I must give the chief 15 loafs of bread
+
+I will not get away without the help of the natives.
+I must fulfill the tasks!
+
+
+!1- Info -
+You can erect bow nets with a hammer, just as all other buildings. However, you must know the ropes of fishery first. Your fishing skill must be at least 50. To increase it, you must simply angle. If you do not have a fishing rod yet, just combine a thread with a branch that has been made bendable by using it beneath a fountain or a well.
+
+!4- Hint -
+If you have problems with the baking of bread or with the cultivation of crops, the weed grandpa can tell you how to do that.
+//~native_ct_q1
+page=start
+title=Chieftain
+script=start
+	$con=0;
+	if (playergotitem(44)>=15){$con++;}
+	if (count_inrange("object",121,500,"info",55)>=10){$con++;}
+	if (count_inrange("object",191,700,"info",55)>=5){$con++;}
+	if ($con==3){
+		freestored "unit",1,44,15;
+		dialogue "qok","maps/adventure/map05.s2s","native_ct_q1";
+	}else{
+		dialogue "qfail","maps/adventure/map05.s2s","native_ct_q1";
+	}
+script=end
+
+page=qfail
+text=start
+You not have all tasks done.
+Bring 15 bread, seed 10 crop and take care of 5 fishtraps!
+Please help!
+text=end
+button=action:close,Sure, goodbye.
+script=start
+	clear;
+	if (playergotitem(44)<15){
+		add "!3- Not enough bread!";
+		msg_extend;
+	}
+	if (count_inrange("object",121,500,"info",55)<10){
+		add "!3- Not enough crop!";
+		msg_extend;
+	}
+	if (count_inrange("object",191,700,"info",55)<5){
+		add "!3- Not enough bow nets!";
+		msg_extend;
+	}
+script=end
+
+page=qok
+text=start
+You have done great service to tribe.
+Tribe now show thankful for help. Tribe build ship.
+But bad tidings me have to say. Have sent workers to jetty. Workers have said that construction not possible!
+text=end
+button=p2,Why isn't it possible?
+
+page=p2
+text=start
+Beach and jetty be full of sea weed and algas. Settle on boat and destroy hull.
+Building not work so. Work be useless.
+text=end
+button=p3,What to do now?
+
+page=p3
+text=start
+You must clean away sea weed. Dive and destroy!
+Then we begin to work immediate.
+text=end
+button=p4,Why exactly ME?!
+
+page=p4
+text=start
+Tribesmen not dive. Afraid of water. Die when dive.
+You only who dares to dive. You only who can remove plants in water.
+When removed we build ship.
+text=end
+script=start
+	$nativeq=5;
+script=end
+button=p5,Then I'll better do that...
+
+page=p5
+script=start
+	diary "The ship","maps/adventure/map05.s2s","diary_ship01";
+script=end
+
+//~native_ct_q2
+page=start
+title=Chieftain
+script=start
+	if (count_inrange("object",48,300,"object",110)==0){
+		dialogue "qok","maps/adventure/map05.s2s","native_ct_q2";
+	}else{
+		dialogue "qfail","maps/adventure/map05.s2s","native_ct_q2";
+	}
+script=end
+
+page=qfail
+text=start
+There still plants in water.
+You remove all or nobody build ship!
+text=end
+button=action:close,Yes, Mr. Super-precise... okay.
+
+page=qok
+text=start
+Good work!
+Now we ready to build ship for you.
+Building dure 14 sunsets. We do. You come when ready.
+text=end
+script=start
+	$nativeq=6;
+	$daycounter=1;
+	$theship=create("object",178,1422,735);
+	addstate "object",$theship,17;
+	model "gfx/yacht_01.b3d","object",$theship;
+	fx 16,"object",$theship;
+	scale 1.76,1.76,1.76,"object",$theship;
+	setrot "object",$theship,0,-135,0;
+script=end
+button=p2,Sounds good. Thanks!
+
+page=p2
+text=start
+You have helped tribe so tribe help you.
+Question of honour...
+text=end
+button=p3,I understand
+
+page=p3
+text=start
+One good turn deserves another...
+text=end
+button=p4,Yes, right!
+
+page=p4
+text=start
+We like help strangers.
+text=end
+button=p5,Great thing
+
+page=p5
+text=start
+Have good skill with build ships
+text=end
+button=p6,Good
+
+page=p6
+text=start
+Ship will be great, me promise
+text=end
+button=p7,The better!
+
+page=p7
+text=start
+Least do we can for recompense your help
+text=end
+button=p8,Mhmyeah...
+
+page=p8
+text=start
+You good man
+text=end
+button=p9,Sure
+
+page=p9
+text=start
+We very thankful
+text=end
+button=p10,Have you finished now?
+
+page=p10
+text=start
+One thing left me have to say!
+text=end
+button=p11,What?
+
+page=p11
+text=start
+Give knowledge of survive in wilderness!
+When find bark at trees, you can use bark. You find insects and slime in bark. Good against hunger and thirst! Or take many leaves and press water out with stone.
+Then you survive hardship!
+
+See you soon!
+text=end
+button=p12,Oh, thanks. Goodbye.
+
+page=p12
+script=start
+	extendentry "The ship","maps/adventure/map05.s2s","diary_ship02";
+	showentry "The ship";
+script=end
+
+//~native_ct_q3
+page=start
+title=Chieftain
+script=start
+$daysleft=15-$daycounter;
+if ($daysleft<=0){
+	if ($shipused!=1){
+		dialogue "done","maps/adventure/map05.s2s","native_ct_q3";
+	}else{
+		dialogue "donenofuel","maps/adventure/map05.s2s","native_ct_q3";
+	}
+}else{
+	dialogue "notdone","maps/adventure/map05.s2s","native_ct_q3";
+}
+script=end
+
+page=notdone
+text=start
+Building Ship.
+text=end
+script=start
+$daysleft=15-$daycounter;
+if ($daysleft==1){
+	add "Finished tomorrow!";
+}else{
+	add "Finished in $daysleft days";
+}
+msg_extend;
+script=end
+button=action:close,Bye
+
+page=done
+title=Häuptling
+text=start
+Ship be ready, good friend!
+With best wishes from whole tribe.
+text=end
+button=startclose,Thanks, goodbye!
+
+page=startclose
+script=start
+	extendentry "The ship","maps/adventure/map05.s2s","diary_ship03";
+	showentry "The ship";
+script=end
+
+page=donenofuel
+title=Häuptling
+text=start
+You not can go with ship?
+text=end
+button=nofuel,No, I need some fuel, er... powerwater!
+
+page=nofuel
+text=start
+Powerwater... oh...
+text=end
+button=nofuel1,Yeah, I mean... you are the ones who've actually built the ship!
+
+page=nofuel1
+text=start
+Yes and we very good shipmakers! Ship equipped with most modern technology!
+Congratulation to purchase of new ship.
+text=end
+button=nofuel2,But how am I supposed to use it?
+
+page=nofuel2
+text=start
+So you need what you call fuel...
+Me can have your ship filled with this powerwater. But you show that you worth before!
+text=end
+button=nofuel3,Haven't I helped you enough already?
+
+page=nofuel3
+text=start
+Never! You first proof that you be good boardchief for worthy ship!
+Before you not use ship. Before you stay here.
+We not risk accident with ship because boardchief dumb. Building was too much work.
+text=end
+button=nofuel4,And what now?
+
+page=nofuel4
+text=start
+Quest be so easy! You bring 10 smoking leaves from colourful man.
+text=end
+button=nofuel5,Joints?
+
+page=nofuel5
+text=start
+As he them calls! You bring us 15. That be your quest.
+text=end
+button=nofuel6,But drugs are wicked and evil and stuff!
+
+page=nofuel6
+text=start
+That true. But we be band of addicts. Not anymore come away from wicked green stuff.
+Need to have good life. Else go mad!
+You bring 20 or me kill you and give ship next visitor!
+text=end
+button=nofuel7,Okay, I've got that.
+
+page=nofuel7
+text=start
+You true friend.
+text=end
+script=start
+$nativeq=7;
+script=end
+button=nofuel8,Absolutely. Goodbye.
+
+page=nofuel8
+script=start
+	extendentry "The ship","maps/adventure/map05.s2s","diary_ship04";
+	showentry "The ship";
+script=end
+
+//~native_ct_q4
+page=start
+title=Chieftain
+script=start
+if (playergotitem(91)>=20){
+	dialogue "done","maps/adventure/map05.s2s","native_ct_q4";
+	freestored "unit",1,91,20;
+}else{
+	dialogue "notdone","maps/adventure/map05.s2s","native_ct_q4";
+}
+script=end
+
+page=notdone
+text=start
+You not have enough. Bring 20 of smoking leaves. Else you must die!
+text=end
+button=action:close,Okay
+
+page=done
+text=start
+You satisfied great wish. You worthy boardchief.
+Tribe fuel up ship. You now can start voyage home.
+Whole tribe be thankful and wish good luck!
+text=end
+script=start
+$nativeq=8;
+addscript "unit",$realship,"maps/adventure/map05.s2s","shipoutro";
+freevar $s2g_driveblock_yacht;
+script=end
+button=startclose,Fantastic, Goodbye!
+
+page=startclose
+script=start
+	extendentry "The ship","maps/adventure/map05.s2s","diary_ship05";
+	showentry "The ship";
+script=end
+
+//~native_ct_q5
+page=start
+title=Chieftain
+text=start
+Great success at voyage to homeland.
+Whole tribe be with you!
+text=end
+button=action:close,Thanks!
+
+//~nofuel
+on:use {
+	skipevent;
+	speech "negative";
+	msg "Damn it...",3;
+	msg "The fuel tank is empty!",3;
+	$shipused=1;
+}
+
+//~shipoutro
+on:use {
+	unitpath $realship,62;
+	seqstart;
+	setcam 0,63;
+	movecam 0,8000,64;
+	cammode 0,1,"unit",$realship;
+	seqfade 0,1000,255,255,255,2;
+	seqsound 0, "fx_shocking.mp3";
+	seqfade 6000,8000,0,0,0,1;
+	seqevent 8000,"nextmap","unit",$realship;
+}
+
+on:nextmap {
+	loadmap "maps/adventure/map06.s2",1,1,0,0;
+}
+
+//~diary_ship01
+I have helped the natives with their nutrition problems. But before they build the ship for me, I must remove the sea weed from the beach. According to them, they can't build the ship otherwise.
+//~diary_ship02
+ - - -
+
+Ha! Finally! The tribe has begun to build the ship. It is announced to be finished in some days.
+
+//~diary_ship03
+ - - -
+
+The ship is ready. Hooray!
+However, I wonder how the natives have managed to construct such a modern vehicle. The thing looks suspiciously similar to my yacht. But, well... after all, the chieftain has already assured me beforehands that his village is very experienced on the field of shipbuilding.
+
+//~diary_ship04
+ - - -
+
+The ship may be ready, but I cannot use it nevertheless.
+The tank is empty... what an idiocy. Why didn't the chaps just build a sail-powered ship? Now I am honestly supposed to roll them 20 bleeding Joints, only to get them to fill it up with fuel for me.
+What a nasty boldness!
+
+//~diary_ship05
+ - - -
+
+Finally, all is prepared! Now the ship should be ready so that I can go on my journey home!

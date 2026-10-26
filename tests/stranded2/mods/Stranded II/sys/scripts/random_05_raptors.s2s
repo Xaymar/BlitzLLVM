@@ -1,0 +1,4 @@
+//Raptor Def Script
+on:kill {
+	timer 0,1000,1,"checkwin";
+}

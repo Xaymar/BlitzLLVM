@@ -1,0 +1,529 @@
+############################################# Loading Game
+
+0001=Loading Interface
+0002=Loading Stuff
+0003=Loading Objects
+0004=Loading Units
+0005=Loading Items
+0006=Loading Infos
+
+
+############################################# Save/Load Map/Compass
+
+0010=Saving Map
+0011=Saving Colormap
+0012=Saving Heightmap
+0013=Saving Grassmap
+0014=Saving Objects
+0015=Saving Units
+0016=Saving Items
+0017=Saving Infos
+0018=Saving States
+0019=Saving Scripts
+0020=Saving Done
+
+0021=Loading Map
+0022=Loading Colormap
+0023=Loading Heightmap
+0024=Loading Grassmap
+0025=Loading Objects
+0026=Loading Units
+0027=Loading Items
+0028=Loading Infos
+0029=Loading States
+0030=Loading Scripts
+0031=Loading Environment
+0032=Loading Done
+
+
+### Numeric Seperator
+
+0033=,
+
+
+### Compass
+0040=N
+0041=E
+0042=S
+0043=W
+
+
+############################################# GUI/Menus
+
+m001=Yes
+m002=No
+m003=Cancel
+m004=Accept
+m005=Okay
+m006=Click here to change the value
+m007=Click here to use the object on the left side
+m008=equal
+m009=bigger
+m010=smaller
+m011=equals/bigger
+m012=equals/smaller
+m013=unequal
+m014=(Press any key or mousebutton to continue)
+m015=Close
+m016=Color Selection
+m017=Brighten
+m018=Shade
+m019=Invert Color
+m020=Path
+m021=One Level up
+m022=Harddisks and Drives
+m023=to the left
+m024=to the right
+m025=Filename
+m026=File
+m027=No File Selected
+m028=Map Selection
+m029=Up
+m030=Down
+m031=No maps
+m032=No multiplayer maps
+m033=Map
+m034=Created
+m035=At
+m036=
+m037=Line
+m038=Column
+m039=$1's Island
+
+m040=Adventure
+m041=Random Island
+m042=Single Island
+m043=Multiplayer
+m044=Options
+m045=Editor
+m046=Credits
+m047=Quit
+m048=Quit $1 ?
+m049=Controls
+m050=Graphics
+m051=Sound
+m052=Action
+m053=Key
+m054=Forward
+m055=Backward
+m056=Left
+m057=Right
+m058=Jump/Close Menu
+m059=Sleep
+m060=Attack 1
+m061=Attack 2
+m062=Next Weapon
+m063=Previous Weapon
+m064=Throw away
+m065=Use
+m066=Chat
+m067=Character Menu
+m068=Rucksack
+m069=Diary
+m070=Quick Load
+m071=Quick Save
+m072=Mouse
+m073=Sensibility
+m074=Invert
+m075=Smoothing
+m076=Resolution
+m077=Color Depth
+m078=View Range
+m079=Very Small
+m080=Small
+m081=Medium
+m082=Far
+m083=Very Far
+m084=Landscape Details
+m085=Very Low
+m086=Low
+m087=Medium
+m088=High
+m089=Very High
+m090=Water Details
+m091=Minimal
+m092=Maximal
+m093=Sky Details
+m094=Effect Details
+m095=Grass
+m096=None
+m097=Few
+m098=Medium
+m099=Much
+m100=Very Much
+m101=Stuff
+m102=2D Postprocessing
+m103=Light Effects
+m104=Wiggle in Wind
+m105=Fog
+m106=Hardware Multitexturing
+m107=Motion Blur
+m108=Intensity
+
+m110=Sound
+m111=Music
+m112=Off
+m113=Sound Effects
+m114=Player Name
+m115=Server Port
+
+m120=Restart needed!
+m121=Stranded II has to be restarted
+m122=Please click at quit and
+m123=restart Stranded II afterwards
+m124=
+m125=Online
+m126=LAN
+m127=Create Game
+m128=Name
+m129=Player
+m130=Ping
+m131=Back
+m132=join
+m133=Server Name
+m134=No map selected
+m135=Select Map
+m136=Server Password
+m137=Player Limit
+m138=< Press Key >
+
+m140=You are DEAD
+m141=Character
+m142=Rucksack
+m143=Diary
+m144=Load
+m145=Save
+m146=Energy
+m147=Hunger
+m148=Thirst
+m149=Fatigue
+m150=$1g / $2g - $3g free
+m151=Use
+m152=Combine
+m153=Discard
+m154=Load Game
+m155=Save Game
+m156=No Savegames
+m157=Savegame
+m158=From
+m159=Build
+m160=You do not know how to build!
+m161=Build $1
+m162=Chat
+m163=Time
+m164=Sleep
+m165=Exchange (1)
+m166=Exchange (5)
+m167=Exchange (Alle)
+m168=Air
+m169=Map
+m170=Location
+m171=Update Commandlist online
+
+m172=Used $1!
+m173=Building finished!
+m174=You have no materials for building!
+m175=Building site created!
+m176=You cannot build here!
+m177=Build $1
+
+m178=Dig
+m179=Fish
+
+m180=Found $1 ($2x)
+m181=Not enough space
+m182=New diary entry!
+
+m183=Has to be build on land!
+m184=Has to be build in water!
+m185=Has to be build on the beach!
+m186=Has to be build on a mountain!
+m187=Has to be build in shallow water!
+
+m188=Take in hand
+m189=Delete savegame
+m190=Are you sure you want to delete '$1'?
+m191=Quit current game?
+
+m192=Crack lock
+
+m193=Has to be build at a special object!
+
+m194=Eat/Drink
+m195=I cannot eat this
+m196=I cannot use this
+
+m197=Put $1 on key $2
+m198=Key assignment of $1 removed
+
+m199=Combine to $1
+m200=Not possible yet
+
+m201=Exchange
+m202=Exchange with $1
+
+m203=sell $1 $2 ($3 in rucksack)
+m204=buy $1 $2 ($3 in rucksack)
+
+
+############################################# Editor
+
+e001=New map
+e002=Load map
+e003=Save map
+e004=Map settings
+e005=Quit editor
+
+e006=Terrain
+e007=Objects
+e008=Units
+e009=Items
+e010=Infos
+
+e011=Edit Heightmap
+e012=Edit Colormap
+e013=Edit Grassmap
+e014=Raise Complete Terrain
+e015=Lower Complete Terrain
+e016=Round Off Terrain
+e017=Distort Terrain
+e018=Set Objects On Terrain
+e019=Raise Terrain Border
+e020=Lower Terrain Border
+e021=Straighten Terrain Border
+
+e022=Brush: mouse left/right/wheel to change the size
+e023=Brush
+e024=Change Height
+e025=Straighten Terrain
+e026=Round Off Terrain
+e027=Distort Terrain
+
+e028=Random Rotation
+e029=Create Info at Camera
+
+e030=Size
+e031=Small
+e032=Medium
+e033=Big
+e034=Terrain
+e035=Normal
+e036=Hills
+e037=Mountains
+e038=Desert
+e039=Snow
+e040=Swamp
+e041=Vegetation
+e042=None
+e043=Normal
+e044=Palms
+e045=Deciduous Trees 
+e046=Fir Trees 
+e047=Wasteland
+e048=Plants & Stones
+e049=Animals
+e050=Misc.
+e051=Infos
+
+e052=Map Time (Day:Hour:Min)
+e053=Freeze
+e054=Skybox
+e055=Beginning of a Skybox in the 'skies'-Dir
+e056=Load Skybox
+e057=Multiplayer Map
+e058=Climate
+e059=Normal (Sun/Rain)
+e060=Arctiv (Sun/Snow)
+e061=Sun Only
+e062=Rain Only
+e063=Snow Only
+e064=Thunder Only
+e065=Ambient SFX
+e066=wav/mp3-file in 'sfx'-dir
+e067=Load Ambient SFX
+e068=Fog
+e069=Fog Active Everytime
+e070=Globale Script
+e071=Script Editor
+e072=Test Map
+e073=More Options
+e074=Map Informations
+e075=Select File
+e076=Fog Color
+
+e077=Terrain Size
+e078=Texture Size
+e079=($1 stored)
+e080=States
+e081=Scripts
+e082=Sum
+e083=($1 Models)
+
+e084=Adapt Energies To Definitionen
+e085=Adapt Energies To Definitionen?
+e086=Energies of $1 object(s) and $2 unit(s) adapted!
+e087=All energies are already adapted!
+e088=Changes energies of objects and units depending on the definitions
+e089=Delete all objects
+e090=Delete all objects of the type '$1'?
+e091=Delete stored objects too?
+e092=$1 object(s) of the type '$2' deleted!
+e093=There are no objects of '$1'!
+e094=Deletes all objects/units/items/infos of the type you selected on the left
+e095=Delete children
+e096=Delete States?
+e097=Delete Scripts?
+e098=Delete stored Items?
+e099=$1 state(s), $2 script(s) and $3 stored item(s) deleted!
+e100=Deletes states, scripts and stored items
+e101=Nothing has been deleted
+
+e102=Quit Map Editor?
+e103=Attention: Everything you didn't save will get lost!
+
+e104=Mapname
+e105=Password
+e106=Error While Loading Map
+e107=Attention: Map already exists! Overwrite?
+e108=Error While Saving Map
+
+e109=Height Scaling For Import
+e110=Import Heightmap
+e111=Export Heightmap
+e112=Current Height
+e113=Alpha
+e114=Brush
+e115=Spray Can
+e116=Brighten
+e117=Shade
+e118=Zoom
+e119=Im-/Export Error!
+e120=Colormap Size In Pixels
+e121=Scale
+e122=Import Colormap
+e123=Export Colormap
+e124=current color
+e125=Color A
+e126=Color B
+e127=Color C
+e128=Update Colormap With Heightmap
+e129=Mode
+e130=Set Grass
+e131=Delete Grass
+e132=Update Grassmap With Heightmap
+
+e133=Object Properties
+e134=Unit Properties
+e135=Item Properties
+e136=Info Properties
+e137=ID
+e138=Type
+e139=Rotation
+e140=Energy
+e141=Delete
+e142=stored
+e143=Number
+e144=Info
+e145=Starting Position For Player
+e146=Trigger
+e147=Player
+e148=Object(s)
+e149=Unit(s)
+e150=Item(s)
+e151=State
+e152=Radius
+e153=Aktive
+e154=Instant Active
+e155=All X Seconds
+e156=All X Game Minutes
+e157=At Certain Gametime
+e158=Daily At Certain Time
+e159=While Sleeping
+e160=Seconds
+e161=Game Minutes
+e162=Day
+e163=Hour
+e164=Minute
+e165=Object
+e166=Unit
+e167=Info
+e168=Item
+e169=No Special Properties
+
+e170=Script
+e171=Global Script
+e172=Object Script ($1)
+e173=Unit Script ($1)
+e174=Item Script ($1)
+e175=Info Script ($1)
+e176=Delete Script?
+e177=Import Script
+e178=Export Script
+e179=Add Command
+
+e180=States
+e181=leftclick: delete / rightclick: properties
+e182=Add State
+e183=forward
+e184=back
+e185=Add Item
+
+e186=Addition
+e187=Add Addition
+e188=Free Addition
+e189=The file has to be in a sub-dir of the mod
+
+e190=Look
+e191=Scripts in this info will NOT be executed
+e192=State Properties
+e193=Strenght/Damage
+e194=Color
+e195=Size/Range
+e196=Alpha
+
+e197=$1: [DEL] delete, [Space] free positioning
+e198=$1: [DEL] delete
+
+e199=Point Brushmode
+e200=Line Brushmode
+
+e201=List
+e202=Goto Object
+
+e203=Create
+e204=testing - press [F12] to return to the editor
+e205=Writing 'maps\editor\checkmap.s2' failed!
+e206=Save before testing?
+
+e207=Image Path
+e208=Glow
+e209=Fix
+e210=Fix Vertically
+
+e211=Signal
+e212=Attract
+e213=Distract
+
+e214=All X days
+e215=Number Part/Max.
+
+e216=Fill Map Randomly
+
+e217=Hide Menu
+e218=Show Menu
+
+e219=Attach To Object
+
+e220=Soundpath
+e221=(0=play everywhere)
+
+e222=Online Command Help For '$1'
+
+e223=Definition Variables
+
+e224=Pipette
+
+e225=All
+
+e226=Set-Script
+

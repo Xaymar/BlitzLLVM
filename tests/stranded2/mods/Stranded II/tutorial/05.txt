@@ -1,0 +1,27 @@
+If you have items, you will of course be able to do something with them. To do so, you must look into your rucksack.
+
+!4Using the rucksack
+[$key_items] - open the rucksack
+
+!4Using items
+Click an item in the rucksack to select it (another click will deselect it). Now you can use the item by clicking the use-button (see tooltip).
+Keep in mind, that not all items can be used that way.
+
+!4Eating items
+Eating items works the same way - with the slight difference, that you have to use the eat button.
+Of course, you cannot eat anything.
+
+!4Taking items in one's hand
+To take items into your hand, you can proceed just like for eating or using them - but you have to use the hand button for this.
+You can also assign numeric keys to items. If you press the fitting button in the game, you immediately hold the item in your hand without having to open the rucksack - handy thing.
+Select an item and press a numeric key [1-9] to assign it to the item. If you want to delete the assignment, choose the item again and press the same key.
+[1-9] - assign item / select item
+[0] - bare hands
+[$key_next] - next item
+[$key_prev] - previous item
+
+!4Dropping items
+To chuck things away, select an item and press the drop button. If you have many items of the same type, you can choose wether to drop just one, the half, or all of them.
+
+!4Combining items
+To combine items, you have to select at least 2 different ones and click the combine button. Depending on the particular combination, it may also happen that nothing happens, or that a combination submenu appears that lists various possible combinations. For some combinations, you need more than one item per type. If you do not have enough, the menu will nevertheless appear, but red numbers will show you what you need.

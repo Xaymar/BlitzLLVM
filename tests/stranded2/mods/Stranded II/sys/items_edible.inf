@@ -1,0 +1,1020 @@
+### Meat
+id=9
+name=Meat
+group=food
+icon=gfx\meat.bmp
+model=gfx\meat.b3d
+scale=0.15
+mat=flesh
+weight=500
+info=a juicy piece of raw meat. I can fry it, eat it as it is or take it in my hand and throw it at wild animals...
+behaviour=throw
+damage=0
+speed=15
+drag=1.8
+rate=3000
+script=start
+	//Fry!
+	on:use {
+		if ((count_inrange("state",5,50)+count_inrange("state",4,50))>0){
+			process "frying",500;
+			fry;
+			alteritem 1,10;
+		}else{
+			msg "I need fire to fry this!",3;
+			speech "negative";
+		}
+	}
+	//Eat
+	on:eat {
+		process "eating",1000;
+		eat 5,20,10,0;
+	}
+	//Taming
+	on:drop {
+		ai_behavioursignal "eat","raptor",300;
+	}
+	on:ai_eat {
+		local $eater,$var;
+		$eater=ai_eater();
+		if (type("unit",$eater)==2){
+			$var=getlocal("unit",$eater,"tameness");
+			$var+=2;
+			setlocal "unit",$eater,"tameness",$var;
+			if (($var>9)&&(gotstate("unit",$eater,"tame")==0)){
+				addstate "unit",$eater,"tame";
+				corona getx("unit",$eater),getz("unit",$eater),20,255,70,100;
+				msg "I tamed it!",4;
+			}
+		}
+	}
+script=end
+
+### Meat (fried)
+id=10
+name=Meat (fried)
+group=food
+icon=gfx\friedmeat.bmp
+model=gfx\friedmeat.b3d
+scale=0.15
+mat=flesh
+weight=500
+info=a big piece of fried meat
+rate=3000
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 10,32,15,0;
+	}
+script=end
+
+### small Meat
+id=11
+name=small Meat
+group=food
+icon=gfx\smallmeat.bmp
+model=gfx\clod.b3d
+color=200,50,50
+scale=2
+mat=flesh
+weight=250
+info=a small piece of raw meat. Eatable, fryable and throwable
+behaviour=throw
+damage=0
+speed=15
+drag=1.8
+rate=3000
+script=start
+	//Fry!
+	on:use {
+		if ((count_inrange("state",5,50)+count_inrange("state",4,50))>0){
+			process "frying",500;
+			fry;
+			alteritem 1,12;
+		}else{
+			msg "I need fire to fry this!",3;
+			speech "negative";
+		}
+	}
+	//Eat
+	on:eat {
+		process "eating",1000;
+		eat 0,10,5,0;
+	}
+	//Taming
+	on:drop {
+		ai_behavioursignal "eat","raptor",300;
+	}
+	on:ai_eat {
+		local $eater,$var;
+		$eater=ai_eater();
+		if (type("unit",$eater)==2){
+			$var=getlocal("unit",$eater,"tameness");
+			$var+=1;
+			setlocal "unit",$eater,"tameness",$var;
+			if (($var>9)&&(gotstate("unit",$eater,"tame")==0)){
+				addstate "unit",$eater,"tame";
+				corona getx("unit",$eater),getz("unit",$eater),20,255,70,100;
+				speech "positive";
+				msg "I tamed it!",4;
+			}
+		}
+	}
+script=end
+
+### small Meat (fried)
+id=12
+name=small Meat (fried)
+group=food
+icon=gfx\smallmeatfried.bmp
+model=gfx\clod.b3d
+color=128,64,0
+scale=2
+mat=flesh
+weight=250
+info=a small piece of fried meat
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 5,16,10,0;
+	}
+script=end
+
+### Banana
+id=14
+name=Banana
+group=food
+icon=gfx\banana.bmp
+model=gfx\banana.b3d
+fx=16
+scale=0.3
+mat=fruit
+weight=200
+info=a delicious banana. Not only me but also monkeys do like it!
+behaviour=throw
+damage=0
+speed=15
+drag=1.8
+rate=3000
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 5,28,20,5;
+	}
+	//Taming
+	on:drop {
+		ai_behavioursignal "eat","monkey",300;
+	}
+	on:ai_eat {
+		local $eater,$var,$b;
+		$eater=ai_eater();
+		if (type("unit",$eater)==19){
+			$var=getlocal("unit",$eater,"tameness");
+			$var+=2;
+			setlocal "unit",$eater,"tameness",$var;
+			$b=getlocal("unit",$eater,"bananas");
+			$b++;
+			setlocal "unit",$eater,"bananas",$b;
+			if (($var>9)&&(gotstate("unit",$eater,"tame")==0)){
+				addstate "unit",$eater,"tame";
+				corona getx("unit",$eater),getz("unit",$eater),20,255,70,100;
+				speech "positive";
+				msg "I tamed it!",4;
+				if (locked(18)==1){
+					unlockbuilding 18;
+					msg "The monkey school is now buildable!",4;
+				}
+			}
+		}
+	}
+script=end
+
+### Bloodleaf
+id=16
+name=Bloodleaf
+group=stuff
+icon=gfx\bloodleaf.bmp
+model=gfx\bloodleaf.b3d
+scale=0.5
+fx=16
+mat=leaf
+weight=50
+info=a plant with crimson leaves
+healthchange=0
+
+### Healherb
+id=17
+name=Healing Herb
+group=food
+icon=gfx\herb01.bmp
+model=gfx\herb01.b3d
+scale=0.3
+fx=16
+mat=leaf
+weight=50
+info=a herb with a healing effect
+healthchange=0
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 20,0,5,0;
+	}
+script=end
+
+### Strong Healherb
+id=18
+name=strong Healing Herb
+group=food
+icon=gfx\herb02.bmp
+model=gfx\herb02.b3d
+scale=0.5
+fx=16
+mat=leaf
+weight=100
+info=a healing herb with a very strong effect
+healthchange=0
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 45,0,5,0;
+	}
+script=end
+
+### Goldherb
+id=19
+name=Goldherb
+group=food
+icon=gfx\herb03.bmp
+model=gfx\herb03.b3d
+scale=0.7
+fx=16
+mat=leaf
+weight=80
+info=a golden herb. Good against dizziness
+healthchange=0
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 7,5,5,0;
+		freestate "unit",1,"dizzy";
+	}
+script=end
+
+### Bitterroot
+id=20
+name=Bitterroot
+group=food
+icon=gfx\herb04.bmp
+model=gfx\herb04.b3d
+scale=0.5
+fx=16
+alpha=0.8
+mat=leaf
+weight=70
+info=an extremly acerbic, root-like plant
+healthchange=0
+script=start
+	on:eat {
+		process "vomiting",1000;
+		eat -5,0,0,15;
+		freestate "unit",1,"fuddle";
+		play "vomit.wav";
+		vomit 1;
+	}
+script=end
+
+### Coconut
+id=27
+name=Coconut
+group=food
+icon=gfx\coconut.bmp
+model=gfx\coconut.b3d
+scale=0.30
+mat=wood
+weight=300
+info=a coconut. It will take long to eat it because of its hard hull
+behaviour=ammo:81
+script=start
+	on:eat {
+		process "eating",4500;
+		eat 5,10,30,0;
+	}
+script=end
+
+### Fungus
+id=31
+name=Mushroom
+group=food
+icon=gfx\fungus01.bmp
+model=gfx\fungus01.b3d
+scale=0.3
+mat=fruit
+weight=50
+info=a mushroom
+healthchange=0
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 5,10,5,0;
+	}
+script=end
+
+### big Fungus
+id=32
+name=big Mushroom
+group=food
+icon=gfx\fungus04.bmp
+model=gfx\fungus04.b3d
+scale=0.3
+mat=fruit
+weight=90
+info=a big mushroom
+healthchange=0
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 5,17,7,0;
+	}
+script=end
+
+### brown Fungus
+id=33
+name=brown Mushroom
+group=food
+icon=gfx\fungus02.bmp
+model=gfx\fungus02.b3d
+scale=0.3
+mat=fruit
+weight=50
+info=a brown mushroom
+healthchange=0
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 7,12,3,0;
+	}
+script=end
+
+### toxic Fungus
+id=34
+name=Poison Mushroom
+group=stuff
+icon=gfx\fungus03.bmp
+model=gfx\fungus03.b3d
+scale=0.3
+mat=fruit
+weight=50
+info=a green, poisonous mushroom. I should be able to press the poison out of it with a stone
+healthchange=0
+script=start
+	on:eat {
+		process "eating",1000;
+		eat -20,5,5,-10;
+		addstate "unit",1,"intoxication";
+	}
+script=end
+
+### Dwarf Hat Fungus
+id=35
+name=Dwarf Hat Mushroom
+group=food
+icon=gfx\fungus05.bmp
+model=gfx\fungus05.b3d
+scale=0.3
+mat=fruit
+weight=50
+info=a mushroom which looks like the hat of a dwarf
+healthchange=0
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 5,5,5,0;
+	}
+script=end
+
+### Healthpotion
+id=36
+name=Healing Potion
+group=potion
+icon=gfx\healthpotion.bmp
+model=gfx\healthpotion.b3d
+scale=0.3
+mat=glass
+weight=100
+info=a healing potion which heals the player for 30 seconds
+healthchange=0
+script=start
+	on:eat {
+		process "drinking",250;
+		drink 5,0,40,0;
+		addstate "unit",1,16;
+		statevalue "unit",1,16,5;
+		freetimers "unit",1,"cease_healthpotion";
+		timer"unit",1,30000,1,"cease_healthpotion";
+		play "magic.wav";
+		msg "You get healing!",4;
+		closemenu;		
+		freestate "unit",1,"intoxication";
+		freestate "unit",1,"dizzy";
+		freestate "unit",1,"fuddle";
+	}
+	on:use {
+		event "eat";
+	}
+script=end
+
+### Water
+id=38
+name=Water
+group=potion
+icon=gfx\water.bmp
+model=gfx\water.b3d
+scale=0.3
+mat=glass
+weight=500
+info=fresh drinking water. You can also put it in your hand to throw it at fire
+behaviour=killthrow
+damage=0
+speed=15
+drag=1.8
+rate=400
+script=start
+	on:eat {
+		process "drinking",1000;
+		drink 5,0,50,0;
+	}
+	on:impact {
+		if (impact_class()>0){
+			if (impact_id()>0){
+				addstate impact_class(),impact_id(),"wet";
+			}
+		}
+	}
+script=end
+
+### Wine
+id=39
+name=Wine
+group=potion
+icon=gfx\wine.bmp
+model=gfx\wine.b3d
+scale=0.28
+mat=glass
+weight=450
+info=tasty wine. You shouldn't drink too much...
+script=start
+	on:eat {
+		process "drinking",2000;
+		drink 10,5,40,0;
+		$s2g_alc+=40;
+		if ($s2g_alc>=100){
+			addstate "unit",1,"fuddle";
+			if ($s2g_alc>=200){
+				$s2g_alc=50;
+				process "vomiting",1000;
+				consume -10,-5,-5,0;
+				freestate "unit",1,"fuddle";
+				play "vomit.wav";
+				vomit 1;
+			}
+		}
+	}
+script=end
+
+### Grain Pile
+id=42
+name=Grains
+group=food
+icon=gfx\grainpile.bmp
+model=gfx\grainpile.b3d
+scale=0.65
+mat=dust
+weight=50
+info=can be grinded with a stone. take them into your hand and use the ground in order to plant them
+script=start
+	on:use {
+		msg "I have to take them into my hand",3;
+		msg "and to use the ground!",3;
+		speech "negative";
+	}
+	on:eat {
+		process "eating",1000;
+		eat 2,5,0,0;
+	}
+script=end
+
+### Flour
+id=43
+name=Flour
+group=food
+icon=gfx\flour.bmp
+model=gfx\flour.b3d
+scale=0.65
+mat=dust
+weight=250
+info=a pile of flour. I can mix it with water to get dough
+script=start
+	on:use {
+		if ( ((count_behaviourinrange("object","fountain",50)+count_behaviourinrange("object","watersource",50))>0) or (inarea_freshwater("unit",1)==1) ){
+			play "mat_flesh5.wav";
+			alteritem 1,82;
+			process "making dough",500;
+		}else{
+			msg "I need water!",3;
+			speech "negative";
+		}
+	}
+	on:eat {
+		process "eating",1000;
+		eat 1,10,-20,0;
+	}
+script=end
+
+### Bread
+id=44
+name=Bread
+group=food
+icon=gfx\bread.bmp
+model=gfx\bread.b3d
+scale=0.6
+mat=dust
+weight=350
+info=a loaf of bread. Very filling!
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 10,75,0,0;
+	}
+script=end
+
+### Grapes
+id=45
+name=Grapes
+group=food
+icon=gfx\grape.bmp
+model=gfx\berries.b3d
+color=250,0,200
+scale=0.27
+mat=fruit
+weight=10
+behaviour=ammo:51
+damage=1
+info=they can be eaten or I can make wine out of them. take them into your hand and use the ground in order to plant them
+script=start
+	on:use {
+		msg "I have to take them into my hand",3;
+		msg "and to use the ground!",3;
+		speech "negative";
+	}
+	on:eat {
+		process "eating",1000;
+		eat 3,3,3,0;
+	}
+script=end
+
+### Berries
+id=46
+name=Berries
+group=food
+icon=gfx\berries.bmp
+model=gfx\berries.b3d
+color=255,0,0
+scale=0.27
+mat=fruit
+weight=10
+behaviour=ammo:51
+damage=1
+info=sweet red berries
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 2,7,4,0;
+	}
+script=end
+
+### Juice
+id=47
+name=Juice
+group=potion
+icon=gfx\juice.bmp
+model=gfx\juice.b3d
+scale=0.28
+mat=glass
+weight=450
+info=a healthy juice consisting of fruits
+script=start
+	on:eat {
+		process "drinking",1000;
+		drink 20,15,40,0;
+	}
+script=end
+
+### Cookie
+id=66
+name=Cookie
+group=food
+icon=gfx\cookie.bmp
+model=gfx\cookie.b3d
+scale=0.35
+mat=dust
+weight=25
+info=cookies with chocolate pieces! Yay!
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 0,15,0,0;
+	}
+script=end
+
+### Cacaofruit
+id=67
+name=Cacaofruit
+group=food
+icon=gfx\cacaofruit.bmp
+model=gfx\cacaofruit.b3d
+scale=0.40
+mat=fruit
+weight=100
+info=a cacaofruit
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 5,25,-10,0;
+	}
+script=end
+
+### Cacao
+id=68
+name=Cocoa
+group=food
+icon=gfx\cacao.bmp
+model=gfx\cacao.b3d
+scale=0.65
+mat=dust
+weight=300
+info=dry cocoa
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 5,25,-20,0;
+	}
+script=end
+
+### Coffee Fruits
+id=70
+name=Coffee Fruits
+group=food
+icon=gfx\coffeefruits.bmp
+model=gfx\berries.b3d
+color=170,0,000
+scale=0.27
+mat=fruit
+weight=50
+behaviour=ammo:51
+damage=1
+info=coffee fruits which contain a lot of caffeine
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 1,4,2,7;
+	}
+script=end
+
+### Paste
+id=82
+name=Dough
+group=food
+icon=gfx\paste.bmp
+model=gfx\paste.b3d
+scale=0.65
+mat=dirt
+weight=350
+info=simple dough made of flour and water. I can use it close to fire in order to bake it
+script=start
+	//Bake!
+	on:use {
+		if ((count_inrange("state",5,50)+count_inrange("state",4,50))>0){
+			fry;
+			process "baking",1000;
+			alteritem 1,44;
+		}else{
+			msg "I need fire to bake this!",3;
+			speech "negative";
+		}
+	}
+	//Eat
+	on:eat {
+		process "eating",1000;
+		eat 7,50,5,0;	
+	}
+script=end
+
+### Hempleaf
+id=83
+name=Hemp Leaf
+group=stuff
+icon=gfx\hempleaf.bmp
+model=gfx\hempleaf.b3d
+fx=16
+mat=leaf
+weight=10
+info=Hemp with an exhilarating agency...
+script=start
+	on:use {
+		msg "I have to take it into my hand",3;
+		msg "and to use the ground!",3;
+		speech "negative";
+	}
+	on:eat {
+		process "eating",1000;
+		eat -1,5,5,-1;
+		addstate "unit",1,"fuddle";
+		statevalue "unit",1,"fuddle",5;
+	}
+script=end
+
+### Fish
+id=89
+name=Fish
+group=food
+icon=gfx\fishitem.bmp
+model=gfx\fishitem.b3d
+fx=16
+mat=flesh
+weight=300
+info=Fish. Can be eaten sushi style or fried.
+script=start
+	//Fry!
+	on:use {
+		if ((count_inrange("state",5,50)+count_inrange("state",4,50))>0){
+			process "frying",500;
+			fry;
+			alteritem 1,90;
+		}else{
+			msg "I need fire to fry this!",3;
+			speech "negative";
+		}
+	}
+	//Eat
+	on:eat {
+		process "eating",1000;
+		eat 5,17,20,0;
+	}
+script=end
+
+### Fish (fried)
+id=90
+name=Fish (fried)
+group=food
+icon=gfx\friedfishitem.bmp
+model=gfx\friedfishitem.b3d
+fx=16
+mat=flesh
+weight=250
+info=a fried fish
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 15,30,16,0;
+	}
+script=end
+
+### Joint
+id=91
+name=Joint
+group=stuff
+icon=gfx\joint.bmp
+model=gfx\joint.b3d
+scale=0.65
+mat=leaf
+weight=40
+info=a Joint. I should dispose it as fast as possible! Drugs are bad!
+script=start
+	on:use {
+		if (gety("unit",1)>-15){
+			process "smoking",5000;
+			consume -5,25,25,-10;
+			addstate "unit",1,"fuddle";
+			statevalue "unit",1,"fuddle",10;
+		}else{
+			speech "negative";
+		}
+	}
+	on:eat {
+		if (gety("unit",1)>0){
+			process "smoking",5000;
+			consume -5,25,25,-10;
+			addstate "unit",1,"fuddle";
+			statevalue "unit",1,"fuddle",10;
+		}else{
+			msg "too wet...",3;
+			speech "negative";
+		}		
+	}
+script=end
+
+### Insectparts
+id=98
+name=Insect Parts
+group=food
+icon=gfx\insects.bmp
+mat=flesh
+weight=5
+info=delicious parts of insects. They are used as baits when I fish
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 0,5,1,0;
+	}
+	on:use {
+		msg "They will be used as bait";
+		msg "when I fish!";
+	}
+script=end
+
+### Slime
+id=99
+name=Slime
+group=food
+icon=gfx\slime.bmp
+mat=water
+weight=10
+info=sticky and disgusting!
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 0,1,6,0;
+	}
+script=end
+
+### Seaweed
+id=109
+name=Seaweed
+group=food
+icon=gfx\seaweed.bmp
+model=gfx\seaweeditem.b3d
+mat=leaf
+fx=16
+scale=1.7
+alpha=0.8
+weight=20
+info=slimy-green seaweed
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 1,5,3,0;
+	}
+script=end
+
+### Speedpotion
+id=112
+name=Potion of Haste
+group=potion
+icon=gfx\speedpotion.bmp
+model=gfx\speedpotion.b3d
+scale=0.28
+mat=glass
+weight=450
+healthchange=0
+info=a potion which doubles my movement speed for a minute
+script=start
+	on:eat {
+		process "drinking",300;
+		drink 0,0,30,0;
+		addstate "unit",1,9;
+		freetimers "unit",1,"cease_speedpotion";
+		timer"unit",1,60000,1,"cease_speedpotion";
+		play "magic.wav";
+		msg "You are faster now!",4;
+		closemenu;
+	}
+	on:use {
+		event "eat";
+	}
+script=end
+
+### Immortalpotion
+id=113
+name=Immortal Potion
+group=potion
+icon=gfx\immortalpotion.bmp
+model=gfx\immortalpotion.b3d
+scale=0.28
+mat=glass
+weight=450
+healthchange=0
+info=this potion makes me immortal for a half minute
+script=start
+	on:eat {
+		process "drinking",300;
+		drink 0,0,30,0;
+		addstate "unit",1,17;
+		freetimers "unit",1,"cease_immortalpotion";
+		timer"unit",1,30000,1,"cease_immortalpotion";
+		play "magic.wav";
+		msg "You are immortal now!",4;
+		closemenu;
+	}
+	on:use {
+		event "eat";
+	}
+script=end
+
+### Airpotion
+id=114
+name=Air Potion
+group=potion
+icon=gfx\airpotion.bmp
+model=gfx\airpotion.b3d
+scale=0.28
+mat=glass
+weight=450
+healthchange=0
+info=a special air mixture which gives me air for breathing while diving
+script=start
+	on:eat {
+		process "drinking",300;
+		drink 0,0,30,0;
+		air 20000;
+		msg "New air for breathing!",4;
+		closemenu;
+	}
+	on:use {
+		event "eat";
+	}
+script=end
+
+### chocolate Paste
+id=115
+name=Chocolate Dough
+group=food
+icon=gfx\chocopaste.bmp
+model=gfx\chocopaste.b3d
+scale=0.65
+mat=dirt
+weight=350
+info=a dough with cocoa in it. I can use it close to a fire in order to bake it
+script=start
+	//Bake!
+	on:use {
+		if ((count_inrange("state",5,50)+count_inrange("state",4,50))>0){
+			fry;
+			process "baking",1000;
+			alteritem 1,66,10;
+		}else{
+			msg "I need fire to bake this!",3;
+			speech "negative";
+		}
+	}
+	//Eat
+	on:eat {
+		process "eating",1000;
+		eat 7,50,5,0;	
+	}
+script=end
+
+
+### Plums
+id=116
+name=Plums
+group=food
+icon=gfx\plums.bmp
+model=gfx\plums.b3d
+color=250,0,200
+scale=0.65
+mat=fruit
+weight=30
+behaviour=ammo:51
+damage=1
+info=plums! Good for the digestion...
+script=start
+	on:use {
+		msg "I have to take it into my hand",3;
+		msg "and to use the ground!",3;
+		speech "negative";
+	}
+	on:eat {
+		process "eating",1000;
+		eat 3,11,12,0;
+		timer "unit",1,5000,1,"release_excrement";
+	}
+script=end
+
+### Worm
+id=119
+name=Worm
+group=food
+icon=gfx\worm.bmp
+mat=flesh
+weight=10
+info=a small worm. Will be used as bait when I fish
+script=start
+	on:eat {
+		process "eating",1000;
+		eat 0,5,4,0;
+	}
+	on:use {
+		msg "Will be used as bait";
+		msg "when I fish!";
+	}
+script=end

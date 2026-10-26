@@ -1,0 +1,10 @@
+Weapons! They can be made with certain combinations.
+If you take them into your hand, you can hunt or defend yourself.
+
+!4Meelee weapons
+Meelee weapons such as the machete work just like simple striking with your fists. The only difference is that you deal more damage with them.
+
+!4Ranged weapons
+Spears can be thrown via [$key_attack1]. Once thrown, they are gone. So you have to aim carefully and keep in mind that they do not fly straightly but are influenced by gravity.
+There are also weapons that are not thrown themselves but which need ammunition. Bows, for instance, or the slingshot. The ammunition is displayed on the right bottom corner, directly on the right of the weapon itself. If there are several types of ammunition in your inventory that fit for the same weapon, you can switch between them.
+[$key_attack2] - switch ammunition

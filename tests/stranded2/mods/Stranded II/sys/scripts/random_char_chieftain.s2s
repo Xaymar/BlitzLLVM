@@ -1,0 +1,41 @@
+page=start
+title=Chieftain
+text=start
+Hello stranger!
+Me is chieftain of tribe huge. I can brew potion magic for you!
+text=end
+button=trade,Yeah! Potions!
+button=action:close,Thanks but I don't need potions
+
+page=trade
+title=Trade with chieftain
+# Meat -> Juice
+trade=start
+sell=10,3
+buy=47,1
+trade=end
+# Meat -> Healthpotion
+trade=start
+sell=10,5
+buy=36,1
+trade=end
+# Meat -> Airpotion
+trade=start
+sell=10,1
+sell=109,10
+buy=114,1
+trade=end
+# Meat + Bread -> Speedpotion
+trade=start
+sell=10,1
+sell=44,1
+buy=112,1
+trade=end
+# Meat + Bread -> Immortalpotion
+trade=start
+sell=10,6
+sell=44,2
+buy=113,1
+trade=end
+
+button=action:close,Goodbye, great chieftain!

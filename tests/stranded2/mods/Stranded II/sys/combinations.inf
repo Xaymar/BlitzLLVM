@@ -1,0 +1,69 @@
+########################
+##### Combinations #####
+########################
+#
+################# combinations_ammo.inf
+#
+#54 Wooden Arrows (Branch + Feather)
+#53 Arrows (Branch + Feather + Pebbles)
+#62 Bolts (Branch + Matchet)
+#62 Bolts (bendable Branch + Matchet)
+#62 Bolts (Bamboo + Matchet)
+#63 Iron Bolts (Iron Bar + Hammer)
+#55 Poison Arrows (Branch + Feather + Poison)
+#56 Fire Arrows (Branch + Feather + Wool)
+#
+################# combinations_basic.inf
+#
+#25 Bendable Branch (Branch + Water)
+#43 Flour (Grain + Stone)
+#82 Paste (Flour + Water)
+#86 Iron Bar (Iron + Hammer)
+#91 Joint (Hempleaf + Leaf)
+#37 Poison (toxic Fungus + Stone)
+#68 Cacao (Cacaofruit + Stone)
+#24 Branch (Trunk + Matchet)
+#24 Branch (Trunk + Axe)
+#21 Pebbles (Stone + Hammer)
+#115 chocolate paste (Paste + Cacao)
+#
+################# combinations_potions.inf
+#
+#36 Healthpotion (Strong Healherb + Water + Stone)
+#36 HealthPotion (Healherb + Water + Stone)
+#36 HealthPotion (Goldherb + Water + Stone)
+#37 Poison (Bitterroot + Fungus + Water + Stone)
+#39 Wine (Grapes + Stone)
+#47 Juice (Berries + Stone)
+#38 Water (Leaf + Stone)
+#112 Speedpotion (Cacaofruit + Coffee Fruits + Stone)
+#
+################# combinations_tools.inf
+#
+#30  Hammer (Stone + Branch)
+#50  Fishing Rod (Bendable Branch + Cord)
+#84  Axe (Branch + Iron + Hammer)
+#84  Spade (Branch + Iron + Hammer)
+#88  Pickaxe (Branch + Ironbar + Hammer)
+#97  Tent (Skin + Branch)
+#104 Net (Cord + Branch)
+#105 Scythe (Branch + Ironbar + Hammer)
+#<make fire> (Bark + Branch)
+#<splint> (Branch + Liana)
+#<bind> (Leaf + Liana)
+#<bind> (Skin + Liana)
+#
+################# combinations_weapons.inf
+#
+#52  Spear (Stone + Branch)
+#59  Bow (Bendable Branch + Cord)
+#51  Slingshot (Branch + Liana)
+#61  Goldbow (Goldnugget + Cord + Hammer)
+#60  Longbow (Bendable Branch + Cord + Matchet)
+#28  Matchet (Branch + Iron + Hammer)
+#64  Arbalest (Branch + Ironbar + Cord + Ironbolt + Hammer)
+#120 Clawspear (Claw + Branch)
+#
+################# combinations_stuff.inf
+#
+#78 Wilson (Volleyball + Branch)

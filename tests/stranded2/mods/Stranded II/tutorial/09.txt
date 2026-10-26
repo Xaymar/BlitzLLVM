@@ -1,0 +1,3 @@
+splash splash!
+A source of sprinkling water is an endless supply of fresh water. Here, you can drink by clicking [$key_use].
+Hollow stones save water when it rains and you can only drink from them a few times until they are empty.

@@ -1,0 +1,450 @@
+### Bag
+id=1
+name=Bag
+group=stuff
+icon=gfx\bag.bmp
+model=gfx\bag.b3d
+mat=dust
+weight=100
+info=a bag
+healthchange=0
+
+### Goldbag
+id=5
+name=Bag with Gold
+group=stuff
+icon=gfx\goldbag.bmp
+model=gfx\goldbag.b3d
+mat=dust
+weight=350
+info=a bag full of gold!
+healthchange=0
+script=start
+	on:eat {
+		msg "*bite* ... ";
+		msg "The coins seem to be real!";
+	}
+script=end
+
+### Blueblossom
+id=13
+name=Blueblossom
+group=stuff
+icon=gfx\blueblossom.bmp
+model=gfx\blueblossom.b3d
+fx=16
+mat=leaf
+weight=50
+info=a blue blossom. Can be used to stop bleeding
+script=start
+	on:use {
+		if (gotstate("unit",1,1)==1){
+			freestate "unit",1,1;
+			freestored "unit",1,13,1;
+			msg "Bleeding stopped!",4;
+			speech "positive";
+		}else{
+			msg "You aren't bleeding!",3;
+			speech "negative";
+		}
+	}
+script=end
+
+### Poison
+id=37
+name=Poison
+group=stuff
+icon=gfx\poison.bmp
+model=gfx\poison.b3d
+scale=0.3
+mat=glass
+weight=50
+info=green poison. Maybe I should taste it!
+healthchange=0
+script=start
+	on:eat {
+		process "drinking",1000;
+		drink -5,0,30,0;
+		addstate "unit",1,"intoxication";
+	}
+script=end
+
+### Message Bottle
+id=40
+name=Message in a Bottle
+group=stuff
+icon=gfx\bottlemessage.bmp
+model=gfx\bottlemessage.b3d
+scale=0.3
+mat=glass
+weight=200
+info=a message in a bottle
+healthchange=0
+health=100
+
+### Grain
+id=41
+name=Sheaf
+group=stuff
+icon=gfx\grainbundle.bmp
+model=gfx\grainbundle.b3d
+behaviour=plague_target
+fx=16
+scale=0.7
+mat=dust
+weight=50
+info=a sheaf of grain. I have to use it to get the grains out of it
+script=start
+on:use {
+	alteritem 1,42,1;
+	play "mat_leaf1.wav";
+}
+on:inhand {
+	speech "negative";
+	msg "I cannot use it this way!",3;
+	msg "Shake the grains out of it first!",3;
+}
+script=end
+
+### Butterflies
+id=69
+name=Butterflies
+group=stuff
+icon=gfx\butterflies.bmp
+mat=none
+weight=-500
+info=these butterflies are helping me to carry more stuff!
+healthchange=0
+script=start
+on:use {
+	if (storage("unit",1,0)>=500){
+		create "unit",random(6,7);
+		closemenu;
+		free current_class(),current_id(),1;
+		msg "Fly!";
+	}else{
+		speech "negative";
+		msg "I carry to much!",3;
+		msg "I have to throw",3; 
+		msg "something else away!",3;
+	}
+}
+on:drop {
+	skipevent;
+	event "use";
+}
+script=end
+
+### Bone
+id=71
+name=Bone
+group=stuff
+icon=gfx\bone.bmp
+model=gfx\bone.b3d
+scale=0.24
+mat=stone
+weight=100
+info=Yuck! A bone! I'm not a dog!
+healthchange=0
+script=start
+on:eat {
+	speech "negative";
+	msg "No! I'm not going to gnaw on this bone!",3;
+}
+script=end
+
+### Excrement
+id=72
+name=Excrement
+group=stuff
+icon=gfx\excrement.bmp
+model=gfx\excrement.b3d
+scale=0.39
+mat=dirt
+weight=100
+info=an excrement. Also called shit or poo-poo. This stuff stinks that much that I probably could poison someone with it...
+weaponstate=intoxication
+behaviour=asmoke:128,64,0,0 ammo:51
+script=start
+	on:eat {
+		process "Erbrechen",1000;
+		eat -5,0,0,15;
+		freestate "unit",1,"fuddle";
+		play "vomit.wav";
+		vomit 1;
+	}
+script=end
+
+### Volleyball
+id=77
+name=Volleyball
+group=stuff
+icon=gfx\ball.bmp
+model=gfx\ball.b3d
+mat=none
+weight=200
+info=Yeah, nice! I'm just missing a net and an opponent...
+healthchange=0
+
+### Wilson
+id=78
+name=Wilson
+group=stuff
+icon=gfx\wilson.bmp
+model=gfx\wilson.b3d
+fx=16
+mat=none
+weight=300
+info=my best friend Wilson. I hope the 'Cast Away' people are not going to sue me for this...
+healthchange=0
+script=start
+	on:use {
+		$tmp=random(1,14);
+		if ($tmp==1){ msg "Wilson says: Hello!"; }
+		if ($tmp==2){ msg "Wilson says: Yoink!"; }
+		if ($tmp==3){ msg "Wilson asks: How is it going?"; }
+		if ($tmp==4){ msg "Wilson says: Nice weather."; }
+		if ($tmp==5){ msg "Wilson sings: Tralalalala!"; }
+		if ($tmp==6){ msg "Shush! Wilson sleeps at the moment!"; }
+		if ($tmp==7){ msg "Wilson jumps around!"; }
+		if ($tmp==8){ msg "Wilson is speechless."; }
+		if ($tmp==9){ msg "Wilson says nothing."; }
+		if ($tmp==10){ msg "Wilson saves his breath!"; }
+		if ($tmp==11){ msg "Wilson ist silent."; }
+		if ($tmp==12){ msg "Wilson grins!"; }
+		if ($tmp==13){ msg "Wilson seems to be sad!"; }
+		if ($tmp==14){ msg "Wilson is okay."; }
+	}
+	
+	on:eat {
+		speech "negative";
+		msg "I would never ever eat Wilson!",3;
+	}
+script=end
+
+### Tent
+id=97
+name=Tent
+group=stuff
+icon=gfx\tentitem.bmp
+model=gfx\tentitem.b3d
+scale=3.5
+weight=3000
+info=a tent. I need a hammer to build it
+healthchange=0
+script=start
+	on:use {
+		msg "I have to use a hammer",3;
+		msg "to setup this tent!",3;
+		speech "negative";
+	}
+	on:inhand {
+		msg "Take the hammer,",3;
+		msg "not the tent!",3;
+		speech "negative";
+	}
+script=end
+
+### Explosive Bait
+id=100
+name=explosive Bait
+group=stuff
+icon=gfx\explosivebait.bmp
+model=gfx\explosivebait.b3d
+scale=0.6
+weight=50
+info=I can throw this at animals. They will explode when I press the remote trigger!
+healthchange=0
+behaviour=throw
+damage=0
+speed=15
+drag=1.8
+rate=3000
+script=start
+	on:use {
+		msg "I have to drop it",3;
+		msg "or to throw it!",3;
+		speech "negative";
+	}
+	on:drop {
+		ai_signal "eat",300;
+	}
+	on:ai_eat {
+		skipevent;
+		store "self","unit",ai_eater();
+	}
+	on:kill {
+		$x=getx("self");
+		$y=gety("self");
+		$z=getz("self");
+		explosion $x,$y,$z,50,300;
+		freevar $x; freevar $y; freevar $z;
+	}
+	on:explosivebaittrigger {
+		if (parent_class("self")=2){
+			if (parent_id("self")>99){
+				$x=getx("self");
+				$y=gety("self");
+				$z=getz("self");
+				explosion $x,$y,$z,50,300;
+				freevar $x; freevar $y; freevar $z;
+				free "self";
+			}
+		}
+	}
+script=end
+
+### Remote Trigger
+id=101
+name=Remote Trigger
+group=stuff
+icon=gfx\remotetrigger.bmp
+model=gfx\remotetrigger.b3d
+scale=1
+weight=100
+health=100000
+info=a remote trigger for explosive baits
+healthchange=0
+script=start
+	on:use {
+		event "explosivebaittrigger","global";
+	}
+script=end
+
+### Shell
+id=102
+name=Clam
+group=stuff
+icon=gfx\shell.bmp
+model=gfx\shell.b3d
+scale=0.15
+fx=16
+shine=0.5
+weight=50
+healthchange=0
+info=a clam. I'm wondering what might be inside?
+script=start
+	on:use {
+		process "searching",1500;
+		local $id;
+		if (random(3)==1){
+			play "mat_leaf1.wav";
+			speech "positive";
+			msg "A pearl!",4;
+			$id=create("item",108);
+			store $id,"unit",1;
+		}else{
+			play "mat_leaf1.wav";
+			speech "positive";
+			msg "Slime!",4;
+			$id=create("item",99);
+			store $id,"unit",1;
+
+		}
+		freestored "unit",1,102,1;
+	}
+script=end
+
+### Seastar
+id=103
+name=Starfish
+group=stuff
+icon=gfx\seastar.bmp
+model=gfx\seastar.b3d
+scale=0.15
+fx=16
+shine=0.7
+weight=30
+behaviour=spear
+damage=5
+speed=10
+drag=1
+rate=500
+info=a starfish. I'm going to call him Patrick!
+
+### Bottle
+id=106
+name=Bottle
+group=stuff
+icon=gfx\bottle.bmp
+model=gfx\bottle.b3d
+scale=0.08
+fx=16
+shine=0.7
+weight=50
+mat=glass
+info=an empty glass bottle
+script=start
+	on:use {
+		if ( ((count_behaviourinrange("object","fountain",50)+count_behaviourinrange("object","watersource",50))>0) or (inarea_freshwater("unit",1)==1) ){
+			alteritem 1,38;
+			msg "I filled the bottle!",4;
+			speech "positive";
+		} else {
+			msg "I have to be close",3;
+			msg "to some freshwater!",3;
+			speech "negative";
+		}
+	}
+script=end
+
+### Pearl
+id=108
+name=Pearl
+group=stuff
+icon=gfx\pearl.bmp
+model=gfx\pearl.b3d
+shine=0.9
+mat=stone
+weight=10
+scale=0.5
+info=a shiny pearl
+
+### Bandage
+id=117
+name=Bandage
+group=stuff
+icon=gfx\bandage.bmp
+model=gfx\bandage.b3d
+mat=dust
+scale=0.75
+weight=200
+info=a bandage which can be used when I have bleeding wounds
+healthchange=0
+script=start
+	on:use {
+		if (gotstate("unit",1,1)==1){
+			freestate "unit",1,1;
+			msg "Wound bandaged!",4;
+			play "collect.wav";
+			speech "positive";
+			freestored "unit",1,117,1;
+		}else{
+			msg "You do not have open wounds!",3;
+			speech "negative";
+		}		
+	}
+script=end
+
+### Medikit
+id=118
+name=First Aid Box
+group=stuff
+icon=gfx\medikit.bmp
+model=gfx\medikit.b3d
+scale=0.8
+mat=metal
+weight=2500
+health=200
+info=a first aid box which can be used when I have wounds, fractures or poisonings
+healthchange=0
+script=start
+	on:use {
+		freestate "unit",1,1;
+		freestate "unit",1,2;
+		freestate "unit",1,7;
+		play "collect.wav";
+		msg "Wounds/fractures/poisonings treated",4;	
+		speech "positive";
+	}
+script=end

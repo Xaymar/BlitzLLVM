@@ -1,0 +1,241 @@
+######################################################### Infos
+
+id=1
+name=Starting Position
+group=stuff
+frame=18
+description=start
+Starting position for the player. The player will be set to the middle of the island if there is no starting position info.
+description=end
+
+id=5
+name=Sprite
+group=stuff
+frame=4
+description=start
+Allows to put sprites in your map.
+
+see also: "info_sprite"
+description=end
+
+id=10
+name=Areal Trigger
+group=trigger,area
+frame=60
+description=start
+Triggers the event "trigger" in its own script, as soon as its conditions are true.
+A certain amount of objects has to be in the radius of this info.
+
+Attention: "instant active" has to be checked. It can also be controlled with "starttrigger(s)" and "stoptrigger(s)"!
+description=end
+
+id=11
+name=Time Trigger
+group=trigger
+frame=61
+description=start
+Triggers the event "trigger" in its own script, as soon as its conditions are true.
+A certain time has to be reached.
+
+Attention: "instant active" has to be checked. It can also be controlled with "starttrigger(s)" and "stoptrigger(s)"!
+description=end
+
+id=12
+name=Item Count Trigger
+group=trigger
+frame=62
+description=start
+Triggers the event "trigger" in its own script, as soon as its conditions are true.
+A certain object has to have a certain amount of items.
+
+Attention: "instant active" has to be checked. It can also be controlled with "starttrigger(s)" and "stoptrigger(s)"!
+description=end
+
+id=30
+name=Flag
+group=flag
+frame=34
+description=start
+This info does not have any special function. Use it to define positions and paths.
+description=end
+
+id=31
+name=Flag
+group=flag
+frame=35
+description=start
+This info does not have any special function. Use it to define positions and paths.
+description=end
+
+id=32
+name=Flag
+group=flag
+frame=36
+description=start
+This info does not have any special function. Use it to define positions and paths.
+description=end
+
+id=33
+name=Flag
+group=flag
+frame=37
+description=start
+This info does not have any special function. Use it to define positions and paths.
+description=end
+
+id=34
+name=Flag
+group=flag
+frame=38
+description=start
+This info does not have any special function. Use it to define positions and paths.
+description=end
+
+id=35
+name=Flag
+group=flag
+frame=39
+description=start
+This info does not have any special function. Use it to define positions and paths.
+description=end
+
+id=36
+name=Map Indicator
+group=stuff
+frame=6
+description=start
+Marks a spot at the map.
+
+Attention: The mark is only visible if "instant active" is checked. You can use "showindicator(s)" and "hideindicator(s)" to control this.
+
+see also: "setindicatorlook" and "setindicatorinfo"
+description=end
+
+id=37
+name=Text Container
+group=stuff
+frame=42
+description=start
+Use this as containter for scripts and texts. Stranded II will not execute the script you write here.
+description=end
+
+id=40
+name=Camera Position
+group=stuff
+frame=45
+description=start
+Use this for camera positions in sequences (you can use every other info too).
+description=end
+
+id=41
+name=Freshwater Area
+group=area
+frame=69
+description=start
+Defines a freshwater area.
+Use the script command "inarea_freshwater" to check if an object is in such an area.
+Water in this area is drinkable.
+description=end
+
+id=42
+name=Digging Area
+group=area
+frame=70
+description=start
+Defines a digging area.
+Use the script command "inarea_dig" to check if an object is in such an area.
+You can store items in this info. The player will get them if he digs in this area.
+description=end
+
+id=43
+name=Fishing Area
+group=area
+frame=71
+description=start
+Defines a fishing area.
+Use the script command "inarea_fish" to check if an object is in such an area.
+You can store items in this info. The player will get them if he fishs in this area.
+description=end
+
+id=44
+name=Area
+group=area
+frame=72
+description=start
+Defines a plain area.
+Use the script command "inarea" to check if an object is in such an area.
+No other special functions.
+description=end
+
+id=45
+name=Spawn Control
+group=stuff,area
+frame=78
+description=start
+Checks if there is a certain amount of objects ("number max") in an area.
+It will automatically create new objects if there are less than "number max".
+
+Attention: "instant active" has to be checked. It can also be controlled with "starttrigger(s)" and "stoptrigger(s)"!
+
+see also: "info_spawncontrol" and "trigger"
+description=end
+
+id=46
+name=AI Area
+group=area
+frame=79
+description=start
+An area which controls units. They will be either attracted or expelled.
+description=end
+
+id=47
+name=Loudspeaker
+group=stuff
+frame=81
+description=start
+Loops a sound. It can be played in a certain area. Enter a radius of 0 to play it on the whole map.
+
+see also: "info_loudspeaker"
+description=end
+
+id=48
+name=Thumbnail
+group=stuff
+frame=55
+description=start
+This info can be placed on the map like a camera. The thumbnail for this map will then be recorded from the position of this info.
+But you can also specify an image file which you want to use as thumbnail (96x72 pixels).
+
+Attention: The image file will be saved in the map file so you do not have to provide the image file with your map.
+description=end
+
+id=49
+name=Arcade Mode
+group=stuff
+frame=82
+description=start
+Deactivates hunger, thirst and exhaustion. Just put it on the map to make it work.
+description=end
+script=start
+	//No Hunger/Thirst/Exhaustion
+	on:start {
+		timer "self",1000,0;
+	}
+	on:timer {
+		jade -100;
+	}
+script=end
+
+id=50
+name=Invulnerability Mode
+group=stuff
+frame=84
+description=start
+Makes the player invulnerable. Just put it on the map to make it work. Use the "freestate" command to remove the invulnerability.
+description=end
+script=start
+	//Invulnerable
+	on:start {
+		addstate "unit",1,"invulnerability";
+	}
+script=end

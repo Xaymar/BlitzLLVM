@@ -1,0 +1,13 @@
+Welcome to the survival guide!
+Here you will learn how to play Stranded 2 and how to survive in wilderness.
+
+!4Looking around and walking
+Move the mouse to look around.
+You can move by holding down the following buttons:
+[$key_forward] - Walk forward
+[$key_backward] - Walk backwards
+[$key_left] - Walk sidewards to the left
+[$key_right] - Walk sidewards to the right
+
+!1Your task
+Walk to the prof!

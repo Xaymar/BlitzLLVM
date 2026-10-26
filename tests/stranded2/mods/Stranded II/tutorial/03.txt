@@ -1,0 +1,12 @@
+A puddle of water!
+Water surrounds the island, but can also be found in the form of ponds and puddles.
+
+!4Thirst and drinking
+Water can be used just like other objects! Look on the surface and press [$key_use]. If you are lucky, it will be fresh water that satisfies your thirst. But in most cases, you will only find salt water, which will only increase your thirst when you drink it.
+Your thirst is displayed on the top left corner in the form of a blue bar. The broader the blue bar is, the higher is your thirst. If the bar is entirely full, you will lose health until you do something against your thirst. The health is shown in the very top bar.
+
+!4Character menu
+In the character menu, you can have a closer look at the values on the left top.
+[$key_char] - character menu
+[$key_jump] - close menu
+Of course you can close the menu again by clicking the buttons. As long as it is open, the game will be paused.

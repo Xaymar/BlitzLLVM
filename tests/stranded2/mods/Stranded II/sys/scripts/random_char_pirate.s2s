@@ -1,0 +1,84 @@
+page=start
+title=Pirate
+text=start
+Njaaaaarrr!
+Hey lubber, do you have precious treasures? I would be interested in doing business with you!
+text=end
+button=sell,Yeah, I have something to sell!
+button=buy,Show me your goods!
+button=nothing,I have no treasures.
+button=action:close,I don't want anything!
+
+page=nothing
+title=Pirate
+text=start
+What? No treasures? I take nearly everything which looks valuable. Gold, coins, pearls... and I love wine by the way! So find something for me!
+text=end
+button=sell,Maybe I got something.
+button=buy,What is your offer?
+button=action:close,Bye.
+
+page=sell
+title=Trade with pirate
+# Wine -> Gold
+trade=start
+sell=39,1
+buy=5,1
+trade=end
+# Pearl -> Gold
+trade=start
+sell=108,1
+buy=5,1
+trade=end
+# Goldnugget -> Gold
+trade=start
+sell=4,1
+buy=5,5
+trade=end
+# small Crystal -> Gold
+trade=start
+sell=2,1
+buy=5,5
+trade=end
+# Crystal -> Gold
+trade=start
+sell=3,1
+buy=5,8
+trade=end
+button=buy,I want to buy something.
+button=action:close,Bye.
+
+page=buy
+title=Trade with pirate
+# Gold -> Bandage
+trade=start
+sell=5,2
+buy=117,1
+trade=end
+# Gold -> Bullet
+trade=start
+sell=5,3
+buy=29,10
+trade=end
+# Gold -> Matchet
+trade=start
+sell=5,30
+buy=28,1
+trade=end
+# Gold -> Sword
+trade=start
+sell=5,40
+buy=74,1
+trade=end
+# Gold -> Broadsword
+trade=start
+sell=5,60
+buy=75,1
+trade=end
+# Gold -> Pistol
+trade=start
+sell=5,95
+buy=58,1
+trade=end
+button=sell,I have something to sell.
+button=action:close,Bye.

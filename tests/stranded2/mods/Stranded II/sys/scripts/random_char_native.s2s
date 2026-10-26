@@ -1,0 +1,70 @@
+page=start
+title=Native
+text=start
+All hail!
+I be native of island.
+What want?
+text=end
+button=trade,I want to trade!
+button=info,What can you tell about the island?
+button=action:close,Nothing, bye!
+
+page=trade
+title=Trade with native
+### Bread -> Stones
+trade=start
+sell=44,1
+buy=23,5
+trade=end
+### Bread -> Leafes
+trade=start
+sell=44,1
+buy=15,15
+trade=end
+### Bread -> Lianas
+trade=start
+sell=44,1
+buy=26,3
+trade=end
+### Bread -> Branches
+trade=start
+sell=44,1
+buy=24,10
+trade=end
+### Bread -> Trunk
+trade=start
+sell=44,1
+buy=7,1
+trade=end
+### Bread -> Wool
+trade=start
+sell=44,2
+buy=48,3
+trade=end
+### Bread -> Iron
+trade=start
+sell=44,3
+buy=85
+trade=end
+### Bread -> Strong Healherb
+trade=start
+sell=44,4
+buy=18,1
+trade=end
+### Bread -> Spears
+trade=start
+sell=44,5
+buy=52,10
+trade=end
+button=action:close,Goodbye!
+
+page=info
+title=Native
+text=start
+I made map of island.
+You allowed to look at but I not give to you.
+You want to see?
+text=end
+button=script:map,Yes! Show the map!
+button=trade,No, I just want to trade.
+button=action:close,No, I'm off. Bye. 

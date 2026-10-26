@@ -1,0 +1,56 @@
+page=start
+title=Grandpa
+text=start
+Hey you. How's it going?
+text=end
+button=trade,I want to trade.
+button=action:close,Don't bother me!
+
+page=trade
+title=Trade with grandpa
+### Hempleaf -> Cookie
+trade=start
+sell=83,5
+buy=66,1
+trade=end
+### Hempleaf -> Trunk
+trade=start
+sell=83,10
+buy=7,1
+trade=end
+### Hempleaf -> Grapes
+trade=start
+sell=83,15
+buy=45,3
+trade=end
+### Hempleaf -> Grain Pile
+trade=start
+sell=83,15
+buy=42,3
+trade=end
+### Hempleaf -> Plums
+trade=start
+sell=83,15
+buy=116,3
+trade=end
+### Hempleaf -> Coconut
+trade=start
+sell=83,20
+buy=27,3
+trade=end
+### Hempleaf -> Banana
+trade=start
+sell=83,20
+buy=14,3
+trade=end
+### Hempleaf -> Cacao Fruit
+trade=start
+sell=83,25
+buy=67,3
+trade=end
+### Hempleaf -> Coffee Fruits
+trade=start
+sell=83,25
+buy=70,3
+trade=end
+button=action:close,Cheers!

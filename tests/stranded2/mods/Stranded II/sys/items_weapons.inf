@@ -1,0 +1,545 @@
+### Matchet
+id=28
+name=Machete
+group=weapon
+icon=gfx\matchet.bmp
+model=gfx\matchet.b3d
+scale=0.2
+behaviour=blade
+mat=metal
+weight=1000
+info=a sharp machete. Good for close combat or to separate bark from trees
+damage=9
+healthchange=0
+
+### Bullet
+id=29
+name=Bullet
+group=ammo
+icon=gfx\bullet.bmp
+model=gfx\bullet.b3d
+scale=0.1
+behaviour=ammo:58,ammo:110
+mat=metal
+weight=2
+info=Ammunition for firearms
+healthchange=0
+
+### Slingshot
+id=51
+name=Slingshot
+group=weapon
+icon=gfx\slingshot.bmp
+model=gfx\slingshot.b3d
+scale=0.5
+behaviour=slingshot
+speed=11.6
+drag=1.6
+rate=750
+mat=wood
+weight=400
+info=a slingshot which can shoot small stuff
+damage=1
+healthchange=0
+script=start
+	on:noammo {
+		speech "negative";
+		msg "No ammo!",3;
+	}
+script=end
+
+### Spear
+id=52
+name=Spear
+group=weapon
+icon=gfx\spear.bmp
+model=gfx\spear.b3d
+scale=1.3
+mat=wood
+weight=500
+info=a spear which causes a lot of damage on animals. Every spear can be thrown only one time unless I'm an experienced hunter
+behaviour=spear
+damage=2
+speed=13
+drag=1
+rate=1500
+healthchange=0
+script=start
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+49 Bonus Damage on Flesh
+		if (compare_material($tmp,$tmp2,"flesh")==1){
+			damage $tmp,$tmp2,49;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+		if (impact_first()==1){
+			if (skillvalue("hunt")>=200){
+				$tmp=create("item",52);
+				setpos "item",$tmp,impact_x(),impact_y(),impact_z();
+				setrot "item",$tmp,0,getyaw("unit",1),0;
+			}elseif (skillvalue("hunt")>=50){
+				if (random(1,10)<=4){
+					$tmp=create("item",52);
+					setpos "item",$tmp,impact_x(),impact_y(),impact_z();
+					setrot "item",$tmp,0,getyaw("unit",1),0;
+				}
+			}
+		}
+
+	}
+script=end
+
+### Arrow
+id=53
+name=Arrow
+group=ammo
+icon=gfx\arrow.bmp
+model=gfx\arrow.b3d
+fx=16
+behaviour=ammo:59,ammo:60,ammo:61
+scale=0.5
+mat=wood
+weight=5
+info=an arrow with a solid arrowhead out of stone - causes raised damage
+damage=16
+healthchange=0
+script=start
+	on:impact {
+		if (impact_first()==1){
+			if (skillvalue("hunt")>=100){
+				if (random(1,10)<=8){
+					$tmp=create("item",53);
+					setpos "item",$tmp,impact_x(),impact_y(),impact_z();
+					setrot "item",$tmp,0,getyaw("unit",1),0;
+				}
+			}
+		}
+	}
+script=end
+
+### Wooden Arrow
+id=54
+name=Wooden Arrow
+group=ammo
+icon=gfx\arrow_wood.bmp
+model=gfx\arrow_wood.b3d
+fx=16
+behaviour=ammo:59,ammo:60,ammo:61
+scale=0.5
+mat=wood
+weight=3
+info=a plain wooden arrow - causes average damage
+damage=12
+healthchange=0
+script=start
+	on:impact {
+		if (impact_first()==1){
+			if (skillvalue("hunt")>=100){
+				if (random(1,10)<=4){
+					$tmp=create("item",54);
+					setpos "item",$tmp,impact_x(),impact_y(),impact_z();
+					setrot "item",$tmp,0,getyaw("unit",1),0;
+				}
+			}
+		}
+	}
+script=end
+
+### Poison Arrow
+id=55
+name=Poison Arrow
+group=ammo
+icon=gfx\arrow_poison.bmp
+model=gfx\arrow_poison.b3d
+fx=16
+behaviour=ammo:59,ammo:60,ammo:61
+weaponstate=2
+scale=0.5
+mat=wood
+weight=10
+info=this arrow causes poisoning. The target will die if it has no antidote!
+damage=5
+healthchange=0
+
+### Fire Arrow
+id=56
+name=Fire Arrow
+group=ammo
+icon=gfx\arrow_fire.bmp
+model=gfx\arrow_fire.b3d
+fx=16
+behaviour=ammo:59,ammo:60,ammo:61
+weaponstate=4
+scale=0.5
+mat=wood
+weight=15
+info=this arrow will start a fire at the target which will cause a lot of damage
+damage=3
+healthchange=0
+
+### Pistol
+id=58
+name=Pistol
+group=weapon
+icon=gfx\pistol.bmp
+model=gfx\pistol.b3d
+scale=0.335
+behaviour=pistol
+range=10000
+rate=700
+mat=metal
+weight=1800
+info=*BANG* ... a very accurate pistol
+damage=5
+healthchange=0
+script=start
+	on:attack1 {
+		if (gety("unit",1)<-15){
+			skipevent;
+			speech "negative";
+		}
+	}
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+35 Bonus Damage on Flesh
+		if (compare_material($tmp,$tmp2,"flesh")==1){
+			damage $tmp,$tmp2,35;
+		//+35 Bonus Damage on Fruit
+		} elseif (compare_material($tmp,$tmp2,"fruit")==1){
+			damage $tmp,$tmp2,35;
+		//+95 Bonus Damage on Glass
+		} elseif (compare_material($tmp,$tmp2,"glass")==1){
+			damage $tmp,$tmp2,95;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+	on:inhand {
+		play "crack1.wav";
+	}
+	on:noammo {
+		speech "negative";
+		msg "No ammo!",3;
+	}
+script=end
+
+### Bow
+id=59
+name=Bow
+group=weapon
+icon=gfx\bow.bmp
+model=gfx\bow.b3d
+scale=1.2
+behaviour=bow
+damage=1
+speed=17
+drag=0.59
+mat=wood
+weight=800
+info=a bow which can shoot arrows
+healthchange=0
+script=start
+	on:noammo {
+		speech "negative";
+		msg "No ammo!",3;
+	}
+script=end
+
+### Longbow
+id=60
+name=Longbow
+group=weapon
+icon=gfx\longbow.bmp
+model=gfx\longbow.b3d
+scale=1.2
+behaviour=bow
+damage=1.1
+speed=21
+drag=0.25
+rate=600
+mat=wood
+weight=1000
+info=a bow with a very good range
+healthchange=0
+script=start
+	on:noammo {
+		speech "negative";
+		msg "No ammo!",3;
+	}
+script=end
+
+### Goldbow
+id=61
+name=Goldbow
+group=weapon
+icon=gfx\goldbow.bmp
+model=gfx\goldbow.b3d
+scale=1.2
+behaviour=bow
+damage=1.9
+speed=18
+drag=0.5
+rate=450
+mat=metal
+weight=3500
+info=an noble golden bow - causes much damage
+healthchange=0
+script=start
+	on:noammo {
+		speech "negative";
+		msg "No ammo!",3;
+	}
+script=end
+
+### Bolt
+id=62
+name=Bolt
+group=ammo
+icon=gfx\bolt.bmp
+model=gfx\bolt.b3d
+scale=0.35
+damage=10
+behaviour=ammo:64
+mat=wood
+weight=1
+info=a wooden bolt
+healthchange=0
+
+### Ironbolt
+id=63
+name=Iron Bolt
+group=ammo
+icon=gfx\ironbolt.bmp
+model=gfx\ironbolt.b3d
+scale=0.35
+mat=metal
+damage=16
+behaviour=ammo:64
+mat=metal
+weight=2
+info=a sharp iron bolt
+healthchange=0
+
+### Arbalest
+id=64
+name=Arbalest
+group=weapon
+icon=gfx\arbalest.bmp
+model=gfx\arbalest.b3d
+scale=1.4
+behaviour=bow
+damage=1
+speed=25
+drag=0.01
+rate=750
+mat=wood
+weight=2500
+info=fires bolts, causes much damage and has a great range
+healthchange=0
+script=start
+	on:noammo {
+		speech "negative";
+		msg "No ammo!",3;
+	}
+script=end
+
+### Sword
+id=74
+name=Sword
+group=weapon
+icon=gfx\sword.bmp
+model=gfx\sword.b3d
+scale=1.6
+behaviour=blade
+mat=metal
+weight=1000
+damage=3
+info=a simple sword
+healthchange=0
+script=start
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+22 Bonus Damage on Flesh
+		if (compare_material($tmp,$tmp2,"flesh")==1){
+			damage $tmp,$tmp2,22;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+script=end
+
+### Broadsword
+id=75
+name=Broadsword
+group=weapon
+icon=gfx\broadsword.bmp
+model=gfx\broadsword.b3d
+scale=1.6
+behaviour=blade
+mat=metal
+weight=1250
+damage=5
+info=a sword with a very broad blade
+healthchange=0
+script=start
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+25 Bonus Damage on Flesh
+		if (compare_material($tmp,$tmp2,"flesh")==1){
+			damage $tmp,$tmp2,25;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+script=end
+
+### Crystal Blade
+id=76
+name=Crystal Blade
+group=weapon
+icon=gfx\crystalblade.bmp
+model=gfx\crystalblade.b3d
+scale=1.6
+behaviour=blade
+mat=metal
+weight=1500
+damage=45
+info=a sword with a blade made out of unbelievable hard and sharp crystal
+healthchange=0
+
+### Rocket
+id=79
+name=Rocket
+group=ammo
+icon=gfx\rocket.bmp
+model=gfx\rocket.b3d
+fx=16
+behaviour=rocket ammo:81
+mat=metal
+weight=1000
+info=an explosive rocket
+healthchange=0
+damage=120
+
+### Toxic Rocket
+id=80
+name=poisonous Rocket
+group=ammo
+icon=gfx\toxicrocket.bmp
+model=gfx\toxicrocket.b3d
+fx=16
+behaviour=toxicrocket ammo:81
+mat=metal
+weight=1000
+info=a rocket filled with poisonous gas
+healthchange=0
+damage=20
+
+### Rocketlauncher
+id=81
+name=Rocket Launcher
+group=weapon
+icon=gfx\rocketlauncher.bmp
+model=gfx\rocketlauncher.b3d
+fx=16
+behaviour=launcher
+damage=1
+speed=28
+drag=0
+rate=1000
+mat=metal
+weight=8500
+info=a heavy rocket launcher
+healthchange=0
+script=start
+	on:noammo {
+		speech "negative";
+		msg "No ammo!",3;
+	}
+script=end
+
+### Shotgun
+id=110
+name=Shotgun
+group=weapon
+icon=gfx\shotgun.bmp
+model=gfx\shotgun.b3d
+scale=0.335
+behaviour=gun
+range=120
+rate=800
+mat=metal
+weight=2500
+info=this gun causes a lot of damage but it has only a very small range
+damage=10
+healthchange=0
+script=start
+	on:attack1 {
+		if (gety("unit",1)<-15){
+			skipevent;
+			speech "negative";
+		}else{
+			if (playergotitem(29)>0) { play "shotgun.wav"; }
+		}
+	}
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+100 Bonus Damage on Flesh
+		if (compare_material($tmp,$tmp2,"flesh")==1){
+			damage $tmp,$tmp2,100;
+		//+100 Bonus Damage on Fruit
+		} elseif (compare_material($tmp,$tmp2,"fruit")==1){
+			damage $tmp,$tmp2,100;
+		//+200 Bonus Damage on Glass
+		} elseif (compare_material($tmp,$tmp2,"glass")==1){
+			damage $tmp,$tmp2,200;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+	on:inhand {
+		play "crack1.wav";
+	}
+	on:noammo {
+		speech "negative";
+		msg "No ammo!",3;
+	}
+script=end
+
+### Clawspear
+id=120
+name=Claw Spear
+group=weapon
+icon=gfx\clawspear.bmp
+model=gfx\clawspear.b3d
+scale=1.3
+mat=wood
+weight=240
+info=a spear with sharp claws which can be thrown only once but which causes serious damage
+behaviour=spear
+damage=2
+speed=13
+drag=1
+rate=1500
+healthchange=0
+script=start
+	on:impact {
+		$tmp=impact_class();
+		$tmp2=impact_id();
+		//+28 Bonus Damage + Bleeding on Flesh
+		if (compare_material($tmp,$tmp2,"flesh")==1){
+			damage $tmp,$tmp2,28;
+			//Bleeding
+			addstate $tmp,$tmp2,"bleeding";
+			statevalue $tmp,$tmp2,"bleeding",9;
+		}
+		freevar $tmp;
+		freevar $tmp2;
+	}
+script=end

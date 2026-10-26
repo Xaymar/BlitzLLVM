@@ -1,0 +1,10 @@
+Fruits grow only at certain plants. You can pluck and eat them. But watch out: it normally takes several days until new ones have grown.
+
+!4Plucking fruits
+You can pluck fruits by simple using:
+[$key_use] - gather fruits
+If they hang too high, you can also shoot them down with ranged weapons from trees or palms and pick them up afterwards.
+
+!4Planting
+Fruits can also be planted in order to gain more of them. For some, you need good skills in agriculture. These can be increased by just planting other things.
+For planting, take the fruits into your hand, point at the ground and use it by pressing [$key_use].

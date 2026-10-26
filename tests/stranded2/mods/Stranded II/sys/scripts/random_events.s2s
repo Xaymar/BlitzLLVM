@@ -1,0 +1,132 @@
+on:changeday {
+	if (menu()==0){
+		$event=random(0,6);
+		$subevent=0;
+		$id=0;
+		$itemid=0;
+
+		// ------------------------------------------------ Create Flotsam (Items in Crate)
+		if ($event==1){			
+			if (count("object",136)<10){
+				$id=randomcreate("object",136,-100,-30);
+				if ($id>0){
+					setpos "object",$id,"self",random(-15,-5),"self";
+					$subevent=random(0,10);
+					if ($subevent==0){
+						//Bread
+						$itemid=create("item",44);
+						setamount $itemid,random(1,5);
+						store $itemid,"object",$id;
+					}elseif($subevent==1){
+						//Wine + Grapes
+						$itemid=create("item",39);
+						setamount $itemid,random(1,3);
+						store $itemid,"object",$id;
+						$itemid=create("item",45);
+						setamount $itemid,random(5,10);
+						store $itemid,"object",$id;
+					}elseif($subevent==2){
+						//Grain
+						$itemid=create("item",41);
+						setamount $itemid,random(10,30);
+						store $itemid,"object",$id;
+					}elseif($subevent==3){
+						//Wool
+						$itemid=create("item",48);
+						setamount $itemid,random(20,30);
+						store $itemid,"object",$id;
+					}elseif($subevent==4){
+						//Iron
+						$itemid=create("item",85);
+						setamount $itemid,random(10,20);
+						store $itemid,"object",$id;
+					}elseif($subevent==5){
+						//Bananas
+						$itemid=create("item",14);
+						setamount $itemid,random(5,15);
+						store $itemid,"object",$id;
+					}elseif($subevent==6){
+						//Berries
+						$itemid=create("item",46);
+						setamount $itemid,random(10,30);
+						store $itemid,"object",$id;
+					}elseif($subevent==7){
+						//Juice
+						$itemid=create("item",47);
+						setamount $itemid,random(1,3);
+						store $itemid,"object",$id;
+					}elseif($subevent==8){
+						//Cacaofruit
+						$itemid=create("item",67);
+						setamount $itemid,random(1,3);
+						store $itemid,"object",$id;
+					}elseif($subevent==9){
+						//Coffeefruits
+						$itemid=create("item",70);
+						setamount $itemid,random(3,8);
+						store $itemid,"object",$id;
+					}else{
+						//Cookies
+						$itemid=create("item",66);
+						setamount $itemid,random(5,15);
+						store $itemid,"object",$id;
+					}
+				}
+			}
+
+		}
+
+		// ------------------------------------------------ Create Flotsam (loose Item)
+		if ($event==2){	
+			$subevent=random(1,5);
+			if ($subevent<5){
+				//Trunk
+				randomcreate "item",7,-100,-30;
+			}else{
+				//Branch
+				randomcreate "item",24,-100,-30;				
+			}
+		}
+
+		// ------------------------------------------------ Fire (max. every 10 days)
+		if ($event==3){
+			if (getweather()==0){
+				$subevent=day();
+				if (abs($lastfire-$subevent)>9){
+					$subevent=0;
+					loop ("objects",165){
+						$id=loop_id(); addstate "object",$id,"fire"; statevalue "object",$id,"fire",20; $subevent=1; exit;
+					}
+					if ($subevent==0){
+						loop ("objects",181){
+							$id=loop_id(); addstate "object",$id,"fire"; statevalue "object",$id,"fire",20; $subevent=1; exit;
+						}
+					}
+					if ($subevent==0){
+						loop ("objects",184){
+							$id=loop_id(); addstate "object",$id,"fire"; statevalue "object",$id,"fire",20; $subevent=1; exit;
+						}
+					}
+					if ($subevent==0){
+						loop ("objects",190){
+							$id=loop_id(); addstate "object",$id,"fire"; statevalue "object",$id,"fire",20; $subevent=1; exit;
+						}
+					}
+					if ($subevent==0){
+						loop ("objects",206){
+							$id=loop_id(); addstate "object",$id,"fire"; statevalue "object",$id,"fire",20; $subevent=1; exit;
+						}
+					}
+					if ($subevent==1){
+						$lastfire=day();
+						msg "Feuer, Feuer!",3,10000;
+						msg "Ein Gebäude brennt!",3,10000;
+					}
+				}
+			}
+		}
+
+		// ------------------------------------------------ 
+
+	}
+}

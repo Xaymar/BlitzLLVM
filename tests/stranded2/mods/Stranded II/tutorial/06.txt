@@ -1,0 +1,14 @@
+An obstacle! You could of course just go around it, but sometimes it is better to jump over it!
+
+!4Jumping
+[$key_jump] - jump
+
+When you jump, you can influence your direction with the movement keys.
+But keep in mind that jumping is exhausting and increases hunger, thirst and fatigue quickly.
+
+!4Hunger and fatigue
+Apropos: Besides the thirst that was already mentioned, there are also hunger and fatigue. All these values are raised by movement. You must eat, drink and sleep to keep them as low as possible. Otherwise, the resulting loss of health may lead to your death!
+Hunger is illustrated by a green bar on the top left corner and in the character menu, whereas fatigue is the violet one.
+You can only sleep ashore, and only if you are tired enough and there are no dangerous animals close to you. If you do not sleep in a building or cave, the sleep will cost you a bit of energy. Hunger and thirst will be increased as well.
+Use the sleep button in the character menu or the sleep key to sleep.
+[$key_sleep] - sleep

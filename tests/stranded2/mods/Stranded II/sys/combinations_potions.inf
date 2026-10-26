@@ -1,0 +1,137 @@
+### Healthpotion (Strong Healherb + Water + Stone)
+combi=start
+id=healthpotion
+req=18
+req=38
+req=23,1,stay
+gen=36
+script=start
+	play "bubbles.wav";
+	process "brewing potion",2270;
+script=end
+combi=end
+
+combi=start
+id=healthpotion
+req=18
+req=23,1,stay
+gen=36
+script=start
+	if ( ((count_behaviourinrange("object","fountain",50)+count_behaviourinrange("object","watersource",50))>0) or (inarea_freshwater("unit",1)==1) ){
+		play "bubbles.wav";
+		process "brewing potion",2270;
+	}else{
+		msg "I need water!",3;
+		speech "negative";
+		skipevent;
+	}
+script=end
+combi=end
+
+### Healthpotion (3xHealherb + Water + Stone)
+combi=start
+id=healthpotion
+req=17,3
+req=38
+req=23,1,stay
+gen=36
+script=start
+	play "bubbles.wav";
+	process "brewing potion",2270;
+script=end
+combi=end
+
+combi=start
+req=17,3
+req=23,1,stay
+gen=36
+script=start
+	if ( ((count_behaviourinrange("object","fountain",50)+count_behaviourinrange("object","watersource",50))>0) or (inarea_freshwater("unit",1)==1) ){
+		play "bubbles.wav";
+		process "brewing potion",2270;
+	}else{
+		msg "I need water!",3;
+		speech "negative";
+		skipevent;
+	}
+script=end
+combi=end
+
+### Healthpotion (5xGoldherb + Water + Stone)
+combi=start
+id=healthpotion
+req=19,5
+req=38
+req=23,1,stay
+gen=36
+script=start
+	play "bubbles.wav";
+	process "brewing potion",2270;
+script=end
+combi=end
+
+combi=start
+id=healthpotion
+req=19,5
+req=23,1,stay
+gen=36
+script=start
+	if ( ((count_behaviourinrange("object","fountain",50)+count_behaviourinrange("object","watersource",50))>0) or (inarea_freshwater("unit",1)==1) ){
+		play "bubbles.wav";
+		process "brewing potion",2270;
+	}else{
+		msg "Ich need water!",3;
+		speech "negative";
+		skipevent;
+	}
+script=end
+combi=end
+
+### Wine (30xGrapes + Stone)
+combi=start
+id=wine
+req=45,30
+req=23,1,stay
+gen=39
+script=start
+	play "bubbles.wav";
+	process "pressing grapes",2270;
+script=end
+combi=end
+
+### Juice (30xBerries + Stone)
+combi=start
+id=juice
+req=46,30
+req=23,1,stay
+gen=47
+script=start
+	play "bubbles.wav";
+	process "making juice",2270;
+script=end
+combi=end
+
+### Water (30xLeaf + Stone)
+combi=start
+id=water
+req=15,30
+req=23,1,stay
+gen=38
+script=start
+	play "mat_fruit2.wav";
+	process "squeezing leaves",1000;
+script=end
+combi=end
+
+### Speedpotion (Cacaofruit + Coffee Fruits + Stone)
+combi=start
+id=speedpotion
+req=67
+req=70
+req=23,1,stay
+gen=112
+script=start
+	play "bubbles.wav";
+	process "brewing potion of haste",2270;
+script=end
+combi=end

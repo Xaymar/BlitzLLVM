@@ -1,0 +1,558 @@
+menu_adventure=1
+menu_random=1
+menu_loadsave=1
+menu_singleplayer=1
+menu_multiplayer=0
+menu_editor=1
+menu_credits=1
+
+terrain_color_normal=230,223,145, 69,138,13, 160,172,125
+terrain_color_desert=230,223,145, 254,243,118, 245,204,61
+terrain_color_snow=200,224,230, 255,255,255, 100,100,100
+terrain_color_swamp=159,206,0, 135,174,0, 70,104,72
+
+healthsystem=4
+
+exhaust_move=0.02,0.02,0.016
+exhaust_swim=0.06,0.05,0.06
+exhaust_jump=0.8,0.8,0.8
+exhaust_attack=0.15,0.15,0.15
+exhausted_damage=5,5,5
+
+dive_time=20000
+dive_damage=10
+
+default_itemmodel=gfx\bag.b3d
+projectile_lifetime=15000
+
+firerange=50
+firelightsize=60
+firelightbrightness=160
+
+waverate=3500
+minwavespace=300
+
+dig_time=2500
+fish_time=5500
+
+rainratio=10
+snowratio=30
+
+jumptime=450
+jumpfactor=1.1
+
+scriptlooptimeout=5000
+
+combiscreen=2
+showemptybuildinggroups=0
+
+limit_objects=255
+limit_units=100
+limit_items=255
+
+gore=1
+
+script=start
+
+	//Global Game Scripts
+
+	//Scripts performed at Start of every Map
+	on:start {
+		//Lock all buildings besides tent and shelter
+		//these will unlock new buildings (see buildings.inf)
+		if (loadmaptakeover()==0){
+			lockbuildings;
+			unlockbuilding 1;
+			unlockbuilding 2;
+		}
+
+		//Lock combis (see combinations_xxx.inf)
+		if (skillvalue("wood")<25){
+			lockcombi "branch";
+		}
+
+		//Variables
+		$s2g_firesuccess=30;		//success in % for making fire
+		$s2g_plagues=30;		//amount of grain plants needed for plague
+		//$s2g_driveblock_yacht=1;	//blocks driving of yacht
+		//$s2g_alc=0;			//alcohol
+		//$s2g_stablebuildings=1;	//are buildings stable?
+
+	}
+
+	//Drinking (Sea)
+	on:usesea {
+		if (inarea_freshwater("unit",1)) {
+			process "drinking",1000;
+			drink 0,0,25,0;
+		}else{
+			process "drinking",1000;
+			drink 0,0,-15,0;
+			msg "Ugh! Saltwater!";
+		}
+	}
+
+	//Planting
+	on:useground {
+		local $x,$y,$z,$id,$item;
+		$x=use_x();
+		$y=use_y();
+		$z=use_z();
+		$item=getplayerweapon();
+		
+		if (count_stored("unit",1,$item)>0){
+		
+			//Grain
+			if ($item==42){
+				if ($y>0){
+					if (freespace($x,$y,$z,20,1,0,0,0)){
+						freestored "unit",1,42,1;
+						$id=create("object",121,$x,$z);
+						event "plant","object",$id;
+						if (skillvalue("plant")>=400){
+							process "planting grain",500;
+						}else{
+							process "planting grain",2000;
+						}
+						play "dig.wav";
+						play "mat_leaf1.wav";
+						event "iskill_plant","global";
+					}else{
+						speech "negative";
+						msg "Here is not enough space!",3;
+					}
+				}else{
+					speech "negative";
+					msg "Grain does not grow in water!",3;
+				}
+				
+			//Grapes
+			}elseif ($item==45){
+				if ($y>0){
+					if (freespace($x,$y,$z,20,1,0,0,0)){
+						freestored "unit",1,45,1;
+						$id=create("object",44,$x,$z);
+						event "plant","object",$id;
+						process "planting vine",2500;
+						play "dig.wav";
+						play "mat_leaf1.wav";
+						event "iskill_plant","global";
+					}else{
+						speech "negative";
+						msg "Here is not enough space!",3;
+					}
+				}else{
+					speech "negative";
+					msg "This does not grow in water!",3;
+				}
+			
+			//Hempleaf
+			}elseif ($item==83){
+				if ($y>0){
+					if (freespace($x,$y,$z,20,1,0,0,0)){
+						freestored "unit",1,83,1;
+						$id=create("object",134,$x,$z);
+						event "plant","object",$id;
+						process "planting hemp",2000;
+						play "dig.wav";
+						play "mat_leaf1.wav";
+						event "iskill_plant","global";
+					}else{
+						speech "negative";
+						msg "Here is not enough space!",3;
+					}
+				}else{
+					speech "negative";
+					msg "This does not grow in water!",3;
+				}
+
+			//Leaf
+			}elseif ($item==15){
+				if (skillvalue("plant")>=200){
+					if ($y>0){
+						if (freespace($x,$y,$z,20,1,0,0,0)){
+							freestored "unit",1,15,1;
+							$typ=random(30,44);
+                                        		if ($typ==43){$typ=45;}
+                                        		if ($typ==44){$typ=185;}    
+							$id=create("object",$typ,$x,$z);
+							$tmp=growtime($typ);
+							$tmp=(-$tmp);
+							$tmp++;
+							spawntimer $id,$tmp;
+							process "planting bush",3000;
+							play "dig.wav";
+							play "mat_leaf1.wav";
+							event "iskill_plant","global";
+						}else{
+							speech "negative";
+							msg "Here is not enough space!",3;
+						}
+					}else{
+						speech "negative";
+						msg "This does not grow in water!",3;
+					}
+				}else{
+					speech "negative";
+					msg "I cannot do this yet!",3;
+					msg "My planting skill needs to be higher!",3;
+				}
+			//Branch
+			}elseif ($item==24){
+				if (skillvalue("plant")>=200){
+					if ($y>0){
+						if (freespace($x,$y,$z,50,1,0,0,0)){
+							freestored "unit",1,24,1;
+							$typ=random(10,17);
+							$id=create("object",$typ,$x,$z);
+							$tmp=growtime($typ);
+							$tmp=(-$tmp);
+							$tmp++;
+							spawntimer $id,$tmp;
+							process "planting tree",6000;
+							play "dig.wav";
+							play "mat_leaf1.wav";
+							event "iskill_plant","global";
+						}else{
+							speech "negative";
+							msg "Here is not enough space!",3;
+						}
+					}else{
+						speech "negative";
+						msg "This does not grow in water!",3;
+					}				
+				}else{
+					speech "negative";
+					msg "I cannot do this yet!",3;
+					msg "My planting skill needs to be higher!",3;
+				}
+			//Berry
+			}elseif ($item==46){
+				if (skillvalue("plant")>=50){
+					if ($y>0){
+						if (freespace($x,$y,$z,30,1,0,0,0)){
+							freestored "unit",1,46,1;
+							$id=create("object",46,$x,$z);
+							spawntimer $id,-9;
+							process "planting berry bush",4000;
+							play "dig.wav";
+							play "mat_leaf1.wav";
+							event "iskill_plant","global";
+						}else{
+							speech "negative";
+							msg "Here is not enough space!",3;
+						}
+					}else{
+						speech "negative";
+						msg "This does not grow in water!",3;
+					}
+				}else{
+					speech "negative";
+					msg "I cannot do this yet!",3;
+					msg "My planting skill needs to be higher!",3;
+				}
+			//Banana
+			}elseif ($item==14){
+				if (skillvalue("plant")>=400){
+					if ($y>0){
+						if (freespace($x,$y,$z,50,1,0,0,0)){
+							freestored "unit",1,14,1;
+							$id=create("object",8,$x,$z);
+							spawntimer $id,-14;
+							process "planting banana palm",4000;
+							play "dig.wav";
+							play "mat_leaf1.wav";
+							event "iskill_plant","global";
+						}else{
+							speech "negative";
+							msg "Here is not enough space!",3;
+						}
+					}else{
+						speech "negative";
+						msg "This does not grow in water!",3;
+					}
+				}else{
+					speech "negative";
+					msg "I cannot do this yet!",3;
+					msg "My planting skill needs to be higher!",3;
+				}				
+			//Coconut
+			}elseif ($item==27){
+				if (skillvalue("plant")>=400){
+					if ($y>0){
+						if (freespace($x,$y,$z,50,1,0,0,0)){
+							freestored "unit",1,27,1;
+							$id=create("object",9,$x,$z);
+							spawntimer $id,-14;
+							process "planting coconut palm",4000;
+							play "dig.wav";
+							play "mat_leaf1.wav";
+							event "iskill_plant","global";
+						}else{
+							speech "negative";
+							msg "Here is not enough space!",3;
+						}
+					}else{
+						speech "negative";
+						msg "This does not grow in water!",3;
+					}
+				}else{
+					speech "negative";
+					msg "I cannot do this yet!",3;
+					msg "My planting skill needs to be higher!",3;
+				}				
+			//Cacao
+			}elseif ($item==67){
+				if (skillvalue("plant")>=400){
+					if ($y>0){
+						if (freespace($x,$y,$z,50,1,0,0,0)){
+							freestored "unit",1,67,1;
+							$id=create("object",18,$x,$z);
+							spawntimer $id,-9;
+							process "planting cacao tree",4000;
+							play "dig.wav";
+							play "mat_leaf1.wav";
+							event "iskill_plant","global";
+						}else{
+							speech "negative";
+							msg "Here is not enough space!",3;
+						}
+					}else{
+						speech "negative";
+						msg "This does not grow in the water!",3;
+					}
+				}else{
+					speech "negative";
+					msg "I cannot do this yet!",3;
+					msg "My planting skill needs to be higher!",3;
+				}				
+			//Coffee
+			}elseif ($item==70){
+				if (skillvalue("plant")>=400){
+					if ($y>0){
+						if (freespace($x,$y,$z,50,1,0,0,0)){
+							freestored "unit",1,70,1;
+							$id=create("object",19,$x,$z);
+							spawntimer $id,-9;
+							process "planting coffee tree",4000;
+							play "dig.wav";
+							play "mat_leaf1.wav";
+							event "iskill_plant","global";
+						}else{
+							speech "negative";
+							msg "Here is not enough space!",3;
+						}
+					}else{
+						speech "negative";
+						msg "This does not grow in the water!",3;
+					}
+				}else{
+					speech "negative";
+					msg "I cannot do this yet!",3;
+					msg "My planting skill needs to be higher!",3;
+				}				
+			//Plum
+			}elseif ($item==116){
+				if (skillvalue("plant")>=400){
+					if ($y>0){
+						if (freespace($x,$y,$z,50,1,0,0,0)){
+							freestored "unit",1,116,1;
+							$id=create("object",195,$x,$z);
+							spawntimer $id,-9;
+							process "planting plum tree",4000;
+							play "dig.wav";
+							play "mat_leaf1.wav";
+							event "iskill_plant","global";
+						}else{
+							speech "negative";
+							msg "Here is not enough space!",3;
+						}
+					}else{
+						speech "negative";
+						msg "This does not grow in the water!",3;
+					}
+				}else{
+					speech "negative";
+					msg "I cannot do this yet!",3;
+					msg "My planting skill needs to be higher!",3;
+				}				
+			}
+	
+	
+		}
+	
+		freevar $x,$y,$z,$id,$item;
+	}
+
+	//Sleeping
+	on:sleep {
+		if (getplayervalue(4)>5){
+			local $y;
+			$y=gety("unit",1);
+			if ($y>0){
+				if (playerspotted()==0){
+					//Exhaustion
+					consume 0,-35,-35,100;
+		
+					//Alcohol Stuff
+					if ($s2g_alc>200){$s2g_alc=200;}
+					$s2g_alc-=60;
+					if ($s2g_alc<0){$s2g_alc=0;}
+
+					//Free States
+					freestate "unit",1,"dizzy";
+					freestate "unit",1,"fuddle";
+					
+					//Damage if there is no Cover
+					if (count_behaviourinrange("object","cover")==0){
+						$damage=random(10,20);
+						damage "unit",1,$damage;
+						freevar $damage;
+					}else{
+						//Treehouse Recover
+						if (count_inrange("object",190)>0){
+							consume 5,10,10,0;
+						//Hut Recover
+						}elseif (count_inrange("object",206)>0){
+							consume 10,15,15,0;
+						}
+					}
+					
+					//Plague?
+					if (count("object",121)>$s2g_plagues){
+						if (skillvalue("plant")>40){
+							if (random(1,3)==1){
+								$tmp=0;
+								$tmp2=random(5,7);
+								loop ("objects",121){
+									$tmp++;
+									if ($tmp>=$tmp2){
+										$tmp=0;
+										$id=loop_id();
+										$x=getx("object",$id);
+										$z=getz("object",$id);
+										create "unit",43,$x,$z;
+									}
+								}
+								freevar $id,$x,$z;
+							}
+						}
+					}
+
+					//Autosave
+					autosave;
+
+					msg "You slept",4;
+					msg "Saved (Autosave)",1;
+
+				}else{
+					speech "negative";
+					msg "I should not sleep now!",3;
+					skipevent;
+				}
+			}else{
+				speech "negative";
+				msg "Sleeping in the water?",3;
+				msg "Not a good idea...",3;
+				skipevent;
+			}
+			freevar $y;
+		}else{
+			speech "negative";
+			msg "I'm not tired enough!",3;
+			skipevent;
+		}
+	}
+
+	
+	//Make Fire
+	on:barkbranchfire2 {
+		$tmp=random(1,100);
+		if ($barkbranchfire==0){
+			speech "negative";
+			msg "I need a dry fireplace!",3;			
+		}else{
+			if ($tmp<=$s2g_firesuccess){
+				if (addstate("object",$barkbranchfire,"fire")==1){
+					statevalue "object",$barkbranchfire,"fire",0;
+					speech "positive";
+					msg "Fire started",4;
+					freestored "unit",1,107,1;
+					freestored "unit",1,24,1;
+				}else{
+					speech "negative";
+					msg "It's too wet!",3;	
+				}
+			}else{
+				speech "negative";
+				msg "It does not work...",3;
+				msg "I have to try it again!",3;	
+				freestored "unit",1,107,1;
+				freestored "unit",1,24,1;
+			}
+		}
+	}
+
+	//Skillstuff
+	
+	on:skill_wood { msgbox "Skill Info","sys/skillinfos/wood.inf"; }
+	on:iskill_wood {
+		incskill "wood",1,"Lumbering";
+		$tmp=skillvalue("wood");
+		if ($tmp==25){ event "skillup","global"; unlockcombi "branch"; }
+		if ($tmp==50){ event "skillup","global";}
+		if ($tmp==100){ event "skillup","global";}
+		if ($tmp==200){ event "skillup","global";}
+		if ($tmp==400){ event "skillup","global";}
+		if ($tmp==800){ event "skillup","global";}
+	}	
+	
+	on:skill_fish { msgbox "Skill Info","sys/skillinfos/fish.inf"; }
+	on:iskill_fish {
+		incskill "fish",1,"Fishing";
+		$tmp=skillvalue("fish");
+		if ($tmp==25){ event "skillup","global";}
+		if ($tmp==50){ event "skillup","global"; unlockbuilding 9; }
+		if ($tmp==100){ event "skillup","global";}
+		if ($tmp==200){ event "skillup","global";}
+		if ($tmp==500){ event "skillup","global";}
+	}	
+
+	on:skill_hunt { msgbox "Skill Info","sys/skillinfos/hunt.inf"; }
+	on:iskill_hunt {
+		incskill "hunt",1,"Hunting";
+		$tmp=skillvalue("hunt");
+		if ($tmp==25){ event "skillup","global";}
+		if ($tmp==50){ event "skillup","global";}
+		if ($tmp==100){ event "skillup","global"; unlockbuilding 10; }
+		if ($tmp==200){ event "skillup","global";}
+	}
+	
+	on:skill_plant { msgbox "Skill Info","sys/skillinfos/plant.inf"; }
+	on:iskill_plant {
+		incskill "plant",1,"Planting";
+		$tmp=skillvalue("plant");
+		if ($tmp==50){ event "skillup","global";}
+		if ($tmp==100){ event "skillup","global"; unlockbuilding 14;}
+		if ($tmp==200){ event "skillup","global";}
+		if ($tmp==400){ event "skillup","global";}
+		if ($tmp==800){ event "skillup","global";}
+	}
+	
+	on:skill_dig { msgbox "Skill Info","sys/skillinfos/dig.inf"; }
+	on:iskill_dig {
+		incskill "dig",1,"Digging";
+		$tmp=skillvalue("dig");
+		if ($tmp==25){ event "skillup","global";}
+		if ($tmp==50){ event "skillup","global";}
+		if ($tmp==100){ event "skillup","global";}
+		if ($tmp==200){ event "skillup","global";}
+		if ($tmp==500){ event "skillup","global";}
+	}
+
+	on:skillup {
+		msg "Skill improved!",1;
+		play "fx_spell.wav";
+		corona getx("unit",1),getz("unit",1),40,255,250,0;
+	}
+script=end

@@ -1,0 +1,142 @@
+/*
+The first map is not playable. It contains an intro sequence.
+The sequence shows a ship in a storm which capsizes/explodes.
+*/
+
+on:intro {
+	// Intro Music
+	music "music_intro.mp3",0.4;
+
+	// strong blur
+	blur 0.85;
+	
+	// cache startpos + move ship
+	$x=getx("unit",100);
+	$y=gety("unit",100);
+	$z=getz("unit",100);
+	unitpath 100,3;
+
+	echo $x;
+	echo $y;
+	echo $z;
+  
+	// setup intro sequence
+	seqstart 1,1;
+	seqtimemode 1000,1;
+	cammode 0,1,"unit",100; // Camera Points at Ship
+	
+	// ------------------------------------------------------------------------------ intro start
+
+	// scene 1
+	setcam 0,2;
+	seqfade 0,1500,0,0,0,2;
+	seqmsg 6,"I remember it as if it were yesterday.",5;
+	seqsound 6,"speech\intro_a.ogg";
+	seqfade 8,10000,0,0,0,0;
+	seqmsg 9,"I had just bought a new yacht, and I was eager to take it for a ride... So I took it out to sea.",5;
+
+	// scene 2
+	seqevent 9,"scene2a";
+	setcam 9,4;
+	seqevent 12,"scene2b";
+	seqmsg 14,"In my excitement, I didn't really pay attention to where I was going, and I got into a storm.",5;
+	seqsound 14,"speech\intro_b.ogg";
+	seqmsg 20,"The storm... drove me off course.",5;
+	seqfade 24,26000,0,0,0,0;
+
+	// scene 3
+	seqevent 25,"scene3a";
+	setcam 25,5;
+	movecam 25,30000,6;
+	seqevent 30,"scene3b";
+	seqmsgclear 24;
+	seqmsg 26,"All of a sudden, a bolt of lightning struck the boat... and caused a fire.",5;
+	seqsound 25,"speech\intro_c.ogg";
+	seqfade 34,36000,0,0,0,0;
+
+	// scene 4
+	seqevent 35,"scene4a";
+	setcam 35,7;
+	seqmsgclear 34;
+	seqmsg 37,"The fire spread so quickly I couldn't do anything to stop it, and soon it reached the fuel cans...",5;
+	seqsound 37,"speech\intro_d.ogg";
+	movecam 35,45000,8;
+	seqevent 37,"scene4b";
+	seqevent 38,"scene4c";
+	seqevent 39,"scene4c";
+	seqevent 40,"scene4b";
+	seqevent 42,"scene4c";
+	seqevent 43,"scene4c";
+	seqmsg 43,"...and it caused an explosion that shattered my boat into a thousand pieces.",5;
+	seqevent 46,"scene4d";
+	seqmsg 49,"And it threw me off board... drifting.",5;
+	seqfade 50,53000,0,0,0,1;
+	seqmsgclear 52;
+	
+	// ------------------------------------------------------------------------------ intro end
+
+	// end intro / loadmap
+	seqevent 53,"loadnextmap";
+
+}
+
+on:skipsequence {
+	event "loadnextmap","global";
+}
+
+// scene 1
+// stuff is done in intro event
+
+// scene 2
+on:scene2a {
+	setpos "unit",100,$x,$y,$z;
+	freeunitpath 100;
+	unitpath 100,3;
+}
+on:scene2b {
+	thunder;
+}
+
+// scene 3
+on:scene3a {
+	setpos "unit",100,$x,$y,$z;
+	freeunitpath 100;
+	unitpath 100,3;
+}
+on:scene3b {
+	thunder;
+	flash 230,230,255;
+	addstate "unit",100,"electroshock";
+	addstate "unit",100,"smoke";
+	$x2=getx("unit",100);
+	$y2=gety("unit",100);
+	$z2=getz("unit",100);
+	explosion $x2,($y2+100),$z2,150;
+}
+
+// scene 4
+on:scene4a {
+	setpos "unit",100,$x,$y,$z;
+	freeunitpath 100;
+}
+on:scene4b {
+	explosion $x,($y+80),$z,300;
+}
+on:scene4c {
+	explosion $x+random(-50,50),($y+random(50,80)),$z+random(-50,50),100;
+}
+on:scene4d {
+	flash 255,180,50,0.05,2.0;
+	explosion $x,($y+70),$z,600;
+	explosion $x+random(-50,50),($y+random(50,80)),$z+random(-50,50),150;
+	explosion $x+random(-50,50),($y+random(50,80)),$z+random(-50,50),150;
+	explosion $x+random(-50,50),($y+random(50,80)),$z+random(-50,50),100;
+	play "explode.wav";
+	free "unit",100;
+	fademusic 8000;
+}
+
+// load next map
+on:loadnextmap {
+	loadmap "maps\adventure\map02.s2";
+}

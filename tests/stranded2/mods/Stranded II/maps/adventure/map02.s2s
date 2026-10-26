@@ -1,0 +1,546 @@
+/*
+This is the first playable map. You are stranded on an little island.
+No humans and dangerous animals - except some lions as threat.
+It contains some introducing elements.
+*/
+
+//~diary01
+An island! This is what I call good luck. The sea has washed me ashore practically unharmed.
+I should take a look around.
+
+
+!1- Info -
+On the left top you can see four bars that represent your present state:
+- health
+- hunger (green)
+- thirst (blue)
+- tiredness (violet)
+
+You must keep an eye on hunger, thirst and tiredness. They may not rise too high. If one of these bars is full, you start to lose health. If nothing is left of your health bar, you die.
+For a closer look at your state, you can look it up under "character" in the menu or press [$key_char].
+
+You can attack with [$key_attack1]. Attack objects to damage them or to get items.
+Items that lay around loose can be gathered with [$key_use].
+The thereby gathered items can then be used, dumped, combined or taken in the hand in the inventory [$key_items].
+
+
+!4- Hint -
+A part of the provisions that you had aboard has stranded here, too. But it is enclosed in crates and barrels. Use [$key_attack1] to destroy those and [$key_use] to collect the laid open items!
+
+!3- Remark -
+You are still feeling dizzy. That is why everything is blurry, but this will go over.
+//~diary02
+It quite looks like I cannot find a hotel to simply check in.
+So I will have to take care of my situation on myself and build a shelter to sleep under. But first things first: I don't even have the right tools for that yet...
+
+
+!1- Info -
+Items can be combined in the inventory [$key_items] to get new kinds of items. Choose at least two items by clicking them and then hit the "Combine" button with the plus symbol. If one or several combinations with the selected items is possible, a new window will open and display the combinations which are executed per left-click.
+
+
+!4- Hint -
+Keep in mind that you can also obtain items if you just hit, for instance, trees or stones by holding down [$key_attack].
+//~diary03
+After several failures I have now managed to connect a stone with a branch in a way that reminds of a simple hammer... with a lot of fantasy. I would prefer proper one, of course.
+Anyway, the thingy should be sufficient to construct a tent or a wooden shelter.
+
+
+!1- Info -
+Select the hammer in the inventory and then press [$key_attack2] and the building menu will open, wherein you can select a building and choose a location.
+Press [$key_attack2] again at the building site to work on the building.
+The special functions of weapons or tools are always triggered per [$key_attack2], whereas [$key_attack1] usually starts an attack.
+
+
+!4- Hint -
+It is recommandable to begin with a shelter. A tent may on the one hand be handier because it can be packed and set up again elsewhere - but on the other hand, you must hunt animals first to make the required tent kit by combining their hides with sticks in the inventory!
+There by the way is no need to carry all required materials when you set up a building site. You can gather and employ them later just as well.
+//~diary04
+Finally, a shelter above my head... at least symbolically.
+So, from now on  I will not have to sleep under open sky anymore and should be protected at least a bit from bad weather, coldness and predators. Although I am still rather sceptical if the latter will be very impressed by a simple pile of sticks and leaves.
+I should definitely be prepared to live here for quite a while. It will surely take some time until they send somebody to search for me. And even in case that somebody is on his way: I haven't got a clue how far this Island is away from my original course.
+I can only hope that somebody will find me here and use the time I am waiting to make the most of what I have got here.
+
+
+!1- Info -
+Constructing a new building often enables you to construct further kinds of buildings! Select the hammer and press [$key_attack2] to find out what you can build.
+//~diary05
+This campfire will give me warmth and light. But naturally, I must find a way to light it first. Since I neither have a lighter nor a box of matches at hand right now, I must find another way.
+
+
+!1- Info -
+Fireplaces provide more than just light. Certain items can be processed or combined in the fire to improve their quality.
+//~diary06
+Oops! During the construction of my camp, I have found something shiny in the mud. At second sight I came to the conclusion that a picklock is what I am dealing with. With some deftness, I should be able to pick just about any lock with it. There's only one thing that tempers the delight: Which lock? I should keep my eyes open to find something to use this picklock on. Perhaps it might bring me onwards somehow.
+//~diary07
+With my digging, I discovered a pirate instead of a treasure. I believe he's quite a nut, but that shouldn't bother me at the moment. I have caught him a parrot to make him give me a lift. But now I'm also supposed to dig out gold for him. Gosh, what a slavedriver!
+//~lockpickdef
+on:drop {
+	clear;
+	add "Hey... I have a feeling that tells me that I'll need this for something! I'll rather keep it.";
+	add "I think there's something on this island that I can open hereby. I must just find it!";
+	msgbox "No Dumping!";
+	skipevent;
+}
+//~iron
+Something's shimmering in these rocks. It looks like iron ore! If I manage to extract some of it by force, the iron might be my chance to achieve better tools or weaponry.
+//~grain
+Even grain does grow here!
+Golden as the stars that shine and twinkle on the milky way,
+it stretchs in never-ending line along the margin of a bay...
+Well, that stuff could be bloody useful.
+
+
+!1- Info -
+$img=tutorial\grain.bmp
+1. Grain can be harvested per [$key_attack1].
+
+2. On usage in the inventory [$key_items], grains can be extracted from the bundles of crop.
+
+3. These grains can be sowed anewedly. But they can also be eaten or processed into flour.
+//~fountain
+babble babble ... a source of fresh water! Here I can satisfy my thirst.
+
+
+!1- Info -
+With [$key_use], fresh water can be drunk from the source.
+Some items can only be used near fire or sources of water. Others may get an entirely different purpose there. So you should always pay attention to your environment when you use items!
+//~cotton
+These funny, smooth soft balls of wool... look suspiciously like cotton. I can surely pluck those things off and use them somehow.
+
+
+!1- Info -
+By striking upon the plants [$key_attack1], you can gather wool.
+//~fishing
+There are bubbles arising in the water! That can only mean that there are many fishes at this part of the shore. If I could manage to make a fishing rod somehow, I could certainly pull them out of the water without too much effort.
+
+!1- Info -
+Rising bubbles and circle-shapen waves at the surface are indicators for fishing areas.
+
+
+//~piratescript
+on:use {
+	fademusic 10000;
+	dialogue "start","maps\adventure\map02.s2s","piratedialogue";
+}
+//~piratewalkingscript
+on:use {
+	msg "Harrrrrrr!",3;
+	msg "Out of me way!",3;
+}
+//~piratedialogue
+page=start
+title=Pirate
+text=start
+Harr, harr! Whom have we got here?!
+Ye stinking landlubber should better leave thine dirty fingers away from the treasures of us seamen!
+Do thou not know how much work it is to steal all the plunder?
+text=end
+button=no,No, not really
+button=yes,Oh yes, of course!
+button=stranded,Well, I've stranded here...
+button=pirate,A pirate? Pirates do not exist anymore!
+button=bye,I'm shaking with fear. Bye!
+
+page=no
+title=Pirate
+text=start
+NO, of course ye do not! Arr! Ye art no pirate, after all... Although I must admit that ye stink like a real buccaneer! If ye fell in the seas they would surely spit ye back ashore because ye stink so much! Hohoho!
+But wherefore do ye do this? Why ye be diggin' out my treasure?
+text=end
+button=ignorant,I did not know it is yours!
+button=curios,I was just curious
+button=stranded,Well, I kind of stranded here...
+
+page=yes
+title=Pirate
+text=start
+Oh, alright. But that makes thine deed even worse! Arr!
+Why do ye just steal my treasury even though ye know for sure how mean that is?
+text=end
+button=ignorant,It's not like it's written on it that it's yours.
+button=curios,I wanted to know what's inside.
+
+page=pirate
+title=Pirate
+text=start
+Hohoho, what makes thee so sure?
+Thou do not even know when and where this game plays! Aye?
+And now that ye see a real pirate captain in front of ye, ye say that piracy would not exist anymore! That is truly foolish! Har Har Har!
+text=end
+button=pause,Well... so what?
+button=bye,This is getting too awkward for my taste!
+
+page=bye
+title=Pirate
+text=start
+Hoho!
+Aye, just flee!
+And keep thine clutches off me treasures!
+Har har har!
+text=end
+button=action:close,Yeah, sure. I'm off!
+
+page=ignorant
+title=Pirate
+text=start
+Harharharhar!
+Hohoho!
+Right, that was dumb!
+I indeed forgot to write my name on the chest! Unbelievable! Har har har!
+But now that ye mention it: I cannot write at all anyway! Hohoho!
+
+...
+
+And what do ye do here, apart from thievery?
+text=end
+button=stranded,I've stranded here.
+button=write,You cannot write?!
+button=bye,I'll better leave you alone now.
+
+page=curios
+title=Pirate
+text=start
+Watch out where ye poke thine nose in!
+A propos nose: Did ye notice how many extremities I miss? Hohoho!
+But no matter now! Har har!
+What art ye doing here?
+text=end
+button=stranded,I am shipwrecked.
+
+page=pause
+title=Pirate
+text=start
+Hoho, har... hohoho! Harhar!
+Arr, why... say it again: why are ye digging me plunder out?
+text=end
+button=ignorant,I did not know it is yours!
+button=curios,I was just curious
+button=stranded,Well, I kind of stranded here...
+button=bye,Harhar, hoho, bye to thee! Arrrrr!
+
+page=whynot
+title=Pirate
+text=start
+Ye shalt not do that because it is totally mean! So mean is it, I am close to shed tears.
+But it might also be just because I once again picked around in mine eye with the wrong hand!
+Har har har!
+text=end
+button=pause,I understand...
+
+page=write
+title=Pirate
+text=start
+Do not change the subject! Aye?
+Speak it out! What brings ye here?
+text=end
+button=stranded,I am shipwrecked!
+
+page=stranded
+title=Pirate
+text=start
+Stranded, huh? Arr, that's horrible!
+I actually am in quite a lack of transport, too, at the moment. All I have is me phantom boat. It lies on the beach down there. I have just come hither after all! Hoho!
+Unfortunately, it is invisible. That makes it hard to see. Not easy to get in without getting wet! Har har har!
+But let us get back to business: ye surely want to get away, don't ye? 
+I can offer thee a deal:
+Ye must know I have come hither to get a new parrot. My shoulder is looking a bit empty.
+The olde one is not among us anymore, ye know? He had a horrible accident.
+He fell down from my shoulder, and I did not take notice. My wooden leg finished him off. Right onto the skull. Didn't look nice, I tell ye! Har har har!
+Anyway, I would take thee with me if ye get me a parrot. Sounds great, doesn't it?
+text=end
+text=end
+button=deal,Hmm... okay! I'll do my best!
+button=nodeal,I'll think about it. Goodbye!
+
+page=deal
+title=Pirate
+text=start
+Wonderful! Hohoho!
+Those creatures fly around just around everywhere here. Ye should lurk until one of them lands, sneak nearer and catch it! Harhar!
+But remember: I need it alive. I already have got a dead one.
+text=end
+script=start
+addscript "unit",$pirate,"maps\adventure\map02.s2s","pirate_deal_script";
+def_override "unit",36,"maps\adventure\map02.s2s","parrotdef";
+$overrideparrot=1;
+script=end
+button=action:close,Let's see what I can do.
+
+page=nodeal
+title=Pirate
+text=start
+Alright... then think about it.
+But do not complain if I catch one on myself in the meantime and then just get off.
+Without saying fayre thee well! Har har har!
+So come back hither and talk to me once again if ye want to help me.
+Harrrr. See ye soon!
+text=end
+script=start
+addscript "unit",$pirate,"maps\adventure\map02.s2s","pirate_nodeal_script";
+script=end
+button=action:close,Bye.
+//~parrotdef
+on:use {
+	if (lives("self")==1){
+		if ($gotparrot==0){
+			$gotparrot++;
+			speech "positive";
+			msg "Got him!",4;
+			free "self";
+		}else{
+			msg "I've already got one, remember?",3;
+		}
+	}
+}
+on:catch {
+	if (lives("self")==1){
+		if ($gotparrot==0){
+			$gotparrot++;
+			speech "positive";
+			msg "Ich hab ihn!",4;
+			free "self";
+		}else{
+			msg "I've already got one, remember?",3;
+		}
+	}
+}
+//~pirate_deal_script
+on:use {
+	if ($gotparrot==1){
+		ai_stay $pirate,0;
+		freescript "info",33;
+		unitpath $pirate,33,32;
+		addscript "unit",$pirate,"maps\adventure\map02.s2s","piratewalkingscript";
+		addscript "info",32,"maps\adventure\map02.s2s","info32script";
+		dialogue "start","maps\adventure\map02.s2s","pirate_deal_success";
+	}else{
+		dialogue "start","maps\adventure\map02.s2s","pirate_deal_failure";
+	}
+}
+//~pirate_deal_failure
+page=start
+title=Catch the parrot
+text=start
+Harhar... how art things going?
+Oh, as I see ye still hast not succeeded yet, lad!
+Perhaps ye should make a device if ye cannot do it with thine bare hands: Take about 10 pieces o'thread and a branch. If ye combine them deftly, ye will get a nice net. If ye use that, ye can get the creature from a farer distance, aye?
+Have good sport!
+text=end
+button=action:close,Okay
+//~pirate_deal_success
+page=start
+title=Excellent!
+text=start
+Hoho! Hooray!
+Ye have it, ye have it! Good job, young swashbuckler! Hoho!
+And what a magnific specimen ye have cought! I am proud of thee.
+Of course thine success is all mine because only my instructions enabled thee to prevail. Actually, I should not help thee but even ask gold from thee! Harhar!
+But do not worry, I am a man of my word!
+There is time left for thee to fetch thine stuff. When ye art ready, just come down to the beach. I will wait beneath the phantom boat. Harharhar.
+text=end
+button=action:close,Okay
+//~pirate_nodeal_script
+on:use {
+	dialogue "start","maps\adventure\map02.s2s","pirate_nodeal_dialogue";
+}
+//~pirate_nodeal_dialogue
+page=start
+title=Deal?
+text=start
+So, what do ye say?
+Wilst ye catch the parrot for me? Hoho!
+I will take thee off this island then. Ye will never get such an offer again!
+Har har har!
+text=end
+button=yes,Okay.
+button=no,Nay. Let's dump that idea.
+
+page=yes
+title=Deal!
+text=start
+Excellent! Har har har!
+Then get startet! I will wait here.
+Good luck!
+Hohoho!
+text=end
+script=start
+addscript "unit",$pirate,"maps\adventure\map02.s2s","pirate_deal_script";
+def_override "unit",36,"maps\adventure\map02.s2s","parrotdef";
+$overrideparrot=1;
+script=end
+button=action:close,Okay.
+
+page=no
+title=No Deal!
+text=start
+Arrr...
+If ye want to get off here ye should really think about it once again.
+Me patience is limited, aye?
+Come again when ye have taken thine decision. But keep in mind that mine time is limited, too.
+Hohoho!
+text=end
+button=action:close,Well, let's see. Bye!
+//~info32script
+on:reach {
+	ai_stay $pirate,1;
+	addscript "unit",$pirate,"maps\adventure\map02.s2s","pirate_wait_script";	
+}
+//~pirate_wait_script
+on:use {
+	dialogue "start","maps\adventure\map02.s2s","pirate_leave";
+}
+//~pirate_leave
+page=start
+title=Departure
+text=start
+Hoho! There ye art!
+I have found the phantom boat and prepared everything for the voyage. I am ready to head for our destination. Arr!
+Just tell me when ye art ready!
+text=end
+button=go,Yessir! Let's go!
+button=no,I need some more time.
+
+page=no
+title=Departure
+text=start
+Aye, aye!
+I will wait here.
+But hurry up!
+text=end
+button=action:close,Okay
+
+page=go
+title=Departure?
+text=start
+Wait a minute! I'd almost have forgotten that! Harrr!
+It occurs to me that I have still some gold hidden on this island. 3 bags of it, spread over 3 different stashes.
+Dig 'em out, too, now that ye art on it anyway. 'twould be a great shame to leave 'em here!
+text=end
+button=where,Alright... but where are they?
+
+page=where
+title=Wo?
+text=start
+Ah, right...
+I'll better briskly mark it for you on this map.
+Hither we go. Harr! And now onwards!
+text=end
+button=okay,Okay
+script=start
+	$findgold=1;
+	showindicator 43;
+	showindicator 44;
+	showindicator 45;
+	if (playergotitem(73)<1){ find 73; }
+	if (playergotitem(84)<1){ find 84; }
+	addscript "unit",$pirate,"maps\adventure\map02.s2s","pirate_findgold_script";
+script=end
+
+page=okay
+script=start
+	diary "Pirate treasure","maps\adventure\map02.s2s","diary07";
+	closemenu;	
+script=end
+
+//~pirate_findgold_script
+on:use {
+	dialogue "start","maps\adventure\map02.s2s","pirate_findgold";
+}
+//~pirate_findgold
+page=start
+title=Gold
+script=start
+	if ((playergotitem(5)>2)or($gavepirategold==1)){
+		dialogue "success","maps\adventure\map02.s2s","pirate_findgold";
+	}else{
+		dialogue "failure","maps\adventure\map02.s2s","pirate_findgold";
+	}
+script=end
+
+page=success
+text=start
+Wonderful! Mine precious gold. Nyarharhar!
+I hope ye didst not have too much problems dealing with the terrible creepy curses that laid upon the stashes. I did not mention it because I was afraid ye might refuse to dig that stuff of mine out. Hohoho!
+But apparently, ye have survived! Harrr!
+We can leave now as far as mine preparation goes.
+text=end
+script=start
+	freestored "unit",1,5,3;
+	$gavepirategold=1;
+script=end
+button=go,Hm... yes... let's go!
+button=scs2,What kind of curse is a grapevine supposed to be?
+
+page=failure
+text=start
+Have ye got the gold?
+No ye have not!
+Do I want the gold?
+Yes I want!
+Wilst ye go get it?
+Yes ye wilst!
+How many bags were it, again?
+Three were they!
+What art ye to dig it out with?
+With a shovel ye shalt do so!
+
+GO! HARRR! No-good apprentice!
+Take a bloody look at the bleeding map and wrench the gold from the double-bleeding earth! Hell-kite! It cannot be that hard, after all!
+text=end
+button=action:close,Sure! Alright! Come down, old sailor.
+
+page=scs2
+text=start
+Well... wine makes one drunk! Huahaha! Harr harrrr!
+text=end
+button=go,I see... anyway: time to leave!
+button=scs3,But it didn't bear any grapes at all!
+
+page=scs3
+text=start
+What do ye demand? I'm merely a buccaneer. Witchcraft is none of my business! The grape of wine hast to be regarded as a symbol! Harr!
+text=end
+button=go,Okay, okay. Let's go aboard.
+button=scs4,And the turtle?
+
+page=scs4
+text=start
+What's wrong with the turtle?
+text=end
+button=scs5,Well, it burns and doesn't harm anybody!
+
+page=scs5
+text=start
+How dumb art you after all?
+Imagine the following scenario: A lion gets the scent of the gold and tries to dig it out. If there were not the burning turtle, the gold would be lost. But this way, the lion will drop the gold because he wants to devour the turtle instead. But since the creature is litten in flames, he will have his maw terribly burned trying.
+The result: The gold is safe. Thanks to the burning turtle!
+text=end
+button=go,Now I get it! Let's go.
+button=scs6,Okay, but the monkeys... Wow!
+
+page=scs6
+text=start
+Huh? Don't talk such a rubbish! Harrr!
+The claw monkey curse was a pure deed of desparation! There just wasn't anything senseful comin' to me mind anymore!
+text=end
+button=scs7,Okay...
+
+page=scs7
+text=start
+Yes, indeed! And we shalt leave now! I still have two ears remaining, which is quite a lot in comparison to the average stock of mine other extremities! And this shalt stay that way. So stop babblin' plunder before they fall off, wilst ye!
+text=end
+button=go,Alright, alright. Let's leave!
+
+page=go
+script=start
+	closemenu;
+	
+	seqstart;
+	setcam 0,36;
+	cammode 0,2;
+	movecam 0,25000,37;
+	seqfade 500,25000,0,0,0,1;
+	seqevent 25000,"nextmap",info,37;
+	music "music_fadeaway.mp3",1,3000;
+
+script=end

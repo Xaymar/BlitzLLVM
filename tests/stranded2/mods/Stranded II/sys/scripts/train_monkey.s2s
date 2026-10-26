@@ -1,0 +1,35 @@
+local $monkeyc;
+local $monkeyid;
+$monkeyc=0;
+loop ("units",19){
+	$monkeyid=loop_id();
+	if (gotstate("unit",$monkeyid,"tame")==1){
+		$monkeyc++;
+	}
+}
+if ($monkeyc==0){
+	closemenu;
+	speech "negative";
+	msg "You need a tamed monkey!",3;
+}else{
+	if (playergotitem(14)>=15){
+		loop ("units",19){
+			$monkeyid=loop_id();
+			if (gotstate("unit",$monkeyid,"tame")==1){
+				free "unit",loop_id();
+				create "unit",44;
+				freestored "unit",1,14,15;
+				msg "Transport monkey has been trained!",4;
+				speech "positive";
+				play "fx_spell.wav";
+				corona getx("unit",1),getz("unit",1),40,255,250,0;
+				closemenu;
+				exit;
+			}
+		}	
+	}else{
+		closemenu;
+		speech "negative";
+		msg "I don't have enough bananas!",3;		
+	}
+}

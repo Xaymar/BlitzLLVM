@@ -1,0 +1,137 @@
+#################
+##### Items #####
+#################
+#
+################# items_edible.inf
+#
+#9   Meat
+#10  Meat (fried)
+#11  small Meat
+#12  small Meat (fried)
+#14  Banana
+#16  Bloodleaf
+#17  Healherb
+#18  strong Healhearb
+#19  Goldherb
+#20  Bitterroot
+#27  Coconut
+#31  Fungus
+#32  big Fungus
+#33  brown Fungus
+#34  toxic Fungus
+#35  Dwarf Hat Fungus
+#36  Healthpotion
+#38  Water
+#39  Wine
+#42  Grain Pile 
+#43  Flour
+#44  Bread
+#45  Grapes
+#46  Berries
+#47  Juice
+#66  Cookie
+#67  Cacaofruit
+#68  Cacao
+#70  Coffee Fruits
+#82  Paste
+#83  Hempleaf
+#89  Fish
+#90  Fish (fried)
+#91  Joint
+#98  Insectparts
+#99  Slime
+#109 seaweed
+#112 Speedpotion
+#113 Immortalpotion
+#114 Airpotion
+#115 Cacao Paste
+#116 Plums
+#119 Worm
+#
+################# items_material.inf
+#
+#2   small Crystal
+#3   Crystal
+#4   Goldnugget
+#7   Trunk
+#8   Bamboo
+#15  Leaf
+#21  Pebbles
+#23  Stone
+#24  Branch
+#25  bendable Branch
+#26  Liana
+#48  Wool
+#49  Cord
+#57  Feather
+#85  Iron
+#86  Ironbar
+#96  Skin
+#107 Bark
+#
+################# items_stuff.inf
+#
+#1   Bag
+#5   Goldbag
+#13  Blueblossom
+#37  Poison
+#40  Message Bottle
+#41  Grain
+#69  Butterflies
+#71  Bone
+#72  Excrement
+#77  Volleyball
+#78  Wilson
+#94  Tooth
+#95  Claw
+#97  Tent
+#100 Explosive Bait
+#101 Remote Trigger
+#102 Shell
+#103 Seastar
+#106 Bottle
+#108 Pearl
+#117 Bandage
+#118 Medikit
+#
+################# items_tools.inf
+#
+#22  Firestone
+#30  Hammer
+#50  Fishing Rod
+#65  Watch
+#73  Map
+#84  Spade
+#87  Axe
+#88  Pickaxe
+#92  Key
+#93  Lockpick
+#104 Net
+#105 Scythe
+#111 Torch
+#
+################# items_weapons.inf
+#
+#28  Matchet
+#29  Bullet
+#51  Slingshot
+#52  Spear
+#53  Arrow
+#54  Wooden Arrow
+#55  Poison Arrow
+#56  Fire Arrow
+#58  Pistol
+#59  Bow
+#60  Longbow
+#61  Goldbow
+#62  Bolt
+#63  Ironbolt
+#64  Arbalest
+#74  Sword
+#75  Broadsword
+#76  Crystal Blade
+#79  Rocket
+#80  Toxic Rocket
+#81  Rocket Launcher
+#110 Shotgun
+#120 Clawspear

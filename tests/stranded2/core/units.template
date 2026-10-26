@@ -1,0 +1,16 @@
+### Player
+#ID 1 IS RESERVED FOR THE PLAYER UNIT!
+id=1
+name=Player
+model=gfx\model.b3d
+scale=3
+y=8
+colxr=8
+colyr=17
+speed=2.0
+eyes=16
+store=100
+health=100
+damage=3
+attackrange=70
+maxweight=25000

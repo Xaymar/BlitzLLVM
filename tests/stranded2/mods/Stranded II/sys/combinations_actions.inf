@@ -1,0 +1,112 @@
+### <make fire> (Bark + Branch)
+combi=start
+id=makefire
+req=107
+req=24
+gen=107
+gen=24
+genname=make fire
+script=start
+	$barkbranchfire=0;
+	event "barkbranchfire1","global";
+	process "making fire",4500,"barkbranchfire2";
+	play "barkbranchfire.wav";
+	skipevent;
+script=end
+combi=end
+
+### <splint> (Branch + Liana)
+combi=start
+id=splint
+req=24
+req=26
+gen=24
+gen=26
+genname=splint fracture
+script=start
+	if (gotstate("unit",1,7)==1){
+		freestate "unit",1,7;
+		play "collect.wav";
+		msg "Fracture splinted!",4;
+		speech "positive";
+		freestored "unit",1,24,1;
+		freestored "unit",1,26,1;
+	}else{
+		msg "You have no fractures",3;
+		speech "negative";
+	}
+	skipevent;
+script=end
+combi=end
+
+### <splint> (Ironbar + Liana)
+combi=start
+id=splint
+req=86
+req=26
+gen=86
+gen=26
+genname=splint fracture
+script=start
+	if (gotstate("unit",1,7)==1){
+		freestate "unit",1,7;
+		play "collect.wav";
+		msg "Fracture splinted!",4;
+		speech "positive";
+		freestored "unit",1,86,1;
+		freestored "unit",1,26,1;
+	}else{
+		msg "You have no fractures",3;
+		speech "negative";
+	}
+	skipevent;
+script=end
+combi=end
+
+### <bind> (Leaf + Liana)
+combi=start
+id=bind
+req=15
+req=26
+gen=15
+gen=26
+genname=bandage wound
+script=start
+	if (gotstate("unit",1,1)==1){
+		freestate "unit",1,1;
+		msg "Wound bandaged!",4;
+		play "collect.wav";
+		speech "positive";
+		freestored "unit",1,15,1;
+		freestored "unit",1,26,1;
+	}else{
+		msg "You have no open wounds",3;
+		speech "negative";
+	}
+	skipevent;
+script=end
+combi=end
+
+### <bind> (Skin + Liana)
+combi=start
+id=bind
+req=96
+req=26
+gen=96
+gen=26
+genname=bandage wound
+script=start
+	if (gotstate("unit",1,1)==1){
+		freestate "unit",1,1;
+		play "collect.wav";
+		msg "Wound bandaged!",4;
+		speech "positive";
+		freestored "unit",1,96,1;
+		freestored "unit",1,26,1;
+	}else{
+		msg "You have no open wounds",3;
+		speech "negative";
+	}
+	skipevent;
+script=end
+combi=end

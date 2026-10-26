@@ -1,0 +1,1 @@
+directory for 'menu.s2' (map for main menu background)

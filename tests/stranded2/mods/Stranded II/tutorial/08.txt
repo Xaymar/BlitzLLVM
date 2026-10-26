@@ -1,0 +1,15 @@
+There is a whole lot of tools lying around here. They can be made by combining raw materials.
+
+!4Using tools
+Many tools can either be used as a weapon or peacefully as a tool. If we have such a case, then this is how to handle the dual use:
+[$key_attack1] - strike
+[$key_attack2] - tool function
+
+!4The hammer
+This probably is the most important tool at all. By its tool function, you can set up building sites where there is free room, or work on the building sites consuming the required materials. Constructing buildings often unlocks new ones in the construction menu.
+
+!4The fishing rod
+It allows you to pull fishes out of the water. The more often you fish, the better your fishing skills will become. You can see the skills - if yet achieved - in the character menu. A click on a skill leads to additional information. When you fish, pay attention to fishing areas. You will see bubbles rising and waves spreading in circles where there is a big swarm of fishes.
+
+!4Other tools
+Apart from the fishring rod, there are many other tools. The axe, for example, makes very high damage on wood. The pickaxe, in return, can extract metals more easily from certain rocks. With the shovel, you can dig out things and the net serves as a device to catch insects. A torch lightens the environment at night and the scythe is useful for harvesting crop.

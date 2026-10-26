@@ -1,0 +1,46 @@
+on:start {
+	// ------------------------------------------------ Setup
+
+	// Start Diary
+	timer 0,1000,1,"stdiary";
+
+	// Look at Island
+	setrot "unit",1,"self",145,"self";
+
+	// Include Random Events
+	extendscript 0,0,"sys/scripts/random_events.s2s";
+
+
+	// ------------------------------------------------ Create a Random Char
+	$event=random(1,5);
+
+	// Chieftain
+	if ($event==1){
+		$id=randomcreate("unit",40,50,1000000);
+		addscript "unit",$id,"sys/scripts/random_charscripts.s2s","chieftain";
+	}
+
+	// Hempguy
+	if ($event==2){
+		$id=randomcreate("unit",38,50,1000000);
+		addscript "unit",$id,"sys/scripts/random_charscripts.s2s","hempguy";
+	}
+
+	// Native
+	if ($event==3){
+		$id=randomcreate("unit",34,50,1000000);
+		addscript "unit",$id,"sys/scripts/random_charscripts.s2s","native";
+	}
+
+	// Pirate
+	if ($event==4){
+		$id=randomcreate("unit",37,50,1000000);
+		addscript "unit",$id,"sys/scripts/random_charscripts.s2s","pirate";
+	}
+	
+	// Prof
+	if ($event==5){
+		$id=randomcreate("unit",41,50,1000000);
+		addscript "unit",$id,"sys/scripts/random_charscripts.s2s","prof";
+	}
+}

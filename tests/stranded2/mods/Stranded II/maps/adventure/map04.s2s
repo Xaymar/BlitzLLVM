@@ -1,0 +1,57 @@
+/*
+
+*/
+
+//~crystal
+on:load {
+	addstate "self","invulnerability";	
+}
+on:collect {
+	if (storage("unit",1)>=500){
+		speech "positive";
+		$c=count_stored("unit",1,3);
+		$c=$c+1;
+		text 0,"$c of 10 crystalls found",1;
+		if ($c==1){
+			diary "The first crystal","maps\adventure\map04.s2s","diary03";
+		}
+		if ($c>=10){
+			diary "Got everything!","maps\adventure\map04.s2s","diary04";
+		}
+		freevar $c;
+	}
+}
+on:drop {
+	skipevent;
+	speech "negative";
+	msg "I still need that one!",3;
+}
+
+
+//~diary01
+I am feeling dizzy. A flash of light, and suddenly I am standing a different place. But it is unknown to me as well. I want to go home!
+//~sign
+To Jack Limpeye:
+
+If you read this (and in case you have finally learned how to read), prepare to die soon. Except if you are here by ship - then you should bugger off as quickly as possible.
+But if you have teleported yourself here, you can entirely forget it. You cannot get away. The 10 crystals that are required to teleport oneself away again are spread all over the island, and I can tell you for sure that they are well-guarded!
+So you are trapped here.
+I had to leave the island for a magical conference, but as soon as I return, I will change you into a slimy snail, you stinking little thief!
+
+I nevertheless wish you an agreeable stay on MY island.
+Enjoy it as long as you can!
+//~diary02
+I have read a sign with a message that appears to be adressed to the pirate.
+The chap who lives here surely is no friend. Apart from that, I have read something about 10 crystals. It seems like I need them to get off.
+
+
+!3- Warning -
+This island is teeming with raptors guarding the crystals. They are faster than a man, and with their sharp fangs and claws they can kill you within a few seconds! You are only safe if you flee into the water or climb somewhere where they cannot follow you.
+//~diary03
+I have found one of the crystals. Luckily they shine brightly. This should make it much easier to find the other nine ones in this darkness.
+//~diary04
+I have finally found all ten crytals, but what is to do now?
+
+
+!4- Hint -
+Consider how you have come to this island!

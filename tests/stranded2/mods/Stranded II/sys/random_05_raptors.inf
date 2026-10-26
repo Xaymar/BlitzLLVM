@@ -1,0 +1,179 @@
+################### Random Profile: Raptors
+
+id=5
+name=Raptor Hunter
+
+
+################### Scripts
+
+script=start
+	on:preload {
+		// Set Startpoint in Sea
+		$size=mapsize();
+		$size=$size/3;
+		$id=create("info",1,$size,$size);
+		setpos "info",$id,"self",2,"self";
+	}
+	
+	on:load {
+		def_extend "unit",2,"sys/scripts/random_05_raptors.s2s";
+		music "music_tension.mp3";
+	}
+
+	on:start {
+		// Look at Island
+		setrot "unit",1,0,145,0;
+
+		// Diary
+		add "This island has a serious problem with raptors!";
+		add "";
+		add "!1 - Your Mission - ";
+		add "Kill all raptors!";
+		add "";
+		add "!1 - Remark -";
+		add "You have a shotgun and enough ammunition.";
+		add "Furthermore you have an first-aid kit in case you suffer from fractures or bleedings.";
+		add "";
+		add "!4Good speed!";
+		diary "Hunt the raptors!";
+		
+		// Equip
+		$id=create("item",110);
+		store $id,"unit",1;
+		$id=create("item",29);	
+		setamount $id,300;
+		store $id,"unit",1;
+		player_weapon 110;
+		player_ammo 29;
+		$id=create("item",118);
+		store $id,"unit",1;
+		
+	}
+
+
+	on:checkwin {
+		$raptors=count("unit",2);
+		if ($raptors==0){
+			speech "positive",0,1;
+			msgwin "You won!",4;
+			quit;
+		}
+	}
+script=end
+
+
+################### Objects
+
+### Palms
+range=15,255
+ratio=40
+objects=1
+ratio=30
+objects=2,3,4
+ratio=10
+objects=5,7
+ratio=5
+objects=6,213
+ratio=2
+objects=8,9
+
+### Trees
+range=50,270
+ratio=10
+objects=10,12,13,14,16
+ratio=7
+objects=15
+ratio=2
+objects=11,17
+
+### Bushes
+range=30,240
+ratio=30
+objects=33
+range=50,250
+ratio=10
+objects=31,32,33,36,37,38,185
+ratio=3
+objects=34,39,40,41,42
+ratio=2
+objects=35,42,45,46,47
+range=-10,10
+ratio=5
+objects=43
+range=-500,-50
+ratio=5
+objects=48
+
+### Stones
+range=-5,500
+ratio=20
+objects=63
+ratio=15
+objects=65
+ratio=5
+objects=64,67,68,69
+ratio=2
+objects=70,73,74,75
+ratio=1
+objects=71,72
+ratio=15
+objects=60,61,62
+ratio=7
+objects=66
+
+### Flowers
+range=60,200
+ratio=20
+objects=100,101,102,103,105,106,107,108,109
+
+### Stuff
+range=50,100
+ratio=5
+objects=120,121,130,131,134,135
+
+
+################### Units
+
+### Land
+range=50,200
+ratio=40
+units=2
+range=-10,40
+ratio=10
+units=3,10
+range=10,200
+ratio=12
+units=6,7,16,17,18,20,26
+ratio=3
+range=50,150
+units=19
+ratio=1
+units=15
+
+### Sky
+range=-100000,100000
+ratio=10
+units=25
+ratio=3
+units=36
+
+### Sea
+range=-100000,-70
+ratio=13
+units=4,11,12
+ratio=1
+units=13,5
+
+################### Items
+
+### Stuff
+range=60,200
+ratio=5
+items=7,15,21,22,23,24,25,26
+ratio=3
+items=31,32,33,16,17,19,20
+ratio=1
+items=34,35,18
+range=0,30
+items=102,103
+

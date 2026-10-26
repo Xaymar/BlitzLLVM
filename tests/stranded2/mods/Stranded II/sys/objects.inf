@@ -1,0 +1,180 @@
+###################
+##### Objects #####
+###################
+#
+################# objects_palms.inf
+#
+#1   Palm
+#2   Palm
+#3   Palm
+#4   Palm
+#7   Huge Palm
+#8   Banana Palm
+#9   Coconut Palm
+#213 Liana Palm
+#
+################# objects_trees.inf
+#
+#10 Tree
+#11 Tree
+#12 Tree
+#13 Tree
+#14 Tree
+#15 Tree
+#16 Tree
+#17 Liana Tree
+#18 Cacaotree
+#19 Coffeetree
+#20 Fir
+#21 Fir
+#195 Plumtree
+#
+################# objects_bushes.inf
+#
+#30  Bush
+#31  Bush
+#32  Bush
+#33  Bush
+#34  Bush
+#35  Blue Blossom Bush
+#36  Bush
+#37  Bush
+#38  Bush
+#39  Bush
+#40  Bush
+#41  Bush
+#42  Bush
+#43  Reed
+#44  Grapevine
+#45  Bush
+#46  Berry Bush
+#47  Cotton Plant
+#48  Seaweed
+#185 Bush
+#186 Bang Fungus
+#
+################# objects_gras.inf
+#
+#50 Gras
+#51 Gras
+#52 Gras
+#53 Meadow
+#
+################# objects_stone.inf
+#
+#60 Stone
+#61 Stone
+#62 Stone
+#63 Rock
+#64 Rock
+#65 Rock
+#66 Stone
+#67 Rock
+#68 Rock
+#69 Rock
+#70 Metal Rock
+#71 Gold Rock
+#72 Crystal Rock
+#
+################# objects_flowers.inf
+#
+#100 Flowers
+#101 Flowers
+#102 Flowers
+#103 Flowers
+#104 Flowers
+#105 Flowers
+#106 Flowers
+#107 Flowers
+#108 Flowers
+#109 Flowers
+#110 Poison Flower
+#
+################# objects_stuff.inf
+#
+#120 Bamboo
+#121 Grain
+#122 Marble Cylinder
+#123 Marble Pillar
+#124 Marble Plates
+#125 Marble Floor
+#130 Roots
+#131 Roots
+#132 Stump
+#133 Stump
+#134 Hemp
+#135 long Stump
+#136 Crate
+#137 Barrel
+#138 Wreck
+#140 Ruin
+#141 Ruin
+#142 Ruin
+#143 Ruin
+#144 Ruin
+#145 Ruin
+#146 Ruin
+#147 Ruin
+#148 Cave
+#196 Raptornest
+#197 Kiwinest
+#198 Parrotnest
+#199 Lionstone
+#202 Moss
+#204 Birdnest
+#210 Coral
+#221 Aerie
+#
+################# objects_buildings.inf
+#
+#150 Building Site
+#160 Bamboo Hut
+#161 Bamboo Hut
+#162 Bamboo Hut
+#163 Fence
+#164 Fence
+#165 Shelter
+#166 Torch
+#167 Torch
+#168 Boardwall
+#169 Boardwall Part
+#170 Boards
+#171 Campfire
+#172 Campfire (fenced)
+#173 Sign
+#174 Guidepost
+#175 Guidepost
+#178 Jetty
+#179 Jetty
+#180 Jetty
+#181 Storage
+#182 big fence
+#183 metal fence
+#184 Tent
+#187 Waterpipe empty
+#188 Waterpipe full
+#189 Well
+#190 Treehouse
+#191 Bownet
+#192 Target
+#193 Bambootower
+#194 House
+#200 Stance
+#201 Kiwibreeding
+#203 Covering
+#205 Trap
+#206 Hut
+#207 Herbal-garden
+#208 Broken Well
+#209 Broken Bownet
+#211 Table
+#212 Desk
+#214 Big Storage
+#215 Butterfly Garden
+#216 Hammock
+#217 Monkey School
+#218 Palisade
+#219 Gate
+#220 Woodstorage
+#222 Stonestorage
+#223 Defense Tower

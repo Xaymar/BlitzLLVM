@@ -1,0 +1,45 @@
+######################################################### Gras
+
+### Gras
+id=50
+name=Grass
+group=grass
+icon=gfx\gras01.bmp
+model=gfx\gras01.b3d
+alpha=0.4
+fx=16
+col=0
+health=5
+
+### Gras
+id=51
+name=Grass
+group=grass
+icon=gfx\gras02.bmp
+model=gfx\gras02.b3d
+alpha=0.4
+fx=16
+col=0
+health=5
+
+### Gras
+id=52
+name=Grass
+group=grass
+icon=gfx\gras02.bmp
+model=gfx\gras03.b3d
+alpha=0.4
+fx=16
+col=0
+health=5
+
+### Meadow
+id=53
+name=Meadow
+group=grass
+icon=gfx\meadow01.bmp
+model=gfx\meadow01.b3d
+alpha=0.4
+fx=16
+col=0
+health=30

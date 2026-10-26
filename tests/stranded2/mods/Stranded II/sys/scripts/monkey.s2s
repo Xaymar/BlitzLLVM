@@ -1,0 +1,43 @@
+//~start
+Uhh uh ahh ah ahh!
+Ahh ah... Uhh uh uh .. aahhh aahh uh!
+Ugh! Ahh ahh!
+Ahh ugh ahh ahh, uhh uh?
+
+Hmmm...
+Lucky thing I speak monkey tongue!
+The monkey greets me and asks what he can do for me.
+
+//~alreadygotjob
+Ahhh ahhh ah!
+Ugh ah!
+Ugh ah!
+Uh uh uh uh!
+
+The monkey already has a job. I must wait for him to finish it before I can give him new orders!
+
+//~order_water
+setlocal $menuclass,$menuid,"order",1;
+play "monkey_idle1.wav";
+closemenu;
+
+//~order_branch
+setlocal $menuclass,$menuid,"order",2;
+play "monkey_idle1.wav";
+closemenu;
+
+//~order_leaf
+setlocal $menuclass,$menuid,"order",3;
+play "monkey_idle1.wav";
+closemenu;
+
+//~order_stone
+setlocal $menuclass,$menuid,"order",4;
+play "monkey_idle1.wav";
+closemenu;
+
+//~order_food
+setlocal $menuclass,$menuid,"order",5;
+play "monkey_idle1.wav";
+closemenu;
+

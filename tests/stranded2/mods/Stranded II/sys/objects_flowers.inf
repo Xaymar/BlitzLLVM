@@ -1,0 +1,148 @@
+######################################################### Flowers
+
+### Flowers
+id=100
+name=Flowers
+group=flower
+icon=gfx\flowers01.bmp
+model=gfx\flowers01.b3d
+fx=16
+scale=0.5
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=101
+name=Flowers
+group=flower
+icon=gfx\flowers02.bmp
+model=gfx\flowers02.b3d
+fx=16
+scale=0.5
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=102
+name=Flowers
+group=flower
+icon=gfx\flowers03.bmp
+model=gfx\flowers03.b3d
+fx=16
+scale=0.5
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=103
+name=Flowers
+group=flower
+icon=gfx\flowers04.bmp
+model=gfx\flowers04.b3d
+fx=16
+scale=0.5
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=104
+name=Flowers
+group=flower
+icon=gfx\flowers05.bmp
+model=gfx\flowers05.b3d
+fx=16
+scale=0.5
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=105
+name=Flowers
+group=flower
+icon=gfx\flowers06.bmp
+model=gfx\flowers06.b3d
+fx=16
+scale=0.35
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=106
+name=Flowers
+group=flower
+icon=gfx\flowers07.bmp
+model=gfx\flowers07.b3d
+fx=16
+scale=0.35
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=107
+name=Flowers
+group=flower
+icon=gfx\flowers08.bmp
+model=gfx\flowers08.b3d
+fx=16
+scale=0.35
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=108
+name=Flowers
+group=flower
+icon=gfx\flowers09.bmp
+model=gfx\flowers09.b3d
+fx=16
+scale=0.35
+col=0
+health=5
+autofade=200
+
+### Flowers
+id=109
+name=Flowers
+group=flower
+icon=gfx\flowers10.bmp
+model=gfx\flowers10.b3d
+fx=16
+scale=0.35
+col=0
+health=5
+autofade=200
+
+### Poison Flower
+id=110
+name=Poison Flower
+group=flower
+icon=gfx\poisonflower.bmp
+model=gfx\poisonflower.b3d
+fx=16
+scale=1.1
+health=70
+state=0,5,0
+col=2
+mat=leaf
+behaviour=closetrigger
+script=start
+	on:start {
+		addstate "self","intoxication";
+		statevalue "self","intoxication",0;
+	}
+	on:create {
+		addstate "self","intoxication";
+		statevalue "self","intoxication",0;
+	}
+	on:trigger {
+		damage "unit",1,7;
+	}
+script=end
