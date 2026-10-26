@@ -128,6 +128,9 @@ namespace bb::scene {
 		if (e->anim) {
 			destroy_animation(e->anim);
 		}
+		if (e->md2) {
+			destroy_md2(e->md2);
+		}
 		if (e->terrain) {
 			free(e->terrain->heights);
 			delete e->terrain;
@@ -190,6 +193,7 @@ namespace bb::scene {
 		copy.parent = parent;
 		copy.name   = nullptr;
 		copy.anim   = nullptr;
+		copy.md2    = nullptr;
 		if (copy_was.size == 1) {
 			copy.hidden = false; // The copy of a hidden model, which is how programs keep their templates, can be seen.
 		}
@@ -205,8 +209,9 @@ namespace bb::scene {
 		*to = copy;
 		for (uint32_t i = 0; i < from->surfaces.size; i++) {
 			surface* original = from->surfaces[i];
-			if (original->skin) {
-				// The vertices of a skinned mesh follow the bones of this copy, so they can not be shared.
+			if (original->skin || from->md2) {
+				// The vertices of a skinned mesh follow the bones of this copy, and those of an .md2 model its frames, so
+				// they can not be shared.
 				surface* own = create_surface(handle);
 				own->vertices.reserve(original->vertices.size);
 				memcpy(own->vertices.data, original->vertices.data, original->vertices.size * sizeof(vertex3d));
@@ -216,7 +221,7 @@ namespace bb::scene {
 				own->indices.size = original->indices.size;
 				own->painted = original->painted;
 				own->paint   = original->paint;
-				own->skin    = clone_skin(*original->skin);
+				own->skin    = original->skin ? clone_skin(*original->skin) : nullptr;
 			} else {
 				original->refs++; // Shares the geometry.
 				to->surfaces.push(original);
@@ -235,6 +240,9 @@ namespace bb::scene {
 		}
 		if (from->anim) {
 			to->anim = clone_animation(*from->anim, copy_was, copy_now);
+		}
+		if (from->md2) {
+			to->md2 = clone_md2(*from->md2);
 		}
 		return handle;
 	}

@@ -51,6 +51,7 @@ namespace bb {
 
 	struct animation;
 	struct skin_data;
+	struct md2_state;
 
 	struct vertex3d {
 		float   x, y, z;
@@ -146,6 +147,7 @@ namespace bb {
 		buffer<surface*> surfaces;
 		terrain_data*    terrain = nullptr;
 		animation*       anim    = nullptr; // Of the top of an animated model, see animation.cpp
+		md2_state*       md2     = nullptr; // Of a model from an .md2 file, see md2.cpp
 
 		// Camera
 		float cam_near = 1, cam_far = 1000, cam_zoom = 1;
@@ -187,6 +189,10 @@ namespace bb {
 	void      recalculate_normals(surface* s);
 	void      euler_from_matrix(const float* m, float* euler);
 	void      destroy_animation(animation* a);
+	void      destroy_md2(md2_state* s);
+	md2_state* clone_md2(md2_state const& s);
+	/** Moves the animation of an .md2 model on by some frames. */
+	void      md2_animate(int handle, float elapsed);
 	void      destroy_skin(skin_data* s);
 	skin_data* clone_skin(skin_data const& s);
 	// A copy of the animation for a copy of the model: pairs of what an entity was and is now.

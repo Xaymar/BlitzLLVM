@@ -40,7 +40,7 @@ addvertex	blitz3d	done	%AddVertex%surface#x#y#z#u=0#v=0#w=1
 aligntovector	blitz3d	done	AlignToVector%entity#vector_x#vector_y#vector_z%axis#rate=1
 ambientlight	blitz3d	done	AmbientLight#red#green#blue
 animate	blitz3d	done	Animate%entity%mode=1#speed=1%sequence=0#transition=0
-animatemd2	blitz3d	pending	AnimateMD2%md2%mode=1#speed=1%first_frame=0%last_frame=9999#transition=0
+animatemd2	blitz3d	done	AnimateMD2%md2%mode=1#speed=1%first_frame=0%last_frame=9999#transition=0
 animating	blitz3d	done	%Animating%entity
 animlength	blitz3d	done	%AnimLength%entity
 animseq	blitz3d	done	%AnimSeq%entity
@@ -166,14 +166,14 @@ loadanimtexture	blitz3d	done	%LoadAnimTexture$file%flags%width%height%first%coun
 loadbrush	blitz3d	done	%LoadBrush$file%texture_flags=1#u_scale=1#v_scale=1
 loadbsp	blitz3d	pending	%LoadBSP$file#gamma_adj=0%parent=0
 loadermatrix	blitz3d	pending	LoaderMatrix$file_ext#xx#xy#xz#yx#yy#yz#zx#zy#zz
-loadmd2	blitz3d	pending	%LoadMD2$file%parent=0
+loadmd2	blitz3d	done	%LoadMD2$file%parent=0
 loadmesh	blitz3d	done	%LoadMesh$file%parent=0
 loadsprite	blitz3d	done	%LoadSprite$file%texture_flags=1%parent=0
 loadterrain	blitz3d	done	%LoadTerrain$heightmap_file%parent=0
 loadtexture	blitz3d	done	%LoadTexture$file%flags=1
-md2animating	blitz3d	pending	%MD2Animating%md2
-md2animlength	blitz3d	pending	%MD2AnimLength%md2
-md2animtime	blitz3d	pending	#MD2AnimTime%md2
+md2animating	blitz3d	done	%MD2Animating%md2
+md2animlength	blitz3d	done	%MD2AnimLength%md2
+md2animtime	blitz3d	done	#MD2AnimTime%md2
 meshcullbox	blitz3d	done	MeshCullBox%mesh#x#y#z#width#height#depth
 meshdepth	blitz3d	done	#MeshDepth%mesh
 meshesintersect	blitz3d	done	%MeshesIntersect%mesh_a%mesh_b

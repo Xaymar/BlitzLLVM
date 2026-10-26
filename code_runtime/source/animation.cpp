@@ -1120,6 +1120,14 @@ void bb_animation_update(float world_speed)
 		}
 		apply_pose(a, a.time);
 	}
+
+	// Models from .md2 files are moved on in the same time.
+	for (int handle = 1; handle <= entity_count(); handle++) {
+		entity* e = get_entity(handle);
+		if (e && e->md2) {
+			md2_animate(handle, world_speed * float(dt) * 60.0f);
+		}
+	}
 }
 
 int32_t bb_load_anim_mesh(const char* file, int32_t parent)
