@@ -8,6 +8,9 @@
 Every picture is 8 by 4 pixels, red on the left half and blue on the right half. The ones with an alpha channel are opaque on the
 left and fully see-through on the right. The compressed ones are written by hand, as each half is one block of a single color.
 
+The pictures with mip maps in their name have a stored chain, where each level is one color: red, green, blue, yellow and
+white from the biggest to the smallest, so a test can see which level was sampled.
+
 Usage: generate_dds_fixtures.py <output folder>
 """
 import struct
@@ -17,11 +20,12 @@ from pathlib import Path
 WIDTH, HEIGHT = 8, 4
 
 
-def header(fourcc=b"", flags=0x4, bits=0, masks=(0, 0, 0, 0), dxgi=0):
+def header(fourcc=b"", flags=0x4, bits=0, masks=(0, 0, 0, 0), dxgi=0, width=WIDTH, height=HEIGHT, mips=1):
+    # With more than one mip level the header says so in its flags and caps.
     out = struct.pack(
         "<4s7I44sII4sI4I5I",
-        b"DDS ", 124, 0x1007, HEIGHT, WIDTH, 0, 0, 1, b"",
-        32, flags, fourcc, bits, *masks, 0x1000, 0, 0, 0, 0,
+        b"DDS ", 124, 0x1007 | (0x20000 if mips > 1 else 0), height, width, 0, 0, mips, b"",
+        32, flags, fourcc, bits, *masks, 0x1000 | (0x400008 if mips > 1 else 0), 0, 0, 0, 0,
     )
     if dxgi:
         out += struct.pack("<5I", dxgi, 3, 0, 1, 0)
@@ -77,6 +81,19 @@ def main():
         "bc4.dds": header(b"ATI1") + bc4(255) + bc4(0),
         "bc7.dds": header(b"DX10", dxgi=98) + bc7_solid(255, 0, 0, 255) + bc7_solid(0, 0, 255, 0),
     }
+    # Chains of mip levels, down to 1 by 1. The levels that are smaller than a block still take a whole block.
+    def chain(width, height):
+        colors = [rgb565(255, 0, 0), rgb565(0, 255, 0), rgb565(0, 0, 255), rgb565(255, 255, 0), rgb565(255, 255, 255)]
+        levels = max(width, height).bit_length()
+        data = b""
+        for level in range(levels):
+            w, h = max(width >> level, 1), max(height >> level, 1)
+            data += bc1(colors[level]) * (((w + 3) // 4) * ((h + 3) // 4))
+        return header(b"DXT1", width=width, height=height, mips=levels) + data
+
+    files["dxt1_mips.dds"] = chain(16, 16)
+    files["dxt1_wide_mips.dds"] = chain(16, 4)
+
     # Uncompressed pictures, as BGRA with an alpha channel, as 24 bit RGB without, and as 5 6 5 bits.
     rows = [(255, 0, 0, 255)] * 4 + [(0, 0, 255, 0)] * 4
     files["bgra.dds"] = header(flags=0x41, bits=32, masks=(0xFF0000, 0xFF00, 0xFF, 0xFF000000)) + b"".join(

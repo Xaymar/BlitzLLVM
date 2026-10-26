@@ -21,7 +21,7 @@ The flags are added together, so `1 + 2` is a color texture that also has an alp
 | 1 | Color, the default. |
 | 2 | Alpha. Dark texels are see-through, bright texels are solid. |
 | 4 | Masked. Texels that are exactly black are not drawn. |
-| 8 | Mipmapped. Distant surfaces use smaller, blurrier copies. |
+| 8 | Mipmapped. Distant surfaces use smaller, blurrier copies, which are made again from the picture after you draw on the texture. |
 | 16 | Clamp U. Coordinates outside 0 to 1 repeat the edge texel instead of tiling. |
 | 32 | Clamp V. The same for the vertical direction. |
 | 64 | Spherical environment map. |
@@ -77,7 +77,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* Only flags 2, 4, 16, 32 and 65536 change how the texture looks. Mipmapping (8), environment maps (64 and 128), video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering and no mipmaps.
+* Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks. Environment maps (64 and 128), video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering. Without flag 8 it has no mip maps.
 * The alpha (2) flag is only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, also where you drew black, unless it is masked (4): the masked flag does cut out black there.
 
 ## Related commands

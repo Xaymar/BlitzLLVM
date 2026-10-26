@@ -59,6 +59,7 @@ namespace bb::gfx {
 	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba)
 	{
 		image_generation++;
+		img.mips_stale = img.mips > 1;
 		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
 		VkBuffer       staging;
 		VkDeviceMemory staging_memory;
@@ -123,7 +124,7 @@ namespace bb::gfx {
 		}
 		if (active()) {
 			if (compressed) {
-				upload_compressed(entry.image, entry.set, *compressed, g.sampler, false);
+				upload_compressed(entry.image, entry.set, *compressed, g.sampler, false, false);
 			} else {
 				upload_texture(entry.image, entry.set, uint32_t(sheet_w), uint32_t(sheet_h), pixels, g.sampler);
 			}
