@@ -83,11 +83,15 @@ namespace {
 	}
 
 	// An axis from -1 to 1. The order is the one DirectInput has: X, Y, Z, two sliders, then the rotations.
+	// Like in the original, an axis the joystick doesn't have is read as if it was all the way down: -1.
 	float axis(int32_t port, int index)
 	{
 		joystick* j = port_of(port);
-		if (!j || (index >= SDL_GetNumJoystickAxes(j->handle))) {
+		if (!j) {
 			return 0;
+		}
+		if (index >= SDL_GetNumJoystickAxes(j->handle)) {
+			return -1;
 		}
 		float value = SDL_GetJoystickAxis(j->handle, index) / 32767.0f;
 		return value < -1.0f ? -1.0f : value;

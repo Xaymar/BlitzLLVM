@@ -281,10 +281,10 @@ namespace bb::gfx {
 
 		// Input
 		bool    keys[256]   = {};
-		bool    key_hits[256] = {};
+		int     key_hits[256] = {}; // How often a key went down since KeyHit asked.
 		int     mouse_x = 0, mouse_y = 0;
 		bool    mouse[4]      = {};
-		bool    mouse_hits[4] = {};
+		int     mouse_hits[4] = {}; // The same for the mouse buttons.
 		int     last_char     = 0;
 		int     key_queue[64] = {}; // Characters that were typed, for GetKey and WaitKey.
 		int     key_head = 0, key_tail = 0;
