@@ -104,6 +104,7 @@ jobs:
           find dist -type f -exec ls -l {} + | sort -k5 -n -r
           # Zipped here, so the artifact is the .zip file itself and its name carries the extension.
           (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
+          cmake -E tar tf "${ARTIFACT}.zip" | .github/scripts/check-licenses.sh "${ARTIFACT}.zip"
       - uses: actions/upload-artifact@v7
         with:
           path: ${{ env.ARTIFACT }}.zip
@@ -129,6 +130,10 @@ jobs:
           rm -rf packages/_CPack_Packages
           mv packages/*.deb "packages/${ARTIFACT}.deb"
           mv packages/*.rpm "packages/${ARTIFACT}.rpm"
+          # Every package has to list the licenses
+          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb"
+          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm"
+          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst"
           ls -l packages
       - name: Build packages (macOS)
         if: runner.os == 'macOS'
@@ -137,6 +142,7 @@ jobs:
           (cd build && cpack -G productbuild -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
           rm -rf packages/_CPack_Packages
           mv packages/*.pkg "packages/${ARTIFACT}.pkg"
+          pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg"
           ls -l packages
       # Every package is uploaded on its own with 'archive: false', so it is a separate entry that is not zipped. The artifact is
       # named after the file.

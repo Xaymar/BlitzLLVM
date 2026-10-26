@@ -94,6 +94,7 @@ jobs:
         run: |
           cmake --install build --config Release --prefix dist
           cp LICENSE.adoc README.adoc dist/
+          (cd dist && find . -type f) | .github/scripts/check-licenses.sh "$ARTIFACT"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT }}
@@ -119,6 +120,10 @@ jobs:
           rm -rf packages/_CPack_Packages
           mv packages/*.deb "packages/${ARTIFACT}.deb"
           mv packages/*.rpm "packages/${ARTIFACT}.rpm"
+          # Every package has to list the licenses
+          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb"
+          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm"
+          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst"
           ls -l packages
       - name: Build packages (macOS)
         if: runner.os == 'macOS'
@@ -127,6 +132,7 @@ jobs:
           (cd build && cpack -G productbuild -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
           rm -rf packages/_CPack_Packages
           mv packages/*.pkg "packages/${ARTIFACT}.pkg"
+          pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg"
           ls -l packages
       - uses: actions/upload-artifact@v4
         if: runner.os != 'Windows'
