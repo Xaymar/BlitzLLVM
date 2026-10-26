@@ -141,7 +141,7 @@ Every command from A to Z. See [[Home]] to browse by dialect and category.
 | [CountSurfaces](Blitz3D-Surfaces#countsurfaces) | Blitz3D | Surfaces |
 | [CountTreeViewNodes](BlitzPlus-Tree-Views#counttreeviewnodes) | BlitzPlus | Tree Views |
 | [CountTriangles](Blitz3D-Surfaces#counttriangles) | Blitz3D | Surfaces |
-| [CountVertices](Blitz3D-Entities#countvertices) | Blitz3D | Entities |
+| [CountVertices](Blitz3D-Surfaces#countvertices) | Blitz3D | Surfaces |
 | [CreateBank](BlitzBasic-Banks#createbank) | BlitzBasic | Banks |
 | [CreateBrush](Blitz3D-Brushes#createbrush) | Blitz3D | Brushes |
 | [CreateButton](BlitzPlus-Gadgets#createbutton) | BlitzPlus | Gadgets |
