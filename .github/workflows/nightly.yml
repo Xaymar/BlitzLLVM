@@ -17,10 +17,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Determine the version
         id: version
-        # Computed once from the commit date (see cmake/version.cmake), and handed to every build, so all artifacts of a
+        # Computed once from the commit date (see cmake/project_version.cmake), and handed to every build, so all artifacts of a
         # run carry the same version.
         run: |
-          VERSION="$(cmake -P cmake/version.cmake)"
+          git submodule update --init --depth 1 cmake/version
+          VERSION="$(cmake -P cmake/project_version.cmake)"
           echo "Version: $VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -40,6 +41,8 @@ jobs:
       ARTIFACT: blitzllvm-${{ needs.version.outputs.version }}-${{ matrix.name }}
     steps:
       - uses: actions/checkout@v4
+      - name: Check out cmake-version
+        run: git submodule update --init --depth 1 cmake/version
       - uses: jwlawson/actions-setup-cmake@v2
         with:
           cmake-version: latest

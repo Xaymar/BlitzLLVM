@@ -14,3 +14,7 @@
 	path = extra/blitzplus_msvc2017
 	url = https://github.com/blitz-research/blitzplus_msvc2017.git
 	shallow = true
+[submodule "cmake/version"]
+	path = cmake/version
+	url = https://github.com/Xaymar/cmake-version.git
+	shallow = true

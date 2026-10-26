@@ -18,15 +18,27 @@
 # component must fit into 16 bits (Windows VERSIONINFO), and a day has 86400 seconds, which does not fit.
 #
 # Order of precedence:
-# 1. The BlitzLLVM_VERSION cache variable, for out-of-repository builds and CI (format: A.B.C.D).
+# 1. The BlitzLLVM_VERSION cache variable, for out-of-repository builds and CI (format: A.B[.C[.D]]).
 # 2. The first line of version.ignore in the source root.
 # 3. The date of the last commit, or the current time if the tree has uncommitted changes.
 # 4. The current time.
 #
-# Usable as a script too: 'cmake -P cmake/version.cmake' prints the version to stdout.
+# Parsing is done by cmake-version (https://github.com/Xaymar/cmake-version), checked out as a submodule in cmake/version.
+#
+# Usable as a script too: 'cmake -P cmake/project_version.cmake' prints the version to stdout.
 ################################################################################
 
+# Script mode starts without any policies set, which cmake-version needs.
+if(CMAKE_SCRIPT_MODE_FILE STREQUAL CMAKE_CURRENT_LIST_FILE)
+	cmake_minimum_required(VERSION 3.20)
+endif()
+
 set(_BLITZLLVM_VERSION_ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
+
+if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/version/version.cmake")
+	message(FATAL_ERROR "cmake-version is missing, run 'git submodule update --init cmake/version'.")
+endif()
+include("${CMAKE_CURRENT_LIST_DIR}/version/version.cmake")
 
 # Get the UTC date of the last commit as "Y;M;D;h;m;s", or FALSE if git or the repository is unavailable.
 function(blitzllvm_git_date RESULT)
@@ -96,14 +108,16 @@ function(blitzllvm_timestamp_version RESULT TIMESTAMP)
 endfunction()
 
 # Allow developers to manually override the version for out-of-repository builds.
-set(BlitzLLVM_VERSION "" CACHE STRING "Version of BlitzLLVM (format: A.B.C.D). Leave empty to derive it from the commit date.")
+set(BlitzLLVM_VERSION "" CACHE STRING "Version of BlitzLLVM (format: A.B[.C[.D]]). Leave empty to derive it from the commit date.")
 set(_VERSION "${BlitzLLVM_VERSION}")
 if((_VERSION STREQUAL "") AND (EXISTS "${_BLITZLLVM_VERSION_ROOT}/version.ignore"))
 	file(STRINGS "${_BLITZLLVM_VERSION_ROOT}/version.ignore" _VERSION LIMIT_COUNT 1)
 endif()
 if(NOT _VERSION STREQUAL "")
-	if(NOT _VERSION MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$")
-		message(WARNING "Version '${_VERSION}' is not in the format A.B.C.D, using the current time instead.")
+	version(PARSE _PARSED "${_VERSION}" REQUIRE "PATCH;TWEAK")
+	if(NOT _PARSED_ERROR STREQUAL "")
+		# Invalid value, so reset to the current time.
+		message(WARNING "${_PARSED_ERROR}, using the current time instead.")
 		string(TIMESTAMP _DATE "%Y;%m;%d;%H;%M;%S" UTC)
 		blitzllvm_timestamp_version(_VERSION "${_DATE}")
 	endif()
@@ -114,7 +128,10 @@ else()
 	endif()
 	blitzllvm_timestamp_version(_VERSION "${_DATE}")
 endif()
-set(BlitzLLVM_VERSION_DETECTED "${_VERSION}")
+
+# Normalize to A.B.C.D, which is all project() accepts.
+version(PARSE _PARSED "${_VERSION}" REQUIRE "PATCH;TWEAK")
+set(BlitzLLVM_VERSION_DETECTED "${_PARSED_MAJOR}.${_PARSED_MINOR}.${_PARSED_PATCH}.${_PARSED_TWEAK}")
 unset(_VERSION)
 unset(_DATE)
 

@@ -37,7 +37,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 ################################################################################
 
 # Metadata
-include("version")
+include("project_version")
 project(
 	${PROJECT_NAME}
 	VERSION "${BlitzLLVM_VERSION_DETECTED}"
