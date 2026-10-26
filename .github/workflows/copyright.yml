@@ -2,7 +2,7 @@ name: Copyright
 
 on:
   push:
-    branches: ['**']
+    branches: [root]
 
 concurrency:
   group: copyright-${{ github.ref }}
