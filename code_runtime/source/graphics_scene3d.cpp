@@ -540,23 +540,11 @@ namespace bb::gfx {
 		return (alpha * paint_alpha < 0.999f) || (blend != 1) || see_through || vertex_alpha;
 	}
 
-	// Whether the box around a mesh is completely outside of what the camera sees, so that drawing it could not change
-	// a pixel. Sprites and planes are made when they are drawn, so they are always drawn.
-	static bool mesh_outside_view(bb::entity& mesh, const float* m, mesh_collector const& c)
+	// Whether the eight corners of a box (relative to the camera) are all on the outside of one of the planes of the view.
+	static bool corners_outside_view(float const (*corners)[3], const float* planes)
 	{
-		float lo[3], hi[3];
-		if (!c.planes || mesh.sprite_mode || mesh.plane_divs || !bb::mesh_bounds(mesh, lo, hi) || (lo[0] > hi[0])) {
-			return false;
-		}
-		float corners[8][3];
-		for (int corner = 0; corner < 8; corner++) {
-			float local[3] = { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] };
-			for (int row = 0; row < 3; row++) {
-				corners[corner][row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + float(double(m[12 + row]) - double(c.origin[row]));
-			}
-		}
 		for (int plane = 0; plane < 6; plane++) {
-			const float* p       = c.planes + plane * 4;
+			const float* p       = planes + plane * 4;
 			bool         outside = true;
 			for (int corner = 0; corner < 8 && outside; corner++) {
 				// A bit of room, so that what only touches the edge of the view is still drawn.
@@ -567,6 +555,24 @@ namespace bb::gfx {
 			}
 		}
 		return false;
+	}
+
+	// Whether the box around a mesh, which m moves to the world, is completely outside of what the camera sees, so that
+	// drawing it could not change a pixel. Planes are made when they are drawn, so they are always drawn.
+	static bool mesh_outside_view(bb::entity& mesh, const float* m, const float* origin, const float* planes)
+	{
+		float lo[3], hi[3];
+		if (!planes || mesh.plane_divs || !bb::mesh_bounds(mesh, lo, hi) || (lo[0] > hi[0])) {
+			return false;
+		}
+		float corners[8][3];
+		for (int corner = 0; corner < 8; corner++) {
+			float local[3] = { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] };
+			for (int row = 0; row < 3; row++) {
+				corners[corner][row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + float(double(m[12 + row]) - double(origin[row]));
+			}
+		}
+		return corners_outside_view(corners, planes);
 	}
 
 	static void collect_mesh(int handle, bb::entity& mesh, void* user)
@@ -592,7 +598,8 @@ namespace bb::gfx {
 
 		// Each surface is either solid or see-through, and a model can have both: the trunk of a tree and its leaves.
 		bb::update_terrain(mesh);
-		if (mesh_outside_view(mesh, m, *c)) {
+		// Sprites turn towards the camera when they are drawn, so their box is checked then.
+		if (!mesh.sprite_mode && mesh_outside_view(mesh, m, c->origin, c->planes)) {
 			return;
 		}
 		bool has_solid = mesh.surfaces.size == 0, has_blended = false;
@@ -660,6 +667,8 @@ namespace bb::gfx {
 
 	static float current_camera[16]; // Where the camera is, for sprites that face it.
 	static float current_origin[3];  // The same place: everything is sent to the GPU relative to it, see render_pass.
+	static float current_planes[24]; // The planes of what the camera sees, see mesh_collector.
+	static bool  have_planes;
 	static float current_view[3];    // Zoom, far plane and height divided by width of the camera, for planes.
 
 	// The part of a plane that the camera sees: a grid over the far end of the view that is let down onto the ground,
@@ -843,6 +852,9 @@ namespace bb::gfx {
 			}
 			fullbright = true;
 			two_sided  = true;
+			if (have_planes && mesh_outside_view(*e, m, current_origin, current_planes)) {
+				return;
+			}
 		}
 
 		entity_push push = {};
@@ -1082,6 +1094,8 @@ namespace bb::gfx {
 				}
 			}
 		}
+		memcpy(current_planes, planes, sizeof(current_planes));
+		have_planes = true;
 		mesh_collector collector = { &list, view, current_origin, &planes[0][0] };
 		bb::for_each_visible(bb::MESH, collect_mesh, &collector);
 		sort_items(list.behind, true);
