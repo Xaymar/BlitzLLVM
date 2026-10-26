@@ -18,6 +18,10 @@ The multiplayer commands (`StartNetGame`, `HostNetGame`, `JoinNetGame`, `StopNet
 
 `CountHostIPs` looks up a host and remembers its addresses for `HostIP`. An empty name is this computer, which has one address for every network interface that is up, with the loopback address (127.0.0.1) last. `UDPStreamIP` is the first of those. Only IPv4 addresses are returned.
 
+## Mip maps
+
+Textures with flag 8 get a chain of mip maps and are sampled with trilinear filtering, which blends between two levels. The levels are made by averaging 2 by 2 texels, so masked (flag 4) and alpha textures average their alpha as well, which is also what the original did and makes their edges soft from afar. The levels of a texture that is drawn on (`TextureBuffer`) are made again before the texture is next used in a scene. The levels that are stored in a block compressed DDS file are used instead of made ones. A texture with frames (`LoadAnimTexture`, `CreateTexture` with frames) is one sheet, so its smallest levels blend the frames that are next to each other. There is no anisotropic filtering.
+
 ## Stop
 
 `Stop` is a breakpoint for a debugger. In a debug build (`-d`) it is a breakpoint instruction (`llvm.debugtrap`), which stops in an attached debugger and ends the program with a signal when there is none. In any other build it does nothing.

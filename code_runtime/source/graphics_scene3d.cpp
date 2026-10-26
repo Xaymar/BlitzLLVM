@@ -278,10 +278,12 @@ namespace bb::gfx {
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
 			texture_entry* tex = texture_of(draws[scene.first_draw + i].texture);
 			if (tex && tex->set && (tex->image.image != target.image->image)) {
+				refresh_mips(tex->image); // Whatever was drawn to it since is in its smaller levels as well.
 				transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			}
 		}
 		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		target.image->mips_stale = target.image->mips > 1;
 		bool fresh_depth = depth_image.layout == VK_IMAGE_LAYOUT_UNDEFINED;
 		if (fresh_depth) {
 			barrier(depth_image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -289,7 +291,7 @@ namespace bb::gfx {
 		}
 
 		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		color.imageView                 = target.image->view;
+		color.imageView                 = target.image->target_view ? target.image->target_view : target.image->view;
 		color.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		color.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
 		color.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
@@ -358,6 +360,7 @@ namespace bb::gfx {
 			return;
 		}
 		VkImageLayout previous_from = from.image->layout, previous_to = to.image->layout;
+		to.image->mips_stale = to.image->mips > 1;
 		if (from.image->image == to.image->image) {
 			// The parts may overlap, so the pixels take a detour through a buffer.
 			VkBufferImageCopy part = {};

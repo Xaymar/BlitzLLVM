@@ -165,7 +165,10 @@ namespace bb::gfx {
 		VkSampler      sampler = VK_NULL_HANDLE;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
 		VkImage        image  = VK_NULL_HANDLE;
 		VkDeviceMemory memory = VK_NULL_HANDLE;
-		VkImageView    view   = VK_NULL_HANDLE;
+		VkImageView    view   = VK_NULL_HANDLE;   // All mip levels, for sampling.
+		VkImageView    target_view = VK_NULL_HANDLE; // The first level only, for drawing to an image that has more. Null if there is just one.
+		uint32_t       mips = 1;                  // How many levels the image has.
+		bool           mips_stale = false;        // Something was drawn to the first level, so the others are out of date.
 		uint32_t       width = 0, height = 0;
 		VkImageLayout  layout = VK_IMAGE_LAYOUT_UNDEFINED; // What it was last transitioned to.
 	};
@@ -244,6 +247,8 @@ namespace bb::gfx {
 		VkSampler             sampler    = VK_NULL_HANDLE;
 		VkSampler             sampler_repeat = VK_NULL_HANDLE; // Linear, for 3D textures.
 		VkSampler             sampler_clamp  = VK_NULL_HANDLE;
+		VkSampler             sampler_repeat_mips = VK_NULL_HANDLE; // The same, going through the mip levels of a texture.
+		VkSampler             sampler_clamp_mips  = VK_NULL_HANDLE;
 		gpu_image            textures[TEXTURES];
 		VkDescriptorSet       sets[TEXTURES];
 
@@ -384,10 +389,10 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Textures
 	////////////////////////////////////////////////////////////////////////////
-	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32 };
+	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_MIPMAPS = 8, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32 };
 
 
-	// LoadTexture(file, flags): flags are 1 = color, 2 = alpha channel, 4 = masked (black is transparent), 16/32 = clamp U/V.
+	// LoadTexture(file, flags): flags are 1 = color, 2 = alpha channel, 4 = masked (black is transparent), 8 = mip maps, 16/32 = clamp U/V.
 	// TextureFilter: every texture whose file name has the text in it (in lower case) gets these flags as well.
 	struct texture_filter {
 		char*   match;
@@ -560,10 +565,10 @@ namespace bb::gfx {
 	[[noreturn]] void fail(const char* what);
 	void check(VkResult result, const char* what);
 	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags props, VkBuffer& buffer, VkDeviceMemory& memory);
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr);
+	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1);
 	void destroy_image(gpu_image& img);
 	VkShaderModule create_shader(const unsigned int* words, size_t size);
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler);
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();
 	void destroy_swapchain();
@@ -609,7 +614,8 @@ namespace bb::gfx {
 		block_format block     = block_format::none;
 		int          width     = 0, height = 0;
 		uint8_t*     blocks    = nullptr; // malloc'ed
-		size_t       size      = 0;
+		size_t       size      = 0;       // All levels, one after the other, each of block_bytes(level size).
+		int          mips      = 1;       // How many levels of blocks the file has.
 		bool         has_alpha = false;   // Whether the picture has see-through pixels.
 	};
 	/** Reads a file without decoding the blocks of a DDS file. Returns false if it cannot be read. */
@@ -620,10 +626,16 @@ namespace bb::gfx {
 	/** Decodes blocks to RGBA, whose rows have no padding. BC4 is grey, and BC5 is a normal map. */
 	void decode_blocks(block_format format, int width, int height, const uint8_t* blocks, uint8_t* rgba);
 	size_t block_bytes(block_format format, int width, int height);
+	/** How many levels a full chain of mip maps has for this size, down to 1 by 1. */
+	uint32_t mip_count(uint32_t width, uint32_t height);
 	/** Whether the device can sample, and copy to and from, images of this format. */
 	bool compressed_supported(block_format format);
 	/** Uploads blocks into a new image and a descriptor set. With opaque the alpha is always 1. */
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque);
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps);
+	/** The sampler for a texture with these flags: repeating or clamped, and with the levels of mip maps (flag 8) or without. */
+	VkSampler texture_sampler(int flags);
+	/** Makes the levels below the first of a texture again, if something was drawn to it since. Expects an open command buffer. */
+	void refresh_mips(gpu_image& image);
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
 	void ensure_color_image(gpu_image& image, VkDescriptorSet set);
 } // namespace bb::gfx

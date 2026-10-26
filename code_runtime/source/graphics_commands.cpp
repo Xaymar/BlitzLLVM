@@ -82,7 +82,7 @@ namespace bb::gfx {
 		b.dstQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
 		b.image                            = img;
 		b.subresourceRange.aspectMask      = aspect;
-		b.subresourceRange.levelCount      = 1;
+		b.subresourceRange.levelCount      = VK_REMAINING_MIP_LEVELS; // Every level of an image is in the same layout between uses.
 		b.subresourceRange.layerCount      = 1;
 
 		VkDependencyInfo dep        = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
@@ -118,9 +118,10 @@ namespace bb::gfx {
 			}
 		}
 		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		target.image->mips_stale = target.image->mips > 1;
 
 		VkRenderingAttachmentInfo attachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
-		attachment.imageView                 = target.image->view;
+		attachment.imageView                 = target.image->target_view ? target.image->target_view : target.image->view;
 		attachment.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachment.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachment.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;

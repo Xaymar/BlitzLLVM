@@ -131,6 +131,8 @@ void bb_end_graphics(void)
 		vkDestroySampler(g.device, g.sampler, nullptr);
 		vkDestroySampler(g.device, g.sampler_repeat, nullptr);
 		vkDestroySampler(g.device, g.sampler_clamp, nullptr);
+		vkDestroySampler(g.device, g.sampler_repeat_mips, nullptr);
+		vkDestroySampler(g.device, g.sampler_clamp_mips, nullptr);
 		vkDestroySemaphore(g.device, g.acquired, nullptr);
 		vkDestroyFence(g.device, g.fence, nullptr);
 		vkDestroyCommandPool(g.device, g.pool, nullptr);

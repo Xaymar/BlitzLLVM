@@ -15,6 +15,8 @@
 
 #include "graphics_internal.hpp"
 
+#include <vector>
+
 #define BB_VK_DEFINE(name) PFN_##name name;
 BB_VK_GLOBAL(BB_VK_DEFINE)
 BB_VK_INSTANCE(BB_VK_DEFINE)
@@ -120,9 +122,10 @@ namespace bb::gfx {
 		check(vkBindBufferMemory(g.device, buffer, memory, 0), "vkBindBufferMemory");
 	}
 
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components)
+	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips)
 	{
 		gpu_image img;
+		img.mips = mips;
 		img.width  = width;
 		img.height = height;
 
@@ -130,7 +133,7 @@ namespace bb::gfx {
 		info.imageType         = VK_IMAGE_TYPE_2D;
 		info.format            = format;
 		info.extent            = { width, height, 1 };
-		info.mipLevels         = 1;
+		info.mipLevels         = mips;
 		info.arrayLayers       = 1;
 		info.samples           = VK_SAMPLE_COUNT_1_BIT;
 		info.tiling            = VK_IMAGE_TILING_OPTIMAL;
@@ -155,9 +158,14 @@ namespace bb::gfx {
 			view.components = *components;
 		}
 		view.subresourceRange.aspectMask   = aspect;
-		view.subresourceRange.levelCount   = 1;
+		view.subresourceRange.levelCount   = mips;
 		view.subresourceRange.layerCount   = 1;
 		check(vkCreateImageView(g.device, &view, nullptr, &img.view), "vkCreateImageView");
+		if (mips > 1) {
+			// An attachment has one level, so drawing to the texture goes through a view of the first.
+			view.subresourceRange.levelCount = 1;
+			check(vkCreateImageView(g.device, &view, nullptr, &img.target_view), "vkCreateImageView");
+		}
 		return img;
 	}
 
@@ -165,6 +173,9 @@ namespace bb::gfx {
 	{
 		if (img.view) {
 			vkDestroyImageView(g.device, img.view, nullptr);
+		}
+		if (img.target_view) {
+			vkDestroyImageView(g.device, img.target_view, nullptr);
 		}
 		if (img.image) {
 			vkDestroyImage(g.device, img.image, nullptr);
@@ -287,8 +298,72 @@ namespace bb::gfx {
 		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets (too many textures?)");
 	}
 
-	// Uploads RGBA pixels into a new image that can be sampled and drawn to.
-	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels)
+	uint32_t mip_count(uint32_t width, uint32_t height)
+	{
+		uint32_t levels = 1;
+		for (uint32_t size = width > height ? width : height; size > 1; size >>= 1) {
+			levels++;
+		}
+		return levels;
+	}
+
+	static void level_barrier(VkImage image, uint32_t first, uint32_t count, VkImageLayout from, VkImageLayout to)
+	{
+		VkImageMemoryBarrier2 b       = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2 };
+		b.srcStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		b.srcAccessMask               = VK_ACCESS_2_MEMORY_WRITE_BIT;
+		b.dstStageMask                = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		b.dstAccessMask               = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+		b.oldLayout                   = from;
+		b.newLayout                   = to;
+		b.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
+		b.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
+		b.image                       = image;
+		b.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		b.subresourceRange.baseMipLevel = first;
+		b.subresourceRange.levelCount = count;
+		b.subresourceRange.layerCount = 1;
+		VkDependencyInfo dep          = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+		dep.imageMemoryBarrierCount   = 1;
+		dep.pImageMemoryBarriers      = &b;
+		vkCmdPipelineBarrier2(g.cmd, &dep);
+	}
+
+	// Fills every level below the first by halving the one above it with a linear filter, which averages 2 by 2 pixels. All
+	// levels are expected to be in the layout, and are in the shader read layout afterwards. Expects an open command buffer.
+	static void generate_mips(gpu_image& image, VkImageLayout from)
+	{
+		level_barrier(image.image, 0, 1, from, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		if (from != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+			level_barrier(image.image, 1, image.mips - 1, from, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		}
+		int32_t w = int32_t(image.width), h = int32_t(image.height);
+		for (uint32_t level = 1; level < image.mips; level++) {
+			int32_t     next_w = w > 1 ? w / 2 : 1, next_h = h > 1 ? h / 2 : 1;
+			VkImageBlit blit    = {};
+			blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, level - 1, 0, 1 };
+			blit.srcOffsets[1]  = { w, h, 1 };
+			blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, level, 0, 1 };
+			blit.dstOffsets[1]  = { next_w, next_h, 1 };
+			vkCmdBlitImage(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+			level_barrier(image.image, level, 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			w = next_w;
+			h = next_h;
+		}
+		level_barrier(image.image, 0, image.mips, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		image.layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		image.mips_stale = false;
+	}
+
+	void refresh_mips(gpu_image& image)
+	{
+		if ((image.mips > 1) && image.mips_stale) {
+			generate_mips(image, image.layout);
+		}
+	}
+
+	// Uploads RGBA pixels into a new image that can be sampled and drawn to, with all of its mip levels if asked for.
+	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels, bool mipmaps)
 	{
 		VkDeviceSize size = VkDeviceSize(width) * height * 4;
 		VkBuffer       staging;
@@ -299,7 +374,7 @@ namespace bb::gfx {
 		memcpy(mapped, pixels, size_t(size));
 		vkUnmapMemory(g.device, staging_memory);
 
-		image = create_image(width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+		image = create_image(width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, nullptr, mipmaps ? mip_count(width, height) : 1);
 
 		begin_commands();
 		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -307,8 +382,12 @@ namespace bb::gfx {
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		copy.imageExtent       = { width, height, 1 };
 		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-		barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		if (image.mips > 1) {
+			generate_mips(image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		} else {
+			barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		}
 		submit_commands();
 
 		vkDestroyBuffer(g.device, staging, nullptr);
@@ -316,11 +395,20 @@ namespace bb::gfx {
 	}
 
 	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler)
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps)
 	{
-		upload_pixels(image, width, height, pixels);
+		upload_pixels(image, width, height, pixels, mipmaps);
 		allocate_descriptor(set);
 		write_descriptor(set, image.view, sampler);
+	}
+
+	VkSampler texture_sampler(int flags)
+	{
+		bool clamp = (flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V);
+		if (flags & TEXTURE_MIPMAPS) {
+			return clamp ? g.sampler_clamp_mips : g.sampler_repeat_mips;
+		}
+		return clamp ? g.sampler_clamp : g.sampler_repeat;
 	}
 
 	static VkFormat vulkan_format(block_format format)
@@ -346,9 +434,11 @@ namespace bb::gfx {
 		return (properties.optimalTilingFeatures & needed) == needed;
 	}
 
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque)
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps)
 	{
-		VkDeviceSize   size = p.size;
+		// The levels the file has are used as they are, when mip maps are wanted.
+		uint32_t       levels = mipmaps ? uint32_t(p.mips) : 1;
+		VkDeviceSize   size   = p.size;
 		VkBuffer       staging;
 		VkDeviceMemory staging_memory;
 		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging, staging_memory);
@@ -366,18 +456,28 @@ namespace bb::gfx {
 		if (opaque) {
 			mapping.a = VK_COMPONENT_SWIZZLE_ONE;
 		}
-		image = create_image(uint32_t(p.width), uint32_t(p.height), VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, vulkan_format(p.block), VK_IMAGE_ASPECT_COLOR_BIT, &mapping);
+		image = create_image(uint32_t(p.width), uint32_t(p.height), VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, vulkan_format(p.block), VK_IMAGE_ASPECT_COLOR_BIT, &mapping, levels);
 		image.block   = p.block;
 		image.opaque  = opaque;
 		image.sampler = sampler;
 
 		begin_commands();
 		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		VkBufferImageCopy copy = {};
-		copy.bufferRowLength   = uint32_t((p.width + 3) / 4 * 4);
-		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		copy.imageExtent       = { uint32_t(p.width), uint32_t(p.height), 1 };
-		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+		std::vector<VkBufferImageCopy> copies(levels);
+		VkDeviceSize                   offset = 0;
+		for (uint32_t level = 0; level < levels; level++) {
+			uint32_t w = p.width >> level, h = p.height >> level;
+			w = w ? w : 1;
+			h = h ? h : 1;
+			VkBufferImageCopy& copy = copies[level];
+			copy                    = {};
+			copy.bufferOffset       = offset;
+			copy.bufferRowLength    = (w + 3) / 4 * 4;
+			copy.imageSubresource   = { VK_IMAGE_ASPECT_COLOR_BIT, level, 0, 1 };
+			copy.imageExtent        = { w, h, 1 };
+			offset += block_bytes(p.block, int(w), int(h));
+		}
+		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, levels, copies.data());
 		barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		submit_commands();
@@ -425,9 +525,10 @@ namespace bb::gfx {
 
 		VkSampler sampler = image.sampler;
 		uint32_t  width = image.width, height = image.height;
+		bool      mipmaps = image.mips > 1; // Only the first level was read, the others are made from it.
 		vkDeviceWaitIdle(g.device);
 		destroy_image(image);
-		upload_pixels(image, width, height, pixels);
+		upload_pixels(image, width, height, pixels, mipmaps);
 		free(pixels);
 		write_descriptor(set, image.view, sampler);
 	}
@@ -707,6 +808,13 @@ namespace bb::gfx {
 		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_repeat), "vkCreateSampler");
 		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_clamp), "vkCreateSampler");
+
+		// Textures with mip maps (flag 8) blend between the levels, and use the smaller ones for what is far away.
+		sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		sampler_info.maxLod     = VK_LOD_CLAMP_NONE;
+		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_clamp_mips), "vkCreateSampler");
+		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_repeat_mips), "vkCreateSampler");
 
 		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };

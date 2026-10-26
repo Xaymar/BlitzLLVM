@@ -203,8 +203,7 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 		for (size_t i = 0; i < size_t(entry.width) * size_t(entry.height); i++) {
 			pixels[i * 4 + 3] = 255;
 		}
-		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
-		upload_texture(entry.image, entry.set, uint32_t(entry.width), uint32_t(entry.height), pixels, sampler);
+		upload_texture(entry.image, entry.set, uint32_t(entry.width), uint32_t(entry.height), pixels, texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0);
 		free(pixels);
 	}
 	for (uint32_t i = 0; i < texture_table.size; i++) {
@@ -266,16 +265,16 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 
 	// A compressed picture goes to the GPU as it is when it has what the flags ask for: without the alpha flag the alpha is
 	// made 1 by the image view, and with it the file needs alpha of its own. Masks, brightness as alpha and BC5, whose third
-	// channel is rebuilt, need the pixels, which are decoded then.
-	if (active() && source.blocks && !(flags & TEXTURE_MASKED) && (source.block != block_format::bc5) && (!(flags & TEXTURE_ALPHA) || source.has_alpha) && compressed_supported(source.block)) {
+	// channel is rebuilt, need the pixels, which are decoded then. So do mip maps (flag 8) that the file does not have, as
+	// they are made from pixels: the ones that are stored in the file are used where there are some.
+	if (active() && source.blocks && !(flags & TEXTURE_MASKED) && (source.block != block_format::bc5) && (!(flags & TEXTURE_ALPHA) || source.has_alpha) && (!(flags & TEXTURE_MIPMAPS) || (source.mips > 1)) && compressed_supported(source.block)) {
 		texture_entry entry;
 		entry.used   = true;
 		entry.flags  = flags;
 		entry.width  = source.width;
 		entry.height = source.height;
 		entry.file   = full_path(file);
-		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
-		upload_compressed(entry.image, entry.set, source, sampler, !(flags & TEXTURE_ALPHA));
+		upload_compressed(entry.image, entry.set, source, texture_sampler(flags), !(flags & TEXTURE_ALPHA), (flags & TEXTURE_MIPMAPS) != 0);
 		free_picture(source);
 		return add_texture(entry);
 	}
@@ -328,8 +327,7 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 	entry.height = rgba->h;
 	entry.file   = full_path(file);
 	if (active()) {
-		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
-		upload_texture(entry.image, entry.set, uint32_t(rgba->w), uint32_t(rgba->h), static_cast<const uint8_t*>(rgba->pixels), sampler);
+		upload_texture(entry.image, entry.set, uint32_t(rgba->w), uint32_t(rgba->h), static_cast<const uint8_t*>(rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0);
 	}
 	SDL_DestroySurface(rgba);
 
