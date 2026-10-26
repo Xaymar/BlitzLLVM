@@ -63,16 +63,17 @@ void bb_camera_zoom(int32_t handle, float zoom)
 
 void bb_camera_proj_mode(int32_t handle, int32_t mode)
 {
-	need_kind(handle, CAMERA, "CameraProjMode")->cam_projection = mode == 0 ? 0 : 1;
+	need_kind(handle, CAMERA, "CameraProjMode")->cam_projection = mode == 0 ? 0 : (mode == 2 ? 2 : 1);
 }
 
 // Lights
 void bb_light_color(int32_t handle, float r, float g, float b)
 {
 	entity* e = need_kind(handle, LIGHT, "LightColor");
-	e->light_color[0] = clamp255(r);
-	e->light_color[1] = clamp255(g);
-	e->light_color[2] = clamp255(b);
+	// Not limited to 0..255: a light with a negative color takes light away.
+	e->light_color[0] = r / 255.0f;
+	e->light_color[1] = g / 255.0f;
+	e->light_color[2] = b / 255.0f;
 }
 
 void bb_light_range(int32_t handle, float range)

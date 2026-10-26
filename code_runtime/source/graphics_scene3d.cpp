@@ -420,7 +420,19 @@ namespace bb::gfx {
 		color[0] = light.light_color[0];
 		color[1] = light.light_color[1];
 		color[2] = light.light_color[2];
-		color[3] = 1;
+		// The cosines of half the angles of the cone, which only spot lights have.
+		float* direction = c->data->light_direction[c->count];
+		direction[3]     = -2;
+		color[3]         = 1;
+		if (light.light_type == 3) {
+			float len = sqrtf(m[8] * m[8] + m[9] * m[9] + m[10] * m[10]);
+			len       = len > 1e-9f ? len : 1.0f;
+			direction[0] = m[8] / len;
+			direction[1] = m[9] / len;
+			direction[2] = m[10] / len;
+			direction[3] = cosf(light.light_cone[1] * 0.5f * 3.14159265358979f / 180.0f);
+			color[3]     = cosf(light.light_cone[0] * 0.5f * 3.14159265358979f / 180.0f);
+		}
 		c->count++;
 	}
 
@@ -432,7 +444,8 @@ namespace bb::gfx {
 		float          paint_alpha    = s.painted ? s.paint.alpha : 1.0f;
 		texture_entry* texture        = texture_of(texture_handle);
 		bool           see_through    = texture && (texture->flags & TEXTURE_ALPHA) && !(texture->flags & TEXTURE_MASKED);
-		return (alpha * paint_alpha < 0.999f) || (blend != 1) || see_through;
+		bool vertex_alpha  = ((e.fx | (s.painted ? s.paint.fx : 0)) & 32) != 0;
+		return (alpha * paint_alpha < 0.999f) || (blend != 1) || see_through || vertex_alpha;
 	}
 
 	static void collect_mesh(int handle, bb::entity& mesh, void* user)
@@ -498,6 +511,117 @@ namespace bb::gfx {
 	}
 
 	static float current_camera[16]; // Where the camera is, for sprites that face it.
+	static float current_view[3];    // Zoom, far plane and height divided by width of the camera, for planes.
+
+	// The part of a plane that the camera sees: a grid over the far end of the view that is let down onto the ground,
+	// and cut off where it is above the horizon. Returns nothing if the camera is below the plane.
+	static bb::surface* build_plane(bb::entity& e, const float* model)
+	{
+		if (!e.plane_draw) {
+			e.plane_draw = new bb::surface();
+		}
+		bb::surface& s = *e.plane_draw;
+		s.vertices.clear();
+		s.indices.clear();
+		s.dirty = true;
+		if (!e.surfaces.size) {
+			return nullptr;
+		}
+		s.painted = e.surfaces[0]->painted;
+		s.paint   = e.surfaces[0]->paint;
+
+		float inverse[16];
+		bb::mat_affine_inverse(model, inverse);
+		auto to_local = [&](float x, float y, float z, float* out) {
+			float world[3], p[3] = { x, y, z };
+			for (int r = 0; r < 3; r++) {
+				world[r] = current_camera[r] * p[0] + current_camera[4 + r] * p[1] + current_camera[8 + r] * p[2] + current_camera[12 + r];
+			}
+			for (int r = 0; r < 3; r++) {
+				out[r] = inverse[r] * world[0] + inverse[4 + r] * world[1] + inverse[8 + r] * world[2] + inverse[12 + r];
+			}
+		};
+		float eye[3], corner[4][3];
+		to_local(0, 0, 0, eye);
+		if (eye[1] <= 0) {
+			return nullptr;
+		}
+		float half_w = current_view[1] / current_view[0], half_h = half_w * current_view[2], far_z = current_view[1];
+		to_local(-half_w, half_h, far_z, corner[0]);
+		to_local(half_w, half_h, far_z, corner[1]);
+		to_local(half_w, -half_h, far_z, corner[2]);
+		to_local(-half_w, -half_h, far_z, corner[3]);
+
+		const int divs = e.plane_divs;
+		float     grid[21][21][3];
+		for (int x = 0; x <= divs; x++) {
+			float t = float(x) / float(divs);
+			for (int y = 0; y <= divs; y++) {
+				float u = float(y) / float(divs);
+				for (int k = 0; k < 3; k++) {
+					float top    = (corner[1][k] - corner[0][k]) * t + corner[0][k];
+					float bottom = (corner[2][k] - corner[3][k]) * t + corner[3][k];
+					grid[x][y][k] = (bottom - top) * u + top;
+				}
+			}
+		}
+		for (int x = 0; x < divs; x++) {
+			for (int y = 0; y < divs; y++) {
+				const float* in[4] = { grid[x][y], grid[x + 1][y], grid[x + 1][y + 1], grid[x][y + 1] };
+				float        out[5][3];
+				int          count = 0;
+				for (int k = 0; k < 4; k++) {
+					const float *vert = in[k], *previous = in[(k + 3) & 3];
+					// Where the edge to the previous corner crosses the ground.
+					auto cross_ground = [&](float* result) {
+						float t = previous[1] / (previous[1] - vert[1]);
+						for (int a = 0; a < 3; a++) {
+							result[a] = (vert[a] - previous[a]) * t + previous[a];
+						}
+					};
+					if (vert[1] > 0) {
+						if (previous[1] <= 0) {
+							cross_ground(out[count++]);
+						}
+					} else {
+						if (previous[1] > 0) {
+							cross_ground(out[count++]);
+						}
+						// A corner above the horizon is put where the line from the eye to it hits the ground.
+						float dy = vert[1] - eye[1];
+						float t  = dy != 0 ? -eye[1] / dy : 0;
+						for (int a = 0; a < 3; a++) {
+							out[count][a] = eye[a] + (vert[a] - eye[a]) * t;
+						}
+						count++;
+					}
+				}
+				if (count < 3 || count > 5) {
+					continue;
+				}
+				uint32_t first = s.vertices.size;
+				for (int k = 0; k < count; k++) {
+					bb::vertex3d v = { out[k][0], 0, out[k][2], 0, 1, 0, out[k][0], out[k][2], 255, 255, 255, 255 };
+					s.vertices.push(v);
+				}
+				for (int k = 2; k < count; k++) {
+					uint32_t corners[3] = { first, first + uint32_t(k) - 1, first + uint32_t(k) };
+					bb::vertex3d const &a = s.vertices[corners[0]], &b = s.vertices[corners[1]], &c = s.vertices[corners[2]];
+					// Seen from above, which is where it is drawn from, the front is clockwise.
+					float facing = (b.z - a.z) * (c.x - a.x) - (b.x - a.x) * (c.z - a.z);
+					if (facing < 0) {
+						uint32_t t = corners[1];
+						corners[1] = corners[2];
+						corners[2] = t;
+					}
+					s.indices.push(corners[0]);
+					s.indices.push(corners[1]);
+					s.indices.push(corners[2]);
+				}
+			}
+		}
+		return s.indices.size ? &s : nullptr;
+	}
 
 	static void normalize3(float* v)
 	{
@@ -581,8 +705,19 @@ namespace bb::gfx {
 			push.model[row][3] = m[12 + row];
 		}
 
-		for (uint32_t i = 0; i < e->surfaces.size; i++) {
-			bb::surface& surface = *e->surfaces[i];
+		bb::surface** surfaces = e->surfaces.data;
+		uint32_t      count    = e->surfaces.size;
+		bb::surface*  plane[1];
+		if (e->plane_divs) {
+			plane[0] = build_plane(*e, m);
+			if (!plane[0]) {
+				return;
+			}
+			surfaces = plane;
+			count    = 1;
+		}
+		for (uint32_t i = 0; i < count; i++) {
+			bb::surface& surface = *surfaces[i];
 			surface_gpu* gpu     = upload_surface(surface);
 			if (!gpu) {
 				continue;
@@ -604,16 +739,18 @@ namespace bb::gfx {
 			push.material[1] = e->color[1] * paint.color[1];
 			push.material[2] = e->color[2] * paint.color[2];
 			push.material[3] = item.alpha * paint.alpha;
-			int fx           = e->fx | paint.fx;
+			int fx = e->fx | paint.fx;
 			push.params[0]   = (fullbright || (fx & 1)) ? 1.0f : 0.0f;
-			push.params[1]   = (fx & 2) ? 1.0f : 0.0f; // The colors of the vertices only count if asked for.
-			push.params[2]   = (fx & 4) ? 1.0f : 0.0f; // Flat shaded: the first vertex of a triangle decides its color.
+			push.params[1]   = (fx & 2) ? 1.0f : 0.0f; // Vertex colors instead of the color of the entity.
+			push.params[2]   = (fx & 32) ? 1.0f : 0.0f; // Alpha of the vertices.
+			push.params[3]   = e->shininess + paint.shininess;
 			texture_entry* texture = texture_of(texture_handle);
 			texture_uv(texture, texture_handle, push.uv);
 			// Masked textures are cut out where they are nearly not there, which is what makes leaves and fences solid.
 			bool cutout = texture && (texture->flags & TEXTURE_MASKED);
 			push.mask[0] = cutout ? 0.5f * item.alpha * paint.alpha : 0.0f;
-			push.mask[1] = (fx & 8) ? 1.0f : 0.0f; // Not fogged.
+			push.mask[1] = (fx & 8) ? 1.0f : 0.0f; // No fog.
+			push.mask[2] = (fx & 4) ? 1.0f : 0.0f; // Flat shading.
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
@@ -641,8 +778,8 @@ namespace bb::gfx {
 				draw_record more     = record;
 				more.push.material[0] = more.push.material[1] = more.push.material[2] = more.push.material[3] = 1;
 				more.push.params[0]  = 1; // Not lit again.
-				more.push.params[1]  = 0;
-				more.push.params[2]  = 0;
+				more.push.params[3]  = 0;
+				more.push.mask[2]    = 0;
 				texture_uv(extra, extra_handle, more.push.uv);
 				more.push.mask[0]    = 0;
 				more.push.mask[1]    = 1; // No fog again either, the first layer has it.
@@ -673,6 +810,17 @@ namespace bb::gfx {
 		float sx = cam.cam_zoom, sy = cam.cam_zoom * (width / height);
 		float n = cam.cam_near, f = cam.cam_far;
 		memset(p, 0, sizeof(float) * 16);
+		if (cam.cam_projection == 2) {
+			// Orthographic: the view is as wide as the perspective one is at the near plane, and depth is linear.
+			sx    = cam.cam_zoom / n;
+			sy    = sx * (width / height);
+			p[0]  = sx;
+			p[5]  = -sy; // Vulkan's Y points down.
+			p[10] = 1 / (f - n);
+			p[14] = -n / (f - n);
+			p[15] = 1;
+			return;
+		}
 		p[0]  = sx;
 		p[5]  = -sy; // Vulkan's Y points down.
 		p[10] = f / (f - n);
@@ -712,6 +860,9 @@ namespace bb::gfx {
 		float world[16], view[16], proj[16];
 		bb::world_matrix(handle, world);
 		memcpy(current_camera, world, sizeof(world));
+		current_view[0] = cam.cam_zoom;
+		current_view[1] = cam.cam_far;
+		current_view[2] = float(vh) / float(vw);
 		bb::mat_affine_inverse(world, view);
 		projection(proj, cam, float(vw), float(vh));
 		bb::mat_multiply(data.viewprojection, proj, view);
@@ -719,6 +870,7 @@ namespace bb::gfx {
 		data.fog[1] = cam.fog_far;
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
 		data.fog[3] = 0;
+		memcpy(data.eye, world + 12, sizeof(float) * 3);
 		memcpy(data.fog_color, cam.fog_color, sizeof(cam.fog_color));
 
 		scene_record scene = {};

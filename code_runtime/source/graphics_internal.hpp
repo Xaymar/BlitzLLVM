@@ -407,7 +407,10 @@ namespace bb::gfx {
 		float light_color[max_lights][4];
 		float fog[4];       // Near, far and whether it is on.
 		float fog_color[4];
+		float eye[4];                       // Where the camera is, for the highlights of lights.
+		float light_direction[max_lights][4]; // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
 	};
+	static_assert(sizeof(scene_data) <= 512, "The scene data has to fit in the stride that is between the cameras.");
 
 
 	// Per-entity values, pushed to the vertex shader.

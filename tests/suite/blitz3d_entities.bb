@@ -158,6 +158,7 @@ TFormNormal 1, 0, 0, place, 0
 Check "TFormNormal keeps the length", Sqr(TFormedX() * TFormedX() + TFormedY() * TFormedY() + TFormedZ() * TFormedZ()), 1, 0.001
 TFormPoint 1, 1, 1, place, place
 Check "TFormPoint from an entity to the same one", TFormedX(), 1, 0.001
+
 Check "TFormPoint between the same y", TFormedY(), 1, 0.001
 
 ; Meshes are what the rest is about.
@@ -316,6 +317,22 @@ ClearWorld
 Check "ClearWorld entities", CreatePivot(), 1
 Check "ClearWorld brushes again", CreateBrush(), 1
 Check "ClearWorld textures again", CreateTexture(4, 4), 1
+
+; ScaleEntity with the global flag sets the scale in the world: what the parents scale is taken away.
+big = CreatePivot()
+ScaleEntity big, 2, 4, 8
+small = CreatePivot(big)
+ScaleEntity small, 1, 1, 1, True
+TFormVector 1, 1, 1, small, 0
+Check "Global ScaleEntity x", TFormedX(), 1, 0.001
+Check "Global ScaleEntity y", TFormedY(), 1, 0.001
+Check "Global ScaleEntity z", TFormedZ(), 1, 0.001
+ScaleEntity small, 1, 1, 1
+TFormVector 1, 1, 1, small, 0
+Check "Local ScaleEntity x", TFormedX(), 2, 0.001
+Check "Local ScaleEntity z", TFormedZ(), 8, 0.001
+FreeEntity small
+FreeEntity big
 
 EndGraphics
 Done "blitz3d_entities"

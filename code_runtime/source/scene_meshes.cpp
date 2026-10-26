@@ -112,47 +112,81 @@ namespace bb::scene {
 		}
 	}
 
-	// Cylinder (radius 1, height 2) and cone (base radius 1 at the bottom, tip at the top).
-	static void make_round(surface* s, int segments, bool solid, bool cone)
+	// Adds a triangle that is a front face when seen from the direction that the given normal points to.
+	static void add_facing_triangle(surface* s, uint32_t a, uint32_t b, uint32_t c, float nx, float ny, float nz)
 	{
-		float slope = 2.0f; // Cone sides: the normal leans up by radius / height.
+		vertex3d const &va = s->vertices[a], &vb = s->vertices[b], &vc = s->vertices[c];
+		float e1[3] = { vb.x - va.x, vb.y - va.y, vb.z - va.z }, e2[3] = { vc.x - va.x, vc.y - va.y, vc.z - va.z };
+		float n[3] = { e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0] };
+		if (n[0] * nx + n[1] * ny + n[2] * nz < 0) {
+			uint32_t t = b;
+			b          = c;
+			c          = t;
+		}
+		s->indices.push(a);
+		s->indices.push(b);
+		s->indices.push(c);
+		s->dirty = true;
+	}
+
+	// Cylinder (radius 1, height 2) and cone (base radius 1 at the bottom, tip at the top), made the way the original
+	// does: the sides are one surface, and the caps of a solid one are another with a corner less than triangles each.
+	static void make_cylinder(int mesh, int segments, bool solid)
+	{
+		surface* s = surface_of(new_surface(mesh));
 		for (int i = 0; i <= segments; i++) {
-			float theta = 2 * pi * float(i) / float(segments);
+			float theta = 2 * pi * float(i % segments) / float(segments);
 			float x = sinf(theta), z = cosf(theta);
-			float nx = x, ny = 0, nz = z;
-			if (cone) {
-				float len = sqrtf(x * x * slope * slope + 1 + z * z * slope * slope);
-				nx        = x * slope / len;
-				ny        = 1 / len;
-				nz        = z * slope / len;
-			}
 			float u = float(i) / float(segments);
-			add_vertex(s, cone ? 0 : x, 1, cone ? 0 : z, nx, ny, nz, u, 0);
-			add_vertex(s, x, -1, z, nx, ny, nz, u, 1);
+			add_vertex(s, x, 1, z, x, 0, z, u, 0);
+			add_vertex(s, x, -1, z, x, 0, z, u, 1);
 		}
 		for (int i = 0; i < segments; i++) {
 			uint32_t t0 = uint32_t(i * 2), b0 = t0 + 1, t1 = t0 + 2, b1 = t0 + 3;
-			if (cone) {
-				add_oriented_triangle(s, t0, b0, b1); // t0 and t1 are both the tip.
-			} else {
-				add_oriented_triangle(s, t0, b0, t1);
-				add_oriented_triangle(s, t1, b0, b1);
-			}
+			add_oriented_triangle(s, t0, b0, t1);
+			add_oriented_triangle(s, t1, b0, b1);
 		}
-		if (solid) {
-			// Bottom cap, and top cap for the cylinder.
-			for (int cap = 0; cap < (cone ? 1 : 2); cap++) {
-				float y = cap == 0 ? -1.0f : 1.0f;
-				uint32_t center = add_vertex(s, 0, y, 0, 0, y, 0, 0.5f, 0.5f);
-				uint32_t first = s->vertices.size;
-				for (int i = 0; i <= segments; i++) {
-					float theta = 2 * pi * float(i) / float(segments);
-					add_vertex(s, sinf(theta), y, cosf(theta), 0, y, 0, 0.5f + sinf(theta) / 2, 0.5f + cosf(theta) / 2);
-				}
-				for (int i = 0; i < segments; i++) {
-					add_oriented_triangle(s, center, first + uint32_t(i), first + uint32_t(i) + 1);
-				}
-			}
+		if (!solid) {
+			return;
+		}
+		s = surface_of(new_surface(mesh));
+		for (int i = 0; i < segments; i++) {
+			float theta = 2 * pi * float(i) / float(segments);
+			float x = sinf(theta), z = cosf(theta);
+			add_vertex(s, x, 1, z, 0, 1, 0, x * 0.5f + 0.5f, z * 0.5f + 0.5f);
+			add_vertex(s, x, -1, z, 0, -1, 0, x * 0.5f + 0.5f, z * 0.5f + 0.5f);
+		}
+		for (int i = 2; i < segments; i++) {
+			add_facing_triangle(s, 0, uint32_t(i * 2), uint32_t((i - 1) * 2), 0, 1, 0);
+			add_facing_triangle(s, 1, uint32_t((i - 1) * 2 + 1), uint32_t(i * 2 + 1), 0, -1, 0);
+		}
+	}
+
+	static void make_cone(int mesh, int segments, bool solid)
+	{
+		surface* s = surface_of(new_surface(mesh));
+		for (int i = 0; i < segments; i++) {
+			add_vertex(s, 0, 1, 0, 0, 1, 0, (float(i) + 0.5f) / float(segments), 0);
+		}
+		for (int i = 0; i <= segments; i++) {
+			float theta = 2 * pi * float(i % segments) / float(segments);
+			float x = sinf(theta), z = cosf(theta);
+			add_vertex(s, x, -1, z, x, 0, z, float(i) / float(segments), 1);
+		}
+		for (int i = 0; i < segments; i++) {
+			add_oriented_triangle(s, uint32_t(i), uint32_t(i + segments + 1), uint32_t(i + segments));
+		}
+		if (!solid) {
+			return;
+		}
+		s = surface_of(new_surface(mesh));
+		for (int i = 0; i < segments; i++) {
+			float theta = 2 * pi * float(i) / float(segments);
+			float x = sinf(theta), z = cosf(theta);
+			add_vertex(s, x, -1, z, x, 0, z, x * 0.5f + 0.5f, z * 0.5f + 0.5f);
+		}
+		for (int i = 2; i < segments; i++) {
+			add_facing_triangle(s, 0, uint32_t(i - 1), uint32_t(i), 0, -1, 0);
 		}
 	}
 
@@ -312,14 +346,14 @@ int32_t bb_create_sphere(int32_t segments, int32_t parent)
 int32_t bb_create_cylinder(int32_t segments, int32_t solid, int32_t parent)
 {
 	int mesh = new_mesh(parent);
-	make_round(surface_of(new_surface(mesh)), clamp_segments(segments), solid != 0, false);
+	make_cylinder(mesh, clamp_segments(segments), solid != 0);
 	return mesh;
 }
 
 int32_t bb_create_cone(int32_t segments, int32_t solid, int32_t parent)
 {
 	int mesh = new_mesh(parent);
-	make_round(surface_of(new_surface(mesh)), clamp_segments(segments), solid != 0, true);
+	make_cone(mesh, clamp_segments(segments), solid != 0);
 	return mesh;
 }
 
