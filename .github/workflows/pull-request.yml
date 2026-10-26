@@ -100,6 +100,7 @@ jobs:
         run: |
           cmake --install build --config Release --prefix dist
           cp LICENSE.adoc README.adoc dist/
+          find dist -type f -exec ls -l {} + | sort -k5 -n -r
           # Zipped here, so the artifact is the .zip file itself and its name carries the extension.
           (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
       - uses: actions/upload-artifact@v7
