@@ -69,11 +69,26 @@
 <li><a href="WritePixelFast">WritePixelFast</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Display">Display</a> (27)</summary>
+<li><details><summary><a href="BlitzBasic-Display">Display</a> (44)</summary>
 <ul>
 <li><a href="AvailVidMem">AvailVidMem</a></li>
+<li><a href="CountDisplayModes">CountDisplayModes</a> 〔BlitzLLVM〕</li>
+<li><a href="CountDisplays">CountDisplays</a> 〔BlitzLLVM〕</li>
 <li><a href="CountGfxDrivers">CountGfxDrivers</a></li>
 <li><a href="CountGfxModes">CountGfxModes</a></li>
+<li><a href="CountRefreshRates">CountRefreshRates</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayDepth">DisplayDepth</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayHeight">DisplayHeight</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayModeDepth">DisplayModeDepth</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayModeHeight">DisplayModeHeight</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayModeRefreshRate">DisplayModeRefreshRate</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayModeWidth">DisplayModeWidth</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayName">DisplayName</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayRefreshRate">DisplayRefreshRate</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayScale">DisplayScale</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayWidth">DisplayWidth</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayX">DisplayX</a> 〔BlitzLLVM〕</li>
+<li><a href="DisplayY">DisplayY</a> 〔BlitzLLVM〕</li>
 <li><a href="EndGraphics">EndGraphics</a></li>
 <li><a href="Flip">Flip</a></li>
 <li><a href="GammaBlue">GammaBlue</a></li>
@@ -92,6 +107,8 @@
 <li><a href="GraphicsLost">GraphicsLost</a></li>
 <li><a href="GraphicsWidth">GraphicsWidth</a></li>
 <li><a href="HidePointer">HidePointer</a></li>
+<li><a href="PrimaryDisplay">PrimaryDisplay</a> 〔BlitzLLVM〕</li>
+<li><a href="RefreshRateAt">RefreshRateAt</a> 〔BlitzLLVM〕</li>
 <li><a href="SetGamma">SetGamma</a></li>
 <li><a href="SetGfxDriver">SetGfxDriver</a></li>
 <li><a href="ShowPointer">ShowPointer</a></li>

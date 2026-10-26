@@ -18,7 +18,8 @@ The height of the graphics window in pixels, as given to [Graphics](Graphics).
 
 ## Related commands
 
-* [EndGraphics](EndGraphics)
+* [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
+* [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
 * [GfxModeHeight](GfxModeHeight)
 * [Graphics](Graphics)
 * [GraphicsDepth](GraphicsDepth)

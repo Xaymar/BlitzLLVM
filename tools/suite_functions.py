@@ -41,6 +41,23 @@ BY_COMPILER = {
 EXTENSIONS = {
     "gfxmode3dwidth": ("graphics", "%GfxMode3DWidth%mode"),
     "gfxmode3dheight": ("graphics", "%GfxMode3DHeight%mode"),
+    "countdisplays": ("graphics", "%CountDisplays"),
+    "primarydisplay": ("graphics", "%PrimaryDisplay"),
+    "displayname": ("graphics", "$DisplayName%display"),
+    "displayx": ("graphics", "%DisplayX%display"),
+    "displayy": ("graphics", "%DisplayY%display"),
+    "displaywidth": ("graphics", "%DisplayWidth%display"),
+    "displayheight": ("graphics", "%DisplayHeight%display"),
+    "displaydepth": ("graphics", "%DisplayDepth%display"),
+    "displayrefreshrate": ("graphics", "%DisplayRefreshRate%display"),
+    "displayscale": ("graphics", "#DisplayScale%display"),
+    "countdisplaymodes": ("graphics", "%CountDisplayModes%display"),
+    "displaymodewidth": ("graphics", "%DisplayModeWidth%display%mode"),
+    "displaymodeheight": ("graphics", "%DisplayModeHeight%display%mode"),
+    "displaymodedepth": ("graphics", "%DisplayModeDepth%display%mode"),
+    "displaymoderefreshrate": ("graphics", "%DisplayModeRefreshRate%display%mode"),
+    "countrefreshrates": ("graphics", "%CountRefreshRates%display%width%height"),
+    "refreshrateat": ("graphics", "%RefreshRateAt%display%width%height%index"),
 }
 
 SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')

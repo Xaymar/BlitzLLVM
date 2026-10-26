@@ -26,8 +26,8 @@ The width in pixels of a display mode.
 
 ## Related commands
 
-* [CountGfxDrivers](CountGfxDrivers)
-* [CountGfxModes](CountGfxModes)
+* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
+* [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)

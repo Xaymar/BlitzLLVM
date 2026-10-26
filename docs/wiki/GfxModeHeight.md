@@ -26,8 +26,8 @@ The height in pixels of a display mode.
 
 ## Related commands
 
-* [CountGfxDrivers](CountGfxDrivers)
-* [CountGfxModes](CountGfxModes)
+* [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
+* [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
