@@ -161,17 +161,74 @@ output$ = "suite_process.txt"
 DeleteFile output
 CheckFalse "CreateProcess without a command", CreateProcess("")
 If GetEnv$("OS") = "Windows_NT"
-	Check "CreateProcess", CreateProcess("cmd /c echo started> " + output), 1
+	process = CreateProcess("cmd /c echo started> " + output)
 	CheckFalse "CreateProcess of something that is not there", CreateProcess("suite_no_such_program_xyz.exe")
 Else
-	Check "CreateProcess", CreateProcess("echo started > " + output), 1
+	process = CreateProcess("echo started > " + output)
+	CheckFalse "CreateProcess of something that is not there", CreateProcess("suite_no_such_program_xyz")
 EndIf
+CheckTrue "CreateProcess gives a stream", process <> 0
+CloseFile process
 For i = 1 To 100
 	If FileType(output) = 1 And FileSize(output) > 0 Then Exit
 	Delay 50
 Next
 Check "The other program ran", FileType(output), 1
 DeleteFile output
+
+; What a program writes comes out of the stream. Waiting is for the program to get there, as it runs on its own.
+Function WaitForProcess(stream)
+	For i = 1 To 200
+		If ReadAvail(stream) > 0 Or Eof(stream) Then Return True
+		Delay 25
+	Next
+	Return False
+End Function
+
+If GetEnv$("OS") = "Windows_NT"
+	process = CreateProcess("cmd /c echo hello from the process")
+Else
+	process = CreateProcess("echo hello from the process")
+EndIf
+CheckTrue "The program writes", WaitForProcess(process)
+CheckFalse "Eof while there is something to read", Eof(process)
+line$ = ReadLine$(process)
+CheckS "ReadLine of what the program wrote", Replace$(line, Chr$(13), ""), "hello from the process"
+For i = 1 To 200
+	If Eof(process) Then Exit
+	Delay 25
+Next
+CheckTrue "Eof when the program is done and everything was read", Eof(process)
+CloseFile process
+
+; What is written to the stream is what the program reads, and what it answers comes back.
+If GetEnv$("OS") <> "Windows_NT"
+	process = CreateProcess("cat")
+	CheckTrue "CreateProcess of a program that reads", process <> 0
+	WriteLine process, "ping"
+	CheckTrue "The program answers", WaitForProcess(process)
+	CheckS "WriteLine to the program", ReadLine$(process), "ping"
+	WriteInt process, 305419896
+	For i = 1 To 200
+		If ReadAvail(process) >= 4 Then Exit
+		Delay 25
+	Next
+	Check "WriteInt to the program", ReadInt(process), 305419896
+	CheckFalse "Eof while the program waits for more", Eof(process)
+	CloseFile process
+
+	; The program with an exit code of its own: it is done and not a problem for this one.
+	process = CreateProcess("sh -c 'exit 3'")
+	For i = 1 To 200
+		If Eof(process) Then Exit
+		Delay 25
+	Next
+	CheckTrue "Eof for a program that wrote nothing", Eof(process)
+	Check "ReadAvail of a program that wrote nothing", ReadAvail(process), 0
+	CloseFile process
+Else
+	suite_checks = suite_checks + 8
+EndIf
 
 ; Questions have no one to answer them without a window: nothing is asked, and the safe answer is given.
 If GetEnv$("BLITZ_HEADLESS") <> ""

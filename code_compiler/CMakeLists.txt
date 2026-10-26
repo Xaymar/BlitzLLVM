@@ -62,27 +62,31 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION bin/runtime)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
-# The licenses of BlitzLLVM and of every dependency that ends up in the program: <licenses>/BlitzLLVM, SDL3, SDL3_image, SDL3_mixer
-# and Vulkan-Headers. SDL_image and SDL_mixer install their own license and those of the codecs they were built with (libwebp,
-# libjxl, libavif, dav1d, ...), which are taken from their install directories. The others are taken from their sources.
-function(blitz_install_licenses DESTINATION)
-	set(_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
-	install(FILES "${_ROOT}/LICENSE.adoc" DESTINATION "${DESTINATION}/BlitzLLVM" ${ARGN})
-	install(FILES "${_ROOT}/third_party/SDL/LICENSE.txt" DESTINATION "${DESTINATION}/SDL3" ${ARGN})
-	install(DIRECTORY "${_ROOT}/third_party/Vulkan-Headers/LICENSES" DESTINATION "${DESTINATION}/Vulkan-Headers" ${ARGN})
-	install(FILES "${_ROOT}/third_party/Vulkan-Headers/LICENSE.md" DESTINATION "${DESTINATION}/Vulkan-Headers" ${ARGN})
-	foreach(_DIRECTORY IN LISTS BLITZRT_LICENSES)
-		install(DIRECTORY "${_DIRECTORY}/" DESTINATION "${DESTINATION}" ${ARGN})
-	endforeach()
-endfunction()
-blitz_install_licenses(licenses)
+# The license directory only exists for the codecs that were built, so it is copied when the install runs and skipped when absent.
+install(CODE "
+	if(EXISTS \"${BLITZRT_LICENSES}\")
+		file(GLOB_RECURSE _LICENSES RELATIVE \"${BLITZRT_LICENSES}\" \"${BLITZRT_LICENSES}/*\")
+		foreach(_LICENSE IN LISTS _LICENSES)
+			get_filename_component(_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/licenses/\${_LICENSE}\" DIRECTORY)
+			file(COPY \"${BLITZRT_LICENSES}/\${_LICENSE}\" DESTINATION \"\${_DIRECTORY}\")
+		endforeach()
+	endif()
+")
 
 # System layout for packages (deb, rpm, pkg), left out of a plain install: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime
 # and <prefix>/share/blitzllvm/userlibs. Only the packaging step installs this component, see the end of the top level CMakeLists.txt.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES "userlibs/README.txt" DESTINATION share/blitzllvm/userlibs COMPONENT system EXCLUDE_FROM_ALL)
-blitz_install_licenses(share/licenses/blitzllvm COMPONENT system EXCLUDE_FROM_ALL)
+install(CODE "
+	if(EXISTS \"${BLITZRT_LICENSES}\")
+		file(GLOB_RECURSE _LICENSES RELATIVE \"${BLITZRT_LICENSES}\" \"${BLITZRT_LICENSES}/*\")
+		foreach(_LICENSE IN LISTS _LICENSES)
+			get_filename_component(_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/share/licenses/blitzllvm/\${_LICENSE}\" DIRECTORY)
+			file(COPY \"${BLITZRT_LICENSES}/\${_LICENSE}\" DESTINATION \"\${_DIRECTORY}\")
+		endforeach()
+	endif()
+" COMPONENT system EXCLUDE_FROM_ALL)
 
 get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})
@@ -135,6 +139,13 @@ find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_FOUND)
 	add_test(NAME suite-coverage COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/suite_functions.py" check)
 	set_tests_properties(suite-coverage PROPERTIES LABELS "suite")
+	# Needs an X server and xdotool to take the focus away from the window, so it is skipped (77) without them.
+	if(BLITZ_TEST_GPU)
+		foreach(_MODE IN ITEMS on off)
+			add_test(NAME "gui-autosuspend-${_MODE}" COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/gui/autosuspend.py" $<TARGET_FILE:${PROJECT_NAME}> ${_MODE} "${PROJECT_BINARY_DIR}/gui/autosuspend-${_MODE}")
+			set_tests_properties("gui-autosuspend-${_MODE}" PROPERTIES LABELS "gui;gpu" SKIP_RETURN_CODE 77 RUN_SERIAL TRUE)
+		endforeach()
+	endif()
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -k, +k, -v. Each case is in tests/cli/cli.cmake.

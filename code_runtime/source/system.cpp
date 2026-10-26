@@ -12,6 +12,7 @@
 
 // The system around the program, as BlitzPlus has it: message boxes, other programs, and what the program has made.
 
+#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,10 +24,18 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
+#include <fcntl.h>
+#include <poll.h>
+#include <signal.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #endif
+
+extern "C" {
+#include "streams.h"
+}
 
 extern "C" {
 void    bb_debug_log(const char* text);
@@ -108,41 +117,302 @@ int32_t bb_ask_net_game(void)
 	return pressed == 0 ? 2 : (pressed == 1 ? 1 : 0);
 }
 
-// Starts another program with the command, without waiting for it. Gives 1 if it started.
+// What a program that was started with CreateProcess is to the stream: what it writes comes out of the stream, and what
+// is written to the stream is what it reads.
+namespace {
+	struct process_pipes {
+#if defined(_WIN32)
+		HANDLE in = nullptr, out = nullptr;
+		HANDLE process = nullptr;
+#else
+		int in = -1, out = -1;
+#endif
+		bool done = false;
+	};
+
+#if defined(_WIN32)
+	size_t process_read(bb_stream* stream, void* data, size_t size)
+	{
+		process_pipes* p = static_cast<process_pipes*>(stream->user);
+		DWORD          got = 0;
+		if (p->done || !ReadFile(p->in, data, DWORD(size), &got, nullptr)) {
+			p->done = p->done || (GetLastError() == ERROR_BROKEN_PIPE);
+			return got;
+		}
+		return got;
+	}
+
+	size_t process_write(bb_stream* stream, const void* data, size_t size)
+	{
+		process_pipes* p = static_cast<process_pipes*>(stream->user);
+		DWORD          sent = 0;
+		if (p->done || !WriteFile(p->out, data, DWORD(size), &sent, nullptr)) {
+			p->done = p->done || (GetLastError() == ERROR_BROKEN_PIPE);
+		}
+		return sent;
+	}
+
+	int32_t process_available(bb_stream* stream)
+	{
+		process_pipes* p = static_cast<process_pipes*>(stream->user);
+		DWORD          waiting = 0;
+		if (p->done) {
+			return 0;
+		}
+		if (!PeekNamedPipe(p->in, nullptr, 0, nullptr, &waiting, nullptr)) {
+			p->done = true;
+			return 0;
+		}
+		return int32_t(waiting);
+	}
+
+	int32_t process_at_end(bb_stream* stream)
+	{
+		process_pipes* p = static_cast<process_pipes*>(stream->user);
+		process_available(stream);
+		return p->done ? 1 : 0;
+	}
+
+	void process_close(bb_stream* stream)
+	{
+		process_pipes* p = static_cast<process_pipes*>(stream->user);
+		CloseHandle(p->in);
+		CloseHandle(p->out);
+		CloseHandle(p->process);
+		delete p;
+	}
+#else
+	// Reads until the size is there or the program is done: like a file, and not like a pipe that gives what it has.
+	size_t process_read(bb_stream* stream, void* data, size_t size)
+	{
+		process_pipes* p   = static_cast<process_pipes*>(stream->user);
+		size_t         got = 0;
+		while (!p->done && (got < size)) {
+			ssize_t n = read(p->in, static_cast<char*>(data) + got, size - got);
+			if (n < 0 && errno == EINTR) {
+				continue;
+			}
+			if (n <= 0) {
+				p->done = true;
+				break;
+			}
+			got += size_t(n);
+		}
+		return got;
+	}
+
+	size_t process_write(bb_stream* stream, const void* data, size_t size)
+	{
+		process_pipes* p    = static_cast<process_pipes*>(stream->user);
+		size_t         sent = 0;
+		while (sent < size) {
+			ssize_t n = write(p->out, static_cast<const char*>(data) + sent, size - sent);
+			if (n < 0 && errno == EINTR) {
+				continue;
+			}
+			if (n <= 0) {
+				break; // The program does not read any more.
+			}
+			sent += size_t(n);
+		}
+		return sent;
+	}
+
+	int32_t process_available(bb_stream* stream)
+	{
+		process_pipes* p       = static_cast<process_pipes*>(stream->user);
+		int            waiting = 0;
+		if (p->done || (ioctl(p->in, FIONREAD, &waiting) < 0)) {
+			return 0;
+		}
+		return waiting;
+	}
+
+	// The program is done when what it wrote is read and it closed its end. Nothing to read and not hung up is a program
+	// that is still running.
+	int32_t process_at_end(bb_stream* stream)
+	{
+		process_pipes* p = static_cast<process_pipes*>(stream->user);
+		if (p->done) {
+			return 1;
+		}
+		if (process_available(stream) > 0) {
+			return 0;
+		}
+		pollfd fd = { p->in, POLLIN, 0 };
+		if ((poll(&fd, 1, 0) > 0) && (fd.revents & (POLLIN | POLLHUP | POLLERR))) {
+			// Readable with nothing in it is the end of the file.
+			int waiting = 0;
+			if ((ioctl(p->in, FIONREAD, &waiting) < 0) || (waiting == 0)) {
+				p->done = true;
+			}
+		}
+		return p->done ? 1 : 0;
+	}
+
+	void process_close(bb_stream* stream)
+	{
+		process_pipes* p = static_cast<process_pipes*>(stream->user);
+		close(p->in);
+		close(p->out);
+		delete p;
+	}
+
+	// Whether a program can be found for the command, as Windows does not start one that it can't find (a shell would
+	// start anyway, and say so in the stream).
+	bool command_exists(const char* command)
+	{
+		while (*command == ' ') {
+			command++;
+		}
+		char        name[1024];
+		size_t      length = 0;
+		const char* p      = command;
+		if (*p == '"') {
+			for (p++; *p && (*p != '"') && (length < sizeof(name) - 1); p++) {
+				name[length++] = *p;
+			}
+		} else {
+			for (; *p && (*p != ' ') && (length < sizeof(name) - 1); p++) {
+				name[length++] = *p;
+			}
+		}
+		name[length] = 0;
+		if (!length) {
+			return false;
+		}
+		if (strchr(name, '/')) {
+			return access(name, X_OK) == 0;
+		}
+		const char* path = getenv("PATH");
+		if (!path) {
+			path = "/usr/bin:/bin";
+		}
+		while (*path) {
+			const char* end   = strchr(path, ':');
+			size_t      count = end ? size_t(end - path) : strlen(path);
+			char        candidate[2048];
+			if (count && (count + length + 2 < sizeof(candidate))) {
+				memcpy(candidate, path, count);
+				candidate[count] = '/';
+				strcpy(candidate + count + 1, name);
+				if (access(candidate, X_OK) == 0) {
+					return true;
+				}
+			}
+			path += count + (end ? 1 : 0);
+		}
+		return false;
+	}
+#endif
+} // namespace
+
+// Starts another program with the command, without waiting for it. Gives a stream to its input and output (what it
+// writes is read with ReadLine and the others, what is written to the stream is what it reads), or 0 if it could not
+// start.
 int32_t bb_create_process(const char* command)
 {
 	if (!command || !*command) {
 		return 0;
 	}
+	process_pipes* pipes = new process_pipes();
 #if defined(_WIN32)
+	SECURITY_ATTRIBUTES security = { sizeof(security), nullptr, TRUE };
+	HANDLE              our_in = nullptr, program_out = nullptr, program_in = nullptr, our_out = nullptr;
+	if (!CreatePipe(&our_in, &program_out, &security, 0)) {
+		delete pipes;
+		return 0;
+	}
+	if (!CreatePipe(&program_in, &our_out, &security, 0)) {
+		CloseHandle(our_in);
+		CloseHandle(program_out);
+		delete pipes;
+		return 0;
+	}
+	// The ends that stay here are not for the program.
+	SetHandleInformation(our_in, HANDLE_FLAG_INHERIT, 0);
+	SetHandleInformation(our_out, HANDLE_FLAG_INHERIT, 0);
 	char* line = static_cast<char*>(malloc(strlen(command) + 1));
 	strcpy(line, command);
-	STARTUPINFOA        startup = { sizeof(startup) };
+	STARTUPINFOA startup = { sizeof(startup) };
+	startup.dwFlags      = STARTF_USESTDHANDLES;
+	startup.hStdInput    = program_in;
+	startup.hStdOutput   = program_out;
+	startup.hStdError    = program_out;
 	PROCESS_INFORMATION process = {};
-	BOOL                started = CreateProcessA(nullptr, line, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startup, &process);
+	BOOL started = CreateProcessA(nullptr, line, nullptr, nullptr, TRUE, DETACHED_PROCESS, nullptr, nullptr, &startup, &process);
 	free(line);
+	CloseHandle(program_in);
+	CloseHandle(program_out);
 	if (!started) {
+		CloseHandle(our_in);
+		CloseHandle(our_out);
+		delete pipes;
 		return 0;
 	}
 	CloseHandle(process.hThread);
-	CloseHandle(process.hProcess);
-	return 1;
+	pipes->in      = our_in;
+	pipes->out     = our_out;
+	pipes->process = process.hProcess;
 #else
+	if (!command_exists(command)) {
+		delete pipes;
+		return 0;
+	}
+	int to_program[2], from_program[2];
+	if (pipe(to_program) < 0) {
+		delete pipes;
+		return 0;
+	}
+	if (pipe(from_program) < 0) {
+		close(to_program[0]);
+		close(to_program[1]);
+		delete pipes;
+		return 0;
+	}
+	// Writing to a program that is gone is a short write, and not the end of this one.
+	signal(SIGPIPE, SIG_IGN);
+	fcntl(to_program[1], F_SETFD, FD_CLOEXEC);
+	fcntl(from_program[0], F_SETFD, FD_CLOEXEC);
 	pid_t child = fork();
 	if (child < 0) {
+		close(to_program[0]);
+		close(to_program[1]);
+		close(from_program[0]);
+		close(from_program[1]);
+		delete pipes;
 		return 0;
 	}
 	if (child == 0) {
 		// Twice, so that nobody has to wait for the program to be done with.
 		if (fork() == 0) {
+			dup2(to_program[0], 0);
+			dup2(from_program[1], 1);
+			dup2(from_program[1], 2);
+			close(to_program[0]);
+			close(from_program[1]);
 			execl("/bin/sh", "sh", "-c", command, static_cast<char*>(nullptr));
+			_exit(127);
 		}
 		_exit(0);
 	}
 	int status;
 	waitpid(child, &status, 0);
-	return 1;
+	close(to_program[0]);
+	close(from_program[1]);
+	pipes->in  = from_program[0];
+	pipes->out = to_program[1];
 #endif
+	bb_stream stream;
+	memset(&stream, 0, sizeof(stream));
+	stream.kind      = BB_STREAM_NET;
+	stream.user      = pipes;
+	stream.read      = process_read;
+	stream.write     = process_write;
+	stream.available = process_available;
+	stream.at_end    = process_at_end;
+	stream.close     = process_close;
+	return bb_stream_add(stream);
 }
 
 // How many things the program has made that it has not freed yet: banks, streams, images, textures, fonts, sounds,
