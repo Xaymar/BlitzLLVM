@@ -6,6 +6,7 @@
 
 Playing back movie files.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

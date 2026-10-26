@@ -6,6 +6,7 @@
 
 Opening a graphics mode, listing drivers and modes, gamma and video memory.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

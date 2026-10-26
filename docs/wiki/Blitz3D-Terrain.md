@@ -6,6 +6,7 @@
 
 Height-map terrains.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

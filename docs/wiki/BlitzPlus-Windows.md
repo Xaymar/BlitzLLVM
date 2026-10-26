@@ -6,6 +6,7 @@
 
 Creating and controlling windows.
 
+
 Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

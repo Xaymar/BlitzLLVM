@@ -6,6 +6,7 @@
 
 Creating, loading, transforming and querying meshes.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

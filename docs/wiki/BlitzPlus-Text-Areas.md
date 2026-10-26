@@ -6,6 +6,7 @@
 
 Multi-line text editing and formatting.
 
+
 Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

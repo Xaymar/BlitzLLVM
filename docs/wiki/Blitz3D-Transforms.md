@@ -6,6 +6,7 @@
 
 Converting points, vectors and normals between entity spaces.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
