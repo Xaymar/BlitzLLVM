@@ -154,6 +154,12 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	set_tests_properties(close-prompt_pixels PROPERTIES LABELS "gpu")
 endif()
 
+# What actually comes out of the speakers: played through SDL's disk audio driver, and checked for pitch, looping and gaps.
+if(Python3_FOUND AND NOT WIN32)
+	add_test(NAME audio-output COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/audio/audio_output.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${PROJECT_BINARY_DIR}/audio")
+	set_tests_properties(audio-output PROPERTIES LABELS "audio" SKIP_RETURN_CODE 77 TIMEOUT 600)
+endif()
+
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
 foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug debug_info stop keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout version verbose_long_only run run_exit_code diagnostics help)
 	add_test(

@@ -267,12 +267,15 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	channel->frequency = sound->pitch;
 
 	MIX_SetTrackAudio(channel->track, sound->audio);
-	MIX_SetTrackLoops(channel->track, sound->loop ? -1 : 0);
 	if (sound->pitch > 0 && sound->frequency > 0) {
 		MIX_SetTrackFrequencyRatio(channel->track, (float)sound->pitch / (float)sound->frequency);
 	}
 	bb_channel_apply(channel, channel->volume, channel->pan);
-	MIX_PlayTrack(channel->track, 0);
+	// The loop count has to be given while starting, MIX_SetTrackLoops does nothing for a track that is not playing yet.
+	SDL_PropertiesID options = SDL_CreateProperties();
+	SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, sound->loop ? -1 : 0);
+	MIX_PlayTrack(channel->track, options);
+	SDL_DestroyProperties(options);
 	return slot;
 }
 
