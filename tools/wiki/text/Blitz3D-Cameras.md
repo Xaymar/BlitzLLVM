@@ -1,0 +1,251 @@
+## CreateCamera
+Creates a camera and returns its handle. A camera is an entity, so it moves, turns and parents like any other, and every camera in the world draws its view when [RenderWorld](Blitz3D-World#renderworld) runs. Without a camera the world renders nothing.
+
+A new camera sits at the origin, looks down the positive Z axis, covers the whole graphics buffer, clears the buffer to black and sees from 1 to 1000 units away. With a `parent` the camera follows that entity, but moving the camera never moves the parent.
+
+```blitzbasic
+;media still blitz3d/createcamera.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 1, -6
+RotateEntity camera, 10, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+cube = CreateCube()
+TurnEntity cube, 20, 35, 0
+EntityColor cube, 240, 160, 40
+RenderWorld
+Flip
+WaitKey
+```
+
+![CreateCamera](media/blitz3d/createcamera.png)
+@param parent  Entity the camera follows, or 0 for none. Defaults to 0.
+@returns       The handle of the new camera.
+
+## CameraClsColor
+Sets the color this camera clears the buffer to before it draws. The default is black. Each part is clamped to 0 through 255. It only matters while [CameraClsMode](Blitz3D-Cameras#cameraclsmode) leaves color clearing on, which it does by default.
+
+```blitzbasic
+;media still blitz3d/cameraclscolor.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsColor camera, 30, 80, 170
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+ball = CreateSphere(16)
+PositionEntity ball, 0, 0, 3
+EntityColor ball, 250, 200, 60
+RenderWorld
+Flip
+WaitKey
+```
+
+![CameraClsColor](media/blitz3d/cameraclscolor.png)
+@param camera  Camera handle.
+@param red     Red part, 0 to 255.
+@param green   Green part, 0 to 255.
+@param blue    Blue part, 0 to 255.
+
+## CameraClsMode
+Chooses what the camera clears before it draws: the color buffer, the depth buffer, both or neither. Switch color clearing off to draw a 2D background first and let the 3D world appear on top of it. Leave depth clearing on unless you render several cameras on purpose into the same pixels and want their depth to combine, otherwise earlier cameras block later ones.
+
+```blitzbasic
+;media still blitz3d/cameraclsmode.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraClsMode camera, 0, 1
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+cube = CreateCube()
+PositionEntity cube, 0, 0, 4
+TurnEntity cube, 25, 30, 0
+; A 2D background that the world is drawn over.
+Cls
+For i = 0 To 239 Step 4
+	Color 20, 40 + i / 2, 120 + i / 3
+	Rect 0, i, 320, 4, 1
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![CameraClsMode](media/blitz3d/cameraclsmode.png)
+@param camera       Camera handle.
+@param cls_color    True to clear the color buffer, false to keep what is there.
+@param cls_zbuffer  True to clear the depth buffer, false to keep it.
+
+## CameraRange
+Sets the nearest and farthest distance in front of the camera that is drawn. Anything closer than `near` or farther than `far` is clipped away. The defaults are 1 and 1000. Raising `near` and lowering `far` gives the depth buffer more precision where it matters, which stops distant surfaces from flickering through each other. The distance is measured along the view direction, not as a radius around the camera.
+The runtime stops with an error unless `0 < near < far`.
+
+```blitzbasic
+;media still blitz3d/camerarange.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+CameraRange camera, 1, 16
+CameraClsColor camera, 20, 30, 60
+PositionEntity camera, 0, 3, -4
+RotateEntity camera, 12, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+For i = 0 To 9
+	cube = CreateCube()
+	ScaleEntity cube, 0.6, 0.6, 0.6
+	PositionEntity cube, (i Mod 2) * 3 - 1.5, 0, i * 2.5
+	EntityColor cube, 255 - i * 20, 120, 40 + i * 20
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![CameraRange](media/blitz3d/camerarange.png)
+@param camera  Camera handle.
+@param near    Closest distance that is drawn. Must be greater than 0.
+@param far     Farthest distance that is drawn. Must be greater than `near`.
+
+## CameraViewport
+Restricts the camera to a rectangle of the graphics buffer. Use it for split screen, a rear view mirror or a minimap. The camera keeps its aspect ratio from the size of the rectangle, so a narrow viewport does not squash the picture. Parts of the rectangle outside the buffer are cut off.
+The camera clears only its own rectangle, so two cameras with separate viewports can share one frame.
+
+```blitzbasic
+;media still blitz3d/cameraviewport.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+left = CreateCamera()
+CameraViewport left, 0, 0, 158, 240
+CameraClsColor left, 120, 30, 30
+right = CreateCamera()
+CameraViewport right, 162, 0, 158, 240
+CameraClsColor right, 30, 60, 130
+PositionEntity right, 0, 1.5, -2
+RotateEntity right, 20, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+cube = CreateCube()
+PositionEntity cube, 0, 0, 4
+TurnEntity cube, 25, 30, 0
+EntityColor cube, 240, 180, 60
+RenderWorld
+Flip
+WaitKey
+```
+
+![CameraViewport](media/blitz3d/cameraviewport.png)
+@param camera  Camera handle.
+@param x       Left edge of the viewport in the buffer.
+@param y       Top edge of the viewport in the buffer.
+@param width   Width of the viewport in pixels.
+@param height  Height of the viewport in pixels.
+
+## CameraZoom
+Changes how much the camera magnifies the view. 1 is the default, larger values zoom in and smaller values zoom out. Zoom narrows or widens the field of view, so it can imitate a telescope or a wide angle lens. The runtime does not accept values below 0.001.
+
+```blitzbasic
+;media still blitz3d/camerazoom.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+normal = CreateCamera()
+CameraViewport normal, 0, 0, 158, 240
+zoomed = CreateCamera()
+CameraViewport zoomed, 162, 0, 158, 240
+CameraZoom zoomed, 2.5
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+ball = CreateSphere(16)
+PositionEntity ball, 0, 0, 4
+EntityColor ball, 80, 200, 120
+RenderWorld
+Flip
+WaitKey
+```
+
+![CameraZoom](media/blitz3d/camerazoom.png)
+@param camera  Camera handle.
+@param zoom    Magnification, 1 by default.
+
+## CameraProjMode
+Switches the camera between not drawing at all, perspective and orthographic projection. 0 turns the camera off, which is faster than hiding it with `HideEntity`. 1 is normal perspective and the default.
+@param camera  Camera handle.
+@param mode    0 disables the camera, 1 is perspective, 2 is orthographic.
+@gap Orthographic projection (2) is not implemented yet and behaves like perspective projection (1). Only 0 and non-zero values are told apart.
+
+## CameraFogMode
+Turns the camera's fog on or off. Fog fades everything toward the fog color with distance, which hides objects popping into view at the far limit. Every camera has its own fog, so two cameras can show the same world with and without it. Set the range with [CameraFogRange](Blitz3D-Cameras#camerafogrange) and the color with [CameraFogColor](Blitz3D-Cameras#camerafogcolor); entities can opt out with the fog flag of `EntityFX`.
+@gap The `EntityFX` flag that exempts an entity from fog is ignored, so every entity is fogged.
+@param camera  Camera handle.
+@param mode    0 for no fog, 1 for linear fog.
+
+## CameraFogRange
+Sets where the fog starts and where it becomes solid. Nothing closer than `near` is touched and everything beyond `far` is completely the fog color. The default range is 1 to 1000, which is why fog is hardly visible until you shorten it.
+
+```blitzbasic
+;media still blitz3d/camerafogrange.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 3, -4
+RotateEntity camera, 12, 0, 0
+CameraClsColor camera, 150, 170, 200
+CameraFogMode camera, 1
+CameraFogColor camera, 150, 170, 200
+CameraFogRange camera, 2, 24
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+For i = 0 To 11
+	cube = CreateCube()
+	ScaleEntity cube, 0.6, 0.6, 0.6
+	PositionEntity cube, (i Mod 2) * 3 - 1.5, 0, i * 2.5
+	EntityColor cube, 220, 60, 50
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![CameraFogRange](media/blitz3d/camerafogrange.png)
+@param camera  Camera handle.
+@param near    Distance where the fog starts.
+@param far     Distance where everything is fully fogged.
+
+## CameraFogColor
+Sets the color the fog fades to. Match it to the clear color of the camera, set with [CameraClsColor](Blitz3D-Cameras#cameraclscolor), so distant things melt into the background instead of ending at a visible edge. The default is black. Each part is clamped to 0 through 255.
+@param camera  Camera handle.
+@param red     Red part, 0 to 255.
+@param green   Green part, 0 to 255.
+@param blue    Blue part, 0 to 255.
+
+## CameraProject
+Works out where a point of the world lands on the screen. The result is not returned: read it afterwards with [ProjectedX](Blitz3D-Transforms#projectedx), [ProjectedY](Blitz3D-Transforms#projectedy) and [ProjectedZ](Blitz3D-Transforms#projectedz). X and Y are pixels of the graphics buffer and Z is the distance of the point in front of the camera. A point behind the camera or a camera that is off gets Y and X far outside the screen, so check `ProjectedZ` before drawing. Use it to put 2D labels, health bars or a lens flare on a 3D position.
+
+```blitzbasic
+;media still blitz3d/cameraproject.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+cube = CreateCube()
+PositionEntity cube, 1, 0.5, 6
+TurnEntity cube, 25, 30, 0
+RenderWorld
+CameraProject camera, EntityX(cube), EntityY(cube) + 2, EntityZ(cube)
+If ProjectedZ() > 0 Then
+	Color 255, 255, 0
+	Text ProjectedX(), ProjectedY(), "cube", 1, 1
+EndIf
+Flip
+WaitKey
+```
+
+![CameraProject](media/blitz3d/cameraproject.png)
+@param camera  Camera handle.
+@param x       X coordinate in the world.
+@param y       Y coordinate in the world.
+@param z       Z coordinate in the world.

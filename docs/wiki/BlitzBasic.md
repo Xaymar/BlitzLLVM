@@ -15,7 +15,7 @@ Back to [[Home]] or the [[Command-Index]].
 | [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels) | 16 | Drawing targets, locking and reading or writing single pixels. |
 | [Display](BlitzBasic-Display) | 27 | Opening a graphics mode, listing drivers and modes, gamma and video memory. |
 | [Drawing](BlitzBasic-Drawing) | 14 | Colors, shapes, text positioning and the viewport. |
-| [Files](BlitzBasic-Files) | 17 | Opening, reading, writing and listing files and directories. |
+| [Files](BlitzBasic-Files) | 18 | Opening, reading, writing and listing files and directories. |
 | [Fonts and Text](BlitzBasic-Fonts-and-Text) | 12 | Loading fonts and measuring or printing text. |
 | [Images](BlitzBasic-Images) | 32 | Loading, drawing, transforming and colliding images. |
 | [Joystick](BlitzBasic-Joystick) | 21 | Joystick and gamepad axes, buttons and hats. |

@@ -23,6 +23,7 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 | [FilePos](BlitzBasic-Files#filepos) | Int |  |
 | [FileSize](BlitzBasic-Files#filesize) | Int |  |
 | [FileType](BlitzBasic-Files#filetype) | Int | Tells what is at a path, so you can check for something before you open it. |
+| [MoreFiles](BlitzBasic-Files#morefiles) | Int | Tells whether `NextFile` has another entry in a folder opened with `ReadDir`. |
 | [NextFile](BlitzBasic-Files#nextfile) | String | Returns the name of the next entry of a folder opened with [ReadDir](BlitzBasic-Files#readdir). |
 | [OpenFile](BlitzBasic-Files#openfile) | Int | Opens an existing file for reading and writing at once, keeping what is in it. |
 | [ReadDir](BlitzBasic-Files#readdir) | Int | Opens a folder so its entries can be listed with [NextFile](BlitzBasic-Files#nextfile). |
@@ -258,6 +259,34 @@ DeleteDir "files_type_folder"
 | `file` | String | required | The path to look at. |
 
 **Returns:** 0 when nothing is there, 1 for a file, 2 for a folder.
+
+### MoreFiles
+
+```blitzbasic
+MoreFiles dir%  ; returns Int
+```
+
+**Works in:** BlitzPlus
+
+Tells whether `NextFile` has another entry in a folder opened with `ReadDir`.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+dir = ReadDir(".")
+n = 0
+While MoreFiles(dir)
+	NextFile$(dir)
+	n = n + 1
+Wend
+CloseDir dir
+Notify n + " entries"
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `dir` | Int | required | A folder handle from `ReadDir`. |
+
+**Returns:** 1 if more entries follow, 0 if not. Undocumented in the official help.
 
 ### NextFile
 

@@ -604,12 +604,16 @@ namespace bb::gfx {
 			push.material[1] = e->color[1] * paint.color[1];
 			push.material[2] = e->color[2] * paint.color[2];
 			push.material[3] = item.alpha * paint.alpha;
-			push.params[0]   = (fullbright || ((e->fx | paint.fx) & 1)) ? 1.0f : 0.0f;
+			int fx           = e->fx | paint.fx;
+			push.params[0]   = (fullbright || (fx & 1)) ? 1.0f : 0.0f;
+			push.params[1]   = (fx & 2) ? 1.0f : 0.0f; // The colors of the vertices only count if asked for.
+			push.params[2]   = (fx & 4) ? 1.0f : 0.0f; // Flat shaded: the first vertex of a triangle decides its color.
 			texture_entry* texture = texture_of(texture_handle);
 			texture_uv(texture, texture_handle, push.uv);
 			// Masked textures are cut out where they are nearly not there, which is what makes leaves and fences solid.
 			bool cutout = texture && (texture->flags & TEXTURE_MASKED);
 			push.mask[0] = cutout ? 0.5f * item.alpha * paint.alpha : 0.0f;
+			push.mask[1] = (fx & 8) ? 1.0f : 0.0f; // Not fogged.
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
@@ -637,6 +641,8 @@ namespace bb::gfx {
 				draw_record more     = record;
 				more.push.material[0] = more.push.material[1] = more.push.material[2] = more.push.material[3] = 1;
 				more.push.params[0]  = 1; // Not lit again.
+				more.push.params[1]  = 0;
+				more.push.params[2]  = 0;
 				texture_uv(extra, extra_handle, more.push.uv);
 				more.push.mask[0]    = 0;
 				more.push.mask[1]    = 1; // No fog again either, the first layer has it.

@@ -399,6 +399,37 @@ void bb_locate(int32_t x, int32_t y)
 	g.cursor_y = y < 0 ? 0 : (y > h ? h : y);
 }
 
+extern "C" char* bb_copy(const char* data, size_t length);
+
+namespace {
+	// Print, Write and Input draw on the front buffer from the top left, whatever the program set up, and put all of
+	// it back when they are done.
+	struct front_drawing {
+		int     target, ox, oy, vx, vy, vw, vh;
+		uint8_t color[3];
+
+		front_drawing() : target(g.target), ox(g.origin_x), oy(g.origin_y), vx(g.view_x), vy(g.view_y), vw(g.view_w), vh(g.view_h)
+		{
+			memcpy(color, g.color, 3);
+			g.target   = front_buffer;
+			g.origin_x = g.origin_y = g.view_x = g.view_y = 0;
+			g.view_w = g.view_h = -1;
+		}
+
+		~front_drawing()
+		{
+			g.target   = target;
+			g.origin_x = ox;
+			g.origin_y = oy;
+			g.view_x   = vx;
+			g.view_y   = vy;
+			g.view_w   = vw;
+			g.view_h   = vh;
+			memcpy(g.color, color, 3);
+		}
+	};
+} // namespace
+
 // Print and Write show their text in the window, from where Locate put the cursor, on the front buffer. Returns 0 if
 // there is no window to show it in.
 int32_t bb_screen_print(const char* s, int32_t newline)
@@ -411,19 +442,14 @@ int32_t bb_screen_print(const char* s, int32_t newline)
 	gpu_image& front  = g.buffers[0];
 	int        width = int(front.width), screen = int(front.height);
 
-	int    saved_target = g.target, ox = g.origin_x, oy = g.origin_y, vx = g.view_x, vy = g.view_y, vw = g.view_w, vh = g.view_h;
-	uint8_t saved_color[3] = { g.color[0], g.color[1], g.color[2] };
-	g.target = front_buffer;
-	g.origin_x = g.origin_y = g.view_x = g.view_y = 0;
-	g.view_w = g.view_h = -1;
-
-	int scroll = g.cursor_y + height - screen;
+	front_drawing drawing;
+	int           scroll = g.cursor_y + height - screen;
 	if (scroll > 0) {
 		g.cursor_y = screen - height;
 		bb_copy_rect(0, scroll, width, screen - scroll, 0, 0, front_buffer, front_buffer);
 		memcpy(g.color, g.clscolor, 3);
 		add_rect(0, float(screen - scroll), float(width), float(scroll));
-		memcpy(g.color, saved_color, 3);
+		memcpy(g.color, drawing.color, 3);
 	}
 	if (s && *s) {
 		bb_text(g.cursor_x, g.cursor_y, s, 0, 0);
@@ -434,15 +460,105 @@ int32_t bb_screen_print(const char* s, int32_t newline)
 	} else {
 		g.cursor_x += bb_string_width(s);
 	}
-
-	g.target = saved_target;
-	g.origin_x = ox;
-	g.origin_y = oy;
-	g.view_x = vx;
-	g.view_y = vy;
-	g.view_w = vw;
-	g.view_h = vh;
 	return 1;
+}
+
+// Input shows its prompt and what is typed in the window like Print does, with a blinking block as the cursor, and gives
+// back the line once Return is pressed. Escape clears it, and the cursor keys, Home, End, Backspace and Delete edit it.
+// Returns null if there is no window to do it in.
+const char* bb_screen_input(const char* prompt)
+{
+	if (!active()) {
+		return nullptr;
+	}
+	bb_screen_print(prompt, 0);
+
+	constexpr int capacity = 1024;
+	float         scale    = font_scale();
+	int           height   = int(8 * scale + 0.5f);
+	int           width    = int(g.buffers[0].width);
+	int           x        = g.cursor_x, y = g.cursor_y;
+
+	// What is behind the line is kept, so that it can be put back whenever the line changes.
+	int behind = bb_create_image(width, height, 1);
+	bb_copy_rect(0, y, width, height, 0, 0, front_buffer, bb_image_buffer(behind, 0));
+
+	char          line[capacity + 1] = {};
+	int           length = 0, cursor = 0, phase = -1;
+	Uint64        start   = SDL_GetTicks();
+	bool          changed = true, done = false;
+	front_drawing drawing;
+
+	while (!done) {
+		bb_graphics_idle();
+		Uint64 now = SDL_GetTicks();
+
+		// The codes are the ones GetKey gives: 1 Home, 2 End, 4 Delete, 30 Right and 31 Left, the rest edits as typed.
+		while (int key = bb_get_key()) {
+			changed = true;
+			if (key == 13) {
+				done = true;
+				break;
+			} else if (key == 8) {
+				if (cursor) {
+					memmove(line + cursor - 1, line + cursor, size_t(length - cursor + 1));
+					cursor--, length--;
+				}
+			} else if (key == 27) {
+				line[0] = 0;
+				cursor = length = 0;
+			} else if (key == 4) {
+				if (cursor < length) {
+					memmove(line + cursor, line + cursor + 1, size_t(length - cursor));
+					length--;
+				}
+			} else if (key == 1) {
+				cursor = 0;
+			} else if (key == 2) {
+				cursor = length;
+			} else if (key == 31) {
+				cursor -= cursor ? 1 : 0;
+			} else if (key == 30) {
+				cursor += (cursor < length) ? 1 : 0;
+			} else if ((key >= 32) && (length < capacity)) {
+				memmove(line + cursor + 1, line + cursor, size_t(length - cursor + 1));
+				line[cursor++] = char(key);
+				length++;
+			}
+		}
+
+		int blink = int(((now - start) / 320) & 1);
+		if (!changed && (blink == phase)) {
+			SDL_Delay(5);
+			continue;
+		}
+		changed = false;
+		phase   = blink;
+
+		bb_copy_rect(0, 0, width, height, 0, y, bb_image_buffer(behind, 0), front_buffer);
+		bb_text(x, y, line, 0, 0);
+		if (!blink && !done) {
+			char under   = line[cursor];
+			line[cursor] = 0;
+			int cx       = x + bb_string_width(line);
+			line[cursor] = under;
+			for (int c = 0; c < 3; c++) {
+				g.color[c] = uint8_t(g.clscolor[c] ^ 0xFF);
+			}
+			bb_rect(cx, y, int(8 * scale + 0.5f), height, 1);
+			if (under) {
+				char shown[2] = { under, 0 };
+				memcpy(g.color, g.clscolor, 3);
+				bb_text(cx, y, shown, 0, 0);
+			}
+			memcpy(g.color, drawing.color, 3);
+		}
+	}
+
+	bb_free_image(behind);
+	g.cursor_x = 0;
+	g.cursor_y = y + height;
+	return bb_copy(line, size_t(length));
 }
 
 int32_t bb_live_fonts(void)

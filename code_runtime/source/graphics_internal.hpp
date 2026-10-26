@@ -285,10 +285,10 @@ namespace bb::gfx {
 
 		// Input
 		bool    keys[256]   = {};
-		bool    key_hits[256] = {};
+		int     key_hits[256] = {}; // How often a key went down since KeyHit asked.
 		int     mouse_x = 0, mouse_y = 0;
 		bool    mouse[4]      = {};
-		bool    mouse_hits[4] = {};
+		int     mouse_hits[4] = {}; // The same for the mouse buttons.
 		int     last_char     = 0;
 		int     key_queue[64] = {}; // Characters that were typed, for GetKey and WaitKey.
 		int     key_head = 0, key_tail = 0;
@@ -317,7 +317,9 @@ namespace bb::gfx {
 		int             frames = 1;             // More than one for a texture that is a sheet of frames, see LoadAnimTexture.
 		int             frame_w = 0, frame_h = 0; // The size of a frame, if there are frames.
 		int             first_frame = 0;        // The cell of the sheet that is the first frame.
-		char*           file = nullptr;         // Where it was loaded from, for TextureName.
+		char*           file = nullptr;         // Where it was loaded from (the full path), for TextureName.
+		int             alias = 0;              // Another handle to the texture of this one (GetBrushTexture), which has all of its state.
+		bool            freed = false;          // FreeTexture was called while something still uses it, so it only goes once nothing does.
 		gpu_image       image;
 		VkDescriptorSet set = VK_NULL_HANDLE;
 	};
@@ -570,7 +572,12 @@ namespace bb::gfx {
 	bool active();
 	void push_key(int code);
 	void ensure_swapchain();
+	/** What a handle draws with, which is also true for a handle that was freed while something still uses it. */
 	texture_entry* texture_of(int reference);
+	/** What a handle means to a program, which has nothing for a handle that was freed. */
+	texture_entry* live_texture_of(int reference);
+	/** Where a frame of the texture is in its sheet, or false if there is no such frame. */
+	bool texture_frame_rect(texture_entry const& texture, int frame, int& x, int& y, int& w, int& h);
 	/** The scale and offset of the texture coordinates for a texture, from the reference that has its frame. */
 	void texture_uv(texture_entry const* texture, int reference, float* uv);
 	void free_image(image_entry& e);
@@ -620,6 +627,10 @@ void bb_text(int32_t x, int32_t y, const char* s, int32_t center_x, int32_t cent
 int32_t bb_color_blue(void);
 int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t frames);
 int32_t bb_filter_texture_flags(const char* file, int32_t flags);
+void bb_reset_texture_filters(void);
+int32_t bb_texture_alias(int32_t handle);
+void bb_collect_textures(void);
+int32_t bb_texture_in_use(int32_t handle);
 int32_t bb_load_texture_flags(const char* file, int32_t flags);
 int32_t bb_load_texture(const char* file, int32_t flags);
 void bb_free_texture(int32_t handle);

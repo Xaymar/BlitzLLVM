@@ -374,6 +374,7 @@ void bb_free_entity(int32_t handle)
 {
 	need(handle, "FreeEntity");
 	destroy_entity(handle);
+	bb_collect_textures();
 }
 
 void bb_entity_parent(int32_t handle, int32_t parent, int32_t global)

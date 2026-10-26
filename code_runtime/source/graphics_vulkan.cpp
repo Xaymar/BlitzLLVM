@@ -56,10 +56,8 @@ namespace bb::gfx {
 			t.h     = int(t.image->height);
 		} else if (handle >= texture_buffer_base) {
 			texture_entry* tex = texture_of((handle - texture_buffer_base) >> 10);
-			if (tex && tex->set) {
+			if (tex && tex->set && texture_frame_rect(*tex, (handle - texture_buffer_base) & 1023, t.x, t.y, t.w, t.h)) {
 				t.image = &tex->image;
-				t.w     = tex->width;
-				t.h     = tex->height;
 			}
 		} else if (handle >= image_buffer_base) {
 			int          id    = (handle - image_buffer_base) >> 10;

@@ -23,7 +23,6 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 | [FontSize](BlitzPlus-System#fontsize) | Int |  |
 | [FontStyle](BlitzPlus-System#fontstyle) | Int |  |
 | [HotKeyEvent](BlitzPlus-System#hotkeyevent) | None | Makes a key combination produce an event of your choice, even when no gadget wants the key. |
-| [MoreFiles](BlitzPlus-System#morefiles) | Int | Tells whether `NextFile` has another entry in a folder opened with `ReadDir`. |
 | [Notify](BlitzPlus-System#notify) | None | Shows a message with one OK button and waits until it is closed. |
 | [PauseTimer](BlitzPlus-System#pausetimer) | None | Stops a timer from ticking and posting events until [ResumeTimer](BlitzPlus-System#resumetimer) is called. |
 | [Proceed](BlitzPlus-System#proceed) | Int | Shows a question with Yes, No and Cancel and waits for the answer. |
@@ -291,34 +290,6 @@ Until e = $803
 | `ev_y` | Int | `0` |  |
 | `ev_z` | Int | `0` |  |
 | `ev_source` | Int | `0` |  |
-
-### MoreFiles
-
-```blitzbasic
-MoreFiles dir%  ; returns Int
-```
-
-**Works in:** BlitzPlus
-
-Tells whether `NextFile` has another entry in a folder opened with `ReadDir`.
-
-```blitzbasic
-Graphics 320, 240, 32, 2
-dir = ReadDir(".")
-n = 0
-While MoreFiles(dir)
-	NextFile$(dir)
-	n = n + 1
-Wend
-CloseDir dir
-Notify n + " entries"
-```
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | Int | required | A folder handle from `ReadDir`. |
-
-**Returns:** 1 if more entries follow, 0 if not. Undocumented in the official help.
 
 ### Notify
 

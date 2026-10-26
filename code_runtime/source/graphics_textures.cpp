@@ -24,7 +24,21 @@ namespace bb::gfx {
 		if ((handle < 1) || (uint32_t(handle) > texture_table.size) || !texture_table[uint32_t(handle) - 1].used) {
 			return nullptr;
 		}
-		return &texture_table[uint32_t(handle) - 1];
+		texture_entry* t = &texture_table[uint32_t(handle) - 1];
+		if (t->alias) {
+			// A handle that GetBrushTexture made is the same texture, with the same scale, blend and pixels.
+			t = &texture_table[uint32_t(t->alias) - 1];
+		}
+		return t;
+	}
+
+	texture_entry* live_texture_of(int reference)
+	{
+		int handle = reference & bb::texture_handle_mask;
+		if ((handle < 1) || (uint32_t(handle) > texture_table.size) || !texture_table[uint32_t(handle) - 1].used || texture_table[uint32_t(handle) - 1].freed) {
+			return nullptr;
+		}
+		return texture_of(reference);
 	}
 
 	// With frames the texture coordinates only cover the cell of a frame in the sheet.
@@ -78,13 +92,86 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////////
 	static texture_entry* need_texture(int32_t handle, const char* what)
 	{
-		texture_entry* t = texture_of(handle);
+		texture_entry* t = live_texture_of(handle);
 		if (!t) {
 			char message[96];
 			snprintf(message, sizeof(message), "%s: the texture does not exist.", what);
 			bb_runtime_error(message);
 		}
 		return t;
+	}
+
+	// Where a frame of the texture is in its sheet, or false if there is no such frame.
+	bool texture_frame_rect(texture_entry const& t, int frame, int& x, int& y, int& w, int& h)
+	{
+		if ((frame < 0) || (frame >= t.frames)) {
+			return false;
+		}
+		x = y = 0;
+		w     = t.width;
+		h     = t.height;
+		if ((t.frame_w > 0) && (t.frame_h > 0)) {
+			int cols = t.width / t.frame_w;
+			cols     = cols > 0 ? cols : 1;
+			int cell = t.first_frame + frame;
+			x        = (cell % cols) * t.frame_w;
+			y        = (cell / cols) * t.frame_h;
+			w        = t.frame_w;
+			h        = t.frame_h;
+		}
+		return true;
+	}
+
+	// The path as an absolute one without . and .. in it, which is what TextureName tells.
+	static char* full_path(const char* file)
+	{
+#ifdef _WIN32
+		const char separator = '\\';
+#else
+		const char separator = '/';
+#endif
+		bool        absolute = (file[0] == '/') || (file[0] == '\\') || (file[0] && (file[1] == ':'));
+		const char* cwd      = absolute ? nullptr : SDL_GetCurrentDirectory();
+		size_t      length   = strlen(file) + (cwd ? strlen(cwd) : 0) + 2;
+		char*       joined   = static_cast<char*>(malloc(length));
+		snprintf(joined, length, "%s%s%s", cwd ? cwd : "", (cwd && cwd[0] && (cwd[strlen(cwd) - 1] != '/') && (cwd[strlen(cwd) - 1] != '\\')) ? "/" : "", file);
+		SDL_free(const_cast<char*>(cwd));
+
+		size_t prefix = 0;
+		if ((joined[0] == '/') || (joined[0] == '\\')) {
+			prefix = 1;
+		} else if (joined[0] && (joined[1] == ':')) {
+			prefix = ((joined[2] == '/') || (joined[2] == '\\')) ? 3 : 2;
+		}
+		char* out = static_cast<char*>(malloc(length + 1));
+		memcpy(out, joined, prefix);
+		size_t used = prefix, base = prefix;
+		for (char* part = joined + prefix; *part;) {
+			char* end = part;
+			while (*end && (*end != '/') && (*end != '\\')) {
+				end++;
+			}
+			size_t size = size_t(end - part);
+			if ((size == 2) && (part[0] == '.') && (part[1] == '.')) {
+				// Back to the separator before the last part, but not past the start.
+				if (used > base) {
+					used--;
+					while ((used > base) && (out[used - 1] != separator)) {
+						used--;
+					}
+				}
+			} else if ((size > 0) && !((size == 1) && (part[0] == '.'))) {
+				memcpy(out + used, part, size);
+				used += size;
+				if (*end) {
+					out[used++] = separator;
+				}
+			}
+			part = *end ? end + 1 : end;
+		}
+		out[used] = 0;
+		free(joined);
+		return out;
 	}
 } // namespace bb::gfx
 
@@ -93,22 +180,30 @@ extern "C" {
 // CreateTexture(width, height, flags, frames): an empty texture to draw on, with TextureBuffer.
 int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t frames)
 {
-	(void)frames;
 	if ((width <= 0) || (height <= 0)) {
 		bb_runtime_error("CreateTexture: needs a size.");
 	}
+	if (frames <= 0) {
+		bb_runtime_error("CreateTexture: Illegal number of texture frames.");
+	}
+	// Frames are the cells of one column in a sheet, as big as the frames put on top of each other.
 	texture_entry entry;
 	entry.used   = true;
 	entry.flags  = flags;
 	entry.width  = width;
-	entry.height = height;
+	entry.height = height * frames;
+	if (frames > 1) {
+		entry.frames  = frames;
+		entry.frame_w = width;
+		entry.frame_h = height;
+	}
 	if (active()) {
-		uint8_t* pixels = static_cast<uint8_t*>(calloc(size_t(width) * size_t(height), 4));
-		for (size_t i = 0; i < size_t(width) * size_t(height); i++) {
+		uint8_t* pixels = static_cast<uint8_t*>(calloc(size_t(entry.width) * size_t(entry.height), 4));
+		for (size_t i = 0; i < size_t(entry.width) * size_t(entry.height); i++) {
 			pixels[i * 4 + 3] = 255;
 		}
 		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
-		upload_texture(entry.image, entry.set, uint32_t(width), uint32_t(height), pixels, sampler);
+		upload_texture(entry.image, entry.set, uint32_t(entry.width), uint32_t(entry.height), pixels, sampler);
 		free(pixels);
 	}
 	for (uint32_t i = 0; i < texture_table.size; i++) {
@@ -197,8 +292,7 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 	entry.flags  = flags;
 	entry.width  = rgba->w;
 	entry.height = rgba->h;
-	entry.file   = static_cast<char*>(malloc(strlen(file) + 1));
-	strcpy(entry.file, file);
+	entry.file   = full_path(file);
 	if (active()) {
 		VkSampler sampler = ((flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V)) ? g.sampler_clamp : g.sampler_repeat;
 		upload_texture(entry.image, entry.set, uint32_t(rgba->w), uint32_t(rgba->h), static_cast<const uint8_t*>(rgba->pixels), sampler);
@@ -220,29 +314,75 @@ int32_t bb_load_texture(const char* file, int32_t flags)
 	return bb_load_texture_flags(file, bb_filter_texture_flags(file, flags));
 }
 
+// A new handle for the texture of this one. Both have the same pixels, scale and blend, and each is freed on its own.
+int32_t bb_texture_alias(int32_t handle)
+{
+	int index = handle & bb::texture_handle_mask;
+	if ((index < 1) || (uint32_t(index) > texture_table.size) || !texture_table[uint32_t(index) - 1].used) {
+		return 0;
+	}
+	texture_entry entry;
+	entry.used  = true;
+	entry.alias = texture_table[uint32_t(index) - 1].alias ? texture_table[uint32_t(index) - 1].alias : index;
+	for (uint32_t i = 0; i < texture_table.size; i++) {
+		if (!texture_table[i].used) {
+			texture_table[i] = entry;
+			return int32_t(i) + 1;
+		}
+	}
+	texture_table.push(entry);
+	return int32_t(texture_table.size);
+}
+
+// FreeTexture while entities or brushes still use the texture only takes the handle away, what uses it keeps it until it
+// does not need it any more, like the original which counts how often it is used.
+void bb_collect_textures(void)
+{
+	bool changed = true;
+	while (changed) {
+		changed = false;
+		for (uint32_t i = 0; i < texture_table.size; i++) {
+			texture_entry& t = texture_table[i];
+			if (!t.used || !t.freed || bb_texture_in_use(int32_t(i) + 1)) {
+				continue;
+			}
+			bool shared = false;
+			for (uint32_t k = 0; k < texture_table.size; k++) {
+				shared |= texture_table[k].used && (texture_table[k].alias == int(i) + 1);
+			}
+			if (!shared) {
+				free_texture(t);
+				changed = true;
+			}
+		}
+	}
+}
+
 void bb_free_texture(int32_t handle)
 {
-	texture_entry* t = texture_of(handle);
-	if (t) {
-		free_texture(*t);
+	if (!live_texture_of(handle)) {
+		return;
 	}
+	texture_entry& t = texture_table[uint32_t(handle & bb::texture_handle_mask) - 1];
+	t.freed          = true;
+	bb_collect_textures();
 }
 
 // A texture with frames is as big as one of them.
 int32_t bb_texture_width(int32_t handle)
 {
-	texture_entry* t = texture_of(handle);
+	texture_entry* t = live_texture_of(handle);
 	return t ? (t->frame_w > 0 ? t->frame_w : t->width) : 0;
 }
 
 int32_t bb_texture_height(int32_t handle)
 {
-	texture_entry* t = texture_of(handle);
+	texture_entry* t = live_texture_of(handle);
 	return t ? (t->frame_h > 0 ? t->frame_h : t->height) : 0;
 }
 
 // LoadAnimTexture(file, flags, width, height, first, count): a picture that is a sheet of frames of this size, with
-// count of them from the first. Where the coordinates wrap around, they do so over the whole sheet.
+// count of them from the first. 0 if there are not that many frames in the picture. Where the coordinates wrap around, they do so over the whole sheet.
 int32_t bb_load_anim_texture(const char* file, int32_t flags, int32_t width, int32_t height, int32_t first, int32_t count)
 {
 	int32_t handle = bb_load_texture(file, flags);
@@ -250,14 +390,13 @@ int32_t bb_load_anim_texture(const char* file, int32_t flags, int32_t width, int
 		return 0;
 	}
 	texture_entry* t = texture_of(handle);
-	if ((width < 1) || (height < 1) || (count < 1) || (first < 0) || (width > t->width) || (height > t->height)) {
-		bb_free_texture(handle);
-		bb_runtime_error("LoadAnimTexture: the frames don't fit in the picture.");
+	if ((width < 1) || (height < 1) || (count < 1) || (first < 0)) {
+		return handle; // Like the original, this is the whole picture as one frame.
 	}
 	int cells = (t->width / width) * (t->height / height);
 	if (first + count > cells) {
 		bb_free_texture(handle);
-		bb_runtime_error("LoadAnimTexture: there are not that many frames in the picture.");
+		return 0; // The frames don't fit in the picture.
 	}
 	t->frames      = count;
 	t->frame_w     = width;
@@ -266,7 +405,7 @@ int32_t bb_load_anim_texture(const char* file, int32_t flags, int32_t width, int
 	return handle;
 }
 
-// The file a texture was loaded from, and nothing for one that was made.
+// The full path of the file a texture was loaded from, and nothing for one that was made.
 const char* bb_texture_name(int32_t handle)
 {
 	texture_entry* t    = need_texture(handle, "TextureName");
@@ -296,6 +435,13 @@ void bb_clear_texture_filters(void)
 		free(texture_filters[i].match);
 	}
 	texture_filters.clear();
+}
+
+// What Graphics3D starts with: every texture has color (1) and mipmaps (8).
+void bb_reset_texture_filters(void)
+{
+	bb_clear_texture_filters();
+	bb_texture_filter("", 1 | 8);
 }
 
 // ClearWorld takes all textures away.
@@ -357,7 +503,7 @@ int32_t bb_live_textures(void)
 {
 	int32_t count = 0;
 	for (uint32_t i = 0; i < texture_table.size; i++) {
-		count += texture_table[i].used ? 1 : 0;
+		count += (texture_table[i].used && !texture_table[i].alias) ? 1 : 0;
 	}
 	return count;
 }

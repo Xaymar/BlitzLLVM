@@ -102,7 +102,10 @@ _RULES = {
         (r"gfxmodeformat|graphicsformat", BASIC, "Display"),
         (r"keywait", BASIC, "Keyboard"),
     ],
-    "plussystem": [(r".", PLUS, "System")],
+    "plussystem": [
+        (r"^morefiles$", BASIC, "Files"),
+        (r".", PLUS, "System"),
+    ],
     "plusgui": _PLUS_GUI + [
         (r"^(wait|peek)event", PLUS, "Events"),
         (r".", PLUS, "Gadgets"),
