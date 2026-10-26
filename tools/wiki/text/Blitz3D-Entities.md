@@ -1,0 +1,509 @@
+## CreatePivot
+Creates an invisible entity that only has a position, rotation and scale. Pivots are the glue of a scene: parent other entities to one and you can move, turn or scale the whole group, or make something orbit by offsetting it from a pivot that you turn. The pivot is created at the origin, even when it has a `parent`.
+
+```blitzbasic
+;media gif blitz3d/createpivot.gif 60 20
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 3.5, -6
+RotateEntity camera, 30, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+pivot = CreatePivot()
+moon = CreateSphere(12, pivot)
+ScaleEntity moon, 0.4, 0.4, 0.4
+PositionEntity moon, 3, 0, 0
+planet = CreateSphere(16)
+EntityColor planet, 80, 160, 255
+EntityColor moon, 220, 220, 220
+While Not KeyHit(1)
+	TurnEntity pivot, 0, 6, 0
+	RenderWorld
+	Flip
+Wend
+```
+
+![CreatePivot](media/blitz3d/createpivot.gif)
+@param parent  Entity the pivot follows, or 0 for none. Defaults to 0.
+@returns       The handle of the new pivot.
+
+## FreeEntity
+Removes an entity from the world and releases what it used, including all of its children. The handle is invalid afterwards; using it stops the program with an error. Entities are also freed when the program ends, so call this when you want something gone during the game, such as a spent bullet.
+@param entity  Entity handle.
+
+## HideEntity
+Makes an entity and all of its children invisible and takes them out of collisions. Hidden entities cost almost nothing to draw, so a good pattern is to create what you need at the start, hide it and use [CopyEntity](Blitz3D-Entities#copyentity) and [ShowEntity](Blitz3D-Entities#showentity) later. To make something invisible that still collides, use [EntityAlpha](Blitz3D-Entities#entityalpha) with 0.
+@param entity  Entity handle.
+
+## ShowEntity
+Makes a hidden entity visible and part of collisions again. It undoes [HideEntity](Blitz3D-Entities#hideentity) for this entity only, so children that were hidden on their own stay hidden, and nothing shows while a parent is still hidden. Showing an entity also forgets where it was last frame, so it does not collide on its way from the old position.
+@param entity  Entity handle.
+
+## CopyEntity
+Makes a new entity from an existing one and returns its handle. The copy shares the original's mesh, so changing the mesh itself, for example with `RotateMesh` or by adding vertices, changes every copy. Entity properties such as position, rotation, scale, color and alpha belong to each copy and can be changed apart. Children are copied too. Copying is much cheaper than loading the same file again.
+
+```blitzbasic
+;media still blitz3d/copyentity.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 2, -7
+RotateEntity camera, 15, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+original = CreateCube()
+HideEntity original
+For i = 0 To 4
+	copy = CopyEntity(original)
+	PositionEntity copy, i * 2 - 4, 0, 0
+	ScaleEntity copy, 0.5 + i * 0.2, 0.5 + i * 0.2, 0.5 + i * 0.2
+	EntityColor copy, 60 + i * 40, 200 - i * 30, 120
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![CopyEntity](media/blitz3d/copyentity.png)
+@param entity  Entity handle to copy.
+@param parent  Entity the copy follows, or 0 for none. Defaults to 0.
+@returns       The handle of the copy.
+@gap A copy of a hidden entity is visible, where the original gives the copy the hidden state. Show or hide the copy yourself.
+
+## PositionEntity
+Puts an entity at a position. Without `global` the position is relative to the parent, or to the world when there is no parent. With `global` set to 1 it is a world position, whatever the parents are. New entities start at 0, 0, 0. X grows to the right, Y grows up and Z grows into the screen.
+
+```blitzbasic
+;media still blitz3d/positionentity.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 3, -9
+RotateEntity camera, 15, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+For i = 0 To 6
+	ball = CreateSphere(12)
+	ScaleEntity ball, 0.4, 0.4, 0.4
+	PositionEntity ball, i - 3, Sin(i * 50) * 1.5, i * 0.3
+	EntityColor ball, 255 - i * 30, 90 + i * 20, 70
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![PositionEntity](media/blitz3d/positionentity.png)
+@param entity  Entity handle.
+@param x       X position.
+@param y       Y position.
+@param z       Z position.
+@param global  1 to use the world position instead of one relative to the parent. Defaults to 0.
+
+## MoveEntity
+Moves an entity in the direction it faces. The offset is in the entity's own space: +Z is forward, +X is right and +Y is up, wherever the entity looks. That makes it the right command for cars, bullets and cameras that fly where they point. To move along the world axes use [TranslateEntity](Blitz3D-Entities#translateentity).
+@param entity  Entity handle.
+@param x       Distance to the right.
+@param y       Distance upwards.
+@param z       Distance forward.
+
+## TranslateEntity
+Moves an entity along the axes of its parent or of the world, ignoring where the entity faces. Use it for things like gravity or a jump that always goes straight up whichever way the character turned.
+@param entity  Entity handle.
+@param x       Distance along X.
+@param y       Distance along Y.
+@param z       Distance along Z.
+@param global  1 to move along the world axes even when the entity has a parent that is turned. Defaults to 0.
+
+## RotateEntity
+Turns an entity to an absolute orientation. The three angles are in degrees: pitch tips it forward or back around X, yaw turns it left or right around Y and roll tilts it sideways around Z. Without `global` the angles are relative to the parent. For a turn from the current orientation use [TurnEntity](Blitz3D-Entities#turnentity).
+@param entity  Entity handle.
+@param pitch   Rotation around X in degrees.
+@param yaw     Rotation around Y in degrees.
+@param roll    Rotation around Z in degrees.
+@param global  1 to use angles of the world instead of angles relative to the parent. Defaults to 0.
+
+## TurnEntity
+Turns an entity by an amount from its current orientation. Call it every frame with small angles to spin something, such as a coin or a camera that follows the mouse.
+
+```blitzbasic
+;media gif blitz3d/turnentity.gif 60 20
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 0, -4
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+cube = CreateCube()
+EntityColor cube, 240, 160, 40
+While Not KeyHit(1)
+	TurnEntity cube, 2, 5, 1
+	RenderWorld
+	Flip
+Wend
+```
+
+![TurnEntity](media/blitz3d/turnentity.gif)
+@param entity  Entity handle.
+@param pitch   Rotation around X in degrees.
+@param yaw     Rotation around Y in degrees.
+@param roll    Rotation around Z in degrees.
+@param global  1 to turn around the axes of the world instead of the parent. Defaults to 0.
+
+## ScaleEntity
+Sets the size of an entity as a factor for each axis. 1 is the size it was made with, 2 doubles it, 0.5 halves it and 0 makes it flat so it vanishes. A negative factor mirrors the entity along that axis. Scaling a parent scales its children with it.
+
+```blitzbasic
+;media still blitz3d/scaleentity.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 0, -9
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+For i = 0 To 3
+	cube = CreateCube()
+	PositionEntity cube, i * 2.5 - 3.75, 0, 0
+	TurnEntity cube, 20, 30, 0
+	ScaleEntity cube, 0.4 + i * 0.3, 0.4 + i * 0.3, 0.4 + i * 0.3
+	EntityColor cube, 90 + i * 50, 200 - i * 40, 90
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![ScaleEntity](media/blitz3d/scaleentity.png)
+@param entity   Entity handle.
+@param x_scale  Size along X.
+@param y_scale  Size along Y.
+@param z_scale  Size along Z.
+@param global   1 to scale independent of the parent. Defaults to 0.
+@gap The `global` parameter is accepted but ignored: the scale is always relative to the parent.
+
+## PointEntity
+Turns an entity so that its +Z axis points at another entity. Only pitch and yaw change; use `roll` to set the tilt. This is the quickest way to aim a light, a gun or a camera at something. To aim at a spot instead of an entity, make a pivot there, point at it and free it.
+
+```blitzbasic
+;media still blitz3d/pointentity.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 4, -10
+RotateEntity camera, 20, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+target = CreateSphere(12)
+PositionEntity target, 2, 0, 3
+EntityColor target, 255, 90, 60
+For i = 0 To 4
+	cone = CreateCone(8)
+	PositionEntity cone, i * 2 - 4, 0, -1
+	; A cone points along +Y, so tip it onto +Z first by parenting it to a pivot.
+	pivot = CreatePivot()
+	PositionEntity pivot, i * 2 - 4, 0, -1
+	EntityParent cone, pivot
+	RotateEntity cone, 90, 0, 0
+	PointEntity pivot, target
+Next
+RenderWorld
+Flip
+WaitKey
+```
+@param entity  Entity handle.
+@param target  Entity to aim at.
+@param roll    Roll angle of the result in degrees. Defaults to 0.
+
+## AlignToVector
+Turns an entity so that one of its own axes lines up with a direction. Where [PointEntity](Blitz3D-Entities#pointentity) always uses +Z, this lets you choose any axis, for example to make an entity stand on a slope by aligning its Y axis to the surface normal. `rate` blends from the current orientation: 1 snaps at once, smaller values turn only part of the way each call, so calling it every frame gives a smooth turn.
+@param entity    Entity handle.
+@param vector_x  X part of the direction.
+@param vector_y  Y part of the direction.
+@param vector_z  Z part of the direction.
+@param axis      Axis that is aligned: 1 for X, 2 for Y, 3 for Z.
+@param rate      How much of the turn to do, 0 to 1. Defaults to 1.
+
+## EntityX
+@returns X position of the entity, relative to its parent or with `global` set to 1 in the world.
+@param entity  Entity handle.
+@param global  1 for the world position. Defaults to 0.
+
+## EntityY
+@returns Y position of the entity, relative to its parent or with `global` set to 1 in the world.
+@param entity  Entity handle.
+@param global  1 for the world position. Defaults to 0.
+
+## EntityZ
+@returns Z position of the entity, relative to its parent or with `global` set to 1 in the world.
+@param entity  Entity handle.
+@param global  1 for the world position. Defaults to 0.
+
+## EntityPitch
+Reads the rotation around X in degrees. The angles are worked out from the orientation of the entity, so after several turns they can be a different but equal combination of pitch, yaw and roll than the ones you used.
+@returns Pitch angle of the entity, relative to its parent or with `global` set to 1 in the world.
+@param entity  Entity handle.
+@param global  1 for the angle in the world. Defaults to 0.
+
+## EntityYaw
+Reads the rotation around Y in degrees.
+@returns Yaw angle of the entity, relative to its parent or with `global` set to 1 in the world.
+@param entity  Entity handle.
+@param global  1 for the angle in the world. Defaults to 0.
+
+## EntityRoll
+Reads the rotation around Z in degrees.
+@returns Roll angle of the entity, relative to its parent or with `global` set to 1 in the world.
+@param entity  Entity handle.
+@param global  1 for the angle in the world. Defaults to 0.
+
+## EntityDistance
+@returns The distance between the world positions of two entities.
+@param source_entity       First entity handle.
+@param destination_entity  Second entity handle.
+
+## GetMatElement
+Reads one number from the world transformation of the entity. Row and column count from 0. Columns 0 to 2 hold the axes of the entity with its scale, so (0, 0), (0, 1) and (0, 2) are the X axis; row 3 holds the position. It is mostly useful when you need the direction an entity faces without doing the angle math.
+@returns The value of the matrix element.
+@param entity  Entity handle.
+@param row     Row of the matrix, 0 to 3.
+@param column  Column of the matrix, 0 to 2.
+
+## EntityParent
+Attaches an entity to a parent, or detaches it with a parent of 0. The child then follows the parent's position, rotation and scale, but moving the child never moves the parent. With `global` set to 1 (the default) the child stays where it is in the world and its local values are changed to match. With 0 its local values stay and it jumps to wherever they now lead.
+An entity cannot be attached to one of its own children.
+
+```blitzbasic
+;media gif blitz3d/entityparent.gif 60 20
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 3, -8
+RotateEntity camera, 15, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+body = CreateCube()
+EntityColor body, 200, 60, 60
+; The child keeps its own position, 3 units to the right of the parent, with a global of 0.
+arm = CreateSphere(12)
+ScaleEntity arm, 0.5, 0.5, 0.5
+EntityColor arm, 240, 220, 80
+EntityParent arm, body, 0
+PositionEntity arm, 3, 0, 0
+While Not KeyHit(1)
+	; Turning the parent carries the child around, turning the child does not turn the parent.
+	TurnEntity body, 0, 3, 0
+	TurnEntity arm, 5, 0, 0
+	RenderWorld
+	Flip
+Wend
+```
+
+![EntityParent](media/blitz3d/entityparent.gif)
+@param entity  Entity handle.
+@param parent  Handle of the new parent, 0 for none.
+@param global  1 to keep the world position and angle, 0 to keep the local values. Defaults to 1.
+
+## GetParent
+@returns The handle of the parent of the entity, or 0 if it has none.
+@param entity  Entity handle.
+
+## CountChildren
+@returns The number of entities that are directly attached to the entity.
+@param entity  Entity handle.
+
+## GetChild
+Reads one of the entities attached to a parent. The index starts at 1, so loop from 1 to [CountChildren](Blitz3D-Entities#countchildren) to visit all of them. Only direct children are listed, not their children.
+@returns The handle of the child.
+@param entity  Entity handle of the parent.
+@param index   Number of the child, 1 up to the number of children.
+
+## NameEntity
+Gives an entity a name that you can read back with [EntityName](Blitz3D-Entities#entityname) or search for with [FindChild](Blitz3D-Entities#findchild). Entities loaded from model files keep the names of the objects in the file.
+@param entity  Entity handle.
+@param name    The name.
+
+## EntityName
+@returns The name of the entity, an empty string if it has none.
+@param entity  Entity handle.
+
+## FindChild
+Searches the children of an entity, and their children, for one with the given name, ignoring case. It returns the first match, or 0 if there is none. It is the usual way to reach a part, such as a hand or a wheel, of a loaded model.
+@returns The handle of the child, or 0.
+@param entity  Entity handle to search below.
+@param name    Name to search for.
+
+## EntityClass
+Returns what kind of entity a handle is, which is useful when a function receives any entity.
+@returns One of `Pivot`, `Light`, `Camera`, `Mirror`, `Listener`, `Sprite`, `Terrain`, `Plane`, `Mesh`, `MD2` or `BSP`.
+@param entity  Entity handle.
+
+## EntityColor
+Sets the color of the entity, multiplied with its texture. The default is 255, 255, 255. With the vertex color flag of [EntityFX](Blitz3D-Entities#entityfx) the original ignores it and shows the vertex colors only; here it is always multiplied with them, which is the same while the vertices are white.
+
+```blitzbasic
+;media still blitz3d/entitycolor.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 0, -9
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+For i = 0 To 3
+	ball = CreateSphere(16)
+	PositionEntity ball, i * 2.4 - 3.6, 0, 0
+	Select i
+		Case 0 : EntityColor ball, 255, 60, 60
+		Case 1 : EntityColor ball, 60, 255, 60
+		Case 2 : EntityColor ball, 60, 60, 255
+		Case 3 : EntityColor ball, 255, 255, 60
+	End Select
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![EntityColor](media/blitz3d/entitycolor.png)
+@param entity  Entity handle.
+@param red     Red part, 0 to 255.
+@param green   Green part, 0 to 255.
+@param blue    Blue part, 0 to 255.
+
+## EntityAlpha
+Sets how see-through an entity is: 1 is solid, 0 is invisible and values in between let what is behind show through. An entity with alpha 0 is not drawn at all but still takes part in collisions, unlike [HideEntity](Blitz3D-Entities#hideentity). See-through entities are drawn after the solid ones.
+
+```blitzbasic
+;media still blitz3d/entityalpha.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 0, -6
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+back = CreateCube()
+PositionEntity back, 0.6, 0, 2
+EntityColor back, 255, 200, 40
+glass = CreateSphere(20)
+PositionEntity glass, -0.6, 0, 0
+EntityColor glass, 80, 160, 255
+EntityAlpha glass, 0.5
+RenderWorld
+Flip
+WaitKey
+```
+
+![EntityAlpha](media/blitz3d/entityalpha.png)
+@param entity  Entity handle.
+@param alpha   Opacity from 0 to 1. Defaults to 1 on a new entity.
+
+## EntityBlend
+Chooses how the entity's pixels are mixed with what is already on screen.
+
+* **1, alpha** is the normal mode: the entity covers what is behind it according to its alpha.
+* **2, multiply** darkens what is behind it, which suits shadows and light maps. White changes nothing and black makes it black.
+* **3, add** adds the color to what is behind it, which suits fire, lasers and glows.
+@param entity  Entity handle.
+@param blend   1 for alpha, 2 for multiply, 3 for add.
+
+## EntityFX
+Switches extra effects on for an entity. The flags add up, so 3 is full-bright with vertex colors.
+
+* **1**: full-bright, the entity ignores lights.
+* **2**: use the colors of the vertices instead of the entity color.
+* **4**: flat shading, every triangle is lit as a whole.
+* **8**: the entity ignores fog.
+* **16**: draw both sides of the triangles.
+* **32**: force alpha blending, which is needed for the alpha of vertex colors to work.
+
+```blitzbasic
+;media still blitz3d/entityfx.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 1.5, -9
+RotateEntity camera, 10, 0, 0
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+; Left to right: lit ball, full-bright ball, open tube, open tube that shows both sides.
+For i = 0 To 3
+	If i < 2 Then ball = CreateSphere(16) Else ball = CreateCylinder(16, 0)
+	PositionEntity ball, i * 2.4 - 3.6, 0, 0
+	EntityColor ball, 200, 120, 40
+	If i = 1 Then EntityFX ball, 1
+	If i = 3 Then EntityFX ball, 16
+Next
+RenderWorld
+Flip
+WaitKey
+```
+
+![EntityFX](media/blitz3d/entityfx.png)
+@param entity  Entity handle.
+@param fx      Sum of the effect flags, 0 for none.
+@gap Flags 4 (flat shading), 8 (ignore fog) and 32 are ignored. Vertex colors are always used, as if flag 2 were set, so flag 2 changes nothing and the entity color is multiplied with them instead of being replaced. Flags 1 and 16 work.
+
+## EntityShininess
+Sets how strongly lights shine back from the entity as highlights. 0, the default, is matt. Values near 1 give a polished look, like a billiard ball, but only where a light hits the surface head on.
+
+
+@param entity     Entity handle.
+@param shininess  Strength of the highlight, 0 to 1.
+@gap The value is stored and passed on to brushes, but nothing is drawn with it: there are no specular highlights yet, so every entity looks matt.
+
+## EntityTexture
+Puts a texture on the whole entity, replacing the one of its mesh. `frame` picks the frame of an animated texture and `index` picks the layer for multitexturing, 0 to 7, see `TextureBlend`. Textures made with [CreateTexture](Blitz3D-Textures#createtexture) or [LoadTexture](Blitz3D-Textures#loadtexture) can be shared between any number of entities.
+
+```blitzbasic
+;media still blitz3d/entitytexture.png
+Graphics3D 320, 240, 0, 2
+SetBuffer BackBuffer()
+camera = CreateCamera()
+PositionEntity camera, 0, 0, -4
+light = CreateLight()
+RotateEntity light, 45, 45, 0
+tex = CreateTexture(64, 64)
+SetBuffer TextureBuffer(tex)
+For y = 0 To 7
+	For x = 0 To 7
+		If (x + y) Mod 2 = 0 Then Color 240, 240, 240 Else Color 40, 90, 200
+		Rect x * 8, y * 8, 8, 8, 1
+	Next
+Next
+SetBuffer BackBuffer()
+cube = CreateCube()
+TurnEntity cube, 25, 35, 0
+EntityTexture cube, tex
+RenderWorld
+Flip
+WaitKey
+```
+
+![EntityTexture](media/blitz3d/entitytexture.png)
+@param entity   Entity handle.
+@param texture  Texture handle.
+@param frame    Frame of an animated texture. Defaults to 0.
+@param index    Texture layer, 0 to 7. Defaults to 0.
+
+## PaintEntity
+Applies everything in a brush to an entity at once: color, shininess, alpha, blend, texture and effects. Define a brush once and paint many entities with it instead of repeating several commands.
+@param entity  Entity handle.
+@param brush   Brush handle.
+
+## EntityOrder
+Changes the drawing order of an entity. 0 draws it normally. A positive value draws it before everything else, so it ends up behind, and a negative value draws it last, so it ends up in front. Entities with a non-zero order ignore the depth buffer, so use this only for simple convex things such as skyboxes and sprites. It affects only the entity, not its children.
+@param entity  Entity handle.
+@param order   Greater than 0 for behind everything, less than 0 for in front, 0 for normal.
+
+## EntityAutoFade
+Makes an entity fade away with distance to the camera. Closer than `near` it is solid, farther than `far` it is invisible and between the two its alpha goes down gradually. This hides entities popping in at the far end of a scene without fog.
+@param entity  Entity handle.
+@param near    Distance where fading starts.
+@param far     Distance where the entity is gone.
+
+## EntityInView
+Tells if an entity is inside the picture of a camera, which is handy for skipping work on things that cannot be seen. Meshes are tested with a box around them, other entities by their center.
+@returns 1 if the entity is visible to the camera, otherwise 0.
+@param entity  Entity handle.
+@param camera  Camera handle.
+@gap Meshes are tested with a sphere around them, so the result can say 1 for an entity whose corner just misses the picture.
