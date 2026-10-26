@@ -62,11 +62,75 @@ namespace bb {
 	struct md2_state;
 	struct anim_node;
 
+	// Half precision floats (1 sign bit, 5 exponent bits, 10 mantissa bits), which is how vertex colors are kept and sent to the GPU.
+	constexpr uint16_t half_one = 0x3C00;
+
+	inline uint16_t float_to_half(float value)
+	{
+		uint32_t bits;
+		memcpy(&bits, &value, sizeof(bits));
+		uint32_t sign     = (bits >> 16) & 0x8000u;
+		uint32_t magnitude = bits & 0x7FFFFFFFu;
+		if (magnitude > 0x7F800000u) {
+			return uint16_t(sign | 0x7E00u); // Not a number
+		}
+		if (magnitude >= 0x477FF000u) {
+			return uint16_t(sign | 0x7C00u); // Too large, which becomes infinity
+		}
+		if (magnitude < 0x38800000u) {
+			// Smaller than the smallest normal number, which is kept as a denormal (or zero).
+			if (magnitude < 0x33000000u) {
+				return uint16_t(sign);
+			}
+			uint32_t exponent = magnitude >> 23;
+			uint32_t mantissa = (magnitude & 0x7FFFFFu) | 0x800000u;
+			uint32_t shift    = 126 - exponent; // 14 to 24
+			uint32_t half     = mantissa >> shift;
+			uint32_t rest     = mantissa & ((1u << shift) - 1);
+			uint32_t middle   = 1u << (shift - 1);
+			if ((rest > middle) || ((rest == middle) && (half & 1))) {
+				half++;
+			}
+			return uint16_t(sign | half);
+		}
+		// Rebias the exponent from 127 to 15 and round the mantissa from 23 to 10 bits, to the nearest even.
+		uint32_t half = ((magnitude - 0x38000000u) >> 13);
+		uint32_t rest = magnitude & 0x1FFFu;
+		if ((rest > 0x1000u) || ((rest == 0x1000u) && (half & 1))) {
+			half++;
+		}
+		return uint16_t(sign | half);
+	}
+
+	inline float half_to_float(uint16_t half)
+	{
+		uint32_t sign     = uint32_t(half & 0x8000u) << 16;
+		uint32_t exponent = (half >> 10) & 0x1Fu;
+		uint32_t mantissa = half & 0x3FFu;
+		uint32_t bits;
+		if (exponent == 0) {
+			if (mantissa == 0) {
+				bits = sign;
+			} else {
+				float value = float(mantissa) * (1.0f / 16777216.0f); // mantissa * 2^-24
+				memcpy(&bits, &value, sizeof(bits));
+				bits |= sign;
+			}
+		} else if (exponent == 31) {
+			bits = sign | 0x7F800000u | (mantissa << 13);
+		} else {
+			bits = sign | ((exponent + 112) << 23) | (mantissa << 13);
+		}
+		float result;
+		memcpy(&result, &bits, sizeof(result));
+		return result;
+	}
+
 	struct vertex3d {
-		float   x, y, z;
-		float   nx, ny, nz;
-		float   u, v;
-		float   r, g, b, a; // 0 to 1, so colors are not rounded to steps of 1/255.
+		float    x, y, z;
+		float    nx, ny, nz;
+		float    u, v;
+		uint16_t r, g, b, a; // 0 to 1 as half floats, so colors are not rounded to steps of 1/255.
 		float   u2, v2; // The second set of texture coordinates, for textures that ask for it.
 	};
 
