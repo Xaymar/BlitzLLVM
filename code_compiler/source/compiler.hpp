@@ -171,6 +171,9 @@ namespace blitz {
 		/** The file that is being compiled, which the other files are included from. */
 		std::filesystem::path source;
 
+		/** Whether warnings are not printed (-q). They are still counted. */
+		bool quiet = false;
+
 		/** Generate LLVM IR for the given program. Throws blitz::error on failure. */
 		std::string generate(ast::program const& program);
 

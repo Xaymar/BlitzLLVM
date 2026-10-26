@@ -34,4 +34,12 @@ namespace blitz {
 	};
 
 	std::string format(const char* format, ...);
+
+	/** The source line at the given 1-based line and column, followed by a line pointing at the column, like
+	 * "<line>\n<padding>^---------- HERE\n". Empty if there is nothing to show, which is the case for line 0 and for
+	 * files that can't be read. Without a column (0) only the line is shown. Long lines are cut around the column. */
+	std::string source_excerpt(std::filesystem::path const& file, uint64_t line, uint64_t column);
+
+	/** "file:line:column: kind: reason" followed by the source_excerpt, without a trailing new line. */
+	std::string diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason);
 } // namespace blitz

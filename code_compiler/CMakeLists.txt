@@ -154,8 +154,8 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	set_tests_properties(close-prompt_pixels PROPERTIES LABELS "gpu")
 endif()
 
-# The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v. Each case is in tests/cli/cli.cmake.
-foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug debug_info stop keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_static userlib_env userlib_missing_library userlib_layout version verbose_long_only run run_exit_code help)
+# The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug debug_info stop keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_static userlib_env userlib_missing_library userlib_layout version verbose_long_only run run_exit_code diagnostics help)
 	add_test(
 		NAME "cli-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}
