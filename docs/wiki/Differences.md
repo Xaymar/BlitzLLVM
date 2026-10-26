@@ -26,6 +26,12 @@ Textures with flag 8 get a chain of mip maps and are sampled with trilinear filt
 
 The depth buffer is reversed and a 32-bit float: the near plane of `CameraRange` is written as 1 and the far plane as 0, and the closer surface wins. Blitz3D used a 16 or 24-bit buffer that is 0 at the near plane, which spends most of its precision close to the camera and makes far surfaces flicker through each other (z-fighting). With the reversed float buffer the precision is almost even over the whole range, so distant surfaces that are close together stay apart without having to push `near` out. This changes nothing a program can see except that z-fighting is much rarer. The depth is still not linear in the buffer itself (it is `near / distance` for a perspective camera, and linear for `CameraProjMode 2`), but the buffer is never read back by a program: `ProjectedZ` is the distance in front of the camera, and `Graphics3D`'s depth argument is not used.
 
+## Console window on Windows
+
+Programs are built for the GUI subsystem, so starting one (by double click, or from a window of the program) does not open a console window next to its own window. If the program is started from a terminal, it uses that terminal: `Print`, `Write`, `Input`, `DebugLog` and runtime errors work as on other systems, and they follow the redirection of the terminal (`program.exe > out.txt` writes `Print` to the file, `2> log.txt` writes `DebugLog`). Started without a terminal there is nothing to print to, so `Print` and `DebugLog` show nothing (`DebugLog` still goes to an attached debugger), and a runtime error is shown in a message box. The terminal does not wait for a GUI program, so its prompt may appear before the output of the program ends; use `start /wait program.exe` to wait. A program that runs `blitzcc` without `-o` runs from `blitzcc`'s terminal, so its output is shown as usual.
+
+For a program that never opens a window, build it with `blitzcc --console`, which creates a console program that opens a console window when started without a terminal. This is only done for Windows, other systems always have the console they were started from.
+
 ## Stop
 
 `Stop` is a breakpoint for a debugger. In a debug build (`-d`) it is a breakpoint instruction (`llvm.debugtrap`), which stops in an attached debugger and ends the program with a signal when there is none. In any other build it does nothing.

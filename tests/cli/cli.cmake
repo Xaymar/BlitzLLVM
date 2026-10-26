@@ -434,6 +434,27 @@ elseif(CASE STREQUAL "verbose_long_only")
 	expect_ok()
 	expect_missing("-lm")
 
+elseif(CASE STREQUAL "console_subsystem")
+	# On Windows programs are GUI programs unless --console is given. Cross-compiling shows the link line even though the
+	# link itself may fail here, so the result is not checked.
+	blitzcc(--verbose --target x86_64-pc-windows-msvc "${PROGRAM}" -o "${WORK}/gui.exe")
+	expect_contains("-Wl,/subsystem:windows")
+	expect_contains("-Wl,/entry:mainCRTStartup")
+	expect_missing("subsystem:console")
+	blitzcc(--verbose --console --target x86_64-pc-windows-msvc "${PROGRAM}" -o "${WORK}/console.exe")
+	expect_contains("-Wl,/subsystem:console")
+	expect_missing("subsystem:windows")
+	blitzcc(--verbose --target x86_64-w64-mingw32 "${PROGRAM}" -o "${WORK}/gui.exe")
+	expect_contains("-mwindows")
+	blitzcc(--verbose --console --target x86_64-w64-mingw32 "${PROGRAM}" -o "${WORK}/console.exe")
+	expect_contains("-mconsole")
+	# Other systems have no subsystems.
+	blitzcc(--verbose --console "${PROGRAM}" -o "${EXE}")
+	expect_ok()
+	expect_missing("/subsystem:")
+	expect_missing("-mwindows")
+	expect_missing("-mconsole")
+
 elseif(CASE STREQUAL "userlib_shared")
 	# A function of a userlib is called, with --userlibs-dir, from a shared library that is loaded when the program runs.
 	build_userlib("${WORK}/userlibs" shared)
@@ -680,7 +701,7 @@ elseif(CASE STREQUAL "diagnostics")
 elseif(CASE STREQUAL "help")
 	blitzcc(--help)
 	expect_ok()
-	foreach(_OPTION IN ITEMS "-q " "+q " "-c " "-d " "-k " "+k " "-v " "-o <file>" "--verbose" "--userlibs-dir")
+	foreach(_OPTION IN ITEMS "-q " "+q " "-c " "-d " "-k " "+k " "-v " "-o <file>" "--console" "--verbose" "--userlibs-dir")
 		expect_contains("  ${_OPTION}")
 	endforeach()
 

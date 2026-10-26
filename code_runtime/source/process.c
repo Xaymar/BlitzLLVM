@@ -136,9 +136,20 @@ void bb_set_env(const char* name, const char* value)
 #endif
 }
 
+#if defined(_WIN32)
+__declspec(dllimport) void __stdcall OutputDebugStringA(const char*);
+#endif
+
+// DebugLog text$: a line on the standard error output, which is the console the program was started from. On Windows it also
+// goes to the debugger, where the originals showed it.
 void bb_debug_log(const char* text)
 {
 	fprintf(stderr, "%s\n", bb_s(text));
+	fflush(stderr);
+#if defined(_WIN32)
+	OutputDebugStringA(bb_s(text));
+	OutputDebugStringA("\n");
+#endif
 }
 
 const char* bb_current_date(void)
