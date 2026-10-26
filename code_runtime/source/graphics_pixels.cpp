@@ -35,6 +35,12 @@ namespace bb::gfx {
 		return buffer ? buffer : g.target;
 	}
 
+	// Only textures have alpha of their own: the pixels of every other buffer are always opaque.
+	static bool buffer_has_alpha(int32_t buffer)
+	{
+		return buffer >= texture_buffer_base;
+	}
+
 	static int32_t pack_pixel(const uint8_t* rgba)
 	{
 		return int32_t((uint32_t(rgba[3]) << 24) | (uint32_t(rgba[0]) << 16) | (uint32_t(rgba[1]) << 8) | uint32_t(rgba[2]));
@@ -98,7 +104,7 @@ void bb_unlock_buffer(int32_t buffer)
 			l->pixels[i * 4 + 0] = data[i * 4 + 2];
 			l->pixels[i * 4 + 1] = data[i * 4 + 1];
 			l->pixels[i * 4 + 2] = data[i * 4 + 0];
-			l->pixels[i * 4 + 3] = 255;
+			l->pixels[i * 4 + 3] = buffer_has_alpha(buffer) ? data[i * 4 + 3] : 255;
 		}
 		bb_free_bank(l->bank);
 		l->changed = true;
@@ -143,7 +149,9 @@ void bb_write_pixel_fast(int32_t x, int32_t y, int32_t argb, int32_t buffer)
 	}
 	uint8_t* pixel = l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * 4;
 	unpack_pixel(argb, pixel);
-	pixel[3]   = 255;
+	if (!buffer_has_alpha(l->buffer)) {
+		pixel[3] = 255;
+	}
 	l->changed = true;
 }
 
@@ -185,7 +193,9 @@ void bb_write_pixel(int32_t x, int32_t y, int32_t argb, int32_t buffer)
 	flush();
 	uint8_t pixel[4];
 	unpack_pixel(argb, pixel);
-	pixel[3] = 255;
+	if (!buffer_has_alpha(buffer)) {
+		pixel[3] = 255;
+	}
 	write_pixels(*target.image, target.x + x, target.y + y, 1, 1, pixel);
 }
 
