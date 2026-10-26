@@ -29,6 +29,9 @@
 #if defined(_WIN32)
 __declspec(dllimport) void __stdcall Sleep(unsigned long);
 __declspec(dllimport) int __stdcall SetConsoleOutputCP(unsigned int);
+__declspec(dllimport) void* __stdcall GetStdHandle(unsigned long);
+__declspec(dllimport) int __stdcall AttachConsole(unsigned long);
+__declspec(dllimport) int __stdcall MessageBoxA(void*, const char*, const char*, unsigned int);
 #else
 #include <unistd.h>
 #endif
@@ -161,10 +164,47 @@ const char* bb_str_return(const char* value, int32_t mark)
 ////////////////////////////////////////////////////////////////////////////////
 extern void bb_set_arguments(int32_t argc, char** argv);
 
+#if defined(_WIN32)
+// Programs are built for the GUI subsystem, which has no console of its own and so no standard handles. If the program was
+// started from a terminal, use that console for the handles that were not redirected; if it was not, there is none and
+// Print, DebugLog and friends go nowhere, like in the originals. Returns whether the standard error output is usable.
+static int bb_valid_handle(unsigned long which)
+{
+	void* handle = GetStdHandle(which);
+	return handle && handle != (void*)(intptr_t)-1;
+}
+
+static void bb_attach_console(void)
+{
+	int in = bb_valid_handle((unsigned long)-10), out = bb_valid_handle((unsigned long)-11), err = bb_valid_handle((unsigned long)-12);
+	if (in && out && err) {
+		return;
+	}
+	if (!AttachConsole((unsigned long)-1)) { // ATTACH_PARENT_PROCESS
+		return;
+	}
+	if (!in) {
+		freopen("CONIN$", "r", stdin);
+	}
+	if (!out) {
+		freopen("CONOUT$", "w", stdout);
+	}
+	if (!err) {
+		freopen("CONOUT$", "w", stderr);
+	}
+}
+
+int bb_has_stderr(void)
+{
+	return bb_valid_handle((unsigned long)-12);
+}
+#endif
+
 void bb_init(int32_t argc, char** argv)
 {
 	bb_set_arguments(argc, argv);
 #if defined(_WIN32)
+	bb_attach_console();
 	SetConsoleOutputCP(65001);
 #endif
 }
@@ -179,6 +219,11 @@ void bb_runtime_error(const char* message)
 {
 	fflush(stdout);
 	fprintf(stderr, "Runtime Error: %s\n", bb_s(message));
+#if defined(_WIN32)
+	if (!bb_has_stderr()) { // No console to read it from, so show it like the originals do.
+		MessageBoxA(NULL, bb_s(message), "Runtime Error", 0x10); // MB_ICONERROR
+	}
+#endif
 	exit(1);
 }
 

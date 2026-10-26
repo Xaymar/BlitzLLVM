@@ -97,6 +97,7 @@ namespace {
 		bool                     dump_keys    = false; // -k
 		bool                     dump_syntax  = false; // +k
 		bool                     version      = false; // -v
+		bool                     console      = false; // --console
 		std::vector<std::string> run_args; // For the program, when it is run.
 	};
 
@@ -124,6 +125,8 @@ namespace {
 				  << "  -k                    Dump all keywords: The language, the runtime and the functions of the userlibs.\n"
 				  << "  +k                    Dump all keywords, followed by their syntax.\n"
 				  << "  -v                    Print the version of the compiler and runtime.\n"
+				  << "  --console             Windows only: Build a console program. By default programs are built for the GUI subsystem, which\n"
+				  << "                        doesn't open a console window; they use the console they were started from, if there is one.\n"
 				  << "  -S, --emit-llvm       Only write the generated LLVM IR (.ll), don't build an executable.\n"
 				  << "  --target <triple>     Build for another target, such as x86_64-linux-gnu or aarch64-apple-darwin.\n"
 				  << "  --llvm-flag <flag>    Pass <flag> to the LLVM/clang driver as-is, such as -flto, -march=native\n"
@@ -233,6 +236,8 @@ namespace {
 				opt.dump_keys = opt.dump_syntax = true;
 			} else if (lowered == "-v") {
 				opt.version = true;
+			} else if (arg == "--console") {
+				opt.console = true;
 			} else if (arg == "--userlibs-dir") {
 				opt.userlibs_dir = value();
 			} else if (arg == "-o") {
@@ -494,6 +499,14 @@ int main(int argc, char** argv)
 			// What the statically linked SDL3 needs.
 			for (auto lib : { "user32", "gdi32", "winmm", "imm32", "ole32", "oleaut32", "version", "uuid", "advapi32", "setupapi", "shell32", "cfgmgr32", "ws2_32" }) {
 				command.push_back(std::string("-l") + lib);
+			}
+			// Programs are GUI programs, so that no console window opens next to the window of the program. The runtime
+			// attaches to the console of the parent process when there is one. The entry point stays main().
+			if (windows_msvc) {
+				command.push_back(opt.console ? "-Wl,/subsystem:console" : "-Wl,/subsystem:windows");
+				command.push_back("-Wl,/entry:mainCRTStartup");
+			} else {
+				command.push_back(opt.console ? "-mconsole" : "-mwindows");
 			}
 		} else {
 			command.push_back("-lm");

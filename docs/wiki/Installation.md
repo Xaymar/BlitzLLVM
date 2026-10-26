@@ -63,6 +63,7 @@ blitzcc +q program.bb          # very quiet: no messages from the compiler at al
 blitzcc -c program.bb          # compile only: check the program, don't create an executable (unless -o is given)
 blitzcc -d program.bb          # debug: no optimization, with debug information (DWARF, or CodeView for Windows MSVC)
 blitzcc -g -O2 program.bb      # debug information in an optimized build
+blitzcc --console -o program program.bb   # Windows: a console program (by default programs have no console window, see [[Differences]])
 blitzcc -k                     # list all keywords, runtime functions and userlib functions
 blitzcc +k                     # same, with the syntax of the functions
 blitzcc -v                     # print the version
