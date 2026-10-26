@@ -11,14 +11,14 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [EventData](BlitzPlus-Events#eventdata) | Int |  |
-| [EventID](BlitzPlus-Events#eventid) | Int |  |
-| [EventSource](BlitzPlus-Events#eventsource) | Int |  |
-| [EventX](BlitzPlus-Events#eventx) | Int |  |
-| [EventY](BlitzPlus-Events#eventy) | Int |  |
-| [EventZ](BlitzPlus-Events#eventz) | Int |  |
-| [PeekEvent](BlitzPlus-Events#peekevent) | Int |  |
-| [WaitEvent](BlitzPlus-Events#waitevent) | Int |  |
+| [EventData](BlitzPlus-Events#eventdata) | Int | Gives the extra number of the event that [WaitEvent](BlitzPlus-Events#waitevent) took last. |
+| [EventID](BlitzPlus-Events#eventid) | Int | Gives the kind of the event that [WaitEvent](BlitzPlus-Events#waitevent) took last, which is the same number that function returned. |
+| [EventSource](BlitzPlus-Events#eventsource) | Int | Gives the object that caused the last event: the gadget that was clicked, the window that moved or the timer that ticked. |
+| [EventX](BlitzPlus-Events#eventx) | Int | Gives the first coordinate of the last event: where the mouse was for $203 and $205, and where a window went to for $801 or how wide it became for $802. |
+| [EventY](BlitzPlus-Events#eventy) | Int | Gives the second coordinate of the last event, like [EventX](BlitzPlus-Events#eventx): the mouse position for $203 and $205, the window position for $801 and the height for $802. |
+| [EventZ](BlitzPlus-Events#eventz) | Int | Gives the third value of an event. |
+| [PeekEvent](BlitzPlus-Events#peekevent) | Int | Looks at the next event without taking it. |
+| [WaitEvent](BlitzPlus-Events#waitevent) | Int | Waits until something happens and gives the kind of event. |
 
 ### EventData
 
@@ -28,7 +28,44 @@ EventData  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives the extra number of the event that [WaitEvent](BlitzPlus-Events#waitevent) took last. What it means depends on the kind of event:
+
+| Event | ID | Data | Source | X / Y / Z |
+| --- | --- | --- | --- | --- |
+| KeyDown | $101 | Scan code | - | - |
+| KeyUp | $102 | Scan code | - | - |
+| KeyStroke | $103 | ASCII code | - | - |
+| MouseDown | $201 | Mouse button | Gadget | - |
+| MouseUp | $202 | Mouse button | Gadget | - |
+| MouseMove | $203 | - | Canvas | Mouse position |
+| MouseWheel | $204 | Turns | - | - |
+| MouseEnter | $205 | - | Canvas | Mouse position |
+| MouseLeave | $206 | - | Canvas | - |
+| GadgetAction | $401 | New value | Gadget | - |
+| WindowMove | $801 | - | Window | New position |
+| WindowSize | $802 | - | Window | New size |
+| WindowClose | $803 | - | Window | - |
+| WindowActivate | $804 | - | Window | - |
+| MenuEvent | $1001 | Menu number | - | - |
+| AppSuspend | $2001 | - | - | - |
+| AppResume | $2002 | - | - | - |
+| AppBeginModal | $2004 | - | - | - |
+| AppEndModal | $2005 | - | - | - |
+| TimerTick | $4001 | Ticks so far | Timer | - |
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Keys", 20, 20, 260, 120, Desktop(), 3)
+info = CreateLabel("Press a key", 10, 10, 230, 60, win)
+Repeat
+	e = WaitEvent()
+	If e = $103 Then SetGadgetText info, "Typed " + Chr$(EventData()) + " = " + EventData()
+Until e = $803
+```
+
+![EventData](media/events/eventdata.png)
+
+**Returns:** The data of the event, see the table. Keeps its value until the next call of `WaitEvent`.
 
 ### EventID
 
@@ -38,7 +75,26 @@ EventID  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives the kind of the event that [WaitEvent](BlitzPlus-Events#waitevent) took last, which is the same number that function returned. See the table at [EventData](BlitzPlus-Events#eventdata) for all kinds.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Buttons", 20, 20, 260, 160, Desktop(), 3)
+info = CreateLabel("Click the button", 10, 10, 230, 40, win)
+go   = CreateButton("Go", 10, 70, 80, 28, win)
+Repeat
+	Select WaitEvent()
+		Case $401
+			If EventSource() = go Then SetGadgetText info, "GadgetAction $" + Hex$(EventID())
+		Case $803
+			End
+	End Select
+Forever
+```
+
+![EventID](media/events/eventid.png)
+
+**Returns:** The kind of the event. 0 after a `WaitEvent` that timed out.
 
 ### EventSource
 
@@ -48,7 +104,26 @@ EventSource  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives the object that caused the last event: the gadget that was clicked, the window that moved or the timer that ticked. Compare it with the handles you got when you made them to find out which one it was.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Sources", 20, 20, 260, 160, Desktop(), 3)
+info = CreateLabel("Click a button", 10, 10, 230, 40, win)
+a    = CreateButton("A", 10, 70, 60, 28, win)
+b    = CreateButton("B", 90, 70, 60, 28, win)
+Repeat
+	e = WaitEvent()
+	If e = $401 Then
+		If EventSource() = a Then SetGadgetText info, "Pressed A"
+		If EventSource() = b Then SetGadgetText info, "Pressed B"
+	EndIf
+Until e = $803
+```
+
+![EventSource](media/events/eventsource.png)
+
+**Returns:** A handle, or 0 for events that have no source such as keys and menus.
 
 ### EventX
 
@@ -58,7 +133,26 @@ EventX  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives the first coordinate of the last event: where the mouse was for $203 and $205, and where a window went to for $801 or how wide it became for $802.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Mouse", 20, 20, 280, 200, Desktop(), 3)
+info = CreateLabel("Move the mouse", 10, 10, 250, 30, win)
+cv   = CreateCanvas(10, 50, 240, 100, win)
+SetBuffer CanvasBuffer(cv)
+ClsColor 120, 160, 200
+Cls
+FlipCanvas cv
+Repeat
+	e = WaitEvent()
+	If e = $203 Then SetGadgetText info, "At " + EventX() + ", " + EventY()
+Until e = $803
+```
+
+![EventX](media/events/eventx.png)
+
+**Returns:** The X value, see the table at [EventData](BlitzPlus-Events#eventdata). Positions on a canvas are relative to the canvas.
 
 ### EventY
 
@@ -68,7 +162,18 @@ EventY  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives the second coordinate of the last event, like [EventX](BlitzPlus-Events#eventx): the mouse position for $203 and $205, the window position for $801 and the height for $802.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Moves", 20, 20, 200, 120, Desktop(), 15)
+Repeat
+	e = WaitEvent()
+	If e = $801 Then SetStatusText win, "Moved to " + EventX() + ", " + EventY()
+Until e = $803
+```
+
+**Returns:** The Y value, see the table at [EventData](BlitzPlus-Events#eventdata).
 
 ### EventZ
 
@@ -78,7 +183,19 @@ EventZ  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives the third value of an event. Most events leave it at 0, it is only filled in when a [HotKeyEvent](BlitzPlus-System#hotkeyevent) says what to put there. The official help lists this command as undocumented.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Z", 20, 20, 200, 100, Desktop(), 15)
+HotKeyEvent 30, 2, $4242, 1, 2, 3
+Repeat
+	e = WaitEvent()
+	If e = $4242 Then SetStatusText win, "Z is " + EventZ()
+Until e = $803
+```
+
+**Returns:** The Z value, 0 if the event has none.
 
 ### PeekEvent
 
@@ -88,7 +205,23 @@ PeekEvent  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Looks at the next event without taking it. If one is waiting it gives the kind, and if not it gives 0. The event stays in the queue, and [EventID](BlitzPlus-Events#eventid) and the other event functions do not change, so use [WaitEvent](BlitzPlus-Events#waitevent) with a timeout of 0 to actually take it.
+
+Calling it also lets the windows do their work, so it can be used to keep the interface alive in a loop that does other things.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Busy", 20, 20, 240, 100, Desktop(), 15)
+n = 0
+While PeekEvent() <> $803
+	n = n + 1
+	SetStatusText win, "Looped " + n + " times"
+	If PeekEvent() Then WaitEvent(0)
+	Delay 10
+Wend
+```
+
+**Returns:** The kind of the next event, or 0 if there is none.
 
 ### WaitEvent
 
@@ -98,8 +231,24 @@ WaitEvent timeout%=-1  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Waits until something happens and gives the kind of event. Use [EventData](BlitzPlus-Events#eventdata), [EventSource](BlitzPlus-Events#eventsource), [EventX](BlitzPlus-Events#eventx) and the others to learn more about it. While it waits the windows keep working and are redrawn.
+
+A program with windows is built around a loop with `WaitEvent`. Take every event from one call: calling it again before you read the values throws the earlier event away.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Timeout", 20, 20, 260, 120, Desktop(), 3)
+info = CreateLabel("Waiting", 10, 10, 230, 40, win)
+Repeat
+	e = WaitEvent(500)
+	If e = 0 Then SetGadgetText info, "Nothing for 500 ms"
+Until e = $803
+```
+
+![WaitEvent](media/events/waitevent.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `timeout` | Int | `-1` |  |
+| `timeout` | Int | `-1` | Longest time to wait in milliseconds. -1 waits forever, 0 does not wait. Defaults to -1. |
+
+**Returns:** The kind of the event, or 0 if the time ran out.
