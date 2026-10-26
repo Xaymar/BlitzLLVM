@@ -76,10 +76,12 @@ namespace blitz {
 		std::set<std::string>                _declared;
 		std::map<std::string, std::string>   _strings;
 		std::map<std::string, variable>      _global_variables;
+		std::map<std::string, variable>      _arrays; // Dim arrays, which have their own names.
 		std::map<std::string, function_info> _functions;
 		std::map<std::string, type_info>     _types;
 		std::map<std::string, int64_t>       _const_values;
 		std::string                          _return_sname;
+		std::map<std::string, std::pair<std::string, ast::location>> _unknown; // Functions that were called but don't exist, so all can be reported at once.
 
 		// Data, in the order it appears in the program.
 		std::vector<std::string>             _data_items;  // LLVM constants, `{ i32, i64 }`.

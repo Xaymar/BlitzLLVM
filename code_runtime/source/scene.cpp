@@ -815,8 +815,9 @@ int32_t bb_create_mesh(int32_t parent)
 	return new_mesh(parent);
 }
 
-int32_t bb_create_surface(int32_t mesh)
+int32_t bb_create_surface(int32_t mesh, int32_t brush)
 {
+	(void)brush; // Brushes are not supported yet.
 	return new_surface(mesh);
 }
 

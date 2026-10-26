@@ -68,7 +68,7 @@ bool blitz::token::operator==(std::string const& rhs) const
 
 blitz::lexer::~lexer() {}
 
-blitz::lexer::lexer(std::filesystem::path file) : _file(file), _data(), _offset(0), _location{ 1, 1 }
+blitz::lexer::lexer(std::filesystem::path file) : _file(file), _data(), _offset(0), _text_end(size_t(-1)), _location{ 1, 1 }
 {
 	// We read the entire file up front: Blitz source files are small, and it makes saving/restoring state trivial.
 	std::ifstream stream(_file, std::ios_base::binary);
@@ -196,7 +196,8 @@ blitz::token blitz::lexer::scan()
 			while (is_digit(at())) {
 				advance();
 			}
-			if ((at() == '.') && is_digit(at(1))) {
+			// `1.5`, and also `1.` which is a Real too, as long as nothing that could be a name follows.
+			if ((at() == '.') && (is_digit(at(1)) || !is_ident_start(at(1)))) {
 				token.type = blitz::token::variant::REAL;
 				advance();
 				while (is_digit(at())) {
@@ -209,10 +210,7 @@ blitz::token blitz::lexer::scan()
 		if ((token.type == blitz::token::variant::INTEGER) && ((at() == 'u') || (at() == 'U'))) {
 			advance(); // Unsigned suffix, kept as part of the token.
 		}
-		token.text = _data.substr(start, _offset - start);
-		if (is_ident(at())) {
-			throw blitz::error(_file, token.location, _location, blitz::format("In token %s: Unexpected '%c' after number.", token.to_string().c_str(), char(at())));
-		}
+		token.text = _data.substr(start, _offset - start); // A name can follow right away, like in `Case 1Foo()`.
 	} else if (is_ident_start(chr)) {
 		token.type   = blitz::token::variant::TEXT;
 		size_t start = _offset;
@@ -220,6 +218,20 @@ blitz::token blitz::lexer::scan()
 			advance();
 		}
 		token.text = _data.substr(start, _offset - start);
+		_text_end  = _offset;
+	} else if (((chr == '$') && is_hex(at(1)) && (_offset != _text_end)) || ((chr == '%') && ((at(1) == '0') || (at(1) == '1')) && (_offset != _text_end))) {
+		// `$FF00FF` and `%1010` are numbers, unless they follow a name, where they say what type that is.
+		bool hex = (chr == '$');
+		advance();
+		size_t start = _offset;
+		while (hex ? is_hex(at()) : ((at() == '0') || (at() == '1'))) {
+			advance();
+		}
+		token.type = blitz::token::variant::INTEGER;
+		token.text = std::string(hex ? "0x" : "0b") + _data.substr(start, _offset - start);
+		if (hex && (at() == '$')) {
+			advance(); // A stray type character behind the number, which Blitz allows.
+		}
 	} else if (chr == '"') {
 		// Strings have no escape sequences in Blitz; a string ends at the next quote.
 		token.type = blitz::token::variant::STRING;
@@ -228,11 +240,10 @@ blitz::token blitz::lexer::scan()
 		while ((at() != '"') && (at() != EOF) && (at() != '\r') && (at() != '\n')) {
 			advance();
 		}
-		if (at() != '"') {
-			throw blitz::error(_file, token.location, _location, "Unterminated string.");
-		}
 		token.text = _data.substr(start, _offset - start);
-		advance();
+		if (at() == '"') {
+			advance();
+		} // Blitz lets a string end with the line, so a missing closing quote is fine.
 	} else if (chr < 32) {
 		token.type = blitz::token::variant::CONTROL;
 		token.text = std::string(1, char(chr));
@@ -240,7 +251,11 @@ blitz::token blitz::lexer::scan()
 	} else if (blitz::utility::is_symbol(chr)) {
 		token.type = blitz::token::variant::SYMBOL;
 		int nxt     = at(1);
-		if (((chr == '<') && ((nxt == '>') || (nxt == '='))) || ((chr == '>') && (nxt == '=')) || ((chr == '=') && (nxt == '=')) || ((chr == '%') && (nxt == '%')) || ((chr == '#') && (nxt == '#'))) {
+		if (((chr == '=') && ((nxt == '>') || (nxt == '<'))) || ((chr == '>') && (nxt == '<'))) {
+			// `=>`, `=<` and `><` are other ways to write `>=`, `<=` and `<>`.
+			token.text = (chr == '>') ? "<>" : ((nxt == '>') ? ">=" : "<=");
+			advance(2);
+		} else if (((chr == '<') && ((nxt == '>') || (nxt == '='))) || ((chr == '>') && (nxt == '=')) || ((chr == '=') && (nxt == '=')) || ((chr == '%') && (nxt == '%')) || ((chr == '#') && (nxt == '#'))) {
 			token.text = { char(chr), char(nxt) };
 			advance(2);
 		} else {

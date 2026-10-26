@@ -24,6 +24,34 @@ namespace {
 		"not",    "data",   "read",   "restore", "goto",   "gosub",  "dim",    "type",   "endtype", "field", "new",  "delete", "insert", "before", "after", "each", "first", "last",
 	};
 
+	// Finds a file whose name differs from the given one only by case, which is how paths are written in Blitz programs.
+	std::filesystem::path find_file(std::filesystem::path const& wanted)
+	{
+		std::error_code ec;
+		if (std::filesystem::exists(wanted, ec)) {
+			return wanted;
+		}
+		std::filesystem::path current = wanted.is_absolute() ? wanted.root_path() : std::filesystem::path();
+		for (auto const& part : wanted.relative_path()) {
+			std::filesystem::path next = current / part;
+			if (!std::filesystem::exists(next, ec)) {
+				bool found = false;
+				for (auto const& entry : std::filesystem::directory_iterator(current.empty() ? std::filesystem::path(".") : current, ec)) {
+					if (lower(entry.path().filename().string()) == lower(part.string())) {
+						next  = current / entry.path().filename();
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					return wanted;
+				}
+			}
+			current = next;
+		}
+		return current;
+	}
+
 	// Things that exist in Blitz, but that we do not (yet) know how to compile.
 	const std::set<std::string> unsupported = {
 		
@@ -38,7 +66,8 @@ std::unique_ptr<blitz::ast::program> blitz::parser::parse(std::filesystem::path 
 {
 	_program = std::make_unique<ast::program>();
 	_include_stack.clear();
-	_depth = 0;
+	_depth    = 0;
+	_root_dir = file.parent_path();
 	parse_file(file, _program->main);
 	return std::move(_program);
 }
@@ -162,7 +191,7 @@ void blitz::parser::parse_file(std::filesystem::path file, ast::block& into)
 		parse_statement(into);
 		if ((tk().type == blitz::token::variant::NEWLINE) || (tk().type == blitz::token::variant::SEPARATOR)) {
 			advance();
-		} else if (tk().type != blitz::token::variant::ENDOFFILE) {
+		} else if (!starts_statement(tk()) && (tk().type != blitz::token::variant::ENDOFFILE)) {
 			throw error(tk(), blitz::format("Unexpected %s, expected end of statement.", tk().to_string().c_str()));
 		}
 	}
@@ -177,6 +206,15 @@ void blitz::parser::parse_file(std::filesystem::path file, ast::block& into)
 ////////////////////////////////////////////////////////////////////////////////
 // Statements
 ////////////////////////////////////////////////////////////////////////////////
+// Blitz doesn't need anything between two statements, so whatever can start one may follow the last one.
+bool blitz::parser::starts_statement(blitz::token const& token) const
+{
+	if (token.type == blitz::token::variant::TEXT) {
+		return true;
+	}
+	return is_symbol(token, ".") && (tk(1).type == blitz::token::variant::TEXT) && adjacent(token, tk(1));
+}
+
 bool blitz::parser::at_block_end() const
 {
 	auto const& t = tk();
@@ -221,7 +259,7 @@ void blitz::parser::parse_block(ast::block& into)
 		parse_statement(into);
 		if ((tk().type == blitz::token::variant::NEWLINE) || (tk().type == blitz::token::variant::SEPARATOR)) {
 			advance();
-		} else if (tk().type != blitz::token::variant::ENDOFFILE) {
+		} else if (!starts_statement(tk()) && (tk().type != blitz::token::variant::ENDOFFILE)) {
 			throw error(tk(), blitz::format("Unexpected %s, expected end of statement.", tk().to_string().c_str()));
 		}
 	}
@@ -243,6 +281,9 @@ void blitz::parser::parse_line(ast::block& into)
 				break;
 			}
 			continue;
+		}
+		if (starts_statement(tk()) && !is_keyword(tk(), "else")) {
+			continue; // Another statement without anything in between.
 		}
 		if (!is_terminator(tk())) {
 			throw error(tk(), blitz::format("Unexpected %s, expected end of statement.", tk().to_string().c_str()));
@@ -693,10 +734,16 @@ void blitz::parser::parse_include(ast::block& into)
 	advance();
 
 	// Includes are relative to the file that includes them.
-	std::filesystem::path target = std::filesystem::path(file_tk.text);
+	// Blitz programs come from Windows: paths use backslashes, and don't care about the case of names.
+	std::string text = file_tk.text;
+	std::replace(text.begin(), text.end(), '\\', '/');
+	std::filesystem::path target = std::filesystem::path(text);
 	if (target.is_relative()) {
-		target = _file.parent_path() / target;
+		// Relative to the file that includes, or else to the main program (which is where Blitz runs from).
+		auto local = find_file(_file.parent_path() / target);
+		target     = std::filesystem::exists(local) ? local : (_root_dir / target);
 	}
+	target = find_file(target);
 	if (!std::filesystem::exists(target)) {
 		throw error(file_tk, blitz::format("Included file '%s' does not exist.", file_tk.text.c_str()));
 	}
@@ -786,9 +833,6 @@ void blitz::parser::parse_dim(ast::block& into)
 		decl.name        = name.text;
 		decl.type        = parse_type_suffix(name);
 		decl.struct_name = _struct_name;
-		if (decl.type == blitz::types::type::UNKNOWN) {
-			decl.type = blitz::types::type::INT32;
-		}
 		expect_symbol("(");
 		while (true) {
 			decl.sizes.push_back(parse_expression());
@@ -1135,6 +1179,15 @@ blitz::ast::expression_ptr blitz::parser::parse_power()
 blitz::ast::expression_ptr blitz::parser::parse_unary()
 {
 	auto op = tk();
+	if ((is_keyword(op, "int") || is_keyword(op, "float") || is_keyword(op, "str")) && !is_symbol(tk(1), "(")) {
+		// `Float x` converts without needing parenthesis, and binds tighter than any operator.
+		advance();
+		auto node   = std::make_unique<ast::call>();
+		node->where = here(op);
+		node->name  = op.text;
+		node->arguments.push_back(parse_unary());
+		return node;
+	}
 	if (is_keyword(op, "new") || is_keyword(op, "first") || is_keyword(op, "last")) {
 		advance();
 		auto type_tk = tk();

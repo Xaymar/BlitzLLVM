@@ -42,6 +42,7 @@ namespace blitz {
 		std::filesystem::path _file;
 		std::string           _data; // Entire file, so that saving and restoring state is trivial.
 		size_t                _offset;
+		size_t                _text_end; // Where the last name ended, to tell `Name$` apart from `$Hex`.
 
 		// Current location in the file.
 		std::pair<uint64_t, uint64_t> _location;

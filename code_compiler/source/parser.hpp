@@ -22,6 +22,7 @@ namespace blitz {
 		size_t                                       _pos;
 
 		std::vector<std::filesystem::path> _include_stack;
+		std::filesystem::path              _root_dir; // Where the main program is.
 		std::unique_ptr<ast::program>      _program;
 		int                                _depth; // Block nesting depth, functions may only exist at depth 0.
 		std::string                        _struct_name; // Type name found by the last parse_type_suffix, for `Name.TypeName`.
@@ -52,6 +53,7 @@ namespace blitz {
 
 		// Statements
 		bool at_block_end() const;
+		bool starts_statement(blitz::token const& token) const;
 		void parse_block(ast::block& into);
 		void parse_line(ast::block& into);
 		void parse_statement(ast::block& into);

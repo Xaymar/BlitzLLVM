@@ -177,7 +177,7 @@ namespace blitz {
 		struct dim_declaration {
 			location                    where;
 			std::string                 name;
-			blitz::types::type          type = blitz::types::type::INT32;
+			blitz::types::type          type = blitz::types::type::UNKNOWN; // Without a suffix: Int, or what the array already was.
 			std::string                 struct_name;
 			std::vector<expression_ptr> sizes; // The highest valid index of each dimension.
 		};
