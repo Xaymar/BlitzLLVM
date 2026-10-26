@@ -501,11 +501,15 @@ int32_t bb_image_buffer(int32_t handle, int32_t frame)
 
 int32_t bb_texture_buffer(int32_t handle, int32_t frame)
 {
-	(void)frame;
-	if (!texture_of(handle)) {
+	texture_entry* t = live_texture_of(handle);
+	if (!t) {
 		bb_runtime_error("TextureBuffer: the texture does not exist.");
 	}
-	return texture_buffer_base + handle * 1024;
+	int x, y, w, h;
+	if ((frame < 0) || (frame > 1023) || !texture_frame_rect(*t, frame, x, y, w, h)) {
+		return 0; // There is no buffer for a frame that the texture doesn't have.
+	}
+	return texture_buffer_base + (handle & bb::texture_handle_mask) * 1024 + frame;
 }
 
 int32_t bb_save_image(int32_t handle, const char* file, int32_t frame)

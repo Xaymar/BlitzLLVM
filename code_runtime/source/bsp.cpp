@@ -243,7 +243,7 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 	int      handle = create_entity(MESH, parent);
 	entity*  e      = get_entity(handle);
 	e->cls          = "BSP";
-	e->fx           = 1; // It is lit by the colors of its vertices.
+	e->fx           = 1 | 2; // It is lit by the colors of its vertices.
 	surface** surface_of_texture = static_cast<surface**>(calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(surface*)));
 	int*      handle_of_texture  = static_cast<int*>(calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(int)));
 	bool*     tried              = static_cast<bool*>(calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(bool)));

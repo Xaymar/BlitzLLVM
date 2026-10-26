@@ -20,6 +20,22 @@ other = CreateTexture(16, 16, 1 + 2, 1)
 CheckTrue "CreateTexture with flags", other <> 0 And other <> texture
 Check "TextureWidth of the other", TextureWidth(other), 16
 
+; Textures can have frames, which are the size that the texture was given and have a buffer each.
+sheet = CreateTexture(16, 8, 1, 3)
+Check "A texture with frames is as wide as a frame", TextureWidth(sheet), 16
+Check "A texture with frames is as high as a frame", TextureHeight(sheet), 8
+frame_0 = TextureBuffer(sheet, 0)
+frame_1 = TextureBuffer(sheet, 1)
+frame_2 = TextureBuffer(sheet, 2)
+CheckTrue "A texture with frames has a buffer for each", frame_0 <> 0 And frame_1 <> 0 And frame_2 <> 0
+CheckTrue "The buffers of frames are different", frame_0 <> frame_1 And frame_1 <> frame_2 And frame_0 <> frame_2
+Check "The buffer of a frame stays", TextureBuffer(sheet, 1), frame_1
+Check "A texture has no buffer for a frame it doesn't have", TextureBuffer(sheet, 3), 0
+Check "A texture has no buffer for a negative frame", TextureBuffer(sheet, -1), 0
+Check "A texture without frames has no second frame", TextureBuffer(other, 1), 0
+CheckTrue "A texture without frames has a first frame", TextureBuffer(other) <> 0
+FreeTexture sheet
+
 ; Textures from files, which are a picture of 64 by 64 here.
 loaded = LoadTexture("../checker.png")
 CheckTrue "LoadTexture", loaded <> 0
@@ -73,14 +89,27 @@ suite_checks = suite_checks + 5
 
 ; A brush keeps the textures that were put on it, by number.
 tex_a = CreateTexture(8, 8)
-tex_b = CreateTexture(8, 8)
+tex_b = CreateTexture(4, 4)
 Check "A brush has no texture to begin with", GetBrushTexture(brush), 0
 BrushTexture brush, tex_a
-CheckTrue "BrushTexture", GetBrushTexture(brush) <> 0
-Check "GetBrushTexture gives the same texture", GetBrushTexture(brush), tex_a
+got = GetBrushTexture(brush)
+CheckTrue "BrushTexture", got <> 0
+; GetBrushTexture gives a handle of its own, which is the same texture and has to be freed by the one that asked.
+CheckTrue "GetBrushTexture gives a new handle", got <> tex_a
+Check "GetBrushTexture gives the same texture", TextureWidth(got), 8
+CheckTrue "GetBrushTexture gives a new handle every time", GetBrushTexture(brush) <> got
+FreeTexture got
+Check "Freeing the handle of GetBrushTexture keeps the texture", TextureWidth(tex_a), 8
+got = GetBrushTexture(brush)
+Check "Freeing the handle of GetBrushTexture keeps the brush", TextureWidth(got), 8
+FreeTexture got
 BrushTexture brush, tex_b, 0, 1
-Check "BrushTexture on the tex_b layer", GetBrushTexture(brush, 1), tex_b
-Check "BrushTexture keeps the tex_a layer", GetBrushTexture(brush, 0), tex_a
+got = GetBrushTexture(brush, 1)
+Check "BrushTexture on the tex_b layer", TextureWidth(got), 4
+FreeTexture got
+got = GetBrushTexture(brush, 0)
+Check "BrushTexture keeps the tex_a layer", TextureWidth(got), 8
+FreeTexture got
 Check "The other brush is not changed", GetBrushTexture(other), 0
 
 ; Brushes on meshes
@@ -88,7 +117,9 @@ cube = CreateCube()
 PaintMesh cube, brush
 surfaceBrush = GetSurfaceBrush(GetSurface(cube, 1))
 CheckTrue "A painted mesh has a brush", surfaceBrush <> 0
-Check "The brush of a surface has the texture", GetBrushTexture(surfaceBrush), tex_a
+got = GetBrushTexture(surfaceBrush)
+Check "The brush of a surface has the texture", TextureWidth(got), 8
+FreeTexture got
 FreeBrush surfaceBrush
 FreeEntity cube
 
@@ -98,7 +129,9 @@ EntityTexture looks, tex_a
 EntityColor looks, 255, 0, 0
 from_entity = GetEntityBrush(looks)
 CheckTrue "GetEntityBrush", from_entity <> 0
-Check "GetEntityBrush texture", GetBrushTexture(from_entity, 0), tex_a
+got = GetBrushTexture(from_entity, 0)
+Check "GetEntityBrush texture", TextureWidth(got), 8
+FreeTexture got
 twin = CreateCube()
 PaintMesh twin, from_entity
 Check "FindSurface", FindSurface(twin, from_entity), GetSurface(twin, 1)
@@ -130,12 +163,31 @@ frames = LoadAnimTexture("../checker.png", 1, 32, 32, 0, 4)
 CheckTrue "LoadAnimTexture", frames <> 0
 Check "LoadAnimTexture width is a frame", TextureWidth(frames), 32
 Check "LoadAnimTexture height is a frame", TextureHeight(frames), 32
-CheckS "TextureName", TextureName$(frames), "../checker.png"
+; The name is the full path, where nothing like ../ is left.
+name$ = TextureName$(frames)
+CheckTrue "TextureName is not the path as given", name <> "../checker.png"
+CheckS "TextureName is the file", Right$(name, 12), "/checker.png"
+CheckTrue "TextureName is not relative", Left$(name, 1) = "/" Or Left$(name, 1) = "\" Or Mid$(name, 2, 1) = ":"
+CheckTrue "TextureName has no ..", Instr(name, "..") = 0
+CheckS "TextureName of the same file by another way", TextureName$(LoadTexture("../suite/../checker.png")), name
 CheckS "TextureName of a made texture", TextureName$(tex_a), ""
 Check "LoadAnimTexture missing", LoadAnimTexture("suite_does_not_exist.png", 1, 32, 32, 0, 4), 0
+; Frames that are not in the picture give 0, and don't stop the program.
+Check "LoadAnimTexture with too many frames", LoadAnimTexture("../checker.png", 1, 32, 32, 0, 5), 0
+Check "LoadAnimTexture with too late a first frame", LoadAnimTexture("../checker.png", 1, 32, 32, 3, 2), 0
+Check "LoadAnimTexture with bigger frames than the picture", LoadAnimTexture("../checker.png", 1, 128, 128, 0, 1), 0
+last_frames = LoadAnimTexture("../checker.png", 1, 32, 32, 3, 1)
+CheckTrue "LoadAnimTexture with the last frame", last_frames <> 0
+Check "LoadAnimTexture buffer of its frame", TextureBuffer(last_frames, 0) <> 0, 1
+Check "LoadAnimTexture has no second frame", TextureBuffer(last_frames, 1), 0
+FreeTexture last_frames
 frame_cube = CreateCube()
 EntityTexture frame_cube, frames, 3
-Check "GetBrushTexture keeps the texture of a frame", GetBrushTexture(GetEntityBrush(frame_cube)), frames
+frame_brush = GetEntityBrush(frame_cube)
+got = GetBrushTexture(frame_brush)
+Check "GetBrushTexture keeps the texture of a frame", TextureWidth(got), 32
+FreeTexture got
+FreeBrush frame_brush
 FreeEntity frame_cube
 FreeTexture frames
 
@@ -151,6 +203,32 @@ FreeBrush other
 FreeBrush brush
 FreeTexture tex_a
 FreeTexture tex_b
+
+; A texture that is freed while something uses it stays for that, and is gone when nothing uses it.
+kept = CreateTexture(16, 16)
+kept_cube = CreateCube()
+EntityTexture kept_cube, kept
+kept_brush = CreateBrush()
+BrushTexture kept_brush, kept
+active_before = ActiveTextures()
+FreeTexture kept
+Check "FreeTexture keeps what is used", ActiveTextures(), active_before
+got = GetBrushTexture(kept_brush)
+Check "The brush still has the texture", TextureWidth(got), 16
+FreeTexture got
+kept_look = GetEntityBrush(kept_cube)
+got = GetBrushTexture(kept_look)
+Check "The entity still has the texture", TextureWidth(got), 16
+FreeTexture got
+FreeBrush kept_look
+FreeEntity kept_cube
+Check "The brush keeps it after the entity is gone", ActiveTextures(), active_before
+FreeBrush kept_brush
+Check "FreeTexture lets go of what is not used", ActiveTextures(), active_before - 1
+unused = CreateTexture(16, 16)
+active_before = ActiveTextures()
+FreeTexture unused
+Check "FreeTexture of what is not used", ActiveTextures(), active_before - 1
 
 EndGraphics
 Done "blitz3d_textures"

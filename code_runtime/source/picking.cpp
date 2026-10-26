@@ -58,13 +58,26 @@ namespace {
 				}
 				float t;
 				if (ray_sphere(origin, direction, { m[12], m[13], m[14] }, rd + radius, t) && (t < best.time)) {
-					vec3 at   = origin + direction * t;
-					best      = { handle, at, normalized(at - vec3{ m[12], m[13], m[14] }), t, 0, 0 };
+					vec3 at     = origin + direction * t;
+					vec3 normal = normalized(at - vec3{ m[12], m[13], m[14] });
+					best        = { handle, at - normal * radius, normal, t, 0, 0 };
 				}
 				continue;
 			}
 
+			// With a radius the line is a sphere that moves along it, like the original does for polygons and boxes too.
+			hit_info swept;
+			swept.time = best.time < 1 ? best.time : 1;
+			bool swept_hit = false;
 			auto test = [&](triangle const& tri) {
+				if (radius > 0) {
+					if (hit_triangle(swept, { origin, direction }, radius, tri.a, tri.b, tri.c)) {
+						swept.surface  = tri.surface;
+						swept.triangle = tri.index;
+						swept_hit      = true;
+					}
+					return;
+				}
 				float t;
 				if (ray_triangle(origin, direction, tri.a, tri.b, tri.c, t) && (t < best.time)) {
 					vec3 n = normalized(cross(tri.b - tri.a, tri.c - tri.a));
@@ -85,6 +98,9 @@ namespace {
 					continue;
 				}
 				each_triangle(handle, *e, area, test);
+			}
+			if (swept_hit && (swept.time < best.time)) {
+				best = { handle, origin + direction * swept.time - swept.normal * radius, swept.normal, swept.time, swept.surface, swept.triangle };
 			}
 		}
 		return best;

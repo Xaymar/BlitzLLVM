@@ -163,6 +163,15 @@ Check "LinePick of a wall, x", PickedX(), 4, 0.01
 Check "LinePick of a wall, normal", PickedNX(), -1, 0.01
 Check "LinePick with a radius", LinePick(-4, 10, 0, 0, -20, 0, 0.5), ground
 
+; A radius makes the line thick for polygons too, not only for spheres. This line passes 0.5 above the top of the wall.
+Check "LinePick above the wall without a radius", LinePick(0, 10.5, 0, 20, 0, 0), 0
+Check "LinePick above the wall with a radius", LinePick(0, 10.5, 0, 20, 0, 0, 1), wall
+Check "LinePick with a radius, nothing in the way", LinePick(0, 12, 0, 20, 0, 0, 1), 0
+Check "LinePick with a radius, time", LinePick(0, 5, 0, 20, 0, 0, 1), wall
+Check "LinePick with a radius, time", PickedTime(), 3 / 20.0, 0.01
+Check "LinePick with a radius, x is on the face", PickedX(), 4, 0.01
+Check "LinePick with a radius, normal", PickedNX(), -1, 0.01
+
 ; Things that are not meant to be picked are not.
 EntityPickMode wall, 0
 Check "A wall that can not be picked", LinePick(0, 5, 0, 20, 0, 0), 0
@@ -172,6 +181,9 @@ EntityPickMode wall, 1
 CheckTrue "Spheres can be picked", LinePick(0, 5, 0, 20, 0, 0) = wall Or LinePick(0, 5, 0, 20, 0, 0) = 0
 EntityPickMode wall, 3
 CheckTrue "Boxes can be picked", LinePick(0, 5, 0, 20, 0, 0) = wall Or LinePick(0, 5, 0, 20, 0, 0) = 0
+Check "A box is hit by a line", LinePick(0, 5, 0, 20, 0, 0), wall
+Check "A box is missed by a thin line above it", LinePick(0, 10.5, 0, 20, 0, 0), 0
+Check "A box is hit by a thick line above it", LinePick(0, 10.5, 0, 20, 0, 0, 1), wall
 EntityPickMode wall, 2
 
 ; An entity picks what is in front of it, as far as it is asked to.

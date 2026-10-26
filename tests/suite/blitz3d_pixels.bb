@@ -6,7 +6,8 @@
 ; the middle of the picture after RenderWorld, for what the commands that change the look of things do: EntityColor
 ; EntityAlpha EntityBlend EntityFX EntityOrder EntityTexture PaintEntity HideEntity ShowEntity CameraClsColor
 ; CameraClsMode CameraFogMode CameraFogColor CameraFogRange CameraViewport CameraRange CameraZoom AmbientLight
-; LightColor Wireframe CopyEntity CreateSprite ScaleSprite EntityAutoFade CaptureWorld HandleSprite.
+; LightColor Wireframe CopyEntity CreateSprite ScaleSprite EntityAutoFade CaptureWorld HandleSprite FreeTexture BrushFX
+; CreateTexture TextureBuffer TextureFilter.
 Include "check.bb"
 
 If GetEnv$("BLITZ_HEADLESS") <> "" Then
@@ -292,5 +293,191 @@ Check "A sprite held at the left edge leaves the left", R(72, 60), 10, 3
 FreeEntity held
 
 FreeEntity cube
+
+; A quad that faces the camera, which covers the pixels from 48 to 112 across and 28 to 92 down. The pixels at 55, 35 and
+; at 75, 45 are inside its first triangle.
+Function Quad()
+	quad = CreateMesh()
+	quad_surface = CreateSurface(quad)
+	v0 = AddVertex(quad_surface, -2, -2, 0) : v1 = AddVertex(quad_surface, -2, 2, 0) : v2 = AddVertex(quad_surface, 2, 2, 0) : v3 = AddVertex(quad_surface, 2, -2, 0)
+	AddTriangle quad_surface, v0, v1, v2
+	AddTriangle quad_surface, v0, v2, v3
+	Return quad
+End Function
+
+; A texture that is freed while something is drawn with it, still draws.
+CameraClsColor camera, 10, 20, 30
+kept_cube = CreateCube()
+EntityFX kept_cube, 1
+kept_texture = CreateTexture(2, 2)
+SetBuffer TextureBuffer(kept_texture)
+Color 0, 255, 0
+Rect 0, 0, 2, 2, True
+SetBuffer BackBuffer()
+EntityTexture kept_cube, kept_texture
+kept_brush = CreateBrush()
+BrushFX kept_brush, 1
+BrushTexture kept_brush, kept_texture
+kept_other = CreateCube()
+PositionEntity kept_other, 0, 0, 0
+HideEntity kept_other
+FreeTexture kept_texture
+RenderWorld
+Check "A freed texture still draws on an entity: green", G(80, 60), 255, 6
+Check "A freed texture still draws on an entity: red", R(80, 60), 0, 6
+PaintEntity kept_other, kept_brush
+HideEntity kept_cube
+ShowEntity kept_other
+RenderWorld
+Check "A freed texture still draws with a brush: green", G(80, 60), 255, 6
+Check "A freed texture still draws with a brush: red", R(80, 60), 0, 6
+FreeEntity kept_cube
+FreeEntity kept_other
+FreeBrush kept_brush
+
+; The colors of vertices count only with the vertex color flag.
+colored = Quad()
+colored_surface = GetSurface(colored, 1)
+For i = 0 To 3
+	VertexColor colored_surface, i, 255, 0, 0
+Next
+EntityFX colored, 1 + 16
+EntityColor colored, 0, 0, 255
+RenderWorld
+Check "Without the flag the color of the vertices is not used: red", R(80, 60), 0, 6
+Check "Without the flag the color of the vertices is not used: blue", B(80, 60), 255, 6
+EntityFX colored, 1 + 2 + 16
+EntityColor colored, 255, 255, 255
+RenderWorld
+Check "With the flag the color of the vertices is used: red", R(80, 60), 255, 6
+Check "With the flag the color of the vertices is used: blue", B(80, 60), 0, 6
+; A brush says it too.
+EntityFX colored, 0
+vertex_brush = CreateBrush()
+BrushFX vertex_brush, 1 + 16
+PaintMesh colored, vertex_brush
+RenderWorld
+Check "A brush without the flag: red", R(80, 60), 255, 6
+Check "A brush without the flag does not use the vertices", G(80, 60), 255, 6
+BrushFX vertex_brush, 1 + 2 + 16
+PaintMesh colored, vertex_brush
+RenderWorld
+Check "A brush with the flag uses the vertices", G(80, 60), 0, 6
+FreeBrush vertex_brush
+FreeEntity colored
+
+; Flat shading gives a triangle the shade of its first vertex, where smooth shading goes from one corner to the others.
+shaded = Quad()
+shaded_surface = GetSurface(shaded, 1)
+VertexNormal shaded_surface, 0, 0, 0, -1
+VertexNormal shaded_surface, 1, 0.8, 0, -0.6
+VertexNormal shaded_surface, 2, -0.8, 0, -0.6
+VertexNormal shaded_surface, 3, 0, 0, -1
+AmbientLight 0, 0, 0
+light = CreateLight()
+LightColor light, 255, 255, 255
+EntityFX shaded, 16
+RenderWorld
+smooth_near = R(55, 35)
+smooth_far = R(75, 45)
+CheckTrue "Smooth shading changes across a triangle (" + smooth_near + " and " + smooth_far + ")", Abs(smooth_near - smooth_far) > 8
+EntityFX shaded, 4 + 16
+RenderWorld
+Check "Flat shading is the same across a triangle", R(75, 45), R(55, 35), 2
+CheckTrue "Flat shading is lit (" + R(55, 35) + ")", R(55, 35) > 100
+FreeEntity light
+FreeEntity shaded
+AmbientLight 255, 255, 255
+
+; Fog does not touch what has no fog.
+fogged = CreateCube()
+EntityFX fogged, 1
+EntityColor fogged, 255, 0, 0
+CameraFogMode camera, 1
+CameraFogColor camera, 0, 0, 255
+CameraFogRange camera, 1, 6
+RenderWorld
+CheckTrue "Fog is on (" + B(80, 60) + ")", B(80, 60) > 60
+EntityFX fogged, 1 + 8
+RenderWorld
+Check "Without fog: red", R(80, 60), 255, 3
+Check "Without fog: blue", B(80, 60), 0, 3
+vertex_brush = CreateBrush(255, 0, 0)
+BrushFX vertex_brush, 1
+PaintEntity fogged, vertex_brush
+RenderWorld
+CheckTrue "A brush without the no fog flag is fogged (" + B(80, 60) + ")", B(80, 60) > 60
+BrushFX vertex_brush, 1 + 8
+PaintEntity fogged, vertex_brush
+RenderWorld
+Check "A brush with the no fog flag: blue", B(80, 60), 0, 3
+FreeBrush vertex_brush
+CameraFogMode camera, 0
+FreeEntity fogged
+
+; The frames of a texture are drawn on separately and used separately.
+frame_texture = CreateTexture(2, 2, 1, 2)
+SetBuffer TextureBuffer(frame_texture, 0)
+Color 255, 0, 0
+Rect 0, 0, 2, 2, True
+SetBuffer TextureBuffer(frame_texture, 1)
+Color 0, 0, 255
+Rect 0, 0, 2, 2, True
+SetBuffer BackBuffer()
+framed = CreateCube()
+EntityFX framed, 1
+EntityTexture framed, frame_texture, 0
+RenderWorld
+Check "The first frame of a texture: red", R(80, 60), 255, 6
+Check "The first frame of a texture: blue", B(80, 60), 0, 6
+EntityTexture framed, frame_texture, 1
+RenderWorld
+Check "The second frame of a texture: red", R(80, 60), 0, 6
+Check "The second frame of a texture: blue", B(80, 60), 255, 6
+FreeEntity framed
+FreeTexture frame_texture
+
+; Textures get color from the default filter, which is back after Graphics3D even if the filters were cleared. A picture
+; without alpha that is asked for with only alpha is white where it is not see-through, unless the filter adds color.
+file = WriteFile("suite_filter.bmp")
+WriteByte file, 66 : WriteByte file, 77
+WriteInt file, 70
+WriteInt file, 0
+WriteInt file, 54
+WriteInt file, 40
+WriteInt file, 2 : WriteInt file, 2
+WriteShort file, 1 : WriteShort file, 24
+WriteInt file, 0
+WriteInt file, 16
+WriteInt file, 2835 : WriteInt file, 2835
+WriteInt file, 0 : WriteInt file, 0
+For row = 1 To 2
+	For column = 1 To 2
+		WriteByte file, 0 : WriteByte file, 0 : WriteByte file, 255
+	Next
+	WriteShort file, 0
+Next
+CloseFile file
+
+CameraClsColor camera, 0, 0, 0
+Function FilterGreen()
+	cube = CreateCube()
+	EntityFX cube, 1
+	texture = LoadTexture("suite_filter.bmp", 2)
+	EntityTexture cube, texture
+	RenderWorld
+	green = G(80, 60)
+	FreeEntity cube
+	FreeTexture texture
+	Return green
+End Function
+Check "The default filter keeps the color", FilterGreen(), 0, 6
+ClearTextureFilters
+CheckTrue "Without a filter the picture is white (" + FilterGreen() + ")", FilterGreen() > 40
+Graphics3D 160, 120, 32, 2
+SetBuffer BackBuffer()
+Check "Graphics3D brings the default filter back", FilterGreen(), 0, 6
+DeleteFile "suite_filter.bmp"
+
 EndGraphics
 Done "blitz3d_pixels"
