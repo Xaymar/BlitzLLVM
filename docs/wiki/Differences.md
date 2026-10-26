@@ -22,6 +22,10 @@ The multiplayer commands (`StartNetGame`, `HostNetGame`, `JoinNetGame`, `StopNet
 
 Textures with flag 8 get a chain of mip maps and are sampled with trilinear filtering, which blends between two levels. The levels are made by averaging 2 by 2 texels, so masked (flag 4) and alpha textures average their alpha as well, which is also what the original did and makes their edges soft from afar. The levels of a texture that is drawn on (`TextureBuffer`) are made again before the texture is next used in a scene. The levels that are stored in a block compressed DDS file are used instead of made ones. A texture with frames (`LoadAnimTexture`, `CreateTexture` with frames) is one sheet, so its smallest levels blend the frames that are next to each other. There is no anisotropic filtering.
 
+## Depth buffer
+
+The depth buffer is reversed and a 32-bit float: the near plane of `CameraRange` is written as 1 and the far plane as 0, and the closer surface wins. Blitz3D used a 16 or 24-bit buffer that is 0 at the near plane, which spends most of its precision close to the camera and makes far surfaces flicker through each other (z-fighting). With the reversed float buffer the precision is almost even over the whole range, so distant surfaces that are close together stay apart without having to push `near` out. This changes nothing a program can see except that z-fighting is much rarer. The depth is still not linear in the buffer itself (it is `near / distance` for a perspective camera, and linear for `CameraProjMode 2`), but the buffer is never read back by a program: `ProjectedZ` is the distance in front of the camera, and `Graphics3D`'s depth argument is not used.
+
 ## Stop
 
 `Stop` is a breakpoint for a debugger. In a debug build (`-d`) it is a breakpoint instruction (`llvm.debugtrap`), which stops in an attached debugger and ends the program with a signal when there is none. In any other build it does nothing.
