@@ -15,6 +15,8 @@
 
 #include "graphics_internal.hpp"
 
+#include <utility>
+
 using namespace bb::gfx;
 
 namespace bb::gfx {
@@ -27,9 +29,11 @@ namespace bb::gfx {
 	VkDeviceMemory scratch_memory = VK_NULL_HANDLE;
 	VkDeviceSize   scratch_size   = 0;
 	bb::buffer<graveyard_entry> graveyard;
+	static uint32_t graveyard_busy = 0; // How many entries of the graveyard the frame in flight may use.
 
 	void empty_graveyard()
 	{
+		graveyard_busy = 0;
 		for (uint32_t i = 0; i < graveyard.size; i++) {
 			vkDestroyBuffer(g.device, graveyard[i].buffer, nullptr);
 			vkFreeMemory(g.device, graveyard[i].memory, nullptr);
@@ -37,19 +41,207 @@ namespace bb::gfx {
 		graveyard.clear();
 	}
 
+	////////////////////////////////////////////////////////////////////////////
+	// Submission thread
+	////////////////////////////////////////////////////////////////////////////
+	// The submission of a frame (queue submit, the wait for its fence, and the present) is done by a thread of its own, so
+	// that the program can go on with the next frame in the meantime. The queue is only ever used by one thread at a time:
+	// the program waits for the thread to be done before it does anything with the queue, the swapchain or the device.
+	struct submit_job {
+		VkSemaphore      wait, signal;
+		bool             present;
+		VkSwapchainKHR   swapchain;
+		uint32_t         index;
+	};
+
+	static SDL_Thread*    gpu_thread     = nullptr;
+	static SDL_Mutex*     gpu_mutex      = nullptr;
+	static SDL_Condition* gpu_cond       = nullptr;
+	static submit_job     gpu_job        = {};
+	static bool           gpu_job_ready  = false;
+	static bool           gpu_cmd_busy   = false; // The command buffer and everything it uses is in flight.
+	static bool           gpu_busy       = false; // The queue or the swapchain is in use.
+	static bool           gpu_quit       = false;
+	static bool           gpu_resized    = false; // The present asked for a new swapchain.
+	static VkResult       gpu_error      = VK_SUCCESS;
+	static const char*    gpu_error_what = "";
+	int                   profile_overlap = 0; // Frames that were still in flight when the program asked for the next.
+
+	static void gpu_fail(VkResult result, const char* what)
+	{
+		if (result != VK_SUCCESS && gpu_error == VK_SUCCESS) {
+			gpu_error      = result;
+			gpu_error_what = what;
+		}
+	}
+
+	static int SDLCALL gpu_main(void*)
+	{
+		for (;;) {
+			SDL_LockMutex(gpu_mutex);
+			while (!gpu_job_ready && !gpu_quit) {
+				SDL_WaitCondition(gpu_cond, gpu_mutex);
+			}
+			if (!gpu_job_ready) {
+				SDL_UnlockMutex(gpu_mutex);
+				return 0;
+			}
+			submit_job job = gpu_job;
+			gpu_job_ready  = false;
+			SDL_UnlockMutex(gpu_mutex);
+
+			VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			VkSubmitInfo         info  = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+			info.waitSemaphoreCount    = job.wait ? 1 : 0;
+			info.pWaitSemaphores       = &job.wait;
+			info.pWaitDstStageMask     = &stage;
+			info.commandBufferCount    = 1;
+			info.pCommandBuffers       = &g.cmd;
+			info.signalSemaphoreCount  = job.signal ? 1 : 0;
+			info.pSignalSemaphores     = &job.signal;
+			VkResult result            = vkResetFences(g.device, 1, &g.fence);
+			const char* what           = "vkResetFences";
+			if (result == VK_SUCCESS) {
+				result = vkQueueSubmit(g.queue, 1, &info, g.fence);
+				what   = "vkQueueSubmit";
+			}
+			if (result == VK_SUCCESS) {
+				result = vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX);
+				what   = "vkWaitForFences";
+			}
+			SDL_LockMutex(gpu_mutex);
+			gpu_fail(result, what);
+			gpu_cmd_busy = false;
+			SDL_BroadcastCondition(gpu_cond);
+			SDL_UnlockMutex(gpu_mutex);
+
+			if (job.present && (result == VK_SUCCESS)) {
+				VkPresentInfoKHR present   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+				present.waitSemaphoreCount = 1;
+				present.pWaitSemaphores    = &job.signal;
+				present.swapchainCount     = 1;
+				present.pSwapchains        = &job.swapchain;
+				present.pImageIndices      = &job.index;
+				result                     = vkQueuePresentKHR(g.queue, &present);
+				SDL_LockMutex(gpu_mutex);
+				if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
+					gpu_resized = true;
+				} else {
+					gpu_fail(result, "vkQueuePresentKHR");
+				}
+				SDL_UnlockMutex(gpu_mutex);
+			}
+			SDL_LockMutex(gpu_mutex);
+			gpu_busy = false;
+			SDL_BroadcastCondition(gpu_cond);
+			SDL_UnlockMutex(gpu_mutex);
+		}
+	}
+
+	int    profile_submits = 0;
+	Uint64 profile_wait    = 0;
+
+	// Reports what went wrong in the thread, as if it had happened here. Expects the mutex to be held, releases it.
+	static void gpu_unlock_and_check()
+	{
+		VkResult    error = gpu_error;
+		const char* what  = gpu_error_what;
+		gpu_error         = VK_SUCCESS;
+		SDL_UnlockMutex(gpu_mutex);
+		check(error, what);
+	}
+
+	// Waits until the frame in flight is done with the command buffer and what it uses, but not necessarily the present.
+	void wait_commands()
+	{
+		if (!gpu_thread) {
+			return;
+		}
+		SDL_LockMutex(gpu_mutex);
+		if (gpu_cmd_busy) {
+			profile_overlap++;
+			Uint64 wait_start = SDL_GetPerformanceCounter();
+			while (gpu_cmd_busy) {
+				SDL_WaitCondition(gpu_cond, gpu_mutex);
+			}
+			profile_wait += SDL_GetPerformanceCounter() - wait_start;
+		}
+		gpu_unlock_and_check();
+
+		// Whatever was freed before the frame in flight was sent is not used any more.
+		if (graveyard_busy) {
+			uint32_t n = graveyard_busy < graveyard.size ? graveyard_busy : graveyard.size;
+			for (uint32_t i = 0; i < n; i++) {
+				vkDestroyBuffer(g.device, graveyard[i].buffer, nullptr);
+				vkFreeMemory(g.device, graveyard[i].memory, nullptr);
+			}
+			memmove(graveyard.data, graveyard.data + n, (graveyard.size - n) * sizeof(graveyard_entry));
+			graveyard.size -= n;
+			graveyard_busy = 0;
+		}
+	}
+
+	// Waits until nothing is using the queue and the swapchain, which is needed before using either.
+	void wait_gpu()
+	{
+		if (!gpu_thread) {
+			return;
+		}
+		SDL_LockMutex(gpu_mutex);
+		if (gpu_busy) {
+			Uint64 wait_start = SDL_GetPerformanceCounter();
+			while (gpu_busy) {
+				SDL_WaitCondition(gpu_cond, gpu_mutex);
+			}
+			profile_wait += SDL_GetPerformanceCounter() - wait_start;
+		}
+		if (gpu_resized) {
+			gpu_resized = false;
+			g.resized   = true;
+		}
+		gpu_unlock_and_check();
+		wait_commands();
+	}
+
+	// Waits for everything on the GPU, including what the program did not send itself.
+	void gpu_idle()
+	{
+		wait_gpu();
+		vkDeviceWaitIdle(g.device);
+	}
+
+	void stop_gpu_thread()
+	{
+		if (!gpu_thread) {
+			return;
+		}
+		wait_gpu();
+		SDL_LockMutex(gpu_mutex);
+		gpu_quit = true;
+		SDL_BroadcastCondition(gpu_cond);
+		SDL_UnlockMutex(gpu_mutex);
+		SDL_WaitThread(gpu_thread, nullptr);
+		gpu_thread = nullptr;
+		SDL_DestroyCondition(gpu_cond);
+		SDL_DestroyMutex(gpu_mutex);
+		gpu_cond  = nullptr;
+		gpu_mutex = nullptr;
+		gpu_quit  = false;
+	}
+
 	void begin_commands()
 	{
+		wait_commands();
 		vkResetCommandBuffer(g.cmd, 0);
 		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
 	}
 
-	int    profile_submits = 0;
-	Uint64 profile_wait    = 0;
-
+	// Sends the command buffer and waits for it to be done. Used when the program needs the result.
 	void submit_commands(VkSemaphore wait, VkSemaphore signal)
 	{
+		wait_gpu();
 		check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
 
 		VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -68,6 +260,39 @@ namespace bb::gfx {
 		check(vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
 		profile_wait += SDL_GetPerformanceCounter() - wait_start;
 		empty_graveyard();
+	}
+
+	// Sends the command buffer and returns at once, the present follows if asked for. The program can not use the command
+	// buffer or anything it records until wait_commands, nor the swapchain until wait_gpu.
+	static void submit_async(VkSemaphore wait, VkSemaphore signal, bool present, uint32_t index)
+	{
+		check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
+		if (!gpu_thread) {
+			gpu_mutex  = SDL_CreateMutex();
+			gpu_cond   = SDL_CreateCondition();
+			gpu_thread = SDL_CreateThread(gpu_main, "BlitzLLVM GPU", nullptr);
+			if (!gpu_thread) {
+				fail("The submission thread could not be started.");
+			}
+		}
+		profile_submits++;
+		graveyard_busy = graveyard.size;
+		SDL_LockMutex(gpu_mutex);
+		gpu_job       = { wait, signal, present, g.swapchain, index };
+		gpu_job_ready = true;
+		gpu_cmd_busy  = true;
+		gpu_busy      = true;
+		SDL_BroadcastCondition(gpu_cond);
+		SDL_UnlockMutex(gpu_mutex);
+
+		// BLITZ_SYNC_GPU=1 waits for every frame, as if there was no thread (for comparing and for finding errors).
+		static int synchronous = -1;
+		if (synchronous < 0) {
+			synchronous = getenv("BLITZ_SYNC_GPU") ? 1 : 0;
+		}
+		if (synchronous) {
+			wait_gpu();
+		}
 	}
 
 	void barrier(VkImage img, VkImageLayout from, VkImageLayout to, VkImageAspectFlags aspect)
@@ -211,6 +436,10 @@ namespace bb::gfx {
 		}
 		g.op_count     = 0;
 		g.vertex_count = 0;
+		// What was recorded reads the vertices until it is done, so the next ones go to the other buffer.
+		std::swap(g.vertex_buffer, g.vertex_buffer_alt);
+		std::swap(g.vertex_memory, g.vertex_memory_alt);
+		std::swap(g.vertices, g.vertices_alt);
 		forget_recorded();
 	}
 
@@ -218,6 +447,7 @@ namespace bb::gfx {
 	void present_front(bool copy_back)
 	{
 		uint32_t index = 0;
+		wait_gpu(); // The swapchain is not used by the present of the frame before.
 		VkResult result = vkAcquireNextImageKHR(g.device, g.swapchain, UINT64_MAX, g.acquired, VK_NULL_HANDLE, &index);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			// Can't present to this swapchain: finish what we recorded, it gets recreated before the next present.
@@ -255,20 +485,7 @@ namespace bb::gfx {
 		barrier(g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 		barrier(front.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-		submit_commands(g.acquired, g.swap_done[index]);
-
-		VkPresentInfoKHR present   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
-		present.waitSemaphoreCount = 1;
-		present.pWaitSemaphores    = &g.swap_done[index];
-		present.swapchainCount     = 1;
-		present.pSwapchains        = &g.swapchain;
-		present.pImageIndices      = &index;
-		result                     = vkQueuePresentKHR(g.queue, &present);
-		if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
-			g.resized = true;
-		} else {
-			check(result, "vkQueuePresentKHR");
-		}
+		submit_async(g.acquired, g.swap_done[index], true, index);
 	}
 
 	// Records and sends everything that has been asked for.
@@ -282,6 +499,7 @@ namespace bb::gfx {
 		if (g.front_touched) {
 			g.front_touched = false;
 			// Drawing to the front buffer is visible immediately.
+			wait_gpu(); // To know whether the present wants a new swapchain.
 			if (g.resized || (g.swapchain == VK_NULL_HANDLE)) {
 				submit_commands();
 				if (g.resized) {
@@ -292,7 +510,7 @@ namespace bb::gfx {
 			}
 			present_front(false);
 		} else {
-			submit_commands();
+			submit_async(VK_NULL_HANDLE, VK_NULL_HANDLE, false, 0);
 		}
 	}
 

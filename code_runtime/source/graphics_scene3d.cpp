@@ -1017,6 +1017,7 @@ namespace bb::gfx {
 	{
 		if (scenes.size >= max_scenes) {
 			flush();
+			wait_commands(); // The scenes are written again from the first.
 		}
 
 		scene_data data = shared; // Each pass moves the lights by where its camera is.
@@ -1348,6 +1349,7 @@ void bb_render_world(float tween)
 	if (resolve_target(g.target).image && (g.target >= image_buffer_base) && (g.target < texture_buffer_base)) {
 		fail("RenderWorld can not draw to an image, use a texture.");
 	}
+	wait_commands(); // The buffers that the scene is written to are not read by the frame before any more.
 	g.triangles_drawn = 0;
 	stats3d           = {};
 

@@ -79,7 +79,7 @@ void bb_end_graphics(void)
 	}
 	if (!g.headless) {
 		flush(); // What was asked for is drawn before it all goes away.
-		vkDeviceWaitIdle(g.device);
+		gpu_idle();
 		for (int i = 0; i < 2; i++) {
 			destroy_image(g.buffers[i]);
 		}
@@ -121,8 +121,11 @@ void bb_end_graphics(void)
 			destroy_image(g.textures[i]);
 		}
 		destroy_swapchain();
+		stop_gpu_thread();
 		vkDestroyBuffer(g.device, g.vertex_buffer, nullptr);
 		vkFreeMemory(g.device, g.vertex_memory, nullptr);
+		vkDestroyBuffer(g.device, g.vertex_buffer_alt, nullptr);
+		vkFreeMemory(g.device, g.vertex_memory_alt, nullptr);
 		vkDestroyPipeline(g.device, g.triangles, nullptr);
 		vkDestroyPipeline(g.device, g.lines, nullptr);
 		vkDestroyPipelineLayout(g.device, g.layout, nullptr);
@@ -234,18 +237,22 @@ void bb_flip(int32_t vwait)
 		}
 	}
 	pump();
-	flush();
 
 	bool vsync = (vwait != 0);
 	if (vsync != g.vsync) {
 		g.vsync = vsync;
 		g.resized = true;
 	}
+	wait_gpu(); // To know whether the last present wants a new swapchain.
 	ensure_swapchain();
 	if (g.swapchain == VK_NULL_HANDLE) {
+		flush();
 		return; // Minimized
 	}
+	// What was asked for and the present are sent together.
 	begin_commands();
+	record_operations();
+	g.front_touched = false;
 	present_front(true);
 }
 
