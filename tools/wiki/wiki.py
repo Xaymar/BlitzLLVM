@@ -218,17 +218,23 @@ def category_page(dialect, category, cmds):
 
 def sidebar(cats):
     """The GitHub wiki shows _Sidebar.md next to every page. Dialects and categories fold open with <details>, so the
-    sidebar stays short until a submenu is opened. The lists are HTML because Markdown does not render inside them."""
-    out = ['<a href="Home">Home</a> · <a href="Command-Index">Command Index</a>', "", "<hr>", ""]
+    sidebar stays short until a submenu is opened. Each <details> sits inside the <li> of a list and holds the <ul> of
+    its children, so that a submenu is indented under its parent. The menu is HTML because Markdown does not render
+    inside <details>, and it uses no styling because the wiki strips it."""
+    out = ['<a href="Home">Home</a> · <a href="Command-Index">Command Index</a>', "", "<hr>", "", "<ul>"]
     for dialect in DIALECT_ORDER:
-        out.append('<details><summary><b><a href="%s">%s</a></b></summary>' % (dialect, dialect))
+        out.append('<li><details><summary><b><a href="%s">%s</a></b></summary>' % (dialect, dialect))
+        out.append("<ul>")
         for category in sorted(cats[dialect]):
             cmds = sorted(cats[dialect][category], key=lambda c: c.key)
-            out.append('<details><summary><a href="%s">%s</a> (%d)</summary>' % (cmds[0].page, category, len(cmds)))
-            out.append("<ul>" + "".join('<li><a href="%s">%s</a></li>' % (c.name, c.name) for c in cmds) + "</ul>")
-            out.append("</details>")
-        out.append("</details>")
-        out.append("")
+            out.append('<li><details><summary><a href="%s">%s</a> (%d)</summary>' % (cmds[0].page, category, len(cmds)))
+            out.append("<ul>")
+            out.extend('<li><a href="%s">%s</a></li>' % (c.name, c.name) for c in cmds)
+            out.append("</ul>")
+            out.append("</details></li>")
+        out.append("</ul>")
+        out.append("</details></li>")
+    out.append("</ul>")
     return "\n".join(out)
 
 
