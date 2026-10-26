@@ -15,6 +15,7 @@
 
 #include <ctype.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,19 +84,36 @@ const char* bb_str_from_f64(double v)
 	return bb_copy(buf, (size_t)n);
 }
 
+// Like atoi in the original: optional white space and sign, then digits, and the first other character ends the number.
+// That means "1.9" and "1e3" are 1, and "$FF" and "0x10" are 0. Too large numbers stop at the largest one that fits.
 int64_t bb_str_to_i64(const char* s)
 {
 	s = bb_s(s);
 	while (isspace((unsigned char)*s)) {
 		s++;
 	}
-	// Blitz converts through floating point when the string looks like a real.
-	char*   end;
-	int64_t v = (int64_t)strtoll(s, &end, 10);
-	if ((*end == '.') || (*end == 'e') || (*end == 'E')) {
-		return (int64_t)strtod(s, NULL);
+	bool negative = false;
+	if ((*s == '-') || (*s == '+')) {
+		negative = (*s == '-');
+		s++;
 	}
-	return v;
+	uint64_t limit = negative ? (uint64_t)INT64_MAX + 1 : (uint64_t)INT64_MAX, v = 0;
+	for (; (*s >= '0') && (*s <= '9'); s++) {
+		unsigned digit = (unsigned)(*s - '0');
+		if (v > (limit - digit) / 10) {
+			v = limit;
+			break;
+		}
+		v = v * 10 + digit;
+	}
+	return negative ? (int64_t)(0 - v) : (int64_t)v;
+}
+
+// The same for 32 bits, which is what Int and the implicit conversion of the original give.
+int32_t bb_str_to_i32(const char* s)
+{
+	int64_t v = bb_str_to_i64(s);
+	return (v > INT32_MAX) ? INT32_MAX : ((v < INT32_MIN) ? INT32_MIN : (int32_t)v);
 }
 
 double bb_str_to_f64(const char* s)

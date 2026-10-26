@@ -301,7 +301,7 @@ static const bb_data_item* bb_data_take(const bb_data_item* table, int32_t count
 
 const char* bb_str_from_i64(int64_t v);
 const char* bb_str_from_f64(double v);
-int64_t     bb_str_to_i64(const char* s);
+int32_t     bb_str_to_i32(const char* s);
 double      bb_str_to_f64(const char* s);
 
 static double bb_data_double(const bb_data_item* item)
@@ -318,7 +318,7 @@ int32_t bb_data_int(const bb_data_item* table, int32_t count, int32_t* position)
 	case 1:
 		return (int32_t)bb_data_double(item);
 	case 2:
-		return (int32_t)bb_str_to_i64((const char*)(intptr_t)item->value);
+		return bb_str_to_i32((const char*)(intptr_t)item->value);
 	default:
 		return (int32_t)item->value;
 	}
