@@ -110,8 +110,8 @@ jobs:
           DUMPBIN=$(cygpath -u "$("/c/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -find '**/Hostx64/x64/dumpbin.exe' | head -1 | tr -d '\r')")
           for lib in dist/bin/runtime/jxl_dec-static.lib dist/bin/runtime/SDL3-static.lib dist/bin/runtime/dav1d.lib dist/bin/runtime/libwebp.lib; do
             echo "== $lib"
-            "$DUMPBIN" -nologo -sectionheaders "$lib" | awk '/ name$/ {n=$1} /size of raw data$/ {s[n]+=strtonum("0x"$1)} END {for (k in s) printf "%10d %s\n", s[k], k}' | sort -n -r | head -12
-            "$DUMPBIN" -nologo -headers "$lib" | grep -c "LTCG\|GL" || true
+            "$DUMPBIN" -nologo -sectionheaders "$lib" | tr -d '\r' | awk '/ name$/ {n=$1} /size of raw data$/ {s[n]+=strtonum("0x"$1)} END {for (k in s) printf "%10d %s\n", s[k], k}' | sort -n -r | head -12
+            "$DUMPBIN" -nologo -directives "$lib" | tr -d '\r' | sort | uniq -c | sort -n -r | head -5
           done
       - uses: actions/upload-artifact@v7
         with:
