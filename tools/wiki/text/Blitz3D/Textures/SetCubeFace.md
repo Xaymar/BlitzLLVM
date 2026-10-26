@@ -4,4 +4,4 @@
 Chooses which of the six faces of a cube map the next drawing on the texture buffer goes to: 0 left, 1 forward, 2 right, 3 backward, 4 up, 5 down. It is only useful for textures made with the cube map flag (128).
 @param texture  The cube map texture.
 @param face     Face number, 0 to 5. The default is 1.
-@gap Cube maps are not implemented. The call checks the texture handle and then does nothing, so drawing always goes to the single image.
+@gap The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y. On a texture that is no cube map the call does nothing. Drawing to the texture buffer, `RenderWorld` and the pixel commands all go to the face that is chosen.

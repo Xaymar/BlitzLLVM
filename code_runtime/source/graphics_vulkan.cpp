@@ -394,6 +394,11 @@ namespace bb::gfx {
 		vkFreeMemory(g.device, staging_memory, nullptr);
 	}
 
+	void create_pixel_image(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels)
+	{
+		upload_pixels(image, width, height, pixels, false);
+	}
+
 	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
 	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps)
 	{

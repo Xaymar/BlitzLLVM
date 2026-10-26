@@ -77,7 +77,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks. Environment maps (64 and 128), video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering. Without flag 8 it has no mip maps.
+* Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks. Video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering. A sphere map (64) takes its coordinates from the normal of the surface in the view, and ScaleTexture, PositionTexture and RotateTexture do not change them. A cube map (128) has six faces of the size you give, chosen with SetCubeFace and shown as SetCubeMode says; it does not have mip maps. A texture with both flags is drawn as a plain one. Without flag 8 it has no mip maps.
 * The alpha (2) flag is only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, also where you drew black, unless it is masked (4): the masked flag does cut out black there.
 
 ## Related commands
