@@ -73,6 +73,15 @@ Check "VertexColor alpha", VertexAlpha(surface, v0), 0.5, 0.01
 Check "VertexColor is for one vertex", VertexRed(surface, v1), 255
 VertexColor surface, v1, 1, 2, 3
 Check "VertexColor without alpha", VertexAlpha(surface, v1), 1
+VertexColor surface, v1, 12.25, 100.5, 200.75, 0.123
+Check "VertexColor keeps fractions of red", VertexRed(surface, v1), 12.25, 0.001
+Check "VertexColor keeps fractions of green", VertexGreen(surface, v1), 100.5, 0.001
+Check "VertexColor keeps fractions of blue", VertexBlue(surface, v1), 200.75, 0.001
+Check "VertexColor keeps fractions of alpha", VertexAlpha(surface, v1), 0.123, 0.0005
+VertexColor surface, v1, 300, -5, 0.001
+Check "VertexColor clamps above 255", VertexRed(surface, v1), 255
+Check "VertexColor clamps below 0", VertexGreen(surface, v1), 0
+Check "VertexColor keeps tiny values", VertexBlue(surface, v1), 0.001, 0.0001
 
 ; Texture coordinates can be changed.
 VertexTexCoords surface, v0, 0.25, 0.75

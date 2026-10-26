@@ -46,7 +46,7 @@ namespace bb::scene {
 
 	uint32_t add_vertex(surface* s, float x, float y, float z, float nx, float ny, float nz, float u, float v)
 	{
-		vertex3d vert = { x, y, z, nx, ny, nz, u, v, 255, 255, 255, 255, u, v };
+		vertex3d vert = { x, y, z, nx, ny, nz, u, v, 1, 1, 1, 1, u, v };
 		s->vertices.push(vert);
 		s->dirty = true;
 		return s->vertices.size - 1;
@@ -404,10 +404,10 @@ int32_t bb_add_triangle(int32_t handle, int32_t a, int32_t b, int32_t c)
 void bb_vertex_color(int32_t handle, int32_t index, float r, float g, float b, float a)
 {
 	vertex3d& v = vertex_of(handle, index, "VertexColor");
-	v.r = uint8_t(clamp255(r) * 255 + 0.5f);
-	v.g = uint8_t(clamp255(g) * 255 + 0.5f);
-	v.b = uint8_t(clamp255(b) * 255 + 0.5f);
-	v.a = uint8_t((a < 0 ? 0 : (a > 1 ? 1 : a)) * 255 + 0.5f);
+	v.r = clamp255(r);
+	v.g = clamp255(g);
+	v.b = clamp255(b);
+	v.a = a < 0 ? 0 : (a > 1 ? 1 : a);
 }
 
 void bb_vertex_normal(int32_t handle, int32_t index, float x, float y, float z)
@@ -527,10 +527,10 @@ float bb_vertex_ny(int32_t surface, int32_t index) { return read_vertex(surface,
 float bb_vertex_nz(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexNZ").nz; }
 float bb_vertex_u(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexU"); check_set(set); return set == 1 ? v.u2 : v.u; }
 float bb_vertex_v(int32_t surface, int32_t index, int32_t set) { vertex3d const& v = read_vertex(surface, index, "VertexV"); check_set(set); return set == 1 ? v.v2 : v.v; }
-float bb_vertex_red(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexRed").r); }
-float bb_vertex_green(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexGreen").g); }
-float bb_vertex_blue(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexBlue").b); }
-float bb_vertex_alpha(int32_t surface, int32_t index) { return float(read_vertex(surface, index, "VertexAlpha").a) / 255.0f; }
+float bb_vertex_red(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexRed").r * 255.0f; }
+float bb_vertex_green(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexGreen").g * 255.0f; }
+float bb_vertex_blue(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexBlue").b * 255.0f; }
+float bb_vertex_alpha(int32_t surface, int32_t index) { return read_vertex(surface, index, "VertexAlpha").a; }
 
 // The vertex at a corner (0, 1 or 2) of a triangle.
 int32_t bb_triangle_vertex(int32_t handle, int32_t triangle, int32_t corner)
@@ -718,11 +718,10 @@ void bb_light_mesh(int32_t mesh, float r, float g, float b, float range, float x
 				float distance = sqrtf(lv[0] * lv[0] + lv[1] * lv[1] + lv[2] * lv[2]);
 				amount         = range / distance * (dot / distance);
 			}
-			uint8_t* color = &vert.r;
+			float* color = &vert.r;
 			for (int k = 0; k < 3; k++) {
-				float value = float(color[k]) / 255.0f + light[k] * amount;
-				int   byte  = int(floorf(value * 255.0f));
-				color[k]    = uint8_t(byte < 0 ? 0 : (byte > 255 ? 255 : byte));
+				float value = color[k] + light[k] * amount;
+				color[k]    = value < 0 ? 0 : (value > 1 ? 1 : value);
 			}
 		}
 		s->dirty = true;

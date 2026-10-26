@@ -36,3 +36,7 @@ The second argument of `AppTitle` is asked when somebody closes the window. If t
 | `systemdir` | The System32 folder. | `/usr/lib/` (`/System/Library/` on macOS), where the system keeps its libraries. |
 
 Folders end with a separator, except for the ones of Windows, which are as the system gives them.
+
+## Colors
+
+The 3D commands that take a color (`EntityColor`, `BrushColor`, `VertexColor`, `LightColor`, `AmbientLight`, `CameraClsColor`, `CameraFogColor`, `BSPAmbientLight` and the color of `LightMesh`) take floats from 0 to 255, so programs that pass whole numbers work as before. Vertex colors are stored as floats and not as one byte per part, so `VertexColor` followed by `VertexRed`, `VertexGreen`, `VertexBlue` and `VertexAlpha` returns what was set (limited to 0 to 255, and 0 to 1 for alpha) and `LightMesh` adds light without rounding the colors in between. The 2D commands (`Color`, `ClsColor`, `GetColor` and `ColorRed`, `ColorGreen`, `ColorBlue`) work on pixels and stay whole numbers.
