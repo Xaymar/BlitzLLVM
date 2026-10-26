@@ -482,8 +482,8 @@
 <li><a href="GfxDriverCaps3D">GfxDriverCaps3D</a></li>
 <li><a href="GfxMode3D">GfxMode3D</a></li>
 <li><a href="GfxMode3DExists">GfxMode3DExists</a></li>
-<li><a href="GfxMode3DHeight">GfxMode3DHeight</a></li>
-<li><a href="GfxMode3DWidth">GfxMode3DWidth</a></li>
+<li><a href="GfxMode3DHeight">GfxMode3DHeight</a> 〔BlitzLLVM〕</li>
+<li><a href="GfxMode3DWidth">GfxMode3DWidth</a> 〔BlitzLLVM〕</li>
 <li><a href="Graphics3D">Graphics3D</a></li>
 <li><a href="Windowed3D">Windowed3D</a></li>
 </ul>
