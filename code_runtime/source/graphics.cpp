@@ -2939,6 +2939,255 @@ int32_t bb_save_buffer(int32_t buffer, const char* file)
 	return result;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Pixels
+//
+// Pixels are numbers like in Blitz: alpha, red, green and blue, one byte each. Locking a buffer reads it into memory,
+// which ReadPixelFast and WritePixelFast work on, and unlocking writes it back.
+////////////////////////////////////////////////////////////////////////////////
+struct locked_buffer {
+	bool       used    = false;
+	int        buffer  = 0;
+	target_ref region;
+	uint8_t*   pixels  = nullptr;
+	bool       changed = false;
+};
+static locked_buffer locked[8];
+
+static locked_buffer* find_lock(int buffer)
+{
+	for (locked_buffer& l : locked) {
+		if (l.used && (l.buffer == buffer)) {
+			return &l;
+		}
+	}
+	return nullptr;
+}
+
+// 0 means whatever is being drawn to.
+static int buffer_or_current(int32_t buffer)
+{
+	return buffer ? buffer : g.target;
+}
+
+static int32_t pack_pixel(const uint8_t* rgba)
+{
+	return int32_t((uint32_t(rgba[3]) << 24) | (uint32_t(rgba[0]) << 16) | (uint32_t(rgba[1]) << 8) | uint32_t(rgba[2]));
+}
+
+static void unpack_pixel(int32_t argb, uint8_t* rgba)
+{
+	rgba[0] = uint8_t(uint32_t(argb) >> 16);
+	rgba[1] = uint8_t(uint32_t(argb) >> 8);
+	rgba[2] = uint8_t(uint32_t(argb));
+	rgba[3] = uint8_t(uint32_t(argb) >> 24);
+}
+
+void bb_lock_buffer(int32_t buffer)
+{
+	if (!active()) {
+		return;
+	}
+	buffer = buffer_or_current(buffer);
+	if (find_lock(buffer)) {
+		return;
+	}
+	target_ref target = resolve_target(buffer);
+	if (!target.image) {
+		bb_runtime_error("LockBuffer: the buffer does not exist.");
+	}
+	locked_buffer* slot = nullptr;
+	for (locked_buffer& l : locked) {
+		if (!l.used) {
+			slot = &l;
+			break;
+		}
+	}
+	if (!slot) {
+		bb_runtime_error("LockBuffer: too many buffers are locked.");
+	}
+	flush();
+	slot->used    = true;
+	slot->buffer  = buffer;
+	slot->region  = target;
+	slot->pixels  = read_pixels(*target.image, target.x, target.y, target.w, target.h);
+	slot->changed = false;
+}
+
+void bb_unlock_buffer(int32_t buffer)
+{
+	buffer           = buffer_or_current(buffer);
+	locked_buffer* l = find_lock(buffer);
+	if (!l) {
+		return;
+	}
+	if (l->changed) {
+		flush();
+		target_ref target = resolve_target(buffer);
+		if (target.image) {
+			write_pixels(*target.image, target.x, target.y, target.w, target.h, l->pixels);
+		}
+	}
+	free(l->pixels);
+	*l = locked_buffer();
+}
+
+int32_t bb_read_pixel_fast(int32_t x, int32_t y, int32_t buffer)
+{
+	if (!active()) {
+		return 0;
+	}
+	locked_buffer* l = find_lock(buffer_or_current(buffer));
+	if (!l) {
+		bb_runtime_error("ReadPixelFast: the buffer has to be locked with LockBuffer.");
+	}
+	if ((x < 0) || (y < 0) || (x >= l->region.w) || (y >= l->region.h)) {
+		return 0;
+	}
+	return pack_pixel(l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * 4);
+}
+
+void bb_write_pixel_fast(int32_t x, int32_t y, int32_t argb, int32_t buffer)
+{
+	if (!active()) {
+		return;
+	}
+	locked_buffer* l = find_lock(buffer_or_current(buffer));
+	if (!l) {
+		bb_runtime_error("WritePixelFast: the buffer has to be locked with LockBuffer.");
+	}
+	if ((x < 0) || (y < 0) || (x >= l->region.w) || (y >= l->region.h)) {
+		return;
+	}
+	uint8_t* pixel = l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * 4;
+	unpack_pixel(argb, pixel);
+	pixel[3]   = 255;
+	l->changed = true;
+}
+
+// Without a lock this is slow, as the buffer has to be asked for every time.
+int32_t bb_read_pixel(int32_t x, int32_t y, int32_t buffer)
+{
+	if (!active()) {
+		return 0;
+	}
+	buffer = buffer_or_current(buffer);
+	if (find_lock(buffer)) {
+		return bb_read_pixel_fast(x, y, buffer);
+	}
+	target_ref target = resolve_target(buffer);
+	if (!target.image || (x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
+		return 0;
+	}
+	flush();
+	uint8_t* pixel  = read_pixels(*target.image, target.x + x, target.y + y, 1, 1);
+	int32_t  result = pack_pixel(pixel);
+	free(pixel);
+	return result;
+}
+
+void bb_write_pixel(int32_t x, int32_t y, int32_t argb, int32_t buffer)
+{
+	if (!active()) {
+		return;
+	}
+	buffer = buffer_or_current(buffer);
+	if (find_lock(buffer)) {
+		bb_write_pixel_fast(x, y, argb, buffer);
+		return;
+	}
+	target_ref target = resolve_target(buffer);
+	if (!target.image || (x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
+		return;
+	}
+	flush();
+	uint8_t pixel[4];
+	unpack_pixel(argb, pixel);
+	pixel[3] = 255;
+	write_pixels(*target.image, target.x + x, target.y + y, 1, 1, pixel);
+}
+
+void bb_copy_pixel_fast(int32_t sx, int32_t sy, int32_t source, int32_t dx, int32_t dy, int32_t destination)
+{
+	bb_write_pixel_fast(dx, dy, bb_read_pixel_fast(sx, sy, source), destination);
+}
+
+void bb_copy_pixel(int32_t sx, int32_t sy, int32_t source, int32_t dx, int32_t dy, int32_t destination)
+{
+	bb_write_pixel(dx, dy, bb_read_pixel(sx, sy, source), destination);
+}
+
+// CopyRect source_x, source_y, width, height, destination_x, destination_y [, source buffer] [, destination buffer]
+void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int32_t dy, int32_t source, int32_t destination)
+{
+	if (!active()) {
+		return;
+	}
+	target_ref from = resolve_target(buffer_or_current(source)), to = resolve_target(buffer_or_current(destination));
+	if (!from.image || !to.image) {
+		bb_runtime_error("CopyRect: the buffer does not exist.");
+	}
+	// Clip against both buffers.
+	if (sx < 0) { dx -= sx; w += sx; sx = 0; }
+	if (sy < 0) { dy -= sy; h += sy; sy = 0; }
+	if (dx < 0) { sx -= dx; w += dx; dx = 0; }
+	if (dy < 0) { sy -= dy; h += dy; dy = 0; }
+	if (sx + w > from.w) { w = from.w - sx; }
+	if (sy + h > from.h) { h = from.h - sy; }
+	if (dx + w > to.w) { w = to.w - dx; }
+	if (dy + h > to.h) { h = to.h - dy; }
+	if ((w <= 0) || (h <= 0)) {
+		return;
+	}
+
+	flush();
+	if (from.image->image == to.image->image) {
+		// The same image can not be copied to itself while the parts overlap, so go through memory.
+		uint8_t* pixels = read_pixels(*from.image, from.x + sx, from.y + sy, w, h);
+		write_pixels(*to.image, to.x + dx, to.y + dy, w, h, pixels);
+		free(pixels);
+		return;
+	}
+	begin_commands();
+	VkImageLayout previous_from = from.image->layout, previous_to = to.image->layout;
+	transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	VkImageCopy copy    = {};
+	copy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	copy.srcOffset      = { from.x + sx, from.y + sy, 0 };
+	copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	copy.dstOffset      = { to.x + dx, to.y + dy, 0 };
+	copy.extent         = { uint32_t(w), uint32_t(h), 1 };
+	vkCmdCopyImage(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	transition(*from.image, previous_from);
+	transition(*to.image, previous_to);
+	submit_commands();
+}
+
+// Makes the pixel the color that is drawn with.
+void bb_get_color(int32_t x, int32_t y)
+{
+	int32_t argb = bb_read_pixel(x, y, 0);
+	g.color[0]   = uint8_t(uint32_t(argb) >> 16);
+	g.color[1]   = uint8_t(uint32_t(argb) >> 8);
+	g.color[2]   = uint8_t(uint32_t(argb));
+}
+
+int32_t bb_color_red(void)
+{
+	return g.color[0];
+}
+
+int32_t bb_color_green(void)
+{
+	return g.color[1];
+}
+
+int32_t bb_color_blue(void)
+{
+	return g.color[2];
+}
+
 // CreateTexture(width, height, flags, frames): an empty texture to draw on, with TextureBuffer.
 int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t frames)
 {
