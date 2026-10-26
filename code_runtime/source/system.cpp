@@ -92,6 +92,14 @@ int32_t bb_proceed(const char* text, int32_t serious)
 	return pressed == 0 ? 1 : (pressed == 1 ? 0 : -1);
 }
 
+// Host (2), join (1) or neither (0), for StartNetGame.
+int32_t bb_ask_net_game(void)
+{
+	static const char* const labels[] = { "Host", "Join", "Cancel" };
+	int                      pressed  = ask("Multiplayer", "Host a game, or join one?", false, labels, 3);
+	return pressed == 0 ? 2 : (pressed == 1 ? 1 : 0);
+}
+
 // Starts another program with the command, without waiting for it. Gives 1 if it started.
 int32_t bb_create_process(const char* command)
 {
