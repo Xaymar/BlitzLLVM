@@ -24,7 +24,7 @@ using namespace blitz::parser_detail;
 
 blitz::parser::~parser() {}
 
-blitz::parser::parser() : _file(), _file_ptr(), _tokens(), _pos(0), _include_stack(), _program(), _depth(0) {}
+blitz::parser::parser() : _file(), _file_ptr(), _tokens(), _pos(0), _include_stack(), _program(), _depth(0), _in_function(false) {}
 
 std::unique_ptr<blitz::ast::program> blitz::parser::parse(std::filesystem::path file)
 {
@@ -32,8 +32,80 @@ std::unique_ptr<blitz::ast::program> blitz::parser::parse(std::filesystem::path 
 	_include_stack.clear();
 	_depth    = 0;
 	_root_dir = file.parent_path();
+	_global_slots.clear();
+	_main_slots.clear();
+	_function_slots.clear();
+	_functions.clear();
+	_global_uses.clear();
+	_function_uses.clear();
+	_in_function = false;
+	_suffix_error.reset();
 	parse_file(file, _program->main);
+	resolve_suffixes();
 	return std::move(_program);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Suffix propagation
+////////////////////////////////////////////////////////////////////////////////
+void blitz::parser::note_variable_use(blitz::token const& name, blitz::types::type type, std::string const& struct_name)
+{
+	if (type == blitz::types::type::UNKNOWN) {
+		return;
+	}
+	use by{ name, type, struct_name, _file };
+	auto& scope = _in_function ? _function_slots : _main_slots;
+	if (auto found = scope.find(lower(name.text)); found != scope.end()) {
+		apply_suffix(found->second, by);
+	} else {
+		// Maybe a Global, which can be declared further down.
+		_global_uses.push_back(std::move(by));
+	}
+}
+
+void blitz::parser::note_function_use(blitz::token const& name, blitz::types::type type, std::string const& struct_name)
+{
+	if (type != blitz::types::type::UNKNOWN) {
+		_function_uses.push_back(use{ name, type, struct_name, _file });
+	}
+}
+
+void blitz::parser::apply_suffix(slot& target, use const& by)
+{
+	if (!target.typed) {
+		*target.type        = by.type;
+		*target.struct_name = by.struct_name;
+		target.typed        = true;
+		return;
+	}
+	if ((*target.type == by.type) && ((by.type != blitz::types::type::STRUCT) || (lower(*target.struct_name) == lower(by.struct_name)))) {
+		return;
+	}
+	if (!_suffix_error) {
+		auto describe = [](blitz::types::type type, std::string const& struct_name) {
+			return (type == blitz::types::type::STRUCT) ? ("Object of type '" + struct_name + "'") : ("'" + blitz::types::to_string(type) + "'");
+		};
+		_suffix_error = std::make_unique<blitz::error>(blitz::error(by.file, by.name.location, by.name.location,
+			blitz::format("Type mismatch: '%s' is used as %s, but was defined as %s.", by.name.text.c_str(), describe(by.type, by.struct_name).c_str(),
+						  describe(*target.type, *target.struct_name).c_str())));
+	}
+}
+
+void blitz::parser::resolve_suffixes()
+{
+	for (auto const& by : _global_uses) {
+		if (auto found = _global_slots.find(lower(by.name.text)); found != _global_slots.end()) {
+			apply_suffix(found->second, by);
+		}
+	}
+	for (auto const& by : _function_uses) {
+		if (auto found = _functions.find(lower(by.name.text)); found != _functions.end()) {
+			apply_suffix(found->second, by);
+		}
+	}
+	if (_suffix_error) {
+		throw *_suffix_error;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

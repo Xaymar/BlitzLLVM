@@ -297,6 +297,16 @@ void blitz::parser::parse_declare(ast::block& into)
 		}
 		break;
 	}
+
+	// The names are known once the whole statement is, so the declarations can't move around anymore.
+	if (!node->constant) {
+		auto& slots = node->global ? _global_slots : (_in_function ? _function_slots : _main_slots);
+		for (auto& decl : node->variables) {
+			if (!decl.array_size) {
+				slots.emplace(lower(decl.name), slot{ &decl.type, &decl.struct_name, decl.type != blitz::types::type::UNKNOWN });
+			}
+		}
+	}
 	into.push_back(std::move(node));
 }
 
@@ -404,6 +414,7 @@ void blitz::parser::parse_for(ast::block& into)
 	node->variable->name  = name.text;
 	node->variable->type  = parse_type_suffix(name);
 	node->variable->struct_name = _struct_name;
+	note_variable_use(name, node->variable->type, _struct_name);
 
 	expect_symbol("=");
 	if (is_keyword(tk(), "each")) {

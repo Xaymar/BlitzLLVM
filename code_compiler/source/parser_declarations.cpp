@@ -40,10 +40,12 @@ void blitz::parser::parse_function()
 	fn->name  = name.text;
 	fn->type  = parse_type_suffix(name);
 	fn->struct_name = _struct_name;
+	_functions.emplace(lower(fn->name), slot{ &fn->type, &fn->struct_name, fn->type != blitz::types::type::UNKNOWN });
 	if (fn->type == blitz::types::type::UNKNOWN) {
 		fn->type = blitz::types::type::INT32;
 	}
 
+	std::vector<bool> parameter_typed;
 	expect_symbol("(");
 	if (!is_symbol(tk(), ")")) {
 		while (true) {
@@ -58,7 +60,8 @@ void blitz::parser::parse_function()
 			param.name  = pname.text;
 			param.type  = parse_type_suffix(pname);
 			param.struct_name = _struct_name;
-			if (param.type == blitz::types::type::UNKNOWN) {
+			bool typed        = param.type != blitz::types::type::UNKNOWN;
+			if (!typed) {
 				param.type = blitz::types::type::INT32;
 			}
 			if (is_symbol(tk(), "=")) {
@@ -66,6 +69,7 @@ void blitz::parser::parse_function()
 				param.initial = parse_expression();
 			}
 			fn->parameters.push_back(std::move(param));
+			parameter_typed.push_back(typed);
 
 			if (is_symbol(tk(), ",")) {
 				advance();
@@ -76,7 +80,16 @@ void blitz::parser::parse_function()
 	}
 	expect_symbol(")");
 
+	// Parameters and Locals only exist inside of the function.
+	_function_slots.clear();
+	for (size_t idx = 0; idx < fn->parameters.size(); idx++) {
+		auto& param = fn->parameters[idx];
+		_function_slots.emplace(lower(param.name), slot{ &param.type, &param.struct_name, parameter_typed[idx] });
+	}
+	_in_function = true;
 	parse_block(fn->body);
+	_in_function = false;
+	_function_slots.clear();
 	expect_block_end("endfunction", "end", "function");
 	_program->functions.push_back(std::move(fn));
 }
