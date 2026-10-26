@@ -18,7 +18,7 @@ const std::pair<const char*, blitz::types::type> _map_to[] = {
 	{ "int32", blitz::types::type::INT32 },     //
 	{ "uint", blitz::types::type::UINT32 },     //
 	{ "uint32", blitz::types::type::UINT32 },   //
-	{ "long ", blitz::types::type::INT64 },     //
+	{ "long", blitz::types::type::INT64 },      //
 	{ "int64", blitz::types::type::INT64 },     //
 	{ "ulong", blitz::types::type::UINT64 },    //
 	{ "uint64", blitz::types::type::UINT64 },   //
@@ -67,4 +67,81 @@ blitz::types::type blitz::types::from_string(std::string text)
 	}
 
 	return blitz::types::type::UNKNOWN;
+}
+
+bool blitz::types::is_integer(blitz::types::type type)
+{
+	switch (type) {
+	case type::INT8:
+	case type::UINT8:
+	case type::INT16:
+	case type::UINT16:
+	case type::INT32:
+	case type::UINT32:
+	case type::INT64:
+	case type::UINT64:
+		return true;
+	default:
+		return false;
+	}
+}
+
+bool blitz::types::is_real(blitz::types::type type)
+{
+	return (type == type::FLOAT16) || (type == type::FLOAT32) || (type == type::FLOAT64);
+}
+
+bool blitz::types::is_signed(blitz::types::type type)
+{
+	switch (type) {
+	case type::INT8:
+	case type::INT16:
+	case type::INT32:
+	case type::INT64:
+		return true;
+	default:
+		return false;
+	}
+}
+
+unsigned blitz::types::bits(blitz::types::type type)
+{
+	switch (type) {
+	case type::INT8:
+	case type::UINT8:
+		return 8;
+	case type::INT16:
+	case type::UINT16:
+	case type::FLOAT16:
+		return 16;
+	case type::INT32:
+	case type::UINT32:
+	case type::FLOAT32:
+		return 32;
+	case type::INT64:
+	case type::UINT64:
+	case type::FLOAT64:
+		return 64;
+	default:
+		return 0;
+	}
+}
+
+std::string blitz::types::to_llvm(blitz::types::type type)
+{
+	switch (type) {
+	case type::FLOAT16:
+		return "half";
+	case type::FLOAT32:
+		return "float";
+	case type::FLOAT64:
+		return "double";
+	case type::STRING:
+	case type::STRUCT:
+		return "ptr";
+	case type::UNKNOWN:
+		return "void";
+	default:
+		return "i" + std::to_string(bits(type));
+	}
 }

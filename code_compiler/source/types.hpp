@@ -48,5 +48,13 @@ namespace blitz {
 
 		std::string to_string(blitz::types::type type);
 		blitz::types::type from_string(std::string text);
+
+		bool     is_integer(blitz::types::type type);
+		bool     is_real(blitz::types::type type);
+		bool     is_signed(blitz::types::type type);
+		unsigned bits(blitz::types::type type);
+
+		/** LLVM IR type name for the given type. */
+		std::string to_llvm(blitz::types::type type);
 	};
 } // namespace blitz

@@ -4,9 +4,6 @@
 #pragma once
 #include <cinttypes>
 #include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <istream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -35,15 +32,16 @@ namespace blitz {
 			REAL, // 1.0, 1# (without the #)
 		} type;
 
-		std::string to_string();
+		std::string to_string() const;
 
-		bool operator==(blitz::token::variant rhs);
-		bool operator==(std::string const& rhs);
+		bool operator==(blitz::token::variant rhs) const;
+		bool operator==(std::string const& rhs) const;
 	};
 
 	class lexer {
 		std::filesystem::path _file;
-		std::ifstream         _stream;
+		std::string           _data; // Entire file, so that saving and restoring state is trivial.
+		size_t                _offset;
 
 		// Current location in the file.
 		std::pair<uint64_t, uint64_t> _location;
@@ -56,10 +54,10 @@ namespace blitz {
 		lexer(std::filesystem::path file);
 
 		struct state {
-			std::streampos location;
-			std::ios_base::iostate state;
-			blitz::token current;
-			blitz::token next;
+			size_t                        offset;
+			std::pair<uint64_t, uint64_t> location;
+			blitz::token                  current;
+			blitz::token                  next;
 		};
 
 		/** Save the current state for future failure recovery.
@@ -88,5 +86,8 @@ namespace blitz {
 
 		public:
 		std::filesystem::path file();
+
+		private:
+		blitz::token scan();
 	};
 } // namespace blitz

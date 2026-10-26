@@ -1,6 +1,20 @@
 == What is BlitzLLVM?
 BlitzLLVM is an attempt at a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler using the LLVM compiler backend to enable support for many architectures and platforms. The LLVM backend enables us to take advantage of optimizations and architecture targets that LLVM already provides for other languages, and may even enable further functionality previously considered impossible.
 
+
+=== Usage
+[source,sh]
+----
+compiler [options] program.bb          # builds program.exe (Windows) / program (elsewhere)
+compiler -O3 --llvm-flag -march=native --llvm-flag -flto --llvm-flag -fuse-ld=lld program.bb
+compiler -S program.bb                 # only write the generated LLVM IR (program.ll)
+----
+The compiler emits textual LLVM IR and hands it, together with the embedded runtime library, to `clang` (`--cc`, `$BLITZLLVM_CC`), so `clang` needs to be installed. `--llvm-flag <flag>` passes any flag to clang, `--llvm-arg <arg>` passes one to LLVM itself (`-mllvm`), `--target <triple>` cross-compiles. The result is one self-contained executable.
+
+Not supported yet: `Type`/`Field`/`New`, `Dim` arrays, `Goto`/`Gosub`, `Data`. The graphics functions (`Graphics`, `SetBuffer`, `Flip`, ...) are headless stubs for now.
+
+Tests: `ctest` compiles every program in `tests/` and lexes `tests/test.bb` (a token-level lexer fixture rather than a program).
+
 === Features
 ++++
 <table width="100%">
