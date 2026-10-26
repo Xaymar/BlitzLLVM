@@ -648,7 +648,6 @@ void bb_entity_parent(int32_t handle, int32_t parent, int32_t global)
 void bb_position_entity(int32_t handle, float x, float y, float z, int32_t global)
 {
 	entity* e = need(handle, "PositionEntity");
-	e->old_valid = false; // Placing something is not moving it: it does not collide on the way.
 	float   p[3] = { x, y, z };
 	if (global) {
 		world_to_local_point(*e, p, e->position);
@@ -769,7 +768,29 @@ float bb_entity_yaw(int32_t handle, int32_t global) { return entity_angle(handle
 float bb_entity_roll(int32_t handle, int32_t global) { return entity_angle(handle, 2, global, "EntityRoll"); }
 
 void bb_hide_entity(int32_t handle) { need(handle, "HideEntity")->hidden = true; }
-void bb_show_entity(int32_t handle) { need(handle, "ShowEntity")->hidden = false; }
+extern "C++" {
+void bb::reset_movement(int handle)
+{
+	entity* e = get_entity(handle);
+	if (!e) {
+		return;
+	}
+	float m[16];
+	world_matrix(handle, m);
+	memcpy(e->old_matrix, m, sizeof(m));
+	e->old_pos[0] = m[12];
+	e->old_pos[1] = m[13];
+	e->old_pos[2] = m[14];
+	e->old_valid  = true;
+}
+}
+
+void bb_show_entity(int32_t handle)
+{
+	entity* e = need(handle, "ShowEntity");
+	e->hidden = false;
+	reset_movement(handle); // Like in the original, showing something also forgets where it was, so it does not collide on the way.
+}
 
 void bb_entity_color(int32_t handle, float r, float g, float b)
 {

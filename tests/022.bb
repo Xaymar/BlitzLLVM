@@ -22,6 +22,7 @@ Local player = CreatePivot()
 EntityType player, T_PLAYER
 EntityRadius player, 1
 PositionEntity player, -4, 5, 0
+ResetEntity player
 
 Collisions T_PLAYER, T_GROUND, 2, 2
 Collisions T_PLAYER, T_WALL, 2, 2
@@ -47,11 +48,20 @@ Next
 Check "stopped by the wall", EntityX(player), 3, 0.05
 Check "slid along the wall", EntityZ(player), 8, 0.1
 Check "hit the wall", EntityCollided(player, T_WALL), wall
-Check "wall faces away", CollisionNX(player, CountCollisions(player)), -1, 0.1
+wallhit = 0
+For i = 1 To CountCollisions(player)
+	If CollisionEntity(player, i) = wall Then wallhit = i
+Next
+Check "there is a collision with the wall", wallhit > 0, 1
+Check "wall faces away", CollisionNX(player, wallhit), -1, 0.1
 
 ; Response 1 stops dead.
+; A pair of types has one rule until ClearCollisions, so the rules are made again.
+ClearCollisions
+Collisions T_PLAYER, T_GROUND, 2, 2
 Collisions T_PLAYER, T_WALL, 2, 1
 PositionEntity player, 0, 1, 0
+ResetEntity player
 UpdateWorld
 For i = 1 To 40
 	TranslateEntity player, 0.3, 0, 0.2
@@ -67,6 +77,7 @@ EntityRadius ball, 2
 PositionEntity ball, 0, 1, -8
 Collisions T_PLAYER, T_BALL, 1, 2
 PositionEntity player, 0, 1, 0
+ResetEntity player
 UpdateWorld
 For i = 1 To 40
 	TranslateEntity player, 0, 0, -0.3
@@ -89,6 +100,7 @@ Local walker = CreatePivot()
 EntityType walker, T_PLAYER
 EntityRadius walker, 0.5
 PositionEntity walker, 28, 5, 0
+ResetEntity walker
 UpdateWorld
 For i = 1 To 40
 	TranslateEntity walker, 0, -0.2, 0

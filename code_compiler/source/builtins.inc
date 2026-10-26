@@ -196,6 +196,7 @@
 		{ "wireframe", "bb_wire_frame", 'v', "i", 1, {}, false },
 		// 3D: Collisions and picking
 		{ "entitytype", "bb_entity_type", 'v', "iii", 2, { 0, 0, 0 }, false },
+		{ "resetentity", "bb_reset_entity", 'v', "i", 1, {}, false },
 		{ "entityradius", "bb_entity_radius", 'v', "iff", 2, { 0, 0, 0 }, false },
 		{ "entitybox", "bb_entity_box", 'v', "iffffff", 7, {}, false },
 		{ "entitypickmode", "bb_entity_pick_mode", 'v', "iii", 2, { 0, 0, 1 }, false },

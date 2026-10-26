@@ -203,7 +203,7 @@ projectedx	blitz3d	done	#ProjectedX
 projectedy	blitz3d	done	#ProjectedY
 projectedz	blitz3d	done	#ProjectedZ
 renderworld	blitz3d	done	RenderWorld#tween=1
-resetentity	blitz3d	pending	ResetEntity%entity
+resetentity	blitz3d	done	ResetEntity%entity
 rotateentity	blitz3d	done	RotateEntity%entity#pitch#yaw#roll%global=0
 rotatemesh	blitz3d	done	RotateMesh%mesh#pitch#yaw#roll
 rotatesprite	blitz3d	done	RotateSprite%sprite#angle

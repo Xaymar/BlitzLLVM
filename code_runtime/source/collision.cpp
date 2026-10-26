@@ -164,10 +164,8 @@ namespace {
 
 	// Calls the function for the triangles of the entity that are in the world box, in world coordinates.
 	template<typename F>
-	void each_triangle(int handle, entity& e, box3 const& area, F&& visit)
+	void each_triangle_matrix(entity& e, const float* m, box3 const& area, F&& visit)
 	{
-		float m[16];
-		world_matrix(handle, m);
 
 		if (e.terrain) {
 			// Terrains have too many triangles to look at all of them, so only the cells in the area are looked at.
@@ -216,6 +214,14 @@ namespace {
 		}
 	}
 
+	template<typename F>
+	void each_triangle(int handle, entity& e, box3 const& area, F&& visit)
+	{
+		float m[16];
+		world_matrix(handle, m);
+		each_triangle_matrix(e, m, area, visit);
+	}
+
 	// The 12 triangles of a box, in world coordinates.
 	template<typename F>
 	void each_box_triangle(entity const& e, const float* m, F&& visit)
@@ -239,15 +245,203 @@ namespace {
 	}
 
 	////////////////////////////////////////////////////////////////////////////
-	// Moving a sphere along a line, and finding what it hits
+	// Moving a sphere along a line, and finding what it hits. This is how the original does it: the sphere is a point
+	// that moves along a line, and what it hits is made bigger by the radius of the sphere instead.
 	////////////////////////////////////////////////////////////////////////////
-	struct sweep {
-		vec3  base, velocity;
-		float nearest = 0; // Distance to the first thing that was hit.
-		bool  found   = false;
-		vec3  point;       // Where it was hit.
-		int   entity = 0, surface = 0, triangle = 0;
+	const float collision_epsilon = 0.001f;
+
+	struct line3 {
+		vec3 o, d;
 	};
+
+	vec3 at(line3 const& l, float t) { return l.o + l.d * t; }
+
+	struct plane3 {
+		vec3  n;
+		float d = 0;
+
+		float distance(vec3 p) const { return dot(n, p) + d; }
+		float t_intersect(line3 const& l) const { return -distance(l.o) / dot(n, l.d); }
+		vec3  nearest(vec3 q) const { return q - n * distance(q); }
+	};
+
+	plane3 plane_through(vec3 point, vec3 normal) { return { normal, -dot(normal, point) }; }
+
+	plane3 plane_of(vec3 v0, vec3 v1, vec3 v2)
+	{
+		vec3 n = normalized(cross(v1 - v0, v2 - v0));
+		return { n, -dot(n, v0) };
+	}
+
+	// Where two planes meet.
+	line3 plane_meeting(plane3 const& a, plane3 const& b)
+	{
+		vec3   lv        = normalized(cross(a.n, b.n));
+		line3  across    = { a.nearest(a.n * -a.d), cross(a.n, lv) };
+		vec3   on_b      = at(across, b.t_intersect(across));
+		return { on_b, lv };
+	}
+
+	vec3 nearest_on_line(line3 const& l, vec3 q) { return l.o + l.d * (dot(l.d, q - l.o) / dot(l.d, l.d)); }
+
+	// What the closest hit so far is, in the same units as the line.
+	struct hit_info {
+		float time = 1;
+		vec3  normal;
+		int   surface = 0, triangle = 0;
+	};
+
+	bool hit_update(hit_info& c, line3 const& line, float t, vec3 n)
+	{
+		if (t > c.time) {
+			return false;
+		}
+		plane3 p = plane_through(at(line, t), n);
+		if (dot(p.n, line.d) >= 0) {
+			return false;
+		}
+		if (p.distance(line.o) < -collision_epsilon) {
+			return false;
+		}
+		c.time   = t;
+		c.normal = n;
+		return true;
+	}
+
+	bool hit_sphere(hit_info& c, line3 const& line, float radius, vec3 dest, float dest_radius)
+	{
+		radius += dest_radius;
+		line3 l = { line.o - dest, line.d };
+		float a = dot(l.d, l.d);
+		if (a == 0) {
+			return false;
+		}
+		float b = dot(l.o, l.d) * 2;
+		float cc = dot(l.o, l.o) - radius * radius;
+		float d  = b * b - 4 * a * cc;
+		if (d < 0) {
+			return false;
+		}
+		float t1 = (-b + sqrtf(d)) / (2 * a), t2 = (-b - sqrtf(d)) / (2 * a);
+		float t = t1 < t2 ? t1 : t2;
+		if (t > c.time) {
+			return false;
+		}
+		return hit_update(c, line, t, normalized(at(l, t)));
+	}
+
+	// v0, v1: the ends of the edge, pn: normal of the polygon, en: normal of the plane of the edge.
+	bool hit_edge(hit_info& c, vec3 v0, vec3 v1, vec3 pn, vec3 en, line3 const& line, float radius)
+	{
+		vec3 axis_j = normalized(v1 - v0);
+		// The matrix with en, the direction of the edge and pn as its columns, which turns what is in the world into
+		// what is around the edge.
+		auto to_edge   = [&](vec3 p) { return vec3{ dot(en, p), dot(axis_j, p), dot(pn, p) }; };
+		auto from_edge = [&](vec3 p) { return en * p.x + axis_j * p.y + pn * p.z; };
+
+		vec3  sv = to_edge(line.o - v0), dv = to_edge(line.o + line.d - v0);
+		line3 l  = { sv, dv - sv };
+		// The cylinder around the edge...
+		float a = l.d.x * l.d.x + l.d.z * l.d.z;
+		if (a == 0) {
+			return false;
+		}
+		float b = (l.o.x * l.d.x + l.o.z * l.d.z) * 2;
+		float cc = (l.o.x * l.o.x + l.o.z * l.o.z) - radius * radius;
+		float d  = b * b - 4 * a * cc;
+		if (d < 0) {
+			return false;
+		}
+		float t1 = (-b + sqrtf(d)) / (2 * a), t2 = (-b - sqrtf(d)) / (2 * a);
+		float t = t1 < t2 ? t1 : t2;
+		if (t > c.time) {
+			return false;
+		}
+		vec3 i = at(l, t), p;
+		if (i.y > length(v1 - v0)) {
+			return false; // Above the cylinder.
+		}
+		if (i.y >= 0) {
+			p.y = i.y;
+		} else {
+			// ...and the sphere around the end of it.
+			a = dot(l.d, l.d);
+			if (a == 0) {
+				return false;
+			}
+			b  = dot(l.o, l.d) * 2;
+			cc = dot(l.o, l.o) - radius * radius;
+			d  = b * b - 4 * a * cc;
+			if (d < 0) {
+				return false;
+			}
+			t1 = (-b + sqrtf(d)) / (2 * a);
+			t2 = (-b - sqrtf(d)) / (2 * a);
+			t  = t1 < t2 ? t1 : t2;
+			if (t > c.time) {
+				return false;
+			}
+			i = at(l, t);
+		}
+		return hit_update(c, line, t, normalized(from_edge(i - p)));
+	}
+
+	bool hit_triangle(hit_info& c, line3 const& line, float radius, vec3 v0, vec3 v1, vec3 v2)
+	{
+		plane3 p = plane_of(v0, v1, v2);
+		if (dot(p.n, line.d) >= 0) {
+			return false;
+		}
+		p.d -= radius; // The plane, moved out by the radius.
+		float t = p.t_intersect(line);
+		if (t > c.time) {
+			return false;
+		}
+		plane3 p0 = plane_of(v0 + p.n, v1, v0), p1 = plane_of(v1 + p.n, v2, v1), p2 = plane_of(v2 + p.n, v0, v2);
+		vec3   i = at(line, t);
+		if ((p0.distance(i) >= 0) && (p1.distance(i) >= 0) && (p2.distance(i) >= 0)) {
+			return hit_update(c, line, t, p.n);
+		}
+		if (radius <= 0) {
+			return false;
+		}
+		bool hit = hit_edge(c, v0, v1, p.n, p0.n, line, radius);
+		hit |= hit_edge(c, v1, v2, p.n, p1.n, line, radius);
+		hit |= hit_edge(c, v2, v0, p.n, p2.n, line, radius);
+		return hit;
+	}
+
+	bool hit_box(hit_info& c, line3 const& line, float radius, vec3 const* corners)
+	{
+		static const int quads[] = { 2, 3, 1, 0, 3, 7, 5, 1, 7, 6, 4, 5, 6, 2, 0, 4, 6, 7, 3, 2, 0, 1, 5, 4 };
+		bool             hit     = false;
+		for (int n = 0; n < 24; n += 4) {
+			vec3   v0 = corners[quads[n]], v1 = corners[quads[n + 1]], v2 = corners[quads[n + 2]], v3 = corners[quads[n + 3]];
+			plane3 p = plane_of(v0, v1, v2);
+			if (dot(p.n, line.d) >= 0) {
+				continue;
+			}
+			p.d -= radius;
+			float t = p.t_intersect(line);
+			if (t > c.time) {
+				return false;
+			}
+			plane3 p0 = plane_of(v0 + p.n, v1, v0), p1 = plane_of(v1 + p.n, v2, v1), p2 = plane_of(v2 + p.n, v3, v2), p3 = plane_of(v3 + p.n, v0, v3);
+			vec3   i = at(line, t);
+			if ((p0.distance(i) >= 0) && (p1.distance(i) >= 0) && (p2.distance(i) >= 0) && (p3.distance(i) >= 0)) {
+				hit |= hit_update(c, line, t, p.n);
+				continue;
+			}
+			if (radius <= 0) {
+				continue;
+			}
+			hit |= hit_edge(c, v0, v1, p.n, p0.n, line, radius);
+			hit |= hit_edge(c, v1, v2, p.n, p1.n, line, radius);
+			hit |= hit_edge(c, v2, v3, p.n, p2.n, line, radius);
+			hit |= hit_edge(c, v3, v0, p.n, p3.n, line, radius);
+		}
+		return hit;
+	}
 
 	// The smallest root of a x^2 + b x + c that is less than the limit.
 	bool lowest_root(float a, float b, float c, float limit, float& out)
@@ -274,259 +468,27 @@ namespace {
 		return false;
 	}
 
-	bool inside_triangle(vec3 p, vec3 a, vec3 b, vec3 c)
-	{
-		vec3  v0 = c - a, v1 = b - a, v2 = p - a;
-		float d00 = dot(v0, v0), d01 = dot(v0, v1), d02 = dot(v0, v2), d11 = dot(v1, v1), d12 = dot(v1, v2);
-		float denominator = d00 * d11 - d01 * d01;
-		if (fabsf(denominator) < 1e-20f) {
-			return false;
-		}
-		float u = (d11 * d02 - d01 * d12) / denominator, v = (d00 * d12 - d01 * d02) / denominator;
-		return (u >= 0) && (v >= 0) && (u + v <= 1);
-	}
-
-	// The sphere has radius 1. Everything is in the squashed space.
-	void sweep_triangle(sweep& s, vec3 p1, vec3 p2, vec3 p3, int entity, int surface, int index)
-	{
-		vec3 n = normalized(cross(p2 - p1, p3 - p1));
-		if (length_squared(n) < 0.5f) {
-			return; // Has no area.
-		}
-		// Only the front matters: what comes from behind is not in the way.
-		float facing = dot(n, s.velocity);
-		if (facing > 0) {
-			return;
-		}
-		float plane_d   = -dot(n, p1);
-		float distance  = dot(s.base, n) + plane_d;
-		float t0, t1;
-		bool  embedded = false;
-		if (fabsf(facing) < 1e-12f) {
-			if (fabsf(distance) >= 1) {
-				return;
-			}
-			embedded = true;
-			t0       = 0;
-			t1       = 1;
-		} else {
-			t0 = (-1 - distance) / facing;
-			t1 = (1 - distance) / facing;
-			if (t0 > t1) {
-				float t = t0;
-				t0      = t1;
-				t1      = t;
-			}
-			if ((t0 > 1) || (t1 < 0)) {
-				return;
-			}
-			t0 = t0 < 0 ? 0 : t0;
-			t1 = t1 > 1 ? 1 : t1;
-		}
-
-		bool  found = false;
-		vec3  point;
-		float t = 1;
-		if (!embedded) {
-			vec3 on_plane = s.base - n + s.velocity * t0;
-			if (inside_triangle(on_plane, p1, p2, p3)) {
-				found = true;
-				t     = t0;
-				point = on_plane;
-			}
-		}
-		if (!found) {
-			float a = length_squared(s.velocity);
-			vec3  vertices[3] = { p1, p2, p3 };
-			for (vec3 const& p : vertices) {
-				float b = 2 * dot(s.velocity, s.base - p), c = length_squared(p - s.base) - 1, root;
-				if (lowest_root(a, b, c, t, root)) {
-					t     = root;
-					found = true;
-					point = p;
-				}
-			}
-			for (int i = 0; i < 3; i++) {
-				vec3  start = vertices[i], end = vertices[(i + 1) % 3];
-				vec3  edge = end - start, to_vertex = start - s.base;
-				float edge_squared = dot(edge, edge), edge_dot_velocity = dot(edge, s.velocity), edge_dot_base = dot(edge, to_vertex);
-				float qa = edge_squared * -a + edge_dot_velocity * edge_dot_velocity;
-				float qb = edge_squared * (2 * dot(s.velocity, to_vertex)) - 2 * edge_dot_velocity * edge_dot_base;
-				float qc = edge_squared * (1 - length_squared(to_vertex)) + edge_dot_base * edge_dot_base;
-				float root;
-				if (lowest_root(qa, qb, qc, t, root)) {
-					float f = (edge_dot_velocity * root - edge_dot_base) / edge_squared;
-					if ((f >= 0) && (f <= 1)) {
-						t     = root;
-						found = true;
-						point = start + edge * f;
-					}
-				}
-			}
-		}
-		if (found) {
-			float travelled = t * length(s.velocity);
-			if (!s.found || (travelled < s.nearest)) {
-				s.nearest  = travelled;
-				s.point    = point;
-				s.found    = true;
-				s.entity   = entity;
-				s.surface  = surface;
-				s.triangle = index;
-			}
-		}
-	}
-
-	// Another sphere, with the given radius in the squashed space.
-	void sweep_sphere(sweep& s, vec3 center, float radius, int entity)
-	{
-		float total = 1 + radius;
-		vec3  d     = s.base - center;
-		float a = length_squared(s.velocity), b = 2 * dot(s.velocity, d), c = length_squared(d) - total * total, root;
-		if (c < 0) {
-			root = 0; // Already inside, which counts as touching.
-		} else if (!lowest_root(a, b, c, 1, root)) {
-			return;
-		}
-		float travelled = root * length(s.velocity);
-		if (!s.found || (travelled < s.nearest)) {
-			vec3 at     = s.base + s.velocity * root;
-			s.nearest   = travelled;
-			s.point     = center + normalized(at - center) * radius;
-			s.found     = true;
-			s.entity    = entity;
-			s.surface   = 0;
-			s.triangle  = 0;
-		}
-	}
-
 	////////////////////////////////////////////////////////////////////////////
-	// Collisions
+	// Moving entities
 	////////////////////////////////////////////////////////////////////////////
-	struct mover {
-		int  handle;
-		vec3 radius; // Of the ellipsoid.
-		int  type;
-	};
-
-	// Finds the first thing on the way, among everything that the rules allow to collide.
-	void find_hit(mover const& who, sweep& s, vec3 start_world, vec3 move_world, int* response_out)
+	// Whether it and everything that it is below is shown, because hiding something turns off what it can collide with.
+	bool is_enabled(int handle)
 	{
-		box3 area;
-		area.add(start_world - who.radius - vec3{ 0.01f, 0.01f, 0.01f });
-		area.add(start_world + who.radius + vec3{ 0.01f, 0.01f, 0.01f });
-		area.add(start_world + move_world - who.radius - vec3{ 0.01f, 0.01f, 0.01f });
-		area.add(start_world + move_world + who.radius + vec3{ 0.01f, 0.01f, 0.01f });
-
-		for (uint32_t r = 0; r < rules.size; r++) {
-			if (rules[r].source != who.type) {
-				continue;
+		for (int h = handle; h; ) {
+			entity* e = get_entity(h);
+			if (!e || e->hidden) {
+				return false;
 			}
-			for (int other = 1; other <= entity_count(); other++) {
-				entity* e = get_entity(other);
-				if (!e || (other == who.handle) || (e->coll_type != rules[r].destination) || e->hidden) {
-					continue;
-				}
-				float m[16];
-				world_matrix(other, m);
-				bool hit_before = s.found;
-				float nearest_before = s.nearest;
-				int   entity_before = s.entity;
-				(void)entity_before;
-
-				switch (rules[r].method) {
-				case 1: {
-					if (e->radius[0] <= 0) {
-						break;
-					}
-					// A sphere around the entity, as big as its radius.
-					float scale = fmaxf(fabsf(m[0]), fmaxf(fabsf(m[5]), fabsf(m[10])));
-					(void)scale;
-					float rd = e->radius[0];
-					box3 sb;
-					sb.add({ m[12] - rd, m[13] - rd, m[14] - rd });
-					sb.add({ m[12] + rd, m[13] + rd, m[14] + rd });
-					if (!sb.overlaps(area)) {
-						break;
-					}
-					float r_squashed = rd / ((who.radius.x + who.radius.y) * 0.5f);
-					sweep_sphere(s, divided({ m[12], m[13], m[14] }, who.radius), r_squashed, other);
-					break;
-				}
-				case 3:
-					each_box_triangle(*e, m, [&](triangle const& t) {
-						sweep_triangle(s, divided(t.a, who.radius), divided(t.b, who.radius), divided(t.c, who.radius), other, 0, t.index);
-					});
-					break;
-				default:
-					each_triangle(other, *e, area, [&](triangle const& t) {
-						sweep_triangle(s, divided(t.a, who.radius), divided(t.b, who.radius), divided(t.c, who.radius), other, t.surface, t.index);
-					});
-					break;
-				}
-				if (s.found && (s.entity == other)) {
-					*response_out = rules[r].response;
-				}
-				(void)hit_before;
-				(void)nearest_before;
-			}
+			h = e->parent;
 		}
+		return true;
 	}
 
-	// Moves the entity along the line, stopping or sliding when something is in the way. Returns where it ends up.
-	vec3 collide(mover const& who, vec3 start, vec3 move, int depth, int stop_after)
-	{
-		if ((depth >= stop_after) || (length_squared(move) < 1e-12f)) {
-			return start + move;
-		}
-		sweep s;
-		s.base     = divided(start, who.radius);
-		s.velocity = divided(move, who.radius);
-		int response = 2;
-		find_hit(who, s, start, move, &response);
-		if (!s.found) {
-			return start + move;
-		}
+	// The radii that the original uses: the one for the width is also the one for the depth.
+	vec3 radii_of(entity const& e) { return { e.radius[0], e.radius[1] > 0 ? e.radius[1] : e.radius[0], e.radius[0] }; }
 
-		// How close to a surface is close enough, to not end up inside it.
-		const float very_close = 0.005f;
-		vec3        direction  = normalized(s.velocity);
-		vec3        new_base   = s.base;
-		vec3        point      = s.point;
-		if (s.nearest >= very_close) {
-			new_base = s.base + direction * (s.nearest - very_close);
-			point    = point - direction * very_close;
-		}
-		vec3 normal_squashed = normalized(new_base - point);
-
-		// Remember what was hit, with real coordinates.
-		contact c;
-		c.entity   = s.entity;
-		c.point    = multiplied(point, who.radius);
-		c.normal   = normalized(divided(normal_squashed, who.radius));
-		c.time     = length(s.velocity) > 1e-12f ? s.nearest / length(s.velocity) : 0;
-		c.surface  = s.surface;
-		c.triangle = s.triangle;
-		contacts_of(who.handle).contacts.push(c);
-
-		if (response == 1) {
-			return multiplied(new_base, who.radius); // Stop.
-		}
-
-		// Slide along the plane that was hit.
-		vec3  destination = s.base + s.velocity;
-		float distance    = dot(destination - point, normal_squashed);
-		vec3  slide_to    = destination - normal_squashed * distance;
-		vec3  new_velocity = slide_to - point;
-		if (response == 3 && (c.normal.y > 0.7f)) {
-			// On ground that can be walked on, nothing slides down.
-			new_velocity = { new_velocity.x, 0, new_velocity.z };
-		}
-		if (length(new_velocity) < very_close) {
-			return multiplied(new_base, who.radius);
-		}
-		return collide(who, multiplied(new_base, who.radius), multiplied(new_velocity, who.radius), depth + 1, stop_after);
-	}
+	// Everything that can be collided with, by type.
+	buffer<int> by_type[1000];
 
 	bool is_source(int type)
 	{
@@ -541,11 +503,12 @@ namespace {
 	// Sets where an entity is in the world, without changing anything else.
 	void put_in_world(int handle, entity& e, vec3 world)
 	{
+		(void)handle;
 		if (e.parent) {
 			float m[16], inverse[16];
 			world_matrix(e.parent, m);
 			mat_affine_inverse(m, inverse);
-			vec3 local  = transform(inverse, world);
+			vec3 local    = transform(inverse, world);
 			e.position[0] = local.x;
 			e.position[1] = local.y;
 			e.position[2] = local.z;
@@ -554,7 +517,239 @@ namespace {
 			e.position[1] = world.y;
 			e.position[2] = world.z;
 		}
-		(void)handle;
+	}
+
+	// The box that is collided with: the one that was set, or one of two by two by two around the middle.
+	box3 collision_box(entity const& e)
+	{
+		box3 box;
+		if (e.has_box) {
+			box.add({ e.box[0], e.box[1], e.box[2] });
+			box.add({ e.box[0] + e.box[3], e.box[1] + e.box[4], e.box[2] + e.box[5] });
+		} else {
+			box.add({ -1, -1, -1 });
+			box.add({ 1, 1, 1 });
+		}
+		return box;
+	}
+
+	// Tests one entity that is collided with.
+	bool hit_entity(hit_info& c, line3 const& line, float radius, entity& e, const float* tform, int method)
+	{
+		switch (method) {
+		case 1:
+			return hit_sphere(c, line, radius, { tform[12], tform[13], tform[14] }, e.radius[0]);
+		case 2: {
+			box3 area;
+			area.add(line.o);
+			area.add(line.o + line.d);
+			area.lo = area.lo - vec3{ radius, radius, radius };
+			area.hi = area.hi + vec3{ radius, radius, radius };
+			bool hit = false;
+			each_triangle_matrix(e, tform, area, [&](triangle const& t) {
+				if (hit_triangle(c, line, radius, t.a, t.b, t.c)) {
+					c.surface  = t.surface;
+					c.triangle = t.index;
+					hit        = true;
+				}
+			});
+			return hit;
+		}
+		default: {
+			// The box is in the space of the entity, with its axes one long so that the box is not stretched.
+			float m[16];
+			memcpy(m, tform, sizeof(m));
+			for (int axis = 0; axis < 3; axis++) {
+				vec3  col = { m[axis * 4], m[axis * 4 + 1], m[axis * 4 + 2] };
+				float len = length(col);
+				if (len > 1e-12f) {
+					m[axis * 4] /= len;
+					m[axis * 4 + 1] /= len;
+					m[axis * 4 + 2] /= len;
+				}
+			}
+			vec3  position = { m[12], m[13], m[14] };
+			auto  inverse_rotate = [&](vec3 p) { return vec3{ m[0] * p.x + m[1] * p.y + m[2] * p.z, m[4] * p.x + m[5] * p.y + m[6] * p.z, m[8] * p.x + m[9] * p.y + m[10] * p.z }; };
+			auto  rotate         = [&](vec3 p) { return vec3{ m[0] * p.x + m[4] * p.y + m[8] * p.z, m[1] * p.x + m[5] * p.y + m[9] * p.z, m[2] * p.x + m[6] * p.y + m[10] * p.z }; };
+			line3 local          = { inverse_rotate(line.o - position), inverse_rotate(line.d) };
+			box3  box            = collision_box(e);
+			vec3  corners[8];
+			for (int i = 0; i < 8; i++) {
+				corners[i] = { (i & 1) ? box.hi.x : box.lo.x, (i & 2) ? box.hi.y : box.lo.y, (i & 4) ? box.hi.z : box.lo.z };
+			}
+			if (hit_box(c, local, radius, corners)) {
+				c.normal = rotate(c.normal);
+				return true;
+			}
+			return false;
+		}
+		}
+	}
+
+	// Moves one entity from where it was to where it is now, the way the original does it.
+	void collide(int handle, entity& src)
+	{
+		float now_matrix[16];
+		world_matrix(handle, now_matrix);
+		vec3 dv = { now_matrix[12], now_matrix[13], now_matrix[14] };
+		vec3 sv = { src.old_pos[0], src.old_pos[1], src.old_pos[2] };
+		if ((sv.x == dv.x) && (sv.y == dv.y) && (sv.z == dv.z)) {
+			return;
+		}
+		vec3 panic = sv;
+
+		vec3  radii  = radii_of(src);
+		float radius = radii.x, y_scale = 1, inv_y_scale = 1;
+		if (radii.x != radii.y) {
+			y_scale     = radius / radii.y;
+			inv_y_scale = 1 / y_scale;
+			sv.y *= y_scale;
+			dv.y *= y_scale;
+		}
+
+		int      n_hit = 0;
+		plane3   planes[2];
+		line3    coll_line = { sv, dv - sv };
+		vec3     dir       = coll_line.d;
+		float    td        = length(coll_line.d);
+		float    td_xz     = length({ coll_line.d.x, 0, coll_line.d.z });
+		int      hits      = 0;
+		const int max_hits = 10;
+
+		for (;;) {
+			hit_info coll;
+			int      coll_object   = 0;
+			int      coll_response = 0;
+			for (uint32_t r = 0; r < rules.size; r++) {
+				if (rules[r].source != src.coll_type) {
+					continue;
+				}
+				buffer<int> const& objects = by_type[rules[r].destination];
+				for (uint32_t k = 0; k < objects.size; k++) {
+					int other = objects[k];
+					if (other == handle) {
+						continue;
+					}
+					entity* dst = get_entity(other);
+					float   m[16];
+					if (dst->old_valid) {
+						memcpy(m, dst->old_matrix, sizeof(m)); // Where it was, as the original does.
+					} else {
+						world_matrix(other, m);
+					}
+					if (y_scale != 1) {
+						m[1] *= y_scale;
+						m[5] *= y_scale;
+						m[9] *= y_scale;
+						m[13] *= y_scale;
+					}
+					if (hit_entity(coll, coll_line, radius, *dst, m, rules[r].method)) {
+						coll_object   = other;
+						coll_response = rules[r].response;
+					}
+				}
+			}
+			if (!coll_object) {
+				break;
+			}
+			if (++hits == max_hits) {
+				break;
+			}
+
+			// What happened is told to both of them.
+			{
+				contact c;
+				c.point    = at(coll_line, coll.time) - coll.normal * radii.x;
+				c.point.y *= inv_y_scale;
+				c.normal   = coll.normal;
+				c.time     = coll.time;
+				c.surface  = coll.surface;
+				c.triangle = coll.triangle;
+				c.entity   = coll_object;
+				contacts_of(handle).contacts.push(c);
+				c.entity = handle;
+				contacts_of(coll_object).contacts.push(c);
+			}
+
+			plane3 coll_plane = plane_through(at(coll_line, coll.time), coll.normal);
+			coll_plane.d -= collision_epsilon;
+			coll.time = coll_plane.t_intersect(coll_line);
+			if (coll.time > 0) {
+				// Only moves forward.
+				sv = at(coll_line, coll.time);
+				td *= 1 - coll.time;
+				td_xz *= 1 - coll.time;
+			}
+
+			if (coll_response == 1) {
+				dv = sv;
+				break;
+			}
+
+			// The nearest point on the plane to where it wanted to go.
+			vec3 nv = coll_plane.nearest(dv);
+			if (n_hit == 0) {
+				dv = nv;
+			} else if (n_hit == 1) {
+				if (planes[0].distance(nv) >= 0) {
+					dv    = nv;
+					n_hit = 0;
+				} else if (fabsf(dot(planes[0].n, coll_plane.n)) < 1 - 0.0001f) {
+					dv = nearest_on_line(plane_meeting(coll_plane, planes[0]), dv);
+				} else {
+					hits = max_hits; // Squished.
+					break;
+				}
+			} else if ((planes[0].distance(nv) >= 0) && (planes[1].distance(nv) >= 0)) {
+				dv    = nv;
+				n_hit = 0;
+			} else {
+				dv = sv;
+				break;
+			}
+
+			vec3 dd = dv - sv;
+
+			// Not going backwards.
+			if (dot(dd, dir) <= 0) {
+				dv = sv;
+				break;
+			}
+
+			if (coll_response == 2) {
+				float d = length(dd);
+				if (d <= 0.0001f) {
+					dv = sv;
+					break;
+				}
+				if (d > td) {
+					dd = dd * (td / d);
+				}
+			} else if (coll_response == 3) {
+				float d = length({ dd.x, 0, dd.z });
+				if (d <= 0.0001f) {
+					dv = sv;
+					break;
+				}
+				if (d > td_xz) {
+					dd = dd * (td_xz / d);
+				}
+			}
+
+			coll_line.o = sv;
+			coll_line.d = dd;
+			dv          = sv + dd;
+			planes[n_hit++] = coll_plane;
+		}
+
+		if (hits) {
+			if (hits < max_hits) {
+				dv.y *= inv_y_scale;
+				put_in_world(handle, src, dv);
+			} else {
+				put_in_world(handle, src, panic);
+			}
+		}
 	}
 
 	void update_collisions()
@@ -562,42 +757,50 @@ namespace {
 		if (rules.size == 0) {
 			return;
 		}
+		// What can be collided with, by type.
+		for (int t = 0; t < 1000; t++) {
+			by_type[t].clear();
+		}
+		bool is_destination[1000] = {};
+		for (uint32_t r = 0; r < rules.size; r++) {
+			is_destination[rules[r].destination] = true;
+		}
 		for (int handle = 1; handle <= entity_count(); handle++) {
 			entity* e = get_entity(handle);
-			if (!e) {
+			if (e && (e->coll_type > 0) && (e->coll_type < 1000) && is_destination[e->coll_type] && is_enabled(handle)) {
+				by_type[e->coll_type].push(handle);
+			}
+		}
+
+		for (int handle = 1; handle <= entity_count(); handle++) {
+			entity* e = get_entity(handle);
+			if (!e || (e->coll_type == 0)) {
 				continue;
 			}
 			if (handle <= int(contact_lists.size)) {
 				contact_lists[uint32_t(handle) - 1].contacts.clear();
 			}
-			if ((e->coll_type == 0) || e->hidden || !is_source(e->coll_type) || (e->radius[0] <= 0)) {
-				e->old_valid = false;
+			if (!is_enabled(handle)) {
 				continue;
 			}
-
 			float m[16];
 			world_matrix(handle, m);
-			vec3 now = { m[12], m[13], m[14] };
 			if (!e->old_valid) {
-				// Nothing to sweep from: it was just placed there.
-				e->old_pos[0] = now.x;
-				e->old_pos[1] = now.y;
-				e->old_pos[2] = now.z;
+				// It was just made or reset: nothing to sweep from.
+				memcpy(e->old_matrix, m, sizeof(m));
+				e->old_pos[0] = m[12];
+				e->old_pos[1] = m[13];
+				e->old_pos[2] = m[14];
 				e->old_valid  = true;
-				continue;
 			}
-			vec3 before = { e->old_pos[0], e->old_pos[1], e->old_pos[2] };
-			vec3 move   = now - before;
-
-			mover who = { handle, { e->radius[0], e->radius[1] > 0 ? e->radius[1] : e->radius[0], e->radius[0] }, e->coll_type };
-			if (length_squared(move) > 1e-12f) {
-				vec3 result = collide(who, before, move, 0, 5);
-				put_in_world(handle, *e, result);
-				now = result;
+			if (is_source(e->coll_type)) {
+				collide(handle, *e);
+				world_matrix(handle, m);
 			}
-			e->old_pos[0] = now.x;
-			e->old_pos[1] = now.y;
-			e->old_pos[2] = now.z;
+			memcpy(e->old_matrix, m, sizeof(m));
+			e->old_pos[0] = m[12];
+			e->old_pos[1] = m[13];
+			e->old_pos[2] = m[14];
 		}
 	}
 
@@ -743,6 +946,16 @@ void bb_update_world(float speed)
 	update_collisions();
 }
 
+// ResetEntity: forgets where it was, so that the way to where it is now is not collided with.
+void bb_reset_entity(int32_t handle)
+{
+	need(handle, "ResetEntity");
+	reset_movement(handle);
+	if (handle <= int(contact_lists.size)) {
+		contact_lists[uint32_t(handle) - 1].contacts.clear();
+	}
+}
+
 void bb_entity_type(int32_t handle, int32_t type, int32_t recursive)
 {
 	entity* e = need(handle, "EntityType");
@@ -750,7 +963,7 @@ void bb_entity_type(int32_t handle, int32_t type, int32_t recursive)
 		fail("EntityType: the type has to be between 0 and 999.");
 	}
 	e->coll_type = type;
-	e->old_valid = false;
+	reset_movement(handle);
 	if (recursive) {
 		for (int other = 1; other <= entity_count(); other++) {
 			entity* child = get_entity(other);
@@ -794,14 +1007,15 @@ void bb_entity_pick_mode(int32_t handle, int32_t mode, int32_t obscurer)
 // Response: 1 = stop, 2 = slide, 3 = slide, but not down slopes.
 void bb_collisions(int32_t source, int32_t destination, int32_t method, int32_t response)
 {
+	if ((source < 0) || (source > 999) || (destination < 0) || (destination > 999)) {
+		fail("Collisions: the types have to be between 0 and 999.");
+	}
 	if ((method < 1) || (method > 3) || (response < 1) || (response > 3)) {
 		fail("Collisions: the method and the response have to be between 1 and 3.");
 	}
 	for (uint32_t r = 0; r < rules.size; r++) {
 		if ((rules[r].source == source) && (rules[r].destination == destination)) {
-			rules[r].method   = method;
-			rules[r].response = response;
-			return;
+			return; // A pair of types has one rule, the first one, until ClearCollisions.
 		}
 	}
 	rules.push({ source, destination, method, response });

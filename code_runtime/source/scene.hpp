@@ -112,13 +112,14 @@ namespace bb {
 		int   texture  = 0; // Handle, 0 for none.
 		// Collisions and picking, see collision.cpp
 		int   coll_type = 0;              // 0 = does not collide
-		float radius[2] = { 0, 0 };       // Of the ellipsoid that collides, and of the sphere that is picked.
+		float radius[2] = { 1, 1 };       // Of the ellipsoid that collides, and of the sphere that is picked.
 		bool  has_box   = false;
 		float box[6]    = { 0, 0, 0, 0, 0, 0 }; // x, y, z, width, height, depth
 		int   pick_mode = 0;              // 0 = can not be picked, 1 = sphere, 2 = polygons, 3 = box
 		bool  pick_obscure = true;
 		float old_pos[3]   = { 0, 0, 0 }; // Where it was at the last UpdateWorld.
 		bool  old_valid    = false;
+		float old_matrix[16] = {};          // Where it was, for what collides with it.
 
 		int   sprite_mode = 0;           // 0 = not a sprite, 1 = faces the camera, 2 = fixed, 3 = free, 4 = upright
 		float sprite_scale[2] = { 1, 1 };
@@ -156,6 +157,8 @@ namespace bb {
 	int          entity_count();
 	entity*      get_entity(int handle);
 	void         world_matrix(int handle, float* out);
+	/** Makes where an entity is now the place that it moves from for collisions, like ResetEntity. */
+	void         reset_movement(int handle);
 	extern float ambient_light[3];
 
 	// For loading models (animation.cpp), which builds entities and surfaces itself.
