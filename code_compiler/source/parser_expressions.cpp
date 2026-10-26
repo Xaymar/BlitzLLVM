@@ -241,14 +241,35 @@ blitz::ast::expression_ptr blitz::parser::parse_power()
 blitz::ast::expression_ptr blitz::parser::parse_unary()
 {
 	auto op = tk();
-	if ((is_keyword(op, "int") || is_keyword(op, "float") || is_keyword(op, "str")) && !is_symbol(tk(1), "(")) {
-		// `Float x` converts without needing parenthesis, and binds tighter than any operator.
-		advance();
-		auto node   = std::make_unique<ast::call>();
-		node->where = here(op);
-		node->name  = op.text;
-		node->arguments.push_back(parse_unary());
-		return node;
+	// `Int%`, `Float#` and `Str$` may carry the suffix of their own type, as in `Str$(5)`.
+	auto cast_suffix = [&](blitz::token const& word) -> char const* {
+		auto const& next = tk(1);
+		if ((next.type != blitz::token::variant::SYMBOL) || !adjacent(word, next)) {
+			return nullptr;
+		}
+		if (is_keyword(word, "int") && (next.text == "%")) {
+			return "%";
+		} else if (is_keyword(word, "float") && (next.text == "#")) {
+			return "#";
+		} else if (is_keyword(word, "str") && (next.text == "$")) {
+			return "$";
+		}
+		return nullptr;
+	};
+	if (is_keyword(op, "int") || is_keyword(op, "float") || is_keyword(op, "str")) {
+		bool suffixed = cast_suffix(op) != nullptr;
+		if (suffixed || !is_symbol(tk(1), "(")) {
+			// `Float x` converts without needing parenthesis, and binds tighter than any operator.
+			advance();
+			if (suffixed) {
+				advance();
+			}
+			auto node   = std::make_unique<ast::call>();
+			node->where = here(op);
+			node->name  = op.text;
+			node->arguments.push_back(parse_unary());
+			return node;
+		}
 	}
 	if (is_keyword(op, "new") || is_keyword(op, "first") || is_keyword(op, "last")) {
 		advance();
@@ -410,6 +431,11 @@ blitz::ast::expression_ptr blitz::parser::parse_primary()
 		advance();
 		auto type        = parse_type_suffix(token);
 		auto struct_name = _struct_name;
+		if (!is_symbol(tk(), "(")) {
+			note_variable_use(token, type, struct_name);
+		} else {
+			note_function_use(token, type, struct_name);
+		}
 		if ((word == "object") && (type == blitz::types::type::STRUCT)) {
 			// Object.TypeName(Handle)
 			expect_symbol("(");

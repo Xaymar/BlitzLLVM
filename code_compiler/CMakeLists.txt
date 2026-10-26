@@ -110,7 +110,7 @@ foreach(_TEST IN ITEMS 001 002 003 004 005 006 007 008 009 010 011 012 013 014 0
 endforeach()
 # The function test suite: a test for every function of Blitz3D and BlitzPlus, in tests/suite. Each file is a program
 # that stops with an error when something is wrong. Files in pending/ are for what is not implemented yet and are
-# expected not to compile, files in fail/ are expected to compile but to stop with an error. Programs that need a
+# expected not to compile, files in fail/ are expected to compile but to stop with an error, files in reject/ are expected to be refused by the compiler. Programs that need a
 # window and a GPU end with _pixels, and only run for real with -DBLITZ_TEST_GPU=ON.
 option(BLITZ_TEST_GPU "Also run the tests that need a window and a GPU" OFF)
 file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/suite")
@@ -118,6 +118,14 @@ file(GLOB_RECURSE _SUITE_TESTS CONFIGURE_DEPENDS "${TEST_DIRECTORY}/suite/*.bb")
 foreach(_FILE IN LISTS _SUITE_TESTS)
 	file(RELATIVE_PATH _RELATIVE "${TEST_DIRECTORY}/suite" "${_FILE}")
 	if(_RELATIVE STREQUAL "check.bb")
+		continue()
+	endif()
+	if(_RELATIVE MATCHES "^reject/")
+		# Programs that are wrong and have to be refused by the compiler.
+		string(REGEX REPLACE "\\.bb$" "" _NAME "${_RELATIVE}")
+		string(REPLACE "/" "-" _NAME "${_NAME}")
+		add_test(NAME "suite-compile-${_NAME}" COMMAND ${PROJECT_NAME} "${_FILE}" -o "${PROJECT_BINARY_DIR}/suite/${_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
+		set_tests_properties("suite-compile-${_NAME}" PROPERTIES PASS_REGULAR_EXPRESSION "Type mismatch" LABELS "suite")
 		continue()
 	endif()
 	string(REGEX REPLACE "\.bb$" "" _NAME "${_RELATIVE}")
