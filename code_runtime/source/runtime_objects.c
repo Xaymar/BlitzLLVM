@@ -235,6 +235,25 @@ typedef struct bb_array {
 	int32_t size[4];
 } bb_array;
 
+// Frees the strings in an array that is about to be made again, which is what the elements of a string array own.
+void bb_dim_free_strings(bb_array* array)
+{
+	if (!array->data) {
+		return;
+	}
+	int64_t total = 1;
+	for (int32_t i = 0; i < 4; i++) {
+		if (array->size[i]) {
+			total *= array->size[i];
+		}
+	}
+	char** elements = (char**)array->data;
+	for (int64_t i = 0; i < total; i++) {
+		free(elements[i]);
+		elements[i] = NULL;
+	}
+}
+
 void bb_dim(bb_array* array, int64_t element_size, int32_t dimensions, int32_t b0, int32_t b1, int32_t b2, int32_t b3)
 {
 	int32_t bounds[4] = { b0, b1, b2, b3 };

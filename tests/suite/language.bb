@@ -133,6 +133,21 @@ For i = 0 To 4
 Next
 Check "Dim", numbers(3), 9
 Check "Dim last", numbers(4), 16
+; Making a string array again frees the strings that it had, and it starts empty.
+Dim words$(3)
+For i = 0 To 3
+	words$(i) = "word number " + i
+Next
+CheckS "String array before Dim again", words$(2), "word number 2"
+Dim words$(5)
+CheckS "String array after Dim again", words$(2), ""
+words$(5) = "last"
+CheckS "String array bigger", words$(5), "last"
+For i = 1 To 200
+	Dim words$(50)
+	words$(i Mod 50) = "round " + i
+Next
+CheckS "String array made again many times", words$(200 Mod 50), "round 200"
 Dim grid(2, 3)
 grid(2, 3) = 23
 grid(0, 0) = 1

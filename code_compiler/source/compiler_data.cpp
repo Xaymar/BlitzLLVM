@@ -90,6 +90,10 @@ void blitz::compiler::gen_dim(ast::dim_statement const* node)
 				args.push_back({ "0", type::INT32 });
 			}
 		}
+		if (var->type == type::STRING) {
+			// What the strings of the old array owned is freed before it is made again.
+			call_runtime("bb_dim_free_strings", type::UNKNOWN, { { var->pointer, type::STRUCT } });
+		}
 		call_runtime("bb_dim", type::UNKNOWN, args);
 	}
 }
