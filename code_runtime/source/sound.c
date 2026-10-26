@@ -79,6 +79,68 @@ static int bb_audio_ready(void)
 	return bb_mixer != NULL;
 }
 
+// The original plays sounds through FMOD, which brings them to the speakers' rate by linear interpolation. That adds a lot of high frequencies
+// (the mirror images of the sound above its own rate) and rolls off the top a little, which is what people remember. SDL_mixer resamples cleanly
+// instead, so sounds with a low rate seem muffled next to the original. Setting BLITZ_AUDIO_CLASSIC does the original's resampling here, once,
+// when the sound is loaded.
+static MIX_Audio* bb_classic_audio(const char* path, const SDL_AudioSpec* file)
+{
+	SDL_AudioSpec device;
+	if (!MIX_GetMixerFormat(bb_mixer, &device) || (device.freq <= 0) || (file->channels <= 0) || (file->freq <= 0)) {
+		return NULL;
+	}
+	MIX_AudioDecoder* decoder = MIX_CreateAudioDecoder(path, 0);
+	if (!decoder) {
+		return NULL;
+	}
+	SDL_AudioSpec spec;
+	spec.format   = SDL_AUDIO_F32;
+	spec.channels = file->channels;
+	spec.freq     = file->freq;
+
+	size_t capacity = 1 << 16, used = 0;
+	char*  data     = (char*)malloc(capacity);
+	for (;;) {
+		if (used + 8192 > capacity) {
+			capacity *= 2;
+			data = (char*)realloc(data, capacity);
+		}
+		int got = MIX_DecodeAudio(decoder, data + used, 8192, &spec);
+		if (got <= 0) {
+			break;
+		}
+		used += (size_t)got;
+	}
+	MIX_DestroyAudioDecoder(decoder);
+
+	int      channels = file->channels;
+	size_t   frames   = used / (sizeof(float) * (size_t)channels);
+	size_t   out      = (size_t)((double)frames * device.freq / file->freq);
+	MIX_Audio* audio  = NULL;
+	if (frames > 1 && out > 1) {
+		float* in  = (float*)data;
+		float* res = (float*)malloc(out * (size_t)channels * sizeof(float));
+		double step = (double)file->freq / device.freq;
+		for (size_t i = 0; i < out; i++) {
+			double  at = (double)i * step;
+			size_t  a  = (size_t)at;
+			size_t  b  = (a + 1 < frames) ? a + 1 : a;
+			float   t  = (float)(at - (double)a);
+			for (int c = 0; c < channels; c++) {
+				res[i * channels + c] = in[a * channels + c] * (1.0f - t) + in[b * channels + c] * t;
+			}
+		}
+		SDL_AudioSpec result;
+		result.format   = SDL_AUDIO_F32;
+		result.channels = channels;
+		result.freq     = device.freq;
+		audio = MIX_LoadRawAudio(bb_mixer, res, out * (size_t)channels * sizeof(float), &result);
+		free(res);
+	}
+	free(data);
+	return audio;
+}
+
 static float bb_clamp(float v, float lo, float hi)
 {
 	return v < lo ? lo : (v > hi ? hi : v);
@@ -137,6 +199,13 @@ static int32_t bb_load(const char* path, int is_3d)
 		SDL_AudioSpec spec;
 		if (MIX_GetAudioFormat(sound.audio, &spec)) {
 			sound.frequency = spec.freq;
+			if (getenv("BLITZ_AUDIO_CLASSIC")) {
+				MIX_Audio* classic = bb_classic_audio(real, &spec);
+				if (classic) {
+					MIX_DestroyAudio(sound.audio);
+					sound.audio = classic;
+				}
+			}
 		}
 	} else {
 		// No sound device: just remember that the file is there.
