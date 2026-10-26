@@ -468,15 +468,12 @@ Sets a pixel of a locked buffer. The buffer has to be locked with [LockBuffer](B
 Graphics 320, 240, 0, 2
 SetBuffer BackBuffer()
 Local n = 0
-While n < 30
+While n < 20
 	LockBuffer BackBuffer()
-	For y = 0 To 239 Step 2
-		For x = 0 To 319 Step 2
-			Local v = 128 + 127 * Sin(x * 1.5 + n * 12) * Cos(y * 1.5 - n * 8)
-			WritePixelFast x, y, (v Shl 16) Or ((255 - v) Shl 8) Or 200
-			WritePixelFast x + 1, y, (v Shl 16) Or ((255 - v) Shl 8) Or 200
-			WritePixelFast x, y + 1, (v Shl 16) Or ((255 - v) Shl 8) Or 200
-			WritePixelFast x + 1, y + 1, (v Shl 16) Or ((255 - v) Shl 8) Or 200
+	For y = 0 To 239
+		For x = 0 To 319
+			Local v = (((x + n * 4) / 40) Mod 2) Xor ((y / 40) Mod 2)
+			If v Then WritePixelFast x, y, $FF8000 Else WritePixelFast x, y, $2040A0
 		Next
 	Next
 	UnlockBuffer BackBuffer()
