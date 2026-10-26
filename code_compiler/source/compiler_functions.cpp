@@ -195,6 +195,13 @@ void blitz::compiler::gen_gosub_return(ast::location const& where)
 	emit_terminator("switch i32 " + id + ", label %" + none_l + " [" + cases + " ]");
 }
 
+// `@"bb.f.3"` is called `bb.f.3` in the debug information.
+static std::string linkage_name(std::string symbol)
+{
+	symbol.erase(std::remove_if(symbol.begin(), symbol.end(), [](char c) { return (c == '@') || (c == '"'); }), symbol.end());
+	return symbol;
+}
+
 void blitz::compiler::gen_function(ast::function const& fn)
 {
 	begin_function();
@@ -209,13 +216,16 @@ void blitz::compiler::gen_function(ast::function const& fn)
 		params += (idx ? ", " : "") + blitz::types::to_llvm(fn.parameters[idx].type) + " %a" + std::to_string(idx);
 	}
 
+	std::string sp = di_begin_function(fn.name, linkage_name(info.symbol), fn.where, fn.type, lower(fn.struct_name), &fn.parameters, true);
 	prepare_flow(fn.body);
 	_exit_label = label("fn.exit");
 	_ret_slot   = "%ret.slot";
 	_allocas << "  " << _ret_slot << " = alloca " << blitz::types::to_llvm(fn.type) << "\n";
 	for (size_t idx = 0; idx < fn.parameters.size(); idx++) {
 		auto const& param = fn.parameters[idx];
+		_arg                  = uint32_t(idx + 1);
 		auto        var   = create_local(param.name, param.type, false, param.where, param.struct_name);
+		_arg                  = 0;
 		if (param.type == type::STRING) {
 			// What was passed belongs to the caller, so the function works on a copy.
 			declare("bb_str_dup", "declare ptr @bb_str_dup(ptr)");
@@ -257,7 +267,8 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	emit(result + " = load " + blitz::types::to_llvm(fn.type) + ", ptr " + _ret_slot);
 	emit_terminator("ret " + blitz::types::to_llvm(fn.type) + " " + result);
 
-	_definitions << "define internal " << blitz::types::to_llvm(fn.type) << " " << info.symbol << "(" << params << ") {\n"
+	di_end_function();
+	_definitions << "define internal " << blitz::types::to_llvm(fn.type) << " " << info.symbol << "(" << params << ")" << (sp.empty() ? "" : " !dbg " + sp) << " {\n"
 				 << "entry:\n"
 				 << _allocas.str() << _body.str() << "}\n\n";
 }
@@ -270,6 +281,10 @@ void blitz::compiler::gen_main(ast::program const& program)
 	_return_sname = "";
 	_scope        = "";
 
+	ast::location start;
+	start.file = std::make_shared<const std::filesystem::path>(source);
+	start.line = start.column = 1;
+	std::string sp = di_begin_function("main", "main", start, type::INT32, "", nullptr, false);
 	prepare_flow(program.main);
 	call_runtime("bb_init", type::UNKNOWN, { { "%argc", type::INT32 }, { "%argv", type::STRUCT } });
 	gen_block(program.main);
@@ -277,7 +292,8 @@ void blitz::compiler::gen_main(ast::program const& program)
 		emit_terminator("ret i32 0");
 	}
 
-	_definitions << "define i32 @main(i32 %argc, ptr %argv) {\n"
+	di_end_function();
+	_definitions << "define i32 @main(i32 %argc, ptr %argv)" << (sp.empty() ? "" : " !dbg " + sp) << " {\n"
 				 << "entry:\n"
 				 << _allocas.str() << _body.str() << "}\n\n";
 }

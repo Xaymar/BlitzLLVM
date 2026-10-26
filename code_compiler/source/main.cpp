@@ -93,6 +93,7 @@ namespace {
 		bool                     very_quiet   = false; // +q: Nothing but errors.
 		bool                     compile_only = false; // -c
 		bool                     debug        = false; // -d
+		bool                     debug_info   = false; // -g
 		bool                     dump_keys    = false; // -k
 		bool                     dump_syntax  = false; // +k
 		bool                     version      = false; // -v
@@ -116,7 +117,9 @@ namespace {
 				  << "  +q                    Very quiet mode, only prints errors.\n"
 				  << "  -c                    Compile only: Check the program and generate the code, but don't run it or create an\n"
 				  << "                        executable unless -o is given.\n"
-				  << "  -d                    Debug compile: Always -O0 and with debug information. There is no debugger to attach yet.\n"
+				  << "  -d                    Debug compile: Always -O0 and with debug information, which maps instructions back to the\n"
+				  << "                        file, line and column of the source (DWARF, or CodeView for Windows MSVC targets).\n"
+				  << "  -g                    Add the debug information to any build, such as an optimized one. Implied by -d.\n"
 				  << "  -k                    Dump all keywords: The language, the runtime and the functions of the userlibs.\n"
 				  << "  +k                    Dump all keywords, followed by their syntax.\n"
 				  << "  -v                    Print the version of the compiler and runtime.\n"
@@ -133,7 +136,7 @@ namespace {
 				  << "  --verbose             Print the commands that are run.\n"
 				  << "  -h, --help            Show this text.\n"
 				  << "\n"
-				  << "Options are not case sensitive for -q, +q, -c, -d, -k, +k and -v.\n"
+				  << "Options are not case sensitive for -q, +q, -c, -d, -g, -k, +k and -v.\n"
 				  << "\n"
 				  << "Everything after a lone '--' is passed to clang as-is.\n";
 	}
@@ -221,6 +224,8 @@ namespace {
 				opt.compile_only = true;
 			} else if (lowered == "-d") {
 				opt.debug = true;
+			} else if (lowered == "-g") {
+				opt.debug_info = true;
 			} else if (lowered == "-k") {
 				opt.dump_keys = true;
 			} else if (lowered == "+k") {
@@ -342,9 +347,12 @@ int main(int argc, char** argv)
 			return 0;
 		}
 
-		// A debug build isn't optimized, so that it can be followed in a debugger (which doesn't exist yet).
+		// A debug build isn't optimized, so that it can be followed in a debugger.
 		if (opt.debug) {
 			opt.optimization = "-O0";
+			opt.debug_info   = true;
+		}
+		if (opt.debug_info) {
 			opt.flags.insert(opt.flags.begin(), "-g");
 		}
 
@@ -370,8 +378,19 @@ int main(int argc, char** argv)
 		if (!opt.very_quiet) {
 			std::cout << "Generating..." << std::endl;
 		}
+		// Windows with MSVC uses CodeView for its debug information, everything else DWARF.
+		bool windows_msvc = opt.target.empty() ?
+#if defined(_WIN32)
+								true
+#else
+								false
+#endif
+								: ((opt.target.find("windows") != std::string::npos || opt.target.find("msvc") != std::string::npos) && (opt.target.find("gnu") == std::string::npos) && (opt.target.find("mingw") == std::string::npos));
 		blitz::compiler compiler;
-		compiler.debug = opt.debug;
+		compiler.debug      = opt.debug;
+		compiler.debug_info = opt.debug_info;
+		compiler.codeview   = windows_msvc;
+		compiler.source     = opt.input;
 		auto userlibs_dir = find_userlibs(opt);
 		compiler.userlibs = blitz::keywords::load_userlibs(userlibs_dir);
 		std::string     ir = compiler.generate(*program);

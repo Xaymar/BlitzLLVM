@@ -59,7 +59,8 @@ blitzcc --target <triple> program.bb   # cross-compile
 blitzcc -q program.bb          # quiet: no version banner
 blitzcc +q program.bb          # very quiet: only errors
 blitzcc -c program.bb          # compile only: check the program, don't create an executable (unless -o is given)
-blitzcc -d program.bb          # debug: no optimization, with debug information (there is no debugger yet)
+blitzcc -d program.bb          # debug: no optimization, with debug information (DWARF, or CodeView for Windows MSVC)
+blitzcc -g -O2 program.bb      # debug information in an optimized build
 blitzcc -k                     # list all keywords, runtime functions and userlib functions
 blitzcc +k                     # same, with the syntax of the functions
 blitzcc -v                     # print the version

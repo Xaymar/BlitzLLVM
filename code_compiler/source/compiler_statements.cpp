@@ -32,6 +32,8 @@ void blitz::compiler::gen_block(ast::block const& block)
 
 void blitz::compiler::gen_statement(ast::statement const* node)
 {
+	at here(*this, node->where);
+
 	// Statements that make temporary strings free them when they are done.
 	if (dynamic_cast<ast::declare const*>(node) || dynamic_cast<ast::assign const*>(node) || dynamic_cast<ast::call_statement const*>(node) || dynamic_cast<ast::read_statement const*>(node) || dynamic_cast<ast::select_statement const*>(node)) {
 		scope sc;
