@@ -59,6 +59,7 @@ WaitKey
 @returns A texture handle.
 @gap Only flags 2, 4, 16 and 32 change how the texture looks. Mipmapping (8), environment maps (64 and 128), video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering and no mipmaps.
 @gap The frames argument is accepted, but the texture always has a single frame.
+@gap The alpha (2) and masked (4) flags are only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, including where you drew black.
 
 ## FreeTexture
 Releases a texture and its memory. In the original, entities that were already painted with the texture keep showing it; only the handle becomes unusable. Do not use the handle itself after freeing it.
