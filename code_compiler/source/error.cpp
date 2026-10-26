@@ -118,7 +118,8 @@ std::string blitz::source_excerpt(std::filesystem::path const& file, uint64_t li
 
 std::string blitz::diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason)
 {
-	std::string result = file.generic_string() + ":" + std::to_string(line) + ":" + std::to_string(column) + ": " + kind + ": " + reason;
+	// Without any "." and ".." parts. This is only lexical, the file itself is read through the path as it was given.
+	std::string result = file.lexically_normal().generic_string() + ":" + std::to_string(line) + ":" + std::to_string(column) + ": " + kind + ": " + reason;
 	std::string excerpt = source_excerpt(file, line, column);
 	if (!excerpt.empty()) {
 		result += "\n" + excerpt;

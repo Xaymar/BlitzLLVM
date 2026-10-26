@@ -205,7 +205,7 @@ void blitz::parser::parse_file(std::filesystem::path file, ast::block& into)
 	std::error_code ec;
 	auto            canonical = std::filesystem::weakly_canonical(file, ec);
 	if (std::find(_include_stack.begin(), _include_stack.end(), canonical) != _include_stack.end()) {
-		throw blitz::error(_file, { 0, 0 }, { 0, 0 }, blitz::format("Recursive include of '%s'.", file.generic_string().c_str()));
+		throw blitz::error(_file, { 0, 0 }, { 0, 0 }, blitz::format("Recursive include of '%s'.", file.lexically_normal().generic_string().c_str()));
 	}
 	_include_stack.push_back(canonical);
 
