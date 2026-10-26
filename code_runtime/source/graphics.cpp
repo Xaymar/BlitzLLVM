@@ -451,15 +451,32 @@ namespace {
 	////////////////////////////////////////////////////////////////////////////
 	// Commands
 	////////////////////////////////////////////////////////////////////////////
+	// Copies of rectangles are collected in one command buffer, which is only sent once something else needs the GPU.
+	bool           batch_open   = false;
+	VkBuffer       scratch      = VK_NULL_HANDLE;
+	VkDeviceMemory scratch_memory = VK_NULL_HANDLE;
+	VkDeviceSize   scratch_size = 0;
+
+	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE);
+
+	void end_batch()
+	{
+		if (batch_open) {
+			batch_open = false;
+			submit_commands();
+		}
+	}
+
 	void begin_commands()
 	{
+		end_batch();
 		vkResetCommandBuffer(g.cmd, 0);
 		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
 	}
 
-	void submit_commands(VkSemaphore wait = VK_NULL_HANDLE, VkSemaphore signal = VK_NULL_HANDLE)
+	void submit_commands(VkSemaphore wait, VkSemaphore signal)
 	{
 		check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
 
@@ -985,6 +1002,7 @@ namespace {
 
 	void destroy_swapchain()
 	{
+		end_batch();
 		vkDeviceWaitIdle(g.device);
 		for (uint32_t i = 0; i < g.swap_count; i++) {
 			vkDestroySemaphore(g.device, g.swap_done[i], nullptr);
@@ -1414,7 +1432,8 @@ namespace {
 	void free_image(image_entry& e)
 	{
 		if (g.device && e.set) {
-			vkDeviceWaitIdle(g.device);
+			end_batch();
+		vkDeviceWaitIdle(g.device);
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &e.set);
 			destroy_image(e.image);
 		}
@@ -1424,7 +1443,8 @@ namespace {
 	void free_texture(texture_entry& t)
 	{
 		if (g.device && t.set) {
-			vkDeviceWaitIdle(g.device);
+			end_batch();
+		vkDeviceWaitIdle(g.device);
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
 			destroy_image(t.image);
 		}
@@ -1469,6 +1489,7 @@ namespace {
 		if (!gpu) {
 			return;
 		}
+		end_batch();
 		vkDeviceWaitIdle(g.device);
 		if (gpu->vertex_buffer) {
 			vkDestroyBuffer(g.device, gpu->vertex_buffer, nullptr);
@@ -2101,6 +2122,7 @@ void bb_end_graphics(void)
 		return;
 	}
 	if (!g.headless) {
+		end_batch();
 		vkDeviceWaitIdle(g.device);
 		for (int i = 0; i < 2; i++) {
 			destroy_image(g.buffers[i]);
@@ -2200,6 +2222,24 @@ void bb_flip(int32_t vwait)
 {
 	if (!active()) {
 		return;
+	}
+	{
+		// BLITZ_FPS=1 reports how many frames are shown each second.
+		static int    enabled = -1;
+		static Uint64 last    = 0;
+		static int    frames  = 0;
+		if (enabled < 0) {
+			enabled = getenv("BLITZ_FPS") ? 1 : 0;
+		}
+		if (enabled) {
+			frames++;
+			Uint64 now = SDL_GetTicks();
+			if (now - last >= 1000) {
+				fprintf(stderr, "fps: %d\n", frames);
+				frames = 0;
+				last   = now;
+			}
+		}
 	}
 	pump();
 	flush();
@@ -3005,6 +3045,7 @@ void bb_resize_image(int32_t handle, int32_t width, int32_t height)
 		target.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		submit_commands();
 
+		end_batch();
 		vkDeviceWaitIdle(g.device);
 		destroy_image(e->image);
 		e->image = target;
@@ -3328,15 +3369,53 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 	}
 
 	flush();
+	if (!batch_open) {
+		vkResetCommandBuffer(g.cmd, 0);
+		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
+		batch_open = true;
+	}
+	VkImageLayout previous_from = from.image->layout, previous_to = to.image->layout;
 	if (from.image->image == to.image->image) {
-		// The same image can not be copied to itself while the parts overlap, so go through memory.
-		uint8_t* pixels = read_pixels(*from.image, from.x + sx, from.y + sy, w, h);
-		write_pixels(*to.image, to.x + dx, to.y + dy, w, h, pixels);
-		free(pixels);
+		// The parts may overlap, so the pixels take a detour through a buffer.
+		VkDeviceSize size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
+		if (size > scratch_size) {
+			end_batch();
+			vkDeviceWaitIdle(g.device);
+			if (scratch) {
+				vkDestroyBuffer(g.device, scratch, nullptr);
+				vkFreeMemory(g.device, scratch_memory, nullptr);
+			}
+			scratch_size = size > (1u << 20) ? size : (1u << 20);
+			create_buffer(scratch_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, scratch, scratch_memory);
+			vkResetCommandBuffer(g.cmd, 0);
+			VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+			info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
+			batch_open = true;
+		}
+		VkBufferImageCopy part = {};
+		part.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		part.imageOffset       = { from.x + sx, from.y + sy, 0 };
+		part.imageExtent       = { uint32_t(w), uint32_t(h), 1 };
+		transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		vkCmdCopyImageToBuffer(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, scratch, 1, &part);
+		VkMemoryBarrier2 memory = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
+		memory.srcStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memory.srcAccessMask    = VK_ACCESS_2_MEMORY_WRITE_BIT;
+		memory.dstStageMask     = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+		memory.dstAccessMask    = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+		VkDependencyInfo dep    = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+		dep.memoryBarrierCount  = 1;
+		dep.pMemoryBarriers     = &memory;
+		transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		vkCmdPipelineBarrier2(g.cmd, &dep);
+		part.imageOffset = { to.x + dx, to.y + dy, 0 };
+		vkCmdCopyBufferToImage(g.cmd, scratch, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &part);
+		transition(*to.image, previous_to);
 		return;
 	}
-	begin_commands();
-	VkImageLayout previous_from = from.image->layout, previous_to = to.image->layout;
 	transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	VkImageCopy copy    = {};
@@ -3348,7 +3427,6 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 	vkCmdCopyImage(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 	transition(*from.image, previous_from);
 	transition(*to.image, previous_to);
-	submit_commands();
 }
 
 // Makes the pixel the color that is drawn with.
