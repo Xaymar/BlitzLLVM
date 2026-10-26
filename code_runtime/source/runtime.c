@@ -233,6 +233,9 @@ static void bb_list_unlink(bb_list* list, bb_object* object)
 	}
 }
 
+static int32_t bb_objects_live    = 0; // Objects that were made and not deleted.
+static int32_t bb_objects_deleted = 0; // Objects that were deleted, but whose memory stays because programs may still hold them.
+
 void* bb_object_new(int64_t size, bb_list* list)
 {
 	bb_object* object = (bb_object*)calloc(1, (size_t)size);
@@ -240,6 +243,7 @@ void* bb_object_new(int64_t size, bb_list* list)
 		bb_runtime_error("Out of memory.");
 	}
 	bb_list_append(list, object);
+	bb_objects_live++;
 	return object;
 }
 
@@ -258,6 +262,8 @@ void bb_object_delete(bb_object* object, bb_list* list)
 	}
 	bb_list_unlink(list, object);
 	object->flags |= BB_OBJECT_DELETED;
+	bb_objects_live--;
+	bb_objects_deleted++;
 	if (list->strings) {
 		// The object stays readable after it is deleted, with empty strings.
 		for (int32_t i = 0; i < list->strings[0]; i++) {
@@ -796,6 +802,7 @@ int32_t bb_millisecs(void)
 }
 
 void bb_graphics_idle(void);
+void bb_debug_log(const char* text);
 
 void bb_delay(int32_t ms)
 {
@@ -813,6 +820,142 @@ void bb_delay(int32_t ms)
 		}
 		ms -= step;
 	} while (ms > 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Timers
+//
+// A timer counts ticks at the frequency it was made with. WaitTimer waits for the next tick, and says how many there
+// were since it was last asked.
+////////////////////////////////////////////////////////////////////////////////
+typedef struct bb_timer {
+	int     used;
+	double  frequency;
+	double  elapsed;   // Seconds that it ran for, before it was last paused.
+	double  resumed;   // When it last started running.
+	int     paused;
+	int64_t delivered; // Ticks that WaitTimer has given out.
+} bb_timer;
+
+static bb_timer* bb_timers      = NULL;
+static int32_t   bb_timer_count = 1;
+
+static double bb_seconds(void)
+{
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	return (double)ts.tv_sec + (double)ts.tv_nsec / 1e9;
+}
+
+static bb_timer* bb_timer_get(int32_t handle, const char* what)
+{
+	if ((handle <= 0) || (handle >= bb_timer_count) || !bb_timers[handle].used) {
+		char message[96];
+		snprintf(message, sizeof(message), "%s: the timer does not exist.", what);
+		bb_runtime_error(message);
+	}
+	return &bb_timers[handle];
+}
+
+static int64_t bb_timer_ticks(bb_timer* timer)
+{
+	double seconds = timer->elapsed + (timer->paused ? 0.0 : bb_seconds() - timer->resumed);
+	return (int64_t)(seconds * timer->frequency);
+}
+
+int32_t bb_create_timer(float hertz)
+{
+	if (!(hertz > 0.0f)) {
+		bb_runtime_error("CreateTimer: the frequency has to be above 0.");
+	}
+	int32_t handle = 1;
+	while ((handle < bb_timer_count) && bb_timers[handle].used) {
+		handle++;
+	}
+	if (handle == bb_timer_count) {
+		bb_timers = (bb_timer*)realloc(bb_timers, (size_t)(bb_timer_count + 1) * sizeof(bb_timer));
+		if (!bb_timers) {
+			bb_runtime_error("Out of memory.");
+		}
+		bb_timer_count++;
+	}
+	bb_timer* timer = &bb_timers[handle];
+	memset(timer, 0, sizeof(*timer));
+	timer->used      = 1;
+	timer->frequency = hertz;
+	timer->resumed   = bb_seconds();
+	return handle;
+}
+
+void bb_free_timer(int32_t handle)
+{
+	if (handle != 0) {
+		bb_timer_get(handle, "FreeTimer")->used = 0;
+	}
+}
+
+int32_t bb_wait_timer(int32_t handle)
+{
+	bb_timer* timer = bb_timer_get(handle, "WaitTimer");
+	if (timer->paused) {
+		bb_runtime_error("WaitTimer used with paused timer");
+	}
+	for (;;) {
+		int64_t ticks = bb_timer_ticks(timer);
+		if (ticks > timer->delivered) {
+			int32_t n        = (int32_t)(ticks - timer->delivered);
+			timer->delivered = ticks;
+			return n;
+		}
+		bb_graphics_idle();
+#if defined(_WIN32)
+		Sleep(1);
+#else
+		usleep(1000);
+#endif
+		timer = bb_timer_get(handle, "WaitTimer"); // The program can't free it meanwhile, but the table can move.
+	}
+}
+
+int32_t bb_timer_ticks_of(int32_t handle)
+{
+	return (int32_t)bb_timer_ticks(bb_timer_get(handle, "TimerTicks"));
+}
+
+void bb_reset_timer(int32_t handle)
+{
+	bb_timer* timer = bb_timer_get(handle, "ResetTimer");
+	timer->elapsed   = 0;
+	timer->resumed   = bb_seconds();
+	timer->delivered = 0;
+}
+
+void bb_pause_timer(int32_t handle)
+{
+	bb_timer* timer = bb_timer_get(handle, "PauseTimer");
+	if (!timer->paused) {
+		timer->elapsed += bb_seconds() - timer->resumed;
+		timer->paused = 1;
+	}
+}
+
+void bb_resume_timer(int32_t handle)
+{
+	bb_timer* timer = bb_timer_get(handle, "ResumeTimer");
+	if (timer->paused) {
+		timer->resumed = bb_seconds();
+		timer->paused  = 0;
+	}
+}
+
+// Says in the debug log how many objects there are. Strings are not counted, as many of them belong to the library.
+void bb_runtime_stats(void)
+{
+	char line[96];
+	snprintf(line, sizeof(line), "Active objects :%d", (int)bb_objects_live);
+	bb_debug_log(line);
+	snprintf(line, sizeof(line), "Unreleased objs:%d", (int)bb_objects_deleted);
+	bb_debug_log(line);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
