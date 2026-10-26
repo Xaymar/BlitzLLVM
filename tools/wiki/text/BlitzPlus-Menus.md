@@ -1,0 +1,111 @@
+## CheckMenu
+Puts a check mark in front of a menu item, for options that are on or off. [UncheckMenu](BlitzPlus-Menus#uncheckmenu) takes it away and [MenuChecked](BlitzPlus-Menus#menuchecked) tells whether it is there. Titles in the menu bar cannot be checked.
+
+```blitzbasic
+;media interact menus/checkmenu.gif 1
+;media click 30 48
+;media click 60 73
+;media click 30 48
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Options", 10, 10, 300, 150, Desktop(), 15)
+view = CreateMenu("View", 0, WindowMenu(win))
+grid = CreateMenu("Show grid", 1, view)
+UpdateWindowMenu win
+Repeat
+	e = WaitEvent()
+	If e = $1001 And EventData() = 1 Then
+		If MenuChecked(grid) Then UncheckMenu grid Else CheckMenu grid
+		UpdateWindowMenu win
+	EndIf
+Until e = $803
+```
+
+![CheckMenu](media/menus/checkmenu.gif)
+@param menu  Handle of a menu item made with [CreateMenu](BlitzPlus-Menus#createmenu).
+
+## CreateMenu
+Makes a menu title or a menu item. Give [WindowMenu](BlitzPlus-Windows#windowmenu) as the parent to get a title in the menu bar, and a menu as the parent to put an item or a submenu into it. An item that has items of its own opens a submenu. Choosing an item sends a $1001 event whose [EventData](BlitzPlus-Events#eventdata) is the number you gave. An empty text makes a separator line.
+
+Call [UpdateWindowMenu](BlitzPlus-Windows#updatewindowmenu) once you are done changing menus. The window needs flag 4 in its style to have room for the menu bar.
+
+```blitzbasic
+;media interact menus/createmenu.gif 1
+;media click 30 48
+;media click 60 71
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Editor", 10, 10, 300, 170, Desktop(), 15)
+file = CreateMenu("File", 0, WindowMenu(win))
+CreateMenu "New", 1, file
+CreateMenu "", 0, file
+CreateMenu "Quit", 2, file
+UpdateWindowMenu win
+Repeat
+	e = WaitEvent()
+	If e = $1001 Then SetStatusText win, "Menu " + EventData()
+Until e = $803 Or (e = $1001 And EventData() = 2)
+```
+
+![CreateMenu](media/menus/createmenu.gif)
+@param text    Text of the title or item. Put `&` before a letter to underline it for the keyboard. An empty text is a separator.
+@param number  The number sent as the data of the $1001 event when it is chosen.
+@param parent  [WindowMenu](BlitzPlus-Windows#windowmenu) of a window, or another menu.
+@returns A handle for the menu.
+@gap The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
+
+## DisableMenu
+Greys out a menu item so it cannot be chosen and sends no events. [EnableMenu](BlitzPlus-Menus#enablemenu) brings it back.
+
+```blitzbasic
+;media interact menus/disablemenu.png 1
+;media click 30 48
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Disabled", 10, 10, 300, 150, Desktop(), 15)
+file = CreateMenu("File", 0, WindowMenu(win))
+CreateMenu "Open", 1, file
+save = CreateMenu("Save", 2, file)
+DisableMenu save
+UpdateWindowMenu win
+Repeat
+Until WaitEvent() = $803
+```
+
+![DisableMenu](media/menus/disablemenu.png)
+@param menu  Handle of a menu or item.
+
+## EnableMenu
+Makes a menu item usable again after [DisableMenu](BlitzPlus-Menus#disablemenu).
+@param menu  Handle of a menu or item.
+
+## MenuChecked
+@param menu  Handle of a menu item.
+@returns 1 if it has a check mark, otherwise 0.
+
+## MenuEnabled
+@param menu  Handle of a menu or item.
+@returns 1 if it can be chosen, 0 if it was disabled.
+
+## MenuText
+@param menu  Handle of a menu or item.
+@returns The text it was made with or last given.
+
+## SetMenuText
+Changes the text of a menu title or item.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Text", 10, 10, 300, 150, Desktop(), 15)
+file = CreateMenu("File", 0, WindowMenu(win))
+item = CreateMenu("Start", 1, file)
+UpdateWindowMenu win
+Repeat
+	e = WaitEvent()
+	If e = $1001 Then SetMenuText item, "Stop" : UpdateWindowMenu win
+Until e = $803
+```
+@param menu  Handle of a menu or item.
+@param text  The new text.
+@gap The text can be read back with [MenuText](BlitzPlus-Menus#menutext) here. The original cannot read it.
+
+## UncheckMenu
+Removes the check mark that [CheckMenu](BlitzPlus-Menus#checkmenu) put in front of an item.
+@param menu  Handle of a menu item.

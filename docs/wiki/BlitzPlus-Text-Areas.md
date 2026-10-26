@@ -11,24 +11,24 @@ Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [AddTextAreaText](BlitzPlus-Text-Areas#addtextareatext) | None |  |
-| [CreateTextArea](BlitzPlus-Text-Areas#createtextarea) | Int |  |
-| [CreateTextField](BlitzPlus-Text-Areas#createtextfield) | Int |  |
-| [FormatTextAreaText](BlitzPlus-Text-Areas#formattextareatext) | None |  |
-| [LockTextArea](BlitzPlus-Text-Areas#locktextarea) | None |  |
-| [SetTextAreaColor](BlitzPlus-Text-Areas#settextareacolor) | None |  |
-| [SetTextAreaFont](BlitzPlus-Text-Areas#settextareafont) | None |  |
-| [SetTextAreaTabs](BlitzPlus-Text-Areas#settextareatabs) | None |  |
-| [SetTextAreaText](BlitzPlus-Text-Areas#settextareatext) | None |  |
+| [AddTextAreaText](BlitzPlus-Text-Areas#addtextareatext) | None | Appends text at the end of a text area, with the formatting of the text before it. |
+| [CreateTextArea](BlitzPlus-Text-Areas#createtextarea) | Int | Makes a box for editing several lines of text, with scroll bars. |
+| [CreateTextField](BlitzPlus-Text-Areas#createtextfield) | Int | Makes a box for a single line of text. |
+| [FormatTextAreaText](BlitzPlus-Text-Areas#formattextareatext) | None | Changes the color and style of a part of the text. |
+| [LockTextArea](BlitzPlus-Text-Areas#locktextarea) | None | Holds back redrawing of a text area while you change a lot of it, which is faster and does not flicker. |
+| [SetTextAreaColor](BlitzPlus-Text-Areas#settextareacolor) | None | Sets the color of the text, or with the last parameter the color of the background, of the whole text area. |
+| [SetTextAreaFont](BlitzPlus-Text-Areas#settextareafont) | None | Changes the font of the whole text area. |
+| [SetTextAreaTabs](BlitzPlus-Text-Areas#settextareatabs) | None | Sets how wide a tab character is, independent of the font. |
+| [SetTextAreaText](BlitzPlus-Text-Areas#settextareatext) | None | Writes text into a text area at a place. |
 | [TextAreaChar](BlitzPlus-Text-Areas#textareachar) | Int |  |
-| [TextAreaCursor](BlitzPlus-Text-Areas#textareacursor) | Int |  |
+| [TextAreaCursor](BlitzPlus-Text-Areas#textareacursor) | Int | Gives where the text cursor is. |
 | [TextAreaLen](BlitzPlus-Text-Areas#textarealen) | Int |  |
 | [TextAreaLine](BlitzPlus-Text-Areas#textarealine) | Int |  |
 | [TextAreaLineLen](BlitzPlus-Text-Areas#textarealinelen) | Int |  |
-| [TextAreaSelLen](BlitzPlus-Text-Areas#textareasellen) | Int |  |
-| [TextAreaText](BlitzPlus-Text-Areas#textareatext) | String |  |
+| [TextAreaSelLen](BlitzPlus-Text-Areas#textareasellen) | Int | Gives how much is selected. |
+| [TextAreaText](BlitzPlus-Text-Areas#textareatext) | String | Reads the text, all of it or a part. |
 | [TextFieldText](BlitzPlus-Text-Areas#textfieldtext) | String |  |
-| [UnlockTextArea](BlitzPlus-Text-Areas#unlocktextarea) | None |  |
+| [UnlockTextArea](BlitzPlus-Text-Areas#unlocktextarea) | None | Allows the text area to be redrawn again after [LockTextArea](BlitzPlus-Text-Areas#locktextarea) and shows what changed. |
 
 ### AddTextAreaText
 
@@ -38,12 +38,25 @@ AddTextAreaText textarea%, text$
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Appends text at the end of a text area, with the formatting of the text before it. Line breaks are made with `Chr$(13)` or `Chr$(13) + Chr$(10)`.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Log", 10, 10, 300, 180, Desktop(), 3)
+log = CreateTextArea(10, 10, 270, 120, win)
+For i = 1 To 4
+	AddTextAreaText log, "Line " + i + Chr$(13)
+Next
+Repeat
+Until WaitEvent() = $803
+```
+
+![AddTextAreaText](media/textareas/addtextareatext.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `text` | String | required |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `text` | String | required | Text to append. |
 
 ### CreateTextArea
 
@@ -53,16 +66,36 @@ CreateTextArea x%, y%, width%, height%, group%, style%=0  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Makes a box for editing several lines of text, with scroll bars. The user can type, select with the mouse or with Shift and the arrow keys, and use Ctrl+A, C, X and V. Every change sends a $401 event; [TextAreaText](BlitzPlus-Text-Areas#textareatext) reads the result. Style 1 turns line wrapping on so text is only scrolled vertically, and 65536 can be added to not follow the group when it is resized.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Notes", 10, 10, 300, 180, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 120, win, 1)
+ActivateGadget area
+Repeat
+	e = WaitEvent()
+	If e = $401 Then SetGadgetText win, "Notes - " + TextAreaLen(area) + " chars"
+Until e = $803
+```
+
+![CreateTextArea](media/textareas/createtextarea.gif)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `group` | Int | required |  |
-| `style` | Int | `0` |  |
+| `x` | Int | required | Horizontal position inside the group. |
+| `y` | Int | required | Vertical position inside the group. |
+| `width` | Int | required | Width of the text area. |
+| `height` | Int | required | Height of the text area. |
+| `group` | Int | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int | `0` | 1 for wrapping, plus 65536 for not following the group. Defaults to 0. |
+
+**Returns:** A handle for the text area.
+
+**Differences and known gaps:**
+
+* Without wrapping, long lines can only be scrolled sideways with the keyboard and the mouse wheel. There is no horizontal scroll bar yet.
+* It is not a rich text control: it holds colors and bold or italic for ranges of text, but no pictures, links or paragraph styles.
 
 ### CreateTextField
 
@@ -72,16 +105,33 @@ CreateTextField x%, y%, width%, height%, group%, style%=0  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Makes a box for a single line of text. A $401 event is sent for each change and its [EventData](BlitzPlus-Events#eventdata) is the character typed, and Enter sends one with 13. Style 1 shows stars instead of what is typed, for passwords. Read the text with [TextFieldText](BlitzPlus-Text-Areas#textfieldtext) and set it with [SetGadgetText](BlitzPlus-Gadgets#setgadgettext).
+
+Text fields use Enter and Escape themselves, so use a button of style 4 or 5 to react to these keys, see [CreateButton](BlitzPlus-Gadgets#createbutton).
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Login", 10, 10, 300, 140, Desktop(), 3)
+CreateLabel "Password:", 10, 10, 150, 24, win
+pass = CreateTextField(10, 40, 200, 24, win, 1)
+Repeat
+	e = WaitEvent()
+	If e = $401 Then SetGadgetText win, "Length " + Len(TextFieldText(pass))
+Until e = $803
+```
+
+![CreateTextField](media/textareas/createtextfield.gif)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `group` | Int | required |  |
-| `style` | Int | `0` |  |
+| `x` | Int | required | Horizontal position inside the group. |
+| `y` | Int | required | Vertical position inside the group. |
+| `width` | Int | required | Width of the field. |
+| `height` | Int | required | Height of the field. |
+| `group` | Int | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int | `0` | 1 for a password field, plus 65536 for not following the group. Defaults to 0. |
+
+**Returns:** A handle for the text field.
 
 ### FormatTextAreaText
 
@@ -91,18 +141,37 @@ FormatTextAreaText textarea%, red%, green%, blue%, flags%, pos%=0, len%=-1, unit
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Changes the color and style of a part of the text. The style is 1 for bold, 2 for italic and 3 for both, and 0 for plain. The part starts at a character or line and goes on for a number of them.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Format", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+SetGadgetText area, "Red green bold italic"
+FormatTextAreaText area, 255, 0, 0, 0, 0, 3
+FormatTextAreaText area, 0, 140, 0, 0, 4, 5
+FormatTextAreaText area, 0, 0, 0, 1, 10, 4
+FormatTextAreaText area, 0, 0, 160, 2, 15, 6
+Repeat
+Until WaitEvent() = $803
+```
+
+![FormatTextAreaText](media/textareas/formattextareatext.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `red` | Int | required |  |
-| `green` | Int | required |  |
-| `blue` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `red` | Int | required | Red part of the text color, 0 to 255. |
+| `green` | Int | required | Green part of the text color, 0 to 255. |
+| `blue` | Int | required | Blue part of the text color, 0 to 255. |
 | `flags` | Int | required |  |
 | `pos` | Int | `0` |  |
 | `len` | Int | `-1` |  |
-| `units` | Int | `1` |  |
+| `units` | Int | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+
+**Differences and known gaps:**
+
+* Underline and strike-through are not supported, as in the original.
 
 ### LockTextArea
 
@@ -112,11 +181,28 @@ LockTextArea textarea%
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Holds back redrawing of a text area while you change a lot of it, which is faster and does not flicker. Call [UnlockTextArea](BlitzPlus-Text-Areas#unlocktextarea) afterwards.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Lock", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+LockTextArea area
+For i = 1 To 200
+	AddTextAreaText area, "Line " + i + Chr$(13)
+Next
+UnlockTextArea area
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
+
+**Differences and known gaps:**
+
+* While a text area is locked it sends no events for the changes you make.
 
 ### SetTextAreaColor
 
@@ -126,15 +212,28 @@ SetTextAreaColor textarea%, red%, green%, blue%, background%=0
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Sets the color of the text, or with the last parameter the color of the background, of the whole text area.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Colors", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+SetGadgetText area, "Green on black"
+SetTextAreaColor area, 0, 0, 0, 1
+SetTextAreaColor area, 0, 255, 0
+Repeat
+Until WaitEvent() = $803
+```
+
+![SetTextAreaColor](media/textareas/settextareacolor.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `red` | Int | required |  |
-| `green` | Int | required |  |
-| `blue` | Int | required |  |
-| `background` | Int | `0` |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `red` | Int | required | Red part, 0 to 255. |
+| `green` | Int | required | Green part, 0 to 255. |
+| `blue` | Int | required | Blue part, 0 to 255. |
+| `background` | Int | `0` | 0 sets the text color, 1 sets the background color. Defaults to 0. |
 
 ### SetTextAreaFont
 
@@ -144,12 +243,26 @@ SetTextAreaFont textarea%, font%
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Changes the font of the whole text area.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Font", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+SetTextAreaFont area, LoadFont("Courier New", 16)
+SetGadgetText area, "Courier"
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `font` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `font` | Int | required | Font handle from `LoadFont` or [RequestFont](BlitzPlus-Dialogs#requestfont). |
+
+**Differences and known gaps:**
+
+* Only the size of the font is used, every font is drawn with the built-in typeface.
 
 ### SetTextAreaTabs
 
@@ -159,12 +272,22 @@ SetTextAreaTabs textarea%, tabs%
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Sets how wide a tab character is, independent of the font.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Tabs", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+SetTextAreaTabs area, 40
+SetGadgetText area, "a" + Chr$(9) + "b" + Chr$(9) + "c"
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `tabs` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `tabs` | Int | required | Width of a tab. |
 
 ### SetTextAreaText
 
@@ -174,15 +297,26 @@ SetTextAreaText textarea%, text$, pos%=0, len%=-1, units%=1
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Writes text into a text area at a place. It replaces the given number of characters or lines there, so a length of 0 only inserts.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Insert", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+SetGadgetText area, "Hello world"
+SetTextAreaText area, "big ", 6, 0
+SetTextAreaText area, "HELLO", 0, 5
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `text` | String | required |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `text` | String | required | The text to write. |
 | `pos` | Int | `0` |  |
 | `len` | Int | `-1` |  |
-| `units` | Int | `1` |  |
+| `units` | Int | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 ### TextAreaChar
 
@@ -196,8 +330,10 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `line` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `line` | Int | required | Number of the line, starting at 0. |
+
+**Returns:** The position of the first character of that line, which can be used as the start of [TextAreaText](BlitzPlus-Text-Areas#textareatext).
 
 ### TextAreaCursor
 
@@ -207,12 +343,27 @@ TextAreaCursor textarea%, units%=1  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives where the text cursor is.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Cursor", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+ActivateGadget area
+Repeat
+	e = WaitEvent()
+	If e = $401 Then SetGadgetText win, "Cursor " + TextAreaCursor(area) + " line " + TextAreaCursor(area, 2)
+Until e = $803
+```
+
+![TextAreaCursor](media/textareas/textareacursor.gif)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `units` | Int | `1` |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `units` | Int | `1` | 1 gives the character position, 2 gives the line. Defaults to 1. |
+
+**Returns:** The position, counting from 0.
 
 ### TextAreaLen
 
@@ -226,8 +377,10 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `units` | Int | `1` |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `units` | Int | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+
+**Returns:** How many characters or lines the text has.
 
 ### TextAreaLine
 
@@ -241,8 +394,10 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
 | `char` | Int | required |  |
+
+**Returns:** The number of the line that character is on, starting at 0.
 
 ### TextAreaLineLen
 
@@ -256,8 +411,10 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `line` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `line` | Int | required | Number of the line, starting at 0. |
+
+**Returns:** How many characters are in that line.
 
 ### TextAreaSelLen
 
@@ -267,12 +424,27 @@ TextAreaSelLen textarea%, units%=1  ; returns Int
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Gives how much is selected.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Selection", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+ActivateGadget area
+Repeat
+	e = WaitEvent()
+	If e = $401 Then SetGadgetText win, "Selected " + TextAreaSelLen(area)
+Until e = $803
+```
+
+![TextAreaSelLen](media/textareas/textareasellen.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
-| `units` | Int | `1` |  |
+| `textarea` | Int | required | Handle of a text area. |
+| `units` | Int | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+
+**Returns:** The size of the selection.
 
 ### TextAreaText
 
@@ -282,14 +454,26 @@ TextAreaText textarea%, pos%=0, len%=-1, units%=1  ; returns String
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Reads the text, all of it or a part. Line breaks are given as `Chr$(13)`.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Read", 10, 10, 300, 150, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 90, win)
+SetGadgetText area, "one" + Chr$(13) + "two" + Chr$(13) + "three"
+SetGadgetText win, TextAreaText(area, 1, 1, 2) ; the second line
+Repeat
+Until WaitEvent() = $803
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
 | `pos` | Int | `0` |  |
 | `len` | Int | `-1` |  |
-| `units` | Int | `1` |  |
+| `units` | Int | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+
+**Returns:** The text.
 
 ### TextFieldText
 
@@ -303,7 +487,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textfield` | Int | required |  |
+| `textfield` | Int | required | Handle of a text field. |
+
+**Returns:** The text in the field, even for a password field.
 
 ### UnlockTextArea
 
@@ -313,8 +499,8 @@ UnlockTextArea textarea%
 
 **Works in:** BlitzPlus
 
-_Not documented yet._
+Allows the text area to be redrawn again after [LockTextArea](BlitzPlus-Text-Areas#locktextarea) and shows what changed.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required |  |
+| `textarea` | Int | required | Handle of a text area. |
