@@ -11,9 +11,22 @@ compiler -S program.bb                 # only write the generated LLVM IR (progr
 ----
 The compiler emits textual LLVM IR and hands it, together with the embedded runtime library, to `clang` (`--cc`, `$BLITZLLVM_CC`), so `clang` needs to be installed. `--llvm-flag <flag>` passes any flag to clang, `--llvm-arg <arg>` passes one to LLVM itself (`-mllvm`), `--target <triple>` cross-compiles. The result is one self-contained executable.
 
-Not supported yet: `Type`/`Field`/`New`, `Dim` arrays, `Goto`/`Gosub`, `Data`, images, and the 3D commands (`Graphics3D` currently opens the same 2D window).
+Not supported yet: `Type`/`Field`/`New`, `Dim` arrays, `Goto`/`Gosub`, `Data`, and 2D images (`LoadImage`, `DrawImage`).
 
-Graphics are drawn through Vulkan 1.3 into an SDL3 window (`Graphics`, `SetBuffer`, `Flip`, `Cls`, `Color`, `Rect`, `Oval`, `Line`, `Plot`, `Text`, keyboard and mouse input). SDL3 is linked statically, and the Vulkan loader is loaded when the program starts, so programs remain a single executable. Set `BLITZ_HEADLESS=1` to run a program without a window or GPU.
+Graphics are drawn through Vulkan 1.3 into an SDL3 window. SDL3 and SDL3_image are linked statically, and the Vulkan loader is loaded when the program starts, so programs remain a single executable. Set `BLITZ_HEADLESS=1` to run a program without a window or GPU.
+
+[cols="1,3"]
+|===
+| 2D | `Graphics`, `SetBuffer`, `Flip`, `Cls`, `ClsColor`, `Color`, `Plot`, `Line`, `Rect`, `Oval`, `Text`, keyboard and mouse input
+| 3D world | `RenderWorld`, `AmbientLight`, `CreatePivot`, `CreateCamera`, `CreateLight`, `FreeEntity`, `EntityParent`
+| Transforms | `PositionEntity`, `MoveEntity`, `TranslateEntity`, `RotateEntity`, `TurnEntity`, `ScaleEntity`, `PointEntity`, `EntityX/Y/Z`, `EntityPitch/Yaw/Roll`, `EntityDistance`
+| Appearance | `EntityColor`, `EntityAlpha`, `EntityFX` (fullbright, two-sided), `EntityTexture`, `HideEntity`, `ShowEntity`
+| Cameras and lights | `CameraClsColor`, `CameraClsMode`, `CameraRange`, `CameraViewport`, `CameraZoom`, `LightColor`, `LightRange` (directional and point lights, 8 at a time, lit per vertex like Blitz3D)
+| Meshes | `CreateCube`, `CreateSphere`, `CreateCylinder`, `CreateCone`, `CreateMesh`, `CreateSurface`, `AddVertex`, `AddTriangle`, `VertexColor`, `VertexNormal`, `VertexTexCoords`, `UpdateNormals`, `FlipMesh`, `ScaleMesh`, `PositionMesh`, `RotateMesh`
+| Textures | `LoadTexture` (PNG, JPEG, BMP, TGA and more, with the alpha, masked and clamp flags), `FreeTexture`, `TextureWidth`, `TextureHeight`
+|===
+
+Not there yet for 3D: model files (`LoadMesh`, `LoadAnimMesh`), sprites, terrains, brushes, animation, collisions and picking, spot light cones, fog, `CreateTexture` and drawing to textures.
 
 Tests: `ctest` compiles and runs (headless) every program in `tests/` and lexes `tests/test.bb` (a token-level lexer fixture rather than a program).
 
