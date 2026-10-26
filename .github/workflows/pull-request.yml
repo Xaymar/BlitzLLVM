@@ -75,10 +75,12 @@ jobs:
         run: |
           cmake --install build --config Release --prefix dist
           cp LICENSE.adoc README.adoc dist/
-      - uses: actions/upload-artifact@v4
+          # Zipped here, so the artifact is the .zip file itself and its name carries the extension.
+          (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
+      - uses: actions/upload-artifact@v7
         with:
-          name: ${{ env.ARTIFACT }}
-          path: dist
+          path: ${{ env.ARTIFACT }}.zip
+          archive: false
       - name: Install packaging tools
         if: runner.os == 'Linux'
         run: |
