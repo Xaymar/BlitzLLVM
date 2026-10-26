@@ -18,3 +18,7 @@
 	path = cmake/version
 	url = https://github.com/Xaymar/cmake-version.git
 	shallow = true
+[submodule "cmake/externalcontent"]
+	path = cmake/externalcontent
+	url = https://github.com/Xaymar/cmake-externalcontent.git
+	shallow = true

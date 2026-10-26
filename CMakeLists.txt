@@ -22,7 +22,7 @@ list(APPEND CMAKE_MESSAGE_INDENT "[${PROJECT_NAME}] ")
 
 # Module Search Paths
 list(APPEND CMAKE_MODULE_PATH
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules"
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/externalcontent"
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake"
 )
 

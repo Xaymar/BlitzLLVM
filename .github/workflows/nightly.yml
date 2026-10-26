@@ -20,7 +20,7 @@ jobs:
         # Computed once from the commit date (see cmake/project_version.cmake), and handed to every build, so all artifacts of a
         # run carry the same version.
         run: |
-          git submodule update --init --depth 1 cmake/version
+          git submodule update --init --depth 1 cmake/version cmake/externalcontent
           VERSION="$(cmake -P cmake/project_version.cmake)"
           echo "Version: $VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
@@ -41,8 +41,8 @@ jobs:
       ARTIFACT: blitzllvm-${{ needs.version.outputs.version }}-${{ matrix.name }}
     steps:
       - uses: actions/checkout@v4
-      - name: Check out cmake-version
-        run: git submodule update --init --depth 1 cmake/version
+      - name: Check out cmake-version and cmake-externalcontent
+        run: git submodule update --init --depth 1 cmake/version cmake/externalcontent
       - uses: jwlawson/actions-setup-cmake@v2
         with:
           cmake-version: latest
@@ -56,13 +56,13 @@ jobs:
         run: brew install ninja
       # SDL3, SDL3_image, SDL3_mixer and the Vulkan headers are cloned and built by ExternalContent (see code_runtime/CMakeLists.txt),
       # which skips every stage whose inputs are unchanged. Restoring its directory therefore skips their compilation entirely. Their
-      # versions and build options are all defined in that file, so it is part of the key, and so is ExternalContent itself.
+      # versions and build options are all defined in that file, so it is part of the key, and so is the checked out ExternalContent module (hashed by content, so a submodule bump changes the key).
       # Pull requests restore the caches that nightly builds of root save, and only save one of their own when none exists yet.
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: build/ExternalContentFiles
-          key: dependencies-${{ matrix.name }}-${{ hashFiles('code_runtime/CMakeLists.txt', 'cmake/modules/ExternalContent.cmake') }}
+          key: dependencies-${{ matrix.name }}-${{ hashFiles('code_runtime/CMakeLists.txt', 'cmake/externalcontent/ExternalContent.cmake') }}
           restore-keys: |
             dependencies-${{ matrix.name }}-
       - name: Configure
