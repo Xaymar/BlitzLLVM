@@ -6,26 +6,28 @@
 
 Raw memory blocks you can peek, poke and pass to libraries.
 
+A bank is a block of raw memory that you address by byte offset. Offsets start at 0, numbers are stored little-endian (the low byte first), and a new bank is filled with zeros. Banks are the way to build binary file formats, pass data to libraries and pack lots of numbers tightly.
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
 | [BankSize](BlitzBasic-Banks#banksize) | Int |  |
-| [CallDLL](BlitzBasic-Banks#calldll) | Int |  |
-| [CopyBank](BlitzBasic-Banks#copybank) | None |  |
-| [CreateBank](BlitzBasic-Banks#createbank) | Int |  |
-| [FreeBank](BlitzBasic-Banks#freebank) | None |  |
+| [CallDLL](BlitzBasic-Banks#calldll) | Int | Calls a function in a dynamic library and returns what it returns. |
+| [CopyBank](BlitzBasic-Banks#copybank) | None | Copies bytes from one bank to another, or inside the same bank. |
+| [CreateBank](BlitzBasic-Banks#createbank) | Int | Creates a bank of the given size, filled with zeros. |
+| [FreeBank](BlitzBasic-Banks#freebank) | None | Releases a bank and its memory. |
 | [PeekByte](BlitzBasic-Banks#peekbyte) | Int |  |
 | [PeekFloat](BlitzBasic-Banks#peekfloat) | Float |  |
 | [PeekInt](BlitzBasic-Banks#peekint) | Int |  |
 | [PeekShort](BlitzBasic-Banks#peekshort) | Int |  |
-| [PokeByte](BlitzBasic-Banks#pokebyte) | None |  |
-| [PokeFloat](BlitzBasic-Banks#pokefloat) | None |  |
-| [PokeInt](BlitzBasic-Banks#pokeint) | None |  |
-| [PokeShort](BlitzBasic-Banks#pokeshort) | None |  |
-| [ReadBytes](BlitzBasic-Banks#readbytes) | Int |  |
-| [ResizeBank](BlitzBasic-Banks#resizebank) | None |  |
-| [WriteBytes](BlitzBasic-Banks#writebytes) | Int |  |
+| [PokeByte](BlitzBasic-Banks#pokebyte) | None | Writes one byte. |
+| [PokeFloat](BlitzBasic-Banks#pokefloat) | None | Writes a float in 4 bytes (IEEE 754 single precision). |
+| [PokeInt](BlitzBasic-Banks#pokeint) | None | Writes an integer in 4 bytes, low byte first. |
+| [PokeShort](BlitzBasic-Banks#pokeshort) | None | Writes a 2-byte value, low byte first. |
+| [ReadBytes](BlitzBasic-Banks#readbytes) | Int | Reads bytes from an open file into a bank. |
+| [ResizeBank](BlitzBasic-Banks#resizebank) | None | Changes the size of a bank. |
+| [WriteBytes](BlitzBasic-Banks#writebytes) | Int | Writes bytes from a bank to an open file. |
 
 ### BankSize
 
@@ -35,11 +37,21 @@ BankSize bank%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+```blitzbasic
+bank = CreateBank(16)
+Print BankSize(bank)
+FreeBank bank
+```
+
+```text
+16
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
+| `bank` | Int | required | The bank handle. |
+
+**Returns:** The size of a bank in bytes.
 
 ### CallDLL
 
@@ -49,14 +61,21 @@ CallDLL dll_name$, func_name$, in_bank%=0, out_bank%=0  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Calls a function in a dynamic library and returns what it returns. The function is passed the banks, and a library or function that does not exist makes the call return 0 instead of failing. Which libraries exist depends on the platform, so a program that uses this is only as portable as the library it calls.
+
+```blitzbasic
+; Windows only: asks the system which process this is
+Print CallDLL("kernel32", "GetCurrentProcessId")
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dll_name` | String | required |  |
-| `func_name` | String | required |  |
-| `in_bank` | Int | `0` |  |
-| `out_bank` | Int | `0` |  |
+| `dll_name` | String | required | Name of the library, without a path. |
+| `func_name` | String | required | Name of the function to call. |
+| `in_bank` | Int | `0` | A bank given to the function as input. Defaults to none. |
+| `out_bank` | Int | `0` | A bank given to the function to fill. Defaults to none. |
+
+**Returns:** The value the function returned, or 0 when the library or function was not found.
 
 ### CopyBank
 
@@ -66,15 +85,33 @@ CopyBank src_bank%, src_offset%, dest_bank%, dest_offset%, count%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Copies bytes from one bank to another, or inside the same bank. Overlapping parts inside a single bank are handled correctly.
+
+```blitzbasic
+source = CreateBank(4)
+destination = CreateBank(4)
+For i = 0 To 3
+	PokeByte source, i, 10 + i
+Next
+CopyBank source, 1, destination, 0, 3
+Print PeekByte(destination, 0)
+Print PeekByte(destination, 2)
+FreeBank source
+FreeBank destination
+```
+
+```text
+11
+13
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_bank` | Int | required |  |
-| `src_offset` | Int | required |  |
-| `dest_bank` | Int | required |  |
-| `dest_offset` | Int | required |  |
-| `count` | Int | required |  |
+| `src_bank` | Int | required | The bank to copy from. |
+| `src_offset` | Int | required | Where in that bank to start. |
+| `dest_bank` | Int | required | The bank to copy into. |
+| `dest_offset` | Int | required | Where in that bank to start. |
+| `count` | Int | required | How many bytes to copy. |
 
 ### CreateBank
 
@@ -84,11 +121,24 @@ CreateBank size%=0  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Creates a bank of the given size, filled with zeros. A size of 0 is allowed, and the bank can grow later with [ResizeBank](BlitzBasic-Banks#resizebank). Free it with [FreeBank](BlitzBasic-Banks#freebank) when you are done.
+
+```blitzbasic
+bank = CreateBank(8)
+PokeInt bank, 0, 123456
+Print PeekInt(bank, 0)
+FreeBank bank
+```
+
+```text
+123456
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `size` | Int | `0` |  |
+| `size` | Int | `0` | Size in bytes. Defaults to 0. |
+
+**Returns:** A bank handle.
 
 ### FreeBank
 
@@ -98,11 +148,11 @@ FreeBank bank%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Releases a bank and its memory. The handle must not be used afterwards.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
+| `bank` | Int | required | The bank to free. |
 
 ### PeekByte
 
@@ -116,8 +166,10 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `offset` | Int | required |  |
+| `bank` | Int | required | The bank to read. |
+| `offset` | Int | required | Position in bytes. |
+
+**Returns:** The byte at an offset, from 0 to 255.
 
 ### PeekFloat
 
@@ -131,8 +183,10 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `offset` | Int | required |  |
+| `bank` | Int | required | The bank to read. |
+| `offset` | Int | required | Position in bytes of the first of the 4 bytes. |
+
+**Returns:** The 4-byte float at an offset.
 
 ### PeekInt
 
@@ -146,8 +200,10 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `offset` | Int | required |  |
+| `bank` | Int | required | The bank to read. |
+| `offset` | Int | required | Position in bytes of the first of the 4 bytes. |
+
+**Returns:** The 4-byte integer at an offset.
 
 ### PeekShort
 
@@ -161,8 +217,10 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `offset` | Int | required |  |
+| `bank` | Int | required | The bank to read. |
+| `offset` | Int | required | Position in bytes of the first of the 2 bytes. |
+
+**Returns:** The 2-byte value at an offset, from 0 to 65535. Negative numbers that were poked come back as their unsigned form, for example -2 reads as 65534.
 
 ### PokeByte
 
@@ -172,13 +230,27 @@ PokeByte bank%, offset%, value%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes one byte. Values outside 0 to 255 wrap around, so 300 is stored as 44 and -1 as 255.
+
+```blitzbasic
+bank = CreateBank(2)
+PokeByte bank, 0, 300
+PokeByte bank, 1, -1
+Print PeekByte(bank, 0)
+Print PeekByte(bank, 1)
+FreeBank bank
+```
+
+```text
+44
+255
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `offset` | Int | required |  |
-| `value` | Int | required |  |
+| `bank` | Int | required | The bank to write to. |
+| `offset` | Int | required | Position in bytes. |
+| `value` | Int | required | The value to store. |
 
 ### PokeFloat
 
@@ -188,13 +260,26 @@ PokeFloat bank%, offset%, value#
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes a float in 4 bytes (IEEE 754 single precision).
+
+```blitzbasic
+bank = CreateBank(4)
+PokeFloat bank, 0, 1.5
+Print PeekFloat(bank, 0)
+Print Hex$(PeekInt(bank, 0))
+FreeBank bank
+```
+
+```text
+1.5
+3FC00000
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `offset` | Int | required |  |
-| `value` | Float | required |  |
+| `bank` | Int | required | The bank to write to. |
+| `offset` | Int | required | Position in bytes. |
+| `value` | Float | required | The float to store. |
 
 ### PokeInt
 
@@ -204,13 +289,26 @@ PokeInt bank%, offset%, value%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes an integer in 4 bytes, low byte first.
+
+```blitzbasic
+bank = CreateBank(4)
+PokeInt bank, 0, $01020304
+Print PeekByte(bank, 0)
+Print PeekByte(bank, 3)
+FreeBank bank
+```
+
+```text
+4
+1
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `offset` | Int | required |  |
-| `value` | Int | required |  |
+| `bank` | Int | required | The bank to write to. |
+| `offset` | Int | required | Position in bytes. |
+| `value` | Int | required | The integer to store. |
 
 ### PokeShort
 
@@ -220,13 +318,13 @@ PokeShort bank%, offset%, value%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes a 2-byte value, low byte first. Values outside 0 to 65535 wrap around.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `offset` | Int | required |  |
-| `value` | Int | required |  |
+| `bank` | Int | required | The bank to write to. |
+| `offset` | Int | required | Position in bytes. |
+| `value` | Int | required | The value to store. |
 
 ### ReadBytes
 
@@ -236,14 +334,37 @@ ReadBytes bank%, file%, offset%, count%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Reads bytes from an open file into a bank. It reads up to `count` bytes, and fewer when the file ends first.
+
+```blitzbasic
+source = CreateBank(4)
+For i = 0 To 3
+	PokeByte source, i, 65 + i
+Next
+file = WriteFile("banks_example.tmp")
+WriteBytes source, file, 0, 4
+CloseFile file
+target = CreateBank(4)
+file = ReadFile("banks_example.tmp")
+Print ReadBytes(target, file, 0, 4)
+CloseFile file
+DeleteFile "banks_example.tmp"
+Print Chr$(PeekByte(target, 2))
+```
+
+```text
+4
+C
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `file` | Int | required |  |
-| `offset` | Int | required |  |
-| `count` | Int | required |  |
+| `bank` | Int | required | The bank to fill. |
+| `file` | Int | required | A file opened for reading. |
+| `offset` | Int | required | Where in the bank to put the first byte. |
+| `count` | Int | required | How many bytes to read. |
+
+**Returns:** The number of bytes that were read.
 
 ### ResizeBank
 
@@ -253,12 +374,28 @@ ResizeBank bank%, size%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Changes the size of a bank. The start of the bank is kept, and when it grows the new part is filled with zeros.
+
+```blitzbasic
+bank = CreateBank(4)
+PokeInt bank, 0, 99
+ResizeBank bank, 8
+Print BankSize(bank)
+Print PeekInt(bank, 0)
+Print PeekInt(bank, 4)
+FreeBank bank
+```
+
+```text
+8
+99
+0
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `size` | Int | required |  |
+| `bank` | Int | required | The bank to resize. |
+| `size` | Int | required | The new size in bytes. |
 
 ### WriteBytes
 
@@ -268,11 +405,13 @@ WriteBytes bank%, file%, offset%, count%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes bytes from a bank to an open file.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required |  |
-| `file` | Int | required |  |
-| `offset` | Int | required |  |
-| `count` | Int | required |  |
+| `bank` | Int | required | The bank to read from. |
+| `file` | Int | required | A file opened for writing. |
+| `offset` | Int | required | Where in the bank the first byte is. |
+| `count` | Int | required | How many bytes to write. |
+
+**Returns:** The number of bytes that were written.

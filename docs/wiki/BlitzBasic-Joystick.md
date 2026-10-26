@@ -6,6 +6,7 @@
 
 Joystick and gamepad axes, buttons and hats.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

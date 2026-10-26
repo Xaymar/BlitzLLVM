@@ -6,6 +6,7 @@
 
 Vertices, triangles and surfaces of a mesh.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

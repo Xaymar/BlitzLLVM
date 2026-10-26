@@ -6,6 +6,7 @@
 
 Creating, moving, scaling and querying entities.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

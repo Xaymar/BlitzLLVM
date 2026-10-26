@@ -6,6 +6,7 @@
 
 Bone, vertex and MD2 animation.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

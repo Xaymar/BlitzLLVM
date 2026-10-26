@@ -6,11 +6,12 @@
 
 Statistics and helpers that belong to the language itself.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [RuntimeStats](BlitzBasic-Language#runtimestats) | None |  |
+| [RuntimeStats](BlitzBasic-Language#runtimestats) | None | Writes how many objects exist to the debug log, which helps to find objects that are never freed. |
 
 ### RuntimeStats
 
@@ -20,4 +21,8 @@ RuntimeStats
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes how many objects exist to the debug log, which helps to find objects that are never freed. It prints `Active objects` and `Unreleased objs`.
+
+```blitzbasic
+RuntimeStats
+```

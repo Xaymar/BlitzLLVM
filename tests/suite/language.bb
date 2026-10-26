@@ -278,4 +278,51 @@ n = n + 1
 Return
 .finished
 
+; Include runs the file as if it was written in place, relative to the including file.
+Include "include/included.inc"
+included_value = included_value + 4
+Check "Include shares variables", included_value, 6
+Check "Include defines functions", IncludedFunction(5), 15
+
+; Values are converted to the type of what they are put into.
+Local ci = 1.2, ci2 = "Hello World", ci3 = "12"
+Check "float into an integer", ci, 1
+Check "text into an integer", ci2, 0
+Check "number text into an integer", ci3, 12
+Local cf# = 1, cf2# = "Hello World", cf3# = "2.5"
+Check "integer into a float", cf, 1
+Check "text into a float", cf2, 0
+Check "number text into a float", cf3, 2.5
+Local cs$ = 1, cs2$ = 1.2
+CheckS "integer into a string", cs, "1"
+CheckS "float into a string", cs2, "1.2"
+Check "float returned as integer", IntFromFloat(), 1
+Check "text returned as integer", IntFromText(), 0
+Check "integer returned as float", FloatFromInt(), 1
+Check "float returned as float", FloatFromFloat(), 1.2
+Check "text returned as float", FloatFromText(), 0
+CheckS "integer returned as string", StringFromInt(), "1"
+CheckS "float returned as string", StringFromFloat(), "1.2"
+Function IntFromFloat()
+	Return 1.2
+End Function
+Function IntFromText()
+	Return "Hello World"
+End Function
+Function FloatFromInt#()
+	Return 1
+End Function
+Function FloatFromFloat#()
+	Return 1.2
+End Function
+Function FloatFromText#()
+	Return "Hello World"
+End Function
+Function StringFromInt$()
+	Return 1
+End Function
+Function StringFromFloat$()
+	Return 1.2
+End Function
+
 Done "language"

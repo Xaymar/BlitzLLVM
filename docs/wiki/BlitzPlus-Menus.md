@@ -6,6 +6,7 @@
 
 Window menus and menu items.
 
+
 Back to [[BlitzPlus]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

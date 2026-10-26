@@ -6,6 +6,7 @@
 
 Collision types, responses and results.
 
+
 Back to [[Blitz3D]] or the [[Command-Index]].
 
 | Command | Returns | Summary |

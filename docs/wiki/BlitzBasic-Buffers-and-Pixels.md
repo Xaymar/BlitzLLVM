@@ -6,6 +6,7 @@
 
 Drawing targets, locking and reading or writing single pixels.
 
+
 Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
