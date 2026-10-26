@@ -16,6 +16,7 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 | [ClearSurface](Blitz3D-Surfaces#clearsurface) | None |  |
 | [CountSurfaces](Blitz3D-Surfaces#countsurfaces) | Int |  |
 | [CountTriangles](Blitz3D-Surfaces#counttriangles) | Int |  |
+| [CountVertices](Blitz3D-Surfaces#countvertices) | Int |  |
 | [CreateSurface](Blitz3D-Surfaces#createsurface) | Int |  |
 | [FindSurface](Blitz3D-Surfaces#findsurface) | Int |  |
 | [GetSurface](Blitz3D-Surfaces#getsurface) | Int |  |
@@ -111,6 +112,20 @@ _Not documented yet._
 
 ```blitzbasic
 CountTriangles surface%  ; returns Int
+```
+
+**Works in:** Blitz3D
+
+_Not documented yet._
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `surface` | Int | required |  |
+
+### CountVertices
+
+```blitzbasic
+CountVertices surface%  ; returns Int
 ```
 
 **Works in:** Blitz3D

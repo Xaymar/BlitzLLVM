@@ -125,7 +125,7 @@ _RULES = {
         (r"light", B3D, "Lights"),
         (r"brush", B3D, "Brushes"),
         (r"texture|setcube|loadanimtexture|positiontexture|rotatetexture|scaletexture", B3D, "Textures"),
-        (r"vertex|triangle|surface|updatenormals|clearsurface|addvertex|addtriangle", B3D, "Surfaces"),
+        (r"vertex|vertices|triangle|surface|updatenormals|clearsurface|addvertex|addtriangle", B3D, "Surfaces"),
         (r"mesh|fitmesh|flipmesh|addmesh|paintmesh|loadermatrix|createcube|createsphere|createcone|createcylinder|"
          r"createplane|createmirror|loadanimmesh", B3D, "Meshes"),
         (r".", B3D, "Entities"),

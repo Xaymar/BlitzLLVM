@@ -14,7 +14,6 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 | [AlignToVector](Blitz3D-Entities#aligntovector) | None |  |
 | [CopyEntity](Blitz3D-Entities#copyentity) | Int |  |
 | [CountChildren](Blitz3D-Entities#countchildren) | Int |  |
-| [CountVertices](Blitz3D-Entities#countvertices) | Int |  |
 | [CreatePivot](Blitz3D-Entities#createpivot) | Int |  |
 | [EntityAlpha](Blitz3D-Entities#entityalpha) | None |  |
 | [EntityAutoFade](Blitz3D-Entities#entityautofade) | None |  |
@@ -99,20 +98,6 @@ _Not documented yet._
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int | required |  |
-
-### CountVertices
-
-```blitzbasic
-CountVertices surface%  ; returns Int
-```
-
-**Works in:** Blitz3D
-
-_Not documented yet._
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int | required |  |
 
 ### CreatePivot
 
