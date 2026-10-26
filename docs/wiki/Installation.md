@@ -1,0 +1,55 @@
+# Installation
+
+## Nightly builds
+
+Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) and macOS (arm64) and publishes the result as the `nightly` release: https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly
+
+1. Download the zip for your platform (`blitzllvm-windows-x64.zip`, `blitzllvm-linux-x64.zip` or `blitzllvm-macos-arm64.zip`).
+2. Extract it anywhere. The layout is:
+
+   ```
+   bin/blitzcc          the compiler (blitzcc.exe on Windows)
+   bin/runtime/         the runtime library, keep it next to blitzcc
+   userlibs/            user libraries
+   ```
+
+3. Optionally add the `bin` directory to your `PATH`.
+
+If you built it yourself, `cmake --install` produces the same layout, see [[Building]].
+
+## Clang
+
+BlitzLLVM writes LLVM IR and hands it to `clang`, which has to be installed and on your `PATH`. Use another one with `--cc <path>` or the `BLITZLLVM_CC` environment variable.
+
+* Windows: install LLVM from https://github.com/llvm/llvm-project/releases, or the "C++ Clang tools for Windows" component of Visual Studio.
+* Debian and Ubuntu: `sudo apt-get install clang`
+* macOS: `xcode-select --install`
+
+## Graphics
+
+Programs draw through Vulkan 1.3 into an SDL3 window, so a Vulkan 1.3 capable driver has to be installed. The Vulkan loader is loaded when the program starts, and the result is still a single executable. Set `BLITZ_HEADLESS=1` to run a program without a window or GPU.
+
+## Your first program
+
+Save this as `hello.bb`:
+
+```
+Print "Hello from BlitzLLVM"
+```
+
+and compile it:
+
+```sh
+blitzcc hello.bb
+./hello          # hello.exe on Windows
+```
+
+Useful options:
+
+```sh
+blitzcc -O3 program.bb         # optimise
+blitzcc -S program.bb          # only write the LLVM IR (program.ll)
+blitzcc --target <triple> program.bb   # cross-compile
+```
+
+`blitzcc --help` lists all of them.

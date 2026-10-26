@@ -1,0 +1,37 @@
+name: Wiki
+
+on:
+  push:
+    branches: [root]
+    paths:
+      - 'docs/wiki/**'
+      - '.github/workflows/wiki.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: wiki
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish docs/wiki to the wiki
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+          rsync -a --delete --exclude .git docs/wiki/ wiki/
+          cd wiki
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "The wiki is up to date."
+            exit 0
+          fi
+          git add -A
+          git -c user.name="$(git -C .. log -1 --format=%aN)" -c user.email="$(git -C .. log -1 --format=%aE)" \
+            commit -m "Update the wiki from ${GITHUB_SHA::7}"
+          git push origin HEAD

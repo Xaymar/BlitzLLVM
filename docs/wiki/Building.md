@@ -1,0 +1,87 @@
+# Building
+
+BlitzLLVM builds with CMake. The compiler is `blitzcc`, and it carries the runtime library with it. The first configure downloads and builds the dependencies (Vulkan headers, SDL3, SDL3_image and SDL3_mixer, all linked statically), so it needs internet access and takes a few minutes.
+
+## Requirements
+
+* CMake 4.2 or newer.
+* Git, for fetching the dependencies.
+* A C++20 compiler: Visual Studio on Windows, Clang or GCC on Linux, Apple Clang on macOS.
+* Ninja on Linux and macOS.
+* Python 3, optional. It enables the `suite-coverage` test.
+
+### Windows
+
+Install Visual Studio with the "Desktop development with C++" workload. The nightly builds use Visual Studio 18 2026; the repository also has presets for Visual Studio 17 2022 and for clang (see below).
+
+### Linux
+
+SDL3 needs the development packages of the windowing, audio and input libraries. On Debian and Ubuntu:
+
+```sh
+sudo apt-get install -y ninja-build libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev \
+  libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev \
+  libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev
+```
+
+### macOS
+
+```sh
+brew install ninja
+```
+
+## Getting the source
+
+```sh
+git clone https://github.com/Xaymar/BlitzLLVM.git
+cd BlitzLLVM
+```
+
+The `extra/` submodules only hold the original Blitz3D and BlitzPlus sources that the function test suite tools compare against. They are not needed to build. Fetch them with `git submodule update --init` if you want them.
+
+## Build
+
+Linux and macOS:
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+Windows:
+
+```bat
+cmake -S . -B build -G "Visual Studio 18 2026" -A x64
+cmake --build build --config Release
+```
+
+Instead of choosing the generator yourself you can use a preset from `CMakePresets.json`: `windows-x64-msvc2022` (Visual Studio 17 2022) or `windows-x64-llvm` (Ninja Multi-Config with the LLVM toolchain from `cmake/toolchains/llvm.cmake`).
+
+```bat
+cmake --preset windows-x64-msvc2022
+cmake --build --preset windows-x64-msvc2022 --config Release
+```
+
+The compiler ends up in the build directory as `blitzcc` (`blitzcc.exe`), with the runtime library in a `runtime` directory next to it.
+
+## Install
+
+```sh
+cmake --install build --config Release --prefix dist
+```
+
+This creates:
+
+```
+dist/bin/blitzcc          the compiler
+dist/bin/runtime/         the runtime library, has to stay next to blitzcc
+dist/userlibs/            user libraries, with a README
+```
+
+## Tests
+
+```sh
+ctest --test-dir build -C Release
+```
+
+This compiles and runs every program in `tests/` and the function test suite in `tests/suite` without a window (`BLITZ_HEADLESS=1`). Tests that look at pixels need a window and a GPU and are skipped unless you configure with `-DBLITZ_TEST_GPU=ON`. The tests need `clang` (see [[Installation]]).
