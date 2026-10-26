@@ -332,6 +332,8 @@ Every command from A to Z. See [[Home]] to browse by dialect and category.
 | [GfxDriverName](BlitzBasic-Display#gfxdrivername) | BlitzBasic | Display |
 | [GfxMode3D](Blitz3D-Display#gfxmode3d) | Blitz3D | Display |
 | [GfxMode3DExists](Blitz3D-Display#gfxmode3dexists) | Blitz3D | Display |
+| [GfxMode3DHeight](Blitz3D-Display#gfxmode3dheight) | Blitz3D | Display |
+| [GfxMode3DWidth](Blitz3D-Display#gfxmode3dwidth) | Blitz3D | Display |
 | [GfxModeDepth](BlitzBasic-Display#gfxmodedepth) | BlitzBasic | Display |
 | [GfxModeExists](BlitzBasic-Display#gfxmodeexists) | BlitzBasic | Display |
 | [GfxModeFormat](BlitzBasic-Display#gfxmodeformat) | BlitzBasic | Display |

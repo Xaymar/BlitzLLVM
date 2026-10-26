@@ -37,6 +37,12 @@ BY_COMPILER = {
     "insert", "each", "pi", "true", "false", "null", "dim", "restore", "read", "end", "stop",
 }
 
+# Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
+EXTENSIONS = {
+    "gfxmode3dwidth": ("graphics", "%GfxMode3DWidth%mode"),
+    "gfxmode3dheight": ("graphics", "%GfxMode3DHeight%mode"),
+}
+
 SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')
 NAME = re.compile(r"^[%#$]?([A-Za-z_][A-Za-z0-9_]*)")
 
@@ -58,6 +64,8 @@ def originals():
                     if not n or n.group(1).startswith("_"):
                         continue
                     found.setdefault(n.group(1).lower(), (MODULES[name], match.group(1)))
+    for name, entry in EXTENSIONS.items():
+        found.setdefault(name, entry)
     return found
 
 

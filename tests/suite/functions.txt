@@ -322,6 +322,8 @@ gfxdriver3d	graphics	done	%GfxDriver3D%driver
 gfxdrivername	graphics	done	$GfxDriverName%driver
 gfxmode3d	graphics	done	%GfxMode3D%mode
 gfxmode3dexists	graphics	done	%GfxMode3DExists%width%height%depth
+gfxmode3dheight	graphics	done	%GfxMode3DHeight%mode
+gfxmode3dwidth	graphics	done	%GfxMode3DWidth%mode
 gfxmodedepth	graphics	done	%GfxModeDepth%mode
 gfxmodeexists	graphics	done	%GfxModeExists%width%height%depth
 gfxmodeheight	graphics	done	%GfxModeHeight%mode

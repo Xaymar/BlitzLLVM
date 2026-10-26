@@ -43,6 +43,16 @@ Tells whether the given mode from the list of modes can be used for 3D.
 @param mode  Number of the mode, 1 to [CountGfxModes3D](Blitz3D-Display#countgfxmodes3d).
 @returns True if the mode can show 3D.
 
+## GfxMode3DWidth
+The width in pixels of a mode from the list of 3D modes. This is a BlitzLLVM extension: the original has no way to ask a 3D mode for its size, other than [GfxModeWidth](BlitzBasic-Display#gfxmodewidth) for the same number. A mode number that does not exist stops the program with an error message.
+@param mode  Number of the mode, 1 to [CountGfxModes3D](Blitz3D-Display#countgfxmodes3d).
+@returns The width in pixels.
+
+## GfxMode3DHeight
+The height in pixels of a mode from the list of 3D modes. This is a BlitzLLVM extension: the original has no way to ask a 3D mode for its size, other than [GfxModeHeight](BlitzBasic-Display#gfxmodeheight) for the same number. A mode number that does not exist stops the program with an error message.
+@param mode  Number of the mode, 1 to [CountGfxModes3D](Blitz3D-Display#countgfxmodes3d).
+@returns The height in pixels.
+
 ## GfxMode3DExists
 Asks whether a resolution is available for 3D, before opening it with [Graphics3D](Blitz3D-Display#graphics3d). It lets a game offer only the sizes that work.
 

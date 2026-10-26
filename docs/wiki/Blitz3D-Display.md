@@ -16,6 +16,8 @@ Back to [[Blitz3D]] or the [[Command-Index]].
 | [GfxDriverCaps3D](Blitz3D-Display#gfxdrivercaps3d) | Int | Tells what the 3D driver is able to do. |
 | [GfxMode3D](Blitz3D-Display#gfxmode3d) | Int | Tells whether the given mode from the list of modes can be used for 3D. |
 | [GfxMode3DExists](Blitz3D-Display#gfxmode3dexists) | Int | Asks whether a resolution is available for 3D, before opening it with [Graphics3D](Blitz3D-Display#graphics3d). |
+| [GfxMode3DHeight](Blitz3D-Display#gfxmode3dheight) | Int | The height in pixels of a mode from the list of 3D modes. |
+| [GfxMode3DWidth](Blitz3D-Display#gfxmode3dwidth) | Int | The width in pixels of a mode from the list of 3D modes. |
 | [Graphics3D](Blitz3D-Display#graphics3d) | None | Opens the window, or full screen mode, that 3D programs are drawn in. |
 | [Windowed3D](Blitz3D-Display#windowed3d) | Int |  |
 
@@ -109,6 +111,34 @@ WaitKey
 | `depth` | Int | required | Color depth in bits. |
 
 **Returns:** True if a full screen mode of that size can be used.
+
+### GfxMode3DHeight
+
+```blitzbasic
+GfxMode3DHeight mode%  ; returns Int
+```
+
+The height in pixels of a mode from the list of 3D modes. This is a BlitzLLVM extension: the original has no way to ask a 3D mode for its size, other than [GfxModeHeight](BlitzBasic-Display#gfxmodeheight) for the same number. A mode number that does not exist stops the program with an error message.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `mode` | Int | required | Number of the mode, 1 to [CountGfxModes3D](Blitz3D-Display#countgfxmodes3d). |
+
+**Returns:** The height in pixels.
+
+### GfxMode3DWidth
+
+```blitzbasic
+GfxMode3DWidth mode%  ; returns Int
+```
+
+The width in pixels of a mode from the list of 3D modes. This is a BlitzLLVM extension: the original has no way to ask a 3D mode for its size, other than [GfxModeWidth](BlitzBasic-Display#gfxmodewidth) for the same number. A mode number that does not exist stops the program with an error message.
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `mode` | Int | required | Number of the mode, 1 to [CountGfxModes3D](Blitz3D-Display#countgfxmodes3d). |
+
+**Returns:** The width in pixels.
 
 ### Graphics3D
 

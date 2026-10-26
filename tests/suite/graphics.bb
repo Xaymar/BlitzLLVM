@@ -10,7 +10,7 @@
 ; FontDescent Origin Viewport Locate
 ; ImageXHandle ImageYHandle RectsOverlap ImagesOverlap ImageRectOverlap CopyImage ScaleImage RotateImage TFormImage
 ; TFormFilter CountGfxDrivers GfxDriverName SetGfxDriver GfxDriver3D GfxDriverCaps3D HWTexUnits CountGfxModes
-; CountGfxModes3D GfxModeWidth GfxModeHeight GfxModeDepth GfxModeFormat GfxMode3D GfxModeExists SetGamma UpdateGamma
+; CountGfxModes3D GfxModeWidth GfxModeHeight GfxModeDepth GfxModeFormat GfxMode3D GfxMode3DWidth GfxMode3DHeight GfxModeExists SetGamma UpdateGamma
 ; GammaRed GammaGreen GammaBlue VWait ScanLine GraphicsLost GraphicsBuffer BufferDirty GraphicsFormat Dither AntiAlias
 ; WBuffer HWMultiTex AutoSuspend OpenMovie CloseMovie DrawMovie MovieWidth MovieHeight MoviePlaying LoadBuffer. What ends up on the screen is in graphics_pixels.bb.
 Include "check.bb"
@@ -240,6 +240,8 @@ For mode = 1 To modes
 	CheckTrue "GfxModeDepth " + mode, d >= 16
 	Check "GfxModeExists " + mode, GfxModeExists(w, h, d), 1
 	Check "GfxMode3D " + mode, GfxMode3D(mode), 1
+	Check "GfxMode3DWidth " + mode, GfxMode3DWidth(mode), w
+	Check "GfxMode3DHeight " + mode, GfxMode3DHeight(mode), h
 	CheckTrue "GfxModeFormat " + mode, GfxModeFormat(mode) > 0
 Next
 Check "GfxModeExists missing", GfxModeExists(7, 7, 32), 0
