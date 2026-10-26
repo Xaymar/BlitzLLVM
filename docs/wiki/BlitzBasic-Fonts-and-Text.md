@@ -10,18 +10,18 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [FontHeight](BlitzBasic-Fonts-and-Text#fontheight) | Int |  |
-| [FontWidth](BlitzBasic-Fonts-and-Text#fontwidth) | Int |  |
-| [FreeFont](BlitzBasic-Fonts-and-Text#freefont) | None |  |
-| [Input](BlitzBasic-Fonts-and-Text#input) | String |  |
-| [LoadFont](BlitzBasic-Fonts-and-Text#loadfont) | Int |  |
-| [Locate](BlitzBasic-Fonts-and-Text#locate) | None |  |
-| [Print](BlitzBasic-Fonts-and-Text#print) | None |  |
-| [SetFont](BlitzBasic-Fonts-and-Text#setfont) | None |  |
-| [StringHeight](BlitzBasic-Fonts-and-Text#stringheight) | Int |  |
-| [StringWidth](BlitzBasic-Fonts-and-Text#stringwidth) | Int |  |
-| [Text](BlitzBasic-Fonts-and-Text#text) | None |  |
-| [Write](BlitzBasic-Fonts-and-Text#write) | None |  |
+| [FontHeight](BlitzBasic-Fonts-and-Text#fontheight) | Int | The height in pixels of a character of the current font, as set by [SetFont](BlitzBasic-Fonts-and-Text#setfont). |
+| [FontWidth](BlitzBasic-Fonts-and-Text#fontwidth) | Int | The width in pixels of one character of the current font, as set by [SetFont](BlitzBasic-Fonts-and-Text#setfont). |
+| [FreeFont](BlitzBasic-Fonts-and-Text#freefont) | None | Releases a font that was loaded with [LoadFont](BlitzBasic-Fonts-and-Text#loadfont). |
+| [Input](BlitzBasic-Fonts-and-Text#input) | String | Reads a line of text that the user types, ended with Enter, and returns it without the line end. |
+| [LoadFont](BlitzBasic-Fonts-and-Text#loadfont) | Int | Chooses a font by its name and size and returns a handle to use with [SetFont](BlitzBasic-Fonts-and-Text#setfont). |
+| [Locate](BlitzBasic-Fonts-and-Text#locate) | None | Moves the text cursor of [Print](BlitzBasic-Fonts-and-Text#print) and [Write](BlitzBasic-Fonts-and-Text#write) to a position in pixels. |
+| [Print](BlitzBasic-Fonts-and-Text#print) | None | Writes a line of text at the text cursor and moves the cursor to the start of the next line. |
+| [SetFont](BlitzBasic-Fonts-and-Text#setfont) | None | Chooses the font that [Text](BlitzBasic-Fonts-and-Text#text), [Print](BlitzBasic-Fonts-and-Text#print), [StringWidth](BlitzBasic-Fonts-and-Text#stringwidth) and the other text commands use from now on. |
+| [StringHeight](BlitzBasic-Fonts-and-Text#stringheight) | Int | The height in pixels that a text has in the current font. |
+| [StringWidth](BlitzBasic-Fonts-and-Text#stringwidth) | Int | The width in pixels that a text has in the current font. |
+| [Text](BlitzBasic-Fonts-and-Text#text) | None | Draws text into the current buffer with the drawing color. |
+| [Write](BlitzBasic-Fonts-and-Text#write) | None | Writes text at the text cursor like [Print](BlitzBasic-Fonts-and-Text#print), but without starting a new line, so the next Write or Print continues behind it. |
 
 ### FontHeight
 
@@ -31,7 +31,27 @@ FontHeight  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The height in pixels of a character of the current font, as set by [SetFont](BlitzBasic-Fonts-and-Text#setfont). Use it to place lines of text below each other.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+Local small = LoadFont("Arial", 8)
+Local big = LoadFont("Arial", 24)
+SetFont small
+Text 10, 10, "Small: " + FontWidth() + " x " + FontHeight()
+SetFont big
+Text 10, 40, "Big: " + FontWidth() + " x " + FontHeight()
+Flip
+WaitKey
+```
+
+**Returns:** The height of a character in pixels.
+
+**Differences and known gaps:**
+
+* Fonts are the built-in 8x8 pixel bitmap font, scaled to the requested height. All characters have the same size, so FontHeight and [FontWidth](BlitzBasic-Fonts-and-Text#fontwidth) give the same number.
 
 ### FontWidth
 
@@ -41,7 +61,13 @@ FontWidth  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The width in pixels of one character of the current font, as set by [SetFont](BlitzBasic-Fonts-and-Text#setfont). Every character is as wide as this value, so the width of a text is `Len(text) * FontWidth()`.
+
+**Returns:** The width of a character in pixels.
+
+**Differences and known gaps:**
+
+* The font is a scaled 8x8 bitmap font, so the width is the same as the height. Fonts of the original have different widths per character, and their values differ from these.
 
 ### FreeFont
 
@@ -51,11 +77,15 @@ FreeFont font%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Releases a font that was loaded with [LoadFont](BlitzBasic-Fonts-and-Text#loadfont). If it was the current font, the built-in font is selected again.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `font` | Int | required |  |
+| `font` | Int | required | The font to free. |
+
+**Differences and known gaps:**
+
+* A font that does not exist stops the program with an error message.
 
 ### Input
 
@@ -65,11 +95,18 @@ Input prompt$=\  ; returns String
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Reads a line of text that the user types, ended with Enter, and returns it without the line end. The prompt is shown first.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `prompt` | String | `\` |  |
+| `prompt` | String | `\` | Text to show before the input. Defaults to nothing. |
+
+**Returns:** The line that was typed.
+
+**Differences and known gaps:**
+
+* The prompt is written to the console (standard output) and the line is read from the console (standard input), even when a graphics window is open. The original shows the prompt and the typed characters on the graphics screen. For input inside a window, build a text field from [GetKey](BlitzBasic-Keyboard#getkey) as shown in that example.
+* Without a console, for example when the program was started from a menu, the result is an empty string.
 
 ### LoadFont
 
@@ -79,15 +116,38 @@ LoadFont fontname$, height%=12, bold%=0, italic%=0, underline%=0  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Chooses a font by its name and size and returns a handle to use with [SetFont](BlitzBasic-Fonts-and-Text#setfont). The height is measured in pixels of a character, and the default is 12.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+Local f
+For i = 0 To 3
+	f = LoadFont("Arial", 8 + i * 6)
+	SetFont f
+	Text 10, 10 + i * 50, "Size " + (8 + i * 6)
+	FreeFont f
+Next
+Flip
+WaitKey
+```
+
+![LoadFont](media/fonts/loadfont.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `fontname` | String | required |  |
-| `height` | Int | `12` |  |
-| `bold` | Int | `0` |  |
-| `italic` | Int | `0` |  |
-| `underline` | Int | `0` |  |
+| `fontname` | String | required | The name of the font, such as "Arial". |
+| `height` | Int | `12` | The height of a character in pixels. Defaults to 12. |
+| `bold` | Int | `0` | True for a bold font. Defaults to False. |
+| `italic` | Int | `0` | True for an italic font. Defaults to False. |
+| `underline` | Int | `0` | True for an underlined font. Defaults to False. |
+
+**Returns:** A handle for the font. A font that does not exist still gives a valid handle.
+
+**Differences and known gaps:**
+
+* Fonts are not read from the system. Every font name gives the built-in 8x8 pixel bitmap font, scaled to the height. The name and style are remembered but do not change how the text looks.
 
 ### Locate
 
@@ -97,12 +157,30 @@ Locate x%, y%
 
 **Works in:** Blitz2D, Blitz3D
 
-_Not documented yet._
+Moves the text cursor of [Print](BlitzBasic-Fonts-and-Text#print) and [Write](BlitzBasic-Fonts-and-Text#write) to a position in pixels. The position is on the screen and not in the current buffer.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+Cls
+Locate 20, 20
+Print "Top left"
+Locate 160, 120
+Print "Middle"
+Locate 100, 220
+Print "Bottom"
+WaitKey
+```
+
+![Locate](media/fonts/locate.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
+| `x` | Int | required | Horizontal position of the cursor in pixels. |
+| `y` | Int | required | Vertical position of the cursor in pixels. |
+
+**Differences and known gaps:**
+
+* The position is limited to the window.
 
 ### Print
 
@@ -112,11 +190,29 @@ Print string$=\
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes a line of text at the text cursor and moves the cursor to the start of the next line. When it reaches the bottom of the window the picture scrolls up. With no text it only moves the cursor. Print draws straight onto the screen, so it needs no [Flip](BlitzBasic-Display#flip). For text that is part of a frame that is drawn into the back buffer, use [Text](BlitzBasic-Fonts-and-Text#text).
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+Cls
+For i = 1 To 5
+	Print "Line number " + i
+Next
+Print
+Print "Print draws on the screen"
+WaitKey
+```
+
+![Print](media/fonts/print.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `string` | String | `\` |  |
+| `string` | String | `\` | The text to write. Defaults to an empty line. |
+
+**Differences and known gaps:**
+
+* Without a graphics window the text goes to the console instead.
+* The text is drawn in the drawing color, in the current font, onto the front buffer.
 
 ### SetFont
 
@@ -126,11 +222,15 @@ SetFont font%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Chooses the font that [Text](BlitzBasic-Fonts-and-Text#text), [Print](BlitzBasic-Fonts-and-Text#print), [StringWidth](BlitzBasic-Fonts-and-Text#stringwidth) and the other text commands use from now on.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `font` | Int | required |  |
+| `font` | Int | required | A handle from [LoadFont](BlitzBasic-Fonts-and-Text#loadfont). 0 goes back to the built-in font. |
+
+**Differences and known gaps:**
+
+* A font that does not exist stops the program with an error message.
 
 ### StringHeight
 
@@ -140,11 +240,17 @@ StringHeight string$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The height in pixels that a text has in the current font.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `string` | String | required |  |
+| `string` | String | required | The text to measure. |
+
+**Returns:** The height of the text.
+
+**Differences and known gaps:**
+
+* Text has only one line, so this is always the height of one character.
 
 ### StringWidth
 
@@ -154,11 +260,34 @@ StringWidth string$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The width in pixels that a text has in the current font. It helps to center text or to put things after it.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+Local msg$ = "How wide is this?"
+Local w = StringWidth(msg)
+Color 60, 60, 140
+Rect 20, 90, w, StringHeight(msg), 1
+Color 255, 255, 255
+Text 20, 90, msg
+Text 20, 120, "StringWidth = " + w
+Flip
+WaitKey
+```
+
+![StringWidth](media/fonts/stringwidth.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `string` | String | required |  |
+| `string` | String | required | The text to measure. |
+
+**Returns:** The width of the text.
+
+**Differences and known gaps:**
+
+* Every character has the same width, so this is the number of characters times [FontWidth](BlitzBasic-Fonts-and-Text#fontwidth).
 
 ### Text
 
@@ -168,15 +297,35 @@ Text x%, y%, text$, centre_x%=0, centre_y%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Draws text into the current buffer with the drawing color. The position is the top left corner of the text, unless one of the two centering flags asks for the position to be the middle of the text.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Cls
+Color 255, 255, 255
+Text 10, 10, "Top left corner"
+Text 160, 60, "Centered sideways", 1
+Text 160, 120, "Centered both ways", 1, 1
+Color 255, 160, 0
+Text 160, 180, "In color", 1, 1
+Flip
+WaitKey
+```
+
+![Text](media/fonts/text.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required |  |
-| `y` | Int | required |  |
-| `text` | String | required |  |
-| `centre_x` | Int | `0` |  |
-| `centre_y` | Int | `0` |  |
+| `x` | Int | required | Horizontal position of the text. |
+| `y` | Int | required | Vertical position of the text. |
+| `text` | String | required | The text to draw. |
+| `centre_x` | Int | `0` | 1 to use x as the middle of the text instead of its left edge. Defaults to 0. |
+| `centre_y` | Int | `0` | 1 to use y as the middle of the text instead of its top edge. Defaults to 0. |
+
+**Differences and known gaps:**
+
+* The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font. Characters 128 and above show the glyphs of the bitmap font, and the text is not smoothed.
 
 ### Write
 
@@ -186,8 +335,25 @@ Write string$
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Writes text at the text cursor like [Print](BlitzBasic-Fonts-and-Text#print), but without starting a new line, so the next Write or Print continues behind it.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+Cls
+Write "One, "
+Write "two, "
+Write "three"
+Print "!"
+Print "A new line."
+WaitKey
+```
+
+![Write](media/fonts/write.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `string` | String | required |  |
+| `string` | String | required | The text to write. |
+
+**Differences and known gaps:**
+
+* Without a graphics window the text goes to the console instead.
