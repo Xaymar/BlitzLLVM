@@ -5,9 +5,9 @@ BlitzLLVM is an attempt at a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler u
 === Usage
 [source,sh]
 ----
-compiler [options] program.bb          # builds program.exe (Windows) / program (elsewhere)
-compiler -O3 --llvm-flag -march=native --llvm-flag -flto --llvm-flag -fuse-ld=lld program.bb
-compiler -S program.bb                 # only write the generated LLVM IR (program.ll)
+blitzcc [options] program.bb          # builds program.exe (Windows) / program (elsewhere)
+blitzcc -O3 --llvm-flag -march=native --llvm-flag -flto --llvm-flag -fuse-ld=lld program.bb
+blitzcc -S program.bb                 # only write the generated LLVM IR (program.ll)
 ----
 The compiler emits textual LLVM IR and hands it, together with the embedded runtime library, to `clang` (`--cc`, `$BLITZLLVM_CC`), so `clang` needs to be installed. `--llvm-flag <flag>` passes any flag to clang, `--llvm-arg <arg>` passes one to LLVM itself (`-mllvm`), `--target <triple>` cross-compiles. The result is one self-contained executable.
 

@@ -4,6 +4,7 @@
 project(compiler)
 add_executable(${PROJECT_NAME})
 init_project(${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME blitzcc)
 
 target_sources(${PROJECT_NAME} PRIVATE
 	"source/main.cpp"
@@ -32,6 +33,11 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/"
 )
+
+# Install layout: <prefix>/bin/blitzcc, <prefix>/bin/runtime and <prefix>/userlibs.
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION bin/runtime)
+install(FILES "userlibs/README.txt" DESTINATION userlibs)
 
 get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})

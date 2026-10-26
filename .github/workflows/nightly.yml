@@ -44,11 +44,7 @@ jobs:
       - name: Package
         shell: bash
         run: |
-          exe=$(find build/code_compiler -maxdepth 2 -type f \( -name compiler -o -name compiler.exe \) | head -1)
-          dir=$(dirname "$exe")
-          mkdir dist
-          cp "$exe" dist/
-          cp -r "$dir/runtime" dist/
+          cmake --install build --config Release --prefix dist
           cp LICENSE.adoc README.adoc dist/
       - uses: actions/upload-artifact@v4
         with:
