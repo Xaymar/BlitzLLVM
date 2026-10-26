@@ -8,8 +8,8 @@ load3dsound	audio	done	%Load3DSound$filename
 loadsound	audio	done	%LoadSound$filename
 loopsound	audio	done	LoopSound%sound
 pausechannel	audio	done	PauseChannel%channel
-playcdtrack	audio	pending	%PlayCDTrack%track%mode=1
-playmusic	audio	pending	%PlayMusic$midifile
+playcdtrack	audio	done	%PlayCDTrack%track%mode=1
+playmusic	audio	done	%PlayMusic$midifile
 playsound	audio	done	%PlaySound%sound
 resumechannel	audio	done	ResumeChannel%channel
 soundpan	audio	done	SoundPan%sound#pan

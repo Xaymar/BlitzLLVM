@@ -264,6 +264,21 @@ int32_t bb_play_sound(int32_t handle)
 	return bb_play(handle, 0, "PlaySound");
 }
 
+// Music is a sound that is played once. It can be any file that sounds can be loaded from, MIDI is not supported.
+int32_t bb_play_music(const char* path)
+{
+	int32_t sound = bb_load(path, 0);
+	return sound ? bb_play(sound, 0, "PlayMusic") : 0;
+}
+
+// There is no CD to play from, which the original reports with no channel.
+int32_t bb_play_cd_track(int32_t track, int32_t mode)
+{
+	(void)track;
+	(void)mode;
+	return 0;
+}
+
 int32_t bb_emit_sound(int32_t handle, int32_t entity)
 {
 	return bb_play(handle, entity, "EmitSound");
