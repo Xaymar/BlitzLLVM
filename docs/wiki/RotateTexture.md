@@ -13,15 +13,12 @@ RotateTexture texture%, angle#
 **Works in:** Blitz3D
 
 Turns the texture coordinates by an absolute angle in degrees. Meant for swirling effects such as smoke.
+The rotation turns the coordinates around their origin (the corner of the picture) before ScaleTexture and PositionTexture are applied, as in the original.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `texture` | Int | required | The texture to turn. |
 | `angle` | Float | required | Angle in degrees. |
-
-**Differences and known gaps:**
-
-* RotateTexture is accepted and checks that the texture exists, but it does nothing. The texture is never rotated.
 
 ## Related commands
 

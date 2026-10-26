@@ -63,6 +63,13 @@ namespace bb::gfx {
 		}
 	}
 
+	// RotateTexture turns the coordinates before they are scaled; the cosine is kept minus one so that zeros mean no rotation.
+	void texture_rotation(texture_entry const* t, float* extra)
+	{
+		extra[1] = t ? sinf(t->rotation) : 0.0f;
+		extra[2] = t ? cosf(t->rotation) - 1.0f : 0.0f;
+	}
+
 	void free_image(image_entry& e)
 	{
 		if (g.device && e.set) {
@@ -494,11 +501,10 @@ void bb_position_texture(int32_t handle, float u, float v)
 	t->uv[3]         = v;
 }
 
-// Rotating textures is not supported, the call is accepted so programs that do it still run.
+// The original keeps the negated angle in radians.
 void bb_rotate_texture(int32_t handle, float angle)
 {
-	(void)angle;
-	need_texture(handle, "RotateTexture");
+	need_texture(handle, "RotateTexture")->rotation = -angle * 0.017453292519943295f;
 }
 
 void bb_texture_blend(int32_t handle, int32_t mode)

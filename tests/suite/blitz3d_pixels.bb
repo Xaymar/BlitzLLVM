@@ -154,6 +154,32 @@ RenderWorld
 CheckTrue "PaintEntity (" + B(80, 60) + ")", B(80, 60) > 200
 FreeBrush brush
 
+; RotateTexture turns the coordinates around their origin, so a quarter turn puts a different quarter of the picture
+; in the same place, and a full turn puts it back.
+quarters = CreateTexture(2, 2)
+SetBuffer TextureBuffer(quarters)
+Color 255, 0, 0
+Plot 0, 0
+Color 0, 255, 0
+Plot 1, 0
+Color 0, 0, 255
+Plot 0, 1
+Color 255, 255, 255
+Plot 1, 1
+SetBuffer BackBuffer()
+EntityTexture cube, quarters
+RenderWorld
+quarter0 = ReadPixel(88, 52, BackBuffer()) And $FFFFFF
+RotateTexture quarters, 90
+RenderWorld
+quarter1 = ReadPixel(88, 52, BackBuffer()) And $FFFFFF
+CheckTrue "RotateTexture 90 shows another quarter (" + Hex(quarter0) + " " + Hex(quarter1) + ")", quarter0 <> quarter1
+RotateTexture quarters, 360
+RenderWorld
+Check "RotateTexture 360 shows the same quarter", ReadPixel(88, 52, BackBuffer()) And $FFFFFF, quarter0, 0
+FreeTexture quarters
+EntityTexture cube, 0
+
 ; More layers of textures change what is there: twice the multiplication of the first texture and the second.
 base_tex = CreateTexture(2, 2)
 SetBuffer TextureBuffer(base_tex)

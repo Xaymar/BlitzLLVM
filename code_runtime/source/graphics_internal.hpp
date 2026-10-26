@@ -332,6 +332,7 @@ namespace bb::gfx {
 		int             flags = 0;
 		int             width = 0, height = 0;
 		float           uv[4] = { 1, 1, 0, 0 }; // Scale (ScaleTexture) and offset (PositionTexture) of the coordinates.
+		float           rotation = 0;           // RotateTexture, in radians.
 		int             blend = 2;              // What a texture on a later layer does with what is below: 1 alpha, 2 multiply, 3 add, 5 twice multiply.
 		int             frames = 1;             // More than one for a texture that is a sheet of frames, see LoadAnimTexture.
 		int             frame_w = 0, frame_h = 0; // The size of a frame, if there are frames.
@@ -441,7 +442,7 @@ namespace bb::gfx {
 		float params[4];
 		float uv[4];   // Scale and offset of the texture coordinates.
 		float mask[4]; // For the fragment shader: where pixels are cut off, whether there is fog, flat shading and whether black is not there.
-		float extra[4]; // x: whether the texture uses the second set of coordinates.
+		float extra[4]; // x: whether the texture uses the second set of coordinates, y and z: sine and cosine minus one of the rotation.
 	};
 
 
@@ -613,6 +614,7 @@ namespace bb::gfx {
 	bool texture_frame_rect(texture_entry const& texture, int frame, int& x, int& y, int& w, int& h);
 	/** The scale and offset of the texture coordinates for a texture, from the reference that has its frame. */
 	void texture_uv(texture_entry const* texture, int reference, float* uv);
+	void texture_rotation(texture_entry const* texture, float* extra);
 	void free_image(image_entry& e);
 	void free_texture(texture_entry& t);
 	void create_3d();
