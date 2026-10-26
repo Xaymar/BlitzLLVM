@@ -24,7 +24,7 @@ OP = dict(
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
-DECORATION = dict(Block=2, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Location=30, Binding=33, DescriptorSet=34, Offset=35)
+DECORATION = dict(Block=2, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, Location=30, Binding=33, DescriptorSet=34, Offset=35)
 
 
 def string_words(text):
@@ -370,11 +370,13 @@ def vertex_shader_3d():
     layout(push_constant) uniform Entity {
         vec4 model0, model1, model2; // Rows of the 4x3 model matrix.
         vec4 material;               // Color and alpha of the entity.
-        vec4 params;                 // x: fullbright
+        vec4 params;                 // x: fullbright, y: use the colors of the vertices, z: flat shaded
         vec4 uv;                     // Scale (x, y) and offset (z, w) of the texture coordinates.
     } entity;
     layout(location = 0) out vec2 outUV;
     layout(location = 1) out vec4 outColor;
+    layout(location = 3) flat out vec4 outFlatColor; // What the first vertex of the triangle has, for flat shading.
+    layout(location = 4) flat out float outFlat;
     void main() {
         vec4 p = vec4(inPosition, 1.0);
         vec3 world = vec3(dot(entity.model0, p), dot(entity.model1, p), dot(entity.model2, p));
@@ -390,7 +392,10 @@ def vertex_shader_3d():
             lit += scene.lightColor[i].xyz * max(dot(n, direction), 0.0) * mix(1.0, falloff, isPoint);
         }
         lit = mix(lit, vec3(1.0), entity.params.x);
-        outColor = vec4(clamp(entity.material.xyz * inColor.xyz * lit, 0.0, 1.0), entity.material.w * inColor.w);
+        vec4 vertexColor = mix(vec4(1.0), inColor, entity.params.y);
+        outColor = vec4(clamp(entity.material.xyz * vertexColor.xyz * lit, 0.0, 1.0), entity.material.w * vertexColor.w);
+        outFlatColor = outColor;
+        outFlat = entity.params.z;
         outUV = inUV;
     }
     """
@@ -416,6 +421,8 @@ def vertex_shader_3d():
     out_uv = b.variable("Output", v2, [(DECORATION["Location"], 0)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 1)])
     out_depth = b.variable("Output", f, [(DECORATION["Location"], 2)])
+    out_flat_color = b.variable("Output", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
+    out_flat = b.variable("Output", f, [(DECORATION["Location"], 4), (DECORATION["Flat"],)])
     per_vertex = b.struct("pervertex", v4, f)
     b.m.annotations += [
         Module.inst("MemberDecorate", per_vertex, 0, DECORATION["BuiltIn"], 0),
@@ -425,7 +432,7 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, out_uv, out_color, out_depth, out_vertex))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, out_uv, out_color, out_depth, out_flat_color, out_flat, out_vertex))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -469,11 +476,18 @@ def vertex_shader_3d():
 
     fullbright = b.extract(params, 0)
     lit = b.fadd(v3, lit, b.scale(3, b.fsub(v3, ones, lit), fullbright))
+    # The colors of the vertices count only if the entity says so.
+    use_vertex = b.extract(params, 1)
+    ones4 = b.const_vec(4, 1.0)
+    color = b.fadd(v4, ones4, b.scale(4, b.fsub(v4, color, ones4), use_vertex))
     base = b.fmul(v3, b.swizzle(material, 3), b.swizzle(color, 3))
     rgb = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, base, lit), zeros, ones)
 
     alpha = b.fmul(f, b.extract(material, 3), b.extract(color, 3))
-    b.store(out_color, b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), alpha))
+    shaded = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), alpha)
+    b.store(out_color, shaded)
+    b.store(out_flat_color, shaded)
+    b.store(out_flat, b.extract(params, 2))
     # Textures can be scaled and moved: the first two are factors, the last two offsets.
     uv_scale, uv_offset = b.swizzle(uvparams, 2), b.construct(2, b.extract(uvparams, 2), b.extract(uvparams, 3))
     b.store(out_uv, b.fadd(v2, b.fmul(v2, b.load(v2, in_uv), uv_scale), uv_offset))
@@ -495,12 +509,14 @@ def fragment_shader_masked(mask_offset, fog=False):
     layout(push_constant) uniform Mask { layout(offset = mask_offset) vec4 mask; } pc;
     layout(location = 0) in vec2 inUV;
     layout(location = 1) in vec4 inColor;
+    layout(location = 3) flat in vec4 inFlatColor;  // 3D only: flat shaded entities take this and not inColor.
+    layout(location = 4) flat in float inFlat;
     layout(location = 0) out vec4 outColor;
     void main() {
         vec4 t = texture(tex, inUV);
         vec3 d = abs(t.rgb - pc.mask.rgb);
         float same = step(max(max(d.x, d.y), d.z), 0.002) * pc.mask.w;
-        outColor = inColor * vec4(t.rgb, t.a * (1.0 - same));
+        outColor = mix(inColor, inFlatColor, inFlat) * vec4(t.rgb, t.a * (1.0 - same));
     }
     """
     b = Builder()
@@ -523,6 +539,10 @@ def fragment_shader_masked(mask_offset, fog=False):
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
     interface = [in_uv, in_color, out_color]
     if fog:
+        in_flat_color = b.variable("Input", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
+        in_flat = b.variable("Input", f, [(DECORATION["Location"], 4), (DECORATION["Flat"],)])
+        interface += [in_flat_color, in_flat]
+    if fog:
         scene = declare_scene(b)
         in_depth = b.variable("Input", f, [(DECORATION["Location"], 2)])
         interface.append(in_depth)
@@ -534,6 +554,9 @@ def fragment_shader_masked(mask_offset, fog=False):
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
     uv, color = b.load(v2, in_uv), b.load(v4, in_color)
+    if fog:
+        flat_color, flat = b.load(v4, in_flat_color), b.load(f, in_flat)
+        color = b.fadd(v4, color, b.scale(4, b.fsub(v4, flat_color, color), flat))
     t = b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), uv)
     mask = b.load(v4, b.access("PushConstant", v4, push, b.const_int(0)))
 

@@ -271,6 +271,19 @@ blitz::ast::expression_ptr blitz::parser::parse_unary()
 			return node;
 		}
 	}
+	if (is_keyword(op, "handle") && !is_symbol(tk(1), "(")) {
+		// `Handle obj` needs no parenthesis either, but a variable called Handle must keep working.
+		auto next    = tk(1);
+		bool operand = (next.type == blitz::token::variant::TEXT) && (!reserved.count(lower(next.text)) || is_keyword(next, "new") || is_keyword(next, "first") || is_keyword(next, "last") || is_keyword(next, "before") || is_keyword(next, "after") || is_keyword(next, "object"));
+		if (operand) {
+			advance();
+			auto node   = std::make_unique<ast::call>();
+			node->where = here(op);
+			node->name  = op.text;
+			node->arguments.push_back(parse_unary());
+			return node;
+		}
+	}
 	if (is_keyword(op, "new") || is_keyword(op, "first") || is_keyword(op, "last")) {
 		advance();
 		auto type_tk = tk();
@@ -431,20 +444,24 @@ blitz::ast::expression_ptr blitz::parser::parse_primary()
 		advance();
 		auto type        = parse_type_suffix(token);
 		auto struct_name = _struct_name;
+		if ((word == "object") && (type == blitz::types::type::STRUCT)) {
+			// Object.TypeName Handle, with or without parenthesis: the handle is a unary operand.
+			auto node       = std::make_unique<ast::object_from_handle>();
+			node->where     = here(token);
+			node->type_name = struct_name;
+			if (is_symbol(tk(), "(")) {
+				advance();
+				node->handle = parse_expression();
+				expect_symbol(")");
+				return parse_postfix(std::move(node));
+			}
+			node->handle = parse_unary();
+			return node;
+		}
 		if (!is_symbol(tk(), "(")) {
 			note_variable_use(token, type, struct_name);
 		} else {
 			note_function_use(token, type, struct_name);
-		}
-		if ((word == "object") && (type == blitz::types::type::STRUCT)) {
-			// Object.TypeName(Handle)
-			expect_symbol("(");
-			auto node        = std::make_unique<ast::object_from_handle>();
-			node->where      = here(token);
-			node->type_name  = struct_name;
-			node->handle     = parse_expression();
-			expect_symbol(")");
-			return parse_postfix(std::move(node));
 		}
 		if (is_symbol(tk(), "(")) {
 			advance();

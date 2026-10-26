@@ -11,12 +11,12 @@ Back to [[BlitzBasic]] or the [[Command-Index]].
 
 | Command | Returns | Summary |
 |---|---|---|
-| [CloseMovie](BlitzBasic-Movies#closemovie) | None |  |
-| [DrawMovie](BlitzBasic-Movies#drawmovie) | Int |  |
-| [MovieHeight](BlitzBasic-Movies#movieheight) | Int |  |
-| [MoviePlaying](BlitzBasic-Movies#movieplaying) | Int |  |
-| [MovieWidth](BlitzBasic-Movies#moviewidth) | Int |  |
-| [OpenMovie](BlitzBasic-Movies#openmovie) | Int |  |
+| [CloseMovie](BlitzBasic-Movies#closemovie) | None | Closes a movie that [OpenMovie](BlitzBasic-Movies#openmovie) opened and frees what it used. |
+| [DrawMovie](BlitzBasic-Movies#drawmovie) | Int | Draws the current picture of a movie into the current buffer. |
+| [MovieHeight](BlitzBasic-Movies#movieheight) | Int | The height of the pictures of a movie in pixels. |
+| [MoviePlaying](BlitzBasic-Movies#movieplaying) | Int | Tells whether a movie is still playing. |
+| [MovieWidth](BlitzBasic-Movies#moviewidth) | Int | The width of the pictures of a movie in pixels. |
+| [OpenMovie](BlitzBasic-Movies#openmovie) | Int | Opens a movie file for playback and returns a handle for [DrawMovie](BlitzBasic-Movies#drawmovie), [MoviePlaying](BlitzBasic-Movies#movieplaying) and the other movie commands. |
 
 ### CloseMovie
 
@@ -26,11 +26,15 @@ CloseMovie movie%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Closes a movie that [OpenMovie](BlitzBasic-Movies#openmovie) opened and frees what it used. A movie that should play again has to be closed and opened anew.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required |  |
+| `movie` | Int | required | A movie handle from OpenMovie. |
+
+**Differences and known gaps:**
+
+* Does nothing, because no movie can be opened.
 
 ### DrawMovie
 
@@ -40,15 +44,36 @@ DrawMovie movie%, x%=0, y%=0, w%=-1, h%=-1  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Draws the current picture of a movie into the current buffer. For a video the movie plays by itself at its normal speed and DrawMovie shows the newest picture, so call it once per frame. The position and size are in screen pixels, the origin and viewport are ignored, and the movie has to lie completely inside the screen.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local m = OpenMovie("movie.avi")
+If m = 0 Then
+	Print "No movie.avi to play"
+	WaitKey
+	End
+EndIf
+While MoviePlaying(m) And Not KeyHit(1)
+	Cls
+	DrawMovie m, 0, 0, 320, 240
+	Flip
+Wend
+CloseMovie m
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required |  |
-| `x` | Int | `0` |  |
-| `y` | Int | `0` |  |
-| `w` | Int | `-1` |  |
-| `h` | Int | `-1` |  |
+| `movie` | Int | required | A movie handle from [OpenMovie](BlitzBasic-Movies#openmovie). |
+| `x` | Int | `0` | Horizontal position of the top left corner. Defaults to 0. |
+| `y` | Int | `0` | Vertical position of the top left corner. Defaults to 0. |
+| `w` | Int | `-1` | Width to draw at. Defaults to the width of the movie. |
+| `h` | Int | `-1` | Height to draw at. Defaults to the height of the movie. |
+
+**Differences and known gaps:**
+
+* Draws nothing. There is no video playback.
 
 ### MovieHeight
 
@@ -58,11 +83,17 @@ MovieHeight movie%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The height of the pictures of a movie in pixels.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required |  |
+| `movie` | Int | required | A movie handle from [OpenMovie](BlitzBasic-Movies#openmovie). |
+
+**Returns:** The height in pixels.
+
+**Differences and known gaps:**
+
+* Returns 0, because no movie can be opened.
 
 ### MoviePlaying
 
@@ -72,11 +103,17 @@ MoviePlaying movie%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Tells whether a movie is still playing. It becomes 0 when the movie reaches its end, so a loop can run until the movie is over.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required |  |
+| `movie` | Int | required | A movie handle from [OpenMovie](BlitzBasic-Movies#openmovie). |
+
+**Returns:** 1 while the movie plays, otherwise 0.
+
+**Differences and known gaps:**
+
+* Always returns 0.
 
 ### MovieWidth
 
@@ -86,11 +123,17 @@ MovieWidth movie%  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+The width of the pictures of a movie in pixels.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required |  |
+| `movie` | Int | required | A movie handle from [OpenMovie](BlitzBasic-Movies#openmovie). |
+
+**Returns:** The width in pixels.
+
+**Differences and known gaps:**
+
+* Returns 0, because no movie can be opened.
 
 ### OpenMovie
 
@@ -100,8 +143,29 @@ OpenMovie file$  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-_Not documented yet._
+Opens a movie file for playback and returns a handle for [DrawMovie](BlitzBasic-Movies#drawmovie), [MoviePlaying](BlitzBasic-Movies#movieplaying) and the other movie commands. The original played AVI, MPEG and animated GIF files through DirectShow, and a movie starts playing as soon as it is opened. A program should always test for the result 0, which means the movie could not be opened, and carry on without it.
+
+```blitzbasic
+Graphics 320, 240, 0, 2
+SetBuffer BackBuffer()
+Local m = OpenMovie("intro.avi")
+Cls
+If m = 0 Then
+	Text 160, 120, "The movie could not be opened", 1, 1
+Else
+	Text 160, 120, "Movie size " + MovieWidth(m) + " x " + MovieHeight(m), 1, 1
+	CloseMovie m
+EndIf
+Flip
+WaitKey
+```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file` | String | required |  |
+| `file` | String | required | The path of the movie file. |
+
+**Returns:** A movie handle, or 0 if the movie could not be opened.
+
+**Differences and known gaps:**
+
+* There is no video playback yet, so the result is always 0, the same that the original gives for a file it cannot play. Programs that check the result run on, only without their movies.

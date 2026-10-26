@@ -63,9 +63,77 @@ namespace bb::gfx {
 		return ((mods & SDL_KMOD_SHIFT) ? 1 : 0) | ((mods & SDL_KMOD_CTRL) ? 2 : 0) | ((mods & SDL_KMOD_ALT) ? 4 : 0);
 	}
 
+	// Test programs can't press anything, so BLITZ_TEST_EVENTS (set with SetEnv) does it for them the next time events are
+	// looked at: a list separated by commas of kN (key N, a scancode, goes down and up), mN (mouse button N goes down and
+	// up), wN (the wheel turns by N) and tTEXT (TEXT is typed). It is used up by being read.
+	static void push_test_events()
+	{
+		const char* list = getenv("BLITZ_TEST_EVENTS");
+		if (!list || !*list) {
+			return;
+		}
+		char* copy = SDL_strdup(list);
+#if defined(_WIN32)
+		_putenv_s("BLITZ_TEST_EVENTS", "");
+#else
+		unsetenv("BLITZ_TEST_EVENTS");
+#endif
+		SDL_WindowID window = g.window ? SDL_GetWindowID(g.window) : 0;
+		char* rest = nullptr;
+		for (char* item = SDL_strtok_r(copy, ",", &rest); item; item = SDL_strtok_r(nullptr, ",", &rest)) {
+			SDL_Event event = {};
+			int       n     = atoi(item + 1);
+			switch (item[0]) {
+			case 'k':
+				for (const key_map& entry : key_table) {
+					if (entry.blitz == n) {
+						event.key.scancode = entry.sdl;
+						event.key.windowID = window;
+						for (int phase = 0; phase < 2; phase++) {
+							bool down      = phase == 0;
+							event.type     = down ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
+							event.key.down = down;
+							SDL_PushEvent(&event);
+						}
+						break;
+					}
+				}
+				break;
+			case 'm':
+				event.button.button   = (n == 1) ? SDL_BUTTON_LEFT : ((n == 2) ? SDL_BUTTON_RIGHT : SDL_BUTTON_MIDDLE);
+				event.button.windowID = window;
+				event.button.x        = float(g.mouse_x);
+				event.button.y        = float(g.mouse_y);
+				for (int phase = 0; phase < 2; phase++) {
+					bool down         = phase == 0;
+					event.type        = down ? SDL_EVENT_MOUSE_BUTTON_DOWN : SDL_EVENT_MOUSE_BUTTON_UP;
+					event.button.down = down;
+					SDL_PushEvent(&event);
+				}
+				break;
+			case 'w':
+				event.type         = SDL_EVENT_MOUSE_WHEEL;
+				event.wheel.windowID = window;
+				event.wheel.y      = float(n);
+				SDL_PushEvent(&event);
+				break;
+			case 't':
+				event.type            = SDL_EVENT_TEXT_INPUT;
+				event.text.windowID   = window;
+				event.text.text       = SDL_strdup(item + 1); // Lives on, the event only points at it.
+				SDL_PushEvent(&event);
+				break;
+			default:
+				break;
+			}
+		}
+		SDL_free(copy);
+	}
+
 	void pump()
 	{
 		SDL_Event event;
+		push_test_events();
 		while (SDL_PollEvent(&event)) {
 			if (bb_gui_event(&event)) {
 				continue; // What the gadgets of the GUI use is not for the program.
@@ -101,7 +169,7 @@ namespace bb::gfx {
 				int key = blitz_key(event.key.scancode);
 				if (key) {
 					if (!g.keys[key]) {
-						g.key_hits[key] = true;
+						g.key_hits[key]++;
 					}
 					g.keys[key] = true;
 					// A key with modifiers can be an event of its own, which is all that happens for it then.
@@ -128,8 +196,36 @@ namespace bb::gfx {
 				case SDL_SCANCODE_ESCAPE:
 					special = 27;
 					break;
+				// The keys that move or edit give the codes that the original has for them.
+				case SDL_SCANCODE_HOME:
+					special = 1;
+					break;
+				case SDL_SCANCODE_END:
+					special = 2;
+					break;
+				case SDL_SCANCODE_INSERT:
+					special = 3;
+					break;
 				case SDL_SCANCODE_DELETE:
-					special = 127;
+					special = 4;
+					break;
+				case SDL_SCANCODE_PAGEUP:
+					special = 5;
+					break;
+				case SDL_SCANCODE_PAGEDOWN:
+					special = 6;
+					break;
+				case SDL_SCANCODE_UP:
+					special = 28;
+					break;
+				case SDL_SCANCODE_DOWN:
+					special = 29;
+					break;
+				case SDL_SCANCODE_RIGHT:
+					special = 30;
+					break;
+				case SDL_SCANCODE_LEFT:
+					special = 31;
 					break;
 				default:
 					break;
@@ -194,7 +290,7 @@ namespace bb::gfx {
 				int b = button_index(event.button.button);
 				if (b) {
 					g.mouse[b]      = true;
-					g.mouse_hits[b] = true;
+					g.mouse_hits[b]++;
 					bb_event_post(0x201, b, g.mouse_x, g.mouse_y, event_modifiers(), 0);
 					g.mouse_queue[g.mouse_tail] = b;
 					g.mouse_tail = (g.mouse_tail + 1) % 16;
@@ -426,9 +522,10 @@ int32_t bb_key_hit(int32_t key)
 		return 0;
 	}
 	pump();
-	if ((key > 0) && (key < 256) && g.key_hits[key]) {
-		g.key_hits[key] = false;
-		return 1;
+	if ((key > 0) && (key < 256)) {
+		int hits        = g.key_hits[key];
+		g.key_hits[key] = 0;
+		return hits;
 	}
 	return 0;
 }
@@ -473,9 +570,10 @@ int32_t bb_mouse_hit(int32_t button)
 		return 0;
 	}
 	pump();
-	if ((button > 0) && (button < 4) && g.mouse_hits[button]) {
-		g.mouse_hits[button] = false;
-		return 1;
+	if ((button > 0) && (button < 4)) {
+		int hits             = g.mouse_hits[button];
+		g.mouse_hits[button] = 0;
+		return hits;
 	}
 	return 0;
 }
