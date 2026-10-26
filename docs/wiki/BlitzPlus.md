@@ -15,7 +15,7 @@ Back to [[Home]] or the [[Command-Index]].
 | [Events](BlitzPlus-Events) | 8 | Waiting for and reading window and gadget events. |
 | [Gadgets](BlitzPlus-Gadgets) | 42 | Buttons, labels, lists, sliders and the other controls. |
 | [Menus](BlitzPlus-Menus) | 9 | Window menus and menu items. |
-| [System](BlitzPlus-System) | 20 | Timers, processes, objects and fonts of the operating system. |
+| [System](BlitzPlus-System) | 19 | Timers, processes, objects and fonts of the operating system. |
 | [Text Areas](BlitzPlus-Text-Areas) | 18 | Multi-line text editing and formatting. |
 | [Toolbars](BlitzPlus-Toolbars) | 7 | Toolbars and icon strips. |
 | [Tree Views](BlitzPlus-Tree-Views) | 12 | Hierarchical lists. |

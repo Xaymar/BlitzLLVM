@@ -116,23 +116,6 @@ Until e = $803
 @param z         Value for [EventZ](BlitzPlus-Events#eventz). Defaults to 0.
 @param source    Value for [EventSource](BlitzPlus-Events#eventsource). Defaults to 0.
 
-## MoreFiles
-Tells whether `NextFile` has another entry in a folder opened with `ReadDir`.
-
-```blitzbasic
-Graphics 320, 240, 32, 2
-dir = ReadDir(".")
-n = 0
-While MoreFiles(dir)
-	NextFile$(dir)
-	n = n + 1
-Wend
-CloseDir dir
-Notify n + " entries"
-```
-@param dir  A folder handle from `ReadDir`.
-@returns 1 if more entries follow, 0 if not. Undocumented in the official help.
-
 ## Notify
 Shows a message with one OK button and waits until it is closed. Lines can be split with `Chr$(13)`.
 

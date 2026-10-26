@@ -123,6 +123,23 @@ DeleteDir "files_type_folder"
 @param file  The path to look at.
 @returns 0 when nothing is there, 1 for a file, 2 for a folder.
 
+## MoreFiles
+Tells whether `NextFile` has another entry in a folder opened with `ReadDir`.
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+dir = ReadDir(".")
+n = 0
+While MoreFiles(dir)
+	NextFile$(dir)
+	n = n + 1
+Wend
+CloseDir dir
+Notify n + " entries"
+```
+@param dir  A folder handle from `ReadDir`.
+@returns 1 if more entries follow, 0 if not. Undocumented in the official help.
+
 ## NextFile
 Returns the name of the next entry of a folder opened with [ReadDir](BlitzBasic-Files#readdir). The names `.` and `..` are among them, and the order is up to the file system. An empty string means there are no more.
 
