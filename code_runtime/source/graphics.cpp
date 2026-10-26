@@ -2917,7 +2917,11 @@ const char* bb_get_clipboard_data(int32_t format)
 			return copy;
 		}
 	}
-	return clipboard_fallback ? clipboard_fallback : "";
+	const char* fallback = clipboard_fallback ? clipboard_fallback : "";
+	size_t      length   = strlen(fallback);
+	char*       copy     = static_cast<char*>(malloc(length + 1));
+	memcpy(copy, fallback, length + 1);
+	return copy;
 }
 
 int32_t bb_set_clipboard_data(int32_t format, const char* text)

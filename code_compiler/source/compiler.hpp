@@ -99,6 +99,13 @@ namespace blitz {
 		bool                            _in_main;
 		bool                            _terminated;
 
+		// Strings: temporaries are freed by the statement that made them, variables own what they are given.
+		size_t                                           _string_temps = 0;   // How many temporaries have been made so far.
+		bool                                             _uses_strings = false; // Whether the function that is generated has any.
+		std::string                                      _exit_label;
+		std::string                                      _ret_slot;
+		std::vector<std::pair<std::string, uint32_t>>    _string_locals;      // Where strings live that are freed when the function ends.
+
 		// Goto and Gosub, for the function that is being generated.
 		std::set<std::string>                                 _labels;
 		std::map<ast::gosub_statement const*, int>            _gosubs;
@@ -122,6 +129,16 @@ namespace blitz {
 
 		// Emission
 		std::string tmp();
+
+		// What is generated between scope_begin and scope_end frees the temporary strings that it made when it is done.
+		struct scope {
+			std::ostringstream outer;
+			size_t             before = 0;
+			bool               active = false;
+		};
+		void        scope_begin(scope& s);
+		void        scope_end(scope& s);
+		void        store_value(address const& target, value const& v);
 		std::string label(const char* prefix);
 		void        emit(std::string const& line);
 		void        emit_terminator(std::string const& line);
@@ -173,6 +190,7 @@ namespace blitz {
 		// Statements
 		void gen_block(ast::block const& block);
 		void gen_statement(ast::statement const* node);
+		void        gen_statement_inner(ast::statement const* node);
 		void gen_declare(ast::declare const* node);
 		void gen_assign(ast::assign const* node);
 		void gen_if(ast::if_statement const* node);

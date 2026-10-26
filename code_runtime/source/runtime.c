@@ -48,6 +48,104 @@ static char* bb_copy(const char* data, size_t length)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Who owns a string
+//
+// Strings that a function returns are temporaries: they are collected in the pool, and the program frees them when the
+// statement that made them is done. Variables, fields and array elements own a copy of what they were given, which is
+// freed when they are given something else, or when what they are in goes away.
+////////////////////////////////////////////////////////////////////////////////
+static char** bb_pool      = NULL;
+static size_t bb_pool_size = 0;
+static size_t bb_pool_cap  = 0;
+
+static char* bb_own(const char* s)
+{
+	if (!s || !*s) {
+		return NULL; // The empty string needs no memory.
+	}
+	size_t length = strlen(s);
+	char*  mem    = (char*)malloc(length + 1);
+	if (!mem) {
+		fputs("Out of memory.\n", stderr);
+		exit(1);
+	}
+	memcpy(mem, s, length + 1);
+	return mem;
+}
+
+static void bb_pool_push(char* s)
+{
+	if (bb_pool_size == bb_pool_cap) {
+		bb_pool_cap = bb_pool_cap ? bb_pool_cap * 2 : 256;
+		bb_pool     = (char**)realloc(bb_pool, bb_pool_cap * sizeof(char*));
+		if (!bb_pool) {
+			fputs("Out of memory.\n", stderr);
+			exit(1);
+		}
+	}
+	bb_pool[bb_pool_size++] = s;
+}
+
+// Makes a string that a function returned a temporary.
+const char* bb_str_temp(const char* s)
+{
+	if (s) {
+		bb_pool_push((char*)s);
+	}
+	return s;
+}
+
+int32_t bb_str_mark(void)
+{
+	return (int32_t)bb_pool_size;
+}
+
+// Frees the temporaries that were made since the mark.
+void bb_str_release(int32_t mark)
+{
+	while (bb_pool_size > (size_t)mark) {
+		free(bb_pool[--bb_pool_size]);
+	}
+}
+
+// For what a variable, field or element gets: its own copy, and the old one is freed.
+const char* bb_str_assign(const char* old, const char* value)
+{
+	char* copy = bb_own(value);
+	free((char*)old);
+	return copy;
+}
+
+const char* bb_str_dup(const char* value)
+{
+	return bb_own(value);
+}
+
+void bb_str_free(const char* s)
+{
+	free((char*)s);
+}
+
+void bb_str_free_array(const char** elements, int32_t count)
+{
+	for (int32_t i = 0; i < count; i++) {
+		free((char*)elements[i]);
+		elements[i] = NULL;
+	}
+}
+
+// What a function gives back: a copy that lives on as a temporary of whoever called, after those of the function are freed.
+const char* bb_str_return(const char* value, int32_t mark)
+{
+	char* copy = bb_own(value);
+	bb_str_release(mark);
+	if (copy) {
+		bb_pool_push(copy);
+	}
+	return copy;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Program
 ////////////////////////////////////////////////////////////////////////////////
 extern void bb_set_arguments(int32_t argc, char** argv);
@@ -97,8 +195,9 @@ typedef struct bb_object {
 } bb_object;
 
 typedef struct bb_list {
-	bb_object* first;
-	bb_object* last;
+	bb_object*     first;
+	bb_object*     last;
+	const int32_t* strings; // How many fields (or arrays of them) are strings, then the offset and the count of each.
 } bb_list;
 
 // Handles are numbers that stand in for objects. Index 0 is never used.
@@ -158,6 +257,17 @@ void bb_object_delete(bb_object* object, bb_list* list)
 	}
 	bb_list_unlink(list, object);
 	object->flags |= BB_OBJECT_DELETED;
+	if (list->strings) {
+		// The object stays readable after it is deleted, with empty strings.
+		for (int32_t i = 0; i < list->strings[0]; i++) {
+			char** slot  = (char**)((char*)object + list->strings[1 + 2 * i]);
+			int32_t count = list->strings[2 + 2 * i];
+			for (int32_t k = 0; k < (count ? count : 1); k++) {
+				free(slot[k]);
+				slot[k] = NULL;
+			}
+		}
+	}
 	if (object->handle > 0) {
 		bb_handles[object->handle] = NULL;
 	}

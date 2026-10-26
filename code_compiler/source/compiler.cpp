@@ -213,6 +213,15 @@ blitz::compiler::value blitz::compiler::call_runtime(const char* symbol, type re
 	}
 	auto r = tmp();
 	emit(r + " = call " + blitz::types::to_llvm(ret) + " @" + symbol + "(" + list + ")");
+	if ((ret == type::STRING) && (std::string(symbol) != "bb_data_string")) {
+		// A string that a function made is a temporary, which the statement frees when it has been used.
+		declare("bb_str_temp", "declare ptr @bb_str_temp(ptr)");
+		auto t = tmp();
+		emit(t + " = call ptr @bb_str_temp(ptr " + r + ")");
+		_string_temps++;
+		_uses_strings = true;
+		return { t, ret };
+	}
 	return { r, ret };
 }
 
@@ -391,6 +400,10 @@ blitz::compiler::variable blitz::compiler::create_local(std::string const& name,
 
 	variable var{ ptr, t, is_constant, lower(sname), count };
 	_locals[key] = var;
+	if ((t == type::STRING) && !_in_main) {
+		_string_locals.push_back({ ptr, count });
+		_uses_strings = true;
+	}
 	return var;
 }
 
@@ -724,6 +737,10 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 	auto ret = fn.type;
 	auto r   = tmp();
 	emit(r + " = call " + blitz::types::to_llvm(ret) + " " + it->second.symbol + "(" + list + ")");
+	if (ret == type::STRING) {
+		_string_temps++; // The function returns it as a temporary of this statement.
+		_uses_strings = true;
+	}
 	return { r, ret, lower(fn.struct_name) };
 }
 
@@ -951,6 +968,19 @@ void blitz::compiler::gen_block(ast::block const& block)
 
 void blitz::compiler::gen_statement(ast::statement const* node)
 {
+	// Statements that make temporary strings free them when they are done.
+	if (dynamic_cast<ast::declare const*>(node) || dynamic_cast<ast::assign const*>(node) || dynamic_cast<ast::call_statement const*>(node) || dynamic_cast<ast::read_statement const*>(node) || dynamic_cast<ast::select_statement const*>(node)) {
+		scope sc;
+		scope_begin(sc);
+		gen_statement_inner(node);
+		scope_end(sc);
+		return;
+	}
+	gen_statement_inner(node);
+}
+
+void blitz::compiler::gen_statement_inner(ast::statement const* node)
+{
 	if (auto n = dynamic_cast<ast::declare const*>(node)) {
 		gen_declare(n);
 	} else if (auto n = dynamic_cast<ast::assign const*>(node)) {
@@ -1018,6 +1048,10 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 			if (!node->global) {
 				// Like other locals, arrays start out empty every time they are declared.
 				auto array = "[" + std::to_string(var.count) + " x " + blitz::types::to_llvm(var.type) + "]";
+				if (var.type == type::STRING) {
+					declare("bb_str_free_array", "declare void @bb_str_free_array(ptr, i32)");
+					emit("call void @bb_str_free_array(ptr " + var.pointer + ", i32 " + std::to_string(var.count) + ")");
+				}
 				emit("store " + array + " zeroinitializer, ptr " + var.pointer);
 			}
 			continue;
@@ -1026,10 +1060,10 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 		auto llvm = blitz::types::to_llvm(var.type);
 		if (decl.initial) {
 			auto v = convert(gen(decl.initial.get()), var.type, decl.initial->where, true, var.sname);
-			emit("store " + llvm + " " + v.repr + ", ptr " + var.pointer);
+			store_value({ var.pointer, var.type, var.sname, 0, false }, v);
 		} else if (!node->global) {
 			// Locals start out as zero every time the declaration is executed.
-			emit("store " + llvm + " " + zero(var.type).repr + ", ptr " + var.pointer);
+			store_value({ var.pointer, var.type, var.sname, 0, false }, zero(var.type));
 		}
 	}
 }
@@ -1045,7 +1079,7 @@ void blitz::compiler::gen_assign(ast::assign const* node)
 		throw err(node->where, "Arrays can't be assigned as a whole, use an index.");
 	}
 	auto v = convert(rhs, addr.type, node->value->where, true, addr.sname);
-	emit("store " + blitz::types::to_llvm(addr.type) + " " + v.repr + ", ptr " + addr.pointer);
+	store_value(addr, v);
 }
 
 void blitz::compiler::gen_if(ast::if_statement const* node)
@@ -1060,7 +1094,10 @@ void blitz::compiler::gen_if(ast::if_statement const* node)
 		}
 
 		auto then_l = label("if.then"), next_l = label("if.next");
-		auto cond   = truthy(gen(branch.condition.get()), branch.condition->where);
+		scope sc;
+		scope_begin(sc);
+		auto cond = truthy(gen(branch.condition.get()), branch.condition->where);
+		scope_end(sc);
 		emit_terminator("br i1 " + cond + ", label %" + then_l + ", label %" + next_l);
 		begin_label(then_l);
 		gen_block(branch.body);
@@ -1076,7 +1113,10 @@ void blitz::compiler::gen_while(ast::while_statement const* node)
 {
 	auto cond_l = label("while.cond"), body_l = label("while.body"), end_l = label("while.end");
 	begin_label(cond_l);
+	scope sc;
+	scope_begin(sc);
 	auto cond = truthy(gen(node->condition.get()), node->condition->where);
+	scope_end(sc);
 	emit_terminator("br i1 " + cond + ", label %" + body_l + ", label %" + end_l);
 
 	begin_label(body_l);
@@ -1098,7 +1138,10 @@ void blitz::compiler::gen_repeat(ast::repeat_statement const* node)
 	_exits.pop_back();
 
 	if (node->condition) {
+		scope sc;
+		scope_begin(sc);
 		auto cond = truthy(gen(node->condition.get()), node->condition->where);
+		scope_end(sc);
 		emit_terminator("br i1 " + cond + ", label %" + end_l + ", label %" + body_l);
 	} else if (!_terminated) {
 		emit_terminator("br label %" + body_l);
@@ -1125,9 +1168,12 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 	bool real = t::is_real(var.type);
 	bool sign = t::is_signed(var.type) || real;
 
+	scope sc;
+	scope_begin(sc);
 	auto from = convert(gen(node->from.get()), var.type, node->from->where, true);
 	auto to   = convert(gen(node->to.get()), var.type, node->to->where, true);
 	auto step = node->step ? convert(gen(node->step.get()), var.type, node->step->where, true) : constant(var.type, 1);
+	scope_end(sc);
 	emit("store " + llvm + " " + from.repr + ", ptr " + var.pointer);
 
 	auto cond_l = label("for.cond"), body_l = label("for.body"), step_l = label("for.step"), end_l = label("for.end");
@@ -1205,13 +1251,18 @@ void blitz::compiler::gen_return(ast::return_statement const* node)
 	if (_in_main) {
 		throw err(node->where, "Return can only be used inside of a function, or after a Gosub.");
 	}
-	auto llvm = blitz::types::to_llvm(_return_type);
-	if (node->value) {
-		auto v = convert(gen(node->value.get()), _return_type, node->value->where, true, _return_sname);
-		emit_terminator("ret " + llvm + " " + v.repr);
-	} else {
-		emit_terminator("ret " + llvm + " " + zero(_return_type).repr);
+	auto  llvm = blitz::types::to_llvm(_return_type);
+	value v    = node->value ? convert(gen(node->value.get()), _return_type, node->value->where, true, _return_sname) : zero(_return_type);
+	if (_return_type == type::STRING) {
+		// The caller gets a copy as its own temporary, and what this function made is freed.
+		declare("bb_str_return", "declare ptr @bb_str_return(ptr, i32)");
+		auto copy = tmp();
+		emit(copy + " = call ptr @bb_str_return(ptr " + v.repr + ", i32 %entry.mark)");
+		v             = { copy, type::STRING };
+		_uses_strings = true;
 	}
+	emit("store " + llvm + " " + v.repr + ", ptr " + _ret_slot);
+	emit_terminator("br label %" + _exit_label);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1227,7 +1278,54 @@ void blitz::compiler::begin_function()
 	_gosubs.clear();
 	_gosub_stack.clear();
 	_gosub_depth.clear();
-	_terminated = false;
+	_terminated   = false;
+	_uses_strings = false;
+	_string_locals.clear();
+	_exit_label.clear();
+	_ret_slot.clear();
+}
+
+void blitz::compiler::scope_begin(scope& sc)
+{
+	if (_terminated) {
+		sc.active = false; // Unreachable code does not need cleaning up.
+		return;
+	}
+	sc.active = true;
+	sc.outer.swap(_body);
+	sc.before = _string_temps;
+}
+
+void blitz::compiler::scope_end(scope& sc)
+{
+	if (!sc.active) {
+		return;
+	}
+	std::string text = _body.str();
+	_body.swap(sc.outer);
+	if ((_string_temps != sc.before) && !_terminated) {
+		auto mark = tmp();
+		declare("bb_str_mark", "declare i32 @bb_str_mark()");
+		declare("bb_str_release", "declare void @bb_str_release(i32)");
+		_body << "  " << mark << " = call i32 @bb_str_mark()\n" << text << "  call void @bb_str_release(i32 " << mark << ")\n";
+	} else {
+		_body << text;
+	}
+}
+
+// Gives a variable, field or element a copy of the string and frees what it had before.
+void blitz::compiler::store_value(address const& target, value const& v)
+{
+	if (target.type != type::STRING) {
+		emit("store " + blitz::types::to_llvm(target.type) + " " + v.repr + ", ptr " + target.pointer);
+		return;
+	}
+	declare("bb_str_assign", "declare ptr @bb_str_assign(ptr, ptr)");
+	auto old = tmp(), fresh = tmp();
+	emit(old + " = load ptr, ptr " + target.pointer);
+	emit(fresh + " = call ptr @bb_str_assign(ptr " + old + ", ptr " + v.repr + ")");
+	emit("store ptr " + fresh + ", ptr " + target.pointer);
+	_uses_strings = true;
 }
 
 // Finds the labels and Gosubs of a function (or the main program), and sets up what Gosub needs.
@@ -1357,15 +1455,52 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	}
 
 	prepare_flow(fn.body);
+	_exit_label = label("fn.exit");
+	_ret_slot   = "%ret.slot";
+	_allocas << "  " << _ret_slot << " = alloca " << blitz::types::to_llvm(fn.type) << "\n";
 	for (size_t idx = 0; idx < fn.parameters.size(); idx++) {
 		auto const& param = fn.parameters[idx];
 		auto        var   = create_local(param.name, param.type, false, param.where, param.struct_name);
-		emit("store " + blitz::types::to_llvm(param.type) + " %a" + std::to_string(idx) + ", ptr " + var.pointer);
+		if (param.type == type::STRING) {
+			// What was passed belongs to the caller, so the function works on a copy.
+			declare("bb_str_dup", "declare ptr @bb_str_dup(ptr)");
+			auto copy = tmp();
+			emit(copy + " = call ptr @bb_str_dup(ptr %a" + std::to_string(idx) + ")");
+			emit("store ptr " + copy + ", ptr " + var.pointer);
+		} else {
+			emit("store " + blitz::types::to_llvm(param.type) + " %a" + std::to_string(idx) + ", ptr " + var.pointer);
+		}
 	}
 	gen_block(fn.body);
 	if (!_terminated) {
-		emit_terminator("ret " + blitz::types::to_llvm(fn.type) + " " + zero(fn.type).repr);
+		emit("store " + blitz::types::to_llvm(fn.type) + " " + zero(fn.type).repr + ", ptr " + _ret_slot);
+		emit_terminator("br label %" + _exit_label);
 	}
+
+	// Everything leaves through here: what the function made is freed, and then the value goes back.
+	begin_label(_exit_label);
+	if (_uses_strings) {
+		declare("bb_str_mark", "declare i32 @bb_str_mark()");
+		_allocas << "  %entry.mark = call i32 @bb_str_mark()\n";
+		for (auto const& local : _string_locals) {
+			if (local.second) {
+				declare("bb_str_free_array", "declare void @bb_str_free_array(ptr, i32)");
+				emit("call void @bb_str_free_array(ptr " + local.first + ", i32 " + std::to_string(local.second) + ")");
+			} else {
+				declare("bb_str_free", "declare void @bb_str_free(ptr)");
+				auto held = tmp();
+				emit(held + " = load ptr, ptr " + local.first);
+				emit("call void @bb_str_free(ptr " + held + ")");
+			}
+		}
+		if (fn.type != type::STRING) {
+			declare("bb_str_release", "declare void @bb_str_release(i32)");
+			emit("call void @bb_str_release(i32 %entry.mark)");
+		}
+	}
+	auto result = tmp();
+	emit(result + " = load " + blitz::types::to_llvm(fn.type) + ", ptr " + _ret_slot);
+	emit_terminator("ret " + blitz::types::to_llvm(fn.type) + " " + result);
 
 	_definitions << "define internal " << blitz::types::to_llvm(fn.type) << " " << info.symbol << "(" << params << ") {\n"
 				 << "entry:\n"
@@ -1499,7 +1634,22 @@ void blitz::compiler::register_types(ast::program const& program)
 			info.fields.push_back(field);
 		}
 		_constants << info.llvm << " = type { " << members << " }\n";
-		_globals << info.list << " = internal global { ptr, ptr } zeroinitializer\n";
+
+		// Which fields are strings, so that deleting an object can free them.
+		std::string entries;
+		size_t      string_fields = 0;
+		for (auto const& field : info.fields) {
+			if (field.type == type::STRING) {
+				entries += ", i32 ptrtoint (ptr getelementptr (" + info.llvm + ", ptr null, i32 0, i32 " + std::to_string(field.index) + ") to i32), i32 " + std::to_string(field.count);
+				string_fields++;
+			}
+		}
+		std::string descriptor = "null";
+		if (string_fields) {
+			descriptor = info.list + ".strings";
+			_globals << descriptor << " = internal constant [" << (1 + 2 * string_fields) << " x i32] [i32 " << string_fields << entries << "]\n";
+		}
+		_globals << info.list << " = internal global { ptr, ptr, ptr } { ptr null, ptr null, ptr " << descriptor << " }\n";
 	}
 }
 
@@ -1844,7 +1994,7 @@ void blitz::compiler::gen_read(ast::read_statement const* node)
 		} else {
 			v = convert(call_runtime("bb_data_int", type::INT32, args), addr.type, node->where, false);
 		}
-		emit("store " + blitz::types::to_llvm(addr.type) + " " + v.repr + ", ptr " + addr.pointer);
+		store_value(addr, v);
 	}
 }
 

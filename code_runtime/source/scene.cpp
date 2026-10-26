@@ -1215,8 +1215,12 @@ void bb_name_entity(int32_t handle, const char* name)
 
 const char* bb_entity_name(int32_t handle)
 {
-	entity* e = need(handle, "EntityName");
-	return e->name ? e->name : "";
+	entity*     e      = need(handle, "EntityName");
+	const char* name   = e->name ? e->name : "";
+	size_t      length = strlen(name);
+	char*       copy   = static_cast<char*>(malloc(length + 1)); // The name can be changed while the program has this.
+	memcpy(copy, name, length + 1);
+	return copy;
 }
 
 static bool same_name(const char* a, const char* b)
