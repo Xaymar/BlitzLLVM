@@ -103,6 +103,16 @@ jobs:
           find dist -type f -exec ls -l {} + | sort -k5 -n -r
           # Zipped here, so the artifact is the .zip file itself and its name carries the extension.
           (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
+      - name: Break down the Windows libraries
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          DUMPBIN=$(cygpath -u "$("/c/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -find '**/Hostx64/x64/dumpbin.exe' | head -1 | tr -d '\r')")
+          for lib in dist/bin/runtime/jxl_dec-static.lib dist/bin/runtime/SDL3-static.lib dist/bin/runtime/dav1d.lib dist/bin/runtime/libwebp.lib; do
+            echo "== $lib"
+            "$DUMPBIN" -nologo -sectionheaders "$lib" | awk '/ name$/ {n=$1} /size of raw data$/ {s[n]+=strtonum("0x"$1)} END {for (k in s) printf "%10d %s\n", s[k], k}' | sort -n -r | head -12
+            "$DUMPBIN" -nologo -headers "$lib" | grep -c "LTCG\|GL" || true
+          done
       - uses: actions/upload-artifact@v7
         with:
           path: ${{ env.ARTIFACT }}.zip
