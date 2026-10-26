@@ -17,7 +17,7 @@ soundpitch	audio	done	SoundPitch%sound%pitch
 soundvolume	audio	done	SoundVolume%sound#volume
 stopchannel	audio	done	StopChannel%channel
 banksize	banks	done	%BankSize%bank
-calldll	banks	pending	%CallDLL$dll_name$func_name%in_bank=0%out_bank=0
+calldll	banks	done	%CallDLL$dll_name$func_name%in_bank=0%out_bank=0
 copybank	banks	done	CopyBank%src_bank%src_offset%dest_bank%dest_offset%count
 createbank	banks	done	%CreateBank%size=0
 freebank	banks	done	FreeBank%bank
@@ -29,9 +29,9 @@ pokebyte	banks	done	PokeByte%bank%offset%value
 pokefloat	banks	done	PokeFloat%bank%offset#value
 pokeint	banks	done	PokeInt%bank%offset%value
 pokeshort	banks	done	PokeShort%bank%offset%value
-readbytes	banks	pending	%ReadBytes%bank%file%offset%count
+readbytes	banks	done	%ReadBytes%bank%file%offset%count
 resizebank	banks	done	ResizeBank%bank%size
-writebytes	banks	pending	%WriteBytes%bank%file%offset%count
+writebytes	banks	done	%WriteBytes%bank%file%offset%count
 activetextures	blitz3d	done	%ActiveTextures
 addanimseq	blitz3d	done	%AddAnimSeq%entity%length
 addmesh	blitz3d	pending	AddMesh%source_mesh%dest_mesh
@@ -272,7 +272,7 @@ closefile	files	done	CloseFile%file_stream
 copyfile	files	done	CopyFile$file$to
 createdir	files	done	CreateDir$dir
 currentdir	files	done	$CurrentDir
-deletedir	files	pending	DeleteDir$dir
+deletedir	files	done	DeleteDir$dir
 deletefile	files	done	DeleteFile$file
 filepos	files	done	%FilePos%file_stream
 filesize	files	done	%FileSize$file
@@ -484,9 +484,9 @@ tcpstreamport	network	done	%TCPStreamPort%tcp_stream
 tcptimeouts	network	done	TCPTimeouts%read_millis%accept_millis
 udpmsgip	network	done	%UDPMsgIP%udp_stream
 udpmsgport	network	done	%UDPMsgPort%udp_stream
-udpstreamip	network	pending	%UDPStreamIP%udp_stream
+udpstreamip	network	done	%UDPStreamIP%udp_stream
 udpstreamport	network	done	%UDPStreamPort%udp_stream
-udptimeouts	network	pending	UDPTimeouts%recv_timeout
+udptimeouts	network	done	UDPTimeouts%recv_timeout
 canvasbuffer	plus2d	pending	%CanvasBuffer%canvas
 createcanvas	plus2d	pending	%CreateCanvas%x%y%width%height%group%style=0
 desktopbuffer	plus2d	pending	%DesktopBuffer
@@ -661,7 +661,7 @@ setenv	runtime	done	SetEnv$env_var$value
 stop	runtime	done	Stop
 systemproperty	runtime	done	$SystemProperty$property
 waittimer	runtime	pending	%WaitTimer%timer
-copystream	streams	pending	CopyStream%src_stream%dest_stream%buffer_size=16384
+copystream	streams	done	CopyStream%src_stream%dest_stream%buffer_size=16384
 eof	streams	done	%Eof%stream
 readavail	streams	done	%ReadAvail%stream
 readbyte	streams	done	%ReadByte%stream

@@ -18,8 +18,10 @@
 
 #if defined(_WIN32)
 #include <direct.h>
+#include <windows.h>
 #else
 #include <dirent.h>
+#include <dlfcn.h>
 #include <unistd.h>
 #endif
 
@@ -207,6 +209,28 @@ static void bb_write_bytes(int32_t handle, const void* data, size_t size, const 
 	} else {
 		bb_stream_write(stream, data, size);
 	}
+}
+
+// Copies from one stream to the other until one of them has nothing more to give or take.
+void bb_copy_stream(int32_t source, int32_t destination, int32_t buffer_size)
+{
+	if ((buffer_size < 1) || (buffer_size > 1024 * 1024)) {
+		bb_runtime_error("CopyStream: the buffer size is not valid.");
+	}
+	bb_stream* target = bb_stream_get(destination, "CopyStream");
+	uint8_t*   buffer = (uint8_t*)malloc((size_t)buffer_size);
+	if (!buffer) {
+		bb_runtime_error("CopyStream: out of memory.");
+	}
+	// A file that is written to is always "at the end", which does not stop anything. A connection that is gone does.
+	while (!bb_eof(source) && ((target->kind == BB_STREAM_FILE) || !bb_eof(destination))) {
+		size_t n = bb_read_bytes(source, buffer, (size_t)buffer_size, "CopyStream");
+		bb_write_bytes(destination, buffer, n, "CopyStream");
+		if (n < (size_t)buffer_size) {
+			break;
+		}
+	}
+	free(buffer);
 }
 
 int32_t bb_read_byte(int32_t handle)
@@ -412,6 +436,17 @@ void bb_create_dir(const char* path)
 	free(real);
 }
 
+void bb_delete_dir(const char* path)
+{
+	char* real = bb_path(path);
+#if defined(_WIN32)
+	_rmdir(real);
+#else
+	rmdir(real);
+#endif
+	free(real);
+}
+
 const char* bb_current_dir(void)
 {
 	char buffer[4096];
@@ -604,6 +639,48 @@ void bb_free_bank(int32_t handle)
 	free(bank->data);
 	bank->data = NULL;
 	bank->size = 0;
+}
+
+// Reads from a stream into a bank, and returns how many bytes there were.
+int32_t bb_read_bank_bytes(int32_t bank, int32_t file, int32_t offset, int32_t count)
+{
+	uint8_t* at = bb_bank_at(bank, offset, count, "ReadBytes");
+	return (int32_t)bb_read_bytes(file, at, (size_t)count, "ReadBytes");
+}
+
+// Writes a part of a bank to a stream.
+int32_t bb_write_bank_bytes(int32_t bank, int32_t file, int32_t offset, int32_t count)
+{
+	uint8_t* at = bb_bank_at(bank, offset, count, "WriteBytes");
+	bb_write_bytes(file, at, (size_t)count, "WriteBytes");
+	return count;
+}
+
+// Calls a function of a library, which gets the two banks as (in, in size, out, out size) and gives back a number.
+int32_t bb_call_dll(const char* library, const char* function, int32_t in_bank, int32_t out_bank)
+{
+	typedef int32_t (*bb_dll_function)(const void*, int32_t, void*, int32_t);
+	bb_dll_function call = NULL;
+#if defined(_WIN32)
+	HMODULE module = GetModuleHandleA(library);
+	if (!module) {
+		module = LoadLibraryA(library);
+	}
+	if (module) {
+		call = (bb_dll_function)(void*)GetProcAddress(module, function);
+	}
+#else
+	void* module = dlopen(library, RTLD_NOW);
+	if (module) {
+		call = (bb_dll_function)dlsym(module, function);
+	}
+#endif
+	if (!call) {
+		return 0;
+	}
+	bb_bank* in  = in_bank ? bb_bank_get(in_bank, "CallDLL") : NULL;
+	bb_bank* out = out_bank ? bb_bank_get(out_bank, "CallDLL") : NULL;
+	return call(in ? in->data : NULL, in ? in->size : 0, out ? out->data : NULL, out ? out->size : 0);
 }
 
 int32_t bb_bank_size(int32_t handle)

@@ -42,6 +42,7 @@ extern const char* bb_str_from_i64(int64_t v);
 
 static int32_t bb_read_timeout   = 10000;
 static int32_t bb_accept_timeout = 0;
+static int32_t bb_udp_timeout    = 0; // How long RecvUDPMsg waits for a message.
 
 static void bb_network_init(void)
 {
@@ -463,7 +464,7 @@ void bb_send_udp_msg(int32_t handle, int32_t ip, int32_t port)
 int32_t bb_recv_udp_msg(int32_t handle)
 {
 	bb_udp* udp = bb_udp_get(handle, "RecvUDPMsg");
-	if (!bb_wait_readable(udp->sock, 0)) {
+	if (!bb_wait_readable(udp->sock, bb_udp_timeout)) {
 		return 0;
 	}
 	free(udp->in);
@@ -480,6 +481,18 @@ int32_t bb_recv_udp_msg(int32_t handle)
 	udp->from_ip   = bb_ip_to_int(remote.sin_addr);
 	udp->from_port = ntohs(remote.sin_port);
 	return n;
+}
+
+void bb_udp_timeouts(int32_t receive)
+{
+	bb_udp_timeout = receive < 0 ? 0 : receive;
+}
+
+// The address of this computer, which is where the stream receives.
+int32_t bb_udp_stream_ip(int32_t handle)
+{
+	bb_udp_get(handle, "UDPStreamIP");
+	return bb_host_ip(1);
 }
 
 int32_t bb_udp_msg_ip(int32_t handle)
