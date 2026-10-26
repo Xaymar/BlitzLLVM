@@ -193,8 +193,36 @@ namespace bb::gfx {
 				case SDL_SCANCODE_ESCAPE:
 					special = 27;
 					break;
+				// The keys that move or edit give the codes that the original has for them.
+				case SDL_SCANCODE_HOME:
+					special = 1;
+					break;
+				case SDL_SCANCODE_END:
+					special = 2;
+					break;
+				case SDL_SCANCODE_INSERT:
+					special = 3;
+					break;
 				case SDL_SCANCODE_DELETE:
-					special = 127;
+					special = 4;
+					break;
+				case SDL_SCANCODE_PAGEUP:
+					special = 5;
+					break;
+				case SDL_SCANCODE_PAGEDOWN:
+					special = 6;
+					break;
+				case SDL_SCANCODE_UP:
+					special = 28;
+					break;
+				case SDL_SCANCODE_DOWN:
+					special = 29;
+					break;
+				case SDL_SCANCODE_RIGHT:
+					special = 30;
+					break;
+				case SDL_SCANCODE_LEFT:
+					special = 31;
 					break;
 				default:
 					break;

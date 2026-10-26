@@ -34,6 +34,7 @@ __declspec(dllimport) int __stdcall SetConsoleOutputCP(unsigned int);
 // Console
 ////////////////////////////////////////////////////////////////////////////////
 extern int32_t bb_screen_print(const char* s, int32_t newline);
+extern const char* bb_screen_input(const char* prompt);
 
 void bb_print(const char* s)
 {
@@ -54,6 +55,10 @@ void bb_write(const char* s)
 
 const char* bb_input(const char* prompt)
 {
+	const char* typed = bb_screen_input(prompt);
+	if (typed) {
+		return typed;
+	}
 	fputs(bb_s(prompt), stdout);
 	fflush(stdout);
 	char   buf[4096];
