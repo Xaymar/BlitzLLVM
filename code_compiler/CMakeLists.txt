@@ -137,6 +137,15 @@ if(Python3_FOUND)
 	set_tests_properties(suite-coverage PROPERTIES LABELS "suite")
 endif()
 
+# Closing a window that has an AppTitle close prompt needs a window, so it only runs with the GPU tests.
+if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
+	add_test(
+		NAME close-prompt_pixels
+		COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/close_prompt.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/close_prompt.bb" "${PROJECT_BINARY_DIR}/cli/close_prompt"
+	)
+	set_tests_properties(close-prompt_pixels PROPERTIES LABELS "gpu")
+endif()
+
 # The command line options of the compiler: -q, +q, -c, -d, -k, +k, -v. Each case is in tests/cli/cli.cmake.
 foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug keywords keywords_syntax keywords_bad_userlib version verbose_long_only run run_exit_code help)
 	add_test(

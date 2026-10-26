@@ -73,6 +73,9 @@ namespace bb::gfx {
 			switch (event.type) {
 			case SDL_EVENT_QUIT:
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+				if (g.close_prompt[0] && !bb_confirm(g.close_prompt, 0)) {
+					break; // AppTitle's close prompt was answered with Cancel, so the program carries on.
+				}
 				if (bb_events_used()) {
 					bb_event_post(0x803, 0, 0, 0, 0, 0); // A program that asked for events is told instead.
 					break;

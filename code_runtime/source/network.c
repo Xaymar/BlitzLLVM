@@ -32,6 +32,8 @@ typedef SOCKET bb_socket;
 #else
 #include <arpa/inet.h>
 #include <errno.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
@@ -327,21 +329,99 @@ int32_t bb_accept_tcp_stream(int32_t server)
 	return bb_tcp_add(client, bb_ip_to_int(remote.sin_addr), ntohs(remote.sin_port), 0);
 }
 
+#define BB_MAX_HOST_IPS 64
+
+static int32_t bb_host_ips[BB_MAX_HOST_IPS];
+static int32_t bb_host_ip_count = 0;
+static int     bb_host_looked_up = 0; // Whether CountHostIPs was called, so that HostIP does not guess.
+
+static void bb_host_ip_add(int32_t* list, int32_t* count, int32_t ip)
+{
+	for (int32_t i = 0; i < *count; i++) {
+		if (list[i] == ip) {
+			return;
+		}
+	}
+	if (*count < BB_MAX_HOST_IPS) {
+		list[(*count)++] = ip;
+	}
+}
+
+// The IPv4 addresses of this computer, with the ones that other computers can reach first and 127.0.0.1 last.
+static int32_t bb_local_ips(int32_t* list)
+{
+	int32_t count = 0;
+#if !defined(_WIN32)
+	struct ifaddrs *interfaces = NULL, *entry;
+	if (getifaddrs(&interfaces) == 0) {
+		for (int pass = 0; pass < 2; pass++) {
+			for (entry = interfaces; entry; entry = entry->ifa_next) {
+				if (!entry->ifa_addr || (entry->ifa_addr->sa_family != AF_INET) || !(entry->ifa_flags & IFF_UP)) {
+					continue;
+				}
+				int32_t ip = bb_ip_to_int(((struct sockaddr_in*)entry->ifa_addr)->sin_addr);
+				if ((((uint32_t)ip >> 24) == 127) == (pass == 1)) {
+					bb_host_ip_add(list, &count, ip);
+				}
+			}
+		}
+		freeifaddrs(interfaces);
+	}
+#else
+	char name[256];
+	if (gethostname(name, sizeof(name)) == 0) {
+		struct addrinfo hints, *result = NULL, *entry;
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_family = AF_INET;
+		if (getaddrinfo(name, NULL, &hints, &result) == 0) {
+			for (entry = result; entry; entry = entry->ai_next) {
+				bb_host_ip_add(list, &count, bb_ip_to_int(((struct sockaddr_in*)entry->ai_addr)->sin_addr));
+			}
+			freeaddrinfo(result);
+		}
+	}
+#endif
+	if (count == 0) {
+		list[count++] = 0x7F000001; // Nothing can be found out, but this computer can always be reached as itself.
+	}
+	return count;
+}
+
+// CountHostIPs(host$): looks the host up and remembers its addresses for HostIP. An empty name is this computer, which
+// has the address of every network interface that is up.
 int32_t bb_count_host_ips(const char* host)
 {
 	bb_network_init();
-	struct in_addr address;
-	return (host && bb_resolve(host, &address)) ? 1 : 0;
+	const char* name = host ? host : "";
+	bb_host_ip_count = 0;
+	bb_host_looked_up = 1;
+	if (!*name) {
+		bb_host_ip_count = bb_local_ips(bb_host_ips);
+		return bb_host_ip_count;
+	}
+	struct addrinfo hints, *result = NULL, *entry;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family   = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	if (getaddrinfo(name, NULL, &hints, &result) != 0) {
+		return 0;
+	}
+	for (entry = result; entry; entry = entry->ai_next) {
+		bb_host_ip_add(bb_host_ips, &bb_host_ip_count, bb_ip_to_int(((struct sockaddr_in*)entry->ai_addr)->sin_addr));
+	}
+	freeaddrinfo(result);
+	return bb_host_ip_count;
 }
 
+// HostIP(index): an address found by the last CountHostIPs, counting from 1. Without one, the addresses of this computer.
 int32_t bb_host_ip(int32_t index)
 {
 	bb_network_init();
-	struct in_addr address;
-	if ((index == 1) && bb_resolve("localhost", &address)) {
-		return bb_ip_to_int(address);
+	if (!bb_host_looked_up) {
+		bb_host_looked_up = 1;
+		bb_host_ip_count  = bb_local_ips(bb_host_ips);
 	}
-	return 0;
+	return ((index >= 1) && (index <= bb_host_ip_count)) ? bb_host_ips[index - 1] : 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -500,7 +580,9 @@ void bb_udp_timeouts(int32_t receive)
 int32_t bb_udp_stream_ip(int32_t handle)
 {
 	bb_udp_get(handle, "UDPStreamIP");
-	return bb_host_ip(1);
+	int32_t list[BB_MAX_HOST_IPS];
+	bb_network_init();
+	return bb_local_ips(list) ? list[0] : 0;
 }
 
 int32_t bb_udp_msg_ip(int32_t handle)

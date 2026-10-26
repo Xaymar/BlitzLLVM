@@ -34,7 +34,7 @@ MODULES = {
 # Functions the compiler provides itself, or that only exist as syntax, so they are not in builtins.inc.
 BY_COMPILER = {
     "abs", "sgn", "mod", "int", "float", "str", "handle", "object", "before", "after", "first", "last", "new", "delete",
-    "insert", "each", "pi", "true", "false", "null", "dim", "restore", "read", "bbstr", "end", "stop",
+    "insert", "each", "pi", "true", "false", "null", "dim", "restore", "read", "end",
 }
 
 SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')
@@ -64,6 +64,16 @@ def originals():
 def implemented():
     text = open(os.path.join(ROOT, "code_compiler", "source", "builtins.inc")).read()
     return set(re.findall(r'\{\s*"([a-z0-9_]+)"', text)) | BY_COMPILER
+
+
+def compiler_words():
+    """Every word that the compiler sources have in quotes, which is where it handles the functions of BY_COMPILER."""
+    words = set()
+    directory = os.path.join(ROOT, "code_compiler", "source")
+    for name in os.listdir(directory):
+        if name.endswith((".cpp", ".hpp")):
+            words |= set(re.findall(r'"([a-z0-9_]+)"', open(os.path.join(directory, name), errors="replace").read().lower()))
+    return words
 
 
 def read_list():
@@ -131,6 +141,11 @@ def command_check():
                 text += open(os.path.join(directory, name), errors="replace").read().lower() + "\n"
     words = set(re.findall(r"[a-z_][a-z0-9_]*", text))
     problems = 0
+    handled = compiler_words()
+    for name in sorted(BY_COMPILER):
+        if name not in handled:
+            print("%s is listed in BY_COMPILER but the compiler does not handle it" % name)
+            problems += 1
     for name, module, state, signature in read_list():
         if state == "done":
             if name not in done:
