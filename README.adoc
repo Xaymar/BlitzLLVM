@@ -5,7 +5,8 @@ BlitzLLVM is an attempt at a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler u
 === Usage
 [source,sh]
 ----
-blitzcc [options] program.bb          # builds program.exe (Windows) / program (elsewhere)
+blitzcc program.bb                    # builds the program in a temporary directory and runs it
+blitzcc -o program program.bb         # builds program.exe (Windows) / program (elsewhere), without running it
 blitzcc -O3 --llvm-flag -march=native --llvm-flag -flto --llvm-flag -fuse-ld=lld program.bb
 blitzcc -S program.bb                 # only write the generated LLVM IR (program.ll)
 ----

@@ -17,6 +17,7 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <chrono>
 #include "compiler.hpp"
 #include "error.hpp"
 #include "keywords.hpp"
@@ -28,6 +29,7 @@
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #else
+#include <sys/wait.h>
 #include <unistd.h>
 #endif
 
@@ -94,6 +96,7 @@ namespace {
 		bool                     dump_keys    = false; // -k
 		bool                     dump_syntax  = false; // +k
 		bool                     version      = false; // -v
+		std::vector<std::string> run_args; // For the program, when it is run.
 	};
 
 	void usage(const char* self)
@@ -103,13 +106,16 @@ namespace {
 				  << "Compiles a BlitzBasic program into a single executable using LLVM.\n"
 				  << "\n"
 				  << "Options:\n"
-				  << "  -o <file>             Name of the output file. Defaults to the input name.\n"
+				  << "  -o <file>             Create an executable with this name. Without -o (and -S, -c) the program is built\n"
+				  << "                        in a temporary directory and run right away, like the original blitzcc, and\n"
+				  << "                        blitzcc returns the exit code of the program.\n"
+				  << "  --args <arg>...       Everything after this is passed to the program that is run.\n"
 				  << "  -O0 -O1 -O2 -O3 -Os -Oz\n"
 				  << "                        LLVM optimization level, defaults to -O2.\n"
 				  << "  -q                    Quiet mode, doesn't print the version banner.\n"
 				  << "  +q                    Very quiet mode, only prints errors.\n"
-				  << "  -c                    Compile only: Check the program and generate the code, but don't create an executable\n"
-				  << "                        unless -o is given.\n"
+				  << "  -c                    Compile only: Check the program and generate the code, but don't run it or create an\n"
+				  << "                        executable unless -o is given.\n"
 				  << "  -d                    Debug compile: Always -O0 and with debug information. There is no debugger to attach yet.\n"
 				  << "  -k                    Dump all keywords: The language, the runtime and the functions of the userlibs.\n"
 				  << "  +k                    Dump all keywords, followed by their syntax.\n"
@@ -246,6 +252,10 @@ namespace {
 				opt.keep_temps = true;
 			} else if (arg == "--verbose") {
 				opt.verbose = true;
+			} else if (arg == "--args") {
+				for (idx++; idx < argc; idx++) {
+					opt.run_args.push_back(argv[idx]);
+				}
 			} else if (arg == "--") {
 				for (idx++; idx < argc; idx++) {
 					opt.flags.push_back(argv[idx]);
@@ -352,7 +362,17 @@ int main(int argc, char** argv)
 								  false
 #endif
 								  : (opt.target.find("windows") != std::string::npos || opt.target.find("mingw") != std::string::npos);
-		if (opt.output.empty()) {
+		// No output: Build it somewhere temporary, and run it.
+		bool run_it = opt.output.empty() && !opt.emit_ir;
+		if (run_it && !opt.target.empty()) {
+			throw std::runtime_error("A program built for --target can't be run here, use -o to create it.");
+		}
+		if (run_it) {
+			opt.output = "program";
+			if (windows_target) {
+				opt.output += ".exe";
+			}
+		} else if (opt.output.empty()) {
 			opt.output = opt.input;
 			opt.output.replace_extension(opt.emit_ir ? ".ll" : (windows_target ? ".exe" : ""));
 			if (opt.output == opt.input) {
@@ -369,11 +389,14 @@ int main(int argc, char** argv)
 		}
 
 		// Back-end: LLVM IR + Runtime -> Executable
-		if (!opt.very_quiet) {
+		auto unique = std::to_string(std::hash<std::string>{}(opt.input.generic_string() + opt.output.generic_string() + (run_it ? std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) : std::string())));
+		temp_dir    = std::filesystem::temp_directory_path() / ("blitzllvm-" + unique);
+		std::filesystem::create_directories(temp_dir);
+		if (run_it) {
+			opt.output = temp_dir / opt.output;
+		} else if (!opt.very_quiet) {
 			std::cout << "Creating executable \"" << opt.output.generic_string() << "\"..." << std::endl;
 		}
-		temp_dir = std::filesystem::temp_directory_path() / ("blitzllvm-" + std::to_string(std::hash<std::string>{}(opt.input.generic_string() + opt.output.generic_string())));
-		std::filesystem::create_directories(temp_dir);
 		auto ir_file = temp_dir / "program.ll";
 		write_file(ir_file, ir);
 
@@ -448,15 +471,35 @@ int main(int argc, char** argv)
 		}
 
 		int result = run(command, opt.verbose);
+		if (result != 0) {
+			std::cerr << "Building the executable failed (" << cc << " returned " << result << ")." << std::endl;
+			if (!keep) {
+				std::error_code ec;
+				std::filesystem::remove_all(temp_dir, ec);
+			}
+			return 1;
+		}
+		if (run_it) {
+			if (!opt.very_quiet) {
+				std::cout << "Executing..." << std::endl;
+			}
+			// Like the original, the program runs in the directory of the source file.
+			std::vector<std::string> program{ opt.output.generic_string() };
+			program.insert(program.end(), opt.run_args.begin(), opt.run_args.end());
+			std::error_code ec;
+			auto            directory = std::filesystem::absolute(opt.input).parent_path();
+			std::filesystem::current_path(directory, ec);
+			result = run(program, opt.verbose);
+#if !defined(_WIN32)
+			result = WIFEXITED(result) ? WEXITSTATUS(result) : 1;
+#endif
+		}
 		if (!keep) {
 			std::error_code ec;
 			std::filesystem::remove_all(temp_dir, ec);
+			temp_dir.clear();
 		}
-		if (result != 0) {
-			std::cerr << "Building the executable failed (" << cc << " returned " << result << ")." << std::endl;
-			return 1;
-		}
-		return 0;
+		return run_it ? result : 0;
 	} catch (blitz::error const& ex) {
 		std::cerr << ex.file().generic_string() << ":" << ex.at().first << ":" << ex.at().second << ": error: " << ex.what() << std::endl;
 	} catch (std::exception const& ex) {
