@@ -245,7 +245,8 @@ async function runProcessAsync(path, args, options) {
 			proc.on('error', (err) => {
 				reject(err);
 			})
-			proc.on('exit', (code) => {
+			// 'close' fires after all output was read, 'exit' may fire before that.
+			proc.on('close', (code) => {
 				// Merge chunks of messages into a single message.
 				for (let message of messages) {
 					message.data = Buffer.alloc(message.length);
@@ -305,11 +306,11 @@ async function git_getCurrentAuthor() {
 	console.debug(arguments.callee.name, Array.from(arguments));
 	if (!gitUserName) {
 		let result = await gitRL.queue(runProcessAsync, "git", ["config", "user.name"], {});
-		gitUserName = result[1][0].text.split('\n')[0];
+		gitUserName = result[1].length > 0 ? result[1][0].text.split('\n')[0].trim() : "";
 	}
 	if (!gitUserMail) {
 		let result = await gitRL.queue(runProcessAsync, "git", ["config", "user.email"], {});
-		gitUserMail = result[1][0].text.split('\n')[0];
+		gitUserMail = result[1].length > 0 ? result[1][0].text.split('\n')[0].trim() : "";
 	}
 	return commitFormat.replace("%aI", gitDate).replace("%aN", gitUserName).replace("%aE", gitUserMail);
 }
@@ -319,7 +320,7 @@ async function git_subModules() {
 		gitSubmodules = new Set();
 
 		let gitmodules = PATH.join(process.cwd(), ".gitmodules");
-		if ((await FSPROMISES.stat(gitmodules)).isFile()) {
+		if (FS.existsSync(gitmodules) && (await FSPROMISES.stat(gitmodules)).isFile()) {
 			let gmfs = FS.createReadStream(gitmodules);
 			const rl = READLINE.createInterface({
 				input: gmfs,
@@ -400,6 +401,7 @@ async function git_retrieveAuthors(file) {
 
 	let authors = new Map();
 	for (let line of lines) {
+		if (line.trim().length == 0) continue;
 		let [date, name] = line.split("|");
 
 		let author = authors.get(name);
@@ -415,6 +417,12 @@ async function git_retrieveAuthors(file) {
 				to: new Date(date),
 			})
 		}
+	}
+
+	// Files git does not know about yet are credited to the current author.
+	if (authors.size == 0) {
+		let [date, name] = (await git_getCurrentAuthor()).split("|");
+		authors.set(name, { from: new Date(date), to: new Date(date) });
 	}
 
 	return authors;
@@ -473,6 +481,11 @@ async function updateFile(file) {
 				return;
 			}
 
+			// Nothing to do for files that no longer exist (deleted in this commit).
+			if (!FS.existsSync(file)) {
+				return;
+			}
+
 			// Copyright information.
 			let copyright = await generateCopyright(file);
 			let header = undefined;
@@ -509,21 +522,15 @@ async function updateFile(file) {
 				return;
 			}
 			
-			let fd = await FSPROMISES.open(file, "w");
+			let result;
 			if (startHeader == -1 || (endHeader < startHeader)) {
-				await fd.write(headerBuf, 0, null, 0);
-				await fd.write(contentBuf, 0, null, headerBuf.byteLength);
+				result = Buffer.concat([headerBuf, contentBuf]);
 			} else {
-				let pos = 0;
-
-				if (startHeader > 0) {
-					await fd.write(contentBuf, 0, startHeader, 0);
-					pos += startHeader;
-				}
-				await fd.write(headerBuf, 0, null, pos); pos += headerBuf.byteLength;
-				await fd.write(contentBuf, endHeader, null, pos);
+				result = Buffer.concat([contentBuf.subarray(0, startHeader), headerBuf, contentBuf.subarray(endHeader)]);
 			}
-			await fd.close();
+			if (!result.equals(contentBuf)) {
+				await FSPROMISES.writeFile(file, result);
+			}
 		} catch (ex) {
 			console.error(`Error processing '${file}'!: ${ex}`);
 			abortAllWork = true;
@@ -582,20 +589,26 @@ async function scanPath(path) {
 	console.debug(root_path, PROCESS.argv, PROCESS.execArgv);
 
 	var args = PROCESS.argv.slice(2);
+	if (args.length == 0) {
+		args = ["."];
+	}
 	let promises = new Array();
 	while (args.length > 0) {
-		// Try to place ourselves where git actually is.
+		// Try to place ourselves where git actually is (.git is a file in worktrees and submodules).
 		while (!is_git_directory) {
 			if (abortAllWork) {
 				return;
 			}
 
-			let entries = await FSPROMISES.readdir(PROCESS.cwd());
-			if (entries.includes(".git") && ((await FSPROMISES.stat(PATH.join(PROCESS.cwd(), ".git"))).isDirectory())) {
+			if (FS.existsSync(PATH.join(PROCESS.cwd(), ".git"))) {
 				console.log(`Found .git at '${process.cwd()}'.`);
 				is_git_directory = true;
 			} else {
-				PROCESS.chdir(PATH.resolve(PATH.join(PROCESS.cwd(), "..")));
+				let parent = PATH.resolve(PATH.join(PROCESS.cwd(), ".."));
+				if (parent == PROCESS.cwd()) {
+					break;
+				}
+				PROCESS.chdir(parent);
 			}
 		}
 
@@ -610,13 +623,14 @@ async function scanPath(path) {
 			return;
 		}
 
-		git_getCurrentAuthor();
+		await git_getCurrentAuthor();
 
 		// Then proceed with normal work.
 		let path = PATH.normalize(PATH.relative(process.cwd(), PATH.resolve(root_path, args[0])));
+		if (path.length == 0) path = ".";
 
 		// If we're handed a path, scan said path, otherwise update the file itself.
-		let pathStat = await FSPROMISES.stat(path);
+		let pathStat = FS.existsSync(path) ? await FSPROMISES.stat(path) : undefined;
 		if (pathStat) {
 			if (await git_isIgnored(path)) {
 				console.log(`Ignoring path '${path}'...`);
