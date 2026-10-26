@@ -3412,10 +3412,23 @@ int32_t bb_load_texture(const char* file, int32_t flags)
 	if (!loaded) {
 		return 0; // Blitz gives 0 for missing files.
 	}
+	bool has_alpha = SDL_ISPIXELFORMAT_ALPHA(loaded->format);
 	SDL_Surface* rgba = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
 	SDL_DestroySurface(loaded);
 	if (!rgba) {
 		return 0;
+	}
+	if (has_alpha && !(flags & TEXTURE_MASKED) && !(flags & TEXTURE_ALPHA)) {
+		// Images with a real alpha channel are see-through even if the program did not ask, like in Blitz3D.
+		for (int y = 0; y < rgba->h && !(flags & TEXTURE_ALPHA); y++) {
+			const uint8_t* row = static_cast<const uint8_t*>(rgba->pixels) + size_t(y) * size_t(rgba->pitch);
+			for (int x = 0; x < rgba->w; x++) {
+				if (row[x * 4 + 3] != 255) {
+					flags |= TEXTURE_ALPHA;
+					break;
+				}
+			}
+		}
 	}
 
 	// Without the alpha flag, the image's own alpha is ignored. Masked textures treat black as transparent.
