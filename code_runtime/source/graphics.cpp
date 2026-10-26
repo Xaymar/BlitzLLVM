@@ -235,6 +235,7 @@ namespace {
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
+		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
 		VkPipeline            add3d          = VK_NULL_HANDLE;
 		VkPipeline            wire3d[4]      = {};  // The same, drawing only the edges.
 		bool                  can_wireframe  = false;
@@ -285,6 +286,7 @@ namespace {
 		int             flags = 0;
 		int             width = 0, height = 0;
 		float           uv[4] = { 1, 1, 0, 0 }; // Scale (ScaleTexture) and offset (PositionTexture) of the coordinates.
+		int             blend = 2;              // What a texture on a later layer does with what is below: 1 alpha, 2 multiply, 3 add, 5 twice multiply.
 		gpu_image       image;
 		VkDescriptorSet set = VK_NULL_HANDLE;
 	};
@@ -1687,6 +1689,9 @@ namespace {
 		} else if (mode == 3) {
 			blend.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 			blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+		} else if (mode == 4) {
+			blend.srcColorBlendFactor = VK_BLEND_FACTOR_DST_COLOR; // What is there times what is drawn, twice.
+			blend.dstColorBlendFactor = VK_BLEND_FACTOR_SRC_COLOR;
 		}
 
 		VkDynamicState dynamic_states[5] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_CULL_MODE, VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE, VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE };
@@ -1760,6 +1765,7 @@ namespace {
 		g.blend3d         = create_pipeline_3d(vs, fs, 1);
 		g.mul3d           = create_pipeline_3d(vs, fs, 2);
 		g.add3d           = create_pipeline_3d(vs, fs, 3);
+		g.mul2x3d         = create_pipeline_3d(vs, fs, 4);
 		if (g.can_wireframe) {
 			for (int mode = 0; mode < 4; mode++) {
 				g.wire3d[mode] = create_pipeline_3d(vs, fs, mode, true);
@@ -2224,6 +2230,42 @@ namespace {
 			static_cast<surface_gpu*>(surface.gpu)->used_by_flush = flush_number;
 			draws.push(record);
 			g.triangles_drawn += gpu->index_count / 3;
+
+			// Textures on the layers after the first are drawn over the same triangles, and change what is there: the
+			// color map of a terrain gets its fine detail this way.
+			for (int layer = 0; layer < 7; layer++) {
+				int            extra_handle = paint.layers[layer] ? paint.layers[layer] : e->layers[layer];
+				texture_entry* extra        = texture_of(extra_handle);
+				if (!extra || !extra->set || surface_blended) {
+					continue;
+				}
+				draw_record more     = record;
+				more.push.material[0] = more.push.material[1] = more.push.material[2] = more.push.material[3] = 1;
+				more.push.params[0]  = 1; // Not lit again.
+				more.push.uv[0]      = extra->uv[0];
+				more.push.uv[1]      = extra->uv[1];
+				more.push.uv[2]      = extra->uv[2];
+				more.push.uv[3]      = extra->uv[3];
+				more.push.mask[0]    = 0;
+				more.push.mask[1]    = 1; // No fog again either, the first layer has it.
+				more.texture         = extra_handle;
+				more.depth_write     = false;
+				switch (extra->blend) {
+				case 3:
+					more.pipeline = g.add3d;
+					break;
+				case 5:
+					more.pipeline = g.mul2x3d;
+					break;
+				case 1:
+					more.pipeline = g.blend3d;
+					break;
+				default:
+					more.pipeline = g.mul3d;
+					break;
+				}
+				draws.push(more);
+			}
 		}
 	}
 
@@ -2415,6 +2457,7 @@ void bb_end_graphics(void)
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
 		vkDestroyPipeline(g.device, g.blend3d, nullptr);
 		vkDestroyPipeline(g.device, g.mul3d, nullptr);
+		vkDestroyPipeline(g.device, g.mul2x3d, nullptr);
 		vkDestroyPipeline(g.device, g.add3d, nullptr);
 		for (VkPipeline pipeline : g.wire3d) {
 			if (pipeline) {
@@ -3957,8 +4000,7 @@ void bb_rotate_texture(int32_t handle, float angle)
 
 void bb_texture_blend(int32_t handle, int32_t mode)
 {
-	(void)mode;
-	need_texture(handle, "TextureBlend");
+	need_texture(handle, "TextureBlend")->blend = mode;
 }
 
 void bb_texture_filter(const char* match, int32_t flags)

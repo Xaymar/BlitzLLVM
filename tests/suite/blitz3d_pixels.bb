@@ -153,6 +153,34 @@ RenderWorld
 CheckTrue "PaintEntity (" + B(80, 60) + ")", B(80, 60) > 200
 FreeBrush brush
 
+; More layers of textures change what is there: twice the multiplication of the first texture and the second.
+base_tex = CreateTexture(2, 2)
+SetBuffer TextureBuffer(base_tex)
+Color 100, 100, 100
+Rect 0, 0, 2, 2, True
+SetBuffer BackBuffer()
+detail_tex = CreateTexture(2, 2)
+SetBuffer TextureBuffer(detail_tex)
+Color 128, 128, 128
+Rect 0, 0, 2, 2, True
+SetBuffer BackBuffer()
+TextureBlend detail_tex, 5
+layered = CreateCube()
+EntityFX layered, 1
+EntityTexture layered, base_tex
+RenderWorld
+Check "One layer", R(80, 60), 100, 6
+EntityTexture layered, detail_tex, 0, 1
+RenderWorld
+Check "A second layer, multiplied twice", R(80, 60), 100 * 128 * 2 / 255, 8
+TextureBlend detail_tex, 2
+RenderWorld
+Check "A second layer, multiplied", R(80, 60), 100 * 128 / 255, 8
+FreeEntity layered
+FreeTexture base_tex
+FreeTexture detail_tex
+HideEntity cube
+
 ; Copies and sprites show.
 FreeEntity cube
 sprite = CreateSprite()

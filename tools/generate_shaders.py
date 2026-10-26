@@ -563,6 +563,8 @@ def fragment_shader_masked(mask_offset, fog=False):
         fog_color = b.swizzle(b.load(v4, b.access("Uniform", v4, scene, b.const_int(5))), 3)
         span = b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(parameters, 1), b.extract(parameters, 0)), b.const_float(1e-4))
         amount = b.fmul(f, b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, b.load(f, in_depth), b.extract(parameters, 0)), span), b.const_float(0.0), c1), b.extract(parameters, 2))
+        # The second value of the mask turns the fog off for what is drawn on top of what already has it.
+        amount = b.fmul(f, amount, b.fsub(f, c1, b.extract(mask, 1)))
         rgb = b.swizzle(result, 3)
         rgb = b.fadd(v3, rgb, b.scale(3, b.fsub(v3, fog_color, rgb), amount))
         result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))

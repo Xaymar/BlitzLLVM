@@ -65,6 +65,7 @@ namespace bb {
 		float alpha     = 1;
 		float shininess = 0;
 		int   texture   = 0; // Handle, 0 for none.
+		int   layers[7] = {}; // The textures on the layers after the first, which are drawn over it.
 		int   blend     = 0; // 0 = whatever the entity says.
 		int   fx        = 0;
 	};
@@ -111,6 +112,7 @@ namespace bb {
 		float alpha    = 1;
 		int   fx       = 0; // 1 = fullbright, 16 = two-sided
 		int   texture  = 0; // Handle, 0 for none.
+		int   layers[7] = {}; // The textures on the layers after the first, which are drawn over it.
 		// Collisions and picking, see collision.cpp
 		int   coll_type = 0;              // 0 = does not collide
 		float radius[2] = { 1, 1 };       // Of the ellipsoid that collides, and of the sphere that is picked.

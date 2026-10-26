@@ -850,8 +850,10 @@ void bb_entity_texture(int32_t handle, int32_t texture, int32_t frame, int32_t i
 {
 	(void)frame;
 	entity* e = need(handle, "EntityTexture");
-	if (index == 0) { // Only one texture layer is drawn.
+	if (index == 0) {
 		e->texture = texture;
+	} else if ((index > 0) && (index < 8)) {
+		e->layers[index - 1] = texture;
 	}
 }
 
@@ -1621,6 +1623,8 @@ void bb_brush_texture(int32_t handle, int32_t texture, int32_t frame, int32_t in
 	e.layers[index] = texture;
 	if (index == 0) {
 		e.look.texture = texture;
+	} else {
+		e.look.layers[index - 1] = texture;
 	}
 }
 
@@ -1655,6 +1659,7 @@ void bb_paint_entity(int32_t handle, int32_t brush)
 	e->alpha     = look.alpha;
 	e->shininess = look.shininess;
 	e->texture   = look.texture;
+	memcpy(e->layers, look.layers, sizeof(e->layers));
 	e->blend     = look.blend ? look.blend : 1;
 	e->fx        = look.fx;
 }
