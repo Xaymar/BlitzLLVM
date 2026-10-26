@@ -306,7 +306,7 @@ int main(int argc, char** argv)
 		command.push_back(opt.output.generic_string());
 		if (windows_target) {
 			// What the statically linked SDL3 needs.
-			for (auto lib : { "user32", "gdi32", "winmm", "imm32", "ole32", "oleaut32", "version", "uuid", "advapi32", "setupapi", "shell32", "cfgmgr32" }) {
+			for (auto lib : { "user32", "gdi32", "winmm", "imm32", "ole32", "oleaut32", "version", "uuid", "advapi32", "setupapi", "shell32", "cfgmgr32", "ws2_32" }) {
 				command.push_back(std::string("-l") + lib);
 			}
 		} else {

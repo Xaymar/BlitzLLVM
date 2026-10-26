@@ -89,6 +89,7 @@ init_project(blitzrt)
 target_sources(blitzrt PRIVATE
 	"source/runtime.c"
 	"source/files.c"
+	"source/network.c"
 	"source/streams.h"
 	"source/graphics.cpp"
 	"source/scene.cpp"
