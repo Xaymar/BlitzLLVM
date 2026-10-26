@@ -390,13 +390,14 @@ WaitKey
 | `width` | Int | required | Width of the picture in pixels. |
 | `height` | Int | required | Height of the picture in pixels. |
 | `depth` | Int | `0` | Color depth in bits: 0, 16, 24 or 32. Defaults to 0, which lets the system choose. |
-| `mode` | Int | `0` | 0 opens a window, 1 uses full screen, 2 opens a window and 3 opens a window that the user can resize. Defaults to 0. |
+| `mode` | Int | `0` | 0 opens a window, 1 uses full screen, 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0. |
 
 **Differences and known gaps:**
 
 * The color depth is accepted but not used: the picture always has 32 bits per pixel.
 * In a resizable window (mode 3) the picture is scaled to the size of the window, and the mouse position is converted to picture pixels.
 * The modes 6 and 7 of Blitz3D, which pause the program while the window is in the background, act like 2 and 3. The program keeps running.
+* In a window without a border (mode 4) the color depth is not used either, and the window has the size you ask for and cannot be resized by the user.
 * A width or height below 1 stops the program with an error message.
 
 ### GraphicsDepth

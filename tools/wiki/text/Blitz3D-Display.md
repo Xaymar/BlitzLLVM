@@ -10,6 +10,7 @@ Opens the window, or full screen mode, that 3D programs are drawn in. It has to 
 | 1 | Full screen. |
 | 2 | Window. |
 | 3 | Window whose size can be changed by the user; the picture is scaled to fit. |
+| 4 | Window without a border: no title bar and no frame. This is a BlitzLLVM extension that original Blitz does not have. |
 
 ```blitzbasic
 Graphics3D 640, 480, 0, 2
@@ -29,6 +30,7 @@ Wend
 @param depth  Color depth: 0 for the best, or 16, 24 or 32. Defaults to 0.
 @param mode  Window or full screen as in the table. Defaults to 0.
 @gap The depth is not used: pictures always have 32 bits per pixel, however much you ask for.
+@gap A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
 
 ## CountGfxModes3D
 @returns How many full screen modes the 3D driver offers. The numbers 1 to this value can be given to [GfxMode3D](Blitz3D-Display#gfxmode3d).

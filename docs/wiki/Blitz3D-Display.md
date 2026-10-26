@@ -126,6 +126,7 @@ Opens the window, or full screen mode, that 3D programs are drawn in. It has to 
 | 1 | Full screen. |
 | 2 | Window. |
 | 3 | Window whose size can be changed by the user; the picture is scaled to fit. |
+| 4 | Window without a border: no title bar and no frame. This is a BlitzLLVM extension that original Blitz does not have. |
 
 ```blitzbasic
 Graphics3D 640, 480, 0, 2
@@ -151,6 +152,7 @@ Wend
 **Differences and known gaps:**
 
 * The depth is not used: pictures always have 32 bits per pixel, however much you ask for.
+* A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
 
 ### Windowed3D
 
