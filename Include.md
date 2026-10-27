@@ -19,11 +19,10 @@ Include "file.bb"
 
 ## Description
 
-Reads another source file as if its text were written here. Backslashes and forward slashes both work in the path, and the case of the names does not matter. A relative path is looked up next to the file that has the `Include`, and then next to the main program. The included file may include files itself.
+Reads another source file as if its text were written here. Backslashes and forward slashes both work in the path, and the case of the names does not matter. A relative path is looked up next to the file that has the `Include`, and then next to the main program. The included file may include files itself. A file that was included before is skipped, so including it twice is harmless.
 
 ## Differences
 
-* The original skips a file that was included before, so including it twice is harmless. BlitzLLVM reads it again every time, which declares everything in it twice.
 * The original opens a relative path from the folder the compiler runs in; BlitzLLVM starts at the file that includes it.
 
 ## Related Commands
