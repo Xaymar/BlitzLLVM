@@ -9,6 +9,7 @@
 ;   BENCH_DIR      folder with tex0.png, tex1.png, ... (made by loading.py)
 ;   BENCH_TEXTURES how many are loaded (default 64)
 ;   BENCH_WORK     iterations of the work between loading and using (default 0), standing in for the setup a game does
+;   BENCH_FLIP_EVERY  show a frame every this many iterations of the work (default 0, none), like a loading screen does
 ;   BENCH_ASYNC    1 to load on other threads (BlitzLLVM only)
 ;   BENCH_FLAGS    LoadTexture flags (default 9: color and mip maps)
 ;   BENCH_RESULT   file to write the RESULT line to
@@ -25,6 +26,7 @@ End Function
 
 count = Int(Env$("BENCH_TEXTURES", 64))
 work = Int(Env$("BENCH_WORK", 0))
+flip_every = Int(Env$("BENCH_FLIP_EVERY", 0))
 flags = Int(Env$("BENCH_FLAGS", 9))
 folder$ = Env$("BENCH_DIR", ".")
 BenchAsync Int(Env$("BENCH_ASYNC", 0))
@@ -46,6 +48,9 @@ loaded = BenchMicros()
 x# = 0
 For i = 1 To work
 	x# = x# + Sqr(i) * 0.5
+	If flip_every > 0
+		If (i Mod flip_every) = 0 Then Flip
+	EndIf
 Next
 worked = BenchMicros()
 

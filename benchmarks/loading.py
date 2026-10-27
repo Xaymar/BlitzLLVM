@@ -51,6 +51,7 @@ def main():
     parser.add_argument("--textures", type=int, default=64)
     parser.add_argument("--size", type=int, default=512, help="width and height of every picture")
     parser.add_argument("--work", type=int, default=0, help="iterations of work between loading and using, 5000000 is a few ms")
+    parser.add_argument("--flip-every", type=int, default=0, help="show a frame every this many iterations of the work, as a loading screen does")
     parser.add_argument("--runs", type=int, default=5)
     parser.add_argument("--flags", type=int, default=9)
     args = parser.parse_args()
@@ -85,7 +86,7 @@ def main():
                 result_file = os.path.join(directory, "result.txt")
                 if os.path.exists(result_file):
                     os.remove(result_file)
-                env = dict(os.environ, BENCH_DIR=directory, BENCH_TEXTURES=str(args.textures), BENCH_WORK=str(args.work), BENCH_FLAGS=str(args.flags),
+                env = dict(os.environ, BENCH_DIR=directory, BENCH_TEXTURES=str(args.textures), BENCH_WORK=str(args.work), BENCH_FLIP_EVERY=str(args.flip_every), BENCH_FLAGS=str(args.flags),
                            BENCH_ASYNC="1" if mode == "async" else "0", BENCH_RESULT=result_file)
                 subprocess.run(runner + [program], env=env, capture_output=True, text=True)
                 if not os.path.isfile(result_file):
