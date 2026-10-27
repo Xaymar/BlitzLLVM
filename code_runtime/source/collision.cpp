@@ -769,7 +769,7 @@ extern "C" int32_t bb_draw_stats(int32_t which);
 // vertices and triangles of terrains that were drawn, which are not counted here.
 float bb_stats_3d(int32_t type)
 {
-	if ((type >= 1000) && (type <= 1003)) {
+	if ((type >= 1000) && (type <= 1004)) {
 		return bb_draw_stats(type - 1000);
 	}
 	return type == 0 ? float(triangles_tested) : 0.0f;

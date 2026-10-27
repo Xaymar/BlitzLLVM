@@ -138,7 +138,10 @@ void bb_gui_idle(void);
 	X(vkCmdSetDepthWriteEnable) \
 	X(vkFreeDescriptorSets) \
 	X(vkCmdCopyImageToBuffer) \
-	X(vkCmdSetDepthTestEnable)
+	X(vkCmdSetDepthTestEnable) \
+	X(vkCreateComputePipelines) \
+	X(vkCmdDispatch) \
+	X(vkCmdDrawIndexedIndirect)
 
 #define BB_VK_DECLARE(name) extern PFN_##name name;
 BB_VK_GLOBAL(BB_VK_DECLARE)
@@ -204,6 +207,16 @@ namespace bb::gfx {
 
 	constexpr int      back_buffer          = 2;
 
+
+	/** What the culling on the GPU reads and writes, once for each frame in flight. The first two are filled by the program, the commands by the GPU. */
+	struct cull_buffers {
+		VkDescriptorSet set = VK_NULL_HANDLE;
+		VkBuffer        clusters = VK_NULL_HANDLE, groups = VK_NULL_HANDLE, commands = VK_NULL_HANDLE;
+		VmaAllocation   clusters_allocation = VK_NULL_HANDLE, groups_allocation = VK_NULL_HANDLE, commands_allocation = VK_NULL_HANDLE;
+		void*           clusters_mapped = nullptr;
+		void*           groups_mapped   = nullptr;
+		uint32_t        clusters_capacity = 0, groups_capacity = 0, commands_capacity = 0;
+	};
 
 	struct state {
 		bool headless = false;
@@ -285,6 +298,12 @@ namespace bb::gfx {
 		VmaAllocation         entity_allocation = VK_NULL_HANDLE;
 		void*                 entity_mapped   = nullptr;
 		uint32_t              entity_capacity = 0;
+		// Culling of clusters of big surfaces on the GPU, if it can draw the commands that come out of it.
+		bool                  can_gpu_cull   = false;
+		VkDescriptorSetLayout cull_layout    = VK_NULL_HANDLE;
+		VkPipelineLayout      cull_pipeline_layout = VK_NULL_HANDLE;
+		VkPipeline            cull_pipeline  = VK_NULL_HANDLE;
+		cull_buffers          cull;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            solid3d        = VK_NULL_HANDLE; // The same without the discard, so that depth is tested before the shader runs.
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
@@ -460,6 +479,7 @@ namespace bb::gfx {
 		VmaAllocation   scene_allocation  = VK_NULL_HANDLE;
 		void*           scene_mapped      = nullptr;
 		VkDescriptorSet scene_set         = VK_NULL_HANDLE;
+		cull_buffers    cull;
 		int             state    = 0;  // 0 free, 1 waits for the submission thread, 2 sent to the GPU.
 		int64_t         flush_id = -1; // The last flush that is in it.
 		submit_job      job;
@@ -540,8 +560,35 @@ namespace bb::gfx {
 	// What the draws of a frame cost the GPU: calls, and how often what they use had to change.
 	struct draw_stats {
 		uint32_t draws = 0, pipelines = 0, textures = 0, buffers = 0;
+		uint32_t clusters = 0; // Runs of triangles that the GPU decided about, see gpu_cluster.
 	};
 	extern draw_stats stats3d;
+
+	/** Triangles of a big surface per cluster: the GPU culls by clusters, each a run of this many triangles that lie close together. */
+	constexpr uint32_t cluster_triangles = 128;
+	/** Surfaces with fewer triangles are not culled on the GPU, the work of deciding is not worth it. */
+	constexpr uint32_t cluster_min_triangles = 4096;
+	/** Clusters per workgroup of the culling shader. */
+	constexpr uint32_t cluster_group_size = 64;
+
+	/** What the culling shader reads of a cluster: the sphere around its triangles and where its indices are. Same layout as in the shader. */
+	struct gpu_cluster {
+		float    sphere[4]; // Center in the space of the mesh, and radius.
+		int32_t  first_index, index_count, unused0, unused1;
+	};
+
+	/** What the culling shader reads of a run of clusters of one draw, and where it writes their commands. */
+	struct gpu_cluster_group {
+		int32_t draw, first_cluster, clusters, first_command;
+		float   growth, unused[3]; // How much the matrix of the draw can lengthen a vector.
+	};
+
+	/** The five numbers of VkDrawIndexedIndirectCommand. */
+	struct gpu_draw_command {
+		uint32_t index_count, instance_count, first_index;
+		int32_t  vertex_offset;
+		uint32_t first_instance;
+	};
 
 	struct surface_gpu {
 		VkBuffer       vertex_buffer = VK_NULL_HANDLE;
@@ -554,6 +601,13 @@ namespace bb::gfx {
 		void*          index_mapped  = nullptr;
 		uint32_t       vertex_capacity = 0, index_capacity = 0;
 		uint32_t       used_by_flush   = 0xFFFFFFFFu; // The flush that has draws waiting which use the buffers.
+		// Big surfaces are also kept as clusters for culling on the GPU: the triangles ordered by where they are, in an index buffer of their own.
+		bool           clusters_valid  = false;       // Whether they match the surface as it is.
+		uint32_t       clusters_flush  = 0;           // The flush they were made in, to not make them again for a surface that changes all the time.
+		bool           clusters_made   = false;
+		bb::buffer<gpu_cluster> clusters;
+		VkBuffer       cluster_index_buffer = VK_NULL_HANDLE;
+		VmaAllocation  cluster_index_allocation = VK_NULL_HANDLE;
 		surface_gpu* previous = nullptr; // All that exist are in a list, so that they can be destroyed when the window closes.
 		surface_gpu* next     = nullptr;
 	};
@@ -575,6 +629,12 @@ namespace bb::gfx {
 		float       depth;      // Distance in front of the camera of the entity, which orders what is see-through.
 		bool        unit_start; // First of the draws of a surface: the ones after it that are not are layers over it and stay behind it.
 		float       screen[4];  // Where it can be on the screen as left, bottom, right and top between -1 and 1, for what is see-through.
+		// If not 0, the draw is made of that many clusters (from first_cluster in the buffer of clusters) that the GPU culls: it is
+		// never one of many instances, and index_buffer is the one that the clusters belong to.
+		uint32_t    cluster_count;
+		uint32_t    first_cluster;
+		uint32_t    first_command; // Where the GPU writes the commands to draw the clusters, once it is recorded.
+		float       growth; // How much its matrix lengthens a vector, at most.
 	};
 
 
@@ -586,6 +646,7 @@ namespace bb::gfx {
 		bool     reflected; // Seen in a mirror, which turns the triangles around.
 		float    color[3];
 		int      x, y, w, h; // Area of the target image that it draws to.
+		float    cull_planes[24]; // The planes of the view, for the culling of clusters on the GPU.
 	};
 
 

@@ -1088,6 +1088,10 @@ namespace bb::gfx {
 		enabled.fillModeNonSolid = supported.fillModeNonSolid;
 		g.can_anisotropy         = supported.samplerAnisotropy == VK_TRUE;
 		enabled.samplerAnisotropy = supported.samplerAnisotropy;
+		// Culling on the GPU draws the runs of triangles that survive with one indirect call for each draw, with the number of the draw as first instance.
+		g.can_gpu_cull = (supported.multiDrawIndirect == VK_TRUE) && (supported.drawIndirectFirstInstance == VK_TRUE);
+		enabled.multiDrawIndirect = supported.multiDrawIndirect;
+		enabled.drawIndirectFirstInstance = supported.drawIndirectFirstInstance;
 
 		// Border colors that are not black or white need an extension.
 		uint32_t device_extension_count = 0;
@@ -1178,10 +1182,10 @@ namespace bb::gfx {
 		set_info.pBindings                       = &binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, frame_slots } };
+		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 4 * frame_slots } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 		dpool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		dpool_info.maxSets                    = 8195 + 2 * frame_slots;
+		dpool_info.maxSets                    = 8195 + 3 * frame_slots;
 		dpool_info.poolSizeCount              = 3;
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");

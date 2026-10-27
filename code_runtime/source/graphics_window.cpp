@@ -147,6 +147,11 @@ void bb_end_graphics(void)
 				vkDestroyPipeline(g.device, pipeline, nullptr);
 			}
 		}
+		if (g.cull_pipeline) {
+			vkDestroyPipeline(g.device, g.cull_pipeline, nullptr);
+		}
+		vkDestroyPipelineLayout(g.device, g.cull_pipeline_layout, nullptr);
+		vkDestroyDescriptorSetLayout(g.device, g.cull_layout, nullptr);
 		vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
 		vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
 		for (int i = 0; i < TEXTURES; i++) {
