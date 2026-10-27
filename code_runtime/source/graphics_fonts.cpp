@@ -316,6 +316,28 @@ namespace bb::gfx {
 		r.w      = w;
 	}
 
+	// stb_truetype is given the font and not its size, and trusts every offset and length in it. The tables of the font have to be in the
+	// file at least, which leaves the tables themselves to the library.
+	static bool tables_fit(const unsigned char* data, size_t size, size_t offset)
+	{
+		auto be16 = [&](size_t at) { return size_t((data[at] << 8) | data[at + 1]); };
+		auto be32 = [&](size_t at) { return (size_t(data[at]) << 24) | (size_t(data[at + 1]) << 16) | (size_t(data[at + 2]) << 8) | size_t(data[at + 3]); };
+		if ((offset > size) || (size - offset < 12)) {
+			return false;
+		}
+		size_t tables = be16(offset + 4);
+		if ((size - offset - 12) / 16 < tables) {
+			return false;
+		}
+		for (size_t i = 0; i < tables; i++) {
+			size_t entry = offset + 12 + i * 16;
+			if ((be32(entry + 8) > size) || (be32(entry + 12) > size - be32(entry + 8))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	ttf_font* ttf_open(const char* name, int height, int style)
 	{
 		if (!name || (height < 1) || (height > max_font_height)) {
@@ -340,7 +362,8 @@ namespace bb::gfx {
 			return nullptr;
 		}
 		stbtt_fontinfo info;
-		if (!stbtt_InitFont(&info, data, stbtt_GetFontOffsetForIndex(data, 0))) {
+		int            offset = (size >= 12) ? stbtt_GetFontOffsetForIndex(data, 0) : -1;
+		if ((offset < 0) || !tables_fit(data, size, size_t(offset)) || !stbtt_InitFont(&info, data, offset)) {
 			SDL_free(data);
 			return nullptr;
 		}
@@ -377,6 +400,11 @@ namespace bb::gfx {
 			stbtt_GetGlyphBitmapBox(&info, glyph_index, scale, scale, &x0, &y0, &x1, &y1);
 			r.w = x1 - x0;
 			r.h = y1 - y0;
+			// The size of a glyph is whatever the font file says, scaled by the height of the font: a glyph that is far bigger than the
+			// text it is in is made of a broken font, and would be bigger than the picture it has to fit in.
+			if ((r.w > 4 * height) || (r.h > 4 * height)) {
+				r.w = r.h = 0;
+			}
 			if ((r.w > 0) && (r.h > 0)) {
 				r.bitmap = static_cast<uint8_t*>(calloc(size_t(r.w) * size_t(r.h), 1));
 				stbtt_MakeGlyphBitmap(&info, r.bitmap, r.w, r.h, r.w, scale, scale, glyph_index);
