@@ -880,6 +880,22 @@ float bb32_fpow(float x, float y)
 // User libraries: the table of the program lists the libraries and the functions it uses, with the place for each address.
 // Libraries of Windows can't be loaded here yet, so the places stay empty and the functions that use them raise an error.
 ////////////////////////////////////////////////////////////////////////////////
+// The characters that a function of a user library returned, as a C string in the arena, which is what the program expects (it turns it into
+// a string right after the call, like the original). The library owns the characters and may reuse them, so they are copied, and one copy
+// that the next call replaces is enough.
+uint32_t bb32_userlib_text(const char* text)
+{
+	static uint32_t copy = 0;
+	bb32_free(copy);
+	copy = 0;
+	if (text) {
+		size_t length = strlen(text);
+		copy          = bb32_malloc((uint32_t)length + 1);
+		memcpy(arena + copy, text, length + 1);
+	}
+	return copy;
+}
+
 void bb32_load_libs(uint32_t table)
 {
 	(void)table;
