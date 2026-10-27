@@ -28,11 +28,11 @@ The height in pixels of a display mode.
 
 * [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
 * [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)
 * [GfxModeWidth](GfxModeWidth)
-* [GraphicsHeight](GraphicsHeight)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)

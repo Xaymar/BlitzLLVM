@@ -28,11 +28,11 @@ The width in pixels of a display mode.
 
 * [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
 * [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)
 * [GfxModeHeight](GfxModeHeight)
-* [GraphicsWidth](GraphicsWidth)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)

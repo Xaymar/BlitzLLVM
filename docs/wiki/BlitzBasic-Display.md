@@ -32,6 +32,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [GammaBlue](GammaBlue)
 * [GammaGreen](GammaGreen)
 * [GammaRed](GammaRed)
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)

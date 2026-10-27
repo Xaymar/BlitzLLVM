@@ -40,7 +40,7 @@ WaitKey
 
 * [CountGfxDrivers](CountGfxDrivers)
 * [CountGfxModes](CountGfxModes)
-* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeFormat](GfxModeFormat)

@@ -22,12 +22,12 @@ The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDr
 
 **Differences and known gaps:**
 
-* The name is the one of the graphics card Vulkan uses (once a graphics window is open), otherwise "Default". Any number except 1 stops the program with an error message.
+* The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER". A number that does not exist stops the program with an error message.
 
 ## Related commands
 
-* [CountGfxDrivers](CountGfxDrivers)
 * [DisplayName](DisplayName) 〔BlitzLLVM〕
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)

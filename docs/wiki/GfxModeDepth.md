@@ -28,11 +28,11 @@ The color depth in bits of a display mode.
 
 * [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
 * [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)
 * [GfxModeHeight](GfxModeHeight)
 * [GfxModeWidth](GfxModeWidth)
-* [GraphicsDepth](GraphicsDepth)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)

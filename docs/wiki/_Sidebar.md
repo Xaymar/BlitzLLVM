@@ -79,7 +79,7 @@
 <li><a href="WritePixelFast">WritePixelFast</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Display">Display</a> (44)</summary>
+<li><details><summary><a href="BlitzBasic-Display">Display</a> (45)</summary>
 <ul>
 <li><a href="AvailVidMem">AvailVidMem</a></li>
 <li><a href="CountDisplayModes">CountDisplayModes</a> 〔BlitzLLVM〕</li>
@@ -104,6 +104,7 @@
 <li><a href="GammaBlue">GammaBlue</a></li>
 <li><a href="GammaGreen">GammaGreen</a></li>
 <li><a href="GammaRed">GammaRed</a></li>
+<li><a href="GfxDriver">GfxDriver</a> 〔BlitzLLVM〕</li>
 <li><a href="GfxDriverName">GfxDriverName</a></li>
 <li><a href="GfxModeDepth">GfxModeDepth</a></li>
 <li><a href="GfxModeExists">GfxModeExists</a></li>

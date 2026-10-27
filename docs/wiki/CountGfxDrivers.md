@@ -26,7 +26,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* Always 1. The one driver is the graphics card that Vulkan uses.
+* Every GPU that Vulkan reports is a driver, including software ones. Driver 1 is the one a program uses without SetGfxDriver: a discrete GPU if there is one, then an integrated, virtual and software one, then those that cannot be used. Without a display (or a Vulkan driver) there is one driver, "Default".
 
 ## Related commands
 
@@ -34,9 +34,9 @@ WaitKey
 * [CountDisplays](CountDisplays) 〔BlitzLLVM〕
 * [CountGfxModes](CountGfxModes)
 * [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
-* [GfxModeFormat](GfxModeFormat)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)

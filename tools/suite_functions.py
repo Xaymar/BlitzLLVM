@@ -43,6 +43,7 @@ BY_COMPILER = {
 
 # Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
 EXTENSIONS = {
+    "gfxdriver": ("graphics", "%GfxDriver"),
     "gfxmode3dwidth": ("graphics", "%GfxMode3DWidth%mode"),
     "gfxmode3dheight": ("graphics", "%GfxMode3DHeight%mode"),
     "countdisplays": ("graphics", "%CountDisplays"),

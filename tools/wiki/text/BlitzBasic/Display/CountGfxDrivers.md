@@ -11,4 +11,4 @@ Next
 WaitKey
 ```
 @returns The number of drivers.
-@gap Always 1. The one driver is the graphics card that Vulkan uses.
+@gap Every GPU that Vulkan reports is a driver, including software ones. Driver 1 is the one a program uses without SetGfxDriver: a discrete GPU if there is one, then an integrated, virtual and software one, then those that cannot be used. Without a display (or a Vulkan driver) there is one driver, "Default".

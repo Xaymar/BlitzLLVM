@@ -361,6 +361,7 @@ gammablue	graphics	done	#GammaBlue%blue
 gammagreen	graphics	done	#GammaGreen%green
 gammared	graphics	done	#GammaRed%red
 getcolor	graphics	done	GetColor%x%y
+gfxdriver	graphics	done	%GfxDriver
 gfxdriver3d	graphics	done	%GfxDriver3D%driver
 gfxdrivername	graphics	done	$GfxDriverName%driver
 gfxmode3d	graphics	done	%GfxMode3D%mode
