@@ -604,6 +604,7 @@ namespace bb::gfx {
 		const float* view;
 		const float* origin; // Where the camera is, which positions are relative to on the GPU.
 		const float* planes; // 6 planes of what the camera sees (4 floats each) for camera-relative positions, or nothing.
+		float        camera_growth; // How much longer than 1 the axes of the camera are (at least 1), which sprites that face it are scaled by.
 	};
 
 

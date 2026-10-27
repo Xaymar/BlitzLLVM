@@ -109,4 +109,25 @@ box = CreateCube()
 RenderWorld
 Check "Remembered: new cube in the place of a freed one", TrisRendered(), 12, 0
 
+; A sprite is remembered by a sphere that has its size and where it is held in it.
+FreeEntity box
+spr = CreateSprite()
+PositionEntity spr, 200, 0, 0
+RenderWorld
+RenderWorld
+Check "Remembered: sprite to the side", TrisRendered(), 0, 0
+ScaleSprite spr, 300, 300
+RenderWorld
+Check "Remembered: sprite scaled up", TrisRendered(), 2, 0
+ScaleSprite spr, 1, 1
+RenderWorld
+RenderWorld
+Check "Remembered: sprite scaled down", TrisRendered(), 0, 0
+HandleSprite spr, 200, 0
+RenderWorld
+Check "Remembered: sprite held far from its middle", TrisRendered(), 2, 0
+HandleSprite spr, 0, 0
+RenderWorld
+Check "Remembered: sprite held in its middle again", TrisRendered(), 0, 0
+
 Done "blitz3d_culling_pixels"
