@@ -57,8 +57,17 @@ namespace blitz {
 			uint64_t                                     length = 0; // In bytes from the column, 0 if the end is not known.
 		};
 
+		/** The part of a file that a node covers, from the first character of its first token up to the end of its last token (exclusive). All 0 if unknown. */
+		struct range {
+			uint64_t line       = 0;
+			uint64_t column     = 0;
+			uint64_t end_line   = 0;
+			uint64_t end_column = 0;
+		};
+
 		struct node {
 			location where;
+			range    covers;
 
 			virtual ~node() = default;
 		};
@@ -168,6 +177,7 @@ namespace blitz {
 		/** One declared variable in `Local a, b% = 1, c$ = "Hello"`. */
 		struct declaration {
 			location           where;
+			range              covers; // From the name to the end of the type, size and initial value.
 			std::string        name;
 			blitz::types::type type = blitz::types::type::UNKNOWN;
 			std::string        struct_name;
