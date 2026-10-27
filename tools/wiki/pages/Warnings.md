@@ -8,13 +8,15 @@
 `blitzcc` points out code that is legal but probably not what was meant. A warning looks like an error, names the option that controls it, and often adds a `notice:` line that says how to fix it:
 
 ```
-program.bb:1:12: warning: Implicit conversion from real to integer, the fractional part is lost. [-Wimplicit-lossy-real-to-int]
+program.bb:1:12: warning: Implicit conversion from Float32 to Int32, the fractional part is lost. [-Wimplicit-lossy-real-to-int]
 Local i% = 2.5
            ^^^ HERE
-notice: Use Int(value) to convert on purpose.
+notice: Use Int(value) to convert on purpose, or SatInt(value) to stop at the limits of Int32.
 ```
 
 The carets under the line cover the part of the code the message is about (a single one when it is a point), and the dashes after them reach to the end of the line. A *notice* is also a warning that is only a hint, such as a variable that is never used; its first line says `notice:` instead of `warning:`.
+
+Warnings about implicit conversions name both types, with their long names (`Int8` to `Int64`, `UInt8` to `UInt64`, `Float16`, `Float32`, `Float64` and `String`), and the `notice:` line names the function that converts on purpose: `Int`, `Float`, `Str`, `Byte`, `UShort`, `Long`, `Double` and so on, and for whole numbers also the `Sat` version (`SatInt`, `SatByte`, ...) that stops at the limits instead of wrapping around.
 
 Warnings never stop the compilation, unless they are turned into errors with `-Werror`. Errors (a program that can not be compiled) always stop it, and are printed as `file:line:column: error: ...` with the same source line display.
 

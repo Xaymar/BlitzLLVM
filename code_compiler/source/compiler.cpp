@@ -262,7 +262,12 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 
 	if (warn_lossy && ((from_int && to_int) || (from_int && to_real) || (from_real && to_real)) && is_lossy(from.type, to, from.repr)) {
 		const char* name = (from_int && to_int) ? "implicit-lossy-int-to-int" : (from_int ? "implicit-lossy-int-to-real" : "implicit-lossy-real-to-real");
-		warn(where, name, "Implicit conversion from " + t::to_string(from.type) + " to " + t::to_string(to) + " can change the value.");
+		// Whole numbers can also be converted so that they stop at the limits of the target.
+		std::string notice = "Use " + t::converter(to) + "(value) to convert on purpose";
+		if (from_int && to_int) {
+			notice += ", or Sat" + t::converter(to) + "(value) to stop at the limits instead of wrapping around";
+		}
+		warn(where, name, "Implicit conversion from " + t::long_name(from.type) + " to " + t::long_name(to) + " can change the value.", notice + ".");
 	}
 	if (from_int && to_int) {
 		auto bf = t::bits(from.type), bt = t::bits(to);
@@ -282,7 +287,7 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		return { r, to };
 	} else if (from_real && to_int) {
 		if (warn_lossy) {
-			warn(where, "implicit-lossy-real-to-int", "Implicit conversion from real to integer, the fractional part is lost.", "Use Int(value) to convert on purpose.");
+			warn(where, "implicit-lossy-real-to-int", "Implicit conversion from " + t::long_name(from.type) + " to " + t::long_name(to) + ", the fractional part is lost.", "Use " + t::converter(to) + "(value) to convert on purpose, or Sat" + t::converter(to) + "(value) to stop at the limits of " + t::long_name(to) + ".");
 		}
 		// Blitz rounds to the nearest whole number (halves go to the even one) instead of cutting off the fraction.
 		std::string rounder = from_llvm == "float" ? "llvm.nearbyint.f32" : "llvm.nearbyint.f64";
@@ -298,7 +303,7 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		return { r, to };
 	} else if (to_str && (from_int || from_real)) {
 		if (warn_lossy) {
-			warn(where, "implicit-number-to-string", "Implicit conversion from number to string.", "Use Str(value) to convert on purpose.");
+			warn(where, "implicit-number-to-string", "Implicit conversion from " + t::long_name(from.type) + " to String.", "Use Str(value) to convert on purpose.");
 		}
 		if (from_int) {
 			bool sign = t::is_signed(from.type);
@@ -309,7 +314,7 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		return call_runtime("bb_str_from_f64", type::STRING, { wide });
 	} else if (from_str && (to_int || to_real)) {
 		if (warn_lossy) {
-			warn(where, "implicit-string-to-number", "Implicit conversion from string to number.", "Use Int(value) or Float(value) to convert on purpose.");
+			warn(where, "implicit-string-to-number", "Implicit conversion from String to " + t::long_name(to) + ".", "Use " + t::converter(to) + "(value) to convert on purpose.");
 		}
 		if (to_int) {
 			// Like atoi: what does not fit stops at the largest number, and 64 bit targets get more room.
