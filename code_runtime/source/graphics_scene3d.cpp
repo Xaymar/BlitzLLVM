@@ -876,7 +876,7 @@ namespace bb::gfx {
 		if (index < items.size) {
 			if (const char* ahead = reinterpret_cast<const char*>(bb::get_entity(items[index].handle))) {
 				for (size_t line = 0; line < 9; line++) {
-					__builtin_prefetch(ahead + line * 64);
+					bb::prefetch(ahead + line * 64);
 				}
 			}
 		}
