@@ -781,8 +781,23 @@ int main(int argc, char** argv)
 						is_ffmpeg = is_ffmpeg || (name.find(family) != std::string::npos);
 					}
 					if (shared && (is_ffmpeg == ffmpeg)) {
-						std::filesystem::copy_file(entry.path(), opt.output.parent_path() / name, std::filesystem::copy_options::overwrite_existing, ec);
-						copied += ec ? 0 : 1;
+						// Programs that are running from that directory have these libraries mapped, and writing into the file they are mapped from
+						// crashes them. So a copy that is there already is kept, and a new one is made beside it and moved over it.
+						auto target = opt.output.parent_path() / name;
+						if (std::filesystem::exists(target, ec) && (std::filesystem::file_size(target, ec) == entry.file_size(ec)) && (std::filesystem::last_write_time(target, ec) >= entry.last_write_time(ec))) {
+							copied++;
+							continue;
+						}
+						auto partial = target;
+						partial += ".part" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+						std::filesystem::copy_file(entry.path(), partial, std::filesystem::copy_options::overwrite_existing, ec);
+						if (!ec) {
+							std::filesystem::rename(partial, target, ec);
+						}
+						if (ec) {
+							std::filesystem::remove(partial, ec);
+						}
+						copied += std::filesystem::exists(target, ec) ? 1 : 0;
 					}
 				}
 				if ((copied == 0) && !opt.quiet) {
