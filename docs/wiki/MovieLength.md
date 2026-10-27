@@ -29,7 +29,7 @@ Print "The intro takes " + MovieLength(movie) + " seconds."
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
-* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
 * [MoviePlaying](MoviePlaying)
 * [MoviePosition](MoviePosition) 〔BlitzLLVM〕

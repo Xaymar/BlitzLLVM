@@ -27,7 +27,7 @@ MovieVolume movie, 0.5   ; half as loud
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
-* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)

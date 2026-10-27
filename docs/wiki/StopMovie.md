@@ -22,8 +22,8 @@ Stops a movie and puts it back at its start. The sound stops, [MoviePlaying](Mov
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [LoopMovie](LoopMovie) 〔BlitzLLVM〕
-* [MovieHeight](MovieHeight)
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕

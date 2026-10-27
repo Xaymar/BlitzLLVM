@@ -17,3 +17,4 @@ The originals play a movie from its first picture to its last: `OpenMovie`, `Dra
 | [StopMovie](StopMovie) | Stops the movie and puts it back at its start. |
 | [LoopMovie](LoopMovie) | Makes the movie begin again at its end. |
 | [MovieVolume](MovieVolume) | Sets how loud the sound of the movie is. |
+| [GetMovieTexture](GetMovieTexture) | A texture that shows the movie, for surfaces in 3D scenes. |

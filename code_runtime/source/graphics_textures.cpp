@@ -247,6 +247,17 @@ namespace bb::gfx {
 	}
 } // namespace bb::gfx
 
+namespace bb::gfx {
+	// Puts the RGBA pixels of a picture that is as big as the texture into it, for what a movie shows.
+	void replace_texture_pixels(int32_t handle, const uint8_t* rgba)
+	{
+		texture_entry* t = live_texture_of(handle);
+		if (t && active() && t->image.view) {
+			write_pixels(t->image, 0, 0, t->width, t->height, rgba);
+		}
+	}
+} // namespace bb::gfx
+
 extern "C" {
 
 // CreateTexture(width, height, flags, frames): an empty texture to draw on, with TextureBuffer.

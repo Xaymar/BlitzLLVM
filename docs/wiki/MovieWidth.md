@@ -28,7 +28,7 @@ The width of the pictures of a movie in pixels.
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
-* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)

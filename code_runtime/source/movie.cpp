@@ -156,6 +156,8 @@ namespace {
 		std::vector<uint8_t> samples;
 
 		int32_t image = 0; // The picture as an image of the program, which DrawMovie draws.
+		int32_t texture = 0; // The picture as a texture, from GetMovieTexture, which is kept up to date.
+		bool    texture_changed = false; // Whether `current` has to be put in the texture.
 
 		std::deque<picture> pictures;       // Decoded, but not yet time to show.
 		std::vector<uint8_t> current;       // What is shown.
@@ -186,6 +188,9 @@ namespace {
 		}
 		if (m.image) {
 			bb_free_image(m.image);
+		}
+		if (m.texture) {
+			bb_free_texture(m.texture);
 		}
 		if (m.scaler) {
 			ff.sws_freeContext(m.scaler);
@@ -278,6 +283,7 @@ namespace {
 		if (time < m.floor) {
 			m.current = std::move(p.rgba);
 			m.changed = true;
+			m.texture_changed = true;
 			return;
 		}
 		m.pictures.push_back(std::move(p));
@@ -431,6 +437,11 @@ namespace {
 			m.current = std::move(m.pictures.front().rgba);
 			m.pictures.pop_front();
 			m.changed = true;
+			m.texture_changed = true;
+		}
+		if (m.texture && m.texture_changed) {
+			bb::gfx::replace_texture_pixels(m.texture, m.current.data());
+			m.texture_changed = false;
 		}
 		if (m.ended_input && m.pictures.empty() && (clock >= m.end_time) && (queued_seconds(m) <= 0.0)) {
 			if (m.loop) {
@@ -592,6 +603,28 @@ void bb_seek_movie(int32_t handle, float seconds)
 		}
 		update(*m);
 	}
+}
+
+// The picture of the movie as a texture of its size, which shows the movie while the program draws it, renders the world or waits.
+// The movie owns the texture: it is freed with the movie.
+int32_t bb_get_movie_texture(int32_t handle)
+{
+	movie* m = movie_of(handle);
+	if (!m) {
+		return 0;
+	}
+	if (!m->texture) {
+		m->texture         = bb_create_texture(m->width, m->height, 1, 1);
+		m->texture_changed = true;
+	}
+	if (!m->started) {
+		m->started = true;
+		if (!m->paused) {
+			start_clock(*m);
+		}
+	}
+	update(*m);
+	return m->texture;
 }
 
 void bb_movie_volume(int32_t handle, float volume)

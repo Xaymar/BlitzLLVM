@@ -7,7 +7,9 @@ played by a program that draws it twice, once at its size and once stretched, an
 
   render_movie_samples.py <blitzcc> <output folder>
 
-Writes drawmovie.gif (3 seconds) and drawmovie_start.png, drawmovie_middle.png and drawmovie_end.png. Needs ffmpeg and xvfb-run.
+Writes drawmovie.gif (3 seconds) and drawmovie_start.png, drawmovie_middle.png and drawmovie_end.png, and for GetMovieTexture
+movietexture.gif (the same movie on a turning cube), movietexture_start.png, movietexture_middle.png and movietexture_end.png.
+Needs ffmpeg and xvfb-run.
 """
 import os
 import subprocess
@@ -36,20 +38,51 @@ Wend
 CloseMovie movie
 """
 
-with tempfile.TemporaryDirectory() as work:
-	os.chdir(work)
+TEXTURE_PROGRAM = """Graphics3D 320, 240, 32, 2
+SetBuffer BackBuffer()
+movie = OpenMovie("test.mpg")
+If movie = 0 Then RuntimeError "The movie could not be opened."
+camera = CreateCamera()
+CameraClsColor camera, 30, 30, 40
+PositionEntity camera, 0, 0, -3.2
+cube = CreateCube()
+EntityFX cube, 1
+EntityTexture cube, GetMovieTexture(movie)
+TurnEntity cube, 20, 25, 0
+frame = 0
+While MoviePlaying(movie)
+	TurnEntity cube, 0, 2, 0
+	RenderWorld
+	Flip
+	SaveBuffer FrontBuffer(), "frames/f" + Right("000" + frame, 3) + ".png"
+	frame = frame + 1
+	Delay 40
+Wend
+CloseMovie movie
+"""
+
+
+def render(program, prefix, work):
+	"""Plays the movie with the program, which saves the frames, and keeps three of them and a GIF."""
+	subprocess.run(["rm", "-rf", "frames"], check=True)
 	os.makedirs("frames")
-	subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=160x120:r=25:d=3", "-f", "lavfi", "-i", "sine=f=440:d=3:r=22050",
-					"-c:v", "mpeg1video", "-b:v", "400k", "-c:a", "mp2", "-b:a", "48k", "-ac", "1", "test.mpg"], check=True)
 	with open("play.bb", "w") as source:
-		source.write(PROGRAM)
+		source.write(program)
 	subprocess.run([blitzcc, "+q", "play.bb", "-o", "play"], check=True)
 	env = dict(os.environ, XDG_RUNTIME_DIR=tempfile.mkdtemp(), SDL_AUDIODRIVER="dummy")
 	subprocess.run(["xvfb-run", "-a", "./play"], env=env, check=True, timeout=120)
 	frames = sorted(os.listdir("frames"))
 	print(len(frames), "frames")
 	for name, index in (("start", 0), ("middle", len(frames) // 2), ("end", len(frames) - 2)):
-		with open("frames/" + frames[index], "rb") as source, open(os.path.join(output, "drawmovie_%s.png" % name), "wb") as target:
+		with open("frames/" + frames[index], "rb") as source, open(os.path.join(output, "%s_%s.png" % (prefix, name)), "wb") as target:
 			target.write(source.read())
 	subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", "25", "-i", "frames/f%03d.png", "-vf",
-					"split[a][b];[a]palettegen=max_colors=64[p];[b][p]paletteuse=dither=none", os.path.join(output, "drawmovie.gif")], check=True)
+					"split[a][b];[a]palettegen=max_colors=64[p];[b][p]paletteuse=dither=none", os.path.join(output, prefix + ".gif")], check=True)
+
+
+with tempfile.TemporaryDirectory() as work:
+	os.chdir(work)
+	subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=160x120:r=25:d=3", "-f", "lavfi", "-i", "sine=f=440:d=3:r=22050",
+					"-c:v", "mpeg1video", "-b:v", "400k", "-c:a", "mp2", "-b:a", "48k", "-ac", "1", "test.mpg"], check=True)
+	render(PROGRAM, "drawmovie", work)
+	render(TEXTURE_PROGRAM, "movietexture", work)

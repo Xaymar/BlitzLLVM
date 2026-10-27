@@ -32,7 +32,7 @@ Wend
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
-* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)

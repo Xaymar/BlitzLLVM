@@ -66,6 +66,7 @@ EXTENSIONS = {
     "microseconds": ("runtime", "&Microseconds"),
     "playmovie": ("graphics", "PlayMovie%movie"),
     "pausemovie": ("graphics", "PauseMovie%movie"),
+    "getmovietexture": ("graphics", "%GetMovieTexture%movie"),
     "movievolume": ("graphics", "MovieVolume%movie#volume"),
     "loopmovie": ("graphics", "LoopMovie%movie%loop=1"),
     "stopmovie": ("graphics", "StopMovie%movie"),
