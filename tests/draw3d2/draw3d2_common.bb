@@ -7,7 +7,8 @@
 ;
 ; The metric: a pixel matches when its red, green and blue are each at most D3D_TOLERANCE away from the reference (16 of 255, which
 ; covers the small differences of texture filtering and rounding between two renderers but not a wrong color, position or alpha).
-; The score of a scene is the percentage of matching pixels, and has to be at least D3D_THRESHOLD (95).
+; Only pixels that are not the clear color in the reference or in the picture count (the empty background would make every scene
+; look 80% right), so the score of a scene is the percentage of those pixels that match, and has to be at least D3D_THRESHOLD (95).
 ;
 ; Capture (done once, with the original compiler, on a real machine): set D3D2_CAPTURE to a folder and the picture of every scene
 ; is saved there as <scene>.bmp (tools/draw3d2_references.py turns these into tests/draw3d2/reference/<scene>.png).
@@ -50,19 +51,23 @@ Function D3DFinish(scene$)
 	If ref = 0 Then RuntimeError scene$ + ": cannot load " + file$
 	If ImageWidth(ref) <> D3D_W Or ImageHeight(ref) <> D3D_H Then RuntimeError scene$ + ": reference is " + ImageWidth(ref) + "x" + ImageHeight(ref)
 	Local rb = ImageBuffer(ref)
-	Local x, y, a, b, same
+	Local x, y, a, b, same, total
+	Local clear = (40 Shl 16) Or (40 Shl 8) Or 60
 	LockBuffer BackBuffer()
 	LockBuffer rb
 	For y = 0 To D3D_H - 1
 		For x = 0 To D3D_W - 1
 			a = ReadPixelFast(x, y, BackBuffer())
 			b = ReadPixelFast(x, y, rb)
-			If Abs(((a Shr 16) And 255) - ((b Shr 16) And 255)) <= D3D_TOLERANCE And Abs(((a Shr 8) And 255) - ((b Shr 8) And 255)) <= D3D_TOLERANCE And Abs((a And 255) - (b And 255)) <= D3D_TOLERANCE Then same = same + 1
+			If (a And $FFFFFF) <> clear Or (b And $FFFFFF) <> clear Then
+				total = total + 1
+				If Abs(((a Shr 16) And 255) - ((b Shr 16) And 255)) <= D3D_TOLERANCE And Abs(((a Shr 8) And 255) - ((b Shr 8) And 255)) <= D3D_TOLERANCE And Abs((a And 255) - (b And 255)) <= D3D_TOLERANCE Then same = same + 1
+			EndIf
 		Next
 	Next
 	UnlockBuffer rb
 	UnlockBuffer BackBuffer()
-	Local score# = same * 100.0 / (D3D_W * D3D_H)
+	Local score# = same * 100.0 / (total + (total = 0))
 	Print scene$ + ": " + score + "% of the pixels match the original (needs " + D3D_THRESHOLD + "%)"
 	d3d_checks = d3d_checks + 1
 	If score < D3D_THRESHOLD Then RuntimeError scene$ + ": only " + score + "% of the pixels match the original"
