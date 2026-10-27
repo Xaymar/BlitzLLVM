@@ -678,41 +678,54 @@ namespace bb::gfx {
 		}
 	}
 
-	bool load_picture(const char* file, picture& out)
+	bool load_picture_memory(const char* name, const void* data, size_t size, picture& out)
 	{
-		SDL_IOStream* io = SDL_IOFromFile(bb_native_path(file), "rb");
-		if (!io) {
-			return false;
-		}
-		uint8_t magic[4] = { 0, 0, 0, 0 };
-		if ((SDL_ReadIO(io, magic, 4) == 4) && (read32(magic) == fourcc('D', 'D', 'S', ' '))) {
-			SDL_SeekIO(io, 0, SDL_IO_SEEK_SET);
-			size_t size = 0;
-			void*  data = SDL_LoadFile_IO(io, &size, true);
-			if (!data) {
-				return false;
-			}
+		if ((size >= 4) && (read32(static_cast<const uint8_t*>(data)) == fourcc('D', 'D', 'S', ' '))) {
 			bool done = parse_dds(static_cast<const uint8_t*>(data), size, out);
-			SDL_free(data);
 			if (!done) {
 				free_picture(out);
 			}
 			return done;
 		}
-		SDL_SeekIO(io, 0, SDL_IO_SEEK_SET);
+		SDL_IOStream* io = SDL_IOFromConstMem(data, size);
+		if (!io) {
+			return false;
+		}
 		open_codec_libraries();
 		// TGA files have no marker at the start that tells them from other files, so SDL_image only reads them when it is told by the
 		// extension that the file is one.
-		const char* dot = strrchr(file, '.');
+		const char* dot = strrchr(name, '.');
 		out.surface     = IMG_LoadTyped_IO(io, true, dot ? dot + 1 : nullptr);
 		if (!out.surface) {
-			report_missing_codec(file);
+			report_missing_codec(name);
 			return false;
 		}
 		out.width     = out.surface->w;
 		out.height    = out.surface->h;
 		out.has_alpha = SDL_ISPIXELFORMAT_ALPHA(out.surface->format);
 		return true;
+	}
+
+	bool load_picture(const char* file, picture& out)
+	{
+		size_t size = 0;
+		void*  data = SDL_LoadFile(bb_native_path(file), &size);
+		if (!data) {
+			return false;
+		}
+		bool done = load_picture_memory(file, data, size, out);
+		SDL_free(data);
+		return done;
+	}
+
+	// The formats that SDL_image and the DDS reader open, by the first bytes. Anything else is decoded by the caller, so that
+	// a file that is no picture still gives 0 from the Load command.
+	bool picture_recognized(const uint8_t* d, size_t n)
+	{
+		if (n < 12) {
+			return false;
+		}
+		return !memcmp(d, "\x89PNG", 4) || ((d[0] == 0xFF) && (d[1] == 0xD8)) || !memcmp(d, "GIF8", 4) || !memcmp(d, "DDS ", 4) || ((d[0] == 'B') && (d[1] == 'M')) || (!memcmp(d, "RIFF", 4) && !memcmp(d + 8, "WEBP", 4)) || !memcmp(d + 4, "ftypavif", 8) || ((d[0] == 0xFF) && (d[1] == 0x0A)) || !memcmp(d, "\x00\x00\x00\x0cJXL ", 8);
 	}
 
 	SDL_Surface* load_surface(const char* file)

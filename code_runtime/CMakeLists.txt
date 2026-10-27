@@ -46,6 +46,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_dds.cpp"
 	"source/graphics_images.cpp"
 	"source/graphics_pixels.cpp"
+	"source/graphics_async.cpp"
 	"source/graphics_textures.cpp"
 	"source/graphics_fonts.cpp"
 	"source/graphics_scene3d.cpp"
