@@ -619,6 +619,7 @@ namespace bb::gfx {
 	// Replays the collected operations into the command buffer, in the order they were asked for.
 	void record_operations()
 	{
+		bb::profile_scope timer(bb::PROFILE_RECORD);
 		uint32_t i = 0;
 		while (i < g.op_count) {
 			operation& op = g.ops[i];

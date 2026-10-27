@@ -1312,10 +1312,16 @@ namespace bb::gfx {
 			}
 		}
 		mesh_collector collector = { &list, view, current_origin, &planes[0][0], fmaxf(1.0f, sqrtf(camera_norm)) };
-		bb::for_each_visible(bb::MESH, collect_mesh, &collector);
-		sort_items(list.behind, true);
-		sort_items(list.blended, false);
-		sort_items(list.front, true);
+		{
+			bb::profile_scope timer(bb::PROFILE_COLLECT);
+			bb::for_each_visible(bb::MESH, collect_mesh, &collector);
+		}
+		{
+			bb::profile_scope timer(bb::PROFILE_GROUP);
+			sort_items(list.behind, true);
+			sort_items(list.blended, false);
+			sort_items(list.front, true);
+		}
 
 		scene.first_draw = draws.size;
 		// Entities with an order are drawn behind or in front of everything, without looking at the depth.
@@ -1323,14 +1329,23 @@ namespace bb::gfx {
 			draw_entity(list.behind[i], 2, false);
 		}
 		uint32_t opaque_first = draws.size;
-		for (uint32_t i = 0; i < list.opaque.size; i++) {
-			prefetch_entity(list.opaque, i + 6);
+		{
+			bb::profile_scope timer(bb::PROFILE_DRAWS);
+			for (uint32_t i = 0; i < list.opaque.size; i++) {
+				prefetch_entity(list.opaque, i + 6);
 				draw_entity(list.opaque[i], 0, true);
+			}
 		}
-		group_draws(opaque_first, draws.size);
-		for (uint32_t i = 0; i < list.blended.size; i++) {
-			prefetch_entity(list.blended, i + 6);
+		{
+			bb::profile_scope timer(bb::PROFILE_GROUP);
+			group_draws(opaque_first, draws.size);
+		}
+		{
+			bb::profile_scope timer(bb::PROFILE_DRAWS);
+			for (uint32_t i = 0; i < list.blended.size; i++) {
+				prefetch_entity(list.blended, i + 6);
 				draw_entity(list.blended[i], 1, true);
+			}
 		}
 		for (uint32_t i = 0; i < list.front.size; i++) {
 			draw_entity(list.front[i], 2, false);
@@ -1592,12 +1607,14 @@ void bb_render_world(float tween)
 	// Things captured by CaptureWorld are drawn between where they were and where they are.
 	bb::render_tween = tween < 0 ? 0 : (tween > 1 ? 1 : tween);
 	light_collector lights = { &data, 0 };
-	bb::for_each_visible(bb::LIGHT, collect_light, &lights);
-
 	camera_collector cameras;
-	bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
 	camera_collector mirrors;
-	bb::for_each_visible(bb::PIVOT, collect_mirror, &mirrors);
+	{
+		bb::profile_scope scan(bb::PROFILE_SCAN);
+		bb::for_each_visible(bb::LIGHT, collect_light, &lights);
+		bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
+		bb::for_each_visible(bb::PIVOT, collect_mirror, &mirrors);
+	}
 	for (uint32_t i = 0; i < cameras.handles.size; i++) {
 		bb::entity* cam = bb::get_entity(cameras.handles[i]);
 		if (cam) {
