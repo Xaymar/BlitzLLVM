@@ -399,6 +399,7 @@ loadfont	graphics	done	%LoadFont$fontname%height=12%bold=0%italic=0%underline=0
 loadimage	graphics	done	%LoadImage$bmpfile
 locate	graphics	done	Locate%x%y
 lockbuffer	graphics	done	LockBuffer%buffer=0
+loopmovie	graphics	done	LoopMovie%movie%loop=1
 maskimage	graphics	done	MaskImage%image%red%green%blue
 midhandle	graphics	done	MidHandle%image
 movieheight	graphics	done	%MovieHeight%movie

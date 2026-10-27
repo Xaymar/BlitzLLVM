@@ -29,8 +29,8 @@ PlayMovie movie
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
+* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
-* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [SeekMovie](SeekMovie) 〔BlitzLLVM〕

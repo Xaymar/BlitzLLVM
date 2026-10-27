@@ -467,6 +467,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [Log](Log)
 * [Log10](Log10)
 * [Long](Long) 〔BlitzLLVM〕
+* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
 * [LoopSound](LoopSound)
 * [Lower](Lower)
 * [LSet](LSet)

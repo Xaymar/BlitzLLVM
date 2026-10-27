@@ -164,6 +164,7 @@ namespace {
 		bool                 started = false;  // Whether the movie was used, which is when it begins to play unless it was paused before.
 		bool                 finished = false;
 		bool                 paused = false;   // PauseMovie: the clock stands still until PlayMovie.
+		bool                 loop = false;     // LoopMovie: at the end the movie goes back to its start.
 		bool                 stopped = false;  // StopMovie: paused at the start, and not playing for MoviePlaying either.
 		bool                 running = false;  // Whether the clock is going.
 		double               base = 0.0;       // The position of the movie, in seconds, when the clock was last started.
@@ -431,7 +432,11 @@ namespace {
 			m.changed = true;
 		}
 		if (m.ended_input && m.pictures.empty() && (clock >= m.end_time) && (queued_seconds(m) <= 0.0)) {
-			m.finished = true;
+			if (m.loop) {
+				seek(m, 0.0);
+			} else {
+				m.finished = true;
+			}
 		}
 	}
 } // namespace
@@ -585,6 +590,13 @@ void bb_seek_movie(int32_t handle, float seconds)
 			start_clock(*m);
 		}
 		update(*m);
+	}
+}
+
+void bb_loop_movie(int32_t handle, int32_t loop)
+{
+	if (movie* m = movie_of(handle)) {
+		m->loop = (loop != 0);
 	}
 }
 
