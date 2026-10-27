@@ -7,13 +7,15 @@ name: Test
 # The check that shows up on a pull request is named after the job: "Test (Linux)". Make that one required in the branch
 # protection rule or ruleset of root to block merging while the tests fail (see Building in the wiki). This workflow has
 # no 'paths' filter on purpose: a required check that is skipped for a pull request stays "pending" and blocks it forever.
-# Instead the 'changes' job always runs and decides what the commit touched, and "Test (Linux)" always runs and reports
-# success without doing anything when nothing that the tests depend on changed:
-#   - the compiler, the runtime, the dependencies, the build files or this workflow changed: build and run everything.
-#   - only the tests changed (tests/, tools/suite_*.py): restore the build of the same compiler and runtime from the cache,
-#     and only configure (to find the tests) and run ctest.
-#   - nothing else matters (documentation, the wiki, README): succeed.
-# A manual run always builds and tests everything.
+# Instead the 'changes' job always runs and decides which tests the commit can affect, and "Test (Linux)" always runs:
+#   - a push to root, a manual run, a pull request with the label "run-all-tests" and a change to anything that is shared (the
+#     compiler, the runtime core, the build files, the dependencies, this workflow, the selection rules) build and run everything.
+#   - a change that only touches one part (the audio code, the 3D code, one test program, the formatter, ...) builds the same way
+#     (from the cache if it can), but only runs the tests of that part, and the ones that always run. The others are listed as
+#     skipped in the test comment. Skipped tests count as passed.
+#   - a change that no test depends on (documentation, the wiki, the other workflows) succeeds without doing anything.
+# What belongs to which part is in tests/test_selection.json, and how it works is in docs/wiki/Testing.md. A file without a rule
+# runs everything. A push to root runs everything, so a rule that skips too much is found there.
 #
 # The test comment: for pull requests of this repository, a single comment (found by the hidden marker on its first line) lists
 # every test with its result in the Debug and in the Release version (.github/scripts/test-report.py renders it,
@@ -43,8 +45,9 @@ jobs:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
-      build: ${{ steps.detect.outputs.build }}
-      tests: ${{ steps.detect.outputs.tests }}
+      # all, partial or none, and the whole selection as JSON (see .github/scripts/test-select.py).
+      mode: ${{ steps.detect.outputs.mode }}
+      selection: ${{ steps.detect.outputs.selection }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -56,30 +59,45 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          # Anything that can change the compiler, the runtime or what is installed from them. The tests are not part of this.
-          BUILD='^(code_compiler|code_runtime|cmake|third_party)/|^(CMakeLists\.txt|CMakePresets\.json|\.gitmodules|LICENSE\.adoc|\.github/workflows/test\.yml)$'
-          TESTS='^tests/|^tools/suite_(functions|signatures)\.py$|^\.github/scripts/test-(report\.py|comment\.sh)$'
-
+          FORCE=
           case "$EVENT" in
-            pull_request) BASE=HEAD^1 ;;
+            pull_request)
+              BASE=HEAD^1
+              # Read from the pull request now, not from the event, so that re-running the workflow after adding the label works.
+              if gh api "repos/$GH_REPO/issues/$NUMBER/labels" --jq '.[].name' 2>/dev/null | grep -qx 'run-all-tests'; then
+                FORCE='the pull request has the label run-all-tests'
+              fi ;;
             push)
               BASE="$BEFORE"
+              FORCE='push to root'
               # A new branch or a forced update may point at a commit this clone does not have. Run everything then.
               if ! git fetch --no-tags --depth=1 origin "$BEFORE" 2>/dev/null; then BASE=; fi ;;
-            *) BASE= ;;
+            *)
+              BASE=
+              FORCE='manual run' ;;
           esac
 
-          if [ -z "$BASE" ]; then
-            echo "No base to compare with, assuming everything changed."
-            FILES=$'code_compiler/\ntests/'
-          else
-            FILES="$(git diff --name-only "$BASE" HEAD)"
-          fi
-          echo "Changed files:"; echo "$FILES"
+          : > "$RUNNER_TEMP/changed.txt"
+          if [ -n "$BASE" ]; then git diff --name-only "$BASE" HEAD > "$RUNNER_TEMP/changed.txt"; fi
+          echo "Changed files:"; cat "$RUNNER_TEMP/changed.txt"
 
-          echo "build=$(grep -Eq "$BUILD" <<< "$FILES" && echo true || echo false)" >> "$GITHUB_OUTPUT"
-          echo "tests=$(grep -Eq "$TESTS" <<< "$FILES" && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          # No changed files known (no base to compare with) runs everything.
+          SELECTION="$(python3 .github/scripts/test-select.py changes --changed "$RUNNER_TEMP/changed.txt" ${FORCE:+--force "$FORCE"})"
+          MODE="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["mode"])' "$SELECTION")"
+          echo "Selection: $SELECTION"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "selection=$SELECTION" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Test selection: $MODE"
+            echo
+            echo '```json'; echo "$SELECTION"; echo '```'
+            echo
+            echo "Changed files:"; echo '```'; cat "$RUNNER_TEMP/changed.txt"; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Reset the test comment
         # Before anything is built, so the comment never shows the results of an older commit.
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
@@ -89,7 +107,7 @@ jobs:
           NUMBER: ${{ github.event.pull_request.number }}
           SHA: ${{ github.event.pull_request.head.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          NEEDED: ${{ steps.detect.outputs.build == 'true' || steps.detect.outputs.tests == 'true' }}
+          NEEDED: ${{ steps.detect.outputs.mode != 'none' }}
         run: |
           STATE=pending
           [ "$NEEDED" = true ] || STATE=skipped
@@ -104,7 +122,10 @@ jobs:
     timeout-minutes: 90
     env:
       # Whether anything the tests depend on changed. If not, every step below is skipped and the job succeeds.
-      RUN: ${{ needs.changes.outputs.build == 'true' || needs.changes.outputs.tests == 'true' }}
+      RUN: ${{ needs.changes.outputs.mode != 'none' }}
+      # all or partial: whether only some of the tests run (see .github/scripts/test-select.py).
+      MODE: ${{ needs.changes.outputs.mode }}
+      SELECTION: ${{ needs.changes.outputs.selection }}
       # SDL wants a runtime directory, and complains on stderr without one, which the close prompt test would read as output.
       XDG_RUNTIME_DIR: /tmp/xdg
       # Pull requests of this repository get the test comment.
@@ -127,9 +148,9 @@ jobs:
       - name: Hash everything the build is made from
         if: env.RUN == 'true'
         id: sources
-        # The blobs (and for submodules the commits) of what the compiler and the runtime are built from, which is the same list
-        # as BUILD in the 'changes' job. The tests are not in it, so changing them keeps the key, and with it the cached build.
-        run: echo "hash=$(git ls-tree -r HEAD code_compiler code_runtime cmake third_party CMakeLists.txt CMakePresets.json .gitmodules LICENSE.adoc .github/workflows/test.yml | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+        # The blobs (and for submodules the commits) of what the compiler, the runtime and the tools are built from. The tests are
+        # not part of it, so changing them keeps the key, and with it the cached build.
+        run: echo "hash=$(git ls-tree -r HEAD code_compiler code_runtime code_tools code_format code_tidy cmake third_party CMakeLists.txt CMakePresets.json .gitmodules LICENSE.adoc .github/workflows/test.yml | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - name: Install CMake
         if: env.RUN == 'true'
         # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
@@ -182,14 +203,28 @@ jobs:
           mkdir -p build
           [ -f build/blitz-version ] || cmake -P cmake/project_version.cmake > build/blitz-version
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON -DBLITZLLVM_REQUIRE_NASM=ON -DBlitzLLVM_VERSION="$(cat build/blitz-version)"
+      - name: Select the tests
+        # The tests are known now (this is also the first point at which a new test is). A partial selection writes the names of the
+        # tests to run, and the ones to skip with the reason. If the selection fails for any reason, everything runs.
+        if: env.RUN == 'true'
+        working-directory: build/code_compiler
+        run: |
+          ctest -C Release --show-only=json-v1 > "$RUNNER_TEMP/tests.json"
+          if ! python3 "$GITHUB_WORKSPACE/.github/scripts/test-select.py" apply --selection "$SELECTION" --tests "$RUNNER_TEMP/tests.json" --selected "$RUNNER_TEMP/selected.txt" --skipped "$RUNNER_TEMP/skipped.json"; then
+            echo "::warning::The test selection failed, so every test runs."
+            rm -f "$RUNNER_TEMP/selected.txt" "$RUNNER_TEMP/skipped.json"
+            MODE=all
+            echo "MODE=all" >> "$GITHUB_ENV"
+          fi
+          [ "$MODE" = partial ] && echo "Running $(wc -l < "$RUNNER_TEMP/selected.txt") tests, skipping $(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$RUNNER_TEMP/skipped.json")." || true
       - name: List the tests in the test comment
-        # The tests are known now (this is also the first point at which a new test is), so the comment lists all of them as pending.
+        # The comment lists all of them as pending, and the ones that are skipped as skipped.
         if: env.RUN == 'true' && env.COMMENT == 'true'
         continue-on-error: true
         working-directory: build/code_compiler
         run: |
-          ctest -C Release --show-only=json-v1 > "$RUNNER_TEMP/tests.json"
-          python3 "$GITHUB_WORKSPACE/.github/scripts/test-report.py" --state pending --sha "$SHA" --run-url "$RUN_URL" --tests "$RUNNER_TEMP/tests.json" > "$RUNNER_TEMP/comment.md"
+          SKIPPED=(); [ -f "$RUNNER_TEMP/skipped.json" ] && SKIPPED=(--skipped "$RUNNER_TEMP/skipped.json")
+          python3 "$GITHUB_WORKSPACE/.github/scripts/test-report.py" --state pending --sha "$SHA" --run-url "$RUN_URL" --tests "$RUNNER_TEMP/tests.json" "${SKIPPED[@]}" > "$RUNNER_TEMP/comment.md"
           "$GITHUB_WORKSPACE/.github/scripts/test-comment.sh" post "$NUMBER" "$SHA" "$RUNNER_TEMP/comment.md"
       - name: Build
         if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
@@ -208,12 +243,15 @@ jobs:
           png = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b"")
           open("tests/checker.png", "wb").write(png)
           EOF
-      - name: Run all tests
+      - name: Run the tests
         if: env.RUN == 'true'
         working-directory: build/code_compiler
         # -j: the GPU tests are small. The ones that move the focus of a window are RUN_SERIAL. A test that skips itself (77)
-        # is reported as skipped and does not fail the run.
-        run: xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml"
+        # is reported as skipped and does not fail the run. A partial selection runs the tests that the 'Select the tests' step
+        # listed (with the fixtures they need), and the others are not part of the results.
+        run: |
+          SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
+          xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
       - name: Report the results in the test comment
         # Also after a failure or a cancel, so the comment is never left pending. A run that was cancelled by a newer push is
         # not the head of the pull request anymore, so test-comment.sh leaves the comment to the new run.
@@ -231,6 +269,7 @@ jobs:
             STATE=failed
           fi
           [ -f "$RUNNER_TEMP/tests.json" ] || ARGS=(--previous /dev/null)
+          [ -f "$RUNNER_TEMP/skipped.json" ] && ARGS+=(--skipped "$RUNNER_TEMP/skipped.json")
           python3 .github/scripts/test-report.py --state "$STATE" --sha "$SHA" --run-url "$RUN_URL" "${ARGS[@]}" > "$RUNNER_TEMP/comment.md"
           .github/scripts/test-comment.sh post "$NUMBER" "$SHA" "$RUNNER_TEMP/comment.md"
       - name: Keep what the tests wrote
@@ -246,4 +285,4 @@ jobs:
           if-no-files-found: ignore
       - name: Nothing to test
         if: env.RUN != 'true'
-        run: echo "Neither the compiler, the runtime, the dependencies, the build files nor the tests changed, so there is nothing new to test."
+        run: echo "Nothing that the tests depend on changed (documentation, the wiki, other workflows), so there is nothing to test."

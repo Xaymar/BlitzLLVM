@@ -129,7 +129,7 @@ def main():
     out.append("")
 
     if args.state == "skipped":
-        out.append("Neither the compiler, the runtime, the dependencies, the build files nor the tests changed, so there was nothing new to test.")
+        out.append("Nothing that the tests depend on changed (documentation, the wiki, other workflows), so there was nothing to test.")
         print("\n".join(out))
         return
     if not rows:
