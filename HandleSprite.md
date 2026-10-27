@@ -29,7 +29,7 @@ Moves the point that the sprite is held at, which is also the point it turns and
 
 ## Related Commands
 
-[CreateSprite](CreateSprite), [LoadSprite](LoadSprite), [RotateSprite](RotateSprite), [ScaleSprite](ScaleSprite), [SpriteViewMode](SpriteViewMode)
+[CreateSprite](CreateSprite), [LoadSprite](LoadSprite), [RotateSprite](RotateSprite), [ScaleSprite](ScaleSprite), [SpriteDepthFade](SpriteDepthFade) 〔BlitzLLVM〕, [SpriteViewMode](SpriteViewMode)
 
 <div align="center">
 

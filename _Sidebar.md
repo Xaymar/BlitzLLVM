@@ -17,7 +17,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (25)</summary>
+<li><details><summary>Features (26)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -40,13 +40,14 @@
 <li><a href="Numbers-of-Other-Sizes">Numbers of other sizes</a></li>
 <li><a href="Samplers">Samplers</a></li>
 <li><a href="Sound-Resampling">Sound resampling</a></li>
+<li><a href="Sprite-Depth-Fade">Sprite depth fade</a></li>
 <li><a href="Sprite-Shapes">Sprite shapes</a></li>
 <li><a href="Types">Types everywhere</a></li>
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (251)</summary>
+<li><details><summary>Commands (252)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -265,6 +266,7 @@
 <li><a href="SetToolBarTips#differences">SetToolBarTips</a></li>
 <li><a href="Short#differences">Short</a> 〔BlitzLLVM〕</li>
 <li><a href="ShowPointer#differences">ShowPointer</a></li>
+<li><a href="SpriteDepthFade#differences">SpriteDepthFade</a> 〔BlitzLLVM〕</li>
 <li><a href="SpriteViewMode#differences">SpriteViewMode</a></li>
 <li><a href="StartNetGame#differences">StartNetGame</a></li>
 <li><a href="Stats3D#differences">Stats3D</a></li>
@@ -1006,13 +1008,14 @@
 <li><a href="PickedZ">PickedZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Sprites">Sprites</a> (6)</summary>
+<li><details><summary><a href="Blitz3D-Sprites">Sprites</a> (7)</summary>
 <ul>
 <li><a href="CreateSprite">CreateSprite</a></li>
 <li><a href="HandleSprite">HandleSprite</a></li>
 <li><a href="LoadSprite">LoadSprite</a></li>
 <li><a href="RotateSprite">RotateSprite</a></li>
 <li><a href="ScaleSprite">ScaleSprite</a></li>
+<li><a href="SpriteDepthFade">SpriteDepthFade</a> 〔BlitzLLVM〕</li>
 <li><a href="SpriteViewMode">SpriteViewMode</a></li>
 </ul>
 </details></li>

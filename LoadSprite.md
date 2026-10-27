@@ -68,7 +68,7 @@ WaitKey
 
 ## Related Commands
 
-[CreateSprite](CreateSprite), [HandleSprite](HandleSprite), [RotateSprite](RotateSprite), [ScaleSprite](ScaleSprite), [SpriteViewMode](SpriteViewMode)
+[CreateSprite](CreateSprite), [HandleSprite](HandleSprite), [RotateSprite](RotateSprite), [ScaleSprite](ScaleSprite), [SpriteDepthFade](SpriteDepthFade) 〔BlitzLLVM〕, [SpriteViewMode](SpriteViewMode)
 
 <div align="center">
 

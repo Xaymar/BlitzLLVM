@@ -33,6 +33,7 @@ Differences that are not caused by one command.
 * [Numbers of other sizes](Numbers-of-Other-Sizes): Extension: `Byte`, `Short`, `UInt`, `Long`, `Half`, `Double` and the like, with conversions, saturating versions, bit functions and Double math.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
 * [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZ_AUDIO_CLASSIC` restores the FMOD sound.
+* [Sprite depth fade](Sprite-Depth-Fade): Extension: `SpriteDepthFade` fades see-through sprites out where they get close to solid geometry (soft particles); the original has no such command.
 * [Sprite shapes](Sprite-Shapes): Sprites with a round or cut-out texture are drawn as the smallest octagon that the texture can be seen in, not as a square; the picture is the same within one level of a color.
 * [Types everywhere](Types): Extension: `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double` work everywhere a type can be written.
 * [Userlib declarations](Userlib-Declarations): `.decls` files take the long type names as well as the short ones, for all the new types.
@@ -259,6 +260,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [SetToolBarTips](SetToolBarTips#differences): A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed.
 * [Short](Short#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ShowPointer](ShowPointer#differences): BlitzPlus lets the pointer be shown per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
+* [SpriteDepthFade](SpriteDepthFade#differences) 〔BlitzLLVM〕: The original has no such command.
 * [SpriteViewMode](SpriteViewMode#differences): The descriptions in the official help do not exactly match the engine.
 * [StartNetGame](StartNetGame#differences): The original showed a dialog box with the games found in the network.
 * [Stats3D](Stats3D#differences): The original also reports the vertices and triangles of the terrains in indexes 1 and 2.

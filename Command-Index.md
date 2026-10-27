@@ -752,6 +752,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SoundPan](SoundPan)
 * [SoundPitch](SoundPitch)
 * [SoundVolume](SoundVolume)
+* [SpriteDepthFade](SpriteDepthFade) 〔BlitzLLVM〕
 * [SpriteViewMode](SpriteViewMode)
 * [Sqr](Sqr)
 * [StartNetGame](StartNetGame)

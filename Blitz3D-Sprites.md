@@ -14,4 +14,5 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [LoadSprite](LoadSprite)
 * [RotateSprite](RotateSprite)
 * [ScaleSprite](ScaleSprite)
+* [SpriteDepthFade](SpriteDepthFade) 〔BlitzLLVM〕
 * [SpriteViewMode](SpriteViewMode)

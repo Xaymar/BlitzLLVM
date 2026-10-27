@@ -19,7 +19,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Lights](Blitz3D-Lights) (5): Light types, color, range and cone angles.
 * [Meshes](Blitz3D-Meshes) (23): Creating, loading, transforming and querying meshes.
 * [Picking](Blitz3D-Picking) (15): Finding what lies under a point, line or camera position.
-* [Sprites](Blitz3D-Sprites) (6): Camera-facing sprites.
+* [Sprites](Blitz3D-Sprites) (7): Camera-facing sprites.
 * [Surfaces](Blitz3D-Surfaces) (29): Vertices, triangles and surfaces of a mesh.
 * [Terrain](Blitz3D-Terrain) (10): Height-map terrains.
 * [Textures](Blitz3D-Textures) (46): Creating, loading, transforming and filtering textures.
