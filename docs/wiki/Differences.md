@@ -44,7 +44,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [AppTitle](AppTitle#differences): The title is only used once a graphics mode is open.
 * [AvailVidMem](AvailVidMem#differences): The graphics card cannot be asked how much of its memory is still free.
 * [BrushTexture](BrushTexture#differences): Layers 0 to 7 are accepted.
-* [BSPAmbientLight](BSPAmbientLight#differences): Here the color multiplies the vertex colors: a new level starts at 255, 255, 255 and smaller values tint and darken it, down to black for 0, 0, 0.
+* [BSPAmbientLight](BSPAmbientLight#differences): The original adds the color to the light of each face before the texture is applied, and lights the vertices of a level with point and spot lights too.
 * [BSPLighting](BSPLighting#differences): The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness.
 * [BufferDirty](BufferDirty#differences): Has no effect.
 * [Byte](Byte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.

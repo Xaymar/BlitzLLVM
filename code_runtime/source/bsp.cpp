@@ -445,13 +445,14 @@ void bb_bsp_lightmap_color(int32_t handle, float r, float g, float b)
 	e->bsp_tint[2] = (b < 0 ? 0 : (b > 255 ? 255 : b)) / 255.0f;
 }
 
-// How bright the level is without light, as colors of 0 to 255.
+// How bright the level is without light, as colors of 0 to 255. It is added to the light of the level, which is a lightmap
+// or the colors of the vertices, and is 0, 0, 0 for a new level.
 void bb_bsp_ambient_light(int32_t handle, float r, float g, float b)
 {
 	need_bsp(handle, "BSPAmbientLight");
 	entity* e = get_entity(handle);
-	e->color[0] = (r < 0 ? 0 : (r > 255 ? 255 : r)) / 255.0f;
-	e->color[1] = (g < 0 ? 0 : (g > 255 ? 255 : g)) / 255.0f;
-	e->color[2] = (b < 0 ? 0 : (b > 255 ? 255 : b)) / 255.0f;
+	e->bsp_ambient[0] = (r < 0 ? 0 : (r > 255 ? 255 : r)) / 255.0f;
+	e->bsp_ambient[1] = (g < 0 ? 0 : (g > 255 ? 255 : g)) / 255.0f;
+	e->bsp_ambient[2] = (b < 0 ? 0 : (b > 255 ? 255 : b)) / 255.0f;
 }
 }

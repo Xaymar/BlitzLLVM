@@ -192,6 +192,7 @@ namespace bb {
 		int   fx       = 0; // 1 = fullbright, 2 = vertex colors, 4 = flat shading, 8 = no fog, 16 = two-sided, 32 = vertex alpha
 		int   texture  = 0; // Handle, 0 for none.
 		int   layers[7] = {}; // The textures on the layers after the first, which are drawn over it.
+		float bsp_ambient[3] = { 0, 0, 0 }; // Of a level: BSPAmbientLight, which is added to the light of the level.
 		float bsp_tint[3] = { 1, 1, 1 }; // Of a level: BSPLightmapColor, which the whole level is multiplied with.
 		// Collisions and picking, see collision.cpp
 		int   coll_type = 0;              // 0 = does not collide

@@ -1026,6 +1026,26 @@ namespace bb::gfx {
 				ensure_entities(draws.size + 1);
 				draws.push(tint);
 			}
+
+			// The ambient light of a level, BSPAmbientLight, is light like the lightmap is, so it is added to what the
+			// texture of the face gets: the texture drawn again in the color of the ambient light, added on.
+			if (e->cls && !surface_blended && (e->bsp_ambient[0] > 0 || e->bsp_ambient[1] > 0 || e->bsp_ambient[2] > 0) && !strcmp(e->cls, "BSP")) {
+				draw_record ambient      = record;
+				ambient.push.material[0] = e->bsp_ambient[0];
+				ambient.push.material[1] = e->bsp_ambient[1];
+				ambient.push.material[2] = e->bsp_ambient[2];
+				ambient.push.material[3] = 1;
+				ambient.push.params[0]   = 1; // Not lit again.
+				ambient.push.params[1]   = 0; // The color, not the colors of the vertices.
+				ambient.push.params[3]   = 0;
+				ambient.push.mask[1]     = 1; // No fog again either, the first layer has it.
+				ambient.push.mask[2]     = 0;
+				ambient.pipeline         = g.add3d;
+				ambient.depth_write      = false;
+				ambient.unit_start       = false;
+				ensure_entities(draws.size + 1);
+				draws.push(ambient);
+			}
 		}
 	}
 

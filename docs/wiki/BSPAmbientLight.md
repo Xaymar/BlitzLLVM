@@ -30,11 +30,11 @@ BSPAmbientLight bsp:Int32, red:Float32, green:Float32, blue:Float32
 
 ## Description
 
-Sets a color that a level is brightened with. Levels ignore the normal [AmbientLight](AmbientLight). It can make a dark level easier to see, although using the gamma value of LoadBSP looks nicer in the original.
+Sets the ambient light of a level, a color that is added to the light the level has, which is its lightmap or, with vertex lighting, the colors of its vertices. A new level starts at 0, 0, 0, so nothing is added. Levels ignore the normal [AmbientLight](AmbientLight), which is why this command exists. It can make a dark level easier to see, although using the gamma value of [LoadBSP](LoadBSP) looks nicer in the original. To multiply the level with a color instead, use [BSPLightmapColor](BSPLightmapColor).
 
 ## Differences
 
-* Here the color multiplies the vertex colors: a new level starts at 255, 255, 255 and smaller values tint and darken it, down to black for 0, 0, 0. The original adds the color to the lightmap light and starts at 0, 0, 0.
+* The original adds the color to the light of each face before the texture is applied, and lights the vertices of a level with point and spot lights too. Here the color is added after the lightmap and the texture, as the texture times the color, and no light affects a level, so the result is the same where a texture is white or missing and close otherwise. The color is not changed by [BSPLightmapColor](BSPLightmapColor).
 
 ## Related Commands
 
