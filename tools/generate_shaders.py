@@ -703,10 +703,45 @@ def fragment_shader_masked(mask_offset, fog=False):
     key = b.const_vec(3, 0.0) if fog else b.swizzle(mask, 3)
     diff = b.ext(v3, GLSL_FABS, b.fsub(v3, b.swizzle(t, 3), key))
     biggest = b.ext(f, GLSL_FMAX, b.ext(f, GLSL_FMAX, b.extract(diff, 0), b.extract(diff, 1)), b.extract(diff, 2))
-    same = b.fmul(f, b.ext(f, GLSL_STEP, biggest, epsilon), b.extract(mask, 3))
+    mask_w = b.extract(mask, 3)
+    if fog:
+        # In 3D the fourth value also says what the first texture does with the color: it is the cut-out flag plus twice the
+        # blend, which is 0 for multiply (the usual), 1 for alpha, 2 add, 3 dot3, 4 twice multiply and 5 for no texture at all.
+        # Textures that have no alpha channel have an alpha of 1, whatever a program drew into them: that is 16 more.
+        no_alpha = b.ext(f, GLSL_STEP, b.const_float(15.5), mask_w)
+        mask_w = b.fsub(f, mask_w, b.fmul(f, no_alpha, b.const_float(16.0)))
+        blend_code = b.ext(f, GLSL_FLOOR, b.fmul(f, mask_w, b.const_float(0.5)))
+        mask_w = b.fsub(f, mask_w, b.fmul(f, blend_code, b.const_float(2.0)))
+        t = b.construct(4, b.extract(t, 0), b.extract(t, 1), b.extract(t, 2), b.ext(f, GLSL_FMAX, b.extract(t, 3), no_alpha))
+    same = b.fmul(f, b.ext(f, GLSL_STEP, biggest, epsilon), mask_w)
     alpha = b.fmul(f, b.extract(t, 3), b.fsub(f, c1, same))
     visible = b.construct(4, b.extract(t, 0), b.extract(t, 1), b.extract(t, 2), alpha)
     result = b.fmul(v4, color, visible)
+    if fog:
+        # TextureBlend of the first texture, as the stages of Direct3D 7 do it: the texture is the first argument and the
+        # color of the lighting the second. Each result is limited to what a color can be, as a stage is.
+        zeros3, ones3 = b.const_vec(3, 0.0), b.const_vec(3, 1.0)
+        col, texel = b.swizzle(color, 3), b.swizzle(t, 3)
+        half3 = b.const_vec(3, 0.5)
+        by_alpha = b.fadd(v3, col, b.scale(3, b.fsub(v3, texel, col), b.extract(t, 3)))
+        added = b.ext(v3, GLSL_FCLAMP, b.fadd(v3, texel, col), zeros3, ones3)
+        dotted = b.ext(f, GLSL_FCLAMP, b.fmul(f, b.dot(b.fsub(v3, texel, half3), b.fsub(v3, col, half3)), b.const_float(4.0)), b.const_float(0.0), c1)
+        dot3 = b.construct(3, dotted, dotted, dotted)
+        twice = b.ext(v3, GLSL_FCLAMP, b.scale(3, b.fmul(v3, texel, col), b.const_float(2.0)), zeros3, ones3)
+        multiplied = b.swizzle(result, 3)
+
+        def weight(code):
+            return b.fsub(f, b.ext(f, GLSL_STEP, b.const_float(code - 0.5), blend_code), b.ext(f, GLSL_STEP, b.const_float(code + 0.5), blend_code))
+
+        rgb3 = b.fmul(v3, multiplied, b.scale(3, ones3, weight(0)))
+        for code, value in ((1, by_alpha), (2, added), (3, dot3), (4, twice), (5, col)):
+            rgb3 = b.fadd(v3, rgb3, b.scale(3, value, weight(code)))
+        # Without a texture the alpha of the color stays as it is, too.
+        no_texture = weight(5)
+        alpha_out = b.fadd(f, b.extract(result, 3), b.fmul(f, b.fsub(f, b.extract(color, 3), b.extract(result, 3)), no_texture))
+        # Dot3 is written to all four channels, the alpha as well.
+        alpha_out = b.fadd(f, alpha_out, b.fmul(f, b.fsub(f, dotted, alpha_out), weight(3)))
+        result = b.construct(4, b.extract(rgb3, 0), b.extract(rgb3, 1), b.extract(rgb3, 2), alpha_out)
     if fog:
         # The highlight of lights is added to what the texture made of the color.
         lit_rgb = b.fadd(v3, b.swizzle(result, 3), spec)
