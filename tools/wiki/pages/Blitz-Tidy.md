@@ -11,6 +11,7 @@
 blitz-tidy program.bb                 # print the fixed program
 blitz-tidy -i program.bb lib.bb       # fix the files
 blitz-tidy --diff program.bb          # show what would change, exit code 1 if something would
+blitz-tidy -r -i src/                 # fix every .bb, .b3d and .bp file below a directory
 blitz-tidy --check *.bb               # list the files that would change, exit code 1 if there are any
 blitz-tidy < program.bb               # standard input to standard output
 ```
@@ -87,7 +88,9 @@ A setting is `--name=value` on the command line, `name = value` in a `.blitz-tid
 | `max_passes` | How often the file is fixed and compiled again. Default 20. |
 | `userlibs_dir` | Where the userlibs are, like `--userlibs-dir` of `blitzcc`. Defaults to `$BLITZLLVM_USERLIBS`, then to the `userlibs` of the installation. |
 
-Options: `-i`, `--check`, `--diff`, `-q`, `--config=FILE`, `--no-config`, `--stdin-filepath=PATH`, `--print-config`, `--rules` and `-v`.
+Options: `-i`, `-r`/`--recursive`, `--check`, `--diff`, `-q`, `--config=FILE`, `--no-config`, `--stdin-filepath=PATH`, `--print-config`, `--rules` and `-v`.
+
+`-r` replaces every directory in the command line with the `.bb`, `.b3d` and `.bp` files below it (any case of the extension, in sorted order, symbolic links to directories are not followed). Each file is fixed with the configuration file that is closest to it. Files named on the command line are always used, whatever their extension, and a directory without `-r` is an error.
 
 The configuration is read from `.blitz-tidy` or `blitz-tidy.json` in the directory of the file, or in the closest directory above it. The command line wins over the file.
 
