@@ -5,12 +5,30 @@
 ; same as when it is loaded without threads, a file that is no model still gives 0, and the file can go right after loading.
 Include "check.bb"
 
+
+Global trace$ = ""
+Function Mark(stage$)
+	trace$ = trace$ + stage$ + " | "
+	f = WriteFile("async_mesh_mark.txt")
+	WriteLine f, trace$
+	CloseFile f
+End Function
+
+If FileType("async_mesh_mark.txt") = 1
+	f = ReadFile("async_mesh_mark.txt")
+	left$ = ReadLine$(f)
+	CloseFile f
+	DeleteFile "async_mesh_mark.txt"
+	RuntimeError "TRACE OF A CRASHED RUN: " + left$
+EndIf
+
 Graphics3D 320, 240, 32, 2
 
 unique$ = "suite_async_mesh_" + MilliSecs()
 copy_name$ = unique$ + ".3ds"
 junk_name$ = unique$ + ".junk.3ds"
 
+Mark "S1: Without threads every entity is ready."
 ; Without threads every entity is ready.
 AsyncLoading False
 blocking_mesh = LoadMesh("models/textured.3ds")
@@ -25,6 +43,7 @@ CheckTrue "Async LoadMesh gives an entity", mesh <> 0
 Check "Async LoadMesh missing", LoadMesh("suite_does_not_exist.3ds"), 0
 Check "Async LoadAnimMesh missing", LoadAnimMesh("suite_does_not_exist.3ds"), 0
 
+Mark "S2: Anything that asks for the model gets "
 ; Anything that asks for the model gets it finished.
 Check "Surfaces of an async mesh", CountSurfaces(mesh), CountSurfaces(blocking_mesh)
 s = GetSurface(mesh, 1)
@@ -37,6 +56,7 @@ Check "Picture of an async mesh", TextureWidth(GetBrushTexture(GetSurfaceBrush(s
 Check "An async mesh is ready once it was used", EntityReady(mesh), 1
 Check "Size of an async mesh", MeshWidth(mesh), MeshWidth(blocking_mesh)
 
+Mark "S3: A model with a hierarchy."
 ; A model with a hierarchy.
 anim = LoadAnimMesh("models/anim.3ds")
 CheckTrue "Async LoadAnimMesh gives an entity", anim <> 0
@@ -44,6 +64,7 @@ Check "Children of an async model", CountChildren(anim), CountChildren(blocking_
 Check "Length of an async model", AnimLength(anim), AnimLength(blocking_anim)
 CheckS "Name of a child of an async model", EntityName(GetChild(anim, 1)), EntityName(GetChild(blocking_anim, 1))
 
+Mark "S4: Placing it before anything else asks f"
 ; Placing it before anything else asks for it works, and so does a parent.
 pivot = CreatePivot()
 PositionEntity pivot, 5, 6, 7
@@ -54,6 +75,7 @@ Check "Width of a child made async", MeshWidth(child), 2
 PositionEntity child, 1, 0, 0
 Check "A model that was moved", EntityX(child, True), 6
 
+Mark "S5: The file is read when LoadMesh is call"
 ; The file is read when LoadMesh is called, so it can be gone at once.
 CopyFile "models/quad.3ds", copy_name$
 moved = LoadMesh(copy_name$)
@@ -61,6 +83,7 @@ DeleteFile copy_name$
 CheckTrue "A model of a deleted file", moved <> 0
 Check "A model of a deleted file has its surface", CountSurfaces(moved), 1
 
+Mark "S6: A file that is no model gives 0 at onc"
 ; A file that is no model gives 0 at once, as it does without threads.
 f = WriteFile(junk_name$)
 WriteLine f, "this is no model"
@@ -69,11 +92,13 @@ Check "Async LoadMesh of a file that is no model", LoadMesh(junk_name$), 0
 Check "Async LoadAnimMesh of a file that is no model", LoadAnimMesh(junk_name$), 0
 DeleteFile junk_name$
 
+Mark "S7: A model that is not parsed by a thread"
 ; A model that is not parsed by a thread, like .x, is the same as before.
 x = LoadMesh("models/directx.x")
 CheckTrue "A .x model", x <> 0
 Check "A .x model is ready", EntityReady(x), 1
 
+Mark "S8: Many at once, used afterwards."
 ; Many at once, used afterwards.
 Dim many(15)
 For i = 0 To 15
@@ -85,6 +110,7 @@ For i = 0 To 15
 Next
 Check "Sixteen models loaded and used afterwards", total, 16
 
+Mark "S9: Waiting for EntityReady alone finishes"
 ; Waiting for EntityReady alone finishes the model.
 late = LoadAnimMesh("models/anim.3ds")
 waited = 0
@@ -95,6 +121,7 @@ Wend
 Check "EntityReady becomes 1", EntityReady(late), 1
 Check "A model that was waited for", CountChildren(late), CountChildren(blocking_anim)
 
+Mark "S10: Freeing a model that is still being pa"
 ; Freeing a model that is still being parsed is fine, and a copy of one is a full copy.
 for_free = LoadMesh("models/quad.3ds")
 FreeEntity for_free
@@ -108,6 +135,7 @@ Check "The original after its copy was freed", CountSurfaces(original), 1
 FreeEntity original
 suite_checks = suite_checks + 1
 
+Mark "S11: Flip finishes models that are done."
 ; Flip finishes models that are done.
 flipped = LoadMesh("models/quad.3ds")
 For i = 1 To 200
@@ -117,5 +145,8 @@ For i = 1 To 200
 Next
 Check "Flip lets the model finish", EntityReady(flipped), 1
 
+Mark "BEFORE END"
 AsyncLoading False
+Mark "ASYNC OFF"
+DeleteFile "async_mesh_mark.txt"
 Done "blitz3d_async_mesh_pixels"
