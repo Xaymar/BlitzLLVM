@@ -275,22 +275,22 @@ shot$ = GetEnv$("BENCH_SHOT")
 If shot$ <> "" Then SaveBuffer BackBuffer(), shot$
 
 ; Sorting the times gives the median and the 95th percentile.
-Dim s#(frames - 1)
+Dim srt#(frames - 1)
 For i = 0 To frames - 1
-	s(i) = times(i)
+	srt(i) = times(i)
 Next
 gap = frames / 2
 While gap > 0
 	For i = gap To frames - 1
-		v# = s(i)
+		v# = srt(i)
 		j = i
 		; And does not skip the second test, so the index is checked first.
 		While j >= gap
-			If s(j - gap) <= v Then Exit
-			s(j) = s(j - gap)
+			If srt(j - gap) <= v Then Exit
+			srt(j) = srt(j - gap)
 			j = j - gap
 		Wend
-		s(j) = v
+		srt(j) = v
 	Next
 	gap = gap / 2
 Wend
@@ -308,7 +308,7 @@ If timesfile$ <> "" Then
 EndIf
 
 avg# = total / frames / 1000
-result$ = "RESULT sprites=" + count + " frames=" + frames + " seed=" + seed + " static=" + still + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " update_ms=" + (updatetotal / frames / 1000) + " ms_avg=" + avg + " ms_min=" + (s(0) / 1000) + " ms_median=" + (s(frames / 2) / 1000) + " ms_p95=" + (s(p95) / 1000) + " ms_max=" + (s(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
+result$ = "RESULT sprites=" + count + " frames=" + frames + " seed=" + seed + " static=" + still + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " update_ms=" + (updatetotal / frames / 1000) + " ms_avg=" + avg + " ms_min=" + (srt(0) / 1000) + " ms_median=" + (srt(frames / 2) / 1000) + " ms_p95=" + (srt(p95) / 1000) + " ms_max=" + (srt(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
 DebugLog result$
 resultfile$ = GetEnv$("BENCH_RESULT")
 If resultfile$ <> "" Then

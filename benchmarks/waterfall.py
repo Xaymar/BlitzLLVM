@@ -68,13 +68,15 @@ def main():
     # The original Blitz3D prints only a version number for -v and has no optimization level or profiling, BlitzLLVM prints
     # "Compiler version:...". The same program is built with either, so that their speeds can be compared.
     version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
-    llvm = "Compiler version" in version
+    llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
     flags = ["-d"] if args.debug else (["-O3"] if llvm else [])
     if args.profile and llvm:
         flags.append("--profile")
     if not llvm:
         # The original compiler reads its runtime and libraries from BLITZPATH, the folder that has bin\ in it.
         os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
+        # Without BLITZPATH the original prints an error instead of its version.
+        version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
     runner = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (width, height)]
     if runner and not shutil.which("xvfb-run"):
         sys.exit("There is no display and no xvfb-run.")
@@ -86,7 +88,7 @@ def main():
         source = os.path.join(directory, "waterfall.bb")
         shutil.copy(os.path.join(HERE, "waterfall.bb"), source)
         shutil.copy(os.path.join(HERE, "waterfall_llvm.bi" if llvm else "waterfall_original.bi"), os.path.join(directory, "waterfall_counters.bi"))
-        build = subprocess.run([compiler, "-q"] + flags + [source, "-o", program], cwd=directory, capture_output=True, text=True)
+        build = subprocess.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
         env = dict(os.environ, BENCH_SPRITES=str(args.sprites), BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,

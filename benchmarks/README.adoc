@@ -134,3 +134,5 @@ python benchmarks\waterfall.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe --sprites 
 ----
 
 The original times have a resolution of one millisecond, so use enough frames (`--frames 1500`) and look at the average.
+
+NOTE: The original `SaveBuffer` writes a BMP whatever the file is called, so a `--shot` made with the original needs converting to compare it.
