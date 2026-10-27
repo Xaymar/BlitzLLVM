@@ -20,6 +20,8 @@
 ;   BENCH_SEED       seed of the random offsets (default 1)
 ;   BENCH_W, BENCH_H size of the window (default 640 x 360)
 ;   BENCH_CAMPFIRES  chance in percent that a room has a campfire (default 25, and at least one room has)
+;   BENCH_SPRITESCALE  how many times bigger the flames and smoke are drawn (default 1; with 6 every sprite covers 36 times the pixels, so
+;                    the overdraw is what the GPU spends its time on, and what early-Z saves)
 ;   BENCH_COVERAGE   1 also counts the sprites that are in the view of the camera, after the frame is timed (default 0)
 ;   BENCH_STATIC     1 places the particles once (frame 0), so only the camera moves (default 0: the fire burns)
 ;   BENCH_SHOT       file to save the last frame to (optional)
@@ -81,6 +83,8 @@ seed = Int(Env$("BENCH_SEED", 1))
 still = Int(Env$("BENCH_STATIC", 0))
 campfires = Int(Env$("BENCH_CAMPFIRES", 25))
 coverage = Int(Env$("BENCH_COVERAGE", 0))
+spritescale# = Float(Env$("BENCH_SPRITESCALE", 1))
+If spritescale < 0.1 Then spritescale = 0.1
 If rooms < 2 Then rooms = 2
 If torches < 1 Then torches = 1
 If torches > 8 Then torches = 8
@@ -694,7 +698,7 @@ For f = 0 To warmup + frames - 1
 					u = u - Floor(u)
 					sz = (0.5 * (1 - u) + 0.05) * sc
 					PositionEntity spr(n), sourcex(t) + ox(n) * 0.12 * sc * (1 - u), flamey(t) + u * flamerise(t), sourcez(t) + oz(n) * 0.12 * sc * (1 - u)
-					ScaleSprite spr(n), sz, sz
+					ScaleSprite spr(n), sz * spritescale, sz * spritescale
 					EntityAlpha spr(n), 0.9 * (1 - u)
 				Else
 					; Smoke: rises in 90 frames, drifts sideways, grows and thins out.
@@ -702,7 +706,7 @@ For f = 0 To warmup + frames - 1
 					u = u - Floor(u)
 					sz = (0.35 + u * 1.1) * (1 + (sc - 1) * 0.6)
 					PositionEntity spr(n), sourcex(t) + ox(n) * 0.5 * u * sc, smokey(t) + u * smokerise(t), sourcez(t) + oz(n) * 0.5 * u * sc
-					ScaleSprite spr(n), sz, sz
+					ScaleSprite spr(n), sz * spritescale, sz * spritescale
 					EntityAlpha spr(n), 0.4 * Sin(u * 180)
 				EndIf
 			Next
@@ -769,7 +773,7 @@ If timesfile$ <> "" Then
 EndIf
 
 avg# = total_ms / frames / 1000
-result$ = "RESULT rooms=" + rooms + " campfires=" + nfire + " sprites=" + nparticles + " inview=" + (inviewsum / frames) + " torches=" + torches + " particles=" + particles + " props=" + props + " frames=" + frames + " seed=" + seed + " static=" + still + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " update_ms=" + (updatetotal / frames / 1000) + " ms_avg=" + avg + " ms_min=" + (srt(0) / 1000) + " ms_median=" + (srt(frames / 2) / 1000) + " ms_p95=" + (srt(p95) / 1000) + " ms_max=" + (srt(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
+result$ = "RESULT rooms=" + rooms + " campfires=" + nfire + " spritescale=" + spritescale + " sprites=" + nparticles + " inview=" + (inviewsum / frames) + " torches=" + torches + " particles=" + particles + " props=" + props + " frames=" + frames + " seed=" + seed + " static=" + still + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " update_ms=" + (updatetotal / frames / 1000) + " ms_avg=" + avg + " ms_min=" + (srt(0) / 1000) + " ms_median=" + (srt(frames / 2) / 1000) + " ms_p95=" + (srt(p95) / 1000) + " ms_max=" + (srt(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
 DebugLog result$
 resultfile$ = GetEnv$("BENCH_RESULT")
 If resultfile$ <> "" Then
