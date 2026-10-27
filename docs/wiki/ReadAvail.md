@@ -6,7 +6,12 @@
 
 # ReadAvail
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ _Not documented yet._
 * [ReadShort](ReadShort)
 * [ReadString](ReadString)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

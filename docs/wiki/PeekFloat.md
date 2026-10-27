@@ -6,7 +6,12 @@
 
 # PeekFloat
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ _Not documented yet._
 * [PeekShort](PeekShort)
 * [PokeFloat](PokeFloat)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

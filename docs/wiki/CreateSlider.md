@@ -6,7 +6,12 @@
 
 # CreateSlider
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -59,4 +64,8 @@ Until e = $803
 * [CreateTabber](CreateTabber)
 * [SetSliderRange](SetSliderRange)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

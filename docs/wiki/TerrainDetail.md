@@ -6,7 +6,12 @@
 
 # TerrainDetail
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Chooses how many triangles the terrain may use at a time, about 2000 being typic
 * [TerrainY](TerrainY)
 * [TerrainZ](TerrainZ)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>

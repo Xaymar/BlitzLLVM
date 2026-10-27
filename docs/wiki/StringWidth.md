@@ -6,7 +6,12 @@
 
 # StringWidth
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ WaitKey
 * [StringHeight](StringHeight)
 * [Text](Text)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>

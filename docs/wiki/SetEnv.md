@@ -6,7 +6,12 @@
 
 # SetEnv
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -32,4 +37,8 @@ Sets an environment variable for this program and for the programs it starts wit
 * [RuntimeError](RuntimeError)
 * [Stop](Stop)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

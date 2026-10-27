@@ -6,7 +6,12 @@
 
 # DisplayX 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ The left edge of a display on the desktop. The main display is usually at 0, and
 * [DisplayName](DisplayName) 〔BlitzLLVM〕
 * [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

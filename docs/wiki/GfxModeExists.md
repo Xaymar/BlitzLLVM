@@ -6,7 +6,12 @@
 
 # GfxModeExists
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -55,4 +60,8 @@ WaitKey
 * [GfxModeHeight](GfxModeHeight)
 * [GfxModeWidth](GfxModeWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

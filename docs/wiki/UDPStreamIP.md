@@ -6,7 +6,12 @@
 
 # UDPStreamIP
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ _Not documented yet._
 * [UDPStreamPort](UDPStreamPort)
 * [UDPTimeouts](UDPTimeouts)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

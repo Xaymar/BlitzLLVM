@@ -6,7 +6,12 @@
 
 # Eof
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -52,4 +57,8 @@ b
 * [ReadAvail](ReadAvail)
 * [ReadByte](ReadByte)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

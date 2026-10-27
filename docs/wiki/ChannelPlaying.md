@@ -6,7 +6,12 @@
 
 # ChannelPlaying
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ Delay 500
 * [ResumeChannel](ResumeChannel)
 * [StopChannel](StopChannel)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

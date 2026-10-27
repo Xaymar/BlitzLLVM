@@ -6,7 +6,12 @@
 
 # MoviePlaying
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Tells whether a movie is still playing. It becomes 0 when the movie reaches its 
 * [MovieVolume](MovieVolume) 〔BlitzLLVM〕
 * [MovieWidth](MovieWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>

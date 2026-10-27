@@ -6,7 +6,12 @@
 
 # ClearSurface
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -47,4 +52,8 @@ Print CountVertices(surf) + " vertices, " + CountTriangles(surf) + " triangles"
 * [GetSurface](GetSurface)
 * [PaintSurface](PaintSurface)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

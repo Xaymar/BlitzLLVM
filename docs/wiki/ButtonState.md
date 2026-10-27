@@ -6,7 +6,12 @@
 
 # ButtonState
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -46,4 +51,8 @@ Until e = $803
 * [CreateButton](CreateButton)
 * [SetButtonState](SetButtonState)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

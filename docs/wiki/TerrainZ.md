@@ -6,7 +6,12 @@
 
 # TerrainZ
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Returns the Z coordinate of the ground below or above a point of the world. As w
 * [TerrainX](TerrainX)
 * [TerrainY](TerrainY)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>

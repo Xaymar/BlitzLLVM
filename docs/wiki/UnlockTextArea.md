@@ -6,7 +6,12 @@
 
 # UnlockTextArea
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Allows the text area to be redrawn again after [LockTextArea](LockTextArea) and 
 * [SetTextAreaTabs](SetTextAreaTabs)
 * [SetTextAreaText](SetTextAreaText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>

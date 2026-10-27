@@ -6,7 +6,12 @@
 
 # Half 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -53,4 +58,8 @@ Print Half(0.1) = 0.1
 * [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 * [Log](Log)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

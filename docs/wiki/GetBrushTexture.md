@@ -6,7 +6,12 @@
 
 # GetBrushTexture
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Returns the texture on one layer of the brush, or 0 if there is none. Combine it
 * [GetEntityBrush](GetEntityBrush)
 * [GetSurfaceBrush](GetSurfaceBrush)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

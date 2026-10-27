@@ -6,7 +6,12 @@
 
 # LockTextArea
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ Until WaitEvent() = $803
 * [SetTextAreaText](SetTextAreaText)
 * [UnlockTextArea](UnlockTextArea)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>

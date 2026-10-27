@@ -6,7 +6,12 @@
 
 # CreateTerrain
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>
+
 
 ## Command Syntax
 
@@ -81,4 +86,8 @@ WaitKey
 * [TerrainX](TerrainX)
 * [TerrainY](TerrainY)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>

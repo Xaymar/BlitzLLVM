@@ -6,7 +6,12 @@
 
 # HotKeyEvent
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -50,4 +55,8 @@ Until e = $803
 * [Notify](Notify)
 * [PauseTimer](PauseTimer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

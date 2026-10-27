@@ -6,7 +6,12 @@
 
 # WaitJoy
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -55,4 +60,8 @@ Delay 1000
 * [JoyRoll](JoyRoll)
 * [JoyWait](JoyWait)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

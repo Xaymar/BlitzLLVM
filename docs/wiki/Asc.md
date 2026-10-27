@@ -6,7 +6,12 @@
 
 # Asc
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Print Asc("BCD")
 * [Bin](Bin)
 * [Chr](Chr)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

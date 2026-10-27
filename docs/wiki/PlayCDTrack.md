@@ -6,7 +6,12 @@
 
 # PlayCDTrack
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -46,4 +51,8 @@ WaitKey
 * [PlayMusic](PlayMusic)
 * [PlaySound](PlaySound)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

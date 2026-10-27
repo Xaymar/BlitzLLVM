@@ -6,7 +6,12 @@
 
 # CurrentTime
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Print "It is " + CurrentTime$()
 * [Hex](Hex)
 * [Instr](Instr)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

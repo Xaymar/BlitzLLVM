@@ -6,7 +6,12 @@
 
 # GetJoy
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -57,4 +62,8 @@ Wend
 * [JoyType](JoyType)
 * [WaitJoy](WaitJoy)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

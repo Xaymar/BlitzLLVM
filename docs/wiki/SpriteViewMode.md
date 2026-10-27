@@ -6,7 +6,12 @@
 
 # SpriteViewMode
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
+
+</div>
+
 
 ## Command Syntax
 
@@ -89,4 +94,8 @@ Next
 * [RotateSprite](RotateSprite)
 * [ScaleSprite](ScaleSprite)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
+
+</div>

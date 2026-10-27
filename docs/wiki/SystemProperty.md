@@ -6,7 +6,12 @@
 
 # SystemProperty
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -50,4 +55,8 @@ Folders end with a separator, except for the ones of Windows, which are as the s
 * [Stop](Stop)
 * [WaitTimer](WaitTimer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

@@ -6,7 +6,12 @@
 
 # PokeShort
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Writes a 2-byte value, low byte first. Values outside 0 to 65535 wrap around.
 * [PokeFloat](PokeFloat)
 * [PokeInt](PokeInt)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

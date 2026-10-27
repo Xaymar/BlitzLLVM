@@ -6,7 +6,12 @@
 
 # AvailVidMem
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -32,4 +37,8 @@ The amount of video memory that is free, in bytes. Every image and texture uses 
 * [CountDisplays](CountDisplays) 〔BlitzLLVM〕
 * [TotalVidMem](TotalVidMem)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

@@ -6,7 +6,12 @@
 
 # ImageWidth
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The width of one frame of an image in pixels.
 * [ImageXHandle](ImageXHandle)
 * [ImageYHandle](ImageYHandle)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

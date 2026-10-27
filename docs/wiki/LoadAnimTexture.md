@@ -6,7 +6,12 @@
 
 # LoadAnimTexture
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -89,4 +94,8 @@ Next
 * [ScaleTexture](ScaleTexture)
 * [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

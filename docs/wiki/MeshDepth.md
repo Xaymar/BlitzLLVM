@@ -6,7 +6,12 @@
 
 # MeshDepth
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Reads the size of the mesh along Z, taken from the vertices. Entity scale does n
 * [MeshHeight](MeshHeight)
 * [MeshWidth](MeshWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

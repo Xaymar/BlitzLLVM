@@ -6,7 +6,12 @@
 
 # PositionMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Moves every vertex of a mesh by an offset, permanently. Unlike [PositionEntity](
 * [LoadMesh](LoadMesh)
 * [PaintMesh](PaintMesh)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

@@ -6,7 +6,12 @@
 
 # DeltaPitch
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Tells you how far an entity has to tilt around its sideways axis to look at anot
 * [ProjectedX](ProjectedX)
 * [VectorPitch](VectorPitch)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

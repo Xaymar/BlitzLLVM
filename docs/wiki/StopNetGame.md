@@ -6,7 +6,12 @@
 
 # StopNetGame
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>
+
 
 ## Command Syntax
 
@@ -29,4 +34,8 @@ Leaves or ends the game. Players of this program are removed.
 * [NetMsgTo](NetMsgTo)
 * [StartNetGame](StartNetGame)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>

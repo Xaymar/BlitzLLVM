@@ -6,7 +6,12 @@
 
 # RotateEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Turns an entity to an absolute orientation. The three angles are in degrees: pit
 * [PointEntity](PointEntity)
 * [PositionEntity](PositionEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

@@ -6,7 +6,12 @@
 
 # LeadingZeros 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -56,4 +61,8 @@ Print LeadingZeros(0)
 * [Log](Log)
 * [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

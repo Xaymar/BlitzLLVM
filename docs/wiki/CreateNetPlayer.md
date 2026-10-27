@@ -6,7 +6,12 @@
 
 # CreateNetPlayer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>
+
 
 ## Command Syntax
 
@@ -46,4 +51,8 @@ EndIf
 * [NetPlayerLocal](NetPlayerLocal)
 * [NetPlayerName](NetPlayerName)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>

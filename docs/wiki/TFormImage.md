@@ -6,7 +6,12 @@
 
 # TFormImage
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -69,4 +74,8 @@ WaitKey
 * [LoadAnimImage](LoadAnimImage)
 * [TFormFilter](TFormFilter)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

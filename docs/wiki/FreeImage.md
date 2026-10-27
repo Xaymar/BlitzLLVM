@@ -6,7 +6,12 @@
 
 # FreeImage
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Releases an image and its video memory. The handle must not be used afterwards.
 * [LoadImage](LoadImage)
 * [MaskImage](MaskImage)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

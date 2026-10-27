@@ -6,7 +6,12 @@
 
 # SetSliderValue
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Moves the slider to a value from 0 to total minus visible. It does not send an e
 * [SetSliderRange](SetSliderRange)
 * [SliderValue](SliderValue)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

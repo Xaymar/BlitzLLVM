@@ -6,7 +6,12 @@
 
 # SelectTreeViewNode
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Selects a node, as if the user clicked it. There is no way to remove the selecti
 * [SelectedTreeViewNode](SelectedTreeViewNode)
 * [TreeViewNodeText](TreeViewNodeText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>

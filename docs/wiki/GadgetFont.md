@@ -6,7 +6,12 @@
 
 # GadgetFont
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Gives the font a gadget is drawn with. The official help lists the command as un
 * [GadgetY](GadgetY)
 * [SetGadgetFont](SetGadgetFont)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

@@ -6,7 +6,12 @@
 
 # ReadBytes
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -59,4 +64,8 @@ C
 * [ResizeBank](ResizeBank)
 * [WriteBytes](WriteBytes)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

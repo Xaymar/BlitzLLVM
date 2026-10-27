@@ -6,7 +6,12 @@
 
 # ChannelPan
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -53,4 +58,8 @@ StopChannel ch
 * [SoundPan](SoundPan)
 * [StopChannel](StopChannel)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

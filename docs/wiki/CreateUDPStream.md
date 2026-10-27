@@ -6,7 +6,12 @@
 
 # CreateUDPStream
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -59,4 +64,8 @@ CloseUDPStream b
 * [UDPStreamIP](UDPStreamIP)
 * [UDPStreamPort](UDPStreamPort)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

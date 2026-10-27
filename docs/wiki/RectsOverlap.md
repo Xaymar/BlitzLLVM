@@ -6,7 +6,12 @@
 
 # RectsOverlap
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ WaitKey
 * [MaskImage](MaskImage)
 * [MidHandle](MidHandle)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

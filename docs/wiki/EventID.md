@@ -6,7 +6,12 @@
 
 # EventID
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
+
+</div>
+
 
 ## Command Syntax
 
@@ -53,4 +58,8 @@ Forever
 * [PeekEvent](PeekEvent)
 * [WaitEvent](WaitEvent)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
+
+</div>

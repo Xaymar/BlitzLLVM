@@ -6,7 +6,12 @@
 
 # SetMinWindowSize
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>
+
 
 ## Command Syntax
 
@@ -51,4 +56,8 @@ Until WaitEvent() = $803
 * [SetStatusText](SetStatusText)
 * [UpdateWindowMenu](UpdateWindowMenu)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>

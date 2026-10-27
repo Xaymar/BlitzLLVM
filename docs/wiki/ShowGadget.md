@@ -6,7 +6,12 @@
 
 # ShowGadget
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Shows a gadget that was hidden with [HideGadget](HideGadget), together with the 
 * [FreeGadget](FreeGadget)
 * [HideGadget](HideGadget)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

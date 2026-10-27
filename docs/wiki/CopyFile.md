@@ -6,7 +6,12 @@
 
 # CopyFile
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -52,4 +57,8 @@ DeleteFile "files_copy_b.tmp"
 * [SeekFile](SeekFile)
 * [WriteFile](WriteFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

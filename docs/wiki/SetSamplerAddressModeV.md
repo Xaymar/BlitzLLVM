@@ -6,7 +6,12 @@
 
 # SetSamplerAddressModeV 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Chooses what is read where the vertical texture coordinate (v) is not between 0 
 * [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 * [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

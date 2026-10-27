@@ -6,7 +6,12 @@
 
 # CameraFogRange
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>
+
 
 ## Command Syntax
 
@@ -66,4 +71,8 @@ WaitKey
 * [CameraRange](CameraRange)
 * [CameraViewport](CameraViewport)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>

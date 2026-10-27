@@ -6,7 +6,12 @@
 
 # Graphics3D
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -67,4 +72,8 @@ Wend
 * [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
 * [Windowed3D](Windowed3D)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>

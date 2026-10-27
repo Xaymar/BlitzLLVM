@@ -6,7 +6,12 @@
 
 # LoadBrush
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Makes a brush that has a texture loaded from a picture file as its first layer, 
 * [GetEntityBrush](GetEntityBrush)
 * [GetSurfaceBrush](GetSurfaceBrush)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

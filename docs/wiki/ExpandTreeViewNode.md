@@ -6,7 +6,12 @@
 
 # ExpandTreeViewNode
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Opens a node so that its children are seen. See [CollapseTreeViewNode](CollapseT
 * [SelectTreeViewNode](SelectTreeViewNode)
 * [TreeViewNodeText](TreeViewNodeText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>

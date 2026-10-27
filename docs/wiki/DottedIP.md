@@ -6,7 +6,12 @@
 
 # DottedIP
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Print DottedIP$($C0A80164)
 * [UDPMsgIP](UDPMsgIP)
 * [UDPStreamIP](UDPStreamIP)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

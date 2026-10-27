@@ -6,7 +6,12 @@
 
 # CreateTexture
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -101,4 +106,8 @@ WaitKey
 * [RotateTexture](RotateTexture)
 * [ScaleTexture](ScaleTexture)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

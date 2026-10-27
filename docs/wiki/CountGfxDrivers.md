@@ -6,7 +6,12 @@
 
 # CountGfxDrivers
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -47,4 +52,8 @@ WaitKey
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

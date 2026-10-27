@@ -6,7 +6,12 @@
 
 # MouseWait
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -47,4 +52,8 @@ Delay 1000
 * [MouseZ](MouseZ)
 * [MouseZSpeed](MouseZSpeed)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

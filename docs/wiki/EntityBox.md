@@ -6,7 +6,12 @@
 
 # EntityBox
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Without a call to EntityBox the box runs from -1 to 1 on every axis around the e
 * [GetEntityType](GetEntityType)
 * [ResetEntity](ResetEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>

@@ -6,7 +6,12 @@
 
 # CurrentDir
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -30,4 +35,8 @@ _Not documented yet._
 * [DeleteDir](DeleteDir)
 * [ReadDir](ReadDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

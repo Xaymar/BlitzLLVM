@@ -6,7 +6,12 @@
 
 # MeshHeight
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Reads the size of the mesh along Y, taken from the vertices. Entity scale does n
 * [MeshDepth](MeshDepth)
 * [MeshWidth](MeshWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

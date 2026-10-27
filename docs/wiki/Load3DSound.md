@@ -6,7 +6,12 @@
 
 # Load3DSound
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -57,4 +62,8 @@ Delay 600
 * [SoundPitch](SoundPitch)
 * [SoundVolume](SoundVolume)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

@@ -6,7 +6,12 @@
 
 # ExtractAnimSeq
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>
+
 
 ## Command Syntax
 
@@ -64,4 +69,8 @@ Wend
 * [MD2AnimTime](MD2AnimTime)
 * [SetAnimKey](SetAnimKey)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>

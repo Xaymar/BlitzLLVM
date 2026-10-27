@@ -6,7 +6,12 @@
 
 # LoadBuffer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ WaitKey
 * [SetBuffer](SetBuffer)
 * [UnlockBuffer](UnlockBuffer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>

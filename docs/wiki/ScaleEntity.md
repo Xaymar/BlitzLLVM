@@ -6,7 +6,12 @@
 
 # ScaleEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -64,4 +69,8 @@ WaitKey
 * [PointEntity](PointEntity)
 * [PositionEntity](PositionEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

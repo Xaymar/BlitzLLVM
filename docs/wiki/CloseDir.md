@@ -6,7 +6,12 @@
 
 # CloseDir
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Closes a folder that was opened with [ReadDir](ReadDir).
 * [DeleteDir](DeleteDir)
 * [ReadDir](ReadDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

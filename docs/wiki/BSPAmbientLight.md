@@ -6,7 +6,12 @@
 
 # BSPAmbientLight
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Sets a color that a level is brightened with. Levels ignore the normal [AmbientL
 * [BSPLighting](BSPLighting)
 * [LoadBSP](LoadBSP)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
+
+</div>

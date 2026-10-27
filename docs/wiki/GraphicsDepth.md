@@ -6,7 +6,12 @@
 
 # GraphicsDepth
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The color depth of the graphics mode in bits.
 * [GraphicsLost](GraphicsLost)
 * [GraphicsWidth](GraphicsWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

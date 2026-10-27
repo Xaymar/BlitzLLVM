@@ -6,7 +6,12 @@
 
 # GetSurfaceBrush
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Makes a new brush that has the look that was painted on a mesh surface. Free it 
 * [GetEntityBrush](GetEntityBrush)
 * [LoadBrush](LoadBrush)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

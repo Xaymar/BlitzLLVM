@@ -6,7 +6,12 @@
 
 # BrushShininess
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Sets the strength of the specular highlight on painted surfaces. 0 gives matt su
 * [FreeBrush](FreeBrush)
 * [GetBrushTexture](GetBrushTexture)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

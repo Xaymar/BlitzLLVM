@@ -6,7 +6,12 @@
 
 # CreateMenu
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>
+
 
 ## Command Syntax
 
@@ -65,4 +70,8 @@ Until e = $803 Or (e = $1001 And EventData() = 2)
 * [SetMenuText](SetMenuText)
 * [UncheckMenu](UncheckMenu)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>

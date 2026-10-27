@@ -6,7 +6,12 @@
 
 # FreeBrush
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Releases a brush. Things that were painted with it keep the look they got, becau
 * [GetSurfaceBrush](GetSurfaceBrush)
 * [LoadBrush](LoadBrush)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

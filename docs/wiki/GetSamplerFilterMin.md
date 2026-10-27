@@ -6,7 +6,12 @@
 
 # GetSamplerFilterMin 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the filter mode for a texture drawn smaller than it is that the sampler 
 * [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
 * [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

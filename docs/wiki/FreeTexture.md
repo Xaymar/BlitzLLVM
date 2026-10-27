@@ -6,7 +6,12 @@
 
 # FreeTexture
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, b
 * [RotateTexture](RotateTexture)
 * [ScaleTexture](ScaleTexture)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

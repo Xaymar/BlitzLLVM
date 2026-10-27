@@ -6,7 +6,12 @@
 
 # AlignToVector
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Turns an entity so that one of its own axes lines up with a direction. Where [Po
 * [CopyEntity](CopyEntity)
 * [CountChildren](CountChildren)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

@@ -6,7 +6,12 @@
 
 # PlayMusic
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -50,4 +55,8 @@ StopChannel ch
 * [PlaySound](PlaySound)
 * [ResumeChannel](ResumeChannel)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

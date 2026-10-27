@@ -6,7 +6,12 @@
 
 # WriteBytes
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Writes bytes from a bank to an open file.
 * [ReadBytes](ReadBytes)
 * [ResizeBank](ResizeBank)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

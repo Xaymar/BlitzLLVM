@@ -6,7 +6,12 @@
 
 # Byte 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ Print Byte(-1000.0)
 * [SatUByte](SatUByte) 〔BlitzLLVM〕
 * [UByte](UByte) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

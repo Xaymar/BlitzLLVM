@@ -6,7 +6,12 @@
 
 # DisplayWidth 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ The width in pixels of what a display shows right now, which is the resolution o
 * [DisplayName](DisplayName) 〔BlitzLLVM〕
 * [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

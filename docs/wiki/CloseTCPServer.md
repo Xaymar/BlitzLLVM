@@ -6,7 +6,12 @@
 
 # CloseTCPServer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Stops a TCP server. Streams that it accepted stay open.
 * [TCPStreamPort](TCPStreamPort)
 * [TCPTimeouts](TCPTimeouts)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

@@ -6,7 +6,12 @@
 
 # TCPTimeouts
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Sets how long to wait. Reading from a TCP stream waits for data until the read t
 * [TCPStreamPort](TCPStreamPort)
 * [UDPTimeouts](UDPTimeouts)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

@@ -6,7 +6,12 @@
 
 # SetGadgetLayout
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -56,4 +61,8 @@ Until WaitEvent() = $803
 * [SetSliderRange](SetSliderRange)
 * [SetSliderValue](SetSliderValue)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

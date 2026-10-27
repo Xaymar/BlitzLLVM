@@ -6,7 +6,12 @@
 
 # UpdateNormals
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -67,4 +72,8 @@ WaitKey
 * [VertexAlpha](VertexAlpha)
 * [VertexBlue](VertexBlue)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

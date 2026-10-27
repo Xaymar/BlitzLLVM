@@ -6,7 +6,12 @@
 
 # RefreshRateAt 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ One of the refresh rates a display supports at a size, counted from the lowest. 
 * [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 * [HidePointer](HidePointer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

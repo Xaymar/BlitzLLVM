@@ -6,7 +6,12 @@
 
 # SendNetMsg
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Sends a message from a player of this program to one other player or to everyone
 * [NetMsgType](NetMsgType)
 * [RecvNetMsg](RecvNetMsg)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>

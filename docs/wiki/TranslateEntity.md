@@ -6,7 +6,12 @@
 
 # TranslateEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Moves an entity along the axes of its parent or of the world, ignoring where the
 * [PointEntity](PointEntity)
 * [PositionEntity](PositionEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

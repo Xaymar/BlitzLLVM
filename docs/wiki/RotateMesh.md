@@ -6,7 +6,12 @@
 
 # RotateMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Turns every vertex of a mesh around the origin, permanently. The angles are in d
 * [LoadMesh](LoadMesh)
 * [PaintMesh](PaintMesh)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

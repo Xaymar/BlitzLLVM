@@ -6,7 +6,12 @@
 
 # Rnd
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -46,4 +51,8 @@ Print r >= 5 And r < 6
 * [RndSeed](RndSeed)
 * [SeedRnd](SeedRnd)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

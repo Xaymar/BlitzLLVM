@@ -6,7 +6,12 @@
 
 # BrushAlpha
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ A surface with alpha 0 is not drawn but still takes part in collisions, which is
 * [FreeBrush](FreeBrush)
 * [GetBrushTexture](GetBrushTexture)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

@@ -6,7 +6,12 @@
 
 # FreeSound
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ FreeSound snd
 * [SoundPitch](SoundPitch)
 * [SoundVolume](SoundVolume)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

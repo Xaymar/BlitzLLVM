@@ -6,7 +6,12 @@
 
 # Log10
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Print Log10(1000)
 * [Long](Long) 〔BlitzLLVM〕
 * [PopCount](PopCount) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

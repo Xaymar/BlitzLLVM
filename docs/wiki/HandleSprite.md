@@ -6,7 +6,12 @@
 
 # HandleSprite
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Moves the point that the sprite is held at, which is also the point it turns and
 * [ScaleSprite](ScaleSprite)
 * [SpriteViewMode](SpriteViewMode)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
+
+</div>

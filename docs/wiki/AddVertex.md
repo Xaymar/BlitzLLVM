@@ -6,7 +6,12 @@
 
 # AddVertex
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ Triangles that meet at a corner can share one vertex, which saves memory, but th
 * [VertexGreen](VertexGreen)
 * [VertexNormal](VertexNormal)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

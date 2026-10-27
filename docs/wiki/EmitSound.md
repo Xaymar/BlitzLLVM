@@ -6,7 +6,12 @@
 
 # EmitSound
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [3D Sound](Blitz3D-3D-Sound)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ The example is the one under [CreateListener](CreateListener).
 
 * [CreateListener](CreateListener)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [3D Sound](Blitz3D-3D-Sound)
+
+</div>

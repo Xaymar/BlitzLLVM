@@ -6,7 +6,12 @@
 
 # ClsColor
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Sets the color that [Cls](Cls) clears with. It does not change the drawing color
 * [ColorRed](ColorRed)
 * [GetColor](GetColor)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>

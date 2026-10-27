@@ -6,7 +6,12 @@
 
 # TileImage
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -62,4 +67,8 @@ WaitKey
 * [LoadAnimImage](LoadAnimImage)
 * [LoadImage](LoadImage)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

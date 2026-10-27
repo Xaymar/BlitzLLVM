@@ -6,7 +6,12 @@
 
 # TerrainShading
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Turns shading of the terrain on or off. Shaded terrains cost a little more speed
 * [TerrainY](TerrainY)
 * [TerrainZ](TerrainZ)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>

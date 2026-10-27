@@ -6,7 +6,12 @@
 
 # Delay
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Print MilliSecs() - start >= 95
 * [End](End)
 * [ExecFile](ExecFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

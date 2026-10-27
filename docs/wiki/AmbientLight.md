@@ -6,7 +6,12 @@
 
 # AmbientLight
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -62,4 +67,8 @@ Next
 * [AntiAlias](AntiAlias)
 * [CaptureWorld](CaptureWorld)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

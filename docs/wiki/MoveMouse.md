@@ -6,7 +6,12 @@
 
 # MoveMouse
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Puts the pointer at a position of the graphics buffer, in buffer pixels. After t
 * [MouseXSpeed](MouseXSpeed)
 * [WaitMouse](WaitMouse)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

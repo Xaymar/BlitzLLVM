@@ -6,7 +6,12 @@
 
 # JoyV
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The second extra axis of the joystick, from -1 to 1. See [JoyU](JoyU).
 * [JoyU](JoyU)
 * [JoyVDir](JoyVDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

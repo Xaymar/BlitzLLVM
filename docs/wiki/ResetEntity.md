@@ -6,7 +6,12 @@
 
 # ResetEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Forgets the entity's collision history. UpdateWorld normally moves a colliding e
 * [EntityType](EntityType)
 * [GetEntityType](GetEntityType)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>

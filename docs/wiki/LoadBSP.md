@@ -6,7 +6,12 @@
 
 # LoadBSP
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
+
+</div>
+
 
 ## Command Syntax
 
@@ -125,4 +130,8 @@ WaitKey
 * [BSPAmbientLight](BSPAmbientLight)
 * [BSPLighting](BSPLighting)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
+
+</div>

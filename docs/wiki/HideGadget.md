@@ -6,7 +6,12 @@
 
 # HideGadget
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -56,4 +61,8 @@ Until e = $803
 * [FreeGadget](FreeGadget)
 * [ShowGadget](ShowGadget)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

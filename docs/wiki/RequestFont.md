@@ -6,7 +6,12 @@
 
 # RequestFont
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
+
+</div>
+
 
 ## Command Syntax
 
@@ -49,4 +54,8 @@ Until WaitEvent() = $803
 * [RequestedRed](RequestedRed)
 * [RequestFile](RequestFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
+
+</div>

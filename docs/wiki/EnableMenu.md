@@ -6,7 +6,12 @@
 
 # EnableMenu
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Makes a menu item usable again after [DisableMenu](DisableMenu).
 * [SetMenuText](SetMenuText)
 * [UncheckMenu](UncheckMenu)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>

@@ -6,7 +6,12 @@
 
 # AppTitle
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ AppTitle "My game"
 * [CommandLine](CommandLine)
 * [CreateTimer](CreateTimer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

@@ -6,7 +6,12 @@
 
 # EntityAutoFade
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Makes an entity fade away with distance to the camera. Closer than `near` it is 
 * [EntityInView](EntityInView)
 * [EntityName](EntityName)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

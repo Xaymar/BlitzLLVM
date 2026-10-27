@@ -6,7 +6,12 @@
 
 # Graphics
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -60,4 +65,8 @@ WaitKey
 * [GraphicsLost](GraphicsLost)
 * [GraphicsWidth](GraphicsWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

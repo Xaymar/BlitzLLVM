@@ -6,7 +6,12 @@
 
 # CreateTimer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ five ticks at 50 per second
 * [FreeTimer](FreeTimer)
 * [WaitTimer](WaitTimer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

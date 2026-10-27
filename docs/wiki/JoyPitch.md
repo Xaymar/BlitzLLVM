@@ -6,7 +6,12 @@
 
 # JoyPitch
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The rotation of the joystick around its X axis, from -180 to 180. Most gamepads 
 * [JoyUDir](JoyUDir)
 * [JoyV](JoyV)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

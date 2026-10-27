@@ -6,7 +6,12 @@
 
 # ClientHeight
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Notify "Window: " + ClientWidth(win) + " x " + ClientHeight(win) + Chr$(13) + "D
 * [ClientWidth](ClientWidth)
 * [CreateWindow](CreateWindow)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>

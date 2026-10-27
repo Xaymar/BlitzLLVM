@@ -6,7 +6,12 @@
 
 # FreeBank
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -31,4 +36,8 @@ Releases a bank and its memory. The handle must not be used afterwards.
 * [CreateBank](CreateBank)
 * [ResizeBank](ResizeBank)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

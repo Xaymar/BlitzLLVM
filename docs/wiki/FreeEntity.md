@@ -6,7 +6,12 @@
 
 # FreeEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Removes an entity from the world and releases what it used, including all of its
 * [PositionEntity](PositionEntity)
 * [RotateEntity](RotateEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

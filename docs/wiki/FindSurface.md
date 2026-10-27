@@ -6,7 +6,12 @@
 
 # FindSurface
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Looks for the surface of a mesh that was painted with the given brush. Returns i
 * [GetSurface](GetSurface)
 * [PaintSurface](PaintSurface)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

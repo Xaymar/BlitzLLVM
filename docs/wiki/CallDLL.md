@@ -6,7 +6,12 @@
 
 # CallDLL
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Print CallDLL("kernel32", "GetCurrentProcessId")
 * [CopyBank](CopyBank)
 * [CreateBank](CreateBank)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

@@ -6,7 +6,12 @@
 
 # FileSize
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -51,4 +56,8 @@ DeleteFile "files_size_example.tmp"
 * [OpenFile](OpenFile)
 * [ReadFile](ReadFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

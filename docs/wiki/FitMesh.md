@@ -6,7 +6,12 @@
 
 # FitMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Scales and moves a mesh so that it exactly fills a box. `x`, `y` and `z` are the
 * [PaintMesh](PaintMesh)
 * [PositionMesh](PositionMesh)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

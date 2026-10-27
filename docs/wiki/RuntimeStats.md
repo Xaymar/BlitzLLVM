@@ -6,7 +6,12 @@
 
 # RuntimeStats
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Language](BlitzBasic-Language)
+
+</div>
+
 
 ## Command Syntax
 
@@ -27,4 +32,8 @@ RuntimeStats
 ## Related Commands
 
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Language](BlitzBasic-Language)
+
+</div>

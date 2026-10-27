@@ -6,7 +6,12 @@
 
 # DeltaYaw
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -51,4 +56,8 @@ WaitKey
 * [ProjectedY](ProjectedY)
 * [VectorYaw](VectorYaw)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

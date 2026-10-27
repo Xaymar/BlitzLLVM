@@ -6,7 +6,12 @@
 
 # DebugObjects
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ DebugObjects
 * [CreateProcess](CreateProcess)
 * [FlushEvents](FlushEvents)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

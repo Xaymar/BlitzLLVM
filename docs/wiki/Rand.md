@@ -6,7 +6,12 @@
 
 # Rand
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ Print Rand(5, 5)
 * [Rnd](Rnd)
 * [RndSeed](RndSeed)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

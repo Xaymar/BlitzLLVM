@@ -6,7 +6,12 @@
 
 # OpenTCPStream
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -50,4 +55,8 @@ Print OpenTCPStream("127.0.0.1", 40754)
 * [TCPStreamIP](TCPStreamIP)
 * [TCPStreamPort](TCPStreamPort)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

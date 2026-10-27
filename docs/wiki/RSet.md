@@ -6,7 +6,12 @@
 
 # RSet
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -46,4 +51,8 @@ Print "[" + RSet$("abcdef", 3) + "]"
 * [Right](Right)
 * [String](String)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

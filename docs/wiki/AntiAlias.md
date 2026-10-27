@@ -6,7 +6,12 @@
 
 # AntiAlias
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Switches full-screen anti-aliasing, which smooths the jagged edges of triangles,
 * [CaptureWorld](CaptureWorld)
 * [ClearWorld](ClearWorld)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

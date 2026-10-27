@@ -6,7 +6,12 @@
 
 # GammaBlue
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The output value of the blue gamma table for an input value, as set by [SetGamma
 * [SetGamma](SetGamma)
 * [UpdateGamma](UpdateGamma)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

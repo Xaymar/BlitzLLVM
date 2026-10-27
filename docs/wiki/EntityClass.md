@@ -6,7 +6,12 @@
 
 # EntityClass
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Returns what kind of entity a handle is, which is useful when a function receive
 * [EntityInView](EntityInView)
 * [EntityName](EntityName)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

@@ -6,7 +6,12 @@
 
 # GadgetItemText
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ _Not documented yet._
 * [GadgetY](GadgetY)
 * [SetGadgetText](SetGadgetText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

@@ -6,7 +6,12 @@
 
 # PaintEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Applies everything in a brush to an entity at once: color, shininess, alpha, ble
 * [PositionEntity](PositionEntity)
 * [RotateEntity](RotateEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

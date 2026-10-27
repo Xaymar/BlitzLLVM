@@ -6,7 +6,12 @@
 
 # TFormPoint
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -61,4 +66,8 @@ WaitKey
 * [TFormNormal](TFormNormal)
 * [TFormVector](TFormVector)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

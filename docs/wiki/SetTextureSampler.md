@@ -6,7 +6,12 @@
 
 # SetTextureSampler 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ A sampler does not make mip levels: flag 8 or a DDS file with levels is still ne
 * [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
 * [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

@@ -6,7 +6,12 @@
 
 # KeyDown
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
+
+</div>
+
 
 ## Command Syntax
 
@@ -56,4 +61,8 @@ Wend
 * [KeyWait](KeyWait)
 * [WaitKey](WaitKey)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
+
+</div>

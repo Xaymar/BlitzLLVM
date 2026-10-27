@@ -6,7 +6,12 @@
 
 # MouseZSpeed
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ How far the wheel moved since the last call, in notches. Rolling away from you i
 * [MouseYSpeed](MouseYSpeed)
 * [MouseZ](MouseZ)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

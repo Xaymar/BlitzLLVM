@@ -6,7 +6,12 @@
 
 # LoadAnimMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Loads a model together with its parts and animation. The result is a pivot at th
 * [PaintMesh](PaintMesh)
 * [PositionMesh](PositionMesh)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

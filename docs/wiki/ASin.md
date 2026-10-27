@@ -6,7 +6,12 @@
 
 # ASin
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Print ASin(0.5)
 * [ATan2](ATan2)
 * [Sin](Sin)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

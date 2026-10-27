@@ -6,7 +6,12 @@
 
 # TreeViewRoot
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Gives the invisible node at the top of a tree. It is the parent of the top level
 * [InsertTreeViewNode](InsertTreeViewNode)
 * [TreeViewNodeText](TreeViewNodeText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>

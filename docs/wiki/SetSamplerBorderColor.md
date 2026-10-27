@@ -6,7 +6,12 @@
 
 # SetSamplerBorderColor 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Sets the color that is read where an address mode is border (3), see [SetSampler
 * [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
 * [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

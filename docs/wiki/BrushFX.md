@@ -6,7 +6,12 @@
 
 # BrushFX
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Switches extra effects on or off with a sum of flags: 1 full-bright (no lighting
 * [FreeBrush](FreeBrush)
 * [GetBrushTexture](GetBrushTexture)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

@@ -6,7 +6,12 @@
 
 # SetCubeMode
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Selects what a cube map (texture flag 128) shows on a surface: 1 the reflection 
 * [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
 * [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

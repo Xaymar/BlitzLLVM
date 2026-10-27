@@ -6,7 +6,12 @@
 
 # ImageRectOverlap
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Tells whether a rectangle touches the box of an image at a position. Transparent
 * [ImageYHandle](ImageYHandle)
 * [RectsOverlap](RectsOverlap)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

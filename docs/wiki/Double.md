@@ -6,7 +6,12 @@
 
 # Double 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -55,4 +60,8 @@ Print Double(Long(5000000000)) + 1 = 5000000001
 * [Exp](Exp)
 * [Floor](Floor)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

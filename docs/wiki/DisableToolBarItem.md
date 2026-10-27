@@ -6,7 +6,12 @@
 
 # DisableToolBarItem
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>
+
 
 ## Command Syntax
 
@@ -50,4 +55,8 @@ Until WaitEvent() = $803
 * [FreeIconStrip](FreeIconStrip)
 * [SetToolBarTips](SetToolBarTips)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>

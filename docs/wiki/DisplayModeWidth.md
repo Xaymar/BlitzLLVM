@@ -6,7 +6,12 @@
 
 # DisplayModeWidth 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ The width in pixels of a mode from the list of a display. This is a BlitzLLVM ex
 * [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕
 * [GfxModeWidth](GfxModeWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

@@ -6,7 +6,12 @@
 
 # Sin
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Print Sin(30)
 * [Short](Short) 〔BlitzLLVM〕
 * [Sqr](Sqr)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

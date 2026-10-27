@@ -6,7 +6,12 @@
 
 # SatInt 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ Print SatInt(Long(-7))
 * [SatUShort](SatUShort) 〔BlitzLLVM〕
 * [UInt](UInt) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

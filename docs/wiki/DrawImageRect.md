@@ -6,7 +6,12 @@
 
 # DrawImageRect
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -71,4 +76,8 @@ WaitKey
 * [ImageRectCollide](ImageRectCollide)
 * [ImageRectOverlap](ImageRectOverlap)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

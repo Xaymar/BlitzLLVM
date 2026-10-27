@@ -6,7 +6,12 @@
 
 # SeekFile
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Moves the position where the next read or write happens. Positions count bytes f
 * [ReadFile](ReadFile)
 * [WriteFile](WriteFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

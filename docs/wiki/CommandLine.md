@@ -6,7 +6,12 @@
 
 # CommandLine
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Print "Started with: " + CommandLine$()
 * [CreateTimer](CreateTimer)
 * [DebugLog](DebugLog)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

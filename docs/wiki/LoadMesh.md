@@ -6,7 +6,12 @@
 
 # LoadMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to 
 * [PaintMesh](PaintMesh)
 * [PositionMesh](PositionMesh)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

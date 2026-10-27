@@ -6,7 +6,12 @@
 
 # CreateTextField
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>
+
 
 ## Command Syntax
 
@@ -61,4 +66,8 @@ Until e = $803
 * [SetTextAreaTabs](SetTextAreaTabs)
 * [TextFieldText](TextFieldText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>

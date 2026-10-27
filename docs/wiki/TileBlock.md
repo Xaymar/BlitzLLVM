@@ -6,7 +6,12 @@
 
 # TileBlock
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -59,4 +64,8 @@ Wend
 * [TFormFilter](TFormFilter)
 * [TileImage](TileImage)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

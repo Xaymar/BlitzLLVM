@@ -6,7 +6,12 @@
 
 # SetTextAreaTabs
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ Until WaitEvent() = $803
 * [SetTextAreaText](SetTextAreaText)
 * [TextAreaChar](TextAreaChar)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>

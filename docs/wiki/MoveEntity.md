@@ -6,7 +6,12 @@
 
 # MoveEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Moves an entity in the direction it faces. The offset is in the entity's own spa
 * [PositionEntity](PositionEntity)
 * [RotateEntity](RotateEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

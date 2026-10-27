@@ -6,7 +6,12 @@
 
 # EnableToolBarItem
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>
+
 
 ## Command Syntax
 
@@ -32,4 +37,8 @@ Turns an icon that was disabled with [DisableToolBarItem](DisableToolBarItem) ba
 * [FreeIconStrip](FreeIconStrip)
 * [SetToolBarTips](SetToolBarTips)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>

@@ -6,7 +6,12 @@
 
 # GetChild
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Reads one of the entities attached to a parent. The index starts at 1, so loop f
 * [GetMatElement](GetMatElement)
 * [GetParent](GetParent)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

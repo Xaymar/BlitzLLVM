@@ -6,7 +6,12 @@
 
 # LightMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
+
+</div>
+
 
 ## Command Syntax
 
@@ -66,4 +71,8 @@ WaitKey
 * [LightConeAngles](LightConeAngles)
 * [LightRange](LightRange)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
+
+</div>

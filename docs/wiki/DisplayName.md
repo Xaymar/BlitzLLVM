@@ -6,7 +6,12 @@
 
 # DisplayName 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ The name of a display, as the system calls it. This is a BlitzLLVM extension: th
 * [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 * [DisplayScale](DisplayScale) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

@@ -6,7 +6,12 @@
 
 # JoyWait
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Stops the program until a joystick button is pressed and returns its number. A p
 * [JoyU](JoyU)
 * [JoyUDir](JoyUDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

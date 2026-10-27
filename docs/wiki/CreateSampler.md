@@ -6,7 +6,12 @@
 
 # CreateSampler 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -65,4 +70,8 @@ Anisotropic filtering on a floor that goes far into the distance:
 * [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
 * [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

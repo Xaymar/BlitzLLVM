@@ -6,7 +6,12 @@
 
 # TerrainX
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Looks at the terrain from straight above a point in the world and returns the X 
 * [TerrainY](TerrainY)
 * [TerrainZ](TerrainZ)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>

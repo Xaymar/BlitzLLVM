@@ -6,7 +6,12 @@
 
 # Animate
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>
+
 
 ## Command Syntax
 
@@ -71,4 +76,8 @@ Wend
 * [AnimateMD2](AnimateMD2)
 * [Animating](Animating)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>

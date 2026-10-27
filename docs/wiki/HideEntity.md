@@ -6,7 +6,12 @@
 
 # HideEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Makes an entity and all of its children invisible and takes them out of collisio
 * [PositionEntity](PositionEntity)
 * [RotateEntity](RotateEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

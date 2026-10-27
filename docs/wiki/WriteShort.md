@@ -6,7 +6,12 @@
 
 # WriteShort
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Writes a number in 2 bytes, low byte first. Values outside 0 to 65535 wrap aroun
 * [WriteLine](WriteLine)
 * [WriteString](WriteString)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

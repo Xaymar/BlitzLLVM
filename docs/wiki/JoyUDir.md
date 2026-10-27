@@ -6,7 +6,12 @@
 
 # JoyUDir
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Like [JoyU](JoyU), but as a direction only: -1 when the axis is pushed more than
 * [JoyYDir](JoyYDir)
 * [JoyZDir](JoyZDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

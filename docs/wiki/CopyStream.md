@@ -6,7 +6,12 @@
 
 # CopyStream
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -31,4 +36,8 @@ Copies everything that is left in one stream into another, in pieces of `buffer_
 * [Eof](Eof)
 * [ReadAvail](ReadAvail)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

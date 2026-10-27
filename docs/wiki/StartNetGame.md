@@ -6,7 +6,12 @@
 
 # StartNetGame
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Asks on the console whether to host or to join a game and does what was chosen, 
 * [NetMsgTo](NetMsgTo)
 * [StopNetGame](StopNetGame)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>

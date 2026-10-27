@@ -6,7 +6,12 @@
 
 # GraphicsWidth
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ The width of the graphics window in pixels, as given to [Graphics](Graphics).
 * [GraphicsHeight](GraphicsHeight)
 * [GraphicsLost](GraphicsLost)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

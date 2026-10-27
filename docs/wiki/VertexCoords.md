@@ -6,7 +6,12 @@
 
 # VertexCoords
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -80,4 +85,8 @@ Wend
 * [VertexNY](VertexNY)
 * [VertexTexCoords](VertexTexCoords)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

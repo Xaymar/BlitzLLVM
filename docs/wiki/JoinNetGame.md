@@ -6,7 +6,12 @@
 
 # JoinNetGame
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Joins a game that another program hosts, which is found by its address.
 * [StartNetGame](StartNetGame)
 * [StopNetGame](StopNetGame)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>

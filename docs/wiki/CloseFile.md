@@ -6,7 +6,12 @@
 
 # CloseFile
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Closes a file and writes out everything that is still waiting to be written. Alw
 * [SeekFile](SeekFile)
 * [WriteFile](WriteFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

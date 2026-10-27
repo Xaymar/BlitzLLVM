@@ -6,7 +6,12 @@
 
 # RndSeed
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -29,4 +34,8 @@ _Not documented yet._
 * [RotL](RotL) 〔BlitzLLVM〕
 * [SeedRnd](SeedRnd)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

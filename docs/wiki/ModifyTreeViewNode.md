@@ -6,7 +6,12 @@
 
 # ModifyTreeViewNode
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>
+
 
 ## Command Syntax
 
@@ -49,4 +54,8 @@ Until WaitEvent() = $803
 * [SelectTreeViewNode](SelectTreeViewNode)
 * [TreeViewNodeText](TreeViewNodeText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>

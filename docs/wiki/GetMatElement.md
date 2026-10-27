@@ -6,7 +6,12 @@
 
 # GetMatElement
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Reads one number from the world transformation of the entity. Row and column cou
 * [GetParent](GetParent)
 * [HideEntity](HideEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

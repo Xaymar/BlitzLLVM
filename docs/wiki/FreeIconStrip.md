@@ -6,7 +6,12 @@
 
 # FreeIconStrip
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>
+
 
 ## Command Syntax
 
@@ -31,4 +36,8 @@ Frees an icon strip that was loaded with [LoadIconStrip](LoadIconStrip). Only ne
 * [LoadIconStrip](LoadIconStrip)
 * [SetGadgetIconStrip](SetGadgetIconStrip)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>

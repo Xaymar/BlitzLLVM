@@ -6,7 +6,12 @@
 
 # SetSamplerLodBias 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Moves the point where the mip levels change. A positive bias uses the smaller (b
 * [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
 * [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

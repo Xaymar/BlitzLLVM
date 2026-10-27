@@ -6,7 +6,12 @@
 
 # SetButtonState
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Ticks or unticks a check box or radio button. Making a radio button ticked untic
 * [SetPanelImage](SetPanelImage)
 * [SetSliderRange](SetSliderRange)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

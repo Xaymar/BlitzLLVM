@@ -6,7 +6,12 @@
 
 # GetSamplerLodMax 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the highest mip level that the sampler has, as it was set with [SetSampl
 * [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
 * [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

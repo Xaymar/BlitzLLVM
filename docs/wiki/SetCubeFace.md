@@ -6,7 +6,12 @@
 
 # SetCubeFace
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Chooses which of the six faces of a cube map the next drawing on the texture buf
 * [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
 * [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

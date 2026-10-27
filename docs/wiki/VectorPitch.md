@@ -6,7 +6,12 @@
 
 # VectorPitch
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Finds the pitch angle that an entity would need to point along a direction. 0, 0
 * [TFormVector](TFormVector)
 * [VectorYaw](VectorYaw)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

@@ -6,7 +6,12 @@
 
 # UpdateGamma
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Makes the gamma tables that [SetGamma](SetGamma) changed count: the window is sh
 * [GammaRed](GammaRed)
 * [SetGamma](SetGamma)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

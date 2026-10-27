@@ -6,7 +6,12 @@
 
 # WBuffer
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Switches between a Z buffer and a W buffer for depth sorting. A W buffer spreads
 * [UpdateWorld](UpdateWorld)
 * [WireFrame](WireFrame)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

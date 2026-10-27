@@ -6,7 +6,12 @@
 
 # DrawBlockRect
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ Draws only a rectangle of a frame, without any transparency. See [DrawBlock](Dra
 * [ImageRectOverlap](ImageRectOverlap)
 * [TileBlock](TileBlock)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

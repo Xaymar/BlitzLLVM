@@ -6,7 +6,12 @@
 
 # WriteString
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -52,4 +57,8 @@ Hello
 * [WriteLine](WriteLine)
 * [WriteShort](WriteShort)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

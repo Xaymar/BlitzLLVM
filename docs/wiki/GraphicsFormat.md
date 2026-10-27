@@ -6,7 +6,12 @@
 
 # GraphicsFormat
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ How the pixels of the graphics window are stored, as a number that BlitzPlus use
 * [GraphicsLost](GraphicsLost)
 * [GraphicsWidth](GraphicsWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

@@ -6,7 +6,12 @@
 
 # CreateProgBar
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -61,4 +66,8 @@ Until e = $803
 * [CreateTabber](CreateTabber)
 * [UpdateProgBar](UpdateProgBar)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

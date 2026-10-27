@@ -6,7 +6,12 @@
 
 # EntityInView
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Tells if an entity is inside the picture of a camera, which is handy for skippin
 * [EntityFX](EntityFX)
 * [EntityName](EntityName)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

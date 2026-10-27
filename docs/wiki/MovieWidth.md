@@ -6,7 +6,12 @@
 
 # MovieWidth
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ The width of the pictures of a movie in pixels.
 * [MoviePosition](MoviePosition) 〔BlitzLLVM〕
 * [MovieVolume](MovieVolume) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>

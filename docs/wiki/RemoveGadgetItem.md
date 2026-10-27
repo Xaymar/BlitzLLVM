@@ -6,7 +6,12 @@
 
 # RemoveGadgetItem
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -49,4 +54,8 @@ Until WaitEvent() = $803
 * [SelectedGadgetItem](SelectedGadgetItem)
 * [SelectGadgetItem](SelectGadgetItem)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

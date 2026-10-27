@@ -6,7 +6,12 @@
 
 # EntityRadius
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The horizontal radius applies to both width and depth. Leave out the second radi
 * [GetEntityType](GetEntityType)
 * [ResetEntity](ResetEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>

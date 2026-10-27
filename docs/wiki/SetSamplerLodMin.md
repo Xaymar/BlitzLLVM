@@ -6,7 +6,12 @@
 
 # SetSamplerLodMin 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Sets the biggest mip level that may be used, as the number of levels counted fro
 * [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
 * [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

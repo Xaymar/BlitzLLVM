@@ -6,7 +6,12 @@
 
 # SetToolBarTips
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ Until WaitEvent() = $803
 * [EnableToolBarItem](EnableToolBarItem)
 * [SetGadgetIconStrip](SetGadgetIconStrip)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>

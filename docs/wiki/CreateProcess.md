@@ -6,7 +6,12 @@
 
 # CreateProcess
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ If CreateProcess("notepad.exe") = 0 Then Notify "Could not start it."
 * [DebugObjects](DebugObjects)
 * [FlushEvents](FlushEvents)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

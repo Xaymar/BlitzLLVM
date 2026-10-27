@@ -6,7 +6,12 @@
 
 # ReadString
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Reads a string that [WriteString](WriteString) wrote: first its length, then its
 * [ReadShort](ReadShort)
 * [WriteString](WriteString)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

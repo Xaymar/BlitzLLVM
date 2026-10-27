@@ -6,7 +6,12 @@
 
 # HidePointer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ ShowPointer
 * [PrimaryDisplay](PrimaryDisplay) 〔BlitzLLVM〕
 * [ShowPointer](ShowPointer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

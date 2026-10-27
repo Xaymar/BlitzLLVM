@@ -6,7 +6,12 @@
 
 # RequestedGreen
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
+
+</div>
+
 
 ## Command Syntax
 
@@ -29,4 +34,8 @@ _Not documented yet._
 * [RequestedRed](RequestedRed)
 * [RequestFile](RequestFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
+
+</div>

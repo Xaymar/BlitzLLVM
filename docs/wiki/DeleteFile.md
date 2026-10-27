@@ -6,7 +6,12 @@
 
 # DeleteFile
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ Print FileType("files_delete_example.tmp")
 * [SeekFile](SeekFile)
 * [WriteFile](WriteFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

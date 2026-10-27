@@ -6,7 +6,12 @@
 
 # RecvUDPMsg
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Receives the next UDP message, if one has arrived, and makes it readable from th
 * [UDPStreamPort](UDPStreamPort)
 * [UDPTimeouts](UDPTimeouts)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

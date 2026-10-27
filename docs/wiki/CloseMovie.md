@@ -6,7 +6,12 @@
 
 # CloseMovie
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movi
 * [SeekMovie](SeekMovie) 〔BlitzLLVM〕
 * [StopMovie](StopMovie) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>

@@ -6,7 +6,12 @@
 
 # FlushJoy
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Forgets joystick button presses that nobody has looked at yet, on every connecte
 * [JoyType](JoyType)
 * [WaitJoy](WaitJoy)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

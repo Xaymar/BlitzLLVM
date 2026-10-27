@@ -6,7 +6,12 @@
 
 # SendUDPMsg
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Sends what you wrote to the stream as one message and empties the stream for the
 * [UDPStreamPort](UDPStreamPort)
 * [UDPTimeouts](UDPTimeouts)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

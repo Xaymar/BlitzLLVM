@@ -6,7 +6,12 @@
 
 # Plot
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>
+
 
 ## Command Syntax
 
@@ -32,4 +37,8 @@ Draws a single pixel in the drawing color.
 * [Rect](Rect)
 * [ScanLine](ScanLine)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>

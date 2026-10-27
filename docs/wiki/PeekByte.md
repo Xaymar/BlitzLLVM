@@ -6,7 +6,12 @@
 
 # PeekByte
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ _Not documented yet._
 * [PeekShort](PeekShort)
 * [PokeByte](PokeByte)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

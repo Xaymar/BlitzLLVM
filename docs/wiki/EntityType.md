@@ -6,7 +6,12 @@
 
 # EntityType
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Changing the type resets the entity's collision movement, as [ResetEntity](Reset
 * [GetEntityType](GetEntityType)
 * [ResetEntity](ResetEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>

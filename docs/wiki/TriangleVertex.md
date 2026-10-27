@@ -6,7 +6,12 @@
 
 # TriangleVertex
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Tells which vertex is at a corner of a triangle, which is how you walk over the 
 * [VertexGreen](VertexGreen)
 * [VertexNormal](VertexNormal)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

@@ -6,7 +6,12 @@
 
 # Input
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Reads a line of text that the user types, ended with Enter, and returns it witho
 * [LoadFont](LoadFont)
 * [Locate](Locate)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>

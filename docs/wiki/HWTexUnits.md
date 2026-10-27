@@ -6,7 +6,12 @@
 
 # HWTexUnits
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -29,4 +34,8 @@ _Not documented yet._
 * [RenderWorld](RenderWorld)
 * [Stats3D](Stats3D)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

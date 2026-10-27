@@ -6,7 +6,12 @@
 
 # CreateBrush
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -79,4 +84,8 @@ WaitKey
 * [GetSurfaceBrush](GetSurfaceBrush)
 * [LoadBrush](LoadBrush)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

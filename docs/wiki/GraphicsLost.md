@@ -6,7 +6,12 @@
 
 # GraphicsLost
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Tells whether the graphics were lost, which happened to the original when anothe
 * [GraphicsHeight](GraphicsHeight)
 * [GraphicsWidth](GraphicsWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

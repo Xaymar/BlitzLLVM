@@ -6,7 +6,12 @@
 
 # TurnEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -61,4 +66,8 @@ Wend
 * [PointEntity](PointEntity)
 * [PositionEntity](PositionEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

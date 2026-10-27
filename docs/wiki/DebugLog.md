@@ -6,7 +6,12 @@
 
 # DebugLog
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ DebugLog "player is at 10, 20"
 * [Delay](Delay)
 * [End](End)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

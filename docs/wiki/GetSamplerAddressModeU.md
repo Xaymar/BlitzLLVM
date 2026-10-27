@@ -6,7 +6,12 @@
 
 # GetSamplerAddressModeU 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the address mode of the horizontal texture coordinate (u) that the sampl
 * [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
 * [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

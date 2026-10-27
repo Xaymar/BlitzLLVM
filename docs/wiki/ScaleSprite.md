@@ -6,7 +6,12 @@
 
 # ScaleSprite
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Changes the width and height of a sprite. A sprite starts as 2 by 2 units, so a 
 * [RotateSprite](RotateSprite)
 * [SpriteViewMode](SpriteViewMode)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
+
+</div>

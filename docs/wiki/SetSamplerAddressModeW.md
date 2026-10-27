@@ -6,7 +6,12 @@
 
 # SetSamplerAddressModeW 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Chooses what is read where the depth texture coordinate (w), which flat textures
 * [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 * [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

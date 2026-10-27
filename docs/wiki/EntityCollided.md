@@ -6,7 +6,12 @@
 
 # EntityCollided
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Finds out whether the entity hit something of a given collision type during the 
 * [GetEntityType](GetEntityType)
 * [ResetEntity](ResetEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
