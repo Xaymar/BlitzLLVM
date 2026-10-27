@@ -207,3 +207,7 @@ The original crashes with more than 16383 sprites in total (they share one verte
 when the sprites of the torches and the campfires are more than that. Every room is one surface of a few thousand vertices, far below the 65535
 that the original allows. The original times have a resolution of one millisecond, so use enough frames. The original `SaveBuffer` writes a BMP whatever the file is
 called. Run benchmarks windowed only (they are), the original changes the screen settings in fullscreen.
+
+NOTE: The original Blitz3D cannot open a window above 2047x2047 (not 2048: Direct3D 7 and DirectDraw have an off-by-one in the largest
+surface). Above that it stops with "Unable to create 3D Scene"; that is why it could not start at 2560x1440 on the 4080 SUPER machine.
+The runner stops with a clear message above 2047 in either direction with the original; BlitzLLVM has no such limit.
