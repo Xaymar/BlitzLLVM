@@ -163,6 +163,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [CreatePlane](CreatePlane)
 * [CreateProcess](CreateProcess)
 * [CreateProgBar](CreateProgBar)
+* [CreateSampler](CreateSampler) 〔BlitzLLVM〕
 * [CreateSlider](CreateSlider)
 * [CreateSphere](CreateSphere)
 * [CreateSprite](CreateSprite)
@@ -296,6 +297,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [FreeGadget](FreeGadget)
 * [FreeIconStrip](FreeIconStrip)
 * [FreeImage](FreeImage)
+* [FreeSampler](FreeSampler) 〔BlitzLLVM〕
 * [FreeSound](FreeSound)
 * [FreeTexture](FreeTexture)
 * [FreeTimer](FreeTimer)
@@ -326,6 +328,20 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GetMatElement](GetMatElement)
 * [GetMouse](GetMouse)
 * [GetParent](GetParent)
+* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
+* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
+* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
+* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
+* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
+* [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕
+* [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕
+* [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
+* [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕
+* [GetSamplerFilterMin](GetSamplerFilterMin) 〔BlitzLLVM〕
+* [GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕
+* [GetSamplerLodBias](GetSamplerLodBias) 〔BlitzLLVM〕
+* [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕
+* [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
 * [GetSurface](GetSurface)
 * [GetSurfaceBrush](GetSurfaceBrush)
 * [GfxDriver3D](GfxDriver3D)
@@ -638,6 +654,17 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SetMinWindowSize](SetMinWindowSize)
 * [SetPanelColor](SetPanelColor)
 * [SetPanelImage](SetPanelImage)
+* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
+* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
+* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
+* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
+* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
+* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
+* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
+* [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
+* [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
+* [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
+* [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
 * [SetSliderRange](SetSliderRange)
 * [SetSliderValue](SetSliderValue)
 * [SetStatusText](SetStatusText)
@@ -645,6 +672,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SetTextAreaFont](SetTextAreaFont)
 * [SetTextAreaTabs](SetTextAreaTabs)
 * [SetTextAreaText](SetTextAreaText)
+* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 * [SetToolBarTips](SetToolBarTips)
 * [ShowEntity](ShowEntity)
 * [ShowGadget](ShowGadget)

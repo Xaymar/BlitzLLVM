@@ -25,9 +25,13 @@ Chooses which of the six faces of a cube map the next drawing on the texture buf
 
 ## Related commands
 
-* [RotateTexture](RotateTexture)
-* [ScaleTexture](ScaleTexture)
 * [SetCubeMode](SetCubeMode)
-* [TextureBlend](TextureBlend)
+* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
+* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
+* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
+* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
+* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
+* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
+* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)

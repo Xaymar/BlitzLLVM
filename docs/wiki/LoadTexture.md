@@ -75,6 +75,6 @@ WaitKey
 * [PositionTexture](PositionTexture)
 * [RotateTexture](RotateTexture)
 * [ScaleTexture](ScaleTexture)
-* [TextureBlend](TextureBlend)
+* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)

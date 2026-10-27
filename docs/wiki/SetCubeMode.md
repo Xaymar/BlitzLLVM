@@ -25,9 +25,13 @@ Selects what a cube map (texture flag 128) shows on a surface: 1 the reflection 
 
 ## Related commands
 
-* [ScaleTexture](ScaleTexture)
 * [SetCubeFace](SetCubeFace)
-* [TextureBlend](TextureBlend)
-* [TextureBuffer](TextureBuffer)
+* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
+* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
+* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
+* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
+* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
+* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
+* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)

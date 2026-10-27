@@ -83,12 +83,12 @@ WaitKey
 ## Related commands
 
 * [ClearTextureFilters](ClearTextureFilters)
+* [CreateSampler](CreateSampler) 〔BlitzLLVM〕
 * [FreeTexture](FreeTexture)
 * [LoadAnimTexture](LoadAnimTexture)
 * [LoadTexture](LoadTexture)
 * [PositionTexture](PositionTexture)
 * [RotateTexture](RotateTexture)
 * [ScaleTexture](ScaleTexture)
-* [TextureBlend](TextureBlend)
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)

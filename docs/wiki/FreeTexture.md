@@ -28,11 +28,11 @@ Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, b
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)
+* [FreeSampler](FreeSampler) 〔BlitzLLVM〕
 * [LoadAnimTexture](LoadAnimTexture)
 * [LoadTexture](LoadTexture)
 * [PositionTexture](PositionTexture)
 * [RotateTexture](RotateTexture)
 * [ScaleTexture](ScaleTexture)
-* [TextureBlend](TextureBlend)
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)

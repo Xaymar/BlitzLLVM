@@ -29,6 +29,6 @@ The rotation turns the coordinates around their origin (the corner of the pictur
 * [LoadTexture](LoadTexture)
 * [PositionTexture](PositionTexture)
 * [ScaleTexture](ScaleTexture)
-* [TextureBlend](TextureBlend)
+* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)

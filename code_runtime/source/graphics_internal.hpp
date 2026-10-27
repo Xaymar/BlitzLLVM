@@ -58,6 +58,7 @@ void bb_gui_idle(void);
 	X(vkDestroyInstance) \
 	X(vkEnumeratePhysicalDevices) \
 	X(vkGetPhysicalDeviceFeatures) \
+	X(vkGetPhysicalDeviceFeatures2) \
 	X(vkGetPhysicalDeviceProperties) \
 	X(vkGetPhysicalDeviceFormatProperties) \
 	X(vkGetPhysicalDeviceQueueFamilyProperties) \
@@ -283,6 +284,8 @@ namespace bb::gfx {
 		VkPipeline            add3d          = VK_NULL_HANDLE;
 		VkPipeline            wire3d[4]      = {};  // The same, drawing only the edges.
 		bool                  can_wireframe  = false;
+		bool                  can_anisotropy = false;
+		bool                  can_custom_border = false;
 		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
 		VkDeviceMemory        scene_memory   = VK_NULL_HANDLE;
@@ -353,12 +356,25 @@ namespace bb::gfx {
 		char*           file = nullptr;         // Where it was loaded from (the full path), for TextureName.
 		int             alias = 0;              // Another handle to the texture of this one (GetBrushTexture), which has all of its state.
 		bool            freed = false;          // FreeTexture was called while something still uses it, so it only goes once nothing does.
+		int             sampler = 0;            // The sampler of SetTextureSampler, or 0 for the one that the flags pick.
 		cube_data*      cube = nullptr;         // For a cube map: image is the face that is chosen, and set samples the sheet.
 		int             cube_mode = 1;          // SetCubeMode, which is also kept for a texture that is no cube map.
 		gpu_image       image;
 		VkDescriptorSet set = VK_NULL_HANDLE;
 	};
 
+
+	// A sampler made by CreateSampler: how a texture that it is set on (SetTextureSampler) is read. The Vulkan sampler is made when
+	// something first uses it, and again when a setting changes.
+	struct sampler_entry {
+		bool      used = false;
+		int       filter_min = 1, filter_mag = 1, filter_mip = 1; // 0 nearest, 1 linear.
+		int       address[3] = { 0, 0, 0 };                       // U, V and W: 0 repeat, 1 mirror, 2 clamp, 3 border (opaque black).
+		float     anisotropy = 1.0f;
+		float     border[4] = { 0.0f, 0.0f, 0.0f, 1.0f };         // Where the address mode is border: red, green, blue, alpha.
+		float     lod_bias = 0.0f, lod_min = 0.0f, lod_max = 1000.0f;
+		VkSampler vk = VK_NULL_HANDLE;
+	};
 
 	// Images are what 2D drawing uses. They can have frames, which are cells of one sheet.
 	struct image_entry {
@@ -581,6 +597,7 @@ namespace bb::gfx {
 	extern state g;
 	extern bb::buffer<texture_entry> texture_table;
 	extern bb::buffer<image_entry> image_table;
+	extern bb::buffer<sampler_entry> sampler_table;
 	extern VkBuffer       scratch;
 	extern VkDeviceMemory scratch_memory;
 	extern VkDeviceSize   scratch_size;
@@ -680,6 +697,11 @@ namespace bb::gfx {
 	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps);
 	/** The sampler for a texture with these flags: repeating or clamped, and with the levels of mip maps (flag 8) or without. */
 	VkSampler texture_sampler(int flags);
+	/** The Vulkan sampler for the settings of a sampler of CreateSampler, with the values kept inside what the device can do. */
+	VkSampler create_user_sampler(sampler_entry const& s);
+	/** Makes the set of an image read it through this sampler. Waits until the GPU is done with the old one. */
+	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, VkSampler sampler);
+	void destroy_user_samplers();
 	/** Makes the levels below the first of a texture again, if something was drawn to it since. Expects an open command buffer. */
 	void refresh_mips(gpu_image& image);
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
@@ -737,6 +759,34 @@ void bb_position_texture(int32_t handle, float u, float v);
 void bb_rotate_texture(int32_t handle, float angle);
 void bb_texture_blend(int32_t handle, int32_t mode);
 void bb_texture_filter(const char* match, int32_t flags);
+int32_t bb_create_sampler(void);
+void bb_free_sampler(int32_t sampler);
+void bb_set_sampler_filter_min(int32_t sampler, int32_t mode);
+void bb_set_sampler_filter_mag(int32_t sampler, int32_t mode);
+void bb_set_sampler_filter_mip(int32_t sampler, int32_t mode);
+void bb_set_sampler_anisotropy(int32_t sampler, float anisotropy);
+void bb_set_sampler_address_mode_u(int32_t sampler, int32_t mode);
+void bb_set_sampler_address_mode_v(int32_t sampler, int32_t mode);
+void bb_set_sampler_address_mode_w(int32_t sampler, int32_t mode);
+void bb_set_sampler_lod_bias(int32_t sampler, float bias);
+void bb_set_sampler_lod_min(int32_t sampler, float lod);
+void bb_set_sampler_lod_max(int32_t sampler, float lod);
+void bb_set_sampler_border_color(int32_t sampler, float r, float g, float b, float a);
+void bb_set_texture_sampler(int32_t texture, int32_t sampler);
+int32_t bb_get_sampler_filter_min(int32_t sampler);
+int32_t bb_get_sampler_filter_mag(int32_t sampler);
+int32_t bb_get_sampler_filter_mip(int32_t sampler);
+float bb_get_sampler_anisotropy(int32_t sampler);
+int32_t bb_get_sampler_address_mode_u(int32_t sampler);
+int32_t bb_get_sampler_address_mode_v(int32_t sampler);
+int32_t bb_get_sampler_address_mode_w(int32_t sampler);
+float bb_get_sampler_lod_bias(int32_t sampler);
+float bb_get_sampler_lod_min(int32_t sampler);
+float bb_get_sampler_lod_max(int32_t sampler);
+float bb_get_sampler_border_color_r(int32_t sampler);
+float bb_get_sampler_border_color_g(int32_t sampler);
+float bb_get_sampler_border_color_b(int32_t sampler);
+float bb_get_sampler_border_color_a(int32_t sampler);
 void bb_set_cube_face(int32_t handle, int32_t face);
 void bb_camera_project(int32_t camera, float x, float y, float z);
 float bb_projected_x(void);
