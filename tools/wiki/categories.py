@@ -90,7 +90,7 @@ _RULES = {
         (r"graphics3d|gfx.*3d|windowed3d|countgfxmodes3d", B3D, "Display"),
         (r"movie", BASIC, "Movies"),
         (r"font|stringwidth|stringheight|^text$|^print$|^write$|^input$|^locate$", BASIC, "Fonts and Text"),
-        (r"image|midhandle|automidhandle|drawblock|tileblock|tformfilter|maskimage|handleimage|grabimage|^rectsoverlap$",
+        (r"image|asyncloading|midhandle|automidhandle|drawblock|tileblock|tformfilter|maskimage|handleimage|grabimage|^rectsoverlap$",
          BASIC, "Images"),
         (r"buffer|pixel|copyrect|lockbuffer|unlockbuffer|bufferdirty", BASIC, "Buffers and Pixels"),
         (r"display|refreshrate", BASIC, "Display"),
