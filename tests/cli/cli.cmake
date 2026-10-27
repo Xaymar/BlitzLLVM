@@ -858,12 +858,16 @@ elseif(CASE STREQUAL "warnings")
 		"End Function\n"
 		"Function Bar%()\n"
 		"\tReturn 1\n"
-		"End Function\n")
+		"End Function\n"
+		"Function Mismatch%()\n"
+		"\tReturn \"5\"\n"
+		"End Function\n"
+		"Print Mismatch()\n")
 
 	# Every warning turns on at its level, and stays on above it. -W2 is the default.
 	set(_WARNINGS
 		"implicit-lossy-int-to-int:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
-		"implicit-lossy-int-to-real:2" "implicit-variable:2" "unused-result:2"
+		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-type-mismatch:2" "unused-result:2"
 		"implicit-number-to-string:3" "unreachable-code:3" "unused-variable:3"
 		"typeless-declaration:4" "unused-function:4")
 	foreach(_LEVEL RANGE 0 4)
@@ -905,6 +909,38 @@ elseif(CASE STREQUAL "warnings")
 	expect_err("warning: Implicit conversion from String to Int32. [-Wimplicit-string-to-number]")
 	expect_err("warning: Implicit conversion from Float64 to Float32 can change the value. [-Wimplicit-lossy-real-to-real]")
 	expect_no_err("[-Wunused-variable]\nLocal i")
+
+	# Return with another type than the function has: both types, and the function that fixes it.
+	expect_err("w.bb:23:9: warning: Return gives String, but the function returns Int. [-Wreturn-type-mismatch]")
+	expect_err("help: Use Int(value) to convert on purpose.")
+	file(WRITE "${WORK}/ret.bb"
+		"Print Zero#()\nPrint Same#(1.5)\nPrint Wide#(1)\nLocal d:double = 1.5\nPrint Narrow#(d)\nPrint Text$(1)\nPrint Byt:byte(1)\n"
+		"Function Zero#()\n\tReturn 0\nEnd Function\n"
+		"Function Same#(f#)\n\tReturn f\nEnd Function\n"
+		"Function Wide#(i%)\n\tReturn i\nEnd Function\n"
+		"Function Narrow#(d:double)\n\tReturn d\nEnd Function\n"
+		"Function Text$(i%)\n\tReturn i\nEnd Function\n"
+		"Function Byt:byte(i%)\n\tReturn i\nEnd Function\n")
+	blitzcc(-c "${WORK}/ret.bb")
+	expect_err("Return gives Int, but the function returns Float. [-Wreturn-type-mismatch]")
+	expect_err("Return gives Double, but the function returns Float. [-Wreturn-type-mismatch]\n")
+	expect_err("help: Use Float(value) to convert on purpose.")
+	expect_err("Return gives Int, but the function returns String. [-Wreturn-type-mismatch]")
+	expect_err("help: Use Str(value) to convert on purpose.")
+	expect_err("Return gives Int, but the function returns Byte. [-Wreturn-type-mismatch]")
+	expect_err("help: Change the type of the function or of the returned value.")
+	# A literal that fits (Return 0 in a Float function) and the same type are fine, and the conversion warnings are not said twice.
+	expect_no_err("ret.bb:8:")
+	expect_no_err("ret.bb:9:")
+	expect_no_err("[-Wimplicit-lossy")
+	expect_no_err("[-Wimplicit-number-to-string]")
+	# Without it, the conversion warnings say it at their levels.
+	blitzcc(-c -W1 "${WORK}/ret.bb")
+	expect_no_err("[-Wreturn-type-mismatch]")
+	expect_err("[-Wimplicit-lossy-real-to-real]")
+	blitzcc(-c -Wno-return-type-mismatch "${WORK}/ret.bb")
+	expect_no_err("[-Wreturn-type-mismatch]")
+	expect_err("[-Wimplicit-lossy-int-to-int]")
 
 	# A number that is written in the program and fits is fine.
 	file(WRITE "${WORK}/fits.bb" "Local b:byte = 100\nLocal f# = 1000\nPrint b + f\n")
@@ -1012,7 +1048,7 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -W0 -Werror=unreachable-code "${WORK}/w.bb")
 	expect_failed()
 	expect_err("w.bb:13:1: error: This statement can never run. [-Werror=unreachable-code]")
-	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=unused-result -Wno-error=implicit-number-to-string "${WORK}/w.bb")
+	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=unused-result -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
 	expect_ok()
 	expect_err("[-Wimplicit-lossy-real-to-int]")
 
