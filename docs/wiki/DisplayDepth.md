@@ -12,7 +12,7 @@ DisplayDepth display%  ; returns Int
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-The color depth in bits per pixel of what a display shows right now, usually 24 or 32. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+The color depth in bits per pixel of what a display shows right now, always 32. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -23,6 +23,7 @@ The color depth in bits per pixel of what a display shows right now, usually 24 
 **Differences and known gaps:**
 
 * A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* Palette and 16 bit modes are not supported, so this is 32 whatever the display itself uses.
 
 ## Related commands
 

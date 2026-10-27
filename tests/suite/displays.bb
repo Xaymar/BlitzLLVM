@@ -21,7 +21,7 @@ For display = 1 To displays
 	d = DisplayDepth(display)
 	r = DisplayRefreshRate(display)
 	CheckTrue "Display size " + display, w > 0 And h > 0
-	CheckTrue "DisplayDepth " + display, d >= 16
+	Check "DisplayDepth " + display, d, 32
 	CheckTrue "DisplayRefreshRate " + display, r > 0
 
 	modes = CountDisplayModes(display)
@@ -32,7 +32,7 @@ For display = 1 To displays
 		mh = DisplayModeHeight(display, mode)
 		md = DisplayModeDepth(display, mode)
 		mr = DisplayModeRefreshRate(display, mode)
-		CheckTrue "DisplayMode " + display + "/" + mode, mw > 0 And mh > 0 And md >= 16 And mr > 0
+		CheckTrue "DisplayMode " + display + "/" + mode, mw > 0 And mh > 0 And md = 32 And mr > 0
 		If mw = w And mh = h And md = d And mr = r Then found = found + 1
 
 		; Each mode is in the list once, and the list goes from small to large.

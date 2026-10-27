@@ -20,7 +20,7 @@ Switches dithering for 16 bit color modes on or off, which hides banding in grad
 
 **Differences and known gaps:**
 
-* Accepted and ignored: the screen always has 8 bits per color channel.
+* Does nothing: 16 bit modes are not supported and the screen always has 8 bits per color channel, so there is nothing to dither.
 
 ## Related commands
 

@@ -20,6 +20,12 @@ Graphics 320, 240, 32, 2
 Check "GraphicsWidth", GraphicsWidth(), 320
 Check "GraphicsHeight", GraphicsHeight(), 240
 Check "GraphicsDepth", GraphicsDepth(), 32
+; The depth that is asked for does not change what the picture has, so a program that asks for 16 gets 32.
+Graphics 320, 240, 16, 2
+Check "GraphicsDepth of 16 asked", GraphicsDepth(), 32
+Graphics 320, 240, 0, 2
+Check "GraphicsDepth of 0 asked", GraphicsDepth(), 32
+Graphics 320, 240, 32, 2
 SetBuffer BackBuffer()
 CheckTrue "BackBuffer", BackBuffer() <> 0
 CheckTrue "FrontBuffer", FrontBuffer() <> 0
@@ -238,13 +244,15 @@ For mode = 1 To modes
 	h = GfxModeHeight(mode)
 	d = GfxModeDepth(mode)
 	CheckTrue "GfxMode size " + mode, w > 0 And h > 0
-	CheckTrue "GfxModeDepth " + mode, d >= 16
+	Check "GfxModeDepth " + mode, d, 32
 	Check "GfxModeExists " + mode, GfxModeExists(w, h, d), 1
 	Check "GfxMode3D " + mode, GfxMode3D(mode), 1
 	Check "GfxMode3DWidth " + mode, GfxMode3DWidth(mode), w
 	Check "GfxMode3DHeight " + mode, GfxMode3DHeight(mode), h
 	CheckTrue "GfxModeFormat " + mode, GfxModeFormat(mode) > 0
 Next
+Check "GfxModeExists ignores the depth", GfxModeExists(GfxModeWidth(1), GfxModeHeight(1), 16), 1
+Check "GfxMode3DExists ignores the depth", GfxMode3DExists(GfxModeWidth(1), GfxModeHeight(1), 24), 1
 Check "GfxModeExists missing", GfxModeExists(7, 7, 32), 0
 Check "GfxModeExists any depth", GfxModeExists(GfxModeWidth(1), GfxModeHeight(1), 0), 1
 

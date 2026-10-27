@@ -19,11 +19,12 @@ The color depth in bits per pixel of a mode from the list of a display. This is 
 | `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 | `mode` | Int | required | The mode number, from 1 to [CountDisplayModes](CountDisplayModes). |
 
-**Returns:** The color depth, or 0 if the display or mode does not exist.
+**Returns:** The color depth, always 32, or 0 if the display or mode does not exist.
 
 **Differences and known gaps:**
 
 * A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
+* Palette and 16 bit modes are not supported, so every mode is listed with 32 bits.
 
 ## Related commands
 

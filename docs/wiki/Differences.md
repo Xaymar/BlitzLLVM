@@ -13,6 +13,7 @@ This page is made from the pages it links to (see `tools/wiki/wiki.py`), so it i
 Differences that are not caused by one command.
 
 * [3D Studio models](3D-Studio-Models): Extension: `LoadMesh` and `LoadAnimMesh` also read `.3ds` files.
+* [Color depth](Color-Depth): The depth argument of `Graphics` is ignored: the picture is always 8 bits per channel, and `Dither` and `WBuffer` do nothing.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
 * [Depth buffer](Depth-Buffer): The depth buffer is a reversed 32-bit float, so z-fighting is much rarer.
@@ -98,7 +99,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [DisplayWidth](DisplayWidth#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [DisplayX](DisplayX#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [DisplayY](DisplayY#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [Dither](Dither#differences-and-known-gaps): Accepted and ignored: the screen always has 8 bits per color channel.
+* [Dither](Dither#differences-and-known-gaps): Does nothing: 16 bit modes are not supported and the screen always has 8 bits per color channel, so there is nothing to dither.
 * [Double](Double#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
 * [DrawBlockRect](DrawBlockRect#differences-and-known-gaps): Only the part that lies inside the frame is drawn.
 * [DrawImage](DrawImage#differences-and-known-gaps): A frame number that does not exist stops the program with an error message.
@@ -128,14 +129,14 @@ Commands that differ from the original or are not finished, with the first of th
 * [GfxDriverCaps3D](GfxDriverCaps3D#differences-and-known-gaps): It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
 * [GfxDriverName](GfxDriverName#differences-and-known-gaps): The name is the one of the graphics card Vulkan uses (once a graphics window is open), otherwise "Default".
 * [GfxModeDepth](GfxModeDepth#differences-and-known-gaps): A mode number that does not exist stops the program with an error message.
-* [GfxModeExists](GfxModeExists#differences-and-known-gaps): A 0 for any of the three numbers means "anything fits", like in BlitzPlus.
+* [GfxModeExists](GfxModeExists#differences-and-known-gaps): A 0 for the width or height means "anything fits", like in BlitzPlus.
 * [GfxModeFormat](GfxModeFormat#differences-and-known-gaps): Always 4, as the window is always 32 bit.
 * [GfxModeHeight](GfxModeHeight#differences-and-known-gaps): A mode number that does not exist stops the program with an error message.
 * [GfxModeWidth](GfxModeWidth#differences-and-known-gaps): A mode number that does not exist stops the program with an error message.
 * [GrabImage](GrabImage#differences-and-known-gaps): Parts that lie outside of the buffer are not copied and keep what the frame had before.
-* [Graphics](Graphics#differences-and-known-gaps): The color depth is accepted but not used: the picture always has 32 bits per pixel.
-* [Graphics3D](Graphics3D#differences-and-known-gaps): The depth is not used: pictures always have 32 bits per pixel, however much you ask for.
-* [GraphicsDepth](GraphicsDepth#differences-and-known-gaps): Always 32.
+* [Graphics](Graphics#differences-and-known-gaps): The color depth is accepted but ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
+* [Graphics3D](Graphics3D#differences-and-known-gaps): The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
+* [GraphicsDepth](GraphicsDepth#differences-and-known-gaps): Always 32: the picture has 8 bits for each of red, green and blue, with 8 more for alpha where a program uses it.
 * [GraphicsFormat](GraphicsFormat#differences-and-known-gaps): Always 4.
 * [GraphicsLost](GraphicsLost#differences-and-known-gaps): Always 0.
 * [Half](Half#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
@@ -265,7 +266,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [VertexW](VertexW#differences-and-known-gaps): The value is not stored: this always returns 1.
 * [VWait](VWait#differences-and-known-gaps): There is no vertical blank to wait for, so VWait waits 16 milliseconds for each frame (60 frames per second).
 * [WaitJoy](WaitJoy#differences-and-known-gaps): If no joystick is connected the function returns 0 right away instead of waiting forever.
-* [WBuffer](WBuffer#differences-and-known-gaps): Accepted and ignored.
+* [WBuffer](WBuffer#differences-and-known-gaps): Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
 * [WireFrame](WireFrame#differences-and-known-gaps): On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
 * [Write](Write#differences-and-known-gaps): Without a graphics window the text goes to the console instead.
 * [WritePixel](WritePixel#differences-and-known-gaps): A position outside of the buffer is ignored.

@@ -28,13 +28,13 @@ WaitKey
 |---|---|---|---|
 | `width` | Int | required | The width, or 0 for any width. |
 | `height` | Int | required | The height, or 0 for any height. |
-| `depth` | Int | required | The color depth in bits, or 0 for any depth. |
+| `depth` | Int | required | The color depth in bits, which is not looked at, because every mode has 32 bits. |
 
 **Returns:** 1 if a mode like that exists, otherwise 0.
 
 **Differences and known gaps:**
 
-* A 0 for any of the three numbers means "anything fits", like in BlitzPlus. A window of any size can be opened here whether or not it is in the list: the list only has the modes for full screen.
+* A 0 for the width or height means "anything fits", like in BlitzPlus. A window of any size can be opened here whether or not it is in the list: the list only has the modes for full screen.
 
 ## Related commands
 
