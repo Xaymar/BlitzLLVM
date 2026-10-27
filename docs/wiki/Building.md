@@ -67,7 +67,7 @@ cmake --preset windows-x64-msvc2022
 cmake --build --preset windows-x64-msvc2022 --config Release
 ```
 
-The compiler ends up in the build directory as `blitzcc` (`blitzcc.exe`), with the runtime library in a `runtime` directory next to it.
+The compiler ends up in the build directory as `blitzcc` (`blitzcc.exe`), with the runtime in a `runtime` directory next to it (an install puts it in `lib/blitzllvm/runtime`).
 
 ## Install
 
@@ -79,7 +79,7 @@ This creates:
 
 ```
 dist/bin/blitzcc          the compiler
-dist/bin/runtime/         the runtime library, has to stay next to blitzcc
+dist/lib/blitzllvm/runtime/  the runtime libraries and sources, lib has to stay next to bin
 dist/userlibs/            user libraries, with a README
 ```
 
