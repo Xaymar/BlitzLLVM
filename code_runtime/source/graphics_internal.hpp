@@ -389,6 +389,7 @@ namespace bb::gfx {
 		VkDescriptorSet set = VK_NULL_HANDLE;
 		uint8_t*        solid = nullptr;        // For collisions: one byte per pixel of the sheet, 1 where it is not the mask color.
 		uint32_t        solid_generation = 0;   // What image_generation was when solid was made.
+		bool            internal = false;       // Not one of the program's images: it is not counted and has no handle that a program has.
 	};
 
 	// Counts changes to images, so that collision data that was made from them is made again.
@@ -661,6 +662,20 @@ namespace bb::gfx {
 	/** Creates an image of RGBA pixels that can be sampled, drawn to and copied, without a descriptor set. */
 	void create_pixel_image(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels);
 	void free_image(image_entry& e);
+	/** An image for the program's own use (the characters of a font), which no handle of a program means. */
+	int  make_internal_image(int width, int height, const uint8_t* rgba);
+	void free_internal_image(int handle);
+
+	// TrueType fonts, see graphics_fonts.cpp. Null if the system has no font of that name.
+	struct ttf_font;
+	ttf_font* ttf_open(const char* name, int height, int style);
+	void      ttf_free(ttf_font* font);
+	int       ttf_height(ttf_font const* font);
+	int       ttf_width(ttf_font const* font);
+	int       ttf_ascent(ttf_font const* font);
+	int       ttf_descent(ttf_font const* font);
+	int       ttf_string_width(ttf_font const* font, const char* text);
+	void      ttf_draw(ttf_font* font, float x, float y, const char* text);
 	void free_texture(texture_entry& t);
 	void create_3d();
 	void forget_recorded();

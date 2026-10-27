@@ -39,7 +39,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* Every character has the same width, so this is the number of characters times [FontWidth](FontWidth).
+* With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth). Widths of real fonts depend on the font that was found on the system.
 
 ## Related commands
 

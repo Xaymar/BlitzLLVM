@@ -22,4 +22,4 @@ WaitKey
 ![StringWidth](media/fonts/stringwidth.png)
 @param string  The text to measure.
 @returns The width of the text.
-@gap Every character has the same width, so this is the number of characters times [FontWidth](FontWidth).
+@gap With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth). Widths of real fonts depend on the font that was found on the system.

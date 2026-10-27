@@ -17,4 +17,4 @@ Flip
 WaitKey
 ```
 @returns The height of a character in pixels.
-@gap Fonts are the built-in 8x8 pixel bitmap font, scaled to the requested height. All characters have the same size, so FontHeight and [FontWidth](FontWidth) give the same number.
+@gap The height is the height that was requested, as with Windows fonts. For a font that is not found, the built-in bitmap font is used, where [FontWidth](FontWidth) is the same number.

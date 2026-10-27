@@ -96,6 +96,24 @@ namespace bb::gfx {
 		return int32_t(image_table.size);
 	}
 
+	int make_internal_image(int width, int height, const uint8_t* rgba)
+	{
+		image_entry entry;
+		entry.used     = true;
+		entry.internal = true;
+		entry.frame_w = entry.sheet_w = width;
+		entry.frame_h = entry.sheet_h = height;
+		upload_texture(entry.image, entry.set, uint32_t(width), uint32_t(height), rgba, g.sampler);
+		return add_image(entry);
+	}
+
+	void free_internal_image(int handle)
+	{
+		if (image_entry* e = image_of(handle)) {
+			free_image(*e);
+		}
+	}
+
 	static image_entry* need_image(int32_t handle, const char* what)
 	{
 		image_entry* e = image_of(handle);
@@ -917,7 +935,7 @@ int32_t bb_live_images(void)
 {
 	int32_t count = 0;
 	for (uint32_t i = 0; i < image_table.size; i++) {
-		count += image_table[i].used ? 1 : 0;
+		count += (image_table[i].used && !image_table[i].internal) ? 1 : 0;
 	}
 	return count;
 }

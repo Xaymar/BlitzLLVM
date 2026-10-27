@@ -20,6 +20,7 @@ required=(
 	SDL3_mixer/optional/LICENSE.opusfile.txt
 	SDL3_mixer/optional/LICENSE.ogg-vorbis.txt
 	Vulkan-Headers/LICENSE.md
+	stb/LICENSE
 )
 status=0
 for file in "${required[@]}"; do
