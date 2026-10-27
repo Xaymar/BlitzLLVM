@@ -139,8 +139,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check out the submodules
         if: env.RUN == 'true'
-        # The same ones the build needs, and shallow. extra/ holds reference sources only.
-        run: git submodule update --init --depth 1 --jobs 8 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer third_party/stb third_party/VulkanMemoryAllocator third_party/FFmpeg
+        # The same ones the build needs, and shallow. extra/ holds reference sources only, except for the two with the original samples and games, which the tests compile.
+        run: git submodule update --init --depth 1 --jobs 8 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer third_party/stb third_party/VulkanMemoryAllocator third_party/FFmpeg extra/blitz3d extra/blitzplus_msvc2017
       - name: Hash the dependency submodules
         if: env.RUN == 'true'
         id: dependencies
