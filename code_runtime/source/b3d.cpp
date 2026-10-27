@@ -19,6 +19,8 @@
 #include <execinfo.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdio.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 #endif
 
@@ -762,17 +764,18 @@ namespace {
 	}
 
 #if defined(__linux__)
-	void debug_segv(int sig)
+	void debug_segv(int sig, siginfo_t* info, void*)
 	{
-		char    text[1024];
+		char text[1024];
+		char line[128];
 		ssize_t n = 0;
 		int     fd = open("async_mesh_mark.txt", O_RDONLY);
 		if (fd >= 0) {
 			n = read(fd, text, sizeof(text) - 1);
 			close(fd);
 		}
-		static const char head[] = "\nDEBUG SEGV, marks: ";
-		write(2, head, sizeof(head) - 1);
+		int len = snprintf(line, sizeof(line), "\nDEBUG SEGV sig=%d addr=%p tid=%ld pid=%ld marks: ", sig, info ? info->si_addr : nullptr, long(syscall(SYS_gettid)), long(getpid()));
+		write(2, line, size_t(len));
 		if (n > 0) {
 			write(2, text, size_t(n));
 		}
@@ -781,7 +784,7 @@ namespace {
 		backtrace_symbols_fd(frames, count, 2);
 		int maps = open("/proc/self/maps", O_RDONLY);
 		if (maps >= 0) {
-			char buf[4096];
+			char buf[8192];
 			ssize_t got = read(maps, buf, sizeof(buf));
 			if (got > 0) {
 				write(2, buf, size_t(got));
@@ -790,19 +793,29 @@ namespace {
 		}
 		_exit(100 + sig);
 	}
+
+	struct debug_segv_install {
+		debug_segv_install()
+		{
+			void* warm[4];
+			backtrace(warm, 4);
+			static char stack[65536];
+			stack_t     ss{};
+			ss.ss_sp   = stack;
+			ss.ss_size = sizeof(stack);
+			sigaltstack(&ss, nullptr);
+			struct sigaction sa{};
+			sa.sa_sigaction = debug_segv;
+			sa.sa_flags     = SA_SIGINFO | SA_ONSTACK;
+			sigaction(SIGSEGV, &sa, nullptr);
+			sigaction(SIGBUS, &sa, nullptr);
+			sigaction(SIGABRT, &sa, nullptr);
+		}
+	} debug_segv_installer;
 #endif
 
 	int load_model(const char* file, int parent, bool anim, const char* what)
 	{
-#if defined(__linux__)
-		static bool handler = false;
-		if (!handler) {
-			handler = true;
-			signal(SIGSEGV, debug_segv);
-			signal(SIGBUS, debug_segv);
-			signal(SIGABRT, debug_segv);
-		}
-#endif
 		uint8_t* data = nullptr;
 		size_t   got  = 0;
 		if (!file || !read_file_bytes(file, data, got)) {
