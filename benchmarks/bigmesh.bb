@@ -93,6 +93,12 @@ For i = 0 To frames - 1
 	If times(i) < best Then best = times(i)
 Next
 
+; The camera stays where it is for a few more frames, so that the picture does not depend on how many frames the screen is behind.
+For i = 1 To 6
+	RenderWorld
+	Flip 0
+Next
+
 ; A number for the last picture, so that runs with different culling can be told to draw the same.
 hash = 0
 LockBuffer BackBuffer()
