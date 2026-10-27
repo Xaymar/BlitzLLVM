@@ -311,9 +311,28 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 	scope_end(sc);
 	emit("store " + llvm + " " + from.repr + ", ptr " + var.pointer);
 
+	// A Return from a Gosub can jump into the middle of the loop, past the place where the limit and step were worked out. They live in
+	// the stack frame then, like in the original, so that every way into the loop sees them.
+	std::string to_slot, step_slot;
+	if (!_gosub_stack.empty()) {
+		to_slot   = "%for.to." + std::to_string(_counter++);
+		step_slot = "%for.step." + std::to_string(_counter++);
+		_allocas << "  " << to_slot << " = alloca " << llvm << "\n";
+		_allocas << "  " << step_slot << " = alloca " << llvm << "\n";
+		emit("store " + llvm + " " + to.repr + ", ptr " + to_slot);
+		emit("store " + llvm + " " + step.repr + ", ptr " + step_slot);
+	}
+
 	auto cond_l = label("for.cond"), body_l = label("for.body"), step_l = label("for.step"), end_l = label("for.end");
 	begin_label(cond_l);
 	auto cur = tmp(), neg = tmp(), up = tmp(), down = tmp(), cont = tmp();
+	if (!to_slot.empty()) {
+		auto loaded_to = tmp(), loaded_step = tmp();
+		emit(loaded_to + " = load " + llvm + ", ptr " + to_slot);
+		emit(loaded_step + " = load " + llvm + ", ptr " + step_slot);
+		to.repr   = loaded_to;
+		step.repr = loaded_step;
+	}
 	emit(cur + " = load " + llvm + ", ptr " + var.pointer);
 	if (sign) {
 		emit(neg + (real ? " = fcmp olt " : " = icmp slt ") + llvm + " " + step.repr + ", " + zero(var.type).repr);
@@ -332,6 +351,11 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 
 	begin_label(step_l);
 	auto next = tmp(), after = tmp();
+	if (!step_slot.empty()) {
+		auto loaded_step = tmp();
+		emit(loaded_step + " = load " + llvm + ", ptr " + step_slot);
+		step.repr = loaded_step;
+	}
 	emit(next + " = load " + llvm + ", ptr " + var.pointer);
 	emit(after + (real ? " = fadd " : " = add ") + llvm + " " + next + ", " + step.repr);
 	emit("store " + llvm + " " + after + ", ptr " + var.pointer);

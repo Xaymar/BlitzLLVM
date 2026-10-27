@@ -6,8 +6,6 @@ blitzplus_msvc2017/_release/games/AsteroidShower/asteroid.bb
 # Data can only contain constants (Data with an expression)
 blitzplus_msvc2017/_release/games/Blitzanoid/blitzanoid.bb
 # Data can only contain constants (Data with an expression)
-blitzplus_msvc2017/_release/games/BlitzDicey/BB_DICEY.BB
-# Compiles, but clang crashes (LLVM fatal error) building the executable
 blitzplus_msvc2017/_release/games/Insectoids/insectoids.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
 blitzplus_msvc2017/_release/games/WizardWars/wizardwars.bb
