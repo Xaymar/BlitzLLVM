@@ -1199,7 +1199,7 @@ elseif(CASE STREQUAL "shell_quoting")
 	file(WRITE "${WORK}/ps" "#!/bin/sh\ntouch pwned\n")
 	file(CHMOD "${WORK}/ps" PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 	file(MAKE_DIRECTORY "${WORK}/line\n.")
-	set(_NAMES "line\n./ps" "quote'; touch pwned; '" "sub\$(touch pwned)" "~tilde" "hash #" "brace{a,b}" "star*" "bang!")
+	set(_NAMES "line\n./ps" "quote' && touch pwned && '" "sub\$(touch pwned)" "~tilde" "hash #" "brace{a,b}" "star*" "bang!")
 	# The results are checked after the files are removed: a name with a line break in it can't be part of the uploaded test output (the
 	# artifact upload refuses it), so it must not be left behind when a check fails either.
 	set(_PROBLEMS)
