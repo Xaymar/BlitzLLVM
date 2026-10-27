@@ -90,6 +90,7 @@ void blitz::parser::parse_function()
 	_in_function = false;
 	_function_slots.clear();
 	expect_block_end("endfunction", "end", "function");
+	finish(*fn, first);
 	_program->functions.push_back(std::move(fn));
 }
 
