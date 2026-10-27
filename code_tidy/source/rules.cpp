@@ -36,7 +36,6 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-variable", true, mode::FIX, "Declares the variable with its type in front of the statement of the function that first uses it.", "Variables of the main program: an Include can declare them somewhere else." },
 		{ "unused-result", false, mode::REPORT, "", "" },
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },
-		{ "expand-short-to-long-notation", true, mode::OFF, "Writes the type in the long form: x% becomes x:Int32, x# x:Float32, x## x:Float64, x%% x:Int64, x$ x:String", "", "A type is written as a character behind the name (x%, x#, x$) instead of the long form (x:Int32, x:Float32, x:String). The long form is the one BlitzLLVM prefers." },
 		{ "unreachable-code", false, mode::REPORT, "", "" },
 		{ "unused-variable", true, mode::FIX, "Removes a Local of a function that is not mentioned anywhere else.", "Locals of the main program and Globals: an Include can use them." },
 		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x:Int32", "" },
@@ -49,7 +48,6 @@ std::string blitz::tidy::canonical_rule(std::string const& name)
 {
 	// The names rules had before, and the spelling of "parentheses" that was asked for.
 	static const std::vector<std::pair<const char*, const char*>> old{
-		{ "short-type-notation", "expand-short-to-long-notation" },
 		{ "parantheses-around-arguments", "parentheses-around-arguments" },
 	};
 	for (auto const& [from, to] : old) {

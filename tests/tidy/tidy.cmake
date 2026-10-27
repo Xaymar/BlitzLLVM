@@ -29,6 +29,9 @@ function(tidy)
 	if(NOT CASE STREQUAL "config")
 		set(_CONFIG --no-config)
 	endif()
+	if(NOT CASE STREQUAL "type_notation")
+		list(APPEND _CONFIG --type-notation=keep) # Most tests are about something else than the notation
+	endif()
 	execute_process(
 		COMMAND "${TIDY}" ${_CONFIG} ${ARGN}
 		WORKING_DIRECTORY "${WORK}"
@@ -46,6 +49,9 @@ endfunction()
 function(tidy_text)
 	if(NOT CASE STREQUAL "config")
 		set(_CONFIG --no-config)
+	endif()
+	if(NOT CASE STREQUAL "type_notation")
+		list(APPEND _CONFIG --type-notation=keep) # Most tests are about something else than the notation
 	endif()
 	list(POP_BACK ARGN _FILE)
 	execute_process(
@@ -221,7 +227,7 @@ elseif(CASE STREQUAL "in_place")
 
 elseif(CASE STREQUAL "stdin")
 	execute_process(
-		COMMAND "${TIDY}" --no-config --stdin-filepath=${WORK}/conversions.bb
+		COMMAND "${TIDY}" --no-config --type-notation=keep --stdin-filepath=${WORK}/conversions.bb
 		INPUT_FILE "${TESTS}/cases/conversions.bb"
 		WORKING_DIRECTORY "${WORK}"
 		RESULT_VARIABLE RC OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR
@@ -233,7 +239,7 @@ elseif(CASE STREQUAL "stdin")
 elseif(CASE STREQUAL "rules")
 	tidy(--rules)
 	expect_rc(0)
-	foreach(_RULE IN ITEMS implicit-lossy-int-to-int implicit-lossy-real-to-int implicit-lossy-real-to-real implicit-string-to-number implicit-lossy-int-to-real implicit-variable unused-result implicit-number-to-string unreachable-code unused-variable typeless-declaration expand-short-to-long-notation unused-function)
+	foreach(_RULE IN ITEMS implicit-lossy-int-to-int implicit-lossy-real-to-int implicit-lossy-real-to-real implicit-string-to-number implicit-lossy-int-to-real implicit-variable unused-result implicit-number-to-string unreachable-code unused-variable typeless-declaration unused-function)
 		expect_contains(OUT "${_RULE}")
 	endforeach()
 
@@ -251,16 +257,10 @@ elseif(CASE STREQUAL "rule_modes")
 	expect_contains(OUT "Local d% = text")
 	expect_missing(ERR "blitz-tidy:")
 
-	# expand-short-to-long-notation is off until it is asked for: the short form is left alone, then reported, then written in the long form.
+elseif(CASE STREQUAL "type_notation")
+	# The long notation is what is written unless something else is asked for: x% becomes x:Int32.
 	file(WRITE "${WORK}/short.bb" "Global g% = 1\nFunction Twice$(a#, b:Int64)\n\tReturn Str(a + b)\nEnd Function\nLocal s$ = Twice(g, 2)\nLocal k%%, d##\nPrint s + k + d\n")
 	tidy_text("${WORK}/short.bb")
-	expect_rc(0)
-	expect_contains(OUT "Global g% = 1")
-	expect_missing(ERR "expand-short-to-long-notation")
-	tidy_text(--expand-short-to-long-notation=report "${WORK}/short.bb")
-	expect_contains(OUT "Global g% = 1")
-	expect_contains(ERR "[blitz-tidy:expand-short-to-long-notation]")
-	tidy_text(--expand-short-to-long-notation "${WORK}/short.bb")
 	expect_rc(0)
 	expect_contains(OUT "Global g:Int32 = 1")
 	expect_contains(OUT "Function Twice:String(a:Float32, b:Int64)")
@@ -270,15 +270,34 @@ elseif(CASE STREQUAL "rule_modes")
 	expect_missing(OUT "#")
 	expect_missing(OUT "$")
 	expect_missing(ERR "blitz-tidy:")
-	# A second run changes nothing, and what it wrote compiles without the warning.
-	file(WRITE "${WORK}/short_fixed.bb" "${OUT}")
-	tidy(--expand-short-to-long-notation --check "${WORK}/short_fixed.bb")
+	file(WRITE "${WORK}/long.bb" "${OUT}")
+	# A second run changes nothing.
+	tidy(--check "${WORK}/long.bb")
 	expect_rc(0)
-	# The rule was called short-type-notation before, which still works on the command line and in files.
+	# keep leaves the notation as it is.
+	tidy_text(--type-notation=keep "${WORK}/short.bb")
+	expect_contains(OUT "Global g% = 1")
+	expect_contains(OUT "Function Twice$(a#, b:Int64)")
+	# short writes the short form where there is one: Int, Long, Float and Double have a character, Byte does not.
+	file(WRITE "${WORK}/long2.bb" "Global g:Int32 = 1\nFunction Twice:String(a:Float32, b:Int64)\n\tReturn Str(a + b)\nEnd Function\nLocal s:String = Twice(g, 2)\nLocal k:Int64, d:Float64, e:Float, i:Int, b:Byte\nPrint s + k + d + e + i + b ; x:Int is a comment\nPrint \"x:Int\"\n")
+	tidy_text(--type-notation=short "${WORK}/long2.bb")
+	expect_rc(0)
+	expect_contains(OUT "Global g% = 1")
+	expect_contains(OUT "Function Twice$(a#, b%%)")
+	expect_contains(OUT "Local s$ = Twice(Float(g), 2)")
+	expect_contains(OUT "Local k%%, d##, e#, i%, b:Byte")
+	expect_contains(OUT "; x:Int is a comment")
+	expect_contains(OUT "Print \"x:Int\"")
+	file(WRITE "${WORK}/short2.bb" "${OUT}")
+	tidy(--type-notation=short --check "${WORK}/short2.bb")
+	expect_rc(0)
+	# The rules this setting replaces still work: fix is long, off is keep.
 	tidy_text(--short-type-notation "${WORK}/short.bb")
 	expect_contains(OUT "Global g:Int32 = 1")
-	tidy_text(--short_type_notation=report "${WORK}/short.bb")
-	expect_contains(ERR "[blitz-tidy:expand-short-to-long-notation]")
+	tidy_text(--expand-short-to-long-notation=off "${WORK}/short.bb")
+	expect_contains(OUT "Global g% = 1")
+	tidy(--type-notation=sideways "${WORK}/short.bb")
+	expect_rc(2)
 
 elseif(CASE STREQUAL "one_declare")
 	# Each variable of a Local or Global gets a declaration of its own, with its type and value.

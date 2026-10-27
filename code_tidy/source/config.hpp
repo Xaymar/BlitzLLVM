@@ -11,10 +11,14 @@
 #include "rules.hpp"
 
 namespace blitz::tidy {
+	/** How the type of a variable is written: x:Int32 (long) or x% (short). */
+	enum class notation { keep, short_form, long_form };
+
 	/** Which rules do what. */
 	struct config {
 		std::map<std::string, mode> rules;       // Rules that were set, the rest have their default.
 		std::optional<mode>         everything; // "default": the mode of every rule that was not set.
+		notation                    type_notation = notation::long_form; // "type-notation": keep, short or long
 		bool                        unsafe     = false;
 		int                         max_passes = 20;
 		std::filesystem::path       userlibs_dir;
@@ -25,6 +29,7 @@ namespace blitz::tidy {
 		/** Applies settings as the tools library reads them from a configuration file and the command line, in order:
 		 *   <rule> = off | report | fix      (true is fix, false is off), with - or _ in the name
 		 *   default = off | report | fix     the mode of the rules that are not set
+		 *   type-notation = keep | short | long   how types are written, long (x:Int32) unless set (short is x%)
 		 *   unsafe = true | false            allow the fixes that can change the program
 		 *   max_passes = <n>                 how often the file is compiled and fixed again
 		 *   userlibs_dir = <directory>       where the userlibs are, defaults to what blitzcc uses

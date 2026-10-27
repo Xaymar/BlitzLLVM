@@ -33,11 +33,11 @@ End Function
 becomes
 
 ```blitzbasic
-Local ratio# = 2.5
-Local count% = Int(ratio)
-Local label$ = Str(count + 1)
+Local ratio:Float32 = 2.5
+Local count:Int32 = Int(ratio)
+Local label:String = Str(count + 1)
 
-Function Sum(limit%)
+Function Sum(limit)
 	Local i%
 	Local total%
 	For i = 1 To limit
@@ -69,8 +69,7 @@ A second run over the result changes nothing. The fixes are made so that the pro
 | `implicit-lossy-int-to-real` | fix | `Float(value)`, `Double(value)`, `Half(value)` | |
 | `implicit-number-to-string` | fix | `Str(value)` | |
 | `typeless-declaration` | fix | `Local x` becomes `Local x:Int32` (also `Global`, `Const`) | |
-| `expand-short-to-long-notation` | off | `x%` becomes `x:Int32`, `x%%` `x:Int64`, `x#` `x:Float32`, `x##` `x:Float64` and `x$` `x:String`, also in declarations of functions, parameters and fields. `.TypeName` is left alone: it has no other form. The long form is the one BlitzLLVM prefers. Off by default, turn it on with `--expand-short-to-long-notation` (or `"expand-short-to-long-notation": "fix"`). It is about the `short-type-notation` warning of the compiler, and that is the name the rule had before, which still works. | |
-| `one-declare-per-variable` | off | `Local a, b = 1` becomes `Local a` and `Local b = 1` on lines of their own (also `Global` and `Const`). Off by default. | |
+| `one-declare-per-variable` | off | `Local a, b = 1` becomes `Local a` and `Local b = 1` on lines of their own (also `Global`). `Const` is left alone. Off by default. | |
 | `parentheses-around-arguments` | off | `Foo 14, 12, 14 + 12` becomes `Foo(14, 12, 14 + 12)`, for a command or function that is called as a statement and has arguments. A parenthesis around only the first argument (`Foo (1)+2, 3`) is not taken for the parenthesis of the call: it becomes `Foo((1)+2, 3)`. Off by default. | |
 | `resource-acquisition-is-initialization` | off | A `Local` or `Global` gets a value where it is declared, so that there is always a known one: `0`, `0.0`, `""` or `Null`, by its type. If the statement behind it assigns a value that is free of side effects (numbers, strings, variables and arithmetic, never a call, and not behind a condition) the value moves into the declaration: `Local a` and `a = 5` become `Local a = 5`. That is not done when something in between mentions the variable or sets what the value reads, and never for a call: `Create...`, `Load...` and `Copy...` stay where they are. Arrays and `Const` are left alone. Off by default. | A `Global` in a function, in a loop or in code with labels: the declaration then sets it again each time it is passed. |
 | `implicit-variable` | fix | `Local x:Int32` (or the type the name has) in front of the statement of the function that uses the variable first | Variables of the main program, which an `Include` can declare elsewhere. Not fixed at all in code with labels, as a jump back would run the declaration again. |
@@ -87,6 +86,7 @@ A setting is `--name=value` on the command line, `name = value` in a `.blitz-tid
 | --- | --- |
 | `<rule>` | `off` (ignore), `report` (print only) or `fix`. `--<rule>` alone is `fix`, `--no-<rule>` is `off`. |
 | `default` | The mode of every rule that is not set. A rule that has nothing to fix stays at `report`. |
+| `type-notation` | How types are written: `long` (the default) writes `x:Int32`, `x:Float32` and `x:String` instead of `x%`, `x#` and `x$` (also `x%%` is `x:Int64` and `x##` is `x:Float64`), `short` does the opposite where a character exists (`Int`/`Int32` is `%`, `Long`/`Int64` `%%`, `Float`/`Float32`/`Real` `#`, `Double`/`Float64` `##`, `String` `$`; `x:Byte` stays), and `keep` leaves it alone. `.TypeName` is left alone: it has no other form. The long form is the one BlitzLLVM prefers. It is the `short-type-notation` warning of the compiler, which is unchanged. The rules `expand-short-to-long-notation` and `short-type-notation` are the old names of this setting (`fix` is `long`, `off` is `keep`). |
 | `unsafe` | Also make the fixes of the last column of the table. |
 | `max-passes` | How often the file is fixed and compiled again. Default 20. |
 | `userlibs-dir` | Where the userlibs are, like `--userlibs-dir` of `blitzcc`. Defaults to `$BLITZLLVM_USERLIBS`, then to the `userlibs` of the installation. |

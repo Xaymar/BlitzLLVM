@@ -426,10 +426,12 @@ namespace {
 			if (!seen.insert(key).second) {
 				continue;
 			}
-			// The rule can have another name than the warning it is about.
-			std::string rule_name = (f.warning == "short-type-notation") ? "expand-short-to-long-notation" : f.warning;
-			auto const* info      = tidy::find_rule(rule_name);
-			auto        m         = cfg.mode_of(rule_name);
+			// The setting type-notation = long is what fixes the warning about the short notation.
+			static const tidy::rule notation_rule{ "type-notation", true, tidy::mode::FIX, "", "" };
+			bool                    is_notation = (f.warning == "short-type-notation");
+			std::string             rule_name   = is_notation ? "type-notation" : f.warning;
+			auto const*             info        = is_notation ? &notation_rule : tidy::find_rule(rule_name);
+			auto                    m           = is_notation ? ((cfg.type_notation == tidy::notation::long_form) ? tidy::mode::FIX : tidy::mode::OFF) : cfg.mode_of(rule_name);
 			if (!info || (m == tidy::mode::OFF)) {
 				continue;
 			}
@@ -575,6 +577,59 @@ namespace {
 			}
 			out.reports.push_back(std::move(r));
 		};
+
+		// type-notation = short: x:Int32 becomes x%. The compiler has no warning for it, so the tokens of the file are looked at: A colon that
+		// touches a name and a type is the type of the name, which is what the compiler reads as well.
+		if (cfg.type_notation == tidy::notation::short_form) {
+			auto tokens = blitz::tools::tokenize(text);
+			size_t at   = 0;
+			std::vector<size_t> begins;
+			for (auto const& t : tokens) {
+				begins.push_back(at);
+				at += t.text.size();
+			}
+			for (size_t t = 1; t + 1 < tokens.size(); t++) {
+				if (!tokens[t].is(blitz::tools::kind::separator) || !tokens[t - 1].is(blitz::tools::kind::word) || !tokens[t + 1].is(blitz::tools::kind::word)) {
+					continue;
+				}
+				auto type = blitz::tools::lower(tokens[t + 1].text);
+				const char* suffix = nullptr;
+				if ((type == "int") || (type == "int32")) {
+					suffix = "%";
+				} else if ((type == "long") || (type == "int64")) {
+					suffix = "%%";
+				} else if ((type == "float") || (type == "float32") || (type == "real") || (type == "real32") || (type == "single")) {
+					suffix = "#";
+				} else if ((type == "double") || (type == "float64") || (type == "real64")) {
+					suffix = "##";
+				} else if (type == "string") {
+					suffix = "$";
+				}
+				// A name that has a type character already has one type too many.
+				char last = tokens[t - 1].text.back();
+				if (!suffix || (last == '%') || (last == '#') || (last == '$')) {
+					continue;
+				}
+				// The line and column of the colon.
+				uint64_t line = 1;
+				while ((line < ln.starts.size()) && (ln.starts[line] <= begins[t])) {
+					line++;
+				}
+				ast::location where;
+				where.line   = line;
+				where.column = begins[t] - ln.starts[line - 1] + 1;
+				where.length = tokens[t].text.size() + tokens[t + 1].text.size();
+				fix candidate;
+				candidate.warning     = "type-notation";
+				candidate.where       = where;
+				candidate.message     = "The type is written in the long form.";
+				candidate.edits       = { { begins[t], begins[t + 1] + tokens[t + 1].text.size(), suffix } };
+				candidate.fingerprint = "type-notation|" + std::to_string(begins[t]) + "|" + ln.line_text(line);
+				if (rejected.count(candidate.fingerprint) == 0) {
+					out.fixes.push_back(std::move(candidate));
+				}
+			}
+		}
 
 		bool want_raii   = cfg.mode_of("resource-acquisition-is-initialization") != tidy::mode::OFF;
 		bool want_split  = cfg.mode_of("one-declare-per-variable") != tidy::mode::OFF;
@@ -874,6 +929,9 @@ blitz::tidy::result blitz::tidy::run(std::string const& text, config const& cfg)
 			if (fixed.count(rule.name)) {
 				res.fixed.emplace_back(rule.name, fixed[rule.name]);
 			}
+		}
+		if (fixed.count("type-notation")) {
+			res.fixed.emplace_back("type-notation", fixed["type-notation"]);
 		}
 		res.text    = current;
 		res.changed = (current != text);
