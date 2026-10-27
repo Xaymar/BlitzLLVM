@@ -22,6 +22,7 @@ Differences that are not caused by one command.
 * [Displays](Displays): Extension: commands for every connected display and its modes.
 * [DPI scaling on Windows](DPI-Scaling): Programs on Windows are DPI aware: Windows does not scale their windows, so one pixel of the program is one pixel of the screen at any scaling.
 * [Fullscreen](Fullscreen): Fullscreen (mode 1 of `Graphics` and `Graphics3D`) is a borderless window over the main display that keeps the aspect ratio of the picture, instead of changing the video mode of the display.
+* [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
 * [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains; there is no anisotropic filtering.
 * [Movie controls](Movie-Controls): Extension: movies can be paused, and the commands for that build on the original movie commands.

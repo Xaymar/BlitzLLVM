@@ -203,6 +203,26 @@ Data 3, 4
 
 `Restore` also works inside a function: it goes to a label of the main program, which is where `Data` is.
 
+A value can also be a calculation of constants, such as `40 - 170`, `2 * 3.5` or `"Blitz" + "LLVM"`. It is worked out while compiling, so it can not use variables.
+
+
+```blitzbasic
+Const Offset = 100
+Restore values
+Read a
+Read b
+Read c$
+Print a + b
+Print c
+.values
+Data 40 - 170, Offset * 2, "Blitz" + "LLVM"
+```
+
+```text
+70
+BlitzLLVM
+```
+
 ## Other keywords
 
 `Include "file.bb"` puts another source file in this place, `True` and `False` are 1 and 0, `Null` is the empty object, and `End` stops the program.
