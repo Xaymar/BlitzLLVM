@@ -478,7 +478,7 @@ namespace bb::gfx {
 		// the depth test and as the image they sample, which saves a copy of it.
 		uint32_t soft_first = scene.draw_count;
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
-			if (draws[scene.first_draw + i].push.soft[0] > 0) {
+			if (pushes[draws[scene.first_draw + i].push_index].soft[0] > 0) {
 				soft_first = i;
 				break;
 			}
@@ -502,7 +502,7 @@ namespace bb::gfx {
 			draw_record& d = draws[scene.first_draw + i];
 
 			uint32_t instances = 1;
-			while ((i + instances < scene.draw_count) && same_draw_state(d, draws[scene.first_draw + i + instances])) {
+			while ((i + instances < scene.draw_count) && (i + instances != soft_first) && same_draw_state(d, draws[scene.first_draw + i + instances])) {
 				instances++;
 			}
 
