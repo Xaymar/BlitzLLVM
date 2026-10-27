@@ -32,7 +32,7 @@ blitz3d/_release/samples/Hi-Toro/Death Island/deathisland.bb
 blitz3d/_release/samples/Hi-Toro/Shooter/Shooter/shooter-testbed.bb
 # Runtime Error: MoveEntity: entity or surface 0 does not exist.
 blitz3d/_release/samples/MattDavey/Matts Balls/bouncey.bb
-# Runtime Error: Collisions: the method and the response have to be between 1 and 3.
+# Runtime Error: PositionEntity: entity or surface 0 does not exist.
 blitz3d/_release/samples/RobHutchinson/BBLauncher/example.bb
 # Runtime Error: The graphics card in this machine does not support the selected screenmode!
 blitz3d/_release/samples/RobHutchinson/BBLauncher/launcher3d.bb
@@ -40,7 +40,7 @@ blitz3d/_release/samples/RobHutchinson/BBLauncher/launcher3d.bb
 blitz3d/_release/samples/RobHutchinson/SkyPlateau/SkyPlateau.bb
 # Runtime Error: The graphics card in this machine does not support the selected screenmode!
 blitz3d/_release/samples/RobHutchinson/WingPilot/WingPilotV0_01.bb
-# Runtime Error: Collisions: the method and the response have to be between 1 and 3.
+# Runtime Error: NameEntity: entity or surface 0 does not exist.
 blitz3d/_release/samples/si/fps/fps.bb
 # Runtime Error: ScaleEntity: entity or surface 0 does not exist.
 blitz3d/_release/samples/zenith/scare/scare.bb
