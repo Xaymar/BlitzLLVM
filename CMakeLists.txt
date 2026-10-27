@@ -113,6 +113,23 @@ add_subdirectory("code_tools")
 add_subdirectory("code_format")
 add_subdirectory("code_tidy")
 
+# The HTML help, in the layout of the Blitz3D help: <prefix>/help in a plain install (the zips), <prefix>/share/doc/blitzllvm/help in the
+# packages. It is generated from the wiki text by tools/wiki/wiki.py (and never committed), which needs Python.
+option(BLITZLLVM_REQUIRE_HELP "Fail instead of leaving the help out when Python is missing" OFF)
+find_package(Python3 QUIET COMPONENTS Interpreter)
+if(Python3_FOUND)
+	add_custom_target(blitz_help ALL
+		COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tools/wiki/wiki.py" help --out "${CMAKE_CURRENT_BINARY_DIR}/help"
+		COMMENT "Generating the HTML help"
+		VERBATIM)
+	install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/help/" DESTINATION help)
+	install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/help/" DESTINATION share/doc/blitzllvm/help COMPONENT system EXCLUDE_FROM_ALL)
+elseif(BLITZLLVM_REQUIRE_HELP)
+	message(FATAL_ERROR "Python was not found, but BLITZLLVM_REQUIRE_HELP is set, and the help is generated with it.")
+else()
+	message(WARNING "Python was not found, so the HTML help is not built and not installed.")
+endif()
+
 # Fail the install when a license is missing, so that rules which silently install nothing (a stale copy of the install
 # rules in code_compiler, say) can not ship a bundle without them. Declared after the sub-projects, so it runs after their installs.
 set(BLITZ_REQUIRED_LICENSES
@@ -166,5 +183,5 @@ set(CPACK_RPM_FILE_NAME RPM-DEFAULT)
 set(CPACK_RPM_PACKAGE_REQUIRES "clang, vulkan-loader")
 set(CPACK_RPM_PACKAGE_LICENSE "BSD-3-Clause")
 set(CPACK_RPM_PACKAGE_GROUP "Development/Languages")
-set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/lib/blitzllvm;/usr/share/blitzllvm;/usr/share/licenses")
+set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "/usr/lib/blitzllvm;/usr/share/blitzllvm;/usr/share/licenses;/usr/share/doc/blitzllvm")
 include(CPack)
