@@ -300,7 +300,8 @@ set(FFMPEG_INSTALL_PATH "${_FFMPEG_ROOT}/FFmpeg.dst")
 set(_FFMPEG_BUILD "${_FFMPEG_ROOT}/FFmpeg.bld")
 set(_FFMPEG_ARGS
 	--enable-shared --disable-static --disable-programs --disable-doc --disable-debug --disable-autodetect --disable-everything
-	--disable-avdevice --disable-avfilter --disable-network --enable-swscale --enable-swresample --enable-pic
+	--disable-avdevice --disable-avfilter --disable-network --disable-iamf --disable-bsfs --disable-faan --disable-pixelutils --disable-lsp
+	--enable-swscale --enable-swresample --enable-pic
 	--enable-protocol=file
 	--enable-demuxer=avi,mov,matroska,mpegps,mpegts,asf,ogg,flv,mp3,wav,mpegvideo,m4v
 	--enable-parser=h264,hevc,mpeg4video,mpegvideo,vp8,vp9,aac,aac_latm,ac3,mpegaudio,vorbis,opus,flac,mjpeg
