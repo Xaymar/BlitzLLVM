@@ -89,6 +89,7 @@ uint32_t bb32_read_str(void);
 
 // User libraries
 void     bb32_load_libs(uint32_t table);
+uint32_t bb32_userlib_text(const char* text); // The characters a user library function returned, as a C string in the arena.
 
 // Numbers
 int32_t  bb32_abs(int32_t n);
