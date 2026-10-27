@@ -825,6 +825,9 @@ namespace bb::gfx {
 	};
 	/** Reads a file without decoding the blocks of a DDS file. Returns false if it cannot be read. */
 	bool load_picture(const char* file, picture& out);
+	/** PNG files of 16 bits per channel: SDL_image cuts them down to 8, so they are read with all of them (graphics_png16.cpp). */
+	bool png_has_16_bits(const uint8_t* data, size_t size);
+	SDL_Surface* load_png_16(const uint8_t* data, size_t size, bool& has_alpha);
 	/** The same for a file that is in memory already. The name is for what is reported if a codec is missing. */
 	bool load_picture_memory(const char* name, const void* data, size_t size, picture& out);
 	/** Whether the first bytes are those of a picture format that is loaded, so that decoding can go on without the caller. */
