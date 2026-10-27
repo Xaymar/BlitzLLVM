@@ -20,7 +20,7 @@ CATEGORY_TEXT = {
     (LANG, "Functions"): "Declaring functions and jumping to labels with Goto and Gosub.",
     (LANG, "Loops"): "Repeating code with For, While and Repeat.",
     (LANG, "Types"): "Integers, floats and strings, the short and long notation, and converting between them.",
-    (LANG, "Keywords"): "Declaring variables and constants, including files, and ending the program.",
+    (LANG, "Keywords"): "Declaring variables and constants, including other files, and ending the program.",
     (LANG, "Math"): "Trigonometry, rounding, bit functions and other numeric helpers.",
     (LANG, "Strings"): "Searching, slicing, converting and formatting text.",
     (LANG, "Randomization"): "Random numbers and their seed.",
