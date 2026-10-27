@@ -56,6 +56,7 @@ typedef struct bb_list {
 static bb_object** bb_handles     = NULL;
 static int32_t     bb_handle_count = 1;
 static int32_t     bb_handle_cap   = 0;
+static const bb_list** bb_handle_lists = NULL; // The list of the type of each handle.
 
 static void bb_list_append(bb_list* list, bb_object* object)
 {
@@ -202,29 +203,39 @@ void bb_object_insert(bb_object* object, bb_object* other, int32_t after, bb_lis
 	}
 }
 
-int32_t bb_handle(bb_object* object)
+// The list that a handle was made for says which type its object is. Object.Type(handle) with the handle of an object of another type
+// would give the program an object whose fields it reads as the ones of a different type: numbers as pointers, and pointers as strings.
+int32_t bb_handle(bb_object* object, const bb_list* list)
 {
 	if (!object || (object->flags & BB_OBJECT_DELETED)) {
 		return 0;
 	}
 	if (object->handle == 0) {
 		if (bb_handle_count >= bb_handle_cap) {
-			bb_handle_cap = bb_handle_cap ? bb_handle_cap * 2 : 1024;
-			bb_handles    = (bb_object**)realloc(bb_handles, (size_t)bb_handle_cap * sizeof(bb_object*));
-			if (!bb_handles) {
+			int32_t cap = bb_handle_cap ? bb_handle_cap * 2 : 1024;
+			void*   handles = realloc(bb_handles, (size_t)cap * sizeof(bb_object*));
+			if (!handles) {
 				bb_runtime_error("Out of memory.");
 			}
+			bb_handles = (bb_object**)handles;
+			void* lists = realloc(bb_handle_lists, (size_t)cap * sizeof(bb_list*));
+			if (!lists) {
+				bb_runtime_error("Out of memory.");
+			}
+			bb_handle_lists = (const bb_list**)lists;
+			bb_handle_cap   = cap;
 		}
-		object->handle              = bb_handle_count;
-		bb_handles[bb_handle_count] = object;
+		object->handle                   = bb_handle_count;
+		bb_handles[bb_handle_count]      = object;
+		bb_handle_lists[bb_handle_count] = list;
 		bb_handle_count++;
 	}
 	return object->handle;
 }
 
-bb_object* bb_object_from_handle(int32_t handle)
+bb_object* bb_object_from_handle(int32_t handle, const bb_list* list)
 {
-	if ((handle <= 0) || (handle >= bb_handle_count)) {
+	if ((handle <= 0) || (handle >= bb_handle_count) || (bb_handle_lists[handle] != list)) {
 		return NULL;
 	}
 	return bb_handles[handle];

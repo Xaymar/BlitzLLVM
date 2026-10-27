@@ -12,6 +12,10 @@ Type my_Mixed_type
 	Field name$
 End Type
 
+Type OtherChunk
+	Field text$
+End Type
+
 Function Chunk_Of.GrdChunk(h)
 	Return Object.GrdChunk h
 End Function
@@ -65,5 +69,16 @@ CheckTrue "Object of 0", (Object.GrdChunk 0) = Null
 CheckTrue "Object of unknown handle", (Object.GrdChunk 123456789) = Null
 Delete c
 CheckTrue "Object of deleted handle", (Object.GrdChunk h) = Null
+
+; The handle of an object is only the handle of an object of its own type: Object.Type with the number of another type gives Null, so that a
+; number from a file or from the network can not turn an object into one with other fields.
+Local o.OtherChunk = New OtherChunk
+o\text = "text"
+oh = Handle o
+Local wrong.GrdChunk = Object.GrdChunk oh
+CheckTrue "Object of the handle of another type", wrong = Null
+Local right.OtherChunk = Object.OtherChunk oh
+CheckTrue "Object of the handle of its own type", right = o
+CheckS "Object of its own type keeps its fields", right\text, "text"
 
 Done "handles"
