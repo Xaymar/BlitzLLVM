@@ -34,6 +34,10 @@
 			"description": "Blitz3D: entities, meshes, cameras, lights, textures, collisions, animation and models.",
 			"tests": ["^suite-(debug-)?(compile|run)-(blitz3d_|fail-createtexture_frames)"]
 		},
+		"original": {
+			"description": "The samples and games of the original Blitz3D and BlitzPlus compile.",
+			"tests": ["^original-"]
+		},
 		"cli": {
 			"description": "The command line options and diagnostics of blitzcc.",
 			"tests": ["^cli-"]
@@ -61,6 +65,7 @@
 		{"match": "^\\.github/scripts/test-", "areas": "all", "note": "The test selection and the test comment"},
 		{"match": "^tests/test_selection\\.json$", "areas": "all"},
 		{"match": "^tests/ci/", "areas": "all"},
+		{"match": "^(tests/original_known_failures\\.txt|tools/original_programs\\.py)$", "areas": "original"},
 		{"match": "^tests/stranded2/", "areas": "none", "note": "Only used by the benchmark"},
 		{"match": "^tests/test\\.bb$", "areas": []},
 		{"match": "^tests/suite/functions\\.txt$", "areas": []},
