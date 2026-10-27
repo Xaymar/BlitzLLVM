@@ -39,7 +39,7 @@ Beyond the originals:
 
 == Installation
 
-Download a build from the https://github.com/Xaymar/BlitzLLVM/releases[releases] or from the https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly[nightly release] (Windows x64, Linux x64, macOS arm64), extract it and keep `lib/` next to `bin/`. You need `clang` on your `PATH` and a Vulkan 1.3 capable driver. See link:docs/wiki/Installation.md[Installation], or link:docs/wiki/Building.md[Building] to compile BlitzLLVM yourself.
+Download a build from the https://github.com/Xaymar/BlitzLLVM/releases[releases] or from the https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly[nightly release] (Windows x64, Linux x64 and arm64, macOS arm64), extract it and keep `lib/` next to `bin/`. You need `clang` on your `PATH` and a Vulkan 1.3 capable driver. See link:docs/wiki/Installation.md[Installation], or link:docs/wiki/Building.md[Building] to compile BlitzLLVM yourself.
 
 == Usage
 
