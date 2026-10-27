@@ -237,6 +237,9 @@ namespace {
 		return (fseek(f, offset, SEEK_SET) == 0) && (fread(into, 1, size, f) == size);
 	}
 
+	// How much memory the positions and normals of the frames of a model can take.
+	constexpr uint64_t max_data_bytes = uint64_t(256) << 20;
+
 	md2_data* read_md2(const char* path)
 	{
 		FILE* f = fopen(path, "rb");
@@ -306,6 +309,17 @@ namespace {
 			d->indices.push(triangle[1]);
 		}
 		d->verts = int(corners.size);
+		// A frame is a position and a normal for each corner, and the file has few bytes for each frame: 65535 triangles with no corner
+		// in common and 4096 frames that share their bytes are 2.4 GB of floats from a file of 1 MB.
+		if (uint64_t(d->frames) * uint64_t(d->verts) * 3 * sizeof(float) * 2 > max_data_bytes) {
+			uvs.release();
+			tris.release();
+			corners.release();
+			fclose(f);
+			d->refs = 1;
+			release_data(d);
+			return nullptr;
+		}
 
 		d->positions.reserve(uint32_t(d->frames) * uint32_t(d->verts) * 3);
 		d->normals.reserve(uint32_t(d->frames) * uint32_t(d->verts) * 3);
