@@ -49,4 +49,5 @@ Next
 @param first_frame  Cell of the sheet that is frame 0.
 @param frame_count  How many frames the texture has.
 @returns A texture handle, or 0 if the file could not be loaded.
+@gap TGA, TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 @gap TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
