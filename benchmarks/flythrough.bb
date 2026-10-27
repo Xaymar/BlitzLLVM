@@ -14,6 +14,7 @@
 ;   BENCH_RANGE    how far the camera sees (default 300)
 ;   BENCH_MODEL    path of a model for LoadMesh (optional, a cube is used if it is empty or does not load)
 ;   BENCH_SHOT     file to save the last frame to (optional)
+;   BENCH_RESULT   file to write the RESULT line to (optional, it is also in the debug log)
 ;   BENCH_FRAMETIMES  file to write the time of every frame to, in microseconds, one per line (optional)
 ;
 ; The kinds are made in this order, entity i is of kind (i Mod 16), so every kind has the same share:
@@ -21,6 +22,11 @@
 ;   4 cone, lit, textured          5 cylinder, lit            6 octahedron, vertex colors   7 sphere, full-bright, textured
 ;   8 cube, alpha 0.5              9 sphere, additive blend  10 cube, two sided, textured 11 loaded model (or a cube)
 ;  12 sprite, textured            13 sprite, alpha            14 sprite, additive        15 sprite, flat color, fixed rotation
+
+; Runs with BlitzLLVM and with the original Blitz3D, so that their speeds can be compared. What the original does not have (a
+; microsecond timer, the draw counters) is in flythrough_llvm.bi or flythrough_original.bi, python3 benchmarks/flythrough.py copies
+; the right one next to this file as flythrough_counters.bi.
+Include "flythrough_counters.bi"
 
 Const KINDS = 16
 
@@ -33,6 +39,22 @@ Function Env$(name$, fallback$)
 	Return value$
 End Function
 
+; The random numbers come from this generator and not from Rnd, because Rnd gives different numbers in BlitzLLVM and in the
+; original Blitz3D, and then the two would not draw the same scene. It is the Park-Miller generator, with Schrage's way of
+; multiplying without leaving 31 bits, so it gives the same numbers in both.
+Global BenchState = 1
+
+Function BenchSeedRnd(seed)
+	BenchState = (seed Mod 2147483646) + 1
+	If BenchState < 1 Then BenchState = BenchState + 2147483646
+End Function
+
+Function BenchRnd#(low#, high#)
+	BenchState = 16807 * (BenchState Mod 127773) - 2836 * (BenchState / 127773)
+	If BenchState <= 0 Then BenchState = BenchState + 2147483647
+	Return low + (high - low) * (BenchState / 2147483647.0)
+End Function
+
 objects = Int(Env$("BENCH_OBJECTS", 20000))
 frames = Int(Env$("BENCH_FRAMES", 300))
 warmup = Int(Env$("BENCH_WARMUP", 5))
@@ -41,7 +63,7 @@ viewrange# = Float(Env$("BENCH_RANGE", 300))
 If objects < KINDS Then objects = KINDS
 If frames < 1 Then frames = 1
 
-SeedRnd seed
+BenchSeedRnd seed
 
 camera = CreateCamera()
 CameraClsColor camera, 8, 10, 24
@@ -134,16 +156,16 @@ Next
 ; The field is a box with the same density whatever the count: about 3 units per entity along each side. The camera
 ; flies through the middle of it, so about the same number of entities are around it at every count.
 side# = Float(objects) ^ (1.0 / 3.0) * 3
-creationstart:UInt64 = Microseconds()
+creationstart = BenchMicros()
 For i = 0 To objects - 1
 	e = CopyEntity(templates(i Mod KINDS))
 	ShowEntity e
-	PositionEntity e, Rnd(-side / 2, side / 2), Rnd(-side / 2, side / 2), Rnd(-side / 2, side / 2)
-	size# = Rnd(0.6, 1.4)
+	PositionEntity e, BenchRnd(-side / 2, side / 2), BenchRnd(-side / 2, side / 2), BenchRnd(-side / 2, side / 2)
+	size# = BenchRnd(0.6, 1.4)
 	ScaleEntity e, size, size, size
-	If (i Mod KINDS) < 12 Then RotateEntity e, Rnd(0, 360), Rnd(0, 360), Rnd(0, 360)
+	If (i Mod KINDS) < 12 Then RotateEntity e, BenchRnd(0, 360), BenchRnd(0, 360), BenchRnd(0, 360)
 Next
-creation# = Float(Microseconds() - creationstart) / 1000
+creation# = (BenchMicros() - creationstart) / 1000.0
 
 ; The camera path: a loop through the field, one step per frame whatever the speed of the computer is.
 ; 1500 frames are one lap.
@@ -161,18 +183,18 @@ total# = 0
 
 For f = 0 To warmup + frames - 1
 	CameraStep camera, f, side
-	t0:UInt64 = Microseconds()
+	t0 = BenchMicros()
 	RenderWorld
 	Flip 0
-	elapsed# = Float(Microseconds() - t0)
+	elapsed# = BenchMicros() - t0
 	If f >= warmup Then
 		n = f - warmup
 		times(n) = elapsed
 		total = total + elapsed
-		drawsum = drawsum + Stats3D(1000)
-		pipesum = pipesum + Stats3D(1001)
-		texsum = texsum + Stats3D(1002)
-		bufsum = bufsum + Stats3D(1003)
+		drawsum = drawsum + BenchDraws()
+		pipesum = pipesum + BenchPipelines()
+		texsum = texsum + BenchTextures()
+		bufsum = bufsum + BenchBuffers()
 		trissum = trissum + TrisRendered()
 	EndIf
 Next
@@ -181,22 +203,22 @@ shot$ = GetEnv$("BENCH_SHOT")
 If shot$ <> "" Then SaveBuffer BackBuffer(), shot$
 
 ; Sorting the times gives the median and the 95th percentile.
-Dim s#(frames - 1)
+Dim srt#(frames - 1)
 For i = 0 To frames - 1
-	s(i) = times(i)
+	srt(i) = times(i)
 Next
 gap = frames / 2
 While gap > 0
 	For i = gap To frames - 1
-		v# = s(i)
+		v# = srt(i)
 		j = i
 		; And does not skip the second test, so the index is checked first.
 		While j >= gap
-			If s(j - gap) <= v Then Exit
-			s(j) = s(j - gap)
+			If srt(j - gap) <= v Then Exit
+			srt(j) = srt(j - gap)
 			j = j - gap
 		Wend
-		s(j) = v
+		srt(j) = v
 	Next
 	gap = gap / 2
 Wend
@@ -214,5 +236,14 @@ If timesfile$ <> "" Then
 EndIf
 
 avg# = total / frames / 1000
-DebugLog "RESULT objects=" + objects + " frames=" + frames + " seed=" + seed + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " ms_avg=" + avg + " ms_min=" + (s(0) / 1000) + " ms_median=" + (s(frames / 2) / 1000) + " ms_p95=" + (s(p95) / 1000) + " ms_max=" + (s(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
+result$ = "RESULT objects=" + objects + " frames=" + frames + " seed=" + seed + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " ms_avg=" + avg + " ms_min=" + (srt(0) / 1000) + " ms_median=" + (srt(frames / 2) / 1000) + " ms_p95=" + (srt(p95) / 1000) + " ms_max=" + (srt(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
+DebugLog result$
+resultfile$ = GetEnv$("BENCH_RESULT")
+If resultfile$ <> "" Then
+	file = WriteFile(resultfile$)
+	If file <> 0 Then
+		WriteLine file, result$
+		CloseFile file
+	EndIf
+EndIf
 End

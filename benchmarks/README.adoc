@@ -57,3 +57,21 @@ the size, the seed, the count and the machine are the same.
 NOTE: Without a display the runner uses `xvfb-run`, which with Mesa is llvmpipe, a software rasterizer: the milliseconds are then
 mostly the CPU drawing pixels, which makes that only a smoke test. The counts are exact everywhere. Use a real GPU for timings. A million
 entities need several GB of memory and a long time to create on a slow computer.
+
+=== With the original Blitz3D
+
+`flythrough.bb` uses only commands that the original Blitz3D has as well, so that the speed of BlitzLLVM can be compared with it.
+The two things the original does not have are in `flythrough_llvm.bi` (the microsecond timer and the draw counters of `Stats3D`) and
+`flythrough_original.bi` (`MilliSecs`, and draw counters of 0). The runner looks at `blitzcc -v`, builds with the right one, leaves
+out `-O3` and `--profile` for the original, sets `BLITZPATH` to the folder with `bin` in it, and reads the result from a file because
+the original has no output to a console:
+
+[source,bat]
+----
+python benchmarks\flythrough.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe --objects 20000
+python benchmarks\flythrough.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe --objects 20000
+----
+
+The original times have a resolution of one millisecond, so use enough frames and look at the average. The original `SaveBuffer`
+writes a BMP whatever the file is called, so a `--shot` made with it needs converting to compare it. Run benchmarks windowed only
+(they are), the original changes the screen settings in fullscreen.
