@@ -33,7 +33,7 @@ Beyond the originals:
 * Display and refresh rate enumeration (`CountDisplays`, `CountDisplayModes`, `RefreshRateAt` and related commands).
 * Reversed 32-bit float depth buffer, which makes z-fighting much rarer.
 * Mip maps (including stored DDS levels), sphere maps and cube maps for textures.
-* Image decoders for PNG, JPEG, BMP, TGA, WebP, AVIF and JPEG XL.
+* Image decoders for PNG, JPEG, BMP, GIF, WebP, AVIF and JPEG XL.
 * Multiplayer over TCP instead of DirectPlay (games can only play with other BlitzLLVM games).
 * Warnings for code that is legal but probably not what was meant (`-W1` to `-W4`), and `blitz-tidy`, which fixes them in your source files (`blitz-tidy -i program.bb`, see https://github.com/Xaymar/BlitzLLVM/wiki/Blitz-Tidy[Blitz-Tidy]).
 
