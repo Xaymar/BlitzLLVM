@@ -16,6 +16,7 @@ Without files (or with `-`) the standard input is formatted and the result is wr
 | Option | Effect |
 | --- | --- |
 | `-i`, `--in-place` | Rewrite the files. Files that are already formatted are not touched. |
+| `-r`, `--recursive` | A directory on the command line means every `.bb`, `.b3d` and `.bp` file beneath it (not case sensitive, sorted by path). Without `-r` a directory is an error. Files given by name are always used. |
 | `--check` | Write the names of the files that would change, and exit with 1 if there are any. Nothing is written to the files. |
 | `--diff` | Write a unified diff of the changes, and exit with 1 if there are any. |
 | `-q`, `--quiet` | With `-i`, don't name the files that were rewritten. |
@@ -29,8 +30,9 @@ Without files (or with `-`) the standard input is formatted and the result is wr
 The exit code is 0 when everything went well, 1 when `--check` or `--diff` found a file that would change, and 2 when a file or a setting was refused. A file that can't be formatted doesn't stop the others.
 
 ```text
-blitz-format -i src/*.bb          # format a project
-blitz-format --check src/*.bb     # in a CI job: fails when a file is not formatted
+blitz-format -r -i src            # format every source file of a project
+blitz-format -i src/*.bb          # format some files
+blitz-format -r --check src       # in a CI job: fails when a file is not formatted
 blitz-format --diff main.bb       # look at what would change
 blitz-format --indent-style=space --indent-width=2 main.bb
 ```

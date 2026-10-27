@@ -141,6 +141,27 @@ static void test_edits()
 	CHECK(threw);
 }
 
+static void test_sources()
+{
+	auto root = std::filesystem::temp_directory_path() / "blitz_tools_test_sources";
+	std::filesystem::remove_all(root);
+	std::filesystem::create_directories(root / "sub" / "deep");
+	for (const char* name : { "a.bb", "sub/B.B3D", "sub/c.bp", "sub/d.txt", "sub/deep/e.Bb", "f.bbx" }) {
+		write_file(root / name, "");
+	}
+	auto found = find_sources(root);
+	CHECK(found.size() == 4);
+	CHECK(found.size() == 4 && found[0] == root / "a.bb" && found[1] == root / "sub" / "B.B3D" && found[2] == root / "sub" / "c.bp" && found[3] == root / "sub" / "deep" / "e.Bb");
+	bool threw = false;
+	try {
+		find_sources(root / "missing");
+	} catch (std::runtime_error const&) {
+		threw = true;
+	}
+	CHECK(threw);
+	std::filesystem::remove_all(root);
+}
+
 static void test_diff()
 {
 	CHECK(unified_diff("a\nb\n", "a\nb\n", "x", "y").empty());
@@ -171,6 +192,7 @@ int main(int argc, char** argv)
 	test_keywords();
 	test_config();
 	test_edits();
+	test_sources();
 	test_diff();
 
 	for (int i = 1; i < argc; i++) {

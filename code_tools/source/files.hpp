@@ -4,6 +4,7 @@
 #pragma once
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace blitz::tools {
 	/** All bytes of the file. Throws std::runtime_error if it can't be read.
@@ -13,6 +14,11 @@ namespace blitz::tools {
 	/** All bytes of the standard input.
 	 */
 	std::string read_stdin();
+
+	/** Every source file beneath the directory, sorted by path: The files that end in .bb, .b3d or .bp (not case sensitive).
+	 * Links to directories are not followed. Throws std::runtime_error if the directory can't be read.
+	 */
+	std::vector<std::filesystem::path> find_sources(std::filesystem::path const& directory);
 
 	/** Replace the contents of the file. Throws std::runtime_error if it can't be written.
 	 */
