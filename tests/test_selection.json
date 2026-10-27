@@ -65,7 +65,7 @@
 		{"match": "^\\.github/scripts/test-", "areas": "all", "note": "The test selection and the test comment"},
 		{"match": "^tests/test_selection\\.json$", "areas": "all"},
 		{"match": "^tests/ci/", "areas": "all"},
-		{"match": "^(tests/original_known_failures\\.txt|tools/original_programs\\.py)$", "areas": "original"},
+		{"match": "^(tests/original_(run_)?known_failures\\.txt|tools/original_programs\\.py)$", "areas": "original"},
 		{"match": "^tests/stranded2/", "areas": "none", "note": "Only used by the benchmark"},
 		{"match": "^tests/test\\.bb$", "areas": []},
 		{"match": "^tests/suite/functions\\.txt$", "areas": []},

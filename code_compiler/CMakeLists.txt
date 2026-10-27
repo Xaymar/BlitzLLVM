@@ -227,13 +227,14 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 	endforeach()
 endforeach()
 # The sample programs and games of the original Blitz3D and BlitzPlus (the extra/blitz3d and extra/blitzplus_msvc2017 submodules, when they
-# are checked out) have to compile. The ones in tests/original_known_failures.txt do not yet, see there for why, and are expected to fail.
+# are checked out) have to compile, and to run for a few seconds. The ones in tests/original_known_failures.txt and tests/original_run_known_failures.txt do not yet, see there for why, and are expected to fail.
 find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/../extra/blitz3d/_release" AND EXISTS "${PROJECT_SOURCE_DIR}/../extra/blitzplus_msvc2017/_release")
 	set(_ORIGINAL_SCRIPT "${PROJECT_SOURCE_DIR}/../tools/original_programs.py")
-	set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${TEST_DIRECTORY}/original_known_failures.txt")
+	set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${TEST_DIRECTORY}/original_known_failures.txt" "${TEST_DIRECTORY}/original_run_known_failures.txt")
 	execute_process(COMMAND ${Python3_EXECUTABLE} -I "${_ORIGINAL_SCRIPT}" list OUTPUT_VARIABLE _ORIGINAL_PROGRAMS OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ERROR_IS_FATAL ANY)
 	file(STRINGS "${TEST_DIRECTORY}/original_known_failures.txt" _ORIGINAL_KNOWN REGEX "^[^#]")
+	file(STRINGS "${TEST_DIRECTORY}/original_run_known_failures.txt" _ORIGINAL_RUN_KNOWN REGEX "^[^#]")
 	string(REPLACE "\n" ";" _ORIGINAL_PROGRAMS "${_ORIGINAL_PROGRAMS}")
 	file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/original")
 	foreach(_PROGRAM IN LISTS _ORIGINAL_PROGRAMS)
@@ -242,9 +243,17 @@ if(Python3_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/../extra/blitz3d/_release" AN
 		string(REGEX REPLACE "^blitz3d/_release/" "blitz3d/" _NAME "${_NAME}")
 		string(REGEX REPLACE "[^A-Za-z0-9_.]+" "-" _NAME "${_NAME}")
 		add_test(NAME "original-compile-${_NAME}" COMMAND ${Python3_EXECUTABLE} -I "${_ORIGINAL_SCRIPT}" compile-one $<TARGET_FILE:${PROJECT_NAME}> "${_PROGRAM}" "${PROJECT_BINARY_DIR}/original")
-		set_tests_properties("original-compile-${_NAME}" PROPERTIES LABELS "original" TIMEOUT 300)
+		set_tests_properties("original-compile-${_NAME}" PROPERTIES LABELS "original" TIMEOUT 300 FIXTURES_SETUP "original-${_NAME}")
 		if("${_PROGRAM}" IN_LIST _ORIGINAL_KNOWN)
 			set_tests_properties("original-compile-${_NAME}" PROPERTIES WILL_FAIL TRUE LABELS "original;pending")
+			continue()  # There is no program to run.
+		endif()
+		# Run without a window. Games and demos loop until a key is pressed, so a program that is still running after a few seconds is good, one
+		# that stops with an error is not. A program may write its settings or scores next to itself, which changes the submodule's files.
+		add_test(NAME "original-run-${_NAME}" COMMAND ${Python3_EXECUTABLE} -I "${_ORIGINAL_SCRIPT}" run-one "${PROJECT_BINARY_DIR}/original" "${_PROGRAM}")
+		set_tests_properties("original-run-${_NAME}" PROPERTIES LABELS "original" TIMEOUT 60 FIXTURES_REQUIRED "original-${_NAME}")
+		if("${_PROGRAM}" IN_LIST _ORIGINAL_RUN_KNOWN)
+			set_tests_properties("original-run-${_NAME}" PROPERTIES WILL_FAIL TRUE LABELS "original;pending")
 		endif()
 	endforeach()
 endif()
