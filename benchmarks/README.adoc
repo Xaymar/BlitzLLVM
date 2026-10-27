@@ -113,6 +113,13 @@ in the view but not on the screen are the ones that culling of the view can't sk
 more rooms make more that can be hidden, more particles make more blending. Random numbers come from a small generator in the program
 and not from `Rnd`, so BlitzLLVM and the original Blitz3D draw the same frames.
 
+=== GPU time
+
+`ms/frame` is the time of the program, and `Flip` does not wait for the GPU, so it can miss what the GPU saves (for instance with early-Z).
+With `--profile` the runner builds with `--profile` and runs with `BLITZ_FPS=1`, reads the GPU timestamps of the passes that the runtime reports
+once a second (the first second, which makes the dungeon, is left out) and prints the GPU time per frame (`scene`, `2d`, `frame`).
+Use a size that is limited by the GPU (`--size 1920x1080`) and compare the `scene` time.
+
 === With the original Blitz3D
 
 As with the other benchmarks, `dungeon.bb` uses only commands that the original Blitz3D has too. The microsecond timer and the draw
