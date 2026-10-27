@@ -217,7 +217,7 @@ check("doppler glides: the pitch goes from %.1f to %.1f Hz, the largest step bet
 # The sound of movies (OpenMovie), which plays on a stream of its own: a tone of 440 Hz for 3 seconds in a movie of every format. The movies
 # are the ones of tests/suite/movies, whose picture is not looked at here.
 movies = os.path.join(os.path.dirname(fixtures), "suite", "movies")
-for movie in ("colors.mpg", "colors.avi", "colors.mp4"):
+for movie in ("colors.mpg", "colors.avi", "colors.mp4", "colors.webm"):
 	shutil.copyfile(os.path.join(movies, movie), movie)
 	with open("play.bb", "w") as source:
 		source.write('m = OpenMovie("%s")\nDebugLog "opened " + m\nWhile MoviePlaying(m)\n\tDelay 20\nWend\n' % movie)
