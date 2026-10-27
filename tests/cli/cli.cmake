@@ -723,29 +723,29 @@ elseif(CASE STREQUAL "diagnostics")
 		message(FATAL_ERROR "A broken program was accepted.")
 	endif()
 	expect_err("lexer.bb:2:14: error: ")
-	expect_err("\n\tLocal b = 2 @ 3\n\t            ^---------- HERE")
+	expect_err("\n\tLocal b = 2 @ 3\n\t            ^-- HERE")
 
 	# Parser error at the end of a line.
 	file(WRITE "${WORK}/parser.bb" "Local a = \n")
 	blitzcc(-q -c "${WORK}/parser.bb")
-	expect_err("\nLocal a = \n          ^---------- HERE")
+	expect_err("\nLocal a = \n          ^ HERE")
 
 	# Parser error at the end of the file, which has no line break.
 	file(WRITE "${WORK}/eof.bb" "Local a = (1 +")
 	blitzcc(-c "${WORK}/eof.bb")
-	expect_err("\nLocal a = (1 +\n              ^---------- HERE")
+	expect_err("\nLocal a = (1 +\n              ^ HERE")
 
 	# Semantic error.
 	file(WRITE "${WORK}/semantic.bb" "Print nofunc(1)\n")
 	blitzcc(-c "${WORK}/semantic.bb")
-	expect_err("\nPrint nofunc(1)\n      ^---------- HERE")
+	expect_err("\nPrint nofunc(1)\n      ^-------- HERE")
 
 	# Warnings point at the expression, and don't fail the build.
 	file(WRITE "${WORK}/warning.bb" "Local i% = 2.5\nPrint i\n")
 	blitzcc(-c "${WORK}/warning.bb")
 	expect_ok()
 	expect_err("warning.bb:1:12: warning: ")
-	expect_err("\nLocal i% = 2.5\n           ^---------- HERE")
+	expect_err("\nLocal i% = 2.5\n           ^-- HERE")
 
 	# Long lines are cut around the column.
 	string(REPEAT "a" 300 _LONG)
@@ -756,7 +756,7 @@ elseif(CASE STREQUAL "diagnostics")
 	if(NOT _AT EQUAL -1)
 		message(FATAL_ERROR "The long line was not cut:\n${ERR}")
 	endif()
-	expect_err("^---------- HERE")
+	expect_err("^ HERE")
 
 	# Paths have no "." or ".." parts, for the file on the command line and for included files.
 	file(MAKE_DIRECTORY "${WORK}/sub/deeper")
@@ -775,7 +775,7 @@ elseif(CASE STREQUAL "diagnostics")
 		message(FATAL_ERROR "Expected a path without '.', got:\n${ERR}")
 	endif()
 	expect_err("/sub/inc.bb:1:13: error: ")
-	expect_err("\nLocal a = 1 @\n            ^---------- HERE")
+	expect_err("\nLocal a = 1 @\n            ^ HERE")
 	# The same for a warning.
 	file(WRITE "${WORK}/sub/warn.bb" "Local i% = 2.5\nPrint i\n")
 	blitzcc(-c "${WORK}/sub/deeper/../warn.bb")
@@ -792,6 +792,169 @@ elseif(CASE STREQUAL "diagnostics")
 		message(FATAL_ERROR "A missing file was accepted.")
 	endif()
 	expect_err("error: ")
+
+elseif(CASE STREQUAL "warnings")
+	macro(expect_err TEXT)
+		string(FIND "${ERR}" "${TEXT}" _AT)
+		if(_AT EQUAL -1)
+			message(FATAL_ERROR "Expected '${TEXT}' in the messages, got:\n${ERR}")
+		endif()
+	endmacro()
+	macro(expect_no_err TEXT)
+		string(FIND "${ERR}" "${TEXT}" _AT)
+		if(NOT _AT EQUAL -1)
+			message(FATAL_ERROR "Did not expect '${TEXT}' in the messages, got:\n${ERR}")
+		endif()
+	endmacro()
+	macro(expect_failed)
+		if(RC EQUAL 0)
+			message(FATAL_ERROR "Expected a failure, got success.\nstderr: ${ERR}")
+		endif()
+	endmacro()
+
+	# One of each kind of warning.
+	file(WRITE "${WORK}/w.bb"
+		"Local i% = 2.5\n"
+		"Local s$ = 5\n"
+		"Local n% = \"7\"\n"
+		"Local t = 1\n"
+		"Local b:byte = 300\n"
+		"Local f# = i\n"
+		"Local d:double = 1.5\n"
+		"Local h:float = d\n"
+		"Local unused% = 1\n"
+		"x = 3\n"
+		"Foo(1)\n"
+		"Goto done\n"
+		"Print \"never\"\n"
+		".done\n"
+		"Print s + (i + n + t + b + f + h + x)\n"
+		"Function Foo%(a%)\n"
+		"\tReturn a\n"
+		"End Function\n"
+		"Function Bar%()\n"
+		"\tReturn 1\n"
+		"End Function\n")
+
+	# Every warning turns on at its level, and stays on above it. -W2 is the default.
+	set(_WARNINGS
+		"implicit-lossy-int-to-int:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
+		"implicit-lossy-int-to-real:2" "implicit-variable:2" "unused-result:2"
+		"implicit-number-to-string:3" "unreachable-code:3" "unused-variable:3"
+		"typeless-declaration:4" "unused-function:4")
+	foreach(_LEVEL RANGE 0 4)
+		blitzcc(-c -W${_LEVEL} "${WORK}/w.bb")
+		expect_ok()
+		foreach(_ENTRY IN LISTS _WARNINGS)
+			string(REPLACE ":" ";" _PARTS "${_ENTRY}")
+			list(GET _PARTS 0 _NAME)
+			list(GET _PARTS 1 _AT_LEVEL)
+			if(_LEVEL GREATER_EQUAL _AT_LEVEL)
+				expect_err("[-W${_NAME}]")
+			else()
+				expect_no_err("[-W${_NAME}]")
+			endif()
+		endforeach()
+	endforeach()
+	blitzcc(-c "${WORK}/w.bb")
+	expect_err("[-Wimplicit-variable]")
+	expect_no_err("[-Wunreachable-code]")
+
+	# Messages: the kind, the span, and a suggestion.
+	blitzcc(-c -W4 "${WORK}/w.bb")
+	expect_err("w.bb:1:12: warning: Implicit conversion from real to integer, the fractional part is lost. [-Wimplicit-lossy-real-to-int]\nLocal i% = 2.5\n           ^-- HERE\nhelp: Use Int(value) to convert on purpose.")
+	expect_err("w.bb:13:1: notice: This statement can never run. [-Wunreachable-code]")
+	expect_err("notice: 'unused' is never read, it is optimized away. [-Wunused-variable]")
+	expect_err("notice: Function 'Bar' is never called, it is optimized away. [-Wunused-function]")
+	expect_err("w.bb:10:1: warning: 'x' was not declared, it is a new local variable. [-Wimplicit-variable]")
+	expect_err("w.bb:11:1: warning: The result of 'Foo' is not used. [-Wunused-result]")
+	expect_err("w.bb:4:7: warning: 't' has no type, it is an Int. [-Wtypeless-declaration]")
+	expect_no_err("[-Wunused-variable]\nLocal i")
+
+	# A number that is written in the program and fits is fine.
+	file(WRITE "${WORK}/fits.bb" "Local b:byte = 100\nLocal f# = 1000\nPrint b + f\n")
+	blitzcc(-c -W4 "${WORK}/fits.bb")
+	expect_ok()
+	if(NOT ERR STREQUAL "")
+		message(FATAL_ERROR "Expected no warnings, got:\n${ERR}")
+	endif()
+
+	# -W<name> and -Wno-<name> win over the level, in any order, and options are not case sensitive.
+	blitzcc(-c -Wno-implicit-lossy-real-to-int "${WORK}/w.bb")
+	expect_ok()
+	expect_no_err("[-Wimplicit-lossy-real-to-int]")
+	expect_err("[-Wimplicit-string-to-number]")
+	blitzcc(-Wno-implicit-lossy-real-to-int -c -W4 "${WORK}/w.bb")
+	expect_no_err("[-Wimplicit-lossy-real-to-int]")
+	expect_err("[-Wunused-function]")
+	blitzcc(-W0 -Wunused-function -c "${WORK}/w.bb")
+	expect_err("[-Wunused-function]")
+	expect_no_err("[-Wimplicit-lossy-real-to-int]")
+	blitzcc(-c -WNO-IMPLICIT-VARIABLE "${WORK}/w.bb")
+	expect_no_err("[-Wimplicit-variable]")
+
+	# Unknown names are errors.
+	blitzcc(-c -Wnothing "${WORK}/w.bb")
+	expect_failed()
+	expect_err("Unknown warning 'nothing'")
+	blitzcc(-c -Wno-nothing "${WORK}/w.bb")
+	expect_failed()
+	blitzcc(-c -Werror=nothing "${WORK}/w.bb")
+	expect_failed()
+
+	# -Werror: the warnings are printed as errors, everything is still checked, and the compilation fails. Notices stay notices.
+	blitzcc(-c -W4 -Werror "${WORK}/w.bb")
+	expect_failed()
+	expect_err("w.bb:1:12: error: Implicit conversion from real to integer, the fractional part is lost. [-Werror=implicit-lossy-real-to-int]")
+	expect_err("[-Werror=implicit-string-to-number]")
+	expect_err("notice: This statement can never run. [-Wunreachable-code]")
+	expect_err("warning(s) treated as errors")
+	blitzcc(-c -Werror -W0 "${WORK}/w.bb")
+	expect_ok()
+	blitzcc(-c -Werror -Wno-error "${WORK}/w.bb")
+	expect_ok()
+	file(WRITE "${WORK}/hint.bb" "Local a% = 1\n")
+	blitzcc(-c -W4 -Werror "${WORK}/hint.bb")
+	expect_ok()
+	expect_err("notice: 'a' is never read")
+	blitzcc(-c -W4 -Werror=unused-variable "${WORK}/hint.bb")
+	expect_failed()
+	expect_err("error: 'a' is never read, it is optimized away. [-Werror=unused-variable]")
+
+	# -Werror=<name> only fails for that warning, and turns it on if the level doesn't.
+	blitzcc(-c -Werror=implicit-lossy-real-to-int "${WORK}/w.bb")
+	expect_failed()
+	expect_err("[-Werror=implicit-lossy-real-to-int]")
+	expect_err("warning: Implicit conversion from string to number. [-Wimplicit-string-to-number]")
+	blitzcc(-c -W0 -Werror=unreachable-code "${WORK}/w.bb")
+	expect_failed()
+	expect_err("w.bb:13:1: error: This statement can never run. [-Werror=unreachable-code]")
+	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=unused-result -Wno-error=implicit-number-to-string "${WORK}/w.bb")
+	expect_ok()
+	expect_err("[-Wimplicit-lossy-real-to-int]")
+
+	# -q hides warnings but not the ones that are errors, +q hides everything and still fails.
+	blitzcc(-q -c -Werror "${WORK}/w.bb")
+	expect_failed()
+	expect_err("[-Werror=implicit-lossy-real-to-int]")
+	blitzcc(+q -c -Werror "${WORK}/w.bb")
+	expect_failed()
+	if(NOT ERR STREQUAL "")
+		message(FATAL_ERROR "Expected no messages with +q, got:\n${ERR}")
+	endif()
+
+	# The warnings are in the help.
+	blitzcc(--help)
+	expect_ok()
+	foreach(_ENTRY IN LISTS _WARNINGS)
+		string(REPLACE ":" ";" _PARTS "${_ENTRY}")
+		list(GET _PARTS 0 _NAME)
+		expect_contains("-W${_AT_LEVEL}")
+		expect_contains("${_NAME}")
+	endforeach()
+	foreach(_OPTION IN ITEMS "-W0 .. -W4" "-W<name>" "-Werror")
+		expect_contains("${_OPTION}")
+	endforeach()
 
 elseif(CASE STREQUAL "help")
 	blitzcc(--help)

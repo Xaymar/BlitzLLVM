@@ -25,7 +25,16 @@ using namespace blitz::compiler_detail;
 ////////////////////////////////////////////////////////////////////////////////
 void blitz::compiler::gen_block(ast::block const& block)
 {
+	bool reported = false;
 	for (auto const& stmt : block) {
+		// Anything after a Return, End, Goto or Exit is skipped over, unless a label (or Data, which is not code) can be jumped to.
+		if (_terminated && !reported && !dynamic_cast<ast::label_statement const*>(stmt.get()) && !dynamic_cast<ast::data_statement const*>(stmt.get())) {
+			warn(stmt->where, "unreachable-code", "This statement can never run.");
+			reported = true;
+		}
+		if (dynamic_cast<ast::label_statement const*>(stmt.get())) {
+			reported = false;
+		}
 		gen_statement(stmt.get());
 	}
 }
@@ -52,7 +61,10 @@ void blitz::compiler::gen_statement_inner(ast::statement const* node)
 	} else if (auto n = dynamic_cast<ast::assign const*>(node)) {
 		gen_assign(n);
 	} else if (auto n = dynamic_cast<ast::call_statement const*>(node)) {
-		gen_call(n->invocation.get());
+		auto result = gen_call(n->invocation.get());
+		if (result.type != type::UNKNOWN) {
+			warn(n->invocation->where, "unused-result", "The result of '" + n->invocation->name + "' is not used.", "Store it in a variable, or turn this off with -Wno-unused-result.");
+		}
 	} else if (auto n = dynamic_cast<ast::if_statement const*>(node)) {
 		gen_if(n);
 	} else if (auto n = dynamic_cast<ast::while_statement const*>(node)) {
@@ -109,9 +121,16 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 		if (node->global || node->constant) {
 			var = _global_variables.at(lower(decl.name));
 		} else {
+			if (decl.type == type::UNKNOWN) {
+				warn_typeless(decl.where, decl.name);
+			}
 			type t = (decl.type == type::UNKNOWN) ? type::INT32 : decl.type;
 			uint32_t count = decl.array_size ? array_count(decl.array_size.get(), decl.where) : 0;
 			var            = create_local(decl.name, t, false, decl.where, decl.struct_name, count);
+			auto& stored        = _locals[lower(decl.name)];
+			stored.where        = decl.where;
+			stored.name         = decl.name;
+			stored.check_unused = true;
 		}
 		if (var.count) {
 			if (decl.initial) {
@@ -143,7 +162,7 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 void blitz::compiler::gen_assign(ast::assign const* node)
 {
 	auto rhs  = gen(node->value.get());
-	auto addr = gen_address(node->target.get());
+	auto addr = gen_address(node->target.get(), true);
 	if (addr.constant) {
 		throw err(node->where, "This is a constant and can't be changed.");
 	}
@@ -229,7 +248,7 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 		gen_for_each(node);
 		return;
 	}
-	auto& var = lookup(node->variable->name, node->variable->type);
+	auto& var = lookup(node->variable->name, node->variable->type, node->variable->where);
 	if (!is_number(var.type)) {
 		throw err(node->where, "The variable of a For loop has to be a number.");
 	}

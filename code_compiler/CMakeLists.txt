@@ -23,6 +23,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"source/lexer.cpp"
 	"source/error.hpp"
 	"source/error.cpp"
+	"source/warnings.hpp"
+	"source/warnings.cpp"
 	"source/parser.hpp"
 	"source/parser.cpp"
 	"source/parser_statements.cpp"
@@ -163,7 +165,7 @@ if(Python3_FOUND AND NOT WIN32)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
-foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug debug_info fast_math inline_checks stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout version verbose_long_only console_subsystem run run_exit_code diagnostics help)
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug debug_info fast_math inline_checks stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout warnings version verbose_long_only console_subsystem run run_exit_code diagnostics help)
 	add_test(
 		NAME "cli-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}

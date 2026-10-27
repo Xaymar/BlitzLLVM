@@ -21,6 +21,7 @@
 #include "ast/ast.hpp"
 #include "error.hpp"
 #include "keywords.hpp"
+#include "warnings.hpp"
 
 // Compiling requires several steps
 // 1. Lexing to known tokens (lexer.hpp)
@@ -47,6 +48,10 @@ namespace blitz {
 			std::string        sname;     // Lower case name of the Type for objects.
 			uint32_t           count = 0; // For fixed arrays: how many elements there are.
 			uint32_t           dims  = 0; // For Dim arrays: how many dimensions there are. The pointer is the descriptor.
+			ast::location      where;               // Where it was declared, if unused-variable is to be checked.
+			std::string        name;                // The name as written.
+			bool               check_unused = false;
+			bool               used         = false; // Whether its value is read.
 		};
 
 		struct field_info {
@@ -99,6 +104,8 @@ namespace blitz {
 		std::string                          _scope;       // Which function is being generated, empty for the main program.
 		size_t                               _counter;
 		size_t                               _warnings;
+		size_t                               _warning_errors = 0;
+		std::set<std::string>                _called; // Lower case names of the functions that are called.
 
 		// Function state
 		std::ostringstream              _body;
@@ -178,16 +185,28 @@ namespace blitz {
 		/** Whether warnings are not printed (-q). They are still counted. */
 		bool quiet = false;
 
+		/** Whether nothing is printed at all (+q), errors from -Werror included. */
+		bool silent = false;
+
+		/** Which warnings are on and which are errors (-W options). */
+		blitz::warning_settings warning_options;
+
 		/** Generate LLVM IR for the given program. Throws blitz::error on failure. */
 		std::string generate(ast::program const& program);
 
-		/** Number of warnings that were emitted while generating. */
+		/** Number of warnings that were emitted while generating, the ones that are errors included. */
 		size_t warnings() const;
+
+		/** Number of warnings that were errors (-Werror), which makes the compilation fail. */
+		size_t warning_errors() const;
 
 		private:
 		// Errors and warnings
 		blitz::error err(ast::location const& where, std::string const& reason) const;
-		void         warn(ast::location const& where, std::string const& reason);
+		void         warn(ast::location const& where, const char* name, std::string const& reason, std::string const& help = std::string());
+		void         warn_typeless(ast::location const& where, std::string const& name);
+		void         report_unused(std::map<std::string, variable>& variables);
+		bool         is_lossy(blitz::types::type from, blitz::types::type to, std::string const& literal) const;
 
 		// Debug information
 		std::string md(std::string const& node, bool distinct = false);
@@ -233,7 +252,7 @@ namespace blitz {
 		value       from_bool(std::string const& i1);
 
 		// Variables
-		variable&   lookup(std::string const& name, blitz::types::type hint, std::string const& sname = std::string());
+		variable&   lookup(std::string const& name, blitz::types::type hint, ast::location const& where, std::string const& sname = std::string());
 		variable*   find(std::string const& name);
 		variable    create_local(std::string const& name, blitz::types::type type, bool constant, ast::location const& where, std::string const& sname = std::string(), uint32_t count = 0);
 		variable*   find_dim(std::string const& name);
@@ -243,7 +262,7 @@ namespace blitz {
 		bool        fold_int(ast::expression const* expr, int64_t& out);
 		type_info&  need_type(std::string const& name, ast::location const& where);
 		void        register_types(ast::program const& program);
-		address     gen_address(ast::expression const* expr);
+		address     gen_address(ast::expression const* expr, bool write = false);
 		value       load_address(address const& addr);
 		void        collect_globals(ast::block const& block);
 
