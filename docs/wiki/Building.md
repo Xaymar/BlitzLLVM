@@ -89,7 +89,7 @@ dist/userlibs/            user libraries, with a README
 ctest --test-dir build -C Release
 ```
 
-This compiles and runs every program in `tests/` and the function test suite in `tests/suite` without a window (`BLITZ_HEADLESS=1`). Tests that look at pixels need a window and a GPU and are skipped unless you configure with `-DBLITZ_TEST_GPU=ON`. The tests need `clang` (see [[Installation]]).
+This compiles and runs every program in `tests/` and the function test suite in `tests/suite` without a window (`BLITZ_HEADLESS=1`). The function test suite, the audio test, the close prompt test and the AutoSuspend tests run twice: as the compiler builds by default (Release), and with `-d` (Debug, which implies `--profile`). The Debug ones have `debug` in their names, for example `suite-debug-run-math`; `ctest -R debug` runs only those. Tests that look at pixels need a window and a GPU and are skipped unless you configure with `-DBLITZ_TEST_GPU=ON`. The tests need `clang` (see [[Installation]]).
 
 ### Continuous integration
 
