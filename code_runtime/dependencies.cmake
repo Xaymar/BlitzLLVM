@@ -301,12 +301,12 @@ set(_FFMPEG_BUILD "${_FFMPEG_ROOT}/FFmpeg.bld")
 set(_FFMPEG_ARGS
 	--enable-shared --disable-static --disable-programs --disable-doc --disable-debug --disable-autodetect --disable-everything
 	--disable-avdevice --disable-avfilter --disable-network --enable-small --disable-iamf --disable-bsfs --disable-faan --disable-pixelutils --disable-lsp
-	--enable-swscale --enable-swresample --enable-pic
+	--enable-swscale --disable-swresample --enable-pic
 	--enable-protocol=file
 	--enable-demuxer=avi,mov,matroska,mpegps,mpegts,asf,ogg,flv,mp3,wav,mpegvideo,m4v
-	--enable-parser=h264,hevc,mpeg4video,mpegvideo,vp8,vp9,aac,aac_latm,ac3,mpegaudio,vorbis,opus,flac,mjpeg
+	--enable-parser=h264,hevc,mpeg4video,mpegvideo,vp8,vp9,aac,aac_latm,ac3,mpegaudio,vorbis,flac,mjpeg
 	--enable-decoder=mpeg1video,mpeg2video,mpeg4,msmpeg4v1,msmpeg4v2,msmpeg4v3,h264,hevc,vp8,vp9,theora,wmv1,wmv2,wmv3,mjpeg
-	--enable-decoder=aac,mp3,mp3float,mp2,mp2float,ac3,vorbis,opus,wmav1,wmav2,flac,pcm_s16le,pcm_u8,pcm_s16be,adpcm_ms,adpcm_ima_wav
+	--enable-decoder=aac,mp3,mp3float,mp2,mp2float,ac3,vorbis,wmav1,wmav2,flac,pcm_s16le,pcm_u8,pcm_s16be,adpcm_ms,adpcm_ima_wav
 )
 if(APPLE)
 	# The libraries find each other next to themselves, wherever the program that loads them is.
@@ -398,8 +398,8 @@ foreach(_LIBRARY IN LISTS _FFMPEG_LIBRARIES)
 endforeach()
 set(_FFMPEG_LIBRARIES ${_FFMPEG_FILES})
 list(LENGTH _FFMPEG_LIBRARIES _FFMPEG_COUNT)
-if(NOT _FFMPEG_COUNT EQUAL 5)
-	message(FATAL_ERROR "FFmpeg should have built 5 libraries (avutil, swresample, swscale, avcodec and avformat), but built: ${_FFMPEG_LIBRARIES}")
+if(NOT _FFMPEG_COUNT EQUAL 4)
+	message(FATAL_ERROR "FFmpeg should have built 4 libraries (avutil, swscale, avcodec and avformat), but built: ${_FFMPEG_LIBRARIES}")
 endif()
 # The licenses of FFmpeg go with its libraries: its own notice, and the LGPL that lets the user replace them.
 file(MAKE_DIRECTORY "${FFMPEG_INSTALL_PATH}/share/licenses/FFmpeg")
