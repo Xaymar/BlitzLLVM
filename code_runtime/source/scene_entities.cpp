@@ -24,6 +24,7 @@ namespace bb {
 
 namespace bb::scene {
 
+	static uint32_t         first_free = 0; // No slot of entities below this is free.
 	static buffer<entity*>  entities; // Handle - 1, null if freed.
 	buffer<surface*> surface_table;
 	float            tformed[3] = { 0, 0, 0 };
@@ -76,12 +77,15 @@ namespace bb::scene {
 			need(parent, "CreateEntity")->children++;
 			e->parent = parent;
 		}
-		for (uint32_t i = 0; i < entities.size; i++) {
+		// Every slot below first_free is taken, so a program that makes a million entities does not walk over them all each time.
+		for (uint32_t i = first_free; i < entities.size; i++) {
 			if (!entities[i]) {
 				entities[i] = e;
+				first_free  = i + 1;
 				return int(i) + 1;
 			}
 		}
+		first_free = entities.size + 1;
 		entities.push(e);
 		return int(entities.size);
 	}
@@ -155,6 +159,9 @@ namespace bb::scene {
 		free(e->name);
 		delete e;
 		entities[uint32_t(handle) - 1] = nullptr;
+		if (uint32_t(handle) - 1 < first_free) {
+			first_free = uint32_t(handle) - 1;
+		}
 	}
 	float clamp255(float v)
 	{
