@@ -147,14 +147,15 @@ font = LoadFont("Arial", 16, 1, 0, 1)
 CheckTrue "LoadFont", font <> 0
 SetFont font
 Check "FontHeight", FontHeight(), 16
-Check "FontWidth", FontWidth(), 16
-Check "StringWidth with a font", StringWidth("abc"), 48
+; A real font is as wide as its letters are, which depends on the font that is found, the built-in font is 1 wide per size.
+CheckTrue "FontWidth", FontWidth() >= 8 And FontWidth() <= 20
+CheckTrue "StringWidth with a font", StringWidth("abc") > 0 And StringWidth("abc") <= 3 * 20
 Check "StringHeight with a font", StringHeight("abc"), 16
 CheckS "FontName", FontName$(font), "Arial"
 Check "FontSize", FontSize(font), 16
 Check "FontStyle", FontStyle(font), 5
-Check "FontAscent", FontAscent(font), 12
-Check "FontDescent", FontDescent(font), 4
+Check "FontAscent and FontDescent are the height", FontAscent(font) + FontDescent(font), 16
+CheckTrue "FontAscent", FontAscent(font) > FontDescent(font)
 second = LoadFont("Courier", 24)
 CheckTrue "LoadFont again", second <> font
 Check "FontStyle plain", FontStyle(second), 0

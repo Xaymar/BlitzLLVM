@@ -48,3 +48,7 @@
 	path = third_party/SDL_mixer
 	url = https://github.com/libsdl-org/SDL_mixer
 	shallow = true
+[submodule "third_party/stb"]
+	path = third_party/stb
+	url = https://github.com/nothings/stb
+	shallow = true

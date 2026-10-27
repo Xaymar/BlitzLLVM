@@ -12,13 +12,13 @@ FontWidth  ; returns Int
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-The width in pixels of one character of the current font, as set by [SetFont](SetFont). Every character is as wide as this value, so the width of a text is `Len(text) * FontWidth()`.
+The width in pixels of one character of the current font, as set by [SetFont](SetFont). No character is wider than this value.
 
 **Returns:** The width of a character in pixels.
 
 **Differences and known gaps:**
 
-* The font is a scaled 8x8 bitmap font, so the width is the same as the height. Fonts of the original have different widths per character, and their values differ from these.
+* Real fonts have a different width for each character, so this is the width of the widest one; use [StringWidth](StringWidth) for a text. The built-in bitmap font used when a font is not found is as wide as it is high.
 
 ## Related commands
 

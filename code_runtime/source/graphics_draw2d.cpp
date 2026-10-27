@@ -18,12 +18,14 @@
 using namespace bb::gfx;
 
 namespace bb::gfx {
-	// There is only the built-in font. Fonts that are loaded are that font in the size that was asked for.
+	// Fonts that are loaded are a TrueType font of the system if there is one with that name, and otherwise the built-in
+	// bitmap font in the size that was asked for.
 	struct font_entry {
-		bool  used   = false;
-		char* name   = nullptr;
-		int   height = 8;
-		int   style  = 0; // 1 bold, 2 italic, 4 underline
+		bool      used   = false;
+		char*     name   = nullptr;
+		int       height = 8;
+		int       style  = 0; // 1 bold, 2 italic, 4 underline
+		ttf_font* ttf    = nullptr;
 	};
 	static bb::buffer<font_entry> font_table;
 
@@ -39,6 +41,19 @@ namespace bb::gfx {
 	{
 		font_entry* f = font_of(g.font);
 		return f ? float(f->height) / 8.0f : 1.0f;
+	}
+
+	// The height of a line of the font that text is drawn with, and the width of its widest character.
+	static int current_height()
+	{
+		font_entry* f = font_of(g.font);
+		return (f && f->ttf) ? ttf_height(f->ttf) : int(8 * font_scale() + 0.5f);
+	}
+
+	static int current_width()
+	{
+		font_entry* f = font_of(g.font);
+		return (f && f->ttf) ? ttf_width(f->ttf) : int(8 * font_scale() + 0.5f);
 	}
 
 	static void glyph_vertices(vertex* v, float x, float y, int c, float scale)
@@ -210,13 +225,16 @@ void bb_oval(int32_t x, int32_t y, int32_t w, int32_t h, int32_t solid)
 
 int32_t bb_string_width(const char* s)
 {
+	if (font_entry* f = font_of(g.font); f && f->ttf) {
+		return ttf_string_width(f->ttf, s);
+	}
 	return s ? int32_t(float(strlen(s)) * 8 * font_scale() + 0.5f) : 0;
 }
 
 int32_t bb_string_height(const char* s)
 {
 	(void)s;
-	return int32_t(8 * font_scale() + 0.5f);
+	return current_height();
 }
 
 // Text x, y, string [, center x] [, center y]
@@ -228,6 +246,16 @@ void bb_text(int32_t x, int32_t y, const char* s, int32_t center_x, int32_t cent
 	size_t length = strlen(s);
 	float  scale  = font_scale();
 	float  px = float(x), py = float(y);
+	if (font_entry* f = font_of(g.font); f && f->ttf) {
+		if (center_x) {
+			px -= float(ttf_string_width(f->ttf, s)) / 2;
+		}
+		if (center_y) {
+			py -= float(ttf_height(f->ttf)) / 2;
+		}
+		ttf_draw(f->ttf, floorf(px), floorf(py), s);
+		return;
+	}
 	if (center_x) {
 		px -= float(length) * 8 * scale / 2;
 	}
@@ -273,6 +301,7 @@ int32_t bb_load_font(const char* name, int32_t height, int32_t bold, int32_t ita
 	entry.used   = true;
 	entry.height = height < 1 ? 1 : height;
 	entry.style  = (bold ? 1 : 0) | (italic ? 2 : 0) | (underline ? 4 : 0);
+	entry.ttf    = ttf_open(name, entry.height, entry.style);
 	if (name) {
 		entry.name = static_cast<char*>(malloc(strlen(name) + 1));
 		strcpy(entry.name, name);
@@ -305,21 +334,22 @@ void bb_free_font(int32_t handle)
 		bb_runtime_error("FreeFont: the font does not exist.");
 	}
 	free(f->name);
+	ttf_free(f->ttf);
 	*f = font_entry();
 	if (g.font == handle) {
 		g.font = 0;
 	}
 }
 
-// All characters of a font are as wide as the font is high, a font is a bitmap font that is scaled.
+// The bitmap font is scaled, so all its characters are as wide as it is high.
 int32_t bb_font_width(void)
 {
-	return int32_t(8 * font_scale() + 0.5f);
+	return current_width();
 }
 
 int32_t bb_font_height(void)
 {
-	return int32_t(8 * font_scale() + 0.5f);
+	return current_height();
 }
 
 static font_entry* need_font(int32_t handle, const char* what)
@@ -353,13 +383,14 @@ int32_t bb_font_style(int32_t handle)
 
 int32_t bb_font_ascent(int32_t handle)
 {
-	return need_font(handle, "FontAscent")->height * 3 / 4;
+	font_entry* f = need_font(handle, "FontAscent");
+	return f->ttf ? ttf_ascent(f->ttf) : f->height * 3 / 4;
 }
 
 int32_t bb_font_descent(int32_t handle)
 {
 	font_entry* f = need_font(handle, "FontDescent");
-	return f->height - f->height * 3 / 4;
+	return f->ttf ? ttf_descent(f->ttf) : f->height - f->height * 3 / 4;
 }
 
 // Origin x, y: where 0, 0 is for what is drawn after.
@@ -437,8 +468,7 @@ int32_t bb_screen_print(const char* s, int32_t newline)
 	if (!active()) {
 		return 0;
 	}
-	float      scale  = font_scale();
-	int        height = int(8 * scale + 0.5f);
+	int        height = current_height();
 	gpu_image& front  = g.buffers[0];
 	int        width = int(front.width), screen = int(front.height);
 
@@ -474,8 +504,7 @@ const char* bb_screen_input(const char* prompt)
 	bb_screen_print(prompt, 0);
 
 	constexpr int capacity = 1024;
-	float         scale    = font_scale();
-	int           height   = int(8 * scale + 0.5f);
+	int           height   = current_height();
 	int           width    = int(g.buffers[0].width);
 	int           x        = g.cursor_x, y = g.cursor_y;
 
@@ -545,7 +574,7 @@ const char* bb_screen_input(const char* prompt)
 			for (int c = 0; c < 3; c++) {
 				g.color[c] = uint8_t(g.clscolor[c] ^ 0xFF);
 			}
-			bb_rect(cx, y, int(8 * scale + 0.5f), height, 1);
+			bb_rect(cx, y, current_width(), height, 1);
 			if (under) {
 				char shown[2] = { under, 0 };
 				memcpy(g.color, g.clscolor, 3);

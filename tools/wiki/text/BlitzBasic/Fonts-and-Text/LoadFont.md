@@ -26,4 +26,4 @@ WaitKey
 @param italic     True for an italic font. Defaults to False.
 @param underline  True for an underlined font. Defaults to False.
 @returns A handle for the font. A font that does not exist still gives a valid handle.
-@gap Fonts are not read from the system. Every font name gives the built-in 8x8 pixel bitmap font, scaled to the height. The name and style are remembered but do not change how the text looks.
+@gap Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one). A name that has a dot in it is a font file, such as "fonts/my.ttf". Bold and italic use the bold and italic files of a family when there are any, and are made from the regular font when there are none. A font that is not found is drawn with the built-in 8x8 bitmap font, scaled to the height.

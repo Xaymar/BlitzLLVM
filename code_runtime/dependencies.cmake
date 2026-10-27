@@ -19,6 +19,11 @@ foreach(_DEPENDENCY IN ITEMS Vulkan-Headers SDL SDL_image SDL_mixer)
 	endif()
 endforeach()
 
+# stb_truetype is a single header that is compiled into the runtime, so it is not built on its own.
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/stb/stb_truetype.h")
+	message(FATAL_ERROR "The submodule 'third_party/stb' is missing, run 'git submodule update --init' first.")
+endif()
+
 # Builds a submodule from third_party/. A macro, so that the <NAME>_INSTALL_PATH variables reach the caller.
 # The checked out commit is passed to the configure step as an unused definition, as ExternalContent only rebuilds when its
 # arguments change, which makes a submodule update rebuild the dependency.

@@ -46,6 +46,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_images.cpp"
 	"source/graphics_pixels.cpp"
 	"source/graphics_textures.cpp"
+	"source/graphics_fonts.cpp"
 	"source/graphics_scene3d.cpp"
 	"source/graphics_info.cpp"
 	"source/graphics_displays.cpp"
@@ -92,6 +93,7 @@ target_include_directories(blitzrt SYSTEM PRIVATE
 	"${SDL3_image_INSTALL_PATH}/include"
 	"${SDL3_mixer_INSTALL_PATH}/include"
 	"${VulkanHeaders_INSTALL_PATH}/include"
+	"${PROJECT_SOURCE_DIR}/third_party/stb"
 )
 if(NOT MSVC AND NOT APPLE)
 	# See dependencies.cmake: programs are linked with --gc-sections, which only drops what is in a section of its own.
