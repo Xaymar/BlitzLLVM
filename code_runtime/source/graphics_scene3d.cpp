@@ -18,6 +18,8 @@
 
 #include <algorithm>
 #include <tuple>
+#include <map>
+#include <unordered_map>
 #include <vector>
 
 using namespace bb::gfx;
@@ -339,6 +341,7 @@ namespace bb::gfx {
 	}
 
 	bb::buffer<draw_record>  draws;
+	static bb::buffer<entity_push> pushes; // The data of the draws, in the order they were made: the draws point to it, so that they are small to move.
 	bb::buffer<scene_record> scenes;
 	bb::buffer<copy_record>  copies;
 
@@ -346,6 +349,7 @@ namespace bb::gfx {
 	{
 		flush_number++; // What was recorded has been drawn, so its buffers can be filled again.
 		draws.clear();
+		pushes.clear();
 		scenes.clear();
 		copies.clear();
 	}
@@ -461,7 +465,7 @@ namespace bb::gfx {
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
 		entity_push* entities = static_cast<entity_push*>(g.entity_mapped);
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
-			entities[scene.first_draw + i] = draws[scene.first_draw + i].push;
+			entities[scene.first_draw + i] = pushes[draws[scene.first_draw + i].push_index];
 		}
 
 		VkPipeline      bound_pipeline = VK_NULL_HANDLE;
@@ -827,6 +831,139 @@ namespace bb::gfx {
 		std::stable_sort(items.data, items.data + items.size, before);
 	}
 
+	// Whether the screen areas of see-through draws are worth finding: not when the last frame had them in long runs already.
+	static bool blended_bounds_wanted = true;
+
+	// What is see-through has to be drawn from far to near where it overlaps, but two draws that can not be in the same place
+	// of the screen give the same picture in either order. So each draw goes to the first layer after the draws it can overlap
+	// that are not of its state, and the layers are drawn one after the other with the draws of one state next to each other,
+	// which makes them instances of one call. Draws that can overlap stay in their order, so the picture does not change.
+	static void group_blended(uint32_t first, uint32_t last)
+	{
+		if (last - first < 2) {
+			blended_bounds_wanted = true;
+			return;
+		}
+		// Long runs of the same state are already as few calls as grouping could make of them (sprites that share a shape and a
+		// texture, for example), and grouping them again would cost more than the calls it saves.
+		uint32_t runs = 1;
+		for (uint32_t i = first + 1; i < last; i++) {
+			runs += same_draw_state(draws[i - 1], draws[i]) ? 0 : 1;
+		}
+		blended_bounds_wanted = runs * 32 >= last - first;
+		if (!blended_bounds_wanted) {
+			return;
+		}
+		std::vector<uint32_t> units;
+		for (uint32_t i = first; i < last; i++) {
+			if (draws[i].unit_start) {
+				units.push_back(i);
+			}
+		}
+		// The draws that only differ in their data have the same state, which gets a number.
+		struct state_key {
+			uintptr_t pipeline, vertex_buffer, index_buffer;
+			uint32_t  index_count;
+			int       texture;
+			bool      cull, depth_write;
+			bool operator==(state_key const& o) const
+			{
+				return (pipeline == o.pipeline) && (vertex_buffer == o.vertex_buffer) && (index_buffer == o.index_buffer) && (index_count == o.index_count)
+					&& (texture == o.texture) && (cull == o.cull) && (depth_write == o.depth_write);
+			}
+		};
+		struct state_hash {
+			size_t operator()(state_key const& k) const
+			{
+				size_t h = k.pipeline * 31 + k.vertex_buffer;
+				h        = h * 31 + k.index_buffer;
+				h        = h * 31 + k.index_count;
+				h        = h * 31 + size_t(k.texture);
+				return h * 4 + (k.cull ? 2 : 0) + (k.depth_write ? 1 : 0);
+			}
+		};
+		std::unordered_map<state_key, int, state_hash> states;
+		// The screen is cut into cells; each remembers the layer and state of the last draw that touched it.
+		const int           grid = 32;
+		std::vector<int>    cell_layer(grid * grid, -1), cell_state(grid * grid, -1);
+		std::vector<int>    layer(units.size()), state(units.size());
+		state_key recent_key[4] = {};
+		int       recent_id[4] = {}, recent_count = 0, recent_next = 0;
+		auto cell = [&](float v) { return std::min(grid - 1, std::max(0, int(floorf((v * 0.5f + 0.5f) * grid)))); };
+		for (size_t u = 0; u < units.size(); u++) {
+			draw_record const& d = draws[units[u]];
+			state_key k = { uintptr_t(d.pipeline), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture, d.cull, d.depth_write };
+			// The same few states come again and again, so the last ones are looked at before the table is.
+			int found = -1;
+			for (int r = 0; r < recent_count; r++) {
+				if (recent_key[r] == k) {
+					found = recent_id[r];
+					break;
+				}
+			}
+			if (found < 0) {
+				found                           = states.emplace(k, int(states.size())).first->second;
+				recent_key[recent_next % 4]     = k;
+				recent_id[recent_next % 4]      = found;
+				recent_next++;
+				recent_count = std::min(recent_count + 1, 4);
+			}
+			state[u] = found;
+			int x0 = cell(d.screen[0]), x1 = cell(d.screen[2]), y0 = cell(d.screen[1]), y1 = cell(d.screen[3]);
+			int at = 0;
+			for (int y = y0; y <= y1; y++) {
+				for (int x = x0; x <= x1; x++) {
+					int i = y * grid + x;
+					if (cell_layer[i] >= 0) {
+						at = std::max(at, (cell_state[i] == state[u]) ? cell_layer[i] : cell_layer[i] + 1);
+					}
+				}
+			}
+			layer[u] = at;
+			for (int y = y0; y <= y1; y++) {
+				for (int x = x0; x <= x1; x++) {
+					cell_layer[y * grid + x] = at;
+					cell_state[y * grid + x] = state[u];
+				}
+			}
+		}
+		// Layer by layer, and in each the same states together, with the order the draws had otherwise (a counting sort,
+		// which keeps the order of equal keys).
+		size_t                states_count = states.size();
+		int                   layers       = 0;
+		for (int l : layer) {
+			layers = std::max(layers, l + 1);
+		}
+		std::vector<uint32_t> order(units.size());
+		if (size_t(layers) * states_count <= (size_t(1) << 20)) {
+			std::vector<uint32_t> start(size_t(layers) * states_count + 1, 0);
+			for (size_t u = 0; u < units.size(); u++) {
+				start[size_t(layer[u]) * states_count + size_t(state[u]) + 1]++;
+			}
+			for (size_t k = 1; k < start.size(); k++) {
+				start[k] += start[k - 1];
+			}
+			for (size_t u = 0; u < units.size(); u++) {
+				order[start[size_t(layer[u]) * states_count + size_t(state[u])]++] = uint32_t(u);
+			}
+		} else {
+			for (size_t u = 0; u < order.size(); u++) {
+				order[u] = uint32_t(u);
+			}
+			std::stable_sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return std::make_pair(layer[a], state[a]) < std::make_pair(layer[b], state[b]); });
+		}
+		std::vector<draw_record> sorted;
+		sorted.reserve(last - first);
+		for (uint32_t u : order) {
+			for (uint32_t i = units[u]; (i < last) && ((i == units[u]) || !draws[i].unit_start); i++) {
+				sorted.push_back(draws[i]);
+			}
+		}
+		for (uint32_t i = 0; i < sorted.size(); i++) {
+			draws[first + i] = sorted[i];
+		}
+	}
+
 	// What is solid does not depend on the order it is drawn in, so the draws that are the same in what the GPU has to be
 	// told are put next to each other, which makes the calls and changes of state fewer. A surface and the layers that are
 	// drawn over it stay together, in the order they were in.
@@ -926,6 +1063,57 @@ namespace bb::gfx {
 	static bool  have_planes;
 	static float current_pixels[2];  // Pixels per unit at a depth of 1 (perspective) or at any depth (orthographic), and whether it is orthographic.
 	static float current_view[3];    // Zoom, far plane and height divided by width of the camera, for planes.
+
+	// Where an entity can be on the screen, as left, bottom, right and top between -1 and 1: the box around it as seen by
+	// the camera, made a little bigger. It is the whole screen when that can not be told (no box, or a corner near or behind
+	// the camera, or a camera that is scaled).
+	static void screen_bounds(bb::entity& e, const float* m, float* out)
+	{
+		out[0] = out[1] = -1.0f;
+		out[2] = out[3] = 1.0f;
+		float lo[3], hi[3];
+		if (e.plane_divs || !bb::mesh_bounds(e, lo, hi) || (lo[0] > hi[0])) {
+			return;
+		}
+		float c[3][3] = { { current_camera[0], current_camera[1], current_camera[2] }, { current_camera[4], current_camera[5], current_camera[6] }, { current_camera[8], current_camera[9], current_camera[10] } };
+		for (int k = 0; k < 3; k++) {
+			float len = c[k][0] * c[k][0] + c[k][1] * c[k][1] + c[k][2] * c[k][2];
+			if (fabsf(len - 1.0f) > 1e-3f) {
+				return;
+			}
+		}
+		// The box in the space of the camera is a box of its own around the one that is turned: its middle is the middle of
+		// the model's box moved there, and it reaches as far as the axes of the model do along each of the axes of the camera.
+		float lc[3] = { 0.5f * (lo[0] + hi[0]), 0.5f * (lo[1] + hi[1]), 0.5f * (lo[2] + hi[2]) };
+		float hl[3] = { 0.5f * (hi[0] - lo[0]), 0.5f * (hi[1] - lo[1]), 0.5f * (hi[2] - lo[2]) };
+		float rel[3];
+		for (int row = 0; row < 3; row++) {
+			rel[row] = m[0 + row] * lc[0] + m[4 + row] * lc[1] + m[8 + row] * lc[2] + float(double(m[12 + row]) - double(current_origin[row]));
+		}
+		float centre[3], reach[3];
+		for (int j = 0; j < 3; j++) {
+			centre[j] = c[j][0] * rel[0] + c[j][1] * rel[1] + c[j][2] * rel[2];
+			reach[j]  = 0;
+			for (int k = 0; k < 3; k++) {
+				float w = c[j][0] * m[4 * k + 0] + c[j][1] * m[4 * k + 1] + c[j][2] * m[4 * k + 2];
+				reach[j] += fabsf(w) * hl[k];
+			}
+		}
+		float near_z = centre[2] - reach[2], far_z = centre[2] + reach[2];
+		if (near_z < 0.01f) {
+			return;
+		}
+		float x0 = centre[0] - reach[0], x1 = centre[0] + reach[0], y0 = centre[1] - reach[1], y1 = centre[1] + reach[1];
+		float scale_y = current_view[0] / current_view[2];
+		float left    = current_view[0] * x0 / (x0 >= 0 ? far_z : near_z);
+		float right   = current_view[0] * x1 / (x1 >= 0 ? near_z : far_z);
+		float bottom  = scale_y * y0 / (y0 >= 0 ? far_z : near_z);
+		float top     = scale_y * y1 / (y1 >= 0 ? near_z : far_z);
+		out[0] = fmaxf(left - 0.02f, -1.0f);
+		out[1] = fmaxf(bottom - 0.02f, -1.0f);
+		out[2] = fminf(right + 0.02f, 1.0f);
+		out[3] = fminf(top + 0.02f, 1.0f);
+	}
 
 	// The part of a plane that the camera sees: a grid over the far end of the view that is let down onto the ground,
 	// and cut off where it is above the horizon. Returns nothing if the camera is below the plane.
@@ -1180,6 +1368,10 @@ namespace bb::gfx {
 			surfaces = plane;
 			count    = 1;
 		}
+		float screen[4] = { -1, -1, 1, 1 };
+		if (pass == 1 && blended_bounds_wanted) {
+			screen_bounds(*e, m, screen);
+		}
 		// Blitz3D takes the surfaces of an entity from the back of its queue, so the last surface is drawn first.
 		for (uint32_t n = 0; n < count; n++) {
 			bb::surface& surface = *surfaces[count - 1 - n];
@@ -1254,7 +1446,8 @@ namespace bb::gfx {
 			push.soft[0] = (e->sprite_mode && surface_blended && (blend != 2) && depth_test) ? e->sprite_depth_fade : 0.0f;
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
-			record.push         = push;
+			record.push_index   = pushes.size;
+			pushes.push(push);
 			record.vertex_buffer = shape->vertex_buffer;
 			record.index_buffer = shape->index_buffer;
 			record.index_count  = shape->index_count;
@@ -1265,6 +1458,7 @@ namespace bb::gfx {
 			record.depth_write  = (!surface_blended && depth_test);
 			record.depth        = item.depth;
 			record.unit_start   = true;
+			memcpy(record.screen, screen, sizeof(screen));
 			shape->used_by_flush = flush_number;
 			ensure_entities(draws.size + 1 + 7);
 			draws.push(record);
@@ -1279,17 +1473,18 @@ namespace bb::gfx {
 					continue;
 				}
 				draw_record more     = record;
-				more.push.material[0] = more.push.material[1] = more.push.material[2] = more.push.material[3] = 1;
-				more.push.params[0]  = 1; // Not lit again.
-				more.push.params[3]  = 0;
-				more.push.mask[2]    = 0;
-				more.push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
-				more.push.extra[0]   = (extra->flags & 0x10000) ? 1.0f : 0.0f;
-				texture_rotation(extra, more.push.extra);
-				texture_texgen(extra, more.push.texgen);
-				texture_uv(extra, extra_handle, more.push.uv);
-				more.push.mask[0]    = 0;
-				more.push.mask[1]    = 1; // No fog again either, the first layer has it.
+				entity_push more_push = pushes[record.push_index];
+				more_push.material[0] = more_push.material[1] = more_push.material[2] = more_push.material[3] = 1;
+				more_push.params[0]  = 1; // Not lit again.
+				more_push.params[3]  = 0;
+				more_push.mask[2]    = 0;
+				more_push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
+				more_push.extra[0]   = (extra->flags & 0x10000) ? 1.0f : 0.0f;
+				texture_rotation(extra, more_push.extra);
+				texture_texgen(extra, more_push.texgen);
+				texture_uv(extra, extra_handle, more_push.uv);
+				more_push.mask[0]    = 0;
+				more_push.mask[1]    = 1; // No fog again either, the first layer has it.
 				more.texture         = extra_handle;
 				more.depth_write     = false;
 				more.unit_start      = false;
@@ -1307,6 +1502,8 @@ namespace bb::gfx {
 					more.pipeline = g.mul3d;
 					break;
 				}
+				more.push_index = pushes.size;
+				pushes.push(more_push);
 				ensure_entities(draws.size + 1);
 				draws.push(more);
 			}
@@ -1315,21 +1512,24 @@ namespace bb::gfx {
 			// lightmap, a texture or the colors of the vertices.
 			if (e->cls && !surface_blended && (e->bsp_tint[0] < 1 || e->bsp_tint[1] < 1 || e->bsp_tint[2] < 1) && !strcmp(e->cls, "BSP")) {
 				draw_record tint      = record;
-				tint.push.material[0] = e->bsp_tint[0];
-				tint.push.material[1] = e->bsp_tint[1];
-				tint.push.material[2] = e->bsp_tint[2];
-				tint.push.material[3] = 1;
-				tint.push.params[0]   = 1; // Not lit again.
-				tint.push.params[1]   = 0; // The color, not the colors of the vertices.
-				tint.push.params[3]   = 0;
-				tint.push.mask[0]     = 0;
-				tint.push.mask[1]     = 1;
-				tint.push.mask[2]     = 0;
-				tint.push.mask[3]     = 0;
+				entity_push tint_push = pushes[record.push_index];
+				tint_push.material[0] = e->bsp_tint[0];
+				tint_push.material[1] = e->bsp_tint[1];
+				tint_push.material[2] = e->bsp_tint[2];
+				tint_push.material[3] = 1;
+				tint_push.params[0]   = 1; // Not lit again.
+				tint_push.params[1]   = 0; // The color, not the colors of the vertices.
+				tint_push.params[3]   = 0;
+				tint_push.mask[0]     = 0;
+				tint_push.mask[1]     = 1;
+				tint_push.mask[2]     = 0;
+				tint_push.mask[3]     = 0;
 				tint.texture          = 0;
 				tint.pipeline         = g.mul3d;
 				tint.depth_write      = false;
 				tint.unit_start       = false;
+				tint.push_index = pushes.size;
+				pushes.push(tint_push);
 				ensure_entities(draws.size + 1);
 				draws.push(tint);
 			}
@@ -1338,18 +1538,21 @@ namespace bb::gfx {
 			// texture of the face gets: the texture drawn again in the color of the ambient light, added on.
 			if (e->cls && !surface_blended && (e->bsp_ambient[0] > 0 || e->bsp_ambient[1] > 0 || e->bsp_ambient[2] > 0) && !strcmp(e->cls, "BSP")) {
 				draw_record ambient      = record;
-				ambient.push.material[0] = e->bsp_ambient[0];
-				ambient.push.material[1] = e->bsp_ambient[1];
-				ambient.push.material[2] = e->bsp_ambient[2];
-				ambient.push.material[3] = 1;
-				ambient.push.params[0]   = 1; // Not lit again.
-				ambient.push.params[1]   = 0; // The color, not the colors of the vertices.
-				ambient.push.params[3]   = 0;
-				ambient.push.mask[1]     = 1; // No fog again either, the first layer has it.
-				ambient.push.mask[2]     = 0;
+				entity_push ambient_push = pushes[record.push_index];
+				ambient_push.material[0] = e->bsp_ambient[0];
+				ambient_push.material[1] = e->bsp_ambient[1];
+				ambient_push.material[2] = e->bsp_ambient[2];
+				ambient_push.material[3] = 1;
+				ambient_push.params[0]   = 1; // Not lit again.
+				ambient_push.params[1]   = 0; // The color, not the colors of the vertices.
+				ambient_push.params[3]   = 0;
+				ambient_push.mask[1]     = 1; // No fog again either, the first layer has it.
+				ambient_push.mask[2]     = 0;
 				ambient.pipeline         = g.add3d;
 				ambient.depth_write      = false;
 				ambient.unit_start       = false;
+				ambient.push_index = pushes.size;
+				pushes.push(ambient_push);
 				ensure_entities(draws.size + 1);
 				draws.push(ambient);
 			}
@@ -1526,12 +1729,17 @@ namespace bb::gfx {
 			bb::profile_scope timer(bb::PROFILE_GROUP);
 			group_draws(opaque_first, draws.size);
 		}
+		uint32_t blended_first = draws.size;
 		{
 			bb::profile_scope timer(bb::PROFILE_DRAWS);
 			for (uint32_t i = 0; i < list.blended.size; i++) {
 				prefetch_entity(list.blended, i + 6);
 				draw_entity(list.blended[i], 1, true);
 			}
+		}
+		{
+			bb::profile_scope timer(bb::PROFILE_GROUP);
+			group_blended(blended_first, draws.size);
 		}
 		for (uint32_t i = 0; i < list.front.size; i++) {
 			draw_entity(list.front[i], 2, false);

@@ -564,7 +564,7 @@ namespace bb::gfx {
 
 	// A model that waits to be drawn: everything that is needed to draw it later.
 	struct draw_record {
-		entity_push push;
+		uint32_t    push_index; // Where its data is, in the order the draws were made.
 		VkBuffer    vertex_buffer;
 		VkBuffer    index_buffer;
 		uint32_t    index_count;
@@ -573,6 +573,7 @@ namespace bb::gfx {
 		bool        cull, depth_test, depth_write;
 		float       depth;      // Distance in front of the camera of the entity, which orders what is see-through.
 		bool        unit_start; // First of the draws of a surface: the ones after it that are not are layers over it and stay behind it.
+		float       screen[4];  // Where it can be on the screen as left, bottom, right and top between -1 and 1, for what is see-through.
 	};
 
 
