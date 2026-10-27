@@ -195,6 +195,11 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 			values[idx] = (want == type::STRING) ? zero(want) : constant(want, entry->defaults[idx]);
 		}
 	}
+	bool inlined = false;
+	auto fast    = inline_builtin(entry->symbol, values, inlined);
+	if (inlined) {
+		return fast;
+	}
 	return call_runtime(entry->symbol, builtin_type(entry->ret), values);
 }
 
@@ -559,8 +564,9 @@ blitz::compiler::value blitz::compiler::gen_binary(ast::binary const* node)
 	}
 	if (!real && ((node->kind == op::DIVIDE) || (node->kind == op::MODULO)) && !is_nonzero_constant(b.repr)) {
 		// Dividing by zero is undefined in LLVM, but a runtime error in Blitz.
-		auto wide = convert(b, type::INT64, node->where, false);
-		call_runtime("bb_check_div", type::UNKNOWN, { wide });
+		auto zero_b = tmp();
+		emit(zero_b + " = icmp eq " + llvm + " " + b.repr + ", 0");
+		guard(zero_b, "Integer divide by zero");
 	}
 
 	auto r = tmp();

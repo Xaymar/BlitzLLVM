@@ -168,7 +168,14 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 		auto& info = need_type(object.sname, f->where);
 		for (auto const& field : info.fields) {
 			if (lower(field.name) == lower(f->name)) {
-				call_runtime("bb_check_object", type::UNKNOWN, { object });
+				auto missing = tmp(), flags_p = tmp(), flags = tmp(), deleted = tmp(), bad = tmp();
+				emit(missing + " = icmp eq ptr " + object.repr + ", null");
+				guard(missing, "Object does not exist.");
+				emit(flags_p + " = getelementptr inbounds { ptr, ptr, i32, i32 }, ptr " + object.repr + ", i32 0, i32 3");
+				emit(flags + " = load i32, ptr " + flags_p);
+				emit(deleted + " = and i32 " + flags + ", 1");
+				emit(bad + " = icmp ne i32 " + deleted + ", 0");
+				guard(bad, "Object does not exist.");
 				auto p = tmp();
 				emit(p + " = getelementptr inbounds " + info.llvm + ", ptr " + object.repr + ", i32 0, i32 " + std::to_string(field.index));
 				return { p, field.type, field.sname, field.count, false };

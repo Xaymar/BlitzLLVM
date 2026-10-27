@@ -226,6 +226,8 @@ namespace blitz {
 		value       constant(blitz::types::type type, double number);
 		value       convert(value from, blitz::types::type to, ast::location const& where, bool warn, std::string const& to_sname = std::string());
 		value       call_runtime(const char* symbol, blitz::types::type ret, std::vector<value> const& args);
+		void        guard(std::string const& failed, const char* message);
+		value       inline_builtin(std::string const& symbol, std::vector<value> const& args, bool& handled);
 		blitz::types::type common_type(blitz::types::type lhs, blitz::types::type rhs, ast::location const& where);
 		std::string truthy(value v, ast::location const& where);
 		value       from_bool(std::string const& i1);
