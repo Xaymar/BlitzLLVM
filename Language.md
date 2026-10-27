@@ -136,6 +136,8 @@ HI!
 
 A suffix after the function name says what type it returns, and a parameter with `= value` is optional.
 
+The parts of an expression are evaluated in the order of the original Blitz3D, which is not left to right, see [Language Quirks](Language-Quirks).
+
 ## Arrays
 
 `Dim` makes an array whose indices go from 0 up to the number you give, so `Dim a(3)` has four elements.

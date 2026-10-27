@@ -9,6 +9,7 @@
 <ul>
 <li><a href="Installation">Installation</a></li>
 <li><a href="Building">Building</a></li>
+<li><a href="Language-Quirks">Language Quirks</a></li>
 <li><a href="Differences">Differences from the originals</a></li>
 <li><a href="Releasing">Releasing</a></li>
 </ul>
