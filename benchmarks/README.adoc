@@ -76,9 +76,10 @@ The original times have a resolution of one millisecond, so use enough frames an
 writes a BMP whatever the file is called, so a `--shot` made with it needs converting to compare it. Run benchmarks windowed only
 (they are), the original changes the screen settings in fullscreen.
 
-NOTE: The original Blitz3D cannot open a window above 2047x2047 (not 2048: Direct3D 7 and DirectDraw have an off-by-one in the largest
-surface). Above that it stops with "Unable to create 3D Scene"; that is why it could not start at 2560x1440 on the 4080 SUPER machine.
-The runner stops with a clear message above 2047 in either direction with the original; BlitzLLVM has no such limit.
+NOTE: The original Blitz3D cannot open a window above 2048 in either direction (Direct3D 7 caps the backbuffer at its 2048 maximum
+texture size); above that it stops with "Unable to create 3D Scene". Measured on Areldir: 2048x2048 works, 2049x1080, 2560x1440 and
+500x3000 fail, so each side has its own limit of 2048. That is why it could not start at 2560x1440. The runner stops with a clear message
+above 2048 in either direction with the original; BlitzLLVM has no such limit.
 
 == dungeon: a walk through torch-lit rooms
 
