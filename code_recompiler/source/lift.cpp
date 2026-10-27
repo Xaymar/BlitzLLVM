@@ -106,6 +106,12 @@ namespace blitz::recompiler {
 			using std::runtime_error::runtime_error;
 		};
 
+		// A user library call that can't be made: no declaration matches, or it has a type that the program can't pass. Unlike code that can't be
+		// translated, this is never turned into a runtime error: the program is refused.
+		struct userlib_error : std::runtime_error {
+			using std::runtime_error::runtime_error;
+		};
+
 		// What a call goes to.
 		struct callee {
 			enum class kind { user, local, thunk } type = kind::thunk;
@@ -864,7 +870,7 @@ namespace blitz::recompiler {
 				}
 			}
 			if (!found) {
-				throw unsupported("the user library function '" + ident + "' (" + proc + " in '" + lib + "') has no declaration in the .decls files" +
+				throw userlib_error("the user library function '" + ident + "' (" + proc + " in '" + lib + "') has no declaration in the .decls files" +
 								  (opt.userlibs_dir.empty() ? ", and no userlibs directory was found (use --userlibs)" : " of '" + opt.userlibs_dir + "'"));
 			}
 			callee c;
@@ -883,7 +889,7 @@ namespace blitz::recompiler {
 		std::string unit::thunk_userlib(blitz::keywords::user_function const& fn, std::string const& lib, std::string const& proc, std::string const& name)
 		{
 			using blitz::types::type;
-			auto fail = [&](std::string const& why) { return unsupported("the user library function '" + fn.name + "' can't be called: " + why); };
+			auto fail = [&](std::string const& why) { return userlib_error("the user library function '" + fn.name + "' can't be called: " + why); };
 			// What the original can return or take: 32 bit numbers (smaller ones are fine too), floats and strings.
 			auto ret_type = fn.ret;
 			if (ret_type != type::UNKNOWN && ret_type != type::INT32 && ret_type != type::UINT32 && ret_type != type::INT8 && ret_type != type::UINT8 &&
