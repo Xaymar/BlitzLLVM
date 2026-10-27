@@ -1,0 +1,4 @@
+{
+	"default": "fix",
+	"implicit_lossy_real_to_int": "off"
+}
