@@ -14,6 +14,12 @@ The depth argument of `Graphics` and `Graphics3D` decides what the front and bac
 | 32 | R8G8B8A8: 8 bits for each, with alpha. |
 | 64 | R16G16B16A16: 16 bits for each, with alpha. |
 
-0 (the best there is) and 16 (a 16-bit mode in the original) give 32, and so does any other number, with a warning on the console. If the graphics card can't draw to the format that was asked for, the next smaller of the list is used, and a warning says so. What is shown on the screen is always R8G8B8A8, because HDR is not supported: the wider buffers are converted when they are shown, with the noise of `Dither` if it is on, which hides the bands that the rounding to 8 bits would otherwise make. `GraphicsDepth` says what the buffers have. `GfxModeDepth`, `DisplayDepth` and `DisplayModeDepth` always say 32, the mode lists have each size once instead of once per depth the display could show, and `GfxModeExists` and `GfxMode3DExists` do not look at their depth argument. `WBuffer` does nothing, because the depth buffer is the float one described in the depth buffer page.
+0 (the best there is) and 16 (a 16-bit mode in the original) give 32, and so does any other number, with a warning on the console. If the graphics card can't draw to the format that was asked for, the next smaller of the list is used, and a warning says so. What is shown on the screen is always R8G8B8A8, because HDR is not supported: the wider buffers are converted when they are shown, with the noise of `Dither` if it is on, which hides the bands that the rounding to 8 bits would otherwise make.
+
+Below, 100 see-through layers whose alpha grows from column to column are added on top of each other, once for each depth. With 8 bits per channel every layer rounds to 0 or to a whole step, and the ramp has few steps; with 30 and 64 bits the layers add up.
+
+![The same 16 columns of 100 faint layers drawn with the depths 32, 24, 30 and 64, from top to bottom](media/graphics/color-depth-ramp.png)
+
+`GraphicsDepth` says what the buffers have. `GfxModeDepth`, `DisplayDepth` and `DisplayModeDepth` always say 32, the mode lists have each size once instead of once per depth the display could show, and `GfxModeExists` and `GfxMode3DExists` do not look at their depth argument. `WBuffer` does nothing, because the depth buffer is the float one described in the depth buffer page.
 
 ![A gradient shown through gamma tables that squeeze it, without Dither (top) and with Dither in two frames after each other (middle and bottom), contrast enlarged](media/dither/before-after.png)
