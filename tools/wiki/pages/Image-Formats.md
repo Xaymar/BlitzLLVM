@@ -22,3 +22,9 @@ The original read what Windows 98 could load: BMP, PNG, JPEG, JPEG 2000, GIF, TG
 TGA files have no marker at the start that identifies them, so they are recognized by the extension of the file name: a TGA file that is named `.dat` is not read. TIFF is switched off in the build, and nothing reads JPEG 2000. Convert TIFF and JPEG 2000 files to PNG, WebP or another format from the list before loading them. The code for a few of the extra formats (WebP, AVIF and JPEG XL) is in shared libraries that are shipped with the program, and a program that loads such a file warns once if one of them is missing.
 
 Anything that is not in the table, or is damaged, gives 0 from the command (or a runtime error where the command has no way to report it, such as [LoadTerrain](LoadTerrain)).
+
+## Bits per channel
+
+PNG files of 16 bits per channel are read with all of their bits. Pictures hold 8 bits per channel when they are loaded as an image (LoadImage and the commands built on it), and so does a texture that has alpha. A [LoadTexture](LoadTexture) without the alpha flag (2), or with the mask flag (4) and no mip maps, keeps a picture of more than 8 bits per channel as 10 bits per channel on the graphics card (the 2 bits left over are enough for a mask), with mip maps made from the full picture. The size in memory is the same, and ReadPixel and WritePixel on the TextureBuffer still work in 8 bits: the first time a program draws to or reads such a texture it is turned into 8 bits per channel.
+
+Pictures of 8 bits per channel get nothing from the 10-bit form, so they stay in 8 bits. Textures with the sRGB flag (2048, there is no sRGB form of 10 bits) or the render target flag (4096) stay in 8 bits as well. The screen holds 8 bits per channel too, so the difference only shows in a texture that is filtered or minified a lot, and then by less than one step of a color.

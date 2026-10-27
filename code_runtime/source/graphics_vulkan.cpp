@@ -351,17 +351,25 @@ namespace bb::gfx {
 	}
 
 	// Uploads RGBA pixels into a new image that can be sampled and drawn to, with all of its mip levels if asked for.
-	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels, bool mipmaps, bool srgb = false)
+	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels, bool mipmaps, bool srgb = false, bool ten = false)
 	{
-		VkDeviceSize size = VkDeviceSize(width) * height * 4;
+		// Pixels of 10 bits hold every mip level one after the other, as the picture was made on the CPU (see mip_chain_ten).
+		uint32_t     levels = (ten && mipmaps) ? mip_count(width, height) : 1;
+		VkDeviceSize size   = 0;
+		for (uint32_t level = 0; level < levels; level++) {
+			size += VkDeviceSize((width >> level) ? (width >> level) : 1) * ((height >> level) ? (height >> level) : 1) * 4;
+		}
 		VkBuffer       staging;
 		VmaAllocation staging_allocation;
 		void*          mapped;
 		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, true, staging, staging_allocation, &mapped);
 		memcpy(mapped, pixels, size_t(size));
 
-		image = create_image(width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, srgb ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, nullptr, mipmaps ? mip_count(width, height) : 1);
-		image.srgb = srgb;
+		// Pixels of 10 bits per channel are never drawn to as they are, so they are not a color attachment.
+		VkImageUsageFlags usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | (ten ? 0 : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+		image                   = create_image(width, height, usage, ten ? VK_FORMAT_A2B10G10R10_UNORM_PACK32 : (srgb ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM), VK_IMAGE_ASPECT_COLOR_BIT, nullptr, mipmaps ? mip_count(width, height) : 1);
+		image.ten               = ten;
+		image.srgb              = srgb;
 
 		begin_commands();
 		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -369,7 +377,22 @@ namespace bb::gfx {
 		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		copy.imageExtent       = { width, height, 1 };
 		vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
-		if (image.mips > 1) {
+		if (ten && (image.mips > 1)) {
+			std::vector<VkBufferImageCopy> copies(levels);
+			VkDeviceSize                   offset = 0;
+			for (uint32_t level = 0; level < levels; level++) {
+				uint32_t w = (width >> level) ? (width >> level) : 1, h = (height >> level) ? (height >> level) : 1;
+				copies[level]                  = {};
+				copies[level].bufferOffset     = offset;
+				copies[level].imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, level, 0, 1 };
+				copies[level].imageExtent      = { w, h, 1 };
+				offset += VkDeviceSize(w) * h * 4;
+			}
+			// The first copy above only covered level 0; the others come from the rest of the buffer.
+			vkCmdCopyBufferToImage(g.cmd, staging, image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, levels - 1, copies.data() + 1);
+			barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		} else if (image.mips > 1) {
 			generate_mips(image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		} else {
 			barrier(image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -386,9 +409,10 @@ namespace bb::gfx {
 	}
 
 	// Uploads RGBA pixels into a new image, and creates a descriptor set that samples it.
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps, bool srgb)
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps, bool srgb, bool ten)
 	{
-		upload_pixels(image, width, height, pixels, mipmaps, srgb);
+		upload_pixels(image, width, height, pixels, mipmaps, srgb, ten);
+		image.sampler = sampler;
 		allocate_descriptor(set);
 		write_descriptor(set, image.view, sampler);
 	}
@@ -538,8 +562,69 @@ namespace bb::gfx {
 		write_descriptor(set, image.view, sampler);
 	}
 
+	// Whether images of A2B10G10R10 can be sampled and filtered, which is all they need: their mip maps are made on the CPU.
+	bool ten_bit_supported()
+	{
+		static int known = -1;
+		if (known < 0) {
+			known = 0;
+			if (g.device && g.physical) {
+				VkFormatProperties properties;
+				vkGetPhysicalDeviceFormatProperties(g.physical, VK_FORMAT_A2B10G10R10_UNORM_PACK32, &properties);
+				VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT | VK_FORMAT_FEATURE_TRANSFER_SRC_BIT | VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+				known                       = ((properties.optimalTilingFeatures & needed) == needed) ? 1 : 0;
+			}
+		}
+		return known == 1;
+	}
+
+	// Turns an image of 10 bits per channel into RGBA8, for what draws to it or reads it as bytes.
+	static void ten_to_rgba(gpu_image& image, VkDescriptorSet set)
+	{
+		flush();
+		VkDeviceSize  size = VkDeviceSize(image.width) * image.height * 4;
+		VkBuffer      staging;
+		VmaAllocation staging_allocation;
+		void*         mapped;
+		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, true, staging, staging_allocation, &mapped);
+
+		begin_commands();
+		transition(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		VkBufferImageCopy copy = {};
+		copy.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		copy.imageExtent       = { image.width, image.height, 1 };
+		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging, 1, &copy);
+		submit_commands();
+
+		uint8_t*        pixels = static_cast<uint8_t*>(malloc(size_t(size)));
+		const uint32_t* packed = static_cast<const uint32_t*>(mapped);
+		for (size_t i = 0; i < size_t(image.width) * image.height; i++) {
+			uint32_t v = packed[i];
+			pixels[i * 4 + 0] = uint8_t(((v & 1023) * 255 + 511) / 1023);
+			pixels[i * 4 + 1] = uint8_t((((v >> 10) & 1023) * 255 + 511) / 1023);
+			pixels[i * 4 + 2] = uint8_t((((v >> 20) & 1023) * 255 + 511) / 1023);
+			pixels[i * 4 + 3] = uint8_t((v >> 30) * 85);
+		}
+		destroy_buffer(staging, staging_allocation);
+
+		VkSampler sampler = image.sampler;
+		uint32_t  width = image.width, height = image.height;
+		bool      mipmaps = image.mips > 1;
+		gpu_image old     = image;
+		gpu_idle();
+		upload_pixels(image, width, height, pixels, mipmaps);
+		destroy_image(old);
+		free(pixels);
+		image.sampler = sampler;
+		write_descriptor(set, image.view, sampler);
+	}
+
 	void ensure_color_image(gpu_image& image, VkDescriptorSet set)
 	{
+		if (image.ten && image.image) {
+			ten_to_rgba(image, set);
+			return;
+		}
 		if ((image.block == block_format::none) || !image.image) {
 			return;
 		}

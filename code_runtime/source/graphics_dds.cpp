@@ -701,6 +701,16 @@ namespace bb::gfx {
 			}
 			return done;
 		}
+		if (png_has_16_bits(static_cast<const uint8_t*>(data), size)) {
+			bool has_alpha = false;
+			out.surface    = load_png_16(static_cast<const uint8_t*>(data), size, has_alpha);
+			if (out.surface) {
+				out.width     = out.surface->w;
+				out.height    = out.surface->h;
+				out.has_alpha = has_alpha;
+				return true;
+			}
+		}
 		SDL_IOStream* io = SDL_IOFromConstMem(data, size);
 		if (!io) {
 			return false;

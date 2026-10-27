@@ -159,6 +159,7 @@ namespace bb::gfx {
 	struct gpu_image {
 		block_format   block   = block_format::none; // Not none if the image holds compressed blocks, which can be sampled but not drawn to.
 		bool           srgb    = false;              // Stored as sRGB: sampling gives linear values, while the bytes that are read and written are the encoded ones.
+		bool           ten     = false;              // Holds A2B10G10R10 instead of RGBA8: a texture with more than 8 bits per channel and no partial alpha. Drawing to it turns it into RGBA8 first.
 		bool           opaque  = false;              // Compressed: whether the alpha is forced to 1, which it is when the texture has no alpha flag.
 		VkSampler      sampler = VK_NULL_HANDLE;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
 		VkImage        image  = VK_NULL_HANDLE;
@@ -704,7 +705,7 @@ namespace bb::gfx {
 	/** Writes the image that was presented to the file of BLITZ_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false, bool srgb = false);
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();
 	void destroy_swapchain();
@@ -825,6 +826,9 @@ namespace bb::gfx {
 	};
 	/** Reads a file without decoding the blocks of a DDS file. Returns false if it cannot be read. */
 	bool load_picture(const char* file, picture& out);
+	/** PNG files of 16 bits per channel: SDL_image cuts them down to 8, so they are read with all of them (graphics_png16.cpp). */
+	bool png_has_16_bits(const uint8_t* data, size_t size);
+	SDL_Surface* load_png_16(const uint8_t* data, size_t size, bool& has_alpha);
 	/** The same for a file that is in memory already. The name is for what is reported if a codec is missing. */
 	bool load_picture_memory(const char* name, const void* data, size_t size, picture& out);
 	/** Whether the first bytes are those of a picture format that is loaded, so that decoding can go on without the caller. */
@@ -867,6 +871,7 @@ namespace bb::gfx {
 	/** Makes the levels below the first of a texture again, if something was drawn to it since. Expects an open command buffer. */
 	void refresh_mips(gpu_image& image);
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
+	bool ten_bit_supported();
 	void ensure_color_image(gpu_image& image, VkDescriptorSet set);
 } // namespace bb::gfx
 
