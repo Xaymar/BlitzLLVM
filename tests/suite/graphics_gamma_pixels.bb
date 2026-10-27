@@ -96,6 +96,72 @@ Check "fraction", GammaRed(3), 12.25
 Check "below zero", GammaGreen(3), 0
 Check "above 255", GammaBlue(3), 255
 ResetGamma
+
+; Dither adds noise of up to half a step to what is shown, so a value the picture can't show is a mix of its two
+; neighbors in the right amounts, and one it can show stays as it is.
+Function CountShown(value)
+	f = ReadFile("present.tmp")
+	If f = 0 Then RuntimeError "Nothing was presented."
+	For line = 1 To 3
+		ReadLine$(f)
+	Next
+	same = 0
+	other = 0
+	For i = 1 To W * H
+		r = ReadByte(f)
+		ReadByte(f)
+		ReadByte(f)
+		If r = value Then same = same + 1
+		If r = value + 1 Then other = other + 1
+	Next
+	CloseFile f
+	If same + other <> W * H Then RuntimeError "A value of the dithered picture is not one of the two neighbors."
+	Return other
+End Function
+
+SetBuffer BackBuffer()
+Color 100, 100, 100
+Rect 0, 0, W, H, 1
+SetGamma 100, 100, 100, 100.25, 100.25, 100.25
+UpdateGamma
+Flip
+Check "without Dither a fraction is rounded", CountShown(100), 0
+
+Dither True
+Flip
+other = CountShown(100)
+Check "with Dither the fraction is spread, not rounded away", other > (W * H) / 8 And other < (W * H) * 3 / 8, True
+
+; The pattern moves every frame.
+Function Pattern$()
+	f = ReadFile("present.tmp")
+	For line = 1 To 3
+		ReadLine$(f)
+	Next
+	p$ = ""
+	For i = 1 To 64
+		p$ = p$ + Chr$(ReadByte(f))
+		ReadByte(f)
+		ReadByte(f)
+	Next
+	CloseFile f
+	Return p$
+End Function
+earlier$ = Pattern$()
+Flip
+Check "the noise moves from frame to frame", earlier$ <> Pattern$(), True
+
+Dither False
+Flip
+Check "Dither False is rounding again", CountShown(100), 0
+
+ResetGamma
+Dither True
+Color 100, 150, 200
+Rect 0, 0, W, H, 1
+Flip
+Check "Dither does not change a color that is shown exactly", Shown(10, 10), $6496C8
+Dither False
 EndGraphics
 DeleteFile "present.tmp"
 Done "graphics_gamma_pixels"
