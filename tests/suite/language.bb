@@ -262,6 +262,14 @@ Data 10, 20, "text", 1.5
 .other_data
 Data 99
 
+; Restore in a function finds the label of the main program.
+Function RestoreInFunction()
+	Restore other_data
+	Read x
+	Return x
+End Function
+Check "Restore in a function", RestoreInFunction(), 99
+
 ; Goto and Gosub
 n = 0
 Gosub increment

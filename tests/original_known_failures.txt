@@ -10,8 +10,6 @@ blitzplus_msvc2017/_release/games/Insectoids/insectoids.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
 blitzplus_msvc2017/_release/games/WizardWars/wizardwars.bb
 # Parser: unexpected end of line at 470:59
-blitzplus_msvc2017/_release/samples/Birdie/3dfingy.bb
-# Restore of a label that does not exist in the function
 blitzplus_msvc2017/_release/samples/James/Games/Explosions/exploding_alien_death.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
 blitzplus_msvc2017/_release/samples/Mak/line_test.bb
