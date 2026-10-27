@@ -368,12 +368,10 @@ namespace bb::gfx {
 	{
 		VkDeviceSize size = VkDeviceSize(width) * height * 4;
 		VkBuffer       staging;
-		VkDeviceMemory staging_memory;
-		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging, staging_memory);
-		void* mapped;
-		check(vkMapMemory(g.device, staging_memory, 0, size, 0, &mapped), "vkMapMemory");
+		VmaAllocation staging_allocation;
+		void*          mapped;
+		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, true, staging, staging_allocation, &mapped);
 		memcpy(mapped, pixels, size_t(size));
-		vkUnmapMemory(g.device, staging_memory);
 
 		image = create_image(width, height, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, nullptr, mipmaps ? mip_count(width, height) : 1);
 
@@ -391,8 +389,7 @@ namespace bb::gfx {
 		}
 		submit_commands();
 
-		vkDestroyBuffer(g.device, staging, nullptr);
-		vkFreeMemory(g.device, staging_memory, nullptr);
+		destroy_buffer(staging, staging_allocation);
 	}
 
 	void create_pixel_image(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels)
@@ -498,12 +495,10 @@ namespace bb::gfx {
 		uint32_t       levels = mipmaps ? uint32_t(p.mips) : 1;
 		VkDeviceSize   size   = p.size;
 		VkBuffer       staging;
-		VkDeviceMemory staging_memory;
-		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging, staging_memory);
-		void* mapped;
-		check(vkMapMemory(g.device, staging_memory, 0, size, 0, &mapped), "vkMapMemory");
+		VmaAllocation staging_allocation;
+		void*          mapped;
+		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, true, staging, staging_allocation, &mapped);
 		memcpy(mapped, p.blocks, p.size);
-		vkUnmapMemory(g.device, staging_memory);
 
 		// One channel is shown as grey, and alpha is 1 where the file has none to use.
 		VkComponentMapping mapping = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY };
@@ -540,8 +535,7 @@ namespace bb::gfx {
 		image.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		submit_commands();
 
-		vkDestroyBuffer(g.device, staging, nullptr);
-		vkFreeMemory(g.device, staging_memory, nullptr);
+		destroy_buffer(staging, staging_allocation);
 
 		allocate_descriptor(set);
 		write_descriptor(set, image.view, sampler);
@@ -556,8 +550,9 @@ namespace bb::gfx {
 		flush();
 		VkDeviceSize   size = block_bytes(image.block, int(image.width), int(image.height));
 		VkBuffer       staging;
-		VkDeviceMemory staging_memory;
-		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, staging, staging_memory);
+		VmaAllocation staging_allocation;
+		void*          mapped;
+		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, true, staging, staging_allocation, &mapped);
 
 		begin_commands();
 		transition(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
@@ -568,13 +563,9 @@ namespace bb::gfx {
 		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging, 1, &copy);
 		submit_commands();
 
-		void* mapped;
-		check(vkMapMemory(g.device, staging_memory, 0, size, 0, &mapped), "vkMapMemory");
 		uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(image.width) * image.height * 4));
 		decode_blocks(image.block, int(image.width), int(image.height), static_cast<const uint8_t*>(mapped), pixels);
-		vkUnmapMemory(g.device, staging_memory);
-		vkDestroyBuffer(g.device, staging, nullptr);
-		vkFreeMemory(g.device, staging_memory, nullptr);
+		destroy_buffer(staging, staging_allocation);
 		if (image.opaque) {
 			for (size_t i = 0; i < size_t(image.width) * image.height; i++) {
 				pixels[i * 4 + 3] = 255;
