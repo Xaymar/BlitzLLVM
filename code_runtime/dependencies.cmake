@@ -285,7 +285,7 @@ blitz_check_licenses(SDL3_mixer AFTER ${_SDL3_MIXER_LICENSES})
 # (no --enable-gpl and no --enable-nonfree), so the library that programs load can be replaced by the user, which is what the LGPL asks
 # of programs that use it. The runtime does not link to them: it loads them when a movie is opened (see movie.cpp), so programs
 # that don't play movies don't need them, and a program whose libraries are missing just gets 0 from OpenMovie. Only the demuxers and
-# decoders listed here are built, which keeps the libraries at about 8 MiB.
+# decoders listed here are built, and for size (--enable-small), which keeps the libraries at about 6 MiB.
 #
 # FFmpeg does not build with CMake: it has a configure script and Makefiles that need a Unix shell, and a compiler that is GCC or Clang.
 # On Linux and macOS that is the system's. On Windows that is MSYS2 (https://www.msys2.org, the UCRT64 environment with gcc, make, nasm and
@@ -300,7 +300,7 @@ set(FFMPEG_INSTALL_PATH "${_FFMPEG_ROOT}/FFmpeg.dst")
 set(_FFMPEG_BUILD "${_FFMPEG_ROOT}/FFmpeg.bld")
 set(_FFMPEG_ARGS
 	--enable-shared --disable-static --disable-programs --disable-doc --disable-debug --disable-autodetect --disable-everything
-	--disable-avdevice --disable-avfilter --disable-network --disable-iamf --disable-bsfs --disable-faan --disable-pixelutils --disable-lsp
+	--disable-avdevice --disable-avfilter --disable-network --enable-small --disable-iamf --disable-bsfs --disable-faan --disable-pixelutils --disable-lsp
 	--enable-swscale --enable-swresample --enable-pic
 	--enable-protocol=file
 	--enable-demuxer=avi,mov,matroska,mpegps,mpegts,asf,ogg,flv,mp3,wav,mpegvideo,m4v
