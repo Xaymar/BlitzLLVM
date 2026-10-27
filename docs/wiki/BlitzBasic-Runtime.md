@@ -19,6 +19,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [ExecFile](ExecFile)
 * [FreeTimer](FreeTimer)
 * [GetEnv](GetEnv)
+* [Microseconds](Microseconds) 〔BlitzLLVM〕
 * [MilliSecs](MilliSecs)
 * [RuntimeError](RuntimeError)
 * [SetEnv](SetEnv)

@@ -261,4 +261,17 @@ Else
 	suite_checks = suite_checks + 6
 EndIf
 
+; Microseconds is the first command that returns a UInt64.
+a:UInt64 = Microseconds()
+Delay 20
+b:UInt64 = Microseconds()
+CheckTrue "Microseconds grows", b > a
+CheckTrue "Microseconds counts at least what was waited", b - a >= 15000
+CheckTrue "Microseconds is on the clock of MilliSecs", Abs(Int((Microseconds() / 1000) Mod 2147483648) - MilliSecs()) < 1000
+CheckTrue "Microseconds is more than 32 bits", Microseconds() > 4294967295
+CheckTrue "Str of Microseconds has every digit", Len(Str(Microseconds())) >= 16
+CheckS "Str of Microseconds matches the number", Str(a), Str(a + 0)
+Check "Int of a UInt64", Int(b - a), 20000, 15000
+Check "Float of a UInt64", Float(b - a), 20000, 15000
+
 Done "runtime"

@@ -24,6 +24,6 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Movies](BlitzBasic-Movies) (6): Playing back movie files.
 * [Multiplayer](BlitzBasic-Multiplayer) (14): Hosting and joining a network game and exchanging messages.
 * [Network](BlitzBasic-Network) (20): TCP and UDP streams, servers and host lookup.
-* [Runtime](BlitzBasic-Runtime) (15): Timers, delays, program information and the environment.
+* [Runtime](BlitzBasic-Runtime) (16): Timers, delays, program information and the environment.
 * [Streams](BlitzBasic-Streams) (15): Reading and writing bytes, numbers and text on files, TCP and UDP streams.
 * [Strings](BlitzBasic-Strings) (18): Searching, slicing, converting and formatting text.

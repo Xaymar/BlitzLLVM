@@ -65,6 +65,8 @@ namespace blitz::compiler_detail {
 			return type::FLOAT32;
 		case 's':
 			return type::STRING;
+		case 'u':
+			return type::UINT64;
 		default:
 			return type::UNKNOWN;
 		}

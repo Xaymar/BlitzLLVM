@@ -143,6 +143,13 @@ int32_t bb_millisecs(void)
 	return (int32_t)(((int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000) & 0x7FFFFFFF);
 }
 
+uint64_t bb_microseconds(void)
+{
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	return (uint64_t)ts.tv_sec * 1000000u + (uint64_t)(ts.tv_nsec / 1000);
+}
+
 void bb_graphics_idle(void);
 void bb_debug_log(const char* text);
 
