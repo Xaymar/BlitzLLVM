@@ -27,6 +27,7 @@ Beyond the originals:
 
 * Optimizing LLVM backend with `-O0` to `-O3`, `-Os` and `-Oz`, `--fast-math`, link time optimization and `--llvm-flag` passthrough.
 * Cross-compiling with `--target`, and builds for Windows, Linux and macOS.
+* `blitz-format` formats `.bb` source code (indentation, keyword case, spacing, blank lines) from a `.blitz-format` or `blitz-format.json` file or from the command line, with `--check`, `--diff` and `-i`. See link:docs/wiki/blitz-format.md[blitz-format].
 * Debug builds with source file, line and column information (`-d`, `-g`).
 * A borderless window mode (mode 4) for `Graphics` and `Graphics3D`.
 * Display and refresh rate enumeration (`CountDisplays`, `CountDisplayModes`, `RefreshRateAt` and related commands).
