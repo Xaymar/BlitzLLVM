@@ -12,7 +12,7 @@ SetGfxDriver driver%
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-Chooses the graphics driver for the next [Graphics](Graphics) call.
+Chooses the graphics driver for the next [Graphics](Graphics) call. This is the GPU that draws everything in the program, so it has to be called before the first [Graphics](Graphics), [LoadImage](LoadImage), [CreateTexture](CreateTexture) or any other command that makes an image or texture. The choice is kept when [EndGraphics](EndGraphics) closes the window.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,17 +20,17 @@ Chooses the graphics driver for the next [Graphics](Graphics) call.
 
 **Differences and known gaps:**
 
-* Only 1 exists. Any other number stops the program with an error message.
+* Any number except 1 to [CountGfxDrivers](CountGfxDrivers) stops the program with an error message. Calling it once the GPU is in use stops a program compiled with -d with an error message, and is ignored in any other build. A driver that cannot draw to the window (or does not do Vulkan 1.3) stops the program at [Graphics](Graphics).
 
 ## Related commands
 
 * [CountGfxDrivers](CountGfxDrivers)
 * [CountGfxModes](CountGfxModes)
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
 * [GfxModeFormat](GfxModeFormat)
-* [GfxModeHeight](GfxModeHeight)
 * [SetGamma](SetGamma)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)

@@ -347,6 +347,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
 * [GetSurface](GetSurface)
 * [GetSurfaceBrush](GetSurfaceBrush)
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriver3D](GfxDriver3D)
 * [GfxDriverCaps3D](GfxDriverCaps3D)
 * [GfxDriverName](GfxDriverName)

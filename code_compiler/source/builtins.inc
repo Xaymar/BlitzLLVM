@@ -94,6 +94,7 @@
 		{ "gfxdrivername", "bb_gfx_driver_name", 's', "i", 1, {}, false },
 		{ "setgfxdriver", "bb_set_gfx_driver", 'v', "i", 1, {}, false },
 		{ "gfxdriver3d", "bb_gfx_driver_3d", 'i', "i", 1, {}, false },
+		{ "gfxdriver", "bb_gfx_driver", 'i', "", 0, {}, false },
 		{ "gfxdrivercaps3d", "bb_gfx_driver_caps_3d", 'i', "", 0, {}, false },
 		{ "hwtexunits", "bb_hw_tex_units", 'i', "", 0, {}, false },
 		{ "countgfxmodes", "bb_count_gfx_modes", 'i', "", 0, {}, false },

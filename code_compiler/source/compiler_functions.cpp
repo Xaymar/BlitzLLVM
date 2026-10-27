@@ -287,6 +287,9 @@ void blitz::compiler::gen_main(ast::program const& program)
 	std::string sp = di_begin_function("main", "main", start, type::INT32, "", nullptr, false);
 	prepare_flow(program.main);
 	call_runtime("bb_init", type::UNKNOWN, { { "%argc", type::INT32 }, { "%argv", type::STRUCT } });
+	if (debug) {
+		call_runtime("bb_set_debug", type::UNKNOWN, { { "1", type::INT32 } });
+	}
 	gen_block(program.main);
 	if (!_terminated) {
 		emit_terminator("ret i32 0");

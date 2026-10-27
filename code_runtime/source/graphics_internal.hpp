@@ -222,6 +222,7 @@ namespace bb::gfx {
 		VkInstance       instance = VK_NULL_HANDLE;
 		VkSurfaceKHR     surface  = VK_NULL_HANDLE;
 		VkPhysicalDevice physical = VK_NULL_HANDLE;
+		int              driver_used = 0; // The driver of the GPU that is in use.
 		VkDevice         device   = VK_NULL_HANDLE;
 		VkQueue          queue    = VK_NULL_HANDLE;
 		uint32_t         family   = 0;
@@ -625,6 +626,21 @@ namespace bb::gfx {
 	void create_swapchain();
 	void destroy_swapchain();
 	void create_vulkan();
+
+	// The graphics drivers, which are the GPUs.
+	constexpr uint32_t max_gpus = 16;
+	struct gpu_entry {
+		char     name[256];
+		uint32_t vendor, device;
+		uint32_t twin;     // 0 for the first GPU of that name, 1 for the second, and so on.
+		int      rank;     // 4 discrete, 3 integrated, 2 virtual, 1 software or other, 0 cannot be used.
+		bool     usable;   // Does Vulkan 1.3 and can draw.
+		bool     fallback; // Not a real GPU: there is no window system or Vulkan driver to ask.
+	};
+	extern gpu_entry gpus[max_gpus];
+	extern uint32_t  gpu_total;
+	extern int       driver_choice; // What SetGfxDriver chose, 0 for the best one. Kept when the graphics window is closed.
+	void list_gpus();
 	void empty_graveyard();
 	void wait_commands();
 	void wait_gpu();

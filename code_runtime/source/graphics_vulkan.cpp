@@ -737,18 +737,23 @@ namespace bb::gfx {
 		}
 	}
 
-	void create_vulkan()
+	// Loads the Vulkan library and the functions that need no instance. Null without a Vulkan driver.
+	PFN_vkGetInstanceProcAddr load_vulkan()
 	{
 		if (!SDL_Vulkan_LoadLibrary(nullptr)) {
-			fail("No Vulkan driver found.");
+			return nullptr;
 		}
 		auto get_instance_proc = reinterpret_cast<PFN_vkGetInstanceProcAddr>(SDL_Vulkan_GetVkGetInstanceProcAddr());
 		if (!get_instance_proc) {
-			fail("Vulkan loader has no vkGetInstanceProcAddr.");
+			return nullptr;
 		}
 #define BB_VK_LOAD_GLOBAL(name) name = reinterpret_cast<PFN_##name>(get_instance_proc(VK_NULL_HANDLE, #name));
 		BB_VK_GLOBAL(BB_VK_LOAD_GLOBAL)
+		return get_instance_proc;
+	}
 
+	VkResult make_instance(VkInstance& instance)
+	{
 		Uint32             extension_count = 0;
 		const char* const* extensions      = SDL_Vulkan_GetInstanceExtensions(&extension_count);
 
@@ -759,7 +764,138 @@ namespace bb::gfx {
 		instance_info.pApplicationInfo        = &app;
 		instance_info.enabledExtensionCount   = extension_count;
 		instance_info.ppEnabledExtensionNames = extensions;
-		check(vkCreateInstance(&instance_info, nullptr, &g.instance), "vkCreateInstance (is Vulkan 1.3 installed?)");
+		return vkCreateInstance(&instance_info, nullptr, &instance);
+	}
+
+	// Whether the GPU does Vulkan 1.3 and can draw. Whether it can show that in the window is only known with a window.
+	bool can_draw(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
+	{
+		if (props.apiVersion < VK_API_VERSION_1_3) {
+			return false;
+		}
+		uint32_t family_count = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &family_count, nullptr);
+		VkQueueFamilyProperties families[32];
+		if (family_count > 32) {
+			family_count = 32;
+		}
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &family_count, families);
+		for (uint32_t f = 0; f < family_count; f++) {
+			if (families[f].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// The same GPU twice has the same name: of those the n-th is the n-th.
+	uint32_t twin_of(VkPhysicalDevice* devices, uint32_t d)
+	{
+		VkPhysicalDeviceProperties props, other;
+		vkGetPhysicalDeviceProperties(devices[d], &props);
+		uint32_t twin = 0;
+		for (uint32_t e = 0; e < d; e++) {
+			vkGetPhysicalDeviceProperties(devices[e], &other);
+			if ((other.vendorID == props.vendorID) && (other.deviceID == props.deviceID) && !strcmp(other.deviceName, props.deviceName)) {
+				twin++;
+			}
+		}
+		return twin;
+	}
+
+	gpu_entry gpus[max_gpus];
+	uint32_t  gpu_total = 0;
+	int       driver_choice = 0;
+
+	// The graphics drivers are the GPUs that Vulkan knows, with the best one first: usable discrete GPUs, then integrated,
+	// virtual and software ones, then those that cannot be used. That way driver 1 is the one that is picked without
+	// SetGfxDriver. Without a display or a Vulkan driver (like in the tests without a window) there is one, "Default".
+	void list_gpus()
+	{
+		static bool listed = false;
+		if (listed) {
+			return;
+		}
+		listed = true;
+
+		auto none = [] {
+			gpus[0]          = {};
+			gpus[0].fallback = true;
+			gpus[0].usable   = true;
+			strcpy(gpus[0].name, "Default");
+			gpu_total = 1;
+		};
+		PFN_vkGetInstanceProcAddr get_instance_proc = nullptr;
+		VkInstance                instance          = VK_NULL_HANDLE;
+		if (getenv("BLITZ_HEADLESS") || !SDL_InitSubSystem(SDL_INIT_VIDEO) || !(get_instance_proc = load_vulkan()) || (make_instance(instance) != VK_SUCCESS)) {
+			none();
+			return;
+		}
+#define BB_VK_LOAD_INSTANCE(name) name = reinterpret_cast<PFN_##name>(get_instance_proc(instance, #name));
+		BB_VK_INSTANCE(BB_VK_LOAD_INSTANCE)
+
+		uint32_t         count = 0;
+		VkPhysicalDevice devices[max_gpus];
+		vkEnumeratePhysicalDevices(instance, &count, nullptr);
+		count = (count > max_gpus) ? max_gpus : count;
+		vkEnumeratePhysicalDevices(instance, &count, devices);
+		for (uint32_t d = 0; d < count; d++) {
+			VkPhysicalDeviceProperties props;
+			vkGetPhysicalDeviceProperties(devices[d], &props);
+			gpu_entry& entry = gpus[gpu_total++];
+			entry            = {};
+			strncpy(entry.name, props.deviceName, sizeof(entry.name) - 1);
+			entry.vendor = props.vendorID;
+			entry.device = props.deviceID;
+			entry.twin   = twin_of(devices, d);
+			entry.usable = can_draw(devices[d], props);
+			switch (props.deviceType) {
+			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:   entry.rank = 4; break;
+			case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: entry.rank = 3; break;
+			case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:    entry.rank = 2; break;
+			default:                                     entry.rank = 1; break;
+			}
+			if (!entry.usable) {
+				entry.rank = 0;
+			}
+		}
+		vkDestroyInstance(instance, nullptr);
+		if (gpu_total == 0) {
+			none();
+			return;
+		}
+		for (uint32_t i = 1; i < gpu_total; i++) { // Insertion sort, which keeps GPUs of the same kind in the order of Vulkan.
+			gpu_entry entry = gpus[i];
+			uint32_t  j     = i;
+			for (; (j > 0) && (gpus[j - 1].rank < entry.rank); j--) {
+				gpus[j] = gpus[j - 1];
+			}
+			gpus[j] = entry;
+		}
+	}
+
+	// The number of the driver (from 0) that the GPU is in the list, or -1.
+	int driver_of(VkPhysicalDevice* devices, uint32_t d)
+	{
+		VkPhysicalDeviceProperties props;
+		vkGetPhysicalDeviceProperties(devices[d], &props);
+		uint32_t twin = twin_of(devices, d);
+		for (uint32_t i = 0; i < gpu_total; i++) {
+			if (!gpus[i].fallback && (gpus[i].vendor == props.vendorID) && (gpus[i].device == props.deviceID) && (gpus[i].twin == twin) && !strcmp(gpus[i].name, props.deviceName)) {
+				return int(i);
+			}
+		}
+		return -1;
+	}
+
+	void create_vulkan()
+	{
+		list_gpus();
+		auto get_instance_proc = load_vulkan();
+		if (!get_instance_proc) {
+			fail("No Vulkan driver found.");
+		}
+		check(make_instance(g.instance), "vkCreateInstance (is Vulkan 1.3 installed?)");
 
 #define BB_VK_LOAD_INSTANCE(name) name = reinterpret_cast<PFN_##name>(get_instance_proc(g.instance, #name));
 		BB_VK_INSTANCE(BB_VK_LOAD_INSTANCE)
@@ -768,7 +904,8 @@ namespace bb::gfx {
 			fail(SDL_GetError());
 		}
 
-		// Pick the first GPU that can draw to the window and does Vulkan 1.3, preferring a discrete one.
+		// Pick the GPU that SetGfxDriver chose, or else the first one that can draw to the window and does Vulkan 1.3,
+		// preferring a discrete one.
 		uint32_t device_count = 0;
 		vkEnumeratePhysicalDevices(g.instance, &device_count, nullptr);
 		if (device_count == 0) {
@@ -780,10 +917,16 @@ namespace bb::gfx {
 		}
 		vkEnumeratePhysicalDevices(g.instance, &device_count, devices);
 
-		int best_score = -1;
+		bool forced    = (driver_choice > 0) && !gpus[0].fallback;
+		int  best_score = -1;
+		g.physical      = VK_NULL_HANDLE;
 		for (uint32_t d = 0; d < device_count; d++) {
 			VkPhysicalDeviceProperties props;
 			vkGetPhysicalDeviceProperties(devices[d], &props);
+			int driver = driver_of(devices, d);
+			if (forced && (driver != driver_choice - 1)) {
+				continue;
+			}
 			if (props.apiVersion < VK_API_VERSION_1_3) {
 				continue;
 			}
@@ -800,15 +943,19 @@ namespace bb::gfx {
 				if (present && (families[f].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
 					int score = (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) ? 2 : 1;
 					if (score > best_score) {
-						best_score = score;
-						g.physical = devices[d];
-						g.family   = f;
+						best_score    = score;
+						g.physical    = devices[d];
+						g.family      = f;
+						g.driver_used = driver + 1;
 					}
 					break;
 				}
 			}
 		}
 		if (!g.physical) {
+			if (forced) {
+				fail("The graphics driver chosen with SetGfxDriver cannot draw to the window.");
+			}
 			fail("No GPU supporting Vulkan 1.3 and presenting to the window found.");
 		}
 		vkGetPhysicalDeviceMemoryProperties(g.physical, &g.memory);

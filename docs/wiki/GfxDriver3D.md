@@ -20,6 +20,10 @@ Tells whether a graphics driver can draw 3D.
 
 **Returns:** True if the driver can draw 3D pictures.
 
+**Differences and known gaps:**
+
+* A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0. Software drivers can.
+
 ## Related commands
 
 * [CountGfxModes3D](CountGfxModes3D)

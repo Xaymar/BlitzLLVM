@@ -34,9 +34,9 @@ WaitKey
 * [CountDisplays](CountDisplays) 〔BlitzLLVM〕
 * [CountGfxDrivers](CountGfxDrivers)
 * [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
+* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
 * [GfxDriverName](GfxDriverName)
 * [GfxModeDepth](GfxModeDepth)
 * [GfxModeExists](GfxModeExists)
-* [GfxModeFormat](GfxModeFormat)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)

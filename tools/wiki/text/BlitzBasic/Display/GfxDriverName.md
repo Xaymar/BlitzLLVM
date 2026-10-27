@@ -4,4 +4,4 @@
 The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDrivers).
 @param driver  The driver number, starting at 1.
 @returns The name of the driver.
-@gap The name is the one of the graphics card Vulkan uses (once a graphics window is open), otherwise "Default". Any number except 1 stops the program with an error message.
+@gap The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER". A number that does not exist stops the program with an error message.

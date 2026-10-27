@@ -200,6 +200,19 @@ int bb_has_stderr(void)
 }
 #endif
 
+static int32_t bb_debug_build = 0;
+
+// A program compiled with -d says so, which is what the checks of the runtime that only a debug build has look at.
+void bb_set_debug(int32_t debug)
+{
+	bb_debug_build = debug;
+}
+
+int32_t bb_is_debug(void)
+{
+	return bb_debug_build;
+}
+
 void bb_init(int32_t argc, char** argv)
 {
 	bb_set_arguments(argc, argv);
