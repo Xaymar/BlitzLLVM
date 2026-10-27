@@ -28,10 +28,20 @@ namespace bb::gfx {
 
 	static uint32_t flush_number = 0; // Counts flushes, to know whether something that waits to be drawn uses a buffer.
 
+	static surface_gpu* surface_list = nullptr;
+
 	static void release_surface_gpu(surface_gpu* gpu)
 	{
 		if (!gpu) {
 			return;
+		}
+		if (gpu->previous) {
+			gpu->previous->next = gpu->next;
+		} else {
+			surface_list = gpu->next;
+		}
+		if (gpu->next) {
+			gpu->next->previous = gpu->previous;
 		}
 		// Things that were asked to be drawn can still use it, so it is only destroyed once they have been drawn.
 		if (gpu->vertex_buffer) {
@@ -41,6 +51,14 @@ namespace bb::gfx {
 			graveyard.push({ gpu->index_buffer, gpu->index_allocation });
 		}
 		delete gpu;
+	}
+
+	void destroy_surface_buffers()
+	{
+		for (surface_gpu* gpu = surface_list; gpu; gpu = gpu->next) {
+			destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
+			destroy_buffer(gpu->index_buffer, gpu->index_allocation);
+		}
 	}
 
 	// Makes sure the GPU has the current geometry of the surface.
@@ -70,6 +88,12 @@ namespace bb::gfx {
 		release_surface_gpu(gpu);
 
 		gpu = new surface_gpu();
+		gpu->next = surface_list;
+		if (surface_list) {
+			surface_list->previous = gpu;
+		}
+		surface_list = gpu;
+
 		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
 		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
 		gpu->index_capacity  = s.indices.size + s.indices.size / 4 + 48;
