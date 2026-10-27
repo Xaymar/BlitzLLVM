@@ -19,10 +19,6 @@
 EntityInView:Int32 entity:Int32, camera:Int32
 ```
 
-## Description
-
-Tells if an entity is inside the picture of a camera, which is handy for skipping work on things that cannot be seen. Meshes are tested with a box around them, other entities by their center.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Tells if an entity is inside the picture of a camera, which is handy for skippin
 | `camera` | Int32 | required | Camera handle. |
 
 **Returns:** 1 if the entity is visible to the camera, otherwise 0.
+
+## Description
+
+Tells if an entity is inside the picture of a camera, which is handy for skipping work on things that cannot be seen. Meshes are tested with a box around them, other entities by their center.
 
 ## Related Commands
 

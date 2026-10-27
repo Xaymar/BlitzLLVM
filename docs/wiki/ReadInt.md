@@ -19,10 +19,6 @@
 ReadInt:Int32 stream:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `stream` | Int32 | required | The stream to read from. |
 
 **Returns:** The next 4 bytes of the stream as an integer.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

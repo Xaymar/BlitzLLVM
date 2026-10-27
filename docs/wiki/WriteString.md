@@ -19,16 +19,16 @@
 WriteString stream:Int32, string:String
 ```
 
-## Description
-
-Writes a string as its length in 4 bytes followed by its text, without a line ending. Read it back with [ReadString](ReadString).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `stream` | Int32 | required | The stream to write to. |
 | `string` | String | required | The text to write. |
+
+## Description
+
+Writes a string as its length in 4 bytes followed by its text, without a line ending. Read it back with [ReadString](ReadString).
 
 ## Examples
 

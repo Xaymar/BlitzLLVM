@@ -19,12 +19,6 @@
 GetSamplerLodMax:Float32 sampler:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Returns the highest mip level that the sampler has, as it was set with [SetSamplerLodMax](SetSamplerLodMax) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 or more, 1000 by default.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ Returns the highest mip level that the sampler has, as it was set with [SetSampl
 | `sampler` | Int32 | required | The sampler to ask. |
 
 **Returns:** The setting: 0 or more, 1000 by default.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Returns the highest mip level that the sampler has, as it was set with [SetSamplerLodMax](SetSamplerLodMax) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 or more, 1000 by default.
 
 ## Related Commands
 

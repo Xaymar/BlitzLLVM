@@ -19,10 +19,6 @@
 Instr:Int32 string:String, find:String, from:Int32=1
 ```
 
-## Description
-
-Finds the first position of a piece of text inside another string. Positions start at 1, and 0 means it was not found. The search tells upper and lower case apart.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Finds the first position of a piece of text inside another string. Positions sta
 | `from` | Int32 | `1` | Position to start searching at. Defaults to 1. |
 
 **Returns:** The position of the first match, or 0.
+
+## Description
+
+Finds the first position of a piece of text inside another string. Positions start at 1, and 0 means it was not found. The search tells upper and lower case apart.
 
 ## Examples
 

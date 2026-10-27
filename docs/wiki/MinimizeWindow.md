@@ -19,19 +19,19 @@
 MinimizeWindow window:Int32
 ```
 
-## Description
-
-Hides a window as if it were put into the task bar. Its gadgets keep their state. [RestoreWindow](RestoreWindow) shows it again and [WindowMinimized](WindowMinimized) tells if it is hidden.
-
-**Differences and known gaps:**
-
-* There is no task bar, so a minimized window simply is not drawn and there is no way for the user to bring it back. Your program has to call `RestoreWindow`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `window` | Int32 | required | Handle of a window. |
+
+## Description
+
+Hides a window as if it were put into the task bar. Its gadgets keep their state. [RestoreWindow](RestoreWindow) shows it again and [WindowMinimized](WindowMinimized) tells if it is hidden.
+
+## Differences
+
+* There is no task bar, so a minimized window simply is not drawn and there is no way for the user to bring it back. Your program has to call `RestoreWindow`.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 CountTriangles:Int32 surface:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `surface` | Int32 | required | Surface handle. |
 
 **Returns:** The number of triangles of the surface.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 EntityYaw:Float32 entity:Int32, global:Int32=0
 ```
 
-## Description
-
-Reads the rotation around Y in degrees.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Reads the rotation around Y in degrees.
 | `global` | Int32 | `0` | 1 for the angle in the world. Defaults to 0. |
 
 **Returns:** Yaw angle of the entity, relative to its parent or with `global` set to 1 in the world.
+
+## Description
+
+Reads the rotation around Y in degrees.
 
 ## Related Commands
 

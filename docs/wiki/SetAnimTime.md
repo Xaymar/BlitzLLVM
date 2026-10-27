@@ -19,10 +19,6 @@
 SetAnimTime entity:Int32, time:Float32, anim_seq:Int32=0
 ```
 
-## Description
-
-Poses the entity at a point in time of a sequence without playing it. This is for animating by hand, for example to scrub through an animation with a slider or to show frame 10 of a pose. It also makes the given sequence the current one.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Poses the entity at a point in time of a sequence without playing it. This is fo
 | `entity` | Int32 | required | The entity. |
 | `time` | Float32 | required | Time in frames from the start of the sequence. |
 | `anim_seq` | Int32 | `0` | Sequence to pose, defaults to 0. |
+
+## Description
+
+Poses the entity at a point in time of a sequence without playing it. This is for animating by hand, for example to scrub through an animation with a slider or to show frame 10 of a pose. It also makes the given sequence the current one.
 
 ## Examples
 

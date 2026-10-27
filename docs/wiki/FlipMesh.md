@@ -19,15 +19,15 @@
 FlipMesh mesh:Int32
 ```
 
-## Description
-
-Turns every triangle of a mesh around so that it faces the other way. Triangles are only drawn from the side they face, so a sphere made as a sky has to be flipped to be seen from inside. Flipping also turns the lighting normals around. If you need a mesh visible from both sides, copy it with [CopyMesh](CopyMesh), flip the copy and merge both with [AddMesh](AddMesh), or just draw both sides with the 16 flag of [EntityFX](EntityFX), which is cheaper.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `mesh` | Int32 | required | Mesh handle. |
+
+## Description
+
+Turns every triangle of a mesh around so that it faces the other way. Triangles are only drawn from the side they face, so a sphere made as a sky has to be flipped to be seen from inside. Flipping also turns the lighting normals around. If you need a mesh visible from both sides, copy it with [CopyMesh](CopyMesh), flip the copy and merge both with [AddMesh](AddMesh), or just draw both sides with the 16 flag of [EntityFX](EntityFX), which is cheaper.
 
 ## Examples
 

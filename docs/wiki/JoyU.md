@@ -19,10 +19,6 @@
 JoyU:Float32 port:Int32=0
 ```
 
-## Description
-
-The first extra axis of the joystick, from -1 to 1. On a gamepad this is usually a second stick or a trigger. The axes are numbered in the order of DirectInput: [JoyX](JoyX), [JoyY](JoyY), [JoyZ](JoyZ), JoyU, [JoyV](JoyV), then pitch, yaw and roll. Which physical control is which axis depends on the device.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The first extra axis of the joystick, from -1 to 1. On a gamepad this is usually
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
+
+## Description
+
+The first extra axis of the joystick, from -1 to 1. On a gamepad this is usually a second stick or a trigger. The axes are numbered in the order of DirectInput: [JoyX](JoyX), [JoyY](JoyY), [JoyZ](JoyZ), JoyU, [JoyV](JoyV), then pitch, yaw and roll. Which physical control is which axis depends on the device.
 
 ## Related Commands
 

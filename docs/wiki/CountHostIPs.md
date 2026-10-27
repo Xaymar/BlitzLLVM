@@ -19,14 +19,6 @@
 CountHostIPs:Int32 host_name:String
 ```
 
-## Description
-
-Looks up a host name and returns how many addresses it has. Use [HostIP](HostIP) to get them. A name that cannot be found returns 0. An empty name is this computer, which has one address for every network interface that is up, with the loopback address (127.0.0.1) last.
-
-**Differences and known gaps:**
-
-* Only IPv4 addresses are counted. `UDPStreamIP` is the first address of this computer.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Looks up a host name and returns how many addresses it has. Use [HostIP](HostIP)
 | `host_name` | String | required | A host name such as `localhost`, or an address as text. |
 
 **Returns:** The number of addresses.
+
+## Description
+
+Looks up a host name and returns how many addresses it has. Use [HostIP](HostIP) to get them. A name that cannot be found returns 0. An empty name is this computer, which has one address for every network interface that is up, with the loopback address (127.0.0.1) last.
+
+## Differences
+
+* Only IPv4 addresses are counted. `UDPStreamIP` is the first address of this computer.
 
 ## Examples
 

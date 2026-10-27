@@ -19,14 +19,6 @@
 VertexW:Float32 surface:Int32, index:Int32, coord_set:Int32=0
 ```
 
-## Description
-
-_Not documented yet._
-
-**Differences and known gaps:**
-
-* The value is not stored: this always returns 1.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ _Not documented yet._
 | `coord_set` | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
 
 **Returns:** The third texture coordinate of the vertex, a value that is reserved for later use and does nothing in rendering.
+
+## Description
+
+_Not documented yet._
+
+## Differences
+
+* The value is not stored: this always returns 1.
 
 ## Related Commands
 

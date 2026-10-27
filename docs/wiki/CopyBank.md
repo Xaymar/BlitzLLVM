@@ -19,10 +19,6 @@
 CopyBank src_bank:Int32, src_offset:Int32, dest_bank:Int32, dest_offset:Int32, count:Int32
 ```
 
-## Description
-
-Copies bytes from one bank to another, or inside the same bank. Overlapping parts inside a single bank are handled correctly.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Copies bytes from one bank to another, or inside the same bank. Overlapping part
 | `dest_bank` | Int32 | required | The bank to copy into. |
 | `dest_offset` | Int32 | required | Where in that bank to start. |
 | `count` | Int32 | required | How many bytes to copy. |
+
+## Description
+
+Copies bytes from one bank to another, or inside the same bank. Overlapping parts inside a single bank are handled correctly.
 
 ## Examples
 

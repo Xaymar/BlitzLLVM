@@ -19,16 +19,16 @@
 LightRange light:Int32, range:Float32
 ```
 
-## Description
-
-Sets how far a point or spot light reaches. The light is full strength next to the light and fades steadily to nothing at the range, so everything beyond it stays dark. The original calls the value approximate, so try a few values until the scene looks right. The default is 1000. Directional lights ignore it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `light` | Int32 | required | Light handle. |
 | `range` | Float32 | required | How far the light reaches. |
+
+## Description
+
+Sets how far a point or spot light reaches. The light is full strength next to the light and fades steadily to nothing at the range, so everything beyond it stays dark. The original calls the value approximate, so try a few values until the scene looks right. The default is 1000. Directional lights ignore it.
 
 ## Examples
 

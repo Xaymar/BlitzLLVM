@@ -19,10 +19,6 @@
 CreateSlider:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=1
 ```
 
-## Description
-
-Makes a scroll bar the user can drag. Style 1 is horizontal and 2 is vertical, and 65536 can be added to not follow the group when it is resized. The range is set with [SetSliderRange](SetSliderRange) and a $401 event with the new value arrives when it moves. [SliderValue](SliderValue) reads it at any time.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +31,10 @@ Makes a scroll bar the user can drag. Style 1 is horizontal and 2 is vertical, a
 | `style` | Int32 | `1` | 1 for horizontal or 2 for vertical, plus 65536 for not following the group. Defaults to 1. |
 
 **Returns:** A handle for the slider.
+
+## Description
+
+Makes a scroll bar the user can drag. Style 1 is horizontal and 2 is vertical, and 65536 can be added to not follow the group when it is resized. The range is set with [SetSliderRange](SetSliderRange) and a $401 event with the new value arrives when it moves. [SliderValue](SliderValue) reads it at any time.
 
 ## Examples
 

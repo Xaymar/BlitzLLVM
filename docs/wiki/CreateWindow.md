@@ -19,6 +19,20 @@
 CreateWindow:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32=0, style:Int32=15
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | String | required |  |
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the window. |
+| `height` | Int32 | required | Height of the window. |
+| `group` | Int32 | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
+| `style` | Int32 | `15` | Sum of the flags above. Defaults to 15. |
+
+**Returns:** A handle for the window.
+
 ## Description
 
 Makes a window and shows it. Windows are the parents of every other gadget: pass the window as the group of a button, label or list to put it inside. The position is relative to the group, which is [Desktop](Desktop) for a normal window or another window to make a child that belongs to it.
@@ -36,23 +50,9 @@ The style is a sum of these flags, and 15 is the default:
 
 Windows send events when they move ($801), change size ($802), are closed ($803) or are activated ($804). Closing does not remove a window by itself, your program decides what to do with the $803 event.
 
-**Differences and known gaps:**
+## Differences
 
 * All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries. Windows are drawn in the order they were activated.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required |  |
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the window. |
-| `height` | Int32 | required | Height of the window. |
-| `group` | Int32 | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
-| `style` | Int32 | `15` | Sum of the flags above. Defaults to 15. |
-
-**Returns:** A handle for the window.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 Eof:Int32 stream:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `stream` | Int32 | required | The stream to check. |
 
 **Returns:** 1 when a file has been read to its end, otherwise 0.
+
+## Description
+
+_Not documented yet._
 
 ## Examples
 

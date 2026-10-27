@@ -19,10 +19,6 @@
 Bin:String value:Int32
 ```
 
-## Description
-
-Turns a number into its binary digits. The result always has 32 digits, so negative numbers show their two's complement form.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Turns a number into its binary digits. The result always has 32 digits, so negat
 | `value` | Int32 | required | The number to convert. |
 
 **Returns:** A string of 32 digits, 0 and 1.
+
+## Description
+
+Turns a number into its binary digits. The result always has 32 digits, so negative numbers show their two's complement form.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 PositionEntity entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32=0
 ```
 
-## Description
-
-Puts an entity at a position. Without `global` the position is relative to the parent, or to the world when there is no parent. With `global` set to 1 it is a world position, whatever the parents are. New entities start at 0, 0, 0. X grows to the right, Y grows up and Z grows into the screen.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Puts an entity at a position. Without `global` the position is relative to the p
 | `y` | Float32 | required | Y position. |
 | `z` | Float32 | required | Z position. |
 | `global` | Int32 | `0` | 1 to use the world position instead of one relative to the parent. Defaults to 0. |
+
+## Description
+
+Puts an entity at a position. Without `global` the position is relative to the parent, or to the world when there is no parent. With `global` set to 1 it is a world position, whatever the parents are. New entities start at 0, 0, 0. X grows to the right, Y grows up and Z grows into the screen.
 
 ## Examples
 

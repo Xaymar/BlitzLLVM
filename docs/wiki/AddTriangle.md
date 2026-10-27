@@ -19,10 +19,6 @@
 AddTriangle:Int32 surface:Int32, v0:Int32, v1:Int32, v2:Int32
 ```
 
-## Description
-
-Joins three vertices of a surface into a triangle and returns the index of the triangle, which counts from 0. A triangle is only drawn when seen from the side where its corners go clockwise, which is why the order matters: if your triangle does not show, swap two of its vertices, or draw both sides with the 16 flag of [EntityFX](EntityFX). The runtime stops with an error for a vertex index that does not exist.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Joins three vertices of a surface into a triangle and returns the index of the t
 | `v2` | Int32 | required | Index of the third corner. |
 
 **Returns:** The index of the new triangle, starting at 0.
+
+## Description
+
+Joins three vertices of a surface into a triangle and returns the index of the triangle, which counts from 0. A triangle is only drawn when seen from the side where its corners go clockwise, which is why the order matters: if your triangle does not show, swap two of its vertices, or draw both sides with the 16 flag of [EntityFX](EntityFX). The runtime stops with an error for a vertex index that does not exist.
 
 ## Examples
 

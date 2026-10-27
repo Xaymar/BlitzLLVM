@@ -19,17 +19,17 @@
 RotateTexture texture:Int32, angle:Float32
 ```
 
-## Description
-
-Turns the texture coordinates by an absolute angle in degrees. Meant for swirling effects such as smoke.
-The rotation turns the coordinates around their origin (the corner of the picture) before ScaleTexture and PositionTexture are applied, as in the original.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `texture` | Int32 | required | The texture to turn. |
 | `angle` | Float32 | required | Angle in degrees. |
+
+## Description
+
+Turns the texture coordinates by an absolute angle in degrees. Meant for swirling effects such as smoke.
+The rotation turns the coordinates around their origin (the corner of the picture) before ScaleTexture and PositionTexture are applied, as in the original.
 
 ## Related Commands
 

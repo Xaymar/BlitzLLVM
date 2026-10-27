@@ -19,14 +19,6 @@
 Load3DSound:Int32 filename:String
 ```
 
-## Description
-
-Loads a sound file for use with [EmitSound](EmitSound), which plays it from an entity so that it gets quieter with distance and moves between the speakers. The file formats are the same as for [LoadSound](LoadSound).
-
-**Differences and known gaps:**
-
-* See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Loads a sound file for use with [EmitSound](EmitSound), which plays it from an e
 | `filename` | String | required |  |
 
 **Returns:** A sound handle, or 0 if the file could not be loaded.
+
+## Description
+
+Loads a sound file for use with [EmitSound](EmitSound), which plays it from an entity so that it gets quieter with distance and moves between the speakers. The file formats are the same as for [LoadSound](LoadSound).
+
+## Differences
+
+* See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
 
 ## Examples
 

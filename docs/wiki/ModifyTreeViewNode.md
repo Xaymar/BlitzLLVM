@@ -19,10 +19,6 @@
 ModifyTreeViewNode node:Int32, text:String, icon:Int32=-1
 ```
 
-## Description
-
-Changes the text of a node.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Changes the text of a node.
 | `node` | Int32 | required | Handle of a node. |
 | `text` | String | required | The new text. |
 | `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+
+## Description
+
+Changes the text of a node.
 
 ## Examples
 

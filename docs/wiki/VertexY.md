@@ -19,10 +19,6 @@
 VertexY:Float32 surface:Int32, index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `index` | Int32 | required | Index of the vertex, from 0. |
 
 **Returns:** The Y position of the vertex in the space of the mesh, not affected by the entity's position or scale.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 SetGadgetShape gadget:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
-## Description
-
-Moves and resizes a gadget, also a window. The numbers are relative to the group.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Moves and resizes a gadget, also a window. The numbers are relative to the group
 | `y` | Int32 | required | New vertical position. |
 | `width` | Int32 | required | New width. |
 | `height` | Int32 | required | New height. |
+
+## Description
+
+Moves and resizes a gadget, also a window. The numbers are relative to the group.
 
 ## Examples
 

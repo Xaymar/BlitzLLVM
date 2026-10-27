@@ -19,16 +19,16 @@
 ChannelVolume channel:Int32, volume:Float32
 ```
 
-## Description
-
-Sets the volume of one channel. It can be changed while the sound plays, for example to fade it out.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
 | `volume` | Float32 | required | 0 is silence and 1 is the full volume of the sound. Values outside that range are limited to it. |
+
+## Description
+
+Sets the volume of one channel. It can be changed while the sound plays, for example to fade it out.
 
 ## Examples
 

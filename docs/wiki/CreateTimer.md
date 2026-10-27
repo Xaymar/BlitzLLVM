@@ -19,10 +19,6 @@
 CreateTimer:Int32 hertz:Int32
 ```
 
-## Description
-
-Creates a timer that ticks a given number of times per second. [WaitTimer](WaitTimer) waits for the next tick, which keeps a loop at a steady speed without depending on how fast the computer is.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Creates a timer that ticks a given number of times per second. [WaitTimer](WaitT
 | `hertz` | Int32 | required | Ticks per second, above 0. |
 
 **Returns:** A timer handle.
+
+## Description
+
+Creates a timer that ticks a given number of times per second. [WaitTimer](WaitTimer) waits for the next tick, which keeps a loop at a steady speed without depending on how fast the computer is.
 
 ## Examples
 

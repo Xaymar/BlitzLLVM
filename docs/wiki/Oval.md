@@ -19,10 +19,6 @@
 Oval x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32=1
 ```
 
-## Description
-
-Draws an ellipse inside the box given by position and size.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Draws an ellipse inside the box given by position and size.
 | `width` | Int32 | required | Width of the box. |
 | `height` | Int32 | required | Height of the box. |
 | `solid` | Int32 | `1` | 1 fills the ellipse, 0 draws only its outline. Defaults to 1. |
+
+## Description
+
+Draws an ellipse inside the box given by position and size.
 
 ## Examples
 

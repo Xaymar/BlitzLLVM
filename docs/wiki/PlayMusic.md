@@ -19,15 +19,6 @@
 PlayMusic:Int32 midifile:String
 ```
 
-## Description
-
-Loads a music file and plays it right away. The returned channel can be paused, resumed, stopped and changed with the Channel commands. Unlike a sound from [LoadSound](LoadSound) the file is read again each time the command is used, so a short pause is possible for large files. Music plays once and does not loop.
-
-**Differences and known gaps:**
-
-* MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA. WAV, MP3, OGG and FLAC work.
-* The German help lists a second parameter that picks looping. It is not part of the official command and not accepted here.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +26,15 @@ Loads a music file and plays it right away. The returned channel can be paused, 
 | `midifile` | String | required |  |
 
 **Returns:** The channel the music plays on, or 0 if the file could not be played.
+
+## Description
+
+Loads a music file and plays it right away. The returned channel can be paused, resumed, stopped and changed with the Channel commands. Unlike a sound from [LoadSound](LoadSound) the file is read again each time the command is used, so a short pause is possible for large files. Music plays once and does not loop.
+
+## Differences
+
+* MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA. WAV, MP3, OGG and FLAC work.
+* The German help lists a second parameter that picks looping. It is not part of the official command and not accepted here.
 
 ## Examples
 

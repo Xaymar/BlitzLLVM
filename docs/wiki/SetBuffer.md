@@ -19,19 +19,19 @@
 SetBuffer buffer:Int32
 ```
 
-## Description
-
-Chooses where drawing commands such as `Rect`, `Text`, [DrawImage](DrawImage) and `Plot` draw to: the back buffer, the front buffer, or the buffer of an image or texture. A program usually calls `SetBuffer BackBuffer()` once after `Graphics`. Switching the buffer puts the [Origin](Origin) and the viewport back to their defaults and the text cursor of `Print` to the top left corner.
-
-**Differences and known gaps:**
-
-* A buffer that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `buffer` | Int32 | required | A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`. |
+
+## Description
+
+Chooses where drawing commands such as `Rect`, `Text`, [DrawImage](DrawImage) and `Plot` draw to: the back buffer, the front buffer, or the buffer of an image or texture. A program usually calls `SetBuffer BackBuffer()` once after `Graphics`. Switching the buffer puts the [Origin](Origin) and the viewport back to their defaults and the text cursor of `Print` to the top left corner.
+
+## Differences
+
+* A buffer that does not exist stops the program with an error message.
 
 ## Examples
 

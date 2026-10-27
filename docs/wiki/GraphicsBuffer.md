@@ -19,13 +19,13 @@
 GraphicsBuffer:Int32
 ```
 
-## Description
-
-Returns the buffer that drawing commands currently draw to, which is the one that the last [SetBuffer](SetBuffer) chose. Use it to remember the target and go back to it later.
-
 ## Parameters
 
 **Returns:** The handle of the current buffer.
+
+## Description
+
+Returns the buffer that drawing commands currently draw to, which is the one that the last [SetBuffer](SetBuffer) chose. Use it to remember the target and go back to it later.
 
 ## Examples
 

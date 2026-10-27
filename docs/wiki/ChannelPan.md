@@ -19,20 +19,20 @@
 ChannelPan channel:Int32, pan:Float32
 ```
 
-## Description
-
-Moves a playing channel between the left and the right speaker. It can be called at any time while the sound plays.
-
-**Differences and known gaps:**
-
-* Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
 | `pan` | Float32 | required | -1 is only left, 0 the middle and 1 only right. Values outside that range are limited to it. |
+
+## Description
+
+Moves a playing channel between the left and the right speaker. It can be called at any time while the sound plays.
+
+## Differences
+
+* Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
 
 ## Examples
 

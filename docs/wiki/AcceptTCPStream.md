@@ -19,10 +19,6 @@
 AcceptTCPStream:Int32 tcp_server:Int32
 ```
 
-## Description
-
-Takes the next connection that a client made to a TCP server and returns a stream for it. If nobody connected within the accept timeout of [TCPTimeouts](TCPTimeouts), which is 0 until you set it, it returns 0, so call it in a loop.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Takes the next connection that a client made to a TCP server and returns a strea
 | `tcp_server` | Int32 | required | The server from [CreateTCPServer](CreateTCPServer). |
 
 **Returns:** A TCP stream, or 0 when nobody connected.
+
+## Description
+
+Takes the next connection that a client made to a TCP server and returns a stream for it. If nobody connected within the accept timeout of [TCPTimeouts](TCPTimeouts), which is 0 until you set it, it returns 0, so call it in a loop.
 
 ## Examples
 

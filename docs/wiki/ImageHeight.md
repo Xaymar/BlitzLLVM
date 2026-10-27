@@ -19,10 +19,6 @@
 ImageHeight:Int32 image:Int32
 ```
 
-## Description
-
-The height of one frame of an image in pixels.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The height of one frame of an image in pixels.
 | `image` | Int32 | required | The image. |
 
 **Returns:** The height of a frame.
+
+## Description
+
+The height of one frame of an image in pixels.
 
 ## Related Commands
 

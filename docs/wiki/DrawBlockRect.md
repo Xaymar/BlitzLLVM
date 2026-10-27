@@ -19,14 +19,6 @@
 DrawBlockRect image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32, frame:Int32=0
 ```
 
-## Description
-
-Draws only a rectangle of a frame, without any transparency. See [DrawBlock](DrawBlock) and [DrawImageRect](DrawImageRect). The handle of the image is not used: the top left corner of the rectangle goes to the given position.
-
-**Differences and known gaps:**
-
-* Only the part that lies inside the frame is drawn. A rectangle that reaches over the edge is cut off.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -39,6 +31,14 @@ Draws only a rectangle of a frame, without any transparency. See [DrawBlock](Dra
 | `rect_width` | Int32 | required | Width of the part. |
 | `rect_height` | Int32 | required | Height of the part. |
 | `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
+
+## Description
+
+Draws only a rectangle of a frame, without any transparency. See [DrawBlock](DrawBlock) and [DrawImageRect](DrawImageRect). The handle of the image is not used: the top left corner of the rectangle goes to the given position.
+
+## Differences
+
+* Only the part that lies inside the frame is drawn. A rectangle that reaches over the edge is cut off.
 
 ## Related Commands
 

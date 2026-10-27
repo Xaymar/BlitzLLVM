@@ -19,10 +19,6 @@
 TriangleVertex:Int32 surface:Int32, index:Int32, vertex:Int32
 ```
 
-## Description
-
-Tells which vertex is at a corner of a triangle, which is how you walk over the triangles of a mesh. Corners are 0, 1 and 2, in the order the triangle was added with.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Tells which vertex is at a corner of a triangle, which is how you walk over the 
 | `vertex` | Int32 | required |  |
 
 **Returns:** The index of the vertex.
+
+## Description
+
+Tells which vertex is at a corner of a triangle, which is how you walk over the triangles of a mesh. Corners are 0, 1 and 2, in the order the triangle was added with.
 
 ## Related Commands
 

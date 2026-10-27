@@ -19,17 +19,17 @@
 Desktop:Int32
 ```
 
+## Parameters
+
+**Returns:** A handle that stands for the desktop.
+
 ## Description
 
 Gives the handle of the desktop, the group that top level windows live in. Pass it as the group of [CreateWindow](CreateWindow). With [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) it tells the size of the screen. [DesktopBuffer](DesktopBuffer) is what you draw to if you want to paint on it.
 
-**Differences and known gaps:**
+## Differences
 
 * The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the screen. Windows cannot be placed outside of the program's window.
-
-## Parameters
-
-**Returns:** A handle that stands for the desktop.
 
 ## Examples
 

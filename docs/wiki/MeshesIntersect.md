@@ -19,10 +19,6 @@
 MeshesIntersect:Int32 mesh_a:Int32, mesh_b:Int32
 ```
 
-## Description
-
-Tests if the triangles of two meshes touch at their current positions. It takes the entity position, rotation and scale into account. It is exact, but slow compared with the collision commands, so call it only when a cheaper check such as a distance already said the meshes are close.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Tests if the triangles of two meshes touch at their current positions. It takes 
 | `mesh_b` | Int32 | required | Second mesh handle. |
 
 **Returns:** 1 if the meshes intersect, otherwise 0.
+
+## Description
+
+Tests if the triangles of two meshes touch at their current positions. It takes the entity position, rotation and scale into account. It is exact, but slow compared with the collision commands, so call it only when a cheaper check such as a distance already said the meshes are close.
 
 ## Related Commands
 

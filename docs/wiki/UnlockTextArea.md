@@ -19,15 +19,15 @@
 UnlockTextArea textarea:Int32
 ```
 
-## Description
-
-Allows the text area to be redrawn again after [LockTextArea](LockTextArea) and shows what changed.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `textarea` | Int32 | required | Handle of a text area. |
+
+## Description
+
+Allows the text area to be redrawn again after [LockTextArea](LockTextArea) and shows what changed.
 
 ## Related Commands
 

@@ -19,16 +19,16 @@
 CameraZoom camera:Int32, zoom:Float32
 ```
 
-## Description
-
-Changes how much the camera magnifies the view. 1 is the default, larger values zoom in and smaller values zoom out. Zoom narrows or widens the field of view, so it can imitate a telescope or a wide angle lens. The runtime does not accept values below 0.001.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `camera` | Int32 | required | Camera handle. |
 | `zoom` | Float32 | required | Magnification, 1 by default. |
+
+## Description
+
+Changes how much the camera magnifies the view. 1 is the default, larger values zoom in and smaller values zoom out. Zoom narrows or widens the field of view, so it can imitate a telescope or a wide angle lens. The runtime does not accept values below 0.001.
 
 ## Examples
 

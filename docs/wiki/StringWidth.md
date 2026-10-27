@@ -19,14 +19,6 @@
 StringWidth:Int32 string:String
 ```
 
-## Description
-
-The width in pixels that a text has in the current font. It helps to center text or to put things after it.
-
-**Differences and known gaps:**
-
-* With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth). Widths of real fonts depend on the font that was found on the system.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ The width in pixels that a text has in the current font. It helps to center text
 | `string` | String | required | The text to measure. |
 
 **Returns:** The width of the text.
+
+## Description
+
+The width in pixels that a text has in the current font. It helps to center text or to put things after it.
+
+## Differences
+
+* With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth). Widths of real fonts depend on the font that was found on the system.
 
 ## Examples
 

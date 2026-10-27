@@ -19,14 +19,6 @@
 LoadMD2:Int32 file:String, parent:Int32=0
 ```
 
-## Description
-
-Loads a Quake 2 model (.md2). The model is made of a single mesh that moves from frame to frame, so it has its own commands, [AnimateMD2](AnimateMD2) and the MD2Anim commands, and does not work with the other animation commands. The picture of the model is a separate file: load it with [LoadTexture](LoadTexture) and give it to the model with [EntityTexture](EntityTexture), otherwise the model is not textured.
-
-A parent makes the model follow another entity. The model is still created at 0, 0, 0 and not at the parent's position, and moving the model does not move the parent.
-
-Case matters for file names on Linux, so use the exact spelling of the files.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Case matters for file names on Linux, so use the exact spelling of the files.
 | `parent` | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle, or 0 if the file could not be loaded.
+
+## Description
+
+Loads a Quake 2 model (.md2). The model is made of a single mesh that moves from frame to frame, so it has its own commands, [AnimateMD2](AnimateMD2) and the MD2Anim commands, and does not work with the other animation commands. The picture of the model is a separate file: load it with [LoadTexture](LoadTexture) and give it to the model with [EntityTexture](EntityTexture), otherwise the model is not textured.
+
+A parent makes the model follow another entity. The model is still created at 0, 0, 0 and not at the parent's position, and moving the model does not move the parent.
+
+Case matters for file names on Linux, so use the exact spelling of the files.
 
 ## Examples
 

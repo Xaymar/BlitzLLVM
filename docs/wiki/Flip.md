@@ -19,19 +19,19 @@
 Flip vwait:Int32=1
 ```
 
-## Description
-
-Shows what was drawn into the back buffer in the window. A program draws a complete picture into the back buffer after `SetBuffer BackBuffer()` and calls Flip once per frame, which keeps the picture free of flicker. The frame rate of the program follows the display when `vwait` is on.
-
-**Differences and known gaps:**
-
-* Without a graphics window nothing happens.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `vwait` | Int32 | `1` | 1 waits for the display to be ready before flipping, which avoids tearing. 0 does not wait. Defaults to 1. |
+
+## Description
+
+Shows what was drawn into the back buffer in the window. A program draws a complete picture into the back buffer after `SetBuffer BackBuffer()` and calls Flip once per frame, which keeps the picture free of flicker. The frame rate of the program follows the display when `vwait` is on.
+
+## Differences
+
+* Without a graphics window nothing happens.
 
 ## Examples
 

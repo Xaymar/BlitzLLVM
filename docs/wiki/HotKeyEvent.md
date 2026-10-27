@@ -19,10 +19,6 @@
 HotKeyEvent rawkey:Int32, modifier:Int32, ev_id:Int32, ev_data:Int32=0, ev_x:Int32=0, ev_y:Int32=0, ev_z:Int32=0, ev_source:Int32=0
 ```
 
-## Description
-
-Makes a key combination produce an event of your choice, even when no gadget wants the key. Handy for shortcuts. The scan code is what `KeyDown` uses, and the modifiers are added: 1 shift, 2 control, 4 alt.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +31,10 @@ Makes a key combination produce an event of your choice, even when no gadget wan
 | `ev_y` | Int32 | `0` |  |
 | `ev_z` | Int32 | `0` |  |
 | `ev_source` | Int32 | `0` |  |
+
+## Description
+
+Makes a key combination produce an event of your choice, even when no gadget wants the key. Handy for shortcuts. The scan code is what `KeyDown` uses, and the modifiers are added: 1 shift, 2 control, 4 alt.
 
 ## Examples
 

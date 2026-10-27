@@ -19,15 +19,15 @@
 FreeTimer timer:Int32
 ```
 
-## Description
-
-Deletes a timer you no longer need. Passing 0 does nothing.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `timer` | Int32 | required | The timer handle. |
+
+## Description
+
+Deletes a timer you no longer need. Passing 0 does nothing.
 
 ## Related Commands
 

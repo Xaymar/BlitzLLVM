@@ -19,10 +19,6 @@
 ClearSurface surface:Int32, clear_vertices:Int32=1, clear_triangles:Int32=1
 ```
 
-## Description
-
-Removes the vertices, the triangles or both from a surface. The surface itself stays, ready to receive new geometry. Together with [AddVertex](AddVertex) this is the way to rebuild a mesh every frame or to switch to a different level of detail. If you remove only the vertices, remove the triangles as well, since they point at the vertices.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Removes the vertices, the triangles or both from a surface. The surface itself s
 | `surface` | Int32 | required | Surface handle. |
 | `clear_vertices` | Int32 | `1` | 1 to remove the vertices. Defaults to 1. |
 | `clear_triangles` | Int32 | `1` | 1 to remove the triangles. Defaults to 1. |
+
+## Description
+
+Removes the vertices, the triangles or both from a surface. The surface itself stays, ready to receive new geometry. Together with [AddVertex](AddVertex) this is the way to rebuild a mesh every frame or to switch to a different level of detail. If you remove only the vertices, remove the triangles as well, since they point at the vertices.
 
 ## Examples
 

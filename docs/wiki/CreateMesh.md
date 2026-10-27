@@ -19,10 +19,6 @@
 CreateMesh:Int32 parent:Int32=0
 ```
 
-## Description
-
-Creates an empty mesh with no surfaces, vertices or triangles. Fill it with [CreateSurface](CreateSurface), [AddVertex](AddVertex) and [AddTriangle](AddTriangle) to build your own geometry, or with [AddMesh](AddMesh) to put other meshes together.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Creates an empty mesh with no surfaces, vertices or triangles. Fill it with [Cre
 | `parent` | Int32 | `0` | Entity the mesh follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new mesh.
+
+## Description
+
+Creates an empty mesh with no surfaces, vertices or triangles. Fill it with [CreateSurface](CreateSurface), [AddVertex](AddVertex) and [AddTriangle](AddTriangle) to build your own geometry, or with [AddMesh](AddMesh) to put other meshes together.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 Tan:Float32 degrees:Float32
 ```
 
-## Description
-
-Returns the tangent of an angle given in degrees, not radians.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the tangent of an angle given in degrees, not radians.
 | `degrees` | Float32 | required | The angle in degrees. |
 
 **Returns:** The tangent.
+
+## Description
+
+Returns the tangent of an angle given in degrees, not radians.
 
 ## Examples
 

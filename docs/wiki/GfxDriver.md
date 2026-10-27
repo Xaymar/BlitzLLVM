@@ -19,15 +19,15 @@
 GfxDriver:Int32
 ```
 
+## Parameters
+
+**Returns:** The driver number, from 1 to [CountGfxDrivers](CountGfxDrivers).
+
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 The number of the graphics driver that draws the program. This is a BlitzLLVM extension: the original has no way to ask which driver was picked. Once a graphics window is open it is the GPU in use, before that it is the driver that [SetGfxDriver](SetGfxDriver) chose, or 1.
-
-## Parameters
-
-**Returns:** The driver number, from 1 to [CountGfxDrivers](CountGfxDrivers).
 
 ## Examples
 

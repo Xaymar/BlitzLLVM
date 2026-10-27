@@ -19,10 +19,6 @@
 Mid:String string:String, start:Int32, count:Int32=-1
 ```
 
-## Description
-
-Returns a piece from the middle of a string. The first character is number 1. Without a count it takes everything to the end, and a count that is too long is cut off at the end.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Returns a piece from the middle of a string. The first character is number 1. Wi
 | `count` | Int32 | `-1` | How many characters to take. Defaults to all that are left. |
 
 **Returns:** The piece of the string.
+
+## Description
+
+Returns a piece from the middle of a string. The first character is number 1. Without a count it takes everything to the end, and a count that is too long is cut off at the end.
 
 ## Examples
 

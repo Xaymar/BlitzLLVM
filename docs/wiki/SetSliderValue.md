@@ -19,16 +19,16 @@
 SetSliderValue slider:Int32, value:Int32
 ```
 
-## Description
-
-Moves the slider to a value from 0 to total minus visible. It does not send an event.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `slider` | Int32 | required | Handle of a slider. |
 | `value` | Int32 | required | The new position. |
+
+## Description
+
+Moves the slider to a value from 0 to total minus visible. It does not send an event.
 
 ## Related Commands
 

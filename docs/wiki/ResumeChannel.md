@@ -19,15 +19,15 @@
 ResumeChannel channel:Int32
 ```
 
-## Description
-
-Continues a channel that [PauseChannel](PauseChannel) paused.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+
+## Description
+
+Continues a channel that [PauseChannel](PauseChannel) paused.
 
 ## Related Commands
 

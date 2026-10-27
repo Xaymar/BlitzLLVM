@@ -19,10 +19,6 @@
 AddGadgetItem gadget:Int32, item:String, select:Int32=0, icon:Int32=-1
 ```
 
-## Description
-
-Adds an entry at the end of a list box, combo box or tabber. For a tabber the entry is a new tab. Use [InsertGadgetItem](InsertGadgetItem) to put it somewhere else.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Adds an entry at the end of a list box, combo box or tabber. For a tabber the en
 | `item` | String | required |  |
 | `select` | Int32 | `0` | True makes it the selected entry. Defaults to False. |
 | `icon` | Int32 | `-1` | Number of an icon in the icon strip given with [SetGadgetIconStrip](SetGadgetIconStrip). Defaults to -1, which means none. |
+
+## Description
+
+Adds an entry at the end of a list box, combo box or tabber. For a tabber the entry is a new tab. Use [InsertGadgetItem](InsertGadgetItem) to put it somewhere else.
 
 ## Examples
 

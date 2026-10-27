@@ -19,10 +19,6 @@
 CollisionNZ:Float32 entity:Int32, collision_index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `collision_index` | Int32 | required |  |
 
 **Returns:** The Z part of the surface normal at the numbered collision.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

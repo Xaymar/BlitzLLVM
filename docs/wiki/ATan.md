@@ -19,10 +19,6 @@
 ATan:Float32 float:Float32
 ```
 
-## Description
-
-Returns the angle whose tangent is the given number, in degrees from -90 to 90. When you have both sides of the triangle, [ATan2](ATan2) is usually the better choice because it knows which quadrant the angle is in.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the angle whose tangent is the given number, in degrees from -90 to 90. 
 | `float` | Float32 | required | The tangent. |
 
 **Returns:** The angle in degrees.
+
+## Description
+
+Returns the angle whose tangent is the given number, in degrees from -90 to 90. When you have both sides of the triangle, [ATan2](ATan2) is usually the better choice because it knows which quadrant the angle is in.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 VertexCoords surface:Int32, index:Int32, x:Float32, y:Float32, z:Float32
 ```
 
-## Description
-
-Moves an existing vertex to a new position in the space of the mesh. Every triangle that uses the vertex follows, so changing vertices every frame deforms a mesh: waves on water, a flag in the wind or a dent in a car. Call [UpdateNormals](UpdateNormals) afterwards if the lighting should follow the new shape.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Moves an existing vertex to a new position in the space of the mesh. Every trian
 | `x` | Float32 | required | New X position. |
 | `y` | Float32 | required | New Y position. |
 | `z` | Float32 | required | New Z position. |
+
+## Description
+
+Moves an existing vertex to a new position in the space of the mesh. Every triangle that uses the vertex follows, so changing vertices every frame deforms a mesh: waves on water, a flag in the wind or a dent in a car. Call [UpdateNormals](UpdateNormals) afterwards if the lighting should follow the new shape.
 
 ## Examples
 

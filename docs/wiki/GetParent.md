@@ -19,10 +19,6 @@
 GetParent:Int32 entity:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `entity` | Int32 | required | Entity handle. |
 
 **Returns:** The handle of the parent of the entity, or 0 if it has none.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

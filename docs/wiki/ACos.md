@@ -19,10 +19,6 @@
 ACos:Float32 float:Float32
 ```
 
-## Description
-
-Returns the angle whose cosine is the given number. The result is in degrees, from 0 to 180. A number outside -1 to 1 has no such angle.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the angle whose cosine is the given number. The result is in degrees, fr
 | `float` | Float32 | required | The cosine, from -1 to 1. |
 
 **Returns:** The angle in degrees.
+
+## Description
+
+Returns the angle whose cosine is the given number. The result is in degrees, from 0 to 180. A number outside -1 to 1 has no such angle.
 
 ## Examples
 

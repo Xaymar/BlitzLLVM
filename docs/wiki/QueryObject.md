@@ -19,20 +19,20 @@
 QueryObject:Int32 object:Int32, query_id:Int32
 ```
 
-## Description
-
-In the original it gives the Windows handle behind a gadget (query 1 is the HWND, 2 the HWND of the client area, 3 the HFONT), so it can be used with the Windows API.
-
-**Differences and known gaps:**
-
-* All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget. Fonts (3) have no handle of the operating system and give 0, and so does anything that is not a gadget.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `object` | Int32 | required | A window, gadget or font. |
 | `query_id` | Int32 | required |  |
+
+## Description
+
+In the original it gives the Windows handle behind a gadget (query 1 is the HWND, 2 the HWND of the client area, 3 the HFONT), so it can be used with the Windows API.
+
+## Differences
+
+* All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget. Fonts (3) have no handle of the operating system and give 0, and so does anything that is not a gadget.
 
 ## Examples
 

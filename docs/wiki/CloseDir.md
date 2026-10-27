@@ -19,15 +19,15 @@
 CloseDir dir:Int32
 ```
 
-## Description
-
-Closes a folder that was opened with [ReadDir](ReadDir).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `dir` | Int32 | required | The folder handle. |
+
+## Description
+
+Closes a folder that was opened with [ReadDir](ReadDir).
 
 ## Related Commands
 

@@ -19,11 +19,6 @@
 CameraRange camera:Int32, near:Float32, far:Float32
 ```
 
-## Description
-
-Sets the nearest and farthest distance in front of the camera that is drawn. Anything closer than `near` or farther than `far` is clipped away. The defaults are 1 and 1000. Raising `near` and lowering `far` gives the depth buffer more precision where it matters, which stops distant surfaces from flickering through each other. BlitzLLVM draws with a reversed float depth buffer, so the precision is nearly even over the whole range and this is rarely needed. The distance is measured along the view direction, not as a radius around the camera.
-The runtime stops with an error unless `0 < near < far`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +26,11 @@ The runtime stops with an error unless `0 < near < far`.
 | `camera` | Int32 | required | Camera handle. |
 | `near` | Float32 | required | Closest distance that is drawn. Must be greater than 0. |
 | `far` | Float32 | required | Farthest distance that is drawn. Must be greater than `near`. |
+
+## Description
+
+Sets the nearest and farthest distance in front of the camera that is drawn. Anything closer than `near` or farther than `far` is clipped away. The defaults are 1 and 1000. Raising `near` and lowering `far` gives the depth buffer more precision where it matters, which stops distant surfaces from flickering through each other. BlitzLLVM draws with a reversed float depth buffer, so the precision is nearly even over the whole range and this is rarely needed. The distance is measured along the view direction, not as a radius around the camera.
+The runtime stops with an error unless `0 < near < far`.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 ImageXHandle:Int32 image:Int32
 ```
 
-## Description
-
-The horizontal position of the handle of an image, counted from its left edge.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The horizontal position of the handle of an image, counted from its left edge.
 | `image` | Int32 | required | The image. |
 
 **Returns:** The x position of the handle.
+
+## Description
+
+The horizontal position of the handle of an image, counted from its left edge.
 
 ## Related Commands
 

@@ -19,16 +19,16 @@
 PaintMesh mesh:Int32, brush:Int32
 ```
 
-## Description
-
-Applies a brush to every surface of a mesh: color, texture, alpha, shininess, blend mode and effects in one go. Surfaces that were painted before are overwritten. Make one brush and paint many meshes with it rather than setting each property separately.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `mesh` | Int32 | required | Mesh handle. |
 | `brush` | Int32 | required | Brush handle. |
+
+## Description
+
+Applies a brush to every surface of a mesh: color, texture, alpha, shininess, blend mode and effects in one go. Surfaces that were painted before are overwritten. Make one brush and paint many meshes with it rather than setting each property separately.
 
 ## Related Commands
 

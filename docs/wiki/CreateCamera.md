@@ -19,12 +19,6 @@
 CreateCamera:Int32 parent:Int32=0
 ```
 
-## Description
-
-Creates a camera and returns its handle. A camera is an entity, so it moves, turns and parents like any other, and every camera in the world draws its view when [RenderWorld](RenderWorld) runs. Without a camera the world renders nothing.
-
-A new camera sits at the origin, looks down the positive Z axis, covers the whole graphics buffer, clears the buffer to black and sees from 1 to 1000 units away. With a `parent` the camera follows that entity, but moving the camera never moves the parent.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ A new camera sits at the origin, looks down the positive Z axis, covers the whol
 | `parent` | Int32 | `0` | Entity the camera follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new camera.
+
+## Description
+
+Creates a camera and returns its handle. A camera is an entity, so it moves, turns and parents like any other, and every camera in the world draws its view when [RenderWorld](RenderWorld) runs. Without a camera the world renders nothing.
+
+A new camera sits at the origin, looks down the positive Z axis, covers the whole graphics buffer, clears the buffer to black and sees from 1 to 1000 units away. With a `parent` the camera follows that entity, but moving the camera never moves the parent.
 
 ## Examples
 

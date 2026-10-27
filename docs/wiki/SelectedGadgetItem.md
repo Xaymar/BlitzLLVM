@@ -19,10 +19,6 @@
 SelectedGadgetItem:Int32 gadget:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
 
 **Returns:** The number of the selected entry starting at 0, or -1 if nothing is selected.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,6 +19,14 @@
 Byte:Int32 value:Float32
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `value` | Float32 | required | A number or a text with a number in it. |
+
+**Returns:** The Byte.
+
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -28,17 +36,9 @@ Converts a number or a text to a Byte, an 8-bit integer from -128 to 127. This i
 
 The result is a Byte, which turns into an `Int` when it is calculated with.
 
-**Differences and known gaps:**
+## Differences
 
 * Not in the originals, which have no integers of other sizes.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `value` | Float32 | required | A number or a text with a number in it. |
-
-**Returns:** The Byte.
 
 ## Examples
 

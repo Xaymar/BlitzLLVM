@@ -19,14 +19,6 @@
 GfxModeHeight:Int32 mode:Int32
 ```
 
-## Description
-
-The height in pixels of a display mode.
-
-**Differences and known gaps:**
-
-* A mode number that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ The height in pixels of a display mode.
 | `mode` | Int32 | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
 
 **Returns:** The height in pixels.
+
+## Description
+
+The height in pixels of a display mode.
+
+## Differences
+
+* A mode number that does not exist stops the program with an error message.
 
 ## Related Commands
 

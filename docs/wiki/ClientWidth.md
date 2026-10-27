@@ -19,14 +19,6 @@
 ClientWidth:Int32 group:Int32
 ```
 
-## Description
-
-Gives the width of the area of a group that gadgets can use, without frame or scroll bars. For [Desktop](Desktop) it is the width of the screen.
-
-**Differences and known gaps:**
-
-* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Gives the width of the area of a group that gadgets can use, without frame or sc
 | `group` | Int32 | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
 
 **Returns:** The usable width in pixels.
+
+## Description
+
+Gives the width of the area of a group that gadgets can use, without frame or scroll bars. For [Desktop](Desktop) it is the width of the screen.
+
+## Differences
+
+* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
 
 ## Examples
 

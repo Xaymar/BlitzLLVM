@@ -19,15 +19,15 @@
 FreeBank bank:Int32
 ```
 
-## Description
-
-Releases a bank and its memory. The handle must not be used afterwards.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `bank` | Int32 | required | The bank to free. |
+
+## Description
+
+Releases a bank and its memory. The handle must not be used afterwards.
 
 ## Related Commands
 

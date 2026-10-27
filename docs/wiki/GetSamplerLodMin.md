@@ -19,12 +19,6 @@
 GetSamplerLodMin:Float32 sampler:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Returns the lowest mip level that the sampler has, as it was set with [SetSamplerLodMin](SetSamplerLodMin) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 or more.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ Returns the lowest mip level that the sampler has, as it was set with [SetSample
 | `sampler` | Int32 | required | The sampler to ask. |
 
 **Returns:** The setting: 0 or more.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Returns the lowest mip level that the sampler has, as it was set with [SetSamplerLodMin](SetSamplerLodMin) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 or more.
 
 ## Related Commands
 

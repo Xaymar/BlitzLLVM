@@ -19,12 +19,6 @@
 SetAnimKey entity:Int32, frame:Int32, pos_key:Int32=1, rot_key:Int32=1, scale_key:Int32=1
 ```
 
-## Description
-
-Records the entity's current position, rotation and scale as a keyframe at the given frame. After the keys are made, [AddAnimSeq](AddAnimSeq) turns them into a sequence that [Animate](Animate) and [SetAnimTime](SetAnimTime) can play, with the frames between the keys interpolated. Use it on the bones of a hand-built model or on any entity that you want to animate by keys.
-
-Each of the three flags decides which part of the pose is stored. Setting a key again at the same frame replaces the old one.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +28,12 @@ Each of the three flags decides which part of the pose is stored. Setting a key 
 | `pos_key` | Int32 | `1` | True to store the position. Defaults to True. |
 | `rot_key` | Int32 | `1` | True to store the rotation. Defaults to True. |
 | `scale_key` | Int32 | `1` | True to store the scale. Defaults to True. |
+
+## Description
+
+Records the entity's current position, rotation and scale as a keyframe at the given frame. After the keys are made, [AddAnimSeq](AddAnimSeq) turns them into a sequence that [Animate](Animate) and [SetAnimTime](SetAnimTime) can play, with the frames between the keys interpolated. Use it on the bones of a hand-built model or on any entity that you want to animate by keys.
+
+Each of the three flags decides which part of the pose is stored. Setting a key again at the same frame replaces the old one.
 
 ## Related Commands
 

@@ -19,13 +19,13 @@
 CountGfxModes3D:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** How many full screen modes the 3D driver offers. The numbers 1 to this value can be given to [GfxMode3D](GfxMode3D).
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

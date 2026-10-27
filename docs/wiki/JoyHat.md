@@ -19,14 +19,6 @@
 JoyHat:Int32 port:Int32=0
 ```
 
-## Description
-
-The direction of the first hat switch (the point-of-view control) as an angle in degrees: 0 for up, 90 for right, 180 for down and 270 for left, with 45 degree steps in between. The result is -1 while the hat is in the middle.
-
-**Differences and known gaps:**
-
-* Without any joystick the original returns -1 as well, but this runtime returns 0, which looks like "up". Use [JoyType](JoyType) first to find out if there is a joystick.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ The direction of the first hat switch (the point-of-view control) as an angle in
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The angle of the hat, or -1 if it is centered or the joystick has no hat.
+
+## Description
+
+The direction of the first hat switch (the point-of-view control) as an angle in degrees: 0 for up, 90 for right, 180 for down and 270 for left, with 45 degree steps in between. The result is -1 while the hat is in the middle.
+
+## Differences
+
+* Without any joystick the original returns -1 as well, but this runtime returns 0, which looks like "up". Use [JoyType](JoyType) first to find out if there is a joystick.
 
 ## Examples
 

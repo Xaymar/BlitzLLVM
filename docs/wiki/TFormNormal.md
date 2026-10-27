@@ -19,10 +19,6 @@
 TFormNormal x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32
 ```
 
-## Description
-
-Converts a surface normal from one space to another, and makes the result exactly 1 unit long again. Where TFormVector would stretch a direction with the scale of the entity, a normal keeps its length, which is what lighting and bouncing calculations need. The result is read back with [TFormedX](TFormedX), [TFormedY](TFormedY) and [TFormedZ](TFormedZ).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Converts a surface normal from one space to another, and makes the result exactl
 | `z` | Float32 | required | Z of the normal in the source space. |
 | `source_entity` | Int32 | required | Entity whose space the normal is in, or 0 for the world. |
 | `dest_entity` | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
+
+## Description
+
+Converts a surface normal from one space to another, and makes the result exactly 1 unit long again. Where TFormVector would stretch a direction with the scale of the entity, a normal keeps its length, which is what lighting and bouncing calculations need. The result is read back with [TFormedX](TFormedX), [TFormedY](TFormedY) and [TFormedZ](TFormedZ).
 
 ## Examples
 

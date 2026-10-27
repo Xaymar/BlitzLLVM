@@ -19,16 +19,16 @@
 BrushShininess brush:Int32, shininess:Float32
 ```
 
-## Description
-
-Sets the strength of the specular highlight on painted surfaces. 0 gives matt surfaces and 1 a very shiny, billiard-ball look when a light shines on them.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `brush` | Int32 | required | The brush. |
 | `shininess` | Float32 | required | Shininess, 0 to 1. The default is 0. |
+
+## Description
+
+Sets the strength of the specular highlight on painted surfaces. 0 gives matt surfaces and 1 a very shiny, billiard-ball look when a light shines on them.
 
 ## Related Commands
 

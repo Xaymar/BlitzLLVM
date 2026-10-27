@@ -19,20 +19,20 @@
 SetMenuText menu:Int32, text:String
 ```
 
-## Description
-
-Changes the text of a menu title or item.
-
-**Differences and known gaps:**
-
-* The text can be read back with [MenuText](MenuText) here. The original cannot read it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `menu` | Int32 | required | Handle of a menu or item. |
 | `text` | String | required | The new text. |
+
+## Description
+
+Changes the text of a menu title or item.
+
+## Differences
+
+* The text can be read back with [MenuText](MenuText) here. The original cannot read it.
 
 ## Examples
 

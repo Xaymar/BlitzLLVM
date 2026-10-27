@@ -19,15 +19,15 @@
 CloseUDPStream udp_stream:Int32
 ```
 
-## Description
-
-Closes a UDP stream and gives its port back.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `udp_stream` | Int32 | required | The stream to close. |
+
+## Description
+
+Closes a UDP stream and gives its port back.
 
 ## Related Commands
 

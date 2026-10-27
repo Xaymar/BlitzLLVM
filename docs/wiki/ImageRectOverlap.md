@@ -19,10 +19,6 @@
 ImageRectOverlap:Int32 image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32
 ```
 
-## Description
-
-Tells whether a rectangle touches the box of an image at a position. Transparent pixels count, so this is the quick first check before the exact [ImageRectCollide](ImageRectCollide).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +32,10 @@ Tells whether a rectangle touches the box of an image at a position. Transparent
 | `rect_height` | Int32 | required | Height of the rectangle. |
 
 **Returns:** 1 if the rectangle touches the box of the image, otherwise 0.
+
+## Description
+
+Tells whether a rectangle touches the box of an image at a position. Transparent pixels count, so this is the quick first check before the exact [ImageRectCollide](ImageRectCollide).
 
 ## Related Commands
 

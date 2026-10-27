@@ -19,10 +19,6 @@
 ReadString:String stream:Int32
 ```
 
-## Description
-
-Reads a string that [WriteString](WriteString) wrote: first its length, then its text.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Reads a string that [WriteString](WriteString) wrote: first its length, then its
 | `stream` | Int32 | required | The stream to read from. |
 
 **Returns:** The string.
+
+## Description
+
+Reads a string that [WriteString](WriteString) wrote: first its length, then its text.
 
 ## Related Commands
 

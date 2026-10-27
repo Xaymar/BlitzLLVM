@@ -19,18 +19,6 @@
 CreateTerrain:Int32 grid_size:Int32, parent:Int32=0
 ```
 
-## Description
-
-Creates a flat terrain with `grid_size` squares along each side. Terrain heights are numbers from 0 to 1 at each corner of the grid; set them with [ModifyTerrain](ModifyTerrain) or load them from a picture with [LoadTerrain](LoadTerrain). The terrain spans from 0, 0, 0 to `grid_size`, 1, `grid_size`, so scale it with [ScaleEntity](ScaleEntity) to make it taller or wider: a scale of 1, 40, 1 makes the highest point 40 units up.
-
-A texture with a scale of 1 covers one grid square, so scale the texture by the grid size to stretch it over the whole terrain. See [ScaleTexture](ScaleTexture).
-
-A parent makes the terrain follow another entity. The terrain is still created at 0, 0, 0, not at the parent's position.
-
-**Differences and known gaps:**
-
-* The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise. Here any size from 2 to 4096 is accepted.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -39,6 +27,18 @@ A parent makes the terrain follow another entity. The terrain is still created a
 | `parent` | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the terrain.
+
+## Description
+
+Creates a flat terrain with `grid_size` squares along each side. Terrain heights are numbers from 0 to 1 at each corner of the grid; set them with [ModifyTerrain](ModifyTerrain) or load them from a picture with [LoadTerrain](LoadTerrain). The terrain spans from 0, 0, 0 to `grid_size`, 1, `grid_size`, so scale it with [ScaleEntity](ScaleEntity) to make it taller or wider: a scale of 1, 40, 1 makes the highest point 40 units up.
+
+A texture with a scale of 1 covers one grid square, so scale the texture by the grid size to stretch it over the whole terrain. See [ScaleTexture](ScaleTexture).
+
+A parent makes the terrain follow another entity. The terrain is still created at 0, 0, 0, not at the parent's position.
+
+## Differences
+
+* The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise. Here any size from 2 to 4096 is accepted.
 
 ## Examples
 

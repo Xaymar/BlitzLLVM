@@ -19,15 +19,15 @@
 EnableGadget gadget:Int32
 ```
 
-## Description
-
-Turns a gadget that was disabled with [DisableGadget](DisableGadget) back on.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of the gadget. |
+
+## Description
+
+Turns a gadget that was disabled with [DisableGadget](DisableGadget) back on.
 
 ## Examples
 

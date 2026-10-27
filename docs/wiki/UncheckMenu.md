@@ -19,15 +19,15 @@
 UncheckMenu menu:Int32
 ```
 
-## Description
-
-Removes the check mark that [CheckMenu](CheckMenu) put in front of an item.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `menu` | Int32 | required | Handle of a menu item. |
+
+## Description
+
+Removes the check mark that [CheckMenu](CheckMenu) put in front of an item.
 
 ## Related Commands
 

@@ -19,20 +19,20 @@
 AppTitle title:String, close_prompt:String=\
 ```
 
-## Description
-
-Sets the title of the program window.
-
-**Differences and known gaps:**
-
-* The title is only used once a graphics mode is open. The question is asked when somebody closes the window. If they cancel, the program carries on; otherwise the window closes as it would have without the question.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `title` | String | required | The window title. |
 | `close_prompt` | String | `\` | The question the original asked before closing the window. |
+
+## Description
+
+Sets the title of the program window.
+
+## Differences
+
+* The title is only used once a graphics mode is open. The question is asked when somebody closes the window. If they cancel, the program carries on; otherwise the window closes as it would have without the question.
 
 ## Examples
 

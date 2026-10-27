@@ -19,10 +19,6 @@
 MeshWidth:Float32 mesh:Int32
 ```
 
-## Description
-
-Reads the size of the mesh along X, taken from the vertices. Entity scale does not count, but mesh commands such as [ScaleMesh](ScaleMesh) do. A cube is 2 wide, so `MeshWidth(CreateCube())` is 2.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Reads the size of the mesh along X, taken from the vertices. Entity scale does n
 | `mesh` | Int32 | required | Mesh handle. |
 
 **Returns:** The width of the mesh.
+
+## Description
+
+Reads the size of the mesh along X, taken from the vertices. Entity scale does not count, but mesh commands such as [ScaleMesh](ScaleMesh) do. A cube is 2 wide, so `MeshWidth(CreateCube())` is 2.
 
 ## Related Commands
 

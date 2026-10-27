@@ -19,13 +19,13 @@
 MouseWait:Int32
 ```
 
-## Description
-
-The older name of [WaitMouse](WaitMouse). It stops the program until a mouse button is pressed and returns the button.
-
 ## Parameters
 
 **Returns:** The number of the button that was pressed.
+
+## Description
+
+The older name of [WaitMouse](WaitMouse). It stops the program until a mouse button is pressed and returns the button.
 
 ## Examples
 

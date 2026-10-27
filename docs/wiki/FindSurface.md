@@ -19,10 +19,6 @@
 FindSurface:Int32 mesh:Int32, brush:Int32
 ```
 
-## Description
-
-Looks for the surface of a mesh that was painted with the given brush. Returns its handle, or 0 if no surface of the mesh has that brush. Use it to add geometry to an existing surface instead of creating a new one every time.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Looks for the surface of a mesh that was painted with the given brush. Returns i
 | `brush` | Int32 | required | Brush handle to look for. |
 
 **Returns:** The handle of the surface, or 0 if there is none.
+
+## Description
+
+Looks for the surface of a mesh that was painted with the given brush. Returns its handle, or 0 if no surface of the mesh has that brush. Use it to add geometry to an existing surface instead of creating a new one every time.
 
 ## Related Commands
 

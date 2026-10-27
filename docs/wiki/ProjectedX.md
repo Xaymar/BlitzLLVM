@@ -19,17 +19,17 @@
 ProjectedX:Float32
 ```
 
+## Parameters
+
+**Returns:** The X position in pixels.
+
 ## Description
 
 Gives the horizontal screen position of the point that the last [CameraProject](CameraProject) looked at, in pixels from the left edge of the screen.
 
-**Differences and known gaps:**
+## Differences
 
 * The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane. Here X and Y are -1000000 for a point behind the camera, so that it is obviously off the screen.
-
-## Parameters
-
-**Returns:** The X position in pixels.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 EntityName:String entity:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `entity` | Int32 | required | Entity handle. |
 
 **Returns:** The name of the entity, an empty string if it has none.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

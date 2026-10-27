@@ -19,17 +19,17 @@
 CountGfxDrivers:Int32
 ```
 
+## Parameters
+
+**Returns:** The number of drivers.
+
 ## Description
 
 The number of graphics drivers that can be chosen with [SetGfxDriver](SetGfxDriver). In the original every video card was a driver, which mattered to 3D programs on computers with two cards.
 
-**Differences and known gaps:**
+## Differences
 
 * Every GPU that Vulkan reports is a driver, including software ones. Driver 1 is the one a program uses without SetGfxDriver: a discrete GPU if there is one, then an integrated, virtual and software one, then those that cannot be used. Without a display (or a Vulkan driver) there is one driver, "Default".
-
-## Parameters
-
-**Returns:** The number of drivers.
 
 ## Examples
 

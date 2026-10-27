@@ -19,10 +19,6 @@
 PositionTexture texture:Int32, u_offset:Float32, v_offset:Float32
 ```
 
-## Description
-
-Moves the texture coordinates by an absolute offset. The image appears to slide across the surface, which is how scrolling water or conveyor belts are done. The offset is a fraction of the texture: 1 moves it by one full repeat, which looks the same as 0. Every entity that uses the texture changes at once.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Moves the texture coordinates by an absolute offset. The image appears to slide 
 | `texture` | Int32 | required | The texture to move. |
 | `u_offset` | Float32 | required |  |
 | `v_offset` | Float32 | required |  |
+
+## Description
+
+Moves the texture coordinates by an absolute offset. The image appears to slide across the surface, which is how scrolling water or conveyor belts are done. The offset is a fraction of the texture: 1 moves it by one full repeat, which looks the same as 0. Every entity that uses the texture changes at once.
 
 ## Examples
 

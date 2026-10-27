@@ -19,10 +19,6 @@
 Log:Float32 float:Float32
 ```
 
-## Description
-
-Returns the natural logarithm (base e) of a number. For base 10 use [Log10](Log10).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the natural logarithm (base e) of a number. For base 10 use [Log10](Log1
 | `float` | Float32 | required | A number above 0. |
 
 **Returns:** The natural logarithm.
+
+## Description
+
+Returns the natural logarithm (base e) of a number. For base 10 use [Log10](Log10).
 
 ## Examples
 

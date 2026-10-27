@@ -19,15 +19,15 @@
 DeleteDir dir:String
 ```
 
-## Description
-
-Deletes a folder. The folder has to be empty.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `dir` | String | required | The folder to delete. |
+
+## Description
+
+Deletes a folder. The folder has to be empty.
 
 ## Related Commands
 

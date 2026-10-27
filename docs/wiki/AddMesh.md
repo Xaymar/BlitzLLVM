@@ -19,18 +19,18 @@
 AddMesh source_mesh:Int32, dest_mesh:Int32
 ```
 
-## Description
-
-Appends all surfaces of one mesh to another mesh. This is the way to merge many small models into one, which draws much faster than many entities. The source mesh stays as it is and can be freed afterwards.
-
-Position, rotate and scale the source with the mesh commands, [PositionMesh](PositionMesh), [RotateMesh](RotateMesh) and [ScaleMesh](ScaleMesh), before adding it. The entity commands move the entity, not its vertices, so `AddMesh` would ignore them. The mesh commands all work around the origin, so scale and rotate before you move.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `source_mesh` | Int32 | required | Mesh that is copied into the other. |
 | `dest_mesh` | Int32 | required | Mesh that receives the surfaces. |
+
+## Description
+
+Appends all surfaces of one mesh to another mesh. This is the way to merge many small models into one, which draws much faster than many entities. The source mesh stays as it is and can be freed afterwards.
+
+Position, rotate and scale the source with the mesh commands, [PositionMesh](PositionMesh), [RotateMesh](RotateMesh) and [ScaleMesh](ScaleMesh), before adding it. The entity commands move the entity, not its vertices, so `AddMesh` would ignore them. The mesh commands all work around the origin, so scale and rotate before you move.
 
 ## Examples
 

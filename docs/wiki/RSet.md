@@ -19,10 +19,6 @@
 RSet:String string:String, size:Int32
 ```
 
-## Description
-
-Makes a string exactly `size` characters long by padding it with spaces on the left, or cutting off its start, so the text stays on the right. Useful for numbers in columns.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Makes a string exactly `size` characters long by padding it with spaces on the l
 | `size` | Int32 | required | The length of the result. |
 
 **Returns:** A string of exactly `size` characters.
+
+## Description
+
+Makes a string exactly `size` characters long by padding it with spaces on the left, or cutting off its start, so the text stays on the right. Useful for numbers in columns.
 
 ## Examples
 

@@ -19,6 +19,13 @@
 SpriteViewMode sprite:Int32, view_mode:Int32
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `sprite` | Int32 | required | The sprite. |
+| `view_mode` | Int32 | required | 1 to 4, see the table. Values outside that range select mode 1. |
+
 ## Description
 
 Chooses how a sprite turns in relation to the camera.
@@ -32,16 +39,9 @@ Chooses how a sprite turns in relation to the camera.
 
 The example shows all four modes while the camera circles them and tilts from side to side. The arrow on each sprite points to its up direction.
 
-**Differences and known gaps:**
+## Differences
 
 * The descriptions in the official help do not exactly match the engine. This page describes what the engine does, and so does this runtime.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sprite` | Int32 | required | The sprite. |
-| `view_mode` | Int32 | required | 1 to 4, see the table. Values outside that range select mode 1. |
 
 ## Examples
 

@@ -19,10 +19,6 @@
 FontDescent:Int32 font:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `font` | Int32 | required | A font handle from `LoadFont` or [RequestFont](RequestFont). |
 
 **Returns:** How many pixels the font reaches below the baseline.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

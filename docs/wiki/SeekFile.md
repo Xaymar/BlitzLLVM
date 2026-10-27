@@ -19,16 +19,16 @@
 SeekFile:Int32 file_stream:Int32, pos:Int32
 ```
 
-## Description
-
-Moves the position where the next read or write happens. Positions count bytes from the start of the file.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file_stream` | Int32 | required | The file handle. |
 | `pos` | Int32 | required | The new position in bytes. |
+
+## Description
+
+Moves the position where the next read or write happens. Positions count bytes from the start of the file.
 
 ## Related Commands
 

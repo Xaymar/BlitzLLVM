@@ -19,6 +19,15 @@
 CreateLight:Int32 type:Int32=1, parent:Int32=0
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `type` | Int32 | `1` | 1 for a directional light, 2 for a point light, 3 for a spot light. Defaults to 1. |
+| `parent` | Int32 | `0` | Entity the light follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new light.
+
 ## Description
 
 Creates a light and returns its handle. Without a light everything in the world is lit only by [AmbientLight](AmbientLight), which looks flat. A light is an entity: position and rotation work like on any other entity.
@@ -28,15 +37,6 @@ Creates a light and returns its handle. Without a light everything in the world 
 * **3, spot** is a cone of light that shines along its forward direction (+Z). See [LightConeAngles](LightConeAngles).
 
 A new light is white, sits at the origin and has a range of 1000. Any other value for `type` creates a directional light. Only the 8 lights that come first in the world affect a frame, so plan with 8 at most.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `type` | Int32 | `1` | 1 for a directional light, 2 for a point light, 3 for a spot light. Defaults to 1. |
-| `parent` | Int32 | `0` | Entity the light follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new light.
 
 ## Examples
 

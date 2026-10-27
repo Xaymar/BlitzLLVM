@@ -19,16 +19,16 @@
 SoundPitch sound:Int32, pitch:Int32
 ```
 
-## Description
-
-Sets the playback frequency that channels of this sound start with, in hertz. Channels that are already playing keep theirs: use [ChannelPitch](ChannelPitch) for those.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
 | `pitch` | Int32 | required |  |
+
+## Description
+
+Sets the playback frequency that channels of this sound start with, in hertz. Channels that are already playing keep theirs: use [ChannelPitch](ChannelPitch) for those.
 
 ## Examples
 

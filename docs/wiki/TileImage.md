@@ -19,10 +19,6 @@
 TileImage image:Int32, x:Int32=0, y:Int32=0, frame:Int32=0
 ```
 
-## Description
-
-Like [TileBlock](TileBlock), but the mask color is left out, so what is behind the tiles shows through.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Like [TileBlock](TileBlock), but the mask color is left out, so what is behind t
 | `x` | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
 | `y` | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
 | `frame` | Int32 | `0` | Which frame to use. Defaults to 0. |
+
+## Description
+
+Like [TileBlock](TileBlock), but the mask color is left out, so what is behind the tiles shows through.
 
 ## Examples
 

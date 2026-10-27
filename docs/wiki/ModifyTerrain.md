@@ -19,14 +19,6 @@
 ModifyTerrain terrain:Int32, terrain_x:Int32, terrain_z:Int32, height:Float32, realtime:Int32=0
 ```
 
-## Description
-
-Sets the height of one grid point of the terrain. Heights are between 0 and 1 and are clamped to that range; the real height in the world is the height times the terrain's Y scale. Calls with a grid position outside the terrain do nothing.
-
-**Differences and known gaps:**
-
-* The realtime argument has no effect. Changes always show at the next RenderWorld.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ Sets the height of one grid point of the terrain. Heights are between 0 and 1 an
 | `terrain_z` | Int32 | required |  |
 | `height` | Float32 | required | New height, 0 to 1. |
 | `realtime` | Int32 | `0` | True to apply the change immediately instead of at the next render. Defaults to False. |
+
+## Description
+
+Sets the height of one grid point of the terrain. Heights are between 0 and 1 and are clamped to that range; the real height in the world is the height times the terrain's Y scale. Calls with a grid position outside the terrain do nothing.
+
+## Differences
+
+* The realtime argument has no effect. Changes always show at the next RenderWorld.
 
 ## Related Commands
 

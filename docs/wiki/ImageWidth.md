@@ -19,10 +19,6 @@
 ImageWidth:Int32 image:Int32
 ```
 
-## Description
-
-The width of one frame of an image in pixels.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The width of one frame of an image in pixels.
 | `image` | Int32 | required | The image. |
 
 **Returns:** The width of a frame.
+
+## Description
+
+The width of one frame of an image in pixels.
 
 ## Related Commands
 

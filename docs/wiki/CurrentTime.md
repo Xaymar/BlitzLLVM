@@ -19,13 +19,13 @@
 CurrentTime:String
 ```
 
-## Description
-
-Returns the time of day from the system clock as `HH:MM:SS` on a 24 hour clock.
-
 ## Parameters
 
 **Returns:** The time as text.
+
+## Description
+
+Returns the time of day from the system clock as `HH:MM:SS` on a 24 hour clock.
 
 ## Examples
 

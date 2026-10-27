@@ -19,10 +19,6 @@
 RecvUDPMsg:Int32 udp_stream:Int32
 ```
 
-## Description
-
-Receives the next UDP message, if one has arrived, and makes it readable from the stream. It waits for up to the time set by [UDPTimeouts](UDPTimeouts), which is 0 until you set it, so it does not wait by default. [UDPMsgIP](UDPMsgIP) and [UDPMsgPort](UDPMsgPort) then say who sent it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Receives the next UDP message, if one has arrived, and makes it readable from th
 | `udp_stream` | Int32 | required | The stream to receive on. |
 
 **Returns:** The size of the message in bytes, or 0 when there was none.
+
+## Description
+
+Receives the next UDP message, if one has arrived, and makes it readable from the stream. It waits for up to the time set by [UDPTimeouts](UDPTimeouts), which is 0 until you set it, so it does not wait by default. [UDPMsgIP](UDPMsgIP) and [UDPMsgPort](UDPMsgPort) then say who sent it.
 
 ## Related Commands
 

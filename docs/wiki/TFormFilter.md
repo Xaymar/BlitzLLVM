@@ -19,15 +19,15 @@
 TFormFilter enable:Int32
 ```
 
-## Description
-
-Chooses how [TFormImage](TFormImage), [ScaleImage](ScaleImage) and [RotateImage](RotateImage) look pixels up. With the filter on, the colors of neighboring pixels are blended for a smooth result. With it off, the nearest pixel is taken, which keeps hard edges and is the right choice for pixel art.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int32 | required | True for smooth results (the default), False for the nearest pixel. |
+
+## Description
+
+Chooses how [TFormImage](TFormImage), [ScaleImage](ScaleImage) and [RotateImage](RotateImage) look pixels up. With the filter on, the colors of neighboring pixels are blended for a smooth result. With it off, the nearest pixel is taken, which keeps hard edges and is the right choice for pixel art.
 
 ## Examples
 

@@ -19,19 +19,19 @@
 LoopSound sound:Int32
 ```
 
-## Description
-
-Marks a sound so that it plays in an endless loop whenever it is played from now on. It does not start the sound: call [PlaySound](PlaySound) for that. Channels that already play the sound are not changed. Stop a looping sound with [StopChannel](StopChannel).
-
-**Differences and known gaps:**
-
-* There is no command to switch looping off again.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
+
+## Description
+
+Marks a sound so that it plays in an endless loop whenever it is played from now on. It does not start the sound: call [PlaySound](PlaySound) for that. Channels that already play the sound are not changed. Stop a looping sound with [StopChannel](StopChannel).
+
+## Differences
+
+* There is no command to switch looping off again.
 
 ## Examples
 

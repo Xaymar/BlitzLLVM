@@ -19,14 +19,6 @@
 Chr:String ascii:Int32
 ```
 
-## Description
-
-Returns the one-character string for a character code. [Asc](Asc) does the opposite.
-
-**Differences and known gaps:**
-
-* Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Returns the one-character string for a character code. [Asc](Asc) does the oppos
 | `ascii` | Int32 | required | The character code, 0 to 255. |
 
 **Returns:** A string with a single character.
+
+## Description
+
+Returns the one-character string for a character code. [Asc](Asc) does the opposite.
+
+## Differences
+
+* Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
 
 ## Examples
 

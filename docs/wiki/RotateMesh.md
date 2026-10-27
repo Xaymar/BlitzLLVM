@@ -19,10 +19,6 @@
 RotateMesh mesh:Int32, pitch:Float32, yaw:Float32, roll:Float32
 ```
 
-## Description
-
-Turns every vertex of a mesh around the origin, permanently. The angles are in degrees. It is how you stand a model upright or tilt a part before merging it with [AddMesh](AddMesh).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Turns every vertex of a mesh around the origin, permanently. The angles are in d
 | `pitch` | Float32 | required | Rotation around X in degrees. |
 | `yaw` | Float32 | required | Rotation around Y in degrees. |
 | `roll` | Float32 | required | Rotation around Z in degrees. |
+
+## Description
+
+Turns every vertex of a mesh around the origin, permanently. The angles are in degrees. It is how you stand a model upright or tilt a part before merging it with [AddMesh](AddMesh).
 
 ## Related Commands
 

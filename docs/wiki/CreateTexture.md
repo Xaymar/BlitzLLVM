@@ -19,6 +19,17 @@
 CreateTexture:Int32 width:Int32, height:Int32, flags:Int32=0, frames:Int32=1
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `width` | Int32 | required | Width in pixels. |
+| `height` | Int32 | required | Height in pixels. |
+| `flags` | Int32 | `0` | Sum of the flags above. Defaults to 1. |
+| `frames` | Int32 | `1` | Number of animation frames. Defaults to 1. |
+
+**Returns:** A texture handle.
+
 ## Description
 
 Makes an empty texture of the given size and returns its handle. Fill it by drawing on its buffer: call [SetBuffer](SetBuffer) with [TextureBuffer](TextureBuffer) and use the normal 2D commands, then switch back to the back buffer and put the texture on something with [EntityTexture](EntityTexture) or a brush.
@@ -42,21 +53,10 @@ The flags are added together, so `1 + 2` is a color texture that also has an alp
 
 The texture is created at the size you ask for, so [TextureWidth](TextureWidth) and [TextureHeight](TextureHeight) return exactly what you passed. Power-of-two sizes are the safest choice for other Blitz3D implementations.
 
-**Differences and known gaps:**
+## Differences
 
 * Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks. Video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering. A sphere map (64) takes its coordinates from the normal of the surface in the view, and ScaleTexture, PositionTexture and RotateTexture do not change them. A cube map (128) has six faces of the size you give, chosen with SetCubeFace and shown as SetCubeMode says; it does not have mip maps. A texture with both flags is drawn as a plain one. Without flag 8 it has no mip maps.
 * The alpha (2) flag is only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, also where you drew black, unless it is masked (4): the masked flag does cut out black there.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | Width in pixels. |
-| `height` | Int32 | required | Height in pixels. |
-| `flags` | Int32 | `0` | Sum of the flags above. Defaults to 1. |
-| `frames` | Int32 | `1` | Number of animation frames. Defaults to 1. |
-
-**Returns:** A texture handle.
 
 ## Examples
 

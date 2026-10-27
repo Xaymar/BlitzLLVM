@@ -19,15 +19,15 @@
 HideGadget gadget:Int32
 ```
 
-## Description
-
-Makes a gadget invisible, with everything inside it. It also cannot be used. [ShowGadget](ShowGadget) brings it back. It is quicker than freeing and making it again.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of the gadget. |
+
+## Description
+
+Makes a gadget invisible, with everything inside it. It also cannot be used. [ShowGadget](ShowGadget) brings it back. It is quicker than freeing and making it again.
 
 ## Examples
 

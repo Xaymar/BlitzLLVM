@@ -19,10 +19,6 @@
 CountTreeViewNodes:Int32 parent_node:Int32
 ```
 
-## Description
-
-Counts the children a node has directly, without the nodes below them.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Counts the children a node has directly, without the nodes below them.
 | `parent_node` | Int32 | required |  |
 
 **Returns:** The number of children.
+
+## Description
+
+Counts the children a node has directly, without the nodes below them.
 
 ## Related Commands
 

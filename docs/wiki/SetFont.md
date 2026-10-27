@@ -19,19 +19,19 @@
 SetFont font:Int32
 ```
 
-## Description
-
-Chooses the font that [Text](Text), [Print](Print), [StringWidth](StringWidth) and the other text commands use from now on.
-
-**Differences and known gaps:**
-
-* A font that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `font` | Int32 | required | A handle from [LoadFont](LoadFont). 0 goes back to the built-in font. |
+
+## Description
+
+Chooses the font that [Text](Text), [Print](Print), [StringWidth](StringWidth) and the other text commands use from now on.
+
+## Differences
+
+* A font that does not exist stops the program with an error message.
 
 ## Related Commands
 

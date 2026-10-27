@@ -19,21 +19,21 @@
 FreeTexture texture:Int32
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `texture` | Int32 | required | The texture to free. |
+
 ## Description
 
 Releases a texture and its memory. Entities and brushes that were already painted with the texture keep showing it; only the handle becomes unusable, and the image goes away once nothing uses it any more. Do not use the handle itself after freeing it.
 
 Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, but freeing the ones you no longer need keeps memory use down.
 
-**Differences and known gaps:**
+## Differences
 
 * [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to free. |
 
 ## Related Commands
 

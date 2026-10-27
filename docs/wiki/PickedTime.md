@@ -19,17 +19,17 @@
 PickedTime:Float32
 ```
 
+## Parameters
+
+**Returns:** How far along the line the hit was, from 0 at its start to 1 at its end. After a pick that found nothing the value is 1.
+
 ## Description
 
 _Not documented yet._
 
-**Differences and known gaps:**
+## Differences
 
 * The official help describes this as the time taken to calculate the pick. As in the original engine, the value is the fraction along the line described above.
-
-## Parameters
-
-**Returns:** How far along the line the hit was, from 0 at its start to 1 at its end. After a pick that found nothing the value is 1.
 
 ## Related Commands
 

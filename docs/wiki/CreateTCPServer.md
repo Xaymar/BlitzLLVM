@@ -19,10 +19,6 @@
 CreateTCPServer:Int32 port:Int32
 ```
 
-## Description
-
-Starts listening for TCP connections on a port. Clients connect with [OpenTCPStream](OpenTCPStream) and you take them with [AcceptTCPStream](AcceptTCPStream).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Starts listening for TCP connections on a port. Clients connect with [OpenTCPStr
 | `port` | Int32 | required | The port to listen on. |
 
 **Returns:** A server handle, or 0 when the port cannot be used, for example because another program already listens on it.
+
+## Description
+
+Starts listening for TCP connections on a port. Clients connect with [OpenTCPStream](OpenTCPStream) and you take them with [AcceptTCPStream](AcceptTCPStream).
 
 ## Related Commands
 

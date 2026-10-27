@@ -19,13 +19,13 @@
 MouseYSpeed:Int32
 ```
 
-## Description
-
-How far the pointer moved up or down since the last call. See [MouseXSpeed](MouseXSpeed).
-
 ## Parameters
 
 **Returns:** The change of the vertical position since the previous call.
+
+## Description
+
+How far the pointer moved up or down since the last call. See [MouseXSpeed](MouseXSpeed).
 
 ## Related Commands
 

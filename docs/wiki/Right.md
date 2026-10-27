@@ -19,10 +19,6 @@
 Right:String string:String, count:Int32
 ```
 
-## Description
-
-Returns the last characters of a string. Asking for more characters than there are returns the whole string.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Returns the last characters of a string. Asking for more characters than there a
 | `count` | Int32 | required | How many characters to take. |
 
 **Returns:** The last `count` characters.
+
+## Description
+
+Returns the last characters of a string. Asking for more characters than there are returns the whole string.
 
 ## Examples
 

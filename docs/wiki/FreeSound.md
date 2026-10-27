@@ -19,19 +19,19 @@
 FreeSound sound:Int32
 ```
 
-## Description
-
-Throws a loaded sound away and frees its memory. Channels that are playing this sound are stopped. Sounds are freed when the program ends anyway, so this is for programs that load a lot of sounds, for example one set for each level.
-
-**Differences and known gaps:**
-
-* Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sound` | Int32 | required | A handle from [LoadSound](LoadSound) or [Load3DSound](Load3DSound). |
+
+## Description
+
+Throws a loaded sound away and frees its memory. Channels that are playing this sound are stopped. Sounds are freed when the program ends anyway, so this is for programs that load a lot of sounds, for example one set for each level.
+
+## Differences
+
+* Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
 
 ## Examples
 

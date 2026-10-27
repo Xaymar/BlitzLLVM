@@ -19,14 +19,6 @@
 GfxDriver3D:Int32 driver:Int32
 ```
 
-## Description
-
-Tells whether a graphics driver can draw 3D.
-
-**Differences and known gaps:**
-
-* A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0. Software drivers can.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Tells whether a graphics driver can draw 3D.
 | `driver` | Int32 | required | Number of the driver, from 1 to the number that [CountGfxDrivers](CountGfxDrivers) reports. |
 
 **Returns:** True if the driver can draw 3D pictures.
+
+## Description
+
+Tells whether a graphics driver can draw 3D.
+
+## Differences
+
+* A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0. Software drivers can.
 
 ## Related Commands
 

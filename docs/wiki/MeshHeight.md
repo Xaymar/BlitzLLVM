@@ -19,10 +19,6 @@
 MeshHeight:Float32 mesh:Int32
 ```
 
-## Description
-
-Reads the size of the mesh along Y, taken from the vertices. Entity scale does not count, but mesh commands do.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Reads the size of the mesh along Y, taken from the vertices. Entity scale does n
 | `mesh` | Int32 | required | Mesh handle. |
 
 **Returns:** The height of the mesh.
+
+## Description
+
+Reads the size of the mesh along Y, taken from the vertices. Entity scale does not count, but mesh commands do.
 
 ## Related Commands
 

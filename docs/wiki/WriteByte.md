@@ -19,16 +19,16 @@
 WriteByte stream:Int32, byte:Int32
 ```
 
-## Description
-
-Writes one byte. Values outside 0 to 255 wrap around.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `stream` | Int32 | required | The stream to write to. |
 | `byte` | Int32 | required | The value to write. |
+
+## Description
+
+Writes one byte. Values outside 0 to 255 wrap around.
 
 ## Related Commands
 

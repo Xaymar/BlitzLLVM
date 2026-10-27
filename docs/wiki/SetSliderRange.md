@@ -19,10 +19,6 @@
 SetSliderRange slider:Int32, visible:Int32, total:Int32
 ```
 
-## Description
-
-Says how much the slider covers. Both numbers are in the units you like, such as the number of lines. The value then goes from 0 to total minus visible, and the size of the handle matches visible compared to total.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Says how much the slider covers. Both numbers are in the units you like, such as
 | `slider` | Int32 | required | Handle of a slider. |
 | `visible` | Int32 | required | How much is seen at once. |
 | `total` | Int32 | required | How much there is altogether. |
+
+## Description
+
+Says how much the slider covers. Both numbers are in the units you like, such as the number of lines. The value then goes from 0 to total minus visible, and the size of the handle matches visible compared to total.
 
 ## Examples
 

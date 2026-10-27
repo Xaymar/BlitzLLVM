@@ -19,10 +19,6 @@
 JoyUDir:Int32 port:Int32=0
 ```
 
-## Description
-
-Like [JoyU](JoyU), but as a direction only: -1 when the axis is pushed more than a third of the way to its low end, 1 when it is pushed more than a third of the way to its high end, otherwise 0.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Like [JoyU](JoyU), but as a direction only: -1 when the axis is pushed more than
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** -1, 0 or 1.
+
+## Description
+
+Like [JoyU](JoyU), but as a direction only: -1 when the axis is pushed more than a third of the way to its low end, 1 when it is pushed more than a third of the way to its high end, otherwise 0.
 
 ## Related Commands
 

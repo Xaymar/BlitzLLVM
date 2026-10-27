@@ -19,16 +19,6 @@
 DisplayScale:Float32 display:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-The factor by which the system wants things on a display to be larger than normal, so that they are as big on a display with many pixels per inch as on one with few. 1.0 is normal, 2.0 is twice as large. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
-
-**Differences and known gaps:**
-
-* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +26,16 @@ The factor by which the system wants things on a display to be larger than norma
 | `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The scale, or 0 if the display does not exist.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+The factor by which the system wants things on a display to be larger than normal, so that they are as big on a display with many pixels per inch as on one with few. 1.0 is normal, 2.0 is twice as large. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+## Differences
+
+* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 
 ## Related Commands
 

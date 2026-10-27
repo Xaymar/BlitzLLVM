@@ -19,18 +19,18 @@
 BrushAlpha brush:Int32, alpha:Float32
 ```
 
-## Description
-
-Sets how see-through painted surfaces are. 1 is solid, 0 is invisible and values between give glass-like surfaces. Values outside 0 to 1 are clamped.
-
-A surface with alpha 0 is not drawn but still takes part in collisions, which is the difference to [HideEntity](HideEntity).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `brush` | Int32 | required | The brush. |
 | `alpha` | Float32 | required | Opacity, 0 to 1. The default is 1. |
+
+## Description
+
+Sets how see-through painted surfaces are. 1 is solid, 0 is invisible and values between give glass-like surfaces. Values outside 0 to 1 are clamped.
+
+A surface with alpha 0 is not drawn but still takes part in collisions, which is the difference to [HideEntity](HideEntity).
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 ReadDir:Int32 dirname:String
 ```
 
-## Description
-
-Opens a folder so its entries can be listed with [NextFile](NextFile).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Opens a folder so its entries can be listed with [NextFile](NextFile).
 | `dirname` | String | required | The folder to list. |
 
 **Returns:** A folder handle, or 0 when the folder does not exist.
+
+## Description
+
+Opens a folder so its entries can be listed with [NextFile](NextFile).
 
 ## Related Commands
 

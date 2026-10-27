@@ -19,16 +19,16 @@
 SelectGadgetItem gadget:Int32, index:Int32
 ```
 
-## Description
-
-Selects an entry by its number, or with -1 clears the selection. It does not send an event.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
 | `index` | Int32 | required | Number of the entry starting at 0, or -1 for no selection. |
+
+## Description
+
+Selects an entry by its number, or with -1 clears the selection. It does not send an event.
 
 ## Examples
 

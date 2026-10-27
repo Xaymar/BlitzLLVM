@@ -19,10 +19,6 @@
 FilePos:Int32 file_stream:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `file_stream` | Int32 | required | The file handle. |
 
 **Returns:** The position in the file where the next read or write happens, counted in bytes from the start. A newly opened file is at 0.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

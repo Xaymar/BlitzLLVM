@@ -19,10 +19,6 @@
 ButtonState:Int32 button:Int32
 ```
 
-## Description
-
-Says whether a check box or radio button is ticked. The state of normal buttons is always 0.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Says whether a check box or radio button is ticked. The state of normal buttons 
 | `button` | Int32 | required | Handle of a button made with style 2 or 3. |
 
 **Returns:** 1 if it is ticked, 0 if not.
+
+## Description
+
+Says whether a check box or radio button is ticked. The state of normal buttons is always 0.
 
 ## Examples
 

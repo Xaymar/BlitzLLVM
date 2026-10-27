@@ -19,14 +19,6 @@
 CanvasBuffer:Int32 canvas:Int32
 ```
 
-## Description
-
-Gives the buffer that a canvas is drawn to. Make it the target with `SetBuffer`, draw with the usual 2D commands like `Rect`, `Line` and `Text`, and then call [FlipCanvas](FlipCanvas) to show the result. The buffer is as big as the canvas was when this was called first.
-
-**Differences and known gaps:**
-
-* The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit. The original smooths this stretching, here the picture is scaled by the renderer.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Gives the buffer that a canvas is drawn to. Make it the target with `SetBuffer`,
 | `canvas` | Int32 | required | Handle of a canvas made with [CreateCanvas](CreateCanvas). |
 
 **Returns:** A buffer handle that works with `SetBuffer`, `LockBuffer`, `ReadPixel` and the other buffer commands.
+
+## Description
+
+Gives the buffer that a canvas is drawn to. Make it the target with `SetBuffer`, draw with the usual 2D commands like `Rect`, `Line` and `Text`, and then call [FlipCanvas](FlipCanvas) to show the result. The buffer is as big as the canvas was when this was called first.
+
+## Differences
+
+* The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit. The original smooths this stretching, here the picture is scaled by the renderer.
 
 ## Examples
 

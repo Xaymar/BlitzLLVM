@@ -19,16 +19,6 @@
 DisplayWidth:Int32 display:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-The width in pixels of what a display shows right now, which is the resolution of the desktop on it. Use it to open a [Graphics](Graphics) window of the size of the screen. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
-
-**Differences and known gaps:**
-
-* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +26,16 @@ The width in pixels of what a display shows right now, which is the resolution o
 | `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The width in pixels, or 0 if the display does not exist.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+The width in pixels of what a display shows right now, which is the resolution of the desktop on it. Use it to open a [Graphics](Graphics) window of the size of the screen. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+## Differences
+
+* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 CollisionTriangle:Int32 entity:Int32, collision_index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `collision_index` | Int32 | required |  |
 
 **Returns:** The number of the triangle, in the surface from CollisionSurface, that was hit. Triangle numbers start at 0, like the ones used by [TriangleVertex](TriangleVertex). It is 0 for collisions with ellipsoids and boxes.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,13 +19,13 @@
 ActiveTextures:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The number of textures that exist at the moment. Textures count from creation until they are freed with [FreeTexture](FreeTexture) or [ClearWorld](ClearWorld). Use it to check that a level frees what it loads.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,16 +19,16 @@
 PaintSurface surface:Int32, brush:Int32
 ```
 
-## Description
-
-Applies a brush to one surface: its color, texture, alpha, shininess, blend mode and effects. Unlike [PaintMesh](PaintMesh) the other surfaces of the mesh stay as they are, so you can give each part of a model a different look.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `surface` | Int32 | required | Surface handle. |
 | `brush` | Int32 | required | Brush handle. |
+
+## Description
+
+Applies a brush to one surface: its color, texture, alpha, shininess, blend mode and effects. Unlike [PaintMesh](PaintMesh) the other surfaces of the mesh stay as they are, so you can give each part of a model a different look.
 
 ## Related Commands
 

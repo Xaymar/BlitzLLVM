@@ -19,10 +19,6 @@
 GetChild:Int32 entity:Int32, index:Int32
 ```
 
-## Description
-
-Reads one of the entities attached to a parent. The index starts at 1, so loop from 1 to [CountChildren](CountChildren) to visit all of them. Only direct children are listed, not their children.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Reads one of the entities attached to a parent. The index starts at 1, so loop f
 | `index` | Int32 | required | Number of the child, 1 up to the number of children. |
 
 **Returns:** The handle of the child.
+
+## Description
+
+Reads one of the entities attached to a parent. The index starts at 1, so loop from 1 to [CountChildren](CountChildren) to visit all of them. Only direct children are listed, not their children.
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 WaitTimer:Int32 timer:Int32
 ```
 
-## Description
-
-Waits for the next tick of a timer and returns how many ticks went by since the last call, which is 1 when your loop keeps up and more when it fell behind. Do not call it on a timer that is paused.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Waits for the next tick of a timer and returns how many ticks went by since the 
 | `timer` | Int32 | required | The timer handle. |
 
 **Returns:** The number of ticks since the last call, at least 1.
+
+## Description
+
+Waits for the next tick of a timer and returns how many ticks went by since the last call, which is 1 when your loop keeps up and more when it fell behind. Do not call it on a timer that is paused.
 
 ## Examples
 

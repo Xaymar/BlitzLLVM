@@ -19,15 +19,15 @@
 EnableMenu menu:Int32
 ```
 
-## Description
-
-Makes a menu item usable again after [DisableMenu](DisableMenu).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `menu` | Int32 | required | Handle of a menu or item. |
+
+## Description
+
+Makes a menu item usable again after [DisableMenu](DisableMenu).
 
 ## Related Commands
 

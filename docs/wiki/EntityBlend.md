@@ -19,6 +19,13 @@
 EntityBlend entity:Int32, blend:Int32
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `blend` | Int32 | required | 1 for alpha, 2 for multiply, 3 for add. |
+
 ## Description
 
 Chooses how the entity's pixels are mixed with what is already on screen.
@@ -26,13 +33,6 @@ Chooses how the entity's pixels are mixed with what is already on screen.
 * **1, alpha** is the normal mode: the entity covers what is behind it according to its alpha.
 * **2, multiply** darkens what is behind it, which suits shadows and light maps. White changes nothing and black makes it black.
 * **3, add** adds the color to what is behind it, which suits fire, lasers and glows.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `blend` | Int32 | required | 1 for alpha, 2 for multiply, 3 for add. |
 
 ## Related Commands
 

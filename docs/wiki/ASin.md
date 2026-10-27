@@ -19,10 +19,6 @@
 ASin:Float32 float:Float32
 ```
 
-## Description
-
-Returns the angle whose sine is the given number. The result is in degrees, from -90 to 90.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the angle whose sine is the given number. The result is in degrees, from
 | `float` | Float32 | required | The sine, from -1 to 1. |
 
 **Returns:** The angle in degrees.
+
+## Description
+
+Returns the angle whose sine is the given number. The result is in degrees, from -90 to 90.
 
 ## Examples
 

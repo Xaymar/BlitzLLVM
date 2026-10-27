@@ -19,10 +19,6 @@
 Floor:Float32 float:Float32
 ```
 
-## Description
-
-Rounds down to the previous whole number and returns it as a float.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Rounds down to the previous whole number and returns it as a float.
 | `float` | Float32 | required | The number to round down. |
 
 **Returns:** The largest whole number that is not above `float`.
+
+## Description
+
+Rounds down to the previous whole number and returns it as a float.
 
 ## Examples
 

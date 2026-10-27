@@ -19,10 +19,6 @@
 FontAscent:Int32 font:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `font` | Int32 | required | A font handle from `LoadFont` or [RequestFont](RequestFont). |
 
 **Returns:** How many pixels the font rises above the baseline. Add [FontDescent](FontDescent) to get the height of a line.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

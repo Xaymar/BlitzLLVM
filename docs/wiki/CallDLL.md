@@ -19,10 +19,6 @@
 CallDLL:Int32 dll_name:String, func_name:String, in_bank:Int32=0, out_bank:Int32=0
 ```
 
-## Description
-
-Calls a function in a dynamic library and returns what it returns. The function is passed the banks, and a library or function that does not exist makes the call return 0 instead of failing. Which libraries exist depends on the platform, so a program that uses this is only as portable as the library it calls.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Calls a function in a dynamic library and returns what it returns. The function 
 | `out_bank` | Int32 | `0` | A bank given to the function to fill. Defaults to none. |
 
 **Returns:** The value the function returned, or 0 when the library or function was not found.
+
+## Description
+
+Calls a function in a dynamic library and returns what it returns. The function is passed the banks, and a library or function that does not exist makes the call return 0 instead of failing. Which libraries exist depends on the platform, so a program that uses this is only as portable as the library it calls.
 
 ## Examples
 

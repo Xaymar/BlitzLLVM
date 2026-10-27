@@ -19,10 +19,6 @@
 EntityCollided:Int32 entity:Int32, type:Int32
 ```
 
-## Description
-
-Finds out whether the entity hit something of a given collision type during the last [UpdateWorld](UpdateWorld), and which one. It is the quick way to ask "am I standing on ground?" without looping over every collision.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Finds out whether the entity hit something of a given collision type during the 
 | `type` | Int32 | required | Collision type to look for. |
 
 **Returns:** The first colliding entity of that type, or 0 if there was none.
+
+## Description
+
+Finds out whether the entity hit something of a given collision type during the last [UpdateWorld](UpdateWorld), and which one. It is the quick way to ask "am I standing on ground?" without looping over every collision.
 
 ## Related Commands
 

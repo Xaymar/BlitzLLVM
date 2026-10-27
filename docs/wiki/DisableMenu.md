@@ -19,15 +19,15 @@
 DisableMenu menu:Int32
 ```
 
-## Description
-
-Greys out a menu item so it cannot be chosen and sends no events. [EnableMenu](EnableMenu) brings it back.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `menu` | Int32 | required | Handle of a menu or item. |
+
+## Description
+
+Greys out a menu item so it cannot be chosen and sends no events. [EnableMenu](EnableMenu) brings it back.
 
 ## Examples
 

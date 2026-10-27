@@ -19,16 +19,6 @@
 CreateCanvas:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a rectangular area in a window or panel that your program paints on itself, for animations, graphs or anything else the other gadgets cannot show. Canvases also tell you about the mouse: they send $203 when it moves over them and $205 and $206 when it enters or leaves, with the position in [EventX](EventX) and [EventY](EventY), and they get keyboard events when they have the focus.
-
-Draw with [CanvasBuffer](CanvasBuffer) and [FlipCanvas](FlipCanvas). A canvas can also be the group of other gadgets.
-
-**Differences and known gaps:**
-
-* Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -41,6 +31,16 @@ Draw with [CanvasBuffer](CanvasBuffer) and [FlipCanvas](FlipCanvas). A canvas ca
 | `style` | Int32 | `0` | 0 lets the canvas follow the size of its group when [SetGadgetLayout](SetGadgetLayout) says so, 65536 keeps it as it is. Defaults to 0. |
 
 **Returns:** A handle for the canvas.
+
+## Description
+
+Makes a rectangular area in a window or panel that your program paints on itself, for animations, graphs or anything else the other gadgets cannot show. Canvases also tell you about the mouse: they send $203 when it moves over them and $205 and $206 when it enters or leaves, with the position in [EventX](EventX) and [EventY](EventY), and they get keyboard events when they have the focus.
+
+Draw with [CanvasBuffer](CanvasBuffer) and [FlipCanvas](FlipCanvas). A canvas can also be the group of other gadgets.
+
+## Differences
+
+* Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
 
 ## Examples
 

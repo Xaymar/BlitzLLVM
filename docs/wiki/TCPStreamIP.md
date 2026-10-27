@@ -19,10 +19,6 @@
 TCPStreamIP:Int32 tcp_stream:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `tcp_stream` | Int32 | required | The stream. |
 
 **Returns:** The address on the other end of a TCP stream, as a number for [DottedIP](DottedIP).
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 FileType:Int32 file:String
 ```
 
-## Description
-
-Tells what is at a path, so you can check for something before you open it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Tells what is at a path, so you can check for something before you open it.
 | `file` | String | required | The path to look at. |
 
 **Returns:** 0 when nothing is there, 1 for a file, 2 for a folder.
+
+## Description
+
+Tells what is at a path, so you can check for something before you open it.
 
 ## Examples
 

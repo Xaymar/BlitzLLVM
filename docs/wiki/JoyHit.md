@@ -19,10 +19,6 @@
 JoyHit:Int32 button:Int32, port:Int32=0
 ```
 
-## Description
-
-Counts presses of a joystick button since the last time JoyHit asked about that button.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Counts presses of a joystick button since the last time JoyHit asked about that 
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** How many times the button was pressed since the last call.
+
+## Description
+
+Counts presses of a joystick button since the last time JoyHit asked about that button.
 
 ## Examples
 

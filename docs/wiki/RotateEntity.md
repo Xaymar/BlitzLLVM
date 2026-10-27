@@ -19,10 +19,6 @@
 RotateEntity entity:Int32, pitch:Float32, yaw:Float32, roll:Float32, global:Int32=0
 ```
 
-## Description
-
-Turns an entity to an absolute orientation. The three angles are in degrees: pitch tips it forward or back around X, yaw turns it left or right around Y and roll tilts it sideways around Z. Without `global` the angles are relative to the parent. For a turn from the current orientation use [TurnEntity](TurnEntity).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Turns an entity to an absolute orientation. The three angles are in degrees: pit
 | `yaw` | Float32 | required | Rotation around Y in degrees. |
 | `roll` | Float32 | required | Rotation around Z in degrees. |
 | `global` | Int32 | `0` | 1 to use angles of the world instead of angles relative to the parent. Defaults to 0. |
+
+## Description
+
+Turns an entity to an absolute orientation. The three angles are in degrees: pitch tips it forward or back around X, yaw turns it left or right around Y and roll tilts it sideways around Z. Without `global` the angles are relative to the parent. For a turn from the current orientation use [TurnEntity](TurnEntity).
 
 ## Related Commands
 

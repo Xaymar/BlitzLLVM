@@ -19,10 +19,6 @@
 CreateSphere:Int32 segments:Int32=8, parent:Int32=0
 ```
 
-## Description
-
-Creates a sphere with a radius of 1 around the origin. `segments` sets how round it looks. A sphere has `2 * segments * (segments - 1) * 2` triangles, so 8 gives 224 and 16 gives 960: use the smallest number that still looks smooth at the distance the sphere is seen from. Valid values are 2 to 100.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Creates a sphere with a radius of 1 around the origin. `segments` sets how round
 | `parent` | Int32 | `0` | Entity the sphere follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new sphere.
+
+## Description
+
+Creates a sphere with a radius of 1 around the origin. `segments` sets how round it looks. A sphere has `2 * segments * (segments - 1) * 2` triangles, so 8 gives 224 and 16 gives 960: use the smallest number that still looks smooth at the distance the sphere is seen from. Valid values are 2 to 100.
 
 ## Examples
 

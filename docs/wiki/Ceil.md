@@ -19,10 +19,6 @@
 Ceil:Float32 float:Float32
 ```
 
-## Description
-
-Rounds up to the next whole number and returns it as a float.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Rounds up to the next whole number and returns it as a float.
 | `float` | Float32 | required | The number to round up. |
 
 **Returns:** The smallest whole number that is not below `float`.
+
+## Description
+
+Rounds up to the next whole number and returns it as a float.
 
 ## Examples
 

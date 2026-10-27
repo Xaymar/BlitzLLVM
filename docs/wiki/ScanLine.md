@@ -19,17 +19,17 @@
 ScanLine:Int32
 ```
 
+## Parameters
+
+**Returns:** Always 0. The original returned the line the monitor was drawing, which a modern display cannot tell.
+
 ## Description
 
 _Not documented yet._
 
-**Differences and known gaps:**
+## Differences
 
 * Always returns 0. Use `VWait` or `Flip` to synchronise with the display instead.
-
-## Parameters
-
-**Returns:** Always 0. The original returned the line the monitor was drawing, which a modern display cannot tell.
 
 ## Related Commands
 

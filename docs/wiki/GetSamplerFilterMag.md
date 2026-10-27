@@ -19,12 +19,6 @@
 GetSamplerFilterMag:Int32 sampler:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Returns the filter mode for a texture drawn bigger than it is that the sampler has, as it was set with [SetSamplerFilterMag](SetSamplerFilterMag) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 nearest or 1 linear.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ Returns the filter mode for a texture drawn bigger than it is that the sampler h
 | `sampler` | Int32 | required | The sampler to ask. |
 
 **Returns:** The setting: 0 nearest or 1 linear.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Returns the filter mode for a texture drawn bigger than it is that the sampler has, as it was set with [SetSamplerFilterMag](SetSamplerFilterMag) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 nearest or 1 linear.
 
 ## Related Commands
 

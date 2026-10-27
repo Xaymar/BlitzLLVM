@@ -19,15 +19,15 @@
 RestoreWindow window:Int32
 ```
 
-## Description
-
-Puts a window back to the position and size it had before it was minimized or maximized. Nothing happens to a window that is in neither state. This command is undocumented in the official help, but it exists in all versions of BlitzPlus.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `window` | Int32 | required | Handle of a window. |
+
+## Description
+
+Puts a window back to the position and size it had before it was minimized or maximized. Nothing happens to a window that is in neither state. This command is undocumented in the official help, but it exists in all versions of BlitzPlus.
 
 ## Examples
 

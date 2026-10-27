@@ -19,17 +19,17 @@
 StartNetGame:Int32
 ```
 
+## Parameters
+
+**Returns:** 2 when a game was hosted, 1 when one was joined and 0 when nothing was started or it failed.
+
 ## Description
 
 Asks on the console whether to host or to join a game and does what was chosen, using the game name `BlitzLLVM game`. Joining asks for the address of the host.
 
-**Differences and known gaps:**
+## Differences
 
 * The original showed a dialog box with the games found in the network. Use [HostNetGame](HostNetGame) and [JoinNetGame](JoinNetGame) when you need to choose in your own interface.
-
-## Parameters
-
-**Returns:** 2 when a game was hosted, 1 when one was joined and 0 when nothing was started or it failed.
 
 ## Related Commands
 

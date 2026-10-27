@@ -23,7 +23,7 @@ DebugObjects
 
 Writes how many objects of each kind are alive into the debug log, one line per kind. Together with [ActiveObjects](ActiveObjects) it helps to find things that were forgotten to be freed.
 
-**Differences and known gaps:**
+## Differences
 
 * The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
 

@@ -19,10 +19,6 @@
 ScaleSprite sprite:Int32, x_scale:Float32, y_scale:Float32
 ```
 
-## Description
-
-Changes the width and height of a sprite. A sprite starts as 2 by 2 units, so a scale of 1 keeps that size. Unlike [ScaleEntity](ScaleEntity) it is the only way to scale a sprite and it keeps the sprite facing the camera.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Changes the width and height of a sprite. A sprite starts as 2 by 2 units, so a 
 | `sprite` | Int32 | required | The sprite. |
 | `x_scale` | Float32 | required | Width factor. |
 | `y_scale` | Float32 | required | Height factor. |
+
+## Description
+
+Changes the width and height of a sprite. A sprite starts as 2 by 2 units, so a scale of 1 keeps that size. Unlike [ScaleEntity](ScaleEntity) it is the only way to scale a sprite and it keeps the sprite facing the camera.
 
 ## Related Commands
 

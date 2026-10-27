@@ -19,15 +19,6 @@
 GfxModeDepth:Int32 mode:Int32
 ```
 
-## Description
-
-The color depth in bits of a display mode.
-
-**Differences and known gaps:**
-
-* A mode number that does not exist stops the program with an error message.
-* Palette and 16 bit modes are not supported, so every mode is listed with 32 bits however the display could show it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +26,15 @@ The color depth in bits of a display mode.
 | `mode` | Int32 | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
 
 **Returns:** The depth in bits, always 32.
+
+## Description
+
+The color depth in bits of a display mode.
+
+## Differences
+
+* A mode number that does not exist stops the program with an error message.
+* Palette and 16 bit modes are not supported, so every mode is listed with 32 bits however the display could show it.
 
 ## Related Commands
 

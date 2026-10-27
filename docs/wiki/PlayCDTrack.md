@@ -19,14 +19,6 @@
 PlayCDTrack:Int32 track:Int32, mode:Int32=1
 ```
 
-## Description
-
-Plays a track of an audio CD in the original. There is no CD playback here.
-
-**Differences and known gaps:**
-
-* Always returns 0 and plays nothing. Use [PlayMusic](PlayMusic) with ripped tracks instead.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Plays a track of an audio CD in the original. There is no CD playback here.
 | `mode` | Int32 | `1` | 1 plays the track once (the default), 2 repeats it and 3 plays on to the end of the disc. |
 
 **Returns:** The channel of the track, or 0 if it could not be played.
+
+## Description
+
+Plays a track of an audio CD in the original. There is no CD playback here.
+
+## Differences
+
+* Always returns 0 and plays nothing. Use [PlayMusic](PlayMusic) with ripped tracks instead.
 
 ## Examples
 

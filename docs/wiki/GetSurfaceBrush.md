@@ -19,14 +19,6 @@
 GetSurfaceBrush:Int32 surface:Int32
 ```
 
-## Description
-
-Makes a new brush that has the look that was painted on a mesh surface. Free it with [FreeBrush](FreeBrush) afterwards.
-
-**Differences and known gaps:**
-
-* A surface that was never painted gives a plain white brush.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Makes a new brush that has the look that was painted on a mesh surface. Free it 
 | `surface` | Int32 | required | The surface. |
 
 **Returns:** A brush handle.
+
+## Description
+
+Makes a new brush that has the look that was painted on a mesh surface. Free it with [FreeBrush](FreeBrush) afterwards.
+
+## Differences
+
+* A surface that was never painted gives a plain white brush.
 
 ## Related Commands
 

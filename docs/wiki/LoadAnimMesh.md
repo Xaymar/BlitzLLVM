@@ -19,14 +19,6 @@
 LoadAnimMesh:Int32 file:String, parent:Int32=0
 ```
 
-## Description
-
-Loads a model together with its parts and animation. The result is a pivot at the top of a hierarchy of entities, one per object in the file (and per light and camera, for `.3ds`), so you can find a single part with [FindChild](FindChild) and play the animation with `Animate`. Unlike [LoadMesh](LoadMesh) the parts stay separate entities, which costs more to draw but lets them move.
-
-**Differences and known gaps:**
-
-* Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh). A `.3ds` file brings its object hierarchy, keys, lights and cameras (a light is a light entity, a camera is a pivot that looks at its target), see [3D Studio models](3D-Studio-Models).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Loads a model together with its parts and animation. The result is a pivot at th
 | `parent` | Int32 | `0` | Entity the model follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the top entity, or 0 if the file could not be loaded.
+
+## Description
+
+Loads a model together with its parts and animation. The result is a pivot at the top of a hierarchy of entities, one per object in the file (and per light and camera, for `.3ds`), so you can find a single part with [FindChild](FindChild) and play the animation with `Animate`. Unlike [LoadMesh](LoadMesh) the parts stay separate entities, which costs more to draw but lets them move.
+
+## Differences
+
+* Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh). A `.3ds` file brings its object hierarchy, keys, lights and cameras (a light is a light entity, a camera is a pivot that looks at its target), see [3D Studio models](3D-Studio-Models).
 
 ## Related Commands
 

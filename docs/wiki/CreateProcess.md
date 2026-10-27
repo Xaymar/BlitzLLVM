@@ -19,10 +19,6 @@
 CreateProcess:Int32 command:String
 ```
 
-## Description
-
-Starts another program and gives you a stream to its input and output: what the program writes can be read from the stream, and what is written to the stream is what the program reads.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Starts another program and gives you a stream to its input and output: what the 
 | `command` | String | required |  |
 
 **Returns:** A stream for [ReadLine](ReadLine), [WriteLine](WriteLine), [ReadAvail](ReadAvail), [Eof](Eof) and [CloseFile](CloseFile), or 0 if the program could not be started. The program is not waited for.
+
+## Description
+
+Starts another program and gives you a stream to its input and output: what the program writes can be read from the stream, and what is written to the stream is what the program reads.
 
 ## Examples
 

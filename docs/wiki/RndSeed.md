@@ -19,13 +19,13 @@
 RndSeed:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The current seed of the random number generator. Store it and give it to [SeedRnd](SeedRnd) later to replay a sequence of random numbers.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

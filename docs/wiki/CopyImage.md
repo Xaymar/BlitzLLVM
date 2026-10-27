@@ -19,10 +19,6 @@
 CopyImage:Int32 image:Int32
 ```
 
-## Description
-
-Makes a new image that has the same pictures, handle and mask color as an existing one. Changes to the copy, such as [ScaleImage](ScaleImage), do not change the original, so copy an image before you transform it for several uses.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Makes a new image that has the same pictures, handle and mask color as an existi
 | `image` | Int32 | required | The image to copy. |
 
 **Returns:** A handle for the new image.
+
+## Description
+
+Makes a new image that has the same pictures, handle and mask color as an existing one. Changes to the copy, such as [ScaleImage](ScaleImage), do not change the original, so copy an image before you transform it for several uses.
 
 ## Examples
 

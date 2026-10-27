@@ -19,14 +19,6 @@
 SaveBuffer:Int32 buffer:Int32, bmpfile:String
 ```
 
-## Description
-
-Writes the content of a buffer into a picture file. Saving the front buffer after a [Flip](Flip) makes a screenshot.
-
-**Differences and known gaps:**
-
-* A name that ends with `.png` gives a PNG file and any other name a BMP file.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Writes the content of a buffer into a picture file. Saving the front buffer afte
 | `bmpfile` | String | required | The path of the file to write. |
 
 **Returns:** 1 if the file was written, otherwise 0.
+
+## Description
+
+Writes the content of a buffer into a picture file. Saving the front buffer after a [Flip](Flip) makes a screenshot.
+
+## Differences
+
+* A name that ends with `.png` gives a PNG file and any other name a BMP file.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 GadgetGroup:Int32 gadget:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `gadget` | Int32 | required | Handle of the gadget. |
 
 **Returns:** The handle of the group (window, panel, tabber or canvas) that holds the gadget.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

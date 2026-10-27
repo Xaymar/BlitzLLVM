@@ -19,17 +19,17 @@
 FrontBuffer:Int32
 ```
 
+## Parameters
+
+**Returns:** The handle of the front buffer.
+
 ## Description
 
 Returns the front buffer: the picture that is on the screen. [Flip](Flip) updates it from the back buffer.
 
-**Differences and known gaps:**
+## Differences
 
 * The front buffer holds what the last Flip showed. [SaveBuffer](SaveBuffer) of it is the way to take a screenshot.
-
-## Parameters
-
-**Returns:** The handle of the front buffer.
 
 ## Related Commands
 

@@ -19,15 +19,15 @@
 SeedRnd seed:Int32
 ```
 
-## Description
-
-Restarts the random number generator from a seed. The same seed always gives the same numbers from [Rand](Rand) and [Rnd](Rnd), which is useful for replays and procedurally generated levels. Every program starts with the same seed (4660), so it gets the same random numbers on every run until you use `SeedRnd MilliSecs()` for different ones.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `seed` | Int32 | required | The starting value. |
+
+## Description
+
+Restarts the random number generator from a seed. The same seed always gives the same numbers from [Rand](Rand) and [Rnd](Rnd), which is useful for replays and procedurally generated levels. Every program starts with the same seed (4660), so it gets the same random numbers on every run until you use `SeedRnd MilliSecs()` for different ones.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 TurnEntity entity:Int32, pitch:Float32, yaw:Float32, roll:Float32, global:Int32=0
 ```
 
-## Description
-
-Turns an entity by an amount from its current orientation. Call it every frame with small angles to spin something, such as a coin or a camera that follows the mouse.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Turns an entity by an amount from its current orientation. Call it every frame w
 | `yaw` | Float32 | required | Rotation around Y in degrees. |
 | `roll` | Float32 | required | Rotation around Z in degrees. |
 | `global` | Int32 | `0` | 1 to turn around the axes of the world instead of the parent. Defaults to 0. |
+
+## Description
+
+Turns an entity by an amount from its current orientation. Call it every frame with small angles to spin something, such as a coin or a camera that follows the mouse.
 
 ## Examples
 

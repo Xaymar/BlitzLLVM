@@ -19,13 +19,13 @@
 GraphicsHeight:Int32
 ```
 
-## Description
-
-The height of the graphics window in pixels, as given to [Graphics](Graphics).
-
 ## Parameters
 
 **Returns:** The height in pixels.
+
+## Description
+
+The height of the graphics window in pixels, as given to [Graphics](Graphics).
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 VertexU:Float32 surface:Int32, index:Int32, coord_set:Int32=0
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ _Not documented yet._
 | `coord_set` | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
 
 **Returns:** The horizontal texture coordinate of the vertex.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

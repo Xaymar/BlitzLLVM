@@ -23,7 +23,7 @@ Stop
 
 In the original this paused the program in the debugger so that you could look at its variables, and ran on when you continued.
 
-**Differences and known gaps:**
+## Differences
 
 * Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached. In any other build `Stop` does nothing.
 

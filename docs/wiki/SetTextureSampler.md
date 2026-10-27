@@ -19,6 +19,13 @@
 SetTextureSampler texture:Int32, sampler:Int32
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `texture` | Int32 | required | The texture to change. |
+| `sampler` | Int32 | required | The sampler to read it with, or 0. |
+
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -26,13 +33,6 @@ SetTextureSampler texture:Int32, sampler:Int32
 Makes a texture be read through a sampler, see [CreateSampler](CreateSampler). The sampler takes over the filtering, repeating and mip level settings of the flags of the texture (clamp 16 and 32, mip maps 8), and changes made to the sampler later are seen by the texture at once. Giving 0 as the sampler takes it away, and the flags pick the settings again. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
 
 A sampler does not make mip levels: flag 8 or a DDS file with levels is still needed, see [Mip maps](Mip-Maps).
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to change. |
-| `sampler` | Int32 | required | The sampler to read it with, or 0. |
 
 ## Related Commands
 

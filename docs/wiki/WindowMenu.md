@@ -19,10 +19,6 @@
 WindowMenu:Int32 window:Int32
 ```
 
-## Description
-
-Gives the root of the menu tree of a window, which exists from the start but is empty. Menus made with this as their parent are the titles in the menu bar. The window needs flag 4 to show room for it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Gives the root of the menu tree of a window, which exists from the start but is 
 | `window` | Int32 | required | Handle of a window. |
 
 **Returns:** The handle of the root menu. It is the same on every call.
+
+## Description
+
+Gives the root of the menu tree of a window, which exists from the start but is empty. Menus made with this as their parent are the titles in the menu bar. The window needs flag 4 to show room for it.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 GadgetFont:Int32 gadget:Int32
 ```
 
-## Description
-
-Gives the font a gadget is drawn with. The official help lists the command as undocumented.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Gives the font a gadget is drawn with. The official help lists the command as un
 | `gadget` | Int32 | required | Handle of the gadget. |
 
 **Returns:** A font handle, or 0 if it uses the default font.
+
+## Description
+
+Gives the font a gadget is drawn with. The official help lists the command as undocumented.
 
 ## Related Commands
 

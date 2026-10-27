@@ -19,22 +19,6 @@
 CreateLabel:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a piece of text that does not react to the user and sends no events. Long text is wrapped inside the box, and `Chr$(13)` breaks a line by hand. The style adds a frame:
-
-| Style | Frame |
-| --- | --- |
-| 0 | None |
-| 1 | Black line |
-| 3 | Sunken 3D frame |
-
-Add 65536 to keep it from following when its group is resized.
-
-**Differences and known gaps:**
-
-* Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none). Letters are not as wide as the ones of the Windows interface, so a gadget may need a little more or less room than on Windows.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -48,6 +32,22 @@ Add 65536 to keep it from following when its group is resized.
 | `style` | Int32 | `0` | Frame, see the table. Defaults to 0. |
 
 **Returns:** A handle for the label.
+
+## Description
+
+Makes a piece of text that does not react to the user and sends no events. Long text is wrapped inside the box, and `Chr$(13)` breaks a line by hand. The style adds a frame:
+
+| Style | Frame |
+| --- | --- |
+| 0 | None |
+| 1 | Black line |
+| 3 | Sunken 3D frame |
+
+Add 65536 to keep it from following when its group is resized.
+
+## Differences
+
+* Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none). Letters are not as wide as the ones of the Windows interface, so a gadget may need a little more or less room than on Windows.
 
 ## Examples
 

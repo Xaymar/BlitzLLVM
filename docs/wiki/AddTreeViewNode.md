@@ -19,10 +19,6 @@
 AddTreeViewNode:Int32 text:String, parent_node:Int32, icon:Int32=-1
 ```
 
-## Description
-
-Adds a node at the end of the children of another node. To add one at the top level, give [TreeViewRoot](TreeViewRoot) as the parent.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Adds a node at the end of the children of another node. To add one at the top le
 | `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
 
 **Returns:** A handle for the new node.
+
+## Description
+
+Adds a node at the end of the children of another node. To add one at the top level, give [TreeViewRoot](TreeViewRoot) as the parent.
 
 ## Examples
 

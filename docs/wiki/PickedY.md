@@ -19,13 +19,13 @@
 PickedY:Float32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The world Y coordinate of the point where the latest pick touched an entity.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

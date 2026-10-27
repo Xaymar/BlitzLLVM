@@ -19,15 +19,15 @@
 FreeBrush brush:Int32
 ```
 
-## Description
-
-Releases a brush. Things that were painted with it keep the look they got, because painting copies the settings. Textures that were assigned to the brush are not freed by this, use [FreeTexture](FreeTexture) for them.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `brush` | Int32 | required | The brush to free. |
+
+## Description
+
+Releases a brush. Things that were painted with it keep the look they got, because painting copies the settings. Textures that were assigned to the brush are not freed by this, use [FreeTexture](FreeTexture) for them.
 
 ## Related Commands
 

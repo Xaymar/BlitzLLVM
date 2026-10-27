@@ -19,10 +19,6 @@
 SetGadgetLayout gadget:Int32, left:Int32, right:Int32, top:Int32, bottom:Int32
 ```
 
-## Description
-
-Says how a gadget follows its group when it changes size. Each side can be 0 for free (the distance to that edge changes), 1 for locked (the distance stays) or 2 for proportional (it scales with the group). The default is left and top locked.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Says how a gadget follows its group when it changes size. Each side can be 0 for
 | `right` | Int32 | required | Behavior of the right edge: 0, 1 or 2. |
 | `top` | Int32 | required | Behavior of the top edge: 0, 1 or 2. |
 | `bottom` | Int32 | required | Behavior of the bottom edge: 0, 1 or 2. |
+
+## Description
+
+Says how a gadget follows its group when it changes size. Each side can be 0 for free (the distance to that edge changes), 1 for locked (the distance stays) or 2 for proportional (it scales with the group). The default is left and top locked.
 
 ## Examples
 

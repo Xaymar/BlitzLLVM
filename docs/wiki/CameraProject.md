@@ -19,10 +19,6 @@
 CameraProject camera:Int32, x:Float32, y:Float32, z:Float32
 ```
 
-## Description
-
-Works out where a point of the world lands on the screen. The result is not returned: read it afterwards with [ProjectedX](ProjectedX), [ProjectedY](ProjectedY) and [ProjectedZ](ProjectedZ). X and Y are pixels of the graphics buffer and Z is the distance of the point in front of the camera. A point behind the camera or a camera that is off gets Y and X far outside the screen, so check `ProjectedZ` before drawing. Use it to put 2D labels, health bars or a lens flare on a 3D position.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Works out where a point of the world lands on the screen. The result is not retu
 | `x` | Float32 | required | X coordinate in the world. |
 | `y` | Float32 | required | Y coordinate in the world. |
 | `z` | Float32 | required | Z coordinate in the world. |
+
+## Description
+
+Works out where a point of the world lands on the screen. The result is not returned: read it afterwards with [ProjectedX](ProjectedX), [ProjectedY](ProjectedY) and [ProjectedZ](ProjectedZ). X and Y are pixels of the graphics buffer and Z is the distance of the point in front of the camera. A point behind the camera or a camera that is off gets Y and X far outside the screen, so check `ProjectedZ` before drawing. Use it to put 2D labels, health bars or a lens flare on a 3D position.
 
 ## Examples
 

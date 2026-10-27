@@ -19,15 +19,15 @@
 PauseChannel channel:Int32
 ```
 
-## Description
-
-Pauses a channel. The sound stays where it is until [ResumeChannel](ResumeChannel) continues it. A paused channel is still reported as playing by [ChannelPlaying](ChannelPlaying).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+
+## Description
+
+Pauses a channel. The sound stays where it is until [ResumeChannel](ResumeChannel) continues it. A paused channel is still reported as playing by [ChannelPlaying](ChannelPlaying).
 
 ## Examples
 

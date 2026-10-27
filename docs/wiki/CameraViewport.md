@@ -19,11 +19,6 @@
 CameraViewport camera:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
-## Description
-
-Restricts the camera to a rectangle of the graphics buffer. Use it for split screen, a rear view mirror or a minimap. The camera keeps its aspect ratio from the size of the rectangle, so a narrow viewport does not squash the picture. Parts of the rectangle outside the buffer are cut off.
-The camera clears only its own rectangle, so two cameras with separate viewports can share one frame.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +28,11 @@ The camera clears only its own rectangle, so two cameras with separate viewports
 | `y` | Int32 | required | Top edge of the viewport in the buffer. |
 | `width` | Int32 | required | Width of the viewport in pixels. |
 | `height` | Int32 | required | Height of the viewport in pixels. |
+
+## Description
+
+Restricts the camera to a rectangle of the graphics buffer. Use it for split screen, a rear view mirror or a minimap. The camera keeps its aspect ratio from the size of the rectangle, so a narrow viewport does not squash the picture. Parts of the rectangle outside the buffer are cut off.
+The camera clears only its own rectangle, so two cameras with separate viewports can share one frame.
 
 ## Examples
 

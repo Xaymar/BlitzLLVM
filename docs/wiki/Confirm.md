@@ -19,14 +19,6 @@
 Confirm:Int32 text:String, serious:Int32=0
 ```
 
-## Description
-
-Shows a question with an OK and a Cancel button and waits for the answer. Lines can be split with `Chr$(13)`. The second parameter chooses a warning symbol instead of the information symbol.
-
-**Differences and known gaps:**
-
-* The box is a message box of the operating system and not part of the program window. When the program runs without a screen it writes the text to the error output and answers 0.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Shows a question with an OK and a Cancel button and waits for the answer. Lines 
 | `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
 
 **Returns:** 1 for OK, 0 for Cancel.
+
+## Description
+
+Shows a question with an OK and a Cancel button and waits for the answer. Lines can be split with `Chr$(13)`. The second parameter chooses a warning symbol instead of the information symbol.
+
+## Differences
+
+* The box is a message box of the operating system and not part of the program window. When the program runs without a screen it writes the text to the error output and answers 0.
 
 ## Examples
 

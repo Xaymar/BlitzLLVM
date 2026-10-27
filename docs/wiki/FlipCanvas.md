@@ -19,20 +19,20 @@
 FlipCanvas canvas:Int32, vwait:Int32=0
 ```
 
-## Description
-
-Shows what was drawn to the buffer of a canvas, like `Flip` does for a window opened with `Graphics`. Until it is called the canvas keeps showing what it showed before.
-
-**Differences and known gaps:**
-
-* The second parameter is accepted, but there is nothing to wait for and it makes no difference.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `canvas` | Int32 | required | Handle of a canvas. |
 | `vwait` | Int32 | `0` | 1 waits for the display to be ready, 0 shows it right away. Defaults to 1. |
+
+## Description
+
+Shows what was drawn to the buffer of a canvas, like `Flip` does for a window opened with `Graphics`. Until it is called the canvas keeps showing what it showed before.
+
+## Differences
+
+* The second parameter is accepted, but there is nothing to wait for and it makes no difference.
 
 ## Examples
 

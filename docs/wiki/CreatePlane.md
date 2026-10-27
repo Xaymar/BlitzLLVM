@@ -19,14 +19,6 @@
 CreatePlane:Int32 segments:Int32=1, parent:Int32=0
 ```
 
-## Description
-
-Creates a flat, endless ground at height 0 that faces up. It is handy for outdoor scenes where the player should never see an edge. The plane is one-sided, so it is not seen from below. More `segments` split it into smaller squares, which gives lights and fog more vertices to work with and hides problems some graphics cards have with big flat triangles.
-
-**Differences and known gaps:**
-
-* Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that. Drawing is not limited: the part of the plane that a camera sees is made again for every frame.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Creates a flat, endless ground at height 0 that faces up. It is handy for outdoo
 | `parent` | Int32 | `0` | Entity the plane follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new plane.
+
+## Description
+
+Creates a flat, endless ground at height 0 that faces up. It is handy for outdoor scenes where the player should never see an edge. The plane is one-sided, so it is not seen from below. More `segments` split it into smaller squares, which gives lights and fog more vertices to work with and hides problems some graphics cards have with big flat triangles.
+
+## Differences
+
+* Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that. Drawing is not limited: the part of the plane that a camera sees is made again for every frame.
 
 ## Examples
 

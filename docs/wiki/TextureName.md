@@ -19,14 +19,6 @@
 TextureName:String texture:Int32
 ```
 
-## Description
-
-Tells you which file the texture was loaded from, which is handy after loading a mesh that brings its own textures. Textures made with CreateTexture have no file and give an empty string.
-
-**Differences and known gaps:**
-
-* The original turns the path into lower case. The case is kept here, since file names matter on Linux.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Tells you which file the texture was loaded from, which is handy after loading a
 | `texture` | Int32 | required | The texture. |
 
 **Returns:** The full path of the file, without any `.` or `..` parts.
+
+## Description
+
+Tells you which file the texture was loaded from, which is handy after loading a mesh that brings its own textures. Textures made with CreateTexture have no file and give an empty string.
+
+## Differences
+
+* The original turns the path into lower case. The case is kept here, since file names matter on Linux.
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 CameraFogRange camera:Int32, near:Float32, far:Float32
 ```
 
-## Description
-
-Sets where the fog starts and where it becomes solid. Nothing closer than `near` is touched and everything beyond `far` is completely the fog color. The default range is 1 to 1000, which is why fog is hardly visible until you shorten it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Sets where the fog starts and where it becomes solid. Nothing closer than `near`
 | `camera` | Int32 | required | Camera handle. |
 | `near` | Float32 | required | Distance where the fog starts. |
 | `far` | Float32 | required | Distance where everything is fully fogged. |
+
+## Description
+
+Sets where the fog starts and where it becomes solid. Nothing closer than `near` is touched and everything beyond `far` is completely the fog color. The default range is 1 to 1000, which is why fog is hardly visible until you shorten it.
 
 ## Examples
 

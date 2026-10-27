@@ -19,10 +19,6 @@
 TextAreaLine:Int32 textarea:Int32, char:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `char` | Int32 | required |  |
 
 **Returns:** The number of the line that character is on, starting at 0.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

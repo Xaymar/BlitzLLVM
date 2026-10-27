@@ -19,17 +19,17 @@
 GraphicsLost:Int32
 ```
 
+## Parameters
+
+**Returns:** 1 if the graphics were lost, otherwise 0.
+
 ## Description
 
 Tells whether the graphics were lost, which happened to the original when another program took over the display. The program then had to draw its images again.
 
-**Differences and known gaps:**
+## Differences
 
 * Always 0. Images are kept in video memory that other programs cannot take.
-
-## Parameters
-
-**Returns:** 1 if the graphics were lost, otherwise 0.
 
 ## Related Commands
 

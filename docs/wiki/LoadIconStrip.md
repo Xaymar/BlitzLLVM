@@ -19,10 +19,6 @@
 LoadIconStrip:Int32 file:String
 ```
 
-## Description
-
-Loads a picture of icons placed side by side to use for the entries of list boxes, combo boxes and tabbers. Hand the result to [SetGadgetIconStrip](SetGadgetIconStrip). The icons are squares with the height of the picture.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Loads a picture of icons placed side by side to use for the entries of list boxe
 | `file` | String | required | Picture file with the icons. |
 
 **Returns:** A handle for the icon strip.
+
+## Description
+
+Loads a picture of icons placed side by side to use for the entries of list boxes, combo boxes and tabbers. Hand the result to [SetGadgetIconStrip](SetGadgetIconStrip). The icons are squares with the height of the picture.
 
 ## Examples
 

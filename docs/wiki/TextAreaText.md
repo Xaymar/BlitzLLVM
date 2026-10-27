@@ -19,10 +19,6 @@
 TextAreaText:String textarea:Int32, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
-## Description
-
-Reads the text, all of it or a part. Line breaks are given as `Chr$(13)`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Reads the text, all of it or a part. Line breaks are given as `Chr$(13)`.
 | `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 **Returns:** The text.
+
+## Description
+
+Reads the text, all of it or a part. Line breaks are given as `Chr$(13)`.
 
 ## Examples
 

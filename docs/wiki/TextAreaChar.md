@@ -19,10 +19,6 @@
 TextAreaChar:Int32 textarea:Int32, line:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `line` | Int32 | required | Number of the line, starting at 0. |
 
 **Returns:** The position of the first character of that line, which can be used as the start of [TextAreaText](TextAreaText).
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

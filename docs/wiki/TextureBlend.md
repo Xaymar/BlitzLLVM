@@ -19,6 +19,13 @@
 TextureBlend texture:Int32, blend:Int32
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `texture` | Int32 | required | The texture to change. |
+| `blend` | Int32 | required | Blend mode from the table above. |
+
 ## Description
 
 Chooses how this texture combines with what lies below it. A texture on layer 0 blends with the surface itself, a texture on layer 1 blends with layer 0, and so on up to layer 7. Layers are set with the index argument of [EntityTexture](EntityTexture) or [BrushTexture](BrushTexture).
@@ -32,16 +39,9 @@ Chooses how this texture combines with what lies below it. A texture on layer 0 
 | 4 | Dot3 bump mapping. |
 | 5 | Multiply twice as bright (x2). |
 
-**Differences and known gaps:**
+## Differences
 
 * Modes 1, 2, 3 and 5 are drawn on layers above the first. Mode 0 and mode 4 (Dot3) are drawn like mode 2, because there is no bump mapping. Layer 0 is blended by the entity or brush blend mode, not by TextureBlend.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to change. |
-| `blend` | Int32 | required | Blend mode from the table above. |
 
 ## Examples
 

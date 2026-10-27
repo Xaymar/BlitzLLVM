@@ -19,13 +19,13 @@
 CurrentDir:String
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The full path of the current folder, which is where relative paths start.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

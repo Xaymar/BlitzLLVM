@@ -19,10 +19,6 @@
 Asc:Int32 string:String
 ```
 
-## Description
-
-Returns the character code of the first character of a string. It is the opposite of [Chr](Chr).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the character code of the first character of a string. It is the opposit
 | `string` | String | required | The text. Only its first character counts. |
 
 **Returns:** A code from 0 to 255.
+
+## Description
+
+Returns the character code of the first character of a string. It is the opposite of [Chr](Chr).
 
 ## Examples
 

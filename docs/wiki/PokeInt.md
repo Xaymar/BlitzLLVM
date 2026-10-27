@@ -19,10 +19,6 @@
 PokeInt bank:Int32, offset:Int32, value:Int32
 ```
 
-## Description
-
-Writes an integer in 4 bytes, low byte first.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Writes an integer in 4 bytes, low byte first.
 | `bank` | Int32 | required | The bank to write to. |
 | `offset` | Int32 | required | Position in bytes. |
 | `value` | Int32 | required | The integer to store. |
+
+## Description
+
+Writes an integer in 4 bytes, low byte first.
 
 ## Examples
 

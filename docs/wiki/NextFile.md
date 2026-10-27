@@ -19,10 +19,6 @@
 NextFile:String dir:Int32
 ```
 
-## Description
-
-Returns the name of the next entry of a folder opened with [ReadDir](ReadDir). The names `.` and `..` are among them, and the order is up to the file system. An empty string means there are no more.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the name of the next entry of a folder opened with [ReadDir](ReadDir). T
 | `dir` | Int32 | required | The folder handle from [ReadDir](ReadDir). |
 
 **Returns:** A file or folder name without its path, or an empty string at the end.
+
+## Description
+
+Returns the name of the next entry of a folder opened with [ReadDir](ReadDir). The names `.` and `..` are among them, and the order is up to the file system. An empty string means there are no more.
 
 ## Examples
 

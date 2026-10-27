@@ -19,16 +19,16 @@
 EntityShininess entity:Int32, shininess:Float32
 ```
 
-## Description
-
-Sets how strongly lights shine back from the entity as highlights. 0, the default, is matt. Values near 1 give a polished look, like a billiard ball, but only where a light hits the surface head on.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 | `shininess` | Float32 | required | Strength of the highlight, 0 to 1. |
+
+## Description
+
+Sets how strongly lights shine back from the entity as highlights. 0, the default, is matt. Values near 1 give a polished look, like a billiard ball, but only where a light hits the surface head on.
 
 ## Related Commands
 

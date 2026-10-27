@@ -19,10 +19,6 @@
 MenuText:String menu:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `menu` | Int32 | required | Handle of a menu or item. |
 
 **Returns:** The text it was made with or last given.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

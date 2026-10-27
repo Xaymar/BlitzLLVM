@@ -19,14 +19,6 @@
 TFormImage image:Int32, a:Float32, b:Float32, c:Float32, d:Float32
 ```
 
-## Description
-
-Transforms every frame of an image with a 2x2 matrix. With the values `a, b, c, d` a point `(x, y)` of the picture, measured from the handle, goes to `(a*x + c*y, b*x + d*y)`. The matrix `a=1, b=0, c=0.6, d=1` tilts the picture to the right, and [ScaleImage](ScaleImage) and [RotateImage](RotateImage) are special cases. The image becomes as large as the result needs.
-
-**Differences and known gaps:**
-
-* A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ Transforms every frame of an image with a 2x2 matrix. With the values `a, b, c, 
 | `b` | Float32 | required | Vertical part of the first column of the matrix. |
 | `c` | Float32 | required | Horizontal part of the second column of the matrix. |
 | `d` | Float32 | required | Vertical part of the second column of the matrix. |
+
+## Description
+
+Transforms every frame of an image with a 2x2 matrix. With the values `a, b, c, d` a point `(x, y)` of the picture, measured from the handle, goes to `(a*x + c*y, b*x + d*y)`. The matrix `a=1, b=0, c=0.6, d=1` tilts the picture to the right, and [ScaleImage](ScaleImage) and [RotateImage](RotateImage) are special cases. The image becomes as large as the result needs.
+
+## Differences
+
+* A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
 
 ## Examples
 

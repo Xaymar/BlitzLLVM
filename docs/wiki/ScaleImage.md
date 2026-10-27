@@ -19,14 +19,6 @@
 ScaleImage image:Int32, xscale:Float32, yscale:Float32
 ```
 
-## Description
-
-Scales every frame of an image by a factor: 2 doubles its size, 0.5 halves it, and a negative factor flips the picture, which then extends to the left or up from the handle. The change is permanent, so scale a copy when the original is still needed.
-
-**Differences and known gaps:**
-
-* Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Scales every frame of an image by a factor: 2 doubles its size, 0.5 halves it, a
 | `image` | Int32 | required | The image. |
 | `xscale` | Float32 | required | Horizontal factor. |
 | `yscale` | Float32 | required | Vertical factor. |
+
+## Description
+
+Scales every frame of an image by a factor: 2 doubles its size, 0.5 halves it, and a negative factor flips the picture, which then extends to the left or up from the handle. The change is permanent, so scale a copy when the original is still needed.
+
+## Differences
+
+* Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
 
 ## Examples
 

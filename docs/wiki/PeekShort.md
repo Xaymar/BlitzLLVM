@@ -19,10 +19,6 @@
 PeekShort:Int32 bank:Int32, offset:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `offset` | Int32 | required | Position in bytes of the first of the 2 bytes. |
 
 **Returns:** The 2-byte value at an offset, from 0 to 65535. Negative numbers that were poked come back as their unsigned form, for example -2 reads as 65534.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

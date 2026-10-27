@@ -19,17 +19,17 @@
 GfxDriverCaps3D:Int32
 ```
 
+## Parameters
+
+**Returns:** 100 or 110.
+
 ## Description
 
 Tells what the 3D driver is able to do. The result is a version number: 100 means all of the standard Blitz3D features, 110 adds cube environment maps. Graphics3D has to have been called before.
 
-**Differences and known gaps:**
+## Differences
 
 * It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
-
-## Parameters
-
-**Returns:** 100 or 110.
 
 ## Related Commands
 

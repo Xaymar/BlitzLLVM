@@ -19,10 +19,6 @@
 LoadAnimSeq:Int32 entity:Int32, file:String
 ```
 
-## Description
-
-Loads the animation of a second file, such as a separate walk cycle, and appends it to an entity as a new sequence. The file must have the same bones as the model it is added to.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Loads the animation of a second file, such as a separate walk cycle, and appends
 | `file` | String | required | File with the animation, for example a .b3d. |
 
 **Returns:** The number of the new sequence, which is also the highest sequence number the entity has. If the file cannot be read nothing is added and the number of the last existing sequence comes back; -1 means the entity has no animation.
+
+## Description
+
+Loads the animation of a second file, such as a separate walk cycle, and appends it to an entity as a new sequence. The file must have the same bones as the model it is added to.
 
 ## Examples
 

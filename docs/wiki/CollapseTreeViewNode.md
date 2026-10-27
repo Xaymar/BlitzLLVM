@@ -19,15 +19,15 @@
 CollapseTreeViewNode node:Int32
 ```
 
-## Description
-
-Folds a node so its children are hidden. They keep existing, and [ExpandTreeViewNode](ExpandTreeViewNode) shows them again. A node deep in the tree is only seen when everything above it is open.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `node` | Int32 | required | Handle of a node. |
+
+## Description
+
+Folds a node so its children are hidden. They keep existing, and [ExpandTreeViewNode](ExpandTreeViewNode) shows them again. A node deep in the tree is only seen when everything above it is open.
 
 ## Examples
 

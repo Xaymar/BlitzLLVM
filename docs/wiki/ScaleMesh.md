@@ -19,10 +19,6 @@
 ScaleMesh mesh:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32
 ```
 
-## Description
-
-Multiplies the coordinates of every vertex by a factor per axis, permanently, around the origin. Unlike [ScaleEntity](ScaleEntity) it changes the mesh itself, so its size from [MeshWidth](MeshWidth) and friends changes too. A negative factor mirrors the mesh, which also turns its triangles inside out, so follow it with [FlipMesh](FlipMesh).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Multiplies the coordinates of every vertex by a factor per axis, permanently, ar
 | `x_scale` | Float32 | required | Factor along X. |
 | `y_scale` | Float32 | required | Factor along Y. |
 | `z_scale` | Float32 | required | Factor along Z. |
+
+## Description
+
+Multiplies the coordinates of every vertex by a factor per axis, permanently, around the origin. Unlike [ScaleEntity](ScaleEntity) it changes the mesh itself, so its size from [MeshWidth](MeshWidth) and friends changes too. A negative factor mirrors the mesh, which also turns its triangles inside out, so follow it with [FlipMesh](FlipMesh).
 
 ## Related Commands
 

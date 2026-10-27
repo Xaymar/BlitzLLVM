@@ -19,15 +19,15 @@
 MidHandle image:Int32
 ```
 
-## Description
-
-Puts the handle of an image in its middle. Images drawn at a position then appear centered on it, and rotate and scale around their middle.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `image` | Int32 | required | The image. |
+
+## Description
+
+Puts the handle of an image in its middle. Images drawn at a position then appear centered on it, and rotate and scale around their middle.
 
 ## Examples
 

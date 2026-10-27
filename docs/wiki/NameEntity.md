@@ -19,16 +19,16 @@
 NameEntity entity:Int32, name:String
 ```
 
-## Description
-
-Gives an entity a name that you can read back with [EntityName](EntityName) or search for with [FindChild](FindChild). Entities loaded from model files keep the names of the objects in the file.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 | `name` | String | required | The name. |
+
+## Description
+
+Gives an entity a name that you can read back with [EntityName](EntityName) or search for with [FindChild](FindChild). Entities loaded from model files keep the names of the objects in the file.
 
 ## Related Commands
 

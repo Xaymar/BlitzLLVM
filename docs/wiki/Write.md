@@ -19,19 +19,19 @@
 Write string:String
 ```
 
-## Description
-
-Writes text at the text cursor like [Print](Print), but without starting a new line, so the next Write or Print continues behind it.
-
-**Differences and known gaps:**
-
-* Without a graphics window the text goes to the console instead.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `string` | String | required | The text to write. |
+
+## Description
+
+Writes text at the text cursor like [Print](Print), but without starting a new line, so the next Write or Print continues behind it.
+
+## Differences
+
+* Without a graphics window the text goes to the console instead.
 
 ## Examples
 

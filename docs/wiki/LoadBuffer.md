@@ -19,14 +19,6 @@
 LoadBuffer:Int32 buffer:Int32, bmpfile:String
 ```
 
-## Description
-
-Loads a picture file into a buffer, stretched to cover all of it. Returns whether the file could be loaded.
-
-**Differences and known gaps:**
-
-* Formats other than BMP load as well. The picture is always scaled to the size of the buffer, with smooth filtering.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Loads a picture file into a buffer, stretched to cover all of it. Returns whethe
 | `bmpfile` | String | required | The path of the picture file. |
 
 **Returns:** 1 if the picture was loaded, otherwise 0.
+
+## Description
+
+Loads a picture file into a buffer, stretched to cover all of it. Returns whether the file could be loaded.
+
+## Differences
+
+* Formats other than BMP load as well. The picture is always scaled to the size of the buffer, with smooth filtering.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 Sin:Float32 degrees:Float32
 ```
 
-## Description
-
-Returns the sine of an angle given in degrees, not radians.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the sine of an angle given in degrees, not radians.
 | `degrees` | Float32 | required | The angle in degrees. |
 
 **Returns:** A value from -1 to 1.
+
+## Description
+
+Returns the sine of an angle given in degrees, not radians.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 Rand:Int32 from:Int32, to:Int32=1
 ```
 
-## Description
-
-Returns a random whole number from `from` to `to`, both included. With one argument the range is 1 up to that number. The same seed (see [SeedRnd](SeedRnd)) always gives the same sequence.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Returns a random whole number from `from` to `to`, both included. With one argum
 | `to` | Int32 | `1` | Highest result. Defaults to 1. |
 
 **Returns:** A random integer in the range.
+
+## Description
+
+Returns a random whole number from `from` to `to`, both included. With one argument the range is 1 up to that number. The same seed (see [SeedRnd](SeedRnd)) always gives the same sequence.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 NetPlayerLocal:Int32 player:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `player` | Int32 | required | The player number. |
 
 **Returns:** 1 when a player belongs to this program and 0 when it belongs to another one or does not exist.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

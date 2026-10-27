@@ -19,14 +19,6 @@
 ImagesCollide:Int32 image1:Int32, x1:Int32, y1:Int32, frame1:Int32, image2:Int32, x2:Int32, y2:Int32, frame2:Int32
 ```
 
-## Description
-
-Tells whether two images touch, looking at the pixels that are visible. Both images are taken at their handle, and the frame to test is given for each.
-
-**Differences and known gaps:**
-
-* A frame number that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -41,6 +33,14 @@ Tells whether two images touch, looking at the pixels that are visible. Both ima
 | `frame2` | Int32 | required | The frame of the second image. |
 
 **Returns:** 1 if visible pixels of the two images are on top of each other, otherwise 0.
+
+## Description
+
+Tells whether two images touch, looking at the pixels that are visible. Both images are taken at their handle, and the frame to test is given for each.
+
+## Differences
+
+* A frame number that does not exist stops the program with an error message.
 
 ## Examples
 

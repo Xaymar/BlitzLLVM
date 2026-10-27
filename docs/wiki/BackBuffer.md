@@ -19,13 +19,13 @@
 BackBuffer:Int32
 ```
 
-## Description
-
-Returns the back buffer: the hidden picture that all drawing goes to when it is selected with [SetBuffer](SetBuffer). Draw a whole frame into it and show it with [Flip](Flip). This is the usual way to animate without flicker.
-
 ## Parameters
 
 **Returns:** The handle of the back buffer.
+
+## Description
+
+Returns the back buffer: the hidden picture that all drawing goes to when it is selected with [SetBuffer](SetBuffer). Draw a whole frame into it and show it with [Flip](Flip). This is the usual way to animate without flicker.
 
 ## Examples
 

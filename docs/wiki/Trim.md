@@ -19,10 +19,6 @@
 Trim:String string:String
 ```
 
-## Description
-
-Removes spaces, tabs and other invisible characters from both ends of a string.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Removes spaces, tabs and other invisible characters from both ends of a string.
 | `string` | String | required | The text. |
 
 **Returns:** The text without the blanks at its ends.
+
+## Description
+
+Removes spaces, tabs and other invisible characters from both ends of a string.
 
 ## Examples
 

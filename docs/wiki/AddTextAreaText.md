@@ -19,16 +19,16 @@
 AddTextAreaText textarea:Int32, text:String
 ```
 
-## Description
-
-Appends text at the end of a text area, with the formatting of the text before it. Line breaks are made with `Chr$(13)` or `Chr$(13) + Chr$(10)`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `textarea` | Int32 | required | Handle of a text area. |
 | `text` | String | required | Text to append. |
+
+## Description
+
+Appends text at the end of a text area, with the formatting of the text before it. Line breaks are made with `Chr$(13)` or `Chr$(13) + Chr$(10)`.
 
 ## Examples
 

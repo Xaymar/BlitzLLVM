@@ -19,16 +19,16 @@
 RotateImage image:Int32, angle:Float32
 ```
 
-## Description
-
-Turns every frame of an image around its handle by an angle in degrees, clockwise when positive. The image gets larger so that the whole picture fits, and the corners that are added are masked. The change is permanent and cumulative, and every rotation blurs the picture a little, so rotate a copy of the original image.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `image` | Int32 | required | The image. |
 | `angle` | Float32 | required | The angle in degrees. |
+
+## Description
+
+Turns every frame of an image around its handle by an angle in degrees, clockwise when positive. The image gets larger so that the whole picture fits, and the corners that are added are masked. The change is permanent and cumulative, and every rotation blurs the picture a little, so rotate a copy of the original image.
 
 ## Examples
 

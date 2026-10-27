@@ -19,10 +19,6 @@
 VertexNX:Float32 surface:Int32, index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `index` | Int32 | required | Index of the vertex, from 0. |
 
 **Returns:** The X part of the normal of the vertex.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

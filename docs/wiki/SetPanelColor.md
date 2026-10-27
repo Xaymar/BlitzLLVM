@@ -19,10 +19,6 @@
 SetPanelColor panel:Int32, red:Int32, green:Int32, blue:Int32
 ```
 
-## Description
-
-Fills a panel with a color.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Fills a panel with a color.
 | `red` | Int32 | required | Red part, 0 to 255. |
 | `green` | Int32 | required | Green part, 0 to 255. |
 | `blue` | Int32 | required | Blue part, 0 to 255. |
+
+## Description
+
+Fills a panel with a color.
 
 ## Examples
 

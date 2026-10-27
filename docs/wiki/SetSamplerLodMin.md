@@ -19,18 +19,18 @@
 SetSamplerLodMin sampler:Int32, lod:Float32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Sets the biggest mip level that may be used, as the number of levels counted from level 0, which is the whole texture. A minimum of 1 never shows level 0, which is also a cheap way of making a texture blurrier. 0 is the default. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sampler` | Int32 | required | The sampler to change. |
 | `lod` | Float32 | required | The lowest level, 0 or more. |
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Sets the biggest mip level that may be used, as the number of levels counted from level 0, which is the whole texture. A minimum of 1 never shows level 0, which is also a cheap way of making a texture blurrier. 0 is the default. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
 
 ## Related Commands
 

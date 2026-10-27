@@ -19,10 +19,6 @@
 DottedIP:String IP:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `IP` | Int32 | required | The address as a whole number, with the first part in the highest byte. |
 
 **Returns:** An address as text, with its four parts separated by dots.
+
+## Description
+
+_Not documented yet._
 
 ## Examples
 

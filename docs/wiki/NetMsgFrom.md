@@ -19,13 +19,13 @@
 NetMsgFrom:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The player the last message came from. For type 100 and 101 messages it is the player who joined or left.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

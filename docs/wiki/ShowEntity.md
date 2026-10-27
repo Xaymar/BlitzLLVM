@@ -19,15 +19,15 @@
 ShowEntity entity:Int32
 ```
 
-## Description
-
-Makes a hidden entity visible and part of collisions again. It undoes [HideEntity](HideEntity) for this entity only, so children that were hidden on their own stay hidden, and nothing shows while a parent is still hidden. Showing an entity also forgets where it was last frame, so it does not collide on its way from the old position.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
+
+## Description
+
+Makes a hidden entity visible and part of collisions again. It undoes [HideEntity](HideEntity) for this entity only, so children that were hidden on their own stay hidden, and nothing shows while a parent is still hidden. Showing an entity also forgets where it was last frame, so it does not collide on its way from the old position.
 
 ## Related Commands
 

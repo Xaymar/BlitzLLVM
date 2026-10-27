@@ -19,14 +19,6 @@
 MovieWidth:Int32 movie:Int32
 ```
 
-## Description
-
-The width of the pictures of a movie in pixels.
-
-**Differences and known gaps:**
-
-* Nothing , the same as the original. It is the size of the picture in the file.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ The width of the pictures of a movie in pixels.
 | `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
 
 **Returns:** The width in pixels.
+
+## Description
+
+The width of the pictures of a movie in pixels.
+
+## Differences
+
+* Nothing , the same as the original. It is the size of the picture in the file.
 
 ## Related Commands
 

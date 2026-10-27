@@ -19,16 +19,6 @@
 DisplayModeRefreshRate:Int32 display:Int32, mode:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-The refresh rate in Hz, rounded to a whole number of a mode from the list of a display. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
-
-**Differences and known gaps:**
-
-* A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -37,6 +27,16 @@ The refresh rate in Hz, rounded to a whole number of a mode from the list of a d
 | `mode` | Int32 | required | The mode number, from 1 to [CountDisplayModes](CountDisplayModes). |
 
 **Returns:** The refresh rate in Hz, or 0 if the display or mode does not exist.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+The refresh rate in Hz, rounded to a whole number of a mode from the list of a display. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+## Differences
+
+* A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 Sqr:Float32 float:Float32
 ```
 
-## Description
-
-Returns the square root of a number.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the square root of a number.
 | `float` | Float32 | required | A number of 0 or more. |
 
 **Returns:** The square root.
+
+## Description
+
+Returns the square root of a number.
 
 ## Examples
 

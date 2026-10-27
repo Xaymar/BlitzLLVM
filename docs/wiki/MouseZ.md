@@ -19,17 +19,17 @@
 MouseZ:Int32
 ```
 
+## Parameters
+
+**Returns:** The wheel position added up since the program started.
+
 ## Description
 
 The position of the mouse wheel. It starts at 0 and counts up when the wheel is rolled away from you and down when it is rolled towards you.
 
-**Differences and known gaps:**
+## Differences
 
 * Fine scrolling wheels and touchpads that report fractions of a notch are rounded to whole steps.
-
-## Parameters
-
-**Returns:** The wheel position added up since the program started.
 
 ## Examples
 

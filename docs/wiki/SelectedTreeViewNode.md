@@ -19,10 +19,6 @@
 SelectedTreeViewNode:Int32 treeview:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `treeview` | Int32 | required | Handle of a tree view. |
 
 **Returns:** The handle of the selected node, or 0 if none is selected.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

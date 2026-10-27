@@ -19,15 +19,15 @@
 Delay millisecs:Int32
 ```
 
-## Description
-
-Pauses the program for a number of milliseconds. The window keeps working while it waits. A value of 0 or less returns right away.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `millisecs` | Int32 | required | How long to wait, in milliseconds. |
+
+## Description
+
+Pauses the program for a number of milliseconds. The window keeps working while it waits. A value of 0 or less returns right away.
 
 ## Examples
 

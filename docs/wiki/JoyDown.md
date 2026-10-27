@@ -19,10 +19,6 @@
 JoyDown:Int32 button:Int32, port:Int32=0
 ```
 
-## Description
-
-Tells whether a joystick button is held down right now. Buttons are counted from 1.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Tells whether a joystick button is held down right now. Buttons are counted from
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** 1 while the button is held down, otherwise 0.
+
+## Description
+
+Tells whether a joystick button is held down right now. Buttons are counted from 1.
 
 ## Examples
 

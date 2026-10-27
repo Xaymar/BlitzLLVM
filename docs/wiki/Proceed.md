@@ -19,14 +19,6 @@
 Proceed:Int32 text:String, serious:Int32=0
 ```
 
-## Description
-
-Shows a question with Yes, No and Cancel and waits for the answer. Lines can be split with `Chr$(13)`.
-
-**Differences and known gaps:**
-
-* The box is a message box of the operating system. Without a screen it writes the text to the error output and answers -1.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Shows a question with Yes, No and Cancel and waits for the answer. Lines can be 
 | `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
 
 **Returns:** 1 for Yes, 0 for No and -1 for Cancel.
+
+## Description
+
+Shows a question with Yes, No and Cancel and waits for the answer. Lines can be split with `Chr$(13)`.
+
+## Differences
+
+* The box is a message box of the operating system. Without a screen it writes the text to the error output and answers -1.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 CreateUDPStream:Int32 port:Int32=0
 ```
 
-## Description
-
-Creates a UDP stream that can send and receive messages. Use a fixed port when other programs have to find you, and no port to let the system pick one.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Creates a UDP stream that can send and receive messages. Use a fixed port when o
 | `port` | Int32 | `0` | The port to receive on. Defaults to 0, which lets the system pick one. |
 
 **Returns:** A UDP stream, or 0 when the port cannot be used.
+
+## Description
+
+Creates a UDP stream that can send and receive messages. Use a fixed port when other programs have to find you, and no port to let the system pick one.
 
 ## Examples
 

@@ -19,15 +19,15 @@
 FreeIconStrip icon_strip:Int32
 ```
 
-## Description
-
-Frees an icon strip that was loaded with [LoadIconStrip](LoadIconStrip). Only needed when you load many during the run of a program, otherwise they are freed when it ends.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `icon_strip` | Int32 | required |  |
+
+## Description
+
+Frees an icon strip that was loaded with [LoadIconStrip](LoadIconStrip). Only needed when you load many during the run of a program, otherwise they are freed when it ends.
 
 ## Related Commands
 

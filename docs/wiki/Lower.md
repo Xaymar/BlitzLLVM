@@ -19,10 +19,6 @@
 Lower:String string:String
 ```
 
-## Description
-
-Returns a copy of the string with every letter in lower case.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns a copy of the string with every letter in lower case.
 | `string` | String | required | The text. |
 
 **Returns:** The lower case text.
+
+## Description
+
+Returns a copy of the string with every letter in lower case.
 
 ## Examples
 

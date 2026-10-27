@@ -19,6 +19,15 @@
 LoadTexture:Int32 file:String, flags:Int32=1
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | Picture file to load. |
+| `flags` | Int32 | `1` | Sum of the texture flags, see CreateTexture. Defaults to 1. |
+
+**Returns:** A texture handle, or 0 if the file could not be loaded.
+
 ## Description
 
 Loads a picture file as a texture and returns its handle, or 0 if the file cannot be read. PNG, JPG, BMP and TGA are supported, and so are the other formats SDL_image reads and DDS files (see below). Loading the same file twice gives two separate textures.
@@ -33,18 +42,9 @@ How transparency is taken from the file depends on the flags. Without flag 2 the
 
 Textures that [TextureFilter](TextureFilter) matches by file name get extra flags added.
 
-**Differences and known gaps:**
+## Differences
 
 * Video memory, high color and point sampling flags are stored but have no effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Picture file to load. |
-| `flags` | Int32 | `1` | Sum of the texture flags, see CreateTexture. Defaults to 1. |
-
-**Returns:** A texture handle, or 0 if the file could not be loaded.
 
 ## Examples
 

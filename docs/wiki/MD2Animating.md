@@ -19,10 +19,6 @@
 MD2Animating:Int32 md2:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `md2` | Int32 | required | The MD2 entity. |
 
 **Returns:** True while the MD2 model is playing an animation, otherwise False.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

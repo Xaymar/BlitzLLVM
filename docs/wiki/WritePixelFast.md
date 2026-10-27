@@ -19,14 +19,6 @@
 WritePixelFast x:Int32, y:Int32, argb:Int32, buffer:Int32=0
 ```
 
-## Description
-
-Sets a pixel of a locked buffer. The buffer has to be locked with [LockBuffer](LockBuffer) first and the result shows after [UnlockBuffer](UnlockBuffer).
-
-**Differences and known gaps:**
-
-* A buffer that is not locked stops the program with an error message. A position outside of the buffer is ignored instead of writing into other memory.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Sets a pixel of a locked buffer. The buffer has to be locked with [LockBuffer](L
 | `y` | Int32 | required | Vertical position of the pixel. |
 | `argb` | Int32 | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
 | `buffer` | Int32 | `0` | The locked buffer to write to. Defaults to the current buffer. |
+
+## Description
+
+Sets a pixel of a locked buffer. The buffer has to be locked with [LockBuffer](LockBuffer) first and the result shows after [UnlockBuffer](UnlockBuffer).
+
+## Differences
+
+* A buffer that is not locked stops the program with an error message. A position outside of the buffer is ignored instead of writing into other memory.
 
 ## Examples
 

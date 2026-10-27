@@ -19,14 +19,6 @@
 ResizeImage image:Int32, width:Float32, height:Float32
 ```
 
-## Description
-
-Changes the size of every frame of an image to a new width and height in pixels, stretching the picture. The handle moves with the picture. Resizing again and again loses quality, so keep the original or use [CopyImage](CopyImage) first.
-
-**Differences and known gaps:**
-
-* The picture is stretched with smooth filtering, where the original used simple pixel picking. Edges of resized images are softer.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Changes the size of every frame of an image to a new width and height in pixels,
 | `image` | Int32 | required | The image. |
 | `width` | Float32 | required | New width of a frame in pixels. |
 | `height` | Float32 | required | New height of a frame in pixels. |
+
+## Description
+
+Changes the size of every frame of an image to a new width and height in pixels, stretching the picture. The handle moves with the picture. Resizing again and again loses quality, so keep the original or use [CopyImage](CopyImage) first.
+
+## Differences
+
+* The picture is stretched with smooth filtering, where the original used simple pixel picking. Edges of resized images are softer.
 
 ## Examples
 

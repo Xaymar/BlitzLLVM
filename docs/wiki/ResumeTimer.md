@@ -19,15 +19,15 @@
 ResumeTimer timer:Int32
 ```
 
-## Description
-
-Lets a timer paused with [PauseTimer](PauseTimer) tick again.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `timer` | Int32 | required | A timer from `CreateTimer`. |
+
+## Description
+
+Lets a timer paused with [PauseTimer](PauseTimer) tick again.
 
 ## Examples
 

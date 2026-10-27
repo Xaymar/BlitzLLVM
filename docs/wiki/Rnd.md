@@ -19,10 +19,6 @@
 Rnd:Float32 from:Float32, to:Float32=0
 ```
 
-## Description
-
-Returns a random float from `from` up to, but not including, `to`. With one argument the range is 0 up to that number.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Returns a random float from `from` up to, but not including, `to`. With one argu
 | `to` | Float32 | `0` | The limit, never reached. Defaults to 0. |
 
 **Returns:** A random float in the range.
+
+## Description
+
+Returns a random float from `from` up to, but not including, `to`. With one argument the range is 0 up to that number.
 
 ## Examples
 

@@ -19,14 +19,6 @@
 LoadFont:Int32 fontname:String, height:Int32=12, bold:Int32=0, italic:Int32=0, underline:Int32=0
 ```
 
-## Description
-
-Chooses a font by its name and size and returns a handle to use with [SetFont](SetFont). The height is measured in pixels of a character, and the default is 12.
-
-**Differences and known gaps:**
-
-* Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one). A name that has a dot in it is a font file, such as "fonts/my.ttf". Bold and italic use the bold and italic files of a family when there are any, and are made from the regular font when there are none. A font that is not found is drawn with the built-in 8x8 bitmap font, scaled to the height.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -38,6 +30,14 @@ Chooses a font by its name and size and returns a handle to use with [SetFont](S
 | `underline` | Int32 | `0` | True for an underlined font. Defaults to False. |
 
 **Returns:** A handle for the font. A font that does not exist still gives a valid handle.
+
+## Description
+
+Chooses a font by its name and size and returns a handle to use with [SetFont](SetFont). The height is measured in pixels of a character, and the default is 12.
+
+## Differences
+
+* Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one). A name that has a dot in it is a font file, such as "fonts/my.ttf". Bold and italic use the bold and italic files of a family when there are any, and are made from the regular font when there are none. A font that is not found is drawn with the built-in 8x8 bitmap font, scaled to the height.
 
 ## Examples
 

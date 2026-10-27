@@ -19,6 +19,10 @@
 CreateSampler:Int32
 ```
 
+## Parameters
+
+**Returns:** The handle of the new sampler.
+
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -26,10 +30,6 @@ CreateSampler:Int32
 Makes a sampler, which says how a texture is read: how it is filtered when it is bigger or smaller on the screen, what happens to texture coordinates outside of 0 to 1, and which mip levels may be used. A new sampler reads linearly with linear blending between mip levels, repeats on all three axes, has no anisotropic filtering, a lod bias of 0 and may use every level. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers. It is a Vulkan sampler (`VkSampler`) underneath.
 
 A sampler does nothing until it is given to a texture with [SetTextureSampler](SetTextureSampler). The same sampler can be set on any number of textures, and changing it changes all of them. A texture without a sampler is read with what its flags say: clamped (16 and 32) or repeating, and with mip maps (8) or without.
-
-## Parameters
-
-**Returns:** The handle of the new sampler.
 
 ## Examples
 

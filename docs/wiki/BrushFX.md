@@ -19,16 +19,16 @@
 BrushFX brush:Int32, fx:Int32
 ```
 
-## Description
-
-Switches extra effects on or off with a sum of flags: 1 full-bright (no lighting), 2 vertex colors replace the brush color, 4 flat shading, 8 no fog, 16 no back-face culling, so both sides of a triangle are drawn. A value of 0 removes all effects.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `brush` | Int32 | required | The brush. |
 | `fx` | Int32 | required | Sum of the flags above. |
+
+## Description
+
+Switches extra effects on or off with a sum of flags: 1 full-bright (no lighting), 2 vertex colors replace the brush color, 4 flat shading, 8 no fog, 16 no back-face culling, so both sides of a triangle are drawn. A value of 0 removes all effects.
 
 ## Related Commands
 

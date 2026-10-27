@@ -19,10 +19,6 @@
 Upper:String string:String
 ```
 
-## Description
-
-Returns a copy of the string with every letter in upper case.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns a copy of the string with every letter in upper case.
 | `string` | String | required | The text. |
 
 **Returns:** The upper case text.
+
+## Description
+
+Returns a copy of the string with every letter in upper case.
 
 ## Examples
 

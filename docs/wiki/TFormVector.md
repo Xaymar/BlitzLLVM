@@ -19,12 +19,6 @@
 TFormVector x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32
 ```
 
-## Description
-
-Converts a direction from one space to another. Unlike [TFormPoint](TFormPoint) the position of the entities is ignored: only their rotation and scale are used, so a vector of length 1 turns into a longer one when the source entity is scaled. Read the result with [TFormedX](TFormedX), [TFormedY](TFormedY) and [TFormedZ](TFormedZ).
-
-It is the right tool to find which way an entity moves when you push it forward: convert 0, 0, 1 from the entity to the world.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +28,12 @@ It is the right tool to find which way an entity moves when you push it forward:
 | `z` | Float32 | required | Z of the vector in the source space. |
 | `source_entity` | Int32 | required | Entity whose space the vector is in, or 0 for the world. |
 | `dest_entity` | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
+
+## Description
+
+Converts a direction from one space to another. Unlike [TFormPoint](TFormPoint) the position of the entities is ignored: only their rotation and scale are used, so a vector of length 1 turns into a longer one when the source entity is scaled. Read the result with [TFormedX](TFormedX), [TFormedY](TFormedY) and [TFormedZ](TFormedZ).
+
+It is the right tool to find which way an entity moves when you push it forward: convert 0, 0, 1 from the entity to the world.
 
 ## Related Commands
 

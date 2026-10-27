@@ -19,15 +19,15 @@
 FreeEntity entity:Int32
 ```
 
-## Description
-
-Removes an entity from the world and releases what it used, including all of its children. The handle is invalid afterwards; using it stops the program with an error. Entities are also freed when the program ends, so call this when you want something gone during the game, such as a spent bullet.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
+
+## Description
+
+Removes an entity from the world and releases what it used, including all of its children. The handle is invalid afterwards; using it stops the program with an error. Entities are also freed when the program ends, so call this when you want something gone during the game, such as a spent bullet.
 
 ## Related Commands
 

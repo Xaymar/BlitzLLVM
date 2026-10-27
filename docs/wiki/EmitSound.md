@@ -19,12 +19,6 @@
 EmitSound:Int32 sound:Int32, entity:Int32
 ```
 
-## Description
-
-Plays a sound from an entity, which becomes quieter and more to one side the further away the entity is from the listener, and keeps following the entity while the sound plays. The sound should come from [Load3DSound](Load3DSound). The returned channel can be stopped or changed with the usual channel commands.
-
-The example is the one under [CreateListener](CreateListener).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +27,12 @@ The example is the one under [CreateListener](CreateListener).
 | `entity` | Int32 | required | The entity the sound comes from. |
 
 **Returns:** A channel handle for the playing sound.
+
+## Description
+
+Plays a sound from an entity, which becomes quieter and more to one side the further away the entity is from the listener, and keeps following the entity while the sound plays. The sound should come from [Load3DSound](Load3DSound). The returned channel can be stopped or changed with the usual channel commands.
+
+The example is the one under [CreateListener](CreateListener).
 
 ## Related Commands
 

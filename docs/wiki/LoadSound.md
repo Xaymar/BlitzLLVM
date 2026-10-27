@@ -19,17 +19,6 @@
 LoadSound:Int32 filename:String
 ```
 
-## Description
-
-Loads a sound file into memory and returns a handle that [PlaySound](PlaySound) uses. WAV, MP3, OGG and FLAC files can be loaded. Load sounds once at the start of the program and play them as often as needed.
-
-The example writes a short beep as `beep.wav` first, so that it needs no other file. The other audio examples use this file.
-
-**Differences and known gaps:**
-
-* MIDI , module and Windows Media files are not supported.
-* Without a sound device (or with the environment variable `BLITZ_HEADLESS` set) a file that exists still gives a handle, but nothing is played and the play commands return channel 0.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -37,6 +26,17 @@ The example writes a short beep as `beep.wav` first, so that it needs no other f
 | `filename` | String | required |  |
 
 **Returns:** A sound handle, or 0 if the file does not exist or cannot be read.
+
+## Description
+
+Loads a sound file into memory and returns a handle that [PlaySound](PlaySound) uses. WAV, MP3, OGG and FLAC files can be loaded. Load sounds once at the start of the program and play them as often as needed.
+
+The example writes a short beep as `beep.wav` first, so that it needs no other file. The other audio examples use this file.
+
+## Differences
+
+* MIDI , module and Windows Media files are not supported.
+* Without a sound device (or with the environment variable `BLITZ_HEADLESS` set) a file that exists still gives a handle, but nothing is played and the play commands return channel 0.
 
 ## Examples
 

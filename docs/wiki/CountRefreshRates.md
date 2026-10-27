@@ -19,16 +19,6 @@
 CountRefreshRates:Int32 display:Int32, width:Int32, height:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-The number of refresh rates a display supports at a size. A size is often available at 60 Hz and at higher rates such as 120 or 144 Hz. Use [RefreshRateAt](RefreshRateAt) to get them. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
-
-**Differences and known gaps:**
-
-* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -38,6 +28,16 @@ The number of refresh rates a display supports at a size. A size is often availa
 | `height` | Int32 | required | The height in pixels of the size. |
 
 **Returns:** The number of refresh rates, or 0 if the display does not exist or does not have the size.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+The number of refresh rates a display supports at a size. A size is often available at 60 Hz and at higher rates such as 120 or 144 Hz. Use [RefreshRateAt](RefreshRateAt) to get them. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+## Differences
+
+* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 
 ## Examples
 

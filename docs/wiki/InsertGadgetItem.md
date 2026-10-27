@@ -19,10 +19,6 @@
 InsertGadgetItem gadget:Int32, index:Int32, item:String, icon:Int32=-1
 ```
 
-## Description
-
-Puts a new entry into a list box, combo box or tabber before the entry with the given number.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Puts a new entry into a list box, combo box or tabber before the entry with the 
 | `index` | Int32 | required | Where the entry goes, starting at 0. |
 | `item` | String | required |  |
 | `icon` | Int32 | `-1` | Number of an icon of the gadget. Defaults to -1, which means none. |
+
+## Description
+
+Puts a new entry into a list box, combo box or tabber before the entry with the given number.
 
 ## Examples
 

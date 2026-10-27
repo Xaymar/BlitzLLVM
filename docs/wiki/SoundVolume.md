@@ -19,16 +19,16 @@
 SoundVolume sound:Int32, volume:Float32
 ```
 
-## Description
-
-Sets the volume that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelVolume](ChannelVolume) for those.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
 | `volume` | Float32 | required | 0 is silence and 1 is full volume. |
+
+## Description
+
+Sets the volume that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelVolume](ChannelVolume) for those.
 
 ## Related Commands
 

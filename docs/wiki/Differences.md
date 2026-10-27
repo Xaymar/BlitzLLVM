@@ -32,247 +32,247 @@ Differences that are not caused by one command.
 
 ## Commands
 
-Commands that differ from the original or are not finished, with the first of the differences from the "Differences and known gaps" part of their page.
+Commands that differ from the original or are not finished, with the first of the differences from the "Differences" part of their page.
 
-* [ActivateWindow](ActivateWindow#differences-and-known-gaps): All windows are drawn inside the one window of your program, so activating one moves it in front of the others there instead of in front of other applications.
-* [ActiveObjects](ActiveObjects#differences-and-known-gaps): Windows and gadgets are not counted here.
-* [ActiveWindow](ActiveWindow#differences-and-known-gaps): The windows are inside the program's own window, so there is no "none of ours is active" state: the answer is always the window that was activated most recently.
-* [AddVertex](AddVertex#differences-and-known-gaps): `w` is ignored.
-* [Animate](Animate#differences-and-known-gaps): The transition argument is accepted but ignored: the entity jumps to the first frame of the new animation.
-* [AnimateMD2](AnimateMD2#differences-and-known-gaps): The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
-* [AntiAlias](AntiAlias#differences-and-known-gaps): Accepted and ignored.
-* [AppTitle](AppTitle#differences-and-known-gaps): The title is only used once a graphics mode is open.
-* [AvailVidMem](AvailVidMem#differences-and-known-gaps): The graphics card cannot be asked how much of its memory is still free.
-* [BrushTexture](BrushTexture#differences-and-known-gaps): Layers 0 to 7 are accepted.
-* [BSPAmbientLight](BSPAmbientLight#differences-and-known-gaps): Here the color multiplies the vertex colors: a new level starts at 255, 255, 255 and smaller values tint and darken it, down to black for 0, 0, 0.
-* [BSPLighting](BSPLighting#differences-and-known-gaps): The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness.
-* [BufferDirty](BufferDirty#differences-and-known-gaps): Has no effect.
-* [Byte](Byte#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [ByteSwap](ByteSwap#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals.
-* [CanvasBuffer](CanvasBuffer#differences-and-known-gaps): The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit.
-* [CaptureWorld](CaptureWorld#differences-and-known-gaps): The original also remembers the alpha and the color of every entity and blends them during a tween.
-* [ChannelPan](ChannelPan#differences-and-known-gaps): Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
-* [ChannelPitch](ChannelPitch#differences-and-known-gaps): Changing the pitch also changes the speed, because the sound is resampled.
-* [ChannelPlaying](ChannelPlaying#differences-and-known-gaps): A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
-* [Chr](Chr#differences-and-known-gaps): Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
-* [ClientHeight](ClientHeight#differences-and-known-gaps): Where there is a display to ask, the desktop is as big as the screen of the computer.
-* [ClientWidth](ClientWidth#differences-and-known-gaps): Where there is a display to ask, the desktop is as big as the screen of the computer.
-* [CloseMovie](CloseMovie#differences-and-known-gaps): Nothing , the same as the original.
-* [Collisions](Collisions#differences-and-known-gaps): Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
-* [CollisionTime](CollisionTime#differences-and-known-gaps): The official help says this is the time taken to calculate the collision.
-* [Confirm](Confirm#differences-and-known-gaps): The box is a message box of the operating system and not part of the program window.
-* [CopyEntity](CopyEntity#differences-and-known-gaps): A copy of a hidden entity is visible, where the original gives the copy the hidden state.
-* [CopyPixel](CopyPixel#differences-and-known-gaps): A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
-* [CopyPixelFast](CopyPixelFast#differences-and-known-gaps): A buffer that is not locked stops the program with an error message.
-* [CopyRect](CopyRect#differences-and-known-gaps): Parts of the rectangle that lie outside of either buffer are cut off.
-* [CountDisplayModes](CountDisplayModes#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [CountDisplays](CountDisplays#differences-and-known-gaps) 〔BlitzLLVM〕: When SDL knows of no display, for example without a display driver, there is one display called "Default" with the common sizes of [CountGfxModes](CountGfxModes).
-* [CountGfxDrivers](CountGfxDrivers#differences-and-known-gaps): Every GPU that Vulkan reports is a driver, including software ones.
-* [CountGfxModes](CountGfxModes#differences-and-known-gaps): The modes are the ones of the main display.
-* [CountHostIPs](CountHostIPs#differences-and-known-gaps): Only IPv4 addresses are counted.
-* [CountRefreshRates](CountRefreshRates#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [CreateButton](CreateButton#differences-and-known-gaps): Buttons are drawn in the look of the program, not with the controls of the operating system.
-* [CreateCanvas](CreateCanvas#differences-and-known-gaps): Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
-* [CreateComboBox](CreateComboBox#differences-and-known-gaps): The user cannot type into it, only pick from the list.
-* [CreateImage](CreateImage#differences-and-known-gaps): A graphics window must be open, because images live in video memory.
-* [CreateLabel](CreateLabel#differences-and-known-gaps): Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none).
-* [CreateListBox](CreateListBox#differences-and-known-gaps): Only one entry can be selected at a time.
-* [CreateListener](CreateListener#differences-and-known-gaps): Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original.
-* [CreateMenu](CreateMenu#differences-and-known-gaps): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
-* [CreatePlane](CreatePlane#differences-and-known-gaps): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
-* [CreateSprite](CreateSprite#differences-and-known-gaps): Sprites are always drawn full-bright and visible from both sides, whatever [EntityFX](EntityFX) says.
-* [CreateTabber](CreateTabber#differences-and-known-gaps): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
-* [CreateTerrain](CreateTerrain#differences-and-known-gaps): The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise.
-* [CreateTextArea](CreateTextArea#differences-and-known-gaps): Without wrapping, a bar along the bottom appears once a line does not fit.
-* [CreateTexture](CreateTexture#differences-and-known-gaps): Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks.
-* [CreateToolBar](CreateToolBar#differences-and-known-gaps): The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
-* [CreateWindow](CreateWindow#differences-and-known-gaps): All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries.
-* [DebugObjects](DebugObjects#differences-and-known-gaps): The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
-* [Desktop](Desktop#differences-and-known-gaps): The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the screen.
-* [DesktopBuffer](DesktopBuffer#differences-and-known-gaps): The desktop is the window of the program, so this is the same buffer as `FrontBuffer()`, not the screen of the computer.
-* [DirectInputEnabled](DirectInputEnabled#differences-and-known-gaps): There is no DirectInput on this platform.
-* [DisplayDepth](DisplayDepth#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [DisplayHeight](DisplayHeight#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [DisplayModeDepth](DisplayModeDepth#differences-and-known-gaps) 〔BlitzLLVM〕: A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
-* [DisplayModeHeight](DisplayModeHeight#differences-and-known-gaps) 〔BlitzLLVM〕: A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
-* [DisplayModeRefreshRate](DisplayModeRefreshRate#differences-and-known-gaps) 〔BlitzLLVM〕: A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
-* [DisplayModeWidth](DisplayModeWidth#differences-and-known-gaps) 〔BlitzLLVM〕: A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
-* [DisplayName](DisplayName#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [DisplayRefreshRate](DisplayRefreshRate#differences-and-known-gaps) 〔BlitzLLVM〕: A display that does not tell its refresh rate is taken to have 60 Hz.
-* [DisplayScale](DisplayScale#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [DisplayWidth](DisplayWidth#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [DisplayX](DisplayX#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [DisplayY](DisplayY#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [Dither](Dither#differences-and-known-gaps): Does nothing: 16 bit modes are not supported and the screen always has 8 bits per color channel, so there is nothing to dither.
-* [Double](Double#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
-* [DrawBlockRect](DrawBlockRect#differences-and-known-gaps): Only the part that lies inside the frame is drawn.
-* [DrawImage](DrawImage#differences-and-known-gaps): A frame number that does not exist stops the program with an error message.
-* [DrawImageRect](DrawImageRect#differences-and-known-gaps): Only the part that lies inside the frame is drawn.
-* [DrawMovie](DrawMovie#differences-and-known-gaps): Draws the newest picture whose time has come, stretched to the size given (smooth, not pixel by pixel).
-* [EnableDirectInput](EnableDirectInput#differences-and-known-gaps): Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it.
-* [EndGraphics](EndGraphics#differences-and-known-gaps): The original opens a new window of the default size, or a console.
-* [Flip](Flip#differences-and-known-gaps): Without a graphics window nothing happens.
-* [FlipCanvas](FlipCanvas#differences-and-known-gaps): The second parameter is accepted, but there is nothing to wait for and it makes no difference.
-* [FlushJoy](FlushJoy#differences-and-known-gaps): Buttons that are currently held are not released.
-* [FontHeight](FontHeight#differences-and-known-gaps): The height is the height that was requested, as with Windows fonts.
-* [FontWidth](FontWidth#differences-and-known-gaps): Real fonts have a different width for each character, so this is the width of the widest one; use [StringWidth](StringWidth) for a text.
-* [FormatTextAreaText](FormatTextAreaText#differences-and-known-gaps): Underline and strike-through are not supported, as in the original.
-* [FreeFont](FreeFont#differences-and-known-gaps): A font that does not exist stops the program with an error message.
-* [FreeImage](FreeImage#differences-and-known-gaps): Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
-* [FreeSound](FreeSound#differences-and-known-gaps): Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
-* [FreeTexture](FreeTexture#differences-and-known-gaps): [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
-* [FrontBuffer](FrontBuffer#differences-and-known-gaps): The front buffer holds what the last Flip showed.
-* [GammaBlue](GammaBlue#differences-and-known-gaps): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
-* [GammaGreen](GammaGreen#differences-and-known-gaps): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
-* [GammaRed](GammaRed#differences-and-known-gaps): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
-* [GetBrushTexture](GetBrushTexture#differences-and-known-gaps): A layer without a texture gives 0.
-* [GetJoy](GetJoy#differences-and-known-gaps): Up to 32 buttons per joystick are supported, and a joystick with more reports only the first 32.
-* [GetKey](GetKey#differences-and-known-gaps): The queue holds 64 characters, and the oldest ones are dropped when it is full.
-* [GetMouse](GetMouse#differences-and-known-gaps): The queue holds 15 presses and forgets the oldest ones when it is full.
-* [GetSurfaceBrush](GetSurfaceBrush#differences-and-known-gaps): A surface that was never painted gives a plain white brush.
-* [GfxDriver3D](GfxDriver3D#differences-and-known-gaps): A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0.
-* [GfxDriverCaps3D](GfxDriverCaps3D#differences-and-known-gaps): It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
-* [GfxDriverName](GfxDriverName#differences-and-known-gaps): The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER".
-* [GfxModeDepth](GfxModeDepth#differences-and-known-gaps): A mode number that does not exist stops the program with an error message.
-* [GfxModeExists](GfxModeExists#differences-and-known-gaps): A 0 for the width or height means "anything fits", like in BlitzPlus.
-* [GfxModeFormat](GfxModeFormat#differences-and-known-gaps): Always 4, as the window is always 32 bit.
-* [GfxModeHeight](GfxModeHeight#differences-and-known-gaps): A mode number that does not exist stops the program with an error message.
-* [GfxModeWidth](GfxModeWidth#differences-and-known-gaps): A mode number that does not exist stops the program with an error message.
-* [GrabImage](GrabImage#differences-and-known-gaps): Parts that lie outside of the buffer are not copied and keep what the frame had before.
-* [Graphics](Graphics#differences-and-known-gaps): The color depth is accepted but ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
-* [Graphics3D](Graphics3D#differences-and-known-gaps): The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
-* [GraphicsDepth](GraphicsDepth#differences-and-known-gaps): Always 32: the picture has 8 bits for each of red, green and blue, with 8 more for alpha where a program uses it.
-* [GraphicsFormat](GraphicsFormat#differences-and-known-gaps): Always 4.
-* [GraphicsLost](GraphicsLost#differences-and-known-gaps): Always 0.
-* [Half](Half#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
-* [HostIP](HostIP#differences-and-known-gaps): Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used.
-* [HWMultiTex](HWMultiTex#differences-and-known-gaps): Accepted and ignored.
-* [ImageBuffer](ImageBuffer#differences-and-known-gaps): A frame number that does not exist stops the program with an error message.
-* [ImagesCollide](ImagesCollide#differences-and-known-gaps): A frame number that does not exist stops the program with an error message.
-* [Input](Input#differences-and-known-gaps): Without a graphics window the prompt is written to the console (standard output) and the line is read from the console (standard input).
-* [JoyHat](JoyHat#differences-and-known-gaps): Without any joystick the original returns -1 as well, but this runtime returns 0, which looks like "up".
-* [JoyType](JoyType#differences-and-known-gaps): The original uses 1 for a digital and 2 for an analog joystick.
-* [JoyWait](JoyWait#differences-and-known-gaps): If no joystick is connected the function returns 0 right away instead of waiting forever.
-* [KeyDown](KeyDown#differences-and-known-gaps): Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
-* [LeadingZeros](LeadingZeros#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals.
-* [Load3DSound](Load3DSound#differences-and-known-gaps): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
-* [LoadAnimMesh](LoadAnimMesh#differences-and-known-gaps): Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh).
-* [LoadAnimTexture](LoadAnimTexture#differences-and-known-gaps): TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
-* [LoadBSP](LoadBSP#differences-and-known-gaps): Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices.
-* [LoadBuffer](LoadBuffer#differences-and-known-gaps): Formats other than BMP load as well.
-* [LoaderMatrix](LoaderMatrix#differences-and-known-gaps): The matrix is remembered but never used.
-* [LoadFont](LoadFont#differences-and-known-gaps): Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one).
-* [LoadImage](LoadImage#differences-and-known-gaps): More file formats load than in the original, which read BMP, PNG, JPEG and TGA.
-* [LoadMesh](LoadMesh#differences-and-known-gaps): Only `.b3d` and `.3ds` files can be loaded.
-* [LoadSound](LoadSound#differences-and-known-gaps): MIDI , module and Windows Media files are not supported.
-* [LoadSprite](LoadSprite#differences-and-known-gaps): A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending.
-* [LoadTerrain](LoadTerrain#differences-and-known-gaps): The official help says that the red channel is used.
-* [LoadTexture](LoadTexture#differences-and-known-gaps): Video memory, high color and point sampling flags are stored but have no effect, see CreateTexture.
-* [Locate](Locate#differences-and-known-gaps): The position is limited to the window.
-* [LockBuffer](LockBuffer#differences-and-known-gaps): Up to 8 buffers can be locked at the same time.
-* [LockedFormat](LockedFormat#differences-and-known-gaps): Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte).
-* [LockedPixels](LockedPixels#differences-and-known-gaps): The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card.
-* [LockTextArea](LockTextArea#differences-and-known-gaps): While a text area is locked it sends no events for the changes you make.
-* [Long](Long#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [LoopSound](LoopSound#differences-and-known-gaps): There is no command to switch looping off again.
-* [MaximizeWindow](MaximizeWindow#differences-and-known-gaps): The window fills the whole program window, also when it was made without flag 2 and so cannot be resized by the user.
-* [MeshCullBox](MeshCullBox#differences-and-known-gaps): The box only affects [EntityInView](EntityInView).
-* [Microseconds](Microseconds#differences-and-known-gaps) 〔BlitzLLVM〕: The value is a `UInt64`, which no original command returns.
-* [MinimizeWindow](MinimizeWindow#differences-and-known-gaps): There is no task bar, so a minimized window simply is not drawn and there is no way for the user to bring it back.
-* [ModifyTerrain](ModifyTerrain#differences-and-known-gaps): The realtime argument has no effect.
-* [MouseDown](MouseDown#differences-and-known-gaps): A button number outside 1 to 3 always gives 0.
-* [MouseXSpeed](MouseXSpeed#differences-and-known-gaps): Putting the pointer somewhere with MoveMouse does not count as movement, the same as in the original.
-* [MouseZ](MouseZ#differences-and-known-gaps): Fine scrolling wheels and touchpads that report fractions of a notch are rounded to whole steps.
-* [MouseZSpeed](MouseZSpeed#differences-and-known-gaps): The original only ever gives -1, 0 or 1.
-* [MoveMouse](MoveMouse#differences-and-known-gaps): The pointer is not warped on the desktop.
-* [MovieHeight](MovieHeight#differences-and-known-gaps): Nothing , the same as the original.
-* [MoviePlaying](MoviePlaying#differences-and-known-gaps): Nothing , the same as the original.
-* [MovieWidth](MovieWidth#differences-and-known-gaps): Nothing , the same as the original.
-* [Notify](Notify#differences-and-known-gaps): The box is a message box of the operating system and not part of the program window.
-* [OpenMovie](OpenMovie#differences-and-known-gaps): Movies are decoded by FFmpeg, whose shared libraries have to be next to the program: blitzcc copies them there when the program uses OpenMovie, and without them (or for a file that can't be played) the result is 0, which programs already have to handle.
-* [PickedTime](PickedTime#differences-and-known-gaps): The official help describes this as the time taken to calculate the pick.
-* [PlayCDTrack](PlayCDTrack#differences-and-known-gaps): Always returns 0 and plays nothing.
-* [PlayMusic](PlayMusic#differences-and-known-gaps): MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA.
-* [PopCount](PopCount#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals.
-* [Print](Print#differences-and-known-gaps): Without a graphics window the text goes to the console instead.
-* [Proceed](Proceed#differences-and-known-gaps): The box is a message box of the operating system.
-* [ProjectedX](ProjectedX#differences-and-known-gaps): The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane.
-* [ProjectedZ](ProjectedZ#differences-and-known-gaps): In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible.
-* [QueryObject](QueryObject#differences-and-known-gaps): All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget.
-* [ReadPixel](ReadPixel#differences-and-known-gaps): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
-* [ReadPixelFast](ReadPixelFast#differences-and-known-gaps): A buffer that is not locked stops the program with an error message.
-* [RefreshRateAt](RefreshRateAt#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [RenderWorld](RenderWorld#differences-and-known-gaps): Entities that are made or hidden after [CaptureWorld](CaptureWorld) are drawn where they are, they do not fade in.
-* [RequestColor](RequestColor#differences-and-known-gaps): The picker is drawn by the program inside its own window and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors.
-* [RequestDir](RequestDir#differences-and-known-gaps): It is the folder dialog of the operating system, which differs between Windows, macOS and Linux.
-* [RequestFile](RequestFile#differences-and-known-gaps): It is the file dialog of the operating system, so it looks different on each system.
-* [RequestFont](RequestFont#differences-and-known-gaps): Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font.
-* [ResizeImage](ResizeImage#differences-and-known-gaps): The picture is stretched with smooth filtering, where the original used simple pixel picking.
-* [RotL](RotL#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have `Shl`, `Shr` and `Sar` only.
-* [RotR](RotR#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have `Shl`, `Shr` and `Sar` only.
-* [RuntimeError](RuntimeError#differences-and-known-gaps): The message is printed as `Runtime Error: ...` on the standard error output, not shown in a dialog box.
-* [SatByte](SatByte#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SatInt](SatInt#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SatLong](SatLong#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SatShort](SatShort#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SatUByte](SatUByte#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SatUInt](SatUInt#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SatULong](SatULong#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SatUShort](SatUShort#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SaveBuffer](SaveBuffer#differences-and-known-gaps): A name that ends with `.png` gives a PNG file and any other name a BMP file.
-* [SaveImage](SaveImage#differences-and-known-gaps): The original only writes BMP files.
-* [ScaleImage](ScaleImage#differences-and-known-gaps): Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
-* [ScanLine](ScanLine#differences-and-known-gaps): Always returns 0.
-* [SetBuffer](SetBuffer#differences-and-known-gaps): A buffer that does not exist stops the program with an error message.
-* [SetCubeFace](SetCubeFace#differences-and-known-gaps): The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y.
-* [SetCubeMode](SetCubeMode#differences-and-known-gaps): The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
-* [SetFont](SetFont#differences-and-known-gaps): A font that does not exist stops the program with an error message.
-* [SetGadgetFont](SetGadgetFont#differences-and-known-gaps): The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font.
-* [SetGamma](SetGamma#differences-and-known-gaps): The original changed the gamma of the whole display, and left it that way until the program was done.
-* [SetGfxDriver](SetGfxDriver#differences-and-known-gaps): Any number except 1 to [CountGfxDrivers](CountGfxDrivers) stops the program with an error message.
-* [SetMenuText](SetMenuText#differences-and-known-gaps): The text can be read back with [MenuText](MenuText) here.
-* [SetMinWindowSize](SetMinWindowSize#differences-and-known-gaps): The help lists height before width in its syntax line, the real order is width then height.
-* [SetSamplerAddressModeU](SetSamplerAddressModeU#differences-and-known-gaps) 〔BlitzLLVM〕: The mode has to be 0 to 3, other values stop the program with an error.
-* [SetSamplerAddressModeV](SetSamplerAddressModeV#differences-and-known-gaps) 〔BlitzLLVM〕: The mode has to be 0 to 3, other values stop the program with an error.
-* [SetSamplerAddressModeW](SetSamplerAddressModeW#differences-and-known-gaps) 〔BlitzLLVM〕: The mode has to be 0 to 3, other values stop the program with an error.
-* [SetSamplerAnisotropy](SetSamplerAnisotropy#differences-and-known-gaps) 〔BlitzLLVM〕: The graphics card has a limit and the value is lowered to it, and a card that can not do anisotropic filtering reads as if it was 1.
-* [SetSamplerBorderColor](SetSamplerBorderColor#differences-and-known-gaps) 〔BlitzLLVM〕: Graphics cards without the `VK_EXT_custom_border_color` extension can only do transparent black, opaque black and opaque white, so any other color is read as the closest of the three.
-* [SetSamplerFilterMag](SetSamplerFilterMag#differences-and-known-gaps) 〔BlitzLLVM〕: The mode has to be 0 or 1, other values stop the program with an error.
-* [SetSamplerFilterMin](SetSamplerFilterMin#differences-and-known-gaps) 〔BlitzLLVM〕: The mode has to be 0 or 1, other values stop the program with an error.
-* [SetSamplerFilterMip](SetSamplerFilterMip#differences-and-known-gaps) 〔BlitzLLVM〕: The mode has to be 0 or 1, other values stop the program with an error.
-* [SetSamplerLodBias](SetSamplerLodBias#differences-and-known-gaps) 〔BlitzLLVM〕: The graphics card has a limit for the bias, and the value is kept inside of it.
-* [SetTextAreaFont](SetTextAreaFont#differences-and-known-gaps): Only the size of the font is used, every font is drawn with the built-in typeface.
-* [SetToolBarTips](SetToolBarTips#differences-and-known-gaps): A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed.
-* [Short](Short#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SpriteViewMode](SpriteViewMode#differences-and-known-gaps): The descriptions in the official help do not exactly match the engine.
-* [StartNetGame](StartNetGame#differences-and-known-gaps): The original showed a dialog box with the games found in the network.
-* [Stats3D](Stats3D#differences-and-known-gaps): The original also reports the vertices and triangles of the terrains in indexes 1 and 2.
-* [Stop](Stop#differences-and-known-gaps): Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached.
-* [StringHeight](StringHeight#differences-and-known-gaps): Text has only one line, so this is always the height of one character.
-* [StringWidth](StringWidth#differences-and-known-gaps): With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth).
-* [SystemProperty](SystemProperty#differences-and-known-gaps): Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.
-* [TerrainDetail](TerrainDetail#differences-and-known-gaps): The terrain has no level of detail here.
-* [TerrainShading](TerrainShading#differences-and-known-gaps): The terrain is always lit with normals that follow the height, whatever this is set to.
-* [Text](Text#differences-and-known-gaps): The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font.
-* [TextureBlend](TextureBlend#differences-and-known-gaps): Modes 1, 2, 3 and 5 are drawn on layers above the first.
-* [TextureCoords](TextureCoords#differences-and-known-gaps): Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
-* [TextureName](TextureName#differences-and-known-gaps): The original turns the path into lower case.
-* [TFormImage](TFormImage#differences-and-known-gaps): A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
-* [TotalVidMem](TotalVidMem#differences-and-known-gaps): The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer.
-* [TrailingZeros](TrailingZeros#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals.
-* [UByte](UByte#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [UDPStreamIP](UDPStreamIP#differences-and-known-gaps): It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
-* [UInt](UInt#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [ULong](ULong#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [UpdateGamma](UpdateGamma#differences-and-known-gaps): The original gave the tables to the display.
-* [UpdateWindowMenu](UpdateWindowMenu#differences-and-known-gaps): Menus here change the screen right away, so this command only asks for a redraw.
-* [UShort](UShort#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [VertexTexCoords](VertexTexCoords#differences-and-known-gaps): `w` is ignored.
-* [VertexW](VertexW#differences-and-known-gaps): The value is not stored: this always returns 1.
-* [VWait](VWait#differences-and-known-gaps): There is no vertical blank to wait for, so VWait waits 16 milliseconds for each frame (60 frames per second).
-* [WaitJoy](WaitJoy#differences-and-known-gaps): If no joystick is connected the function returns 0 right away instead of waiting forever.
-* [WBuffer](WBuffer#differences-and-known-gaps): Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
-* [WireFrame](WireFrame#differences-and-known-gaps): On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
-* [Write](Write#differences-and-known-gaps): Without a graphics window the text goes to the console instead.
-* [WritePixel](WritePixel#differences-and-known-gaps): A position outside of the buffer is ignored.
-* [WritePixelFast](WritePixelFast#differences-and-known-gaps): A buffer that is not locked stops the program with an error message.
+* [ActivateWindow](ActivateWindow#differences): All windows are drawn inside the one window of your program, so activating one moves it in front of the others there instead of in front of other applications.
+* [ActiveObjects](ActiveObjects#differences): Windows and gadgets are not counted here.
+* [ActiveWindow](ActiveWindow#differences): The windows are inside the program's own window, so there is no "none of ours is active" state: the answer is always the window that was activated most recently.
+* [AddVertex](AddVertex#differences): `w` is ignored.
+* [Animate](Animate#differences): The transition argument is accepted but ignored: the entity jumps to the first frame of the new animation.
+* [AnimateMD2](AnimateMD2#differences): The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
+* [AntiAlias](AntiAlias#differences): Accepted and ignored.
+* [AppTitle](AppTitle#differences): The title is only used once a graphics mode is open.
+* [AvailVidMem](AvailVidMem#differences): The graphics card cannot be asked how much of its memory is still free.
+* [BrushTexture](BrushTexture#differences): Layers 0 to 7 are accepted.
+* [BSPAmbientLight](BSPAmbientLight#differences): Here the color multiplies the vertex colors: a new level starts at 255, 255, 255 and smaller values tint and darken it, down to black for 0, 0, 0.
+* [BSPLighting](BSPLighting#differences): The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness.
+* [BufferDirty](BufferDirty#differences): Has no effect.
+* [Byte](Byte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [ByteSwap](ByteSwap#differences) 〔BlitzLLVM〕: Not in the originals.
+* [CanvasBuffer](CanvasBuffer#differences): The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit.
+* [CaptureWorld](CaptureWorld#differences): The original also remembers the alpha and the color of every entity and blends them during a tween.
+* [ChannelPan](ChannelPan#differences): Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
+* [ChannelPitch](ChannelPitch#differences): Changing the pitch also changes the speed, because the sound is resampled.
+* [ChannelPlaying](ChannelPlaying#differences): A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
+* [Chr](Chr#differences): Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
+* [ClientHeight](ClientHeight#differences): Where there is a display to ask, the desktop is as big as the screen of the computer.
+* [ClientWidth](ClientWidth#differences): Where there is a display to ask, the desktop is as big as the screen of the computer.
+* [CloseMovie](CloseMovie#differences): Nothing , the same as the original.
+* [Collisions](Collisions#differences): Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
+* [CollisionTime](CollisionTime#differences): The official help says this is the time taken to calculate the collision.
+* [Confirm](Confirm#differences): The box is a message box of the operating system and not part of the program window.
+* [CopyEntity](CopyEntity#differences): A copy of a hidden entity is visible, where the original gives the copy the hidden state.
+* [CopyPixel](CopyPixel#differences): A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
+* [CopyPixelFast](CopyPixelFast#differences): A buffer that is not locked stops the program with an error message.
+* [CopyRect](CopyRect#differences): Parts of the rectangle that lie outside of either buffer are cut off.
+* [CountDisplayModes](CountDisplayModes#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [CountDisplays](CountDisplays#differences) 〔BlitzLLVM〕: When SDL knows of no display, for example without a display driver, there is one display called "Default" with the common sizes of [CountGfxModes](CountGfxModes).
+* [CountGfxDrivers](CountGfxDrivers#differences): Every GPU that Vulkan reports is a driver, including software ones.
+* [CountGfxModes](CountGfxModes#differences): The modes are the ones of the main display.
+* [CountHostIPs](CountHostIPs#differences): Only IPv4 addresses are counted.
+* [CountRefreshRates](CountRefreshRates#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [CreateButton](CreateButton#differences): Buttons are drawn in the look of the program, not with the controls of the operating system.
+* [CreateCanvas](CreateCanvas#differences): Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
+* [CreateComboBox](CreateComboBox#differences): The user cannot type into it, only pick from the list.
+* [CreateImage](CreateImage#differences): A graphics window must be open, because images live in video memory.
+* [CreateLabel](CreateLabel#differences): Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none).
+* [CreateListBox](CreateListBox#differences): Only one entry can be selected at a time.
+* [CreateListener](CreateListener#differences): Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original.
+* [CreateMenu](CreateMenu#differences): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
+* [CreatePlane](CreatePlane#differences): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
+* [CreateSprite](CreateSprite#differences): Sprites are always drawn full-bright and visible from both sides, whatever [EntityFX](EntityFX) says.
+* [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
+* [CreateTerrain](CreateTerrain#differences): The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise.
+* [CreateTextArea](CreateTextArea#differences): Without wrapping, a bar along the bottom appears once a line does not fit.
+* [CreateTexture](CreateTexture#differences): Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks.
+* [CreateToolBar](CreateToolBar#differences): The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
+* [CreateWindow](CreateWindow#differences): All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries.
+* [DebugObjects](DebugObjects#differences): The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
+* [Desktop](Desktop#differences): The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the screen.
+* [DesktopBuffer](DesktopBuffer#differences): The desktop is the window of the program, so this is the same buffer as `FrontBuffer()`, not the screen of the computer.
+* [DirectInputEnabled](DirectInputEnabled#differences): There is no DirectInput on this platform.
+* [DisplayDepth](DisplayDepth#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [DisplayHeight](DisplayHeight#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [DisplayModeDepth](DisplayModeDepth#differences) 〔BlitzLLVM〕: A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
+* [DisplayModeHeight](DisplayModeHeight#differences) 〔BlitzLLVM〕: A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
+* [DisplayModeRefreshRate](DisplayModeRefreshRate#differences) 〔BlitzLLVM〕: A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
+* [DisplayModeWidth](DisplayModeWidth#differences) 〔BlitzLLVM〕: A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
+* [DisplayName](DisplayName#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [DisplayRefreshRate](DisplayRefreshRate#differences) 〔BlitzLLVM〕: A display that does not tell its refresh rate is taken to have 60 Hz.
+* [DisplayScale](DisplayScale#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [DisplayWidth](DisplayWidth#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [DisplayX](DisplayX#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [DisplayY](DisplayY#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [Dither](Dither#differences): Does nothing: 16 bit modes are not supported and the screen always has 8 bits per color channel, so there is nothing to dither.
+* [Double](Double#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
+* [DrawBlockRect](DrawBlockRect#differences): Only the part that lies inside the frame is drawn.
+* [DrawImage](DrawImage#differences): A frame number that does not exist stops the program with an error message.
+* [DrawImageRect](DrawImageRect#differences): Only the part that lies inside the frame is drawn.
+* [DrawMovie](DrawMovie#differences): Draws the newest picture whose time has come, stretched to the size given (smooth, not pixel by pixel).
+* [EnableDirectInput](EnableDirectInput#differences): Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it.
+* [EndGraphics](EndGraphics#differences): The original opens a new window of the default size, or a console.
+* [Flip](Flip#differences): Without a graphics window nothing happens.
+* [FlipCanvas](FlipCanvas#differences): The second parameter is accepted, but there is nothing to wait for and it makes no difference.
+* [FlushJoy](FlushJoy#differences): Buttons that are currently held are not released.
+* [FontHeight](FontHeight#differences): The height is the height that was requested, as with Windows fonts.
+* [FontWidth](FontWidth#differences): Real fonts have a different width for each character, so this is the width of the widest one; use [StringWidth](StringWidth) for a text.
+* [FormatTextAreaText](FormatTextAreaText#differences): Underline and strike-through are not supported, as in the original.
+* [FreeFont](FreeFont#differences): A font that does not exist stops the program with an error message.
+* [FreeImage](FreeImage#differences): Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
+* [FreeSound](FreeSound#differences): Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
+* [FreeTexture](FreeTexture#differences): [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
+* [FrontBuffer](FrontBuffer#differences): The front buffer holds what the last Flip showed.
+* [GammaBlue](GammaBlue#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
+* [GammaGreen](GammaGreen#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
+* [GammaRed](GammaRed#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
+* [GetBrushTexture](GetBrushTexture#differences): A layer without a texture gives 0.
+* [GetJoy](GetJoy#differences): Up to 32 buttons per joystick are supported, and a joystick with more reports only the first 32.
+* [GetKey](GetKey#differences): The queue holds 64 characters, and the oldest ones are dropped when it is full.
+* [GetMouse](GetMouse#differences): The queue holds 15 presses and forgets the oldest ones when it is full.
+* [GetSurfaceBrush](GetSurfaceBrush#differences): A surface that was never painted gives a plain white brush.
+* [GfxDriver3D](GfxDriver3D#differences): A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0.
+* [GfxDriverCaps3D](GfxDriverCaps3D#differences): It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
+* [GfxDriverName](GfxDriverName#differences): The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER".
+* [GfxModeDepth](GfxModeDepth#differences): A mode number that does not exist stops the program with an error message.
+* [GfxModeExists](GfxModeExists#differences): A 0 for the width or height means "anything fits", like in BlitzPlus.
+* [GfxModeFormat](GfxModeFormat#differences): Always 4, as the window is always 32 bit.
+* [GfxModeHeight](GfxModeHeight#differences): A mode number that does not exist stops the program with an error message.
+* [GfxModeWidth](GfxModeWidth#differences): A mode number that does not exist stops the program with an error message.
+* [GrabImage](GrabImage#differences): Parts that lie outside of the buffer are not copied and keep what the frame had before.
+* [Graphics](Graphics#differences): The color depth is accepted but ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
+* [Graphics3D](Graphics3D#differences): The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
+* [GraphicsDepth](GraphicsDepth#differences): Always 32: the picture has 8 bits for each of red, green and blue, with 8 more for alpha where a program uses it.
+* [GraphicsFormat](GraphicsFormat#differences): Always 4.
+* [GraphicsLost](GraphicsLost#differences): Always 0.
+* [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
+* [HostIP](HostIP#differences): Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used.
+* [HWMultiTex](HWMultiTex#differences): Accepted and ignored.
+* [ImageBuffer](ImageBuffer#differences): A frame number that does not exist stops the program with an error message.
+* [ImagesCollide](ImagesCollide#differences): A frame number that does not exist stops the program with an error message.
+* [Input](Input#differences): Without a graphics window the prompt is written to the console (standard output) and the line is read from the console (standard input).
+* [JoyHat](JoyHat#differences): Without any joystick the original returns -1 as well, but this runtime returns 0, which looks like "up".
+* [JoyType](JoyType#differences): The original uses 1 for a digital and 2 for an analog joystick.
+* [JoyWait](JoyWait#differences): If no joystick is connected the function returns 0 right away instead of waiting forever.
+* [KeyDown](KeyDown#differences): Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
+* [LeadingZeros](LeadingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
+* [Load3DSound](Load3DSound#differences): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
+* [LoadAnimMesh](LoadAnimMesh#differences): Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh).
+* [LoadAnimTexture](LoadAnimTexture#differences): TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
+* [LoadBSP](LoadBSP#differences): Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices.
+* [LoadBuffer](LoadBuffer#differences): Formats other than BMP load as well.
+* [LoaderMatrix](LoaderMatrix#differences): The matrix is remembered but never used.
+* [LoadFont](LoadFont#differences): Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one).
+* [LoadImage](LoadImage#differences): More file formats load than in the original, which read BMP, PNG, JPEG and TGA.
+* [LoadMesh](LoadMesh#differences): Only `.b3d` and `.3ds` files can be loaded.
+* [LoadSound](LoadSound#differences): MIDI , module and Windows Media files are not supported.
+* [LoadSprite](LoadSprite#differences): A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending.
+* [LoadTerrain](LoadTerrain#differences): The official help says that the red channel is used.
+* [LoadTexture](LoadTexture#differences): Video memory, high color and point sampling flags are stored but have no effect, see CreateTexture.
+* [Locate](Locate#differences): The position is limited to the window.
+* [LockBuffer](LockBuffer#differences): Up to 8 buffers can be locked at the same time.
+* [LockedFormat](LockedFormat#differences): Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte).
+* [LockedPixels](LockedPixels#differences): The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card.
+* [LockTextArea](LockTextArea#differences): While a text area is locked it sends no events for the changes you make.
+* [Long](Long#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [LoopSound](LoopSound#differences): There is no command to switch looping off again.
+* [MaximizeWindow](MaximizeWindow#differences): The window fills the whole program window, also when it was made without flag 2 and so cannot be resized by the user.
+* [MeshCullBox](MeshCullBox#differences): The box only affects [EntityInView](EntityInView).
+* [Microseconds](Microseconds#differences) 〔BlitzLLVM〕: The value is a `UInt64`, which no original command returns.
+* [MinimizeWindow](MinimizeWindow#differences): There is no task bar, so a minimized window simply is not drawn and there is no way for the user to bring it back.
+* [ModifyTerrain](ModifyTerrain#differences): The realtime argument has no effect.
+* [MouseDown](MouseDown#differences): A button number outside 1 to 3 always gives 0.
+* [MouseXSpeed](MouseXSpeed#differences): Putting the pointer somewhere with MoveMouse does not count as movement, the same as in the original.
+* [MouseZ](MouseZ#differences): Fine scrolling wheels and touchpads that report fractions of a notch are rounded to whole steps.
+* [MouseZSpeed](MouseZSpeed#differences): The original only ever gives -1, 0 or 1.
+* [MoveMouse](MoveMouse#differences): The pointer is not warped on the desktop.
+* [MovieHeight](MovieHeight#differences): Nothing , the same as the original.
+* [MoviePlaying](MoviePlaying#differences): Nothing , the same as the original.
+* [MovieWidth](MovieWidth#differences): Nothing , the same as the original.
+* [Notify](Notify#differences): The box is a message box of the operating system and not part of the program window.
+* [OpenMovie](OpenMovie#differences): Movies are decoded by FFmpeg, whose shared libraries have to be next to the program: blitzcc copies them there when the program uses OpenMovie, and without them (or for a file that can't be played) the result is 0, which programs already have to handle.
+* [PickedTime](PickedTime#differences): The official help describes this as the time taken to calculate the pick.
+* [PlayCDTrack](PlayCDTrack#differences): Always returns 0 and plays nothing.
+* [PlayMusic](PlayMusic#differences): MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA.
+* [PopCount](PopCount#differences) 〔BlitzLLVM〕: Not in the originals.
+* [Print](Print#differences): Without a graphics window the text goes to the console instead.
+* [Proceed](Proceed#differences): The box is a message box of the operating system.
+* [ProjectedX](ProjectedX#differences): The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane.
+* [ProjectedZ](ProjectedZ#differences): In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible.
+* [QueryObject](QueryObject#differences): All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget.
+* [ReadPixel](ReadPixel#differences): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
+* [ReadPixelFast](ReadPixelFast#differences): A buffer that is not locked stops the program with an error message.
+* [RefreshRateAt](RefreshRateAt#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+* [RenderWorld](RenderWorld#differences): Entities that are made or hidden after [CaptureWorld](CaptureWorld) are drawn where they are, they do not fade in.
+* [RequestColor](RequestColor#differences): The picker is drawn by the program inside its own window and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors.
+* [RequestDir](RequestDir#differences): It is the folder dialog of the operating system, which differs between Windows, macOS and Linux.
+* [RequestFile](RequestFile#differences): It is the file dialog of the operating system, so it looks different on each system.
+* [RequestFont](RequestFont#differences): Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font.
+* [ResizeImage](ResizeImage#differences): The picture is stretched with smooth filtering, where the original used simple pixel picking.
+* [RotL](RotL#differences) 〔BlitzLLVM〕: Not in the originals, which have `Shl`, `Shr` and `Sar` only.
+* [RotR](RotR#differences) 〔BlitzLLVM〕: Not in the originals, which have `Shl`, `Shr` and `Sar` only.
+* [RuntimeError](RuntimeError#differences): The message is printed as `Runtime Error: ...` on the standard error output, not shown in a dialog box.
+* [SatByte](SatByte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SatInt](SatInt#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SatLong](SatLong#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SatShort](SatShort#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SatUByte](SatUByte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SatUInt](SatUInt#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SatULong](SatULong#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SatUShort](SatUShort#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SaveBuffer](SaveBuffer#differences): A name that ends with `.png` gives a PNG file and any other name a BMP file.
+* [SaveImage](SaveImage#differences): The original only writes BMP files.
+* [ScaleImage](ScaleImage#differences): Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
+* [ScanLine](ScanLine#differences): Always returns 0.
+* [SetBuffer](SetBuffer#differences): A buffer that does not exist stops the program with an error message.
+* [SetCubeFace](SetCubeFace#differences): The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y.
+* [SetCubeMode](SetCubeMode#differences): The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
+* [SetFont](SetFont#differences): A font that does not exist stops the program with an error message.
+* [SetGadgetFont](SetGadgetFont#differences): The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font.
+* [SetGamma](SetGamma#differences): The original changed the gamma of the whole display, and left it that way until the program was done.
+* [SetGfxDriver](SetGfxDriver#differences): Any number except 1 to [CountGfxDrivers](CountGfxDrivers) stops the program with an error message.
+* [SetMenuText](SetMenuText#differences): The text can be read back with [MenuText](MenuText) here.
+* [SetMinWindowSize](SetMinWindowSize#differences): The help lists height before width in its syntax line, the real order is width then height.
+* [SetSamplerAddressModeU](SetSamplerAddressModeU#differences) 〔BlitzLLVM〕: The mode has to be 0 to 3, other values stop the program with an error.
+* [SetSamplerAddressModeV](SetSamplerAddressModeV#differences) 〔BlitzLLVM〕: The mode has to be 0 to 3, other values stop the program with an error.
+* [SetSamplerAddressModeW](SetSamplerAddressModeW#differences) 〔BlitzLLVM〕: The mode has to be 0 to 3, other values stop the program with an error.
+* [SetSamplerAnisotropy](SetSamplerAnisotropy#differences) 〔BlitzLLVM〕: The graphics card has a limit and the value is lowered to it, and a card that can not do anisotropic filtering reads as if it was 1.
+* [SetSamplerBorderColor](SetSamplerBorderColor#differences) 〔BlitzLLVM〕: Graphics cards without the `VK_EXT_custom_border_color` extension can only do transparent black, opaque black and opaque white, so any other color is read as the closest of the three.
+* [SetSamplerFilterMag](SetSamplerFilterMag#differences) 〔BlitzLLVM〕: The mode has to be 0 or 1, other values stop the program with an error.
+* [SetSamplerFilterMin](SetSamplerFilterMin#differences) 〔BlitzLLVM〕: The mode has to be 0 or 1, other values stop the program with an error.
+* [SetSamplerFilterMip](SetSamplerFilterMip#differences) 〔BlitzLLVM〕: The mode has to be 0 or 1, other values stop the program with an error.
+* [SetSamplerLodBias](SetSamplerLodBias#differences) 〔BlitzLLVM〕: The graphics card has a limit for the bias, and the value is kept inside of it.
+* [SetTextAreaFont](SetTextAreaFont#differences): Only the size of the font is used, every font is drawn with the built-in typeface.
+* [SetToolBarTips](SetToolBarTips#differences): A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed.
+* [Short](Short#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [SpriteViewMode](SpriteViewMode#differences): The descriptions in the official help do not exactly match the engine.
+* [StartNetGame](StartNetGame#differences): The original showed a dialog box with the games found in the network.
+* [Stats3D](Stats3D#differences): The original also reports the vertices and triangles of the terrains in indexes 1 and 2.
+* [Stop](Stop#differences): Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached.
+* [StringHeight](StringHeight#differences): Text has only one line, so this is always the height of one character.
+* [StringWidth](StringWidth#differences): With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth).
+* [SystemProperty](SystemProperty#differences): Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.
+* [TerrainDetail](TerrainDetail#differences): The terrain has no level of detail here.
+* [TerrainShading](TerrainShading#differences): The terrain is always lit with normals that follow the height, whatever this is set to.
+* [Text](Text#differences): The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font.
+* [TextureBlend](TextureBlend#differences): Modes 1, 2, 3 and 5 are drawn on layers above the first.
+* [TextureCoords](TextureCoords#differences): Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
+* [TextureName](TextureName#differences): The original turns the path into lower case.
+* [TFormImage](TFormImage#differences): A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
+* [TotalVidMem](TotalVidMem#differences): The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer.
+* [TrailingZeros](TrailingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
+* [UByte](UByte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [UDPStreamIP](UDPStreamIP#differences): It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
+* [UInt](UInt#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [ULong](ULong#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [UpdateGamma](UpdateGamma#differences): The original gave the tables to the display.
+* [UpdateWindowMenu](UpdateWindowMenu#differences): Menus here change the screen right away, so this command only asks for a redraw.
+* [UShort](UShort#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [VertexTexCoords](VertexTexCoords#differences): `w` is ignored.
+* [VertexW](VertexW#differences): The value is not stored: this always returns 1.
+* [VWait](VWait#differences): There is no vertical blank to wait for, so VWait waits 16 milliseconds for each frame (60 frames per second).
+* [WaitJoy](WaitJoy#differences): If no joystick is connected the function returns 0 right away instead of waiting forever.
+* [WBuffer](WBuffer#differences): Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
+* [WireFrame](WireFrame#differences): On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
+* [Write](Write#differences): Without a graphics window the text goes to the console instead.
+* [WritePixel](WritePixel#differences): A position outside of the buffer is ignored.
+* [WritePixelFast](WritePixelFast#differences): A buffer that is not locked stops the program with an error message.

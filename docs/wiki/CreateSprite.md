@@ -19,6 +19,14 @@
 CreateSprite:Int32 parent:Int32=0
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `parent` | Int32 | `0` | Optional parent entity. |
+
+**Returns:** An entity handle for the sprite.
+
 ## Description
 
 Creates a sprite: a flat square of two triangles that extends from -1, -1 to 1, 1 around its position. A sprite has no mesh to edit, so it is very cheap and suited to particles, lens flares, trees in the distance and 2D games drawn in 3D. By default a sprite turns to face the camera, see [SpriteViewMode](SpriteViewMode), so a round texture makes it look like a sphere from every side.
@@ -27,17 +35,9 @@ Sprites have their own commands for scale, rotation and handle: [ScaleSprite](Sc
 
 A parent makes the sprite follow another entity. The sprite is still created at 0, 0, 0, not at the parent's position.
 
-**Differences and known gaps:**
+## Differences
 
 * Sprites are always drawn full-bright and visible from both sides, whatever [EntityFX](EntityFX) says. The original only does this for sprites made with LoadSprite.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | `0` | Optional parent entity. |
-
-**Returns:** An entity handle for the sprite.
 
 ## Examples
 

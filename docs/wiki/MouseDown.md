@@ -19,14 +19,6 @@
 MouseDown:Int32 button:Int32
 ```
 
-## Description
-
-Tells whether a mouse button is held down at this moment.
-
-**Differences and known gaps:**
-
-* A button number outside 1 to 3 always gives 0. Extra buttons of the mouse are not supported.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Tells whether a mouse button is held down at this moment.
 | `button` | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
 
 **Returns:** 1 while the button is held down, otherwise 0.
+
+## Description
+
+Tells whether a mouse button is held down at this moment.
+
+## Differences
+
+* A button number outside 1 to 3 always gives 0. Extra buttons of the mouse are not supported.
 
 ## Examples
 

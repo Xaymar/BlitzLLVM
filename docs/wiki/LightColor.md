@@ -19,10 +19,6 @@
 LightColor light:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
-## Description
-
-Sets the color of the light. 255, 255, 255 is full white light, 0, 0, 0 adds nothing. The original accepts values from -255 to 255 where negative values darken what the light touches, which lets you fake shadows.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Sets the color of the light. 255, 255, 255 is full white light, 0, 0, 0 adds not
 | `red` | Float32 | required | Red part of the light. |
 | `green` | Float32 | required | Green part of the light. |
 | `blue` | Float32 | required | Blue part of the light. |
+
+## Description
+
+Sets the color of the light. 255, 255, 255 is full white light, 0, 0, 0 adds nothing. The original accepts values from -255 to 255 where negative values darken what the light touches, which lets you fake shadows.
 
 ## Related Commands
 

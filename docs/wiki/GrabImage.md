@@ -19,14 +19,6 @@
 GrabImage image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
-## Description
-
-Copies a part of the current buffer into a frame of an image. The part has the size of the image and starts at the given position, so this is the way to take a screenshot into an image or to build a sprite from something that was drawn.
-
-**Differences and known gaps:**
-
-* Parts that lie outside of the buffer are not copied and keep what the frame had before.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Copies a part of the current buffer into a frame of an image. The part has the s
 | `x` | Int32 | required | Left edge of the part of the buffer to copy. |
 | `y` | Int32 | required | Top edge of the part of the buffer to copy. |
 | `frame` | Int32 | `0` | The frame to copy into. Defaults to 0. |
+
+## Description
+
+Copies a part of the current buffer into a frame of an image. The part has the size of the image and starts at the given position, so this is the way to take a screenshot into an image or to build a sprite from something that was drawn.
+
+## Differences
+
+* Parts that lie outside of the buffer are not copied and keep what the frame had before.
 
 ## Examples
 

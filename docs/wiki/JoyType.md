@@ -19,15 +19,6 @@
 JoyType:Int32 port:Int32=0
 ```
 
-## Description
-
-Tells whether a joystick is connected to the port and what kind it is.
-
-**Differences and known gaps:**
-
-* The original uses 1 for a digital and 2 for an analog joystick. Here a device that SDL recognizes as a gamepad is 1 and everything else is 2.
-* Up to 4 joysticks are found, and only those that are connected when the first joystick command runs. Plugging one in later is not noticed.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +26,15 @@ Tells whether a joystick is connected to the port and what kind it is.
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** 0 if there is no joystick, 1 for a gamepad and 2 for any other joystick.
+
+## Description
+
+Tells whether a joystick is connected to the port and what kind it is.
+
+## Differences
+
+* The original uses 1 for a digital and 2 for an analog joystick. Here a device that SDL recognizes as a gamepad is 1 and everything else is 2.
+* Up to 4 joysticks are found, and only those that are connected when the first joystick command runs. Plugging one in later is not noticed.
 
 ## Examples
 

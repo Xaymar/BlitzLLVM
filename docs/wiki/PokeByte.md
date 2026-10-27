@@ -19,10 +19,6 @@
 PokeByte bank:Int32, offset:Int32, value:Int32
 ```
 
-## Description
-
-Writes one byte. Values outside 0 to 255 wrap around, so 300 is stored as 44 and -1 as 255.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Writes one byte. Values outside 0 to 255 wrap around, so 300 is stored as 44 and
 | `bank` | Int32 | required | The bank to write to. |
 | `offset` | Int32 | required | Position in bytes. |
 | `value` | Int32 | required | The value to store. |
+
+## Description
+
+Writes one byte. Values outside 0 to 255 wrap around, so 300 is stored as 44 and -1 as 255.
 
 ## Examples
 

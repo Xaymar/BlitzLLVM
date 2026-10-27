@@ -19,14 +19,6 @@
 CollisionTime:Float32 entity:Int32, collision_index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
-**Differences and known gaps:**
-
-* The official help says this is the time taken to calculate the collision. The engine does not measure time; the value is the fraction of the move described above, which is what the original returns as well.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ _Not documented yet._
 | `collision_index` | Int32 | required |  |
 
 **Returns:** How far along its path the entity was when it touched, as a fraction of the move done in that update, from 0 to 1. A value near 1 means it traveled almost the whole way before touching.
+
+## Description
+
+_Not documented yet._
+
+## Differences
+
+* The official help says this is the time taken to calculate the collision. The engine does not measure time; the value is the fraction of the move described above, which is what the original returns as well.
 
 ## Related Commands
 

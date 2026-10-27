@@ -19,13 +19,13 @@
 RequestedRed:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The red part, 0 to 255, of the color the last [RequestColor](RequestColor) picked. 0 before any color was picked.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,19 +19,19 @@
 WireFrame enable:Int32
 ```
 
-## Description
-
-Switches between solid drawing and wireframe drawing, where only the edges of the triangles are shown. It is handy to look at how a mesh is built. It affects everything that is drawn afterwards, until it is switched off again.
-
-**Differences and known gaps:**
-
-* On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int32 | required | True for wireframe, False for solid. |
+
+## Description
+
+Switches between solid drawing and wireframe drawing, where only the edges of the triangles are shown. It is handy to look at how a mesh is built. It affects everything that is drawn afterwards, until it is switched off again.
+
+## Differences
+
+* On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
 
 ## Examples
 

@@ -19,15 +19,15 @@
 FreeTreeViewNode node:Int32
 ```
 
-## Description
-
-Removes a node together with all nodes below it. The root must not be freed.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `node` | Int32 | required | Handle of a node. |
+
+## Description
+
+Removes a node together with all nodes below it. The root must not be freed.
 
 ## Examples
 

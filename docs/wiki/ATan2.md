@@ -19,10 +19,6 @@
 ATan2:Float32 floata:Float32, floatb:Float32
 ```
 
-## Description
-
-Returns the angle of the point (`b`, `a`) seen from the origin, in degrees from -180 to 180. Note the order: the vertical distance `a` comes first. 0 points along positive x, 90 along positive y.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Returns the angle of the point (`b`, `a`) seen from the origin, in degrees from 
 | `floatb` | Float32 | required | The horizontal distance (x). |
 
 **Returns:** The angle in degrees.
+
+## Description
+
+Returns the angle of the point (`b`, `a`) seen from the origin, in degrees from -180 to 180. Note the order: the vertical distance `a` comes first. 0 points along positive x, 90 along positive y.
 
 ## Examples
 
