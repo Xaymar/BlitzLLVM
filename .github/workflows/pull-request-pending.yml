@@ -14,6 +14,19 @@ on:
   pull_request_target:
     branches: [root]
     types: [opened, reopened, synchronize]
+    paths:
+      # The same list as pull-request.yml, so that a comment is only created for pull requests that get a build.
+      - 'code_compiler/**'
+      - 'code_runtime/**'
+      - 'cmake/**'
+      - 'third_party/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - '.gitmodules'
+      - 'LICENSE.adoc'
+      - '.github/scripts/check-licenses.sh'
+      - '.github/workflows/pull-request.yml'
+      - '.github/workflows/pull-request-pending.yml'
 
 permissions:
   pull-requests: write
