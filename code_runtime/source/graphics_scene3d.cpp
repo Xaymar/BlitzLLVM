@@ -711,7 +711,9 @@ namespace bb::gfx {
 		}
 		float m[16];
 		bb::world_matrix(handle, m);
-		float depth = c->view[2] * m[12] + c->view[6] * m[13] + c->view[10] * m[14] + c->view[14];
+		// The distance is the one in space, not the one in front of the camera: it is what Blitz3D sorts and fades by.
+		float dx = float(double(m[12]) - double(c->origin[0])), dy = float(double(m[13]) - double(c->origin[1])), dz = float(double(m[14]) - double(c->origin[2]));
+		float depth = sqrtf(dx * dx + dy * dy + dz * dz);
 
 		// Things can fade out with distance.
 		float alpha = mesh.alpha;
