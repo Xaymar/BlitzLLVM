@@ -32,4 +32,4 @@ Until WaitEvent() = $803
 @param group   Window, panel, tabber or canvas that holds it.
 @param style   Frame, see the table. Defaults to 0.
 @returns A handle for the label.
-@gap The built-in font is wider than the font of the Windows interface, so give labels, buttons and lists a little more room than you would on Windows.
+@gap Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none). Letters are not as wide as the ones of the Windows interface, so a gadget may need a little more or less room than on Windows.

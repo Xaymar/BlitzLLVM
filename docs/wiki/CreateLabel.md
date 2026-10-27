@@ -49,7 +49,7 @@ Until WaitEvent() = $803
 
 **Differences and known gaps:**
 
-* The built-in font is wider than the font of the Windows interface, so give labels, buttons and lists a little more room than you would on Windows.
+* Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none). Letters are not as wide as the ones of the Windows interface, so a gadget may need a little more or less room than on Windows.
 
 ## Related commands
 
