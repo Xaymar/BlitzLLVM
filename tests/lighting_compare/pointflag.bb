@@ -21,7 +21,7 @@ Function Row(name$, y)
 End Function
 
 Function Strip(flags)
-	t = CreateTexture(2, 1, flags)
+	t = CreateTexture(2, 1, flags + 4096)
 	SetBuffer TextureBuffer(t)
 	WritePixel 0, 0, $FFFF0000
 	WritePixel 1, 0, $FF0000FF
@@ -30,7 +30,7 @@ Function Strip(flags)
 End Function
 
 Function Checker(flags)
-	t = CreateTexture(64, 64, flags)
+	t = CreateTexture(64, 64, flags + 4096)
 	SetBuffer TextureBuffer(t)
 	For y = 0 To 63
 	For x = 0 To 63

@@ -1031,10 +1031,10 @@ Function e_terrain(size,tex_color$)
 		;Load
 		If ter_tex_color<>0 Then FreeTexture ter_tex_color
 		If (FileType(tex_color$)=1) Then
-			ter_tex_color=LoadTexture(tex_color$)
+			ter_tex_color=LoadTexture(tex_color$,1+4096)
 			EntityTexture ter,ter_tex_color,0,0
 		Else
-			ter_tex_color=CreateTexture(64,64)
+			ter_tex_color=CreateTexture(64,64,1+4096)
 			EntityTexture ter,ter_tex_color,0,0
 		EndIf
 	Else
@@ -1143,7 +1143,7 @@ Function e_terraincm(file$,loadscreen=1)
 	If loadscreen=1 Then bmpf_loadscreen("Loading Colormap")
 	If (FileType(file$)=1) Then
 		If ter_tex_color<>0 Then FreeTexture ter_tex_color
-		ter_tex_color=LoadTexture(file$)
+		ter_tex_color=LoadTexture(file$,1+4096)
 		EntityTexture ter,ter_tex_color,0,0
 	Else
 		Return 0
@@ -1180,7 +1180,7 @@ Function e_terraincmscale(newscale)
 	editor_textobuffer(ter_tex_color)
 	ResizeImage in_editor_buffer,newscale,newscale
 	FreeTexture ter_tex_color
-	ter_tex_color=CreateTexture(newscale,newscale)
+	ter_tex_color=CreateTexture(newscale,newscale,1+4096)
 	If ter_tex_color=0 Then RuntimeError("Failed to create "+newsize+"x"+newsize+" terrain texture")
 	editor_buffertotex(ter_tex_color)
 	;Update

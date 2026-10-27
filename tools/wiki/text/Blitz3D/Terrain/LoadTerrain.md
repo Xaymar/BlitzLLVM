@@ -17,7 +17,7 @@ light = CreateLight()
 RotateEntity light, 50, 20, 0
 
 ; Draw a height map: soft white blobs on black.
-map = CreateTexture(64, 64)
+map = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(map)
 ClsColor 0, 0, 0
 Cls

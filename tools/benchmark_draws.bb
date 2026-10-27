@@ -32,7 +32,7 @@ TurnEntity light, 40, 30, 0
 
 Dim textures(15)
 For t = 0 To 15
-	textures(t) = CreateTexture(8, 8)
+	textures(t) = CreateTexture(8, 8, 1 + 4096)
 	SetBuffer TextureBuffer(textures(t))
 	Color 40 + t * 12, 255 - t * 12, 128
 	Rect 0, 0, 8, 8

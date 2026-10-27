@@ -8,7 +8,7 @@ SetBuffer BackBuffer()
 folder$ = GetEnv$("SHOT_DIR")
 If folder$ = "" Then folder$ = "."
 
-tex = CreateTexture(8, 8)
+tex = CreateTexture(8, 8, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 For y = 0 To 7
 	For x = 0 To 7

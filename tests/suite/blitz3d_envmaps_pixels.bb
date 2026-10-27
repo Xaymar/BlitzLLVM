@@ -31,7 +31,7 @@ ball = CreateSphere(24)
 EntityFX ball, 1
 
 ; A sphere map: red on the left half of the picture and green on the right half.
-halves = CreateTexture(4, 4, 1 + 64)
+halves = CreateTexture(4, 4, 1 + 64 + 4096)
 SetBuffer TextureBuffer(halves)
 Color 255, 0, 0
 Rect 0, 0, 2, 4, True
@@ -48,7 +48,7 @@ EntityTexture ball, 0
 FreeTexture halves
 
 ; A cube map with a color on every face: -X red, +Z green, +X blue, -Z yellow, +Y cyan, -Y magenta.
-cube = CreateTexture(16, 16, 1 + 128)
+cube = CreateTexture(16, 16, 1 + 128 + 4096)
 For face = 0 To 5
 	SetCubeFace cube, face
 	SetBuffer TextureBuffer(cube)
@@ -109,7 +109,7 @@ EntityTexture ball, 0
 FreeTexture cube
 
 ; A cube map is loaded from a picture with the six faces next to each other.
-strip = CreateTexture(96, 16)
+strip = CreateTexture(96, 16, 1 + 4096)
 SetBuffer TextureBuffer(strip)
 For face = 0 To 5
 	Color face * 40 + 20, 255 - face * 40, 128

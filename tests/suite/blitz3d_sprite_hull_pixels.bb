@@ -16,7 +16,7 @@ SetBuffer BackBuffer()
 
 ; Soft round puff, see-through at the edge. Drawn with LockBuffer, which is when the hull is made.
 Function MakePuff()
-	t = CreateTexture(32, 32, 3)
+	t = CreateTexture(32, 32, 3 + 4096)
 	LockBuffer TextureBuffer(t)
 	For y = 0 To 31
 		For x = 0 To 31

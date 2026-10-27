@@ -29,7 +29,7 @@ Function CheckHalves(name$, file$, alpha)
 	CheckColor name + " left", ReadPixel(2, 2) And $FFFFFF, 255, 0, 0
 	If alpha Then CheckColor name + " right", ReadPixel(6, 2) And $FFFFFF, 0, 255, 0 Else CheckColor name + " right", ReadPixel(6, 2) And $FFFFFF, 0, 0, 255
 	FreeImage image
-	texture = LoadTexture(file)
+	texture = LoadTexture(file, 1 + 4096)
 	CheckTrue name + " loads as a texture", texture <> 0
 	SetBuffer TextureBuffer(texture)
 	CheckColor name + " texture left", ReadPixel(2, 2) And $FFFFFF, 255, 0, 0
@@ -59,7 +59,7 @@ FreeImage grey
 ; changes pixels has to keep the rest of the picture.
 ClsColor 0, 0, 0
 Cls
-texture = LoadTexture("images/dxt1.dds")
+texture = LoadTexture("images/dxt1.dds", 1 + 4096)
 SetBuffer TextureBuffer(texture)
 Color 0, 255, 0
 Plot 6, 2
@@ -69,7 +69,7 @@ CheckColor "DXT1 texture drawn to, the other half", ReadPixel(5, 2) And $FFFFFF,
 SetBuffer BackBuffer()
 FreeTexture texture
 
-texture = LoadTexture("images/dxt5.dds", 1 + 2)
+texture = LoadTexture("images/dxt5.dds", 1 + 2 + 4096)
 SetBuffer TextureBuffer(texture)
 CheckColor "DXT5 texture read", ReadPixel(2, 2) And $FFFFFF, 255, 0, 0
 Check "DXT5 texture alpha on the left", (ReadPixel(2, 2) Shr 24) And 255, 255

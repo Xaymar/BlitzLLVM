@@ -554,7 +554,7 @@ Px "I_next_mesh", 120, 60, 0, 128, 255
 FreeEntity quad
 
 ; A texture that is written between the calls.
-tex = CreateTexture(32, 32)
+tex = CreateTexture(32, 32, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 Color 255, 0, 0
 Rect 0, 0, 32, 32
@@ -696,7 +696,7 @@ For frame = 0 To 19
 	CameraClsMode cam, 1, 1
 	CameraClsColor cam, 0, 0, 0
 	For i = 0 To 29
-		tex = CreateTexture(8, 8)
+		tex = CreateTexture(8, 8, 1 + 4096)
 		SetBuffer TextureBuffer(tex)
 		Color (i * 8 + frame * 13) Mod 256, 255 - ((i * 5 + frame * 7) Mod 256), (i * 3 + frame * 19) Mod 256
 		Rect 0, 0, 8, 8

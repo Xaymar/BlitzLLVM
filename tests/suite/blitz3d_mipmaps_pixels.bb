@@ -52,7 +52,7 @@ FreeTexture fallback
 ClearTextureFilters
 
 ; Stored levels are used as they are.
-mipped = LoadTexture("images/dxt1_mips.dds", 1 + 8)
+mipped = LoadTexture("images/dxt1_mips.dds", 1 + 8 + 4096)
 CheckTrue "LoadTexture with mip maps", mipped <> 0
 Check "A texture with mip maps keeps its size", TextureWidth(mipped), 16
 CheckLevel "Stored level 0", mipped, 10, 255, 0, 0
@@ -96,7 +96,7 @@ Check "A texture made into levels keeps its size", TextureWidth(single), 8
 FreeTexture single
 
 ; Drawn on: the average of the pixels is what shows from afar. Every other pixel is white, so any level below the first is grey.
-checker = CreateTexture(64, 64, 1 + 8)
+checker = CreateTexture(64, 64, 1 + 8 + 4096)
 SetBuffer TextureBuffer(checker)
 Color 0, 0, 0
 Rect 0, 0, 64, 64, True
@@ -125,7 +125,7 @@ Check "Mip maps after drawing again, blue", B(81, 60), 0, 24
 ; A texture that is drawn on after it was converted from compressed blocks has levels that are made from what it shows now,
 ; and not the ones from the file any more.
 FreeTexture mipped
-mipped = LoadTexture("images/dxt1_mips.dds", 1 + 8)
+mipped = LoadTexture("images/dxt1_mips.dds", 1 + 8 + 4096)
 SetBuffer TextureBuffer(mipped)
 Color 255, 255, 255
 Plot 0, 0
@@ -138,7 +138,7 @@ Check "A converted texture has made levels, blue", B(80, 60), 0, 40
 
 ; Textures without any flags, or with only clamping, show the first level.
 FreeTexture checker
-plain = CreateTexture(64, 64, 1)
+plain = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(plain)
 Color 0, 0, 255
 Rect 0, 0, 64, 64, True

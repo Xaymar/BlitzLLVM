@@ -135,7 +135,7 @@ EntityOrder back, 0
 FreeEntity back
 
 ; Textures and painting
-texture = CreateTexture(2, 2)
+texture = CreateTexture(2, 2, 1 + 4096)
 SetBuffer TextureBuffer(texture)
 Color 0, 255, 0
 Rect 0, 0, 2, 2, True
@@ -156,7 +156,7 @@ FreeBrush brush
 
 ; RotateTexture turns the coordinates around their origin, so a quarter turn puts a different quarter of the picture
 ; in the same place, and a full turn puts it back.
-quarters = CreateTexture(2, 2)
+quarters = CreateTexture(2, 2, 1 + 4096)
 SetBuffer TextureBuffer(quarters)
 Color 255, 0, 0
 Plot 0, 0
@@ -181,12 +181,12 @@ FreeTexture quarters
 EntityTexture cube, 0
 
 ; More layers of textures change what is there: twice the multiplication of the first texture and the second.
-base_tex = CreateTexture(2, 2)
+base_tex = CreateTexture(2, 2, 1 + 4096)
 SetBuffer TextureBuffer(base_tex)
 Color 100, 100, 100
 Rect 0, 0, 2, 2, True
 SetBuffer BackBuffer()
-detail_tex = CreateTexture(2, 2)
+detail_tex = CreateTexture(2, 2, 1 + 4096)
 SetBuffer TextureBuffer(detail_tex)
 Color 128, 128, 128
 Rect 0, 0, 2, 2, True
@@ -335,7 +335,7 @@ End Function
 CameraClsColor camera, 10, 20, 30
 kept_cube = CreateCube()
 EntityFX kept_cube, 1
-kept_texture = CreateTexture(2, 2)
+kept_texture = CreateTexture(2, 2, 1 + 4096)
 SetBuffer TextureBuffer(kept_texture)
 Color 0, 255, 0
 Rect 0, 0, 2, 2, True
@@ -442,7 +442,7 @@ CameraFogMode camera, 0
 FreeEntity fogged
 
 ; The frames of a texture are drawn on separately and used separately.
-frame_texture = CreateTexture(2, 2, 1, 2)
+frame_texture = CreateTexture(2, 2, 1 + 4096, 2)
 SetBuffer TextureBuffer(frame_texture, 0)
 Color 255, 0, 0
 Rect 0, 0, 2, 2, True

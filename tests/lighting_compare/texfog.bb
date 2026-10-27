@@ -27,7 +27,7 @@ For ix = 0 To 15
 Next
 Next
 
-Global tex = CreateTexture(32, 32, 3)
+Global tex = CreateTexture(32, 32, 3 + 4096)
 SetBuffer TextureBuffer(tex)
 For y = 0 To 31
 For x = 0 To 31

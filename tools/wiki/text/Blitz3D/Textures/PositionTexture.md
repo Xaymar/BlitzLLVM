@@ -14,7 +14,7 @@ plane = CreateCube()
 ScaleEntity plane, 2.2, 1.2, 0.05
 PositionEntity plane, 0, 0, 4
 
-tex = CreateTexture(64, 64)
+tex = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 ClsColor 30, 120, 200
 Cls

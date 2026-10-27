@@ -11,7 +11,7 @@ camera = CreateCamera()
 CameraClsColor camera, 40, 50, 90
 
 ; Make a file of a yellow star on black, then load it as a sprite with the black cut away.
-src = CreateTexture(64, 64)
+src = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(src)
 ClsColor 0, 0, 0
 Cls

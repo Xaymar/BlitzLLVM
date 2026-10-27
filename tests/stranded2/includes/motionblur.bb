@@ -14,7 +14,7 @@ Function mb_setup()
 	ratio#=Float(set_scry)/Float(set_scrx)
 	ScaleSprite mb_sprite, 1.*10.*os#, ratio#*10.*os#
 	;Texture
-	mb_tex=CreateTexture(set_scrx,set_scry,1+16+32+256)
+	mb_tex=CreateTexture(set_scrx,set_scry,1+16+32+256+4096)
 	If mb_tex=0 Then
 		con_add("ERROR: Failed to setup motion blur buffer",Cbmpf_red)
 		If set_mb=1 Then

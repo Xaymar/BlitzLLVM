@@ -15,7 +15,7 @@ camera = CreateCamera()
 CameraClsColor camera, 40, 50, 90
 
 ; A texture of a soft red disc on black.
-tex = CreateTexture(64, 64)
+tex = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 ClsColor 0, 0, 0
 Cls

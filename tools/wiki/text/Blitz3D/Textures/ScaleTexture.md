@@ -12,7 +12,7 @@ CameraClsColor camera, 70, 100, 160
 light = CreateLight()
 RotateEntity light, 40, 30, 0
 
-tex = CreateTexture(64, 64)
+tex = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 ClsColor 240, 240, 240
 Cls
@@ -24,7 +24,7 @@ SetBuffer BackBuffer()
 a = CreateCube() : PositionEntity a, -1.4, 0, 5 : TurnEntity a, 20, 30, 0
 b = CreateCube() : PositionEntity b, 1.4, 0, 5 : TurnEntity b, 20, 30, 0
 EntityTexture a, tex
-tex2 = CreateTexture(64, 64)
+tex2 = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(tex2)
 ClsColor 240, 240, 240
 Cls

@@ -75,7 +75,7 @@ AmbientLight 60, 60, 60
 ; Four textures, drawn so that they look different from each other and from the flat colors.
 Dim textures(3)
 For t = 0 To 3
-	textures(t) = CreateTexture(32, 32)
+	textures(t) = CreateTexture(32, 32, 1 + 4096)
 	SetBuffer TextureBuffer(textures(t))
 	Color 30 + t * 60, 220 - t * 50, 90 + t * 30
 	Rect 0, 0, 32, 32

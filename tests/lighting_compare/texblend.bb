@@ -28,7 +28,7 @@ For ix = 0 To 15
 Next
 Next
 
-Global tex = CreateTexture(32, 32, 3)
+Global tex = CreateTexture(32, 32, 3 + 4096)
 SetBuffer TextureBuffer(tex)
 For y = 0 To 31
 For x = 0 To 31
@@ -51,7 +51,7 @@ Function Probe(name$)
 	WriteLine out, line$
 End Function
 
-Global tex2 = CreateTexture(32, 32, 1)
+Global tex2 = CreateTexture(32, 32, 1 + 4096)
 SetBuffer TextureBuffer(tex2)
 For y = 0 To 31
 For x = 0 To 31
