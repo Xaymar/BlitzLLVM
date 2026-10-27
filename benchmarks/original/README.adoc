@@ -1,0 +1,82 @@
+= Baseline benchmarks for the original Blitz
+
+Two programs that run in the original BlitzBasic / Blitz3D *and* in BlitzLLVM, so that the numbers of the original can be put
+next to ours in the performance history. They use only commands that exist in the original, take their settings from the
+constants at the top of the file (the original has no environment variables or command line), and write a log file when they
+are done. Run them by hand; they are not part of the tests or the CI.
+
+|===
+| File | What | Log file
+
+| `bench_blitzbasic.bb` | The language: integer and float loops, branches, arrays, sorting, strings, types, banks, function calls. No graphics. | `bench_blitzbasic_log.txt`
+| `bench_blitz3d.bb` | Entities, meshes and sprites at fixed sizes, with the camera path and the kinds of `benchmarks/flythrough.bb`. | `bench_blitz3d_log.txt`
+|===
+
+== Running them
+
+. Open the file in the original Blitz IDE (or build it with `blitzcc` in BlitzLLVM). Use a release build, not debug, and close
+  other programs.
+. Set `LABEL` at the top to describe the machine and the compiler, for example `"RTX 4080 SUPER, Blitz3D 1.107"`. Check the
+  other constants (`RUNS`, `WIDTH`, `HEIGHT`, `SCALES`) if the computer is slow; leave them alone if you want numbers that
+  can be compared.
+. Run it and wait. `bench_blitzbasic.bb` takes a few minutes on a slow computer (a minute on a fast one), `bench_blitz3d.bb` a few minutes (the biggest size makes a
+  hundred thousand entities). Escape stops `bench_blitz3d.bb` early; the log then has the scenes that were finished.
+. The log is written to the current directory (for the IDE: the folder of the program). Send it to be put in the table.
+
+Do not run two benchmarks at the same time, and do not move the window while it runs: the numbers are wrong otherwise.
+
+== The log
+
+The first lines start with `#` and describe the run (date, time, label, graphics driver, settings). Then come lines that
+start with `RESULT`, one per workload or scene, and a `SUMMARY` line. A `RESULT` line is a list of `key=value` pairs, so
+`grep ^RESULT` and a split on spaces is a parser.
+
+`bench_blitzbasic_log.txt`:
+
+----
+# bench=blitzbasic version=1
+# date=27 Oct 2026 time=12:00:00
+# label=Ryzen 7 9800X3D, Blitz3D 1.107
+# runs=3
+RESULT bench=blitzbasic name=int_loop ops=20000000 runs=3 ms_min=… ms_median=… ms_avg=… mops_per_s=… check=… ok=1
+…
+SUMMARY bench=blitzbasic workloads=13 total_ms=…
+# done
+----
+
+Every workload is timed `RUNS` times. `ms_min` is the fastest run (the one to compare), `mops_per_s` is `ops` per millisecond
+at `ms_min` divided by 1000. `check` is the result of the workload and must be the same on every run (`ok=1`) and in every
+Blitz: if it is not, the two did different work and the times mean nothing. The float workloads (`float_loop`) can differ in
+the last digits between compilers. The workloads are `int_loop`, `float_loop`, `branches`, `sieve` (148933 primes), `array2d`,
+`matmul`, `sort`, `str_concat`, `str_ops`, `types`, `banks`, `calls` and `recursion` (Fib(34) = 5702887).
+
+`bench_blitz3d_log.txt`:
+
+----
+# bench=blitz3d version=1
+# date=… time=…
+# label=…
+# gfx_driver=… 
+# vidmem_total=… vidmem_free=…
+# width=640 height=360 gfxmode=2 warmup=5 scales=3
+RESULT bench=blitz3d scene=mixed objects=2000 frames=300 width=640 height=360 create_ms=… ms_avg=… ms_min=… ms_median=… ms_p95=… ms_max=… fps=… tris=…
+…
+SUMMARY bench=blitz3d total_ms=…
+# done
+----
+
+Three scenes at 2000, 20000 and 100000 entities (a million is too many for the original): `mixed` is all 16 kinds of the
+fly-through, `meshes` the 12 mesh kinds (cube, sphere, cone, cylinder, octahedron with lit, textured, flat, vertex colored,
+alpha, additive and two sided variants) and `sprites` the 4 sprite kinds (textured, alpha, additive, flat color). A frame
+is `RenderWorld` and `Flip False`. `ms_avg` is the whole timed part divided by the number of frames; the other `ms_*` are
+single frames measured with `MilliSecs`, so they are whole milliseconds. `tris` is `TrisRendered()` per frame.
+
+== Comparing with BlitzLLVM
+
+* `benchmarks/flythrough.py` has the same field density, kinds, window size (640x360) and camera path. Its positions come from
+  `Rnd` and ours from a generator in the file, and the loaded model is a cube here, so the counts of the same scene are close
+  but not identical. Compare `ms_avg` of `mixed` at 20000 to the 20000 run of the fly-through.
+* The original draws with DirectX 7 and has no draw call counters; the runtime of BlitzLLVM draws with Vulkan. Compare the
+  numbers of a machine with the same GPU, and say what it is in `LABEL`.
+* The original in a window may wait for the monitor even with `Flip False` (desktop compositing). If `ms_avg` is stuck at
+  16.7 or 8.3 ms for every size, run full screen (`GFXMODE = 1`, with a `WIDTH` and `HEIGHT` the card supports).
