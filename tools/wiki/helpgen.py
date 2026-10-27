@@ -326,6 +326,11 @@ td
 	padding: 4px;
 }
 
+table a
+{
+	font: inherit;
+}
+
 th
 {
 	text-align: left;
