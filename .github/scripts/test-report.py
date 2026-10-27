@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 MARKER = "<!-- blitzllvm-tests -->"
 LIMIT = 60000  # GitHub allows 65536 characters in a comment.
 
-PASS, FAIL, SKIP, PENDING, MISSING, NOTRUN = "☑️", "❌", "⏭️", "⏳", "—", "⚪"
+PASS, FAIL, SKIP, PENDING, MISSING, NOTRUN = "✅", "❌", "⏭️", "⏳", "—", "⚪"
 STATES = {
     "pending": "⏳ Tests pending",
     "skipped": "⏭️ Tests skipped",
@@ -103,7 +103,7 @@ def main():
     header = STATES.get(args.state)
     if header is None:
         bad = any(FAIL in r.values() for r in rows.values()) or any(NOTRUN in r.values() for r in rows.values())
-        header = "❌ Tests failed" if args.state == "failed" or bad else "☑️ Tests passed"
+        header = "❌ Tests failed" if args.state == "failed" or bad else "✅ Tests passed"
     out = [MARKER, f"## {header}", ""]
     link = f" · [Workflow run]({args.run_url})" if args.run_url else ""
     out.append(f"Commit `{args.sha[:7]}`{link}")
