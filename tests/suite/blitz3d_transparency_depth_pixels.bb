@@ -24,27 +24,23 @@ Global camera = CreateCamera()
 CameraClsColor camera, 0, 0, 0
 CameraRange camera, 0.1, 1000
 
-; The triangle that is drawn second shows over the
 ; one that is drawn first even though it is farther away. One entity alpha makes the surface see-through.
 mask = CreateTexture(4, 4, 4)
 SetBuffer TextureBuffer(mask) : ClsColor 255, 255, 255 : Cls : SetBuffer BackBuffer()
 m = CreateMesh()
-s = CreateSurface(m)
-AddVertex s, -2, -2, 4 : VertexColor s, 0, 255, 0, 0
-AddVertex s, -2, 2, 4 : VertexColor s, 1, 255, 0, 0
-AddVertex s, 2, 2, 4 : VertexColor s, 2, 255, 0, 0
-AddVertex s, -4, -4, 8 : VertexColor s, 3, 0, 255, 0
-AddVertex s, -4, 4, 8 : VertexColor s, 4, 0, 255, 0
-AddVertex s, 4, 4, 8 : VertexColor s, 5, 0, 255, 0
-AddTriangle s, 0, 1, 2
-AddTriangle s, 3, 4, 5
-EntityFX m, 1 + 2
-EntityTexture m, mask
-EntityAlpha m, 0.5
-PositionEntity m, 0, 0, 0
-; The second triangle is twice as big and twice as far, so that both cover the same pixels.
+; The surfaces are drawn from the last one to the first one: the far green one is drawn after the near red one.
+far = CreateSurface(m)
+AddVertex far, -4, -4, 8 : AddVertex far, -4, 4, 8 : AddVertex far, 4, 4, 8
+AddTriangle far, 0, 1, 2
+near = CreateSurface(m)
+AddVertex near, -2, -2, 4 : AddVertex near, -2, 2, 4 : AddVertex near, 2, 2, 4
+AddTriangle near, 0, 1, 2
+b1 = CreateBrush(0, 255, 0) : BrushTexture b1, mask : BrushAlpha b1, 0.5 : BrushFX b1, 1
+b2 = CreateBrush(255, 0, 0) : BrushTexture b2, mask : BrushAlpha b2, 0.5 : BrushFX b2, 1
+PaintSurface far, b1 : PaintSurface near, b2
+; The far triangle is twice as big and twice as far, so that both cover the same pixels.
 RenderWorld
-CheckTrue "Masked and see-through: the far one shows over the near one", G(60, 60) > 80 And R(60, 60) > 40
+CheckTrue "Masked and see-through: the far one shows over the near one", G(60, 60) > 100 And R(60, 60) > 40 And R(60, 60) < 90
 FreeEntity m
 
 End

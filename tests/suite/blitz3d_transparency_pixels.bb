@@ -42,7 +42,7 @@ Function Quad(x#, z#, half#, red, green, blue, alpha#)
 	Return m
 End Function
 
-; Two quads that are 2% apart, whichever is made first: the nearer one is drawn over the other, one half of each.
+; Two quads that are 2% apart, whichever is made lower: the nearer one is drawn over the other, one half of each.
 red = Quad(0, 10, 4, 255, 0, 0, 0.5)
 green = Quad(0, 10.2, 4, 0, 255, 0, 0.5)
 RenderWorld
@@ -74,5 +74,22 @@ Check "Distance in space: red", R(80, 60), 128, 6
 Check "Distance in space: green", G(80, 60), 64, 6
 FreeEntity red
 FreeEntity green
+
+; The surfaces of one entity are drawn from the last one to the lower one: the red surface is the last one, so it is drawn lower
+; and the green one over it, although the red one is the one that is made lower.
+m = CreateMesh()
+lower = CreateSurface(m)
+AddVertex lower, -4, -4, 10 : AddVertex lower, -4, 4, 10 : AddVertex lower, 4, 4, 10
+AddTriangle lower, 0, 1, 2
+upper = CreateSurface(m)
+AddVertex upper, -4, -4, 10 : AddVertex upper, -4, 4, 10 : AddVertex upper, 4, 4, 10
+AddTriangle upper, 0, 1, 2
+b1 = CreateBrush(255, 0, 0) : BrushAlpha b1, 0.5 : BrushFX b1, 1
+b2 = CreateBrush(0, 255, 0) : BrushAlpha b2, 0.5 : BrushFX b2, 1
+PaintSurface lower, b1 : PaintSurface upper, b2
+RenderWorld
+Check "Surfaces from the last: red", R(60, 60), 128, 6
+Check "Surfaces from the last: green", G(60, 60), 64, 6
+FreeEntity m
 
 End

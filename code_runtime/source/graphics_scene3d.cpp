@@ -1031,8 +1031,9 @@ namespace bb::gfx {
 			surfaces = plane;
 			count    = 1;
 		}
-		for (uint32_t i = 0; i < count; i++) {
-			bb::surface& surface = *surfaces[i];
+		// Blitz3D takes the surfaces of an entity from the back of its queue, so the last surface is drawn first.
+		for (uint32_t n = 0; n < count; n++) {
+			bb::surface& surface = *surfaces[count - 1 - n];
 			surface_gpu* gpu     = upload_surface(surface);
 			if (!gpu) {
 				continue;
