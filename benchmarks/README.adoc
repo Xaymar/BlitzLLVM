@@ -83,11 +83,12 @@ A quarter of the flythrough objects (kinds 12 to 15) are sprites, so the origina
 crashed at 100000 and passed at 50000. `flythrough.py` stops with a message above that with the original, and `--objects 60000` is the
 highest round number to compare the two. A mesh surface has the same limit: its triangles are `unsigned short` vertex indices (`Surface::Triangle`), so it holds at most 65535 vertices.
 
-NOTE: The original Blitz3D cannot open a window above 2047x2047 (not 2048: Direct3D 7 and DirectDraw have an off-by-one in the largest
-surface). Above that its runtime stops with the message "Unable to create 3D Scene" (the string is in its `runtime.dll`). That is why the
-original could not start at 2560x1440 on the 4080 SUPER machine, and why a run whose window kept growing past 2047 failed with that message.
-The runners stop with a clear message above 2047 in either direction with the original; BlitzLLVM has no such limit. It does not reproduce
-under Wine (wined3d has no such limit), so it was not tested there.
+NOTE: The original Blitz3D cannot open a window above 2048 in either direction (Direct3D 7 caps the backbuffer at its 2048 maximum
+texture size). Above that its runtime stops with the message "Unable to create 3D Scene" (the string is in its `runtime.dll`). Measured on
+Areldir (2560x1440 desktop): 2047x2047, 2048x2048, 2048x1080, 1080x2048, 1000x1440 and 1440x1440 work; 2049x1080, 2300x1300, 2400x1080,
+2560x720, 2560x1440, 3000x500 and 500x3000 fail. It is neither the area nor the desktop size, each side has its own limit of 2048. That is
+why the original could not start at 2560x1440. The runners stop with a clear message above 2048 in either direction with the original;
+BlitzLLVM has no such limit. wined3d under Wine has no such limit either, so it does not show there.
 
 == waterfall: a river over a cliff, made of see-through sprites
 
@@ -214,6 +215,5 @@ when the sprites of the torches and the campfires are more than that. Every room
 that the original allows. The original times have a resolution of one millisecond, so use enough frames. The original `SaveBuffer` writes a BMP whatever the file is
 called. Run benchmarks windowed only (they are), the original changes the screen settings in fullscreen.
 
-NOTE: The original Blitz3D cannot open a window above 2047x2047 (not 2048: Direct3D 7 and DirectDraw have an off-by-one in the largest
-surface). Above that it stops with "Unable to create 3D Scene"; that is why it could not start at 2560x1440 on the 4080 SUPER machine.
-The runner stops with a clear message above 2047 in either direction with the original; BlitzLLVM has no such limit.
+NOTE: The original Blitz3D cannot open a window above 2048 in either direction (see the flythrough section for the measurements). The
+runner stops with a clear message above that with the original; BlitzLLVM has no such limit.

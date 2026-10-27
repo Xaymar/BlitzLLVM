@@ -36,9 +36,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
 
-# Direct3D 7 cannot have a window above 2047x2047 (an off-by-one in DirectDraw, 2048 fails too): the original Blitz3D then stops with
+# Direct3D 7 limits the window to 2048 in each direction (measured on Areldir: 2048x2048 works, 2049x1080 and 500x3000 fail): the original Blitz3D then stops with
 # "Unable to create 3D Scene".
-ORIGINAL_MAX_SIZE = 2047
+ORIGINAL_MAX_SIZE = 2048
 
 def find_compiler(given):
     if given:
