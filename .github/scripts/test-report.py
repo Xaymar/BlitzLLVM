@@ -131,7 +131,7 @@ def main():
     for r in rows.values():
         for v in r.values():
             counts[v] = counts.get(v, 0) + 1
-    out.append(f"{len(rows)} tests · {PASS} {counts[PASS]} · {FAIL} {counts[FAIL]} · {SKIP} {counts[SKIP]} skipped"
+    out.append(f"{sum(len(r) for r in rows.values())} tests · {PASS} {counts[PASS]} · {FAIL} {counts[FAIL]} · {SKIP} {counts[SKIP]} skipped"
                + (f" · {PENDING} {counts[PENDING]}" if counts[PENDING] else "") + (f" · {NOTRUN} {counts[NOTRUN]} not run" if counts[NOTRUN] else ""))
     out.append("")
     table = ["| Test | Debug | Release |", "| --- | :---: | :---: |"]
