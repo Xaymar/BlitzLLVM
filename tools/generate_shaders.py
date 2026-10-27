@@ -429,7 +429,7 @@ def vertex_shader_3d():
             vec3 delta = scene.lightPosition[i].xyz - world;
             float dist = length(delta);
             vec3 direction = mix(scene.lightPosition[i].xyz, delta / max(dist, 1e-4), isPoint);
-            float falloff = clamp(1.0 - dist / max(scene.lightPosition[i].w, 1e-4), 0.0, 1.0);
+            float falloff = scene.lightPosition[i].w / max(dist, 1e-4);
             lit += scene.lightColor[i].xyz * max(dot(n, direction), 0.0) * mix(1.0, falloff, isPoint);
         }
         lit = mix(lit, vec3(1.0), entity.params.x);
@@ -520,7 +520,8 @@ def vertex_shader_3d():
         direction = b.fadd(v3, b.scale(3, lpos, b.fsub(f, c1, is_point)), b.scale(3, to_point, is_point))
         ndotl = b.ext(f, GLSL_FMAX, b.dot(n, direction), c0)
         range_ = b.ext(f, GLSL_FMAX, w, b.const_float(1e-4))
-        falloff = b.ext(f, GLSL_FCLAMP, b.fsub(f, c1, b.fdiv(f, dist, range_)), c0, c1)
+        # Direct3D 7 attenuation 1 / (a1 * d) with a1 = 1 / range, which is range / d: it is not clamped and is above one close by.
+        falloff = b.fdiv(f, range_, b.ext(f, GLSL_FMAX, dist, b.const_float(1e-4)))
         attenuation = b.fadd(f, c1, b.fmul(f, b.fsub(f, falloff, c1), is_point))
         # Spot lights fade between the cosines of the half angles of the cone: ld.w is the outer and lc.w the inner one,
         # and ld.w is below -1 for lights that are not spots.
