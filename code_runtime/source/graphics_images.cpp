@@ -545,7 +545,8 @@ void bb_grab_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
 	if (!source.image) {
 		return;
 	}
-	int sx = x, sy = y, dx = 0, dy = 0, w = e->frame_w, h = e->frame_h;
+	// In 64 bits, as x and y are the numbers of the program, and the sum of them and the size can be more than 32 bits hold.
+	int64_t sx = x, sy = y, dx = 0, dy = 0, w = e->frame_w, h = e->frame_h;
 	if (sx < 0) { dx -= sx; w += sx; sx = 0; }
 	if (sy < 0) { dy -= sy; h += sy; sy = 0; }
 	if (sx + w > source.w) { w = source.w - sx; }
@@ -566,9 +567,9 @@ void bb_grab_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
 	transition(e->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	VkImageCopy copy    = {};
 	copy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	copy.srcOffset      = { source.x + sx, source.y + sy, 0 };
+	copy.srcOffset      = { source.x + int32_t(sx), source.y + int32_t(sy), 0 };
 	copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	copy.dstOffset      = { fx + dx, fy + dy, 0 };
+	copy.dstOffset      = { fx + int32_t(dx), fy + int32_t(dy), 0 };
 	copy.extent         = { uint32_t(w), uint32_t(h), 1 };
 	vkCmdCopyImage(g.cmd, source.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, e->image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 	transition(*source.image, previous_source);
