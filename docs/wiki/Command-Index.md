@@ -511,6 +511,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
 * [MoviePosition](MoviePosition) 〔BlitzLLVM〕
+* [MovieVolume](MovieVolume) 〔BlitzLLVM〕
 * [MovieWidth](MovieWidth)
 
 ## N

@@ -16,3 +16,4 @@ The originals play a movie from its first picture to its last: `OpenMovie`, `Dra
 | [SeekMovie](SeekMovie) | Puts the movie at a position, in seconds. |
 | [StopMovie](StopMovie) | Stops the movie and puts it back at its start. |
 | [LoopMovie](LoopMovie) | Makes the movie begin again at its end. |
+| [MovieVolume](MovieVolume) | Sets how loud the sound of the movie is. |

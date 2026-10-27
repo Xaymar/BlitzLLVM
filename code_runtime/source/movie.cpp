@@ -164,6 +164,7 @@ namespace {
 		bool                 started = false;  // Whether the movie was used, which is when it begins to play unless it was paused before.
 		bool                 finished = false;
 		bool                 paused = false;   // PauseMovie: the clock stands still until PlayMovie.
+		float                volume = 1.0f;    // MovieVolume, from 0 to 1.
 		bool                 loop = false;     // LoopMovie: at the end the movie goes back to its start.
 		bool                 stopped = false;  // StopMovie: paused at the start, and not playing for MoviePlaying either.
 		bool                 running = false;  // Whether the clock is going.
@@ -590,6 +591,16 @@ void bb_seek_movie(int32_t handle, float seconds)
 			start_clock(*m);
 		}
 		update(*m);
+	}
+}
+
+void bb_movie_volume(int32_t handle, float volume)
+{
+	if (movie* m = movie_of(handle)) {
+		m->volume = (volume < 0.0f) ? 0.0f : (volume > 1.0f ? 1.0f : volume);
+		if (m->stream) {
+			SDL_SetAudioStreamGain(m->stream, m->volume);
+		}
 	}
 }
 

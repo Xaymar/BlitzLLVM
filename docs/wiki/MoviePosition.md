@@ -36,7 +36,7 @@ Wend
 * [MovieHeight](MovieHeight)
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
+* [MovieVolume](MovieVolume) 〔BlitzLLVM〕
 * [MovieWidth](MovieWidth)
-* [OpenMovie](OpenMovie)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)

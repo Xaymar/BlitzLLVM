@@ -406,6 +406,7 @@ movieheight	graphics	done	%MovieHeight%movie
 movielength	graphics	done	#MovieLength%movie
 movieplaying	graphics	done	%MoviePlaying%movie
 movieposition	graphics	done	#MoviePosition%movie
+movievolume	graphics	done	MovieVolume%movie#volume
 moviewidth	graphics	done	%MovieWidth%movie
 openmovie	graphics	done	%OpenMovie$file
 origin	graphics	done	Origin%x%y
