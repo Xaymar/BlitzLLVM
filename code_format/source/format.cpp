@@ -507,7 +507,7 @@ namespace {
 			while ((last < lines.size()) && (lines[last].align == what) && (lines[last].indent == lines[first].indent)) {
 				last++;
 			}
-			bool wanted = (what == out_line::align_kind::assignment) ? o.align_assignments : ((what == out_line::align_kind::declaration) ? o.align_declares : ((what == out_line::align_kind::data) && o.align_data));
+			bool wanted = (what == out_line::align_kind::assignment) ? o.align_assignments : ((what == out_line::align_kind::declaration) ? o.align_declares : ((what == out_line::align_kind::data) && o.align_data != data_alignment::off));
 			if (wanted && (what == out_line::align_kind::data) && (last - first > 1)) {
 				// Each column is as wide as its widest value, and the next value starts behind it.
 				std::vector<size_t> widths;
@@ -519,10 +519,12 @@ namespace {
 						widths[c] = std::max(widths[c], lines[i].cells[c].second - lines[i].cells[c].first);
 					}
 				}
+				bool right = o.align_data == data_alignment::right;
 				for (size_t i = first; i < last; i++) {
-					for (size_t c = lines[i].cells.size(); c-- > 1;) {
-						size_t pad = widths[c - 1] - (lines[i].cells[c - 1].second - lines[i].cells[c - 1].first);
-						lines[i].text.insert(lines[i].cells[c].first, std::string(pad, ' '));
+					// Right aligned values start behind the padding of their own width, so that the commas are in a column.
+					for (size_t c = lines[i].cells.size(); c-- > (right ? 0 : 1);) {
+						size_t pad = right ? widths[c] - (lines[i].cells[c].second - lines[i].cells[c].first) : widths[c - 1] - (lines[i].cells[c - 1].second - lines[i].cells[c - 1].first);
+						lines[i].text.insert(right ? lines[i].cells[c].first : lines[i].cells[c].first, std::string(pad, ' '));
 					}
 				}
 			} else if (wanted && (last - first > 1)) {
@@ -792,7 +794,7 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 		result.pop_back();
 	}
 
-	if (o.align_assignments || o.align_declares || o.align_data) {
+	if (o.align_assignments || o.align_declares || (o.align_data != data_alignment::off)) {
 		align_lines(result, o);
 	}
 

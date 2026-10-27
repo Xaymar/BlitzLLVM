@@ -291,10 +291,15 @@ Dim    arr(5)
 	# Data statements are lined up in columns.
 	expect_format("Data 1,22,3\nData 100,2,3333\nData \"a\",5\nPrint 1\nData 1,2\n" "Data 1,   22, 3\nData 100, 2,  3333\nData \"a\", 5\nPrint 1\nData 1, 2\n" --align-data)
 	expect_format("Data 1,22\nData 100,2\n" "Data 1, 22\nData 100, 2\n")
+	expect_format("Data 1,22,3\nData 100,2,3333\n" "Data 1,   22, 3\nData 100, 2,  3333\n" --align-data=left)
+	expect_format("Data 1,22,3\nData 100,2,3333\n" "Data 1,   22, 3\nData 100, 2,  3333\n" --align-data=true)
+	expect_format("Data 1,22,3\nData 100,2,3333\n" "Data 1, 22, 3\nData 100, 2, 3333\n" --align-data=false)
+	# Right aligned: the commas line up.
+	expect_format("Data 1,22,3\nData 100,2,3333\nData \"a\",5\n" "Data   1, 22,    3\nData 100,  2, 3333\nData \"a\",  5\n" --align-data=right)
 	# The settings are listed.
-	blitz_format(--print-config --align-assignments --align-declares --align-data)
+	blitz_format(--print-config --align-assignments --align-declares --align-data=right)
 	expect_rc(0)
-	if(NOT OUT MATCHES "align-assignments = true\nalign-declares = true\nalign-data = true\n")
+	if(NOT OUT MATCHES "align-assignments = true\nalign-declares = true\nalign-data = right\n")
 		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
 	endif()
 

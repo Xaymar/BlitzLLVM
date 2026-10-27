@@ -82,7 +82,7 @@ Names are not case sensitive. Every setting has a default, which is used when no
 | `blank-lines-around-declarations` | 0 - 10 | `1` | Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone. |
 | `align-assignments` | true \| false | `false` | Line up the `=` of assignments on consecutive lines. See [Alignment](#alignment). |
 | `align-declares` | true \| false | `false` | Line up the names and the `=` of `Const`, `Dim`, `Local` and `Global` on consecutive lines. See [Alignment](#alignment). |
-| `align-data` | true \| false | `false` | Line up the values of `Data` statements on consecutive lines in columns. See [Alignment](#alignment). |
+| `align-data` | left \| right \| off | `off` | Line up the values of `Data` statements on consecutive lines in columns, to the left or to the right (so that the commas line up). `true` is `left` and `false` is `off`. See [Alignment](#alignment). |
 | `wrap-after` | 0 - 1000 | `120` | Break a line that is longer than this many characters after a `:` between statements. See [Long lines](#long-lines). |
 | `trim-trailing-space` | true \| false | `true` | Remove spaces and tabs at the end of lines (also in comments). |
 | `final-newline` | true \| false | `true` | End the file with a line break, and remove blank lines at the end. |
@@ -184,6 +184,14 @@ becomes
 Data 1,   22, 3
 Data 100, 2,  3333
 Data "a", 5
+```
+
+With `align-data = right` the values end in the same place instead, so that the commas line up:
+
+```blitzbasic
+Data   1, 22,    3
+Data 100,  2, 3333
+Data "a",  5
 ```
 
 ## Long lines
