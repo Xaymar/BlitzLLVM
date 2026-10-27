@@ -7,7 +7,7 @@ name: Pull Request
 
 on:
   pull_request:
-    branches: [root]
+    branches: [root, ci-verify2-base]
     paths:
       # Only what changes the binaries. Documentation, the wiki, the tests and the tools do not.
       - 'code_compiler/**'
