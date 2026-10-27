@@ -764,7 +764,12 @@ elseif(CASE STREQUAL "diagnostics")
 	blitzcc(-c "${WORK}/warning.bb")
 	expect_ok()
 	expect_err("warning.bb:1:12: warning: ")
-	expect_err("\nLocal i% = 2.5\n           ^-- HERE")
+	expect_err("\nLocal i% = 2.5\n           ^^^ HERE")
+
+	# The dashes reach to the end of the line, also when the span ends before it.
+	file(WRITE "${WORK}/point.bb" "Local i% = 2.5 + 1.5 ; note\nPrint i\n")
+	blitzcc(-c "${WORK}/point.bb")
+	expect_err("\nLocal i% = 2.5 + 1.5 ; note\n               ^----------- HERE")
 
 	# Long lines are cut around the column.
 	string(REPEAT "a" 300 _LONG)
@@ -881,7 +886,7 @@ elseif(CASE STREQUAL "warnings")
 
 	# Messages: the kind, the span, and a suggestion.
 	blitzcc(-c -W4 "${WORK}/w.bb")
-	expect_err("w.bb:1:12: warning: Implicit conversion from real to integer, the fractional part is lost. [-Wimplicit-lossy-real-to-int]\nLocal i% = 2.5\n           ^-- HERE\nhelp: Use Int(value) to convert on purpose.")
+	expect_err("w.bb:1:12: warning: Implicit conversion from real to integer, the fractional part is lost. [-Wimplicit-lossy-real-to-int]\nLocal i% = 2.5\n           ^^^ HERE\nhelp: Use Int(value) to convert on purpose.")
 	expect_err("w.bb:13:1: notice: This statement can never run. [-Wunreachable-code]")
 	expect_err("notice: 'unused' is never read, it is optimized away. [-Wunused-variable]")
 	expect_err("notice: Function 'Bar' is never called, it is optimized away. [-Wunused-function]")
