@@ -1,10 +1,2 @@
 # The programs of the original Blitz3D and BlitzPlus (tools/original_programs.py) that do not compile yet, and why. They are expected to
 # fail (WILL_FAIL, label pending), so fixing one makes its test fail until it is removed from this list. Paths are relative to extra/.
-blitzplus_msvc2017/_release/games/Insectoids/insectoids.bb
-# HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
-blitzplus_msvc2017/_release/samples/James/Games/Explosions/exploding_alien_death.bb
-# HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
-blitzplus_msvc2017/_release/samples/Mak/line_test.bb
-# HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
-blitzplus_msvc2017/_release/samples/Rob/BlitzAlarm/Blitz Alarm Clock.bb
-# PlayMusic takes 1 argument here, the program passes 2

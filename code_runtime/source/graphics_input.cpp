@@ -525,15 +525,17 @@ void bb_move_mouse(int32_t x, int32_t y, int32_t canvas)
 	mouse_ref_y = y;
 }
 
-void bb_hide_pointer(void)
+void bb_hide_pointer(int32_t canvas)
 {
+	(void)canvas;
 	if (active()) {
 		SDL_HideCursor();
 	}
 }
 
-void bb_show_pointer(void)
+void bb_show_pointer(int32_t canvas)
 {
+	(void)canvas;
 	if (active()) {
 		SDL_ShowCursor();
 	}

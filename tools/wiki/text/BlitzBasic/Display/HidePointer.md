@@ -16,3 +16,5 @@ While Not KeyHit(1)
 Wend
 ShowPointer
 ```
+@param canvas  BlitzPlus only: the canvas the pointer is hides. Optional, the pointer is hides for the whole window.
+@gap BlitzPlus lets the pointer be hidden per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
