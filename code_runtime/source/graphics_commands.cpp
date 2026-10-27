@@ -72,6 +72,7 @@ namespace bb::gfx {
 	static uint32_t       gpu_queue_head = 0, gpu_queue_count = 0;
 	static bool           gpu_thread_busy = false; // The thread is sending a frame or presenting it.
 	static bool           gpu_quit       = false;
+	static SDL_Mutex*     swapchain_mutex = nullptr; // vkAcquireNextImageKHR and vkQueuePresentKHR need the swapchain to be externally synchronized.
 	static bool           gpu_resized    = false; // The present asked for a new swapchain.
 	static VkResult       gpu_error      = VK_SUCCESS;
 	static const char*    gpu_error_what = "";
@@ -132,7 +133,9 @@ namespace bb::gfx {
 				present.pSwapchains        = &job.swapchain;
 				present.pImageIndices      = &job.index;
 				Uint64 present_start       = BB_PROFILE_NOW();
+				SDL_LockMutex(swapchain_mutex); // Acquiring an image on the program's thread uses the swapchain too.
 				result                     = vkQueuePresentKHR(g.queue, &present);
+				SDL_UnlockMutex(swapchain_mutex);
 				SDL_LockMutex(gpu_mutex);
 				profile_gpu_present += BB_PROFILE_NOW() - present_start;
 				if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
@@ -657,15 +660,26 @@ namespace bb::gfx {
 	void present_front(bool copy_back)
 	{
 		uint32_t index = 0;
-		VkResult result = vkAcquireNextImageKHR(g.device, g.swapchain, UINT64_MAX, g.acquired, VK_NULL_HANDLE, &index);
-		// With an infinite timeout this should only ever return an image, but some drivers still answer VK_NOT_READY or VK_TIMEOUT
-		// (seen on a first present after the window was created). Nothing was acquired and the semaphore is not signaled, so ask again.
-		for (int retry = 0; ((result == VK_NOT_READY) || (result == VK_TIMEOUT)) && (retry < 1000); retry++) {
-			if (retry == 0) {
-				fprintf(stderr, "vkAcquireNextImageKHR returned %s, retrying.\n", (result == VK_NOT_READY) ? "VK_NOT_READY" : "VK_TIMEOUT");
+		if (!swapchain_mutex) {
+			swapchain_mutex = SDL_CreateMutex();
+		}
+		// The present of the frame before runs in the GPU thread and uses the swapchain, so the acquire can't wait for an image
+		// while holding it (the present may be what frees one): it asks for one for a millisecond at a time instead. Drivers
+		// are also known to answer VK_NOT_READY or VK_TIMEOUT even when asked to wait, nothing was acquired then and the
+		// semaphore is not signaled, so asking again is correct.
+		VkResult result = VK_NOT_READY;
+		for (int retry = 0; (result == VK_NOT_READY) || (result == VK_TIMEOUT); retry++) {
+			SDL_LockMutex(swapchain_mutex);
+			result = vkAcquireNextImageKHR(g.device, g.swapchain, 1000000, g.acquired, VK_NULL_HANDLE, &index);
+			SDL_UnlockMutex(swapchain_mutex);
+			if (result == VK_NOT_READY) {
+				// Returned at once instead of after the timeout, give the present a chance to take the lock.
+				fprintf(stderr, "vkAcquireNextImageKHR returned VK_NOT_READY (try %d), retrying.\n", retry + 1);
+				SDL_Delay(1);
 			}
-			SDL_Delay(1);
-			result = vkAcquireNextImageKHR(g.device, g.swapchain, UINT64_MAX, g.acquired, VK_NULL_HANDLE, &index);
+			if ((result == VK_NOT_READY) || (result == VK_TIMEOUT)) {
+				gpu_check(); // A failed present would never free an image.
+			}
 		}
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			// Can't present to this swapchain: finish what we recorded, it gets recreated before the next present.
