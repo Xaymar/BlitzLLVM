@@ -35,6 +35,10 @@ MODULES = {
 BY_COMPILER = {
     "abs", "sgn", "mod", "int", "float", "str", "handle", "object", "before", "after", "first", "last", "new", "delete",
     "insert", "each", "pi", "true", "false", "null", "dim", "restore", "read", "end", "stop",
+    # Numbers of the sized types (compiler_numeric.cpp)
+    "byte", "ubyte", "short", "ushort", "uint", "long", "ulong", "half", "double",
+    "satbyte", "satubyte", "satshort", "satushort", "satint", "satuint", "satlong", "satulong",
+    "popcount", "leadingzeros", "trailingzeros", "rotl", "rotr", "byteswap",
 }
 
 # Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
@@ -87,6 +91,29 @@ EXTENSIONS = {
     "getsamplerbordercolorb": ("blitz3d", "#GetSamplerBorderColorB%sampler"),
     "getsamplerbordercolora": ("blitz3d", "#GetSamplerBorderColorA%sampler"),
     "settexturesampler": ("blitz3d", "SetTextureSampler%texture%sampler"),
+    "byte": ("math", "%Byte#value"),
+    "ubyte": ("math", "%UByte#value"),
+    "short": ("math", "%Short#value"),
+    "ushort": ("math", "%UShort#value"),
+    "uint": ("math", "%UInt#value"),
+    "long": ("math", "%Long#value"),
+    "ulong": ("math", "%ULong#value"),
+    "half": ("math", "%Half#value"),
+    "double": ("math", "%Double#value"),
+    "satbyte": ("math", "%SatByte#value"),
+    "satubyte": ("math", "%SatUByte#value"),
+    "satshort": ("math", "%SatShort#value"),
+    "satushort": ("math", "%SatUShort#value"),
+    "satint": ("math", "%SatInt#value"),
+    "satuint": ("math", "%SatUInt#value"),
+    "satlong": ("math", "%SatLong#value"),
+    "satulong": ("math", "%SatULong#value"),
+    "popcount": ("math", "%PopCount%value"),
+    "leadingzeros": ("math", "%LeadingZeros%value"),
+    "trailingzeros": ("math", "%TrailingZeros%value"),
+    "rotl": ("math", "%RotL%value%count"),
+    "rotr": ("math", "%RotR%value%count"),
+    "byteswap": ("math", "%ByteSwap%value"),
 }
 
 SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')

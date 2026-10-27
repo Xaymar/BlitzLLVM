@@ -30,9 +30,9 @@ Print Exp(1)
 
 ## Related commands
 
-* [Ceil](Ceil)
 * [Cos](Cos)
+* [Double](Double) 〔BlitzLLVM〕
 * [Floor](Floor)
-* [Log](Log)
+* [Half](Half) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

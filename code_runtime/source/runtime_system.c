@@ -92,6 +92,21 @@ float bb_exp(float v)   { return expf(v); }
 float bb_log(float v)   { return logf(v); }
 float bb_log10(float v) { return log10f(v); }
 
+// The same functions for a double, which Blitz does not have: they are used when an argument is one.
+double bb_sin_d(double v)   { return sin(v * bb_deg); }
+double bb_cos_d(double v)   { return cos(v * bb_deg); }
+double bb_tan_d(double v)   { return tan(v * bb_deg); }
+double bb_asin_d(double v)  { return asin(v) / bb_deg; }
+double bb_acos_d(double v)  { return acos(v) / bb_deg; }
+double bb_atan_d(double v)  { return atan(v) / bb_deg; }
+double bb_atan2_d(double y, double x) { return atan2(y, x) / bb_deg; }
+double bb_sqr_d(double v)   { return sqrt(v); }
+double bb_floor_d(double v) { return floor(v); }
+double bb_ceil_d(double v)  { return ceil(v); }
+double bb_exp_d(double v)   { return exp(v); }
+double bb_log_d(double v)   { return log(v); }
+double bb_log10_d(double v) { return log10(v); }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Random
 ////////////////////////////////////////////////////////////////////////////////

@@ -33,7 +33,7 @@ Print r >= 5 And r < 6
 
 ## Related commands
 
-* [Log10](Log10)
+* [PopCount](PopCount) 〔BlitzLLVM〕
 * [Rand](Rand)
 * [RndSeed](RndSeed)
 * [SeedRnd](SeedRnd)

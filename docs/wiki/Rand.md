@@ -35,8 +35,8 @@ Print Rand(5, 5)
 
 ## Related commands
 
-* [Log](Log)
-* [Log10](Log10)
+* [Long](Long) 〔BlitzLLVM〕
+* [PopCount](PopCount) 〔BlitzLLVM〕
 * [Rnd](Rnd)
 * [RndSeed](RndSeed)
 

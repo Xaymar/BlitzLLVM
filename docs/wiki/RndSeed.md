@@ -20,7 +20,7 @@ _Not documented yet._
 
 * [Rand](Rand)
 * [Rnd](Rnd)
+* [RotL](RotL) 〔BlitzLLVM〕
 * [SeedRnd](SeedRnd)
-* [Sin](Sin)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

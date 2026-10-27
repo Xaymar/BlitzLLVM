@@ -33,5 +33,6 @@ Print Tan(45)
 * [ATan](ATan)
 * [Sin](Sin)
 * [Sqr](Sqr)
+* [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

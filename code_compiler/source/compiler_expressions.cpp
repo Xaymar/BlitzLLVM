@@ -124,7 +124,7 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 		return call_runtime("bb_handle", type::INT32, { object });
 	} else if (key == "int") {
 		need(1, 1);
-		return convert(gen(node->arguments[0].get()), type::INT32, node->where, false);
+		return convert_explicit(gen(node->arguments[0].get()), type::INT32, false, node->where);
 	} else if (key == "float") {
 		need(1, 1);
 		return convert(gen(node->arguments[0].get()), type::FLOAT32, node->where, false);
@@ -140,6 +140,16 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 		bool real = blitz::types::is_real(t);
 		auto zero_v = zero(t);
 		auto one    = constant(t, 1), minus_one = constant(t, -1);
+		if (!real && !blitz::types::is_signed(t)) {
+			// An unsigned number is never below 0: it is its own absolute value, and its sign is 0 or 1.
+			if (key == "abs") {
+				return v;
+			}
+			auto nz = tmp(), r = tmp();
+			emit(nz + " = icmp ne " + llvm + " " + v.repr + ", 0");
+			emit(r + " = zext i1 " + nz + " to " + llvm);
+			return { r, t };
+		}
 		if (key == "abs") {
 			auto neg = tmp(), is_neg = tmp(), r = tmp();
 			emit(is_neg + (real ? " = fcmp olt " : " = icmp slt ") + llvm + " " + v.repr + ", " + zero_v.repr);
@@ -169,6 +179,12 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 		}
 		return acc;
 	}
+
+	auto numeric = gen_numeric(node, handled);
+	if (handled) {
+		return numeric;
+	}
+	handled = true;
 
 	auto entry = find_builtin(key);
 	if (!entry) {

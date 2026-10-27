@@ -13,16 +13,39 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [ASin](ASin)
 * [ATan](ATan)
 * [ATan2](ATan2)
+* [Byte](Byte) 〔BlitzLLVM〕
+* [ByteSwap](ByteSwap) 〔BlitzLLVM〕
 * [Ceil](Ceil)
 * [Cos](Cos)
+* [Double](Double) 〔BlitzLLVM〕
 * [Exp](Exp)
 * [Floor](Floor)
+* [Half](Half) 〔BlitzLLVM〕
+* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 * [Log](Log)
 * [Log10](Log10)
+* [Long](Long) 〔BlitzLLVM〕
+* [PopCount](PopCount) 〔BlitzLLVM〕
 * [Rand](Rand)
 * [Rnd](Rnd)
 * [RndSeed](RndSeed)
+* [RotL](RotL) 〔BlitzLLVM〕
+* [RotR](RotR) 〔BlitzLLVM〕
+* [SatByte](SatByte) 〔BlitzLLVM〕
+* [SatInt](SatInt) 〔BlitzLLVM〕
+* [SatLong](SatLong) 〔BlitzLLVM〕
+* [SatShort](SatShort) 〔BlitzLLVM〕
+* [SatUByte](SatUByte) 〔BlitzLLVM〕
+* [SatUInt](SatUInt) 〔BlitzLLVM〕
+* [SatULong](SatULong) 〔BlitzLLVM〕
+* [SatUShort](SatUShort) 〔BlitzLLVM〕
 * [SeedRnd](SeedRnd)
+* [Short](Short) 〔BlitzLLVM〕
 * [Sin](Sin)
 * [Sqr](Sqr)
 * [Tan](Tan)
+* [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
+* [UByte](UByte) 〔BlitzLLVM〕
+* [UInt](UInt) 〔BlitzLLVM〕
+* [ULong](ULong) 〔BlitzLLVM〕
+* [UShort](UShort) 〔BlitzLLVM〕

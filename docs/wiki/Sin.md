@@ -31,8 +31,8 @@ Print Sin(30)
 ## Related commands
 
 * [ASin](ASin)
-* [RndSeed](RndSeed)
 * [SeedRnd](SeedRnd)
+* [Short](Short) 〔BlitzLLVM〕
 * [Sqr](Sqr)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

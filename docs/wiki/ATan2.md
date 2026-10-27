@@ -36,6 +36,6 @@ Print ATan2(0, -1)
 * [ACos](ACos)
 * [ASin](ASin)
 * [ATan](ATan)
-* [Ceil](Ceil)
+* [Byte](Byte) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
