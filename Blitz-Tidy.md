@@ -33,11 +33,11 @@ End Function
 becomes
 
 ```blitzbasic
-Local ratio# = 2.5
-Local count% = Int(ratio)
-Local label$ = Str(count + 1)
+Local ratio:Float32 = 2.5
+Local count:Int32 = Int(ratio)
+Local label:String = Str(count + 1)
 
-Function Sum(limit%)
+Function Sum(limit)
 	Local i%
 	Local total%
 	For i = 1 To limit
@@ -51,7 +51,7 @@ End Function
 
 1. The file is compiled (to nothing: no program is made) with every warning on. A file that does not compile is not touched and is reported.
 2. Each warning whose rule is set to `fix` and that has a fix that is safe becomes a change. Changes that touch each other wait for the next round.
-3. The changed file is compiled again. If it no longer compiles, `blitz-tidy` finds out which change did it and leaves that one out. Then it starts again at 2, until nothing is left to fix (at most `max_passes` times).
+3. The changed file is compiled again. If it no longer compiles, `blitz-tidy` finds out which change did it and leaves that one out. Then it starts again at 2, until nothing is left to fix (at most `max-passes` times).
 4. What is left is printed to the standard error as `file:line:column: warning: ... [blitz-tidy:<rule>]`, with a note why it was not fixed.
 
 A second run over the result changes nothing. The fixes are made so that the program does the same: they only write down what the compiler did anyway. The one exception is that an explicit conversion from a real number to an integer stops at the smallest and largest number of the type (`SatInt` behavior), while the implicit one is undefined for numbers that do not fit.
@@ -69,9 +69,12 @@ A second run over the result changes nothing. The fixes are made so that the pro
 | `implicit-lossy-int-to-real` | fix | `Float(value)`, `Double(value)`, `Half(value)` | |
 | `implicit-number-to-string` | fix | `Str(value)` | |
 | `typeless-declaration` | fix | `Local x` becomes `Local x:Int32` (also `Global`, `Const`) | |
-| `short-type-notation` | off | `x%` becomes `x:Int32`, `x%%` `x:Int64`, `x#` `x:Float32`, `x##` `x:Float64` and `x$` `x:String`, also in declarations of functions, parameters and fields. `.TypeName` is left alone: it has no other form. Off by default, turn it on with `--short-type-notation` (or `"short_type_notation": "fix"`). | |
+| `one-declare-per-variable` | off | `Local a, b = 1` becomes `Local a` and `Local b = 1` on lines of their own (also `Global`). `Const` is left alone. Off by default. | |
+| `parentheses-around-condition` | off | `If a = 1 Then b` becomes `If (a = 1) Then b`: the condition of `If`, `ElseIf`, `While`, `Until` and `Select` goes in parentheses (also on a line with `:` and in `Else If`). A condition that is one parenthesis from start to end is left alone, `(a) Or (b)` is not. `For` is not touched. Off by default. | |
+| `parentheses-around-arguments` | off | `Foo 14, 12, 14 + 12` becomes `Foo(14, 12, 14 + 12)`, for a command or function that is called as a statement and has arguments. A parenthesis around only the first argument (`Foo (1)+2, 3`) is not taken for the parenthesis of the call: it becomes `Foo((1)+2, 3)`. Off by default. | |
+| `resource-acquisition-is-initialization` | off | A `Local` or `Global` gets a value where it is declared, so that there is always a known one: `0`, `0.0`, `""` or `Null`, by its type. If the statement behind it assigns a value that is free of side effects (numbers, strings, variables and arithmetic, never a call, and not behind a condition) the value moves into the declaration: `Local a` and `a = 5` become `Local a = 5`. That is not done when something in between mentions the variable or sets what the value reads, and never for a call: `Create...`, `Load...` and `Copy...` stay where they are. Arrays and `Const` are left alone. Off by default. | A `Global` in a function, in a loop or in code with labels: the declaration then sets it again each time it is passed. |
 | `implicit-variable` | fix | `Local x:Int32` (or the type the name has) in front of the statement of the function that uses the variable first | Variables of the main program, which an `Include` can declare elsewhere. Not fixed at all in code with labels, as a jump back would run the declaration again. |
-| `unreachable-code` | fix | Removes the statements after `Return`, `End`, `Goto` or `Exit` up to the next label or `Data`, if they are on lines of their own and declare nothing | |
+| `unreachable-code` | report | None: code after `Return`, `End`, `Goto` or `Exit` can be there on purpose, for example to debug a problem, so it is only reported. | |
 | `unused-variable` | fix | Removes a `Local` of a function that is never mentioned again | `Local` of the main program and `Global`, which other files can use. A variable that is written to is left alone. |
 | `unused-function` | fix | Removes the function, if its name is not mentioned again | Always: other files can call it. |
 | `unused-result` | report | None: dropping a call can drop what it does. | |
@@ -84,9 +87,10 @@ A setting is `--name=value` on the command line, `name = value` in a `.blitz-tid
 | --- | --- |
 | `<rule>` | `off` (ignore), `report` (print only) or `fix`. `--<rule>` alone is `fix`, `--no-<rule>` is `off`. |
 | `default` | The mode of every rule that is not set. A rule that has nothing to fix stays at `report`. |
+| `type-notation` | How types are written: `long` (the default) writes `x:Int32`, `x:Float32` and `x:String` instead of `x%`, `x#` and `x$` (also `x%%` is `x:Int64` and `x##` is `x:Float64`), `short` does the opposite where a character exists (`Int`/`Int32` is `%`, `Long`/`Int64` `%%`, `Float`/`Float32`/`Real` `#`, `Double`/`Float64` `##`, `String` `$`; `x:Byte` stays), and `keep` leaves it alone. `.TypeName` is left alone: it has no other form. The long form is the one BlitzLLVM prefers. It is the `short-type-notation` warning of the compiler, which is unchanged. The rules `expand-short-to-long-notation` and `short-type-notation` are the old names of this setting (`fix` is `long`, `off` is `keep`). |
 | `unsafe` | Also make the fixes of the last column of the table. |
-| `max_passes` | How often the file is fixed and compiled again. Default 20. |
-| `userlibs_dir` | Where the userlibs are, like `--userlibs-dir` of `blitzcc`. Defaults to `$BLITZLLVM_USERLIBS`, then to the `userlibs` of the installation. |
+| `max-passes` | How often the file is fixed and compiled again. Default 20. |
+| `userlibs-dir` | Where the userlibs are, like `--userlibs-dir` of `blitzcc`. Defaults to `$BLITZLLVM_USERLIBS`, then to the `userlibs` of the installation. |
 
 Files are rewritten in place and the only output is the name of each file, one per line, followed by the findings that were left in it (the rules set to `report` and the fixes that were refused). Without files, or with `-`, the standard input is fixed and the result written to the standard output. `--check` and `--diff` change nothing.
 
@@ -106,8 +110,8 @@ unsafe = false
 ```json
 {
 	"default": "report",
-	"implicit_lossy_real_to_int": "fix",
-	"typeless_declaration": "fix"
+	"implicit-lossy-real-to-int": "fix",
+	"typeless-declaration": "fix"
 }
 ```
 
