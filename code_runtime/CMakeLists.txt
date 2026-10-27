@@ -68,6 +68,7 @@ target_sources(blitzrt PRIVATE
 	"source/model_internal.hpp"
 	"source/animation_internal.hpp"
 	"source/md2.cpp"
+	"source/movie.cpp"
 	"source/bsp.cpp"
 	"source/collision.cpp"
 	"source/collision_geometry.cpp"

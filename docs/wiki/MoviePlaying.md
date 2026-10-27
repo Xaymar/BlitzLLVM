@@ -22,7 +22,7 @@ Tells whether a movie is still playing. It becomes 0 when the movie reaches its 
 
 **Differences and known gaps:**
 
-* Always returns 0.
+* Nothing , the same as the original. It becomes 0 once the last picture has been shown and its sound has played, and calling it is what starts a movie that was not drawn yet. Movies do not loop: open the movie again to play it again.
 
 ## Related commands
 

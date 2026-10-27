@@ -4,4 +4,4 @@
 Tells whether a movie is still playing. It becomes 0 when the movie reaches its end, so a loop can run until the movie is over.
 @param movie  A movie handle from [OpenMovie](OpenMovie).
 @returns 1 while the movie plays, otherwise 0.
-@gap Always returns 0.
+@gap Nothing, the same as the original. It becomes 0 once the last picture has been shown and its sound has played, and calling it is what starts a movie that was not drawn yet. Movies do not loop: open the movie again to play it again.
