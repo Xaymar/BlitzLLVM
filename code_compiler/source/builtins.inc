@@ -332,6 +332,7 @@
 		{ "loadmesh", "bb_load_mesh", 'i', "si", 1, { 0, 0 }, false },
 		{ "loadanimmesh", "bb_load_anim_mesh", 'i', "si", 1, { 0, 0 }, false },
 		{ "animate", "bb_animate", 'v', "iifif", 1, { 0, 1, 1, 0, 0 }, false },
+		{ "animateentity", "bb_animate", 'v', "iifif", 1, { 0, 1, 1, 0, 0 }, false },
 		{ "animating", "bb_animating", 'i', "i", 1, {}, false },
 		{ "animseq", "bb_anim_seq", 'i', "i", 1, {}, false },
 		{ "animlength", "bb_anim_length", 'f', "i", 1, {}, false },
