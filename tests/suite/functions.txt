@@ -40,6 +40,7 @@ addvertex	blitz3d	done	%AddVertex%surface#x#y#z#u=0#v=0#w=1
 aligntovector	blitz3d	done	AlignToVector%entity#vector_x#vector_y#vector_z%axis#rate=1
 ambientlight	blitz3d	done	AmbientLight#red#green#blue
 animate	blitz3d	done	Animate%entity%mode=1#speed=1%sequence=0#transition=0
+animateentity	blitz3d	done	AnimateEntity%entity%mode=1#speed=1%sequence=0#transition=0
 animatemd2	blitz3d	done	AnimateMD2%md2%mode=1#speed=1%first_frame=0%last_frame=9999#transition=0
 animating	blitz3d	done	%Animating%entity
 animlength	blitz3d	done	%AnimLength%entity
