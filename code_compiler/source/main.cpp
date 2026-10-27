@@ -15,6 +15,7 @@
 #include <clocale>
 #include <cstdlib>
 #include <fstream>
+#include <iterator>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -120,7 +121,7 @@ namespace {
 
 	void usage(const char* self)
 	{
-		std::cout << "Usage: " << self << " [options] <input.bb>\n"
+		std::cout << "Usage: " << self << " [options] <input.bb|input.ll>\n"
 				  << "\n"
 				  << "Compiles a BlitzBasic program into a single executable using LLVM.\n"
 				  << "\n"
@@ -496,19 +497,6 @@ static int compiler_main(int argc, char** argv)
 			return 0;
 		}
 
-		// Front-end: Source -> AST -> LLVM IR
-		if (!opt.quiet) {
-			std::cout << "BlitzCC V" << BLITZLLVM_VERSION << "\n"
-					  << "Compiling \"" << opt.input.generic_string() << "\"" << std::endl;
-		}
-		if (!opt.very_quiet) {
-			std::cout << "Parsing..." << std::endl;
-		}
-		blitz::parser   parser;
-		auto            program = parser.parse(opt.input);
-		if (!opt.very_quiet) {
-			std::cout << "Generating..." << std::endl;
-		}
 		// Windows with MSVC uses CodeView for its debug information, everything else DWARF.
 		bool windows_msvc = opt.target.empty() ?
 #if defined(_WIN32)
@@ -517,29 +505,52 @@ static int compiler_main(int argc, char** argv)
 								false
 #endif
 								: ((opt.target.find("windows") != std::string::npos || opt.target.find("msvc") != std::string::npos) && (opt.target.find("gnu") == std::string::npos) && (opt.target.find("mingw") == std::string::npos));
-		blitz::compiler compiler;
-		compiler.debug      = opt.debug;
-		compiler.debug_info = opt.debug_info;
-		compiler.profile    = opt.profile || opt.debug;
-		compiler.sane_evaluation_order = opt.sane_order;
-		compiler.fast_math  = (opt.fast_math == "full") ? "fast" : ((opt.fast_math == "safe") ? "reassoc nsz arcp contract afn" : "");
-		compiler.codeview   = windows_msvc;
-		compiler.source     = opt.input;
-		compiler.quiet      = opt.quiet;
-		compiler.silent     = opt.very_quiet;
-		compiler.warning_options = opt.warnings;
-		auto userlibs_dir = find_userlibs(opt);
-		compiler.userlibs = blitz::keywords::load_userlibs(userlibs_dir);
-		// Where the program looks for the libraries when it runs: here, next to itself, next to the source, and then the system.
-		compiler.userlibs_dir = userlibs_dir.empty() ? std::string() : std::filesystem::absolute(userlibs_dir).generic_string();
-		compiler.source_dir   = std::filesystem::absolute(opt.input).parent_path().generic_string();
-		std::string     ir = compiler.generate(*program);
-		if (compiler.warning_errors() > 0) {
-			// The warnings were printed as errors already.
-			if (!opt.very_quiet) {
-				std::cerr << "error: " << compiler.warning_errors() << " warning(s) treated as errors (-Werror)." << std::endl;
+		// A .ll file is LLVM IR that something else made (blitz-recompiler), which only needs the back-end.
+		std::string ir;
+		if (opt.input.extension() == ".ll") {
+			std::ifstream in(opt.input, std::ios::binary);
+			if (!in) {
+				throw std::runtime_error("Opening '" + opt.input.generic_string() + "' failed.");
 			}
-			return 1;
+			ir.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+		} else {
+			// Front-end: Source -> AST -> LLVM IR
+			if (!opt.quiet) {
+				std::cout << "BlitzCC V" << BLITZLLVM_VERSION << "\n"
+						  << "Compiling \"" << opt.input.generic_string() << "\"" << std::endl;
+			}
+			if (!opt.very_quiet) {
+				std::cout << "Parsing..." << std::endl;
+			}
+			blitz::parser   parser;
+			auto            program = parser.parse(opt.input);
+			if (!opt.very_quiet) {
+				std::cout << "Generating..." << std::endl;
+			}
+			blitz::compiler compiler;
+			compiler.debug      = opt.debug;
+			compiler.debug_info = opt.debug_info;
+			compiler.profile    = opt.profile || opt.debug;
+			compiler.sane_evaluation_order = opt.sane_order;
+			compiler.fast_math  = (opt.fast_math == "full") ? "fast" : ((opt.fast_math == "safe") ? "reassoc nsz arcp contract afn" : "");
+			compiler.codeview   = windows_msvc;
+			compiler.source     = opt.input;
+			compiler.quiet      = opt.quiet;
+			compiler.silent     = opt.very_quiet;
+			compiler.warning_options = opt.warnings;
+			auto userlibs_dir = find_userlibs(opt);
+			compiler.userlibs = blitz::keywords::load_userlibs(userlibs_dir);
+			// Where the program looks for the libraries when it runs: here, next to itself, next to the source, and then the system.
+			compiler.userlibs_dir = userlibs_dir.empty() ? std::string() : std::filesystem::absolute(userlibs_dir).generic_string();
+			compiler.source_dir   = std::filesystem::absolute(opt.input).parent_path().generic_string();
+			ir = compiler.generate(*program);
+			if (compiler.warning_errors() > 0) {
+				// The warnings were printed as errors already.
+				if (!opt.very_quiet) {
+					std::cerr << "error: " << compiler.warning_errors() << " warning(s) treated as errors (-Werror)." << std::endl;
+				}
+				return 1;
+			}
 		}
 
 		// Compile only checks the program, like the original, where -o still creates the executable.
