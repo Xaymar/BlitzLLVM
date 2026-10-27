@@ -15,6 +15,12 @@
 #include "model_internal.hpp"
 #include "load_pool.hpp"
 #include "path.h"
+#if defined(__linux__)
+#include <execinfo.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
+#endif
 
 using namespace bb;
 using namespace bb::anim;
@@ -755,8 +761,48 @@ namespace {
 		}
 	}
 
+#if defined(__linux__)
+	void debug_segv(int sig)
+	{
+		char    text[1024];
+		ssize_t n = 0;
+		int     fd = open("async_mesh_mark.txt", O_RDONLY);
+		if (fd >= 0) {
+			n = read(fd, text, sizeof(text) - 1);
+			close(fd);
+		}
+		static const char head[] = "\nDEBUG SEGV, marks: ";
+		write(2, head, sizeof(head) - 1);
+		if (n > 0) {
+			write(2, text, size_t(n));
+		}
+		void* frames[40];
+		int   count = backtrace(frames, 40);
+		backtrace_symbols_fd(frames, count, 2);
+		int maps = open("/proc/self/maps", O_RDONLY);
+		if (maps >= 0) {
+			char buf[4096];
+			ssize_t got = read(maps, buf, sizeof(buf));
+			if (got > 0) {
+				write(2, buf, size_t(got));
+			}
+			close(maps);
+		}
+		_exit(100 + sig);
+	}
+#endif
+
 	int load_model(const char* file, int parent, bool anim, const char* what)
 	{
+#if defined(__linux__)
+		static bool handler = false;
+		if (!handler) {
+			handler = true;
+			signal(SIGSEGV, debug_segv);
+			signal(SIGBUS, debug_segv);
+			signal(SIGABRT, debug_segv);
+		}
+#endif
 		uint8_t* data = nullptr;
 		size_t   got  = 0;
 		if (!file || !read_file_bytes(file, data, got)) {
