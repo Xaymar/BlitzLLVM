@@ -714,16 +714,19 @@ blitz::compiler::value blitz::compiler::inline_builtin(std::string const& symbol
 		emit_terminator("br i1 " + valid + ", label %" + check_l + ", label %" + slow_l);
 
 		begin_label(check_l);
-		auto slot = tmp(), data = tmp(), size_p = tmp(), size = tmp(), has = tmp(), last = tmp(), in = tmp(), ok = tmp();
+		auto slot = tmp(), data = tmp(), size_p = tmp(), size = tmp(), has = tmp(), last = tmp(), wide = tmp(), in = tmp(), fits = tmp(), ok = tmp();
 		emit(slot + " = getelementptr inbounds { ptr, i32 }, ptr " + table + ", i32 " + handle);
 		emit(data + " = load ptr, ptr " + slot);
 		emit(size_p + " = getelementptr inbounds { ptr, i32 }, ptr " + slot + ", i32 0, i32 1");
 		emit(size + " = load i32, ptr " + size_p);
 		emit(has + " = icmp ne ptr " + data + ", null");
-		// offset + width <= size without overflow: the offset may not be negative, and may not be past size - width.
+		// offset + width <= size without overflow: the offset may not be negative, and may not be past size - width. A bank that is
+		// smaller than the width has no offset at all, which size - width can't say because it wraps around to a large number.
 		emit(last + " = sub i32 " + size + ", " + std::to_string(width));
+		emit(wide + " = icmp uge i32 " + size + ", " + std::to_string(width));
 		emit(in + " = icmp ule i32 " + offset + ", " + last);
-		emit(ok + " = and i1 " + has + ", " + in);
+		emit(fits + " = and i1 " + wide + ", " + in);
+		emit(ok + " = and i1 " + has + ", " + fits);
 		emit_terminator("br i1 " + ok + ", label %" + fast_l + ", label %" + slow_l);
 
 		begin_label(fast_l);
