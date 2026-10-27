@@ -120,10 +120,8 @@ void bb_end_graphics(void)
 		}
 		destroy_swapchain();
 		stop_gpu_thread();
-		vkDestroyBuffer(g.device, g.vertex_buffer, nullptr);
-		vkFreeMemory(g.device, g.vertex_memory, nullptr);
-		vkDestroyBuffer(g.device, g.vertex_buffer_alt, nullptr);
-		vkFreeMemory(g.device, g.vertex_memory_alt, nullptr);
+		destroy_buffer(g.vertex_buffer, g.vertex_allocation);
+		destroy_buffer(g.vertex_buffer_alt, g.vertex_allocation_alt);
 		vkDestroyPipeline(g.device, g.triangles, nullptr);
 		vkDestroyPipeline(g.device, g.lines, nullptr);
 		vkDestroyPipelineLayout(g.device, g.layout, nullptr);
