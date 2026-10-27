@@ -54,5 +54,7 @@ WaitKey
 * [MovieHeight](MovieHeight)
 * [MoviePlaying](MoviePlaying)
 * [MovieWidth](MovieWidth)
+* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
+* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)

@@ -37,5 +37,7 @@ Tells whether a movie is still playing. It becomes 0 when the movie reaches its 
 * [MovieHeight](MovieHeight)
 * [MovieWidth](MovieWidth)
 * [OpenMovie](OpenMovie)
+* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
+* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)

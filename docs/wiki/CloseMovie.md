@@ -35,5 +35,7 @@ Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movi
 * [MoviePlaying](MoviePlaying)
 * [MovieWidth](MovieWidth)
 * [OpenMovie](OpenMovie)
+* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
+* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)

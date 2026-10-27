@@ -146,6 +146,8 @@
 		{ "moviewidth", "bb_movie_width", 'i', "i", 1, {}, false },
 		{ "movieheight", "bb_movie_height", 'i', "i", 1, {}, false },
 		{ "movieplaying", "bb_movie_playing", 'i', "i", 1, {}, false },
+		{ "playmovie", "bb_play_movie", 'v', "i", 1, {}, false },
+		{ "pausemovie", "bb_pause_movie", 'v', "i", 1, {}, false },
 		{ "stats3d", "bb_stats_3d", 'f', "i", 1, {}, false },
 		{ "countchildren", "bb_count_children", 'i', "i", 1, {}, false },
 		{ "getchild", "bb_get_child", 'i', "ii", 2, {}, false },

@@ -21,6 +21,7 @@ Differences that are not caused by one command.
 * [Depth buffer](Depth-Buffer): The depth buffer is a reversed 32-bit float, so z-fighting is much rarer.
 * [Displays](Displays): Extension: commands for every connected display and its modes.
 * [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains; there is no anisotropic filtering.
+* [Movie controls](Movie-Controls): Extension: movies can be paused, and the commands for that build on the original movie commands.
 * [Multiplayer](Multiplayer): Multiplayer uses TCP on port 40500 instead of DirectPlay, so games only play with other BlitzLLVM games.
 * [Numbers of other sizes](Numbers-of-Other-Sizes): Extension: `Byte`, `Short`, `UInt`, `Long`, `Half`, `Double` and the like, with conversions, saturating versions, bit functions and Double math.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.

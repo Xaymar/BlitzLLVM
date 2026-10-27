@@ -35,6 +35,32 @@ For i = 0 To 2
 	Check "MovieWidth after CloseMovie of " + files(i), MovieWidth(movie), 0
 Next
 
+; PauseMovie holds the clock, and PlayMovie lets it go on: a movie that is paused before it was used does not start, and one that is
+; paused later stays where it is. The 3 seconds only run while it plays.
+For i = 0 To 2
+	movie = OpenMovie(files(i))
+	PauseMovie movie
+	Delay 1500
+	Check "MoviePlaying while paused before the start of " + files(i), MoviePlaying(movie), 1
+	PlayMovie movie
+	started = MilliSecs()
+	Delay 1000
+	PauseMovie movie
+	Delay 1500
+	Check "MoviePlaying while paused in the middle of " + files(i), MoviePlaying(movie), 1
+	PauseMovie movie
+	PlayMovie movie
+	PlayMovie movie
+	While MoviePlaying(movie) And (MilliSecs() - started < 12000)
+		Delay 20
+	Wend
+	elapsed = MilliSecs() - started
+	Check "A movie plays for 3 s of the time that it is not paused for " + files(i) + " (" + elapsed + " ms)", elapsed, 4500, 900
+	CloseMovie movie
+Next
+PauseMovie 0
+PlayMovie 0
+
 ; Handles can be used again.
 a = OpenMovie("movies/colors.mpg")
 b = OpenMovie("movies/colors.mp4")
