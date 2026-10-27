@@ -488,6 +488,8 @@ namespace bb::gfx {
 		void*          index_mapped  = nullptr;
 		uint32_t       vertex_capacity = 0, index_capacity = 0;
 		uint32_t       used_by_flush   = 0xFFFFFFFFu; // The flush that has draws waiting which use the buffers.
+		surface_gpu* previous = nullptr; // All that exist are in a list, so that they can be destroyed when the window closes.
+		surface_gpu* next     = nullptr;
 	};
 
 
@@ -616,6 +618,8 @@ namespace bb::gfx {
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
 	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1);
 	void destroy_image(gpu_image& img);
+	/** Destroys the buffers of every surface that is still alive, which the window closing would otherwise leave behind. */
+	void destroy_surface_buffers();
 	VkShaderModule create_shader(const unsigned int* words, size_t size);
 	/** A pipeline of the 2D renderer's kind. Without vertices it draws the one triangle that covers the target, and replaces what is there. */
 	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true);

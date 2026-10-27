@@ -100,6 +100,7 @@ void bb_end_graphics(void)
 			scratch_size = 0;
 		}
 		empty_graveyard();
+		destroy_surface_buffers();
 		destroy_gamma();
 		destroy_buffer(g.scene_buffer, g.scene_allocation);
 		destroy_buffer(g.entity_buffer, g.entity_allocation);
