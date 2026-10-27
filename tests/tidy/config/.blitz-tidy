@@ -1,0 +1,4 @@
+# Used by the configuration tests: reports instead of fixing, and turns one rule off.
+default = report
+implicit-lossy-real-to-int = fix
+implicit-lossy-int-to-real = off

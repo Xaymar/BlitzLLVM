@@ -213,6 +213,22 @@ foreach(_CASE IN ITEMS default same_program check_diff in_place stdin indent key
 	set_tests_properties("format-${_CASE}" PROPERTIES LABELS "tools")
 endforeach()
 
+# blitz-tidy: the fixes (programs in tests/tidy/cases come out as the ones in tests/tidy/expected, and behave the same), the options and
+# the configuration files. Each case is in tests/tidy/tidy.cmake.
+foreach(_CASE IN ITEMS fix check diff in_place stdin rules rule_modes report_only unsafe config include broken)
+	add_test(
+		NAME "tidy-${_CASE}"
+		COMMAND ${CMAKE_COMMAND}
+			"-DCASE=${_CASE}"
+			"-DTIDY=$<TARGET_FILE:tidy>"
+			"-DBLITZCC=$<TARGET_FILE:${PROJECT_NAME}>"
+			"-DTESTS=${TEST_DIRECTORY}/tidy"
+			"-DWORK=${PROJECT_BINARY_DIR}/tidy/${_CASE}"
+			-P "${TEST_DIRECTORY}/tidy/tidy.cmake"
+	)
+	set_tests_properties("tidy-${_CASE}" PROPERTIES LABELS "tidy")
+endforeach()
+
 add_test(
 	NAME "lex-test"
 	COMMAND ${PROJECT_NAME} --dump-tokens "${TEST_DIRECTORY}/test.bb"
