@@ -153,7 +153,19 @@ def play_moving(listener_step, source_step, scale=1.0, distance=1.0, name="tone.
 	subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read()
 	count = len(data) // 4
-	return analyze(list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2]))[0]
+	return samples_after(list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2]), 0.9, 0.4)
+
+
+def crossings_frequency(segment):
+	crossings = [i for i in range(1, len(segment)) if segment[i - 1] < 0 <= segment[i]]
+	return OUTPUT_RATE * (len(crossings) - 1) / (crossings[-1] - crossings[0]) if len(crossings) > 2 else 0.0
+
+
+def samples_after(samples, start, length):
+	"""The pitch of a stretch of the sound, from `start` seconds after it got loud, so that the shift has settled."""
+	loud = [i for i, v in enumerate(samples) if abs(v) > 300]
+	first = loud[0] + int(start * OUTPUT_RATE)
+	return crossings_frequency(samples[first : first + int(length * OUTPUT_RATE)])
 
 
 expected = tone("tone.wav", 22050, 1, 16)
@@ -170,6 +182,36 @@ for what, listener_step, source_step, scale, distance, low, high in (
 ):
 	frequency = play_moving(listener_step, source_step, scale, distance)
 	check("doppler, %s: %.1f Hz is %.2f to %.2f of %.1f Hz" % (what, frequency, low, high, expected), expected * low < frequency < expected * high)
+
+# The shift is smooth: a source that stands still and then drives off glides down in pitch, it does not jump.
+def play_start_stop():
+	body = (
+		's = Load3DSound("tone.wav")\nLoopSound s\nlistener = CreatePivot()\nsource = CreatePivot()\nPositionEntity source, 0, 0, 100\n'
+		"CreateListener listener, 0, 1, 1\nc = EmitSound(s, source)\n"
+		"For i = 1 To 10\n\tDelay 50\nNext\n"
+		"For i = 1 To 40\n\tMoveEntity source, 0, 0, 3\n\tDelay 50\nNext\n"
+	)
+	with open("play.bb", "w") as source:
+		source.write(body)
+	if subprocess.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+		raise SystemExit("compiling failed")
+	if os.path.exists("sdlaudio.raw"):
+		os.remove("sdlaudio.raw")
+	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
+	env.pop("BLITZ_HEADLESS", None)
+	subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	data = open("sdlaudio.raw", "rb").read()
+	count = len(data) // 4
+	return list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2])
+
+
+samples = play_start_stop()
+loud = [i for i, v in enumerate(samples) if abs(v) > 300][0]
+window = int(0.04 * OUTPUT_RATE)
+pitches = [crossings_frequency(samples[loud + i * window : loud + (i + 1) * window]) for i in range(1, 44)]
+pitches = [p for p in pitches if p > 0]
+steps = [abs(pitches[i + 1] - pitches[i]) / expected for i in range(len(pitches) - 1)]
+check("doppler glides: the pitch goes from %.1f to %.1f Hz, the largest step between 40 ms is %.1f%%" % (pitches[0], min(pitches), max(steps) * 100), pitches[0] > expected * 0.98 and min(pitches) < expected * 0.93 and max(steps) < 0.08)
 
 # Opus decodes at 48 kHz whatever the file was recorded at, so it has to be resampled to play at the right pitch. The fixtures are a
 # 960 Hz tone (50 samples per cycle at 48 kHz) of half a second, as .opus (Ogg Opus) and as Opus packets in an .ogg file.
