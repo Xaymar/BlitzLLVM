@@ -343,6 +343,12 @@ elseif(CASE STREQUAL "raii")
 	expect_contains(OUT "Local a\n")
 	expect_contains(ERR "'a' is declared without a value. [blitz-tidy:resource-acquisition-is-initialization]")
 
+elseif(CASE STREQUAL "condition")
+	# The condition of If, ElseIf, While, Until and Select goes in parentheses, and what is in them already is left alone.
+	expect_tidy("Local a = 1, b = 2\nIf a = 1 And b > 1\nPrint 1\nElseIf (a = 2) Or (b = 3) ; text\nPrint 2\nElseIf (a = 3)\nPrint 3\nElse\nPrint 4\nEndIf\nWhile a < 3 : a = a + 1 : Wend\nRepeat\na = a - 1\nUntil a <= 0 Or b = 0\nSelect a + b\nCase 1\nPrint 5\nEnd Select\n" "Local a = 1, b = 2\nIf (a = 1 And b > 1)\nPrint 1\nElseIf ((a = 2) Or (b = 3)) ; text\nPrint 2\nElseIf (a = 3)\nPrint 3\nElse\nPrint 4\nEndIf\nWhile (a < 3) : a = a + 1 : Wend\nRepeat\na = a - 1\nUntil (a <= 0 Or b = 0)\nSelect (a + b)\nCase 1\nPrint 5\nEnd Select\n" --parentheses-around-condition)
+	# The one-line If has its Then behind the condition, an Else If is a statement of its own, and nothing but a keyword that starts a statement counts.
+	expect_tidy("Local a = 1\nIf a = 1 Then Print 1 Else Print 2\nIf a = 2 Then If a > 1 Then Print 3\nIf a Then Print 4 : If a <> 1 Then Print 5\nPrint \"If a Then\" ; While x\n" "Local a = 1\nIf (a = 1) Then Print 1 Else Print 2\nIf (a = 2) Then If (a > 1) Then Print 3\nIf (a) Then Print 4 : If (a <> 1) Then Print 5\nPrint \"If a Then\" ; While x\n" --parentheses-around-condition)
+
 elseif(CASE STREQUAL "report_only")
 	# unused-result has nothing to fix, so it can not be set to fix.
 	tidy(--unused-result=fix "${TESTS}/cases/conversions.bb")

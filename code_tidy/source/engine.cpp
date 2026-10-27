@@ -634,6 +634,92 @@ namespace {
 		bool want_raii   = cfg.mode_of("resource-acquisition-is-initialization") != tidy::mode::OFF;
 		bool want_split  = cfg.mode_of("one-declare-per-variable") != tidy::mode::OFF;
 		bool want_parens = cfg.mode_of("parentheses-around-arguments") != tidy::mode::OFF;
+		// Parentheses around the condition of If, ElseIf, While, Until and Select. The keywords are found in the tokens of the file: they
+		// start a statement at the start of a line and behind a : or a Then or Else, and the condition ends at the Then, the : or the end
+		// of the line. The compiler decides afterwards whether the result is still a program.
+		if (cfg.mode_of("parentheses-around-condition") != tidy::mode::OFF) {
+			using blitz::tools::kind;
+			auto tokens = blitz::tools::tokenize(text);
+			std::vector<size_t> begins;
+			size_t              position = 0;
+			for (auto const& t : tokens) {
+				begins.push_back(position);
+				position += t.text.size();
+			}
+			bool statement_start = true;
+			for (size_t t = 0; t < tokens.size(); t++) {
+				auto const& tok = tokens[t];
+				if (tok.is(kind::space) || tok.is(kind::comment)) {
+					continue;
+				}
+				if (tok.is(kind::newline) || tok.is(kind::separator)) {
+					statement_start = true;
+					continue;
+				}
+				bool starts = statement_start;
+				statement_start = false;
+				auto word       = blitz::tools::lower(tok.text);
+				if (!tok.is(kind::word)) {
+					continue;
+				}
+				if ((word == "then") || (word == "else")) {
+					statement_start = true; // If a Then If b Then c
+					continue;
+				}
+				if (!starts || ((word != "if") && (word != "elseif") && (word != "while") && (word != "until") && (word != "select"))) {
+					continue;
+				}
+				// The condition: up to the Then at the top level, the next separator, or the end of the line.
+				size_t first = t + 1, last = t, depth = 0;
+				for (size_t u = t + 1; u < tokens.size(); u++) {
+					auto const& tk = tokens[u];
+					if (tk.is(kind::newline) || tk.is(kind::comment) || (tk.is(kind::separator) && depth == 0)) {
+						break;
+					}
+					if (tk.is_symbol("(") || tk.is_symbol("[")) {
+						depth++;
+					} else if ((tk.is_symbol(")") || tk.is_symbol("]")) && depth > 0) {
+						depth--;
+					} else if ((depth == 0) && tk.is(kind::word) && (blitz::tools::lower(tk.text) == "then") && ((word == "if") || (word == "elseif"))) {
+						break;
+					}
+					if (!tk.is(kind::space)) {
+						last = u;
+					}
+				}
+				while ((first < tokens.size()) && tokens[first].is(kind::space)) {
+					first++;
+				}
+				if (last < first) {
+					continue; // No condition
+				}
+				// Already in parentheses: the first one closes at the last token.
+				if (tokens[first].is_symbol("(")) {
+					int  nesting = 0;
+					size_t close = first;
+					for (size_t u = first; u <= last; u++) {
+						nesting += tokens[u].is_symbol("(") ? 1 : (tokens[u].is_symbol(")") ? -1 : 0);
+						if (nesting == 0) {
+							close = u;
+							break;
+						}
+					}
+					if (close == last) {
+						continue;
+					}
+				}
+				uint64_t line = 1;
+				while ((line < ln.starts.size()) && (ln.starts[line] <= begins[first])) {
+					line++;
+				}
+				ast::location where;
+				where.line   = line;
+				where.column = begins[first] - ln.starts[line - 1] + 1;
+				where.length = begins[last] + tokens[last].text.size() - begins[first];
+				offer("parentheses-around-condition", where, "The condition of '" + tok.text + "' is not in parentheses.", { { begins[first], begins[first], "(" }, { begins[last] + tokens[last].text.size(), begins[last] + tokens[last].text.size(), ")" } }, false);
+			}
+		}
+
 		if (want_raii || want_split || want_parens) {
 			std::set<std::string> variables, functions;
 			for (auto const& fn : a.program->functions) {
