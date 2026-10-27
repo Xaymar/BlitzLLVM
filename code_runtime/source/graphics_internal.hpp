@@ -16,6 +16,7 @@
 #define VK_NO_PROTOTYPES
 #include "profile.hpp"
 #include <vulkan/vulkan.h>
+#include <vk_mem_alloc.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
@@ -224,6 +225,7 @@ namespace bb::gfx {
 		VkPhysicalDevice physical = VK_NULL_HANDLE;
 		int              driver_used = 0; // The driver of the GPU that is in use.
 		VkDevice         device   = VK_NULL_HANDLE;
+		VmaAllocator     allocator = VK_NULL_HANDLE; // Where all the memory of buffers and images comes from. Destroyed before the device.
 		VkQueue          queue    = VK_NULL_HANDLE;
 		uint32_t         family   = 0;
 		VkPhysicalDeviceMemoryProperties memory = {};
@@ -619,6 +621,12 @@ namespace bb::gfx {
 	[[noreturn]] void fail(const char* what);
 	void check(VkResult result, const char* what);
 	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags props, VkBuffer& buffer, VkDeviceMemory& memory);
+	/** The memory of buffers and images comes from VulkanMemoryAllocator, which is made once the device exists and has to be destroyed before it. */
+	void create_allocator(PFN_vkGetInstanceProcAddr get_instance_proc);
+	void destroy_allocator();
+	/** A buffer with its memory. Host buffers can be read and written by the CPU through 'mapped' (coherent, so nothing has to be flushed), the others are on the GPU. */
+	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped = nullptr);
+	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
 	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1);
 	void destroy_image(gpu_image& img);
 	VkShaderModule create_shader(const unsigned int* words, size_t size);
