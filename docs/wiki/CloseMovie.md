@@ -26,8 +26,9 @@ Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movi
 
 * [DrawMovie](DrawMovie)
 * [MovieHeight](MovieHeight)
+* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
-* [MovieWidth](MovieWidth)
+* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕

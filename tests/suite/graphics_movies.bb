@@ -61,6 +61,29 @@ Next
 PauseMovie 0
 PlayMovie 0
 
+; MovieLength says how long the movie is, and MoviePosition where it is: it counts the time that the movie plays, stands still while
+; it is paused and stops at the end.
+For i = 0 To 2
+	movie = OpenMovie(files(i))
+	Check "MovieLength of " + files(i), MovieLength(movie), 3.0, 0.6
+	Check "MoviePosition at the start of " + files(i), MoviePosition(movie), 0.0, 0.3
+	Delay 1000
+	Check "MoviePosition after 1 s of " + files(i), MoviePosition(movie), 1.0, 0.4
+	PauseMovie movie
+	Delay 20
+	position# = MoviePosition(movie)
+	Delay 700
+	Check "MoviePosition stands still while " + files(i) + " is paused", MoviePosition(movie), position#, 0.05
+	PlayMovie movie
+	While MoviePlaying(movie)
+		Delay 20
+	Wend
+	Check "MoviePosition at the end of " + files(i), MoviePosition(movie), 3.0, 0.6
+	CloseMovie movie
+Next
+Check "MovieLength of no movie", MovieLength(0), 0.0, 0.0001
+Check "MoviePosition of no movie", MoviePosition(0), 0.0, 0.0001
+
 ; Handles can be used again.
 a = OpenMovie("movies/colors.mpg")
 b = OpenMovie("movies/colors.mp4")

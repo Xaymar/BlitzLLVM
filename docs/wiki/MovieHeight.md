@@ -28,10 +28,11 @@ The height of the pictures of a movie in pixels.
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
+* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
+* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
 * [MovieWidth](MovieWidth)
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
-* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)

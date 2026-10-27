@@ -44,8 +44,9 @@ WaitKey
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
 * [MovieHeight](MovieHeight)
+* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
-* [MovieWidth](MovieWidth)
+* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 

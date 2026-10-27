@@ -12,7 +12,9 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
 * [MovieHeight](MovieHeight)
+* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
+* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
 * [MovieWidth](MovieWidth)
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕

@@ -485,6 +485,36 @@ int32_t bb_movie_playing(int32_t handle)
 	return m->finished ? 0 : 1;
 }
 
+// How long the movie is in seconds. The file says how long it is, which some formats estimate from their bit rate. Once the end has
+// been decoded the time of the last picture is known, and the longer of the two is used.
+float bb_movie_length(int32_t handle)
+{
+	movie* m = movie_of(handle);
+	if (!m) {
+		return 0.0f;
+	}
+	double length = (m->format->duration > 0) ? double(m->format->duration) / double(AV_TIME_BASE) : 0.0;
+	if (m->ended_input && (m->end_time > length)) {
+		length = m->end_time;
+	}
+	return float(length);
+}
+
+// Where the movie is in seconds, which is the clock that the pictures and the sound follow.
+float bb_movie_position(int32_t handle)
+{
+	movie* m = movie_of(handle);
+	if (!m) {
+		return 0.0f;
+	}
+	update(*m);
+	double position = clock_of(*m);
+	if (m->finished && (position > m->end_time)) {
+		position = m->end_time;
+	}
+	return float(position);
+}
+
 void bb_play_movie(int32_t handle)
 {
 	if (movie* m = movie_of(handle)) {
