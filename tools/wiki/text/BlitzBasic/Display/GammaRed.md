@@ -13,4 +13,4 @@ WaitKey
 ```
 @param red  The input value, 0 to 255.
 @returns The output value for the input.
-@gap The gamma tables are only remembered. They never change how the display looks.
+@gap The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
