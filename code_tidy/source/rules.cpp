@@ -30,6 +30,7 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-lossy-real-to-real", true, mode::FIX, "Converts on purpose: Float(value), Half(value)", "" },
 		{ "implicit-string-to-number", true, mode::FIX, "Converts on purpose: Int(value), Float(value), ...", "" },
 		{ "implicit-lossy-int-to-real", true, mode::FIX, "Converts on purpose: Float(value), Double(value), Half(value)", "" },
+		{ "one-declare-per-variable", true, mode::OFF, "Local a, b = 1 becomes one Local (or Global) per line.", "", "A Local or Global declares more than one variable." },
 		{ "implicit-variable", true, mode::FIX, "Declares the variable with its type in front of the statement of the function that first uses it.", "Variables of the main program: an Include can declare them somewhere else." },
 		{ "unused-result", false, mode::REPORT, "", "" },
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },

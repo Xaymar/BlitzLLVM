@@ -350,6 +350,15 @@ namespace {
 		return unsafe_blocked ? "not fixed: it can change the program, turn on \"unsafe\" to fix it" : "no safe fix, change it by hand";
 	}
 
+
+	////////////////////////////////////////////////////////////////////////////
+	// Rules that are not warnings of the compiler
+	////////////////////////////////////////////////////////////////////////////
+	std::string line_break(std::string const& text)
+	{
+		return (text.find("\r\n") != std::string::npos) ? "\r\n" : "\n";
+	}
+
 	plan make_plan(analysis& a, std::string const& text, std::string const& primary, tidy::config const& cfg, std::set<std::string> const& rejected)
 	{
 		plan                 out;
@@ -534,6 +543,83 @@ namespace {
 				r.note = mode_note(blocked);
 			}
 			out.reports.push_back(std::move(r));
+		}
+
+		////////////////////////////////////////////////////////////////////////
+		// Rules that look at the program itself
+		////////////////////////////////////////////////////////////////////////
+		auto offer = [&](std::string const& rule, ast::location const& where, std::string const& message, std::vector<text_edit> edits, bool unsafe) {
+			auto m = cfg.mode_of(rule);
+			if (m == tidy::mode::OFF) {
+				return;
+			}
+			fix candidate;
+			candidate.warning     = rule;
+			candidate.where       = where;
+			candidate.message     = message;
+			candidate.edits       = std::move(edits);
+			candidate.unsafe      = unsafe;
+			candidate.fingerprint = rule + "|" + std::to_string(where.column) + "|" + ln.line_text(where.line);
+			bool blocked          = false;
+			if ((m == tidy::mode::FIX) && !candidate.edits.empty()) {
+				if (rejected.count(candidate.fingerprint)) {
+					return; // The compiler refused it before.
+				}
+				if (!candidate.unsafe || cfg.unsafe) {
+					out.fixes.push_back(std::move(candidate));
+					return;
+				}
+				blocked = true;
+			}
+			tidy::report r;
+			r.rule    = rule;
+			r.line    = where.line;
+			r.column  = where.column;
+			r.length  = where.length;
+			r.message = message;
+			if (m == tidy::mode::FIX) {
+				r.note = mode_note(blocked);
+			}
+			out.reports.push_back(std::move(r));
+		};
+
+		bool want_split  = cfg.mode_of("one-declare-per-variable") != tidy::mode::OFF;
+		if (want_split) {
+			for (auto const& ref : blocks) {
+				auto& list = *ref.block;
+				for (size_t idx = 0; idx < list.size(); idx++) {
+					auto* stmt = list[idx].get();
+					if (!is_file(stmt->where, primary)) {
+						continue;
+					}
+
+					if (auto* d = dynamic_cast<ast::declare const*>(stmt)) {
+						if (d->constant) {
+							continue;
+						}
+						if (want_split && (d->variables.size() > 1)) {
+							size_t begin = ln.offset(d->covers.line, d->covers.column);
+							size_t first = ln.offset(d->variables.front().covers.line, d->variables.front().covers.column);
+							size_t last  = ln.offset(d->variables.back().covers.end_line, d->variables.back().covers.end_column);
+							if ((first > begin) && (last > first)) {
+								bool        alone  = ln.only_blank_before(begin) && ln.only_blank_after(ln.offset(d->covers.end_line, d->covers.end_column));
+								std::string prefix = text.substr(begin, first - begin);
+								std::string between = alone ? line_break(text) + ln.indent(begin) : std::string(" : ");
+								std::string joined;
+								for (size_t v = 0; v < d->variables.size(); v++) {
+									auto const& var = d->variables[v];
+									if (v > 0) {
+										joined += between + prefix;
+									}
+									size_t vb = ln.offset(var.covers.line, var.covers.column), ve = ln.offset(var.covers.end_line, var.covers.end_column);
+									joined += text.substr(vb, ve - vb);
+								}
+								offer("one-declare-per-variable", d->where, "More than one variable is declared in one statement.", { { first, last, joined } }, false);
+							}
+						}
+					}
+				}
+			}
 		}
 		return out;
 	}

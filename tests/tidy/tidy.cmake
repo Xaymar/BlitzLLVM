@@ -67,6 +67,21 @@ macro(expect_rc EXPECTED)
 	endif()
 endmacro()
 
+# Tidy a program with the given settings: the result is WANT, and tidying that again changes nothing. Both have to compile (tidy would
+# say so otherwise), and the program has to do the same before and after (see CASE=fix).
+function(expect_tidy SOURCE WANT)
+	file(WRITE "${WORK}/style.bb" "${SOURCE}")
+	tidy_text(--default=off ${ARGN} "${WORK}/style.bb")
+	if(NOT RC EQUAL 0 OR NOT OUT STREQUAL "${WANT}")
+		message(FATAL_ERROR "Expected exit code 0 and\n${WANT}\n---- got ${RC} and\n${OUT}\n---- stderr:\n${ERR}")
+	endif()
+	file(WRITE "${WORK}/style_again.bb" "${WANT}")
+	tidy_text(--default=off ${ARGN} "${WORK}/style_again.bb")
+	if(NOT RC EQUAL 0 OR NOT OUT STREQUAL "${WANT}")
+		message(FATAL_ERROR "A second run changed the program:\n${OUT}\n---- stderr:\n${ERR}")
+	endif()
+endfunction()
+
 macro(expect_contains VARIABLE TEXT)
 	string(FIND "${${VARIABLE}}" "${TEXT}" _AT)
 	if(_AT EQUAL -1)
@@ -264,6 +279,18 @@ elseif(CASE STREQUAL "rule_modes")
 	expect_contains(OUT "Global g:Int32 = 1")
 	tidy_text(--short_type_notation=report "${WORK}/short.bb")
 	expect_contains(ERR "[blitz-tidy:expand-short-to-long-notation]")
+
+elseif(CASE STREQUAL "one_declare")
+	# Each variable of a Local or Global gets a declaration of its own, with its type and value.
+	expect_tidy("Local a, b:Float = 1.5, c.Foo, d\nGlobal e = 1, f$\nType Foo\nField x\nEnd Type\nPrint a + b + d + e\nPrint f\nPrint c\\x\n" "Local a\nLocal b:Float = 1.5\nLocal c.Foo\nLocal d\nGlobal e = 1\nGlobal f$\nType Foo\nField x\nEnd Type\nPrint a + b + d + e\nPrint f\nPrint c\\x\n" --one-declare-per-variable)
+	# The new lines are indented like the declaration, and a declaration that shares its line keeps the line.
+	expect_tidy("Function F()\n\tLocal a = 1, b = 2 ; both\n\tLocal c, d : Print a + b\nEnd Function\nF()\n" "Function F()\n\tLocal a = 1\n\tLocal b = 2 ; both\n\tLocal c : Local d : Print a + b\nEnd Function\nF()\n" --one-declare-per-variable)
+	# Nothing is done when the rule is off, Const is left alone, and a rule can be set to only report.
+	expect_tidy("Local a, b\nConst c = 1, d = 2\nPrint a + b + c + d\n" "Local a, b\nConst c = 1, d = 2\nPrint a + b + c + d\n")
+	file(WRITE "${WORK}/report.bb" "Local a, b\nPrint a + b\n")
+	tidy_text(--default=off --one-declare-per-variable=report "${WORK}/report.bb")
+	expect_contains(OUT "Local a, b")
+	expect_contains(ERR "report.bb:1:1: warning: More than one variable is declared in one statement. [blitz-tidy:one-declare-per-variable]")
 
 elseif(CASE STREQUAL "report_only")
 	# unused-result has nothing to fix, so it can not be set to fix.
