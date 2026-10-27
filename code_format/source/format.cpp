@@ -20,6 +20,7 @@ namespace {
 		token tok;
 		bool  space_before = false; // There was white space in front of it in the source
 		bool  keyword      = false; // A keyword, as opposed to a name
+		bool  type_colon   = false; // The : of x:Int32, which gives a type and doesn't separate statements
 		std::string lower;
 		enum class sign_kind { none, binary, unary, ambiguous };
 		sign_kind sign = sign_kind::none;
@@ -97,6 +98,13 @@ namespace {
 				bool plain = (last != '%') && (last != '#') && (last != '$');
 				bool field = (i > 0) && (items[i - 1].tok.is_symbol("\\") || items[i - 1].tok.is_symbol("."));
 				it.keyword = plain && !field && !blitz::tools::keyword_spelling(it.tok.text).empty();
+			}
+		}
+		// A : between a name and a type name that touches both is the type of the name, as the compiler reads it.
+		for (size_t i = 1; i + 1 < items.size(); i++) {
+			auto& it = items[i];
+			if (it.tok.is(kind::separator) && !it.space_before && !items[i + 1].space_before && items[i - 1].tok.is(kind::word) && items[i + 1].tok.is(kind::word) && blitz::tools::is_type_name(items[i + 1].tok.text)) {
+				it.type_colon = true;
 			}
 		}
 		for (size_t i = 0; i < items.size(); i++) {
@@ -180,6 +188,9 @@ namespace {
 		}
 		if (is_open(prev)) {
 			return o.paren_inner_space ? " " : "";
+		}
+		if (prev.type_colon || cur.type_colon) {
+			return "";
 		}
 		if (prev.tok.is(kind::separator) || cur.tok.is(kind::separator)) {
 			return spacing_gap(o.separator_spacing, orig);
@@ -421,7 +432,7 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 		// Split into statements at the separators.
 		std::vector<std::vector<item>> statements(1);
 		for (auto const& it : line.items) {
-			if (it.tok.is(kind::separator)) {
+			if (it.tok.is(kind::separator) && !it.type_colon) {
 				statements.emplace_back();
 			} else {
 				statements.back().push_back(it);

@@ -39,3 +39,12 @@ bool blitz::tools::keyword_is_function(std::string_view w)
 	static constexpr std::string_view words[] = { "abs", "float", "handle", "int", "object", "sgn", "str" };
 	return std::find(std::begin(words), std::end(words), w) != std::end(words);
 }
+
+bool blitz::tools::is_type_name(std::string_view word)
+{
+	static constexpr std::string_view names[] = { "byte",   "double", "float",  "float16", "float32", "float64", "half",   "int",    "int16", "int32",
+												  "int64",  "int8",   "long",   "real",    "real16",  "real32",  "real64", "short",  "single", "string",
+												  "ubyte",  "uint",   "uint16", "uint32",  "uint64",  "uint8",   "ulong",  "ushort" };
+	std::string                      key   = lower(word);
+	return std::find(std::begin(names), std::end(names), key) != std::end(names);
+}

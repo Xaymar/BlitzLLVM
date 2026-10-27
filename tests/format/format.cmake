@@ -235,6 +235,9 @@ elseif(CASE STREQUAL "spacing")
 	expect_format("a=1 : b=2\n" "a = 1:b = 2\n" --separator-spacing=compact)
 	# Fields and types have no spaces; names and numbers keep their text.
 	expect_format("p . Foo = New Foo\np\\x = q \\ y\nLocal a.Foo, b# = $FF + 0x1F + .5\n" "p . Foo = New Foo\np\\x = q\\y\nLocal a.Foo, b# = $FF + 0x1F + .5\n")
+	# The : of a type touches the name and the type, and is not a statement separator.
+	expect_format("Local a:Int32=1,b:Float\nFunction F:String(x:Int,y:Float32)\nEnd Function\n" "Local a:Int32 = 1, b:Float\n\nFunction F:String(x:Int, y:Float32)\nEnd Function\n")
+	expect_format("a=1:b=2 : c:Int=3\n" "a = 1 : b = 2 : c:Int = 3\n")
 	# Strings and comments are untouched.
 	expect_format("Print \"a  ,  b\"+\"=>\" ;  keep   this  \n" "Print \"a  ,  b\" + \"=>\" ;  keep   this\n")
 	# The other spellings of the comparisons stay.
