@@ -70,6 +70,9 @@ PAGE_SECTIONS = ["Command Syntax", "Description", "Parameters", "Examples", "Med
 # Appended to every list entry and title of a command that the original Blitz products do not have. Which commands
 # those are comes from EXTENSIONS in tools/suite_functions.py, the list of what BlitzLLVM adds.
 EXTENSION_MARK = "\u3014BlitzLLVM\u3015"
+# The icon of each product, in media/icons. The help of the originals names the products a command works in.
+ICONS = {"Blitz2D": ("BlitzBasic", "help_bb"), "BlitzPlus": ("BlitzPlus", "help_bp"), "Blitz3D": ("Blitz3D", "help_b3d"),
+         "BlitzLLVM": ("BlitzLLVM", "help_llvm")}
 
 
 class Command:
@@ -211,13 +214,16 @@ def command_page(c, siblings):
     m = re.search(r"^```", free, re.M)
     description, examples = (free[:m.start()], free[m.start():]) if m else (free, "")
     description, examples = description.strip(), examples.strip()
-    out = ["# %s%s\n" % (c.name, c.mark),
-           "[Command Index](Command-Index) · [%s](%s) · [%s](%s)\n" % (c.dialect, c.dialect, c.category, c.page),
-           "## Command Syntax\n", "```blitzbasic\n%s\n```\n" % c.signature(), "## Description\n"]
     import helpref
     ref = helpref.read(c.key)
-    if ref and ref["dialects"]:
-        out.append("**Works in:** %s\n" % ", ".join(ref["dialects"]))
+    # The GitHub wiki strips style attributes, so the icons float to the right with align="right". The first image
+    # floats furthest right, which is why they are written in reverse.
+    names = ["BlitzLLVM"] if c.extension else (ref["dialects"] if ref else [])
+    icons = "".join('<img align="right" src="media/icons/%s.svg" alt="%s" title="%s" width="80">' %
+                    (ICONS[n][1], ICONS[n][0], ICONS[n][0]) for n in reversed(names))
+    out = [icons + "\n" if icons else "", "# %s%s\n" % (c.name, c.mark),
+           "[Command Index](Command-Index) · [%s](%s) · [%s](%s)\n" % (c.dialect, c.dialect, c.category, c.page),
+           "## Command Syntax\n", "```blitzbasic\n%s\n```\n" % c.signature(), "## Description\n"]
     if c.extension:
         out.append("**%s** This command does not exist in the original Blitz products. BlitzLLVM adds it.\n" %
                    EXTENSION_MARK)
