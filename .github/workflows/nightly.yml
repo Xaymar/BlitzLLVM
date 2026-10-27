@@ -133,6 +133,8 @@ jobs:
         run: |
           cmake --install build --config Release --prefix dist
           cp LICENSE.adoc README.adoc dist/
+          # The libraries must not need the newer STL helpers (__std_rotate, ...), or programs fail to link with an older Visual Studio.
+          [ "$RUNNER_OS" != Windows ] || .github/scripts/check-std-helpers.sh dist
           (cd dist && find . -type f) | .github/scripts/check-licenses.sh "$ARTIFACT"
           (cd dist && find . -type f) | .github/scripts/check-help.sh "$ARTIFACT"
       - uses: actions/upload-artifact@v4
