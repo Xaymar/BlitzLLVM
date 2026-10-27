@@ -300,6 +300,28 @@ elseif(CASE STREQUAL "parentheses")
 	# Without arguments there is nothing to put in parentheses, and the spelling that was asked for first works as well.
 	expect_tidy("Function F()\nReturn 1\nEnd Function\nF\nF()\nPrint \"a\" ; x\n" "Function F()\nReturn 1\nEnd Function\nF\nF()\nPrint(\"a\") ; x\n" --parantheses-around-arguments)
 
+elseif(CASE STREQUAL "raii")
+	set(_RAII --resource-acquisition-is-initialization)
+	# A variable gets the value of its type where it is declared. Arrays, Const and what already has a value are left alone.
+	expect_tidy("Type Foo\nField x\nEnd Type\nLocal a\nLocal b%\nLocal c$\nLocal d#\nLocal e:Float\nLocal f.Foo\nLocal g:String\nLocal h:Int32 = 3\nLocal arr[3]\nConst k = 1\nGlobal gl\nPrint a + b + d + e + h + k + gl + Len(c + g)\nPrint f\\x + arr[1]\n" "Type Foo\nField x\nEnd Type\nLocal a = 0\nLocal b% = 0\nLocal c$ = \"\"\nLocal d# = 0.0\nLocal e:Float = 0.0\nLocal f.Foo = Null\nLocal g:String = \"\"\nLocal h:Int32 = 3\nLocal arr[3]\nConst k = 1\nGlobal gl = 0\nPrint a + b + d + e + h + k + gl + Len(c + g)\nPrint f\\x + arr[1]\n" ${_RAII})
+	# The assignment right behind it is the value, if it is free of side effects: Local a, then a = 5 is Local a = 5.
+	expect_tidy("Local a\na = 5\nLocal b:String\nLocal c\nb = \"x\" + \"y\"\nc = a * 2 + 1\nPrint a + c + Len(b)\n" "Local a = 5\nLocal b:String = \"x\" + \"y\"\nLocal c = a * 2 + 1\nPrint a + c + Len(b)\n" ${_RAII})
+	# What is not like that gets the default and keeps its assignment: calls (what Create, Load and Copy do), something in between, a condition, the variable itself and values
+	# that read what is set in between.
+	expect_tidy("Function F(v)\nReturn v\nEnd Function\nLocal a\nLocal b\nLocal c\nLocal d\nLocal e\nLocal g\nLocal h\nLocal i\na = F(1)\nPrint 1\nb = 2\nIf a Then c = 1\nd = d + 1\nh = 1\ng = h + 1\ni = 5 / 1\nPrint a + b + c + d + e + g + h + i\n" "Function F(v)\nReturn v\nEnd Function\nLocal a = 0\nLocal b = 0\nLocal c = 0\nLocal d = 0\nLocal e = 0\nLocal g = 0\nLocal h = 0\nLocal i = 0\na = F(1)\nPrint 1\nb = 2\nIf a Then c = 1\nd = d + 1\nh = 1\ng = h + 1\ni = 5 / 1\nPrint a + b + c + d + e + g + h + i\n" ${_RAII})
+	# A Global in a function is set again every time the declaration is passed, which it was not before: that needs unsafe.
+	file(WRITE "${WORK}/global.bb" "Function G()\nGlobal x\nx = x + 1\nReturn x\nEnd Function\nPrint G()\n")
+	tidy_text(--default=off ${_RAII} "${WORK}/global.bb")
+	expect_contains(OUT "Global x\n")
+	expect_contains(ERR "turn on \"unsafe\"")
+	tidy_text(--default=off ${_RAII} --unsafe "${WORK}/global.bb")
+	expect_contains(OUT "Global x = 0\n")
+	# Reported without a fix.
+	file(WRITE "${WORK}/report.bb" "Local a\nPrint a\n")
+	tidy_text(--default=off --resource-acquisition-is-initialization=report "${WORK}/report.bb")
+	expect_contains(OUT "Local a\n")
+	expect_contains(ERR "'a' is declared without a value. [blitz-tidy:resource-acquisition-is-initialization]")
+
 elseif(CASE STREQUAL "report_only")
 	# unused-result has nothing to fix, so it can not be set to fix.
 	tidy(--unused-result=fix "${TESTS}/cases/conversions.bb")

@@ -32,6 +32,7 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-lossy-int-to-real", true, mode::FIX, "Converts on purpose: Float(value), Double(value), Half(value)", "" },
 		{ "one-declare-per-variable", true, mode::OFF, "Local a, b = 1 becomes one Local (or Global) per line.", "", "A Local or Global declares more than one variable." },
 		{ "parentheses-around-arguments", true, mode::OFF, "Foo 1, 2 becomes Foo(1, 2) for a command or function that is called as a statement.", "", "The arguments of a call that is a statement are not in parentheses." },
+		{ "resource-acquisition-is-initialization", true, mode::OFF, "Gives a variable a value where it is declared: 0, 0.0, \"\" or Null, or the value that the statement behind it assigns if that is free of side effects and not behind a condition. Never moves the result of a call (Create, Load, Copy...).", "A Global that is declared in a loop or in code with labels: the declaration then sets it again each time it is passed.", "A Local or Global is declared without a value, so that the variable can be used before something was assigned to it." },
 		{ "implicit-variable", true, mode::FIX, "Declares the variable with its type in front of the statement of the function that first uses it.", "Variables of the main program: an Include can declare them somewhere else." },
 		{ "unused-result", false, mode::REPORT, "", "" },
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },

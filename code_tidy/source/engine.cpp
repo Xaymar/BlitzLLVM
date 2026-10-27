@@ -355,6 +355,42 @@ namespace {
 	////////////////////////////////////////////////////////////////////////////
 	// Rules that are not warnings of the compiler
 	////////////////////////////////////////////////////////////////////////////
+	// Whether the expression has no side effects, and which variables it reads. A name counts as a variable only if the program declares
+	// it somewhere (and has no function of that name), as a name on its own can be a call.
+	bool free_of_effects(ast::expression const* expr, std::set<std::string> const& variables, std::set<std::string>& reads)
+	{
+		if (!expr) {
+			return false;
+		} else if (dynamic_cast<ast::literal const*>(expr)) {
+			return true;
+		} else if (auto r = dynamic_cast<ast::reference const*>(expr)) {
+			auto name = lower(r->name);
+			if (!variables.count(name)) {
+				return false;
+			}
+			reads.insert(name);
+			return true;
+		} else if (auto u = dynamic_cast<ast::unary const*>(expr)) {
+			return free_of_effects(u->operand.get(), variables, reads);
+		} else if (auto b = dynamic_cast<ast::binary const*>(expr)) {
+			return (b->kind != ast::binary::op::DIVIDE) && (b->kind != ast::binary::op::MODULO) && free_of_effects(b->lhs.get(), variables, reads) && free_of_effects(b->rhs.get(), variables, reads);
+		}
+		return false;
+	}
+
+	// What a new variable has before anything is assigned to it.
+	std::string default_value(ast::declaration const& var)
+	{
+		if (var.type == blitz::types::type::STRING) {
+			return "\"\"";
+		} else if (var.type == blitz::types::type::STRUCT) {
+			return "Null";
+		} else if (blitz::types::is_real(var.type)) {
+			return "0.0";
+		}
+		return "0";
+	}
+
 	std::string line_break(std::string const& text)
 	{
 		return (text.find("\r\n") != std::string::npos) ? "\r\n" : "\n";
@@ -584,9 +620,30 @@ namespace {
 			out.reports.push_back(std::move(r));
 		};
 
+		bool want_raii   = cfg.mode_of("resource-acquisition-is-initialization") != tidy::mode::OFF;
 		bool want_split  = cfg.mode_of("one-declare-per-variable") != tidy::mode::OFF;
 		bool want_parens = cfg.mode_of("parentheses-around-arguments") != tidy::mode::OFF;
-		if (want_split || want_parens) {
+		if (want_raii || want_split || want_parens) {
+			std::set<std::string> variables, functions;
+			for (auto const& fn : a.program->functions) {
+				functions.insert(lower(fn->name));
+				for (auto const& param : fn->parameters) {
+					variables.insert(lower(param.name));
+				}
+			}
+			for (auto const& ref : blocks) {
+				for (auto const& stmt : *ref.block) {
+					if (auto* d = dynamic_cast<ast::declare const*>(stmt.get())) {
+						for (auto const& var : d->variables) {
+							variables.insert(lower(var.name));
+						}
+					}
+				}
+			}
+			for (auto const& name : functions) {
+				variables.erase(name);
+			}
+
 			for (auto const& ref : blocks) {
 				auto& list = *ref.block;
 				for (size_t idx = 0; idx < list.size(); idx++) {
@@ -617,6 +674,74 @@ namespace {
 									joined += text.substr(vb, ve - vb);
 								}
 								offer("one-declare-per-variable", d->where, "More than one variable is declared in one statement.", { { first, last, joined } }, false);
+							}
+						}
+						if (want_raii) {
+							for (auto const& var : d->variables) {
+								if (var.initial || var.array_size || !is_file(var.where, primary) || (var.covers.line == 0)) {
+									continue;
+								}
+								// A Global is only set once when it has no value, but every time the declaration is passed when it has one.
+								bool unsafe = d->global && ((ref.block != ref.top) || ref.in_function || has_label[ref.top]);
+								std::vector<text_edit> edits;
+								size_t                 at = ln.offset(var.covers.end_line, var.covers.end_column);
+
+								// The statements in front of the assignment may only do things that don't matter to it: declare other variables or
+								// set them to values without side effects, and neither mention this variable nor change what the value reads.
+								std::string name = lower(var.name);
+								for (size_t next = idx + 1; next < list.size() && next <= idx + 8; next++) {
+									auto*                 other = list[next].get();
+									std::set<std::string> reads, writes;
+									if (auto* as = dynamic_cast<ast::assign const*>(other)) {
+										auto* target = dynamic_cast<ast::reference const*>(as->target.get());
+										if (!target || !free_of_effects(as->value.get(), variables, reads) || !variables.count(lower(target->name))) {
+											break;
+										}
+										if ((lower(target->name) == name) && !reads.count(name) && is_file(as->where, primary) && (as->value->covers.line != 0)) {
+											// Whatever was declared or set in between must not be something this value reads.
+											bool clash = false;
+											for (size_t between = idx + 1; between < next; between++) {
+												std::set<std::string> mentioned, ignored;
+												auto*                 mid = list[between].get();
+												if (auto* mid_as = dynamic_cast<ast::assign const*>(mid)) {
+													free_of_effects(mid_as->value.get(), variables, mentioned);
+													mentioned.insert(lower(dynamic_cast<ast::reference const*>(mid_as->target.get())->name));
+												} else if (auto* mid_d = dynamic_cast<ast::declare const*>(mid)) {
+													for (auto const& mv : mid_d->variables) {
+														free_of_effects(mv.initial.get(), variables, mentioned);
+														mentioned.insert(lower(mv.name));
+													}
+												}
+												clash = clash || mentioned.count(name);
+												for (auto const& written : mentioned) {
+													// Reading is fine, as long as nothing in between sets it: be strict and refuse every shared name.
+													clash = clash || reads.count(written);
+												}
+											}
+											size_t vb = ln.offset(as->value->covers.line, as->value->covers.column), ve = ln.offset(as->value->covers.end_line, as->value->covers.end_column);
+											std::vector<text_edit> merged;
+											if (!clash && (ve > vb) && delete_lines(ln, as->covers, as->covers, merged)) {
+												edits.push_back({ at, at, " = " + text.substr(vb, ve - vb) });
+												edits.insert(edits.end(), merged.begin(), merged.end());
+											}
+											break;
+										}
+									} else if (auto* od = dynamic_cast<ast::declare const*>(other)) {
+										bool fine = !od->constant;
+										for (auto const& ov : od->variables) {
+											fine = fine && !ov.array_size && (!ov.initial || free_of_effects(ov.initial.get(), variables, reads)) && (lower(ov.name) != name);
+										}
+										if (!fine) {
+											break;
+										}
+									} else {
+										break;
+									}
+								}
+								if (edits.empty()) {
+									edits.push_back({ at, at, " = " + default_value(var) });
+								}
+								offer("resource-acquisition-is-initialization", var.where, "'" + var.name + "' is declared without a value.", std::move(edits), unsafe);
 							}
 						}
 					} else if (want_parens) {
