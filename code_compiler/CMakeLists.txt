@@ -236,7 +236,7 @@ if(Python3_FOUND AND NOT WIN32)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
-foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug profile debug_info fast_math inline_checks runtime_inline stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout temp_directory warnings version verbose_long_only console_subsystem run run_exit_code diagnostics help)
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug profile debug_info fast_math inline_checks runtime_inline stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout temp_directory shell_quoting warnings version verbose_long_only console_subsystem run run_exit_code diagnostics help)
 	add_test(
 		NAME "cli-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}

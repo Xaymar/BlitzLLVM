@@ -1189,6 +1189,28 @@ elseif(CASE STREQUAL "temp_directory")
 		endforeach()
 	endif()
 
+elseif(CASE STREQUAL "shell_quoting")
+	# The compiler runs clang through a shell, and the names of the files are in the command. A name with a line break in it must not start another
+	# command, and a name with a quote, a ~ or a # in it has to be the name of the file.
+	if(CMAKE_HOST_WIN32)
+		return()
+	endif()
+	# This script is what a name that starts another command would run: a line break is not one of the characters that used to be quoted.
+	file(WRITE "${WORK}/ps" "#!/bin/sh\ntouch pwned\n")
+	file(CHMOD "${WORK}/ps" PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+	file(MAKE_DIRECTORY "${WORK}/line\n.")
+	set(_NAMES "line\n./ps" "quote'; touch pwned; '" "sub\$(touch pwned)" "~tilde" "hash #" "brace{a,b}" "star*" "bang!")
+	foreach(_NAME IN LISTS _NAMES)
+		blitzcc(+q "${PROGRAM}" -o "${WORK}/${_NAME}")
+		expect_ok()
+		if(NOT EXISTS "${WORK}/${_NAME}")
+			message(FATAL_ERROR "The executable '${_NAME}' was not made with that name.")
+		endif()
+		if(EXISTS "${WORK}/pwned")
+			message(FATAL_ERROR "The name '${_NAME}' started a command.")
+		endif()
+	endforeach()
+
 elseif(CASE STREQUAL "help")
 	blitzcc(--help)
 	expect_ok()
