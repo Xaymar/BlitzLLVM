@@ -208,6 +208,8 @@ Data 3, 4
 7
 ```
 
+`Restore` also works inside a function: it goes to a label of the main program, which is where `Data` is.
+
 ## Other keywords
 
 `Include "file.bb"` puts another source file in this place, `True` and `False` are 1 and 0, `Null` is the empty object, and `End` stops the program.

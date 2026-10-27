@@ -198,9 +198,13 @@ void blitz::compiler::gen_restore(ast::restore_statement const* node)
 {
 	size_t index = 0;
 	if (!node->label.empty()) {
-		auto it = _data_labels.find(_scope + ":" + lower(node->label));
+		// In a function the original looks for the label in the main program, where Data can be.
+		auto it = _data_labels.find(":" + lower(node->label));
 		if (it == _data_labels.end()) {
-			throw err(node->where, "Label '" + node->label + "' does not exist in this function.");
+			it = _data_labels.find(_scope + ":" + lower(node->label));
+		}
+		if (it == _data_labels.end()) {
+			throw err(node->where, "Label '" + node->label + "' does not exist.");
 		}
 		index = it->second;
 	}
