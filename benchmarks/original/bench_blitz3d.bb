@@ -23,7 +23,8 @@ Const WIDTH% = 640			; Size of the window, as in benchmarks/flythrough.bb.
 Const HEIGHT% = 360
 Const GFXMODE% = 2			; Always a window (2). Never run this full screen: the original changes the display settings of the system.
 Const WARMUP% = 5			; Frames that are drawn but not counted.
-Const SCALES% = 3			; How many of the sizes below are run (1 to 3). A computer that struggles can use 2.
+Const SCALES% = 2			; How many of the sizes below are run (1 to 3). 3 adds 100000 entities, which crashes the original Blitz3D (use it in BlitzLLVM only).
+Const MAXSPRITES% = 16000	; The original crashes with more than 16383 sprites, so sprite scenes with more entities are skipped.
 Const PAUSE_AT_END% = 1		; Wait for a key at the end, so that the window does not close.
 Const MAXOBJECTS% = 100000	; The largest size below.
 Const KINDS% = 16
@@ -35,7 +36,7 @@ Global logfile%
 Dim scaleobjects%(2)	; How many entities each size has,
 Dim scaleframes%(2)		; and how many frames are timed at that size.
 scaleobjects(0) = 2000 : scaleframes(0) = 300
-scaleobjects(1) = 20000 : scaleframes(1) = 300
+scaleobjects(1) = 10000 : scaleframes(1) = 300
 scaleobjects(2) = 100000 : scaleframes(2) = 100
 
 Dim ents%(MAXOBJECTS - 1)
@@ -247,9 +248,10 @@ MakeTemplates
 startms% = MilliSecs()
 ok% = 1
 For s% = 0 To SCALES - 1
-	If ok Then ok = RunScene("mixed", 0, 16, scaleobjects(s), scaleframes(s), camera)
+	; The mixed scene has a quarter sprites, the sprites scene all of them.
+	If ok And scaleobjects(s) / 4 <= MAXSPRITES Then ok = RunScene("mixed", 0, 16, scaleobjects(s), scaleframes(s), camera)
 	If ok Then ok = RunScene("meshes", 0, 12, scaleobjects(s), scaleframes(s), camera)
-	If ok Then ok = RunScene("sprites", 12, 4, scaleobjects(s), scaleframes(s), camera)
+	If ok And scaleobjects(s) <= MAXSPRITES Then ok = RunScene("sprites", 12, 4, scaleobjects(s), scaleframes(s), camera)
 Next
 If ok = 0 Then LogLine "# aborted=1"
 LogLine "SUMMARY bench=blitz3d total_ms=" + (MilliSecs() - startms)

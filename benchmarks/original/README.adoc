@@ -105,7 +105,7 @@ SUMMARY bench=blitz3d total_ms=…
 # done
 ----
 
-Three scenes at 2000, 20000 and 100000 entities (a million is too many for the original): `mixed` is all 16 kinds of the
+Three scenes at 2000 and 10000 entities (and 100000 with `SCALES = 3`, which crashes the original: it dies above 16383 sprites, so sprite scenes with more than `MAXSPRITES` entities are skipped, and the 100000 meshes scene crashes it too): `mixed` is all 16 kinds of the
 fly-through, `meshes` the 12 mesh kinds (cube, sphere, cone, cylinder, octahedron with lit, textured, flat, vertex colored,
 alpha, additive and two sided variants) and `sprites` the 4 sprite kinds (textured, alpha, additive, flat color). A frame
 is `RenderWorld` and `Flip False`. `ms_avg` is the whole timed part divided by the number of frames; the other `ms_*` are
@@ -115,7 +115,7 @@ single frames measured with `MilliSecs`, so they are whole milliseconds. `tris` 
 
 * `benchmarks/flythrough.py` has the same field density, kinds, window size (640x360) and camera path. Its positions come from
   `Rnd` and ours from a generator in the file, and the loaded model is a cube here, so the counts of the same scene are close
-  but not identical. Compare `ms_avg` of `mixed` at 20000 to the 20000 run of the fly-through.
+  but not identical. Compare `ms_avg` of `mixed` at 10000 to a 10000 run of the fly-through.
 * The original draws with DirectX 7 and has no draw call counters; the runtime of BlitzLLVM draws with Vulkan. Compare the
   numbers of a machine with the same GPU, and say what it is in `LABEL`.
 * The original in a window may wait for the monitor even with `Flip False` (desktop compositing). If `ms_avg` is stuck at
