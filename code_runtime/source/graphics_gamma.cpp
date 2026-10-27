@@ -120,7 +120,8 @@ namespace bb::gfx {
 	{
 		need_gamma();
 		bool identity = is_identity();
-		if (identity && !dither && !dump_path()) {
+		// A buffer of more than 8 bits per channel is always converted here, so that the picture is RGBA8 and Dither has something to hide.
+		if (identity && !dither && !dump_path() && (front.format == VK_FORMAT_R8G8B8A8_UNORM)) {
 			return &front;
 		}
 		if (!pipeline) {
