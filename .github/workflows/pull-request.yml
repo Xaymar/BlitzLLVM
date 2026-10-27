@@ -51,7 +51,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: windows-x64, os: windows-latest }
+          - { name: windows-x64, os: windows-latest, platform: x64, msystem: UCRT64, msys: 'make nasm diffutils mingw-w64-ucrt-x86_64-gcc' }
+          - { name: windows-arm64, os: windows-11-arm, platform: ARM64, msystem: CLANGARM64, msys: 'make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread' }
           - { name: linux-x64, os: ubuntu-latest }
           - { name: linux-arm64, os: ubuntu-24.04-arm }
           - { name: macos-arm64, os: macos-latest }
@@ -93,7 +94,7 @@ jobs:
         run: brew install ninja
       # dav1d (AVIF) has assembly for x86, which NASM builds.
       - name: Install Windows dependencies
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && runner.arch == 'X64'
         shell: bash
         run: |
           choco install nasm -y --no-progress
@@ -104,9 +105,9 @@ jobs:
         id: msys2
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          msystem: ${{ matrix.msystem }}
           update: false
-          install: make nasm diffutils mingw-w64-ucrt-x86_64-gcc
+          install: ${{ matrix.msys }}
       - name: Tell the build where MSYS2 is
         if: runner.os == 'Windows'
         shell: bash
@@ -127,7 +128,7 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON
+            cmake -S . -B build -G "Visual Studio 18 2026" -A ${{ matrix.platform }} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON
           else
             cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON
           fi
