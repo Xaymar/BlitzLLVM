@@ -64,11 +64,31 @@ set(_RT "${PROJECT_SOURCE_DIR}/../code_runtime/source")
 set(BLITZRT_INLINE_FILES "${_RT}/runtime.c" "${_RT}/runtime_objects.c" "${_RT}/runtime_strings.c" "${_RT}/runtime_system.c" "${_RT}/banks.c"
 	"${_RT}/runtime_internal.h" "${_RT}/files_internal.h" "${_RT}/streams.h")
 
+# The libraries of the runtime are per architecture: <runtime>/x86_64, <runtime>/arm64, <runtime>/x86. blitzcc picks the folder of the
+# target. macOS has none, where one universal library holds every architecture.
+if(CMAKE_GENERATOR_PLATFORM)
+	string(TOLOWER "${CMAKE_GENERATOR_PLATFORM}" _ARCH)
+else()
+	string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" _ARCH)
+endif()
+if(_ARCH MATCHES "^(x64|amd64|x86_64)$")
+	set(_ARCH "x86_64")
+elseif(_ARCH MATCHES "^(arm64|aarch64)$")
+	set(_ARCH "arm64")
+elseif(_ARCH MATCHES "^(win32|x86|i[3-6]86)$")
+	set(_ARCH "x86")
+endif()
+if(APPLE)
+	set(BLITZRT_ARCH_DIR "")
+else()
+	set(BLITZRT_ARCH_DIR "/${_ARCH}")
+endif()
+
 # The runtime library has to live next to the compiler, which links it into every program it produces.
 add_dependencies(${PROJECT_NAME} blitzrt)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime"
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/"
+	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime${BLITZRT_ARCH_DIR}"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime${BLITZRT_ARCH_DIR}/"
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BLITZRT_INLINE_FILES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline/"
 )
@@ -76,7 +96,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 # Install layout, the same as the system layout of the packages below: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime (the libraries
 # and the sources of the hot parts of the runtime) and <prefix>/userlibs. blitzcc finds the runtime from where it is.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
-install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime)
+install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR})
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
 # The licenses of BlitzLLVM and of every dependency that ends up in the program: <licenses>/BlitzLLVM, SDL3, SDL3_image, SDL3_mixer
@@ -99,7 +119,7 @@ blitz_install_licenses(licenses)
 # System layout for packages (deb, rpm, pkg), left out of a plain install: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime
 # and <prefix>/share/blitzllvm/userlibs. Only the packaging step installs this component, see the end of the top level CMakeLists.txt.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)
-install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime COMPONENT system EXCLUDE_FROM_ALL)
+install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR} COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES "userlibs/README.txt" DESTINATION share/blitzllvm/userlibs COMPONENT system EXCLUDE_FROM_ALL)
 blitz_install_licenses(share/licenses/blitzllvm COMPONENT system EXCLUDE_FROM_ALL)
