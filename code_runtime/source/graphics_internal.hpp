@@ -542,7 +542,7 @@ namespace bb::gfx {
 		float light_position[max_lights][4];
 		float light_color[max_lights][4];
 		float light_direction[max_lights][4]; // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
-		float projection[4];                // Near and far plane, and 1 if orthographic: turns depth back into distance for soft sprite edges.
+		float projection[4];                // Near and far plane, and 1 if orthographic: turns depth back into distance for soft sprite edges. Fourth: see dither_code.
 	};
 	static_assert(sizeof(scene_data) <= scene_stride, "The scene data has to fit in the stride that is between the cameras.");
 
@@ -779,6 +779,8 @@ namespace bb::gfx {
 	void allocate_descriptor(VkDescriptorSet& set);
 	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
 	gpu_image* apply_gamma(gpu_image& front);
+	/** Fourth value of scene_data::projection: 0 when Dither is off, else 1 plus the shift of the noise of the picture that is made now. */
+	float dither_code();
 	/** Writes the image that was presented to the file of BLITZ_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();

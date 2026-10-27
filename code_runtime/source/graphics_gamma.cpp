@@ -116,6 +116,11 @@ namespace {
 } // namespace
 
 namespace bb::gfx {
+	float dither_code()
+	{
+		return dither ? 1.0f + 5.588238f * float(presented % 64u) : 0.0f;
+	}
+
 	gpu_image* apply_gamma(gpu_image& front)
 	{
 		need_gamma();

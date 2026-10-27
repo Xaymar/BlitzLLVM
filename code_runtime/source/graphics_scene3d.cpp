@@ -2420,7 +2420,7 @@ namespace bb::gfx {
 		data.projection[0] = cam.cam_near;
 		data.projection[1] = cam.cam_far;
 		data.projection[2] = (cam.cam_projection == 2) ? 1.0f : 0.0f;
-		data.projection[3] = 0;
+		data.projection[3] = dither_code();
 		memset(data.eye, 0, sizeof(float) * 3);
 		for (uint32_t i = 0; i < current_light_count; i++) {
 			float* light = data.light_position[i];

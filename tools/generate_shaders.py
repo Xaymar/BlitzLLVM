@@ -833,6 +833,21 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
         rgb = b.swizzle(result, 3)
         rgb = b.fadd(v3, rgb, b.scale(3, b.fsub(v3, fog_color, rgb), amount))
         result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
+        # Dither: the fourth value of the projection is 0 when it is off, else 1 plus the shift of the noise of this frame.
+        # The color gets temporal Interleaved Gradient Noise (Jimenez, 2014) of less than half a step of the 8 bit target
+        # before it is rounded, so that lighting, fog and blending are not bands but a pattern, and exact colors stay.
+        #   float w = scene.projection.w; vec2 xy = floor(gl_FragCoord.xy) + vec2(w - 1.0);
+        #   rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0 * step(0.5, w);
+        w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
+        frag = b.load(v4, in_frag)
+        shift = b.fsub(f, w, c1)
+        px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
+        py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
+        along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
+        noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
+        offset = b.fmul(f, b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0)), b.ext(f, GLSL_STEP, b.const_float(0.5), w))
+        rgb = b.fadd(v3, rgb, b.scale(3, b.const_vec(3, 1.0), offset))
+        result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
     b.store(out_color, result)
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
