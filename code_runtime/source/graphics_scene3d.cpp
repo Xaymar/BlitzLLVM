@@ -410,7 +410,8 @@ namespace bb::gfx {
 		info.pDepthAttachment     = &depth;
 		vkCmdBeginRendering(g.cmd, &info);
 
-		VkViewport viewport = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
+		// Direct3D 7 has the centers of its pixels on whole numbers and Vulkan half a pixel further, so the picture moves by that to land where Blitz3D puts it.
+		VkViewport viewport = { float(scene.x) + 0.5f, float(scene.y) + 0.5f, float(scene.w), float(scene.h), 0, 1 };
 		VkRect2D   scissor  = { { scene.x, scene.y }, { uint32_t(scene.w), uint32_t(scene.h) } };
 		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
