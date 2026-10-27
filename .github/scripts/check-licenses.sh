@@ -19,6 +19,7 @@ required=(
 	SDL3_mixer/optional/LICENSE.opus.txt
 	SDL3_mixer/optional/LICENSE.opusfile.txt
 	SDL3_mixer/optional/LICENSE.ogg-vorbis.txt
+	FFmpeg/COPYING.LGPLv2.1
 	Vulkan-Headers/LICENSE.md
 	stb/LICENSE
 )

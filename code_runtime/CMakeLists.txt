@@ -94,6 +94,7 @@ target_include_directories(blitzrt SYSTEM PRIVATE
 	"${SDL3_image_INSTALL_PATH}/include"
 	"${SDL3_mixer_INSTALL_PATH}/include"
 	"${VulkanHeaders_INSTALL_PATH}/include"
+	"${FFMPEG_INSTALL_PATH}/include"
 	"${PROJECT_SOURCE_DIR}/third_party/stb"
 )
 if(NOT MSVC AND NOT APPLE)

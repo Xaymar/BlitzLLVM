@@ -277,6 +277,116 @@ blitz_dependency(SDL3_mixer SDL_mixer
 
 blitz_check_licenses(SDL3_mixer AFTER ${_SDL3_MIXER_LICENSES})
 
+# FFmpeg plays the movies (OpenMovie and the other movie commands). It is built as shared libraries and with the LGPL parts only
+# (no --enable-gpl and no --enable-nonfree), so the library that programs load can be replaced by the user, which is what the LGPL asks
+# of programs that use it. The runtime does not link to them: it loads them when a movie is opened (see movie.cpp), so programs
+# that don't play movies don't need them, and a program whose libraries are missing just gets 0 from OpenMovie. Only the demuxers and
+# decoders listed here are built, which keeps the libraries at about 8 MiB.
+#
+# FFmpeg does not build with CMake: it has a configure script and Makefiles that need a Unix shell, and a compiler that is GCC or Clang.
+# On Linux and macOS that is the system's. On Windows that is MSYS2 (https://www.msys2.org, the UCRT64 environment with gcc, make, nasm and
+# diffutils), found through the environment variable BLITZLLVM_MSYS2 or in C:/msys64. The libraries are built there, once, at configure
+# time, and what programs load from them is only the C interface of the DLLs, which any compiler's programs can use.
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/FFmpeg/configure")
+	message(FATAL_ERROR "The submodule 'third_party/FFmpeg' is missing, run 'git submodule update --init' first.")
+endif()
+set(_FFMPEG_SOURCE "${PROJECT_SOURCE_DIR}/third_party/FFmpeg")
+set(_FFMPEG_ROOT "${CMAKE_BINARY_DIR}/ExternalContentFiles")
+set(FFMPEG_INSTALL_PATH "${_FFMPEG_ROOT}/FFmpeg.dst")
+set(_FFMPEG_BUILD "${_FFMPEG_ROOT}/FFmpeg.bld")
+set(_FFMPEG_ARGS
+	--enable-shared --disable-static --disable-programs --disable-doc --disable-debug --disable-autodetect --disable-everything
+	--disable-avdevice --disable-avfilter --disable-network --enable-swscale --enable-swresample --enable-pic
+	--enable-protocol=file
+	--enable-demuxer=avi,mov,matroska,mpegps,mpegts,asf,ogg,flv,mp3,wav,mpegvideo,m4v
+	--enable-parser=h264,hevc,mpeg4video,mpegvideo,vp8,vp9,aac,aac_latm,ac3,mpegaudio,vorbis,opus,flac,mjpeg
+	--enable-decoder=mpeg1video,mpeg2video,mpeg4,msmpeg4v1,msmpeg4v2,msmpeg4v3,h264,hevc,vp8,vp9,theora,wmv1,wmv2,wmv3,mjpeg
+	--enable-decoder=aac,mp3,mp3float,mp2,mp2float,ac3,vorbis,opus,wmav1,wmav2,flac,pcm_s16le,pcm_u8,pcm_s16be,adpcm_ms,adpcm_ima_wav
+)
+if(APPLE)
+	# The libraries find each other next to themselves, wherever the program that loads them is.
+	list(APPEND _FFMPEG_ARGS --install-name-dir=@loader_path)
+endif()
+if(WIN32)
+	# The threads of Windows and a C runtime inside the DLLs keep MSYS2's runtime DLLs out of the files that are shipped.
+	list(APPEND _FFMPEG_ARGS --enable-w32threads --extra-ldflags=-static-libgcc)
+endif()
+
+function(blitz_build_ffmpeg)
+	execute_process(
+		COMMAND "${GIT_EXECUTABLE}" -C "${_FFMPEG_SOURCE}" rev-parse HEAD
+		OUTPUT_VARIABLE _REVISION OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+	string(SHA256 _STAMP_TEXT "${_REVISION} ${_FFMPEG_ARGS} ${CMAKE_C_COMPILER}")
+	set(_STAMP "${_FFMPEG_ROOT}/FFmpeg.stamp")
+	if(EXISTS "${_STAMP}" AND EXISTS "${FFMPEG_INSTALL_PATH}/include/libavformat/avformat.h")
+		file(READ "${_STAMP}" _STAMPED)
+		if(_STAMPED STREQUAL _STAMP_TEXT)
+			return()
+		endif()
+	endif()
+
+	message(STATUS "Building FFmpeg (shared, LGPL) in ${_FFMPEG_BUILD}, which takes a few minutes")
+	file(REMOVE_RECURSE "${_FFMPEG_BUILD}" "${FFMPEG_INSTALL_PATH}")
+	file(MAKE_DIRECTORY "${_FFMPEG_BUILD}")
+	cmake_host_system_information(RESULT _CORES QUERY NUMBER_OF_LOGICAL_CORES)
+
+	if(WIN32)
+		set(_MSYS2 "$ENV{BLITZLLVM_MSYS2}")
+		if(NOT _MSYS2)
+			set(_MSYS2 "C:/msys64")
+		endif()
+		file(TO_CMAKE_PATH "${_MSYS2}" _MSYS2)
+		if(NOT EXISTS "${_MSYS2}/usr/bin/bash.exe")
+			message(FATAL_ERROR "FFmpeg is built with MSYS2, which was not found in '${_MSYS2}'. Install it from https://www.msys2.org (and gcc, make, nasm and diffutils in its UCRT64 environment), or set the environment variable BLITZLLVM_MSYS2 to where it is.")
+		endif()
+		# Paths of Windows (C:/a/b) are /c/a/b in MSYS2.
+		foreach(_VARIABLE IN ITEMS _FFMPEG_SOURCE _FFMPEG_BUILD FFMPEG_INSTALL_PATH)
+			string(REGEX REPLACE "^([A-Za-z]):" "/\\1" ${_VARIABLE}_UNIX "${${_VARIABLE}}")
+		endforeach()
+		string(REPLACE ";" " " _CONFIGURE_ARGS "${_FFMPEG_ARGS}")
+		set(_SCRIPT "${_FFMPEG_ROOT}/FFmpeg.sh")
+		file(WRITE "${_SCRIPT}" "set -e\ncd '${_FFMPEG_BUILD_UNIX}'\n'${_FFMPEG_SOURCE_UNIX}/configure' --prefix='${FFMPEG_INSTALL_PATH_UNIX}' --target-os=mingw32 --cc=gcc ${_CONFIGURE_ARGS}\nmake -j${_CORES}\nmake install\n")
+		string(REGEX REPLACE "^([A-Za-z]):" "/\\1" _SCRIPT_UNIX "${_SCRIPT}")
+		set(_COMMANDS COMMAND "${CMAKE_COMMAND}" -E env MSYSTEM=UCRT64 CHERE_INVOKING=1 "${_MSYS2}/usr/bin/bash.exe" -lc "bash '${_SCRIPT_UNIX}'")
+		execute_process(${_COMMANDS} RESULT_VARIABLE _RESULT)
+	else()
+		execute_process(
+			COMMAND "${_FFMPEG_SOURCE}/configure" "--prefix=${FFMPEG_INSTALL_PATH}" "--cc=${CMAKE_C_COMPILER}" ${_FFMPEG_ARGS}
+			WORKING_DIRECTORY "${_FFMPEG_BUILD}" RESULT_VARIABLE _RESULT
+		)
+		if(_RESULT EQUAL 0)
+			execute_process(COMMAND make "-j${_CORES}" WORKING_DIRECTORY "${_FFMPEG_BUILD}" RESULT_VARIABLE _RESULT)
+		endif()
+		if(_RESULT EQUAL 0)
+			execute_process(COMMAND make install WORKING_DIRECTORY "${_FFMPEG_BUILD}" RESULT_VARIABLE _RESULT)
+		endif()
+	endif()
+	if(NOT _RESULT EQUAL 0)
+		message(FATAL_ERROR "Building FFmpeg failed (see above). It needs make, a C compiler and, on x86, NASM; on Windows it is built in MSYS2.")
+	endif()
+	file(WRITE "${_STAMP}" "${_STAMP_TEXT}")
+endfunction()
+blitz_build_ffmpeg()
+
+# The shared libraries by the name that programs open them with: libavcodec.so.61, libavcodec.61.dylib and avcodec-61.dll.
+if(WIN32)
+	file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/bin/*.dll")
+elseif(APPLE)
+	file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/lib/lib*.dylib")
+	list(FILTER _FFMPEG_LIBRARIES INCLUDE REGEX "\\.[0-9]+\\.dylib$")
+else()
+	file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/lib/lib*.so.*")
+	list(FILTER _FFMPEG_LIBRARIES INCLUDE REGEX "\\.so\\.[0-9]+$")
+endif()
+list(LENGTH _FFMPEG_LIBRARIES _FFMPEG_COUNT)
+if(NOT _FFMPEG_COUNT EQUAL 5)
+	message(FATAL_ERROR "FFmpeg should have built 5 libraries (avutil, swresample, swscale, avcodec and avformat), but built: ${_FFMPEG_LIBRARIES}")
+endif()
+# The licenses of FFmpeg go with its libraries: its own notice, and the LGPL that lets the user replace them.
+file(MAKE_DIRECTORY "${FFMPEG_INSTALL_PATH}/share/licenses/FFmpeg")
+file(COPY "${_FFMPEG_SOURCE}/COPYING.LGPLv2.1" "${_FFMPEG_SOURCE}/LICENSE.md" DESTINATION "${FFMPEG_INSTALL_PATH}/share/licenses/FFmpeg")
+
 if(WIN32)
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
 	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/SDL3_image-static.lib")
@@ -303,5 +413,5 @@ list(REMOVE_ITEM _SDL3_MIXER_CODECS "${_SDL3_MIXER_LIBRARY}")
 
 # Libraries that programs have to link to, which the compiler copies next to itself.
 # The licenses of SDL_image and SDL_mixer and of the codecs built into them, whose notices have to be shipped with programs that include them.
-set(BLITZRT_LICENSES "${SDL3_image_INSTALL_PATH}/share/licenses" "${SDL3_mixer_INSTALL_PATH}/share/licenses" PARENT_SCOPE)
-set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" ${_SDL3_IMAGE_CODECS} "${_SDL3_MIXER_LIBRARY}" ${_SDL3_MIXER_CODECS} PARENT_SCOPE)
+set(BLITZRT_LICENSES "${SDL3_image_INSTALL_PATH}/share/licenses" "${SDL3_mixer_INSTALL_PATH}/share/licenses" "${FFMPEG_INSTALL_PATH}/share/licenses" PARENT_SCOPE)
+set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" ${_SDL3_IMAGE_CODECS} "${_SDL3_MIXER_LIBRARY}" ${_SDL3_MIXER_CODECS} ${_FFMPEG_LIBRARIES} PARENT_SCOPE)

@@ -97,6 +97,19 @@ jobs:
         run: |
           choco install nasm -y --no-progress
           echo 'C:\Program Files\NASM' >> "$GITHUB_PATH"
+      # FFmpeg (movies) has a configure script, so on Windows it is built in MSYS2 (see code_runtime/dependencies.cmake).
+      - name: Install MSYS2 for FFmpeg
+        if: runner.os == 'Windows'
+        id: msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: false
+          install: make nasm diffutils mingw-w64-ucrt-x86_64-gcc
+      - name: Tell the build where MSYS2 is
+        if: runner.os == 'Windows'
+        shell: bash
+        run: echo "BLITZLLVM_MSYS2=${{ steps.msys2.outputs.msys2-location }}" >> "$GITHUB_ENV"
       # SDL3, SDL3_image (with its AVIF, JPEG XL and WebP codecs), SDL3_mixer and the Vulkan headers come from the submodules in third_party/ and are built by ExternalContent (see code_runtime/dependencies.cmake),
       # which skips every stage whose inputs are unchanged. Restoring its directory therefore skips their compilation entirely. Their
       # build options are defined in that file, so it is part of the key, and so are the ExternalContent module and the commits of the dependency submodules.
