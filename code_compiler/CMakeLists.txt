@@ -180,17 +180,28 @@ if(Python3_FOUND)
 		foreach(_MODE IN ITEMS on off)
 			add_test(NAME "gui-autosuspend-${_MODE}" COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/gui/autosuspend.py" $<TARGET_FILE:${PROJECT_NAME}> ${_MODE} "${PROJECT_BINARY_DIR}/gui/autosuspend-${_MODE}")
 			set_tests_properties("gui-autosuspend-${_MODE}" PROPERTIES LABELS "gui;gpu" SKIP_RETURN_CODE 77 RUN_SERIAL TRUE)
+			add_test(NAME "gui-autosuspend-debug-${_MODE}" COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/gui/autosuspend.py" $<TARGET_FILE:${PROJECT_NAME}> ${_MODE} "${PROJECT_BINARY_DIR}/gui/autosuspend-debug-${_MODE}")
+			set_tests_properties("gui-autosuspend-debug-${_MODE}" PROPERTIES LABELS "gui;gpu" SKIP_RETURN_CODE 77 RUN_SERIAL TRUE ENVIRONMENT "BLITZCC_OPTIONS=-d")
 		endforeach()
 	endif()
 endif()
 
 # Closing a window that has an AppTitle close prompt needs a window, so it only runs with the GPU tests.
 if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
-	add_test(
-		NAME close-prompt_pixels
-		COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/close_prompt.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/close_prompt.bb" "${PROJECT_BINARY_DIR}/cli/close_prompt"
-	)
-	set_tests_properties(close-prompt_pixels PROPERTIES LABELS "gpu")
+	foreach(_CONFIG IN ITEMS release debug)
+		set(_NAME close-prompt_pixels)
+		if(_CONFIG STREQUAL "debug")
+			set(_NAME close-prompt-debug_pixels)
+		endif()
+		add_test(
+			NAME ${_NAME}
+			COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/close_prompt.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/close_prompt.bb" "${PROJECT_BINARY_DIR}/cli/close_prompt-${_CONFIG}"
+		)
+		set_tests_properties(${_NAME} PROPERTIES LABELS "gpu")
+		if(_CONFIG STREQUAL "debug")
+			set_property(TEST ${_NAME} APPEND PROPERTY ENVIRONMENT "BLITZCC_OPTIONS=-d")
+		endif()
+	endforeach()
 endif()
 
 # BLITZ_FPS=1 only reports in programs that were compiled with --profile.
@@ -208,6 +219,11 @@ endif()
 if(Python3_FOUND AND NOT WIN32)
 	add_test(NAME audio-output COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/audio/audio_output.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${PROJECT_BINARY_DIR}/audio")
 	set_tests_properties(audio-output PROPERTIES LABELS "audio" SKIP_RETURN_CODE 77 TIMEOUT 600)
+	add_test(NAME audio-output-debug COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/audio/audio_output.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${PROJECT_BINARY_DIR}/audio-debug")
+	set_tests_properties(audio-output-debug PROPERTIES LABELS "audio" SKIP_RETURN_CODE 77 TIMEOUT 600 ENVIRONMENT "BLITZCC_OPTIONS=-d")
+	# They measure what comes out of the speakers in real time (the Doppler pitch, the loops), so they run alone: a busy machine
+	# makes them miss.
+	set_tests_properties(audio-output audio-output-debug PROPERTIES RUN_SERIAL TRUE)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
