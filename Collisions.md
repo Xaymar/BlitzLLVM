@@ -22,7 +22,7 @@ Collisions source_type:Int32, destination_type:Int32, method:Int32, response:Int
 | `source_type` | Int32 | required | Collision type of the entities that move. |
 | `destination_type` | Int32 | required | Collision type of the entities they can hit. |
 | `method` | Int32 | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
-| `response` | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. |
+| `response` | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. Any other value slides without limiting how far, like the original. |
 
 ## Description
 
@@ -46,7 +46,7 @@ Hidden entities, and entities with a hidden parent, are not collided with.
 
 ## Differences
 
-* Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
+* Types outside 0 to 999, or a method outside 1 to 3, stop the program with a runtime error.
 
 ## Examples
 

@@ -61,7 +61,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [ClientHeight](ClientHeight#differences): The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask.
 * [ClientWidth](ClientWidth#differences): The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask.
 * [CloseMovie](CloseMovie#differences): Nothing , the same as the original.
-* [Collisions](Collisions#differences): Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
+* [Collisions](Collisions#differences): Types outside 0 to 999, or a method outside 1 to 3, stop the program with a runtime error.
 * [CollisionTime](CollisionTime#differences): The official help says this is the time taken to calculate the collision.
 * [Confirm](Confirm#differences): The box is a message box of the operating system and not part of the program window.
 * [CopyEntity](CopyEntity#differences): A copy of a hidden entity is visible, where the original gives the copy the hidden state.
