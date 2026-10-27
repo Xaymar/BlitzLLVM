@@ -96,9 +96,7 @@ void bb_end_graphics(void)
 			destroy_image(depth_cache[i]);
 		}
 		if (scratch) {
-			vkDestroyBuffer(g.device, scratch, nullptr);
-			vkFreeMemory(g.device, scratch_memory, nullptr);
-			scratch = VK_NULL_HANDLE;
+			destroy_buffer(scratch, scratch_allocation);
 			scratch_size = 0;
 		}
 		empty_graveyard();

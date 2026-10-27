@@ -604,7 +604,7 @@ namespace bb::gfx {
 	extern bb::buffer<image_entry> image_table;
 	extern bb::buffer<sampler_entry> sampler_table;
 	extern VkBuffer       scratch;
-	extern VkDeviceMemory scratch_memory;
+	extern VmaAllocation  scratch_allocation;
 	extern VkDeviceSize   scratch_size;
 	extern bb::buffer<graveyard_entry> graveyard;
 	extern int    profile_submits;
