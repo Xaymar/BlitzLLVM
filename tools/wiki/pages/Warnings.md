@@ -54,7 +54,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 | `implicit-string-to-number` | 1 | A String assigned or passed to a number. It is 0 if it does not start with a number. |
 | `implicit-lossy-int-to-real` | 2 | An integer assigned or passed to a real number that can not hold all its values (`Int` to `Float`, `Long` to `Double`). |
 | `implicit-variable` | 2 | A variable that was never declared with `Local`, `Global` or `Dim`. Blitz makes it a local one, so this is legal. |
-| `unused-result` | 2 | A function is called as a statement and its result is thrown away. |
+| `unused-result` | 2 | A function that returns a value is called as a statement, and the value is thrown away. Built-in and `.decls` functions without a result, and functions of the program that never `Return` a value, do not warn. A call in an expression, `If` or `Select` is a use. |
 | `implicit-number-to-string` | 3 | A number assigned or passed to a String. |
 | `unreachable-code` (notice) | 3 | A statement after `Return`, `End`, `Goto` or `Exit` in the same block, which can never run. Labels and `Data` do not count. Only the first one is reported. |
 | `unused-variable` (notice) | 3 | A `Local` or `Global` variable that is never read (writing to it does not count). It is optimized away. |
