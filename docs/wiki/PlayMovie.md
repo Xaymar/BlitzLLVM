@@ -30,8 +30,9 @@ PlayMovie movie
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
 * [MovieHeight](MovieHeight)
+* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
-* [MovieWidth](MovieWidth)
+* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 

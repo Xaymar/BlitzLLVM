@@ -11,3 +11,5 @@ The originals play a movie from its first picture to its last: `OpenMovie`, `Dra
 | --- | --- |
 | [PauseMovie](PauseMovie) | Holds the picture, stops the sound and the clock of the movie. |
 | [PlayMovie](PlayMovie) | Goes on after a pause. |
+| [MovieLength](MovieLength) | How long the movie is, in seconds. |
+| [MoviePosition](MoviePosition) | Where the movie is, in seconds. |

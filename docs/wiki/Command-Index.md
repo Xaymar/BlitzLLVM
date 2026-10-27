@@ -507,7 +507,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [MoveEntity](MoveEntity)
 * [MoveMouse](MoveMouse)
 * [MovieHeight](MovieHeight)
+* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
+* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
 * [MovieWidth](MovieWidth)
 
 ## N

@@ -402,7 +402,9 @@ lockbuffer	graphics	done	LockBuffer%buffer=0
 maskimage	graphics	done	MaskImage%image%red%green%blue
 midhandle	graphics	done	MidHandle%image
 movieheight	graphics	done	%MovieHeight%movie
+movielength	graphics	done	#MovieLength%movie
 movieplaying	graphics	done	%MoviePlaying%movie
+movieposition	graphics	done	#MoviePosition%movie
 moviewidth	graphics	done	%MovieWidth%movie
 openmovie	graphics	done	%OpenMovie$file
 origin	graphics	done	Origin%x%y
