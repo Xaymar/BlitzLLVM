@@ -403,6 +403,11 @@ def build(commands):
     write("_Sidebar", sidebar(cats))
 
 
+def body_of(path):
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
 def check(commands, blitzcc):
     errors = []
     for c in commands:
@@ -420,9 +425,10 @@ def check(commands, blitzcc):
         for m in re.finditer(r"\]\(([A-Za-z0-9_-]+)(?:#[^)\s]*)?\)", body):
             if m.group(1) not in pages:
                 errors.append("%s links to the missing page %s" % (fn, m.group(1)))
-        for m in re.finditer(r"\]\((media/[^)\s]+)\)", body):
-            if not os.path.exists(os.path.join(WIKI, m.group(1))):
-                errors.append("%s uses the missing file %s" % (fn, m.group(1)))
+        for m in re.finditer(r"\]\((media/[^)\s]+)\)|src=\"(media/[^\"]+)\"", body):
+            used = m.group(1) or m.group(2)
+            if not os.path.exists(os.path.join(WIKI, used)):
+                errors.append("%s uses the missing file %s" % (fn, used))
     for c in commands:
         path = os.path.join(WIKI, c.name + ".md")
         if os.path.exists(path):
@@ -432,6 +438,8 @@ def check(commands, blitzcc):
             if order != sorted(set(order), key=PAGE_SECTIONS.index) or len(order) != len(set(order)):
                 errors.append("%s has the sections %s, they must be in the order %s" %
                               (c.name, ", ".join(order), ", ".join(PAGE_SECTIONS)))
+            if '<div align="center">' not in body_of(path) or "\n* [" in body_of(path).split("## Related Commands")[-1]:
+                errors.append("%s needs a centered navigation and its related commands in one comma separated line" % c.name)
             for need in ("Command Syntax", "Description", "Related Commands"):
                 if need not in heads:
                     errors.append("%s has no '%s' section" % (c.name, need))
