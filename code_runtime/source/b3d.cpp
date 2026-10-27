@@ -21,7 +21,14 @@ using namespace bb::models;
 
 namespace {
 
-	void read_node(reader& r, size_t end, model& m, int parent);
+	// How many nodes can hang from each other. A file says how its nodes are nested, and a file that is nothing but nested nodes has
+	// room for a lot more of them than the stack has for the calls that read them.
+	constexpr int max_depth = 256;
+
+	// The most that Blitz3D makes: 8 sets of texture coordinates, with up to 4 numbers each, and 8 textures for a brush.
+	constexpr int max_sets = 8, max_set_size = 4, max_brush_textures = 8;
+
+	void read_node(reader& r, size_t end, model& m, int parent, int depth);
 
 	void read_mesh(reader& r, size_t end, node_info& node)
 	{
@@ -39,6 +46,10 @@ namespace {
 			}
 			if (!strcmp(tag, "VRTS")) {
 				int flags = r.read_int(), sets = r.read_int(), set_size = r.read_int();
+				if ((sets < 0) || (sets > max_sets) || (set_size < 0) || (set_size > max_set_size)) {
+					r.failed = true; // A count from the file that is read for every vertex.
+					return;
+				}
 				node.has_normals = (flags & 1) != 0;
 				while ((r.pos < stop) && !r.failed) {
 					vertex_info v;
@@ -86,8 +97,12 @@ namespace {
 		}
 	}
 
-	void read_node(reader& r, size_t end, model& m, int parent)
+	void read_node(reader& r, size_t end, model& m, int parent, int depth)
 	{
+		if (depth > max_depth) {
+			r.failed = true;
+			return;
+		}
 		node_info* node = new node_info();
 		node->parent    = parent;
 		node->name      = r.read_string();
@@ -141,7 +156,7 @@ namespace {
 					m.fps    = fps > 0 ? fps : 60;
 				}
 			} else if (!strcmp(tag, "NODE")) {
-				read_node(r, stop, m, index);
+				read_node(r, stop, m, index, depth + 1);
 			}
 			r.pos = stop;
 		}
@@ -197,6 +212,10 @@ namespace {
 					}
 				} else if (!strcmp(tag, "BRUS")) {
 					int textures = r.read_int();
+					if ((textures < 0) || (textures > max_brush_textures)) {
+						r.failed = true;
+						break;
+					}
 					while ((r.pos < stop) && !r.failed) {
 						brush_info b;
 						free(r.read_string());
@@ -213,7 +232,7 @@ namespace {
 						m.brushes.push(b);
 					}
 				} else if (!strcmp(tag, "NODE") && (m.nodes.size == 0)) {
-					read_node(r, stop, m, -1);
+					read_node(r, stop, m, -1, 0);
 				}
 				r.pos = stop;
 			}
