@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <tuple>
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 using namespace bb::gfx;
@@ -794,18 +795,55 @@ namespace bb::gfx {
 				units.push_back(i);
 			}
 		}
-		auto key = [](draw_record const& d) {
-			return std::make_tuple(uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+		// The draws that only differ in their data have the same state, which gets a number.
+		struct state_key {
+			uintptr_t pipeline, vertex_buffer, index_buffer;
+			uint32_t  index_count;
+			int       texture;
+			bool      cull, depth_write;
+			bool operator==(state_key const& o) const
+			{
+				return (pipeline == o.pipeline) && (vertex_buffer == o.vertex_buffer) && (index_buffer == o.index_buffer) && (index_count == o.index_count)
+					&& (texture == o.texture) && (cull == o.cull) && (depth_write == o.depth_write);
+			}
 		};
+		struct state_hash {
+			size_t operator()(state_key const& k) const
+			{
+				size_t h = k.pipeline * 31 + k.vertex_buffer;
+				h        = h * 31 + k.index_buffer;
+				h        = h * 31 + k.index_count;
+				h        = h * 31 + size_t(k.texture);
+				return h * 4 + (k.cull ? 2 : 0) + (k.depth_write ? 1 : 0);
+			}
+		};
+		std::unordered_map<state_key, int, state_hash> states;
 		// The screen is cut into cells; each remembers the layer and state of the last draw that touched it.
 		const int           grid = 32;
 		std::vector<int>    cell_layer(grid * grid, -1), cell_state(grid * grid, -1);
 		std::vector<int>    layer(units.size()), state(units.size());
-		std::map<decltype(key(draws[first])), int> states;
+		state_key recent_key[4] = {};
+		int       recent_id[4] = {}, recent_count = 0, recent_next = 0;
 		auto cell = [&](float v) { return std::min(grid - 1, std::max(0, int(floorf((v * 0.5f + 0.5f) * grid)))); };
 		for (size_t u = 0; u < units.size(); u++) {
 			draw_record const& d = draws[units[u]];
-			state[u]             = states.emplace(key(d), int(states.size())).first->second;
+			state_key k = { uintptr_t(d.pipeline), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture, d.cull, d.depth_write };
+			// The same few states come again and again, so the last ones are looked at before the table is.
+			int found = -1;
+			for (int r = 0; r < recent_count; r++) {
+				if (recent_key[r] == k) {
+					found = recent_id[r];
+					break;
+				}
+			}
+			if (found < 0) {
+				found                           = states.emplace(k, int(states.size())).first->second;
+				recent_key[recent_next % 4]     = k;
+				recent_id[recent_next % 4]      = found;
+				recent_next++;
+				recent_count = std::min(recent_count + 1, 4);
+			}
+			state[u] = found;
 			int x0 = cell(d.screen[0]), x1 = cell(d.screen[2]), y0 = cell(d.screen[1]), y1 = cell(d.screen[3]);
 			int at = 0;
 			for (int y = y0; y <= y1; y++) {
@@ -824,11 +862,31 @@ namespace bb::gfx {
 				}
 			}
 		}
-		std::vector<uint32_t> order(units.size());
-		for (size_t u = 0; u < order.size(); u++) {
-			order[u] = uint32_t(u);
+		// Layer by layer, and in each the same states together, with the order the draws had otherwise (a counting sort,
+		// which keeps the order of equal keys).
+		size_t                states_count = states.size();
+		int                   layers       = 0;
+		for (int l : layer) {
+			layers = std::max(layers, l + 1);
 		}
-		std::stable_sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return std::make_pair(layer[a], state[a]) < std::make_pair(layer[b], state[b]); });
+		std::vector<uint32_t> order(units.size());
+		if (size_t(layers) * states_count <= (size_t(1) << 20)) {
+			std::vector<uint32_t> start(size_t(layers) * states_count + 1, 0);
+			for (size_t u = 0; u < units.size(); u++) {
+				start[size_t(layer[u]) * states_count + size_t(state[u]) + 1]++;
+			}
+			for (size_t k = 1; k < start.size(); k++) {
+				start[k] += start[k - 1];
+			}
+			for (size_t u = 0; u < units.size(); u++) {
+				order[start[size_t(layer[u]) * states_count + size_t(state[u])]++] = uint32_t(u);
+			}
+		} else {
+			for (size_t u = 0; u < order.size(); u++) {
+				order[u] = uint32_t(u);
+			}
+			std::stable_sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return std::make_pair(layer[a], state[a]) < std::make_pair(layer[b], state[b]); });
+		}
 		std::vector<draw_record> sorted;
 		sorted.reserve(last - first);
 		for (uint32_t u : order) {
