@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 PickedNY:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The Y part of the surface normal at the picked point.
 
-## Related commands
+## Related Commands
 
 * [PickedEntity](PickedEntity)
 * [PickedNX](PickedNX)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 GadgetGroup:Int32 gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The handle of the group (window, panel, tabber or canvas) that holds the gadget.
 
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [GadgetFont](GadgetFont)

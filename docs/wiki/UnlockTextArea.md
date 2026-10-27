@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 UnlockTextArea textarea:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Allows the text area to be redrawn again after [LockTextArea](LockTextArea) and shows what changed.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `textarea` | Int32 | required | Handle of a text area. |
 
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [CreateTextArea](CreateTextArea)

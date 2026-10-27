@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 RotateMesh mesh:Int32, pitch:Float32, yaw:Float32, roll:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Turns every vertex of a mesh around the origin, permanently. The angles are in degrees. It is how you stand a model upright or tilt a part before merging it with [AddMesh](AddMesh).
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Turns every vertex of a mesh around the origin, permanently. The angles are in d
 | `yaw` | Float32 | required | Rotation around Y in degrees. |
 | `roll` | Float32 | required | Rotation around Z in degrees. |
 
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CopyMesh](CopyMesh)

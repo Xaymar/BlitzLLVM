@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 ClearSurface surface:Int32, clear_vertices:Int32=1, clear_triangles:Int32=1
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Removes the vertices, the triangles or both from a surface. The surface itself stays, ready to receive new geometry. Together with [AddVertex](AddVertex) this is the way to rebuild a mesh every frame or to switch to a different level of detail. If you remove only the vertices, remove the triangles as well, since they point at the vertices.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `surface` | Int32 | required | Surface handle. |
+| `clear_vertices` | Int32 | `1` | 1 to remove the vertices. Defaults to 1. |
+| `clear_triangles` | Int32 | `1` | 1 to remove the triangles. Defaults to 1. |
+
+## Examples
 
 ```blitzbasic
 mesh = CreateMesh()
@@ -26,13 +40,7 @@ ClearSurface surf
 Print CountVertices(surf) + " vertices, " + CountTriangles(surf) + " triangles"
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `clear_vertices` | Int32 | `1` | 1 to remove the vertices. Defaults to 1. |
-| `clear_triangles` | Int32 | `1` | 1 to remove the triangles. Defaults to 1. |
-
-## Related commands
+## Related Commands
 
 * [CreateSurface](CreateSurface)
 * [FindSurface](FindSurface)

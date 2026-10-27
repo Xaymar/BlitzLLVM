@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 FreeTreeViewNode node:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Removes a node together with all nodes below it. The root must not be freed.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `node` | Int32 | required | Handle of a node. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,11 +37,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `node` | Int32 | required | Handle of a node. |
-
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [CollapseTreeViewNode](CollapseTreeViewNode)

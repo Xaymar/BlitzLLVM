@@ -6,11 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 MilliSecs:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+**Returns:** A number of milliseconds that keeps growing while the program runs. Its start is not fixed, so use the difference between two calls to measure time.
+
+## Examples
 
 ```blitzbasic
 start = MilliSecs()
@@ -22,9 +34,7 @@ Print MilliSecs() - start >= 45
 1
 ```
 
-**Returns:** A number of milliseconds that keeps growing while the program runs. Its start is not fixed, so use the difference between two calls to measure time.
-
-## Related commands
+## Related Commands
 
 * [GetEnv](GetEnv)
 * [Microseconds](Microseconds) 〔BlitzLLVM〕

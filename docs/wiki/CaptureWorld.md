@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 CaptureWorld
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -18,7 +22,7 @@ Remembers the position, rotation and scale of every entity, so that [RenderWorld
 
 * The original also remembers the alpha and the color of every entity and blends them during a tween. Only the position, rotation and scale are blended here: a fade or color change shows up in the last tween step at once.
 
-## Related commands
+## Related Commands
 
 * [AmbientLight](AmbientLight)
 * [ClearWorld](ClearWorld)

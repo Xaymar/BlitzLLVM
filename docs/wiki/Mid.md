@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Mid:String string:String, start:Int32, count:Int32=-1
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns a piece from the middle of a string. The first character is number 1. Without a count it takes everything to the end, and a count that is too long is cut off at the end.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text. |
+| `start` | Int32 | required | Position of the first character to take. |
+| `count` | Int32 | `-1` | How many characters to take. Defaults to all that are left. |
+
+**Returns:** The piece of the string.
+
+## Examples
 
 ```blitzbasic
 Print Mid$("hello", 2, 3)
@@ -24,15 +40,7 @@ ell
 llo
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
-| `start` | Int32 | required | Position of the first character to take. |
-| `count` | Int32 | `-1` | How many characters to take. Defaults to all that are left. |
-
-**Returns:** The piece of the string.
-
-## Related commands
+## Related Commands
 
 * [Lower](Lower)
 * [LSet](LSet)

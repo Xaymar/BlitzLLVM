@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 FontSize:Int32 font:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The size in points.
 
-## Related commands
+## Related Commands
 
 * [FontAscent](FontAscent)
 * [FontDescent](FontDescent)

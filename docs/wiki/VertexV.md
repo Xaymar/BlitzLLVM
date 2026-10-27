@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 VertexV:Float32 surface:Int32, index:Int32, coord_set:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -22,7 +28,7 @@ _Not documented yet._
 
 **Returns:** The vertical texture coordinate of the vertex.
 
-## Related commands
+## Related Commands
 
 * [VertexAlpha](VertexAlpha)
 * [VertexBlue](VertexBlue)

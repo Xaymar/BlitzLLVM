@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 LoadBuffer:Int32 buffer:Int32, bmpfile:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Loads a picture file into a buffer, stretched to cover all of it. Returns whether the file could be loaded.
+
+**Differences and known gaps:**
+
+* Formats other than BMP load as well. The picture is always scaled to the size of the buffer, with smooth filtering.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `buffer` | Int32 | required | The buffer to fill. |
+| `bmpfile` | String | required | The path of the picture file. |
+
+**Returns:** 1 if the picture was loaded, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,18 +47,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | required | The buffer to fill. |
-| `bmpfile` | String | required | The path of the picture file. |
-
-**Returns:** 1 if the picture was loaded, otherwise 0.
-
-**Differences and known gaps:**
-
-* Formats other than BMP load as well. The picture is always scaled to the size of the buffer, with smooth filtering.
-
-## Related commands
+## Related Commands
 
 * [BackBuffer](BackBuffer)
 * [BufferDirty](BufferDirty)

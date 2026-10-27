@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 ActivateGadget gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the keyboard focus to a gadget, so that typing goes to it. Use it to put the cursor in a text field when a window opens. Giving the focus to the window itself makes keys like Escape reach the window again.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of the gadget that should get the focus. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,13 +36,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![ActivateGadget](media/gadgets/activategadget.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget that should get the focus. |
-
-## Related commands
+## Related Commands
 
 * [AddGadgetItem](AddGadgetItem)
 * [ClearGadgetItems](ClearGadgetItems)

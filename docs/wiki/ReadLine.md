@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 ReadLine:String stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Reads text up to the end of the line. Lines may end with a line feed or with a carriage return and a line feed, and a last line without an ending is read as well. The line ending is not part of the result.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `stream` | Int32 | required | The stream to read from. |
+
+**Returns:** The text of the line.
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("streams_line_example.tmp")
@@ -37,13 +51,7 @@ b
 c
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to read from. |
-
-**Returns:** The text of the line.
-
-## Related commands
+## Related Commands
 
 * [ReadAvail](ReadAvail)
 * [ReadByte](ReadByte)

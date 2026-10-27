@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 ActiveWindow:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 _Not documented yet._
 
-**Returns:** The handle of the window that is active now, or the one that was active last when your program has lost the focus. 0 if no window was made yet.
-
 **Differences and known gaps:**
 
 * The windows are inside the program's own window, so there is no "none of ours is active" state: the answer is always the window that was activated most recently.
 
-## Related commands
+## Parameters
+
+**Returns:** The handle of the window that is active now, or the one that was active last when your program has lost the focus. 0 if no window was made yet.
+
+## Related Commands
 
 * [ActivateWindow](ActivateWindow)
 * [CreateWindow](CreateWindow)

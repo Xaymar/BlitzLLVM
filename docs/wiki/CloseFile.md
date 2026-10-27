@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 CloseFile file_stream:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Closes a file and writes out everything that is still waiting to be written. Always close the files you opened.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file_stream` | Int32 | required | The file handle. |
 
-## Related commands
+## Related Commands
 
 * [CloseDir](CloseDir)
 * [CopyFile](CopyFile)

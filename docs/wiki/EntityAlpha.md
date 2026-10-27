@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityAlpha entity:Int32, alpha:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets how see-through an entity is: 1 is solid, 0 is invisible and values in between let what is behind show through. An entity with alpha 0 is not drawn at all but still takes part in collisions, unlike [HideEntity](HideEntity). See-through entities are drawn after the solid ones.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `alpha` | Float32 | required | Opacity from 0 to 1. Defaults to 1 on a new entity. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -33,14 +46,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![EntityAlpha](media/blitz3d/entityalpha.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `alpha` | Float32 | required | Opacity from 0 to 1. Defaults to 1 on a new entity. |
-
-## Related commands
+## Related Commands
 
 * [EntityAutoFade](EntityAutoFade)
 * [EntityBlend](EntityBlend)

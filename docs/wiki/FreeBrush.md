@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 FreeBrush brush:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Releases a brush. Things that were painted with it keep the look they got, because painting copies the settings. Textures that were assigned to the brush are not freed by this, use [FreeTexture](FreeTexture) for them.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `brush` | Int32 | required | The brush to free. |
 
-## Related commands
+## Related Commands
 
 * [BrushAlpha](BrushAlpha)
 * [BrushBlend](BrushBlend)

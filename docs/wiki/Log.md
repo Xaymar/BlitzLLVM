@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Log:Float32 float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the natural logarithm (base e) of a number. For base 10 use [Log10](Log10).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `float` | Float32 | required | A number above 0. |
+
+**Returns:** The natural logarithm.
+
+## Examples
 
 ```blitzbasic
 Print Log(10)
@@ -22,13 +36,7 @@ Print Log(10)
 2.30259
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | A number above 0. |
-
-**Returns:** The natural logarithm.
-
-## Related commands
+## Related Commands
 
 * [Half](Half) 〔BlitzLLVM〕
 * [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕

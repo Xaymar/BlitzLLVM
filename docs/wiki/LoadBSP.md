@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
 
+## Command Syntax
+
 ```blitzbasic
 LoadBSP:Int32 file:String, gamma_adj:Float32=0, parent:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -17,6 +21,24 @@ Loads a Quake 3 level (`.bsp`, version 46) as one entity. The level is an ordina
 The textures of the level are found by the names inside the file, with `.tga`, `.jpg`, `.png` or `.dds` added, next to the level and in the folders above it. Faces that the level marks as sky, hidden or not solid are not drawn, and a level cannot be painted, textured, colored or faded like other entities.
 
 The example below builds a minimal level file itself, so it runs without any level from a game: a floor, a wall and a curved hill. The faces have no textures, which leaves the colors of the vertices.
+
+**Differences and known gaps:**
+
+* Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices. gamma_adjust lifts the lightmaps (each value is raised to 1 / (1 + gamma)), which is not necessarily what the original does. Visibility data is not used, so all of the level is always drawn.
+* The original lights a BSP with point and spot lights but not with ambient or directional ones. Here no light affects it; it is drawn as its vertex colors say, scaled by BSPAmbientLight.
+* Curved patches are cut into a fixed number of triangles, and billboard faces are skipped.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | The `.bsp` file. |
+| `gamma_adj` | Float32 | `0` |  |
+| `parent` | Int32 | `0` | Optional parent entity. The level is still created at 0, 0, 0. |
+
+**Returns:** An entity handle, or 0 if the file is not a Quake 3 level.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -94,23 +116,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![LoadBSP](media/bsp/loadbsp.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The `.bsp` file. |
-| `gamma_adj` | Float32 | `0` |  |
-| `parent` | Int32 | `0` | Optional parent entity. The level is still created at 0, 0, 0. |
-
-**Returns:** An entity handle, or 0 if the file is not a Quake 3 level.
-
-**Differences and known gaps:**
-
-* Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices. gamma_adjust lifts the lightmaps (each value is raised to 1 / (1 + gamma)), which is not necessarily what the original does. Visibility data is not used, so all of the level is always drawn.
-* The original lights a BSP with point and spot lights but not with ambient or directional ones. Here no light affects it; it is drawn as its vertex colors say, scaled by BSPAmbientLight.
-* Curved patches are cut into a fixed number of triangles, and billboard faces are skipped.
-
-## Related commands
+## Related Commands
 
 * [BSPAmbientLight](BSPAmbientLight)
 * [BSPLighting](BSPLighting)

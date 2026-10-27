@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 FlushEvents kind:Int32=-1, source:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Throws away events that are waiting, so they are never delivered by [WaitEvent](WaitEvent). Without parameters everything goes. A kind removes only that one, a kind with the low byte zero such as $100 removes the whole group of keys, and a source removes only what came from there.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `kind` | Int32 | `-1` | Event kind or group to remove. Defaults to -1, which means all. |
+| `source` | Int32 | `0` | Only remove events from this object. Defaults to 0, which means any. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -23,12 +36,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `kind` | Int32 | `-1` | Event kind or group to remove. Defaults to -1, which means all. |
-| `source` | Int32 | `0` | Only remove events from this object. Defaults to 0, which means any. |
-
-## Related commands
+## Related Commands
 
 * [CreateProcess](CreateProcess)
 * [DebugObjects](DebugObjects)

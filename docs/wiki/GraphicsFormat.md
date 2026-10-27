@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GraphicsFormat:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 How the pixels of the graphics window are stored, as a number that BlitzPlus uses: 1 is 16 bit 5-6-5, 2 is 16 bit 5-5-5, 3 is 24 bit and 4 is 32 bit.
 
-**Returns:** The format number.
-
 **Differences and known gaps:**
 
 * Always 4.
 
-## Related commands
+## Parameters
+
+**Returns:** The format number.
+
+## Related Commands
 
 * [EndGraphics](EndGraphics)
 * [GfxModeFormat](GfxModeFormat)

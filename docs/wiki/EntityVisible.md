@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 EntityVisible:Int32 src_entity:Int32, dest_entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Tells whether two entities have a clear line of sight between their origins. Every entity with a pick mode that is an obscurer, see [EntityPickMode](EntityPickMode), blocks the view; the two entities themselves and hidden entities never do.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `src_entity` | Int32 | required | The entity that looks. |
+| `dest_entity` | Int32 | required | The entity it looks at. |
+
+**Returns:** True if nothing in the way blocks the line, otherwise False.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -35,14 +50,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_entity` | Int32 | required | The entity that looks. |
-| `dest_entity` | Int32 | required | The entity it looks at. |
-
-**Returns:** True if nothing in the way blocks the line, otherwise False.
-
-## Related commands
+## Related Commands
 
 * [EntityPick](EntityPick)
 * [EntityPickMode](EntityPickMode)

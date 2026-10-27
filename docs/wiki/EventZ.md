@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
+## Command Syntax
+
 ```blitzbasic
 EventZ:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the third value of an event. Most events leave it at 0, it is only filled in when a [HotKeyEvent](HotKeyEvent) says what to put there. The official help lists this command as undocumented.
+
+## Parameters
+
+**Returns:** The Z value, 0 if the event has none.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,9 +34,7 @@ Repeat
 Until e = $803
 ```
 
-**Returns:** The Z value, 0 if the event has none.
-
-## Related commands
+## Related Commands
 
 * [EventData](EventData)
 * [EventID](EventID)

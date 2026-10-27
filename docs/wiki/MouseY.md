@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseY:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The vertical position of the pointer in the graphics buffer, from 0 at the top to `GraphicsHeight() - 1`. See [MouseX](MouseX).
 
+## Parameters
+
 **Returns:** The vertical position of the pointer.
 
-## Related commands
+## Related Commands
 
 * [MouseDown](MouseDown)
 * [MouseHit](MouseHit)

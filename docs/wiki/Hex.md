@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Hex:String value:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Turns a number into hexadecimal digits. The result always has 8 digits, so negative numbers show their two's complement form.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `value` | Int32 | required | The number to convert. |
+
+**Returns:** A string of 8 digits, 0 to 9 and A to F.
+
+## Examples
 
 ```blitzbasic
 Print Hex$(255)
@@ -24,13 +38,7 @@ Print Hex$(-1)
 FFFFFFFF
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `value` | Int32 | required | The number to convert. |
-
-**Returns:** A string of 8 digits, 0 to 9 and A to F.
-
-## Related commands
+## Related Commands
 
 * [CurrentDate](CurrentDate)
 * [CurrentTime](CurrentTime)

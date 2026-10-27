@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 Microseconds:UInt64
 ```
+
+## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
@@ -18,6 +22,15 @@ Like [MilliSecs](MilliSecs), but counts microseconds (millionths of a second) an
 * The start of the count is not fixed, like `MilliSecs`: only differences between two calls mean something. The clock is the system clock, so it can jump when the time is set.
 * A 32-bit `Int` would overflow after 35 minutes, and a `Float` (24 bits of precision) stops counting single microseconds after 16 seconds. See [Types everywhere](Types) for the other new types.
 
+**Differences and known gaps:**
+
+* The value is a `UInt64`, which no original command returns. Assign it to a variable declared with `:UInt64` to keep all of its digits, as an `Int` or a `Float` only holds part of them.
+
+## Parameters
+
+**Returns:** A number of microseconds that keeps growing while the program runs, as a `UInt64`. It does not wrap around like [MilliSecs](MilliSecs) does, and its start is not fixed, so use the difference between two calls to measure time.
+
+## Examples
 
 ```blitzbasic
 start:UInt64 = Microseconds()
@@ -29,13 +42,7 @@ Print Microseconds() - start >= 45000
 1
 ```
 
-**Returns:** A number of microseconds that keeps growing while the program runs, as a `UInt64`. It does not wrap around like [MilliSecs](MilliSecs) does, and its start is not fixed, so use the difference between two calls to measure time.
-
-**Differences and known gaps:**
-
-* The value is a `UInt64`, which no original command returns. Assign it to a variable declared with `:UInt64` to keep all of its digits, as an `Int` or a `Float` only holds part of them.
-
-## Related commands
+## Related Commands
 
 * [FreeTimer](FreeTimer)
 * [GetEnv](GetEnv)

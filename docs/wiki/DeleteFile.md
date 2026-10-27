@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 DeleteFile file:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Deletes a file for good. It does not go to a recycle bin.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | The file to delete. |
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("files_delete_example.tmp")
@@ -25,11 +37,7 @@ Print FileType("files_delete_example.tmp")
 0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The file to delete. |
-
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [CopyFile](CopyFile)

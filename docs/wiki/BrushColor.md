@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 BrushColor brush:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets the color the brush multiplies onto the surface: the red, green and blue parts range from 0 to 255 and are clamped. The default is 255, 255, 255, which leaves textures unchanged.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Sets the color the brush multiplies onto the surface: the red, green and blue pa
 | `green` | Float32 | required | Green part, 0 to 255. |
 | `blue` | Float32 | required | Blue part, 0 to 255. |
 
-## Related commands
+## Related Commands
 
 * [BrushAlpha](BrushAlpha)
 * [BrushBlend](BrushBlend)

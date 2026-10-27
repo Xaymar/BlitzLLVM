@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 GetSamplerLodBias:Float32 sampler:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Returns the lod bias that the sampler has, as it was set with [SetSamplerLodBias](SetSamplerLodBias) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: a number of mip levels.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Returns the lod bias that the sampler has, as it was set with [SetSamplerLodBias
 
 **Returns:** The setting: a number of mip levels.
 
-## Related commands
+## Related Commands
 
 * [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
 * [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕

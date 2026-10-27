@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 DrawBlock image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws a frame of an image without any transparency, so the mask color is drawn like any other. It is faster than [DrawImage](DrawImage) for pictures that fill a rectangle completely, such as backgrounds.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image to draw. |
+| `x` | Int32 | required | Horizontal position of the handle of the image. |
+| `y` | Int32 | required | Vertical position of the handle of the image. |
+| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -34,16 +49,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![DrawBlock](media/images/drawblock.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to draw. |
-| `x` | Int32 | required | Horizontal position of the handle of the image. |
-| `y` | Int32 | required | Vertical position of the handle of the image. |
-| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [DrawBlockRect](DrawBlockRect)
 * [DrawImage](DrawImage)

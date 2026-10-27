@@ -6,11 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 BankSize:Int32 bank:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `bank` | Int32 | required | The bank handle. |
+
+**Returns:** The size of a bank in bytes.
+
+## Examples
 
 ```blitzbasic
 bank = CreateBank(16)
@@ -22,13 +38,7 @@ FreeBank bank
 16
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank handle. |
-
-**Returns:** The size of a bank in bytes.
-
-## Related commands
+## Related Commands
 
 * [CopyBank](CopyBank)
 * [CreateBank](CreateBank)

@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 RemoveGadgetItem gadget:Int32, index:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Takes one entry out of a list box, combo box or tabber. The entries after it move up by one.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| `index` | Int32 | required | Number of the entry, starting at 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,12 +38,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
-| `index` | Int32 | required | Number of the entry, starting at 0. |
-
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [AddGadgetItem](AddGadgetItem)

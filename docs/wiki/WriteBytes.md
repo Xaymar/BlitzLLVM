@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 WriteBytes:Int32 bank:Int32, file:Int32, offset:Int32, count:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes bytes from a bank to an open file.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -23,7 +29,7 @@ Writes bytes from a bank to an open file.
 
 **Returns:** The number of bytes that were written.
 
-## Related commands
+## Related Commands
 
 * [ReadBytes](ReadBytes)
 * [ResizeBank](ResizeBank)

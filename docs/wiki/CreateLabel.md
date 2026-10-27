@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 CreateLabel:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
@@ -22,18 +26,11 @@ Makes a piece of text that does not react to the user and sends no events. Long 
 
 Add 65536 to keep it from following when its group is resized.
 
-```blitzbasic
-Graphics 320, 240, 32, 2
-win = CreateWindow("Labels", 10, 10, 300, 200, Desktop(), 3)
-CreateLabel "No frame", 10, 10, 160, 24, win, 0
-CreateLabel "Black frame", 10, 40, 160, 24, win, 1
-CreateLabel "3D frame", 10, 70, 160, 24, win, 3
-CreateLabel "Wraps by itself," + Chr$(13) + "or by hand.", 10, 100, 220, 50, win
-Repeat
-Until WaitEvent() = $803
-```
+**Differences and known gaps:**
 
-![CreateLabel](media/gadgets/createlabel.png)
+* Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none). Letters are not as wide as the ones of the Windows interface, so a gadget may need a little more or less room than on Windows.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -47,11 +44,24 @@ Until WaitEvent() = $803
 
 **Returns:** A handle for the label.
 
-**Differences and known gaps:**
+## Examples
 
-* Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none). Letters are not as wide as the ones of the Windows interface, so a gadget may need a little more or less room than on Windows.
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Labels", 10, 10, 300, 200, Desktop(), 3)
+CreateLabel "No frame", 10, 10, 160, 24, win, 0
+CreateLabel "Black frame", 10, 40, 160, 24, win, 1
+CreateLabel "3D frame", 10, 70, 160, 24, win, 3
+CreateLabel "Wraps by itself," + Chr$(13) + "or by hand.", 10, 100, 220, 50, win
+Repeat
+Until WaitEvent() = $803
+```
 
-## Related commands
+## Media
+
+![CreateLabel](media/gadgets/createlabel.png)
+
+## Related Commands
 
 * [CreateButton](CreateButton)
 * [CreateComboBox](CreateComboBox)

@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 SoundVolume sound:Int32, volume:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets the volume that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelVolume](ChannelVolume) for those.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
 | `volume` | Float32 | required | 0 is silence and 1 is full volume. |
 
-## Related commands
+## Related Commands
 
 * [ChannelVolume](ChannelVolume)
 * [FreeSound](FreeSound)

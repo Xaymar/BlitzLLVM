@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 VWait frames:Int32=1
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Waits for the display to finish showing a picture, which is used to keep a program at the speed of the display.
+
+**Differences and known gaps:**
+
+* There is no vertical blank to wait for, so VWait waits 16 milliseconds for each frame (60 frames per second). Use `Flip` with `vwait` for the real display timing.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `frames` | Int32 | `1` | How many frames to wait for. Defaults to 1. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -22,15 +38,7 @@ Print "30 frames took " + (MilliSecs() - t) + " ms"
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `frames` | Int32 | `1` | How many frames to wait for. Defaults to 1. |
-
-**Differences and known gaps:**
-
-* There is no vertical blank to wait for, so VWait waits 16 milliseconds for each frame (60 frames per second). Use `Flip` with `vwait` for the real display timing.
-
-## Related commands
+## Related Commands
 
 * [TotalVidMem](TotalVidMem)
 * [UpdateGamma](UpdateGamma)

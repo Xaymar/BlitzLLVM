@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 GrabImage image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Copies a part of the current buffer into a frame of an image. The part has the size of the image and starts at the given position, so this is the way to take a screenshot into an image or to build a sprite from something that was drawn.
+
+**Differences and known gaps:**
+
+* Parts that lie outside of the buffer are not copied and keep what the frame had before.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image to copy into. |
+| `x` | Int32 | required | Left edge of the part of the buffer to copy. |
+| `y` | Int32 | required | Top edge of the part of the buffer to copy. |
+| `frame` | Int32 | `0` | The frame to copy into. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -32,20 +51,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![GrabImage](media/images/grabimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to copy into. |
-| `x` | Int32 | required | Left edge of the part of the buffer to copy. |
-| `y` | Int32 | required | Top edge of the part of the buffer to copy. |
-| `frame` | Int32 | `0` | The frame to copy into. Defaults to 0. |
-
-**Differences and known gaps:**
-
-* Parts that lie outside of the buffer are not copied and keep what the frame had before.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

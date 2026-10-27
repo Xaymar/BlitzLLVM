@@ -6,15 +6,33 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 LoadAnimImage:Int32 bmpfile:String, cellwidth:Int32, cellheight:Int32, first:Int32, count:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Loads a picture file that contains several frames next to each other and cuts it into the frames of one image. Frames are counted from left to right, then from top to bottom, and each is `cellwidth` by `cellheight` pixels. Choose one with the frame number of [DrawImage](DrawImage).
 
 The example makes its own sheet first with [CreateImage](CreateImage) and [SaveImage](SaveImage), so that it needs no other file.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `bmpfile` | String | required |  |
+| `cellwidth` | Int32 | required | Width of one frame. |
+| `cellheight` | Int32 | required | Height of one frame. |
+| `first` | Int32 | required | Number of the first frame in the sheet, usually 0. |
+| `count` | Int32 | required | How many frames to cut out. |
+
+**Returns:** A handle for the image, or 0 if the file could not be loaded or the frame size does not fit.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -37,17 +55,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bmpfile` | String | required |  |
-| `cellwidth` | Int32 | required | Width of one frame. |
-| `cellheight` | Int32 | required | Height of one frame. |
-| `first` | Int32 | required | Number of the first frame in the sheet, usually 0. |
-| `count` | Int32 | required | How many frames to cut out. |
-
-**Returns:** A handle for the image, or 0 if the file could not be loaded or the frame size does not fit.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

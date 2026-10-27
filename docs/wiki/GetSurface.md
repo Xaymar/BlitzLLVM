@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 GetSurface:Int32 mesh:Int32, surface_index:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Gets the handle of one surface of a mesh, which you need for every surface command. The index starts at 1, so visit all surfaces with a loop from 1 to [CountSurfaces](CountSurfaces). This is also how you reach the surfaces of a mesh you loaded or of a primitive such as a cube.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `mesh` | Int32 | required | Mesh handle. |
+| `surface_index` | Int32 | required | Number of the surface, 1 up to the number of surfaces. |
+
+**Returns:** The handle of the surface.
+
+## Examples
 
 ```blitzbasic
 mesh = CreateCube()
@@ -22,14 +37,7 @@ For i = 1 To CountSurfaces(mesh)
 Next
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `surface_index` | Int32 | required | Number of the surface, 1 up to the number of surfaces. |
-
-**Returns:** The handle of the surface.
-
-## Related commands
+## Related Commands
 
 * [ClearSurface](ClearSurface)
 * [CreateSurface](CreateSurface)

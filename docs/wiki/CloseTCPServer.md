@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 CloseTCPServer tcp_server:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Stops a TCP server. Streams that it accepted stay open.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `tcp_server` | Int32 | required | The server to close. |
 
-## Related commands
+## Related Commands
 
 * [AcceptTCPStream](AcceptTCPStream)
 * [CloseTCPStream](CloseTCPStream)

@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 AddTriangle:Int32 surface:Int32, v0:Int32, v1:Int32, v2:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Joins three vertices of a surface into a triangle and returns the index of the triangle, which counts from 0. A triangle is only drawn when seen from the side where its corners go clockwise, which is why the order matters: if your triangle does not show, swap two of its vertices, or draw both sides with the 16 flag of [EntityFX](EntityFX). The runtime stops with an error for a vertex index that does not exist.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `surface` | Int32 | required | Surface handle. |
+| `v0` | Int32 | required | Index of the first corner. |
+| `v1` | Int32 | required | Index of the second corner. |
+| `v2` | Int32 | required | Index of the third corner. |
+
+**Returns:** The index of the new triangle, starting at 0.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -38,18 +55,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![AddTriangle](media/blitz3d/addtriangle.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `v0` | Int32 | required | Index of the first corner. |
-| `v1` | Int32 | required | Index of the second corner. |
-| `v2` | Int32 | required | Index of the third corner. |
-
-**Returns:** The index of the new triangle, starting at 0.
-
-## Related commands
+## Related Commands
 
 * [AddVertex](AddVertex)
 * [ClearSurface](ClearSurface)

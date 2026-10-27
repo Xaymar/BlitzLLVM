@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
+## Command Syntax
+
 ```blitzbasic
 CreateNetPlayer:Int32 name:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Creates a player that belongs to this program and tells the other programs about it, who see it as a message of type 100. Players are what messages are sent from and to.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `name` | String | required | The name of the player. |
+
+**Returns:** A player number, or 0 when there is no game.
+
+## Examples
 
 ```blitzbasic
 If HostNetGame("my game") = 2
@@ -21,13 +35,7 @@ If HostNetGame("my game") = 2
 EndIf
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `name` | String | required | The name of the player. |
-
-**Returns:** A player number, or 0 when there is no game.
-
-## Related commands
+## Related Commands
 
 * [DeleteNetPlayer](DeleteNetPlayer)
 * [HostNetGame](HostNetGame)

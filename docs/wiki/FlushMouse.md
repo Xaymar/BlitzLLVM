@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 FlushMouse
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Forgets mouse button presses that nobody has looked at yet: the queue behind [GetMouse](GetMouse) and [WaitMouse](WaitMouse), the presses counted for [MouseHit](MouseHit), and the movement counted by the speed functions. Use it before a screen that waits for a click so that earlier clicks do not skip it, but not in the main loop.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -27,7 +33,7 @@ Flip
 WaitMouse
 ```
 
-## Related commands
+## Related Commands
 
 * [GetMouse](GetMouse)
 * [MouseDown](MouseDown)

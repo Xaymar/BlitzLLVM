@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 GadgetFont:Int32 gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the font a gadget is drawn with. The official help lists the command as undocumented.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Gives the font a gadget is drawn with. The official help lists the command as un
 
 **Returns:** A font handle, or 0 if it uses the default font.
 
-## Related commands
+## Related Commands
 
 * [GadgetGroup](GadgetGroup)
 * [GadgetHeight](GadgetHeight)

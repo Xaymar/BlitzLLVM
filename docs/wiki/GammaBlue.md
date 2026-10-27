@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GammaBlue:Float32 blue:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The output value of the blue gamma table for an input value, as set by [SetGamma](SetGamma). By default every value gives itself.
+
+**Differences and known gaps:**
+
+* The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ The output value of the blue gamma table for an input value, as set by [SetGamma
 
 **Returns:** The output value for the input.
 
-**Differences and known gaps:**
-
-* The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
-
-## Related commands
+## Related Commands
 
 * [GammaGreen](GammaGreen)
 * [GammaRed](GammaRed)

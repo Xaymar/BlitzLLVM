@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 ClientWidth:Int32 group:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the width of the area of a group that gadgets can use, without frame or scroll bars. For [Desktop](Desktop) it is the width of the screen.
+
+**Differences and known gaps:**
+
+* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `group` | Int32 | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
+
+**Returns:** The usable width in pixels.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -23,17 +41,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `group` | Int32 | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
-
-**Returns:** The usable width in pixels.
-
-**Differences and known gaps:**
-
-* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
-
-## Related commands
+## Related Commands
 
 * [ActiveWindow](ActiveWindow)
 * [ClientHeight](ClientHeight)

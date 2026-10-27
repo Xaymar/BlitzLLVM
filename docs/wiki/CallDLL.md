@@ -6,18 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 CallDLL:Int32 dll_name:String, func_name:String, in_bank:Int32=0, out_bank:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Calls a function in a dynamic library and returns what it returns. The function is passed the banks, and a library or function that does not exist makes the call return 0 instead of failing. Which libraries exist depends on the platform, so a program that uses this is only as portable as the library it calls.
 
-```blitzbasic
-; Windows only: asks the system which process this is
-Print CallDLL("kernel32", "GetCurrentProcessId")
-```
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -28,7 +29,14 @@ Print CallDLL("kernel32", "GetCurrentProcessId")
 
 **Returns:** The value the function returned, or 0 when the library or function was not found.
 
-## Related commands
+## Examples
+
+```blitzbasic
+; Windows only: asks the system which process this is
+Print CallDLL("kernel32", "GetCurrentProcessId")
+```
+
+## Related Commands
 
 * [BankSize](BankSize)
 * [CopyBank](CopyBank)

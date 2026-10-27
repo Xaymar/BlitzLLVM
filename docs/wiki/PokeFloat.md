@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 PokeFloat bank:Int32, offset:Int32, value:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes a float in 4 bytes (IEEE 754 single precision).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `bank` | Int32 | required | The bank to write to. |
+| `offset` | Int32 | required | Position in bytes. |
+| `value` | Float32 | required | The float to store. |
+
+## Examples
 
 ```blitzbasic
 bank = CreateBank(4)
@@ -27,13 +41,7 @@ FreeBank bank
 3FC00000
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to write to. |
-| `offset` | Int32 | required | Position in bytes. |
-| `value` | Float32 | required | The float to store. |
-
-## Related commands
+## Related Commands
 
 * [PeekFloat](PeekFloat)
 * [PokeByte](PokeByte)

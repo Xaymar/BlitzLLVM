@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Cos:Float32 degrees:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the cosine of an angle given in degrees, not radians.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `degrees` | Float32 | required | The angle in degrees. |
+
+**Returns:** A value from -1 to 1.
+
+## Examples
 
 ```blitzbasic
 Print Cos(60)
@@ -22,13 +36,7 @@ Print Cos(60)
 0.5
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `degrees` | Float32 | required | The angle in degrees. |
-
-**Returns:** A value from -1 to 1.
-
-## Related commands
+## Related Commands
 
 * [ACos](ACos)
 * [ByteSwap](ByteSwap) 〔BlitzLLVM〕

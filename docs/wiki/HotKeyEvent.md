@@ -6,23 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 HotKeyEvent rawkey:Int32, modifier:Int32, ev_id:Int32, ev_data:Int32=0, ev_x:Int32=0, ev_y:Int32=0, ev_z:Int32=0, ev_source:Int32=0
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Makes a key combination produce an event of your choice, even when no gadget wants the key. Handy for shortcuts. The scan code is what `KeyDown` uses, and the modifiers are added: 1 shift, 2 control, 4 alt.
 
-```blitzbasic
-Graphics 320, 240, 32, 2
-win = CreateWindow("Hot key", 20, 20, 240, 100, Desktop(), 3)
-HotKeyEvent 31, 2, $4242, 7 ; Ctrl+S
-Repeat
-	e = WaitEvent()
-	If e = $4242 Then SetGadgetText win, "Saved " + EventData()
-Until e = $803
-```
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -35,7 +31,19 @@ Until e = $803
 | `ev_z` | Int32 | `0` |  |
 | `ev_source` | Int32 | `0` |  |
 
-## Related commands
+## Examples
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Hot key", 20, 20, 240, 100, Desktop(), 3)
+HotKeyEvent 31, 2, $4242, 7 ; Ctrl+S
+Repeat
+	e = WaitEvent()
+	If e = $4242 Then SetGadgetText win, "Saved " + EventData()
+Until e = $803
+```
+
+## Related Commands
 
 * [FontSize](FontSize)
 * [FontStyle](FontStyle)

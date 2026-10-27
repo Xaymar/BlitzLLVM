@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 CreatePivot:Int32 parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates an invisible entity that only has a position, rotation and scale. Pivots are the glue of a scene: parent other entities to one and you can move, turn or scale the whole group, or make something orbit by offsetting it from a pivot that you turn. The pivot is created at the origin, even when it has a `parent`.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `parent` | Int32 | `0` | Entity the pivot follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new pivot.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -36,15 +50,11 @@ While Not KeyHit(1)
 Wend
 ```
 
+## Media
+
 ![CreatePivot](media/blitz3d/createpivot.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | `0` | Entity the pivot follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new pivot.
-
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [CountChildren](CountChildren)

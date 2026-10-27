@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 SeekFile:Int32 file_stream:Int32, pos:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Moves the position where the next read or write happens. Positions count bytes from the start of the file.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file_stream` | Int32 | required | The file handle. |
 | `pos` | Int32 | required | The new position in bytes. |
 
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [CopyFile](CopyFile)

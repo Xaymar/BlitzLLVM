@@ -6,11 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 GetEnv:String env_var:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `env_var` | String | required | The name of the variable. |
+
+**Returns:** The value of an environment variable, or an empty string when it is not set.
+
+## Examples
 
 ```blitzbasic
 SetEnv "WIKI_EXAMPLE", "hello"
@@ -21,13 +37,7 @@ Print GetEnv$("WIKI_EXAMPLE")
 hello
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `env_var` | String | required | The name of the variable. |
-
-**Returns:** The value of an environment variable, or an empty string when it is not set.
-
-## Related commands
+## Related Commands
 
 * [ExecFile](ExecFile)
 * [FreeTimer](FreeTimer)

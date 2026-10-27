@@ -6,24 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 DebugObjects
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Writes how many objects of each kind are alive into the debug log, one line per kind. Together with [ActiveObjects](ActiveObjects) it helps to find things that were forgotten to be freed.
+
+**Differences and known gaps:**
+
+* The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
 DebugObjects
 ```
 
-**Differences and known gaps:**
-
-* The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
-
-## Related commands
+## Related Commands
 
 * [ActiveObjects](ActiveObjects)
 * [Confirm](Confirm)

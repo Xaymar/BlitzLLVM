@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 ReadBytes:Int32 bank:Int32, file:Int32, offset:Int32, count:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Reads bytes from an open file into a bank. It reads up to `count` bytes, and fewer when the file ends first.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `bank` | Int32 | required | The bank to fill. |
+| `file` | Int32 | required | A file opened for reading. |
+| `offset` | Int32 | required | Where in the bank to put the first byte. |
+| `count` | Int32 | required | How many bytes to read. |
+
+**Returns:** The number of bytes that were read.
+
+## Examples
 
 ```blitzbasic
 source = CreateBank(4)
@@ -35,16 +52,7 @@ Print Chr$(PeekByte(target, 2))
 C
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to fill. |
-| `file` | Int32 | required | A file opened for reading. |
-| `offset` | Int32 | required | Where in the bank to put the first byte. |
-| `count` | Int32 | required | How many bytes to read. |
-
-**Returns:** The number of bytes that were read.
-
-## Related commands
+## Related Commands
 
 * [PokeInt](PokeInt)
 * [PokeShort](PokeShort)

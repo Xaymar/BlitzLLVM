@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseX:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The horizontal position of the pointer in the graphics buffer, from 0 on the left to `GraphicsWidth() - 1`. When the window is scaled, the position is converted back to buffer pixels. [MoveMouse](MoveMouse) sets it. BlitzPlus programs can also pass a canvas handle to get the position relative to that canvas.
+
+## Parameters
+
+**Returns:** The horizontal position of the pointer.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,11 +38,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![MouseX](media/mouse/mousex.png)
 
-**Returns:** The horizontal position of the pointer.
-
-## Related commands
+## Related Commands
 
 * [MouseDown](MouseDown)
 * [MouseHit](MouseHit)

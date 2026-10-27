@@ -6,19 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 RectsOverlap:Int32 x1:Int32, y1:Int32, width1:Int32, height1:Int32, x2:Int32, y2:Int32, width2:Int32, height2:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether two rectangles touch. It works on plain numbers and needs no image, so it is a good quick test for boxes of any kind.
 
-```blitzbasic
-Print RectsOverlap(0, 0, 50, 50, 40, 40, 50, 50)
-Print RectsOverlap(0, 0, 50, 50, 60, 60, 50, 50)
-WaitKey
-```
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -33,7 +33,15 @@ WaitKey
 
 **Returns:** 1 if the rectangles overlap, otherwise 0.
 
-## Related commands
+## Examples
+
+```blitzbasic
+Print RectsOverlap(0, 0, 50, 50, 40, 40, 50, 50)
+Print RectsOverlap(0, 0, 50, 50, 60, 60, 50, 50)
+WaitKey
+```
+
+## Related Commands
 
 * [ImageRectOverlap](ImageRectOverlap)
 * [ImagesOverlap](ImagesOverlap)

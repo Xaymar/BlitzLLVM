@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyZ:Float32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The third axis of the joystick, from -1 to 1. On a joystick it is usually the throttle slider, on a gamepad often a trigger. The yaw, pitch and roll commands read the axes after the five position axes, and scale them to degrees.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ The third axis of the joystick, from -1 to 1. On a joystick it is usually the th
 
 **Returns:** The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
 
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

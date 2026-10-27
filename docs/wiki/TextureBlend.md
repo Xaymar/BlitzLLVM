@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 TextureBlend texture:Int32, blend:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -22,6 +26,19 @@ Chooses how this texture combines with what lies below it. A texture on layer 0 
 | 3 | Add. |
 | 4 | Dot3 bump mapping. |
 | 5 | Multiply twice as bright (x2). |
+
+**Differences and known gaps:**
+
+* Modes 1, 2, 3 and 5 are drawn on layers above the first. Mode 0 and mode 4 (Dot3) are drawn like mode 2, because there is no bump mapping. Layer 0 is blended by the entity or brush blend mode, not by TextureBlend.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `texture` | Int32 | required | The texture to change. |
+| `blend` | Int32 | required | Blend mode from the table above. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -56,18 +73,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![TextureBlend](media/textures/textureblend.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to change. |
-| `blend` | Int32 | required | Blend mode from the table above. |
-
-**Differences and known gaps:**
-
-* Modes 1, 2, 3 and 5 are drawn on layers above the first. Mode 0 and mode 4 (Dot3) are drawn like mode 2, because there is no bump mapping. Layer 0 is blended by the entity or brush blend mode, not by TextureBlend.
-
-## Related commands
+## Related Commands
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)

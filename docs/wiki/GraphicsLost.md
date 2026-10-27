@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GraphicsLost:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Tells whether the graphics were lost, which happened to the original when another program took over the display. The program then had to draw its images again.
 
-**Returns:** 1 if the graphics were lost, otherwise 0.
-
 **Differences and known gaps:**
 
 * Always 0. Images are kept in video memory that other programs cannot take.
 
-## Related commands
+## Parameters
+
+**Returns:** 1 if the graphics were lost, otherwise 0.
+
+## Related Commands
 
 * [EndGraphics](EndGraphics)
 * [Graphics](Graphics)

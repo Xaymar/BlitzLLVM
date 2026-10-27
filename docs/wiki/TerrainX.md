@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
+## Command Syntax
+
 ```blitzbasic
 TerrainX:Float32 terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Looks at the terrain from straight above a point in the world and returns the X coordinate of the point of the ground that lies there. For a terrain that is not rotated, this is simply the X you passed in; with a rotated terrain it tells you where the ground really is.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -23,7 +29,7 @@ Looks at the terrain from straight above a point in the world and returns the X 
 
 **Returns:** The world X coordinate of the ground below or above the point.
 
-## Related commands
+## Related Commands
 
 * [CreateTerrain](CreateTerrain)
 * [LoadTerrain](LoadTerrain)

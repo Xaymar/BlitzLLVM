@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 ReadAvail:Int32 stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** How many bytes can be read right now without waiting. It is meant for network streams, where data arrives over time. On a file it gives 0 or what is left.
 
-## Related commands
+## Related Commands
 
 * [ReadByte](ReadByte)
 * [ReadFloat](ReadFloat)

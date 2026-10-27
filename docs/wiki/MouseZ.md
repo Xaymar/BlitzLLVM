@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseZ:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The position of the mouse wheel. It starts at 0 and counts up when the wheel is rolled away from you and down when it is rolled towards you.
+
+**Differences and known gaps:**
+
+* Fine scrolling wheels and touchpads that report fractions of a notch are rounded to whole steps.
+
+## Parameters
+
+**Returns:** The wheel position added up since the program started.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -25,13 +39,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-**Returns:** The wheel position added up since the program started.
-
-**Differences and known gaps:**
-
-* Fine scrolling wheels and touchpads that report fractions of a notch are rounded to whole steps.
-
-## Related commands
+## Related Commands
 
 * [MouseDown](MouseDown)
 * [MouseHit](MouseHit)

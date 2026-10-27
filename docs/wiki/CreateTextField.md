@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 CreateTextField:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
@@ -16,18 +20,7 @@ Makes a box for a single line of text. A $401 event is sent for each change and 
 
 Text fields use Enter and Escape themselves, so use a button of style 4 or 5 to react to these keys, see [CreateButton](CreateButton).
 
-```blitzbasic
-Graphics 320, 240, 32, 2
-win  = CreateWindow("Login", 10, 10, 300, 140, Desktop(), 3)
-CreateLabel "Password:", 10, 10, 150, 24, win
-pass = CreateTextField(10, 40, 200, 24, win, 1)
-Repeat
-	e = WaitEvent()
-	If e = $401 Then SetGadgetText win, "Length " + Len(TextFieldText(pass))
-Until e = $803
-```
-
-![CreateTextField](media/textareas/createtextfield.gif)
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -40,7 +33,24 @@ Until e = $803
 
 **Returns:** A handle for the text field.
 
-## Related commands
+## Examples
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Login", 10, 10, 300, 140, Desktop(), 3)
+CreateLabel "Password:", 10, 10, 150, 24, win
+pass = CreateTextField(10, 40, 200, 24, win, 1)
+Repeat
+	e = WaitEvent()
+	If e = $401 Then SetGadgetText win, "Length " + Len(TextFieldText(pass))
+Until e = $803
+```
+
+## Media
+
+![CreateTextField](media/textareas/createtextfield.gif)
+
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [CreateTextArea](CreateTextArea)

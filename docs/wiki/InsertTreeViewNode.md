@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 InsertTreeViewNode:Int32 index:Int32, text:String, parent_node:Int32, icon:Int32=-1
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Puts a node before the child with the given number of a parent.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `index` | Int32 | required | Where the node goes among the children, starting at 0. |
+| `text` | String | required | Text of the node. |
+| `parent_node` | Int32 | required |  |
+| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+
+**Returns:** A handle for the new node.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,16 +43,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `index` | Int32 | required | Where the node goes among the children, starting at 0. |
-| `text` | String | required | Text of the node. |
-| `parent_node` | Int32 | required |  |
-| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
-
-**Returns:** A handle for the new node.
-
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [CollapseTreeViewNode](CollapseTreeViewNode)

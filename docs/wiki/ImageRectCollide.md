@@ -6,13 +6,34 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 ImageRectCollide:Int32 image:Int32, x:Int32, y:Int32, frame:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether a rectangle touches any visible (not masked) pixel of a frame of an image placed at a position. It is exact, unlike [ImageRectOverlap](ImageRectOverlap), which only compares the box of the image.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+| `x` | Int32 | required | Horizontal position where the image is drawn. |
+| `y` | Int32 | required | Vertical position where the image is drawn. |
+| `frame` | Int32 | required | The frame to test. |
+| `rect_x` | Int32 | required | Left edge of the rectangle. |
+| `rect_y` | Int32 | required | Top edge of the rectangle. |
+| `rect_width` | Int32 | required | Width of the rectangle. |
+| `rect_height` | Int32 | required | Height of the rectangle. |
+
+**Returns:** 1 if the rectangle touches a pixel of the image, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -29,20 +50,7 @@ Print ImageRectCollide(ring, 50, 50, 0, 50, 95, 10, 10)
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `x` | Int32 | required | Horizontal position where the image is drawn. |
-| `y` | Int32 | required | Vertical position where the image is drawn. |
-| `frame` | Int32 | required | The frame to test. |
-| `rect_x` | Int32 | required | Left edge of the rectangle. |
-| `rect_y` | Int32 | required | Top edge of the rectangle. |
-| `rect_width` | Int32 | required | Width of the rectangle. |
-| `rect_height` | Int32 | required | Height of the rectangle. |
-
-**Returns:** 1 if the rectangle touches a pixel of the image, otherwise 0.
-
-## Related commands
+## Related Commands
 
 * [DrawImageRect](DrawImageRect)
 * [ImageBuffer](ImageBuffer)

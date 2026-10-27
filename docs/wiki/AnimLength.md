@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 AnimLength:Int32 entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The length of the entity's current sequence, in frames. It is 0 for an entity that has no animation.
 
-## Related commands
+## Related Commands
 
 * [AddAnimSeq](AddAnimSeq)
 * [AnimSeq](AnimSeq)

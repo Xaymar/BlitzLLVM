@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 GetEntityType:Int32 entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The collision type that was given to the entity with EntityType, or 0 if it never got one.
 
-## Related commands
+## Related Commands
 
 * [CollisionEntity](CollisionEntity)
 * [EntityBox](EntityBox)

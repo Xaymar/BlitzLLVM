@@ -6,15 +6,32 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
 
+## Command Syntax
+
 ```blitzbasic
 BSPLighting bsp:Int32, use_lightmaps:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Chooses between lightmaps and vertex lighting for a level. Vertex lighting is faster on some graphics cards but looks worse.
 
 The example builds a level with one floor and a lightmap that has a bright spot in it, and shows it twice: the left one with vertex lighting, the right one with lightmaps.
+
+**Differences and known gaps:**
+
+* The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness. Vertex lighting uses the colors of the vertices, which a level made for lightmaps often has at full brightness, so it looks flat.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `bsp` | Int32 | required | The level. |
+| `use_lightmaps` | Int32 | required | True for lightmaps, False for vertex lighting. Defaults to True. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -80,18 +97,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![BSPLighting](media/bsp/bsplighting.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bsp` | Int32 | required | The level. |
-| `use_lightmaps` | Int32 | required | True for lightmaps, False for vertex lighting. Defaults to True. |
-
-**Differences and known gaps:**
-
-* The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness. Vertex lighting uses the colors of the vertices, which a level made for lightmaps often has at full brightness, so it looks flat.
-
-## Related commands
+## Related Commands
 
 * [BSPAmbientLight](BSPAmbientLight)
 * [LoadBSP](LoadBSP)

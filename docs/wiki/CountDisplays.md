@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 CountDisplays:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Counts the displays (monitors) that are connected and shows something. Use the number with [DisplayName](DisplayName), [DisplayWidth](DisplayWidth), [CountDisplayModes](CountDisplayModes) and the other display commands, which take a display from 1 to this value. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display. The displays are looked at again every time this is called, so a program that wants to notice a display being plugged in or out can call it again.
+
+**Differences and known gaps:**
+
+* When SDL knows of no display, for example without a display driver, there is one display called "Default" with the common sizes of [CountGfxModes](CountGfxModes). Can be asked before [Graphics](Graphics) opens a window.
+
+## Parameters
+
+**Returns:** The number of displays, at least 1.
+
+## Examples
 
 ```blitzbasic
 For d = 1 To CountDisplays()
@@ -21,13 +35,7 @@ Next
 WaitKey
 ```
 
-**Returns:** The number of displays, at least 1.
-
-**Differences and known gaps:**
-
-* When SDL knows of no display, for example without a display driver, there is one display called "Default" with the common sizes of [CountGfxModes](CountGfxModes). Can be asked before [Graphics](Graphics) opens a window.
-
-## Related commands
+## Related Commands
 
 * [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕
 * [CountGfxDrivers](CountGfxDrivers)

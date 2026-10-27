@@ -6,15 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
+## Command Syntax
+
 ```blitzbasic
 WaitEvent:Int32 timeout:Int32=-1
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Waits until something happens and gives the kind of event. Use [EventData](EventData), [EventSource](EventSource), [EventX](EventX) and the others to learn more about it. While it waits the windows keep working and are redrawn.
 
 A program with windows is built around a loop with `WaitEvent`. Take every event from one call: calling it again before you read the values throws the earlier event away.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `timeout` | Int32 | `-1` | Longest time to wait in milliseconds. -1 waits forever, 0 does not wait. Defaults to -1. |
+
+**Returns:** The kind of the event, or 0 if the time ran out.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,15 +40,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![WaitEvent](media/events/waitevent.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timeout` | Int32 | `-1` | Longest time to wait in milliseconds. -1 waits forever, 0 does not wait. Defaults to -1. |
-
-**Returns:** The kind of the event, or 0 if the time ran out.
-
-## Related commands
+## Related Commands
 
 * [EventData](EventData)
 * [EventID](EventID)

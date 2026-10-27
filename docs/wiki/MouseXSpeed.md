@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseXSpeed:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 How far the pointer moved sideways since the last time this function was called. It gives the same result whether the pointer reached the edge of the window or not, which makes it useful for looking around in a 3D scene: call [MoveMouse](MoveMouse) every frame to put the pointer back in the middle and use the speed as the turning amount.
+
+**Differences and known gaps:**
+
+* Putting the pointer somewhere with MoveMouse does not count as movement, the same as in the original. To make that work on every platform the window captures the pointer for as long as the program keeps calling MoveMouse; it lets go about 300 milliseconds after the last call.
+
+## Parameters
+
+**Returns:** The change of the horizontal position since the previous call.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,13 +42,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-**Returns:** The change of the horizontal position since the previous call.
-
-**Differences and known gaps:**
-
-* Putting the pointer somewhere with MoveMouse does not count as movement, the same as in the original. To make that work on every platform the window captures the pointer for as long as the program keeps calling MoveMouse; it lets go about 300 milliseconds after the last call.
-
-## Related commands
+## Related Commands
 
 * [MouseDown](MouseDown)
 * [MouseHit](MouseHit)

@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
 
+## Command Syntax
+
 ```blitzbasic
 CloseMovie movie:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movie that should play again has to be closed and opened anew.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `movie` | Int32 | required | A movie handle from OpenMovie. |
-
 **Differences and known gaps:**
 
 * Nothing , the same as the original. The picture and sound stop.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `movie` | Int32 | required | A movie handle from OpenMovie. |
+
+## Related Commands
 
 * [DrawMovie](DrawMovie)
 * [MovieHeight](MovieHeight)

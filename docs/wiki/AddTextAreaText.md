@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 AddTextAreaText textarea:Int32, text:String
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Appends text at the end of a text area, with the formatting of the text before it. Line breaks are made with `Chr$(13)` or `Chr$(13) + Chr$(10)`.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `textarea` | Int32 | required | Handle of a text area. |
+| `text` | String | required | Text to append. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,14 +38,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![AddTextAreaText](media/textareas/addtextareatext.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `text` | String | required | Text to append. |
-
-## Related commands
+## Related Commands
 
 * [CreateTextArea](CreateTextArea)
 * [FormatTextAreaText](FormatTextAreaText)

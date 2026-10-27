@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 PickedTime:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
-**Returns:** How far along the line the hit was, from 0 at its start to 1 at its end. After a pick that found nothing the value is 1.
-
 **Differences and known gaps:**
 
 * The official help describes this as the time taken to calculate the pick. As in the original engine, the value is the fraction along the line described above.
 
-## Related commands
+## Parameters
+
+**Returns:** How far along the line the hit was, from 0 at its start to 1 at its end. After a pick that found nothing the value is 1.
+
+## Related Commands
 
 * [PickedEntity](PickedEntity)
 * [PickedNX](PickedNX)

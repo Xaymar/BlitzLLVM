@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 MidHandle image:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Puts the handle of an image in its middle. Images drawn at a position then appear centered on it, and rotate and scale around their middle.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -30,11 +42,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-
-## Related commands
+## Related Commands
 
 * [AutoMidHandle](AutoMidHandle)
 * [HandleImage](HandleImage)

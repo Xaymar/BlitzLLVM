@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 ActivateWindow window:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Brings a window of your program to the front and makes it the active one, as if the user had clicked on its title. The window gets a [WindowActivate](EventID) event ($804). It only works for your own windows, never for other programs.
+
+**Differences and known gaps:**
+
+* All windows are drawn inside the one window of your program, so activating one moves it in front of the others there instead of in front of other applications.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `window` | Int32 | required | Handle of a window made with [CreateWindow](CreateWindow). |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -23,17 +39,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![ActivateWindow](media/windows/activatewindow.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window made with [CreateWindow](CreateWindow). |
-
-**Differences and known gaps:**
-
-* All windows are drawn inside the one window of your program, so activating one moves it in front of the others there instead of in front of other applications.
-
-## Related commands
+## Related Commands
 
 * [ActiveWindow](ActiveWindow)
 * [CreateWindow](CreateWindow)

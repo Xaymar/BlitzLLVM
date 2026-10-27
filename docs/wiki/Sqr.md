@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Sqr:Float32 float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the square root of a number.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `float` | Float32 | required | A number of 0 or more. |
+
+**Returns:** The square root.
+
+## Examples
 
 ```blitzbasic
 Print Sqr(2)
@@ -24,13 +38,7 @@ Print Sqr(16)
 4.0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | A number of 0 or more. |
-
-**Returns:** The square root.
-
-## Related commands
+## Related Commands
 
 * [Short](Short) 〔BlitzLLVM〕
 * [Sin](Sin)

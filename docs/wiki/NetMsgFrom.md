@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
+## Command Syntax
+
 ```blitzbasic
 NetMsgFrom:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The player the last message came from. For type 100 and 101 messages it is the player who joined or left.
 
-## Related commands
+## Related Commands
 
 * [CreateNetPlayer](CreateNetPlayer)
 * [NetMsgData](NetMsgData)

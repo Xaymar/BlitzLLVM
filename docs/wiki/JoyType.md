@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyType:Int32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether a joystick is connected to the port and what kind it is.
+
+**Differences and known gaps:**
+
+* The original uses 1 for a digital and 2 for an analog joystick. Here a device that SDL recognizes as a gamepad is 1 and everything else is 2.
+* Up to 4 joysticks are found, and only those that are connected when the first joystick command runs. Plugging one in later is not noticed.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+
+**Returns:** 0 if there is no joystick, 1 for a gamepad and 2 for any other joystick.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -30,18 +49,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
-
-**Returns:** 0 if there is no joystick, 1 for a gamepad and 2 for any other joystick.
-
-**Differences and known gaps:**
-
-* The original uses 1 for a digital and 2 for an analog joystick. Here a device that SDL recognizes as a gamepad is 1 and everything else is 2.
-* Up to 4 joysticks are found, and only those that are connected when the first joystick command runs. Plugging one in later is not noticed.
-
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

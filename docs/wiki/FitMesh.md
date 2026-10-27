@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 FitMesh mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32, uniform:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Scales and moves a mesh so that it exactly fills a box. `x`, `y` and `z` are the corner of the box with the smallest coordinates and `width`, `height` and `depth` are its size. With `uniform` set to 1 the proportions of the mesh are kept and it is fitted inside the box. Never pass 0 as a size: that squashes the mesh flat and its shape is lost. Use a small value like 0.001 for a flat mesh.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -25,7 +31,7 @@ Scales and moves a mesh so that it exactly fills a box. `x`, `y` and `z` are the
 | `depth` | Float32 | required | Size of the box along Z. |
 | `uniform` | Int32 | `0` | 1 to scale by the same factor on all axes, 0 to stretch to the box. Defaults to 0. |
 
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CopyMesh](CopyMesh)

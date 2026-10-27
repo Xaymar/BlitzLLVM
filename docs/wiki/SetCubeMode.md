@@ -6,24 +6,30 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 SetCubeMode texture:Int32, mode:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Selects what a cube map (texture flag 128) shows on a surface: 1 the reflection of the view in the surface (the default), 2 the direction of the surface normal, 3 the position of the surface seen from the camera. Add 4 to look up with the directions as seen from the camera instead of in the world, so that the picture turns with the camera. The original help calls this command undocumented.
+
+**Differences and known gaps:**
+
+* The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `texture` | Int32 | required | The cube map texture. |
 | `mode` | Int32 | required | 1, 2 or 3, plus 4 for the space of the camera. The default is 1. |
 
-**Differences and known gaps:**
-
-* The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
-
-## Related commands
+## Related Commands
 
 * [SetCubeFace](SetCubeFace)
 * [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕

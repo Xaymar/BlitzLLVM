@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 SaveBuffer:Int32 buffer:Int32, bmpfile:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes the content of a buffer into a picture file. Saving the front buffer after a [Flip](Flip) makes a screenshot.
+
+**Differences and known gaps:**
+
+* A name that ends with `.png` gives a PNG file and any other name a BMP file.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `buffer` | Int32 | required | The buffer to save. |
+| `bmpfile` | String | required | The path of the file to write. |
+
+**Returns:** 1 if the file was written, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -25,18 +44,7 @@ If SaveBuffer(FrontBuffer(), "screenshot.bmp") Then Print "saved" Else Print "fa
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | required | The buffer to save. |
-| `bmpfile` | String | required | The path of the file to write. |
-
-**Returns:** 1 if the file was written, otherwise 0.
-
-**Differences and known gaps:**
-
-* A name that ends with `.png` gives a PNG file and any other name a BMP file.
-
-## Related commands
+## Related Commands
 
 * [BackBuffer](BackBuffer)
 * [BufferDirty](BufferDirty)

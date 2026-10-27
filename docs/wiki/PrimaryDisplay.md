@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 PrimaryDisplay:Int32
 ```
+
+## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 The number of the main display, the one that [CountGfxModes](CountGfxModes) and the other graphics mode commands list the modes of. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
 
+## Parameters
+
 **Returns:** The display number, from 1 to [CountDisplays](CountDisplays).
 
-## Related commands
+## Related Commands
 
 * [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕
 * [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕

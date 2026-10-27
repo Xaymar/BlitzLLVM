@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 Rect x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32=1
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws a rectangle.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position of the left side. |
+| `y` | Int32 | required | Vertical position of the top. |
+| `width` | Int32 | required | Width in pixels. |
+| `height` | Int32 | required | Height in pixels. |
+| `solid` | Int32 | `1` | 1 fills the rectangle, 0 draws only the outline. Defaults to 1. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -27,17 +43,11 @@ For frame = 0 To 59
 Next
 ```
 
+## Media
+
 ![Rect](media/drawing/rect.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the left side. |
-| `y` | Int32 | required | Vertical position of the top. |
-| `width` | Int32 | required | Width in pixels. |
-| `height` | Int32 | required | Height in pixels. |
-| `solid` | Int32 | `1` | 1 fills the rectangle, 0 draws only the outline. Defaults to 1. |
-
-## Related commands
+## Related Commands
 
 * [Oval](Oval)
 * [Plot](Plot)

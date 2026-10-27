@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 ImageYHandle:Int32 image:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The vertical position of the handle of an image, counted from its top edge.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ The vertical position of the handle of an image, counted from its top edge.
 
 **Returns:** The y position of the handle.
 
-## Related commands
+## Related Commands
 
 * [AutoMidHandle](AutoMidHandle)
 * [ImageBuffer](ImageBuffer)

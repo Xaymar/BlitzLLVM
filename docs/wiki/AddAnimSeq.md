@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 AddAnimSeq:Int32 entity:Int32, length:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Turns the keys made with [SetAnimKey](SetAnimKey) into a new animation sequence of the given length, for the entity and everything below it. If the entity had no animation before, it gets sequence 0; otherwise the new sequence is appended behind the existing ones and gets the next number.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Turns the keys made with [SetAnimKey](SetAnimKey) into a new animation sequence 
 
 **Returns:** The number of the new sequence.
 
-## Related commands
+## Related Commands
 
 * [AnimLength](AnimLength)
 * [AnimSeq](AnimSeq)

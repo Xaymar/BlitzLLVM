@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 GetMatElement:Float32 entity:Int32, row:Int32, column:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Reads one number from the world transformation of the entity. Row and column count from 0. Columns 0 to 2 hold the axes of the entity with its scale, so (0, 0), (0, 1) and (0, 2) are the X axis; row 3 holds the position. It is mostly useful when you need the direction an entity faces without doing the angle math.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -22,7 +28,7 @@ Reads one number from the world transformation of the entity. Row and column cou
 
 **Returns:** The value of the matrix element.
 
-## Related commands
+## Related Commands
 
 * [FreeEntity](FreeEntity)
 * [GetChild](GetChild)

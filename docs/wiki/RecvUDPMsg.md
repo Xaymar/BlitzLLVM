@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 RecvUDPMsg:Int32 udp_stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Receives the next UDP message, if one has arrived, and makes it readable from the stream. It waits for up to the time set by [UDPTimeouts](UDPTimeouts), which is 0 until you set it, so it does not wait by default. [UDPMsgIP](UDPMsgIP) and [UDPMsgPort](UDPMsgPort) then say who sent it.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Receives the next UDP message, if one has arrived, and makes it readable from th
 
 **Returns:** The size of the message in bytes, or 0 when there was none.
 
-## Related commands
+## Related Commands
 
 * [CloseUDPStream](CloseUDPStream)
 * [CreateUDPStream](CreateUDPStream)

@@ -6,11 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 Eof:Int32 stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `stream` | Int32 | required | The stream to check. |
+
+**Returns:** 1 when a file has been read to its end, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("streams_eof_example.tmp")
@@ -30,13 +46,7 @@ a
 b
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to check. |
-
-**Returns:** 1 when a file has been read to its end, otherwise 0.
-
-## Related commands
+## Related Commands
 
 * [CopyStream](CopyStream)
 * [ReadAvail](ReadAvail)

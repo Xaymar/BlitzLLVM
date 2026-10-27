@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 PauseChannel channel:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Pauses a channel. The sound stays where it is until [ResumeChannel](ResumeChannel) continues it. A paused channel is still reported as playing by [ChannelPlaying](ChannelPlaying).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -27,11 +39,7 @@ Delay 500
 StopChannel ch
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-
-## Related commands
+## Related Commands
 
 * [ChannelPan](ChannelPan)
 * [ChannelPitch](ChannelPitch)

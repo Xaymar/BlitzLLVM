@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 ScaleImage image:Int32, xscale:Float32, yscale:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Scales every frame of an image by a factor: 2 doubles its size, 0.5 halves it, and a negative factor flips the picture, which then extends to the left or up from the handle. The change is permanent, so scale a copy when the original is still needed.
+
+**Differences and known gaps:**
+
+* Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+| `xscale` | Float32 | required | Horizontal factor. |
+| `yscale` | Float32 | required | Vertical factor. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -36,19 +54,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![ScaleImage](media/images/scaleimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `xscale` | Float32 | required | Horizontal factor. |
-| `yscale` | Float32 | required | Vertical factor. |
-
-**Differences and known gaps:**
-
-* Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

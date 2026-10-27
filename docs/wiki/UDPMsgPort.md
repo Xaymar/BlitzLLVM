@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 UDPMsgPort:Int32 udp_stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The port of the sender of the last message that [RecvUDPMsg](RecvUDPMsg) received.
 
-## Related commands
+## Related Commands
 
 * [CloseUDPStream](CloseUDPStream)
 * [RecvUDPMsg](RecvUDPMsg)

@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 UpdateNormals mesh:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Works out the normals of every vertex of a mesh from its triangles. A normal tells lights which way a surface faces, so without it a mesh built from code is lit wrongly or not at all. Call it after adding vertices and triangles and again after you moved vertices. Shared vertices get the average of the triangles around them, which makes round shapes look smooth.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `mesh` | Int32 | required | Mesh handle. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -44,13 +56,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![UpdateNormals](media/blitz3d/updatenormals.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-
-## Related commands
+## Related Commands
 
 * [PaintSurface](PaintSurface)
 * [TriangleVertex](TriangleVertex)

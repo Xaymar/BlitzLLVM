@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
+## Command Syntax
+
 ```blitzbasic
 SetToolBarTips toolbar:Int32, tips:String
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Sets the hints for the icons of a toolbar, as a list separated by commas with one for each icon. They are supposed to pop up when the mouse rests over an icon.
+
+**Differences and known gaps:**
+
+* A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed. Spaces between buttons do not take a hint.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `toolbar` | Int32 | required | Handle of a toolbar. |
+| `tips` | String | required | Hints separated by commas. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -30,18 +47,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![SetToolBarTips](media/toolbars/settoolbartips.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `toolbar` | Int32 | required | Handle of a toolbar. |
-| `tips` | String | required | Hints separated by commas. |
-
-**Differences and known gaps:**
-
-* A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed. Spaces between buttons do not take a hint.
-
-## Related commands
+## Related Commands
 
 * [CreateToolBar](CreateToolBar)
 * [DisableToolBarItem](DisableToolBarItem)

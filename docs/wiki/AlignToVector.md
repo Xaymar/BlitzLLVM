@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 AlignToVector entity:Int32, vector_x:Float32, vector_y:Float32, vector_z:Float32, axis:Int32, rate:Float32=1
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Turns an entity so that one of its own axes lines up with a direction. Where [PointEntity](PointEntity) always uses +Z, this lets you choose any axis, for example to make an entity stand on a slope by aligning its Y axis to the surface normal. `rate` blends from the current orientation: 1 snaps at once, smaller values turn only part of the way each call, so calling it every frame gives a smooth turn.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -23,7 +29,7 @@ Turns an entity so that one of its own axes lines up with a direction. Where [Po
 | `axis` | Int32 | required | Axis that is aligned: 1 for X, 2 for Y, 3 for Z. |
 | `rate` | Float32 | `1` | How much of the turn to do, 0 to 1. Defaults to 1. |
 
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [CountChildren](CountChildren)

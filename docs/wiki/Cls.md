@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 Cls
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Clears the current buffer with the color set by [ClsColor](ClsColor). Call it at the start of every frame when you redraw the whole picture.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -25,9 +31,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![Cls](media/drawing/cls.png)
 
-## Related commands
+## Related Commands
 
 * [ClsColor](ClsColor)
 * [Color](Color)

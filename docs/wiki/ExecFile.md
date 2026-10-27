@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 ExecFile command:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Runs a command or another program and waits until it ends.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `command` | String | required | The command line to run. It is run by the system shell. |
+
+**Returns:** 1 when the command ran and ended without an error, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Print ExecFile("this-program-does-not-exist")
@@ -22,13 +36,7 @@ Print ExecFile("this-program-does-not-exist")
 0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `command` | String | required | The command line to run. It is run by the system shell. |
-
-**Returns:** 1 when the command ran and ended without an error, otherwise 0.
-
-## Related commands
+## Related Commands
 
 * [Delay](Delay)
 * [End](End)

@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 FileType:Int32 file:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells what is at a path, so you can check for something before you open it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | The path to look at. |
+
+**Returns:** 0 when nothing is there, 1 for a file, 2 for a folder.
+
+## Examples
 
 ```blitzbasic
 Print FileType("files_type_nothing_here")
@@ -26,13 +40,7 @@ DeleteDir "files_type_folder"
 2
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The path to look at. |
-
-**Returns:** 0 when nothing is there, 1 for a file, 2 for a folder.
-
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [CopyFile](CopyFile)

@@ -6,15 +6,33 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
 
+## Command Syntax
+
 ```blitzbasic
 RequestFile:String prompt:String=\
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Opens the file picker of the system and gives the file that was chosen, or an empty string if the user cancelled. Pass a list of extensions to show only those files. With the save flag the dialog is for naming a file that may not exist yet.
 
 The extension list is separated by commas, and a `;` splits it into groups: `"bb,bmx;*.txt"` offers the types bb and bmx together, and txt next to them.
+
+**Differences and known gaps:**
+
+* It is the file dialog of the operating system, so it looks different on each system. The list of extensions is shown as one filter named "Files", groups with `;` are merged into it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `prompt` | String | `\` |  |
+
+**Returns:** The full path of the file, or an empty string if nothing was picked.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,17 +43,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `prompt` | String | `\` |  |
-
-**Returns:** The full path of the file, or an empty string if nothing was picked.
-
-**Differences and known gaps:**
-
-* It is the file dialog of the operating system, so it looks different on each system. The list of extensions is shown as one filter named "Files", groups with `;` are merged into it.
-
-## Related commands
+## Related Commands
 
 * [RequestColor](RequestColor)
 * [RequestDir](RequestDir)

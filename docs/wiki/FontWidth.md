@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 FontWidth:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The width in pixels of one character of the current font, as set by [SetFont](SetFont). No character is wider than this value.
 
-**Returns:** The width of a character in pixels.
-
 **Differences and known gaps:**
 
 * Real fonts have a different width for each character, so this is the width of the widest one; use [StringWidth](StringWidth) for a text. The built-in bitmap font used when a font is not found is as wide as it is high.
 
-## Related commands
+## Parameters
+
+**Returns:** The width of a character in pixels.
+
+## Related Commands
 
 * [FontHeight](FontHeight)
 * [FreeFont](FreeFont)

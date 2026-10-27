@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Ceil:Float32 float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Rounds up to the next whole number and returns it as a float.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `float` | Float32 | required | The number to round up. |
+
+**Returns:** The smallest whole number that is not below `float`.
+
+## Examples
 
 ```blitzbasic
 Print Ceil(2.1)
@@ -24,13 +38,7 @@ Print Ceil(-2.1)
 -2.0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The number to round up. |
-
-**Returns:** The smallest whole number that is not below `float`.
-
-## Related commands
+## Related Commands
 
 * [Byte](Byte) 〔BlitzLLVM〕
 * [ByteSwap](ByteSwap) 〔BlitzLLVM〕

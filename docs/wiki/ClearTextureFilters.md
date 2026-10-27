@@ -6,15 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 ClearTextureFilters
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Removes every rule that was added with [TextureFilter](TextureFilter). Textures loaded after this call only get the flags you pass.
 
-## Related commands
+## Related Commands
 
 * [CreateTexture](CreateTexture)
 * [FreeTexture](FreeTexture)

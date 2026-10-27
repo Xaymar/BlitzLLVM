@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 ProjectedX:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Gives the horizontal screen position of the point that the last [CameraProject](CameraProject) looked at, in pixels from the left edge of the screen.
+
+**Differences and known gaps:**
+
+* The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane. Here X and Y are -1000000 for a point behind the camera, so that it is obviously off the screen.
+
+## Parameters
+
+**Returns:** The X position in pixels.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -29,13 +43,7 @@ Flip
 WaitKey
 ```
 
-**Returns:** The X position in pixels.
-
-**Differences and known gaps:**
-
-* The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane. Here X and Y are -1000000 for a point behind the camera, so that it is obviously off the screen.
-
-## Related commands
+## Related Commands
 
 * [DeltaPitch](DeltaPitch)
 * [ProjectedY](ProjectedY)

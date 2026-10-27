@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 VertexW:Float32 surface:Int32, index:Int32, coord_set:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+**Differences and known gaps:**
+
+* The value is not stored: this always returns 1.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -22,11 +32,7 @@ _Not documented yet._
 
 **Returns:** The third texture coordinate of the vertex, a value that is reserved for later use and does nothing in rendering.
 
-**Differences and known gaps:**
-
-* The value is not stored: this always returns 1.
-
-## Related commands
+## Related Commands
 
 * [VertexAlpha](VertexAlpha)
 * [VertexBlue](VertexBlue)

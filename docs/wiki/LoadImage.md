@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 LoadImage:Int32 bmpfile:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Loads a picture file into an image with one frame. Pixels that are black are drawn as transparent by [DrawImage](DrawImage) until [MaskImage](MaskImage) picks another color. Load images once at the start of a program and draw them often. If the file is missing, the result is 0, so check it before drawing.
+
+**Differences and known gaps:**
+
+* More file formats load than in the original, which read BMP, PNG, JPEG and TGA. Files are decoded by SDL_image, and DDS files (DXT1 to DXT5, BC4, BC5, BC7 and uncompressed pictures) by the runtime itself, and block compressed ones stay compressed on the graphics card until the image is drawn to. See [LoadTexture](LoadTexture) for the formats of DDS files that are read.
+* Backslashes in paths are changed into slashes on Linux and macOS.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `bmpfile` | String | required |  |
+
+**Returns:** A handle for the image, or 0 if the file could not be loaded.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -33,18 +52,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bmpfile` | String | required |  |
-
-**Returns:** A handle for the image, or 0 if the file could not be loaded.
-
-**Differences and known gaps:**
-
-* More file formats load than in the original, which read BMP, PNG, JPEG and TGA. Files are decoded by SDL_image, and DDS files (DXT1 to DXT5, BC4, BC5, BC7 and uncompressed pictures) by the runtime itself, and block compressed ones stay compressed on the graphics card until the image is drawn to. See [LoadTexture](LoadTexture) for the formats of DDS files that are read.
-* Backslashes in paths are changed into slashes on Linux and macOS.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

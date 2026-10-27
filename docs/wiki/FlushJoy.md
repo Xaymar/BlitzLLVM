@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 FlushJoy
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
@@ -18,7 +22,7 @@ Forgets joystick button presses that nobody has looked at yet, on every connecte
 
 * Buttons that are currently held are not released. Only the counted and queued presses are cleared.
 
-## Related commands
+## Related Commands
 
 * [GetJoy](GetJoy)
 * [JoyDown](JoyDown)

@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 SetTextAreaTabs textarea:Int32, tabs:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Sets how wide a tab character is, independent of the font.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `textarea` | Int32 | required | Handle of a text area. |
+| `tabs` | Int32 | required | Width of a tab. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,12 +37,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `tabs` | Int32 | required | Width of a tab. |
-
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [CreateTextArea](CreateTextArea)

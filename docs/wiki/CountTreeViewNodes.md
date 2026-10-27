@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 CountTreeViewNodes:Int32 parent_node:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Counts the children a node has directly, without the nodes below them.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Counts the children a node has directly, without the nodes below them.
 
 **Returns:** The number of children.
 
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [CollapseTreeViewNode](CollapseTreeViewNode)

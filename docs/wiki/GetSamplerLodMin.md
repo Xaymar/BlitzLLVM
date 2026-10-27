@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 GetSamplerLodMin:Float32 sampler:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Returns the lowest mip level that the sampler has, as it was set with [SetSamplerLodMin](SetSamplerLodMin) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 or more.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Returns the lowest mip level that the sampler has, as it was set with [SetSample
 
 **Returns:** The setting: 0 or more.
 
-## Related commands
+## Related Commands
 
 * [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
 * [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕

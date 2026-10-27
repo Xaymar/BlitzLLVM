@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityOrder entity:Int32, order:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Changes the drawing order of an entity. 0 draws it normally. A positive value draws it before everything else, so it ends up behind, and a negative value draws it last, so it ends up in front. Entities with a non-zero order ignore the depth buffer, so use this only for simple convex things such as skyboxes and sprites. It affects only the entity, not its children.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 | `order` | Int32 | required | Greater than 0 for behind everything, less than 0 for in front, 0 for normal. |
 
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

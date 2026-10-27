@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 ActiveTextures:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The number of textures that exist at the moment. Textures count from creation until they are freed with [FreeTexture](FreeTexture) or [ClearWorld](ClearWorld). Use it to check that a level frees what it loads.
 
-## Related commands
+## Related Commands
 
 * [AmbientLight](AmbientLight)
 * [AntiAlias](AntiAlias)

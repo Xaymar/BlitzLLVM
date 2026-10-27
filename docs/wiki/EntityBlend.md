@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityBlend entity:Int32, blend:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -18,12 +22,14 @@ Chooses how the entity's pixels are mixed with what is already on screen.
 * **2, multiply** darkens what is behind it, which suits shadows and light maps. White changes nothing and black makes it black.
 * **3, add** adds the color to what is behind it, which suits fire, lasers and glows.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 | `blend` | Int32 | required | 1 for alpha, 2 for multiply, 3 for add. |
 
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

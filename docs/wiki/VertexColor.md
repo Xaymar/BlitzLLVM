@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 VertexColor surface:Int32, index:Int32, red:Float32, green:Float32, blue:Float32, alpha:Float32=1
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets the color of a vertex and its alpha. The color is blended smoothly across each triangle between its three vertices, which gives gradients and cheap baked lighting. It is multiplied with the entity color. Colors go from 0 to 255 and the alpha from 0, invisible, to 1, solid. The values can be floats and are kept exactly, instead of being rounded to whole numbers. Alpha per vertex needs `EntityFX 32` on the entity in the original.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
+| `red` | Float32 | required | Red part, 0 to 255. |
+| `green` | Float32 | required | Green part, 0 to 255. |
+| `blue` | Float32 | required | Blue part, 0 to 255. |
+| `alpha` | Float32 | `1` | Opacity, 0 to 1. Defaults to 1. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -35,18 +52,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![VertexColor](media/blitz3d/vertexcolor.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required | Index of the vertex, from 0. |
-| `red` | Float32 | required | Red part, 0 to 255. |
-| `green` | Float32 | required | Green part, 0 to 255. |
-| `blue` | Float32 | required | Blue part, 0 to 255. |
-| `alpha` | Float32 | `1` | Opacity, 0 to 1. Defaults to 1. |
-
-## Related commands
+## Related Commands
 
 * [VertexAlpha](VertexAlpha)
 * [VertexBlue](VertexBlue)

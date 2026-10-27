@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 Viewport x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Limits all drawing to a part of the buffer. Anything outside it is cut off, and [Cls](Cls) only clears the inside. The part that sticks out of the buffer is cut off as well. Call `Viewport 0, 0, GraphicsWidth(), GraphicsHeight()` to reset it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position of the left side of the viewport. |
+| `y` | Int32 | required | Vertical position of the top of the viewport. |
+| `width` | Int32 | required | Width in pixels. |
+| `height` | Int32 | required | Height in pixels. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -27,16 +42,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![Viewport](media/drawing/viewport.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the left side of the viewport. |
-| `y` | Int32 | required | Vertical position of the top of the viewport. |
-| `width` | Int32 | required | Width in pixels. |
-| `height` | Int32 | required | Height in pixels. |
-
-## Related commands
+## Related Commands
 
 * [Rect](Rect)
 * [ScanLine](ScanLine)

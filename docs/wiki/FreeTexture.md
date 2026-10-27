@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 FreeTexture texture:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -16,15 +20,17 @@ Releases a texture and its memory. Entities and brushes that were already painte
 
 Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, but freeing the ones you no longer need keeps memory use down.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to free. |
-
 **Differences and known gaps:**
 
 * [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `texture` | Int32 | required | The texture to free. |
+
+## Related Commands
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)

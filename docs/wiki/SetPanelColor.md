@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 SetPanelColor panel:Int32, red:Int32, green:Int32, blue:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Fills a panel with a color.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `panel` | Int32 | required | Handle of a panel. |
+| `red` | Int32 | required | Red part, 0 to 255. |
+| `green` | Int32 | required | Green part, 0 to 255. |
+| `blue` | Int32 | required | Blue part, 0 to 255. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -23,14 +38,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `panel` | Int32 | required | Handle of a panel. |
-| `red` | Int32 | required | Red part, 0 to 255. |
-| `green` | Int32 | required | Green part, 0 to 255. |
-| `blue` | Int32 | required | Blue part, 0 to 255. |
-
-## Related commands
+## Related Commands
 
 * [SetButtonState](SetButtonState)
 * [SetGadgetFont](SetGadgetFont)

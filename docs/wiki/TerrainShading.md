@@ -6,24 +6,30 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
+## Command Syntax
+
 ```blitzbasic
 TerrainShading terrain:Int32, enable:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Turns shading of the terrain on or off. Shaded terrains cost a little more speed in the original and can make the changes between detail levels more visible.
+
+**Differences and known gaps:**
+
+* The terrain is always lit with normals that follow the height, whatever this is set to.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `terrain` | Int32 | required | The terrain. |
 | `enable` | Int32 | required | True to enable shading. The default is False. |
 
-**Differences and known gaps:**
-
-* The terrain is always lit with normals that follow the height, whatever this is set to.
-
-## Related commands
+## Related Commands
 
 * [CreateTerrain](CreateTerrain)
 * [LoadTerrain](LoadTerrain)

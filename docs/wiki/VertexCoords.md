@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 VertexCoords surface:Int32, index:Int32, x:Float32, y:Float32, z:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Moves an existing vertex to a new position in the space of the mesh. Every triangle that uses the vertex follows, so changing vertices every frame deforms a mesh: waves on water, a flag in the wind or a dent in a car. Call [UpdateNormals](UpdateNormals) afterwards if the lighting should follow the new shape.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
+| `x` | Float32 | required | New X position. |
+| `y` | Float32 | required | New Y position. |
+| `z` | Float32 | required | New Z position. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -49,17 +65,11 @@ While Not KeyHit(1)
 Wend
 ```
 
+## Media
+
 ![VertexCoords](media/blitz3d/vertexcoords.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required | Index of the vertex, from 0. |
-| `x` | Float32 | required | New X position. |
-| `y` | Float32 | required | New Y position. |
-| `z` | Float32 | required | New Z position. |
-
-## Related commands
+## Related Commands
 
 * [VertexAlpha](VertexAlpha)
 * [VertexBlue](VertexBlue)

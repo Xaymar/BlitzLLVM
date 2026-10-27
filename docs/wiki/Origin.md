@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 Origin x:Int32, y:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Moves the point that counts as 0, 0 for everything you draw after it. Shapes, text and images move with it, the viewport does not.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position of the new origin in the buffer. |
+| `y` | Int32 | required | Vertical position of the new origin in the buffer. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -30,14 +43,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![Origin](media/drawing/origin.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the new origin in the buffer. |
-| `y` | Int32 | required | Vertical position of the new origin in the buffer. |
-
-## Related commands
+## Related Commands
 
 * [GetColor](GetColor)
 * [Line](Line)

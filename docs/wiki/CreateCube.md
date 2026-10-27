@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 CreateCube:Int32 parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates a cube that reaches from -1, -1, -1 to 1, 1, 1, so its edges are 2 units long, and returns it as a mesh entity. Cubes are the standard placeholder for anything that is not modeled yet. Scale it with [ScaleEntity](ScaleEntity) for boxes of any proportion.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `parent` | Int32 | `0` | Entity the cube follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new cube.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -30,15 +44,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateCube](media/blitz3d/createcube.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | `0` | Entity the cube follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new cube.
-
-## Related commands
+## Related Commands
 
 * [CreateCone](CreateCone)
 * [CreateCylinder](CreateCylinder)

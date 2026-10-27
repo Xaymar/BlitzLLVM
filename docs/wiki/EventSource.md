@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
+## Command Syntax
+
 ```blitzbasic
 EventSource:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the object that caused the last event: the gadget that was clicked, the window that moved or the timer that ticked. Compare it with the handles you got when you made them to find out which one it was.
+
+## Parameters
+
+**Returns:** A handle, or 0 for events that have no source such as keys and menus.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -29,11 +39,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![EventSource](media/events/eventsource.png)
 
-**Returns:** A handle, or 0 for events that have no source such as keys and menus.
-
-## Related commands
+## Related Commands
 
 * [EventData](EventData)
 * [EventID](EventID)

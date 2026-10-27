@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 CreateWindow:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32=0, style:Int32=15
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
@@ -27,6 +31,26 @@ The style is a sum of these flags, and 15 is the default:
 
 Windows send events when they move ($801), change size ($802), are closed ($803) or are activated ($804). Closing does not remove a window by itself, your program decides what to do with the $803 event.
 
+**Differences and known gaps:**
+
+* All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries. Windows are drawn in the order they were activated.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | String | required |  |
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the window. |
+| `height` | Int32 | required | Height of the window. |
+| `group` | Int32 | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
+| `style` | Int32 | `15` | Sum of the flags above. Defaults to 15. |
+
+**Returns:** A handle for the window.
+
+## Examples
+
 ```blitzbasic
 Graphics 320, 240, 32, 2
 win = CreateWindow("My window", 20, 20, 260, 180, Desktop(), 15)
@@ -42,25 +66,11 @@ Repeat
 Until asked = 2
 ```
 
+## Media
+
 ![CreateWindow](media/windows/createwindow.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required |  |
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the window. |
-| `height` | Int32 | required | Height of the window. |
-| `group` | Int32 | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
-| `style` | Int32 | `15` | Sum of the flags above. Defaults to 15. |
-
-**Returns:** A handle for the window.
-
-**Differences and known gaps:**
-
-* All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries. Windows are drawn in the order they were activated.
-
-## Related commands
+## Related Commands
 
 * [ActivateWindow](ActivateWindow)
 * [ActiveWindow](ActiveWindow)

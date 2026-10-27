@@ -6,14 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 CreateSurface:Int32 mesh:Int32, brush:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Adds an empty surface to a mesh and returns its handle. A mesh is a list of surfaces, and every surface is one batch of triangles that shares a material: color, texture and so on. Use one surface per material and put all triangles with that material into it, since each surface costs a draw call. Fill the surface with [AddVertex](AddVertex) and [AddTriangle](AddTriangle).
 A `brush` paints the surface right away, see [PaintSurface](PaintSurface).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `mesh` | Int32 | required | Mesh handle. |
+| `brush` | Int32 | `0` | Brush that paints the new surface, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new surface.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -44,16 +59,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateSurface](media/blitz3d/createsurface.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `brush` | Int32 | `0` | Brush that paints the new surface, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new surface.
-
-## Related commands
+## Related Commands
 
 * [ClearSurface](ClearSurface)
 * [FindSurface](FindSurface)

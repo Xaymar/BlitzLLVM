@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 ActiveObjects:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Counts what your program has made and not freed yet: banks, streams, sounds, images, textures, fonts, timers and objects of your own types. It is meant to help you find leaks while developing.
+
+**Differences and known gaps:**
+
+* Windows and gadgets are not counted here.
+
+## Parameters
+
+**Returns:** How many objects are alive. The official help lists the command as undocumented.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,13 +39,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-**Returns:** How many objects are alive. The official help lists the command as undocumented.
-
-**Differences and known gaps:**
-
-* Windows and gadgets are not counted here.
-
-## Related commands
+## Related Commands
 
 * [AutoSuspend](AutoSuspend)
 * [Confirm](Confirm)

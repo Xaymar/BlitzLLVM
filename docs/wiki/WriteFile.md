@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 WriteFile:Int32 filename:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Creates a file for writing. A file that already exists is emptied first.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `filename` | String | required | The file to create. |
+
+**Returns:** A file handle, or 0 when the file cannot be created.
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("files_write_example.tmp")
@@ -31,13 +45,7 @@ first
 second
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `filename` | String | required | The file to create. |
-
-**Returns:** A file handle, or 0 when the file cannot be created.
-
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [CopyFile](CopyFile)

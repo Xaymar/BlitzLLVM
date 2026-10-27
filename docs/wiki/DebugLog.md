@@ -6,23 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 DebugLog text:String
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes a line to the debug log. A program started from a terminal shows it on the standard error output, so it does not mix with what `Print` writes. On Windows programs have no console window of their own, they print into the terminal they were started from and the line is also sent to an attached debugger. See [[Console-Window]] for how to get a console.
 
-```blitzbasic
-DebugLog "player is at 10, 20"
-```
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `text` | String | required | The text to log. |
 
-## Related commands
+## Examples
+
+```blitzbasic
+DebugLog "player is at 10, 20"
+```
+
+## Related Commands
 
 * [CommandLine](CommandLine)
 * [CreateTimer](CreateTimer)

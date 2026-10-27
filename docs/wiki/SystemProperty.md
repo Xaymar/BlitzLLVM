@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 SystemProperty:String property:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Asks for the path of a system folder.
+
+**Differences and known gaps:**
+
+* Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `property` | String | required | One of `tempdir`, `appdir`, `windowsdir` or `systemdir`. |
+
+**Returns:** The path, or an empty string for a name that is not known.
+
+## Examples
 
 ```blitzbasic
 Print "Temporary files go to " + SystemProperty$("tempdir")
@@ -26,17 +44,7 @@ Print "Temporary files go to " + SystemProperty$("tempdir")
 
 Folders end with a separator, except for the ones of Windows, which are as the system gives them.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `property` | String | required | One of `tempdir`, `appdir`, `windowsdir` or `systemdir`. |
-
-**Returns:** The path, or an empty string for a name that is not known.
-
-**Differences and known gaps:**
-
-* Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.
-
-## Related commands
+## Related Commands
 
 * [SetEnv](SetEnv)
 * [Stop](Stop)

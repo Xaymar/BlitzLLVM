@@ -6,15 +6,35 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
+## Command Syntax
+
 ```blitzbasic
 CreateMenu:Int32 text:String, menu_id:Int32, parent_menu:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Makes a menu title or a menu item. Give [WindowMenu](WindowMenu) as the parent to get a title in the menu bar, and a menu as the parent to put an item or a submenu into it. An item that has items of its own opens a submenu. Choosing an item sends a $1001 event whose [EventData](EventData) is the number you gave. An empty text makes a separator line.
 
 Call [UpdateWindowMenu](UpdateWindowMenu) once you are done changing menus. The window needs flag 4 in its style to have room for the menu bar.
+
+**Differences and known gaps:**
+
+* The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | String | required | Text of the title or item. Put `&` before a letter to underline it for the keyboard. An empty text is a separator. |
+| `menu_id` | Int32 | required |  |
+| `parent_menu` | Int32 | required |  |
+
+**Returns:** A handle for the menu.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -30,21 +50,11 @@ Repeat
 Until e = $803 Or (e = $1001 And EventData() = 2)
 ```
 
+## Media
+
 ![CreateMenu](media/menus/createmenu.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | Text of the title or item. Put `&` before a letter to underline it for the keyboard. An empty text is a separator. |
-| `menu_id` | Int32 | required |  |
-| `parent_menu` | Int32 | required |  |
-
-**Returns:** A handle for the menu.
-
-**Differences and known gaps:**
-
-* The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
-
-## Related commands
+## Related Commands
 
 * [CheckMenu](CheckMenu)
 * [DisableMenu](DisableMenu)

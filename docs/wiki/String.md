@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 String:String string:String, repeat:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Repeats a string several times.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text to repeat. |
+| `repeat` | Int32 | required | How many copies to join. 0 gives an empty string. |
+
+**Returns:** The repeated text.
+
+## Examples
 
 ```blitzbasic
 Print String$("ab", 3)
@@ -22,14 +37,7 @@ Print String$("ab", 3)
 ababab
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to repeat. |
-| `repeat` | Int32 | required | How many copies to join. 0 gives an empty string. |
-
-**Returns:** The repeated text.
-
-## Related commands
+## Related Commands
 
 * [Right](Right)
 * [RSet](RSet)

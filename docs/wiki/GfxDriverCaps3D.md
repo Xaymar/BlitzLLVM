@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxDriverCaps3D:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Tells what the 3D driver is able to do. The result is a version number: 100 means all of the standard Blitz3D features, 110 adds cube environment maps. Graphics3D has to have been called before.
 
-**Returns:** 100 or 110.
-
 **Differences and known gaps:**
 
 * It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
 
-## Related commands
+## Parameters
+
+**Returns:** 100 or 110.
+
+## Related Commands
 
 * [CountGfxModes3D](CountGfxModes3D)
 * [GfxDriver3D](GfxDriver3D)

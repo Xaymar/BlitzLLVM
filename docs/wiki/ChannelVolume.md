@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 ChannelVolume channel:Int32, volume:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets the volume of one channel. It can be changed while the sound plays, for example to fade it out.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+| `volume` | Float32 | required | 0 is silence and 1 is the full volume of the sound. Values outside that range are limited to it. |
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -26,12 +39,7 @@ Next
 StopChannel ch
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-| `volume` | Float32 | required | 0 is silence and 1 is the full volume of the sound. Values outside that range are limited to it. |
-
-## Related commands
+## Related Commands
 
 * [ChannelPan](ChannelPan)
 * [ChannelPitch](ChannelPitch)

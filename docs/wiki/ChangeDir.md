@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 ChangeDir dir:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Makes another folder the current one, which is where relative paths start. Use [CurrentDir](CurrentDir) to see where you are.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `dir` | String | required | The folder to go to. |
+
+## Examples
 
 ```blitzbasic
 start$ = CurrentDir$()
@@ -27,11 +39,7 @@ DeleteDir "files_change_example"
 1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | String | required | The folder to go to. |
-
-## Related commands
+## Related Commands
 
 * [CloseDir](CloseDir)
 * [CreateDir](CreateDir)

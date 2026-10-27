@@ -6,13 +6,34 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 VertexTexCoords surface:Int32, index:Int32, u:Float32, v:Float32, w:Float32=1, coord_set:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets which point of the texture a vertex shows. 0, 0 is the top left of the texture and 1, 1 is the bottom right. Values above 1 repeat the texture, so a quad with the coordinates 0 to 3 shows the texture three times in each direction. A second set of coordinates, picked with `coord_set` 1, is used by the second texture layer in the original, for example for light maps.
+
+**Differences and known gaps:**
+
+* `w` is ignored.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
+| `u` | Float32 | required | Horizontal texture coordinate. |
+| `v` | Float32 | required | Vertical texture coordinate. |
+| `w` | Float32 | `1` | Third coordinate, unused. Defaults to 1. |
+| `coord_set` | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -48,22 +69,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![VertexTexCoords](media/blitz3d/vertextexcoords.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required | Index of the vertex, from 0. |
-| `u` | Float32 | required | Horizontal texture coordinate. |
-| `v` | Float32 | required | Vertical texture coordinate. |
-| `w` | Float32 | `1` | Third coordinate, unused. Defaults to 1. |
-| `coord_set` | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
-
-**Differences and known gaps:**
-
-* `w` is ignored.
-
-## Related commands
+## Related Commands
 
 * [VertexAlpha](VertexAlpha)
 * [VertexBlue](VertexBlue)

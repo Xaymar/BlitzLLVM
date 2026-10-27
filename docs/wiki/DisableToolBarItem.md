@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
+## Command Syntax
+
 ```blitzbasic
 DisableToolBarItem toolbar:Int32, index:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Greys out one icon of a toolbar. It no longer reacts and sends no events. [EnableToolBarItem](EnableToolBarItem) turns it back on.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `toolbar` | Int32 | required | Handle of a toolbar. |
+| `index` | Int32 | required | Number of the icon, counted from 0 and not counting gaps. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -30,12 +43,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `toolbar` | Int32 | required | Handle of a toolbar. |
-| `index` | Int32 | required | Number of the icon, counted from 0 and not counting gaps. |
-
-## Related commands
+## Related Commands
 
 * [CreateToolBar](CreateToolBar)
 * [EnableToolBarItem](EnableToolBarItem)

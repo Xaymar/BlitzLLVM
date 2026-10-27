@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 MeshDepth:Float32 mesh:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Reads the size of the mesh along Z, taken from the vertices. Entity scale does not count, but mesh commands do.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Reads the size of the mesh along Z, taken from the vertices. Entity scale does n
 
 **Returns:** The depth of the mesh.
 
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CopyMesh](CopyMesh)

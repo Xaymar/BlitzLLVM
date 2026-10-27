@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 SetPanelImage panel:Int32, file:String
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Shows a picture from a file in a panel. If the panel is bigger than the picture it is repeated like tiles.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `panel` | Int32 | required | Handle of a panel. |
+| `file` | String | required | Name of a picture file. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -31,14 +44,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![SetPanelImage](media/gadgets/setpanelimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `panel` | Int32 | required | Handle of a panel. |
-| `file` | String | required | Name of a picture file. |
-
-## Related commands
+## Related Commands
 
 * [SetButtonState](SetButtonState)
 * [SetGadgetFont](SetGadgetFont)

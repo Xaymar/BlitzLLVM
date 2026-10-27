@@ -6,13 +6,33 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes one frame of an image into a picture file. The file is a PNG when its name ends with `.png`, otherwise a BMP.
+
+**Differences and known gaps:**
+
+* The original only writes BMP files. A name ending in `.png` gives a PNG here.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+| `bmpfile` | String | required |  |
+| `frame` | Int32 | `0` | The frame to save. Defaults to 0. |
+
+**Returns:** 1 if the file was written, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,19 +46,7 @@ If SaveImage(img, "saved.png") Then Print "saved.png written" Else Print "could 
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `bmpfile` | String | required |  |
-| `frame` | Int32 | `0` | The frame to save. Defaults to 0. |
-
-**Returns:** 1 if the file was written, otherwise 0.
-
-**Differences and known gaps:**
-
-* The original only writes BMP files. A name ending in `.png` gives a PNG here.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

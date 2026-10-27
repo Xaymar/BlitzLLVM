@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 ScaleEntity entity:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32, global:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets the size of an entity as a factor for each axis. 1 is the size it was made with, 2 doubles it, 0.5 halves it and 0 makes it flat so it vanishes. A negative factor mirrors the entity along that axis. Scaling a parent scales its children with it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `x_scale` | Float32 | required | Size along X. |
+| `y_scale` | Float32 | required | Size along Y. |
+| `z_scale` | Float32 | required | Size along Z. |
+| `global` | Int32 | `0` | 1 to scale independent of the parent. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -33,17 +49,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![ScaleEntity](media/blitz3d/scaleentity.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `x_scale` | Float32 | required | Size along X. |
-| `y_scale` | Float32 | required | Size along Y. |
-| `z_scale` | Float32 | required | Size along Z. |
-| `global` | Int32 | `0` | 1 to scale independent of the parent. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

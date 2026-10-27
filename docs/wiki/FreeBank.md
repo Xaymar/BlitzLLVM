@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 FreeBank bank:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Releases a bank and its memory. The handle must not be used afterwards.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `bank` | Int32 | required | The bank to free. |
 
-## Related commands
+## Related Commands
 
 * [BankSize](BankSize)
 * [CopyBank](CopyBank)

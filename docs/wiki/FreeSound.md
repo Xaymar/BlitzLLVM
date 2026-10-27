@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 FreeSound sound:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Throws a loaded sound away and frees its memory. Channels that are playing this sound are stopped. Sounds are freed when the program ends anyway, so this is for programs that load a lot of sounds, for example one set for each level.
+
+**Differences and known gaps:**
+
+* Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `sound` | Int32 | required | A handle from [LoadSound](LoadSound) or [Load3DSound](Load3DSound). |
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -22,15 +38,7 @@ Delay 600
 FreeSound snd
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound) or [Load3DSound](Load3DSound). |
-
-**Differences and known gaps:**
-
-* Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
-
-## Related commands
+## Related Commands
 
 * [Load3DSound](Load3DSound)
 * [LoadSound](LoadSound)

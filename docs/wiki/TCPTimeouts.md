@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 TCPTimeouts read_millis:Int32, accept_millis:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets how long to wait. Reading from a TCP stream waits for data until the read timeout is over, and [AcceptTCPStream](AcceptTCPStream) waits for a client until the accept timeout is over. The defaults are 10000 milliseconds for reading and 0 for accepting.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `read_millis` | Int32 | required | Read timeout in milliseconds. |
 | `accept_millis` | Int32 | required | Accept timeout in milliseconds. |
 
-## Related commands
+## Related Commands
 
 * [AcceptTCPStream](AcceptTCPStream)
 * [CloseTCPServer](CloseTCPServer)

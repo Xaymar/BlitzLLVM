@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 ReadDir:Int32 dirname:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Opens a folder so its entries can be listed with [NextFile](NextFile).
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Opens a folder so its entries can be listed with [NextFile](NextFile).
 
 **Returns:** A folder handle, or 0 when the folder does not exist.
 
-## Related commands
+## Related Commands
 
 * [ChangeDir](ChangeDir)
 * [CloseDir](CloseDir)

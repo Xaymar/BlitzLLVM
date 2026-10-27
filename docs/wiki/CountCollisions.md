@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 CountCollisions:Int32 entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** How many collisions the entity was involved in during the last [UpdateWorld](UpdateWorld). The entity that was hit gets the collision recorded too, so the destination of a collision also reports a count. Use it as the upper bound for the index of the `Collision...` commands, which count from 1.
 
-## Related commands
+## Related Commands
 
 * [ClearCollisions](ClearCollisions)
 * [Collisions](Collisions)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 DeltaPitch:Float32 src_entity:Int32, dest_entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Tells you how far an entity has to tilt around its sideways axis to look at another entity. The result is in degrees, between -180 and 180. A positive angle looks down, as with [EntityPitch](EntityPitch), so a target above the entity gives a negative number.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Tells you how far an entity has to tilt around its sideways axis to look at anot
 
 **Returns:** The tilt needed, in degrees.
 
-## Related commands
+## Related Commands
 
 * [DeltaYaw](DeltaYaw)
 * [ProjectedX](ProjectedX)

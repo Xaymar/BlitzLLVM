@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
+## Command Syntax
+
 ```blitzbasic
 LockedPitch:Int32 buffer:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives how many bytes one row of pixels of a locked buffer takes, which you need to find the pixel at x, y: `y * pitch + x * 4`.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
+
+**Returns:** Bytes in a row. For the buffer of a 200 pixel wide canvas that is 800.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,13 +40,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
-
-**Returns:** Bytes in a row. For the buffer of a 200 pixel wide canvas that is 800.
-
-## Related commands
+## Related Commands
 
 * [FlipCanvas](FlipCanvas)
 * [LockedFormat](LockedFormat)

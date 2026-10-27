@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 TotalVidMem:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The total amount of video memory in bytes.
+
+**Differences and known gaps:**
+
+* The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer. It is 0 when no graphics window is open.
+
+## Parameters
+
+**Returns:** The size of the video memory in bytes.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -20,13 +34,7 @@ Print "Video memory: " + (TotalVidMem() / 1048576) + " MB"
 WaitKey
 ```
 
-**Returns:** The size of the video memory in bytes.
-
-**Differences and known gaps:**
-
-* The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer. It is 0 when no graphics window is open.
-
-## Related commands
+## Related Commands
 
 * [AvailVidMem](AvailVidMem)
 * [SetGfxDriver](SetGfxDriver)

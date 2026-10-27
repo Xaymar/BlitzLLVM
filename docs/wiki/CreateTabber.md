@@ -6,13 +6,36 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 CreateTabber:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Makes a row of tabs. Fill it with [AddGadgetItem](AddGadgetItem), one entry for each tab. The tabber does not hold the contents of the tabs for you: put a panel for each tab in the same window and show only the one that matches the selected tab, when the tabber sends $401.
+
+**Differences and known gaps:**
+
+* Gadgets created with the tabber as their group are drawn on it all the time, as in the original. They are not tied to a tab.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the tabber. |
+| `height` | Int32 | required | Height of the tabber. |
+| `group` | Int32 | required | Window, panel or canvas that holds it. |
+| `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
+
+**Returns:** A handle for the tabber.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -34,24 +57,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![CreateTabber](media/gadgets/createtabber.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the tabber. |
-| `height` | Int32 | required | Height of the tabber. |
-| `group` | Int32 | required | Window, panel or canvas that holds it. |
-| `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
-
-**Returns:** A handle for the tabber.
-
-**Differences and known gaps:**
-
-* Gadgets created with the tabber as their group are drawn on it all the time, as in the original. They are not tied to a tab.
-
-## Related commands
+## Related Commands
 
 * [CreateButton](CreateButton)
 * [CreateComboBox](CreateComboBox)

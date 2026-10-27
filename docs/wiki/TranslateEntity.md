@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 TranslateEntity entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Moves an entity along the axes of its parent or of the world, ignoring where the entity faces. Use it for things like gravity or a jump that always goes straight up whichever way the character turned.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -22,7 +28,7 @@ Moves an entity along the axes of its parent or of the world, ignoring where the
 | `z` | Float32 | required | Distance along Z. |
 | `global` | Int32 | `0` | 1 to move along the world axes even when the entity has a parent that is turned. Defaults to 0. |
 
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

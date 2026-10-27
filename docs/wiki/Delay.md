@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 Delay millisecs:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Pauses the program for a number of milliseconds. The window keeps working while it waits. A value of 0 or less returns right away.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `millisecs` | Int32 | required | How long to wait, in milliseconds. |
+
+## Examples
 
 ```blitzbasic
 start = MilliSecs()
@@ -24,11 +36,7 @@ Print MilliSecs() - start >= 95
 1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `millisecs` | Int32 | required | How long to wait, in milliseconds. |
-
-## Related commands
+## Related Commands
 
 * [CreateTimer](CreateTimer)
 * [DebugLog](DebugLog)

@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyHit:Int32 button:Int32, port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Counts presses of a joystick button since the last time JoyHit asked about that button.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `button` | Int32 | required | The button number, 1 to 32. |
+| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+
+**Returns:** How many times the button was pressed since the last call.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,14 +41,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `button` | Int32 | required | The button number, 1 to 32. |
-| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
-
-**Returns:** How many times the button was pressed since the last call.
-
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 UpdateGamma calibrate:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Makes the gamma tables that [SetGamma](SetGamma) changed count: the window is shown through them from now on, also if the program only draws to the front buffer and does not [Flip](Flip).
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `calibrate` | Int32 | `0` | 1 to use the calibration of the display. Defaults to 0. |
-
 **Differences and known gaps:**
 
 * The original gave the tables to the display. This only changes the window, never the gamma of the display, so nothing outside of the program looks different. `calibrate` has no effect, as no calibration of the display is used.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `calibrate` | Int32 | `0` | 1 to use the calibration of the display. Defaults to 0. |
+
+## Related Commands
 
 * [GammaBlue](GammaBlue)
 * [GammaGreen](GammaGreen)

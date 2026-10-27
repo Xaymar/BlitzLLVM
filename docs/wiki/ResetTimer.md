@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 ResetTimer timer:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Sets the tick count of a timer back to 0 and starts counting again from now.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `timer` | Int32 | required | A timer from `CreateTimer`. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,11 +37,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timer` | Int32 | required | A timer from `CreateTimer`. |
-
-## Related commands
+## Related Commands
 
 * [PauseTimer](PauseTimer)
 * [Proceed](Proceed)

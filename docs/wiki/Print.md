@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 Print string:String=\
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes a line of text at the text cursor and moves the cursor to the start of the next line. When it reaches the bottom of the window the picture scrolls up. With no text it only moves the cursor. Print draws straight onto the screen, so it needs no [Flip](Flip). For text that is part of a frame that is drawn into the back buffer, use [Text](Text).
+
+**Differences and known gaps:**
+
+* Without a graphics window the text goes to the console instead.
+* The text is drawn in the drawing color, in the current font, onto the front buffer.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | `\` | The text to write. Defaults to an empty line. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -25,18 +42,11 @@ Print "Print draws on the screen"
 WaitKey
 ```
 
+## Media
+
 ![Print](media/fonts/print.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | `\` | The text to write. Defaults to an empty line. |
-
-**Differences and known gaps:**
-
-* Without a graphics window the text goes to the console instead.
-* The text is drawn in the drawing color, in the current font, onto the front buffer.
-
-## Related commands
+## Related Commands
 
 * [LoadFont](LoadFont)
 * [Locate](Locate)

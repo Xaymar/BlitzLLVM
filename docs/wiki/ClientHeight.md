@@ -6,19 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 ClientHeight:Int32 group:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Gives the height of the area of a group that gadgets can use, which is the inside of the window without its frame, title, menu bar and status bar. For [Desktop](Desktop) it is the height of the screen, so it tells you the resolution.
 
-```blitzbasic
-Graphics 320, 240, 32, 2
-win = CreateWindow("Client", 10, 10, 200, 150, Desktop(), 15)
-Notify "Window: " + ClientWidth(win) + " x " + ClientHeight(win) + Chr$(13) + "Desktop: " + ClientWidth(Desktop()) + " x " + ClientHeight(Desktop())
-```
+**Differences and known gaps:**
+
+* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -26,11 +30,15 @@ Notify "Window: " + ClientWidth(win) + " x " + ClientHeight(win) + Chr$(13) + "D
 
 **Returns:** The usable height in pixels.
 
-**Differences and known gaps:**
+## Examples
 
-* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Client", 10, 10, 200, 150, Desktop(), 15)
+Notify "Window: " + ClientWidth(win) + " x " + ClientHeight(win) + Chr$(13) + "Desktop: " + ClientWidth(Desktop()) + " x " + ClientHeight(Desktop())
+```
 
-## Related commands
+## Related Commands
 
 * [ActivateWindow](ActivateWindow)
 * [ActiveWindow](ActiveWindow)

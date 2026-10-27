@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 TFormedZ:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The Z of the result of the last [TFormPoint](TFormPoint), [TFormVector](TFormVector) or [TFormNormal](TFormNormal).
 
-## Related commands
+## Related Commands
 
 * [ProjectedZ](ProjectedZ)
 * [TFormedX](TFormedX)

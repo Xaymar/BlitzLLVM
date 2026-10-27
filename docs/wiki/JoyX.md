@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyX:Float32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The horizontal position of the main stick, from -1 (left) to 1 (right). A small value close to 0 is normal even when the stick is released, so ignore values below a dead zone of about 0.1.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+
+**Returns:** The position from -1 to 1, or 0 if there is no joystick.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,15 +42,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![JoyX](media/joystick/joyx.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
-
-**Returns:** The position from -1 to 1, or 0 if there is no joystick.
-
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

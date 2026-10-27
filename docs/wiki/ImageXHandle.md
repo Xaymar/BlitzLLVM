@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 ImageXHandle:Int32 image:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The horizontal position of the handle of an image, counted from its left edge.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ The horizontal position of the handle of an image, counted from its left edge.
 
 **Returns:** The x position of the handle.
 
-## Related commands
+## Related Commands
 
 * [AutoMidHandle](AutoMidHandle)
 * [ImageBuffer](ImageBuffer)

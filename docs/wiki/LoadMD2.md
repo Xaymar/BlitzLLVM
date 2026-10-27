@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 LoadMD2:Int32 file:String, parent:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -17,6 +21,17 @@ Loads a Quake 2 model (.md2). The model is made of a single mesh that moves from
 A parent makes the model follow another entity. The model is still created at 0, 0, 0 and not at the parent's position, and moving the model does not move the parent.
 
 Case matters for file names on Linux, so use the exact spelling of the files.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | The .md2 file. |
+| `parent` | Int32 | `0` | Optional parent entity. |
+
+**Returns:** An entity handle, or 0 if the file could not be loaded.
+
+## Examples
 
 ```blitzbasic
 ; Uses the Gargoyle model of the Blitz3D samples, which are run from the folder that contains "media".
@@ -42,16 +57,11 @@ For i = 0 To 39
 Next
 ```
 
+## Media
+
 ![LoadMD2](media/animation/loadmd2.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The .md2 file. |
-| `parent` | Int32 | `0` | Optional parent entity. |
-
-**Returns:** An entity handle, or 0 if the file could not be loaded.
-
-## Related commands
+## Related Commands
 
 * [AnimateMD2](AnimateMD2)
 * [LoadAnimSeq](LoadAnimSeq)

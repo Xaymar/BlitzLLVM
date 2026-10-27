@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityClass:String entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Returns what kind of entity a handle is, which is useful when a function receives any entity.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Returns what kind of entity a handle is, which is useful when a function receive
 
 **Returns:** One of `Pivot`, `Light`, `Camera`, `Mirror`, `Listener`, `Sprite`, `Terrain`, `Plane`, `Mesh`, `MD2` or `BSP`.
 
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

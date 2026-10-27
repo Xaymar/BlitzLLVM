@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 ASin:Float32 float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the angle whose sine is the given number. The result is in degrees, from -90 to 90.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `float` | Float32 | required | The sine, from -1 to 1. |
+
+**Returns:** The angle in degrees.
+
+## Examples
 
 ```blitzbasic
 Print ASin(0.5)
@@ -22,13 +36,7 @@ Print ASin(0.5)
 30.0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The sine, from -1 to 1. |
-
-**Returns:** The angle in degrees.
-
-## Related commands
+## Related Commands
 
 * [ACos](ACos)
 * [ATan](ATan)

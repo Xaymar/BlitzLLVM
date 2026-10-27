@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 TFormNormal x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Converts a surface normal from one space to another, and makes the result exactly 1 unit long again. Where TFormVector would stretch a direction with the scale of the entity, a normal keeps its length, which is what lighting and bouncing calculations need. The result is read back with [TFormedX](TFormedX), [TFormedY](TFormedY) and [TFormedZ](TFormedZ).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Float32 | required | X of the normal in the source space. |
+| `y` | Float32 | required | Y of the normal in the source space. |
+| `z` | Float32 | required | Z of the normal in the source space. |
+| `source_entity` | Int32 | required | Entity whose space the normal is in, or 0 for the world. |
+| `dest_entity` | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -29,15 +45,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Float32 | required | X of the normal in the source space. |
-| `y` | Float32 | required | Y of the normal in the source space. |
-| `z` | Float32 | required | Z of the normal in the source space. |
-| `source_entity` | Int32 | required | Entity whose space the normal is in, or 0 for the world. |
-| `dest_entity` | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
-
-## Related commands
+## Related Commands
 
 * [TFormedX](TFormedX)
 * [TFormedY](TFormedY)

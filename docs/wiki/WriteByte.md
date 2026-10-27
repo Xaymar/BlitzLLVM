@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 WriteByte stream:Int32, byte:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes one byte. Values outside 0 to 255 wrap around.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `stream` | Int32 | required | The stream to write to. |
 | `byte` | Int32 | required | The value to write. |
 
-## Related commands
+## Related Commands
 
 * [ReadByte](ReadByte)
 * [WriteFloat](WriteFloat)

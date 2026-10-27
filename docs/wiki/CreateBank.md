@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 CreateBank:Int32 size:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Creates a bank of the given size, filled with zeros. A size of 0 is allowed, and the bank can grow later with [ResizeBank](ResizeBank). Free it with [FreeBank](FreeBank) when you are done.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `size` | Int32 | `0` | Size in bytes. Defaults to 0. |
+
+**Returns:** A bank handle.
+
+## Examples
 
 ```blitzbasic
 bank = CreateBank(8)
@@ -25,13 +39,7 @@ FreeBank bank
 123456
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `size` | Int32 | `0` | Size in bytes. Defaults to 0. |
-
-**Returns:** A bank handle.
-
-## Related commands
+## Related Commands
 
 * [BankSize](BankSize)
 * [CopyBank](CopyBank)

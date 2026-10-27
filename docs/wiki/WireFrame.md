@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 WireFrame enable:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Switches between solid drawing and wireframe drawing, where only the edges of the triangles are shown. It is handy to look at how a mesh is built. It affects everything that is drawn afterwards, until it is switched off again.
+
+**Differences and known gaps:**
+
+* On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `enable` | Int32 | required | True for wireframe, False for solid. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -33,17 +49,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![WireFrame](media/world/wireframe.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True for wireframe, False for solid. |
-
-**Differences and known gaps:**
-
-* On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
-
-## Related commands
+## Related Commands
 
 * [UpdateWorld](UpdateWorld)
 * [WBuffer](WBuffer)

@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 FlipMesh mesh:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Turns every triangle of a mesh around so that it faces the other way. Triangles are only drawn from the side they face, so a sphere made as a sky has to be flipped to be seen from inside. Flipping also turns the lighting normals around. If you need a mesh visible from both sides, copy it with [CopyMesh](CopyMesh), flip the copy and merge both with [AddMesh](AddMesh), or just draw both sides with the 16 flag of [EntityFX](EntityFX), which is cheaper.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `mesh` | Int32 | required | Mesh handle. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -32,13 +44,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![FlipMesh](media/blitz3d/flipmesh.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CopyMesh](CopyMesh)

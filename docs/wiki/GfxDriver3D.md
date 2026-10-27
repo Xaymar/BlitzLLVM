@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxDriver3D:Int32 driver:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Tells whether a graphics driver can draw 3D.
+
+**Differences and known gaps:**
+
+* A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0. Software drivers can.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ Tells whether a graphics driver can draw 3D.
 
 **Returns:** True if the driver can draw 3D pictures.
 
-**Differences and known gaps:**
-
-* A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0. Software drivers can.
-
-## Related commands
+## Related Commands
 
 * [CountGfxModes3D](CountGfxModes3D)
 * [GfxDriverCaps3D](GfxDriverCaps3D)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 MeshesIntersect:Int32 mesh_a:Int32, mesh_b:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Tests if the triangles of two meshes touch at their current positions. It takes the entity position, rotation and scale into account. It is exact, but slow compared with the collision commands, so call it only when a cheaper check such as a distance already said the meshes are close.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Tests if the triangles of two meshes touch at their current positions. It takes 
 
 **Returns:** 1 if the meshes intersect, otherwise 0.
 
-## Related commands
+## Related Commands
 
 * [MeshCullBox](MeshCullBox)
 * [MeshDepth](MeshDepth)

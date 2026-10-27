@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 LoadTexture:Int32 file:String, flags:Int32=1
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -23,6 +27,21 @@ Mip maps (flag 8, which [TextureFilter](TextureFilter) adds to every texture at 
 How transparency is taken from the file depends on the flags. Without flag 2 the picture is opaque even if the file has an alpha channel. With flag 2 an existing alpha channel is used, and a picture without one gets its alpha from how bright each texel is. Flag 4 makes every pure black texel transparent and everything else opaque.
 
 Textures that [TextureFilter](TextureFilter) matches by file name get extra flags added.
+
+**Differences and known gaps:**
+
+* Video memory, high color and point sampling flags are stored but have no effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | Picture file to load. |
+| `flags` | Int32 | `1` | Sum of the texture flags, see CreateTexture. Defaults to 1. |
+
+**Returns:** A texture handle, or 0 if the file could not be loaded.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -53,20 +72,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![LoadTexture](media/textures/loadtexture.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Picture file to load. |
-| `flags` | Int32 | `1` | Sum of the texture flags, see CreateTexture. Defaults to 1. |
-
-**Returns:** A texture handle, or 0 if the file could not be loaded.
-
-**Differences and known gaps:**
-
-* Video memory, high color and point sampling flags are stored but have no effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
-
-## Related commands
+## Related Commands
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)

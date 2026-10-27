@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 TimerTicks:Int32 timer:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Counts how many ticks a timer made since it was created or last reset. Each tick also arrives as a $4001 event, but when the program is busy several ticks are put into one event, so the count is the reliable number.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `timer` | Int32 | required | A timer from `CreateTimer`. |
+
+**Returns:** The number of ticks.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,13 +38,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timer` | Int32 | required | A timer from `CreateTimer`. |
-
-**Returns:** The number of ticks.
-
-## Related commands
+## Related Commands
 
 * [PauseTimer](PauseTimer)
 * [ResetTimer](ResetTimer)

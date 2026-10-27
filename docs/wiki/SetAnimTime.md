@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 SetAnimTime entity:Int32, time:Float32, anim_seq:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Poses the entity at a point in time of a sequence without playing it. This is for animating by hand, for example to scrub through an animation with a slider or to show frame 10 of a pose. It also makes the given sequence the current one.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | The entity. |
+| `time` | Float32 | required | Time in frames from the start of the sequence. |
+| `anim_seq` | Int32 | `0` | Sequence to pose, defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -43,15 +57,11 @@ For frame = 0 To 39
 Next
 ```
 
+## Media
+
 ![SetAnimTime](media/animation/setanimtime.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
-| `time` | Float32 | required | Time in frames from the start of the sequence. |
-| `anim_seq` | Int32 | `0` | Sequence to pose, defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [AddAnimSeq](AddAnimSeq)
 * [AnimLength](AnimLength)

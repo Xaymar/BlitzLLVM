@@ -6,13 +6,36 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 DrawImageRect image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32, frame:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws only a rectangle of a frame, with the mask color left out. It can show a part of a big picture or cut a sheet into tiles. The handle of the image is not used: the top left corner of the rectangle goes to the given position.
+
+**Differences and known gaps:**
+
+* Only the part that lies inside the frame is drawn. A rectangle that reaches over the edge is cut off.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image to draw. |
+| `x` | Int32 | required | Horizontal position on the screen of the top left corner of the part. |
+| `y` | Int32 | required | Vertical position on the screen of the top left corner of the part. |
+| `rect_x` | Int32 | required | Left edge of the part inside the frame. |
+| `rect_y` | Int32 | required | Top edge of the part inside the frame. |
+| `rect_width` | Int32 | required | Width of the part. |
+| `rect_height` | Int32 | required | Height of the part. |
+| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -33,24 +56,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![DrawImageRect](media/images/drawimagerect.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to draw. |
-| `x` | Int32 | required | Horizontal position on the screen of the top left corner of the part. |
-| `y` | Int32 | required | Vertical position on the screen of the top left corner of the part. |
-| `rect_x` | Int32 | required | Left edge of the part inside the frame. |
-| `rect_y` | Int32 | required | Top edge of the part inside the frame. |
-| `rect_width` | Int32 | required | Width of the part. |
-| `rect_height` | Int32 | required | Height of the part. |
-| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
-
-**Differences and known gaps:**
-
-* Only the part that lies inside the frame is drawn. A rectangle that reaches over the edge is cut off.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

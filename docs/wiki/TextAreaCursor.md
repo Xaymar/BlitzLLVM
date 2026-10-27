@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 TextAreaCursor:Int32 textarea:Int32, units:Int32=1
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives where the text cursor is.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `textarea` | Int32 | required | Handle of a text area. |
+| `units` | Int32 | `1` | 1 gives the character position, 2 gives the line. Defaults to 1. |
+
+**Returns:** The position, counting from 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,16 +40,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![TextAreaCursor](media/textareas/textareacursor.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `units` | Int32 | `1` | 1 gives the character position, 2 gives the line. Defaults to 1. |
-
-**Returns:** The position, counting from 0.
-
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [TextAreaChar](TextAreaChar)

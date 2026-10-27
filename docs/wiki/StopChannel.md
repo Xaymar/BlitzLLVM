@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 StopChannel channel:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Stops a channel and releases it. The handle can not be used afterwards, and commands that are given a channel that has ended are ignored.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -24,11 +36,7 @@ StopChannel ch
 Print ChannelPlaying(ch)
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-
-## Related commands
+## Related Commands
 
 * [ChannelPan](ChannelPan)
 * [ChannelPitch](ChannelPitch)

@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyDown:Int32 button:Int32, port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether a joystick button is held down right now. Buttons are counted from 1.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `button` | Int32 | required | The button number, 1 to 32. |
+| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+
+**Returns:** 1 while the button is held down, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -32,14 +47,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `button` | Int32 | required | The button number, 1 to 32. |
-| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
-
-**Returns:** 1 while the button is held down, otherwise 0.
-
-## Related commands
+## Related Commands
 
 * [JoyHat](JoyHat)
 * [JoyHit](JoyHit)

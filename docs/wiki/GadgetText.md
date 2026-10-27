@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 GadgetText:String gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Reads the text of a gadget, such as the caption of a button or label, or the title of a window. For text fields and text areas, use [TextFieldText](TextFieldText) and [TextAreaText](TextAreaText) to read what the user typed. The official help lists the command as undocumented.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of the gadget. |
+
+**Returns:** The text of the gadget.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,13 +38,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-
-**Returns:** The text of the gadget.
-
-## Related commands
+## Related Commands
 
 * [GadgetFont](GadgetFont)
 * [GadgetGroup](GadgetGroup)

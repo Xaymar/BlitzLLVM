@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
+## Command Syntax
+
 ```blitzbasic
 CameraZoom camera:Int32, zoom:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Changes how much the camera magnifies the view. 1 is the default, larger values zoom in and smaller values zoom out. Zoom narrows or widens the field of view, so it can imitate a telescope or a wide angle lens. The runtime does not accept values below 0.001.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `camera` | Int32 | required | Camera handle. |
+| `zoom` | Float32 | required | Magnification, 1 by default. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -32,14 +45,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CameraZoom](media/blitz3d/camerazoom.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `zoom` | Float32 | required | Magnification, 1 by default. |
-
-## Related commands
+## Related Commands
 
 * [CameraClsColor](CameraClsColor)
 * [CameraClsMode](CameraClsMode)

@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 ChannelPlaying:Int32 channel:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether a channel is still playing. A paused channel counts as playing, and a channel that has ended or was stopped does not.
+
+**Differences and known gaps:**
+
+* A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+
+**Returns:** 1 if the channel is playing or paused, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -31,17 +49,7 @@ Flip
 Delay 500
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-
-**Returns:** 1 if the channel is playing or paused, otherwise 0.
-
-**Differences and known gaps:**
-
-* A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
-
-## Related commands
+## Related Commands
 
 * [ChannelPan](ChannelPan)
 * [ChannelPitch](ChannelPitch)

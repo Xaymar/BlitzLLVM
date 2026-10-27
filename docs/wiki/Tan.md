@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Tan:Float32 degrees:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the tangent of an angle given in degrees, not radians.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `degrees` | Float32 | required | The angle in degrees. |
+
+**Returns:** The tangent.
+
+## Examples
 
 ```blitzbasic
 Print Tan(45)
@@ -22,13 +36,7 @@ Print Tan(45)
 1.0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `degrees` | Float32 | required | The angle in degrees. |
-
-**Returns:** The tangent.
-
-## Related commands
+## Related Commands
 
 * [ATan](ATan)
 * [Sin](Sin)

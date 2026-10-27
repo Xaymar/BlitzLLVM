@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 Proceed:Int32 text:String, serious:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Shows a question with Yes, No and Cancel and waits for the answer. Lines can be split with `Chr$(13)`.
+
+**Differences and known gaps:**
+
+* The box is a message box of the operating system. Without a screen it writes the text to the error output and answers -1.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | String | required | The question. |
+| `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
+
+**Returns:** 1 for Yes, 0 for No and -1 for Cancel.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -23,18 +42,7 @@ Select Proceed("Save before quitting?")
 End Select
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | The question. |
-| `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
-
-**Returns:** 1 for Yes, 0 for No and -1 for Cancel.
-
-**Differences and known gaps:**
-
-* The box is a message box of the operating system. Without a screen it writes the text to the error output and answers -1.
-
-## Related commands
+## Related Commands
 
 * [Notify](Notify)
 * [PauseTimer](PauseTimer)

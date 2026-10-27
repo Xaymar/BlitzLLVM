@@ -6,15 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
+## Command Syntax
+
 ```blitzbasic
 PeekEvent:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Looks at the next event without taking it. If one is waiting it gives the kind, and if not it gives 0. The event stays in the queue, and [EventID](EventID) and the other event functions do not change, so use [WaitEvent](WaitEvent) with a timeout of 0 to actually take it.
 
 Calling it also lets the windows do their work, so it can be used to keep the interface alive in a loop that does other things.
+
+## Parameters
+
+**Returns:** The kind of the next event, or 0 if there is none.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -28,9 +38,7 @@ While PeekEvent() <> $803
 Wend
 ```
 
-**Returns:** The kind of the next event, or 0 if there is none.
-
-## Related commands
+## Related Commands
 
 * [EventData](EventData)
 * [EventID](EventID)

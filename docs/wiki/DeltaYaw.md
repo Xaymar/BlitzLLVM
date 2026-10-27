@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 DeltaYaw:Float32 src_entity:Int32, dest_entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Tells you how far an entity has to turn around its vertical axis to look at another entity. The result is in degrees, between -180 and 180. A positive angle is a turn to the left, as with [EntityYaw](EntityYaw), so adding the result to the current yaw makes the entity face the target. It only looks at the horizontal direction; the height difference is covered by [DeltaPitch](DeltaPitch).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `src_entity` | Int32 | required | The entity that should turn. |
+| `dest_entity` | Int32 | required | The entity it should look at. |
+
+**Returns:** The turn needed, in degrees.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -29,14 +44,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_entity` | Int32 | required | The entity that should turn. |
-| `dest_entity` | Int32 | required | The entity it should look at. |
-
-**Returns:** The turn needed, in degrees.
-
-## Related commands
+## Related Commands
 
 * [DeltaPitch](DeltaPitch)
 * [ProjectedX](ProjectedX)

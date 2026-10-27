@@ -6,13 +6,35 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [3D Sound](Blitz3D-3D-Sound)
 
+## Command Syntax
+
 ```blitzbasic
 CreateListener:Int32 parent:Int32, rolloff_factor:Float32=1, doppler_scale:Float32=1, distance_scale:Float32=1
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates the ear that 3D sounds are heard with. It is carried by another entity, usually the camera, so that sounds get quieter with distance and move between the left and right speaker as the listener moves and turns. Only one listener is used at a time. The listener has to exist before [EmitSound](EmitSound) is used.
+
+**Differences and known gaps:**
+
+* Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original. The pitch follows the speeds along the line between the listener and the sound, with sound moving at 340 meters per second. Speeds are measured from how far the entities moved in their last step, so a sound that comes from an entity that was placed somewhere (and not moved) has no shift; nothing moves faster than 90% of the speed of sound as far as the shift is concerned. The shift follows a change of the speeds over about a tenth of a second, so a sound that passes the listener glides from the high pitch to the low one and does not jump.
+* Samples of a source that drives past the listener at 60 meters per second, recorded with tools/render_doppler_samples.py: [doppler_off.wav](media/audio/doppler_off.wav) (doppler scale 0, steady 441 Hz), [doppler_on.wav](media/audio/doppler_on.wav) (scale 1, about 535 Hz while it comes closer, gliding down to 375 Hz as it passes and leaves) and [doppler_far.wav](media/audio/doppler_far.wav) (distance scale 0.25, so the speeds are a quarter and the shift is smaller).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `parent` | Int32 | required | The entity that carries the listener, typically the camera. |
+| `rolloff_factor` | Float32 | `1` | How fast sounds get quiet with distance: 0 means they do not, 1 is the normal rate and above that makes them fade faster. Defaults to 1. |
+| `doppler_scale` | Float32 | `1` | How strong the pitch change of moving sounds is: 0 turns it off, 1 is the real one and 2 shifts twice as far. Defaults to 1. |
+| `distance_scale` | Float32 | `1` | How many meters one unit of your world is, which sets the distances that volume falls off over and how fast things move for the doppler shift. Defaults to 1. |
+
+**Returns:** A handle for the listener.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -33,21 +55,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | required | The entity that carries the listener, typically the camera. |
-| `rolloff_factor` | Float32 | `1` | How fast sounds get quiet with distance: 0 means they do not, 1 is the normal rate and above that makes them fade faster. Defaults to 1. |
-| `doppler_scale` | Float32 | `1` | How strong the pitch change of moving sounds is: 0 turns it off, 1 is the real one and 2 shifts twice as far. Defaults to 1. |
-| `distance_scale` | Float32 | `1` | How many meters one unit of your world is, which sets the distances that volume falls off over and how fast things move for the doppler shift. Defaults to 1. |
-
-**Returns:** A handle for the listener.
-
-**Differences and known gaps:**
-
-* Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original. The pitch follows the speeds along the line between the listener and the sound, with sound moving at 340 meters per second. Speeds are measured from how far the entities moved in their last step, so a sound that comes from an entity that was placed somewhere (and not moved) has no shift; nothing moves faster than 90% of the speed of sound as far as the shift is concerned. The shift follows a change of the speeds over about a tenth of a second, so a sound that passes the listener glides from the high pitch to the low one and does not jump.
-* Samples of a source that drives past the listener at 60 meters per second, recorded with tools/render_doppler_samples.py: [doppler_off.wav](media/audio/doppler_off.wav) (doppler scale 0, steady 441 Hz), [doppler_on.wav](media/audio/doppler_on.wav) (scale 1, about 535 Hz while it comes closer, gliding down to 375 Hz as it passes and leaves) and [doppler_far.wav](media/audio/doppler_far.wav) (distance scale 0.25, so the speeds are a quarter and the shift is smaller).
-
-## Related commands
+## Related Commands
 
 * [EmitSound](EmitSound)
 

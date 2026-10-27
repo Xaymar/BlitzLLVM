@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 SetGadgetShape gadget:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Moves and resizes a gadget, also a window. The numbers are relative to the group.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of the gadget. |
+| `x` | Int32 | required | New horizontal position. |
+| `y` | Int32 | required | New vertical position. |
+| `width` | Int32 | required | New width. |
+| `height` | Int32 | required | New height. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,15 +40,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-| `x` | Int32 | required | New horizontal position. |
-| `y` | Int32 | required | New vertical position. |
-| `width` | Int32 | required | New width. |
-| `height` | Int32 | required | New height. |
-
-## Related commands
+## Related Commands
 
 * [SetButtonState](SetButtonState)
 * [SetGadgetFont](SetGadgetFont)

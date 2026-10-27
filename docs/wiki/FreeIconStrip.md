@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
+## Command Syntax
+
 ```blitzbasic
 FreeIconStrip icon_strip:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Frees an icon strip that was loaded with [LoadIconStrip](LoadIconStrip). Only needed when you load many during the run of a program, otherwise they are freed when it ends.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `icon_strip` | Int32 | required |  |
 
-## Related commands
+## Related Commands
 
 * [DisableToolBarItem](DisableToolBarItem)
 * [EnableToolBarItem](EnableToolBarItem)

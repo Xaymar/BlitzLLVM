@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 CreateCone:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates a cone with a base radius of 1 and its tip pointing up the Y axis. With `solid` set to 0 the base is left open. 4 segments make a pyramid and 16 looks smooth. Valid values are 3 to 100.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `segments` | Int32 | `8` | Detail of the cone, 3 to 100. Defaults to 8. |
+| `solid` | Int32 | `1` | 1 for a cone with a base, 0 for an open one. Defaults to 1. |
+| `parent` | Int32 | `0` | Entity the cone follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new cone.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -35,17 +51,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateCone](media/blitz3d/createcone.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `segments` | Int32 | `8` | Detail of the cone, 3 to 100. Defaults to 8. |
-| `solid` | Int32 | `1` | 1 for a cone with a base, 0 for an open one. Defaults to 1. |
-| `parent` | Int32 | `0` | Entity the cone follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new cone.
-
-## Related commands
+## Related Commands
 
 * [CreateCube](CreateCube)
 * [CreateCylinder](CreateCylinder)

@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxModeFormat:Int32 mode:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 How the pixels of a display mode are stored, as a number that BlitzPlus uses with its pixel commands: 1 is 16 bit 5-6-5, 2 is 16 bit 5-5-5, 3 is 24 bit and 4 is 32 bit.
+
+**Differences and known gaps:**
+
+* Always 4, as the window is always 32 bit.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ How the pixels of a display mode are stored, as a number that BlitzPlus uses wit
 
 **Returns:** The format number.
 
-**Differences and known gaps:**
-
-* Always 4, as the window is always 32 bit.
-
-## Related commands
+## Related Commands
 
 * [CountGfxDrivers](CountGfxDrivers)
 * [GfxDriver](GfxDriver) 〔BlitzLLVM〕

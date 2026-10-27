@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
 
+## Command Syntax
+
 ```blitzbasic
 MoviePlaying:Int32 movie:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether a movie is still playing. It becomes 0 when the movie reaches its end, so a loop can run until the movie is over.
+
+**Differences and known gaps:**
+
+* Nothing , the same as the original. It becomes 0 once the last picture has been shown and its sound has played, and calling it is what starts a movie that was not drawn yet. Movies do not loop: open the movie again to play it again.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ Tells whether a movie is still playing. It becomes 0 when the movie reaches its 
 
 **Returns:** 1 while the movie plays, otherwise 0.
 
-**Differences and known gaps:**
-
-* Nothing , the same as the original. It becomes 0 once the last picture has been shown and its sound has played, and calling it is what starts a movie that was not drawn yet. Movies do not loop: open the movie again to play it again.
-
-## Related commands
+## Related Commands
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)

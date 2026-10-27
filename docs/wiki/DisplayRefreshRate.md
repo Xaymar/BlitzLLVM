@@ -6,13 +6,24 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 DisplayRefreshRate:Int32 display:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 How many times per second a display shows a new picture right now, in Hz. A rate with a fraction, like 59.94, is rounded to 60. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+**Differences and known gaps:**
+
+* A display that does not tell its refresh rate is taken to have 60 Hz.
+* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,12 +31,7 @@ How many times per second a display shows a new picture right now, in Hz. A rate
 
 **Returns:** The refresh rate in Hz, or 0 if the display does not exist.
 
-**Differences and known gaps:**
-
-* A display that does not tell its refresh rate is taken to have 60 Hz.
-* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-
-## Related commands
+## Related Commands
 
 * [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
 * [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕

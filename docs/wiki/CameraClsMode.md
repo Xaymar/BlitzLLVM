@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
+## Command Syntax
+
 ```blitzbasic
 CameraClsMode camera:Int32, cls_color:Int32, cls_zbuffer:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Chooses what the camera clears before it draws: the color buffer, the depth buffer, both or neither. Switch color clearing off to draw a 2D background first and let the 3D world appear on top of it. Leave depth clearing on unless you render several cameras on purpose into the same pixels and want their depth to combine, otherwise earlier cameras block later ones.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `camera` | Int32 | required | Camera handle. |
+| `cls_color` | Int32 | required | True to clear the color buffer, false to keep what is there. |
+| `cls_zbuffer` | Int32 | required | True to clear the depth buffer, false to keep it. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -35,15 +49,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CameraClsMode](media/blitz3d/cameraclsmode.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `cls_color` | Int32 | required | True to clear the color buffer, false to keep what is there. |
-| `cls_zbuffer` | Int32 | required | True to clear the depth buffer, false to keep it. |
-
-## Related commands
+## Related Commands
 
 * [CameraClsColor](CameraClsColor)
 * [CameraFogColor](CameraFogColor)

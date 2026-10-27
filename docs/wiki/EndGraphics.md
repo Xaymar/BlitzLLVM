@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 EndGraphics
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Closes the graphics window, which returns the program to the state it had before [Graphics](Graphics): everything that was drawn is gone and all images and textures are freed. Use `Graphics` again to open a new window, for example to switch between a window and full screen.
+
+**Differences and known gaps:**
+
+* The original opens a new window of the default size, or a console. Here the window is closed and [Print](Print) writes to the console.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -24,11 +34,7 @@ EndGraphics
 Print "The window is closed, this goes to the console"
 ```
 
-**Differences and known gaps:**
-
-* The original opens a new window of the default size, or a console. Here the window is closed and [Print](Print) writes to the console.
-
-## Related commands
+## Related Commands
 
 * [Graphics](Graphics)
 * [GraphicsDepth](GraphicsDepth)

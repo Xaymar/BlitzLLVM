@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 SetStatusText:Int32 window:Int32, text:String
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Writes text into the status bar at the bottom of a window, which was asked for with flag 8 of [CreateWindow](CreateWindow). The text cannot be read back.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `window` | Int32 | required | Handle of a window made with flag 8. |
+| `text` | String | required | Text to show. |
+
+**Returns:** Always 0. The original returns a value that is not documented.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -22,16 +37,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![SetStatusText](media/windows/setstatustext.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window made with flag 8. |
-| `text` | String | required | Text to show. |
-
-**Returns:** Always 0. The original returns a value that is not documented.
-
-## Related commands
+## Related Commands
 
 * [RestoreWindow](RestoreWindow)
 * [SetMinWindowSize](SetMinWindowSize)

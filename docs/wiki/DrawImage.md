@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 DrawImage image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws a frame of an image at a position. The handle of the image, which is its top left corner unless [HandleImage](HandleImage), [MidHandle](MidHandle) or [AutoMidHandle](AutoMidHandle) says otherwise, ends up at the position. Pixels with the mask color of the image (black unless [MaskImage](MaskImage) changed it) are left out, so the picture can have any shape. Drawing is clipped by the viewport, and the [Origin](Origin) moves it.
+
+**Differences and known gaps:**
+
+* A frame number that does not exist stops the program with an error message.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image to draw. |
+| `x` | Int32 | required | Horizontal position of the handle of the image. |
+| `y` | Int32 | required | Vertical position of the handle of the image. |
+| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -32,20 +51,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![DrawImage](media/images/drawimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to draw. |
-| `x` | Int32 | required | Horizontal position of the handle of the image. |
-| `y` | Int32 | required | Vertical position of the handle of the image. |
-| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
-
-**Differences and known gaps:**
-
-* A frame number that does not exist stops the program with an error message.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

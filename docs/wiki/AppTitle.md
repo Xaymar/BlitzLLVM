@@ -6,29 +6,37 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 AppTitle title:String, close_prompt:String=\
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets the title of the program window.
 
-```blitzbasic
-Graphics 320, 240, 0, 2
-AppTitle "My game"
-```
+**Differences and known gaps:**
+
+* The title is only used once a graphics mode is open. The question is asked when somebody closes the window. If they cancel, the program carries on; otherwise the window closes as it would have without the question.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `title` | String | required | The window title. |
 | `close_prompt` | String | `\` | The question the original asked before closing the window. |
 
-**Differences and known gaps:**
+## Examples
 
-* The title is only used once a graphics mode is open. The question is asked when somebody closes the window. If they cancel, the program carries on; otherwise the window closes as it would have without the question.
+```blitzbasic
+Graphics 320, 240, 0, 2
+AppTitle "My game"
+```
 
-## Related commands
+## Related Commands
 
 * [CommandLine](CommandLine)
 * [CreateTimer](CreateTimer)

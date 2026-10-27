@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 LoadAnimMesh:Int32 file:String, parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Loads a model together with its parts and animation. The result is a pivot at the top of a hierarchy of entities, one per object in the file (and per light and camera, for `.3ds`), so you can find a single part with [FindChild](FindChild) and play the animation with `Animate`. Unlike [LoadMesh](LoadMesh) the parts stay separate entities, which costs more to draw but lets them move.
+
+**Differences and known gaps:**
+
+* Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh). A `.3ds` file brings its object hierarchy, keys, lights and cameras (a light is a light entity, a camera is a pivot that looks at its target), see [3D Studio models](3D-Studio-Models).
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,11 +31,7 @@ Loads a model together with its parts and animation. The result is a pivot at th
 
 **Returns:** The handle of the top entity, or 0 if the file could not be loaded.
 
-**Differences and known gaps:**
-
-* Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh). A `.3ds` file brings its object hierarchy, keys, lights and cameras (a light is a light entity, a camera is a pivot that looks at its target), see [3D Studio models](3D-Studio-Models).
-
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CopyMesh](CopyMesh)

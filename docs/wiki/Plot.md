@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 Plot x:Int32, y:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws a single pixel in the drawing color.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `x` | Int32 | required | Horizontal position of the pixel. |
 | `y` | Int32 | required | Vertical position of the pixel. |
 
-## Related commands
+## Related Commands
 
 * [Origin](Origin)
 * [Oval](Oval)

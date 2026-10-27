@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 MoreFiles:Int32 dir:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Tells whether `NextFile` has another entry in a folder opened with `ReadDir`.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `dir` | Int32 | required | A folder handle from `ReadDir`. |
+
+**Returns:** 1 if more entries follow, 0 if not. Undocumented in the official help.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,13 +40,7 @@ CloseDir dir
 Notify n + " entries"
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | Int32 | required | A folder handle from `ReadDir`. |
-
-**Returns:** 1 if more entries follow, 0 if not. Undocumented in the official help.
-
-## Related commands
+## Related Commands
 
 * [FileSize](FileSize)
 * [FileType](FileType)

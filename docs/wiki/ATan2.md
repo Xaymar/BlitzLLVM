@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 ATan2:Float32 floata:Float32, floatb:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the angle of the point (`b`, `a`) seen from the origin, in degrees from -180 to 180. Note the order: the vertical distance `a` comes first. 0 points along positive x, 90 along positive y.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `floata` | Float32 | required | The vertical distance (y). |
+| `floatb` | Float32 | required | The horizontal distance (x). |
+
+**Returns:** The angle in degrees.
+
+## Examples
 
 ```blitzbasic
 Print ATan2(1, 1)
@@ -24,14 +39,7 @@ Print ATan2(0, -1)
 180.0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `floata` | Float32 | required | The vertical distance (y). |
-| `floatb` | Float32 | required | The horizontal distance (x). |
-
-**Returns:** The angle in degrees.
-
-## Related commands
+## Related Commands
 
 * [ACos](ACos)
 * [ASin](ASin)

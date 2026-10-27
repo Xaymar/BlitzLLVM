@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 HidePointer
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Hides the mouse pointer while it is over the window. Programs that draw their own pointer or look around with the mouse use this. The pointer is shown again by [ShowPointer](ShowPointer).
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,7 +34,7 @@ Wend
 ShowPointer
 ```
 
-## Related commands
+## Related Commands
 
 * [GraphicsLost](GraphicsLost)
 * [GraphicsWidth](GraphicsWidth)

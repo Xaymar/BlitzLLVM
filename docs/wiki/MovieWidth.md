@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
 
+## Command Syntax
+
 ```blitzbasic
 MovieWidth:Int32 movie:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The width of the pictures of a movie in pixels.
+
+**Differences and known gaps:**
+
+* Nothing , the same as the original. It is the size of the picture in the file.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ The width of the pictures of a movie in pixels.
 
 **Returns:** The width in pixels.
 
-**Differences and known gaps:**
-
-* Nothing , the same as the original. It is the size of the picture in the file.
-
-## Related commands
+## Related Commands
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)

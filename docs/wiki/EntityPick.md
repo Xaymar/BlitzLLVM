@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 EntityPick:Int32 entity:Int32, range:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Looks straight ahead along the entity's own Z axis, as far as the range, and returns the first pickable entity. The entity itself is never found. Use it for shots fired from a gun entity or for "what am I facing" checks. The range is multiplied by the entity's Z scale, so a scaled entity looks proportionally further.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Looks straight ahead along the entity's own Z axis, as far as the range, and ret
 
 **Returns:** The entity found, or 0.
 
-## Related commands
+## Related Commands
 
 * [CameraPick](CameraPick)
 * [EntityPickMode](EntityPickMode)

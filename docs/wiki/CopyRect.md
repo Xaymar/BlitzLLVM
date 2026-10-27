@@ -6,13 +6,36 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 CopyRect source_x:Int32, source_y:Int32, width:Int32, height:Int32, dest_x:Int32, dest_y:Int32, src_buffer:Int32=0, dest_buffer:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Copies a rectangle from one buffer to another, or inside the same buffer, even when the two areas overlap. It is much quicker than copying pixel by pixel, and the way to scroll a picture or to save a part of the screen.
+
+**Differences and known gaps:**
+
+* Parts of the rectangle that lie outside of either buffer are cut off.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `source_x` | Int32 | required | Left edge of the area to copy. |
+| `source_y` | Int32 | required | Top edge of the area to copy. |
+| `width` | Int32 | required | Width of the area. |
+| `height` | Int32 | required | Height of the area. |
+| `dest_x` | Int32 | required | Left edge of the target area. |
+| `dest_y` | Int32 | required | Top edge of the target area. |
+| `src_buffer` | Int32 | `0` | The buffer to copy from. Defaults to the current buffer. |
+| `dest_buffer` | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,24 +51,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CopyRect](media/buffers/copyrect.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `source_x` | Int32 | required | Left edge of the area to copy. |
-| `source_y` | Int32 | required | Top edge of the area to copy. |
-| `width` | Int32 | required | Width of the area. |
-| `height` | Int32 | required | Height of the area. |
-| `dest_x` | Int32 | required | Left edge of the target area. |
-| `dest_y` | Int32 | required | Top edge of the target area. |
-| `src_buffer` | Int32 | `0` | The buffer to copy from. Defaults to the current buffer. |
-| `dest_buffer` | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
-
-**Differences and known gaps:**
-
-* Parts of the rectangle that lie outside of either buffer are cut off.
-
-## Related commands
+## Related Commands
 
 * [CopyPixel](CopyPixel)
 * [CopyPixelFast](CopyPixelFast)

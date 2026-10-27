@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 OpenTCPStream:Int32 server:String, server_port:Int32, local_port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Connects to a TCP server. It returns once the connection is made or has failed.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `server` | String | required | The address of the server, as a name or as dotted numbers. |
+| `server_port` | Int32 | required | The port the server listens on. |
+| `local_port` | Int32 | `0` | The port to connect from. Defaults to 0, which lets the system pick one. |
+
+**Returns:** A TCP stream, or 0 when the connection could not be made.
+
+## Examples
 
 ```blitzbasic
 ; nothing listens on this port
@@ -23,15 +39,7 @@ Print OpenTCPStream("127.0.0.1", 40754)
 0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `server` | String | required | The address of the server, as a name or as dotted numbers. |
-| `server_port` | Int32 | required | The port the server listens on. |
-| `local_port` | Int32 | `0` | The port to connect from. Defaults to 0, which lets the system pick one. |
-
-**Returns:** A TCP stream, or 0 when the connection could not be made.
-
-## Related commands
+## Related Commands
 
 * [AcceptTCPStream](AcceptTCPStream)
 * [CloseTCPServer](CloseTCPServer)

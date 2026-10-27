@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 HWMultiTex enable:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Switches multitexturing on or off, so that a triangle with several textures is drawn in one pass or in several.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True to use multitexturing when the card has it. |
-
 **Differences and known gaps:**
 
 * Accepted and ignored. Textures are always combined in a single pass.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `enable` | Int32 | required | True to use multitexturing when the card has it. |
+
+## Related Commands
 
 * [ClearWorld](ClearWorld)
 * [Dither](Dither)

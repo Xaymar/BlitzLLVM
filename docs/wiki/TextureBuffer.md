@@ -6,15 +6,21 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 TextureBuffer:Int32 texture:Int32, frame:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Returns a buffer handle for the texture so that the normal 2D drawing commands can paint into it: pass it to [SetBuffer](SetBuffer). To get 3D into a texture, render to the back buffer and copy it across with [CopyRect](CopyRect); 3D cannot be rendered straight into a texture buffer. Drawing on an image first and copying it over is usually faster than many small drawing calls.
 
 Remember to set the buffer back to [BackBuffer](BackBuffer) before you render the world or flip.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -23,7 +29,7 @@ Remember to set the buffer back to [BackBuffer](BackBuffer) before you render th
 
 **Returns:** A buffer handle for SetBuffer, SaveBuffer, CopyRect and the pixel commands. Every frame has its own buffer; a frame that the texture does not have gives 0.
 
-## Related commands
+## Related Commands
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)

@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
+## Command Syntax
+
 ```blitzbasic
 TerrainDetail terrain:Int32, detail_level:Int32, morph:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Chooses how many triangles the terrain may use at a time, about 2000 being typical, and whether the vertices blend smoothly between levels of detail to hide the changes.
+
+**Differences and known gaps:**
+
+* The terrain has no level of detail here. All of its triangles are always drawn, so the call is accepted and does nothing.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ Chooses how many triangles the terrain may use at a time, about 2000 being typic
 | `detail_level` | Int32 | required | Number of triangles to use. |
 | `morph` | Int32 | `0` |  |
 
-**Differences and known gaps:**
-
-* The terrain has no level of detail here. All of its triangles are always drawn, so the call is accepted and does nothing.
-
-## Related commands
+## Related Commands
 
 * [CreateTerrain](CreateTerrain)
 * [LoadTerrain](LoadTerrain)

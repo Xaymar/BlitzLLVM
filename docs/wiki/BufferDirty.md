@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 BufferDirty buffer:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Tells the system that a buffer was changed behind its back so that it has to be refreshed. The original needed this for buffers that were kept in two places. Nothing is kept twice here, so the call is accepted and does nothing.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | required | The buffer that was changed. |
-
 **Differences and known gaps:**
 
 * Has no effect.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `buffer` | Int32 | required | The buffer that was changed. |
+
+## Related Commands
 
 * [BackBuffer](BackBuffer)
 * [FrontBuffer](FrontBuffer)

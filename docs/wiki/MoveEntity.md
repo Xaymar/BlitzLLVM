@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 MoveEntity entity:Int32, x:Float32, y:Float32, z:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Moves an entity in the direction it faces. The offset is in the entity's own space: +Z is forward, +X is right and +Y is up, wherever the entity looks. That makes it the right command for cars, bullets and cameras that fly where they point. To move along the world axes use [TranslateEntity](TranslateEntity).
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Moves an entity in the direction it faces. The offset is in the entity's own spa
 | `y` | Float32 | required | Distance upwards. |
 | `z` | Float32 | required | Distance forward. |
 
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

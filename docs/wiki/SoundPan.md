@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 SoundPan sound:Int32, pan:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets the stereo position that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelPan](ChannelPan) for those.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
 | `pan` | Float32 | required | -1 is only left, 0 the middle and 1 only right. |
 
-## Related commands
+## Related Commands
 
 * [ChannelPan](ChannelPan)
 * [FreeSound](FreeSound)

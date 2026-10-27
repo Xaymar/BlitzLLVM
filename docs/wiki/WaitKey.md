@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
+## Command Syntax
+
 ```blitzbasic
 WaitKey:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Stops the program until a character is typed and returns its character code. The window stays responsive while it waits, and keys that were typed before the call are ignored, so it always waits for a fresh key. Like [GetKey](GetKey) it only reacts to keys that type a character, so Shift, Ctrl and the arrow keys do not end the wait.
+
+## Parameters
+
+**Returns:** The character code of the key that was typed.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,9 +36,7 @@ Flip
 Delay 1000
 ```
 
-**Returns:** The character code of the key that was typed.
-
-## Related commands
+## Related Commands
 
 * [GetKey](GetKey)
 * [KeyDown](KeyDown)

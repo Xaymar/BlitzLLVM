@@ -6,13 +6,33 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxModeExists:Int32 width:Int32, height:Int32, depth:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether the display has a mode of this size and color depth, so that a program can ask before it opens that mode.
+
+**Differences and known gaps:**
+
+* A 0 for the width or height means "anything fits", like in BlitzPlus. A window of any size can be opened here whether or not it is in the list: the list only has the modes for full screen.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `width` | Int32 | required | The width, or 0 for any width. |
+| `height` | Int32 | required | The height, or 0 for any height. |
+| `depth` | Int32 | required | The color depth in bits, which is not looked at, because every mode has 32 bits. |
+
+**Returns:** 1 if a mode like that exists, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 If GfxModeExists(800, 600, 32) Then
@@ -24,19 +44,7 @@ If GfxModeExists(0, 0, 32) Then Print "There is at least one 32 bit mode"
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | The width, or 0 for any width. |
-| `height` | Int32 | required | The height, or 0 for any height. |
-| `depth` | Int32 | required | The color depth in bits, which is not looked at, because every mode has 32 bits. |
-
-**Returns:** 1 if a mode like that exists, otherwise 0.
-
-**Differences and known gaps:**
-
-* A 0 for the width or height means "anything fits", like in BlitzPlus. A window of any size can be opened here whether or not it is in the list: the list only has the modes for full screen.
-
-## Related commands
+## Related Commands
 
 * [CountGfxDrivers](CountGfxDrivers)
 * [CountGfxModes](CountGfxModes)

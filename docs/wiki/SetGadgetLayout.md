@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 SetGadgetLayout gadget:Int32, left:Int32, right:Int32, top:Int32, bottom:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Says how a gadget follows its group when it changes size. Each side can be 0 for free (the distance to that edge changes), 1 for locked (the distance stays) or 2 for proportional (it scales with the group). The default is left and top locked.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of the gadget. |
+| `left` | Int32 | required | Behavior of the left edge: 0, 1 or 2. |
+| `right` | Int32 | required | Behavior of the right edge: 0, 1 or 2. |
+| `top` | Int32 | required | Behavior of the top edge: 0, 1 or 2. |
+| `bottom` | Int32 | required | Behavior of the bottom edge: 0, 1 or 2. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,17 +41,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![SetGadgetLayout](media/gadgets/setgadgetlayout.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-| `left` | Int32 | required | Behavior of the left edge: 0, 1 or 2. |
-| `right` | Int32 | required | Behavior of the right edge: 0, 1 or 2. |
-| `top` | Int32 | required | Behavior of the top edge: 0, 1 or 2. |
-| `bottom` | Int32 | required | Behavior of the bottom edge: 0, 1 or 2. |
-
-## Related commands
+## Related Commands
 
 * [SetButtonState](SetButtonState)
 * [SetGadgetFont](SetGadgetFont)

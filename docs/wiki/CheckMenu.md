@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
+## Command Syntax
+
 ```blitzbasic
 CheckMenu menu:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Puts a check mark in front of a menu item, for options that are on or off. [UncheckMenu](UncheckMenu) takes it away and [MenuChecked](MenuChecked) tells whether it is there. Titles in the menu bar cannot be checked.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `menu` | Int32 | required | Handle of a menu item made with [CreateMenu](CreateMenu). |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -29,13 +41,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![CheckMenu](media/menus/checkmenu.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `menu` | Int32 | required | Handle of a menu item made with [CreateMenu](CreateMenu). |
-
-## Related commands
+## Related Commands
 
 * [CreateMenu](CreateMenu)
 * [DisableMenu](DisableMenu)

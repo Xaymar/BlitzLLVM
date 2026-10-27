@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseWait:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The older name of [WaitMouse](WaitMouse). It stops the program until a mouse button is pressed and returns the button.
+
+## Parameters
+
+**Returns:** The number of the button that was pressed.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,9 +36,7 @@ Flip
 Delay 1000
 ```
 
-**Returns:** The number of the button that was pressed.
-
-## Related commands
+## Related Commands
 
 * [MouseDown](MouseDown)
 * [MouseHit](MouseHit)

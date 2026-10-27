@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxMode3DHeight:Int32 mode:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 The height in pixels of a mode from the list of 3D modes. This is a BlitzLLVM extension: the original has no way to ask a 3D mode for its size, other than [GfxModeHeight](GfxModeHeight) for the same number. A mode number that does not exist stops the program with an error message.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ The height in pixels of a mode from the list of 3D modes. This is a BlitzLLVM ex
 
 **Returns:** The height in pixels.
 
-## Related commands
+## Related Commands
 
 * [CountGfxModes3D](CountGfxModes3D)
 * [GfxDriver3D](GfxDriver3D)

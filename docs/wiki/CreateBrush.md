@@ -6,15 +6,31 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 CreateBrush:Int32 red:Float32=255, green:Float32=255, blue:Float32=255
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Makes a brush: a bundle of look settings (color, alpha, shininess, blend mode, effects and up to eight textures) that you can apply in one go with [PaintEntity](PaintEntity), [PaintMesh](PaintMesh) or [PaintSurface](PaintSurface). The new brush is opaque white with no texture unless you pass a color.
 
 Brushes are the way to give different surfaces of one mesh a different look, because [EntityColor](EntityColor) and [EntityAlpha](EntityAlpha) affect the whole entity at once.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `red` | Float32 | `255` | Red part, 0 to 255. Defaults to 255. |
+| `green` | Float32 | `255` | Green part, 0 to 255. Defaults to 255. |
+| `blue` | Float32 | `255` | Blue part, 0 to 255. Defaults to 255. |
+
+**Returns:** A brush handle.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -48,17 +64,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateBrush](media/brushes/createbrush.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `red` | Float32 | `255` | Red part, 0 to 255. Defaults to 255. |
-| `green` | Float32 | `255` | Green part, 0 to 255. Defaults to 255. |
-| `blue` | Float32 | `255` | Blue part, 0 to 255. Defaults to 255. |
-
-**Returns:** A brush handle.
-
-## Related commands
+## Related Commands
 
 * [BrushAlpha](BrushAlpha)
 * [BrushBlend](BrushBlend)

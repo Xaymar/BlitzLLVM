@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 PickedNX:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The X part of the surface normal at the picked point: a direction of length 1 that points out of the surface, towards the side the line came from.
 
-## Related commands
+## Related Commands
 
 * [PickedEntity](PickedEntity)
 * [PickedNY](PickedNY)

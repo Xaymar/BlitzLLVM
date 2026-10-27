@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 CreateCylinder:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates a cylinder with a radius of 1 that stands along the Y axis from -1 to 1. With `solid` set to 0 the top and bottom are left open and you get a tube. 3 segments make a prism, 8 is about the smallest that still reads as round and 16 looks smooth. Valid values are 3 to 100.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `segments` | Int32 | `8` | Detail of the cylinder, 3 to 100. Defaults to 8. |
+| `solid` | Int32 | `1` | 1 for a cylinder with ends, 0 for a tube. Defaults to 1. |
+| `parent` | Int32 | `0` | Entity the cylinder follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new cylinder.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -34,17 +50,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateCylinder](media/blitz3d/createcylinder.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `segments` | Int32 | `8` | Detail of the cylinder, 3 to 100. Defaults to 8. |
-| `solid` | Int32 | `1` | 1 for a cylinder with ends, 0 for a tube. Defaults to 1. |
-| `parent` | Int32 | `0` | Entity the cylinder follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new cylinder.
-
-## Related commands
+## Related Commands
 
 * [CreateCone](CreateCone)
 * [CreateCube](CreateCube)

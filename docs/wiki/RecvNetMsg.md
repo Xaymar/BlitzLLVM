@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
+## Command Syntax
+
 ```blitzbasic
 RecvNetMsg:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Takes the next message that arrived and makes it available to [NetMsgType](NetMsgType) and the other message commands. Call it in a loop until it returns 0, once per frame, to handle everything that arrived.
+
+## Parameters
+
+**Returns:** 1 when a message was taken, 0 when nothing arrived.
+
+## Examples
 
 ```blitzbasic
 While RecvNetMsg()
@@ -25,9 +35,7 @@ While RecvNetMsg()
 Wend
 ```
 
-**Returns:** 1 when a message was taken, 0 when nothing arrived.
-
-## Related commands
+## Related Commands
 
 * [CreateNetPlayer](CreateNetPlayer)
 * [DeleteNetPlayer](DeleteNetPlayer)

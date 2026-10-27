@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 GadgetWidth:Int32 gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The width of the whole gadget including its frame. For the width of the inside use [ClientWidth](ClientWidth).
 
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [GadgetFont](GadgetFont)

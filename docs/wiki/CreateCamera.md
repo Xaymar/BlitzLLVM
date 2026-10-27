@@ -6,15 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
+## Command Syntax
+
 ```blitzbasic
 CreateCamera:Int32 parent:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Creates a camera and returns its handle. A camera is an entity, so it moves, turns and parents like any other, and every camera in the world draws its view when [RenderWorld](RenderWorld) runs. Without a camera the world renders nothing.
 
 A new camera sits at the origin, looks down the positive Z axis, covers the whole graphics buffer, clears the buffer to black and sees from 1 to 1000 units away. With a `parent` the camera follows that entity, but moving the camera never moves the parent.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `parent` | Int32 | `0` | Entity the camera follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new camera.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -32,15 +46,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateCamera](media/blitz3d/createcamera.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | `0` | Entity the camera follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new camera.
-
-## Related commands
+## Related Commands
 
 * [CameraClsColor](CameraClsColor)
 * [CameraClsMode](CameraClsMode)

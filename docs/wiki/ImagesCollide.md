@@ -6,13 +6,38 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 ImagesCollide:Int32 image1:Int32, x1:Int32, y1:Int32, frame1:Int32, image2:Int32, x2:Int32, y2:Int32, frame2:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether two images touch, looking at the pixels that are visible. Both images are taken at their handle, and the frame to test is given for each.
+
+**Differences and known gaps:**
+
+* A frame number that does not exist stops the program with an error message.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image1` | Int32 | required | The first image. |
+| `x1` | Int32 | required | Horizontal position where the first image is drawn. |
+| `y1` | Int32 | required | Vertical position where the first image is drawn. |
+| `frame1` | Int32 | required | The frame of the first image. |
+| `image2` | Int32 | required | The second image. |
+| `x2` | Int32 | required | Horizontal position where the second image is drawn. |
+| `y2` | Int32 | required | Vertical position where the second image is drawn. |
+| `frame2` | Int32 | required | The frame of the second image. |
+
+**Returns:** 1 if visible pixels of the two images are on top of each other, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -33,26 +58,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![ImagesCollide](media/images/imagescollide.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image1` | Int32 | required | The first image. |
-| `x1` | Int32 | required | Horizontal position where the first image is drawn. |
-| `y1` | Int32 | required | Vertical position where the first image is drawn. |
-| `frame1` | Int32 | required | The frame of the first image. |
-| `image2` | Int32 | required | The second image. |
-| `x2` | Int32 | required | Horizontal position where the second image is drawn. |
-| `y2` | Int32 | required | Vertical position where the second image is drawn. |
-| `frame2` | Int32 | required | The frame of the second image. |
-
-**Returns:** 1 if visible pixels of the two images are on top of each other, otherwise 0.
-
-**Differences and known gaps:**
-
-* A frame number that does not exist stops the program with an error message.
-
-## Related commands
+## Related Commands
 
 * [ImageRectCollide](ImageRectCollide)
 * [ImageRectOverlap](ImageRectOverlap)

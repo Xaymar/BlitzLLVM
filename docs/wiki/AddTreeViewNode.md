@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 AddTreeViewNode:Int32 text:String, parent_node:Int32, icon:Int32=-1
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Adds a node at the end of the children of another node. To add one at the top level, give [TreeViewRoot](TreeViewRoot) as the parent.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | String | required | Text of the node. |
+| `parent_node` | Int32 | required |  |
+| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+
+**Returns:** A handle for the new node.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -28,17 +44,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![AddTreeViewNode](media/treeviews/addtreeviewnode.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | Text of the node. |
-| `parent_node` | Int32 | required |  |
-| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
-
-**Returns:** A handle for the new node.
-
-## Related commands
+## Related Commands
 
 * [CollapseTreeViewNode](CollapseTreeViewNode)
 * [ExpandTreeViewNode](ExpandTreeViewNode)

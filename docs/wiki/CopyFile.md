@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 CopyFile file:String, to:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Copies a file. An existing file at the destination is overwritten.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | The file to copy. |
+| `to` | String | required | The name of the copy. |
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("files_copy_a.tmp")
@@ -28,12 +41,7 @@ DeleteFile "files_copy_b.tmp"
 4
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The file to copy. |
-| `to` | String | required | The name of the copy. |
-
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [DeleteFile](DeleteFile)

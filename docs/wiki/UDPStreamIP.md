@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 UDPStreamIP:Int32 udp_stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
+
+**Differences and known gaps:**
+
+* It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ _Not documented yet._
 
 **Returns:** The address of this computer that the stream receives on.
 
-**Differences and known gaps:**
-
-* It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
-
-## Related commands
+## Related Commands
 
 * [CloseUDPStream](CloseUDPStream)
 * [DottedIP](DottedIP)

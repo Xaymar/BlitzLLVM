@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 PositionEntity entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Puts an entity at a position. Without `global` the position is relative to the parent, or to the world when there is no parent. With `global` set to 1 it is a world position, whatever the parents are. New entities start at 0, 0, 0. X grows to the right, Y grows up and Z grows into the screen.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `x` | Float32 | required | X position. |
+| `y` | Float32 | required | Y position. |
+| `z` | Float32 | required | Z position. |
+| `global` | Int32 | `0` | 1 to use the world position instead of one relative to the parent. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -33,17 +49,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![PositionEntity](media/blitz3d/positionentity.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `x` | Float32 | required | X position. |
-| `y` | Float32 | required | Y position. |
-| `z` | Float32 | required | Z position. |
-| `global` | Int32 | `0` | 1 to use the world position instead of one relative to the parent. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

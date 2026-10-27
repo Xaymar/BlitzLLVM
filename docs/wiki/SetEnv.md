@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 SetEnv env_var:String, value:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets an environment variable for this program and for the programs it starts with [ExecFile](ExecFile). It is not changed for the rest of the system.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `env_var` | String | required | The name of the variable. |
 | `value` | String | required | The new value. |
 
-## Related commands
+## Related Commands
 
 * [GetEnv](GetEnv)
 * [MilliSecs](MilliSecs)

@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
+## Command Syntax
+
 ```blitzbasic
 CountGfxModes3D:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** How many full screen modes the 3D driver offers. The numbers 1 to this value can be given to [GfxMode3D](GfxMode3D).
 
-## Related commands
+## Related Commands
 
 * [GfxDriver3D](GfxDriver3D)
 * [GfxDriverCaps3D](GfxDriverCaps3D)

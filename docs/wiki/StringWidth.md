@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 StringWidth:Int32 string:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The width in pixels that a text has in the current font. It helps to center text or to put things after it.
+
+**Differences and known gaps:**
+
+* With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth). Widths of real fonts depend on the font that was found on the system.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text to measure. |
+
+**Returns:** The width of the text.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -29,19 +47,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![StringWidth](media/fonts/stringwidth.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to measure. |
-
-**Returns:** The width of the text.
-
-**Differences and known gaps:**
-
-* With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth). Widths of real fonts depend on the font that was found on the system.
-
-## Related commands
+## Related Commands
 
 * [FontWidth](FontWidth)
 * [SetFont](SetFont)

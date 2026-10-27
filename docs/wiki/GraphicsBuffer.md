@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 GraphicsBuffer:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the buffer that drawing commands currently draw to, which is the one that the last [SetBuffer](SetBuffer) chose. Use it to remember the target and go back to it later.
+
+## Parameters
+
+**Returns:** The handle of the current buffer.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -29,9 +39,7 @@ Flip
 WaitKey
 ```
 
-**Returns:** The handle of the current buffer.
-
-## Related commands
+## Related Commands
 
 * [BackBuffer](BackBuffer)
 * [BufferDirty](BufferDirty)

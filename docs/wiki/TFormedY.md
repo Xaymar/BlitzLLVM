@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 TFormedY:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The Y of the result of the last [TFormPoint](TFormPoint), [TFormVector](TFormVector) or [TFormNormal](TFormNormal).
 
-## Related commands
+## Related Commands
 
 * [ProjectedY](ProjectedY)
 * [TFormedX](TFormedX)

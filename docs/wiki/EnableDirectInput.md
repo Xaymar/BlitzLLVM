@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 EnableDirectInput enable:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, Blitz3D
 
 Switches the DirectInput setting on or off. In the original it chose between two ways of reading the keyboard and mouse. It is an undocumented command that old programs sometimes call at their start.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | 1 to switch it on, 0 to switch it off. |
-
 **Differences and known gaps:**
 
 * Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it. Input is read the same way whatever it is set to.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `enable` | Int32 | required | 1 to switch it on, 0 to switch it off. |
+
+## Related Commands
 
 * [DirectInputEnabled](DirectInputEnabled)
 * [FlushMouse](FlushMouse)

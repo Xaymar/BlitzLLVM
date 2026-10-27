@@ -65,6 +65,8 @@ DIALECT_TEXT = {
 
 
 INTROS = {}
+# The sections of a command page, in order. Only the first, second and last are always there.
+PAGE_SECTIONS = ["Command Syntax", "Description", "Parameters", "Examples", "Media", "Related Commands"]
 # Appended to every list entry and title of a command that the original Blitz products do not have. Which commands
 # those are comes from EXTENSIONS in tools/suite_functions.py, the list of what BlitzLLVM adds.
 EXTENSION_MARK = "\u3014BlitzLLVM\u3015"
@@ -202,9 +204,16 @@ def related(c, siblings, limit=8):
 
 def command_page(c, siblings):
     free, doc = split_text(re.sub(r"^;(media .*|run)\n", "", c.text, flags=re.M))
+    # Prose before the first code block is the description, the code blocks (with the prose between them) are the
+    # examples, and the images are the media, wherever the text file has them.
+    media = re.findall(r"^!\[[^\]]*\]\([^)]+\)[ \t]*$", free, re.M)
+    free = re.sub(r"^!\[[^\]]*\]\([^)]+\)[ \t]*\n?", "", free, flags=re.M).strip()
+    m = re.search(r"^```", free, re.M)
+    description, examples = (free[:m.start()], free[m.start():]) if m else (free, "")
+    description, examples = description.strip(), examples.strip()
     out = ["# %s%s\n" % (c.name, c.mark),
            "[Command Index](Command-Index) · [%s](%s) · [%s](%s)\n" % (c.dialect, c.dialect, c.category, c.page),
-           "```blitzbasic\n%s\n```\n" % c.signature()]
+           "## Command Syntax\n", "```blitzbasic\n%s\n```\n" % c.signature(), "## Description\n"]
     import helpref
     ref = helpref.read(c.key)
     if ref and ref["dialects"]:
@@ -212,7 +221,13 @@ def command_page(c, siblings):
     if c.extension:
         out.append("**%s** This command does not exist in the original Blitz products. BlitzLLVM adds it.\n" %
                    EXTENSION_MARK)
-    out.append(free + "\n" if free else "_Not documented yet._\n")
+    out.append(description + "\n" if description else "_Not documented yet._\n")
+    if doc["gap"]:
+        out.append("**Differences and known gaps:**\n")
+        out.extend("* " + g for g in doc["gap"])
+        out.append("")
+    if c.params or doc["returns"]:
+        out.append("## Parameters\n")
     if c.params:
         out.append("| Parameter | Type | Default | Description |\n|---|---|---|---|")
         for t, n, d in c.params:
@@ -220,11 +235,13 @@ def command_page(c, siblings):
         out.append("")
     if doc["returns"]:
         out.append("**Returns:** %s\n" % doc["returns"])
-    if doc["gap"]:
-        out.append("**Differences and known gaps:**\n")
-        out.extend("* " + g for g in doc["gap"])
-        out.append("")
-    out.append("## Related commands\n")
+    if examples:
+        out.append("## Examples\n")
+        out.append(examples + "\n")
+    if media:
+        out.append("## Media\n")
+        out.extend(x.strip() + "\n" for x in media)
+    out.append("## Related Commands\n")
     out.extend("* " + o.link for o in related(c, siblings))
     out.append("")
     out.append("[Command Index](Command-Index) · [%s](%s) · [%s](%s)" % (c.dialect, c.dialect, c.category, c.page))
@@ -393,6 +410,18 @@ def check(commands, blitzcc):
         for m in re.finditer(r"\]\((media/[^)\s]+)\)", body):
             if not os.path.exists(os.path.join(WIKI, m.group(1))):
                 errors.append("%s uses the missing file %s" % (fn, m.group(1)))
+    for c in commands:
+        path = os.path.join(WIKI, c.name + ".md")
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                heads = [h for h in re.findall(r"^## (.+)$", f.read(), re.M)]
+            order = [h for h in heads if h in PAGE_SECTIONS]
+            if order != sorted(set(order), key=PAGE_SECTIONS.index) or len(order) != len(set(order)):
+                errors.append("%s has the sections %s, they must be in the order %s" %
+                              (c.name, ", ".join(order), ", ".join(PAGE_SECTIONS)))
+            for need in ("Command Syntax", "Description", "Related Commands"):
+                if need not in heads:
+                    errors.append("%s has no '%s' section" % (c.name, need))
     for page, title, summary in feature_pages():
         if not summary:
             errors.append("%s has an @difference line without a summary" % page)

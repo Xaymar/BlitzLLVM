@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 GetSamplerBorderColorA:Float32 sampler:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Returns the alpha part of the border color that the sampler has, as it was set with [SetSamplerBorderColor](SetSamplerBorderColor) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 to 1.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Returns the alpha part of the border color that the sampler has, as it was set w
 
 **Returns:** The setting: 0 to 1.
 
-## Related commands
+## Related Commands
 
 * [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
 * [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕

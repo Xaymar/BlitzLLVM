@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 TriangleVertex:Int32 surface:Int32, index:Int32, vertex:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Tells which vertex is at a corner of a triangle, which is how you walk over the triangles of a mesh. Corners are 0, 1 and 2, in the order the triangle was added with.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -22,7 +28,7 @@ Tells which vertex is at a corner of a triangle, which is how you walk over the 
 
 **Returns:** The index of the vertex.
 
-## Related commands
+## Related Commands
 
 * [AddTriangle](AddTriangle)
 * [AddVertex](AddVertex)

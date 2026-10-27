@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxDriverName:String driver:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDrivers).
+
+**Differences and known gaps:**
+
+* The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER". A number that does not exist stops the program with an error message.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDr
 
 **Returns:** The name of the driver.
 
-**Differences and known gaps:**
-
-* The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER". A number that does not exist stops the program with an error message.
-
-## Related commands
+## Related Commands
 
 * [DisplayName](DisplayName) 〔BlitzLLVM〕
 * [GfxDriver](GfxDriver) 〔BlitzLLVM〕

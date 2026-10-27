@@ -6,18 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 CreateProcess:Int32 command:String
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Starts another program and gives you a stream to its input and output: what the program writes can be read from the stream, and what is written to the stream is what the program reads.
 
-```blitzbasic
-Graphics 320, 240, 32, 2
-If CreateProcess("notepad.exe") = 0 Then Notify "Could not start it."
-```
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -25,7 +26,14 @@ If CreateProcess("notepad.exe") = 0 Then Notify "Could not start it."
 
 **Returns:** A stream for [ReadLine](ReadLine), [WriteLine](WriteLine), [ReadAvail](ReadAvail), [Eof](Eof) and [CloseFile](CloseFile), or 0 if the program could not be started. The program is not waited for.
 
-## Related commands
+## Examples
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+If CreateProcess("notepad.exe") = 0 Then Notify "Could not start it."
+```
+
+## Related Commands
 
 * [AutoSuspend](AutoSuspend)
 * [Confirm](Confirm)

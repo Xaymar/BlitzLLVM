@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 SetTextAreaColor textarea:Int32, red:Int32, green:Int32, blue:Int32, background:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Sets the color of the text, or with the last parameter the color of the background, of the whole text area.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `textarea` | Int32 | required | Handle of a text area. |
+| `red` | Int32 | required | Red part, 0 to 255. |
+| `green` | Int32 | required | Green part, 0 to 255. |
+| `blue` | Int32 | required | Blue part, 0 to 255. |
+| `background` | Int32 | `0` | 0 sets the text color, 1 sets the background color. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,17 +41,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![SetTextAreaColor](media/textareas/settextareacolor.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `red` | Int32 | required | Red part, 0 to 255. |
-| `green` | Int32 | required | Green part, 0 to 255. |
-| `blue` | Int32 | required | Blue part, 0 to 255. |
-| `background` | Int32 | `0` | 0 sets the text color, 1 sets the background color. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [CreateTextArea](CreateTextArea)

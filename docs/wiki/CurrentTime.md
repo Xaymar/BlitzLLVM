@@ -6,21 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 CurrentTime:String
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the time of day from the system clock as `HH:MM:SS` on a 24 hour clock.
 
+## Parameters
+
+**Returns:** The time as text.
+
+## Examples
+
 ```blitzbasic
 Print "It is " + CurrentTime$()
 ```
 
-**Returns:** The time as text.
-
-## Related commands
+## Related Commands
 
 * [Chr](Chr)
 * [CurrentDate](CurrentDate)

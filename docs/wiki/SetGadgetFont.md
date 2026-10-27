@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 SetGadgetFont gadget:Int32, font:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Makes a gadget draw its text with another font.
+
+**Differences and known gaps:**
+
+* The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font. A font that was not found on the system is drawn with the built-in bitmap font in the size that was asked for.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of the gadget. |
+| `font` | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,18 +41,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![SetGadgetFont](media/gadgets/setgadgetfont.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-| `font` | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
-
-**Differences and known gaps:**
-
-* The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font. A font that was not found on the system is drawn with the built-in bitmap font in the size that was asked for.
-
-## Related commands
+## Related Commands
 
 * [GadgetFont](GadgetFont)
 * [SetButtonState](SetButtonState)

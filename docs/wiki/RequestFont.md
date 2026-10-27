@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
 
+## Command Syntax
+
 ```blitzbasic
 RequestFont:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Opens a font picker and gives a font that was chosen, or 0 if the user cancelled. The font works with `SetFont`, [SetGadgetFont](SetGadgetFont) and [FontName](FontName).
+
+**Differences and known gaps:**
+
+* Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font. There is no font name, bold, italic or underline choice, and no preview.
+
+## Parameters
+
+**Returns:** A font handle, or 0 if cancelled.
+
+## Examples
 
 ```blitzbasic
 Graphics 480, 360, 32, 2
@@ -24,15 +38,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![RequestFont](media/dialogs/requestfont.gif)
 
-**Returns:** A font handle, or 0 if cancelled.
-
-**Differences and known gaps:**
-
-* Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font. There is no font name, bold, italic or underline choice, and no preview.
-
-## Related commands
+## Related Commands
 
 * [RequestColor](RequestColor)
 * [RequestDir](RequestDir)

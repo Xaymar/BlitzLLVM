@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 PointEntity entity:Int32, target:Int32, roll:Float32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Turns an entity so that its +Z axis points at another entity. Only pitch and yaw change; use `roll` to set the tilt. This is the quickest way to aim a light, a gun or a camera at something. To aim at a spot instead of an entity, make a pivot there, point at it and free it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `target` | Int32 | required | Entity to aim at. |
+| `roll` | Float32 | `0` | Roll angle of the result in degrees. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -40,13 +54,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `target` | Int32 | required | Entity to aim at. |
-| `roll` | Float32 | `0` | Roll angle of the result in degrees. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

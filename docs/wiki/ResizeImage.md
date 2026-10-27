@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 ResizeImage image:Int32, width:Float32, height:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Changes the size of every frame of an image to a new width and height in pixels, stretching the picture. The handle moves with the picture. Resizing again and again loses quality, so keep the original or use [CopyImage](CopyImage) first.
+
+**Differences and known gaps:**
+
+* The picture is stretched with smooth filtering, where the original used simple pixel picking. Edges of resized images are softer.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+| `width` | Float32 | required | New width of a frame in pixels. |
+| `height` | Float32 | required | New height of a frame in pixels. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -36,19 +54,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![ResizeImage](media/images/resizeimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `width` | Float32 | required | New width of a frame in pixels. |
-| `height` | Float32 | required | New height of a frame in pixels. |
-
-**Differences and known gaps:**
-
-* The picture is stretched with smooth filtering, where the original used simple pixel picking. Edges of resized images are softer.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

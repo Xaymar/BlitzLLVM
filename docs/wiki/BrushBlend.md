@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 BrushBlend brush:Int32, blend:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Chooses how painted surfaces are mixed with what is already on the screen: 1 alpha (the default), 2 multiply, 3 add. Any other number selects the default.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `brush` | Int32 | required | The brush. |
 | `blend` | Int32 | required | 1, 2 or 3. |
 
-## Related commands
+## Related Commands
 
 * [BrushAlpha](BrushAlpha)
 * [BrushColor](BrushColor)

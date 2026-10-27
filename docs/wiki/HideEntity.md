@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 HideEntity entity:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Makes an entity and all of its children invisible and takes them out of collisions. Hidden entities cost almost nothing to draw, so a good pattern is to create what you need at the start, hide it and use [CopyEntity](CopyEntity) and [ShowEntity](ShowEntity) later. To make something invisible that still collides, use [EntityAlpha](EntityAlpha) with 0.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)
