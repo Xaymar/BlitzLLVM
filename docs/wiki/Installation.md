@@ -7,7 +7,7 @@
 
 Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) and macOS (arm64) and publishes the result as the `nightly` release: https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly
 
-1. Download the zip for your platform (`blitzllvm-windows-x64.zip`, `blitzllvm-linux-x64.zip` or `blitzllvm-macos-arm64.zip`).
+1. Download the zip for your platform (`blitzllvm-windows-x64.zip`, `blitzllvm-linux-x64.zip` or `blitzllvm-macos-universal.zip`).
 2. Extract it anywhere. The layout is:
 
    ```
