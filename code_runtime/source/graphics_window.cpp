@@ -46,15 +46,27 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 	SDL_WindowFlags flags = SDL_WINDOW_VULKAN;
 	if (mode == 1) {
-		flags |= SDL_WINDOW_FULLSCREEN;
+		// Borderless over the whole display with no change of its video mode; the buffer is shown with its aspect ratio kept.
+		flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS;
 	} else if (mode == 3) {
 		flags |= SDL_WINDOW_RESIZABLE;
 	} else if (mode == 4) {
 		flags |= SDL_WINDOW_BORDERLESS;
 	}
-	g.window = SDL_CreateWindow("BlitzLLVM", width, height, flags);
+	// Fullscreen covers the main display, whatever size the buffer is.
+	SDL_Rect bounds = { 0, 0, width, height };
+	if (mode == 1) {
+		SDL_GetDisplayBounds(SDL_GetPrimaryDisplay(), &bounds);
+	}
+	g.window = SDL_CreateWindow("BlitzLLVM", bounds.w, bounds.h, flags);
 	if (!g.window) {
 		fail(SDL_GetError());
+	}
+	if (mode == 1) {
+		SDL_SetWindowFullscreenMode(g.window, nullptr); // The desktop mode, not a mode of the size asked for.
+		g.fullscreen = true;
+		SDL_SetWindowPosition(g.window, bounds.x, bounds.y); // For systems that do not move a fullscreen window.
+		SDL_SyncWindow(g.window);
 	}
 	SDL_StartTextInput(g.window);
 	g.auto_suspend = (mode == 1); // Fullscreen programs are suspended when they are not in front, unless they say not.
@@ -69,6 +81,23 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	create_vulkan();
 	create_buffers(uint32_t(width), uint32_t(height));
 	create_swapchain();
+	if (const char* path = getenv("BLITZ_TEST_LAYOUT")) {
+		// Test hook: the size of the window in pixels, where the buffer is shown in it, and the buffer coordinates of
+		// the window corners and center, one number per line in the named file.
+		if (FILE* file = fopen(path, "w")) {
+			buffer_rect area = fit_buffer(float(g.swap_extent.width), float(g.swap_extent.height));
+			fprintf(file, "%u\n%u\n%d\n%d\n%d\n%d\n", g.swap_extent.width, g.swap_extent.height, int(area.x), int(area.y), int(area.w), int(area.h));
+			int ww = 1, wh = 1;
+			SDL_GetWindowSize(g.window, &ww, &wh);
+			float points[3][2] = { { 0, 0 }, { float(ww) * 0.5f, float(wh) * 0.5f }, { float(ww - 1), float(wh - 1) } };
+			for (auto& point : points) {
+				int x, y;
+				window_to_buffer(point[0], point[1], &x, &y);
+				fprintf(file, "%d\n%d\n", x, y);
+			}
+			fclose(file);
+		}
+	}
 }
 
 void bb_end_graphics(void)
