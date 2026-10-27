@@ -10,12 +10,17 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "keywords.hpp"
 #include "module.hpp"
 
 namespace blitz::recompiler {
 	struct lift_options {
 		bool keep_going = true;  // Functions that can't be translated raise a runtime error when they are called, instead of failing the whole program
 		bool verbose    = false;
+		// The user libraries of the program are the .decls files of this directory (userlibs): a call is only translated if a declaration matches.
+		std::vector<blitz::keywords::user_function> userlibs;
+		std::string                                 userlibs_dir; // Where the program looks for the libraries when it runs, as an absolute path
+		std::string                                 source_dir;   // The directory of the program, which is searched after that
 	};
 
 	struct lift_result {
