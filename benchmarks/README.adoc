@@ -78,17 +78,23 @@ writes a BMP whatever the file is called, so a `--shot` made with it needs conve
 
 == dungeon: a walk through torch-lit rooms
 
-`dungeon.bb` is the benchmark for hiding things. A dungeon of rooms (16 by default) lies in a snake of rows, and room `i` is joined
-to room `i + 1` by a corridor. A room has a floor, a ceiling, four walls with doorways, four pillars, and in each corner a torch.
-Every room is one mesh (a few thousand triangles), plus loose props (barrels, crates and balls, `--props` of them) that are entities of
-their own. The camera walks through the middle of every room, 0.2 units per frame (120 frames per room), looks 9 units ahead, bobs and
-sways, and starts again at the last room. So at any moment the camera sees one room and a bit of the next, and the walls hide the rest:
-that is what culling (the rooms and sprites that are out of view) and early-Z (the pixels behind a wall) can save.
+`dungeon.bb` is the benchmark for hiding things, in particular for early-Z with see-through sprites. A dungeon of rooms (16 by default)
+lies in a snake of rows, and room `i` is joined to room `i + 1` by a corridor. A room has a floor, a ceiling, four walls with doorways,
+four pillars, and in each corner a torch. Every room is one mesh (a few thousand triangles), plus loose props (barrels, crates and
+balls, `--props` of them) that are entities of their own.
+
+The camera walks through every room by a wide path: in by one door, out to the side of the room (4.5 units, to the left in one room and
+to the right in the next) and out by the other door, so the doors are never straight ahead. It looks ahead on the path and sways 40
+degrees to both sides, so the walls beside the doors are often in the view, and behind them are the torches of the next room, and their
+flames and smoke. Those sprites are in the view of the camera and pass any culling of the view, but the walls hide them: that is what
+early-Z can save, and what the numbers of `--coverage` show.
 
 Every torch is a point light and has `--particles` sprites (12 by default): half of them flame (small, orange, added to the picture,
-rising and shrinking in 20 frames) and half smoke (grey, see-through, rising, growing and thinning out in 90 frames). A graphics card
-has 8 lights, so the 8 torches nearest to the camera are on (they flicker) and the others are hidden. All sprites are updated in
-every frame, also those in rooms that nobody sees, as a game would not bother to hide them.
+rising and shrinking in 20 frames) and half smoke (grey, see-through, rising, growing and thinning out in 90 frames). Some rooms
+(`--campfires`, a chance of 25 percent for every room, and at least one) have a campfire as well, on the floor: three times as many sprites,
+twice as big, and a brighter light. When the camera comes near one, it turns to the fire. A graphics card has 8 lights, so the 8 sources of
+light nearest to the camera are on (they flicker) and the others are hidden. All sprites are updated in every frame, also those in rooms
+that nobody sees, as a game would not bother to hide them.
 
 [source,sh]
 ----
@@ -96,11 +102,14 @@ python3 benchmarks/dungeon.py --quick                                    # 4 roo
 python3 benchmarks/dungeon.py                                            # 16 rooms, 4 torches each, 600 frames
 python3 benchmarks/dungeon.py --rooms 100 --torches 6 --particles 20    # a big dungeon with lots of fire
 python3 benchmarks/dungeon.py --static                                   # the fire stays still, only the camera moves
+python3 benchmarks/dungeon.py --coverage                                 # also count the sprites in the view (not timed)
 ----
 
 It takes the same options as the others (`--frames`, `--seed`, `--size`, `--shot`, `--label`, `--debug`, `--profile`, `--no-save`, and
-`BENCH_ROOMS`, `BENCH_TORCHES`, `BENCH_PARTICLES`, `BENCH_PROPS`, `BENCH_FRAMES`, `BENCH_SEED`, `BENCH_SIZE` for the defaults) and
-prints the same table, with `update` (lights and particles, part of `ms/frame`). The rooms, torches and particles scale separately:
+`BENCH_ROOMS`, `BENCH_TORCHES`, `BENCH_PARTICLES`, `BENCH_PROPS`, `BENCH_CAMPFIRES`, `BENCH_FRAMES`, `BENCH_SEED`, `BENCH_SIZE` for the defaults) and
+prints the same table, with `update` (lights and particles, part of `ms/frame`) and the number of sprites. With `--coverage` the program asks
+for every sprite whether it is in the view (`EntityInView`), after the frame is timed, and prints the average per frame: the sprites that are
+in the view but not on the screen are the ones that culling of the view can't skip and early-Z has to. The rooms, torches and particles scale separately:
 more rooms make more that can be hidden, more particles make more blending. Random numbers come from a small generator in the program
 and not from `Rnd`, so BlitzLLVM and the original Blitz3D draw the same frames.
 
@@ -116,7 +125,7 @@ python benchmarks\dungeon.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe
 python benchmarks\dungeon.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe
 ----
 
-The original crashes with more than 16383 sprites in total (they share one vertex buffer, 4 vertices each), so the runner stops with a message
-when `--rooms` x `--torches` x `--particles` is more than that. Every room is one surface of a few thousand vertices, far below the 65535
+The original crashes with more than 16383 sprites in total (they share one vertex buffer, 4 vertices each), so the program stops with a message
+when the sprites of the torches and the campfires are more than that. Every room is one surface of a few thousand vertices, far below the 65535
 that the original allows. The original times have a resolution of one millisecond, so use enough frames. The original `SaveBuffer` writes a BMP whatever the file is
 called. Run benchmarks windowed only (they are), the original changes the screen settings in fullscreen.
