@@ -555,6 +555,62 @@ namespace {
 		}
 	}
 
+	// Breaks a line that is longer than wrap_after at a : between statements, which is the only place where the language allows it
+	// (there is no way to continue a statement on the next line). Statements after the start of an If stay where they are: in
+	// `If a Then b : c` the c is part of the If, and on a line of its own it would not be. Returns whether the line was split.
+	bool wrap_line(std::vector<source_line>& lines, size_t n, int depth, options const& o)
+	{
+		auto& line = lines[n];
+		classify_items(line.items);
+		std::vector<size_t> starts;
+		std::string         text = render_line(line, line.items, o, &starts);
+		size_t              indent_cols = size_t(depth) * size_t(o.indent_width);
+		size_t              total       = indent_cols + text.size() + (line.has_comment ? (o.comment_gap > 0 ? size_t(o.comment_gap) : line.comment_gap.size()) + line.comment.size() : 0);
+		if (total <= size_t(o.wrap_after)) {
+			return false;
+		}
+
+		auto const& items       = line.items;
+		size_t      limit       = items.size(); // Separators behind the start of an If are not safe
+		bool        statement_start = true;
+		for (size_t i = 0; i < items.size(); i++) {
+			if (statement_start && items[i].keyword && ((items[i].lower == "if") || (items[i].lower == "else") || (items[i].lower == "elseif"))) {
+				limit = i;
+				break;
+			}
+			statement_start = items[i].tok.is(kind::separator) && !items[i].type_colon;
+		}
+		std::vector<size_t> candidates;
+		for (size_t i = 1; i + 1 < items.size() && i < limit; i++) {
+			bool separator = items[i].tok.is(kind::separator) && !items[i].type_colon;
+			bool empty_side = (items[i - 1].tok.is(kind::separator) && !items[i - 1].type_colon) || (items[i + 1].tok.is(kind::separator) && !items[i + 1].type_colon);
+			if (separator && !empty_side) {
+				candidates.push_back(i);
+			}
+		}
+		if (candidates.empty()) {
+			return false;
+		}
+		size_t at = candidates.front();
+		for (auto c : candidates) {
+			if (indent_cols + starts[c] <= size_t(o.wrap_after)) {
+				at = c;
+			}
+		}
+
+		source_line first, second;
+		first.items.assign(items.begin(), items.begin() + std::ptrdiff_t(at));
+		second.items.assign(items.begin() + std::ptrdiff_t(at) + 1, items.end());
+		second.items.front().space_before = false;
+		second.comment     = line.comment;
+		second.comment_gap = line.comment_gap;
+		second.has_comment = line.has_comment;
+		second.trailing    = line.trailing;
+		lines[n]           = std::move(first);
+		lines.insert(lines.begin() + std::ptrdiff_t(n) + 1, std::move(second));
+		return true;
+	}
+
 	std::string render_comment(std::string text, options const& o)
 	{
 		if (o.trim_trailing_space) {
@@ -586,6 +642,9 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 	out.reserve(lines.size());
 
 	for (size_t n = 0; n < lines.size(); n++) {
+		if (o.wrap_after > 0) {
+			wrap_line(lines, n, nest.depth(), o);
+		}
 		auto&    line = lines[n];
 		out_line ol;
 		classify_items(line.items);
@@ -788,6 +847,10 @@ bool blitz::format::same_program(std::string const& a, std::string const& b)
 		for (auto& t : blitz::tools::tokenize(source)) {
 			if (t.type == kind::space) {
 				continue;
+			}
+			if (t.type == kind::separator) {
+				// A : between statements is the same as a line break (wrap_after turns one into the other).
+				t.type = kind::newline;
 			}
 			if (t.type == kind::newline) {
 				if (out.empty() || out.back().type == kind::newline) {

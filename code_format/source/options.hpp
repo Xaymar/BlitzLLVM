@@ -30,6 +30,7 @@ namespace blitz::format {
 		bool          align_assignments     = false; // Line up the = of assignments on consecutive lines
 		bool          align_declares        = false; // Line up the names and = of Const, Dim, Local and Global on consecutive lines
 		bool          align_data            = false; // Line up the values of Data statements on consecutive lines in columns
+		int           wrap_after            = 120;   // Break lines that are longer at a : between statements, 0 to never break
 		bool          trim_trailing_space   = true;
 		bool          final_newline         = true;
 		ending_style line_ending           = ending_style::automatic;

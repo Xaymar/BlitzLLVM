@@ -306,6 +306,33 @@ Dim    arr(5)
 		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
 	endif()
 
+elseif(CASE STREQUAL "wrap")
+	# A line that is too long is broken after a : between statements, and only there.
+	set(_LONG "Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\" : Print \"cccccccccccccccccccc\"\n")
+	expect_format("${_LONG}" "Print \"aaaaaaaaaaaaaaaaaaaa\"\nPrint \"bbbbbbbbbbbbbbbbbbbb\"\nPrint \"cccccccccccccccccccc\"\n" --wrap-after=40)
+	# As much as fits stays on the line.
+	expect_format("${_LONG}" "Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\nPrint \"cccccccccccccccccccc\"\n" --wrap-after=60)
+	# Short enough, or 0: nothing changes.
+	expect_format("${_LONG}" "Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\" : Print \"cccccccccccccccccccc\"\n")
+	expect_format("${_LONG}" "Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\" : Print \"cccccccccccccccccccc\"\n" --wrap-after=0)
+	# The indent counts, a comment stays behind the last statement, and the lines are indented as the code is.
+	expect_format("For i=1 To 2 : Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\" : Next ;done\n" "For i = 1 To 2\n\tPrint \"aaaaaaaaaaaaaaaaaaaa\"\n\tPrint \"bbbbbbbbbbbbbbbbbbbb\"\nNext ;done\n" --wrap-after=40)
+	# What follows an If on its line belongs to the If, so that line is never broken after the If. What is in front of it is.
+	expect_format("If a Then Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\n" "If a Then Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\n" --wrap-after=30)
+	expect_format("x=1 : If a Then Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\n" "x = 1\nIf a Then Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\n" --wrap-after=30)
+	# A statement that is too long on its own can't be broken.
+	expect_format("Print \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n" "Print \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n" --wrap-after=20)
+	# Types keep their colon.
+	expect_format("Local aaaaaaaaaaaa:Int32=1 : Local bbbbbbbbbbbb:Float=2\n" "Local aaaaaaaaaaaa:Int32 = 1\nLocal bbbbbbbbbbbb:Float = 2\n" --wrap-after=30)
+	# The default is 120.
+	blitz_format(--print-config)
+	expect_rc(0)
+	if(NOT OUT MATCHES "wrap_after = 120\n")
+		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
+	endif()
+	blitz_format(--wrap-after=5000 --print-config)
+	expect_rc(2)
+
 elseif(CASE STREQUAL "line_endings")
 	# Auto keeps what the first line break is.
 	expect_format("a=1\r\nb=2\r\n" "a = 1\r\nb = 2\r\n")

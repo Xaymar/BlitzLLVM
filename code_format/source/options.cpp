@@ -69,6 +69,7 @@ std::vector<blitz::format::option_info> const& blitz::format::option_list()
 		{ "align_assignments", "true | false", "false", "Line up the = of assignments on consecutive lines (same indent, no blank or comment line between). A line with more than one assignment (a = 1 : b = 2) is left alone and ends the group." },
 		{ "align_declares", "true | false", "false", "Line up the names and the = of Const, Dim, Local and Global on consecutive lines (same indent, no blank or comment line between). A line that declares more than one variable has its name lined up, but not its =." },
 		{ "align_data", "true | false", "false", "Line up the values of Data statements on consecutive lines (same indent, no blank or comment line between) in columns, as wide as the widest value in each." },
+		{ "wrap_after", "0 - 1000", "120", "Break a line that is longer than this many characters (a tab counts as indent_width) after a : between statements. Nothing else can be broken without changing the program: there is no way to continue a statement on the next line, and what follows an If on its line belongs to the If. 0 never breaks lines." },
 		{ "trim_trailing_space", "true | false", "true", "Remove spaces and tabs at the end of lines (also in comments)." },
 		{ "final_newline", "true | false", "true", "End the file with a line break, and remove blank lines at the end." },
 		{ "line_ending", "auto | lf | crlf | cr", "auto", "Auto uses what the first line break of the file is, or lf if there is none." },
@@ -123,6 +124,9 @@ bool blitz::format::set_option(options& o, std::string key, std::string const& v
 		ok = parse_bool(value, o.align_declares);
 	} else if (key == "align_data") {
 		ok = parse_bool(value, o.align_data);
+	} else if (key == "wrap_after") {
+		ok = parse_int(value, 0, 1000, n);
+		if (ok) o.wrap_after = n;
 	} else if (key == "trim_trailing_space") {
 		ok = parse_bool(value, o.trim_trailing_space);
 	} else if (key == "final_newline") {
@@ -167,6 +171,7 @@ std::string blitz::format::to_config(options const& o)
 	out += std::string("align_assignments = ") + b(o.align_assignments) + "\n";
 	out += std::string("align_declares = ") + b(o.align_declares) + "\n";
 	out += std::string("align_data = ") + b(o.align_data) + "\n";
+	out += "wrap_after = " + std::to_string(o.wrap_after) + "\n";
 	out += std::string("trim_trailing_space = ") + b(o.trim_trailing_space) + "\n";
 	out += std::string("final_newline = ") + b(o.final_newline) + "\n";
 	out += std::string("line_ending = ") + (o.line_ending == ending_style::lf ? "lf" : o.line_ending == ending_style::crlf ? "crlf" : o.line_ending == ending_style::cr ? "cr" : "auto") + "\n";

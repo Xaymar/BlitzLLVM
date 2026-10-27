@@ -83,6 +83,7 @@ Names are not case sensitive. Every setting has a default, which is used when no
 | `align_assignments` | true \| false | `false` | Line up the `=` of assignments on consecutive lines. See [Alignment](#alignment). |
 | `align_declares` | true \| false | `false` | Line up the names and the `=` of `Const`, `Dim`, `Local` and `Global` on consecutive lines. See [Alignment](#alignment). |
 | `align_data` | true \| false | `false` | Line up the values of `Data` statements on consecutive lines in columns. See [Alignment](#alignment). |
+| `wrap_after` | 0 - 1000 | `120` | Break a line that is longer than this many characters after a `:` between statements. See [Long lines](#long-lines). |
 | `trim_trailing_space` | true \| false | `true` | Remove spaces and tabs at the end of lines (also in comments). |
 | `final_newline` | true \| false | `true` | End the file with a line break, and remove blank lines at the end. |
 | `line_ending` | auto \| lf \| crlf \| cr | `auto` | Auto uses what the first line break of the file is, or lf if there is none. |
@@ -184,6 +185,25 @@ Data 1,   22, 3
 Data 100, 2,  3333
 Data "a", 5
 ```
+
+## Long lines
+
+A line that is longer than `wrap_after` characters (a tab counts as `indent_width`) is broken after the last `:` between statements that still fits, or after the first one if none does. `0` never breaks lines.
+
+```blitzbasic
+For i = 1 To 3 : Print "A very long text that is printed" : Print "and another long text, printed after it" : Next
+```
+
+becomes
+
+```blitzbasic
+For i = 1 To 3
+	Print "A very long text that is printed"
+	Print "and another long text, printed after it"
+Next
+```
+
+That is the only place where the program stays the same: Blitz has no way to continue a statement on the next line. A single statement that is too long stays as it is, and so does everything that follows an `If` on its line, as in `If a Then b : c` the `c` belongs to the `If` and would not on a line of its own. The statements in front of such an `If` are still broken off.
 
 ## Notes
 
