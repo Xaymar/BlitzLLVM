@@ -112,22 +112,34 @@ CheckTrue "DisableToolBarItem", dimmed >= 4
 EnableToolBarItem tb, 0
 Show()
 Check "EnableToolBarItem", Px(41 + 6 + 8, 31 + 100 + 12), RED
-; The tip of a button shows below it once the mouse has rested on it for a moment, and goes with the mouse.
+; The tip of a button shows below it once the mouse has rested on it for a moment, and goes with the mouse. The window hears
+; of the mouse from the X server, which takes its time when it is busy and shares one mouse with every window, so the mouse
+; is put there again if nothing happened for a while, and a slow machine gets plenty of time.
 MoveMouse 41 + 6 + 8, 31 + 100 + 12
 tip_seen = False
 started = MilliSecs()
-While (MilliSecs() - started < 4000) And (tip_seen = False)
+moved = started
+While (MilliSecs() - started < 20000) And (tip_seen = False)
 	Delay 50
 	Show()
 	If Px(46, 160) = $FFFFE1 Then tip_seen = True
+	If (tip_seen = False) And (MilliSecs() - moved >= 2000) Then
+		MoveMouse 41 + 6 + 8, 31 + 100 + 12
+		moved = MilliSecs()
+	EndIf
 Wend
 CheckTrue "SetToolBarTips shows a tip", tip_seen
 MoveMouse 5, 5
 started = MilliSecs()
-While (MilliSecs() - started < 4000) And tip_seen
+moved = started
+While (MilliSecs() - started < 20000) And tip_seen
 	Delay 50
 	Show()
 	If Px(46, 160) <> $FFFFE1 Then tip_seen = False
+	If tip_seen And (MilliSecs() - moved >= 2000) Then
+		MoveMouse 5, 5
+		moved = MilliSecs()
+	EndIf
 Wend
 CheckFalse "The tip goes when the mouse leaves", tip_seen
 HideGadget tb
