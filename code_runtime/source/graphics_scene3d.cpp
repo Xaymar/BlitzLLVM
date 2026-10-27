@@ -1111,7 +1111,7 @@ namespace bb::gfx {
 			record.pipeline     = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? g.opaque3d : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
 			record.cull         = !(two_sided || ((e->fx | paint.fx) & 16));
 			record.depth_test   = depth_test;
-			record.depth_write  = ((!surface_blended || cutout) && depth_test);
+			record.depth_write  = (!surface_blended && depth_test);
 			record.depth        = item.depth;
 			record.unit_start   = true;
 			static_cast<surface_gpu*>(surface.gpu)->used_by_flush = flush_number;
