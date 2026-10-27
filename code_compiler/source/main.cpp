@@ -224,7 +224,9 @@ namespace {
 
 	std::string quote(std::string const& arg)
 	{
-		if (!arg.empty() && (arg.find_first_of(" \t\"'&|<>()^$`\\*?;") == std::string::npos)) {
+		// Only what no shell does anything with is left as it is. A list of what shells do something with is never complete (a line
+		// break, a leading ~ or #, [ ] { } and ! are some that it used to miss), and what is missing from it starts another command.
+		if (!arg.empty() && (arg.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-+=:,./@") == std::string::npos)) {
 			return arg;
 		}
 #if defined(_WIN32)
