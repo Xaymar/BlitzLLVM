@@ -52,7 +52,8 @@ std::vector<std::filesystem::path> blitz::tools::find_sources(std::filesystem::p
 		if (ec) {
 			throw std::runtime_error("Reading the directory '" + directory.generic_string() + "' failed: " + ec.message());
 		}
-		if (!it->is_regular_file(ec)) {
+		// A link is not followed to a file, which can be anywhere and would be rewritten with -i.
+		if (it->is_symlink(ec) || !it->is_regular_file(ec)) {
 			continue;
 		}
 		std::string extension = it->path().extension().string();
