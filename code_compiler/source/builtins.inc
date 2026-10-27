@@ -5,7 +5,7 @@
 // The functions that the runtime library provides, which programs can call. Included by compiler.cpp.
 //
 // { Name, Symbol in the runtime, Returns, Parameters, How many are required, Defaults for the others, Lead }
-// Types are: v = nothing, i = Int32, f = Float32, s = String.
+// Types are: v = nothing, i = Int32, f = Float32, s = String, u = UInt64 (returns only).
 		// Console
 		{ "print", "bb_print", 'v', "s", 0, { 0 }, false },
 		{ "write", "bb_write", 'v', "s", 1, {}, false },
@@ -46,6 +46,7 @@
 		{ "rndseed", "bb_rnd_seed", 'i', "", 0, {}, false },
 		// Time
 		{ "millisecs", "bb_millisecs", 'i', "", 0, {}, false },
+		{ "microseconds", "bb_microseconds", 'u', "", 0, {}, false },
 		{ "delay", "bb_delay", 'v', "i", 1, {}, false },
 		// Graphics
 		{ "graphics", "bb_graphics", 'v', "iiii", 2, { 0, 0, 0, 0 }, false },

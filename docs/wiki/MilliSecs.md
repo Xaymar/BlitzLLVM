@@ -26,8 +26,8 @@ Print MilliSecs() - start >= 45
 
 ## Related commands
 
-* [FreeTimer](FreeTimer)
 * [GetEnv](GetEnv)
+* [Microseconds](Microseconds) 〔BlitzLLVM〕
 * [RuntimeError](RuntimeError)
 * [SetEnv](SetEnv)
 

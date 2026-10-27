@@ -31,7 +31,7 @@ hello
 
 * [ExecFile](ExecFile)
 * [FreeTimer](FreeTimer)
-* [MilliSecs](MilliSecs)
+* [Microseconds](Microseconds) 〔BlitzLLVM〕
 * [SetEnv](SetEnv)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)

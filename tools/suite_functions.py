@@ -58,6 +58,7 @@ EXTENSIONS = {
     "displaymoderefreshrate": ("graphics", "%DisplayModeRefreshRate%display%mode"),
     "countrefreshrates": ("graphics", "%CountRefreshRates%display%width%height"),
     "refreshrateat": ("graphics", "%RefreshRateAt%display%width%height%index"),
+    "microseconds": ("runtime", "&Microseconds"),
 }
 
 SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')

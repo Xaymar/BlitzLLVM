@@ -341,7 +341,7 @@
 <li><a href="UDPTimeouts">UDPTimeouts</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Runtime">Runtime</a> (15)</summary>
+<li><details><summary><a href="BlitzBasic-Runtime">Runtime</a> (16)</summary>
 <ul>
 <li><a href="AppTitle">AppTitle</a></li>
 <li><a href="CommandLine">CommandLine</a></li>
@@ -352,6 +352,7 @@
 <li><a href="ExecFile">ExecFile</a></li>
 <li><a href="FreeTimer">FreeTimer</a></li>
 <li><a href="GetEnv">GetEnv</a></li>
+<li><a href="Microseconds">Microseconds</a> 〔BlitzLLVM〕</li>
 <li><a href="MilliSecs">MilliSecs</a></li>
 <li><a href="RuntimeError">RuntimeError</a></li>
 <li><a href="SetEnv">SetEnv</a></li>

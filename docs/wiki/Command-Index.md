@@ -463,6 +463,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [MeshesIntersect](MeshesIntersect)
 * [MeshHeight](MeshHeight)
 * [MeshWidth](MeshWidth)
+* [Microseconds](Microseconds) 〔BlitzLLVM〕
 * [Mid](Mid)
 * [MidHandle](MidHandle)
 * [MilliSecs](MilliSecs)

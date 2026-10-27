@@ -78,3 +78,11 @@ The originals only know the main display: `CountGfxModes` and the other `GfxMode
 * The mode lists have every combination of size, depth and refresh rate once, from the smallest width to the largest, and always include the mode the display is in now. Refresh rates are rounded to whole Hz, and a display that does not tell its rate is taken to have 60 Hz.
 * The commands can be asked before `Graphics` opens a window. When no display driver is available there is one display called "Default" with the sizes `CountGfxModes` gives.
 * `Graphics` can not be told which display to open on yet; it opens on the main display.
+
+## Microseconds and UInt64
+
+`Microseconds` is the first command that returns a `UInt64` (an unsigned 64-bit integer), which the originals do not have. It counts the microseconds on the same clock as `MilliSecs`, but without the wrap around of the 31 bits that `MilliSecs` keeps, so `Microseconds() / 1000` is about `MilliSecs()` before that wrap. A 32-bit `Int` would overflow after 35 minutes, and a `Float` (24 bits of precision) stops counting single microseconds after 16 seconds.
+
+* Keep the result in a variable declared with `:UInt64` (for example `start:UInt64 = Microseconds()`). A variable with no type or with `%` is an `Int`, which keeps only the lowest 32 bits and may come out negative; `#` is a `Float`, which rounds.
+* `Str` and `Print` write all digits, and an expression with a `UInt64` and an `Int` is calculated as a `UInt64`, so `Microseconds() - start` is the elapsed time. Comparisons are unsigned, and `Int()` and `Float()` convert the value (the `Int` loses the upper bits).
+* The start of the count is not fixed, like `MilliSecs`: only differences between two calls mean something. The clock is the system clock, so it can jump when the time is set.

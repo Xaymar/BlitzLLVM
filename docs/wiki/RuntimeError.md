@@ -28,7 +28,7 @@ If FileType("level.dat") = 0 Then RuntimeError "level.dat is missing"
 
 ## Related commands
 
-* [GetEnv](GetEnv)
+* [Microseconds](Microseconds) 〔BlitzLLVM〕
 * [MilliSecs](MilliSecs)
 * [SetEnv](SetEnv)
 * [Stop](Stop)

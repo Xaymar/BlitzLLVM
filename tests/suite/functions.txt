@@ -663,6 +663,7 @@ end	runtime	done	End
 execfile	runtime	done	ExecFile$command
 freetimer	runtime	done	FreeTimer%timer
 getenv	runtime	done	$GetEnv$env_var
+microseconds	runtime	done	&Microseconds
 millisecs	runtime	done	%MilliSecs
 runtimeerror	runtime	done	RuntimeError$message
 setenv	runtime	done	SetEnv$env_var$value
