@@ -1,113 +1,80 @@
-== What is BlitzLLVM?
-BlitzLLVM is an attempt at a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler using the LLVM compiler backend to enable support for many architectures and platforms. The LLVM backend enables us to take advantage of optimizations and architecture targets that LLVM already provides for other languages, and may even enable further functionality previously considered impossible.
+= BlitzLLVM
 
+BlitzLLVM is a compiler for BlitzBasic, Blitz3D and BlitzPlus programs built on the LLVM compiler backend. It turns a `.bb` program into one self-contained executable, using LLVM's optimizations and its support for many architectures and platforms. Graphics are drawn through Vulkan 1.3 into an SDL3 window.
 
-=== Usage
+link:docs/wiki/Home.md[Documentation] ·
+link:docs/wiki/Command-Index.md[Command reference] ·
+link:docs/wiki/Differences.md[Differences from the originals] ·
+https://github.com/Xaymar/BlitzLLVM/releases[Releases] ·
+https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly[Nightly builds]
+
+== Compatibility
+
+The goal is to run existing programs unchanged:
+
+* Every command of Blitz2D, Blitz3D and BlitzPlus is implemented, including the BlitzPlus windows and gadgets (drawn inside the Vulkan window).
+* The language is complete: `Type` with `New`, `Delete`, `First`, `Last`, `Each` and `Handle`, `Dim` arrays, `Data`/`Read`/`Restore`, `Goto`/`Gosub`, `Include` and `Function`.
+* The 3D world is covered: meshes (also from B3D, MD2, 3DS and BSP files), surfaces, brushes, textures, sprites, terrains, lights, fog, animation, collisions and picking.
+* `blitzcc` keeps the original's behavior of building and running a program when no output is requested.
+
+Where BlitzLLVM behaves differently, or a feature is still missing, it is listed on the link:docs/wiki/Differences.md[Differences page] and in the "Differences and known gaps" part of each command's page in the link:docs/wiki/Command-Index.md[command reference].
+
+== New in BlitzLLVM
+
+Beyond the originals:
+
+* Optimizing LLVM backend with `-O0` to `-O3`, `-Os` and `-Oz`, `--fast-math`, link time optimization and `--llvm-flag` passthrough.
+* Cross-compiling with `--target`, and builds for Windows, Linux and macOS.
+* Debug builds with source file, line and column information (`-d`, `-g`).
+* A borderless window mode (mode 4) for `Graphics` and `Graphics3D`.
+* Display and refresh rate enumeration (`CountDisplays`, `CountDisplayModes`, `RefreshRateAt` and related commands).
+* Reversed 32-bit float depth buffer, which makes z-fighting much rarer.
+* Mip maps (including stored DDS levels), sphere maps and cube maps for textures.
+* Image decoders for PNG, JPEG, BMP, TGA, WebP, AVIF and JPEG XL.
+* Multiplayer over TCP instead of DirectPlay (games can only play with other BlitzLLVM games).
+
+== Installation
+
+Download a build from the https://github.com/Xaymar/BlitzLLVM/releases[releases] or from the https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly[nightly release] (Windows x64, Linux x64, macOS arm64), extract it and keep `bin/runtime/` next to `blitzcc`. You need `clang` on your `PATH` and a Vulkan 1.3 capable driver. See link:docs/wiki/Installation.md[Installation], or link:docs/wiki/Building.md[Building] to compile BlitzLLVM yourself.
+
+== Usage
+
 [source,sh]
 ----
 blitzcc program.bb                    # builds the program in a temporary directory and runs it
 blitzcc -o program program.bb         # builds program.exe (Windows) / program (elsewhere), without running it
-blitzcc -O3 --llvm-flag -march=native --llvm-flag -flto --llvm-flag -fuse-ld=lld program.bb
+blitzcc -d program.bb                 # debug build: -O0, debug information, exact floating point math
+blitzcc -O3 --fast-math full program.bb
+blitzcc --console -o tool program.bb  # Windows: build a console program instead of a GUI program
 blitzcc -S program.bb                 # only write the generated LLVM IR (program.ll)
+blitzcc --target aarch64-apple-darwin -o program program.bb
 ----
-The compiler emits textual LLVM IR and hands it, together with the embedded runtime library, to `clang` (`--cc`, `$BLITZLLVM_CC`), so `clang` needs to be installed. `--llvm-flag <flag>` passes any flag to clang, `--llvm-arg <arg>` passes one to LLVM itself (`-mllvm`), `--target <triple>` cross-compiles. The result is one self-contained executable.
 
-The language is complete: `Type` with `New`, `Delete`, `First`, `Last`, `Each` and `Handle`, `Dim` arrays, `Data`/`Read`/`Restore`, `Goto`/`Gosub`, `Include` and `Function`s. Every command of Blitz2D, Blitz3D and BlitzPlus is there, including the BlitzPlus windows and gadgets, which are drawn inside the Vulkan window. What differs from the originals is listed per command in the link:docs/wiki/Home.md[wiki] (start at link:docs/wiki/Differences.md[Differences]).
+Common options (`blitzcc --help` lists all of them):
 
-Graphics are drawn through Vulkan 1.3 into an SDL3 window. SDL3 and SDL3_image are linked statically, including the decoders for PNG, JPEG, BMP, TGA, WebP, AVIF (dav1d) and JPEG XL (libjxl), whose licenses, and those of BlitzLLVM, SDL3, SDL3_mixer and the Vulkan headers, are installed in `licenses/` (`share/licenses/blitzllvm` in packages), and the Vulkan loader is loaded when the program starts, so programs remain a single executable. Set `BLITZ_HEADLESS=1` to run a program without a window or GPU.
+[cols="1,3"]
+|===
+| `-o <file>` | Create an executable instead of running the program.
+| `-O0` to `-O3`, `-Os`, `-Oz` | Optimization level, `-O3` by default.
+| `--fast-math <mode>` | `full`, `safe` (default) or `off`.
+| `-d`, `-g` | Debug build, or debug information on any build.
+| `--console` | Windows only: build a console program. Programs are built for the GUI subsystem by default.
+| `-S`, `--emit-llvm` | Only write the LLVM IR.
+| `--target <triple>` | Build for another target.
+| `--llvm-flag <flag>`, `--llvm-arg <arg>` | Pass a flag to clang, or an argument to LLVM itself.
+| `--cc <path>` | Which clang to use (also `$BLITZLLVM_CC`).
+| `-q`, `+q` | Quiet, or very quiet.
+| `--args <arg>...` | Arguments for the program that is run.
+|===
 
-Rendering covers the Blitz3D world: meshes (also from B3D, MD2, 3DS and BSP files), surfaces, brushes and textures (layers, blend modes, frames, transforms, render targets), sprites, terrains, lights (directional, point and spot, lit per vertex like Blitz3D), fog, animation, collisions and picking. The known gaps are in the "Differences and known gaps" part of the page of each command, for example cube maps, bump mapping, movies and the lightmaps of BSP levels.
+The compiler emits textual LLVM IR and hands it, with the embedded runtime library, to `clang`. SDL3 and the image decoders are linked statically, and the Vulkan loader is loaded when the program starts, so the result is a single executable. Set `BLITZ_HEADLESS=1` to run a program without a window or GPU.
 
-Tests: `ctest` compiles and runs (headless) every program in `tests/` and lexes `tests/test.bb` (a token-level lexer fixture rather than a program).
+== Testing
 
-The function test suite is in `tests/suite`. It has a test for every function that Blitz3D and BlitzPlus provide, taken from the original sources in `extra/`: one file per part (`math.bb`, `strings.bb`, `blitz3d_meshes.bb` and so on) that stops with an error as soon as something is wrong, and `check.bb` with what they share. Tests that look at pixels end in `_pixels` and need a window and a GPU, they are skipped when headless and run for real with `-DBLITZ_TEST_GPU=ON`. `tools/suite_functions.py list` rewrites `tests/suite/functions.txt` from the originals and `check` (also run by `ctest`) makes sure that every implemented function has a test. `tools/suite_signatures.py` compares the arguments of every function in `builtins.inc` with the original.
+`ctest` compiles and runs (headless) every program in `tests/` and lexes `tests/test.bb`.
 
-=== Features
-++++
-<table width="100%">
-    <colgroup>
-	  <col width="20%">
-	  <col width="60%">
-	  <col width="10%">
-	  <col width="10%">
-	</colgroup>
-	<tr>
-		<th align=left>Feature</th>
-		<th>Description</th>
-		<th>Target Version</th>
-		<th>Status</th>
-	</tr>
-	<tr>
-		<td>Unicode Support</td>
-		<td>Convert all ASCII functionality to support UTF-8 Unicode instead.</td>
-		<td>1.0</td>
-		<td>❌</td>
-	</tr>
-	<tr>
-		<td>User Library Handling</td>
-		<td>Allow users to provide their own user libraries to load at runtime.</td>
-		<td>1.0</td>
-		<td>❌</td>
-	</tr>
-	<tr>
-		<th colspan=2>Lexer / Tokenizer</th>
-	</tr>
-	<tr>
-		<td>Basic Functionality</td>
-		<td>Handling the necessary basic functionality, like turning text and symbols into tokens</td>
-		<td>0.1</td>
-		<td>✅</td>
-	</tr>
-	<tr>
-		<td>Common Types</td>
-		<td>Lexing for the basic types that BlitzBasic supports: Integers, Reals, Strings.</td>
-		<td>0.1</td>
-		<td>✅</td>
-	</tr>
-	<tr>
-		<td>Location Tracking</td>
-		<td>Properly tracking Line and Character location within a provided file to provide better errors and warnings later on.</td>
-		<td>0.1</td>
-		<td>✅</td>
-	</tr>
-	<tr>
-		<td>Error Handling</td>
-		<td>Throw a proper exception when unexpected behavior occurs, providing necessary information about the error.</td>
-		<td>0.1</td>
-		<td>✅</td>
-	</tr>
-	<tr>
-		<th colspan=2>Parser (AST)</th>
-	</tr>
-	<tr>
-		<td>Global Variables</td>
-		<td></td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Local Variables</td>
-		<td></td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Global Functions</td>
-		<td></td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Local Functions</td>
-		<td></td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Math Expressions</td>
-		<td></td>
-		<td></td>
-		<td></td>
-	</tr>
-</table>
-++++
+The function test suite in `tests/suite` has a test for every function that Blitz3D and BlitzPlus provide, taken from the original sources in `extra/`. Tests that look at pixels end in `_pixels` and need a window and a GPU; they are skipped when headless and run for real with `-DBLITZ_TEST_GPU=ON`. `tools/suite_functions.py list` rewrites `tests/suite/functions.txt` from the originals, and `check` (also run by `ctest`) makes sure that every implemented function has a test. `tools/suite_signatures.py` compares the arguments of every function in `builtins.inc` with the original.
+
+== License
+
+See link:LICENSE.adoc[LICENSE.adoc]. The licenses of SDL3, SDL3_mixer, the Vulkan headers and the image decoders are installed in `licenses/` (`share/licenses/blitzllvm` in packages).
