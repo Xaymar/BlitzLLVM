@@ -1783,6 +1783,32 @@ namespace bb::gfx {
 		}
 	}
 
+	// The planes of what a view-projection matrix (without a translation) sees, with normals of length 1: left, right, bottom,
+	// top, far and near (the depth is reversed).
+	static void view_planes(const float* vp, float (*planes)[4])
+	{
+		float row[4][4];
+		for (int r = 0; r < 4; r++) {
+			for (int c = 0; c < 4; c++) {
+				row[r][c] = vp[c * 4 + r];
+			}
+		}
+		for (int c = 0; c < 4; c++) {
+			planes[0][c] = row[3][c] + row[0][c];
+			planes[1][c] = row[3][c] - row[0][c];
+			planes[2][c] = row[3][c] + row[1][c];
+			planes[3][c] = row[3][c] - row[1][c];
+			planes[4][c] = row[2][c];
+			planes[5][c] = row[3][c] - row[2][c];
+		}
+		for (int i = 0; i < 6; i++) {
+			float len = sqrtf(planes[i][0] * planes[i][0] + planes[i][1] * planes[i][1] + planes[i][2] * planes[i][2]);
+			for (int c = 0; c < 4 && len > 1e-12f; c++) {
+				planes[i][c] /= len;
+			}
+		}
+	}
+
 	// Draws the world for a camera that is at cam_world and looks through view. The pictures that mirrors make are
 	// drawn first and keep to the depth of each other, with the triangles the other way around as the image is reversed.
 	static void render_pass(bb::entity& cam, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
@@ -1847,32 +1873,9 @@ namespace bb::gfx {
 		prepare_light_grid(cam, data, float(vw), float(vh));
 
 		draw_list list;
-		// The planes of the view with the normals of length 1, from the rows of the matrix: left, right, bottom, top,
-		// far and near (the depth is reversed).
+		// The planes of the view with the normals of length 1.
 		float planes[6][4];
-		{
-			const float* vp = data.viewprojection;
-			float row[4][4];
-			for (int r = 0; r < 4; r++) {
-				for (int c = 0; c < 4; c++) {
-					row[r][c] = vp[c * 4 + r];
-				}
-			}
-			for (int c = 0; c < 4; c++) {
-				planes[0][c] = row[3][c] + row[0][c];
-				planes[1][c] = row[3][c] - row[0][c];
-				planes[2][c] = row[3][c] + row[1][c];
-				planes[3][c] = row[3][c] - row[1][c];
-				planes[4][c] = row[2][c];
-				planes[5][c] = row[3][c] - row[2][c];
-			}
-			for (int i = 0; i < 6; i++) {
-				float len = sqrtf(planes[i][0] * planes[i][0] + planes[i][1] * planes[i][1] + planes[i][2] * planes[i][2]);
-				for (int c = 0; c < 4 && len > 1e-12f; c++) {
-					planes[i][c] /= len;
-				}
-			}
-		}
+		view_planes(data.viewprojection, planes);
 		memcpy(current_planes, planes, sizeof(current_planes));
 		have_planes = true;
 		float camera_norm = 0;
