@@ -281,6 +281,25 @@ blitz_dependency(SDL3_mixer SDL_mixer
 
 blitz_check_licenses(SDL3_mixer AFTER ${_SDL3_MIXER_LICENSES})
 
+# Movies with Opus sound are decoded with the libopus that SDL_mixer built, whose headers it does not install. They are copied next to
+# the other includes of SDL_mixer (which a restored dependency cache keeps), fetching the submodule first if the clone doesn't have it.
+set(_OPUS_HEADERS "${SDL3_mixer_INSTALL_PATH}/include/opus")
+if(NOT EXISTS "${_OPUS_HEADERS}/opus_multistream.h")
+	set(_OPUS_SOURCE "${PROJECT_SOURCE_DIR}/third_party/SDL_mixer/external/opus")
+	if(NOT EXISTS "${_OPUS_SOURCE}/include/opus_multistream.h")
+		execute_process(
+			COMMAND "${GIT_EXECUTABLE}" submodule update --init --depth 1 external/opus
+			WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/third_party/SDL_mixer"
+			RESULT_VARIABLE _RESULT
+		)
+		if(NOT _RESULT EQUAL 0)
+			message(FATAL_ERROR "Fetching the headers of libopus failed.")
+		endif()
+	endif()
+	file(GLOB _OPUS_HEADER_FILES "${_OPUS_SOURCE}/include/*.h")
+	file(COPY ${_OPUS_HEADER_FILES} DESTINATION "${_OPUS_HEADERS}")
+endif()
+
 # FFmpeg plays the movies (OpenMovie and the other movie commands). It is built as shared libraries and with the LGPL parts only
 # (no --enable-gpl and no --enable-nonfree), so the library that programs load can be replaced by the user, which is what the LGPL asks
 # of programs that use it. The runtime does not link to them: it loads them when a movie is opened (see movie.cpp), so programs
