@@ -268,7 +268,7 @@ End Function
 
 ; Twenty multiplications of 100 x 100 float matrices. The values are small whole numbers, so the result is exact.
 Function WorkMatMul%()
-	Local i%, j%, k%, rep%, sum#
+	Local i%, j%, k%, rep%, sum#, isum%
 	For i = 0 To 99
 		For j = 0 To 99
 			ma(i, j) = (i * j) Mod 17
