@@ -110,6 +110,7 @@ endfunction()
 ################################################################################
 add_subdirectory("code_runtime")
 add_subdirectory("code_compiler")
+add_subdirectory("code_tools")
 
 # Fail the install when a license is missing, so that rules which silently install nothing (a stale copy of the install
 # rules in code_compiler, say) can not ship a bundle without them. Declared after the sub-projects, so it runs after their installs.
