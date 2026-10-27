@@ -205,6 +205,12 @@ void bb_app_title(const char* title, const char* close_prompt)
 	}
 }
 
+// A program compiled with --profile (or -d) turns the timers of profile.hpp on, which BLITZ_FPS and BLITZ_SAMPLE then report.
+extern "C" void bb_set_profile(int32_t profile)
+{
+	bb::profile_enabled = (profile != 0);
+}
+
 // Flip [vwait]: show what was drawn to the back buffer.
 void bb_flip(int32_t vwait)
 {
@@ -212,15 +218,16 @@ void bb_flip(int32_t vwait)
 	if (!active()) {
 		return;
 	}
-#ifdef BLITZ_PROFILE
 	{
 		// BLITZ_FPS=1 reports how many frames are shown each second.
 		static int    enabled = -1;
 		static Uint64 last    = 0;
 		static int    frames  = 0;
 		if (enabled < 0) {
-			enabled = getenv("BLITZ_FPS") ? 1 : 0;
-			bb::profile_start_sampler();
+			enabled = (bb::profile_enabled && getenv("BLITZ_FPS")) ? 1 : 0;
+			if (bb::profile_enabled) {
+				bb::profile_start_sampler();
+			}
 		}
 		if (enabled) {
 			frames++;
@@ -238,7 +245,6 @@ void bb_flip(int32_t vwait)
 			}
 		}
 	}
-#endif
 	pump();
 
 	bool vsync = (vwait != 0);

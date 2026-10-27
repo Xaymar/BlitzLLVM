@@ -173,6 +173,9 @@ namespace blitz {
 		std::string userlibs_dir;
 		std::string source_dir;
 
+		/** Whether the program times the parts of the runtime (--profile, implied by -d). */
+		bool profile = false;
+
 		/** Whether to describe the program to debuggers, with metadata that maps every instruction back to its file, line and column. */
 		bool debug_info = false;
 

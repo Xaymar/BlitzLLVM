@@ -170,18 +170,15 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	set_tests_properties(close-prompt_pixels PROPERTIES LABELS "gpu")
 endif()
 
-# BLITZ_FPS=1 only reports when the runtime was built with the BLITZ_PROFILE option; this checks that the option does what it says.
+# BLITZ_FPS=1 only reports in programs that were compiled with --profile.
 if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
-	if(BLITZ_PROFILE)
-		set(_PROFILE on)
-	else()
-		set(_PROFILE off)
-	endif()
-	add_test(
-		NAME profile-${_PROFILE}_pixels
-		COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/profile.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/profile.bb" "${PROJECT_BINARY_DIR}/cli/profile" ${_PROFILE}
-	)
-	set_tests_properties(profile-${_PROFILE}_pixels PROPERTIES LABELS "gpu")
+	foreach(_PROFILE IN ITEMS on off)
+		add_test(
+			NAME profile-${_PROFILE}_pixels
+			COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/profile.py" "$<TARGET_FILE:${PROJECT_NAME}>" "${TEST_DIRECTORY}/cli/profile.bb" "${PROJECT_BINARY_DIR}/cli/profile-${_PROFILE}" ${_PROFILE}
+		)
+		set_tests_properties(profile-${_PROFILE}_pixels PROPERTIES LABELS "gpu")
+	endforeach()
 endif()
 
 # What actually comes out of the speakers: played through SDL's disk audio driver, and checked for pitch, looping and gaps.
@@ -191,7 +188,7 @@ if(Python3_FOUND AND NOT WIN32)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
-foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug debug_info fast_math inline_checks runtime_inline stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout warnings version verbose_long_only console_subsystem run run_exit_code diagnostics help)
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug profile debug_info fast_math inline_checks runtime_inline stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout warnings version verbose_long_only console_subsystem run run_exit_code diagnostics help)
 	add_test(
 		NAME "cli-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}

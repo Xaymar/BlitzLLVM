@@ -229,6 +229,20 @@ elseif(CASE STREQUAL "debug")
 		message(FATAL_ERROR "The debug build failed to run: ${_RUN}")
 	endif()
 
+elseif(CASE STREQUAL "profile")
+	# --profile (and -d) make the program turn the runtime timers on; without them the program never asks for them.
+	foreach(_ARGS IN ITEMS "--profile" "-d" "")
+		blitzcc(-S ${_ARGS} "${PROGRAM}" -o "${WORK}/profile.ll")
+		expect_ok()
+		file(READ "${WORK}/profile.ll" _IR)
+		string(FIND "${_IR}" "@bb_set_profile(" _AT)
+		if(_ARGS STREQUAL "" AND NOT _AT EQUAL -1)
+			message(FATAL_ERROR "A program without --profile turns the profiling on.")
+		elseif(NOT _ARGS STREQUAL "" AND _AT EQUAL -1)
+			message(FATAL_ERROR "'${_ARGS}' does not turn the profiling on.")
+		endif()
+	endforeach()
+
 elseif(CASE STREQUAL "debug_info")
 	# -d and -g describe the program to debuggers, in the files, lines and columns of the source.
 	set(DEBUG_PROGRAM "${TESTS}/cli/debug.bb")

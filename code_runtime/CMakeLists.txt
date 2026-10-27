@@ -101,15 +101,6 @@ if(NOT MSVC AND NOT APPLE)
 	# See dependencies.cmake: programs are linked with --gc-sections, which only drops what is in a section of its own.
 	target_compile_options(blitzrt PRIVATE -ffunction-sections -fdata-sections)
 endif()
-# The timers behind BLITZ_FPS and BLITZ_SAMPLE (profile.hpp) cost a clock read or two per call, so they are only built into debug runtimes unless asked for.
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	option(BLITZ_PROFILE "Build the runtime profiling timers (BLITZ_FPS, BLITZ_SAMPLE) in" ON)
-else()
-	option(BLITZ_PROFILE "Build the runtime profiling timers (BLITZ_FPS, BLITZ_SAMPLE) in" OFF)
-endif()
-if(BLITZ_PROFILE)
-	target_compile_definitions(blitzrt PRIVATE BLITZ_PROFILE)
-endif()
 if(MSVC)
 	# No C++ runtime dependencies: the library is linked by clang into programs.
 	target_compile_options(blitzrt PRIVATE /GR- /EHs-c- /Zc:preprocessor)

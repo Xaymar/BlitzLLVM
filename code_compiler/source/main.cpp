@@ -98,6 +98,7 @@ namespace {
 		bool                     compile_only = false; // -c
 		bool                     debug        = false; // -d
 		bool                     debug_info   = false; // -g
+		bool                     profile      = false; // --profile
 		bool                     dump_keys    = false; // -k
 		bool                     dump_syntax  = false; // +k
 		bool                     version      = false; // -v
@@ -144,6 +145,8 @@ namespace {
 				  << "                        or -fuse-ld=lld. Can be given multiple times.\n"
 				  << "  --llvm-arg <arg>      Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times.\n"
 				  << "  --cc <path>           Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'.\n"
+				  << "  --profile             Let the program time the parts of the runtime (UpdateWorld, RenderWorld, CopyRect, Flip, ...), which BLITZ_FPS=1 reports\n"
+				  << "                        once a second. Costs a clock read per call of them, so it is off unless asked for or implied by -d.\n"
 				  << "  --no-runtime-inline   Don't compile the hot parts of the runtime (runtime/inline) together with the program. Without it they are\n"
 				  << "                        optimized with the program (-flto=thin), which falls back to the plain build when the linker can't do it.\n"
 				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler, then '../lib/blitzllvm/runtime'.\n"
@@ -284,6 +287,8 @@ namespace {
 				opt.flags.push_back(value());
 			} else if (arg == "--cc") {
 				opt.cc = value();
+			} else if (arg == "--profile") {
+				opt.profile = true;
 			} else if (arg == "--no-runtime-inline") {
 				opt.no_inline = true;
 			} else if (arg == "--runtime-dir") {
@@ -411,6 +416,7 @@ int main(int argc, char** argv)
 		blitz::compiler compiler;
 		compiler.debug      = opt.debug;
 		compiler.debug_info = opt.debug_info;
+		compiler.profile    = opt.profile || opt.debug;
 		compiler.fast_math  = (opt.fast_math == "full") ? "fast" : ((opt.fast_math == "safe") ? "reassoc nsz arcp contract afn" : "");
 		compiler.codeview   = windows_msvc;
 		compiler.source     = opt.input;
