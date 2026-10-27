@@ -254,9 +254,6 @@ namespace {
 		if (word == "wend") return block::loop_while;
 		if ((word == "until") || (word == "forever")) return block::loop_repeat;
 		if (word == "endif") return block::conditional;
-		if (word == "endfunction") return block::function;
-		if (word == "endtype") return block::type;
-		if (word == "endselect") return block::select;
 		return std::nullopt;
 	}
 
