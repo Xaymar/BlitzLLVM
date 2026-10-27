@@ -89,6 +89,6 @@ WaitKey
 @param gamma_adjust  Brightness of the lightmaps, 0 to 1. Defaults to 0.
 @param parent        Optional parent entity. The level is still created at 0, 0, 0.
 @returns An entity handle, or 0 if the file is not a Quake 3 level.
-@gap Lightmaps and visibility data are not used. The level is lit by the colors that its vertices carry and all of it is always drawn, so the gamma_adjust argument has no effect.
+@gap Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices. gamma_adjust lifts the lightmaps (each value is raised to 1 / (1 + gamma)), which is not necessarily what the original does. Visibility data is not used, so all of the level is always drawn.
 @gap The original lights a BSP with point and spot lights but not with ambient or directional ones. Here no light affects it; it is drawn as its vertex colors say, scaled by BSPAmbientLight.
 @gap Curved patches are cut into a fixed number of triangles, and billboard faces are skipped.
