@@ -215,7 +215,7 @@ Function editor_genmap(ctexsize=128)
 	End Select
 	;Create Terrain Color Texture
 	bmpf_loadscreen("Initialing")
-	ter_tex_color=CreateTexture(ctexsize,ctexsize)
+	ter_tex_color=CreateTexture(ctexsize,ctexsize,1+4096)
 	;Initiale Terrain and Environment
 	e_terrain(size,"generated")
 	e_environment()

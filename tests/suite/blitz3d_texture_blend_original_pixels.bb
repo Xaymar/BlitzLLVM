@@ -35,7 +35,7 @@ For ix = 0 To 15
 Next
 Next
 
-Global tex = CreateTexture(32, 32, 3)
+Global tex = CreateTexture(32, 32, 3 + 4096)
 SetBuffer TextureBuffer(tex)
 For y = 0 To 31
 For x = 0 To 31
@@ -70,7 +70,7 @@ Function CheckRow(name$, r1, g1, b1, r2, g2, b2, r3, g3, b3, r4, g4, b4, r5, g5,
 	Next
 End Function
 
-Global tex2 = CreateTexture(32, 32, 1)
+Global tex2 = CreateTexture(32, 32, 1 + 4096)
 SetBuffer TextureBuffer(tex2)
 For y = 0 To 31
 For x = 0 To 31

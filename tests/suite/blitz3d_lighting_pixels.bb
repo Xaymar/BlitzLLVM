@@ -212,7 +212,7 @@ FreeEntity plane
 ; A masked texture (flag 4) has no black, also when the picture is drawn by the program.
 PositionEntity camera, 0, 0, -5
 RotateEntity camera, 0, 0, 0
-masked = CreateTexture(4, 4, 1 + 4)
+masked = CreateTexture(4, 4, 1 + 4 + 4096)
 SetBuffer TextureBuffer(masked)
 Color 0, 0, 0
 Rect 0, 0, 4, 4, True
@@ -231,7 +231,7 @@ FreeTexture masked
 
 ; Textures that ask for the second set of coordinates (flag 65536) use it instead of the first.
 Function HalvesTexture(flags)
-	texture = CreateTexture(4, 4, flags)
+	texture = CreateTexture(4, 4, flags + 4096)
 	SetBuffer TextureBuffer(texture)
 	Color 0, 0, 0
 	Rect 0, 0, 4, 4, True

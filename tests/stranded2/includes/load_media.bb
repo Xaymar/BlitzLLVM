@@ -218,7 +218,7 @@ Global gfx_grasspreadtex=load_texture("gfx\grasspread_a.png")
 Global gfx_grasspread=load_mesh("gfx\grasspread.b3d"):HideEntity gfx_grasspread
 
 ;### Water
-Global gfx_water=load_texture("gfx\water.jpg",256+512)
+Global gfx_water=load_texture("gfx\water.jpg",256+512+4096)
 Global gfx_waterimg=load_image("gfx\water.jpg")
 Global gfx_waterimg_custom=0
 

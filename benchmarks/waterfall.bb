@@ -137,7 +137,7 @@ End Function
 
 ; A soft round puff: opaque white in the middle, see-through at the edge.
 Function MakePuff()
-	t = CreateTexture(32, 32, 3)
+	t = CreateTexture(32, 32, 3 + 4096)
 	SetBuffer TextureBuffer(t)
 	LockBuffer TextureBuffer(t)
 	For y = 0 To 31

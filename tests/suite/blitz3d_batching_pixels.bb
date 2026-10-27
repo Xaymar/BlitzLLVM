@@ -27,7 +27,7 @@ TurnEntity light, 40, 30, 0
 ; Copies of one mesh with one texture are one call, and the places they are at still count.
 original = CreateCube()
 HideEntity original
-tex = CreateTexture(4, 4)
+tex = CreateTexture(4, 4, 1 + 4096)
 SetBuffer TextureBuffer(tex) : ClsColor 255, 255, 255 : Cls : SetBuffer BackBuffer()
 Dim copies(99)
 For i = 0 To 99
@@ -52,7 +52,7 @@ Next
 CheckTrue "Something is drawn for them (" + found + " pixels)", found > 200
 
 ; Different textures are different calls, but the pipeline stays.
-tex2 = CreateTexture(4, 4)
+tex2 = CreateTexture(4, 4, 1 + 4096)
 SetBuffer TextureBuffer(tex2) : ClsColor 255, 255, 255 : Cls : SetBuffer BackBuffer()
 For i = 0 To 99
 	If (i Mod 2) = 1 Then EntityTexture copies(i), tex2

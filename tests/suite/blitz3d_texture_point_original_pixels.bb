@@ -20,7 +20,7 @@ Global cube = CreateCube()
 EntityFX cube, 1
 
 Function Strip(flags)
-	t = CreateTexture(2, 1, flags)
+	t = CreateTexture(2, 1, flags + 4096)
 	SetBuffer TextureBuffer(t)
 	WritePixel 0, 0, $FFFF0000
 	WritePixel 1, 0, $FF0000FF

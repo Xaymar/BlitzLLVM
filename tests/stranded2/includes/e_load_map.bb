@@ -134,7 +134,7 @@ Function load_map(path$,pw$)
 	;Colormap
 	bmpf_loadscreen(s$(22),20)					
 	h=ReadInt(stream)									;Colortexture Size
-	ter_tex_color=CreateTexture(h,h,256)
+	ter_tex_color=CreateTexture(h,h,256+4096)
 	SetBuffer TextureBuffer(ter_tex_color)
 	LockBuffer TextureBuffer(ter_tex_color)
 	For x=0 To h-1

@@ -25,7 +25,7 @@ CameraClsColor camera, 0, 0, 0
 CameraRange camera, 0.1, 1000
 
 ; one that is drawn first even though it is farther away. One entity alpha makes the surface see-through.
-mask = CreateTexture(4, 4, 4)
+mask = CreateTexture(4, 4, 4 + 4096)
 SetBuffer TextureBuffer(mask) : ClsColor 255, 255, 255 : Cls : SetBuffer BackBuffer()
 m = CreateMesh()
 ; The surfaces are drawn from the last one to the first one: the far green one is drawn after the near red one.

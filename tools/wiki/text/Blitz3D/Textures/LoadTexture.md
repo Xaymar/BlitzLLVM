@@ -11,6 +11,8 @@ Mip maps (flag 8, which [TextureFilter](TextureFilter) adds to every texture at 
 
 How transparency is taken from the file depends on the flags. Without flag 2 the picture is opaque even if the file has an alpha channel. With flag 2 an existing alpha channel is used, and a picture without one gets its alpha from how bright each texel is. Flag 4 makes every pure black texel transparent and everything else opaque.
 
+A texture can be drawn to only if it was loaded with flag 4096 (render target), see [CreateTexture](CreateTexture). Reading and writing its pixels needs no flag.
+
 Textures that [TextureFilter](TextureFilter) matches by file name get extra flags added.
 
 ```blitzbasic
@@ -23,7 +25,7 @@ light = CreateLight()
 RotateEntity light, 40, 30, 0
 
 ; Make a file with a white disc on black, then load it back as a masked texture.
-src = CreateTexture(64, 64)
+src = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(src)
 ClsColor 0, 0, 0
 Cls
@@ -47,5 +49,6 @@ WaitKey
 @param file   Picture file to load.
 @param flags  Sum of the texture flags, see CreateTexture. Defaults to 1.
 @returns A texture handle, or 0 if the file could not be loaded.
+@gap Flag 4096 (render target) is new, see above. A program that is compiled with `-d` stops with an error when it sets the buffer of a texture without 4096.
 @gap TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 @gap The video memory and high color flags are always in effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.

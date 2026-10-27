@@ -288,7 +288,7 @@ End Function
 
 ; Bricks: rows of 16 pixels, each row shifted by half a brick, a different shade for every brick.
 Function MakeBricks()
-	t = CreateTexture(64, 64, 1 + 8)
+	t = CreateTexture(64, 64, 1 + 8 + 4096)
 	SetBuffer TextureBuffer(t)
 	LockBuffer TextureBuffer(t)
 	For y = 0 To 63
@@ -313,7 +313,7 @@ End Function
 
 ; A soft round puff: opaque white in the middle, see-through at the edge.
 Function MakePuff()
-	t = CreateTexture(32, 32, 3)
+	t = CreateTexture(32, 32, 3 + 4096)
 	SetBuffer TextureBuffer(t)
 	LockBuffer TextureBuffer(t)
 	For y = 0 To 31

@@ -56,7 +56,7 @@ Function CheckFile(name$, alpha, grey)
 	; As a texture, with the color flag and with the alpha flag when the picture has alpha.
 	flags = 1
 	If alpha Then flags = 1 + 2
-	texture = LoadTexture(file, flags)
+	texture = LoadTexture(file, flags + 4096)
 	CheckTrue name + " loads as a texture", texture <> 0
 	SetBuffer TextureBuffer(texture)
 	CheckPixels name + " texture", ReadPixel(1, 1), ReadPixel(6, 1), alpha, grey

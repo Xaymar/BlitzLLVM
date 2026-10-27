@@ -18,7 +18,7 @@ PositionEntity cube, 0, 0, 4.2
 TurnEntity cube, 20, 30, 0
 
 ; Draw a sheet of 4 frames, 64 pixels each, and keep it in a file.
-sheet = CreateTexture(256, 64)
+sheet = CreateTexture(256, 64, 1 + 4096)
 SetBuffer TextureBuffer(sheet)
 ClsColor 0, 0, 0
 Cls
