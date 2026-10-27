@@ -14,16 +14,56 @@ are done. Run them by hand; they are not part of the tests or the CI.
 
 == Running them
 
-. Open the file in the original Blitz IDE (or build it with `blitzcc` in BlitzLLVM). Use a release build, not debug, and close
-  other programs.
-. Set `LABEL` at the top to describe the machine and the compiler, for example `"RTX 4080 SUPER, Blitz3D 1.107"`. Check the
-  other constants (`RUNS`, `WIDTH`, `HEIGHT`, `SCALES`) if the computer is slow; leave them alone if you want numbers that
-  can be compared.
-. Run it and wait. `bench_blitzbasic.bb` takes a few minutes on a slow computer (a minute on a fast one), `bench_blitz3d.bb` a few minutes (the biggest size makes a
-  hundred thousand entities). Escape stops `bench_blitz3d.bb` early; the log then has the scenes that were finished.
-. The log is written to the current directory (for the IDE: the folder of the program). Send it to be put in the table.
+Before either way: set `LABEL` at the top of the file to describe the machine and the compiler, for example
+`"RTX 4080 SUPER, Blitz3D 1.107"`, close other programs, and leave `RUNS`, `WIDTH`, `HEIGHT` and `SCALES` alone if you want
+numbers that can be compared (lower `SCALES` to 2 only on a computer that struggles). Do not run two benchmarks at the same
+time and do not move the window while one runs: the numbers are wrong otherwise.
 
-Do not run two benchmarks at the same time, and do not move the window while it runs: the numbers are wrong otherwise.
+*Release, not debug.* The original compiles with debug information when debug is on (the IDE option, or `blitzcc -d`), which
+makes it several times slower and the numbers meaningless. Turn debug off. BlitzLLVM is the same: `-d` disables optimization.
+
+=== In the original Blitz3D
+
+The original `blitzcc.exe` finds its runtime, linker and libraries through the environment variable `BLITZPATH`, which must
+point to the directory that contains `bin` (so `%BLITZPATH%\bin\blitzcc.exe` exists), for example `C:\Program Files (x86)\Blitz3D`.
+The IDE (`ide.exe`) sets it itself; the command line needs it.
+
+From the IDE: open the `.bb` file, make sure *Program > Debug Enabled?* (it is under the Debug menu in some versions) is *off*, and press F5.
+The program starts as a Release build, and the log is written to the current directory, which is the folder of the `.bb` file.
+
+From the command line (`cmd.exe`, no `-d` means release; without `-c` or `-o` blitzcc compiles and runs the program):
+
+----
+set BLITZPATH=C:\Program Files (x86)\Blitz3D
+cd /d C:\path\to\BlitzLLVM\benchmarks\original
+"%BLITZPATH%\bin\blitzcc.exe" bench_blitzbasic.bb
+"%BLITZPATH%\bin\blitzcc.exe" bench_blitz3d.bb
+----
+
+To build an exe and run that (the exe also needs `BLITZPATH` only at build time): `"%BLITZPATH%\bin\blitzcc.exe" -o bench_blitz3d.exe bench_blitz3d.bb`.
+In PowerShell use `$env:BLITZPATH = "C:\Program Files (x86)\Blitz3D"` and `& "$env:BLITZPATH\bin\blitzcc.exe" bench_blitz3d.bb`.
+The log files land in the directory you ran the command from, so `cd` into the folder first (or into a scratch folder with the
+`.bb` file path as the argument).
+
+=== In BlitzLLVM
+
+Use the `blitzcc` of a CI build or of your own build. From the CI Windows zip (or `build\distrib\bin\blitzcc.exe` after a build); no
+`BLITZPATH` is needed. Without `-o` it compiles and runs, `-O3` is the default and `-d` would turn optimization off (do not use it):
+
+----
+cd /d C:\path\to\BlitzLLVM\benchmarks\original
+C:\path\to\BlitzLLVM\build\distrib\bin\blitzcc.exe -q bench_blitzbasic.bb
+C:\path\to\BlitzLLVM\build\distrib\bin\blitzcc.exe -q bench_blitz3d.bb
+----
+
+The same `blitzcc -o name.exe file.bb` builds an exe. On Linux or macOS the commands are the same with `./blitzcc`.
+
+=== While it runs
+
+`bench_blitzbasic.bb` prints its progress in a console and takes a few minutes on a slow computer (about a minute on a fast one).
+`bench_blitz3d.bb` takes a few minutes (the biggest size makes a hundred thousand entities); Escape stops it early and the log
+then has the scenes that were finished. At the end, both wait for a key (`PAUSE_AT_END`). The log is `bench_blitzbasic_log.txt` or
+`bench_blitz3d_log.txt` in the current directory; send it to be put in the table.
 
 == The log
 
