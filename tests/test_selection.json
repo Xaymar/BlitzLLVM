@@ -1,0 +1,91 @@
+{
+	"description": "Which tests a change can affect. Read by .github/scripts/test-select.py, see docs/wiki/Testing.md. Anything not listed here runs everything.",
+
+	"areas": {
+		"language": {
+			"description": "The language itself: arithmetic, strings, types, and the programs the compiler has to refuse or the runtime has to stop.",
+			"tests": ["^suite-(debug-)?(compile|run)-(language|numeric|math|strings|handles|runtime|reject-|fail-(dim_overflow|runtimeerror))"]
+		},
+		"files": {
+			"description": "Files, streams and banks.",
+			"tests": ["^suite-(debug-)?(compile|run)-(files|streams|banks|fail-bank_)"]
+		},
+		"audio": {
+			"description": "Sound, music and what comes out of the speakers.",
+			"tests": ["^suite-(debug-)?(compile|run)-audio$", "^audio-output"]
+		},
+		"network": {
+			"description": "Sockets, streams over the network and multiplayer.",
+			"tests": ["^suite-(debug-)?(compile|run)-(network|multiplayer)"]
+		},
+		"graphics": {
+			"description": "2D graphics, images, fonts, DDS and PNG, displays, gamma and input.",
+			"tests": ["^suite-(debug-)?(compile|run)-(graphics(_(?!movies)|$)|displays|gfx_driver|input)", "^profile-"]
+		},
+		"movies": {
+			"description": "Movies, also as textures.",
+			"tests": ["^suite-(debug-)?(compile|run)-graphics_movies"]
+		},
+		"gui": {
+			"description": "BlitzPlus windows and gadgets, and the window focus and close prompt.",
+			"tests": ["^suite-(debug-)?(compile|run)-plusgui", "^gui-", "^close-prompt"]
+		},
+		"3d": {
+			"description": "Blitz3D: entities, meshes, cameras, lights, textures, collisions, animation and models.",
+			"tests": ["^suite-(debug-)?(compile|run)-(blitz3d_|fail-createtexture_frames)"]
+		},
+		"cli": {
+			"description": "The command line options and diagnostics of blitzcc.",
+			"tests": ["^cli-"]
+		},
+		"tools": {
+			"description": "blitz-format, blitz-tidy and the library they share.",
+			"tests": ["^(tools-library|format-|tidy-)"]
+		}
+	},
+
+	"aliases": {
+		"gpu": ["graphics", "movies", "gui", "3d"]
+	},
+
+	"rules": [
+		{"match": "^(docs|extra)/", "areas": "none", "note": "Documentation and reference sources"},
+		{"match": "^(README\\.adoc|BlitzLLVM\\.code-workspace|\\.gitignore|\\.gitattributes|\\.editorconfig|\\.clang-format|\\.clang-tidy)$", "areas": "none"},
+		{"match": "^tools/(wiki/|benchmark_|generate_(?!shaders)|render_|culling_|extract_font)", "areas": "none", "note": "Wiki, benchmarks and fixture generators"},
+		{"match": "^tools/suite_(functions|signatures)\\.py$", "areas": []},
+		{"match": "^tools/generate_shaders\\.py$", "areas": "gpu"},
+		{"match": "^tools/(pre-commit|install-hooks)\\.sh$", "areas": "none"},
+		{"match": "^\\.github/workflows/test\\.yml$", "areas": "all"},
+		{"match": "^\\.github/workflows/", "areas": "none", "note": "Other workflows do not run the tests"},
+		{"match": "^\\.github/scripts/(check-licenses\\.sh|promote\\.py|release\\.py)$", "areas": "none"},
+		{"match": "^\\.github/scripts/test-", "areas": "all", "note": "The test selection and the test comment"},
+		{"match": "^tests/test_selection\\.json$", "areas": "all"},
+		{"match": "^tests/ci/", "areas": "all"},
+		{"match": "^tests/stranded2/", "areas": "none", "note": "Only used by the benchmark"},
+		{"match": "^tests/test\\.bb$", "areas": []},
+		{"match": "^tests/suite/functions\\.txt$", "areas": []},
+		{"match": "^tests/suite/include/", "areas": "language"},
+		{"match": "^tests/suite/images/", "areas": "gpu"},
+		{"match": "^tests/suite/models/", "areas": "3d"},
+		{"match": "^tests/suite/movies/", "areas": "movies"},
+		{"match": "^tests/suite/(?P<suite>.+)\\.bb$", "areas": []},
+		{"match": "^tests/audio/", "areas": "audio"},
+		{"match": "^tests/gui/", "areas": "gui"},
+		{"match": "^tests/cli/close_prompt\\.", "areas": "gui"},
+		{"match": "^tests/cli/profile\\.", "areas": "graphics"},
+		{"match": "^tests/cli/", "areas": "cli"},
+		{"match": "^tests/(format|tidy)/", "areas": "tools"},
+		{"match": "^code_(format|tidy|tools)/", "areas": "tools"},
+		{"match": "^code_compiler/userlibs/", "areas": "cli"},
+
+		{"match": "^code_runtime/source/sound\\.c$", "areas": "audio"},
+		{"match": "^code_runtime/source/(network|multiplayer)\\.c$", "areas": "network"},
+		{"match": "^code_runtime/source/(files|filesystem|banks)\\.c$|^code_runtime/source/(files_internal|streams)\\.h$", "areas": "files"},
+		{"match": "^code_runtime/source/movie\\.cpp$", "areas": "movies"},
+		{"match": "^code_runtime/source/gui_[a-z_]+\\.(cpp|hpp)$", "areas": "gui"},
+		{"match": "^code_runtime/source/(scene[a-z_0-9]*|animation[a-z_]*|b3d|bsp|collision[a-z_]*|md2|model_[a-z0-9_]+|picking|graphics_scene3d)\\.(cpp|hpp)$", "areas": "3d"},
+		{"match": "^code_runtime/source/graphics_(input|joystick)\\.cpp$", "areas": ["graphics", "gui"]},
+		{"match": "^code_runtime/source/graphics_[a-z0-9]+\\.cpp$", "areas": "gpu", "note": "Everything that draws shares the window and Vulkan code"},
+		{"match": "^code_runtime/source/shaders\\.inc$", "areas": "gpu"}
+	]
+}
