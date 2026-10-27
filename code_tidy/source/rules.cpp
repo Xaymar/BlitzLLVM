@@ -37,7 +37,7 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "unused-result", false, mode::REPORT, "", "" },
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },
 		{ "expand-short-to-long-notation", true, mode::OFF, "Writes the type in the long form: x% becomes x:Int32, x# x:Float32, x## x:Float64, x%% x:Int64, x$ x:String", "", "A type is written as a character behind the name (x%, x#, x$) instead of the long form (x:Int32, x:Float32, x:String). The long form is the one BlitzLLVM prefers." },
-		{ "unreachable-code", true, mode::FIX, "Removes the statements after Return, End, Goto or Exit, up to the next label or Data.", "" },
+		{ "unreachable-code", false, mode::REPORT, "", "" },
 		{ "unused-variable", true, mode::FIX, "Removes a Local of a function that is not mentioned anywhere else.", "Locals of the main program and Globals: an Include can use them." },
 		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x:Int32", "" },
 		{ "unused-function", true, mode::FIX, "Removes the function, if its name is not mentioned anywhere else.", "Always: another file can call the function." },

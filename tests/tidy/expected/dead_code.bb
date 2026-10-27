@@ -5,11 +5,16 @@
 Function Used(value%)
 	Local doubled% = value * 2
 	Return doubled
+	Print "after return"
+	; A comment between dead statements.
+	Print "also dead"
 End Function
 
 
 Print Used(21)
 Goto finish
+Print "skipped"
 .finish
 Print "done"
 End
+Print "after end"

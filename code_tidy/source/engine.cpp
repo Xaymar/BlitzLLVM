@@ -510,50 +510,6 @@ namespace {
 							have             = delete_lines(ln, fn->covers, fn->covers, candidate.edits);
 						}
 					}
-				} else if (f.warning == "unreachable-code") {
-					for (auto const& ref : blocks) {
-						for (size_t idx = 0; idx < ref.block->size(); idx++) {
-							auto& stmt = (*ref.block)[idx];
-							if (!at(stmt->where, f.where.line, f.where.column) || !is_file(stmt->where, primary)) {
-								continue;
-							}
-							// Up to the next label, which can be jumped to, or Data, which is not code.
-							size_t last  = idx;
-							bool   clean = true;
-							for (; last < ref.block->size(); last++) {
-								auto* s = (*ref.block)[last].get();
-								if (dynamic_cast<ast::label_statement*>(s) || dynamic_cast<ast::data_statement*>(s)) {
-									break;
-								}
-								// Declarations are hoisted, so they matter even where they can't run. A label further in can be jumped to.
-								std::vector<block_ref> inner;
-								if (auto* if_s = dynamic_cast<ast::if_statement*>(s)) {
-									for (auto& branch : if_s->branches) {
-										gather(branch.body, ref.in_function, ref.top, inner);
-									}
-								} else if (auto* w = dynamic_cast<ast::while_statement*>(s)) {
-									gather(w->body, ref.in_function, ref.top, inner);
-								} else if (auto* r = dynamic_cast<ast::repeat_statement*>(s)) {
-									gather(r->body, ref.in_function, ref.top, inner);
-								} else if (auto* fo = dynamic_cast<ast::for_statement*>(s)) {
-									gather(fo->body, ref.in_function, ref.top, inner);
-								} else if (auto* sel = dynamic_cast<ast::select_statement*>(s)) {
-									for (auto& c : sel->cases) {
-										gather(c.body, ref.in_function, ref.top, inner);
-									}
-								}
-								for (auto const& in : inner) {
-									for (auto const& nested : *in.block) {
-										clean = clean && !dynamic_cast<ast::label_statement const*>(nested.get()) && !dynamic_cast<ast::declare const*>(nested.get()) && !dynamic_cast<ast::dim_statement const*>(nested.get());
-									}
-								}
-								clean = clean && !dynamic_cast<ast::declare*>(s) && !dynamic_cast<ast::dim_statement*>(s) && is_file(s->where, primary);
-							}
-							if (clean && (last > idx)) {
-								have = delete_lines(ln, (*ref.block)[idx]->covers, (*ref.block)[last - 1]->covers, candidate.edits);
-							}
-						}
-					}
 				}
 			}
 
