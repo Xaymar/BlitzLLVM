@@ -216,8 +216,9 @@ int32_t bb_back_buffer(void)
 	return back_buffer;
 }
 
-void bb_set_buffer(int32_t buffer)
+int32_t bb_set_buffer(int32_t buffer)
 {
+	int32_t previous = g.target;
 	if (active() && !resolve_target(buffer).image) {
 		fail("SetBuffer: the buffer does not exist.");
 	}
@@ -226,6 +227,7 @@ void bb_set_buffer(int32_t buffer)
 	g.view_x = g.view_y = 0;
 	g.view_w = g.view_h = -1;
 	g.cursor_x = g.cursor_y = 0;
+	return previous;
 }
 
 void bb_app_title(const char* title, const char* close_prompt)

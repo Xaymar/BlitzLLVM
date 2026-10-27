@@ -55,7 +55,7 @@
 		{ "apptitle", "bb_app_title", 'v', "ss", 1, {}, false },
 		{ "graphicswidth", "bb_graphics_width", 'i', "", 0, {}, false },
 		{ "graphicsheight", "bb_graphics_height", 'i', "", 0, {}, false },
-		{ "setbuffer", "bb_set_buffer", 'v', "i", 1, {}, false },
+		{ "setbuffer", "bb_set_buffer", 'i', "i", 1, {}, false },
 		{ "backbuffer", "bb_back_buffer", 'i', "", 0, {}, false },
 		{ "frontbuffer", "bb_front_buffer", 'i', "", 0, {}, false },
 		{ "flip", "bb_flip", 'v', "i", 0, { 1 }, false },

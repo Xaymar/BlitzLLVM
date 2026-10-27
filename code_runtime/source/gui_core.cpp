@@ -14,7 +14,7 @@ int32_t bb_graphics_width(void);
 int32_t bb_graphics_height(void);
 int32_t bb_graphics_buffer(void);
 int32_t bb_native_window(void);
-void    bb_set_buffer(int32_t buffer);
+int32_t bb_set_buffer(int32_t buffer);
 void    bb_clscolor(int32_t r, int32_t g, int32_t b);
 void    bb_cls(void);
 }
