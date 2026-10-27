@@ -36,10 +36,13 @@ def tone(name, rate, channels, bits, cycles=40, cycle=CYCLE):
 	return rate / cycle
 
 
-def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False):
+def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False, music=None):
 	"""Plays a file and returns the left channel of what was sent to the disk driver."""
 	with open("play.bb", "w") as source:
-		source.write('s = LoadSound("%s")\n%s\n%s\nc = PlaySound(s)\n%s\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, "LoopSound s" if loop else "", setup, after, milliseconds))
+		if music is not None:
+			source.write('c = PlayMusic("%s", %d)\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, music, milliseconds))
+		else:
+			source.write('s = LoadSound("%s")\n%s\n%s\nc = PlaySound(s)\n%s\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, "LoopSound s" if loop else "", setup, after, milliseconds))
 	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
@@ -98,6 +101,16 @@ expected = tone("tone.wav", 22050, 1, 16)
 samples, log = play("tone.wav", loop=False)
 frequency, smoothness, length = analyze(samples)
 check("one shot ends after %.2f s" % length, length < 0.5 and "playing 0" in log)
+
+# PlayMusic plays once, and loops with the flag 1 of BlitzPlus.
+expected = tone("tone.wav", 22050, 1, 16)
+samples, log = play("tone.wav", music=0)
+frequency, smoothness, length = analyze(samples)
+check("PlayMusic once ends after %.2f s" % length, length < 0.5 and "playing 0" in log)
+samples, log = play("tone.wav", music=1)
+frequency, smoothness, length = analyze(samples)
+check("PlayMusic flags 1: looped for %.2f s, pitch %.1f Hz is %.1f Hz" % (length, frequency, expected), length > 1.0 and "playing 1" in log and abs(frequency - expected) < expected * 0.01)
+check("PlayMusic flags 1: loop is gapless (jump %.1fx)" % smoothness, smoothness < 4.0)
 
 # SoundPitch and ChannelPitch are the frequency in Hz that the file is played at.
 tone("tone.wav", 22050, 1, 16)
