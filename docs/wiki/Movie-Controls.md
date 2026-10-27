@@ -14,3 +14,4 @@ The originals play a movie from its first picture to its last: `OpenMovie`, `Dra
 | [MovieLength](MovieLength) | How long the movie is, in seconds. |
 | [MoviePosition](MoviePosition) | Where the movie is, in seconds. |
 | [SeekMovie](SeekMovie) | Puts the movie at a position, in seconds. |
+| [StopMovie](StopMovie) | Stops the movie and puts it back at its start. |

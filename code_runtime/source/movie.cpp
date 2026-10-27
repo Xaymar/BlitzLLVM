@@ -164,6 +164,7 @@ namespace {
 		bool                 started = false;  // Whether the movie was used, which is when it begins to play unless it was paused before.
 		bool                 finished = false;
 		bool                 paused = false;   // PauseMovie: the clock stands still until PlayMovie.
+		bool                 stopped = false;  // StopMovie: paused at the start, and not playing for MoviePlaying either.
 		bool                 running = false;  // Whether the clock is going.
 		double               base = 0.0;       // The position of the movie, in seconds, when the clock was last started.
 		Uint64               resumed = 0;      // The time of the program when the clock was last started.
@@ -542,7 +543,7 @@ int32_t bb_movie_playing(int32_t handle)
 		return 0;
 	}
 	update(*m);
-	return m->finished ? 0 : 1;
+	return (m->finished || m->stopped) ? 0 : 1;
 }
 
 // How long the movie is in seconds. The file says how long it is, which some formats estimate from their bit rate. Once the end has
@@ -587,10 +588,26 @@ void bb_seek_movie(int32_t handle, float seconds)
 	}
 }
 
+void bb_stop_movie(int32_t handle)
+{
+	if (movie* m = movie_of(handle)) {
+		seek(*m, 0.0);
+		m->started = true;
+		m->paused  = true;
+		m->stopped = true;
+		stop_clock(*m);
+		update(*m);
+	}
+}
+
 void bb_play_movie(int32_t handle)
 {
 	if (movie* m = movie_of(handle)) {
+		if (m->finished) {
+			seek(*m, 0.0);
+		}
 		m->paused  = false;
+		m->stopped = false;
 		m->started = true;
 		start_clock(*m);
 	}

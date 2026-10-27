@@ -431,6 +431,7 @@ setfont	graphics	done	SetFont%font
 setgamma	graphics	done	SetGamma%src_red%src_green%src_blue#dest_red#dest_green#dest_blue
 setgfxdriver	graphics	done	SetGfxDriver%driver
 showpointer	graphics	done	ShowPointer
+stopmovie	graphics	done	StopMovie%movie
 stringheight	graphics	done	%StringHeight$string
 stringwidth	graphics	done	%StringWidth$string
 text	graphics	done	Text%x%y$text%centre_x=0%centre_y=0

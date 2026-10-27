@@ -104,11 +104,39 @@ For i = 0 To 2
 	Check "SeekMovie before the start of " + files(i), MoviePosition(movie), 0.0, 0.05
 	SeekMovie movie, 100.0
 	PlayMovie movie
+	PauseMovie movie
+	SeekMovie movie, 100.0
 	Delay 300
 	Check "SeekMovie after the end of " + files(i), MoviePlaying(movie), 0
 	CloseMovie movie
 Next
 SeekMovie 0, 1.0
+
+; StopMovie ends the playback and goes back to the start: MoviePlaying is 0 and the position stays at the start until PlayMovie, which
+; plays the movie from its start again. A movie that has ended is played again by PlayMovie as well.
+For i = 0 To 2
+	movie = OpenMovie(files(i))
+	Check "MoviePlaying starts " + files(i), MoviePlaying(movie), 1
+	Delay 1200
+	Check "MoviePosition before StopMovie of " + files(i), MoviePosition(movie), 1.2, 0.4
+	StopMovie movie
+	Check "MoviePlaying after StopMovie of " + files(i), MoviePlaying(movie), 0
+	Delay 500
+	Check "MoviePosition after StopMovie of " + files(i), MoviePosition(movie), 0.0, 0.05
+	PlayMovie movie
+	Check "MoviePlaying after PlayMovie after StopMovie of " + files(i), MoviePlaying(movie), 1
+	started = MilliSecs()
+	While MoviePlaying(movie) And (MilliSecs() - started < 8000)
+		Delay 20
+	Wend
+	elapsed = MilliSecs() - started
+	Check "A movie that was stopped plays for 3 s again for " + files(i) + " (" + elapsed + " ms)", elapsed, 3000, 700
+	PlayMovie movie
+	Check "PlayMovie after the end of " + files(i), MoviePlaying(movie), 1
+	Check "MoviePosition after PlayMovie after the end of " + files(i), MoviePosition(movie), 0.0, 0.3
+	CloseMovie movie
+Next
+StopMovie 0
 
 Check "MovieLength of no movie", MovieLength(0), 0.0, 0.0001
 Check "MoviePosition of no movie", MoviePosition(0), 0.0, 0.0001

@@ -712,6 +712,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [Stats3D](Stats3D)
 * [Stop](Stop)
 * [StopChannel](StopChannel)
+* [StopMovie](StopMovie) 〔BlitzLLVM〕
 * [StopNetGame](StopNetGame)
 * [String](String)
 * [StringHeight](StringHeight)

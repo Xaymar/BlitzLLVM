@@ -12,7 +12,7 @@ PlayMovie movie%
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Lets a movie play on after [PauseMovie](PauseMovie). The movie goes on from the picture and the sound where it was paused. A movie that was opened plays by itself the first time it is drawn or asked about, so this is only needed after a pause, or to start a movie that was paused before it was used. This is a BlitzLLVM extension: the originals can only play a movie to its end.
+Lets a movie play on after [PauseMovie](PauseMovie), or from its start after [StopMovie](StopMovie) or when it has ended. The movie goes on from the picture and the sound where it was paused. A movie that was opened plays by itself the first time it is drawn or asked about, so this is only needed after a pause, or to start a movie that was paused before it was used. This is a BlitzLLVM extension: the originals can only play a movie to its end.
 
 ```blitzbasic
 movie = OpenMovie("intro.mpg")
@@ -31,9 +31,9 @@ PlayMovie movie
 * [DrawMovie](DrawMovie)
 * [MovieHeight](MovieHeight)
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
-* [MoviePlaying](MoviePlaying)
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [SeekMovie](SeekMovie) 〔BlitzLLVM〕
+* [StopMovie](StopMovie) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
