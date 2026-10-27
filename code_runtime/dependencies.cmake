@@ -551,7 +551,7 @@ endforeach()
 # SDL_image's codecs (libavif, dav1d, libjxl, brotli, highway and libwebp) are shared libraries: they are shipped with the runtime and copied
 # next to the programs that load images. On Windows they are DLLs in bin/ (their import libraries in lib/ are not needed, as SDL_image loads them
 # by name), elsewhere they are in lib/ with their version in the file name.
-# SDL_image opens them by name (avif.dll, libavif.so.16, libavif.16.dylib), which is what the link libavif.so and libavif.dylib point at.
+# SDL_image opens them by name (libavif-16.dll, libavif.so.16, libavif.16.dylib), which is what the link libavif.so and libavif.dylib point at.
 # Installing a link copies the link and not the file, so the files are copied under that name, and those are what is shipped.
 set(_SDL3_IMAGE_STAGE "${SDL3_image_INSTALL_PATH}/runtime")
 file(MAKE_DIRECTORY "${_SDL3_IMAGE_STAGE}")
