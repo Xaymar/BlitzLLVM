@@ -53,7 +53,11 @@ def join(row, config):
 def read_names(args):
     if args.tests:
         with open(args.tests, encoding="utf-8") as f:
-            return [split(t["name"]) for t in json.load(f).get("tests", [])]
+            raw = [t["name"] for t in json.load(f).get("tests", [])]
+        pairs = [split(n) for n in raw]
+        # A name with "debug" in it that has no Release test to pair with is a test of its own (cli-debug), not a Debug run.
+        release = {r for r, c in pairs if c == "release"}
+        return [(r, c) if c == "release" or r in release or n.startswith("suite-debug-") else (n, "release") for n, (r, c) in zip(raw, pairs)]
     if args.previous:
         names = []
         with open(args.previous, encoding="utf-8") as f:
@@ -137,15 +141,14 @@ def main():
     table = ["| Test | Debug | Release |", "| --- | :---: | :---: |"]
 
     shown = bad + waiting
-    body = out + table + [line(r) for r in shown]
+    body = out + (table + [line(r) for r in shown] if shown else [])
     if args.state == "pending" or not rest:
         # Everything is waiting (or failed): one table.
         body = out + table + [line(r) for r in shown + rest]
         text = "\n".join(body)
     else:
         text = "\n".join(body)
-        if shown:
-            text += "\n"
+        text += "\n"
         details = ["", f"<details><summary>Passed or skipped ({len(rest)})</summary>", ""] + table + [line(r) for r in rest] + ["", "</details>"]
         if len(text) + len("\n".join(details)) > LIMIT:
             details = ["", f"{len(rest)} tests that passed or were skipped are not listed, as the comment would be too long."]
