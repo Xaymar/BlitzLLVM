@@ -146,13 +146,17 @@ void blitz::compiler::register_types(ast::program const& program)
 	}
 }
 
-blitz::compiler::address blitz::compiler::gen_address(ast::expression const* expr)
+blitz::compiler::address blitz::compiler::gen_address(ast::expression const* expr, bool write)
 {
 	if (auto r = dynamic_cast<ast::reference const*>(expr)) {
 		variable* var = find(r->name);
 		if (!var) {
+			warn(r->where, "implicit-variable", "'" + r->name + "' was not declared, it is a new local variable.", "Declare it first, such as 'Local " + r->name + "'.");
 			create_local(r->name, (r->type == type::UNKNOWN) ? type::INT32 : r->type, false, r->where, r->struct_name);
 			var = find(r->name);
+		}
+		if (!write) {
+			var->used = true;
 		}
 		return { var->pointer, var->type, var->sname, var->count, var->constant };
 	} else if (auto c = dynamic_cast<ast::call const*>(expr)) {
@@ -183,7 +187,7 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 		}
 		throw err(f->where, "Type '" + info.name + "' has no field '" + f->name + "'.");
 	} else if (auto i = dynamic_cast<ast::index_access const*>(expr)) {
-		auto base = gen_address(i->base.get());
+		auto base = gen_address(i->base.get(), write);
 		if (!base.count) {
 			throw err(i->where, "This is not an array.");
 		}
@@ -262,7 +266,7 @@ blitz::compiler::value blitz::compiler::gen_from_handle(ast::object_from_handle 
 void blitz::compiler::gen_for_each(ast::for_statement const* node)
 {
 	auto& info = need_type(node->each_type, node->where);
-	auto& var  = lookup(node->variable->name, type::STRUCT, node->each_type);
+	auto& var  = lookup(node->variable->name, type::STRUCT, node->variable->where, node->each_type);
 	if ((var.type != type::STRUCT) || (var.sname != lower(info.name))) {
 		throw err(node->where, "The variable of 'For Each " + info.name + "' has to be of that type.");
 	}

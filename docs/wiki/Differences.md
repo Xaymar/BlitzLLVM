@@ -25,6 +25,7 @@ Differences that are not caused by one command.
 * [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZ_AUDIO_CLASSIC` restores the FMOD sound.
 * [Types everywhere](Types): Extension: `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double` work everywhere a type can be written.
 * [Userlib declarations](Userlib-Declarations): `.decls` files take the long type names as well as the short ones, for all the new types.
+* [Warnings](Warnings): Extension: `blitzcc` has warnings with levels (`-W0` to `-W4`), `-W<name>` and `-Wno-<name>` options and `-Werror`; the original has none.
 
 ## Commands
 

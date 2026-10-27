@@ -55,6 +55,7 @@ namespace blitz {
 			std::shared_ptr<const std::filesystem::path> file;
 			uint64_t                                     line   = 0;
 			uint64_t                                     column = 0;
+			uint64_t                                     length = 0; // In bytes from the column, 0 if the end is not known.
 		};
 
 		struct node {

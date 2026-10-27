@@ -178,7 +178,7 @@ void blitz::compiler::gen_read(ast::read_statement const* node)
 {
 	std::string count = std::to_string(_data_items.size());
 	for (auto const& target : node->targets) {
-		auto addr = gen_address(target.get());
+		auto addr = gen_address(target.get(), true);
 		if (addr.count || (addr.type == type::STRUCT)) {
 			throw err(target->where, "Read can only read numbers and strings.");
 		}

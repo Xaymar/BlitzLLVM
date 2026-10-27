@@ -237,6 +237,7 @@ void blitz::compiler::gen_function(ast::function const& fn)
 		}
 	}
 	gen_block(fn.body);
+	report_unused(_locals);
 	if (!_terminated) {
 		emit("store " + blitz::types::to_llvm(fn.type) + " " + zero(fn.type).repr + ", ptr " + _ret_slot);
 		emit_terminator("br label %" + _exit_label);
@@ -291,6 +292,7 @@ void blitz::compiler::gen_main(ast::program const& program)
 		call_runtime("bb_set_debug", type::UNKNOWN, { { "1", type::INT32 } });
 	}
 	gen_block(program.main);
+	report_unused(_locals);
 	if (!_terminated) {
 		emit_terminator("ret i32 0");
 	}

@@ -80,6 +80,7 @@ blitz::compiler::value blitz::compiler::gen_reference(ast::reference const* node
 		if (var->dims || var->count) {
 			throw err(node->where, "'" + node->name + "' is an array, it needs an index.");
 		}
+		var->used = true;
 		auto r = tmp();
 		emit(r + " = load " + blitz::types::to_llvm(var->type) + ", ptr " + var->pointer);
 		return { r, var->type, var->sname };
@@ -99,6 +100,7 @@ blitz::compiler::value blitz::compiler::gen_reference(ast::reference const* node
 	}
 
 	// Automatically declare the variable.
+	warn(node->where, "implicit-variable", "'" + node->name + "' was not declared, it is a new local variable.", "Declare it first, such as 'Local " + node->name + "'.");
 	create_local(node->name, (node->type == type::UNKNOWN) ? type::INT32 : node->type, false, node->where, node->struct_name);
 	return gen_reference(node);
 }
@@ -322,6 +324,7 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 		return { "0", type::INT32 };
 	}
 
+	_called.insert(key);
 	auto const& fn = *it->second.declaration;
 	size_t      required = 0;
 	for (auto const& p : fn.parameters) {

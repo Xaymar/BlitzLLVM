@@ -55,7 +55,7 @@ std::string blitz::format(const char* format, ...)
 	return {buffer.data(), buffer.data() + length};
 }
 
-std::string blitz::source_excerpt(std::filesystem::path const& file, uint64_t line, uint64_t column)
+std::string blitz::source_excerpt(std::filesystem::path const& file, uint64_t line, uint64_t column, uint64_t length)
 {
 	if (line == 0 || file.empty()) {
 		return {};
@@ -113,17 +113,29 @@ std::string blitz::source_excerpt(std::filesystem::path const& file, uint64_t li
 			padding += ' ';
 		}
 	}
-	return result + padding + "^---------- HERE\n";
+
+	// The dashes reach to the end of the span, or of the visible line. Multi-byte characters count once.
+	size_t end = (length == 0) ? text.size() : std::min(text.size(), caret + size_t(length));
+	size_t span = 0;
+	for (size_t idx = caret; idx < end; idx++) {
+		if (!is_continuation(text[idx])) {
+			span++;
+		}
+	}
+	return result + padding + "^" + std::string(span > 1 ? span - 1 : 0, '-') + " HERE\n";
 }
 
-std::string blitz::diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason)
+std::string blitz::diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason, uint64_t length, std::string const& help)
 {
 	// Without any "." and ".." parts. This is only lexical, the file itself is read through the path as it was given.
 	std::string result = file.lexically_normal().generic_string() + ":" + std::to_string(line) + ":" + std::to_string(column) + ": " + kind + ": " + reason;
-	std::string excerpt = source_excerpt(file, line, column);
+	std::string excerpt = source_excerpt(file, line, column, length);
 	if (!excerpt.empty()) {
 		result += "\n" + excerpt;
 		result.pop_back();
+	}
+	if (!help.empty()) {
+		result += "\nhelp: " + help;
 	}
 	return result;
 }

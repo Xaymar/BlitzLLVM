@@ -122,7 +122,7 @@ void blitz::parser::advance()
 
 blitz::ast::location blitz::parser::here(blitz::token const& token) const
 {
-	return ast::location{ _file_ptr, token.location.first, token.location.second };
+	return ast::location{ _file_ptr, token.location.first, token.location.second, token.text.size() + ((token.type == blitz::token::variant::STRING) ? 2 : 0) };
 }
 
 blitz::error blitz::parser::error(blitz::token const& token, std::string const& reason) const

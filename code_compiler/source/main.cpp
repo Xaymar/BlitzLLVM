@@ -23,6 +23,7 @@
 #include "keywords.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "warnings.hpp"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -90,6 +91,7 @@ namespace {
 		bool                     tokens     = false;
 		std::filesystem::path    userlibs_dir;
 		bool                     help         = false;
+		blitz::warning_settings  warnings;                    // -W options
 		bool                     quiet        = false; // -q: No banner and no warnings.
 		bool                     very_quiet   = false; // +q: No messages at all, errors included. A failure still returns 1.
 		bool                     compile_only = false; // -c
@@ -119,6 +121,10 @@ namespace {
 				  << "                        assumption of no NaN or Infinity, which breaks 'x <> x' NaN checks), safe (default, everything but the NaN and Infinity assumptions) or\n"
 				  << "                        off (exact IEEE behavior). Always off with -d.\n"
 				  << "  -q                    Quiet mode, doesn't print the version banner and no warnings.\n"
+				  << "  -W0 .. -W4            Warning level: -W0 has no warnings, each level adds more (see below), -W2 is the default.\n"
+				  << "  -W<name>              Turn the warning <name> on, whatever the level is. -Wno-<name> turns it off.\n"
+				  << "  -Werror               Warnings are errors, which fail the compilation. -Werror=<name> only does so for the\n"
+				  << "                        warning <name>, -Wno-error=<name> excludes it from -Werror.\n"
 				  << "  +q                    Very quiet mode, doesn't print anything of the compiler, errors included (a failure\n"
 				  << "                        still returns a non-zero exit code).\n"
 				  << "  -c                    Compile only: Check the program and generate the code, but don't run it or create an\n"
@@ -144,8 +150,17 @@ namespace {
 				  << "  --verbose             Print the commands that are run.\n"
 				  << "  -h, --help            Show this text.\n"
 				  << "\n"
-				  << "Options are not case sensitive for -q, +q, -c, -d, -g, -k, +k and -v.\n"
+				  << "Options are not case sensitive for -q, +q, -c, -d, -g, -k, +k, -v and the -W options.\n"
 				  << "\n"
+				  << "Warnings (the level is where they turn on, -W<name> and -Wno-<name> win over the level in any order):\n";
+		size_t width = 0;
+		for (auto const& info : blitz::all_warnings()) {
+			width = std::max(width, std::string(info.name).size());
+		}
+		for (auto const& info : blitz::all_warnings()) {
+			std::cout << "  -W" << info.level << "  " << info.name << std::string(width + 2 - std::string(info.name).size(), ' ') << (info.hint ? "(Notice) " : "") << info.description << "\n";
+		}
+		std::cout << "\n"
 				  << "Everything after a lone '--' is passed to clang as-is.\n";
 	}
 
@@ -228,6 +243,8 @@ namespace {
 				opt.quiet = true;
 			} else if (lowered == "+q") {
 				opt.quiet = opt.very_quiet = true;
+			} else if (opt.warnings.parse(lowered)) {
+				// A -W option, the warnings are set up.
 			} else if (lowered == "-c") {
 				opt.compile_only = true;
 			} else if (lowered == "--fast-math") {
@@ -393,12 +410,21 @@ int main(int argc, char** argv)
 		compiler.codeview   = windows_msvc;
 		compiler.source     = opt.input;
 		compiler.quiet      = opt.quiet;
+		compiler.silent     = opt.very_quiet;
+		compiler.warning_options = opt.warnings;
 		auto userlibs_dir = find_userlibs(opt);
 		compiler.userlibs = blitz::keywords::load_userlibs(userlibs_dir);
 		// Where the program looks for the libraries when it runs: here, next to itself, next to the source, and then the system.
 		compiler.userlibs_dir = userlibs_dir.empty() ? std::string() : std::filesystem::absolute(userlibs_dir).generic_string();
 		compiler.source_dir   = std::filesystem::absolute(opt.input).parent_path().generic_string();
 		std::string     ir = compiler.generate(*program);
+		if (compiler.warning_errors() > 0) {
+			// The warnings were printed as errors already.
+			if (!opt.very_quiet) {
+				std::cerr << "error: " << compiler.warning_errors() << " warning(s) treated as errors (-Werror)." << std::endl;
+			}
+			return 1;
+		}
 
 		// Compile only checks the program, like the original, where -o still creates the executable.
 		if (opt.compile_only && opt.output.empty() && !opt.emit_ir) {

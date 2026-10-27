@@ -60,6 +60,8 @@ blitzcc --fast-math full -o program program.bb   # also assume that Float math n
 blitzcc -S program.bb          # only write the LLVM IR (program.ll)
 blitzcc --target <triple> program.bb   # cross-compile
 blitzcc -q program.bb          # quiet: no version banner and no warnings
+blitzcc -W4 -Werror program.bb   # more warnings (-W0 to -W4, -W2 is the default), and any warning is an error, see [[Warnings]]
+blitzcc -Wno-implicit-lossy-real-to-int program.bb   # turn off one warning
 blitzcc +q program.bb          # very quiet: no messages from the compiler at all, errors included (it still returns a non-zero exit code)
 blitzcc -c program.bb          # compile only: check the program, don't create an executable (unless -o is given)
 blitzcc -d program.bb          # debug: no optimization, with debug information (DWARF, or CodeView for Windows MSVC)
