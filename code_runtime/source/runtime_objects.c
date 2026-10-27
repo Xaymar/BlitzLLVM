@@ -272,6 +272,12 @@ void bb_dim(bb_array* array, int64_t element_size, int32_t dimensions, int32_t b
 			if (bounds[i] < 0) {
 				bb_runtime_error("Array sizes can't be negative.");
 			}
+			// The compiler checks each index against the size of its own dimension, not against the whole, so the product of the sizes
+			// has to be what is in memory. It overflows for sizes that a file can say, such as 65536 in each of 4 dimensions.
+			int64_t limit = ((int64_t)1 << 40) / (element_size > 0 ? element_size : 1);
+			if ((bounds[i] == INT32_MAX) || (total > limit / ((int64_t)bounds[i] + 1))) {
+				bb_runtime_error("The array is too big.");
+			}
 			array->size[i] = bounds[i] + 1;
 			total *= array->size[i];
 		} else {
