@@ -28,5 +28,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	"${PROJECT_SOURCE_DIR}/source"
 )
 
+# Run by ctest (see code_compiler/CMakeLists.txt).
+add_executable(tools_test "tests/tools_test.cpp")
+init_project(tools_test)
+target_link_libraries(tools_test PRIVATE ${PROJECT_NAME})
+
 get_target_property(_SOURCES ${PROJECT_NAME} SOURCES)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${_SOURCES})
