@@ -140,6 +140,39 @@ HI!
 
 A suffix after the function name says what type it returns, and a parameter with `= value` is optional.
 
+### Order of evaluation
+
+The parts of an expression are not evaluated from left to right, they are evaluated like Blitz3D did it: the part that needs more registers goes first, and with the same number the left one goes first. This only shows when two parts have side effects, such as `Rnd`, `Rand`, `Read` or a function that counts, and a lot of old programs depend on it.
+
+```blitzbasic
+;run
+Global count = 0
+Function Tick()
+	count = count + 1
+	Print "Tick " + count
+	Return count
+End Function
+Function Three(a, b, c)
+	Print a + "," + b + "," + c
+End Function
+
+Three Tick(), Tick(), Tick()
+Print Tick() + Tick() * Tick()
+```
+
+```text
+Tick 1
+Tick 2
+Tick 3
+2,3,1
+Tick 4
+Tick 5
+Tick 6
+26
+```
+
+The arguments of a call are taken from the end: the last two first (the second to last, then the last), then the others from right to left, so `F(a, b)` is a then b, `F(a, b, c)` is b, c, a and `F(a, b, c, d)` is c, d, b, a. An argument that is a call or an expression needs more registers than a variable or a number, so it goes before them. The right part of `x + y * z` goes first, because `y * z` needs more than `x`. The operands of `+ - * / Mod And Or Shl`, comparisons, `^`, the parts of a string `+`, the indices of an array with several dimensions, and the index and the value of an assignment to an array element follow the same rule. A variable on the left of a comparison, `+` or `*` is read after the right part was evaluated, as the original did. The original compiled in debug mode (`-d`) has extra checks in between and can differ; BlitzLLVM uses the release order in both.
+
 ## Arrays
 
 `Dim` makes an array whose indices go from 0 up to the number you give, so `Dim a(3)` has four elements.
