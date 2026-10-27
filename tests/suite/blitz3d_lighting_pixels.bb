@@ -29,6 +29,16 @@ camera = CreateCamera()
 PositionEntity camera, 0, 0, -5
 CameraClsColor camera, 10, 20, 30
 
+; The brightest of the four pixels around the middle of the picture, as the corner is on the edge between them and
+; the triangles that meet there decide which of the four is the closest to it.
+Function Peak()
+	m = R(79, 59)
+	If R(80, 59) > m Then m = R(80, 59)
+	If R(79, 60) > m Then m = R(79, 60)
+	If R(80, 60) > m Then m = R(80, 60)
+	Return m
+End Function
+
 ; A light that shines the way the camera looks, on a sphere that has a corner in the middle of the picture.
 AmbientLight 0, 0, 0
 light = CreateLight()
@@ -41,11 +51,11 @@ Check "Lit sphere without a highlight", R(80, 60), 30, 6
 ; The highlight is white, and as strong as the shininess says.
 EntityShininess sphere, 1
 RenderWorld
-CheckTrue "EntityShininess 1 (" + R(80, 60) + ")", R(80, 60) > 230
+CheckTrue "EntityShininess 1 (" + Peak() + ")", Peak() > 230
 Check "The highlight is white", B(80, 60), R(80, 60), 4
 EntityShininess sphere, 0.2
 RenderWorld
-Check "EntityShininess 0.2", R(80, 60), 30 + 0.2 * 255, 16
+Check "EntityShininess 0.2", Peak(), 30 + 0.2 * 255, 16
 ; It is only where the light is reflected towards the camera: the side of the sphere has none.
 EntityShininess sphere, 1
 RenderWorld
