@@ -13,7 +13,7 @@ Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) 
    ```
    bin/blitzcc          the compiler (blitzcc.exe on Windows)
    bin/blitz-format     formats source code, see [[blitz-format]]
-   lib/blitzllvm/runtime/  the runtime libraries and sources, keep lib next to bin
+   lib/blitzllvm/runtime/  the runtime sources (inline/) and the libraries per architecture (x86_64/, arm64/; macOS has them directly), keep lib next to bin
    userlibs/            user libraries
    ```
 
