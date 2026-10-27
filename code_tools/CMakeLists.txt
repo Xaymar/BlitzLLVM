@@ -14,6 +14,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"source/keywords.cpp"
 	"source/config.hpp"
 	"source/config.cpp"
+	"source/diff.hpp"
+	"source/diff.cpp"
 	"source/files.hpp"
 	"source/files.cpp"
 )
