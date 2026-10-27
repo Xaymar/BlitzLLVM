@@ -147,7 +147,7 @@ jobs:
           find dist -type f -exec ls -l {} + | sort -k5 -n -r
           # Zipped here, so the artifact is the .zip file itself and its name carries the extension.
           (cd dist && cmake -E tar cf "../${ARTIFACT}.zip" --format=zip .)
-          cmake -E tar tf "${ARTIFACT}.zip" | .github/scripts/check-licenses.sh "${ARTIFACT}.zip"
+          cmake -E tar tf "${ARTIFACT}.zip" | .github/scripts/check-licenses.sh "${ARTIFACT}.zip" build/required-licenses.txt
           cmake -E tar tf "${ARTIFACT}.zip" | .github/scripts/check-help.sh "${ARTIFACT}.zip"
       - uses: actions/upload-artifact@v7
         with:
@@ -174,11 +174,11 @@ jobs:
           mv packages/*.deb "packages/${ARTIFACT}.deb"
           mv packages/*.rpm "packages/${ARTIFACT}.rpm"
           # Every package has to list the licenses
-          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb"
+          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb" build/required-licenses.txt
           dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.deb"
-          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm"
+          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm" build/required-licenses.txt
           rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-help.sh "${ARTIFACT}.rpm"
-          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst"
+          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst" build/required-licenses.txt
           bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-help.sh "${ARTIFACT}.pkg.tar.zst"
           ls -l packages
       - name: Build packages (macOS)
