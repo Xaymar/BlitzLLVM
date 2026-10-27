@@ -294,6 +294,7 @@ namespace bb {
 		uint32_t epoch;
 		float    center[3];
 		float    radius;
+		uint32_t sprite; // 1 for a sprite, whose size also depends on how big the camera is.
 	};
 	cull_record& cull_record_of(int handle);
 
