@@ -690,14 +690,19 @@ namespace bb::gfx {
 				mode_count = 16;
 			}
 			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, g.surface, &mode_count, modes);
+			const char* want = getenv("BLITZ_PRESENT_MODE"); // Experiment: "mailbox" or "immediate".
+			VkPresentModeKHR wanted = (want && (strcmp(want, "mailbox") == 0)) ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
 			for (uint32_t i = 0; i < mode_count; i++) {
-				if (modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+				if (modes[i] == wanted) {
 					mode = modes[i];
 				}
 			}
 		}
 
 		uint32_t count = caps.minImageCount + 1;
+		if (const char* extra = getenv("BLITZ_SWAP_EXTRA")) { // Experiment: more images than the minimum.
+			count = caps.minImageCount + uint32_t(atoi(extra));
+		}
 		if ((caps.maxImageCount > 0) && (count > caps.maxImageCount)) {
 			count = caps.maxImageCount;
 		}

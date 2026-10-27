@@ -149,6 +149,7 @@ namespace bb::gfx {
 		}
 	}
 
+	Uint64 profile_acquire = 0;
 	int    profile_submits = 0;
 	Uint64 profile_wait    = 0;
 
@@ -656,7 +657,9 @@ namespace bb::gfx {
 	void present_front(bool copy_back)
 	{
 		uint32_t index = 0;
+		Uint64   acquire_start = BB_PROFILE_NOW();
 		VkResult result = vkAcquireNextImageKHR(g.device, g.swapchain, UINT64_MAX, g.acquired, VK_NULL_HANDLE, &index);
+		profile_acquire += BB_PROFILE_NOW() - acquire_start;
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			// Can't present to this swapchain: finish what we recorded, it gets recreated before the next present.
 			submit_commands();

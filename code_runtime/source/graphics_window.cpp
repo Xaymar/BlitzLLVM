@@ -264,7 +264,7 @@ void bb_flip(int32_t vwait)
 			frames++;
 			Uint64 now = SDL_GetTicks();
 			if (now - last >= 1000) {
-				fprintf(stderr, "fps: %d, submits: %d, waiting: %.1f ms\n", frames, profile_submits, double(profile_wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
+				fprintf(stderr, "fps: %d, submits: %d, waiting: %.1f ms, acquiring the swapchain image: %.1f ms\n", frames, profile_submits, double(profile_wait) * 1000.0 / double(SDL_GetPerformanceFrequency()), double(profile_acquire) * 1000.0 / double(SDL_GetPerformanceFrequency()));
 				fprintf(stderr, "  gpu thread: vkQueueSubmit %.1f ms, vkQueuePresentKHR %.1f ms, frames that had to be waited for %d\n", double(profile_gpu_submit) * 1000.0 / double(SDL_GetPerformanceFrequency()), double(profile_gpu_present) * 1000.0 / double(SDL_GetPerformanceFrequency()), profile_overlap);
 				fprintf(stderr, "  gpu passes: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms\n", profile_gpu_pass[0] * 1e-6, profile_gpu_pass[1] * 1e-6, profile_gpu_pass[2] * 1e-6, profile_gpu_pass[3] * 1e-6, profile_gpu_pass[4] * 1e-6);
 				for (double& pass : profile_gpu_pass) {
@@ -278,6 +278,7 @@ void bb_flip(int32_t vwait)
 				}
 				profile_submits = 0;
 				profile_wait    = 0;
+				profile_acquire = 0;
 				frames = 0;
 				last   = now;
 			}

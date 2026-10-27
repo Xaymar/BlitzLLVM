@@ -638,6 +638,7 @@ namespace bb::gfx {
 	extern bb::buffer<graveyard_entry> graveyard;
 	extern int    profile_submits;
 	extern Uint64 profile_wait;
+	extern Uint64 profile_acquire;
 	extern Uint64 profile_gpu_submit;
 	extern Uint64 profile_gpu_present;
 	extern int    profile_overlap;
