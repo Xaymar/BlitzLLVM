@@ -34,21 +34,28 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check out the submodules
         # The same ones the build needs, and shallow. extra/ holds reference sources only.
-        run: git submodule update --init --depth 1 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer third_party/stb
+        run: git submodule update --init --depth 1 --jobs 8 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer third_party/stb
       - name: Hash the dependency submodules
         id: dependencies
         run: echo "hash=$(git ls-tree HEAD third_party/ | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
-      - uses: jwlawson/actions-setup-cmake@v2
-        with:
-          cmake-version: latest
+      - name: Install CMake
+        # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
+        # is always the latest one, as with the setup-cmake action it replaces, which downloaded and unpacked CMake each time.
+        shell: bash
+        run: pipx install cmake && cmake --version
+      - name: Date the package cache
+        id: month
+        # Ubuntu publishes updates to these packages, so the cache is replaced every month and never serves old ones for long.
+        run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
       - name: Install dependencies
-        # The first line is what the build needs (as in pull-request.yml), the second is what the GPU tests need: a Vulkan
-        # driver that runs on the CPU, a virtual X server, and xdotool and xwininfo to move the focus around in it.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev
-          sudo apt-get install -y mesa-vulkan-drivers xvfb xdotool x11-utils
-          mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+        uses: awalsh128/cache-apt-pkgs-action@v1.4.3
+        with:
+          # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
+          # them on every run. The key is made from the list and the month.
+          packages: ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils
+          version: 1-${{ steps.month.outputs.month }}
+      - name: Create the runtime directory
+        run: mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
       # The same cache as the Linux build in pull-request.yml and nightly.yml, with the same key, so the dependencies are
       # restored from what the nightly builds of root saved and are not compiled again.
       - name: Cache dependencies
