@@ -310,6 +310,12 @@ namespace bb {
 		float    center[3];
 		float    radius;
 		uint32_t sprite; // 1 for a sprite, whose size also depends on how big the camera is.
+		// The lights that were picked for the entity with more than eight in the scene: they are the same as long as the sphere
+		// around the entity (in the world) and the lights stay as they are, so they are not picked again.
+		float    light_center[3];
+		float    light_radius;
+		uint32_t light_hash; // Of the lights they were picked from, 0 if none were.
+		float    light_places[4];
 	};
 	cull_record& cull_record_of(int handle);
 
