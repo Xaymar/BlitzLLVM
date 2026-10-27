@@ -23,6 +23,10 @@ Function BenchBuffers()
 	Return 0
 End Function
 
+; The original has no SpriteDepthFade, so the flames and smoke stay as they are.
+Function BenchDepthFade(sprite, distance#)
+End Function
+
 ; The original crashes with more sprites than that: they share one vertex buffer, 4 vertices each.
 Function BenchMaxSprites()
 	Return 16383

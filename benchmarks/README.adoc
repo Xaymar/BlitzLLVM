@@ -198,6 +198,8 @@ The dungeon costs the GPU very little (the sprites are small), so the speed is l
 smoke sprite 6 times as big (36 times the pixels) with the same number of sprites, so that the overdraw is most of what the GPU does and
 the time that early-Z saves can show in `ms/frame` as well. The original Blitz3D can do it as well, as the number of sprites stays the same.
 
+`--depth-fade 1.5` gives the flames and smoke `SpriteDepthFade` with that distance (BlitzLLVM only, the original ignores it), to measure what the soft edges cost: run it with and without, and compare the `scene` time with `--profile`.
+
 === With the original Blitz3D
 
 As with the other benchmarks, `dungeon.bb` uses only commands that the original Blitz3D has too. The microsecond timer and the draw
