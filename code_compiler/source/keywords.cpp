@@ -202,23 +202,15 @@ namespace {
 		return "";
 	}
 
-	// Name and syntax like the original quick help, with every function written as 'Name%# ( a%,b# [,c$] )' (return type
-	// only if there is one, parameters with a default value in the bracket). Keywords of the language are not passed here.
+	// Name and syntax byte for byte like the original quick help ('Name% ( a%,b#[,c$] )'), except for the types: Every
+	// function has the '( )', and every parameter with a default value is in a bracket of its own, with its comma in it.
 	std::string syntax_of(std::string name, char ret, std::vector<std::pair<std::string, char>> const& params, size_t required)
 	{
 		name += suffix_of(ret);
 		std::string list;
-		std::string optional;
 		for (size_t idx = 0; idx < params.size(); idx++) {
-			std::string param = params[idx].first + (params[idx].second == 'p' ? std::string("*") : suffix_of(params[idx].second));
-			if (idx >= required) {
-				optional += (optional.empty() ? "" : ",") + param;
-			} else {
-				list += (list.empty() ? "" : ",") + param;
-			}
-		}
-		if (!optional.empty()) {
-			list += list.empty() ? "[" + optional + "]" : " [," + optional + "]";
+			std::string param = (idx ? "," : "") + params[idx].first + (params[idx].second == 'p' ? std::string("*") : suffix_of(params[idx].second));
+			list += (idx >= required) ? "[" + param + "]" : param;
 		}
 		return name + " ( " + list + (list.empty() ? ")" : " )");
 	}

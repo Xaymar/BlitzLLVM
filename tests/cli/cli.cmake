@@ -470,10 +470,10 @@ elseif(CASE STREQUAL "keywords_syntax")
 	blitzcc(+k --userlibs-dir "${USERLIBS}")
 	expect_ok()
 	expect_line("Dim")
-	# Every function has a '( )' and its return type as a suffix, parameters with a default are in a bracket.
+	# Every function has a '( )' and its return type as a suffix, parameters with a default are in a bracket with their comma, directly behind the previous parameter.
 	expect_line("left$ ( param1$,param2% )")
-	expect_line("mid$ ( param1$,param2% [,param3%] )")
-	expect_line("rand% ( param1% [,param2%] )")
+	expect_line("mid$ ( param1$,param2%[,param3%] )")
+	expect_line("rand% ( param1%[,param2%] )")
 	# Returns nothing: no suffix, still '( )'.
 	expect_line("print ( [param1$] )")
 	# Keywords have no '( )' and no type.
