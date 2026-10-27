@@ -81,6 +81,11 @@ def main():
         os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
         # Without BLITZPATH the original prints an error instead of its version.
         version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
+    if not llvm:
+        # The original Blitz3D crashes with more than 16383 sprites (they share one vertex buffer of 4 vertices each).
+        sprites = args.rooms * args.torches * args.particles
+        if sprites > 16383:
+            sys.exit("The original Blitz3D crashes with more than 16383 sprites, and this run has %d (rooms x torches x particles). Use fewer." % sprites)
     runner = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (width, height)]
     if runner and not shutil.which("xvfb-run"):
         sys.exit("There is no display and no xvfb-run.")

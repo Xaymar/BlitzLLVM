@@ -183,5 +183,7 @@ python benchmarks\dungeon.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe
 python benchmarks\dungeon.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe
 ----
 
-The original times have a resolution of one millisecond, so use enough frames. The original `SaveBuffer` writes a BMP whatever the file is
+The original crashes with more than 16383 sprites in total (they share one vertex buffer, 4 vertices each), so the runner stops with a message
+when `--rooms` x `--torches` x `--particles` is more than that. Every room is one surface of a few thousand vertices, far below the 65535
+that the original allows. The original times have a resolution of one millisecond, so use enough frames. The original `SaveBuffer` writes a BMP whatever the file is
 called. Run benchmarks windowed only (they are), the original changes the screen settings in fullscreen.
