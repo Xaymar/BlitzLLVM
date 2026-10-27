@@ -11,6 +11,7 @@
 #define STBTT_assert(x) ((void)0)
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
+#include "path.h"
 
 using namespace bb::gfx;
 
@@ -347,7 +348,7 @@ namespace bb::gfx {
 		char*      path = nullptr;
 		found_file found;
 		if (strchr(name, '.')) {
-			path = SDL_strdup(name); // A font file of the program.
+			path = SDL_strdup(bb_native_path(name)); // A font file of the program.
 		} else {
 			found = find_font(name, bold, italic);
 			if (!found.file) {

@@ -37,6 +37,7 @@ target_sources(blitzrt PRIVATE
 	"source/multiplayer.c"
 	"source/sound.c"
 	"source/streams.h"
+	"source/path.h"
 	"source/graphics_window.cpp"
 	"source/graphics_vulkan.cpp"
 	"source/graphics_memory.cpp"

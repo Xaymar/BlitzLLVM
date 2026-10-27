@@ -18,6 +18,7 @@
 #include "graphics_internal.hpp"
 
 #include <algorithm>
+#include "path.h"
 
 using namespace bb::gfx;
 
@@ -622,7 +623,7 @@ namespace bb::gfx {
 
 	bool load_picture(const char* file, picture& out)
 	{
-		SDL_IOStream* io = SDL_IOFromFile(file, "rb");
+		SDL_IOStream* io = SDL_IOFromFile(bb_native_path(file), "rb");
 		if (!io) {
 			return false;
 		}
