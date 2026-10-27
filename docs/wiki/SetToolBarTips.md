@@ -30,6 +30,8 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+![SetToolBarTips](media/toolbars/settoolbartips.png)
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `toolbar` | Int | required | Handle of a toolbar. |
