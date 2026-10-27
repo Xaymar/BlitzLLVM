@@ -344,8 +344,19 @@ namespace bb::gfx {
 		uint32_t  stamp = 0;  // The scene that the sheet was last made for.
 	};
 
+	// Work that a loader thread does, see graphics_async.cpp. run() only decodes: it never touches Vulkan or the tables.
+	struct load_job {
+		virtual ~load_job() = default;
+		virtual void run()  = 0;
+		load_job*    next   = nullptr;
+		int          state  = 0;     // 0 waiting, 1 running, 2 done. Changed under the lock of the queue.
+		bool         cancelled = false;
+		bool         ok     = false; // Decoded without an error, set by run().
+	};
+
 	struct texture_entry {
 		bool            used = false;
+		load_job*       pending = nullptr;      // Still being decoded: the picture is not here yet, see resolve_texture.
 		int             flags = 0;
 		int             width = 0, height = 0;
 		float           uv[4] = { 1, 1, 0, 0 }; // Scale (ScaleTexture) and offset (PositionTexture) of the coordinates.
@@ -380,6 +391,7 @@ namespace bb::gfx {
 	// Images are what 2D drawing uses. They can have frames, which are cells of one sheet.
 	struct image_entry {
 		bool            used = false;
+		load_job*       pending = nullptr;      // Still being decoded: the picture is not here yet, see resolve_image.
 		int             frames = 1, frame_w = 0, frame_h = 0;
 		int             sheet_w = 0, sheet_h = 0;
 		int             first = 0; // Index of the first frame in the sheet.
@@ -792,6 +804,30 @@ namespace bb::gfx {
 	};
 	/** Reads a file without decoding the blocks of a DDS file. Returns false if it cannot be read. */
 	bool load_picture(const char* file, picture& out);
+	/** The same for a file that is in memory already. The name is for what is reported if a codec is missing. */
+	bool load_picture_memory(const char* name, const void* data, size_t size, picture& out);
+	/** Whether the first bytes are those of a picture format that is loaded, so that decoding can go on without the caller. */
+	bool picture_recognized(const uint8_t* data, size_t size);
+	void open_codec_libraries();
+	/** Loading on other threads (graphics_async.cpp). Off, LoadTexture and LoadImage decode before they return. */
+	bool async_loading();
+	void async_set_loading(bool enabled);
+	/** Stops the loader threads, once nothing is waiting for them any more. */
+	void async_shutdown();
+	/** Uploads what the loader threads are done with, for as long as a frame can spare. Called when a frame is shown. */
+	void async_pump();
+	/** Which block formats the device takes as they are, indexed by block_format. Asked on the program's thread, because loader threads must not ask the device. */
+	const bool* async_block_support();
+	void async_submit(load_job* job);
+	bool async_finished(load_job* job);
+	void async_wait(load_job* job);
+	/** Takes the job away, waiting if a thread is working on it, and deletes it. */
+	void async_discard(load_job* job);
+	/** Waits for the decoding of a texture or image and uploads it. */
+	void resolve_texture(texture_entry& t);
+	bool texture_is_ready(int reference);
+	void resolve_image(image_entry& e);
+	bool image_is_ready(int handle);
 	/** The decoded pixels of a picture. The surface is for the caller to destroy and the picture is empty afterwards. */
 	SDL_Surface* picture_surface(picture& p);
 	void free_picture(picture& p);
@@ -860,6 +896,8 @@ void bb_collect_textures(void);
 int32_t bb_texture_in_use(int32_t handle);
 int32_t bb_load_texture_flags(const char* file, int32_t flags);
 int32_t bb_load_texture(const char* file, int32_t flags);
+int32_t bb_texture_ready(int32_t handle);
+void bb_async_loading(int32_t enabled);
 void bb_free_texture(int32_t handle);
 int32_t bb_texture_width(int32_t handle);
 int32_t bb_texture_height(int32_t handle);
@@ -930,6 +968,7 @@ int32_t bb_examine_clipboard(int32_t format);
 const char* bb_get_clipboard_data(int32_t format);
 int32_t bb_set_clipboard_data(int32_t format, const char* text);
 int32_t bb_load_image(const char* file);
+int32_t bb_image_ready(int32_t handle);
 int32_t bb_load_anim_image(const char* file, int32_t frame_w, int32_t frame_h, int32_t first, int32_t count);
 int32_t bb_create_image(int32_t width, int32_t height, int32_t frames);
 void bb_free_image(int32_t handle);

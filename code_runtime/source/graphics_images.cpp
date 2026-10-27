@@ -12,7 +12,10 @@
 
 // Images: loading, frames, handles and drawing them.
 
+#include <string>
+
 #include "graphics_internal.hpp"
+#include "path.h"
 
 using namespace bb::gfx;
 
@@ -180,6 +183,87 @@ namespace bb::gfx {
 		return source.blocks && active() && (source.block != block_format::bc5) && compressed_supported(source.block);
 	}
 
+	// LoadImage on a loader thread: the decoded pixels, or the blocks of a compressed picture that go to the GPU as they are.
+	struct image_job : load_job {
+		void*       data = nullptr;
+		size_t      size = 0;
+		std::string name;
+		bool        mid  = false; // AutoMidHandle when the image was loaded.
+		bool        block_ok[7] = {};
+		picture     blocks;
+		uint8_t*    pixels = nullptr;
+		int         w = 0, h = 0;
+
+		~image_job() override
+		{
+			SDL_free(data);
+			free_picture(blocks);
+			free(pixels);
+		}
+
+		void run() override
+		{
+			picture source;
+			if (!load_picture_memory(name.c_str(), data, size, source)) {
+				return;
+			}
+			SDL_free(data);
+			data = nullptr;
+			if (source.blocks && (source.block != block_format::bc5) && block_ok[int(source.block)]) {
+				w      = source.width;
+				h      = source.height;
+				blocks = source;
+				ok     = true;
+				return;
+			}
+			pixels = picture_pixels(source, w, h);
+			ok     = pixels != nullptr;
+			free_picture(source);
+		}
+	};
+
+	void resolve_image(image_entry& e)
+	{
+		image_job* job = static_cast<image_job*>(e.pending);
+		e.pending      = nullptr;
+		async_wait(job);
+		if (!job->ok) {
+			char message[400];
+			snprintf(message, sizeof(message), "Can't load image '%s': the picture can't be decoded.", job->name.c_str());
+			delete job;
+			bb_runtime_error(message);
+			return;
+		}
+		e.frames  = 1;
+		e.frame_w = e.sheet_w = job->w;
+		e.frame_h = e.sheet_h = job->h;
+		if (job->mid) {
+			e.handle_x = job->w / 2;
+			e.handle_y = job->h / 2;
+		}
+		if (job->blocks.blocks) {
+			upload_compressed(e.image, e.set, job->blocks, g.sampler, false, false);
+		} else {
+			upload_texture(e.image, e.set, uint32_t(job->w), uint32_t(job->h), job->pixels, g.sampler);
+		}
+		delete job;
+	}
+
+	bool image_is_ready(int handle)
+	{
+		if ((handle < 1) || (uint32_t(handle) > image_table.size) || !image_table[uint32_t(handle) - 1].used) {
+			return false;
+		}
+		image_entry* e = &image_table[uint32_t(handle) - 1];
+		if (e->pending) {
+			if (!async_finished(e->pending)) {
+				return false;
+			}
+			resolve_image(*e);
+		}
+		return true;
+	}
+
 	// Draws a part of a frame, with its top left corner at the destination.
 	static void draw_part(image_entry* e, int32_t handle, int dx, int dy, int rx, int ry, int rw, int rh, int frame, bool masked)
 	{
@@ -272,8 +356,36 @@ namespace bb::gfx {
 
 extern "C" {
 
+// IMAGE_READY: 1 once the image is loaded, without waiting for it.
+int32_t bb_image_ready(int32_t handle)
+{
+	return image_is_ready(handle) ? 1 : 0;
+}
+
 int32_t bb_load_image(const char* file)
 {
+	if (async_loading() && active() && file) {
+		// Like LoadTexture: the file is read now and the decoding goes on another thread.
+		size_t size = 0;
+		void*  data = SDL_LoadFile(bb_native_path(file), &size);
+		if (!data) {
+			return 0;
+		}
+		if (picture_recognized(static_cast<const uint8_t*>(data), size)) {
+			image_job* job = new image_job();
+			job->data      = data;
+			job->size      = size;
+			job->name      = file;
+			job->mid       = auto_mid_handle;
+			memcpy(job->block_ok, async_block_support(), sizeof(job->block_ok));
+			image_entry entry;
+			entry.used    = true;
+			entry.pending = job;
+			async_submit(job);
+			return add_image(entry);
+		}
+		SDL_free(data);
+	}
 	picture source;
 	if (!file || !load_picture(file, source)) {
 		return 0;
