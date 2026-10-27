@@ -1,0 +1,78 @@
+name: Periodic
+
+# Builds the daily, weekly, monthly and yearly releases from scratch, each at most once per day, week, month and year. Unlike the
+# nightly build, nothing is restored from or saved to a cache, so these binaries are clean. All due releases share one build of
+# the latest commit of root. See docs/wiki/Releasing.md. The moving tags do not match the patterns of the Release workflow.
+on:
+  schedule:
+    # 05:00 UTC, after the pushes of the previous day.
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'What to build, separated by spaces: daily weekly monthly yearly (empty: all that are due)'
+        default: ''
+      dry_run:
+        description: 'Only print what is due, build and publish nothing'
+        type: boolean
+        default: true
+      force:
+        description: 'Build even if the release already holds the commit or the period has not ended'
+        type: boolean
+        default: false
+  # Changing this workflow or its script builds everything clean once, without publishing, to prove that it still works.
+  pull_request:
+    paths:
+      - '.github/workflows/periodic.yml'
+      - '.github/scripts/periodic.py'
+
+concurrency:
+  group: periodic-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    # A fork has no releases of its own.
+    if: github.repository == 'Xaymar/BlitzLLVM' || github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.plan.outputs.tags }}
+    steps:
+      # Only the script is needed, not the history.
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - name: Plan
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAGS: ${{ inputs.tags }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          # A pull request only checks the build, it never publishes.
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            echo "A pull request builds without publishing."
+            echo "tags=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          args=()
+          [ "$FORCE" = true ] && args+=(--force)
+          # shellcheck disable=SC2086
+          python3 .github/scripts/periodic.py plan $TAGS --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA" "${args[@]}"
+
+  build:
+    needs: plan
+    # Scheduled runs build for real; a manual run is a dry run unless unticked; a pull request builds without tags.
+    if: >-
+      github.event_name == 'pull_request'
+      || (needs.plan.outputs.tags != '' && (github.event_name == 'schedule' || !inputs.dry_run))
+    uses: ./.github/workflows/nightly.yml
+    permissions:
+      contents: write
+    with:
+      clean: true
+      tags: ${{ github.event_name == 'pull_request' && '' || needs.plan.outputs.tags }}
