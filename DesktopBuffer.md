@@ -25,22 +25,22 @@ DesktopBuffer:Int32
 
 ## Description
 
-Gives the buffer of the desktop, which is behind all windows. Drawing to it paints on the background that windows sit on.
+Gives the buffer of the desktop. Drawing to it does nothing here, and reading from it gives nothing.
 
 ## Differences
 
-* The desktop is the window of the program, so this is the same buffer as `FrontBuffer()`, not the screen of the computer. What you draw here is the backdrop of the windows: it stays when the interface is drawn again, and drawing later shows up. The original draws on the Windows desktop with the DirectDraw driver only.
+* Drawing on, or reading from, the desktop does not work: it is a buffer of one black pixel that starts over every time this is called, so the screen of the computer is never touched and nothing shows behind the windows. The original draws on the Windows desktop with the DirectDraw driver only.
 
 ## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
 win = CreateWindow("In front", 40, 20, 240, 120, Desktop(), 3)
+; Safe to call, but nothing is painted on the desktop.
 SetBuffer DesktopBuffer()
 Color 255, 160, 0
-For i = 0 To 7
-	Oval 20 + i * 36, 170, 30, 30, 1
-Next
+Oval 20, 170, 30, 30, 1
+SetBuffer BackBuffer()
 Repeat
 Until WaitEvent() = $803
 ```

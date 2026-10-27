@@ -33,7 +33,7 @@ Gives the height of the area of a group that gadgets can use, which is the insid
 
 ## Differences
 
-* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
+* The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
 
 ## Examples
 

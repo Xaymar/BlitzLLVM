@@ -25,11 +25,11 @@ Desktop:Int32
 
 ## Description
 
-Gives the handle of the desktop, the group that top level windows live in. Pass it as the group of [CreateWindow](CreateWindow). With [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) it tells the size of the screen. [DesktopBuffer](DesktopBuffer) is what you draw to if you want to paint on it.
+Gives the handle of the desktop, the group that top level windows live in. Pass it as the group of [CreateWindow](CreateWindow). Windows without a group are always on it. With [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) it tells the size of the primary display. [DesktopBuffer](DesktopBuffer) does nothing here.
 
 ## Differences
 
-* The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the screen. Windows cannot be placed outside of the program's window.
+* The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the primary display, with the area under the task bar and start menu. Windows cannot be placed outside of the program's window. Nothing can be drawn on or read from the desktop of the computer, see [DesktopBuffer](DesktopBuffer).
 
 ## Examples
 

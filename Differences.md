@@ -55,8 +55,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [ChannelPitch](ChannelPitch#differences): Changing the pitch also changes the speed, because the sound is resampled.
 * [ChannelPlaying](ChannelPlaying#differences): A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
 * [Chr](Chr#differences): Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
-* [ClientHeight](ClientHeight#differences): Where there is a display to ask, the desktop is as big as the screen of the computer.
-* [ClientWidth](ClientWidth#differences): Where there is a display to ask, the desktop is as big as the screen of the computer.
+* [ClientHeight](ClientHeight#differences): The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask.
+* [ClientWidth](ClientWidth#differences): The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask.
 * [CloseMovie](CloseMovie#differences): Nothing , the same as the original.
 * [Collisions](Collisions#differences): Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
 * [CollisionTime](CollisionTime#differences): The official help says this is the time taken to calculate the collision.
@@ -88,8 +88,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateToolBar](CreateToolBar#differences): The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
 * [CreateWindow](CreateWindow#differences): All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries.
 * [DebugObjects](DebugObjects#differences): The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
-* [Desktop](Desktop#differences): The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the screen.
-* [DesktopBuffer](DesktopBuffer#differences): The desktop is the window of the program, so this is the same buffer as `FrontBuffer()`, not the screen of the computer.
+* [Desktop](Desktop#differences): The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the primary display, with the area under the task bar and start menu.
+* [DesktopBuffer](DesktopBuffer#differences): Drawing on, or reading from, the desktop does not work: it is a buffer of one black pixel that starts over every time this is called, so the screen of the computer is never touched and nothing shows behind the windows.
 * [DirectInputEnabled](DirectInputEnabled#differences): There is no DirectInput on this platform.
 * [DisplayDepth](DisplayDepth#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [DisplayHeight](DisplayHeight#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
