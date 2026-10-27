@@ -1019,25 +1019,33 @@ namespace bb::gfx {
 				return;
 			}
 		}
-		float left = 2, bottom = 2, right = -2, top = -2;
-		for (int corner = 0; corner < 8; corner++) {
-			float local[3] = { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] };
-			float rel[3];
-			for (int row = 0; row < 3; row++) {
-				rel[row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + float(double(m[12 + row]) - double(current_origin[row]));
-			}
-			float x = c[0][0] * rel[0] + c[0][1] * rel[1] + c[0][2] * rel[2];
-			float y = c[1][0] * rel[0] + c[1][1] * rel[1] + c[1][2] * rel[2];
-			float z = c[2][0] * rel[0] + c[2][1] * rel[1] + c[2][2] * rel[2];
-			if (z < 0.01f) {
-				return;
-			}
-			float sx = current_view[0] * x / z, sy = current_view[0] * y / (z * current_view[2]);
-			left   = fminf(left, sx);
-			right  = fmaxf(right, sx);
-			bottom = fminf(bottom, sy);
-			top    = fmaxf(top, sy);
+		// The box in the space of the camera is a box of its own around the one that is turned: its middle is the middle of
+		// the model's box moved there, and it reaches as far as the axes of the model do along each of the axes of the camera.
+		float lc[3] = { 0.5f * (lo[0] + hi[0]), 0.5f * (lo[1] + hi[1]), 0.5f * (lo[2] + hi[2]) };
+		float hl[3] = { 0.5f * (hi[0] - lo[0]), 0.5f * (hi[1] - lo[1]), 0.5f * (hi[2] - lo[2]) };
+		float rel[3];
+		for (int row = 0; row < 3; row++) {
+			rel[row] = m[0 + row] * lc[0] + m[4 + row] * lc[1] + m[8 + row] * lc[2] + float(double(m[12 + row]) - double(current_origin[row]));
 		}
+		float centre[3], reach[3];
+		for (int j = 0; j < 3; j++) {
+			centre[j] = c[j][0] * rel[0] + c[j][1] * rel[1] + c[j][2] * rel[2];
+			reach[j]  = 0;
+			for (int k = 0; k < 3; k++) {
+				float w = c[j][0] * m[4 * k + 0] + c[j][1] * m[4 * k + 1] + c[j][2] * m[4 * k + 2];
+				reach[j] += fabsf(w) * hl[k];
+			}
+		}
+		float near_z = centre[2] - reach[2], far_z = centre[2] + reach[2];
+		if (near_z < 0.01f) {
+			return;
+		}
+		float x0 = centre[0] - reach[0], x1 = centre[0] + reach[0], y0 = centre[1] - reach[1], y1 = centre[1] + reach[1];
+		float scale_y = current_view[0] / current_view[2];
+		float left    = current_view[0] * x0 / (x0 >= 0 ? far_z : near_z);
+		float right   = current_view[0] * x1 / (x1 >= 0 ? near_z : far_z);
+		float bottom  = scale_y * y0 / (y0 >= 0 ? far_z : near_z);
+		float top     = scale_y * y1 / (y1 >= 0 ? near_z : far_z);
 		out[0] = fmaxf(left - 0.02f, -1.0f);
 		out[1] = fmaxf(bottom - 0.02f, -1.0f);
 		out[2] = fminf(right + 0.02f, 1.0f);
