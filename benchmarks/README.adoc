@@ -6,6 +6,9 @@ the CI: you run them by hand, when you want to know what a change did to the spe
 The older benchmarks are in `tools/` (`benchmark_draws`, `benchmark_collisions`, `benchmark_overlap`, `benchmark_stranded2`) and
 are used the same way.
 
+The programs in `original/` run in the original BlitzBasic / Blitz3D as well and give the baseline for the performance history, see
+`original/README.adoc`.
+
 == flythrough: a camera through a field of many entities
 
 `flythrough.bb` makes a field of entities (a million with `--objects 1000000`) and flies a camera through it on a loop that is
