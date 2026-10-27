@@ -64,7 +64,7 @@ std::vector<blitz::format::option_info> const& blitz::format::option_list()
 		{ "paren_space", "preserve | never", "preserve", "Never removes the space in Name (x) so that it reads Name(x). Keywords (If (x)) keep their space either way." },
 		{ "comment_gap", "0 - 16", "1", "Spaces between code and a comment behind it. 0 keeps the space that is there, which keeps comments that are lined up in a column." },
 		{ "comment_space", "true | false", "false", "Add a space after the ; when the comment starts with a letter or a digit. ;;; and ;---- are left alone." },
-		{ "max_blank_lines", "-1 - 100", "1", "The most blank lines in a row. More are removed. -1 allows any number." },
+		{ "max_empty_lines", "-1 - 100", "1", "The most empty lines in a row, also between statements. More are removed. -1 allows any number. Was called max_blank_lines, which still works." },
 		{ "blank_lines_around_declarations", "0 - 10", "1", "Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone." },
 		{ "align_assignments", "true | false", "false", "Line up the = of assignments on consecutive lines (same indent, no blank or comment line between). A line with more than one assignment (a = 1 : b = 2) is left alone and ends the group." },
 		{ "align_declares", "true | false", "false", "Line up the names and the = of Const, Dim, Local and Global on consecutive lines (same indent, no blank or comment line between). A line that declares more than one variable has its name lined up, but not its =." },
@@ -109,7 +109,8 @@ bool blitz::format::set_option(options& o, std::string key, std::string const& v
 		if (ok) o.comment_gap = n;
 	} else if (key == "comment_space") {
 		ok = parse_bool(value, o.comment_space);
-	} else if (key == "max_blank_lines") {
+	} else if ((key == "max_empty_lines") || (key == "max_blank_lines")) {
+		key = "max_empty_lines";
 		ok = parse_int(value, -1, 100, n);
 		if (ok) o.max_blank_lines = n;
 	} else if (key == "blank_lines_around_declarations") {
@@ -158,7 +159,7 @@ std::string blitz::format::to_config(options const& o)
 	out += std::string("paren_space = ") + (o.paren_space == paren_spacing::never ? "never" : "preserve") + "\n";
 	out += "comment_gap = " + std::to_string(o.comment_gap) + "\n";
 	out += std::string("comment_space = ") + b(o.comment_space) + "\n";
-	out += "max_blank_lines = " + std::to_string(o.max_blank_lines) + "\n";
+	out += "max_empty_lines = " + std::to_string(o.max_blank_lines) + "\n";
 	out += "blank_lines_around_declarations = " + std::to_string(o.blank_lines_around_declarations) + "\n";
 	out += std::string("align_assignments = ") + b(o.align_assignments) + "\n";
 	out += std::string("align_declares = ") + b(o.align_declares) + "\n";

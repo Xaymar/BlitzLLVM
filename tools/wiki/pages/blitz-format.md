@@ -78,7 +78,7 @@ Names are not case sensitive. Every setting has a default, which is used when no
 | `paren_space` | preserve \| never | `preserve` | Never removes the space in Name (x) so that it reads Name(x). Keywords (If (x)) keep their space either way. |
 | `comment_gap` | 0 - 16 | `1` | Spaces between code and a comment behind it. 0 keeps the space that is there, which keeps comments that are lined up in a column. |
 | `comment_space` | true \| false | `false` | Add a space after the ; when the comment starts with a letter or a digit. ;;; and ;---- are left alone. |
-| `max_blank_lines` | -1 - 100 | `1` | The most blank lines in a row. More are removed. -1 allows any number. |
+| `max_empty_lines` | -1 - 100 | `1` | The most empty lines in a row, also between statements. More are removed. -1 allows any number. This was called `max_blank_lines`, which still works. |
 | `blank_lines_around_declarations` | 0 - 10 | `1` | Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone. |
 | `align_assignments` | true \| false | `false` | Line up the `=` of assignments on consecutive lines. See [Alignment](#alignment). |
 | `align_declares` | true \| false | `false` | Line up the names and the `=` of `Const`, `Dim`, `Local` and `Global` on consecutive lines. See [Alignment](#alignment). |
