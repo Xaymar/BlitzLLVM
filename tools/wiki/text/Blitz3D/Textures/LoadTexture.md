@@ -48,4 +48,4 @@ WaitKey
 @param flags  Sum of the texture flags, see CreateTexture. Defaults to 1.
 @returns A texture handle, or 0 if the file could not be loaded.
 @gap TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
-@gap The video memory and high color flags are always in effect, and the point sampling flag is stored but has no effect unless a sampler is set with SetTextureSampler, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
+@gap The video memory and high color flags are always in effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.

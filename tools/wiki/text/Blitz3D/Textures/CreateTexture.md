@@ -17,7 +17,7 @@ The flags are added together, so `1 + 2` is a color texture that also has an alp
 | 128 | Cubic environment map. |
 | 256 | Keep the texture in video memory. This is always the case, there are no textures that only live on the CPU. |
 | 512 | Use a high color format even in low color modes. This is always the case: a texture is at least 8 bits per channel with alpha (R8G8B8A8), or a compatible block compressed format. |
-| 1024 | Point sampling: no smoothing between texels. A sampler set with [SetTextureSampler](SetTextureSampler) can do this (nearest filters) and overrides the flag. |
+| 1024 | Point sampling: the nearest texel is shown, with no smoothing between texels, and with flag 8 the nearest mip map level without blending levels. A sampler set with [SetTextureSampler](SetTextureSampler) overrides the flag. |
 | 65536 | Use the second set of texture coordinates of the mesh, see [TextureCoords](TextureCoords). |
 
 The texture is created at the size you ask for, so [TextureWidth](TextureWidth) and [TextureHeight](TextureHeight) return exactly what you passed. Power-of-two sizes are the safest choice for other Blitz3D implementations.
@@ -60,5 +60,5 @@ WaitKey
 @param flags   Sum of the flags above. Defaults to 1.
 @param frames  Number of animation frames. Defaults to 1.
 @returns A texture handle.
-@gap Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks. Video memory (256) and high color (512) are always in effect, so the flags change nothing. Point sampling (1024) is accepted and stored, but a texture is drawn with linear filtering unless it is given a sampler with SetTextureSampler. A sphere map (64) takes its coordinates from the normal of the surface in the view, and ScaleTexture, PositionTexture and RotateTexture do not change them. A cube map (128) has six faces of the size you give, chosen with SetCubeFace and shown as SetCubeMode says; it does not have mip maps. A texture with both flags is drawn as a plain one. Without flag 8 it has no mip maps.
+@gap Only flags 2, 4, 8, 16, 32, 1024 and 65536 change how the texture looks. Video memory (256) and high color (512) are always in effect, so the flags change nothing. A sphere map (64) takes its coordinates from the normal of the surface in the view, and ScaleTexture, PositionTexture and RotateTexture do not change them. A cube map (128) has six faces of the size you give, chosen with SetCubeFace and shown as SetCubeMode says; it does not have mip maps. A texture with both flags is drawn as a plain one. Without flag 8 it has no mip maps.
 @gap The alpha (2) flag is only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, also where you drew black, unless it is masked (4): the masked flag does cut out black there.
