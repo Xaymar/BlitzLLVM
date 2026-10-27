@@ -578,6 +578,55 @@ elseif(CASE STREQUAL "console_subsystem")
 	expect_missing("-mwindows")
 	expect_missing("-mconsole")
 
+elseif(CASE STREQUAL "windows_manifest")
+	# Programs for Windows carry a manifest that makes them DPI aware (per monitor, version 2), as a resource file for the linker.
+	# Cross-compiling shows the link line and keeps the file even though the link itself may fail here, so the result is not checked.
+	set(_TEMP "${WORK}/temp")
+	file(MAKE_DIRECTORY "${_TEMP}")
+	execute_process(
+		COMMAND "${CMAKE_COMMAND}" -E env "TMPDIR=${_TEMP}" "TEMP=${_TEMP}" "TMP=${_TEMP}" "${BLITZCC}" --verbose --keep-temps --target x86_64-pc-windows-msvc "${PROGRAM}" -o "${WORK}/msvc.exe"
+		RESULT_VARIABLE RC OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR
+	)
+	expect_contains("manifest.res")
+	file(GLOB _FILES "${_TEMP}/blitzllvm-*/manifest.res")
+	list(LENGTH _FILES _COUNT)
+	if(NOT _COUNT EQUAL 1)
+		message(FATAL_ERROR "Expected one manifest.res kept, found ${_COUNT}: ${_FILES}")
+	endif()
+	file(READ "${_FILES}" _HEX HEX)
+	# The empty entry that starts every 32 bit resource file: no data, a header of 32 bytes, type 0 and name 0.
+	string(SUBSTRING "${_HEX}" 0 16 _HEAD)
+	if(NOT _HEAD STREQUAL "0000000020000000")
+		message(FATAL_ERROR "The resource file does not start with the empty entry: ${_HEAD}")
+	endif()
+	# The second entry is a manifest (RT_MANIFEST 24) with ID 1.
+	string(SUBSTRING "${_HEX}" 80 16 _ENTRY)
+	if(NOT _ENTRY STREQUAL "ffff1800ffff0100")
+		message(FATAL_ERROR "The second entry is not the manifest with ID 1: ${_ENTRY}")
+	endif()
+	foreach(_NEEDED IN ITEMS "PerMonitorV2" "true/pm" "longPathAware" "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" "{35138b9a-5d96-4fbd-8e2d-a2440225f93a}")
+		string(HEX "${_NEEDED}" _NEEDED_HEX)
+		string(FIND "${_HEX}" "${_NEEDED_HEX}" _AT)
+		if(_AT EQUAL -1)
+			message(FATAL_ERROR "The manifest does not contain '${_NEEDED}'.")
+		endif()
+	endforeach()
+	# MinGW has the GNU linker by default, which doesn't take resource files; lld does.
+	blitzcc(--verbose --target x86_64-w64-mingw32 "${PROGRAM}" -o "${WORK}/mingw.exe")
+	expect_contains("manifest.res")
+	expect_contains("-fuse-ld=lld")
+	# A program that brings its own resources or manifest is left alone.
+	blitzcc(--verbose --llvm-flag "${WORK}/own.res" --target x86_64-pc-windows-msvc "${PROGRAM}" -o "${WORK}/own.exe")
+	expect_missing("manifest.res")
+	blitzcc(--verbose --llvm-flag -Wl,/manifestinput:own.manifest --target x86_64-pc-windows-msvc "${PROGRAM}" -o "${WORK}/own.exe")
+	expect_missing("manifest.res")
+	# Other systems have no manifests.
+	if(NOT CMAKE_HOST_WIN32)
+		blitzcc(--verbose "${PROGRAM}" -o "${EXE}")
+		expect_ok()
+		expect_missing("manifest.res")
+	endif()
+
 elseif(CASE STREQUAL "userlib_shared")
 	# A function of a userlib is called, with --userlibs-dir, from a shared library that is loaded when the program runs.
 	build_userlib("${WORK}/userlibs" shared)
