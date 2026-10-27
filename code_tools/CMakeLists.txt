@@ -12,6 +12,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"source/tokens.cpp"
 	"source/keywords.hpp"
 	"source/keywords.cpp"
+	"source/config.hpp"
+	"source/config.cpp"
+	"source/files.hpp"
+	"source/files.cpp"
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
