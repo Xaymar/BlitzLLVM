@@ -385,6 +385,12 @@ namespace bb::gfx {
 	VkSampler texture_sampler(int flags)
 	{
 		bool clamp = (flags & TEXTURE_CLAMP_U) || (flags & TEXTURE_CLAMP_V);
+		if (flags & TEXTURE_POINT) {
+			if (flags & TEXTURE_MIPMAPS) {
+				return clamp ? g.sampler_point_clamp_mips : g.sampler_point_repeat_mips;
+			}
+			return clamp ? g.sampler_point_clamp : g.sampler_point_repeat;
+		}
 		if (flags & TEXTURE_MIPMAPS) {
 			return clamp ? g.sampler_clamp_mips : g.sampler_repeat_mips;
 		}
@@ -1053,6 +1059,18 @@ namespace bb::gfx {
 		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_clamp_mips), "vkCreateSampler");
 		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_repeat_mips), "vkCreateSampler");
+
+		// Texture flag 1024 takes the nearest texel of the nearest level.
+		sampler_info.magFilter  = VK_FILTER_NEAREST;
+		sampler_info.minFilter  = VK_FILTER_NEAREST;
+		sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_repeat_mips), "vkCreateSampler");
+		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_clamp_mips), "vkCreateSampler");
+		sampler_info.maxLod = 0.0f;
+		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_clamp), "vkCreateSampler");
+		sampler_info.addressModeU = sampler_info.addressModeV = sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		check(vkCreateSampler(g.device, &sampler_info, nullptr, &g.sampler_point_repeat), "vkCreateSampler");
 
 		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
