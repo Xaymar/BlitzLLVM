@@ -64,6 +64,7 @@ namespace bb::gfx {
 	static VkResult       gpu_error      = VK_SUCCESS;
 	static const char*    gpu_error_what = "";
 	Uint64                profile_gpu_execute = 0; // Time from submit to done in the thread, including waits for the swapchain.
+	Uint64                profile_gpu_submit  = 0; // Time that vkQueueSubmit took in the thread.
 	Uint64                profile_gpu_present = 0; // Time that vkQueuePresentKHR took in the thread.
 	int                   profile_overlap = 0; // Frames that were still in flight when the program asked for the next.
 
@@ -106,6 +107,7 @@ namespace bb::gfx {
 				result = vkQueueSubmit(g.queue, 1, &info, g.fence);
 				what   = "vkQueueSubmit";
 			}
+			Uint64 queued = BB_PROFILE_NOW();
 			if (result == VK_SUCCESS) {
 				result = vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX);
 				what   = "vkWaitForFences";
@@ -113,6 +115,7 @@ namespace bb::gfx {
 			Uint64 executed = BB_PROFILE_NOW();
 			SDL_LockMutex(gpu_mutex);
 			profile_gpu_execute += executed - submitted;
+			profile_gpu_submit += queued - submitted;
 			gpu_fail(result, what);
 			gpu_cmd_busy = false;
 			SDL_BroadcastCondition(gpu_cond);
