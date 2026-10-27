@@ -54,6 +54,7 @@ def main():
     parser.add_argument("--particles", type=int, default=int(os.environ.get("BENCH_PARTICLES", 12)))
     parser.add_argument("--props", type=int, default=int(os.environ.get("BENCH_PROPS", 6)))
     parser.add_argument("--campfires", type=int, default=int(os.environ.get("BENCH_CAMPFIRES", 25)), help="chance in percent that a room has a campfire")
+    parser.add_argument("--sprite-scale", type=float, default=float(os.environ.get("BENCH_SPRITESCALE", 1)), help="draw the flames and smoke this many times bigger: more overdraw, for a GPU bound run")
     parser.add_argument("--coverage", action="store_true", help="also count the sprites in the view of the camera (slow, not timed)")
     parser.add_argument("--frames", type=int, default=int(os.environ.get("BENCH_FRAMES", 600)))
     parser.add_argument("--seed", type=int, default=int(os.environ.get("BENCH_SEED", 1)))
@@ -102,7 +103,7 @@ def main():
         build = subprocess.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
-        env = dict(os.environ, BENCH_ROOMS=str(args.rooms), BENCH_TORCHES=str(args.torches), BENCH_PARTICLES=str(args.particles), BENCH_PROPS=str(args.props), BENCH_CAMPFIRES=str(args.campfires), BENCH_COVERAGE="1" if args.coverage else "0", BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,
+        env = dict(os.environ, BENCH_ROOMS=str(args.rooms), BENCH_TORCHES=str(args.torches), BENCH_PARTICLES=str(args.particles), BENCH_PROPS=str(args.props), BENCH_CAMPFIRES=str(args.campfires), BENCH_COVERAGE="1" if args.coverage else "0", BENCH_SPRITESCALE=str(args.sprite_scale), BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,
                    BENCH_FRAMETIMES=os.path.join(directory, "frametimes.txt"), BENCH_RESULT=os.path.join(directory, "result.txt"))
         if args.static:
             env["BENCH_STATIC"] = "1"
@@ -162,7 +163,7 @@ def main():
         "gpu": gpu,
     }
     print("\n  rooms       %12d (%d with a campfire, %d torches each, %d sprites per torch, %d props)%s" % (values["rooms"], values["campfires"], values["torches"], values["particles"], values["props"], " (static)" if args.static else ""))
-    print("  sprites     %12d%s" % (values["sprites"], (" (%.0f in the view of the camera per frame)" % values["inview"]) if args.coverage else ""))
+    print("  sprites     %12d%s%s" % (values["sprites"], (" at %gx size" % values["spritescale"]) if values["spritescale"] != 1 else "", (" (%.0f in the view of the camera per frame)" % values["inview"]) if args.coverage else ""))
     print("  created in  %12.0f ms" % values["create_ms"])
     print("  update      %12.2f ms/frame (lights and particles, part of ms/frame)" % values["update_ms"])
     print("  ms/frame    avg %.2f  min %.2f  median %.2f  p95 %.2f  max %.2f" % (values["ms_avg"], values["ms_min"], values["ms_median"], values["ms_p95"], values["ms_max"]))
@@ -185,8 +186,8 @@ def main():
         with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
             if new:
-                writer.writerow(["date", "label", "build", "display", "rooms", "campfires", "sprites", "inview", "torches", "particles", "props", "frames", "seed", "static", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers", "gpu_scene_ms", "gpu_frame_ms"])
-            writer.writerow([record["date"], args.label, record["build"], record["display"]] + [values[k] for k in ("rooms", "campfires", "sprites", "inview", "torches", "particles", "props", "frames", "seed", "static", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers")] + [gpu.get("gpu_scene_ms", ""), gpu.get("gpu_frame_ms", "")])
+                writer.writerow(["date", "label", "build", "display", "rooms", "campfires", "spritescale", "sprites", "inview", "torches", "particles", "props", "frames", "seed", "static", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers", "gpu_scene_ms", "gpu_frame_ms"])
+            writer.writerow([record["date"], args.label, record["build"], record["display"]] + [values[k] for k in ("rooms", "campfires", "spritescale", "sprites", "inview", "torches", "particles", "props", "frames", "seed", "static", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers")] + [gpu.get("gpu_scene_ms", ""), gpu.get("gpu_frame_ms", "")])
         print("  saved       benchmarks/results/%s.json and dungeon.csv" % name)
 
 
