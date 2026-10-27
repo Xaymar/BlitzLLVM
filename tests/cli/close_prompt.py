@@ -16,7 +16,8 @@ import sys
 blitzcc, source, work = sys.argv[1:4]
 os.makedirs(work, exist_ok=True)
 exe = os.path.join(work, "close_prompt" + (".exe" if os.name == "nt" else ""))
-subprocess.run([blitzcc, source, "-o", exe], check=True)
+# BLITZCC_OPTIONS (for example "-d") adds options to the compiler, so that the test runs in Debug as well.
+subprocess.run([blitzcc] + os.environ.get("BLITZCC_OPTIONS", "").split() + [source, "-o", exe], check=True)
 
 
 def close(answer):

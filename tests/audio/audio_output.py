@@ -14,6 +14,7 @@ import sys
 import wave
 
 blitzcc, work = sys.argv[1:3]
+OPTIONS = os.environ.get("BLITZCC_OPTIONS", "").split()  # For example "-d", so that the test runs in Debug as well.
 fixtures = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(work, exist_ok=True)
 os.chdir(work)
@@ -39,7 +40,7 @@ def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False):
 	"""Plays a file and returns the left channel of what was sent to the disk driver."""
 	with open("play.bb", "w") as source:
 		source.write('s = LoadSound("%s")\n%s\n%s\nc = PlaySound(s)\n%s\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, "LoopSound s" if loop else "", setup, after, milliseconds))
-	if subprocess.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
@@ -144,7 +145,7 @@ def play_moving(listener_step, source_step, scale=1.0, distance=1.0, name="tone.
 	) % (name, scale, distance, listener_step, source_step)
 	with open("play.bb", "w") as source:
 		source.write(body)
-	if subprocess.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
@@ -193,7 +194,7 @@ def play_start_stop():
 	)
 	with open("play.bb", "w") as source:
 		source.write(body)
-	if subprocess.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
@@ -220,7 +221,7 @@ for movie in ("colors.mpg", "colors.avi", "colors.mp4"):
 	shutil.copyfile(os.path.join(movies, movie), movie)
 	with open("play.bb", "w") as source:
 		source.write('m = OpenMovie("%s")\nDebugLog "opened " + m\nWhile MoviePlaying(m)\n\tDelay 20\nWend\n' % movie)
-	if subprocess.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")

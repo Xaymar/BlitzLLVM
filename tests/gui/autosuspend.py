@@ -47,7 +47,8 @@ def main():
     os.makedirs(work, exist_ok=True)
     source = os.path.join(os.path.dirname(os.path.abspath(__file__)), "autosuspend.bb")
     exe = os.path.join(work, "autosuspend")
-    subprocess.run([blitzcc, source, "-o", exe], check=True, stdout=subprocess.DEVNULL)
+    # BLITZCC_OPTIONS (for example "-d") adds options to the compiler, so that the test runs in Debug as well.
+    subprocess.run([blitzcc] + os.environ.get("BLITZCC_OPTIONS", "").split() + [source, "-o", exe], check=True, stdout=subprocess.DEVNULL)
     progress = os.path.join(work, "progress.txt")
     if os.path.exists(progress):
         os.remove(progress)
