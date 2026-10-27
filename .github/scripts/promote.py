@@ -171,6 +171,17 @@ def publish(repo, tag, nightly, files, body, state):
     api(f"repos/{repo}/releases/{release['id']}", "-X", "PATCH", "-f", f"name={title}", "-f", f"body={body}", "-F", "prerelease=true", "-f", "make_latest=false")
 
 
+def summarize(lines):
+    """Prints the table of results and appends it to the job summary of the workflow run, if there is one."""
+    table = ["| Tier | Source | Target tag | Result |", "| --- | --- | --- | --- |"] + [
+        "| %s | %s | `%s` | %s |" % line for line in lines]
+    print("\n".join(table))
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if path:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write("\n".join(table) + "\n")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("tags", nargs="*", choices=list(PERIODS), metavar="TAG", help="daily, weekly, monthly, yearly (default: all)")
@@ -188,20 +199,25 @@ def main():
     print(f"Nightly {nightly['version']} of {nightly['sha']}, committed {committed}; now {now:%Y-%m-%d %H:%M}Z")
 
     due = []
+    results = {}
+    source = f"`{SOURCE}` {nightly['version']} ({nightly['sha'][:7]})"
     for tag in tags:
         state = read_state(args.repo, tag)
         reason = decide(tag, nightly, state, now, args.force)
         held = f"holds {state['sha'][:7] if state and state['sha'] else 'nothing'}" if state else "does not exist"
         if reason:
             print(f"{tag}: skipped, {reason}")
+            results[tag] = f"skipped, {reason}"
         else:
             print(f"{tag}: {held}, {'would be' if args.dry_run else 'will be'} promoted")
             due.append((tag, state))
     if not due:
         print("Nothing to promote.")
+        summarize([(tag, source, tag, results[tag]) for tag in tags])
         return
     if args.dry_run:
         print("Dry run: nothing was changed.")
+        summarize([(tag, source, tag, results.get(tag, "**dry run, would be promoted, nothing was changed**")) for tag in tags])
         return
 
     failures = []
@@ -211,10 +227,13 @@ def main():
             try:
                 publish(args.repo, tag, nightly, files, notes_for(args.repo, tag, nightly, committed, now), state)
                 print(f"{tag}: promoted, https://github.com/{args.repo}/releases/tag/{tag}")
+                results[tag] = f"promoted, [{tag}](https://github.com/{args.repo}/releases/tag/{tag})"
             except PromoteError as error:
                 # The others are independent of it.
                 print(f"::error::{tag}: {error}")
+                results[tag] = f"**failed**: {error}"
                 failures.append(tag)
+    summarize([(tag, source, tag, results[tag]) for tag in tags])
     if failures:
         raise PromoteError(f"Promoting failed for: {', '.join(failures)}")
 
