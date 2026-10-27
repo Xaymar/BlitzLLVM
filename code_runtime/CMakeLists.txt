@@ -19,7 +19,20 @@ include("${CMAKE_CURRENT_LIST_DIR}/dependencies.cmake")
 add_library(blitzrt STATIC)
 init_project(blitzrt)
 
+# The allocator (memory.cpp) always replaces operator new/delete. On Linux with glibc it also replaces malloc and free (memory_interpose.c),
+# which puts the libraries a program loads on it too; elsewhere SDL is pointed at it with SDL_SetMemoryFunctions. The runtime's own sources call
+# bb_malloc, bb_free and so on directly.
+include(CheckSymbolExists)
+set(_REPLACE_DEFAULT OFF)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	check_symbol_exists(__GLIBC__ "features.h" BLITZ_HAVE_GLIBC)
+	set(_REPLACE_DEFAULT ${BLITZ_HAVE_GLIBC})
+endif()
+option(BLITZ_REPLACE_MALLOC "Replace malloc and free of programs with the runtime's allocator (glibc only)" ${_REPLACE_DEFAULT})
+option(BLITZ_CUSTOM_ALLOCATOR "Use the runtime's own allocator at all (OFF is for comparing it with the system's)" ON)
+
 target_sources(blitzrt PRIVATE
+	"source/memory.h"
 	"source/runtime.c"
 	"source/runtime_objects.c"
 	"source/runtime_strings.c"
@@ -95,6 +108,14 @@ target_sources(blitzrt PRIVATE
 	"source/font8x8.inc"
 	"source/shaders.inc"
 )
+target_sources(blitzrt PRIVATE "source/memory.cpp")
+if(NOT BLITZ_CUSTOM_ALLOCATOR)
+	# The functions exist (the sources of programs call them) but only pass on to the system; new and delete are not replaced.
+	target_compile_definitions(blitzrt PRIVATE BB_ALLOC_PASSTHROUGH)
+elseif(BLITZ_REPLACE_MALLOC)
+	target_sources(blitzrt PRIVATE "source/memory_interpose.c")
+	target_compile_definitions(blitzrt PRIVATE BB_INTERPOSE_MALLOC)
+endif()
 target_include_directories(blitzrt PRIVATE
 	"${CMAKE_CURRENT_SOURCE_DIR}/source"
 )
