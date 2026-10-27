@@ -28,45 +28,56 @@ namespace bb::gfx {
 	VmaAllocation  scratch_allocation = VK_NULL_HANDLE;
 	VkDeviceSize   scratch_size   = 0;
 	bb::buffer<graveyard_entry> graveyard;
-	static uint32_t graveyard_busy = 0; // How many entries of the graveyard the frame in flight may use.
+	frame_slot                  frames[frame_slots];
+	static uint32_t             current_slot  = 0;
+	static bool                 slot_acquired = false; // The GPU is done with what the current slot has been used for.
+	static int64_t              completed_flush = -1;  // The last flush that the GPU is known to be done with.
+
+	// Destroys what was freed before the flushes that are done.
+	static void retire_graveyard(bool all)
+	{
+		uint32_t kept = 0;
+		for (uint32_t i = 0; i < graveyard.size; i++) {
+			if (all || (graveyard[i].flush <= completed_flush)) {
+				vmaDestroyBuffer(g.allocator, graveyard[i].buffer, graveyard[i].allocation);
+			} else {
+				graveyard[kept++] = graveyard[i];
+			}
+		}
+		graveyard.size = kept;
+	}
 
 	void empty_graveyard()
 	{
-		graveyard_busy = 0;
-		for (uint32_t i = 0; i < graveyard.size; i++) {
-			vmaDestroyBuffer(g.allocator, graveyard[i].buffer, graveyard[i].allocation);
-		}
-		graveyard.clear();
+		retire_graveyard(true);
+	}
+
+	// Whether the GPU can not look at what was used for the flush any more.
+	bool flush_is_done(uint32_t flush)
+	{
+		return int64_t(flush) <= completed_flush;
 	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// Submission thread
 	////////////////////////////////////////////////////////////////////////////
-	// The submission of a frame (queue submit, the wait for its fence, and the present) is done by a thread of its own, so
-	// that the program can go on with the next frame in the meantime. The queue is only ever used by one thread at a time:
-	// the program waits for the thread to be done before it does anything with the queue, the swapchain or the device.
-	struct submit_job {
-		VkSemaphore      wait, signal;
-		bool             present;
-		VkSwapchainKHR   swapchain;
-		uint32_t         index;
-	};
-
+	// The submission of a frame (queue submit and the present) is done by a thread of its own, so that the program can go
+	// on with the next frame in the meantime. The queue is only ever used by one thread at a time: the program waits for
+	// the thread to be done before it does anything with the queue, the swapchain or the device. Up to frame_slots frames
+	// are on their way, each in a slot with a command buffer and a fence of its own.
 	static SDL_Thread*    gpu_thread     = nullptr;
 	static SDL_Mutex*     gpu_mutex      = nullptr;
 	static SDL_Condition* gpu_cond       = nullptr;
-	static submit_job     gpu_job        = {};
-	static bool           gpu_job_ready  = false;
-	static bool           gpu_cmd_busy   = false; // The command buffer and everything it uses is in flight.
-	static bool           gpu_busy       = false; // The queue or the swapchain is in use.
+	static uint32_t       gpu_queue[frame_slots] = {};
+	static uint32_t       gpu_queue_head = 0, gpu_queue_count = 0;
+	static bool           gpu_thread_busy = false; // The thread is sending a frame or presenting it.
 	static bool           gpu_quit       = false;
 	static bool           gpu_resized    = false; // The present asked for a new swapchain.
 	static VkResult       gpu_error      = VK_SUCCESS;
 	static const char*    gpu_error_what = "";
-	Uint64                profile_gpu_execute = 0; // Time from submit to done in the thread, including waits for the swapchain.
 	Uint64                profile_gpu_submit  = 0; // Time that vkQueueSubmit took in the thread.
 	Uint64                profile_gpu_present = 0; // Time that vkQueuePresentKHR took in the thread.
-	int                   profile_overlap = 0; // Frames that were still in flight when the program asked for the next.
+	int                   profile_overlap = 0; // Frames that were still in flight when the program needed their slot.
 
 	static void gpu_fail(VkResult result, const char* what)
 	{
@@ -80,15 +91,18 @@ namespace bb::gfx {
 	{
 		for (;;) {
 			SDL_LockMutex(gpu_mutex);
-			while (!gpu_job_ready && !gpu_quit) {
+			while (!gpu_queue_count && !gpu_quit) {
 				SDL_WaitCondition(gpu_cond, gpu_mutex);
 			}
-			if (!gpu_job_ready) {
+			if (!gpu_queue_count) {
 				SDL_UnlockMutex(gpu_mutex);
 				return 0;
 			}
-			submit_job job = gpu_job;
-			gpu_job_ready  = false;
+			frame_slot& slot = frames[gpu_queue[gpu_queue_head]];
+			gpu_queue_head   = (gpu_queue_head + 1) % frame_slots;
+			gpu_queue_count--;
+			gpu_thread_busy  = true;
+			submit_job job   = slot.job;
 			SDL_UnlockMutex(gpu_mutex);
 
 			VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -97,27 +111,16 @@ namespace bb::gfx {
 			info.pWaitSemaphores       = &job.wait;
 			info.pWaitDstStageMask     = &stage;
 			info.commandBufferCount    = 1;
-			info.pCommandBuffers       = &g.cmd;
+			info.pCommandBuffers       = &slot.cmd;
 			info.signalSemaphoreCount  = job.signal ? 1 : 0;
 			info.pSignalSemaphores     = &job.signal;
-			VkResult result            = vkResetFences(g.device, 1, &g.fence);
-			const char* what           = "vkResetFences";
-			Uint64      submitted      = BB_PROFILE_NOW();
-			if (result == VK_SUCCESS) {
-				result = vkQueueSubmit(g.queue, 1, &info, g.fence);
-				what   = "vkQueueSubmit";
-			}
-			Uint64 queued = BB_PROFILE_NOW();
-			if (result == VK_SUCCESS) {
-				result = vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX);
-				what   = "vkWaitForFences";
-			}
-			Uint64 executed = BB_PROFILE_NOW();
+			Uint64   submit_start      = BB_PROFILE_NOW();
+			VkResult result            = vkQueueSubmit(g.queue, 1, &info, slot.fence);
+			Uint64   submit_time       = BB_PROFILE_NOW() - submit_start;
 			SDL_LockMutex(gpu_mutex);
-			profile_gpu_execute += executed - submitted;
-			profile_gpu_submit += queued - submitted;
-			gpu_fail(result, what);
-			gpu_cmd_busy = false;
+			profile_gpu_submit += submit_time;
+			gpu_fail(result, "vkQueueSubmit");
+			slot.state = (result == VK_SUCCESS) ? 2 : 0; // A fence of a submission that failed never gets signaled.
 			SDL_BroadcastCondition(gpu_cond);
 			SDL_UnlockMutex(gpu_mutex);
 
@@ -140,7 +143,7 @@ namespace bb::gfx {
 				SDL_UnlockMutex(gpu_mutex);
 			}
 			SDL_LockMutex(gpu_mutex);
-			gpu_busy = false;
+			gpu_thread_busy = false;
 			SDL_BroadcastCondition(gpu_cond);
 			SDL_UnlockMutex(gpu_mutex);
 		}
@@ -149,9 +152,13 @@ namespace bb::gfx {
 	int    profile_submits = 0;
 	Uint64 profile_wait    = 0;
 
-	// Reports what went wrong in the thread, as if it had happened here. Expects the mutex to be held, releases it.
-	static void gpu_unlock_and_check()
+	// Reports what went wrong in the thread, as if it had happened here.
+	static void gpu_check()
 	{
+		if (!gpu_mutex) {
+			return;
+		}
+		SDL_LockMutex(gpu_mutex);
 		VkResult    error = gpu_error;
 		const char* what  = gpu_error_what;
 		gpu_error         = VK_SUCCESS;
@@ -159,26 +166,58 @@ namespace bb::gfx {
 		check(error, what);
 	}
 
+	// Takes over from the thread whether the present wants a new swapchain, without waiting for anything.
+	void poll_resized()
+	{
+		if (!gpu_mutex) {
+			return;
+		}
+		SDL_LockMutex(gpu_mutex);
+		if (gpu_resized) {
+			gpu_resized = false;
+			g.resized   = true;
+		}
+		SDL_UnlockMutex(gpu_mutex);
+	}
+
 	// GPU timestamps for BLITZ_FPS (programs compiled with --profile): each mark is the end of a pass, and the time since the
-	// mark before is that pass's. They are read back when the next frame starts, as the command buffer is done by then.
+	// mark before is that pass's. They are read back when the slot is used again, as its command buffer is done by then.
 	VkQueryPool    profile_query_pool = VK_NULL_HANDLE;
 	double         profile_gpu_pass[5] = {};
 	static const uint32_t profile_marks_max = 128;
-	static uint8_t        profile_mark_pass[profile_marks_max];
-	static uint32_t       profile_mark_count = 0;
+	static uint8_t        profile_mark_pass[frame_slots][profile_marks_max];
+	static uint32_t       profile_mark_count[frame_slots] = {};
 	int                   profile_mark_state = -1; // -1 not tried, 0 not available, 1 available.
 	static float          profile_mark_period = 1.0f;
 
 	void profile_gpu_mark(int pass)
 	{
-		if (profile_mark_state != 1 || profile_mark_count >= profile_marks_max) {
+		uint32_t& count = profile_mark_count[current_slot];
+		if (profile_mark_state != 1 || count >= profile_marks_max) {
 			return;
 		}
-		vkCmdWriteTimestamp(g.cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, profile_query_pool, profile_mark_count);
-		profile_mark_pass[profile_mark_count++] = uint8_t(pass);
+		vkCmdWriteTimestamp(g.cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, profile_query_pool, current_slot * profile_marks_max + count);
+		profile_mark_pass[current_slot][count++] = uint8_t(pass);
 	}
 
-	// Reads what the frame before wrote, and starts the marks for this one. Expects an open command buffer.
+	// Adds up what the slot wrote the last time it was used.
+	static void profile_gpu_collect(uint32_t slot)
+	{
+		uint32_t count = profile_mark_count[slot];
+		if (profile_mark_state != 1 || count < 2) {
+			return;
+		}
+		uint64_t times[profile_marks_max];
+		if (vkGetQueryPoolResults(g.device, profile_query_pool, slot * profile_marks_max, count, sizeof(times), times, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) == VK_SUCCESS) {
+			for (uint32_t i = 1; i < count; i++) {
+				profile_gpu_pass[profile_mark_pass[slot][i]] += double(times[i] - times[i - 1]) * double(profile_mark_period);
+			}
+			profile_gpu_pass[4] += double(times[count - 1] - times[0]) * double(profile_mark_period);
+		}
+		profile_mark_count[slot] = 0;
+	}
+
+	// Makes the query pool when it is the first time, and starts the marks for the frame. Expects an open command buffer.
 	static void profile_gpu_begin()
 	{
 		if (!bb::profile_enabled || profile_mark_state == 0) {
@@ -200,53 +239,56 @@ namespace bb::gfx {
 			}
 			VkQueryPoolCreateInfo info = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO };
 			info.queryType             = VK_QUERY_TYPE_TIMESTAMP;
-			info.queryCount            = profile_marks_max;
+			info.queryCount            = profile_marks_max * frame_slots;
 			if (vkCreateQueryPool(g.device, &info, nullptr, &profile_query_pool) != VK_SUCCESS) {
 				return;
 			}
 			profile_mark_period = props.limits.timestampPeriod;
 			profile_mark_state  = 1;
-		} else if (profile_mark_count > 1) {
-			uint64_t times[profile_marks_max];
-			if (vkGetQueryPoolResults(g.device, profile_query_pool, 0, profile_mark_count, sizeof(times), times, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) == VK_SUCCESS) {
-				for (uint32_t i = 1; i < profile_mark_count; i++) {
-					profile_gpu_pass[profile_mark_pass[i]] += double(times[i] - times[i - 1]) * double(profile_mark_period);
-				}
-				profile_gpu_pass[4] += double(times[profile_mark_count - 1] - times[0]) * double(profile_mark_period);
-			}
 		}
-		profile_mark_count = 0;
-		vkCmdResetQueryPool(g.cmd, profile_query_pool, 0, profile_marks_max);
+		profile_mark_count[current_slot] = 0;
+		vkCmdResetQueryPool(g.cmd, profile_query_pool, current_slot * profile_marks_max, profile_marks_max);
 		profile_gpu_mark(255);
 	}
 
-	// Waits until the frame in flight is done with the command buffer and what it uses, but not necessarily the present.
-	void wait_commands()
+	// Waits until a slot is done with its command buffer and with everything that its frame used, and takes the frame as done.
+	static void finish_slot(uint32_t index)
 	{
-		if (!gpu_thread) {
+		frame_slot& slot = frames[index];
+		if (gpu_mutex) {
+			SDL_LockMutex(gpu_mutex);
+			while (slot.state == 1) {
+				SDL_WaitCondition(gpu_cond, gpu_mutex); // The thread has not sent it yet.
+			}
+			SDL_UnlockMutex(gpu_mutex);
+		}
+		if (slot.state != 2) {
 			return;
 		}
-		SDL_LockMutex(gpu_mutex);
-		if (gpu_cmd_busy) {
-			profile_overlap++;
-			Uint64 wait_start = BB_PROFILE_NOW();
-			while (gpu_cmd_busy) {
-				SDL_WaitCondition(gpu_cond, gpu_mutex);
-			}
-			profile_wait += BB_PROFILE_NOW() - wait_start;
+		Uint64 wait_start = BB_PROFILE_NOW();
+		check(vkWaitForFences(g.device, 1, &slot.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
+		check(vkResetFences(g.device, 1, &slot.fence), "vkResetFences");
+		profile_wait += BB_PROFILE_NOW() - wait_start;
+		slot.state = 0;
+		if (slot.flush_id > completed_flush) {
+			completed_flush = slot.flush_id;
 		}
-		gpu_unlock_and_check();
+		profile_gpu_collect(index);
+		retire_graveyard(false);
+	}
 
-		// Whatever was freed before the frame in flight was sent is not used any more.
-		if (graveyard_busy) {
-			uint32_t n = graveyard_busy < graveyard.size ? graveyard_busy : graveyard.size;
-			for (uint32_t i = 0; i < n; i++) {
-				vmaDestroyBuffer(g.allocator, graveyard[i].buffer, graveyard[i].allocation);
-			}
-			memmove(graveyard.data, graveyard.data + n, (graveyard.size - n) * sizeof(graveyard_entry));
-			graveyard.size -= n;
-			graveyard_busy = 0;
+	// Waits until the frame that used the slot before is done, which is needed before anything that it used is written to.
+	void acquire_frame()
+	{
+		if (slot_acquired) {
+			return;
 		}
+		if (frames[current_slot].state != 0) {
+			profile_overlap++;
+		}
+		finish_slot(current_slot);
+		gpu_check();
+		slot_acquired = true;
 	}
 
 	// Waits until nothing is using the queue and the swapchain, which is needed before using either.
@@ -256,19 +298,18 @@ namespace bb::gfx {
 			return;
 		}
 		SDL_LockMutex(gpu_mutex);
-		if (gpu_busy) {
-			Uint64 wait_start = BB_PROFILE_NOW();
-			while (gpu_busy) {
-				SDL_WaitCondition(gpu_cond, gpu_mutex);
-			}
-			profile_wait += BB_PROFILE_NOW() - wait_start;
+		while (gpu_queue_count || gpu_thread_busy) {
+			SDL_WaitCondition(gpu_cond, gpu_mutex);
 		}
 		if (gpu_resized) {
 			gpu_resized = false;
 			g.resized   = true;
 		}
-		gpu_unlock_and_check();
-		wait_commands();
+		SDL_UnlockMutex(gpu_mutex);
+		for (uint32_t i = 0; i < frame_slots; i++) {
+			finish_slot(i);
+		}
+		gpu_check();
 	}
 
 	// Waits for everything on the GPU, including what the program did not send itself.
@@ -295,11 +336,98 @@ namespace bb::gfx {
 		gpu_cond  = nullptr;
 		gpu_mutex = nullptr;
 		gpu_quit  = false;
+		gpu_queue_head = gpu_queue_count = 0;
+	}
+
+	// The fields of the state that belong to the slot that is used now are copied from and to the slots.
+	static void store_slot(frame_slot& s)
+	{
+		s.cmd = g.cmd;
+		s.fence = g.fence;
+		s.acquired = g.acquired;
+		s.entity_buffer = g.entity_buffer;
+		s.entity_allocation = g.entity_allocation;
+		s.entity_mapped = g.entity_mapped;
+		s.entity_capacity = g.entity_capacity;
+		s.entity_set = g.entity_set;
+		s.scene_buffer = g.scene_buffer;
+		s.scene_allocation = g.scene_allocation;
+		s.scene_mapped = g.scene_mapped;
+		s.scene_set = g.scene_set;
+	}
+
+	static void load_slot(frame_slot const& s)
+	{
+		g.cmd = s.cmd;
+		g.fence = s.fence;
+		g.acquired = s.acquired;
+		g.entity_buffer = s.entity_buffer;
+		g.entity_allocation = s.entity_allocation;
+		g.entity_mapped = s.entity_mapped;
+		g.entity_capacity = s.entity_capacity;
+		g.entity_set = s.entity_set;
+		g.scene_buffer = s.scene_buffer;
+		g.scene_allocation = s.scene_allocation;
+		g.scene_mapped = s.scene_mapped;
+		g.scene_set = s.scene_set;
+	}
+
+	void select_frame_slot(uint32_t index)
+	{
+		store_slot(frames[current_slot]);
+		current_slot  = index;
+		slot_acquired = false;
+		load_slot(frames[index]);
+	}
+
+	// The command buffers, fences and semaphores of the slots. What the 3D drawing needs is made by it, per slot.
+	void create_frame_slots()
+	{
+		current_slot    = 0;
+		slot_acquired   = false;
+		completed_flush = int64_t(flush_number) - 1;
+		VkCommandBufferAllocateInfo cmd_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+		cmd_info.commandPool                 = g.pool;
+		cmd_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		cmd_info.commandBufferCount          = 1;
+		for (frame_slot& slot : frames) {
+			slot = frame_slot();
+			check(vkAllocateCommandBuffers(g.device, &cmd_info, &slot.cmd), "vkAllocateCommandBuffers");
+			VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+			check(vkCreateFence(g.device, &fence_info, nullptr, &slot.fence), "vkCreateFence");
+			VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+			check(vkCreateSemaphore(g.device, &sem_info, nullptr, &slot.acquired), "vkCreateSemaphore");
+		}
+		load_slot(frames[0]);
+	}
+
+	void destroy_frame_slot_buffers()
+	{
+		for (uint32_t i = 0; i < frame_slots; i++) {
+			select_frame_slot(i);
+			destroy_buffer(g.scene_buffer, g.scene_allocation);
+			destroy_buffer(g.entity_buffer, g.entity_allocation);
+		}
+		select_frame_slot(0);
+	}
+
+	void destroy_frame_slots()
+	{
+		for (frame_slot& slot : frames) {
+			vkDestroySemaphore(g.device, slot.acquired, nullptr);
+			vkDestroyFence(g.device, slot.fence, nullptr);
+			slot = frame_slot();
+		}
+		current_slot  = 0;
+		slot_acquired = false;
+		g.cmd = VK_NULL_HANDLE;
+		g.fence = VK_NULL_HANDLE;
+		g.acquired = VK_NULL_HANDLE;
 	}
 
 	void begin_commands()
 	{
-		wait_commands();
+		acquire_frame();
 		vkResetCommandBuffer(g.cmd, 0);
 		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -327,12 +455,15 @@ namespace bb::gfx {
 		Uint64 wait_start = BB_PROFILE_NOW();
 		check(vkQueueSubmit(g.queue, 1, &info, g.fence), "vkQueueSubmit");
 		check(vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX), "vkWaitForFences");
+		check(vkResetFences(g.device, 1, &g.fence), "vkResetFences");
 		profile_wait += BB_PROFILE_NOW() - wait_start;
-		empty_graveyard();
+		profile_gpu_collect(current_slot);
+		completed_flush = int64_t(flush_number) - 1; // Everything before was done by wait_gpu, and what was recorded just now is.
+		retire_graveyard(false);
 	}
 
 	// Sends the command buffer and returns at once, the present follows if asked for. The program can not use the command
-	// buffer or anything it records until wait_commands, nor the swapchain until wait_gpu.
+	// buffer or anything it records until acquire_frame has the slot again, nor the swapchain until wait_gpu.
 	static void submit_async(VkSemaphore wait, VkSemaphore signal, bool present, uint32_t index)
 	{
 		check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
@@ -345,12 +476,13 @@ namespace bb::gfx {
 			}
 		}
 		profile_submits++;
-		graveyard_busy = graveyard.size;
+		frame_slot& slot = frames[current_slot];
+		slot.flush_id    = int64_t(flush_number) - 1;
+		slot.job         = { wait, signal, present, g.swapchain, index };
 		SDL_LockMutex(gpu_mutex);
-		gpu_job       = { wait, signal, present, g.swapchain, index };
-		gpu_job_ready = true;
-		gpu_cmd_busy  = true;
-		gpu_busy      = true;
+		slot.state = 1;
+		gpu_queue[(gpu_queue_head + gpu_queue_count) % frame_slots] = current_slot;
+		gpu_queue_count++;
 		SDL_BroadcastCondition(gpu_cond);
 		SDL_UnlockMutex(gpu_mutex);
 
@@ -360,6 +492,7 @@ namespace bb::gfx {
 			const char* value = getenv("BLITZ_SYNC_GPU");
 			synchronous       = (value && value[0] && (value[0] != '0')) ? 1 : 0;
 		}
+		select_frame_slot((current_slot + 1) % frame_slots);
 		if (synchronous) {
 			wait_gpu();
 		}
@@ -509,10 +642,13 @@ namespace bb::gfx {
 		}
 		g.op_count     = 0;
 		g.vertex_count = 0;
-		// What was recorded reads the vertices until it is done, so the next ones go to the other buffer.
+		// What was recorded reads the vertices until it is done, and so may the frame before, so the next ones go to the third.
 		std::swap(g.vertex_buffer, g.vertex_buffer_alt);
+		std::swap(g.vertex_buffer_alt, g.vertex_buffer_alt2);
 		std::swap(g.vertex_allocation, g.vertex_allocation_alt);
+		std::swap(g.vertex_allocation_alt, g.vertex_allocation_alt2);
 		std::swap(g.vertices, g.vertices_alt);
+		std::swap(g.vertices_alt, g.vertices_alt2);
 		forget_recorded();
 	}
 
@@ -520,7 +656,6 @@ namespace bb::gfx {
 	void present_front(bool copy_back)
 	{
 		uint32_t index = 0;
-		wait_gpu(); // The swapchain is not used by the present of the frame before.
 		VkResult result = vkAcquireNextImageKHR(g.device, g.swapchain, UINT64_MAX, g.acquired, VK_NULL_HANDLE, &index);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			// Can't present to this swapchain: finish what we recorded, it gets recreated before the next present.
@@ -592,7 +727,7 @@ namespace bb::gfx {
 		if (g.front_touched) {
 			g.front_touched = false;
 			// Drawing to the front buffer is visible immediately.
-			wait_gpu(); // To know whether the present wants a new swapchain.
+			poll_resized(); // To know whether the present wants a new swapchain.
 			if (g.resized || (g.swapchain == VK_NULL_HANDLE)) {
 				submit_commands();
 				if (g.resized) {

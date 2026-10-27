@@ -123,6 +123,7 @@ namespace bb::gfx {
 		}
 		if (changed) {
 			changed = false;
+			wait_gpu(); // The frame before may still read the tables.
 			for (int i = 0; i < 256; i++) {
 				table_mapped[i * 4 + 0] = applied[0][i] / 255.0f;
 				table_mapped[i * 4 + 1] = applied[1][i] / 255.0f;
@@ -131,11 +132,13 @@ namespace bb::gfx {
 			}
 		}
 		if (front_view != front.view) {
+			wait_gpu(); // The frame before may still use the set.
 			write_descriptor(front_set, front.view, g.sampler);
 			front_view = front.view;
 		}
 		if ((shown.width != front.width) || (shown.height != front.height)) {
-			destroy_image(shown); // The frame before is done, present_front waited for it.
+			wait_gpu(); // The frame before may still read it.
+			destroy_image(shown);
 			shown = create_image(front.width, front.height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
 		}
 
@@ -170,6 +173,7 @@ namespace bb::gfx {
 		if (dump_path()) {
 			uint32_t size = shown.width * shown.height * 4;
 			if (size != dump_size) {
+				wait_gpu();
 				destroy_buffer(dump_buffer, dump_allocation);
 				void* mapped;
 				create_buffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, true, dump_buffer, dump_allocation, &mapped);

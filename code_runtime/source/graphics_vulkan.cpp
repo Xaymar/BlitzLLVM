@@ -1024,16 +1024,7 @@ namespace bb::gfx {
 		pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		pool_info.queueFamilyIndex        = g.family;
 		check(vkCreateCommandPool(g.device, &pool_info, nullptr, &g.pool), "vkCreateCommandPool");
-		VkCommandBufferAllocateInfo cmd_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-		cmd_info.commandPool                 = g.pool;
-		cmd_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		cmd_info.commandBufferCount          = 1;
-		check(vkAllocateCommandBuffers(g.device, &cmd_info, &g.cmd), "vkAllocateCommandBuffers");
-
-		VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-		check(vkCreateFence(g.device, &fence_info, nullptr, &g.fence), "vkCreateFence");
-		VkSemaphoreCreateInfo sem_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-		check(vkCreateSemaphore(g.device, &sem_info, nullptr, &g.acquired), "vkCreateSemaphore");
+		create_frame_slots();
 
 		// Descriptors, sampler and pipelines
 		VkSamplerCreateInfo sampler_info = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
@@ -1065,10 +1056,10 @@ namespace bb::gfx {
 		set_info.pBindings                       = &binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 2 }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1 } };
+		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 + frame_slots }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, frame_slots } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 		dpool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		dpool_info.maxSets                    = 8196;
+		dpool_info.maxSets                    = 8195 + 2 * frame_slots;
 		dpool_info.poolSizeCount              = 3;
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
@@ -1111,6 +1102,8 @@ namespace bb::gfx {
 		g.vertices = static_cast<vertex*>(mapped);
 		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, g.vertex_buffer_alt, g.vertex_allocation_alt, &mapped);
 		g.vertices_alt = static_cast<vertex*>(mapped);
+		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, g.vertex_buffer_alt2, g.vertex_allocation_alt2, &mapped);
+		g.vertices_alt2 = static_cast<vertex*>(mapped);
 
 		create_3d();
 	}

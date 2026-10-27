@@ -255,9 +255,12 @@ namespace bb::gfx {
 		VkBuffer       vertex_buffer = VK_NULL_HANDLE;
 		VmaAllocation  vertex_allocation = VK_NULL_HANDLE;
 		vertex*        vertices      = nullptr;
-		VkBuffer       vertex_buffer_alt = VK_NULL_HANDLE; // The other of two, one is written while the other is read by the GPU.
+		VkBuffer       vertex_buffer_alt = VK_NULL_HANDLE; // The other of three, one is written while the others are read by the GPU.
 		VmaAllocation  vertex_allocation_alt = VK_NULL_HANDLE;
 		vertex*        vertices_alt      = nullptr;
+		VkBuffer       vertex_buffer_alt2 = VK_NULL_HANDLE;
+		VmaAllocation  vertex_allocation_alt2 = VK_NULL_HANDLE;
+		vertex*        vertices_alt2     = nullptr;
 		uint32_t       vertex_count  = 0;
 		bool           front_touched = false; // Something was drawn to the front buffer, which has to be shown.
 
@@ -408,9 +411,38 @@ namespace bb::gfx {
 
 
 	// Buffers of geometry that was replaced or freed, which can only be destroyed once what was recorded has run.
+	extern uint32_t flush_number; // Counts flushes (of what was asked for), to know whether something that waits to be drawn uses a buffer.
 	struct graveyard_entry {
 		VkBuffer      buffer;
 		VmaAllocation allocation;
+		int64_t       flush = int64_t(flush_number); // Destroyed once the flushes up to this one are done on the GPU.
+	};
+
+	// The program records the next frame while the GPU still draws the one before, so everything that the program writes
+	// and the GPU reads, and every command buffer, exists once for each of the frames that can be in flight.
+	constexpr uint32_t frame_slots = 2;
+	struct submit_job {
+		VkSemaphore    wait = VK_NULL_HANDLE, signal = VK_NULL_HANDLE;
+		bool           present = false;
+		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+		uint32_t       index = 0;
+	};
+	struct frame_slot {
+		VkCommandBuffer cmd      = VK_NULL_HANDLE;
+		VkFence         fence    = VK_NULL_HANDLE;
+		VkSemaphore     acquired = VK_NULL_HANDLE;
+		VkBuffer        entity_buffer     = VK_NULL_HANDLE;
+		VmaAllocation   entity_allocation = VK_NULL_HANDLE;
+		void*           entity_mapped     = nullptr;
+		uint32_t        entity_capacity   = 0;
+		VkDescriptorSet entity_set        = VK_NULL_HANDLE;
+		VkBuffer        scene_buffer      = VK_NULL_HANDLE;
+		VmaAllocation   scene_allocation  = VK_NULL_HANDLE;
+		void*           scene_mapped      = nullptr;
+		VkDescriptorSet scene_set         = VK_NULL_HANDLE;
+		int             state    = 0;  // 0 free, 1 waits for the submission thread, 2 sent to the GPU.
+		int64_t         flush_id = -1; // The last flush that is in it.
+		submit_job      job;
 	};
 
 
@@ -606,7 +638,6 @@ namespace bb::gfx {
 	extern bb::buffer<graveyard_entry> graveyard;
 	extern int    profile_submits;
 	extern Uint64 profile_wait;
-	extern Uint64 profile_gpu_execute;
 	extern Uint64 profile_gpu_submit;
 	extern Uint64 profile_gpu_present;
 	extern int    profile_overlap;
@@ -666,7 +697,14 @@ namespace bb::gfx {
 	extern int       driver_choice; // What SetGfxDriver chose, 0 for the best one. Kept when the graphics window is closed.
 	void list_gpus();
 	void empty_graveyard();
-	void wait_commands();
+	void acquire_frame();
+	bool flush_is_done(uint32_t flush);
+	void poll_resized();
+	void create_frame_slots();
+	void select_frame_slot(uint32_t index);
+	void destroy_frame_slot_buffers();
+	void destroy_frame_slots();
+	extern frame_slot frames[frame_slots];
 	void wait_gpu();
 	void gpu_idle();
 	void stop_gpu_thread();

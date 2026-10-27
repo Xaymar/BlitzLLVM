@@ -26,7 +26,7 @@ namespace bb::gfx {
 
 	draw_stats stats3d; // What the recorded draws cost, for Stats3D and BLITZ_FPS.
 
-	static uint32_t flush_number = 0; // Counts flushes, to know whether something that waits to be drawn uses a buffer.
+	uint32_t flush_number = 0;
 
 	static surface_gpu* surface_list = nullptr;
 
@@ -79,7 +79,9 @@ namespace bb::gfx {
 		// Changing the contents is only fine if nothing that waits to be drawn looks at the buffers, and they are big enough.
 		VkDeviceSize vsize = VkDeviceSize(s.vertices.size) * sizeof(bb::vertex3d);
 		VkDeviceSize isize = VkDeviceSize(s.indices.size) * sizeof(uint32_t);
-		if (gpu && (gpu->used_by_flush != flush_number) && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity)) {
+		// The GPU may still read it for the flushes that were sent and are not done, and the draws that wait use it as well.
+		bool unused = gpu && ((gpu->used_by_flush == 0xFFFFFFFFu) || ((gpu->used_by_flush != flush_number) && flush_is_done(gpu->used_by_flush)));
+		if (unused && (s.vertices.size <= gpu->vertex_capacity) && (s.indices.size <= gpu->index_capacity)) {
 			memcpy(gpu->vertex_mapped, s.vertices.data, size_t(vsize));
 			memcpy(gpu->index_mapped, s.indices.data, size_t(isize));
 			gpu->index_count = s.indices.size;
@@ -214,6 +216,7 @@ namespace bb::gfx {
 	// what was drawn before has been waited for, so the old buffer can go. It is filled when the draws are recorded.
 	static void ensure_entities(uint32_t count)
 	{
+		acquire_frame(); // The frame before in this slot may still read the descriptor set and the buffer.
 		if (count <= g.entity_capacity) {
 			return;
 		}
@@ -245,29 +248,35 @@ namespace bb::gfx {
 		set_info.pBindings                       = &binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.scene_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
-		alloc.descriptorPool              = g.set_pool;
-		alloc.descriptorSetCount          = 1;
-		alloc.pSetLayouts                 = &g.scene_layout;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &g.scene_set), "vkAllocateDescriptorSets");
-
-		create_buffer(VkDeviceSize(scene_stride) * max_scenes, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, true, g.scene_buffer, g.scene_allocation, &g.scene_mapped);
-
-		VkDescriptorBufferInfo buffer_info = { g.scene_buffer, 0, sizeof(scene_data) };
-		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-		write.dstSet                       = g.scene_set;
-		write.descriptorCount              = 1;
-		write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-		write.pBufferInfo                  = &buffer_info;
-		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
-
 		// The data of each draw is in a buffer, so that draws of the same thing can be a single call.
 		VkDescriptorSetLayoutBinding entity_binding = { 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 		set_info.pBindings                          = &entity_binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.entity_layout), "vkCreateDescriptorSetLayout");
-		alloc.pSetLayouts = &g.entity_layout;
-		check(vkAllocateDescriptorSets(g.device, &alloc, &g.entity_set), "vkAllocateDescriptorSets");
-		ensure_entities(1024);
+
+		// Each of the frames that can be in flight has its own, as the program writes them while the GPU reads the other.
+		for (uint32_t slot = 0; slot < frame_slots; slot++) {
+			select_frame_slot(slot);
+			VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+			alloc.descriptorPool              = g.set_pool;
+			alloc.descriptorSetCount          = 1;
+			alloc.pSetLayouts                 = &g.scene_layout;
+			check(vkAllocateDescriptorSets(g.device, &alloc, &g.scene_set), "vkAllocateDescriptorSets");
+
+			create_buffer(VkDeviceSize(scene_stride) * max_scenes, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, true, g.scene_buffer, g.scene_allocation, &g.scene_mapped);
+
+			VkDescriptorBufferInfo buffer_info = { g.scene_buffer, 0, sizeof(scene_data) };
+			VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+			write.dstSet                       = g.scene_set;
+			write.descriptorCount              = 1;
+			write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+			write.pBufferInfo                  = &buffer_info;
+			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+
+			alloc.pSetLayouts = &g.entity_layout;
+			check(vkAllocateDescriptorSets(g.device, &alloc, &g.entity_set), "vkAllocateDescriptorSets");
+			ensure_entities(1024);
+		}
+		select_frame_slot(0);
 
 		VkDescriptorSetLayout layouts[3]   = { g.set_layout, g.scene_layout, g.entity_layout };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
@@ -1167,8 +1176,8 @@ namespace bb::gfx {
 	{
 		if (scenes.size >= max_scenes) {
 			flush();
-			wait_commands(); // The scenes are written again from the first.
 		}
+		acquire_frame(); // The scenes are written again from the first, the frame that read them before is done.
 
 		scene_data data = shared; // Each pass moves the lights by where its camera is.
 		float proj[16];
@@ -1512,7 +1521,7 @@ void bb_render_world(float tween)
 	if (resolve_target(g.target).image && (g.target >= image_buffer_base) && (g.target < texture_buffer_base)) {
 		fail("RenderWorld can not draw to an image, use a texture.");
 	}
-	wait_commands(); // The buffers that the scene is written to are not read by the frame before any more.
+	acquire_frame(); // The buffers that the scene is written to are not read by the frame before any more.
 	g.triangles_drawn = 0;
 	stats3d           = {};
 
