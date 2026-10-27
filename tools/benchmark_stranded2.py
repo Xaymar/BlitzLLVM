@@ -37,6 +37,20 @@ Function bench_start()
 	bench_t0=MilliSecs()
 End Function
 
+; Closes the menus that the map opens, then walks forward and sideways while the mouse turns the camera around, so that
+; the game is not paused and the view changes like it does when somebody plays.
+Function bench_input()
+	If m_menu>0 And m_menu<Cmenu_if_movie Then m_menu=0
+	in_mxs#=40.0*Sin(bench_frame*2.0)
+	in_mys#=3.0*Sin(bench_frame*1.3)
+	; Forward, back and sideways in turn, so that it stays about where it started.
+	Local phase=bench_frame Mod 400
+	in_keydown(Ckey_forward)=(phase<100)
+	in_keydown(Ckey_backward)=(phase>=200 And phase<300)
+	in_keydown(Ckey_right)=(phase>=100 And phase<150)
+	in_keydown(Ckey_left)=(phase>=300 And phase<350)
+End Function
+
 Function bench_end()
 	Local ms=MilliSecs()-bench_t0
 	Local frames=Int(GetEnv$("BENCH_FRAMES"))
@@ -60,6 +74,11 @@ def prepare(root, directory):
     text = text.replace("Const Cversion$", "Global bench_frame\nConst Cversion$", 1)
     with open(path, "wb") as f:
         f.write((text + BENCH).encode("latin-1"))
+    path = os.path.join(game, "includes", "input.bb")
+    with open(path, "rb") as f:
+        text = f.read().decode("latin-1").replace("\r\n", "\n")
+    with open(path, "wb") as f:
+        f.write(text.replace("\t;Statefx\n", "\tbench_input()\n\t;Statefx\n", 1).encode("latin-1"))
     fps = os.path.join(game, "includes", "load_fps.bb")
     with open(fps, "rb") as f:
         text = f.read().decode("latin-1")
