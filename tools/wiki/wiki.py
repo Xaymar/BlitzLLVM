@@ -70,8 +70,8 @@ DIALECT_TEXT = {
 
 INTROS = {}
 # The sections of a command page, in order. Only Description and Related Commands are always there. The signature
-# has no heading, the page starts with the command.
-PAGE_SECTIONS = ["Parameters", "Description", "Differences", "Examples", "Media", "Related Commands"]
+# and the parameters have no heading: the page starts with the command, and the table can only be its parameters.
+PAGE_SECTIONS = ["Description", "Differences", "Examples", "Media", "Related Commands"]
 # Appended to every list entry and title of a command that the original Blitz products do not have. Which commands
 # those are comes from EXTENSIONS in tools/suite_functions.py, the list of what BlitzLLVM adds.
 EXTENSION_MARK = "\u3014BlitzLLVM\u3015"
@@ -249,8 +249,6 @@ def command_page(c, siblings):
     out = [icons + "\n" if icons else "", "# %s%s\n" % (c.name, c.mark),
            nav(c) + "\n",
            "```blitzbasic\n%s\n```\n" % c.signature()]
-    if c.params or doc["returns"]:
-        out.append("## Parameters\n")
     if c.params:
         out.append("| Parameter | Type | Default | Description |\n|---|---|---|---|")
         for t, n, d in c.params:
