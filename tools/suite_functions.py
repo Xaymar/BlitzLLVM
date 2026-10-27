@@ -51,6 +51,7 @@ EXTENSIONS = {
     "htmlviewstatus": ("plusgui", "%HtmlViewStatus%htmlview"),
     "htmlviewcurrenturl": ("plusgui", "$HtmlViewCurrentURL%htmlview"),
     "htmlvieweventurl": ("plusgui", "$HtmlViewEventURL%htmlview"),
+    "spritedepthfade": ("blitz3d", "SpriteDepthFade%sprite#fade_distance"),
     "animateentity": ("blitz3d", "AnimateEntity%entity%mode=1#speed=1%sequence=0#transition=0"),
     "gfxdriver": ("graphics", "%GfxDriver"),
     "bsplightmapcolor": ("blitz3d", "BSPLightmapColor%bsp#red#green#blue"),

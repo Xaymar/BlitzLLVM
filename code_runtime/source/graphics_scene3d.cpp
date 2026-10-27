@@ -278,9 +278,10 @@ namespace bb::gfx {
 		}
 		select_frame_slot(0);
 
-		VkDescriptorSetLayout layouts[3]   = { g.set_layout, g.scene_layout, g.entity_layout };
+		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade.
+		VkDescriptorSetLayout layouts[4]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount         = 3;
+		layout_info.setLayoutCount         = 4;
 		layout_info.pSetLayouts            = layouts;
 		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
 
@@ -303,6 +304,23 @@ namespace bb::gfx {
 		vkDestroyShaderModule(g.device, fs_solid, nullptr);
 	}
 	gpu_image          depth_cache[max_depths];
+	static VkDescriptorSet depth_sets[max_depths]; // Each depth buffer as something to sample, made when a sprite with a depth fade needs it.
+
+	static VkDescriptorSet depth_set_for(gpu_image& depth)
+	{
+		VkDescriptorSet& set = depth_sets[&depth - depth_cache];
+		if (!set) {
+			allocate_descriptor(set);
+			VkDescriptorImageInfo image_info = { g.sampler_clamp, depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
+			VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+			write.dstSet                     = set;
+			write.descriptorCount            = 1;
+			write.descriptorType             = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			write.pImageInfo                 = &image_info;
+			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		}
+		return set;
+	}
 
 	static gpu_image& depth_for(uint32_t width, uint32_t height)
 	{
@@ -313,7 +331,7 @@ namespace bb::gfx {
 		}
 		for (uint32_t i = 0; i < max_depths; i++) {
 			if (!depth_cache[i].image) {
-				depth_cache[i] = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
+				depth_cache[i] = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
 				return depth_cache[i];
 			}
 		}
@@ -437,6 +455,7 @@ namespace bb::gfx {
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 1, 1, &g.scene_set, 1, &scene_offset);
 
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, 1, &g.entity_set, 0, nullptr);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &g.sets[TEXTURE_WHITE], 0, nullptr); // Nothing to read the depth of yet.
 
 		// The data of every draw goes to the buffer in the order of the draws, and the number of the draw is the first
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
@@ -449,7 +468,33 @@ namespace bb::gfx {
 		VkDescriptorSet bound_set      = VK_NULL_HANDLE;
 		VkBuffer        bound_vertices = VK_NULL_HANDLE, bound_indices = VK_NULL_HANDLE;
 		int             bound_cull = -1, bound_test = -1, bound_write = -1;
+
+		// Sprites with a depth fade read the depth of what is behind them. Everything that writes depth comes before the first of
+		// them (blended things and things that ignore depth don't write it), so from there on the buffer is only read, as
+		// the depth test and as the image they sample, which saves a copy of it.
+		uint32_t soft_first = scene.draw_count;
+		for (uint32_t i = 0; i < scene.draw_count; i++) {
+			if (draws[scene.first_draw + i].push.soft[0] > 0) {
+				soft_first = i;
+				break;
+			}
+		}
+		bool read_only = false;
 		for (uint32_t i = 0; i < scene.draw_count;) {
+			if ((i == soft_first) && !read_only) {
+				vkCmdEndRendering(g.cmd);
+				barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+				depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+				depth.loadOp      = VK_ATTACHMENT_LOAD_OP_LOAD;
+				vkCmdBeginRendering(g.cmd, &info);
+				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				VkDescriptorSet depth_set = depth_set_for(depth_image);
+				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_set, 0, nullptr);
+				read_only = true;
+				bound_pipeline = VK_NULL_HANDLE;
+				bound_cull = bound_test = bound_write = -1;
+			}
 			draw_record& d = draws[scene.first_draw + i];
 
 			uint32_t instances = 1;
@@ -471,9 +516,10 @@ namespace bb::gfx {
 				vkCmdSetDepthTestEnable(g.cmd, d.depth_test ? VK_TRUE : VK_FALSE);
 				bound_test = d.depth_test;
 			}
-			if (int(d.depth_write) != bound_write) {
-				vkCmdSetDepthWriteEnable(g.cmd, d.depth_write ? VK_TRUE : VK_FALSE);
-				bound_write = d.depth_write;
+			bool write = d.depth_write && !read_only;
+			if (int(write) != bound_write) {
+				vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
+				bound_write = write;
 			}
 			texture_entry*  tex = texture_of(d.texture);
 			VkDescriptorSet set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE];
@@ -495,6 +541,9 @@ namespace bb::gfx {
 			i += instances;
 		}
 		vkCmdEndRendering(g.cmd);
+		if (read_only) {
+			barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+		}
 	}
 
 	// Copies a part of a buffer to another.
@@ -1201,6 +1250,8 @@ namespace bb::gfx {
 				}
 			}
 
+			// Only alpha and add blending look at the alpha, which is what the depth fade changes.
+			push.soft[0] = (e->sprite_mode && surface_blended && (blend != 2) && depth_test) ? e->sprite_depth_fade : 0.0f;
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
 			record.push         = push;
@@ -1390,6 +1441,10 @@ namespace bb::gfx {
 		data.fog[1] = cam.fog_far;
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
 		data.fog[3] = 0;
+		data.projection[0] = cam.cam_near;
+		data.projection[1] = cam.cam_far;
+		data.projection[2] = (cam.cam_projection == 2) ? 1.0f : 0.0f;
+		data.projection[3] = 0;
 		memset(data.eye, 0, sizeof(float) * 3);
 		for (uint32_t i = 0; i < current_light_count; i++) {
 			float* light = data.light_position[i];

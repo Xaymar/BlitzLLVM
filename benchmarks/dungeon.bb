@@ -22,6 +22,7 @@
 ;   BENCH_CAMPFIRES  chance in percent that a room has a campfire (default 25, and at least one room has)
 ;   BENCH_SPRITESCALE  how many times bigger the flames and smoke are drawn (default 1; with 6 every sprite covers 36 times the pixels, so
 ;                    the overdraw is what the GPU spends its time on, and what early-Z saves)
+;   BENCH_DEPTHFADE  SpriteDepthFade distance of the flames and smoke in world units, 0 for none (default 0; BlitzLLVM only, the original has no such command and ignores it)
 ;   BENCH_COVERAGE   1 also counts the sprites that are in the view of the camera, after the frame is timed (default 0)
 ;   BENCH_STATIC     1 places the particles once (frame 0), so only the camera moves (default 0: the fire burns)
 ;   BENCH_SHOT       file to save the last frame to (optional)
@@ -84,6 +85,7 @@ still = Int(Env$("BENCH_STATIC", 0))
 campfires = Int(Env$("BENCH_CAMPFIRES", 25))
 coverage = Int(Env$("BENCH_COVERAGE", 0))
 spritescale# = Float(Env$("BENCH_SPRITESCALE", 1))
+depthfade# = Float(Env$("BENCH_DEPTHFADE", 0))
 If spritescale < 0.1 Then spritescale = 0.1
 If rooms < 2 Then rooms = 2
 If torches < 1 Then torches = 1
@@ -605,8 +607,10 @@ For t = 0 To nsources - 1
 		n = pstart(t) + j
 		If j < pcount(t) / 2 Then
 			spr(n) = CopyEntity(flametemplate)
+			BenchDepthFade spr(n), depthfade
 		Else
 			spr(n) = CopyEntity(smoketemplate)
+			BenchDepthFade spr(n), depthfade
 		EndIf
 		ShowEntity spr(n)
 		phase(n) = BenchRnd(0, 1)
@@ -778,7 +782,7 @@ If timesfile$ <> "" Then
 EndIf
 
 avg# = total_ms / frames / 1000
-result$ = "RESULT rooms=" + rooms + " campfires=" + nfire + " spritescale=" + spritescale + " sprites=" + nparticles + " inview=" + (inviewsum / frames) + " torches=" + torches + " particles=" + particles + " props=" + props + " frames=" + frames + " seed=" + seed + " static=" + still + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " update_ms=" + (updatetotal / frames / 1000) + " ms_avg=" + avg + " ms_min=" + (srt(0) / 1000) + " ms_median=" + (srt(frames / 2) / 1000) + " ms_p95=" + (srt(p95) / 1000) + " ms_max=" + (srt(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
+result$ = "RESULT rooms=" + rooms + " campfires=" + nfire + " spritescale=" + spritescale + " depthfade=" + depthfade + " sprites=" + nparticles + " inview=" + (inviewsum / frames) + " torches=" + torches + " particles=" + particles + " props=" + props + " frames=" + frames + " seed=" + seed + " static=" + still + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " update_ms=" + (updatetotal / frames / 1000) + " ms_avg=" + avg + " ms_min=" + (srt(0) / 1000) + " ms_median=" + (srt(frames / 2) / 1000) + " ms_p95=" + (srt(p95) / 1000) + " ms_max=" + (srt(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
 DebugLog result$
 resultfile$ = GetEnv$("BENCH_RESULT")
 If resultfile$ <> "" Then

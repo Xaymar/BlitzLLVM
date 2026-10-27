@@ -26,6 +26,11 @@ Function BenchBuffers()
 	Return Stats3D(1003)
 End Function
 
+; A sprite fades out near what is behind it (SpriteDepthFade), which only BlitzLLVM can do.
+Function BenchDepthFade(sprite, distance#)
+	If distance > 0 Then SpriteDepthFade sprite, distance
+End Function
+
 Function BenchMaxSprites()
 	Return 1000000000
 End Function

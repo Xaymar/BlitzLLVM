@@ -59,6 +59,7 @@ def main():
     parser.add_argument("--props", type=int, default=int(os.environ.get("BENCH_PROPS", 6)))
     parser.add_argument("--campfires", type=int, default=int(os.environ.get("BENCH_CAMPFIRES", 25)), help="chance in percent that a room has a campfire")
     parser.add_argument("--sprite-scale", type=float, default=float(os.environ.get("BENCH_SPRITESCALE", 1)), help="draw the flames and smoke this many times bigger: more overdraw, for a GPU bound run")
+    parser.add_argument("--depth-fade", type=float, default=float(os.environ.get("BENCH_DEPTHFADE", 0)), help="SpriteDepthFade distance of the flames and smoke (BlitzLLVM only, 0 for none): the cost of the soft edges")
     parser.add_argument("--coverage", action="store_true", help="also count the sprites in the view of the camera (slow, not timed)")
     parser.add_argument("--frames", type=int, default=int(os.environ.get("BENCH_FRAMES", 600)))
     parser.add_argument("--seed", type=int, default=int(os.environ.get("BENCH_SEED", 1)))
@@ -110,7 +111,7 @@ def main():
         build = subprocess.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
-        env = dict(os.environ, BENCH_ROOMS=str(args.rooms), BENCH_TORCHES=str(args.torches), BENCH_PARTICLES=str(args.particles), BENCH_PROPS=str(args.props), BENCH_CAMPFIRES=str(args.campfires), BENCH_COVERAGE="1" if args.coverage else "0", BENCH_SPRITESCALE=str(args.sprite_scale), BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,
+        env = dict(os.environ, BENCH_ROOMS=str(args.rooms), BENCH_TORCHES=str(args.torches), BENCH_PARTICLES=str(args.particles), BENCH_PROPS=str(args.props), BENCH_CAMPFIRES=str(args.campfires), BENCH_COVERAGE="1" if args.coverage else "0", BENCH_SPRITESCALE=str(args.sprite_scale), BENCH_DEPTHFADE=str(args.depth_fade), BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,
                    BENCH_FRAMETIMES=os.path.join(directory, "frametimes.txt"), BENCH_RESULT=os.path.join(directory, "result.txt"))
         if args.static:
             env["BENCH_STATIC"] = "1"
