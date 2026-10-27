@@ -8,6 +8,7 @@ BlitzLLVM is a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler built on the LL
 * [[Releasing]]: publish a release from a version tag.
 * [[Warnings]]: the `-W` options of `blitzcc`, the warning levels and `-Werror`.
 * [[blitz-format]]: format `.bb` source code with a style that a `.blitz-format` file sets.
+* [[Performance-History]]: what each performance change did to speed and size, with the numbers from its pull request.
 * [[Differences]]: where BlitzLLVM behaves differently from the original Blitz3D and BlitzPlus.
 
 ## Command reference
