@@ -527,6 +527,7 @@ namespace bb::gfx {
 		float light_position[max_lights][4];
 		float light_color[max_lights][4];
 		float light_direction[max_lights][4]; // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
+		float projection[4];                // Near and far plane, and 1 if orthographic: turns depth back into distance for soft sprite edges.
 	};
 	static_assert(sizeof(scene_data) <= scene_stride, "The scene data has to fit in the stride that is between the cameras.");
 
@@ -541,6 +542,7 @@ namespace bb::gfx {
 		float extra[4]; // x: whether the texture uses the second set of coordinates, y and z: sine and cosine minus one of the rotation.
 		float texgen[4]; // x: 1 for a sphere map and 2 for a cube map, y: what the cube map shows, z: whether in the space of the camera, w: half a texel of a face.
 		float lights[4]; // Which lights of the scene light this, two to a float: the place of the first plus 256 times the place of the second.
+		float soft[4];   // x: SpriteDepthFade distance for the fragment shader, 0 if off.
 	};
 
 

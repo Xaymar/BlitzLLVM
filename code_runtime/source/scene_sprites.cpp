@@ -59,6 +59,17 @@ void bb_sprite_view_mode(int32_t handle, int32_t mode)
 	}
 }
 
+// Not in the original: a blended sprite fades out over this distance (in world units, the depth between it and what is
+// behind it) where it gets close to something solid, which is what soft particles are. 0 or less turns it off.
+void bb_set_sprite_soft_edge(int32_t handle, float distance)
+{
+	entity* e = need_kind(handle, MESH, "SetSpriteSoftEdge");
+	if (!e->sprite_mode) {
+		bb_runtime_error("SetSpriteSoftEdge: the entity is not a sprite.");
+	}
+	e->sprite_soft_edge = (distance > 1e-4f) ? distance : 0.0f;
+}
+
 // A plane that has no end in Blitz. The renderer makes the part of it that the camera can see out of squares, as many
 // per side as the segments say, which is also why lights show on it. The large square here is for collisions and picking.
 int32_t bb_create_plane(int32_t divisions, int32_t parent)

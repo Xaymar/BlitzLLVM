@@ -233,6 +233,7 @@ namespace bb {
 		float capt_pos[3] = { 0, 0, 0 }, capt_scl[3] = { 1, 1, 1 };
 		float capt_rot[4] = { 1, 0, 0, 0 }; // w, x, y, z
 		float sprite_angle    = 0;
+		float sprite_soft_edge = 0;      // SetSpriteSoftEdge: how far from what is behind it a blended sprite fades out, 0 for not at all.
 		int   order    = 0; // Entities with a higher order are drawn first, and those with 0 are drawn normally.
 		int   blend    = 1; // 1 = alpha, 2 = multiply, 3 = add
 		float shininess = 0;

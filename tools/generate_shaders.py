@@ -22,10 +22,12 @@ OP = dict(
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
+    Image=100, ImageFetch=95, Phi=245, Branch=249, FOrdGreaterThan=186,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35)
 BUILTIN_INSTANCE_INDEX = 43
+BUILTIN_FRAG_COORD = 15
 
 
 def string_words(text):
@@ -342,7 +344,7 @@ def declare_scene(b):
     """The block that holds what is the same for everything a camera draws, see scene_data in graphics.cpp."""
     v4 = b.vec(4)
     lights = b.array(v4, MAX_LIGHTS, "lights")
-    scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4, v4, lights, v4, v4, v4)
+    scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4, v4, lights, v4, v4, v4, v4)
     b.m.annotations += [
         Module.inst("MemberDecorate", scene, 0, DECORATION["Offset"], 0),
         Module.inst("MemberDecorate", scene, 0, DECORATION["ColMajor"]),
@@ -357,6 +359,7 @@ def declare_scene(b):
         Module.inst("MemberDecorate", scene, 8, DECORATION["Offset"], 128),  # The axes of the camera, to find camera space.
         Module.inst("MemberDecorate", scene, 9, DECORATION["Offset"], 144),
         Module.inst("MemberDecorate", scene, 10, DECORATION["Offset"], 160),
+        Module.inst("MemberDecorate", scene, 11, DECORATION["Offset"], SCENE_LIGHTS + MAX_LIGHTS * 48),  # Near, far and whether orthographic, to turn depth back into distance.
         Module.inst("Decorate", lights, DECORATION["ArrayStride"], 16),
         Module.inst("Decorate", scene, DECORATION["Block"]),
     ]
@@ -371,11 +374,11 @@ def declare_entities(b):
     Returns the variable of the buffer.
     """
     v4 = b.vec(4)
-    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4, v4, v4)
-    for index in range(10):
+    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4, v4, v4, v4)
+    for index in range(11):
         b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
     entities = b.new_type("entities", "TypeRuntimeArray", entity)
-    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], 160))
+    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], 176))
     block = b.struct("entity_block", entities)
     b.m.annotations += [
         Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
@@ -422,6 +425,7 @@ def vertex_shader_3d():
     layout(set = 2, binding = 0) readonly buffer Entities { Entity entities[]; };
     #define entity entities[gl_InstanceIndex]
     layout(location = 6) flat out vec4 outMask; // What the fragment shader needs of the entity, so that it does not read the buffer.
+    layout(location = 8) flat out vec4 outSoft; // x: the distance of SetSpriteSoftEdge, 0 if off.
     layout(location = 0) out vec2 outUV;
     layout(location = 1) out vec4 outColor;
     void main() {
@@ -454,6 +458,7 @@ def vertex_shader_3d():
     entities, _ = declare_entities(b)
     in_instance = b.variable("Input", b.int(), [(DECORATION["BuiltIn"], BUILTIN_INSTANCE_INDEX)])
     out_mask = b.variable("Output", b.vec(4), [(DECORATION["Location"], 6), (DECORATION["Flat"],)])
+    out_soft = b.variable("Output", b.vec(4), [(DECORATION["Location"], 8), (DECORATION["Flat"],)])
 
     # Inputs and outputs
     in_pos = b.variable("Input", v3, [(DECORATION["Location"], 0)])
@@ -477,12 +482,13 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
     instance = b.load(b.int(), in_instance)
     b.store(out_mask, entity_member(b, entities, instance, 6))
+    b.store(out_soft, entity_member(b, entities, instance, 10))
 
     def push_member(index):
         return entity_member(b, entities, instance, index)
@@ -664,7 +670,11 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
         in_spec_flat = b.variable("Input", v3, [(DECORATION["Location"], 5), (DECORATION["Flat"],)])
         in_mask = b.variable("Input", v4, [(DECORATION["Location"], 6), (DECORATION["Flat"],)])
         in_dir = b.variable("Input", v4, [(DECORATION["Location"], 7)])
-        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir]
+        in_soft = b.variable("Input", v4, [(DECORATION["Location"], 8), (DECORATION["Flat"],)])
+        in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
+        # The depth of what was drawn before the sprites, for SetSpriteSoftEdge.
+        depth_tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
+        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag]
 
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
@@ -774,6 +784,39 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
             Module.inst("Kill"),
             Module.inst("Label", merge_label),
         ]
+    if fog:
+        # Sprites with a soft edge fade out where they get close to what is behind them: the distance between the depth
+        # buffer, which holds what was drawn before the sprites, and the sprite itself, as a part of the distance asked for.
+        #   if (soft.x > 0) { z(d) = ortho ? far - d * (far - near) : far * near / ((far - near) * d + near);
+        #                     alpha *= clamp((z(texelFetch(depth, ivec2(gl_FragCoord.xy)).x) - z(gl_FragCoord.z)) / soft.x, 0, 1); }
+        distance = b.extract(b.load(v4, in_soft), 0)
+        soft_on = b.emit("FOrdGreaterThan", boolean, distance, b.const_float(1e-4))
+        soft_label, soft_merge = b.m.id(), b.m.id()
+        before_soft = merge_label
+        b.m.code += [
+            Module.inst("SelectionMerge", soft_merge, 0),
+            Module.inst("BranchConditional", soft_on, soft_label, soft_merge),
+            Module.inst("Label", soft_label),
+        ]
+        ivec2 = b.new_type("ivec2", "TypeVector", b.int(), 2)
+        fetched = b.emit("Image", image, b.load(sampled, depth_tex))
+        frag = b.load(v4, in_frag)
+        pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(frag, 0)), b.emit("ConvertFToS", b.int(), b.extract(frag, 1)))
+        scene_depth = b.extract(b.emit("ImageFetch", v4, fetched, pixel), 0)
+        projection = b.load(v4, b.access("Uniform", v4, scene, b.const_int(11)))
+        near, far, ortho = b.extract(projection, 0), b.extract(projection, 1), b.extract(projection, 2)
+        span = b.fsub(f, far, near)
+
+        def linear(d):
+            perspective = b.fdiv(f, b.fmul(f, far, near), b.fadd(f, b.fmul(f, span, d), near))
+            orthographic = b.fsub(f, far, b.fmul(f, d, span))
+            return b.fadd(f, perspective, b.fmul(f, b.fsub(f, orthographic, perspective), ortho))
+
+        gap = b.fsub(f, linear(scene_depth), linear(b.extract(frag, 2)))
+        fade = b.ext(f, GLSL_FCLAMP, b.fdiv(f, gap, distance), b.const_float(0.0), c1)
+        b.m.code += [Module.inst("Branch", soft_merge), Module.inst("Label", soft_merge)]
+        fade = b.emit("Phi", f, fade, soft_label, c1, before_soft)
+        result = b.construct(4, b.extract(result, 0), b.extract(result, 1), b.extract(result, 2), b.fmul(f, b.extract(result, 3), fade))
     if fog:
         # Linear between the near and far distance (x and y), if it is on (z). This is per pixel, so that it also
         # works for things that are much bigger than they look.
