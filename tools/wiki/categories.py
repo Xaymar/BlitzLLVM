@@ -13,6 +13,12 @@ import re
 LANG, BASIC, B3D, PLUS = "Language-Features", "BlitzBasic", "Blitz3D", "BlitzPlus"
 # What the sidebar and the pages call a dialect, where it differs from its name.
 TITLES = {LANG: "Language Features"}
+# Categories whose name has a character that page names cannot have: the pages are called Time-and-Date.
+DISPLAY = {"Time and Date": "Time & Date"}
+
+
+def display(category):
+    return DISPLAY.get(category, category)
 
 # Category -> one line shown on the dialect page.
 CATEGORY_TEXT = {

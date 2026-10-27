@@ -261,12 +261,12 @@ def command_list(out, commands):
             return "<ul>%s</ul>" % "".join('<li><a href=%s_commands/%s.htm target=main>%s</a><br>' % (s, c.name, ESC(c.name + c.mark))
                                            for c in cs)
 
-        head = "".join("<li><a href=command_list_%s_cat_%d.htm>%s</a><br>\n" % (s, n + 1, ESC(k[1]))
+        head = "".join("<li><a href=command_list_%s_cat_%d.htm>%s</a><br>\n" % (s, n + 1, ESC(categories.display(k[1])))
                        for n, k in enumerate(cats))
         menu(os.path.join(cmds_dir, "command_list_%s_cat.htm" % s), head)
         for n, k in enumerate(cats):
             body = "".join(('<li><a href=command_list_%s_cat_%d.htm>%s</a><br>%s\n' %
-                            (s, m + 1, ESC(j[1]), items(by_cat[j]) if m == n else ""))
+                            (s, m + 1, ESC(categories.display(j[1])), items(by_cat[j]) if m == n else ""))
                            for m, j in enumerate(cats))
             menu(os.path.join(cmds_dir, "command_list_%s_cat_%d.htm" % (s, n + 1)), body)
         everything = sorted((c for k in cats for c in by_cat[k]), key=lambda c: c.name.lower())

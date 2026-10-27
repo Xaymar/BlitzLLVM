@@ -246,7 +246,7 @@ def nav(c):
     """The links at the top and bottom of a command page, centered. The blank lines let the wiki render the Markdown
     inside the div."""
     return ('<div align="center">\n\n[Command Index](Command-Index) · [%s](%s) · [%s](%s)\n\n</div>\n' %
-            (c.title, c.dialect, c.category, c.page))
+            (c.title, c.dialect, categories.display(c.category), c.page))
 
 
 def command_page(c, siblings):
@@ -298,7 +298,7 @@ def command_page(c, siblings):
 
 def category_page(dialect, category, cmds):
     title = categories.TITLES.get(dialect, dialect)
-    out = ["# %s: %s\n" % (title, category), categories.CATEGORY_TEXT.get((dialect, category), "") + "\n",
+    out = ["# %s: %s\n" % (title, categories.display(category)), categories.CATEGORY_TEXT.get((dialect, category), "") + "\n",
            INTROS[cmds[0].page] + "\n" if cmds[0].page in INTROS else "",
            "Back to [%s](%s) or the [Command Index](Command-Index).\n" % (title, dialect)]
     out.extend("* " + c.link for c in sorted(cmds, key=lambda c: c.key))
@@ -349,7 +349,7 @@ def sidebar(cats):
         for category in sorted(cats[dialect]):
             cmds = sorted(cats[dialect][category], key=lambda c: c.key)
             out.append('<li><details><summary><a href="%s">%s</a> (%d)</summary>' %
-                       (cmds[0].page, category, len(cmds)))
+                       (cmds[0].page, categories.display(category), len(cmds)))
             out.append("<ul>")
             out.extend('<li><a href="%s">%s</a>%s</li>' % (c.name, c.name, c.mark) for c in cmds)
             out.append("</ul>")
@@ -445,7 +445,7 @@ def build(commands):
         out = ["# %s\n" % categories.TITLES.get(dialect, dialect), DIALECT_TEXT[dialect] + "\n", "Back to [Home](Home) or the [Command Index](Command-Index).\n"]
         for category in sorted(cats[dialect]):
             cmds = cats[dialect][category]
-            out.append("* [%s](%s) (%d): %s" % (category, cmds[0].page, len(cmds),
+            out.append("* [%s](%s) (%d): %s" % (categories.display(category), cmds[0].page, len(cmds),
                                                  categories.CATEGORY_TEXT.get((dialect, category), "")))
         write(dialect, "\n".join(out))
     for fn in sorted(os.listdir(PAGES)):
