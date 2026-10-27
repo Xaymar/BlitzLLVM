@@ -65,15 +65,44 @@ def exe_path(out, program):
     return os.path.join(out, re.sub(r"[^A-Za-z0-9_.-]", "_", program) + ".exe")
 
 
-def run_one(out, program, seconds=8):
+def snapshot(folder):
+    """The files below folder with their contents, so that what a program writes there can be undone."""
+    files = {}
+    for directory, _, names in os.walk(folder):
+        for name in names:
+            path = os.path.join(directory, name)
+            with open(path, "rb") as handle:
+                files[path] = handle.read() if os.path.getsize(path) <= 1 << 20 else None
+    return files
+
+
+def restore(folder, files):
+    for directory, _, names in os.walk(folder):
+        for name in names:
+            path = os.path.join(directory, name)
+            if path not in files:
+                os.remove(path)
+    for path, data in files.items():
+        if data is not None and (not os.path.exists(path) or open(path, "rb").read() != data):
+            with open(path, "wb") as handle:
+                handle.write(data)
+
+
+def run_one(out, program, seconds=5):
     """Programs of the originals are games and demos that loop until a key is pressed, so one that is still running after a few
-    seconds without a window has got past its start and counts as good. One that stops with an error, or crashes, does not."""
+    seconds without a window has got past its start and counts as good. One that stops with an error, or crashes, does not.
+    Some write their settings or scores next to themselves, and what they find there changes what they do, so the folder is put back
+    afterwards. Programs of one folder must not run at the same time."""
     source = os.path.join(ROOT, program)
+    folder = os.path.dirname(source)
     env = dict(os.environ, BLITZ_HEADLESS="1")
+    files = snapshot(folder)
     try:
-        run = subprocess.run([exe_path(out, program)], cwd=os.path.dirname(source), env=env, capture_output=True, text=True, timeout=seconds, stdin=subprocess.DEVNULL)
+        run = subprocess.run([exe_path(out, program)], cwd=folder, env=env, capture_output=True, text=True, timeout=seconds, stdin=subprocess.DEVNULL)
     except subprocess.TimeoutExpired:
         return True, "still running"
+    finally:
+        restore(folder, files)
     return run.returncode == 0, (run.stdout + run.stderr).strip()
 
 
