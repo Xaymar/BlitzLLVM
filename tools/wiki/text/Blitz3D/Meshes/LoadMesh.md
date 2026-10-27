@@ -7,4 +7,4 @@ Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to 
 @returns The handle of the mesh, or 0 if the file could not be loaded.
 @param file    Path of the model file.
 @param parent  Entity the mesh follows, or 0 for none. Defaults to 0.
-@gap Only `.b3d` and `.3ds` files can be loaded. `.x` files are not read, so the result is 0. The 3D Studio loader is described in [Differences](Differences#3d-studio-models).
+@gap Only `.b3d` and `.3ds` files can be loaded. `.x` files are not read, so the result is 0. The 3D Studio loader is described in [3D Studio models](3D-Studio-Models).

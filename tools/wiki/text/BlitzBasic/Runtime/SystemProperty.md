@@ -6,6 +6,15 @@ Asks for the path of a system folder.
 ```blitzbasic
 Print "Temporary files go to " + SystemProperty$("tempdir")
 ```
+| Property | Windows | Elsewhere |
+| --- | --- | --- |
+| `appdir` | The folder of the program. | The folder of the program. |
+| `tempdir` | `%TEMP%` | `$TEMP`, `$TMPDIR` or `/tmp`. |
+| `windowsdir` | `%SystemRoot%` | `/etc/` (`/System/` on macOS), where the system keeps its settings. |
+| `systemdir` | The System32 folder. | `/usr/lib/` (`/System/Library/` on macOS), where the system keeps its libraries. |
+
+Folders end with a separator, except for the ones of Windows, which are as the system gives them.
+
 @param property  One of `tempdir`, `appdir`, `windowsdir` or `systemdir`.
 @returns The path, or an empty string for a name that is not known.
-@gap Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders. See [Differences](Differences#systemproperty).
+@gap Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.

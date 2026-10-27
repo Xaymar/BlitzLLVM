@@ -22,7 +22,7 @@ _Not documented yet._
 
 **Differences and known gaps:**
 
-* It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any. See [Differences](Differences#network-addresses).
+* It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
 
 ## Related commands
 

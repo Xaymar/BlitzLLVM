@@ -30,7 +30,7 @@ Print CountHostIPs("localhost") >= 1
 
 **Differences and known gaps:**
 
-* Only IPv4 addresses are counted. See [Differences](Differences#network-addresses).
+* Only IPv4 addresses are counted. `UDPStreamIP` is the first address of this computer.
 
 ## Related commands
 
