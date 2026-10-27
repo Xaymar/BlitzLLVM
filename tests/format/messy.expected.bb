@@ -13,7 +13,7 @@ Dim grid(2, 2)
 
 Function Add%(a%, b%)
 	Return a + b
-EndFunction
+End Function
 
 Function Sign%(n%)
 	If n < 0 Then Return -1

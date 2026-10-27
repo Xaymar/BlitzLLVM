@@ -89,7 +89,7 @@ void blitz::parser::parse_function()
 	parse_block(fn->body);
 	_in_function = false;
 	_function_slots.clear();
-	expect_block_end("endfunction", "end", "function");
+	expect_block_end(nullptr, "end", "function");
 	finish(*fn, first);
 	_program->functions.push_back(std::move(fn));
 }
@@ -146,13 +146,12 @@ void blitz::parser::parse_type_decl()
 
 	while (true) {
 		skip_empty();
-		if (is_keyword(tk(), "endtype")) {
-			advance();
-			break;
-		} else if (is_keyword(tk(), "end") && is_keyword(tk(1), "type")) {
+		if (is_keyword(tk(), "end") && is_keyword(tk(1), "type")) {
 			advance();
 			advance();
 			break;
+		} else if (is_keyword(tk(), "endtype")) {
+			throw error(tk(), blitz::format("'%s' is not a keyword, write 'End Type' with a space.", tk().text.c_str()));
 		} else if (!is_keyword(tk(), "field")) {
 			throw error(tk(), blitz::format("Unexpected %s, expected 'Field' or 'End Type'.", tk().to_string().c_str()));
 		}

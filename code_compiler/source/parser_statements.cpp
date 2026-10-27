@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cerrno>
 #include <cstdlib>
+#include <map>
 #include <set>
 #include "error.hpp"
 #include "parser_internal.hpp"
@@ -41,7 +42,7 @@ bool blitz::parser::at_block_end() const
 	if (t.type != blitz::token::variant::TEXT) {
 		return false;
 	}
-	for (auto word : { "wend", "next", "until", "forever", "endif", "else", "elseif", "case", "default", "endselect", "endfunction" }) {
+	for (auto word : { "wend", "next", "until", "forever", "endif", "else", "elseif", "case", "default" }) {
 		if (is_keyword(t, word)) {
 			return true;
 		}
@@ -55,13 +56,13 @@ bool blitz::parser::at_block_end() const
 
 void blitz::parser::expect_block_end(const char* single, const char* first, const char* second)
 {
-	if (is_keyword(tk(), single)) {
+	if (single && is_keyword(tk(), single)) {
 		advance();
 	} else if (is_keyword(tk(), first) && is_keyword(tk(1), second)) {
 		advance();
 		advance();
 	} else {
-		throw error(tk(), blitz::format("Unexpected %s, expected '%s'.", tk().to_string().c_str(), single));
+		throw error(tk(), blitz::format("Unexpected %s, expected '%s'.", tk().to_string().c_str(), single ? single : (std::string(first) + " " + second).c_str()));
 	}
 }
 
@@ -208,6 +209,12 @@ void blitz::parser::parse_statement_inner(ast::block& into)
 	}
 
 	std::string word = lower(first.text);
+	// The original only knows the block ends with a space. Without one the word is an ordinary name, which is a variable
+	// when it is assigned to. On a line of its own it was meant as the end of a block, so say how to write that.
+	static const std::map<std::string, const char*> joined_ends{ { "endselect", "End Select" }, { "endfunction", "End Function" }, { "endtype", "End Type" } };
+	if (auto joined = joined_ends.find(word); (joined != joined_ends.end()) && is_terminator(tk(1))) {
+		throw error(first, blitz::format("'%s' is not a keyword, write '%s' with a space.", first.text.c_str(), joined->second));
+	}
 	if ((word == "local") || (word == "global") || (word == "const")) {
 		parse_declare(into);
 	} else if (word == "if") {
@@ -504,6 +511,6 @@ void blitz::parser::parse_select(ast::block& into)
 			break;
 		}
 	}
-	expect_block_end("endselect", "end", "select");
+	expect_block_end(nullptr, "end", "select");
 	into.push_back(std::move(node));
 }

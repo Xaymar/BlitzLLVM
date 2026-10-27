@@ -420,6 +420,23 @@ elseif(CASE STREQUAL "for_step")
 		message(FATAL_ERROR "A step that is not a constant did not warn:\n${ERR}")
 	endif()
 
+elseif(CASE STREQUAL "joined_block_ends")
+	# The original only knows End Select, End Function and End Type with a space. Without one the word is an ordinary name, so
+	# a line with only that word is refused and says what to write instead, while a variable of that name still works.
+	foreach(_CASE_ITEM IN ITEMS "Select 1\nCase 1\nEndSelect|End Select" "Function F()\nReturn\nEndFunction|End Function" "Type T\nField a\nEndType|End Type")
+		string(REPLACE "|" ";" _PARTS "${_CASE_ITEM}")
+		list(GET _PARTS 0 _CODE)
+		list(GET _PARTS 1 _WRITE)
+		file(WRITE "${WORK}/joined.bb" "${_CODE}\n")
+		blitzcc(-q -c "${WORK}/joined.bb")
+		if(RC EQUAL 0 OR NOT "${OUT}${ERR}" MATCHES "write '${_WRITE}'")
+			message(FATAL_ERROR "'${_CODE}' was not refused with the hint '${_WRITE}' (${RC}):\nstdout: ${OUT}\nstderr: ${ERR}")
+		endif()
+	endforeach()
+	file(WRITE "${WORK}/spaced.bb" "Select 1\nCase 1\nPrint 1\nEnd Select\nFunction F()\nReturn\nEnd Function\nType T\nField a\nEnd Type\nEndSelect = 5\nPrint EndSelect\n")
+	blitzcc(-q -c "${WORK}/spaced.bb")
+	expect_ok()
+
 elseif(CASE STREQUAL "stop")
 	# Stop is a breakpoint in a debug build, and nothing in any other. Neither is run with the trap in it.
 	set(STOP_PROGRAM "${TESTS}/cli/stop.bb")
