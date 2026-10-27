@@ -791,6 +791,15 @@ namespace bb::gfx {
 		if (last - first < 2) {
 			return;
 		}
+		// Long runs of the same state are already as few calls as grouping could make of them (sprites that share a shape and a
+		// texture, for example), and grouping them again would cost more than the calls it saves.
+		uint32_t runs = 1;
+		for (uint32_t i = first + 1; i < last; i++) {
+			runs += same_draw_state(draws[i - 1], draws[i]) ? 0 : 1;
+		}
+		if (runs * 32 < last - first) {
+			return;
+		}
 		std::vector<uint32_t> units;
 		for (uint32_t i = first; i < last; i++) {
 			if (draws[i].unit_start) {
