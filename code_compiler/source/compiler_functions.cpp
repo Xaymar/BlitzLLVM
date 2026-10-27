@@ -292,6 +292,9 @@ void blitz::compiler::gen_main(ast::program const& program)
 	if (debug) {
 		call_runtime("bb_set_debug", type::UNKNOWN, { { "1", type::INT32 } });
 	}
+	if (profile) {
+		call_runtime("bb_set_profile", type::UNKNOWN, { { "1", type::INT32 } });
+	}
 	gen_block(program.main);
 	report_unused(_locals);
 	if (!_terminated) {

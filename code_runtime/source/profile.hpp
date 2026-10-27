@@ -14,34 +14,30 @@
 #include <stdint.h>
 
 // Measures how long the parts of the runtime take. BLITZ_FPS=1 prints the sums once a second, together with the fps.
-// Only built in when BLITZ_PROFILE is defined (the CMake option of the same name, on by default for Debug builds), as the timers sit in per-call paths such as EntityInView and CopyRect.
-#ifdef BLITZ_PROFILE
-#define BB_PROFILE_NOW() SDL_GetPerformanceCounter()
-#else
-#define BB_PROFILE_NOW() uint64_t(0)
-#endif
-
+// The timers only run in programs that were compiled with --profile (or -d), as they sit in per-call paths such as EntityInView and CopyRect.
 namespace bb {
 	enum profile_slot { PROFILE_UPDATE_WORLD, PROFILE_ANIMATION, PROFILE_RENDER_WORLD, PROFILE_IN_VIEW, PROFILE_COPY_RECT, PROFILE_FLIP, PROFILE_DELAY, PROFILE_COUNT };
 
-	inline uint64_t    profile_ticks[PROFILE_COUNT] = {};
+	inline bool              profile_enabled = false;
+	inline uint64_t          profile_ticks[PROFILE_COUNT] = {};
 	inline const char* const profile_names[PROFILE_COUNT] = { "UpdateWorld", "animation", "RenderWorld", "EntityInView", "CopyRect", "Flip", "Delay" };
 
-#ifdef BLITZ_PROFILE
 	struct profile_scope {
 		int      slot;
 		uint64_t start;
-		explicit profile_scope(int s) : slot(s), start(SDL_GetPerformanceCounter()) {}
-		~profile_scope() { profile_ticks[slot] += SDL_GetPerformanceCounter() - start; }
+		explicit profile_scope(int s) : slot(s), start(profile_enabled ? SDL_GetPerformanceCounter() : 0) {}
+		~profile_scope()
+		{
+			if (profile_enabled) {
+				profile_ticks[slot] += SDL_GetPerformanceCounter() - start;
+			}
+		}
 	};
-#else
-	struct profile_scope {
-		explicit profile_scope(int) {}
-	};
-#endif
 } // namespace bb
 
-#if defined(_WIN32) && defined(BLITZ_PROFILE)
+#define BB_PROFILE_NOW() (bb::profile_enabled ? SDL_GetPerformanceCounter() : uint64_t(0))
+
+#ifdef _WIN32
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
