@@ -311,8 +311,8 @@ GENERIC_FIRST = ["Installation", "Building", "Language", "Language-Quirks", "War
 def generic_pages(cats):
     """Every page that is not a command, category or dialect page, as (name, title). Found by listing the wiki folder,
     so a new hand written or generated page shows up in the sidebar without anyone editing a list."""
-    own = {"Home", "Command-Index", "_Sidebar"} | set(DIALECT_ORDER)
-    own.update(page for page, _, _ in feature_pages())  # these are listed on the Differences page
+    own = {"Home", "Command-Index", "_Sidebar", "Differences"} | set(DIALECT_ORDER)  # Differences has its own submenu
+    own.update(page for page, _, _ in feature_pages())  # these are listed in it
     for dialect in cats:
         for category, cmds in cats[dialect].items():
             own.add(cmds[0].page)
@@ -326,6 +326,24 @@ def generic_pages(cats):
         result.append((fn[:-3], m.group(1).strip() if m else fn[:-3].replace("-", " ")))
     first = {n: i for i, n in enumerate(GENERIC_FIRST)}
     return sorted(result, key=lambda p: (first.get(p[0], len(first)), p[1].lower()))
+
+
+def differences_menu(cats):
+    """Differences as a submenu like a dialect: the Differences page is the title, and below it Features (the pages
+    with an @difference line) and Commands (the commands with a @gap line) fold open with their entries."""
+    features = sorted(feature_pages(), key=lambda f: f[1].lower())
+    gapped = sorted((c for dialect in cats for cmds in cats[dialect].values() for c in cmds
+                     if split_text(c.text)[1]["gap"]), key=lambda c: c.name.lower())
+    out = ['<details><summary><b><a href="Differences">Differences</a></b></summary>', "<ul>"]
+    for title, items in (("Features", ['<a href="%s">%s</a>' % (page, t) for page, t, _ in features]),
+                         ("Commands", ['<a href="%s#differences">%s</a>%s' % (c.name, c.name, c.mark) for c in gapped])):
+        if items:
+            out.append("<li><details><summary>%s (%d)</summary>" % (title, len(items)))
+            out.append("<ul>")
+            out.extend("<li>%s</li>" % i for i in items)
+            out += ["</ul>", "</details></li>"]
+    out += ["</ul>", "</details>", ""]
+    return out
 
 
 def sidebar(cats):
@@ -342,6 +360,7 @@ def sidebar(cats):
         out.extend('<li><a href="%s">%s</a></li>' % p for p in generic)
         out.append("</ul>")
         out += ["", "<hr>", ""]
+    out += differences_menu(cats)
     for dialect in DIALECT_ORDER:
         out.append('<details><summary><b><a href="%s">%s</a></b></summary>' %
                    (dialect, categories.TITLES.get(dialect, dialect)))
