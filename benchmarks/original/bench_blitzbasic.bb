@@ -288,13 +288,14 @@ Function WorkMatMul%()
 		Next
 		ma(rep, rep) = ma(rep, rep) + 1
 	Next
-	sum = 0
+	; Every element is exact, but their total is too large for a Float, so it is added as an Int.
+	isum = 0
 	For i = 0 To 99
 		For j = 0 To 99
-			sum = sum + mc(i, j)
+			isum = (isum + Int(mc(i, j))) And $FFFFFFF
 		Next
 	Next
-	Return Int(sum) And $7FFFFFFF
+	Return isum
 End Function
 
 ; Shell sort of 300000 random integers; the result checks the order and a few of the values.
@@ -380,7 +381,6 @@ End Function
 ; A 4 MB bank: ints written and read, floats written and read, bytes written, and the bank copied.
 Function WorkBanks%()
 	Local i%, sum%, b%, c%
-	Local f#
 	b = CreateBank(4 * 1048576)
 	c = CreateBank(4 * 1048576)
 	For i = 0 To 1048575
@@ -393,9 +393,9 @@ Function WorkBanks%()
 	For i = 0 To 1048575
 		PokeFloat b, i * 4, i * 0.25
 	Next
-	f = 0
+	; i * 0.25 * 4 is exact, so the sum does not depend on how a Float is rounded or converted.
 	For i = 0 To 1048575
-		f = f + PeekFloat(b, i * 4)
+		sum = (sum + Int(PeekFloat(b, i * 4) * 4)) And $FFFFFFF
 	Next
 	For i = 0 To 4194303
 		PokeByte b, i, i And 255
@@ -406,7 +406,7 @@ Function WorkBanks%()
 	Next
 	FreeBank b
 	FreeBank c
-	Return sum + (Int(f) And $FFFF)
+	Return sum
 End Function
 
 Function Add3%(a%, b%, c%)
