@@ -73,7 +73,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download nightly --repo "$GITHUB_REPOSITORY" --pattern '*linux-x64*.deb' --dir nightly
+          gh release download nightly --repo "$GITHUB_REPOSITORY" --pattern '*ubuntu24.04-x64*.deb' --dir nightly
           dpkg-deb -x nightly/*.deb nightly/x
           nightly/x/usr/bin/blitzcc --help | head -n 3 || true
       - name: Compile and run the examples

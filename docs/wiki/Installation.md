@@ -7,10 +7,10 @@
 
 Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) and macOS (arm64) and publishes the result as the `nightly` release: https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly
 
-* Linux: there is no zip, because the libraries a program needs differ between systems. Install the package for your system: `blitzllvm-<version>-linux-x64.deb` (Debian, Ubuntu: `sudo apt install ./blitzllvm-*.deb`), `.rpm` (Fedora, openSUSE) or `.pkg.tar.zst` (Arch). It installs to `/usr` and pulls in `clang`.
-* Linux with snap: `sudo snap install --classic --dangerous blitzllvm-<version>-linux-x64.snap`. Classic confinement is needed because the compiler reads your files wherever they are and runs programs outside of the snap.
-* macOS: install `blitzllvm-<version>-macos-arm64.pkg`.
-* Windows: download `blitzllvm-windows-x64.zip`.
+* Linux: there is no zip, because the libraries a program needs differ between systems. Install the package for your system: `blitzllvm-<version>-ubuntu24.04-x64.deb` or `-ubuntu26.04-x64.deb` (Ubuntu: `sudo apt install ./blitzllvm-*.deb`; use the one for your release), `blitzllvm-<version>-fedora-x64.rpm` (Fedora) or `blitzllvm-<version>-arch-x64.pkg.tar.zst` (Arch). It installs to `/usr` and pulls in `clang`.
+* Linux with snap: `sudo snap install --classic --dangerous blitzllvm-<version>-ubuntu24.04-x64.snap`. Classic confinement is needed because the compiler reads your files wherever they are and runs programs outside of the snap.
+* macOS: install `blitzllvm-<version>-macos-universal.pkg`.
+* Windows: download `blitzllvm-windows-x64.zip` (or `blitzllvm-windows-arm64.zip`).
 
 For the zip:
 
