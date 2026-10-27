@@ -117,6 +117,12 @@ void blitz::parser::parse_include(ast::block& into)
 	if (!std::filesystem::exists(target)) {
 		throw error(file_tk, blitz::format("Included file '%s' does not exist.", file_tk.text.c_str()));
 	}
+	// A file is only read once, like in the original, so that it can be included from several places without declaring
+	// everything in it twice.
+	std::error_code ec;
+	if (_included.count(std::filesystem::weakly_canonical(target, ec))) {
+		return;
+	}
 	parse_file(target, into);
 }
 

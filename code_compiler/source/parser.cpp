@@ -23,7 +23,7 @@ using namespace blitz::parser_detail;
 
 blitz::parser::~parser() {}
 
-blitz::parser::parser() : _file(), _file_ptr(), _tokens(), _pos(0), _include_stack(), _program(), _depth(0), _in_function(false) {}
+blitz::parser::parser() : _file(), _file_ptr(), _tokens(), _pos(0), _include_stack(), _included(), _program(), _depth(0), _in_function(false) {}
 
 std::unique_ptr<blitz::ast::program> blitz::parser::parse(std::filesystem::path file)
 {
@@ -229,6 +229,7 @@ void blitz::parser::parse_file(std::filesystem::path file, ast::block& into)
 		throw blitz::error(_file, { 0, 0 }, { 0, 0 }, blitz::format("Recursive include of '%s'.", file.lexically_normal().generic_string().c_str()));
 	}
 	_include_stack.push_back(canonical);
+	_included.insert(canonical);
 
 	// Includes interrupt the parsing of the current file, so we have to restore it afterwards.
 	auto saved_file   = _file;
