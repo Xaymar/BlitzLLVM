@@ -3,25 +3,11 @@
 # (WILL_FAIL, label pending); the first error of each is the reason. Paths are relative to extra/.
 blitz3d/_release/Games/TunnelRun/tr.bb
 # Runtime Error: Object does not exist.
-blitz3d/_release/Games/wing_ring/wing_ring.bb
-# Runtime Error: EntityShininess: entity or surface 0 does not exist.
 blitz3d/_release/samples/birdie/dolphin/dolphin.bb
-# Runtime Error: HideEntity: entity or surface 0 does not exist.
-blitz3d/_release/samples/birdie/Jet Tails/Main.bb
-# Runtime Error: RotateMesh: entity or surface 0 does not exist.
+# Runtime Error: GetSurface: the mesh does not have that surface.
 blitz3d/_release/samples/birdie/LodMesh/lmesh.bb
-# Runtime Error: EntityTexture: entity or surface 0 does not exist.
-blitz3d/_release/samples/Hi-Toro/Death Island/deathisland.bb
-# Runtime Error: EntityShininess: entity or surface 0 does not exist.
-blitz3d/_release/samples/Hi-Toro/Shooter/Shooter/shooter-testbed.bb
-# Runtime Error: MoveEntity: entity or surface 0 does not exist.
+# Runtime Error: GetSurface: the mesh does not have that surface.
 blitz3d/_release/samples/RobHutchinson/SkyPlateau/SkyPlateau.bb
-# Runtime Error: CopyEntity: entity or surface 0 does not exist.
-blitz3d/_release/samples/RobHutchinson/WingPilot/WingPilotV0_01.bb
-# Runtime Error: NameEntity: entity or surface 0 does not exist.
-blitz3d/_release/samples/si/fps/fps.bb
-# Runtime Error: ScaleEntity: entity or surface 0 does not exist.
-blitz3d/_release/samples/zenith/scare/scare.bb
-# Runtime Error: ScaleEntity: entity or surface 0 does not exist.
+# Runtime Error: EntityAlpha: entity or surface 0 does not exist.
 blitzplus_msvc2017/_release/samples/Mak/font_test.bb
 # Runtime Error: No font selected
