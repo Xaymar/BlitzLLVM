@@ -222,3 +222,23 @@ called. Run benchmarks windowed only (they are), the original changes the screen
 
 NOTE: The original Blitz3D cannot open a window above 2048 in either direction (see the flythrough section for the measurements). The
 runner stops with a clear message above that with the original; BlitzLLVM has no such limit.
+
+== bigmesh: a camera over one terrain of over a million triangles
+
+`bigmesh.bb` builds one mesh of 6 by 6 surfaces (each 128 by 128 squares, 16641 vertices, 32768 triangles) with hills and vertex colors made
+from formulas, and moves the camera in a small circle over its middle, so that it sees a small part of the mesh. Culling whole meshes can
+not leave out any of it; it is what `CameraCulling` flag 2 (culling of faces on the GPU) is for.
+
+[source,sh]
+----
+python3 benchmarks/bigmesh.py --cull 1      # frustum culling of meshes only, the default
+python3 benchmarks/bigmesh.py --cull 3      # and the GPU culls the faces that are out of view
+python3 benchmarks/bigmesh.py --surfaces 4 --grid 255 --frames 120
+----
+
+It prints the time of a frame, the triangles that were given to the GPU (all of them in both cases, the GPU decides later) and the
+clusters of faces that the GPU decided about. Without a display it runs under llvmpipe, where the CPU rasterizes and the numbers say
+little about a real GPU; run it on one and alternate the settings a few times.
+
+The original Blitz3D works too (`--blitzcc`), without the setting, as every surface has at most 65535 vertices (`--grid 255` is the most). The
+same rules as for the other benchmarks apply: windowed, at most 2048 in each direction.
