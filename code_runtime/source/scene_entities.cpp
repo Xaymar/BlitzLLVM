@@ -12,6 +12,7 @@
 
 // Entities: making them, the tree they are in, where they are, and their names, copies and appearance.
 
+#include <initializer_list>
 #include "scene_internal.hpp"
 
 using namespace bb;
@@ -316,7 +317,20 @@ void bb::world_matrix(int handle, float* out)
 
 void bb::for_each_visible(int kind, void (*visit)(int, entity&, void*), void* user)
 {
+	const uint32_t prefetch_distance = 8;
 	for (uint32_t i = 0; i < entities.size; i++) {
+		// An entity is spread over nine cache lines of which a scan reads the ones with its place, look, fade and surfaces. They
+		// are far apart from each other and from the previous entity, so they are asked for a few entities before they are used.
+		if (i + prefetch_distance < entities.size) {
+			if (const char* ahead = reinterpret_cast<const char*>(entities[i + prefetch_distance])) {
+				__builtin_prefetch(ahead);
+				if (kind == MESH) { // The other kinds are few, and are found by their first line.
+					for (size_t line : { size_t(1), size_t(4), size_t(5), size_t(6) }) {
+						__builtin_prefetch(ahead + line * 64);
+					}
+				}
+			}
+		}
 		entity* e = entities[i];
 		if (!e || (e->kind != kind) || e->hidden) {
 			continue;
