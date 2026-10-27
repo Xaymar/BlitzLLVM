@@ -82,3 +82,39 @@ that big (65535 vertices at most), and the next `mesh->lock` is a null access: t
 A quarter of the flythrough objects (kinds 12 to 15) are sprites, so the original manages at most 65532 objects, which is why it
 crashed at 100000 and passed at 50000. `flythrough.py` stops with a message above that with the original, and `--objects 60000` is the
 highest round number to compare the two. A mesh surface has the same limit: its triangles are `unsigned short` vertex indices (`Surface::Triangle`), so it holds at most 65535 vertices.
+
+== waterfall: a river over a cliff, made of see-through sprites
+
+`waterfall.bb` is the opposite of the flythrough: little geometry, a lot of blending. A river meanders over a plateau and falls
+30 units off a cliff into a pool. The ground is one mesh of about 43000 triangles. Everything that looks like water is a sprite
+with the same soft, round, see-through texture:
+
+[cols="1,1,3"]
+|===
+| Share | What | How it moves
+
+| 35% | river | drifts along the river on the plateau to the lip, 600 frames from start to lip
+| 40% | waterfall | leaves the lip, speeds up and drops in 80 frames, gets bigger and thinner on the way down
+| 25% | mist | the cloud at the foot: rises, spreads and fades, 140 frames from birth to gone
+|===
+
+The sprites overlap a lot, and the fall and the mist are in front of each other, so the GPU blends many layers for most pixels
+and the sprites have to be drawn from the back to the front. That is what it measures: sorting and drawing thousands of
+blended sprites, and what culling them (sprites outside the view or hidden by the cliff) saves. The more sprites, the thinner each
+one is (above 5000), so that the picture stays a waterfall and not a white wall. Where every sprite is depends only on the frame
+number, and the camera swings 45 degrees to both sides in front of the fall (1200 frames are one lap), so every run, and every
+machine, draws the same frames.
+
+[source,sh]
+----
+python3 benchmarks/waterfall.py --quick                   # 500 sprites, 30 frames: does it work?
+python3 benchmarks/waterfall.py                           # 5000 sprites, 300 frames
+python3 benchmarks/waterfall.py --sprites 50000           # a heavy fall
+python3 benchmarks/waterfall.py --sprites 50000 --static  # the water stays still, only the camera moves
+----
+
+It takes the same options as the flythrough (`--frames`, `--seed`, `--size`, `--shot`, `--label`, `--debug`, `--profile`,
+`--no-save`, and `BENCH_SPRITES`, `BENCH_FRAMES`, `BENCH_SEED`, `BENCH_SIZE` for the defaults) and prints the same table. Because
+the sprites move every frame, it also prints `update`, the time the program spends moving them (it is part of `ms/frame`, which
+is the update, `RenderWorld` and `Flip`). `--static` places the sprites once, and then `ms/frame` is only rendering. Results are saved
+as `benchmarks/results/waterfall-*.json` and `waterfall.csv`.
