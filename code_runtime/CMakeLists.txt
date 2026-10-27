@@ -40,6 +40,8 @@ target_sources(blitzrt PRIVATE
 	"source/affinity.h"
 	"source/affinity.c"
 	"source/runtime_objects.c"
+	"source/blitz32.c"
+	"source/blitz32.h"
 	"source/runtime_strings.c"
 	"source/runtime_system.c"
 	"source/runtime_internal.h"
