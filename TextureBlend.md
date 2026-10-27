@@ -80,7 +80,7 @@ WaitKey
 
 ## Related Commands
 
-[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureWidth](TextureWidth)
+[ClearTextureFilters](ClearTextureFilters), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureReady](TextureReady) 〔BlitzLLVM〕, [TextureWidth](TextureWidth)
 
 <div align="center">
 

@@ -53,7 +53,7 @@ WaitKey
 
 ## Related Commands
 
-[DrawImageRect](DrawImageRect), [ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageRectOverlap](ImageRectOverlap), [ImagesCollide](ImagesCollide), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
+[ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectOverlap](ImageRectOverlap), [ImagesCollide](ImagesCollide), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
 
 <div align="center">
 

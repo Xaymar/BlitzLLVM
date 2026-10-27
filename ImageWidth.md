@@ -29,7 +29,7 @@ The width of one frame of an image in pixels.
 
 ## Related Commands
 
-[CopyImage](CopyImage), [CreateImage](CreateImage), [ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
+[CopyImage](CopyImage), [ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
 
 <div align="center">
 

@@ -37,6 +37,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [AppTitle](AppTitle)
 * [Asc](Asc)
 * [ASin](ASin)
+* [AsyncLoading](AsyncLoading) 〔BlitzLLVM〕
 * [ATan](ATan)
 * [ATan2](ATan2)
 * [AutoMidHandle](AutoMidHandle)
@@ -400,6 +401,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 * [ImageBuffer](ImageBuffer)
 * [ImageHeight](ImageHeight)
+* [ImageReady](ImageReady) 〔BlitzLLVM〕
 * [ImageRectCollide](ImageRectCollide)
 * [ImageRectOverlap](ImageRectOverlap)
 * [ImagesCollide](ImagesCollide)
@@ -760,6 +762,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [TextureFilter](TextureFilter)
 * [TextureHeight](TextureHeight)
 * [TextureName](TextureName)
+* [TextureReady](TextureReady) 〔BlitzLLVM〕
 * [TextureWidth](TextureWidth)
 * [TFormedX](TFormedX)
 * [TFormedY](TFormedY)

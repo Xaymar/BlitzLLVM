@@ -9,6 +9,7 @@ Loading, drawing, transforming and colliding images.
 
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
+* [AsyncLoading](AsyncLoading) 〔BlitzLLVM〕
 * [AutoMidHandle](AutoMidHandle)
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)
@@ -21,6 +22,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [HandleImage](HandleImage)
 * [ImageBuffer](ImageBuffer)
 * [ImageHeight](ImageHeight)
+* [ImageReady](ImageReady) 〔BlitzLLVM〕
 * [ImageRectCollide](ImageRectCollide)
 * [ImageRectOverlap](ImageRectOverlap)
 * [ImagesCollide](ImagesCollide)

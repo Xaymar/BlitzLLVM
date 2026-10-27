@@ -183,8 +183,9 @@
 <li><a href="Write">Write</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Images">Images</a> (32)</summary>
+<li><details><summary><a href="BlitzBasic-Images">Images</a> (34)</summary>
 <ul>
+<li><a href="AsyncLoading">AsyncLoading</a> 〔BlitzLLVM〕</li>
 <li><a href="AutoMidHandle">AutoMidHandle</a></li>
 <li><a href="CopyImage">CopyImage</a></li>
 <li><a href="CreateImage">CreateImage</a></li>
@@ -197,6 +198,7 @@
 <li><a href="HandleImage">HandleImage</a></li>
 <li><a href="ImageBuffer">ImageBuffer</a></li>
 <li><a href="ImageHeight">ImageHeight</a></li>
+<li><a href="ImageReady">ImageReady</a> 〔BlitzLLVM〕</li>
 <li><a href="ImageRectCollide">ImageRectCollide</a></li>
 <li><a href="ImageRectOverlap">ImageRectOverlap</a></li>
 <li><a href="ImagesCollide">ImagesCollide</a></li>
@@ -705,7 +707,7 @@
 <li><a href="TerrainZ">TerrainZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Textures">Textures</a> (45)</summary>
+<li><details><summary><a href="Blitz3D-Textures">Textures</a> (46)</summary>
 <ul>
 <li><a href="ClearTextureFilters">ClearTextureFilters</a></li>
 <li><a href="CreateSampler">CreateSampler</a> 〔BlitzLLVM〕</li>
@@ -751,6 +753,7 @@
 <li><a href="TextureFilter">TextureFilter</a></li>
 <li><a href="TextureHeight">TextureHeight</a></li>
 <li><a href="TextureName">TextureName</a></li>
+<li><a href="TextureReady">TextureReady</a> 〔BlitzLLVM〕</li>
 <li><a href="TextureWidth">TextureWidth</a></li>
 </ul>
 </details></li>

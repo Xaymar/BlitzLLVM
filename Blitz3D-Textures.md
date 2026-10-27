@@ -53,4 +53,5 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [TextureFilter](TextureFilter)
 * [TextureHeight](TextureHeight)
 * [TextureName](TextureName)
+* [TextureReady](TextureReady) 〔BlitzLLVM〕
 * [TextureWidth](TextureWidth)

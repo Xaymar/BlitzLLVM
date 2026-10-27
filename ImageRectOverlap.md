@@ -35,7 +35,7 @@ Tells whether a rectangle touches the box of an image at a position. Transparent
 
 ## Related Commands
 
-[ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageRectCollide](ImageRectCollide), [ImagesOverlap](ImagesOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle), [RectsOverlap](RectsOverlap)
+[ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectCollide](ImageRectCollide), [ImagesOverlap](ImagesOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
 
 <div align="center">
 
