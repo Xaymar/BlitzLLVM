@@ -18,6 +18,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"source/diff.cpp"
 	"source/files.hpp"
 	"source/files.cpp"
+	"source/edits.hpp"
+	"source/edits.cpp"
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
