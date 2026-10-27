@@ -69,8 +69,8 @@ A second run over the result changes nothing. The fixes are made so that the pro
 | `implicit-string-to-number` | fix | `Int(value)`, `Float(value)` ... | |
 | `implicit-lossy-int-to-real` | fix | `Float(value)`, `Double(value)`, `Half(value)` | |
 | `implicit-number-to-string` | fix | `Str(value)` | |
-| `typeless-declaration` | fix | `Local x` becomes `Local x%` (also `Global`, `Const`) | |
-| `implicit-variable` | fix | `Local x%` (or the type the name has) in front of the statement of the function that uses the variable first | Variables of the main program, which an `Include` can declare elsewhere. Not fixed at all in code with labels, as a jump back would run the declaration again. |
+| `typeless-declaration` | fix | `Local x` becomes `Local x:Int32` (also `Global`, `Const`) | |
+| `implicit-variable` | fix | `Local x:Int32` (or the type the name has) in front of the statement of the function that uses the variable first | Variables of the main program, which an `Include` can declare elsewhere. Not fixed at all in code with labels, as a jump back would run the declaration again. |
 | `unreachable-code` | fix | Removes the statements after `Return`, `End`, `Goto` or `Exit` up to the next label or `Data`, if they are on lines of their own and declare nothing | |
 | `unused-variable` | fix | Removes a `Local` of a function that is never mentioned again | `Local` of the main program and `Global`, which other files can use. A variable that is written to is left alone. |
 | `unused-function` | fix | Removes the function, if its name is not mentioned again | Always: other files can call it. |

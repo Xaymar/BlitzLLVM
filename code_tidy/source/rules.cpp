@@ -35,7 +35,7 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },
 		{ "unreachable-code", true, mode::FIX, "Removes the statements after Return, End, Goto or Exit, up to the next label or Data.", "" },
 		{ "unused-variable", true, mode::FIX, "Removes a Local of a function that is not mentioned anywhere else.", "Locals of the main program and Globals: an Include can use them." },
-		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x%", "" },
+		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x:Int32", "" },
 		{ "unused-function", true, mode::FIX, "Removes the function, if its name is not mentioned anywhere else.", "Always: another file can call the function." },
 	};
 	return list;

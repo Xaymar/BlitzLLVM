@@ -886,7 +886,7 @@ elseif(CASE STREQUAL "warnings")
 	set(_WARNINGS
 		"implicit-lossy-int-to-int:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
 		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-missing-value:2" "return-type-mismatch:2" "unused-result:2"
-		"implicit-number-to-string:3" "unreachable-code:3" "unused-variable:3"
+		"implicit-number-to-string:3" "short-type-notation:3" "unreachable-code:3" "unused-variable:3"
 		"typeless-declaration:4" "unused-function:4")
 	foreach(_LEVEL RANGE 0 4)
 		blitzcc(-c -W${_LEVEL} "${WORK}/w.bb")
@@ -999,8 +999,39 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c "${WORK}/typeless.bb")
 	expect_no_err("[-Wtypeless-declaration]")
 
+	# The short form of a type warns at -W3, the long form and a type name do not. The notice names the long form.
+	file(WRITE "${WORK}/short.bb"
+		"Type Box\n\tField w#\n\tField next.Box\nEnd Type\n"
+		"Global g% = 1\nLocal l:Int32 = 2\nLocal big##, wide%%, name$\n"
+		"Function Add$(a%, b:Float32)\n\tReturn Str(a + b)\nEnd Function\n"
+		"Print Add(g, l) + name + big + wide\n")
+	blitzcc(-c -W3 "${WORK}/short.bb")
+	expect_err("short.bb:2:9: warning: The type is written in the short form. [-Wshort-type-notation]")
+	expect_err("notice: Write the long form instead: ':Float32'.")
+	expect_err("notice: Write the long form instead: ':Int32'.")
+	expect_err("notice: Write the long form instead: ':Float64'.")
+	expect_err("notice: Write the long form instead: ':Int64'.")
+	expect_err("notice: Write the long form instead: ':String'.")
+	expect_no_err("short.bb:3:")
+	expect_no_err("short.bb:6:")
+	blitzcc(-c "${WORK}/short.bb")
+	expect_no_err("[-Wshort-type-notation]")
+	blitzcc(-c -W3 -Wno-short-type-notation "${WORK}/short.bb")
+	expect_no_err("[-Wshort-type-notation]")
+	blitzcc(-c -Wshort-type-notation "${WORK}/short.bb")
+	expect_err("[-Wshort-type-notation]")
+	blitzcc(-c -W3 -Werror=short-type-notation "${WORK}/short.bb")
+	expect_failed()
+	expect_err("[-Werror=short-type-notation]")
+
+	# Adding the type to a declaration does not trade one warning for another: it is written in the long form.
+	file(WRITE "${WORK}/untyped.bb" "Local t = 1\nPrint t\n")
+	blitzcc(-c -W4 "${WORK}/untyped.bb")
+	expect_err("Add the type to the name: 't:Int32', 't:Float32', 't:String' or 't.TypeName' (object).")
+	expect_no_err("[-Wshort-type-notation]")
+
 	# A number that is written in the program and fits is fine.
-	file(WRITE "${WORK}/fits.bb" "Local b:byte = 100\nLocal f# = 1000\nPrint b + f\n")
+	file(WRITE "${WORK}/fits.bb" "Local b:byte = 100\nLocal f:Float32 = 1000\nPrint b + f\n")
 	blitzcc(-c -W4 "${WORK}/fits.bb")
 	expect_ok()
 	if(NOT ERR STREQUAL "")
@@ -1089,7 +1120,7 @@ elseif(CASE STREQUAL "warnings")
 	expect_ok()
 	blitzcc(-c -Werror -Wno-error "${WORK}/w.bb")
 	expect_ok()
-	file(WRITE "${WORK}/hint.bb" "Local a% = 1\n")
+	file(WRITE "${WORK}/hint.bb" "Local a:Int32 = 1\n")
 	blitzcc(-c -W4 -Werror "${WORK}/hint.bb")
 	expect_ok()
 	expect_err("notice: 'a' is never read")
