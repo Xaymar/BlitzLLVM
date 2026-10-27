@@ -2,10 +2,6 @@
 # fail (WILL_FAIL, label pending), so fixing one makes its test fail until it is removed from this list. Paths are relative to extra/.
 blitz3d/_release/samples/mak/anim/makbot/MAK-sfx.bb
 # AnimateEntity does not exist
-blitzplus_msvc2017/_release/games/AsteroidShower/asteroid.bb
-# Data can only contain constants (Data with an expression)
-blitzplus_msvc2017/_release/games/Blitzanoid/blitzanoid.bb
-# Data can only contain constants (Data with an expression)
 blitzplus_msvc2017/_release/games/Insectoids/insectoids.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
 blitzplus_msvc2017/_release/games/WizardWars/wizardwars.bb

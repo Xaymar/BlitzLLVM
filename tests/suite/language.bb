@@ -270,6 +270,26 @@ Function RestoreInFunction()
 End Function
 Check "Restore in a function", RestoreInFunction(), 99
 
+; Data can hold calculations of constants, like the original does.
+Const data_offset = 100
+Restore calculated_data
+Read x
+Check "Data subtraction", x, -130
+Read x
+Check "Data constant", x, 200
+Read f#
+Check "Data float", f, 7.0
+Read x
+Check "Data division", x, 3
+Read x
+Check "Data shift and or", x, 17
+Read word$
+CheckS "Data string join", word, "BlitzLLVM"
+Read x
+Check "Data negative", x, -5
+.calculated_data
+Data 40 - 170, data_offset * 2, 2 * 3.5, 7 / 2, (1 Shl 4) Or 1, "Blitz" + "LLVM", -5
+
 ; Goto and Gosub
 n = 0
 Gosub increment
