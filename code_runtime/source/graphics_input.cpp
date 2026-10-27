@@ -16,6 +16,8 @@
 
 using namespace bb::gfx;
 
+extern "C" int bb_test_events_dirty;
+
 namespace bb::gfx {
 	static const key_map key_table[] = {
 		{ SDL_SCANCODE_ESCAPE, 1 }, { SDL_SCANCODE_1, 2 }, { SDL_SCANCODE_2, 3 }, { SDL_SCANCODE_3, 4 }, { SDL_SCANCODE_4, 5 }, { SDL_SCANCODE_5, 6 },
@@ -67,6 +69,10 @@ namespace bb::gfx {
 	// up), wN (the wheel turns by N) and tTEXT (TEXT is typed). It is used up by being read.
 	static void push_test_events()
 	{
+		if (!bb_test_events_dirty) {
+			return;
+		}
+		bb_test_events_dirty = 0;
 		const char* list = getenv("BLITZ_TEST_EVENTS");
 		if (!list || !*list) {
 			return;
@@ -339,7 +345,7 @@ namespace bb::gfx {
 		static Uint64 last      = 0;
 		Uint64        now       = SDL_GetPerformanceCounter();
 		Uint64        threshold = SDL_GetPerformanceFrequency() / 1000;
-		if (last && (now - last < threshold) && !getenv("BLITZ_TEST_EVENTS")) {
+		if (last && (now - last < threshold) && !bb_test_events_dirty) {
 			return;
 		}
 		last = now;
