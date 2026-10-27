@@ -602,6 +602,7 @@ countgadgetitems	plusgui	done	%CountGadgetItems%gadget
 counttreeviewnodes	plusgui	done	%CountTreeViewNodes%parent_node
 createbutton	plusgui	done	%CreateButton$text%x%y%width%height%group%style=1
 createcombobox	plusgui	done	%CreateComboBox%x%y%width%height%group%style=0
+createhtmlview	plusgui	done	%CreateHtmlView%x%y%width%height%group%style=0
 createlabel	plusgui	done	%CreateLabel$text%x%y%width%height%group%style=0
 createlistbox	plusgui	done	%CreateListBox%x%y%width%height%group%style=0
 createmenu	plusgui	done	%CreateMenu$text%menu_id%parent_menu
@@ -635,6 +636,13 @@ gadgetwidth	plusgui	done	%GadgetWidth%gadget
 gadgetx	plusgui	done	%GadgetX%gadget
 gadgety	plusgui	done	%GadgetY%gadget
 hidegadget	plusgui	done	HideGadget%gadget
+htmlviewback	plusgui	done	HtmlViewBack%htmlview
+htmlviewcurrenturl	plusgui	done	$HtmlViewCurrentURL%htmlview
+htmlvieweventurl	plusgui	done	$HtmlViewEventURL%htmlview
+htmlviewforward	plusgui	done	HtmlViewForward%htmlview
+htmlviewgo	plusgui	done	HtmlViewGo%htmlview$URL
+htmlviewrun	plusgui	done	HtmlViewRun%htmlview$URL
+htmlviewstatus	plusgui	done	%HtmlViewStatus%htmlview
 insertgadgetitem	plusgui	done	InsertGadgetItem%gadget%index$item%icon=-1
 inserttreeviewnode	plusgui	done	%InsertTreeViewNode%index$text%parent_node%icon=-1
 loadiconstrip	plusgui	done	%LoadIconStrip$file

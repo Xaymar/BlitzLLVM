@@ -43,6 +43,14 @@ BY_COMPILER = {
 
 # Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
 EXTENSIONS = {
+    "createhtmlview": ("plusgui", "%CreateHtmlView%x%y%width%height%group%style=0"),
+    "htmlviewgo": ("plusgui", "HtmlViewGo%htmlview$URL"),
+    "htmlviewrun": ("plusgui", "HtmlViewRun%htmlview$URL"),
+    "htmlviewback": ("plusgui", "HtmlViewBack%htmlview"),
+    "htmlviewforward": ("plusgui", "HtmlViewForward%htmlview"),
+    "htmlviewstatus": ("plusgui", "%HtmlViewStatus%htmlview"),
+    "htmlviewcurrenturl": ("plusgui", "$HtmlViewCurrentURL%htmlview"),
+    "htmlvieweventurl": ("plusgui", "$HtmlViewEventURL%htmlview"),
     "gfxdriver": ("graphics", "%GfxDriver"),
     "bsplightmapcolor": ("blitz3d", "BSPLightmapColor%bsp#red#green#blue"),
     "gfxmode3dwidth": ("graphics", "%GfxMode3DWidth%mode"),
