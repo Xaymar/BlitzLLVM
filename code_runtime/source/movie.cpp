@@ -29,6 +29,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <opus_multistream.h>
+
 #include "graphics_internal.hpp"
 
 namespace {
@@ -152,6 +154,10 @@ namespace {
 		SDL_AudioStream* stream     = nullptr;
 		SDL_AudioSpec    input      = { SDL_AUDIO_S16, 2, audio_rate }; // What the stream is fed, which SDL converts for the device.
 		std::vector<uint8_t> samples;
+		OpusMSDecoder*       opus      = nullptr; // Opus sound is decoded by libopus (which SDL_mixer brings along), as FFmpeg's decoder for it needs libswresample.
+		int                  opus_channels = 0, opus_played = 0, opus_skip = 0;
+		uint8_t              opus_order[8] = {};
+		std::vector<float>   opus_pcm;
 
 		int32_t image = 0; // The picture as an image of the program, which DrawMovie draws.
 		int32_t texture = 0; // The picture as a texture, from GetMovieTexture, which is kept up to date.
@@ -183,6 +189,9 @@ namespace {
 	{
 		if (m.stream) {
 			SDL_DestroyAudioStream(m.stream);
+		}
+		if (m.opus) {
+			opus_multistream_decoder_destroy(m.opus);
 		}
 		if (m.image) {
 			bb_free_image(m.image);
@@ -288,6 +297,18 @@ namespace {
 		return count;
 	}
 
+	// The stream is fed in this format from now on.
+	bool set_input(movie& m, SDL_AudioSpec const& spec)
+	{
+		if ((spec.format != m.input.format) || (spec.channels != m.input.channels) || (spec.freq != m.input.freq)) {
+			if (!SDL_SetAudioStreamFormat(m.stream, &spec, nullptr)) {
+				return false;
+			}
+			m.input = spec;
+		}
+		return true;
+	}
+
 	// The sound of the movie goes into the stream as it was decoded. SDL converts the rate, the sample format and the channels to what the device
 	// plays, so this only interleaves it, as SDL has no planar formats.
 	void queue_audio(movie& m, AVFrame* frame)
@@ -307,11 +328,8 @@ namespace {
 			return;
 		}
 		SDL_AudioSpec spec = { format, channels, frame->sample_rate };
-		if ((spec.format != m.input.format) || (spec.channels != m.input.channels) || (spec.freq != m.input.freq)) {
-			if (!SDL_SetAudioStreamFormat(m.stream, &spec, nullptr)) {
-				return;
-			}
-			m.input = spec;
+		if (!set_input(m, spec)) {
+			return;
 		}
 		size_t width   = SDL_AUDIO_BYTESIZE(format);
 		size_t total   = size_t(frame->nb_samples);
@@ -322,6 +340,89 @@ namespace {
 			for (size_t c = 0; c < size_t(channels); c++) {
 				const uint8_t* from = planar ? (frame->extended_data[c] + i * width) : (frame->extended_data[0] + (i * source + c) * width);
 				std::memcpy(m.samples.data() + (i * size_t(channels) + c) * width, from, width);
+			}
+		}
+		SDL_PutAudioStreamData(m.stream, m.samples.data(), int(m.samples.size()));
+	}
+
+	// Opus sound: the headers of the stream (OpusHead) tell the channels and how libopus puts them together. The order of 3 to 8 channels is
+	// the one of Vorbis, which is put in the order that SDL plays them in. Layouts that SDL has no order for play their front left and right.
+	bool open_opus(movie& m, AVCodecParameters* parameters)
+	{
+		const uint8_t* head = parameters->extradata;
+		int            size = parameters->extradata_size;
+		if (!head || (size < 19) || SDL_memcmp(head, "OpusHead", 8)) {
+			return false;
+		}
+		int     channels = head[9];
+		int     family   = head[18];
+		uint8_t mapping[255] = { 0, 1 };
+		int     streams = 1, coupled = (channels > 1) ? 1 : 0;
+		if (family != 0) {
+			if ((size < 21 + channels) || (channels < 1)) {
+				return false;
+			}
+			streams = head[19];
+			coupled = head[20];
+			SDL_memcpy(mapping, head + 21, size_t(channels));
+		} else if ((channels < 1) || (channels > 2)) {
+			return false;
+		}
+		static const uint8_t vorbis[9][8] = {
+			{}, { 0 }, { 0, 1 }, { 0, 2 }, { 0, 1, 2, 3 }, { 0, 2 }, { 0, 2, 1, 5, 3, 4 }, { 0, 2, 1, 6, 5, 3, 4 }, { 0, 2, 1, 7, 5, 6, 3, 4 },
+		};
+		int played = (channels <= 8) ? channels : 2;
+		if ((family == 1) && (channels >= 3) && (channels <= 8)) {
+			played = (channels == 3 || channels == 5) ? 2 : channels;
+			SDL_memcpy(m.opus_order, vorbis[channels], size_t(played));
+		} else {
+			played = (channels <= 2) ? channels : 2;
+			for (int i = 0; i < played; i++) {
+				m.opus_order[i] = uint8_t(i);
+			}
+		}
+		int error = 0;
+		m.opus    = opus_multistream_decoder_create(48000, channels, streams, coupled, mapping, &error);
+		if (!m.opus || (error != OPUS_OK)) {
+			m.opus = nullptr;
+			return false;
+		}
+		int gain = int(int16_t(head[16] | (head[17] << 8)));
+		if (gain != 0) {
+			opus_multistream_decoder_ctl(m.opus, OPUS_SET_GAIN(gain));
+		}
+		m.opus_channels = channels;
+		m.opus_played   = played;
+		m.opus_skip     = head[10] | (head[11] << 8);
+		return true;
+	}
+
+	void queue_opus(movie& m, AVPacket* packet)
+	{
+		// Up to 120 ms at 48 kHz in a packet.
+		m.opus_pcm.resize(size_t(5760) * size_t(m.opus_channels));
+		int count = opus_multistream_decode_float(m.opus, packet->data, packet->size, m.opus_pcm.data(), 5760, 0);
+		if (!m.stream || (count <= 0)) {
+			return;
+		}
+		int skipped = SDL_min(m.opus_skip, count);
+		m.opus_skip -= skipped;
+		count -= skipped;
+		if (count <= 0) {
+			return;
+		}
+		if ((m.floor > 0.0) && (packet->pts != AV_NOPTS_VALUE) && (double(packet->pts) * m.audio_base - m.origin + double(count) / 48000.0 <= m.floor)) {
+			return;
+		}
+		SDL_AudioSpec spec = { SDL_AUDIO_F32, m.opus_played, 48000 };
+		if (!set_input(m, spec)) {
+			return;
+		}
+		m.samples.resize(size_t(count) * size_t(m.opus_played) * sizeof(float));
+		float* out = reinterpret_cast<float*>(m.samples.data());
+		for (int i = 0; i < count; i++) {
+			for (int c = 0; c < m.opus_played; c++) {
+				out[i * m.opus_played + c] = m.opus_pcm[size_t(i + skipped) * size_t(m.opus_channels) + m.opus_order[c]];
 			}
 		}
 		SDL_PutAudioStreamData(m.stream, m.samples.data(), int(m.samples.size()));
@@ -402,6 +503,8 @@ namespace {
 			if (ff.avcodec_send_packet(m.audio, m.packet) >= 0) {
 				receive(m, m.audio, false);
 			}
+		} else if ((m.packet->stream_index == m.audio_index) && m.opus) {
+			queue_opus(m, m.packet);
 		}
 		ff.av_packet_unref(m.packet);
 		return true;
@@ -462,6 +565,10 @@ namespace {
 			ff.avcodec_flush_buffers(m.video);
 			if (m.audio) {
 				ff.avcodec_flush_buffers(m.audio);
+			}
+			if (m.opus) {
+				opus_multistream_decoder_ctl(m.opus, OPUS_RESET_STATE);
+				m.opus_skip = 0;
 			}
 			if (m.stream) {
 				SDL_ClearAudioStream(m.stream);
@@ -575,7 +682,8 @@ int32_t bb_open_movie(const char* file)
 	m.frame  = ff.av_frame_alloc();
 
 	// The sound is optional: without a device or a decoder the movie plays without it.
-	if ((m.audio_index >= 0) && open_decoder(m.format, m.audio_index, m.audio)) {
+	bool opus_sound = (m.audio_index >= 0) && (m.format->streams[m.audio_index]->codecpar->codec_id == AV_CODEC_ID_OPUS) && open_opus(m, m.format->streams[m.audio_index]->codecpar);
+	if ((m.audio_index >= 0) && (opus_sound || open_decoder(m.format, m.audio_index, m.audio))) {
 		m.audio_base = double(m.format->streams[m.audio_index]->time_base.num) / double(m.format->streams[m.audio_index]->time_base.den);
 		if (SDL_InitSubSystem(SDL_INIT_AUDIO)) {
 			m.stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &m.input, nullptr, nullptr);
