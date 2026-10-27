@@ -63,6 +63,8 @@ namespace bb::gfx {
 	static bool           gpu_resized    = false; // The present asked for a new swapchain.
 	static VkResult       gpu_error      = VK_SUCCESS;
 	static const char*    gpu_error_what = "";
+	Uint64                profile_gpu_execute = 0; // Time from submit to done in the thread, including waits for the swapchain.
+	Uint64                profile_gpu_present = 0; // Time that vkQueuePresentKHR took in the thread.
 	int                   profile_overlap = 0; // Frames that were still in flight when the program asked for the next.
 
 	static void gpu_fail(VkResult result, const char* what)
@@ -99,6 +101,7 @@ namespace bb::gfx {
 			info.pSignalSemaphores     = &job.signal;
 			VkResult result            = vkResetFences(g.device, 1, &g.fence);
 			const char* what           = "vkResetFences";
+			Uint64      submitted      = BB_PROFILE_NOW();
 			if (result == VK_SUCCESS) {
 				result = vkQueueSubmit(g.queue, 1, &info, g.fence);
 				what   = "vkQueueSubmit";
@@ -107,7 +110,9 @@ namespace bb::gfx {
 				result = vkWaitForFences(g.device, 1, &g.fence, VK_TRUE, UINT64_MAX);
 				what   = "vkWaitForFences";
 			}
+			Uint64 executed = BB_PROFILE_NOW();
 			SDL_LockMutex(gpu_mutex);
+			profile_gpu_execute += executed - submitted;
 			gpu_fail(result, what);
 			gpu_cmd_busy = false;
 			SDL_BroadcastCondition(gpu_cond);
@@ -120,8 +125,10 @@ namespace bb::gfx {
 				present.swapchainCount     = 1;
 				present.pSwapchains        = &job.swapchain;
 				present.pImageIndices      = &job.index;
+				Uint64 present_start       = BB_PROFILE_NOW();
 				result                     = vkQueuePresentKHR(g.queue, &present);
 				SDL_LockMutex(gpu_mutex);
+				profile_gpu_present += BB_PROFILE_NOW() - present_start;
 				if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
 					gpu_resized = true;
 				} else {

@@ -261,6 +261,9 @@ void bb_flip(int32_t vwait)
 			Uint64 now = SDL_GetTicks();
 			if (now - last >= 1000) {
 				fprintf(stderr, "fps: %d, submits: %d, waiting: %.1f ms\n", frames, profile_submits, double(profile_wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
+				fprintf(stderr, "  gpu thread: execute %.1f ms, present %.1f ms, overlapped frames %d\n", double(profile_gpu_execute) * 1000.0 / double(SDL_GetPerformanceFrequency()), double(profile_gpu_present) * 1000.0 / double(SDL_GetPerformanceFrequency()), profile_overlap);
+				profile_gpu_execute = profile_gpu_present = 0;
+				profile_overlap     = 0;
 				for (int i = 0; i < bb::PROFILE_COUNT; i++) {
 					fprintf(stderr, "  %s: %.1f ms\n", bb::profile_names[i], double(bb::profile_ticks[i]) * 1000.0 / double(SDL_GetPerformanceFrequency()));
 					bb::profile_ticks[i] = 0;
