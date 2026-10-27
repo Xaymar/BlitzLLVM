@@ -56,6 +56,7 @@ def prepare(root, directory):
     # Start in the map instead of the menu, stop after the frames, and don't wait for 50 frames per second.
     text = text.replace("menu_start()\n\nWhile Not m_performquit", "bench_start()\n\nWhile Not m_performquit", 1)
     text = text.replace("\tgframe=gframe+1\n", "\tgframe=gframe+1\n\tbench_frame=bench_frame+1\n\tIf bench_frame=Int(GetEnv$(\"BENCH_FRAMES\")) Then bench_end()\n", 1)
+    text = text.replace("\tFlip\n\t\nWend", "\tFlip False\n\t\nWend", 1) # Without waiting for the display, which would cap the frames.
     text = text.replace("Const Cversion$", "Global bench_frame\nConst Cversion$", 1)
     with open(path, "wb") as f:
         f.write((text + BENCH).encode("latin-1"))
