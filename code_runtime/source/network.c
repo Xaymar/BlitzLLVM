@@ -37,7 +37,7 @@ typedef SOCKET bb_socket;
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
-#include <sys/select.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 typedef int bb_socket;
@@ -67,8 +67,13 @@ static void bb_network_init(void)
 }
 
 // Waits until the socket can be read, for up to the given time. Returns whether it can.
+//
+// select() can't be used where file descriptors are numbered like they are on Linux and macOS: FD_SET writes into an fd_set that has
+// room for FD_SETSIZE (1024) of them, and a connection or file with a higher number than that, which a server that is busy has,
+// would overwrite the stack.
 static int bb_wait_readable(bb_socket sock, int32_t milliseconds)
 {
+#if defined(_WIN32)
 	fd_set set;
 	FD_ZERO(&set);
 	FD_SET(sock, &set);
@@ -76,6 +81,13 @@ static int bb_wait_readable(bb_socket sock, int32_t milliseconds)
 	timeout.tv_sec  = milliseconds / 1000;
 	timeout.tv_usec = (milliseconds % 1000) * 1000;
 	return select((int)sock + 1, &set, NULL, NULL, &timeout) > 0;
+#else
+	struct pollfd entry;
+	entry.fd      = sock;
+	entry.events  = POLLIN;
+	entry.revents = 0;
+	return poll(&entry, 1, milliseconds < 0 ? 0 : milliseconds) > 0;
+#endif
 }
 
 static int32_t bb_available(bb_socket sock)
