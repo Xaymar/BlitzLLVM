@@ -23,6 +23,8 @@ required=(
 	Vulkan-Headers/LICENSE.md
 	stb/LICENSE
 	VulkanMemoryAllocator/LICENSE.txt
+	Blitz3D/LICENSE.TXT
+	BlitzPlus/LICENSE.TXT
 )
 status=0
 for file in "${required[@]}"; do
