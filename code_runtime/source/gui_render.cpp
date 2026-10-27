@@ -56,7 +56,6 @@ namespace bb::gui {
 		constexpr rgb grey_text  = { 128, 128, 128 };
 
 		bool needs_draw = true;
-		int  last_render = 0;
 		rect clip;
 		int  overlay_combo = 0;
 
@@ -1049,13 +1048,8 @@ namespace bb::gui {
 		bb_origin(0, 0);
 		rect screen = { 0, 0, w, h };
 		clip_to(screen);
-		if (int backdrop = desktop_backdrop()) {
-			bb_copy_rect(0, 0, w, h, 0, 0, backdrop, bb_back_buffer());
-		} else {
-			bb_clscolor(desktop_bg.r, desktop_bg.g, desktop_bg.b);
-			bb_cls();
-		}
-		last_render = bb_millisecs();
+		bb_clscolor(desktop_bg.r, desktop_bg.g, desktop_bg.b);
+		bb_cls();
 		gadget* desk = gadget_of(desktop_handle());
 		for (uint32_t i = 0; desk && (i < desk->kids.size); i++) {
 			draw_window(desk->kids[i], screen);
@@ -1093,8 +1087,7 @@ namespace bb::gui {
 		if (tips_changed()) {
 			needs_draw = true;
 		}
-		// What was drawn on the desktop by the program is shown a bit after, as nothing says when it was drawn.
-		if (needs_draw || (desktop_backdrop() && (bb_millisecs() - last_render >= 16))) {
+		if (needs_draw) {
 			render();
 		}
 	}

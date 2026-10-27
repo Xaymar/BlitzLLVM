@@ -197,7 +197,6 @@ namespace bb::gui {
 	void    set_shape(int handle, int x, int y, int w, int h);
 	void    update_client(int handle);
 	int     desktop_handle();
-	int     desktop_backdrop();                  // The buffer of what was drawn on the desktop, 0 if nothing was.
 	int     desktop_buffer();
 	void    screen_size(int* w, int* h); // Of the display that the program is on, the graphics size without one.
 	void    client_rect(int handle, int* x, int* y, int* w, int* h); // Relative to the gadget.

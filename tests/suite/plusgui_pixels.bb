@@ -170,31 +170,22 @@ FreeGadget win
 Show()
 Check "A window that was freed is gone", Px(60, 50), DESKTOP
 
-; What a program draws on the desktop is behind the windows and stays when the gadgets are drawn again.
-MAGENTA = $FF00FF
+; Nothing can be drawn on the desktop: it is not the screen of the computer, and the windows are not changed by it.
 SetBuffer DesktopBuffer()
 Color 255, 0, 255
 Rect 4, 4, 20, 20, 1
-SetBuffer BackBuffer()
-Show()
-Check "What was drawn on the desktop is shown", Px(10, 10), MAGENTA
-Check "The rest of the desktop is as it was", Px(100, 10), DESKTOP
-cover = CreateWindow("Cover", 0, 0, 60, 60, 0, 0)
-Show()
-Check "A window is over what was drawn on the desktop", Px(10, 10), $D4D0C8
-SetGadgetShape cover, 100, 100, 60, 60
-Show()
-Check "What was drawn on the desktop is back when the window leaves", Px(10, 10), MAGENTA
-Check "A window moved over the rest of the desktop", Px(110, 110), $D4D0C8
-; Drawing later is shown without anything else changing.
-SetBuffer DesktopBuffer()
-Color 0, 255, 255
-Rect 200, 4, 20, 20, 1
+Oval 0, 0, 50, 50, 1
 SetBuffer BackBuffer()
 Delay 50
 Show()
-Check "Drawing on the desktop later", Px(210, 10), $00FFFF
-Check "What was drawn earlier is still there", Px(10, 10), MAGENTA
+Check "Drawing on the desktop shows nothing", Px(10, 10), DESKTOP
+Check "The rest of the desktop is as it was", Px(100, 10), DESKTOP
+cover = CreateWindow("Cover", 0, 0, 60, 60, 0, 0)
+Show()
+Check "A window is over the desktop", Px(10, 10), $D4D0C8
+SetGadgetShape cover, 100, 100, 60, 60
+Show()
+Check "The desktop is not changed when the window leaves", Px(10, 10), DESKTOP
 FreeGadget cover
 
 ; The desktop is the screen, which is bigger than the window of the program.

@@ -23,6 +23,14 @@ CheckTrue "Desktop", desk <> 0
 Check "Desktop is the same every time", Desktop(), desk
 CheckTrue "DesktopBuffer", DesktopBuffer() <> 0
 
+; Nothing is drawn on or read from the desktop: the buffer is one black pixel that starts over every time.
+SetBuffer DesktopBuffer()
+Color 255, 0, 255
+Rect 0, 0, 100, 100, 1
+SetBuffer BackBuffer()
+Check "DesktopBuffer starts black again", ReadPixel(0, 0, DesktopBuffer()) And $FFFFFF, 0
+Check "DesktopBuffer has nothing outside of its pixel", ReadPixel(1, 1, DesktopBuffer()), 0
+
 ; Windows are on the desktop. With style 32, what is asked for is the size of what is inside.
 win = CreateWindow("First", 10, 20, 300, 200, 0, 1 + 2 + 32)
 Check "CreateWindow group", GadgetGroup(win), desk
