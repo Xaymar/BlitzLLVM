@@ -58,7 +58,9 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 	for (uint32_t dim = 0; dim < var->dims; dim++) {
 		auto index = convert(gen(node->arguments[dim].get()), type::INT32, node->arguments[dim]->where, true);
 		auto size  = field(dim + 1, "i32");
-		call_runtime("bb_check_index", type::UNKNOWN, { index, { size, type::INT32 } });
+		auto out = tmp();
+		emit(out + " = icmp uge i32 " + index.repr + ", " + size); // Unsigned, so that negative indices are caught too.
+		guard(out, "Array index out of bounds.");
 
 		auto wide = tmp();
 		emit(wide + " = sext i32 " + index.repr + " to i64");

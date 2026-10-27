@@ -353,6 +353,25 @@ elseif(CASE STREQUAL "fast_math")
 		message(FATAL_ERROR "NaN or Infinity misbehaved: ${_PRINTED}")
 	endif()
 
+elseif(CASE STREQUAL "inline_checks")
+	# The array, division and object checks are part of the program and still report the same errors, which also holds for
+	# negative indices and objects that were deleted.
+	set(_HEAD "Dim a(3)\nType T\nField v\nEnd Type\nLocal t.T = New T\nDelete t\nLocal z = 0\n")
+	foreach(_CASE_ITEM IN ITEMS "a(-1) = 1|Array index out of bounds." "a(4) = 1|Array index out of bounds." "Print 5 / z|Integer divide by zero" "Print 5 Mod z|Integer divide by zero" "Print t\\v|Object does not exist.")
+		string(REPLACE "|" ";" _PARTS "${_CASE_ITEM}")
+		list(GET _PARTS 0 _CODE)
+		list(GET _PARTS 1 _MESSAGE)
+		file(WRITE "${WORK}/inline_checks.bb" "${_HEAD}${_CODE}\nPrint \"survived\"\n")
+		blitzcc(-q "${WORK}/inline_checks.bb")
+		if(RC EQUAL 0 OR NOT "${OUT}${ERR}" MATCHES "${_MESSAGE}" OR "${OUT}${ERR}" MATCHES "survived")
+			message(FATAL_ERROR "'${_CODE}' did not report '${_MESSAGE}' (${RC}):\nstdout: ${OUT}\nstderr: ${ERR}")
+		endif()
+	endforeach()
+	file(WRITE "${WORK}/inline_ok.bb" "Dim a(3)\na(3) = 7\nLocal z = 2\nPrint a(3) + 10 / z + Sqr(16.0) + Floor(2.5) + Ceil(2.5)\n")
+	blitzcc(-q "${WORK}/inline_ok.bb")
+	expect_ok()
+	expect_contains("21.0")
+
 elseif(CASE STREQUAL "stop")
 	# Stop is a breakpoint in a debug build, and nothing in any other. Neither is run with the trap in it.
 	set(STOP_PROGRAM "${TESTS}/cli/stop.bb")
