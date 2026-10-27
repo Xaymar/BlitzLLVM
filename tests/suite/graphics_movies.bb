@@ -165,6 +165,15 @@ LoopMovie 0
 Check "MovieLength of no movie", MovieLength(0), 0.0, 0.0001
 Check "MoviePosition of no movie", MoviePosition(0), 0.0, 0.0001
 
+; MovieVolume scales the sound, which the tests of the audio output measure; here it must not change the playing.
+movie = OpenMovie("movies/colors.mp4")
+MovieVolume movie, 0.5
+MovieVolume movie, 7.0
+MovieVolume movie, -1.0
+Check "MoviePlaying after MovieVolume", MoviePlaying(movie), 1
+CloseMovie movie
+MovieVolume 0, 1.0
+
 ; Handles can be used again.
 a = OpenMovie("movies/colors.mpg")
 b = OpenMovie("movies/colors.mp4")
