@@ -294,6 +294,16 @@ elseif(CASE STREQUAL "debug_info")
 			message(FATAL_ERROR "A build without debug information contains '${_FORBIDDEN}'.")
 		endif()
 	endforeach()
+	# String temporaries get bb_str_mark and bb_str_release calls, which need a location as well (LLVM aborts without it).
+	foreach(_OPTION IN ITEMS -d -g)
+		blitzcc(${_OPTION} "${TESTS}/cli/debug_strings.bb" -o "${WORK}/strings${_OPTION}")
+		expect_ok()
+		# Optimizing the runtime together with the program falls back to a plain build on an LLVM error, which still succeeds.
+		string(FIND "${OUT}${ERR}" "failed" _AT)
+		if(NOT _AT EQUAL -1)
+			message(FATAL_ERROR "Building with ${_OPTION} reported a failure:\n${OUT}${ERR}")
+		endif()
+	endforeach()
 	# -g keeps the optimization level, -d does not.
 	blitzcc(-g --verbose "${DEBUG_PROGRAM}" -o "${EXE}")
 	expect_ok()
