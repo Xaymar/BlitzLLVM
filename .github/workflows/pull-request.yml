@@ -138,6 +138,8 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
       - name: Package
+        # Linux ships only the deb, rpm and Arch packages (see below), no archive.
+        if: runner.os != 'Linux'
         shell: bash
         run: |
           cmake --install build --config Release --prefix dist
@@ -150,6 +152,7 @@ jobs:
           cmake -E tar tf "${ARTIFACT}.zip" | .github/scripts/check-licenses.sh "${ARTIFACT}.zip" build/required-licenses.txt
           cmake -E tar tf "${ARTIFACT}.zip" | .github/scripts/check-help.sh "${ARTIFACT}.zip"
       - uses: actions/upload-artifact@v7
+        if: runner.os != 'Linux'
         with:
           path: ${{ env.ARTIFACT }}.zip
           archive: false

@@ -7,8 +7,13 @@
 
 Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) and macOS (arm64) and publishes the result as the `nightly` release: https://github.com/Xaymar/BlitzLLVM/releases/tag/nightly
 
-1. Download the zip for your platform (`blitzllvm-windows-x64.zip`, `blitzllvm-linux-x64.zip` or `blitzllvm-macos-universal.zip`).
-2. Extract it anywhere. The layout is:
+* Linux: there is no zip, because the libraries a program needs differ between systems. Install the package for your system: `blitzllvm-<version>-linux-x64.deb` (Debian, Ubuntu: `sudo apt install ./blitzllvm-*.deb`), `.rpm` (Fedora, openSUSE) or `.pkg.tar.zst` (Arch). It installs to `/usr` and pulls in `clang`.
+* macOS: install `blitzllvm-<version>-macos-arm64.pkg`.
+* Windows: download `blitzllvm-windows-x64.zip`.
+
+For the zip:
+
+1. Extract it anywhere. The layout is:
 
    ```
    bin/blitzcc          the compiler (blitzcc.exe on Windows)
@@ -19,7 +24,7 @@ Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) 
    samples/             the samples and games of the original Blitz3D (blitz3d/) and BlitzPlus (blitzplus/) with their media; share/blitzllvm/samples in the deb, rpm and pkg packages
    ```
 
-3. Optionally add the `bin` directory to your `PATH`.
+2. Optionally add the `bin` directory to your `PATH`.
 
 Tagged releases are published at https://github.com/Xaymar/BlitzLLVM/releases with the same files, see [[Releasing]].
 

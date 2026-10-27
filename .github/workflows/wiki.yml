@@ -73,16 +73,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download nightly --repo "$GITHUB_REPOSITORY" --pattern '*linux-x64*.zip' --dir nightly
-          unzip -q nightly/*.zip -d nightly/x
-          chmod +x nightly/x/bin/blitzcc
-          nightly/x/bin/blitzcc --help | head -n 3 || true
+          gh release download nightly --repo "$GITHUB_REPOSITORY" --pattern '*linux-x64*.deb' --dir nightly
+          dpkg-deb -x nightly/*.deb nightly/x
+          nightly/x/usr/bin/blitzcc --help | head -n 3 || true
       - name: Compile and run the examples
         env:
           XDG_RUNTIME_DIR: /tmp/xdg
         run: |
           mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
-          python3 tools/wiki/wiki.py check --blitzcc "$PWD/nightly/x/bin/blitzcc"
+          python3 tools/wiki/wiki.py check --blitzcc "$PWD/nightly/x/usr/bin/blitzcc"
 
   publish:
     name: Publish the wiki

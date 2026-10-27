@@ -21,7 +21,7 @@ Tag names are numbers only, with no `v`: `0.2.0`, or `0.2.0.1`. A suffix after a
 
 ## What is published
 
-* The assets are the artifacts of the Nightly run of the tagged commit, named like the nightly release: `blitzllvm-<version>-<platform>.zip`, and for Linux and macOS the packages `.deb`, `.rpm`, `.pkg.tar.zst` and `.pkg`. The `<version>` in the file names is the Nightly build's timestamp version (see `cmake/project_version.cmake`), not the tag name.
+* The assets are the artifacts of the Nightly run of the tagged commit, named like the nightly release: `blitzllvm-<version>-windows-x64.zip` for Windows, and the packages `.deb`, `.rpm`, `.pkg.tar.zst` (Linux) and `.pkg` (macOS). Linux has no zip. The `<version>` in the file names is the Nightly build's timestamp version (see `cmake/project_version.cmake`), not the tag name.
 * The description lists the commit subjects since the previous release tag, grouped into Added, Fixed, Documentation and Changed by the first word of the subject, and ends with a compare link. Merge commits, bot commits and `Update copyright headers` are left out. Write commit subjects accordingly.
 * The previous release tag is the highest lower version tag, ignoring `nightly`. A stable release compares against the last stable release, a pre-release against the last tag of any kind. The first release lists the whole history.
 
