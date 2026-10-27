@@ -101,8 +101,8 @@ void bb_end_graphics(void)
 		}
 		empty_graveyard();
 		destroy_gamma();
-		vkDestroyBuffer(g.device, g.scene_buffer, nullptr);
-		vkFreeMemory(g.device, g.scene_memory, nullptr);
+		destroy_buffer(g.scene_buffer, g.scene_allocation);
+		destroy_buffer(g.entity_buffer, g.entity_allocation);
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
 		vkDestroyPipeline(g.device, g.blend3d, nullptr);
 		vkDestroyPipeline(g.device, g.mul3d, nullptr);

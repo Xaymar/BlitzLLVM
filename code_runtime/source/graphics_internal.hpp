@@ -277,7 +277,7 @@ namespace bb::gfx {
 		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
 		VkDescriptorSet       entity_set      = VK_NULL_HANDLE;
 		VkBuffer              entity_buffer   = VK_NULL_HANDLE;
-		VkDeviceMemory        entity_memory   = VK_NULL_HANDLE;
+		VmaAllocation         entity_allocation = VK_NULL_HANDLE;
 		void*                 entity_mapped   = nullptr;
 		uint32_t              entity_capacity = 0;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
@@ -291,7 +291,7 @@ namespace bb::gfx {
 		bool                  can_custom_border = false;
 		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
-		VkDeviceMemory        scene_memory   = VK_NULL_HANDLE;
+		VmaAllocation         scene_allocation = VK_NULL_HANDLE;
 		void*                 scene_mapped   = nullptr;
 		int   target = back_buffer;
 		uint32_t width = 0, height = 0;
@@ -414,8 +414,8 @@ namespace bb::gfx {
 
 	// Buffers of geometry that was replaced or freed, which can only be destroyed once what was recorded has run.
 	struct graveyard_entry {
-		VkBuffer       buffer;
-		VkDeviceMemory memory;
+		VkBuffer      buffer;
+		VmaAllocation allocation;
 	};
 
 
@@ -491,9 +491,9 @@ namespace bb::gfx {
 
 	struct surface_gpu {
 		VkBuffer       vertex_buffer = VK_NULL_HANDLE;
-		VkDeviceMemory vertex_memory = VK_NULL_HANDLE;
+		VmaAllocation  vertex_allocation = VK_NULL_HANDLE;
 		VkBuffer       index_buffer  = VK_NULL_HANDLE;
-		VkDeviceMemory index_memory  = VK_NULL_HANDLE;
+		VmaAllocation  index_allocation  = VK_NULL_HANDLE;
 		uint32_t       index_count   = 0;
 		// The buffers stay mapped, and are filled again when the surface changes and nothing waits to use them.
 		void*          vertex_mapped = nullptr;

@@ -35,10 +35,10 @@ namespace bb::gfx {
 		}
 		// Things that were asked to be drawn can still use it, so it is only destroyed once they have been drawn.
 		if (gpu->vertex_buffer) {
-			graveyard.push({ gpu->vertex_buffer, gpu->vertex_memory });
+			graveyard.push({ gpu->vertex_buffer, gpu->vertex_allocation });
 		}
 		if (gpu->index_buffer) {
-			graveyard.push({ gpu->index_buffer, gpu->index_memory });
+			graveyard.push({ gpu->index_buffer, gpu->index_allocation });
 		}
 		delete gpu;
 	}
@@ -70,17 +70,13 @@ namespace bb::gfx {
 		release_surface_gpu(gpu);
 
 		gpu = new surface_gpu();
-		VkMemoryPropertyFlags host = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-
 		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
 		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
 		gpu->index_capacity  = s.indices.size + s.indices.size / 4 + 48;
-		create_buffer(VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, host, gpu->vertex_buffer, gpu->vertex_memory);
-		check(vkMapMemory(g.device, gpu->vertex_memory, 0, VK_WHOLE_SIZE, 0, &gpu->vertex_mapped), "vkMapMemory");
+		create_buffer(VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, gpu->vertex_buffer, gpu->vertex_allocation, &gpu->vertex_mapped);
 		memcpy(gpu->vertex_mapped, s.vertices.data, size_t(vsize));
 
-		create_buffer(VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, host, gpu->index_buffer, gpu->index_memory);
-		check(vkMapMemory(g.device, gpu->index_memory, 0, VK_WHOLE_SIZE, 0, &gpu->index_mapped), "vkMapMemory");
+		create_buffer(VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, true, gpu->index_buffer, gpu->index_allocation, &gpu->index_mapped);
 		memcpy(gpu->index_mapped, s.indices.data, size_t(isize));
 
 		gpu->index_count = s.indices.size;
@@ -202,10 +198,9 @@ namespace bb::gfx {
 			capacity *= 2;
 		}
 		if (g.entity_buffer) {
-			graveyard.push({ g.entity_buffer, g.entity_memory });
+			graveyard.push({ g.entity_buffer, g.entity_allocation });
 		}
-		create_buffer(VkDeviceSize(capacity) * sizeof(entity_push), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.entity_buffer, g.entity_memory);
-		check(vkMapMemory(g.device, g.entity_memory, 0, VK_WHOLE_SIZE, 0, &g.entity_mapped), "vkMapMemory");
+		create_buffer(VkDeviceSize(capacity) * sizeof(entity_push), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, g.entity_buffer, g.entity_allocation, &g.entity_mapped);
 		g.entity_capacity = capacity;
 
 		VkDescriptorBufferInfo buffer_info = { g.entity_buffer, 0, VK_WHOLE_SIZE };
@@ -232,8 +227,7 @@ namespace bb::gfx {
 		alloc.pSetLayouts                 = &g.scene_layout;
 		check(vkAllocateDescriptorSets(g.device, &alloc, &g.scene_set), "vkAllocateDescriptorSets");
 
-		create_buffer(VkDeviceSize(scene_stride) * max_scenes, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.scene_buffer, g.scene_memory);
-		check(vkMapMemory(g.device, g.scene_memory, 0, VK_WHOLE_SIZE, 0, &g.scene_mapped), "vkMapMemory");
+		create_buffer(VkDeviceSize(scene_stride) * max_scenes, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, true, g.scene_buffer, g.scene_allocation, &g.scene_mapped);
 
 		VkDescriptorBufferInfo buffer_info = { g.scene_buffer, 0, sizeof(scene_data) };
 		VkWriteDescriptorSet   write       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
