@@ -43,12 +43,13 @@ size_t blitz::compiler::warning_errors() const
 	return _warning_errors;
 }
 
-void blitz::compiler::warn(ast::location const& where, const char* name, std::string const& reason, std::string const& notice)
+void blitz::compiler::warn(ast::location const& where, const char* name, std::string const& reason, std::string const& notice, std::vector<edit> edits, std::string const& detail)
 {
 	if (!warning_options.enabled(name)) {
 		return;
 	}
 	_warnings++;
+	findings.push_back(finding{ name, where, reason, notice, std::move(edits), detail });
 	// With -Werror the warning is an error: It is printed as one, even with -q, and fails the compilation after everything was checked.
 	bool as_error = warning_options.is_error(name);
 	if (as_error) {
@@ -229,7 +230,20 @@ bool blitz::compiler::is_lossy(type from, type to, std::string const& literal) c
 	return t::bits(to) < t::bits(from);
 }
 
-blitz::compiler::value blitz::compiler::convert(value from, type to, ast::location const& where, bool warn_lossy, std::string const& to_sname)
+namespace {
+	// Puts the expression in a call of the function: `2.5` becomes `Int(2.5)`.
+	std::vector<blitz::edit> wrap_in(blitz::ast::location const& where, blitz::ast::range const* covers, std::string const& function)
+	{
+		if (!covers || function.empty() || !where.file || (covers->line == 0)) {
+			return {};
+		}
+		blitz::ast::range begin{ covers->line, covers->column, covers->line, covers->column };
+		blitz::ast::range end{ covers->end_line, covers->end_column, covers->end_line, covers->end_column };
+		return { blitz::edit{ *where.file, begin, function + "(" }, blitz::edit{ *where.file, end, ")" } };
+	}
+} // namespace
+
+blitz::compiler::value blitz::compiler::convert(value from, type to, ast::location const& where, bool warn_lossy, std::string const& to_sname, ast::range const* covers)
 {
 	if (from.type == type::UNKNOWN) {
 		throw err(where, "Expression does not return a value.");
@@ -267,7 +281,7 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		if (from_int && to_int) {
 			notice += ", or Sat" + t::converter(to) + "(value) to stop at the limits instead of wrapping around";
 		}
-		warn(where, name, "Implicit conversion from " + t::long_name(from.type) + " to " + t::long_name(to) + " can change the value.", notice + ".");
+		warn(where, name, "Implicit conversion from " + t::long_name(from.type) + " to " + t::long_name(to) + " can change the value.", notice + ".", wrap_in(where, covers, t::converter(to)));
 	}
 	if (from_int && to_int) {
 		auto bf = t::bits(from.type), bt = t::bits(to);
@@ -287,7 +301,7 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		return { r, to };
 	} else if (from_real && to_int) {
 		if (warn_lossy) {
-			warn(where, "implicit-lossy-real-to-int", "Implicit conversion from " + t::long_name(from.type) + " to " + t::long_name(to) + ", the fractional part is lost.", "Use " + t::converter(to) + "(value) to convert on purpose, or Sat" + t::converter(to) + "(value) to stop at the limits of " + t::long_name(to) + ".");
+			warn(where, "implicit-lossy-real-to-int", "Implicit conversion from " + t::long_name(from.type) + " to " + t::long_name(to) + ", the fractional part is lost.", "Use " + t::converter(to) + "(value) to convert on purpose, or Sat" + t::converter(to) + "(value) to stop at the limits of " + t::long_name(to) + ".", wrap_in(where, covers, t::converter(to)));
 		}
 		// Blitz rounds to the nearest whole number (halves go to the even one) instead of cutting off the fraction.
 		std::string rounder = from_llvm == "float" ? "llvm.nearbyint.f32" : "llvm.nearbyint.f64";
@@ -303,7 +317,7 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		return { r, to };
 	} else if (to_str && (from_int || from_real)) {
 		if (warn_lossy) {
-			warn(where, "implicit-number-to-string", "Implicit conversion from " + t::long_name(from.type) + " to String.", "Use Str(value) to convert on purpose.");
+			warn(where, "implicit-number-to-string", "Implicit conversion from " + t::long_name(from.type) + " to String.", "Use Str(value) to convert on purpose.", wrap_in(where, covers, "Str"));
 		}
 		if (from_int) {
 			bool sign = t::is_signed(from.type);
@@ -314,7 +328,7 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		return call_runtime("bb_str_from_f64", type::STRING, { wide });
 	} else if (from_str && (to_int || to_real)) {
 		if (warn_lossy) {
-			warn(where, "implicit-string-to-number", "Implicit conversion from String to " + t::long_name(to) + ".", "Use " + t::converter(to) + "(value) to convert on purpose.");
+			warn(where, "implicit-string-to-number", "Implicit conversion from String to " + t::long_name(to) + ".", "Use " + t::converter(to) + "(value) to convert on purpose.", wrap_in(where, covers, t::converter(to)));
 		}
 		if (to_int) {
 			// Like atoi: what does not fit stops at the largest number, and 64 bit targets get more room.
@@ -433,15 +447,35 @@ blitz::compiler::variable& blitz::compiler::lookup(std::string const& name, type
 		var->used = true;
 		return *var;
 	}
-	warn(where, "implicit-variable", "'" + name + "' was not declared, it is a new local variable.", "Declare it first, such as 'Local " + name + "'.");
+	warn(where, "implicit-variable", "'" + name + "' was not declared, it is a new local variable.", "Declare it first, such as 'Local " + name + "'.", {}, declaration_suffix(hint, sname));
 	// Variables that were not declared are automatically declared as local.
 	create_local(name, (hint == type::UNKNOWN) ? type::INT32 : hint, false, ast::location{}, sname);
 	return _locals[lower(name)];
 }
 
+// What goes behind the name of a variable to give it the type.
+std::string blitz::compiler::declaration_suffix(type t, std::string const& sname)
+{
+	switch (t) {
+	case type::UNKNOWN:
+	case type::INT32: return "%";
+	case type::FLOAT32: return "#";
+	case type::FLOAT64: return "##";
+	case type::STRING: return "$";
+	case type::STRUCT: return "." + sname;
+	default: return ":" + blitz::types::display(t);
+	}
+}
+
 void blitz::compiler::warn_typeless(ast::location const& where, std::string const& name, std::string const& kind)
 {
-	warn(where, "typeless-declaration", kind + "'" + name + "' has no type, it is an Int.", "Add the type to the name: '" + name + "%' (Int), '" + name + "#' (Float), '" + name + "$' (String) or '" + name + ".TypeName' (object).");
+	// Only the declarations of variables have a fix: the location of the others is not known to be at the name.
+	std::vector<edit> edits;
+	if (kind.empty() && where.file && (where.line != 0)) {
+		uint64_t at = where.column + name.size();
+		edits.push_back(edit{ *where.file, ast::range{ where.line, at, where.line, at }, "%" });
+	}
+	warn(where, "typeless-declaration", kind + "'" + name + "' has no type, it is an Int.", "Add the type to the name: '" + name + "%' (Int), '" + name + "#' (Float), '" + name + "$' (String) or '" + name + ".TypeName' (object).", std::move(edits));
 }
 
 void blitz::compiler::report_unused(std::map<std::string, variable>& variables)
