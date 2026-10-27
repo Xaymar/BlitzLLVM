@@ -187,44 +187,32 @@ namespace {
 		}
 	}
 
-	// How a type is written after a name: Nothing for an integer, the short form where there is one, else the long form.
+	// How a type is written after a name, like the original does: % for every integer type, # for every float type, $ for
+	// strings. Nothing for no type.
 	std::string suffix_of(char code)
 	{
 		auto type = blitz::compiler_detail::builtin_type(code);
-		switch (type) {
-		case blitz::types::type::UNKNOWN:
-		case blitz::types::type::INT32:
-			return "";
-		case blitz::types::type::INT64:
-			return "%%";
-		case blitz::types::type::FLOAT32:
+		if (blitz::types::is_integer(type)) {
+			return "%";
+		} else if (blitz::types::is_real(type)) {
 			return "#";
-		case blitz::types::type::FLOAT64:
-			return "##";
-		case blitz::types::type::STRING:
+		} else if (type == blitz::types::type::STRING) {
 			return "$";
-		default:
-			return ":" + blitz::types::display(type);
 		}
+		return "";
 	}
 
-	// Name, then the syntax the way the original quick help does: 'Name$ ( a,[b$] )' for functions that return something,
-	// 'Name a,b' for the ones that don't. Parameters with a default value are in brackets.
+	// Name and syntax byte for byte like the original quick help ('Name% ( a%,b#[,c$] )'), except for the types: Every
+	// function has the '( )', and every parameter with a default value is in a bracket of its own, with its comma in it.
 	std::string syntax_of(std::string name, char ret, std::vector<std::pair<std::string, char>> const& params, size_t required)
 	{
 		name += suffix_of(ret);
 		std::string list;
 		for (size_t idx = 0; idx < params.size(); idx++) {
-			std::string param = params[idx].first + (params[idx].second == 'p' ? std::string("*") : suffix_of(params[idx].second));
-			if (idx >= required) {
-				param = "[" + param + "]";
-			}
-			list += (idx ? "," : "") + param;
+			std::string param = (idx ? "," : "") + params[idx].first + (params[idx].second == 'p' ? std::string("*") : suffix_of(params[idx].second));
+			list += (idx >= required) ? "[" + param + "]" : param;
 		}
-		if (ret != 'v') {
-			return name + " ( " + list + (list.empty() ? ")" : " )");
-		}
-		return list.empty() ? name : name + " " + list;
+		return name + " ( " + list + (list.empty() ? ")" : " )");
 	}
 } // namespace
 
