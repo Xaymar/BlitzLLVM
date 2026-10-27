@@ -20,6 +20,8 @@ Warnings about implicit conversions name both types, with their long names (`Int
 
 Warnings never stop the compilation, unless they are turned into errors with `-Werror`. Errors (a program that can not be compiled) always stop it, and are printed as `file:line:column: error: ...` with the same source line display.
 
+[[Blitz-Tidy]] fixes most of these warnings in your source files for you.
+
 ## Levels
 
 `-W0` to `-W4` choose how many warnings there are: each level has all the warnings of the levels below it. `-W2` is the default.
