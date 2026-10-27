@@ -158,6 +158,7 @@ namespace bb::gfx {
 
 	struct gpu_image {
 		block_format   block   = block_format::none; // Not none if the image holds compressed blocks, which can be sampled but not drawn to.
+		bool           srgb    = false;              // Stored as sRGB: sampling gives linear values, while the bytes that are read and written are the encoded ones.
 		bool           opaque  = false;              // Compressed: whether the alpha is forced to 1, which it is when the texture has no alpha flag.
 		VkSampler      sampler = VK_NULL_HANDLE;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
 		VkImage        image  = VK_NULL_HANDLE;
@@ -486,7 +487,7 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Textures
 	////////////////////////////////////////////////////////////////////////////
-	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_MIPMAPS = 8, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32, TEXTURE_POINT = 1024, TEXTURE_TARGET = 4096 };
+	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_MIPMAPS = 8, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32, TEXTURE_POINT = 1024, TEXTURE_SRGB = 2048, TEXTURE_TARGET = 4096 };
 
 
 	// LoadTexture(file, flags): flags are 1 = color, 2 = alpha channel, 4 = masked (black is transparent), 8 = mip maps, 16/32 = clamp U/V.
@@ -704,7 +705,7 @@ namespace bb::gfx {
 	/** Writes the image that was presented to the file of BLITZ_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();
-	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false);
+	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false, bool srgb = false);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();
 	void destroy_swapchain();
@@ -862,7 +863,7 @@ namespace bb::gfx {
 	/** Whether the device can sample, and copy to and from, images of this format. */
 	bool compressed_supported(block_format format);
 	/** Uploads blocks into a new image and a descriptor set. With opaque the alpha is always 1. */
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps);
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb = false);
 	/** The sampler for a texture with these flags: repeating or clamped, and with the levels of mip maps (flag 8) or without. */
 	VkSampler texture_sampler(int flags);
 	/** The Vulkan sampler for the settings of a sampler of CreateSampler, with the values kept inside what the device can do. */

@@ -18,6 +18,7 @@ The flags are added together, so `1 + 2` is a color texture that also has an alp
 | 256 | Keep the texture in video memory. This is always the case, there are no textures that only live on the CPU. |
 | 512 | Use a high color format even in low color modes. This is always the case: a texture is at least 8 bits per channel with alpha (R8G8B8A8), or a compatible block compressed format. |
 | 1024 | Point sampling: the nearest texel is shown, with no smoothing between texels, and with flag 8 the nearest mip map level without blending levels. A sampler set with [SetTextureSampler](SetTextureSampler) overrides the flag. |
+| 2048 | sRGB, only used by [LoadTexture](LoadTexture). It has no effect here. |
 | 4096 | Render target. The texture can be drawn to with `SetBuffer TextureBuffer(texture)`. Without the flag a texture can still be read and written with the pixel commands (`ReadPixel`, `WritePixel`, `ReadPixelFast`, `WritePixelFast`, `LockBuffer`, `CopyRect` and the like) on its [TextureBuffer](TextureBuffer), but a debug build (`-d`) stops with an error on `SetBuffer`. |
 | 65536 | Use the second set of texture coordinates of the mesh, see [TextureCoords](TextureCoords). |
 

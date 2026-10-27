@@ -11,6 +11,12 @@ Mip maps (flag 8, which [TextureFilter](TextureFilter) adds to every texture at 
 
 How transparency is taken from the file depends on the flags. Without flag 2 the picture is opaque even if the file has an alpha channel. With flag 2 an existing alpha channel is used, and a picture without one gets its alpha from how bright each texel is. Flag 4 makes every pure black texel transparent and everything else opaque.
 
+Flag 2048 says that the file is sRGB, which almost every picture is, and makes the texture hold linear values: the graphics card converts each texel from sRGB to linear when it samples the texture, and the mip maps are averaged in linear values (with flag 8). The bytes of the texture stay the ones of the file, so `ReadPixel`, `ReadPixelFast` and drawing on the [TextureBuffer](TextureBuffer) (with flag 4096) read and write sRGB bytes, and the texture is converted only when a scene or an image samples it. Alpha is not converted. Block compressed DDS files (BC1, BC2, BC3 and BC7) are stored in the sRGB variant of their format; BC4, BC5 and cube maps (flag 128) are not converted. Programs draw into a picture that is not converted, so the result of lighting is only correct on screen if the program accounts for it; the flag is meant for programs that use linear values on purpose.
+
+The picture shows a gradient file loaded without the flag (top) and with it (bottom), each drawn without lighting: the converted texture holds the linear values, so the middle grey of 128 is 55.
+
+![sRGB conversion](media/textures/loadtexture_srgb.png)
+
 A texture can be drawn to only if it was loaded with flag 4096 (render target), see [CreateTexture](CreateTexture). Reading and writing its pixels needs no flag.
 
 Textures that [TextureFilter](TextureFilter) matches by file name get extra flags added.
@@ -49,6 +55,6 @@ WaitKey
 @param file   Picture file to load.
 @param flags  Sum of the texture flags, see CreateTexture. Defaults to 1.
 @returns A texture handle, or 0 if the file could not be loaded.
-@gap Flag 4096 (render target) is new, see above. A program that is compiled with `-d` stops with an error when it sets the buffer of a texture without 4096.
+@gap Flag 2048 (sRGB conversion) and flag 4096 (render target) are new, see above. A program that is compiled with `-d` stops with an error when it sets the buffer of a texture without 4096.
 @gap TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 @gap The video memory and high color flags are always in effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
