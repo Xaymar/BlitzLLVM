@@ -554,7 +554,12 @@ For i = 0 To rooms - 1
 	EntityTexture room, bricks
 	PositionEntity room, rcx(i), 0, rcz(i)
 	; Every room has its own tint, so that the rooms don't all look the same.
-	EntityColor room, 190 + BenchRnd(0, 65), 190 + BenchRnd(0, 65), 190 + BenchRnd(0, 65)
+	; The numbers are drawn into variables first: the original Blitz3D evaluates the arguments of a call in another order than BlitzLLVM
+	; does (the second and third before the first), which would give the rooms other tints in the two.
+	tintr = 190 + BenchRnd(0, 65)
+	tintg = 190 + BenchRnd(0, 65)
+	tintb = 190 + BenchRnd(0, 65)
+	EntityColor room, tintr, tintg, tintb
 	roomentity(i) = room
 	For k = 0 To props - 1
 		p = CopyEntity(proptemplates(k Mod 3))
