@@ -332,6 +332,11 @@ included_value = included_value + 4
 Check "Include shares variables", included_value, 6
 Check "Include defines functions", IncludedFunction(5), 15
 
+; A file that was included before is skipped, so it can be included from several places without declaring everything twice.
+Include "include/included.inc"
+Include "./include/included.inc"
+Check "Include reads a file once", included_value, 6
+
 ; Values are converted to the type of what they are put into.
 Local ci = 1.2, ci2 = "Hello World", ci3 = "12"
 Check "float into an integer", ci, 1

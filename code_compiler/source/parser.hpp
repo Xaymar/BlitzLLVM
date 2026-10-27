@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <map>
 #include <memory>
+#include <set>
 #include <vector>
 #include "ast/ast.hpp"
 #include "lexer.hpp"
@@ -23,6 +24,7 @@ namespace blitz {
 		size_t                                       _pos;
 
 		std::vector<std::filesystem::path> _include_stack;
+		std::set<std::filesystem::path>    _included; // Every file read so far, which Include does not read again.
 		std::filesystem::path              _root_dir; // Where the main program is.
 		std::unique_ptr<ast::program>      _program;
 		int                                _depth; // Block nesting depth, functions may only exist at depth 0.
