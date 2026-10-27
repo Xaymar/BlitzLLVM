@@ -16,7 +16,7 @@ Differences that are not caused by one command.
 * [Asynchronous loading](Asynchronous-Loading): Extension: `AsyncLoading` makes `LoadTexture`, `LoadImage`, `LoadMesh` and `LoadAnimMesh` decode on other threads, and `TextureReady`, `ImageReady` and `EntityReady` say whether something is done.
 * [blitz-format](blitz-format): Extension: `blitz-format` formats `.bb` source code (indentation, keyword case, spacing, blank lines, line endings) from a `.blitz-format` file; the original has no formatter.
 * [Blitz-Tidy](Blitz-Tidy): Extension: `blitz-tidy` fixes the warnings of `blitzcc` in Blitz source files; the original has no such tool.
-* [Color depth](Color-Depth): The depth argument of `Graphics` is ignored: the picture is always 8 bits per channel, and `Dither` and `WBuffer` do nothing.
+* [Color depth](Color-Depth): The depth argument of `Graphics` is ignored: the picture is always 8 bits per channel, and `WBuffer` does nothing. `Dither` adds noise to the shown picture instead of dithering 16-bit color.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
 * [Depth buffer](Depth-Buffer): The depth buffer is a reversed 32-bit float, so z-fighting is much rarer.
@@ -115,7 +115,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [DisplayWidth](DisplayWidth#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [DisplayX](DisplayX#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [DisplayY](DisplayY#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-* [Dither](Dither#differences): Does nothing: 16 bit modes are not supported and the screen always has 8 bits per color channel, so there is nothing to dither.
 * [Double](Double#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
 * [DrawBlockRect](DrawBlockRect#differences): Only the part that lies inside the frame is drawn.
 * [DrawImage](DrawImage#differences): A frame number that does not exist stops the program with an error message.

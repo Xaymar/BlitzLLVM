@@ -47,7 +47,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (252)</summary>
+<li><details><summary>Commands (251)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -121,7 +121,6 @@
 <li><a href="DisplayWidth#differences">DisplayWidth</a> 〔BlitzLLVM〕</li>
 <li><a href="DisplayX#differences">DisplayX</a> 〔BlitzLLVM〕</li>
 <li><a href="DisplayY#differences">DisplayY</a> 〔BlitzLLVM〕</li>
-<li><a href="Dither#differences">Dither</a></li>
 <li><a href="Double#differences">Double</a> 〔BlitzLLVM〕</li>
 <li><a href="DrawBlockRect#differences">DrawBlockRect</a></li>
 <li><a href="DrawImage#differences">DrawImage</a></li>
