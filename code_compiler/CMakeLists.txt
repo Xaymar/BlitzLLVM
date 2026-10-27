@@ -193,6 +193,23 @@ endforeach()
 add_test(NAME tools-library COMMAND tools_test "${TEST_DIRECTORY}")
 set_tests_properties(tools-library PROPERTIES LABELS "tools")
 
+# blitz-format: The style it applies, its options and configuration files, --check/--diff/-i, and that the formatted program
+# compiles to the same LLVM IR. Each case is in tests/format/format.cmake.
+foreach(_CASE IN ITEMS default same_program check_diff in_place stdin indent keywords spacing comments blank_lines line_endings config errors help language_keywords repository)
+	add_test(
+		NAME "format-${_CASE}"
+		COMMAND ${CMAKE_COMMAND}
+			"-DCASE=${_CASE}"
+			"-DFORMAT=$<TARGET_FILE:format>"
+			"-DBLITZCC=$<TARGET_FILE:${PROJECT_NAME}>"
+			"-DTESTS=${TEST_DIRECTORY}"
+			"-DWORK=${PROJECT_BINARY_DIR}/format/${_CASE}"
+			"-DVERSION=${CMAKE_PROJECT_VERSION}"
+			-P "${TEST_DIRECTORY}/format/format.cmake"
+	)
+	set_tests_properties("format-${_CASE}" PROPERTIES LABELS "tools")
+endforeach()
+
 add_test(
 	NAME "lex-test"
 	COMMAND ${PROJECT_NAME} --dump-tokens "${TEST_DIRECTORY}/test.bb"

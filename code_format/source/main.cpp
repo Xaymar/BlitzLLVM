@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 		}
 		return o;
 	};
-	tool.process      = [build](std::string const& text, blitz::tools::settings const& values) { return blitz::format::format_source(text, build(values)); };
+	tool.process      = [build](std::string const& text, blitz::tools::settings const& values, std::string const&) { return blitz::format::format_source(text, build(values)); };
 	tool.print_config = [build](blitz::tools::settings const& values) { return blitz::format::to_config(build(values)); };
 	try {
 		return blitz::tools::run(tool, argc, argv);
