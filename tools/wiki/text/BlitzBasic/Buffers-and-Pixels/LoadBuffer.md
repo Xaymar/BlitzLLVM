@@ -19,4 +19,4 @@ WaitKey
 @param buffer   The buffer to fill.
 @param bmpfile  The path of the picture file.
 @returns 1 if the picture was loaded, otherwise 0.
-@gap Formats other than BMP load as well. The picture is always scaled to the size of the buffer, with smooth filtering.
+@gap Formats other than BMP load as well, but not TIFF or JPEG 2000, see [Image formats](Image-Formats). The picture is always scaled to the size of the buffer, with smooth filtering.

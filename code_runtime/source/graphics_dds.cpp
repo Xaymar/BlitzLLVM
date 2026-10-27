@@ -701,7 +701,10 @@ namespace bb::gfx {
 		}
 		SDL_SeekIO(io, 0, SDL_IO_SEEK_SET);
 		open_codec_libraries();
-		out.surface = IMG_Load_IO(io, true);
+		// TGA files have no marker at the start that tells them from other files, so SDL_image only reads them when it is told by the
+		// extension that the file is one.
+		const char* dot = strrchr(file, '.');
+		out.surface     = IMG_LoadTyped_IO(io, true, dot ? dot + 1 : nullptr);
 		if (!out.surface) {
 			report_missing_codec(file);
 			return false;

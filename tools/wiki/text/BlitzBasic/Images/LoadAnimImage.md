@@ -25,7 +25,7 @@ Next
 Flip
 WaitKey
 ```
-@param file        The path of the picture file. BMP, PNG, JPEG and other common formats can be loaded.
+@param file        The path of the picture file. BMP, PNG, JPEG, TGA, GIF, WebP, AVIF, JPEG XL and DDS can be loaded, see [Image formats](Image-Formats).
 @param cellwidth   Width of one frame.
 @param cellheight  Height of one frame.
 @param first       Number of the first frame in the sheet, usually 0.
