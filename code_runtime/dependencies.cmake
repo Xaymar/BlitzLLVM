@@ -49,6 +49,21 @@ macro(blitz_dependency NAME DIRECTORY)
 	)
 endmacro()
 
+# Shared libraries that are shipped look for the ones they depend on in their own directory.
+if(APPLE)
+	set(_SHARED_RPATH "@loader_path")
+else()
+	set(_SHARED_RPATH "\$ORIGIN")
+endif()
+# Shipped shared libraries carry no symbol tables (the linker of Windows keeps them in .pdb files, which are not shipped).
+if(APPLE)
+	set(_SHARED_STRIP "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-x")
+elseif(NOT MSVC)
+	set(_SHARED_STRIP "-DCMAKE_SHARED_LINKER_FLAGS=-s")
+else()
+	set(_SHARED_STRIP "")
+endif()
+
 set(_DEPENDENCY_ARGS -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE=Release)
 if(CMAKE_GENERATOR_PLATFORM)
 	list(APPEND _DEPENDENCY_ARGS -A "${CMAKE_GENERATOR_PLATFORM}")
@@ -233,14 +248,28 @@ elseif(_ASM_ARCHITECTURE MATCHES "^([xX]86|[xX]64|Win32|AMD64|amd64|x86_64|i[3-6
 	endif()
 endif()
 
-# Loads the image files for textures. PNG and JPEG are handled by the built in stb_image, AVIF (libavif with dav1d to decode), JPEG XL (libjxl) and WebP (libwebp) by the vendored libraries, which are all linked in statically.
+# Loads the image files for textures. PNG and JPEG are handled by the built in stb_image, AVIF (libavif with dav1d to decode), JPEG XL (libjxl) and WebP (libwebp) by the vendored libraries,
+# which are built as shared libraries that SDL_image loads when the first file of that format is opened. Programs that don't load images
+# don't need them, and the ones that do get them copied next to them by blitzcc (see main.cpp), which keeps the programs small and means
+# that an update of a codec doesn't change every program. The libraries find each other next to themselves.
 set(_SDL3_IMAGE_LICENSES SDL3_image/LICENSE.txt SDL3_image/optional/LICENSE.dav1d.txt SDL3_image/optional/LICENSE.avif.txt
 	SDL3_image/optional/LICENSE.jxl.txt SDL3_image/optional/LICENSE.webp.txt)
 blitz_check_licenses(SDL3_image BEFORE ${_SDL3_IMAGE_LICENSES})
+# An install of SDL_image from before its codecs were shared libraries has them as static libraries, which would be linked into programs.
+# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
+if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/libdav1d.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/dav1d.lib")
+	message(STATUS "SDL3_image was installed with static codecs, building it again.")
+	file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.tmp/*.sha3")
+	file(REMOVE ${_STAMPS})
+	file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst" "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin")
+	# The stamp of the fetched codec sources goes too, as a restored cache has the stamp but not the submodules in the source tree.
+	file(REMOVE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin.codecs")
+endif()
 blitz_dependency(SDL3_image SDL_image
 	PATCH_FUNCTION blitz_fetch_image_codecs
 	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
-		-DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_DEPS_SHARED=OFF -DSDLIMAGE_STRICT=OFF
+		-DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_DEPS_SHARED=ON
+		-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON "-DCMAKE_INSTALL_RPATH=${_SHARED_RPATH}" ${_SHARED_STRIP} -DSDLIMAGE_STRICT=OFF
 		-DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF -DSDLIMAGE_INSTALL=ON
 		-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_AVIF=ON -DSDLIMAGE_AVIF_SAVE=OFF -DSDLIMAGE_JXL=ON -DSDLIMAGE_WEBP=ON
 		${_SDL3_IMAGE_ASM_ARGS}
@@ -518,10 +547,42 @@ foreach(_LIBRARY IN ITEMS "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" "${_SDL3_M
 	endif()
 endforeach()
 
-# SDL_image and SDL_mixer install the libraries of their codecs (libavif, dav1d, libjxl, brotli, highway and libwebp; libopus,
-# opusfile and libogg) next to themselves, and programs have to link to those as well.
-file(GLOB _SDL3_IMAGE_CODECS "${SDL3_image_INSTALL_PATH}/lib/${_LIBRARY_PATTERN}")
-list(REMOVE_ITEM _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_LIBRARY}")
+# SDL_mixer installs the libraries of its codecs (libopus, opusfile and libogg) next to itself, and programs have to link to those as well.
+# SDL_image's codecs (libavif, dav1d, libjxl, brotli, highway and libwebp) are shared libraries: they are shipped with the runtime and copied
+# next to the programs that load images. On Windows they are DLLs in bin/ (their import libraries in lib/ are not needed, as SDL_image loads them
+# by name), elsewhere they are in lib/ with their version in the file name.
+# SDL_image opens them by name (libavif-16.dll, libavif.so.16, libavif.16.dylib), which is what the link libavif.so and libavif.dylib point at.
+# Installing a link copies the link and not the file, so the files are copied under that name, and those are what is shipped.
+set(_SDL3_IMAGE_STAGE "${SDL3_image_INSTALL_PATH}/runtime")
+file(MAKE_DIRECTORY "${_SDL3_IMAGE_STAGE}")
+set(_SDL3_IMAGE_CODECS "")
+if(WIN32)
+	file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/bin/*.dll")
+	foreach(_LIBRARY IN LISTS _SDL3_IMAGE_SHARED)
+		cmake_path(GET _LIBRARY FILENAME _NAME)
+		file(COPY_FILE "${_LIBRARY}" "${_SDL3_IMAGE_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
+		list(APPEND _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_STAGE}/${_NAME}")
+	endforeach()
+else()
+	if(APPLE)
+		file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/lib/lib*.dylib")
+	else()
+		file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/lib/lib*.so")
+	endif()
+	foreach(_LIBRARY IN LISTS _SDL3_IMAGE_SHARED)
+		if(NOT IS_SYMLINK "${_LIBRARY}")
+			continue()
+		endif()
+		file(READ_SYMLINK "${_LIBRARY}" _NAME)
+		cmake_path(GET _NAME FILENAME _NAME)
+		file(REAL_PATH "${_LIBRARY}" _REAL)
+		file(COPY_FILE "${_REAL}" "${_SDL3_IMAGE_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
+		list(APPEND _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_STAGE}/${_NAME}")
+	endforeach()
+endif()
+if(NOT _SDL3_IMAGE_CODECS)
+	message(FATAL_ERROR "SDL_image did not install its codec libraries (avif, dav1d, jxl and webp) in '${SDL3_image_INSTALL_PATH}'.")
+endif()
 file(GLOB _SDL3_MIXER_CODECS "${SDL3_mixer_INSTALL_PATH}/lib/${_LIBRARY_PATTERN}")
 list(REMOVE_ITEM _SDL3_MIXER_CODECS "${_SDL3_MIXER_LIBRARY}")
 

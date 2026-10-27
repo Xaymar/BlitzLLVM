@@ -608,6 +608,25 @@ elseif(CASE STREQUAL "runtime_architecture")
 		message(FATAL_ERROR "Expected a warning for the missing arm64 libraries, got:\n${ERR}")
 	endif()
 
+elseif(CASE STREQUAL "image_codecs")
+	# The codecs of SDL_image for AVIF, JPEG XL and WebP are shared libraries that are loaded when a program opens such a file. A program that
+	# has a window (and so can load images) gets them copied next to it from the runtime directory, one that has none does not.
+	file(MAKE_DIRECTORY "${WORK}/gfx" "${WORK}/text")
+	blitzcc("${TESTS}/cli/image_codecs.bb" -o "${WORK}/gfx/image_codecs${CMAKE_EXECUTABLE_SUFFIX}")
+	expect_ok()
+	blitzcc("${PROGRAM}" -o "${WORK}/text/program${CMAKE_EXECUTABLE_SUFFIX}")
+	expect_ok()
+	foreach(_FAMILY IN ITEMS avif dav1d jxl webp)
+		file(GLOB _FOUND "${WORK}/gfx/*${_FAMILY}*")
+		if(NOT _FOUND)
+			message(FATAL_ERROR "The program with a window did not get the library of ${_FAMILY} copied next to it.")
+		endif()
+		file(GLOB _FOUND "${WORK}/text/*${_FAMILY}*")
+		if(_FOUND)
+			message(FATAL_ERROR "The program without a window got '${_FOUND}' copied next to it.")
+		endif()
+	endforeach()
+
 elseif(CASE STREQUAL "verbose_long_only")
 	# -v used to be the short form of --verbose, now it is the version like in the original.
 	blitzcc(--verbose "${PROGRAM}" -o "${EXE}")

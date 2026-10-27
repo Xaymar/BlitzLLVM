@@ -19,6 +19,8 @@
 
 #include <algorithm>
 #include "path.h"
+#include <cstring>
+#include <string>
 
 using namespace bb::gfx;
 
@@ -621,6 +623,61 @@ namespace bb::gfx {
 		return surface;
 	}
 
+	// The codecs for AVIF, JPEG XL and WebP are shared libraries next to the program (blitzcc copies them there from the runtime directory). SDL_image
+	// opens them by their name, which only finds them next to the program on Windows. So they are opened here by their path first, which makes the
+	// system find them by the name that they are loaded under. A format whose library is missing is reported once instead of silently not loading.
+	struct codec_family {
+		const char* name;       // In the file name of the library.
+		const char* extensions; // Of the files that need it, each in lower case and between spaces.
+		bool        found;
+	};
+	codec_family codec_families[] = { { "avif", " avif ", false }, { "jxl", " jxl ", false }, { "webp", " webp ", false } };
+
+	void open_codec_libraries()
+	{
+		static bool opened = false;
+		if (opened) {
+			return;
+		}
+		opened            = true;
+		const char* base = SDL_GetBasePath();
+		int         count = 0;
+		char**      names = base ? SDL_GlobDirectory(base, nullptr, 0, &count) : nullptr;
+		for (int i = 0; i < count; i++) {
+			std::string name = names[i];
+			bool        shared = (name.find(".dll") != std::string::npos) || (name.find(".dylib") != std::string::npos) || (name.find(".so.") != std::string::npos);
+			for (auto family : { "avcodec", "avformat", "avutil", "swscale", "swresample" }) {
+				shared = shared && (name.find(family) == std::string::npos);
+			}
+			if (!shared) {
+				continue;
+			}
+			bool opened_library = SDL_LoadObject((std::string(base) + name).c_str()) != nullptr;
+			for (auto& family : codec_families) {
+				family.found = family.found || (opened_library && (name.find(family.name) != std::string::npos));
+			}
+		}
+		SDL_free(names);
+	}
+
+	void report_missing_codec(const char* file)
+	{
+		const char* dot = strrchr(file, '.');
+		if (!dot) {
+			return;
+		}
+		std::string extension = std::string(" ") + (dot + 1) + " ";
+		for (auto& c : extension) {
+			c = char(tolower(static_cast<unsigned char>(c)));
+		}
+		for (auto& family : codec_families) {
+			if (!family.found && (strstr(family.extensions, extension.c_str()) != nullptr)) {
+				family.found = true; // Only once.
+				fprintf(stderr, "warning: Can't load '%s': the %s library that opens these files was not found next to the program. Copy it from the runtime directory of BlitzLLVM next to the program.\n", file, family.name);
+			}
+		}
+	}
+
 	bool load_picture(const char* file, picture& out)
 	{
 		SDL_IOStream* io = SDL_IOFromFile(bb_native_path(file), "rb");
@@ -643,8 +700,10 @@ namespace bb::gfx {
 			return done;
 		}
 		SDL_SeekIO(io, 0, SDL_IO_SEEK_SET);
+		open_codec_libraries();
 		out.surface = IMG_Load_IO(io, true);
 		if (!out.surface) {
+			report_missing_codec(file);
 			return false;
 		}
 		out.width     = out.surface->w;
