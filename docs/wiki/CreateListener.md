@@ -45,6 +45,7 @@ Wend
 **Differences and known gaps:**
 
 * Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original. The pitch follows the speeds along the line between the listener and the sound, with sound moving at 340 meters per second. Speeds are measured from how far the entities moved in their last step, so a sound that comes from an entity that was placed somewhere (and not moved) has no shift; nothing moves faster than 90% of the speed of sound as far as the shift is concerned.
+* Samples of a source that drives past the listener at 60 meters per second, recorded with tools/render_doppler_samples.py: [doppler_off.wav](media/audio/doppler_off.wav) (doppler scale 0, steady 441 Hz), [doppler_on.wav](media/audio/doppler_on.wav) (scale 1, about 535 Hz while it comes closer and 375 Hz as it leaves) and [doppler_far.wav](media/audio/doppler_far.wav) (distance scale 0.25, so the speeds are a quarter and the shift is smaller).
 
 ## Related commands
 
