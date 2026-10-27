@@ -131,6 +131,7 @@ namespace bb::gfx {
 				destroy_image(t.image);
 			}
 		}
+		sprite_hull_drop(t.hull);
 		delete t.cube;
 		free(t.file);
 		t = texture_entry();
@@ -266,6 +267,7 @@ namespace bb::gfx {
 	{
 		texture_entry* t = live_texture_of(handle);
 		if (t && active() && t->image.view) {
+			sprite_hull_drop(t->hull); // A movie changes every frame.
 			write_pixels(t->image, 0, 0, t->width, t->height, rgba);
 		}
 	}
@@ -377,6 +379,7 @@ namespace bb::gfx {
 			picture      source;
 			bool         compressed = false;
 			SDL_Surface* rgba       = nullptr;
+			sprite_hull  hull;      // Where sprites with this texture can be seen, found with the pixels so that the loader threads do it.
 		};
 
 		// The part of a load that only needs the CPU, which is what the loader threads do. Whether the blocks can be used as they
@@ -435,6 +438,9 @@ namespace bb::gfx {
 				}
 			}
 			out.rgba = rgba;
+			if (!(flags & (64 | 128))) {
+				sprite_hull_compute(out.hull, static_cast<const uint8_t*>(rgba->pixels), rgba->w, rgba->h, size_t(rgba->pitch) / 4, flags);
+			}
 			return true;
 		}
 
@@ -479,6 +485,8 @@ namespace bb::gfx {
 			} else {
 				entry.width  = p.rgba->w;
 				entry.height = p.rgba->h;
+				entry.hull   = p.hull;
+				p.hull       = sprite_hull();
 				upload_texture(entry.image, entry.set, uint32_t(p.rgba->w), uint32_t(p.rgba->h), static_cast<const uint8_t*>(p.rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0);
 				SDL_DestroySurface(p.rgba);
 				p.rgba = nullptr;

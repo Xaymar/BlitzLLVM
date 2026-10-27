@@ -1082,12 +1082,32 @@ namespace bb::gfx {
 				}
 			}
 
+			// A sprite only needs the part of its square that the texture can be seen in: all sprites with the same texture draw the
+			// same smaller shape, which has less to fill in and is no pixel different. Anything that changes where the texture is
+			// (frames, other layers, scaling, turning, generated coordinates) or has a mesh of its own keeps the square.
+			surface_gpu* shape = gpu;
+			static const bool hulls = !getenv("BLITZ_NO_SPRITE_HULL");
+			if (hulls && e->sprite_mode && texture && texture->hull.valid && texture->set && !paint.texture && surface.vertices.size == 4 && !(texture_handle & ~bb::texture_handle_mask) && texture->frames == 1 && texture->frame_w == 0
+				&& texture->uv[0] == 1 && texture->uv[1] == 1 && texture->uv[2] == 0 && texture->uv[3] == 0 && texture->rotation == 0 && !(texture->flags & (64 | 128))) {
+				bool layered = false;
+				for (int layer = 0; layer < 7; layer++) {
+					layered = layered || paint.layers[layer] || e->layers[layer];
+				}
+				if (!layered) {
+					if (bb::surface* hull = sprite_hull_surface(texture->hull)) {
+						if (surface_gpu* hull_gpu = upload_surface(*hull)) {
+							shape = hull_gpu;
+						}
+					}
+				}
+			}
+
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
 			record.push         = push;
-			record.vertex_buffer = gpu->vertex_buffer;
-			record.index_buffer = gpu->index_buffer;
-			record.index_count  = gpu->index_count;
+			record.vertex_buffer = shape->vertex_buffer;
+			record.index_buffer = shape->index_buffer;
+			record.index_count  = shape->index_count;
 			record.texture      = (texture && texture->set) ? texture_handle : 0;
 			record.pipeline     = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? g.opaque3d : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
 			record.cull         = !(two_sided || ((e->fx | paint.fx) & 16));
@@ -1095,10 +1115,10 @@ namespace bb::gfx {
 			record.depth_write  = (!surface_blended && depth_test);
 			record.depth        = item.depth;
 			record.unit_start   = true;
-			static_cast<surface_gpu*>(surface.gpu)->used_by_flush = flush_number;
+			shape->used_by_flush = flush_number;
 			ensure_entities(draws.size + 1 + 7);
 			draws.push(record);
-			g.triangles_drawn += gpu->index_count / 3;
+			g.triangles_drawn += shape->index_count / 3;
 
 			// Textures on the layers after the first are drawn over the same triangles, and change what is there: the
 			// color map of a terrain gets its fine detail this way.

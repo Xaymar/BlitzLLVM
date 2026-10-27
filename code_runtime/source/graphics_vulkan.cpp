@@ -65,6 +65,7 @@ namespace bb::gfx {
 			texture_entry* tex = texture_of((handle - texture_buffer_base) >> 10);
 			if (tex && tex->set && texture_frame_rect(*tex, (handle - texture_buffer_base) & 1023, t.x, t.y, t.w, t.h)) {
 				ensure_color_image(tex->image, tex->set);
+				sprite_hull_drop(tex->hull); // Whatever is drawn to it can show outside of the hull; LockBuffer and UnlockBuffer make one again.
 				t.image = &tex->image;
 			}
 		} else if (handle >= image_buffer_base) {
