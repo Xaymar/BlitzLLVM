@@ -1163,6 +1163,32 @@ elseif(CASE STREQUAL "warnings")
 		expect_contains("${_OPTION}")
 	endforeach()
 
+elseif(CASE STREQUAL "temp_directory")
+	# A build keeps its files in a folder of its own that is new, can't be guessed from the names of the files, and is private: a folder
+	# that another user made (or a name they knew in advance) would be where the compiler wrote and read the program it builds.
+	set(_TEMP "${WORK}/temp")
+	file(MAKE_DIRECTORY "${_TEMP}")
+	foreach(_RUN IN ITEMS 1 2)
+		execute_process(
+			COMMAND "${CMAKE_COMMAND}" -E env "TMPDIR=${_TEMP}" "TEMP=${_TEMP}" "TMP=${_TEMP}" "${BLITZCC}" +q --keep-temps "${PROGRAM}" -o "${WORK}/program${_RUN}${CMAKE_EXECUTABLE_SUFFIX}"
+			RESULT_VARIABLE RC OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR
+		)
+		expect_ok()
+	endforeach()
+	file(GLOB _DIRECTORIES LIST_DIRECTORIES true "${_TEMP}/blitzllvm-*")
+	list(LENGTH _DIRECTORIES _COUNT)
+	if(NOT _COUNT EQUAL 2)
+		message(FATAL_ERROR "Two builds of the same program with the same output should have kept two folders, found ${_COUNT}: ${_DIRECTORIES}")
+	endif()
+	if(NOT CMAKE_HOST_WIN32)
+		foreach(_DIRECTORY IN LISTS _DIRECTORIES)
+			execute_process(COMMAND stat -c %a "${_DIRECTORY}" OUTPUT_VARIABLE _MODE OUTPUT_STRIP_TRAILING_WHITESPACE)
+			if(NOT _MODE STREQUAL "700")
+				message(FATAL_ERROR "The folder ${_DIRECTORY} of a build has the permissions ${_MODE}, only its owner should be able to use it (700).")
+			endif()
+		endforeach()
+	endif()
+
 elseif(CASE STREQUAL "help")
 	blitzcc(--help)
 	expect_ok()
