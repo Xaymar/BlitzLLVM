@@ -59,7 +59,7 @@ namespace {
 		std::cout << "Rules (the name of each is also the name of the warning of blitzcc that it is built on):\n\n";
 		for (auto const& rule : tidy::all_rules()) {
 			std::cout << "  " << rule.name << "  [default: " << tidy::to_string(rule.default_mode) << (rule.fixable ? "" : ", report only") << "]\n";
-			std::cout << "      " << blitz::find_warning(rule.name).description << "\n";
+			std::cout << "      " << (rule.description ? rule.description : blitz::find_warning(rule.name).description) << "\n";
 			if (rule.fixable) {
 				std::cout << "      Fix: " << rule.fix << "\n";
 				if (*rule.unsafe) {

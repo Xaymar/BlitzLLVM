@@ -380,8 +380,10 @@ namespace {
 			if (!seen.insert(key).second) {
 				continue;
 			}
-			auto const* info = tidy::find_rule(f.warning);
-			auto        m    = cfg.mode_of(f.warning);
+			// The rule can have another name than the warning it is about.
+			std::string rule_name = (f.warning == "short-type-notation") ? "expand-short-to-long-notation" : f.warning;
+			auto const* info      = tidy::find_rule(rule_name);
+			auto        m         = cfg.mode_of(rule_name);
 			if (!info || (m == tidy::mode::OFF)) {
 				continue;
 			}
@@ -389,7 +391,7 @@ namespace {
 			fix  candidate;
 			bool have    = false;
 			bool blocked = false;
-			candidate.warning = f.warning;
+			candidate.warning = rule_name;
 			candidate.where   = f.where;
 			candidate.message = f.reason;
 			candidate.fingerprint = f.warning + "|" + std::to_string(f.where.column) + "|" + ln.line_text(f.where.line);
@@ -520,7 +522,7 @@ namespace {
 			}
 
 			tidy::report r;
-			r.rule    = f.warning;
+			r.rule    = rule_name;
 			r.line    = f.where.line;
 			r.column  = f.where.column;
 			r.length  = f.where.length;

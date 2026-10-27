@@ -43,6 +43,7 @@ void blitz::tidy::config::apply(std::vector<std::pair<std::string, std::string>>
 	for (auto const& [name, value] : settings) {
 		std::string key = lower(name);
 		std::replace(key.begin(), key.end(), '_', '-');
+		key = canonical_rule(key);
 		if (key == "unsafe") {
 			unsafe = boolean(key, value);
 		} else if (key == "max-passes") {

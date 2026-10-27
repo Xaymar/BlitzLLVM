@@ -33,7 +33,7 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-variable", true, mode::FIX, "Declares the variable with its type in front of the statement of the function that first uses it.", "Variables of the main program: an Include can declare them somewhere else." },
 		{ "unused-result", false, mode::REPORT, "", "" },
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },
-		{ "short-type-notation", true, mode::OFF, "Writes the type in the long form: x% becomes x:Int32, x# x:Float32, x## x:Float64, x%% x:Int64, x$ x:String", "" },
+		{ "expand-short-to-long-notation", true, mode::OFF, "Writes the type in the long form: x% becomes x:Int32, x# x:Float32, x## x:Float64, x%% x:Int64, x$ x:String", "", "A type is written as a character behind the name (x%, x#, x$) instead of the long form (x:Int32, x:Float32, x:String). The long form is the one BlitzLLVM prefers." },
 		{ "unreachable-code", true, mode::FIX, "Removes the statements after Return, End, Goto or Exit, up to the next label or Data.", "" },
 		{ "unused-variable", true, mode::FIX, "Removes a Local of a function that is not mentioned anywhere else.", "Locals of the main program and Globals: an Include can use them." },
 		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x:Int32", "" },
@@ -42,8 +42,24 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 	return list;
 }
 
-blitz::tidy::rule const* blitz::tidy::find_rule(std::string const& name)
+std::string blitz::tidy::canonical_rule(std::string const& name)
 {
+	// The names rules had before.
+	static const std::vector<std::pair<const char*, const char*>> old{
+		{ "short-type-notation", "expand-short-to-long-notation" },
+		{ "expand-short-to-long", "expand-short-to-long-notation" },
+	};
+	for (auto const& [from, to] : old) {
+		if (name == from) {
+			return to;
+		}
+	}
+	return name;
+}
+
+blitz::tidy::rule const* blitz::tidy::find_rule(std::string const& name_in)
+{
+	std::string name = canonical_rule(name_in);
 	for (auto const& r : all_rules()) {
 		if (name == r.name) {
 			return &r;
