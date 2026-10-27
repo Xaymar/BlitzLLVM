@@ -54,7 +54,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [Chr](Chr#differences-and-known-gaps): Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
 * [ClientHeight](ClientHeight#differences-and-known-gaps): Where there is a display to ask, the desktop is as big as the screen of the computer.
 * [ClientWidth](ClientWidth#differences-and-known-gaps): Where there is a display to ask, the desktop is as big as the screen of the computer.
-* [CloseMovie](CloseMovie#differences-and-known-gaps): Does nothing, because no movie can be opened.
+* [CloseMovie](CloseMovie#differences-and-known-gaps): Nothing , the same as the original.
 * [Collisions](Collisions#differences-and-known-gaps): Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
 * [CollisionTime](CollisionTime#differences-and-known-gaps): The official help says this is the time taken to calculate the collision.
 * [Confirm](Confirm#differences-and-known-gaps): The box is a message box of the operating system and not part of the program window.
@@ -105,7 +105,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [DrawBlockRect](DrawBlockRect#differences-and-known-gaps): Only the part that lies inside the frame is drawn.
 * [DrawImage](DrawImage#differences-and-known-gaps): A frame number that does not exist stops the program with an error message.
 * [DrawImageRect](DrawImageRect#differences-and-known-gaps): Only the part that lies inside the frame is drawn.
-* [DrawMovie](DrawMovie#differences-and-known-gaps): Draws nothing.
+* [DrawMovie](DrawMovie#differences-and-known-gaps): Draws the newest picture whose time has come, stretched to the size given (smooth, not pixel by pixel).
 * [EnableDirectInput](EnableDirectInput#differences-and-known-gaps): Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it.
 * [EndGraphics](EndGraphics#differences-and-known-gaps): The original opens a new window of the default size, or a console.
 * [Flip](Flip#differences-and-known-gaps): Without a graphics window nothing happens.
@@ -119,9 +119,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [FreeSound](FreeSound#differences-and-known-gaps): Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
 * [FreeTexture](FreeTexture#differences-and-known-gaps): [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
 * [FrontBuffer](FrontBuffer#differences-and-known-gaps): The front buffer holds what the last Flip showed.
-* [GammaBlue](GammaBlue#differences-and-known-gaps): The gamma tables are only remembered.
-* [GammaGreen](GammaGreen#differences-and-known-gaps): The gamma tables are only remembered.
-* [GammaRed](GammaRed#differences-and-known-gaps): The gamma tables are only remembered.
+* [GammaBlue](GammaBlue#differences-and-known-gaps): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
+* [GammaGreen](GammaGreen#differences-and-known-gaps): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
+* [GammaRed](GammaRed#differences-and-known-gaps): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
 * [GetBrushTexture](GetBrushTexture#differences-and-known-gaps): A layer without a texture gives 0.
 * [GetJoy](GetJoy#differences-and-known-gaps): Up to 32 buttons per joystick are supported, and a joystick with more reports only the first 32.
 * [GetKey](GetKey#differences-and-known-gaps): The queue holds 64 characters, and the oldest ones are dropped when it is full.
@@ -182,11 +182,11 @@ Commands that differ from the original or are not finished, with the first of th
 * [MouseZ](MouseZ#differences-and-known-gaps): Fine scrolling wheels and touchpads that report fractions of a notch are rounded to whole steps.
 * [MouseZSpeed](MouseZSpeed#differences-and-known-gaps): The original only ever gives -1, 0 or 1.
 * [MoveMouse](MoveMouse#differences-and-known-gaps): The pointer is not warped on the desktop.
-* [MovieHeight](MovieHeight#differences-and-known-gaps): Returns 0, because no movie can be opened.
-* [MoviePlaying](MoviePlaying#differences-and-known-gaps): Always returns 0.
-* [MovieWidth](MovieWidth#differences-and-known-gaps): Returns 0, because no movie can be opened.
+* [MovieHeight](MovieHeight#differences-and-known-gaps): Nothing , the same as the original.
+* [MoviePlaying](MoviePlaying#differences-and-known-gaps): Nothing , the same as the original.
+* [MovieWidth](MovieWidth#differences-and-known-gaps): Nothing , the same as the original.
 * [Notify](Notify#differences-and-known-gaps): The box is a message box of the operating system and not part of the program window.
-* [OpenMovie](OpenMovie#differences-and-known-gaps): There is no video playback yet, so the result is always 0, the same that the original gives for a file it cannot play.
+* [OpenMovie](OpenMovie#differences-and-known-gaps): Movies are decoded by FFmpeg, whose shared libraries have to be next to the program: blitzcc copies them there when the program uses OpenMovie, and without them (or for a file that can't be played) the result is 0, which programs already have to handle.
 * [PickedTime](PickedTime#differences-and-known-gaps): The official help describes this as the time taken to calculate the pick.
 * [PlayCDTrack](PlayCDTrack#differences-and-known-gaps): Always returns 0 and plays nothing.
 * [PlayMusic](PlayMusic#differences-and-known-gaps): MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA.
@@ -225,7 +225,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [SetCubeMode](SetCubeMode#differences-and-known-gaps): The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
 * [SetFont](SetFont#differences-and-known-gaps): A font that does not exist stops the program with an error message.
 * [SetGadgetFont](SetGadgetFont#differences-and-known-gaps): The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font.
-* [SetGamma](SetGamma#differences-and-known-gaps): The tables are only stored for [GammaRed](GammaRed) and the others.
+* [SetGamma](SetGamma#differences-and-known-gaps): The original changed the gamma of the whole display, and left it that way until the program was done.
 * [SetGfxDriver](SetGfxDriver#differences-and-known-gaps): Any number except 1 to [CountGfxDrivers](CountGfxDrivers) stops the program with an error message.
 * [SetMenuText](SetMenuText#differences-and-known-gaps): The text can be read back with [MenuText](MenuText) here.
 * [SetMinWindowSize](SetMinWindowSize#differences-and-known-gaps): The help lists height before width in its syntax line, the real order is width then height.
@@ -261,7 +261,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [UDPStreamIP](UDPStreamIP#differences-and-known-gaps): It is the first address of this computer that [CountHostIPs](CountHostIPs) finds with an empty name, one that other computers can reach if there is any.
 * [UInt](UInt#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ULong](ULong#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [UpdateGamma](UpdateGamma#differences-and-known-gaps): Does nothing, see SetGamma.
+* [UpdateGamma](UpdateGamma#differences-and-known-gaps): The original gave the tables to the display.
 * [UpdateWindowMenu](UpdateWindowMenu#differences-and-known-gaps): Menus here change the screen right away, so this command only asks for a redraw.
 * [UShort](UShort#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [VertexTexCoords](VertexTexCoords#differences-and-known-gaps): `w` is ignored.

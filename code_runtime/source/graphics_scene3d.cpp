@@ -1442,6 +1442,7 @@ void bb_release_surface_gpu(void* gpu)
 void bb_graphics_idle(void)
 {
 	bb_sound_update();
+	bb_movie_update();
 	if (active()) {
 		flush();
 		pump();

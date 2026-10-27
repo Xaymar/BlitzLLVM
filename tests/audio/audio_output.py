@@ -213,6 +213,27 @@ pitches = [p for p in pitches if p > 0]
 steps = [abs(pitches[i + 1] - pitches[i]) / expected for i in range(len(pitches) - 1)]
 check("doppler glides: the pitch goes from %.1f to %.1f Hz, the largest step between 40 ms is %.1f%%" % (pitches[0], min(pitches), max(steps) * 100), pitches[0] > expected * 0.98 and min(pitches) < expected * 0.93 and max(steps) < 0.08)
 
+# The sound of movies (OpenMovie), which plays on a stream of its own: a tone of 440 Hz for 3 seconds in a movie of every format. The movies
+# are the ones of tests/suite/movies, whose picture is not looked at here.
+movies = os.path.join(os.path.dirname(fixtures), "suite", "movies")
+for movie in ("colors.mpg", "colors.avi", "colors.mp4"):
+	shutil.copyfile(os.path.join(movies, movie), movie)
+	with open("play.bb", "w") as source:
+		source.write('m = OpenMovie("%s")\nDebugLog "opened " + m\nWhile MoviePlaying(m)\n\tDelay 20\nWend\n' % movie)
+	if subprocess.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+		raise SystemExit("compiling failed")
+	if os.path.exists("sdlaudio.raw"):
+		os.remove("sdlaudio.raw")
+	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
+	env.pop("BLITZ_HEADLESS", None)
+	run = subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	data = open("sdlaudio.raw", "rb").read() if os.path.exists("sdlaudio.raw") else b""
+	count = len(data) // 4
+	samples = list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2])
+	frequency, smoothness, length = analyze(samples)
+	check("movie %s: pitch %.1f Hz is 440 Hz" % (movie, frequency), abs(frequency - 440.0) < 440.0 * 0.01)
+	check("movie %s: sound lasts %.2f s of a 3 s movie" % (movie, length), 2.4 < length < 3.6)
+
 # Opus decodes at 48 kHz whatever the file was recorded at, so it has to be resampled to play at the right pitch. The fixtures are a
 # 960 Hz tone (50 samples per cycle at 48 kHz) of half a second, as .opus (Ogg Opus) and as Opus packets in an .ogg file.
 for fixture in ("tone.opus", "tone_in_ogg.ogg"):

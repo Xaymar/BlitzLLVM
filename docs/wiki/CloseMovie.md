@@ -20,7 +20,7 @@ Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movi
 
 **Differences and known gaps:**
 
-* Does nothing, because no movie can be opened.
+* Nothing , the same as the original. The picture and sound stop.
 
 ## Related commands
 

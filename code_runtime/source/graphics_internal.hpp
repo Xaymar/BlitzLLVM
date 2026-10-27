@@ -41,6 +41,7 @@ void bb_free_bank(int32_t handle);
 uint8_t* bb_bank_data(int32_t handle, int32_t* size);
 void bb_runtime_error(const char* message);
 void bb_sound_update(void);
+void bb_movie_update(void);
 int32_t bb_line_pick(float x, float y, float z, float dx, float dy, float dz, float radius);
 int32_t bb_gui_event(const void* event);
 int32_t bb_gui_mouse_in(int32_t canvas, int32_t* x, int32_t* y);
@@ -687,6 +688,8 @@ namespace bb::gfx {
 	/** Creates an image of RGBA pixels that can be sampled, drawn to and copied, without a descriptor set. */
 	void create_pixel_image(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels);
 	void free_image(image_entry& e);
+	void draw_stretched(int32_t handle, int x, int y, int w, int h);
+	void replace_pixels(int32_t handle, const uint8_t* rgba);
 	/** An image for the program's own use (the characters of a font), which no handle of a program means. */
 	int  make_internal_image(int width, int height, const uint8_t* rgba);
 	void free_internal_image(int handle);

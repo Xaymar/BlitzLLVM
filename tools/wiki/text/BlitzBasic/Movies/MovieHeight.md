@@ -4,4 +4,4 @@
 The height of the pictures of a movie in pixels.
 @param movie  A movie handle from [OpenMovie](OpenMovie).
 @returns The height in pixels.
-@gap Returns 0, because no movie can be opened.
+@gap Nothing, the same as the original. It is the size of the picture in the file.

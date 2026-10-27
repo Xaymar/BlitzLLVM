@@ -308,43 +308,4 @@ void bb_auto_suspend(int32_t enable)
 {
 	g.auto_suspend = enable != 0;
 }
-
-// There is no video playback: a movie can't be opened, which is what programs get when the file can't be played.
-int32_t bb_open_movie(const char* file)
-{
-	(void)file;
-	return 0;
-}
-
-void bb_close_movie(int32_t movie)
-{
-	(void)movie;
-}
-
-void bb_draw_movie(int32_t movie, int32_t x, int32_t y, int32_t w, int32_t h)
-{
-	(void)movie;
-	(void)x;
-	(void)y;
-	(void)w;
-	(void)h;
-}
-
-int32_t bb_movie_width(int32_t movie)
-{
-	(void)movie;
-	return 0;
-}
-
-int32_t bb_movie_height(int32_t movie)
-{
-	(void)movie;
-	return 0;
-}
-
-int32_t bb_movie_playing(int32_t movie)
-{
-	(void)movie;
-	return 0;
-}
 }

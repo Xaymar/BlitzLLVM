@@ -22,7 +22,7 @@ The width of the pictures of a movie in pixels.
 
 **Differences and known gaps:**
 
-* Returns 0, because no movie can be opened.
+* Nothing , the same as the original. It is the size of the picture in the file.
 
 ## Related commands
 

@@ -83,4 +83,6 @@ Run `tools/install-hooks.sh` once after cloning (in git-bash on Windows, in any 
 
 == License
 
-See link:LICENSE.adoc[LICENSE.adoc]. The licenses of SDL3, SDL3_mixer, the Vulkan headers and the image decoders are installed in `licenses/` (`share/licenses/blitzllvm` in packages).
+See link:LICENSE.adoc[LICENSE.adoc]. The licenses of SDL3, SDL3_mixer, the Vulkan headers and the image decoders are installed in `licenses/` (`share/licenses/blitzllvm` in packages)
+
+Movies are played with FFmpeg, which is used under the LGPL 2.1 as shared libraries (`libavcodec`, `libavformat`, `libavutil`, `libswscale` and `libswresample`, built without GPL or non-free parts) that programs load when they open a movie. They are copied next to programs that use `OpenMovie`, and can be replaced by a build of FFmpeg 7.1 of your own (the source is the submodule `third_party/FFmpeg`).

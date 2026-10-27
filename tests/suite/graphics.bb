@@ -301,7 +301,7 @@ CheckTrue "VWait waits", MilliSecs() - start >= 40
 Check "Stats3D", Stats3D(0), 0
 Check "Stats3D other", Stats3D(5), 0
 
-; A movie can't be played. What programs get for one that can't is no movie, which every function can take.
+; A movie that can't be played is no movie, which every function can take (the movies that can be played are in graphics_movies.bb).
 movie = OpenMovie("suite_does_not_exist.avi")
 Check "OpenMovie", movie, 0
 Check "MovieWidth", MovieWidth(movie), 0

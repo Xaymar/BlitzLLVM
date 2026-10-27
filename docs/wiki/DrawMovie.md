@@ -41,7 +41,7 @@ CloseMovie m
 
 **Differences and known gaps:**
 
-* Draws nothing. There is no video playback.
+* Draws the newest picture whose time has come, stretched to the size given (smooth, not pixel by pixel). It does not look at the origin and viewport, like the original, and a movie that goes over the edge of the screen is cut at it. What a program shows at the start, in the middle and at the end of a 3 second movie, drawn at its size, at a smaller size and at a bigger one, is in [drawmovie_start.png](media/movies/drawmovie_start.png), [drawmovie_middle.png](media/movies/drawmovie_middle.png) and [drawmovie_end.png](media/movies/drawmovie_end.png) (made by tools/render_movie_samples.py).
 
 ## Related commands
 

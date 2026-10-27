@@ -235,6 +235,34 @@ namespace bb::gfx {
 		v[5]      = { x0, y1, u0, v1, 255, 255, 255, 255 };
 	}
 
+	// DrawMovie: the picture of a movie, which is an image, stretched to a rectangle of the screen. Nothing of it is see-through.
+	void draw_stretched(int32_t handle, int x, int y, int w, int h)
+	{
+		image_entry* e = image_of(handle);
+		if (!e || !active() || (w <= 0) || (h <= 0)) {
+			return;
+		}
+		float x0 = float(x), y0 = float(y), x1 = float(x + w), y1 = float(y + h);
+		float u1 = float(e->frame_w) / float(e->sheet_w), v1 = float(e->frame_h) / float(e->sheet_h);
+		float mask[4] = { 0, 0, 0, 0 };
+		vertex* v = add_vertices(OP_TRIANGLES, TEXTURE_WHITE, 6, handle, mask);
+		v[0]      = { x0, y0, 0, 0, 255, 255, 255, 255 };
+		v[1]      = { x1, y0, u1, 0, 255, 255, 255, 255 };
+		v[2]      = { x0, y1, 0, v1, 255, 255, 255, 255 };
+		v[3]      = { x1, y0, u1, 0, 255, 255, 255, 255 };
+		v[4]      = { x1, y1, u1, v1, 255, 255, 255, 255 };
+		v[5]      = { x0, y1, 0, v1, 255, 255, 255, 255 };
+	}
+
+	// Puts the RGBA pixels of a picture that is as big as the image into it.
+	void replace_pixels(int32_t handle, const uint8_t* rgba)
+	{
+		image_entry* e = image_of(handle);
+		if (e && active()) {
+			write_pixels(e->image, 0, 0, e->frame_w, e->frame_h, rgba);
+		}
+	}
+
 	static int32_t save_pixels(const uint8_t* rgba, int w, int h, const char* file)
 	{
 		SDL_Surface* surface = SDL_CreateSurfaceFrom(w, h, SDL_PIXELFORMAT_RGBA32, const_cast<uint8_t*>(rgba), w * 4);
