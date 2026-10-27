@@ -29,10 +29,11 @@ namespace blitz::tools {
 		std::vector<std::string> config_names; // Files looked for in every directory: { ".blitz-format", "blitz-format.json" }
 		std::string              options_help; // The part of --help that lists the settings
 
-		/** Process one file. Gets the text, and the settings from the configuration file overridden by the command line. Throws
+		/** Process one file. Gets the text, the settings from the configuration file overridden by the command line, and the
+		 * name of the file: The path as it was given on the command line, the --stdin-filepath value or "<stdin>". Throws
 		 * std::runtime_error to refuse a file or a setting (the message is printed, and the exit code is 2).
 		 */
-		std::function<std::string(std::string const& text, settings const& values)> process;
+		std::function<std::string(std::string const& text, settings const& values, std::string const& name)> process;
 
 		/** Writes the settings as they would be used, for --print-config. Optional.
 		 */

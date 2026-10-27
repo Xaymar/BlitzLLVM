@@ -152,7 +152,7 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 			}
 
 			std::string text   = is_stdin ? read_stdin() : read_file(file);
-			std::string result = tool.process(text, values);
+			std::string result = tool.process(text, values, name);
 			bool        differs = (result != text);
 			changed |= differs;
 
