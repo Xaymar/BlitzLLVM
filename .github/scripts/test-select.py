@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decides which tests a change has to run (see test.yml and docs/wiki/Testing.md).
+"""Decides which tests a change has to run (see test.yml and docs/wiki/Building.md, Which tests run).
 
   test-select.py changes --changed files.txt [--force REASON]   Reads the changed files (one per line), prints the selection as JSON.
   test-select.py apply --selection JSON --tests ctest-tests.json --selected out.txt --skipped out.json

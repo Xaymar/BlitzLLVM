@@ -14,7 +14,7 @@ name: Test
 #     (from the cache if it can), but only runs the tests of that part, and the ones that always run. The others are listed as
 #     skipped in the test comment. Skipped tests count as passed.
 #   - a change that no test depends on (documentation, the wiki, the other workflows) succeeds without doing anything.
-# What belongs to which part is in tests/test_selection.json, and how it works is in docs/wiki/Testing.md. A file without a rule
+# What belongs to which part is in tests/test_selection.json, and how it works is in docs/wiki/Building.md, Which tests run. A file without a rule
 # runs everything. A push to root runs everything, so a rule that skips too much is found there.
 #
 # The test comment: for pull requests of this repository, a single comment (found by the hidden marker on its first line) lists
