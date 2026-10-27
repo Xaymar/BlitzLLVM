@@ -470,17 +470,19 @@ elseif(CASE STREQUAL "keywords_syntax")
 	blitzcc(+k --userlibs-dir "${USERLIBS}")
 	expect_ok()
 	expect_line("Dim")
-	# Returns something: 'Name$ ( parameters )', parameters with a default are in brackets.
-	expect_line("left$ ( param1$,param2 )")
-	expect_line("mid$ ( param1$,param2,[param3] )")
-	expect_line("rand ( param1,[param2] )")
-	# Returns nothing: 'Name parameters'.
-	expect_line("print [param1$]")
-	# Userlibs.
-	expect_line("CliAdd ( a,b )")
+	# Every function has a '( )' and its return type as a suffix, parameters with a default are in a bracket.
+	expect_line("left$ ( param1$,param2% )")
+	expect_line("mid$ ( param1$,param2% [,param3%] )")
+	expect_line("rand% ( param1% [,param2%] )")
+	# Returns nothing: no suffix, still '( )'.
+	expect_line("print ( [param1$] )")
+	# Keywords have no '( )' and no type.
+	expect_line("Dim")
+	# Userlibs: all integer types are %, all float types #.
+	expect_line("CliAdd% ( a%,b% )")
 	expect_line("CliScale# ( value#,factor# )")
-	expect_line("CliName$ ( id )")
-	expect_line("CliShow text$,handle*")
+	expect_line("CliName$ ( id% )")
+	expect_line("CliShow ( text$,handle* )")
 
 elseif(CASE STREQUAL "keywords_bad_userlib")
 	file(WRITE "${WORK}/userlibs/bad.decls" "CliAdd%(a%)\n")
