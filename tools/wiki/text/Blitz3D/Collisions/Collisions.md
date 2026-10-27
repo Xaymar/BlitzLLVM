@@ -69,5 +69,5 @@ Next
 @param source_type       Collision type of the entities that move.
 @param destination_type  Collision type of the entities they can hit.
 @param method            1 ellipsoid, 2 polygon, 3 box, see the table.
-@param response          1 stop, 2 slide, 3 slide without slipping down slopes.
-@gap Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
+@param response          1 stop, 2 slide, 3 slide without slipping down slopes. Any other value slides without limiting how far, like the original.
+@gap Types outside 0 to 999, or a method outside 1 to 3, stop the program with a runtime error.
