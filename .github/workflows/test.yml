@@ -148,7 +148,9 @@ jobs:
         # cached build keeps the version it was built with (stored next to it), or the tests would expect the new commit's.
         run: |
           mkdir -p build
+          ls -la build | head -20
           [ -f build/blitz-version ] || cmake -P cmake/project_version.cmake > build/blitz-version
+          echo "Version: $(cat build/blitz-version)"
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON -DBLITZLLVM_REQUIRE_NASM=ON -DBlitzLLVM_VERSION="$(cat build/blitz-version)"
       - name: Build
         if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
