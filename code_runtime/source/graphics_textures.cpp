@@ -391,6 +391,9 @@ namespace bb::gfx {
 			// channel is rebuilt, need the pixels, which are decoded then. So do mip maps (flag 8) that the file does not have, as
 			// they are made from pixels: the ones that are stored in the file are used where there are some.
 			if (gpu && !(flags & 128) && source.blocks && !(flags & TEXTURE_MASKED) && (source.block != block_format::bc5) && (!(flags & TEXTURE_ALPHA) || source.has_alpha) && (!(flags & TEXTURE_MIPMAPS) || (source.mips > 1)) && block_ok) {
+				if ((flags & TEXTURE_ALPHA) && !(flags & (64 | 128)) && source.has_alpha) {
+					picture_sprite_hull(source, flags, out.hull);
+				}
 				out.source     = source;
 				source         = picture();
 				out.compressed = true;
@@ -480,6 +483,8 @@ namespace bb::gfx {
 			if (p.compressed) {
 				entry.width  = p.source.width;
 				entry.height = p.source.height;
+				entry.hull   = p.hull;
+				p.hull       = sprite_hull();
 				upload_compressed(entry.image, entry.set, p.source, texture_sampler(flags), !(flags & TEXTURE_ALPHA), (flags & TEXTURE_MIPMAPS) != 0);
 				free_picture(p.source);
 			} else {

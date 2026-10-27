@@ -623,6 +623,20 @@ namespace bb::gfx {
 		return surface;
 	}
 
+	// Finds the hull of sprites for blocks that stay compressed on the GPU: the first level is decoded on the side for its alpha.
+	void picture_sprite_hull(picture const& p, int flags, sprite_hull& hull)
+	{
+		if (!p.blocks || p.width <= 0 || p.height <= 0) {
+			return;
+		}
+		uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(p.width) * size_t(p.height) * 4));
+		if (pixels) {
+			decode_blocks(p.block, p.width, p.height, p.blocks, pixels);
+			sprite_hull_compute(hull, pixels, p.width, p.height, size_t(p.width), flags);
+			free(pixels);
+		}
+	}
+
 	// The codecs for AVIF, JPEG XL and WebP are shared libraries next to the program (blitzcc copies them there from the runtime directory). SDL_image
 	// opens them by their name, which only finds them next to the program on Windows. So they are opened here by their path first, which makes the
 	// system find them by the name that they are loaded under. A format whose library is missing is reported once instead of silently not loading.
