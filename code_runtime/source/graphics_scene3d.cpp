@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <tuple>
+#include <map>
 #include <vector>
 
 using namespace bb::gfx;
@@ -778,6 +779,68 @@ namespace bb::gfx {
 		std::stable_sort(items.data, items.data + items.size, before);
 	}
 
+	// What is see-through has to be drawn from far to near where it overlaps, but two draws that can not be in the same place
+	// of the screen give the same picture in either order. So each draw goes to the first layer after the draws it can overlap
+	// that are not of its state, and the layers are drawn one after the other with the draws of one state next to each other,
+	// which makes them instances of one call. Draws that can overlap stay in their order, so the picture does not change.
+	static void group_blended(uint32_t first, uint32_t last)
+	{
+		if (last - first < 2) {
+			return;
+		}
+		std::vector<uint32_t> units;
+		for (uint32_t i = first; i < last; i++) {
+			if (draws[i].unit_start) {
+				units.push_back(i);
+			}
+		}
+		auto key = [](draw_record const& d) {
+			return std::make_tuple(uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+		};
+		// The screen is cut into cells; each remembers the layer and state of the last draw that touched it.
+		const int           grid = 32;
+		std::vector<int>    cell_layer(grid * grid, -1), cell_state(grid * grid, -1);
+		std::vector<int>    layer(units.size()), state(units.size());
+		std::map<decltype(key(draws[first])), int> states;
+		auto cell = [&](float v) { return std::min(grid - 1, std::max(0, int(floorf((v * 0.5f + 0.5f) * grid)))); };
+		for (size_t u = 0; u < units.size(); u++) {
+			draw_record const& d = draws[units[u]];
+			state[u]             = states.emplace(key(d), int(states.size())).first->second;
+			int x0 = cell(d.screen[0]), x1 = cell(d.screen[2]), y0 = cell(d.screen[1]), y1 = cell(d.screen[3]);
+			int at = 0;
+			for (int y = y0; y <= y1; y++) {
+				for (int x = x0; x <= x1; x++) {
+					int i = y * grid + x;
+					if (cell_layer[i] >= 0) {
+						at = std::max(at, (cell_state[i] == state[u]) ? cell_layer[i] : cell_layer[i] + 1);
+					}
+				}
+			}
+			layer[u] = at;
+			for (int y = y0; y <= y1; y++) {
+				for (int x = x0; x <= x1; x++) {
+					cell_layer[y * grid + x] = at;
+					cell_state[y * grid + x] = state[u];
+				}
+			}
+		}
+		std::vector<uint32_t> order(units.size());
+		for (size_t u = 0; u < order.size(); u++) {
+			order[u] = uint32_t(u);
+		}
+		std::stable_sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return std::make_pair(layer[a], state[a]) < std::make_pair(layer[b], state[b]); });
+		std::vector<draw_record> sorted;
+		sorted.reserve(last - first);
+		for (uint32_t u : order) {
+			for (uint32_t i = units[u]; (i < last) && ((i == units[u]) || !draws[i].unit_start); i++) {
+				sorted.push_back(draws[i]);
+			}
+		}
+		for (uint32_t i = 0; i < sorted.size(); i++) {
+			draws[first + i] = sorted[i];
+		}
+	}
+
 	// What is solid does not depend on the order it is drawn in, so the draws that are the same in what the GPU has to be
 	// told are put next to each other, which makes the calls and changes of state fewer. A surface and the layers that are
 	// drawn over it stay together, in the order they were in.
@@ -877,6 +940,49 @@ namespace bb::gfx {
 	static bool  have_planes;
 	static float current_pixels[2];  // Pixels per unit at a depth of 1 (perspective) or at any depth (orthographic), and whether it is orthographic.
 	static float current_view[3];    // Zoom, far plane and height divided by width of the camera, for planes.
+
+	// Where an entity can be on the screen, as left, bottom, right and top between -1 and 1: the box around it as seen by
+	// the camera, made a little bigger. It is the whole screen when that can not be told (no box, or a corner near or behind
+	// the camera, or a camera that is scaled).
+	static void screen_bounds(bb::entity& e, const float* m, float* out)
+	{
+		out[0] = out[1] = -1.0f;
+		out[2] = out[3] = 1.0f;
+		float lo[3], hi[3];
+		if (e.plane_divs || !bb::mesh_bounds(e, lo, hi) || (lo[0] > hi[0])) {
+			return;
+		}
+		float c[3][3] = { { current_camera[0], current_camera[1], current_camera[2] }, { current_camera[4], current_camera[5], current_camera[6] }, { current_camera[8], current_camera[9], current_camera[10] } };
+		for (int k = 0; k < 3; k++) {
+			float len = c[k][0] * c[k][0] + c[k][1] * c[k][1] + c[k][2] * c[k][2];
+			if (fabsf(len - 1.0f) > 1e-3f) {
+				return;
+			}
+		}
+		float left = 2, bottom = 2, right = -2, top = -2;
+		for (int corner = 0; corner < 8; corner++) {
+			float local[3] = { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] };
+			float rel[3];
+			for (int row = 0; row < 3; row++) {
+				rel[row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + float(double(m[12 + row]) - double(current_origin[row]));
+			}
+			float x = c[0][0] * rel[0] + c[0][1] * rel[1] + c[0][2] * rel[2];
+			float y = c[1][0] * rel[0] + c[1][1] * rel[1] + c[1][2] * rel[2];
+			float z = c[2][0] * rel[0] + c[2][1] * rel[1] + c[2][2] * rel[2];
+			if (z < 0.01f) {
+				return;
+			}
+			float sx = current_view[0] * x / z, sy = current_view[0] * y / (z * current_view[2]);
+			left   = fminf(left, sx);
+			right  = fmaxf(right, sx);
+			bottom = fminf(bottom, sy);
+			top    = fmaxf(top, sy);
+		}
+		out[0] = fmaxf(left - 0.02f, -1.0f);
+		out[1] = fmaxf(bottom - 0.02f, -1.0f);
+		out[2] = fminf(right + 0.02f, 1.0f);
+		out[3] = fminf(top + 0.02f, 1.0f);
+	}
 
 	// The part of a plane that the camera sees: a grid over the far end of the view that is let down onto the ground,
 	// and cut off where it is above the horizon. Returns nothing if the camera is below the plane.
@@ -1131,6 +1237,10 @@ namespace bb::gfx {
 			surfaces = plane;
 			count    = 1;
 		}
+		float screen[4] = { -1, -1, 1, 1 };
+		if (pass == 1) {
+			screen_bounds(*e, m, screen);
+		}
 		// Blitz3D takes the surfaces of an entity from the back of its queue, so the last surface is drawn first.
 		for (uint32_t n = 0; n < count; n++) {
 			bb::surface& surface = *surfaces[count - 1 - n];
@@ -1214,6 +1324,7 @@ namespace bb::gfx {
 			record.depth_write  = (!surface_blended && depth_test);
 			record.depth        = item.depth;
 			record.unit_start   = true;
+			memcpy(record.screen, screen, sizeof(screen));
 			shape->used_by_flush = flush_number;
 			ensure_entities(draws.size + 1 + 7);
 			draws.push(record);
@@ -1471,12 +1582,17 @@ namespace bb::gfx {
 			bb::profile_scope timer(bb::PROFILE_GROUP);
 			group_draws(opaque_first, draws.size);
 		}
+		uint32_t blended_first = draws.size;
 		{
 			bb::profile_scope timer(bb::PROFILE_DRAWS);
 			for (uint32_t i = 0; i < list.blended.size; i++) {
 				prefetch_entity(list.blended, i + 6);
 				draw_entity(list.blended[i], 1, true);
 			}
+		}
+		{
+			bb::profile_scope timer(bb::PROFILE_GROUP);
+			group_blended(blended_first, draws.size);
 		}
 		for (uint32_t i = 0; i < list.front.size; i++) {
 			draw_entity(list.front[i], 2, false);

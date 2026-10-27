@@ -581,6 +581,7 @@ namespace bb::gfx {
 		bool        cull, depth_test, depth_write;
 		float       depth;      // Distance in front of the camera of the entity, which orders what is see-through.
 		bool        unit_start; // First of the draws of a surface: the ones after it that are not are layers over it and stay behind it.
+		float       screen[4];  // Where it can be on the screen as left, bottom, right and top between -1 and 1, for what is see-through.
 	};
 
 
