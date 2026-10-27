@@ -1,9 +1,11 @@
 # The wiki is generated, and the result is not part of root. Only what it is made from is: the text of the commands
 # (tools/wiki/text, tools/wiki/pages), the categories and wiki.py, the list of commands (tests/suite/functions.txt), and
 # the hand written pages and media in docs/wiki. This workflow
-#   - on a pull request: builds the wiki into a temporary folder and runs `wiki.py check` on it (broken links, missing
-#     pages, sections out of order), and compiles the examples with the latest nightly compiler. Nothing is committed.
-#   - on a push to root: builds the wiki again and publishes it to the branch `wiki` of this repository (one regular
+#   - on a pull request: only runs `wiki.py check` (broken links, missing pages, sections out of order; it builds into a
+#     temporary folder) and builds the HTML help. The wiki is not built for publishing and nothing is committed. The examples
+#     are not compiled either: the nightly compiler lags behind a pull request that adds commands, and a pull request has no
+#     compiler of its own in this workflow.
+#   - on a push to root: builds the wiki, compiles the examples with the latest nightly compiler and publishes it to the branch `wiki` of this repository (one regular
 #     commit per change, so the history shows how the pages changed) and to the GitHub wiki.
 #   - by hand: builds and publishes to the branch named in the input (not to the GitHub wiki unless run on root).
 # Pushing to `wiki` with the workflow token does not start any workflow, and none of these triggers watches `wiki`, so
@@ -38,11 +40,12 @@ permissions:
 
 jobs:
   build:
-    name: Build the wiki
+    name: ${{ github.event_name == 'pull_request' && 'Check the wiki' || 'Build the wiki' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Build
+        if: github.event_name != 'pull_request'
         run: python3 tools/wiki/wiki.py build --out wiki-out
       - name: Check
         # Builds on its own into a temporary folder, so this also proves a clean build passes.
@@ -51,6 +54,7 @@ jobs:
         # The help of the packages (see helpgen.py) comes from the same text, so a change that breaks it fails here too.
         run: python3 tools/wiki/wiki.py help --out help-out
       - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
         with:
           name: wiki
           path: wiki-out
@@ -58,8 +62,10 @@ jobs:
 
   examples:
     name: Compile the examples
+    # Not on pull requests: the nightly compiler lags behind a pull request that adds commands, so it went red on every one.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    # The nightly compiler can lag behind a pull request that adds commands, so this reports but does not block.
+    # The nightly compiler can lag behind a push that adds commands, so this reports but does not block.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
