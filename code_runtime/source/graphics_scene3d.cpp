@@ -278,7 +278,7 @@ namespace bb::gfx {
 		}
 		select_frame_slot(0);
 
-		// Set 3 is the depth of what was drawn before the blended sprites, for SetSpriteSoftEdge.
+		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade.
 		VkDescriptorSetLayout layouts[4]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
 		layout_info.setLayoutCount         = 4;
@@ -304,7 +304,7 @@ namespace bb::gfx {
 		vkDestroyShaderModule(g.device, fs_solid, nullptr);
 	}
 	gpu_image          depth_cache[max_depths];
-	static VkDescriptorSet depth_sets[max_depths]; // Each depth buffer as something to sample, made when a sprite with a soft edge needs it.
+	static VkDescriptorSet depth_sets[max_depths]; // Each depth buffer as something to sample, made when a sprite with a depth fade needs it.
 
 	static VkDescriptorSet depth_set_for(gpu_image& depth)
 	{
@@ -469,7 +469,7 @@ namespace bb::gfx {
 		VkBuffer        bound_vertices = VK_NULL_HANDLE, bound_indices = VK_NULL_HANDLE;
 		int             bound_cull = -1, bound_test = -1, bound_write = -1;
 
-		// Sprites with a soft edge read the depth of what is behind them. Everything that writes depth comes before the first of
+		// Sprites with a depth fade read the depth of what is behind them. Everything that writes depth comes before the first of
 		// them (blended things and things that ignore depth don't write it), so from there on the buffer is only read, as
 		// the depth test and as the image they sample, which saves a copy of it.
 		uint32_t soft_first = scene.draw_count;
@@ -1250,8 +1250,8 @@ namespace bb::gfx {
 				}
 			}
 
-			// Only alpha and add blending look at the alpha, which is what the soft edge changes.
-			push.soft[0] = (e->sprite_mode && surface_blended && (blend != 2) && depth_test) ? e->sprite_soft_edge : 0.0f;
+			// Only alpha and add blending look at the alpha, which is what the depth fade changes.
+			push.soft[0] = (e->sprite_mode && surface_blended && (blend != 2) && depth_test) ? e->sprite_depth_fade : 0.0f;
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
 			record.push         = push;

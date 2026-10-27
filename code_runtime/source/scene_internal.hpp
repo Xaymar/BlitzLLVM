@@ -184,7 +184,7 @@ int32_t bb_create_sprite(int32_t parent);
 void bb_scale_sprite(int32_t handle, float x, float y);
 void bb_rotate_sprite(int32_t handle, float angle);
 void bb_sprite_view_mode(int32_t handle, int32_t mode);
-void bb_set_sprite_soft_edge(int32_t handle, float distance);
+void bb_sprite_depth_fade(int32_t handle, float distance);
 int32_t bb_create_plane(int32_t divisions, int32_t parent);
 int32_t bb_create_brush(float r, float g, float b);
 void bb_free_brush(int32_t handle);

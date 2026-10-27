@@ -425,7 +425,7 @@ def vertex_shader_3d():
     layout(set = 2, binding = 0) readonly buffer Entities { Entity entities[]; };
     #define entity entities[gl_InstanceIndex]
     layout(location = 6) flat out vec4 outMask; // What the fragment shader needs of the entity, so that it does not read the buffer.
-    layout(location = 8) flat out vec4 outSoft; // x: the distance of SetSpriteSoftEdge, 0 if off.
+    layout(location = 8) flat out vec4 outSoft; // x: the distance of SpriteDepthFade, 0 if off.
     layout(location = 0) out vec2 outUV;
     layout(location = 1) out vec4 outColor;
     void main() {
@@ -672,7 +672,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
         in_dir = b.variable("Input", v4, [(DECORATION["Location"], 7)])
         in_soft = b.variable("Input", v4, [(DECORATION["Location"], 8), (DECORATION["Flat"],)])
         in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
-        # The depth of what was drawn before the sprites, for SetSpriteSoftEdge.
+        # The depth of what was drawn before the sprites, for SpriteDepthFade.
         depth_tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
         interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag]
 
@@ -785,7 +785,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
             Module.inst("Label", merge_label),
         ]
     if fog:
-        # Sprites with a soft edge fade out where they get close to what is behind them: the distance between the depth
+        # Sprites with a depth fade fade out where they get close to what is behind them: the distance between the depth
         # buffer, which holds what was drawn before the sprites, and the sprite itself, as a part of the distance asked for.
         #   if (soft.x > 0) { z(d) = ortho ? far - d * (far - near) : far * near / ((far - near) * d + near);
         #                     alpha *= clamp((z(texelFetch(depth, ivec2(gl_FragCoord.xy)).x) - z(gl_FragCoord.z)) / soft.x, 0, 1); }

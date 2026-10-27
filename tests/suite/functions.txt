@@ -250,7 +250,7 @@ textureready	blitz3d	done	%TextureReady%texture
 imageready	graphics	done	%ImageReady%image
 asyncloading	graphics	done	AsyncLoading%enabled
 showentity	blitz3d	done	ShowEntity%entity
-setspritesoftedge	blitz3d	done	SetSpriteSoftEdge%sprite#soft_edge_distance
+spritedepthfade	blitz3d	done	SpriteDepthFade%sprite#fade_distance
 spriteviewmode	blitz3d	done	SpriteViewMode%sprite%view_mode
 stats3d	blitz3d	done	#Stats3D%type
 terraindetail	blitz3d	done	TerrainDetail%terrain%detail_level%morph=0
