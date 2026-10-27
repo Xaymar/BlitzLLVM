@@ -590,6 +590,55 @@ namespace bb::gfx {
 		g.target = back_buffer;
 	}
 
+	buffer_rect fit_buffer(float area_w, float area_h)
+	{
+		if (!g.fullscreen) {
+			return { 0, 0, area_w, area_h };
+		}
+		float scale = fminf(area_w / float(g.width), area_h / float(g.height));
+		const char* rule = getenv("BLITZ_FULLSCREEN_SCALE"); // "integer" only enlarges by whole numbers.
+		if (rule && (strcmp(rule, "integer") == 0) && (scale >= 1.0f)) {
+			scale = floorf(scale);
+		}
+		float w = floorf(float(g.width) * scale + 0.5f), h = floorf(float(g.height) * scale + 0.5f);
+		w       = fminf(fmaxf(w, 1.0f), area_w);
+		h       = fminf(fmaxf(h, 1.0f), area_h);
+		return { floorf((area_w - w) * 0.5f), floorf((area_h - h) * 0.5f), w, h };
+	}
+
+	void window_to_buffer(float wx, float wy, int* x, int* y)
+	{
+		int ww = 1, wh = 1;
+		SDL_GetWindowSize(g.window, &ww, &wh);
+		buffer_rect r = fit_buffer(float(ww), float(wh));
+		int         bx = int(floorf((wx - r.x) * float(g.width) / r.w)), by = int(floorf((wy - r.y) * float(g.height) / r.h));
+		if (g.fullscreen) {
+			// The mouse over a black bar is at the edge of the buffer.
+			bx = bx < 0 ? 0 : (bx >= int(g.width) ? int(g.width) - 1 : bx);
+			by = by < 0 ? 0 : (by >= int(g.height) ? int(g.height) - 1 : by);
+		}
+		*x = bx;
+		*y = by;
+	}
+
+	void buffer_to_window(float x, float y, float* wx, float* wy)
+	{
+		int ww = 1, wh = 1;
+		SDL_GetWindowSize(g.window, &ww, &wh);
+		buffer_rect r = fit_buffer(float(ww), float(wh));
+		*wx           = r.x + x * r.w / float(g.width);
+		*wy           = r.y + y * r.h / float(g.height);
+	}
+
+	void buffer_pixel_size(float* sx, float* sy)
+	{
+		int ww = 1, wh = 1;
+		SDL_GetWindowSize(g.window, &ww, &wh);
+		buffer_rect r = fit_buffer(float(ww), float(wh));
+		*sx           = r.w / float(g.width);
+		*sy           = r.h / float(g.height);
+	}
+
 	void ensure_swapchain()
 	{
 		if (g.resized || (g.swapchain == VK_NULL_HANDLE)) {

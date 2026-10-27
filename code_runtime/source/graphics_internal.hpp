@@ -123,6 +123,7 @@ void bb_gui_idle(void);
 	X(vkCmdDraw) \
 	X(vkCmdClearAttachments) \
 	X(vkCmdCopyImage) \
+	X(vkCmdClearColorImage) \
 	X(vkCmdBlitImage) \
 	X(vkCmdCopyBufferToImage) \
 	X(vkCmdDrawIndexed) \
@@ -204,6 +205,7 @@ namespace bb::gfx {
 		// Window
 		SDL_Window* window = nullptr;
 		bool        resized = false;
+		bool        fullscreen   = false; // A borderless window over the display, the buffer is shown with its aspect ratio kept.
 		bool        auto_suspend = false; // Whether the program waits while its window is not in front.
 		bool        suspended    = false; // Whether the window is not in front (or is minimized).
 
@@ -661,6 +663,17 @@ namespace bb::gfx {
 	void transition(gpu_image& img, VkImageLayout to);
 	void record_operations();
 	void present_front(bool copy_back);
+
+	// Where the buffer is shown in an area of the given size: all of it in a window, in a fullscreen window the largest
+	// part with the aspect ratio of the buffer, centered. The rest is black.
+	struct buffer_rect {
+		float x, y, w, h;
+	};
+	buffer_rect fit_buffer(float area_w, float area_h);
+	// Window coordinates (what SDL reports) to buffer coordinates and back, and the size of one buffer pixel in the window.
+	void window_to_buffer(float wx, float wy, int* x, int* y);
+	void buffer_to_window(float x, float y, float* wx, float* wy);
+	void buffer_pixel_size(float* sx, float* sy);
 	void flush();
 	operation& add_operation(op_kind kind, int texture, uint32_t vertices, int image = 0, const float* mask = nullptr);
 	vertex* add_vertices(op_kind kind, int texture, uint32_t count, int image = 0, const float* mask = nullptr);

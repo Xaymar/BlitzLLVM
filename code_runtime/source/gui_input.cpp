@@ -1575,10 +1575,7 @@ namespace bb::gui {
 
 		void to_buffer(float ex, float ey, int* x, int* y)
 		{
-			int ww = 1, wh = 1;
-			SDL_GetWindowSize(bb::gfx::g.window, &ww, &wh);
-			*x = int(ex * float(bb::gfx::g.width) / float(ww));
-			*y = int(ey * float(bb::gfx::g.height) / float(wh));
+			bb::gfx::window_to_buffer(ex, ey, x, y);
 		}
 	} // namespace
 
