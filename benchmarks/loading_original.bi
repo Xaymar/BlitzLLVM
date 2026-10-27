@@ -13,3 +13,7 @@ End Function
 Function BenchReady(texture)
 	Return 1
 End Function
+
+Function BenchEntityReady(entity)
+	Return 1
+End Function
