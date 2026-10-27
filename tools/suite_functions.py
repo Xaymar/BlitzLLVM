@@ -64,6 +64,8 @@ EXTENSIONS = {
     "countrefreshrates": ("graphics", "%CountRefreshRates%display%width%height"),
     "refreshrateat": ("graphics", "%RefreshRateAt%display%width%height%index"),
     "microseconds": ("runtime", "&Microseconds"),
+    "playmovie": ("graphics", "PlayMovie%movie"),
+    "pausemovie": ("graphics", "PauseMovie%movie"),
     "createsampler": ("blitz3d", "%CreateSampler"),
     "freesampler": ("blitz3d", "FreeSampler%sampler"),
     "setsamplerfiltermin": ("blitz3d", "SetSamplerFilterMin%sampler%mode"),

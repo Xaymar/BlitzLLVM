@@ -407,6 +407,8 @@ moviewidth	graphics	done	%MovieWidth%movie
 openmovie	graphics	done	%OpenMovie$file
 origin	graphics	done	Origin%x%y
 oval	graphics	done	Oval%x%y%width%height%solid=1
+pausemovie	graphics	done	PauseMovie%movie
+playmovie	graphics	done	PlayMovie%movie
 plot	graphics	done	Plot%x%y
 primarydisplay	graphics	done	%PrimaryDisplay
 print	graphics	done	Print$string=\

@@ -15,3 +15,5 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [MoviePlaying](MoviePlaying)
 * [MovieWidth](MovieWidth)
 * [OpenMovie](OpenMovie)
+* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
+* [PlayMovie](PlayMovie) 〔BlitzLLVM〕

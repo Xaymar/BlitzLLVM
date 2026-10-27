@@ -536,6 +536,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PaintMesh](PaintMesh)
 * [PaintSurface](PaintSurface)
 * [PauseChannel](PauseChannel)
+* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PauseTimer](PauseTimer)
 * [PeekByte](PeekByte)
 * [PeekEvent](PeekEvent)
@@ -553,6 +554,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PickedY](PickedY)
 * [PickedZ](PickedZ)
 * [PlayCDTrack](PlayCDTrack)
+* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 * [PlayMusic](PlayMusic)
 * [PlaySound](PlaySound)
 * [Plot](Plot)

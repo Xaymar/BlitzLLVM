@@ -50,5 +50,7 @@ CloseMovie m
 * [MoviePlaying](MoviePlaying)
 * [MovieWidth](MovieWidth)
 * [OpenMovie](OpenMovie)
+* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
+* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)

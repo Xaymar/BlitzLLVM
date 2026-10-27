@@ -50,8 +50,6 @@ Print Str(12) + "!"
 | `= <> < > <= >=` | Comparison. They give 1 for true and 0 for false. |
 | `Abs() Sgn() Pi` | Absolute value, sign (-1, 0 or 1) and the number 3.14159. |
 
-From tightest to loosest, the operators bind in this order: `^`, then `* / Mod`, then `Shl Shr Sar`, then `+ -`, then the comparisons, then `And Or Xor` together (from left to right, so `a Or b And c` is `(a Or b) And c`), and `Not` last of all, so `Not a And b` is `Not (a And b)`. If either side of `+ - * / Mod` is a float the result is a float, and `^` always gives a float. The operands of `And Or Xor Shl Shr Sar` and conditions such as `If 0.4` become integers first, rounding to the nearest whole number, so `If 0.4` is false. A hex or binary number written with `$` or `%` keeps its lowest 32 bits, so `$FFFFFFFF` is -1. A constant without a type character is an integer, so `Const Half = 0.5` is 0, and dividing by a constant zero does not compile.
-
 ```blitzbasic
 Print 7 Mod 4
 Print 1 Shl 4

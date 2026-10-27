@@ -159,9 +159,12 @@ namespace {
 		std::vector<uint8_t> current;       // What is shown.
 		bool                 changed = false; // Whether `current` has to be put in the image.
 		bool                 ended_input = false;
-		bool                 started = false;
+		bool                 started = false;  // Whether the movie was used, which is when it begins to play unless it was paused before.
 		bool                 finished = false;
-		Uint64               start = 0;
+		bool                 paused = false;   // PauseMovie: the clock stands still until PlayMovie.
+		bool                 running = false;  // Whether the clock is going.
+		double               base = 0.0;       // The position of the movie, in seconds, when the clock was last started.
+		Uint64               resumed = 0;      // The time of the program when the clock was last started.
 	};
 
 	std::vector<movie> movies(1); // Handle 0 is not a movie.
@@ -303,6 +306,34 @@ namespace {
 		return true;
 	}
 
+	// The position of the movie in seconds.
+	double clock_of(movie const& m)
+	{
+		return m.running ? m.base + double(SDL_GetTicksNS() - m.resumed) / 1e9 : m.base;
+	}
+
+	void start_clock(movie& m)
+	{
+		if (!m.running) {
+			m.running = true;
+			m.resumed = SDL_GetTicksNS();
+			if (m.stream) {
+				SDL_ResumeAudioStreamDevice(m.stream);
+			}
+		}
+	}
+
+	void stop_clock(movie& m)
+	{
+		if (m.running) {
+			m.base    = clock_of(m);
+			m.running = false;
+			if (m.stream) {
+				SDL_PauseAudioStreamDevice(m.stream);
+			}
+		}
+	}
+
 	double queued_seconds(movie& m)
 	{
 		return m.stream ? double(SDL_GetAudioStreamQueued(m.stream)) / double(audio_rate * 4) : 0.0;
@@ -315,12 +346,11 @@ namespace {
 		}
 		if (!m.started) {
 			m.started = true;
-			m.start   = SDL_GetTicksNS();
-			if (m.stream) {
-				SDL_ResumeAudioStreamDevice(m.stream);
+			if (!m.paused) {
+				start_clock(m);
 			}
 		}
-		double clock = double(SDL_GetTicksNS() - m.start) / 1e9;
+		double clock = clock_of(m);
 
 		// Decode in front of the clock, as far as the sound and the pictures ahead are wanted.
 		// Files that store the sound later than the pictures need more pictures kept for the sound to be there in time.
@@ -453,6 +483,23 @@ int32_t bb_movie_playing(int32_t handle)
 	}
 	update(*m);
 	return m->finished ? 0 : 1;
+}
+
+void bb_play_movie(int32_t handle)
+{
+	if (movie* m = movie_of(handle)) {
+		m->paused  = false;
+		m->started = true;
+		start_clock(*m);
+	}
+}
+
+void bb_pause_movie(int32_t handle)
+{
+	if (movie* m = movie_of(handle)) {
+		m->paused = true;
+		stop_clock(*m);
+	}
 }
 
 // Keeps the sound of the movies going while the program waits.
