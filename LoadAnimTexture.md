@@ -36,6 +36,7 @@ Loads one picture that holds several frames laid out left to right, top to botto
 
 ## Differences
 
+* TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 * TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
 
 ## Examples

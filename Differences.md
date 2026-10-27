@@ -22,6 +22,7 @@ Differences that are not caused by one command.
 * [Displays](Displays): Extension: commands for every connected display and its modes.
 * [DPI scaling on Windows](DPI-Scaling): Programs on Windows are DPI aware: Windows does not scale their windows, so one pixel of the program is one pixel of the screen at any scaling.
 * [Fullscreen](Fullscreen): Fullscreen (mode 1 of `Graphics` and `Graphics3D`) is a borderless window over the main display that keeps the aspect ratio of the picture, instead of changing the video mode of the display.
+* [Image formats](Image-Formats): Picture files: TIFF and JPEG 2000 are not read, but WebP, AVIF, JPEG XL, DDS and several other formats are.
 * [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
 * [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains; there is no anisotropic filtering.
@@ -165,17 +166,17 @@ Commands that differ from the original or are not finished, with the first of th
 * [LeadingZeros](LeadingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
 * [Load3DSound](Load3DSound#differences): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
 * [LoadAnimMesh](LoadAnimMesh#differences): Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh).
-* [LoadAnimTexture](LoadAnimTexture#differences): TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
+* [LoadAnimTexture](LoadAnimTexture#differences): TIFF and JPEG 2000 files do not load, which the original read.
 * [LoadBSP](LoadBSP#differences): Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices.
-* [LoadBuffer](LoadBuffer#differences): Formats other than BMP load as well.
+* [LoadBuffer](LoadBuffer#differences): Formats other than BMP load as well, but not TIFF or JPEG 2000, see [Image formats](Image-Formats).
 * [LoaderMatrix](LoaderMatrix#differences): The matrix is remembered but never used.
 * [LoadFont](LoadFont#differences): Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one).
-* [LoadImage](LoadImage#differences): More file formats load than in the original, which read BMP, PNG, JPEG and TGA.
+* [LoadImage](LoadImage#differences): TIFF and JPEG 2000 files do not load, which the original read.
 * [LoadMesh](LoadMesh#differences): Only `.b3d` and `.3ds` files can be loaded.
 * [LoadSound](LoadSound#differences): MIDI , module and Windows Media files are not supported.
 * [LoadSprite](LoadSprite#differences): A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending.
 * [LoadTerrain](LoadTerrain#differences): The official help says that the red channel is used.
-* [LoadTexture](LoadTexture#differences): Video memory, high color and point sampling flags are stored but have no effect, see CreateTexture.
+* [LoadTexture](LoadTexture#differences): TIFF and JPEG 2000 files do not load, which the original read.
 * [Locate](Locate#differences): The position is limited to the window.
 * [LockBuffer](LockBuffer#differences): Up to 8 buffers can be locked at the same time.
 * [LockedFormat](LockedFormat#differences): Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte).
