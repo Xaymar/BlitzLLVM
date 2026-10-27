@@ -850,6 +850,8 @@ namespace bb::gfx {
 	bool image_is_ready(int handle);
 	/** The decoded pixels of a picture. The surface is for the caller to destroy and the picture is empty afterwards. */
 	SDL_Surface* picture_surface(picture& p);
+	/** Finds the hull of sprites (see sprite_hull_compute) of a picture of compressed blocks, from its first level. */
+	void picture_sprite_hull(picture const& p, int flags, sprite_hull& hull);
 	void free_picture(picture& p);
 	/** Decodes blocks to RGBA, whose rows have no padding. BC4 is grey, and BC5 is a normal map. */
 	void decode_blocks(block_format format, int width, int height, const uint8_t* blocks, uint8_t* rgba);

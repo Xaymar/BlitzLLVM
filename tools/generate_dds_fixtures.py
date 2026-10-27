@@ -71,6 +71,23 @@ def bc7_solid(r, g, b, a):
 RED, BLUE = rgb565(255, 0, 0), rgb565(0, 0, 255)
 
 
+def dxt5_puff(size=64):
+    # A round puff, white and fading to see-through at the edge, as DXT5 for the tests of sprite shapes. A block has the alpha end points 255
+    # and 0, which gives the 8 steps 255, 0, 218, 182, 146, 109, 73, 36 that each pixel takes the nearest of, and one white color.
+    steps = [255, 0, 218, 182, 146, 109, 73, 36]
+    data = b""
+    for by in range(size // 4):
+        for bx in range(size // 4):
+            indices = 0
+            for i in range(16):
+                x, y = bx * 4 + i % 4, by * 4 + i // 4
+                dx, dy = (x - (size - 1) / 2) / (size / 2), (y - (size - 1) / 2) / (size / 2)
+                alpha = max(0.0, min(1.0, (1 - (dx * dx + dy * dy) ** 0.5) * 2)) * 255
+                indices |= min(range(8), key=lambda k: abs(steps[k] - alpha)) << (3 * i)
+            data += bytes((255, 0)) + indices.to_bytes(6, "little") + bc1(rgb565(255, 255, 255))
+    return header(b"DXT5", width=size, height=size) + data
+
+
 def main():
     folder = Path(sys.argv[1])
     folder.mkdir(parents=True, exist_ok=True)
@@ -81,6 +98,7 @@ def main():
         "bc4.dds": header(b"ATI1") + bc4(255) + bc4(0),
         "bc7.dds": header(b"DX10", dxgi=98) + bc7_solid(255, 0, 0, 255) + bc7_solid(0, 0, 255, 0),
     }
+    files["sprite_hull_puff.dds"] = dxt5_puff()
     # Chains of mip levels, down to 1 by 1. The levels that are smaller than a block still take a whole block.
     def chain(width, height):
         colors = [rgb565(255, 0, 0), rgb565(0, 255, 0), rgb565(0, 0, 255), rgb565(255, 255, 0), rgb565(255, 255, 255)]

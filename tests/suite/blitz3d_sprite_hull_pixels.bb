@@ -114,6 +114,11 @@ loaded = LoadTexture("images/sprite_hull_puff.png", 3)
 EntityTexture sprite, loaded
 RenderWorld
 CheckS "A round texture from a file has the octagon", "" + TrisRendered(), "6"
+; Blocks that stay compressed on the GPU are decoded on the side for their hull.
+dds = LoadTexture("images/sprite_hull_puff.dds", 3)
+EntityTexture sprite, dds
+RenderWorld
+CheckS "A round DDS texture has the octagon", "" + TrisRendered(), "6"
 AsyncLoading 1
 loaded2 = LoadTexture("images/sprite_hull_puff.png", 3)
 While TextureReady(loaded2) = 0
