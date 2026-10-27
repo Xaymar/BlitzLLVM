@@ -102,6 +102,11 @@ suite_checks = suite_checks + 1
 original = LoadMesh("models/quad.3ds")
 copy = CopyEntity(original)
 Check "A copy of an async mesh", CountSurfaces(copy), 1
+; Both own their bookkeeping: freeing one must not free the other's.
+FreeEntity copy
+Check "The original after its copy was freed", CountSurfaces(original), 1
+FreeEntity original
+suite_checks = suite_checks + 1
 
 ; Flip finishes models that are done.
 flipped = LoadMesh("models/quad.3ds")
