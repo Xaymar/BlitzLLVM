@@ -191,6 +191,9 @@ namespace blitz {
 		/** Which warnings are on and which are errors (-W options). */
 		blitz::warning_settings warning_options;
 
+		/** Every warning that was emitted is also kept here, with what would fix it, for tools such as blitz-tidy. */
+		std::vector<finding> findings;
+
 		/** Generate LLVM IR for the given program. Throws blitz::error on failure. */
 		std::string generate(ast::program const& program);
 
@@ -203,7 +206,8 @@ namespace blitz {
 		private:
 		// Errors and warnings
 		blitz::error err(ast::location const& where, std::string const& reason) const;
-		void         warn(ast::location const& where, const char* name, std::string const& reason, std::string const& notice = std::string());
+		void         warn(ast::location const& where, const char* name, std::string const& reason, std::string const& notice = std::string(), std::vector<edit> edits = {}, std::string const& detail = std::string());
+		static std::string declaration_suffix(blitz::types::type t, std::string const& sname);
 		void         warn_typeless(ast::location const& where, std::string const& name, std::string const& kind = "");
 		void         report_unused(std::map<std::string, variable>& variables);
 		bool         is_lossy(blitz::types::type from, blitz::types::type to, std::string const& literal) const;
@@ -243,7 +247,7 @@ namespace blitz {
 		// Types and values
 		value       zero(blitz::types::type type);
 		value       constant(blitz::types::type type, double number);
-		value       convert(value from, blitz::types::type to, ast::location const& where, bool warn, std::string const& to_sname = std::string());
+		value       convert(value from, blitz::types::type to, ast::location const& where, bool warn, std::string const& to_sname = std::string(), ast::range const* covers = nullptr);
 		value       call_runtime(const char* symbol, blitz::types::type ret, std::vector<value> const& args);
 		void        guard(std::string const& failed, const char* message);
 		value       inline_builtin(std::string const& symbol, std::vector<value> const& args, bool& handled);

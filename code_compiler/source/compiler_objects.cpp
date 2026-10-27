@@ -153,7 +153,7 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 	if (auto r = dynamic_cast<ast::reference const*>(expr)) {
 		variable* var = find(r->name);
 		if (!var) {
-			warn(r->where, "implicit-variable", "'" + r->name + "' was not declared, it is a new local variable.", "Declare it first, such as 'Local " + r->name + "'.");
+			warn(r->where, "implicit-variable", "'" + r->name + "' was not declared, it is a new local variable.", "Declare it first, such as 'Local " + r->name + "'.", {}, declaration_suffix(r->type, r->struct_name));
 			create_local(r->name, (r->type == type::UNKNOWN) ? type::INT32 : r->type, false, r->where, r->struct_name);
 			var = find(r->name);
 		}
@@ -193,7 +193,7 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 		if (!base.count) {
 			throw err(i->where, "This is not an array.");
 		}
-		auto index = convert(gen(i->index.get()), type::INT32, i->index->where, true);
+		auto index = convert(gen(i->index.get()), type::INT32, i->index->where, true, std::string(), &i->index->covers);
 		call_runtime("bb_check_index", type::UNKNOWN, { index, { std::to_string(base.count), type::INT32 } });
 		auto p = tmp();
 		emit(p + " = getelementptr inbounds [" + std::to_string(base.count) + " x " + blitz::types::to_llvm(base.type) + "], ptr " + base.pointer + ", i32 0, i32 " + index.repr);
@@ -259,7 +259,7 @@ blitz::compiler::value blitz::compiler::gen_neighbor(ast::list_neighbor const* n
 blitz::compiler::value blitz::compiler::gen_from_handle(ast::object_from_handle const* node)
 {
 	auto& info   = need_type(node->type_name, node->where);
-	auto  handle = convert(gen(node->handle.get()), type::INT32, node->handle->where, true);
+	auto  handle = convert(gen(node->handle.get()), type::INT32, node->handle->where, true, std::string(), &node->handle->covers);
 	auto  result = call_runtime("bb_object_from_handle", type::STRUCT, { handle });
 	result.sname = lower(info.name);
 	return result;

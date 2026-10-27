@@ -194,7 +194,7 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 
 		auto llvm = blitz::types::to_llvm(var.type);
 		if (decl.initial) {
-			auto v = convert(gen(decl.initial.get()), var.type, decl.initial->where, true, var.sname);
+			auto v = convert(gen(decl.initial.get()), var.type, decl.initial->where, true, var.sname, &decl.initial->covers);
 			store_value({ var.pointer, var.type, var.sname, 0, false }, v);
 		} else if (!node->global) {
 			// Locals start out as zero every time the declaration is executed.
@@ -213,7 +213,7 @@ void blitz::compiler::gen_assign(ast::assign const* node)
 	if (addr.count) {
 		throw err(node->where, "Arrays can't be assigned as a whole, use an index.");
 	}
-	auto v = convert(rhs, addr.type, node->value->where, true, addr.sname);
+	auto v = convert(rhs, addr.type, node->value->where, true, addr.sname, &node->value->covers);
 	store_value(addr, v);
 }
 
@@ -305,9 +305,9 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 
 	scope sc;
 	scope_begin(sc);
-	auto from = convert(gen(node->from.get()), var.type, node->from->where, true);
-	auto to   = convert(gen(node->to.get()), var.type, node->to->where, true);
-	auto step = node->step ? convert(gen(node->step.get()), var.type, node->step->where, true) : constant(var.type, 1);
+	auto from = convert(gen(node->from.get()), var.type, node->from->where, true, std::string(), &node->from->covers);
+	auto to   = convert(gen(node->to.get()), var.type, node->to->where, true, std::string(), &node->to->covers);
+	auto step = node->step ? convert(gen(node->step.get()), var.type, node->step->where, true, std::string(), &node->step->covers) : constant(var.type, 1);
 	scope_end(sc);
 	emit("store " + llvm + " " + from.repr + ", ptr " + var.pointer);
 
@@ -414,9 +414,9 @@ void blitz::compiler::gen_return(ast::return_statement const* node)
 			}
 			warn(node->value->where, "return-type-mismatch", "Return gives " + t::display(given.type) + ", but the function returns " + t::display(_return_type) + ".", fix.empty() ? "Change the type of the function or of the returned value." : "Use " + fix + " to convert on purpose.");
 			// This says what the implicit conversion warnings would say.
-			v = convert(given, _return_type, node->value->where, false, _return_sname);
+			v = convert(given, _return_type, node->value->where, false, _return_sname, &node->value->covers);
 		} else {
-			v = convert(given, _return_type, node->value->where, true, _return_sname);
+			v = convert(given, _return_type, node->value->where, true, _return_sname, &node->value->covers);
 		}
 	}
 	if (_return_type == type::STRING) {
