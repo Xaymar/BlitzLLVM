@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -49,10 +49,10 @@ Print RotR(1, 1)
 
 ## Related Commands
 
-[RndSeed](RndSeed), [RotL](RotL) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕
+[PopCount](PopCount) 〔BlitzLLVM〕, [RotL](RotL) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Strings](Language-Features-Strings)
 
 </div>
 
@@ -43,6 +43,6 @@ HELLO WORLD 1!
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Strings](Language-Features-Strings)
 
 </div>

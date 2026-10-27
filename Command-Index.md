@@ -10,6 +10,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## A
 
+* [Abs](Abs)
 * [AcceptTCPStream](AcceptTCPStream)
 * [ACos](ACos)
 * [ActivateGadget](ActivateGadget)
@@ -79,6 +80,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [CameraZoom](CameraZoom)
 * [CanvasBuffer](CanvasBuffer)
 * [CaptureWorld](CaptureWorld)
+* [Case](Case)
 * [Ceil](Ceil)
 * [ChangeDir](ChangeDir)
 * [ChannelPan](ChannelPan)
@@ -120,6 +122,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [ColorRed](ColorRed)
 * [CommandLine](CommandLine)
 * [Confirm](Confirm)
+* [Const](Const)
 * [CopyBank](CopyBank)
 * [CopyEntity](CopyEntity)
 * [CopyFile](CopyFile)
@@ -193,6 +196,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 * [DebugLog](DebugLog)
 * [DebugObjects](DebugObjects)
+* [Default](Default)
 * [Delay](Delay)
 * [DeleteDir](DeleteDir)
 * [DeleteFile](DeleteFile)
@@ -228,13 +232,18 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## E
 
+* [Else](Else)
+* [ElseIf](ElseIf)
 * [EmitSound](EmitSound)
 * [EnableDirectInput](EnableDirectInput)
 * [EnableGadget](EnableGadget)
 * [EnableMenu](EnableMenu)
 * [EnableToolBarItem](EnableToolBarItem)
 * [End](End)
+* [EndFunction](EndFunction)
 * [EndGraphics](EndGraphics)
+* [EndIf](EndIf)
+* [EndSelect](EndSelect)
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)
 * [EntityBlend](EntityBlend)
@@ -269,6 +278,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [EventY](EventY)
 * [EventZ](EventZ)
 * [ExecFile](ExecFile)
+* [Exit](Exit)
 * [Exp](Exp)
 * [ExpandTreeViewNode](ExpandTreeViewNode)
 * [ExtractAnimSeq](ExtractAnimSeq)
@@ -284,6 +294,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [Flip](Flip)
 * [FlipCanvas](FlipCanvas)
 * [FlipMesh](FlipMesh)
+* [Float](Float)
 * [Floor](Floor)
 * [FlushEvents](FlushEvents)
 * [FlushJoy](FlushJoy)
@@ -296,6 +307,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [FontSize](FontSize)
 * [FontStyle](FontStyle)
 * [FontWidth](FontWidth)
+* [For](For)
+* [Forever](Forever)
 * [FormatTextAreaText](FormatTextAreaText)
 * [FreeBank](FreeBank)
 * [FreeBrush](FreeBrush)
@@ -310,6 +323,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [FreeTimer](FreeTimer)
 * [FreeTreeViewNode](FreeTreeViewNode)
 * [FrontBuffer](FrontBuffer)
+* [Function](Function)
 
 ## G
 
@@ -365,6 +379,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GfxModeFormat](GfxModeFormat)
 * [GfxModeHeight](GfxModeHeight)
 * [GfxModeWidth](GfxModeWidth)
+* [Global](Global)
+* [Gosub](Gosub)
+* [Goto](Goto)
 * [GrabImage](GrabImage)
 * [Graphics](Graphics)
 * [Graphics3D](Graphics3D)
@@ -378,6 +395,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 ## H
 
 * [Half](Half) 〔BlitzLLVM〕
+* [Handle](Handle)
 * [HandleImage](HandleImage)
 * [HandleSprite](HandleSprite)
 * [Hex](Hex)
@@ -399,6 +417,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## I
 
+* [If](If)
 * [ImageBuffer](ImageBuffer)
 * [ImageHeight](ImageHeight)
 * [ImageReady](ImageReady) 〔BlitzLLVM〕
@@ -409,10 +428,12 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [ImageWidth](ImageWidth)
 * [ImageXHandle](ImageXHandle)
 * [ImageYHandle](ImageYHandle)
+* [Include](Include)
 * [Input](Input)
 * [InsertGadgetItem](InsertGadgetItem)
 * [InsertTreeViewNode](InsertTreeViewNode)
 * [Instr](Instr)
+* [Int](Int)
 
 ## J
 
@@ -471,6 +492,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [LoadSprite](LoadSprite)
 * [LoadTerrain](LoadTerrain)
 * [LoadTexture](LoadTexture)
+* [Local](Local)
 * [Locate](Locate)
 * [LockBuffer](LockBuffer)
 * [LockedFormat](LockedFormat)
@@ -505,6 +527,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [MidHandle](MidHandle)
 * [MilliSecs](MilliSecs)
 * [MinimizeWindow](MinimizeWindow)
+* [Mod](Mod)
 * [ModifyGadgetItem](ModifyGadgetItem)
 * [ModifyTerrain](ModifyTerrain)
 * [ModifyTreeViewNode](ModifyTreeViewNode)
@@ -536,11 +559,13 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [NetMsgType](NetMsgType)
 * [NetPlayerLocal](NetPlayerLocal)
 * [NetPlayerName](NetPlayerName)
+* [Next](Next)
 * [NextFile](NextFile)
 * [Notify](Notify)
 
 ## O
 
+* [Object](Object)
 * [OpenFile](OpenFile)
 * [OpenMovie](OpenMovie)
 * [OpenTCPStream](OpenTCPStream)
@@ -560,6 +585,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PeekFloat](PeekFloat)
 * [PeekInt](PeekInt)
 * [PeekShort](PeekShort)
+* [Pi](Pi)
 * [PickedEntity](PickedEntity)
 * [PickedNX](PickedNX)
 * [PickedNY](PickedNY)
@@ -617,6 +643,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [RefreshRateAt](RefreshRateAt) 〔BlitzLLVM〕
 * [RemoveGadgetItem](RemoveGadgetItem)
 * [RenderWorld](RenderWorld)
+* [Repeat](Repeat)
 * [Replace](Replace)
 * [RequestColor](RequestColor)
 * [RequestDir](RequestDir)
@@ -632,6 +659,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [RestoreWindow](RestoreWindow)
 * [ResumeChannel](ResumeChannel)
 * [ResumeTimer](ResumeTimer)
+* [Return](Return)
 * [Right](Right)
 * [Rnd](Rnd)
 * [RndSeed](RndSeed)
@@ -667,6 +695,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SeedRnd](SeedRnd)
 * [SeekFile](SeekFile)
 * [SeekMovie](SeekMovie) 〔BlitzLLVM〕
+* [Select](Select)
 * [SelectedGadgetItem](SelectedGadgetItem)
 * [SelectedTreeViewNode](SelectedTreeViewNode)
 * [SelectGadgetItem](SelectGadgetItem)
@@ -712,6 +741,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SetTextAreaText](SetTextAreaText)
 * [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 * [SetToolBarTips](SetToolBarTips)
+* [Sgn](Sgn)
 * [Short](Short) 〔BlitzLLVM〕
 * [ShowEntity](ShowEntity)
 * [ShowGadget](ShowGadget)
@@ -725,10 +755,12 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [Sqr](Sqr)
 * [StartNetGame](StartNetGame)
 * [Stats3D](Stats3D)
+* [Step](Step)
 * [Stop](Stop)
 * [StopChannel](StopChannel)
 * [StopMovie](StopMovie) 〔BlitzLLVM〕
 * [StopNetGame](StopNetGame)
+* [Str](Str)
 * [String](String)
 * [StringHeight](StringHeight)
 * [StringWidth](StringWidth)
@@ -772,9 +804,11 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [TFormNormal](TFormNormal)
 * [TFormPoint](TFormPoint)
 * [TFormVector](TFormVector)
+* [Then](Then)
 * [TileBlock](TileBlock)
 * [TileImage](TileImage)
 * [TimerTicks](TimerTicks)
+* [To](To)
 * [TotalVidMem](TotalVidMem)
 * [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 * [TranslateEntity](TranslateEntity)
@@ -798,6 +832,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [UncheckMenu](UncheckMenu)
 * [UnlockBuffer](UnlockBuffer)
 * [UnlockTextArea](UnlockTextArea)
+* [Until](Until)
 * [UpdateGamma](UpdateGamma)
 * [UpdateNormals](UpdateNormals)
 * [UpdateProgBar](UpdateProgBar)
@@ -838,6 +873,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [WaitMouse](WaitMouse)
 * [WaitTimer](WaitTimer)
 * [WBuffer](WBuffer)
+* [Wend](Wend)
+* [While](While)
 * [Windowed3D](Windowed3D)
 * [WindowMaximized](WindowMaximized)
 * [WindowMenu](WindowMenu)

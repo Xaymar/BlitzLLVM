@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>
 
@@ -44,10 +44,10 @@ five ticks at 50 per second
 
 ## Related Commands
 
-[AppTitle](AppTitle), [CommandLine](CommandLine), [FreeTimer](FreeTimer), [WaitTimer](WaitTimer)
+[CurrentDate](CurrentDate), [CurrentTime](CurrentTime), [FreeTimer](FreeTimer), [WaitTimer](WaitTimer)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>

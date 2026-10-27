@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -28,10 +28,10 @@ Sets an environment variable for this program and for the programs it starts wit
 
 ## Related Commands
 
-[GetEnv](GetEnv), [MilliSecs](MilliSecs), [RuntimeError](RuntimeError), [Stop](Stop)
+[GetEnv](GetEnv), [RuntimeError](RuntimeError), [RuntimeStats](RuntimeStats), [SystemProperty](SystemProperty)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>

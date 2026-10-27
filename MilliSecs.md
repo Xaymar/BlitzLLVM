@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>
 
@@ -37,10 +37,10 @@ Print MilliSecs() - start >= 45
 
 ## Related Commands
 
-[GetEnv](GetEnv), [Microseconds](Microseconds) 〔BlitzLLVM〕, [RuntimeError](RuntimeError), [SetEnv](SetEnv)
+[FreeTimer](FreeTimer), [Microseconds](Microseconds) 〔BlitzLLVM〕, [WaitTimer](WaitTimer)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>

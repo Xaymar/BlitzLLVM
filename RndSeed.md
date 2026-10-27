@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Randomization](Language-Features-Randomization)
 
 </div>
 
@@ -25,10 +25,10 @@ _Not documented yet._
 
 ## Related Commands
 
-[Rand](Rand), [Rnd](Rnd), [RotL](RotL) 〔BlitzLLVM〕, [SeedRnd](SeedRnd)
+[Rand](Rand), [Rnd](Rnd), [SeedRnd](SeedRnd)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Randomization](Language-Features-Randomization)
 
 </div>

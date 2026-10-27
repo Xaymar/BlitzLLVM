@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -52,10 +52,10 @@ Print LeadingZeros(0)
 
 ## Related Commands
 
-[Floor](Floor), [Half](Half) 〔BlitzLLVM〕, [Log](Log), [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
+[Exp](Exp), [Floor](Floor), [Log](Log), [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

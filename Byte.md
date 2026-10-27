@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>
 
@@ -54,10 +54,10 @@ Print Byte(-1000.0)
 
 ## Related Commands
 
-[ByteSwap](ByteSwap) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕
+[Double](Double) 〔BlitzLLVM〕, [Float](Float), [UByte](UByte) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>

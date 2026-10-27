@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -42,10 +42,10 @@ Print ATan2(0, -1)
 
 ## Related Commands
 
-[ACos](ACos), [ASin](ASin), [ATan](ATan), [Byte](Byte) 〔BlitzLLVM〕
+[ACos](ACos), [ASin](ASin), [ATan](ATan), [ByteSwap](ByteSwap) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

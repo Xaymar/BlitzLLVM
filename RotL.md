@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -51,10 +51,10 @@ Print RotL(ULong(1) Shl 63, 1)
 
 ## Related Commands
 
-[Rnd](Rnd), [RndSeed](RndSeed), [RotR](RotR) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕
+[Pi](Pi), [PopCount](PopCount) 〔BlitzLLVM〕, [RotR](RotR) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

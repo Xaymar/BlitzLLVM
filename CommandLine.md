@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -31,10 +31,10 @@ Print "Started with: " + CommandLine$()
 
 ## Related Commands
 
-[AppTitle](AppTitle), [CreateTimer](CreateTimer), [DebugLog](DebugLog)
+[AppTitle](AppTitle), [CallDLL](CallDLL), [DebugLog](DebugLog), [ExecFile](ExecFile)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>

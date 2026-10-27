@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -39,10 +39,10 @@ Print Exp(1)
 
 ## Related Commands
 
-[Cos](Cos), [Double](Double) 〔BlitzLLVM〕, [Floor](Floor), [Half](Half) 〔BlitzLLVM〕
+[Ceil](Ceil), [Cos](Cos), [Floor](Floor), [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

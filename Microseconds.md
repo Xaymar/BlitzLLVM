@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>
 
@@ -47,10 +47,10 @@ Print Microseconds() - start >= 45000
 
 ## Related Commands
 
-[FreeTimer](FreeTimer), [GetEnv](GetEnv), [MilliSecs](MilliSecs), [RuntimeError](RuntimeError)
+[Delay](Delay), [FreeTimer](FreeTimer), [MilliSecs](MilliSecs), [WaitTimer](WaitTimer)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>

@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -33,10 +33,10 @@ DebugLog "player is at 10, 20"
 
 ## Related Commands
 
-[CommandLine](CommandLine), [CreateTimer](CreateTimer), [Delay](Delay), [End](End)
+[CallDLL](CallDLL), [CommandLine](CommandLine), [ExecFile](ExecFile), [GetEnv](GetEnv)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>

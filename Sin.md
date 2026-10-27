@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -39,10 +39,10 @@ Print Sin(30)
 
 ## Related Commands
 
-[ASin](ASin), [SeedRnd](SeedRnd), [Short](Short) 〔BlitzLLVM〕, [Sqr](Sqr)
+[ASin](ASin), [SatUShort](SatUShort) 〔BlitzLLVM〕, [Sgn](Sgn), [Sqr](Sqr)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

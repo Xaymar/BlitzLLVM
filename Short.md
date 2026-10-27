@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>
 
@@ -50,10 +50,10 @@ Print Short(100000.0)
 
 ## Related Commands
 
-[SatShort](SatShort) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [SeedRnd](SeedRnd), [UShort](UShort) 〔BlitzLLVM〕
+[Long](Long) 〔BlitzLLVM〕, [Object](Object), [Str](Str), [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>

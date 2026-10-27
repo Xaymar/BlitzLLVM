@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -40,10 +40,10 @@ hello
 
 ## Related Commands
 
-[ExecFile](ExecFile), [FreeTimer](FreeTimer), [Microseconds](Microseconds) 〔BlitzLLVM〕, [SetEnv](SetEnv)
+[DebugLog](DebugLog), [ExecFile](ExecFile), [RuntimeError](RuntimeError), [SetEnv](SetEnv)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>

@@ -11,7 +11,6 @@ A bank is a block of raw memory that you address by byte offset. Offsets start a
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
 * [BankSize](BankSize)
-* [CallDLL](CallDLL)
 * [CopyBank](CopyBank)
 * [CreateBank](CreateBank)
 * [FreeBank](FreeBank)

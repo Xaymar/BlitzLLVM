@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Keywords](Language-Features-Keywords)
 
 </div>
 
@@ -27,10 +27,10 @@ In the original this paused the program in the debugger so that you could look a
 
 ## Related Commands
 
-[RuntimeError](RuntimeError), [SetEnv](SetEnv), [SystemProperty](SystemProperty), [WaitTimer](WaitTimer)
+[Include](Include), [Local](Local)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Keywords](Language-Features-Keywords)
 
 </div>

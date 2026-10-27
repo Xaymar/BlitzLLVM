@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -41,10 +41,10 @@ Print Sqr(16)
 
 ## Related Commands
 
-[Short](Short) 〔BlitzLLVM〕, [Sin](Sin), [Tan](Tan), [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
+[Sgn](Sgn), [Sin](Sin), [Tan](Tan), [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

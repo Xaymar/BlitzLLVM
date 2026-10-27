@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>
 
@@ -50,10 +50,10 @@ Print Long(10000000000000000000.0)
 
 ## Related Commands
 
-[Log](Log), [SatLong](SatLong) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕
+[Handle](Handle), [Int](Int), [Object](Object), [ULong](ULong) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>

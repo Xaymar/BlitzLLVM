@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Language](BlitzBasic-Language)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -29,10 +29,10 @@ RuntimeStats
 
 ## Related Commands
 
-
+[GetEnv](GetEnv), [RuntimeError](RuntimeError), [SetEnv](SetEnv), [SystemProperty](SystemProperty)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Language](BlitzBasic-Language)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>

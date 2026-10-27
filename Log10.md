@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -39,10 +39,10 @@ Print Log10(1000)
 
 ## Related Commands
 
-[LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Log](Log), [Long](Long) 〔BlitzLLVM〕, [PopCount](PopCount) 〔BlitzLLVM〕
+[LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Log](Log), [Mod](Mod), [Pi](Pi)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

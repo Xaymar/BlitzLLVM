@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -50,10 +50,10 @@ Print SatByte(-200)
 
 ## Related Commands
 
-[Byte](Byte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatShort](SatShort) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕
+[ByteSwap](ByteSwap) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatShort](SatShort) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

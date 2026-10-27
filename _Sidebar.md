@@ -15,6 +15,164 @@
 
 <hr>
 
+<details><summary><b><a href="Language-Features">Language Features</a></b></summary>
+<ul>
+<li><details><summary><a href="Language-Features-Control-Flow">Control Flow</a> (9)</summary>
+<ul>
+<li><a href="Case">Case</a></li>
+<li><a href="Default">Default</a></li>
+<li><a href="Else">Else</a></li>
+<li><a href="ElseIf">ElseIf</a></li>
+<li><a href="EndIf">EndIf</a></li>
+<li><a href="EndSelect">EndSelect</a></li>
+<li><a href="If">If</a></li>
+<li><a href="Select">Select</a></li>
+<li><a href="Then">Then</a></li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Functions">Functions</a> (5)</summary>
+<ul>
+<li><a href="EndFunction">EndFunction</a></li>
+<li><a href="Function">Function</a></li>
+<li><a href="Gosub">Gosub</a></li>
+<li><a href="Goto">Goto</a></li>
+<li><a href="Return">Return</a></li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Keywords">Keywords</a> (6)</summary>
+<ul>
+<li><a href="Const">Const</a></li>
+<li><a href="End">End</a></li>
+<li><a href="Global">Global</a></li>
+<li><a href="Include">Include</a></li>
+<li><a href="Local">Local</a></li>
+<li><a href="Stop">Stop</a></li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Loops">Loops</a> (10)</summary>
+<ul>
+<li><a href="Exit">Exit</a></li>
+<li><a href="For">For</a></li>
+<li><a href="Forever">Forever</a></li>
+<li><a href="Next">Next</a></li>
+<li><a href="Repeat">Repeat</a></li>
+<li><a href="Step">Step</a></li>
+<li><a href="To">To</a></li>
+<li><a href="Until">Until</a></li>
+<li><a href="Wend">Wend</a></li>
+<li><a href="While">While</a></li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Math">Math</a> (31)</summary>
+<ul>
+<li><a href="Abs">Abs</a></li>
+<li><a href="ACos">ACos</a></li>
+<li><a href="ASin">ASin</a></li>
+<li><a href="ATan">ATan</a></li>
+<li><a href="ATan2">ATan2</a></li>
+<li><a href="ByteSwap">ByteSwap</a> 〔BlitzLLVM〕</li>
+<li><a href="Ceil">Ceil</a></li>
+<li><a href="Cos">Cos</a></li>
+<li><a href="Exp">Exp</a></li>
+<li><a href="Floor">Floor</a></li>
+<li><a href="LeadingZeros">LeadingZeros</a> 〔BlitzLLVM〕</li>
+<li><a href="Log">Log</a></li>
+<li><a href="Log10">Log10</a></li>
+<li><a href="Mod">Mod</a></li>
+<li><a href="Pi">Pi</a></li>
+<li><a href="PopCount">PopCount</a> 〔BlitzLLVM〕</li>
+<li><a href="RotL">RotL</a> 〔BlitzLLVM〕</li>
+<li><a href="RotR">RotR</a> 〔BlitzLLVM〕</li>
+<li><a href="SatByte">SatByte</a> 〔BlitzLLVM〕</li>
+<li><a href="SatInt">SatInt</a> 〔BlitzLLVM〕</li>
+<li><a href="SatLong">SatLong</a> 〔BlitzLLVM〕</li>
+<li><a href="SatShort">SatShort</a> 〔BlitzLLVM〕</li>
+<li><a href="SatUByte">SatUByte</a> 〔BlitzLLVM〕</li>
+<li><a href="SatUInt">SatUInt</a> 〔BlitzLLVM〕</li>
+<li><a href="SatULong">SatULong</a> 〔BlitzLLVM〕</li>
+<li><a href="SatUShort">SatUShort</a> 〔BlitzLLVM〕</li>
+<li><a href="Sgn">Sgn</a></li>
+<li><a href="Sin">Sin</a></li>
+<li><a href="Sqr">Sqr</a></li>
+<li><a href="Tan">Tan</a></li>
+<li><a href="TrailingZeros">TrailingZeros</a> 〔BlitzLLVM〕</li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Other">Other</a> (10)</summary>
+<ul>
+<li><a href="AppTitle">AppTitle</a></li>
+<li><a href="CallDLL">CallDLL</a></li>
+<li><a href="CommandLine">CommandLine</a></li>
+<li><a href="DebugLog">DebugLog</a></li>
+<li><a href="ExecFile">ExecFile</a></li>
+<li><a href="GetEnv">GetEnv</a></li>
+<li><a href="RuntimeError">RuntimeError</a></li>
+<li><a href="RuntimeStats">RuntimeStats</a></li>
+<li><a href="SetEnv">SetEnv</a></li>
+<li><a href="SystemProperty">SystemProperty</a></li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Randomization">Randomization</a> (4)</summary>
+<ul>
+<li><a href="Rand">Rand</a></li>
+<li><a href="Rnd">Rnd</a></li>
+<li><a href="RndSeed">RndSeed</a></li>
+<li><a href="SeedRnd">SeedRnd</a></li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Strings">Strings</a> (16)</summary>
+<ul>
+<li><a href="Asc">Asc</a></li>
+<li><a href="Bin">Bin</a></li>
+<li><a href="Chr">Chr</a></li>
+<li><a href="Hex">Hex</a></li>
+<li><a href="Instr">Instr</a></li>
+<li><a href="Left">Left</a></li>
+<li><a href="Len">Len</a></li>
+<li><a href="Lower">Lower</a></li>
+<li><a href="LSet">LSet</a></li>
+<li><a href="Mid">Mid</a></li>
+<li><a href="Replace">Replace</a></li>
+<li><a href="Right">Right</a></li>
+<li><a href="RSet">RSet</a></li>
+<li><a href="String">String</a></li>
+<li><a href="Trim">Trim</a></li>
+<li><a href="Upper">Upper</a></li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Time-and-Date">Time & Date</a> (8)</summary>
+<ul>
+<li><a href="CreateTimer">CreateTimer</a></li>
+<li><a href="CurrentDate">CurrentDate</a></li>
+<li><a href="CurrentTime">CurrentTime</a></li>
+<li><a href="Delay">Delay</a></li>
+<li><a href="FreeTimer">FreeTimer</a></li>
+<li><a href="Microseconds">Microseconds</a> 〔BlitzLLVM〕</li>
+<li><a href="MilliSecs">MilliSecs</a></li>
+<li><a href="WaitTimer">WaitTimer</a></li>
+</ul>
+</details></li>
+<li><details><summary><a href="Language-Features-Types">Types</a> (14)</summary>
+<ul>
+<li><a href="Byte">Byte</a> 〔BlitzLLVM〕</li>
+<li><a href="Double">Double</a> 〔BlitzLLVM〕</li>
+<li><a href="Float">Float</a></li>
+<li><a href="Half">Half</a> 〔BlitzLLVM〕</li>
+<li><a href="Handle">Handle</a></li>
+<li><a href="Int">Int</a></li>
+<li><a href="Long">Long</a> 〔BlitzLLVM〕</li>
+<li><a href="Object">Object</a></li>
+<li><a href="Short">Short</a> 〔BlitzLLVM〕</li>
+<li><a href="Str">Str</a></li>
+<li><a href="UByte">UByte</a> 〔BlitzLLVM〕</li>
+<li><a href="UInt">UInt</a> 〔BlitzLLVM〕</li>
+<li><a href="ULong">ULong</a> 〔BlitzLLVM〕</li>
+<li><a href="UShort">UShort</a> 〔BlitzLLVM〕</li>
+</ul>
+</details></li>
+</ul>
+</details>
+
 <details><summary><b><a href="BlitzBasic">BlitzBasic</a></b></summary>
 <ul>
 <li><details><summary><a href="BlitzBasic-Audio">Audio</a> (17)</summary>
@@ -38,10 +196,9 @@
 <li><a href="StopChannel">StopChannel</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Banks">Banks</a> (16)</summary>
+<li><details><summary><a href="BlitzBasic-Banks">Banks</a> (15)</summary>
 <ul>
 <li><a href="BankSize">BankSize</a></li>
-<li><a href="CallDLL">CallDLL</a></li>
 <li><a href="CopyBank">CopyBank</a></li>
 <li><a href="CreateBank">CreateBank</a></li>
 <li><a href="FreeBank">FreeBank</a></li>
@@ -256,55 +413,6 @@
 <li><a href="WaitKey">WaitKey</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Language">Language</a> (1)</summary>
-<ul>
-<li><a href="RuntimeStats">RuntimeStats</a></li>
-</ul>
-</details></li>
-<li><details><summary><a href="BlitzBasic-Math">Math</a> (40)</summary>
-<ul>
-<li><a href="ACos">ACos</a></li>
-<li><a href="ASin">ASin</a></li>
-<li><a href="ATan">ATan</a></li>
-<li><a href="ATan2">ATan2</a></li>
-<li><a href="Byte">Byte</a> 〔BlitzLLVM〕</li>
-<li><a href="ByteSwap">ByteSwap</a> 〔BlitzLLVM〕</li>
-<li><a href="Ceil">Ceil</a></li>
-<li><a href="Cos">Cos</a></li>
-<li><a href="Double">Double</a> 〔BlitzLLVM〕</li>
-<li><a href="Exp">Exp</a></li>
-<li><a href="Floor">Floor</a></li>
-<li><a href="Half">Half</a> 〔BlitzLLVM〕</li>
-<li><a href="LeadingZeros">LeadingZeros</a> 〔BlitzLLVM〕</li>
-<li><a href="Log">Log</a></li>
-<li><a href="Log10">Log10</a></li>
-<li><a href="Long">Long</a> 〔BlitzLLVM〕</li>
-<li><a href="PopCount">PopCount</a> 〔BlitzLLVM〕</li>
-<li><a href="Rand">Rand</a></li>
-<li><a href="Rnd">Rnd</a></li>
-<li><a href="RndSeed">RndSeed</a></li>
-<li><a href="RotL">RotL</a> 〔BlitzLLVM〕</li>
-<li><a href="RotR">RotR</a> 〔BlitzLLVM〕</li>
-<li><a href="SatByte">SatByte</a> 〔BlitzLLVM〕</li>
-<li><a href="SatInt">SatInt</a> 〔BlitzLLVM〕</li>
-<li><a href="SatLong">SatLong</a> 〔BlitzLLVM〕</li>
-<li><a href="SatShort">SatShort</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUByte">SatUByte</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUInt">SatUInt</a> 〔BlitzLLVM〕</li>
-<li><a href="SatULong">SatULong</a> 〔BlitzLLVM〕</li>
-<li><a href="SatUShort">SatUShort</a> 〔BlitzLLVM〕</li>
-<li><a href="SeedRnd">SeedRnd</a></li>
-<li><a href="Short">Short</a> 〔BlitzLLVM〕</li>
-<li><a href="Sin">Sin</a></li>
-<li><a href="Sqr">Sqr</a></li>
-<li><a href="Tan">Tan</a></li>
-<li><a href="TrailingZeros">TrailingZeros</a> 〔BlitzLLVM〕</li>
-<li><a href="UByte">UByte</a> 〔BlitzLLVM〕</li>
-<li><a href="UInt">UInt</a> 〔BlitzLLVM〕</li>
-<li><a href="ULong">ULong</a> 〔BlitzLLVM〕</li>
-<li><a href="UShort">UShort</a> 〔BlitzLLVM〕</li>
-</ul>
-</details></li>
 <li><details><summary><a href="BlitzBasic-Mouse">Mouse</a> (15)</summary>
 <ul>
 <li><a href="DirectInputEnabled">DirectInputEnabled</a></li>
@@ -385,26 +493,6 @@
 <li><a href="UDPTimeouts">UDPTimeouts</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Runtime">Runtime</a> (16)</summary>
-<ul>
-<li><a href="AppTitle">AppTitle</a></li>
-<li><a href="CommandLine">CommandLine</a></li>
-<li><a href="CreateTimer">CreateTimer</a></li>
-<li><a href="DebugLog">DebugLog</a></li>
-<li><a href="Delay">Delay</a></li>
-<li><a href="End">End</a></li>
-<li><a href="ExecFile">ExecFile</a></li>
-<li><a href="FreeTimer">FreeTimer</a></li>
-<li><a href="GetEnv">GetEnv</a></li>
-<li><a href="Microseconds">Microseconds</a> 〔BlitzLLVM〕</li>
-<li><a href="MilliSecs">MilliSecs</a></li>
-<li><a href="RuntimeError">RuntimeError</a></li>
-<li><a href="SetEnv">SetEnv</a></li>
-<li><a href="Stop">Stop</a></li>
-<li><a href="SystemProperty">SystemProperty</a></li>
-<li><a href="WaitTimer">WaitTimer</a></li>
-</ul>
-</details></li>
 <li><details><summary><a href="BlitzBasic-Streams">Streams</a> (15)</summary>
 <ul>
 <li><a href="CopyStream">CopyStream</a></li>
@@ -422,28 +510,6 @@
 <li><a href="WriteLine">WriteLine</a></li>
 <li><a href="WriteShort">WriteShort</a></li>
 <li><a href="WriteString">WriteString</a></li>
-</ul>
-</details></li>
-<li><details><summary><a href="BlitzBasic-Strings">Strings</a> (18)</summary>
-<ul>
-<li><a href="Asc">Asc</a></li>
-<li><a href="Bin">Bin</a></li>
-<li><a href="Chr">Chr</a></li>
-<li><a href="CurrentDate">CurrentDate</a></li>
-<li><a href="CurrentTime">CurrentTime</a></li>
-<li><a href="Hex">Hex</a></li>
-<li><a href="Instr">Instr</a></li>
-<li><a href="Left">Left</a></li>
-<li><a href="Len">Len</a></li>
-<li><a href="Lower">Lower</a></li>
-<li><a href="LSet">LSet</a></li>
-<li><a href="Mid">Mid</a></li>
-<li><a href="Replace">Replace</a></li>
-<li><a href="Right">Right</a></li>
-<li><a href="RSet">RSet</a></li>
-<li><a href="String">String</a></li>
-<li><a href="Trim">Trim</a></li>
-<li><a href="Upper">Upper</a></li>
 </ul>
 </details></li>
 </ul>

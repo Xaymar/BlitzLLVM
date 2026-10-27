@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -48,10 +48,10 @@ Print SatULong(Long(9000000000))
 
 ## Related Commands
 
-[Long](Long) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕
+[SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatShort](SatShort) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

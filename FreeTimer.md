@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>
 
@@ -27,10 +27,10 @@ Deletes a timer you no longer need. Passing 0 does nothing.
 
 ## Related Commands
 
-[CreateTimer](CreateTimer), [End](End), [ExecFile](ExecFile), [WaitTimer](WaitTimer)
+[CreateTimer](CreateTimer), [CurrentTime](CurrentTime), [Delay](Delay), [WaitTimer](WaitTimer)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>

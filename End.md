@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Keywords](Language-Features-Keywords)
 
 </div>
 
@@ -35,10 +35,10 @@ before
 
 ## Related Commands
 
-[DebugLog](DebugLog), [Delay](Delay), [ExecFile](ExecFile), [FreeTimer](FreeTimer)
+[Const](Const), [Global](Global), [Include](Include)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Keywords](Language-Features-Keywords)
 
 </div>

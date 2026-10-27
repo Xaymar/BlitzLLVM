@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>
 
@@ -31,10 +31,10 @@ Print "Today is " + CurrentDate$()
 
 ## Related Commands
 
-[Bin](Bin), [Chr](Chr), [CurrentTime](CurrentTime), [Hex](Hex)
+[CreateTimer](CreateTimer), [CurrentTime](CurrentTime), [Delay](Delay)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>

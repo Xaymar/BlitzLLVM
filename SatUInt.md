@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -50,10 +50,10 @@ Print SatUInt(7)
 
 ## Related Commands
 
-[SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatShort](SatShort) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕
+[SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatShort](SatShort) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

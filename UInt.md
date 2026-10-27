@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>
 
@@ -50,10 +50,10 @@ Print Int(UInt(-1))
 
 ## Related Commands
 
-[SatInt](SatInt) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
+[Int](Int), [UByte](UByte) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>

@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -52,10 +52,10 @@ Print PopCount(ULong(-1))
 
 ## Related Commands
 
-[Log10](Log10), [Long](Long) 〔BlitzLLVM〕, [Rand](Rand), [Rnd](Rnd)
+[Mod](Mod), [Pi](Pi), [RotL](RotL) 〔BlitzLLVM〕, [RotR](RotR) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

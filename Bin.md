@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Strings](Language-Features-Strings)
 
 </div>
 
@@ -39,10 +39,10 @@ Print Bin$(5)
 
 ## Related Commands
 
-[Asc](Asc), [Chr](Chr), [CurrentDate](CurrentDate)
+[Asc](Asc), [Chr](Chr), [Hex](Hex)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Strings](Language-Features-Strings)
 
 </div>

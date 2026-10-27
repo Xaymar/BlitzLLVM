@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Randomization](Language-Features-Randomization)
 
 </div>
 
@@ -41,10 +41,10 @@ Print a = b
 
 ## Related Commands
 
-[Rnd](Rnd), [RndSeed](RndSeed), [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕
+[Rnd](Rnd), [RndSeed](RndSeed)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Randomization](Language-Features-Randomization)
 
 </div>

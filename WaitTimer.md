@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>
 
@@ -42,10 +42,10 @@ FreeTimer timer
 
 ## Related Commands
 
-[CreateTimer](CreateTimer), [FreeTimer](FreeTimer), [Stop](Stop), [SystemProperty](SystemProperty)
+[CreateTimer](CreateTimer), [FreeTimer](FreeTimer), [Microseconds](Microseconds) 〔BlitzLLVM〕, [MilliSecs](MilliSecs)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Time & Date](Language-Features-Time-and-Date)
 
 </div>

@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -47,10 +47,10 @@ Folders end with a separator, except for the ones of Windows, which are as the s
 
 ## Related Commands
 
-[SetEnv](SetEnv), [Stop](Stop), [WaitTimer](WaitTimer)
+[RuntimeStats](RuntimeStats), [SetEnv](SetEnv)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>

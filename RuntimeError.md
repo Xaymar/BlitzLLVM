@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -37,10 +37,10 @@ If FileType("level.dat") = 0 Then RuntimeError "level.dat is missing"
 
 ## Related Commands
 
-[Microseconds](Microseconds) 〔BlitzLLVM〕, [MilliSecs](MilliSecs), [SetEnv](SetEnv), [Stop](Stop)
+[ExecFile](ExecFile), [GetEnv](GetEnv), [RuntimeStats](RuntimeStats), [SetEnv](SetEnv)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>

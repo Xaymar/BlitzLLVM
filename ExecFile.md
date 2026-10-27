@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -39,10 +39,10 @@ Print ExecFile("this-program-does-not-exist")
 
 ## Related Commands
 
-[Delay](Delay), [End](End), [FreeTimer](FreeTimer), [GetEnv](GetEnv)
+[CommandLine](CommandLine), [DebugLog](DebugLog), [GetEnv](GetEnv), [RuntimeError](RuntimeError)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>

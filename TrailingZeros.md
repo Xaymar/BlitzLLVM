@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -50,10 +50,10 @@ Print TrailingZeros(ULong(1) Shl 40)
 
 ## Related Commands
 
-[LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Sqr](Sqr), [Tan](Tan), [UByte](UByte) 〔BlitzLLVM〕
+[LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Sqr](Sqr), [Tan](Tan)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

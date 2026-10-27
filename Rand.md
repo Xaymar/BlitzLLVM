@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Randomization](Language-Features-Randomization)
 
 </div>
 
@@ -44,10 +44,10 @@ Print Rand(5, 5)
 
 ## Related Commands
 
-[Long](Long) 〔BlitzLLVM〕, [PopCount](PopCount) 〔BlitzLLVM〕, [Rnd](Rnd), [RndSeed](RndSeed)
+[Rnd](Rnd), [RndSeed](RndSeed)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Randomization](Language-Features-Randomization)
 
 </div>

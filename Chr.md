@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Strings](Language-Features-Strings)
 
 </div>
 
@@ -43,10 +43,10 @@ Hi
 
 ## Related Commands
 
-[Asc](Asc), [Bin](Bin), [CurrentDate](CurrentDate), [CurrentTime](CurrentTime)
+[Asc](Asc), [Bin](Bin), [Hex](Hex), [Instr](Instr)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Strings](Language-Features-Strings)
 
 </div>

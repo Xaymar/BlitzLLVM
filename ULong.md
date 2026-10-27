@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>
 
@@ -52,10 +52,10 @@ Print Min(ULong(-1), ULong(5))
 
 ## Related Commands
 
-[Long](Long) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
+[Long](Long) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>

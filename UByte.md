@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>
 
@@ -52,10 +52,10 @@ Print UByte(300.0)
 
 ## Related Commands
 
-[Byte](Byte) 〔BlitzLLVM〕, [ByteSwap](ByteSwap) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
+[Byte](Byte) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>

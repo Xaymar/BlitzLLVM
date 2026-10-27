@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -50,10 +50,10 @@ Print ByteSwap(ULong(1))
 
 ## Related Commands
 
-[Byte](Byte) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕
+[ATan](ATan), [ATan2](ATan2), [SatByte](SatByte) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

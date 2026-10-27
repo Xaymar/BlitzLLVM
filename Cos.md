@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>
 
@@ -39,10 +39,10 @@ Print Cos(60)
 
 ## Related Commands
 
-[ACos](ACos), [ByteSwap](ByteSwap) 〔BlitzLLVM〕, [Ceil](Ceil), [Double](Double) 〔BlitzLLVM〕
+[ACos](ACos), [ByteSwap](ByteSwap) 〔BlitzLLVM〕, [Ceil](Ceil), [Exp](Exp)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Math](Language-Features-Math)
 
 </div>

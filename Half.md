@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>
 
@@ -49,10 +49,10 @@ Print Half(0.1) = 0.1
 
 ## Related Commands
 
-[Exp](Exp), [Floor](Floor), [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Log](Log)
+[Double](Double) 〔BlitzLLVM〕, [Float](Float), [Handle](Handle), [Int](Int)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>

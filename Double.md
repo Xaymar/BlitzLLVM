@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>
 
@@ -51,10 +51,10 @@ Print Double(Long(5000000000)) + 1 = 5000000001
 
 ## Related Commands
 
-[Ceil](Ceil), [Cos](Cos), [Exp](Exp), [Floor](Floor)
+[Byte](Byte) 〔BlitzLLVM〕, [Float](Float), [Half](Half) 〔BlitzLLVM〕
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Types](Language-Features-Types)
 
 </div>

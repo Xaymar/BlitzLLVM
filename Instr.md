@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Strings](Language-Features-Strings)
 
 </div>
 
@@ -45,10 +45,10 @@ Print Instr("hello", "z")
 
 ## Related Commands
 
-[CurrentTime](CurrentTime), [Hex](Hex), [Left](Left), [Len](Len)
+[Chr](Chr), [Hex](Hex), [Left](Left), [Len](Len)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Strings](Language-Features-Strings)
 
 </div>

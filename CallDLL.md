@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
 
@@ -39,10 +39,10 @@ Print CallDLL("kernel32", "GetCurrentProcessId")
 
 ## Related Commands
 
-[BankSize](BankSize), [CopyBank](CopyBank), [CreateBank](CreateBank)
+[AppTitle](AppTitle), [CommandLine](CommandLine), [DebugLog](DebugLog)
 
 <div align="center">
 
-[Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+[Command Index](Command-Index) · [Language Features](Language-Features) · [Other](Language-Features-Other)
 
 </div>
