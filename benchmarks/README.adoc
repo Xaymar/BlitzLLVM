@@ -136,3 +136,9 @@ python benchmarks\waterfall.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe --sprites 
 The original times have a resolution of one millisecond, so use enough frames (`--frames 1500`) and look at the average.
 
 NOTE: The original `SaveBuffer` writes a BMP whatever the file is called, so a `--shot` made with the original needs converting to compare it.
+
+NOTE: The original Blitz3D can have at most 16383 sprites. All sprites share one vertex buffer of 4 vertices each, `Sprite::allocIndex` grows
+it with `createMesh( mesh_size*4,mesh_size*2,0 )` (`blitz3d/sprite.cpp`), `gxGraphics::createMesh` returns 0 when Direct3D 7 cannot make a vertex
+buffer that big (65535 vertices at most), and the next `mesh->lock` is a null access: the program dies with an access violation (exit code
+3221225477). So `waterfall.py` stops with a message above 16383 sprites with the original, and 15000 is the highest round number to compare
+the two (`--sprites 15000`). A mesh surface has the same limit: its triangles are `unsigned short` vertex indices (`Surface::Triangle`), so at most 65535 vertices.

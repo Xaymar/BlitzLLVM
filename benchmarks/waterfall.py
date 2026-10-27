@@ -14,7 +14,7 @@ over a cliff, made of thousands of see-through sprites. The result is also saved
 profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the
-folder with bin\\ in it unless it is set). It has no -O3 and no --profile, and no draw counters (they are 0).
+folder with bin\\ in it unless it is set). It has no -O3 and no --profile, and no draw counters (they are 0), and it can have at most 16383 sprites.
 
 Without a display the program runs under xvfb-run, which with Mesa means llvmpipe: the times are then mostly the CPU
 rasterizing and only a smoke test. The counts (draws, triangles) are exact on any GPU.
@@ -31,6 +31,8 @@ import subprocess
 import sys
 import tempfile
 
+# Most sprites the original Blitz3D can have: they share one vertex buffer, 4 vertices each, and Direct3D 7 buffers hold at most 65535 vertices.
+ORIGINAL_MAX_SPRITES = 16383
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
@@ -72,6 +74,9 @@ def main():
     flags = ["-d"] if args.debug else (["-O3"] if llvm else [])
     if args.profile and llvm:
         flags.append("--profile")
+    if not llvm and args.sprites > ORIGINAL_MAX_SPRITES:
+        sys.exit("The original Blitz3D can draw only %d sprites (they share one vertex buffer of 4 vertices each, and Direct3D 7 "
+                 "buffers have at most 65535 vertices); use --sprites %d or less with it, or BlitzLLVM for more." % (ORIGINAL_MAX_SPRITES, ORIGINAL_MAX_SPRITES))
     if not llvm:
         # The original compiler reads its runtime and libraries from BLITZPATH, the folder that has bin\ in it.
         os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
