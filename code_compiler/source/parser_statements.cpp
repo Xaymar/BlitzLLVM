@@ -88,15 +88,15 @@ void blitz::parser::parse_line(ast::block& into)
 	// Single-line statements, as used by `If x Then a : b Else c`. Ends at the New Line (not consumed) or Else.
 	_depth++;
 	while (true) {
+		// Like the original, any number of ':' may come before a statement, and the line may end right after `Then` or `Else`.
+		while (tk().type == blitz::token::variant::SEPARATOR) {
+			advance();
+		}
+		if (is_terminator(tk())) {
+			break;
+		}
 		parse_statement(into);
 		if (tk().type == blitz::token::variant::SEPARATOR) {
-			advance();
-			if (is_terminator(tk()) && !is_keyword(tk(), "else") && (tk().type != blitz::token::variant::SEPARATOR)) {
-				break;
-			}
-			if (is_keyword(tk(), "else")) {
-				break;
-			}
 			continue;
 		}
 		if (starts_statement(tk()) && !is_keyword(tk(), "else")) {

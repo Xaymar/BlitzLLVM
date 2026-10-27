@@ -290,6 +290,17 @@ Check "Data negative", x, -5
 .calculated_data
 Data 40 - 170, data_offset * 2, 2 * 3.5, 7 / 2, (1 Shl 4) Or 1, "Blitz" + "LLVM", -5
 
+; A single line If may end right after Else, and ':' may be repeated.
+x = 1
+If x = 1 Then x = 2 Else
+Check "Else with nothing after it", x, 2
+If x = 1 Then x = 3 Else
+Check "Else at the end of the line", x, 2
+x = 1 :  : x = x + 4
+Check "Repeated colons", x, 5
+If x = 5 Then x = 6 :  : x = x + 1
+Check "Repeated colons in an If", x, 7
+
 ; Goto and Gosub
 n = 0
 Gosub increment
