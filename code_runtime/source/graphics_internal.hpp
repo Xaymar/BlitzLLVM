@@ -605,6 +605,7 @@ namespace bb::gfx {
 	extern int    profile_submits;
 	extern Uint64 profile_wait;
 	extern Uint64 profile_gpu_execute;
+	extern Uint64 profile_gpu_submit;
 	extern Uint64 profile_gpu_present;
 	extern int    profile_overlap;
 	extern VkQueryPool profile_query_pool;
