@@ -29,7 +29,7 @@ Print Tick() + Tick() * Tick()
 Tick 1
 Tick 2
 Tick 3
-2,3,1
+3,1,2
 Tick 4
 Tick 5
 Tick 6
