@@ -356,4 +356,30 @@ namespace bb {
 
 	/** Calls the function for every visible entity of the given kind. */
 	void         for_each_visible(int kind, void (*visit)(int handle, entity& e, void* user), void* user);
+
+	// The spatial grid (scene_grid.cpp) lets a scene with very many meshes find the ones near the view without reading all of them.
+	// It has to be told about everything that can change where a mesh is or what the renderer remembers about it.
+	extern buffer<uint8_t> grid_flags; // Per entity: 1 = is in a cell of the grid, 2 = was touched since the grid looked at it.
+	void grid_leave(int handle);
+	/** To be called when an entity (or the numbers a cull_record is made from) may have changed. */
+	inline void entity_moved(int handle)
+	{
+		if (uint32_t(handle) - 1 < grid_flags.size) {
+			uint8_t& flags = grid_flags[uint32_t(handle) - 1];
+			if (flags & 1) {
+				grid_leave(handle);
+			}
+			flags |= 2;
+		}
+	}
+	void grid_entity_added(int handle, int kind);
+	void grid_entity_removed(int handle, int kind);
+	/**
+	 * Calls the function for the visible meshes that may be in view of a camera, in the order of their handles, without reading
+	 * those that are known to be outside. Returns false if the grid is not used (then the caller has to visit every mesh). The
+	 * planes are those of the camera, relative to the origin. If outside is not null, it is asked about every mesh that was
+	 * skipped (in debug programs), and has to say whether it can really not be seen.
+	 */
+	bool         grid_visit(const float* planes, const float* origin, float camera_growth, void (*visit)(int handle, entity& e, void* user), void* user,
+							bool (*outside)(int handle, entity& e, void* user));
 } // namespace bb

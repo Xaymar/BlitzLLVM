@@ -1237,6 +1237,13 @@ namespace bb::gfx {
 		}
 	}
 
+	// Whether a mesh that the spatial grid did not ask about is really outside of the view, which debug programs check.
+	static bool mesh_skippable(int handle, bb::entity&, void* user)
+	{
+		mesh_collector* c = static_cast<mesh_collector*>(user);
+		return sphere_outside_view(bb::cull_record_of(handle), c->origin, c->planes, c->camera_growth);
+	}
+
 	static void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
@@ -2512,7 +2519,9 @@ namespace bb::gfx {
 		mesh_collector collector = { &list, view, current_origin, have_planes ? &planes[0][0] : nullptr, fmaxf(1.0f, sqrtf(camera_norm)) };
 		{
 			bb::profile_scope timer(bb::PROFILE_COLLECT);
-			bb::for_each_visible(bb::MESH, collect_mesh, &collector);
+			if (!bb::grid_visit(collector.planes, collector.origin, collector.camera_growth, collect_mesh, &collector, mesh_skippable)) {
+				bb::for_each_visible(bb::MESH, collect_mesh, &collector);
+			}
 		}
 		{
 			bb::profile_scope timer(bb::PROFILE_GROUP);

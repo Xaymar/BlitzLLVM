@@ -51,6 +51,7 @@ namespace bb::scene {
 		if (!e) {
 			fail(what, handle);
 		}
+		entity_moved(handle); // Whatever asks for an entity may change it, and the grid must look at it again.
 		return e;
 	}
 
@@ -89,6 +90,7 @@ namespace bb::scene {
 				entity_kinds[i] = uint8_t(kind + 1);
 				cull_records[i].epoch = 0;
 				first_free      = i + 1;
+				grid_entity_added(int(i) + 1, kind);
 				return int(i) + 1;
 			}
 		}
@@ -96,6 +98,7 @@ namespace bb::scene {
 		entities.push(e);
 		entity_kinds.push(uint8_t(kind + 1));
 		cull_records.push(cull_record{});
+		grid_entity_added(int(entities.size), kind);
 		return int(entities.size);
 	}
 
@@ -169,6 +172,7 @@ namespace bb::scene {
 			delete e->terrain;
 		}
 		bb_free(e->name);
+		grid_entity_removed(handle, e->kind);
 		delete e;
 		entities[uint32_t(handle) - 1]     = nullptr;
 		entity_kinds[uint32_t(handle) - 1] = 0;

@@ -236,6 +236,7 @@ namespace bb::anim {
 			// The first node is where the whole model is placed, which belongs to the program and not to the animation.
 			if (((i > 0) || n.user_keys) && get_entity(n.handle)) {
 				entity* e = get_entity(n.handle);
+				entity_moved(n.handle);
 				if (n.pos_keys.size) {
 					memcpy(e->position, pos, sizeof(pos));
 				}

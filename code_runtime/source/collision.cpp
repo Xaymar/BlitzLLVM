@@ -122,7 +122,7 @@ namespace bb::collision {
 	// Sets where an entity is in the world, without changing anything else.
 	void put_in_world(int handle, entity& e, vec3 world)
 	{
-		(void)handle;
+		entity_moved(handle);
 		if (e.parent) {
 			float m[16], inverse[16];
 			world_matrix(e.parent, m);
