@@ -60,6 +60,7 @@ void blitz::parser::parse_function()
 			param.name  = pname.text;
 			param.type  = parse_type_suffix(pname);
 			param.struct_name = _struct_name;
+			param.typed = (param.type != blitz::types::type::UNKNOWN);
 			if (param.type == blitz::types::type::UNKNOWN) {
 				param.type = blitz::types::type::INT32;
 			}
@@ -162,6 +163,7 @@ void blitz::parser::parse_type_decl()
 			field.name        = fname.text;
 			field.type        = parse_type_suffix(fname);
 			field.struct_name = _struct_name;
+			field.typed = (field.type != blitz::types::type::UNKNOWN);
 			if (field.type == blitz::types::type::UNKNOWN) {
 				field.type = blitz::types::type::INT32;
 			}
