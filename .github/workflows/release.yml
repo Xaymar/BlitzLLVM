@@ -1,7 +1,7 @@
 name: Release
 
 # Publishes a release for a version tag (1.2.3, 1.2.3-rc1) with the binaries that the Nightly workflow built for the tagged
-# commit. The 'nightly' tag does not match these patterns. See docs/wiki/Releasing.md.
+# commit. The moving tags (nightly, daily, weekly, monthly, yearly) do not match these patterns. See docs/wiki/Releasing.md.
 on:
   push:
     tags:

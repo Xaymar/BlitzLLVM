@@ -19,7 +19,7 @@ import tempfile
 import time
 
 NIGHTLY_WORKFLOW = "nightly.yml"
-# Tags of releases: 1.2.3, 1.2.3.4 and 1.2.3-rc1. The 'nightly' tag does not match.
+# Tags of releases: 1.2.3, 1.2.3.4 and 1.2.3-rc1. The moving tags (nightly, daily, weekly, monthly, yearly) do not match.
 VERSION_TAG = re.compile(r"^(\d+(?:\.\d+){1,3})(?:-([0-9A-Za-z][0-9A-Za-z.-]*))?$")
 # Commits that are noise in a changelog.
 IGNORED_SUBJECTS = re.compile(r"^(Update copyright headers|Merge\b|Revert \"Update copyright headers)", re.IGNORECASE)
@@ -187,7 +187,7 @@ def main():
     tag = args.tag
 
     if tag == "nightly" or not parse_tag(tag):
-        raise ReleaseError(f"'{tag}' is not a release tag. Release tags look like 1.2.3 or 1.2.3-rc1; 'nightly' is never released.")
+        raise ReleaseError(f"'{tag}' is not a release tag. Release tags look like 1.2.3 or 1.2.3-rc1; the moving tags (nightly, daily, weekly, monthly, yearly) are never released.")
     prerelease = bool(parse_tag(tag)[1])
     exists = subprocess.run(["git", "rev-parse", "-q", "--verify", f"refs/tags/{tag}^{{commit}}"], capture_output=True, text=True)
     if exists.returncode == 0:
