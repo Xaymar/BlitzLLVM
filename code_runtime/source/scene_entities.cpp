@@ -27,6 +27,7 @@ namespace bb::scene {
 
 	static uint32_t         first_free = 0; // No slot of entities below this is free.
 	static buffer<entity*>  entities; // Handle - 1, null if freed.
+	static buffer<uint8_t>  entity_kinds; // The kind of each entity (as in entities), plus 1; 0 if the slot is free. A scan for one kind reads this and not the entities.
 	buffer<surface*> surface_table;
 	float            tformed[3] = { 0, 0, 0 };
 
@@ -81,13 +82,15 @@ namespace bb::scene {
 		// Every slot below first_free is taken, so a program that makes a million entities does not walk over them all each time.
 		for (uint32_t i = first_free; i < entities.size; i++) {
 			if (!entities[i]) {
-				entities[i] = e;
-				first_free  = i + 1;
+				entities[i]     = e;
+				entity_kinds[i] = uint8_t(kind + 1);
+				first_free      = i + 1;
 				return int(i) + 1;
 			}
 		}
 		first_free = entities.size + 1;
 		entities.push(e);
+		entity_kinds.push(uint8_t(kind + 1));
 		return int(entities.size);
 	}
 
@@ -159,7 +162,8 @@ namespace bb::scene {
 		}
 		free(e->name);
 		delete e;
-		entities[uint32_t(handle) - 1] = nullptr;
+		entities[uint32_t(handle) - 1]     = nullptr;
+		entity_kinds[uint32_t(handle) - 1] = 0;
 		if (uint32_t(handle) - 1 < first_free) {
 			first_free = uint32_t(handle) - 1;
 		}
@@ -317,22 +321,25 @@ void bb::world_matrix(int handle, float* out)
 
 void bb::for_each_visible(int kind, void (*visit)(int, entity&, void*), void* user)
 {
+	const uint8_t wanted = uint8_t(kind + 1);
 	const uint32_t prefetch_distance = 8;
 	for (uint32_t i = 0; i < entities.size; i++) {
 		// An entity is spread over nine cache lines of which a scan reads the ones with its place, look, fade and surfaces. They
 		// are far apart from each other and from the previous entity, so they are asked for a few entities before they are used.
-		if (i + prefetch_distance < entities.size) {
-			if (const char* ahead = reinterpret_cast<const char*>(entities[i + prefetch_distance])) {
-				bb::prefetch(ahead);
-				if (kind == MESH) { // The other kinds are few, and are found by their first line.
-					for (size_t line : { size_t(1), size_t(4), size_t(5), size_t(6) }) {
-						bb::prefetch(ahead + line * 64);
-					}
+		if (i + prefetch_distance < entities.size && entity_kinds[i + prefetch_distance] == wanted) {
+			const char* ahead = reinterpret_cast<const char*>(entities[i + prefetch_distance]);
+			bb::prefetch(ahead);
+			if (kind == MESH) { // The other kinds are few, and are found by their first line.
+				for (size_t line : { size_t(1), size_t(4), size_t(5), size_t(6) }) {
+					bb::prefetch(ahead + line * 64);
 				}
 			}
 		}
+		if (entity_kinds[i] != wanted) {
+			continue;
+		}
 		entity* e = entities[i];
-		if (!e || (e->kind != kind) || e->hidden) {
+		if (e->hidden) {
 			continue;
 		}
 		// Hidden parents hide their children.
