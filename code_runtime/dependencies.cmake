@@ -187,7 +187,8 @@ else()
 	set(_SHARED_STRIP "")
 endif()
 
-set(_DEPENDENCY_ARGS -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE=Release)
+# Fedora and openSUSE install to lib64 by default, but the paths below, and the runtime layout, look in lib.
+set(_DEPENDENCY_ARGS -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib)
 if(CMAKE_GENERATOR_PLATFORM)
 	list(APPEND _DEPENDENCY_ARGS -A "${CMAKE_GENERATOR_PLATFORM}")
 endif()
