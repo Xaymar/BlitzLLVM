@@ -75,7 +75,8 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 		place(operands[dim].code);
 	}
 
-	std::string linear;
+	// The first index changes fastest in memory, like in the original, so a loop over the first index walks through memory in order.
+	std::string linear, stride;
 	for (uint32_t dim = 0; dim < var->dims; dim++) {
 		auto index = convert(operands[dim].v, type::INT32, node->arguments[dim]->where, true, std::string(), &node->arguments[dim]->covers);
 		auto size  = field(dim + 1, "i32");
@@ -83,16 +84,22 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 		emit(out + " = icmp uge i32 " + index.repr + ", " + size); // Unsigned, so that negative indices are caught too.
 		guard(out, "Array index out of bounds.");
 
-		auto wide = tmp();
+		auto wide = tmp(), wide_size = tmp();
 		emit(wide + " = sext i32 " + index.repr + " to i64");
+		emit(wide_size + " = sext i32 " + size + " to i64");
 		if (dim == 0) {
 			linear = wide;
+			stride = wide_size;
 		} else {
-			auto wide_size = tmp(), scaled = tmp(), sum = tmp();
-			emit(wide_size + " = sext i32 " + size + " to i64");
-			emit(scaled + " = mul i64 " + linear + ", " + wide_size);
-			emit(sum + " = add i64 " + scaled + ", " + wide);
+			auto scaled = tmp(), sum = tmp();
+			emit(scaled + " = mul i64 " + wide + ", " + stride);
+			emit(sum + " = add i64 " + linear + ", " + scaled);
 			linear = sum;
+			if (dim + 1 < var->dims) {
+				auto next = tmp();
+				emit(next + " = mul i64 " + stride + ", " + wide_size);
+				stride = next;
+			}
 		}
 	}
 	auto data = field(0, "ptr");
