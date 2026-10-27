@@ -39,6 +39,22 @@ Function Env$(name$, fallback$)
 	Return value$
 End Function
 
+; The random numbers come from this generator and not from Rnd, because Rnd gives different numbers in BlitzLLVM and in the
+; original Blitz3D, and then the two would not draw the same scene. It is the Park-Miller generator, with Schrage's way of
+; multiplying without leaving 31 bits, so it gives the same numbers in both.
+Global BenchState = 1
+
+Function BenchSeedRnd(seed)
+	BenchState = (seed Mod 2147483646) + 1
+	If BenchState < 1 Then BenchState = BenchState + 2147483646
+End Function
+
+Function BenchRnd#(low#, high#)
+	BenchState = 16807 * (BenchState Mod 127773) - 2836 * (BenchState / 127773)
+	If BenchState <= 0 Then BenchState = BenchState + 2147483647
+	Return low + (high - low) * (BenchState / 2147483647.0)
+End Function
+
 objects = Int(Env$("BENCH_OBJECTS", 20000))
 frames = Int(Env$("BENCH_FRAMES", 300))
 warmup = Int(Env$("BENCH_WARMUP", 5))
@@ -47,7 +63,7 @@ viewrange# = Float(Env$("BENCH_RANGE", 300))
 If objects < KINDS Then objects = KINDS
 If frames < 1 Then frames = 1
 
-SeedRnd seed
+BenchSeedRnd seed
 
 camera = CreateCamera()
 CameraClsColor camera, 8, 10, 24
@@ -144,10 +160,10 @@ creationstart = BenchMicros()
 For i = 0 To objects - 1
 	e = CopyEntity(templates(i Mod KINDS))
 	ShowEntity e
-	PositionEntity e, Rnd(-side / 2, side / 2), Rnd(-side / 2, side / 2), Rnd(-side / 2, side / 2)
-	size# = Rnd(0.6, 1.4)
+	PositionEntity e, BenchRnd(-side / 2, side / 2), BenchRnd(-side / 2, side / 2), BenchRnd(-side / 2, side / 2)
+	size# = BenchRnd(0.6, 1.4)
 	ScaleEntity e, size, size, size
-	If (i Mod KINDS) < 12 Then RotateEntity e, Rnd(0, 360), Rnd(0, 360), Rnd(0, 360)
+	If (i Mod KINDS) < 12 Then RotateEntity e, BenchRnd(0, 360), BenchRnd(0, 360), BenchRnd(0, 360)
 Next
 creation# = (BenchMicros() - creationstart) / 1000.0
 
