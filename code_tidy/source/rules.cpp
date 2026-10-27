@@ -33,6 +33,7 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-variable", true, mode::FIX, "Declares the variable with its type in front of the statement of the function that first uses it.", "Variables of the main program: an Include can declare them somewhere else." },
 		{ "unused-result", false, mode::REPORT, "", "" },
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },
+		{ "short-type-notation", true, mode::OFF, "Writes the type in the long form: x% becomes x:Int32, x# x:Float32, x## x:Float64, x%% x:Int64, x$ x:String", "" },
 		{ "unreachable-code", true, mode::FIX, "Removes the statements after Return, End, Goto or Exit, up to the next label or Data.", "" },
 		{ "unused-variable", true, mode::FIX, "Removes a Local of a function that is not mentioned anywhere else.", "Locals of the main program and Globals: an Include can use them." },
 		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x:Int32", "" },
