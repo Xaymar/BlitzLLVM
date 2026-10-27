@@ -138,6 +138,30 @@ For i = 0 To 2
 Next
 StopMovie 0
 
+; LoopMovie makes a movie begin again where it ends, until it is turned off (LoopMovie movie, False) and then it ends.
+For i = 0 To 2
+	movie = OpenMovie(files(i))
+	LoopMovie movie
+	started = MilliSecs()
+	maxposition# = 0
+	While MilliSecs() - started < 7000
+		If MoviePosition(movie) > maxposition Then maxposition = MoviePosition(movie)
+		Check "MoviePlaying while " + files(i) + " loops", MoviePlaying(movie), 1
+		Delay 20
+	Wend
+	CheckTrue "The position of " + files(i) + " went to the end before it looped (" + maxposition + ")", maxposition > 2.5
+	CheckTrue "The position of " + files(i) + " is back in the movie after 7 s (" + MoviePosition(movie) + ")", MoviePosition(movie) < 2.9
+	LoopMovie movie, False
+	started = MilliSecs()
+	While MoviePlaying(movie) And (MilliSecs() - started < 8000)
+		Delay 20
+	Wend
+	elapsed = MilliSecs() - started
+	CheckTrue "A movie that does not loop ends within its length for " + files(i) + " (" + elapsed + " ms)", elapsed < 3500
+	CloseMovie movie
+Next
+LoopMovie 0
+
 Check "MovieLength of no movie", MovieLength(0), 0.0, 0.0001
 Check "MoviePosition of no movie", MoviePosition(0), 0.0, 0.0001
 

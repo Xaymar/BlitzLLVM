@@ -43,8 +43,8 @@ WaitKey
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
+* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
-* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 * [SeekMovie](SeekMovie) 〔BlitzLLVM〕

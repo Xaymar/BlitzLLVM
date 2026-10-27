@@ -30,8 +30,8 @@ SeekMovie movie, 0                        ; and back to the start
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
+* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
-* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕

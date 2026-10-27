@@ -46,8 +46,8 @@ CloseMovie m
 ## Related commands
 
 * [CloseMovie](CloseMovie)
+* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
-* [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕
