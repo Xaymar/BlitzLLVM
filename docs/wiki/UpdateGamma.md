@@ -12,7 +12,7 @@ UpdateGamma calibrate%=0
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-Applies the gamma tables that [SetGamma](SetGamma) changed to the display.
+Makes the gamma tables that [SetGamma](SetGamma) changed count: the window is shown through them from now on, also if the program only draws to the front buffer and does not [Flip](Flip).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +20,7 @@ Applies the gamma tables that [SetGamma](SetGamma) changed to the display.
 
 **Differences and known gaps:**
 
-* Does nothing, see SetGamma.
+* The original gave the tables to the display. This only changes the window, never the gamma of the display, so nothing outside of the program looks different. `calibrate` has no effect, as no calibration of the display is used.
 
 ## Related commands
 

@@ -22,7 +22,7 @@ The output value of the blue gamma table for an input value, as set by [SetGamma
 
 **Differences and known gaps:**
 
-* The gamma tables are only remembered. They never change how the display looks.
+* The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
 
 ## Related commands
 

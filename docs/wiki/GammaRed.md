@@ -31,7 +31,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* The gamma tables are only remembered. They never change how the display looks.
+* The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
 
 ## Related commands
 

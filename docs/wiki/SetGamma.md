@@ -12,7 +12,32 @@ SetGamma src_red%, src_green%, src_blue%, dest_red#, dest_green#, dest_blue#
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
-Sets one entry of the gamma tables: color value `src` of a channel is shown as the output value, which can be a fractional number from 0 to 255. Call [UpdateGamma](UpdateGamma) after changing the entries.
+Sets one entry of the gamma tables: color value `src` of a channel is shown as the output value, which can be a fractional number from 0 to 255. Call [UpdateGamma](UpdateGamma) after changing the entries, which is when they start to count. The tables change what the window shows, not what was drawn, so [ReadPixel](ReadPixel) and [SaveBuffer](SaveBuffer) still see the colors the program drew.
+
+This example raises every step to the power of 1 / 1.8, which brightens the dark colors most. The first picture is the window before, the second after.
+
+```blitzbasic
+Graphics 320, 200, 32, 2
+SetBuffer BackBuffer()
+For i = 0 To 63
+	v = i * 4 + 3
+	Color v, 0, 0 : Rect 32 + i * 4, 20, 4, 24, 1
+	Color 0, v, 0 : Rect 32 + i * 4, 48, 4, 24, 1
+	Color 0, 0, v : Rect 32 + i * 4, 76, 4, 24, 1
+	Color v, v, v : Rect 32 + i * 4, 104, 4, 24, 1
+Next
+Flip
+
+For i = 0 To 255
+	bright# = 255.0 * (i / 255.0) ^ (1.0 / 1.8)
+	SetGamma i, i, i, bright, bright, bright
+Next
+UpdateGamma
+Flip
+WaitKey
+```
+
+![Before SetGamma](media/display/setgamma_before.png) ![After SetGamma](media/display/setgamma_after.png)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -25,7 +50,7 @@ Sets one entry of the gamma tables: color value `src` of a channel is shown as t
 
 **Differences and known gaps:**
 
-* The tables are only stored for [GammaRed](GammaRed) and the others. A window cannot change the gamma of the display, so nothing looks different. The original only worked in full screen as well.
+* The original changed the gamma of the whole display, and left it that way until the program was done. This never changes the gamma of the display, and the window is the only thing that looks different: the tables are applied to the picture of the window when it is shown, by the GPU, and the buffers keep what was drawn. The output values are floats, and it works in a window as well as in full screen.
 
 ## Related commands
 
