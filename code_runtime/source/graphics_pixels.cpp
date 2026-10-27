@@ -53,6 +53,88 @@ namespace bb::gfx {
 		rgba[2] = uint8_t(uint32_t(argb));
 		rgba[3] = uint8_t(uint32_t(argb) >> 24);
 	}
+
+	// The buffers can have more than 8 bits per channel (the depth of Graphics3D). Their pixels are read and written as the
+	// image has them (R, G, B, A in the order of its format), and these turn them into what a program sees:
+	//  - The canonical value has 16 bits for each of A, R, G and B, from the top: 0xAAAARRRRGGGGBBBB. Every format fits.
+	//  - The Int has the alpha on top, then red, green and blue: 8 bits for each for RGBA8 and for R16G16B16A16 (which loses the
+	//    lower 8), and A2R10G10B10 for R10G10B10A2, which is the stored word with red and blue swapped.
+	static bool is_deep(VkFormat format)
+	{
+		return (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) || (format == VK_FORMAT_R16G16B16A16_UNORM);
+	}
+
+	static uint64_t make_canonical(uint64_t a, uint64_t r, uint64_t g, uint64_t b)
+	{
+		return (a << 48) | (r << 32) | (g << 16) | b;
+	}
+
+	static uint32_t narrow(uint64_t canonical, int shift, uint32_t max)
+	{
+		return uint32_t((((canonical >> shift) & 0xFFFF) * max + 32767) / 65535);
+	}
+
+	static uint64_t widen10(uint32_t x)
+	{
+		return uint64_t((x << 6) | (x >> 4));
+	}
+
+	static uint64_t raw_to_canonical(VkFormat format, const uint8_t* p)
+	{
+		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+			uint32_t v;
+			memcpy(&v, p, 4);
+			return make_canonical(uint64_t(v >> 30) * 21845, widen10(v & 1023), widen10((v >> 10) & 1023), widen10((v >> 20) & 1023));
+		}
+		if (format == VK_FORMAT_R16G16B16A16_UNORM) {
+			uint16_t w[4];
+			memcpy(w, p, 8);
+			return make_canonical(w[3], w[0], w[1], w[2]);
+		}
+		return make_canonical(uint64_t(p[3]) * 257, uint64_t(p[0]) * 257, uint64_t(p[1]) * 257, uint64_t(p[2]) * 257);
+	}
+
+	static void canonical_to_raw(VkFormat format, uint8_t* p, uint64_t c)
+	{
+		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+			uint32_t v = narrow(c, 32, 1023) | (narrow(c, 16, 1023) << 10) | (narrow(c, 0, 1023) << 20) | (narrow(c, 48, 3) << 30);
+			memcpy(p, &v, 4);
+		} else if (format == VK_FORMAT_R16G16B16A16_UNORM) {
+			uint16_t w[4] = { uint16_t(c >> 32), uint16_t(c >> 16), uint16_t(c), uint16_t(c >> 48) };
+			memcpy(p, w, 8);
+		} else {
+			p[0] = uint8_t(narrow(c, 32, 255));
+			p[1] = uint8_t(narrow(c, 16, 255));
+			p[2] = uint8_t(narrow(c, 0, 255));
+			p[3] = uint8_t(narrow(c, 48, 255));
+		}
+	}
+
+	static int32_t canonical_to_int(VkFormat format, uint64_t c)
+	{
+		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+			return int32_t((narrow(c, 48, 3) << 30) | (narrow(c, 32, 1023) << 20) | (narrow(c, 16, 1023) << 10) | narrow(c, 0, 1023));
+		}
+		return int32_t((narrow(c, 48, 255) << 24) | (narrow(c, 32, 255) << 16) | (narrow(c, 16, 255) << 8) | narrow(c, 0, 255));
+	}
+
+	static uint64_t int_to_canonical(VkFormat format, int32_t value)
+	{
+		uint32_t v = uint32_t(value);
+		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+			return make_canonical(uint64_t(v >> 30) * 21845, widen10((v >> 20) & 1023), widen10((v >> 10) & 1023), widen10(v & 1023));
+		}
+		return make_canonical(uint64_t(v >> 24) * 257, uint64_t((v >> 16) & 255) * 257, uint64_t((v >> 8) & 255) * 257, uint64_t(v & 255) * 257);
+	}
+
+	// A2B10G10R10 (the stored word) and A2R10G10B10 (the Int) differ in red and blue, which swap places: a few instructions.
+	static uint32_t swap_red_blue10(uint32_t v)
+	{
+		uint32_t t = (v ^ (v >> 20)) & 1023;
+		return v ^ (t | (t << 20));
+	}
+
+	static const uint64_t canonical_opaque = 0xFFFFull << 48;
 } // namespace bb::gfx
 
 extern "C" {
@@ -84,7 +166,8 @@ void bb_lock_buffer(int32_t buffer)
 	slot->used    = true;
 	slot->buffer  = buffer;
 	slot->region  = target;
-	slot->pixels  = read_pixels(*target.image, target.x, target.y, target.w, target.h);
+	slot->format  = is_deep(target.image->format) ? target.image->format : VK_FORMAT_R8G8B8A8_UNORM;
+	slot->pixels  = read_pixels(*target.image, target.x, target.y, target.w, target.h, is_deep(slot->format));
 	slot->changed = false;
 }
 
@@ -100,7 +183,23 @@ void bb_unlock_buffer(int32_t buffer)
 		int32_t  size;
 		uint8_t* data   = bb_bank_data(l->bank, &size);
 		size_t   count  = size_t(l->region.w) * size_t(l->region.h);
-		for (size_t i = 0; i < count && (i * 4 + 3 < size_t(size)); i++) {
+		size_t   bytes  = pixel_bytes(l->format);
+		for (size_t i = 0; i < count && ((i + 1) * bytes <= size_t(size)); i++) {
+			if (is_deep(l->format)) {
+				uint64_t canonical;
+				if (l->format == VK_FORMAT_R16G16B16A16_UNORM) {
+					memcpy(&canonical, data + i * 8, 8); // A, R, G, B from the top.
+				} else {
+					int32_t word;
+					memcpy(&word, data + i * 4, 4);
+					canonical = int_to_canonical(l->format, word);
+				}
+				if (!buffer_has_alpha(buffer)) {
+					canonical |= canonical_opaque;
+				}
+				canonical_to_raw(l->format, l->pixels + i * bytes, canonical);
+				continue;
+			}
 			l->pixels[i * 4 + 0] = data[i * 4 + 2];
 			l->pixels[i * 4 + 1] = data[i * 4 + 1];
 			l->pixels[i * 4 + 2] = data[i * 4 + 0];
@@ -113,7 +212,7 @@ void bb_unlock_buffer(int32_t buffer)
 		flush();
 		target_ref target = resolve_target(buffer);
 		if (target.image) {
-			write_pixels(*target.image, target.x, target.y, target.w, target.h, l->pixels);
+			write_pixels(*target.image, target.x, target.y, target.w, target.h, l->pixels, is_deep(l->format));
 		}
 	}
 	if (buffer >= texture_buffer_base) {
@@ -127,6 +226,66 @@ void bb_unlock_buffer(int32_t buffer)
 	*l = locked_buffer();
 }
 
+// The pixel as the canonical 16 bits per channel value, from a locked buffer or a buffer that is not locked. Not there is 0.
+static bool fetch_canonical(int32_t x, int32_t y, int32_t buffer, const char* what, uint64_t& out, VkFormat& format)
+{
+	out    = 0;
+	buffer = buffer_or_current(buffer);
+	if (locked_buffer* l = find_lock(buffer)) {
+		format = l->format;
+		if ((x < 0) || (y < 0) || (x >= l->region.w) || (y >= l->region.h)) {
+			return false;
+		}
+		out = raw_to_canonical(format, l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * pixel_bytes(format));
+		return true;
+	}
+	if (what) {
+		bb_runtime_error(what);
+	}
+	target_ref target = resolve_target(buffer);
+	if (!target.image) {
+		return false;
+	}
+	format = is_deep(target.image->format) ? target.image->format : VK_FORMAT_R8G8B8A8_UNORM;
+	if ((x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
+		return false;
+	}
+	flush();
+	uint8_t* pixel = read_pixels(*target.image, target.x + x, target.y + y, 1, 1, is_deep(format));
+	out            = raw_to_canonical(format, pixel);
+	free(pixel);
+	return true;
+}
+
+static void store_canonical(int32_t x, int32_t y, int32_t buffer, const char* what, uint64_t canonical)
+{
+	buffer = buffer_or_current(buffer);
+	if (!buffer_has_alpha(buffer)) {
+		canonical |= canonical_opaque;
+	}
+	if (locked_buffer* l = find_lock(buffer)) {
+		if ((x < 0) || (y < 0) || (x >= l->region.w) || (y >= l->region.h)) {
+			return;
+		}
+		canonical_to_raw(l->format, l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * pixel_bytes(l->format), canonical);
+		l->changed = true;
+		return;
+	}
+	if (what) {
+		bb_runtime_error(what);
+	}
+	target_ref target = resolve_target(buffer);
+	if (!target.image || (x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
+		return;
+	}
+	flush();
+	VkFormat format = is_deep(target.image->format) ? target.image->format : VK_FORMAT_R8G8B8A8_UNORM;
+	uint8_t  pixel[8];
+	canonical_to_raw(format, pixel, canonical);
+	write_pixels(*target.image, target.x + x, target.y + y, 1, 1, pixel, is_deep(format));
+}
+
+// The color of the pixel with 8 bits for each of A, R, G and B, or A2R10G10B10 for a buffer that has 30 bits.
 int32_t bb_read_pixel_fast(int32_t x, int32_t y, int32_t buffer)
 {
 	if (!active()) {
@@ -138,6 +297,14 @@ int32_t bb_read_pixel_fast(int32_t x, int32_t y, int32_t buffer)
 	}
 	if ((x < 0) || (y < 0) || (x >= l->region.w) || (y >= l->region.h)) {
 		return 0;
+	}
+	if (l->format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		uint32_t word;
+		memcpy(&word, l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * 4, 4);
+		return int32_t(swap_red_blue10(word));
+	}
+	if (is_deep(l->format)) {
+		return canonical_to_int(l->format, raw_to_canonical(l->format, l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * pixel_bytes(l->format)));
 	}
 	return pack_pixel(l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * 4);
 }
@@ -154,6 +321,19 @@ void bb_write_pixel_fast(int32_t x, int32_t y, int32_t argb, int32_t buffer)
 	if ((x < 0) || (y < 0) || (x >= l->region.w) || (y >= l->region.h)) {
 		return;
 	}
+	if (l->format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		uint32_t word = swap_red_blue10(uint32_t(argb));
+		if (!buffer_has_alpha(l->buffer)) {
+			word |= 3u << 30;
+		}
+		memcpy(l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * 4, &word, 4);
+		l->changed = true;
+		return;
+	}
+	if (is_deep(l->format)) {
+		store_canonical(x, y, buffer, nullptr, int_to_canonical(l->format, argb));
+		return;
+	}
 	uint8_t* pixel = l->pixels + (size_t(y) * size_t(l->region.w) + size_t(x)) * 4;
 	unpack_pixel(argb, pixel);
 	if (!buffer_has_alpha(l->buffer)) {
@@ -168,19 +348,12 @@ int32_t bb_read_pixel(int32_t x, int32_t y, int32_t buffer)
 	if (!active()) {
 		return 0;
 	}
-	buffer = buffer_or_current(buffer);
-	if (find_lock(buffer)) {
-		return bb_read_pixel_fast(x, y, buffer);
-	}
-	target_ref target = resolve_target(buffer);
-	if (!target.image || (x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
+	uint64_t canonical;
+	VkFormat format;
+	if (!fetch_canonical(x, y, buffer, nullptr, canonical, format)) {
 		return 0;
 	}
-	flush();
-	uint8_t* pixel  = read_pixels(*target.image, target.x + x, target.y + y, 1, 1);
-	int32_t  result = pack_pixel(pixel);
-	free(pixel);
-	return result;
+	return canonical_to_int(format, canonical);
 }
 
 void bb_write_pixel(int32_t x, int32_t y, int32_t argb, int32_t buffer)
@@ -189,31 +362,95 @@ void bb_write_pixel(int32_t x, int32_t y, int32_t argb, int32_t buffer)
 		return;
 	}
 	buffer = buffer_or_current(buffer);
-	if (find_lock(buffer)) {
-		bb_write_pixel_fast(x, y, argb, buffer);
+	if (!find_lock(buffer)) {
+		target_ref target = resolve_target(buffer);
+		if (target.image && !is_deep(target.image->format)) {
+			if ((x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
+				return;
+			}
+			flush();
+			uint8_t pixel[4];
+			unpack_pixel(argb, pixel);
+			if (!buffer_has_alpha(buffer)) {
+				pixel[3] = 255;
+			}
+			write_pixels(*target.image, target.x + x, target.y + y, 1, 1, pixel);
+			return;
+		}
+		if (!target.image) {
+			return;
+		}
+		store_canonical(x, y, buffer, nullptr, int_to_canonical(target.image->format, argb));
 		return;
 	}
-	target_ref target = resolve_target(buffer);
-	if (!target.image || (x < 0) || (y < 0) || (x >= target.w) || (y >= target.h)) {
-		return;
-	}
-	flush();
-	uint8_t pixel[4];
-	unpack_pixel(argb, pixel);
-	if (!buffer_has_alpha(buffer)) {
-		pixel[3] = 255;
-	}
-	write_pixels(*target.image, target.x + x, target.y + y, 1, 1, pixel);
+	bb_write_pixel_fast(x, y, argb, buffer);
 }
 
+// ReadPixel64 and the others give the color as a Long with 16 bits for each of A, R, G and B from the top (0xAAAARRRRGGGGBBBB), whatever
+// the buffer is made of, so that a buffer with 64 bits can be read and written without losing anything.
+int64_t bb_read_pixel64(int32_t x, int32_t y, int32_t buffer)
+{
+	if (!active()) {
+		return 0;
+	}
+	uint64_t canonical;
+	VkFormat format;
+	return fetch_canonical(x, y, buffer, nullptr, canonical, format) ? int64_t(canonical) : 0;
+}
+
+void bb_write_pixel64(int32_t x, int32_t y, int64_t value, int32_t buffer)
+{
+	if (active()) {
+		store_canonical(x, y, buffer, nullptr, uint64_t(value));
+	}
+}
+
+int64_t bb_read_pixel_fast64(int32_t x, int32_t y, int32_t buffer)
+{
+	if (!active()) {
+		return 0;
+	}
+	uint64_t canonical;
+	VkFormat format;
+	return fetch_canonical(x, y, buffer, "ReadPixelFast64: the buffer has to be locked with LockBuffer.", canonical, format) ? int64_t(canonical) : 0;
+}
+
+void bb_write_pixel_fast64(int32_t x, int32_t y, int64_t value, int32_t buffer)
+{
+	if (active()) {
+		store_canonical(x, y, buffer, "WritePixelFast64: the buffer has to be locked with LockBuffer.", uint64_t(value));
+	}
+}
+
+// Copies at the depth that both buffers have: a buffer with 64 bits does not lose anything on the way.
 void bb_copy_pixel_fast(int32_t sx, int32_t sy, int32_t source, int32_t dx, int32_t dy, int32_t destination)
 {
-	bb_write_pixel_fast(dx, dy, bb_read_pixel_fast(sx, sy, source), destination);
+	if (!active()) {
+		return;
+	}
+	if (!find_lock(buffer_or_current(source))) {
+		bb_runtime_error("CopyPixelFast: the buffer has to be locked with LockBuffer.");
+	}
+	if (!find_lock(buffer_or_current(destination))) {
+		bb_runtime_error("CopyPixelFast: the buffer has to be locked with LockBuffer.");
+	}
+	uint64_t canonical;
+	VkFormat format;
+	if (fetch_canonical(sx, sy, source, nullptr, canonical, format)) {
+		store_canonical(dx, dy, destination, nullptr, canonical);
+	}
 }
 
 void bb_copy_pixel(int32_t sx, int32_t sy, int32_t source, int32_t dx, int32_t dy, int32_t destination)
 {
-	bb_write_pixel(dx, dy, bb_read_pixel(sx, sy, source), destination);
+	if (!active()) {
+		return;
+	}
+	uint64_t canonical;
+	VkFormat format;
+	if (fetch_canonical(sx, sy, source, nullptr, canonical, format)) {
+		store_canonical(dx, dy, destination, nullptr, canonical);
+	}
 }
 
 // CopyRect source_x, source_y, width, height, destination_x, destination_y [, source buffer] [, destination buffer]
@@ -266,10 +503,14 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 // Makes the pixel the color that is drawn with.
 void bb_get_color(int32_t x, int32_t y)
 {
-	int32_t argb = bb_read_pixel(x, y, 0);
-	g.color[0]   = uint8_t(uint32_t(argb) >> 16);
-	g.color[1]   = uint8_t(uint32_t(argb) >> 8);
-	g.color[2]   = uint8_t(uint32_t(argb));
+	uint64_t canonical;
+	VkFormat format;
+	if (!active() || !fetch_canonical(x, y, 0, nullptr, canonical, format)) {
+		return;
+	}
+	g.color[0] = uint8_t(narrow(canonical, 32, 255));
+	g.color[1] = uint8_t(narrow(canonical, 16, 255));
+	g.color[2] = uint8_t(narrow(canonical, 0, 255));
 }
 
 int32_t bb_color_red(void)
@@ -300,10 +541,21 @@ int32_t bb_locked_pixels(int32_t buffer)
 	}
 	if (!l->bank) {
 		size_t  count = size_t(l->region.w) * size_t(l->region.h);
-		int32_t bank  = bb_create_bank(int32_t(count * 4));
+		size_t  bytes = pixel_bytes(l->format);
+		int32_t bank  = bb_create_bank(int32_t(count * bytes));
 		int32_t size;
 		uint8_t* data = bb_bank_data(bank, &size);
-		for (size_t i = 0; i < count; i++) {
+		for (size_t i = 0; is_deep(l->format) && (i < count); i++) {
+			// What a program reads is the Int of the pixel for 30 bits, and the 64 bits (A, R, G, B from the top) for 64.
+			uint64_t canonical = raw_to_canonical(l->format, l->pixels + i * bytes);
+			if (l->format == VK_FORMAT_R16G16B16A16_UNORM) {
+				memcpy(data + i * 8, &canonical, 8);
+			} else {
+				int32_t word = canonical_to_int(l->format, canonical);
+				memcpy(data + i * 4, &word, 4);
+			}
+		}
+		for (size_t i = 0; !is_deep(l->format) && (i < count); i++) {
 			data[i * 4 + 0] = l->pixels[i * 4 + 2];
 			data[i * 4 + 1] = l->pixels[i * 4 + 1];
 			data[i * 4 + 2] = l->pixels[i * 4 + 0];
@@ -323,18 +575,20 @@ int32_t bb_locked_pitch(int32_t buffer)
 	if (!l) {
 		bb_runtime_error("Buffer is not locked");
 	}
-	return l->region.w * 4;
+	return l->region.w * int32_t(pixel_bytes(l->format));
 }
 
-// 4 is what BlitzPlus calls 32 bits with nothing in the last byte.
+// 4 is what BlitzPlus calls 32 bits with nothing in the last byte. 5 (A2R10G10B10) and 6 (A16R16G16B16, from the top) are for the buffers that
+// Graphics3D made with the depth 30 and 64.
 int32_t bb_locked_format(int32_t buffer)
 {
 	if (!active()) {
 		return 0;
 	}
-	if (!find_lock(buffer_or_current(buffer))) {
+	locked_buffer* l = find_lock(buffer_or_current(buffer));
+	if (!l) {
 		bb_runtime_error("Buffer is not locked");
 	}
-	return 4;
+	return l->format == VK_FORMAT_A2B10G10R10_UNORM_PACK32 ? 5 : (l->format == VK_FORMAT_R16G16B16A16_UNORM ? 6 : 4);
 }
 }

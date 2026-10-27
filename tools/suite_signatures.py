@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import suite_functions as sf  # noqa: E402
 
 ROW = re.compile(r'\{\s*"([a-z0-9_]+)"\s*,\s*"([a-z0-9_]+)"\s*,\s*\'(.)\'\s*,\s*"([a-z]*)"\s*,\s*(\d+)\s*,\s*\{([^}]*)\}')
-KIND = {"%": "i", "#": "f", "$": "s"}
+KIND = {"%": "i", "#": "f", "$": "s", "!": "l"}
 
 
 def parse_original(signature):
@@ -24,7 +24,7 @@ def parse_original(signature):
     body = signature[1:] if signature[:1] in KIND else signature
     body = re.sub(r"^[A-Za-z_][A-Za-z0-9_]*", "", body)
     kinds, required = "", 0
-    for kind, name, default in re.findall(r"([%#$])([A-Za-z_][A-Za-z0-9_]*)(=[^%#$]*)?", body):
+    for kind, name, default in re.findall(r"([%#$!])([A-Za-z_][A-Za-z0-9_]*)(=[^%#$!]*)?", body):
         kinds += KIND[kind]
         if not default:
             required += 1

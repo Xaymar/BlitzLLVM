@@ -29,13 +29,13 @@ namespace bb::gfx {
 	static bool transform_filter = true; // TFormFilter: whether TFormImage and the others blend neighbouring pixels.
 
 	// The bytes a pixel takes in an image that programs read and write as RGBA8: the buffers can be deeper than that.
-	static uint32_t pixel_bytes(VkFormat format)
+	uint32_t pixel_bytes(VkFormat format)
 	{
 		return (format == VK_FORMAT_R16G16B16A16_UNORM) ? 8 : 4;
 	}
 
 	// Copies the pixels of a rectangle of an image into new memory, as RGBA.
-	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h)
+	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native)
 	{
 		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * pixel_bytes(img.format);
 		VkBuffer       staging;
@@ -55,8 +55,10 @@ namespace bb::gfx {
 		submit_commands();
 
 		size_t   count = size_t(w) * size_t(h);
-		uint8_t* out   = static_cast<uint8_t*>(malloc(count * 4));
-		if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		uint8_t* out   = static_cast<uint8_t*>(malloc(count * (native ? pixel_bytes(img.format) : 4)));
+		if (native) {
+			memcpy(out, mapped, count * pixel_bytes(img.format));
+		} else if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
 			const uint32_t* packed = static_cast<const uint32_t*>(mapped);
 			for (size_t i = 0; i < count; i++) {
 				uint32_t v     = packed[i];
@@ -78,7 +80,7 @@ namespace bb::gfx {
 	}
 
 	// The other way around.
-	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba)
+	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native)
 	{
 		image_generation++;
 		img.mips_stale = img.mips > 1;
@@ -88,7 +90,9 @@ namespace bb::gfx {
 		void*          mapped;
 		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, true, staging, staging_allocation, &mapped);
 		size_t count = size_t(w) * size_t(h);
-		if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+		if (native) {
+			memcpy(mapped, rgba, count * pixel_bytes(img.format));
+		} else if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
 			uint32_t* packed = static_cast<uint32_t*>(mapped);
 			for (size_t i = 0; i < count; i++) {
 				uint32_t a = (uint32_t(rgba[i * 4 + 3]) + 42) / 85;

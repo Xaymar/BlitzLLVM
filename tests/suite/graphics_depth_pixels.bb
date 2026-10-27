@@ -12,14 +12,21 @@ If GetEnv$("BLITZ_HEADLESS") <> "" Then
 	End
 EndIf
 
+; The 8 bits of each channel that a pixel has, from ReadPixel64, which is the same for every depth.
 Function R(x, y)
-	Return (ReadPixel(x, y, BackBuffer()) Shr 16) And 255
+	Return Int((ReadPixel64(x, y, BackBuffer()) Shr 40) And 255)
 End Function
 Function G(x, y)
-	Return (ReadPixel(x, y, BackBuffer()) Shr 8) And 255
+	Return Int((ReadPixel64(x, y, BackBuffer()) Shr 24) And 255)
 End Function
 Function B(x, y)
-	Return ReadPixel(x, y, BackBuffer()) And 255
+	Return Int((ReadPixel64(x, y, BackBuffer()) Shr 8) And 255)
+End Function
+
+; The Int that WritePixel takes for a color with 8 bits for each channel: A2R10G10B10 for 30 bits, ARGB otherwise.
+Function Native(depth, r, g, b)
+	If depth = 30 Then Return (3 Shl 30) Or ((r * 1023 / 255) Shl 20) Or ((g * 1023 / 255) Shl 10) Or (b * 1023 / 255)
+	Return $FF000000 Or (r Shl 16) Or (g Shl 8) Or b
 End Function
 
 ; Draws one depth through everything that touches the buffer.
@@ -40,7 +47,7 @@ Function TryDepth(depth, deep)
 	Check name + "Rect red", R(15, 15), 255, 1
 	Check name + "Rect green", G(15, 15), 128, 1
 	Check name + "Rect blue", B(15, 15), 0, 1
-	WritePixel 40, 40, $FF4080C0
+	WritePixel 40, 40, Native(depth, $40, $80, $C0)
 	Check name + "WritePixel red", R(40, 40), $40, 1
 	Check name + "WritePixel green", G(40, 40), $80, 1
 	Check name + "WritePixel blue", B(40, 40), $C0, 1
@@ -66,6 +73,52 @@ Function TryDepth(depth, deep)
 	CopyRect 0, 0, 16, 16, 0, 0, BackBuffer(), TextureBuffer(tex)
 	FreeImage img
 	FreeTexture tex
+
+	; What ReadPixel and WritePixel have is what the buffer stores: A2R10G10B10 for 30 bits, and ARGB with 8 bits each otherwise.
+	; ReadPixel64 and WritePixel64 have 16 bits for each of A, R, G and B from the top, whatever the buffer is.
+	Local word = (3 Shl 30) Or (1000 Shl 20) Or (500 Shl 10) Or 123 ; red 1000, green 500, blue 123
+	Local wide:Long = (Long($FFFF) Shl 48) Or (Long($9ABC) Shl 32) Or (Long($5678) Shl 16) Or Long($1234)
+	Local narrow:Long = (Long($FFFF) Shl 48) Or (Long($8080) Shl 32) Or (Long($4040) Shl 16) Or Long($2020)
+	Local none:Long = 0
+	If depth = 30
+		WritePixel 50, 50, word
+		CheckTrue name + "30 bits keep the word", ReadPixel(50, 50) = word
+		Check name + "30 bits in 64, red", Int((ReadPixel64(50, 50) Shr 32) And $FFFF), 64062
+		LockBuffer BackBuffer()
+		CheckTrue name + "Locked word", ReadPixelFast(50, 50) = word
+		Check name + "LockedFormat", LockedFormat(), 5
+		Check name + "LockedPitch", LockedPitch(), 64 * 4
+		WritePixelFast 51, 50, word
+		CopyPixelFast 51, 50, BackBuffer(), 52, 50, BackBuffer()
+		CheckTrue name + "CopyPixelFast", ReadPixelFast(52, 50) = word
+		UnlockBuffer BackBuffer()
+		CheckTrue name + "Unlocked word", ReadPixel(52, 50) = word
+	ElseIf depth = 64
+		WritePixel64 50, 50, wide
+		CheckTrue name + "64 bits keep all of it", ReadPixel64(50, 50) = wide
+		CheckTrue name + "ReadPixel has the top 8 bits", (ReadPixel(50, 50) And $FFFFFF) = $9A5612 Or (ReadPixel(50, 50) And $FFFFFF) = $9B5712
+		LockBuffer BackBuffer()
+		CheckTrue name + "Locked 64 bits", ReadPixelFast64(50, 50) = wide
+		Check name + "LockedFormat", LockedFormat(), 6
+		Check name + "LockedPitch", LockedPitch(), 64 * 8
+		WritePixelFast64 51, 50, wide
+		CopyPixelFast 51, 50, BackBuffer(), 52, 50, BackBuffer()
+		CheckTrue name + "CopyPixelFast keeps all of it", ReadPixelFast64(52, 50) = wide
+		UnlockBuffer BackBuffer()
+		CheckTrue name + "Unlocked 64 bits", ReadPixel64(52, 50) = wide
+	Else
+		WritePixel64 50, 50, narrow
+		CheckTrue name + "8 bits in 64", (ReadPixel64(50, 50) And $FFFFFFFFFFFF) = (narrow And $FFFFFFFFFFFF)
+		CheckTrue name + "8 bits ReadPixel", (ReadPixel(50, 50) And $FFFFFF) = $804020
+		LockBuffer BackBuffer()
+		Check name + "LockedFormat", LockedFormat(), 4
+		UnlockBuffer BackBuffer()
+	EndIf
+	; What is shown on the screen is RGBA8 whatever the depth is, with or without Dither.
+	Dither True
+	Flip
+	Dither False
+	Flip
 
 	; 3D: a cube in the middle with its own color.
 	camera = CreateCamera()

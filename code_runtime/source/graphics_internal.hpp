@@ -658,6 +658,7 @@ namespace bb::gfx {
 		uint8_t*   pixels  = nullptr;
 		bool       changed = false;
 		int        bank    = 0; // The bank that LockedPixels made, which has the pixels the way BlitzPlus has them.
+		VkFormat   format  = VK_FORMAT_R8G8B8A8_UNORM; // What the pixels are: RGBA8 (4 bytes), or as the buffer has them if it is deeper (4 or 8 bytes).
 	};
 
 	// Shared state
@@ -822,8 +823,11 @@ namespace bb::gfx {
 	void forget_recorded();
 	void record_scene(uint32_t index, int target_handle);
 	void record_copy(uint32_t index);
-	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h);
-	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba);
+	/** The bytes a pixel of the format takes in memory when it is read or written natively: 4, or 8 for R16G16B16A16. */
+	uint32_t pixel_bytes(VkFormat format);
+	/** Reads pixels as RGBA8, or with native set as the image has them (R, G, B, A in the order of its format). */
+	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native = false);
+	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native = false);
 	/** Loads a picture file with SDL_image, and DDS files with our own decoder. The surface is for the caller to destroy. */
 	SDL_Surface* load_surface(const char* file);
 
