@@ -247,6 +247,7 @@ setsamplerlodmax	blitz3d	done	SetSamplerLodMax%sampler#lod
 setsamplerlodmin	blitz3d	done	SetSamplerLodMin%sampler#lod
 settexturesampler	blitz3d	done	SetTextureSampler%texture%sampler
 textureready	blitz3d	done	%TextureReady%texture
+imageready	graphics	done	%ImageReady%image
 asyncloading	graphics	done	AsyncLoading%enabled
 showentity	blitz3d	done	ShowEntity%entity
 spriteviewmode	blitz3d	done	SpriteViewMode%sprite%view_mode

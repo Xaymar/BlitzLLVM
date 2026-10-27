@@ -37,7 +37,11 @@ namespace bb::gfx {
 		if ((handle < 1) || (uint32_t(handle) > image_table.size) || !image_table[uint32_t(handle) - 1].used) {
 			return nullptr;
 		}
-		return &image_table[uint32_t(handle) - 1];
+		image_entry* e = &image_table[uint32_t(handle) - 1];
+		if (e->pending) {
+			resolve_image(*e);
+		}
+		return e;
 	}
 
 	// Where the pixels of a frame are in the sheet of its image.
