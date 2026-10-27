@@ -14,6 +14,12 @@ name: Test
 #     and only configure (to find the tests) and run ctest.
 #   - nothing else matters (documentation, the wiki, README): succeed.
 # A manual run always builds and tests everything.
+#
+# The test comment: for pull requests of this repository, a single comment (found by the hidden marker on its first line) lists
+# every test with its result in the Debug and in the Release version (.github/scripts/test-report.py renders it,
+# .github/scripts/test-comment.sh posts it). It is reset to all tests pending as soon as the run starts, with the list of the
+# previous commit, replaced by the current list once the project is configured, and filled with the results at the end, also
+# when the tests failed or the run was cancelled. It is separate from the comment about the build of pull-request.yml.
 
 on:
   pull_request:
@@ -26,8 +32,11 @@ concurrency:
   group: test-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# pull-requests: write is for the comment that lists the tests (see "The test comment" below). The token of a pull request from a
+# fork can not write, so those pull requests get no comment, and nothing else changes for them.
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   changes:
@@ -50,7 +59,7 @@ jobs:
         run: |
           # Anything that can change the compiler, the runtime or what is installed from them. The tests are not part of this.
           BUILD='^(code_compiler|code_runtime|cmake|third_party)/|^(CMakeLists\.txt|CMakePresets\.json|\.gitmodules|LICENSE\.adoc|\.github/workflows/test\.yml)$'
-          TESTS='^tests/|^tools/suite_(functions|signatures)\.py$'
+          TESTS='^tests/|^tools/suite_(functions|signatures)\.py$|^\.github/scripts/test-(report\.py|comment\.sh)$'
 
           case "$EVENT" in
             pull_request) BASE=HEAD^1 ;;
@@ -71,6 +80,22 @@ jobs:
 
           echo "build=$(grep -Eq "$BUILD" <<< "$FILES" && echo true || echo false)" >> "$GITHUB_OUTPUT"
           echo "tests=$(grep -Eq "$TESTS" <<< "$FILES" && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - name: Reset the test comment
+        # Before anything is built, so the comment never shows the results of an older commit.
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          NEEDED: ${{ steps.detect.outputs.build == 'true' || steps.detect.outputs.tests == 'true' }}
+        run: |
+          STATE=pending
+          [ "$NEEDED" = true ] || STATE=skipped
+          .github/scripts/test-comment.sh get "$NUMBER" > "$RUNNER_TEMP/previous.md"
+          python3 .github/scripts/test-report.py --state "$STATE" --sha "$SHA" --run-url "$RUN_URL" --previous "$RUNNER_TEMP/previous.md" > "$RUNNER_TEMP/comment.md"
+          .github/scripts/test-comment.sh post "$NUMBER" "$SHA" "$RUNNER_TEMP/comment.md"
 
   linux:
     name: Test (Linux)
@@ -82,6 +107,13 @@ jobs:
       RUN: ${{ needs.changes.outputs.build == 'true' || needs.changes.outputs.tests == 'true' }}
       # SDL wants a runtime directory, and complains on stderr without one, which the close prompt test would read as output.
       XDG_RUNTIME_DIR: /tmp/xdg
+      # Pull requests of this repository get the test comment.
+      COMMENT: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      NUMBER: ${{ github.event.pull_request.number }}
+      SHA: ${{ github.event.pull_request.head.sha }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
       - name: Check out the submodules
@@ -150,6 +182,15 @@ jobs:
           mkdir -p build
           [ -f build/blitz-version ] || cmake -P cmake/project_version.cmake > build/blitz-version
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON -DBLITZLLVM_REQUIRE_NASM=ON -DBlitzLLVM_VERSION="$(cat build/blitz-version)"
+      - name: List the tests in the test comment
+        # The tests are known now (this is also the first point at which a new test is), so the comment lists all of them as pending.
+        if: env.RUN == 'true' && env.COMMENT == 'true'
+        continue-on-error: true
+        working-directory: build/code_compiler
+        run: |
+          ctest -C Release --show-only=json-v1 > "$RUNNER_TEMP/tests.json"
+          python3 "$GITHUB_WORKSPACE/.github/scripts/test-report.py" --state pending --sha "$SHA" --run-url "$RUN_URL" --tests "$RUNNER_TEMP/tests.json" > "$RUNNER_TEMP/comment.md"
+          "$GITHUB_WORKSPACE/.github/scripts/test-comment.sh" post "$NUMBER" "$SHA" "$RUNNER_TEMP/comment.md"
       - name: Build
         if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
         run: cmake --build build
@@ -172,7 +213,26 @@ jobs:
         working-directory: build/code_compiler
         # -j: the GPU tests are small. The ones that move the focus of a window are RUN_SERIAL. A test that skips itself (77)
         # is reported as skipped and does not fail the run.
-        run: xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600
+        run: xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml"
+      - name: Report the results in the test comment
+        # Also after a failure or a cancel, so the comment is never left pending. A run that was cancelled by a newer push is
+        # not the head of the pull request anymore, so test-comment.sh leaves the comment to the new run.
+        if: always() && env.RUN == 'true' && env.COMMENT == 'true'
+        continue-on-error: true
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          STATE=done
+          [ "$JOB_STATUS" = cancelled ] && STATE=cancelled
+          ARGS=(--tests "$RUNNER_TEMP/tests.json")
+          if [ -f "$RUNNER_TEMP/junit.xml" ]; then
+            ARGS+=(--junit "$RUNNER_TEMP/junit.xml")
+          elif [ "$STATE" = done ]; then
+            STATE=failed
+          fi
+          [ -f "$RUNNER_TEMP/tests.json" ] || ARGS=(--previous /dev/null)
+          python3 .github/scripts/test-report.py --state "$STATE" --sha "$SHA" --run-url "$RUN_URL" "${ARGS[@]}" > "$RUNNER_TEMP/comment.md"
+          .github/scripts/test-comment.sh post "$NUMBER" "$SHA" "$RUNNER_TEMP/comment.md"
       - name: Keep what the tests wrote
         if: failure()
         uses: actions/upload-artifact@v4
