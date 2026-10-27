@@ -140,15 +140,11 @@ namespace bb::gfx {
 		info.usage             = usage;
 		info.sharingMode       = VK_SHARING_MODE_EXCLUSIVE;
 		info.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
-		check(vkCreateImage(g.device, &info, nullptr, &img.image), "vkCreateImage");
 
-		VkMemoryRequirements req;
-		vkGetImageMemoryRequirements(g.device, img.image, &req);
-		VkMemoryAllocateInfo alloc = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-		alloc.allocationSize       = req.size;
-		alloc.memoryTypeIndex      = find_memory(req.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		check(vkAllocateMemory(g.device, &alloc, nullptr, &img.memory), "vkAllocateMemory");
-		check(vkBindImageMemory(g.device, img.image, img.memory, 0), "vkBindImageMemory");
+		VmaAllocationCreateInfo alloc = {};
+		alloc.usage                   = VMA_MEMORY_USAGE_AUTO;
+		alloc.requiredFlags           = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		check(vmaCreateImage(g.allocator, &info, &alloc, &img.image, &img.allocation, nullptr), "vmaCreateImage");
 
 		VkImageViewCreateInfo view         = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
 		view.image                         = img.image;
@@ -178,10 +174,7 @@ namespace bb::gfx {
 			vkDestroyImageView(g.device, img.target_view, nullptr);
 		}
 		if (img.image) {
-			vkDestroyImage(g.device, img.image, nullptr);
-		}
-		if (img.memory) {
-			vkFreeMemory(g.device, img.memory, nullptr);
+			vmaDestroyImage(g.allocator, img.image, img.allocation);
 		}
 		img = gpu_image();
 	}

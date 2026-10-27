@@ -166,7 +166,7 @@ namespace bb::gfx {
 		bool           opaque  = false;              // Compressed: whether the alpha is forced to 1, which it is when the texture has no alpha flag.
 		VkSampler      sampler = VK_NULL_HANDLE;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
 		VkImage        image  = VK_NULL_HANDLE;
-		VkDeviceMemory memory = VK_NULL_HANDLE;
+		VmaAllocation  allocation = VK_NULL_HANDLE;
 		VkImageView    view   = VK_NULL_HANDLE;   // All mip levels, for sampling.
 		VkImageView    target_view = VK_NULL_HANDLE; // The first level only, for drawing to an image that has more. Null if there is just one.
 		uint32_t       mips = 1;                  // How many levels the image has.
