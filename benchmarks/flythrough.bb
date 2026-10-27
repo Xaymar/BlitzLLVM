@@ -160,10 +160,20 @@ creationstart = BenchMicros()
 For i = 0 To objects - 1
 	e = CopyEntity(templates(i Mod KINDS))
 	ShowEntity e
-	PositionEntity e, BenchRnd(-side / 2, side / 2), BenchRnd(-side / 2, side / 2), BenchRnd(-side / 2, side / 2)
+	; The numbers are drawn into variables first: the original Blitz3D evaluates the arguments of a call in another order than BlitzLLVM
+	; does (for three the second, the third and then the first), which would put the objects in other places in the two.
+	px# = BenchRnd(-side / 2, side / 2)
+	py# = BenchRnd(-side / 2, side / 2)
+	pz# = BenchRnd(-side / 2, side / 2)
+	PositionEntity e, px, py, pz
 	size# = BenchRnd(0.6, 1.4)
 	ScaleEntity e, size, size, size
-	If (i Mod KINDS) < 12 Then RotateEntity e, BenchRnd(0, 360), BenchRnd(0, 360), BenchRnd(0, 360)
+	If (i Mod KINDS) < 12 Then
+		pitch# = BenchRnd(0, 360)
+		yaw# = BenchRnd(0, 360)
+		roll# = BenchRnd(0, 360)
+		RotateEntity e, pitch, yaw, roll
+	EndIf
 Next
 creation# = (BenchMicros() - creationstart) / 1000.0
 
