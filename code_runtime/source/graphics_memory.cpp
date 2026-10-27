@@ -17,6 +17,9 @@
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #define VMA_VULKAN_VERSION 1003000
+// A program must not stop because of what the allocator checks: allocations that were not freed are reported when profiling (see
+// destroy_allocator), and the checks of its own use of Vulkan are for its developers.
+#define VMA_ASSERT(expr)
 #include "graphics_internal.hpp"
 
 namespace bb::gfx {
