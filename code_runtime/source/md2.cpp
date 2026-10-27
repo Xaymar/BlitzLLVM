@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <unordered_map>
+
 extern "C" {
 void bb_runtime_error(const char* message);
 }
@@ -282,6 +284,7 @@ namespace {
 
 		// A vertex of the model is a vertex of the file with a texture coordinate, so the same one can be several.
 		buffer<corner> corners;
+		std::unordered_map<uint32_t, uint32_t> corner_of; // Looking through the corners for each corner of a triangle takes for ever with 65535 triangles.
 		for (int t = 0; t < h.triangles; t++) {
 			unsigned short triangle[3];
 			for (int c = 0; c < 3; c++) {
@@ -290,13 +293,12 @@ namespace {
 					k = { 0, 0 };
 				}
 				uint32_t found = corners.size;
-				for (uint32_t i = 0; i < corners.size; i++) {
-					if ((corners[i].vertex == k.vertex) && (corners[i].texture_coordinate == k.texture_coordinate)) {
-						found = i;
-						break;
-					}
+				auto     known = corner_of.find((uint32_t(k.vertex) << 16) | k.texture_coordinate);
+				if (known != corner_of.end()) {
+					found = known->second;
 				}
 				if (found == corners.size) {
+					corner_of.emplace((uint32_t(k.vertex) << 16) | k.texture_coordinate, corners.size);
 					corners.push(k);
 					d->uvs.push(float(uvs.data[k.texture_coordinate].u) / float(h.skin_width));
 					d->uvs.push(float(uvs.data[k.texture_coordinate].v) / float(h.skin_height));
