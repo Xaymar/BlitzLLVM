@@ -392,7 +392,29 @@ void blitz::compiler::gen_return(ast::return_statement const* node)
 		throw err(node->where, "Return can only be used inside of a function, or after a Gosub.");
 	}
 	auto  llvm = blitz::types::to_llvm(_return_type);
-	value v    = node->value ? convert(gen(node->value.get()), _return_type, node->value->where, true, _return_sname) : zero(_return_type);
+	value v    = zero(_return_type);
+	if (node->value) {
+		auto given = gen(node->value.get());
+		// A number written in the program that fits is fine, like it is for the implicit conversions.
+		bool literal = blitz::types::is_integer(given.type) && !given.repr.empty() && (given.repr.find_first_not_of("-0123456789") == std::string::npos);
+		bool report  = (given.type != _return_type) && (given.type != type::STRUCT) && (_return_type != type::STRUCT) && (given.type != type::UNKNOWN) && !(literal && !is_lossy(given.type, _return_type, given.repr));
+		if (report && warning_options.enabled("return-type-mismatch")) {
+			namespace t = blitz::types;
+			std::string fix;
+			if (_return_type == type::INT32) {
+				fix = "Int(value)";
+			} else if (_return_type == type::FLOAT32) {
+				fix = "Float(value)";
+			} else if (_return_type == type::STRING) {
+				fix = "Str(value)";
+			}
+			warn(node->value->where, "return-type-mismatch", "Return gives " + t::display(given.type) + ", but the function returns " + t::display(_return_type) + ".", fix.empty() ? "Change the type of the function or of the returned value." : "Use " + fix + " to convert on purpose.");
+			// This says what the implicit conversion warnings would say.
+			v = convert(given, _return_type, node->value->where, false, _return_sname);
+		} else {
+			v = convert(given, _return_type, node->value->where, true, _return_sname);
+		}
+	}
 	if (_return_type == type::STRING) {
 		// The caller gets a copy as its own temporary, and what this function made is freed.
 		declare("bb_str_return", "declare ptr @bb_str_return(ptr, i32)");
