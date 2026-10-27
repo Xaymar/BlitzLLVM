@@ -44,7 +44,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (249)</summary>
+<li><details><summary>Commands (250)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -266,6 +266,7 @@
 <li><a href="SpriteViewMode#differences">SpriteViewMode</a></li>
 <li><a href="StartNetGame#differences">StartNetGame</a></li>
 <li><a href="Stats3D#differences">Stats3D</a></li>
+<li><a href="Step#differences">Step</a></li>
 <li><a href="Stop#differences">Stop</a></li>
 <li><a href="StringHeight#differences">StringHeight</a></li>
 <li><a href="StringWidth#differences">StringWidth</a></li>

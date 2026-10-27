@@ -19,7 +19,11 @@ For variable = from To limit Step amount
 
 ## Description
 
-The amount that a [For](For) loop adds to its variable after each pass. It defaults to 1. A negative step counts down, so the start has to be larger than the limit.
+The amount that a [For](For) loop adds to its variable after each pass. It defaults to 1. A negative step counts down, so the start has to be larger than the limit. A step of 0, or one that is infinite or not a number, is an error because the loop could never end.
+
+## Differences
+
+* The original only accepts a constant after `Step` and reports "Step value must be constant" otherwise. BlitzLLVM accepts any expression, but warns about one that is not a constant (`loop-unroll-requires-constant`, level 4), because only a constant step lets the loop be unrolled.
 
 ## Examples
 

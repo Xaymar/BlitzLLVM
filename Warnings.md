@@ -52,6 +52,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 
 | Name | Level | Warns about |
 | --- | --- | --- |
+| `loop-iterator-type-unsafe` | 1 | A `For` loop whose variable is a real number (`Float`, `Half`, `Double`). Reals do not count exactly, so the loop can run once more or less than expected, or never end. |
 | `implicit-lossy-int-to-int` | 1 | An integer assigned or passed to an integer that is smaller or has another sign (`Int` to `Byte`, `Int` to `UInt`, ...), which can change the number. A number written in the program that fits is fine. |
 | `implicit-lossy-real-to-int` | 1 | A Float assigned or passed to an integer (`Local i% = 2.5`). It is rounded, like in the original, and the fractional part is lost. |
 | `implicit-lossy-real-to-real` | 1 | A real number assigned or passed to a smaller one (`Double` to `Float`). |
@@ -66,6 +67,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 | `unreachable-code` (notice) | 3 | A statement after `Return`, `End`, `Goto` or `Exit` in the same block, which can never run. Labels and `Data` do not count. Only the first one is reported. |
 | `unused-variable` (notice) | 3 | A `Local` or `Global` variable that is never read (writing to it does not count). It is optimized away. |
 | `typeless-declaration` | 4 | A `Local`, `Global`, `Const`, `Dim`, `Function` (its result), function parameter or `Field` without a type (`Local x`, `Function Foo(a)`, `Field size`): it is an Int, which is not always what was meant. |
+| `loop-unroll-requires-constant` | 4 | The `Step` of a `For` loop is not a constant, so the loop can not be unrolled. A constant step of 0 is an error. |
 | `unused-function` (notice) | 4 | A function that is never called. It is optimized away. |
 
 `blitzcc --help` lists the same warnings.

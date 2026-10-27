@@ -41,7 +41,7 @@ Textures that [TextureFilter](TextureFilter) matches by file name get extra flag
 ## Differences
 
 * TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
-* Video memory, high color and point sampling flags are stored but have no effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
+* The video memory and high color flags are always in effect, and the point sampling flag is stored but has no effect unless a sampler is set with SetTextureSampler, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
 
 ## Examples
 

@@ -26,7 +26,7 @@ Differences that are not caused by one command.
 * [Image formats](Image-Formats): Picture files: TIFF and JPEG 2000 are not read, but WebP, AVIF, JPEG XL, DDS and several other formats are.
 * [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
-* [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains; there is no anisotropic filtering.
+* [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains, and anisotropic filtering can be turned on with a sampler, which the originals could not.
 * [Movie controls](Movie-Controls): Extension: movies can be paused, and the commands for that build on the original movie commands.
 * [Multiplayer](Multiplayer): Multiplayer uses TCP on port 40500 instead of DirectPlay, so games only play with other BlitzLLVM games.
 * [Numbers of other sizes](Numbers-of-Other-Sizes): Extension: `Byte`, `Short`, `UInt`, `Long`, `Half`, `Double` and the like, with conversions, saturating versions, bit functions and Double math.
@@ -260,6 +260,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [SpriteViewMode](SpriteViewMode#differences): The descriptions in the official help do not exactly match the engine.
 * [StartNetGame](StartNetGame#differences): The original showed a dialog box with the games found in the network.
 * [Stats3D](Stats3D#differences): The original also reports the vertices and triangles of the terrains in indexes 1 and 2.
+* [Step](Step#differences): The original only accepts a constant after `Step` and reports "Step value must be constant" otherwise.
 * [Stop](Stop#differences): Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached.
 * [StringHeight](StringHeight#differences): Text has only one line, so this is always the height of one character.
 * [StringWidth](StringWidth#differences): With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth).
