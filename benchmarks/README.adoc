@@ -75,3 +75,10 @@ python benchmarks\flythrough.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe --objects
 The original times have a resolution of one millisecond, so use enough frames and look at the average. The original `SaveBuffer`
 writes a BMP whatever the file is called, so a `--shot` made with it needs converting to compare it. Run benchmarks windowed only
 (they are), the original changes the screen settings in fullscreen.
+
+NOTE: The original Blitz3D can draw at most 16383 sprites. All sprites share one vertex buffer of 4 vertices each, `Sprite::allocIndex` grows it with
+`createMesh( mesh_size*4,mesh_size*2,0 )` (`blitz3d/sprite.cpp`), `gxGraphics::createMesh` returns 0 when Direct3D 7 cannot make a vertex buffer
+that big (65535 vertices at most), and the next `mesh->lock` is a null access: the program dies with an access violation (exit code 3221225477).
+A quarter of the flythrough objects (kinds 12 to 15) are sprites, so the original manages at most 65532 objects, which is why it
+crashed at 100000 and passed at 50000. `flythrough.py` stops with a message above that with the original, and `--objects 60000` is the
+highest round number to compare the two. A mesh surface has the same limit: its triangles are `unsigned short` vertex indices (`Surface::Triangle`), so it holds at most 65535 vertices.
