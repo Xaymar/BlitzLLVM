@@ -410,7 +410,8 @@ namespace bb::gfx {
 		info.pDepthAttachment     = &depth;
 		vkCmdBeginRendering(g.cmd, &info);
 
-		VkViewport viewport = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
+		// Direct3D 7 has the centers of its pixels on whole numbers and Vulkan half a pixel further, so the picture moves by that to land where Blitz3D puts it.
+		VkViewport viewport = { float(scene.x) + 0.5f, float(scene.y) + 0.5f, float(scene.w), float(scene.h), 0, 1 };
 		VkRect2D   scissor  = { { scene.x, scene.y }, { uint32_t(scene.w), uint32_t(scene.h) } };
 		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
@@ -1058,7 +1059,7 @@ namespace bb::gfx {
 			int fx = e->fx | paint.fx;
 			push.params[0]   = (fullbright || (fx & 1)) ? 1.0f : 0.0f;
 			push.params[1]   = (fx & 2) ? 1.0f : 0.0f; // Vertex colors instead of the color of the entity.
-			push.params[2]   = (fx & 32) ? 1.0f : 0.0f; // Alpha of the vertices.
+			push.params[2]   = (fx & (2 | 32)) ? 1.0f : 0.0f; // Alpha of the vertices: it counts whenever the surface is blended and has vertex colors, or when 32 forces it.
 			push.params[3]   = e->shininess + paint.shininess;
 			texture_entry* texture = texture_of(texture_handle);
 			texture_uv(texture, texture_handle, push.uv);
