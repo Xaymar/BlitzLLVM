@@ -107,6 +107,8 @@ def main():
                    BENCH_FRAMETIMES=os.path.join(directory, "frametimes.txt"), BENCH_RESULT=os.path.join(directory, "result.txt"))
         if args.static:
             env["BENCH_STATIC"] = "1"
+        if args.profile and llvm:
+            env["BLITZ_FPS"] = "1"
         if args.shot:
             env["BENCH_SHOT"] = os.path.abspath(args.shot)
         print("Running %d sprites, %d frames, %sx%s, build %s" % (args.sprites, args.frames, width, height, " ".join(flags)), flush=True)
@@ -119,6 +121,30 @@ def main():
         if result.returncode != 0 or line is None:
             sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, output[-2000:]))
         values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
+        # With --profile the runtime reports the GPU time of the passes once a second (BLITZ_FPS=1), summed over the frames of that
+        # second: the first second is left out (the sprites are made and the GPU buffers filled), the others are averaged per frame.
+        gpu = {}
+        if args.profile and llvm:
+            frames_shown = 0
+            sums = {"scene": 0.0, "2d": 0.0, "copy": 0.0, "present": 0.0, "frame": 0.0}
+            shown = None
+            first = True
+            for l in output.splitlines():
+                m = re.match(r"fps: (\d+),", l)
+                if m:
+                    shown = int(m.group(1))
+                    continue
+                m = re.match(r"\s+gpu passes: scene ([\d.]+) ms, 2d ([\d.]+) ms, copy ([\d.]+) ms, present ([\d.]+) ms, frame ([\d.]+) ms", l)
+                if m and shown:
+                    if first:
+                        first = False
+                        continue
+                    frames_shown += shown
+                    for k, v in zip(sums, m.groups()):
+                        sums[k] += float(v)
+            if frames_shown:
+                gpu = {"gpu_" + k + "_ms": v / frames_shown for k, v in sums.items()}
+                gpu["gpu_frames"] = frames_shown
         frametimes = []
         if os.path.isfile(env["BENCH_FRAMETIMES"]):
             frametimes = [int(l) for l in open(env["BENCH_FRAMETIMES"]).read().split()]
@@ -132,6 +158,7 @@ def main():
         "display": "xvfb" if runner else "native",
         "blitz_fps_hint": "BLITZ_FPS=1 prints the runtime timers once a second" if args.profile else "",
         "result": values,
+        "gpu": gpu,
     }
     print("\n  sprites     %12d%s" % (values["sprites"], " (static)" if args.static else ""))
     print("  created in  %12.0f ms" % values["create_ms"])
@@ -140,6 +167,8 @@ def main():
     print("  fps         %12.1f" % values["fps"])
     print("  per frame   %.0f triangles, %.0f draw calls, %.0f pipeline binds, %.0f texture binds, %.0f buffer binds"
           % (values["tris"], values["draws"], values["pipelines"], values["textures"], values["buffers"]))
+    if gpu:
+        print("  gpu         scene %.3f ms, 2d %.3f ms, frame %.3f ms per frame (%d frames, from BLITZ_FPS, summed GPU passes)" % (gpu["gpu_scene_ms"], gpu["gpu_2d_ms"], gpu["gpu_frame_ms"], gpu["gpu_frames"]))
     print("  build       %s (%s)" % (record["build"] or "no options", version or "unknown compiler"))
 
     if not args.no_save:
@@ -154,8 +183,8 @@ def main():
         with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
             if new:
-                writer.writerow(["date", "label", "build", "display", "sprites", "frames", "seed", "static", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers"])
-            writer.writerow([record["date"], args.label, record["build"], record["display"]] + [values[k] for k in ("sprites", "frames", "seed", "static", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers")])
+                writer.writerow(["date", "label", "build", "display", "sprites", "frames", "seed", "static", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers", "gpu_scene_ms", "gpu_frame_ms"])
+            writer.writerow([record["date"], args.label, record["build"], record["display"]] + [values[k] for k in ("sprites", "frames", "seed", "static", "update_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "pipelines", "textures", "buffers")] + [gpu.get("gpu_scene_ms", ""), gpu.get("gpu_frame_ms", "")])
         print("  saved       benchmarks/results/%s.json and waterfall.csv" % name)
 
 
