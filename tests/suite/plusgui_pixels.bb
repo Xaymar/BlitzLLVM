@@ -112,6 +112,24 @@ CheckTrue "DisableToolBarItem", dimmed >= 4
 EnableToolBarItem tb, 0
 Show()
 Check "EnableToolBarItem", Px(41 + 6 + 8, 31 + 100 + 12), RED
+; The tip of a button shows below it once the mouse has rested on it for a moment, and goes with the mouse.
+MoveMouse 41 + 6 + 8, 31 + 100 + 12
+tip_seen = False
+started = MilliSecs()
+While (MilliSecs() - started < 4000) And (tip_seen = False)
+	Delay 50
+	Show()
+	If Px(46, 160) = $FFFFE1 Then tip_seen = True
+Wend
+CheckTrue "SetToolBarTips shows a tip", tip_seen
+MoveMouse 5, 5
+started = MilliSecs()
+While (MilliSecs() - started < 4000) And tip_seen
+	Delay 50
+	Show()
+	If Px(46, 160) <> $FFFFE1 Then tip_seen = False
+Wend
+CheckFalse "The tip goes when the mouse leaves", tip_seen
 HideGadget tb
 
 ; Icon strips are in lists, in front of the items.
@@ -206,5 +224,17 @@ plain = CreateWindow("Plain", 40, 30, 200, 150, 0, 0)
 Show()
 Check "A window without a menu bar has no line", Px(100, 30 + 1 + 22 - 2), $D4D0C8
 FreeGadget plain
+
+; A text area that does not wrap gets a bar along the bottom once a line does not fit, and a short text has none.
+barwin = CreateWindow("Bars", 40, 30, 200, 150, 0, 0)
+ta = CreateTextArea(10, 10, 100, 60, barwin)
+SetTextAreaText ta, "short"
+Show()
+Check "A short text has no bar along the bottom", Px(41 + 10 + 10, 31 + 10 + 60 - 10), WHITE
+SetTextAreaText ta, "a line that is much too long to fit in this text area"
+Show()
+Check "A long line shows the arrow of the bar along the bottom", Px(41 + 10 + 2 + 3, 31 + 10 + 60 - 2 - 3), $D4D0C8
+Check "The text area above the bar is still white", Px(41 + 10 + 40, 31 + 10 + 10), WHITE
+FreeGadget barwin
 
 Done "plusgui_pixels"

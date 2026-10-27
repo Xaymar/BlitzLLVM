@@ -27,5 +27,5 @@ Until e = $803
 @param group   Window, panel, tabber or canvas that holds it.
 @param style   1 for wrapping, plus 65536 for not following the group. Defaults to 0.
 @returns A handle for the text area.
-@gap Without wrapping, long lines can only be scrolled sideways with the keyboard and the mouse wheel. There is no horizontal scroll bar yet.
+@gap Without wrapping, a bar along the bottom appears once a line does not fit. Besides the bar, the cursor keys scroll sideways, and so does the mouse wheel while Shift is held.
 @gap It is not a rich text control: it holds colors and bold or italic for ranges of text, but no pictures, links or paragraph styles.

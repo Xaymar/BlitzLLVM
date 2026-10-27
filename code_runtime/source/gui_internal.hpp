@@ -295,6 +295,9 @@ namespace bb::gui {
 	// Where things are, which drawing and handling the mouse both need. Positions are in the window of the program.
 	void content_rect(gadget const& g, int* x, int* y, int* w, int* h);   // Where the rows or the text of a gadget are.
 	void scroll_rect(gadget const& g, int* x, int* y, int* w, int* h);    // The scroll bar of a list, text area or tree.
+	void hscroll_rect(gadget const& g, int* x, int* y, int* w, int* h);   // The bar along the bottom of a text area whose lines are longer than it is wide.
+	bool has_hbar(gadget const& g);
+	int  longest_line_width(gadget const& g); // In pixels, of the lines of a text area.
 	void scroll_thumb(int position, int visible, int total, int length, int* start, int* size);
 	int  visible_rows(gadget const& g);
 	int  total_rows(gadget const& g);

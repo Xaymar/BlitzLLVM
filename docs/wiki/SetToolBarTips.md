@@ -37,7 +37,7 @@ Until WaitEvent() = $803
 
 **Differences and known gaps:**
 
-* The hints are stored but never shown, there are no tool tips.
+* A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed. Spaces between buttons do not take a hint.
 
 ## Related commands
 

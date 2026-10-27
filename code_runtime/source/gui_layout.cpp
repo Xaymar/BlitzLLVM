@@ -55,7 +55,7 @@ namespace bb::gui {
 	////////////////////////////////////////////////////////////////////////////
 	int visible_rows(gadget const& g)
 	{
-		int rows = (g.h - 4) / row_height(g);
+		int rows = (g.h - 4 - (has_hbar(g) ? bar_width : 0)) / row_height(g);
 		return rows < 1 ? 1 : rows;
 	}
 
@@ -76,6 +76,36 @@ namespace bb::gui {
 		default:
 			return 0;
 		}
+	}
+
+	int longest_line_width(gadget const& g)
+	{
+		const char* text    = g.text ? g.text : "";
+		int         longest = 0, at = 0;
+		for (int i = 0;; i++) {
+			if ((text[i] == '\r') || (text[i] == 0)) {
+				longest = i - at > longest ? i - at : longest;
+				at      = i + 1;
+				if (!text[i]) {
+					break;
+				}
+			}
+		}
+		return longest * font_size(g);
+	}
+
+	// Text areas that do not wrap get a bar along the bottom once a line does not fit.
+	bool has_hbar(gadget const& g)
+	{
+		return (g.kind == K_TEXTAREA) && !(g.style & 1) && (longest_line_width(g) > g.w - 4 - bar_width);
+	}
+
+	void hscroll_rect(gadget const& g, int* x, int* y, int* w, int* h)
+	{
+		*x = 2;
+		*y = g.h - 2 - bar_width;
+		*w = g.w - 4 - bar_width;
+		*h = bar_width;
 	}
 
 	// Whether the scroll bar is there: text areas always have one.
@@ -101,7 +131,7 @@ namespace bb::gui {
 		case K_TEXTAREA:
 			*x = *y = 2;
 			*w      = g.w - 4 - (has_bar(g) ? bar_width : 0);
-			*h      = g.h - 4;
+			*h      = g.h - 4 - (has_hbar(g) ? bar_width : 0);
 			break;
 		case K_TEXTFIELD:
 			*x = 3;
@@ -125,7 +155,7 @@ namespace bb::gui {
 		*x = g.w - 2 - bar_width;
 		*y = 2;
 		*w = bar_width;
-		*h = g.h - 4;
+		*h = g.h - 4 - (has_hbar(g) ? bar_width : 0);
 	}
 
 	// Where the thumb of a scroll bar is, from the arrow at the start: its distance and size.
@@ -232,6 +262,11 @@ namespace bb::gui {
 			most = 0;
 		}
 		g.scroll_y = g.scroll_y > most ? most : (g.scroll_y < 0 ? 0 : g.scroll_y);
+		if (g.kind == K_TEXTAREA) {
+			int across = (g.style & 1) ? 0 : longest_line_width(g) - (g.w - 4 - bar_width);
+			g.scroll_x = g.scroll_x > across ? across : g.scroll_x;
+			g.scroll_x = g.scroll_x < 0 ? 0 : g.scroll_x;
+		}
 		g.scroll   = g.scroll > most ? most : (g.scroll < 0 ? 0 : g.scroll);
 		// A list that has a selected row shows it, when what is selected is changed by the program.
 		if ((g.kind == K_LISTBOX) && (g.selected >= 0)) {
