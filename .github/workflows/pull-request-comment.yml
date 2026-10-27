@@ -52,6 +52,11 @@ jobs:
             *[!0-9]*) echo "Invalid pull request number."; exit 1 ;;
           esac
 
+          # The workflow runs for every pull request, but only builds (and so only comments) when the binaries change.
+          if [ "$(.github/scripts/pr-needs-build.sh "$NUMBER")" != true ]; then
+            echo "Pull request ${NUMBER} changes nothing that is built, skipping."; exit 0
+          fi
+
           if [ "$ACTION" = requested ]; then
             STATE=pending
           else

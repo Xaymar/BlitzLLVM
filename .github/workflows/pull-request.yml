@@ -1,25 +1,14 @@
 name: Pull Request
 
-# Builds every pull request that changes the binaries to verify that it compiles (see paths below; a pull request that only
-# changes documentation or tests gets no build, and no comment). The pull request comment is written by pull-request-comment.yml
-# (when a build starts and when it finished), because pull requests from forks only get a read-only token here and can not
-# comment themselves.
+# Builds every pull request that changes the binaries to verify that it compiles (see .github/scripts/pr-needs-build.sh; a pull
+# request that only changes documentation or tests gets no build, and no comment). That decision looks at every file the whole
+# pull request changes, not at the latest commit, and every new commit cancels the run of the one before. The pull request
+# comment is written by pull-request-comment.yml (when a build starts and when it finished), because pull requests from forks
+# only get a read-only token here and can not comment themselves.
 
 on:
   pull_request:
     branches: [root]
-    paths:
-      # Only what changes the binaries. Documentation, the wiki, the tests and the tools do not.
-      - 'code_compiler/**'
-      - 'code_runtime/**'
-      - 'cmake/**'
-      - 'third_party/**'
-      - 'CMakeLists.txt'
-      - 'CMakePresets.json'
-      - '.gitmodules'
-      - 'LICENSE.adoc'
-      - '.github/scripts/check-licenses.sh'
-      - '.github/workflows/pull-request.yml'
 
 concurrency:
   group: pull-request-${{ github.event.pull_request.number }}
@@ -29,7 +18,26 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.detect.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - name: Detect whether the binaries change
+        id: detect
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: echo "build=$(.github/scripts/pr-needs-build.sh "$NUMBER")" | tee -a "$GITHUB_OUTPUT"
+
   version:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}

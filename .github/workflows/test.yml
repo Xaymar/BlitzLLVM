@@ -51,8 +51,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # A pull request is checked out as the merge with its base: the first parent is the base, so the diff of the two is
-          # what the pull request changes. A push only needs the commit it stopped at, which is fetched below.
+          # A push only needs the commit it stopped at, which is fetched below. A pull request needs no history: its changed files
+          # come from the API (the whole pull request, not the latest commit).
           fetch-depth: 2
       - name: Detect what changed
         id: detect
@@ -66,7 +66,7 @@ jobs:
           FORCE=
           case "$EVENT" in
             pull_request)
-              BASE=HEAD^1
+              BASE=
               # Read from the pull request now, not from the event, so that re-running the workflow after adding the label works.
               if gh api "repos/$GH_REPO/issues/$NUMBER/labels" --jq '.[].name' 2>/dev/null | grep -qx 'run-all-tests'; then
                 FORCE='the pull request has the label run-all-tests'
@@ -82,7 +82,16 @@ jobs:
           esac
 
           : > "$RUNNER_TEMP/changed.txt"
-          if [ -n "$BASE" ]; then git diff --name-only "$BASE" HEAD > "$RUNNER_TEMP/changed.txt"; fi
+          if [ "$EVENT" = pull_request ]; then
+            # Every file the pull request changes against its base (the diff to the merge base), however many commits it has and
+            # whichever one was pushed last. No answer runs everything.
+            if gh api --paginate "repos/$GH_REPO/pulls/$NUMBER/files" --jq '.[] | .filename, (.previous_filename // empty)' > "$RUNNER_TEMP/changed.txt.new"; then
+              mv "$RUNNER_TEMP/changed.txt.new" "$RUNNER_TEMP/changed.txt"
+              [ -s "$RUNNER_TEMP/changed.txt" ] || FORCE='the changed files of the pull request are unknown'
+            else
+              FORCE='the changed files of the pull request are unknown'
+            fi
+          elif [ -n "$BASE" ]; then git diff --name-only "$BASE" HEAD > "$RUNNER_TEMP/changed.txt"; fi
           echo "Changed files:"; cat "$RUNNER_TEMP/changed.txt"
 
           # No changed files known (no base to compare with) runs everything.
