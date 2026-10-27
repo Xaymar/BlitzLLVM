@@ -86,3 +86,15 @@ The originals only know the main display: `CountGfxModes` and the other `GfxMode
 * Keep the result in a variable declared with `:UInt64` (for example `start:UInt64 = Microseconds()`). A variable with no type or with `%` is an `Int`, which keeps only the lowest 32 bits and may come out negative; `#` is a `Float`, which rounds.
 * `Str` and `Print` write all digits, and an expression with a `UInt64` and an `Int` is calculated as a `UInt64`, so `Microseconds() - start` is the elapsed time. Comparisons are unsigned, and `Int()` and `Float()` convert the value (the `Int` loses the upper bits).
 * The start of the count is not fixed, like `MilliSecs`: only differences between two calls mean something. The clock is the system clock, so it can jump when the time is set.
+
+## Types everywhere
+
+The originals only have `Int`, `Float` and `String` (and custom types). BlitzLLVM adds `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double`, and every one of them, as well as `String` and custom types, works as a `Global`, a `Local`, a parameter (with default values), a return type, a field of a `Type`, a `Const` and the type of a `Dim` array. Types are written in the short form with a sign after the name (`%` Int, `%%` Long, `#` Float, `##` Double, `$` String, `.Name` custom type) or in the long form with `:Type` (`Count:UInt`, `Function Now:ULong()`). Whole numbers wrap around at the size of their type, so a `UByte` that is 255 and gets 1 added is 0, and `ULong` and `UInt` are never negative. `tests/suite/language_types.bb` checks the combinations.
+
+The tables of built-in functions in the compiler can use the same types for parameters and return values (`b B h H i I l u x f d s`), not just `i f s`.
+
+## Userlib declarations
+
+A `.decls` file takes the same two ways to write a type as the language, for the parameters and the return type of a function, and they can be mixed in one file: `Scale#(value#, factor#)` is the same as `Scale:Float(value:Float, factor:Float)`. The long form is available for every type: `Byte`, `UByte`, `Short`, `UShort`, `Int`, `UInt`, `Long`, `ULong`, `Half`, `Float`, `Double` and `String` (the names of the language, not case sensitive), plus `Pointer` for a bank or object parameter (`memory*` is the short form) and `Void` for a function that returns nothing (the default). Pointers can not be returned. The short form has `%`, `%%`, `#`, `##`, `$` and `*`, and a name without a type is still an `Int`. A decorated name after the closing bracket (`:"_Name@8"`) still works, and the `:` there is not confused with the one of a type, because a type comes before the bracket.
+
+The original only had `Int`, `Float` and `String`. Numbers are passed as C types of the same size (`int8_t`, `uint16_t`, `int64_t`, `double`, ...); numbers smaller than 32 bits are sign extended or zero extended by the caller, like C compilers do. `Half` is passed as a half precision float (`_Float16`), which no test covers. `blitzcc +k` lists the types as they are written in the short form where there is one (`Scale# ( value#,factor# )`, `Big%% ( value%% )`), and in the long form for the others (`Now:ULong ( )`).

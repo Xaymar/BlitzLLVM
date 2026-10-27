@@ -231,24 +231,17 @@ blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool&
 	for (size_t idx = 0; idx < args; idx++) {
 		auto const& expr = node->arguments[idx];
 		auto        v    = gen(expr.get());
-		switch (entry->params[idx].second) {
-		case 'p':
+		auto const& param = entry->params[idx];
+		if (param.pointer) {
 			if (v.type == type::STRUCT) {
 				values.push_back(v);
 			} else {
 				v = convert(v, type::INT32, expr->where, true);
 				values.push_back(call_runtime("bb_bank_pointer", type::STRUCT, { v }));
 			}
-			break;
-		case 'f':
-			values.push_back(convert(v, type::FLOAT32, expr->where, true));
-			break;
-		case 's':
-			values.push_back(convert(v, type::STRING, expr->where, false));
-			break;
-		default:
-			values.push_back(convert(v, type::INT32, expr->where, true));
-			break;
+		} else {
+			// Strings are the only type that is not a number, and nothing is turned into a string with a warning.
+			values.push_back(convert(v, param.type, expr->where, param.type != type::STRING));
 		}
 	}
 
@@ -262,20 +255,27 @@ blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool&
 								 { userlibs_dir.empty() ? std::string("null") : string_constant(userlibs_dir), type::STRUCT },
 								 { string_constant(source_dir), type::STRUCT } });
 
+	// Whole numbers smaller than 32 bits are extended by the caller, as the C calling convention has it.
+	auto extension = [](type t) -> std::string {
+		if (blitz::types::is_integer(t) && (blitz::types::bits(t) < 32)) {
+			return blitz::types::is_signed(t) ? " signext" : " zeroext";
+		}
+		return "";
+	};
 	std::string params, list;
 	for (size_t idx = 0; idx < values.size(); idx++) {
 		auto llvm_type = blitz::types::to_llvm(values[idx].type);
 		params += (idx ? ", " : "") + llvm_type;
-		list += (idx ? ", " : "") + llvm_type + " " + values[idx].repr;
+		list += (idx ? ", " : "") + llvm_type + extension(values[idx].type) + " " + values[idx].repr;
 	}
-	auto ret = (entry->ret == 'i') ? type::INT32 : (entry->ret == 'f') ? type::FLOAT32 : (entry->ret == 's') ? type::STRING : type::UNKNOWN;
+	auto ret      = entry->ret;
 	auto llvm_ret = blitz::types::to_llvm(ret);
 	if (ret == type::UNKNOWN) {
 		emit("call void (" + params + ") " + symbol.repr + "(" + list + ")");
 		return { "", type::UNKNOWN };
 	}
 	auto r = tmp();
-	emit(r + " = call " + llvm_ret + " (" + params + ") " + symbol.repr + "(" + list + ")");
+	emit(r + " = call" + extension(ret) + " " + llvm_ret + " (" + params + ") " + symbol.repr + "(" + list + ")");
 	if (ret == type::STRING) {
 		return call_runtime("bb_str_dup", type::STRING, { { r, type::STRING } });
 	}

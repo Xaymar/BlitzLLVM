@@ -22,6 +22,12 @@ function declarations in Blitz, with the following exceptions:
 
 * No default parameter values are allowed.
 
+* BlitzLLVM: A type can be written in the short form (%, %%, #, ##, $, *) or in the long form, with ':' and the
+name of the type: Byte, UByte, Short, UShort, Int, UInt, Long, ULong, Half, Float, Double, String, Pointer (a bank or
+object, same as '*') and, for the return type, Void. So 'Scale#( v#,f# )' is 'Scale:Float( v:Float,f:Float )', and
+'Now:ULong()' returns an unsigned 64-bit number. The two forms can be mixed. Small numbers are extended to 32 bits by
+the caller, as C does.
+
 * If no function return type is specified, the function is a 'void' function - ie: it returns nothing.
 
 * Instead of object parameters, you can only specify 'void*' parameters using a '*' type tag. Such

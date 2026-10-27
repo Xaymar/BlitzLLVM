@@ -63,19 +63,48 @@ namespace {
 		}
 	};
 
-	char type_of(int c)
+	// The type that ends a name, in the short form (% %% # ## $ *) or the long form (:Type, with Pointer for '*'). Leaves the
+	// reader on the token after it. Returns false if there is no type.
+	bool read_type(decls_reader& r, blitz::types::type& type, bool& pointer, bool allow_void)
 	{
-		switch (c) {
+		pointer = false;
+		switch (r.curr) {
 		case '%':
-			return 'i';
+			type = (r.next() == '%') ? (r.next(), blitz::types::type::INT64) : blitz::types::type::INT32;
+			return true;
 		case '#':
-			return 'f';
+			type = (r.next() == '#') ? (r.next(), blitz::types::type::FLOAT64) : blitz::types::type::FLOAT32;
+			return true;
 		case '$':
-			return 's';
+			r.next();
+			type = blitz::types::type::STRING;
+			return true;
 		case '*':
-			return 'p';
+			r.next();
+			type    = blitz::types::type::STRUCT;
+			pointer = true;
+			return true;
+		case ':': {
+			if (r.next() != -1) {
+				throw std::runtime_error("expecting type name after ':'");
+			}
+			auto name = blitz::compiler_detail::lower(r.word);
+			r.next();
+			if ((name == "pointer") || (name == "ptr")) {
+				type    = blitz::types::type::STRUCT;
+				pointer = true;
+			} else if (allow_void && (name == "void")) {
+				type = blitz::types::type::UNKNOWN;
+			} else {
+				type = blitz::types::from_string(name);
+				if (type == blitz::types::type::UNKNOWN) {
+					throw std::runtime_error("unknown type '" + name + "'");
+				}
+			}
+			return true;
 		}
-		return 0;
+		}
+		return false;
 	}
 
 	void load_userlib(std::filesystem::path const& file, std::set<std::string>& seen, std::vector<blitz::keywords::user_function>& into)
@@ -114,24 +143,27 @@ namespace {
 					throw std::runtime_error("duplicate identifier");
 				}
 
-				char ret = type_of(r.next());
-				if (ret && ret != 'p') {
-					r.next();
-					fn.ret = ret;
+				r.next();
+				{
+					blitz::types::type type;
+					bool               pointer;
+					if (read_type(r, type, pointer, true)) {
+						if (pointer) {
+							throw std::runtime_error("a function can't return a pointer");
+						}
+						fn.ret = type;
+					}
 				}
 				if (r.curr != '(') {
 					throw std::runtime_error("expecting '(' after function identifier");
 				}
 				r.next();
 				while (r.curr == -1) {
-					std::string arg  = r.word;
-					char        type = type_of(r.next());
-					if (type) {
-						r.next();
-					} else {
-						type = 'i';
-					}
-					fn.params.emplace_back(arg, type);
+					blitz::keywords::user_param param;
+					param.name = r.word;
+					r.next();
+					read_type(r, param.type, param.pointer, false);
+					fn.params.push_back(std::move(param));
 					if (r.curr != ',') {
 						break;
 					}
@@ -155,29 +187,35 @@ namespace {
 		}
 	}
 
+	// How a type is written after a name: Nothing for an integer, the short form where there is one, else the long form.
+	std::string suffix_of(char code)
+	{
+		auto type = blitz::compiler_detail::builtin_type(code);
+		switch (type) {
+		case blitz::types::type::UNKNOWN:
+		case blitz::types::type::INT32:
+			return "";
+		case blitz::types::type::INT64:
+			return "%%";
+		case blitz::types::type::FLOAT32:
+			return "#";
+		case blitz::types::type::FLOAT64:
+			return "##";
+		case blitz::types::type::STRING:
+			return "$";
+		default:
+			return ":" + blitz::types::display(type);
+		}
+	}
+
 	// Name, then the syntax the way the original quick help does: 'Name$ ( a,[b$] )' for functions that return something,
 	// 'Name a,b' for the ones that don't. Parameters with a default value are in brackets.
 	std::string syntax_of(std::string name, char ret, std::vector<std::pair<std::string, char>> const& params, size_t required)
 	{
-		if (ret == 'f') {
-			name += '#';
-		} else if (ret == 's') {
-			name += '$';
-		}
+		name += suffix_of(ret);
 		std::string list;
 		for (size_t idx = 0; idx < params.size(); idx++) {
-			std::string param = params[idx].first;
-			switch (params[idx].second) {
-			case 'f':
-				param += '#';
-				break;
-			case 's':
-				param += '$';
-				break;
-			case 'p':
-				param += '*';
-				break;
-			}
+			std::string param = params[idx].first + (params[idx].second == 'p' ? std::string("*") : suffix_of(params[idx].second));
 			if (idx >= required) {
 				param = "[" + param + "]";
 			}
@@ -239,7 +277,11 @@ void blitz::keywords::dump(std::ostream& out, bool syntax, std::filesystem::path
 	}
 
 	for (auto const& fn : load_userlibs(userlibs)) {
-		out << (syntax ? syntax_of(fn.name, fn.ret, fn.params, fn.params.size()) : fn.name) << "\n";
+		std::vector<std::pair<std::string, char>> params;
+		for (auto const& param : fn.params) {
+			params.emplace_back(param.name, param.pointer ? 'p' : blitz::compiler_detail::type_code(param.type));
+		}
+		out << (syntax ? syntax_of(fn.name, blitz::compiler_detail::type_code(fn.ret), params, params.size()) : fn.name) << "\n";
 	}
 	out.flush();
 }
