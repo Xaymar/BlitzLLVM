@@ -125,7 +125,7 @@ std::string blitz::source_excerpt(std::filesystem::path const& file, uint64_t li
 	return result + padding + std::string(std::max<size_t>(carets, 1), '^') + std::string(dashes, '-') + " HERE\n";
 }
 
-std::string blitz::diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason, uint64_t length, std::string const& help)
+std::string blitz::diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason, uint64_t length, std::string const& notice)
 {
 	// Without any "." and ".." parts. This is only lexical, the file itself is read through the path as it was given.
 	std::string result = file.lexically_normal().generic_string() + ":" + std::to_string(line) + ":" + std::to_string(column) + ": " + kind + ": " + reason;
@@ -134,8 +134,8 @@ std::string blitz::diagnostic(std::filesystem::path const& file, uint64_t line, 
 		result += "\n" + excerpt;
 		result.pop_back();
 	}
-	if (!help.empty()) {
-		result += "\nhelp: " + help;
+	if (!notice.empty()) {
+		result += "\nnotice: " + notice;
 	}
 	return result;
 }

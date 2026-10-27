@@ -42,6 +42,6 @@ namespace blitz {
 	std::string source_excerpt(std::filesystem::path const& file, uint64_t line, uint64_t column, uint64_t length = 0);
 
 	/** "file:line:column: kind: reason", with the file lexically normalized (no "." or ".." parts), followed by the source_excerpt
-	 * and, if there is one, a "help: <help>" line, without a trailing new line. */
-	std::string diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason, uint64_t length = 0, std::string const& help = std::string());
+	 * and, if there is one, a "notice: <notice>" line, without a trailing new line. */
+	std::string diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason, uint64_t length = 0, std::string const& notice = std::string());
 } // namespace blitz
