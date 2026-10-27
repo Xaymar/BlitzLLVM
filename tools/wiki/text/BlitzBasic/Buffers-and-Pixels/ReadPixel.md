@@ -18,3 +18,4 @@ WaitKey
 @param buffer  The buffer to read from. Defaults to the current buffer.
 @returns The color of the pixel, or 0 if the position is outside of the buffer.
 @gap Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
+@gap The buffers that [Graphics3D](Graphics3D) makes with a depth above 32 are read as they are stored: with the depth 30 the number is A2R10G10B10 (2 bits of alpha on top, then 10 for each of red, green and blue), and with 64 it is ARGB with the upper 8 bits of each channel, which loses the rest. [ReadPixel64](ReadPixel64) gives all of them. See [Color depth](Color-Depth).

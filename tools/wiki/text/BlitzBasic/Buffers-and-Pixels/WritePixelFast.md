@@ -28,3 +28,4 @@ Wend
 @param argb    The color. Only the lower 24 bits are used; the pixel is always opaque.
 @param buffer  The locked buffer to write to. Defaults to the current buffer.
 @gap A buffer that is not locked stops the program with an error message. A position outside of the buffer is ignored instead of writing into other memory.
+@gap A buffer that [Graphics3D](Graphics3D) made with the depth 30 takes A2R10G10B10, and one with 64 takes ARGB with 8 bits for each. [WritePixelFast64](WritePixelFast64) takes all 64 bits. See [Color depth](Color-Depth).

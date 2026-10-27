@@ -7,3 +7,4 @@ Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](
 @param buffer  The locked buffer to read from. Defaults to the current buffer.
 @returns The color of the pixel, or 0 if the position is outside of the buffer.
 @gap A buffer that is not locked stops the program with an error message. In the original a position outside of the buffer reads other memory.
+@gap The buffers that [Graphics3D](Graphics3D) makes with a depth above 32 are read as they are stored: with the depth 30 the number is A2R10G10B10, and with 64 it is ARGB with the upper 8 bits of each channel. [ReadPixelFast64](ReadPixelFast64) gives all of them. See [Color depth](Color-Depth).

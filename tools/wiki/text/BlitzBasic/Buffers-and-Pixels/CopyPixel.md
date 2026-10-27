@@ -22,3 +22,4 @@ WaitKey
 @param dest_y       Vertical position to copy to.
 @param dest_buffer  The buffer to copy to. Defaults to the current buffer.
 @gap A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
+@gap Pixels are copied with all the bits that the buffers have: a buffer made by [Graphics3D](Graphics3D) with the depth 64 does not lose anything on the way. See [Color depth](Color-Depth).
