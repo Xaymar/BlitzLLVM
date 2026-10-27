@@ -784,8 +784,8 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
             Module.inst("Kill"),
             Module.inst("Label", merge_label),
         ]
-    if fog:
-        # Sprites with a depth fade fade out where they get close to what is behind them: the distance between the depth
+    if fog and cutout:
+        # Sprites with a depth fade (blended, so never in the solid variant) fade out where they get close to what is behind them: the distance between the depth
         # buffer, which holds what was drawn before the sprites, and the sprite itself, as a part of the distance asked for.
         #   if (soft.x > 0) { z(d) = ortho ? far - d * (far - near) : far * near / ((far - near) * d + near);
         #                     alpha *= clamp((z(texelFetch(depth, ivec2(gl_FragCoord.xy)).x) - z(gl_FragCoord.z)) / soft.x, 0, 1); }
