@@ -11,15 +11,15 @@
 blitz-format [options] [file...]
 ```
 
-Without files (or with `-`) the standard input is formatted and the result is written to the standard output. With files and no other option the result is written to the standard output too. These options choose what happens instead:
+Files are rewritten in place, and the only output is the name of each file, one per line (files that were already formatted are not touched, but are named too). Without files (or with `-`) the standard input is formatted and the result is written to the standard output. These options change that:
 
 | Option | Effect |
 | --- | --- |
-| `-i`, `--in-place` | Rewrite the files. Files that are already formatted are not touched. |
-| `-r`, `--recursive` | A directory on the command line means every `.bb`, `.b3d` and `.bp` file beneath it (not case sensitive, sorted by path). Without `-r` a directory is an error. Files given by name are always used. |
-| `--check` | Write the names of the files that would change, and exit with 1 if there are any. Nothing is written to the files. |
-| `--diff` | Write a unified diff of the changes, and exit with 1 if there are any. |
-| `-q`, `--quiet` | With `-i`, don't name the files that were rewritten. |
+| `-r`, `--recursive` | A directory on the command line means every `.bb` file beneath it (not case sensitive, sorted by path). Other files are ignored, as `.b3d` is a 3D model format as well. Without `-r` a directory is an error. Files given by name are always used, whatever their extension. |
+| `--check` | Write the names of the files that would change, and exit with 1 if there are any. Nothing is written to the files, and no other name is written. |
+| `--diff` | Write a unified diff of the changes, and exit with 1 if there are any. Nothing is written to the files. |
+| `-q`, `--quiet` | Don't write the names of the files. Errors are still written. |
+| `-i`, `--in-place` | Does nothing, as files are always rewritten in place. It is accepted so that older command lines keep working. |
 | `--config=FILE` | Read the settings from this file instead of looking for one. |
 | `--no-config` | Don't read a configuration file. |
 | `--stdin-filepath=PATH` | The name of the standard input, shown in `--check` and `--diff` and used to find the configuration file. |
@@ -30,8 +30,9 @@ Without files (or with `-`) the standard input is formatted and the result is wr
 The exit code is 0 when everything went well, 1 when `--check` or `--diff` found a file that would change, and 2 when a file or a setting was refused. A file that can't be formatted doesn't stop the others.
 
 ```text
-blitz-format -r -i src            # format every source file of a project
-blitz-format -i src/*.bb          # format some files
+blitz-format -r src               # format every source file of a project
+blitz-format src/*.bb             # format some files
+blitz-format < main.bb            # standard input to standard output
 blitz-format -r --check src       # in a CI job: fails when a file is not formatted
 blitz-format --diff main.bb       # look at what would change
 blitz-format --indent-style=space --indent-width=2 main.bb

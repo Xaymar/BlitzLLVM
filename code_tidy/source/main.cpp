@@ -107,11 +107,8 @@ The configuration file is JSON ({ "unsafe": false, "implicit_variable": "report"
 		}
 		for (auto const& r : result.reports) {
 			std::cerr << name << ":" << r.line << ":" << r.column << ": warning: " << r.message << " [blitz-tidy:" << r.rule << "]\n";
-			if (!r.excerpt.empty()) {
-				std::cerr << r.excerpt;
-			}
 			if (!r.note.empty()) {
-				std::cerr << "note: " << r.note << "\n";
+				std::cerr << "  note: " << r.note << "\n";
 			}
 		}
 		return result.text;

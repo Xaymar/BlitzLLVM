@@ -150,8 +150,7 @@ static void test_sources()
 		write_file(root / name, "");
 	}
 	auto found = find_sources(root);
-	CHECK(found.size() == 4);
-	CHECK(found.size() == 4 && found[0] == root / "a.bb" && found[1] == root / "sub" / "B.B3D" && found[2] == root / "sub" / "c.bp" && found[3] == root / "sub" / "deep" / "e.Bb");
+	CHECK(found.size() == 2 && found[0] == root / "a.bb" && found[1] == root / "sub" / "deep" / "e.Bb"); // Only .bb: .b3d is a model format as well
 	bool threw = false;
 	try {
 		find_sources(root / "missing");

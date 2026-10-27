@@ -32,7 +32,7 @@ namespace {
 
 int blitz::tools::run(driver const& tool, int argc, char** argv)
 {
-	bool                     in_place = false, recursive = false, check = false, diff = false, quiet = false, no_config = false, print_config = false;
+	bool                     recursive = false, check = false, diff = false, quiet = false, no_config = false, print_config = false;
 	std::filesystem::path    config_file;
 	std::string              stdin_name = "<stdin>";
 	bool                     stdin_named = false;
@@ -44,12 +44,13 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 		if ((arg == "-h") || (arg == "--help")) {
 			std::cout << tool.name << " - " << tool.summary << "\n\n"
 					  << "Usage: " << tool.name << " [options] [file...]\n\n"
-					  << "Without files, or with -, the standard input is read and the result written to the standard output.\n\n"
-					  << "  -i, --in-place          rewrite the files\n"
-					  << "      --check             list the files that would change, exit 1 if there are any\n"
-					  << "      --diff              show a unified diff of the changes, exit 1 if there are any\n"
-					  << "  -r, --recursive         use every .bb, .b3d and .bp file beneath the directories that are given\n"
-					  << "  -q, --quiet             no messages except errors\n"
+					  << "The files are rewritten in place, and the name of each is written to the standard output. Without files, or with -,\n"
+					  << "the standard input is read and the result written to the standard output.\n\n"
+					  << "      --check             change nothing, list the files that would change, exit 1 if there are any\n"
+					  << "      --diff              change nothing, show a unified diff of the changes, exit 1 if there are any\n"
+					  << "  -r, --recursive         use every .bb file beneath the directories that are given\n"
+					  << "  -i, --in-place          does nothing, files are always rewritten in place\n"
+					  << "  -q, --quiet             do not write the names of the files\n"
 					  << "      --config=FILE       use this configuration file instead of the nearest one\n"
 					  << "      --no-config         ignore configuration files\n"
 					  << "      --stdin-filepath=P  the name of stdin, for messages and for finding the configuration file\n"
@@ -67,7 +68,7 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 			std::cout << tool.name << " " << tool.version << "\n";
 			return 0;
 		} else if ((arg == "-i") || (arg == "--in-place")) {
-			in_place = true;
+			// Files are always rewritten in place, the option stays so that existing command lines work.
 		} else if ((arg == "-r") || (arg == "--recursive")) {
 			recursive = true;
 		} else if (arg == "--check") {
@@ -105,10 +106,6 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 		}
 	}
 
-	if (in_place && (files.empty() || (files == std::vector<std::string>{ "-" }))) {
-		std::cerr << tool.name << ": --in-place needs files.\n";
-		return 2;
-	}
 	if (files.empty()) {
 		files.push_back("-");
 	}
@@ -193,15 +190,15 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 				if (differs) {
 					write_out(name + "\n");
 				}
-			} else if (in_place) {
+			} else if (is_stdin) {
+				write_out(result);
+			} else {
 				if (differs) {
 					write_file(file, result);
-					if (!quiet) {
-						std::cerr << tool.name << ": " << name << "\n";
-					}
 				}
-			} else {
-				write_out(result);
+				if (!quiet) {
+					write_out(name + "\n");
+				}
 			}
 		} catch (std::exception const& ex) {
 			std::cerr << tool.name << ": " << name << ": " << ex.what() << "\n";
