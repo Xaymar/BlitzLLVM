@@ -52,4 +52,61 @@ PositionEntity cube2, -300, 0, 0
 RenderWorld
 Check "Neither camera sees them", TrisRendered(), 0, 0
 
+; What the renderer remembers of a mesh to cull it again (a sphere around it) has to follow every change of the mesh: where it is,
+; how big it is, its vertices, and a new entity in the place of a freed one. Each is rendered twice, so that the second time
+; is from what was remembered.
+FreeEntity cube1
+FreeEntity cube2
+HideEntity cam2
+box = CreateCube()
+PositionEntity box, 200, 0, 0
+RenderWorld
+Check "Remembered: cube to the side", TrisRendered(), 0, 0
+RenderWorld
+Check "Remembered: cube to the side again", TrisRendered(), 0, 0
+PositionEntity box, 0, 0, 0
+RenderWorld
+Check "Remembered: cube moved into view", TrisRendered(), 12, 0
+RenderWorld
+Check "Remembered: cube in view again", TrisRendered(), 12, 0
+PositionEntity box, 200, 0, 0
+RenderWorld
+Check "Remembered: cube moved out", TrisRendered(), 0, 0
+RenderWorld
+ScaleEntity box, 300, 300, 300
+RenderWorld
+Check "Remembered: cube scaled up around the camera", TrisRendered(), 12, 0
+ScaleEntity box, 1, 1, 1
+RenderWorld
+RenderWorld
+Check "Remembered: cube scaled down", TrisRendered(), 0, 0
+PositionMesh box, -200, 0, 0
+RenderWorld
+Check "Remembered: vertices moved into view", TrisRendered(), 12, 0
+RenderWorld
+PositionMesh box, 400, 0, 0
+RenderWorld
+Check "Remembered: vertices moved out", TrisRendered(), 0, 0
+RenderWorld
+copy = CopyEntity(box)
+PositionEntity copy, -200, 0, 0
+RenderWorld
+Check "Remembered: copy in view through the shared vertices", TrisRendered(), 12, 0
+RenderWorld
+PositionMesh box, -200, 0, 0
+RenderWorld
+Check "Remembered: shared vertices moved for the copy", TrisRendered(), 0, 0
+FreeEntity copy
+FreeEntity box
+RenderWorld
+Check "Remembered: nothing left", TrisRendered(), 0, 0
+box = CreateCube()
+PositionEntity box, 200, 0, 0
+RenderWorld
+RenderWorld
+FreeEntity box
+box = CreateCube()
+RenderWorld
+Check "Remembered: new cube in the place of a freed one", TrisRendered(), 12, 0
+
 Done "blitz3d_culling_pixels"

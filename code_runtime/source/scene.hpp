@@ -175,6 +175,7 @@ namespace bb {
 		// Set by the renderer for its own use, and cleared whenever the geometry changes.
 		bool dirty = true;
 		void* gpu  = nullptr;
+		bool cull_cached = false; // A cull_record was made from the box of the vertices, so it is not valid any more when they change.
 	};
 
 	// A texture that has frames is bound by a number that has the frame above the handle.
@@ -270,6 +271,32 @@ namespace bb {
 	int          entity_count();
 	entity*      get_entity(int handle);
 	void         world_matrix(int handle, float* out);
+
+	/** Counts the changes of surfaces that a cull_record was made from, which are all of the records that are not made again. */
+	extern uint32_t mesh_epoch;
+
+	/** To be called after the vertices of a surface (and so the box around them) were changed. */
+	inline void surface_changed(surface& s)
+	{
+		if (s.cull_cached) {
+			s.cull_cached = false;
+			mesh_epoch++;
+		}
+	}
+
+	/**
+	 * What the renderer remembers about a mesh to tell that it is outside of the view without reading the entity beyond its first cache
+	 * line: the place, rotation and scale it was made for (they have to be the same bytes), and a sphere around the mesh in the world.
+	 * An epoch of 0 is a record that was not made, or has to be made again.
+	 */
+	struct cull_record {
+		float    state[9]; // position, rotation and scale of the entity, as they are in it.
+		uint32_t epoch;
+		float    center[3];
+		float    radius;
+	};
+	cull_record& cull_record_of(int handle);
+
 	/** The box around the vertices of the surfaces of an entity, in its own space. False if there are none. */
 	bool         mesh_bounds(entity& e, float* lo, float* hi);
 	/** Makes where an entity is now the place that it moves from for collisions, like ResetEntity. */

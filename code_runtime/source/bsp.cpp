@@ -399,6 +399,7 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 			}
 		}
 		s.dirty       = true;
+		bb::surface_changed(s);
 		s.bound_valid = false;
 	}
 
