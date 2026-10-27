@@ -64,7 +64,7 @@ Until e = $803
 
 ## Related Commands
 
-[CreateButton](CreateButton), [CreateComboBox](CreateComboBox), [CreateLabel](CreateLabel), [CreateListBox](CreateListBox), [CreatePanel](CreatePanel), [CreateProgBar](CreateProgBar), [CreateSlider](CreateSlider)
+[CreateButton](CreateButton), [CreateComboBox](CreateComboBox), [CreateHtmlView](CreateHtmlView) 〔BlitzLLVM〕, [CreateLabel](CreateLabel), [CreateListBox](CreateListBox), [CreatePanel](CreatePanel), [CreateProgBar](CreateProgBar), [CreateSlider](CreateSlider)
 
 <div align="center">
 

@@ -828,7 +828,7 @@
 <li><a href="WaitEvent">WaitEvent</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzPlus-Gadgets">Gadgets</a> (42)</summary>
+<li><details><summary><a href="BlitzPlus-Gadgets">Gadgets</a> (50)</summary>
 <ul>
 <li><a href="ActivateGadget">ActivateGadget</a></li>
 <li><a href="AddGadgetItem">AddGadgetItem</a></li>
@@ -837,6 +837,7 @@
 <li><a href="CountGadgetItems">CountGadgetItems</a></li>
 <li><a href="CreateButton">CreateButton</a></li>
 <li><a href="CreateComboBox">CreateComboBox</a></li>
+<li><a href="CreateHtmlView">CreateHtmlView</a> 〔BlitzLLVM〕</li>
 <li><a href="CreateLabel">CreateLabel</a></li>
 <li><a href="CreateListBox">CreateListBox</a></li>
 <li><a href="CreatePanel">CreatePanel</a></li>
@@ -855,6 +856,13 @@
 <li><a href="GadgetX">GadgetX</a></li>
 <li><a href="GadgetY">GadgetY</a></li>
 <li><a href="HideGadget">HideGadget</a></li>
+<li><a href="HtmlViewBack">HtmlViewBack</a> 〔BlitzLLVM〕</li>
+<li><a href="HtmlViewCurrentURL">HtmlViewCurrentURL</a> 〔BlitzLLVM〕</li>
+<li><a href="HtmlViewEventURL">HtmlViewEventURL</a> 〔BlitzLLVM〕</li>
+<li><a href="HtmlViewForward">HtmlViewForward</a> 〔BlitzLLVM〕</li>
+<li><a href="HtmlViewGo">HtmlViewGo</a> 〔BlitzLLVM〕</li>
+<li><a href="HtmlViewRun">HtmlViewRun</a> 〔BlitzLLVM〕</li>
+<li><a href="HtmlViewStatus">HtmlViewStatus</a> 〔BlitzLLVM〕</li>
 <li><a href="InsertGadgetItem">InsertGadgetItem</a></li>
 <li><a href="ModifyGadgetItem">ModifyGadgetItem</a></li>
 <li><a href="RemoveGadgetItem">RemoveGadgetItem</a></li>

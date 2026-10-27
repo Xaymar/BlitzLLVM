@@ -152,6 +152,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [CreateCube](CreateCube)
 * [CreateCylinder](CreateCylinder)
 * [CreateDir](CreateDir)
+* [CreateHtmlView](CreateHtmlView) 〔BlitzLLVM〕
 * [CreateImage](CreateImage)
 * [CreateLabel](CreateLabel)
 * [CreateLight](CreateLight)
@@ -384,6 +385,13 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [HostIP](HostIP)
 * [HostNetGame](HostNetGame)
 * [HotKeyEvent](HotKeyEvent)
+* [HtmlViewBack](HtmlViewBack) 〔BlitzLLVM〕
+* [HtmlViewCurrentURL](HtmlViewCurrentURL) 〔BlitzLLVM〕
+* [HtmlViewEventURL](HtmlViewEventURL) 〔BlitzLLVM〕
+* [HtmlViewForward](HtmlViewForward) 〔BlitzLLVM〕
+* [HtmlViewGo](HtmlViewGo) 〔BlitzLLVM〕
+* [HtmlViewRun](HtmlViewRun) 〔BlitzLLVM〕
+* [HtmlViewStatus](HtmlViewStatus) 〔BlitzLLVM〕
 * [HWMultiTex](HWMultiTex)
 * [HWTexUnits](HWTexUnits)
 

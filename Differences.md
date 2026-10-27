@@ -77,6 +77,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateButton](CreateButton#differences): Buttons are drawn in the look of the program, not with the controls of the operating system.
 * [CreateCanvas](CreateCanvas#differences): Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
 * [CreateComboBox](CreateComboBox#differences): The user cannot type into it, only pick from the list.
+* [CreateHtmlView](CreateHtmlView#differences) 〔BlitzLLVM〕: There is no web browser inside the window yet: the gadget is a frame that shows the address it was sent to, and no page is loaded.
 * [CreateImage](CreateImage#differences): A graphics window must be open, because images live in video memory.
 * [CreateLabel](CreateLabel#differences): Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none).
 * [CreateListBox](CreateListBox#differences): Only one entry can be selected at a time.
@@ -149,6 +150,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [GraphicsLost](GraphicsLost#differences): Always 0.
 * [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
 * [HostIP](HostIP#differences): Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used.
+* [HtmlViewRun](HtmlViewRun#differences) 〔BlitzLLVM〕: The script is not run, as there is no page.
 * [HWMultiTex](HWMultiTex#differences): Accepted and ignored.
 * [ImageBuffer](ImageBuffer#differences): A frame number that does not exist stops the program with an error message.
 * [ImagesCollide](ImagesCollide#differences): A frame number that does not exist stops the program with an error message.
