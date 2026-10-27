@@ -144,7 +144,12 @@ jobs:
       - name: Configure
         # Also with a cached build: the tests are registered when configuring, and the tests may be new.
         if: env.RUN == 'true'
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON -DBLITZLLVM_REQUIRE_NASM=ON
+        # The version is made from the date of the commit and is built into the compiler, and the tests compare against it. A
+        # cached build keeps the version it was built with (stored next to it), or the tests would expect the new commit's.
+        run: |
+          mkdir -p build
+          [ -f build/blitz-version ] || cmake -P cmake/project_version.cmake > build/blitz-version
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON -DBLITZLLVM_REQUIRE_NASM=ON -DBlitzLLVM_VERSION="$(cat build/blitz-version)"
       - name: Build
         if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
         run: cmake --build build
