@@ -23,7 +23,7 @@ Wend
 ```
 @param parent  The entity that carries the listener, typically the camera.
 @param rolloff_factor  How fast sounds get quiet with distance: 0 means they do not, 1 is the normal rate and above that makes them fade faster. Defaults to 1.
-@param doppler_scale  How strong the pitch change of moving sounds is. Defaults to 1.
-@param distance_scale  Scales distances, to match the size of your world to the sounds. Defaults to 1.
+@param doppler_scale  How strong the pitch change of moving sounds is: 0 turns it off, 1 is the real one and 2 shifts twice as far. Defaults to 1.
+@param distance_scale  How many meters one unit of your world is, which sets the distances that volume falls off over and how fast things move for the doppler shift. Defaults to 1.
 @returns A handle for the listener.
-@gap Only the rolloff factor is used. Doppler shifting is not made and distances are always in the units of the world, so doppler_scale and distance_scale have no effect. Volume falls off as 1 / (1 + rolloff * distance * 0.05).
+@gap Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original. The pitch follows the speeds along the line between the listener and the sound, with sound moving at 340 meters per second. Speeds are measured from how far the entities moved in their last step, so a sound that comes from an entity that was placed somewhere (and not moved) has no shift; nothing moves faster than 90% of the speed of sound as far as the shift is concerned.

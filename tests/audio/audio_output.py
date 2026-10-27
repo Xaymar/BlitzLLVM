@@ -133,6 +133,44 @@ check("classic: looped for %.2f s" % length, length > 1.0)
 clean, classic = image_energy(clean_samples), image_energy(classic_samples)
 check("classic adds images above the file's bandwidth (%.5f vs %.5f)" % (classic, clean), classic > clean * 10)
 
+# Doppler: a sound that comes from an entity is shifted in pitch when the entity or the listener moves. Both are moved a unit
+# every 50 ms (about 20 meters per second), toward or away from each other along Z.
+def play_moving(listener_step, source_step, scale=1.0, distance=1.0, name="tone.wav"):
+	body = (
+		's = Load3DSound("%s")\nLoopSound s\nlistener = CreatePivot()\nsource = CreatePivot()\nPositionEntity source, 0, 0, 100\n'
+		"CreateListener listener, 0, %f, %f\nc = EmitSound(s, source)\n"
+		"For i = 1 To 30\n\tMoveEntity listener, 0, 0, %f\n\tMoveEntity source, 0, 0, %f\n\tDelay 50\nNext\n"
+		'DebugLog "playing " + ChannelPlaying(c)\n'
+	) % (name, scale, distance, listener_step, source_step)
+	with open("play.bb", "w") as source:
+		source.write(body)
+	if subprocess.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+		raise SystemExit("compiling failed")
+	if os.path.exists("sdlaudio.raw"):
+		os.remove("sdlaudio.raw")
+	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
+	env.pop("BLITZ_HEADLESS", None)
+	subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	data = open("sdlaudio.raw", "rb").read()
+	count = len(data) // 4
+	return analyze(list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2]))[0]
+
+
+expected = tone("tone.wav", 22050, 1, 16)
+for what, listener_step, source_step, scale, distance, low, high in (
+	("standing still", 0, 0, 1.0, 1.0, 0.99, 1.01),
+	("source moving away", 0, 1, 1.0, 1.0, 0.90, 0.97),
+	("source moving toward the listener", 0, -1, 1.0, 1.0, 1.03, 1.12),
+	("listener moving toward the source", 1, 0, 1.0, 1.0, 1.03, 1.12),
+	("listener moving away from the source", -1, 0, 1.0, 1.0, 0.90, 0.97),
+	("both moving the same way", 1, 1, 1.0, 1.0, 0.99, 1.01),
+	("doppler scale 0", 0, 1, 0.0, 1.0, 0.99, 1.01),
+	("doppler scale 2 shifts twice as far", 0, 1, 2.0, 1.0, 0.80, 0.94),
+	("distance scale 0.5 halves the speeds", 0, 1, 1.0, 0.5, 0.95, 0.99),
+):
+	frequency = play_moving(listener_step, source_step, scale, distance)
+	check("doppler, %s: %.1f Hz is %.2f to %.2f of %.1f Hz" % (what, frequency, low, high, expected), expected * low < frequency < expected * high)
+
 # Opus decodes at 48 kHz whatever the file was recorded at, so it has to be resampled to play at the right pitch. The fixtures are a
 # 960 Hz tone (50 samples per cycle at 48 kHz) of half a second, as .opus (Ogg Opus) and as Opus packets in an .ogg file.
 for fixture in ("tone.opus", "tone_in_ogg.ogg"):

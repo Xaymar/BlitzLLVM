@@ -37,7 +37,7 @@ Delay 600
 
 **Differences and known gaps:**
 
-* See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, but there is no doppler effect.
+* See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
 
 ## Related commands
 

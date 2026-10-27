@@ -19,4 +19,4 @@ Delay 600
 ```
 @param file  The path of the sound file.
 @returns A sound handle, or 0 if the file could not be loaded.
-@gap See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, but there is no doppler effect.
+@gap See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).

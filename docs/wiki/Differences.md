@@ -74,7 +74,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateImage](CreateImage#differences-and-known-gaps): A graphics window must be open, because images live in video memory.
 * [CreateLabel](CreateLabel#differences-and-known-gaps): Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none).
 * [CreateListBox](CreateListBox#differences-and-known-gaps): Only one entry can be selected at a time.
-* [CreateListener](CreateListener#differences-and-known-gaps): Only the rolloff factor is used.
+* [CreateListener](CreateListener#differences-and-known-gaps): Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original.
 * [CreateMenu](CreateMenu#differences-and-known-gaps): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
 * [CreatePlane](CreatePlane#differences-and-known-gaps): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
 * [CreateSprite](CreateSprite#differences-and-known-gaps): Sprites are always drawn full-bright and visible from both sides, whatever [EntityFX](EntityFX) says.
@@ -152,7 +152,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [JoyWait](JoyWait#differences-and-known-gaps): If no joystick is connected the function returns 0 right away instead of waiting forever.
 * [KeyDown](KeyDown#differences-and-known-gaps): Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
 * [LeadingZeros](LeadingZeros#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals.
-* [Load3DSound](Load3DSound#differences-and-known-gaps): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, but there is no doppler effect.
+* [Load3DSound](Load3DSound#differences-and-known-gaps): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
 * [LoadAnimMesh](LoadAnimMesh#differences-and-known-gaps): Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh).
 * [LoadAnimTexture](LoadAnimTexture#differences-and-known-gaps): TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
 * [LoadBSP](LoadBSP#differences-and-known-gaps): Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices.
