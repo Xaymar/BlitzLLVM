@@ -170,7 +170,7 @@ namespace bb::gfx {
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &front_set, 0, nullptr);
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 1, 1, &table_set, 1, &offset);
 		// The noise moves every frame (and repeats after 64): the same offset is added to x and y.
-		float shift = float(uint32_t(float((presented++) % 64u) * 5.588238f));
+		float shift = 5.588238f * float((presented++) % 64u);
 		vkCmdPushConstants(g.cmd, layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(shift), &shift);
 		vkCmdDraw(g.cmd, 3, 1, 0, 0);
 		vkCmdEndRendering(g.cmd);

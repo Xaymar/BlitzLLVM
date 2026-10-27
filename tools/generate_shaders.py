@@ -881,7 +881,7 @@ def fragment_shader_gamma():
     new value of red, green and blue (from 0 to 1) in the row. The fourth value of the first row is 1 when Dither is on:
     the result then gets temporal Interleaved Gradient Noise (Jimenez, 2014) of up to half a step of the 8 bit picture
     added, so that the steps that rounding makes are not lines but a pattern that the eye averages. The pattern moves
-    every frame: the push constant is uint(float(frame % 64) * 5.588238), added to both coordinates of the pixel.
+    every frame: the push constant is 5.588238 * float(frame % 64), added to both coordinates of the pixel.
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
