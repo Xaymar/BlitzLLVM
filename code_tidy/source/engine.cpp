@@ -4,10 +4,12 @@
 #include "engine.hpp"
 #include <algorithm>
 #include <atomic>
+#include <cerrno>
 #include <chrono>
 #include <fstream>
 #include <map>
 #include <memory>
+#include <random>
 #include <set>
 #include "compiler.hpp"
 #include "edits.hpp"
@@ -15,6 +17,13 @@
 #include "keywords.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
+
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 using namespace blitz;
 
@@ -129,7 +138,32 @@ namespace {
 		{
 			static std::atomic<int> counter{ 0 };
 			auto                    dir = near_file.has_parent_path() ? near_file.parent_path() : std::filesystem::path(".");
-			_path                       = dir / (".blitz-tidy-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + "-" + std::to_string(counter++) + ".bb");
+			// The name has a random part, and the file is made by this one call only if there is no file of that name, link included:
+			// the folder of a program can be one that others write to, and a name they could guess is a file of theirs that gets written.
+			std::random_device device;
+			for (int attempt = 0; attempt < 100; attempt++) {
+				_path = dir / (".blitz-tidy-" + std::to_string(device()) + std::to_string(device()) + "-" + std::to_string(counter++) + ".bb");
+#if defined(_WIN32)
+				HANDLE file = CreateFileW(_path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+				if (file != INVALID_HANDLE_VALUE) {
+					CloseHandle(file);
+					return;
+				}
+				if (GetLastError() != ERROR_FILE_EXISTS) {
+					break;
+				}
+#else
+				int file = ::open(_path.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, 0600);
+				if (file >= 0) {
+					::close(file);
+					return;
+				}
+				if (errno != EEXIST) {
+					break;
+				}
+#endif
+			}
+			throw std::runtime_error("Can't make a copy of the file next to " + near_file.string() + ", blitz-tidy needs one.");
 		}
 		~scratch()
 		{
