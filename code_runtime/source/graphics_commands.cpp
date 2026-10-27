@@ -34,8 +34,7 @@ namespace bb::gfx {
 	{
 		graveyard_busy = 0;
 		for (uint32_t i = 0; i < graveyard.size; i++) {
-			vkDestroyBuffer(g.device, graveyard[i].buffer, nullptr);
-			vkFreeMemory(g.device, graveyard[i].memory, nullptr);
+			vmaDestroyBuffer(g.allocator, graveyard[i].buffer, graveyard[i].allocation);
 		}
 		graveyard.clear();
 	}
@@ -171,8 +170,7 @@ namespace bb::gfx {
 		if (graveyard_busy) {
 			uint32_t n = graveyard_busy < graveyard.size ? graveyard_busy : graveyard.size;
 			for (uint32_t i = 0; i < n; i++) {
-				vkDestroyBuffer(g.device, graveyard[i].buffer, nullptr);
-				vkFreeMemory(g.device, graveyard[i].memory, nullptr);
+				vmaDestroyBuffer(g.allocator, graveyard[i].buffer, graveyard[i].allocation);
 			}
 			memmove(graveyard.data, graveyard.data + n, (graveyard.size - n) * sizeof(graveyard_entry));
 			graveyard.size -= n;
