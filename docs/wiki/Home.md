@@ -17,3 +17,5 @@ BlitzLLVM is a BlitzBasic (Blitz2D, Blitz3D, BlitzPlus) compiler built on the LL
 * [[BlitzPlus]]: windows, gadgets, events and system access.
 
 The README in the repository lists the supported commands and the compiler options.
+
+CI verification note.
