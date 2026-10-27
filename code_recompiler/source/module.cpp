@@ -28,7 +28,7 @@ namespace {
 
 namespace blitz::recompiler {
 
-	symbol_kind module::kind(std::string const& name)
+	symbol_kind blitz_module::kind(std::string const& name)
 	{
 		if (name.size() < 2 || name[0] != '_') {
 			return symbol_kind::other;
@@ -55,7 +55,7 @@ namespace blitz::recompiler {
 		return symbol_kind::other;
 	}
 
-	module parse_module(uint8_t const* data, size_t size)
+	blitz_module parse_module(uint8_t const* data, size_t size)
 	{
 		auto fail = [](char const* why) { throw not_blitz(std::string("the program is not a Blitz module (") + why + ")"); };
 		if (size < 4) {
@@ -67,7 +67,7 @@ namespace blitz::recompiler {
 			}
 			return uint32_t(data[o]) | (uint32_t(data[o + 1]) << 8) | (uint32_t(data[o + 2]) << 16) | (uint32_t(data[o + 3]) << 24);
 		};
-		module   m;
+		blitz_module m;
 		uint32_t code_size = rd32(0);
 		if (code_size > size - 4) {
 			fail("code is larger than the resource");
@@ -164,7 +164,7 @@ namespace blitz::recompiler {
 		return true;
 	}
 
-	module load_module(std::vector<uint8_t> const& d)
+	blitz_module load_module(std::vector<uint8_t> const& d)
 	{
 		if (d.size() < 0x40 || d[0] != 'M' || d[1] != 'Z') {
 			throw not_blitz("not a PE file");
@@ -222,7 +222,7 @@ namespace blitz::recompiler {
 					if (off + size > d.size()) {
 						throw not_blitz("truncated file");
 					}
-					module m = parse_module(d.data() + off, size);
+					blitz_module m = parse_module(d.data() + off, size);
 					// The runtime of the original lists its commands as strings, which tell how many arguments each one has.
 					for (size_t at = 0; at < d.size();) {
 						if (at >= off && at < off + size) {

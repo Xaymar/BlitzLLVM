@@ -26,5 +26,5 @@ namespace blitz::recompiler {
 		size_t                   failed_functions = 0;
 	};
 
-	lift_result lift(module const& program, lift_options const& options);
+	lift_result lift(blitz_module const& program, lift_options const& options);
 } // namespace blitz::recompiler

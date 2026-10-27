@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 		if (info) {
 			std::map<symbol_kind, size_t> kinds;
 			for (auto const& l : program.labels) {
-				kinds[module::kind(l.name)]++;
+				kinds[blitz_module::kind(l.name)]++;
 			}
 			std::cout << input.generic_string() << ": Blitz program\n"
 					  << "  code and data: " << program.code.size() << " bytes (x86, 32 bit)\n"
