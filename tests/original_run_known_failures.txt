@@ -1,5 +1,6 @@
-# The programs of the original Blitz3D and BlitzPlus that compile, but stop with an error in tools/original_programs.py run-one (no window, BLITZ_HEADLESS=1, a few
-# seconds). They are expected to fail (WILL_FAIL, label pending); the first error of each is the reason. Paths are relative to extra/.
+# The programs of the original Blitz3D and BlitzPlus that compile, but stop with an error in tools/original_programs.py run-one (BLITZ_HEADLESS=1, a few
+# seconds), as the tests run it in CI: in a virtual X server (xvfb-run), where a few programs do something else than without a display. They are expected to fail
+# (WILL_FAIL, label pending); the first error of each is the reason. Paths are relative to extra/.
 blitz3d/_release/Games/bb3d_asteroids/EdzUpAsteroids.bb
 # Runtime Error: ScaleMesh: entity or surface 0 does not exist.
 blitz3d/_release/Games/TunnelRun/tr.bb
@@ -32,14 +33,16 @@ blitz3d/_release/samples/Hi-Toro/Shooter/Shooter/shooter-testbed.bb
 # Runtime Error: MoveEntity: entity or surface 0 does not exist.
 blitz3d/_release/samples/MattDavey/Matts Balls/bouncey.bb
 # Runtime Error: Collisions: the method and the response have to be between 1 and 3.
+blitz3d/_release/samples/RobHutchinson/BBLauncher/example.bb
+# Runtime Error: The graphics card in this machine does not support the selected screenmode!
+blitz3d/_release/samples/RobHutchinson/BBLauncher/launcher3d.bb
+# Runtime Error: The graphics card in this machine does not support the selected screenmode!
 blitz3d/_release/samples/RobHutchinson/SkyPlateau/SkyPlateau.bb
-# Runtime Error: ScaleSprite
+# Runtime Error: The graphics card in this machine does not support the selected screenmode!
 blitz3d/_release/samples/RobHutchinson/WingPilot/WingPilotV0_01.bb
 # Runtime Error: Collisions: the method and the response have to be between 1 and 3.
 blitz3d/_release/samples/si/fps/fps.bb
 # Runtime Error: ScaleEntity: entity or surface 0 does not exist.
-blitz3d/_release/samples/Skully/flares/flares.bb
-# Runtime Error:
 blitz3d/_release/samples/zenith/scare/scare.bb
 # Runtime Error: ScaleEntity: entity or surface 0 does not exist.
 blitzplus_msvc2017/_release/games/SlideBlock/Slideblock.bb

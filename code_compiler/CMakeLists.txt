@@ -249,9 +249,11 @@ if(Python3_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/../extra/blitz3d/_release" AN
 			continue()  # There is no program to run.
 		endif()
 		# Run without a window. Games and demos loop until a key is pressed, so a program that is still running after a few seconds is good, one
-		# that stops with an error is not. A program may write its settings or scores next to itself, which changes the submodule's files.
+		# that stops with an error is not. A program may write its settings or scores next to itself, which the test puts back.
 		add_test(NAME "original-run-${_NAME}" COMMAND ${Python3_EXECUTABLE} -I "${_ORIGINAL_SCRIPT}" run-one "${PROJECT_BINARY_DIR}/original" "${_PROGRAM}")
-		set_tests_properties("original-run-${_NAME}" PROPERTIES LABELS "original" TIMEOUT 60 FIXTURES_REQUIRED "original-${_NAME}")
+		# The programs of one folder take turns, as they share the files (settings, scores) that they write there.
+		get_filename_component(_FOLDER "${_PROGRAM}" DIRECTORY)
+		set_tests_properties("original-run-${_NAME}" PROPERTIES LABELS "original" TIMEOUT 60 FIXTURES_REQUIRED "original-${_NAME}" RESOURCE_LOCK "original-${_FOLDER}")
 		if("${_PROGRAM}" IN_LIST _ORIGINAL_RUN_KNOWN)
 			set_tests_properties("original-run-${_NAME}" PROPERTIES WILL_FAIL TRUE LABELS "original;pending")
 		endif()
