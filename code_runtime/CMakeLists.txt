@@ -92,12 +92,7 @@ target_include_directories(blitzrt PRIVATE
 	"${CMAKE_CURRENT_SOURCE_DIR}/source"
 )
 target_include_directories(blitzrt SYSTEM PRIVATE
-	"${SDL3_INSTALL_PATH}/include"
-	"${SDL3_image_INSTALL_PATH}/include"
-	"${SDL3_mixer_INSTALL_PATH}/include"
-	"${VulkanHeaders_INSTALL_PATH}/include"
-	"${FFMPEG_INSTALL_PATH}/include"
-	"${SDL3_mixer_INSTALL_PATH}/include/opus"
+	${BLITZRT_INCLUDE_DIRECTORIES}
 	"${PROJECT_SOURCE_DIR}/third_party/stb"
 	"${PROJECT_SOURCE_DIR}/third_party/VulkanMemoryAllocator/include"
 )

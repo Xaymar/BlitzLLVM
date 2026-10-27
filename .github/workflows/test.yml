@@ -168,7 +168,7 @@ jobs:
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
           # them on every run. The key is made from the list and the month.
-          packages: ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils
+          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils
           version: 1-${{ steps.month.outputs.month }}
       - name: Create the runtime directory
         if: env.RUN == 'true'

@@ -98,7 +98,7 @@ jobs:
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
           # them on every run. The key is made from the list and the month.
-          packages: ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
+          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
           version: 1-${{ runner.arch }}-${{ steps.month.outputs.month }}
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
@@ -155,7 +155,7 @@ jobs:
           cp LICENSE.adoc README.adoc dist/
           # The libraries must not need the newer STL helpers (__std_rotate, ...), or programs fail to link with an older Visual Studio.
           [ "$RUNNER_OS" != Windows ] || .github/scripts/check-std-helpers.sh dist
-          (cd dist && find . -type f) | .github/scripts/check-licenses.sh "$ARTIFACT"
+          (cd dist && find . -type f) | .github/scripts/check-licenses.sh "$ARTIFACT" build/required-licenses.txt
           (cd dist && find . -type f) | .github/scripts/check-help.sh "$ARTIFACT"
       - uses: actions/upload-artifact@v4
         with:
@@ -182,11 +182,11 @@ jobs:
           mv packages/*.deb "packages/${ARTIFACT}.deb"
           mv packages/*.rpm "packages/${ARTIFACT}.rpm"
           # Every package has to list the licenses
-          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb"
+          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb" build/required-licenses.txt
           dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.deb"
-          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm"
+          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm" build/required-licenses.txt
           rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-help.sh "${ARTIFACT}.rpm"
-          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst"
+          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst" build/required-licenses.txt
           bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-help.sh "${ARTIFACT}.pkg.tar.zst"
           ls -l packages
       - name: Build packages (macOS)

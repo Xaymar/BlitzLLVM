@@ -28,6 +28,130 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/VulkanMemoryAllocator/include/v
 	message(FATAL_ERROR "The submodule 'third_party/VulkanMemoryAllocator' is missing, run 'git submodule update --init' first.")
 endif()
 
+################################################################################
+# System libraries
+#
+# Linux packages should not ship copies of libraries that the distribution has (and keeps updated), so each dependency can come from the
+# system instead of from its submodule: AUTO uses the system's when it is new enough (Linux only) and builds the submodule otherwise,
+# ON fails when the system has no usable copy, and OFF always builds the submodule. Windows and macOS always build the submodules.
+#
+#   BLITZ_SYSTEM_SDL3          SDL3, linked to programs as a shared library
+#   BLITZ_SYSTEM_SDL3_IMAGE    SDL3_image (needs the system's SDL3, as two copies of SDL in a program do not work)
+#   BLITZ_SYSTEM_SDL3_MIXER    SDL3_mixer (needs the system's SDL3 as well)
+#   BLITZ_SYSTEM_IMAGE_CODECS  libavif (with dav1d), libjxl and libwebp, which a bundled SDL3_image loads when the program opens such a file
+#   BLITZ_SYSTEM_AUDIO_CODECS  opusfile (with libopus and libogg), which a bundled SDL3_mixer loads when the program plays such a file
+#   BLITZ_SYSTEM_FFMPEG        FFmpeg, which the runtime loads when the program opens a movie. Only when it is LGPL and has the decoders.
+#
+# The libraries that programs link to are named in runtime/system-libraries.txt, which blitzcc passes to the linker. The packages that
+# provide them are registered for the dependencies of the packages (BLITZ_DEB_DEPENDS and BLITZ_DEB_RECOMMENDS, see the end of CMakeLists.txt).
+################################################################################
+find_package(PkgConfig QUIET)
+set(BLITZ_SDL3_MINIMUM_VERSION 3.4.0 CACHE STRING "The oldest SDL3 that the runtime builds with and works on")
+set(BLITZ_SDL3_IMAGE_MINIMUM_VERSION 3.4.0 CACHE STRING "The oldest SDL3_image that the runtime builds with and works on")
+set(BLITZ_SDL3_MIXER_MINIMUM_VERSION 3.2.0 CACHE STRING "The oldest SDL3_mixer that the runtime builds with and works on")
+foreach(_OPTION IN ITEMS SDL3 SDL3_IMAGE SDL3_MIXER IMAGE_CODECS AUDIO_CODECS FFMPEG)
+	set(BLITZ_SYSTEM_${_OPTION} AUTO CACHE STRING "Use the system's ${_OPTION} instead of building it (AUTO, ON or OFF)")
+	set_property(CACHE BLITZ_SYSTEM_${_OPTION} PROPERTY STRINGS AUTO ON OFF)
+endforeach()
+set_property(GLOBAL PROPERTY BLITZ_DEB_DEPENDS "")
+set_property(GLOBAL PROPERTY BLITZ_DEB_RECOMMENDS "")
+set_property(GLOBAL PROPERTY BLITZ_SYSTEM_INCLUDES "")
+set_property(GLOBAL PROPERTY BLITZ_SYSTEM_LINK_FLAGS "")
+set(_SYSTEM_LIBRARIES "") # What programs link to, one flag per entry.
+
+# Decides whether a dependency comes from the system, with the pkg-config modules it needs (like 'sdl3 >= 3.4.0'). Sets <RESULT> in the caller.
+function(blitz_system_library RESULT OPTION)
+	set(${RESULT} OFF PARENT_SCOPE)
+	set(_MODE "${BLITZ_SYSTEM_${OPTION}}")
+	if(_MODE STREQUAL "OFF")
+		return()
+	endif()
+	if(_MODE STREQUAL "AUTO" AND NOT (UNIX AND NOT APPLE))
+		return()
+	endif()
+	set(_PROBLEM "")
+	if(NOT PKG_CONFIG_FOUND)
+		set(_PROBLEM "pkg-config was not found")
+	endif()
+	if(NOT _PROBLEM)
+		foreach(_MODULE IN LISTS ARGN)
+			execute_process(COMMAND "${PKG_CONFIG_EXECUTABLE}" --exists "${_MODULE}" RESULT_VARIABLE _RESULT)
+			if(NOT _RESULT EQUAL 0)
+				set(_PROBLEM "pkg-config has no '${_MODULE}'")
+				break()
+			endif()
+		endforeach()
+	endif()
+	if(_PROBLEM)
+		if(_MODE STREQUAL "ON")
+			message(FATAL_ERROR "BLITZ_SYSTEM_${OPTION} is ON, but ${_PROBLEM}. Install the development package, or set it to AUTO to build the bundled copy.")
+		endif()
+		message(STATUS "No system ${OPTION} (${_PROBLEM}), building the bundled copy")
+		return()
+	endif()
+	set(${RESULT} ON PARENT_SCOPE)
+endfunction()
+
+# Tells the packages that the system library of a pkg-config module is needed. LINKED is for libraries that programs are linked to,
+# LOADED for those that the runtime loads when it needs them (a program without them only loses that format). The name of the
+# package that has the library, and the version of it that the build machine has, is what Debian wants (the .deb is the only package that
+# takes its libraries from the build machine, the others are built on their own distributions).
+# The name that programs open the library with is returned in SONAME_RESULT.
+function(blitz_register_system_library KIND MODULE LIBRARY SONAME_RESULT)
+	execute_process(COMMAND "${PKG_CONFIG_EXECUTABLE}" --variable=libdir "${MODULE}" OUTPUT_VARIABLE _LIBDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+	set(_LINK "${_LIBDIR}/lib${LIBRARY}.so")
+	if(NOT EXISTS "${_LINK}")
+		message(FATAL_ERROR "The system library '${_LINK}' of '${MODULE}' is missing.")
+	endif()
+	# The development package links 'libfoo.so' to the library by the name that programs load it with (the soname, 'libfoo.so.1').
+	# The runtime package has that name as a link to the library, next to the version it was built as (libfoo.so.1 -> libfoo.so.1.2.3), and
+	# the development package may link 'libfoo.so' to either, so the shortest link to the library that has a version is the soname.
+	file(REAL_PATH "${_LINK}" _REAL)
+	set(_SONAME "lib${LIBRARY}.so")
+	file(GLOB _CANDIDATES "${_LIBDIR}/lib${LIBRARY}.so.*")
+	set(_SONAME_LENGTH 1000)
+	foreach(_CANDIDATE IN LISTS _CANDIDATES)
+		file(REAL_PATH "${_CANDIDATE}" _CANDIDATE_REAL)
+		cmake_path(GET _CANDIDATE FILENAME _CANDIDATE_NAME)
+		string(LENGTH "${_CANDIDATE_NAME}" _CANDIDATE_LENGTH)
+		if(_CANDIDATE_REAL STREQUAL _REAL AND _CANDIDATE_LENGTH LESS _SONAME_LENGTH)
+			set(_SONAME "${_CANDIDATE_NAME}")
+			set(_SONAME_LENGTH ${_CANDIDATE_LENGTH})
+		endif()
+	endforeach()
+	# A library outside of the places that the linker and the loader look in (a prefix of its own) has to be pointed to.
+	if(KIND STREQUAL "LINKED" AND NOT _LIBDIR MATCHES "^/(usr|lib)")
+		set_property(GLOBAL APPEND PROPERTY BLITZ_SYSTEM_LINK_FLAGS "-L${_LIBDIR}" "-Wl,-rpath,${_LIBDIR}")
+	endif()
+	# Where the headers are, unless that is where the compiler looks anyway.
+	execute_process(COMMAND "${PKG_CONFIG_EXECUTABLE}" --cflags-only-I "${MODULE}" OUTPUT_VARIABLE _INCLUDES OUTPUT_STRIP_TRAILING_WHITESPACE)
+	separate_arguments(_INCLUDES)
+	foreach(_INCLUDE IN LISTS _INCLUDES)
+		string(REGEX REPLACE "^-I" "" _INCLUDE "${_INCLUDE}")
+		set_property(GLOBAL APPEND PROPERTY BLITZ_SYSTEM_INCLUDES "${_INCLUDE}")
+	endforeach()
+	set(${SONAME_RESULT} "${_SONAME}" PARENT_SCOPE)
+
+	find_program(BLITZ_DPKG_QUERY dpkg-query)
+	if(BLITZ_DPKG_QUERY)
+		execute_process(COMMAND "${BLITZ_DPKG_QUERY}" -S "${_REAL}" OUTPUT_VARIABLE _OWNER RESULT_VARIABLE _RESULT ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+		if(_RESULT EQUAL 0)
+			string(REGEX REPLACE ":.*$" "" _PACKAGE "${_OWNER}")
+			execute_process(COMMAND "${BLITZ_DPKG_QUERY}" -W -f=\${source:Upstream-Version} "${_PACKAGE}" OUTPUT_VARIABLE _VERSION OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+			if(_VERSION)
+				set(_PACKAGE "${_PACKAGE} (>= ${_VERSION})")
+			endif()
+			if(KIND STREQUAL "LINKED")
+				set_property(GLOBAL APPEND PROPERTY BLITZ_DEB_DEPENDS "${_PACKAGE}")
+			else()
+				set_property(GLOBAL APPEND PROPERTY BLITZ_DEB_RECOMMENDS "${_PACKAGE}")
+			endif()
+		else()
+			message(WARNING "${_REAL} does not belong to a Debian package, so the .deb will not depend on it.")
+		endif()
+	endif()
+endfunction()
+
 # Builds a submodule from third_party/. A macro, so that the <NAME>_INSTALL_PATH variables reach the caller.
 # The checked out commit is passed to the configure step as an unused definition, as ExternalContent only rebuilds when its
 # arguments change, which makes a submodule update rebuild the dependency.
@@ -83,6 +207,10 @@ if(APPLE AND CMAKE_OSX_ARCHITECTURES)
 		set(_UNIVERSAL ON)
 	endif()
 endif()
+if(CMAKE_PREFIX_PATH)
+	# Where the system's libraries are, when that is not a default place.
+	list(APPEND _DEPENDENCY_ARGS "-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}")
+endif()
 # A section per function and variable lets the linker of blitzcc drop everything a program does not use (--gc-sections, see main.cpp).
 # MSVC puts functions in their own sections already (/Gy), and Mach-O drops unused symbols without help.
 if(NOT MSVC AND NOT APPLE)
@@ -120,16 +248,38 @@ if(WIN32)
 		-DHAVE_DSOUND_H=0 -DHAVE_DXGI1_6_H=0
 	)
 endif()
-blitz_dependency(SDL3 SDL
-	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} ${_SDL3_ARGS}
-	BUILD_ARGS --config Release --parallel
-	INSTALL_ARGS --config Release
-)
+blitz_system_library(_SYSTEM_SDL3 SDL3 "sdl3 >= ${BLITZ_SDL3_MINIMUM_VERSION}")
+if(_SYSTEM_SDL3)
+	message(STATUS "Using the system's SDL3")
+	blitz_register_system_library(LINKED sdl3 SDL3 _SONAME)
+	list(APPEND _SYSTEM_LIBRARIES "-l:${_SONAME}")
+	set(_SDL3_CONFIG_ARGS "") # SDL_image and SDL_mixer find the system's SDL3 themselves.
+else()
+	blitz_dependency(SDL3 SDL
+		CONFIGURE_ARGS ${_DEPENDENCY_ARGS} ${_SDL3_ARGS}
+		BUILD_ARGS --config Release --parallel
+		INSTALL_ARGS --config Release
+	)
 
-# Where SDL3Config.cmake ends up depends on the platform (cmake/, lib/cmake/SDL3, lib64/...), so look for it.
-file(GLOB_RECURSE _SDL3_CONFIG "${SDL3_INSTALL_PATH}/SDL3Config.cmake")
-list(GET _SDL3_CONFIG 0 _SDL3_CONFIG)
-cmake_path(GET _SDL3_CONFIG PARENT_PATH _SDL3_CONFIG_DIR)
+	# Where SDL3Config.cmake ends up depends on the platform (cmake/, lib/cmake/SDL3, lib64/...), so look for it.
+	file(GLOB_RECURSE _SDL3_CONFIG "${SDL3_INSTALL_PATH}/SDL3Config.cmake")
+	list(GET _SDL3_CONFIG 0 _SDL3_CONFIG)
+	cmake_path(GET _SDL3_CONFIG PARENT_PATH _SDL3_CONFIG_DIR)
+	set(_SDL3_CONFIG_ARGS "-DSDL3_DIR=${_SDL3_CONFIG_DIR}")
+endif()
+
+# SDL_image and SDL_mixer link to the SDL3 of the program, so they can only be the system's when SDL3 is.
+foreach(_PART IN ITEMS IMAGE MIXER)
+	if(NOT _SYSTEM_SDL3 AND BLITZ_SYSTEM_SDL3_${_PART} STREQUAL "ON")
+		message(FATAL_ERROR "BLITZ_SYSTEM_SDL3_${_PART} is ON, but SDL3 is not the system's (BLITZ_SYSTEM_SDL3), and a program can not have two copies of SDL.")
+	endif()
+endforeach()
+set(_SYSTEM_SDL3_IMAGE OFF)
+set(_SYSTEM_SDL3_MIXER OFF)
+if(_SYSTEM_SDL3)
+	blitz_system_library(_SYSTEM_SDL3_IMAGE SDL3_IMAGE "sdl3-image >= ${BLITZ_SDL3_IMAGE_MINIMUM_VERSION}")
+	blitz_system_library(_SYSTEM_SDL3_MIXER SDL3_MIXER "sdl3-mixer >= ${BLITZ_SDL3_MIXER_MINIMUM_VERSION}")
+endif()
 
 # SDL_image builds the libraries for AVIF, JPEG XL and WebP itself when it is told to use its vendored copies, which are submodules
 # of its repository. A clone does not fetch them, and fetching all of them (with everything they in turn depend on, some of which is
@@ -234,30 +384,33 @@ endfunction()
 # built from C only, which works the same but decodes AV1 more slowly. Release builds (CI) have NASM, and set BLITZLLVM_REQUIRE_NASM so
 # that they cannot silently lose it. Install it with 'winget install nasm' (or 'apt install nasm', 'brew install nasm').
 option(BLITZLLVM_REQUIRE_NASM "Fail instead of building dav1d without assembly when NASM is missing on x86" OFF)
+blitz_system_library(_SYSTEM_IMAGE_CODECS IMAGE_CODECS libavif libjxl libwebp libwebpdemux libwebpmux)
 set(_SDL3_IMAGE_ASM_ARGS "")
-if(CMAKE_GENERATOR_PLATFORM)
-	set(_ASM_ARCHITECTURE "${CMAKE_GENERATOR_PLATFORM}")
-else()
-	set(_ASM_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
-endif()
-if(_UNIVERSAL)
-	list(APPEND _SDL3_IMAGE_ASM_ARGS -DDAV1D_ASM=OFF)
-elseif(_ASM_ARCHITECTURE MATCHES "^([xX]86|[xX]64|Win32|AMD64|amd64|x86_64|i[3-6]86)$")
-	if(BLITZLLVM_NASM AND NOT EXISTS "${BLITZLLVM_NASM}")
-		unset(BLITZLLVM_NASM CACHE) # Uninstalled since it was found.
-	endif()
-	find_program(BLITZLLVM_NASM nasm
-		HINTS "$ENV{LOCALAPPDATA}/bin/NASM" "$ENV{ProgramFiles}/NASM" "$ENV{ProgramW6432}/NASM" "$ENV{LOCALAPPDATA}/NASM"
-		DOC "NASM, which builds the x86 assembly of dav1d"
-	)
-	if(BLITZLLVM_NASM)
-		message(STATUS "Building dav1d with assembly using NASM: ${BLITZLLVM_NASM}")
-		list(APPEND _SDL3_IMAGE_ASM_ARGS "-DCMAKE_ASM_NASM_COMPILER=${BLITZLLVM_NASM}")
-	elseif(BLITZLLVM_REQUIRE_NASM)
-		message(FATAL_ERROR "NASM was not found, but BLITZLLVM_REQUIRE_NASM is set. Install it ('winget install nasm' on Windows) or set BLITZLLVM_NASM to its path.")
+if(NOT (_SYSTEM_IMAGE_CODECS OR _SYSTEM_SDL3_IMAGE))
+	if(CMAKE_GENERATOR_PLATFORM)
+		set(_ASM_ARCHITECTURE "${CMAKE_GENERATOR_PLATFORM}")
 	else()
-		message(WARNING "NASM was not found, so dav1d is built without assembly and decodes AVIF images more slowly. Install it ('winget install nasm' on Windows) and configure again to avoid that.")
+		set(_ASM_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
+	endif()
+	if(_UNIVERSAL)
 		list(APPEND _SDL3_IMAGE_ASM_ARGS -DDAV1D_ASM=OFF)
+	elseif(_ASM_ARCHITECTURE MATCHES "^([xX]86|[xX]64|Win32|AMD64|amd64|x86_64|i[3-6]86)$")
+		if(BLITZLLVM_NASM AND NOT EXISTS "${BLITZLLVM_NASM}")
+			unset(BLITZLLVM_NASM CACHE) # Uninstalled since it was found.
+		endif()
+		find_program(BLITZLLVM_NASM nasm
+			HINTS "$ENV{LOCALAPPDATA}/bin/NASM" "$ENV{ProgramFiles}/NASM" "$ENV{ProgramW6432}/NASM" "$ENV{LOCALAPPDATA}/NASM"
+			DOC "NASM, which builds the x86 assembly of dav1d"
+		)
+		if(BLITZLLVM_NASM)
+			message(STATUS "Building dav1d with assembly using NASM: ${BLITZLLVM_NASM}")
+			list(APPEND _SDL3_IMAGE_ASM_ARGS "-DCMAKE_ASM_NASM_COMPILER=${BLITZLLVM_NASM}")
+		elseif(BLITZLLVM_REQUIRE_NASM)
+			message(FATAL_ERROR "NASM was not found, but BLITZLLVM_REQUIRE_NASM is set. Install it ('winget install nasm' on Windows) or set BLITZLLVM_NASM to its path.")
+		else()
+			message(WARNING "NASM was not found, so dav1d is built without assembly and decodes AVIF images more slowly. Install it ('winget install nasm' on Windows) and configure again to avoid that.")
+			list(APPEND _SDL3_IMAGE_ASM_ARGS -DDAV1D_ASM=OFF)
+		endif()
 	endif()
 endif()
 
@@ -265,32 +418,67 @@ endif()
 # which are built as shared libraries that SDL_image loads when the first file of that format is opened. Programs that don't load images
 # don't need them, and the ones that do get them copied next to them by blitzcc (see main.cpp), which keeps the programs small and means
 # that an update of a codec doesn't change every program. The libraries find each other next to themselves.
+# With the system's codecs (BLITZ_SYSTEM_IMAGE_CODECS) SDL_image only has their headers and loads the libraries from the system instead.
 set(_SDL3_IMAGE_LICENSES SDL3_image/LICENSE.txt SDL3_image/optional/LICENSE.dav1d.txt SDL3_image/optional/LICENSE.avif.txt
 	SDL3_image/optional/LICENSE.jxl.txt SDL3_image/optional/LICENSE.webp.txt)
-blitz_check_licenses(SDL3_image BEFORE ${_SDL3_IMAGE_LICENSES})
-# An install of SDL_image from before its codecs were shared libraries has them as static libraries, which would be linked into programs.
-# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
-if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/libdav1d.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/dav1d.lib")
-	message(STATUS "SDL3_image was installed with static codecs, building it again.")
-	file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.tmp/*.sha3")
-	file(REMOVE ${_STAMPS})
-	file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst" "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin")
-	# The stamp of the fetched codec sources goes too, as a restored cache has the stamp but not the submodules in the source tree.
-	file(REMOVE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin.codecs")
+set(_SDL3_IMAGE_BUILD_ARGS -DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_DEPS_SHARED=ON
+	-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON "-DCMAKE_INSTALL_RPATH=${_SHARED_RPATH}" ${_SHARED_STRIP})
+set(_SDL3_IMAGE_PATCH PATCH_FUNCTION blitz_fetch_image_codecs)
+if(_SYSTEM_IMAGE_CODECS)
+	set(_SDL3_IMAGE_LICENSES SDL3_image/LICENSE.txt)
+	set(_SDL3_IMAGE_BUILD_ARGS -DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=OFF -DSDLIMAGE_DEPS_SHARED=ON)
+	set(_SDL3_IMAGE_PATCH "")
 endif()
-blitz_dependency(SDL3_image SDL_image
-	PATCH_FUNCTION blitz_fetch_image_codecs
-	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
-		-DBUILD_SHARED_LIBS=OFF -DSDLIMAGE_VENDORED=ON -DSDLIMAGE_DEPS_SHARED=ON
-		-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON "-DCMAKE_INSTALL_RPATH=${_SHARED_RPATH}" ${_SHARED_STRIP} -DSDLIMAGE_STRICT=OFF
-		-DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF -DSDLIMAGE_INSTALL=ON
-		-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_AVIF=ON -DSDLIMAGE_AVIF_SAVE=OFF -DSDLIMAGE_JXL=ON -DSDLIMAGE_WEBP=ON
-		${_SDL3_IMAGE_ASM_ARGS}
-	BUILD_ARGS --config Release --parallel
-	INSTALL_ARGS --config Release
-)
-
-blitz_check_licenses(SDL3_image AFTER ${_SDL3_IMAGE_LICENSES})
+if(_SYSTEM_SDL3_IMAGE)
+	message(STATUS "Using the system's SDL3_image")
+	blitz_register_system_library(LINKED sdl3-image SDL3_image _SONAME)
+	list(APPEND _SYSTEM_LIBRARIES "-l:${_SONAME}")
+else()
+	if(_SYSTEM_IMAGE_CODECS)
+		message(STATUS "Using the system's libavif, libjxl and libwebp")
+		blitz_register_system_library(LOADED libavif avif _IGNORED)
+		blitz_register_system_library(LOADED libjxl jxl _IGNORED)
+		blitz_register_system_library(LOADED libwebp webp _IGNORED)
+		blitz_register_system_library(LOADED libwebpdemux webpdemux _IGNORED)
+		blitz_register_system_library(LOADED libwebpmux webpmux _IGNORED)
+		# Whether SDL_image loads a codec or links it is remembered by its build directory from the first time it was configured, and does
+		# not follow DEPS_SHARED later. A build directory from before (a cache of an older build) that linked the codecs would make every
+		# program need them at link time, so it is thrown away.
+		set(_CACHE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin/CMakeCache.txt")
+		if(EXISTS "${_CACHE}")
+			file(STRINGS "${_CACHE}" _LINKED REGEX "^SDLIMAGE_(AVIF|JXL|WEBP)_SHARED:BOOL=OFF$")
+			if(_LINKED)
+				message(STATUS "SDL3_image was configured to link its codecs, building it again.")
+				file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.tmp/*.sha3")
+				file(REMOVE ${_STAMPS})
+				file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst" "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin")
+			endif()
+		endif()
+	else()
+		# An install of SDL_image from before its codecs were shared libraries has them as static libraries, which would be linked into programs.
+		# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
+		if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/libdav1d.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/dav1d.lib")
+			message(STATUS "SDL3_image was installed with static codecs, building it again.")
+			file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.tmp/*.sha3")
+			file(REMOVE ${_STAMPS})
+			file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst" "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin")
+			# The stamp of the fetched codec sources goes too, as a restored cache has the stamp but not the submodules in the source tree.
+			file(REMOVE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin.codecs")
+		endif()
+	endif()
+	blitz_check_licenses(SDL3_image BEFORE ${_SDL3_IMAGE_LICENSES})
+	blitz_dependency(SDL3_image SDL_image
+		${_SDL3_IMAGE_PATCH}
+		CONFIGURE_ARGS ${_DEPENDENCY_ARGS} ${_SDL3_CONFIG_ARGS}
+			${_SDL3_IMAGE_BUILD_ARGS} -DSDLIMAGE_STRICT=OFF
+			-DSDLIMAGE_SAMPLES=OFF -DSDLIMAGE_TESTS=OFF -DSDLIMAGE_INSTALL=ON
+			-DSDLIMAGE_PNG_LIBPNG=OFF -DSDLIMAGE_TIF=OFF -DSDLIMAGE_AVIF=ON -DSDLIMAGE_AVIF_SAVE=OFF -DSDLIMAGE_JXL=ON -DSDLIMAGE_WEBP=ON
+			${_SDL3_IMAGE_ASM_ARGS}
+		BUILD_ARGS --config Release --parallel
+		INSTALL_ARGS --config Release
+	)
+	blitz_check_licenses(SDL3_image AFTER ${_SDL3_IMAGE_LICENSES})
+endif()
 
 # SDL_mixer builds libopus, opusfile and libogg itself when it is told to use its vendored copies, which are submodules of its
 # repository that a clone does not fetch. Only those three are fetched, as no other decoder that needs a library is used. A stamp
@@ -321,27 +509,54 @@ function(blitz_fetch_audio_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH
 endfunction()
 
 # Plays the sounds. Decoders for WAV, MP3 (dr_mp3), OGG Vorbis (stb_vorbis) and FLAC (dr_flac) are built in, Opus (libopus and
-# opusfile, which play .opus files and Opus in .ogg files) is linked in statically from the vendored copies.
+# opusfile, which play .opus files and Opus in .ogg files) is linked in statically from the vendored copies, or with the system's
+# (BLITZ_SYSTEM_AUDIO_CODECS) loaded by SDL_mixer when a program opens such a file.
+blitz_system_library(_SYSTEM_AUDIO_CODECS AUDIO_CODECS opusfile)
 set(_SDL3_MIXER_LICENSES SDL3_mixer/LICENSE.txt SDL3_mixer/optional/LICENSE.opus.txt SDL3_mixer/optional/LICENSE.opusfile.txt
 	SDL3_mixer/optional/LICENSE.ogg-vorbis.txt)
-blitz_check_licenses(SDL3_mixer BEFORE ${_SDL3_MIXER_LICENSES})
-blitz_dependency(SDL3_mixer SDL_mixer
-	PATCH_FUNCTION blitz_fetch_audio_codecs
-	CONFIGURE_ARGS ${_DEPENDENCY_ARGS} "-DSDL3_DIR=${_SDL3_CONFIG_DIR}"
-		-DBUILD_SHARED_LIBS=OFF -DSDLMIXER_VENDORED=ON -DSDLMIXER_DEPS_SHARED=OFF -DSDLMIXER_STRICT=OFF
-		-DSDLMIXER_SAMPLES=OFF -DSDLMIXER_TESTS=OFF -DSDLMIXER_INSTALL=ON
-		-DSDLMIXER_OPUS=ON -DSDLMIXER_GME=OFF -DSDLMIXER_MIDI=OFF -DSDLMIXER_MOD=OFF -DSDLMIXER_WAVPACK=OFF -DSDLMIXER_MP3_MPG123=OFF
-		-DSDLMIXER_FLAC_LIBFLAC=OFF -DSDLMIXER_VORBIS_VORBISFILE=OFF -DSDLMIXER_VORBIS_STB=ON
-	BUILD_ARGS --config Release --parallel
-	INSTALL_ARGS --config Release
-)
-
-blitz_check_licenses(SDL3_mixer AFTER ${_SDL3_MIXER_LICENSES})
+set(_SDL3_MIXER_BUILD_ARGS -DSDLMIXER_VENDORED=ON -DSDLMIXER_DEPS_SHARED=OFF)
+set(_SDL3_MIXER_PATCH PATCH_FUNCTION blitz_fetch_audio_codecs)
+if(_SYSTEM_AUDIO_CODECS)
+	set(_SDL3_MIXER_LICENSES SDL3_mixer/LICENSE.txt)
+	set(_SDL3_MIXER_BUILD_ARGS -DSDLMIXER_VENDORED=OFF -DSDLMIXER_DEPS_SHARED=ON)
+	set(_SDL3_MIXER_PATCH "")
+endif()
+if(_SYSTEM_SDL3_MIXER)
+	message(STATUS "Using the system's SDL3_mixer")
+	blitz_register_system_library(LINKED sdl3-mixer SDL3_mixer _SONAME)
+	list(APPEND _SYSTEM_LIBRARIES "-l:${_SONAME}")
+else()
+	if(_SYSTEM_AUDIO_CODECS)
+		message(STATUS "Using the system's opusfile")
+		blitz_register_system_library(LOADED opusfile opusfile _IGNORED)
+	endif()
+	blitz_check_licenses(SDL3_mixer BEFORE ${_SDL3_MIXER_LICENSES})
+	blitz_dependency(SDL3_mixer SDL_mixer
+		${_SDL3_MIXER_PATCH}
+		CONFIGURE_ARGS ${_DEPENDENCY_ARGS} ${_SDL3_CONFIG_ARGS}
+			-DBUILD_SHARED_LIBS=OFF ${_SDL3_MIXER_BUILD_ARGS} -DSDLMIXER_STRICT=OFF
+			-DSDLMIXER_SAMPLES=OFF -DSDLMIXER_TESTS=OFF -DSDLMIXER_INSTALL=ON
+			-DSDLMIXER_OPUS=ON -DSDLMIXER_GME=OFF -DSDLMIXER_MIDI=OFF -DSDLMIXER_MOD=OFF -DSDLMIXER_WAVPACK=OFF -DSDLMIXER_MP3_MPG123=OFF
+			-DSDLMIXER_FLAC_LIBFLAC=OFF -DSDLMIXER_VORBIS_VORBISFILE=OFF -DSDLMIXER_VORBIS_STB=ON
+		BUILD_ARGS --config Release --parallel
+		INSTALL_ARGS --config Release
+	)
+	blitz_check_licenses(SDL3_mixer AFTER ${_SDL3_MIXER_LICENSES})
+endif()
 
 # Movies with Opus sound are decoded with the libopus that SDL_mixer built, whose headers it does not install. They are copied next to
 # the other includes of SDL_mixer (which a restored dependency cache keeps), fetching the submodule first if the clone doesn't have it.
+# With the system's codecs the runtime links to the system's libopus, as SDL_mixer only loads opusfile when it needs it.
 set(_OPUS_HEADERS "${SDL3_mixer_INSTALL_PATH}/include/opus")
-if(NOT EXISTS "${_OPUS_HEADERS}/opus_multistream.h")
+if(_SYSTEM_AUDIO_CODECS OR _SYSTEM_SDL3_MIXER)
+	execute_process(COMMAND "${PKG_CONFIG_EXECUTABLE}" --exists opus RESULT_VARIABLE _RESULT)
+	if(NOT _RESULT EQUAL 0)
+		message(FATAL_ERROR "The runtime plays the Opus sound of movies with libopus, but pkg-config has no 'opus'. Install its development package.")
+	endif()
+	blitz_register_system_library(LINKED opus opus _SONAME)
+	list(APPEND _SYSTEM_LIBRARIES "-l:${_SONAME}")
+	set(_OPUS_HEADERS "")
+elseif(NOT EXISTS "${_OPUS_HEADERS}/opus_multistream.h")
 	set(_OPUS_SOURCE "${PROJECT_SOURCE_DIR}/third_party/SDL_mixer/external/opus")
 	if(NOT EXISTS "${_OPUS_SOURCE}/include/opus_multistream.h")
 		execute_process(
@@ -407,6 +622,48 @@ if(WIN32)
 	# The threads of Windows and a C runtime inside the DLLs keep MSYS2's runtime DLLs out of the files that are shipped.
 	# clock_gettime comes from MSYS2's libwinpthread-1.dll (clock_gettime64 is missing from older copies on PATH), so link it statically.
 	list(APPEND _FFMPEG_ARGS --enable-w32threads ${_FFMPEG_LIBGCC} --extra-libs=-l:libwinpthread.a)
+endif()
+
+# The system's FFmpeg is only used when it is LGPL (the builds of Debian and Ubuntu have GPL parts, which makes every program that loads them
+# GPL) and has the demuxers and decoders above, which is checked by building and running ffmpeg_check.c against it.
+blitz_system_library(_SYSTEM_FFMPEG FFMPEG libavutil libswscale libavcodec libavformat)
+if(_SYSTEM_FFMPEG)
+	set(_DEMUXERS "")
+	set(_DECODERS "")
+	foreach(_ARGUMENT IN LISTS _FFMPEG_ARGS)
+		if(_ARGUMENT MATCHES "^--enable-demuxer=(.*)$")
+			set(_DEMUXERS "${CMAKE_MATCH_1}")
+		elseif(_ARGUMENT MATCHES "^--enable-decoder=(.*)$")
+			list(APPEND _DECODERS "${CMAKE_MATCH_1}")
+		endif()
+	endforeach()
+	string(REPLACE ";" "," _DECODERS "${_DECODERS}")
+	execute_process(COMMAND "${PKG_CONFIG_EXECUTABLE}" --cflags --libs libavutil libavcodec libavformat OUTPUT_VARIABLE _FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+	separate_arguments(_FLAGS)
+	set(_FLAGS_COMPILE ${_FLAGS})
+	list(FILTER _FLAGS_COMPILE INCLUDE REGEX "^-I")
+	set(_FLAGS_LINK ${_FLAGS})
+	list(FILTER _FLAGS_LINK EXCLUDE REGEX "^-I")
+	try_run(_FFMPEG_RUN _FFMPEG_COMPILE
+		SOURCES "${CMAKE_CURRENT_LIST_DIR}/ffmpeg_check.c"
+		COMPILE_DEFINITIONS ${_FLAGS_COMPILE} "-DDEMUXERS=\"${_DEMUXERS}\"" "-DDECODERS=\"${_DECODERS}\""
+		LINK_LIBRARIES ${_FLAGS_LINK}
+		COMPILE_OUTPUT_VARIABLE _FFMPEG_COMPILE_OUTPUT RUN_OUTPUT_VARIABLE _FFMPEG_OUTPUT
+	)
+	string(STRIP "${_FFMPEG_OUTPUT}" _FFMPEG_OUTPUT)
+	string(REPLACE "\n" ", " _FFMPEG_OUTPUT "${_FFMPEG_OUTPUT}")
+	if(NOT _FFMPEG_COMPILE)
+		set(_FFMPEG_PROBLEM "its headers and libraries do not build a program")
+	elseif(NOT _FFMPEG_RUN EQUAL 0)
+		set(_FFMPEG_PROBLEM "it is ${_FFMPEG_OUTPUT}")
+	endif()
+	if(_FFMPEG_PROBLEM)
+		if(BLITZ_SYSTEM_FFMPEG STREQUAL "ON")
+			message(FATAL_ERROR "BLITZ_SYSTEM_FFMPEG is ON, but the system's FFmpeg can not be used: ${_FFMPEG_PROBLEM}.")
+		endif()
+		message(STATUS "The system's FFmpeg can not be used (${_FFMPEG_PROBLEM}), building the bundled copy")
+		set(_SYSTEM_FFMPEG OFF)
+	endif()
 endif()
 
 function(blitz_build_ffmpeg)
@@ -513,95 +770,172 @@ function(blitz_build_ffmpeg)
 	endif()
 	file(WRITE "${_STAMP}" "${_STAMP_TEXT}")
 endfunction()
-blitz_build_ffmpeg()
-
-# The shared libraries by the name that programs open them with: libavcodec.so.61, libavcodec.61.dylib and avcodec-61.dll.
-if(WIN32)
-	file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/bin/*.dll")
-elseif(APPLE)
-	file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/lib/lib*.dylib")
-	list(FILTER _FFMPEG_LIBRARIES INCLUDE REGEX "/lib[a-z]+\\.[0-9]+\\.dylib$")
+if(_SYSTEM_FFMPEG)
+	message(STATUS "Using the system's FFmpeg")
+	foreach(_LIBRARY IN ITEMS avutil:avutil swscale:swscale avcodec:avcodec avformat:avformat)
+		string(REPLACE ":" ";" _LIBRARY "${_LIBRARY}")
+		list(GET _LIBRARY 0 _MODULE)
+		list(GET _LIBRARY 1 _NAME)
+		blitz_register_system_library(LOADED lib${_MODULE} ${_NAME} _IGNORED)
+	endforeach()
+	set(_FFMPEG_LIBRARIES "")
+	set(FFMPEG_INSTALL_PATH "")
 else()
-	file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/lib/lib*.so.*")
-	list(FILTER _FFMPEG_LIBRARIES INCLUDE REGEX "\\.so\\.[0-9]+$")
-endif()
-# FFmpeg installs the version of each library and a link to it under the shorter name, and installing a link copies the link and not
-# the file. So the files are copied under the short name, and those are what is installed and shipped.
-set(_FFMPEG_STAGE "${FFMPEG_INSTALL_PATH}/runtime")
-file(MAKE_DIRECTORY "${_FFMPEG_STAGE}")
-set(_FFMPEG_FILES "")
-foreach(_LIBRARY IN LISTS _FFMPEG_LIBRARIES)
-	cmake_path(GET _LIBRARY FILENAME _NAME)
-	file(REAL_PATH "${_LIBRARY}" _REAL)
-	file(COPY_FILE "${_REAL}" "${_FFMPEG_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
-	list(APPEND _FFMPEG_FILES "${_FFMPEG_STAGE}/${_NAME}")
-endforeach()
-set(_FFMPEG_LIBRARIES ${_FFMPEG_FILES})
-list(LENGTH _FFMPEG_LIBRARIES _FFMPEG_COUNT)
-if(NOT _FFMPEG_COUNT EQUAL 4)
-	message(FATAL_ERROR "FFmpeg should have built 4 libraries (avutil, swscale, avcodec and avformat), but built: ${_FFMPEG_LIBRARIES}")
-endif()
-# The licenses of FFmpeg go with its libraries: its own notice, and the LGPL that lets the user replace them.
-file(MAKE_DIRECTORY "${FFMPEG_INSTALL_PATH}/share/licenses/FFmpeg")
-file(COPY "${_FFMPEG_SOURCE}/COPYING.LGPLv2.1" "${_FFMPEG_SOURCE}/LICENSE.md" DESTINATION "${FFMPEG_INSTALL_PATH}/share/licenses/FFmpeg")
+	blitz_build_ffmpeg()
 
-if(WIN32)
-	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
-	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/SDL3_image-static.lib")
-	set(_LIBRARY_PATTERN "*.lib")
-	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/SDL3_mixer-static.lib")
-else()
-	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/libSDL3.a")
-	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/libSDL3_image.a")
-	set(_LIBRARY_PATTERN "*.a")
-	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/libSDL3_mixer.a")
-endif()
-foreach(_LIBRARY IN ITEMS "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" "${_SDL3_MIXER_LIBRARY}")
-	if(NOT EXISTS "${_LIBRARY}")
-		message(FATAL_ERROR "A dependency was not built: '${_LIBRARY}' is missing.")
+	# The shared libraries by the name that programs open them with: libavcodec.so.61, libavcodec.61.dylib and avcodec-61.dll.
+	if(WIN32)
+		file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/bin/*.dll")
+	elseif(APPLE)
+		file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/lib/lib*.dylib")
+		list(FILTER _FFMPEG_LIBRARIES INCLUDE REGEX "/lib[a-z]+\\.[0-9]+\\.dylib$")
+	else()
+		file(GLOB _FFMPEG_LIBRARIES "${FFMPEG_INSTALL_PATH}/lib/lib*.so.*")
+		list(FILTER _FFMPEG_LIBRARIES INCLUDE REGEX "\\.so\\.[0-9]+$")
 	endif()
-endforeach()
+	# FFmpeg installs the version of each library and a link to it under the shorter name, and installing a link copies the link and not
+	# the file. So the files are copied under the short name, and those are what is installed and shipped.
+	set(_FFMPEG_STAGE "${FFMPEG_INSTALL_PATH}/runtime")
+	file(MAKE_DIRECTORY "${_FFMPEG_STAGE}")
+	set(_FFMPEG_FILES "")
+	foreach(_LIBRARY IN LISTS _FFMPEG_LIBRARIES)
+		cmake_path(GET _LIBRARY FILENAME _NAME)
+		file(REAL_PATH "${_LIBRARY}" _REAL)
+		file(COPY_FILE "${_REAL}" "${_FFMPEG_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
+		list(APPEND _FFMPEG_FILES "${_FFMPEG_STAGE}/${_NAME}")
+	endforeach()
+	set(_FFMPEG_LIBRARIES ${_FFMPEG_FILES})
+	list(LENGTH _FFMPEG_LIBRARIES _FFMPEG_COUNT)
+	if(NOT _FFMPEG_COUNT EQUAL 4)
+		message(FATAL_ERROR "FFmpeg should have built 4 libraries (avutil, swscale, avcodec and avformat), but built: ${_FFMPEG_LIBRARIES}")
+	endif()
+	# The licenses of FFmpeg go with its libraries: its own notice, and the LGPL that lets the user replace them.
+	file(MAKE_DIRECTORY "${FFMPEG_INSTALL_PATH}/share/licenses/FFmpeg")
+	file(COPY "${_FFMPEG_SOURCE}/COPYING.LGPLv2.1" "${_FFMPEG_SOURCE}/LICENSE.md" DESTINATION "${FFMPEG_INSTALL_PATH}/share/licenses/FFmpeg")
+endif()
 
-# SDL_mixer installs the libraries of its codecs (libopus, opusfile and libogg) next to itself, and programs have to link to those as well.
 # SDL_image's codecs (libavif, dav1d, libjxl, brotli, highway and libwebp) are shared libraries: they are shipped with the runtime and copied
 # next to the programs that load images. On Windows they are DLLs in bin/ (their import libraries in lib/ are not needed, as SDL_image loads them
 # by name), elsewhere they are in lib/ with their version in the file name.
 # SDL_image opens them by name (libavif-16.dll, libavif.so.16, libavif.16.dylib), which is what the link libavif.so and libavif.dylib point at.
 # Installing a link copies the link and not the file, so the files are copied under that name, and those are what is shipped.
-set(_SDL3_IMAGE_STAGE "${SDL3_image_INSTALL_PATH}/runtime")
-file(MAKE_DIRECTORY "${_SDL3_IMAGE_STAGE}")
 set(_SDL3_IMAGE_CODECS "")
-if(WIN32)
-	file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/bin/*.dll")
-	foreach(_LIBRARY IN LISTS _SDL3_IMAGE_SHARED)
-		cmake_path(GET _LIBRARY FILENAME _NAME)
-		file(COPY_FILE "${_LIBRARY}" "${_SDL3_IMAGE_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
-		list(APPEND _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_STAGE}/${_NAME}")
-	endforeach()
-else()
-	if(APPLE)
-		file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/lib/lib*.dylib")
+if(NOT _SYSTEM_SDL3_IMAGE AND NOT _SYSTEM_IMAGE_CODECS)
+	set(_SDL3_IMAGE_STAGE "${SDL3_image_INSTALL_PATH}/runtime")
+	file(MAKE_DIRECTORY "${_SDL3_IMAGE_STAGE}")
+	if(WIN32)
+		file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/bin/*.dll")
+		foreach(_LIBRARY IN LISTS _SDL3_IMAGE_SHARED)
+			cmake_path(GET _LIBRARY FILENAME _NAME)
+			file(COPY_FILE "${_LIBRARY}" "${_SDL3_IMAGE_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
+			list(APPEND _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_STAGE}/${_NAME}")
+		endforeach()
 	else()
-		file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/lib/lib*.so")
-	endif()
-	foreach(_LIBRARY IN LISTS _SDL3_IMAGE_SHARED)
-		if(NOT IS_SYMLINK "${_LIBRARY}")
-			continue()
+		if(APPLE)
+			file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/lib/lib*.dylib")
+		else()
+			file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/lib/lib*.so")
 		endif()
-		file(READ_SYMLINK "${_LIBRARY}" _NAME)
-		cmake_path(GET _NAME FILENAME _NAME)
-		file(REAL_PATH "${_LIBRARY}" _REAL)
-		file(COPY_FILE "${_REAL}" "${_SDL3_IMAGE_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
-		list(APPEND _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_STAGE}/${_NAME}")
-	endforeach()
+		foreach(_LIBRARY IN LISTS _SDL3_IMAGE_SHARED)
+			if(NOT IS_SYMLINK "${_LIBRARY}")
+				continue()
+			endif()
+			file(READ_SYMLINK "${_LIBRARY}" _NAME)
+			cmake_path(GET _NAME FILENAME _NAME)
+			file(REAL_PATH "${_LIBRARY}" _REAL)
+			file(COPY_FILE "${_REAL}" "${_SDL3_IMAGE_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
+			list(APPEND _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_STAGE}/${_NAME}")
+		endforeach()
+	endif()
+	if(NOT _SDL3_IMAGE_CODECS)
+		message(FATAL_ERROR "SDL_image did not install its codec libraries (avif, dav1d, jxl and webp) in '${SDL3_image_INSTALL_PATH}'.")
+	endif()
 endif()
-if(NOT _SDL3_IMAGE_CODECS)
-	message(FATAL_ERROR "SDL_image did not install its codec libraries (avif, dav1d, jxl and webp) in '${SDL3_image_INSTALL_PATH}'.")
-endif()
-file(GLOB _SDL3_MIXER_CODECS "${SDL3_mixer_INSTALL_PATH}/lib/${_LIBRARY_PATTERN}")
-list(REMOVE_ITEM _SDL3_MIXER_CODECS "${_SDL3_MIXER_LIBRARY}")
 
-# Libraries that programs have to link to, which the compiler copies next to itself.
-# The licenses of SDL_image and SDL_mixer and of the codecs built into them, whose notices have to be shipped with programs that include them.
-set(BLITZRT_LICENSES "${SDL3_image_INSTALL_PATH}/share/licenses" "${SDL3_mixer_INSTALL_PATH}/share/licenses" "${FFMPEG_INSTALL_PATH}/share/licenses" PARENT_SCOPE)
-set(BLITZRT_LIBRARIES "${_SDL3_LIBRARY}" "${_SDL3_IMAGE_LIBRARY}" ${_SDL3_IMAGE_CODECS} "${_SDL3_MIXER_LIBRARY}" ${_SDL3_MIXER_CODECS} ${_FFMPEG_LIBRARIES} PARENT_SCOPE)
+# What the runtime is built with, and what programs link to.
+set(BLITZRT_LIBRARIES "")
+set(BLITZRT_LICENSES "")
+set(BLITZRT_REQUIRED_LICENSES "")
+set(BLITZRT_INCLUDE_DIRECTORIES "")
+set(BLITZRT_BUNDLED_SDL3 OFF)
+if(WIN32)
+	set(_LIBRARY_PATTERN "*.lib")
+	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
+	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/SDL3_image-static.lib")
+	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/SDL3_mixer-static.lib")
+else()
+	set(_LIBRARY_PATTERN "*.a")
+	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/libSDL3.a")
+	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/libSDL3_image.a")
+	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/libSDL3_mixer.a")
+endif()
+
+if(NOT _SYSTEM_SDL3)
+	set(BLITZRT_BUNDLED_SDL3 ON)
+	list(APPEND BLITZRT_INCLUDE_DIRECTORIES "${SDL3_INSTALL_PATH}/include")
+	list(APPEND BLITZRT_LIBRARIES "${_SDL3_LIBRARY}")
+	list(APPEND BLITZRT_REQUIRED_LICENSES SDL3/LICENSE.txt)
+endif()
+
+# SDL_image and SDL_mixer install the libraries of their codecs (libavif, dav1d, libjxl, brotli, highway and libwebp; libopus,
+# opusfile and libogg) next to themselves, and programs have to link to those as well. The licenses of SDL_image and SDL_mixer and of the
+# codecs built into them are installed next to them, as their notices have to be shipped with programs that include them.
+if(NOT _SYSTEM_SDL3_IMAGE)
+	list(APPEND BLITZRT_INCLUDE_DIRECTORIES "${SDL3_image_INSTALL_PATH}/include")
+	list(APPEND BLITZRT_LIBRARIES "${_SDL3_IMAGE_LIBRARY}")
+	list(APPEND BLITZRT_LICENSES "${SDL3_image_INSTALL_PATH}/share/licenses")
+	list(APPEND BLITZRT_REQUIRED_LICENSES ${_SDL3_IMAGE_LICENSES})
+	list(APPEND BLITZRT_LIBRARIES ${_SDL3_IMAGE_CODECS})
+endif()
+if(NOT _SYSTEM_SDL3_MIXER)
+	list(APPEND BLITZRT_INCLUDE_DIRECTORIES "${SDL3_mixer_INSTALL_PATH}/include")
+	list(APPEND BLITZRT_LIBRARIES "${_SDL3_MIXER_LIBRARY}")
+	list(APPEND BLITZRT_LICENSES "${SDL3_mixer_INSTALL_PATH}/share/licenses")
+	list(APPEND BLITZRT_REQUIRED_LICENSES ${_SDL3_MIXER_LICENSES})
+	file(GLOB _SDL3_MIXER_CODECS "${SDL3_mixer_INSTALL_PATH}/lib/${_LIBRARY_PATTERN}")
+	list(REMOVE_ITEM _SDL3_MIXER_CODECS "${_SDL3_MIXER_LIBRARY}")
+	list(APPEND BLITZRT_LIBRARIES ${_SDL3_MIXER_CODECS})
+endif()
+if(NOT _SYSTEM_FFMPEG)
+	list(APPEND BLITZRT_INCLUDE_DIRECTORIES "${FFMPEG_INSTALL_PATH}/include")
+	list(APPEND BLITZRT_LIBRARIES ${_FFMPEG_LIBRARIES})
+	list(APPEND BLITZRT_LICENSES "${FFMPEG_INSTALL_PATH}/share/licenses")
+	list(APPEND BLITZRT_REQUIRED_LICENSES FFmpeg/COPYING.LGPLv2.1)
+endif()
+foreach(_LIBRARY IN LISTS BLITZRT_LIBRARIES)
+	if(NOT EXISTS "${_LIBRARY}")
+		message(FATAL_ERROR "A dependency was not built: '${_LIBRARY}' is missing.")
+	endif()
+endforeach()
+list(APPEND BLITZRT_INCLUDE_DIRECTORIES "${VulkanHeaders_INSTALL_PATH}/include")
+if(_OPUS_HEADERS)
+	list(APPEND BLITZRT_INCLUDE_DIRECTORIES "${_OPUS_HEADERS}")
+endif()
+get_property(_SYSTEM_INCLUDES GLOBAL PROPERTY BLITZ_SYSTEM_INCLUDES)
+list(REMOVE_DUPLICATES _SYSTEM_INCLUDES)
+list(REMOVE_ITEM _SYSTEM_INCLUDES /usr/include "")
+list(APPEND BLITZRT_INCLUDE_DIRECTORIES ${_SYSTEM_INCLUDES})
+
+# The libraries that programs link to from the system, which blitzcc reads when it links a program.
+set(_SYSTEM_LIBRARIES_FILE "${CMAKE_BINARY_DIR}/system-libraries.txt")
+get_property(_SYSTEM_LINK_FLAGS GLOBAL PROPERTY BLITZ_SYSTEM_LINK_FLAGS)
+list(REMOVE_DUPLICATES _SYSTEM_LINK_FLAGS)
+list(PREPEND _SYSTEM_LIBRARIES ${_SYSTEM_LINK_FLAGS})
+if(_SYSTEM_FFMPEG)
+	list(APPEND _SYSTEM_LIBRARIES "#system ffmpeg")
+endif()
+if(_SYSTEM_IMAGE_CODECS OR _SYSTEM_SDL3_IMAGE)
+	list(APPEND _SYSTEM_LIBRARIES "#system image-codecs")
+endif()
+string(REPLACE ";" "\n" _SYSTEM_LIBRARIES_TEXT "${_SYSTEM_LIBRARIES}")
+file(WRITE "${_SYSTEM_LIBRARIES_FILE}.tmp" "${_SYSTEM_LIBRARIES_TEXT}\n")
+file(COPY_FILE "${_SYSTEM_LIBRARIES_FILE}.tmp" "${_SYSTEM_LIBRARIES_FILE}" ONLY_IF_DIFFERENT)
+file(REMOVE "${_SYSTEM_LIBRARIES_FILE}.tmp")
+list(APPEND BLITZRT_LIBRARIES "${_SYSTEM_LIBRARIES_FILE}")
+
+# Where the runtime and the compiler see the results: the libraries that programs have to link to (which the compiler copies next to
+# itself), the licenses that go with them, and the licenses that a package has to have.
+set(BLITZRT_LIBRARIES "${BLITZRT_LIBRARIES}" PARENT_SCOPE)
+set(BLITZRT_LICENSES "${BLITZRT_LICENSES}" PARENT_SCOPE)
+set(BLITZRT_REQUIRED_LICENSES "${BLITZRT_REQUIRED_LICENSES}" PARENT_SCOPE)
+set(BLITZRT_BUNDLED_SDL3 "${BLITZRT_BUNDLED_SDL3}" PARENT_SCOPE)
