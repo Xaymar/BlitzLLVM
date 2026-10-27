@@ -111,7 +111,8 @@ double bb_log10_d(double v) { return log10(v); }
 // Random
 ////////////////////////////////////////////////////////////////////////////////
 // The same generator as the original, so that programs which seed it get the numbers that they get in Blitz.
-static int32_t bb_rng = 0x1234;
+// Not static: the compiler steps the generator inside the program for Rnd and Rand.
+int32_t bb_rng = 0x1234;
 
 static float bb_rng_unit(void)
 {

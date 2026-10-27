@@ -22,8 +22,9 @@ typedef struct bb_bank {
 	int32_t  size;
 } bb_bank;
 
-static bb_bank* bb_banks      = NULL;
-static int32_t  bb_bank_count = 1;
+// Not static: the compiler reads these from the program (as { ptr, i32 } entries) to check and access the bank of Peek and Poke inline.
+bb_bank* bb_banks      = NULL;
+int32_t  bb_bank_count = 1;
 static int32_t  bb_bank_cap   = 0;
 
 static bb_bank* bb_bank_get(int32_t handle, const char* what)

@@ -515,6 +515,25 @@ elseif(CASE STREQUAL "version")
 		message(FATAL_ERROR "The executable was not created.")
 	endif()
 
+elseif(CASE STREQUAL "runtime_inline")
+	# The hot parts of the runtime are compiled with the program, unless that is turned off, or -O0 or -d is used.
+	blitzcc(--verbose "${PROGRAM}" -o "${EXE}")
+	expect_ok()
+	expect_contains("-flto=thin")
+	expect_contains("banks.c")
+	if(NOT CMAKE_HOST_APPLE)
+		# clang only does LTO with lld (on Windows it refuses with "LTO requires -fuse-ld=lld" otherwise).
+		expect_contains("-fuse-ld=lld")
+	endif()
+	blitzcc(--verbose --target aarch64-apple-darwin "${PROGRAM}" -o "${WORK}/mac")
+	expect_missing("-fuse-ld=lld")
+	blitzcc(--verbose --no-runtime-inline "${PROGRAM}" -o "${EXE}")
+	expect_ok()
+	expect_missing("-flto=thin")
+	blitzcc(--verbose -O0 "${PROGRAM}" -o "${EXE}")
+	expect_ok()
+	expect_missing("-flto=thin")
+
 elseif(CASE STREQUAL "verbose_long_only")
 	# -v used to be the short form of --verbose, now it is the version like in the original.
 	blitzcc(--verbose "${PROGRAM}" -o "${EXE}")

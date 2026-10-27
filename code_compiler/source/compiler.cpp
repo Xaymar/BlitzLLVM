@@ -620,6 +620,132 @@ blitz::compiler::value blitz::compiler::inline_builtin(std::string const& symbol
 		return { narrow, type::FLOAT32 };
 	}
 
+	// Peek and Poke on a bank: the table of banks is a global of the runtime, so the lookup and the range check are part of the
+	// program and the access is a load or store at the end of it. Whatever fails the check goes to the runtime function, which
+	// raises the error with its message.
+	struct bank_access {
+		const char* symbol;
+		const char* llvm; // The type in memory.
+		bool        poke;
+	};
+	static const std::map<std::string, bank_access> banks = {
+		{ "bb_peek_byte", { "bb_peek_byte", "i8", false } },    { "bb_peek_short", { "bb_peek_short", "i16", false } },
+		{ "bb_peek_int", { "bb_peek_int", "i32", false } },     { "bb_peek_float", { "bb_peek_float", "float", false } },
+		{ "bb_poke_byte", { "bb_poke_byte", "i8", true } },     { "bb_poke_short", { "bb_poke_short", "i16", true } },
+		{ "bb_poke_int", { "bb_poke_int", "i32", true } },      { "bb_poke_float", { "bb_poke_float", "float", true } },
+	};
+	if (auto it = banks.find(symbol); it != banks.end()) {
+		auto const& access = it->second;
+		std::string mem    = access.llvm;
+		int         width  = (mem == "i8") ? 1 : (mem == "i16") ? 2 : 4;
+		std::string handle = args[0].repr, offset = args[1].repr;
+
+		declare("bb_banks", "@bb_banks = external global ptr");
+		declare("bb_bank_count", "@bb_bank_count = external global i32");
+		auto count = tmp(), table = tmp(), index = tmp(), limit = tmp(), valid = tmp();
+		emit(count + " = load i32, ptr @bb_bank_count");
+		emit(table + " = load ptr, ptr @bb_banks");
+		// Handle 0 is no bank, which wraps to the largest number and fails the same comparison as a handle past the end.
+		emit(index + " = sub i32 " + handle + ", 1");
+		emit(limit + " = sub i32 " + count + ", 1");
+		emit(valid + " = icmp ult i32 " + index + ", " + limit);
+		auto check_l = label("bank.check"), fast_l = label("bank.fast"), slow_l = label("bank.slow"), done_l = label("bank.done");
+		emit_terminator("br i1 " + valid + ", label %" + check_l + ", label %" + slow_l);
+
+		begin_label(check_l);
+		auto slot = tmp(), data = tmp(), size_p = tmp(), size = tmp(), has = tmp(), last = tmp(), in = tmp(), ok = tmp();
+		emit(slot + " = getelementptr inbounds { ptr, i32 }, ptr " + table + ", i32 " + handle);
+		emit(data + " = load ptr, ptr " + slot);
+		emit(size_p + " = getelementptr inbounds { ptr, i32 }, ptr " + slot + ", i32 0, i32 1");
+		emit(size + " = load i32, ptr " + size_p);
+		emit(has + " = icmp ne ptr " + data + ", null");
+		// offset + width <= size without overflow: the offset may not be negative, and may not be past size - width.
+		emit(last + " = sub i32 " + size + ", " + std::to_string(width));
+		emit(in + " = icmp ule i32 " + offset + ", " + last);
+		emit(ok + " = and i1 " + has + ", " + in);
+		emit_terminator("br i1 " + ok + ", label %" + fast_l + ", label %" + slow_l);
+
+		begin_label(fast_l);
+		auto at = tmp();
+		emit(at + " = getelementptr inbounds i8, ptr " + data + ", i32 " + offset);
+		std::string result;
+		if (access.poke) {
+			std::string stored = args[2].repr;
+			if (mem == "i8" || mem == "i16") {
+				auto narrow = tmp();
+				emit(narrow + " = trunc i32 " + stored + " to " + mem);
+				stored = narrow;
+			}
+			emit("store " + mem + " " + stored + ", ptr " + at + ", align 1");
+		} else {
+			auto loaded = tmp();
+			emit(loaded + " = load " + mem + ", ptr " + at + ", align 1");
+			result = loaded;
+			if (mem == "i8" || mem == "i16") {
+				result = tmp();
+				emit(result + " = zext " + mem + " " + loaded + " to i32");
+			}
+		}
+		emit_terminator("br label %" + done_l);
+
+		begin_label(slow_l);
+		std::string list = "i32 " + handle + ", i32 " + offset;
+		if (access.poke) {
+			list += std::string(", ") + (mem == "float" ? "float " : "i32 ") + args[2].repr;
+			declare(access.symbol, std::string("declare void @") + access.symbol + (mem == "float" ? "(i32, i32, float)" : "(i32, i32, i32)"));
+		} else {
+			declare(access.symbol, std::string("declare ") + (mem == "float" ? "float" : "i32") + " @" + access.symbol + "(i32, i32)");
+		}
+		emit(std::string("call ") + (access.poke ? "void" : (mem == "float" ? "float" : "i32")) + " @" + access.symbol + "(" + list + ") cold");
+		emit_terminator("unreachable");
+
+		begin_label(done_l);
+		if (access.poke) {
+			return { "", type::UNKNOWN };
+		}
+		return { result, (mem == "float") ? type::FLOAT32 : type::INT32 };
+	}
+
+	// Rnd and Rand step the generator of the runtime (see bb_rng_unit there) inside the program, without a call. The operations are the
+	// same and carry no fast-math flags, so that a seeded program gets the same numbers as before.
+	if ((symbol == "bb_rnd") || (symbol == "bb_rand")) {
+		declare("bb_rng", "@bb_rng = external global i32");
+		auto state = tmp(), quot = tmp(), rem = tmp(), hi_part = tmp(), lo_part = tmp(), next = tmp(), neg = tmp(), wrapped = tmp(), fixed = tmp(),
+			 bits = tmp(), whole = tmp(), unit = tmp(), unit_biased = tmp();
+		emit(state + " = load i32, ptr @bb_rng");
+		emit(quot + " = sdiv i32 " + state + ", 44488");
+		emit(rem + " = srem i32 " + state + ", 44488");
+		emit(hi_part + " = mul i32 " + rem + ", 48271");
+		emit(lo_part + " = mul i32 " + quot + ", 3399");
+		emit(next + " = sub i32 " + hi_part + ", " + lo_part);
+		emit(neg + " = icmp slt i32 " + next + ", 0");
+		emit(wrapped + " = add i32 " + next + ", 2147483647");
+		emit(fixed + " = select i1 " + neg + ", i32 " + wrapped + ", i32 " + next);
+		emit("store i32 " + fixed + ", ptr @bb_rng");
+		emit(bits + " = and i32 " + fixed + ", 65535");
+		emit(whole + " = sitofp i32 " + bits + " to float");
+		emit(unit + " = fdiv float " + whole + ", " + constant(type::FLOAT32, 65536.0).repr);
+		emit(unit_biased + " = fadd float " + unit + ", " + constant(type::FLOAT32, 0.5 / 65536.0).repr);
+		if (symbol == "bb_rnd") {
+			auto span = tmp(), scaled = tmp(), r = tmp();
+			emit(span + " = fsub float " + args[1].repr + ", " + args[0].repr);
+			emit(scaled + " = fmul float " + unit_biased + ", " + span);
+			emit(r + " = fadd float " + scaled + ", " + args[0].repr);
+			return { r, type::FLOAT32 };
+		}
+		auto swap = tmp(), lo = tmp(), hi = tmp(), diff = tmp(), count = tmp(), count_f = tmp(), scaled = tmp(), whole_r = tmp(), r = tmp();
+		emit(swap + " = icmp slt i32 " + args[1].repr + ", " + args[0].repr);
+		emit(lo + " = select i1 " + swap + ", i32 " + args[1].repr + ", i32 " + args[0].repr);
+		emit(hi + " = select i1 " + swap + ", i32 " + args[0].repr + ", i32 " + args[1].repr);
+		emit(diff + " = sub i32 " + hi + ", " + lo);
+		emit(count + " = add i32 " + diff + ", 1");
+		emit(count_f + " = sitofp i32 " + count + " to float");
+		emit(scaled + " = fmul float " + unit_biased + ", " + count_f);
+		emit(whole_r + " = fptosi float " + scaled + " to i32");
+		emit(r + " = add i32 " + whole_r + ", " + lo);
+		return { r, type::INT32 };
+	}
+
 	handled = false;
 	return {};
 }

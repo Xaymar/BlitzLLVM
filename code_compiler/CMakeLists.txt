@@ -55,16 +55,24 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # What 'blitzcc -v' reports. PROJECT_VERSION is reset by project() above, so take the one of the top level project.
 target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${CMAKE_PROJECT_VERSION}")
 
+# The hot parts of the runtime also come as source, which blitzcc compiles together with the program so that they can be inlined into it.
+set(_RT "${PROJECT_SOURCE_DIR}/../code_runtime/source")
+set(BLITZRT_INLINE_FILES "${_RT}/runtime.c" "${_RT}/runtime_objects.c" "${_RT}/runtime_strings.c" "${_RT}/runtime_system.c" "${_RT}/banks.c"
+	"${_RT}/runtime_internal.h" "${_RT}/files_internal.h" "${_RT}/streams.h")
+
 # The runtime library has to live next to the compiler, which links it into every program it produces.
 add_dependencies(${PROJECT_NAME} blitzrt)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime"
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/"
+	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline"
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BLITZRT_INLINE_FILES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline/"
 )
 
 # Install layout: <prefix>/bin/blitzcc, <prefix>/bin/runtime and <prefix>/userlibs.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION bin/runtime)
+install(FILES ${BLITZRT_INLINE_FILES} DESTINATION bin/runtime/inline)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
 # The licenses of BlitzLLVM and of every dependency that ends up in the program: <licenses>/BlitzLLVM, SDL3, SDL3_image, SDL3_mixer
 # Vulkan-Headers and stb_truetype. SDL_image and SDL_mixer install their own license and those of the codecs they were built with (libwebp,
@@ -86,6 +94,7 @@ blitz_install_licenses(licenses)
 # and <prefix>/share/blitzllvm/userlibs. Only the packaging step installs this component, see the end of the top level CMakeLists.txt.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime COMPONENT system EXCLUDE_FROM_ALL)
+install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline COMPONENT system EXCLUDE_FROM_ALL)
 install(FILES "userlibs/README.txt" DESTINATION share/blitzllvm/userlibs COMPONENT system EXCLUDE_FROM_ALL)
 blitz_install_licenses(share/licenses/blitzllvm COMPONENT system EXCLUDE_FROM_ALL)
 
@@ -165,7 +174,7 @@ if(Python3_FOUND AND NOT WIN32)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
-foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug debug_info fast_math inline_checks stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout warnings version verbose_long_only console_subsystem run run_exit_code diagnostics help)
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug debug_info fast_math inline_checks runtime_inline stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout warnings version verbose_long_only console_subsystem run run_exit_code diagnostics help)
 	add_test(
 		NAME "cli-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}
