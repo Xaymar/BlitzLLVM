@@ -39,6 +39,14 @@ typedef struct bb_sound {
 	int        is_3d;
 } bb_sound;
 
+// Where something was the last time it moved, which its speed is worked out from.
+typedef struct bb_motion {
+	int    known;
+	float  position[3];
+	float  speed[3]; // In units of the world per second.
+	Uint64 time;
+} bb_motion;
+
 typedef struct bb_channel {
 	MIX_Track* track;
 	int        used;
@@ -47,6 +55,8 @@ typedef struct bb_channel {
 	float      volume;
 	float      pan;
 	int        frequency;
+	float      ratio; // What the sound itself is played at, the doppler shift comes on top.
+	bb_motion  motion;
 } bb_channel;
 
 static MIX_Mixer*  bb_mixer       = NULL;
@@ -61,6 +71,12 @@ static int32_t     bb_channel_cap = 0;
 // The listener, who 3D sounds are heard from.
 static int32_t bb_listener_entity = 0;
 static float   bb_listener_rolloff = 1.0f;
+static float   bb_listener_doppler = 1.0f;
+static float   bb_listener_distance = 1.0f; // Meters in a unit of the world.
+static bb_motion bb_listener_motion;
+
+// How fast sound moves, in meters per second.
+#define BB_SPEED_OF_SOUND 340.0f
 
 // Starts the sound system the first time it is needed. Returns whether there is something to play on.
 static int bb_audio_ready(void)
@@ -334,10 +350,12 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	channel->volume    = sound->volume;
 	channel->pan       = sound->pan;
 	channel->frequency = sound->pitch;
+	channel->ratio     = 1.0f;
 
 	MIX_SetTrackAudio(channel->track, sound->audio);
 	if (sound->pitch > 0 && sound->frequency > 0) {
-		MIX_SetTrackFrequencyRatio(channel->track, (float)sound->pitch / (float)sound->frequency);
+		channel->ratio = (float)sound->pitch / (float)sound->frequency;
+		MIX_SetTrackFrequencyRatio(channel->track, channel->ratio);
 	}
 	bb_channel_apply(channel, channel->volume, channel->pan);
 	// The loop count has to be given while starting, MIX_SetTrackLoops does nothing for a track that is not playing yet.
@@ -429,7 +447,8 @@ void bb_channel_pitch(int32_t handle, int32_t hertz)
 	if (channel && (hertz > 0)) {
 		bb_sound* sound = &bb_sounds[channel->sound];
 		if (sound->frequency > 0) {
-			MIX_SetTrackFrequencyRatio(channel->track, (float)hertz / (float)sound->frequency);
+			channel->ratio = (float)hertz / (float)sound->frequency;
+			MIX_SetTrackFrequencyRatio(channel->track, channel->ratio);
 		}
 	}
 }
@@ -437,16 +456,61 @@ void bb_channel_pitch(int32_t handle, int32_t hertz)
 ////////////////////////////////////////////////////////////////////////////////
 // 3D
 ////////////////////////////////////////////////////////////////////////////////
+// How much higher a sound is heard than it is made, for a source that moves away from a listener at speed_away and a listener
+// that moves toward the source at speed_toward (in meters per second, negative for the other way). The doppler scale makes the
+// shift stronger or weaker, and none of it is there for a scale of 0.
+float bb_doppler_ratio(float speed_toward, float speed_away, float scale)
+{
+	if (scale <= 0.0f) {
+		return 1.0f;
+	}
+	// Nothing moves faster than the sound does, which would turn the shift around or make it infinite.
+	float limit = BB_SPEED_OF_SOUND * 0.9f;
+	speed_toward = bb_clamp(speed_toward, -limit, limit);
+	speed_away   = bb_clamp(speed_away, -limit, limit);
+	float ratio  = (BB_SPEED_OF_SOUND + speed_toward) / (BB_SPEED_OF_SOUND + speed_away);
+	ratio        = 1.0f + (ratio - 1.0f) * scale;
+	return bb_clamp(ratio, 0.25f, 4.0f);
+}
+
+// Programs move things in steps, and this is called more often than that (every time that Delay waits), so the speed is the
+// distance of the last step over the time that it took. Something that stays where it is for a while has stopped.
+static void bb_motion_update(bb_motion* motion, const float* position, Uint64 now)
+{
+	if (!motion->known) {
+		memcpy(motion->position, position, sizeof(motion->position));
+		memset(motion->speed, 0, sizeof(motion->speed));
+		motion->time  = now;
+		motion->known = 1;
+		return;
+	}
+	float dx = position[0] - motion->position[0], dy = position[1] - motion->position[1], dz = position[2] - motion->position[2];
+	float seconds = (float)(now - motion->time) / 1e9f;
+	if (dx * dx + dy * dy + dz * dz > 1e-12f) {
+		if (seconds > 0.001f) {
+			motion->speed[0] = dx / seconds;
+			motion->speed[1] = dy / seconds;
+			motion->speed[2] = dz / seconds;
+		}
+		memcpy(motion->position, position, sizeof(motion->position));
+		motion->time = now;
+	} else if (seconds > 0.25f) {
+		memset(motion->speed, 0, sizeof(motion->speed));
+	}
+}
+
 int32_t bb_create_listener(int32_t entity, float rolloff, float doppler, float distance)
 {
-	(void)doppler;  // Not simulated.
-	(void)distance; // Distances are always in the units of the world.
-	bb_listener_entity  = entity;
-	bb_listener_rolloff = rolloff;
+	bb_listener_entity   = entity;
+	bb_listener_rolloff  = rolloff;
+	bb_listener_doppler  = doppler;
+	bb_listener_distance = distance > 0.0f ? distance : 1.0f;
+	memset(&bb_listener_motion, 0, sizeof(bb_listener_motion));
 	return 1;
 }
 
-// Sounds that come from an entity get quieter with distance, and move between the speakers.
+// Sounds that come from an entity get quieter with distance, move between the speakers and are shifted in pitch when they or
+// the listener move.
 void bb_sound_update(void)
 {
 	if (!bb_mixer || !bb_listener_entity) {
@@ -456,6 +520,8 @@ void bb_sound_update(void)
 	if (!bb_entity_world_matrix(bb_listener_entity, listener)) {
 		return;
 	}
+	Uint64 now = SDL_GetTicksNS();
+	bb_motion_update(&bb_listener_motion, listener + 12, now);
 	for (int32_t i = 1; i < bb_channel_count; i++) {
 		bb_channel* channel = &bb_channels[i];
 		if (!channel->used || !channel->entity) {
@@ -465,16 +531,28 @@ void bb_sound_update(void)
 		if (!bb_entity_world_matrix(channel->entity, source)) {
 			continue;
 		}
+		bb_motion_update(&channel->motion, source + 12, now);
 		float dx = source[12] - listener[12], dy = source[13] - listener[13], dz = source[14] - listener[14];
-		float distance = sqrtf(dx * dx + dy * dy + dz * dz);
+		float world    = sqrtf(dx * dx + dy * dy + dz * dz); // In units of the world.
+		float distance = world * bb_listener_distance;       // In meters.
 		float gain     = 1.0f / (1.0f + bb_listener_rolloff * distance * 0.05f);
 		// The listener's right is the first column of its matrix.
 		float rx = listener[0], ry = listener[1], rz = listener[2];
 		float rl = sqrtf(rx * rx + ry * ry + rz * rz);
 		float pan = 0.0f;
-		if ((distance > 1e-3f) && (rl > 1e-6f)) {
-			pan = (dx * rx + dy * ry + dz * rz) / (distance * rl);
+		if ((world > 1e-3f) && (rl > 1e-6f)) {
+			pan = (dx * rx + dy * ry + dz * rz) / (world * rl);
 		}
 		bb_channel_apply(channel, channel->volume * gain, bb_clamp(channel->pan + pan, -1.0f, 1.0f));
+
+		// The pitch: what the source moves along the line to the listener, and what the listener does.
+		if (world > 1e-3f) {
+			float ux = dx / world, uy = dy / world, uz = dz / world;
+			float* sv = channel->motion.speed;
+			float* lv = bb_listener_motion.speed;
+			float  source_away      = (sv[0] * ux + sv[1] * uy + sv[2] * uz) * bb_listener_distance;
+			float  listener_toward  = (lv[0] * ux + lv[1] * uy + lv[2] * uz) * bb_listener_distance;
+			MIX_SetTrackFrequencyRatio(channel->track, channel->ratio * bb_doppler_ratio(listener_toward, source_away, bb_listener_doppler));
+		}
 	}
 }
