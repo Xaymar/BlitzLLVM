@@ -879,18 +879,21 @@ def fragment_shader_gamma():
     """
     Shows an image through the gamma tables, which are in a uniform buffer with a row for each of the 256 steps and the
     new value of red, green and blue (from 0 to 1) in the row. The fourth value of the first row is 1 when Dither is on:
-    the result then gets Interleaved Gradient Noise (Jimenez, 2014) of up to half a step of the 8 bit picture added, so
-    that the steps that rounding makes are not lines but a pattern that the eye averages.
+    the result then gets temporal Interleaved Gradient Noise (Jimenez, 2014) of up to half a step of the 8 bit picture
+    added, so that the steps that rounding makes are not lines but a pattern that the eye averages. The pattern moves
+    every frame: the push constant is uint(float(frame % 64) * 5.588238), added to both coordinates of the pixel.
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
     layout(set = 1, binding = 0) uniform Gamma { vec4 table[256]; } gamma;
+    layout(push_constant) uniform Dither { float shift; } pc;
     layout(location = 0) in vec2 inUV;
     layout(location = 0) out vec4 outColor;
     void main() {
         vec3 step = floor(texture(tex, inUV).rgb * 255.0 + 0.5);
         vec3 color = vec3(gamma.table[int(step.r)].r, gamma.table[int(step.g)].g, gamma.table[int(step.b)].b);
-        float noise = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+        vec2 xy = floor(gl_FragCoord.xy) + vec2(pc.shift);
+        float noise = fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715))));
         outColor = vec4(color + (noise - 0.5) / 255.0 * gamma.table[0].w, 1.0);
     }
     """
@@ -906,6 +909,12 @@ def fragment_shader_gamma():
         Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
         Module.inst("Decorate", block, DECORATION["Block"]),
     ]
+    shift_block = b.struct("dither", f)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", shift_block, 0, DECORATION["Offset"], 0),
+        Module.inst("Decorate", shift_block, DECORATION["Block"]),
+    ]
+    shift_push = b.variable("PushConstant", shift_block)
     tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
     gamma = b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
     in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
@@ -924,9 +933,12 @@ def fragment_shader_gamma():
         step = b.emit("ConvertFToS", i32, b.extract(steps, channel))
         row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), step))
         channels.append(b.extract(row, channel))
-    # Interleaved Gradient Noise of the pixel: fract(52.9829189 * fract(dot(pixel, (0.06711056, 0.00583715)))).
+    # Temporal Interleaved Gradient Noise of the pixel: fract(52.9829189 * fract(dot(pixel + shift, (0.06711056, 0.00583715)))).
     frag = b.load(v4, in_frag)
-    along = b.fadd(f, b.fmul(f, b.extract(frag, 0), b.const_float(0.06711056)), b.fmul(f, b.extract(frag, 1), b.const_float(0.00583715)))
+    shift = b.load(f, b.access("PushConstant", f, shift_push, b.const_int(0)))
+    px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
+    py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
+    along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
     noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
     enabled = b.extract(b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.const_int(0))), 3)
     offset = b.fmul(f, b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0)), enabled)

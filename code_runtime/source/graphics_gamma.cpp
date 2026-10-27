@@ -24,6 +24,7 @@ namespace {
 	float applied[3][256]; // What UpdateGamma copied, which is shown.
 	bool  ready   = false;
 	bool  changed = true;  // The applied tables are not yet in the buffer of the GPU.
+	uint32_t presented = 0;  // Presented pictures, which move the noise.
 	bool  dither  = false; // Whether the shown picture gets noise before it is rounded to 8 bits.
 
 	VkPipelineLayout layout   = VK_NULL_HANDLE;
@@ -80,8 +81,11 @@ namespace {
 	{
 		VkDescriptorSetLayout layouts[2] = { g.set_layout, g.scene_layout }; // A sampled image, and a uniform buffer.
 		VkPipelineLayoutCreateInfo info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+		VkPushConstantRange shift       = { VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(float) }; // Where the noise is this frame.
 		info.setLayoutCount             = 2;
 		info.pSetLayouts                = layouts;
+		info.pushConstantRangeCount     = 1;
+		info.pPushConstantRanges        = &shift;
 		check(vkCreatePipelineLayout(g.device, &info, nullptr, &layout), "vkCreatePipelineLayout");
 
 		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
@@ -165,6 +169,9 @@ namespace bb::gfx {
 		uint32_t offset = 0;
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &front_set, 0, nullptr);
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 1, 1, &table_set, 1, &offset);
+		// The noise moves every frame (and repeats after 64): the same offset is added to x and y.
+		float shift = float(uint32_t(float((presented++) % 64u) * 5.588238f));
+		vkCmdPushConstants(g.cmd, layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(shift), &shift);
 		vkCmdDraw(g.cmd, 3, 1, 0, 0);
 		vkCmdEndRendering(g.cmd);
 
@@ -240,7 +247,7 @@ void bb_set_gamma(int32_t source_red, int32_t source_green, int32_t source_blue,
 	working[2][source_blue & 255]  = clamp_gamma(blue);
 }
 
-// Dither: the picture of the window gets Interleaved Gradient Noise of half a step of 8 bits when it is shown, so that
+// Dither: the picture of the window gets temporal Interleaved Gradient Noise of half a step of 8 bits when it is shown, so that
 // what the gamma tables and rounding do to a gradient is not seen as bands. Every other drawing command is not
 // touched. Takes effect with the next picture that is shown.
 void bb_dither(int32_t enable)

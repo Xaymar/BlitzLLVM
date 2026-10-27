@@ -132,6 +132,25 @@ Flip
 other = CountShown(100)
 Check "with Dither the fraction is spread, not rounded away", other > (W * H) / 8 And other < (W * H) * 3 / 8, True
 
+; The pattern moves every frame.
+Function Pattern$()
+	f = ReadFile("present.tmp")
+	For line = 1 To 3
+		ReadLine$(f)
+	Next
+	p$ = ""
+	For i = 1 To 64
+		p$ = p$ + Chr$(ReadByte(f))
+		ReadByte(f)
+		ReadByte(f)
+	Next
+	CloseFile f
+	Return p$
+End Function
+earlier$ = Pattern$()
+Flip
+Check "the noise moves from frame to frame", earlier$ <> Pattern$(), True
+
 Dither False
 Flip
 Check "Dither False is rounding again", CountShown(100), 0
