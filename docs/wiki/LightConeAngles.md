@@ -6,7 +6,12 @@
 
 # LightConeAngles
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Sets the inner and outer angle of a spot light in degrees. Inside the inner angl
 * [LightMesh](LightMesh)
 * [LightRange](LightRange)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
+
+</div>

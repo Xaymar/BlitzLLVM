@@ -6,7 +6,12 @@
 
 # SetSamplerFilterMag 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ Chooses how texels are read when a texture is drawn bigger than it is (magnifica
 * [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 * [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

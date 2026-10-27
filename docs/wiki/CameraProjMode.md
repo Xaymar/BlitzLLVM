@@ -6,7 +6,12 @@
 
 # CameraProjMode
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Switches the camera between not drawing at all, perspective and orthographic pro
 * [CameraRange](CameraRange)
 * [CameraViewport](CameraViewport)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>

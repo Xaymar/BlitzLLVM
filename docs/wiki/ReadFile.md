@@ -6,7 +6,12 @@
 
 # ReadFile
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -47,4 +52,8 @@ Print ReadFile("files_read_nothing_here")
 * [SeekFile](SeekFile)
 * [WriteFile](WriteFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

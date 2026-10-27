@@ -6,7 +6,12 @@
 
 # CountRefreshRates 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -56,4 +61,8 @@ WaitKey
 * [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 * [RefreshRateAt](RefreshRateAt) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

@@ -6,7 +6,12 @@
 
 # BrushTexture
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -76,4 +81,8 @@ WaitKey
 * [FreeBrush](FreeBrush)
 * [GetBrushTexture](GetBrushTexture)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

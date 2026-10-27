@@ -6,7 +6,12 @@
 
 # DisplayModeHeight 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ The height in pixels of a mode from the list of a display. This is a BlitzLLVM e
 * [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 * [GfxModeHeight](GfxModeHeight)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

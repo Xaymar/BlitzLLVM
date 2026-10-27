@@ -6,7 +6,12 @@
 
 # RuntimeError
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ If FileType("level.dat") = 0 Then RuntimeError "level.dat is missing"
 * [SetEnv](SetEnv)
 * [Stop](Stop)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

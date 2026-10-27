@@ -6,7 +6,12 @@
 
 # CollisionZ
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ _Not documented yet._
 * [CollisionTriangle](CollisionTriangle)
 * [CollisionX](CollisionX)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>

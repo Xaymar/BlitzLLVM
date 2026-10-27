@@ -6,7 +6,12 @@
 
 # SetGamma
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -68,4 +73,8 @@ WaitKey
 * [SetGfxDriver](SetGfxDriver)
 * [UpdateGamma](UpdateGamma)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

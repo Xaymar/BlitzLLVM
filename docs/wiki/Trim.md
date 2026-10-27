@@ -6,7 +6,12 @@
 
 # Trim
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Print "[" + Trim$("   hi there  ") + "]"
 * [String](String)
 * [Upper](Upper)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

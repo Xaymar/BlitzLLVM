@@ -6,7 +6,12 @@
 
 # TextureFilter
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ This is mostly useful when loading a mesh, since you do not choose the flags of 
 * [TextureName](TextureName)
 * [TextureWidth](TextureWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

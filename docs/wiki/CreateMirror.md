@@ -6,7 +6,12 @@
 
 # CreateMirror
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Creates a mirror entity: an endless horizontal floor that is invisible but flips
 * [CreatePlane](CreatePlane)
 * [CreateSphere](CreateSphere)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

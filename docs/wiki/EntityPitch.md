@@ -6,7 +6,12 @@
 
 # EntityPitch
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Reads the rotation around X in degrees. The angles are worked out from the orien
 * [EntityFX](EntityFX)
 * [EntityInView](EntityInView)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

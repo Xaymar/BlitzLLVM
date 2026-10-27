@@ -6,7 +6,12 @@
 
 # GetSamplerFilterMag 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the filter mode for a texture drawn bigger than it is that the sampler h
 * [GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕
 * [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

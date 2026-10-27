@@ -6,7 +6,12 @@
 
 # Collisions
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
+
 
 ## Command Syntax
 
@@ -105,4 +110,8 @@ Next
 * [CollisionNZ](CollisionNZ)
 * [CountCollisions](CountCollisions)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>

@@ -6,7 +6,12 @@
 
 # Sqr
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Print Sqr(16)
 * [Tan](Tan)
 * [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

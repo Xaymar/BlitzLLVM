@@ -6,7 +6,12 @@
 
 # ImageXHandle
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The horizontal position of the handle of an image, counted from its left edge.
 * [ImageYHandle](ImageYHandle)
 * [MidHandle](MidHandle)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

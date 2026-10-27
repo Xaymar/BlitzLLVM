@@ -6,7 +6,12 @@
 
 # ClearWorld
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -53,4 +58,8 @@ WaitKey
 * [RenderWorld](RenderWorld)
 * [UpdateWorld](UpdateWorld)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

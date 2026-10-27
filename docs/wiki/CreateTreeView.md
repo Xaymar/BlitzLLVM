@@ -6,7 +6,12 @@
 
 # CreateTreeView
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>
+
 
 ## Command Syntax
 
@@ -61,4 +66,8 @@ Until e = $803
 * [ModifyTreeViewNode](ModifyTreeViewNode)
 * [SelectedTreeViewNode](SelectedTreeViewNode)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>

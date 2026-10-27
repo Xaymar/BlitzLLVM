@@ -6,7 +6,12 @@
 
 # GetSamplerAddressModeW 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the address mode of the depth texture coordinate (w) that the sampler ha
 * [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
 * [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

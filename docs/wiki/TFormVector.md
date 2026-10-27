@@ -6,7 +6,12 @@
 
 # TFormVector
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ It is the right tool to find which way an entity moves when you push it forward:
 * [VectorPitch](VectorPitch)
 * [VectorYaw](VectorYaw)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

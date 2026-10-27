@@ -6,7 +6,12 @@
 
 # LSet
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -46,4 +51,8 @@ Print "[" + LSet$("abcdef", 3) + "]"
 * [Mid](Mid)
 * [RSet](RSet)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

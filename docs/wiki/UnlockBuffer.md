@@ -6,7 +6,12 @@
 
 # UnlockBuffer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Ends the lock of [LockBuffer](LockBuffer) and writes the pixels that were change
 * [SaveBuffer](SaveBuffer)
 * [SetBuffer](SetBuffer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>

@@ -6,7 +6,12 @@
 
 # SetSamplerAnisotropy 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Sets the most samples that are taken along a slanted surface, such as a floor th
 * [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 * [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

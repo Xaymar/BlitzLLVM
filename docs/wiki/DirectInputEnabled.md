@@ -6,7 +6,12 @@
 
 # DirectInputEnabled
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -31,4 +36,8 @@ Tells whether the program asked for DirectInput style input with [EnableDirectIn
 * [EnableDirectInput](EnableDirectInput)
 * [FlushMouse](FlushMouse)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

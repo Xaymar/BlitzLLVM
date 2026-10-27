@@ -6,7 +6,12 @@
 
 # MouseY
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ The vertical position of the pointer in the graphics buffer, from 0 at the top t
 * [MouseZ](MouseZ)
 * [MouseZSpeed](MouseZSpeed)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

@@ -6,7 +6,12 @@
 
 # JoyZ
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The third axis of the joystick, from -1 to 1. On a joystick it is usually the th
 * [JoyU](JoyU)
 * [JoyZDir](JoyZDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

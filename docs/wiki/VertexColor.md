@@ -6,7 +6,12 @@
 
 # VertexColor
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -67,4 +72,8 @@ WaitKey
 * [VertexNY](VertexNY)
 * [VertexNZ](VertexNZ)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

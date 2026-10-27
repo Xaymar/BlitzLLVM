@@ -6,7 +6,12 @@
 
 # VertexW
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ _Not documented yet._
 * [VertexNX](VertexNX)
 * [VertexNY](VertexNY)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

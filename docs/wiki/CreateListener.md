@@ -6,7 +6,12 @@
 
 # CreateListener
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [3D Sound](Blitz3D-3D-Sound)
+
+</div>
+
 
 ## Command Syntax
 
@@ -59,4 +64,8 @@ Wend
 
 * [EmitSound](EmitSound)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [3D Sound](Blitz3D-3D-Sound)
+
+</div>

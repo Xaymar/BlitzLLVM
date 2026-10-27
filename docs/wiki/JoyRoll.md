@@ -6,7 +6,12 @@
 
 # JoyRoll
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The rotation around the long axis of the stick, from -180 to 180. On many joysti
 * [JoyUDir](JoyUDir)
 * [JoyV](JoyV)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

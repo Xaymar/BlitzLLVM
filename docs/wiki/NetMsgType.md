@@ -6,7 +6,12 @@
 
 # NetMsgType
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ _Not documented yet._
 * [RecvNetMsg](RecvNetMsg)
 * [SendNetMsg](SendNetMsg)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>

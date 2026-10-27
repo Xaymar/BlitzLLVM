@@ -6,7 +6,12 @@
 
 # GfxMode3D
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Tells whether the given mode from the list of modes can be used for 3D.
 * [Graphics3D](Graphics3D)
 * [Windowed3D](Windowed3D)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>

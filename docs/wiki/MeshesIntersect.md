@@ -6,7 +6,12 @@
 
 # MeshesIntersect
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Tests if the triangles of two meshes touch at their current positions. It takes 
 * [MeshHeight](MeshHeight)
 * [MeshWidth](MeshWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

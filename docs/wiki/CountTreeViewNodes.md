@@ -6,7 +6,12 @@
 
 # CountTreeViewNodes
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Counts the children a node has directly, without the nodes below them.
 * [ModifyTreeViewNode](ModifyTreeViewNode)
 * [SelectedTreeViewNode](SelectedTreeViewNode)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
+
+</div>

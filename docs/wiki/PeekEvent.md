@@ -6,7 +6,12 @@
 
 # PeekEvent
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
+
+</div>
+
 
 ## Command Syntax
 
@@ -48,4 +53,8 @@ Wend
 * [EventZ](EventZ)
 * [WaitEvent](WaitEvent)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
+
+</div>

@@ -6,7 +6,12 @@
 
 # Stop
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -29,4 +34,8 @@ In the original this paused the program in the debugger so that you could look a
 * [SystemProperty](SystemProperty)
 * [WaitTimer](WaitTimer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

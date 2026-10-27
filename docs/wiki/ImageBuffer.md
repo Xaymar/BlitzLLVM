@@ -6,7 +6,12 @@
 
 # ImageBuffer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -62,4 +67,8 @@ WaitKey
 * [ImageXHandle](ImageXHandle)
 * [ImageYHandle](ImageYHandle)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

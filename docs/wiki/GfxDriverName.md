@@ -6,7 +6,12 @@
 
 # GfxDriverName
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDr
 * [GfxModeWidth](GfxModeWidth)
 * [SetGfxDriver](SetGfxDriver)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

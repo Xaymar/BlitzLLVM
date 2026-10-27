@@ -6,7 +6,12 @@
 
 # UncheckMenu
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Removes the check mark that [CheckMenu](CheckMenu) put in front of an item.
 * [MenuText](MenuText)
 * [SetMenuText](SetMenuText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>

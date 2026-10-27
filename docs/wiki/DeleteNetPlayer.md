@@ -6,7 +6,12 @@
 
 # DeleteNetPlayer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Removes a player of this program from the game. The others see a message of type
 * [NetPlayerLocal](NetPlayerLocal)
 * [NetPlayerName](NetPlayerName)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
+
+</div>

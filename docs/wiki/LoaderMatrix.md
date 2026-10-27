@@ -6,7 +6,12 @@
 
 # LoaderMatrix
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ Sets a 3x3 matrix that is applied to every model loaded from files with a certai
 * [LoadMesh](LoadMesh)
 * [MeshCullBox](MeshCullBox)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

@@ -6,7 +6,12 @@
 
 # ChangeDir
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -47,4 +52,8 @@ DeleteDir "files_change_example"
 * [DeleteDir](DeleteDir)
 * [ReadDir](ReadDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

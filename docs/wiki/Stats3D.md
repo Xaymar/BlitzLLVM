@@ -6,7 +6,12 @@
 
 # Stats3D
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Gives debugging numbers about the engine. The original help has no entry for thi
 * [TrisRendered](TrisRendered)
 * [UpdateWorld](UpdateWorld)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

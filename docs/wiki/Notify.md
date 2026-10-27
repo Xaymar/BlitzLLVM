@@ -6,7 +6,12 @@
 
 # Notify
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Notify "Everything is fine.", 0
 * [PauseTimer](PauseTimer)
 * [Proceed](Proceed)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

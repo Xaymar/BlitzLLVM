@@ -6,7 +6,12 @@
 
 # ClearTextureFilters
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -29,4 +34,8 @@ Removes every rule that was added with [TextureFilter](TextureFilter). Textures 
 * [ScaleTexture](ScaleTexture)
 * [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

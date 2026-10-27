@@ -6,7 +6,12 @@
 
 # PokeByte
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -49,4 +54,8 @@ FreeBank bank
 * [PokeInt](PokeInt)
 * [PokeShort](PokeShort)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

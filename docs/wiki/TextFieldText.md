@@ -6,7 +6,12 @@
 
 # TextFieldText
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ _Not documented yet._
 * [TextAreaLine](TextAreaLine)
 * [TextAreaText](TextAreaText)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>

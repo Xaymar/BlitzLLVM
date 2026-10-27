@@ -6,7 +6,12 @@
 
 # MouseYSpeed
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ How far the pointer moved up or down since the last call. See [MouseXSpeed](Mous
 * [MouseZ](MouseZ)
 * [MouseZSpeed](MouseZSpeed)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

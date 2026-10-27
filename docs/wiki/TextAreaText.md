@@ -6,7 +6,12 @@
 
 # TextAreaText
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>
+
 
 ## Command Syntax
 
@@ -52,4 +57,8 @@ Until WaitEvent() = $803
 * [TextAreaLine](TextAreaLine)
 * [TextAreaLineLen](TextAreaLineLen)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
+
+</div>

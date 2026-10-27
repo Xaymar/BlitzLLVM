@@ -6,7 +6,12 @@
 
 # LoadIconStrip
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>
+
 
 ## Command Syntax
 
@@ -49,4 +54,8 @@ FreeIconStrip icons
 * [SetGadgetIconStrip](SetGadgetIconStrip)
 * [SetToolBarTips](SetToolBarTips)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>

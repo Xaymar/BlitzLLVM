@@ -6,7 +6,12 @@
 
 # FontSize
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ _Not documented yet._
 * [FontName](FontName)
 * [FontStyle](FontStyle)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

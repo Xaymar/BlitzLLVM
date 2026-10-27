@@ -6,7 +6,12 @@
 
 # ActiveTextures
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -27,4 +32,8 @@ _Not documented yet._
 * [AmbientLight](AmbientLight)
 * [AntiAlias](AntiAlias)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

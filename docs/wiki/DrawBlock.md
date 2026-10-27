@@ -6,7 +6,12 @@
 
 # DrawBlock
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -60,4 +65,8 @@ WaitKey
 * [DrawImageRect](DrawImageRect)
 * [TileBlock](TileBlock)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

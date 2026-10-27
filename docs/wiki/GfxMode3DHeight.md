@@ -6,7 +6,12 @@
 
 # GfxMode3DHeight 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ The height in pixels of a mode from the list of 3D modes. This is a BlitzLLVM ex
 * [Graphics3D](Graphics3D)
 * [Windowed3D](Windowed3D)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>

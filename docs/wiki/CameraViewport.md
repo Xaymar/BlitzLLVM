@@ -6,7 +6,12 @@
 
 # CameraViewport
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>
+
 
 ## Command Syntax
 
@@ -68,4 +73,8 @@ WaitKey
 * [CameraProjMode](CameraProjMode)
 * [CameraRange](CameraRange)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>

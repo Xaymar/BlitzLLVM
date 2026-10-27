@@ -6,7 +6,12 @@
 
 # AddTriangle
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -65,4 +70,8 @@ WaitKey
 * [ClearSurface](ClearSurface)
 * [TriangleVertex](TriangleVertex)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

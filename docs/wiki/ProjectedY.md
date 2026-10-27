@@ -6,7 +6,12 @@
 
 # ProjectedY
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -29,4 +34,8 @@ Gives the vertical screen position of the point that the last [CameraProject](Ca
 * [ProjectedZ](ProjectedZ)
 * [TFormedY](TFormedY)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

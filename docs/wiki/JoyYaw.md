@@ -6,7 +6,12 @@
 
 # JoyYaw
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The rotation around the vertical axis, from -180 to 180. Most joysticks do not h
 * [JoyU](JoyU)
 * [JoyUDir](JoyUDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

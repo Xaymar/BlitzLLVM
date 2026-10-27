@@ -6,7 +6,12 @@
 
 # CountGfxModes3D
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ _Not documented yet._
 * [Graphics3D](Graphics3D)
 * [Windowed3D](Windowed3D)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>

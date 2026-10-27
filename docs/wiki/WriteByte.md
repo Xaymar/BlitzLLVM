@@ -6,7 +6,12 @@
 
 # WriteByte
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Writes one byte. Values outside 0 to 255 wrap around.
 * [WriteShort](WriteShort)
 * [WriteString](WriteString)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

@@ -6,7 +6,12 @@
 
 # PeekShort
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ _Not documented yet._
 * [PeekInt](PeekInt)
 * [PokeShort](PokeShort)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

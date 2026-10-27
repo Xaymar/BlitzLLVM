@@ -6,7 +6,12 @@
 
 # SetFont
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Chooses the font that [Text](Text), [Print](Print), [StringWidth](StringWidth) a
 * [FreeFont](FreeFont)
 * [LoadFont](LoadFont)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>

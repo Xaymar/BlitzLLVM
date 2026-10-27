@@ -6,7 +6,12 @@
 
 # Text
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ WaitKey
 * [StringWidth](StringWidth)
 * [Write](Write)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>

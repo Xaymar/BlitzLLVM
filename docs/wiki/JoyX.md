@@ -6,7 +6,12 @@
 
 # JoyX
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -57,4 +62,8 @@ WaitKey
 * [JoyU](JoyU)
 * [JoyXDir](JoyXDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

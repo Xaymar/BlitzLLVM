@@ -6,7 +6,12 @@
 
 # RotR 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -53,4 +58,8 @@ Print RotR(1, 1)
 * [SatByte](SatByte) 〔BlitzLLVM〕
 * [SatInt](SatInt) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

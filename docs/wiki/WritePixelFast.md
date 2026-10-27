@@ -6,7 +6,12 @@
 
 # WritePixelFast
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>
+
 
 ## Command Syntax
 
@@ -63,4 +68,8 @@ Wend
 * [ReadPixelFast](ReadPixelFast)
 * [WritePixel](WritePixel)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>

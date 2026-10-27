@@ -6,7 +6,12 @@
 
 # GetSamplerLodBias 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the lod bias that the sampler has, as it was set with [SetSamplerLodBias
 * [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
 * [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

@@ -6,7 +6,12 @@
 
 # MilliSecs
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Print MilliSecs() - start >= 45
 * [RuntimeError](RuntimeError)
 * [SetEnv](SetEnv)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

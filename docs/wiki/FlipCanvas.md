@@ -6,7 +6,12 @@
 
 # FlipCanvas
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
+
+</div>
+
 
 ## Command Syntax
 
@@ -50,4 +55,8 @@ Until WaitEvent() = $803
 * [DesktopBuffer](DesktopBuffer)
 * [LockedFormat](LockedFormat)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
+
+</div>

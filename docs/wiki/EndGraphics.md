@@ -6,7 +6,12 @@
 
 # EndGraphics
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Print "The window is closed, this goes to the console"
 * [GraphicsLost](GraphicsLost)
 * [GraphicsWidth](GraphicsWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

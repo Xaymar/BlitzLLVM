@@ -6,7 +6,12 @@
 
 # NameEntity
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Gives an entity a name that you can read back with [EntityName](EntityName) or s
 * [PositionEntity](PositionEntity)
 * [RotateEntity](RotateEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

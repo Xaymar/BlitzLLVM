@@ -6,7 +6,12 @@
 
 # SatULong 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -56,4 +61,8 @@ Print SatULong(Long(9000000000))
 * [SatUShort](SatUShort) 〔BlitzLLVM〕
 * [ULong](ULong) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

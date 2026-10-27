@@ -6,7 +6,12 @@
 
 # ReadDir
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Opens a folder so its entries can be listed with [NextFile](NextFile).
 * [DeleteDir](DeleteDir)
 * [ReadFile](ReadFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

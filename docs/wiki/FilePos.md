@@ -6,7 +6,12 @@
 
 # FilePos
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ _Not documented yet._
 * [OpenFile](OpenFile)
 * [ReadFile](ReadFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

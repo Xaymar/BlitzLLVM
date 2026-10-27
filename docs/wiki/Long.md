@@ -6,7 +6,12 @@
 
 # Long 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ Print Long(10000000000000000000.0)
 * [SatULong](SatULong) 〔BlitzLLVM〕
 * [ULong](ULong) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

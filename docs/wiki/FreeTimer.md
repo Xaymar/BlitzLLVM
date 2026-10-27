@@ -6,7 +6,12 @@
 
 # FreeTimer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -31,4 +36,8 @@ Deletes a timer you no longer need. Passing 0 does nothing.
 * [ExecFile](ExecFile)
 * [WaitTimer](WaitTimer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

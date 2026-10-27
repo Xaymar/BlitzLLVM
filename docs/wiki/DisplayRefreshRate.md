@@ -6,7 +6,12 @@
 
 # DisplayRefreshRate 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ How many times per second a display shows a new picture right now, in Hz. A rate
 * [DisplayName](DisplayName) 〔BlitzLLVM〕
 * [DisplayScale](DisplayScale) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

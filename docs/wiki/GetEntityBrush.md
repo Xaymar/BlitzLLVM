@@ -6,7 +6,12 @@
 
 # GetEntityBrush
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Makes a new brush that has the same look as an entity: its color, alpha, shinine
 * [GetSurfaceBrush](GetSurfaceBrush)
 * [LoadBrush](LoadBrush)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

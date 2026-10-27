@@ -6,7 +6,12 @@
 
 # UpdateProgBar
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -31,4 +36,8 @@ Sets how full a progress bar is.
 * [ShowGadget](ShowGadget)
 * [SliderValue](SliderValue)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

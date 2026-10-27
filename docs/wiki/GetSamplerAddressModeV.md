@@ -6,7 +6,12 @@
 
 # GetSamplerAddressModeV 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the address mode of the vertical texture coordinate (v) that the sampler
 * [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
 * [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

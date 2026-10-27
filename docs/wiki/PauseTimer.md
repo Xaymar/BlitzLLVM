@@ -6,7 +6,12 @@
 
 # PauseTimer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ Until e = $803
 * [ResumeTimer](ResumeTimer)
 * [TimerTicks](TimerTicks)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

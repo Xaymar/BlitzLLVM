@@ -6,7 +6,12 @@
 
 # SeedRnd
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Print a = b
 * [SatULong](SatULong) 〔BlitzLLVM〕
 * [SatUShort](SatUShort) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

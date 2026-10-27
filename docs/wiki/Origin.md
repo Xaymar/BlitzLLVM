@@ -6,7 +6,12 @@
 
 # Origin
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ WaitKey
 * [Oval](Oval)
 * [Plot](Plot)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>

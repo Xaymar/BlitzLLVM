@@ -6,7 +6,12 @@
 
 # CreateButton
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -78,4 +83,8 @@ Until e = $803
 * [CreateSlider](CreateSlider)
 * [CreateTabber](CreateTabber)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

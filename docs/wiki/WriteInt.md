@@ -6,7 +6,12 @@
 
 # WriteInt
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -53,4 +58,8 @@ DeleteFile "streams_int_example.tmp"
 * [WriteShort](WriteShort)
 * [WriteString](WriteString)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

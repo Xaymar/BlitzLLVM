@@ -6,7 +6,12 @@
 
 # CameraPick
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
+
+</div>
+
 
 ## Command Syntax
 
@@ -77,4 +82,8 @@ WaitKey
 * [EntityPickMode](EntityPickMode)
 * [LinePick](LinePick)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
+
+</div>

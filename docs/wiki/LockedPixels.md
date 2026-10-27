@@ -6,7 +6,12 @@
 
 # LockedPixels
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
+
+</div>
+
 
 ## Command Syntax
 
@@ -60,4 +65,8 @@ Until WaitEvent() = $803
 * [LockedFormat](LockedFormat)
 * [LockedPitch](LockedPitch)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
+
+</div>

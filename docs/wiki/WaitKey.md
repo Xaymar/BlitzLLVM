@@ -6,7 +6,12 @@
 
 # WaitKey
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Delay 1000
 * [KeyHit](KeyHit)
 * [KeyWait](KeyWait)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
+
+</div>

@@ -6,7 +6,12 @@
 
 # EntityBlend
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Chooses how the entity's pixels are mixed with what is already on screen.
 * [EntityInView](EntityInView)
 * [EntityName](EntityName)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

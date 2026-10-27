@@ -6,7 +6,12 @@
 
 # TextureBuffer
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Remember to set the buffer back to [BackBuffer](BackBuffer) before you render th
 * [TextureName](TextureName)
 * [TextureWidth](TextureWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

@@ -6,7 +6,12 @@
 
 # JoyYDir
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Like [JoyY](JoyY), but as a direction only: -1 for up, 1 for down, 0 in the midd
 * [JoyY](JoyY)
 * [JoyZDir](JoyZDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

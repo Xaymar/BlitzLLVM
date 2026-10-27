@@ -6,7 +6,12 @@
 
 # GfxModeDepth
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ The color depth in bits of a display mode.
 * [GfxModeHeight](GfxModeHeight)
 * [GfxModeWidth](GfxModeWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

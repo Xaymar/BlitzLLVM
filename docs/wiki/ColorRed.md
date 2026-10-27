@@ -6,7 +6,12 @@
 
 # ColorRed
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>
+
 
 ## Command Syntax
 
@@ -30,4 +35,8 @@ _Not documented yet._
 * [ColorGreen](ColorGreen)
 * [GetColor](GetColor)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>

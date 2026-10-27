@@ -6,7 +6,12 @@
 
 # TextureName
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Tells you which file the texture was loaded from, which is handy after loading a
 * [TextureHeight](TextureHeight)
 * [TextureWidth](TextureWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

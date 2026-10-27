@@ -6,7 +6,12 @@
 
 # MeshCullBox
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Sets the box that decides whether a mesh is in view. By default the box is taken
 * [MeshHeight](MeshHeight)
 * [MeshWidth](MeshWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

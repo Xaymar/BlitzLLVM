@@ -205,6 +205,13 @@ def related(c, siblings, limit=8):
     return sorted(result, key=lambda o: o.key)
 
 
+def nav(c):
+    """The links at the top and bottom of a command page, centered. The blank lines let the wiki render the Markdown
+    inside the div."""
+    return ('<div align="center">\n\n[Command Index](Command-Index) · [%s](%s) · [%s](%s)\n\n</div>\n' %
+            (c.dialect, c.dialect, c.category, c.page))
+
+
 def command_page(c, siblings):
     free, doc = split_text(re.sub(r"^;(media .*|run)\n", "", c.text, flags=re.M))
     # Prose before the first code block is the description, the code blocks (with the prose between them) are the
@@ -222,7 +229,7 @@ def command_page(c, siblings):
     icons = "".join('<img align="right" src="media/icons/%s.svg" alt="%s" title="%s" width="80">' %
                     (ICONS[n][1], ICONS[n][0], ICONS[n][0]) for n in reversed(names))
     out = [icons + "\n" if icons else "", "# %s%s\n" % (c.name, c.mark),
-           "[Command Index](Command-Index) · [%s](%s) · [%s](%s)\n" % (c.dialect, c.dialect, c.category, c.page),
+           nav(c) + "\n",
            "## Command Syntax\n", "```blitzbasic\n%s\n```\n" % c.signature(), "## Description\n"]
     if c.extension:
         out.append("**%s** This command does not exist in the original Blitz products. BlitzLLVM adds it.\n" %
@@ -250,7 +257,7 @@ def command_page(c, siblings):
     out.append("## Related Commands\n")
     out.extend("* " + o.link for o in related(c, siblings))
     out.append("")
-    out.append("[Command Index](Command-Index) · [%s](%s) · [%s](%s)" % (c.dialect, c.dialect, c.category, c.page))
+    out.append(nav(c))
     return "\n".join(out)
 
 

@@ -6,7 +6,12 @@
 
 # TrailingZeros 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ Print TrailingZeros(ULong(1) Shl 40)
 * [Tan](Tan)
 * [UByte](UByte) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

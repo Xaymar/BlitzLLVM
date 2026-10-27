@@ -6,7 +6,12 @@
 
 # VWait
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ WaitKey
 * [TotalVidMem](TotalVidMem)
 * [UpdateGamma](UpdateGamma)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

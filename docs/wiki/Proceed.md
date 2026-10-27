@@ -6,7 +6,12 @@
 
 # Proceed
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -49,4 +54,8 @@ End Select
 * [QueryObject](QueryObject)
 * [ResetTimer](ResetTimer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

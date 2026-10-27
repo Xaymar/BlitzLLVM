@@ -6,7 +6,12 @@
 
 # KeyWait
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ KeyWait()
 * [KeyHit](KeyHit)
 * [WaitKey](WaitKey)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
+
+</div>

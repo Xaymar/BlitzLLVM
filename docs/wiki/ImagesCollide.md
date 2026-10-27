@@ -6,7 +6,12 @@
 
 # ImagesCollide
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -69,4 +74,8 @@ WaitKey
 * [ImagesOverlap](ImagesOverlap)
 * [ImageWidth](ImageWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

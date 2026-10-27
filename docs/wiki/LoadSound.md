@@ -6,7 +6,12 @@
 
 # LoadSound
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -73,4 +78,8 @@ End Function
 * [SoundPitch](SoundPitch)
 * [SoundVolume](SoundVolume)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

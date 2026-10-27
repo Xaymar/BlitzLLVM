@@ -6,7 +6,12 @@
 
 # GfxModeFormat
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ How the pixels of a display mode are stored, as a number that BlitzPlus uses wit
 * [GfxModeWidth](GfxModeWidth)
 * [GraphicsFormat](GraphicsFormat)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

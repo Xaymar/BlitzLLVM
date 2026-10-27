@@ -6,7 +6,12 @@
 
 # MD2Animating
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ _Not documented yet._
 * [MD2AnimLength](MD2AnimLength)
 * [MD2AnimTime](MD2AnimTime)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>

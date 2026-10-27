@@ -6,7 +6,12 @@
 
 # CopyPixelFast
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ The quick form of [CopyPixel](CopyPixel). Both buffers must be locked with [Lock
 * [WritePixel](WritePixel)
 * [WritePixelFast](WritePixelFast)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>

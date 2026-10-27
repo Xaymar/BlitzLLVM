@@ -6,7 +6,12 @@
 
 # GetParent
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ _Not documented yet._
 * [GetMatElement](GetMatElement)
 * [HideEntity](HideEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

@@ -6,7 +6,12 @@
 
 # JoyU
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The first extra axis of the joystick, from -1 to 1. On a gamepad this is usually
 * [JoyUDir](JoyUDir)
 * [JoyV](JoyV)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

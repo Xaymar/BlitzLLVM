@@ -6,7 +6,12 @@
 
 # SliderValue
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ _Not documented yet._
 * [SetSliderValue](SetSliderValue)
 * [ShowGadget](ShowGadget)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

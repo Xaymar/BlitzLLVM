@@ -6,7 +6,12 @@
 
 # PaintSurface
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -32,4 +37,8 @@ Applies a brush to one surface: its color, texture, alpha, shininess, blend mode
 * [FindSurface](FindSurface)
 * [GetSurface](GetSurface)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

@@ -6,7 +6,12 @@
 
 # FindChild
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Searches the children of an entity, and their children, for one with the given n
 * [FreeEntity](FreeEntity)
 * [GetChild](GetChild)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

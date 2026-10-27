@@ -6,7 +6,12 @@
 
 # ShowPointer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -25,4 +30,8 @@ Shows the mouse pointer again after [HidePointer](HidePointer).
 * [SetGfxDriver](SetGfxDriver)
 * [TotalVidMem](TotalVidMem)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

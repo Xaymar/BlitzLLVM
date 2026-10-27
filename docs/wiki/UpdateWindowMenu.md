@@ -6,7 +6,12 @@
 
 # UpdateWindowMenu
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>
+
 
 ## Command Syntax
 
@@ -52,4 +57,8 @@ Until e = $803 Or (e = $1001 And EventData() = 1)
 * [SetMinWindowSize](SetMinWindowSize)
 * [WindowMenu](WindowMenu)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>

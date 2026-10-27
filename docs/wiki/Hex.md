@@ -6,7 +6,12 @@
 
 # Hex
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ FFFFFFFF
 * [Instr](Instr)
 * [Left](Left)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

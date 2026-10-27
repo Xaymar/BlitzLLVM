@@ -6,7 +6,12 @@
 
 # BufferDirty
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Tells the system that a buffer was changed behind its back so that it has to be 
 * [SetBuffer](SetBuffer)
 * [UnlockBuffer](UnlockBuffer)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>

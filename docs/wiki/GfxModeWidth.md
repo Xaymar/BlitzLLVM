@@ -6,7 +6,12 @@
 
 # GfxModeWidth
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ The width in pixels of a display mode.
 * [GfxModeFormat](GfxModeFormat)
 * [GfxModeHeight](GfxModeHeight)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

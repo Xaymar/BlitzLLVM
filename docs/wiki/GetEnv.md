@@ -6,7 +6,12 @@
 
 # GetEnv
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ hello
 * [Microseconds](Microseconds) 〔BlitzLLVM〕
 * [SetEnv](SetEnv)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

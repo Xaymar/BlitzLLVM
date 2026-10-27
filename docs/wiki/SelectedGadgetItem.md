@@ -6,7 +6,12 @@
 
 # SelectedGadgetItem
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ _Not documented yet._
 * [RemoveGadgetItem](RemoveGadgetItem)
 * [SelectGadgetItem](SelectGadgetItem)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

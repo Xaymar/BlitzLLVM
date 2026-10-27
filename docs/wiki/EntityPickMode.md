@@ -6,7 +6,12 @@
 
 # EntityPickMode
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Sprites can only be picked with the sphere or box mode, because they have no mes
 * [LinePick](LinePick)
 * [PickedEntity](PickedEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
+
+</div>

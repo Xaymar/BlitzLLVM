@@ -6,7 +6,12 @@
 
 # Microseconds 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -51,4 +56,8 @@ Print Microseconds() - start >= 45000
 * [MilliSecs](MilliSecs)
 * [RuntimeError](RuntimeError)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

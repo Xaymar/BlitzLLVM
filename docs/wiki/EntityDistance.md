@@ -6,7 +6,12 @@
 
 # EntityDistance
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ _Not documented yet._
 * [EntityInView](EntityInView)
 * [EntityName](EntityName)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

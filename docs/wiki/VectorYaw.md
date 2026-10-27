@@ -6,7 +6,12 @@
 
 # VectorYaw
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Finds the yaw angle that an entity would need to point along a direction. The di
 * [TFormVector](TFormVector)
 * [VectorPitch](VectorPitch)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

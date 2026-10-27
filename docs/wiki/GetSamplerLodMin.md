@@ -6,7 +6,12 @@
 
 # GetSamplerLodMin 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the lowest mip level that the sampler has, as it was set with [SetSample
 * [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕
 * [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

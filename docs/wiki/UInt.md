@@ -6,7 +6,12 @@
 
 # UInt 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ Print Int(UInt(-1))
 * [ULong](ULong) 〔BlitzLLVM〕
 * [UShort](UShort) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

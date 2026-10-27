@@ -6,7 +6,12 @@
 
 # CameraFogMode
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Turns the camera's fog on or off. Fog fades everything toward the fog color with
 * [CameraRange](CameraRange)
 * [CameraViewport](CameraViewport)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>

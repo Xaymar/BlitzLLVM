@@ -6,7 +6,12 @@
 
 # CurrentDate
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Print "Today is " + CurrentDate$()
 * [CurrentTime](CurrentTime)
 * [Hex](Hex)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

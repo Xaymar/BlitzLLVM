@@ -6,7 +6,12 @@
 
 # DrawImage
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -66,4 +71,8 @@ WaitKey
 * [GrabImage](GrabImage)
 * [HandleImage](HandleImage)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

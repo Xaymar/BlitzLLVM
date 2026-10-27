@@ -6,7 +6,12 @@
 
 # FlushKeys
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ WaitKey
 * [GetKey](GetKey)
 * [KeyDown](KeyDown)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
+
+</div>

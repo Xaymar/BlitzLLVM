@@ -6,7 +6,12 @@
 
 # EntityVisible
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
+
+</div>
+
 
 ## Command Syntax
 
@@ -57,4 +62,8 @@ WaitKey
 * [LinePick](LinePick)
 * [PickedEntity](PickedEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
+
+</div>

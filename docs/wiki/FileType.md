@@ -6,7 +6,12 @@
 
 # FileType
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -51,4 +56,8 @@ DeleteDir "files_type_folder"
 * [OpenFile](OpenFile)
 * [ReadFile](ReadFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

@@ -6,7 +6,12 @@
 
 # PaintMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Applies a brush to every surface of a mesh: color, texture, alpha, shininess, bl
 * [LoadMesh](LoadMesh)
 * [PositionMesh](PositionMesh)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

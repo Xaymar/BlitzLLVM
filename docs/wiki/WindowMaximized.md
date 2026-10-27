@@ -6,7 +6,12 @@
 
 # WindowMaximized
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ _Not documented yet._
 * [WindowMenu](WindowMenu)
 * [WindowMinimized](WindowMinimized)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>

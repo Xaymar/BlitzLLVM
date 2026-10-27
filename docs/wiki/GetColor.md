@@ -6,7 +6,12 @@
 
 # GetColor
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Reads the pixel at a position of the current buffer and makes it the drawing col
 * [ColorGreen](ColorGreen)
 * [ColorRed](ColorRed)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>

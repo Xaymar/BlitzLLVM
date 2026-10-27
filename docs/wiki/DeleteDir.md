@@ -6,7 +6,12 @@
 
 # DeleteDir
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Deletes a folder. The folder has to be empty.
 * [DeleteFile](DeleteFile)
 * [ReadDir](ReadDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

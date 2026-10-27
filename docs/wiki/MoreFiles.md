@@ -6,7 +6,12 @@
 
 # MoreFiles
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>
+
 
 ## Command Syntax
 
@@ -47,4 +52,8 @@ Notify n + " entries"
 * [NextFile](NextFile)
 * [OpenFile](OpenFile)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
+
+</div>

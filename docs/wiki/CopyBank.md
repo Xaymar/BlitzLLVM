@@ -6,7 +6,12 @@
 
 # CopyBank
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>
+
 
 ## Command Syntax
 
@@ -55,4 +60,8 @@ FreeBank destination
 * [FreeBank](FreeBank)
 * [ResizeBank](ResizeBank)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
+
+</div>

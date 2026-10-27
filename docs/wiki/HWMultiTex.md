@@ -6,7 +6,12 @@
 
 # HWMultiTex
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Switches multitexturing on or off, so that a triangle with several textures is d
 * [HWTexUnits](HWTexUnits)
 * [RenderWorld](RenderWorld)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

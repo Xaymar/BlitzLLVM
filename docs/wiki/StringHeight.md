@@ -6,7 +6,12 @@
 
 # StringHeight
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The height in pixels that a text has in the current font.
 * [SetFont](SetFont)
 * [StringWidth](StringWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>

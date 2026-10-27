@@ -6,7 +6,12 @@
 
 # CreatePivot
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>
+
 
 ## Command Syntax
 
@@ -61,4 +66,8 @@ Wend
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
+
+</div>

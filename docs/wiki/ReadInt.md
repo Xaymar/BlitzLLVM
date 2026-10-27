@@ -6,7 +6,12 @@
 
 # ReadInt
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ _Not documented yet._
 * [ReadString](ReadString)
 * [WriteInt](WriteInt)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

@@ -6,7 +6,12 @@
 
 # MovieHeight
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ The height of the pictures of a movie in pixels.
 * [MovieVolume](MovieVolume) 〔BlitzLLVM〕
 * [MovieWidth](MovieWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>

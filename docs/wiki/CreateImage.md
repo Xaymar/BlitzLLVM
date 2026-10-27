@@ -6,7 +6,12 @@
 
 # CreateImage
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -72,4 +77,8 @@ Wend
 * [LoadImage](LoadImage)
 * [MaskImage](MaskImage)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

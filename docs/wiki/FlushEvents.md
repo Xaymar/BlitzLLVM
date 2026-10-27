@@ -6,7 +6,12 @@
 
 # FlushEvents
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Until WaitEvent() = $803
 * [FontAscent](FontAscent)
 * [FontDescent](FontDescent)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

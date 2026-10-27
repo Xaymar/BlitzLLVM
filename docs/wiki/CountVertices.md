@@ -6,7 +6,12 @@
 
 # CountVertices
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Reports how many vertices a surface has. Vertex indexes run from 0 to one less t
 * [CreateSurface](CreateSurface)
 * [FindSurface](FindSurface)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

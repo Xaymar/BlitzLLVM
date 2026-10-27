@@ -6,7 +6,12 @@
 
 # JoyHit
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -52,4 +57,8 @@ Wend
 * [JoyUDir](JoyUDir)
 * [JoyV](JoyV)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

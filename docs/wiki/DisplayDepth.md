@@ -6,7 +6,12 @@
 
 # DisplayDepth 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ The color depth in bits per pixel of what a display shows right now, always 32. 
 * [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 * [DisplayScale](DisplayScale) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

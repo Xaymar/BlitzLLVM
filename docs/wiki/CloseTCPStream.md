@@ -6,7 +6,12 @@
 
 # CloseTCPStream
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Closes a TCP stream. The other side sees the stream end once it has read everyth
 * [TCPStreamIP](TCPStreamIP)
 * [TCPStreamPort](TCPStreamPort)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

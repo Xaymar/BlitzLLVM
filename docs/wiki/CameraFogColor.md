@@ -6,7 +6,12 @@
 
 # CameraFogColor
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Sets the color the fog fades to. Match it to the clear color of the camera, set 
 * [CameraRange](CameraRange)
 * [CameraViewport](CameraViewport)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
+
+</div>

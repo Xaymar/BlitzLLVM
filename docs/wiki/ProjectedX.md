@@ -6,7 +6,12 @@
 
 # ProjectedX
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -50,4 +55,8 @@ WaitKey
 * [ProjectedZ](ProjectedZ)
 * [TFormedX](TFormedX)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

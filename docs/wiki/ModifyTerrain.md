@@ -6,7 +6,12 @@
 
 # ModifyTerrain
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Sets the height of one grid point of the terrain. Heights are between 0 and 1 an
 * [TerrainX](TerrainX)
 * [TerrainY](TerrainY)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
+
+</div>

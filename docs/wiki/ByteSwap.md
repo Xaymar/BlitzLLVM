@@ -6,7 +6,12 @@
 
 # ByteSwap 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ Print ByteSwap(ULong(1))
 * [SatUByte](SatUByte) 〔BlitzLLVM〕
 * [UByte](UByte) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

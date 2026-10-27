@@ -6,7 +6,12 @@
 
 # EntityPick
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Looks straight ahead along the entity's own Z axis, as far as the range, and ret
 * [LinePick](LinePick)
 * [PickedEntity](PickedEntity)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
+
+</div>

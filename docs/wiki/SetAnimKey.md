@@ -6,7 +6,12 @@
 
 # SetAnimKey
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Each of the three flags decides which part of the pose is stored. Setting a key 
 * [MD2AnimLength](MD2AnimLength)
 * [SetAnimTime](SetAnimTime)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>

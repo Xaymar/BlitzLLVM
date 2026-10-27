@@ -6,7 +6,12 @@
 
 # GetSamplerBorderColorR 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the red part of the border color that the sampler has, as it was set wit
 * [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕
 * [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

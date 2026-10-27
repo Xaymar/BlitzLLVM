@@ -6,7 +6,12 @@
 
 # SoundPan
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Sets the stereo position that channels of this sound start with. Channels that a
 * [SoundPitch](SoundPitch)
 * [SoundVolume](SoundVolume)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

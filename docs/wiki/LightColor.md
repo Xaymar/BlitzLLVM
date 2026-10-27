@@ -6,7 +6,12 @@
 
 # LightColor
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Sets the color of the light. 255, 255, 255 is full white light, 0, 0, 0 adds not
 * [LightMesh](LightMesh)
 * [LightRange](LightRange)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
+
+</div>

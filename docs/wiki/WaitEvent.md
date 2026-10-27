@@ -6,7 +6,12 @@
 
 # WaitEvent
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ Until e = $803
 * [EventZ](EventZ)
 * [PeekEvent](PeekEvent)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
+
+</div>

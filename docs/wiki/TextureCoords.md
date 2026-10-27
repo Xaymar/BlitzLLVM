@@ -6,7 +6,12 @@
 
 # TextureCoords
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Chooses which set of texture coordinates of the mesh the texture reads: 0 for th
 * [TextureName](TextureName)
 * [TextureWidth](TextureWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

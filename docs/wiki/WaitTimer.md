@@ -6,7 +6,12 @@
 
 # WaitTimer
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -46,4 +51,8 @@ FreeTimer timer
 * [Stop](Stop)
 * [SystemProperty](SystemProperty)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

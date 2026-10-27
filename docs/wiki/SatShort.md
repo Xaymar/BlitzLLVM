@@ -6,7 +6,12 @@
 
 # SatShort 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ Print SatShort(5)
 * [SatUShort](SatUShort) 〔BlitzLLVM〕
 * [Short](Short) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>

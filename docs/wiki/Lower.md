@@ -6,7 +6,12 @@
 
 # Lower
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ hello world 1!
 * [LSet](LSet)
 * [Mid](Mid)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

@@ -6,7 +6,12 @@
 
 # CreateToolBar
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>
+
 
 ## Command Syntax
 
@@ -68,4 +73,8 @@ Until e = $803
 * [EnableToolBarItem](EnableToolBarItem)
 * [SetToolBarTips](SetToolBarTips)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
+
+</div>

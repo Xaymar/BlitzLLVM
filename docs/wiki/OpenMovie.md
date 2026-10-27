@@ -6,7 +6,12 @@
 
 # OpenMovie
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>
+
 
 ## Command Syntax
 
@@ -58,4 +63,8 @@ WaitKey
 * [SeekMovie](SeekMovie) 〔BlitzLLVM〕
 * [StopMovie](StopMovie) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
+
+</div>

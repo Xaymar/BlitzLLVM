@@ -6,7 +6,12 @@
 
 # MouseZ
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -50,4 +55,8 @@ Wend
 * [MouseYSpeed](MouseYSpeed)
 * [MouseZSpeed](MouseZSpeed)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

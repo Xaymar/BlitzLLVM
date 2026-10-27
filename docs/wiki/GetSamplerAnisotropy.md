@@ -6,7 +6,12 @@
 
 # GetSamplerAnisotropy 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Returns the anisotropy that the sampler has, as it was set with [SetSamplerAniso
 * [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
 * [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

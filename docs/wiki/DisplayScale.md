@@ -6,7 +6,12 @@
 
 # DisplayScale 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ The factor by which the system wants things on a display to be larger than norma
 * [DisplayName](DisplayName) 〔BlitzLLVM〕
 * [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

@@ -6,7 +6,12 @@
 
 # ProjectedZ
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Tells how far in front of the camera the point of the last [CameraProject](Camer
 * [TFormedX](TFormedX)
 * [TFormedZ](TFormedZ)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
+
+</div>

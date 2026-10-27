@@ -6,7 +6,12 @@
 
 # PrimaryDisplay 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ The number of the main display, the one that [CountGfxModes](CountGfxModes) and 
 * [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
 * [DisplayName](DisplayName) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

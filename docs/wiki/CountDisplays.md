@@ -6,7 +6,12 @@
 
 # CountDisplays 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ WaitKey
 * [CountGfxModes](CountGfxModes)
 * [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

@@ -6,7 +6,12 @@
 
 # CloseUDPStream
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Closes a UDP stream and gives its port back.
 * [UDPStreamIP](UDPStreamIP)
 * [UDPStreamPort](UDPStreamPort)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

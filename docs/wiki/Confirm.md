@@ -6,7 +6,12 @@
 
 # Confirm
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -47,4 +52,8 @@ EndIf
 * [CreateProcess](CreateProcess)
 * [DebugObjects](DebugObjects)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

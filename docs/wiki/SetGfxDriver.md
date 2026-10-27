@@ -6,7 +6,12 @@
 
 # SetGfxDriver
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Chooses the graphics driver for the next [Graphics](Graphics) call. This is the 
 * [GfxModeFormat](GfxModeFormat)
 * [SetGamma](SetGamma)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

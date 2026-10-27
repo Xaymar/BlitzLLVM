@@ -6,7 +6,12 @@
 
 # VertexNormal
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>
+
 
 ## Command Syntax
 
@@ -39,4 +44,8 @@ Sets the normal of a vertex: the direction it faces, which decides how light hit
 * [VertexNY](VertexNY)
 * [VertexNZ](VertexNZ)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
+
+</div>

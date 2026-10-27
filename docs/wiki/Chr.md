@@ -6,7 +6,12 @@
 
 # Chr
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -47,4 +52,8 @@ Hi
 * [CurrentDate](CurrentDate)
 * [CurrentTime](CurrentTime)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

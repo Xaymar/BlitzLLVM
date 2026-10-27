@@ -6,7 +6,12 @@
 
 # ResumeChannel
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -33,4 +38,8 @@ Continues a channel that [PauseChannel](PauseChannel) paused.
 * [PauseChannel](PauseChannel)
 * [StopChannel](StopChannel)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

@@ -6,7 +6,12 @@
 
 # SetGadgetShape
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>
+
 
 ## Command Syntax
 
@@ -51,4 +56,8 @@ Until e = $803
 * [SetSliderRange](SetSliderRange)
 * [SetSliderValue](SetSliderValue)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
+
+</div>

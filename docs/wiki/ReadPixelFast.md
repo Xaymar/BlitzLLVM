@@ -6,7 +6,12 @@
 
 # ReadPixelFast
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>
+
 
 ## Command Syntax
 
@@ -40,4 +45,8 @@ Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](
 * [WritePixel](WritePixel)
 * [WritePixelFast](WritePixelFast)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
+
+</div>

@@ -6,7 +6,12 @@
 
 # Color
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>
+
 
 ## Command Syntax
 
@@ -52,4 +57,8 @@ WaitKey
 * [ColorRed](ColorRed)
 * [GetColor](GetColor)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>

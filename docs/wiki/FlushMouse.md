@@ -6,7 +6,12 @@
 
 # FlushMouse
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -44,4 +49,8 @@ WaitMouse
 * [MoveMouse](MoveMouse)
 * [WaitMouse](WaitMouse)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

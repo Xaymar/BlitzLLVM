@@ -6,7 +6,12 @@
 
 # CreatePlane
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -64,4 +69,8 @@ WaitKey
 * [CreateMirror](CreateMirror)
 * [CreateSphere](CreateSphere)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

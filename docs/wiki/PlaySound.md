@@ -6,7 +6,12 @@
 
 # PlaySound
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>
+
 
 ## Command Syntax
 
@@ -52,4 +57,8 @@ Wend
 * [SoundPan](SoundPan)
 * [SoundPitch](SoundPitch)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
+
+</div>

@@ -6,7 +6,12 @@
 
 # BrushBlend
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -36,4 +41,8 @@ Chooses how painted surfaces are mixed with what is already on the screen: 1 alp
 * [FreeBrush](FreeBrush)
 * [GetBrushTexture](GetBrushTexture)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
+
+</div>

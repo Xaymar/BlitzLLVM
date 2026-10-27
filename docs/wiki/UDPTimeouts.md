@@ -6,7 +6,12 @@
 
 # UDPTimeouts
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>
+
 
 ## Command Syntax
 
@@ -35,4 +40,8 @@ Sets how long [RecvUDPMsg](RecvUDPMsg) waits for a message. The default is 0, wh
 * [UDPStreamIP](UDPStreamIP)
 * [UDPStreamPort](UDPStreamPort)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
+
+</div>

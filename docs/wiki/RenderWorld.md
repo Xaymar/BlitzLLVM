@@ -6,7 +6,12 @@
 
 # RenderWorld
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>
+
 
 ## Command Syntax
 
@@ -68,4 +73,8 @@ Next
 * [HWMultiTex](HWMultiTex)
 * [UpdateWorld](UpdateWorld)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
+
+</div>

@@ -6,7 +6,12 @@
 
 # FontWidth
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ The width in pixels of one character of the current font, as set by [SetFont](Se
 * [SetFont](SetFont)
 * [StringWidth](StringWidth)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
+
+</div>

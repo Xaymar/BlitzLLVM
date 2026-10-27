@@ -6,7 +6,12 @@
 
 # FreeSampler 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ Deletes a sampler. The textures that read through it go back to the settings of 
 * [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
 * [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

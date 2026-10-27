@@ -6,7 +6,12 @@
 
 # WriteLine
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Writes text followed by a carriage return and a line feed. Read it back with [Re
 * [WriteShort](WriteShort)
 * [WriteString](WriteString)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
+
+</div>

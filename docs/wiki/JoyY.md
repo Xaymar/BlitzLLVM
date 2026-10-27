@@ -6,7 +6,12 @@
 
 # JoyY
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>
+
 
 ## Command Syntax
 
@@ -37,4 +42,8 @@ The vertical position of the main stick, from -1 (up) to 1 (down).
 * [JoyU](JoyU)
 * [JoyYDir](JoyYDir)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
+
+</div>

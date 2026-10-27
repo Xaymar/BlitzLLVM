@@ -6,7 +6,12 @@
 
 # CreateWindow
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>
+
 
 ## Command Syntax
 
@@ -81,4 +86,8 @@ Until asked = 2
 * [UpdateWindowMenu](UpdateWindowMenu)
 * [WindowMaximized](WindowMaximized)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>

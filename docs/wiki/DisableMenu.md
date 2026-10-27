@@ -6,7 +6,12 @@
 
 # DisableMenu
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>
+
 
 ## Command Syntax
 
@@ -53,4 +58,8 @@ Until WaitEvent() = $803
 * [SetMenuText](SetMenuText)
 * [UncheckMenu](UncheckMenu)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>

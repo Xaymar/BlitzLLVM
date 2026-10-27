@@ -6,7 +6,12 @@
 
 # SetMenuText
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ Until e = $803
 * [MenuText](MenuText)
 * [UncheckMenu](UncheckMenu)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
+
+</div>

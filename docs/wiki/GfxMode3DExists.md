@@ -6,7 +6,12 @@
 
 # GfxMode3DExists
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ WaitKey
 * [Graphics3D](Graphics3D)
 * [Windowed3D](Windowed3D)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>

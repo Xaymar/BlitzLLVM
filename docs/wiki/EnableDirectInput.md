@@ -6,7 +6,12 @@
 
 # EnableDirectInput
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>
+
 
 ## Command Syntax
 
@@ -34,4 +39,8 @@ Switches the DirectInput setting on or off. In the original it chose between two
 * [FlushMouse](FlushMouse)
 * [GetMouse](GetMouse)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
+
+</div>

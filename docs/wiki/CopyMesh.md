@@ -6,7 +6,12 @@
 
 # CopyMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Makes an independent copy of a mesh with its own vertices and triangles. This di
 * [PaintMesh](PaintMesh)
 * [PositionMesh](PositionMesh)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

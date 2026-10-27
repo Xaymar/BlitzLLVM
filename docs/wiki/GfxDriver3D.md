@@ -6,7 +6,12 @@
 
 # GfxDriver3D
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -41,4 +46,8 @@ Tells whether a graphics driver can draw 3D.
 * [Graphics3D](Graphics3D)
 * [Windowed3D](Windowed3D)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
+
+</div>

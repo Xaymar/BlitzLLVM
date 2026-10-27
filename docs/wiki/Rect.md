@@ -6,7 +6,12 @@
 
 # Rect
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>
+
 
 ## Command Syntax
 
@@ -54,4 +59,8 @@ Next
 * [ScanLine](ScanLine)
 * [Viewport](Viewport)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
+
+</div>

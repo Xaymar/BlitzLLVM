@@ -6,7 +6,12 @@
 
 # ActiveObjects
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Until WaitEvent() = $803
 * [Confirm](Confirm)
 * [DebugObjects](DebugObjects)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
+
+</div>

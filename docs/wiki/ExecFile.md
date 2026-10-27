@@ -6,7 +6,12 @@
 
 # ExecFile
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ Print ExecFile("this-program-does-not-exist")
 * [FreeTimer](FreeTimer)
 * [GetEnv](GetEnv)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
+
+</div>

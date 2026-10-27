@@ -6,7 +6,12 @@
 
 # ClearCollisions
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>
+
 
 ## Command Syntax
 
@@ -25,4 +30,8 @@ Removes every rule made with [Collisions](Collisions), so that nothing collides 
 * [Collisions](Collisions)
 * [CountCollisions](CountCollisions)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
+
+</div>

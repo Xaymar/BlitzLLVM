@@ -6,7 +6,12 @@
 
 # Bin
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>
+
 
 ## Command Syntax
 
@@ -42,4 +47,8 @@ Print Bin$(5)
 * [Chr](Chr)
 * [CurrentDate](CurrentDate)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
+
+</div>

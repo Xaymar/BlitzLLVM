@@ -6,7 +6,12 @@
 
 # ScaleMesh
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Multiplies the coordinates of every vertex by a factor per axis, permanently, ar
 * [LoadMesh](LoadMesh)
 * [PaintMesh](PaintMesh)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
+
+</div>

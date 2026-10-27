@@ -6,7 +6,12 @@
 
 # SetSamplerFilterMip 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>
+
 
 ## Command Syntax
 
@@ -46,4 +51,8 @@ Chooses how the mip levels of a texture are read. With 0 the level that is close
 * [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
 * [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
+
+</div>

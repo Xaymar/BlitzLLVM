@@ -6,7 +6,12 @@
 
 # Flip
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>
+
 
 ## Command Syntax
 
@@ -56,4 +61,8 @@ Wend
 * [GammaBlue](GammaBlue)
 * [GammaGreen](GammaGreen)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
+
+</div>

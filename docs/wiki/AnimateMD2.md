@@ -6,7 +6,12 @@
 
 # AnimateMD2
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>
+
 
 ## Command Syntax
 
@@ -43,4 +48,8 @@ A transition above 0 blends from the pose the model is in now to the first frame
 * [MD2AnimLength](MD2AnimLength)
 * [MD2AnimTime](MD2AnimTime)
 
+<div align="center">
+
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
+
+</div>

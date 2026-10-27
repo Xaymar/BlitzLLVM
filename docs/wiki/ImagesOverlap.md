@@ -6,7 +6,12 @@
 
 # ImagesOverlap
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>
+
 
 ## Command Syntax
 
@@ -38,4 +43,8 @@ Tells whether the boxes of two images touch, which is quick but counts transpare
 * [ImageWidth](ImageWidth)
 * [RectsOverlap](RectsOverlap)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
+
+</div>

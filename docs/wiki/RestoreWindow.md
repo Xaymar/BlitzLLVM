@@ -6,7 +6,12 @@
 
 # RestoreWindow
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>
+
 
 ## Command Syntax
 
@@ -45,4 +50,8 @@ Notify "Back at " + GadgetWidth(win) + " x " + GadgetHeight(win)
 * [UpdateWindowMenu](UpdateWindowMenu)
 * [WindowMaximized](WindowMaximized)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
+
+</div>

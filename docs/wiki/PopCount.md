@@ -6,7 +6,12 @@
 
 # PopCount 〔BlitzLLVM〕
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
+
 
 ## Command Syntax
 
@@ -56,4 +61,8 @@ Print PopCount(ULong(-1))
 * [Rand](Rand)
 * [Rnd](Rnd)
 
+<div align="center">
+
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
+
+</div>
