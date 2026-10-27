@@ -1072,6 +1072,12 @@ namespace bb::gfx {
 			texture_rotation(texture, push.extra);
 			texture_texgen(texture, push.texgen);
 			push.mask[3] = cutout ? 1.0f : 0.0f;   // Black is not there in a masked texture, also where the picture was drawn by the program.
+			if (texture && texture->set) {
+				// What TextureBlend asks of the first texture, written twice into the same value: 0 multiply, 1 alpha, 2 add, 3 dot3, 4 twice multiply, 5 none.
+				static const int blend_codes[6] = { 5, 1, 0, 2, 3, 4 };
+				int              texture_blend  = texture->blend;
+				push.mask[3] += 2.0f * float(blend_codes[(texture_blend < 0 || texture_blend > 5) ? 2 : texture_blend]);
+			}
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
