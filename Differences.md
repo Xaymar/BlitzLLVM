@@ -43,6 +43,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [ActiveWindow](ActiveWindow#differences): The windows are inside the program's own window, so there is no "none of ours is active" state: the answer is always the window that was activated most recently.
 * [AddVertex](AddVertex#differences): `w` is ignored.
 * [Animate](Animate#differences): The transition argument is accepted but ignored: the entity jumps to the first frame of the new animation.
+* [AnimateEntity](AnimateEntity#differences) 〔BlitzLLVM〕: The transition argument is accepted but ignored, like in Animate.
 * [AnimateMD2](AnimateMD2#differences): The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
 * [AntiAlias](AntiAlias#differences): Accepted and ignored.
 * [AppTitle](AppTitle#differences): The title is only used once a graphics mode is open.

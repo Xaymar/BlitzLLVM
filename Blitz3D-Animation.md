@@ -11,6 +11,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
 * [AddAnimSeq](AddAnimSeq)
 * [Animate](Animate)
+* [AnimateEntity](AnimateEntity) 〔BlitzLLVM〕
 * [AnimateMD2](AnimateMD2)
 * [Animating](Animating)
 * [AnimLength](AnimLength)

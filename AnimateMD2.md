@@ -38,7 +38,7 @@ A transition above 0 blends from the pose the model is in now to the first frame
 
 ## Related Commands
 
-[Animate](Animate), [LoadMD2](LoadMD2), [MD2Animating](MD2Animating), [MD2AnimLength](MD2AnimLength), [MD2AnimTime](MD2AnimTime)
+[Animate](Animate), [AnimateEntity](AnimateEntity) 〔BlitzLLVM〕, [LoadMD2](LoadMD2), [MD2Animating](MD2Animating), [MD2AnimLength](MD2AnimLength), [MD2AnimTime](MD2AnimTime)
 
 <div align="center">
 

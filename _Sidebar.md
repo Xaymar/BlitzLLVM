@@ -455,10 +455,11 @@
 <li><a href="EmitSound">EmitSound</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Animation">Animation</a> (15)</summary>
+<li><details><summary><a href="Blitz3D-Animation">Animation</a> (16)</summary>
 <ul>
 <li><a href="AddAnimSeq">AddAnimSeq</a></li>
 <li><a href="Animate">Animate</a></li>
+<li><a href="AnimateEntity">AnimateEntity</a> 〔BlitzLLVM〕</li>
 <li><a href="AnimateMD2">AnimateMD2</a></li>
 <li><a href="Animating">Animating</a></li>
 <li><a href="AnimLength">AnimLength</a></li>

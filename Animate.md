@@ -68,7 +68,7 @@ Wend
 
 ## Related Commands
 
-[AddAnimSeq](AddAnimSeq), [AnimateMD2](AnimateMD2), [Animating](Animating)
+[AddAnimSeq](AddAnimSeq), [AnimateEntity](AnimateEntity) 〔BlitzLLVM〕, [AnimateMD2](AnimateMD2)
 
 <div align="center">
 

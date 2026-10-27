@@ -27,6 +27,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [AlignToVector](AlignToVector)
 * [AmbientLight](AmbientLight)
 * [Animate](Animate)
+* [AnimateEntity](AnimateEntity) 〔BlitzLLVM〕
 * [AnimateMD2](AnimateMD2)
 * [Animating](Animating)
 * [AnimLength](AnimLength)
