@@ -10,14 +10,14 @@ The flags are added together, so `1 + 2` is a color texture that also has an alp
 | 1 | Color, the default. |
 | 2 | Alpha. Dark texels are see-through, bright texels are solid. |
 | 4 | Masked. Texels that are exactly black are not drawn. |
-| 8 | Mipmapped. Distant surfaces use smaller, blurrier copies, which are made again from the picture after you draw on the texture. |
-| 16 | Clamp U. Coordinates outside 0 to 1 repeat the edge texel instead of tiling. |
-| 32 | Clamp V. The same for the vertical direction. |
+| 8 | Mipmapped. Distant surfaces use smaller, blurrier copies, which are made again from the picture after you draw on the texture. The flag picks the default way the copies are blended; [SetTextureSampler](SetTextureSampler) with a sampler from [CreateSampler](CreateSampler) can change that, for example the mip mode, the level bias or anisotropic filtering. |
+| 16 | Clamp U. Coordinates outside 0 to 1 repeat the edge texel instead of tiling. A sampler set with [SetTextureSampler](SetTextureSampler) overrides this. |
+| 32 | Clamp V. The same for the vertical direction. A sampler set with [SetTextureSampler](SetTextureSampler) overrides this. |
 | 64 | Spherical environment map. |
 | 128 | Cubic environment map. |
-| 256 | Keep the texture in video memory. |
-| 512 | Use a high color format even in low color modes. |
-| 1024 | Point sampling: no smoothing between texels. |
+| 256 | Keep the texture in video memory. This is always the case, there are no textures that only live on the CPU. |
+| 512 | Use a high color format even in low color modes. This is always the case: a texture is at least 8 bits per channel with alpha (R8G8B8A8), or a compatible block compressed format. |
+| 1024 | Point sampling: no smoothing between texels. A sampler set with [SetTextureSampler](SetTextureSampler) can do this (nearest filters) and overrides the flag. |
 | 65536 | Use the second set of texture coordinates of the mesh, see [TextureCoords](TextureCoords). |
 
 The texture is created at the size you ask for, so [TextureWidth](TextureWidth) and [TextureHeight](TextureHeight) return exactly what you passed. Power-of-two sizes are the safest choice for other Blitz3D implementations.
@@ -60,5 +60,5 @@ WaitKey
 @param flags   Sum of the flags above. Defaults to 1.
 @param frames  Number of animation frames. Defaults to 1.
 @returns A texture handle.
-@gap Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks. Video memory (256), high color (512) and point sampling (1024) are accepted and stored, but the texture is always drawn with linear filtering. A sphere map (64) takes its coordinates from the normal of the surface in the view, and ScaleTexture, PositionTexture and RotateTexture do not change them. A cube map (128) has six faces of the size you give, chosen with SetCubeFace and shown as SetCubeMode says; it does not have mip maps. A texture with both flags is drawn as a plain one. Without flag 8 it has no mip maps.
+@gap Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks. Video memory (256) and high color (512) are always in effect, so the flags change nothing. Point sampling (1024) is accepted and stored, but a texture is drawn with linear filtering unless it is given a sampler with SetTextureSampler. A sphere map (64) takes its coordinates from the normal of the surface in the view, and ScaleTexture, PositionTexture and RotateTexture do not change them. A cube map (128) has six faces of the size you give, chosen with SetCubeFace and shown as SetCubeMode says; it does not have mip maps. A texture with both flags is drawn as a plain one. Without flag 8 it has no mip maps.
 @gap The alpha (2) flag is only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, also where you drew black, unless it is masked (4): the masked flag does cut out black there.
