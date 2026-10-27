@@ -96,6 +96,10 @@ Else
 	Check "Runs of faces the GPU decided about", gpu, 100, 0
 EndIf
 
+; All of the mesh is in view from above, where there is nothing to cull.
+Look places(4, 0), places(4, 1), places(4, 2), places(4, 3), places(4, 4), places(4, 5)
+If gpu <> 0 Then Check "A mesh that is completely in view is not given to the GPU", Stats3D(1004), 0, 0
+
 For p = 0 To 9
 	Look places(p, 0), places(p, 1), places(p, 2), places(p, 3), places(p, 4), places(p, 5)
 	diff = 0

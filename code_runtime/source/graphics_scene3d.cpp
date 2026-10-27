@@ -947,6 +947,31 @@ namespace bb::gfx {
 		return corners_outside_view(corners, planes);
 	}
 
+	// Whether the box around a mesh is completely inside of what the camera sees. There is nothing for the GPU to cull of such a
+	// mesh, so it is drawn whole. Meshes without a box (planes, nothing) are not inside.
+	static bool mesh_inside_view(bb::entity& mesh, const float* m, const float* origin, const float* planes)
+	{
+		float lo[3], hi[3];
+		if (!planes || mesh.plane_divs || !bb::mesh_bounds(mesh, lo, hi) || (lo[0] > hi[0])) {
+			return false;
+		}
+		for (int corner = 0; corner < 8; corner++) {
+			float local[3] = { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] };
+			float place[3];
+			for (int row = 0; row < 3; row++) {
+				place[row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + float(double(m[12 + row]) - double(origin[row]));
+			}
+			for (int plane = 0; plane < 6; plane++) {
+				const float* p = planes + plane * 4;
+				// A bit of room for the error of the floats: a corner this close to a plane counts as outside of it.
+				if (p[0] * place[0] + p[1] * place[1] + p[2] * place[2] + p[3] < 0.01f) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	// Whether a sphere is completely outside of what the camera sees, which is also the case for the box inside of it (see
 	// mesh_outside_view). The planes have normals of length 1, and the radius has room for the error of the floats.
 	static bool sphere_outside_view(bb::cull_record const& r, const float* origin, const float* planes, float camera_growth)
@@ -1883,10 +1908,12 @@ namespace bb::gfx {
 			// Only alpha and add blending look at the alpha, which is what the depth fade changes.
 			push.soft[0] = (e->sprite_mode && surface_blended && (blend != 2) && depth_test) ? e->sprite_depth_fade : 0.0f;
 
-			// What is solid and has many triangles can have the clusters of triangles that are out of view left out by the GPU.
+			// What is solid and has many triangles can have the clusters of triangles that are out of view left out by the GPU, unless the whole
+			// mesh is in view.
 			uint32_t cull_clusters = 0, cull_first = 0;
 			if (gpu_culling && (pass == 0) && depth_test && !surface_blended && (shape == gpu) && !e->sprite_mode && !e->plane_divs
-				&& (surface.indices.size >= cluster_min_triangles * 3) && (surface.indices.size == gpu->index_count)) {
+				&& (surface.indices.size >= cluster_min_triangles * 3) && (surface.indices.size == gpu->index_count)
+				&& !mesh_inside_view(*e, m, current_origin, current_planes)) {
 				if (gpu->clusters_valid || make_clusters(surface, *gpu)) {
 					cull_clusters = gpu->clusters.size;
 					cull_first    = cull_filled_clusters;
