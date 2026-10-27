@@ -1,0 +1,32 @@
+name: blitzllvm
+base: core24
+version: '@VERSION@'
+summary: BlitzBasic compiler built on LLVM
+description: |
+  BlitzLLVM compiles BlitzBasic, Blitz3D and BlitzPlus programs to native executables with LLVM, using Vulkan and SDL3.
+  The snap uses classic confinement: blitzcc has to read your source files wherever they are, run the compiler and linker
+  and write executables that run outside of the snap, which strict confinement does not allow.
+license: BSD-3-Clause
+grade: devel
+confinement: classic
+
+apps:
+  blitzcc:
+    command: usr/bin/blitzcc
+  blitz-format:
+    command: usr/bin/blitz-format
+  blitz-tidy:
+    command: usr/bin/blitz-tidy
+
+parts:
+  blitzllvm:
+    # CI builds and installs BlitzLLVM with 'cmake --install --component system --prefix /usr' into snap-stage/ first, so the
+    # snap contains the very files of the deb and does not build again.
+    plugin: dump
+    source: snap-stage
+    stage-packages:
+      # What blitzcc runs and programs link against; the same as the deb's dependencies plus the linker.
+      - clang
+      - lld
+      - libc6-dev
+      - libvulkan1

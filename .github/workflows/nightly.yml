@@ -58,16 +58,34 @@ jobs:
         include:
           - { name: windows-x64, os: windows-latest, platform: x64, msystem: UCRT64, msys: 'make nasm diffutils mingw-w64-ucrt-x86_64-gcc' }
           - { name: windows-arm64, os: windows-11-arm, platform: ARM64, msystem: CLANGARM64, msys: 'make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread' }
-          - { name: linux-x64, os: ubuntu-latest }
-          - { name: linux-arm64, os: ubuntu-24.04-arm }
+          # Each Linux package is built on the system it is made for: the deb on both Ubuntu LTS releases (26.04 is a public
+          # preview runner), the rpm in Fedora and the Arch package in Arch Linux (which has no arm64 container image). The snap
+          # is made from the 24.04 build (core24).
+          - { name: ubuntu24.04-x64, os: ubuntu-24.04, kind: deb, snap: true }
+          - { name: ubuntu26.04-x64, os: ubuntu-26.04, kind: deb }
+          - { name: fedora-x64, os: ubuntu-latest, container: 'fedora:latest', kind: rpm }
+          - { name: arch-x64, os: ubuntu-latest, container: 'archlinux:latest', kind: pacman }
+          - { name: ubuntu24.04-arm64, os: ubuntu-24.04-arm, kind: deb, snap: true }
+          - { name: ubuntu26.04-arm64, os: ubuntu-26.04-arm, kind: deb }
+          - { name: fedora-arm64, os: ubuntu-24.04-arm, container: 'fedora:latest', kind: rpm }
           - { name: macos-universal, os: macos-latest, architectures: 'arm64;x86_64' }
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     env:
       VERSION: ${{ needs.version.outputs.version }}
       # Every file a run produces is named blitzllvm-<version>-<platform>.<extension>.
       ARTIFACT: blitzllvm-${{ needs.version.outputs.version }}-${{ matrix.name }}
     steps:
+      # Containers have no git yet when checkout runs, so it is installed first.
+      - name: Install git for checkout
+        if: matrix.container
+        run: |
+          if command -v dnf >/dev/null; then dnf install -y git tar; else pacman -Sy --noconfirm git tar; fi
       - uses: actions/checkout@v4
+      - name: Trust the checkout
+        # The container user is not the owner of the workspace, and git refuses to work in it otherwise.
+        if: matrix.container
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Check out the submodules
         # Only the ones the build needs, and shallow. extra/ holds reference sources only.
         run: git submodule update --init --depth 1 --jobs 8 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer third_party/stb third_party/VulkanMemoryAllocator third_party/FFmpeg extra/blitz3d extra/blitzplus_msvc2017
@@ -76,24 +94,34 @@ jobs:
         shell: bash
         # The recorded commits of third_party/, so that updating a submodule changes the cache key.
         run: echo "hash=$(git ls-tree HEAD third_party/ | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Install Fedora dependencies
+        if: matrix.kind == 'rpm'
+        run: dnf install -y --setopt=install_weak_deps=False gcc gcc-c++ make git tar zstd which findutils diffutils perl python3-pip pipx ninja-build nasm clang lld zlib-ng-compat-static libX11-devel libXext-devel libXcursor-devel libXi-devel libXrandr-devel libXScrnSaver-devel libXtst-devel libXfixes-devel wayland-devel wayland-protocols-devel libxkbcommon-devel libdecor-devel alsa-lib-devel pulseaudio-libs-devel systemd-devel libdrm-devel mesa-libgbm-devel mesa-libEGL-devel rpm-build
+      - name: Install Arch dependencies
+        if: matrix.kind == 'pacman'
+        run: pacman -Syu --noconfirm --needed base-devel git zstd nasm ninja clang lld python-pipx python-filelock libx11 libxext libxcursor libxi libxrandr libxss libxtst libxfixes wayland wayland-protocols libxkbcommon libdecor alsa-lib libpulse systemd-libs libdrm mesa libarchive ruby ruby-stdlib
       - name: Install CMake
         # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
         # is always the latest one, as with the setup-cmake action it replaces, which downloaded and unpacked CMake each time.
         shell: bash
-        run: pipx install cmake && cmake --version
+        run: |
+          pipx install cmake
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.local/bin:$PATH"
+          cmake --version
       - name: Date the package cache
         id: month
-        if: runner.os == 'Linux' && !inputs.clean
+        if: matrix.kind == 'deb' && !inputs.clean
         # Ubuntu publishes updates to these packages, so the cache is replaced every month and never serves old ones for long.
         run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
       - name: Install Linux dependencies for SDL (clean)
-        if: runner.os == 'Linux' && inputs.clean
+        if: matrix.kind == 'deb' && inputs.clean
         # No package cache: apt installs the current packages.
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
       - name: Install Linux dependencies for SDL
-        if: runner.os == 'Linux' && !inputs.clean
+        if: matrix.kind == 'deb' && !inputs.clean
         uses: awalsh128/cache-apt-pkgs-action@v1.4.3
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
@@ -149,6 +177,8 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
       - name: Package
+        # Linux ships only the deb, rpm and Arch packages (see below), no archive.
+        if: runner.os != 'Linux'
         shell: bash
         run: |
           cmake --install build --config Release --prefix dist
@@ -158,36 +188,56 @@ jobs:
           (cd dist && find . -type f) | .github/scripts/check-licenses.sh "$ARTIFACT" build/required-licenses.txt
           (cd dist && find . -type f) | .github/scripts/check-help.sh "$ARTIFACT"
       - uses: actions/upload-artifact@v4
+        if: runner.os != 'Linux'
         with:
           name: ${{ env.ARTIFACT }}
           path: dist
-      - name: Install packaging tools
-        if: runner.os == 'Linux'
-        run: |
-          sudo gem install --no-document fpm
-      - name: Build packages (Linux)
-        if: runner.os == 'Linux'
+      - name: Build the deb (Linux)
+        if: matrix.kind == 'deb'
         run: |
           mkdir packages
-          # deb and rpm
-          for generator in DEB RPM; do
-            (cd build && cpack -G $generator -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
-          done
-          # Arch Linux
+          (cd build && cpack -G DEB -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
+          rm -rf packages/_CPack_Packages
+          mv packages/*.deb "packages/${ARTIFACT}.deb"
+          # Every package has to list the licenses
+          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb" build/required-licenses.txt
+          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.deb"
+          ls -l packages
+      - name: Build the rpm (Linux)
+        if: matrix.kind == 'rpm'
+        run: |
+          mkdir packages
+          (cd build && cpack -G RPM -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
+          rm -rf packages/_CPack_Packages
+          mv packages/*.rpm "packages/${ARTIFACT}.rpm"
+          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm" build/required-licenses.txt
+          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-help.sh "${ARTIFACT}.rpm"
+          ls -l packages
+      - name: Build the Arch package (Linux)
+        if: matrix.kind == 'pacman'
+        run: |
+          mkdir packages
+          gem install --no-document fpm
+          # Arch installs gems into the user's directory, which is not on the PATH.
+          export PATH="$(gem env gemdir)/bin:$(ruby -e 'print Gem.user_dir')/bin:$PATH"
           DESTDIR="$PWD/stage" cmake --install build --config Release --component system --prefix /usr
           fpm -s dir -t pacman -n blitzllvm -v "$VERSION" --description "BlitzBasic compiler built on LLVM" \
             --url https://github.com/Xaymar/BlitzLLVM --license BSD-3-Clause --depends clang --depends vulkan-icd-loader \
             -p "packages/${ARTIFACT}.pkg.tar.zst" -C stage usr
-          rm -rf packages/_CPack_Packages
-          mv packages/*.deb "packages/${ARTIFACT}.deb"
-          mv packages/*.rpm "packages/${ARTIFACT}.rpm"
-          # Every package has to list the licenses
-          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb" build/required-licenses.txt
-          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.deb"
-          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm" build/required-licenses.txt
-          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-help.sh "${ARTIFACT}.rpm"
           bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst" build/required-licenses.txt
           bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-help.sh "${ARTIFACT}.pkg.tar.zst"
+          ls -l packages
+      - name: Build the snap (Linux)
+        if: matrix.snap
+        run: |
+          # The files of the deb are packed again as a classic snap, see snap/snapcraft.yaml. ubuntu-24.04 matches its base, core24.
+          mkdir -p snap-stage
+          DESTDIR="$PWD/snap-stage" cmake --install build --config Release --component system --prefix /usr
+          sed -i "s/@VERSION@/$VERSION/" snap/snapcraft.yaml
+          sudo snap install snapcraft --classic
+          sudo snapcraft pack --destructive-mode --output "packages/${ARTIFACT}.snap"
+          unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.snap" build/required-licenses.txt
+          unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.snap"
           ls -l packages
       - name: Build packages (macOS)
         if: runner.os == 'macOS'
@@ -196,7 +246,7 @@ jobs:
           (cd build && cpack -G productbuild -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
           rm -rf packages/_CPack_Packages
           mv packages/*.pkg "packages/${ARTIFACT}.pkg"
-          pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg"
+          pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg" build/required-licenses.txt
           pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-help.sh "${ARTIFACT}.pkg"
           ls -l packages
       - uses: actions/upload-artifact@v4
