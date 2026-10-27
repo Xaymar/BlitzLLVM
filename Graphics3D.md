@@ -43,6 +43,7 @@ Opens the window, or full screen mode, that 3D programs are drawn in. It has to 
 ## Differences
 
 * The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
+* Full screen (mode 1) does not change the video mode of the display: the picture is shown at the largest size that fits with its aspect ratio kept, and the rest is black. See [Fullscreen](Fullscreen).
 * A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
 
 ## Examples
