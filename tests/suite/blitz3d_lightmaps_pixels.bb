@@ -127,6 +127,31 @@ Check "BSPLightmapColor tints, green is gone", G(40, 60), 0, 2
 BSPLightmapColor level, 255, 255, 255
 RenderWorld
 Check "BSPLightmapColor 255 changes nothing", R(120, 60), 128, 4
+
+; BSPAmbientLight is added to the light: the dark lightmap (128) gets 100 more, the light one is already at the top, and a
+; face with vertex colors gets it on top of its colors. A new level has none, which the checks above show.
+BSPAmbientLight level, 100, 50, 0
+RenderWorld
+Check "BSPAmbientLight is added to the dark lightmap", R(120, 60), 228, 4
+Check "BSPAmbientLight is added per color", G(120, 60), 178, 4
+Check "BSPAmbientLight adds nothing in blue", B(120, 60), 128, 4
+Check "BSPAmbientLight stops at 255", R(40, 60), 255, 2
+Check "BSPAmbientLight is added to vertex colors, red", R(80, 104), 100, 4
+Check "BSPAmbientLight is added to vertex colors, green", G(80, 104), 255, 2
+BSPLighting level, False
+RenderWorld
+Check "BSPAmbientLight with vertex lighting", G(120, 60), 50, 4
+Check "BSPAmbientLight with vertex lighting, red", R(120, 60), 255, 2
+BSPLighting level, True
+; Added after the multiplication: half of 128 plus 100.
+BSPLightmapColor level, 128, 128, 128
+RenderWorld
+Check "BSPAmbientLight is not multiplied by BSPLightmapColor", R(120, 60), 164, 4
+BSPLightmapColor level, 255, 255, 255
+BSPAmbientLight level, 0, 0, 0
+RenderWorld
+Check "BSPAmbientLight 0 changes nothing", R(120, 60), 128, 4
+Check "BSPAmbientLight 0 changes nothing, blue", B(120, 60), 128, 4
 FreeEntity level
 
 ; The gamma of LoadBSP lifts the lightmaps: 64 with a gamma of 1 is 128, which twice is 255.
