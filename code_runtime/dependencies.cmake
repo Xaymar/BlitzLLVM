@@ -309,7 +309,8 @@ if(APPLE)
 endif()
 if(WIN32)
 	# The threads of Windows and a C runtime inside the DLLs keep MSYS2's runtime DLLs out of the files that are shipped.
-	list(APPEND _FFMPEG_ARGS --enable-w32threads --extra-ldflags=-static-libgcc)
+	# clock_gettime comes from MSYS2's libwinpthread-1.dll (clock_gettime64 is missing from older copies on PATH), so link it statically.
+	list(APPEND _FFMPEG_ARGS --enable-w32threads --extra-ldflags=-static-libgcc --extra-libs=-l:libwinpthread.a)
 endif()
 
 function(blitz_build_ffmpeg)
