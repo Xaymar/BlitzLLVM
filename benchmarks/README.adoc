@@ -148,3 +148,72 @@ it with `createMesh( mesh_size*4,mesh_size*2,0 )` (`blitz3d/sprite.cpp`), `gxGra
 buffer that big (65535 vertices at most), and the next `mesh->lock` is a null access: the program dies with an access violation (exit code
 3221225477). So `waterfall.py` stops with a message above 16383 sprites with the original, and 15000 is the highest round number to compare
 the two (`--sprites 15000`). A mesh surface has the same limit: its triangles are `unsigned short` vertex indices (`Surface::Triangle`), so at most 65535 vertices.
+
+== dungeon: a walk through torch-lit rooms
+
+`dungeon.bb` is the benchmark for hiding things, in particular for early-Z with see-through sprites. A dungeon of rooms (16 by default)
+lies in a snake of rows, and room `i` is joined to room `i + 1` by a corridor. A room has a floor, a ceiling, four walls with doorways,
+four pillars, and in each corner a torch. Every room is one mesh (a few thousand triangles), plus loose props (barrels, crates and
+balls, `--props` of them) that are entities of their own.
+
+The camera walks through every room by a wide path: in by one door, out to the side of the room (4.5 units, to the left in one room and
+to the right in the next) and out by the other door, so the doors are never straight ahead. It looks ahead on the path and sways 40
+degrees to both sides, so the walls beside the doors are often in the view, and behind them are the torches of the next room, and their
+flames and smoke. Those sprites are in the view of the camera and pass any culling of the view, but the walls hide them: that is what
+early-Z can save, and what the numbers of `--coverage` show.
+
+Every torch is a point light and has `--particles` sprites (12 by default): half of them flame (small, orange, added to the picture,
+rising and shrinking in 20 frames) and half smoke (grey, see-through, rising, growing and thinning out in 90 frames). Some rooms
+(`--campfires`, a chance of 25 percent for every room, and at least one) have a campfire as well, on the floor: three times as many sprites,
+twice as big, and a brighter light. When the camera comes near one, it turns to the fire. A graphics card has 8 lights, so the 8 sources of
+light nearest to the camera are on (they flicker) and the others are hidden. All sprites are updated in every frame, also those in rooms
+that nobody sees, as a game would not bother to hide them.
+
+[source,sh]
+----
+python3 benchmarks/dungeon.py --quick                                    # 4 rooms, 30 frames: does it work?
+python3 benchmarks/dungeon.py                                            # 16 rooms, 4 torches each, 600 frames
+python3 benchmarks/dungeon.py --rooms 100 --torches 6 --particles 20    # a big dungeon with lots of fire
+python3 benchmarks/dungeon.py --static                                   # the fire stays still, only the camera moves
+python3 benchmarks/dungeon.py --coverage                                 # also count the sprites in the view (not timed)
+----
+
+It takes the same options as the others (`--frames`, `--seed`, `--size`, `--shot`, `--label`, `--debug`, `--profile`, `--no-save`, and
+`BENCH_ROOMS`, `BENCH_TORCHES`, `BENCH_PARTICLES`, `BENCH_PROPS`, `BENCH_CAMPFIRES`, `BENCH_FRAMES`, `BENCH_SEED`, `BENCH_SIZE` for the defaults) and
+prints the same table, with `update` (lights and particles, part of `ms/frame`) and the number of sprites. With `--coverage` the program asks
+for every sprite whether it is in the view (`EntityInView`), after the frame is timed, and prints the average per frame: the sprites that are
+in the view but not on the screen are the ones that culling of the view can't skip and early-Z has to. The rooms, torches and particles scale separately:
+more rooms make more that can be hidden, more particles make more blending. Random numbers come from a small generator in the program
+and not from `Rnd`, so BlitzLLVM and the original Blitz3D draw the same frames.
+
+=== GPU time
+
+`ms/frame` is the time of the program, and `Flip` does not wait for the GPU, so it can miss what the GPU saves (for instance with early-Z).
+With `--profile` the runner builds with `--profile` and runs with `BLITZ_FPS=1`, reads the GPU timestamps of the passes that the runtime reports
+once a second (the first second, which makes the dungeon, is left out) and prints the GPU time per frame (`scene`, `2d`, `frame`).
+Use a size that is limited by the GPU (`--size 1920x1080`) and compare the `scene` time.
+
+The dungeon costs the GPU very little (the sprites are small), so the speed is limited by the CPU. `--sprite-scale 6` draws every flame and
+smoke sprite 6 times as big (36 times the pixels) with the same number of sprites, so that the overdraw is most of what the GPU does and
+the time that early-Z saves can show in `ms/frame` as well. The original Blitz3D can do it as well, as the number of sprites stays the same.
+
+=== With the original Blitz3D
+
+As with the other benchmarks, `dungeon.bb` uses only commands that the original Blitz3D has too. The microsecond timer and the draw
+counters are in `dungeon_llvm.bi`, and `dungeon_original.bi` has `MilliSecs` and counters of 0. The runner picks the right one by
+`blitzcc -v` and leaves out `-O3` and `--profile` for the original:
+
+[source,bat]
+----
+python benchmarks\dungeon.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe
+python benchmarks\dungeon.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe
+----
+
+The original crashes with more than 16383 sprites in total (they share one vertex buffer, 4 vertices each), so the program stops with a message
+when the sprites of the torches and the campfires are more than that. Every room is one surface of a few thousand vertices, far below the 65535
+that the original allows. The original times have a resolution of one millisecond, so use enough frames. The original `SaveBuffer` writes a BMP whatever the file is
+called. Run benchmarks windowed only (they are), the original changes the screen settings in fullscreen.
+
+NOTE: The original Blitz3D cannot open a window above 2047x2047 (not 2048: Direct3D 7 and DirectDraw have an off-by-one in the largest
+surface). Above that it stops with "Unable to create 3D Scene"; that is why it could not start at 2560x1440 on the 4080 SUPER machine.
+The runner stops with a clear message above 2047 in either direction with the original; BlitzLLVM has no such limit.
