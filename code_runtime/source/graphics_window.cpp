@@ -252,6 +252,7 @@ void bb_flip(int32_t vwait)
 	if (!active()) {
 		return;
 	}
+	async_pump();
 	{
 		// BLITZ_FPS=1 reports how many frames are shown each second.
 		static int    enabled = -1;

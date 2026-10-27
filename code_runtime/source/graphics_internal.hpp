@@ -351,6 +351,7 @@ namespace bb::gfx {
 		load_job*    next   = nullptr;
 		int          state  = 0;     // 0 waiting, 1 running, 2 done. Changed under the lock of the queue.
 		bool         cancelled = false;
+		bool         ok     = false; // Decoded without an error, set by run().
 	};
 
 	struct texture_entry {
@@ -813,6 +814,8 @@ namespace bb::gfx {
 	void async_set_loading(bool enabled);
 	/** Stops the loader threads, once nothing is waiting for them any more. */
 	void async_shutdown();
+	/** Uploads what the loader threads are done with, for as long as a frame can spare. Called when a frame is shown. */
+	void async_pump();
 	/** Which block formats the device takes as they are, indexed by block_format. Asked on the program's thread, because loader threads must not ask the device. */
 	const bool* async_block_support();
 	void async_submit(load_job* job);

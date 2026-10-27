@@ -193,7 +193,6 @@ namespace bb::gfx {
 		picture     blocks;
 		uint8_t*    pixels = nullptr;
 		int         w = 0, h = 0;
-		bool        ok = false;
 
 		~image_job() override
 		{

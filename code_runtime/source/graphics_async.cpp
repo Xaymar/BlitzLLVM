@@ -96,6 +96,33 @@ namespace bb::gfx {
 		quit         = false;
 	}
 
+	void async_pump()
+	{
+		if (!worker_count) {
+			return;
+		}
+		// A frame spares about two milliseconds for uploads; what is left over is done by a later frame or by whatever needs it.
+		Uint64 limit = SDL_GetPerformanceCounter() + SDL_GetPerformanceFrequency() / 500;
+		for (uint32_t i = 0; i < texture_table.size; i++) {
+			texture_entry& t = texture_table[i];
+			if (t.used && t.pending && async_finished(t.pending) && t.pending->ok) {
+				resolve_texture(t);
+				if (SDL_GetPerformanceCounter() > limit) {
+					return;
+				}
+			}
+		}
+		for (uint32_t i = 0; i < image_table.size; i++) {
+			image_entry& e = image_table[i];
+			if (e.used && e.pending && async_finished(e.pending) && e.pending->ok) {
+				resolve_image(e);
+				if (SDL_GetPerformanceCounter() > limit) {
+					return;
+				}
+			}
+		}
+	}
+
 	const bool* async_block_support()
 	{
 		static bool known = false;

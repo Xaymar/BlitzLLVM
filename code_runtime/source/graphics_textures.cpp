@@ -445,7 +445,6 @@ namespace bb::gfx {
 			int               flags = 0;
 			bool              block_ok[7] = {};
 			prepared_texture  out;
-			bool              ok = false;
 
 			~texture_job() override
 			{
