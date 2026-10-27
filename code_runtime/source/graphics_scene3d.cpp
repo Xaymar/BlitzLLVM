@@ -285,6 +285,10 @@ namespace bb::gfx {
 			capacity = bigger;
 			changed  = true;
 		};
+		// All three are made together, as a descriptor can not point at no buffer.
+		clusters = std::max(clusters, 1u);
+		groups   = std::max(groups, 1u);
+		commands = std::max(commands, 1u);
 		grow(c.clusters_capacity, clusters, sizeof(gpu_cluster), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, c.clusters, c.clusters_allocation, &c.clusters_mapped);
 		grow(c.groups_capacity, groups, sizeof(gpu_cluster_group), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, c.groups, c.groups_allocation, &c.groups_mapped);
 		grow(c.commands_capacity, commands, sizeof(gpu_draw_command), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, false, c.commands, c.commands_allocation, nullptr);
