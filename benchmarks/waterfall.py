@@ -37,6 +37,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
 
+# Direct3D 7 cannot have a window above 2047x2047 (an off-by-one in DirectDraw, 2048 fails too): the original Blitz3D then stops with
+# "Unable to create 3D Scene".
+ORIGINAL_MAX_SIZE = 2047
+
 def find_compiler(given):
     if given:
         return given
@@ -77,6 +81,9 @@ def main():
     if not llvm and args.sprites > ORIGINAL_MAX_SPRITES:
         sys.exit("The original Blitz3D can draw only %d sprites (they share one vertex buffer of 4 vertices each, and Direct3D 7 "
                  "buffers have at most 65535 vertices); use --sprites %d or less with it, or BlitzLLVM for more." % (ORIGINAL_MAX_SPRITES, ORIGINAL_MAX_SPRITES))
+    if not llvm and (int(width) > ORIGINAL_MAX_SIZE or int(height) > ORIGINAL_MAX_SIZE):
+        sys.exit("The original Blitz3D (Direct3D 7) cannot open a window above %dx%d, it stops with \"Unable to create 3D Scene\" (asked for %sx%s); "
+                 "use --size %dx%d or less with it, or BlitzLLVM for larger windows." % (ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE, width, height, ORIGINAL_MAX_SIZE, ORIGINAL_MAX_SIZE))
     if not llvm:
         # The original compiler reads its runtime and libraries from BLITZPATH, the folder that has bin\ in it.
         os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
