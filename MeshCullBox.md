@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MeshCullBox mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

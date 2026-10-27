@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ScaleMesh mesh:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

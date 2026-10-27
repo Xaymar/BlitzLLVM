@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 LockTextArea textarea:Int32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

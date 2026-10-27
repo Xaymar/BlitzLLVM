@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MouseHit:Int32 button:Int32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

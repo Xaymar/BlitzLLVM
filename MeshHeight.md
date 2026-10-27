@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MeshHeight:Float32 mesh:Int32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CreateMirror:Int32 parent:Int32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

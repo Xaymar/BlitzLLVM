@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 TFormedZ:Float32
 ```
-
-## Parameters
 
 **Returns:** The Z of the result of the last [TFormPoint](TFormPoint), [TFormVector](TFormVector) or [TFormNormal](TFormNormal).
 

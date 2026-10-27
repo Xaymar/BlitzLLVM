@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 StringHeight:Int32 string:String
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

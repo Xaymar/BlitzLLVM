@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 NetMsgFrom:Int32
 ```
-
-## Parameters
 
 **Returns:** The player the last message came from. For type 100 and 101 messages it is the player who joined or left.
 

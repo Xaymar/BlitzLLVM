@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 FrontBuffer:Int32
 ```
-
-## Parameters
 
 **Returns:** The handle of the front buffer.
 

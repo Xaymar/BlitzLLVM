@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CurrentDate:String
 ```
-
-## Parameters
 
 **Returns:** The date as text.
 

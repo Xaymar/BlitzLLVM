@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 LoaderMatrix file_ext:String, xx:Float32, xy:Float32, xz:Float32, yx:Float32, yy:Float32, yz:Float32, zx:Float32, zy:Float32, zz:Float32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

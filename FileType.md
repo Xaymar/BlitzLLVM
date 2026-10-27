@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 FileType:Int32 file:String
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ExtractAnimSeq:Int32 entity:Int32, first_frame:Int32, last_frame:Int32, anim_seq:Int32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

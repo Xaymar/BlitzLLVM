@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CopyFile file:String, to:String
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 TerrainDetail terrain:Int32, detail_level:Int32, morph:Int32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

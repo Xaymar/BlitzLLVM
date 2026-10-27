@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ImageBuffer:Int32 image:Int32, frame:Int32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

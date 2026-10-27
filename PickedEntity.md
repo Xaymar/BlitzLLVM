@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PickedEntity:Int32
 ```
-
-## Parameters
 
 **Returns:** The entity that the latest [CameraPick](CameraPick), [EntityPick](EntityPick) or [LinePick](LinePick) found, or 0 if it found nothing.
 

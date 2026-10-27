@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 DirectInputEnabled:Int32
 ```
-
-## Parameters
 
 **Returns:** 1 if the setting is on, otherwise 0.
 

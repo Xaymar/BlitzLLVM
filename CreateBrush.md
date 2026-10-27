@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CreateBrush:Int32 red:Float32=255, green:Float32=255, blue:Float32=255
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

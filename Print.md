@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 Print string:String=\
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

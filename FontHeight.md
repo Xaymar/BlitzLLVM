@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 FontHeight:Int32
 ```
-
-## Parameters
 
 **Returns:** The height of a character in pixels.
 

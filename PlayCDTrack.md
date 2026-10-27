@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PlayCDTrack:Int32 track:Int32, mode:Int32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ModifyTreeViewNode node:Int32, text:String, icon:Int32=-1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

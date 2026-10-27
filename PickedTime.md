@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PickedTime:Float32
 ```
-
-## Parameters
 
 **Returns:** How far along the line the hit was, from 0 at its start to 1 at its end. After a pick that found nothing the value is 1.
 

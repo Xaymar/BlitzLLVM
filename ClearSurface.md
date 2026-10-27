@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ClearSurface surface:Int32, clear_vertices:Int32=1, clear_triangles:Int32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

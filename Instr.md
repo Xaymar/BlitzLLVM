@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 Instr:Int32 string:String, find:String, from:Int32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

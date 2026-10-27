@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ActiveObjects:Int32
 ```
-
-## Parameters
 
 **Returns:** How many objects are alive. The official help lists the command as undocumented.
 

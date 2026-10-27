@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MouseY:Int32
 ```
-
-## Parameters
 
 **Returns:** The vertical position of the pointer.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GraphicsDepth:Int32
 ```
-
-## Parameters
 
 **Returns:** The depth in bits.
 

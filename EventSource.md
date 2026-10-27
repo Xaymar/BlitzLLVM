@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 EventSource:Int32
 ```
-
-## Parameters
 
 **Returns:** A handle, or 0 for events that have no source such as keys and menus.
 

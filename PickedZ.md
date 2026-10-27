@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PickedZ:Float32
 ```
-
-## Parameters
 
 **Returns:** The world Z coordinate of the point where the latest pick touched an entity.
 

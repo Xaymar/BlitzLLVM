@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GetKey:Int32
 ```
-
-## Parameters
 
 **Returns:** The character code of the next typed character, or 0 if there is none.
 

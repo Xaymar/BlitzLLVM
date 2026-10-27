@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 InsertGadgetItem gadget:Int32, index:Int32, item:String, icon:Int32=-1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

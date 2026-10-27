@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 KeyWait:Int32
 ```
-
-## Parameters
 
 **Returns:** The character code of the key that was typed.
 

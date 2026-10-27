@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CreateListener:Int32 parent:Int32, rolloff_factor:Float32=1, doppler_scale:Float32=1, distance_scale:Float32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

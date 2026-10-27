@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MouseZSpeed:Int32
 ```
-
-## Parameters
 
 **Returns:** The wheel movement since the previous call.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 StartNetGame:Int32
 ```
-
-## Parameters
 
 **Returns:** 2 when a game was hosted, 1 when one was joined and 0 when nothing was started or it failed.
 

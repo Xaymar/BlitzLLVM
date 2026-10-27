@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 TrisRendered:Int32
 ```
-
-## Parameters
 
 **Returns:** The number of triangles that the last [RenderWorld](RenderWorld) drew. It is 0 before the first RenderWorld, and one cube is 12.
 

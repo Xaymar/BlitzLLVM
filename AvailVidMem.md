@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 AvailVidMem:Int32
 ```
-
-## Parameters
 
 **Returns:** The free video memory in bytes.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GraphicsHeight:Int32
 ```
-
-## Parameters
 
 **Returns:** The height in pixels.
 

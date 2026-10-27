@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MouseXSpeed:Int32
 ```
-
-## Parameters
 
 **Returns:** The change of the horizontal position since the previous call.
 

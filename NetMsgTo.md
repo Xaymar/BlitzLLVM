@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 NetMsgTo:Int32
 ```
-
-## Parameters
 
 **Returns:** The player the last message was for, or 0 when it was sent to everyone.
 

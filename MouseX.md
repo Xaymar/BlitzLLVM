@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MouseX:Int32
 ```
-
-## Parameters
 
 **Returns:** The horizontal position of the pointer.
 

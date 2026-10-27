@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PrimaryDisplay:Int32
 ```
-
-## Parameters
 
 **Returns:** The display number, from 1 to [CountDisplays](CountDisplays).
 

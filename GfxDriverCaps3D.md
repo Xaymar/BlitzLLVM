@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GfxDriverCaps3D:Int32
 ```
-
-## Parameters
 
 **Returns:** 100 or 110.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PeekEvent:Int32
 ```
-
-## Parameters
 
 **Returns:** The kind of the next event, or 0 if there is none.
 

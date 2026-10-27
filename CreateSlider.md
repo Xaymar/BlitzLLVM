@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CreateSlider:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

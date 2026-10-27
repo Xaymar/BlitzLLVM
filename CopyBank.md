@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CopyBank src_bank:Int32, src_offset:Int32, dest_bank:Int32, dest_offset:Int32, count:Int32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

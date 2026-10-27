@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CreateSampler:Int32
 ```
-
-## Parameters
 
 **Returns:** The handle of the new sampler.
 

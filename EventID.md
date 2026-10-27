@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 EventID:Int32
 ```
-
-## Parameters
 
 **Returns:** The kind of the event. 0 after a `WaitEvent` that timed out.
 

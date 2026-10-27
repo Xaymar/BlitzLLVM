@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MouseWait:Int32
 ```
-
-## Parameters
 
 **Returns:** The number of the button that was pressed.
 

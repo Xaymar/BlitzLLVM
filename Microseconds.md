@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 Microseconds:UInt64
 ```
-
-## Parameters
 
 **Returns:** A number of microseconds that keeps growing while the program runs, as a `UInt64`. It does not wrap around like [MilliSecs](MilliSecs) does, and its start is not fixed, so use the difference between two calls to measure time.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 SetGamma src_red:Int32, src_green:Int32, src_blue:Int32, dest_red:Float32, dest_green:Float32, dest_blue:Float32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 HWTexUnits:Int32
 ```
-
-## Parameters
 
 **Returns:** How many textures a triangle can have at once. It is 8 here; on the original it was the number of texture stages that the graphics card had, usually 2 to 8.
 

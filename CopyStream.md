@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CopyStream src_stream:Int32, dest_stream:Int32, buffer_size:Int32=16384
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 AlignToVector entity:Int32, vector_x:Float32, vector_y:Float32, vector_z:Float32, axis:Int32, rate:Float32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

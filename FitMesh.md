@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 FitMesh mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32, uniform:Int32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

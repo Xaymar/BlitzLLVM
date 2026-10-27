@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 LightMesh mesh:Int32, red:Float32, green:Float32, blue:Float32, range:Float32=0, x:Float32=0, y:Float32=0, z:Float32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

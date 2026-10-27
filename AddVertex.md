@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 AddVertex:Int32 surface:Int32, x:Float32, y:Float32, z:Float32, u:Float32=0, v:Float32=0, w:Float32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

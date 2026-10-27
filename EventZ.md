@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 EventZ:Int32
 ```
-
-## Parameters
 
 **Returns:** The Z value, 0 if the event has none.
 

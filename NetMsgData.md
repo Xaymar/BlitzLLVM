@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 NetMsgData:String
 ```
-
-## Parameters
 
 **Returns:** The text of the message that [RecvNetMsg](RecvNetMsg) took last. It is empty for the system messages.
 

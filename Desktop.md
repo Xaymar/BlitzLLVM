@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 Desktop:Int32
 ```
-
-## Parameters
 
 **Returns:** A handle that stands for the desktop.
 

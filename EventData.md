@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 EventData:Int32
 ```
-
-## Parameters
 
 **Returns:** The data of the event, see the table. Keeps its value until the next call of `WaitEvent`.
 

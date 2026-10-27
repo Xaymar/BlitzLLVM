@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 RequestColor:Int32 red:Int32=255, green:Int32=255, blue:Int32=255
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 DrawMovie:Int32 movie:Int32, x:Int32=0, y:Int32=0, w:Int32=-1, h:Int32=-1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

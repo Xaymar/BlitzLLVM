@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 NetMsgType:Int32
 ```
-
-## Parameters
 
 **Returns:** The type of the last message: the number that was given to [SendNetMsg](SendNetMsg), or 100, 101 or 200 for the messages of the system.
 

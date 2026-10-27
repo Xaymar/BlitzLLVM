@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 HotKeyEvent rawkey:Int32, modifier:Int32, ev_id:Int32, ev_data:Int32=0, ev_x:Int32=0, ev_y:Int32=0, ev_z:Int32=0, ev_source:Int32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

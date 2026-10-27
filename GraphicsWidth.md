@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GraphicsWidth:Int32
 ```
-
-## Parameters
 
 **Returns:** The width in pixels.
 

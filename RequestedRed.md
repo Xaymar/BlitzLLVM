@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 RequestedRed:Int32
 ```
-
-## Parameters
 
 **Returns:** The red part, 0 to 255, of the color the last [RequestColor](RequestColor) picked. 0 before any color was picked.
 

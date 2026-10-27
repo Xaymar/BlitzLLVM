@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 AnimateMD2 md2:Int32, mode:Int32=1, speed:Float32=1, first_frame:Int32=0, last_frame:Int32=9999, transition:Float32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

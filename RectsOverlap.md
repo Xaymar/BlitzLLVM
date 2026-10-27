@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 RectsOverlap:Int32 x1:Int32, y1:Int32, width1:Int32, height1:Int32, x2:Int32, y2:Int32, width2:Int32, height2:Int32
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

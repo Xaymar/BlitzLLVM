@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 DesktopBuffer:Int32
 ```
-
-## Parameters
 
 **Returns:** A buffer handle.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CurrentDir:String
 ```
-
-## Parameters
 
 **Returns:** The full path of the current folder, which is where relative paths start.
 

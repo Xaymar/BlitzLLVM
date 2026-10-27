@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GetMouse:Int32
 ```
-
-## Parameters
 
 **Returns:** The number of the button that was pressed, or 0 if there is none.
 

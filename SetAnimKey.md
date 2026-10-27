@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 SetAnimKey entity:Int32, frame:Int32, pos_key:Int32=1, rot_key:Int32=1, scale_key:Int32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

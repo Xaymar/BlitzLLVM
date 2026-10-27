@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 AppTitle title:String, close_prompt:String=\
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

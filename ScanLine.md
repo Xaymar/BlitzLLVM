@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ScanLine:Int32
 ```
-
-## Parameters
 
 **Returns:** Always 0. The original returned the line the monitor was drawing, which a modern display cannot tell.
 

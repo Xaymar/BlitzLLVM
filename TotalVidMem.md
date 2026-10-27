@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 TotalVidMem:Int32
 ```
-
-## Parameters
 
 **Returns:** The size of the video memory in bytes.
 

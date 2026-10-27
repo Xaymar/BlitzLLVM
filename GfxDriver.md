@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GfxDriver:Int32
 ```
-
-## Parameters
 
 **Returns:** The driver number, from 1 to [CountGfxDrivers](CountGfxDrivers).
 

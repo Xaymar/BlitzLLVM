@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ProjectedY:Float32
 ```
-
-## Parameters
 
 **Returns:** The Y position in pixels.
 

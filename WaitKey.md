@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 WaitKey:Int32
 ```
-
-## Parameters
 
 **Returns:** The character code of the key that was typed.
 

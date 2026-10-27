@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CountDisplays:Int32
 ```
-
-## Parameters
 
 **Returns:** The number of displays, at least 1.
 

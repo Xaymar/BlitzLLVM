@@ -13,8 +13,6 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 DebugObjects
 ```

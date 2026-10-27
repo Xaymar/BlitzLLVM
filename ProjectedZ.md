@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ProjectedZ:Float32
 ```
-
-## Parameters
 
 **Returns:** The distance of the point in front of the camera. Negative for points behind it.
 

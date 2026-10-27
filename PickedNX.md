@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PickedNX:Float32
 ```
-
-## Parameters
 
 **Returns:** The X part of the surface normal at the picked point: a direction of length 1 that points out of the surface, towards the side the line came from.
 

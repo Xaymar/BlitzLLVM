@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 FontWidth:Int32
 ```
-
-## Parameters
 
 **Returns:** The width of a character in pixels.
 

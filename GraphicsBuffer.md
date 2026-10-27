@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GraphicsBuffer:Int32
 ```
-
-## Parameters
 
 **Returns:** The handle of the current buffer.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MouseYSpeed:Int32
 ```
-
-## Parameters
 
 **Returns:** The change of the vertical position since the previous call.
 

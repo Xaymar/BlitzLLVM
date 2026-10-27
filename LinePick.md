@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 LinePick:Int32 x:Float32, y:Float32, z:Float32, dx:Float32, dy:Float32, dz:Float32, radius:Float32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

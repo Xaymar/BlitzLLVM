@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ProjectedX:Float32
 ```
-
-## Parameters
 
 **Returns:** The X position in pixels.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 RequestFont:Int32
 ```
-
-## Parameters
 
 **Returns:** A font handle, or 0 if cancelled.
 

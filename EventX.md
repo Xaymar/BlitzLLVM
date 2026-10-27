@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 EventX:Int32
 ```
-
-## Parameters
 
 **Returns:** The X value, see the table at [EventData](EventData). Positions on a canvas are relative to the canvas.
 

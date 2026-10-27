@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ModifyTerrain terrain:Int32, terrain_x:Int32, terrain_z:Int32, height:Float32, realtime:Int32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

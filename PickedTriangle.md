@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PickedTriangle:Int32
 ```
-
-## Parameters
 
 **Returns:** The number of the triangle that the latest pick hit, in the surface from PickedSurface. Triangle numbers start at 0. It is 0 when the entity was picked as a sphere or box.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 RecvNetMsg:Int32
 ```
-
-## Parameters
 
 **Returns:** 1 when a message was taken, 0 when nothing arrived.
 

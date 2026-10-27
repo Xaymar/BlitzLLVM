@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 BackBuffer:Int32
 ```
-
-## Parameters
 
 **Returns:** The handle of the back buffer.
 

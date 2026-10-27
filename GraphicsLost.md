@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GraphicsLost:Int32
 ```
-
-## Parameters
 
 **Returns:** 1 if the graphics were lost, otherwise 0.
 

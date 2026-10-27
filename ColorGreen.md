@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 ColorGreen:Int32
 ```
-
-## Parameters
 
 **Returns:** The green part, 0 to 255, of the current drawing color.
 

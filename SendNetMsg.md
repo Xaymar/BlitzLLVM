@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 SendNetMsg:Int32 type:Int32, msg:String, from_player:Int32, to_player:Int32=0, reliable:Int32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

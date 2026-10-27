@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 MouseZ:Int32
 ```
-
-## Parameters
 
 **Returns:** The wheel position added up since the program started.
 

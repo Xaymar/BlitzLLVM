@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 GraphicsFormat:Int32
 ```
-
-## Parameters
 
 **Returns:** The format number.
 

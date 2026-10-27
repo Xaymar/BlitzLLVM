@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 FormatTextAreaText textarea:Int32, red:Int32, green:Int32, blue:Int32, flags:Int32, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CopyPixel src_x:Int32, src_y:Int32, src_buffer:Int32, dest_x:Int32, dest_y:Int32, dest_buffer:Int32=0
 ```
-
-## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|

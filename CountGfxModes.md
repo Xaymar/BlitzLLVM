@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CountGfxModes:Int32
 ```
-
-## Parameters
 
 **Returns:** The number of modes.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CountGfxModes3D:Int32
 ```
-
-## Parameters
 
 **Returns:** How many full screen modes the 3D driver offers. The numbers 1 to this value can be given to [GfxMode3D](GfxMode3D).
 

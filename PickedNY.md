@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 PickedNY:Float32
 ```
-
-## Parameters
 
 **Returns:** The Y part of the surface normal at the picked point.
 

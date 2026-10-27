@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 CommandLine:String
 ```
-
-## Parameters
 
 **Returns:** The arguments the program was started with as one string, with a space between them. It is empty when there are none. A program run by `blitzcc` gets the arguments given after `--args`.
 

@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 EventY:Int32
 ```
-
-## Parameters
 
 **Returns:** The Y value, see the table at [EventData](EventData).
 

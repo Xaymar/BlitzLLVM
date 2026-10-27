@@ -13,13 +13,9 @@
 </div>
 
 
-## Command Syntax
-
 ```blitzbasic
 RndSeed:Int32
 ```
-
-## Parameters
 
 **Returns:** The current seed of the random number generator. Store it and give it to [SeedRnd](SeedRnd) later to replay a sequence of random numbers.
 
