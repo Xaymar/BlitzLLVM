@@ -20,6 +20,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"source/files.cpp"
 	"source/edits.hpp"
 	"source/edits.cpp"
+	"source/driver.hpp"
+	"source/driver.cpp"
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
