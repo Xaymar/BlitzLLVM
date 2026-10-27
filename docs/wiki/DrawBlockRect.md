@@ -42,12 +42,7 @@ Draws only a rectangle of a frame, without any transparency. See [DrawBlock](Dra
 
 ## Related Commands
 
-* [DrawBlock](DrawBlock)
-* [DrawImage](DrawImage)
-* [DrawImageRect](DrawImageRect)
-* [ImageRectCollide](ImageRectCollide)
-* [ImageRectOverlap](ImageRectOverlap)
-* [TileBlock](TileBlock)
+[DrawBlock](DrawBlock), [DrawImage](DrawImage), [DrawImageRect](DrawImageRect), [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [TileBlock](TileBlock)
 
 <div align="center">
 

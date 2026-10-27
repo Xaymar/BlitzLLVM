@@ -65,14 +65,7 @@ Wend
 
 ## Related Commands
 
-* [EntityAlpha](EntityAlpha)
-* [EntityAutoFade](EntityAutoFade)
-* [EntityBlend](EntityBlend)
-* [EntityClass](EntityClass)
-* [EntityColor](EntityColor)
-* [EntityDistance](EntityDistance)
-* [EntityFX](EntityFX)
-* [EntityInView](EntityInView)
+[EntityAlpha](EntityAlpha), [EntityAutoFade](EntityAutoFade), [EntityBlend](EntityBlend), [EntityClass](EntityClass), [EntityColor](EntityColor), [EntityDistance](EntityDistance), [EntityFX](EntityFX), [EntityInView](EntityInView)
 
 <div align="center">
 

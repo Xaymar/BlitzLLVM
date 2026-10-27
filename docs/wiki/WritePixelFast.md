@@ -62,11 +62,7 @@ Wend
 
 ## Related Commands
 
-* [CopyPixel](CopyPixel)
-* [CopyPixelFast](CopyPixelFast)
-* [ReadPixel](ReadPixel)
-* [ReadPixelFast](ReadPixelFast)
-* [WritePixel](WritePixel)
+[CopyPixel](CopyPixel), [CopyPixelFast](CopyPixelFast), [ReadPixel](ReadPixel), [ReadPixelFast](ReadPixelFast), [WritePixel](WritePixel)
 
 <div align="center">
 

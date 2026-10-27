@@ -56,14 +56,7 @@ hello server
 
 ## Related Commands
 
-* [CloseTCPServer](CloseTCPServer)
-* [CloseTCPStream](CloseTCPStream)
-* [CloseUDPStream](CloseUDPStream)
-* [CreateTCPServer](CreateTCPServer)
-* [CreateUDPStream](CreateUDPStream)
-* [OpenTCPStream](OpenTCPStream)
-* [TCPStreamIP](TCPStreamIP)
-* [TCPStreamPort](TCPStreamPort)
+[CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [CreateUDPStream](CreateUDPStream), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort)
 
 <div align="center">
 

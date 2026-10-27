@@ -43,10 +43,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [ClientWidth](ClientWidth)
-* [CreateWindow](CreateWindow)
-* [MaximizeWindow](MaximizeWindow)
-* [MinimizeWindow](MinimizeWindow)
+[ClientWidth](ClientWidth), [CreateWindow](CreateWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow)
 
 <div align="center">
 

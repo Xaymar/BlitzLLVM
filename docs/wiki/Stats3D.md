@@ -37,10 +37,7 @@ Gives debugging numbers about the engine. The original help has no entry for thi
 
 ## Related Commands
 
-* [HWTexUnits](HWTexUnits)
-* [RenderWorld](RenderWorld)
-* [TrisRendered](TrisRendered)
-* [UpdateWorld](UpdateWorld)
+[HWTexUnits](HWTexUnits), [RenderWorld](RenderWorld), [TrisRendered](TrisRendered), [UpdateWorld](UpdateWorld)
 
 <div align="center">
 

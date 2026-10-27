@@ -46,12 +46,7 @@ StopChannel ch
 
 ## Related Commands
 
-* [ChannelPan](ChannelPan)
-* [ChannelPitch](ChannelPitch)
-* [ChannelPlaying](ChannelPlaying)
-* [ChannelVolume](ChannelVolume)
-* [ResumeChannel](ResumeChannel)
-* [StopChannel](StopChannel)
+[ChannelPan](ChannelPan), [ChannelPitch](ChannelPitch), [ChannelPlaying](ChannelPlaying), [ChannelVolume](ChannelVolume), [ResumeChannel](ResumeChannel), [StopChannel](StopChannel)
 
 <div align="center">
 

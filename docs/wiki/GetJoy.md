@@ -53,14 +53,7 @@ Wend
 
 ## Related Commands
 
-* [FlushJoy](FlushJoy)
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyPitch](JoyPitch)
-* [JoyRoll](JoyRoll)
-* [JoyType](JoyType)
-* [WaitJoy](WaitJoy)
+[FlushJoy](FlushJoy), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [WaitJoy](WaitJoy)
 
 <div align="center">
 

@@ -43,10 +43,7 @@ Print Tan(45)
 
 ## Related Commands
 
-* [ATan](ATan)
-* [Sin](Sin)
-* [Sqr](Sqr)
-* [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
+[ATan](ATan), [Sin](Sin), [Sqr](Sqr), [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
 <div align="center">
 

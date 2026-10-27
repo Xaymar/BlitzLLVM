@@ -34,14 +34,7 @@ Moves every vertex of a mesh by an offset, permanently. Unlike [PositionEntity](
 
 ## Related Commands
 
-* [AddMesh](AddMesh)
-* [CopyMesh](CopyMesh)
-* [CreateMesh](CreateMesh)
-* [FitMesh](FitMesh)
-* [FlipMesh](FlipMesh)
-* [LoadAnimMesh](LoadAnimMesh)
-* [LoadMesh](LoadMesh)
-* [PaintMesh](PaintMesh)
+[AddMesh](AddMesh), [CopyMesh](CopyMesh), [CreateMesh](CreateMesh), [FitMesh](FitMesh), [FlipMesh](FlipMesh), [LoadAnimMesh](LoadAnimMesh), [LoadMesh](LoadMesh), [PaintMesh](PaintMesh)
 
 <div align="center">
 

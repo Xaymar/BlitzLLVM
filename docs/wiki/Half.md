@@ -53,10 +53,7 @@ Print Half(0.1) = 0.1
 
 ## Related Commands
 
-* [Exp](Exp)
-* [Floor](Floor)
-* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
-* [Log](Log)
+[Exp](Exp), [Floor](Floor), [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Log](Log)
 
 <div align="center">
 

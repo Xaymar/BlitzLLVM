@@ -54,10 +54,7 @@ Next
 
 ## Related Commands
 
-* [Oval](Oval)
-* [Plot](Plot)
-* [ScanLine](ScanLine)
-* [Viewport](Viewport)
+[Oval](Oval), [Plot](Plot), [ScanLine](ScanLine), [Viewport](Viewport)
 
 <div align="center">
 

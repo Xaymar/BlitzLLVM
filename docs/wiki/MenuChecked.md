@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CheckMenu](CheckMenu)
-* [CreateMenu](CreateMenu)
-* [DisableMenu](DisableMenu)
-* [EnableMenu](EnableMenu)
-* [MenuEnabled](MenuEnabled)
-* [MenuText](MenuText)
-* [SetMenuText](SetMenuText)
-* [UncheckMenu](UncheckMenu)
+[CheckMenu](CheckMenu), [CreateMenu](CreateMenu), [DisableMenu](DisableMenu), [EnableMenu](EnableMenu), [MenuEnabled](MenuEnabled), [MenuText](MenuText), [SetMenuText](SetMenuText), [UncheckMenu](UncheckMenu)
 
 <div align="center">
 

@@ -29,12 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ProjectedZ](ProjectedZ)
-* [TFormedX](TFormedX)
-* [TFormedY](TFormedY)
-* [TFormNormal](TFormNormal)
-* [TFormPoint](TFormPoint)
-* [TFormVector](TFormVector)
+[ProjectedZ](ProjectedZ), [TFormedX](TFormedX), [TFormedY](TFormedY), [TFormNormal](TFormNormal), [TFormPoint](TFormPoint), [TFormVector](TFormVector)
 
 <div align="center">
 

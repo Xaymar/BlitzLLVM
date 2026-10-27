@@ -56,14 +56,7 @@ Print UByte(300.0)
 
 ## Related Commands
 
-* [Byte](Byte) 〔BlitzLLVM〕
-* [ByteSwap](ByteSwap) 〔BlitzLLVM〕
-* [SatByte](SatByte) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [SatUInt](SatUInt) 〔BlitzLLVM〕
-* [UInt](UInt) 〔BlitzLLVM〕
-* [ULong](ULong) 〔BlitzLLVM〕
-* [UShort](UShort) 〔BlitzLLVM〕
+[Byte](Byte) 〔BlitzLLVM〕, [ByteSwap](ByteSwap) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 

@@ -55,10 +55,7 @@ FreeBank destination
 
 ## Related Commands
 
-* [BankSize](BankSize)
-* [CreateBank](CreateBank)
-* [FreeBank](FreeBank)
-* [ResizeBank](ResizeBank)
+[BankSize](BankSize), [CreateBank](CreateBank), [FreeBank](FreeBank), [ResizeBank](ResizeBank)
 
 <div align="center">
 

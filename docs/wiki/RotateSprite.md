@@ -32,11 +32,7 @@ Rolls a sprite around the line from the camera to it. The angle is absolute, in 
 
 ## Related Commands
 
-* [CreateSprite](CreateSprite)
-* [HandleSprite](HandleSprite)
-* [LoadSprite](LoadSprite)
-* [ScaleSprite](ScaleSprite)
-* [SpriteViewMode](SpriteViewMode)
+[CreateSprite](CreateSprite), [HandleSprite](HandleSprite), [LoadSprite](LoadSprite), [ScaleSprite](ScaleSprite), [SpriteViewMode](SpriteViewMode)
 
 <div align="center">
 

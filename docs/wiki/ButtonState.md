@@ -46,10 +46,7 @@ Until e = $803
 
 ## Related Commands
 
-* [ActivateGadget](ActivateGadget)
-* [AddGadgetItem](AddGadgetItem)
-* [CreateButton](CreateButton)
-* [SetButtonState](SetButtonState)
+[ActivateGadget](ActivateGadget), [AddGadgetItem](AddGadgetItem), [CreateButton](CreateButton), [SetButtonState](SetButtonState)
 
 <div align="center">
 

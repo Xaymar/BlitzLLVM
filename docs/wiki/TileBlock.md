@@ -59,10 +59,7 @@ Wend
 
 ## Related Commands
 
-* [DrawBlock](DrawBlock)
-* [DrawBlockRect](DrawBlockRect)
-* [TFormFilter](TFormFilter)
-* [TileImage](TileImage)
+[DrawBlock](DrawBlock), [DrawBlockRect](DrawBlockRect), [TFormFilter](TFormFilter), [TileImage](TileImage)
 
 <div align="center">
 

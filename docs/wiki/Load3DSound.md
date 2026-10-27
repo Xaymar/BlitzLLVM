@@ -54,13 +54,7 @@ Delay 600
 
 ## Related Commands
 
-* [FreeSound](FreeSound)
-* [LoadSound](LoadSound)
-* [LoopSound](LoopSound)
-* [PlaySound](PlaySound)
-* [SoundPan](SoundPan)
-* [SoundPitch](SoundPitch)
-* [SoundVolume](SoundVolume)
+[FreeSound](FreeSound), [LoadSound](LoadSound), [LoopSound](LoopSound), [PlaySound](PlaySound), [SoundPan](SoundPan), [SoundPitch](SoundPitch), [SoundVolume](SoundVolume)
 
 <div align="center">
 

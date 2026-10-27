@@ -35,14 +35,7 @@ Tells the system that a buffer was changed behind its back so that it has to be 
 
 ## Related Commands
 
-* [BackBuffer](BackBuffer)
-* [FrontBuffer](FrontBuffer)
-* [GraphicsBuffer](GraphicsBuffer)
-* [LoadBuffer](LoadBuffer)
-* [LockBuffer](LockBuffer)
-* [SaveBuffer](SaveBuffer)
-* [SetBuffer](SetBuffer)
-* [UnlockBuffer](UnlockBuffer)
+[BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [GraphicsBuffer](GraphicsBuffer), [LoadBuffer](LoadBuffer), [LockBuffer](LockBuffer), [SaveBuffer](SaveBuffer), [SetBuffer](SetBuffer), [UnlockBuffer](UnlockBuffer)
 
 <div align="center">
 

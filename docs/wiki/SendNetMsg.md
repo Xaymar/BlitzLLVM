@@ -37,14 +37,7 @@ Sends a message from a player of this program to one other player or to everyone
 
 ## Related Commands
 
-* [CreateNetPlayer](CreateNetPlayer)
-* [DeleteNetPlayer](DeleteNetPlayer)
-* [HostNetGame](HostNetGame)
-* [NetMsgData](NetMsgData)
-* [NetMsgFrom](NetMsgFrom)
-* [NetMsgTo](NetMsgTo)
-* [NetMsgType](NetMsgType)
-* [RecvNetMsg](RecvNetMsg)
+[CreateNetPlayer](CreateNetPlayer), [DeleteNetPlayer](DeleteNetPlayer), [HostNetGame](HostNetGame), [NetMsgData](NetMsgData), [NetMsgFrom](NetMsgFrom), [NetMsgTo](NetMsgTo), [NetMsgType](NetMsgType), [RecvNetMsg](RecvNetMsg)
 
 <div align="center">
 

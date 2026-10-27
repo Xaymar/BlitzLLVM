@@ -43,14 +43,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [GadgetItemText](GadgetItemText)
-* [GadgetText](GadgetText)
-* [SetButtonState](SetButtonState)
-* [SetGadgetFont](SetGadgetFont)
-* [SetGadgetLayout](SetGadgetLayout)
-* [SetGadgetShape](SetGadgetShape)
-* [SetPanelColor](SetPanelColor)
-* [SetPanelImage](SetPanelImage)
+[GadgetItemText](GadgetItemText), [GadgetText](GadgetText), [SetButtonState](SetButtonState), [SetGadgetFont](SetGadgetFont), [SetGadgetLayout](SetGadgetLayout), [SetGadgetShape](SetGadgetShape), [SetPanelColor](SetPanelColor), [SetPanelImage](SetPanelImage)
 
 <div align="center">
 

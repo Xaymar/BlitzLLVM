@@ -68,14 +68,7 @@ Wend
 
 ## Related Commands
 
-* [CopyImage](CopyImage)
-* [DrawImage](DrawImage)
-* [FreeImage](FreeImage)
-* [GrabImage](GrabImage)
-* [HandleImage](HandleImage)
-* [LoadAnimImage](LoadAnimImage)
-* [LoadImage](LoadImage)
-* [MaskImage](MaskImage)
+[CopyImage](CopyImage), [DrawImage](DrawImage), [FreeImage](FreeImage), [GrabImage](GrabImage), [HandleImage](HandleImage), [LoadAnimImage](LoadAnimImage), [LoadImage](LoadImage), [MaskImage](MaskImage)
 
 <div align="center">
 

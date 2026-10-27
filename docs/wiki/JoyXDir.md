@@ -33,14 +33,7 @@ Like [JoyX](JoyX), but as a direction only: -1 when pushed left past a third of 
 
 ## Related Commands
 
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyUDir](JoyUDir)
-* [JoyVDir](JoyVDir)
-* [JoyX](JoyX)
-* [JoyYDir](JoyYDir)
-* [JoyZDir](JoyZDir)
+[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyUDir](JoyUDir), [JoyVDir](JoyVDir), [JoyX](JoyX), [JoyYDir](JoyYDir), [JoyZDir](JoyZDir)
 
 <div align="center">
 

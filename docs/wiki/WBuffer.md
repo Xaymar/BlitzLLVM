@@ -35,9 +35,7 @@ Switches between a Z buffer and a W buffer for depth sorting. A W buffer spreads
 
 ## Related Commands
 
-* [TrisRendered](TrisRendered)
-* [UpdateWorld](UpdateWorld)
-* [WireFrame](WireFrame)
+[TrisRendered](TrisRendered), [UpdateWorld](UpdateWorld), [WireFrame](WireFrame)
 
 <div align="center">
 

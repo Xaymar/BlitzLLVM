@@ -43,10 +43,7 @@ Print Cos(60)
 
 ## Related Commands
 
-* [ACos](ACos)
-* [ByteSwap](ByteSwap) 〔BlitzLLVM〕
-* [Ceil](Ceil)
-* [Double](Double) 〔BlitzLLVM〕
+[ACos](ACos), [ByteSwap](ByteSwap) 〔BlitzLLVM〕, [Ceil](Ceil), [Double](Double) 〔BlitzLLVM〕
 
 <div align="center">
 

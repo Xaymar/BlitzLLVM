@@ -31,12 +31,7 @@ Closes a folder that was opened with [ReadDir](ReadDir).
 
 ## Related Commands
 
-* [ChangeDir](ChangeDir)
-* [CloseFile](CloseFile)
-* [CreateDir](CreateDir)
-* [CurrentDir](CurrentDir)
-* [DeleteDir](DeleteDir)
-* [ReadDir](ReadDir)
+[ChangeDir](ChangeDir), [CloseFile](CloseFile), [CreateDir](CreateDir), [CurrentDir](CurrentDir), [DeleteDir](DeleteDir), [ReadDir](ReadDir)
 
 <div align="center">
 

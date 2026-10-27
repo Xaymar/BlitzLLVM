@@ -55,14 +55,7 @@ WaitKey
 
 ## Related Commands
 
-* [CameraClsMode](CameraClsMode)
-* [CameraFogColor](CameraFogColor)
-* [CameraFogMode](CameraFogMode)
-* [CameraFogRange](CameraFogRange)
-* [CameraProject](CameraProject)
-* [CameraProjMode](CameraProjMode)
-* [CameraRange](CameraRange)
-* [CameraViewport](CameraViewport)
+[CameraClsMode](CameraClsMode), [CameraFogColor](CameraFogColor), [CameraFogMode](CameraFogMode), [CameraFogRange](CameraFogRange), [CameraProject](CameraProject), [CameraProjMode](CameraProjMode), [CameraRange](CameraRange), [CameraViewport](CameraViewport)
 
 <div align="center">
 

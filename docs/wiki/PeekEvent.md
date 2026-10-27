@@ -45,13 +45,7 @@ Wend
 
 ## Related Commands
 
-* [EventData](EventData)
-* [EventID](EventID)
-* [EventSource](EventSource)
-* [EventX](EventX)
-* [EventY](EventY)
-* [EventZ](EventZ)
-* [WaitEvent](WaitEvent)
+[EventData](EventData), [EventID](EventID), [EventSource](EventSource), [EventX](EventX), [EventY](EventY), [EventZ](EventZ), [WaitEvent](WaitEvent)
 
 <div align="center">
 

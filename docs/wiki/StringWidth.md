@@ -58,10 +58,7 @@ WaitKey
 
 ## Related Commands
 
-* [FontWidth](FontWidth)
-* [SetFont](SetFont)
-* [StringHeight](StringHeight)
-* [Text](Text)
+[FontWidth](FontWidth), [SetFont](SetFont), [StringHeight](StringHeight), [Text](Text)
 
 <div align="center">
 

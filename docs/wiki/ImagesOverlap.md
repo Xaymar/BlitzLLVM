@@ -38,10 +38,7 @@ Tells whether the boxes of two images touch, which is quick but counts transpare
 
 ## Related Commands
 
-* [ImageRectOverlap](ImageRectOverlap)
-* [ImagesCollide](ImagesCollide)
-* [ImageWidth](ImageWidth)
-* [RectsOverlap](RectsOverlap)
+[ImageRectOverlap](ImageRectOverlap), [ImagesCollide](ImagesCollide), [ImageWidth](ImageWidth), [RectsOverlap](RectsOverlap)
 
 <div align="center">
 

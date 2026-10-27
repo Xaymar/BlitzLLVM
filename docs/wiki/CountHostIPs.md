@@ -47,10 +47,7 @@ Print CountHostIPs("localhost") >= 1
 
 ## Related Commands
 
-* [CloseTCPStream](CloseTCPStream)
-* [CloseUDPStream](CloseUDPStream)
-* [CreateTCPServer](CreateTCPServer)
-* [HostIP](HostIP)
+[CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [HostIP](HostIP)
 
 <div align="center">
 

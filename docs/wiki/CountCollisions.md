@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ClearCollisions](ClearCollisions)
-* [Collisions](Collisions)
-* [CollisionY](CollisionY)
-* [CollisionZ](CollisionZ)
+[ClearCollisions](ClearCollisions), [Collisions](Collisions), [CollisionY](CollisionY), [CollisionZ](CollisionZ)
 
 <div align="center">
 

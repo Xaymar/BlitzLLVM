@@ -62,10 +62,7 @@ WaitKey
 
 ## Related Commands
 
-* [CameraPick](CameraPick)
-* [EntityPick](EntityPick)
-* [EntityPickMode](EntityPickMode)
-* [EntityVisible](EntityVisible)
+[CameraPick](CameraPick), [EntityPick](EntityPick), [EntityPickMode](EntityPickMode), [EntityVisible](EntityVisible)
 
 <div align="center">
 

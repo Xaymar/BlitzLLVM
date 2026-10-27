@@ -50,10 +50,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [CanvasBuffer](CanvasBuffer)
-* [CreateCanvas](CreateCanvas)
-* [DesktopBuffer](DesktopBuffer)
-* [LockedFormat](LockedFormat)
+[CanvasBuffer](CanvasBuffer), [CreateCanvas](CreateCanvas), [DesktopBuffer](DesktopBuffer), [LockedFormat](LockedFormat)
 
 <div align="center">
 

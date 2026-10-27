@@ -46,13 +46,7 @@ StopChannel ch
 
 ## Related Commands
 
-* [FreeSound](FreeSound)
-* [Load3DSound](Load3DSound)
-* [LoadSound](LoadSound)
-* [PlaySound](PlaySound)
-* [SoundPan](SoundPan)
-* [SoundPitch](SoundPitch)
-* [SoundVolume](SoundVolume)
+[FreeSound](FreeSound), [Load3DSound](Load3DSound), [LoadSound](LoadSound), [PlaySound](PlaySound), [SoundPan](SoundPan), [SoundPitch](SoundPitch), [SoundVolume](SoundVolume)
 
 <div align="center">
 

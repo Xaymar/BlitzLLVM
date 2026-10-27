@@ -38,14 +38,7 @@ Chooses what is read where the depth texture coordinate (w), which flat textures
 
 ## Related Commands
 
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
-* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
-* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
-* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
-* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
-* [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
+[GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕, [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕, [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕, [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕, [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕, [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕, [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
 
 <div align="center">
 

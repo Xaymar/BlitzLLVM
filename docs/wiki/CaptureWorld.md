@@ -29,10 +29,7 @@ Remembers the position, rotation and scale of every entity, so that [RenderWorld
 
 ## Related Commands
 
-* [AmbientLight](AmbientLight)
-* [ClearWorld](ClearWorld)
-* [RenderWorld](RenderWorld)
-* [UpdateWorld](UpdateWorld)
+[AmbientLight](AmbientLight), [ClearWorld](ClearWorld), [RenderWorld](RenderWorld), [UpdateWorld](UpdateWorld)
 
 <div align="center">
 

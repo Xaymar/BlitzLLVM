@@ -43,10 +43,7 @@ Print ATan(1)
 
 ## Related Commands
 
-* [ACos](ACos)
-* [ASin](ASin)
-* [ATan2](ATan2)
-* [Tan](Tan)
+[ACos](ACos), [ASin](ASin), [ATan2](ATan2), [Tan](Tan)
 
 <div align="center">
 

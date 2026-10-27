@@ -52,14 +52,7 @@ Print SatULong(Long(9000000000))
 
 ## Related Commands
 
-* [Long](Long) 〔BlitzLLVM〕
-* [SatByte](SatByte) 〔BlitzLLVM〕
-* [SatInt](SatInt) 〔BlitzLLVM〕
-* [SatLong](SatLong) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [SatUInt](SatUInt) 〔BlitzLLVM〕
-* [SatUShort](SatUShort) 〔BlitzLLVM〕
-* [ULong](ULong) 〔BlitzLLVM〕
+[Long](Long) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕
 
 <div align="center">
 

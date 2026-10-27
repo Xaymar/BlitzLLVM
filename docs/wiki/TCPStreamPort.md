@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseTCPServer](CloseTCPServer)
-* [CloseTCPStream](CloseTCPStream)
-* [OpenTCPStream](OpenTCPStream)
-* [TCPStreamIP](TCPStreamIP)
-* [TCPTimeouts](TCPTimeouts)
-* [UDPMsgPort](UDPMsgPort)
-* [UDPStreamPort](UDPStreamPort)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPTimeouts](TCPTimeouts), [UDPMsgPort](UDPMsgPort), [UDPStreamPort](UDPStreamPort)
 
 <div align="center">
 

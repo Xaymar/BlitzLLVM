@@ -67,14 +67,7 @@ WaitKey
 
 ## Related Commands
 
-* [CopyImage](CopyImage)
-* [CreateImage](CreateImage)
-* [DrawBlock](DrawBlock)
-* [DrawBlockRect](DrawBlockRect)
-* [DrawImage](DrawImage)
-* [FreeImage](FreeImage)
-* [ImageRectCollide](ImageRectCollide)
-* [ImageRectOverlap](ImageRectOverlap)
+[CopyImage](CopyImage), [CreateImage](CreateImage), [DrawBlock](DrawBlock), [DrawBlockRect](DrawBlockRect), [DrawImage](DrawImage), [FreeImage](FreeImage), [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap)
 
 <div align="center">
 

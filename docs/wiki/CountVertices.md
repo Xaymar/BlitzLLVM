@@ -33,10 +33,7 @@ Reports how many vertices a surface has. Vertex indexes run from 0 to one less t
 
 ## Related Commands
 
-* [CountSurfaces](CountSurfaces)
-* [CountTriangles](CountTriangles)
-* [CreateSurface](CreateSurface)
-* [FindSurface](FindSurface)
+[CountSurfaces](CountSurfaces), [CountTriangles](CountTriangles), [CreateSurface](CreateSurface), [FindSurface](FindSurface)
 
 <div align="center">
 

@@ -39,14 +39,7 @@ Sets the height of one grid point of the terrain. Heights are between 0 and 1 an
 
 ## Related Commands
 
-* [CreateTerrain](CreateTerrain)
-* [LoadTerrain](LoadTerrain)
-* [TerrainDetail](TerrainDetail)
-* [TerrainHeight](TerrainHeight)
-* [TerrainShading](TerrainShading)
-* [TerrainSize](TerrainSize)
-* [TerrainX](TerrainX)
-* [TerrainY](TerrainY)
+[CreateTerrain](CreateTerrain), [LoadTerrain](LoadTerrain), [TerrainDetail](TerrainDetail), [TerrainHeight](TerrainHeight), [TerrainShading](TerrainShading), [TerrainSize](TerrainSize), [TerrainX](TerrainX), [TerrainY](TerrainY)
 
 <div align="center">
 

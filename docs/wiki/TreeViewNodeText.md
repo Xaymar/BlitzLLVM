@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AddTreeViewNode](AddTreeViewNode)
-* [CollapseTreeViewNode](CollapseTreeViewNode)
-* [ExpandTreeViewNode](ExpandTreeViewNode)
-* [FreeTreeViewNode](FreeTreeViewNode)
-* [InsertTreeViewNode](InsertTreeViewNode)
-* [ModifyTreeViewNode](ModifyTreeViewNode)
-* [SelectedTreeViewNode](SelectedTreeViewNode)
-* [TreeViewRoot](TreeViewRoot)
+[AddTreeViewNode](AddTreeViewNode), [CollapseTreeViewNode](CollapseTreeViewNode), [ExpandTreeViewNode](ExpandTreeViewNode), [FreeTreeViewNode](FreeTreeViewNode), [InsertTreeViewNode](InsertTreeViewNode), [ModifyTreeViewNode](ModifyTreeViewNode), [SelectedTreeViewNode](SelectedTreeViewNode), [TreeViewRoot](TreeViewRoot)
 
 <div align="center">
 

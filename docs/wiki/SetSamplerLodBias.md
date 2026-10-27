@@ -38,14 +38,7 @@ Moves the point where the mip levels change. A positive bias uses the smaller (b
 
 ## Related Commands
 
-* [GetSamplerLodBias](GetSamplerLodBias) 〔BlitzLLVM〕
-* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
-* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
-* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
-* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
-* [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
-* [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
+[GetSamplerLodBias](GetSamplerLodBias) 〔BlitzLLVM〕, [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕, [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕, [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕, [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕, [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕, [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕, [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
 
 <div align="center">
 

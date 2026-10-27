@@ -36,10 +36,7 @@ DebugObjects
 
 ## Related Commands
 
-* [ActiveObjects](ActiveObjects)
-* [Confirm](Confirm)
-* [CreateProcess](CreateProcess)
-* [FlushEvents](FlushEvents)
+[ActiveObjects](ActiveObjects), [Confirm](Confirm), [CreateProcess](CreateProcess), [FlushEvents](FlushEvents)
 
 <div align="center">
 

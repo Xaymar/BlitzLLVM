@@ -59,9 +59,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [CreateCanvas](CreateCanvas)
-* [DesktopBuffer](DesktopBuffer)
-* [FlipCanvas](FlipCanvas)
+[CreateCanvas](CreateCanvas), [DesktopBuffer](DesktopBuffer), [FlipCanvas](FlipCanvas)
 
 <div align="center">
 

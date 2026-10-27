@@ -58,14 +58,7 @@ CloseMovie m
 
 ## Related Commands
 
-* [CloseMovie](CloseMovie)
-* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
-* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
-* [OpenMovie](OpenMovie)
-* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
-* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
-* [SeekMovie](SeekMovie) 〔BlitzLLVM〕
-* [StopMovie](StopMovie) 〔BlitzLLVM〕
+[CloseMovie](CloseMovie), [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕, [LoopMovie](LoopMovie) 〔BlitzLLVM〕, [OpenMovie](OpenMovie), [PauseMovie](PauseMovie) 〔BlitzLLVM〕, [PlayMovie](PlayMovie) 〔BlitzLLVM〕, [SeekMovie](SeekMovie) 〔BlitzLLVM〕, [StopMovie](StopMovie) 〔BlitzLLVM〕
 
 <div align="center">
 

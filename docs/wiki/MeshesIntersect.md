@@ -34,10 +34,7 @@ Tests if the triangles of two meshes touch at their current positions. It takes 
 
 ## Related Commands
 
-* [MeshCullBox](MeshCullBox)
-* [MeshDepth](MeshDepth)
-* [MeshHeight](MeshHeight)
-* [MeshWidth](MeshWidth)
+[MeshCullBox](MeshCullBox), [MeshDepth](MeshDepth), [MeshHeight](MeshHeight), [MeshWidth](MeshWidth)
 
 <div align="center">
 

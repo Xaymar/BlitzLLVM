@@ -33,14 +33,7 @@ The second extra axis of the joystick, from -1 to 1. See [JoyU](JoyU).
 
 ## Related Commands
 
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyPitch](JoyPitch)
-* [JoyRoll](JoyRoll)
-* [JoyType](JoyType)
-* [JoyU](JoyU)
-* [JoyVDir](JoyVDir)
+[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [JoyU](JoyU), [JoyVDir](JoyVDir)
 
 <div align="center">
 

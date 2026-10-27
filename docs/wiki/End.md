@@ -37,10 +37,7 @@ before
 
 ## Related Commands
 
-* [DebugLog](DebugLog)
-* [Delay](Delay)
-* [ExecFile](ExecFile)
-* [FreeTimer](FreeTimer)
+[DebugLog](DebugLog), [Delay](Delay), [ExecFile](ExecFile), [FreeTimer](FreeTimer)
 
 <div align="center">
 

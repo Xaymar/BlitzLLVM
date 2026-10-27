@@ -54,14 +54,7 @@ WaitKey
 
 ## Related Commands
 
-* [CloseMovie](CloseMovie)
-* [DrawMovie](DrawMovie)
-* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
-* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
-* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
-* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
-* [SeekMovie](SeekMovie) 〔BlitzLLVM〕
-* [StopMovie](StopMovie) 〔BlitzLLVM〕
+[CloseMovie](CloseMovie), [DrawMovie](DrawMovie), [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕, [LoopMovie](LoopMovie) 〔BlitzLLVM〕, [PauseMovie](PauseMovie) 〔BlitzLLVM〕, [PlayMovie](PlayMovie) 〔BlitzLLVM〕, [SeekMovie](SeekMovie) 〔BlitzLLVM〕, [StopMovie](StopMovie) 〔BlitzLLVM〕
 
 <div align="center">
 

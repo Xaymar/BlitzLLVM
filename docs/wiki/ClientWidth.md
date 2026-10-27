@@ -48,10 +48,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [ActiveWindow](ActiveWindow)
-* [ClientHeight](ClientHeight)
-* [CreateWindow](CreateWindow)
-* [Desktop](Desktop)
+[ActiveWindow](ActiveWindow), [ClientHeight](ClientHeight), [CreateWindow](CreateWindow), [Desktop](Desktop)
 
 <div align="center">
 

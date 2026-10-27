@@ -37,14 +37,7 @@ Chooses how many triangles the terrain may use at a time, about 2000 being typic
 
 ## Related Commands
 
-* [CreateTerrain](CreateTerrain)
-* [LoadTerrain](LoadTerrain)
-* [TerrainHeight](TerrainHeight)
-* [TerrainShading](TerrainShading)
-* [TerrainSize](TerrainSize)
-* [TerrainX](TerrainX)
-* [TerrainY](TerrainY)
-* [TerrainZ](TerrainZ)
+[CreateTerrain](CreateTerrain), [LoadTerrain](LoadTerrain), [TerrainHeight](TerrainHeight), [TerrainShading](TerrainShading), [TerrainSize](TerrainSize), [TerrainX](TerrainX), [TerrainY](TerrainY), [TerrainZ](TerrainZ)
 
 <div align="center">
 

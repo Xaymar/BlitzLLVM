@@ -34,14 +34,7 @@ This is mostly useful when loading a mesh, since you do not choose the flags of 
 
 ## Related Commands
 
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateTexture](CreateTexture)
-* [TextureBlend](TextureBlend)
-* [TextureBuffer](TextureBuffer)
-* [TextureCoords](TextureCoords)
-* [TextureHeight](TextureHeight)
-* [TextureName](TextureName)
-* [TextureWidth](TextureWidth)
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureWidth](TextureWidth)
 
 <div align="center">
 

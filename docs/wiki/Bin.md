@@ -43,9 +43,7 @@ Print Bin$(5)
 
 ## Related Commands
 
-* [Asc](Asc)
-* [Chr](Chr)
-* [CurrentDate](CurrentDate)
+[Asc](Asc), [Chr](Chr), [CurrentDate](CurrentDate)
 
 <div align="center">
 

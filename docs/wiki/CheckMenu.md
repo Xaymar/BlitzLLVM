@@ -52,14 +52,7 @@ Until e = $803
 
 ## Related Commands
 
-* [CreateMenu](CreateMenu)
-* [DisableMenu](DisableMenu)
-* [EnableMenu](EnableMenu)
-* [MenuChecked](MenuChecked)
-* [MenuEnabled](MenuEnabled)
-* [MenuText](MenuText)
-* [SetMenuText](SetMenuText)
-* [UncheckMenu](UncheckMenu)
+[CreateMenu](CreateMenu), [DisableMenu](DisableMenu), [EnableMenu](EnableMenu), [MenuChecked](MenuChecked), [MenuEnabled](MenuEnabled), [MenuText](MenuText), [SetMenuText](SetMenuText), [UncheckMenu](UncheckMenu)
 
 <div align="center">
 

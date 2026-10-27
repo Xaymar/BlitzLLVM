@@ -34,10 +34,7 @@ Searches the children of an entity, and their children, for one with the given n
 
 ## Related Commands
 
-* [EntityYaw](EntityYaw)
-* [EntityZ](EntityZ)
-* [FreeEntity](FreeEntity)
-* [GetChild](GetChild)
+[EntityYaw](EntityYaw), [EntityZ](EntityZ), [FreeEntity](FreeEntity), [GetChild](GetChild)
 
 <div align="center">
 

@@ -62,10 +62,7 @@ WaitKey
 
 ## Related Commands
 
-* [SaveImage](SaveImage)
-* [ScaleImage](ScaleImage)
-* [TFormImage](TFormImage)
-* [TileBlock](TileBlock)
+[SaveImage](SaveImage), [ScaleImage](ScaleImage), [TFormImage](TFormImage), [TileBlock](TileBlock)
 
 <div align="center">
 

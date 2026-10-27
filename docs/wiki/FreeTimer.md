@@ -31,10 +31,7 @@ Deletes a timer you no longer need. Passing 0 does nothing.
 
 ## Related Commands
 
-* [CreateTimer](CreateTimer)
-* [End](End)
-* [ExecFile](ExecFile)
-* [WaitTimer](WaitTimer)
+[CreateTimer](CreateTimer), [End](End), [ExecFile](ExecFile), [WaitTimer](WaitTimer)
 
 <div align="center">
 

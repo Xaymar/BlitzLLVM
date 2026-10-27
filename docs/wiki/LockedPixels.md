@@ -62,8 +62,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [LockedFormat](LockedFormat)
-* [LockedPitch](LockedPitch)
+[LockedFormat](LockedFormat), [LockedPitch](LockedPitch)
 
 <div align="center">
 

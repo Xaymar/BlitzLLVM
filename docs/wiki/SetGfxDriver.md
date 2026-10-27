@@ -35,14 +35,7 @@ Chooses the graphics driver for the next [Graphics](Graphics) call. This is the 
 
 ## Related Commands
 
-* [CountGfxDrivers](CountGfxDrivers)
-* [CountGfxModes](CountGfxModes)
-* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
-* [GfxDriverName](GfxDriverName)
-* [GfxModeDepth](GfxModeDepth)
-* [GfxModeExists](GfxModeExists)
-* [GfxModeFormat](GfxModeFormat)
-* [SetGamma](SetGamma)
+[CountGfxDrivers](CountGfxDrivers), [CountGfxModes](CountGfxModes), [GfxDriver](GfxDriver) 〔BlitzLLVM〕, [GfxDriverName](GfxDriverName), [GfxModeDepth](GfxModeDepth), [GfxModeExists](GfxModeExists), [GfxModeFormat](GfxModeFormat), [SetGamma](SetGamma)
 
 <div align="center">
 

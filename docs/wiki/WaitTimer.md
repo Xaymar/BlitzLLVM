@@ -46,10 +46,7 @@ FreeTimer timer
 
 ## Related Commands
 
-* [CreateTimer](CreateTimer)
-* [FreeTimer](FreeTimer)
-* [Stop](Stop)
-* [SystemProperty](SystemProperty)
+[CreateTimer](CreateTimer), [FreeTimer](FreeTimer), [Stop](Stop), [SystemProperty](SystemProperty)
 
 <div align="center">
 

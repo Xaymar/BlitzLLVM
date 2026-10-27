@@ -80,14 +80,7 @@ WaitKey
 
 ## Related Commands
 
-* [VertexAlpha](VertexAlpha)
-* [VertexBlue](VertexBlue)
-* [VertexColor](VertexColor)
-* [VertexCoords](VertexCoords)
-* [VertexGreen](VertexGreen)
-* [VertexNormal](VertexNormal)
-* [VertexNX](VertexNX)
-* [VertexNY](VertexNY)
+[VertexAlpha](VertexAlpha), [VertexBlue](VertexBlue), [VertexColor](VertexColor), [VertexCoords](VertexCoords), [VertexGreen](VertexGreen), [VertexNormal](VertexNormal), [VertexNX](VertexNX), [VertexNY](VertexNY)
 
 <div align="center">
 

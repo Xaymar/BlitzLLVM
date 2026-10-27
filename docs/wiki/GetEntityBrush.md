@@ -33,14 +33,7 @@ Makes a new brush that has the same look as an entity: its color, alpha, shinine
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetBrushTexture](GetBrushTexture)
-* [GetSurfaceBrush](GetSurfaceBrush)
-* [LoadBrush](LoadBrush)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushColor](BrushColor), [CreateBrush](CreateBrush), [FreeBrush](FreeBrush), [GetBrushTexture](GetBrushTexture), [GetSurfaceBrush](GetSurfaceBrush), [LoadBrush](LoadBrush)
 
 <div align="center">
 

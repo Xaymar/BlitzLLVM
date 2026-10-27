@@ -51,9 +51,7 @@ Folders end with a separator, except for the ones of Windows, which are as the s
 
 ## Related Commands
 
-* [SetEnv](SetEnv)
-* [Stop](Stop)
-* [WaitTimer](WaitTimer)
+[SetEnv](SetEnv), [Stop](Stop), [WaitTimer](WaitTimer)
 
 <div align="center">
 

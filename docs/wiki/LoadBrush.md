@@ -36,14 +36,7 @@ Makes a brush that has a texture loaded from a picture file as its first layer, 
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [BrushFX](BrushFX)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetEntityBrush](GetEntityBrush)
-* [GetSurfaceBrush](GetSurfaceBrush)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushColor](BrushColor), [BrushFX](BrushFX), [CreateBrush](CreateBrush), [FreeBrush](FreeBrush), [GetEntityBrush](GetEntityBrush), [GetSurfaceBrush](GetSurfaceBrush)
 
 <div align="center">
 

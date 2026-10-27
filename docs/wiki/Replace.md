@@ -47,10 +47,7 @@ abc
 
 ## Related Commands
 
-* [LSet](LSet)
-* [Mid](Mid)
-* [Right](Right)
-* [RSet](RSet)
+[LSet](LSet), [Mid](Mid), [Right](Right), [RSet](RSet)
 
 <div align="center">
 

@@ -29,14 +29,7 @@ The height of the graphics window in pixels, as given to [Graphics](Graphics).
 
 ## Related Commands
 
-* [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
-* [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
-* [GfxModeHeight](GfxModeHeight)
-* [Graphics](Graphics)
-* [GraphicsDepth](GraphicsDepth)
-* [GraphicsFormat](GraphicsFormat)
-* [GraphicsLost](GraphicsLost)
-* [GraphicsWidth](GraphicsWidth)
+[DisplayHeight](DisplayHeight) 〔BlitzLLVM〕, [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕, [GfxModeHeight](GfxModeHeight), [Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsFormat](GraphicsFormat), [GraphicsLost](GraphicsLost), [GraphicsWidth](GraphicsWidth)
 
 <div align="center">
 

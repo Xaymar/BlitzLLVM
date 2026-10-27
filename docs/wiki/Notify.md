@@ -43,10 +43,7 @@ Notify "Everything is fine.", 0
 
 ## Related Commands
 
-* [FontStyle](FontStyle)
-* [HotKeyEvent](HotKeyEvent)
-* [PauseTimer](PauseTimer)
-* [Proceed](Proceed)
+[FontStyle](FontStyle), [HotKeyEvent](HotKeyEvent), [PauseTimer](PauseTimer), [Proceed](Proceed)
 
 <div align="center">
 

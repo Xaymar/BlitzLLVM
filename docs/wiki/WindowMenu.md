@@ -52,14 +52,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [ActivateWindow](ActivateWindow)
-* [ActiveWindow](ActiveWindow)
-* [CreateWindow](CreateWindow)
-* [MaximizeWindow](MaximizeWindow)
-* [MinimizeWindow](MinimizeWindow)
-* [UpdateWindowMenu](UpdateWindowMenu)
-* [WindowMaximized](WindowMaximized)
-* [WindowMinimized](WindowMinimized)
+[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [CreateWindow](CreateWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow), [UpdateWindowMenu](UpdateWindowMenu), [WindowMaximized](WindowMaximized), [WindowMinimized](WindowMinimized)
 
 <div align="center">
 

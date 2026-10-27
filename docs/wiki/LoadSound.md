@@ -70,13 +70,7 @@ End Function
 
 ## Related Commands
 
-* [FreeSound](FreeSound)
-* [Load3DSound](Load3DSound)
-* [LoopSound](LoopSound)
-* [PlaySound](PlaySound)
-* [SoundPan](SoundPan)
-* [SoundPitch](SoundPitch)
-* [SoundVolume](SoundVolume)
+[FreeSound](FreeSound), [Load3DSound](Load3DSound), [LoopSound](LoopSound), [PlaySound](PlaySound), [SoundPan](SoundPan), [SoundPitch](SoundPitch), [SoundVolume](SoundVolume)
 
 <div align="center">
 

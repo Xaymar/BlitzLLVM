@@ -35,10 +35,7 @@ Chooses the font that [Text](Text), [Print](Print), [StringWidth](StringWidth) a
 
 ## Related Commands
 
-* [FontHeight](FontHeight)
-* [FontWidth](FontWidth)
-* [FreeFont](FreeFont)
-* [LoadFont](LoadFont)
+[FontHeight](FontHeight), [FontWidth](FontWidth), [FreeFont](FreeFont), [LoadFont](LoadFont)
 
 <div align="center">
 

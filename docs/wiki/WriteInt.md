@@ -51,12 +51,7 @@ DeleteFile "streams_int_example.tmp"
 
 ## Related Commands
 
-* [ReadInt](ReadInt)
-* [WriteByte](WriteByte)
-* [WriteFloat](WriteFloat)
-* [WriteLine](WriteLine)
-* [WriteShort](WriteShort)
-* [WriteString](WriteString)
+[ReadInt](ReadInt), [WriteByte](WriteByte), [WriteFloat](WriteFloat), [WriteLine](WriteLine), [WriteShort](WriteShort), [WriteString](WriteString)
 
 <div align="center">
 

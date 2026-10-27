@@ -53,9 +53,7 @@ b
 
 ## Related Commands
 
-* [CopyStream](CopyStream)
-* [ReadAvail](ReadAvail)
-* [ReadByte](ReadByte)
+[CopyStream](CopyStream), [ReadAvail](ReadAvail), [ReadByte](ReadByte)
 
 <div align="center">
 

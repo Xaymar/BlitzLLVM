@@ -33,14 +33,7 @@ How far the wheel moved since the last call, in notches. Rolling away from you i
 
 ## Related Commands
 
-* [MouseDown](MouseDown)
-* [MouseHit](MouseHit)
-* [MouseWait](MouseWait)
-* [MouseX](MouseX)
-* [MouseXSpeed](MouseXSpeed)
-* [MouseY](MouseY)
-* [MouseYSpeed](MouseYSpeed)
-* [MouseZ](MouseZ)
+[MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ)
 
 <div align="center">
 

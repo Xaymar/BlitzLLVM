@@ -37,10 +37,7 @@ DebugLog "player is at 10, 20"
 
 ## Related Commands
 
-* [CommandLine](CommandLine)
-* [CreateTimer](CreateTimer)
-* [Delay](Delay)
-* [End](End)
+[CommandLine](CommandLine), [CreateTimer](CreateTimer), [Delay](Delay), [End](End)
 
 <div align="center">
 

@@ -54,14 +54,7 @@ Print SatUByte(-5)
 
 ## Related Commands
 
-* [Byte](Byte) 〔BlitzLLVM〕
-* [SatByte](SatByte) 〔BlitzLLVM〕
-* [SatInt](SatInt) 〔BlitzLLVM〕
-* [SatLong](SatLong) 〔BlitzLLVM〕
-* [SatUInt](SatUInt) 〔BlitzLLVM〕
-* [SatULong](SatULong) 〔BlitzLLVM〕
-* [SatUShort](SatUShort) 〔BlitzLLVM〕
-* [UByte](UByte) 〔BlitzLLVM〕
+[Byte](Byte) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕
 
 <div align="center">
 

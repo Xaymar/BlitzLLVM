@@ -33,14 +33,7 @@ Returns the front buffer: the picture that is on the screen. [Flip](Flip) update
 
 ## Related Commands
 
-* [BackBuffer](BackBuffer)
-* [BufferDirty](BufferDirty)
-* [GraphicsBuffer](GraphicsBuffer)
-* [LoadBuffer](LoadBuffer)
-* [LockBuffer](LockBuffer)
-* [SaveBuffer](SaveBuffer)
-* [SetBuffer](SetBuffer)
-* [UnlockBuffer](UnlockBuffer)
+[BackBuffer](BackBuffer), [BufferDirty](BufferDirty), [GraphicsBuffer](GraphicsBuffer), [LoadBuffer](LoadBuffer), [LockBuffer](LockBuffer), [SaveBuffer](SaveBuffer), [SetBuffer](SetBuffer), [UnlockBuffer](UnlockBuffer)
 
 <div align="center">
 

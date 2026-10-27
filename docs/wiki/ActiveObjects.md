@@ -46,9 +46,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [AutoSuspend](AutoSuspend)
-* [Confirm](Confirm)
-* [DebugObjects](DebugObjects)
+[AutoSuspend](AutoSuspend), [Confirm](Confirm), [DebugObjects](DebugObjects)
 
 <div align="center">
 

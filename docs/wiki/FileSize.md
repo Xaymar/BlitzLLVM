@@ -47,14 +47,7 @@ DeleteFile "files_size_example.tmp"
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [FilePos](FilePos)
-* [FileType](FileType)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [FilePos](FilePos), [FileType](FileType), [NextFile](NextFile), [OpenFile](OpenFile), [ReadFile](ReadFile)
 
 <div align="center">
 

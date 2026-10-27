@@ -31,14 +31,7 @@ Removes the check mark that [CheckMenu](CheckMenu) put in front of an item.
 
 ## Related Commands
 
-* [CheckMenu](CheckMenu)
-* [CreateMenu](CreateMenu)
-* [DisableMenu](DisableMenu)
-* [EnableMenu](EnableMenu)
-* [MenuChecked](MenuChecked)
-* [MenuEnabled](MenuEnabled)
-* [MenuText](MenuText)
-* [SetMenuText](SetMenuText)
+[CheckMenu](CheckMenu), [CreateMenu](CreateMenu), [DisableMenu](DisableMenu), [EnableMenu](EnableMenu), [MenuChecked](MenuChecked), [MenuEnabled](MenuEnabled), [MenuText](MenuText), [SetMenuText](SetMenuText)
 
 <div align="center">
 

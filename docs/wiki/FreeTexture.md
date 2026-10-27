@@ -37,14 +37,7 @@ Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, b
 
 ## Related Commands
 
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateTexture](CreateTexture)
-* [FreeSampler](FreeSampler) 〔BlitzLLVM〕
-* [LoadAnimTexture](LoadAnimTexture)
-* [LoadTexture](LoadTexture)
-* [PositionTexture](PositionTexture)
-* [RotateTexture](RotateTexture)
-* [ScaleTexture](ScaleTexture)
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [FreeSampler](FreeSampler) 〔BlitzLLVM〕, [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [ScaleTexture](ScaleTexture)
 
 <div align="center">
 

@@ -48,14 +48,7 @@ Wend
 
 ## Related Commands
 
-* [FreeSound](FreeSound)
-* [Load3DSound](Load3DSound)
-* [LoadSound](LoadSound)
-* [LoopSound](LoopSound)
-* [PlayCDTrack](PlayCDTrack)
-* [PlayMusic](PlayMusic)
-* [SoundPan](SoundPan)
-* [SoundPitch](SoundPitch)
+[FreeSound](FreeSound), [Load3DSound](Load3DSound), [LoadSound](LoadSound), [LoopSound](LoopSound), [PlayCDTrack](PlayCDTrack), [PlayMusic](PlayMusic), [SoundPan](SoundPan), [SoundPitch](SoundPitch)
 
 <div align="center">
 

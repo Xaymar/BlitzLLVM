@@ -54,10 +54,7 @@ Print Long(10000000000000000000.0)
 
 ## Related Commands
 
-* [Log](Log)
-* [SatLong](SatLong) 〔BlitzLLVM〕
-* [SatULong](SatULong) 〔BlitzLLVM〕
-* [ULong](ULong) 〔BlitzLLVM〕
+[Log](Log), [SatLong](SatLong) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕
 
 <div align="center">
 

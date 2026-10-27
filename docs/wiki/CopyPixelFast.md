@@ -40,12 +40,7 @@ The quick form of [CopyPixel](CopyPixel). Both buffers must be locked with [Lock
 
 ## Related Commands
 
-* [CopyPixel](CopyPixel)
-* [CopyRect](CopyRect)
-* [ReadPixel](ReadPixel)
-* [ReadPixelFast](ReadPixelFast)
-* [WritePixel](WritePixel)
-* [WritePixelFast](WritePixelFast)
+[CopyPixel](CopyPixel), [CopyRect](CopyRect), [ReadPixel](ReadPixel), [ReadPixelFast](ReadPixelFast), [WritePixel](WritePixel), [WritePixelFast](WritePixelFast)
 
 <div align="center">
 

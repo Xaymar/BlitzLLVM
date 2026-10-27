@@ -25,14 +25,7 @@ Leaves or ends the game. Players of this program are removed.
 
 ## Related Commands
 
-* [CreateNetPlayer](CreateNetPlayer)
-* [DeleteNetPlayer](DeleteNetPlayer)
-* [HostNetGame](HostNetGame)
-* [JoinNetGame](JoinNetGame)
-* [NetMsgData](NetMsgData)
-* [NetMsgFrom](NetMsgFrom)
-* [NetMsgTo](NetMsgTo)
-* [StartNetGame](StartNetGame)
+[CreateNetPlayer](CreateNetPlayer), [DeleteNetPlayer](DeleteNetPlayer), [HostNetGame](HostNetGame), [JoinNetGame](JoinNetGame), [NetMsgData](NetMsgData), [NetMsgFrom](NetMsgFrom), [NetMsgTo](NetMsgTo), [StartNetGame](StartNetGame)
 
 <div align="center">
 

@@ -75,14 +75,7 @@ WaitKey
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [BrushFX](BrushFX)
-* [FreeBrush](FreeBrush)
-* [GetEntityBrush](GetEntityBrush)
-* [GetSurfaceBrush](GetSurfaceBrush)
-* [LoadBrush](LoadBrush)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushColor](BrushColor), [BrushFX](BrushFX), [FreeBrush](FreeBrush), [GetEntityBrush](GetEntityBrush), [GetSurfaceBrush](GetSurfaceBrush), [LoadBrush](LoadBrush)
 
 <div align="center">
 

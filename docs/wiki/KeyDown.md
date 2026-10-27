@@ -56,10 +56,7 @@ Wend
 
 ## Related Commands
 
-* [GetKey](GetKey)
-* [KeyHit](KeyHit)
-* [KeyWait](KeyWait)
-* [WaitKey](WaitKey)
+[GetKey](GetKey), [KeyHit](KeyHit), [KeyWait](KeyWait), [WaitKey](WaitKey)
 
 <div align="center">
 

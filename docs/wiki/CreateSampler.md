@@ -61,14 +61,7 @@ Anisotropic filtering on a floor that goes far into the distance:
 
 ## Related Commands
 
-* [CreateTexture](CreateTexture)
-* [FreeSampler](FreeSampler) 〔BlitzLLVM〕
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
-* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
+[CreateTexture](CreateTexture), [FreeSampler](FreeSampler) 〔BlitzLLVM〕, [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕, [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕, [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕, [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕, [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
 <div align="center">
 

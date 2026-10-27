@@ -69,9 +69,7 @@ Until e = $803
 
 ## Related Commands
 
-* [DisableToolBarItem](DisableToolBarItem)
-* [EnableToolBarItem](EnableToolBarItem)
-* [SetToolBarTips](SetToolBarTips)
+[DisableToolBarItem](DisableToolBarItem), [EnableToolBarItem](EnableToolBarItem), [SetToolBarTips](SetToolBarTips)
 
 <div align="center">
 

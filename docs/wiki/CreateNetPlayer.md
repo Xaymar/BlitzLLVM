@@ -42,14 +42,7 @@ EndIf
 
 ## Related Commands
 
-* [DeleteNetPlayer](DeleteNetPlayer)
-* [HostNetGame](HostNetGame)
-* [JoinNetGame](JoinNetGame)
-* [NetMsgData](NetMsgData)
-* [NetMsgFrom](NetMsgFrom)
-* [NetMsgTo](NetMsgTo)
-* [NetPlayerLocal](NetPlayerLocal)
-* [NetPlayerName](NetPlayerName)
+[DeleteNetPlayer](DeleteNetPlayer), [HostNetGame](HostNetGame), [JoinNetGame](JoinNetGame), [NetMsgData](NetMsgData), [NetMsgFrom](NetMsgFrom), [NetMsgTo](NetMsgTo), [NetPlayerLocal](NetPlayerLocal), [NetPlayerName](NetPlayerName)
 
 <div align="center">
 

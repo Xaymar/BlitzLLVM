@@ -29,14 +29,7 @@ The width of the graphics window in pixels, as given to [Graphics](Graphics).
 
 ## Related Commands
 
-* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
-* [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕
-* [GfxModeWidth](GfxModeWidth)
-* [Graphics](Graphics)
-* [GraphicsDepth](GraphicsDepth)
-* [GraphicsFormat](GraphicsFormat)
-* [GraphicsHeight](GraphicsHeight)
-* [GraphicsLost](GraphicsLost)
+[DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕, [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕, [GfxModeWidth](GfxModeWidth), [Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsFormat](GraphicsFormat), [GraphicsHeight](GraphicsHeight), [GraphicsLost](GraphicsLost)
 
 <div align="center">
 

@@ -51,14 +51,7 @@ WaitKey
 
 ## Related Commands
 
-* [CountGfxDrivers](CountGfxDrivers)
-* [CountGfxModes](CountGfxModes)
-* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
-* [GfxDriverName](GfxDriverName)
-* [GfxModeDepth](GfxModeDepth)
-* [GfxModeFormat](GfxModeFormat)
-* [GfxModeHeight](GfxModeHeight)
-* [GfxModeWidth](GfxModeWidth)
+[CountGfxDrivers](CountGfxDrivers), [CountGfxModes](CountGfxModes), [GfxDriver](GfxDriver) 〔BlitzLLVM〕, [GfxDriverName](GfxDriverName), [GfxModeDepth](GfxModeDepth), [GfxModeFormat](GfxModeFormat), [GfxModeHeight](GfxModeHeight), [GfxModeWidth](GfxModeWidth)
 
 <div align="center">
 

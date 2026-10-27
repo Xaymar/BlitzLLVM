@@ -33,14 +33,7 @@ The first extra axis of the joystick, from -1 to 1. On a gamepad this is usually
 
 ## Related Commands
 
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyPitch](JoyPitch)
-* [JoyRoll](JoyRoll)
-* [JoyType](JoyType)
-* [JoyUDir](JoyUDir)
-* [JoyV](JoyV)
+[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [JoyUDir](JoyUDir), [JoyV](JoyV)
 
 <div align="center">
 

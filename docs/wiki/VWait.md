@@ -45,8 +45,7 @@ WaitKey
 
 ## Related Commands
 
-* [TotalVidMem](TotalVidMem)
-* [UpdateGamma](UpdateGamma)
+[TotalVidMem](TotalVidMem), [UpdateGamma](UpdateGamma)
 
 <div align="center">
 

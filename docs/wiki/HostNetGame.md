@@ -33,14 +33,7 @@ Starts a game on this computer as its host and waits for other programs to join 
 
 ## Related Commands
 
-* [CreateNetPlayer](CreateNetPlayer)
-* [DeleteNetPlayer](DeleteNetPlayer)
-* [JoinNetGame](JoinNetGame)
-* [NetMsgData](NetMsgData)
-* [NetMsgFrom](NetMsgFrom)
-* [NetMsgTo](NetMsgTo)
-* [StartNetGame](StartNetGame)
-* [StopNetGame](StopNetGame)
+[CreateNetPlayer](CreateNetPlayer), [DeleteNetPlayer](DeleteNetPlayer), [JoinNetGame](JoinNetGame), [NetMsgData](NetMsgData), [NetMsgFrom](NetMsgFrom), [NetMsgTo](NetMsgTo), [StartNetGame](StartNetGame), [StopNetGame](StopNetGame)
 
 <div align="center">
 

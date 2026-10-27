@@ -51,11 +51,7 @@ WaitKey
 
 ## Related Commands
 
-* [ClsColor](ClsColor)
-* [ColorBlue](ColorBlue)
-* [ColorGreen](ColorGreen)
-* [ColorRed](ColorRed)
-* [GetColor](GetColor)
+[ClsColor](ClsColor), [ColorBlue](ColorBlue), [ColorGreen](ColorGreen), [ColorRed](ColorRed), [GetColor](GetColor)
 
 <div align="center">
 

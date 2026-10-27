@@ -56,14 +56,7 @@ Wend
 
 ## Related Commands
 
-* [MouseHit](MouseHit)
-* [MouseWait](MouseWait)
-* [MouseX](MouseX)
-* [MouseXSpeed](MouseXSpeed)
-* [MouseY](MouseY)
-* [MouseYSpeed](MouseYSpeed)
-* [MouseZ](MouseZ)
-* [MouseZSpeed](MouseZSpeed)
+[MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ), [MouseZSpeed](MouseZSpeed)
 
 <div align="center">
 

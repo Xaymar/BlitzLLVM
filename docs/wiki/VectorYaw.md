@@ -35,9 +35,7 @@ Finds the yaw angle that an entity would need to point along a direction. The di
 
 ## Related Commands
 
-* [DeltaYaw](DeltaYaw)
-* [TFormVector](TFormVector)
-* [VectorPitch](VectorPitch)
+[DeltaYaw](DeltaYaw), [TFormVector](TFormVector), [VectorPitch](VectorPitch)
 
 <div align="center">
 

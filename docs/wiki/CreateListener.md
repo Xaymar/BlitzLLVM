@@ -62,7 +62,7 @@ Wend
 
 ## Related Commands
 
-* [EmitSound](EmitSound)
+[EmitSound](EmitSound)
 
 <div align="center">
 

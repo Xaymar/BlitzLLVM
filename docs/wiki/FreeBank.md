@@ -31,10 +31,7 @@ Releases a bank and its memory. The handle must not be used afterwards.
 
 ## Related Commands
 
-* [BankSize](BankSize)
-* [CopyBank](CopyBank)
-* [CreateBank](CreateBank)
-* [ResizeBank](ResizeBank)
+[BankSize](BankSize), [CopyBank](CopyBank), [CreateBank](CreateBank), [ResizeBank](ResizeBank)
 
 <div align="center">
 

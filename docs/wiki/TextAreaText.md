@@ -48,14 +48,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [AddTextAreaText](AddTextAreaText)
-* [FormatTextAreaText](FormatTextAreaText)
-* [SetTextAreaText](SetTextAreaText)
-* [TextAreaChar](TextAreaChar)
-* [TextAreaCursor](TextAreaCursor)
-* [TextAreaLen](TextAreaLen)
-* [TextAreaLine](TextAreaLine)
-* [TextAreaLineLen](TextAreaLineLen)
+[AddTextAreaText](AddTextAreaText), [FormatTextAreaText](FormatTextAreaText), [SetTextAreaText](SetTextAreaText), [TextAreaChar](TextAreaChar), [TextAreaCursor](TextAreaCursor), [TextAreaLen](TextAreaLen), [TextAreaLine](TextAreaLine), [TextAreaLineLen](TextAreaLineLen)
 
 <div align="center">
 

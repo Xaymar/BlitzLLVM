@@ -51,14 +51,7 @@ Until e = $803
 
 ## Related Commands
 
-* [AddTextAreaText](AddTextAreaText)
-* [TextAreaChar](TextAreaChar)
-* [TextAreaCursor](TextAreaCursor)
-* [TextAreaLen](TextAreaLen)
-* [TextAreaLine](TextAreaLine)
-* [TextAreaLineLen](TextAreaLineLen)
-* [TextAreaText](TextAreaText)
-* [TextFieldText](TextFieldText)
+[AddTextAreaText](AddTextAreaText), [TextAreaChar](TextAreaChar), [TextAreaCursor](TextAreaCursor), [TextAreaLen](TextAreaLen), [TextAreaLine](TextAreaLine), [TextAreaLineLen](TextAreaLineLen), [TextAreaText](TextAreaText), [TextFieldText](TextFieldText)
 
 <div align="center">
 

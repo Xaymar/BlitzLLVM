@@ -43,8 +43,7 @@ HELLO WORLD 1!
 
 ## Related Commands
 
-* [String](String)
-* [Trim](Trim)
+[String](String), [Trim](Trim)
 
 <div align="center">
 

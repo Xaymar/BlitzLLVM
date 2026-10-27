@@ -46,10 +46,7 @@ Print "[" + LSet$("abcdef", 3) + "]"
 
 ## Related Commands
 
-* [Len](Len)
-* [Lower](Lower)
-* [Mid](Mid)
-* [RSet](RSet)
+[Len](Len), [Lower](Lower), [Mid](Mid), [RSet](RSet)
 
 <div align="center">
 

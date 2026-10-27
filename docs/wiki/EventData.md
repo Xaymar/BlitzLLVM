@@ -68,13 +68,7 @@ Until e = $803
 
 ## Related Commands
 
-* [EventID](EventID)
-* [EventSource](EventSource)
-* [EventX](EventX)
-* [EventY](EventY)
-* [EventZ](EventZ)
-* [PeekEvent](PeekEvent)
-* [WaitEvent](WaitEvent)
+[EventID](EventID), [EventSource](EventSource), [EventX](EventX), [EventY](EventY), [EventZ](EventZ), [PeekEvent](PeekEvent), [WaitEvent](WaitEvent)
 
 <div align="center">
 

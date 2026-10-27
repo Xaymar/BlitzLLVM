@@ -49,10 +49,7 @@ WaitKey
 
 ## Related Commands
 
-* [AutoMidHandle](AutoMidHandle)
-* [HandleImage](HandleImage)
-* [ImageXHandle](ImageXHandle)
-* [ImageYHandle](ImageYHandle)
+[AutoMidHandle](AutoMidHandle), [HandleImage](HandleImage), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
 
 <div align="center">
 

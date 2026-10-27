@@ -50,10 +50,7 @@ WaitKey
 
 ## Related Commands
 
-* [DeltaPitch](DeltaPitch)
-* [ProjectedY](ProjectedY)
-* [ProjectedZ](ProjectedZ)
-* [TFormedX](TFormedX)
+[DeltaPitch](DeltaPitch), [ProjectedY](ProjectedY), [ProjectedZ](ProjectedZ), [TFormedX](TFormedX)
 
 <div align="center">
 

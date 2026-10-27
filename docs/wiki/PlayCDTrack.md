@@ -46,10 +46,7 @@ WaitKey
 
 ## Related Commands
 
-* [LoopSound](LoopSound)
-* [PauseChannel](PauseChannel)
-* [PlayMusic](PlayMusic)
-* [PlaySound](PlaySound)
+[LoopSound](LoopSound), [PauseChannel](PauseChannel), [PlayMusic](PlayMusic), [PlaySound](PlaySound)
 
 <div align="center">
 

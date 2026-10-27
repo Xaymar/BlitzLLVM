@@ -36,14 +36,7 @@ Remember to set the buffer back to [BackBuffer](BackBuffer) before you render th
 
 ## Related Commands
 
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateTexture](CreateTexture)
-* [TextureBlend](TextureBlend)
-* [TextureCoords](TextureCoords)
-* [TextureFilter](TextureFilter)
-* [TextureHeight](TextureHeight)
-* [TextureName](TextureName)
-* [TextureWidth](TextureWidth)
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [TextureBlend](TextureBlend), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureWidth](TextureWidth)
 
 <div align="center">
 

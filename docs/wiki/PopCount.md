@@ -56,10 +56,7 @@ Print PopCount(ULong(-1))
 
 ## Related Commands
 
-* [Log10](Log10)
-* [Long](Long) 〔BlitzLLVM〕
-* [Rand](Rand)
-* [Rnd](Rnd)
+[Log10](Log10), [Long](Long) 〔BlitzLLVM〕, [Rand](Rand), [Rnd](Rnd)
 
 <div align="center">
 

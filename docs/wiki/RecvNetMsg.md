@@ -42,14 +42,7 @@ Wend
 
 ## Related Commands
 
-* [CreateNetPlayer](CreateNetPlayer)
-* [DeleteNetPlayer](DeleteNetPlayer)
-* [HostNetGame](HostNetGame)
-* [NetMsgData](NetMsgData)
-* [NetMsgFrom](NetMsgFrom)
-* [NetMsgTo](NetMsgTo)
-* [NetMsgType](NetMsgType)
-* [SendNetMsg](SendNetMsg)
+[CreateNetPlayer](CreateNetPlayer), [DeleteNetPlayer](DeleteNetPlayer), [HostNetGame](HostNetGame), [NetMsgData](NetMsgData), [NetMsgFrom](NetMsgFrom), [NetMsgTo](NetMsgTo), [NetMsgType](NetMsgType), [SendNetMsg](SendNetMsg)
 
 <div align="center">
 

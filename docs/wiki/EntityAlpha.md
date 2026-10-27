@@ -57,14 +57,7 @@ WaitKey
 
 ## Related Commands
 
-* [EntityAutoFade](EntityAutoFade)
-* [EntityBlend](EntityBlend)
-* [EntityClass](EntityClass)
-* [EntityColor](EntityColor)
-* [EntityDistance](EntityDistance)
-* [EntityFX](EntityFX)
-* [EntityInView](EntityInView)
-* [EntityName](EntityName)
+[EntityAutoFade](EntityAutoFade), [EntityBlend](EntityBlend), [EntityClass](EntityClass), [EntityColor](EntityColor), [EntityDistance](EntityDistance), [EntityFX](EntityFX), [EntityInView](EntityInView), [EntityName](EntityName)
 
 <div align="center">
 

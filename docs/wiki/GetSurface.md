@@ -44,10 +44,7 @@ Next
 
 ## Related Commands
 
-* [ClearSurface](ClearSurface)
-* [CreateSurface](CreateSurface)
-* [FindSurface](FindSurface)
-* [PaintSurface](PaintSurface)
+[ClearSurface](ClearSurface), [CreateSurface](CreateSurface), [FindSurface](FindSurface), [PaintSurface](PaintSurface)
 
 <div align="center">
 

@@ -32,10 +32,7 @@ Turns an icon that was disabled with [DisableToolBarItem](DisableToolBarItem) ba
 
 ## Related Commands
 
-* [CreateToolBar](CreateToolBar)
-* [DisableToolBarItem](DisableToolBarItem)
-* [FreeIconStrip](FreeIconStrip)
-* [SetToolBarTips](SetToolBarTips)
+[CreateToolBar](CreateToolBar), [DisableToolBarItem](DisableToolBarItem), [FreeIconStrip](FreeIconStrip), [SetToolBarTips](SetToolBarTips)
 
 <div align="center">
 

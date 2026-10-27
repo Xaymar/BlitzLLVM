@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CreateNetPlayer](CreateNetPlayer)
-* [DeleteNetPlayer](DeleteNetPlayer)
-* [HostNetGame](HostNetGame)
-* [NetMsgData](NetMsgData)
-* [NetMsgFrom](NetMsgFrom)
-* [NetMsgTo](NetMsgTo)
-* [NetMsgType](NetMsgType)
-* [NetPlayerLocal](NetPlayerLocal)
+[CreateNetPlayer](CreateNetPlayer), [DeleteNetPlayer](DeleteNetPlayer), [HostNetGame](HostNetGame), [NetMsgData](NetMsgData), [NetMsgFrom](NetMsgFrom), [NetMsgTo](NetMsgTo), [NetMsgType](NetMsgType), [NetPlayerLocal](NetPlayerLocal)
 
 <div align="center">
 

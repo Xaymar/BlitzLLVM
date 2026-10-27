@@ -34,14 +34,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [VertexBlue](VertexBlue)
-* [VertexColor](VertexColor)
-* [VertexCoords](VertexCoords)
-* [VertexGreen](VertexGreen)
-* [VertexNormal](VertexNormal)
-* [VertexNX](VertexNX)
-* [VertexNY](VertexNY)
-* [VertexNZ](VertexNZ)
+[VertexBlue](VertexBlue), [VertexColor](VertexColor), [VertexCoords](VertexCoords), [VertexGreen](VertexGreen), [VertexNormal](VertexNormal), [VertexNX](VertexNX), [VertexNY](VertexNY), [VertexNZ](VertexNZ)
 
 <div align="center">
 

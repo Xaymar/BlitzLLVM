@@ -43,8 +43,7 @@ AppTitle "My game"
 
 ## Related Commands
 
-* [CommandLine](CommandLine)
-* [CreateTimer](CreateTimer)
+[CommandLine](CommandLine), [CreateTimer](CreateTimer)
 
 <div align="center">
 

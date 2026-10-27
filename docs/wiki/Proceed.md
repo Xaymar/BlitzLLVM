@@ -49,10 +49,7 @@ End Select
 
 ## Related Commands
 
-* [Notify](Notify)
-* [PauseTimer](PauseTimer)
-* [QueryObject](QueryObject)
-* [ResetTimer](ResetTimer)
+[Notify](Notify), [PauseTimer](PauseTimer), [QueryObject](QueryObject), [ResetTimer](ResetTimer)
 
 <div align="center">
 

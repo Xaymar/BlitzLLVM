@@ -31,14 +31,7 @@ Removes a player of this program from the game. The others see a message of type
 
 ## Related Commands
 
-* [CreateNetPlayer](CreateNetPlayer)
-* [HostNetGame](HostNetGame)
-* [JoinNetGame](JoinNetGame)
-* [NetMsgData](NetMsgData)
-* [NetMsgFrom](NetMsgFrom)
-* [NetMsgTo](NetMsgTo)
-* [NetPlayerLocal](NetPlayerLocal)
-* [NetPlayerName](NetPlayerName)
+[CreateNetPlayer](CreateNetPlayer), [HostNetGame](HostNetGame), [JoinNetGame](JoinNetGame), [NetMsgData](NetMsgData), [NetMsgFrom](NetMsgFrom), [NetMsgTo](NetMsgTo), [NetPlayerLocal](NetPlayerLocal), [NetPlayerName](NetPlayerName)
 
 <div align="center">
 

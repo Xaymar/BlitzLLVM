@@ -33,11 +33,7 @@ The width in pixels of one character of the current font, as set by [SetFont](Se
 
 ## Related Commands
 
-* [FontHeight](FontHeight)
-* [FreeFont](FreeFont)
-* [LoadFont](LoadFont)
-* [SetFont](SetFont)
-* [StringWidth](StringWidth)
+[FontHeight](FontHeight), [FreeFont](FreeFont), [LoadFont](LoadFont), [SetFont](SetFont), [StringWidth](StringWidth)
 
 <div align="center">
 

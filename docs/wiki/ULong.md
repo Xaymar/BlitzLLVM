@@ -56,14 +56,7 @@ Print Min(ULong(-1), ULong(5))
 
 ## Related Commands
 
-* [Long](Long) 〔BlitzLLVM〕
-* [SatLong](SatLong) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [SatUInt](SatUInt) 〔BlitzLLVM〕
-* [SatULong](SatULong) 〔BlitzLLVM〕
-* [UByte](UByte) 〔BlitzLLVM〕
-* [UInt](UInt) 〔BlitzLLVM〕
-* [UShort](UShort) 〔BlitzLLVM〕
+[Long](Long) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 

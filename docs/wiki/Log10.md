@@ -43,10 +43,7 @@ Print Log10(1000)
 
 ## Related Commands
 
-* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
-* [Log](Log)
-* [Long](Long) 〔BlitzLLVM〕
-* [PopCount](PopCount) 〔BlitzLLVM〕
+[LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Log](Log), [Long](Long) 〔BlitzLLVM〕, [PopCount](PopCount) 〔BlitzLLVM〕
 
 <div align="center">
 

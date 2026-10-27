@@ -61,10 +61,7 @@ Wend
 
 ## Related Commands
 
-* [CopyEntity](CopyEntity)
-* [CountChildren](CountChildren)
-* [EntityAlpha](EntityAlpha)
-* [EntityAutoFade](EntityAutoFade)
+[CopyEntity](CopyEntity), [CountChildren](CountChildren), [EntityAlpha](EntityAlpha), [EntityAutoFade](EntityAutoFade)
 
 <div align="center">
 

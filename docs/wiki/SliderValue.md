@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CreateSlider](CreateSlider)
-* [SetSliderRange](SetSliderRange)
-* [SetSliderValue](SetSliderValue)
-* [ShowGadget](ShowGadget)
+[CreateSlider](CreateSlider), [SetSliderRange](SetSliderRange), [SetSliderValue](SetSliderValue), [ShowGadget](ShowGadget)
 
 <div align="center">
 

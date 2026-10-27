@@ -66,14 +66,7 @@ Next
 
 ## Related Commands
 
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateTexture](CreateTexture)
-* [FreeTexture](FreeTexture)
-* [LoadAnimTexture](LoadAnimTexture)
-* [LoadTexture](LoadTexture)
-* [RotateTexture](RotateTexture)
-* [ScaleTexture](ScaleTexture)
-* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [RotateTexture](RotateTexture), [ScaleTexture](ScaleTexture), [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
 <div align="center">
 

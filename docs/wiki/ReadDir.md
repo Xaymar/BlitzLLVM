@@ -33,12 +33,7 @@ Opens a folder so its entries can be listed with [NextFile](NextFile).
 
 ## Related Commands
 
-* [ChangeDir](ChangeDir)
-* [CloseDir](CloseDir)
-* [CreateDir](CreateDir)
-* [CurrentDir](CurrentDir)
-* [DeleteDir](DeleteDir)
-* [ReadFile](ReadFile)
+[ChangeDir](ChangeDir), [CloseDir](CloseDir), [CreateDir](CreateDir), [CurrentDir](CurrentDir), [DeleteDir](DeleteDir), [ReadFile](ReadFile)
 
 <div align="center">
 

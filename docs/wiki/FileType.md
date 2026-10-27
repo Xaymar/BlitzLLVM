@@ -47,14 +47,7 @@ DeleteDir "files_type_folder"
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [FilePos](FilePos)
-* [FileSize](FileSize)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [FilePos](FilePos), [FileSize](FileSize), [NextFile](NextFile), [OpenFile](OpenFile), [ReadFile](ReadFile)
 
 <div align="center">
 

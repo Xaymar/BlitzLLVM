@@ -50,10 +50,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [CreateToolBar](CreateToolBar)
-* [EnableToolBarItem](EnableToolBarItem)
-* [FreeIconStrip](FreeIconStrip)
-* [SetToolBarTips](SetToolBarTips)
+[CreateToolBar](CreateToolBar), [EnableToolBarItem](EnableToolBarItem), [FreeIconStrip](FreeIconStrip), [SetToolBarTips](SetToolBarTips)
 
 <div align="center">
 

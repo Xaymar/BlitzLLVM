@@ -47,14 +47,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [AddGadgetItem](AddGadgetItem)
-* [ClearGadgetItems](ClearGadgetItems)
-* [CountGadgetItems](CountGadgetItems)
-* [DisableGadget](DisableGadget)
-* [EnableGadget](EnableGadget)
-* [FreeGadget](FreeGadget)
-* [HideGadget](HideGadget)
-* [ShowGadget](ShowGadget)
+[AddGadgetItem](AddGadgetItem), [ClearGadgetItems](ClearGadgetItems), [CountGadgetItems](CountGadgetItems), [DisableGadget](DisableGadget), [EnableGadget](EnableGadget), [FreeGadget](FreeGadget), [HideGadget](HideGadget), [ShowGadget](ShowGadget)
 
 <div align="center">
 

@@ -31,14 +31,7 @@ Shows a gadget that was hidden with [HideGadget](HideGadget), together with the 
 
 ## Related Commands
 
-* [ActivateGadget](ActivateGadget)
-* [AddGadgetItem](AddGadgetItem)
-* [ClearGadgetItems](ClearGadgetItems)
-* [CountGadgetItems](CountGadgetItems)
-* [DisableGadget](DisableGadget)
-* [EnableGadget](EnableGadget)
-* [FreeGadget](FreeGadget)
-* [HideGadget](HideGadget)
+[ActivateGadget](ActivateGadget), [AddGadgetItem](AddGadgetItem), [ClearGadgetItems](ClearGadgetItems), [CountGadgetItems](CountGadgetItems), [DisableGadget](DisableGadget), [EnableGadget](EnableGadget), [FreeGadget](FreeGadget), [HideGadget](HideGadget)
 
 <div align="center">
 

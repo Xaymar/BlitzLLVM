@@ -34,14 +34,7 @@ Sets the smallest mip level that may be used, counted from level 0. A maximum of
 
 ## Related Commands
 
-* [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕
-* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
-* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
-* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
-* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
-* [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
-* [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
+[GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕, [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕, [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕, [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕, [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕, [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕, [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕, [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
 
 <div align="center">
 

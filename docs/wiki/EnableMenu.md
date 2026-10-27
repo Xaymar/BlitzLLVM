@@ -31,14 +31,7 @@ Makes a menu item usable again after [DisableMenu](DisableMenu).
 
 ## Related Commands
 
-* [CheckMenu](CheckMenu)
-* [CreateMenu](CreateMenu)
-* [DisableMenu](DisableMenu)
-* [MenuChecked](MenuChecked)
-* [MenuEnabled](MenuEnabled)
-* [MenuText](MenuText)
-* [SetMenuText](SetMenuText)
-* [UncheckMenu](UncheckMenu)
+[CheckMenu](CheckMenu), [CreateMenu](CreateMenu), [DisableMenu](DisableMenu), [MenuChecked](MenuChecked), [MenuEnabled](MenuEnabled), [MenuText](MenuText), [SetMenuText](SetMenuText), [UncheckMenu](UncheckMenu)
 
 <div align="center">
 

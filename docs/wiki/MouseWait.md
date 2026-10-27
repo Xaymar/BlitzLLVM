@@ -43,14 +43,7 @@ Delay 1000
 
 ## Related Commands
 
-* [MouseDown](MouseDown)
-* [MouseHit](MouseHit)
-* [MouseX](MouseX)
-* [MouseXSpeed](MouseXSpeed)
-* [MouseY](MouseY)
-* [MouseYSpeed](MouseYSpeed)
-* [MouseZ](MouseZ)
-* [MouseZSpeed](MouseZSpeed)
+[MouseDown](MouseDown), [MouseHit](MouseHit), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ), [MouseZSpeed](MouseZSpeed)
 
 <div align="center">
 

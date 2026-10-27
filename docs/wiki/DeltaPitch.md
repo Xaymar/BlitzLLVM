@@ -34,9 +34,7 @@ Tells you how far an entity has to tilt around its sideways axis to look at anot
 
 ## Related Commands
 
-* [DeltaYaw](DeltaYaw)
-* [ProjectedX](ProjectedX)
-* [VectorPitch](VectorPitch)
+[DeltaYaw](DeltaYaw), [ProjectedX](ProjectedX), [VectorPitch](VectorPitch)
 
 <div align="center">
 

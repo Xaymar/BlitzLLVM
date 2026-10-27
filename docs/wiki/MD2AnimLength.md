@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AddAnimSeq](AddAnimSeq)
-* [AnimateMD2](AnimateMD2)
-* [AnimLength](AnimLength)
-* [AnimSeq](AnimSeq)
-* [AnimTime](AnimTime)
-* [LoadMD2](LoadMD2)
-* [MD2Animating](MD2Animating)
-* [MD2AnimTime](MD2AnimTime)
+[AddAnimSeq](AddAnimSeq), [AnimateMD2](AnimateMD2), [AnimLength](AnimLength), [AnimSeq](AnimSeq), [AnimTime](AnimTime), [LoadMD2](LoadMD2), [MD2Animating](MD2Animating), [MD2AnimTime](MD2AnimTime)
 
 <div align="center">
 

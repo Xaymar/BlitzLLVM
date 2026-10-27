@@ -33,13 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ReadAvail](ReadAvail)
-* [ReadFloat](ReadFloat)
-* [ReadInt](ReadInt)
-* [ReadLine](ReadLine)
-* [ReadShort](ReadShort)
-* [ReadString](ReadString)
-* [WriteByte](WriteByte)
+[ReadAvail](ReadAvail), [ReadFloat](ReadFloat), [ReadInt](ReadInt), [ReadLine](ReadLine), [ReadShort](ReadShort), [ReadString](ReadString), [WriteByte](WriteByte)
 
 <div align="center">
 

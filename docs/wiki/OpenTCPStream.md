@@ -46,14 +46,7 @@ Print OpenTCPStream("127.0.0.1", 40754)
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseTCPServer](CloseTCPServer)
-* [CloseTCPStream](CloseTCPStream)
-* [CloseUDPStream](CloseUDPStream)
-* [CreateTCPServer](CreateTCPServer)
-* [CreateUDPStream](CreateUDPStream)
-* [TCPStreamIP](TCPStreamIP)
-* [TCPStreamPort](TCPStreamPort)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [CreateUDPStream](CreateUDPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort)
 
 <div align="center">
 

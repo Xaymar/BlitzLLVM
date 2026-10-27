@@ -60,8 +60,7 @@ WaitKey
 
 ## Related Commands
 
-* [UpdateWorld](UpdateWorld)
-* [WBuffer](WBuffer)
+[UpdateWorld](UpdateWorld), [WBuffer](WBuffer)
 
 <div align="center">
 

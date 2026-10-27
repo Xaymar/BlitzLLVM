@@ -37,14 +37,7 @@ Makes a new brush that has the look that was painted on a mesh surface. Free it 
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetBrushTexture](GetBrushTexture)
-* [GetEntityBrush](GetEntityBrush)
-* [LoadBrush](LoadBrush)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushColor](BrushColor), [CreateBrush](CreateBrush), [FreeBrush](FreeBrush), [GetBrushTexture](GetBrushTexture), [GetEntityBrush](GetEntityBrush), [LoadBrush](LoadBrush)
 
 <div align="center">
 

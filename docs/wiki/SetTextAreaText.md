@@ -48,14 +48,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [AddTextAreaText](AddTextAreaText)
-* [CreateTextArea](CreateTextArea)
-* [FormatTextAreaText](FormatTextAreaText)
-* [SetTextAreaColor](SetTextAreaColor)
-* [SetTextAreaFont](SetTextAreaFont)
-* [SetTextAreaTabs](SetTextAreaTabs)
-* [TextAreaText](TextAreaText)
-* [TextFieldText](TextFieldText)
+[AddTextAreaText](AddTextAreaText), [CreateTextArea](CreateTextArea), [FormatTextAreaText](FormatTextAreaText), [SetTextAreaColor](SetTextAreaColor), [SetTextAreaFont](SetTextAreaFont), [SetTextAreaTabs](SetTextAreaTabs), [TextAreaText](TextAreaText), [TextFieldText](TextFieldText)
 
 <div align="center">
 

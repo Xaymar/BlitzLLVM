@@ -57,14 +57,7 @@ Until e = $803
 
 ## Related Commands
 
-* [AddTreeViewNode](AddTreeViewNode)
-* [CollapseTreeViewNode](CollapseTreeViewNode)
-* [CountTreeViewNodes](CountTreeViewNodes)
-* [ExpandTreeViewNode](ExpandTreeViewNode)
-* [FreeTreeViewNode](FreeTreeViewNode)
-* [InsertTreeViewNode](InsertTreeViewNode)
-* [ModifyTreeViewNode](ModifyTreeViewNode)
-* [SelectedTreeViewNode](SelectedTreeViewNode)
+[AddTreeViewNode](AddTreeViewNode), [CollapseTreeViewNode](CollapseTreeViewNode), [CountTreeViewNodes](CountTreeViewNodes), [ExpandTreeViewNode](ExpandTreeViewNode), [FreeTreeViewNode](FreeTreeViewNode), [InsertTreeViewNode](InsertTreeViewNode), [ModifyTreeViewNode](ModifyTreeViewNode), [SelectedTreeViewNode](SelectedTreeViewNode)
 
 <div align="center">
 

@@ -37,14 +37,7 @@ The height of the pictures of a movie in pixels.
 
 ## Related Commands
 
-* [CloseMovie](CloseMovie)
-* [DrawMovie](DrawMovie)
-* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
-* [MovieLength](MovieLength) 〔BlitzLLVM〕
-* [MoviePlaying](MoviePlaying)
-* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
-* [MovieVolume](MovieVolume) 〔BlitzLLVM〕
-* [MovieWidth](MovieWidth)
+[CloseMovie](CloseMovie), [DrawMovie](DrawMovie), [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕, [MovieLength](MovieLength) 〔BlitzLLVM〕, [MoviePlaying](MoviePlaying), [MoviePosition](MoviePosition) 〔BlitzLLVM〕, [MovieVolume](MovieVolume) 〔BlitzLLVM〕, [MovieWidth](MovieWidth)
 
 <div align="center">
 

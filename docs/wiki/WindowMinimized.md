@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ActivateWindow](ActivateWindow)
-* [ActiveWindow](ActiveWindow)
-* [CreateWindow](CreateWindow)
-* [MaximizeWindow](MaximizeWindow)
-* [MinimizeWindow](MinimizeWindow)
-* [RestoreWindow](RestoreWindow)
-* [WindowMaximized](WindowMaximized)
-* [WindowMenu](WindowMenu)
+[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [CreateWindow](CreateWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow), [RestoreWindow](RestoreWindow), [WindowMaximized](WindowMaximized), [WindowMenu](WindowMenu)
 
 <div align="center">
 

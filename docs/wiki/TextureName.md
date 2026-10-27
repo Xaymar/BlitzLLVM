@@ -37,14 +37,7 @@ Tells you which file the texture was loaded from, which is handy after loading a
 
 ## Related Commands
 
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateTexture](CreateTexture)
-* [TextureBlend](TextureBlend)
-* [TextureBuffer](TextureBuffer)
-* [TextureCoords](TextureCoords)
-* [TextureFilter](TextureFilter)
-* [TextureHeight](TextureHeight)
-* [TextureWidth](TextureWidth)
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureWidth](TextureWidth)
 
 <div align="center">
 

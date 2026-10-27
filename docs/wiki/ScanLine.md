@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [Line](Line)
-* [Plot](Plot)
-* [Rect](Rect)
-* [Viewport](Viewport)
+[Line](Line), [Plot](Plot), [Rect](Rect), [Viewport](Viewport)
 
 <div align="center">
 

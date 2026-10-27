@@ -37,13 +37,7 @@ It is the right tool to find which way an entity moves when you push it forward:
 
 ## Related Commands
 
-* [TFormedX](TFormedX)
-* [TFormedY](TFormedY)
-* [TFormedZ](TFormedZ)
-* [TFormNormal](TFormNormal)
-* [TFormPoint](TFormPoint)
-* [VectorPitch](VectorPitch)
-* [VectorYaw](VectorYaw)
+[TFormedX](TFormedX), [TFormedY](TFormedY), [TFormedZ](TFormedZ), [TFormNormal](TFormNormal), [TFormPoint](TFormPoint), [VectorPitch](VectorPitch), [VectorYaw](VectorYaw)
 
 <div align="center">
 

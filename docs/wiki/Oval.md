@@ -53,10 +53,7 @@ WaitKey
 
 ## Related Commands
 
-* [Line](Line)
-* [Origin](Origin)
-* [Plot](Plot)
-* [Rect](Rect)
+[Line](Line), [Origin](Origin), [Plot](Plot), [Rect](Rect)
 
 <div align="center">
 

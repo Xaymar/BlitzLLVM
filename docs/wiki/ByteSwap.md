@@ -54,10 +54,7 @@ Print ByteSwap(ULong(1))
 
 ## Related Commands
 
-* [Byte](Byte) 〔BlitzLLVM〕
-* [SatByte](SatByte) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [UByte](UByte) 〔BlitzLLVM〕
+[Byte](Byte) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕
 
 <div align="center">
 

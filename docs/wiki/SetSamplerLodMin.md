@@ -34,14 +34,7 @@ Sets the biggest mip level that may be used, as the number of levels counted fro
 
 ## Related Commands
 
-* [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
-* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
-* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
-* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
-* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
-* [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
-* [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
+[GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕, [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕, [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕, [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕, [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕, [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕, [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕, [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
 
 <div align="center">
 

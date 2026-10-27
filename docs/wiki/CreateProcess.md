@@ -40,10 +40,7 @@ If CreateProcess("notepad.exe") = 0 Then Notify "Could not start it."
 
 ## Related Commands
 
-* [AutoSuspend](AutoSuspend)
-* [Confirm](Confirm)
-* [DebugObjects](DebugObjects)
-* [FlushEvents](FlushEvents)
+[AutoSuspend](AutoSuspend), [Confirm](Confirm), [DebugObjects](DebugObjects), [FlushEvents](FlushEvents)
 
 <div align="center">
 

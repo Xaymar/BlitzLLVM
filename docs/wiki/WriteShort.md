@@ -32,12 +32,7 @@ Writes a number in 2 bytes, low byte first. Values outside 0 to 65535 wrap aroun
 
 ## Related Commands
 
-* [ReadShort](ReadShort)
-* [WriteByte](WriteByte)
-* [WriteFloat](WriteFloat)
-* [WriteInt](WriteInt)
-* [WriteLine](WriteLine)
-* [WriteString](WriteString)
+[ReadShort](ReadShort), [WriteByte](WriteByte), [WriteFloat](WriteFloat), [WriteInt](WriteInt), [WriteLine](WriteLine), [WriteString](WriteString)
 
 <div align="center">
 

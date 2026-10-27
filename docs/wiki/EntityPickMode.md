@@ -44,11 +44,7 @@ Sprites can only be picked with the sphere or box mode, because they have no mes
 
 ## Related Commands
 
-* [CameraPick](CameraPick)
-* [EntityPick](EntityPick)
-* [EntityVisible](EntityVisible)
-* [LinePick](LinePick)
-* [PickedEntity](PickedEntity)
+[CameraPick](CameraPick), [EntityPick](EntityPick), [EntityVisible](EntityVisible), [LinePick](LinePick), [PickedEntity](PickedEntity)
 
 <div align="center">
 

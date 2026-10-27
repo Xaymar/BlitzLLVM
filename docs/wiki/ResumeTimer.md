@@ -45,10 +45,7 @@ Until e = $803
 
 ## Related Commands
 
-* [PauseTimer](PauseTimer)
-* [QueryObject](QueryObject)
-* [ResetTimer](ResetTimer)
-* [TimerTicks](TimerTicks)
+[PauseTimer](PauseTimer), [QueryObject](QueryObject), [ResetTimer](ResetTimer), [TimerTicks](TimerTicks)
 
 <div align="center">
 

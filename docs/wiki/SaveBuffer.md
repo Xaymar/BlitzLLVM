@@ -51,14 +51,7 @@ WaitKey
 
 ## Related Commands
 
-* [BackBuffer](BackBuffer)
-* [BufferDirty](BufferDirty)
-* [FrontBuffer](FrontBuffer)
-* [GraphicsBuffer](GraphicsBuffer)
-* [LoadBuffer](LoadBuffer)
-* [LockBuffer](LockBuffer)
-* [SetBuffer](SetBuffer)
-* [UnlockBuffer](UnlockBuffer)
+[BackBuffer](BackBuffer), [BufferDirty](BufferDirty), [FrontBuffer](FrontBuffer), [GraphicsBuffer](GraphicsBuffer), [LoadBuffer](LoadBuffer), [LockBuffer](LockBuffer), [SetBuffer](SetBuffer), [UnlockBuffer](UnlockBuffer)
 
 <div align="center">
 

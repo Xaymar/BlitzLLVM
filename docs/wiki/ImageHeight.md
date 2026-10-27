@@ -33,14 +33,7 @@ The height of one frame of an image in pixels.
 
 ## Related Commands
 
-* [CopyImage](CopyImage)
-* [CreateImage](CreateImage)
-* [ImageBuffer](ImageBuffer)
-* [ImageRectCollide](ImageRectCollide)
-* [ImageRectOverlap](ImageRectOverlap)
-* [ImageWidth](ImageWidth)
-* [ImageXHandle](ImageXHandle)
-* [ImageYHandle](ImageYHandle)
+[CopyImage](CopyImage), [CreateImage](CreateImage), [ImageBuffer](ImageBuffer), [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
 
 <div align="center">
 

@@ -45,8 +45,7 @@ Print Asc("BCD")
 
 ## Related Commands
 
-* [Bin](Bin)
-* [Chr](Chr)
+[Bin](Bin), [Chr](Chr)
 
 <div align="center">
 

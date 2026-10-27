@@ -32,12 +32,7 @@ Writes text followed by a carriage return and a line feed. Read it back with [Re
 
 ## Related Commands
 
-* [ReadLine](ReadLine)
-* [WriteByte](WriteByte)
-* [WriteFloat](WriteFloat)
-* [WriteInt](WriteInt)
-* [WriteShort](WriteShort)
-* [WriteString](WriteString)
+[ReadLine](ReadLine), [WriteByte](WriteByte), [WriteFloat](WriteFloat), [WriteInt](WriteInt), [WriteShort](WriteShort), [WriteString](WriteString)
 
 <div align="center">
 

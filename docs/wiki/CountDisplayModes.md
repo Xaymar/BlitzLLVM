@@ -49,14 +49,7 @@ WaitKey
 
 ## Related Commands
 
-* [CountDisplays](CountDisplays) 〔BlitzLLVM〕
-* [CountGfxDrivers](CountGfxDrivers)
-* [CountGfxModes](CountGfxModes)
-* [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
-* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
-* [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
-* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
-* [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
+[CountDisplays](CountDisplays) 〔BlitzLLVM〕, [CountGfxDrivers](CountGfxDrivers), [CountGfxModes](CountGfxModes), [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕, [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕, [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕, [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕, [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
 
 <div align="center">
 

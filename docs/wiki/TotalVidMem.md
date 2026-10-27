@@ -41,10 +41,7 @@ WaitKey
 
 ## Related Commands
 
-* [AvailVidMem](AvailVidMem)
-* [SetGfxDriver](SetGfxDriver)
-* [ShowPointer](ShowPointer)
-* [UpdateGamma](UpdateGamma)
+[AvailVidMem](AvailVidMem), [SetGfxDriver](SetGfxDriver), [ShowPointer](ShowPointer), [UpdateGamma](UpdateGamma)
 
 <div align="center">
 

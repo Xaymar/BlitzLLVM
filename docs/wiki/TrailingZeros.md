@@ -54,10 +54,7 @@ Print TrailingZeros(ULong(1) Shl 40)
 
 ## Related Commands
 
-* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
-* [Sqr](Sqr)
-* [Tan](Tan)
-* [UByte](UByte) 〔BlitzLLVM〕
+[LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Sqr](Sqr), [Tan](Tan), [UByte](UByte) 〔BlitzLLVM〕
 
 <div align="center">
 

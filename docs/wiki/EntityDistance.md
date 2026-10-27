@@ -34,14 +34,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [EntityAlpha](EntityAlpha)
-* [EntityAutoFade](EntityAutoFade)
-* [EntityBlend](EntityBlend)
-* [EntityClass](EntityClass)
-* [EntityColor](EntityColor)
-* [EntityFX](EntityFX)
-* [EntityInView](EntityInView)
-* [EntityName](EntityName)
+[EntityAlpha](EntityAlpha), [EntityAutoFade](EntityAutoFade), [EntityBlend](EntityBlend), [EntityClass](EntityClass), [EntityColor](EntityColor), [EntityFX](EntityFX), [EntityInView](EntityInView), [EntityName](EntityName)
 
 <div align="center">
 

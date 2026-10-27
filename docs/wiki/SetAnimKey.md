@@ -37,14 +37,7 @@ Each of the three flags decides which part of the pose is stored. Setting a key 
 
 ## Related Commands
 
-* [AddAnimSeq](AddAnimSeq)
-* [AnimLength](AnimLength)
-* [AnimSeq](AnimSeq)
-* [AnimTime](AnimTime)
-* [ExtractAnimSeq](ExtractAnimSeq)
-* [LoadAnimSeq](LoadAnimSeq)
-* [MD2AnimLength](MD2AnimLength)
-* [SetAnimTime](SetAnimTime)
+[AddAnimSeq](AddAnimSeq), [AnimLength](AnimLength), [AnimSeq](AnimSeq), [AnimTime](AnimTime), [ExtractAnimSeq](ExtractAnimSeq), [LoadAnimSeq](LoadAnimSeq), [MD2AnimLength](MD2AnimLength), [SetAnimTime](SetAnimTime)
 
 <div align="center">
 

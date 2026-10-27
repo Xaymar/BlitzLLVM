@@ -58,14 +58,7 @@ WaitKey
 
 ## Related Commands
 
-* [CopyImage](CopyImage)
-* [CreateImage](CreateImage)
-* [ImageHeight](ImageHeight)
-* [ImageRectCollide](ImageRectCollide)
-* [ImageRectOverlap](ImageRectOverlap)
-* [ImageWidth](ImageWidth)
-* [ImageXHandle](ImageXHandle)
-* [ImageYHandle](ImageYHandle)
+[CopyImage](CopyImage), [CreateImage](CreateImage), [ImageHeight](ImageHeight), [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
 
 <div align="center">
 

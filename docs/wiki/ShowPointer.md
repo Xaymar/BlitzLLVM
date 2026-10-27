@@ -25,10 +25,7 @@ Shows the mouse pointer again after [HidePointer](HidePointer).
 
 ## Related Commands
 
-* [HidePointer](HidePointer)
-* [SetGamma](SetGamma)
-* [SetGfxDriver](SetGfxDriver)
-* [TotalVidMem](TotalVidMem)
+[HidePointer](HidePointer), [SetGamma](SetGamma), [SetGfxDriver](SetGfxDriver), [TotalVidMem](TotalVidMem)
 
 <div align="center">
 

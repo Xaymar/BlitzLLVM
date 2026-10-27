@@ -38,8 +38,7 @@ Sets a color that a level is brightened with. Levels ignore the normal [AmbientL
 
 ## Related Commands
 
-* [BSPLighting](BSPLighting)
-* [LoadBSP](LoadBSP)
+[BSPLighting](BSPLighting), [LoadBSP](LoadBSP)
 
 <div align="center">
 

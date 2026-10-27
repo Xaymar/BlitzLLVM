@@ -35,12 +35,7 @@ The horizontal radius applies to both width and depth. Leave out the second radi
 
 ## Related Commands
 
-* [CollisionEntity](CollisionEntity)
-* [EntityBox](EntityBox)
-* [EntityCollided](EntityCollided)
-* [EntityType](EntityType)
-* [GetEntityType](GetEntityType)
-* [ResetEntity](ResetEntity)
+[CollisionEntity](CollisionEntity), [EntityBox](EntityBox), [EntityCollided](EntityCollided), [EntityType](EntityType), [GetEntityType](GetEntityType), [ResetEntity](ResetEntity)
 
 <div align="center">
 

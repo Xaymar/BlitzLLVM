@@ -53,8 +53,7 @@ WaitKey
 
 ## Related Commands
 
-* [Rect](Rect)
-* [ScanLine](ScanLine)
+[Rect](Rect), [ScanLine](ScanLine)
 
 <div align="center">
 

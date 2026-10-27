@@ -53,10 +53,7 @@ Print RotR(1, 1)
 
 ## Related Commands
 
-* [RndSeed](RndSeed)
-* [RotL](RotL) 〔BlitzLLVM〕
-* [SatByte](SatByte) 〔BlitzLLVM〕
-* [SatInt](SatInt) 〔BlitzLLVM〕
+[RndSeed](RndSeed), [RotL](RotL) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕
 
 <div align="center">
 

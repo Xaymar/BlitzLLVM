@@ -32,14 +32,7 @@ Chooses how painted surfaces are mixed with what is already on the screen: 1 alp
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushColor](BrushColor)
-* [BrushFX](BrushFX)
-* [BrushShininess](BrushShininess)
-* [BrushTexture](BrushTexture)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetBrushTexture](GetBrushTexture)
+[BrushAlpha](BrushAlpha), [BrushColor](BrushColor), [BrushFX](BrushFX), [BrushShininess](BrushShininess), [BrushTexture](BrushTexture), [CreateBrush](CreateBrush), [FreeBrush](FreeBrush), [GetBrushTexture](GetBrushTexture)
 
 <div align="center">
 

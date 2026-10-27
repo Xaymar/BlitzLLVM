@@ -40,14 +40,7 @@ WaitKey
 
 ## Related Commands
 
-* [CountGfxDrivers](CountGfxDrivers)
-* [GfxDriverName](GfxDriverName)
-* [GfxModeDepth](GfxModeDepth)
-* [GfxModeExists](GfxModeExists)
-* [GfxModeFormat](GfxModeFormat)
-* [GfxModeHeight](GfxModeHeight)
-* [GfxModeWidth](GfxModeWidth)
-* [SetGfxDriver](SetGfxDriver)
+[CountGfxDrivers](CountGfxDrivers), [GfxDriverName](GfxDriverName), [GfxModeDepth](GfxModeDepth), [GfxModeExists](GfxModeExists), [GfxModeFormat](GfxModeFormat), [GfxModeHeight](GfxModeHeight), [GfxModeWidth](GfxModeWidth), [SetGfxDriver](SetGfxDriver)
 
 <div align="center">
 

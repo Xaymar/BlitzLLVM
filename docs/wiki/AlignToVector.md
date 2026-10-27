@@ -36,8 +36,7 @@ Turns an entity so that one of its own axes lines up with a direction. Where [Po
 
 ## Related Commands
 
-* [CopyEntity](CopyEntity)
-* [CountChildren](CountChildren)
+[CopyEntity](CopyEntity), [CountChildren](CountChildren)
 
 <div align="center">
 

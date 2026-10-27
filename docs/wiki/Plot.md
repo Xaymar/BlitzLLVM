@@ -32,10 +32,7 @@ Draws a single pixel in the drawing color.
 
 ## Related Commands
 
-* [Origin](Origin)
-* [Oval](Oval)
-* [Rect](Rect)
-* [ScanLine](ScanLine)
+[Origin](Origin), [Oval](Oval), [Rect](Rect), [ScanLine](ScanLine)
 
 <div align="center">
 

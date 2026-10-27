@@ -43,9 +43,7 @@ Print "[" + Trim$("   hi there  ") + "]"
 
 ## Related Commands
 
-* [RSet](RSet)
-* [String](String)
-* [Upper](Upper)
+[RSet](RSet), [String](String), [Upper](Upper)
 
 <div align="center">
 

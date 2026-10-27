@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ActivateGadget](ActivateGadget)
-* [AddGadgetItem](AddGadgetItem)
-* [ClearGadgetItems](ClearGadgetItems)
-* [DisableGadget](DisableGadget)
-* [EnableGadget](EnableGadget)
-* [FreeGadget](FreeGadget)
-* [GadgetFont](GadgetFont)
-* [GadgetGroup](GadgetGroup)
+[ActivateGadget](ActivateGadget), [AddGadgetItem](AddGadgetItem), [ClearGadgetItems](ClearGadgetItems), [DisableGadget](DisableGadget), [EnableGadget](EnableGadget), [FreeGadget](FreeGadget), [GadgetFont](GadgetFont), [GadgetGroup](GadgetGroup)
 
 <div align="center">
 

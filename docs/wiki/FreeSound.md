@@ -45,13 +45,7 @@ FreeSound snd
 
 ## Related Commands
 
-* [Load3DSound](Load3DSound)
-* [LoadSound](LoadSound)
-* [LoopSound](LoopSound)
-* [PlaySound](PlaySound)
-* [SoundPan](SoundPan)
-* [SoundPitch](SoundPitch)
-* [SoundVolume](SoundVolume)
+[Load3DSound](Load3DSound), [LoadSound](LoadSound), [LoopSound](LoopSound), [PlaySound](PlaySound), [SoundPan](SoundPan), [SoundPitch](SoundPitch), [SoundVolume](SoundVolume)
 
 <div align="center">
 

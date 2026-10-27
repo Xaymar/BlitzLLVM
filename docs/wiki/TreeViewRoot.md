@@ -33,14 +33,7 @@ Gives the invisible node at the top of a tree. It is the parent of the top level
 
 ## Related Commands
 
-* [AddTreeViewNode](AddTreeViewNode)
-* [CollapseTreeViewNode](CollapseTreeViewNode)
-* [CountTreeViewNodes](CountTreeViewNodes)
-* [CreateTreeView](CreateTreeView)
-* [ExpandTreeViewNode](ExpandTreeViewNode)
-* [FreeTreeViewNode](FreeTreeViewNode)
-* [InsertTreeViewNode](InsertTreeViewNode)
-* [TreeViewNodeText](TreeViewNodeText)
+[AddTreeViewNode](AddTreeViewNode), [CollapseTreeViewNode](CollapseTreeViewNode), [CountTreeViewNodes](CountTreeViewNodes), [CreateTreeView](CreateTreeView), [ExpandTreeViewNode](ExpandTreeViewNode), [FreeTreeViewNode](FreeTreeViewNode), [InsertTreeViewNode](InsertTreeViewNode), [TreeViewNodeText](TreeViewNodeText)
 
 <div align="center">
 

@@ -35,10 +35,7 @@ Print "Today is " + CurrentDate$()
 
 ## Related Commands
 
-* [Bin](Bin)
-* [Chr](Chr)
-* [CurrentTime](CurrentTime)
-* [Hex](Hex)
+[Bin](Bin), [Chr](Chr), [CurrentTime](CurrentTime), [Hex](Hex)
 
 <div align="center">
 

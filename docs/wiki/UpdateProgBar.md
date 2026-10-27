@@ -32,9 +32,7 @@ Sets how full a progress bar is.
 
 ## Related Commands
 
-* [CreateProgBar](CreateProgBar)
-* [ShowGadget](ShowGadget)
-* [SliderValue](SliderValue)
+[CreateProgBar](CreateProgBar), [ShowGadget](ShowGadget), [SliderValue](SliderValue)
 
 <div align="center">
 

@@ -34,10 +34,7 @@ Looks for the surface of a mesh that was painted with the given brush. Returns i
 
 ## Related Commands
 
-* [ClearSurface](ClearSurface)
-* [CreateSurface](CreateSurface)
-* [GetSurface](GetSurface)
-* [PaintSurface](PaintSurface)
+[ClearSurface](ClearSurface), [CreateSurface](CreateSurface), [GetSurface](GetSurface), [PaintSurface](PaintSurface)
 
 <div align="center">
 

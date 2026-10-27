@@ -33,10 +33,7 @@ Sets the inner and outer angle of a spot light in degrees. Inside the inner angl
 
 ## Related Commands
 
-* [CreateLight](CreateLight)
-* [LightColor](LightColor)
-* [LightMesh](LightMesh)
-* [LightRange](LightRange)
+[CreateLight](CreateLight), [LightColor](LightColor), [LightMesh](LightMesh), [LightRange](LightRange)
 
 <div align="center">
 

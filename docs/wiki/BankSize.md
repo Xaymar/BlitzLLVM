@@ -45,10 +45,7 @@ FreeBank bank
 
 ## Related Commands
 
-* [CopyBank](CopyBank)
-* [CreateBank](CreateBank)
-* [FreeBank](FreeBank)
-* [ResizeBank](ResizeBank)
+[CopyBank](CopyBank), [CreateBank](CreateBank), [FreeBank](FreeBank), [ResizeBank](ResizeBank)
 
 <div align="center">
 

@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseTCPStream](CloseTCPStream)
-* [DottedIP](DottedIP)
-* [HostIP](HostIP)
-* [TCPStreamPort](TCPStreamPort)
-* [TCPTimeouts](TCPTimeouts)
-* [UDPMsgIP](UDPMsgIP)
-* [UDPStreamIP](UDPStreamIP)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPStream](CloseTCPStream), [DottedIP](DottedIP), [HostIP](HostIP), [TCPStreamPort](TCPStreamPort), [TCPTimeouts](TCPTimeouts), [UDPMsgIP](UDPMsgIP), [UDPStreamIP](UDPStreamIP)
 
 <div align="center">
 

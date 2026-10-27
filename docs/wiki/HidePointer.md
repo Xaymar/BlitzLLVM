@@ -41,10 +41,7 @@ ShowPointer
 
 ## Related Commands
 
-* [GraphicsLost](GraphicsLost)
-* [GraphicsWidth](GraphicsWidth)
-* [PrimaryDisplay](PrimaryDisplay) 〔BlitzLLVM〕
-* [ShowPointer](ShowPointer)
+[GraphicsLost](GraphicsLost), [GraphicsWidth](GraphicsWidth), [PrimaryDisplay](PrimaryDisplay) 〔BlitzLLVM〕, [ShowPointer](ShowPointer)
 
 <div align="center">
 

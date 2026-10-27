@@ -45,10 +45,7 @@ Print DottedIP$($C0A80164)
 
 ## Related Commands
 
-* [HostIP](HostIP)
-* [TCPStreamIP](TCPStreamIP)
-* [UDPMsgIP](UDPMsgIP)
-* [UDPStreamIP](UDPStreamIP)
+[HostIP](HostIP), [TCPStreamIP](TCPStreamIP), [UDPMsgIP](UDPMsgIP), [UDPStreamIP](UDPStreamIP)
 
 <div align="center">
 

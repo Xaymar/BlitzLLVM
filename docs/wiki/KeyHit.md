@@ -48,10 +48,7 @@ Wend
 
 ## Related Commands
 
-* [GetKey](GetKey)
-* [KeyDown](KeyDown)
-* [KeyWait](KeyWait)
-* [WaitKey](WaitKey)
+[GetKey](GetKey), [KeyDown](KeyDown), [KeyWait](KeyWait), [WaitKey](WaitKey)
 
 <div align="center">
 

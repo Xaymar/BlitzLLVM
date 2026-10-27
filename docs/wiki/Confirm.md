@@ -47,10 +47,7 @@ EndIf
 
 ## Related Commands
 
-* [ActiveObjects](ActiveObjects)
-* [AutoSuspend](AutoSuspend)
-* [CreateProcess](CreateProcess)
-* [DebugObjects](DebugObjects)
+[ActiveObjects](ActiveObjects), [AutoSuspend](AutoSuspend), [CreateProcess](CreateProcess), [DebugObjects](DebugObjects)
 
 <div align="center">
 

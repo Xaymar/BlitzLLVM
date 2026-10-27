@@ -33,14 +33,7 @@ The rotation turns the coordinates around their origin (the corner of the pictur
 
 ## Related Commands
 
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateTexture](CreateTexture)
-* [FreeTexture](FreeTexture)
-* [LoadAnimTexture](LoadAnimTexture)
-* [LoadTexture](LoadTexture)
-* [PositionTexture](PositionTexture)
-* [ScaleTexture](ScaleTexture)
-* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [ScaleTexture](ScaleTexture), [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
 <div align="center">
 

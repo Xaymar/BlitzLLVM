@@ -54,14 +54,7 @@ Print Int(UInt(-1))
 
 ## Related Commands
 
-* [SatInt](SatInt) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [SatUInt](SatUInt) 〔BlitzLLVM〕
-* [SatULong](SatULong) 〔BlitzLLVM〕
-* [SatUShort](SatUShort) 〔BlitzLLVM〕
-* [UByte](UByte) 〔BlitzLLVM〕
-* [ULong](ULong) 〔BlitzLLVM〕
-* [UShort](UShort) 〔BlitzLLVM〕
+[SatInt](SatInt) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 

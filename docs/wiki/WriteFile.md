@@ -52,14 +52,7 @@ second
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [FilePos](FilePos)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
-* [SeekFile](SeekFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [FilePos](FilePos), [NextFile](NextFile), [OpenFile](OpenFile), [ReadFile](ReadFile), [SeekFile](SeekFile)
 
 <div align="center">
 

@@ -55,14 +55,7 @@ DeleteFile "files_open_example.tmp"
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [FilePos](FilePos)
-* [NextFile](NextFile)
-* [ReadFile](ReadFile)
-* [SeekFile](SeekFile)
-* [WriteFile](WriteFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [FilePos](FilePos), [NextFile](NextFile), [ReadFile](ReadFile), [SeekFile](SeekFile), [WriteFile](WriteFile)
 
 <div align="center">
 

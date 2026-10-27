@@ -37,14 +37,7 @@ Tells whether a movie is still playing. It becomes 0 when the movie reaches its 
 
 ## Related Commands
 
-* [CloseMovie](CloseMovie)
-* [DrawMovie](DrawMovie)
-* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
-* [MovieHeight](MovieHeight)
-* [MovieLength](MovieLength) 〔BlitzLLVM〕
-* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
-* [MovieVolume](MovieVolume) 〔BlitzLLVM〕
-* [MovieWidth](MovieWidth)
+[CloseMovie](CloseMovie), [DrawMovie](DrawMovie), [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕, [MovieHeight](MovieHeight), [MovieLength](MovieLength) 〔BlitzLLVM〕, [MoviePosition](MoviePosition) 〔BlitzLLVM〕, [MovieVolume](MovieVolume) 〔BlitzLLVM〕, [MovieWidth](MovieWidth)
 
 <div align="center">
 

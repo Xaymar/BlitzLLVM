@@ -56,14 +56,7 @@ WaitKey
 
 ## Related Commands
 
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyPitch](JoyPitch)
-* [JoyRoll](JoyRoll)
-* [JoyU](JoyU)
-* [JoyUDir](JoyUDir)
-* [JoyV](JoyV)
+[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyU](JoyU), [JoyUDir](JoyUDir), [JoyV](JoyV)
 
 <div align="center">
 

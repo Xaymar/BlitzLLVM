@@ -76,14 +76,7 @@ Wend
 
 ## Related Commands
 
-* [VertexAlpha](VertexAlpha)
-* [VertexBlue](VertexBlue)
-* [VertexColor](VertexColor)
-* [VertexGreen](VertexGreen)
-* [VertexNormal](VertexNormal)
-* [VertexNX](VertexNX)
-* [VertexNY](VertexNY)
-* [VertexTexCoords](VertexTexCoords)
+[VertexAlpha](VertexAlpha), [VertexBlue](VertexBlue), [VertexColor](VertexColor), [VertexGreen](VertexGreen), [VertexNormal](VertexNormal), [VertexNX](VertexNX), [VertexNY](VertexNY), [VertexTexCoords](VertexTexCoords)
 
 <div align="center">
 

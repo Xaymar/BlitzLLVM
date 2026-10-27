@@ -47,10 +47,7 @@ Hi
 
 ## Related Commands
 
-* [Asc](Asc)
-* [Bin](Bin)
-* [CurrentDate](CurrentDate)
-* [CurrentTime](CurrentTime)
+[Asc](Asc), [Bin](Bin), [CurrentDate](CurrentDate), [CurrentTime](CurrentTime)
 
 <div align="center">
 

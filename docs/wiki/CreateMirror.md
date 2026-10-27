@@ -33,12 +33,7 @@ Creates a mirror entity: an endless horizontal floor that is invisible but flips
 
 ## Related Commands
 
-* [CreateCone](CreateCone)
-* [CreateCube](CreateCube)
-* [CreateCylinder](CreateCylinder)
-* [CreateMesh](CreateMesh)
-* [CreatePlane](CreatePlane)
-* [CreateSphere](CreateSphere)
+[CreateCone](CreateCone), [CreateCube](CreateCube), [CreateCylinder](CreateCylinder), [CreateMesh](CreateMesh), [CreatePlane](CreatePlane), [CreateSphere](CreateSphere)
 
 <div align="center">
 

@@ -35,10 +35,7 @@ Print "It is " + CurrentTime$()
 
 ## Related Commands
 
-* [Chr](Chr)
-* [CurrentDate](CurrentDate)
-* [Hex](Hex)
-* [Instr](Instr)
+[Chr](Chr), [CurrentDate](CurrentDate), [Hex](Hex), [Instr](Instr)
 
 <div align="center">
 

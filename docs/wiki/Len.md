@@ -43,10 +43,7 @@ Print Len("hello")
 
 ## Related Commands
 
-* [Instr](Instr)
-* [Left](Left)
-* [Lower](Lower)
-* [LSet](LSet)
+[Instr](Instr), [Left](Left), [Lower](Lower), [LSet](LSet)
 
 <div align="center">
 

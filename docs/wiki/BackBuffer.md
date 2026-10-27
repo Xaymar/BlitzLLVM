@@ -43,14 +43,7 @@ Wend
 
 ## Related Commands
 
-* [BufferDirty](BufferDirty)
-* [FrontBuffer](FrontBuffer)
-* [GraphicsBuffer](GraphicsBuffer)
-* [LoadBuffer](LoadBuffer)
-* [LockBuffer](LockBuffer)
-* [SaveBuffer](SaveBuffer)
-* [SetBuffer](SetBuffer)
-* [UnlockBuffer](UnlockBuffer)
+[BufferDirty](BufferDirty), [FrontBuffer](FrontBuffer), [GraphicsBuffer](GraphicsBuffer), [LoadBuffer](LoadBuffer), [LockBuffer](LockBuffer), [SaveBuffer](SaveBuffer), [SetBuffer](SetBuffer), [UnlockBuffer](UnlockBuffer)
 
 <div align="center">
 

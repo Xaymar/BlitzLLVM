@@ -66,9 +66,7 @@ WaitKey
 
 ## Related Commands
 
-* [AddVertex](AddVertex)
-* [ClearSurface](ClearSurface)
-* [TriangleVertex](TriangleVertex)
+[AddVertex](AddVertex), [ClearSurface](ClearSurface), [TriangleVertex](TriangleVertex)
 
 <div align="center">
 

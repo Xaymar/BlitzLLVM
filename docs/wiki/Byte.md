@@ -58,10 +58,7 @@ Print Byte(-1000.0)
 
 ## Related Commands
 
-* [ByteSwap](ByteSwap) 〔BlitzLLVM〕
-* [SatByte](SatByte) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [UByte](UByte) 〔BlitzLLVM〕
+[ByteSwap](ByteSwap) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕
 
 <div align="center">
 

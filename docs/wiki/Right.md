@@ -44,10 +44,7 @@ lo
 
 ## Related Commands
 
-* [Mid](Mid)
-* [Replace](Replace)
-* [RSet](RSet)
-* [String](String)
+[Mid](Mid), [Replace](Replace), [RSet](RSet), [String](String)
 
 <div align="center">
 

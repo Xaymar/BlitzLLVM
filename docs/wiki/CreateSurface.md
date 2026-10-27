@@ -70,10 +70,7 @@ WaitKey
 
 ## Related Commands
 
-* [ClearSurface](ClearSurface)
-* [FindSurface](FindSurface)
-* [GetSurface](GetSurface)
-* [PaintSurface](PaintSurface)
+[ClearSurface](ClearSurface), [FindSurface](FindSurface), [GetSurface](GetSurface), [PaintSurface](PaintSurface)
 
 <div align="center">
 

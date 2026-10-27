@@ -67,10 +67,7 @@ WaitKey
 
 ## Related Commands
 
-* [PaintSurface](PaintSurface)
-* [TriangleVertex](TriangleVertex)
-* [VertexAlpha](VertexAlpha)
-* [VertexBlue](VertexBlue)
+[PaintSurface](PaintSurface), [TriangleVertex](TriangleVertex), [VertexAlpha](VertexAlpha), [VertexBlue](VertexBlue)
 
 <div align="center">
 

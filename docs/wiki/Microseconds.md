@@ -51,10 +51,7 @@ Print Microseconds() - start >= 45000
 
 ## Related Commands
 
-* [FreeTimer](FreeTimer)
-* [GetEnv](GetEnv)
-* [MilliSecs](MilliSecs)
-* [RuntimeError](RuntimeError)
+[FreeTimer](FreeTimer), [GetEnv](GetEnv), [MilliSecs](MilliSecs), [RuntimeError](RuntimeError)
 
 <div align="center">
 

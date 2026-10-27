@@ -88,11 +88,7 @@ Next
 
 ## Related Commands
 
-* [CreateSprite](CreateSprite)
-* [HandleSprite](HandleSprite)
-* [LoadSprite](LoadSprite)
-* [RotateSprite](RotateSprite)
-* [ScaleSprite](ScaleSprite)
+[CreateSprite](CreateSprite), [HandleSprite](HandleSprite), [LoadSprite](LoadSprite), [RotateSprite](RotateSprite), [ScaleSprite](ScaleSprite)
 
 <div align="center">
 

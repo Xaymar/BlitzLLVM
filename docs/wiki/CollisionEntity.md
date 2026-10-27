@@ -34,14 +34,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CollisionNX](CollisionNX)
-* [CollisionNY](CollisionNY)
-* [CollisionNZ](CollisionNZ)
-* [CollisionSurface](CollisionSurface)
-* [CollisionTime](CollisionTime)
-* [CollisionTriangle](CollisionTriangle)
-* [CollisionX](CollisionX)
-* [CollisionY](CollisionY)
+[CollisionNX](CollisionNX), [CollisionNY](CollisionNY), [CollisionNZ](CollisionNZ), [CollisionSurface](CollisionSurface), [CollisionTime](CollisionTime), [CollisionTriangle](CollisionTriangle), [CollisionX](CollisionX), [CollisionY](CollisionY)
 
 <div align="center">
 

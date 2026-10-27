@@ -48,10 +48,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [RequestColor](RequestColor)
-* [RequestedBlue](RequestedBlue)
-* [RequestFile](RequestFile)
-* [RequestFont](RequestFont)
+[RequestColor](RequestColor), [RequestedBlue](RequestedBlue), [RequestFile](RequestFile), [RequestFont](RequestFont)
 
 <div align="center">
 

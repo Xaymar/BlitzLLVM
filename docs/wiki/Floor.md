@@ -45,10 +45,7 @@ Print Floor(-2.1)
 
 ## Related Commands
 
-* [Double](Double) 〔BlitzLLVM〕
-* [Exp](Exp)
-* [Half](Half) 〔BlitzLLVM〕
-* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
+[Double](Double) 〔BlitzLLVM〕, [Exp](Exp), [Half](Half) 〔BlitzLLVM〕, [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 
 <div align="center">
 

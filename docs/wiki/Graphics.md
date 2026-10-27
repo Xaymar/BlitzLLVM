@@ -58,12 +58,7 @@ WaitKey
 
 ## Related Commands
 
-* [EndGraphics](EndGraphics)
-* [GraphicsDepth](GraphicsDepth)
-* [GraphicsFormat](GraphicsFormat)
-* [GraphicsHeight](GraphicsHeight)
-* [GraphicsLost](GraphicsLost)
-* [GraphicsWidth](GraphicsWidth)
+[EndGraphics](EndGraphics), [GraphicsDepth](GraphicsDepth), [GraphicsFormat](GraphicsFormat), [GraphicsHeight](GraphicsHeight), [GraphicsLost](GraphicsLost), [GraphicsWidth](GraphicsWidth)
 
 <div align="center">
 

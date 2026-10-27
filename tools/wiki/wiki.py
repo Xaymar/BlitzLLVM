@@ -256,8 +256,7 @@ def command_page(c, siblings):
         out.append("## Media\n")
         out.extend(x.strip() + "\n" for x in media)
     out.append("## Related Commands\n")
-    out.extend("* " + o.link for o in related(c, siblings))
-    out.append("")
+    out.append(", ".join(o.link for o in related(c, siblings)) + "\n")
     out.append(nav(c))
     return "\n".join(out)
 

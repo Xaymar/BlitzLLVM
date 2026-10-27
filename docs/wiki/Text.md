@@ -59,9 +59,7 @@ WaitKey
 
 ## Related Commands
 
-* [StringHeight](StringHeight)
-* [StringWidth](StringWidth)
-* [Write](Write)
+[StringHeight](StringHeight), [StringWidth](StringWidth), [Write](Write)
 
 <div align="center">
 

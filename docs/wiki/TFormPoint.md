@@ -60,11 +60,7 @@ WaitKey
 
 ## Related Commands
 
-* [TFormedX](TFormedX)
-* [TFormedY](TFormedY)
-* [TFormedZ](TFormedZ)
-* [TFormNormal](TFormNormal)
-* [TFormVector](TFormVector)
+[TFormedX](TFormedX), [TFormedY](TFormedY), [TFormedZ](TFormedZ), [TFormNormal](TFormNormal), [TFormVector](TFormVector)
 
 <div align="center">
 

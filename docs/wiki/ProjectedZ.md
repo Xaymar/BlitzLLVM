@@ -33,10 +33,7 @@ Tells how far in front of the camera the point of the last [CameraProject](Camer
 
 ## Related Commands
 
-* [ProjectedX](ProjectedX)
-* [ProjectedY](ProjectedY)
-* [TFormedX](TFormedX)
-* [TFormedZ](TFormedZ)
+[ProjectedX](ProjectedX), [ProjectedY](ProjectedY), [TFormedX](TFormedX), [TFormedZ](TFormedZ)
 
 <div align="center">
 

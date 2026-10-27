@@ -50,13 +50,7 @@ Forever
 
 ## Related Commands
 
-* [EventData](EventData)
-* [EventSource](EventSource)
-* [EventX](EventX)
-* [EventY](EventY)
-* [EventZ](EventZ)
-* [PeekEvent](PeekEvent)
-* [WaitEvent](WaitEvent)
+[EventData](EventData), [EventSource](EventSource), [EventX](EventX), [EventY](EventY), [EventZ](EventZ), [PeekEvent](PeekEvent), [WaitEvent](WaitEvent)
 
 <div align="center">
 

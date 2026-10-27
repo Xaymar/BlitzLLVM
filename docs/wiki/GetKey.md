@@ -53,10 +53,7 @@ Wend
 
 ## Related Commands
 
-* [KeyDown](KeyDown)
-* [KeyHit](KeyHit)
-* [KeyWait](KeyWait)
-* [WaitKey](WaitKey)
+[KeyDown](KeyDown), [KeyHit](KeyHit), [KeyWait](KeyWait), [WaitKey](WaitKey)
 
 <div align="center">
 

@@ -34,12 +34,7 @@ Finds out whether the entity hit something of a given collision type during the 
 
 ## Related Commands
 
-* [CollisionEntity](CollisionEntity)
-* [EntityBox](EntityBox)
-* [EntityRadius](EntityRadius)
-* [EntityType](EntityType)
-* [GetEntityType](GetEntityType)
-* [ResetEntity](ResetEntity)
+[CollisionEntity](CollisionEntity), [EntityBox](EntityBox), [EntityRadius](EntityRadius), [EntityType](EntityType), [GetEntityType](GetEntityType), [ResetEntity](ResetEntity)
 
 <div align="center">
 

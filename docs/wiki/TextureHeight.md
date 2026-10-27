@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateTexture](CreateTexture)
-* [TextureBlend](TextureBlend)
-* [TextureBuffer](TextureBuffer)
-* [TextureCoords](TextureCoords)
-* [TextureFilter](TextureFilter)
-* [TextureName](TextureName)
-* [TextureWidth](TextureWidth)
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureName](TextureName), [TextureWidth](TextureWidth)
 
 <div align="center">
 

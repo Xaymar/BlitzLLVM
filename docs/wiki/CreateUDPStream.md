@@ -55,14 +55,7 @@ CloseUDPStream b
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseTCPStream](CloseTCPStream)
-* [CloseUDPStream](CloseUDPStream)
-* [CreateTCPServer](CreateTCPServer)
-* [OpenTCPStream](OpenTCPStream)
-* [RecvUDPMsg](RecvUDPMsg)
-* [UDPStreamIP](UDPStreamIP)
-* [UDPStreamPort](UDPStreamPort)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPStream](CloseTCPStream), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [OpenTCPStream](OpenTCPStream), [RecvUDPMsg](RecvUDPMsg), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort)
 
 <div align="center">
 

@@ -54,10 +54,7 @@ WaitKey
 
 ## Related Commands
 
-* [Input](Input)
-* [LoadFont](LoadFont)
-* [Print](Print)
-* [SetFont](SetFont)
+[Input](Input), [LoadFont](LoadFont), [Print](Print), [SetFont](SetFont)
 
 <div align="center">
 

@@ -31,14 +31,7 @@ Closes a UDP stream and gives its port back.
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseTCPServer](CloseTCPServer)
-* [CloseTCPStream](CloseTCPStream)
-* [CreateUDPStream](CreateUDPStream)
-* [OpenTCPStream](OpenTCPStream)
-* [RecvUDPMsg](RecvUDPMsg)
-* [UDPStreamIP](UDPStreamIP)
-* [UDPStreamPort](UDPStreamPort)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CreateUDPStream](CreateUDPStream), [OpenTCPStream](OpenTCPStream), [RecvUDPMsg](RecvUDPMsg), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort)
 
 <div align="center">
 

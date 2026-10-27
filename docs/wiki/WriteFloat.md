@@ -48,12 +48,7 @@ DeleteFile "streams_float_example.tmp"
 
 ## Related Commands
 
-* [ReadFloat](ReadFloat)
-* [WriteByte](WriteByte)
-* [WriteInt](WriteInt)
-* [WriteLine](WriteLine)
-* [WriteShort](WriteShort)
-* [WriteString](WriteString)
+[ReadFloat](ReadFloat), [WriteByte](WriteByte), [WriteInt](WriteInt), [WriteLine](WriteLine), [WriteShort](WriteShort), [WriteString](WriteString)
 
 <div align="center">
 

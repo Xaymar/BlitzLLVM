@@ -56,10 +56,7 @@ Print LeadingZeros(0)
 
 ## Related Commands
 
-* [Floor](Floor)
-* [Half](Half) 〔BlitzLLVM〕
-* [Log](Log)
-* [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
+[Floor](Floor), [Half](Half) 〔BlitzLLVM〕, [Log](Log), [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
 <div align="center">
 

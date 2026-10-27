@@ -32,14 +32,7 @@ Switches the camera between not drawing at all, perspective and orthographic pro
 
 ## Related Commands
 
-* [CameraClsColor](CameraClsColor)
-* [CameraClsMode](CameraClsMode)
-* [CameraFogColor](CameraFogColor)
-* [CameraFogMode](CameraFogMode)
-* [CameraFogRange](CameraFogRange)
-* [CameraProject](CameraProject)
-* [CameraRange](CameraRange)
-* [CameraViewport](CameraViewport)
+[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [CameraFogColor](CameraFogColor), [CameraFogMode](CameraFogMode), [CameraFogRange](CameraFogRange), [CameraProject](CameraProject), [CameraRange](CameraRange), [CameraViewport](CameraViewport)
 
 <div align="center">
 

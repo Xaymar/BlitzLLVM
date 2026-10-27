@@ -29,10 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [RequestDir](RequestDir)
-* [RequestedBlue](RequestedBlue)
-* [RequestedRed](RequestedRed)
-* [RequestFile](RequestFile)
+[RequestDir](RequestDir), [RequestedBlue](RequestedBlue), [RequestedRed](RequestedRed), [RequestFile](RequestFile)
 
 <div align="center">
 

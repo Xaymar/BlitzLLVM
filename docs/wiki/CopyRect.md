@@ -62,10 +62,7 @@ WaitKey
 
 ## Related Commands
 
-* [CopyPixel](CopyPixel)
-* [CopyPixelFast](CopyPixelFast)
-* [FrontBuffer](FrontBuffer)
-* [GraphicsBuffer](GraphicsBuffer)
+[CopyPixel](CopyPixel), [CopyPixelFast](CopyPixelFast), [FrontBuffer](FrontBuffer), [GraphicsBuffer](GraphicsBuffer)
 
 <div align="center">
 

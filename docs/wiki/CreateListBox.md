@@ -62,13 +62,7 @@ Until e = $803
 
 ## Related Commands
 
-* [CreateButton](CreateButton)
-* [CreateComboBox](CreateComboBox)
-* [CreateLabel](CreateLabel)
-* [CreatePanel](CreatePanel)
-* [CreateProgBar](CreateProgBar)
-* [CreateSlider](CreateSlider)
-* [CreateTabber](CreateTabber)
+[CreateButton](CreateButton), [CreateComboBox](CreateComboBox), [CreateLabel](CreateLabel), [CreatePanel](CreatePanel), [CreateProgBar](CreateProgBar), [CreateSlider](CreateSlider), [CreateTabber](CreateTabber)
 
 <div align="center">
 

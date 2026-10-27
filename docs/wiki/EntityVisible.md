@@ -57,10 +57,7 @@ WaitKey
 
 ## Related Commands
 
-* [EntityPick](EntityPick)
-* [EntityPickMode](EntityPickMode)
-* [LinePick](LinePick)
-* [PickedEntity](PickedEntity)
+[EntityPick](EntityPick), [EntityPickMode](EntityPickMode), [LinePick](LinePick), [PickedEntity](PickedEntity)
 
 <div align="center">
 

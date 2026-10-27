@@ -35,10 +35,7 @@ Releases a font that was loaded with [LoadFont](LoadFont). If it was the current
 
 ## Related Commands
 
-* [FontHeight](FontHeight)
-* [FontWidth](FontWidth)
-* [LoadFont](LoadFont)
-* [SetFont](SetFont)
+[FontHeight](FontHeight), [FontWidth](FontWidth), [LoadFont](LoadFont), [SetFont](SetFont)
 
 <div align="center">
 

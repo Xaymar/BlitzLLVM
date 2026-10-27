@@ -31,10 +31,7 @@ Frees an icon strip that was loaded with [LoadIconStrip](LoadIconStrip). Only ne
 
 ## Related Commands
 
-* [DisableToolBarItem](DisableToolBarItem)
-* [EnableToolBarItem](EnableToolBarItem)
-* [LoadIconStrip](LoadIconStrip)
-* [SetGadgetIconStrip](SetGadgetIconStrip)
+[DisableToolBarItem](DisableToolBarItem), [EnableToolBarItem](EnableToolBarItem), [LoadIconStrip](LoadIconStrip), [SetGadgetIconStrip](SetGadgetIconStrip)
 
 <div align="center">
 

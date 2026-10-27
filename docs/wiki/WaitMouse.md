@@ -44,14 +44,7 @@ Delay 1000
 
 ## Related Commands
 
-* [FlushMouse](FlushMouse)
-* [GetMouse](GetMouse)
-* [MouseDown](MouseDown)
-* [MouseHit](MouseHit)
-* [MouseWait](MouseWait)
-* [MouseX](MouseX)
-* [MouseXSpeed](MouseXSpeed)
-* [MoveMouse](MoveMouse)
+[FlushMouse](FlushMouse), [GetMouse](GetMouse), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MoveMouse](MoveMouse)
 
 <div align="center">
 

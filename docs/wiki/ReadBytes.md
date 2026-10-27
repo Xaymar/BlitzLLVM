@@ -59,10 +59,7 @@ C
 
 ## Related Commands
 
-* [PokeInt](PokeInt)
-* [PokeShort](PokeShort)
-* [ResizeBank](ResizeBank)
-* [WriteBytes](WriteBytes)
+[PokeInt](PokeInt), [PokeShort](PokeShort), [ResizeBank](ResizeBank), [WriteBytes](WriteBytes)
 
 <div align="center">
 

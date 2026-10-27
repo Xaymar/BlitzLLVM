@@ -53,10 +53,7 @@ WaitKey
 
 ## Related Commands
 
-* [LoadFont](LoadFont)
-* [Locate](Locate)
-* [SetFont](SetFont)
-* [StringHeight](StringHeight)
+[LoadFont](LoadFont), [Locate](Locate), [SetFont](SetFont), [StringHeight](StringHeight)
 
 <div align="center">
 

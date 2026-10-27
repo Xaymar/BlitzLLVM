@@ -35,14 +35,7 @@ Returns the highest mip level that the sampler has, as it was set with [SetSampl
 
 ## Related Commands
 
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
-* [GetSamplerLodBias](GetSamplerLodBias) 〔BlitzLLVM〕
-* [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
-* [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
+[GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕, [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕, [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕, [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕, [GetSamplerLodBias](GetSamplerLodBias) 〔BlitzLLVM〕, [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕, [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
 
 <div align="center">
 

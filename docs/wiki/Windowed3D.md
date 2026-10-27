@@ -29,14 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CountGfxModes3D](CountGfxModes3D)
-* [GfxDriver3D](GfxDriver3D)
-* [GfxDriverCaps3D](GfxDriverCaps3D)
-* [GfxMode3D](GfxMode3D)
-* [GfxMode3DExists](GfxMode3DExists)
-* [GfxMode3DHeight](GfxMode3DHeight) 〔BlitzLLVM〕
-* [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
-* [Graphics3D](Graphics3D)
+[CountGfxModes3D](CountGfxModes3D), [GfxDriver3D](GfxDriver3D), [GfxDriverCaps3D](GfxDriverCaps3D), [GfxMode3D](GfxMode3D), [GfxMode3DExists](GfxMode3DExists), [GfxMode3DHeight](GfxMode3DHeight) 〔BlitzLLVM〕, [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕, [Graphics3D](Graphics3D)
 
 <div align="center">
 

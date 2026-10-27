@@ -45,10 +45,7 @@ Notify "Window: " + ClientWidth(win) + " x " + ClientHeight(win) + Chr$(13) + "D
 
 ## Related Commands
 
-* [ActivateWindow](ActivateWindow)
-* [ActiveWindow](ActiveWindow)
-* [ClientWidth](ClientWidth)
-* [CreateWindow](CreateWindow)
+[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [ClientWidth](ClientWidth), [CreateWindow](CreateWindow)
 
 <div align="center">
 

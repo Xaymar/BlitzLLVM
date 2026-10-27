@@ -52,10 +52,7 @@ WaitKey
 
 ## Related Commands
 
-* [ColorRed](ColorRed)
-* [GetColor](GetColor)
-* [Origin](Origin)
-* [ScanLine](ScanLine)
+[ColorRed](ColorRed), [GetColor](GetColor), [Origin](Origin), [ScanLine](ScanLine)
 
 <div align="center">
 

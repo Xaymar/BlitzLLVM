@@ -36,8 +36,7 @@ Writes bytes from a bank to an open file.
 
 ## Related Commands
 
-* [ReadBytes](ReadBytes)
-* [ResizeBank](ResizeBank)
+[ReadBytes](ReadBytes), [ResizeBank](ResizeBank)
 
 <div align="center">
 

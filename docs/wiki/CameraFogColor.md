@@ -34,14 +34,7 @@ Sets the color the fog fades to. Match it to the clear color of the camera, set 
 
 ## Related Commands
 
-* [CameraClsColor](CameraClsColor)
-* [CameraClsMode](CameraClsMode)
-* [CameraFogMode](CameraFogMode)
-* [CameraFogRange](CameraFogRange)
-* [CameraProject](CameraProject)
-* [CameraProjMode](CameraProjMode)
-* [CameraRange](CameraRange)
-* [CameraViewport](CameraViewport)
+[CameraClsColor](CameraClsColor), [CameraClsMode](CameraClsMode), [CameraFogMode](CameraFogMode), [CameraFogRange](CameraFogRange), [CameraProject](CameraProject), [CameraProjMode](CameraProjMode), [CameraRange](CameraRange), [CameraViewport](CameraViewport)
 
 <div align="center">
 

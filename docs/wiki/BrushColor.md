@@ -34,14 +34,7 @@ Sets the color the brush multiplies onto the surface: the red, green and blue pa
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushFX](BrushFX)
-* [BrushShininess](BrushShininess)
-* [BrushTexture](BrushTexture)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetBrushTexture](GetBrushTexture)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushFX](BrushFX), [BrushShininess](BrushShininess), [BrushTexture](BrushTexture), [CreateBrush](CreateBrush), [FreeBrush](FreeBrush), [GetBrushTexture](GetBrushTexture)
 
 <div align="center">
 

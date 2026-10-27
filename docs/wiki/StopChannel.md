@@ -43,12 +43,7 @@ Print ChannelPlaying(ch)
 
 ## Related Commands
 
-* [ChannelPan](ChannelPan)
-* [ChannelPitch](ChannelPitch)
-* [ChannelPlaying](ChannelPlaying)
-* [ChannelVolume](ChannelVolume)
-* [PauseChannel](PauseChannel)
-* [ResumeChannel](ResumeChannel)
+[ChannelPan](ChannelPan), [ChannelPitch](ChannelPitch), [ChannelPlaying](ChannelPlaying), [ChannelVolume](ChannelVolume), [PauseChannel](PauseChannel), [ResumeChannel](ResumeChannel)
 
 <div align="center">
 

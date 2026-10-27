@@ -53,10 +53,7 @@ WaitKey
 
 ## Related Commands
 
-* [AntiAlias](AntiAlias)
-* [CaptureWorld](CaptureWorld)
-* [RenderWorld](RenderWorld)
-* [UpdateWorld](UpdateWorld)
+[AntiAlias](AntiAlias), [CaptureWorld](CaptureWorld), [RenderWorld](RenderWorld), [UpdateWorld](UpdateWorld)
 
 <div align="center">
 

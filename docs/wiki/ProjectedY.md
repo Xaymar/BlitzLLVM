@@ -29,10 +29,7 @@ Gives the vertical screen position of the point that the last [CameraProject](Ca
 
 ## Related Commands
 
-* [DeltaYaw](DeltaYaw)
-* [ProjectedX](ProjectedX)
-* [ProjectedZ](ProjectedZ)
-* [TFormedY](TFormedY)
+[DeltaYaw](DeltaYaw), [ProjectedX](ProjectedX), [ProjectedZ](ProjectedZ), [TFormedY](TFormedY)
 
 <div align="center">
 

@@ -75,11 +75,7 @@ WaitKey
 
 ## Related Commands
 
-* [HandleSprite](HandleSprite)
-* [LoadSprite](LoadSprite)
-* [RotateSprite](RotateSprite)
-* [ScaleSprite](ScaleSprite)
-* [SpriteViewMode](SpriteViewMode)
+[HandleSprite](HandleSprite), [LoadSprite](LoadSprite), [RotateSprite](RotateSprite), [ScaleSprite](ScaleSprite), [SpriteViewMode](SpriteViewMode)
 
 <div align="center">
 

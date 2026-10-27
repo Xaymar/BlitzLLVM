@@ -29,8 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AmbientLight](AmbientLight)
-* [AntiAlias](AntiAlias)
+[AmbientLight](AmbientLight), [AntiAlias](AntiAlias)
 
 <div align="center">
 
