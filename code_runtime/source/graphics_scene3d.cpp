@@ -1005,6 +1005,7 @@ namespace bb::gfx {
 
 	static scene_data* current_lights;      // The lights of the camera that is being collected for, relative to it.
 	static uint32_t    current_light_count; // How many of them there are.
+	static uint32_t    current_light_hash;  // Of where they are, how far they reach and their colors, so that a pick from them can be reused.
 
 	// Writes the places of lights in the table of the scene into what a draw sends: two to a float.
 	static void pack_lights(float* out, const uint32_t* places)
@@ -1493,18 +1494,43 @@ namespace bb::gfx {
 			float lo[3], hi[3], center[3] = {}, radius = 0;
 			bool  have_sphere = !fullbright && !e->plane_divs && !e->terrain && bb::mesh_bounds(*e, lo, hi) && (lo[0] <= hi[0]);
 			if (have_sphere && current_light_count > draw_lights) {
+				float world[3];
 				for (int row = 0; row < 3; row++) {
-					center[row] = push.model[row][3];
+					world[row] = m[12 + row];
 					for (int axis = 0; axis < 3; axis++) {
-						center[row] += m[axis * 4 + row] * 0.5f * (lo[axis] + hi[axis]);
+						world[row] += m[axis * 4 + row] * 0.5f * (lo[axis] + hi[axis]);
 					}
+					center[row] = float(double(world[row]) - double(current_origin[row]));
 				}
 				for (int axis = 0; axis < 3; axis++) {
 					float column = sqrtf(m[axis * 4] * m[axis * 4] + m[axis * 4 + 1] * m[axis * 4 + 1] + m[axis * 4 + 2] * m[axis * 4 + 2]);
 					radius += column * 0.5f * (hi[axis] - lo[axis]);
 				}
+				// An entity that did not move, with lights that did not, has the same lights as the last time.
+				static const bool cached = !getenv("BLITZ_NO_LIGHT_CACHE");
+				bb::cull_record& record = bb::cull_record_of(item.handle);
+				bool hit = cached && (record.light_hash == current_light_hash) && (record.light_radius == radius)
+					&& (record.light_center[0] == world[0]) && (record.light_center[1] == world[1]) && (record.light_center[2] == world[2]);
+				if (hit) {
+					memcpy(push.lights, record.light_places, sizeof(push.lights));
+					static const bool check = getenv("BLITZ_CHECK_LIGHTS") != nullptr;
+					if (check) {
+						float again[4];
+						choose_lights(again, true, center, radius);
+						if (memcmp(again, push.lights, sizeof(again))) {
+							fail("The lights that were kept for an entity are not the lights of its sphere.");
+						}
+					}
+				} else {
+					choose_lights(push.lights, true, center, radius);
+					record.light_hash = current_light_hash;
+					record.light_radius = radius;
+					memcpy(record.light_center, world, sizeof(world));
+					memcpy(record.light_places, push.lights, sizeof(push.lights));
+				}
+			} else {
+				choose_lights(push.lights, false, center, radius);
 			}
-			choose_lights(push.lights, have_sphere, center, radius);
 		}
 
 		bb::surface** surfaces = e->surfaces.data;
@@ -2162,6 +2188,19 @@ void bb_render_world(float tween)
 		bb::profile_scope scan(bb::PROFILE_SCAN);
 		bb::for_each_visible(bb::LIGHT, collect_light, &lights);
 		current_light_count = lights.count;
+	{
+		// FNV-1a over what decides how much each light does (not the cones, they are not part of that).
+		uint32_t hash = 2166136261u;
+		for (uint32_t i = 0; i < lights.count; i++) {
+			const unsigned char* bytes[2] = { reinterpret_cast<const unsigned char*>(data.light_position[i]), reinterpret_cast<const unsigned char*>(data.light_color[i]) };
+			for (const unsigned char* b : bytes) {
+				for (size_t k = 0; k < sizeof(float) * 4; k++) {
+					hash = (hash ^ b[k]) * 16777619u;
+				}
+			}
+		}
+		current_light_hash = hash | 1u;
+	}
 		bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
 		bb::for_each_visible(bb::PIVOT, collect_mirror, &mirrors);
 	}
