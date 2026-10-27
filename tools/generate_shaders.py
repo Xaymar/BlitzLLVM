@@ -602,10 +602,11 @@ def vertex_shader_3d():
 
 
 
-def fragment_shader_masked(mask_offset, fog=False):
+def fragment_shader_masked(mask_offset, fog=False, cutout=True):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
+    With cutout=False the 3D one never discards, which leaves the depth test before the shader.
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
@@ -746,6 +747,7 @@ def fragment_shader_masked(mask_offset, fog=False):
         # The highlight of lights is added to what the texture made of the color.
         lit_rgb = b.fadd(v3, b.swizzle(result, 3), spec)
         result = b.construct(4, b.extract(lit_rgb, 0), b.extract(lit_rgb, 1), b.extract(lit_rgb, 2), b.extract(result, 3))
+    if fog and cutout:
         # Pixels that are less solid than the first value of the mask are not drawn at all, which is what makes
         # leaves and fences work with depth.
         boolean = b.new_type("bool", "TypeBool")
@@ -878,5 +880,6 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment", fragment_shader_masked(16), out)
     emit("bb_shader_vertex_3d", vertex_shader_3d(), out)
     emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)
+    emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, cutout=False), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)

@@ -283,6 +283,7 @@ namespace bb::gfx {
 		void*                 entity_mapped   = nullptr;
 		uint32_t              entity_capacity = 0;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
+		VkPipeline            solid3d        = VK_NULL_HANDLE; // The same without the discard, so that depth is tested before the shader runs.
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
 		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.

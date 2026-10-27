@@ -286,7 +286,9 @@ namespace bb::gfx {
 
 		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
 		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
+		VkShaderModule fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
+		g.solid3d         = create_pipeline_3d(vs, fs_solid, 0);
 		g.blend3d         = create_pipeline_3d(vs, fs, 1);
 		g.mul3d           = create_pipeline_3d(vs, fs, 2);
 		g.add3d           = create_pipeline_3d(vs, fs, 3);
@@ -298,6 +300,7 @@ namespace bb::gfx {
 		}
 		vkDestroyShaderModule(g.device, vs, nullptr);
 		vkDestroyShaderModule(g.device, fs, nullptr);
+		vkDestroyShaderModule(g.device, fs_solid, nullptr);
 	}
 	gpu_image          depth_cache[max_depths];
 
@@ -1127,7 +1130,7 @@ namespace bb::gfx {
 			record.index_buffer = shape->index_buffer;
 			record.index_count  = shape->index_count;
 			record.texture      = (texture && texture->set) ? texture_handle : 0;
-			record.pipeline     = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? g.opaque3d : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
+			record.pipeline     = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? (cutout ? g.opaque3d : g.solid3d) : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
 			record.cull         = !(two_sided || ((e->fx | paint.fx) & 16));
 			record.depth_test   = depth_test;
 			record.depth_write  = (!surface_blended && depth_test);
