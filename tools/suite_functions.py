@@ -111,6 +111,8 @@ EXTENSIONS = {
     "getsamplerbordercolorb": ("blitz3d", "#GetSamplerBorderColorB%sampler"),
     "getsamplerbordercolora": ("blitz3d", "#GetSamplerBorderColorA%sampler"),
     "settexturesampler": ("blitz3d", "SetTextureSampler%texture%sampler"),
+    "textureready": ("blitz3d", "%TextureReady%texture"),
+    "asyncloading": ("graphics", "AsyncLoading%enabled"),
     "byte": ("math", "%Byte#value"),
     "ubyte": ("math", "%UByte#value"),
     "short": ("math", "%Short#value"),

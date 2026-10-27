@@ -246,6 +246,8 @@ setsamplerlodbias	blitz3d	done	SetSamplerLodBias%sampler#bias
 setsamplerlodmax	blitz3d	done	SetSamplerLodMax%sampler#lod
 setsamplerlodmin	blitz3d	done	SetSamplerLodMin%sampler#lod
 settexturesampler	blitz3d	done	SetTextureSampler%texture%sampler
+textureready	blitz3d	done	%TextureReady%texture
+asyncloading	graphics	done	AsyncLoading%enabled
 showentity	blitz3d	done	ShowEntity%entity
 spriteviewmode	blitz3d	done	SpriteViewMode%sprite%view_mode
 stats3d	blitz3d	done	#Stats3D%type
