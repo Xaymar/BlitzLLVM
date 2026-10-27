@@ -47,6 +47,9 @@ jobs:
       - name: Check
         # Builds on its own into a temporary folder, so this also proves a clean build passes.
         run: python3 tools/wiki/wiki.py check
+      - name: Build the HTML help
+        # The help of the packages (see helpgen.py) comes from the same text, so a change that breaks it fails here too.
+        run: python3 tools/wiki/wiki.py help --out help-out
       - uses: actions/upload-artifact@v4
         with:
           name: wiki

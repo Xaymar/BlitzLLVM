@@ -118,9 +118,9 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON
+            cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON
           else
-            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON
           fi
       - name: Build
         run: cmake --build build --config Release
@@ -130,6 +130,7 @@ jobs:
           cmake --install build --config Release --prefix dist
           cp LICENSE.adoc README.adoc dist/
           (cd dist && find . -type f) | .github/scripts/check-licenses.sh "$ARTIFACT"
+          (cd dist && find . -type f) | .github/scripts/check-help.sh "$ARTIFACT"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT }}
@@ -156,8 +157,11 @@ jobs:
           mv packages/*.rpm "packages/${ARTIFACT}.rpm"
           # Every package has to list the licenses
           dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.deb"
+          dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.deb"
           rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-licenses.sh "${ARTIFACT}.rpm"
+          rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-help.sh "${ARTIFACT}.rpm"
           bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst"
+          bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-help.sh "${ARTIFACT}.pkg.tar.zst"
           ls -l packages
       - name: Build packages (macOS)
         if: runner.os == 'macOS'
@@ -167,6 +171,7 @@ jobs:
           rm -rf packages/_CPack_Packages
           mv packages/*.pkg "packages/${ARTIFACT}.pkg"
           pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg"
+          pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-help.sh "${ARTIFACT}.pkg"
           ls -l packages
       - uses: actions/upload-artifact@v4
         if: runner.os != 'Windows'
