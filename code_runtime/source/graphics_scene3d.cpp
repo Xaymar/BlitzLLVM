@@ -620,9 +620,68 @@ namespace bb::gfx {
 		return corners_outside_view(corners, planes);
 	}
 
+	// Whether a sphere is completely outside of what the camera sees, which is also the case for the box inside of it (see
+	// mesh_outside_view). The planes have normals of length 1, and the radius has room for the error of the floats.
+	static bool sphere_outside_view(bb::cull_record const& r, const float* origin, const float* planes)
+	{
+		float center[3];
+		for (int row = 0; row < 3; row++) {
+			center[row] = float(double(r.center[row]) - double(origin[row]));
+		}
+		for (int plane = 0; plane < 6; plane++) {
+			const float* p = planes + plane * 4;
+			if (p[0] * center[0] + p[1] * center[1] + p[2] * center[2] + p[3] < -(r.radius + 0.01f)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// Remembers the sphere around a mesh for as long as it stays where it is and its vertices do not change. Anything that
+	// can not be told from its place and vertices (sprites, planes, terrain, children) is drawn as before.
+	static void remember_mesh(int handle, bb::entity& mesh, const float* m)
+	{
+		bb::cull_record& r = bb::cull_record_of(handle);
+		float lo[3], hi[3];
+		if (mesh.parent || mesh.sprite_mode || mesh.plane_divs || mesh.terrain || !bb::mesh_bounds(mesh, lo, hi) || (lo[0] > hi[0])) {
+			r.epoch = 0;
+			return;
+		}
+		float local[3], half[3];
+		for (int k = 0; k < 3; k++) {
+			local[k] = 0.5f * (lo[k] + hi[k]);
+			half[k]  = 0.5f * (hi[k] - lo[k]);
+		}
+		float norm = 0, size = 0;
+		for (int i = 0; i < 12; i++) {
+			if ((i & 3) != 3) {
+				norm += m[i] * m[i];
+			}
+		}
+		for (int row = 0; row < 3; row++) {
+			r.center[row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + m[12 + row];
+			size += half[row] * half[row];
+		}
+		// The length of a vector does not grow by more than the norm of the matrix, which the one over the entries is above.
+		float magnitude = fabsf(r.center[0]) + fabsf(r.center[1]) + fabsf(r.center[2]);
+		r.radius = sqrtf(norm) * sqrtf(size) * 1.001f + 1e-5f * magnitude + 1e-3f;
+		memcpy(r.state, mesh.position, sizeof(r.state));
+		r.epoch = bb::mesh_epoch;
+		for (uint32_t i = 0; i < mesh.surfaces.size; i++) {
+			mesh.surfaces[i]->cull_cached = true;
+		}
+	}
+
 	static void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
+		// What is outside of the view is found from the record, without reading the rest of the entity or making its matrix.
+		static_assert(offsetof(bb::entity, rotation) == offsetof(bb::entity, position) + 3 * sizeof(float) && offsetof(bb::entity, scale) == offsetof(bb::entity, rotation) + 3 * sizeof(float), "place, rotation and scale are remembered as one piece");
+		bb::cull_record& record = bb::cull_record_of(handle);
+		if (c->planes && !mesh.parent && (record.epoch == bb::mesh_epoch) && (memcmp(record.state, mesh.position, sizeof(record.state)) == 0)
+			&& sphere_outside_view(record, c->origin, c->planes)) {
+			return;
+		}
 		float m[16];
 		bb::world_matrix(handle, m);
 		float depth = c->view[2] * m[12] + c->view[6] * m[13] + c->view[10] * m[14] + c->view[14];
@@ -645,7 +704,13 @@ namespace bb::gfx {
 		bb::update_terrain(mesh);
 		// Sprites turn towards the camera when they are drawn, so their box is checked then.
 		if (!mesh.sprite_mode && mesh_outside_view(mesh, m, c->origin, c->planes)) {
+			if (record.epoch != bb::mesh_epoch) {
+				remember_mesh(handle, mesh, m);
+			}
 			return;
+		}
+		if (record.epoch != bb::mesh_epoch) {
+			remember_mesh(handle, mesh, m);
 		}
 		bool has_solid = mesh.surfaces.size == 0, has_blended = false;
 		for (uint32_t i = 0; i < mesh.surfaces.size; i++) {

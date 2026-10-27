@@ -19,6 +19,7 @@ using namespace bb;
 using namespace bb::scene;
 
 namespace bb {
+	uint32_t mesh_epoch = 1;
 	float ambient_light[3] = { 0.5f, 0.5f, 0.5f };
 	float render_tween = 1.0f;
 }
@@ -27,6 +28,7 @@ namespace bb::scene {
 
 	static uint32_t         first_free = 0; // No slot of entities below this is free.
 	static buffer<entity*>  entities; // Handle - 1, null if freed.
+	static buffer<cull_record> cull_records; // What the renderer remembers of each entity to cull it, see cull_record.
 	static buffer<uint8_t>  entity_kinds; // The kind of each entity (as in entities), plus 1; 0 if the slot is free. A scan for one kind reads this and not the entities.
 	buffer<surface*> surface_table;
 	float            tformed[3] = { 0, 0, 0 };
@@ -84,6 +86,7 @@ namespace bb::scene {
 			if (!entities[i]) {
 				entities[i]     = e;
 				entity_kinds[i] = uint8_t(kind + 1);
+				cull_records[i].epoch = 0;
 				first_free      = i + 1;
 				return int(i) + 1;
 			}
@@ -91,6 +94,7 @@ namespace bb::scene {
 		first_free = entities.size + 1;
 		entities.push(e);
 		entity_kinds.push(uint8_t(kind + 1));
+		cull_records.push(cull_record{});
 		return int(entities.size);
 	}
 
@@ -164,6 +168,7 @@ namespace bb::scene {
 		delete e;
 		entities[uint32_t(handle) - 1]     = nullptr;
 		entity_kinds[uint32_t(handle) - 1] = 0;
+		cull_records[uint32_t(handle) - 1].epoch = 0;
 		if (uint32_t(handle) - 1 < first_free) {
 			first_free = uint32_t(handle) - 1;
 		}
@@ -299,6 +304,11 @@ bb::entity* bb::get_entity(int handle)
 		return nullptr;
 	}
 	return entities[uint32_t(handle) - 1];
+}
+
+bb::cull_record& bb::cull_record_of(int handle)
+{
+	return cull_records[uint32_t(handle) - 1];
 }
 
 void bb::world_matrix(int handle, float* out)
