@@ -140,6 +140,7 @@ void bb_end_graphics(void)
 		vkDestroySemaphore(g.device, g.acquired, nullptr);
 		vkDestroyFence(g.device, g.fence, nullptr);
 		vkDestroyCommandPool(g.device, g.pool, nullptr);
+		destroy_allocator();
 		vkDestroyDevice(g.device, nullptr);
 		SDL_Vulkan_DestroySurface(g.instance, g.surface, nullptr);
 		vkDestroyInstance(g.instance, nullptr);
