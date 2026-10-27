@@ -1,8 +1,6 @@
 # The programs of the original Blitz3D and BlitzPlus that compile, but stop with an error in tools/original_programs.py run-one (BLITZ_HEADLESS=1, a few
 # seconds), as the tests run it in CI: in a virtual X server (xvfb-run), where a few programs do something else than without a display. They are expected to fail
 # (WILL_FAIL, label pending); the first error of each is the reason. Paths are relative to extra/.
-blitz3d/_release/Games/TunnelRun/tr.bb
-# Runtime Error: Object does not exist.
 blitz3d/_release/samples/birdie/dolphin/dolphin.bb
 # Runtime Error: GetSurface: the mesh does not have that surface.
 blitz3d/_release/samples/birdie/LodMesh/lmesh.bb
