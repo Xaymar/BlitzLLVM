@@ -323,6 +323,7 @@ namespace bb::gfx {
 	}
 
 	bb::buffer<draw_record>  draws;
+	static bb::buffer<entity_push> pushes; // The data of the draws, in the order they were made: the draws point to it, so that they are small to move.
 	bb::buffer<scene_record> scenes;
 	bb::buffer<copy_record>  copies;
 
@@ -330,6 +331,7 @@ namespace bb::gfx {
 	{
 		flush_number++; // What was recorded has been drawn, so its buffers can be filled again.
 		draws.clear();
+		pushes.clear();
 		scenes.clear();
 		copies.clear();
 	}
@@ -444,7 +446,7 @@ namespace bb::gfx {
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
 		entity_push* entities = static_cast<entity_push*>(g.entity_mapped);
 		for (uint32_t i = 0; i < scene.draw_count; i++) {
-			entities[scene.first_draw + i] = draws[scene.first_draw + i].push;
+			entities[scene.first_draw + i] = pushes[draws[scene.first_draw + i].push_index];
 		}
 
 		VkPipeline      bound_pipeline = VK_NULL_HANDLE;
@@ -1371,7 +1373,8 @@ namespace bb::gfx {
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
-			record.push         = push;
+			record.push_index   = pushes.size;
+			pushes.push(push);
 			record.vertex_buffer = shape->vertex_buffer;
 			record.index_buffer = shape->index_buffer;
 			record.index_count  = shape->index_count;
@@ -1397,17 +1400,18 @@ namespace bb::gfx {
 					continue;
 				}
 				draw_record more     = record;
-				more.push.material[0] = more.push.material[1] = more.push.material[2] = more.push.material[3] = 1;
-				more.push.params[0]  = 1; // Not lit again.
-				more.push.params[3]  = 0;
-				more.push.mask[2]    = 0;
-				more.push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
-				more.push.extra[0]   = (extra->flags & 0x10000) ? 1.0f : 0.0f;
-				texture_rotation(extra, more.push.extra);
-				texture_texgen(extra, more.push.texgen);
-				texture_uv(extra, extra_handle, more.push.uv);
-				more.push.mask[0]    = 0;
-				more.push.mask[1]    = 1; // No fog again either, the first layer has it.
+				entity_push more_push = pushes[record.push_index];
+				more_push.material[0] = more_push.material[1] = more_push.material[2] = more_push.material[3] = 1;
+				more_push.params[0]  = 1; // Not lit again.
+				more_push.params[3]  = 0;
+				more_push.mask[2]    = 0;
+				more_push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
+				more_push.extra[0]   = (extra->flags & 0x10000) ? 1.0f : 0.0f;
+				texture_rotation(extra, more_push.extra);
+				texture_texgen(extra, more_push.texgen);
+				texture_uv(extra, extra_handle, more_push.uv);
+				more_push.mask[0]    = 0;
+				more_push.mask[1]    = 1; // No fog again either, the first layer has it.
 				more.texture         = extra_handle;
 				more.depth_write     = false;
 				more.unit_start      = false;
@@ -1425,6 +1429,8 @@ namespace bb::gfx {
 					more.pipeline = g.mul3d;
 					break;
 				}
+				more.push_index = pushes.size;
+				pushes.push(more_push);
 				ensure_entities(draws.size + 1);
 				draws.push(more);
 			}
@@ -1433,21 +1439,24 @@ namespace bb::gfx {
 			// lightmap, a texture or the colors of the vertices.
 			if (e->cls && !surface_blended && (e->bsp_tint[0] < 1 || e->bsp_tint[1] < 1 || e->bsp_tint[2] < 1) && !strcmp(e->cls, "BSP")) {
 				draw_record tint      = record;
-				tint.push.material[0] = e->bsp_tint[0];
-				tint.push.material[1] = e->bsp_tint[1];
-				tint.push.material[2] = e->bsp_tint[2];
-				tint.push.material[3] = 1;
-				tint.push.params[0]   = 1; // Not lit again.
-				tint.push.params[1]   = 0; // The color, not the colors of the vertices.
-				tint.push.params[3]   = 0;
-				tint.push.mask[0]     = 0;
-				tint.push.mask[1]     = 1;
-				tint.push.mask[2]     = 0;
-				tint.push.mask[3]     = 0;
+				entity_push tint_push = pushes[record.push_index];
+				tint_push.material[0] = e->bsp_tint[0];
+				tint_push.material[1] = e->bsp_tint[1];
+				tint_push.material[2] = e->bsp_tint[2];
+				tint_push.material[3] = 1;
+				tint_push.params[0]   = 1; // Not lit again.
+				tint_push.params[1]   = 0; // The color, not the colors of the vertices.
+				tint_push.params[3]   = 0;
+				tint_push.mask[0]     = 0;
+				tint_push.mask[1]     = 1;
+				tint_push.mask[2]     = 0;
+				tint_push.mask[3]     = 0;
 				tint.texture          = 0;
 				tint.pipeline         = g.mul3d;
 				tint.depth_write      = false;
 				tint.unit_start       = false;
+				tint.push_index = pushes.size;
+				pushes.push(tint_push);
 				ensure_entities(draws.size + 1);
 				draws.push(tint);
 			}
@@ -1456,18 +1465,21 @@ namespace bb::gfx {
 			// texture of the face gets: the texture drawn again in the color of the ambient light, added on.
 			if (e->cls && !surface_blended && (e->bsp_ambient[0] > 0 || e->bsp_ambient[1] > 0 || e->bsp_ambient[2] > 0) && !strcmp(e->cls, "BSP")) {
 				draw_record ambient      = record;
-				ambient.push.material[0] = e->bsp_ambient[0];
-				ambient.push.material[1] = e->bsp_ambient[1];
-				ambient.push.material[2] = e->bsp_ambient[2];
-				ambient.push.material[3] = 1;
-				ambient.push.params[0]   = 1; // Not lit again.
-				ambient.push.params[1]   = 0; // The color, not the colors of the vertices.
-				ambient.push.params[3]   = 0;
-				ambient.push.mask[1]     = 1; // No fog again either, the first layer has it.
-				ambient.push.mask[2]     = 0;
+				entity_push ambient_push = pushes[record.push_index];
+				ambient_push.material[0] = e->bsp_ambient[0];
+				ambient_push.material[1] = e->bsp_ambient[1];
+				ambient_push.material[2] = e->bsp_ambient[2];
+				ambient_push.material[3] = 1;
+				ambient_push.params[0]   = 1; // Not lit again.
+				ambient_push.params[1]   = 0; // The color, not the colors of the vertices.
+				ambient_push.params[3]   = 0;
+				ambient_push.mask[1]     = 1; // No fog again either, the first layer has it.
+				ambient_push.mask[2]     = 0;
 				ambient.pipeline         = g.add3d;
 				ambient.depth_write      = false;
 				ambient.unit_start       = false;
+				ambient.push_index = pushes.size;
+				pushes.push(ambient_push);
 				ensure_entities(draws.size + 1);
 				draws.push(ambient);
 			}

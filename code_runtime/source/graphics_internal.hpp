@@ -572,7 +572,7 @@ namespace bb::gfx {
 
 	// A model that waits to be drawn: everything that is needed to draw it later.
 	struct draw_record {
-		entity_push push;
+		uint32_t    push_index; // Where its data is, in the order the draws were made.
 		VkBuffer    vertex_buffer;
 		VkBuffer    index_buffer;
 		uint32_t    index_count;
