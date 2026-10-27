@@ -233,6 +233,8 @@ namespace bb::scene {
 		copy.anim   = nullptr;
 		copy.md2    = nullptr;
 		copy.pending_keys = nullptr;
+		copy.loading      = nullptr; // The copy of a model that came from a loader thread owns no part of that.
+		copy.unresolved   = false;
 		if (copy_was.size == 1) {
 			copy.hidden = false; // The copy of a hidden model, which is how programs keep their templates, can be seen.
 		}
