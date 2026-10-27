@@ -25,7 +25,7 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Between rectangles of the same image, the pixels take a detour through this buffer.
 	VkBuffer       scratch        = VK_NULL_HANDLE;
-	VkDeviceMemory scratch_memory = VK_NULL_HANDLE;
+	VmaAllocation  scratch_allocation = VK_NULL_HANDLE;
 	VkDeviceSize   scratch_size   = 0;
 	bb::buffer<graveyard_entry> graveyard;
 	static uint32_t graveyard_busy = 0; // How many entries of the graveyard the frame in flight may use.
