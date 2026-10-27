@@ -21,6 +21,8 @@ SetBuffer buffer:Int32
 |---|---|---|---|
 | `buffer` | Int32 | required | A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`. |
 
+**Returns:** BlitzPlus only: the buffer that was set before, so it can be set again later. Blitz3D gives nothing back.
+
 ## Description
 
 Chooses where drawing commands such as `Rect`, `Text`, [DrawImage](DrawImage) and `Plot` draw to: the back buffer, the front buffer, or the buffer of an image or texture. A program usually calls `SetBuffer BackBuffer()` once after `Graphics`. Switching the buffer puts the [Origin](Origin) and the viewport back to their defaults and the text cursor of `Print` to the top left corner.
