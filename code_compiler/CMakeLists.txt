@@ -368,7 +368,7 @@ endforeach()
 
 # blitz-tidy: the fixes (programs in tests/tidy/cases come out as the ones in tests/tidy/expected, and behave the same), the options and
 # the configuration files. Each case is in tests/tidy/tidy.cmake.
-foreach(_CASE IN ITEMS fix check recursive diff in_place stdin rules rule_modes one_declare report_only unsafe config include broken)
+foreach(_CASE IN ITEMS fix check recursive diff in_place stdin rules rule_modes one_declare parentheses report_only unsafe config include broken)
 	add_test(
 		NAME "tidy-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}

@@ -31,6 +31,7 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-string-to-number", true, mode::FIX, "Converts on purpose: Int(value), Float(value), ...", "" },
 		{ "implicit-lossy-int-to-real", true, mode::FIX, "Converts on purpose: Float(value), Double(value), Half(value)", "" },
 		{ "one-declare-per-variable", true, mode::OFF, "Local a, b = 1 becomes one Local (or Global) per line.", "", "A Local or Global declares more than one variable." },
+		{ "parentheses-around-arguments", true, mode::OFF, "Foo 1, 2 becomes Foo(1, 2) for a command or function that is called as a statement.", "", "The arguments of a call that is a statement are not in parentheses." },
 		{ "implicit-variable", true, mode::FIX, "Declares the variable with its type in front of the statement of the function that first uses it.", "Variables of the main program: an Include can declare them somewhere else." },
 		{ "unused-result", false, mode::REPORT, "", "" },
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },
@@ -45,10 +46,10 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 
 std::string blitz::tidy::canonical_rule(std::string const& name)
 {
-	// The names rules had before.
+	// The names rules had before, and the spelling of "parentheses" that was asked for.
 	static const std::vector<std::pair<const char*, const char*>> old{
 		{ "short-type-notation", "expand-short-to-long-notation" },
-		{ "expand-short-to-long", "expand-short-to-long-notation" },
+		{ "parantheses-around-arguments", "parentheses-around-arguments" },
 	};
 	for (auto const& [from, to] : old) {
 		if (name == from) {

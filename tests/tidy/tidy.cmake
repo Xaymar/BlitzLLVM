@@ -292,6 +292,14 @@ elseif(CASE STREQUAL "one_declare")
 	expect_contains(OUT "Local a, b")
 	expect_contains(ERR "report.bb:1:1: warning: More than one variable is declared in one statement. [blitz-tidy:one-declare-per-variable]")
 
+elseif(CASE STREQUAL "parentheses")
+	# The arguments of a call that is a statement go in parentheses.
+	expect_tidy("Function F(a, b, c)\nReturn a\nEnd Function\nPrint 1\nF 14, 12, 14 + 12\nF(1, 2, 3)\nF 1,2,3 ; text\nIf 1 Then F 1, 2, 3 Else F 3, 2, 1\n" "Function F(a, b, c)\nReturn a\nEnd Function\nPrint(1)\nF(14, 12, 14 + 12)\nF(1, 2, 3)\nF(1,2,3) ; text\nIf 1 Then F(1, 2, 3) Else F(3, 2, 1)\n" --parentheses-around-arguments)
+	# A parenthesis that only starts the first argument is not the parenthesis of the call: Name (a)+b, c is not Name(a)+b, c.
+	expect_tidy("Function F(a, b)\nReturn a\nEnd Function\nF (1)+2, 3\nF (1), 2\nF (1+2) * 3, 4\nPrint (1 + 2) * 3\n" "Function F(a, b)\nReturn a\nEnd Function\nF((1)+2, 3)\nF((1), 2)\nF((1+2) * 3, 4)\nPrint((1 + 2) * 3)\n" --parentheses-around-arguments)
+	# Without arguments there is nothing to put in parentheses, and the spelling that was asked for first works as well.
+	expect_tidy("Function F()\nReturn 1\nEnd Function\nF\nF()\nPrint \"a\" ; x\n" "Function F()\nReturn 1\nEnd Function\nF\nF()\nPrint(\"a\") ; x\n" --parantheses-around-arguments)
+
 elseif(CASE STREQUAL "report_only")
 	# unused-result has nothing to fix, so it can not be set to fix.
 	tidy(--unused-result=fix "${TESTS}/cases/conversions.bb")

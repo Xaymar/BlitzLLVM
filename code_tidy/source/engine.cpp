@@ -17,6 +17,7 @@
 #include "keywords.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "tokens.hpp"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -584,7 +585,8 @@ namespace {
 		};
 
 		bool want_split  = cfg.mode_of("one-declare-per-variable") != tidy::mode::OFF;
-		if (want_split) {
+		bool want_parens = cfg.mode_of("parentheses-around-arguments") != tidy::mode::OFF;
+		if (want_split || want_parens) {
 			for (auto const& ref : blocks) {
 				auto& list = *ref.block;
 				for (size_t idx = 0; idx < list.size(); idx++) {
@@ -617,6 +619,52 @@ namespace {
 								offer("one-declare-per-variable", d->where, "More than one variable is declared in one statement.", { { first, last, joined } }, false);
 							}
 						}
+					} else if (want_parens) {
+						auto* call = dynamic_cast<ast::call_statement const*>(stmt);
+						if (!call || !call->invocation || call->invocation->arguments.empty() || (call->covers.line == 0)) {
+							continue;
+						}
+						auto const& first_arg = call->invocation->arguments.front();
+						if (first_arg->covers.line == 0) {
+							continue;
+						}
+						size_t begin = ln.offset(call->covers.line, call->covers.column), end = ln.offset(call->covers.end_line, call->covers.end_column);
+						size_t arg   = ln.offset(first_arg->covers.line, first_arg->covers.column);
+						if ((end <= begin) || (arg <= begin) || (arg >= end)) {
+							continue;
+						}
+						// Name(Arguments) is already what is wanted, but Name (a)+b, c is not.
+						auto tokens = blitz::tools::tokenize(text.substr(begin, end - begin));
+						std::vector<size_t> significant;
+						for (size_t t = 0; t < tokens.size(); t++) {
+							if (!tokens[t].is(blitz::tools::kind::space) && !tokens[t].is(blitz::tools::kind::comment)) {
+								significant.push_back(t);
+							}
+						}
+						if ((significant.size() < 2) || !tokens[significant[0]].is(blitz::tools::kind::word) || !tokens[significant[1]].is_symbol("(") ) {
+							if ((significant.size() >= 2) && tokens[significant[1]].is(blitz::tools::kind::separator)) {
+								continue; // Name:Type, which has no gap to put the parenthesis in.
+							}
+						} else {
+							int  depth = 0;
+							size_t closing = 0;
+							for (size_t t = 1; t < significant.size(); t++) {
+								auto const& tok = tokens[significant[t]];
+								depth += tok.is_symbol("(") ? 1 : (tok.is_symbol(")") ? -1 : 0);
+								if (depth == 0) {
+									closing = t;
+									break;
+								}
+							}
+							if ((closing != 0) && (closing + 1 == significant.size())) {
+								continue;
+							}
+						}
+						size_t name_end = begin + tokens[significant[0]].text.size();
+						if (name_end > arg) {
+							continue;
+						}
+						offer("parentheses-around-arguments", call->where, "The arguments of '" + call->invocation->name + "' are not in parentheses.", { { name_end, arg, "(" }, { end, end, ")" } }, false);
 					}
 				}
 			}
