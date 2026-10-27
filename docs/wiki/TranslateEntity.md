@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-TranslateEntity entity%, x#, y#, z#, global%=0
+TranslateEntity entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,11 +16,11 @@ Moves an entity along the axes of its parent or of the world, ignoring where the
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `x` | Float | required | Distance along X. |
-| `y` | Float | required | Distance along Y. |
-| `z` | Float | required | Distance along Z. |
-| `global` | Int | `0` | 1 to move along the world axes even when the entity has a parent that is turned. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle. |
+| `x` | Float32 | required | Distance along X. |
+| `y` | Float32 | required | Distance along Y. |
+| `z` | Float32 | required | Distance along Z. |
+| `global` | Int32 | `0` | 1 to move along the world axes even when the entity has a parent that is turned. Defaults to 0. |
 
 ## Related commands
 

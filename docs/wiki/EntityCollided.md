@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
 ```blitzbasic
-EntityCollided entity%, type%  ; returns Int
+EntityCollided:Int32 entity:Int32, type:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Finds out whether the entity hit something of a given collision type during the 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity that moved. |
-| `type` | Int | required | Collision type to look for. |
+| `entity` | Int32 | required | The entity that moved. |
+| `type` | Int32 | required | Collision type to look for. |
 
 **Returns:** The first colliding entity of that type, or 0 if there was none.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-CreateTextArea x%, y%, width%, height%, group%, style%=0  ; returns Int
+CreateTextArea:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -42,12 +42,12 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position inside the group. |
-| `y` | Int | required | Vertical position inside the group. |
-| `width` | Int | required | Width of the text area. |
-| `height` | Int | required | Height of the text area. |
-| `group` | Int | required | Window, panel, tabber or canvas that holds it. |
-| `style` | Int | `0` | 1 for wrapping, plus 65536 for not following the group. Defaults to 0. |
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the text area. |
+| `height` | Int32 | required | Height of the text area. |
+| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int32 | `0` | 1 for wrapping, plus 65536 for not following the group. Defaults to 0. |
 
 **Returns:** A handle for the text area.
 

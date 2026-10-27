@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
 ```blitzbasic
-ModifyTreeViewNode node%, text$, icon%=-1
+ModifyTreeViewNode node:Int32, text:String, icon:Int32=-1
 ```
 
 **Works in:** BlitzPlus
@@ -26,9 +26,9 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required | Handle of a node. |
+| `node` | Int32 | required | Handle of a node. |
 | `text` | String | required | The new text. |
-| `icon` | Int | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
 
 ## Related commands
 

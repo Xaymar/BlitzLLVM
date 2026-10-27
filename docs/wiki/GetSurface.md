@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-GetSurface mesh%, surface_index%  ; returns Int
+GetSurface:Int32 mesh:Int32, surface_index:Int32
 ```
 
 **Works in:** Blitz3D
@@ -24,8 +24,8 @@ Next
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `surface_index` | Int | required | Number of the surface, 1 up to the number of surfaces. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `surface_index` | Int32 | required | Number of the surface, 1 up to the number of surfaces. |
 
 **Returns:** The handle of the surface.
 

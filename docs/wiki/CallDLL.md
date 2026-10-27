@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
 ```blitzbasic
-CallDLL dll_name$, func_name$, in_bank%=0, out_bank%=0  ; returns Int
+CallDLL:Int32 dll_name:String, func_name:String, in_bank:Int32=0, out_bank:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -23,8 +23,8 @@ Print CallDLL("kernel32", "GetCurrentProcessId")
 |---|---|---|---|
 | `dll_name` | String | required | Name of the library, without a path. |
 | `func_name` | String | required | Name of the function to call. |
-| `in_bank` | Int | `0` | A bank given to the function as input. Defaults to none. |
-| `out_bank` | Int | `0` | A bank given to the function to fill. Defaults to none. |
+| `in_bank` | Int32 | `0` | A bank given to the function as input. Defaults to none. |
+| `out_bank` | Int32 | `0` | A bank given to the function to fill. Defaults to none. |
 
 **Returns:** The value the function returned, or 0 when the library or function was not found.
 

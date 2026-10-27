@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-WBuffer enable%
+WBuffer enable:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Switches between a Z buffer and a W buffer for depth sorting. A W buffer spreads
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | True to use a W buffer. |
+| `enable` | Int32 | required | True to use a W buffer. |
 
 **Differences and known gaps:**
 

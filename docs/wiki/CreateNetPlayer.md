@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
 ```blitzbasic
-CreateNetPlayer name$  ; returns Int
+CreateNetPlayer:Int32 name:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

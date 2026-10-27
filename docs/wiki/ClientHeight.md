@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-ClientHeight group%  ; returns Int
+ClientHeight:Int32 group:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -22,7 +22,7 @@ Notify "Window: " + ClientWidth(win) + " x " + ClientHeight(win) + Chr$(13) + "D
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `group` | Int | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
+| `group` | Int32 | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
 
 **Returns:** The usable height in pixels.
 

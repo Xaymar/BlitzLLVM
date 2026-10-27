@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
 ```blitzbasic
-LockedFormat buffer%=0  ; returns Int
+LockedFormat:Int32 buffer:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -28,7 +28,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | `0` | Locked buffer. Defaults to the current one. |
+| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
 
 **Returns:** A number that tells how the pixels are laid out: 1 is 16 bit with 5-6-5, 2 is 16 bit with 5-5-5, 3 is 24 bit and 4 is 32 bit with an unused byte.
 

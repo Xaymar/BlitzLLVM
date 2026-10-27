@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-ImageYHandle image%  ; returns Int
+ImageYHandle:Int32 image:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The vertical position of the handle of an image, counted from its top edge.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
+| `image` | Int32 | required | The image. |
 
 **Returns:** The y position of the handle.
 

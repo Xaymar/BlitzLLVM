@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-GetSurfaceBrush surface%  ; returns Int
+GetSurfaceBrush:Int32 surface:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Makes a new brush that has the look that was painted on a mesh surface. Free it 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | The surface. |
+| `surface` | Int32 | required | The surface. |
 
 **Returns:** A brush handle.
 

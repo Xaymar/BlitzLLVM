@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-TextAreaLine textarea%, char%  ; returns Int
+TextAreaLine:Int32 textarea:Int32, char:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,8 +16,8 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
-| `char` | Int | required |  |
+| `textarea` | Int32 | required | Handle of a text area. |
+| `char` | Int32 | required |  |
 
 **Returns:** The number of the line that character is on, starting at 0.
 

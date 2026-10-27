@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-ShowGadget gadget%
+ShowGadget gadget:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ Shows a gadget that was hidden with [HideGadget](HideGadget), together with the 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of the gadget. |
+| `gadget` | Int32 | required | Handle of the gadget. |
 
 ## Related commands
 

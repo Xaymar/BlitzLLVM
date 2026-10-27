@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-String string$, repeat%  ; returns String
+String:String string:String, repeat:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -25,7 +25,7 @@ ababab
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `string` | String | required | The text to repeat. |
-| `repeat` | Int | required | How many copies to join. 0 gives an empty string. |
+| `repeat` | Int32 | required | How many copies to join. 0 gives an empty string. |
 
 **Returns:** The repeated text.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-AutoMidHandle enable%
+AutoMidHandle enable:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -45,7 +45,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | True to center the handle of new images, False to put it in the top left corner (the default). |
+| `enable` | Int32 | required | True to center the handle of new images, False to put it in the top left corner (the default). |
 
 ## Related commands
 

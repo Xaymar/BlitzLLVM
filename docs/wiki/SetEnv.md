@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-SetEnv env_var$, value$
+SetEnv env_var:String, value:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

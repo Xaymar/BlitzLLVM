@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SetGadgetShape gadget%, x%, y%, width%, height%
+SetGadgetShape gadget:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -26,11 +26,11 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of the gadget. |
-| `x` | Int | required | New horizontal position. |
-| `y` | Int | required | New vertical position. |
-| `width` | Int | required | New width. |
-| `height` | Int | required | New height. |
+| `gadget` | Int32 | required | Handle of the gadget. |
+| `x` | Int32 | required | New horizontal position. |
+| `y` | Int32 | required | New vertical position. |
+| `width` | Int32 | required | New width. |
+| `height` | Int32 | required | New height. |
 
 ## Related commands
 

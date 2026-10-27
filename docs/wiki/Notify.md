@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-Notify text$, serious%=0
+Notify text:String, serious:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -22,7 +22,7 @@ Notify "Everything is fine.", 0
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `text` | String | required | The message. |
-| `serious` | Int | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
+| `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
 
 **Differences and known gaps:**
 

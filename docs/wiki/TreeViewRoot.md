@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
 ```blitzbasic
-TreeViewRoot treeview%  ; returns Int
+TreeViewRoot:Int32 treeview:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ Gives the invisible node at the top of a tree. It is the parent of the top level
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `treeview` | Int | required | Handle of a tree view. |
+| `treeview` | Int32 | required | Handle of a tree view. |
 
 **Returns:** The handle of the root node.
 

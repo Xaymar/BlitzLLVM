@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
 ```blitzbasic
-KeyDown key%  ; returns Int
+KeyDown:Int32 key:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -32,7 +32,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `key` | Int | required | The scancode of the key, 1 to 255. |
+| `key` | Int32 | required | The scancode of the key, 1 to 255. |
 
 **Returns:** 1 while the key is held down, otherwise 0.
 

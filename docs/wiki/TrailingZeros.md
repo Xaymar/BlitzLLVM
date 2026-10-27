@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-TrailingZeros value%  ; returns Int
+TrailingZeros:Int32 value:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -29,7 +29,7 @@ Print TrailingZeros(ULong(1) Shl 40)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `value` | Int | required | An integer. |
+| `value` | Int32 | required | An integer. |
 
 **Returns:** How many of the lowest bits are 0.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
 ```blitzbasic
-ClsColor red%, green%, blue%
+ClsColor red:Int32, green:Int32, blue:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,9 +16,9 @@ Sets the color that [Cls](Cls) clears with. It does not change the drawing color
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `red` | Int | required | Red part, 0 to 255. |
-| `green` | Int | required | Green part, 0 to 255. |
-| `blue` | Int | required | Blue part, 0 to 255. |
+| `red` | Int32 | required | Red part, 0 to 255. |
+| `green` | Int32 | required | Green part, 0 to 255. |
+| `blue` | Int32 | required | Blue part, 0 to 255. |
 
 ## Related commands
 

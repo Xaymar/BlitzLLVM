@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-AmbientLight red#, green#, blue#
+AmbientLight red:Float32, green:Float32, blue:Float32
 ```
 
 **Works in:** Blitz3D
@@ -42,9 +42,9 @@ Next
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `red` | Float | required | Red part, 0 to 255. |
-| `green` | Float | required | Green part, 0 to 255. |
-| `blue` | Float | required | Blue part, 0 to 255. |
+| `red` | Float32 | required | Red part, 0 to 255. |
+| `green` | Float32 | required | Green part, 0 to 255. |
+| `blue` | Float32 | required | Blue part, 0 to 255. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-CopyPixelFast src_x%, src_y%, src_buffer%, dest_x%, dest_y%, dest_buffer%=0
+CopyPixelFast src_x:Int32, src_y:Int32, src_buffer:Int32, dest_x:Int32, dest_y:Int32, dest_buffer:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,12 +16,12 @@ The quick form of [CopyPixel](CopyPixel). Both buffers must be locked with [Lock
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_x` | Int | required | Horizontal position of the pixel to copy. |
-| `src_y` | Int | required | Vertical position of the pixel to copy. |
-| `src_buffer` | Int | required | The locked buffer to copy from. |
-| `dest_x` | Int | required | Horizontal position to copy to. |
-| `dest_y` | Int | required | Vertical position to copy to. |
-| `dest_buffer` | Int | `0` | The locked buffer to copy to. Defaults to the current buffer. |
+| `src_x` | Int32 | required | Horizontal position of the pixel to copy. |
+| `src_y` | Int32 | required | Vertical position of the pixel to copy. |
+| `src_buffer` | Int32 | required | The locked buffer to copy from. |
+| `dest_x` | Int32 | required | Horizontal position to copy to. |
+| `dest_y` | Int32 | required | Vertical position to copy to. |
+| `dest_buffer` | Int32 | `0` | The locked buffer to copy to. Defaults to the current buffer. |
 
 **Differences and known gaps:**
 

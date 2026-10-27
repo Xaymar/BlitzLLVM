@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-GfxModeExists width%, height%, depth%  ; returns Int
+GfxModeExists:Int32 width:Int32, height:Int32, depth:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,9 +26,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required | The width, or 0 for any width. |
-| `height` | Int | required | The height, or 0 for any height. |
-| `depth` | Int | required | The color depth in bits, which is not looked at, because every mode has 32 bits. |
+| `width` | Int32 | required | The width, or 0 for any width. |
+| `height` | Int32 | required | The height, or 0 for any height. |
+| `depth` | Int32 | required | The color depth in bits, which is not looked at, because every mode has 32 bits. |
 
 **Returns:** 1 if a mode like that exists, otherwise 0.
 

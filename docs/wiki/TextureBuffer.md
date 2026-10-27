@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-TextureBuffer texture%, frame%=0  ; returns Int
+TextureBuffer:Int32 texture:Int32, frame:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -18,8 +18,8 @@ Remember to set the buffer back to [BackBuffer](BackBuffer) before you render th
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture. |
-| `frame` | Int | `0` | Frame of an animated texture. Defaults to 0. |
+| `texture` | Int32 | required | The texture. |
+| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
 
 **Returns:** A buffer handle for SetBuffer, SaveBuffer, CopyRect and the pixel commands. Every frame has its own buffer; a frame that the texture does not have gives 0.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-LoadMD2 file$, parent%=0  ; returns Int
+LoadMD2:Int32 file:String, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -47,7 +47,7 @@ Next
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required | The .md2 file. |
-| `parent` | Int | `0` | Optional parent entity. |
+| `parent` | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle, or 0 if the file could not be loaded.
 

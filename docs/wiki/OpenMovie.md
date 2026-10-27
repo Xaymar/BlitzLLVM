@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
 
 ```blitzbasic
-OpenMovie file$  ; returns Int
+OpenMovie:Int32 file:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-CreateTexture width%, height%, flags%=0, frames%=1  ; returns Int
+CreateTexture:Int32 width:Int32, height:Int32, flags:Int32=0, frames:Int32=1
 ```
 
 **Works in:** Blitz3D
@@ -68,10 +68,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required | Width in pixels. |
-| `height` | Int | required | Height in pixels. |
-| `flags` | Int | `0` | Sum of the flags above. Defaults to 1. |
-| `frames` | Int | `1` | Number of animation frames. Defaults to 1. |
+| `width` | Int32 | required | Width in pixels. |
+| `height` | Int32 | required | Height in pixels. |
+| `flags` | Int32 | `0` | Sum of the flags above. Defaults to 1. |
+| `frames` | Int32 | `1` | Number of animation frames. Defaults to 1. |
 
 **Returns:** A texture handle.
 

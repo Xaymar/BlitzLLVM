@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-SetGamma src_red%, src_green%, src_blue%, dest_red#, dest_green#, dest_blue#
+SetGamma src_red:Int32, src_green:Int32, src_blue:Int32, dest_red:Float32, dest_green:Float32, dest_blue:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -41,12 +41,12 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_red` | Int | required | The input value for the red table, 0 to 255. |
-| `src_green` | Int | required | The input value for the green table, 0 to 255. |
-| `src_blue` | Int | required | The input value for the blue table, 0 to 255. |
-| `dest_red` | Float | required | The output value for red. |
-| `dest_green` | Float | required | The output value for green. |
-| `dest_blue` | Float | required | The output value for blue. |
+| `src_red` | Int32 | required | The input value for the red table, 0 to 255. |
+| `src_green` | Int32 | required | The input value for the green table, 0 to 255. |
+| `src_blue` | Int32 | required | The input value for the blue table, 0 to 255. |
+| `dest_red` | Float32 | required | The output value for red. |
+| `dest_green` | Float32 | required | The output value for green. |
+| `dest_blue` | Float32 | required | The output value for blue. |
 
 **Differences and known gaps:**
 

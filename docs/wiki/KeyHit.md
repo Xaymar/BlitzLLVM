@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
 ```blitzbasic
-KeyHit key%  ; returns Int
+KeyHit:Int32 key:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -29,7 +29,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `key` | Int | required | The scancode of the key, 1 to 255. |
+| `key` | Int32 | required | The scancode of the key, 1 to 255. |
 
 **Returns:** How many times the key was pressed since the last call.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-FontName font%  ; returns String
+FontName:String font:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `font` | Int | required | A font handle from `LoadFont` or [RequestFont](RequestFont). |
+| `font` | Int32 | required | A font handle from `LoadFont` or [RequestFont](RequestFont). |
 
 **Returns:** The name the font was loaded with.
 

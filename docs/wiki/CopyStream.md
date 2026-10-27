@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-CopyStream src_stream%, dest_stream%, buffer_size%=16384
+CopyStream src_stream:Int32, dest_stream:Int32, buffer_size:Int32=16384
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,9 +16,9 @@ Copies everything that is left in one stream into another, in pieces of `buffer_
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_stream` | Int | required | The stream to read from. |
-| `dest_stream` | Int | required | The stream to write to. |
-| `buffer_size` | Int | `16384` | How many bytes to move at a time. Defaults to 16384. |
+| `src_stream` | Int32 | required | The stream to read from. |
+| `dest_stream` | Int32 | required | The stream to write to. |
+| `buffer_size` | Int32 | `16384` | How many bytes to move at a time. Defaults to 16384. |
 
 ## Related commands
 

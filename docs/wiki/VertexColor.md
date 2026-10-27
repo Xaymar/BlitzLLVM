@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-VertexColor surface%, index%, red#, green#, blue#, alpha#=1
+VertexColor surface:Int32, index:Int32, red:Float32, green:Float32, blue:Float32, alpha:Float32=1
 ```
 
 **Works in:** Blitz3D
@@ -39,12 +39,12 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `index` | Int | required | Index of the vertex, from 0. |
-| `red` | Float | required | Red part, 0 to 255. |
-| `green` | Float | required | Green part, 0 to 255. |
-| `blue` | Float | required | Blue part, 0 to 255. |
-| `alpha` | Float | `1` | Opacity, 0 to 1. Defaults to 1. |
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
+| `red` | Float32 | required | Red part, 0 to 255. |
+| `green` | Float32 | required | Green part, 0 to 255. |
+| `blue` | Float32 | required | Blue part, 0 to 255. |
+| `alpha` | Float32 | `1` | Opacity, 0 to 1. Defaults to 1. |
 
 ## Related commands
 

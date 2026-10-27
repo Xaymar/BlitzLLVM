@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
 ```blitzbasic
-ReadBytes bank%, file%, offset%, count%  ; returns Int
+ReadBytes:Int32 bank:Int32, file:Int32, offset:Int32, count:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -37,10 +37,10 @@ C
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required | The bank to fill. |
-| `file` | Int | required | A file opened for reading. |
-| `offset` | Int | required | Where in the bank to put the first byte. |
-| `count` | Int | required | How many bytes to read. |
+| `bank` | Int32 | required | The bank to fill. |
+| `file` | Int32 | required | A file opened for reading. |
+| `offset` | Int32 | required | Where in the bank to put the first byte. |
+| `count` | Int32 | required | How many bytes to read. |
 
 **Returns:** The number of bytes that were read.
 

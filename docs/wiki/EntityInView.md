@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityInView entity%, camera%  ; returns Int
+EntityInView:Int32 entity:Int32, camera:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Tells if an entity is inside the picture of a camera, which is handy for skippin
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `camera` | Int | required | Camera handle. |
+| `entity` | Int32 | required | Entity handle. |
+| `camera` | Int32 | required | Camera handle. |
 
 **Returns:** 1 if the entity is visible to the camera, otherwise 0.
 

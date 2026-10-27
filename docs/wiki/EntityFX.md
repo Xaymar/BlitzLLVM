@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityFX entity%, fx%
+EntityFX entity:Int32, fx:Int32
 ```
 
 **Works in:** Blitz3D
@@ -46,8 +46,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `fx` | Int | required | Sum of the effect flags, 0 for none. |
+| `entity` | Int32 | required | Entity handle. |
+| `fx` | Int32 | required | Sum of the effect flags, 0 for none. |
 
 ## Related commands
 

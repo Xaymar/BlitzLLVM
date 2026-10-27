@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
 ```blitzbasic
-NextFile dir%  ; returns String
+NextFile:String dir:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -35,7 +35,7 @@ only.txt
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dir` | Int | required | The folder handle from [ReadDir](ReadDir). |
+| `dir` | Int32 | required | The folder handle from [ReadDir](ReadDir). |
 
 **Returns:** A file or folder name without its path, or an empty string at the end.
 

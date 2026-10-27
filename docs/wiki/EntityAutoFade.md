@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityAutoFade entity%, near#, far#
+EntityAutoFade entity:Int32, near:Float32, far:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ Makes an entity fade away with distance to the camera. Closer than `near` it is 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `near` | Float | required | Distance where fading starts. |
-| `far` | Float | required | Distance where the entity is gone. |
+| `entity` | Int32 | required | Entity handle. |
+| `near` | Float32 | required | Distance where fading starts. |
+| `far` | Float32 | required | Distance where the entity is gone. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-UnlockBuffer buffer%=0
+UnlockBuffer buffer:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Ends the lock of [LockBuffer](LockBuffer) and writes the pixels that were change
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | `0` | The buffer to unlock. Defaults to the current buffer. |
+| `buffer` | Int32 | `0` | The buffer to unlock. Defaults to the current buffer. |
 
 ## Related commands
 

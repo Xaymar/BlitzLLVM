@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-GfxDriverName driver%  ; returns String
+GfxDriverName:String driver:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDr
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `driver` | Int | required | The driver number, starting at 1. |
+| `driver` | Int32 | required | The driver number, starting at 1. |
 
 **Returns:** The name of the driver.
 

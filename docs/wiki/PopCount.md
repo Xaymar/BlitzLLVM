@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-PopCount value%  ; returns Int
+PopCount:Int32 value:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -31,7 +31,7 @@ Print PopCount(ULong(-1))
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `value` | Int | required | An integer. |
+| `value` | Int32 | required | An integer. |
 
 **Returns:** How many bits are 1.
 

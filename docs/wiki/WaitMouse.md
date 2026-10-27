@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
 ```blitzbasic
-WaitMouse  ; returns Int
+WaitMouse:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

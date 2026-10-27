@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-GadgetHeight gadget%  ; returns Int
+GadgetHeight:Int32 gadget:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of the gadget. |
+| `gadget` | Int32 | required | Handle of the gadget. |
 
 **Returns:** The height of the whole gadget including its frame. For the height of the inside use [ClientHeight](ClientHeight).
 

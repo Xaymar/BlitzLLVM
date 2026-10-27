@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-LoadBrush file$, texture_flags%=1, u_scale#=1, v_scale#=1  ; returns Int
+LoadBrush:Int32 file:String, texture_flags:Int32=1, u_scale:Float32=1, v_scale:Float32=1
 ```
 
 **Works in:** Blitz3D
@@ -17,9 +17,9 @@ Makes a brush that has a texture loaded from a picture file as its first layer, 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required |  |
-| `texture_flags` | Int | `1` |  |
-| `u_scale` | Float | `1` | How often the texture repeats horizontally. Defaults to 1. |
-| `v_scale` | Float | `1` | How often the texture repeats vertically. Defaults to 1. |
+| `texture_flags` | Int32 | `1` |  |
+| `u_scale` | Float32 | `1` | How often the texture repeats horizontally. Defaults to 1. |
+| `v_scale` | Float32 | `1` | How often the texture repeats vertically. Defaults to 1. |
 
 **Returns:** A brush handle, or 0 if the file could not be loaded.
 

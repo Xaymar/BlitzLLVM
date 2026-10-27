@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
 ```blitzbasic
-SelectedTreeViewNode treeview%  ; returns Int
+SelectedTreeViewNode:Int32 treeview:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `treeview` | Int | required | Handle of a tree view. |
+| `treeview` | Int32 | required | Handle of a tree view. |
 
 **Returns:** The handle of the selected node, or 0 if none is selected.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-BackBuffer  ; returns Int
+BackBuffer:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

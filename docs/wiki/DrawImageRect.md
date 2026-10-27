@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-DrawImageRect image%, x%, y%, rect_x%, rect_y%, rect_width%, rect_height%, frame%=0
+DrawImageRect image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32, frame:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -37,14 +37,14 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image to draw. |
-| `x` | Int | required | Horizontal position on the screen of the top left corner of the part. |
-| `y` | Int | required | Vertical position on the screen of the top left corner of the part. |
-| `rect_x` | Int | required | Left edge of the part inside the frame. |
-| `rect_y` | Int | required | Top edge of the part inside the frame. |
-| `rect_width` | Int | required | Width of the part. |
-| `rect_height` | Int | required | Height of the part. |
-| `frame` | Int | `0` | Which frame to draw. Defaults to 0. |
+| `image` | Int32 | required | The image to draw. |
+| `x` | Int32 | required | Horizontal position on the screen of the top left corner of the part. |
+| `y` | Int32 | required | Vertical position on the screen of the top left corner of the part. |
+| `rect_x` | Int32 | required | Left edge of the part inside the frame. |
+| `rect_y` | Int32 | required | Top edge of the part inside the frame. |
+| `rect_width` | Int32 | required | Width of the part. |
+| `rect_height` | Int32 | required | Height of the part. |
+| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
 
 **Differences and known gaps:**
 

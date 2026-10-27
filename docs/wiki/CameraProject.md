@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraProject camera%, x#, y#, z#
+CameraProject camera:Int32, x:Float32, y:Float32, z:Float32
 ```
 
 **Works in:** Blitz3D
@@ -37,10 +37,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `x` | Float | required | X coordinate in the world. |
-| `y` | Float | required | Y coordinate in the world. |
-| `z` | Float | required | Z coordinate in the world. |
+| `camera` | Int32 | required | Camera handle. |
+| `x` | Float32 | required | X coordinate in the world. |
+| `y` | Float32 | required | Y coordinate in the world. |
+| `z` | Float32 | required | Z coordinate in the world. |
 
 ## Related commands
 

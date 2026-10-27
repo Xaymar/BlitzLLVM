@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
 ```blitzbasic
-GfxMode3D mode%  ; returns Int
+GfxMode3D:Int32 mode:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Tells whether the given mode from the list of modes can be used for 3D.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mode` | Int | required | Number of the mode, 1 to [CountGfxModes3D](CountGfxModes3D). |
+| `mode` | Int32 | required | Number of the mode, 1 to [CountGfxModes3D](CountGfxModes3D). |
 
 **Returns:** True if the mode can show 3D.
 

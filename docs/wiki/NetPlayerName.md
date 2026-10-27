@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
 ```blitzbasic
-NetPlayerName player%  ; returns String
+NetPlayerName:String player:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `player` | Int | required | The player number. |
+| `player` | Int32 | required | The player number. |
 
 **Returns:** The name of a player. The player number 0 gives `<all>` and one that does not exist gives `<unknown>`.
 

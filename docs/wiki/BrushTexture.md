@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-BrushTexture brush%, texture%, frame%=0, index%=0
+BrushTexture brush:Int32, texture:Int32, frame:Int32=0, index:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -46,10 +46,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `brush` | Int | required | The brush. |
-| `texture` | Int | required | The texture to put on the brush. |
-| `frame` | Int | `0` | Frame of an animated texture. Defaults to 0. |
-| `index` | Int | `0` | Layer number. Defaults to 0. |
+| `brush` | Int32 | required | The brush. |
+| `texture` | Int32 | required | The texture to put on the brush. |
+| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
+| `index` | Int32 | `0` | Layer number. Defaults to 0. |
 
 **Differences and known gaps:**
 

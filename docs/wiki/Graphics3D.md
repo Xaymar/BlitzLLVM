@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
 ```blitzbasic
-Graphics3D width%, height%, depth%=0, mode%=0
+Graphics3D width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -38,10 +38,10 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required | Width of the picture in pixels. |
-| `height` | Int | required | Height of the picture in pixels. |
-| `depth` | Int | `0` | Color depth: 0 for the best, or 16, 24 or 32. Defaults to 0. |
-| `mode` | Int | `0` | Window or full screen as in the table. Defaults to 0. |
+| `width` | Int32 | required | Width of the picture in pixels. |
+| `height` | Int32 | required | Height of the picture in pixels. |
+| `depth` | Int32 | `0` | Color depth: 0 for the best, or 16, 24 or 32. Defaults to 0. |
+| `mode` | Int32 | `0` | Window or full screen as in the table. Defaults to 0. |
 
 **Differences and known gaps:**
 

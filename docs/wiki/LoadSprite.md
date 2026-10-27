@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
 ```blitzbasic
-LoadSprite file$, texture_flags%=1, parent%=0  ; returns Int
+LoadSprite:Int32 file:String, texture_flags:Int32=1, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -46,8 +46,8 @@ WaitKey
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required |  |
-| `texture_flags` | Int | `1` |  |
-| `parent` | Int | `0` | Optional parent entity. |
+| `texture_flags` | Int32 | `1` |  |
+| `parent` | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the sprite, or 0 if the file could not be loaded.
 

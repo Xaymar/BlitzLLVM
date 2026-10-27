@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-GetChild entity%, index%  ; returns Int
+GetChild:Int32 entity:Int32, index:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Reads one of the entities attached to a parent. The index starts at 1, so loop f
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle of the parent. |
-| `index` | Int | required | Number of the child, 1 up to the number of children. |
+| `entity` | Int32 | required | Entity handle of the parent. |
+| `index` | Int32 | required | Number of the child, 1 up to the number of children. |
 
 **Returns:** The handle of the child.
 

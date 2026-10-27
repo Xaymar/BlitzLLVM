@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-MoveEntity entity%, x#, y#, z#
+MoveEntity entity:Int32, x:Float32, y:Float32, z:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,10 +16,10 @@ Moves an entity in the direction it faces. The offset is in the entity's own spa
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `x` | Float | required | Distance to the right. |
-| `y` | Float | required | Distance upwards. |
-| `z` | Float | required | Distance forward. |
+| `entity` | Int32 | required | Entity handle. |
+| `x` | Float32 | required | Distance to the right. |
+| `y` | Float32 | required | Distance upwards. |
+| `z` | Float32 | required | Distance forward. |
 
 ## Related commands
 

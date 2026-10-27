@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-Animating entity%  ; returns Int
+Animating:Int32 entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
+| `entity` | Int32 | required | The entity. |
 
 **Returns:** True while the entity is playing an animation, and False when it is stopped, has finished a one-shot animation or has no animation at all.
 

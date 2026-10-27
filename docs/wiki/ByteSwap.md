@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-ByteSwap value%  ; returns Int
+ByteSwap:Int32 value:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -29,7 +29,7 @@ Print ByteSwap(ULong(1))
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `value` | Int | required | An integer. |
+| `value` | Int32 | required | An integer. |
 
 **Returns:** The number with its bytes in the other order.
 

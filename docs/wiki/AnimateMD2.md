@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-AnimateMD2 md2%, mode%=1, speed#=1, first_frame%=0, last_frame%=9999, transition#=0
+AnimateMD2 md2:Int32, mode:Int32=1, speed:Float32=1, first_frame:Int32=0, last_frame:Int32=9999, transition:Float32=0
 ```
 
 **Works in:** Blitz3D
@@ -18,12 +18,12 @@ A transition above 0 blends from the pose the model is in now to the first frame
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `md2` | Int | required | The MD2 entity. |
-| `mode` | Int | `1` | 0 to 3. Defaults to 1. |
-| `speed` | Float | `1` | Playback speed, negative for backwards. Defaults to 1. |
-| `first_frame` | Int | `0` | First frame of the clip. Defaults to 0. |
-| `last_frame` | Int | `9999` | Last frame of the clip. Defaults to the last frame of the model. |
-| `transition` | Float | `0` | Frames of blending into the first frame. Defaults to 0. |
+| `md2` | Int32 | required | The MD2 entity. |
+| `mode` | Int32 | `1` | 0 to 3. Defaults to 1. |
+| `speed` | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
+| `first_frame` | Int32 | `0` | First frame of the clip. Defaults to 0. |
+| `last_frame` | Int32 | `9999` | Last frame of the clip. Defaults to the last frame of the model. |
+| `transition` | Float32 | `0` | Frames of blending into the first frame. Defaults to 0. |
 
 **Differences and known gaps:**
 

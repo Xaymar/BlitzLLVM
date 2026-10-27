@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-LoadBuffer buffer%, bmpfile$  ; returns Int
+LoadBuffer:Int32 buffer:Int32, bmpfile:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -30,7 +30,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | required | The buffer to fill. |
+| `buffer` | Int32 | required | The buffer to fill. |
 | `bmpfile` | String | required | The path of the picture file. |
 
 **Returns:** 1 if the picture was loaded, otherwise 0.

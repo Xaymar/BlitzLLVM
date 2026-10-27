@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraViewport camera%, x%, y%, width%, height%
+CameraViewport camera:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
 **Works in:** Blitz3D
@@ -41,11 +41,11 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `x` | Int | required | Left edge of the viewport in the buffer. |
-| `y` | Int | required | Top edge of the viewport in the buffer. |
-| `width` | Int | required | Width of the viewport in pixels. |
-| `height` | Int | required | Height of the viewport in pixels. |
+| `camera` | Int32 | required | Camera handle. |
+| `x` | Int32 | required | Left edge of the viewport in the buffer. |
+| `y` | Int32 | required | Top edge of the viewport in the buffer. |
+| `width` | Int32 | required | Width of the viewport in pixels. |
+| `height` | Int32 | required | Height of the viewport in pixels. |
 
 ## Related commands
 

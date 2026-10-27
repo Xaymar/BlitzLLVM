@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
 ```blitzbasic
-TerrainShading terrain%, enable%
+TerrainShading terrain:Int32, enable:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Turns shading of the terrain on or off. Shaded terrains cost a little more speed
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required | The terrain. |
-| `enable` | Int | required | True to enable shading. The default is False. |
+| `terrain` | Int32 | required | The terrain. |
+| `enable` | Int32 | required | True to enable shading. The default is False. |
 
 **Differences and known gaps:**
 

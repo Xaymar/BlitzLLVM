@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
 ```blitzbasic
-EntityType entity%, collision_type%, recursive%=0
+EntityType entity:Int32, collision_type:Int32, recursive:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -20,9 +20,9 @@ Changing the type resets the entity's collision movement, as [ResetEntity](Reset
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
-| `collision_type` | Int | required | Collision type, 0 to 999. |
-| `recursive` | Int | `0` | True to give the type to all children as well. Defaults to False. |
+| `entity` | Int32 | required | The entity. |
+| `collision_type` | Int32 | required | Collision type, 0 to 999. |
+| `recursive` | Int32 | `0` | True to give the type to all children as well. Defaults to False. |
 
 ## Related commands
 

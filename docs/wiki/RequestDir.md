@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
 
 ```blitzbasic
-RequestDir prompt$=\  ; returns String
+RequestDir:String prompt:String=\
 ```
 
 **Works in:** BlitzPlus

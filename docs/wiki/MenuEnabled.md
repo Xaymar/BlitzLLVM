@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
 ```blitzbasic
-MenuEnabled menu%  ; returns Int
+MenuEnabled:Int32 menu:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `menu` | Int | required | Handle of a menu or item. |
+| `menu` | Int32 | required | Handle of a menu or item. |
 
 **Returns:** 1 if it can be chosen, 0 if it was disabled.
 

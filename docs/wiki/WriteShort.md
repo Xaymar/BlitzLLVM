@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-WriteShort stream%, short%
+WriteShort stream:Int32, short:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,8 +16,8 @@ Writes a number in 2 bytes, low byte first. Values outside 0 to 65535 wrap aroun
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required | The stream to write to. |
-| `short` | Int | required | The value to write. |
+| `stream` | Int32 | required | The stream to write to. |
+| `short` | Int32 | required | The value to write. |
 
 ## Related commands
 

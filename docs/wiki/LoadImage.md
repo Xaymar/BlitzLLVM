@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-LoadImage bmpfile$  ; returns Int
+LoadImage:Int32 bmpfile:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

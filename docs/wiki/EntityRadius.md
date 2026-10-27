@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
 ```blitzbasic
-EntityRadius entity%, x_radius#, y_radius#=0
+EntityRadius entity:Int32, x_radius:Float32, y_radius:Float32=0
 ```
 
 **Works in:** Blitz3D
@@ -18,9 +18,9 @@ The horizontal radius applies to both width and depth. Leave out the second radi
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
-| `x_radius` | Float | required | Radius in the X and Z directions. |
-| `y_radius` | Float | `0` | Radius in the Y direction. Defaults to x_radius. |
+| `entity` | Int32 | required | The entity. |
+| `x_radius` | Float32 | required | Radius in the X and Z directions. |
+| `y_radius` | Float32 | `0` | Radius in the Y direction. Defaults to x_radius. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-GfxModeDepth mode%  ; returns Int
+GfxModeDepth:Int32 mode:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The color depth in bits of a display mode.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mode` | Int | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
+| `mode` | Int32 | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
 
 **Returns:** The depth in bits, always 32.
 

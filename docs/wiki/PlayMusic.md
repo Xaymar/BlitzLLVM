@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-PlayMusic midifile$  ; returns Int
+PlayMusic:Int32 midifile:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -32,7 +32,7 @@ StopChannel ch
 
 **Differences and known gaps:**
 
-* MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA. WAV, MP3, OGG (Vorbis), Opus (`.opus` and Opus in `.ogg`) and FLAC work.
+* MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA. WAV, MP3, OGG and FLAC work.
 * The German help lists a second parameter that picks looping. It is not part of the official command and not accepted here.
 
 ## Related commands

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-ActiveObjects  ; returns Int
+ActiveObjects:Int32
 ```
 
 **Works in:** BlitzPlus

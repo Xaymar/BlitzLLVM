@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-LoadTexture file$, flags%=1  ; returns Int
+LoadTexture:Int32 file:String, flags:Int32=1
 ```
 
 **Works in:** Blitz3D
@@ -58,7 +58,7 @@ WaitKey
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required | Picture file to load. |
-| `flags` | Int | `1` | Sum of the texture flags, see CreateTexture. Defaults to 1. |
+| `flags` | Int32 | `1` | Sum of the texture flags, see CreateTexture. Defaults to 1. |
 
 **Returns:** A texture handle, or 0 if the file could not be loaded.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-HostIP host_index%  ; returns Int
+HostIP:Int32 host_index:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `host_index` | Int | required | The address to take, counting from 1. |
+| `host_index` | Int32 | required | The address to take, counting from 1. |
 
 **Returns:** One of the addresses found by the last [CountHostIPs](CountHostIPs), as a number for [DottedIP](DottedIP).
 

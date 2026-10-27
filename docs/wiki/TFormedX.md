@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
 ```blitzbasic
-TFormedX  ; returns Float
+TFormedX:Float32
 ```
 
 **Works in:** Blitz3D

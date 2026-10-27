@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-RotR value%, count%  ; returns Int
+RotR:Int32 value:Int32, count:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -27,8 +27,8 @@ Print RotR(1, 1)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `value` | Int | required | An integer. |
-| `count` | Int | required | How many bits to turn by. |
+| `value` | Int32 | required | An integer. |
+| `count` | Int32 | required | How many bits to turn by. |
 
 **Returns:** The number with its bits turned.
 

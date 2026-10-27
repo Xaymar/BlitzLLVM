@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraProjMode camera%, mode%
+CameraProjMode camera:Int32, mode:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Switches the camera between not drawing at all, perspective and orthographic pro
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `mode` | Int | required | 0 disables the camera, 1 is perspective, 2 is orthographic. |
+| `camera` | Int32 | required | Camera handle. |
+| `mode` | Int32 | required | 0 disables the camera, 1 is perspective, 2 is orthographic. |
 
 ## Related commands
 

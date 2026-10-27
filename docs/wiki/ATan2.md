@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-ATan2 floata#, floatb#  ; returns Float
+ATan2:Float32 floata:Float32, floatb:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,8 +26,8 @@ Print ATan2(0, -1)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `floata` | Float | required | The vertical distance (y). |
-| `floatb` | Float | required | The horizontal distance (x). |
+| `floata` | Float32 | required | The vertical distance (y). |
+| `floatb` | Float32 | required | The horizontal distance (x). |
 
 **Returns:** The angle in degrees.
 

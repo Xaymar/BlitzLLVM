@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-TextureName texture%  ; returns String
+TextureName:String texture:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Tells you which file the texture was loaded from, which is handy after loading a
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture. |
+| `texture` | Int32 | required | The texture. |
 
 **Returns:** The full path of the file, without any `.` or `..` parts.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-LSet string$, size%  ; returns String
+LSet:String string:String, size:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -27,7 +27,7 @@ Print "[" + LSet$("abcdef", 3) + "]"
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `string` | String | required | The text. |
-| `size` | Int | required | The length of the result. |
+| `size` | Int32 | required | The length of the result. |
 
 **Returns:** A string of exactly `size` characters.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-SatULong value#  ; returns Int
+SatULong:Int32 value:Float32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -27,7 +27,7 @@ Print SatULong(Long(9000000000))
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `value` | Float | required | A number or a text with a number in it. |
+| `value` | Float32 | required | A number or a text with a number in it. |
 
 **Returns:** The number, or the closest number of the type if it does not fit.
 

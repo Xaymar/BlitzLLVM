@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-ScaleMesh mesh%, x_scale#, y_scale#, z_scale#
+ScaleMesh mesh:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,10 +16,10 @@ Multiplies the coordinates of every vertex by a factor per axis, permanently, ar
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `x_scale` | Float | required | Factor along X. |
-| `y_scale` | Float | required | Factor along Y. |
-| `z_scale` | Float | required | Factor along Z. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `x_scale` | Float32 | required | Factor along X. |
+| `y_scale` | Float32 | required | Factor along Y. |
+| `z_scale` | Float32 | required | Factor along Z. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-CreateTCPServer port%  ; returns Int
+CreateTCPServer:Int32 port:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Starts listening for TCP connections on a port. Clients connect with [OpenTCPStr
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `port` | Int | required | The port to listen on. |
+| `port` | Int32 | required | The port to listen on. |
 
 **Returns:** A server handle, or 0 when the port cannot be used, for example because another program already listens on it.
 

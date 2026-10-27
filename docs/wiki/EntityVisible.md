@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
 ```blitzbasic
-EntityVisible src_entity%, dest_entity%  ; returns Int
+EntityVisible:Int32 src_entity:Int32, dest_entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -37,8 +37,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_entity` | Int | required | The entity that looks. |
-| `dest_entity` | Int | required | The entity it looks at. |
+| `src_entity` | Int32 | required | The entity that looks. |
+| `dest_entity` | Int32 | required | The entity it looks at. |
 
 **Returns:** True if nothing in the way blocks the line, otherwise False.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
 ```blitzbasic
-EntityPick entity%, range#  ; returns Int
+EntityPick:Int32 entity:Int32, range:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Looks straight ahead along the entity's own Z axis, as far as the range, and ret
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity that looks. |
-| `range` | Float | required | Distance to look, in world units. |
+| `entity` | Int32 | required | The entity that looks. |
+| `range` | Float32 | required | Distance to look, in world units. |
 
 **Returns:** The entity found, or 0.
 

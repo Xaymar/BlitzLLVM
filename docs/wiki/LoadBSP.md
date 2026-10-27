@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
 
 ```blitzbasic
-LoadBSP file$, gamma_adj#=0, parent%=0  ; returns Int
+LoadBSP:Int32 file:String, gamma_adj:Float32=0, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -99,8 +99,8 @@ WaitKey
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required | The `.bsp` file. |
-| `gamma_adj` | Float | `0` |  |
-| `parent` | Int | `0` | Optional parent entity. The level is still created at 0, 0, 0. |
+| `gamma_adj` | Float32 | `0` |  |
+| `parent` | Int32 | `0` | Optional parent entity. The level is still created at 0, 0, 0. |
 
 **Returns:** An entity handle, or 0 if the file is not a Quake 3 level.
 

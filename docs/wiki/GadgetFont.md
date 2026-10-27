@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-GadgetFont gadget%  ; returns Int
+GadgetFont:Int32 gadget:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ Gives the font a gadget is drawn with. The official help lists the command as un
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of the gadget. |
+| `gadget` | Int32 | required | Handle of the gadget. |
 
 **Returns:** A font handle, or 0 if it uses the default font.
 

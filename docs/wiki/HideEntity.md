@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-HideEntity entity%
+HideEntity entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Makes an entity and all of its children invisible and takes them out of collisio
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
+| `entity` | Int32 | required | Entity handle. |
 
 ## Related commands
 

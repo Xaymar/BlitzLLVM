@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-ReadInt stream%  ; returns Int
+ReadInt:Int32 stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required | The stream to read from. |
+| `stream` | Int32 | required | The stream to read from. |
 
 **Returns:** The next 4 bytes of the stream as an integer.
 

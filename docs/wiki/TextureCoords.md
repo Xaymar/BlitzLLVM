@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-TextureCoords texture%, coords%
+TextureCoords texture:Int32, coords:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Chooses which set of texture coordinates of the mesh the texture reads: 0 for th
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture. |
-| `coords` | Int | required | 0 or 1. |
+| `texture` | Int32 | required | The texture. |
+| `coords` | Int32 | required | 0 or 1. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
 ```blitzbasic
-TFormVector x#, y#, z#, source_entity%, dest_entity%
+TFormVector x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -18,11 +18,11 @@ It is the right tool to find which way an entity moves when you push it forward:
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Float | required | X of the vector in the source space. |
-| `y` | Float | required | Y of the vector in the source space. |
-| `z` | Float | required | Z of the vector in the source space. |
-| `source_entity` | Int | required | Entity whose space the vector is in, or 0 for the world. |
-| `dest_entity` | Int | required | Entity whose space the result should be in, or 0 for the world. |
+| `x` | Float32 | required | X of the vector in the source space. |
+| `y` | Float32 | required | Y of the vector in the source space. |
+| `z` | Float32 | required | Z of the vector in the source space. |
+| `source_entity` | Int32 | required | Entity whose space the vector is in, or 0 for the world. |
+| `dest_entity` | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
 
 ## Related commands
 

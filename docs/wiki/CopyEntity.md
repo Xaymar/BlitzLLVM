@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-CopyEntity entity%, parent%=0  ; returns Int
+CopyEntity:Int32 entity:Int32, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -39,8 +39,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle to copy. |
-| `parent` | Int | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle to copy. |
+| `parent` | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the copy.
 

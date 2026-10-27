@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
 ```blitzbasic
-CameraPick camera%, viewport_x#, viewport_y#  ; returns Int
+CameraPick:Int32 camera:Int32, viewport_x:Float32, viewport_y:Float32
 ```
 
 **Works in:** Blitz3D
@@ -55,9 +55,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | The camera whose view is used. |
-| `viewport_x` | Float | required | Horizontal pixel position inside the camera's viewport. |
-| `viewport_y` | Float | required | Vertical pixel position inside the camera's viewport. |
+| `camera` | Int32 | required | The camera whose view is used. |
+| `viewport_x` | Float32 | required | Horizontal pixel position inside the camera's viewport. |
+| `viewport_y` | Float32 | required | Vertical pixel position inside the camera's viewport. |
 
 **Returns:** The entity found, or 0 if there was none.
 

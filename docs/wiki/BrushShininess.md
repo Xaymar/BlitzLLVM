@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-BrushShininess brush%, shininess#
+BrushShininess brush:Int32, shininess:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Sets the strength of the specular highlight on painted surfaces. 0 gives matt su
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `brush` | Int | required | The brush. |
-| `shininess` | Float | required | Shininess, 0 to 1. The default is 0. |
+| `brush` | Int32 | required | The brush. |
+| `shininess` | Float32 | required | Shininess, 0 to 1. The default is 0. |
 
 ## Related commands
 

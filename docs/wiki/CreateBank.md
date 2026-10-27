@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
 ```blitzbasic
-CreateBank size%=0  ; returns Int
+CreateBank:Int32 size:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -27,7 +27,7 @@ FreeBank bank
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `size` | Int | `0` | Size in bytes. Defaults to 0. |
+| `size` | Int32 | `0` | Size in bytes. Defaults to 0. |
 
 **Returns:** A bank handle.
 

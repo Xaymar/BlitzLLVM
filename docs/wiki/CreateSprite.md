@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
 ```blitzbasic
-CreateSprite parent%=0  ; returns Int
+CreateSprite:Int32 parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -50,7 +50,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `parent` | Int | `0` | Optional parent entity. |
+| `parent` | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the sprite.
 

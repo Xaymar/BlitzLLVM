@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-CopyMesh mesh%, parent%=0  ; returns Int
+CopyMesh:Int32 mesh:Int32, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Makes an independent copy of a mesh with its own vertices and triangles. This di
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle to copy. |
-| `parent` | Int | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
+| `mesh` | Int32 | required | Mesh handle to copy. |
+| `parent` | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the copy.
 

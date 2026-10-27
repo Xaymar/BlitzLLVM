@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
 ```blitzbasic
-SendNetMsg type%, msg$, from_player%, to_player%=0, reliable%=1  ; returns Int
+SendNetMsg:Int32 type:Int32, msg:String, from_player:Int32, to_player:Int32=0, reliable:Int32=1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,11 +16,11 @@ Sends a message from a player of this program to one other player or to everyone
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `type` | Int | required | A message type from 1 to 99 that your program defines. |
+| `type` | Int32 | required | A message type from 1 to 99 that your program defines. |
 | `msg` | String | required | The text to send. Long texts arrive in one piece. |
-| `from_player` | Int | required | A player of this program. |
-| `to_player` | Int | `0` | The player to send to. Defaults to 0, which means everyone. |
-| `reliable` | Int | `1` | Defaults to 1. The original allowed unreliable delivery with 0, but here every message arrives. |
+| `from_player` | Int32 | required | A player of this program. |
+| `to_player` | Int32 | `0` | The player to send to. Defaults to 0, which means everyone. |
+| `reliable` | Int32 | `1` | Defaults to 1. The original allowed unreliable delivery with 0, but here every message arrives. |
 
 **Returns:** 1 when the message was sent, 0 when `from_player` is not a player of this program.
 

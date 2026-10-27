@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-RotateImage image%, angle#
+RotateImage image:Int32, angle:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -40,8 +40,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
-| `angle` | Float | required | The angle in degrees. |
+| `image` | Int32 | required | The image. |
+| `angle` | Float32 | required | The angle in degrees. |
 
 ## Related commands
 

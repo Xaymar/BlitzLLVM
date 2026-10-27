@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-ExtractAnimSeq entity%, first_frame%, last_frame%, anim_seq%=0  ; returns Int
+ExtractAnimSeq:Int32 entity:Int32, first_frame:Int32, last_frame:Int32, anim_seq:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -38,10 +38,10 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The animated entity. |
-| `first_frame` | Int | required | First frame of the clip. |
-| `last_frame` | Int | required | Last frame of the clip. |
-| `anim_seq` | Int | `0` | Sequence to take the frames from. Defaults to 0. |
+| `entity` | Int32 | required | The animated entity. |
+| `first_frame` | Int32 | required | First frame of the clip. |
+| `last_frame` | Int32 | required | Last frame of the clip. |
+| `anim_seq` | Int32 | `0` | Sequence to take the frames from. Defaults to 0. |
 
 **Returns:** The number of the new sequence, or -1 if the entity has no animation.
 

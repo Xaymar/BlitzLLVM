@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
 ```blitzbasic
-SpriteViewMode sprite%, view_mode%
+SpriteViewMode sprite:Int32, view_mode:Int32
 ```
 
 **Works in:** Blitz3D
@@ -64,8 +64,8 @@ Next
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sprite` | Int | required | The sprite. |
-| `view_mode` | Int | required | 1 to 4, see the table. Values outside that range select mode 1. |
+| `sprite` | Int32 | required | The sprite. |
+| `view_mode` | Int32 | required | 1 to 4, see the table. Values outside that range select mode 1. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-GetEnv env_var$  ; returns String
+GetEnv:String env_var:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

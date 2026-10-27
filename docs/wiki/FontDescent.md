@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-FontDescent font%  ; returns Int
+FontDescent:Int32 font:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `font` | Int | required | A font handle from `LoadFont` or [RequestFont](RequestFont). |
+| `font` | Int32 | required | A font handle from `LoadFont` or [RequestFont](RequestFont). |
 
 **Returns:** How many pixels the font reaches below the baseline.
 

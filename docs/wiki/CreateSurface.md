@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-CreateSurface mesh%, brush%=0  ; returns Int
+CreateSurface:Int32 mesh:Int32, brush:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -48,8 +48,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `brush` | Int | `0` | Brush that paints the new surface, or 0 for none. Defaults to 0. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `brush` | Int32 | `0` | Brush that paints the new surface, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new surface.
 

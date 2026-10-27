@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
 ```blitzbasic
-ResetEntity entity%
+ResetEntity entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Forgets the entity's collision history. UpdateWorld normally moves a colliding e
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
+| `entity` | Int32 | required | The entity. |
 
 ## Related commands
 

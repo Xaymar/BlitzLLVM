@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-ActiveWindow  ; returns Int
+ActiveWindow:Int32
 ```
 
 **Works in:** BlitzPlus

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Log float#  ; returns Float
+Log:Float32 float:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Print Log(10)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `float` | Float | required | A number above 0. |
+| `float` | Float32 | required | A number above 0. |
 
 **Returns:** The natural logarithm.
 

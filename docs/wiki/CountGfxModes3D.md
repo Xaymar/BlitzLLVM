@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
 ```blitzbasic
-CountGfxModes3D  ; returns Int
+CountGfxModes3D:Int32
 ```
 
 **Works in:** Blitz3D

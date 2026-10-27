@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-TCPTimeouts read_millis%, accept_millis%
+TCPTimeouts read_millis:Int32, accept_millis:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,8 +16,8 @@ Sets how long to wait. Reading from a TCP stream waits for data until the read t
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `read_millis` | Int | required | Read timeout in milliseconds. |
-| `accept_millis` | Int | required | Accept timeout in milliseconds. |
+| `read_millis` | Int32 | required | Read timeout in milliseconds. |
+| `accept_millis` | Int32 | required | Accept timeout in milliseconds. |
 
 ## Related commands
 

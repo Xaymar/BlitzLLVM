@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-TileBlock image%, x%=0, y%=0, frame%=0
+TileBlock image:Int32, x:Int32=0, y:Int32=0, frame:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -37,10 +37,10 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image to repeat. |
-| `x` | Int | `0` | Horizontal offset of the pattern. Defaults to 0. |
-| `y` | Int | `0` | Vertical offset of the pattern. Defaults to 0. |
-| `frame` | Int | `0` | Which frame to use. Defaults to 0. |
+| `image` | Int32 | required | The image to repeat. |
+| `x` | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
+| `y` | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
+| `frame` | Int32 | `0` | Which frame to use. Defaults to 0. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-ReadLine stream%  ; returns String
+ReadLine:String stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -39,7 +39,7 @@ c
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required | The stream to read from. |
+| `stream` | Int32 | required | The stream to read from. |
 
 **Returns:** The text of the line.
 

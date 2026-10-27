@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-AlignToVector entity%, vector_x#, vector_y#, vector_z#, axis%, rate#=1
+AlignToVector entity:Int32, vector_x:Float32, vector_y:Float32, vector_z:Float32, axis:Int32, rate:Float32=1
 ```
 
 **Works in:** Blitz3D
@@ -16,12 +16,12 @@ Turns an entity so that one of its own axes lines up with a direction. Where [Po
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `vector_x` | Float | required | X part of the direction. |
-| `vector_y` | Float | required | Y part of the direction. |
-| `vector_z` | Float | required | Z part of the direction. |
-| `axis` | Int | required | Axis that is aligned: 1 for X, 2 for Y, 3 for Z. |
-| `rate` | Float | `1` | How much of the turn to do, 0 to 1. Defaults to 1. |
+| `entity` | Int32 | required | Entity handle. |
+| `vector_x` | Float32 | required | X part of the direction. |
+| `vector_y` | Float32 | required | Y part of the direction. |
+| `vector_z` | Float32 | required | Z part of the direction. |
+| `axis` | Int32 | required | Axis that is aligned: 1 for X, 2 for Y, 3 for Z. |
+| `rate` | Float32 | `1` | How much of the turn to do, 0 to 1. Defaults to 1. |
 
 ## Related commands
 

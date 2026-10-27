@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-SetTextAreaFont textarea%, font%
+SetTextAreaFont textarea:Int32, font:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -26,8 +26,8 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
-| `font` | Int | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
+| `textarea` | Int32 | required | Handle of a text area. |
+| `font` | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
 
 **Differences and known gaps:**
 

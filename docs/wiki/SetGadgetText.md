@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SetGadgetText gadget%, text$
+SetGadgetText gadget:Int32, text:String
 ```
 
 **Works in:** BlitzPlus
@@ -25,7 +25,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of a gadget that has text. |
+| `gadget` | Int32 | required | Handle of a gadget that has text. |
 | `text` | String | required | The new text. |
 
 ## Related commands

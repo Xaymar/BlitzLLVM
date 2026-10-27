@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-MeshesIntersect mesh_a%, mesh_b%  ; returns Int
+MeshesIntersect:Int32 mesh_a:Int32, mesh_b:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Tests if the triangles of two meshes touch at their current positions. It takes 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh_a` | Int | required | First mesh handle. |
-| `mesh_b` | Int | required | Second mesh handle. |
+| `mesh_a` | Int32 | required | First mesh handle. |
+| `mesh_b` | Int32 | required | Second mesh handle. |
 
 **Returns:** 1 if the meshes intersect, otherwise 0.
 

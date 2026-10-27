@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-SystemProperty property$  ; returns String
+SystemProperty:String property:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

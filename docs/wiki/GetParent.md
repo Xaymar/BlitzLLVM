@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-GetParent entity%  ; returns Int
+GetParent:Int32 entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
+| `entity` | Int32 | required | Entity handle. |
 
 **Returns:** The handle of the parent of the entity, or 0 if it has none.
 

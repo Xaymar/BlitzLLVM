@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-TCPStreamPort tcp_stream%  ; returns Int
+TCPStreamPort:Int32 tcp_stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `tcp_stream` | Int | required | The stream. |
+| `tcp_stream` | Int32 | required | The stream. |
 
 **Returns:** The port on the other end of a TCP stream.
 

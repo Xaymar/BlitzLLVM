@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-AddTriangle surface%, v0%, v1%, v2%  ; returns Int
+AddTriangle:Int32 surface:Int32, v0:Int32, v1:Int32, v2:Int32
 ```
 
 **Works in:** Blitz3D
@@ -42,10 +42,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `v0` | Int | required | Index of the first corner. |
-| `v1` | Int | required | Index of the second corner. |
-| `v2` | Int | required | Index of the third corner. |
+| `surface` | Int32 | required | Surface handle. |
+| `v0` | Int32 | required | Index of the first corner. |
+| `v1` | Int32 | required | Index of the second corner. |
+| `v2` | Int32 | required | Index of the third corner. |
 
 **Returns:** The index of the new triangle, starting at 0.
 

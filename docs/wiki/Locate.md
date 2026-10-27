@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
 ```blitzbasic
-Locate x%, y%
+Locate x:Int32, y:Int32
 ```
 
 **Works in:** Blitz2D, Blitz3D
@@ -30,8 +30,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position of the cursor in pixels. |
-| `y` | Int | required | Vertical position of the cursor in pixels. |
+| `x` | Int32 | required | Horizontal position of the cursor in pixels. |
+| `y` | Int32 | required | Vertical position of the cursor in pixels. |
 
 **Differences and known gaps:**
 

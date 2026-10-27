@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-PlaySound sound%  ; returns Int
+PlaySound:Int32 sound:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -29,7 +29,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required | A handle from [LoadSound](LoadSound). |
+| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
 
 **Returns:** The channel handle, or 0 if the sound could not be played (for example without a sound device).
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-TextureFilter match_text$, texture_flags%=0
+TextureFilter match_text:String, texture_flags:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -19,7 +19,7 @@ This is mostly useful when loading a mesh, since you do not choose the flags of 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `match_text` | String | required | Text to look for in the file name. |
-| `texture_flags` | Int | `0` |  |
+| `texture_flags` | Int32 | `0` |  |
 
 ## Related commands
 

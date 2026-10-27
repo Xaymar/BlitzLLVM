@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-LoadAnimImage bmpfile$, cellwidth%, cellheight%, first%, count%  ; returns Int
+LoadAnimImage:Int32 bmpfile:String, cellwidth:Int32, cellheight:Int32, first:Int32, count:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -40,10 +40,10 @@ WaitKey
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `bmpfile` | String | required |  |
-| `cellwidth` | Int | required | Width of one frame. |
-| `cellheight` | Int | required | Height of one frame. |
-| `first` | Int | required | Number of the first frame in the sheet, usually 0. |
-| `count` | Int | required | How many frames to cut out. |
+| `cellwidth` | Int32 | required | Width of one frame. |
+| `cellheight` | Int32 | required | Height of one frame. |
+| `first` | Int32 | required | Number of the first frame in the sheet, usually 0. |
+| `count` | Int32 | required | How many frames to cut out. |
 
 **Returns:** A handle for the image, or 0 if the file could not be loaded or the frame size does not fit.
 

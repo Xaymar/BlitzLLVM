@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
 ```blitzbasic
-DeleteNetPlayer player%
+DeleteNetPlayer player:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Removes a player of this program from the game. The others see a message of type
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `player` | Int | required | A player made with [CreateNetPlayer](CreateNetPlayer). |
+| `player` | Int32 | required | A player made with [CreateNetPlayer](CreateNetPlayer). |
 
 ## Related commands
 

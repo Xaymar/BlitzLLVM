@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-WindowMinimized window%  ; returns Int
+WindowMinimized:Int32 window:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `window` | Int | required | Handle of a window. |
+| `window` | Int32 | required | Handle of a window. |
 
 **Returns:** 1 if the window is hidden with [MinimizeWindow](MinimizeWindow), otherwise 0.
 

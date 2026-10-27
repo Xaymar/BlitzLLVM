@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
 ```blitzbasic
-SetGadgetIconStrip gadget%, icon_strip%
+SetGadgetIconStrip gadget:Int32, icon_strip:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -36,8 +36,8 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of a list box, combo box or tabber. |
-| `icon_strip` | Int | required |  |
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| `icon_strip` | Int32 | required |  |
 
 ## Related commands
 

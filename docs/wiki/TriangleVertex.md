@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-TriangleVertex surface%, index%, vertex%  ; returns Int
+TriangleVertex:Int32 surface:Int32, index:Int32, vertex:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ Tells which vertex is at a corner of a triangle, which is how you walk over the 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `index` | Int | required |  |
-| `vertex` | Int | required |  |
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required |  |
+| `vertex` | Int32 | required |  |
 
 **Returns:** The index of the vertex.
 

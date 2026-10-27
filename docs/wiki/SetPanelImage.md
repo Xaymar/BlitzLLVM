@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SetPanelImage panel%, file$
+SetPanelImage panel:Int32, file:String
 ```
 
 **Works in:** BlitzPlus
@@ -35,7 +35,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `panel` | Int | required | Handle of a panel. |
+| `panel` | Int32 | required | Handle of a panel. |
 | `file` | String | required | Name of a picture file. |
 
 ## Related commands

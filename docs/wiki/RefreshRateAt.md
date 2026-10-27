@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-RefreshRateAt display%, width%, height%, index%  ; returns Int
+RefreshRateAt:Int32 display:Int32, width:Int32, height:Int32, index:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,10 +16,10 @@ One of the refresh rates a display supports at a size, counted from the lowest. 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
-| `width` | Int | required | The width in pixels of the size. |
-| `height` | Int | required | The height in pixels of the size. |
-| `index` | Int | required | The rate number, from 1 to [CountRefreshRates](CountRefreshRates). |
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `width` | Int32 | required | The width in pixels of the size. |
+| `height` | Int32 | required | The height in pixels of the size. |
+| `index` | Int32 | required | The rate number, from 1 to [CountRefreshRates](CountRefreshRates). |
 
 **Returns:** The refresh rate in Hz, or 0 if there is no such rate.
 

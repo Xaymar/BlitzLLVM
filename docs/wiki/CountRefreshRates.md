@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-CountRefreshRates display%, width%, height%  ; returns Int
+CountRefreshRates:Int32 display:Int32, width:Int32, height:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -26,9 +26,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
-| `width` | Int | required | The width in pixels of the size. |
-| `height` | Int | required | The height in pixels of the size. |
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `width` | Int32 | required | The width in pixels of the size. |
+| `height` | Int32 | required | The height in pixels of the size. |
 
 **Returns:** The number of refresh rates, or 0 if the display does not exist or does not have the size.
 

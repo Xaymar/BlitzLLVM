@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-FreeEntity entity%
+FreeEntity entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Removes an entity from the world and releases what it used, including all of its
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
+| `entity` | Int32 | required | Entity handle. |
 
 ## Related commands
 

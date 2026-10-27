@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-CurrentTime  ; returns String
+CurrentTime:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

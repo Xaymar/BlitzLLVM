@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
 ```blitzbasic
-CreateMenu text$, menu_id%, parent_menu%  ; returns Int
+CreateMenu:Int32 text:String, menu_id:Int32, parent_menu:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -35,8 +35,8 @@ Until e = $803 Or (e = $1001 And EventData() = 2)
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `text` | String | required | Text of the title or item. Put `&` before a letter to underline it for the keyboard. An empty text is a separator. |
-| `menu_id` | Int | required |  |
-| `parent_menu` | Int | required |  |
+| `menu_id` | Int32 | required |  |
+| `parent_menu` | Int32 | required |  |
 
 **Returns:** A handle for the menu.
 

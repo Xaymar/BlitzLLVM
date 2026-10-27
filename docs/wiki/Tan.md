@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Tan degrees#  ; returns Float
+Tan:Float32 degrees:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Print Tan(45)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `degrees` | Float | required | The angle in degrees. |
+| `degrees` | Float32 | required | The angle in degrees. |
 
 **Returns:** The tangent.
 

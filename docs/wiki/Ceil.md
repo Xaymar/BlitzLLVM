@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Ceil float#  ; returns Float
+Ceil:Float32 float:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,7 +26,7 @@ Print Ceil(-2.1)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `float` | Float | required | The number to round up. |
+| `float` | Float32 | required | The number to round up. |
 
 **Returns:** The smallest whole number that is not below `float`.
 

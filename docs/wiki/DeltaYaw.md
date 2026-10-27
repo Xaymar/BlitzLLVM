@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
 ```blitzbasic
-DeltaYaw src_entity%, dest_entity%  ; returns Float
+DeltaYaw:Float32 src_entity:Int32, dest_entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -31,8 +31,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_entity` | Int | required | The entity that should turn. |
-| `dest_entity` | Int | required | The entity it should look at. |
+| `src_entity` | Int32 | required | The entity that should turn. |
+| `dest_entity` | Int32 | required | The entity it should look at. |
 
 **Returns:** The turn needed, in degrees.
 

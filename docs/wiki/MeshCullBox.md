@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-MeshCullBox mesh%, x#, y#, z#, width#, height#, depth#
+MeshCullBox mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,13 +16,13 @@ Sets the box that decides whether a mesh is in view. By default the box is taken
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `x` | Float | required | X of the box corner. |
-| `y` | Float | required | Y of the box corner. |
-| `z` | Float | required | Z of the box corner. |
-| `width` | Float | required | Size of the box along X. |
-| `height` | Float | required | Size of the box along Y. |
-| `depth` | Float | required | Size of the box along Z. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `x` | Float32 | required | X of the box corner. |
+| `y` | Float32 | required | Y of the box corner. |
+| `z` | Float32 | required | Z of the box corner. |
+| `width` | Float32 | required | Size of the box along X. |
+| `height` | Float32 | required | Size of the box along Y. |
+| `depth` | Float32 | required | Size of the box along Z. |
 
 **Differences and known gaps:**
 

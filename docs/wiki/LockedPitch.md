@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
 ```blitzbasic
-LockedPitch buffer%=0  ; returns Int
+LockedPitch:Int32 buffer:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -28,7 +28,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | `0` | Locked buffer. Defaults to the current one. |
+| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
 
 **Returns:** Bytes in a row. For the buffer of a 200 pixel wide canvas that is 800.
 

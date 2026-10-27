@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-GraphicsLost  ; returns Int
+GraphicsLost:Int32
 ```
 
 **Works in:** Blitz3D

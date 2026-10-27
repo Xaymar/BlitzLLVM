@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
 ```blitzbasic
-Text x%, y%, text$, centre_x%=0, centre_y%=0
+Text x:Int32, y:Int32, text:String, centre_x:Int32=0, centre_y:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -32,11 +32,11 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position of the text. |
-| `y` | Int | required | Vertical position of the text. |
+| `x` | Int32 | required | Horizontal position of the text. |
+| `y` | Int32 | required | Vertical position of the text. |
 | `text` | String | required | The text to draw. |
-| `centre_x` | Int | `0` | 1 to use x as the middle of the text instead of its left edge. Defaults to 0. |
-| `centre_y` | Int | `0` | 1 to use y as the middle of the text instead of its top edge. Defaults to 0. |
+| `centre_x` | Int32 | `0` | 1 to use x as the middle of the text instead of its left edge. Defaults to 0. |
+| `centre_y` | Int32 | `0` | 1 to use y as the middle of the text instead of its top edge. Defaults to 0. |
 
 **Differences and known gaps:**
 

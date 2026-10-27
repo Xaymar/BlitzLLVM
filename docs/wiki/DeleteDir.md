@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
 ```blitzbasic
-DeleteDir dir$
+DeleteDir dir:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

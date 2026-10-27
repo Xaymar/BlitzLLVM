@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
 ```blitzbasic
-EnableDirectInput enable%
+EnableDirectInput enable:Int32
 ```
 
 **Works in:** Blitz2D, Blitz3D
@@ -16,7 +16,7 @@ Switches the DirectInput setting on or off. In the original it chose between two
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | 1 to switch it on, 0 to switch it off. |
+| `enable` | Int32 | required | 1 to switch it on, 0 to switch it off. |
 
 **Differences and known gaps:**
 

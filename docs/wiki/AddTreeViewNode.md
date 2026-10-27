@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
 ```blitzbasic
-AddTreeViewNode text$, parent_node%, icon%=-1  ; returns Int
+AddTreeViewNode:Int32 text:String, parent_node:Int32, icon:Int32=-1
 ```
 
 **Works in:** BlitzPlus
@@ -33,8 +33,8 @@ Until WaitEvent() = $803
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `text` | String | required | Text of the node. |
-| `parent_node` | Int | required |  |
-| `icon` | Int | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+| `parent_node` | Int32 | required |  |
+| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
 
 **Returns:** A handle for the new node.
 

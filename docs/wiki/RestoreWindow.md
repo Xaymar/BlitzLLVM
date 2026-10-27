@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-RestoreWindow window%
+RestoreWindow window:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -24,7 +24,7 @@ Notify "Back at " + GadgetWidth(win) + " x " + GadgetHeight(win)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `window` | Int | required | Handle of a window. |
+| `window` | Int32 | required | Handle of a window. |
 
 ## Related commands
 

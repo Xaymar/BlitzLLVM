@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-CreatePlane segments%=1, parent%=0  ; returns Int
+CreatePlane:Int32 segments:Int32=1, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -36,8 +36,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `segments` | Int | `1` | How many pieces the plane is divided into per side, 1 to 16. Defaults to 1. |
-| `parent` | Int | `0` | Entity the plane follows, or 0 for none. Defaults to 0. |
+| `segments` | Int32 | `1` | How many pieces the plane is divided into per side, 1 to 16. Defaults to 1. |
+| `parent` | Int32 | `0` | Entity the plane follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new plane.
 

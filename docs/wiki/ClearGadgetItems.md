@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-ClearGadgetItems gadget%
+ClearGadgetItems gadget:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -28,7 +28,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of a list box, combo box or tabber. |
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
 
 ## Related commands
 

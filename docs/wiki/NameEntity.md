@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-NameEntity entity%, name$
+NameEntity entity:Int32, name:String
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Gives an entity a name that you can read back with [EntityName](EntityName) or s
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
+| `entity` | Int32 | required | Entity handle. |
 | `name` | String | required | The name. |
 
 ## Related commands

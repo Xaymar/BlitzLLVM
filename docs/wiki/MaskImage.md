@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-MaskImage image%, red%, green%, blue%
+MaskImage image:Int32, red:Int32, green:Int32, blue:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -41,10 +41,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
-| `red` | Int | required | Red part of the mask color, 0 to 255. |
-| `green` | Int | required | Green part of the mask color, 0 to 255. |
-| `blue` | Int | required | Blue part of the mask color, 0 to 255. |
+| `image` | Int32 | required | The image. |
+| `red` | Int32 | required | Red part of the mask color, 0 to 255. |
+| `green` | Int32 | required | Green part of the mask color, 0 to 255. |
+| `blue` | Int32 | required | Blue part of the mask color, 0 to 255. |
 
 ## Related commands
 

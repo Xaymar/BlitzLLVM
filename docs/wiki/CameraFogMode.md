@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraFogMode camera%, mode%
+CameraFogMode camera:Int32, mode:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Turns the camera's fog on or off. Fog fades everything toward the fog color with
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `mode` | Int | required | 0 for no fog, 1 for linear fog. |
+| `camera` | Int32 | required | Camera handle. |
+| `mode` | Int32 | required | 0 for no fog, 1 for linear fog. |
 
 ## Related commands
 

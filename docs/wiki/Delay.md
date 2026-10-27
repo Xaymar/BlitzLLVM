@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-Delay millisecs%
+Delay millisecs:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,7 +26,7 @@ Print MilliSecs() - start >= 95
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `millisecs` | Int | required | How long to wait, in milliseconds. |
+| `millisecs` | Int32 | required | How long to wait, in milliseconds. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-CreateCylinder segments%=8, solid%=1, parent%=0  ; returns Int
+CreateCylinder:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -38,9 +38,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `segments` | Int | `8` | Detail of the cylinder, 3 to 100. Defaults to 8. |
-| `solid` | Int | `1` | 1 for a cylinder with ends, 0 for a tube. Defaults to 1. |
-| `parent` | Int | `0` | Entity the cylinder follows, or 0 for none. Defaults to 0. |
+| `segments` | Int32 | `8` | Detail of the cylinder, 3 to 100. Defaults to 8. |
+| `solid` | Int32 | `1` | 1 for a cylinder with ends, 0 for a tube. Defaults to 1. |
+| `parent` | Int32 | `0` | Entity the cylinder follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new cylinder.
 

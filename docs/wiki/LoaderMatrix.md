@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-LoaderMatrix file_ext$, xx#, xy#, xz#, yx#, yy#, yz#, zx#, zy#, zz#
+LoaderMatrix file_ext:String, xx:Float32, xy:Float32, xz:Float32, yx:Float32, yy:Float32, yz:Float32, zx:Float32, zy:Float32, zz:Float32
 ```
 
 **Works in:** Blitz3D
@@ -17,15 +17,15 @@ Sets a 3x3 matrix that is applied to every model loaded from files with a certai
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file_ext` | String | required | File extension the matrix is for, for example `x` or `3ds`. |
-| `xx` | Float | required | Matrix value, row 1, column 1. |
-| `xy` | Float | required | Matrix value, row 1, column 2. |
-| `xz` | Float | required | Matrix value, row 1, column 3. |
-| `yx` | Float | required | Matrix value, row 2, column 1. |
-| `yy` | Float | required | Matrix value, row 2, column 2. |
-| `yz` | Float | required | Matrix value, row 2, column 3. |
-| `zx` | Float | required | Matrix value, row 3, column 1. |
-| `zy` | Float | required | Matrix value, row 3, column 2. |
-| `zz` | Float | required | Matrix value, row 3, column 3. |
+| `xx` | Float32 | required | Matrix value, row 1, column 1. |
+| `xy` | Float32 | required | Matrix value, row 1, column 2. |
+| `xz` | Float32 | required | Matrix value, row 1, column 3. |
+| `yx` | Float32 | required | Matrix value, row 2, column 1. |
+| `yy` | Float32 | required | Matrix value, row 2, column 2. |
+| `yz` | Float32 | required | Matrix value, row 2, column 3. |
+| `zx` | Float32 | required | Matrix value, row 3, column 1. |
+| `zy` | Float32 | required | Matrix value, row 3, column 2. |
+| `zz` | Float32 | required | Matrix value, row 3, column 3. |
 
 **Differences and known gaps:**
 

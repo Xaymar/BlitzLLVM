@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-ATan float#  ; returns Float
+ATan:Float32 float:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Print ATan(1)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `float` | Float | required | The tangent. |
+| `float` | Float32 | required | The tangent. |
 
 **Returns:** The angle in degrees.
 

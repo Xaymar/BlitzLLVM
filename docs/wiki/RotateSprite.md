@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
 ```blitzbasic
-RotateSprite sprite%, angle#
+RotateSprite sprite:Int32, angle:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Rolls a sprite around the line from the camera to it. The angle is absolute, in 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sprite` | Int | required | The sprite. |
-| `angle` | Float | required | Roll angle in degrees. |
+| `sprite` | Int32 | required | The sprite. |
+| `angle` | Float32 | required | Roll angle in degrees. |
 
 ## Related commands
 

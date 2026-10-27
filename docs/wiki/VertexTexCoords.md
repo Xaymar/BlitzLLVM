@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-VertexTexCoords surface%, index%, u#, v#, w#=1, coord_set%=0
+VertexTexCoords surface:Int32, index:Int32, u:Float32, v:Float32, w:Float32=1, coord_set:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -52,12 +52,12 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `index` | Int | required | Index of the vertex, from 0. |
-| `u` | Float | required | Horizontal texture coordinate. |
-| `v` | Float | required | Vertical texture coordinate. |
-| `w` | Float | `1` | Third coordinate, unused. Defaults to 1. |
-| `coord_set` | Int | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
+| `u` | Float32 | required | Horizontal texture coordinate. |
+| `v` | Float32 | required | Vertical texture coordinate. |
+| `w` | Float32 | `1` | Third coordinate, unused. Defaults to 1. |
+| `coord_set` | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
 
 **Differences and known gaps:**
 

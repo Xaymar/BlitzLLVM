@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-GammaBlue blue%  ; returns Float
+GammaBlue:Float32 blue:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The output value of the blue gamma table for an input value, as set by [SetGamma
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `blue` | Int | required | The input value, 0 to 255. |
+| `blue` | Int32 | required | The input value, 0 to 255. |
 
 **Returns:** The output value for the input.
 

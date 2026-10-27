@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
 ```blitzbasic
-JoyZ port%=0  ; returns Float
+JoyZ:Float32 port:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The third axis of the joystick, from -1 to 1. On a joystick it is usually the th
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
 

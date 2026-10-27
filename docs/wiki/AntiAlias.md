@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-AntiAlias enable%
+AntiAlias enable:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Switches full-screen anti-aliasing, which smooths the jagged edges of triangles,
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | True to switch it on, False to switch it off. It is off by default. |
+| `enable` | Int32 | required | True to switch it on, False to switch it off. It is off by default. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-Confirm text$, serious%=0  ; returns Int
+Confirm:Int32 text:String, serious:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -24,7 +24,7 @@ EndIf
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `text` | String | required | The question. |
-| `serious` | Int | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
+| `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
 
 **Returns:** 1 for OK, 0 for Cancel.
 

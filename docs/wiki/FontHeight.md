@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
 ```blitzbasic
-FontHeight  ; returns Int
+FontHeight:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

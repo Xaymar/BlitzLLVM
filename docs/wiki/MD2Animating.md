@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-MD2Animating md2%  ; returns Int
+MD2Animating:Int32 md2:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `md2` | Int | required | The MD2 entity. |
+| `md2` | Int32 | required | The MD2 entity. |
 
 **Returns:** True while the MD2 model is playing an animation, otherwise False.
 

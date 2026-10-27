@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-Dither enable%
+Dither enable:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Switches dithering for 16 bit color modes on or off, which hides banding in grad
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | True to dither, False not to. |
+| `enable` | Int32 | required | True to dither, False not to. |
 
 **Differences and known gaps:**
 

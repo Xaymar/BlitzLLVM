@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
 ```blitzbasic
-BankSize bank%  ; returns Int
+BankSize:Int32 bank:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ FreeBank bank
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required | The bank handle. |
+| `bank` | Int32 | required | The bank handle. |
 
 **Returns:** The size of a bank in bytes.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityY entity%, global%=0  ; returns Float
+EntityY:Float32 entity:Int32, global:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `global` | Int | `0` | 1 for the world position. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle. |
+| `global` | Int32 | `0` | 1 for the world position. Defaults to 0. |
 
 **Returns:** Y position of the entity, relative to its parent or with `global` set to 1 in the world.
 

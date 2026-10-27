@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
 ```blitzbasic
-JoinNetGame game_name$, ip_address$  ; returns Int
+JoinNetGame:Int32 game_name:String, ip_address:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

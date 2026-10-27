@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-VertexU surface%, index%, coord_set%=0  ; returns Float
+VertexU:Float32 surface:Int32, index:Int32, coord_set:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `index` | Int | required | Index of the vertex, from 0. |
-| `coord_set` | Int | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
+| `coord_set` | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
 
 **Returns:** The horizontal texture coordinate of the vertex.
 

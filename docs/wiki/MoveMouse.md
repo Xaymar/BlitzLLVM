@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
 ```blitzbasic
-MoveMouse x%, y%
+MoveMouse x:Int32, y:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,8 +16,8 @@ Puts the pointer at a position of the graphics buffer, in buffer pixels. After t
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position in the graphics buffer. |
-| `y` | Int | required | Vertical position in the graphics buffer. |
+| `x` | Int32 | required | Horizontal position in the graphics buffer. |
+| `y` | Int32 | required | Vertical position in the graphics buffer. |
 
 **Differences and known gaps:**
 

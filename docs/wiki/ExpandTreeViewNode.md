@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
 ```blitzbasic
-ExpandTreeViewNode node%
+ExpandTreeViewNode node:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ Opens a node so that its children are seen. See [CollapseTreeViewNode](CollapseT
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required | Handle of a node. |
+| `node` | Int32 | required | Handle of a node. |
 
 ## Related commands
 

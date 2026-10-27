@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
 ```blitzbasic
-CreateTerrain grid_size%, parent%=0  ; returns Int
+CreateTerrain:Int32 grid_size:Int32, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -51,8 +51,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `grid_size` | Int | required | Number of grid squares along each side. |
-| `parent` | Int | `0` | Optional parent entity. |
+| `grid_size` | Int32 | required | Number of grid squares along each side. |
+| `parent` | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the terrain.
 

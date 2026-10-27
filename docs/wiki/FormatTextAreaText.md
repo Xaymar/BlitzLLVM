@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-FormatTextAreaText textarea%, red%, green%, blue%, flags%, pos%=0, len%=-1, units%=1
+FormatTextAreaText textarea:Int32, red:Int32, green:Int32, blue:Int32, flags:Int32, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
 **Works in:** BlitzPlus
@@ -31,14 +31,14 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
-| `red` | Int | required | Red part of the text color, 0 to 255. |
-| `green` | Int | required | Green part of the text color, 0 to 255. |
-| `blue` | Int | required | Blue part of the text color, 0 to 255. |
-| `flags` | Int | required |  |
-| `pos` | Int | `0` |  |
-| `len` | Int | `-1` |  |
-| `units` | Int | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+| `textarea` | Int32 | required | Handle of a text area. |
+| `red` | Int32 | required | Red part of the text color, 0 to 255. |
+| `green` | Int32 | required | Green part of the text color, 0 to 255. |
+| `blue` | Int32 | required | Blue part of the text color, 0 to 255. |
+| `flags` | Int32 | required |  |
+| `pos` | Int32 | `0` |  |
+| `len` | Int32 | `-1` |  |
+| `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 **Differences and known gaps:**
 

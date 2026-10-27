@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-RndSeed  ; returns Int
+RndSeed:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

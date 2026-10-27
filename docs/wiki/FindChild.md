@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-FindChild entity%, name$  ; returns Int
+FindChild:Int32 entity:Int32, name:String
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Searches the children of an entity, and their children, for one with the given n
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle to search below. |
+| `entity` | Int32 | required | Entity handle to search below. |
 | `name` | String | required | Name to search for. |
 
 **Returns:** The handle of the child, or 0.

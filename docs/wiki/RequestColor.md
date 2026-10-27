@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
 
 ```blitzbasic
-RequestColor red%=255, green%=255, blue%=255  ; returns Int
+RequestColor:Int32 red:Int32=255, green:Int32=255, blue:Int32=255
 ```
 
 **Works in:** BlitzPlus
@@ -29,9 +29,9 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `red` | Int | `255` | Red the sliders start at, 0 to 255. Defaults to 255. |
-| `green` | Int | `255` | Green the sliders start at, 0 to 255. Defaults to 255. |
-| `blue` | Int | `255` | Blue the sliders start at, 0 to 255. Defaults to 255. |
+| `red` | Int32 | `255` | Red the sliders start at, 0 to 255. Defaults to 255. |
+| `green` | Int32 | `255` | Green the sliders start at, 0 to 255. Defaults to 255. |
+| `blue` | Int32 | `255` | Blue the sliders start at, 0 to 255. Defaults to 255. |
 
 **Returns:** 1 if the user pressed OK, 0 if the dialog was cancelled.
 

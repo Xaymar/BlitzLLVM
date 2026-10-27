@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
 ```blitzbasic
-SelectTreeViewNode node%
+SelectTreeViewNode node:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ Selects a node, as if the user clicked it. There is no way to remove the selecti
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required | Handle of a node. |
+| `node` | Int32 | required | Handle of a node. |
 
 ## Related commands
 

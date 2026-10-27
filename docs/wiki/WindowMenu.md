@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-WindowMenu window%  ; returns Int
+WindowMenu:Int32 window:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -31,7 +31,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `window` | Int | required | Handle of a window. |
+| `window` | Int32 | required | Handle of a window. |
 
 **Returns:** The handle of the root menu. It is the same on every call.
 

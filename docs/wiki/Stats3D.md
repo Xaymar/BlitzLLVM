@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-Stats3D type%  ; returns Float
+Stats3D:Float32 type:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Gives debugging numbers about the engine. The original help has no entry for thi
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `type` | Int | required | Which number: 0 to 9. |
+| `type` | Int32 | required | Which number: 0 to 9. |
 
 **Returns:** The number, or 0 for an index that has no value.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-ChannelPan channel%, pan#
+ChannelPan channel:Int32, pan:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -28,8 +28,8 @@ StopChannel ch
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-| `pan` | Float | required | -1 is only left, 0 the middle and 1 only right. Values outside that range are limited to it. |
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+| `pan` | Float32 | required | -1 is only left, 0 the middle and 1 only right. Values outside that range are limited to it. |
 
 **Differences and known gaps:**
 

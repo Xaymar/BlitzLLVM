@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityDistance source_entity%, destination_entity%  ; returns Float
+EntityDistance:Float32 source_entity:Int32, destination_entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `source_entity` | Int | required | First entity handle. |
-| `destination_entity` | Int | required | Second entity handle. |
+| `source_entity` | Int32 | required | First entity handle. |
+| `destination_entity` | Int32 | required | Second entity handle. |
 
 **Returns:** The distance between the world positions of two entities.
 

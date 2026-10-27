@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
 
 ```blitzbasic
-MovieWidth movie%  ; returns Int
+MovieWidth:Int32 movie:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The width of the pictures of a movie in pixels.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required | A movie handle from [OpenMovie](OpenMovie). |
+| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
 
 **Returns:** The width in pixels.
 

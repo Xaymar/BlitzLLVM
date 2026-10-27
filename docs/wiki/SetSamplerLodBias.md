@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-SetSamplerLodBias sampler%, bias#
+SetSamplerLodBias sampler:Int32, bias:Float32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,8 +16,8 @@ Moves the point where the mip levels change. A positive bias uses the smaller (b
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sampler` | Int | required | The sampler to change. |
-| `bias` | Float | required | The number of levels to add to the level that is picked. |
+| `sampler` | Int32 | required | The sampler to change. |
+| `bias` | Float32 | required | The number of levels to add to the level that is picked. |
 
 **Differences and known gaps:**
 

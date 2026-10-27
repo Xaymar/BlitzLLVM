@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-Load3DSound filename$  ; returns Int
+Load3DSound:Int32 filename:String
 ```
 
 **Works in:** Blitz3D

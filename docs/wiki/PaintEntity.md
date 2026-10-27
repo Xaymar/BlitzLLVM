@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-PaintEntity entity%, brush%
+PaintEntity entity:Int32, brush:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Applies everything in a brush to an entity at once: color, shininess, alpha, ble
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `brush` | Int | required | Brush handle. |
+| `entity` | Int32 | required | Entity handle. |
+| `brush` | Int32 | required | Brush handle. |
 
 ## Related commands
 

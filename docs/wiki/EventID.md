@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
 ```blitzbasic
-EventID  ; returns Int
+EventID:Int32
 ```
 
 **Works in:** BlitzPlus
