@@ -599,6 +599,9 @@ namespace bb::gfx {
 	extern bb::buffer<graveyard_entry> graveyard;
 	extern int    profile_submits;
 	extern Uint64 profile_wait;
+	extern Uint64 profile_gpu_execute;
+	extern Uint64 profile_gpu_present;
+	extern int    profile_overlap;
 	extern gpu_image          depth_cache[max_depths];
 	extern bb::buffer<draw_record>  draws;
 	extern bb::buffer<scene_record> scenes;
