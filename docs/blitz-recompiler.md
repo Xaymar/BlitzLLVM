@@ -77,7 +77,7 @@ Boundary mapping:
 * **Objects** are only accessed through offsets from the `__bbObj*` results, so the support library can keep the same 32-bit layout (`next/prev/fields...`) in an arena addressed by 32-bit offsets; `Handle`/`Object` use `__bbObjToHandle` and `__bbObjFromHandle`.
 * **Data**: absolute relocations (`_v...`, `_a...`, `_t...`, `__DATA`) are offsets into the module image, which stays in a flat 32-bit address arena. Loads and stores become `base + zext(address)`.
 * **Floating point**: model st(i) as `double` with rounding to `float` at `fstp dword`. The originals run with x87 extended precision, so tiny differences are possible; `x86_fp80` can be used as an exact mode on x86 hosts.
-* **User libraries**: `__LIBS` lists DLL functions (`name.dll\0Func\0...`). On Windows these can be called through a generated trampoline; elsewhere only a built-in replacement table works, otherwise the recompiler must report which libraries are missing and refuse.
+* **User libraries**: `__LIBS` lists DLL functions (`name.dll\0Func\0slot...`), but not their parameter types. The recompiler follows the address from the slot to the `call` (it travels through a register and sometimes a local variable) and finds the matching declaration in the `.decls` files of the `userlibs` directory; the DLLs themselves are 32 bit and are replaced by libraries built for the system. A call with no matching declaration is not translated. Each call gets a thunk made from the declaration (see the Blitz-Recompiler wiki page).
 
 Estimated effort: parser and loader (done in the proof of concept), x86 subset decoder plus IR emitter (about 45 mnemonics), support library, runtime thunk generator, driver. Probably 3 to 4 weeks for a first working Stranded II.
 

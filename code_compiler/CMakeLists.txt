@@ -442,6 +442,21 @@ endforeach()
 add_test(NAME cpu-host-default COMMAND cpu_test host)
 set_tests_properties(cpu-rules cpu-host-default PROPERTIES LABELS "cpu")
 
+# blitz-recompiler: the user libraries that a recompiled program calls. Each case is in tests/recompiler/recompiler.cmake.
+foreach(_CASE IN ITEMS userlib userlib_missing_declaration userlib_wide_parameter)
+	add_test(
+		NAME "recompiler-${_CASE}"
+		COMMAND ${CMAKE_COMMAND}
+			"-DCASE=${_CASE}"
+			"-DRECOMPILER=$<TARGET_FILE:recompiler>"
+			"-DBLITZCC=$<TARGET_FILE:${PROJECT_NAME}>"
+			"-DTESTS=${TEST_DIRECTORY}"
+			"-DWORK=${PROJECT_BINARY_DIR}/recompiler/${_CASE}"
+			-P "${TEST_DIRECTORY}/recompiler/recompiler.cmake"
+	)
+	set_tests_properties("recompiler-${_CASE}" PROPERTIES LABELS "recompiler")
+endforeach()
+
 # The library that blitz-format and blitz-tidy share: Tokens that join back to the source (of every program in tests/), keywords,
 # configuration files, edits and diffs.
 add_test(NAME tools-library COMMAND tools_test "${TEST_DIRECTORY}")
