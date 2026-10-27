@@ -1087,7 +1087,7 @@ namespace bb::gfx {
 			int fx = e->fx | paint.fx;
 			push.params[0]   = (fullbright || (fx & 1)) ? 1.0f : 0.0f;
 			push.params[1]   = (fx & 2) ? 1.0f : 0.0f; // Vertex colors instead of the color of the entity.
-			push.params[2]   = (fx & 32) ? 1.0f : 0.0f; // Alpha of the vertices.
+			push.params[2]   = (fx & (2 | 32)) ? 1.0f : 0.0f; // Alpha of the vertices: it counts whenever the surface is blended and has vertex colors, or when 32 forces it.
 			push.params[3]   = e->shininess + paint.shininess;
 			texture_entry* texture = texture_of(texture_handle);
 			texture_uv(texture, texture_handle, push.uv);
