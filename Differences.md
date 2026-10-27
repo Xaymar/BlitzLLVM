@@ -93,7 +93,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
 * [CreateTerrain](CreateTerrain#differences): The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise.
 * [CreateTextArea](CreateTextArea#differences): Without wrapping, a bar along the bottom appears once a line does not fit.
-* [CreateTexture](CreateTexture#differences): Only flags 2, 4, 8, 16, 32 and 65536 change how the texture looks.
+* [CreateTexture](CreateTexture#differences): Only flags 2, 4, 8, 16, 32, 1024 and 65536 change how the texture looks.
 * [CreateToolBar](CreateToolBar#differences): The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
 * [CreateWindow](CreateWindow#differences): All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries.
 * [DebugObjects](DebugObjects#differences): The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
