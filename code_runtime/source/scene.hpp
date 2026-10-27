@@ -374,6 +374,7 @@ namespace bb {
 	}
 	void grid_entity_added(int handle, int kind);
 	void grid_entity_removed(int handle, int kind);
+	void grid_kind_changed(int handle, int was, int now);
 	/**
 	 * Calls the function for the visible meshes that may be in view of a camera, in the order of their handles, without reading
 	 * those that are known to be outside. Returns false if the grid is not used (then the caller has to visit every mesh). The

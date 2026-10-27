@@ -147,7 +147,7 @@ namespace {
 		double   sum   = 0;
 		uint32_t count = 0;
 		for (size_t i = 0; i < loose.size() && count < 4096; i += 1 + loose.size() / 8192) {
-			entity* e = get_entity(int(loose[i].handle));
+			entity* e = get_entity_raw(int(loose[i].handle));
 			if (e && record_holds(int(loose[i].handle), *e)) {
 				sum += cull_record_of(int(loose[i].handle)).radius;
 				count++;
@@ -163,7 +163,7 @@ namespace {
 		active = true;
 		loose.clear();
 		for (int h = 1; h <= entity_count(); h++) {
-			entity* e = get_entity(h);
+			entity* e = get_entity_raw(h);
 			if (e && e->kind == MESH) {
 				grid_flags[uint32_t(h) - 1] = 0; // The looks before this one made the records, so what was touched before does not matter.
 				loose.push_back({ uint32_t(h), generations[uint32_t(h) - 1] });
@@ -225,6 +225,27 @@ void bb::grid_entity_removed(int handle, int kind)
 	grid_flags[index] = 0;
 	generations[index]++;
 	if (kind == MESH) {
+		mesh_count--;
+	}
+}
+
+void bb::grid_kind_changed(int handle, int was, int now)
+{
+	if ((was == MESH) == (now == MESH)) {
+		return;
+	}
+	uint32_t index = uint32_t(handle) - 1;
+	if (grid_flags[index] & 1) {
+		grid_leave(handle);
+	}
+	grid_flags[index] = 0;
+	generations[index]++; // Whatever list had it does not count it any more.
+	if (now == MESH) {
+		mesh_count++;
+		if (active) {
+			loose.push_back({ uint32_t(handle), generations[index] });
+		}
+	} else {
 		mesh_count--;
 	}
 }
@@ -297,17 +318,17 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 	const uint32_t ahead = 8;
 	for (size_t i = 0; i < candidates.size(); i++) {
 		if (i + ahead < candidates.size()) {
-			prefetch(get_entity(int(candidates[i + ahead])));
+			prefetch(get_entity_raw(int(candidates[i + ahead])));
 		}
 		int     handle = int(candidates[i]);
-		entity* e      = get_entity(handle);
+		entity* e      = get_entity_raw(handle);
 		if (!e || e->hidden) {
 			continue;
 		}
 		// Hidden parents hide their children.
 		bool visible = true;
-		for (int p = e->parent; p && visible; p = get_entity(p) ? get_entity(p)->parent : 0) {
-			visible = get_entity(p) && !get_entity(p)->hidden;
+		for (int p = e->parent; p && visible; p = get_entity_raw(p) ? get_entity_raw(p)->parent : 0) {
+			visible = get_entity_raw(p) && !get_entity_raw(p)->hidden;
 		}
 		if (visible) {
 			visit(handle, *e, user);
@@ -317,7 +338,7 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 	if (outside && bb_is_debug()) {
 		// Everything that was not asked about has to be outside of the view, and be where the grid thinks it is.
 		for (int handle = 1; handle <= entity_count(); handle++) {
-			entity* e = get_entity(handle);
+			entity* e = get_entity_raw(handle);
 			if (!e || (e->kind != MESH) || std::binary_search(candidates.begin(), candidates.end(), uint32_t(handle))) {
 				continue;
 			}
@@ -343,7 +364,7 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 		for (size_t i = 0; i < loose.size(); i++) {
 			entry    m     = loose[i];
 			uint32_t index = m.handle - 1;
-			entity*  e     = get_entity(int(m.handle));
+			entity*  e     = get_entity_raw(int(m.handle));
 			if (generations[index] != m.generation || !e) {
 				continue;
 			}

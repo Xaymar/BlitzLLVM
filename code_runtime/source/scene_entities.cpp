@@ -327,6 +327,7 @@ bb::entity* bb::get_entity(int handle)
 
 void bb::set_entity_kind(int handle, int kind)
 {
+	grid_kind_changed(handle, entities[uint32_t(handle) - 1]->kind, kind);
 	entities[uint32_t(handle) - 1]->kind     = kind;
 	entity_kinds[uint32_t(handle) - 1]       = uint8_t(kind + 1);
 }
