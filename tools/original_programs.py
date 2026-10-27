@@ -3,6 +3,7 @@
 
   original_programs.py list                    Print the programs, one per line (file names are relative to extra/)
   original_programs.py compile-one BLITZCC PROGRAM OUT   Compile one program, print the output of the compiler when it fails
+  original_programs.py run-one OUT PROGRAM     Run a compiled program without a window (BLITZ_HEADLESS=1) for a few seconds: still running or exit code 0 is a pass
   original_programs.py compile BLITZCC [OUT]   Compile every program with BLITZCC, print a pass/fail list and the first error of each failure
 
 A program is a .bb file that no other .bb file of the same tree includes; the files that it includes are part of it.
@@ -60,8 +61,24 @@ def programs():
     return sorted(result, key=str.lower)
 
 
+def exe_path(out, program):
+    return os.path.join(out, re.sub(r"[^A-Za-z0-9_.-]", "_", program) + ".exe")
+
+
+def run_one(out, program, seconds=8):
+    """Programs of the originals are games and demos that loop until a key is pressed, so one that is still running after a few
+    seconds without a window has got past its start and counts as good. One that stops with an error, or crashes, does not."""
+    source = os.path.join(ROOT, program)
+    env = dict(os.environ, BLITZ_HEADLESS="1")
+    try:
+        run = subprocess.run([exe_path(out, program)], cwd=os.path.dirname(source), env=env, capture_output=True, text=True, timeout=seconds, stdin=subprocess.DEVNULL)
+    except subprocess.TimeoutExpired:
+        return True, "still running"
+    return run.returncode == 0, (run.stdout + run.stderr).strip()
+
+
 def compile_one(blitzcc, program, out):
-    exe = os.path.join(out, re.sub(r"[^A-Za-z0-9_.-]", "_", program) + ".exe")
+    exe = exe_path(out, program)
     source = os.path.join(ROOT, program)
     try:
         run = subprocess.run([blitzcc, source, "-o", exe], cwd=os.path.dirname(source), capture_output=True, text=True, timeout=300)
@@ -78,6 +95,11 @@ def main(argv):
     if len(argv) == 5 and argv[1] == "compile-one":
         os.makedirs(argv[4], exist_ok=True)
         _, ok, text = compile_one(os.path.abspath(argv[2]), argv[3], os.path.abspath(argv[4]))
+        if not ok:
+            print(text)
+        return 0 if ok else 1
+    if len(argv) == 4 and argv[1] == "run-one":
+        ok, text = run_one(os.path.abspath(argv[2]), argv[3])
         if not ok:
             print(text)
         return 0 if ok else 1
