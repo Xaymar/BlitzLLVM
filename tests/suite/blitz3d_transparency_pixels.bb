@@ -92,4 +92,18 @@ Check "Surfaces from the last: red", R(60, 60), 128, 6
 Check "Surfaces from the last: green", G(60, 60), 64, 6
 FreeEntity m
 
+; With vertex colors Direct3D takes the alpha from the vertices too, so EntityAlpha does nothing to the triangle: it is opaque.
+m = CreateMesh()
+s = CreateSurface(m)
+AddVertex s, -2, -2, 4 : VertexColor s, 0, 255, 0, 0
+AddVertex s, -2, 2, 4 : VertexColor s, 1, 255, 0, 0
+AddVertex s, 2, 2, 4 : VertexColor s, 2, 255, 0, 0
+AddTriangle s, 0, 1, 2
+EntityFX m, 1 + 2
+EntityAlpha m, 0.5
+RenderWorld
+Check "Vertex colors ignore EntityAlpha: red", R(60, 60), 255, 6
+Check "Vertex colors ignore EntityAlpha: green", G(60, 60), 0, 6
+FreeEntity m
+
 End

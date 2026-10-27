@@ -552,7 +552,9 @@ def vertex_shader_3d():
     rgb = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, base, lit), zeros, ones)
 
     vertex_alpha = b.fadd(f, c1, b.fmul(f, b.fsub(f, b.extract(color, 3), c1), use_vertex_alpha))
-    alpha = b.fmul(f, b.extract(material, 3), vertex_alpha)
+    entity_alpha = b.fmul(f, b.extract(material, 3), vertex_alpha)
+    # With vertex colors Direct3D takes the whole diffuse color from the vertices, so the alpha of the entity is not used.
+    alpha = b.fadd(f, entity_alpha, b.fmul(f, b.fsub(f, b.extract(color, 3), entity_alpha), use_vertex_color))
     final = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), alpha)
     b.store(out_color, final)
     b.store(out_color_flat, final)
