@@ -62,6 +62,7 @@ target_sources(blitzrt PRIVATE
 	"source/scene_meshes.cpp"
 	"source/scene_camera.cpp"
 	"source/scene_sprites.cpp"
+	"source/sprite_hull.cpp"
 	"source/scene_brushes.cpp"
 	"source/scene_terrain.cpp"
 	"source/animation.cpp"

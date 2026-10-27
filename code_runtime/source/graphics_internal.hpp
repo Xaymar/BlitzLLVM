@@ -358,7 +358,17 @@ namespace bb::gfx {
 		bool         ok     = false; // Decoded without an error, set by run().
 	};
 
+	// The part of the square of a sprite that its texture is visible in, see sprite_hull_compute. A hull is only valid for a texture
+	// whose pixels are known: loaded ones, and ones that the program wrote with LockBuffer.
+	struct sprite_hull {
+		bool  valid = false;
+		int   count = 0;
+		float point[8][2] = {};          // Corners in the coordinates of the sprite (-1 to 1, y up), counterclockwise.
+		void* geometry = nullptr;        // The bb::surface that the renderer draws, made when it is first needed.
+	};
+
 	struct texture_entry {
+		sprite_hull     hull;
 		bool            used = false;
 		load_job*       pending = nullptr;      // Still being decoded: the picture is not here yet, see resolve_texture.
 		int             flags = 0;
@@ -758,6 +768,12 @@ namespace bb::gfx {
 	/** Where a frame of the texture is in its sheet, or false if there is no such frame. */
 	bool texture_frame_rect(texture_entry const& texture, int frame, int& x, int& y, int& w, int& h);
 	/** The scale and offset of the texture coordinates for a texture, from the reference that has its frame. */
+	/** Finds the hull of a sprite from RGBA pixels (pitch in pixels) and the flags of the texture, or none if it is not worth it. */
+	void sprite_hull_compute(sprite_hull& hull, const uint8_t* rgba, int width, int height, size_t pitch, int flags);
+	/** Lets go of the hull and its geometry. */
+	void sprite_hull_drop(sprite_hull& hull);
+	/** The geometry to draw a sprite with, or null for the square. */
+	bb::surface* sprite_hull_surface(sprite_hull& hull);
 	void texture_uv(texture_entry const* texture, int reference, float* uv);
 	void texture_rotation(texture_entry const* texture, float* extra);
 	void texture_texgen(texture_entry const* texture, float* texgen);

@@ -116,6 +116,13 @@ void bb_unlock_buffer(int32_t buffer)
 			write_pixels(*target.image, target.x, target.y, target.w, target.h, l->pixels);
 		}
 	}
+	if (buffer >= texture_buffer_base) {
+		// The program knows what is in the whole texture now, which is what sprites need to be cut to size.
+		texture_entry* t = texture_of((buffer - texture_buffer_base) >> 10);
+		if (t && t->frames == 1 && t->frame_w == 0 && !t->cube && l->region.x == 0 && l->region.y == 0 && l->region.w == t->width && l->region.h == t->height) {
+			sprite_hull_compute(t->hull, l->pixels, l->region.w, l->region.h, size_t(l->region.w), t->flags);
+		}
+	}
 	free(l->pixels);
 	*l = locked_buffer();
 }

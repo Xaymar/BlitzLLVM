@@ -805,10 +805,15 @@ namespace bb::gfx {
 		}
 	}
 
+	// A sprite that covers fewer pixels than this keeps the square: two big triangles fill the 8x8 or so pixel blocks that the GPU works
+	// in better than six small ones, and the edges of an octagon are not worth it, nor are the faint halos it would cut off.
+	constexpr float sprite_hull_min_pixels = 128.0f;
+
 	static float current_camera[16]; // Where the camera is, for sprites that face it.
 	static float current_origin[3];  // The same place: everything is sent to the GPU relative to it, see render_pass.
 	static float current_planes[24]; // The planes of what the camera sees, see mesh_collector.
 	static bool  have_planes;
+	static float current_pixels[2];  // Pixels per unit at a depth of 1 (perspective) or at any depth (orthographic), and whether it is orthographic.
 	static float current_view[3];    // Zoom, far plane and height divided by width of the camera, for planes.
 
 	// The part of a plane that the camera sees: a grid over the far end of the view that is let down onto the ground,
@@ -956,6 +961,7 @@ namespace bb::gfx {
 		bool fullbright = (e->fx & 1) != 0;
 		bool two_sided  = (e->fx & 16) != 0;
 
+		float sprite_pixels = 0.0f;
 		if (e->sprite_mode) {
 			// Sprites are a square of 2 by 2 that is turned by what the mode says, rolled and then scaled.
 			float cm[3][3] = { { current_camera[0], current_camera[1], current_camera[2] }, { current_camera[4], current_camera[5], current_camera[6] }, { current_camera[8], current_camera[9], current_camera[10] } };
@@ -996,6 +1002,18 @@ namespace bb::gfx {
 			}
 			float angle = e->sprite_angle * 3.14159265358979f / 180.0f, ca = cosf(angle), sa = sinf(angle);
 			float position[3] = { m[12], m[13], m[14] };
+			{
+				// How many pixels the square covers: the lengths of its sides in the world, as big as they look from the depth it is at.
+				float depth = 1.0f;
+				if (current_pixels[1] == 0.0f) {
+					float forward[3] = { current_camera[8], current_camera[9], current_camera[10] };
+					float length     = sqrtf(forward[0] * forward[0] + forward[1] * forward[1] + forward[2] * forward[2]);
+					depth            = length > 0 ? ((position[0] - current_camera[12]) * forward[0] + (position[1] - current_camera[13]) * forward[1] + (position[2] - current_camera[14]) * forward[2]) / length : 0.0f;
+				}
+				float width  = 2.0f * e->sprite_scale[0], height = 2.0f * e->sprite_scale[1];
+				float per_unit = depth > 0 ? current_pixels[0] / depth : 0.0f;
+				sprite_pixels = fabsf(width * height) * per_unit * per_unit;
+			}
 			for (int axis = 0; axis < 3; axis++) {
 				m[0 + axis]  = (t[0][axis] * ca + t[1][axis] * sa) * e->sprite_scale[0];
 				m[4 + axis]  = (t[1][axis] * ca - t[0][axis] * sa) * e->sprite_scale[1];
@@ -1082,12 +1100,32 @@ namespace bb::gfx {
 				}
 			}
 
+			// A sprite only needs the part of its square that the texture can be seen in: all sprites with the same texture draw the
+			// same smaller shape, which has less to fill in and is no pixel different. Anything that changes where the texture is
+			// (frames, other layers, scaling, turning, generated coordinates) or has a mesh of its own keeps the square.
+			surface_gpu* shape = gpu;
+			static const bool hulls = !getenv("BLITZ_NO_SPRITE_HULL");
+			if (hulls && e->sprite_mode && sprite_pixels >= sprite_hull_min_pixels && texture && texture->hull.valid && texture->set && !paint.texture && surface.vertices.size == 4 && !(texture_handle & ~bb::texture_handle_mask) && texture->frames == 1 && texture->frame_w == 0
+				&& texture->uv[0] == 1 && texture->uv[1] == 1 && texture->uv[2] == 0 && texture->uv[3] == 0 && texture->rotation == 0 && !(texture->flags & (64 | 128))) {
+				bool layered = false;
+				for (int layer = 0; layer < 7; layer++) {
+					layered = layered || paint.layers[layer] || e->layers[layer];
+				}
+				if (!layered) {
+					if (bb::surface* hull = sprite_hull_surface(texture->hull)) {
+						if (surface_gpu* hull_gpu = upload_surface(*hull)) {
+							shape = hull_gpu;
+						}
+					}
+				}
+			}
+
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
 			record.push         = push;
-			record.vertex_buffer = gpu->vertex_buffer;
-			record.index_buffer = gpu->index_buffer;
-			record.index_count  = gpu->index_count;
+			record.vertex_buffer = shape->vertex_buffer;
+			record.index_buffer = shape->index_buffer;
+			record.index_count  = shape->index_count;
 			record.texture      = (texture && texture->set) ? texture_handle : 0;
 			record.pipeline     = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? g.opaque3d : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
 			record.cull         = !(two_sided || ((e->fx | paint.fx) & 16));
@@ -1095,10 +1133,10 @@ namespace bb::gfx {
 			record.depth_write  = (!surface_blended && depth_test);
 			record.depth        = item.depth;
 			record.unit_start   = true;
-			static_cast<surface_gpu*>(surface.gpu)->used_by_flush = flush_number;
+			shape->used_by_flush = flush_number;
 			ensure_entities(draws.size + 1 + 7);
 			draws.push(record);
-			g.triangles_drawn += gpu->index_count / 3;
+			g.triangles_drawn += shape->index_count / 3;
 
 			// Textures on the layers after the first are drawn over the same triangles, and change what is there: the
 			// color map of a terrain gets its fine detail this way.
@@ -1250,6 +1288,8 @@ namespace bb::gfx {
 		current_view[1] = cam.cam_far;
 		current_view[2] = float(vh) / float(vw);
 		projection(proj, cam, float(vw), float(vh));
+		current_pixels[0] = (cam.cam_projection == 2 ? cam.cam_zoom / cam.cam_near : cam.cam_zoom) * float(vw) * 0.5f;
+		current_pixels[1] = cam.cam_projection == 2 ? 1.0f : 0.0f;
 
 		// Positions are relative to the camera on the GPU, so that the cancellation of a position and the camera
 		// does not happen per vertex with 32-bit floats: the view has no translation, the entities and the lights
