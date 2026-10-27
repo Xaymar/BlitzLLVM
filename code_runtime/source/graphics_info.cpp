@@ -27,9 +27,6 @@ namespace {
 	bb::buffer<mode> modes;
 	bool             modes_listed = false;
 
-	float gamma_ramp[3][256];
-	bool  gamma_ready = false;
-
 	void add_mode(int width, int height, int depth)
 	{
 		for (uint32_t i = 0; i < modes.size; i++) {
@@ -102,23 +99,6 @@ namespace {
 			}
 		}
 		return false;
-	}
-
-	void need_gamma()
-	{
-		if (!gamma_ready) {
-			gamma_ready = true;
-			for (int c = 0; c < 3; c++) {
-				for (int i = 0; i < 256; i++) {
-					gamma_ramp[c][i] = float(i);
-				}
-			}
-		}
-	}
-
-	float clamp_gamma(float value)
-	{
-		return value < 0 ? 0 : (value > 255 ? 255 : value);
 	}
 } // namespace
 
@@ -257,38 +237,6 @@ int32_t bb_gfx_mode_3d_exists(int32_t width, int32_t height, int32_t depth)
 		}
 	}
 	return 0;
-}
-
-// Gamma is only remembered: a window can't change how the whole display looks.
-void bb_set_gamma(int32_t source_red, int32_t source_green, int32_t source_blue, float red, float green, float blue)
-{
-	need_gamma();
-	gamma_ramp[0][source_red & 255]   = clamp_gamma(red);
-	gamma_ramp[1][source_green & 255] = clamp_gamma(green);
-	gamma_ramp[2][source_blue & 255]  = clamp_gamma(blue);
-}
-
-void bb_update_gamma(int32_t calibrate)
-{
-	(void)calibrate;
-}
-
-float bb_gamma_red(int32_t index)
-{
-	need_gamma();
-	return gamma_ramp[0][index & 255];
-}
-
-float bb_gamma_green(int32_t index)
-{
-	need_gamma();
-	return gamma_ramp[1][index & 255];
-}
-
-float bb_gamma_blue(int32_t index)
-{
-	need_gamma();
-	return gamma_ramp[2][index & 255];
 }
 
 // There is no retrace to wait for: the window is shown at the speed the display wants. This waits for the time of

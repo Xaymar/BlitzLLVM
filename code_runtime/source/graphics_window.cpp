@@ -103,6 +103,7 @@ void bb_end_graphics(void)
 			scratch_size = 0;
 		}
 		empty_graveyard();
+		destroy_gamma();
 		vkDestroyBuffer(g.device, g.scene_buffer, nullptr);
 		vkFreeMemory(g.device, g.scene_memory, nullptr);
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
