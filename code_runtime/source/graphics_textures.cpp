@@ -13,6 +13,7 @@
 // Textures: loading, flags, filters and the layers of a texture.
 
 #include <string>
+#include <vector>
 
 #include "graphics_internal.hpp"
 #include "path.h"
@@ -380,11 +381,12 @@ namespace bb::gfx {
 			bool         compressed = false;
 			SDL_Surface* rgba       = nullptr;
 			sprite_hull  hull;      // Where sprites with this texture can be seen, found with the pixels so that the loader threads do it.
+			uint32_t*    ten        = nullptr; // malloc'ed: A2B10G10R10 pixels of rgba, for a picture of more than 8 bits per channel that needs no partial alpha.
 		};
 
 		// The part of a load that only needs the CPU, which is what the loader threads do. Whether the blocks can be used as they
 		// are depends on the device, so the caller says (block_ok) instead of this asking the device.
-		bool prepare_texture(picture& source, int flags, bool gpu, bool block_ok, prepared_texture& out)
+		bool prepare_texture(picture& source, int flags, bool gpu, bool block_ok, bool ten_ok, prepared_texture& out)
 		{
 			// A compressed picture goes to the GPU as it is when it has what the flags ask for: without the alpha flag the alpha is
 			// made 1 by the image view, and with it the file needs alpha of its own. Masks, brightness as alpha and BC5, whose third
@@ -405,9 +407,19 @@ namespace bb::gfx {
 				return false;
 			}
 			bool         has_alpha = SDL_ISPIXELFORMAT_ALPHA(loaded->format);
-			SDL_Surface* rgba      = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
+			// Pictures with more than 8 bits per channel keep them as 10 bits, if the alpha is not between see-through and solid: the
+			// 2 bits of alpha are enough for none and for a mask. Pictures of 8 bits get nothing from it, so they stay RGBA8.
+			SDL_Surface*                  wide    = nullptr;
+			SDL_PixelFormatDetails const* details = SDL_GetPixelFormatDetails(loaded->format);
+			if (gpu && ten_ok && !(flags & (128 | TEXTURE_SRGB | TEXTURE_TARGET)) && details && ((details->Rbits > 8) || (details->bits_per_pixel > 32)) && (!(flags & TEXTURE_ALPHA) || ((flags & TEXTURE_MASKED) && !(flags & TEXTURE_MIPMAPS)))) {
+				wide = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA64);
+			}
+			SDL_Surface* rgba = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
 			SDL_DestroySurface(loaded);
 			if (!rgba) {
+				if (wide) {
+					SDL_DestroySurface(wide);
+				}
 				return false;
 			}
 
@@ -444,6 +456,61 @@ namespace bb::gfx {
 			if (!(flags & (64 | 128))) {
 				sprite_hull_compute(out.hull, static_cast<const uint8_t*>(rgba->pixels), rgba->w, rgba->h, size_t(rgba->pitch) / 4, flags);
 			}
+			if (wide) {
+				// Every mip level is made here from the 16 bits, not by the GPU, whose blits are not exact for 10 bits on all drivers.
+				bool                  mips   = (flags & TEXTURE_MIPMAPS) != 0;
+				uint32_t              levels = mips ? mip_count(uint32_t(rgba->w), uint32_t(rgba->h)) : 1;
+				size_t                total  = 0;
+				for (uint32_t level = 0; level < levels; level++) {
+					total += size_t((rgba->w >> level) ? (rgba->w >> level) : 1) * size_t((rgba->h >> level) ? (rgba->h >> level) : 1);
+				}
+				out.ten = static_cast<uint32_t*>(malloc(total * 4));
+				std::vector<uint16_t> current(size_t(rgba->w) * size_t(rgba->h) * 4), next;
+				for (int y = 0; y < rgba->h; y++) {
+					memcpy(current.data() + size_t(y) * size_t(rgba->w) * 4, static_cast<const uint8_t*>(wide->pixels) + size_t(y) * size_t(wide->pitch), size_t(rgba->w) * 8);
+				}
+				uint32_t* to = out.ten;
+				int       w = rgba->w, h = rgba->h;
+				for (uint32_t level = 0; out.ten && (level < levels); level++) {
+					for (int y = 0; y < h; y++) {
+						for (int x = 0; x < w; x++) {
+							const uint16_t* c = current.data() + (size_t(y) * size_t(w) + size_t(x)) * 4;
+							uint32_t        r = (uint32_t(c[0]) * 1023 + 32767) / 65535;
+							uint32_t        g = (uint32_t(c[1]) * 1023 + 32767) / 65535;
+							uint32_t        b = (uint32_t(c[2]) * 1023 + 32767) / 65535;
+							// Without alpha it is solid. With a mask it is what the 8 bit pixels say, which only the first level is.
+							uint32_t a = (flags & TEXTURE_ALPHA) ? ((static_cast<const uint8_t*>(rgba->pixels)[size_t(y) * size_t(rgba->pitch) + size_t(x) * 4 + 3] >= 128) ? 3u : 0u) : 3u;
+							*to++      = r | (g << 10) | (b << 20) | (a << 30);
+						}
+					}
+					if (level + 1 < levels) {
+						int nw = w > 1 ? w / 2 : 1, nh = h > 1 ? h / 2 : 1;
+						next.assign(size_t(nw) * size_t(nh) * 4, 0);
+						for (int y = 0; y < nh; y++) {
+							for (int x = 0; x < nw; x++) {
+								for (int k = 0; k < 4; k++) {
+									uint32_t sum = 0;
+									for (int dy = 0; dy < 2; dy++) {
+										for (int dx = 0; dx < 2; dx++) {
+											int sx = x * 2 + dx, sy = y * 2 + dy;
+											sx     = sx < w ? sx : w - 1;
+											sy     = sy < h ? sy : h - 1;
+											sum += current[(size_t(sy) * size_t(w) + size_t(sx)) * 4 + size_t(k)];
+										}
+									}
+									next[(size_t(y) * size_t(nw) + size_t(x)) * 4 + size_t(k)] = uint16_t((sum + 2) / 4);
+								}
+							}
+						}
+						current.swap(next);
+						w = nw;
+						h = nh;
+					}
+				}
+			}
+			if (wide) {
+				SDL_DestroySurface(wide);
+			}
 			return true;
 		}
 
@@ -453,6 +520,7 @@ namespace bb::gfx {
 			std::string       name;
 			int               flags = 0;
 			bool              block_ok[7] = {};
+			bool              ten_ok      = false;
 			prepared_texture  out;
 
 			~texture_job() override
@@ -462,6 +530,7 @@ namespace bb::gfx {
 				if (out.rgba) {
 					SDL_DestroySurface(out.rgba);
 				}
+				free(out.ten);
 			}
 
 			void run() override
@@ -472,7 +541,7 @@ namespace bb::gfx {
 				}
 				SDL_free(data);
 				data = nullptr;
-				ok   = prepare_texture(source, flags, true, block_ok[int(source.block)], out);
+				ok   = prepare_texture(source, flags, true, block_ok[int(source.block)], ten_ok, out);
 				free_picture(source);
 			}
 		};
@@ -492,9 +561,12 @@ namespace bb::gfx {
 				entry.height = p.rgba->h;
 				entry.hull   = p.hull;
 				p.hull       = sprite_hull();
-				upload_texture(entry.image, entry.set, uint32_t(p.rgba->w), uint32_t(p.rgba->h), static_cast<const uint8_t*>(p.rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0);
+				bool ten = p.ten != nullptr;
+				upload_texture(entry.image, entry.set, uint32_t(p.rgba->w), uint32_t(p.rgba->h), ten ? reinterpret_cast<const uint8_t*>(p.ten) : static_cast<const uint8_t*>(p.rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0, ten);
 				SDL_DestroySurface(p.rgba);
 				p.rgba = nullptr;
+				free(p.ten);
+				p.ten = nullptr;
 			}
 		}
 	} // namespace
@@ -563,6 +635,7 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 			job->name        = file;
 			job->flags       = flags;
 			memcpy(job->block_ok, async_block_support(), sizeof(job->block_ok));
+			job->ten_ok = ten_bit_supported();
 			texture_entry entry;
 			entry.used    = true;
 			entry.flags   = flags;
@@ -579,7 +652,7 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 		return 0; // Blitz gives 0 for missing files.
 	}
 	prepared_texture prepared;
-	if (!prepare_texture(source, flags, active(), active() && compressed_supported(source.block), prepared)) {
+	if (!prepare_texture(source, flags, active(), active() && compressed_supported(source.block), active() && ten_bit_supported(), prepared)) {
 		free_picture(source);
 		return 0;
 	}
