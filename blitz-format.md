@@ -97,7 +97,7 @@ function Sign%( n% )
   if n<0 then return -1
   IF n>0 Then Return  1
   Return 0
-endfunction
+end function
 Select total
 Case -1,-2
 Print "negative"
@@ -118,7 +118,7 @@ Function Sign%(n%)
 	If n < 0 Then Return -1
 	If n > 0 Then Return 1
 	Return 0
-EndFunction
+End Function
 
 Select total
 	Case -1, -2
