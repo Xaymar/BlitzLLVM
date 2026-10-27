@@ -133,7 +133,13 @@ function(blitz_fetch_image_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH
 	set(_STAMP "${BINARY_PATH}.codecs")
 	if(EXISTS "${_STAMP}")
 		file(READ "${_STAMP}" _STAMPED)
-		if(_STAMPED STREQUAL _REVISION)
+		# The stamp is restored with the dependency cache, but the fetched codecs and the changes to CMakeLists.txt are in the
+		# source checkout, which is a new one in CI. Without them the next configure fails, and ExternalContent goes on with the
+		# build files it still has, so a change of the compiler flags would silently not apply.
+		file(READ "${SOURCE_PATH}/CMakeLists.txt" _PATCHED)
+		if(_STAMPED STREQUAL _REVISION AND EXISTS "${SOURCE_PATH}/external/libjxl/third_party/highway/CMakeLists.txt"
+			AND EXISTS "${SOURCE_PATH}/external/libavif/CMakeLists.txt" AND EXISTS "${SOURCE_PATH}/external/dav1d/CMakeLists.txt"
+			AND EXISTS "${SOURCE_PATH}/external/libwebp/CMakeLists.txt" AND _PATCHED MATCHES "set\\(SDLIMAGE_AOM OFF\\)")
 			return()
 		endif()
 	endif()
@@ -268,7 +274,9 @@ function(blitz_fetch_audio_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH
 	set(_STAMP "${BINARY_PATH}.codecs")
 	if(EXISTS "${_STAMP}")
 		file(READ "${_STAMP}" _STAMPED)
-		if(_STAMPED STREQUAL _REVISION)
+		# The fetched codecs are in the source checkout, which is a new one in CI when only the dependency cache is restored.
+		if(_STAMPED STREQUAL _REVISION AND EXISTS "${SOURCE_PATH}/external/opus/CMakeLists.txt"
+			AND EXISTS "${SOURCE_PATH}/external/ogg/CMakeLists.txt" AND EXISTS "${SOURCE_PATH}/external/opusfile/CMakeLists.txt")
 			return()
 		endif()
 	endif()
