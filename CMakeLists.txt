@@ -119,6 +119,7 @@ set(BLITZ_REQUIRED_LICENSES
 	BlitzLLVM/LICENSE.adoc SDL3/LICENSE.txt SDL3_image/LICENSE.txt SDL3_image/optional/LICENSE.dav1d.txt SDL3_image/optional/LICENSE.avif.txt
 	SDL3_image/optional/LICENSE.jxl.txt SDL3_image/optional/LICENSE.webp.txt SDL3_mixer/LICENSE.txt SDL3_mixer/optional/LICENSE.opus.txt
 	SDL3_mixer/optional/LICENSE.opusfile.txt SDL3_mixer/optional/LICENSE.ogg-vorbis.txt Vulkan-Headers/LICENSE.md
+	VulkanMemoryAllocator/LICENSE.txt
 )
 install(CODE "
 	foreach(_LICENSE IN ITEMS ${BLITZ_REQUIRED_LICENSES})

@@ -22,6 +22,7 @@ required=(
 	FFmpeg/COPYING.LGPLv2.1
 	Vulkan-Headers/LICENSE.md
 	stb/LICENSE
+	VulkanMemoryAllocator/LICENSE.txt
 )
 status=0
 for file in "${required[@]}"; do
