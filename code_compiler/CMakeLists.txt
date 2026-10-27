@@ -72,10 +72,11 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BLITZRT_INLINE_FILES} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/runtime/inline/"
 )
 
-# Install layout: <prefix>/bin/blitzcc, <prefix>/bin/runtime and <prefix>/userlibs.
+# Install layout, the same as the system layout of the packages below: <prefix>/bin/blitzcc, <prefix>/lib/blitzllvm/runtime (the libraries
+# and the sources of the hot parts of the runtime) and <prefix>/userlibs. blitzcc finds the runtime from where it is.
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
-install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION bin/runtime)
-install(FILES ${BLITZRT_INLINE_FILES} DESTINATION bin/runtime/inline)
+install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime)
+install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
 # The licenses of BlitzLLVM and of every dependency that ends up in the program: <licenses>/BlitzLLVM, SDL3, SDL3_image, SDL3_mixer
 # Vulkan-Headers, stb_truetype and VulkanMemoryAllocator. SDL_image and SDL_mixer install their own license and those of the codecs they were built with (libwebp,
@@ -236,7 +237,7 @@ if(Python3_FOUND AND NOT WIN32)
 endif()
 
 # The command line options of the compiler: -q, +q, -c, -d, -g, -k, +k, -v, and the diagnostics. Each case is in tests/cli/cli.cmake.
-foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug profile debug_info fast_math inline_checks runtime_inline stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout temp_directory shell_quoting warnings version verbose_long_only console_subsystem windows_manifest run run_exit_code diagnostics help)
+foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compile_only debug profile debug_info fast_math inline_checks runtime_inline runtime_layout stop gfx_driver keywords keywords_syntax keywords_bad_userlib userlib_shared userlib_env userlib_missing_library userlib_missing_function userlib_system userlib_output_dir userlib_layout temp_directory shell_quoting warnings version verbose_long_only console_subsystem windows_manifest run run_exit_code diagnostics help)
 	add_test(
 		NAME "cli-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}
