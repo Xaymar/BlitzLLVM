@@ -57,6 +57,8 @@ typedef struct bb_channel {
 	int        frequency;
 	float      ratio; // What the sound itself is played at, the doppler shift comes on top.
 	bb_motion  motion;
+	float      shift;      // The doppler shift that is being played, which follows the wanted one smoothly.
+	Uint64     shift_time; // When it was last moved toward it, 0 while it has not started.
 } bb_channel;
 
 static MIX_Mixer*  bb_mixer       = NULL;
@@ -77,6 +79,10 @@ static bb_motion bb_listener_motion;
 
 // How fast sound moves, in meters per second.
 #define BB_SPEED_OF_SOUND 340.0f
+
+// How long the shift takes to follow a change of the speeds (in seconds), which is what makes a sound that passes by glide down
+// in pitch and not jump.
+#define BB_DOPPLER_SMOOTHING 0.12f
 
 // Starts the sound system the first time it is needed. Returns whether there is something to play on.
 static int bb_audio_ready(void)
@@ -552,7 +558,15 @@ void bb_sound_update(void)
 			float* lv = bb_listener_motion.speed;
 			float  source_away      = (sv[0] * ux + sv[1] * uy + sv[2] * uz) * bb_listener_distance;
 			float  listener_toward  = (lv[0] * ux + lv[1] * uy + lv[2] * uz) * bb_listener_distance;
-			MIX_SetTrackFrequencyRatio(channel->track, channel->ratio * bb_doppler_ratio(listener_toward, source_away, bb_listener_doppler));
+			float wanted = bb_doppler_ratio(listener_toward, source_away, bb_listener_doppler);
+			if (!channel->shift_time) {
+				channel->shift = 1.0f;
+			} else {
+				float seconds = (float)(now - channel->shift_time) / 1e9f;
+				channel->shift += (wanted - channel->shift) * (1.0f - expf(-seconds / BB_DOPPLER_SMOOTHING));
+			}
+			channel->shift_time = now;
+			MIX_SetTrackFrequencyRatio(channel->track, channel->ratio * channel->shift);
 		}
 	}
 }
