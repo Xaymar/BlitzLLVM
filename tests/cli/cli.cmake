@@ -862,12 +862,16 @@ elseif(CASE STREQUAL "warnings")
 		"Function Mismatch%()\n"
 		"\tReturn \"5\"\n"
 		"End Function\n"
-		"Print Mismatch()\n")
+		"Print Mismatch()\n"
+		"Function Bare%()\n"
+		"\tReturn\n"
+		"End Function\n"
+		"Print Bare()\n")
 
 	# Every warning turns on at its level, and stays on above it. -W2 is the default.
 	set(_WARNINGS
 		"implicit-lossy-int-to-int:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
-		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-type-mismatch:2" "unused-result:2"
+		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-missing-value:2" "return-type-mismatch:2" "unused-result:2"
 		"implicit-number-to-string:3" "unreachable-code:3" "unused-variable:3"
 		"typeless-declaration:4" "unused-function:4")
 	foreach(_LEVEL RANGE 0 4)
@@ -911,8 +915,9 @@ elseif(CASE STREQUAL "warnings")
 	expect_no_err("[-Wunused-variable]\nLocal i")
 
 	# Return with another type than the function has: both types, and the function that fixes it.
+	blitzcc(-c "${WORK}/w.bb")
 	expect_err("w.bb:23:9: warning: Return gives String, but the function returns Int. [-Wreturn-type-mismatch]")
-	expect_err("help: Use Int(value) to convert on purpose.")
+	expect_err("notice: Use Int(value) to convert on purpose.")
 	file(WRITE "${WORK}/ret.bb"
 		"Print Zero#()\nPrint Same#(1.5)\nPrint Wide#(1)\nLocal d:double = 1.5\nPrint Narrow#(d)\nPrint Text$(1)\nPrint Byt:byte(1)\n"
 		"Function Zero#()\n\tReturn 0\nEnd Function\n"
@@ -924,11 +929,11 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c "${WORK}/ret.bb")
 	expect_err("Return gives Int, but the function returns Float. [-Wreturn-type-mismatch]")
 	expect_err("Return gives Double, but the function returns Float. [-Wreturn-type-mismatch]\n")
-	expect_err("help: Use Float(value) to convert on purpose.")
+	expect_err("notice: Use Float(value) to convert on purpose.")
 	expect_err("Return gives Int, but the function returns String. [-Wreturn-type-mismatch]")
-	expect_err("help: Use Str(value) to convert on purpose.")
+	expect_err("notice: Use Str(value) to convert on purpose.")
 	expect_err("Return gives Int, but the function returns Byte. [-Wreturn-type-mismatch]")
-	expect_err("help: Change the type of the function or of the returned value.")
+	expect_err("notice: Change the type of the function or of the returned value.")
 	# A literal that fits (Return 0 in a Float function) and the same type are fine, and the conversion warnings are not said twice.
 	expect_no_err("ret.bb:8:")
 	expect_no_err("ret.bb:9:")
@@ -941,6 +946,25 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -Wno-return-type-mismatch "${WORK}/ret.bb")
 	expect_no_err("[-Wreturn-type-mismatch]")
 	expect_err("[-Wimplicit-lossy-int-to-int]")
+
+	# A bare Return in a function with a type; without one the function is an Int and it is left alone.
+	file(WRITE "${WORK}/bare.bb"
+		"Print Plain()\nPrint Num%()\nPrint Txt$()\nPrint Flt#()\nProc()\n"
+		"Function Plain()\n\tReturn\nEnd Function\n"
+		"Function Num%()\n\tReturn\nEnd Function\n"
+		"Function Txt$()\n\tReturn\nEnd Function\n"
+		"Function Flt#()\n\tReturn\nEnd Function\n"
+		"Function Proc()\n\tReturn 1\nEnd Function\n")
+	blitzcc(-c "${WORK}/bare.bb")
+	expect_err("bare.bb:10:2: warning: Return has no value, but the function returns Int. [-Wreturn-missing-value]")
+	expect_err("notice: Return a value, such as 'Return 0'.")
+	expect_err("Return has no value, but the function returns String. [-Wreturn-missing-value]")
+	expect_err("notice: Return a value, such as 'Return \"\"'.")
+	expect_err("Return has no value, but the function returns Float. [-Wreturn-missing-value]")
+	expect_err("notice: Return a value, such as 'Return 0.0'.")
+	expect_no_err("bare.bb:7:")
+	blitzcc(-c -Wno-return-missing-value "${WORK}/bare.bb")
+	expect_no_err("[-Wreturn-missing-value]")
 
 	# A number that is written in the program and fits is fine.
 	file(WRITE "${WORK}/fits.bb" "Local b:byte = 100\nLocal f# = 1000\nPrint b + f\n")
@@ -1048,7 +1072,7 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -W0 -Werror=unreachable-code "${WORK}/w.bb")
 	expect_failed()
 	expect_err("w.bb:13:1: error: This statement can never run. [-Werror=unreachable-code]")
-	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=unused-result -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
+	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=unused-result -Wno-error=return-missing-value -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
 	expect_ok()
 	expect_err("[-Wimplicit-lossy-real-to-int]")
 

@@ -22,6 +22,7 @@ std::vector<blitz::warning_info> const& blitz::all_warnings()
 		{ "implicit-string-to-number", 1, false, "A String is turned into a number, which is 0 if it isn't one." },
 		{ "implicit-lossy-int-to-real", 2, false, "An integer is turned into a real number that can't hold all of its values." },
 		{ "implicit-variable", 2, false, "A variable that was never declared is used and becomes a local one." },
+		{ "return-missing-value", 2, false, "Return has no value in a function that was declared with a type." },
 		{ "return-type-mismatch", 2, false, "Return gives back a value of another type than the function was declared with." },
 		{ "unused-result", 2, false, "The result of a function is thrown away." },
 		{ "implicit-number-to-string", 3, false, "A number is turned into a String." },
