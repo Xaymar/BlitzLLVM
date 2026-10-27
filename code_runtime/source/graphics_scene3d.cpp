@@ -1077,6 +1077,9 @@ namespace bb::gfx {
 				static const int blend_codes[6] = { 5, 1, 0, 2, 3, 4 };
 				int              texture_blend  = texture->blend;
 				push.mask[3] += 2.0f * float(blend_codes[(texture_blend < 0 || texture_blend > 5) ? 2 : texture_blend]);
+				if (!(texture->flags & (TEXTURE_ALPHA | TEXTURE_MASKED))) {
+					push.mask[3] += 16.0f; // No alpha channel: the alpha is 1.
+				}
 			}
 
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;

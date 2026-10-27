@@ -707,8 +707,12 @@ def fragment_shader_masked(mask_offset, fog=False):
     if fog:
         # In 3D the fourth value also says what the first texture does with the color: it is the cut-out flag plus twice the
         # blend, which is 0 for multiply (the usual), 1 for alpha, 2 add, 3 dot3, 4 twice multiply and 5 for no texture at all.
+        # Textures that have no alpha channel have an alpha of 1, whatever a program drew into them: that is 16 more.
+        no_alpha = b.ext(f, GLSL_STEP, b.const_float(15.5), mask_w)
+        mask_w = b.fsub(f, mask_w, b.fmul(f, no_alpha, b.const_float(16.0)))
         blend_code = b.ext(f, GLSL_FLOOR, b.fmul(f, mask_w, b.const_float(0.5)))
         mask_w = b.fsub(f, mask_w, b.fmul(f, blend_code, b.const_float(2.0)))
+        t = b.construct(4, b.extract(t, 0), b.extract(t, 1), b.extract(t, 2), b.ext(f, GLSL_FMAX, b.extract(t, 3), no_alpha))
     same = b.fmul(f, b.ext(f, GLSL_STEP, biggest, epsilon), mask_w)
     alpha = b.fmul(f, b.extract(t, 3), b.fsub(f, c1, same))
     visible = b.construct(4, b.extract(t, 0), b.extract(t, 1), b.extract(t, 2), alpha)
