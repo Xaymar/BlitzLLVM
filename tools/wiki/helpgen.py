@@ -10,7 +10,7 @@ The layout is that of the help of Blitz3D, so tools and habits that open <instal
   commands/index.htm                 Frameset: command_list.htm on the left, main.htm on the right.
   commands/command_list*.htm         The menu: 2D and 3D by category (command_list_<2d|3d>_cat_<n>.htm) and A-Z
                                      (command_list_<2d|3d>_a-z_<letter>.htm).
-  commands/2d_commands/<Name>.htm    One page per command. 2d_commands holds BlitzBasic and BlitzPlus, 3d_commands Blitz3D.
+  commands/2d_commands/<Name>.htm    One page per command. 2d_commands holds Language Features, BlitzBasic and BlitzPlus, 3d_commands Blitz3D.
   commands/2d_examples/<Name>.bb     The first example of each command, as the original links it from the page.
   commands/css/                      commands.css (pages) and menu.css (menu).
   language/index.html                Frameset with title.html, navbar.html and the page on the right.
@@ -59,7 +59,7 @@ def side(c):
 
 
 def category_order(side_name):
-    wanted = (categories.B3D,) if side_name == "3d" else (categories.BASIC, categories.PLUS)
+    wanted = (categories.B3D,) if side_name == "3d" else (categories.LANG, categories.BASIC, categories.PLUS)
     return [k for k in categories.CATEGORY_TEXT if k[0] in wanted]
 
 
