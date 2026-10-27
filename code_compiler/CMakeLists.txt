@@ -188,6 +188,11 @@ foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compi
 	set_tests_properties("cli-${_CASE}" PROPERTIES LABELS "cli")
 endforeach()
 
+# The library that blitz-format and blitz-tidy share: Tokens that join back to the source (of every program in tests/), keywords,
+# configuration files, edits and diffs.
+add_test(NAME tools-library COMMAND tools_test "${TEST_DIRECTORY}")
+set_tests_properties(tools-library PROPERTIES LABELS "tools")
+
 add_test(
 	NAME "lex-test"
 	COMMAND ${PROJECT_NAME} --dump-tokens "${TEST_DIRECTORY}/test.bb"
