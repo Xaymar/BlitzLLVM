@@ -98,6 +98,17 @@ EntityTexture sprite, solid
 RenderWorld
 CheckS "A texture without alpha has the square", "" + TrisRendered(), "2"
 
+; A sprite that covers few pixels keeps the square, which fills a block of the GPU with fewer triangles (and has no halo cut off).
+puff4 = MakePuff()
+EntityTexture sprite, puff4
+ScaleSprite sprite, 0.05, 0.05
+RenderWorld
+CheckS "A tiny sprite has the square", "" + TrisRendered(), "2"
+ScaleSprite sprite, 0.5, 0.5
+RenderWorld
+CheckS "A sprite of some size has the octagon", "" + TrisRendered(), "6"
+ScaleSprite sprite, 1.4, 1.4
+
 ; A texture from a file gets its hull when it is loaded, on the loader thread too.
 loaded = LoadTexture("images/sprite_hull_puff.png", 3)
 EntityTexture sprite, loaded
