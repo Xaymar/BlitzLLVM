@@ -15,7 +15,7 @@ namespace blitz::tools {
 	 */
 	std::string read_stdin();
 
-	/** Every source file beneath the directory, sorted by path: The files that end in .bb, .b3d or .bp (not case sensitive).
+	/** Every source file beneath the directory, sorted by path: The files that end in .bb (not case sensitive; .b3d is a model format as well).
 	 * Links are not followed, to directories or to files. Throws std::runtime_error if the directory can't be read.
 	 */
 	std::vector<std::filesystem::path> find_sources(std::filesystem::path const& directory);

@@ -100,7 +100,8 @@ std::vector<std::filesystem::path> blitz::tools::find_sources(std::filesystem::p
 		for (auto& c : extension) {
 			c = (c >= 'A' && c <= 'Z') ? char(c - 'A' + 'a') : c;
 		}
-		if ((extension == ".bb") || (extension == ".b3d") || (extension == ".bp")) {
+		// Only .bb: .b3d is a model format as well, and .bp is not source code either.
+		if (extension == ".bb") {
 			found.push_back(it->path());
 		}
 	}
