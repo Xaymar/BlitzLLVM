@@ -22,6 +22,7 @@ Differences that are not caused by one command.
 * [Displays](Displays): Extension: commands for every connected display and its modes.
 * [DPI scaling on Windows](DPI-Scaling): Programs on Windows are DPI aware: Windows does not scale their windows, so one pixel of the program is one pixel of the screen at any scaling.
 * [Fullscreen](Fullscreen): Fullscreen (mode 1 of `Graphics` and `Graphics3D`) is a borderless window over the main display that keeps the aspect ratio of the picture, instead of changing the video mode of the display.
+* [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
 * [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains; there is no anisotropic filtering.
 * [Movie controls](Movie-Controls): Extension: movies can be paused, and the commands for that build on the original movie commands.
 * [Multiplayer](Multiplayer): Multiplayer uses TCP on port 40500 instead of DirectPlay, so games only play with other BlitzLLVM games.
