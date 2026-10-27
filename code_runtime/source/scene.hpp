@@ -256,6 +256,7 @@ namespace bb {
 		bool  cam_clear_color = true, cam_clear_depth = true;
 		int   cam_viewport[4] = { 0, 0, -1, -1 }; // Width and height of -1 use the whole buffer.
 		int   cam_projection = 1; // 0 = disabled, 1 = perspective, 2 = orthographic
+		int   cam_cull_flags = 1; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU.
 		int   fog_mode = 0;       // 0 = off, 1 = linear
 		float fog_near = 1, fog_far = 1000;
 		float fog_color[3] = { 0, 0, 0 };

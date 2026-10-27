@@ -1809,9 +1809,14 @@ namespace bb::gfx {
 		}
 	}
 
+	// What a camera culls by: the settings of CameraCulling.
+	struct culling_choice {
+		int flags = 1; // 1 = frustum culling, 2 = culling on the GPU.
+	};
+
 	// Draws the world for a camera that is at cam_world and looks through view. The pictures that mirrors make are
 	// drawn first and keep to the depth of each other, with the triangles the other way around as the image is reversed.
-	static void render_pass(bb::entity& cam, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
+	static void render_pass(bb::entity& cam, culling_choice const& culling, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
 	{
 		if (scenes.size >= max_scenes) {
 			flush();
@@ -1877,14 +1882,14 @@ namespace bb::gfx {
 		float planes[6][4];
 		view_planes(data.viewprojection, planes);
 		memcpy(current_planes, planes, sizeof(current_planes));
-		have_planes = true;
+		have_planes = (culling.flags & 1) != 0;
 		float camera_norm = 0;
 		for (int i = 0; i < 12; i++) {
 			if ((i & 3) != 3) {
 				camera_norm += current_camera[i] * current_camera[i];
 			}
 		}
-		mesh_collector collector = { &list, view, current_origin, &planes[0][0], fmaxf(1.0f, sqrtf(camera_norm)) };
+		mesh_collector collector = { &list, view, current_origin, have_planes ? &planes[0][0] : nullptr, fmaxf(1.0f, sqrtf(camera_norm)) };
 		{
 			bb::profile_scope timer(bb::PROFILE_COLLECT);
 			bb::for_each_visible(bb::MESH, collect_mesh, &collector);
@@ -1959,6 +1964,8 @@ namespace bb::gfx {
 		float world[16], view[16];
 		bb::world_matrix(handle, world);
 		bb::mat_affine_inverse(world, view);
+		culling_choice culling;
+		culling.flags = cam.cam_cull_flags;
 
 		// The camera is cleared once, before anything is drawn.
 		bool clear_color = cam.cam_clear_color, clear_depth = cam.cam_clear_depth;
@@ -1973,10 +1980,10 @@ namespace bb::gfx {
 			bb::mat_multiply(reflect, steps, inverse);
 			bb::mat_multiply(mirrored, reflect, world);
 			bb::mat_affine_inverse(mirrored, mirrored_view);
-			render_pass(cam, data, mirrored, mirrored_view, true, clear_color, clear_depth, vx, vy, vw, vh, target);
+			render_pass(cam, culling, data, mirrored, mirrored_view, true, clear_color, clear_depth, vx, vy, vw, vh, target);
 			clear_color = clear_depth = false;
 		}
-		render_pass(cam, data, world, view, false, clear_color, clear_depth, vx, vy, vw, vh, target);
+		render_pass(cam, culling, data, world, view, false, clear_color, clear_depth, vx, vy, vw, vh, target);
 	}
 
 	static void collect_camera(int handle, bb::entity&, void* user)

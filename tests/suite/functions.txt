@@ -63,6 +63,7 @@ camerafogmode	blitz3d	done	CameraFogMode%camera%mode
 camerafogrange	blitz3d	done	CameraFogRange%camera#near#far
 camerapick	blitz3d	done	%CameraPick%camera#viewport_x#viewport_y
 cameraproject	blitz3d	done	CameraProject%camera#x#y#z
+cameraculling	blitz3d	done	CameraCulling%camera%flags
 cameraprojmode	blitz3d	done	CameraProjMode%camera%mode
 camerarange	blitz3d	done	CameraRange%camera#near#far
 cameraviewport	blitz3d	done	CameraViewport%camera%x%y%width%height
