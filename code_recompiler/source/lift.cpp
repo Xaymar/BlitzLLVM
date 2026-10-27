@@ -257,10 +257,10 @@ namespace blitz::recompiler {
 		// ---------------------------------------------------------------------------------------------------------------------
 		class unit {
 		public:
-			unit(module const& m, lift_options const& opt) : m(m), opt(opt) {}
+			unit(blitz_module const& m, lift_options const& opt) : m(m), opt(opt) {}
 			lift_result run();
 
-			module const&       m;
+			blitz_module const&       m;
 			lift_options const& opt;
 
 			std::unordered_map<uint32_t, symbol const*> rel_at, abs_at;
@@ -363,7 +363,7 @@ namespace blitz::recompiler {
 						auto it = rel_at.find(uint32_t(i.a.pos));
 						if (it != rel_at.end()) {
 							auto d = m.defined.find(it->second->name);
-							if (d != m.defined.end() && module::kind(it->second->name) != symbol_kind::function && module::kind(it->second->name) != symbol_kind::section) {
+							if (d != m.defined.end() && blitz_module::kind(it->second->name) != symbol_kind::function && blitz_module::kind(it->second->name) != symbol_kind::section) {
 								// Gosub: the subroutine is part of this function.
 								uint32_t target = uint32_t(int64_t(d->second) + i.a.value + 4);
 								f.subroutines.insert(target);
@@ -1744,7 +1744,7 @@ namespace blitz::recompiler {
 				}
 			}
 			for (auto const& l : m.labels) {
-				auto k = module::kind(l.name);
+				auto k = blitz_module::kind(l.name);
 				bool slot = slots.count(l.name) > 0;
 				if ((k == symbol_kind::function && !slot) || l.name == "__MAIN") {
 					function& f = functions[l.name];
@@ -1895,7 +1895,7 @@ namespace blitz::recompiler {
 		}
 	} // namespace
 
-	lift_result lift(module const& program, lift_options const& options)
+	lift_result lift(blitz_module const& program, lift_options const& options)
 	{
 		unit u(program, options);
 		try {

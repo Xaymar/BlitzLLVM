@@ -41,7 +41,7 @@ namespace blitz::recompiler {
 		std::string params; // One of i, f, s for each parameter
 	};
 
-	struct module {
+	struct blitz_module {
 		std::vector<uint8_t>             code;
 		std::vector<symbol>              labels;
 		std::vector<symbol>              relative; // Names the program uses with a distance (calls and jumps)
@@ -53,11 +53,11 @@ namespace blitz::recompiler {
 	};
 
 	/** Finds the program in an executable (the file, as bytes). Throws not_blitz if there is none. */
-	module load_module(std::vector<uint8_t> const& executable);
+	blitz_module load_module(std::vector<uint8_t> const& executable);
 
 	/** Reads the declaration of a command ("#EntityX%entity%global=0"), if the text is one. */
 	bool parse_declaration(std::string const& text, declaration& out);
 
 	/** The same for the resource alone. */
-	module parse_module(uint8_t const* data, size_t size);
+	blitz_module parse_module(uint8_t const* data, size_t size);
 } // namespace blitz::recompiler
