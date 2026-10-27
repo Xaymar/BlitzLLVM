@@ -323,7 +323,7 @@
 <li><a href="WaitMouse">WaitMouse</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Movies">Movies</a> (10)</summary>
+<li><details><summary><a href="BlitzBasic-Movies">Movies</a> (11)</summary>
 <ul>
 <li><a href="CloseMovie">CloseMovie</a></li>
 <li><a href="DrawMovie">DrawMovie</a></li>
@@ -335,6 +335,7 @@
 <li><a href="OpenMovie">OpenMovie</a></li>
 <li><a href="PauseMovie">PauseMovie</a> 〔BlitzLLVM〕</li>
 <li><a href="PlayMovie">PlayMovie</a> 〔BlitzLLVM〕</li>
+<li><a href="SeekMovie">SeekMovie</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
 <li><details><summary><a href="BlitzBasic-Multiplayer">Multiplayer</a> (14)</summary>

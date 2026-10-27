@@ -76,4 +76,24 @@ For i = 0 To 2
 	CloseMovie movie
 Next
 
+; SeekMovie shows the picture of the position it was given, not the pictures before it.
+Dim seeks#(2)
+seeks(0) = 2.0 : seeks(1) = 1.0 : seeks(2) = 0.2
+For i = 0 To 2
+	movie = OpenMovie(files(i))
+	For j = 0 To 2
+		SeekMovie movie, seeks(j)
+		PauseMovie movie
+		Delay 50
+		Color 40, 40, 40
+		Cls
+		DrawMovie movie, 0, 0
+		If j = 0 Then Near files(i) + " seeked to blue", 32, 24, 0, 0, 255
+		If j = 1 Then Near files(i) + " seeked to green", 32, 24, 0, 255, 0
+		If j = 2 Then Near files(i) + " seeked to red", 32, 24, 255, 0, 0
+		PlayMovie movie
+	Next
+	CloseMovie movie
+Next
+
 Print "graphics_movies_pixels: " + suite_checks + " checks passed."

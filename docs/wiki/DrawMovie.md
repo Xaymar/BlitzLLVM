@@ -49,9 +49,9 @@ CloseMovie m
 * [MovieHeight](MovieHeight)
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
-* [MoviePosition](MoviePosition) 〔BlitzLLVM〕
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕
+* [SeekMovie](SeekMovie) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)

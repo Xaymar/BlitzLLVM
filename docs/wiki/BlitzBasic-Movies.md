@@ -19,3 +19,4 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕
+* [SeekMovie](SeekMovie) 〔BlitzLLVM〕

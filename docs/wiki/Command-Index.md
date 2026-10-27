@@ -651,6 +651,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [ScanLine](ScanLine)
 * [SeedRnd](SeedRnd)
 * [SeekFile](SeekFile)
+* [SeekMovie](SeekMovie) 〔BlitzLLVM〕
 * [SelectedGadgetItem](SelectedGadgetItem)
 * [SelectedTreeViewNode](SelectedTreeViewNode)
 * [SelectGadgetItem](SelectGadgetItem)

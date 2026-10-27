@@ -40,8 +40,8 @@ namespace {
 	X(swscale, sws_getCachedContext) X(swscale, sws_scale) X(swscale, sws_freeContext)                                                                          \
 	X(avcodec, avcodec_find_decoder) X(avcodec, avcodec_alloc_context3) X(avcodec, avcodec_free_context) X(avcodec, avcodec_parameters_to_context)             \
 	X(avcodec, avcodec_open2) X(avcodec, avcodec_send_packet) X(avcodec, avcodec_receive_frame) X(avcodec, av_packet_alloc) X(avcodec, av_packet_free)         \
-	X(avcodec, av_packet_unref)                                                                                                                                 \
-	X(avformat, avformat_open_input) X(avformat, avformat_close_input) X(avformat, avformat_find_stream_info) X(avformat, av_read_frame)
+	X(avcodec, av_packet_unref) X(avcodec, avcodec_flush_buffers)                                                                                                                                 \
+	X(avformat, avformat_open_input) X(avformat, avformat_close_input) X(avformat, avformat_find_stream_info) X(avformat, av_read_frame) X(avformat, av_seek_frame)
 
 	struct ffmpeg {
 #define X(library, name) decltype(&::name) name = nullptr;
@@ -144,6 +144,8 @@ namespace {
 		int            width = 0, height = 0;
 		double         frame_time = 0.04; // How long a picture lasts, for ones that don't say.
 		double         last_time = -1.0, end_time = 0.0;
+		bool           origin_set = false; // Whether `origin` is the time of the first picture yet.
+		double         floor = 0.0;        // After a seek, the position that the pictures and the sound before it are not kept for.
 		double         origin = 0.0; // When the file starts, which some formats put a while in (MPEG programs start at 0.5 s).
 
 		int             audio_index = -1;
@@ -229,6 +231,12 @@ namespace {
 		if (!m.stream || !m.resampler) {
 			return;
 		}
+		if ((m.floor > 0.0) && (frame->best_effort_timestamp != AV_NOPTS_VALUE) && (frame->sample_rate > 0)) {
+			double end = double(frame->best_effort_timestamp) * m.audio_base - m.origin + double(frame->nb_samples) / double(frame->sample_rate);
+			if (end <= m.floor) {
+				return;
+			}
+		}
 		int      capacity = ff.swr_get_out_samples(m.resampler, frame->nb_samples) + 256;
 		m.samples.resize(size_t(capacity) * 4);
 		uint8_t* out    = m.samples.data();
@@ -243,7 +251,8 @@ namespace {
 	{
 		double time = (frame->best_effort_timestamp == AV_NOPTS_VALUE) ? (m.last_time + m.frame_time) : double(frame->best_effort_timestamp) * m.video_base - m.origin;
 		// The first picture is there from the start.
-		if (m.last_time < 0.0) {
+		if (!m.origin_set) {
+			m.origin_set = true;
 			m.origin += time;
 			time = 0.0;
 		}
@@ -262,6 +271,12 @@ namespace {
 		uint8_t* planes[4]  = { p.rgba.data(), nullptr, nullptr, nullptr };
 		int      strides[4] = { m.width * 4, 0, 0, 0 };
 		ff.sws_scale(m.scaler, frame->data, frame->linesize, 0, frame->height, planes, strides);
+		// A picture from before a seek is only there to be shown, as the newest picture whose time has come.
+		if (time < m.floor) {
+			m.current = std::move(p.rgba);
+			m.changed = true;
+			return;
+		}
 		m.pictures.push_back(std::move(p));
 	}
 
@@ -337,6 +352,50 @@ namespace {
 	double queued_seconds(movie& m)
 	{
 		return m.stream ? double(SDL_GetAudioStreamQueued(m.stream)) / double(audio_rate * 4) : 0.0;
+	}
+
+	// Puts the movie at a position in seconds. The decoders start from the picture before it that stands on its own, so what they decode
+	// up to the position is thrown away, except for the last picture that is shown.
+	void seek(movie& m, double seconds)
+	{
+		// The time of the first picture is not known before it was decoded, which positions are counted from.
+		while (!m.origin_set && !m.ended_input) {
+			read_packet(m);
+		}
+		if (seconds < 0.0) {
+			seconds = 0.0;
+		}
+		m.floor = seconds;
+		m.base  = seconds;
+
+		// Up to the first picture that is at the position or after it. Some files (MPEG programs) put the pictures that stand on their own so
+		// far apart that the seek lands after the position, and those are decoded from their start instead.
+		for (int attempt = 0; attempt < 2; attempt++) {
+			double from = (attempt == 0) ? seconds : 0.0;
+			ff.av_seek_frame(m.format, -1, int64_t((from + m.origin) * double(AV_TIME_BASE)), AVSEEK_FLAG_BACKWARD);
+			ff.avcodec_flush_buffers(m.video);
+			if (m.audio) {
+				ff.avcodec_flush_buffers(m.audio);
+			}
+			if (m.resampler) {
+				ff.swr_init(m.resampler);
+			}
+			if (m.stream) {
+				SDL_ClearAudioStream(m.stream);
+			}
+			m.pictures.clear();
+			m.ended_input = false;
+			m.last_time   = -1.0;
+			m.end_time    = 0.0;
+			while (m.pictures.empty() && !m.ended_input) {
+				read_packet(m);
+			}
+			if ((seconds <= 0.0) || m.pictures.empty() || (m.pictures.front().time <= seconds + m.frame_time * 1.5)) {
+				break;
+			}
+		}
+		m.finished = false;
+		m.resumed  = SDL_GetTicksNS();
 	}
 
 	void update(movie& m)
@@ -425,6 +484,7 @@ int32_t bb_open_movie(const char* file)
 
 	// The sound is optional: without a device or a decoder the movie plays without it.
 	if ((m.audio_index >= 0) && open_decoder(m.format, m.audio_index, m.audio)) {
+		m.audio_base = double(m.format->streams[m.audio_index]->time_base.num) / double(m.format->streams[m.audio_index]->time_base.den);
 		AVChannelLayout stereo;
 		ff.av_channel_layout_default(&stereo, 2);
 		if ((ff.swr_alloc_set_opts2(&m.resampler, &stereo, AV_SAMPLE_FMT_S16, audio_rate, &m.audio->ch_layout, m.audio->sample_fmt, m.audio->sample_rate, 0, nullptr) < 0) || (ff.swr_init(m.resampler) < 0)) {
@@ -513,6 +573,18 @@ float bb_movie_position(int32_t handle)
 		position = m->end_time;
 	}
 	return float(position);
+}
+
+void bb_seek_movie(int32_t handle, float seconds)
+{
+	if (movie* m = movie_of(handle)) {
+		seek(*m, double(seconds));
+		m->started = true;
+		if (!m->paused) {
+			start_clock(*m);
+		}
+		update(*m);
+	}
 }
 
 void bb_play_movie(int32_t handle)
