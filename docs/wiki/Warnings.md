@@ -10,11 +10,11 @@
 ```
 program.bb:1:12: warning: Implicit conversion from real to integer, the fractional part is lost. [-Wimplicit-lossy-real-to-int]
 Local i% = 2.5
-           ^-- HERE
+           ^^^ HERE
 help: Use Int(value) to convert on purpose.
 ```
 
-The dashes under the line reach to the end of the part of the code the message is about, or to the end of the line when that part is not known. A *notice* is a warning that is only a hint, such as a variable that is never used. It looks the same but says `notice:` instead of `warning:`.
+The carets under the line cover the part of the code the message is about (a single one when it is a point), and the dashes after them reach to the end of the line. A *notice* is a warning that is only a hint, such as a variable that is never used. It looks the same but says `notice:` instead of `warning:`.
 
 Warnings never stop the compilation, unless they are turned into errors with `-Werror`. Errors (a program that can not be compiled) always stop it, and are printed as `file:line:column: error: ...` with the same source line display.
 
