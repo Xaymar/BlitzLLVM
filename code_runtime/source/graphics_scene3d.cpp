@@ -1664,6 +1664,13 @@ void bb_render_world(float tween)
 		bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
 		bb::for_each_visible(bb::PIVOT, collect_mirror, &mirrors);
 	}
+	// The cameras draw from the highest EntityOrder to the lowest, so the one with the lowest is drawn last and on top. Cameras that
+	// have the same order keep the order they were made in.
+	std::stable_sort(cameras.handles.data, cameras.handles.data + cameras.handles.size, [](int a, int b) {
+		bb::entity* ea = bb::get_entity(a);
+		bb::entity* eb = bb::get_entity(b);
+		return (ea ? ea->order : 0) > (eb ? eb->order : 0);
+	});
 	for (uint32_t i = 0; i < cameras.handles.size; i++) {
 		bb::entity* cam = bb::get_entity(cameras.handles[i]);
 		if (cam) {
