@@ -370,11 +370,24 @@ int32_t bb_play_sound(int32_t handle)
 	return bb_play(handle, 0, "PlaySound");
 }
 
-// Music is a sound that is played once. It can be any file that sounds can be loaded from, MIDI is not supported.
-int32_t bb_play_music(const char* path)
+void bb_pause_channel(int32_t handle);
+
+// Music is a sound that is played once, or looped when bit 0 of the flags is set. Bit 1 starts it paused. It can be any file that sounds can
+// be loaded from, MIDI is not supported.
+int32_t bb_play_music(const char* path, int32_t flags)
 {
 	int32_t sound = bb_load(path, 0);
-	return sound ? bb_play(sound, 0, "PlayMusic") : 0;
+	if (!sound) {
+		return 0;
+	}
+	if (flags & 1) {
+		bb_loop_sound(sound);
+	}
+	int32_t channel = bb_play(sound, 0, "PlayMusic");
+	if (channel && (flags & 2)) {
+		bb_pause_channel(channel);
+	}
+	return channel;
 }
 
 // There is no CD to play from, which the original reports with no channel.

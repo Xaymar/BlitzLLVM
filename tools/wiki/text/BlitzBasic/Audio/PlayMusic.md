@@ -12,7 +12,7 @@ While ChannelPlaying(ch) And Not KeyHit(1)
 Wend
 StopChannel ch
 ```
-@param file  The path of the music file.
+@param file   The path of the music file.
+@param flags  BlitzPlus only: 1 loops the music, 2 starts it paused, 3 does both. Optional, 0 plays the music once.
 @returns The channel the music plays on, or 0 if the file could not be played.
 @gap MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA. WAV, MP3, OGG and FLAC work.
-@gap The German help lists a second parameter that picks looping. It is not part of the official command and not accepted here.

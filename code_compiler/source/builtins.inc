@@ -620,7 +620,7 @@
 		{ "soundvolume", "bb_sound_volume", 'v', "if", 2, {}, false },
 		{ "soundpan", "bb_sound_pan", 'v', "if", 2, {}, false },
 		{ "soundpitch", "bb_sound_pitch", 'v', "ii", 2, {}, false },
-		{ "playmusic", "bb_play_music", 'i', "s", 1, {}, false },
+		{ "playmusic", "bb_play_music", 'i', "si", 1, { 0, 0 }, false },
 		{ "playcdtrack", "bb_play_cd_track", 'i', "ii", 1, { 0, 1 }, false },
 		{ "playsound", "bb_play_sound", 'i', "i", 1, {}, false },
 		{ "emitsound", "bb_emit_sound", 'i', "ii", 2, {}, false },
