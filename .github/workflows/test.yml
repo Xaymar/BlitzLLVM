@@ -7,6 +7,13 @@ name: Test
 # The check that shows up on a pull request is named after the job: "Test (Linux)". Make that one required in the branch
 # protection rule or ruleset of root to block merging while the tests fail (see Building in the wiki). This workflow has
 # no 'paths' filter on purpose: a required check that is skipped for a pull request stays "pending" and blocks it forever.
+# Instead the 'changes' job always runs and decides what the commit touched, and "Test (Linux)" always runs and reports
+# success without doing anything when nothing that the tests depend on changed:
+#   - the compiler, the runtime, the dependencies, the build files or this workflow changed: build and run everything.
+#   - only the tests changed (tests/, tools/suite_*.py): restore the build of the same compiler and runtime from the cache,
+#     and only configure (to find the tests) and run ctest.
+#   - nothing else matters (documentation, the wiki, README): succeed.
+# A manual run always builds and tests everything.
 
 on:
   pull_request:
@@ -23,31 +30,87 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.detect.outputs.build }}
+      tests: ${{ steps.detect.outputs.tests }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # A pull request is checked out as the merge with its base: the first parent is the base, so the diff of the two is
+          # what the pull request changes. A push only needs the commit it stopped at, which is fetched below.
+          fetch-depth: 2
+      - name: Detect what changed
+        id: detect
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # Anything that can change the compiler, the runtime or what is installed from them. The tests are not part of this.
+          BUILD='^(code_compiler|code_runtime|cmake|third_party)/|^(CMakeLists\.txt|CMakePresets\.json|\.gitmodules|LICENSE\.adoc|\.github/workflows/test\.yml)$'
+          TESTS='^tests/|^tools/suite_(functions|signatures)\.py$'
+
+          case "$EVENT" in
+            pull_request) BASE=HEAD^1 ;;
+            push)
+              BASE="$BEFORE"
+              # A new branch or a forced update may point at a commit this clone does not have. Run everything then.
+              if ! git fetch --no-tags --depth=1 origin "$BEFORE" 2>/dev/null; then BASE=; fi ;;
+            *) BASE= ;;
+          esac
+
+          if [ -z "$BASE" ]; then
+            echo "No base to compare with, assuming everything changed."
+            FILES=$'code_compiler/\ntests/'
+          else
+            FILES="$(git diff --name-only "$BASE" HEAD)"
+          fi
+          echo "Changed files:"; echo "$FILES"
+
+          echo "build=$(grep -Eq "$BUILD" <<< "$FILES" && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "tests=$(grep -Eq "$TESTS" <<< "$FILES" && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
   linux:
     name: Test (Linux)
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
+      # Whether anything the tests depend on changed. If not, every step below is skipped and the job succeeds.
+      RUN: ${{ needs.changes.outputs.build == 'true' || needs.changes.outputs.tests == 'true' }}
       # SDL wants a runtime directory, and complains on stderr without one, which the close prompt test would read as output.
       XDG_RUNTIME_DIR: /tmp/xdg
     steps:
       - uses: actions/checkout@v4
       - name: Check out the submodules
+        if: env.RUN == 'true'
         # The same ones the build needs, and shallow. extra/ holds reference sources only.
         run: git submodule update --init --depth 1 --jobs 8 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer third_party/stb
       - name: Hash the dependency submodules
+        if: env.RUN == 'true'
         id: dependencies
         run: echo "hash=$(git ls-tree HEAD third_party/ | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Hash everything the build is made from
+        if: env.RUN == 'true'
+        id: sources
+        # The blobs (and for submodules the commits) of what the compiler and the runtime are built from, which is the same list
+        # as BUILD in the 'changes' job. The tests are not in it, so changing them keeps the key, and with it the cached build.
+        run: echo "hash=$(git ls-tree -r HEAD code_compiler code_runtime cmake third_party CMakeLists.txt CMakePresets.json .gitmodules LICENSE.adoc .github/workflows/test.yml | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - name: Install CMake
+        if: env.RUN == 'true'
         # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
         # is always the latest one, as with the setup-cmake action it replaces, which downloaded and unpacked CMake each time.
         shell: bash
         run: pipx install cmake && cmake --version
       - name: Date the package cache
+        if: env.RUN == 'true'
         id: month
         # Ubuntu publishes updates to these packages, so the cache is replaced every month and never serves old ones for long.
         run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
       - name: Install dependencies
+        if: env.RUN == 'true'
         uses: awalsh128/cache-apt-pkgs-action@v1.4.3
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
@@ -55,10 +118,23 @@ jobs:
           packages: ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils
           version: 1-${{ steps.month.outputs.month }}
       - name: Create the runtime directory
+        if: env.RUN == 'true'
         run: mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+      # The whole build directory. Its key is made of what the build is made from, and there is no restore key on purpose: a
+      # partial match would be restored with new modification times on the sources and be compiled again anyway. An exact match
+      # is complete, and then neither the dependencies nor the build are needed. It is saved after a run that passed, by the
+      # post step of this action. Pull requests read what root saved.
+      - name: Cache the build
+        if: env.RUN == 'true'
+        id: build
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: test-build-linux-x64-${{ steps.sources.outputs.hash }}
       # The same cache as the Linux build in pull-request.yml and nightly.yml, with the same key, so the dependencies are
       # restored from what the nightly builds of root saved and are not compiled again.
       - name: Cache dependencies
+        if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
         uses: actions/cache@v4
         with:
           path: build/ExternalContentFiles
@@ -66,10 +142,14 @@ jobs:
           restore-keys: |
             submodule-dependencies-linux-x64-
       - name: Configure
+        # Also with a cached build: the tests are registered when configuring, and the tests may be new.
+        if: env.RUN == 'true'
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON -DBLITZLLVM_REQUIRE_NASM=ON
       - name: Build
+        if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
         run: cmake --build build
       - name: Create tests/checker.png
+        if: env.RUN == 'true'
         # Some of the suite loads this 64 by 64 picture. It is not in the repository (tests/.gitignore ignores pictures).
         run: |
           python3 - <<'EOF'
@@ -83,6 +163,7 @@ jobs:
           open("tests/checker.png", "wb").write(png)
           EOF
       - name: Run all tests
+        if: env.RUN == 'true'
         working-directory: build/code_compiler
         # -j: the GPU tests are small. The ones that move the focus of a window are RUN_SERIAL. A test that skips itself (77)
         # is reported as skipped and does not fail the run.
@@ -98,3 +179,6 @@ jobs:
             build/code_compiler/cli
             build/code_compiler/audio
           if-no-files-found: ignore
+      - name: Nothing to test
+        if: env.RUN != 'true'
+        run: echo "Neither the compiler, the runtime, the dependencies, the build files nor the tests changed, so there is nothing new to test."

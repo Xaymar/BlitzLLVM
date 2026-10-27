@@ -3,6 +3,18 @@ name: Nightly
 on:
   push:
     branches: [root]
+    paths:
+      # Only what changes the binaries. Documentation, the wiki, the tests and the tools do not.
+      - 'code_compiler/**'
+      - 'code_runtime/**'
+      - 'cmake/**'
+      - 'third_party/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - '.gitmodules'
+      - 'LICENSE.adoc'
+      - '.github/scripts/check-licenses.sh'
+      - '.github/workflows/nightly.yml'
 
 concurrency:
   group: nightly

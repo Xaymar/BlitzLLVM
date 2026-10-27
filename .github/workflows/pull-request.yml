@@ -1,12 +1,25 @@
 name: Pull Request
 
-# Builds every pull request to verify that it compiles. The pull request comment is created by pull-request-pending.yml and
+# Builds every pull request that changes the binaries to verify that it compiles (see paths below; a pull request that only
+# changes documentation or tests gets no build, and no comment). The pull request comment is created by pull-request-pending.yml and
 # filled with the results by pull-request-comment.yml, because
 # pull requests from forks only get a read-only token here and can not comment themselves.
 
 on:
   pull_request:
     branches: [root]
+    paths:
+      # Only what changes the binaries. Documentation, the wiki, the tests and the tools do not.
+      - 'code_compiler/**'
+      - 'code_runtime/**'
+      - 'cmake/**'
+      - 'third_party/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - '.gitmodules'
+      - 'LICENSE.adoc'
+      - '.github/scripts/check-licenses.sh'
+      - '.github/workflows/pull-request.yml'
 
 concurrency:
   group: pull-request-${{ github.event.pull_request.number }}
