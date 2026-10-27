@@ -13,6 +13,7 @@
 // Loading models: the .b3d files of Blitz3D (and the .3ds files of 3D Studio, see model_3ds.cpp) are read into a tree of nodes, which become entities, meshes and an animation.
 
 #include "model_internal.hpp"
+#include "load_pool.hpp"
 #include "path.h"
 
 using namespace bb;
@@ -162,7 +163,8 @@ namespace {
 		}
 	}
 
-	bool read_model(const char* path, model& m)
+	// The bytes of a file, which the caller frees. False if there is no such file.
+	bool read_file_bytes(const char* path, uint8_t*& data, size_t& got)
 	{
 		FILE* file = fopen(bb_native_path(path), "rb");
 		if (!file) {
@@ -175,10 +177,22 @@ namespace {
 			fclose(file);
 			return false; // Not something that has a size, like a folder.
 		}
-		uint8_t* data = static_cast<uint8_t*>(malloc(size_t(length) + 1));
-		size_t   got  = fread(data, 1, size_t(length), file);
+		data = static_cast<uint8_t*>(malloc(size_t(length) + 1));
+		got  = fread(data, 1, size_t(length), file);
 		fclose(file);
+		return true;
+	}
 
+	// Whether the bytes start like a model that is parsed on another thread: .b3d and .3ds, which are the ones that need nothing from
+	// the program's thread. Anything else (.x, and what is no model at all) is handled before LoadMesh returns.
+	bool model_recognized(const uint8_t* data, size_t got)
+	{
+		return ((got > 12) && !memcmp(data, "BB3D", 4)) || ((got > 6) && (data[0] == 0x4D) && (data[1] == 0x4D));
+	}
+
+	// Parses the bytes of a model. Only reads its input and fills m, so it can run on a loader thread.
+	bool parse_model(const char* path, const uint8_t* data, size_t got, model& m)
+	{
 		reader r = { data, got, 0, false };
 		bool   ok = false;
 		if ((got > 12) && !memcmp(data, "BB3D", 4)) {
@@ -250,7 +264,6 @@ namespace {
 			m.nodes.push(new node_info());
 			ok = true;
 		}
-		free(data);
 
 		// Textures are found next to the model.
 		const char* slash = strrchr(path, '/');
@@ -262,6 +275,18 @@ namespace {
 		m.directory       = static_cast<char*>(malloc(length_dir + 1));
 		memcpy(m.directory, path, length_dir);
 		m.directory[length_dir] = 0;
+		return ok;
+	}
+
+	bool read_model(const char* path, model& m)
+	{
+		uint8_t* data = nullptr;
+		size_t   got  = 0;
+		if (!read_file_bytes(path, data, got)) {
+			return false;
+		}
+		bool ok = parse_model(path, data, got, m);
+		free(data);
 		return ok;
 	}
 
@@ -423,7 +448,8 @@ namespace {
 	}
 
 	// The whole model as entities, with its animation.
-	int build_hierarchy(model& m, int parent)
+	// reuse is the handle of an entity that is made the top of the model, or 0 to make a new one.
+	int build_hierarchy(model& m, int parent, int reuse)
 	{
 		animation* anim = new animation();
 		anim->frames    = m.frames > 0 ? m.frames : 1;
@@ -435,7 +461,11 @@ namespace {
 		for (uint32_t i = 0; i < m.nodes.size; i++) {
 			node_info& n = *m.nodes[i];
 			int        up = n.parent >= 0 ? handles[uint32_t(n.parent)] : parent;
-			int        handle = create_entity(n.has_mesh ? MESH : (n.light ? LIGHT : PIVOT), up);
+			int        kind   = n.has_mesh ? MESH : (n.light ? LIGHT : PIVOT);
+			int        handle = i == 0 && reuse ? reuse : create_entity(kind, up);
+			if (reuse && (handle == reuse)) {
+				set_entity_kind(handle, kind);
+			}
 			handles.push(handle);
 			set_transform(*get_entity(handle), n);
 			if (n.light) {
@@ -572,9 +602,9 @@ namespace {
 	}
 
 	// The whole model as one mesh, as it looks without animation.
-	int build_static(model& m, int parent)
+	int build_static(model& m, int parent, int reuse)
 	{
-		int mesh = create_entity(MESH, parent);
+		int mesh = reuse ? reuse : create_entity(MESH, parent);
 		if (m.nodes[0]->name) {
 			bb_name_entity(mesh, m.nodes[0]->name);
 		}
@@ -602,37 +632,175 @@ namespace {
 	}
 } // namespace
 
+// A model that is parsed on a loader thread: the entity exists, with nothing in it, until the first time something asks for it.
+struct bb::model_load {
+	struct job_t : gfx::load_job {
+		uint8_t* data = nullptr;
+		size_t   size = 0;
+		char*    path = nullptr;
+		model    m;
+		void     run() override { ok = parse_model(path, data, size, m); }
+		~job_t() override
+		{
+			free(data);
+			free(path);
+			m.release();
+		}
+	};
+	job_t*      job   = nullptr; // Null once the model is built.
+	bool        anim  = false;
+	const char* what  = nullptr;
+	buffer<int> textures; // What the model loaded, for EntityReady.
+};
+
+namespace {
+	buffer<int> waiting_models; // Handles of entities that are still being parsed.
+
+	void forget_waiting(int handle)
+	{
+		for (uint32_t i = 0; i < waiting_models.size; i++) {
+			if (waiting_models[i] == handle) {
+				waiting_models[i] = waiting_models[waiting_models.size - 1];
+				waiting_models.size--;
+				return;
+			}
+		}
+	}
+
+	void collect_textures(model_load& l, model& m)
+	{
+		for (uint32_t i = 0; i < m.textures.size; i++) {
+			if (m.textures[i].handle > 0) {
+				l.textures.push(m.textures[i].handle);
+			}
+		}
+	}
+
+	int load_model(const char* file, int parent, bool anim, const char* what)
+	{
+		uint8_t* data = nullptr;
+		size_t   got  = 0;
+		if (!file || !read_file_bytes(file, data, got)) {
+			return 0;
+		}
+		bool async = gfx::async_loading() && model_recognized(data, got);
+		model m;
+		if (!async && !parse_model(file, data, got, m)) {
+			free(data);
+			m.release();
+			return 0;
+		}
+		if (parent && !get_entity(parent)) {
+			free(data);
+			m.release();
+			fail(anim ? "LoadAnimMesh: the parent does not exist." : "LoadMesh: the parent does not exist.");
+		}
+		if (!async) {
+			free(data);
+			int handle = anim ? build_hierarchy(m, parent, 0) : build_static(m, parent, 0);
+			m.release();
+			return handle;
+		}
+		int           handle = create_entity(anim ? PIVOT : MESH, parent);
+		model_load*   l      = new model_load();
+		model_load::job_t* job = new model_load::job_t();
+		job->data = data;
+		job->size = got;
+		job->path = static_cast<char*>(malloc(strlen(file) + 1));
+		strcpy(job->path, file);
+		l->job  = job;
+		l->anim = anim;
+		l->what = what;
+		entity* placeholder = get_entity(handle);
+		placeholder->loading    = l;
+		placeholder->unresolved = true;
+		waiting_models.push(handle);
+		gfx::async_submit(job);
+		return handle;
+	}
+} // namespace
+
+// Waits for the parsing of a model and builds it into the entity that stands in for it.
+void bb::resolve_model(int handle, entity& e)
+{
+	model_load* l   = e.loading;
+	auto*       job = l->job;
+	e.unresolved    = false;
+	l->job          = nullptr; // Building asks for the entity again, which must not come back here.
+	forget_waiting(handle);
+	gfx::async_wait(job);
+	if (!job->ok) {
+		gfx::async_discard(job);
+		fail(l->what);
+	}
+	if (l->anim) {
+		build_hierarchy(job->m, e.parent, handle);
+	} else {
+		build_static(job->m, e.parent, handle);
+	}
+	collect_textures(*l, job->m);
+	gfx::async_discard(job);
+}
+
+// Builds one model whose parsing is done. False if there was none.
+bool bb::models_pump_one()
+{
+	for (uint32_t i = 0; i < waiting_models.size; i++) {
+		int     handle = waiting_models[i];
+		entity* e      = get_entity_raw(handle);
+		if (e && e->loading && e->loading->job && gfx::async_finished(e->loading->job)) {
+			resolve_model(handle, *e);
+			return true;
+		}
+	}
+	return false;
+}
+
+void bb::destroy_model_load(model_load* l, int handle)
+{
+	if (l->job) {
+		forget_waiting(handle);
+		gfx::async_discard(l->job);
+	}
+	l->textures.release();
+	delete l;
+}
+
 extern "C" {
 int32_t bb_load_anim_mesh(const char* file, int32_t parent)
 {
-	model m;
-	if (!file || !read_model(file, m)) {
-		m.release();
-		return 0;
-	}
-	if (parent && !get_entity(parent)) {
-		m.release();
-		fail("LoadAnimMesh: the parent does not exist.");
-	}
-	int root = build_hierarchy(m, parent);
-	m.release();
-	return root;
+	return load_model(file, parent, true, "LoadAnimMesh: the file is not a model that can be read.");
 }
 
 int32_t bb_load_mesh(const char* file, int32_t parent)
 {
-	model m;
-	if (!file || !read_model(file, m)) {
-		m.release();
+	return load_model(file, parent, false, "LoadMesh: the file is not a model that can be read.");
+}
+
+// EntityReady(entity): 1 once a model from LoadMesh or LoadAnimMesh is built and its textures are loaded, without waiting for it.
+// Every other entity is ready all the time.
+int32_t bb_entity_ready(int32_t handle)
+{
+	entity* e = get_entity_raw(handle);
+	if (!e) {
 		return 0;
 	}
-	if (parent && !get_entity(parent)) {
-		m.release();
-		fail("LoadMesh: the parent does not exist.");
+	if (!e->loading) {
+		return 1;
 	}
-	int mesh = build_static(m, parent);
-	m.release();
-	return mesh;
+	if (e->loading->job) {
+		if (!gfx::async_finished(e->loading->job)) {
+			return 0;
+		}
+		resolve_model(handle, *e);
+	}
+	buffer<int>& list = e->loading->textures;
+	for (uint32_t i = 0; i < list.size; i++) {
+		if (bb_texture_loading(list[i])) {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 // LoadAnimSeq entity, file: the animation of a model in a file becomes a new sequence of the entity, for the parts that

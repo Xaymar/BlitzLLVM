@@ -906,6 +906,7 @@ int32_t bb_texture_in_use(int32_t handle);
 int32_t bb_load_texture_flags(const char* file, int32_t flags);
 int32_t bb_load_texture(const char* file, int32_t flags);
 int32_t bb_texture_ready(int32_t handle);
+int32_t bb_texture_loading(int32_t handle);
 void bb_async_loading(int32_t enabled);
 void bb_free_texture(int32_t handle);
 int32_t bb_texture_width(int32_t handle);

@@ -303,6 +303,7 @@
 		{ "texturewidth", "bb_texture_width", 'i', "i", 1, {}, false },
 		{ "textureready", "bb_texture_ready", 'i', "i", 1, {}, false },
 		{ "imageready", "bb_image_ready", 'i', "i", 1, {}, false },
+		{ "entityready", "bb_entity_ready", 'i', "i", 1, {}, false },
 		{ "asyncloading", "bb_async_loading", 'v', "i", 1, {}, false },
 		{ "textureheight", "bb_texture_height", 'i', "i", 1, {}, false },
 		{ "entitydistance", "bb_entity_distance", 'f', "ii", 2, {}, false },
