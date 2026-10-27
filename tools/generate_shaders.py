@@ -21,7 +21,7 @@ OP = dict(
     ImageSampleImplicitLod=87, FSub=131, FMul=133, Label=248, Return=253,
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, SelectionMerge=247, BranchConditional=250, Kill=252,
-    VectorTimesScalar=142, MatrixTimesVector=145, Dot=148,
+    VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35)
@@ -329,6 +329,7 @@ class Builder:
 
 # GLSL.std.450 instruction numbers
 GLSL_FABS, GLSL_POW, GLSL_STEP = 4, 26, 48
+GLSL_FLOOR = 8
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
 
 
@@ -736,6 +737,96 @@ def fragment_shader_masked(mask_offset, fog=False):
     return b.m.assemble()
 
 
+def vertex_shader_fullscreen():
+    """
+    One triangle that covers the whole target, for passes over an image.
+
+    #version 450
+    layout(location = 0) out vec2 outUV;
+    void main() {
+        float i = float(gl_VertexIndex);
+        outUV = vec2(i * (2.0 - i) * 2.0, i * (i - 1.0)); // (0, 0), (2, 0), (0, 2)
+        gl_Position = vec4(outUV * 2.0 - 1.0, 0.0, 1.0);
+    }
+    """
+    b = Builder()
+    f, v2, v4, i32 = b.float(), b.vec(2), b.vec(4), b.int()
+    void, fn = b.void(), b.fn()
+    c0, c1, c2 = b.const_float(0.0), b.const_float(1.0), b.const_float(2.0)
+    block = b.struct("pervertex", v4)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", block, 0, DECORATION["BuiltIn"], 0),   # Position
+        Module.inst("Decorate", block, DECORATION["Block"]),
+    ]
+    vertex_index = b.variable("Input", i32, [(DECORATION["BuiltIn"], 42)])
+    out_uv = b.variable("Output", v2, [(DECORATION["Location"], 0)])
+    per_vertex = b.variable("Output", block)
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), vertex_index, out_uv, per_vertex))
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+
+    index = b.emit("ConvertSToF", f, b.load(i32, vertex_index))
+    x = b.fmul(f, b.fmul(f, index, b.fsub(f, c2, index)), c2)
+    y = b.fmul(f, index, b.fsub(f, index, c1))
+    uv = b.construct(2, x, y)
+    b.store(out_uv, uv)
+    clip = b.fsub(v2, b.fmul(v2, uv, b.const_vec(2, 2.0)), b.const_vec(2, 1.0))
+    position = b.construct(4, b.extract(clip, 0), b.extract(clip, 1), c0, c1)
+    b.store(b.access("Output", v4, per_vertex, b.const_int(0)), position)
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
+def fragment_shader_gamma():
+    """
+    Shows an image through the gamma tables, which are in a uniform buffer with a row for each of the 256 steps and the
+    new value of red, green and blue (from 0 to 1) in the row.
+
+    #version 450
+    layout(set = 0, binding = 0) uniform sampler2D tex;
+    layout(set = 1, binding = 0) uniform Gamma { vec4 table[256]; } gamma;
+    layout(location = 0) in vec2 inUV;
+    layout(location = 0) out vec4 outColor;
+    void main() {
+        vec3 step = floor(texture(tex, inUV).rgb * 255.0 + 0.5);
+        outColor = vec4(gamma.table[int(step.r)].r, gamma.table[int(step.g)].g, gamma.table[int(step.b)].b, 1.0);
+    }
+    """
+    b = Builder()
+    f, v2, v3, v4, i32 = b.float(), b.vec(2), b.vec(3), b.vec(4), b.int()
+    void, fn = b.void(), b.fn()
+    image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+    sampled = b.new_type("sampled", "TypeSampledImage", image)
+    table = b.array(v4, 256, "table")
+    block = b.struct("gamma", table)
+    b.m.annotations += [
+        Module.inst("Decorate", table, DECORATION["ArrayStride"], 16),
+        Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
+        Module.inst("Decorate", block, DECORATION["Block"]),
+    ]
+    tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
+    gamma = b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
+    in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
+    out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, out_color))
+    b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+
+    shown = b.swizzle(b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), b.load(v2, in_uv)), 3)
+    steps = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, shown, b.const_vec(3, 255.0)), b.const_vec(3, 0.5)))
+    channels = []
+    for channel in range(3):
+        step = b.emit("ConvertFToS", i32, b.extract(steps, channel))
+        row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), step))
+        channels.append(b.extract(row, channel))
+    b.store(out_color, b.construct(4, *channels, b.const_float(1.0)))
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def emit(name, words, out):
     out.write("static const unsigned int %s[] = {\n" % name)
     for index in range(0, len(words), 8):
@@ -749,3 +840,5 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment", fragment_shader_masked(16), out)
     emit("bb_shader_vertex_3d", vertex_shader_3d(), out)
     emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)
+    emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
+    emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
