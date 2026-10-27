@@ -69,8 +69,9 @@ DIALECT_TEXT = {
 
 
 INTROS = {}
-# The sections of a command page, in order. Only Command Syntax, Description and Related Commands are always there.
-PAGE_SECTIONS = ["Command Syntax", "Parameters", "Description", "Differences", "Examples", "Media", "Related Commands"]
+# The sections of a command page, in order. Only Description and Related Commands are always there. The signature
+# has no heading, the page starts with the command.
+PAGE_SECTIONS = ["Parameters", "Description", "Differences", "Examples", "Media", "Related Commands"]
 # Appended to every list entry and title of a command that the original Blitz products do not have. Which commands
 # those are comes from EXTENSIONS in tools/suite_functions.py, the list of what BlitzLLVM adds.
 EXTENSION_MARK = "\u3014BlitzLLVM\u3015"
@@ -247,7 +248,7 @@ def command_page(c, siblings):
                     (ICONS[n][1], ICONS[n][0], ICONS[n][0]) for n in reversed(names))
     out = [icons + "\n" if icons else "", "# %s%s\n" % (c.name, c.mark),
            nav(c) + "\n",
-           "## Command Syntax\n", "```blitzbasic\n%s\n```\n" % c.signature()]
+           "```blitzbasic\n%s\n```\n" % c.signature()]
     if c.params or doc["returns"]:
         out.append("## Parameters\n")
     if c.params:
@@ -458,7 +459,7 @@ def check(commands, blitzcc):
                               (c.name, ", ".join(order), ", ".join(PAGE_SECTIONS)))
             if '<div align="center">' not in body_of(path) or "\n* [" in body_of(path).split("## Related Commands")[-1]:
                 errors.append("%s needs a centered navigation and its related commands in one comma separated line" % c.name)
-            for need in ("Command Syntax", "Description", "Related Commands"):
+            for need in ("Description", "Related Commands"):
                 if need not in heads:
                     errors.append("%s has no '%s' section" % (c.name, need))
     for page, title, summary in feature_pages():
