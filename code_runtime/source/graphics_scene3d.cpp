@@ -692,6 +692,38 @@ namespace bb::gfx {
 		}
 	}
 
+	// What is see-through has to be drawn from far to near, but things that are about as far from the camera hardly ever
+	// cover each other in a way that shows, so within each band of distance (about 9% wide) the draws that are the same in
+	// what the GPU has to be told are put next to each other, to be drawn as instances of one call. The draws of the same
+	// state keep their order, and so do the bands.
+	static void group_blended(uint32_t first, uint32_t last)
+	{
+		if (last - first < 2) {
+			return;
+		}
+		std::vector<uint32_t> units;
+		for (uint32_t i = first; i < last; i++) {
+			if (draws[i].unit_start) {
+				units.push_back(i);
+			}
+		}
+		auto band = [](draw_record const& d) { return int(floorf(log2f(d.depth > 0.001f ? d.depth : 0.001f) * 8.0f)); };
+		auto key  = [&](draw_record const& d) {
+			return std::make_tuple(-band(d), uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+		};
+		std::stable_sort(units.begin(), units.end(), [&](uint32_t a, uint32_t b) { return key(draws[a]) < key(draws[b]); });
+		std::vector<draw_record> sorted;
+		sorted.reserve(last - first);
+		for (size_t u = 0; u < units.size(); u++) {
+			for (uint32_t i = units[u]; (i < last) && ((i == units[u]) || !draws[i].unit_start); i++) {
+				sorted.push_back(draws[i]);
+			}
+		}
+		for (uint32_t i = 0; i < sorted.size(); i++) {
+			draws[first + i] = sorted[i];
+		}
+	}
+
 	static float current_camera[16]; // Where the camera is, for sprites that face it.
 	static float current_origin[3];  // The same place: everything is sent to the GPU relative to it, see render_pass.
 	static float current_planes[24]; // The planes of what the camera sees, see mesh_collector.
@@ -957,6 +989,7 @@ namespace bb::gfx {
 			record.cull         = !(two_sided || ((e->fx | paint.fx) & 16));
 			record.depth_test   = depth_test;
 			record.depth_write  = ((!surface_blended || cutout) && depth_test);
+			record.depth        = item.depth;
 			record.unit_start   = true;
 			static_cast<surface_gpu*>(surface.gpu)->used_by_flush = flush_number;
 			ensure_entities(draws.size + 1 + 7);
@@ -1193,9 +1226,11 @@ namespace bb::gfx {
 			draw_entity(list.opaque[i], 0, true);
 		}
 		group_draws(opaque_first, draws.size);
+		uint32_t blended_first = draws.size;
 		for (uint32_t i = 0; i < list.blended.size; i++) {
 			draw_entity(list.blended[i], 1, true);
 		}
+		group_blended(blended_first, draws.size);
 		for (uint32_t i = 0; i < list.front.size; i++) {
 			draw_entity(list.front[i], 2, false);
 		}
