@@ -51,7 +51,7 @@ End Function
 
 1. The file is compiled (to nothing: no program is made) with every warning on. A file that does not compile is not touched and is reported.
 2. Each warning whose rule is set to `fix` and that has a fix that is safe becomes a change. Changes that touch each other wait for the next round.
-3. The changed file is compiled again. If it no longer compiles, `blitz-tidy` finds out which change did it and leaves that one out. Then it starts again at 2, until nothing is left to fix (at most `max_passes` times).
+3. The changed file is compiled again. If it no longer compiles, `blitz-tidy` finds out which change did it and leaves that one out. Then it starts again at 2, until nothing is left to fix (at most `max-passes` times).
 4. What is left is printed to the standard error as `file:line:column: warning: ... [blitz-tidy:<rule>]`, with a note why it was not fixed.
 
 A second run over the result changes nothing. The fixes are made so that the program does the same: they only write down what the compiler did anyway. The one exception is that an explicit conversion from a real number to an integer stops at the smallest and largest number of the type (`SatInt` behavior), while the implicit one is undefined for numbers that do not fit.
@@ -69,7 +69,7 @@ A second run over the result changes nothing. The fixes are made so that the pro
 | `implicit-lossy-int-to-real` | fix | `Float(value)`, `Double(value)`, `Half(value)` | |
 | `implicit-number-to-string` | fix | `Str(value)` | |
 | `typeless-declaration` | fix | `Local x` becomes `Local x:Int32` (also `Global`, `Const`) | |
-| `expand-short-to-long-notation` | off | `x%` becomes `x:Int32`, `x%%` `x:Int64`, `x#` `x:Float32`, `x##` `x:Float64` and `x$` `x:String`, also in declarations of functions, parameters and fields. `.TypeName` is left alone: it has no other form. The long form is the one BlitzLLVM prefers. Off by default, turn it on with `--expand-short-to-long-notation` (or `"expand_short_to_long_notation": "fix"`). It is about the `short-type-notation` warning of the compiler, and that is the name the rule had before, which still works. | |
+| `expand-short-to-long-notation` | off | `x%` becomes `x:Int32`, `x%%` `x:Int64`, `x#` `x:Float32`, `x##` `x:Float64` and `x$` `x:String`, also in declarations of functions, parameters and fields. `.TypeName` is left alone: it has no other form. The long form is the one BlitzLLVM prefers. Off by default, turn it on with `--expand-short-to-long-notation` (or `"expand-short-to-long-notation": "fix"`). It is about the `short-type-notation` warning of the compiler, and that is the name the rule had before, which still works. | |
 | `one-declare-per-variable` | off | `Local a, b = 1` becomes `Local a` and `Local b = 1` on lines of their own (also `Global`). `Const` is left alone. Off by default. | |
 | `parentheses-around-arguments` | off | `Foo 14, 12, 14 + 12` becomes `Foo(14, 12, 14 + 12)`, for a command or function that is called as a statement and has arguments. A parenthesis around only the first argument (`Foo (1)+2, 3`) is not taken for the parenthesis of the call: it becomes `Foo((1)+2, 3)`. Off by default. | |
 | `resource-acquisition-is-initialization` | off | A `Local` or `Global` gets a value where it is declared, so that there is always a known one: `0`, `0.0`, `""` or `Null`, by its type. If the statement behind it assigns a value that is free of side effects (numbers, strings, variables and arithmetic, never a call, and not behind a condition) the value moves into the declaration: `Local a` and `a = 5` become `Local a = 5`. That is not done when something in between mentions the variable or sets what the value reads, and never for a call: `Create...`, `Load...` and `Copy...` stay where they are. Arrays and `Const` are left alone. Off by default. | A `Global` in a function, in a loop or in code with labels: the declaration then sets it again each time it is passed. |
@@ -88,8 +88,8 @@ A setting is `--name=value` on the command line, `name = value` in a `.blitz-tid
 | `<rule>` | `off` (ignore), `report` (print only) or `fix`. `--<rule>` alone is `fix`, `--no-<rule>` is `off`. |
 | `default` | The mode of every rule that is not set. A rule that has nothing to fix stays at `report`. |
 | `unsafe` | Also make the fixes of the last column of the table. |
-| `max_passes` | How often the file is fixed and compiled again. Default 20. |
-| `userlibs_dir` | Where the userlibs are, like `--userlibs-dir` of `blitzcc`. Defaults to `$BLITZLLVM_USERLIBS`, then to the `userlibs` of the installation. |
+| `max-passes` | How often the file is fixed and compiled again. Default 20. |
+| `userlibs-dir` | Where the userlibs are, like `--userlibs-dir` of `blitzcc`. Defaults to `$BLITZLLVM_USERLIBS`, then to the `userlibs` of the installation. |
 
 Files are rewritten in place and the only output is the name of each file, one per line, followed by the findings that were left in it (the rules set to `report` and the fixes that were refused). Without files, or with `-`, the standard input is fixed and the result written to the standard output. `--check` and `--diff` change nothing.
 
@@ -109,8 +109,8 @@ unsafe = false
 ```json
 {
 	"default": "report",
-	"implicit_lossy_real_to_int": "fix",
-	"typeless_declaration": "fix"
+	"implicit-lossy-real-to-int": "fix",
+	"typeless-declaration": "fix"
 }
 ```
 
