@@ -898,6 +898,54 @@ elseif(CASE STREQUAL "warnings")
 		message(FATAL_ERROR "Expected no warnings, got:\n${ERR}")
 	endif()
 
+	# Only a call that throws a value away warns: not a built-in without a result, not a function without 'Return value',
+	# and not a call that is used in an expression, an If or a Select.
+	file(WRITE "${WORK}/calls.bb"
+		"Print \"hello\"\n"
+		"Proc(1)\n"
+		"Proc 2\n"
+		"Early(1)\n"
+		"If Value(1) = 1 Then Print \"if\"\n"
+		"If Value(2) Then Print \"if\"\n"
+		"Select Value(3)\n"
+		"Case 3\n"
+		"\tPrint \"select\"\n"
+		"End Select\n"
+		"Local v% = Value(4)\n"
+		"Print v + Value(5)\n"
+		"Nested(1)\n"
+		"Value(6)\n"
+		"Function Proc(a%)\n"
+		"\tPrint a\n"
+		"End Function\n"
+		"Function Early(a%)\n"
+		"\tIf a Then Return\n"
+		"\tPrint a\n"
+		"End Function\n"
+		"Function Value%(a%)\n"
+		"\tReturn a\n"
+		"End Function\n"
+		"Function Nested%(a%)\n"
+		"\tWhile a\n"
+		"\t\tSelect a\n"
+		"\t\tCase 1\n"
+		"\t\t\tReturn 1\n"
+		"\t\tEnd Select\n"
+		"\tWend\n"
+		"End Function\n")
+	blitzcc(-c "${WORK}/calls.bb")
+	expect_ok()
+	expect_err("calls.bb:13:1: warning: The result of 'Nested' is not used. [-Wunused-result]")
+	expect_err("calls.bb:14:1: warning: The result of 'Value' is not used. [-Wunused-result]")
+	expect_no_err("'Proc' is not used")
+	expect_no_err("'Early' is not used")
+	expect_no_err("'Print' is not used")
+	string(REGEX MATCHALL "\\[-Wunused-result\\]" _UNUSED "${ERR}")
+	list(LENGTH _UNUSED _UNUSED_COUNT)
+	if(NOT _UNUSED_COUNT EQUAL 2)
+		message(FATAL_ERROR "Expected 2 unused-result warnings, got ${_UNUSED_COUNT}:\n${ERR}")
+	endif()
+
 	# -W<name> and -Wno-<name> win over the level, in any order, and options are not case sensitive.
 	blitzcc(-c -Wno-implicit-lossy-real-to-int "${WORK}/w.bb")
 	expect_ok()
