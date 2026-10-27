@@ -391,6 +391,10 @@ void blitz::compiler::gen_return(ast::return_statement const* node)
 	if (_in_main) {
 		throw err(node->where, "Return can only be used inside of a function, or after a Gosub.");
 	}
+	if (!node->value && _return_typed) {
+		std::string suggestion = blitz::types::is_integer(_return_type) ? "0" : (blitz::types::is_real(_return_type) ? "0.0" : (_return_type == type::STRING ? "\"\"" : "Null"));
+		warn(node->where, "return-missing-value", "Return has no value, but the function returns " + (_return_type == type::STRUCT ? "an object" : blitz::types::display(_return_type)) + ".", "Return a value, such as 'Return " + suggestion + "'.");
+	}
 	auto  llvm = blitz::types::to_llvm(_return_type);
 	value v    = zero(_return_type);
 	if (node->value) {

@@ -56,6 +56,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 | `implicit-string-to-number` | 1 | A String assigned or passed to a number. It is 0 if it does not start with a number. |
 | `implicit-lossy-int-to-real` | 2 | An integer assigned or passed to a real number that can not hold all its values (`Int` to `Float`, `Long` to `Double`). |
 | `implicit-variable` | 2 | A variable that was never declared with `Local`, `Global` or `Dim`. Blitz makes it a local one, so this is legal. |
+| `return-missing-value` | 2 | `Return` without a value in a function that was declared with a type (`Function Name$()`, `Function Name:Float()`). It returns 0, `""` or `Null`. A function without a type is an `Int` by default, so it is left alone. |
 | `return-type-mismatch` | 2 | `Return` gives a value of another type than the function was declared with (an `Int` in a function that returns a `String`, a `Double` in a `Float` one). Both types are named, with the conversion function that fixes it when there is one. A whole number written in the program that fits (`Return 0` in a `Float` function) is fine. When this is on, it says what the `implicit-*` warnings would say for that `Return`. |
 | `unused-result` | 2 | A function that returns a value is called as a statement, and the value is thrown away. Built-in and `.decls` functions without a result, and functions of the program that never `Return` a value, do not warn. A call in an expression, `If` or `Select` is a use. |
 | `implicit-number-to-string` | 3 | A number assigned or passed to a String. |
