@@ -658,6 +658,15 @@ namespace bb::gfx {
 	{
 		uint32_t index = 0;
 		VkResult result = vkAcquireNextImageKHR(g.device, g.swapchain, UINT64_MAX, g.acquired, VK_NULL_HANDLE, &index);
+		// With an infinite timeout this should only ever return an image, but some drivers still answer VK_NOT_READY or VK_TIMEOUT
+		// (seen on a first present after the window was created). Nothing was acquired and the semaphore is not signaled, so ask again.
+		for (int retry = 0; ((result == VK_NOT_READY) || (result == VK_TIMEOUT)) && (retry < 1000); retry++) {
+			if (retry == 0) {
+				fprintf(stderr, "vkAcquireNextImageKHR returned %s, retrying.\n", (result == VK_NOT_READY) ? "VK_NOT_READY" : "VK_TIMEOUT");
+			}
+			SDL_Delay(1);
+			result = vkAcquireNextImageKHR(g.device, g.swapchain, UINT64_MAX, g.acquired, VK_NULL_HANDLE, &index);
+		}
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			// Can't present to this swapchain: finish what we recorded, it gets recreated before the next present.
 			submit_commands();
