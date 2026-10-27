@@ -655,7 +655,14 @@ namespace bb::gfx {
 				has_solid = true;
 			}
 		}
-		draw_item item         = { handle, alpha, depth, mesh.order };
+		// The same matrix is what draw_entity needs, which it would otherwise make again (and wait for the entity again).
+		uint32_t matrix = c->list->matrices.size / 12;
+		for (int column = 0; column < 4; column++) {
+			for (int row = 0; row < 3; row++) {
+				c->list->matrices.push(m[column * 4 + row]);
+			}
+		}
+		draw_item item         = { handle, alpha, depth, mesh.order, matrix };
 		if (mesh.order > 0) {
 			c->list->behind.push(item);
 		} else if (mesh.order < 0) {
@@ -869,14 +876,21 @@ namespace bb::gfx {
 	}
 
 	// pass: 0 draws what is solid, 1 what is see-through, 2 everything (for what has an order).
-	static void draw_entity(draw_item const& item, int pass, bool depth_test)
+	static void draw_entity(draw_item const& item, float const* matrices, int pass, bool depth_test)
 	{
 		bb::entity* e = bb::get_entity(item.handle);
 		if (!e) {
 			return;
 		}
-		float m[16];
-		bb::world_matrix(item.handle, m);
+		// The matrix as collect_mesh stored it: the columns without their last row, which is 0, 0, 0 and 1 for the position.
+		float        m[16] = {};
+		float const* stored = matrices + size_t(item.matrix) * 12;
+		for (int column = 0; column < 4; column++) {
+			for (int row = 0; row < 3; row++) {
+				m[column * 4 + row] = stored[column * 3 + row];
+			}
+		}
+		m[15] = 1;
 		bool fullbright = (e->fx & 1) != 0;
 		bool two_sided  = (e->fx & 16) != 0;
 
@@ -1237,20 +1251,20 @@ namespace bb::gfx {
 		scene.first_draw = draws.size;
 		// Entities with an order are drawn behind or in front of everything, without looking at the depth.
 		for (uint32_t i = 0; i < list.behind.size; i++) {
-			draw_entity(list.behind[i], 2, false);
+			draw_entity(list.behind[i], list.matrices.data, 2, false);
 		}
 		uint32_t opaque_first = draws.size;
 		for (uint32_t i = 0; i < list.opaque.size; i++) {
-			draw_entity(list.opaque[i], 0, true);
+			draw_entity(list.opaque[i], list.matrices.data, 0, true);
 		}
 		group_draws(opaque_first, draws.size);
 		uint32_t blended_first = draws.size;
 		for (uint32_t i = 0; i < list.blended.size; i++) {
-			draw_entity(list.blended[i], 1, true);
+			draw_entity(list.blended[i], list.matrices.data, 1, true);
 		}
 		group_blended(blended_first, draws.size);
 		for (uint32_t i = 0; i < list.front.size; i++) {
-			draw_entity(list.front[i], 2, false);
+			draw_entity(list.front[i], list.matrices.data, 2, false);
 		}
 		list.release();
 

@@ -535,6 +535,7 @@ namespace bb::gfx {
 		float alpha; // What is left of it after fading out with distance.
 		float depth; // Distance from the camera along its view direction.
 		int   order;
+		uint32_t matrix; // Which of the matrices of the draw_list is where the entity is in the world.
 	};
 
 
@@ -543,9 +544,11 @@ namespace bb::gfx {
 		bb::buffer<draw_item> opaque;
 		bb::buffer<draw_item> blended; // Far to near.
 		bb::buffer<draw_item> front;   // Lower entity orders, drawn last and without a depth test.
+		bb::buffer<float>     matrices; // Where the entities are in the world as 12 floats each (the columns of the rotation and the position), made when they were collected.
 
 		void release()
 		{
+			matrices.release();
 			behind.release();
 			opaque.release();
 			blended.release();
