@@ -30,7 +30,7 @@ namespace {
 	void usage(char const* self)
 	{
 		std::cout << "blitz-recompiler V" << BLITZLLVM_VERSION << "\n"
-				  << "Usage: " << self << " [options] <program.exe> [-- <blitzcc options>]\n"
+				  << "Usage: " << self << " [options] <program.exe|module> [-- <blitzcc options>]\n"
 				  << "\n"
 				  << "Turns an executable made by Blitz3D, BlitzPlus or Blitz Basic into one for the BlitzLLVM runtime.\n"
 				  << "Only use it on programs that you made, or that you are allowed to modify and redistribute.\n"
@@ -135,7 +135,9 @@ int main(int argc, char** argv)
 			return argc > 1 ? 0 : 1;
 		}
 
-		auto program = load_module(read_file(input));
+		// The module alone (the resource 1111 of an executable, without the runtime of the original) is accepted too, which is what the tests keep.
+		auto bytes   = read_file(input);
+		auto program = (bytes.size() >= 2 && bytes[0] == 'M' && bytes[1] == 'Z') ? load_module(bytes) : parse_module(bytes.data(), bytes.size());
 
 		if (info) {
 			std::map<symbol_kind, size_t> kinds;
