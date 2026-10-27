@@ -403,6 +403,23 @@ elseif(CASE STREQUAL "inline_checks")
 	expect_ok()
 	expect_contains("21.0")
 
+elseif(CASE STREQUAL "for_step")
+	# A step that can never end the loop is refused, and a step that is not a constant only warns.
+	foreach(_STEP IN ITEMS "0" "0.0" "-0.0" "1 - 1" "Zero")
+		file(WRITE "${WORK}/step.bb" "Const Zero = 0\nFor i% = 1 To 3 Step ${_STEP}\nNext\n")
+		blitzcc(-q -c "${WORK}/step.bb")
+		if(RC EQUAL 0 OR NOT "${OUT}${ERR}" MATCHES "step of a For loop can't be 0")
+			message(FATAL_ERROR "'Step ${_STEP}' was not refused (${RC}):\nstdout: ${OUT}\nstderr: ${ERR}")
+		endif()
+	endforeach()
+	file(WRITE "${WORK}/step.bb" "Local n% = 2\nFor i% = 1 To 3 Step n\nNext\n")
+	blitzcc(-c -W4 "${WORK}/step.bb")
+	expect_ok()
+	string(FIND "${ERR}" "[-Wloop-unroll-requires-constant]" _AT)
+	if(_AT EQUAL -1)
+		message(FATAL_ERROR "A step that is not a constant did not warn:\n${ERR}")
+	endif()
+
 elseif(CASE STREQUAL "stop")
 	# Stop is a breakpoint in a debug build, and nothing in any other. Neither is run with the trap in it.
 	set(STOP_PROGRAM "${TESTS}/cli/stop.bb")
@@ -1035,14 +1052,17 @@ elseif(CASE STREQUAL "warnings")
 		"Function Bare%()\n"
 		"\tReturn\n"
 		"End Function\n"
-		"Print Bare()\n")
+		"Print Bare()\n"
+		"Local lstep# = 0.5\n"
+		"For lreal# = 0 To 1 Step lstep\n"
+		"Next\n")
 
 	# Every warning turns on at its level, and stays on above it. -W2 is the default.
 	set(_WARNINGS
-		"implicit-lossy-int-to-int:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
+		"implicit-lossy-int-to-int:1" "loop-iterator-type-unsafe:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
 		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-missing-value:2" "return-type-mismatch:2" "unused-result:2"
 		"implicit-number-to-string:3" "short-type-notation:3" "unreachable-code:3" "unused-variable:3"
-		"typeless-declaration:4" "unused-function:4")
+		"typeless-declaration:4" "unused-function:4" "loop-unroll-requires-constant:4")
 	foreach(_LEVEL RANGE 0 4)
 		blitzcc(-c -W${_LEVEL} "${WORK}/w.bb")
 		expect_ok()
@@ -1291,7 +1311,7 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -W0 -Werror=unreachable-code "${WORK}/w.bb")
 	expect_failed()
 	expect_err("w.bb:13:1: error: This statement can never run. [-Werror=unreachable-code]")
-	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=unused-result -Wno-error=return-missing-value -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
+	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=loop-iterator-type-unsafe -Wno-error=unused-result -Wno-error=return-missing-value -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
 	expect_ok()
 	expect_err("[-Wimplicit-lossy-real-to-int]")
 

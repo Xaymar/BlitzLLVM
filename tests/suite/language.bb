@@ -80,6 +80,16 @@ For i = 10 To 1 Step -3
 Next
 Check "For with a negative step", sum, 10 + 7 + 4 + 1
 sum = 0
+; The limit is worked out again before every pass, like in the original.
+Local limit_n = 5
+sum = 0
+For i = 1 To limit_n
+	sum = sum + 1
+	limit_n = 3
+Next
+Check "For works out the limit again", sum, 3
+sum = 0
+
 For i = 1 To 0
 	sum = sum + 1
 Next
