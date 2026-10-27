@@ -886,7 +886,7 @@ elseif(CASE STREQUAL "warnings")
 
 	# Messages: the kind, the span, and a suggestion.
 	blitzcc(-c -W4 "${WORK}/w.bb")
-	expect_err("w.bb:1:12: warning: Implicit conversion from real to integer, the fractional part is lost. [-Wimplicit-lossy-real-to-int]\nLocal i% = 2.5\n           ^^^ HERE\nhelp: Use Int(value) to convert on purpose.")
+	expect_err("w.bb:1:12: warning: Implicit conversion from real to integer, the fractional part is lost. [-Wimplicit-lossy-real-to-int]\nLocal i% = 2.5\n           ^^^ HERE\nnotice: Use Int(value) to convert on purpose.")
 	expect_err("w.bb:13:1: notice: This statement can never run. [-Wunreachable-code]")
 	expect_err("notice: 'unused' is never read, it is optimized away. [-Wunused-variable]")
 	expect_err("notice: Function 'Bar' is never called, it is optimized away. [-Wunused-function]")
