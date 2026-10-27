@@ -91,27 +91,41 @@ namespace bb::scene {
 		}
 	}
 
+	// Made the way the original does: a pole vertex for every segment (so a pole has no seam), rings of lon + 1 vertices with the
+	// seam vertex repeated, and the same triangles. That is 2 * lon + (lat - 1) * (lon + 1) vertices and 2 * lon * (lat - 1) triangles.
 	static void make_sphere(surface* s, int segments)
 	{
 		int lon = segments * 2, lat = segments;
-		for (int j = 0; j <= lat; j++) {
+		for (int i = 0; i < lon; i++) {
+			add_vertex(s, 0, 1, 0, 0, 1, 0, (float(i) + 0.5f) / float(lon), 0);
+		}
+		for (int j = 1; j < lat; j++) {
 			float phi = pi * float(j) / float(lat);
 			for (int i = 0; i <= lon; i++) {
-				float theta = 2 * pi * float(i) / float(lon);
+				float theta = 2 * pi * float(i % lon) / float(lon);
 				float x = sinf(phi) * sinf(theta), y = cosf(phi), z = sinf(phi) * cosf(theta);
 				add_vertex(s, x, y, z, x, y, z, float(i) / float(lon), float(j) / float(lat));
 			}
 		}
-		for (int j = 0; j < lat; j++) {
+		uint32_t bottom = uint32_t(lon + (lat - 1) * (lon + 1));
+		for (int i = 0; i < lon; i++) {
+			add_vertex(s, 0, -1, 0, 0, -1, 0, (float(i) + 0.5f) / float(lon), 1);
+		}
+		uint32_t ring = uint32_t(lon + 1);
+		// The first ring is lon vertices in, the rings that follow are lon + 1 apart.
+		for (int i = 0; i < lon; i++) {
+			add_oriented_triangle(s, uint32_t(i), uint32_t(i) + ring, uint32_t(i) + ring - 1);
+		}
+		for (int j = 1; j < lat - 1; j++) {
 			for (int i = 0; i < lon; i++) {
-				uint32_t a = uint32_t(j * (lon + 1) + i), b = a + 1, c = a + uint32_t(lon + 1), d = c + 1;
-				if (j > 0) {
-					add_oriented_triangle(s, a, b, c);
-				}
-				if (j < lat - 1) {
-					add_oriented_triangle(s, b, d, c);
-				}
+				uint32_t a = uint32_t(j) * ring + uint32_t(i) - 1, b = a + 1, c = b + ring, d = c - 1;
+				add_oriented_triangle(s, a, b, c);
+				add_oriented_triangle(s, a, c, d);
 			}
+		}
+		for (int i = 0; i < lon; i++) {
+			uint32_t a = uint32_t(lat - 1) * ring + uint32_t(i) - 1, b = a + 1;
+			add_oriented_triangle(s, a, b, uint32_t(bottom) + uint32_t(i));
 		}
 	}
 
