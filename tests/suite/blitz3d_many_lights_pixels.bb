@@ -102,4 +102,46 @@ PositionEntity dark_light, 0, 0, -8
 RenderWorld
 CheckTrue "A strong negative light is picked and darkens (" + R(80, 60) + ")", R(80, 60) < eight - 60
 
+; A field of cubes with many lights of all kinds, seen from different places. The test runs with BLITZ_CHECK_LIGHTS, which
+; makes the runtime rate the lights of every draw twice (by the cells of the view and by all lights) and stop if the eight
+; are not the same.
+HideEntity bright
+HideEntity dark_light
+For i = 0 To 9
+	HideEntity lamps(i)
+Next
+HideEntity spheres(0)
+Global seed = 4711
+Function Rand01#()
+	seed = (seed * 16807) Mod 2147483647
+	Return Float(seed) / 2147483647.0
+End Function
+For i = 1 To 150
+	cube = CreateCube()
+	ScaleEntity cube, 0.5 + Rand01() * 1.5, 0.5 + Rand01() * 1.5, 0.5 + Rand01() * 1.5
+	PositionEntity cube, Rand01() * 120 - 60, 0, Rand01() * 120 - 60
+Next
+Dim torches(90)
+For i = 1 To 90
+	torches(i) = CreateLight(2)
+	LightRange torches(i), 3 + Rand01() * 9
+	scale# = 40 + Rand01() * 215
+	If i Mod 5 = 0 Then scale = -scale
+	LightColor torches(i), scale, scale * Rand01(), scale * Rand01()
+	PositionEntity torches(i), Rand01() * 120 - 60, 1 + Rand01() * 3, Rand01() * 120 - 60
+Next
+CameraRange camera, 0.5, 300
+For view = 0 To 5
+	PositionEntity camera, view * 8 - 20, 8 + view * 3, -70 + view * 10
+	RotateEntity camera, 15 + view * 3, view * 7 - 15, 0
+	RenderWorld
+	RenderWorld
+Next
+; Lights and cubes that move: what was picked before is not used for them.
+For view = 0 To 5
+	PositionEntity torches(1 + view), view * 9 - 25, 2, view * 9 - 25
+	MoveEntity camera, 0, 0, 3
+	RenderWorld
+Next
+
 Print "blitz3d_many_lights_pixels: done"

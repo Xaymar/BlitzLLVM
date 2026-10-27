@@ -1014,10 +1014,173 @@ namespace bb::gfx {
 		}
 	}
 
-	// Picks the eight lights that light a sphere (relative to the camera) the most. How much a light does is its
-	// brightness times its attenuation (range over distance, like the shader) at the closest point of the sphere, which is
-	// the most it can do there, so a light that covers the sphere with almost nothing is left out as well. Nothing left out could have changed a pixel unless more
-	// than eight lights reach the sphere, so scenes with eight lights or fewer are lit as they always were.
+	// How much each light of the camera does where it does the most: its brightness. Negative lights darken, and count as much as
+	// positive ones.
+	static float light_weight[max_lights];
+
+	// How much a light does to a sphere (relative to the camera) at most: its brightness times its attenuation (range over
+	// distance, like the shader) at the closest point of the sphere. A direction reaches everything.
+	static inline float light_effect(const float* light, float weight, const float* center, float radius)
+	{
+		if (light[3] <= 0) {
+			return weight;
+		}
+		float dx = light[0] - center[0], dy = light[1] - center[1], dz = light[2] - center[2];
+		float closest = fmaxf(sqrtf(dx * dx + dy * dy + dz * dz) - radius, 0.0f);
+		return weight * (light[3] / fmaxf(closest, 0.01f));
+	}
+
+	// Lights that do less than this to a sphere are not worth one of the eight places.
+	constexpr float light_least = 1.0f / 512.0f;
+
+	// The places of the (at most) eight lights that do the most to a sphere, in the order of the table: from the lights of the
+	// subset (all of them if it is null). Returns how many there are. The same lights are chosen from a subset that has all that
+	// could be chosen, which is what makes the cells of light_grid exact.
+	static uint32_t rate_lights(const uint8_t* subset, uint32_t subset_count, const float* center, float radius, uint32_t* places)
+	{
+		float    effects[draw_lights];
+		uint32_t found = 0;
+		for (uint32_t n = 0; n < subset_count; n++) {
+			uint32_t     i      = subset ? subset[n] : n;
+			float        effect = light_effect(current_lights->light_position[i], light_weight[i], center, radius);
+			if (effect < light_least) {
+				continue; // Too little to see.
+			}
+			if (found == draw_lights && effect <= effects[found - 1]) {
+				continue;
+			}
+			uint32_t at = found < draw_lights ? found++ : found - 1;
+			while (at > 0 && effects[at - 1] < effect) {
+				effects[at] = effects[at - 1];
+				places[at]  = places[at - 1];
+				at--;
+			}
+			effects[at] = effect;
+			places[at]  = i;
+		}
+		// In the order of the table, so that the same lights are always added in the same order.
+		std::sort(places, places + found);
+		return found;
+	}
+
+	// The view of a camera cut into 4 x 4 x 4 cells (to the sides in 4 parts each, and in depth in 4 parts that each are as many
+	// times the one before). Each cell knows which lights can be among the eight of a sphere that is inside of the box around
+	// the cell: the others are out-done by eight lights that do more, wherever the sphere is. That is made when the cell is first
+	// needed, as most are not.
+	struct light_grid {
+		bool     enabled;
+		float    sx, sy, near_plane, log_range;
+		float    axes[3][3]; // Right, up and forward of the camera.
+		bool     built[64];
+		uint32_t counts[64];
+		uint8_t  lists[64][max_lights];
+		float    lo[64][3], hi[64][3];
+	};
+	static light_grid grid;
+
+	static void prepare_light_grid(bb::entity const& cam, scene_data const& data, float width, float height)
+	{
+		grid.enabled = false;
+		static const bool allowed = !getenv("BLITZ_NO_LIGHT_GRID");
+		if (!allowed || current_light_count <= draw_lights || cam.cam_projection != 1 || cam.cam_near <= 0 || cam.cam_far <= cam.cam_near * 1.5f) {
+			return;
+		}
+		grid.enabled    = true;
+		grid.sx         = cam.cam_zoom;
+		grid.sy         = cam.cam_zoom * (width / height);
+		grid.near_plane = cam.cam_near;
+		grid.log_range  = logf(cam.cam_far / cam.cam_near);
+		for (int axis = 0; axis < 3; axis++) {
+			memcpy(grid.axes[axis], data.camera[axis], sizeof(float) * 3);
+		}
+		memset(grid.built, 0, sizeof(grid.built));
+	}
+
+	// The box around a cell and the lights that can matter in it.
+	static void build_grid_cell(uint32_t cell)
+	{
+		uint32_t ui = cell & 3, vi = (cell >> 2) & 3, zi = cell >> 4;
+		float    z[2] = { grid.near_plane * expf(grid.log_range * float(zi) / 4.0f), grid.near_plane * expf(grid.log_range * float(zi + 1) / 4.0f) };
+		float    u[2] = { float(ui) * 0.5f - 1.0f, float(ui + 1) * 0.5f - 1.0f };
+		float    v[2] = { float(vi) * 0.5f - 1.0f, float(vi + 1) * 0.5f - 1.0f };
+		float*   lo   = grid.lo[cell];
+		float*   hi   = grid.hi[cell];
+		for (int k = 0; k < 3; k++) {
+			lo[k] = 1e30f;
+			hi[k] = -1e30f;
+		}
+		for (int corner = 0; corner < 8; corner++) {
+			float zc = z[corner & 1], xc = u[(corner >> 1) & 1] * zc / grid.sx, yc = v[(corner >> 2) & 1] * zc / grid.sy;
+			for (int k = 0; k < 3; k++) {
+				float p = xc * grid.axes[0][k] + yc * grid.axes[1][k] + zc * grid.axes[2][k];
+				lo[k]   = fminf(lo[k], p);
+				hi[k]   = fmaxf(hi[k], p);
+			}
+		}
+		// What each light does at least and at most to a sphere that is inside the box.
+		float most[max_lights], least[max_lights], sorted[max_lights];
+		for (uint32_t i = 0; i < current_light_count; i++) {
+			const float* light = current_lights->light_position[i];
+			if (light[3] <= 0) {
+				most[i] = least[i] = light_weight[i];
+			} else {
+				float nearest = 0, farthest = 0;
+				for (int k = 0; k < 3; k++) {
+					float below = lo[k] - light[k], above = light[k] - hi[k];
+					float d     = fmaxf(fmaxf(below, above), 0.0f);
+					nearest += d * d;
+					float f = fmaxf(fabsf(light[k] - lo[k]), fabsf(light[k] - hi[k]));
+					farthest += f * f;
+				}
+				most[i]  = light_weight[i] * (light[3] / fmaxf(sqrtf(nearest), 0.01f));
+				least[i] = light_weight[i] * (light[3] / fmaxf(sqrtf(farthest), 0.01f));
+			}
+			sorted[i] = least[i];
+		}
+		// Eight lights that do at least this much make a light that can do less than it not one of the eight.
+		std::nth_element(sorted, sorted + (draw_lights - 1), sorted + current_light_count, [](float a, float b) { return a > b; });
+		float bar = sorted[draw_lights - 1] * 0.999f;
+		uint32_t kept = 0;
+		for (uint32_t i = 0; i < current_light_count; i++) {
+			if (most[i] * 1.001f >= bar && most[i] * 1.001f >= light_least) {
+				grid.lists[cell][kept++] = uint8_t(i);
+			}
+		}
+		grid.counts[cell] = kept;
+		grid.built[cell] = true;
+	}
+
+	// The cell that a sphere (relative to the camera) is completely in, or false if it is not in one.
+	static bool grid_cell_of(const float* center, float radius, uint32_t& cell)
+	{
+		float c[3];
+		for (int axis = 0; axis < 3; axis++) {
+			c[axis] = center[0] * grid.axes[axis][0] + center[1] * grid.axes[axis][1] + center[2] * grid.axes[axis][2];
+		}
+		if (c[2] <= grid.near_plane) {
+			return false;
+		}
+		float zr = logf(c[2] / grid.near_plane) / grid.log_range * 4.0f;
+		float u  = c[0] * grid.sx / c[2], v = c[1] * grid.sy / c[2];
+		if (zr >= 4.0f || u <= -1.0f || u >= 1.0f || v <= -1.0f || v >= 1.0f) {
+			return false;
+		}
+		cell = (uint32_t(zr) * 4 + uint32_t((v + 1.0f) * 2.0f)) * 4 + uint32_t((u + 1.0f) * 2.0f);
+		if (!grid.built[cell]) {
+			build_grid_cell(cell);
+		}
+		float margin = 1e-3f * (1.0f + radius);
+		for (int k = 0; k < 3; k++) {
+			if (center[k] - radius < grid.lo[cell][k] + margin || center[k] + radius > grid.hi[cell][k] - margin) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// Picks the eight lights that light a sphere (relative to the camera) the most, see light_effect. Nothing that is left out
+	// could have changed a pixel unless more than eight lights reach the sphere, so scenes with eight lights or fewer are lit as
+	// they always were.
 	static void choose_lights(float* out, bool have_sphere, const float* center, float radius)
 	{
 		uint32_t places[draw_lights];
@@ -1025,37 +1188,24 @@ namespace bb::gfx {
 			places[i] = (i < current_light_count) ? i : no_light;
 		}
 		if (have_sphere && current_light_count > draw_lights) {
-			float    effects[draw_lights];
-			uint32_t found = 0;
-			for (uint32_t i = 0; i < current_light_count; i++) {
-				const float* light  = current_lights->light_position[i];
-				const float* color  = current_lights->light_color[i];
-				float        effect = fabsf(color[0]) * 0.3f + fabsf(color[1]) * 0.59f + fabsf(color[2]) * 0.11f; // The size of the color: negative lights darken, and count as much as positive ones. A direction reaches everything.
-				if (light[3] > 0) {
-					float dx = light[0] - center[0], dy = light[1] - center[1], dz = light[2] - center[2];
-					float closest = fmaxf(sqrtf(dx * dx + dy * dy + dz * dz) - radius, 0.0f);
-					effect *= light[3] / fmaxf(closest, 0.01f);
+			uint32_t cell, found;
+			if (grid.enabled && grid_cell_of(center, radius, cell)) {
+				found = rate_lights(grid.lists[cell], grid.counts[cell], center, radius, places);
+				// With BLITZ_CHECK_LIGHTS the lights of all are rated as well, and have to be the same (the tests do that).
+				static const bool check = getenv("BLITZ_CHECK_LIGHTS") != nullptr;
+				if (check) {
+					uint32_t all[draw_lights];
+					uint32_t all_found = rate_lights(nullptr, current_light_count, center, radius, all);
+					if ((all_found != found) || memcmp(all, places, sizeof(uint32_t) * found)) {
+						fail("The lights of a cell are not the lights of the sphere.");
+					}
 				}
-				if (effect < 1.0f / 512.0f) {
-					continue; // Too little to see.
-				}
-				if (found == draw_lights && effect <= effects[found - 1]) {
-					continue;
-				}
-				uint32_t at = found < draw_lights ? found++ : found - 1;
-				while (at > 0 && effects[at - 1] < effect) {
-					effects[at] = effects[at - 1];
-					places[at]  = places[at - 1];
-					at--;
-				}
-				effects[at] = effect;
-				places[at]  = i;
+			} else {
+				found = rate_lights(nullptr, current_light_count, center, radius, places);
 			}
 			for (uint32_t i = found; i < draw_lights; i++) {
 				places[i] = no_light;
 			}
-			// In the order of the table, so that the same lights are always added in the same order.
-			std::sort(places, places + found);
 		}
 		pack_lights(out, places);
 	}
@@ -1664,6 +1814,11 @@ namespace bb::gfx {
 		scene.reflected    = reflected;
 		memcpy(static_cast<char*>(g.scene_mapped) + size_t(scene.slot) * scene_stride, &data, sizeof(data));
 		current_lights = &data; // What the draws of this pass choose their lights from.
+		for (uint32_t i = 0; i < current_light_count; i++) {
+			const float* color = data.light_color[i];
+			light_weight[i]    = fabsf(color[0]) * 0.3f + fabsf(color[1]) * 0.59f + fabsf(color[2]) * 0.11f;
+		}
+		prepare_light_grid(cam, data, float(vw), float(vh));
 
 		draw_list list;
 		// The planes of the view with the normals of length 1, from the rows of the matrix: left, right, bottom, top,
