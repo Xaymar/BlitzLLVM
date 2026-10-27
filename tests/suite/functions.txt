@@ -425,6 +425,7 @@ savebuffer	graphics	done	%SaveBuffer%buffer$bmpfile
 saveimage	graphics	done	%SaveImage%image$bmpfile%frame=0
 scaleimage	graphics	done	ScaleImage%image#xscale#yscale
 scanline	graphics	done	%ScanLine
+seekmovie	graphics	done	SeekMovie%movie#seconds
 setbuffer	graphics	done	SetBuffer%buffer
 setfont	graphics	done	SetFont%font
 setgamma	graphics	done	SetGamma%src_red%src_green%src_blue#dest_red#dest_green#dest_blue

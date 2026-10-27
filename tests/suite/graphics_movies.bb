@@ -81,6 +81,35 @@ For i = 0 To 2
 	Check "MoviePosition at the end of " + files(i), MoviePosition(movie), 3.0, 0.6
 	CloseMovie movie
 Next
+; SeekMovie puts the movie at a position: it plays on from there, also backwards and from the end.
+For i = 0 To 2
+	movie = OpenMovie(files(i))
+	SeekMovie movie, 2.0
+	Check "MoviePosition after SeekMovie 2 of " + files(i), MoviePosition(movie), 2.0, 0.3
+	started = MilliSecs()
+	While MoviePlaying(movie) And (MilliSecs() - started < 8000)
+		Delay 20
+	Wend
+	elapsed = MilliSecs() - started
+	Check "A movie seeked to 2 s ends after 1 s for " + files(i) + " (" + elapsed + " ms)", elapsed, 1000, 500
+	Check "MoviePlaying after the end of " + files(i), MoviePlaying(movie), 0
+	SeekMovie movie, 0.5
+	Check "MoviePlaying after SeekMovie back from the end of " + files(i), MoviePlaying(movie), 1
+	Check "MoviePosition after SeekMovie back of " + files(i), MoviePosition(movie), 0.5, 0.3
+	PauseMovie movie
+	SeekMovie movie, 1.5
+	Delay 300
+	Check "MoviePosition stays at the seek while " + files(i) + " is paused", MoviePosition(movie), 1.5, 0.05
+	SeekMovie movie, -4.0
+	Check "SeekMovie before the start of " + files(i), MoviePosition(movie), 0.0, 0.05
+	SeekMovie movie, 100.0
+	PlayMovie movie
+	Delay 300
+	Check "SeekMovie after the end of " + files(i), MoviePlaying(movie), 0
+	CloseMovie movie
+Next
+SeekMovie 0, 1.0
+
 Check "MovieLength of no movie", MovieLength(0), 0.0, 0.0001
 Check "MoviePosition of no movie", MoviePosition(0), 0.0, 0.0001
 

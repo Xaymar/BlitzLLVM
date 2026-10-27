@@ -66,6 +66,7 @@ EXTENSIONS = {
     "microseconds": ("runtime", "&Microseconds"),
     "playmovie": ("graphics", "PlayMovie%movie"),
     "pausemovie": ("graphics", "PauseMovie%movie"),
+    "seekmovie": ("graphics", "SeekMovie%movie#seconds"),
     "movielength": ("graphics", "#MovieLength%movie"),
     "movieposition": ("graphics", "#MoviePosition%movie"),
     "createsampler": ("blitz3d", "%CreateSampler"),
