@@ -19,16 +19,16 @@
 BrushBlend brush:Int32, blend:Int32
 ```
 
-## Description
-
-Chooses how painted surfaces are mixed with what is already on the screen: 1 alpha (the default), 2 multiply, 3 add. Any other number selects the default.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `brush` | Int32 | required | The brush. |
 | `blend` | Int32 | required | 1, 2 or 3. |
+
+## Description
+
+Chooses how painted surfaces are mixed with what is already on the screen: 1 alpha (the default), 2 multiply, 3 add. Any other number selects the default.
 
 ## Related Commands
 

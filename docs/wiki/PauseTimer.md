@@ -19,15 +19,15 @@
 PauseTimer timer:Int32
 ```
 
-## Description
-
-Stops a timer from ticking and posting events until [ResumeTimer](ResumeTimer) is called. Its tick count stays where it is.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `timer` | Int32 | required | A timer from `CreateTimer`. |
+
+## Description
+
+Stops a timer from ticking and posting events until [ResumeTimer](ResumeTimer) is called. Its tick count stays where it is.
 
 ## Examples
 

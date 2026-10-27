@@ -19,15 +19,15 @@
 UpdateNormals mesh:Int32
 ```
 
-## Description
-
-Works out the normals of every vertex of a mesh from its triangles. A normal tells lights which way a surface faces, so without it a mesh built from code is lit wrongly or not at all. Call it after adding vertices and triangles and again after you moved vertices. Shared vertices get the average of the triangles around them, which makes round shapes look smooth.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `mesh` | Int32 | required | Mesh handle. |
+
+## Description
+
+Works out the normals of every vertex of a mesh from its triangles. A normal tells lights which way a surface faces, so without it a mesh built from code is lit wrongly or not at all. Call it after adding vertices and triangles and again after you moved vertices. Shared vertices get the average of the triangles around them, which makes round shapes look smooth.
 
 ## Examples
 

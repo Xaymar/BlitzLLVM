@@ -19,6 +19,16 @@
 Animate entity:Int32, mode:Int32=1, speed:Float32=1, sequence:Int32=0, transition:Float32=0
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | The entity to animate. |
+| `mode` | Int32 | `1` | 0 stop, 1 loop, 2 ping-pong, 3 one-shot. Defaults to 1. |
+| `speed` | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
+| `sequence` | Int32 | `0` | Number of the sequence to play. Defaults to 0. |
+| `transition` | Float32 | `0` | Frames to blend from the current pose to the first frame. Defaults to 0. |
+
 ## Description
 
 Starts, changes or stops the skeletal or keyframe animation of an entity, such as a character loaded with [LoadAnimMesh](LoadAnimMesh). The animation then advances every time [UpdateWorld](UpdateWorld) runs. Entities that have no animation ignore the call.
@@ -32,19 +42,9 @@ Starts, changes or stops the skeletal or keyframe animation of an entity, such a
 
 A negative speed plays the sequence backwards. A model has sequence 0 after loading; more sequences come from [LoadAnimSeq](LoadAnimSeq), [AddAnimSeq](AddAnimSeq) and [ExtractAnimSeq](ExtractAnimSeq). Calling Animate again with the same mode and sequence only changes the speed and does not restart the animation.
 
-**Differences and known gaps:**
+## Differences
 
 * The transition argument is accepted but ignored: the entity jumps to the first frame of the new animation.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity to animate. |
-| `mode` | Int32 | `1` | 0 stop, 1 loop, 2 ping-pong, 3 one-shot. Defaults to 1. |
-| `speed` | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
-| `sequence` | Int32 | `0` | Number of the sequence to play. Defaults to 0. |
-| `transition` | Float32 | `0` | Frames to blend from the current pose to the first frame. Defaults to 0. |
 
 ## Examples
 

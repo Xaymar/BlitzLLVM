@@ -19,10 +19,6 @@
 PeekByte:Int32 bank:Int32, offset:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `offset` | Int32 | required | Position in bytes. |
 
 **Returns:** The byte at an offset, from 0 to 255.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

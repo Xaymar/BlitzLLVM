@@ -19,19 +19,19 @@
 Dither enable:Int32
 ```
 
-## Description
-
-Switches dithering for 16 bit color modes on or off, which hides banding in gradients.
-
-**Differences and known gaps:**
-
-* Does nothing: 16 bit modes are not supported and the screen always has 8 bits per color channel, so there is nothing to dither.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int32 | required | True to dither, False not to. |
+
+## Description
+
+Switches dithering for 16 bit color modes on or off, which hides banding in gradients.
+
+## Differences
+
+* Does nothing: 16 bit modes are not supported and the screen always has 8 bits per color channel, so there is nothing to dither.
 
 ## Related Commands
 

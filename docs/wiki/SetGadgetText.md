@@ -19,16 +19,16 @@
 SetGadgetText gadget:Int32, text:String
 ```
 
-## Description
-
-Changes the text of a gadget, like the caption of a button or label or the title of a window. Text fields and text areas have commands of their own, but this works on them too.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of a gadget that has text. |
 | `text` | String | required | The new text. |
+
+## Description
+
+Changes the text of a gadget, like the caption of a button or label or the title of a window. Text fields and text areas have commands of their own, but this works on them too.
 
 ## Examples
 

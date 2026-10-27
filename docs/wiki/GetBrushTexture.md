@@ -19,14 +19,6 @@
 GetBrushTexture:Int32 brush:Int32, index:Int32=0
 ```
 
-## Description
-
-Returns the texture on one layer of the brush, or 0 if there is none. Combine it with [TextureName](TextureName) to find out which file a painted surface uses.
-
-**Differences and known gaps:**
-
-* A layer without a texture gives 0. The original hands out a handle to an empty texture instead.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Returns the texture on one layer of the brush, or 0 if there is none. Combine it
 | `index` | Int32 | `0` | Layer number, 0 to 7. Defaults to 0. |
 
 **Returns:** A new handle for the texture of that layer, or 0. Free it separately when you no longer need it; the brush keeps its texture.
+
+## Description
+
+Returns the texture on one layer of the brush, or 0 if there is none. Combine it with [TextureName](TextureName) to find out which file a painted surface uses.
+
+## Differences
+
+* A layer without a texture gives 0. The original hands out a handle to an empty texture instead.
 
 ## Related Commands
 

@@ -19,15 +19,6 @@
 AddVertex:Int32 surface:Int32, x:Float32, y:Float32, z:Float32, u:Float32=0, v:Float32=0, w:Float32=1
 ```
 
-## Description
-
-Adds a point to a surface and returns its index, which counts from 0 and is what [AddTriangle](AddTriangle) wants. `x`, `y` and `z` are its position in the space of the mesh. `u` and `v` say which point of a texture lands on the vertex: 0, 0 is the top left of the texture and 1, 1 the bottom right, and values past 1 repeat the texture. The vertex starts with a white color and no normal, so call [UpdateNormals](UpdateNormals) once the triangles exist, or lights will not shade the mesh.
-Triangles that meet at a corner can share one vertex, which saves memory, but they then also share its normal, so edges look smooth. Add a vertex for each triangle to get a hard edge, like the corner of a cube.
-
-**Differences and known gaps:**
-
-* `w` is ignored.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -41,6 +32,15 @@ Triangles that meet at a corner can share one vertex, which saves memory, but th
 | `w` | Float32 | `1` | Third texture coordinate, unused. Defaults to 1. |
 
 **Returns:** The index of the new vertex, starting at 0.
+
+## Description
+
+Adds a point to a surface and returns its index, which counts from 0 and is what [AddTriangle](AddTriangle) wants. `x`, `y` and `z` are its position in the space of the mesh. `u` and `v` say which point of a texture lands on the vertex: 0, 0 is the top left of the texture and 1, 1 the bottom right, and values past 1 repeat the texture. The vertex starts with a white color and no normal, so call [UpdateNormals](UpdateNormals) once the triangles exist, or lights will not shade the mesh.
+Triangles that meet at a corner can share one vertex, which saves memory, but they then also share its normal, so edges look smooth. Add a vertex for each triangle to get a hard edge, like the corner of a cube.
+
+## Differences
+
+* `w` is ignored.
 
 ## Related Commands
 

@@ -19,16 +19,16 @@
 CameraFogMode camera:Int32, mode:Int32
 ```
 
-## Description
-
-Turns the camera's fog on or off. Fog fades everything toward the fog color with distance, which hides objects popping into view at the far limit. Every camera has its own fog, so two cameras can show the same world with and without it. Set the range with [CameraFogRange](CameraFogRange) and the color with [CameraFogColor](CameraFogColor); entities can opt out with the fog flag of `EntityFX`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `camera` | Int32 | required | Camera handle. |
 | `mode` | Int32 | required | 0 for no fog, 1 for linear fog. |
+
+## Description
+
+Turns the camera's fog on or off. Fog fades everything toward the fog color with distance, which hides objects popping into view at the far limit. Every camera has its own fog, so two cameras can show the same world with and without it. Set the range with [CameraFogRange](CameraFogRange) and the color with [CameraFogColor](CameraFogColor); entities can opt out with the fog flag of `EntityFX`.
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 CountSurfaces:Int32 mesh:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `mesh` | Int32 | required | Mesh handle. |
 
 **Returns:** The number of surfaces in the mesh.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

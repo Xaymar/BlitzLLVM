@@ -19,10 +19,6 @@
 CountChildren:Int32 entity:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `entity` | Int32 | required | Entity handle. |
 
 **Returns:** The number of entities that are directly attached to the entity.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

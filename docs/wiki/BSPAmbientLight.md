@@ -19,14 +19,6 @@
 BSPAmbientLight bsp:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
-## Description
-
-Sets a color that a level is brightened with. Levels ignore the normal [AmbientLight](AmbientLight). It can make a dark level easier to see, although using the gamma value of LoadBSP looks nicer in the original.
-
-**Differences and known gaps:**
-
-* Here the color multiplies the vertex colors: a new level starts at 255, 255, 255 and smaller values tint and darken it, down to black for 0, 0, 0. The original adds the color to the lightmap light and starts at 0, 0, 0.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Sets a color that a level is brightened with. Levels ignore the normal [AmbientL
 | `red` | Float32 | required | Red part, 0 to 255. |
 | `green` | Float32 | required | Green part, 0 to 255. |
 | `blue` | Float32 | required | Blue part, 0 to 255. |
+
+## Description
+
+Sets a color that a level is brightened with. Levels ignore the normal [AmbientLight](AmbientLight). It can make a dark level easier to see, although using the gamma value of LoadBSP looks nicer in the original.
+
+## Differences
+
+* Here the color multiplies the vertex colors: a new level starts at 255, 255, 255 and smaller values tint and darken it, down to black for 0, 0, 0. The original adds the color to the lightmap light and starts at 0, 0, 0.
 
 ## Related Commands
 

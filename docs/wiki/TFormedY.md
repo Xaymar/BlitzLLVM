@@ -19,13 +19,13 @@
 TFormedY:Float32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The Y of the result of the last [TFormPoint](TFormPoint), [TFormVector](TFormVector) or [TFormNormal](TFormNormal).
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

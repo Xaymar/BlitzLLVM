@@ -19,10 +19,6 @@
 UDPMsgIP:Int32 udp_stream:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `udp_stream` | Int32 | required | The stream. |
 
 **Returns:** The address of the sender of the last message that [RecvUDPMsg](RecvUDPMsg) received.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

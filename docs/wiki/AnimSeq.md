@@ -19,10 +19,6 @@
 AnimSeq:Int32 entity:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `entity` | Int32 | required | The entity. |
 
 **Returns:** The number of the sequence that the entity is playing or was last set to, starting at 0.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

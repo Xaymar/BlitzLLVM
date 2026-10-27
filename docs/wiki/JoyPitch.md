@@ -19,10 +19,6 @@
 JoyPitch:Float32 port:Int32=0
 ```
 
-## Description
-
-The rotation of the joystick around its X axis, from -180 to 180. Most gamepads have no such axis and give -180. See the note on the extra axes at [JoyZ](JoyZ).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The rotation of the joystick around its X axis, from -180 to 180. Most gamepads 
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The pitch in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
+
+## Description
+
+The rotation of the joystick around its X axis, from -180 to 180. Most gamepads have no such axis and give -180. See the note on the extra axes at [JoyZ](JoyZ).
 
 ## Related Commands
 

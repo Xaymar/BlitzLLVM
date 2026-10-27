@@ -19,10 +19,6 @@
 WriteFile:Int32 filename:String
 ```
 
-## Description
-
-Creates a file for writing. A file that already exists is emptied first.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Creates a file for writing. A file that already exists is emptied first.
 | `filename` | String | required | The file to create. |
 
 **Returns:** A file handle, or 0 when the file cannot be created.
+
+## Description
+
+Creates a file for writing. A file that already exists is emptied first.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 ReadAvail:Int32 stream:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `stream` | Int32 | required | The stream to check. |
 
 **Returns:** How many bytes can be read right now without waiting. It is meant for network streams, where data arrives over time. On a file it gives 0 or what is left.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

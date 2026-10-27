@@ -19,13 +19,13 @@
 RecvNetMsg:Int32
 ```
 
-## Description
-
-Takes the next message that arrived and makes it available to [NetMsgType](NetMsgType) and the other message commands. Call it in a loop until it returns 0, once per frame, to handle everything that arrived.
-
 ## Parameters
 
 **Returns:** 1 when a message was taken, 0 when nothing arrived.
+
+## Description
+
+Takes the next message that arrived and makes it available to [NetMsgType](NetMsgType) and the other message commands. Call it in a loop until it returns 0, once per frame, to handle everything that arrived.
 
 ## Examples
 

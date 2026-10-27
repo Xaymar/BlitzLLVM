@@ -19,14 +19,6 @@
 CopyRect source_x:Int32, source_y:Int32, width:Int32, height:Int32, dest_x:Int32, dest_y:Int32, src_buffer:Int32=0, dest_buffer:Int32=0
 ```
 
-## Description
-
-Copies a rectangle from one buffer to another, or inside the same buffer, even when the two areas overlap. It is much quicker than copying pixel by pixel, and the way to scroll a picture or to save a part of the screen.
-
-**Differences and known gaps:**
-
-* Parts of the rectangle that lie outside of either buffer are cut off.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -39,6 +31,14 @@ Copies a rectangle from one buffer to another, or inside the same buffer, even w
 | `dest_y` | Int32 | required | Top edge of the target area. |
 | `src_buffer` | Int32 | `0` | The buffer to copy from. Defaults to the current buffer. |
 | `dest_buffer` | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
+
+## Description
+
+Copies a rectangle from one buffer to another, or inside the same buffer, even when the two areas overlap. It is much quicker than copying pixel by pixel, and the way to scroll a picture or to save a part of the screen.
+
+## Differences
+
+* Parts of the rectangle that lie outside of either buffer are cut off.
 
 ## Examples
 

@@ -19,15 +19,15 @@
 CloseFile file_stream:Int32
 ```
 
-## Description
-
-Closes a file and writes out everything that is still waiting to be written. Always close the files you opened.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file_stream` | Int32 | required | The file handle. |
+
+## Description
+
+Closes a file and writes out everything that is still waiting to be written. Always close the files you opened.
 
 ## Related Commands
 

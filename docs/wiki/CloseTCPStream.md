@@ -19,15 +19,15 @@
 CloseTCPStream tcp_stream:Int32
 ```
 
-## Description
-
-Closes a TCP stream. The other side sees the stream end once it has read everything that was sent.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `tcp_stream` | Int32 | required | The stream to close. |
+
+## Description
+
+Closes a TCP stream. The other side sees the stream end once it has read everything that was sent.
 
 ## Related Commands
 

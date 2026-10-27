@@ -19,14 +19,6 @@
 ReadPixel:Int32 x:Int32, y:Int32, buffer:Int32=0
 ```
 
-## Description
-
-Returns the color of a pixel of a buffer as an ARGB number: red, green and blue are in the lower three bytes, `(color And $FFFFFF)`, and the top byte is the alpha, which is 255 for the screen. Take the parts apart with `Shr` and `And`. For many pixels, lock the buffer and use [ReadPixelFast](ReadPixelFast).
-
-**Differences and known gaps:**
-
-* Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ Returns the color of a pixel of a buffer as an ARGB number: red, green and blue 
 | `buffer` | Int32 | `0` | The buffer to read from. Defaults to the current buffer. |
 
 **Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
+
+## Description
+
+Returns the color of a pixel of a buffer as an ARGB number: red, green and blue are in the lower three bytes, `(color And $FFFFFF)`, and the top byte is the alpha, which is 255 for the screen. Take the parts apart with `Shr` and `And`. For many pixels, lock the buffer and use [ReadPixelFast](ReadPixelFast).
+
+## Differences
+
+* Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
 
 ## Examples
 

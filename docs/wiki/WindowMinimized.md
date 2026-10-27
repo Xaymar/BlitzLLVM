@@ -19,10 +19,6 @@
 WindowMinimized:Int32 window:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `window` | Int32 | required | Handle of a window. |
 
 **Returns:** 1 if the window is hidden with [MinimizeWindow](MinimizeWindow), otherwise 0.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

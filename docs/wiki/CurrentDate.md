@@ -19,13 +19,13 @@
 CurrentDate:String
 ```
 
-## Description
-
-Returns today's date from the system clock as day, abbreviated month and year, for example `26 Oct 2026`.
-
 ## Parameters
 
 **Returns:** The date as text.
+
+## Description
+
+Returns today's date from the system clock as day, abbreviated month and year, for example `26 Oct 2026`.
 
 ## Examples
 

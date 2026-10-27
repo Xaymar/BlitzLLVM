@@ -19,17 +19,17 @@
 DesktopBuffer:Int32
 ```
 
+## Parameters
+
+**Returns:** A buffer handle.
+
 ## Description
 
 Gives the buffer of the desktop, which is behind all windows. Drawing to it paints on the background that windows sit on.
 
-**Differences and known gaps:**
+## Differences
 
 * The desktop is the window of the program, so this is the same buffer as `FrontBuffer()`, not the screen of the computer. What you draw here is the backdrop of the windows: it stays when the interface is drawn again, and drawing later shows up. The original draws on the Windows desktop with the DirectDraw driver only.
-
-## Parameters
-
-**Returns:** A buffer handle.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 KeyHit:Int32 key:Int32
 ```
 
-## Description
-
-Counts how often a key was pressed since the last time KeyHit asked about that same key. The count starts again from zero on every call, so the key must be released and pressed again to count another time. This is the right choice for one-shot actions like pausing or shooting, while [KeyDown](KeyDown) suits continuous movement.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Counts how often a key was pressed since the last time KeyHit asked about that s
 | `key` | Int32 | required | The scancode of the key, 1 to 255. |
 
 **Returns:** How many times the key was pressed since the last call.
+
+## Description
+
+Counts how often a key was pressed since the last time KeyHit asked about that same key. The count starts again from zero on every call, so the key must be released and pressed again to count another time. This is the right choice for one-shot actions like pausing or shooting, while [KeyDown](KeyDown) suits continuous movement.
 
 ## Examples
 

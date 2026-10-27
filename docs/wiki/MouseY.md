@@ -19,13 +19,13 @@
 MouseY:Int32
 ```
 
-## Description
-
-The vertical position of the pointer in the graphics buffer, from 0 at the top to `GraphicsHeight() - 1`. See [MouseX](MouseX).
-
 ## Parameters
 
 **Returns:** The vertical position of the pointer.
+
+## Description
+
+The vertical position of the pointer in the graphics buffer, from 0 at the top to `GraphicsHeight() - 1`. See [MouseX](MouseX).
 
 ## Related Commands
 

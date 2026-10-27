@@ -19,19 +19,19 @@
 SetGfxDriver driver:Int32
 ```
 
-## Description
-
-Chooses the graphics driver for the next [Graphics](Graphics) call. This is the GPU that draws everything in the program, so it has to be called before the first [Graphics](Graphics), [LoadImage](LoadImage), [CreateTexture](CreateTexture) or any other command that makes an image or texture. The choice is kept when [EndGraphics](EndGraphics) closes the window.
-
-**Differences and known gaps:**
-
-* Any number except 1 to [CountGfxDrivers](CountGfxDrivers) stops the program with an error message. Calling it once the GPU is in use stops a program compiled with -d with an error message, and is ignored in any other build. A driver that cannot draw to the window (or does not do Vulkan 1.3) stops the program at [Graphics](Graphics).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `driver` | Int32 | required | The driver number, starting at 1. |
+
+## Description
+
+Chooses the graphics driver for the next [Graphics](Graphics) call. This is the GPU that draws everything in the program, so it has to be called before the first [Graphics](Graphics), [LoadImage](LoadImage), [CreateTexture](CreateTexture) or any other command that makes an image or texture. The choice is kept when [EndGraphics](EndGraphics) closes the window.
+
+## Differences
+
+* Any number except 1 to [CountGfxDrivers](CountGfxDrivers) stops the program with an error message. Calling it once the GPU is in use stops a program compiled with -d with an error message, and is ignored in any other build. A driver that cannot draw to the window (or does not do Vulkan 1.3) stops the program at [Graphics](Graphics).
 
 ## Related Commands
 

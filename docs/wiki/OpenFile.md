@@ -19,10 +19,6 @@
 OpenFile:Int32 filename:String
 ```
 
-## Description
-
-Opens an existing file for reading and writing at once, keeping what is in it. Use [SeekFile](SeekFile) to move around before you read or write.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Opens an existing file for reading and writing at once, keeping what is in it. U
 | `filename` | String | required | The file to open. |
 
 **Returns:** A file handle, or 0 when the file does not exist.
+
+## Description
+
+Opens an existing file for reading and writing at once, keeping what is in it. Use [SeekFile](SeekFile) to move around before you read or write.
 
 ## Examples
 

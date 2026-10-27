@@ -19,20 +19,20 @@
 SetCubeFace texture:Int32, face:Int32
 ```
 
-## Description
-
-Chooses which of the six faces of a cube map the next drawing on the texture buffer goes to: 0 left, 1 forward, 2 right, 3 backward, 4 up, 5 down. It is only useful for textures made with the cube map flag (128).
-
-**Differences and known gaps:**
-
-* The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y. On a texture that is no cube map the call does nothing. Drawing to the texture buffer, `RenderWorld` and the pixel commands all go to the face that is chosen.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `texture` | Int32 | required | The cube map texture. |
 | `face` | Int32 | required | Face number, 0 to 5. The default is 1. |
+
+## Description
+
+Chooses which of the six faces of a cube map the next drawing on the texture buffer goes to: 0 left, 1 forward, 2 right, 3 backward, 4 up, 5 down. It is only useful for textures made with the cube map flag (128).
+
+## Differences
+
+* The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y. On a texture that is no cube map the call does nothing. Drawing to the texture buffer, `RenderWorld` and the pixel commands all go to the face that is chosen.
 
 ## Related Commands
 

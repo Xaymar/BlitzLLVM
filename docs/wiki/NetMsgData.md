@@ -19,13 +19,13 @@
 NetMsgData:String
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The text of the message that [RecvNetMsg](RecvNetMsg) took last. It is empty for the system messages.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

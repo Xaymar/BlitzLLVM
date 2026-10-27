@@ -19,14 +19,6 @@
 RequestDir:String prompt:String=\
 ```
 
-## Description
-
-Opens the folder picker of the system and gives the folder that was chosen, or an empty string if the user cancelled.
-
-**Differences and known gaps:**
-
-* It is the folder dialog of the operating system, which differs between Windows, macOS and Linux. The prompt is the title, not text inside the dialog. Without a desktop session that can show one it returns an empty string.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Opens the folder picker of the system and gives the folder that was chosen, or a
 | `prompt` | String | `\` | Text for the title of the dialog. Defaults to an empty string. |
 
 **Returns:** The full path of the folder, or an empty string if nothing was picked.
+
+## Description
+
+Opens the folder picker of the system and gives the folder that was chosen, or an empty string if the user cancelled.
+
+## Differences
+
+* It is the folder dialog of the operating system, which differs between Windows, macOS and Linux. The prompt is the title, not text inside the dialog. Without a desktop session that can show one it returns an empty string.
 
 ## Examples
 

@@ -19,16 +19,16 @@
 WriteInt stream:Int32, int:Int32
 ```
 
-## Description
-
-Writes an integer in 4 bytes, low byte first.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `stream` | Int32 | required | The stream to write to. |
 | `int` | Int32 | required | The value to write. |
+
+## Description
+
+Writes an integer in 4 bytes, low byte first.
 
 ## Examples
 

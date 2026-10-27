@@ -19,10 +19,6 @@
 JoyZ:Float32 port:Int32=0
 ```
 
-## Description
-
-The third axis of the joystick, from -1 to 1. On a joystick it is usually the throttle slider, on a gamepad often a trigger. The yaw, pitch and roll commands read the axes after the five position axes, and scale them to degrees.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The third axis of the joystick, from -1 to 1. On a joystick it is usually the th
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The axis position from -1 to 1, -1 if the joystick has no such axis, or 0 if there is no joystick.
+
+## Description
+
+The third axis of the joystick, from -1 to 1. On a joystick it is usually the throttle slider, on a gamepad often a trigger. The yaw, pitch and roll commands read the axes after the five position axes, and scale them to degrees.
 
 ## Related Commands
 

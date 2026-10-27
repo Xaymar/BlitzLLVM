@@ -19,10 +19,6 @@
 EntityAutoFade entity:Int32, near:Float32, far:Float32
 ```
 
-## Description
-
-Makes an entity fade away with distance to the camera. Closer than `near` it is solid, farther than `far` it is invisible and between the two its alpha goes down gradually. This hides entities popping in at the far end of a scene without fog.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Makes an entity fade away with distance to the camera. Closer than `near` it is 
 | `entity` | Int32 | required | Entity handle. |
 | `near` | Float32 | required | Distance where fading starts. |
 | `far` | Float32 | required | Distance where the entity is gone. |
+
+## Description
+
+Makes an entity fade away with distance to the camera. Closer than `near` it is solid, farther than `far` it is invisible and between the two its alpha goes down gradually. This hides entities popping in at the far end of a scene without fog.
 
 ## Related Commands
 

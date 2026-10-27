@@ -19,13 +19,13 @@
 PickedSurface:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The handle of the surface that the latest pick hit, usable with the surface commands. It is 0 when the entity was picked as a sphere or box.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

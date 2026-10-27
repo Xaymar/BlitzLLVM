@@ -19,10 +19,6 @@
 JoyXDir:Int32 port:Int32=0
 ```
 
-## Description
-
-Like [JoyX](JoyX), but as a direction only: -1 when pushed left past a third of the range, 1 when pushed right past a third, otherwise 0. Handy for menus.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Like [JoyX](JoyX), but as a direction only: -1 when pushed left past a third of 
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** -1, 0 or 1.
+
+## Description
+
+Like [JoyX](JoyX), but as a direction only: -1 when pushed left past a third of the range, 1 when pushed right past a third, otherwise 0. Handy for menus.
 
 ## Related Commands
 

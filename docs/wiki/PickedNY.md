@@ -19,13 +19,13 @@
 PickedNY:Float32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The Y part of the surface normal at the picked point.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

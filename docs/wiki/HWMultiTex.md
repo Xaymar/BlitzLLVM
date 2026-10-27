@@ -19,19 +19,19 @@
 HWMultiTex enable:Int32
 ```
 
-## Description
-
-Switches multitexturing on or off, so that a triangle with several textures is drawn in one pass or in several.
-
-**Differences and known gaps:**
-
-* Accepted and ignored. Textures are always combined in a single pass.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int32 | required | True to use multitexturing when the card has it. |
+
+## Description
+
+Switches multitexturing on or off, so that a triangle with several textures is drawn in one pass or in several.
+
+## Differences
+
+* Accepted and ignored. Textures are always combined in a single pass.
 
 ## Related Commands
 

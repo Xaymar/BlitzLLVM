@@ -19,13 +19,13 @@
 ProjectedY:Float32
 ```
 
-## Description
-
-Gives the vertical screen position of the point that the last [CameraProject](CameraProject) looked at, in pixels from the top edge of the screen.
-
 ## Parameters
 
 **Returns:** The Y position in pixels.
+
+## Description
+
+Gives the vertical screen position of the point that the last [CameraProject](CameraProject) looked at, in pixels from the top edge of the screen.
 
 ## Related Commands
 

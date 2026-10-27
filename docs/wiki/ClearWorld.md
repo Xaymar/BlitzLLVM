@@ -19,10 +19,6 @@
 ClearWorld entities:Int32=1, brushes:Int32=1, textures:Int32=1
 ```
 
-## Description
-
-Frees entities, brushes and textures in one call, which suits changing from one level to the next. After it, handles of the cleared kind are no longer valid, so do not use them again. Cameras and lights are entities too, so create them again afterwards.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Frees entities, brushes and textures in one call, which suits changing from one 
 | `entities` | Int32 | `1` | True to free every entity. Defaults to True. |
 | `brushes` | Int32 | `1` | True to free every brush. Defaults to True. |
 | `textures` | Int32 | `1` | True to free every texture. Defaults to True. |
+
+## Description
+
+Frees entities, brushes and textures in one call, which suits changing from one level to the next. After it, handles of the cleared kind are no longer valid, so do not use them again. Cameras and lights are entities too, so create them again afterwards.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 NetPlayerName:String player:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `player` | Int32 | required | The player number. |
 
 **Returns:** The name of a player. The player number 0 gives `<all>` and one that does not exist gives `<unknown>`.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

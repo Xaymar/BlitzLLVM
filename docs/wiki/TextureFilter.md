@@ -19,18 +19,18 @@
 TextureFilter match_text:String, texture_flags:Int32=0
 ```
 
-## Description
-
-Adds a rule: every texture loaded afterwards whose file name contains the given text gets the extra flags. The test ignores upper and lower case, an empty text matches every file, and the rules add up, so a file that matches several rules gets all of their flags. The rules are only applied by [LoadTexture](LoadTexture), [LoadAnimTexture](LoadAnimTexture), brushes and mesh loading, and they do not change textures that already exist. [ClearTextureFilters](ClearTextureFilters) removes them all. At the start, and again every time a graphics mode is opened with Graphics or Graphics3D, there is one rule that matches every file and adds the flags 1 + 8 (color and mipmaps), and it replaces the rules you added before.
-
-This is mostly useful when loading a mesh, since you do not choose the flags of the textures it pulls in. A rule such as `TextureFilter "_alpha", 1 + 2` makes every file with `_alpha` in its name an alpha texture.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `match_text` | String | required | Text to look for in the file name. |
 | `texture_flags` | Int32 | `0` |  |
+
+## Description
+
+Adds a rule: every texture loaded afterwards whose file name contains the given text gets the extra flags. The test ignores upper and lower case, an empty text matches every file, and the rules add up, so a file that matches several rules gets all of their flags. The rules are only applied by [LoadTexture](LoadTexture), [LoadAnimTexture](LoadAnimTexture), brushes and mesh loading, and they do not change textures that already exist. [ClearTextureFilters](ClearTextureFilters) removes them all. At the start, and again every time a graphics mode is opened with Graphics or Graphics3D, there is one rule that matches every file and adds the flags 1 + 8 (color and mipmaps), and it replaces the rules you added before.
+
+This is mostly useful when loading a mesh, since you do not choose the flags of the textures it pulls in. A rule such as `TextureFilter "_alpha", 1 + 2` makes every file with `_alpha` in its name an alpha texture.
 
 ## Related Commands
 

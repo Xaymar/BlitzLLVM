@@ -19,10 +19,6 @@
 TextAreaSelLen:Int32 textarea:Int32, units:Int32=1
 ```
 
-## Description
-
-Gives how much is selected.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Gives how much is selected.
 | `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 **Returns:** The size of the selection.
+
+## Description
+
+Gives how much is selected.
 
 ## Examples
 

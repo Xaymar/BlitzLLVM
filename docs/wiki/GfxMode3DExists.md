@@ -19,10 +19,6 @@
 GfxMode3DExists:Int32 width:Int32, height:Int32, depth:Int32
 ```
 
-## Description
-
-Asks whether a resolution is available for 3D, before opening it with [Graphics3D](Graphics3D). It lets a game offer only the sizes that work.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Asks whether a resolution is available for 3D, before opening it with [Graphics3
 | `depth` | Int32 | required | Color depth in bits. |
 
 **Returns:** True if a full screen mode of that size can be used.
+
+## Description
+
+Asks whether a resolution is available for 3D, before opening it with [Graphics3D](Graphics3D). It lets a game offer only the sizes that work.
 
 ## Examples
 

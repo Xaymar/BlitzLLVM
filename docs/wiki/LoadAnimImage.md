@@ -19,12 +19,6 @@
 LoadAnimImage:Int32 bmpfile:String, cellwidth:Int32, cellheight:Int32, first:Int32, count:Int32
 ```
 
-## Description
-
-Loads a picture file that contains several frames next to each other and cuts it into the frames of one image. Frames are counted from left to right, then from top to bottom, and each is `cellwidth` by `cellheight` pixels. Choose one with the frame number of [DrawImage](DrawImage).
-
-The example makes its own sheet first with [CreateImage](CreateImage) and [SaveImage](SaveImage), so that it needs no other file.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +30,12 @@ The example makes its own sheet first with [CreateImage](CreateImage) and [SaveI
 | `count` | Int32 | required | How many frames to cut out. |
 
 **Returns:** A handle for the image, or 0 if the file could not be loaded or the frame size does not fit.
+
+## Description
+
+Loads a picture file that contains several frames next to each other and cuts it into the frames of one image. Frames are counted from left to right, then from top to bottom, and each is `cellwidth` by `cellheight` pixels. Choose one with the frame number of [DrawImage](DrawImage).
+
+The example makes its own sheet first with [CreateImage](CreateImage) and [SaveImage](SaveImage), so that it needs no other file.
 
 ## Examples
 

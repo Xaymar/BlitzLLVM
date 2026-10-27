@@ -19,10 +19,6 @@
 CameraClsColor camera:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
-## Description
-
-Sets the color this camera clears the buffer to before it draws. The default is black. Each part is clamped to 0 through 255. It only matters while [CameraClsMode](CameraClsMode) leaves color clearing on, which it does by default.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Sets the color this camera clears the buffer to before it draws. The default is 
 | `red` | Float32 | required | Red part, 0 to 255. |
 | `green` | Float32 | required | Green part, 0 to 255. |
 | `blue` | Float32 | required | Blue part, 0 to 255. |
+
+## Description
+
+Sets the color this camera clears the buffer to before it draws. The default is black. Each part is clamped to 0 through 255. It only matters while [CameraClsMode](CameraClsMode) leaves color clearing on, which it does by default.
 
 ## Examples
 

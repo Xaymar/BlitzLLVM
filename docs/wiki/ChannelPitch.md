@@ -19,20 +19,20 @@
 ChannelPitch channel:Int32, pitch:Int32
 ```
 
-## Description
-
-Changes the speed and the pitch of a channel that is playing or paused. The value is a sampling frequency in hertz: take the frequency of the sound as the middle value, so a 22050 Hz sound that is set to 44100 plays twice as fast and an octave higher.
-
-**Differences and known gaps:**
-
-* Changing the pitch also changes the speed, because the sound is resampled. There is no way to keep the speed.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound). |
 | `pitch` | Int32 | required |  |
+
+## Description
+
+Changes the speed and the pitch of a channel that is playing or paused. The value is a sampling frequency in hertz: take the frequency of the sound as the middle value, so a 22050 Hz sound that is set to 44100 plays twice as fast and an octave higher.
+
+## Differences
+
+* Changing the pitch also changes the speed, because the sound is resampled. There is no way to keep the speed.
 
 ## Examples
 

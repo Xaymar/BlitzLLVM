@@ -19,10 +19,6 @@
 JoyYaw:Float32 port:Int32=0
 ```
 
-## Description
-
-The rotation around the vertical axis, from -180 to 180. Most joysticks do not have this axis.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The rotation around the vertical axis, from -180 to 180. Most joysticks do not h
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The yaw in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
+
+## Description
+
+The rotation around the vertical axis, from -180 to 180. Most joysticks do not have this axis.
 
 ## Related Commands
 

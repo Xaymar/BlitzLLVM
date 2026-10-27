@@ -19,15 +19,15 @@
 ClearGadgetItems gadget:Int32
 ```
 
-## Description
-
-Removes every entry of a list box, combo box or tabber.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+
+## Description
+
+Removes every entry of a list box, combo box or tabber.
 
 ## Examples
 

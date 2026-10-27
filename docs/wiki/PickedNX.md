@@ -19,13 +19,13 @@
 PickedNX:Float32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The X part of the surface normal at the picked point: a direction of length 1 that points out of the surface, towards the side the line came from.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

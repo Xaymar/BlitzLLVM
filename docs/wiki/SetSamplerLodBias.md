@@ -19,22 +19,22 @@
 SetSamplerLodBias sampler:Int32, bias:Float32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Moves the point where the mip levels change. A positive bias uses the smaller (blurrier) levels sooner, a negative bias keeps the bigger (sharper) levels for longer, which looks sharper but can shimmer. 0 is the default. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
-
-**Differences and known gaps:**
-
-* The graphics card has a limit for the bias, and the value is kept inside of it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sampler` | Int32 | required | The sampler to change. |
 | `bias` | Float32 | required | The number of levels to add to the level that is picked. |
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Moves the point where the mip levels change. A positive bias uses the smaller (blurrier) levels sooner, a negative bias keeps the bigger (sharper) levels for longer, which looks sharper but can shimmer. 0 is the default. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
+
+## Differences
+
+* The graphics card has a limit for the bias, and the value is kept inside of it.
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 CreateMirror:Int32 parent:Int32=0
 ```
 
-## Description
-
-Creates a mirror entity: an endless horizontal floor that is invisible but flips everything above it to the other side, which is how a polished, reflecting floor was drawn in the original. Position it with [PositionEntity](PositionEntity) to set its height.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Creates a mirror entity: an endless horizontal floor that is invisible but flips
 | `parent` | Int32 | `0` | Entity the mirror follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the mirror.
+
+## Description
+
+Creates a mirror entity: an endless horizontal floor that is invisible but flips everything above it to the other side, which is how a polished, reflecting floor was drawn in the original. Position it with [PositionEntity](PositionEntity) to set its height.
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 CreateCone:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 ```
 
-## Description
-
-Creates a cone with a base radius of 1 and its tip pointing up the Y axis. With `solid` set to 0 the base is left open. 4 segments make a pyramid and 16 looks smooth. Valid values are 3 to 100.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Creates a cone with a base radius of 1 and its tip pointing up the Y axis. With 
 | `parent` | Int32 | `0` | Entity the cone follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new cone.
+
+## Description
+
+Creates a cone with a base radius of 1 and its tip pointing up the Y axis. With `solid` set to 0 the base is left open. 4 segments make a pyramid and 16 looks smooth. Valid values are 3 to 100.
 
 ## Examples
 

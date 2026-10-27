@@ -19,16 +19,16 @@
 WriteShort stream:Int32, short:Int32
 ```
 
-## Description
-
-Writes a number in 2 bytes, low byte first. Values outside 0 to 65535 wrap around.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `stream` | Int32 | required | The stream to write to. |
 | `short` | Int32 | required | The value to write. |
+
+## Description
+
+Writes a number in 2 bytes, low byte first. Values outside 0 to 65535 wrap around.
 
 ## Related Commands
 

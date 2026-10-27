@@ -19,10 +19,6 @@
 CollisionZ:Float32 entity:Int32, collision_index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `collision_index` | Int32 | required |  |
 
 **Returns:** The world Z coordinate of the point where the numbered collision touched.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

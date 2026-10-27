@@ -19,10 +19,6 @@
 Replace:String string:String, from:String, to:String
 ```
 
-## Description
-
-Replaces every occurrence of a piece of text with another. What was put in is not searched again, so replacing `a` with `aa` does not loop.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Replaces every occurrence of a piece of text with another. What was put in is no
 | `to` | String | required | What to put in its place. May be empty to remove it. |
 
 **Returns:** The changed text.
+
+## Description
+
+Replaces every occurrence of a piece of text with another. What was put in is not searched again, so replacing `a` with `aa` does not loop.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 RectsOverlap:Int32 x1:Int32, y1:Int32, width1:Int32, height1:Int32, x2:Int32, y2:Int32, width2:Int32, height2:Int32
 ```
 
-## Description
-
-Tells whether two rectangles touch. It works on plain numbers and needs no image, so it is a good quick test for boxes of any kind.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -37,6 +33,10 @@ Tells whether two rectangles touch. It works on plain numbers and needs no image
 | `height2` | Int32 | required | Height of the second rectangle. |
 
 **Returns:** 1 if the rectangles overlap, otherwise 0.
+
+## Description
+
+Tells whether two rectangles touch. It works on plain numbers and needs no image, so it is a good quick test for boxes of any kind.
 
 ## Examples
 

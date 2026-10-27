@@ -19,19 +19,19 @@
 FreeImage image:Int32
 ```
 
-## Description
-
-Releases an image and its video memory. The handle must not be used afterwards.
-
-**Differences and known gaps:**
-
-* Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `image` | Int32 | required | The image to free. |
+
+## Description
+
+Releases an image and its video memory. The handle must not be used afterwards.
+
+## Differences
+
+* Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
 
 ## Related Commands
 

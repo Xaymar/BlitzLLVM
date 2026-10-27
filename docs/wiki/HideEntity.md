@@ -19,15 +19,15 @@
 HideEntity entity:Int32
 ```
 
-## Description
-
-Makes an entity and all of its children invisible and takes them out of collisions. Hidden entities cost almost nothing to draw, so a good pattern is to create what you need at the start, hide it and use [CopyEntity](CopyEntity) and [ShowEntity](ShowEntity) later. To make something invisible that still collides, use [EntityAlpha](EntityAlpha) with 0.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
+
+## Description
+
+Makes an entity and all of its children invisible and takes them out of collisions. Hidden entities cost almost nothing to draw, so a good pattern is to create what you need at the start, hide it and use [CopyEntity](CopyEntity) and [ShowEntity](ShowEntity) later. To make something invisible that still collides, use [EntityAlpha](EntityAlpha) with 0.
 
 ## Related Commands
 

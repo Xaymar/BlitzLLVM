@@ -19,14 +19,6 @@
 CopyPixel src_x:Int32, src_y:Int32, src_buffer:Int32, dest_x:Int32, dest_y:Int32, dest_buffer:Int32=0
 ```
 
-## Description
-
-Copies one pixel from a buffer to another, or inside the same buffer. Each call has to work out where both pixels are, so for many pixels lock the buffers and use [CopyPixelFast](CopyPixelFast).
-
-**Differences and known gaps:**
-
-* A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -37,6 +29,14 @@ Copies one pixel from a buffer to another, or inside the same buffer. Each call 
 | `dest_x` | Int32 | required | Horizontal position to copy to. |
 | `dest_y` | Int32 | required | Vertical position to copy to. |
 | `dest_buffer` | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
+
+## Description
+
+Copies one pixel from a buffer to another, or inside the same buffer. Each call has to work out where both pixels are, so for many pixels lock the buffers and use [CopyPixelFast](CopyPixelFast).
+
+## Differences
+
+* A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
 
 ## Examples
 

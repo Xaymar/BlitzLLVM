@@ -19,17 +19,17 @@
 ActiveWindow:Int32
 ```
 
+## Parameters
+
+**Returns:** The handle of the window that is active now, or the one that was active last when your program has lost the focus. 0 if no window was made yet.
+
 ## Description
 
 _Not documented yet._
 
-**Differences and known gaps:**
+## Differences
 
 * The windows are inside the program's own window, so there is no "none of ours is active" state: the answer is always the window that was activated most recently.
-
-## Parameters
-
-**Returns:** The handle of the window that is active now, or the one that was active last when your program has lost the focus. 0 if no window was made yet.
 
 ## Related Commands
 

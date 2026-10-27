@@ -19,16 +19,16 @@
 ResizeBank bank:Int32, size:Int32
 ```
 
-## Description
-
-Changes the size of a bank. The start of the bank is kept, and when it grows the new part is filled with zeros.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `bank` | Int32 | required | The bank to resize. |
 | `size` | Int32 | required | The new size in bytes. |
+
+## Description
+
+Changes the size of a bank. The start of the bank is kept, and when it grows the new part is filled with zeros.
 
 ## Examples
 

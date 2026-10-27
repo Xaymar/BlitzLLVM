@@ -19,10 +19,6 @@
 SetStatusText:Int32 window:Int32, text:String
 ```
 
-## Description
-
-Writes text into the status bar at the bottom of a window, which was asked for with flag 8 of [CreateWindow](CreateWindow). The text cannot be read back.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Writes text into the status bar at the bottom of a window, which was asked for w
 | `text` | String | required | Text to show. |
 
 **Returns:** Always 0. The original returns a value that is not documented.
+
+## Description
+
+Writes text into the status bar at the bottom of a window, which was asked for with flag 8 of [CreateWindow](CreateWindow). The text cannot be read back.
 
 ## Examples
 

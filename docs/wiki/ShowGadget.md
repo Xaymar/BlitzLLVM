@@ -19,15 +19,15 @@
 ShowGadget gadget:Int32
 ```
 
-## Description
-
-Shows a gadget that was hidden with [HideGadget](HideGadget), together with the gadgets inside it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of the gadget. |
+
+## Description
+
+Shows a gadget that was hidden with [HideGadget](HideGadget), together with the gadgets inside it.
 
 ## Related Commands
 

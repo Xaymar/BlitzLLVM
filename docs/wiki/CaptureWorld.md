@@ -23,7 +23,7 @@ CaptureWorld
 
 Remembers the position, rotation and scale of every entity, so that [RenderWorld](RenderWorld) can draw the world between that state and the current one. Call it once per game logic step, before the entities move. See RenderWorld for an example.
 
-**Differences and known gaps:**
+## Differences
 
 * The original also remembers the alpha and the color of every entity and blends them during a tween. Only the position, rotation and scale are blended here: a fade or color change shows up in the last tween step at once.
 

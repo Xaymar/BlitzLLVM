@@ -19,14 +19,6 @@
 StringHeight:Int32 string:String
 ```
 
-## Description
-
-The height in pixels that a text has in the current font.
-
-**Differences and known gaps:**
-
-* Text has only one line, so this is always the height of one character.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ The height in pixels that a text has in the current font.
 | `string` | String | required | The text to measure. |
 
 **Returns:** The height of the text.
+
+## Description
+
+The height in pixels that a text has in the current font.
+
+## Differences
+
+* Text has only one line, so this is always the height of one character.
 
 ## Related Commands
 

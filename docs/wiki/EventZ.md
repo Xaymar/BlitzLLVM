@@ -19,13 +19,13 @@
 EventZ:Int32
 ```
 
-## Description
-
-Gives the third value of an event. Most events leave it at 0, it is only filled in when a [HotKeyEvent](HotKeyEvent) says what to put there. The official help lists this command as undocumented.
-
 ## Parameters
 
 **Returns:** The Z value, 0 if the event has none.
+
+## Description
+
+Gives the third value of an event. Most events leave it at 0, it is only filled in when a [HotKeyEvent](HotKeyEvent) says what to put there. The official help lists this command as undocumented.
 
 ## Examples
 

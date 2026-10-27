@@ -19,15 +19,15 @@
 SelectTreeViewNode node:Int32
 ```
 
-## Description
-
-Selects a node, as if the user clicked it. There is no way to remove the selection afterwards other than selecting another node.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `node` | Int32 | required | Handle of a node. |
+
+## Description
+
+Selects a node, as if the user clicked it. There is no way to remove the selection afterwards other than selecting another node.
 
 ## Related Commands
 

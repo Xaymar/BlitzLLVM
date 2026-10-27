@@ -19,14 +19,6 @@
 DrawImage image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
-## Description
-
-Draws a frame of an image at a position. The handle of the image, which is its top left corner unless [HandleImage](HandleImage), [MidHandle](MidHandle) or [AutoMidHandle](AutoMidHandle) says otherwise, ends up at the position. Pixels with the mask color of the image (black unless [MaskImage](MaskImage) changed it) are left out, so the picture can have any shape. Drawing is clipped by the viewport, and the [Origin](Origin) moves it.
-
-**Differences and known gaps:**
-
-* A frame number that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Draws a frame of an image at a position. The handle of the image, which is its t
 | `x` | Int32 | required | Horizontal position of the handle of the image. |
 | `y` | Int32 | required | Vertical position of the handle of the image. |
 | `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
+
+## Description
+
+Draws a frame of an image at a position. The handle of the image, which is its top left corner unless [HandleImage](HandleImage), [MidHandle](MidHandle) or [AutoMidHandle](AutoMidHandle) says otherwise, ends up at the position. Pixels with the mask color of the image (black unless [MaskImage](MaskImage) changed it) are left out, so the picture can have any shape. Drawing is clipped by the viewport, and the [Origin](Origin) moves it.
+
+## Differences
+
+* A frame number that does not exist stops the program with an error message.
 
 ## Examples
 

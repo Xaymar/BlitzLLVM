@@ -19,19 +19,19 @@
 RuntimeError message:String
 ```
 
-## Description
-
-Shows an error message and ends the program with a non-zero exit code. Use it for problems your program cannot recover from.
-
-**Differences and known gaps:**
-
-* The message is printed as `Runtime Error: ...` on the standard error output, not shown in a dialog box.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `message` | String | required | The text that describes what went wrong. |
+
+## Description
+
+Shows an error message and ends the program with a non-zero exit code. Use it for problems your program cannot recover from.
+
+## Differences
+
+* The message is printed as `Runtime Error: ...` on the standard error output, not shown in a dialog box.
 
 ## Examples
 

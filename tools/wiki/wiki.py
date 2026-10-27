@@ -24,7 +24,7 @@ holds:
 
 Differences.md is never edited by hand. It is a list of links, made by build from two places:
 
-  * Every command with a @gap line is listed with a link to the "Differences and known gaps" part of its page.
+  * Every command with a @gap line is listed with a link to the "Differences" part of its page.
   * Every page in tools/wiki/pages/ with a line "@difference One sentence summary." is listed as a feature, so a
     difference that no single command causes (mip maps, the depth buffer, new types) gets a file of its own there.
 """
@@ -65,8 +65,8 @@ DIALECT_TEXT = {
 
 
 INTROS = {}
-# The sections of a command page, in order. Only the first, second and last are always there.
-PAGE_SECTIONS = ["Command Syntax", "Description", "Parameters", "Examples", "Media", "Related Commands"]
+# The sections of a command page, in order. Only Command Syntax, Description and Related Commands are always there.
+PAGE_SECTIONS = ["Command Syntax", "Parameters", "Description", "Differences", "Examples", "Media", "Related Commands"]
 # Appended to every list entry and title of a command that the original Blitz products do not have. Which commands
 # those are comes from EXTENSIONS in tools/suite_functions.py, the list of what BlitzLLVM adds.
 EXTENSION_MARK = "\u3014BlitzLLVM\u3015"
@@ -230,15 +230,7 @@ def command_page(c, siblings):
                     (ICONS[n][1], ICONS[n][0], ICONS[n][0]) for n in reversed(names))
     out = [icons + "\n" if icons else "", "# %s%s\n" % (c.name, c.mark),
            nav(c) + "\n",
-           "## Command Syntax\n", "```blitzbasic\n%s\n```\n" % c.signature(), "## Description\n"]
-    if c.extension:
-        out.append("**%s** This command does not exist in the original Blitz products. BlitzLLVM adds it.\n" %
-                   EXTENSION_MARK)
-    out.append(description + "\n" if description else "_Not documented yet._\n")
-    if doc["gap"]:
-        out.append("**Differences and known gaps:**\n")
-        out.extend("* " + g for g in doc["gap"])
-        out.append("")
+           "## Command Syntax\n", "```blitzbasic\n%s\n```\n" % c.signature()]
     if c.params or doc["returns"]:
         out.append("## Parameters\n")
     if c.params:
@@ -248,6 +240,15 @@ def command_page(c, siblings):
         out.append("")
     if doc["returns"]:
         out.append("**Returns:** %s\n" % doc["returns"])
+    out.append("## Description\n")
+    if c.extension:
+        out.append("**%s** This command does not exist in the original Blitz products. BlitzLLVM adds it.\n" %
+                   EXTENSION_MARK)
+    out.append(description + "\n" if description else "_Not documented yet._\n")
+    if doc["gap"]:
+        out.append("## Differences\n")
+        out.extend("* " + g for g in doc["gap"])
+        out.append("")
     if examples:
         out.append("## Examples\n")
         out.append(examples + "\n")
@@ -356,9 +357,9 @@ def differences_page(commands):
     out.extend("* [%s](%s): %s" % (title, page, summary) for page, title, summary in
                sorted(feature_pages(), key=lambda f: f[1].lower()))
     out += ["", "## Commands\n", "Commands that differ from the original or are not finished, with the first of the "
-            "differences from the \"Differences and known gaps\" part of their page.\n"]
+            "differences from the \"Differences\" part of their page.\n"]
     gapped = sorted((c for c in commands if split_text(c.text)[1]["gap"]), key=lambda c: c.name.lower())
-    out.extend("* [%s](%s#differences-and-known-gaps)%s: %s" % (c.name, c.name, c.mark,
+    out.extend("* [%s](%s#differences)%s: %s" % (c.name, c.name, c.mark,
                                                               first_sentence(split_text(c.text)[1]["gap"][0]))
                for c in gapped)
     return "\n".join(out)

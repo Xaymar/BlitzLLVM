@@ -19,10 +19,6 @@
 VectorPitch:Float32 x:Float32, y:Float32, z:Float32
 ```
 
-## Description
-
-Finds the pitch angle that an entity would need to point along a direction. 0, 0, 1 gives 0, 0, -1, 1 gives 45 (looking down) and 0, 1, 1 gives -45 (looking up). Together with [VectorYaw](VectorYaw) it turns a movement or a difference of two positions into a rotation.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Finds the pitch angle that an entity would need to point along a direction. 0, 0
 | `z` | Float32 | required | Z of the direction. |
 
 **Returns:** The pitch angle in degrees.
+
+## Description
+
+Finds the pitch angle that an entity would need to point along a direction. 0, 0, 1 gives 0, 0, -1, 1 gives 45 (looking down) and 0, 1, 1 gives -45 (looking up). Together with [VectorYaw](VectorYaw) it turns a movement or a difference of two positions into a rotation.
 
 ## Related Commands
 

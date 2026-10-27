@@ -19,10 +19,6 @@
 FileSize:Int32 file:String
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `file` | String | required | The name of the file. Strings are stored with a 4 byte length in front, so "hello" takes 9 bytes. |
 
 **Returns:** The size of a file in bytes, or 0 when it does not exist.
+
+## Description
+
+_Not documented yet._
 
 ## Examples
 

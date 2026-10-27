@@ -19,6 +19,15 @@
 Collisions source_type:Int32, destination_type:Int32, method:Int32, response:Int32
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `source_type` | Int32 | required | Collision type of the entities that move. |
+| `destination_type` | Int32 | required | Collision type of the entities they can hit. |
+| `method` | Int32 | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
+| `response` | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. |
+
 ## Description
 
 Switches on collision checking between two entity types, and says how it should work. All checking, and the movement that follows from it, happens inside [UpdateWorld](UpdateWorld). Between calls, the entity can be moved freely with [MoveEntity](MoveEntity), [TranslateEntity](TranslateEntity) and so on; UpdateWorld then walks the entity from where it was at the last update to where you put it, and stops or slides it if something is in the way.
@@ -39,18 +48,9 @@ The source type is the one that moves and gets pushed back. The destination type
 
 Hidden entities, and entities with a hidden parent, are not collided with.
 
-**Differences and known gaps:**
+## Differences
 
 * Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `source_type` | Int32 | required | Collision type of the entities that move. |
-| `destination_type` | Int32 | required | Collision type of the entities they can hit. |
-| `method` | Int32 | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
-| `response` | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. |
 
 ## Examples
 

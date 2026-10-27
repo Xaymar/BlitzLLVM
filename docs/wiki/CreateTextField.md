@@ -19,12 +19,6 @@
 CreateTextField:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a box for a single line of text. A $401 event is sent for each change and its [EventData](EventData) is the character typed, and Enter sends one with 13. Style 1 shows stars instead of what is typed, for passwords. Read the text with [TextFieldText](TextFieldText) and set it with [SetGadgetText](SetGadgetText).
-
-Text fields use Enter and Escape themselves, so use a button of style 4 or 5 to react to these keys, see [CreateButton](CreateButton).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -37,6 +31,12 @@ Text fields use Enter and Escape themselves, so use a button of style 4 or 5 to 
 | `style` | Int32 | `0` | 1 for a password field, plus 65536 for not following the group. Defaults to 0. |
 
 **Returns:** A handle for the text field.
+
+## Description
+
+Makes a box for a single line of text. A $401 event is sent for each change and its [EventData](EventData) is the character typed, and Enter sends one with 13. Style 1 shows stars instead of what is typed, for passwords. Read the text with [TextFieldText](TextFieldText) and set it with [SetGadgetText](SetGadgetText).
+
+Text fields use Enter and Escape themselves, so use a button of style 4 or 5 to react to these keys, see [CreateButton](CreateButton).
 
 ## Examples
 

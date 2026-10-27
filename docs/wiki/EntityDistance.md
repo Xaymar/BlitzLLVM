@@ -19,10 +19,6 @@
 EntityDistance:Float32 source_entity:Int32, destination_entity:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `destination_entity` | Int32 | required | Second entity handle. |
 
 **Returns:** The distance between the world positions of two entities.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,14 +19,6 @@
 Input:String prompt:String=\
 ```
 
-## Description
-
-Reads a line of text that the user types, ended with Enter, and returns it without the line end. The prompt is shown first. When a graphics window is open the prompt and the typed line are drawn into it like [Print](Print) does, with a blinking block as cursor. Return ends the line, Escape clears it, and Backspace, Delete, Home, End, Left and Right edit it.
-
-**Differences and known gaps:**
-
-* Without a graphics window the prompt is written to the console (standard output) and the line is read from the console (standard input). If there is no console either, for example when the program was started from a menu, the result is an empty string.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Reads a line of text that the user types, ended with Enter, and returns it witho
 | `prompt` | String | `\` | Text to show before the input. Defaults to nothing. |
 
 **Returns:** The line that was typed.
+
+## Description
+
+Reads a line of text that the user types, ended with Enter, and returns it without the line end. The prompt is shown first. When a graphics window is open the prompt and the typed line are drawn into it like [Print](Print) does, with a blinking block as cursor. Return ends the line, Escape clears it, and Backspace, Delete, Home, End, Left and Right edit it.
+
+## Differences
+
+* Without a graphics window the prompt is written to the console (standard output) and the line is read from the console (standard input). If there is no console either, for example when the program was started from a menu, the result is an empty string.
 
 ## Related Commands
 

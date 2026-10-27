@@ -19,10 +19,6 @@
 ImageRectCollide:Int32 image:Int32, x:Int32, y:Int32, frame:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32
 ```
 
-## Description
-
-Tells whether a rectangle touches any visible (not masked) pixel of a frame of an image placed at a position. It is exact, unlike [ImageRectOverlap](ImageRectOverlap), which only compares the box of the image.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -37,6 +33,10 @@ Tells whether a rectangle touches any visible (not masked) pixel of a frame of a
 | `rect_height` | Int32 | required | Height of the rectangle. |
 
 **Returns:** 1 if the rectangle touches a pixel of the image, otherwise 0.
+
+## Description
+
+Tells whether a rectangle touches any visible (not masked) pixel of a frame of an image placed at a position. It is exact, unlike [ImageRectOverlap](ImageRectOverlap), which only compares the box of the image.
 
 ## Examples
 

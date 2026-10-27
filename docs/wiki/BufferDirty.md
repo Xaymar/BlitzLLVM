@@ -19,19 +19,19 @@
 BufferDirty buffer:Int32
 ```
 
-## Description
-
-Tells the system that a buffer was changed behind its back so that it has to be refreshed. The original needed this for buffers that were kept in two places. Nothing is kept twice here, so the call is accepted and does nothing.
-
-**Differences and known gaps:**
-
-* Has no effect.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `buffer` | Int32 | required | The buffer that was changed. |
+
+## Description
+
+Tells the system that a buffer was changed behind its back so that it has to be refreshed. The original needed this for buffers that were kept in two places. Nothing is kept twice here, so the call is accepted and does nothing.
+
+## Differences
+
+* Has no effect.
 
 ## Related Commands
 

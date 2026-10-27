@@ -19,14 +19,6 @@
 LightMesh mesh:Int32, red:Float32, green:Float32, blue:Float32, range:Float32=0, x:Float32=0, y:Float32=0, z:Float32=0
 ```
 
-## Description
-
-Lights a mesh without any light in the world, by adding color to its vertices once. It is a fast way to bake the look of a light into static geometry, or to fake lights beyond the limit of 8. The mesh must have vertex colors switched on with `EntityFX mesh, 2` or the change stays invisible. New meshes have white vertices, so the added light has nothing to brighten until you darken them with [VertexColor](VertexColor).
-
-With a `range` of 0 the color is added to every vertex alike. Otherwise only vertices that face the position get light, and the more directly they face it and the closer they are, the more they get. `range` scales the strength, so doubling it doubles the light.
-
-The color is added to what the vertices already have and is kept: calling the command again brightens the mesh further, and it is not undone by anything but painting the vertices again.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -39,6 +31,14 @@ The color is added to what the vertices already have and is kept: calling the co
 | `x` | Float32 | `0` | X position of the light in the mesh's own space. Defaults to 0. |
 | `y` | Float32 | `0` | Y position of the light in the mesh's own space. Defaults to 0. |
 | `z` | Float32 | `0` | Z position of the light in the mesh's own space. Defaults to 0. |
+
+## Description
+
+Lights a mesh without any light in the world, by adding color to its vertices once. It is a fast way to bake the look of a light into static geometry, or to fake lights beyond the limit of 8. The mesh must have vertex colors switched on with `EntityFX mesh, 2` or the change stays invisible. New meshes have white vertices, so the added light has nothing to brighten until you darken them with [VertexColor](VertexColor).
+
+With a `range` of 0 the color is added to every vertex alike. Otherwise only vertices that face the position get light, and the more directly they face it and the closer they are, the more they get. `range` scales the strength, so doubling it doubles the light.
+
+The color is added to what the vertices already have and is kept: calling the command again brightens the mesh further, and it is not undone by anything but painting the vertices again.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 TerrainX:Float32 terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float32
 ```
 
-## Description
-
-Looks at the terrain from straight above a point in the world and returns the X coordinate of the point of the ground that lies there. For a terrain that is not rotated, this is simply the X you passed in; with a rotated terrain it tells you where the ground really is.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Looks at the terrain from straight above a point in the world and returns the X 
 | `world_z` | Float32 | required |  |
 
 **Returns:** The world X coordinate of the ground below or above the point.
+
+## Description
+
+Looks at the terrain from straight above a point in the world and returns the X coordinate of the point of the ground that lies there. For a terrain that is not rotated, this is simply the X you passed in; with a rotated terrain it tells you where the ground really is.
 
 ## Related Commands
 

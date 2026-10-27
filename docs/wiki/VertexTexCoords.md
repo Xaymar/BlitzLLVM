@@ -19,14 +19,6 @@
 VertexTexCoords surface:Int32, index:Int32, u:Float32, v:Float32, w:Float32=1, coord_set:Int32=0
 ```
 
-## Description
-
-Sets which point of the texture a vertex shows. 0, 0 is the top left of the texture and 1, 1 is the bottom right. Values above 1 repeat the texture, so a quad with the coordinates 0 to 3 shows the texture three times in each direction. A second set of coordinates, picked with `coord_set` 1, is used by the second texture layer in the original, for example for light maps.
-
-**Differences and known gaps:**
-
-* `w` is ignored.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -37,6 +29,14 @@ Sets which point of the texture a vertex shows. 0, 0 is the top left of the text
 | `v` | Float32 | required | Vertical texture coordinate. |
 | `w` | Float32 | `1` | Third coordinate, unused. Defaults to 1. |
 | `coord_set` | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
+
+## Description
+
+Sets which point of the texture a vertex shows. 0, 0 is the top left of the texture and 1, 1 is the bottom right. Values above 1 repeat the texture, so a quad with the coordinates 0 to 3 shows the texture three times in each direction. A second set of coordinates, picked with `coord_set` 1, is used by the second texture layer in the original, for example for light maps.
+
+## Differences
+
+* `w` is ignored.
 
 ## Examples
 

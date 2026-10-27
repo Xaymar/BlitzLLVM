@@ -19,10 +19,6 @@
 TCPStreamPort:Int32 tcp_stream:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `tcp_stream` | Int32 | required | The stream. |
 
 **Returns:** The port on the other end of a TCP stream.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

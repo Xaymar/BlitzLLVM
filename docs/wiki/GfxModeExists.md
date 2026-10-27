@@ -19,14 +19,6 @@
 GfxModeExists:Int32 width:Int32, height:Int32, depth:Int32
 ```
 
-## Description
-
-Tells whether the display has a mode of this size and color depth, so that a program can ask before it opens that mode.
-
-**Differences and known gaps:**
-
-* A 0 for the width or height means "anything fits", like in BlitzPlus. A window of any size can be opened here whether or not it is in the list: the list only has the modes for full screen.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ Tells whether the display has a mode of this size and color depth, so that a pro
 | `depth` | Int32 | required | The color depth in bits, which is not looked at, because every mode has 32 bits. |
 
 **Returns:** 1 if a mode like that exists, otherwise 0.
+
+## Description
+
+Tells whether the display has a mode of this size and color depth, so that a program can ask before it opens that mode.
+
+## Differences
+
+* A 0 for the width or height means "anything fits", like in BlitzPlus. A window of any size can be opened here whether or not it is in the list: the list only has the modes for full screen.
 
 ## Examples
 

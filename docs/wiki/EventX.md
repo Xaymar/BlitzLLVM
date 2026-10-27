@@ -19,13 +19,13 @@
 EventX:Int32
 ```
 
-## Description
-
-Gives the first coordinate of the last event: where the mouse was for $203 and $205, and where a window went to for $801 or how wide it became for $802.
-
 ## Parameters
 
 **Returns:** The X value, see the table at [EventData](EventData). Positions on a canvas are relative to the canvas.
+
+## Description
+
+Gives the first coordinate of the last event: where the mouse was for $203 and $205, and where a window went to for $801 or how wide it became for $802.
 
 ## Examples
 

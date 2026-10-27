@@ -19,10 +19,6 @@
 GadgetX:Int32 gadget:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `gadget` | Int32 | required | Handle of the gadget. |
 
 **Returns:** The horizontal position inside its group, which is not the position on the screen.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,13 +19,13 @@
 NetMsgType:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The type of the last message: the number that was given to [SendNetMsg](SendNetMsg), or 100, 101 or 200 for the messages of the system.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

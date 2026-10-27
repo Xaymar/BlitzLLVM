@@ -19,10 +19,6 @@
 DeltaPitch:Float32 src_entity:Int32, dest_entity:Int32
 ```
 
-## Description
-
-Tells you how far an entity has to tilt around its sideways axis to look at another entity. The result is in degrees, between -180 and 180. A positive angle looks down, as with [EntityPitch](EntityPitch), so a target above the entity gives a negative number.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Tells you how far an entity has to tilt around its sideways axis to look at anot
 | `dest_entity` | Int32 | required | The entity it should look at. |
 
 **Returns:** The tilt needed, in degrees.
+
+## Description
+
+Tells you how far an entity has to tilt around its sideways axis to look at another entity. The result is in degrees, between -180 and 180. A positive angle looks down, as with [EntityPitch](EntityPitch), so a target above the entity gives a negative number.
 
 ## Related Commands
 

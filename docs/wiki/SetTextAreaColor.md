@@ -19,10 +19,6 @@
 SetTextAreaColor textarea:Int32, red:Int32, green:Int32, blue:Int32, background:Int32=0
 ```
 
-## Description
-
-Sets the color of the text, or with the last parameter the color of the background, of the whole text area.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Sets the color of the text, or with the last parameter the color of the backgrou
 | `green` | Int32 | required | Green part, 0 to 255. |
 | `blue` | Int32 | required | Blue part, 0 to 255. |
 | `background` | Int32 | `0` | 0 sets the text color, 1 sets the background color. Defaults to 0. |
+
+## Description
+
+Sets the color of the text, or with the last parameter the color of the background, of the whole text area.
 
 ## Examples
 

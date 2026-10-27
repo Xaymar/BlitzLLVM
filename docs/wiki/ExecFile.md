@@ -19,10 +19,6 @@
 ExecFile command:String
 ```
 
-## Description
-
-Runs a command or another program and waits until it ends.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Runs a command or another program and waits until it ends.
 | `command` | String | required | The command line to run. It is run by the system shell. |
 
 **Returns:** 1 when the command ran and ended without an error, otherwise 0.
+
+## Description
+
+Runs a command or another program and waits until it ends.
 
 ## Examples
 

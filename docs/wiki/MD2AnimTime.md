@@ -19,10 +19,6 @@
 MD2AnimTime:Float32 md2:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `md2` | Int32 | required | The MD2 entity. |
 
 **Returns:** The exact frame that the MD2 model is at. Between frames 3 and 4 the value lies between 3 and 4.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

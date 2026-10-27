@@ -19,22 +19,22 @@
 SetSamplerAnisotropy sampler:Int32, anisotropy:Float32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Sets the most samples that are taken along a slanted surface, such as a floor that goes far into the distance. Anisotropic filtering keeps these surfaces sharp where plain mip mapping makes them blurry. 1 (or less) turns it off, 16 is the usual most. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers. It does not change a texture that is seen straight on.
-
-**Differences and known gaps:**
-
-* The graphics card has a limit and the value is lowered to it, and a card that can not do anisotropic filtering reads as if it was 1.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sampler` | Int32 | required | The sampler to change. |
 | `anisotropy` | Float32 | required | The most samples along the surface, 1 or more. |
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Sets the most samples that are taken along a slanted surface, such as a floor that goes far into the distance. Anisotropic filtering keeps these surfaces sharp where plain mip mapping makes them blurry. 1 (or less) turns it off, 16 is the usual most. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers. It does not change a texture that is seen straight on.
+
+## Differences
+
+* The graphics card has a limit and the value is lowered to it, and a card that can not do anisotropic filtering reads as if it was 1.
 
 ## Related Commands
 

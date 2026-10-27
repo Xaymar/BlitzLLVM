@@ -19,6 +19,13 @@
 EntityFX entity:Int32, fx:Int32
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `fx` | Int32 | required | Sum of the effect flags, 0 for none. |
+
 ## Description
 
 Switches extra effects on for an entity. The flags add up, so 3 is full-bright with vertex colors.
@@ -29,13 +36,6 @@ Switches extra effects on for an entity. The flags add up, so 3 is full-bright w
 * **8**: the entity ignores fog.
 * **16**: draw both sides of the triangles.
 * **32**: force alpha blending, which is needed for the alpha of vertex colors to work.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `fx` | Int32 | required | Sum of the effect flags, 0 for none. |
 
 ## Examples
 

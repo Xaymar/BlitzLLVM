@@ -19,13 +19,13 @@
 MilliSecs:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** A number of milliseconds that keeps growing while the program runs. Its start is not fixed, so use the difference between two calls to measure time.
+
+## Description
+
+_Not documented yet._
 
 ## Examples
 

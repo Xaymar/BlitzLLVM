@@ -19,20 +19,20 @@
 TextureCoords texture:Int32, coords:Int32
 ```
 
-## Description
-
-Chooses which set of texture coordinates of the mesh the texture reads: 0 for the first set, 1 for the second.
-
-**Differences and known gaps:**
-
-* Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `texture` | Int32 | required | The texture. |
 | `coords` | Int32 | required | 0 or 1. |
+
+## Description
+
+Chooses which set of texture coordinates of the mesh the texture reads: 0 for the first set, 1 for the second.
+
+## Differences
+
+* Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
 
 ## Related Commands
 

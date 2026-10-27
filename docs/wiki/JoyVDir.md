@@ -19,10 +19,6 @@
 JoyVDir:Int32 port:Int32=0
 ```
 
-## Description
-
-Like [JoyV](JoyV), but as a direction only: -1, 0 or 1.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Like [JoyV](JoyV), but as a direction only: -1, 0 or 1.
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** -1, 0 or 1.
+
+## Description
+
+Like [JoyV](JoyV), but as a direction only: -1, 0 or 1.
 
 ## Related Commands
 

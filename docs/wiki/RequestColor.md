@@ -19,14 +19,6 @@
 RequestColor:Int32 red:Int32=255, green:Int32=255, blue:Int32=255
 ```
 
-## Description
-
-Opens a color picker with three sliders and waits until the user presses OK or Cancel. Read the picked color with [RequestedRed](RequestedRed), [RequestedGreen](RequestedGreen) and [RequestedBlue](RequestedBlue). While the picker is open nothing else in the program window reacts.
-
-**Differences and known gaps:**
-
-* The picker is drawn by the program inside its own window and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors. Return confirms and Escape cancels.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ Opens a color picker with three sliders and waits until the user presses OK or C
 | `blue` | Int32 | `255` | Blue the sliders start at, 0 to 255. Defaults to 255. |
 
 **Returns:** 1 if the user pressed OK, 0 if the dialog was cancelled.
+
+## Description
+
+Opens a color picker with three sliders and waits until the user presses OK or Cancel. Read the picked color with [RequestedRed](RequestedRed), [RequestedGreen](RequestedGreen) and [RequestedBlue](RequestedBlue). While the picker is open nothing else in the program window reacts.
+
+## Differences
+
+* The picker is drawn by the program inside its own window and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors. Return confirms and Escape cancels.
 
 ## Examples
 

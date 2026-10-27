@@ -19,12 +19,6 @@
 GfxMode3DWidth:Int32 mode:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-The width in pixels of a mode from the list of 3D modes. This is a BlitzLLVM extension: the original has no way to ask a 3D mode for its size, other than [GfxModeWidth](GfxModeWidth) for the same number. A mode number that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ The width in pixels of a mode from the list of 3D modes. This is a BlitzLLVM ext
 | `mode` | Int32 | required | Number of the mode, 1 to [CountGfxModes3D](CountGfxModes3D). |
 
 **Returns:** The width in pixels.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+The width in pixels of a mode from the list of 3D modes. This is a BlitzLLVM extension: the original has no way to ask a 3D mode for its size, other than [GfxModeWidth](GfxModeWidth) for the same number. A mode number that does not exist stops the program with an error message.
 
 ## Related Commands
 

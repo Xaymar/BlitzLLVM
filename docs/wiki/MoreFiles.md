@@ -19,10 +19,6 @@
 MoreFiles:Int32 dir:Int32
 ```
 
-## Description
-
-Tells whether `NextFile` has another entry in a folder opened with `ReadDir`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Tells whether `NextFile` has another entry in a folder opened with `ReadDir`.
 | `dir` | Int32 | required | A folder handle from `ReadDir`. |
 
 **Returns:** 1 if more entries follow, 0 if not. Undocumented in the official help.
+
+## Description
+
+Tells whether `NextFile` has another entry in a folder opened with `ReadDir`.
 
 ## Examples
 

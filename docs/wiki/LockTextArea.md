@@ -19,19 +19,19 @@
 LockTextArea textarea:Int32
 ```
 
-## Description
-
-Holds back redrawing of a text area while you change a lot of it, which is faster and does not flicker. Call [UnlockTextArea](UnlockTextArea) afterwards.
-
-**Differences and known gaps:**
-
-* While a text area is locked it sends no events for the changes you make.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `textarea` | Int32 | required | Handle of a text area. |
+
+## Description
+
+Holds back redrawing of a text area while you change a lot of it, which is faster and does not flicker. Call [UnlockTextArea](UnlockTextArea) afterwards.
+
+## Differences
+
+* While a text area is locked it sends no events for the changes you make.
 
 ## Examples
 

@@ -19,15 +19,15 @@
 CloseTCPServer tcp_server:Int32
 ```
 
-## Description
-
-Stops a TCP server. Streams that it accepted stay open.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `tcp_server` | Int32 | required | The server to close. |
+
+## Description
+
+Stops a TCP server. Streams that it accepted stay open.
 
 ## Related Commands
 

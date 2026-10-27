@@ -19,16 +19,6 @@
 LoadTerrain:Int32 heightmap_file:String, parent:Int32=0
 ```
 
-## Description
-
-Creates a terrain from a picture. Each pixel of the picture becomes one height point: the brightest of its red, green and blue values is divided by 255, so a white pixel is the full height of 1 and black is 0. The grid size is the width of the picture, the top row of the picture becomes the far edge of the terrain, and the picture has to be square with a power of two size, for example 64 by 64, or the program stops with a runtime error. A blurred height map gives smoother land than a noisy one.
-
-A parent makes the terrain follow another entity, and the terrain is created at 0, 0, 0 regardless of where the parent is.
-
-**Differences and known gaps:**
-
-* The official help says that the red channel is used. The engine, and this runtime, use the brightest of the three channels.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -37,6 +27,16 @@ A parent makes the terrain follow another entity, and the terrain is created at 
 | `parent` | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the terrain.
+
+## Description
+
+Creates a terrain from a picture. Each pixel of the picture becomes one height point: the brightest of its red, green and blue values is divided by 255, so a white pixel is the full height of 1 and black is 0. The grid size is the width of the picture, the top row of the picture becomes the far edge of the terrain, and the picture has to be square with a power of two size, for example 64 by 64, or the program stops with a runtime error. A blurred height map gives smoother land than a noisy one.
+
+A parent makes the terrain follow another entity, and the terrain is created at 0, 0, 0 regardless of where the parent is.
+
+## Differences
+
+* The official help says that the red channel is used. The engine, and this runtime, use the brightest of the three channels.
 
 ## Examples
 

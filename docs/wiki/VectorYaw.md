@@ -19,10 +19,6 @@
 VectorYaw:Float32 x:Float32, y:Float32, z:Float32
 ```
 
-## Description
-
-Finds the yaw angle that an entity would need to point along a direction. The direction 0, 0, 1 gives 0, and the angle grows to the left, so 1, 0, 0 gives -90 and -1, 0, 0 gives 90. The result is the same as [EntityYaw](EntityYaw) of an entity pointing that way. The height of the vector does not matter.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Finds the yaw angle that an entity would need to point along a direction. The di
 | `z` | Float32 | required | Z of the direction. |
 
 **Returns:** The yaw angle in degrees.
+
+## Description
+
+Finds the yaw angle that an entity would need to point along a direction. The direction 0, 0, 1 gives 0, and the angle grows to the left, so 1, 0, 0 gives -90 and -1, 0, 0 gives 90. The result is the same as [EntityYaw](EntityYaw) of an entity pointing that way. The height of the vector does not matter.
 
 ## Related Commands
 

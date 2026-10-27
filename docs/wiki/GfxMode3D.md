@@ -19,10 +19,6 @@
 GfxMode3D:Int32 mode:Int32
 ```
 
-## Description
-
-Tells whether the given mode from the list of modes can be used for 3D.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Tells whether the given mode from the list of modes can be used for 3D.
 | `mode` | Int32 | required | Number of the mode, 1 to [CountGfxModes3D](CountGfxModes3D). |
 
 **Returns:** True if the mode can show 3D.
+
+## Description
+
+Tells whether the given mode from the list of modes can be used for 3D.
 
 ## Related Commands
 

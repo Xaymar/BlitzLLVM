@@ -19,16 +19,16 @@
 WriteFloat stream:Int32, float:Float32
 ```
 
-## Description
-
-Writes a float in 4 bytes.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `stream` | Int32 | required | The stream to write to. |
 | `float` | Float32 | required | The value to write. |
+
+## Description
+
+Writes a float in 4 bytes.
 
 ## Examples
 

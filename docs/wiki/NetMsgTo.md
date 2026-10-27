@@ -19,13 +19,13 @@
 NetMsgTo:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The player the last message was for, or 0 when it was sent to everyone.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

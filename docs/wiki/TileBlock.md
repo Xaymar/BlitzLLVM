@@ -19,10 +19,6 @@
 TileBlock image:Int32, x:Int32=0, y:Int32=0, frame:Int32=0
 ```
 
-## Description
-
-Fills the whole current buffer with copies of a frame of an image, drawn without transparency. The pattern starts at the given offset, which makes scrolling backgrounds easy: change the offset a little every frame.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Fills the whole current buffer with copies of a frame of an image, drawn without
 | `x` | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
 | `y` | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
 | `frame` | Int32 | `0` | Which frame to use. Defaults to 0. |
+
+## Description
+
+Fills the whole current buffer with copies of a frame of an image, drawn without transparency. The pattern starts at the given offset, which makes scrolling backgrounds easy: change the offset a little every frame.
 
 ## Examples
 

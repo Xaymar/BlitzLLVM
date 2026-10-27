@@ -19,15 +19,15 @@
 DeleteNetPlayer player:Int32
 ```
 
-## Description
-
-Removes a player of this program from the game. The others see a message of type 101.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `player` | Int32 | required | A player made with [CreateNetPlayer](CreateNetPlayer). |
+
+## Description
+
+Removes a player of this program from the game. The others see a message of type 101.
 
 ## Related Commands
 

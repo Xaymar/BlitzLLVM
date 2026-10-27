@@ -19,10 +19,6 @@
 TimerTicks:Int32 timer:Int32
 ```
 
-## Description
-
-Counts how many ticks a timer made since it was created or last reset. Each tick also arrives as a $4001 event, but when the program is busy several ticks are put into one event, so the count is the reliable number.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Counts how many ticks a timer made since it was created or last reset. Each tick
 | `timer` | Int32 | required | A timer from `CreateTimer`. |
 
 **Returns:** The number of ticks.
+
+## Description
+
+Counts how many ticks a timer made since it was created or last reset. Each tick also arrives as a $4001 event, but when the program is busy several ticks are put into one event, so the count is the reliable number.
 
 ## Examples
 

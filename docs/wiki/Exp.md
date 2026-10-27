@@ -19,10 +19,6 @@
 Exp:Float32 float:Float32
 ```
 
-## Description
-
-Returns e (2.71828...) raised to the given power. It is the opposite of [Log](Log).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns e (2.71828...) raised to the given power. It is the opposite of [Log](Lo
 | `float` | Float32 | required | The exponent. |
 
 **Returns:** e to the power of `float`.
+
+## Description
+
+Returns e (2.71828...) raised to the given power. It is the opposite of [Log](Log).
 
 ## Examples
 

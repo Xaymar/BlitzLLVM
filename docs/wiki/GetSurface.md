@@ -19,10 +19,6 @@
 GetSurface:Int32 mesh:Int32, surface_index:Int32
 ```
 
-## Description
-
-Gets the handle of one surface of a mesh, which you need for every surface command. The index starts at 1, so visit all surfaces with a loop from 1 to [CountSurfaces](CountSurfaces). This is also how you reach the surfaces of a mesh you loaded or of a primitive such as a cube.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Gets the handle of one surface of a mesh, which you need for every surface comma
 | `surface_index` | Int32 | required | Number of the surface, 1 up to the number of surfaces. |
 
 **Returns:** The handle of the surface.
+
+## Description
+
+Gets the handle of one surface of a mesh, which you need for every surface command. The index starts at 1, so visit all surfaces with a loop from 1 to [CountSurfaces](CountSurfaces). This is also how you reach the surfaces of a mesh you loaded or of a primitive such as a cube.
 
 ## Examples
 

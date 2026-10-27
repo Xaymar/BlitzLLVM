@@ -19,10 +19,6 @@
 GadgetItemText:String gadget:Int32, index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `index` | Int32 | required | Number of the entry, starting at 0. |
 
 **Returns:** The text of that entry.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

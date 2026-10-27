@@ -19,10 +19,6 @@
 JoyYDir:Int32 port:Int32=0
 ```
 
-## Description
-
-Like [JoyY](JoyY), but as a direction only: -1 for up, 1 for down, 0 in the middle.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Like [JoyY](JoyY), but as a direction only: -1 for up, 1 for down, 0 in the midd
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** -1, 0 or 1.
+
+## Description
+
+Like [JoyY](JoyY), but as a direction only: -1 for up, 1 for down, 0 in the middle.
 
 ## Related Commands
 

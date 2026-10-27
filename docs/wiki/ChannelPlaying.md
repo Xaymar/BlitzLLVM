@@ -19,14 +19,6 @@
 ChannelPlaying:Int32 channel:Int32
 ```
 
-## Description
-
-Tells whether a channel is still playing. A paused channel counts as playing, and a channel that has ended or was stopped does not.
-
-**Differences and known gaps:**
-
-* A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Tells whether a channel is still playing. A paused channel counts as playing, an
 | `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
 
 **Returns:** 1 if the channel is playing or paused, otherwise 0.
+
+## Description
+
+Tells whether a channel is still playing. A paused channel counts as playing, and a channel that has ended or was stopped does not.
+
+## Differences
+
+* A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
 
 ## Examples
 

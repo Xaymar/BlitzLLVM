@@ -19,10 +19,6 @@
 ReadFile:Int32 filename:String
 ```
 
-## Description
-
-Opens an existing file for reading, starting at its beginning.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Opens an existing file for reading, starting at its beginning.
 | `filename` | String | required | The file to open. |
 
 **Returns:** A file handle, or 0 when the file does not exist, which you should always check.
+
+## Description
+
+Opens an existing file for reading, starting at its beginning.
 
 ## Examples
 

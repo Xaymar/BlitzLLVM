@@ -19,10 +19,6 @@
 ReadLine:String stream:Int32
 ```
 
-## Description
-
-Reads text up to the end of the line. Lines may end with a line feed or with a carriage return and a line feed, and a last line without an ending is read as well. The line ending is not part of the result.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Reads text up to the end of the line. Lines may end with a line feed or with a c
 | `stream` | Int32 | required | The stream to read from. |
 
 **Returns:** The text of the line.
+
+## Description
+
+Reads text up to the end of the line. Lines may end with a line feed or with a carriage return and a line feed, and a last line without an ending is read as well. The line ending is not part of the result.
 
 ## Examples
 

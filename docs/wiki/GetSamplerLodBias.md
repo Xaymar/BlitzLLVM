@@ -19,12 +19,6 @@
 GetSamplerLodBias:Float32 sampler:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Returns the lod bias that the sampler has, as it was set with [SetSamplerLodBias](SetSamplerLodBias) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: a number of mip levels.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ Returns the lod bias that the sampler has, as it was set with [SetSamplerLodBias
 | `sampler` | Int32 | required | The sampler to ask. |
 
 **Returns:** The setting: a number of mip levels.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Returns the lod bias that the sampler has, as it was set with [SetSamplerLodBias](SetSamplerLodBias) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: a number of mip levels.
 
 ## Related Commands
 

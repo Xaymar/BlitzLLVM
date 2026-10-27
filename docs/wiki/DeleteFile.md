@@ -19,15 +19,15 @@
 DeleteFile file:String
 ```
 
-## Description
-
-Deletes a file for good. It does not go to a recycle bin.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required | The file to delete. |
+
+## Description
+
+Deletes a file for good. It does not go to a recycle bin.
 
 ## Examples
 

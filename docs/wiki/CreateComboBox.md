@@ -19,14 +19,6 @@
 CreateComboBox:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a drop-down list. It shows the selected entry and opens the list when clicked. Fill it with [AddGadgetItem](AddGadgetItem), and read what was picked with [SelectedGadgetItem](SelectedGadgetItem) when a $401 event arrives.
-
-**Differences and known gaps:**
-
-* The user cannot type into it, only pick from the list.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -39,6 +31,14 @@ Makes a drop-down list. It shows the selected entry and opens the list when clic
 | `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
 
 **Returns:** A handle for the combo box.
+
+## Description
+
+Makes a drop-down list. It shows the selected entry and opens the list when clicked. Fill it with [AddGadgetItem](AddGadgetItem), and read what was picked with [SelectedGadgetItem](SelectedGadgetItem) when a $401 event arrives.
+
+## Differences
+
+* The user cannot type into it, only pick from the list.
 
 ## Examples
 

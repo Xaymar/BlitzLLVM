@@ -19,10 +19,6 @@
 EntityClass:String entity:Int32
 ```
 
-## Description
-
-Returns what kind of entity a handle is, which is useful when a function receives any entity.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns what kind of entity a handle is, which is useful when a function receive
 | `entity` | Int32 | required | Entity handle. |
 
 **Returns:** One of `Pivot`, `Light`, `Camera`, `Mirror`, `Listener`, `Sprite`, `Terrain`, `Plane`, `Mesh`, `MD2` or `BSP`.
+
+## Description
+
+Returns what kind of entity a handle is, which is useful when a function receives any entity.
 
 ## Related Commands
 

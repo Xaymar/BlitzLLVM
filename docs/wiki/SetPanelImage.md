@@ -19,16 +19,16 @@
 SetPanelImage panel:Int32, file:String
 ```
 
-## Description
-
-Shows a picture from a file in a panel. If the panel is bigger than the picture it is repeated like tiles.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `panel` | Int32 | required | Handle of a panel. |
 | `file` | String | required | Name of a picture file. |
+
+## Description
+
+Shows a picture from a file in a panel. If the panel is bigger than the picture it is repeated like tiles.
 
 ## Examples
 

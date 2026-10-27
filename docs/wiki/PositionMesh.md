@@ -19,10 +19,6 @@
 PositionMesh mesh:Int32, x:Float32, y:Float32, z:Float32
 ```
 
-## Description
-
-Moves every vertex of a mesh by an offset, permanently. Unlike [PositionEntity](PositionEntity) it changes the mesh itself: all copies made with [CopyEntity](CopyEntity) move with it, and the origin of the mesh is no longer its center. Use it to move the pivot point of a model before parenting it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Moves every vertex of a mesh by an offset, permanently. Unlike [PositionEntity](
 | `x` | Float32 | required | Offset along X. |
 | `y` | Float32 | required | Offset along Y. |
 | `z` | Float32 | required | Offset along Z. |
+
+## Description
+
+Moves every vertex of a mesh by an offset, permanently. Unlike [PositionEntity](PositionEntity) it changes the mesh itself: all copies made with [CopyEntity](CopyEntity) move with it, and the origin of the mesh is no longer its center. Use it to move the pivot point of a model before parenting it.
 
 ## Related Commands
 

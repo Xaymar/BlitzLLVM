@@ -19,14 +19,6 @@
 CreateTabber:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a row of tabs. Fill it with [AddGadgetItem](AddGadgetItem), one entry for each tab. The tabber does not hold the contents of the tabs for you: put a panel for each tab in the same window and show only the one that matches the selected tab, when the tabber sends $401.
-
-**Differences and known gaps:**
-
-* Gadgets created with the tabber as their group are drawn on it all the time, as in the original. They are not tied to a tab.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -39,6 +31,14 @@ Makes a row of tabs. Fill it with [AddGadgetItem](AddGadgetItem), one entry for 
 | `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
 
 **Returns:** A handle for the tabber.
+
+## Description
+
+Makes a row of tabs. Fill it with [AddGadgetItem](AddGadgetItem), one entry for each tab. The tabber does not hold the contents of the tabs for you: put a panel for each tab in the same window and show only the one that matches the selected tab, when the tabber sends $401.
+
+## Differences
+
+* Gadgets created with the tabber as their group are drawn on it all the time, as in the original. They are not tied to a tab.
 
 ## Examples
 

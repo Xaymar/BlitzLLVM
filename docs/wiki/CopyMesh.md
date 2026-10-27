@@ -19,10 +19,6 @@
 CopyMesh:Int32 mesh:Int32, parent:Int32=0
 ```
 
-## Description
-
-Makes an independent copy of a mesh with its own vertices and triangles. This differs from [CopyEntity](CopyEntity), whose copies share the mesh: after a `CopyMesh` you can reshape, paint or flip the copy without touching the original. The copy is made at the origin even if the source was moved.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Makes an independent copy of a mesh with its own vertices and triangles. This di
 | `parent` | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the copy.
+
+## Description
+
+Makes an independent copy of a mesh with its own vertices and triangles. This differs from [CopyEntity](CopyEntity), whose copies share the mesh: after a `CopyMesh` you can reshape, paint or flip the copy without touching the original. The copy is made at the origin even if the source was moved.
 
 ## Related Commands
 

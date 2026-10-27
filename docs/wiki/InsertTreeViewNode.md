@@ -19,10 +19,6 @@
 InsertTreeViewNode:Int32 index:Int32, text:String, parent_node:Int32, icon:Int32=-1
 ```
 
-## Description
-
-Puts a node before the child with the given number of a parent.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Puts a node before the child with the given number of a parent.
 | `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
 
 **Returns:** A handle for the new node.
+
+## Description
+
+Puts a node before the child with the given number of a parent.
 
 ## Examples
 

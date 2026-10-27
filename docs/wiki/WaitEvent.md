@@ -19,12 +19,6 @@
 WaitEvent:Int32 timeout:Int32=-1
 ```
 
-## Description
-
-Waits until something happens and gives the kind of event. Use [EventData](EventData), [EventSource](EventSource), [EventX](EventX) and the others to learn more about it. While it waits the windows keep working and are redrawn.
-
-A program with windows is built around a loop with `WaitEvent`. Take every event from one call: calling it again before you read the values throws the earlier event away.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ A program with windows is built around a loop with `WaitEvent`. Take every event
 | `timeout` | Int32 | `-1` | Longest time to wait in milliseconds. -1 waits forever, 0 does not wait. Defaults to -1. |
 
 **Returns:** The kind of the event, or 0 if the time ran out.
+
+## Description
+
+Waits until something happens and gives the kind of event. Use [EventData](EventData), [EventSource](EventSource), [EventX](EventX) and the others to learn more about it. While it waits the windows keep working and are redrawn.
+
+A program with windows is built around a loop with `WaitEvent`. Take every event from one call: calling it again before you read the values throws the earlier event away.
 
 ## Examples
 

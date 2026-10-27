@@ -19,17 +19,17 @@
 GraphicsFormat:Int32
 ```
 
+## Parameters
+
+**Returns:** The format number.
+
 ## Description
 
 How the pixels of the graphics window are stored, as a number that BlitzPlus uses: 1 is 16 bit 5-6-5, 2 is 16 bit 5-5-5, 3 is 24 bit and 4 is 32 bit.
 
-**Differences and known gaps:**
+## Differences
 
 * Always 4.
-
-## Parameters
-
-**Returns:** The format number.
 
 ## Related Commands
 

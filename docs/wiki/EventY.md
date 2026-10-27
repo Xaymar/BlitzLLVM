@@ -19,13 +19,13 @@
 EventY:Int32
 ```
 
-## Description
-
-Gives the second coordinate of the last event, like [EventX](EventX): the mouse position for $203 and $205, the window position for $801 and the height for $802.
-
 ## Parameters
 
 **Returns:** The Y value, see the table at [EventData](EventData).
+
+## Description
+
+Gives the second coordinate of the last event, like [EventX](EventX): the mouse position for $203 and $205, the window position for $801 and the height for $802.
 
 ## Examples
 

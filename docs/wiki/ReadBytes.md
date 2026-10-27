@@ -19,10 +19,6 @@
 ReadBytes:Int32 bank:Int32, file:Int32, offset:Int32, count:Int32
 ```
 
-## Description
-
-Reads bytes from an open file into a bank. It reads up to `count` bytes, and fewer when the file ends first.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Reads bytes from an open file into a bank. It reads up to `count` bytes, and few
 | `count` | Int32 | required | How many bytes to read. |
 
 **Returns:** The number of bytes that were read.
+
+## Description
+
+Reads bytes from an open file into a bank. It reads up to `count` bytes, and fewer when the file ends first.
 
 ## Examples
 

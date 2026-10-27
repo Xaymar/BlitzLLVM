@@ -19,10 +19,6 @@
 CollisionNY:Float32 entity:Int32, collision_index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `collision_index` | Int32 | required |  |
 
 **Returns:** The Y part of the surface normal at the numbered collision. Ground that you stand on has a value close to 1.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

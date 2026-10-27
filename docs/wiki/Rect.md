@@ -19,10 +19,6 @@
 Rect x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32=1
 ```
 
-## Description
-
-Draws a rectangle.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Draws a rectangle.
 | `width` | Int32 | required | Width in pixels. |
 | `height` | Int32 | required | Height in pixels. |
 | `solid` | Int32 | `1` | 1 fills the rectangle, 0 draws only the outline. Defaults to 1. |
+
+## Description
+
+Draws a rectangle.
 
 ## Examples
 

@@ -23,7 +23,7 @@ EndGraphics
 
 Closes the graphics window, which returns the program to the state it had before [Graphics](Graphics): everything that was drawn is gone and all images and textures are freed. Use `Graphics` again to open a new window, for example to switch between a window and full screen.
 
-**Differences and known gaps:**
+## Differences
 
 * The original opens a new window of the default size, or a console. Here the window is closed and [Print](Print) writes to the console.
 

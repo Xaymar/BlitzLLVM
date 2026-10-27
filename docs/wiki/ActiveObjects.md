@@ -19,17 +19,17 @@
 ActiveObjects:Int32
 ```
 
+## Parameters
+
+**Returns:** How many objects are alive. The official help lists the command as undocumented.
+
 ## Description
 
 Counts what your program has made and not freed yet: banks, streams, sounds, images, textures, fonts, timers and objects of your own types. It is meant to help you find leaks while developing.
 
-**Differences and known gaps:**
+## Differences
 
 * Windows and gadgets are not counted here.
-
-## Parameters
-
-**Returns:** How many objects are alive. The official help lists the command as undocumented.
 
 ## Examples
 

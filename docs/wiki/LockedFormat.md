@@ -19,14 +19,6 @@
 LockedFormat:Int32 buffer:Int32=0
 ```
 
-## Description
-
-Says how the pixels of a locked buffer are stored. Lock the buffer first with `LockBuffer`.
-
-**Differences and known gaps:**
-
-* Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte). Code that handles the other formats still works, it just never runs.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Says how the pixels of a locked buffer are stored. Lock the buffer first with `L
 | `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
 
 **Returns:** A number that tells how the pixels are laid out: 1 is 16 bit with 5-6-5, 2 is 16 bit with 5-5-5, 3 is 24 bit and 4 is 32 bit with an unused byte.
+
+## Description
+
+Says how the pixels of a locked buffer are stored. Lock the buffer first with `LockBuffer`.
+
+## Differences
+
+* Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte). Code that handles the other formats still works, it just never runs.
 
 ## Examples
 

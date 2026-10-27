@@ -19,17 +19,17 @@
 TotalVidMem:Int32
 ```
 
+## Parameters
+
+**Returns:** The size of the video memory in bytes.
+
 ## Description
 
 The total amount of video memory in bytes.
 
-**Differences and known gaps:**
+## Differences
 
 * The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer. It is 0 when no graphics window is open.
-
-## Parameters
-
-**Returns:** The size of the video memory in bytes.
 
 ## Examples
 

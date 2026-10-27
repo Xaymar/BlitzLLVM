@@ -19,15 +19,15 @@
 CheckMenu menu:Int32
 ```
 
-## Description
-
-Puts a check mark in front of a menu item, for options that are on or off. [UncheckMenu](UncheckMenu) takes it away and [MenuChecked](MenuChecked) tells whether it is there. Titles in the menu bar cannot be checked.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `menu` | Int32 | required | Handle of a menu item made with [CreateMenu](CreateMenu). |
+
+## Description
+
+Puts a check mark in front of a menu item, for options that are on or off. [UncheckMenu](UncheckMenu) takes it away and [MenuChecked](MenuChecked) tells whether it is there. Titles in the menu bar cannot be checked.
 
 ## Examples
 

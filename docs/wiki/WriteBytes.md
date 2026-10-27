@@ -19,10 +19,6 @@
 WriteBytes:Int32 bank:Int32, file:Int32, offset:Int32, count:Int32
 ```
 
-## Description
-
-Writes bytes from a bank to an open file.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Writes bytes from a bank to an open file.
 | `count` | Int32 | required | How many bytes to write. |
 
 **Returns:** The number of bytes that were written.
+
+## Description
+
+Writes bytes from a bank to an open file.
 
 ## Related Commands
 

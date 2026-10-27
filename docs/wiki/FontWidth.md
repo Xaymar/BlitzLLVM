@@ -19,17 +19,17 @@
 FontWidth:Int32
 ```
 
+## Parameters
+
+**Returns:** The width of a character in pixels.
+
 ## Description
 
 The width in pixels of one character of the current font, as set by [SetFont](SetFont). No character is wider than this value.
 
-**Differences and known gaps:**
+## Differences
 
 * Real fonts have a different width for each character, so this is the width of the widest one; use [StringWidth](StringWidth) for a text. The built-in bitmap font used when a font is not found is as wide as it is high.
-
-## Parameters
-
-**Returns:** The width of a character in pixels.
 
 ## Related Commands
 

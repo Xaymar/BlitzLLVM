@@ -19,10 +19,6 @@
 ScaleEntity entity:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32, global:Int32=0
 ```
 
-## Description
-
-Sets the size of an entity as a factor for each axis. 1 is the size it was made with, 2 doubles it, 0.5 halves it and 0 makes it flat so it vanishes. A negative factor mirrors the entity along that axis. Scaling a parent scales its children with it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Sets the size of an entity as a factor for each axis. 1 is the size it was made 
 | `y_scale` | Float32 | required | Size along Y. |
 | `z_scale` | Float32 | required | Size along Z. |
 | `global` | Int32 | `0` | 1 to scale independent of the parent. Defaults to 0. |
+
+## Description
+
+Sets the size of an entity as a factor for each axis. 1 is the size it was made with, 2 doubles it, 0.5 halves it and 0 makes it flat so it vanishes. A negative factor mirrors the entity along that axis. Scaling a parent scales its children with it.
 
 ## Examples
 

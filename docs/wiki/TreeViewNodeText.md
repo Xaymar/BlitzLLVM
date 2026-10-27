@@ -19,10 +19,6 @@
 TreeViewNodeText:String node:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `node` | Int32 | required | Handle of a node. |
 
 **Returns:** The text of the node.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

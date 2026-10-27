@@ -19,15 +19,15 @@
 UDPTimeouts recv_timeout:Int32
 ```
 
-## Description
-
-Sets how long [RecvUDPMsg](RecvUDPMsg) waits for a message. The default is 0, which returns right away. Negative values count as 0.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `recv_timeout` | Int32 | required | Time to wait in milliseconds. |
+
+## Description
+
+Sets how long [RecvUDPMsg](RecvUDPMsg) waits for a message. The default is 0, which returns right away. Negative values count as 0.
 
 ## Related Commands
 

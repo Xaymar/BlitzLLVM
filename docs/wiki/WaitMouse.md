@@ -19,13 +19,13 @@
 WaitMouse:Int32
 ```
 
-## Description
-
-Stops the program until a mouse button is pressed and returns its number. Presses made before the call count too, so call [FlushMouse](FlushMouse) first if only a new click should end the wait. In a game loop prefer [MouseHit](MouseHit) or [GetMouse](GetMouse), which let the screen keep updating.
-
 ## Parameters
 
 **Returns:** The number of the button that was pressed.
+
+## Description
+
+Stops the program until a mouse button is pressed and returns its number. Presses made before the call count too, so call [FlushMouse](FlushMouse) first if only a new click should end the wait. In a game loop prefer [MouseHit](MouseHit) or [GetMouse](GetMouse), which let the screen keep updating.
 
 ## Examples
 

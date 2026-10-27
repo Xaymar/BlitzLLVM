@@ -19,20 +19,20 @@
 Notify text:String, serious:Int32=0
 ```
 
-## Description
-
-Shows a message with one OK button and waits until it is closed. Lines can be split with `Chr$(13)`.
-
-**Differences and known gaps:**
-
-* The box is a message box of the operating system and not part of the program window. Without a screen it writes the text to the error output.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `text` | String | required | The message. |
 | `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
+
+## Description
+
+Shows a message with one OK button and waits until it is closed. Lines can be split with `Chr$(13)`.
+
+## Differences
+
+* The box is a message box of the operating system and not part of the program window. Without a screen it writes the text to the error output.
 
 ## Examples
 

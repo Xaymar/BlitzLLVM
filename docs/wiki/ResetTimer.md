@@ -19,15 +19,15 @@
 ResetTimer timer:Int32
 ```
 
-## Description
-
-Sets the tick count of a timer back to 0 and starts counting again from now.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `timer` | Int32 | required | A timer from `CreateTimer`. |
+
+## Description
+
+Sets the tick count of a timer back to 0 and starts counting again from now.
 
 ## Examples
 

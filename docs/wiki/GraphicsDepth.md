@@ -19,17 +19,17 @@
 GraphicsDepth:Int32
 ```
 
+## Parameters
+
+**Returns:** The depth in bits.
+
 ## Description
 
 The color depth of the graphics mode in bits.
 
-**Differences and known gaps:**
+## Differences
 
 * Always 32: the picture has 8 bits for each of red, green and blue, with 8 more for alpha where a program uses it.
-
-## Parameters
-
-**Returns:** The depth in bits.
 
 ## Related Commands
 

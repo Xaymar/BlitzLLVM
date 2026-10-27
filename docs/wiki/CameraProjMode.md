@@ -19,16 +19,16 @@
 CameraProjMode camera:Int32, mode:Int32
 ```
 
-## Description
-
-Switches the camera between not drawing at all, perspective and orthographic projection. 0 turns the camera off, which is faster than hiding it with `HideEntity`. 1 is normal perspective and the default.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `camera` | Int32 | required | Camera handle. |
 | `mode` | Int32 | required | 0 disables the camera, 1 is perspective, 2 is orthographic. |
+
+## Description
+
+Switches the camera between not drawing at all, perspective and orthographic projection. 0 turns the camera off, which is faster than hiding it with `HideEntity`. 1 is normal perspective and the default.
 
 ## Related Commands
 

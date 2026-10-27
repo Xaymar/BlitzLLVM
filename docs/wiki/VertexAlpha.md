@@ -19,10 +19,6 @@
 VertexAlpha:Float32 surface:Int32, index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `index` | Int32 | required | Index of the vertex, from 0. |
 
 **Returns:** The alpha of the vertex color, 0 for invisible to 1 for solid.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

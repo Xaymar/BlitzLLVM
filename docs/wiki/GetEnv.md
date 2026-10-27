@@ -19,10 +19,6 @@
 GetEnv:String env_var:String
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `env_var` | String | required | The name of the variable. |
 
 **Returns:** The value of an environment variable, or an empty string when it is not set.
+
+## Description
+
+_Not documented yet._
 
 ## Examples
 

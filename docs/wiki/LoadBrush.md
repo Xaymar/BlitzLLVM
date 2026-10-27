@@ -19,10 +19,6 @@
 LoadBrush:Int32 file:String, texture_flags:Int32=1, u_scale:Float32=1, v_scale:Float32=1
 ```
 
-## Description
-
-Makes a brush that has a texture loaded from a picture file as its first layer, and returns it. This is a shortcut for [LoadTexture](LoadTexture), [CreateBrush](CreateBrush) and [BrushTexture](BrushTexture), including the optional [ScaleTexture](ScaleTexture).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Makes a brush that has a texture loaded from a picture file as its first layer, 
 | `v_scale` | Float32 | `1` | How often the texture repeats vertically. Defaults to 1. |
 
 **Returns:** A brush handle, or 0 if the file could not be loaded.
+
+## Description
+
+Makes a brush that has a texture loaded from a picture file as its first layer, and returns it. This is a shortcut for [LoadTexture](LoadTexture), [CreateBrush](CreateBrush) and [BrushTexture](BrushTexture), including the optional [ScaleTexture](ScaleTexture).
 
 ## Related Commands
 

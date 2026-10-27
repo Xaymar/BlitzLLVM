@@ -19,10 +19,6 @@
 Len:Int32 string:String
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `string` | String | required | The text to measure. |
 
 **Returns:** How many characters a string has. An empty string has 0.
+
+## Description
+
+_Not documented yet._
 
 ## Examples
 

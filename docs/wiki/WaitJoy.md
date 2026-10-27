@@ -19,14 +19,6 @@
 WaitJoy:Int32 port:Int32=0
 ```
 
-## Description
-
-The other name of [JoyWait](JoyWait): stops the program until a joystick button is pressed and returns its number.
-
-**Differences and known gaps:**
-
-* If no joystick is connected the function returns 0 right away instead of waiting forever.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ The other name of [JoyWait](JoyWait): stops the program until a joystick button 
 | `port` | Int32 | `0` | The joystick to wait for, counted from 0. Defaults to 0. |
 
 **Returns:** The number of the button that was pressed.
+
+## Description
+
+The other name of [JoyWait](JoyWait): stops the program until a joystick button is pressed and returns its number.
+
+## Differences
+
+* If no joystick is connected the function returns 0 right away instead of waiting forever.
 
 ## Examples
 

@@ -19,14 +19,6 @@
 JoyWait:Int32 port:Int32=0
 ```
 
-## Description
-
-Stops the program until a joystick button is pressed and returns its number. A program that has to keep drawing should poll [GetJoy](GetJoy) or [JoyHit](JoyHit) instead.
-
-**Differences and known gaps:**
-
-* If no joystick is connected the function returns 0 right away instead of waiting forever.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Stops the program until a joystick button is pressed and returns its number. A p
 | `port` | Int32 | `0` | The joystick to wait for, counted from 0. Defaults to 0. |
 
 **Returns:** The number of the button that was pressed.
+
+## Description
+
+Stops the program until a joystick button is pressed and returns its number. A program that has to keep drawing should poll [GetJoy](GetJoy) or [JoyHit](JoyHit) instead.
+
+## Differences
+
+* If no joystick is connected the function returns 0 right away instead of waiting forever.
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 EntityVisible:Int32 src_entity:Int32, dest_entity:Int32
 ```
 
-## Description
-
-Tells whether two entities have a clear line of sight between their origins. Every entity with a pick mode that is an obscurer, see [EntityPickMode](EntityPickMode), blocks the view; the two entities themselves and hidden entities never do.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Tells whether two entities have a clear line of sight between their origins. Eve
 | `dest_entity` | Int32 | required | The entity it looks at. |
 
 **Returns:** True if nothing in the way blocks the line, otherwise False.
+
+## Description
+
+Tells whether two entities have a clear line of sight between their origins. Every entity with a pick mode that is an obscurer, see [EntityPickMode](EntityPickMode), blocks the view; the two entities themselves and hidden entities never do.
 
 ## Examples
 

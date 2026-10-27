@@ -19,12 +19,6 @@
 EntityRadius entity:Int32, x_radius:Float32, y_radius:Float32=0
 ```
 
-## Description
-
-Sets the size of the entity's collision ellipsoid. Every entity that moves into other things needs one, because collision always happens between an ellipsoid and something else. An entity that is hit by an ellipsoid-to-ellipsoid check (method 1 of [Collisions](Collisions)) needs one as well.
-
-The horizontal radius applies to both width and depth. Leave out the second radius to get a sphere.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ The horizontal radius applies to both width and depth. Leave out the second radi
 | `entity` | Int32 | required | The entity. |
 | `x_radius` | Float32 | required | Radius in the X and Z directions. |
 | `y_radius` | Float32 | `0` | Radius in the Y direction. Defaults to x_radius. |
+
+## Description
+
+Sets the size of the entity's collision ellipsoid. Every entity that moves into other things needs one, because collision always happens between an ellipsoid and something else. An entity that is hit by an ellipsoid-to-ellipsoid check (method 1 of [Collisions](Collisions)) needs one as well.
+
+The horizontal radius applies to both width and depth. Leave out the second radius to get a sphere.
 
 ## Related Commands
 

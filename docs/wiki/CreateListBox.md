@@ -19,14 +19,6 @@
 CreateListBox:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a list of entries from which the user can pick one. A scroll bar appears when there are more entries than fit. Clicking an entry sends $401 with the gadget as the source, and the entry is given by [SelectedGadgetItem](SelectedGadgetItem).
-
-**Differences and known gaps:**
-
-* Only one entry can be selected at a time.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -39,6 +31,14 @@ Makes a list of entries from which the user can pick one. A scroll bar appears w
 | `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
 
 **Returns:** A handle for the list box.
+
+## Description
+
+Makes a list of entries from which the user can pick one. A scroll bar appears when there are more entries than fit. Clicking an entry sends $401 with the gadget as the source, and the entry is given by [SelectedGadgetItem](SelectedGadgetItem).
+
+## Differences
+
+* Only one entry can be selected at a time.
 
 ## Examples
 

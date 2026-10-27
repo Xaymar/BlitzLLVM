@@ -19,10 +19,6 @@
 SliderValue:Int32 slider:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `slider` | Int32 | required | Handle of a slider. |
 
 **Returns:** The current position, from 0 to total minus visible.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

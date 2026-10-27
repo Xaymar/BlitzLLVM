@@ -19,12 +19,6 @@
 EntityBox entity:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
 ```
 
-## Description
-
-Sets the box that other entities hit when a [Collisions](Collisions) rule uses method 3 (ellipsoid-to-box). The box is placed relative to the entity and scales with it.
-
-Without a call to EntityBox the box runs from -1 to 1 on every axis around the entity's origin.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +30,12 @@ Without a call to EntityBox the box runs from -1 to 1 on every axis around the e
 | `width` | Float32 | required | Size of the box along X. |
 | `height` | Float32 | required | Size of the box along Y. |
 | `depth` | Float32 | required | Size of the box along Z. |
+
+## Description
+
+Sets the box that other entities hit when a [Collisions](Collisions) rule uses method 3 (ellipsoid-to-box). The box is placed relative to the entity and scales with it.
+
+Without a call to EntityBox the box runs from -1 to 1 on every axis around the entity's origin.
 
 ## Related Commands
 

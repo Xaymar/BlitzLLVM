@@ -19,10 +19,6 @@
 OpenTCPStream:Int32 server:String, server_port:Int32, local_port:Int32=0
 ```
 
-## Description
-
-Connects to a TCP server. It returns once the connection is made or has failed.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Connects to a TCP server. It returns once the connection is made or has failed.
 | `local_port` | Int32 | `0` | The port to connect from. Defaults to 0, which lets the system pick one. |
 
 **Returns:** A TCP stream, or 0 when the connection could not be made.
+
+## Description
+
+Connects to a TCP server. It returns once the connection is made or has failed.
 
 ## Examples
 

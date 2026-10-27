@@ -19,20 +19,20 @@
 Print string:String=\
 ```
 
-## Description
-
-Writes a line of text at the text cursor and moves the cursor to the start of the next line. When it reaches the bottom of the window the picture scrolls up. With no text it only moves the cursor. Print draws straight onto the screen, so it needs no [Flip](Flip). For text that is part of a frame that is drawn into the back buffer, use [Text](Text).
-
-**Differences and known gaps:**
-
-* Without a graphics window the text goes to the console instead.
-* The text is drawn in the drawing color, in the current font, onto the front buffer.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `string` | String | `\` | The text to write. Defaults to an empty line. |
+
+## Description
+
+Writes a line of text at the text cursor and moves the cursor to the start of the next line. When it reaches the bottom of the window the picture scrolls up. With no text it only moves the cursor. Print draws straight onto the screen, so it needs no [Flip](Flip). For text that is part of a frame that is drawn into the back buffer, use [Text](Text).
+
+## Differences
+
+* Without a graphics window the text goes to the console instead.
+* The text is drawn in the drawing color, in the current font, onto the front buffer.
 
 ## Examples
 

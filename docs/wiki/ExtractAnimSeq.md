@@ -19,10 +19,6 @@
 ExtractAnimSeq:Int32 entity:Int32, first_frame:Int32, last_frame:Int32, anim_seq:Int32=0
 ```
 
-## Description
-
-Cuts a range of frames out of an existing sequence and makes it a sequence of its own, which is how you split one long animation, as MD2 files and many exporters produce, into walk, run and idle clips that can each be played with [Animate](Animate).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -33,6 +29,10 @@ Cuts a range of frames out of an existing sequence and makes it a sequence of it
 | `anim_seq` | Int32 | `0` | Sequence to take the frames from. Defaults to 0. |
 
 **Returns:** The number of the new sequence, or -1 if the entity has no animation.
+
+## Description
+
+Cuts a range of frames out of an existing sequence and makes it a sequence of its own, which is how you split one long animation, as MD2 files and many exporters produce, into walk, run and idle clips that can each be played with [Animate](Animate).
 
 ## Examples
 

@@ -19,16 +19,16 @@
 RotateSprite sprite:Int32, angle:Float32
 ```
 
-## Description
-
-Rolls a sprite around the line from the camera to it. The angle is absolute, in degrees, and not added to the old one. A rolling sprite is the usual way to make spinning smoke or sparks.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sprite` | Int32 | required | The sprite. |
 | `angle` | Float32 | required | Roll angle in degrees. |
+
+## Description
+
+Rolls a sprite around the line from the camera to it. The angle is absolute, in degrees, and not added to the old one. A rolling sprite is the usual way to make spinning smoke or sparks.
 
 ## Related Commands
 

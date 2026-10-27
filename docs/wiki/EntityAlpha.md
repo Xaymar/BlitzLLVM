@@ -19,16 +19,16 @@
 EntityAlpha entity:Int32, alpha:Float32
 ```
 
-## Description
-
-Sets how see-through an entity is: 1 is solid, 0 is invisible and values in between let what is behind show through. An entity with alpha 0 is not drawn at all but still takes part in collisions, unlike [HideEntity](HideEntity). See-through entities are drawn after the solid ones.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 | `alpha` | Float32 | required | Opacity from 0 to 1. Defaults to 1 on a new entity. |
+
+## Description
+
+Sets how see-through an entity is: 1 is solid, 0 is invisible and values in between let what is behind show through. An entity with alpha 0 is not drawn at all but still takes part in collisions, unlike [HideEntity](HideEntity). See-through entities are drawn after the solid ones.
 
 ## Examples
 

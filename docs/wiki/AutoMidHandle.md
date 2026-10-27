@@ -19,15 +19,15 @@
 AutoMidHandle enable:Int32
 ```
 
-## Description
-
-Turns on or off the automatic centering of the handle of every image that is loaded, created or copied from now on. The handle is the point of an image that sits at the position given to [DrawImage](DrawImage). It starts in the top left corner. With AutoMidHandle on, it is in the middle of the image, which is what rotating and scaling sprites usually need. Images that already exist keep their handle.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int32 | required | True to center the handle of new images, False to put it in the top left corner (the default). |
+
+## Description
+
+Turns on or off the automatic centering of the handle of every image that is loaded, created or copied from now on. The handle is the point of an image that sits at the position given to [DrawImage](DrawImage). It starts in the top left corner. With AutoMidHandle on, it is in the middle of the image, which is what rotating and scaling sprites usually need. Images that already exist keep their handle.
 
 ## Examples
 

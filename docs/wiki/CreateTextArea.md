@@ -19,15 +19,6 @@
 CreateTextArea:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a box for editing several lines of text, with scroll bars. The user can type, select with the mouse or with Shift and the arrow keys, and use Ctrl+A, C, X and V. Every change sends a $401 event; [TextAreaText](TextAreaText) reads the result. Style 1 turns line wrapping on so text is only scrolled vertically, and 65536 can be added to not follow the group when it is resized.
-
-**Differences and known gaps:**
-
-* Without wrapping, a bar along the bottom appears once a line does not fit. Besides the bar, the cursor keys scroll sideways, and so does the mouse wheel while Shift is held.
-* It is not a rich text control: it holds colors and bold or italic for ranges of text, but no pictures, links or paragraph styles.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -40,6 +31,15 @@ Makes a box for editing several lines of text, with scroll bars. The user can ty
 | `style` | Int32 | `0` | 1 for wrapping, plus 65536 for not following the group. Defaults to 0. |
 
 **Returns:** A handle for the text area.
+
+## Description
+
+Makes a box for editing several lines of text, with scroll bars. The user can type, select with the mouse or with Shift and the arrow keys, and use Ctrl+A, C, X and V. Every change sends a $401 event; [TextAreaText](TextAreaText) reads the result. Style 1 turns line wrapping on so text is only scrolled vertically, and 65536 can be added to not follow the group when it is resized.
+
+## Differences
+
+* Without wrapping, a bar along the bottom appears once a line does not fit. Besides the bar, the cursor keys scroll sideways, and so does the mouse wheel while Shift is held.
+* It is not a rich text control: it holds colors and bold or italic for ranges of text, but no pictures, links or paragraph styles.
 
 ## Examples
 

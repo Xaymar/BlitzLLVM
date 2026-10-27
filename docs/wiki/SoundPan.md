@@ -19,16 +19,16 @@
 SoundPan sound:Int32, pan:Float32
 ```
 
-## Description
-
-Sets the stereo position that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelPan](ChannelPan) for those.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
 | `pan` | Float32 | required | -1 is only left, 0 the middle and 1 only right. |
+
+## Description
+
+Sets the stereo position that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelPan](ChannelPan) for those.
 
 ## Related Commands
 

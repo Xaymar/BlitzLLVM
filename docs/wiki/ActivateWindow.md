@@ -19,19 +19,19 @@
 ActivateWindow window:Int32
 ```
 
-## Description
-
-Brings a window of your program to the front and makes it the active one, as if the user had clicked on its title. The window gets a [WindowActivate](EventID) event ($804). It only works for your own windows, never for other programs.
-
-**Differences and known gaps:**
-
-* All windows are drawn inside the one window of your program, so activating one moves it in front of the others there instead of in front of other applications.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `window` | Int32 | required | Handle of a window made with [CreateWindow](CreateWindow). |
+
+## Description
+
+Brings a window of your program to the front and makes it the active one, as if the user had clicked on its title. The window gets a [WindowActivate](EventID) event ($804). It only works for your own windows, never for other programs.
+
+## Differences
+
+* All windows are drawn inside the one window of your program, so activating one moves it in front of the others there instead of in front of other applications.
 
 ## Examples
 

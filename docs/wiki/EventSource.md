@@ -19,13 +19,13 @@
 EventSource:Int32
 ```
 
-## Description
-
-Gives the object that caused the last event: the gadget that was clicked, the window that moved or the timer that ticked. Compare it with the handles you got when you made them to find out which one it was.
-
 ## Parameters
 
 **Returns:** A handle, or 0 for events that have no source such as keys and menus.
+
+## Description
+
+Gives the object that caused the last event: the gadget that was clicked, the window that moved or the timer that ticked. Compare it with the handles you got when you made them to find out which one it was.
 
 ## Examples
 

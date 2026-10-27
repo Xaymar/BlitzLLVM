@@ -19,14 +19,6 @@
 ClientHeight:Int32 group:Int32
 ```
 
-## Description
-
-Gives the height of the area of a group that gadgets can use, which is the inside of the window without its frame, title, menu bar and status bar. For [Desktop](Desktop) it is the height of the screen, so it tells you the resolution.
-
-**Differences and known gaps:**
-
-* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Gives the height of the area of a group that gadgets can use, which is the insid
 | `group` | Int32 | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
 
 **Returns:** The usable height in pixels.
+
+## Description
+
+Gives the height of the area of a group that gadgets can use, which is the inside of the window without its frame, title, menu bar and status bar. For [Desktop](Desktop) it is the height of the screen, so it tells you the resolution.
+
+## Differences
+
+* Where there is a display to ask, the desktop is as big as the screen of the computer. The windows are still drawn inside the window of your program, which has the size given to `Graphics`.
 
 ## Examples
 

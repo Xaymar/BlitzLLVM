@@ -19,14 +19,6 @@
 ReadPixelFast:Int32 x:Int32, y:Int32, buffer:Int32=0
 ```
 
-## Description
-
-Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](ReadPixel). The buffer has to be locked with [LockBuffer](LockBuffer).
-
-**Differences and known gaps:**
-
-* A buffer that is not locked stops the program with an error message. In the original a position outside of the buffer reads other memory.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](
 | `buffer` | Int32 | `0` | The locked buffer to read from. Defaults to the current buffer. |
 
 **Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
+
+## Description
+
+Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](ReadPixel). The buffer has to be locked with [LockBuffer](LockBuffer).
+
+## Differences
+
+* A buffer that is not locked stops the program with an error message. In the original a position outside of the buffer reads other memory.
 
 ## Related Commands
 

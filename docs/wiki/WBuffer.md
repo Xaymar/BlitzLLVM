@@ -19,19 +19,19 @@
 WBuffer enable:Int32
 ```
 
-## Description
-
-Switches between a Z buffer and a W buffer for depth sorting. A W buffer spreads the precision of the depth values more evenly with distance on some graphics cards.
-
-**Differences and known gaps:**
-
-* Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int32 | required | True to use a W buffer. |
+
+## Description
+
+Switches between a Z buffer and a W buffer for depth sorting. A W buffer spreads the precision of the depth values more evenly with distance on some graphics cards.
+
+## Differences
+
+* Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
 
 ## Related Commands
 

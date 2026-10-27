@@ -19,16 +19,16 @@
 Origin x:Int32, y:Int32
 ```
 
-## Description
-
-Moves the point that counts as 0, 0 for everything you draw after it. Shapes, text and images move with it, the viewport does not.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `x` | Int32 | required | Horizontal position of the new origin in the buffer. |
 | `y` | Int32 | required | Vertical position of the new origin in the buffer. |
+
+## Description
+
+Moves the point that counts as 0, 0 for everything you draw after it. Shapes, text and images move with it, the viewport does not.
 
 ## Examples
 

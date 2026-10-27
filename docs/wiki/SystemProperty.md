@@ -19,14 +19,6 @@
 SystemProperty:String property:String
 ```
 
-## Description
-
-Asks for the path of a system folder.
-
-**Differences and known gaps:**
-
-* Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Asks for the path of a system folder.
 | `property` | String | required | One of `tempdir`, `appdir`, `windowsdir` or `systemdir`. |
 
 **Returns:** The path, or an empty string for a name that is not known.
+
+## Description
+
+Asks for the path of a system folder.
+
+## Differences
+
+* Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.
 
 ## Examples
 

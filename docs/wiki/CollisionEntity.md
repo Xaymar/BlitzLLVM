@@ -19,10 +19,6 @@
 CollisionEntity:Int32 entity:Int32, collision_index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `collision_index` | Int32 | required |  |
 
 **Returns:** The other entity of one of the collisions that happened to this entity in the last [UpdateWorld](UpdateWorld). The index runs from 1 to [CountCollisions](CountCollisions).
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

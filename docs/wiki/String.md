@@ -19,10 +19,6 @@
 String:String string:String, repeat:Int32
 ```
 
-## Description
-
-Repeats a string several times.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Repeats a string several times.
 | `repeat` | Int32 | required | How many copies to join. 0 gives an empty string. |
 
 **Returns:** The repeated text.
+
+## Description
+
+Repeats a string several times.
 
 ## Examples
 

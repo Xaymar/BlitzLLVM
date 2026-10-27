@@ -19,17 +19,17 @@
 DirectInputEnabled:Int32
 ```
 
+## Parameters
+
+**Returns:** 1 if the setting is on, otherwise 0.
+
 ## Description
 
 Tells whether the program asked for DirectInput style input with [EnableDirectInput](EnableDirectInput). It is an undocumented command of the original and only exists so that old programs still compile.
 
-**Differences and known gaps:**
+## Differences
 
 * There is no DirectInput on this platform. The command only reports the value last given to EnableDirectInput (initially 1); input always comes from SDL.
-
-## Parameters
-
-**Returns:** 1 if the setting is on, otherwise 0.
 
 ## Related Commands
 

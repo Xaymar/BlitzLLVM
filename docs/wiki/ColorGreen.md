@@ -19,13 +19,13 @@
 ColorGreen:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The green part, 0 to 255, of the current drawing color.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

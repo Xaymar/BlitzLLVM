@@ -19,20 +19,20 @@
 MoveMouse x:Int32, y:Int32
 ```
 
-## Description
-
-Puts the pointer at a position of the graphics buffer, in buffer pixels. After the call [MouseX](MouseX) and [MouseY](MouseY) return the new position straight away.
-
-**Differences and known gaps:**
-
-* The pointer is not warped on the desktop. The window takes the pointer over while MoveMouse is being called each frame and the position the program sees is calculated from the mouse movement, which keeps MouseXSpeed and MouseYSpeed correct. When MoveMouse is not called for about 300 milliseconds the pointer is given back and placed where the program thought it was.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `x` | Int32 | required | Horizontal position in the graphics buffer. |
 | `y` | Int32 | required | Vertical position in the graphics buffer. |
+
+## Description
+
+Puts the pointer at a position of the graphics buffer, in buffer pixels. After the call [MouseX](MouseX) and [MouseY](MouseY) return the new position straight away.
+
+## Differences
+
+* The pointer is not warped on the desktop. The window takes the pointer over while MoveMouse is being called each frame and the position the program sees is calculated from the mouse movement, which keeps MouseXSpeed and MouseYSpeed correct. When MoveMouse is not called for about 300 milliseconds the pointer is given back and placed where the program thought it was.
 
 ## Related Commands
 

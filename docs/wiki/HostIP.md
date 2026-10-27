@@ -19,14 +19,6 @@
 HostIP:Int32 host_index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
-**Differences and known gaps:**
-
-* Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used. Only IPv4 addresses are returned, and an index past the last one returns 0.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ _Not documented yet._
 | `host_index` | Int32 | required | The address to take, counting from 1. |
 
 **Returns:** One of the addresses found by the last [CountHostIPs](CountHostIPs), as a number for [DottedIP](DottedIP).
+
+## Description
+
+_Not documented yet._
+
+## Differences
+
+* Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used. Only IPv4 addresses are returned, and an index past the last one returns 0.
 
 ## Related Commands
 

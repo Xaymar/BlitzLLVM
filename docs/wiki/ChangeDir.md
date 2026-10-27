@@ -19,15 +19,15 @@
 ChangeDir dir:String
 ```
 
-## Description
-
-Makes another folder the current one, which is where relative paths start. Use [CurrentDir](CurrentDir) to see where you are.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `dir` | String | required | The folder to go to. |
+
+## Description
+
+Makes another folder the current one, which is where relative paths start. Use [CurrentDir](CurrentDir) to see where you are.
 
 ## Examples
 

@@ -19,17 +19,6 @@
 DisplayModeDepth:Int32 display:Int32, mode:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-The color depth in bits per pixel of a mode from the list of a display. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
-
-**Differences and known gaps:**
-
-* A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
-* Palette and 16 bit modes are not supported, so every mode is listed with 32 bits.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -38,6 +27,17 @@ The color depth in bits per pixel of a mode from the list of a display. This is 
 | `mode` | Int32 | required | The mode number, from 1 to [CountDisplayModes](CountDisplayModes). |
 
 **Returns:** The color depth, always 32, or 0 if the display or mode does not exist.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+The color depth in bits per pixel of a mode from the list of a display. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+## Differences
+
+* A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
+* Palette and 16 bit modes are not supported, so every mode is listed with 32 bits.
 
 ## Related Commands
 

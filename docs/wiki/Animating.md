@@ -19,10 +19,6 @@
 Animating:Int32 entity:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `entity` | Int32 | required | The entity. |
 
 **Returns:** True while the entity is playing an animation, and False when it is stopped, has finished a one-shot animation or has no animation at all.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

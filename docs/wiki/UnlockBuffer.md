@@ -19,15 +19,15 @@
 UnlockBuffer buffer:Int32=0
 ```
 
-## Description
-
-Ends the lock of [LockBuffer](LockBuffer) and writes the pixels that were changed into the buffer. It does nothing if the buffer is not locked.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `buffer` | Int32 | `0` | The buffer to unlock. Defaults to the current buffer. |
+
+## Description
+
+Ends the lock of [LockBuffer](LockBuffer) and writes the pixels that were changed into the buffer. It does nothing if the buffer is not locked.
 
 ## Related Commands
 

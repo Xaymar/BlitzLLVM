@@ -19,10 +19,6 @@
 CreateTreeView:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a list of nodes that can be opened and closed, like a folder view. Clicking a node sends $401 with the tree as the source, and [SelectedTreeViewNode](SelectedTreeViewNode) tells which. The tree starts out empty: add nodes below the node that [TreeViewRoot](TreeViewRoot) gives.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +31,10 @@ Makes a list of nodes that can be opened and closed, like a folder view. Clickin
 | `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
 
 **Returns:** A handle for the tree view.
+
+## Description
+
+Makes a list of nodes that can be opened and closed, like a folder view. Clicking a node sends $401 with the tree as the source, and [SelectedTreeViewNode](SelectedTreeViewNode) tells which. The tree starts out empty: add nodes below the node that [TreeViewRoot](TreeViewRoot) gives.
 
 ## Examples
 

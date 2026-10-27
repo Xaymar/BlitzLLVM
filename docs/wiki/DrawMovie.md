@@ -19,14 +19,6 @@
 DrawMovie:Int32 movie:Int32, x:Int32=0, y:Int32=0, w:Int32=-1, h:Int32=-1
 ```
 
-## Description
-
-Draws the current picture of a movie into the current buffer. For a video the movie plays by itself at its normal speed and DrawMovie shows the newest picture, so call it once per frame. The position and size are in screen pixels, the origin and viewport are ignored, and the movie has to lie completely inside the screen.
-
-**Differences and known gaps:**
-
-* Draws the newest picture whose time has come, stretched to the size given (smooth, not pixel by pixel). It does not look at the origin and viewport, like the original, and a movie that goes over the edge of the screen is cut at it. What a program shows at the start, in the middle and at the end of a 3 second movie, drawn at its size, at a smaller size and at a bigger one, is in [drawmovie_start.png](media/movies/drawmovie_start.png), [drawmovie_middle.png](media/movies/drawmovie_middle.png) and [drawmovie_end.png](media/movies/drawmovie_end.png) (made by tools/render_movie_samples.py).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ Draws the current picture of a movie into the current buffer. For a video the mo
 | `y` | Int32 | `0` | Vertical position of the top left corner. Defaults to 0. |
 | `w` | Int32 | `-1` | Width to draw at. Defaults to the width of the movie. |
 | `h` | Int32 | `-1` | Height to draw at. Defaults to the height of the movie. |
+
+## Description
+
+Draws the current picture of a movie into the current buffer. For a video the movie plays by itself at its normal speed and DrawMovie shows the newest picture, so call it once per frame. The position and size are in screen pixels, the origin and viewport are ignored, and the movie has to lie completely inside the screen.
+
+## Differences
+
+* Draws the newest picture whose time has come, stretched to the size given (smooth, not pixel by pixel). It does not look at the origin and viewport, like the original, and a movie that goes over the edge of the screen is cut at it. What a program shows at the start, in the middle and at the end of a 3 second movie, drawn at its size, at a smaller size and at a bigger one, is in [drawmovie_start.png](media/movies/drawmovie_start.png), [drawmovie_middle.png](media/movies/drawmovie_middle.png) and [drawmovie_end.png](media/movies/drawmovie_end.png) (made by tools/render_movie_samples.py).
 
 ## Examples
 

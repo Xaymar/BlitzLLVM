@@ -19,15 +19,15 @@
 CreateDir dir:String
 ```
 
-## Description
-
-Creates a folder. Nothing happens when it already exists.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `dir` | String | required | The folder to create. |
+
+## Description
+
+Creates a folder. Nothing happens when it already exists.
 
 ## Examples
 

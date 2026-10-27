@@ -19,13 +19,13 @@
 GraphicsWidth:Int32
 ```
 
-## Description
-
-The width of the graphics window in pixels, as given to [Graphics](Graphics).
-
 ## Parameters
 
 **Returns:** The width in pixels.
+
+## Description
+
+The width of the graphics window in pixels, as given to [Graphics](Graphics).
 
 ## Related Commands
 

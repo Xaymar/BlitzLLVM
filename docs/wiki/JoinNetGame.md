@@ -19,10 +19,6 @@
 JoinNetGame:Int32 game_name:String, ip_address:String
 ```
 
-## Description
-
-Joins a game that another program hosts, which is found by its address.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Joins a game that another program hosts, which is found by its address.
 | `ip_address` | String | required | The address of the host as dotted numbers, such as `192.168.1.20`. |
 
 **Returns:** 1 when the game was joined, 0 when it was not found or has another name.
+
+## Description
+
+Joins a game that another program hosts, which is found by its address.
 
 ## Related Commands
 

@@ -19,14 +19,6 @@
 ImageBuffer:Int32 image:Int32, frame:Int32=0
 ```
 
-## Description
-
-Returns the buffer of one frame of an image, which [SetBuffer](SetBuffer) can make the target of all drawing commands. The buffer is also the one that [LockBuffer](LockBuffer) and [ReadPixel](ReadPixel) work on.
-
-**Differences and known gaps:**
-
-* A frame number that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Returns the buffer of one frame of an image, which [SetBuffer](SetBuffer) can ma
 | `frame` | Int32 | `0` | The frame whose buffer to return. Defaults to 0. |
 
 **Returns:** A buffer handle for [SetBuffer](SetBuffer) and the pixel commands.
+
+## Description
+
+Returns the buffer of one frame of an image, which [SetBuffer](SetBuffer) can make the target of all drawing commands. The buffer is also the one that [LockBuffer](LockBuffer) and [ReadPixel](ReadPixel) work on.
+
+## Differences
+
+* A frame number that does not exist stops the program with an error message.
 
 ## Examples
 

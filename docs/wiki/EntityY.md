@@ -19,10 +19,6 @@
 EntityY:Float32 entity:Int32, global:Int32=0
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `global` | Int32 | `0` | 1 for the world position. Defaults to 0. |
 
 **Returns:** Y position of the entity, relative to its parent or with `global` set to 1 in the world.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

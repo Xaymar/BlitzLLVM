@@ -19,14 +19,6 @@
 GfxDriverName:String driver:Int32
 ```
 
-## Description
-
-The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDrivers).
-
-**Differences and known gaps:**
-
-* The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER". A number that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDr
 | `driver` | Int32 | required | The driver number, starting at 1. |
 
 **Returns:** The name of the driver.
+
+## Description
+
+The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDrivers).
+
+## Differences
+
+* The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER". A number that does not exist stops the program with an error message.
 
 ## Related Commands
 

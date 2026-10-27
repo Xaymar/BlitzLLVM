@@ -19,15 +19,15 @@
 StopChannel channel:Int32
 ```
 
-## Description
-
-Stops a channel and releases it. The handle can not be used afterwards, and commands that are given a channel that has ended are ignored.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+
+## Description
+
+Stops a channel and releases it. The handle can not be used afterwards, and commands that are given a channel that has ended are ignored.
 
 ## Examples
 

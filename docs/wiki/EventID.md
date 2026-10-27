@@ -19,13 +19,13 @@
 EventID:Int32
 ```
 
-## Description
-
-Gives the kind of the event that [WaitEvent](WaitEvent) took last, which is the same number that function returned. See the table at [EventData](EventData) for all kinds.
-
 ## Parameters
 
 **Returns:** The kind of the event. 0 after a `WaitEvent` that timed out.
+
+## Description
+
+Gives the kind of the event that [WaitEvent](WaitEvent) took last, which is the same number that function returned. See the table at [EventData](EventData) for all kinds.
 
 ## Examples
 

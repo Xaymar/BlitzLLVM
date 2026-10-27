@@ -19,10 +19,6 @@
 DeltaYaw:Float32 src_entity:Int32, dest_entity:Int32
 ```
 
-## Description
-
-Tells you how far an entity has to turn around its vertical axis to look at another entity. The result is in degrees, between -180 and 180. A positive angle is a turn to the left, as with [EntityYaw](EntityYaw), so adding the result to the current yaw makes the entity face the target. It only looks at the horizontal direction; the height difference is covered by [DeltaPitch](DeltaPitch).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Tells you how far an entity has to turn around its vertical axis to look at anot
 | `dest_entity` | Int32 | required | The entity it should look at. |
 
 **Returns:** The turn needed, in degrees.
+
+## Description
+
+Tells you how far an entity has to turn around its vertical axis to look at another entity. The result is in degrees, between -180 and 180. A positive angle is a turn to the left, as with [EntityYaw](EntityYaw), so adding the result to the current yaw makes the entity face the target. It only looks at the horizontal direction; the height difference is covered by [DeltaPitch](DeltaPitch).
 
 ## Examples
 

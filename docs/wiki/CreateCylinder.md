@@ -19,10 +19,6 @@
 CreateCylinder:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 ```
 
-## Description
-
-Creates a cylinder with a radius of 1 that stands along the Y axis from -1 to 1. With `solid` set to 0 the top and bottom are left open and you get a tube. 3 segments make a prism, 8 is about the smallest that still reads as round and 16 looks smooth. Valid values are 3 to 100.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Creates a cylinder with a radius of 1 that stands along the Y axis from -1 to 1.
 | `parent` | Int32 | `0` | Entity the cylinder follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new cylinder.
+
+## Description
+
+Creates a cylinder with a radius of 1 that stands along the Y axis from -1 to 1. With `solid` set to 0 the top and bottom are left open and you get a tube. 3 segments make a prism, 8 is about the smallest that still reads as round and 16 looks smooth. Valid values are 3 to 100.
 
 ## Examples
 

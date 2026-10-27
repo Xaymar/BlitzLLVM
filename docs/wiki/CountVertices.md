@@ -19,10 +19,6 @@
 CountVertices:Int32 surface:Int32
 ```
 
-## Description
-
-Reports how many vertices a surface has. Vertex indexes run from 0 to one less than this number, so it is the upper bound of a loop over all vertices.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Reports how many vertices a surface has. Vertex indexes run from 0 to one less t
 | `surface` | Int32 | required | Surface handle. |
 
 **Returns:** The number of vertices of the surface.
+
+## Description
+
+Reports how many vertices a surface has. Vertex indexes run from 0 to one less than this number, so it is the upper bound of a loop over all vertices.
 
 ## Related Commands
 

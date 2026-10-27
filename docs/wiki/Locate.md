@@ -19,20 +19,20 @@
 Locate x:Int32, y:Int32
 ```
 
-## Description
-
-Moves the text cursor of [Print](Print) and [Write](Write) to a position in pixels. The position is on the screen and not in the current buffer.
-
-**Differences and known gaps:**
-
-* The position is limited to the window.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `x` | Int32 | required | Horizontal position of the cursor in pixels. |
 | `y` | Int32 | required | Vertical position of the cursor in pixels. |
+
+## Description
+
+Moves the text cursor of [Print](Print) and [Write](Write) to a position in pixels. The position is on the screen and not in the current buffer.
+
+## Differences
+
+* The position is limited to the window.
 
 ## Examples
 

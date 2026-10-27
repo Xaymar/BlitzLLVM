@@ -19,10 +19,6 @@
 JoyY:Float32 port:Int32=0
 ```
 
-## Description
-
-The vertical position of the main stick, from -1 (up) to 1 (down).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The vertical position of the main stick, from -1 (up) to 1 (down).
 | `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The position from -1 to 1, or 0 if there is no joystick.
+
+## Description
+
+The vertical position of the main stick, from -1 (up) to 1 (down).
 
 ## Related Commands
 

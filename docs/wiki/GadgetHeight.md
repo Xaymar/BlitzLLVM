@@ -19,10 +19,6 @@
 GadgetHeight:Int32 gadget:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `gadget` | Int32 | required | Handle of the gadget. |
 
 **Returns:** The height of the whole gadget including its frame. For the height of the inside use [ClientHeight](ClientHeight).
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

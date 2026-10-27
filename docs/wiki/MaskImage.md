@@ -19,10 +19,6 @@
 MaskImage image:Int32, red:Int32, green:Int32, blue:Int32
 ```
 
-## Description
-
-Chooses the color that [DrawImage](DrawImage) leaves out when it draws the image. The default is black. Setting a color that the picture does not contain makes every pixel visible, which is how to show black pixels. [DrawBlock](DrawBlock) ignores the mask.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Chooses the color that [DrawImage](DrawImage) leaves out when it draws the image
 | `red` | Int32 | required | Red part of the mask color, 0 to 255. |
 | `green` | Int32 | required | Green part of the mask color, 0 to 255. |
 | `blue` | Int32 | required | Blue part of the mask color, 0 to 255. |
+
+## Description
+
+Chooses the color that [DrawImage](DrawImage) leaves out when it draws the image. The default is black. Setting a color that the picture does not contain makes every pixel visible, which is how to show black pixels. [DrawBlock](DrawBlock) ignores the mask.
 
 ## Examples
 

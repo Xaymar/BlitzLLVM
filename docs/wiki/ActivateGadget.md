@@ -19,15 +19,15 @@
 ActivateGadget gadget:Int32
 ```
 
-## Description
-
-Gives the keyboard focus to a gadget, so that typing goes to it. Use it to put the cursor in a text field when a window opens. Giving the focus to the window itself makes keys like Escape reach the window again.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of the gadget that should get the focus. |
+
+## Description
+
+Gives the keyboard focus to a gadget, so that typing goes to it. Use it to put the cursor in a text field when a window opens. Giving the focus to the window itself makes keys like Escape reach the window again.
 
 ## Examples
 

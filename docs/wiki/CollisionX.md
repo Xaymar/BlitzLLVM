@@ -19,10 +19,6 @@
 CollisionX:Float32 entity:Int32, collision_index:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `collision_index` | Int32 | required |  |
 
 **Returns:** The world X coordinate of the point where the numbered collision touched. All Collision commands take the entity that moved and the number of the collision, from 1 to CountCollisions.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

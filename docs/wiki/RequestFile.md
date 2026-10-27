@@ -19,16 +19,6 @@
 RequestFile:String prompt:String=\
 ```
 
-## Description
-
-Opens the file picker of the system and gives the file that was chosen, or an empty string if the user cancelled. Pass a list of extensions to show only those files. With the save flag the dialog is for naming a file that may not exist yet.
-
-The extension list is separated by commas, and a `;` splits it into groups: `"bb,bmx;*.txt"` offers the types bb and bmx together, and txt next to them.
-
-**Differences and known gaps:**
-
-* It is the file dialog of the operating system, so it looks different on each system. The list of extensions is shown as one filter named "Files", groups with `;` are merged into it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +26,16 @@ The extension list is separated by commas, and a `;` splits it into groups: `"bb
 | `prompt` | String | `\` |  |
 
 **Returns:** The full path of the file, or an empty string if nothing was picked.
+
+## Description
+
+Opens the file picker of the system and gives the file that was chosen, or an empty string if the user cancelled. Pass a list of extensions to show only those files. With the save flag the dialog is for naming a file that may not exist yet.
+
+The extension list is separated by commas, and a `;` splits it into groups: `"bb,bmx;*.txt"` offers the types bb and bmx together, and txt next to them.
+
+## Differences
+
+* It is the file dialog of the operating system, so it looks different on each system. The list of extensions is shown as one filter named "Files", groups with `;` are merged into it.
 
 ## Examples
 

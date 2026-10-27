@@ -23,7 +23,7 @@ FlushJoy
 
 Forgets joystick button presses that nobody has looked at yet, on every connected joystick. Use it before a screen that waits for a button, not in the main loop.
 
-**Differences and known gaps:**
+## Differences
 
 * Buttons that are currently held are not released. Only the counted and queued presses are cleared.
 

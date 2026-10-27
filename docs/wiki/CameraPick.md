@@ -19,12 +19,6 @@
 CameraPick:Int32 camera:Int32, viewport_x:Float32, viewport_y:Float32
 ```
 
-## Description
-
-Finds the entity that appears at a pixel of a camera's view, which is how you select things with the mouse. The coordinates are in pixels of the camera's viewport, like [MouseX](MouseX) and [MouseY](MouseY) give them, with 0, 0 at the top left. The ray runs as far as the camera's far range.
-
-Only entities with an [EntityPickMode](EntityPickMode) are found. Afterwards [PickedX](PickedX), [PickedEntity](PickedEntity) and the other Picked commands describe the hit.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +28,12 @@ Only entities with an [EntityPickMode](EntityPickMode) are found. Afterwards [Pi
 | `viewport_y` | Float32 | required | Vertical pixel position inside the camera's viewport. |
 
 **Returns:** The entity found, or 0 if there was none.
+
+## Description
+
+Finds the entity that appears at a pixel of a camera's view, which is how you select things with the mouse. The coordinates are in pixels of the camera's viewport, like [MouseX](MouseX) and [MouseY](MouseY) give them, with 0, 0 at the top left. The ray runs as far as the camera's far range.
+
+Only entities with an [EntityPickMode](EntityPickMode) are found. Afterwards [PickedX](PickedX), [PickedEntity](PickedEntity) and the other Picked commands describe the hit.
 
 ## Examples
 

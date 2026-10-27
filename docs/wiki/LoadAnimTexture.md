@@ -19,16 +19,6 @@
 LoadAnimTexture:Int32 file:String, flags:Int32, width:Int32, height:Int32, first:Int32, count:Int32
 ```
 
-## Description
-
-Loads one picture that holds several frames laid out left to right, top to bottom, and returns a texture that can show any of them. Choose the frame to show with the frame argument of [EntityTexture](EntityTexture), [BrushTexture](BrushTexture) or [TextureBuffer](TextureBuffer). The flags are the same as for [CreateTexture](CreateTexture).
-
-`first_frame` is the cell that counts as frame 0, and `frame_count` is how many cells are used from there. A sheet 256 pixels wide with 64 pixel frames has four cells per row, so cell 5 is the second cell of the second row.
-
-**Differences and known gaps:**
-
-* TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -41,6 +31,16 @@ Loads one picture that holds several frames laid out left to right, top to botto
 | `count` | Int32 | required |  |
 
 **Returns:** A texture handle, or 0 if the file could not be loaded.
+
+## Description
+
+Loads one picture that holds several frames laid out left to right, top to bottom, and returns a texture that can show any of them. Choose the frame to show with the frame argument of [EntityTexture](EntityTexture), [BrushTexture](BrushTexture) or [TextureBuffer](TextureBuffer). The flags are the same as for [CreateTexture](CreateTexture).
+
+`first_frame` is the cell that counts as frame 0, and `frame_count` is how many cells are used from there. A sheet 256 pixels wide with 64 pixel frames has four cells per row, so cell 5 is the second cell of the second row.
+
+## Differences
+
+* TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
 
 ## Examples
 

@@ -19,10 +19,6 @@
 Color red:Int32, green:Int32, blue:Int32
 ```
 
-## Description
-
-Sets the color that `Plot`, `Line`, `Rect`, `Oval` and `Text` draw with.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Sets the color that `Plot`, `Line`, `Rect`, `Oval` and `Text` draw with.
 | `red` | Int32 | required | Red part, 0 to 255. |
 | `green` | Int32 | required | Green part, 0 to 255. |
 | `blue` | Int32 | required | Blue part, 0 to 255. |
+
+## Description
+
+Sets the color that `Plot`, `Line`, `Rect`, `Oval` and `Text` draw with.
 
 ## Examples
 

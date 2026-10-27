@@ -19,10 +19,6 @@
 CreateProgBar:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a bar that shows how far something got. Set how full it is with [UpdateProgBar](UpdateProgBar).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +31,10 @@ Makes a bar that shows how far something got. Set how full it is with [UpdatePro
 | `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
 
 **Returns:** A handle for the progress bar.
+
+## Description
+
+Makes a bar that shows how far something got. Set how full it is with [UpdateProgBar](UpdateProgBar).
 
 ## Examples
 

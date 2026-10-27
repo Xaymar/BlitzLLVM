@@ -19,20 +19,20 @@
 SetTextAreaFont textarea:Int32, font:Int32
 ```
 
-## Description
-
-Changes the font of the whole text area.
-
-**Differences and known gaps:**
-
-* Only the size of the font is used, every font is drawn with the built-in typeface.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `textarea` | Int32 | required | Handle of a text area. |
 | `font` | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
+
+## Description
+
+Changes the font of the whole text area.
+
+## Differences
+
+* Only the size of the font is used, every font is drawn with the built-in typeface.
 
 ## Examples
 

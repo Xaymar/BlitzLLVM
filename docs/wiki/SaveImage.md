@@ -19,14 +19,6 @@
 SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0
 ```
 
-## Description
-
-Writes one frame of an image into a picture file. The file is a PNG when its name ends with `.png`, otherwise a BMP.
-
-**Differences and known gaps:**
-
-* The original only writes BMP files. A name ending in `.png` gives a PNG here.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +28,14 @@ Writes one frame of an image into a picture file. The file is a PNG when its nam
 | `frame` | Int32 | `0` | The frame to save. Defaults to 0. |
 
 **Returns:** 1 if the file was written, otherwise 0.
+
+## Description
+
+Writes one frame of an image into a picture file. The file is a PNG when its name ends with `.png`, otherwise a BMP.
+
+## Differences
+
+* The original only writes BMP files. A name ending in `.png` gives a PNG here.
 
 ## Examples
 

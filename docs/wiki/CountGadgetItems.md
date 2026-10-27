@@ -19,10 +19,6 @@
 CountGadgetItems:Int32 gadget:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
 
 **Returns:** How many entries it has.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

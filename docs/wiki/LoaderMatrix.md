@@ -19,14 +19,6 @@
 LoaderMatrix file_ext:String, xx:Float32, xy:Float32, xz:Float32, yx:Float32, yy:Float32, yz:Float32, zx:Float32, zy:Float32, zz:Float32
 ```
 
-## Description
-
-Sets a 3x3 matrix that is applied to every model loaded from files with a certain extension, to correct a file format whose axes differ from Blitz3D. By default `.x` files are used as they are and `.3ds` files get Y and Z swapped. Only the file type matters, not the case.
-
-**Differences and known gaps:**
-
-* The matrix is remembered but never used. `.3ds` files always get Y and Z swapped, the default, and `.x` files can not be loaded.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -41,6 +33,14 @@ Sets a 3x3 matrix that is applied to every model loaded from files with a certai
 | `zx` | Float32 | required | Matrix value, row 3, column 1. |
 | `zy` | Float32 | required | Matrix value, row 3, column 2. |
 | `zz` | Float32 | required | Matrix value, row 3, column 3. |
+
+## Description
+
+Sets a 3x3 matrix that is applied to every model loaded from files with a certain extension, to correct a file format whose axes differ from Blitz3D. By default `.x` files are used as they are and `.3ds` files get Y and Z swapped. Only the file type matters, not the case.
+
+## Differences
+
+* The matrix is remembered but never used. `.3ds` files always get Y and Z swapped, the default, and `.x` files can not be loaded.
 
 ## Related Commands
 

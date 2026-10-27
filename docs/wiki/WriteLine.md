@@ -19,16 +19,16 @@
 WriteLine stream:Int32, string:String
 ```
 
-## Description
-
-Writes text followed by a carriage return and a line feed. Read it back with [ReadLine](ReadLine).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `stream` | Int32 | required | The stream to write to. |
 | `string` | String | required | The text to write. |
+
+## Description
+
+Writes text followed by a carriage return and a line feed. Read it back with [ReadLine](ReadLine).
 
 ## Related Commands
 

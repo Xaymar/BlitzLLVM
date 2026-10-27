@@ -19,10 +19,6 @@
 ImagesOverlap:Int32 image1:Int32, x1:Int32, y1:Int32, image2:Int32, x2:Int32, y2:Int32
 ```
 
-## Description
-
-Tells whether the boxes of two images touch, which is quick but counts transparent pixels as well. Use it to decide whether the exact [ImagesCollide](ImagesCollide) is needed.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +31,10 @@ Tells whether the boxes of two images touch, which is quick but counts transpare
 | `y2` | Int32 | required | Vertical position where the second image is drawn. |
 
 **Returns:** 1 if the boxes overlap, otherwise 0.
+
+## Description
+
+Tells whether the boxes of two images touch, which is quick but counts transparent pixels as well. Use it to decide whether the exact [ImagesCollide](ImagesCollide) is needed.
 
 ## Related Commands
 

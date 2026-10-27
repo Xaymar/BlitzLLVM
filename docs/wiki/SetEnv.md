@@ -19,16 +19,16 @@
 SetEnv env_var:String, value:String
 ```
 
-## Description
-
-Sets an environment variable for this program and for the programs it starts with [ExecFile](ExecFile). It is not changed for the rest of the system.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `env_var` | String | required | The name of the variable. |
 | `value` | String | required | The new value. |
+
+## Description
+
+Sets an environment variable for this program and for the programs it starts with [ExecFile](ExecFile). It is not changed for the rest of the system.
 
 ## Related Commands
 

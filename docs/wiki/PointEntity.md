@@ -19,10 +19,6 @@
 PointEntity entity:Int32, target:Int32, roll:Float32=0
 ```
 
-## Description
-
-Turns an entity so that its +Z axis points at another entity. Only pitch and yaw change; use `roll` to set the tilt. This is the quickest way to aim a light, a gun or a camera at something. To aim at a spot instead of an entity, make a pivot there, point at it and free it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Turns an entity so that its +Z axis points at another entity. Only pitch and yaw
 | `entity` | Int32 | required | Entity handle. |
 | `target` | Int32 | required | Entity to aim at. |
 | `roll` | Float32 | `0` | Roll angle of the result in degrees. Defaults to 0. |
+
+## Description
+
+Turns an entity so that its +Z axis points at another entity. Only pitch and yaw change; use `roll` to set the tilt. This is the quickest way to aim a light, a gun or a camera at something. To aim at a spot instead of an entity, make a pivot there, point at it and free it.
 
 ## Examples
 

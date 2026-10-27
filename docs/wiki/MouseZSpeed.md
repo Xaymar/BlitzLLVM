@@ -19,17 +19,17 @@
 MouseZSpeed:Int32
 ```
 
+## Parameters
+
+**Returns:** The wheel movement since the previous call.
+
 ## Description
 
 How far the wheel moved since the last call, in notches. Rolling away from you is positive and towards you negative.
 
-**Differences and known gaps:**
+## Differences
 
 * The original only ever gives -1, 0 or 1. A wheel that is turned several notches between two calls can give a larger number here.
-
-## Parameters
-
-**Returns:** The wheel movement since the previous call.
 
 ## Related Commands
 

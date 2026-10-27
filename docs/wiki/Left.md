@@ -19,10 +19,6 @@
 Left:String string:String, count:Int32
 ```
 
-## Description
-
-Returns the first characters of a string. Asking for more characters than there are returns the whole string.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Returns the first characters of a string. Asking for more characters than there 
 | `count` | Int32 | required | How many characters to take. |
 
 **Returns:** The first `count` characters.
+
+## Description
+
+Returns the first characters of a string. Asking for more characters than there are returns the whole string.
 
 ## Examples
 

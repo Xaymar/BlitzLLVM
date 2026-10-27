@@ -19,10 +19,6 @@
 EntityColor entity:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
-## Description
-
-Sets the color of the entity, multiplied with its texture. The default is 255, 255, 255. With the vertex color flag of [EntityFX](EntityFX) the original ignores it and shows the vertex colors only; here it is always multiplied with them, which is the same while the vertices are white.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Sets the color of the entity, multiplied with its texture. The default is 255, 2
 | `red` | Float32 | required | Red part, 0 to 255. |
 | `green` | Float32 | required | Green part, 0 to 255. |
 | `blue` | Float32 | required | Blue part, 0 to 255. |
+
+## Description
+
+Sets the color of the entity, multiplied with its texture. The default is 255, 255, 255. With the vertex color flag of [EntityFX](EntityFX) the original ignores it and shows the vertex colors only; here it is always multiplied with them, which is the same while the vertices are white.
 
 ## Examples
 

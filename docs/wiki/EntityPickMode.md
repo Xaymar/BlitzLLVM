@@ -19,6 +19,14 @@
 EntityPickMode entity:Int32, pick_geometry:Int32, obscurer:Int32=1
 ```
 
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | The entity. |
+| `pick_geometry` | Int32 | required | Shape to test, 0 to 3. |
+| `obscurer` | Int32 | `1` | True if the entity blocks EntityVisible. Defaults to True. |
+
 ## Description
 
 Makes an entity pickable and chooses what shape the pick commands test against. Entities are not pickable by default (mode 0). Pick commands only ever report entities that have a mode, and they ignore hidden entities.
@@ -33,14 +41,6 @@ Makes an entity pickable and chooses what shape the pick commands test against. 
 The `obscurer` argument only matters for [EntityVisible](EntityVisible). An obscurer blocks the line of sight; an entity that is pickable but not an obscurer can be hit by the other pick commands yet is looked through by EntityVisible, which suits things like glass or trigger volumes.
 
 Sprites can only be picked with the sphere or box mode, because they have no mesh triangles.
-
-## Parameters
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
-| `pick_geometry` | Int32 | required | Shape to test, 0 to 3. |
-| `obscurer` | Int32 | `1` | True if the entity blocks EntityVisible. Defaults to True. |
 
 ## Related Commands
 

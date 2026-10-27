@@ -19,14 +19,6 @@
 TerrainDetail terrain:Int32, detail_level:Int32, morph:Int32=0
 ```
 
-## Description
-
-Chooses how many triangles the terrain may use at a time, about 2000 being typical, and whether the vertices blend smoothly between levels of detail to hide the changes.
-
-**Differences and known gaps:**
-
-* The terrain has no level of detail here. All of its triangles are always drawn, so the call is accepted and does nothing.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Chooses how many triangles the terrain may use at a time, about 2000 being typic
 | `terrain` | Int32 | required | The terrain. |
 | `detail_level` | Int32 | required | Number of triangles to use. |
 | `morph` | Int32 | `0` |  |
+
+## Description
+
+Chooses how many triangles the terrain may use at a time, about 2000 being typical, and whether the vertices blend smoothly between levels of detail to hide the changes.
+
+## Differences
+
+* The terrain has no level of detail here. All of its triangles are always drawn, so the call is accepted and does nothing.
 
 ## Related Commands
 

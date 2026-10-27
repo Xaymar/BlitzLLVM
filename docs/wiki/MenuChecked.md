@@ -19,10 +19,6 @@
 MenuChecked:Int32 menu:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `menu` | Int32 | required | Handle of a menu item. |
 
 **Returns:** 1 if it has a check mark, otherwise 0.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

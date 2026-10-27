@@ -19,10 +19,6 @@
 LinePick:Int32 x:Float32, y:Float32, z:Float32, dx:Float32, dy:Float32, dz:Float32, radius:Float32=0
 ```
 
-## Description
-
-Looks along a line from a start point in a direction and returns the first pickable entity it meets. The direction is not normalized: the line ends where `x + dx, y + dy, z + dz` ends, so longer vectors look further. With a radius greater than 0 the line becomes a thick tube, which finds things that a hairline would slip past.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -36,6 +32,10 @@ Looks along a line from a start point in a direction and returns the first picka
 | `radius` | Float32 | `0` | Thickness of the line. Defaults to 0. |
 
 **Returns:** The entity found, or 0.
+
+## Description
+
+Looks along a line from a start point in a direction and returns the first pickable entity it meets. The direction is not normalized: the line ends where `x + dx, y + dy, z + dz` ends, so longer vectors look further. With a radius greater than 0 the line becomes a thick tube, which finds things that a hairline would slip past.
 
 ## Examples
 

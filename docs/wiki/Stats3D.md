@@ -19,14 +19,6 @@
 Stats3D:Float32 type:Int32
 ```
 
-## Description
-
-Gives debugging numbers about the engine. The original help has no entry for this command, and its numbers were only meant for the developers. Index 0 is the number of triangles that the collisions of the last [UpdateWorld](UpdateWorld) looked at.
-
-**Differences and known gaps:**
-
-* The original also reports the vertices and triangles of the terrains in indexes 1 and 2. Those are always 0 here.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Gives debugging numbers about the engine. The original help has no entry for thi
 | `type` | Int32 | required | Which number: 0 to 9. |
 
 **Returns:** The number, or 0 for an index that has no value.
+
+## Description
+
+Gives debugging numbers about the engine. The original help has no entry for this command, and its numbers were only meant for the developers. Index 0 is the number of triangles that the collisions of the last [UpdateWorld](UpdateWorld) looked at.
+
+## Differences
+
+* The original also reports the vertices and triangles of the terrains in indexes 1 and 2. Those are always 0 here.
 
 ## Related Commands
 

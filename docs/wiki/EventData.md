@@ -19,6 +19,10 @@
 EventData:Int32
 ```
 
+## Parameters
+
+**Returns:** The data of the event, see the table. Keeps its value until the next call of `WaitEvent`.
+
 ## Description
 
 Gives the extra number of the event that [WaitEvent](WaitEvent) took last. What it means depends on the kind of event:
@@ -45,10 +49,6 @@ Gives the extra number of the event that [WaitEvent](WaitEvent) took last. What 
 | AppBeginModal | $2004 | - | - | - |
 | AppEndModal | $2005 | - | - | - |
 | TimerTick | $4001 | Ticks so far | Timer | - |
-
-## Parameters
-
-**Returns:** The data of the event, see the table. Keeps its value until the next call of `WaitEvent`.
 
 ## Examples
 

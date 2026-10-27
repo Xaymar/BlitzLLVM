@@ -19,10 +19,6 @@
 LightConeAngles light:Int32, inner_angle:Float32, outer_angle:Float32
 ```
 
-## Description
-
-Sets the inner and outer angle of a spot light in degrees. Inside the inner angle the light is at full strength and it fades out up to the outer angle. The defaults are 0 and 90.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Sets the inner and outer angle of a spot light in degrees. Inside the inner angl
 | `light` | Int32 | required | Light handle. |
 | `inner_angle` | Float32 | required | Angle of the fully lit center of the cone. |
 | `outer_angle` | Float32 | required | Angle where the light has faded out. |
+
+## Description
+
+Sets the inner and outer angle of a spot light in degrees. Inside the inner angle the light is at full strength and it fades out up to the outer angle. The defaults are 0 and 90.
 
 ## Related Commands
 

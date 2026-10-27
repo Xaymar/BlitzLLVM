@@ -19,17 +19,17 @@
 FontHeight:Int32
 ```
 
+## Parameters
+
+**Returns:** The height of a character in pixels.
+
 ## Description
 
 The height in pixels of a character of the current font, as set by [SetFont](SetFont). Use it to place lines of text below each other.
 
-**Differences and known gaps:**
+## Differences
 
 * The height is the height that was requested, as with Windows fonts. For a font that is not found, the built-in bitmap font is used, where [FontWidth](FontWidth) is the same number.
-
-## Parameters
-
-**Returns:** The height of a character in pixels.
 
 ## Examples
 

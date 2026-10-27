@@ -19,17 +19,17 @@
 FreeSampler sampler:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Deletes a sampler. The textures that read through it go back to the settings of their flags. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sampler` | Int32 | required | The sampler to delete. |
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Deletes a sampler. The textures that read through it go back to the settings of their flags. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
 
 ## Related Commands
 

@@ -19,14 +19,6 @@
 LockedPixels:Int32 buffer:Int32=0
 ```
 
-## Description
-
-Gives the pixels of a locked buffer as a bank, so you can read and write them with `PeekByte`, `PokeInt` and friends, which is quicker than `ReadPixel` and `WritePixel` for many pixels. Change them, call `UnlockBuffer` and the changes show up in the buffer.
-
-**Differences and known gaps:**
-
-* The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card. Nothing is changed before `UnlockBuffer`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Gives the pixels of a locked buffer as a bank, so you can read and write them wi
 | `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
 
 **Returns:** The handle of a bank with the pixels.
+
+## Description
+
+Gives the pixels of a locked buffer as a bank, so you can read and write them with `PeekByte`, `PokeInt` and friends, which is quicker than `ReadPixel` and `WritePixel` for many pixels. Change them, call `UnlockBuffer` and the changes show up in the buffer.
+
+## Differences
+
+* The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card. Nothing is changed before `UnlockBuffer`.
 
 ## Examples
 

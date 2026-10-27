@@ -19,10 +19,6 @@
 TreeViewRoot:Int32 treeview:Int32
 ```
 
-## Description
-
-Gives the invisible node at the top of a tree. It is the parent of the top level nodes and cannot be freed or selected.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Gives the invisible node at the top of a tree. It is the parent of the top level
 | `treeview` | Int32 | required | Handle of a tree view. |
 
 **Returns:** The handle of the root node.
+
+## Description
+
+Gives the invisible node at the top of a tree. It is the parent of the top level nodes and cannot be freed or selected.
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 DrawBlock image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
-## Description
-
-Draws a frame of an image without any transparency, so the mask color is drawn like any other. It is faster than [DrawImage](DrawImage) for pictures that fill a rectangle completely, such as backgrounds.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Draws a frame of an image without any transparency, so the mask color is drawn l
 | `x` | Int32 | required | Horizontal position of the handle of the image. |
 | `y` | Int32 | required | Vertical position of the handle of the image. |
 | `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
+
+## Description
+
+Draws a frame of an image without any transparency, so the mask color is drawn like any other. It is faster than [DrawImage](DrawImage) for pictures that fill a rectangle completely, such as backgrounds.
 
 ## Examples
 

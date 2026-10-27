@@ -19,10 +19,6 @@
 GadgetText:String gadget:Int32
 ```
 
-## Description
-
-Reads the text of a gadget, such as the caption of a button or label, or the title of a window. For text fields and text areas, use [TextFieldText](TextFieldText) and [TextAreaText](TextAreaText) to read what the user typed. The official help lists the command as undocumented.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Reads the text of a gadget, such as the caption of a button or label, or the tit
 | `gadget` | Int32 | required | Handle of the gadget. |
 
 **Returns:** The text of the gadget.
+
+## Description
+
+Reads the text of a gadget, such as the caption of a button or label, or the title of a window. For text fields and text areas, use [TextFieldText](TextFieldText) and [TextAreaText](TextAreaText) to read what the user typed. The official help lists the command as undocumented.
 
 ## Examples
 

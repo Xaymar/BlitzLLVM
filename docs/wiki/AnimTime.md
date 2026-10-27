@@ -19,10 +19,6 @@
 AnimTime:Float32 entity:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `entity` | Int32 | required | The entity. |
 
 **Returns:** How far into the current sequence the animation is, in frames. The value starts at 0 at the beginning of the sequence and can have a fractional part between two frames.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

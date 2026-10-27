@@ -19,17 +19,17 @@
 RequestFont:Int32
 ```
 
+## Parameters
+
+**Returns:** A font handle, or 0 if cancelled.
+
 ## Description
 
 Opens a font picker and gives a font that was chosen, or 0 if the user cancelled. The font works with `SetFont`, [SetGadgetFont](SetGadgetFont) and [FontName](FontName).
 
-**Differences and known gaps:**
+## Differences
 
 * Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font. There is no font name, bold, italic or underline choice, and no preview.
-
-## Parameters
-
-**Returns:** A font handle, or 0 if cancelled.
 
 ## Examples
 

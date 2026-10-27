@@ -19,10 +19,6 @@
 TextFieldText:String textfield:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `textfield` | Int32 | required | Handle of a text field. |
 
 **Returns:** The text in the field, even for a password field.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

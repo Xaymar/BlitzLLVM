@@ -19,16 +19,16 @@
 GetColor x:Int32, y:Int32
 ```
 
-## Description
-
-Reads the pixel at a position of the current buffer and makes it the drawing color. Use [ColorRed](ColorRed), [ColorGreen](ColorGreen) and [ColorBlue](ColorBlue) afterwards to see what it was.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `x` | Int32 | required | Horizontal position of the pixel. |
 | `y` | Int32 | required | Vertical position of the pixel. |
+
+## Description
+
+Reads the pixel at a position of the current buffer and makes it the drawing color. Use [ColorRed](ColorRed), [ColorGreen](ColorGreen) and [ColorBlue](ColorBlue) afterwards to see what it was.
 
 ## Related Commands
 

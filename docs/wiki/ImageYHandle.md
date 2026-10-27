@@ -19,10 +19,6 @@
 ImageYHandle:Int32 image:Int32
 ```
 
-## Description
-
-The vertical position of the handle of an image, counted from its top edge.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ The vertical position of the handle of an image, counted from its top edge.
 | `image` | Int32 | required | The image. |
 
 **Returns:** The y position of the handle.
+
+## Description
+
+The vertical position of the handle of an image, counted from its top edge.
 
 ## Related Commands
 

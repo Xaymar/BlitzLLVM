@@ -19,16 +19,16 @@
 RemoveGadgetItem gadget:Int32, index:Int32
 ```
 
-## Description
-
-Takes one entry out of a list box, combo box or tabber. The entries after it move up by one.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
 | `index` | Int32 | required | Number of the entry, starting at 0. |
+
+## Description
+
+Takes one entry out of a list box, combo box or tabber. The entries after it move up by one.
 
 ## Examples
 

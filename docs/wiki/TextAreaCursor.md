@@ -19,10 +19,6 @@
 TextAreaCursor:Int32 textarea:Int32, units:Int32=1
 ```
 
-## Description
-
-Gives where the text cursor is.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Gives where the text cursor is.
 | `units` | Int32 | `1` | 1 gives the character position, 2 gives the line. Defaults to 1. |
 
 **Returns:** The position, counting from 0.
+
+## Description
+
+Gives where the text cursor is.
 
 ## Examples
 

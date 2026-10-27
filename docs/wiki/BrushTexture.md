@@ -19,14 +19,6 @@
 BrushTexture brush:Int32, texture:Int32, frame:Int32=0, index:Int32=0
 ```
 
-## Description
-
-Puts a texture on one of the layers of the brush. Layer 0 is the base texture, further layers are blended on top of it using [TextureBlend](TextureBlend). For a texture from [LoadAnimTexture](LoadAnimTexture) the frame chooses the cell to show.
-
-**Differences and known gaps:**
-
-* Layers 0 to 7 are accepted. The original help documents only 0 to 3 for this command.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +27,14 @@ Puts a texture on one of the layers of the brush. Layer 0 is the base texture, f
 | `texture` | Int32 | required | The texture to put on the brush. |
 | `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
 | `index` | Int32 | `0` | Layer number. Defaults to 0. |
+
+## Description
+
+Puts a texture on one of the layers of the brush. Layer 0 is the base texture, further layers are blended on top of it using [TextureBlend](TextureBlend). For a texture from [LoadAnimTexture](LoadAnimTexture) the frame chooses the cell to show.
+
+## Differences
+
+* Layers 0 to 7 are accepted. The original help documents only 0 to 3 for this command.
 
 ## Examples
 

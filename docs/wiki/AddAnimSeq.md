@@ -19,10 +19,6 @@
 AddAnimSeq:Int32 entity:Int32, length:Int32
 ```
 
-## Description
-
-Turns the keys made with [SetAnimKey](SetAnimKey) into a new animation sequence of the given length, for the entity and everything below it. If the entity had no animation before, it gets sequence 0; otherwise the new sequence is appended behind the existing ones and gets the next number.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Turns the keys made with [SetAnimKey](SetAnimKey) into a new animation sequence 
 | `length` | Int32 | required | Length of the sequence in frames. |
 
 **Returns:** The number of the new sequence.
+
+## Description
+
+Turns the keys made with [SetAnimKey](SetAnimKey) into a new animation sequence of the given length, for the entity and everything below it. If the entity had no animation before, it gets sequence 0; otherwise the new sequence is appended behind the existing ones and gets the next number.
 
 ## Related Commands
 

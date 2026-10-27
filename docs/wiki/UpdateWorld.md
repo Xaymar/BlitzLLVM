@@ -19,15 +19,15 @@
 UpdateWorld elapsed_time:Float32=1
 ```
 
-## Description
-
-Advances the world by one step: moves animated entities on and applies the collision rules, so entities with a collision type are pushed out of the things they hit. Call it once per main loop, before [RenderWorld](RenderWorld). Without it, animations stand still and collisions never happen.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `elapsed_time` | Float32 | `1` | Animation speed of the whole world: 1 plays animations at their own speed, 2 at double speed, 0.5 at half. Defaults to 1. |
+
+## Description
+
+Advances the world by one step: moves animated entities on and applies the collision rules, so entities with a collision type are pushed out of the things they hit. Call it once per main loop, before [RenderWorld](RenderWorld). Without it, animations stand still and collisions never happen.
 
 ## Examples
 

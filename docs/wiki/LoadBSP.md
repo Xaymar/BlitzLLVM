@@ -19,20 +19,6 @@
 LoadBSP:Int32 file:String, gamma_adj:Float32=0, parent:Int32=0
 ```
 
-## Description
-
-Loads a Quake 3 level (`.bsp`, version 46) as one entity. The level is an ordinary entity, so [PositionEntity](PositionEntity), [ScaleEntity](ScaleEntity) and the collision commands work on it; use [EntityType](EntityType) and a `Collisions` rule with method 2 to walk through it. Its surfaces are shared by the triangles that use the same texture. Quake's axes are turned into Blitz3D's: Quake's forward axis is Z here, its left axis is -X, and its up axis is Y.
-
-The textures of the level are found by the names inside the file, with `.tga`, `.jpg`, `.png` or `.dds` added, next to the level and in the folders above it. Faces that the level marks as sky, hidden or not solid are not drawn, and a level cannot be painted, textured, colored or faded like other entities.
-
-The example below builds a minimal level file itself, so it runs without any level from a game: a floor, a wall and a curved hill. The faces have no textures, which leaves the colors of the vertices.
-
-**Differences and known gaps:**
-
-* Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices. gamma_adjust lifts the lightmaps (each value is raised to 1 / (1 + gamma)), which is not necessarily what the original does. Visibility data is not used, so all of the level is always drawn.
-* The original lights a BSP with point and spot lights but not with ambient or directional ones. Here no light affects it; it is drawn as its vertex colors say, scaled by BSPAmbientLight.
-* Curved patches are cut into a fixed number of triangles, and billboard faces are skipped.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -42,6 +28,20 @@ The example below builds a minimal level file itself, so it runs without any lev
 | `parent` | Int32 | `0` | Optional parent entity. The level is still created at 0, 0, 0. |
 
 **Returns:** An entity handle, or 0 if the file is not a Quake 3 level.
+
+## Description
+
+Loads a Quake 3 level (`.bsp`, version 46) as one entity. The level is an ordinary entity, so [PositionEntity](PositionEntity), [ScaleEntity](ScaleEntity) and the collision commands work on it; use [EntityType](EntityType) and a `Collisions` rule with method 2 to walk through it. Its surfaces are shared by the triangles that use the same texture. Quake's axes are turned into Blitz3D's: Quake's forward axis is Z here, its left axis is -X, and its up axis is Y.
+
+The textures of the level are found by the names inside the file, with `.tga`, `.jpg`, `.png` or `.dds` added, next to the level and in the folders above it. Faces that the level marks as sky, hidden or not solid are not drawn, and a level cannot be painted, textured, colored or faded like other entities.
+
+The example below builds a minimal level file itself, so it runs without any level from a game: a floor, a wall and a curved hill. The faces have no textures, which leaves the colors of the vertices.
+
+## Differences
+
+* Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices. gamma_adjust lifts the lightmaps (each value is raised to 1 / (1 + gamma)), which is not necessarily what the original does. Visibility data is not used, so all of the level is always drawn.
+* The original lights a BSP with point and spot lights but not with ambient or directional ones. Here no light affects it; it is drawn as its vertex colors say, scaled by BSPAmbientLight.
+* Curved patches are cut into a fixed number of triangles, and billboard faces are skipped.
 
 ## Examples
 

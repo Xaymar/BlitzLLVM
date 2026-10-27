@@ -19,19 +19,19 @@
 FreeFont font:Int32
 ```
 
-## Description
-
-Releases a font that was loaded with [LoadFont](LoadFont). If it was the current font, the built-in font is selected again.
-
-**Differences and known gaps:**
-
-* A font that does not exist stops the program with an error message.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `font` | Int32 | required | The font to free. |
+
+## Description
+
+Releases a font that was loaded with [LoadFont](LoadFont). If it was the current font, the built-in font is selected again.
+
+## Differences
+
+* A font that does not exist stops the program with an error message.
 
 ## Related Commands
 

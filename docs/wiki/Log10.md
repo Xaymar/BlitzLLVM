@@ -19,10 +19,6 @@
 Log10:Float32 float:Float32
 ```
 
-## Description
-
-Returns the logarithm to base 10, which is how many times 10 goes into the number.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Returns the logarithm to base 10, which is how many times 10 goes into the numbe
 | `float` | Float32 | required | A number above 0. |
 
 **Returns:** The logarithm to base 10.
+
+## Description
+
+Returns the logarithm to base 10, which is how many times 10 goes into the number.
 
 ## Examples
 

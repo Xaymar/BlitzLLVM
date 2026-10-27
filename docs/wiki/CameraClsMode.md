@@ -19,10 +19,6 @@
 CameraClsMode camera:Int32, cls_color:Int32, cls_zbuffer:Int32
 ```
 
-## Description
-
-Chooses what the camera clears before it draws: the color buffer, the depth buffer, both or neither. Switch color clearing off to draw a 2D background first and let the 3D world appear on top of it. Leave depth clearing on unless you render several cameras on purpose into the same pixels and want their depth to combine, otherwise earlier cameras block later ones.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Chooses what the camera clears before it draws: the color buffer, the depth buff
 | `camera` | Int32 | required | Camera handle. |
 | `cls_color` | Int32 | required | True to clear the color buffer, false to keep what is there. |
 | `cls_zbuffer` | Int32 | required | True to clear the depth buffer, false to keep it. |
+
+## Description
+
+Chooses what the camera clears before it draws: the color buffer, the depth buffer, both or neither. Switch color clearing off to draw a 2D background first and let the 3D world appear on top of it. Leave depth clearing on unless you render several cameras on purpose into the same pixels and want their depth to combine, otherwise earlier cameras block later ones.
 
 ## Examples
 

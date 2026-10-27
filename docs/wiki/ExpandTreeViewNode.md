@@ -19,15 +19,15 @@
 ExpandTreeViewNode node:Int32
 ```
 
-## Description
-
-Opens a node so that its children are seen. See [CollapseTreeViewNode](CollapseTreeViewNode).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `node` | Int32 | required | Handle of a node. |
+
+## Description
+
+Opens a node so that its children are seen. See [CollapseTreeViewNode](CollapseTreeViewNode).
 
 ## Related Commands
 

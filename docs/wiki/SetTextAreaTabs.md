@@ -19,16 +19,16 @@
 SetTextAreaTabs textarea:Int32, tabs:Int32
 ```
 
-## Description
-
-Sets how wide a tab character is, independent of the font.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `textarea` | Int32 | required | Handle of a text area. |
 | `tabs` | Int32 | required | Width of a tab. |
+
+## Description
+
+Sets how wide a tab character is, independent of the font.
 
 ## Examples
 

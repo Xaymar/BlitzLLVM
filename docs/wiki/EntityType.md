@@ -19,14 +19,6 @@
 EntityType entity:Int32, collision_type:Int32, recursive:Int32=0
 ```
 
-## Description
-
-Gives an entity a collision type, a number from 1 to 999 that [Collisions](Collisions) uses to decide which entities may hit which. Type 0 is the default and takes the entity out of collision checking altogether. Entities of the same type do not collide with each other unless you add a rule for that pair.
-
-With `recursive` set, the type is also given to every child of the entity, and to their children.
-
-Changing the type resets the entity's collision movement, as [ResetEntity](ResetEntity) does.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ Changing the type resets the entity's collision movement, as [ResetEntity](Reset
 | `entity` | Int32 | required | The entity. |
 | `collision_type` | Int32 | required | Collision type, 0 to 999. |
 | `recursive` | Int32 | `0` | True to give the type to all children as well. Defaults to False. |
+
+## Description
+
+Gives an entity a collision type, a number from 1 to 999 that [Collisions](Collisions) uses to decide which entities may hit which. Type 0 is the default and takes the entity out of collision checking altogether. Entities of the same type do not collide with each other unless you add a rule for that pair.
+
+With `recursive` set, the type is also given to every child of the entity, and to their children.
+
+Changing the type resets the entity's collision movement, as [ResetEntity](ResetEntity) does.
 
 ## Related Commands
 

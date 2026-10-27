@@ -19,16 +19,16 @@
 SetGadgetIconStrip gadget:Int32, icon_strip:Int32
 ```
 
-## Description
-
-Gives a list box, combo box or tabber the icons to use for its entries. Afterwards the icon number given to [AddGadgetItem](AddGadgetItem), [InsertGadgetItem](InsertGadgetItem) or [ModifyGadgetItem](ModifyGadgetItem) picks one.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
 | `icon_strip` | Int32 | required |  |
+
+## Description
+
+Gives a list box, combo box or tabber the icons to use for its entries. Afterwards the icon number given to [AddGadgetItem](AddGadgetItem), [InsertGadgetItem](InsertGadgetItem) or [ModifyGadgetItem](ModifyGadgetItem) picks one.
 
 ## Examples
 

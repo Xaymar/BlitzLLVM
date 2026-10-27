@@ -19,10 +19,6 @@
 PlaySound:Int32 sound:Int32
 ```
 
-## Description
-
-Starts a sound and returns the channel it plays on. Every call starts a new channel, so the same sound can play several times over itself. The channel starts with the volume and pan that were set on the sound with [SoundVolume](SoundVolume) and [SoundPan](SoundPan), and a sound that is marked by [LoopSound](LoopSound) repeats until the channel is stopped.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Starts a sound and returns the channel it plays on. Every call starts a new chan
 | `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
 
 **Returns:** The channel handle, or 0 if the sound could not be played (for example without a sound device).
+
+## Description
+
+Starts a sound and returns the channel it plays on. Every call starts a new channel, so the same sound can play several times over itself. The channel starts with the volume and pan that were set on the sound with [SoundVolume](SoundVolume) and [SoundPan](SoundPan), and a sound that is marked by [LoopSound](LoopSound) repeats until the channel is stopped.
 
 ## Examples
 

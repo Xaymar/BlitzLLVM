@@ -19,10 +19,6 @@
 LSet:String string:String, size:Int32
 ```
 
-## Description
-
-Makes a string exactly `size` characters long by cutting it off or padding it with spaces on the right, so the text stays on the left. Useful for columns.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Makes a string exactly `size` characters long by cutting it off or padding it wi
 | `size` | Int32 | required | The length of the result. |
 
 **Returns:** A string of exactly `size` characters.
+
+## Description
+
+Makes a string exactly `size` characters long by cutting it off or padding it with spaces on the right, so the text stays on the left. Useful for columns.
 
 ## Examples
 

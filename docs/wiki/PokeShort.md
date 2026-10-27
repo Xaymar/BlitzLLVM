@@ -19,10 +19,6 @@
 PokeShort bank:Int32, offset:Int32, value:Int32
 ```
 
-## Description
-
-Writes a 2-byte value, low byte first. Values outside 0 to 65535 wrap around.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Writes a 2-byte value, low byte first. Values outside 0 to 65535 wrap around.
 | `bank` | Int32 | required | The bank to write to. |
 | `offset` | Int32 | required | Position in bytes. |
 | `value` | Int32 | required | The value to store. |
+
+## Description
+
+Writes a 2-byte value, low byte first. Values outside 0 to 65535 wrap around.
 
 ## Related Commands
 

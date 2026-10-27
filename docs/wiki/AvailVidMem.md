@@ -19,17 +19,17 @@
 AvailVidMem:Int32
 ```
 
+## Parameters
+
+**Returns:** The free video memory in bytes.
+
 ## Description
 
 The amount of video memory that is free, in bytes. Every image and texture uses some of it.
 
-**Differences and known gaps:**
+## Differences
 
 * The graphics card cannot be asked how much of its memory is still free. This returns the same number as [TotalVidMem](TotalVidMem), and 0 when no graphics window is open.
-
-## Parameters
-
-**Returns:** The free video memory in bytes.
 
 ## Related Commands
 

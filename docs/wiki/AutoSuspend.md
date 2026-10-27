@@ -19,15 +19,15 @@
 AutoSuspend enable:Int32
 ```
 
-## Description
-
-Switches whether the program stops when its window is not the active one and carries on when it is back. It is off by default, except for programs that run full screen, which have it on until they turn it off. The program also waits while its window is minimized. A program can also react to the events $2001 and $2002 itself.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int32 | required | 1 turns it on, 0 turns it off. |
+
+## Description
+
+Switches whether the program stops when its window is not the active one and carries on when it is back. It is off by default, except for programs that run full screen, which have it on until they turn it off. The program also waits while its window is minimized. A program can also react to the events $2001 and $2002 itself.
 
 ## Examples
 

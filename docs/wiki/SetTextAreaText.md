@@ -19,10 +19,6 @@
 SetTextAreaText textarea:Int32, text:String, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
-## Description
-
-Writes text into a text area at a place. It replaces the given number of characters or lines there, so a length of 0 only inserts.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +28,10 @@ Writes text into a text area at a place. It replaces the given number of charact
 | `pos` | Int32 | `0` |  |
 | `len` | Int32 | `-1` |  |
 | `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+
+## Description
+
+Writes text into a text area at a place. It replaces the given number of characters or lines there, so a length of 0 only inserts.
 
 ## Examples
 

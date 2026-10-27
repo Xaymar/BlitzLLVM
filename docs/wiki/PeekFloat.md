@@ -19,10 +19,6 @@
 PeekFloat:Float32 bank:Int32, offset:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `offset` | Int32 | required | Position in bytes of the first of the 4 bytes. |
 
 **Returns:** The 4-byte float at an offset.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

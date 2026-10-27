@@ -19,13 +19,13 @@
 KeyWait:Int32
 ```
 
-## Description
-
-The BlitzPlus name for [WaitKey](WaitKey). It behaves exactly the same.
-
 ## Parameters
 
 **Returns:** The character code of the key that was typed.
+
+## Description
+
+The BlitzPlus name for [WaitKey](WaitKey). It behaves exactly the same.
 
 ## Examples
 

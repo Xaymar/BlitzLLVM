@@ -19,14 +19,6 @@
 GammaGreen:Float32 green:Int32
 ```
 
-## Description
-
-The output value of the green gamma table for an input value, as set by [SetGamma](SetGamma). By default every value gives itself.
-
-**Differences and known gaps:**
-
-* The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -34,6 +26,14 @@ The output value of the green gamma table for an input value, as set by [SetGamm
 | `green` | Int32 | required | The input value, 0 to 255. |
 
 **Returns:** The output value for the input.
+
+## Description
+
+The output value of the green gamma table for an input value, as set by [SetGamma](SetGamma). By default every value gives itself.
+
+## Differences
+
+* The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
 
 ## Related Commands
 

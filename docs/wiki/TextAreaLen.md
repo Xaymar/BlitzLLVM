@@ -19,10 +19,6 @@
 TextAreaLen:Int32 textarea:Int32, units:Int32=1
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ _Not documented yet._
 | `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 **Returns:** How many characters or lines the text has.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

@@ -19,10 +19,6 @@
 PokeFloat bank:Int32, offset:Int32, value:Float32
 ```
 
-## Description
-
-Writes a float in 4 bytes (IEEE 754 single precision).
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Writes a float in 4 bytes (IEEE 754 single precision).
 | `bank` | Int32 | required | The bank to write to. |
 | `offset` | Int32 | required | Position in bytes. |
 | `value` | Float32 | required | The float to store. |
+
+## Description
+
+Writes a float in 4 bytes (IEEE 754 single precision).
 
 ## Examples
 

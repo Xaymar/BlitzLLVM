@@ -19,10 +19,6 @@
 LockedPitch:Int32 buffer:Int32=0
 ```
 
-## Description
-
-Gives how many bytes one row of pixels of a locked buffer takes, which you need to find the pixel at x, y: `y * pitch + x * 4`.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ Gives how many bytes one row of pixels of a locked buffer takes, which you need 
 | `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
 
 **Returns:** Bytes in a row. For the buffer of a 200 pixel wide canvas that is 800.
+
+## Description
+
+Gives how many bytes one row of pixels of a locked buffer takes, which you need to find the pixel at x, y: `y * pitch + x * 4`.
 
 ## Examples
 

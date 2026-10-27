@@ -19,15 +19,15 @@
 DisableGadget gadget:Int32
 ```
 
-## Description
-
-Greys a gadget out so it ignores the user and sends no events. A disabled window disables everything inside it. Combined with a child window this makes a dialog that blocks the window behind it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of the gadget. |
+
+## Description
+
+Greys a gadget out so it ignores the user and sends no events. A disabled window disables everything inside it. Combined with a child window this makes a dialog that blocks the window behind it.
 
 ## Examples
 

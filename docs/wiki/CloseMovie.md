@@ -19,19 +19,19 @@
 CloseMovie movie:Int32
 ```
 
-## Description
-
-Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movie that should play again has to be closed and opened anew.
-
-**Differences and known gaps:**
-
-* Nothing , the same as the original. The picture and sound stop.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `movie` | Int32 | required | A movie handle from OpenMovie. |
+
+## Description
+
+Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movie that should play again has to be closed and opened anew.
+
+## Differences
+
+* Nothing , the same as the original. The picture and sound stop.
 
 ## Related Commands
 

@@ -19,14 +19,6 @@
 CreateToolBar:Int32 icons:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a row of icon buttons from a picture file. The picture holds square icons side by side, and the number of icons is its width divided by its height. The pixel in the top left corner is the transparent color, and an icon that is only that color becomes a gap between buttons. Clicking a button sends $401 and [EventData](EventData) is the number of the icon, counted from 0.
-
-**Differences and known gaps:**
-
-* The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -40,6 +32,14 @@ Makes a row of icon buttons from a picture file. The picture holds square icons 
 | `style` | Int32 | `0` | Reserved. Defaults to 0. |
 
 **Returns:** A handle for the toolbar.
+
+## Description
+
+Makes a row of icon buttons from a picture file. The picture holds square icons side by side, and the number of icons is its width divided by its height. The pixel in the top left corner is the transparent color, and an icon that is only that color becomes a gap between buttons. Clicking a button sends $401 and [EventData](EventData) is the number of the icon, counted from 0.
+
+## Differences
+
+* The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
 
 ## Examples
 

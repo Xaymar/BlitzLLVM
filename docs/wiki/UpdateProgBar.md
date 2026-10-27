@@ -19,16 +19,16 @@
 UpdateProgBar progbar:Int32, progress:Float32
 ```
 
-## Description
-
-Sets how full a progress bar is.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `progbar` | Int32 | required | Handle of a progress bar. |
 | `progress` | Float32 | required | How far it got from 0 (empty) to 1 (full). |
+
+## Description
+
+Sets how full a progress bar is.
 
 ## Related Commands
 

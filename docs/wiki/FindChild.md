@@ -19,10 +19,6 @@
 FindChild:Int32 entity:Int32, name:String
 ```
 
-## Description
-
-Searches the children of an entity, and their children, for one with the given name, ignoring case. It returns the first match, or 0 if there is none. It is the usual way to reach a part, such as a hand or a wheel, of a loaded model.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Searches the children of an entity, and their children, for one with the given n
 | `name` | String | required | Name to search for. |
 
 **Returns:** The handle of the child, or 0.
+
+## Description
+
+Searches the children of an entity, and their children, for one with the given name, ignoring case. It returns the first match, or 0 if there is none. It is the usual way to reach a part, such as a hand or a wheel, of a loaded model.
 
 ## Related Commands
 

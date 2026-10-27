@@ -19,10 +19,6 @@
 CreatePanel:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-## Description
-
-Makes a rectangle that other gadgets can be placed on, so you can group them, hide them together or move them together. Give it a color with [SetPanelColor](SetPanelColor) or a picture with [SetPanelImage](SetPanelImage). Style 1 draws a frame around it.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -35,6 +31,10 @@ Makes a rectangle that other gadgets can be placed on, so you can group them, hi
 | `style` | Int32 | `0` | 1 draws a frame. Add 65536 to not follow the group when it is resized. Defaults to 0. |
 
 **Returns:** A handle for the panel.
+
+## Description
+
+Makes a rectangle that other gadgets can be placed on, so you can group them, hide them together or move them together. Give it a color with [SetPanelColor](SetPanelColor) or a picture with [SetPanelImage](SetPanelImage). Style 1 draws a frame around it.
 
 ## Examples
 

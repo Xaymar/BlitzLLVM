@@ -19,16 +19,16 @@
 TCPTimeouts read_millis:Int32, accept_millis:Int32
 ```
 
-## Description
-
-Sets how long to wait. Reading from a TCP stream waits for data until the read timeout is over, and [AcceptTCPStream](AcceptTCPStream) waits for a client until the accept timeout is over. The defaults are 10000 milliseconds for reading and 0 for accepting.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `read_millis` | Int32 | required | Read timeout in milliseconds. |
 | `accept_millis` | Int32 | required | Accept timeout in milliseconds. |
+
+## Description
+
+Sets how long to wait. Reading from a TCP stream waits for data until the read timeout is over, and [AcceptTCPStream](AcceptTCPStream) waits for a client until the accept timeout is over. The defaults are 10000 milliseconds for reading and 0 for accepting.
 
 ## Related Commands
 

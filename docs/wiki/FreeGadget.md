@@ -19,15 +19,15 @@
 FreeGadget gadget:Int32
 ```
 
-## Description
-
-Removes a gadget for good, together with everything inside it. If you only want it gone for a while use [HideGadget](HideGadget). The handle must not be used afterwards.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of the gadget. A window can be freed too. |
+
+## Description
+
+Removes a gadget for good, together with everything inside it. If you only want it gone for a while use [HideGadget](HideGadget). The handle must not be used afterwards.
 
 ## Examples
 

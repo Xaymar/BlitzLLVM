@@ -19,16 +19,16 @@
 CopyFile file:String, to:String
 ```
 
-## Description
-
-Copies a file. An existing file at the destination is overwritten.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required | The file to copy. |
 | `to` | String | required | The name of the copy. |
+
+## Description
+
+Copies a file. An existing file at the destination is overwritten.
 
 ## Examples
 

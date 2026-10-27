@@ -19,10 +19,6 @@
 Line x1:Int32, y1:Int32, x2:Int32, y2:Int32
 ```
 
-## Description
-
-Draws a line between two points. Both end points are drawn, and the line is made of whole pixels like in the original.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -31,6 +27,10 @@ Draws a line between two points. Both end points are drawn, and the line is made
 | `y1` | Int32 | required | Vertical position of the start. |
 | `x2` | Int32 | required | Horizontal position of the end. |
 | `y2` | Int32 | required | Vertical position of the end. |
+
+## Description
+
+Draws a line between two points. Both end points are drawn, and the line is made of whole pixels like in the original.
 
 ## Examples
 

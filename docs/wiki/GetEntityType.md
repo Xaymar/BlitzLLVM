@@ -19,10 +19,6 @@
 GetEntityType:Int32 entity:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `entity` | Int32 | required | The entity. |
 
 **Returns:** The collision type that was given to the entity with EntityType, or 0 if it never got one.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

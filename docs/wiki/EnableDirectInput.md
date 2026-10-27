@@ -19,19 +19,19 @@
 EnableDirectInput enable:Int32
 ```
 
-## Description
-
-Switches the DirectInput setting on or off. In the original it chose between two ways of reading the keyboard and mouse. It is an undocumented command that old programs sometimes call at their start.
-
-**Differences and known gaps:**
-
-* Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it. Input is read the same way whatever it is set to.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enable` | Int32 | required | 1 to switch it on, 0 to switch it off. |
+
+## Description
+
+Switches the DirectInput setting on or off. In the original it chose between two ways of reading the keyboard and mouse. It is an undocumented command that old programs sometimes call at their start.
+
+## Differences
+
+* Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it. Input is read the same way whatever it is set to.
 
 ## Related Commands
 

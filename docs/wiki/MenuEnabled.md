@@ -19,10 +19,6 @@
 MenuEnabled:Int32 menu:Int32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -30,6 +26,10 @@ _Not documented yet._
 | `menu` | Int32 | required | Handle of a menu or item. |
 
 **Returns:** 1 if it can be chosen, 0 if it was disabled.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

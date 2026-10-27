@@ -19,13 +19,13 @@
 PickedX:Float32
 ```
 
-## Description
-
-_Not documented yet._
-
 ## Parameters
 
 **Returns:** The world X coordinate of the exact point where the latest pick touched an entity. Only meaningful after a pick that hit something; after a miss it keeps the value of the last hit.
+
+## Description
+
+_Not documented yet._
 
 ## Related Commands
 

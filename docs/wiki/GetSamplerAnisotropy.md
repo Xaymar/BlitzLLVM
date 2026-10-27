@@ -19,12 +19,6 @@
 GetSamplerAnisotropy:Float32 sampler:Int32
 ```
 
-## Description
-
-**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
-
-Returns the anisotropy that the sampler has, as it was set with [SetSamplerAnisotropy](SetSamplerAnisotropy) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 1 or more.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -32,6 +26,12 @@ Returns the anisotropy that the sampler has, as it was set with [SetSamplerAniso
 | `sampler` | Int32 | required | The sampler to ask. |
 
 **Returns:** The setting: 1 or more.
+
+## Description
+
+**〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
+
+Returns the anisotropy that the sampler has, as it was set with [SetSamplerAnisotropy](SetSamplerAnisotropy) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 1 or more.
 
 ## Related Commands
 

@@ -19,14 +19,6 @@
 FormatTextAreaText textarea:Int32, red:Int32, green:Int32, blue:Int32, flags:Int32, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
-## Description
-
-Changes the color and style of a part of the text. The style is 1 for bold, 2 for italic and 3 for both, and 0 for plain. The part starts at a character or line and goes on for a number of them.
-
-**Differences and known gaps:**
-
-* Underline and strike-through are not supported, as in the original.
-
 ## Parameters
 
 | Parameter | Type | Default | Description |
@@ -39,6 +31,14 @@ Changes the color and style of a part of the text. The style is 1 for bold, 2 fo
 | `pos` | Int32 | `0` |  |
 | `len` | Int32 | `-1` |  |
 | `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+
+## Description
+
+Changes the color and style of a part of the text. The style is 1 for bold, 2 for italic and 3 for both, and 0 for plain. The part starts at a character or line and goes on for a number of them.
+
+## Differences
+
+* Underline and strike-through are not supported, as in the original.
 
 ## Examples
 
