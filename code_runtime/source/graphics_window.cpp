@@ -164,6 +164,11 @@ void bb_end_graphics(void)
 		vkDestroySampler(g.device, g.sampler_repeat_mips, nullptr);
 		vkDestroySampler(g.device, g.sampler_clamp_mips, nullptr);
 		vkDestroySemaphore(g.device, g.acquired, nullptr);
+		if (profile_query_pool) {
+			vkDestroyQueryPool(g.device, profile_query_pool, nullptr);
+			profile_query_pool = VK_NULL_HANDLE;
+			profile_mark_state = -1;
+		}
 		vkDestroyFence(g.device, g.fence, nullptr);
 		vkDestroyCommandPool(g.device, g.pool, nullptr);
 		destroy_allocator();
@@ -262,6 +267,10 @@ void bb_flip(int32_t vwait)
 			if (now - last >= 1000) {
 				fprintf(stderr, "fps: %d, submits: %d, waiting: %.1f ms\n", frames, profile_submits, double(profile_wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
 				fprintf(stderr, "  gpu thread: execute %.1f ms, present %.1f ms, overlapped frames %d\n", double(profile_gpu_execute) * 1000.0 / double(SDL_GetPerformanceFrequency()), double(profile_gpu_present) * 1000.0 / double(SDL_GetPerformanceFrequency()), profile_overlap);
+				fprintf(stderr, "  gpu passes: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms\n", profile_gpu_pass[0] * 1e-6, profile_gpu_pass[1] * 1e-6, profile_gpu_pass[2] * 1e-6, profile_gpu_pass[3] * 1e-6, profile_gpu_pass[4] * 1e-6);
+				for (double& pass : profile_gpu_pass) {
+					pass = 0.0;
+				}
 				profile_gpu_execute = profile_gpu_present = 0;
 				profile_overlap     = 0;
 				for (int i = 0; i < bb::PROFILE_COUNT; i++) {

@@ -156,6 +156,67 @@ namespace bb::gfx {
 		check(error, what);
 	}
 
+	// GPU timestamps for BLITZ_FPS (programs compiled with --profile): each mark is the end of a pass, and the time since the
+	// mark before is that pass's. They are read back when the next frame starts, as the command buffer is done by then.
+	VkQueryPool    profile_query_pool = VK_NULL_HANDLE;
+	double         profile_gpu_pass[5] = {};
+	static const uint32_t profile_marks_max = 128;
+	static uint8_t        profile_mark_pass[profile_marks_max];
+	static uint32_t       profile_mark_count = 0;
+	int                   profile_mark_state = -1; // -1 not tried, 0 not available, 1 available.
+	static float          profile_mark_period = 1.0f;
+
+	void profile_gpu_mark(int pass)
+	{
+		if (profile_mark_state != 1 || profile_mark_count >= profile_marks_max) {
+			return;
+		}
+		vkCmdWriteTimestamp(g.cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, profile_query_pool, profile_mark_count);
+		profile_mark_pass[profile_mark_count++] = uint8_t(pass);
+	}
+
+	// Reads what the frame before wrote, and starts the marks for this one. Expects an open command buffer.
+	static void profile_gpu_begin()
+	{
+		if (!bb::profile_enabled || profile_mark_state == 0) {
+			return;
+		}
+		if (profile_mark_state < 0) {
+			profile_mark_state = 0;
+			uint32_t family_count = 0;
+			vkGetPhysicalDeviceQueueFamilyProperties(g.physical, &family_count, nullptr);
+			VkQueueFamilyProperties families[32];
+			if (family_count > 32) {
+				family_count = 32;
+			}
+			vkGetPhysicalDeviceQueueFamilyProperties(g.physical, &family_count, families);
+			VkPhysicalDeviceProperties props;
+			vkGetPhysicalDeviceProperties(g.physical, &props);
+			if ((g.family >= family_count) || !families[g.family].timestampValidBits) {
+				return;
+			}
+			VkQueryPoolCreateInfo info = { VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO };
+			info.queryType             = VK_QUERY_TYPE_TIMESTAMP;
+			info.queryCount            = profile_marks_max;
+			if (vkCreateQueryPool(g.device, &info, nullptr, &profile_query_pool) != VK_SUCCESS) {
+				return;
+			}
+			profile_mark_period = props.limits.timestampPeriod;
+			profile_mark_state  = 1;
+		} else if (profile_mark_count > 1) {
+			uint64_t times[profile_marks_max];
+			if (vkGetQueryPoolResults(g.device, profile_query_pool, 0, profile_mark_count, sizeof(times), times, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) == VK_SUCCESS) {
+				for (uint32_t i = 1; i < profile_mark_count; i++) {
+					profile_gpu_pass[profile_mark_pass[i]] += double(times[i] - times[i - 1]) * double(profile_mark_period);
+				}
+				profile_gpu_pass[4] += double(times[profile_mark_count - 1] - times[0]) * double(profile_mark_period);
+			}
+		}
+		profile_mark_count = 0;
+		vkCmdResetQueryPool(g.cmd, profile_query_pool, 0, profile_marks_max);
+		profile_gpu_mark(255);
+	}
+
 	// Waits until the frame in flight is done with the command buffer and what it uses, but not necessarily the present.
 	void wait_commands()
 	{
@@ -240,6 +301,7 @@ namespace bb::gfx {
 		VkCommandBufferBeginInfo info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 		info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		check(vkBeginCommandBuffer(g.cmd, &info), "vkBeginCommandBuffer");
+		profile_gpu_begin();
 	}
 
 	// Sends the command buffer and waits for it to be done. Used when the program needs the result.
@@ -426,9 +488,11 @@ namespace bb::gfx {
 			operation& op = g.ops[i];
 			if (op.kind == OP_SCENE) {
 				record_scene(op.first, op.target);
+				profile_gpu_mark(0);
 				i++;
 			} else if (op.kind == OP_COPY) {
 				record_copy(op.first);
+				profile_gpu_mark(2);
 				i++;
 			} else {
 				uint32_t end = i;
@@ -436,6 +500,7 @@ namespace bb::gfx {
 					end++;
 				}
 				record_2d(i, end);
+				profile_gpu_mark(1);
 				i = end;
 			}
 		}
@@ -508,6 +573,7 @@ namespace bb::gfx {
 		barrier(g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 		barrier(front.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
+		profile_gpu_mark(3);
 		submit_async(g.acquired, g.swap_done[index], true, index);
 		gamma_after_present();
 	}
