@@ -4,6 +4,10 @@
 Sets the hints for the icons of a toolbar, as a list separated by commas with one for each icon. They are supposed to pop up when the mouse rests over an icon.
 
 ```blitzbasic
+;media interact toolbars/settoolbartips.png
+;media move 40 52
+;media wait 900
+;media shot
 Graphics 320, 240, 32, 2
 strip = CreateImage(32, 16)
 SetBuffer ImageBuffer(strip)
@@ -18,6 +22,8 @@ SetToolBarTips bar, "Red thing,Green thing"
 Repeat
 Until WaitEvent() = $803
 ```
+
+![SetToolBarTips](media/toolbars/settoolbartips.png)
 @param toolbar  Handle of a toolbar.
 @param tips     Hints separated by commas.
 @gap A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed. Spaces between buttons do not take a hint.

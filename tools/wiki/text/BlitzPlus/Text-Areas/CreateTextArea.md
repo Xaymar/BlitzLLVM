@@ -20,6 +20,22 @@ Until e = $803
 ```
 
 ![CreateTextArea](media/textareas/createtextarea.gif)
+
+The bar along the bottom of a text area that does not wrap:
+
+```blitzbasic
+;media interact textareas/createtextarea_bar.png
+;media wait 300
+;media shot
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Notes", 10, 10, 300, 120, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 60, win)
+SetTextAreaText area, "A line that is much too long to fit in this text area," + Chr$(10) + "and a short one."
+Repeat
+Until WaitEvent() = $803
+```
+
+![A text area with a bar](media/textareas/createtextarea_bar.png)
 @param x       Horizontal position inside the group.
 @param y       Vertical position inside the group.
 @param width   Width of the text area.

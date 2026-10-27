@@ -18,11 +18,18 @@ Chooses a font by its name and size and returns a handle to use with [SetFont](S
 Graphics 320, 240, 0, 2
 SetBuffer BackBuffer()
 Cls
-Local f
+Text 10, 8, "Built-in font, height " + FontHeight()
+Local names$[3], i
+names[0] = "Arial" : names[1] = "Times New Roman" : names[2] = "Courier New" : names[3] = "Verdana"
 For i = 0 To 3
-	f = LoadFont("Arial", 8 + i * 6)
+	f = LoadFont(names[i], 20 + i * 2, i = 1, i = 2, i = 3)
 	SetFont f
-	Text 10, 10 + i * 50, "Size " + (8 + i * 6)
+	Text 10, 30 + i * 36, names[i]
+	; StringWidth knows how wide the text is in this font, so a box can be drawn around it.
+	Color 80, 160, 255
+	Rect 10, 30 + i * 36, StringWidth(names[i]), FontHeight(), 0
+	Color 255, 255, 255
+	SetFont 0
 	FreeFont f
 Next
 Flip
