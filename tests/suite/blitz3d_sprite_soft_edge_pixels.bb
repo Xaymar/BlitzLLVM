@@ -58,5 +58,18 @@ SetSpriteSoftEdge sprite, 1
 PositionEntity sprite, 0, 0, 9.5
 Check "An orthographic camera fades the same way", Centre(), 115, 6
 
+; A solid sprite is solid like the wall: a soft sprite in front of it fades against it.
+CameraProjMode camera, 1
+CameraZoom camera, 1
+solid = CreateSprite()
+ScaleSprite solid, 6, 6
+EntityColor solid, 0, 0, 0
+EntityFX solid, 1
+PositionEntity solid, 0, 0, 5
+PositionEntity sprite, 0, 0, 4.5
+Check "A solid sprite counts as what is behind", Centre(), 115, 6
+HideEntity solid
+Check "A hidden one does not (the wall is further back)", Centre(), 230, 4
+
 Done "blitz3d_sprite_soft_edge_pixels"
 End
