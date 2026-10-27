@@ -54,7 +54,7 @@ Function Look(x#, y#, z#, pitch#, yaw#, roll#)
 	Next
 End Function
 
-Dim places#(9, 5)
+Dim places#(10, 5)
 ; x, y, z, pitch, yaw, roll
 Data 0, 10, -45, 30, 0, 0
 Data 0, 5, 0, 20, 90, 0
@@ -66,18 +66,19 @@ Data 100, 10, 0, 10, 90, 0
 Data 38, 4, 38, 10, 45, 0
 Data -38, 4, -38, 15, 200, 0
 Data 5, 12, -5, 45, 135, 0
-For p = 0 To 9
+Data 3, -10, 4, -60, 20, 0 ; From below, where the faces look away.
+For p = 0 To 10
 	For k = 0 To 5
 		Read places(p, k)
 	Next
 Next
 
 ; The picture for each place when only the meshes are culled, to compare with.
-Dim want(9, 39, 29)
+Dim want(10, 39, 29)
 CameraCulling camera, 1
 RenderWorld
 Check "No faces are given to the GPU to decide when the setting is off", Stats3D(1004), 0, 0
-For p = 0 To 9
+For p = 0 To 10
 	Look places(p, 0), places(p, 1), places(p, 2), places(p, 3), places(p, 4), places(p, 5)
 	For j = 0 To 29
 		For i = 0 To 39
@@ -100,7 +101,7 @@ EndIf
 Look places(4, 0), places(4, 1), places(4, 2), places(4, 3), places(4, 4), places(4, 5)
 If gpu <> 0 Then Check "A mesh that is completely in view is not given to the GPU", Stats3D(1004), 0, 0
 
-For p = 0 To 9
+For p = 0 To 10
 	Look places(p, 0), places(p, 1), places(p, 2), places(p, 3), places(p, 4), places(p, 5)
 	diff = 0
 	For j = 0 To 29
@@ -110,6 +111,20 @@ For p = 0 To 9
 	Next
 	Check "Same picture with GPU culling at place " + p + " (" + diff + " samples differ)", diff, 0, 0
 Next
+
+; Leaving out the faces that look away (bit 4) is the same picture too.
+CameraCulling camera, 7
+For p = 0 To 10
+	Look places(p, 0), places(p, 1), places(p, 2), places(p, 3), places(p, 4), places(p, 5)
+	diff = 0
+	For j = 0 To 29
+		For i = 0 To 39
+			If a(i, j) <> want(p, i, j) Then diff = diff + 1
+		Next
+	Next
+	Check "Same picture with culling of faces that look away at place " + p + " (" + diff + " samples differ)", diff, 0, 0
+Next
+CameraCulling camera, 3
 
 ; Moved, turned and scaled, the mesh is still drawn the same.
 ScaleEntity mesh, 1.5, 0.5, 2
@@ -131,6 +146,15 @@ For j = 0 To 29
 	Next
 Next
 Check "Same picture when the mesh is moved and turned (" + diff + " samples differ)", diff, 0, 0
+CameraCulling camera, 7
+Look 0, 10, -45, 30, 0, 0
+diff = 0
+For j = 0 To 29
+	For i = 0 To 39
+		If a(i, j) <> want(0, i, j) Then diff = diff + 1
+	Next
+Next
+Check "Same picture when the mesh is moved and turned, leaving out faces that look away (" + diff + " samples differ)", diff, 0, 0
 
 ; Changing the faces makes the GPU know the new ones.
 VertexCoords surf, 0, -100, 50, -100

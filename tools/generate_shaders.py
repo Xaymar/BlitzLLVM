@@ -20,7 +20,7 @@ OP = dict(
     Load=61, Store=62, AccessChain=65, Decorate=71, MemberDecorate=72, CompositeConstruct=80, CompositeExtract=81,
     ImageSampleImplicitLod=87, FSub=131, FMul=133, Label=248, Return=253,
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
-    TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, SelectionMerge=247, BranchConditional=250, Kill=252,
+    TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, Phi=245, Branch=249, FOrdGreaterThan=186,
     IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
@@ -961,8 +961,8 @@ def compute_shader_cull():
 
     #version 450
     layout(local_size_x = 64) in;
-    struct Cluster { vec4 sphere; ivec4 range; };            // Center and radius, in the space of the mesh. First index and number of indices.
-    struct Group { ivec4 draw; vec4 growth; };               // Number of the draw, first cluster, clusters, first command. x: how much the matrix of the draw can lengthen a vector.
+    struct Cluster { vec4 sphere; ivec4 range; vec4 cone; }; // Center and radius, in the space of the mesh. First index and number of indices. Axis of the normals of the faces and the cutoff (more than 1: no cone).
+    struct Group { ivec4 draw; vec4 growth; };               // Number of the draw, first cluster, clusters, first command. x: how much the matrix of the draw can lengthen a vector, y: 1 when the faces turned away can be left out (the matrix only turns and scales, and the camera looks from a point).
     struct Command { int indexCount, instanceCount, firstIndex, vertexOffset, firstInstance; };
     struct Entity { vec4 model0, model1, model2; vec4 rest[6]; };
     layout(set = 0, binding = 0) readonly buffer Entities { Entity entities[]; };
@@ -982,7 +982,9 @@ def compute_shader_cull():
         float inside = dot(push.planes[0].xyz, center) + push.planes[0].w;
         for (int i = 1; i < 6; i++) inside = min(inside, dot(push.planes[i].xyz, center) + push.planes[i].w);
         int slot = valid ? group.draw.w + lane : 0;    // Command 0 is where the lanes that have no cluster write to.
-        commands[slot] = Command(c.range.y, (inside + radius >= 0.0) ? 1 : 0, c.range.x, 0, group.draw.x);
+        vec3 axis = vec3(dot(e.model0.xyz, c.cone.xyz), dot(e.model1.xyz, c.cone.xyz), dot(e.model2.xyz, c.cone.xyz));
+        bool away = group.growth.y > 0.5 && dot(center, axis) >= (c.cone.w * length(center) + radius) * length(axis);   // The camera is at the origin.
+        commands[slot] = Command(c.range.y, (inside + radius >= 0.0 && !away) ? 1 : 0, c.range.x, 0, group.draw.x);
     }
     """
     b = Builder()
@@ -1002,16 +1004,16 @@ def compute_shader_cull():
         return b.variable("Uniform", block, [(DECORATION["DescriptorSet"], set_index), (DECORATION["Binding"], binding)])
 
     entities, _ = declare_entities(b, 0)
-    cluster = b.struct("cluster", v4, iv4)
+    cluster = b.struct("cluster", v4, iv4, v4)
     group = b.struct("group", iv4, v4)
     command = b.struct("command", i32, i32, i32, i32, i32)
     b.m.annotations += [
-        Module.inst("MemberDecorate", cluster, 0, DECORATION["Offset"], 0), Module.inst("MemberDecorate", cluster, 1, DECORATION["Offset"], 16),
+        Module.inst("MemberDecorate", cluster, 0, DECORATION["Offset"], 0), Module.inst("MemberDecorate", cluster, 1, DECORATION["Offset"], 16), Module.inst("MemberDecorate", cluster, 2, DECORATION["Offset"], 32),
         Module.inst("MemberDecorate", group, 0, DECORATION["Offset"], 0), Module.inst("MemberDecorate", group, 1, DECORATION["Offset"], 16),
     ]
     for index in range(5):
         b.m.annotations.append(Module.inst("MemberDecorate", command, index, DECORATION["Offset"], index * 4))
-    clusters = buffer("clusters", 1, 0, cluster, 32, False)
+    clusters = buffer("clusters", 1, 0, cluster, 48, False)
     groups = buffer("groups", 1, 1, group, 32, False)
     commands = buffer("commands", 1, 2, command, 20, True)
 
@@ -1040,12 +1042,14 @@ def compute_shader_cull():
     group_id = b.emit("IAdd", i32, int_member(base, 0), b.emit("CompositeExtract", i32, b.load(iv3, workgroup), 0))
     lane = b.emit("CompositeExtract", i32, b.load(iv3, local), 0)
     draw = b.load(iv4, b.access("Uniform", iv4, groups, zero, group_id, zero))
-    growth = b.extract(b.load(v4, b.access("Uniform", v4, groups, zero, group_id, one)), 0)
+    growth_values = b.load(v4, b.access("Uniform", v4, groups, zero, group_id, one))
+    growth, turned = b.extract(growth_values, 0), b.extract(growth_values, 1)
     entity_index, first_cluster, cluster_count, first_command = (int_member(draw, k) for k in range(4))
     valid = b.emit("SLessThan", boolean, lane, cluster_count)
     cluster_index = b.emit("IAdd", i32, first_cluster, b.emit("Select", i32, valid, lane, zero))
     sphere = b.load(v4, b.access("Uniform", v4, clusters, zero, cluster_index, zero))
     range_ = b.load(iv4, b.access("Uniform", iv4, clusters, zero, cluster_index, one))
+    cone = b.load(v4, b.access("Uniform", v4, clusters, zero, cluster_index, b.const_int(2)))
     p = b.construct(4, b.extract(sphere, 0), b.extract(sphere, 1), b.extract(sphere, 2), b.const_float(1.0))
     center = b.construct(3, *(b.dot(entity_member(b, entities, entity_index, row), p) for row in range(3)))
     magnitude = b.fadd(f, b.fadd(f, b.ext(f, GLSL_FABS, b.extract(center, 0)), b.ext(f, GLSL_FABS, b.extract(center, 1))), b.ext(f, GLSL_FABS, b.extract(center, 2)))
@@ -1056,6 +1060,11 @@ def compute_shader_cull():
         distance = b.fadd(f, b.dot(b.swizzle(pl, 3), center), b.extract(pl, 3))
         inside = distance if inside is None else b.ext(f, GLSL_FMIN, inside, distance)
     visible = b.emit("FOrdGreaterThanEqual", boolean, b.fadd(f, inside, radius), b.const_float(0.0))
+    direction = b.construct(4, b.extract(cone, 0), b.extract(cone, 1), b.extract(cone, 2), b.const_float(0.0))
+    axis = b.construct(3, *(b.dot(entity_member(b, entities, entity_index, row), direction) for row in range(3)))
+    reach = b.fmul(f, b.fadd(f, b.fmul(f, b.extract(cone, 3), b.ext(f, GLSL_LENGTH, center)), radius), b.ext(f, GLSL_LENGTH, axis))
+    away = b.emit("LogicalAnd", boolean, b.emit("FOrdLessThan", boolean, b.const_float(0.5), turned), b.emit("FOrdGreaterThanEqual", boolean, b.dot(center, axis), reach))
+    visible = b.emit("LogicalAnd", boolean, visible, b.emit("LogicalNot", boolean, away))
     slot = b.emit("Select", i32, valid, b.emit("IAdd", i32, first_command, lane), zero)
     values = (int_member(range_, 1), b.emit("Select", i32, visible, one, zero), int_member(range_, 0), zero, entity_index)
     for index, value in enumerate(values):

@@ -68,7 +68,7 @@ void bb_camera_proj_mode(int32_t handle, int32_t mode)
 
 void bb_camera_culling(int32_t handle, int32_t flags)
 {
-	need_kind(handle, CAMERA, "CameraCulling")->cam_cull_flags = flags & 3;
+	need_kind(handle, CAMERA, "CameraCulling")->cam_cull_flags = flags & 7;
 }
 
 void bb_camera_culling_source(int32_t handle, int32_t source)

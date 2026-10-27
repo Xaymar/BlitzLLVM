@@ -575,12 +575,13 @@ namespace bb::gfx {
 	struct gpu_cluster {
 		float    sphere[4]; // Center in the space of the mesh, and radius.
 		int32_t  first_index, index_count, unused0, unused1;
+		float    cone[4]; // Axis (the way the faces look) and cutoff of the cone around the normals of the faces: the cutoff is above 1 when they are too different.
 	};
 
 	/** What the culling shader reads of a run of clusters of one draw, and where it writes their commands. */
 	struct gpu_cluster_group {
 		int32_t draw, first_cluster, clusters, first_command;
-		float   growth, unused[3]; // How much the matrix of the draw can lengthen a vector.
+		float   growth, cone, unused[2]; // How much the matrix of the draw can lengthen a vector, and 1 when the faces that look away can be left out.
 	};
 
 	/** The five numbers of VkDrawIndexedIndirectCommand. */
@@ -635,6 +636,7 @@ namespace bb::gfx {
 		uint32_t    first_cluster;
 		uint32_t    first_command; // Where the GPU writes the commands to draw the clusters, once it is recorded.
 		float       growth; // How much its matrix lengthens a vector, at most.
+		bool        cone;   // Whether the GPU can leave out clusters of faces that all look away (CameraCulling bit 4), see record_culling.
 	};
 
 

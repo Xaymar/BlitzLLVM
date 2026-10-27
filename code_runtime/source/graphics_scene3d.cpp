@@ -395,6 +395,43 @@ namespace bb::gfx {
 				reach = fmaxf(reach, dx * dx + dy * dy + dz * dz);
 			}
 			cluster.sphere[3]   = sqrtf(reach) * 1.0001f + 1e-6f;
+			// The cone around the directions that the faces look in: the faces that all look away from the camera need not be drawn.
+			// Faces without an area do not draw anything and are left out. Clockwise faces look at the camera.
+			const float front_sign = 1.0f;
+			float sum[3] = { 0, 0, 0 };
+			std::vector<float> normals;
+			for (uint32_t k = 0; k < count; k++) {
+				bb::vertex3d const* v[3];
+				for (int c = 0; c < 3; c++) {
+					v[c] = &s.vertices[mapped[(first + k) * 3 + c]];
+				}
+				float e1[3] = { v[1]->x - v[0]->x, v[1]->y - v[0]->y, v[1]->z - v[0]->z };
+				float e2[3] = { v[2]->x - v[0]->x, v[2]->y - v[0]->y, v[2]->z - v[0]->z };
+				float n[3]  = { e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0] };
+				float len   = sqrtf(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+				if (!(len > 1e-20f)) {
+					continue;
+				}
+				for (int a = 0; a < 3; a++) {
+					n[a] /= len;
+					sum[a] += n[a];
+					normals.push_back(n[a]);
+				}
+			}
+			float axis_len = sqrtf(sum[0] * sum[0] + sum[1] * sum[1] + sum[2] * sum[2]);
+			cluster.cone[3] = 2.0f;
+			if (axis_len > 1e-6f) {
+				float mindot = 1.0f;
+				for (size_t k = 0; k < normals.size(); k += 3) {
+					mindot = fminf(mindot, (normals[k] * sum[0] + normals[k + 1] * sum[1] + normals[k + 2] * sum[2]) / axis_len);
+				}
+				if (mindot > 0.1f) {
+					for (int a = 0; a < 3; a++) {
+						cluster.cone[a] = front_sign * sum[a] / axis_len;
+					}
+					cluster.cone[3] = fminf(1.0f, sqrtf(fmaxf(0.0f, 1.0f - mindot * mindot)) + 0.002f);
+				}
+			}
 			cluster.first_index = int32_t(first * 3);
 			cluster.index_count = int32_t(count * 3);
 			gpu.clusters.push(cluster);
@@ -608,6 +645,7 @@ namespace bb::gfx {
 				group.clusters      = int32_t(std::min(cluster_group_size, d.cluster_count - done));
 				group.first_command = int32_t(cull_recorded_commands + done);
 				group.growth        = d.growth;
+				group.cone          = (d.cone && !scene.reflected) ? 1.0f : 0.0f;
 				groups[cull_recorded_groups++] = group;
 			}
 			cull_recorded_commands += d.cluster_count;
@@ -1498,6 +1536,7 @@ namespace bb::gfx {
 	}
 	static float current_planes[24]; // The planes of what the camera sees, see mesh_collector.
 	static bool  have_planes;
+	static bool  gpu_cones;          // Whether it also leaves out the clusters of faces that look away.
 	static bool  gpu_culling;        // Whether the camera of this pass lets the GPU cull the clusters of big surfaces.
 	static float current_pixels[2];  // Pixels per unit at a depth of 1 (perspective) or at any depth (orthographic), and whether it is orthographic.
 	static float current_view[3];    // Zoom, far plane and height divided by width of the camera, for planes.
@@ -1939,6 +1978,7 @@ namespace bb::gfx {
 			record.depth        = item.depth;
 			record.unit_start   = true;
 			memcpy(record.screen, screen, sizeof(screen));
+			record.cone          = false;
 			record.cluster_count = cull_clusters;
 			record.first_cluster = cull_first;
 			record.first_command = 0;
@@ -1959,6 +1999,27 @@ namespace bb::gfx {
 					most = fmaxf(most, row_sum);
 				}
 				record.growth = sqrtf(most) * 1.0001f;
+				// The faces that look away are only known when the matrix turns and scales the same in every direction (not
+				// mirrored), the faces are cut at all, and the camera looks from a point.
+				float g3[3][3];
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						g3[i][j] = push.model[i][j];
+					}
+				}
+				float det = g3[0][0] * (g3[1][1] * g3[2][2] - g3[1][2] * g3[2][1]) - g3[0][1] * (g3[1][0] * g3[2][2] - g3[1][2] * g3[2][0]) + g3[0][2] * (g3[1][0] * g3[2][1] - g3[1][1] * g3[2][0]);
+				bool similar = det > 0;
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						float dot = 0;
+						for (int k = 0; k < 3; k++) {
+							dot += push.model[k][i] * push.model[k][j];
+						}
+						float want = (i == j) ? most : 0.0f;
+						similar    = similar && (fabsf(dot - want) <= 1e-3f * most);
+					}
+				}
+				record.cone = similar && record.cull && gpu_cones && current_pixels[1] == 0.0f;
 				cull_account(cull_clusters);
 				record.index_buffer = gpu->cluster_index_buffer;
 			}
@@ -2283,6 +2344,7 @@ namespace bb::gfx {
 		memcpy(current_planes, planes, sizeof(current_planes));
 		memcpy(scene.cull_planes, planes, sizeof(scene.cull_planes));
 		gpu_culling = g.can_gpu_cull && ((culling.flags & 2) != 0);
+		gpu_cones   = (culling.flags & 4) != 0;
 		have_planes = (culling.flags & 1) != 0;
 		float camera_norm = 0;
 		for (int i = 0; i < 12; i++) {
