@@ -331,6 +331,8 @@ namespace bb {
 	int       create_entity(int kind, int parent);
 	surface*  create_surface(int mesh_handle);
 	void      recalculate_normals(surface* s);
+	/** The normals of UpdateNormals for vertices that are not in a surface (yet), which loader threads may call. */
+	void      compute_normals(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices);
 	void      euler_from_matrix(const float* m, float* euler);
 	void      destroy_animation(animation* a);
 	void      destroy_md2(md2_state* s);
