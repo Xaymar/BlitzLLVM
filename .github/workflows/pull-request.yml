@@ -88,7 +88,7 @@ jobs:
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
           # them on every run. The key is made from the list and the month.
-          packages: ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
+          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
           version: 1-${{ runner.arch }}-${{ steps.month.outputs.month }}
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
