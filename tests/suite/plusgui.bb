@@ -5,7 +5,7 @@
 ; UpdateWindowMenu SetStatusText SetMinWindowSize MinimizeWindow MaximizeWindow RestoreWindow WindowMinimized
 ; WindowMaximized WindowMenu CreateMenu SetMenuText CheckMenu UncheckMenu EnableMenu DisableMenu MenuChecked MenuEnabled
 ; MenuText CreateLabel CreateButton CreateTextField CreateTextArea CreateListBox CreateComboBox CreateTabber CreatePanel
-; CreateSlider CreateProgBar CreateTreeView CreateCanvas FreeGadget ShowGadget HideGadget EnableGadget DisableGadget
+; CreateSlider CreateProgBar CreateTreeView CreateCanvas CreateHtmlView HtmlViewGo HtmlViewRun HtmlViewBack HtmlViewForward HtmlViewStatus HtmlViewCurrentURL HtmlViewEventURL FreeGadget ShowGadget HideGadget EnableGadget DisableGadget
 ; ActivateGadget SetGadgetText GadgetText SetGadgetFont GadgetFont SetGadgetShape SetGadgetLayout GadgetX GadgetY GadgetWidth
 ; GadgetHeight GadgetGroup ClientWidth ClientHeight SetButtonState ButtonState UpdateProgBar SetSliderRange SetSliderValue
 ; SliderValue SetPanelColor AddGadgetItem InsertGadgetItem ModifyGadgetItem RemoveGadgetItem ClearGadgetItems
@@ -300,6 +300,28 @@ FreeTreeViewNode n2
 Check "Freeing the selected node", SelectedTreeViewNode(tv), 0
 Check "Freeing a node takes it out of its parent", CountTreeViewNodes(tr), 3
 FreeTreeViewNode n1
+
+; An HTML view keeps the history of the addresses it was sent to, but does not load them.
+hv = CreateHtmlView(4, 380, 100, 50, win)
+CheckS "HtmlViewCurrentURL before", HtmlViewCurrentURL(hv), ""
+HtmlViewGo hv, "first"
+HtmlViewGo hv, "second"
+CheckS "HtmlViewCurrentURL", HtmlViewCurrentURL(hv), "second"
+HtmlViewBack hv
+CheckS "HtmlViewBack", HtmlViewCurrentURL(hv), "first"
+HtmlViewBack hv
+CheckS "HtmlViewBack at the first", HtmlViewCurrentURL(hv), "first"
+HtmlViewForward hv
+CheckS "HtmlViewForward", HtmlViewCurrentURL(hv), "second"
+HtmlViewGo hv, "third"
+HtmlViewBack hv
+HtmlViewGo hv, "other"
+HtmlViewForward hv
+CheckS "HtmlViewGo drops the forward pages", HtmlViewCurrentURL(hv), "other"
+Check "HtmlViewStatus", HtmlViewStatus(hv), 0
+CheckS "HtmlViewEventURL", HtmlViewEventURL(hv), ""
+HtmlViewRun hv, "alert(1)"
+FreeGadget hv
 
 ; A canvas has a buffer to draw to.
 cv = CreateCanvas(4, 440, 100, 60, win)

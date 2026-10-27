@@ -6,6 +6,8 @@
 // tabbers have.
 
 #include "gui_internal.hpp"
+#include <string>
+#include <vector>
 
 extern "C" {
 int32_t bb_gui_load_strip(const char* file, int32_t* size, int32_t* count, char* blank, int32_t max);
@@ -478,5 +480,106 @@ int32_t bb_selected_gadget_item(int32_t handle)
 	gadget* g = need_gadget(handle, "SelectedGadgetItem");
 	need_list(g, "SelectedGadgetItem");
 	return g->selected;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// HTML views
+////////////////////////////////////////////////////////////////////////////////
+// There is no browser to embed yet, so an HTML view is a label that shows the address it was sent to. The pages are not loaded, but
+// Go, Back and Forward keep their history and the events of the original are posted, so that programs which build a browser around
+// the gadget keep working.
+namespace {
+struct html_state {
+	int                      handle = 0;
+	std::vector<std::string> history;
+	int                      position = -1;
+};
+std::vector<html_state> html_views;
+
+html_state& html_of(int32_t handle, const char* what)
+{
+	bb::gui::need_kind(handle, bb::gui::K_LABEL, what);
+	for (auto& view : html_views) {
+		if (view.handle == handle) {
+			return view;
+		}
+	}
+	html_views.emplace_back();
+	html_views.back().handle = handle;
+	return html_views.back();
+}
+
+void html_show(html_state& view)
+{
+	std::string shown = view.position >= 0 ? view.history[size_t(view.position)] : std::string();
+	bb::gui::set_string(bb::gui::gadget_of(view.handle)->text, ("HtmlView is not supported. " + shown).c_str());
+}
+} // namespace
+
+int32_t bb_create_html_view(int32_t x, int32_t y, int32_t w, int32_t h, int32_t group, int32_t style)
+{
+	(void)style; // The style only changes how the browser reacts to the user.
+	int handle = bb::gui::make_gadget(bb::gui::K_LABEL, 3 /* the sunken frame of a label */, group, x, y, w, h, "CreateHtmlView");
+	for (auto it = html_views.begin(); it != html_views.end(); ++it) {
+		if (it->handle == handle) {
+			html_views.erase(it); // A freed gadget leaves its handle to the next one.
+			break;
+		}
+	}
+	html_state& view = html_of(handle, "CreateHtmlView");
+	html_show(view);
+	return handle;
+}
+
+void bb_html_view_go(int32_t handle, const char* url)
+{
+	html_state& view = html_of(handle, "HtmlViewGo");
+	view.history.resize(size_t(view.position + 1));
+	view.history.push_back(url ? url : "");
+	view.position = int(view.history.size()) - 1;
+	html_show(view);
+	bb::gui::post_to(bb::gui::event_gadget_action, handle, 0); // 0: the page is loaded.
+}
+
+void bb_html_view_run(int32_t handle, const char* script)
+{
+	(void)script;
+	html_of(handle, "HtmlViewRun");
+}
+
+void bb_html_view_back(int32_t handle)
+{
+	html_state& view = html_of(handle, "HtmlViewBack");
+	if (view.position > 0) {
+		view.position--;
+		html_show(view);
+	}
+}
+
+void bb_html_view_forward(int32_t handle)
+{
+	html_state& view = html_of(handle, "HtmlViewForward");
+	if (view.position + 1 < int(view.history.size())) {
+		view.position++;
+		html_show(view);
+	}
+}
+
+int32_t bb_html_view_status(int32_t handle)
+{
+	html_of(handle, "HtmlViewStatus");
+	return 0; // Pages are never loading.
+}
+
+const char* bb_html_view_current_url(int32_t handle)
+{
+	html_state& view = html_of(handle, "HtmlViewCurrentURL");
+	return bb::gui::copy_string(view.position >= 0 ? view.history[size_t(view.position)].c_str() : "");
+}
+
+const char* bb_html_view_event_url(int32_t handle)
+{
+	html_of(handle, "HtmlViewEventURL");
+	return bb::gui::copy_string("");
 }
 }
