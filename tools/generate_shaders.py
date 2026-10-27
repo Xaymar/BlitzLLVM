@@ -331,7 +331,7 @@ class Builder:
 
 # GLSL.std.450 instruction numbers
 GLSL_FABS, GLSL_POW, GLSL_STEP = 4, 26, 48
-GLSL_FLOOR = 8
+GLSL_FLOOR, GLSL_FRACT = 8, 10
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
 
 
@@ -878,7 +878,9 @@ def vertex_shader_fullscreen():
 def fragment_shader_gamma():
     """
     Shows an image through the gamma tables, which are in a uniform buffer with a row for each of the 256 steps and the
-    new value of red, green and blue (from 0 to 1) in the row.
+    new value of red, green and blue (from 0 to 1) in the row. The fourth value of the first row is 1 when Dither is on:
+    the result then gets Interleaved Gradient Noise (Jimenez, 2014) of up to half a step of the 8 bit picture added, so
+    that the steps that rounding makes are not lines but a pattern that the eye averages.
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
@@ -887,7 +889,9 @@ def fragment_shader_gamma():
     layout(location = 0) out vec4 outColor;
     void main() {
         vec3 step = floor(texture(tex, inUV).rgb * 255.0 + 0.5);
-        outColor = vec4(gamma.table[int(step.r)].r, gamma.table[int(step.g)].g, gamma.table[int(step.b)].b, 1.0);
+        vec3 color = vec3(gamma.table[int(step.r)].r, gamma.table[int(step.g)].g, gamma.table[int(step.b)].b);
+        float noise = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+        outColor = vec4(color + (noise - 0.5) / 255.0 * gamma.table[0].w, 1.0);
     }
     """
     b = Builder()
@@ -906,8 +910,9 @@ def fragment_shader_gamma():
     gamma = b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
     in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, out_color))
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, out_color, in_frag))
     b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
@@ -919,6 +924,13 @@ def fragment_shader_gamma():
         step = b.emit("ConvertFToS", i32, b.extract(steps, channel))
         row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), step))
         channels.append(b.extract(row, channel))
+    # Interleaved Gradient Noise of the pixel: fract(52.9829189 * fract(dot(pixel, (0.06711056, 0.00583715)))).
+    frag = b.load(v4, in_frag)
+    along = b.fadd(f, b.fmul(f, b.extract(frag, 0), b.const_float(0.06711056)), b.fmul(f, b.extract(frag, 1), b.const_float(0.00583715)))
+    noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
+    enabled = b.extract(b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.const_int(0))), 3)
+    offset = b.fmul(f, b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0)), enabled)
+    channels = [b.fadd(f, channel, offset) for channel in channels]
     b.store(out_color, b.construct(4, *channels, b.const_float(1.0)))
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()

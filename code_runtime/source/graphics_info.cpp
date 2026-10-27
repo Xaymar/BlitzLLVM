@@ -281,12 +281,8 @@ int32_t bb_graphics_format(void)
 	return 4;
 }
 
-// Settings for the graphics hardware of the time. A GPU does all of them as it sees fit, and the screen always has 8
-// bits per color channel, so there is nothing to dither.
-void bb_dither(int32_t enable)
-{
-	(void)enable;
-}
+// Settings for the graphics hardware of the time. A GPU does all of them as it sees fit. (Dither is in
+// graphics_gamma.cpp, where the picture is shown.)
 
 void bb_anti_alias(int32_t enable)
 {

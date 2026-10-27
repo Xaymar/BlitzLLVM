@@ -24,6 +24,7 @@ namespace {
 	float applied[3][256]; // What UpdateGamma copied, which is shown.
 	bool  ready   = false;
 	bool  changed = true;  // The applied tables are not yet in the buffer of the GPU.
+	bool  dither  = false; // Whether the shown picture gets noise before it is rounded to 8 bits.
 
 	VkPipelineLayout layout   = VK_NULL_HANDLE;
 	VkPipeline       pipeline = VK_NULL_HANDLE;
@@ -115,7 +116,7 @@ namespace bb::gfx {
 	{
 		need_gamma();
 		bool identity = is_identity();
-		if (identity && !dump_path()) {
+		if (identity && !dither && !dump_path()) {
 			return &front;
 		}
 		if (!pipeline) {
@@ -128,7 +129,7 @@ namespace bb::gfx {
 				table_mapped[i * 4 + 0] = applied[0][i] / 255.0f;
 				table_mapped[i * 4 + 1] = applied[1][i] / 255.0f;
 				table_mapped[i * 4 + 2] = applied[2][i] / 255.0f;
-				table_mapped[i * 4 + 3] = 0;
+				table_mapped[i * 4 + 3] = (i == 0 && dither) ? 1.0f : 0.0f; // The first row says whether to dither.
 			}
 		}
 		if (front_view != front.view) {
@@ -237,6 +238,17 @@ void bb_set_gamma(int32_t source_red, int32_t source_green, int32_t source_blue,
 	working[0][source_red & 255]   = clamp_gamma(red);
 	working[1][source_green & 255] = clamp_gamma(green);
 	working[2][source_blue & 255]  = clamp_gamma(blue);
+}
+
+// Dither: the picture of the window gets Interleaved Gradient Noise of half a step of 8 bits when it is shown, so that
+// what the gamma tables and rounding do to a gradient is not seen as bands. Every other drawing command is not
+// touched. Takes effect with the next picture that is shown.
+void bb_dither(int32_t enable)
+{
+	if ((enable != 0) != dither) {
+		dither  = enable != 0;
+		changed = true;
+	}
 }
 
 // Makes the tables count. The original also had them corrected for the calibration of the display, which a window
