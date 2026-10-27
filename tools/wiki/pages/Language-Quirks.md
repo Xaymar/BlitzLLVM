@@ -56,3 +56,7 @@ The two sides of `+ - * / Mod ^ And Or Xor Shl Shr Sar`, of comparisons, and of 
 ### Arrays and stores
 
 The indices of an array with several dimensions are added up as `i0 + i1 * size1`, so with calls as indices `a(F(), G())` evaluates `G()` first for the same reason. In a store to an array element (`a(i) = v`), the original evaluates the value or the index first by the same rule: a number is moved to the place after both were evaluated, a string or an object is handed to a function together with it. The sizes of a `Dim` are evaluated one after the other, left to right.
+
+### Left to right
+
+The order of the original is mildly surprising, and no other language does it. To get left to right order for arguments, operators, array indices and stores, build with `blitzcc --sane-evaluation-order`. Programs that call `Rnd`, `Rand` or read files several times in one expression then give other results than in the original, so only use it for programs that do not depend on the order.

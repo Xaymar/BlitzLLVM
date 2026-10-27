@@ -174,6 +174,9 @@ namespace blitz {
 		/** LLVM fast-math flags (such as "fast" or "reassoc nsz arcp contract afn") put on every Float operation, empty for exact IEEE behavior. */
 		std::string fast_math;
 
+		/** Evaluate arguments and operands from left to right instead of in the order of the original compiler. */
+		bool sane_evaluation_order = false;
+
 		/** Functions of the userlibs that the program may call, set before generating. */
 		std::vector<blitz::keywords::user_function> userlibs;
 

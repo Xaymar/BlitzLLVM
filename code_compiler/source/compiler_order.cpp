@@ -56,6 +56,16 @@ int blitz::compiler::place_sequence(std::vector<operand> const& operands)
 	if (operands.empty()) {
 		return 1;
 	}
+	if (sane_evaluation_order) {
+		int need = operands.back().v.need;
+		for (size_t idx = operands.size() - 1; idx-- > 0;) {
+			need = pair_need(operands[idx].v.need, need);
+		}
+		for (auto const& o : operands) {
+			place(o.code);
+		}
+		return need;
+	}
 	size_t              last  = operands.size() - 1;
 	std::vector<size_t> order = { last };
 	int                 need  = operands[last].v.need;
@@ -137,6 +147,10 @@ void blitz::compiler::plan_binary(ast::binary const* node, operand const& lhs, o
 	};
 	rhs_first = false;
 	generic();
+	if (sane_evaluation_order) {
+		rhs_first = false;
+		return;
+	}
 
 	bool integers = t::is_integer(lhs.v.type) && t::is_integer(rhs.v.type);
 	if (!integers || (node->kind == op::POWER)) {

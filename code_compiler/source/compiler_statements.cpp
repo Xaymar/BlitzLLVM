@@ -216,7 +216,7 @@ void blitz::compiler::gen_assign(ast::assign const* node)
 		auto value_part = capture(node->value.get());
 		auto addr_code  = capture_code([&] { addr = gen_address(node->target.get(), true); });
 		bool by_call    = (addr.type == type::STRING) || (addr.type == type::STRUCT);
-		bool addr_first = by_call ? !compiler_detail::right_first(addr.need, value_part.v.need) : compiler_detail::right_first(value_part.v.need, addr.need);
+		bool addr_first = sane_evaluation_order || (by_call ? !compiler_detail::right_first(addr.need, value_part.v.need) : compiler_detail::right_first(value_part.v.need, addr.need));
 		place(addr_first ? addr_code : value_part.code);
 		place(addr_first ? value_part.code : addr_code);
 		rhs = value_part.v;

@@ -336,6 +336,20 @@ elseif(CASE STREQUAL "debug_info")
 		endforeach()
 	endif()
 
+elseif(CASE STREQUAL "sane_evaluation_order")
+	# The default is the order of the original Blitz3D: F3 takes b, c, a, x + y * z takes y * z first, an array store takes the index (8, 7) before the value (9).
+	blitzcc(+q "${TESTS}/cli/sane_evaluation_order.bb")
+	expect_ok()
+	if(NOT OUT STREQUAL "231564879\n")
+		message(FATAL_ERROR "Expected the order of the original, got:\n${OUT}")
+	endif()
+	# --sane-evaluation-order goes from left to right.
+	blitzcc(+q --sane-evaluation-order "${TESTS}/cli/sane_evaluation_order.bb")
+	expect_ok()
+	if(NOT OUT STREQUAL "123456789\n")
+		message(FATAL_ERROR "Expected left to right, got:\n${OUT}")
+	endif()
+
 elseif(CASE STREQUAL "fast_math")
 	# Float math is fast-math by default, but without the NaN and Infinity assumptions, which would break "x <> x" checks.
 	set(FM_PROGRAM "${TESTS}/cli/fast_math.bb")

@@ -64,7 +64,7 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 	int                 need  = operands[0].v.need;
 	for (size_t dim = 1; dim < operands.size(); dim++) {
 		int scaled = compiler_detail::pair_need(operands[dim].v.need, 1);
-		if (compiler_detail::right_first(need, scaled)) {
+		if (!sane_evaluation_order && compiler_detail::right_first(need, scaled)) {
 			order.insert(order.begin(), dim);
 		} else {
 			order.push_back(dim);
