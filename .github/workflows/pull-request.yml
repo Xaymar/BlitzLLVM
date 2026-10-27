@@ -184,6 +184,17 @@ jobs:
           bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg.tar.zst" build/required-licenses.txt
           bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-help.sh "${ARTIFACT}.pkg.tar.zst"
           ls -l packages
+      - name: Build the snap (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          # The files of the deb are packed again as a classic snap, see snap/snapcraft.yaml. ubuntu-24.04 matches its base, core24.
+          mkdir snap-stage && cp -a stage/usr snap-stage/
+          sed -i "s/@VERSION@/$VERSION/" snap/snapcraft.yaml
+          sudo snap install snapcraft --classic
+          sudo snapcraft pack --destructive-mode --output "packages/${ARTIFACT}.snap"
+          unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.snap"
+          unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.snap"
+          ls -l packages
       - name: Build packages (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -210,6 +221,11 @@ jobs:
         if: runner.os == 'Linux'
         with:
           path: packages/${{ env.ARTIFACT }}.pkg.tar.zst
+          archive: false
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'Linux'
+        with:
+          path: packages/${{ env.ARTIFACT }}.snap
           archive: false
       - uses: actions/upload-artifact@v7
         if: runner.os == 'macOS'
