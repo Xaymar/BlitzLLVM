@@ -621,6 +621,15 @@ namespace bb::gfx {
 	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1);
 	void destroy_image(gpu_image& img);
 	VkShaderModule create_shader(const unsigned int* words, size_t size);
+	/** A pipeline of the 2D renderer's kind. Without vertices it draws the one triangle that covers the target, and replaces what is there. */
+	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true);
+	void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler);
+	void allocate_descriptor(VkDescriptorSet& set);
+	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
+	gpu_image* apply_gamma(gpu_image& front);
+	/** Writes the image that was presented to the file of BLITZ_TEST_PRESENT, for tests. */
+	void gamma_after_present();
+	void destroy_gamma();
 	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();

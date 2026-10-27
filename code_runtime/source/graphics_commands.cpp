@@ -476,23 +476,27 @@ namespace bb::gfx {
 			barrier(front.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		}
 
+		// The gamma tables change what the window shows, not the buffer.
+		gpu_image& shown = *apply_gamma(front);
+
 		barrier(g.swap_images[index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		VkImageBlit blit       = {};
 		blit.srcSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		blit.srcOffsets[1]     = { int32_t(front.width), int32_t(front.height), 1 };
+		blit.srcOffsets[1]     = { int32_t(shown.width), int32_t(shown.height), 1 };
 		blit.dstSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		blit.dstOffsets[1]     = { int32_t(g.swap_extent.width), int32_t(g.swap_extent.height), 1 };
-		vkCmdBlitImage(g.cmd, front.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
+		vkCmdBlitImage(g.cmd, shown.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
 		barrier(g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 		barrier(front.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		submit_async(g.acquired, g.swap_done[index], true, index);
+		gamma_after_present();
 	}
 
 	// Records and sends everything that has been asked for.
 	void flush()
 	{
-		if (g.headless || !g.created || (g.op_count == 0)) {
+		if (g.headless || !g.created || ((g.op_count == 0) && !g.front_touched)) {
 			return;
 		}
 		begin_commands();

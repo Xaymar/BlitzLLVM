@@ -200,7 +200,7 @@ namespace bb::gfx {
 		return module;
 	}
 
-	static VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology)
+	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
@@ -217,9 +217,9 @@ namespace bb::gfx {
 			{ 2, 0, VK_FORMAT_R8G8B8A8_UNORM, offsetof(vertex, r) },
 		};
 		VkPipelineVertexInputStateCreateInfo input = { VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
-		input.vertexBindingDescriptionCount        = 1;
+		input.vertexBindingDescriptionCount        = vertices ? 1 : 0;
 		input.pVertexBindingDescriptions           = &binding;
-		input.vertexAttributeDescriptionCount      = 3;
+		input.vertexAttributeDescriptionCount      = vertices ? 3 : 0;
 		input.pVertexAttributeDescriptions         = attributes;
 
 		VkPipelineInputAssemblyStateCreateInfo assembly = { VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
@@ -239,7 +239,7 @@ namespace bb::gfx {
 		multisample.rasterizationSamples                 = VK_SAMPLE_COUNT_1_BIT;
 
 		VkPipelineColorBlendAttachmentState blend = {};
-		blend.blendEnable                         = VK_TRUE;
+		blend.blendEnable                         = vertices ? VK_TRUE : VK_FALSE; // Passes over an image replace it.
 		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
 		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
@@ -272,14 +272,14 @@ namespace bb::gfx {
 		info.pMultisampleState            = &multisample;
 		info.pColorBlendState             = &blending;
 		info.pDynamicState                = &dynamic;
-		info.layout                       = g.layout;
+		info.layout                       = layout;
 
 		VkPipeline pipeline;
 		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines");
 		return pipeline;
 	}
 
-	static void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler)
+	void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler)
 	{
 		VkDescriptorImageInfo image_info = { sampler, view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
@@ -298,7 +298,7 @@ namespace bb::gfx {
 		image.sampler = sampler;
 	}
 
-	static void allocate_descriptor(VkDescriptorSet& set)
+	void allocate_descriptor(VkDescriptorSet& set)
 	{
 		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
 		alloc.descriptorPool              = g.set_pool;
@@ -609,7 +609,7 @@ namespace bb::gfx {
 		g.width  = width;
 		g.height = height;
 		for (int i = 0; i < 2; i++) {
-			g.buffers[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+			g.buffers[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT); // Sampled for the gamma pass.
 		}
 
 		// Both buffers start out black, and stay in the attachment layout between uses.
@@ -1059,10 +1059,10 @@ namespace bb::gfx {
 		set_info.pBindings                       = &binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.set_layout), "vkCreateDescriptorSetLayout");
 
-		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8192 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1 }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1 } };
+		VkDescriptorPoolSize pool_sizes[3] = { { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 8193 }, { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 2 }, { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1 } };
 		VkDescriptorPoolCreateInfo dpool_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 		dpool_info.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		dpool_info.maxSets                    = 8194;
+		dpool_info.maxSets                    = 8196;
 		dpool_info.poolSizeCount              = 3;
 		dpool_info.pPoolSizes                 = pool_sizes;
 		check(vkCreateDescriptorPool(g.device, &dpool_info, nullptr, &g.set_pool), "vkCreateDescriptorPool");
@@ -1077,8 +1077,8 @@ namespace bb::gfx {
 
 		VkShaderModule vs = create_shader(bb_shader_vertex, sizeof(bb_shader_vertex));
 		VkShaderModule fs = create_shader(bb_shader_fragment, sizeof(bb_shader_fragment));
-		g.triangles       = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-		g.lines           = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+		g.triangles       = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, g.layout);
+		g.lines           = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_LINE_LIST, g.layout);
 		vkDestroyShaderModule(g.device, vs, nullptr);
 		vkDestroyShaderModule(g.device, fs, nullptr);
 
