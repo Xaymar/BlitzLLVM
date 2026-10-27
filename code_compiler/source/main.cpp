@@ -32,6 +32,7 @@
 #include <windows.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
+#include <sys/stat.h>
 #else
 #include <sys/stat.h>
 #include <sys/wait.h>
