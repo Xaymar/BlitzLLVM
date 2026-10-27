@@ -96,6 +96,7 @@ target_include_directories(blitzrt SYSTEM PRIVATE
 	"${VulkanHeaders_INSTALL_PATH}/include"
 	"${FFMPEG_INSTALL_PATH}/include"
 	"${PROJECT_SOURCE_DIR}/third_party/stb"
+	"${PROJECT_SOURCE_DIR}/third_party/VulkanMemoryAllocator/include"
 )
 if(NOT MSVC AND NOT APPLE)
 	# See dependencies.cmake: programs are linked with --gc-sections, which only drops what is in a section of its own.
