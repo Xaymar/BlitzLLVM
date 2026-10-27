@@ -691,6 +691,7 @@ namespace bb::gfx {
 	int       ttf_ascent(ttf_font const* font);
 	int       ttf_descent(ttf_font const* font);
 	int       ttf_string_width(ttf_font const* font, const char* text);
+	int       ttf_string_width_n(ttf_font const* font, const char* text, int length);
 	void      ttf_draw(ttf_font* font, float x, float y, const char* text);
 	void free_texture(texture_entry& t);
 	void create_3d();

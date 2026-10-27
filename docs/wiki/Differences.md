@@ -41,7 +41,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [AvailVidMem](AvailVidMem#differences-and-known-gaps): The graphics card cannot be asked how much of its memory is still free.
 * [BrushTexture](BrushTexture#differences-and-known-gaps): Layers 0 to 7 are accepted.
 * [BSPAmbientLight](BSPAmbientLight#differences-and-known-gaps): Here the color multiplies the vertex colors: a new level starts at 255, 255, 255 and smaller values tint and darken it, down to black for 0, 0, 0.
-* [BSPLighting](BSPLighting#differences-and-known-gaps): There are no lightmaps.
+* [BSPLighting](BSPLighting#differences-and-known-gaps): The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness.
 * [BufferDirty](BufferDirty#differences-and-known-gaps): Has no effect.
 * [Byte](Byte#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ByteSwap](ByteSwap#differences-and-known-gaps) 〔BlitzLLVM〕: Not in the originals.
@@ -63,7 +63,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CopyRect](CopyRect#differences-and-known-gaps): Parts of the rectangle that lie outside of either buffer are cut off.
 * [CountDisplayModes](CountDisplayModes#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [CountDisplays](CountDisplays#differences-and-known-gaps) 〔BlitzLLVM〕: When SDL knows of no display, for example without a display driver, there is one display called "Default" with the common sizes of [CountGfxModes](CountGfxModes).
-* [CountGfxDrivers](CountGfxDrivers#differences-and-known-gaps): Always 1.
+* [CountGfxDrivers](CountGfxDrivers#differences-and-known-gaps): Every GPU that Vulkan reports is a driver, including software ones.
 * [CountGfxModes](CountGfxModes#differences-and-known-gaps): The modes are the ones of the main display.
 * [CountHostIPs](CountHostIPs#differences-and-known-gaps): Only IPv4 addresses are counted.
 * [CountRefreshRates](CountRefreshRates#differences-and-known-gaps) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
@@ -71,7 +71,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateCanvas](CreateCanvas#differences-and-known-gaps): Canvases are drawn by the same renderer as the rest of the interface, so nothing needs DirectX.
 * [CreateComboBox](CreateComboBox#differences-and-known-gaps): The user cannot type into it, only pick from the list.
 * [CreateImage](CreateImage#differences-and-known-gaps): A graphics window must be open, because images live in video memory.
-* [CreateLabel](CreateLabel#differences-and-known-gaps): The built-in font is wider than the font of the Windows interface, so give labels, buttons and lists a little more room than you would on Windows.
+* [CreateLabel](CreateLabel#differences-and-known-gaps): Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none).
 * [CreateListBox](CreateListBox#differences-and-known-gaps): Only one entry can be selected at a time.
 * [CreateListener](CreateListener#differences-and-known-gaps): Only the rolloff factor is used.
 * [CreateMenu](CreateMenu#differences-and-known-gaps): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
@@ -126,8 +126,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [GetKey](GetKey#differences-and-known-gaps): The queue holds 64 characters, and the oldest ones are dropped when it is full.
 * [GetMouse](GetMouse#differences-and-known-gaps): The queue holds 15 presses and forgets the oldest ones when it is full.
 * [GetSurfaceBrush](GetSurfaceBrush#differences-and-known-gaps): A surface that was never painted gives a plain white brush.
+* [GfxDriver3D](GfxDriver3D#differences-and-known-gaps): A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0.
 * [GfxDriverCaps3D](GfxDriverCaps3D#differences-and-known-gaps): It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
-* [GfxDriverName](GfxDriverName#differences-and-known-gaps): The name is the one of the graphics card Vulkan uses (once a graphics window is open), otherwise "Default".
+* [GfxDriverName](GfxDriverName#differences-and-known-gaps): The name is the one that the GPU reports to Vulkan, such as "NVIDIA GeForce RTX 4080 SUPER".
 * [GfxModeDepth](GfxModeDepth#differences-and-known-gaps): A mode number that does not exist stops the program with an error message.
 * [GfxModeExists](GfxModeExists#differences-and-known-gaps): A 0 for the width or height means "anything fits", like in BlitzPlus.
 * [GfxModeFormat](GfxModeFormat#differences-and-known-gaps): Always 4, as the window is always 32 bit.
@@ -153,7 +154,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [Load3DSound](Load3DSound#differences-and-known-gaps): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, but there is no doppler effect.
 * [LoadAnimMesh](LoadAnimMesh#differences-and-known-gaps): Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh).
 * [LoadAnimTexture](LoadAnimTexture#differences-and-known-gaps): TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
-* [LoadBSP](LoadBSP#differences-and-known-gaps): Lightmaps and visibility data are not used.
+* [LoadBSP](LoadBSP#differences-and-known-gaps): Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices.
 * [LoadBuffer](LoadBuffer#differences-and-known-gaps): Formats other than BMP load as well.
 * [LoaderMatrix](LoaderMatrix#differences-and-known-gaps): The matrix is remembered but never used.
 * [LoadFont](LoadFont#differences-and-known-gaps): Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one).
@@ -222,9 +223,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [SetCubeFace](SetCubeFace#differences-and-known-gaps): The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y.
 * [SetCubeMode](SetCubeMode#differences-and-known-gaps): The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
 * [SetFont](SetFont#differences-and-known-gaps): A font that does not exist stops the program with an error message.
-* [SetGadgetFont](SetGadgetFont#differences-and-known-gaps): Only the size of the font is used.
+* [SetGadgetFont](SetGadgetFont#differences-and-known-gaps): The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font.
 * [SetGamma](SetGamma#differences-and-known-gaps): The tables are only stored for [GammaRed](GammaRed) and the others.
-* [SetGfxDriver](SetGfxDriver#differences-and-known-gaps): Only 1 exists.
+* [SetGfxDriver](SetGfxDriver#differences-and-known-gaps): Any number except 1 to [CountGfxDrivers](CountGfxDrivers) stops the program with an error message.
 * [SetMenuText](SetMenuText#differences-and-known-gaps): The text can be read back with [MenuText](MenuText) here.
 * [SetMinWindowSize](SetMinWindowSize#differences-and-known-gaps): The help lists height before width in its syntax line, the real order is width then height.
 * [SetSamplerAddressModeU](SetSamplerAddressModeU#differences-and-known-gaps) 〔BlitzLLVM〕: The mode has to be 0 to 3, other values stop the program with an error.

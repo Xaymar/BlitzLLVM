@@ -23,7 +23,8 @@ void    bb_viewport(int32_t x, int32_t y, int32_t w, int32_t h);
 void    bb_origin(int32_t x, int32_t y);
 void    bb_flip(int32_t vwait);
 void    bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int32_t dy, int32_t source, int32_t destination);
-void    bb_gui_text(int32_t x, int32_t y, const char* s, int32_t size);
+void    bb_gui_text(int32_t x, int32_t y, const char* s, int32_t font, int32_t size);
+int32_t bb_gui_text_width(int32_t font, const char* s, int32_t length, int32_t size);
 void    bb_draw_block(int32_t handle, int32_t x, int32_t y, int32_t frame);
 void    bb_draw_image_rect(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t rw, int32_t rh, int32_t frame);
 void    bb_tile_image(int32_t handle, int32_t x, int32_t y, int32_t frame);
@@ -143,10 +144,10 @@ namespace bb::gui {
 				return;
 			}
 			color(c);
-			bb_gui_text(x, y, text, font_size(g));
+			bb_gui_text(x, y, text, g.font, font_size(g));
 		}
 
-		void text_run(int x, int y, const char* text, int length, int size, rgb c)
+		void text_run(int x, int y, const char* text, int length, int font, int size, rgb c)
 		{
 			if (length <= 0) {
 				return;
@@ -155,7 +156,7 @@ namespace bb::gui {
 			memcpy(copy, text, size_t(length));
 			copy[length] = 0;
 			color(c);
-			bb_gui_text(x, y, copy, size);
+			bb_gui_text(x, y, copy, font, size);
 			free(copy);
 		}
 
@@ -165,10 +166,10 @@ namespace bb::gui {
 		}
 
 		// Draws what is selected in a text over the highlight, in white.
-		void selected_text(int x, int y, const char* text, int length, int size)
+		void selected_text(int x, int y, const char* text, int length, int font, int size)
 		{
-			fill(x, y - 1, length * size, size + 2, highlight);
-			text_run(x, y, text, length, size, white);
+			fill(x, y - 1, bb_gui_text_width(font, text, length, size), size + 2, highlight);
+			text_run(x, y, text, length, font, size, white);
 		}
 
 		void arrow(int cx, int cy, int direction, rgb c)
@@ -246,13 +247,18 @@ namespace bb::gui {
 			char text[1024];
 			shown_text(g.text, text, sizeof(text));
 			// Lines are broken where the text is longer than the label is wide.
-			int size = font_size(g), cols = (g.w - 6) / size, row = 0;
-			if (cols < 1) {
-				cols = 1;
-			}
+			int size = font_size(g), room = g.w - 6, row = 0;
 			rect saved = clip;
 			clip_to(intersect(saved, { x, y, g.w, g.h }));
 			for (const char* p = text; *p;) {
+				int line = 0;
+				while (p[line] && (p[line] != '\r') && (p[line] != '\n')) {
+					line++;
+				}
+				int cols = fit_chars(g, p, line, room);
+				if (cols < 1) {
+					cols = 1;
+				}
 				int n = 0;
 				while (p[n] && (p[n] != '\r') && (p[n] != '\n') && (n < cols)) {
 					n++;
@@ -266,7 +272,7 @@ namespace bb::gui {
 						n = cut;
 					}
 				}
-				text_run(x + 3, y + 3 + row * (size + 2), p, n, size, text_color_of(g));
+				text_run(x + 3, y + 3 + row * (size + 2), p, n, g.font, size, text_color_of(g));
 				p += n;
 				if ((*p == '\r') || (*p == '\n') || (*p == ' ')) {
 					p++;
@@ -308,7 +314,7 @@ namespace bb::gui {
 				}
 				text_at(g, x + 19, y + (g.h - size) / 2, text, text_color_of(g));
 				if (ui.focus == handle) {
-					frame_box(x + 17, y + (g.h - size) / 2 - 2, len * size + 4, size + 4, shadow);
+					frame_box(x + 17, y + (g.h - size) / 2 - 2, text_width(g, text, len) + 4, size + 4, shadow);
 				}
 				return;
 			}
@@ -322,7 +328,7 @@ namespace bb::gui {
 			int shift = pressed ? 1 : 0;
 			rect saved = clip;
 			clip_to(intersect(saved, { x + 3, y + 3, g.w - 6, g.h - 6 }));
-			text_at(g, x + (g.w - len * size) / 2 + shift, y + (g.h - size) / 2 + shift, text, text_color_of(g));
+			text_at(g, x + (g.w - text_width(g, text, len)) / 2 + shift, y + (g.h - size) / 2 + shift, text, text_color_of(g));
 			clip_to(saved);
 			if (ui.focus == handle) {
 				frame_box(x + 4, y + 4, g.w - 8, g.h - 8, shadow);
@@ -355,12 +361,12 @@ namespace bb::gui {
 			if (hi > length) {
 				hi = length;
 			}
-			text_run(tx, ty, shown, length, size, text_color_of(g));
+			text_run(tx, ty, shown, length, g.font, size, text_color_of(g));
 			if ((ui.focus == handle) && (hi > lo)) {
-				selected_text(tx + lo * size, ty, shown + lo, hi - lo, size);
+				selected_text(tx + field_x(g, lo), ty, shown + lo, hi - lo, g.font, size);
 			}
 			if ((ui.focus == handle) && (hi == lo) && blink_on()) {
-				vline(tx + g.caret * size, ty - 1, size + 2, black);
+				vline(tx + field_x(g, g.caret), ty - 1, size + 2, black);
 			}
 			free(shown);
 			clip_to(saved);
@@ -420,19 +426,20 @@ namespace bb::gui {
 					}
 					// Tabs are as wide as the tab stops of the gadget.
 					const char* run = g.text + line.start + i;
-					int         tx  = x + cx - shown_x + i * size;
+					int         tx  = x + cx - shown_x + text_width(g, g.text + line.start, i);
+					int         run_width = text_width(g, run, j - i);
 					if (selected && (ui.focus == handle)) {
-						selected_text(tx, ty, run, j - i, size);
+						selected_text(tx, ty, run, j - i, g.font, size);
 					} else {
-						text_run(tx, ty, run, j - i, size, g.enabled ? c : grey_text);
+						text_run(tx, ty, run, j - i, g.font, size, g.enabled ? c : grey_text);
 						if (flags & 1) {
-							text_run(tx + 1, ty, run, j - i, size, g.enabled ? c : grey_text);
+							text_run(tx + 1, ty, run, j - i, g.font, size, g.enabled ? c : grey_text);
 						}
 						if (flags & 4) {
-							hline(tx, ty + size, (j - i) * size, c);
+							hline(tx, ty + size, run_width, c);
 						}
 						if (flags & 8) {
-							hline(tx, ty + size / 2, (j - i) * size, c);
+							hline(tx, ty + size / 2, run_width, c);
 						}
 					}
 					i = j;
@@ -442,7 +449,7 @@ namespace bb::gui {
 					bool wrapped_end = (g.style & 1) && (g.caret == line.start + line.length) && (row + 1 < int(lines.size))
 					                && (lines[uint32_t(row + 1)].start == g.caret);
 					if (!wrapped_end) {
-						vline(x + cx - shown_x + (g.caret - line.start) * size, ty - 1, size + 2, base);
+						vline(x + cx - shown_x + text_width(g, g.text + line.start, g.caret - line.start), ty - 1, size + 2, base);
 					}
 				}
 			}
@@ -611,7 +618,7 @@ namespace bb::gui {
 				bool selected = rows[uint32_t(i)].node == g.selected_node;
 				int  len      = n->text ? int(strlen(n->text)) : 0;
 				if (selected) {
-					fill(rx - 2, ry, len * size + 4, rh, highlight);
+					fill(rx - 2, ry, text_width(g, n->text, len) + 4, rh, highlight);
 				}
 				text_at(g, rx, ry + (rh - size) / 2, n->text, selected ? white : text_color_of(g));
 			}
@@ -733,7 +740,7 @@ namespace bb::gui {
 				int  close_x, max_x, min_x, by;
 				int  buttons = window_buttons(g, &close_x, &max_x, &min_x, &by);
 				clip_to(intersect(saved, { x + frame, y + frame, g.w - 2 * frame - buttons * title_box_width(g), title_bar_height(g) }));
-				text_run(x + frame + 4, y + frame + (title_bar_height(g) - size) / 2, text, int(strlen(text)), size, white);
+				text_run(x + frame + 4, y + frame + (title_bar_height(g) - size) / 2, text, int(strlen(text)), 0, size, white);
 				clip_to(saved);
 				if (buttons) {
 					int bw = title_box_width(g), bh = title_box_height(g);
@@ -766,7 +773,7 @@ namespace bb::gui {
 					char text[256];
 					shown_text(m ? m->text : "", text, sizeof(text));
 					color(m && m->enabled ? black : grey_text);
-					bb_gui_text(x + bx + 8 + (open ? 1 : 0), y + by + (bh - 12) / 2 + (open ? 1 : 0), text, 12);
+					bb_gui_text(x + bx + 8 + (open ? 1 : 0), y + by + (bh - 12) / 2 + (open ? 1 : 0), text, 0, 12);
 				}
 			}
 			// The status bar.
@@ -775,7 +782,7 @@ namespace bb::gui {
 				int sy = y + g.h - frame - status_height;
 				fill(x + frame, sy, g.w - 2 * frame, status_height, face);
 				edge(x + frame, sy + 1, g.w - 2 * frame, status_height - 1, true);
-				text_run(x + frame + 6, sy + (status_height - 12) / 2 + 1, g.status ? g.status : "", g.status ? int(strlen(g.status)) : 0, 12, black);
+				text_run(x + frame + 6, sy + (status_height - 12) / 2 + 1, g.status ? g.status : "", g.status ? int(strlen(g.status)) : 0, 0, 12, black);
 			}
 		}
 
@@ -870,7 +877,7 @@ namespace bb::gui {
 				char text[1024];
 				shown_text(g->text, text, sizeof(text));
 				clip_to(intersect(screen, { x + 2, y, mw - 4, mh }));
-				text_run(x + 6, y + (mh - 12) / 2, text, int(strlen(text)), 12, white);
+				text_run(x + 6, y + (mh - 12) / 2, text, int(strlen(text)), 0, 12, white);
 				return;
 			}
 			clip_to(intersect(screen, { x, y, g->w, g->h }));
@@ -916,7 +923,7 @@ namespace bb::gui {
 					shown_text(kid->text, text, sizeof(text));
 					rgb c = !kid->enabled ? grey_text : (open ? white : black);
 					color(c);
-					bb_gui_text(px + 24, ry + (rh - 12) / 2, text, 12);
+					bb_gui_text(px + 24, ry + (rh - 12) / 2, text, 0, 12);
 					if (kid->checked) {
 						color(c);
 						bb_line(px + 8, ry + rh / 2, px + 11, ry + rh / 2 + 3);
@@ -999,7 +1006,7 @@ namespace bb::gui {
 				}
 				int bx, by, bw, bh;
 				tool_button_rect(*g, i, &bx, &by, &bw, &bh);
-				int size = font_size(*g), w = int(strlen(text)) * size + 8, h = size + 6;
+				int size = font_size(*g), w = text_width(*g, text, int(strlen(text))) + 8, h = size + 6;
 				int x = ax + bx, y = ay + by + bh + 2;
 				x         = x + w > screen_w ? screen_w - w : x;
 				x         = x < 0 ? 0 : x;

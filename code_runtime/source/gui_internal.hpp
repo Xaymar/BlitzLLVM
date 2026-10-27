@@ -275,6 +275,9 @@ namespace bb::gui {
 	int  row_height(gadget const& g);
 	int  text_width(gadget const& g, const char* text, int length);
 	int  text_height(gadget const& g);
+	int  field_x(gadget const& g, int index);                              // Where the cursor of a text field is, in pixels from the start of its text.
+	int  char_at(gadget const& g, const char* text, int length, int x);   // Which boundary between characters is closest to a position.
+	int  fit_chars(gadget const& g, const char* text, int length, int width); // How many characters fit in a width.
 	void clamp_scroll(gadget& g);
 	void caret_to_view(gadget& g);
 	void post_action(int handle, int data, int x = 0, int y = 0);

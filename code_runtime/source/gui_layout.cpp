@@ -9,6 +9,7 @@
 
 extern "C" {
 int32_t bb_gui_font_size(int32_t font);
+int32_t bb_gui_text_width(int32_t font, const char* s, int32_t length, int32_t size);
 }
 
 namespace bb::gui {
@@ -33,7 +34,40 @@ namespace bb::gui {
 		if (length < 0) {
 			length = text ? int(strlen(text)) : 0;
 		}
-		return length * font_size(g);
+		return bb_gui_text_width(g.font, text, length, font_size(g));
+	}
+
+	// How far into a text field the cursor is when it is before a character, which is stars for a password.
+	int field_x(gadget const& g, int index)
+	{
+		return (g.style & 1) ? index * text_width(g, "*", 1) : text_width(g, g.text, index);
+	}
+
+	// Which boundary between characters of a text is closest to a position, in pixels from its start.
+	int char_at(gadget const& g, const char* text, int length, int x)
+	{
+		int at = 0;
+		for (int i = 0; i < length; i++) {
+			int next = at + text_width(g, text + i, 1);
+			if (x < (at + next) / 2) {
+				return i;
+			}
+			at = next;
+		}
+		return length;
+	}
+
+	// How many characters of a text fit in a width.
+	int fit_chars(gadget const& g, const char* text, int length, int width)
+	{
+		int at = 0;
+		for (int i = 0; i < length; i++) {
+			at += text_width(g, text + i, 1);
+			if (at > width) {
+				return i;
+			}
+		}
+		return length;
 	}
 
 	int text_height(gadget const& g)
@@ -84,14 +118,15 @@ namespace bb::gui {
 		int         longest = 0, at = 0;
 		for (int i = 0;; i++) {
 			if ((text[i] == '\r') || (text[i] == 0)) {
-				longest = i - at > longest ? i - at : longest;
+				int width = text_width(g, text + at, i - at);
+				longest   = width > longest ? width : longest;
 				at      = i + 1;
 				if (!text[i]) {
 					break;
 				}
 			}
 		}
-		return longest * font_size(g);
+		return longest;
 	}
 
 	// Text areas that do not wrap get a bar along the bottom once a line does not fit.
@@ -183,12 +218,8 @@ namespace bb::gui {
 
 	void build_lines(gadget const& g, buffer<visual_line>& out)
 	{
-		int  size = font_size(g);
-		int  cols = (g.w - 4 - bar_width) / size;
+		int  room = g.w - 4 - bar_width;
 		bool wrap = (g.style & 1) != 0;
-		if (cols < 1) {
-			cols = 1;
-		}
 		const char* text = g.text ? g.text : "";
 		int         n    = int(strlen(text));
 		int         at   = 0;
@@ -205,6 +236,10 @@ namespace bb::gui {
 			} else {
 				int begin = at;
 				do {
+					int cols = fit_chars(g, text + begin, end - begin, room);
+					if (cols < 1) {
+						cols = 1;
+					}
 					int stop = begin + cols;
 					if (stop >= end) {
 						stop = end;
@@ -282,7 +317,7 @@ namespace bb::gui {
 	void caret_to_view(gadget& g)
 	{
 		if (g.kind == K_TEXTFIELD) {
-			int x = g.caret * font_size(g), width = g.w - 6;
+			int x = field_x(g, g.caret), width = g.w - 6;
 			if (x - g.scroll_x > width) {
 				g.scroll_x = x - width;
 			}
@@ -310,7 +345,7 @@ namespace bb::gui {
 				g.scroll_y = row - visible + 1;
 			}
 			if (!(g.style & 1) && (row < int(lines.size))) {
-				int x = (g.caret - lines[uint32_t(row)].start) * font_size(g), width = g.w - 4 - bar_width;
+				int x = text_width(g, g.text + lines[uint32_t(row)].start, g.caret - lines[uint32_t(row)].start), width = g.w - 4 - bar_width;
 				if (x - g.scroll_x > width) {
 					g.scroll_x = x - width;
 				}
@@ -383,13 +418,13 @@ namespace bb::gui {
 
 	static int menu_text_width(const char* text)
 	{
-		int n = 0;
+		int width = 0;
 		for (const char* p = text; p && *p; p++) {
 			if (*p != '&') {
-				n++;
+				width += bb_gui_text_width(0, p, 1, menu_font_size);
 			}
 		}
-		return n * menu_font_size;
+		return width;
 	}
 
 	void menu_bar_rect(int window, int index, int* x, int* y, int* w, int* h)

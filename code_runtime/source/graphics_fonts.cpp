@@ -466,14 +466,20 @@ namespace bb::gfx {
 		return &font->glyphs[c - first_char];
 	}
 
-	int ttf_string_width(ttf_font const* font, const char* text)
+	// The width of the first characters of a text, or of all of it if the length is negative.
+	int ttf_string_width_n(ttf_font const* font, const char* text, int length)
 	{
 		int width = 0;
-		for (const unsigned char* p = reinterpret_cast<const unsigned char*>(text); p && *p; p++) {
+		for (const unsigned char* p = reinterpret_cast<const unsigned char*>(text); p && *p && (length != 0); p++, length--) {
 			const glyph* g_ = glyph_of(font, *p);
 			width += g_ ? g_->advance : 0;
 		}
 		return width;
+	}
+
+	int ttf_string_width(ttf_font const* font, const char* text)
+	{
+		return ttf_string_width_n(font, text, -1);
 	}
 
 	void ttf_draw(ttf_font* font, float x, float y, const char* text)

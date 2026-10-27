@@ -17,4 +17,4 @@ Until WaitEvent() = $803
 ![SetGadgetFont](media/gadgets/setgadgetfont.png)
 @param gadget  Handle of the gadget.
 @param font    Font handle from `LoadFont` or [RequestFont](RequestFont).
-@gap Only the size of the font is used. Every font is drawn with the built-in typeface.
+@gap The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font. A font that was not found on the system is drawn with the built-in bitmap font in the size that was asked for.

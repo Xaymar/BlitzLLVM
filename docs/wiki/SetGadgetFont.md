@@ -33,7 +33,7 @@ Until WaitEvent() = $803
 
 **Differences and known gaps:**
 
-* Only the size of the font is used. Every font is drawn with the built-in typeface.
+* The gadget is drawn with the typeface of the font, and its text is measured in the widths of that font. A font that was not found on the system is drawn with the built-in bitmap font in the size that was asked for.
 
 ## Related commands
 

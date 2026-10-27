@@ -336,17 +336,19 @@ namespace bb::gui {
 		// Which character a position in a text field or text area is at.
 		int caret_at(gadget& g, int lx, int ly)
 		{
-			int size = font_size(g);
 			if (g.kind == K_TEXTFIELD) {
-				int c = (lx - 3 + g.scroll_x + size / 2) / size;
-				return clampi(c, 0, text_len(g));
+				if (g.style & 1) {
+					int star = text_width(g, "*", 1);
+					return clampi((lx - 3 + g.scroll_x + star / 2) / (star > 0 ? star : 1), 0, text_len(g));
+				}
+				return clampi(char_at(g, g.text, text_len(g), lx - 3 + g.scroll_x), 0, text_len(g));
 			}
 			buffer<visual_line> lines;
 			build_lines(g, lines);
 			int row = g.scroll_y + (ly - 2) / row_height(g);
 			row     = clampi(row, 0, int(lines.size) - 1);
 			int shown_x = (g.style & 1) ? 0 : g.scroll_x;
-			int col     = (lx - 2 + shown_x + size / 2) / size;
+			int col     = char_at(g, g.text + lines[uint32_t(row)].start, lines[uint32_t(row)].length, lx - 2 + shown_x);
 			col         = clampi(col, 0, lines[uint32_t(row)].length);
 			int result  = lines[uint32_t(row)].start + col;
 			// The end of a wrapped line that goes on is the start of the next.

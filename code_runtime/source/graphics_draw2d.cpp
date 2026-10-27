@@ -271,11 +271,30 @@ void bb_text(int32_t x, int32_t y, const char* s, int32_t center_x, int32_t cent
 	}
 }
 
-// For the GUI: text in a size of its own, so that gadgets don't change the font that programs draw with. The size is
-// the height of a character, which is also how wide it is.
-void bb_gui_text(int32_t x, int32_t y, const char* s, int32_t size)
+// For the GUI: text in a font of its own, so that gadgets don't change the font that programs draw with. A gadget that has
+// no font of its own gets the default font of the GUI, a real one if the system has it. Without a real font the text is
+// the built-in bitmap font, where the size is the height of a character, which is also how wide it is.
+static ttf_font* gui_ttf(int32_t font)
+{
+	if (font_entry* f = font_of(font)) {
+		return f->ttf;
+	}
+	static ttf_font* fallback = nullptr;
+	static bool      tried    = false;
+	if (!tried) {
+		tried    = true;
+		fallback = ttf_open("Tahoma", 12, 0);
+	}
+	return fallback;
+}
+
+void bb_gui_text(int32_t x, int32_t y, const char* s, int32_t font, int32_t size)
 {
 	if (!active() || !s || !*s || (size < 1)) {
+		return;
+	}
+	if (ttf_font* t = gui_ttf(font)) {
+		ttf_draw(t, float(x), float(y), s);
 		return;
 	}
 	size_t length = strlen(s);
@@ -284,6 +303,18 @@ void bb_gui_text(int32_t x, int32_t y, const char* s, int32_t size)
 	for (size_t i = 0; i < length; i++) {
 		glyph_vertices(v + i * 6, float(x) + float(i) * float(size), float(y), int(static_cast<unsigned char>(s[i])), scale);
 	}
+}
+
+// How wide the first characters of a text are in the font of a gadget.
+int32_t bb_gui_text_width(int32_t font, const char* s, int32_t length, int32_t size)
+{
+	if (!s || (length <= 0)) {
+		return 0;
+	}
+	if (ttf_font* t = gui_ttf(font)) {
+		return ttf_string_width_n(t, s, length);
+	}
+	return length * size;
 }
 
 // What size a font was loaded in, 0 for the one that is built in.

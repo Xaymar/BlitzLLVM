@@ -237,4 +237,17 @@ Check "A long line shows the arrow of the bar along the bottom", Px(41 + 10 + 2 
 Check "The text area above the bar is still white", Px(41 + 10 + 40, 31 + 10 + 10), WHITE
 FreeGadget barwin
 
+; Text in gadgets is drawn with the font of the gadget, in the widths of that font. The font here has a block for the letter A that
+; is 10 pixels wide at this size, with 2 pixels before it.
+fontwin = CreateWindow("Fonts", 40, 30, 200, 150, 0, 0)
+fixture = LoadFont("images/fixture.ttf", 20)
+lbl = CreateLabel("A", 10, 10, 100, 30, fontwin)
+SetGadgetFont lbl, fixture
+Show()
+Check "A label is drawn in its font", Px(41 + 10 + 3 + 2 + 5, 31 + 10 + 3 + 8), BLACK
+Check "A label is not drawn left of its letter", Px(41 + 10 + 3 + 1, 31 + 10 + 3 + 8), $D4D0C8
+Check "A label is not drawn right of its letter", Px(41 + 10 + 3 + 2 + 11, 31 + 10 + 3 + 8), $D4D0C8
+FreeGadget fontwin
+FreeFont fixture
+
 Done "plusgui_pixels"
