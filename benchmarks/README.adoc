@@ -236,7 +236,7 @@ python3 benchmarks/bigmesh.py --cull 3      # and the GPU culls the faces that a
 python3 benchmarks/bigmesh.py --surfaces 4 --grid 255 --frames 120
 ----
 
-It prints the time of a frame, the triangles that were given to the GPU (all of them in both cases, the GPU decides later) and the
+`Flip` does not wait for the GPU or the screen here (`Flip 0`), so use `--profile` (BLITZ_FPS=1, as the other benchmarks) for the GPU time of a frame, and `--camera above` for the worst case, where the whole mesh is in view. It prints the time of a frame, the triangles that were given to the GPU (all of them in both cases, the GPU decides later) and the
 clusters of faces that the GPU decided about. Without a display it runs under llvmpipe, where the CPU rasterizes and the numbers say
 little about a real GPU; run it on one and alternate the settings a few times.
 

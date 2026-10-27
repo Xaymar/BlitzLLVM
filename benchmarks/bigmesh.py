@@ -44,6 +44,8 @@ def main():
     parser.add_argument("--grid", type=int, default=128)
     parser.add_argument("--frames", type=int, default=60)
     parser.add_argument("--size", default="640x360")
+    parser.add_argument("--profile", action="store_true", help="build with --profile and read the GPU time of the passes (BLITZ_FPS=1), which a fast GPU does not hide")
+    parser.add_argument("--camera", default="circle", choices=("circle", "above"), help="above: the whole mesh is in view")
     args = parser.parse_args()
     width, height = args.size.lower().split("x")
 
@@ -65,22 +67,45 @@ def main():
         source = os.path.join(directory, "bigmesh.bb")
         shutil.copy(os.path.join(HERE, "bigmesh.bb"), source)
         shutil.copy(os.path.join(HERE, "bigmesh_llvm.bi" if llvm else "bigmesh_original.bi"), os.path.join(directory, "bigmesh_counters.bi"))
-        build = subprocess.run([compiler, "-q"] + (["-O3"] if llvm else []) + ["-o", program, source], cwd=directory, capture_output=True, text=True)
+        build = subprocess.run([compiler, "-q"] + (["-O3"] if llvm else []) + (["--profile"] if args.profile and llvm else []) + ["-o", program, source], cwd=directory, capture_output=True, text=True)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
         result_file = os.path.join(directory, "result.txt")
         env = dict(os.environ, BENCH_SURFACES=str(args.surfaces), BENCH_GRID=str(args.grid), BENCH_FRAMES=str(args.frames), BENCH_W=width, BENCH_H=height,
-                   BENCH_CULL=args.cull, BENCH_RESULT=result_file)
+                   BENCH_CULL=args.cull, BENCH_RESULT=result_file, BENCH_CAMERA=args.camera)
+        if args.profile and llvm:
+            env["BENCH_FPS_ON"] = "1"
+            env["BLITZ_FPS"] = "1"
         print("Running %dx%d surfaces of %dx%d squares, %d frames, %sx%s, CameraCulling %s" % (args.surfaces, args.surfaces, args.grid, args.grid, args.frames, width, height, args.cull if llvm else "n/a"), flush=True)
         result = subprocess.run(runner + [program], env=env, cwd=directory, capture_output=True, text=True)
         line = None
         if os.path.isfile(result_file):
             line = next((l for l in open(result_file).read().splitlines() if "RESULT " in l), None)
+        output = result.stdout + result.stderr
         if result.returncode != 0 or line is None:
             sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, (result.stdout + result.stderr)[-2000:]))
     values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
+    # With --profile the runtime reports the GPU time of the passes once a second, summed over the frames of that second; the first
+    # second (making the mesh) is left out.
+    gpu_frames, gpu_sums, shown, first = 0, {"scene": 0.0, "frame": 0.0}, None, True
+    if args.profile and llvm:
+        for l in output.splitlines():
+            m = re.match(r"fps: (\d+),", l)
+            if m:
+                shown = int(m.group(1))
+                continue
+            m = re.match(r"\s+gpu passes: scene ([\d.]+) ms, 2d ([\d.]+) ms, copy ([\d.]+) ms, present ([\d.]+) ms, frame ([\d.]+) ms", l)
+            if m and shown:
+                if first:
+                    first = False
+                    continue
+                gpu_frames += shown
+                gpu_sums["scene"] += float(m.group(1))
+                gpu_sums["frame"] += float(m.group(5))
     print("  ms/frame    avg %.2f  min %.2f  max %.2f" % (values["ms_avg"], values["ms_min"], values["ms_max"]))
     print("  per frame   %.0f triangles given to the GPU, %.0f clusters decided by the GPU" % (values["tris"], values["clusters"]))
+    if gpu_frames:
+        print("  gpu         scene %.3f ms, frame %.3f ms per frame (%d frames, from BLITZ_FPS)" % (gpu_sums["scene"] / gpu_frames, gpu_sums["frame"] / gpu_frames, gpu_frames))
     print("  build       %s" % (version or "unknown compiler"))
 
 
