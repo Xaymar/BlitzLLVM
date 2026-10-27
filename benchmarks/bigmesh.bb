@@ -13,6 +13,7 @@
 ;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
 ;   BENCH_CAMERA    circle (default, sees a small part) or above (sees all of it)
 ;   BENCH_CULL      CameraCulling flags of BlitzLLVM (default 1, the default; 3 adds the GPU), ignored by the original
+;   BENCH_SHOT      file to save the last picture to (optional)
 ;   BENCH_RESULT    file to write the RESULT line to (optional)
 ;
 ; Runs with BlitzLLVM and with the original Blitz3D: what the original does not have is in bigmesh_llvm.bi or bigmesh_original.bi, which
@@ -92,7 +93,19 @@ For i = 0 To frames - 1
 	If times(i) < best Then best = times(i)
 Next
 
-line$ = "RESULT frames=" + frames + " tris=" + TrisRendered() + " clusters=" + BenchClusters() + " ms_avg=" + ((total / Float(frames)) / 1000.0) + " ms_min=" + (best / 1000.0) + " ms_max=" + (worst / 1000.0)
+; A number for the last picture, so that runs with different culling can be told to draw the same.
+hash = 0
+LockBuffer BackBuffer()
+For j = 0 To 17
+	For i = 0 To 31
+		hash = (hash * 31 + (ReadPixelFast(i * (GraphicsWidth() / 32) + 1, j * (GraphicsHeight() / 18) + 1) And $FFFFFF)) And $7FFFFFFF
+	Next
+Next
+UnlockBuffer BackBuffer()
+shot$ = Env$("BENCH_SHOT", "")
+If shot <> "" Then SaveBuffer BackBuffer(), shot
+
+line$ = "RESULT frames=" + frames + " pixels=" + hash + " tris=" + TrisRendered() + " clusters=" + BenchClusters() + " ms_avg=" + ((total / Float(frames)) / 1000.0) + " ms_min=" + (best / 1000.0) + " ms_max=" + (worst / 1000.0)
 file = WriteFile(Env$("BENCH_RESULT", "bigmesh_result.txt"))
 If file Then WriteLine file, line : CloseFile file
 DebugLog line

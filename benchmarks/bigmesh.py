@@ -44,6 +44,7 @@ def main():
     parser.add_argument("--grid", type=int, default=128)
     parser.add_argument("--frames", type=int, default=60)
     parser.add_argument("--size", default="640x360")
+    parser.add_argument("--shot", help="save the last picture to this file (a .bmp)")
     parser.add_argument("--profile", action="store_true", help="build with --profile and read the GPU time of the passes (BLITZ_FPS=1), which a fast GPU does not hide")
     parser.add_argument("--camera", default="circle", choices=("circle", "above"), help="above: the whole mesh is in view")
     args = parser.parse_args()
@@ -73,6 +74,9 @@ def main():
         result_file = os.path.join(directory, "result.txt")
         env = dict(os.environ, BENCH_SURFACES=str(args.surfaces), BENCH_GRID=str(args.grid), BENCH_FRAMES=str(args.frames), BENCH_W=width, BENCH_H=height,
                    BENCH_CULL=args.cull, BENCH_RESULT=result_file, BENCH_CAMERA=args.camera)
+        shot_file = os.path.join(directory, "shot.bmp")
+        if args.shot:
+            env["BENCH_SHOT"] = shot_file
         if args.profile and llvm:
             env["BENCH_FPS_ON"] = "1"
             env["BLITZ_FPS"] = "1"
@@ -84,6 +88,8 @@ def main():
         output = result.stdout + result.stderr
         if result.returncode != 0 or line is None:
             sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, (result.stdout + result.stderr)[-2000:]))
+        if args.shot and os.path.isfile(shot_file):
+            shutil.copy(shot_file, args.shot)
     values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
     # With --profile the runtime reports the GPU time of the passes once a second, summed over the frames of that second; the first
     # second (making the mesh) is left out.
@@ -104,6 +110,9 @@ def main():
                 gpu_sums["frame"] += float(m.group(5))
     print("  ms/frame    avg %.2f  min %.2f  max %.2f" % (values["ms_avg"], values["ms_min"], values["ms_max"]))
     print("  per frame   %.0f triangles given to the GPU, %.0f clusters decided by the GPU" % (values["tris"], values["clusters"]))
+    print("  picture     hash %d" % values["pixels"])
+    if args.profile and llvm and not gpu_frames:
+        print("  gpu         no time yet: the runtime reports once a second and leaves the first out, so use --frames 3000 or more")
     if gpu_frames:
         print("  gpu         scene %.3f ms, frame %.3f ms per frame (%d frames, from BLITZ_FPS)" % (gpu_sums["scene"] / gpu_frames, gpu_sums["frame"] / gpu_frames, gpu_frames))
     print("  build       %s" % (version or "unknown compiler"))
