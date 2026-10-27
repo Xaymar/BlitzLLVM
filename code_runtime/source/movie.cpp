@@ -122,7 +122,8 @@ namespace {
 
 	constexpr int    audio_rate     = 44100;
 	constexpr double audio_ahead    = 0.6; // How many seconds of sound are queued in front of the clock.
-	constexpr size_t frames_ahead   = 12;  // How many pictures are decoded in front of the clock at most.
+	constexpr size_t frames_ahead   = 12;  // How many pictures are decoded in front of the clock normally.
+	constexpr size_t pictures_bytes = 96u << 20; // How many bytes of pictures are kept when the sound is behind them (the file puts it later than the pictures).
 
 	struct picture {
 		double               time;
@@ -322,7 +323,14 @@ namespace {
 		double clock = double(SDL_GetTicksNS() - m.start) / 1e9;
 
 		// Decode in front of the clock, as far as the sound and the pictures ahead are wanted.
-		while (!m.ended_input && (m.pictures.size() < frames_ahead) && ((queued_seconds(m) < audio_ahead) || m.pictures.empty() || (m.pictures.back().time < clock + 0.2))) {
+		// Files that store the sound later than the pictures need more pictures kept for the sound to be there in time.
+		size_t picture_bytes = size_t(m.width) * size_t(m.height) * 4;
+		while (!m.ended_input) {
+			bool sound_wanted = m.stream && (queued_seconds(m) < audio_ahead) && ((m.pictures.size() + 1) * picture_bytes < pictures_bytes);
+			bool room         = m.pictures.size() < frames_ahead;
+			if (!sound_wanted && !(room && (m.pictures.empty() || (m.pictures.back().time < clock + 0.2)))) {
+				break;
+			}
 			read_packet(m);
 		}
 

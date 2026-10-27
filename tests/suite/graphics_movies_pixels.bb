@@ -65,6 +65,8 @@ For i = 0 To 2
 		Delay 10
 		If t > 6000 Then RuntimeError files(i) + " did not end"
 	Wend
+	; The sound of a file that stores it later than the pictures must not keep the movie playing after its 3 seconds.
+	CheckTrue files(i) + ": ends after about 3 seconds", t < 3600
 	CheckTrue files(i) + ": red was seen", seen_red
 	CheckTrue files(i) + ": green was seen", seen_green
 	CheckTrue files(i) + ": blue was seen", seen_blue
