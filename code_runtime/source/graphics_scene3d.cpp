@@ -17,6 +17,7 @@
 #include "shaders.inc"
 
 #include <algorithm>
+#include <mutex>
 #include <tuple>
 #include <map>
 #include <unordered_map>
@@ -31,6 +32,10 @@ namespace bb::gfx {
 	uint32_t flush_number = 0;
 
 	static surface_gpu* surface_list = nullptr;
+
+	// Buffers that loader threads made and no surface has taken yet, which are destroyed with the others when the window closes.
+	static std::mutex   prebuilt_lock;
+	static surface_gpu* prebuilt_list = nullptr;
 
 	static void release_surface_gpu(surface_gpu* gpu)
 	{
@@ -57,6 +62,14 @@ namespace bb::gfx {
 
 	void destroy_surface_buffers()
 	{
+		{
+			std::lock_guard<std::mutex> guard(prebuilt_lock);
+			for (surface_gpu* gpu = prebuilt_list; gpu; gpu = gpu->next) {
+				destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
+				destroy_buffer(gpu->index_buffer, gpu->index_allocation);
+			}
+			prebuilt_list = nullptr; // The jobs that hold them only delete the records.
+		}
 		for (surface_gpu* gpu = surface_list; gpu; gpu = gpu->next) {
 			destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
 			destroy_buffer(gpu->index_buffer, gpu->index_allocation);
@@ -64,6 +77,104 @@ namespace bb::gfx {
 	}
 
 	// Makes sure the GPU has the current geometry of the surface.
+	void* surface_prebuild(const bb::vertex3d* vertices, uint32_t vertex_count, const uint32_t* indices, uint32_t index_count)
+	{
+		if (!g.allocator || !vertex_count || !index_count) {
+			return nullptr;
+		}
+		surface_gpu* gpu     = new surface_gpu();
+		gpu->vertex_capacity = vertex_count + vertex_count / 4 + 16;
+		gpu->index_capacity  = index_count + index_count / 4 + 48;
+
+		VmaAllocationCreateInfo alloc = {};
+		alloc.usage                   = VMA_MEMORY_USAGE_AUTO;
+		alloc.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+		alloc.requiredFlags           = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		VkBufferCreateInfo info       = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+		info.sharingMode              = VK_SHARING_MODE_EXCLUSIVE;
+		VmaAllocationInfo result;
+
+		info.size  = VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d);
+		info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bool ok    = vmaCreateBuffer(g.allocator, &info, &alloc, &gpu->vertex_buffer, &gpu->vertex_allocation, &result) == VK_SUCCESS;
+		if (ok) {
+			gpu->vertex_mapped = result.pMappedData;
+			info.size          = VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t);
+			info.usage         = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			ok                 = vmaCreateBuffer(g.allocator, &info, &alloc, &gpu->index_buffer, &gpu->index_allocation, &result) == VK_SUCCESS;
+			gpu->index_mapped  = result.pMappedData;
+		}
+		if (!ok) {
+			destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
+			delete gpu;
+			return nullptr;
+		}
+		memcpy(gpu->vertex_mapped, vertices, size_t(vertex_count) * sizeof(bb::vertex3d));
+		memcpy(gpu->index_mapped, indices, size_t(index_count) * sizeof(uint32_t));
+		gpu->index_count = index_count;
+
+		std::lock_guard<std::mutex> guard(prebuilt_lock);
+		gpu->next = prebuilt_list;
+		if (prebuilt_list) {
+			prebuilt_list->previous = gpu;
+		}
+		prebuilt_list = gpu;
+		return gpu;
+	}
+
+	// Takes the buffers out of the list of those that nothing owns yet. False if the window closed in the meantime.
+	static bool prebuilt_detach(surface_gpu* gpu)
+	{
+		std::lock_guard<std::mutex> guard(prebuilt_lock);
+		if (!gpu->vertex_buffer) {
+			return false;
+		}
+		if (gpu->previous) {
+			gpu->previous->next = gpu->next;
+		} else {
+			prebuilt_list = gpu->next;
+		}
+		if (gpu->next) {
+			gpu->next->previous = gpu->previous;
+		}
+		gpu->previous = gpu->next = nullptr;
+		return true;
+	}
+
+	void surface_prebuild_drop(void* buffers)
+	{
+		surface_gpu* gpu = static_cast<surface_gpu*>(buffers);
+		if (!gpu) {
+			return;
+		}
+		if (prebuilt_detach(gpu)) {
+			destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
+			destroy_buffer(gpu->index_buffer, gpu->index_allocation);
+		}
+		delete gpu;
+	}
+
+	bool surface_adopt(bb::surface& s, void* buffers)
+	{
+		surface_gpu* gpu = static_cast<surface_gpu*>(buffers);
+		if (!gpu) {
+			return false;
+		}
+		if (!prebuilt_detach(gpu)) {
+			delete gpu;
+			return false;
+		}
+		gpu->next = surface_list;
+		if (surface_list) {
+			surface_list->previous = gpu;
+		}
+		surface_list  = gpu;
+		s.gpu         = gpu;
+		s.dirty       = false;
+		s.bound_valid = false;
+		return true;
+	}
+
 	static surface_gpu* upload_surface(bb::surface& s)
 	{
 		if (!s.dirty && s.gpu) {

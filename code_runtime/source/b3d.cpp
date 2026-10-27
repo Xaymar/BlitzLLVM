@@ -369,6 +369,7 @@ namespace {
 		buffer<vertex3d> vertices;
 		buffer<uint32_t> indices;
 		buffer<uint32_t> source; // Which vertex of the node each vertex came from.
+		void*            gpu = nullptr; // The buffers for the graphics card, if a loader thread made them.
 	};
 
 	struct prepared_node {
@@ -386,6 +387,9 @@ namespace {
 					nodes[i].groups[g].vertices.release();
 					nodes[i].groups[g].indices.release();
 					nodes[i].groups[g].source.release();
+					if (nodes[i].groups[g].gpu) {
+						gfx::surface_prebuild_drop(nodes[i].groups[g].gpu);
+					}
 				}
 				nodes[i].groups.release();
 			}
@@ -395,7 +399,7 @@ namespace {
 
 	// Vertices and indices for the triangle groups of a node, with vertices passed through the matrix (or as they are).
 	// A node that has no normals gets them made like UpdateNormals does.
-	void prepare_surfaces(node_info& node, const float* matrix, prepared_node& into)
+	void prepare_surfaces(node_info& node, const float* matrix, bool upload, prepared_node& into)
 	{
 		for (uint32_t g = 0; g < node.groups.size; g++) {
 			triangle_group& group = *node.groups[g];
@@ -443,6 +447,9 @@ namespace {
 			if (!node.has_normals) {
 				compute_normals(made.vertices, made.indices);
 			}
+			if (upload) {
+				made.gpu = gfx::surface_prebuild(made.vertices.data, made.vertices.size, made.indices.data, made.indices.size);
+			}
 			into.groups.push(made);
 		}
 	}
@@ -461,6 +468,10 @@ namespace {
 			from.indices          = {};
 			s->dirty = true;
 			bb::surface_changed(*s);
+			if (from.gpu) {
+				gfx::surface_adopt(*s, from.gpu); // The first draw has nothing left to upload.
+				from.gpu = nullptr;
+			}
 
 			int       brush = group.brush >= 0 ? group.brush : node.mesh_brush;
 			material  paint;
@@ -482,7 +493,7 @@ namespace {
 	}
 
 	// The world matrices of the nodes of a model, which are the same as long as it is not changed.
-	void prepare_model(model& m, bool hierarchy, prepared_model& out)
+	void prepare_model(model& m, bool hierarchy, bool upload, prepared_model& out)
 	{
 		buffer<float*> models;
 		for (uint32_t i = 0; i < m.nodes.size; i++) {
@@ -501,7 +512,7 @@ namespace {
 			models.push(world);
 			prepared_node made = {};
 			if (n.has_mesh && (hierarchy || !n.hidden)) {
-				prepare_surfaces(n, world, made);
+				prepare_surfaces(n, world, upload, made);
 			}
 			out.nodes.push(made);
 		}
@@ -704,7 +715,7 @@ struct bb::model_load {
 		{
 			ok = parse_model(path, data, size, m);
 			if (ok) {
-				prepare_model(m, anim, prepared);
+				prepare_model(m, anim, true, prepared);
 			}
 		}
 		~job_t() override
@@ -766,7 +777,7 @@ namespace {
 		if (!async) {
 			free(data);
 			prepared_model prepared;
-			prepare_model(m, anim, prepared);
+			prepare_model(m, anim, false, prepared);
 			int handle = anim ? build_hierarchy(m, prepared, parent, 0) : build_static(m, prepared, parent, 0);
 			prepared.release();
 			m.release();

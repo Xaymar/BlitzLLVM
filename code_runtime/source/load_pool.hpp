@@ -14,8 +14,13 @@
 
 // The loader threads (graphics_async.cpp), which pictures and models are decoded on.
 
+#include <cstdint>
+
+namespace bb { struct surface; struct vertex3d; }
+
 namespace bb::gfx {
-	// Work that a loader thread does, see graphics_async.cpp. run() only decodes: it never touches Vulkan or the tables.
+	// Work that a loader thread does, see graphics_async.cpp. run() only decodes (and, for models, makes the buffers of surfaces with
+	// surface_prebuild): it never touches the tables or the queues.
 	struct load_job {
 		virtual ~load_job() = default;
 		virtual void run()  = 0;
@@ -32,4 +37,13 @@ namespace bb::gfx {
 	void async_wait(load_job* job);
 	/** Takes the job away, waiting if a thread is working on it, and deletes it. */
 	void async_discard(load_job* job);
+
+	/**
+	 * Makes the vertex and index buffer of a surface ahead of its first draw, which any thread may do. Null if there is no device, in
+	 * which case the surface uploads as usual. A result has to be given to surface_adopt or surface_prebuild_drop.
+	 */
+	void* surface_prebuild(const bb::vertex3d* vertices, uint32_t vertex_count, const uint32_t* indices, uint32_t index_count);
+	void  surface_prebuild_drop(void* buffers);
+	/** Main thread: the surface draws with the buffers, whose contents have to be what its vertices and indices say. False if they are gone (the window closed), then nothing changed. */
+	bool  surface_adopt(bb::surface& s, void* buffers);
 } // namespace bb::gfx
