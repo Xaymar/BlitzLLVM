@@ -50,7 +50,7 @@ Until e = $803
 
 **Differences and known gaps:**
 
-* The tool tips given with [SetToolBarTips](SetToolBarTips) are not shown.
+* The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
 
 ## Related commands
 

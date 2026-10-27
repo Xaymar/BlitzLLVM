@@ -45,6 +45,7 @@ namespace bb::gui {
 			D_WINDOW,
 			D_RESIZE,
 			D_SCROLL,
+			D_HSCROLL,
 			D_SLIDER,
 			D_SELECT,
 		};
@@ -938,6 +939,25 @@ namespace bb::gui {
 				}
 				return;
 			}
+			case D_HSCROLL: {
+				gadget* g = gadget_of(drag.handle);
+				if (g) {
+					int ax, ay;
+					absolute_position(drag.handle, &ax, &ay);
+					int hx, hy, hw, hh;
+					hscroll_rect(*g, &hx, &hy, &hw, &hh);
+					int total = longest_line_width(*g);
+					int start, size;
+					scroll_thumb(g->scroll_x, hw, total, hw, &start, &size);
+					int track = hw - 2 * bar_width - size;
+					if ((track > 0) && (total > hw)) {
+						g->scroll_x = int(int64_t(x - (ax + hx) - drag.grab - bar_width) * (total - hw) / track);
+						clamp_scroll(*g);
+						dirty();
+					}
+				}
+				return;
+			}
 			case D_SLIDER: {
 				gadget* g = gadget_of(drag.handle);
 				if (g) {
@@ -1073,6 +1093,46 @@ namespace bb::gui {
 			(void)x;
 		}
 
+		bool on_hbar(gadget const& g, int lx, int ly)
+		{
+			int hx, hy, hw, hh;
+			hscroll_rect(g, &hx, &hy, &hw, &hh);
+			return has_hbar(g) && inside(lx, ly, hx, hy, hw, hh);
+		}
+
+		// A press on the bar along the bottom of a text area: arrows go four characters, the track a page.
+		void hbar_press(int handle, gadget& g, int ax, int x)
+		{
+			int hx, hy, hw, hh;
+			hscroll_rect(g, &hx, &hy, &hw, &hh);
+			int grab = 0;
+			int part = bar_hit(x - ax - hx, g.scroll_x, hw, longest_line_width(g), hw, &grab);
+			int step = font_size(g) * 4;
+			switch (part) {
+			case BP_DEC:
+				g.scroll_x -= step;
+				break;
+			case BP_INC:
+				g.scroll_x += step;
+				break;
+			case BP_PAGE_DEC:
+				g.scroll_x -= hw;
+				break;
+			case BP_PAGE_INC:
+				g.scroll_x += hw;
+				break;
+			case BP_THUMB:
+				drag.kind   = D_HSCROLL;
+				drag.handle = handle;
+				drag.grab   = grab;
+				return;
+			default:
+				return;
+			}
+			clamp_scroll(g);
+			dirty();
+		}
+
 		bool on_bar(gadget const& g, int lx, int ly)
 		{
 			int sx, sy, sw, sh;
@@ -1098,6 +1158,10 @@ namespace bb::gui {
 				ui.focus = handle;
 				if ((g.kind == K_TEXTAREA) && on_bar(g, lx, ly)) {
 					bar_press(handle, g, ax, ay, x, y);
+					break;
+				}
+				if ((g.kind == K_TEXTAREA) && on_hbar(g, lx, ly)) {
+					hbar_press(handle, g, ax, x);
 					break;
 				}
 				bool shift = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
@@ -1392,7 +1456,11 @@ namespace bb::gui {
 			if (!g) {
 				return;
 			}
-			if ((g->kind == K_LISTBOX) || (g->kind == K_TREEVIEW) || (g->kind == K_TEXTAREA) || (g->kind == K_COMBOBOX)) {
+			if ((g->kind == K_TEXTAREA) && has_hbar(*g) && (SDL_GetModState() & SDL_KMOD_SHIFT)) {
+				g->scroll_x -= amount * font_size(*g) * 4; // Shift turns the wheel sideways.
+				clamp_scroll(*g);
+				dirty();
+			} else if ((g->kind == K_LISTBOX) || (g->kind == K_TREEVIEW) || (g->kind == K_TEXTAREA) || (g->kind == K_COMBOBOX)) {
 				scroll_of(*g) -= amount * 3;
 				if (g->kind == K_COMBOBOX) {
 					int most = int(g->items.size) - 8;

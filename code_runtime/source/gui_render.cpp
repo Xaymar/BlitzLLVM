@@ -451,6 +451,12 @@ namespace bb::gui {
 			int sx, sy, sw, sh;
 			scroll_rect(g, &sx, &sy, &sw, &sh);
 			scroll_bar(x + sx, y + sy, sw, sh, true, g.scroll_y, visible_rows(g), int(lines.size), g.enabled);
+			if (has_hbar(g)) {
+				int hx, hy, hw, hh;
+				hscroll_rect(g, &hx, &hy, &hw, &hh);
+				scroll_bar(x + hx, y + hy, hw, hh, false, g.scroll_x, hw, longest_line_width(g), g.enabled);
+				fill(x + sx, y + hy, sw, hh, face); // The corner between both bars.
+			}
 			lines.release();
 		}
 
@@ -938,6 +944,92 @@ namespace bb::gui {
 		}
 	}
 
+	namespace {
+		// Tool tips show after the mouse rested on a button of a toolbar for a moment.
+		int  tip_gadget = 0, tip_index = -1, tip_since = 0;
+		bool tip_shown = false;
+
+		// Which button of which toolbar has a tip right now, or false.
+		bool tip_wanted(int* handle, int* index)
+		{
+			gadget* g = gadget_of(ui.hover);
+			if (!g || (g->kind != K_TOOLBAR) || !g->tips || (g->tool_hot < 0) || ui.pressed || ui.modal) {
+				return false;
+			}
+			*handle = ui.hover;
+			*index  = g->tool_hot;
+			return true;
+		}
+
+		// The piece between commas that is for a button, counting only buttons and not spaces.
+		bool tip_text(gadget const& g, int index, char* out, int size)
+		{
+			const char* at = g.tips;
+			for (int i = 0; i < index; i++) {
+				at = strchr(at, ',');
+				if (!at) {
+					return false;
+				}
+				at++;
+			}
+			const char* end = strchr(at, ',');
+			int         len = end ? int(end - at) : int(strlen(at));
+			if ((len <= 0) || (len >= size)) {
+				return false;
+			}
+			memcpy(out, at, size_t(len));
+			out[len] = 0;
+			return true;
+		}
+
+		void draw_tool_tip(int screen_w)
+		{
+			int handle, index;
+			gadget* g = gadget_of(tip_gadget);
+			char    text[256];
+			if (!tip_shown || !tip_wanted(&handle, &index) || (handle != tip_gadget) || (index != tip_index) || !g || !tip_text(*g, index, text, sizeof(text))) {
+				return;
+			}
+			int ax, ay;
+			absolute_position(handle, &ax, &ay);
+			icon_strip* strip = strip_of(g->strip);
+			for (int i = 0; strip && (i < strip->count); i++) {
+				if (tool_button_index(*g, i) != index) {
+					continue;
+				}
+				int bx, by, bw, bh;
+				tool_button_rect(*g, i, &bx, &by, &bw, &bh);
+				int size = font_size(*g), w = int(strlen(text)) * size + 8, h = size + 6;
+				int x = ax + bx, y = ay + by + bh + 2;
+				x         = x + w > screen_w ? screen_w - w : x;
+				x         = x < 0 ? 0 : x;
+				fill(x, y, w, h, { 255, 255, 225 });
+				frame_box(x, y, w, h, black);
+				text_at(*g, x + 4, y + 3, text, black);
+			}
+		}
+
+		// Whether what is shown changed because of tips, which it did when one appears or goes.
+		bool tips_changed()
+		{
+			int  handle = 0, index = -1;
+			bool wanted = tip_wanted(&handle, &index);
+			if (!wanted || (handle != tip_gadget) || (index != tip_index)) {
+				bool was     = tip_shown;
+				tip_gadget   = wanted ? handle : 0;
+				tip_index    = wanted ? index : -1;
+				tip_since    = bb_millisecs();
+				tip_shown    = false;
+				return was;
+			}
+			if (!tip_shown && (bb_millisecs() - tip_since >= 500)) {
+				tip_shown = true;
+				return true;
+			}
+			return false;
+		}
+	} // namespace
+
 	void render()
 	{
 		int w = bb_graphics_width(), h = bb_graphics_height();
@@ -968,6 +1060,7 @@ namespace bb::gui {
 		}
 		draw_menu_popups(screen);
 		clip_to(screen);
+		draw_tool_tip(w);
 		if (overlay_draw) {
 			overlay_draw();
 		}
@@ -989,6 +1082,9 @@ namespace bb::gui {
 				last_phase = phase;
 				needs_draw = true;
 			}
+		}
+		if (tips_changed()) {
+			needs_draw = true;
 		}
 		// What was drawn on the desktop by the program is shown a bit after, as nothing says when it was drawn.
 		if (needs_draw || (desktop_backdrop() && (bb_millisecs() - last_render >= 16))) {

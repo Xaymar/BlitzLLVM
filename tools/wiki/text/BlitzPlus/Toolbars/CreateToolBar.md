@@ -35,4 +35,4 @@ Until e = $803
 @param group   Window, panel, tabber or canvas that holds it.
 @param style   Reserved. Defaults to 0.
 @returns A handle for the toolbar.
-@gap The tool tips given with [SetToolBarTips](SetToolBarTips) are not shown.
+@gap The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.

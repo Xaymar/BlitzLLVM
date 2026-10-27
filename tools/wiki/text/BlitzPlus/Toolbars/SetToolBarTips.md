@@ -20,4 +20,4 @@ Until WaitEvent() = $803
 ```
 @param toolbar  Handle of a toolbar.
 @param tips     Hints separated by commas.
-@gap The hints are stored but never shown, there are no tool tips.
+@gap A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed. Spaces between buttons do not take a hint.
