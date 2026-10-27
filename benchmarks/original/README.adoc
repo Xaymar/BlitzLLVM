@@ -16,7 +16,7 @@ are done. Run them by hand; they are not part of the tests or the CI.
 
 Before either way: set `LABEL` at the top of the file to describe the machine and the compiler, for example
 `"RTX 4080 SUPER, Blitz3D 1.107"`, close other programs, and leave `RUNS`, `WIDTH`, `HEIGHT` and `SCALES` alone if you want
-numbers that can be compared (lower `SCALES` to 2 only on a computer that struggles). Do not run two benchmarks at the same
+numbers that can be compared (lower `SCALES` to 2 only on a computer that struggles). Always run in a window, never full screen (`GFXMODE` stays 2). Do not run two benchmarks at the same
 time and do not move the window while one runs: the numbers are wrong otherwise.
 
 *Release, not debug.* The original compiles with debug information when debug is on (the IDE option, or `blitzcc -d`), which
@@ -119,4 +119,5 @@ single frames measured with `MilliSecs`, so they are whole milliseconds. `tris` 
 * The original draws with DirectX 7 and has no draw call counters; the runtime of BlitzLLVM draws with Vulkan. Compare the
   numbers of a machine with the same GPU, and say what it is in `LABEL`.
 * The original in a window may wait for the monitor even with `Flip False` (desktop compositing). If `ms_avg` is stuck at
-  16.7 or 8.3 ms for every size, run full screen (`GFXMODE = 1`, with a `WIDTH` and `HEIGHT` the card supports).
+  16.7 or 8.3 ms for every size, the run is vsync-bound: report it as such and do not use it for comparing speed. Never run the
+  benchmarks full screen: the original compiler changes the display settings of the system, which makes runs fail.
