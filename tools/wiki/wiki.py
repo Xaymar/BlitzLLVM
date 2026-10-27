@@ -8,6 +8,8 @@
                   differences from the originals (Differences) into --out (default build/wiki), together with the hand
                   written pages and the media from docs/wiki. The result is never committed to root: the Wiki workflow
                   builds it again on every push and publishes it to the wiki branch and the GitHub wiki.
+  wiki.py help    Writes the same text as static HTML in the layout of the Blitz3D help (see helpgen.py) into --out
+                  (default build/help). This is the help folder of the packages, and it is not committed either.
   wiki.py check   Builds into a temporary folder (or --out) and fails if a command has no category, a text file names an unknown command, a link points nowhere,
                   or an example does not compile (pass --blitzcc PATH to compile examples). An example whose first
                   line is ";run" is also run without a window, and what it prints has to match the ```text block
@@ -380,6 +382,26 @@ def differences_page(commands):
     return "\n".join(out)
 
 
+def page_sources(commands):
+    """The pages that are not commands, as {name: (name, title, Markdown)}: the pages of tools/wiki/pages (without their
+    @difference line) and Differences. The help is made from these."""
+    result = {}
+    for fn in sorted(os.listdir(PAGES)):
+        with open(os.path.join(PAGES, fn), encoding="utf-8") as f:
+            body = re.sub(r"^;(media .*|run)\n", "", COPYRIGHT.sub("", f.read()), flags=re.M)
+        body = DIFFERENCE.sub("", body)
+        title = re.search(r"^# (.+)$", body, re.M)
+        result[fn[:-3]] = (fn[:-3], title.group(1).strip() if title else fn[:-3].replace("-", " "), body)
+    body = differences_page(commands)
+    result["Differences"] = ("Differences", "Differences from the originals", body)
+    return result
+
+
+def build_help(commands, out):
+    import helpgen
+    helpgen.build_help(commands, out, sys.modules[__name__])
+
+
 def build(commands):
     cats = collections.defaultdict(lambda: collections.defaultdict(list))
     for c in commands:
@@ -506,12 +528,15 @@ def check(commands, blitzcc):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("action", choices=["build", "check"])
+    ap.add_argument("action", choices=["build", "check", "help"])
     ap.add_argument("--blitzcc")
     ap.add_argument("--out", help="where build writes the wiki (default build/wiki); check builds into a temporary folder")
     args = ap.parse_args()
     global OUT
     commands = load()
+    if args.action == "help":
+        build_help(commands, os.path.abspath(args.out or os.path.join(ROOT, "build", "help")))
+        return 0
     if args.action == "build":
         if args.out:
             OUT = os.path.abspath(args.out)
