@@ -28,9 +28,8 @@ namespace bb::gui {
 
 	static int desktop = 0;
 
-	// What the program drew on the desktop with DesktopBuffer. It is the backdrop of the windows, so that it stays
-	// when the gadgets are drawn again.
-	static int desktop_image = 0, desktop_image_w = 0, desktop_image_h = 0;
+	// DesktopBuffer does nothing: this is the one pixel that drawing there goes to, so the real desktop is never touched.
+	static int desktop_scratch = 0;
 
 	char* copy_string(const char* s)
 	{
@@ -170,37 +169,20 @@ namespace bb::gui {
 		}
 	}
 
-	// The buffer of what was drawn on the desktop, or 0 if nothing was.
-	int desktop_backdrop()
-	{
-		if (!desktop_image) {
-			return 0;
-		}
-		if ((desktop_image_w != bb_graphics_width()) || (desktop_image_h != bb_graphics_height())) {
-			return 0; // The window changed size since.
-		}
-		return bb_image_buffer(desktop_image, 0);
-	}
-
+	// Nothing can be drawn on, or read from, the desktop of the computer. Programs get a buffer that is one black pixel
+	// every time they ask, which is dropped when they ask again.
 	int desktop_buffer()
 	{
-		int w = bb_graphics_width(), h = bb_graphics_height();
-		if (desktop_image && ((desktop_image_w != w) || (desktop_image_h != h))) {
-			bb_free_image(desktop_image);
-			desktop_image = 0;
+		if (!desktop_scratch) {
+			desktop_scratch = bb_create_image(1, 1, 1);
 		}
-		if (!desktop_image) {
-			desktop_image   = bb_create_image(w, h, 1);
-			desktop_image_w = w;
-			desktop_image_h = h;
-			// It starts as the desktop is without anything on it.
-			int saved = bb_graphics_buffer();
-			bb_set_buffer(bb_image_buffer(desktop_image, 0));
-			bb_clscolor(58, 110, 165);
-			bb_cls();
-			bb_set_buffer(saved);
-		}
-		return bb_image_buffer(desktop_image, 0);
+		int buffer = bb_image_buffer(desktop_scratch, 0);
+		int saved  = bb_graphics_buffer();
+		bb_set_buffer(buffer);
+		bb_clscolor(0, 0, 0);
+		bb_cls();
+		bb_set_buffer(saved);
+		return buffer;
 	}
 
 	static bool is_group(int kind)
@@ -739,12 +721,11 @@ int32_t bb_desktop(void)
 }
 
 extern "C" {
-// The buffer of the whole desktop. What is drawn there stays behind the windows.
+// The buffer of the desktop, which has nothing to draw on or read from.
 int32_t bb_desktop_buffer(void)
 {
 	gui_used = true;
 	ensure_graphics();
-	dirty();
 	return bb::gui::desktop_buffer();
 }
 }
