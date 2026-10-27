@@ -93,7 +93,7 @@ This compiles and runs every program in `tests/` and the function test suite in 
 
 ### Continuous integration
 
-The `Test` workflow (`.github/workflows/test.yml`) runs every test on Linux, for every pull request to `root` and for every push to `root`. It also runs the tests that need a window and a GPU (`-DBLITZ_TEST_GPU=ON`): the runners have no GPU, so Mesa's llvmpipe renders Vulkan on the CPU inside a virtual X server (`xvfb-run`). To run the same thing on your own Linux machine:
+The `Test` workflow (`.github/workflows/test.yml`) runs the tests on Linux (all of them, or only the ones a change can affect, see below), for every pull request to `root` and for every push to `root`. It also runs the tests that need a window and a GPU (`-DBLITZ_TEST_GPU=ON`): the runners have no GPU, so Mesa's llvmpipe renders Vulkan on the CPU inside a virtual X server (`xvfb-run`). To run the same thing on your own Linux machine:
 
 ```sh
 sudo apt-get install -y mesa-vulkan-drivers xvfb xdotool x11-utils
@@ -101,6 +101,22 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON
 cmake --build build
 cd build/code_compiler && xvfb-run -a ctest -j8 --output-on-failure
 ```
+
+#### Which tests run
+
+A pull request does not run the tests that its changes can not affect. The `changes` job of the workflow compares the pull request with `root`, `.github/scripts/test-select.py` maps every changed file to the parts it can affect (the rules are in `tests/test_selection.json`), and `Test (Linux)` runs only the tests of those parts, plus the few that are not in any part (`lex-test`, `suite-coverage`, `ci-test-select`). The tests that were left out show as skipped (⏭️) in the test comment, with the reason. A skipped test counts as passed, so the required check stays green.
+
+| What changed | What runs |
+| --- | --- |
+| Documentation, the wiki sources, `extra/`, the benchmarks, other workflows | Nothing. The check succeeds without building. |
+| One part of the runtime, for example `sound.c` (audio), `network.c` (network), `movie.cpp` (movies), `gui_*.cpp` (BlitzPlus GUI), `scene*.cpp` (Blitz3D), `files.c` (files), `graphics_*.cpp` (everything that draws) | The tests of that part, in Release and Debug. |
+| A test program (`tests/suite/x.bb`) | The compile and run tests of that program only. |
+| A test of one tool or the command line (`tests/cli`, `tests/format`, `tests/tidy`, `code_format`, `code_tidy`, `code_tools`) | The tests of that tool. |
+| The compiler, the core of the runtime, the CMake files, `third_party`, the workflow, the test selection itself, or any file that has no rule | Everything. |
+
+Everything also runs for every push to `root`, for a manual run, and for a pull request with the label `run-all-tests` (add the label, then re-run the workflow; the label is read when the run starts). The push to `root` is the safety net: if a rule skips something it should not have, the run on `root` finds it.
+
+To change the rules, edit `tests/test_selection.json`: `areas` says which tests (by name) belong to a part, `rules` says which parts a changed file affects (the first rule that matches wins; `"all"` runs everything, `"none"` nothing, `[]` only the tests that are in no part). When in doubt, map a file to more parts, not fewer. `python3 tests/ci/test_select.py` tests the rules (it also runs as the ctest test `ci-test-select`), and it fails if a program in `tests/suite` is in no part. To see what a change would run, put the changed files in a file and run `python3 .github/scripts/test-select.py changes --changed files.txt`.
 
 #### Requiring the tests before a pull request can be merged
 
@@ -115,7 +131,7 @@ The check is named **Test (Linux)**. A workflow on its own never blocks a merge;
 
 Things to know:
 
-* The check must always report. `test.yml` therefore has no `paths` filter; a required check that is skipped never turns green and blocks the pull request forever.
+* The check must always report. `test.yml` therefore has no `paths` filter (the selection above is done inside the job); a required check that is skipped never turns green and blocks the pull request forever.
 * If you rename the job (`name:` in `test.yml`) you have to change the required check in the ruleset too, or every pull request waits for a check that no longer exists.
 * The name has to be unique among the workflows. A job called `Test (Linux)` in two workflows would be ambiguous.
 * With **Require branches to be up to date** a pull request has to be updated with `root` after every other merge. Without it, a pull request can be merged green while being broken by a newer commit on `root`.

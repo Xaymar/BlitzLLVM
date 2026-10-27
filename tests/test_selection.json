@@ -1,5 +1,5 @@
 {
-	"description": "Which tests a change can affect. Read by .github/scripts/test-select.py, see docs/wiki/Testing.md. Anything not listed here runs everything.",
+	"description": "Which tests a change can affect. Read by .github/scripts/test-select.py, see docs/wiki/Building.md, Which tests run. Anything not listed here runs everything.",
 
 	"areas": {
 		"language": {
