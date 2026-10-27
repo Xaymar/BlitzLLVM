@@ -118,4 +118,11 @@ CheckTrue "SeedRnd 0 is 1", RndSeed() = 1
 SeedRnd 4660
 Check "Blitz Rand", Rand(1, 1000), 356
 
+; Rand takes its bounds in either order, and the sequence of a seed is fixed.
+SeedRnd 1
+Check "Rand 1", Rand(1, 6), 5
+Check "Rand swapped bounds", Rand(6, 1), 3
+Check "Rand 3", Rand(1, 6), 1
+Check "Rand 4", Rand(1, 6), 2
+
 Done "math"

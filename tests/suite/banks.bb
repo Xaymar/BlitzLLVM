@@ -123,4 +123,16 @@ If FileType("C:/Windows/System32/kernel32.dll") = 1
 	CheckTrue "CallDLL with banks", CallDLL("kernel32", "GetCurrentProcessId", source, target) > 0
 EndIf
 
+; The first and last valid offsets, which the inline access has to accept.
+edge = CreateBank(8)
+PokeInt edge, 4, $0A0B0C0D
+Check "PokeInt at the end", PeekInt(edge, 4), $0A0B0C0D
+PokeByte edge, 7, 77
+Check "PokeByte at the last byte", PeekByte(edge, 7), 77
+PokeShort edge, 6, $0102
+Check "PokeShort at the end", PeekShort(edge, 6), $0102
+PokeFloat edge, 0, 2.5
+Check "PokeFloat at the start", PeekFloat(edge, 0), 2.5
+FreeBank edge
+
 Done "banks"

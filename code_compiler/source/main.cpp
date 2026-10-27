@@ -87,6 +87,7 @@ namespace {
 		std::vector<std::string> flags; // Passed to clang as-is.
 		bool                     emit_ir    = false;
 		bool                     keep_temps = false;
+		bool                     no_inline  = false; // --no-runtime-inline
 		bool                     verbose    = false;
 		bool                     tokens     = false;
 		std::filesystem::path    userlibs_dir;
@@ -143,6 +144,8 @@ namespace {
 				  << "                        or -fuse-ld=lld. Can be given multiple times.\n"
 				  << "  --llvm-arg <arg>      Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times.\n"
 				  << "  --cc <path>           Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'.\n"
+				  << "  --no-runtime-inline   Don't compile the hot parts of the runtime (runtime/inline) together with the program. Without it they are\n"
+				  << "                        optimized with the program (-flto=thin), which falls back to the plain build when the linker can't do it.\n"
 				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler, then '../lib/blitzllvm/runtime'.\n"
 				  << "  --userlibs-dir <dir>  Where the userlibs (*.decls) to list with -k and +k are. The libraries are loaded when the program runs, from there, then from where the program is, then from where the source is, then through the system. Defaults to $BLITZLLVM_USERLIBS, then 'userlibs' next to 'bin', next to the compiler, then '../share/blitzllvm/userlibs'.\n"
 				  << "  --keep-temps          Don't delete the intermediate files.\n"
@@ -281,6 +284,8 @@ namespace {
 				opt.flags.push_back(value());
 			} else if (arg == "--cc") {
 				opt.cc = value();
+			} else if (arg == "--no-runtime-inline") {
+				opt.no_inline = true;
 			} else if (arg == "--runtime-dir") {
 				opt.runtime_dir = value();
 			} else if (arg == "--dump-tokens") {
@@ -519,6 +524,7 @@ int main(int argc, char** argv)
 			command.push_back(flag);
 		}
 		command.push_back(ir_file.generic_string());
+		size_t ir_at = command.size();
 		// The libraries depend on each other in no particular order, which the GNU linker only resolves within a group.
 #ifndef __APPLE__
 		bool grouped = !windows_target;
@@ -573,7 +579,44 @@ int main(int argc, char** argv)
 #endif
 		}
 
-		int result = run(command, opt.verbose);
+		// The hot parts of the runtime (strings, banks, objects, Rnd) come as source next to the libraries. With the program they go through
+		// the optimizer as one: clang compiles them with the program's clang, so there is no bitcode version to match, and thin LTO lets
+		// the program inline them. The libraries still define the same symbols, which the linker then doesn't take from them. Not with
+		// -O0, which is for debugging, and if the linker can't do LTO the program is built the plain way.
+		std::vector<std::string> inline_sources;
+		if (!opt.no_inline && (opt.optimization != "-O0") && !opt.debug && std::filesystem::is_directory(runtime_dir / "inline")) {
+			for (auto const& entry : std::filesystem::directory_iterator(runtime_dir / "inline")) {
+				if (entry.path().extension() == ".c") {
+					inline_sources.push_back(entry.path().generic_string());
+				}
+			}
+			std::sort(inline_sources.begin(), inline_sources.end());
+		}
+		int result = 1;
+		if (!inline_sources.empty()) {
+			auto with = command;
+			with.insert(with.begin() + long(ir_at), inline_sources.begin(), inline_sources.end());
+			// clang only does LTO with lld on most platforms (Windows reports "LTO requires -fuse-ld=lld"), and lld ships with clang.
+			// The linker of Apple does LTO by itself.
+			bool apple_target = opt.target.empty() ?
+#ifdef __APPLE__
+									true
+#else
+									false
+#endif
+									: (opt.target.find("apple") != std::string::npos);
+			if (!apple_target) {
+				with.insert(with.begin() + 2, "-fuse-ld=lld");
+			}
+			with.insert(with.begin() + 2, { "-flto=thin", "-D__STDC_WANT_LIB_EXT1__=1", "-I" + (runtime_dir / "inline").generic_string(), "-ffunction-sections", "-fdata-sections" });
+			result = run(with, opt.verbose);
+			if ((result != 0) && !opt.quiet) {
+				std::cerr << "warning: Optimizing the runtime together with the program failed, building without it." << std::endl;
+			}
+		}
+		if (result != 0) {
+			result = run(command, opt.verbose);
+		}
 		if (result != 0) {
 			if (!opt.very_quiet) {
 				std::cerr << "Building the executable failed (" << cc << " returned " << result << ")." << std::endl;
