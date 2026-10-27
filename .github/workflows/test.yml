@@ -1,0 +1,93 @@
+name: Test
+
+# Runs the whole test suite on Linux, including the tests that need a window and a GPU (the ones ending in _pixels, the
+# GUI and the close prompt tests). There is no GPU on the runners, so Mesa's llvmpipe renders Vulkan on the CPU, inside a
+# virtual X server (xvfb).
+#
+# The check that shows up on a pull request is named after the job: "Test (Linux)". Make that one required in the branch
+# protection rule or ruleset of root to block merging while the tests fail (see Building in the wiki). This workflow has
+# no 'paths' filter on purpose: a required check that is skipped for a pull request stays "pending" and blocks it forever.
+
+on:
+  pull_request:
+    branches: [root]
+  push:
+    branches: [root]
+  workflow_dispatch:
+
+concurrency:
+  group: test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Test (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      # SDL wants a runtime directory, and complains on stderr without one, which the close prompt test would read as output.
+      XDG_RUNTIME_DIR: /tmp/xdg
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the submodules
+        # The same ones the build needs, and shallow. extra/ holds reference sources only.
+        run: git submodule update --init --depth 1 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer
+      - name: Hash the dependency submodules
+        id: dependencies
+        run: echo "hash=$(git ls-tree HEAD third_party/ | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: latest
+      - name: Install dependencies
+        # The first line is what the build needs (as in pull-request.yml), the second is what the GPU tests need: a Vulkan
+        # driver that runs on the CPU, a virtual X server, and xdotool and xwininfo to move the focus around in it.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev
+          sudo apt-get install -y mesa-vulkan-drivers xvfb xdotool x11-utils
+          mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+      # The same cache as the Linux build in pull-request.yml and nightly.yml, with the same key, so the dependencies are
+      # restored from what the nightly builds of root saved and are not compiled again.
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/ExternalContentFiles
+          key: submodule-dependencies-linux-x64-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
+          restore-keys: |
+            submodule-dependencies-linux-x64-
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON -DBLITZLLVM_REQUIRE_NASM=ON
+      - name: Build
+        run: cmake --build build
+      - name: Create tests/checker.png
+        # Some of the suite loads this 64 by 64 picture. It is not in the repository (tests/.gitignore ignores pictures).
+        run: |
+          python3 - <<'EOF'
+          import struct, zlib
+          size = 64
+          rows = b"".join(b"\x00" + b"".join((b"\xff\xff\xff" if ((x // 8) + (y // 8)) % 2 else b"\x20\x20\x20") for x in range(size)) for y in range(size))
+          def chunk(kind, data):
+              body = kind + data
+              return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body))
+          png = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b"")
+          open("tests/checker.png", "wb").write(png)
+          EOF
+      - name: Run all tests
+        working-directory: build/code_compiler
+        # -j: the GPU tests are small. The ones that move the focus of a window are RUN_SERIAL. A test that skips itself (77)
+        # is reported as skipped and does not fail the run.
+        run: xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600
+      - name: Keep what the tests wrote
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output
+          path: |
+            build/code_compiler/Testing/Temporary/LastTest.log
+            build/code_compiler/gui
+            build/code_compiler/cli
+            build/code_compiler/audio
+          if-no-files-found: ignore

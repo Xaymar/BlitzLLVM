@@ -19,11 +19,15 @@ SKIP = 77
 
 
 def frames(path):
-    try:
-        with open(path) as f:
-            return int(f.read().strip() or 0)
-    except (OSError, ValueError):
-        return 0
+    # The program replaces the file with CopyFile, which is not atomic: a read in the middle of it sees an empty file.
+    # That is retried, or a frame count of 0 would be mistaken for a program that stands still.
+    for _ in range(20):
+        try:
+            with open(path) as f:
+                return int(f.read().strip())
+        except (OSError, ValueError):
+            time.sleep(0.01)
+    return 0
 
 
 def wait_for(condition, seconds):

@@ -90,3 +90,33 @@ ctest --test-dir build -C Release
 ```
 
 This compiles and runs every program in `tests/` and the function test suite in `tests/suite` without a window (`BLITZ_HEADLESS=1`). Tests that look at pixels need a window and a GPU and are skipped unless you configure with `-DBLITZ_TEST_GPU=ON`. The tests need `clang` (see [[Installation]]).
+
+### Continuous integration
+
+The `Test` workflow (`.github/workflows/test.yml`) runs every test on Linux, for every pull request to `root` and for every push to `root`. It also runs the tests that need a window and a GPU (`-DBLITZ_TEST_GPU=ON`): the runners have no GPU, so Mesa's llvmpipe renders Vulkan on the CPU inside a virtual X server (`xvfb-run`). To run the same thing on your own Linux machine:
+
+```sh
+sudo apt-get install -y mesa-vulkan-drivers xvfb xdotool x11-utils
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON
+cmake --build build
+cd build/code_compiler && xvfb-run -a ctest -j8 --output-on-failure
+```
+
+#### Requiring the tests before a pull request can be merged
+
+The check is named **Test (Linux)**. A workflow on its own never blocks a merge; GitHub only blocks it for checks that the repository marks as *required*. This is a repository setting, so the maintainer has to make it (it can not be part of a pull request).
+
+1. Merge the pull request that adds `test.yml`, and let it run once on `root` (or on any pull request). GitHub only offers a check in the list below after it has run in the repository during the last 7 days.
+2. Open the repository on GitHub, then **Settings → Rules → Rulesets → New ruleset → New branch ruleset**. (The older way is **Settings → Branches → Add branch protection rule** with the branch name pattern `root`; the steps below are the same.)
+3. Give it a name such as `root`, set **Enforcement status** to **Active**, and under **Target branches** choose **Add target → Include by pattern** and enter `root`.
+4. Under **Branch rules** tick **Require a pull request before merging**, and **Require status checks to pass**.
+5. In **Require status checks to pass**, tick **Require branches to be up to date before merging** if a pull request has to be tested on top of the current `root` (recommended), then **Add checks**, search for `Test (Linux)` and select it. Do the same for the three `build (...)` checks of the Pull Request workflow if the builds should be required as well. Leave the source on **Any source**, or pick **GitHub Actions**.
+6. **Create**. The merge button of a pull request is now disabled until `Test (Linux)` is green, and pushes straight to `root` are refused too (unless the ruleset lists a bypass for administrators).
+
+Things to know:
+
+* The check must always report. `test.yml` therefore has no `paths` filter; a required check that is skipped never turns green and blocks the pull request forever.
+* If you rename the job (`name:` in `test.yml`) you have to change the required check in the ruleset too, or every pull request waits for a check that no longer exists.
+* The name has to be unique among the workflows. A job called `Test (Linux)` in two workflows would be ambiguous.
+* With **Require branches to be up to date** a pull request has to be updated with `root` after every other merge. Without it, a pull request can be merged green while being broken by a newer commit on `root`.
+* Pushes to `root` run the tests too, so a break that slipped in (for example by an administrator bypass) shows up on the commit.
