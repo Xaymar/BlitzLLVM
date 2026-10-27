@@ -48,7 +48,8 @@ jobs:
   build:
     needs: version
     strategy:
-      fail-fast: false
+      # One platform failing fails the whole run: the other platforms are cancelled instead of building to the end.
+      fail-fast: true
       matrix:
         include:
           - { name: windows-x64, os: windows-latest, platform: x64, msystem: UCRT64, msys: 'make nasm diffutils mingw-w64-ucrt-x86_64-gcc' }
