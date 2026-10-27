@@ -14,6 +14,7 @@ Differences that are not caused by one command.
 
 * [3D Studio models](3D-Studio-Models): Extension: `LoadMesh` and `LoadAnimMesh` also read `.3ds` files.
 * [blitz-format](blitz-format): Extension: `blitz-format` formats `.bb` source code (indentation, keyword case, spacing, blank lines, line endings) from a `.blitz-format` file; the original has no formatter.
+* [Blitz-Tidy](Blitz-Tidy): Extension: `blitz-tidy` fixes the warnings of `blitzcc` in Blitz source files; the original has no such tool.
 * [Color depth](Color-Depth): The depth argument of `Graphics` is ignored: the picture is always 8 bits per channel, and `Dither` and `WBuffer` do nothing.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
