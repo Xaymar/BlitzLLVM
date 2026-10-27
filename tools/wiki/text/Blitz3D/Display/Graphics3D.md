@@ -28,5 +28,5 @@ Wend
 @param height  Height of the picture in pixels.
 @param depth  Color depth: 0 for the best, or 16, 24 or 32. Defaults to 0.
 @param mode  Window or full screen as in the table. Defaults to 0.
-@gap The depth is not used: pictures always have 32 bits per pixel, however much you ask for.
+@gap The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
 @gap A window without a border (mode 4) has the size you ask for and cannot be resized by the user.

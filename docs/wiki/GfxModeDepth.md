@@ -18,11 +18,12 @@ The color depth in bits of a display mode.
 |---|---|---|---|
 | `mode` | Int | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
 
-**Returns:** The depth in bits, for example 32.
+**Returns:** The depth in bits, always 32.
 
 **Differences and known gaps:**
 
 * A mode number that does not exist stops the program with an error message.
+* Palette and 16 bit modes are not supported, so every mode is listed with 32 bits however the display could show it.
 
 ## Related commands
 

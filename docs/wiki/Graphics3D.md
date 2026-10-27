@@ -45,7 +45,7 @@ Wend
 
 **Differences and known gaps:**
 
-* The depth is not used: pictures always have 32 bits per pixel, however much you ask for.
+* The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
 * A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
 
 ## Related commands

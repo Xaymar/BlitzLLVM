@@ -20,7 +20,7 @@ Switches between a Z buffer and a W buffer for depth sorting. A W buffer spreads
 
 **Differences and known gaps:**
 
-* Accepted and ignored. The depth buffer is always the one of the graphics driver.
+* Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
 
 ## Related commands
 

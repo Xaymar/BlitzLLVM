@@ -51,8 +51,8 @@ namespace {
 			int                count   = 0;
 			SDL_DisplayMode**  display = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &count);
 			for (int i = 0; display && (i < count); i++) {
-				const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(display[i]->format);
-				add_mode(display[i]->w, display[i]->h, details ? details->bits_per_pixel : 32);
+				// Palette and 16 bit modes are not supported, so every size is listed once with 32 bits.
+				add_mode(display[i]->w, display[i]->h, 32);
 			}
 			SDL_free(display);
 		}
@@ -232,24 +232,27 @@ int32_t bb_gfx_mode_3d(int32_t index)
 	return 1;
 }
 
-// With a width, height or depth of 0 any will do, like in BlitzPlus.
+// With a width or height of 0 any will do, like in BlitzPlus. The depth is not looked at: Graphics gives 32 bits
+// whatever it is asked for.
 int32_t bb_gfx_mode_exists(int32_t width, int32_t height, int32_t depth)
 {
+	(void)depth;
 	list_modes();
 	for (uint32_t i = 0; i < modes.size; i++) {
-		if ((!width || (width == modes[i].width)) && (!height || (height == modes[i].height)) && (!depth || (depth == modes[i].depth))) {
+		if ((!width || (width == modes[i].width)) && (!height || (height == modes[i].height))) {
 			return 1;
 		}
 	}
 	return 0;
 }
 
-// Unlike GfxModeExists the three have to be a mode of the list, as they are in the original.
+// Unlike GfxModeExists the size has to be a mode of the list, as it is in the original. The depth is not looked at.
 int32_t bb_gfx_mode_3d_exists(int32_t width, int32_t height, int32_t depth)
 {
+	(void)depth;
 	list_modes();
 	for (uint32_t i = 0; i < modes.size; i++) {
-		if ((width == modes[i].width) && (height == modes[i].height) && (depth == modes[i].depth)) {
+		if ((width == modes[i].width) && (height == modes[i].height)) {
 			return 1;
 		}
 	}
@@ -328,7 +331,8 @@ int32_t bb_graphics_format(void)
 	return 4;
 }
 
-// Settings for the graphics hardware of the time. A GPU does all of them as it sees fit.
+// Settings for the graphics hardware of the time. A GPU does all of them as it sees fit, and the screen always has 8
+// bits per color channel, so there is nothing to dither.
 void bb_dither(int32_t enable)
 {
 	(void)enable;
@@ -339,6 +343,7 @@ void bb_anti_alias(int32_t enable)
 	(void)enable;
 }
 
+// The depth buffer is always the same float one.
 void bb_w_buffer(int32_t enable)
 {
 	(void)enable;

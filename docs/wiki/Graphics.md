@@ -35,7 +35,7 @@ WaitKey
 
 **Differences and known gaps:**
 
-* The color depth is accepted but not used: the picture always has 32 bits per pixel.
+* The color depth is accepted but ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported. [GraphicsDepth](GraphicsDepth) says 32 whatever you ask for.
 * In a resizable window (mode 3) the picture is scaled to the size of the window, and the mouse position is converted to picture pixels.
 * The modes 6 and 7 of Blitz3D, which pause the program while the window is in the background, act like 2 and 3. The program keeps running.
 * In a window without a border (mode 4) the color depth is not used either, and the window has the size you ask for and cannot be resized by the user.

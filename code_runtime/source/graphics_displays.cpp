@@ -60,10 +60,10 @@ namespace {
 
 	display_mode convert(const SDL_DisplayMode& mode)
 	{
-		const SDL_PixelFormatDetails* details = SDL_GetPixelFormatDetails(mode.format);
 		// A display that does not tell its rate, like the dummy driver, is taken to show 60 pictures per second.
 		int rate = int(mode.refresh_rate + 0.5f);
-		return { mode.w, mode.h, details ? int(details->bits_per_pixel) : 32, rate > 0 ? rate : 60 };
+		// Palette and 16 bit modes are not supported, so whatever the display does, it is said to have 32 bits.
+		return { mode.w, mode.h, 32, rate > 0 ? rate : 60 };
 	}
 
 	// Lists are sorted from small to large, and every mode is in one of them once, even when SDL has the same mode
