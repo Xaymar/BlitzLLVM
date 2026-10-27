@@ -504,27 +504,31 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	constexpr VkFormat depth_format = VK_FORMAT_D32_SFLOAT;
 
-	constexpr uint32_t max_lights   = 8;
+	// The lights a camera knows of, which each draw picks eight of (the last place is a light that is off, for what is
+	// left over). Matches MAX_LIGHTS in tools/generate_shaders.py.
+	constexpr uint32_t max_lights   = 128;
+	constexpr uint32_t draw_lights  = 8;     // What one draw is lit by.
+	constexpr uint32_t no_light     = max_lights - 1;
 
 
 	constexpr uint32_t max_scenes   = 64;  // Cameras that can be waiting to be drawn.
 
-	constexpr uint32_t scene_stride = 768; // Distance between the scene data of each, a multiple of what the GPU wants.
+	constexpr uint32_t scene_stride = 6400; // Distance between the scene data of each, a multiple of what the GPU wants.
 
 
 	// What the vertex shader reads as the scene: matches the uniform block in tools/generate_shaders.py.
 	struct scene_data {
 		float viewprojection[16];
 		float ambient[4];
-		float light_position[max_lights][4];
-		float light_color[max_lights][4];
 		float fog[4];       // Near, far and whether it is on.
 		float fog_color[4];
 		float eye[4];                       // Where the camera is, for the highlights of lights.
-		float light_direction[max_lights][4]; // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
 		float camera[3][4];                 // The right, up and forward axes of the camera, for textures that are made from the view.
+		float light_position[max_lights][4];
+		float light_color[max_lights][4];
+		float light_direction[max_lights][4]; // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
 	};
-	static_assert(sizeof(scene_data) <= 768, "The scene data has to fit in the stride that is between the cameras.");
+	static_assert(sizeof(scene_data) <= scene_stride, "The scene data has to fit in the stride that is between the cameras.");
 
 
 	// Per-entity values, pushed to the vertex shader.
@@ -536,6 +540,7 @@ namespace bb::gfx {
 		float mask[4]; // For the fragment shader: where pixels are cut off, whether there is fog, flat shading and whether black is not there.
 		float extra[4]; // x: whether the texture uses the second set of coordinates, y and z: sine and cosine minus one of the rotation.
 		float texgen[4]; // x: 1 for a sphere map and 2 for a cube map, y: what the cube map shows, z: whether in the space of the camera, w: half a texel of a face.
+		float lights[4]; // Which lights of the scene light this, two to a float: the place of the first plus 256 times the place of the second.
 	};
 
 

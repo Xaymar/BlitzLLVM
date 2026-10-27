@@ -333,25 +333,30 @@ GLSL_FLOOR = 8
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
 
 
+# The lights of a camera that entities pick eight of (max_lights in graphics_internal.hpp), after the rest of the block.
+MAX_LIGHTS = 128
+SCENE_LIGHTS = 176
+
+
 def declare_scene(b):
     """The block that holds what is the same for everything a camera draws, see scene_data in graphics.cpp."""
     v4 = b.vec(4)
-    lights = b.array(v4, 8, "lights")
+    lights = b.array(v4, MAX_LIGHTS, "lights")
     scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4, v4, lights, v4, v4, v4)
     b.m.annotations += [
         Module.inst("MemberDecorate", scene, 0, DECORATION["Offset"], 0),
         Module.inst("MemberDecorate", scene, 0, DECORATION["ColMajor"]),
         Module.inst("MemberDecorate", scene, 0, DECORATION["MatrixStride"], 16),
         Module.inst("MemberDecorate", scene, 1, DECORATION["Offset"], 64),
-        Module.inst("MemberDecorate", scene, 2, DECORATION["Offset"], 80),
-        Module.inst("MemberDecorate", scene, 3, DECORATION["Offset"], 208),
-        Module.inst("MemberDecorate", scene, 4, DECORATION["Offset"], 336),
-        Module.inst("MemberDecorate", scene, 5, DECORATION["Offset"], 352),
-        Module.inst("MemberDecorate", scene, 6, DECORATION["Offset"], 368),
-        Module.inst("MemberDecorate", scene, 7, DECORATION["Offset"], 384),
-        Module.inst("MemberDecorate", scene, 8, DECORATION["Offset"], 512),  # The axes of the camera, to find camera space.
-        Module.inst("MemberDecorate", scene, 9, DECORATION["Offset"], 528),
-        Module.inst("MemberDecorate", scene, 10, DECORATION["Offset"], 544),
+        Module.inst("MemberDecorate", scene, 2, DECORATION["Offset"], SCENE_LIGHTS),  # The table of lights is last, and entities pick from it.
+        Module.inst("MemberDecorate", scene, 3, DECORATION["Offset"], SCENE_LIGHTS + MAX_LIGHTS * 16),
+        Module.inst("MemberDecorate", scene, 4, DECORATION["Offset"], 80),
+        Module.inst("MemberDecorate", scene, 5, DECORATION["Offset"], 96),
+        Module.inst("MemberDecorate", scene, 6, DECORATION["Offset"], 112),
+        Module.inst("MemberDecorate", scene, 7, DECORATION["Offset"], SCENE_LIGHTS + MAX_LIGHTS * 32),
+        Module.inst("MemberDecorate", scene, 8, DECORATION["Offset"], 128),  # The axes of the camera, to find camera space.
+        Module.inst("MemberDecorate", scene, 9, DECORATION["Offset"], 144),
+        Module.inst("MemberDecorate", scene, 10, DECORATION["Offset"], 160),
         Module.inst("Decorate", lights, DECORATION["ArrayStride"], 16),
         Module.inst("Decorate", scene, DECORATION["Block"]),
     ]
@@ -366,11 +371,11 @@ def declare_entities(b):
     Returns the variable of the buffer.
     """
     v4 = b.vec(4)
-    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4, v4)
-    for index in range(9):
+    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4, v4, v4)
+    for index in range(10):
         b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
     entities = b.new_type("entities", "TypeRuntimeArray", entity)
-    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], 144))
+    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], 160))
     block = b.struct("entity_block", entities)
     b.m.annotations += [
         Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
@@ -386,7 +391,8 @@ def entity_member(b, entities, instance, index):
 
 def vertex_shader_3d():
     """
-    Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights.
+    Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights, which are
+    the eight that are nearest to the draw out of the table of the camera (entity.lights picks them).
 
     #version 450
     layout(location = 0) in vec3 inPosition;
@@ -508,10 +514,18 @@ def vertex_shader_3d():
     shininess = b.extract(params, 3)
     power = b.ext(f, GLSL_FMAX, b.fmul(f, shininess, b.const_float(128.0)), b.const_float(1e-3))
     specular = zeros
+    # The eight lights of this draw: entity.lights holds their places in the table, two to a float (even + 256 * odd).
+    packed = push_member(9)
+    chosen = []
+    for pair in range(4):
+        both = b.extract(packed, pair)
+        high = b.ext(f, GLSL_FLOOR, b.fmul(f, both, b.const_float(1.0 / 256.0)))
+        chosen.append(b.emit("ConvertFToS", b.int(), b.fsub(f, both, b.fmul(f, high, b.const_float(256.0)))))
+        chosen.append(b.emit("ConvertFToS", b.int(), high))
     for light in range(8):
-        lp = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(2), b.const_int(light)))
-        lc = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(3), b.const_int(light)))
-        ld = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(7), b.const_int(light)))
+        lp = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(2), chosen[light]))
+        lc = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(3), chosen[light]))
+        ld = b.load(v4, b.access("Uniform", v4, ubo, b.const_int(7), chosen[light]))
         lpos, w = b.swizzle(lp, 3), b.extract(lp, 3)
         delta = b.fsub(v3, lpos, world)
         dist = b.ext(f, GLSL_LENGTH, delta)

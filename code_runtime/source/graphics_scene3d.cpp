@@ -546,7 +546,7 @@ namespace bb::gfx {
 	static void collect_light(int handle, bb::entity& light, void* user)
 	{
 		light_collector* c = static_cast<light_collector*>(user);
-		if (c->count >= max_lights) {
+		if (c->count >= no_light) {
 			return;
 		}
 		float m[16];
@@ -816,6 +816,63 @@ namespace bb::gfx {
 
 	static float current_camera[16]; // Where the camera is, for sprites that face it.
 	static float current_origin[3];  // The same place: everything is sent to the GPU relative to it, see render_pass.
+
+	static scene_data* current_lights;      // The lights of the camera that is being collected for, relative to it.
+	static uint32_t    current_light_count; // How many of them there are.
+
+	// Writes the places of lights in the table of the scene into what a draw sends: two to a float.
+	static void pack_lights(float* out, const uint32_t* places)
+	{
+		for (uint32_t pair = 0; pair < draw_lights / 2; pair++) {
+			out[pair] = float(places[pair * 2] + 256 * places[pair * 2 + 1]);
+		}
+	}
+
+	// Picks the eight lights that light a sphere (relative to the camera) the most. How much a light does is its
+	// brightness times its attenuation (range over distance, like the shader) at the closest point of the sphere, which is
+	// the most it can do there, so a light that covers the sphere with almost nothing is left out as well. Nothing left out could have changed a pixel unless more
+	// than eight lights reach the sphere, so scenes with eight lights or fewer are lit as they always were.
+	static void choose_lights(float* out, bool have_sphere, const float* center, float radius)
+	{
+		uint32_t places[draw_lights];
+		for (uint32_t i = 0; i < draw_lights; i++) {
+			places[i] = (i < current_light_count) ? i : no_light;
+		}
+		if (have_sphere && current_light_count > draw_lights) {
+			float    effects[draw_lights];
+			uint32_t found = 0;
+			for (uint32_t i = 0; i < current_light_count; i++) {
+				const float* light  = current_lights->light_position[i];
+				const float* color  = current_lights->light_color[i];
+				float        effect = fabsf(color[0]) * 0.3f + fabsf(color[1]) * 0.59f + fabsf(color[2]) * 0.11f; // The size of the color: negative lights darken, and count as much as positive ones. A direction reaches everything.
+				if (light[3] > 0) {
+					float dx = light[0] - center[0], dy = light[1] - center[1], dz = light[2] - center[2];
+					float closest = fmaxf(sqrtf(dx * dx + dy * dy + dz * dz) - radius, 0.0f);
+					effect *= light[3] / fmaxf(closest, 0.01f);
+				}
+				if (effect < 1.0f / 512.0f) {
+					continue; // Too little to see.
+				}
+				if (found == draw_lights && effect <= effects[found - 1]) {
+					continue;
+				}
+				uint32_t at = found < draw_lights ? found++ : found - 1;
+				while (at > 0 && effects[at - 1] < effect) {
+					effects[at] = effects[at - 1];
+					places[at]  = places[at - 1];
+					at--;
+				}
+				effects[at] = effect;
+				places[at]  = i;
+			}
+			for (uint32_t i = found; i < draw_lights; i++) {
+				places[i] = no_light;
+			}
+			// In the order of the table, so that the same lights are always added in the same order.
+			std::sort(places, places + found);
+		}
+		pack_lights(out, places);
+	}
 	static float current_planes[24]; // The planes of what the camera sees, see mesh_collector.
 	static bool  have_planes;
 	static float current_pixels[2];  // Pixels per unit at a depth of 1 (perspective) or at any depth (orthographic), and whether it is orthographic.
@@ -1042,6 +1099,25 @@ namespace bb::gfx {
 			push.model[row][1] = m[4 + row];
 			push.model[row][2] = m[8 + row];
 			push.model[row][3] = float(double(m[12 + row]) - double(current_origin[row]));
+		}
+
+		// The eight lights that reach this entity: from the sphere around its box (planes and terrain have none).
+		{
+			float lo[3], hi[3], center[3] = {}, radius = 0;
+			bool  have_sphere = !fullbright && !e->plane_divs && !e->terrain && bb::mesh_bounds(*e, lo, hi) && (lo[0] <= hi[0]);
+			if (have_sphere && current_light_count > draw_lights) {
+				for (int row = 0; row < 3; row++) {
+					center[row] = push.model[row][3];
+					for (int axis = 0; axis < 3; axis++) {
+						center[row] += m[axis * 4 + row] * 0.5f * (lo[axis] + hi[axis]);
+					}
+				}
+				for (int axis = 0; axis < 3; axis++) {
+					float column = sqrtf(m[axis * 4] * m[axis * 4] + m[axis * 4 + 1] * m[axis * 4 + 1] + m[axis * 4 + 2] * m[axis * 4 + 2]);
+					radius += column * 0.5f * (hi[axis] - lo[axis]);
+				}
+			}
+			choose_lights(push.lights, have_sphere, center, radius);
 		}
 
 		bb::surface** surfaces = e->surfaces.data;
@@ -1315,7 +1391,7 @@ namespace bb::gfx {
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
 		data.fog[3] = 0;
 		memset(data.eye, 0, sizeof(float) * 3);
-		for (int i = 0; i < max_lights; i++) {
+		for (uint32_t i = 0; i < current_light_count; i++) {
 			float* light = data.light_position[i];
 			if (light[3] > 0) { // Not a direction.
 				for (int k = 0; k < 3; k++) {
@@ -1329,6 +1405,7 @@ namespace bb::gfx {
 		scene.slot         = scenes.size;
 		scene.reflected    = reflected;
 		memcpy(static_cast<char*>(g.scene_mapped) + size_t(scene.slot) * scene_stride, &data, sizeof(data));
+		current_lights = &data; // What the draws of this pass choose their lights from.
 
 		draw_list list;
 		// The planes of the view with the normals of length 1, from the rows of the matrix: left, right, bottom, top,
@@ -1666,6 +1743,7 @@ void bb_render_world(float tween)
 	{
 		bb::profile_scope scan(bb::PROFILE_SCAN);
 		bb::for_each_visible(bb::LIGHT, collect_light, &lights);
+		current_light_count = lights.count;
 		bb::for_each_visible(bb::CAMERA, collect_camera, &cameras);
 		bb::for_each_visible(bb::PIVOT, collect_mirror, &mirrors);
 	}
