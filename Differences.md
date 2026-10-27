@@ -94,7 +94,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
 * [CreateTerrain](CreateTerrain#differences): The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise.
 * [CreateTextArea](CreateTextArea#differences): Without wrapping, a bar along the bottom appears once a line does not fit.
-* [CreateTexture](CreateTexture#differences): Only flags 2, 4, 8, 16, 32, 1024 and 65536 change how the texture looks.
+* [CreateTexture](CreateTexture#differences): Flag 4096 (render target) is new.
 * [CreateToolBar](CreateToolBar#differences): The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
 * [CreateWindow](CreateWindow#differences): All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries.
 * [DebugObjects](DebugObjects#differences): The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
@@ -180,7 +180,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [LoadSound](LoadSound#differences): MIDI , module and Windows Media files are not supported.
 * [LoadSprite](LoadSprite#differences): A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending.
 * [LoadTerrain](LoadTerrain#differences): The official help says that the red channel is used.
-* [LoadTexture](LoadTexture#differences): TIFF and JPEG 2000 files do not load, which the original read.
+* [LoadTexture](LoadTexture#differences): Flag 2048 (sRGB conversion) and flag 4096 (render target) are new, see above.
 * [Locate](Locate#differences): The position is limited to the window.
 * [LockBuffer](LockBuffer#differences): Up to 8 buffers can be locked at the same time.
 * [LockedFormat](LockedFormat#differences): Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte).
@@ -236,7 +236,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [SaveImage](SaveImage#differences): The original only writes BMP files.
 * [ScaleImage](ScaleImage#differences): Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
 * [ScanLine](ScanLine#differences): Always returns 0.
-* [SetBuffer](SetBuffer#differences): A buffer that does not exist stops the program with an error message.
+* [SetBuffer](SetBuffer#differences): A debug build (`-d`) stops with an error when the buffer is the `TextureBuffer` of a texture that was not made with flag 4096 (render target), see CreateTexture.
 * [SetCubeFace](SetCubeFace#differences): The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y.
 * [SetCubeMode](SetCubeMode#differences): The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
 * [SetFont](SetFont#differences): A font that does not exist stops the program with an error message.
@@ -270,6 +270,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [TerrainShading](TerrainShading#differences): The terrain is always lit with normals that follow the height, whatever this is set to.
 * [Text](Text#differences): The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font.
 * [TextureBlend](TextureBlend#differences): Modes 1, 2, 3 and 5 are drawn on layers above the first.
+* [TextureBuffer](TextureBuffer#differences): SetBuffer on a texture buffer needs the texture to have flag 4096, which the original did not have; a debug build (`-d`) stops with an error otherwise.
 * [TextureCoords](TextureCoords#differences): Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
 * [TextureName](TextureName#differences): The original turns the path into lower case.
 * [TFormImage](TFormImage#differences): A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.

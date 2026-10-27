@@ -37,7 +37,7 @@ camera = CreateCamera()
 PositionEntity camera, 0, 0, -4
 light = CreateLight()
 RotateEntity light, 45, 45, 0
-tex = CreateTexture(64, 64)
+tex = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 For y = 0 To 7
 	For x = 0 To 7

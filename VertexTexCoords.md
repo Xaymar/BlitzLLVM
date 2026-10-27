@@ -41,7 +41,7 @@ Graphics3D 320, 240, 0, 2
 SetBuffer BackBuffer()
 camera = CreateCamera()
 PositionEntity camera, 0, 0, -4
-tex = CreateTexture(32, 32)
+tex = CreateTexture(32, 32, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 Color 230, 230, 230
 Rect 0, 0, 32, 32, 1

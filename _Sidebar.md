@@ -45,7 +45,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (250)</summary>
+<li><details><summary>Commands (251)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -276,6 +276,7 @@
 <li><a href="TerrainShading#differences">TerrainShading</a></li>
 <li><a href="Text#differences">Text</a></li>
 <li><a href="TextureBlend#differences">TextureBlend</a></li>
+<li><a href="TextureBuffer#differences">TextureBuffer</a></li>
 <li><a href="TextureCoords#differences">TextureCoords</a></li>
 <li><a href="TextureName#differences">TextureName</a></li>
 <li><a href="TFormImage#differences">TFormImage</a></li>

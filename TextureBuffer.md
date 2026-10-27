@@ -28,7 +28,13 @@ TextureBuffer:Int32 texture:Int32, frame:Int32=0
 
 Returns a buffer handle for the texture so that the normal 2D drawing commands can paint into it: pass it to [SetBuffer](SetBuffer). To get 3D into a texture, render to the back buffer and copy it across with [CopyRect](CopyRect); 3D cannot be rendered straight into a texture buffer. Drawing on an image first and copying it over is usually faster than many small drawing calls.
 
+The buffer of any texture can be used with the pixel commands. To draw on it with `SetBuffer` and the normal 2D commands, the texture has to be made with flag 4096 (render target) in [CreateTexture](CreateTexture) or [LoadTexture](LoadTexture); a program compiled with `-d` stops with an error otherwise.
+
 Remember to set the buffer back to [BackBuffer](BackBuffer) before you render the world or flip.
+
+## Differences
+
+* SetBuffer on a texture buffer needs the texture to have flag 4096, which the original did not have; a debug build (`-d`) stops with an error otherwise.
 
 ## Related Commands
 

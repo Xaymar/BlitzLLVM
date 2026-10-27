@@ -29,6 +29,7 @@ Chooses where drawing commands such as `Rect`, `Text`, [DrawImage](DrawImage) an
 
 ## Differences
 
+* A debug build (`-d`) stops with an error when the buffer is the `TextureBuffer` of a texture that was not made with flag 4096 (render target), see CreateTexture.
 * A buffer that does not exist stops the program with an error message.
 
 ## Examples

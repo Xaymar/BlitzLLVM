@@ -42,7 +42,7 @@ CameraClsColor camera, 70, 100, 160
 light = CreateLight()
 RotateEntity light, 40, 30, 0
 
-tex = CreateTexture(64, 64)
+tex = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 ClsColor 250, 240, 200
 Cls

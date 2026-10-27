@@ -28,7 +28,7 @@ CreateTexture:Int32 width:Int32, height:Int32, flags:Int32=0, frames:Int32=1
 
 ## Description
 
-Makes an empty texture of the given size and returns its handle. Fill it by drawing on its buffer: call [SetBuffer](SetBuffer) with [TextureBuffer](TextureBuffer) and use the normal 2D commands, then switch back to the back buffer and put the texture on something with [EntityTexture](EntityTexture) or a brush.
+Makes an empty texture of the given size and returns its handle. Fill it by drawing on its buffer: make it with flag 4096 (render target), call [SetBuffer](SetBuffer) with [TextureBuffer](TextureBuffer) and use the normal 2D commands, then switch back to the back buffer and put the texture on something with [EntityTexture](EntityTexture) or a brush.
 
 The flags are added together, so `1 + 2` is a color texture that also has an alpha channel:
 
@@ -45,12 +45,15 @@ The flags are added together, so `1 + 2` is a color texture that also has an alp
 | 256 | Keep the texture in video memory. This is always the case, there are no textures that only live on the CPU. |
 | 512 | Use a high color format even in low color modes. This is always the case: a texture is at least 8 bits per channel with alpha (R8G8B8A8), or a compatible block compressed format. |
 | 1024 | Point sampling: the nearest texel is shown, with no smoothing between texels, and with flag 8 the nearest mip map level without blending levels. A sampler set with [SetTextureSampler](SetTextureSampler) overrides the flag. |
+| 2048 | sRGB, only used by [LoadTexture](LoadTexture). It has no effect here. |
+| 4096 | Render target. The texture can be drawn to with `SetBuffer TextureBuffer(texture)`. Without the flag a texture can still be read and written with the pixel commands (`ReadPixel`, `WritePixel`, `ReadPixelFast`, `WritePixelFast`, `LockBuffer`, `CopyRect` and the like) on its [TextureBuffer](TextureBuffer), but a debug build (`-d`) stops with an error on `SetBuffer`. |
 | 65536 | Use the second set of texture coordinates of the mesh, see [TextureCoords](TextureCoords). |
 
 The texture is created at the size you ask for, so [TextureWidth](TextureWidth) and [TextureHeight](TextureHeight) return exactly what you passed. Power-of-two sizes are the safest choice for other Blitz3D implementations.
 
 ## Differences
 
+* Flag 4096 (render target) is new. A program that is compiled with `-d` stops with an error when it sets the buffer of a texture without it; a normal build still lets the program draw to the texture, so programs of the original keep working, but should be given the flag.
 * Only flags 2, 4, 8, 16, 32, 1024 and 65536 change how the texture looks. Video memory (256) and high color (512) are always in effect, so the flags change nothing. A sphere map (64) takes its coordinates from the normal of the surface in the view, and ScaleTexture, PositionTexture and RotateTexture do not change them. A cube map (128) has six faces of the size you give, chosen with SetCubeFace and shown as SetCubeMode says; it does not have mip maps. A texture with both flags is drawn as a plain one. Without flag 8 it has no mip maps.
 * The alpha (2) flag is only applied to pictures that LoadTexture or LoadAnimTexture read from a file. A texture made with CreateTexture and drawn on stays opaque everywhere, also where you drew black, unless it is masked (4): the masked flag does cut out black there.
 
@@ -67,7 +70,7 @@ cube = CreateCube()
 PositionEntity cube, 0, 0, 4.2
 TurnEntity cube, 25, 35, 0
 
-tex = CreateTexture(128, 128)
+tex = CreateTexture(128, 128, 1 + 4096)
 SetBuffer TextureBuffer(tex)
 ClsColor 240, 240, 240
 Cls

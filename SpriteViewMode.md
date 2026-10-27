@@ -53,7 +53,7 @@ RotateEntity camera, 15, 0, 0
 
 ; One sprite for every view mode, labeled with its number.
 For mode = 1 To 4
-	tex = CreateTexture(64, 64)
+	tex = CreateTexture(64, 64, 1 + 4096)
 	SetBuffer TextureBuffer(tex)
 	ClsColor 40 + mode * 40, 200 - mode * 30, 90
 	Cls

@@ -49,7 +49,7 @@ CameraClsColor camera, 70, 100, 160
 light = CreateLight()
 RotateEntity light, 40, 30, 0
 
-base = CreateTexture(64, 64)
+base = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(base)
 ClsColor 230, 200, 120
 Cls
@@ -57,7 +57,7 @@ Color 160, 120, 40
 For i = 0 To 63 Step 16
 	Rect 0, i, 64, 8, 1
 Next
-over = CreateTexture(64, 64)
+over = CreateTexture(64, 64, 1 + 4096)
 SetBuffer TextureBuffer(over)
 ClsColor 60, 60, 60
 Cls
