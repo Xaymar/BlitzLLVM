@@ -436,7 +436,7 @@ namespace bb::gfx {
 		g.vertex_count = 0;
 		// What was recorded reads the vertices until it is done, so the next ones go to the other buffer.
 		std::swap(g.vertex_buffer, g.vertex_buffer_alt);
-		std::swap(g.vertex_memory, g.vertex_memory_alt);
+		std::swap(g.vertex_allocation, g.vertex_allocation_alt);
 		std::swap(g.vertices, g.vertices_alt);
 		forget_recorded();
 	}

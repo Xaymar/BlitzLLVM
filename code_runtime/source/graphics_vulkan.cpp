@@ -95,33 +95,6 @@ namespace bb::gfx {
 		}
 	}
 
-	static uint32_t find_memory(uint32_t bits, VkMemoryPropertyFlags wanted)
-	{
-		for (uint32_t i = 0; i < g.memory.memoryTypeCount; i++) {
-			if ((bits & (1u << i)) && ((g.memory.memoryTypes[i].propertyFlags & wanted) == wanted)) {
-				return i;
-			}
-		}
-		fail("No suitable GPU memory type found.");
-	}
-
-	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags props, VkBuffer& buffer, VkDeviceMemory& memory)
-	{
-		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-		info.size               = size;
-		info.usage              = usage;
-		info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
-		check(vkCreateBuffer(g.device, &info, nullptr, &buffer), "vkCreateBuffer");
-
-		VkMemoryRequirements req;
-		vkGetBufferMemoryRequirements(g.device, buffer, &req);
-		VkMemoryAllocateInfo alloc = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-		alloc.allocationSize       = req.size;
-		alloc.memoryTypeIndex      = find_memory(req.memoryTypeBits, props);
-		check(vkAllocateMemory(g.device, &alloc, nullptr, &memory), "vkAllocateMemory");
-		check(vkBindBufferMemory(g.device, buffer, memory, 0), "vkBindBufferMemory");
-	}
-
 	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format, VkImageAspectFlags aspect, const VkComponentMapping* components, uint32_t mips)
 	{
 		gpu_image img;
@@ -1084,12 +1057,10 @@ namespace bb::gfx {
 		create_texture(TEXTURE_FONT, font_columns * 8, font_rows * 8, atlas);
 		free(atlas);
 
-		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.vertex_buffer, g.vertex_memory);
 		void* mapped;
-		check(vkMapMemory(g.device, g.vertex_memory, 0, VK_WHOLE_SIZE, 0, &mapped), "vkMapMemory");
+		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, g.vertex_buffer, g.vertex_allocation, &mapped);
 		g.vertices = static_cast<vertex*>(mapped);
-		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g.vertex_buffer_alt, g.vertex_memory_alt);
-		check(vkMapMemory(g.device, g.vertex_memory_alt, 0, VK_WHOLE_SIZE, 0, &mapped), "vkMapMemory");
+		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, g.vertex_buffer_alt, g.vertex_allocation_alt, &mapped);
 		g.vertices_alt = static_cast<vertex*>(mapped);
 
 		create_3d();
