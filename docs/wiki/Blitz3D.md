@@ -10,7 +10,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 
 * [3D Sound](Blitz3D-3D-Sound) (2): Sound listeners and sounds emitted from entities.
 * [Animation](Blitz3D-Animation) (15): Bone, vertex and MD2 animation.
-* [BSP](Blitz3D-BSP) (3): Quake 3 BSP levels.
+* [BSP](Blitz3D-BSP) (4): Quake 3 BSP levels.
 * [Brushes](Blitz3D-Brushes) (12): Reusable material settings applied to meshes, surfaces and entities.
 * [Cameras](Blitz3D-Cameras) (11): Camera range, viewport, fog and projection.
 * [Collisions](Blitz3D-Collisions) (19): Collision types, responses and results.

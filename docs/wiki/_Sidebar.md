@@ -475,10 +475,11 @@
 <li><a href="SetAnimTime">SetAnimTime</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-BSP">BSP</a> (3)</summary>
+<li><details><summary><a href="Blitz3D-BSP">BSP</a> (4)</summary>
 <ul>
 <li><a href="BSPAmbientLight">BSPAmbientLight</a></li>
 <li><a href="BSPLighting">BSPLighting</a></li>
+<li><a href="BSPLightmapColor">BSPLightmapColor</a> 〔BlitzLLVM〕</li>
 <li><a href="LoadBSP">LoadBSP</a></li>
 </ul>
 </details></li>

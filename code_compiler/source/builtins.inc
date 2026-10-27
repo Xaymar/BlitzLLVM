@@ -230,6 +230,7 @@
 		{ "loadbsp", "bb_load_bsp", 'i', "sfi", 1, { 0, 0, 0 }, false },
 		{ "bsplighting", "bb_bsp_lighting", 'v', "ii", 2, {}, false },
 		{ "bspambientlight", "bb_bsp_ambient_light", 'v', "ifff", 4, {}, false },
+		{ "bsplightmapcolor", "bb_bsp_lightmap_color", 'v', "ifff", 4, {}, false },
 		{ "stringwidth", "bb_string_width", 'i', "s", 1, {}, false },
 		{ "stringheight", "bb_string_height", 'i', "s", 1, {}, false },
 		{ "rect", "bb_rect", 'v', "iiiii", 4, { 0, 0, 0, 0, 1 }, false },
