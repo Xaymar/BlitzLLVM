@@ -92,24 +92,27 @@ if(CASE STREQUAL "userlib")
 	endif()
 
 elseif(CASE STREQUAL "userlib_missing_declaration")
-	# A function without a matching declaration is reported, and raises an error when the program reaches it (--strict refuses the program).
+	# A function without a matching declaration is an error, also without --strict, and nothing is written.
 	file(MAKE_DIRECTORY "${WORK}/userlibs")
 	recompiler(-q -S --userlibs-dir "${WORK}/userlibs" "${MODULE}" -o "${WORK}/call.ll")
-	expect_ok()
-	expect_in("the user library function 'addints' (_AddInts@8 in 'ulib.dll') has no declaration" ERR)
-	recompiler(-q -S --strict --userlibs-dir "${WORK}/userlibs" "${MODULE}" -o "${WORK}/strict.ll")
 	expect_failure()
-	expect_in("has no declaration" ERR)
+	expect_in("the user library function 'addints' (_AddInts@8 in 'ulib.dll') has no declaration" ERR)
+	if(EXISTS "${WORK}/call.ll")
+		message(FATAL_ERROR "The IR was written although a declaration is missing.")
+	endif()
 	# A declaration of another library does not match either.
 	file(WRITE "${WORK}/userlibs/other.decls" ".lib \"other.dll\"\nAddInts%( a%,b% ):\"_AddInts@8\"\n")
-	recompiler(-q -S --strict --userlibs-dir "${WORK}/userlibs" "${MODULE}" -o "${WORK}/strict.ll")
+	recompiler(-q -S --userlibs-dir "${WORK}/userlibs" "${MODULE}" -o "${WORK}/call.ll")
+	expect_failure()
+	# Without any userlibs directory it is the same, and the error says so.
+	recompiler(-q -S "${MODULE}" -o "${WORK}/call.ll")
 	expect_failure()
 
 elseif(CASE STREQUAL "userlib_wide_parameter")
 	# The program passes 32 bit values, so a declaration with a wider parameter can't be called from it.
 	file(MAKE_DIRECTORY "${WORK}/userlibs")
 	file(WRITE "${WORK}/userlibs/ulib.decls" ".lib \"ulib.dll\"\nAddInts:Int( a:Long,b:Int ):\"_AddInts@8\"\nScale#( v#,f# ):\"_Scale@8\"\nShout$( s$ ):\"_Shout@4\"\n")
-	recompiler(-q -S --strict --userlibs-dir "${WORK}/userlibs" "${MODULE}" -o "${WORK}/call.ll")
+	recompiler(-q -S --userlibs-dir "${WORK}/userlibs" "${MODULE}" -o "${WORK}/call.ll")
 	expect_failure()
 	expect_in("passes only 32 bit values" ERR)
 
