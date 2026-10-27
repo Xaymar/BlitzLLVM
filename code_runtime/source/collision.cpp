@@ -25,6 +25,7 @@
 // Picking: finds what is along a line or a ray, for entities that have a pick mode.
 
 #include "profile.hpp"
+#include <algorithm>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -220,6 +221,325 @@ namespace bb::collision {
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////
+	// Broad phase
+	////////////////////////////////////////////////////////////////////////////
+	// A mover looks at everything of the types it collides with, which for many movers and many entities that stay
+	// where they are is most of the time of UpdateWorld. So for each rule the boxes around the entities are put in a tree
+	// when the first mover needs it, and a mover only looks at the entities whose box touches the box around its path.
+	// The tree is only a filter: what it lets through is tested the same as before, and in the same order.
+	struct bp_box {
+		float lo[3], hi[3];
+	};
+
+	struct bp_node {
+		bp_box   box;
+		uint32_t first, count; // Items of a leaf, which has no children.
+		int      left, right;  // Nodes, or -1.
+	};
+
+	struct bp_item {
+		bp_box box;
+		int    index; // In the entities of the type.
+	};
+
+	struct broad_phase {
+		int             destination = 0, method = 0;
+		float           y_scale = 1;
+		buffer<bp_item> items;
+		buffer<bp_node> nodes;
+		buffer<int>     always; // Entities that move during UpdateWorld, and those that have no usable box, are always tested.
+		buffer<int>     found;  // What a query returned, in the order of the entities.
+
+		void release()
+		{
+			items.release();
+			nodes.release();
+			always.release();
+			found.release();
+		}
+	};
+	buffer<broad_phase*> broad_phases; // Of this UpdateWorld.
+
+	bool broad_phase_enabled()
+	{
+		static const bool enabled = !getenv("BLITZ_NO_BROADPHASE");
+		return enabled;
+	}
+
+	bool box_is_finite(bp_box const& b)
+	{
+		for (int k = 0; k < 3; k++) {
+			if (!isfinite(b.lo[k]) || !isfinite(b.hi[k])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// The matrix that is used for what is collided with: where it was (as the original does), squashed like the mover.
+	// With now, where it is instead.
+	void destination_matrix(entity const& dst, int handle, float y_scale, bool now, float* m)
+	{
+		if (dst.old_valid && !now) {
+			memcpy(m, dst.old_matrix, 16 * sizeof(float));
+		} else {
+			world_matrix(handle, m);
+		}
+		if (y_scale != 1) {
+			m[1] *= y_scale;
+			m[5] *= y_scale;
+			m[9] *= y_scale;
+			m[13] *= y_scale;
+		}
+	}
+
+	// The box around what hit_entity can hit, with the matrix that it is given. False if it can not hit anything.
+	bool destination_box(entity& e, const float* tform, int method, bp_box& out)
+	{
+		box3 box;
+		switch (method) {
+		case 1: {
+			float r = fabsf(e.radius[0]);
+			box.add({ tform[12] - r, tform[13] - r, tform[14] - r });
+			box.add({ tform[12] + r, tform[13] + r, tform[14] + r });
+			break;
+		}
+		case 2: {
+			float lo[3], hi[3];
+			if (!mesh_bounds(e, lo, hi)) {
+				return false;
+			}
+			for (int corner = 0; corner < 8; corner++) {
+				box.add(transform(tform, { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] }));
+			}
+			break;
+		}
+		default: {
+			// Like hit_entity: the axes are made one long, then the corners are turned.
+			float m[16];
+			memcpy(m, tform, sizeof(m));
+			for (int axis = 0; axis < 3; axis++) {
+				vec3  col = { m[axis * 4], m[axis * 4 + 1], m[axis * 4 + 2] };
+				float len = length(col);
+				if (len > 1e-12f) {
+					m[axis * 4] /= len;
+					m[axis * 4 + 1] /= len;
+					m[axis * 4 + 2] /= len;
+				}
+			}
+			// hit_entity turns the line with the transpose of this, which is only the inverse if the axes are square to each other.
+			// A parent that is scaled differently along its axes, or a mover that is squashed, can make them not be.
+			const float skew = 1e-5f;
+			if ((fabsf(m[0] * m[4] + m[1] * m[5] + m[2] * m[6]) > skew) || (fabsf(m[0] * m[8] + m[1] * m[9] + m[2] * m[10]) > skew) || (fabsf(m[4] * m[8] + m[5] * m[9] + m[6] * m[10]) > skew)) {
+				float inf = INFINITY;
+				out       = { { -inf, -inf, -inf }, { inf, inf, inf } };
+				return true;
+			}
+			box3  local = collision_box(e);
+			float reach = 0;
+			for (int i = 0; i < 8; i++) {
+				vec3 p = { (i & 1) ? local.hi.x : local.lo.x, (i & 2) ? local.hi.y : local.lo.y, (i & 4) ? local.hi.z : local.lo.z };
+				box.add({ m[0] * p.x + m[4] * p.y + m[8] * p.z + m[12], m[1] * p.x + m[5] * p.y + m[9] * p.z + m[13], m[2] * p.x + m[6] * p.y + m[10] * p.z + m[14] });
+				reach = fmaxf(reach, length(p));
+			}
+			// For what the check of the axes lets through.
+			float grow = 1e-3f + 1e-4f * reach;
+			box.lo     = box.lo - vec3{ grow, grow, grow };
+			box.hi     = box.hi + vec3{ grow, grow, grow };
+			break;
+		}
+		}
+		out = { { box.lo.x, box.lo.y, box.lo.z }, { box.hi.x, box.hi.y, box.hi.z } };
+		return true;
+	}
+
+	// Whether it moves while UpdateWorld goes through the entities: it is moved by collisions, or so is what it is below.
+	bool moves_in_update(entity const& e)
+	{
+		for (entity const* p = &e;;) {
+			if ((p->coll_type != 0) && is_source(p->coll_type)) {
+				return true;
+			}
+			if (!p->parent) {
+				return false;
+			}
+			p = get_entity(p->parent);
+			if (!p) {
+				return false;
+			}
+		}
+	}
+
+	int build_node(broad_phase& bp, uint32_t first, uint32_t count)
+	{
+		bp_node node;
+		node.box = bp.items[first].box;
+		for (uint32_t i = first + 1; i < first + count; i++) {
+			for (int k = 0; k < 3; k++) {
+				node.box.lo[k] = fminf(node.box.lo[k], bp.items[i].box.lo[k]);
+				node.box.hi[k] = fmaxf(node.box.hi[k], bp.items[i].box.hi[k]);
+			}
+		}
+		node.first = first;
+		node.count = count;
+		node.left = node.right = -1;
+		int self = int(bp.nodes.size);
+		bp.nodes.push(node);
+		if (count <= 4) {
+			return self;
+		}
+		// Split at the middle of the boxes along the longest side of the box around their centers.
+		float clo[3], chi[3];
+		for (int k = 0; k < 3; k++) {
+			clo[k] = chi[k] = bp.items[first].box.lo[k] + bp.items[first].box.hi[k];
+		}
+		for (uint32_t i = first + 1; i < first + count; i++) {
+			for (int k = 0; k < 3; k++) {
+				float c = bp.items[i].box.lo[k] + bp.items[i].box.hi[k];
+				clo[k]  = fminf(clo[k], c);
+				chi[k]  = fmaxf(chi[k], c);
+			}
+		}
+		int axis = 0;
+		for (int k = 1; k < 3; k++) {
+			if (chi[k] - clo[k] > chi[axis] - clo[axis]) {
+				axis = k;
+			}
+		}
+		uint32_t half = count / 2;
+		std::nth_element(bp.items.data + first, bp.items.data + first + half, bp.items.data + first + count, [axis](bp_item const& a, bp_item const& b) {
+			return a.box.lo[axis] + a.box.hi[axis] < b.box.lo[axis] + b.box.hi[axis];
+		});
+		int left  = build_node(bp, first, half);
+		int right = build_node(bp, first + half, count - half);
+		bp.nodes[uint32_t(self)].left  = left;
+		bp.nodes[uint32_t(self)].right = right;
+		return self;
+	}
+
+	// Makes the tree of the entities of a type, as they are collided with by something squashed by y_scale.
+	broad_phase* make_broad_phase(int destination, int method, float y_scale)
+	{
+		broad_phase* bp = new broad_phase();
+		bp->destination = destination;
+		bp->method      = method;
+		bp->y_scale     = y_scale;
+		buffer<int> const& objects = by_type[destination];
+		for (uint32_t k = 0; k < objects.size; k++) {
+			int     handle = objects[k];
+			entity* e      = get_entity(handle);
+			bp_box  was, now;
+			// Terrains are too big for a box to help, and what moves during the update is not where the tree has it.
+			if (!e || ((method == 2) && e->terrain) || moves_in_update(*e)) {
+				bp->always.push(int(k));
+				continue;
+			}
+			// Where it is now is where the ones after it in the update see it, and where it was is what the ones before see.
+			float m[16];
+			destination_matrix(*e, handle, y_scale, false, m);
+			bool has_was = destination_box(*e, m, method, was);
+			destination_matrix(*e, handle, y_scale, true, m);
+			bool has_now = destination_box(*e, m, method, now);
+			if (!has_was && !has_now) {
+				continue; // Can not hit anything.
+			}
+			if (!has_was) {
+				was = now;
+			} else if (!has_now) {
+				now = was;
+			}
+			for (int c = 0; c < 3; c++) {
+				was.lo[c] = fminf(was.lo[c], now.lo[c]);
+				was.hi[c] = fmaxf(was.hi[c], now.hi[c]);
+			}
+			if (!box_is_finite(was)) {
+				bp->always.push(int(k));
+				continue;
+			}
+			bp->items.push({ was, int(k) });
+		}
+		if (bp->items.size) {
+			build_node(*bp, 0, bp->items.size);
+		}
+		return bp;
+	}
+
+	broad_phase* find_broad_phase(int destination, int method, float y_scale)
+	{
+		for (uint32_t i = 0; i < broad_phases.size; i++) {
+			broad_phase* bp = broad_phases[i];
+			if ((bp->destination == destination) && (bp->method == method) && (bp->y_scale == y_scale)) {
+				return bp;
+			}
+		}
+		// Movers that are squashed differently each need their own, which is not worth it for the odd one.
+		if (broad_phases.size >= 16) {
+			return nullptr;
+		}
+		broad_phase* bp = make_broad_phase(destination, method, y_scale);
+		broad_phases.push(bp);
+		return bp;
+	}
+
+	void release_broad_phases()
+	{
+		for (uint32_t i = 0; i < broad_phases.size; i++) {
+			broad_phases[i]->release();
+			delete broad_phases[i];
+		}
+		broad_phases.clear();
+	}
+
+	// The entities of the type whose box touches the box around where the line goes, in the order of the entities.
+	buffer<int> const& broad_phase_query(broad_phase& bp, line3 const& line, float radius)
+	{
+		bp_box area;
+		float  size = 0;
+		for (int k = 0; k < 3; k++) {
+			float a = (&line.o.x)[k], b = a + (&line.d.x)[k];
+			area.lo[k] = fminf(a, b) - radius;
+			area.hi[k] = fmaxf(a, b) + radius;
+			size       = fmaxf(size, fmaxf(fabsf(area.lo[k]), fabsf(area.hi[k])));
+		}
+		// Rounding must not make something that touches be left out.
+		float pad = 4 * collision_epsilon + 1e-5f * size;
+		for (int k = 0; k < 3; k++) {
+			area.lo[k] -= pad;
+			area.hi[k] += pad;
+		}
+		auto apart = [&](bp_box const& b) {
+			return (b.lo[0] > area.hi[0]) || (b.hi[0] < area.lo[0]) || (b.lo[1] > area.hi[1]) || (b.hi[1] < area.lo[1]) || (b.lo[2] > area.hi[2]) || (b.hi[2] < area.lo[2]);
+		};
+
+		bp.found.clear();
+		for (uint32_t i = 0; i < bp.always.size; i++) {
+			bp.found.push(bp.always[i]);
+		}
+		if (bp.nodes.size) {
+			int stack[128], top = 0;
+			stack[top++] = 0;
+			while (top) {
+				bp_node const& node = bp.nodes[uint32_t(stack[--top])];
+				if (apart(node.box)) {
+					continue;
+				}
+				if (node.left < 0) {
+					for (uint32_t i = node.first; i < node.first + node.count; i++) {
+						if (!apart(bp.items[i].box)) {
+							bp.found.push(bp.items[i].index);
+						}
+					}
+				} else {
+					stack[top++] = node.right;
+					stack[top++] = node.left;
+				}
+			}
+		}
+		std::sort(bp.found.data, bp.found.data + bp.found.size);
+		return bp.found;
+	}
+
 	// Moves one entity from where it was to where it is now, the way the original does it.
 	void collide(int handle, entity& src)
 	{
@@ -259,24 +579,22 @@ namespace bb::collision {
 					continue;
 				}
 				buffer<int> const& objects = by_type[rules[r].destination];
-				for (uint32_t k = 0; k < objects.size; k++) {
-					int other = objects[k];
+				// Only what is near the path is looked at, when there are enough entities for that to be worth it.
+				buffer<int> const* near_objects = nullptr;
+				if ((objects.size >= 32) && broad_phase_enabled()) {
+					if (broad_phase* bp = find_broad_phase(rules[r].destination, rules[r].method, y_scale)) {
+						near_objects = &broad_phase_query(*bp, coll_line, radius);
+					}
+				}
+				uint32_t count = near_objects ? near_objects->size : objects.size;
+				for (uint32_t n = 0; n < count; n++) {
+					int other = objects[near_objects ? uint32_t((*near_objects)[n]) : n];
 					if (other == handle) {
 						continue;
 					}
 					entity* dst = get_entity(other);
 					float   m[16];
-					if (dst->old_valid) {
-						memcpy(m, dst->old_matrix, sizeof(m)); // Where it was, as the original does.
-					} else {
-						world_matrix(other, m);
-					}
-					if (y_scale != 1) {
-						m[1] *= y_scale;
-						m[5] *= y_scale;
-						m[9] *= y_scale;
-						m[13] *= y_scale;
-					}
+					destination_matrix(*dst, other, y_scale, false, m); // Where it was, as the original does.
 					if (hit_entity(coll, coll_line, radius, *dst, m, rules[r].method)) {
 						coll_object   = other;
 						coll_response = rules[r].response;
@@ -395,6 +713,7 @@ namespace bb::collision {
 		for (int t = 0; t < 1000; t++) {
 			by_type[t].clear();
 		}
+		release_broad_phases();
 		bool is_destination[1000] = {};
 		for (uint32_t r = 0; r < rules.size; r++) {
 			is_destination[rules[r].destination] = true;
@@ -436,6 +755,7 @@ namespace bb::collision {
 			e->old_pos[1] = m[13];
 			e->old_pos[2] = m[14];
 		}
+		release_broad_phases();
 	}
 } // namespace bb::collision
 
