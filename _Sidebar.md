@@ -17,7 +17,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (23)</summary>
+<li><details><summary>Features (24)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -39,6 +39,7 @@
 <li><a href="Numbers-of-Other-Sizes">Numbers of other sizes</a></li>
 <li><a href="Samplers">Samplers</a></li>
 <li><a href="Sound-Resampling">Sound resampling</a></li>
+<li><a href="Sprite-Shapes">Sprite shapes</a></li>
 <li><a href="Types">Types everywhere</a></li>
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
 <li><a href="Warnings">Warnings</a></li>
