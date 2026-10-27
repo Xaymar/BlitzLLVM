@@ -8,12 +8,11 @@
 `blitz-tidy` fixes common mistakes in `.bb` files. Every rule is one of the [[Warnings]] of `blitzcc`: `blitz-tidy` compiles the file with all warnings on, and where the compiler says how to fix a warning, it makes the change. It is installed next to `blitzcc`.
 
 ```sh
-blitz-tidy program.bb                 # print the fixed program
-blitz-tidy -i program.bb lib.bb       # fix the files
+blitz-tidy program.bb lib.bb          # fix the files in place, and print their names
 blitz-tidy --diff program.bb          # show what would change, exit code 1 if something would
-blitz-tidy -r -i src/                 # fix every .bb, .b3d and .bp file below a directory
+blitz-tidy -r src/                    # fix every .bb file below a directory
 blitz-tidy --check *.bb               # list the files that would change, exit code 1 if there are any
-blitz-tidy < program.bb               # standard input to standard output
+blitz-tidy < program.bb               # standard input to standard output (print the fixed program)
 ```
 
 ## An example
@@ -89,9 +88,11 @@ A setting is `--name=value` on the command line, `name = value` in a `.blitz-tid
 | `max_passes` | How often the file is fixed and compiled again. Default 20. |
 | `userlibs_dir` | Where the userlibs are, like `--userlibs-dir` of `blitzcc`. Defaults to `$BLITZLLVM_USERLIBS`, then to the `userlibs` of the installation. |
 
-Options: `-i`, `-r`/`--recursive`, `--check`, `--diff`, `-q`, `--config=FILE`, `--no-config`, `--stdin-filepath=PATH`, `--print-config`, `--rules` and `-v`.
+Files are rewritten in place and the only output is the name of each file, one per line, followed by the findings that were left in it (the rules set to `report` and the fixes that were refused). Without files, or with `-`, the standard input is fixed and the result written to the standard output. `--check` and `--diff` change nothing.
 
-`-r` replaces every directory in the command line with the `.bb`, `.b3d` and `.bp` files below it (any case of the extension, in sorted order, symbolic links to directories are not followed). Each file is fixed with the configuration file that is closest to it. Files named on the command line are always used, whatever their extension, and a directory without `-r` is an error.
+Options: `-i` (does nothing, files are always rewritten in place), `-r`/`--recursive`, `--check`, `--diff`, `-q`, `--config=FILE`, `--no-config`, `--stdin-filepath=PATH`, `--print-config`, `--rules` and `-v`.
+
+`-r` replaces every directory in the command line with the `.bb` files below it (`.b3d` is a 3D model format as well, so it is not used) (any case of the extension, in sorted order, symbolic links to directories are not followed). Each file is fixed with the configuration file that is closest to it. Files named on the command line are always used, whatever their extension, and a directory without `-r` is an error.
 
 The configuration is read from `.blitz-tidy` or `blitz-tidy.json` in the directory of the file, or in the closest directory above it. The command line wins over the file.
 
