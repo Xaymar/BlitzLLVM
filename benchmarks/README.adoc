@@ -118,3 +118,19 @@ It takes the same options as the flythrough (`--frames`, `--seed`, `--size`, `--
 the sprites move every frame, it also prints `update`, the time the program spends moving them (it is part of `ms/frame`, which
 is the update, `RenderWorld` and `Flip`). `--static` places the sprites once, and then `ms/frame` is only rendering. Results are saved
 as `benchmarks/results/waterfall-*.json` and `waterfall.csv`.
+
+=== With the original Blitz3D
+
+To compare the speed of BlitzLLVM with the original, `waterfall.bb` uses only commands that the original Blitz3D has as well. The
+two things it does not have are in `waterfall_llvm.bi` (the microsecond timer and the draw counters of `Stats3D`) and
+`waterfall_original.bi` (`MilliSecs`, and draw counters of 0). The runner looks at `blitzcc -v`, builds with the right one,
+leaves out `-O3` and `--profile` for the original, sets `BLITZPATH` to the folder with `bin` in it, and reads the result from a file
+because the original has no output to a console:
+
+[source,bat]
+----
+python benchmarks\waterfall.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe --sprites 5000
+python benchmarks\waterfall.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe --sprites 5000
+----
+
+The original times have a resolution of one millisecond, so use enough frames (`--frames 1500`) and look at the average.

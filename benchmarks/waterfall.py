@@ -9,9 +9,12 @@ over a cliff, made of thousands of see-through sprites. The result is also saved
     python3 benchmarks/waterfall.py [--blitzcc PATH] [--sprites N] [--frames N] [--seed N] [--size WxH]
                                      [--debug] [--profile] [--label NAME] [--shot FILE] [--no-save]
 
---sprites defaults to $BENCH_SPRITES or 20000, --frames to $BENCH_FRAMES or 300; "--sprites 1000000" is the full run, and
+--sprites defaults to $BENCH_SPRITES or 5000, --frames to $BENCH_FRAMES or 300; "--sprites 50000" is the heavy run, and
 "--quick" is 500 sprites and 30 frames for a look whether it works. -d builds without optimization (which BLITZ_FPS
 profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
+
+The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the
+folder with bin\\ in it unless it is set). It has no -O3 and no --profile, and no draw counters (they are 0).
 
 Without a display the program runs under xvfb-run, which with Mesa means llvmpipe: the times are then mostly the CPU
 rasterizing and only a smoke test. The counts (draws, triangles) are exact on any GPU.
@@ -62,19 +65,32 @@ def main():
     width, height = args.size.lower().split("x")
 
     compiler = find_compiler(args.blitzcc)
-    flags = ["-d"] if args.debug else ["-O3"]
-    if args.profile:
+    # The original Blitz3D prints only a version number for -v and has no optimization level or profiling, BlitzLLVM prints
+    # "Compiler version:...". The same program is built with either, so that their speeds can be compared.
+    version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
+    llvm = "Compiler version" in version
+    flags = ["-d"] if args.debug else (["-O3"] if llvm else [])
+    if args.profile and llvm:
         flags.append("--profile")
+    if not llvm:
+        # The original compiler reads its runtime and libraries from BLITZPATH, the folder that has bin\ in it.
+        os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
     runner = [] if os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or platform.system() == "Windows" else ["xvfb-run", "-a", "-s", "-screen 0 %sx%sx24" % (width, height)]
     if runner and not shutil.which("xvfb-run"):
         sys.exit("There is no display and no xvfb-run.")
 
     with tempfile.TemporaryDirectory() as directory:
         program = os.path.join(directory, "waterfall" + (".exe" if platform.system() == "Windows" else ""))
-        version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
-        subprocess.run([compiler, "-q"] + flags + [os.path.join(HERE, "waterfall.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL)
+        # Compiled from a copy with the include of this compiler next to it, whatever folder the original compiler resolves
+        # includes from.
+        source = os.path.join(directory, "waterfall.bb")
+        shutil.copy(os.path.join(HERE, "waterfall.bb"), source)
+        shutil.copy(os.path.join(HERE, "waterfall_llvm.bi" if llvm else "waterfall_original.bi"), os.path.join(directory, "waterfall_counters.bi"))
+        build = subprocess.run([compiler, "-q"] + flags + [source, "-o", program], cwd=directory, capture_output=True, text=True)
+        if build.returncode != 0:
+            sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
         env = dict(os.environ, BENCH_SPRITES=str(args.sprites), BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,
-                   BENCH_FRAMETIMES=os.path.join(directory, "frametimes.txt"))
+                   BENCH_FRAMETIMES=os.path.join(directory, "frametimes.txt"), BENCH_RESULT=os.path.join(directory, "result.txt"))
         if args.static:
             env["BENCH_STATIC"] = "1"
         if args.shot:
@@ -82,7 +98,10 @@ def main():
         print("Running %d sprites, %d frames, %sx%s, build %s" % (args.sprites, args.frames, width, height, " ".join(flags)), flush=True)
         result = subprocess.run(runner + [program], env=env, capture_output=True, text=True)
         output = result.stdout + result.stderr
-        line = next((l for l in output.splitlines() if "RESULT " in l), None)
+        # The original Blitz3D has no stdout for a program, so the result is read from a file.
+        line = None
+        if os.path.isfile(env["BENCH_RESULT"]):
+            line = next((l for l in open(env["BENCH_RESULT"]).read().splitlines() if "RESULT " in l), None)
         if result.returncode != 0 or line is None:
             sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, output[-2000:]))
         values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
@@ -93,7 +112,7 @@ def main():
     record = {
         "date": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "label": args.label,
-        "compiler": version,
+        "compiler": version if llvm else "Blitz3D " + version,
         "build": " ".join(flags),
         "platform": platform.platform(),
         "display": "xvfb" if runner else "native",
@@ -107,7 +126,7 @@ def main():
     print("  fps         %12.1f" % values["fps"])
     print("  per frame   %.0f triangles, %.0f draw calls, %.0f pipeline binds, %.0f texture binds, %.0f buffer binds"
           % (values["tris"], values["draws"], values["pipelines"], values["textures"], values["buffers"]))
-    print("  build       %s (%s)" % (record["build"], version or "unknown compiler"))
+    print("  build       %s (%s)" % (record["build"] or "no options", version or "unknown compiler"))
 
     if not args.no_save:
         out = os.path.join(HERE, "results")

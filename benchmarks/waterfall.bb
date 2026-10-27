@@ -15,10 +15,16 @@
 ;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
 ;   BENCH_STATIC   1 places the sprites once (frame 0), so only the camera moves (default 0: the water flows)
 ;   BENCH_SHOT     file to save the last frame to (optional)
+;   BENCH_RESULT   file to write the RESULT line to (optional, it is also in the debug log)
 ;   BENCH_FRAMETIMES  file to write the time of every frame to, in microseconds, one per line (optional)
 ;
 ; The sprites are split 35% river, 40% waterfall, 25% mist. Where a sprite is depends only on its frame number, so the
 ; picture is the same on every run and every machine.
+
+; Runs with BlitzLLVM and with the original Blitz3D, so that their speeds can be compared. What the original does not have (a
+; microsecond timer, the draw counters) is in waterfall_llvm.bi or waterfall_original.bi, python3 benchmarks/waterfall.py copies
+; the right one next to this file as waterfall_counters.bi.
+Include "waterfall_counters.bi"
 
 Const PLATEAU# = 30.0
 Const SPREAD# = 3.4
@@ -181,7 +187,7 @@ Dim phase#(count - 1)
 Dim ox#(count - 1)
 Dim oy#(count - 1)
 Dim oz#(count - 1)
-creationstart:UInt64 = Microseconds()
+creationstart = BenchMicros()
 For i = 0 To count - 1
 	If i < nriver Then
 		k = 0
@@ -197,7 +203,7 @@ For i = 0 To count - 1
 	oy(i) = Rnd(0, 1)
 	oz(i) = Rnd(-1, 1)
 Next
-creation# = Float(Microseconds() - creationstart) / 1000
+creation# = (BenchMicros() - creationstart) / 1000.0
 
 Dim times#(frames - 1)
 Dim updates#(frames - 1)
@@ -208,7 +214,7 @@ target = CreatePivot()
 PositionEntity target, 0, 13, -4
 
 For f = 0 To warmup + frames - 1
-	t0:UInt64 = Microseconds()
+	t0 = BenchMicros()
 
 	; The camera swings 45 degrees to each side in front of the fall, drifting in and out and up and down. 1200 frames are one lap.
 	a# = Sin(f * 360.0 / 1200) * 45
@@ -246,21 +252,21 @@ For f = 0 To warmup + frames - 1
 			EntityAlpha spr(i), 0.35 * Sin(u * 180) * thin
 		Next
 	EndIf
-	updated# = Float(Microseconds() - t0)
+	updated# = BenchMicros() - t0
 
 	RenderWorld
 	Flip 0
-	elapsed# = Float(Microseconds() - t0)
+	elapsed# = BenchMicros() - t0
 	If f >= warmup Then
 		n = f - warmup
 		times(n) = elapsed
 		updates(n) = updated
 		total = total + elapsed
 		updatetotal = updatetotal + updated
-		drawsum = drawsum + Stats3D(1000)
-		pipesum = pipesum + Stats3D(1001)
-		texsum = texsum + Stats3D(1002)
-		bufsum = bufsum + Stats3D(1003)
+		drawsum = drawsum + BenchDraws()
+		pipesum = pipesum + BenchPipelines()
+		texsum = texsum + BenchTextures()
+		bufsum = bufsum + BenchBuffers()
 		trissum = trissum + TrisRendered()
 	EndIf
 Next
@@ -302,5 +308,14 @@ If timesfile$ <> "" Then
 EndIf
 
 avg# = total / frames / 1000
-DebugLog "RESULT sprites=" + count + " frames=" + frames + " seed=" + seed + " static=" + still + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " update_ms=" + (updatetotal / frames / 1000) + " ms_avg=" + avg + " ms_min=" + (s(0) / 1000) + " ms_median=" + (s(frames / 2) / 1000) + " ms_p95=" + (s(p95) / 1000) + " ms_max=" + (s(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
+result$ = "RESULT sprites=" + count + " frames=" + frames + " seed=" + seed + " static=" + still + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " update_ms=" + (updatetotal / frames / 1000) + " ms_avg=" + avg + " ms_min=" + (s(0) / 1000) + " ms_median=" + (s(frames / 2) / 1000) + " ms_p95=" + (s(p95) / 1000) + " ms_max=" + (s(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
+DebugLog result$
+resultfile$ = GetEnv$("BENCH_RESULT")
+If resultfile$ <> "" Then
+	file = WriteFile(resultfile$)
+	If file <> 0 Then
+		WriteLine file, result$
+		CloseFile file
+	EndIf
+EndIf
 End
