@@ -1,0 +1,32 @@
+# The programs of the original Blitz3D and BlitzPlus (tools/original_programs.py) that do not compile yet, and why. They are expected to
+# fail (WILL_FAIL, label pending), so fixing one makes its test fail until it is removed from this list. Paths are relative to extra/.
+blitz3d/_release/samples/mak/anim/makbot/MAK-sfx.bb
+# AnimateEntity does not exist
+blitzplus_msvc2017/_release/games/AsteroidShower/asteroid.bb
+# Data can only contain constants (Data with an expression)
+blitzplus_msvc2017/_release/games/Blitzanoid/blitzanoid.bb
+# Data can only contain constants (Data with an expression)
+blitzplus_msvc2017/_release/games/BlitzDicey/BB_DICEY.BB
+# Compiles, but clang crashes (LLVM fatal error) building the executable
+blitzplus_msvc2017/_release/games/Insectoids/insectoids.bb
+# HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
+blitzplus_msvc2017/_release/games/WizardWars/wizardwars.bb
+# Parser: unexpected end of line at 470:59
+blitzplus_msvc2017/_release/samples/Birdie/3dfingy.bb
+# Restore of a label that does not exist in the function
+blitzplus_msvc2017/_release/samples/James/Games/Explosions/exploding_alien_death.bb
+# HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
+blitzplus_msvc2017/_release/samples/Mak/blitzpaint.bb
+# Expression does not return a value (289:6)
+blitzplus_msvc2017/_release/samples/Mak/line_test.bb
+# HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
+blitzplus_msvc2017/_release/samples/Mak/simple_htmlview.bb
+# CreateHtmlView, HtmlViewGo do not exist
+blitzplus_msvc2017/_release/samples/MasterBeaker/Blitz Browse.bb
+# CreateHtmlView, HtmlViewBack, HtmlViewForward, HtmlViewGo do not exist
+blitzplus_msvc2017/_release/samples/Rob/BlitzAlarm/Blitz Alarm Clock.bb
+# PlayMusic takes 1 argument here, the program passes 2
+blitzplus_msvc2017/_release/samples/TeraBit/dungeon/DNovice.bb
+# Parser: unexpected ':' at 59:73
+blitzplus_msvc2017/_release/samples/TeraBit/gui/Gui.bb
+# CreateHtmlView does not exist
