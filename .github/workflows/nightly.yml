@@ -15,10 +15,22 @@ on:
       - 'LICENSE.adoc'
       - '.github/scripts/check-licenses.sh'
       - '.github/workflows/nightly.yml'
+  # The Periodic workflow builds the daily, weekly, monthly and yearly releases with this workflow, without caches.
+  workflow_call:
+    inputs:
+      clean:
+        description: 'Build without restoring or saving any cache, from a fresh checkout'
+        type: boolean
+        default: false
+      tags:
+        description: 'Moving releases to publish instead of nightly, separated by spaces (empty with clean: only build)'
+        type: string
+        default: ''
 
+# A clean build must not cancel a nightly build, nor be cancelled by one.
 concurrency:
-  group: nightly
-  cancel-in-progress: true
+  group: ${{ inputs.clean && 'nightly-clean' || 'nightly' }}
+  cancel-in-progress: ${{ !inputs.clean }}
 
 jobs:
   version:
@@ -70,11 +82,17 @@ jobs:
         run: pipx install cmake && cmake --version
       - name: Date the package cache
         id: month
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && !inputs.clean
         # Ubuntu publishes updates to these packages, so the cache is replaced every month and never serves old ones for long.
         run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+      - name: Install Linux dependencies for SDL (clean)
+        if: runner.os == 'Linux' && inputs.clean
+        # No package cache: apt installs the current packages.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
       - name: Install Linux dependencies for SDL
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && !inputs.clean
         uses: awalsh128/cache-apt-pkgs-action@v1.4.3
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
@@ -110,6 +128,7 @@ jobs:
       # Pull requests restore the caches that nightly builds of root save, and only save one of their own when none exists yet.
       # The prefix is not shared with the caches from before the dependencies were submodules, as those were built from another source directory.
       - name: Cache dependencies
+        if: ${{ !inputs.clean }}
         uses: actions/cache@v4
         with:
           path: build/ExternalContentFiles
@@ -185,14 +204,20 @@ jobs:
 
   release:
     needs: [version, build]
+    # A clean build without tags only checks that it builds.
+    if: ${{ !inputs.clean || inputs.tags != '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Publish nightly release
+        if: ${{ !inputs.clean }}
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -227,3 +252,21 @@ jobs:
           else
             gh release create nightly release/* --prerelease --verify-tag --title "$TITLE" --notes "$NOTES"
           fi
+      - name: Publish the moving releases
+        if: ${{ inputs.clean }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.version.outputs.version }}
+          TAGS: ${{ inputs.tags }}
+        run: |
+          mkdir release
+          for d in artifacts/*; do
+            case "$d" in
+              *-packages) mv "$d"/* release/ ;;
+              *) (cd "$d" && zip -qr "../../release/$(basename "$d").zip" .) ;;
+            esac
+          done
+          ls -l release
+          # shellcheck disable=SC2086
+          python3 .github/scripts/periodic.py publish $TAGS --repo "$GITHUB_REPOSITORY" --sha "$GITHUB_SHA" --version "$VERSION" --files release
