@@ -61,7 +61,8 @@ void blitz::compiler::scope_end(scope& sc)
 		auto mark = tmp();
 		declare("bb_str_mark", "declare i32 @bb_str_mark()");
 		declare("bb_str_release", "declare void @bb_str_release(i32)");
-		_body << "  " << mark << " = call i32 @bb_str_mark()\n" << text << "  call void @bb_str_release(i32 " << mark << ")\n";
+		// These calls carry a location as well, a function with debug info needs one on every call.
+		_body << "  " << mark << " = call i32 @bb_str_mark()" << dbg() << "\n" << text << "  call void @bb_str_release(i32 " << mark << ")" << dbg() << "\n";
 	} else {
 		_body << text;
 	}
@@ -247,7 +248,7 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	begin_label(_exit_label);
 	if (_uses_strings) {
 		declare("bb_str_mark", "declare i32 @bb_str_mark()");
-		_allocas << "  %entry.mark = call i32 @bb_str_mark()\n";
+		_allocas << "  %entry.mark = call i32 @bb_str_mark()" << dbg() << "\n";
 		for (auto const& local : _string_locals) {
 			if (local.second) {
 				declare("bb_str_free_array", "declare void @bb_str_free_array(ptr, i32)");
