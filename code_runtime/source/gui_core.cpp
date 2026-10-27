@@ -149,15 +149,19 @@ namespace bb::gui {
 		return desktop;
 	}
 
-	// The size of the screen, where there is a display to ask. The desktop of Windows is the screen, while the one here
-	// has the size of the window that the windows are drawn in.
+	// The size of the primary display, with the area under the task bar and start menu, in the units of the GUI. The windows
+	// are drawn in the window of the program, so this is only what ClientWidth and ClientHeight tell for the desktop.
 	void screen_size(int* w, int* h)
 	{
 		*w = bb_graphics_width();
 		*h = bb_graphics_height();
 		if (SDL_WasInit(SDL_INIT_VIDEO)) {
 			SDL_DisplayID display = SDL_GetPrimaryDisplay();
-			if (const SDL_DisplayMode* mode = display ? SDL_GetDesktopDisplayMode(display) : nullptr) {
+			SDL_Rect      bounds{};
+			if (display && SDL_GetDisplayBounds(display, &bounds) && (bounds.w > 0) && (bounds.h > 0)) {
+				*w = bounds.w;
+				*h = bounds.h;
+			} else if (const SDL_DisplayMode* mode = display ? SDL_GetDesktopDisplayMode(display) : nullptr) {
 				if ((mode->w > 0) && (mode->h > 0)) {
 					*w = mode->w;
 					*h = mode->h;
