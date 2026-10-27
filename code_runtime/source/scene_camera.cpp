@@ -71,6 +71,15 @@ void bb_camera_culling(int32_t handle, int32_t flags)
 	need_kind(handle, CAMERA, "CameraCulling")->cam_cull_flags = flags & 3;
 }
 
+void bb_camera_culling_source(int32_t handle, int32_t source)
+{
+	entity* e = need_kind(handle, CAMERA, "CameraCullingSource");
+	if (source) {
+		need_kind(source, CAMERA, "CameraCullingSource");
+	}
+	e->cam_cull_source = (source == handle) ? 0 : source;
+}
+
 // Lights
 void bb_light_color(int32_t handle, float r, float g, float b)
 {

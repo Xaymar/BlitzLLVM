@@ -10,3 +10,7 @@ Every frame BlitzLLVM decides which meshes can not be seen and does not give the
 ## Frustum culling
 
 [CameraCulling](CameraCulling) bit 1 (on by default) leaves out each mesh whose box is completely outside of what the camera sees, which includes everything behind it and everything farther than `CameraRange` allows. The test costs a few plane checks per mesh, and for meshes that did not change it is done with a sphere that is remembered. [EntityInView](EntityInView) asks the same for one mesh. `TrisRendered` counts what was given to the GPU, so it shows what culling saved.
+
+## Using the culling of another camera
+
+[CameraCullingSource](CameraCullingSource) makes a camera use the view of another camera to decide, so that cameras that see nearly the same do the work once.

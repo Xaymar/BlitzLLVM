@@ -1809,10 +1809,61 @@ namespace bb::gfx {
 		}
 	}
 
-	// What a camera culls by: the settings of CameraCulling.
+	// What a camera culls by: the settings of CameraCulling, and the view that CameraCullingSource names, if it does.
 	struct culling_choice {
-		int flags = 1; // 1 = frustum culling, 2 = culling on the GPU.
+		int   flags      = 1;     // 1 = frustum culling, 2 = culling on the GPU.
+		bool  has_source = false; // Whether the planes are the ones of another camera.
+		float planes[24] = {};    // Of that camera, for positions relative to 'origin'.
+		float origin[3]  = {};
 	};
+
+	static void culling_planes_of(bb::entity const& cam, int handle, int target_w, int target_h, float* planes, float* origin)
+	{
+		int vx, vy, vw, vh;
+		if (!camera_viewport(cam, target_w, target_h, vx, vy, vw, vh)) {
+			vw = target_w;
+			vh = target_h;
+		}
+		float world[16], view[16], proj[16], vp[16];
+		bb::world_matrix(handle, world);
+		bb::mat_affine_inverse(world, view);
+		view[12] = view[13] = view[14] = 0;
+		projection(proj, cam, float(vw), float(vh));
+		bb::mat_multiply(vp, proj, view);
+		view_planes(vp, reinterpret_cast<float (*)[4]>(planes));
+		memcpy(origin, world + 12, sizeof(float) * 3);
+	}
+
+	// Follows the chain of CameraCullingSource to the camera that does its own culling. A chain that is a loop, or ends in a
+	// camera that is gone, stops where it is. A camera that does not draw (CameraProjMode 0) can still be the one that decides.
+	static culling_choice choose_culling(int handle, bb::entity const& cam, int target_w, int target_h)
+	{
+		culling_choice    choice;
+		int               seen[8];
+		int               count   = 0;
+		int               current = handle;
+		bb::entity const* e       = &cam;
+		while (e->cam_cull_source && count < 8) {
+			seen[count++]       = current;
+			int               next  = e->cam_cull_source;
+			bb::entity const* n     = bb::get_entity(next);
+			bool              loops = false;
+			for (int i = 0; i < count; i++) {
+				loops = loops || (seen[i] == next);
+			}
+			if (!n || (n->kind != bb::CAMERA) || loops) {
+				break;
+			}
+			current = next;
+			e       = n;
+		}
+		choice.flags = e->cam_cull_flags;
+		if (current != handle) {
+			choice.has_source = true;
+			culling_planes_of(*e, current, target_w, target_h, choice.planes, choice.origin);
+		}
+		return choice;
+	}
 
 	// Draws the world for a camera that is at cam_world and looks through view. The pictures that mirrors make are
 	// drawn first and keep to the depth of each other, with the triangles the other way around as the image is reversed.
@@ -1878,9 +1929,21 @@ namespace bb::gfx {
 		prepare_light_grid(cam, data, float(vw), float(vh));
 
 		draw_list list;
-		// The planes of the view with the normals of length 1.
+		// The planes of the view with the normals of length 1, or the ones of the camera that this one takes its culling from. The
+		// mirrors of a camera look from somewhere else and so cull by themselves.
 		float planes[6][4];
 		view_planes(data.viewprojection, planes);
+		if (culling.has_source && !reflected) {
+			for (int i = 0; i < 6; i++) {
+				const float* source = culling.planes + i * 4;
+				double       shift  = 0;
+				for (int k = 0; k < 3; k++) {
+					shift += double(source[k]) * (double(current_origin[k]) - double(culling.origin[k]));
+				}
+				memcpy(planes[i], source, sizeof(float) * 3);
+				planes[i][3] = float(double(source[3]) + shift);
+			}
+		}
 		memcpy(current_planes, planes, sizeof(current_planes));
 		have_planes = (culling.flags & 1) != 0;
 		float camera_norm = 0;
@@ -1964,8 +2027,7 @@ namespace bb::gfx {
 		float world[16], view[16];
 		bb::world_matrix(handle, world);
 		bb::mat_affine_inverse(world, view);
-		culling_choice culling;
-		culling.flags = cam.cam_cull_flags;
+		culling_choice culling = choose_culling(handle, cam, target.w, target.h);
 
 		// The camera is cleared once, before anything is drawn.
 		bool clear_color = cam.cam_clear_color, clear_depth = cam.cam_clear_depth;

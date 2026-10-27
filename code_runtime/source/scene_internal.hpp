@@ -176,6 +176,7 @@ void bb_camera_viewport(int32_t handle, int32_t x, int32_t y, int32_t w, int32_t
 void bb_camera_zoom(int32_t handle, float zoom);
 void bb_camera_proj_mode(int32_t handle, int32_t mode);
 void bb_camera_culling(int32_t handle, int32_t flags);
+void bb_camera_culling_source(int32_t handle, int32_t source);
 void bb_light_color(int32_t handle, float r, float g, float b);
 void bb_light_range(int32_t handle, float range);
 void bb_camera_fog_mode(int32_t handle, int32_t mode);
