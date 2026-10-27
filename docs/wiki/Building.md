@@ -104,7 +104,7 @@ cd build/code_compiler && xvfb-run -a ctest -j8 --output-on-failure
 
 #### Which tests run
 
-A pull request does not run the tests that its changes can not affect. The `changes` job of the workflow compares the pull request with `root`, `.github/scripts/test-select.py` maps every changed file to the parts it can affect (the rules are in `tests/test_selection.json`), and `Test (Linux)` runs only the tests of those parts, plus the few that are not in any part (`lex-test`, `suite-coverage`, `ci-test-select`). The tests that were left out show as skipped (⏭️) in the test comment, with the reason. A skipped test counts as passed, so the required check stays green.
+A pull request does not run the tests that its changes can not affect. The `changes` job of the workflow compares the pull request with `root`, `.github/scripts/test-select.py` maps every changed file to the parts it can affect (the rules are in `tests/test_selection.json`), and `Test (Linux)` runs only the tests of those parts, plus the few that are not in any part (`lex-test`, `suite-coverage`, `ci-test-select`, `ci-test-report`). The tests that were left out show as skipped (⏭️) in the test comment, with the reason. A skipped test counts as passed, so the required check stays green.
 
 | What changed | What runs |
 | --- | --- |

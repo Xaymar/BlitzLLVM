@@ -182,6 +182,14 @@ def main():
             text = "\n".join(out + [f"<details><summary>Tests ({len(shown + rest)})</summary>", ""] + listing + ["", "</details>"])
     else:
         text = "\n".join(out + (table + [line(r) for r in shown] if shown else []))
+    # The end of the output of every failed test, as far as it fits.
+    for row in bad:
+        for config in ("debug", "release"):
+            name = join(row, config)
+            if rows[row].get(config) == FAIL and outputs.get(name):
+                block = f"\n\n**`{name}`**\n\n```\n{outputs[name]}\n```"
+                if len(text) + len(block) <= LIMIT // 2:
+                    text += block
     if rest and args.state != "pending":
         text += "\n"
         details = ["", f"<details><summary>Passed or skipped ({len(rest)})</summary>", ""] + table + [line(r) for r in rest] + ["", "</details>"]
