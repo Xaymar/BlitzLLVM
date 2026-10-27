@@ -96,7 +96,7 @@ target_include_directories(blitzrt SYSTEM PRIVATE
 	"${SDL3_mixer_INSTALL_PATH}/include"
 	"${VulkanHeaders_INSTALL_PATH}/include"
 	"${FFMPEG_INSTALL_PATH}/include"
-	"${PROJECT_SOURCE_DIR}/third_party/SDL_mixer/external/opus/include"
+	"${SDL3_mixer_INSTALL_PATH}/include/opus"
 	"${PROJECT_SOURCE_DIR}/third_party/stb"
 	"${PROJECT_SOURCE_DIR}/third_party/VulkanMemoryAllocator/include"
 )
