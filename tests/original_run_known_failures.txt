@@ -9,5 +9,3 @@ blitz3d/_release/samples/birdie/LodMesh/lmesh.bb
 # Runtime Error: GetSurface: the mesh does not have that surface.
 blitz3d/_release/samples/RobHutchinson/SkyPlateau/SkyPlateau.bb
 # Runtime Error: EntityAlpha: entity or surface 0 does not exist.
-blitzplus_msvc2017/_release/samples/Mak/font_test.bb
-# Runtime Error: No font selected
