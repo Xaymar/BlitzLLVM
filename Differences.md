@@ -26,6 +26,7 @@ Differences that are not caused by one command.
 * [Image formats](Image-Formats): Picture files: TIFF and JPEG 2000 are not read, but WebP, AVIF, JPEG XL, DDS and several other formats are.
 * [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
+* [Many lights](Many-Lights): Extension: up to 127 lights can exist in a scene, and each draw is lit by the eight that affect it the most; the original lights everything with the first eight.
 * [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains, and anisotropic filtering can be turned on with a sampler, which the originals could not.
 * [Movie controls](Movie-Controls): Extension: movies can be paused, and the commands for that build on the original movie commands.
 * [Multiplayer](Multiplayer): Multiplayer uses TCP on port 40500 instead of DirectPlay, so games only play with other BlitzLLVM games.
