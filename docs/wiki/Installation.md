@@ -16,6 +16,7 @@ Every push to the `root` branch builds BlitzLLVM for Windows (x64), Linux (x64) 
    lib/blitzllvm/runtime/  the runtime sources (inline/) and the libraries per architecture (x86_64/, arm64/; macOS has them directly), keep lib next to bin
    userlibs/            user libraries
    help/                the HTML help in the layout of the Blitz3D help: open help/index.html (the .deb, .rpm and Arch packages install it to /usr/share/doc/blitzllvm/help)
+   samples/             the samples and games of the original Blitz3D (blitz3d/) and BlitzPlus (blitzplus/) with their media; share/blitzllvm/samples in the deb, rpm and pkg packages
    ```
 
 3. Optionally add the `bin` directory to your `PATH`.
