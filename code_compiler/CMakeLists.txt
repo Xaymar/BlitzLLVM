@@ -41,6 +41,7 @@ target_sources(blitzfront PRIVATE
 	"source/compiler_functions.cpp"
 	"source/compiler_objects.cpp"
 	"source/compiler_data.cpp"
+	"source/compiler_order.cpp"
 	"source/compiler_debug.cpp"
 	"source/compiler_internal.hpp"
 	"source/ast/ast.hpp"

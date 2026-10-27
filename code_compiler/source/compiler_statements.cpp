@@ -205,8 +205,22 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 
 void blitz::compiler::gen_assign(ast::assign const* node)
 {
-	auto rhs  = gen(node->value.get());
-	auto addr = gen_address(node->target.get(), true);
+	value   rhs;
+	address addr;
+	if (dynamic_cast<ast::reference const*>(node->target.get())) {
+		rhs  = gen(node->value.get());
+		addr = gen_address(node->target.get(), true);
+	} else {
+		// The original evaluates the value and the place it is stored to in the order of the registers they need. Numbers are moved
+		// to the place, strings and objects are handed to a function together with it.
+		auto value_part = capture(node->value.get());
+		auto addr_code  = capture_code([&] { addr = gen_address(node->target.get(), true); });
+		bool by_call    = (addr.type == type::STRING) || (addr.type == type::STRUCT);
+		bool addr_first = by_call ? !compiler_detail::right_first(addr.need, value_part.v.need) : compiler_detail::right_first(value_part.v.need, addr.need);
+		place(addr_first ? addr_code : value_part.code);
+		place(addr_first ? value_part.code : addr_code);
+		rhs = value_part.v;
+	}
 	if (addr.constant) {
 		throw err(node->where, "This is a constant and can't be changed.");
 	}

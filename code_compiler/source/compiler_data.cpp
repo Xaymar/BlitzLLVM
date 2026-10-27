@@ -54,9 +54,30 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 		return v;
 	};
 
+	// The original adds up the indices as `(i0 + i1 * size1) + i2 * size2`, and evaluates the operands of every addition in the order of
+	// the registers they need.
+	std::vector<operand> operands;
+	for (uint32_t dim = 0; dim < var->dims; dim++) {
+		operands.push_back(capture(node->arguments[dim].get()));
+	}
+	std::vector<size_t> order = { 0 };
+	int                 need  = operands[0].v.need;
+	for (size_t dim = 1; dim < operands.size(); dim++) {
+		int scaled = compiler_detail::pair_need(operands[dim].v.need, 1);
+		if (compiler_detail::right_first(need, scaled)) {
+			order.insert(order.begin(), dim);
+		} else {
+			order.push_back(dim);
+		}
+		need = compiler_detail::pair_need(need, scaled);
+	}
+	for (auto dim : order) {
+		place(operands[dim].code);
+	}
+
 	std::string linear;
 	for (uint32_t dim = 0; dim < var->dims; dim++) {
-		auto index = convert(gen(node->arguments[dim].get()), type::INT32, node->arguments[dim]->where, true, std::string(), &node->arguments[dim]->covers);
+		auto index = convert(operands[dim].v, type::INT32, node->arguments[dim]->where, true, std::string(), &node->arguments[dim]->covers);
 		auto size  = field(dim + 1, "i32");
 		auto out = tmp();
 		emit(out + " = icmp uge i32 " + index.repr + ", " + size); // Unsigned, so that negative indices are caught too.
@@ -77,7 +98,9 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 	auto data = field(0, "ptr");
 	auto p    = tmp();
 	emit(p + " = getelementptr inbounds " + blitz::types::to_llvm(var->type) + ", ptr " + data + ", i64 " + linear);
-	return { p, var->type, var->sname, 0, false };
+	address result{ p, var->type, var->sname, 0, false };
+	result.need = need;
+	return result;
 }
 
 void blitz::compiler::gen_dim(ast::dim_statement const* node)

@@ -38,6 +38,13 @@ namespace blitz {
 			std::string        repr; // Operand without type, such as `%t1`, `42` or `@.str.0`.
 			blitz::types::type type = blitz::types::type::UNKNOWN; // UNKNOWN means "no value" (void).
 			std::string        sname;                              // Lower case name of the Type if this is an object. Empty for Null.
+			int                need = 0;                           // Registers the original compiler needed for it, which decides the order of evaluation. 0 until gen() fills it in.
+		};
+
+		// An expression that was generated on its own, so that it can be put where the original evaluated it.
+		struct operand {
+			std::string code;
+			value       v;
 		};
 
 		struct variable {
@@ -75,6 +82,7 @@ namespace blitz {
 			std::string        sname;
 			uint32_t           count = 0; // Not 0 if this is an array and not an element.
 			bool               constant = false;
+			int                need = 1; // Registers the original compiler needed for the expression that finds it.
 		};
 
 		struct function_info {
@@ -284,6 +292,19 @@ namespace blitz {
 
 		// Expressions
 		value gen(ast::expression const* expr);
+		value gen_node(ast::expression const* expr);
+
+		// Order of evaluation. The original compiler evaluates the operands of an operation, and the arguments of a call, in the order
+		// its code generator labels them with (the registers they need), not from left to right. See Evaluation-Order on the wiki.
+		std::map<ast::expression const*, int> _needs;
+		std::string capture_code(std::function<void()> const& generate);
+		operand     capture(ast::expression const* expr);
+		void        place(std::string const& code);
+		int         place_sequence(std::vector<operand> const& operands);
+		int         default_need(ast::expression const* expr);
+		int         direct_kind(ast::expression const* expr, value const& v);
+		void        plan_binary(ast::binary const* node, operand const& lhs, operand const& rhs, bool& rhs_first, int& need);
+		value       gen_binary_values(ast::binary const* node, value lhs, value rhs);
 		value gen_literal(ast::literal const* node);
 		value gen_reference(ast::reference const* node);
 		value gen_call(ast::call const* node);
