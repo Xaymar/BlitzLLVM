@@ -869,6 +869,19 @@ namespace bb::gfx {
 	}
 
 	// pass: 0 draws what is solid, 1 what is see-through, 2 everything (for what has an order).
+	// The items are in the order of their depth, which is not the order the entities are in memory, so the lines of the entity
+	// that draw_entity reads are asked for a few items before.
+	static void prefetch_entity(bb::buffer<draw_item> const& items, uint32_t index)
+	{
+		if (index < items.size) {
+			if (const char* ahead = reinterpret_cast<const char*>(bb::get_entity(items[index].handle))) {
+				for (size_t line = 0; line < 9; line++) {
+					__builtin_prefetch(ahead + line * 64);
+				}
+			}
+		}
+	}
+
 	static void draw_entity(draw_item const& item, int pass, bool depth_test)
 	{
 		bb::entity* e = bb::get_entity(item.handle);
@@ -1241,12 +1254,14 @@ namespace bb::gfx {
 		}
 		uint32_t opaque_first = draws.size;
 		for (uint32_t i = 0; i < list.opaque.size; i++) {
-			draw_entity(list.opaque[i], 0, true);
+			prefetch_entity(list.opaque, i + 6);
+				draw_entity(list.opaque[i], 0, true);
 		}
 		group_draws(opaque_first, draws.size);
 		uint32_t blended_first = draws.size;
 		for (uint32_t i = 0; i < list.blended.size; i++) {
-			draw_entity(list.blended[i], 1, true);
+			prefetch_entity(list.blended, i + 6);
+				draw_entity(list.blended[i], 1, true);
 		}
 		group_blended(blended_first, draws.size);
 		for (uint32_t i = 0; i < list.front.size; i++) {
