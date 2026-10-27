@@ -33,6 +33,6 @@ The width of the pictures of a movie in pixels.
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePlaying](MoviePlaying)
 * [MoviePosition](MoviePosition) 〔BlitzLLVM〕
-* [OpenMovie](OpenMovie)
+* [MovieVolume](MovieVolume) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)

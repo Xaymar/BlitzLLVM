@@ -148,6 +148,7 @@
 		{ "movieplaying", "bb_movie_playing", 'i', "i", 1, {}, false },
 		{ "playmovie", "bb_play_movie", 'v', "i", 1, {}, false },
 		{ "pausemovie", "bb_pause_movie", 'v', "i", 1, {}, false },
+		{ "movievolume", "bb_movie_volume", 'v', "if", 2, {}, false },
 		{ "loopmovie", "bb_loop_movie", 'v', "ii", 1, { 0, 1 }, false },
 		{ "stopmovie", "bb_stop_movie", 'v', "i", 1, {}, false },
 		{ "seekmovie", "bb_seek_movie", 'v', "if", 2, {}, false },

@@ -33,7 +33,7 @@ Print "The intro takes " + MovieLength(movie) + " seconds."
 * [MovieHeight](MovieHeight)
 * [MoviePlaying](MoviePlaying)
 * [MoviePosition](MoviePosition) 〔BlitzLLVM〕
+* [MovieVolume](MovieVolume) 〔BlitzLLVM〕
 * [MovieWidth](MovieWidth)
-* [OpenMovie](OpenMovie)
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
