@@ -108,7 +108,7 @@ WaitKey
 
 ## Related Commands
 
-[BSPAmbientLight](BSPAmbientLight), [LoadBSP](LoadBSP)
+[BSPAmbientLight](BSPAmbientLight), [BSPLightmapColor](BSPLightmapColor) 〔BlitzLLVM〕, [LoadBSP](LoadBSP)
 
 <div align="center">
 

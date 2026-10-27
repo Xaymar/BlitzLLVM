@@ -55,6 +55,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [BrushTexture](BrushTexture)
 * [BSPAmbientLight](BSPAmbientLight)
 * [BSPLighting](BSPLighting)
+* [BSPLightmapColor](BSPLightmapColor) 〔BlitzLLVM〕
 * [BufferDirty](BufferDirty)
 * [ButtonState](ButtonState)
 * [Byte](Byte) 〔BlitzLLVM〕

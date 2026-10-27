@@ -54,6 +54,7 @@ brushshininess	blitz3d	done	BrushShininess%brush#shininess
 brushtexture	blitz3d	done	BrushTexture%brush%texture%frame=0%index=0
 bspambientlight	blitz3d	done	BSPAmbientLight%bsp#red#green#blue
 bsplighting	blitz3d	done	BSPLighting%bsp%use_lightmaps
+bsplightmapcolor	blitz3d	done	BSPLightmapColor%bsp#red#green#blue
 cameraclscolor	blitz3d	done	CameraClsColor%camera#red#green#blue
 cameraclsmode	blitz3d	done	CameraClsMode%camera%cls_color%cls_zbuffer
 camerafogcolor	blitz3d	done	CameraFogColor%camera#red#green#blue

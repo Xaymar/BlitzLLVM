@@ -11,4 +11,5 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
 * [BSPAmbientLight](BSPAmbientLight)
 * [BSPLighting](BSPLighting)
+* [BSPLightmapColor](BSPLightmapColor) 〔BlitzLLVM〕
 * [LoadBSP](LoadBSP)
