@@ -6,6 +6,8 @@
 
 The names of the tests come from `ctest --show-only=json-v1` (--tests), the results from `ctest --output-junit` (--junit). If
 there is no list yet (the comment is reset before the project was configured), the names are taken from the previous comment.
+The comment shows the summary line and the tests that failed (with the end of their output) directly; the table of the tests that
+passed or were skipped, and the table of a run that is still pending, are folded away in <details>.
 The Debug and the Release run of a test are told apart by "debug" in its name (suite-debug-run-x, gui-autosuspend-debug-on),
 and shown in one row. The markdown goes to standard output.
 
@@ -20,6 +22,8 @@ import xml.etree.ElementTree as ET
 
 MARKER = "<!-- blitzllvm-tests -->"
 LIMIT = 60000  # GitHub allows 65536 characters in a comment.
+OUTPUT_LINES = 30  # How many lines at the end of the output of a failed test are shown.
+OUTPUT_CHARS = 3000  # ... and at most this many characters of them.
 
 PASS, FAIL, SKIP, PENDING, MISSING, NOTRUN = "✅", "❌", "⏭️", "⏳", "—", "⚪"
 STATES = {
@@ -73,13 +77,21 @@ def read_names(args):
     return []
 
 
-def read_results(path):
+def tail(text):
+    """The end of the output of a failed test, the part that says why it failed."""
+    text = "\n".join(text.strip().replace("```", "``\u200b`").splitlines()[-OUTPUT_LINES:])
+    return ("..." + text[-OUTPUT_CHARS:]) if len(text) > OUTPUT_CHARS else text
+
+
+def read_results(path, outputs=None):
     results = {}
     if not path:
         return results
     for case in ET.parse(path).getroot().iter("testcase"):
         if case.find("failure") is not None or case.find("error") is not None:
             results[case.get("name")] = FAIL
+            if outputs is not None:
+                outputs[case.get("name")] = tail(case.findtext("system-out") or case.findtext("failure") or case.findtext("error") or "")
         elif case.find("skipped") is not None:
             results[case.get("name")] = SKIP
         else:
@@ -104,7 +116,8 @@ def main():
             skipped = json.load(f)
 
     names = read_names(args)
-    results = {} if args.state == "pending" else read_results(args.junit)
+    outputs = {}
+    results = {} if args.state == "pending" else read_results(args.junit, outputs)
     # What a test that has no result means: pending while the run goes on, "not run" once it is over.
     default = PENDING if args.state == "pending" else NOTRUN
 
@@ -160,13 +173,16 @@ def main():
     table = ["| Test | Debug | Release |" + (" Note |" if notes else ""), "| --- | :---: | :---: |" + (" --- |" if notes else "")]
 
     shown = bad + waiting
-    body = out + (table + [line(r) for r in shown] if shown else [])
     if args.state == "pending" or not rest:
-        # Everything is waiting (or failed): one table.
-        body = out + table + [line(r) for r in shown + rest]
-        text = "\n".join(body)
+        # Nothing has a result yet (or all of it failed): the table is folded away unless there are failures to show.
+        listing = table + [line(r) for r in shown + rest]
+        if bad:
+            text = "\n".join(out + listing)
+        else:
+            text = "\n".join(out + [f"<details><summary>Tests ({len(shown + rest)})</summary>", ""] + listing + ["", "</details>"])
     else:
-        text = "\n".join(body)
+        text = "\n".join(out + (table + [line(r) for r in shown] if shown else []))
+    if rest and args.state != "pending":
         text += "\n"
         details = ["", f"<details><summary>Passed or skipped ({len(rest)})</summary>", ""] + table + [line(r) for r in rest] + ["", "</details>"]
         if len(text) + len("\n".join(details)) > LIMIT:
