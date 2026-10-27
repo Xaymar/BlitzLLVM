@@ -733,22 +733,35 @@ int main(int argc, char** argv)
 			}
 			return 1;
 		}
-		// Movies are played with the shared libraries of FFmpeg, which the runtime loads when the program opens one (see movie.cpp). They
-		// are looked for next to the program, so a program that has movies gets them copied there from the runtime directory.
-		if (ir.find("@bb_open_movie") != std::string::npos && std::filesystem::is_directory(lib_dir)) {
-			std::error_code ec;
-			size_t          copied = 0;
-			for (auto const& entry : std::filesystem::directory_iterator(lib_dir)) {
-				auto name = entry.path().filename().string();
-				auto ext  = entry.path().extension().string();
-				bool shared = (ext == ".dll") || (ext == ".dylib") || (name.find(".so.") != std::string::npos);
-				if (shared) {
-					std::filesystem::copy_file(entry.path(), opt.output.parent_path() / name, std::filesystem::copy_options::overwrite_existing, ec);
-					copied += ec ? 0 : 1;
+		// Shared libraries are not linked into the program but loaded by it when it needs them, from the directory of the program. So the
+		// ones that a program may need are copied from the runtime directory next to it: the libraries of FFmpeg when it opens movies (see
+		// movie.cpp), and the image codecs (AVIF, JPEG XL and WebP, loaded by SDL_image) when it has a window, which is what loads images.
+		if (std::filesystem::is_directory(lib_dir)) {
+			auto copy_shared = [&](bool ffmpeg, const char* what) {
+				std::error_code ec;
+				size_t          copied = 0;
+				for (auto const& entry : std::filesystem::directory_iterator(lib_dir)) {
+					auto name      = entry.path().filename().string();
+					auto ext       = entry.path().extension().string();
+					bool shared    = (ext == ".dll") || (ext == ".dylib") || (name.find(".so.") != std::string::npos);
+					bool is_ffmpeg = false;
+					for (auto family : { "avcodec", "avformat", "avutil", "swscale", "swresample" }) {
+						is_ffmpeg = is_ffmpeg || (name.find(family) != std::string::npos);
+					}
+					if (shared && (is_ffmpeg == ffmpeg)) {
+						std::filesystem::copy_file(entry.path(), opt.output.parent_path() / name, std::filesystem::copy_options::overwrite_existing, ec);
+						copied += ec ? 0 : 1;
+					}
 				}
+				if ((copied == 0) && !opt.quiet) {
+					std::cerr << "warning: The program " << what << ", but no shared libraries for that could be copied from '" << lib_dir.generic_string() << "' next to it, so it can't." << std::endl;
+				}
+			};
+			if (ir.find("@bb_open_movie") != std::string::npos) {
+				copy_shared(true, "opens movies (needs the libraries of FFmpeg)");
 			}
-			if ((copied == 0) && !opt.quiet) {
-				std::cerr << "warning: The program opens movies, but no shared libraries of FFmpeg could be copied from '" << lib_dir.generic_string() << "' next to it, so it can't play them." << std::endl;
+			if (ir.find("@bb_graphics") != std::string::npos) {
+				copy_shared(false, "loads images (needs the codec libraries of SDL_image to open AVIF, JPEG XL and WebP files)");
 			}
 		}
 		if (run_it) {
