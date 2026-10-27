@@ -179,6 +179,7 @@ namespace bb {
 	struct entity {
 		int         kind   = PIVOT;
 		int         parent = 0; // Handle, 0 for none.
+		int         children = 0; // How many entities have this one as their parent, so that copies and FreeEntity need no search for them.
 		bool        hidden = false;
 		char*       name   = nullptr;
 
