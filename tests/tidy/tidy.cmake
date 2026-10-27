@@ -29,6 +29,9 @@ function(tidy)
 	if(NOT CASE STREQUAL "config")
 		set(_CONFIG --no-config)
 	endif()
+	if(NOT CASE STREQUAL "type_notation")
+		list(APPEND _CONFIG --type-notation=keep) # Most tests are about something else than the notation
+	endif()
 	execute_process(
 		COMMAND "${TIDY}" ${_CONFIG} ${ARGN}
 		WORKING_DIRECTORY "${WORK}"
@@ -46,6 +49,9 @@ endfunction()
 function(tidy_text)
 	if(NOT CASE STREQUAL "config")
 		set(_CONFIG --no-config)
+	endif()
+	if(NOT CASE STREQUAL "type_notation")
+		list(APPEND _CONFIG --type-notation=keep) # Most tests are about something else than the notation
 	endif()
 	list(POP_BACK ARGN _FILE)
 	execute_process(
@@ -66,6 +72,21 @@ macro(expect_rc EXPECTED)
 		message(FATAL_ERROR "Expected exit code ${EXPECTED}, got '${RC}'.\nstdout: ${OUT}\nstderr: ${ERR}")
 	endif()
 endmacro()
+
+# Tidy a program with the given settings: the result is WANT, and tidying that again changes nothing. Both have to compile (tidy would
+# say so otherwise), and the program has to do the same before and after (see CASE=fix).
+function(expect_tidy SOURCE WANT)
+	file(WRITE "${WORK}/style.bb" "${SOURCE}")
+	tidy_text(--default=off ${ARGN} "${WORK}/style.bb")
+	if(NOT RC EQUAL 0 OR NOT OUT STREQUAL "${WANT}")
+		message(FATAL_ERROR "Expected exit code 0 and\n${WANT}\n---- got ${RC} and\n${OUT}\n---- stderr:\n${ERR}")
+	endif()
+	file(WRITE "${WORK}/style_again.bb" "${WANT}")
+	tidy_text(--default=off ${ARGN} "${WORK}/style_again.bb")
+	if(NOT RC EQUAL 0 OR NOT OUT STREQUAL "${WANT}")
+		message(FATAL_ERROR "A second run changed the program:\n${OUT}\n---- stderr:\n${ERR}")
+	endif()
+endfunction()
 
 macro(expect_contains VARIABLE TEXT)
 	string(FIND "${${VARIABLE}}" "${TEXT}" _AT)
@@ -206,7 +227,7 @@ elseif(CASE STREQUAL "in_place")
 
 elseif(CASE STREQUAL "stdin")
 	execute_process(
-		COMMAND "${TIDY}" --no-config --stdin-filepath=${WORK}/conversions.bb
+		COMMAND "${TIDY}" --no-config --type-notation=keep --stdin-filepath=${WORK}/conversions.bb
 		INPUT_FILE "${TESTS}/cases/conversions.bb"
 		WORKING_DIRECTORY "${WORK}"
 		RESULT_VARIABLE RC OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR
@@ -218,7 +239,7 @@ elseif(CASE STREQUAL "stdin")
 elseif(CASE STREQUAL "rules")
 	tidy(--rules)
 	expect_rc(0)
-	foreach(_RULE IN ITEMS implicit-lossy-int-to-int implicit-lossy-real-to-int implicit-lossy-real-to-real implicit-string-to-number implicit-lossy-int-to-real implicit-variable unused-result implicit-number-to-string unreachable-code unused-variable typeless-declaration short-type-notation unused-function)
+	foreach(_RULE IN ITEMS implicit-lossy-int-to-int implicit-lossy-real-to-int implicit-lossy-real-to-real implicit-string-to-number implicit-lossy-int-to-real implicit-variable unused-result implicit-number-to-string unreachable-code unused-variable typeless-declaration unused-function)
 		expect_contains(OUT "${_RULE}")
 	endforeach()
 
@@ -236,16 +257,10 @@ elseif(CASE STREQUAL "rule_modes")
 	expect_contains(OUT "Local d% = text")
 	expect_missing(ERR "blitz-tidy:")
 
-	# short-type-notation is off until it is asked for: the short form is left alone, then reported, then written in the long form.
+elseif(CASE STREQUAL "type_notation")
+	# The long notation is what is written unless something else is asked for: x% becomes x:Int32.
 	file(WRITE "${WORK}/short.bb" "Global g% = 1\nFunction Twice$(a#, b:Int64)\n\tReturn Str(a + b)\nEnd Function\nLocal s$ = Twice(g, 2)\nLocal k%%, d##\nPrint s + k + d\n")
 	tidy_text("${WORK}/short.bb")
-	expect_rc(0)
-	expect_contains(OUT "Global g% = 1")
-	expect_missing(ERR "short-type-notation")
-	tidy_text(--short-type-notation=report "${WORK}/short.bb")
-	expect_contains(OUT "Global g% = 1")
-	expect_contains(ERR "[blitz-tidy:short-type-notation]")
-	tidy_text(--short-type-notation "${WORK}/short.bb")
 	expect_rc(0)
 	expect_contains(OUT "Global g:Int32 = 1")
 	expect_contains(OUT "Function Twice:String(a:Float32, b:Int64)")
@@ -255,16 +270,98 @@ elseif(CASE STREQUAL "rule_modes")
 	expect_missing(OUT "#")
 	expect_missing(OUT "$")
 	expect_missing(ERR "blitz-tidy:")
-	# A second run changes nothing, and what it wrote compiles without the warning.
-	file(WRITE "${WORK}/short_fixed.bb" "${OUT}")
-	tidy(--short-type-notation --check "${WORK}/short_fixed.bb")
+	file(WRITE "${WORK}/long.bb" "${OUT}")
+	# A second run changes nothing.
+	tidy(--check "${WORK}/long.bb")
 	expect_rc(0)
+	# keep leaves the notation as it is.
+	tidy_text(--type-notation=keep "${WORK}/short.bb")
+	expect_contains(OUT "Global g% = 1")
+	expect_contains(OUT "Function Twice$(a#, b:Int64)")
+	# short writes the short form where there is one: Int, Long, Float and Double have a character, Byte does not.
+	file(WRITE "${WORK}/long2.bb" "Global g:Int32 = 1\nFunction Twice:String(a:Float32, b:Int64)\n\tReturn Str(a + b)\nEnd Function\nLocal s:String = Twice(g, 2)\nLocal k:Int64, d:Float64, e:Float, i:Int, b:Byte\nPrint s + k + d + e + i + b ; x:Int is a comment\nPrint \"x:Int\"\n")
+	tidy_text(--type-notation=short "${WORK}/long2.bb")
+	expect_rc(0)
+	expect_contains(OUT "Global g% = 1")
+	expect_contains(OUT "Function Twice$(a#, b%%)")
+	expect_contains(OUT "Local s$ = Twice(Float(g), 2)")
+	expect_contains(OUT "Local k%%, d##, e#, i%, b:Byte")
+	expect_contains(OUT "; x:Int is a comment")
+	expect_contains(OUT "Print \"x:Int\"")
+	file(WRITE "${WORK}/short2.bb" "${OUT}")
+	tidy(--type-notation=short --check "${WORK}/short2.bb")
+	expect_rc(0)
+	# The rules this setting replaces still work: fix is long, off is keep.
+	tidy_text(--short-type-notation "${WORK}/short.bb")
+	expect_contains(OUT "Global g:Int32 = 1")
+	tidy_text(--expand-short-to-long-notation=off "${WORK}/short.bb")
+	expect_contains(OUT "Global g% = 1")
+	tidy(--type-notation=sideways "${WORK}/short.bb")
+	expect_rc(2)
+
+elseif(CASE STREQUAL "one_declare")
+	# Each variable of a Local or Global gets a declaration of its own, with its type and value.
+	expect_tidy("Local a, b:Float = 1.5, c.Foo, d\nGlobal e = 1, f$\nType Foo\nField x\nEnd Type\nPrint a + b + d + e\nPrint f\nPrint c\\x\n" "Local a\nLocal b:Float = 1.5\nLocal c.Foo\nLocal d\nGlobal e = 1\nGlobal f$\nType Foo\nField x\nEnd Type\nPrint a + b + d + e\nPrint f\nPrint c\\x\n" --one-declare-per-variable)
+	# The new lines are indented like the declaration, and a declaration that shares its line keeps the line.
+	expect_tidy("Function F()\n\tLocal a = 1, b = 2 ; both\n\tLocal c, d : Print a + b\nEnd Function\nF()\n" "Function F()\n\tLocal a = 1\n\tLocal b = 2 ; both\n\tLocal c : Local d : Print a + b\nEnd Function\nF()\n" --one-declare-per-variable)
+	# Const is split as well.
+	expect_tidy("Const c = 1, d = 2, e$ = \"x\"\nPrint c + d + Len(e)\n" "Const c = 1\nConst d = 2\nConst e$ = \"x\"\nPrint c + d + Len(e)\n" --one-declare-per-variable)
+	# Nothing is done when the rule is off, and a rule can be set to only report.
+	expect_tidy("Local a, b\nConst c = 1, d = 2\nPrint a + b + c + d\n" "Local a, b\nConst c = 1, d = 2\nPrint a + b + c + d\n")
+	file(WRITE "${WORK}/report.bb" "Local a, b\nPrint a + b\n")
+	tidy_text(--default=off --one-declare-per-variable=report "${WORK}/report.bb")
+	expect_contains(OUT "Local a, b")
+	expect_contains(ERR "report.bb:1:1: warning: More than one variable is declared in one statement. [blitz-tidy:one-declare-per-variable]")
+
+elseif(CASE STREQUAL "parentheses")
+	# The arguments of a call that is a statement go in parentheses.
+	expect_tidy("Function F(a, b, c)\nReturn a\nEnd Function\nPrint 1\nF 14, 12, 14 + 12\nF(1, 2, 3)\nF 1,2,3 ; text\nIf 1 Then F 1, 2, 3 Else F 3, 2, 1\n" "Function F(a, b, c)\nReturn a\nEnd Function\nPrint(1)\nF(14, 12, 14 + 12)\nF(1, 2, 3)\nF(1,2,3) ; text\nIf 1 Then F(1, 2, 3) Else F(3, 2, 1)\n" --parentheses-around-arguments)
+	# A parenthesis that only starts the first argument is not the parenthesis of the call: Name (a)+b, c is not Name(a)+b, c.
+	expect_tidy("Function F(a, b)\nReturn a\nEnd Function\nF (1)+2, 3\nF (1), 2\nF (1+2) * 3, 4\nPrint (1 + 2) * 3\n" "Function F(a, b)\nReturn a\nEnd Function\nF((1)+2, 3)\nF((1), 2)\nF((1+2) * 3, 4)\nPrint((1 + 2) * 3)\n" --parentheses-around-arguments)
+	# Without arguments there is nothing to put in parentheses, and the spelling that was asked for first works as well.
+	expect_tidy("Function F()\nReturn 1\nEnd Function\nF\nF()\nPrint \"a\" ; x\n" "Function F()\nReturn 1\nEnd Function\nF\nF()\nPrint(\"a\") ; x\n" --parantheses-around-arguments)
+
+elseif(CASE STREQUAL "raii")
+	set(_RAII --resource-acquisition-is-initialization)
+	# A variable gets the value of its type where it is declared. Arrays, Const and what already has a value are left alone.
+	expect_tidy("Type Foo\nField x\nEnd Type\nLocal a\nLocal b%\nLocal c$\nLocal d#\nLocal e:Float\nLocal f.Foo\nLocal g:String\nLocal h:Int32 = 3\nLocal arr[3]\nConst k = 1\nGlobal gl\nPrint a + b + d + e + h + k + gl + Len(c + g)\nPrint f\\x + arr[1]\n" "Type Foo\nField x\nEnd Type\nLocal a = 0\nLocal b% = 0\nLocal c$ = \"\"\nLocal d# = 0.0\nLocal e:Float = 0.0\nLocal f.Foo = Null\nLocal g:String = \"\"\nLocal h:Int32 = 3\nLocal arr[3]\nConst k = 1\nGlobal gl = 0\nPrint a + b + d + e + h + k + gl + Len(c + g)\nPrint f\\x + arr[1]\n" ${_RAII})
+	# The assignment right behind it is the value, if it is free of side effects: Local a, then a = 5 is Local a = 5.
+	expect_tidy("Local a\na = 5\nLocal b:String\nLocal c\nb = \"x\" + \"y\"\nc = a * 2 + 1\nPrint a + c + Len(b)\n" "Local a = 5\nLocal b:String = \"x\" + \"y\"\nLocal c = a * 2 + 1\nPrint a + c + Len(b)\n" ${_RAII})
+	# What is not like that gets the default and keeps its assignment: calls (what Create, Load and Copy do), something in between, a condition, the variable itself and values
+	# that read what is set in between.
+	expect_tidy("Function F(v)\nReturn v\nEnd Function\nLocal a\nLocal b\nLocal c\nLocal d\nLocal e\nLocal g\nLocal h\nLocal i\na = F(1)\nPrint 1\nb = 2\nIf a Then c = 1\nd = d + 1\nh = 1\ng = h + 1\ni = 5 / 1\nPrint a + b + c + d + e + g + h + i\n" "Function F(v)\nReturn v\nEnd Function\nLocal a = 0\nLocal b = 0\nLocal c = 0\nLocal d = 0\nLocal e = 0\nLocal g = 0\nLocal h = 0\nLocal i = 0\na = F(1)\nPrint 1\nb = 2\nIf a Then c = 1\nd = d + 1\nh = 1\ng = h + 1\ni = 5 / 1\nPrint a + b + c + d + e + g + h + i\n" ${_RAII})
+	# A Global in a function is set again every time the declaration is passed, which it was not before: that needs unsafe.
+	file(WRITE "${WORK}/global.bb" "Function G()\nGlobal x\nx = x + 1\nReturn x\nEnd Function\nPrint G()\n")
+	tidy_text(--default=off ${_RAII} "${WORK}/global.bb")
+	expect_contains(OUT "Global x\n")
+	expect_contains(ERR "turn on \"unsafe\"")
+	tidy_text(--default=off ${_RAII} --unsafe "${WORK}/global.bb")
+	expect_contains(OUT "Global x = 0\n")
+	# Reported without a fix.
+	file(WRITE "${WORK}/report.bb" "Local a\nPrint a\n")
+	tidy_text(--default=off --resource-acquisition-is-initialization=report "${WORK}/report.bb")
+	expect_contains(OUT "Local a\n")
+	expect_contains(ERR "'a' is declared without a value. [blitz-tidy:resource-acquisition-is-initialization]")
+
+elseif(CASE STREQUAL "condition")
+	# The condition of If, ElseIf, While, Until and Select goes in parentheses, and what is in them already is left alone.
+	expect_tidy("Local a = 1, b = 2\nIf a = 1 And b > 1\nPrint 1\nElseIf (a = 2) Or (b = 3) ; text\nPrint 2\nElseIf (a = 3)\nPrint 3\nElse\nPrint 4\nEndIf\nWhile a < 3 : a = a + 1 : Wend\nRepeat\na = a - 1\nUntil a <= 0 Or b = 0\nSelect a + b\nCase 1\nPrint 5\nEnd Select\n" "Local a = 1, b = 2\nIf (a = 1 And b > 1)\nPrint 1\nElseIf ((a = 2) Or (b = 3)) ; text\nPrint 2\nElseIf (a = 3)\nPrint 3\nElse\nPrint 4\nEndIf\nWhile (a < 3) : a = a + 1 : Wend\nRepeat\na = a - 1\nUntil (a <= 0 Or b = 0)\nSelect (a + b)\nCase 1\nPrint 5\nEnd Select\n" --parentheses-around-condition)
+	# The one-line If has its Then behind the condition, an Else If is a statement of its own, and nothing but a keyword that starts a statement counts.
+	expect_tidy("Local a = 1\nIf a = 1 Then Print 1 Else Print 2\nIf a = 2 Then If a > 1 Then Print 3\nIf a Then Print 4 : If a <> 1 Then Print 5\nPrint \"If a Then\" ; While x\n" "Local a = 1\nIf (a = 1) Then Print 1 Else Print 2\nIf (a = 2) Then If (a > 1) Then Print 3\nIf (a) Then Print 4 : If (a <> 1) Then Print 5\nPrint \"If a Then\" ; While x\n" --parentheses-around-condition)
 
 elseif(CASE STREQUAL "report_only")
 	# unused-result has nothing to fix, so it can not be set to fix.
 	tidy(--unused-result=fix "${TESTS}/cases/conversions.bb")
 	expect_rc(2)
 	expect_contains(ERR "can only be reported")
+	# Unreachable code may be there on purpose, so it is reported and never removed, with unsafe as well.
+	tidy(--unreachable-code=fix "${TESTS}/cases/dead_code.bb")
+	expect_rc(2)
+	file(COPY "${TESTS}/cases/dead_code.bb" DESTINATION "${WORK}")
+	tidy_text(--unsafe "${WORK}/dead_code.bb")
+	expect_contains(OUT "Print \"after return\"")
+	expect_contains(OUT "Print \"after end\"")
+	expect_contains(ERR "[blitz-tidy:unreachable-code]")
 	tidy_text(--default=fix "${TESTS}/cases/conversions.bb")
 	expect_rc(0)
 

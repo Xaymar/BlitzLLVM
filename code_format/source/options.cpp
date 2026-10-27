@@ -52,23 +52,27 @@ namespace {
 std::vector<blitz::format::option_info> const& blitz::format::option_list()
 {
 	static const std::vector<option_info> list = {
-		{ "indent_style", "tab | space", "tab", "Indent with one tab per level, or with indent_width spaces." },
-		{ "indent_width", "1 - 16", "4", "Spaces per level when indent_style is space." },
-		{ "indent_case", "true | false", "true", "Put Case and Default one level in from Select, so that the code under them is two levels in." },
-		{ "indent_labels", "true | false", "false", "Put .label lines at the indent of the code around them. Otherwise they start in the first column." },
-		{ "keyword_case", "preserve | lower | upper | capitalized", "capitalized", "How keywords are written: if, IF, If. Capitalized is the spelling of the manuals (If, EndIf, Wend). Names and commands are never changed." },
-		{ "operator_spacing", "preserve | spaced | compact", "spaced", "Spaces around + - * / ^ = < > <= >= <>. Compact removes them. Mod, And, Or, Xor, Shl, Shr and Sar always have spaces. A sign (-1) never has a space behind it." },
-		{ "separator_spacing", "preserve | spaced | compact", "spaced", "Spaces around the : between statements." },
-		{ "comma_space", "true | false", "true", "A space behind each comma, and none in front of it." },
-		{ "paren_inner_space", "true | false", "false", "A space behind ( and in front of )." },
-		{ "paren_space", "preserve | never", "preserve", "Never removes the space in Name (x) so that it reads Name(x). Keywords (If (x)) keep their space either way." },
-		{ "comment_gap", "0 - 16", "1", "Spaces between code and a comment behind it. 0 keeps the space that is there, which keeps comments that are lined up in a column." },
-		{ "comment_space", "true | false", "false", "Add a space after the ; when the comment starts with a letter or a digit. ;;; and ;---- are left alone." },
-		{ "max_blank_lines", "-1 - 100", "1", "The most blank lines in a row. More are removed. -1 allows any number." },
-		{ "blank_lines_around_declarations", "0 - 10", "1", "Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone." },
-		{ "trim_trailing_space", "true | false", "true", "Remove spaces and tabs at the end of lines (also in comments)." },
-		{ "final_newline", "true | false", "true", "End the file with a line break, and remove blank lines at the end." },
-		{ "line_ending", "auto | lf | crlf | cr", "auto", "Auto uses what the first line break of the file is, or lf if there is none." },
+		{ "indent-style", "tab | space", "tab", "Indent with one tab per level, or with indent_width spaces." },
+		{ "indent-width", "1 - 16", "4", "Spaces per level when indent_style is space." },
+		{ "indent-case", "true | false", "true", "Put Case and Default one level in from Select, so that the code under them is two levels in." },
+		{ "indent-labels", "true | false", "false", "Put .label lines at the indent of the code around them. Otherwise they start in the first column." },
+		{ "keyword-case", "preserve | lower | upper | capitalized", "capitalized", "How keywords are written: if, IF, If. Capitalized is the spelling of the manuals (If, EndIf, Wend). Names and commands are never changed." },
+		{ "operator-spacing", "preserve | spaced | compact", "spaced", "Spaces around + - * / ^ = < > <= >= <>. Compact removes them. Mod, And, Or, Xor, Shl, Shr and Sar always have spaces. A sign (-1) never has a space behind it." },
+		{ "separator-spacing", "preserve | spaced | compact", "spaced", "Spaces around the : between statements." },
+		{ "comma-space", "true | false", "true", "A space behind each comma, and none in front of it." },
+		{ "paren-inner-space", "true | false", "false", "A space behind ( and in front of )." },
+		{ "paren-space", "preserve | never", "preserve", "Never removes the space in Name (x) so that it reads Name(x). Keywords (If (x)) keep their space either way." },
+		{ "comment-gap", "0 - 16", "1", "Spaces between code and a comment behind it. 0 keeps the space that is there, which keeps comments that are lined up in a column." },
+		{ "comment-space", "true | false", "false", "Add a space after the ; when the comment starts with a letter or a digit. ;;; and ;---- are left alone." },
+		{ "max-blank-lines", "-1 - 100", "1", "The most blank lines in a row. More are removed. -1 allows any number." },
+		{ "blank-lines-around-declarations", "0 - 10", "1", "Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone." },
+		{ "align-assignments", "true | false", "false", "Line up the = of assignments on consecutive lines (same indent, no blank or comment line between). A line with more than one assignment (a = 1 : b = 2) is left alone and ends the group." },
+		{ "align-declares", "true | false", "false", "Line up the names and the = of Const, Dim, Local and Global on consecutive lines (same indent, no blank or comment line between). A line that declares more than one variable has its name lined up, but not its =." },
+		{ "align-data", "left | right | off", "off", "Line up the values of Data statements on consecutive lines (same indent, no blank or comment line between) in columns, as wide as the widest value in each. Left starts the values of a column in the same place, right ends them in the same place so that the commas line up. true is left and false is off." },
+		{ "wrap-after", "0 - 1000", "120", "Break a line that is longer than this many characters (a tab counts as indent_width) after a : between statements. Nothing else can be broken without changing the program: there is no way to continue a statement on the next line, and what follows an If on its line belongs to the If. 0 never breaks lines." },
+		{ "trim-trailing-space", "true | false", "true", "Remove spaces and tabs at the end of lines (also in comments)." },
+		{ "final-newline", "true | false", "true", "End the file with a line break, and remove blank lines at the end." },
+		{ "line-ending", "auto | lf | crlf | cr", "auto", "Auto uses what the first line break of the file is, or lf if there is none." },
 	};
 	return list;
 }
@@ -113,6 +117,15 @@ bool blitz::format::set_option(options& o, std::string key, std::string const& v
 	} else if (key == "blank_lines_around_declarations") {
 		ok = parse_int(value, 0, 10, n);
 		if (ok) o.blank_lines_around_declarations = n;
+	} else if (key == "align_assignments") {
+		ok = parse_bool(value, o.align_assignments);
+	} else if (key == "align_declares") {
+		ok = parse_bool(value, o.align_declares);
+	} else if (key == "align_data") {
+		ok = parse_enum<data_alignment>(value, { { "off", data_alignment::off }, { "false", data_alignment::off }, { "left", data_alignment::left }, { "true", data_alignment::left }, { "right", data_alignment::right } }, o.align_data);
+	} else if (key == "wrap_after") {
+		ok = parse_int(value, 0, 1000, n);
+		if (ok) o.wrap_after = n;
 	} else if (key == "trim_trailing_space") {
 		ok = parse_bool(value, o.trim_trailing_space);
 	} else if (key == "final_newline") {
@@ -126,8 +139,8 @@ bool blitz::format::set_option(options& o, std::string key, std::string const& v
 
 	if (!ok) {
 		for (auto const& info : option_list()) {
-			if (key == info.name) {
-				error = "'" + value + "' is not valid for " + key + " (" + info.values + ").";
+			if (key == blitz::tools::normalize_key(info.name)) {
+				error = "'" + value + "' is not valid for " + info.name + " (" + info.values + ").";
 				return false;
 			}
 		}
@@ -140,22 +153,26 @@ std::string blitz::format::to_config(options const& o)
 	auto b = [](bool v) { return v ? "true" : "false"; };
 	auto s = [](spacing v) { return v == spacing::preserve ? "preserve" : v == spacing::spaced ? "spaced" : "compact"; };
 	std::string out;
-	out += std::string("indent_style = ") + (o.indent_with_tabs ? "tab" : "space") + "\n";
-	out += "indent_width = " + std::to_string(o.indent_width) + "\n";
-	out += std::string("indent_case = ") + b(o.indent_case) + "\n";
-	out += std::string("indent_labels = ") + b(o.indent_labels) + "\n";
-	out += std::string("keyword_case = ") + (o.keyword_case == keyword_style::preserve ? "preserve" : o.keyword_case == keyword_style::lower ? "lower" : o.keyword_case == keyword_style::upper ? "upper" : "capitalized") + "\n";
-	out += std::string("operator_spacing = ") + s(o.operator_spacing) + "\n";
-	out += std::string("separator_spacing = ") + s(o.separator_spacing) + "\n";
-	out += std::string("comma_space = ") + b(o.comma_space) + "\n";
-	out += std::string("paren_inner_space = ") + b(o.paren_inner_space) + "\n";
-	out += std::string("paren_space = ") + (o.paren_space == paren_spacing::never ? "never" : "preserve") + "\n";
-	out += "comment_gap = " + std::to_string(o.comment_gap) + "\n";
-	out += std::string("comment_space = ") + b(o.comment_space) + "\n";
-	out += "max_blank_lines = " + std::to_string(o.max_blank_lines) + "\n";
-	out += "blank_lines_around_declarations = " + std::to_string(o.blank_lines_around_declarations) + "\n";
-	out += std::string("trim_trailing_space = ") + b(o.trim_trailing_space) + "\n";
-	out += std::string("final_newline = ") + b(o.final_newline) + "\n";
-	out += std::string("line_ending = ") + (o.line_ending == ending_style::lf ? "lf" : o.line_ending == ending_style::crlf ? "crlf" : o.line_ending == ending_style::cr ? "cr" : "auto") + "\n";
+	out += std::string("indent-style = ") + (o.indent_with_tabs ? "tab" : "space") + "\n";
+	out += "indent-width = " + std::to_string(o.indent_width) + "\n";
+	out += std::string("indent-case = ") + b(o.indent_case) + "\n";
+	out += std::string("indent-labels = ") + b(o.indent_labels) + "\n";
+	out += std::string("keyword-case = ") + (o.keyword_case == keyword_style::preserve ? "preserve" : o.keyword_case == keyword_style::lower ? "lower" : o.keyword_case == keyword_style::upper ? "upper" : "capitalized") + "\n";
+	out += std::string("operator-spacing = ") + s(o.operator_spacing) + "\n";
+	out += std::string("separator-spacing = ") + s(o.separator_spacing) + "\n";
+	out += std::string("comma-space = ") + b(o.comma_space) + "\n";
+	out += std::string("paren-inner-space = ") + b(o.paren_inner_space) + "\n";
+	out += std::string("paren-space = ") + (o.paren_space == paren_spacing::never ? "never" : "preserve") + "\n";
+	out += "comment-gap = " + std::to_string(o.comment_gap) + "\n";
+	out += std::string("comment-space = ") + b(o.comment_space) + "\n";
+	out += "max-blank-lines = " + std::to_string(o.max_blank_lines) + "\n";
+	out += "blank-lines-around-declarations = " + std::to_string(o.blank_lines_around_declarations) + "\n";
+	out += std::string("align-assignments = ") + b(o.align_assignments) + "\n";
+	out += std::string("align-declares = ") + b(o.align_declares) + "\n";
+	out += std::string("align-data = ") + (o.align_data == data_alignment::left ? "left" : o.align_data == data_alignment::right ? "right" : "off") + "\n";
+	out += "wrap-after = " + std::to_string(o.wrap_after) + "\n";
+	out += std::string("trim-trailing-space = ") + b(o.trim_trailing_space) + "\n";
+	out += std::string("final-newline = ") + b(o.final_newline) + "\n";
+	out += std::string("line-ending = ") + (o.line_ending == ending_style::lf ? "lf" : o.line_ending == ending_style::crlf ? "crlf" : o.line_ending == ending_style::cr ? "cr" : "auto") + "\n";
 	return out;
 }

@@ -59,7 +59,7 @@ namespace {
 		std::cout << "Rules (the name of each is also the name of the warning of blitzcc that it is built on):\n\n";
 		for (auto const& rule : tidy::all_rules()) {
 			std::cout << "  " << rule.name << "  [default: " << tidy::to_string(rule.default_mode) << (rule.fixable ? "" : ", report only") << "]\n";
-			std::cout << "      " << blitz::find_warning(rule.name).description << "\n";
+			std::cout << "      " << (rule.description ? rule.description : blitz::find_warning(rule.name).description) << "\n";
 			if (rule.fixable) {
 				std::cout << "      Fix: " << rule.fix << "\n";
 				if (*rule.unsafe) {
@@ -72,12 +72,13 @@ namespace {
 	const char* help = R"(Settings (as --name=value, or name = value in the configuration file):
   <rule>=off|report|fix   What happens with the findings of a rule, see --rules. Without a value: fix.
   default=off|report|fix  The mode of every rule that is not set.
+  type-notation=keep|short|long  How types are written: x:Int32 (long, the default), x% (short) or as they are (keep).
   unsafe                  Also apply the fixes that can change the program (--unsafe, "unsafe": true).
-  max_passes=N            The file is compiled and fixed up to N times (default 20).
-  userlibs_dir=DIR        Where the userlibs are, like --userlibs-dir of blitzcc.
+  max-passes=N            The file is compiled and fixed up to N times (default 20).
+  userlibs-dir=DIR        Where the userlibs are, like --userlibs-dir of blitzcc.
 
 Rules are the warnings of blitzcc. Every fix is checked by compiling the result, and a fix that does not compile is left out.
-The configuration file is JSON ({ "unsafe": false, "implicit_variable": "report" }) or lines of "name = value". Use --rules to list the rules.
+The configuration file is JSON ({ "unsafe": false, "implicit-variable": "report" }) or lines of "name = value". Use --rules to list the rules.
 )";
 
 	std::string print_config(blitz::tools::settings const& values)
@@ -88,7 +89,8 @@ The configuration file is JSON ({ "unsafe": false, "implicit_variable": "report"
 		for (auto const& rule : tidy::all_rules()) {
 			out += std::string(rule.name) + " = " + tidy::to_string(cfg.mode_of(rule.name)) + "\n";
 		}
-		out += std::string("unsafe = ") + (cfg.unsafe ? "true" : "false") + "\nmax_passes = " + std::to_string(cfg.max_passes) + "\n";
+		out += std::string("type-notation = ") + (cfg.type_notation == tidy::notation::keep ? "keep" : cfg.type_notation == tidy::notation::short_form ? "short" : "long") + "\n";
+		out += std::string("unsafe = ") + (cfg.unsafe ? "true" : "false") + "\nmax-passes = " + std::to_string(cfg.max_passes) + "\n";
 		return out;
 	}
 

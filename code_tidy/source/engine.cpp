@@ -17,6 +17,7 @@
 #include "keywords.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "tokens.hpp"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -350,6 +351,51 @@ namespace {
 		return unsafe_blocked ? "not fixed: it can change the program, turn on \"unsafe\" to fix it" : "no safe fix, change it by hand";
 	}
 
+
+	////////////////////////////////////////////////////////////////////////////
+	// Rules that are not warnings of the compiler
+	////////////////////////////////////////////////////////////////////////////
+	// Whether the expression has no side effects, and which variables it reads. A name counts as a variable only if the program declares
+	// it somewhere (and has no function of that name), as a name on its own can be a call.
+	bool free_of_effects(ast::expression const* expr, std::set<std::string> const& variables, std::set<std::string>& reads)
+	{
+		if (!expr) {
+			return false;
+		} else if (dynamic_cast<ast::literal const*>(expr)) {
+			return true;
+		} else if (auto r = dynamic_cast<ast::reference const*>(expr)) {
+			auto name = lower(r->name);
+			if (!variables.count(name)) {
+				return false;
+			}
+			reads.insert(name);
+			return true;
+		} else if (auto u = dynamic_cast<ast::unary const*>(expr)) {
+			return free_of_effects(u->operand.get(), variables, reads);
+		} else if (auto b = dynamic_cast<ast::binary const*>(expr)) {
+			return (b->kind != ast::binary::op::DIVIDE) && (b->kind != ast::binary::op::MODULO) && free_of_effects(b->lhs.get(), variables, reads) && free_of_effects(b->rhs.get(), variables, reads);
+		}
+		return false;
+	}
+
+	// What a new variable has before anything is assigned to it.
+	std::string default_value(ast::declaration const& var)
+	{
+		if (var.type == blitz::types::type::STRING) {
+			return "\"\"";
+		} else if (var.type == blitz::types::type::STRUCT) {
+			return "Null";
+		} else if (blitz::types::is_real(var.type)) {
+			return "0.0";
+		}
+		return "0";
+	}
+
+	std::string line_break(std::string const& text)
+	{
+		return (text.find("\r\n") != std::string::npos) ? "\r\n" : "\n";
+	}
+
 	plan make_plan(analysis& a, std::string const& text, std::string const& primary, tidy::config const& cfg, std::set<std::string> const& rejected)
 	{
 		plan                 out;
@@ -380,8 +426,12 @@ namespace {
 			if (!seen.insert(key).second) {
 				continue;
 			}
-			auto const* info = tidy::find_rule(f.warning);
-			auto        m    = cfg.mode_of(f.warning);
+			// The setting type-notation = long is what fixes the warning about the short notation.
+			static const tidy::rule notation_rule{ "type-notation", true, tidy::mode::FIX, "", "" };
+			bool                    is_notation = (f.warning == "short-type-notation");
+			std::string             rule_name   = is_notation ? "type-notation" : f.warning;
+			auto const*             info        = is_notation ? &notation_rule : tidy::find_rule(rule_name);
+			auto                    m           = is_notation ? ((cfg.type_notation == tidy::notation::long_form) ? tidy::mode::FIX : tidy::mode::OFF) : cfg.mode_of(rule_name);
 			if (!info || (m == tidy::mode::OFF)) {
 				continue;
 			}
@@ -389,7 +439,7 @@ namespace {
 			fix  candidate;
 			bool have    = false;
 			bool blocked = false;
-			candidate.warning = f.warning;
+			candidate.warning = rule_name;
 			candidate.where   = f.where;
 			candidate.message = f.reason;
 			candidate.fingerprint = f.warning + "|" + std::to_string(f.where.column) + "|" + ln.line_text(f.where.line);
@@ -462,50 +512,6 @@ namespace {
 							have             = delete_lines(ln, fn->covers, fn->covers, candidate.edits);
 						}
 					}
-				} else if (f.warning == "unreachable-code") {
-					for (auto const& ref : blocks) {
-						for (size_t idx = 0; idx < ref.block->size(); idx++) {
-							auto& stmt = (*ref.block)[idx];
-							if (!at(stmt->where, f.where.line, f.where.column) || !is_file(stmt->where, primary)) {
-								continue;
-							}
-							// Up to the next label, which can be jumped to, or Data, which is not code.
-							size_t last  = idx;
-							bool   clean = true;
-							for (; last < ref.block->size(); last++) {
-								auto* s = (*ref.block)[last].get();
-								if (dynamic_cast<ast::label_statement*>(s) || dynamic_cast<ast::data_statement*>(s)) {
-									break;
-								}
-								// Declarations are hoisted, so they matter even where they can't run. A label further in can be jumped to.
-								std::vector<block_ref> inner;
-								if (auto* if_s = dynamic_cast<ast::if_statement*>(s)) {
-									for (auto& branch : if_s->branches) {
-										gather(branch.body, ref.in_function, ref.top, inner);
-									}
-								} else if (auto* w = dynamic_cast<ast::while_statement*>(s)) {
-									gather(w->body, ref.in_function, ref.top, inner);
-								} else if (auto* r = dynamic_cast<ast::repeat_statement*>(s)) {
-									gather(r->body, ref.in_function, ref.top, inner);
-								} else if (auto* fo = dynamic_cast<ast::for_statement*>(s)) {
-									gather(fo->body, ref.in_function, ref.top, inner);
-								} else if (auto* sel = dynamic_cast<ast::select_statement*>(s)) {
-									for (auto& c : sel->cases) {
-										gather(c.body, ref.in_function, ref.top, inner);
-									}
-								}
-								for (auto const& in : inner) {
-									for (auto const& nested : *in.block) {
-										clean = clean && !dynamic_cast<ast::label_statement const*>(nested.get()) && !dynamic_cast<ast::declare const*>(nested.get()) && !dynamic_cast<ast::dim_statement const*>(nested.get());
-									}
-								}
-								clean = clean && !dynamic_cast<ast::declare*>(s) && !dynamic_cast<ast::dim_statement*>(s) && is_file(s->where, primary);
-							}
-							if (clean && (last > idx)) {
-								have = delete_lines(ln, (*ref.block)[idx]->covers, (*ref.block)[last - 1]->covers, candidate.edits);
-							}
-						}
-					}
 				}
 			}
 
@@ -520,7 +526,7 @@ namespace {
 			}
 
 			tidy::report r;
-			r.rule    = f.warning;
+			r.rule    = rule_name;
 			r.line    = f.where.line;
 			r.column  = f.where.column;
 			r.length  = f.where.length;
@@ -532,6 +538,355 @@ namespace {
 				r.note = mode_note(blocked);
 			}
 			out.reports.push_back(std::move(r));
+		}
+
+		////////////////////////////////////////////////////////////////////////
+		// Rules that look at the program itself
+		////////////////////////////////////////////////////////////////////////
+		auto offer = [&](std::string const& rule, ast::location const& where, std::string const& message, std::vector<text_edit> edits, bool unsafe) {
+			auto m = cfg.mode_of(rule);
+			if (m == tidy::mode::OFF) {
+				return;
+			}
+			fix candidate;
+			candidate.warning     = rule;
+			candidate.where       = where;
+			candidate.message     = message;
+			candidate.edits       = std::move(edits);
+			candidate.unsafe      = unsafe;
+			candidate.fingerprint = rule + "|" + std::to_string(where.column) + "|" + ln.line_text(where.line);
+			bool blocked          = false;
+			if ((m == tidy::mode::FIX) && !candidate.edits.empty()) {
+				if (rejected.count(candidate.fingerprint)) {
+					return; // The compiler refused it before.
+				}
+				if (!candidate.unsafe || cfg.unsafe) {
+					out.fixes.push_back(std::move(candidate));
+					return;
+				}
+				blocked = true;
+			}
+			tidy::report r;
+			r.rule    = rule;
+			r.line    = where.line;
+			r.column  = where.column;
+			r.length  = where.length;
+			r.message = message;
+			if (m == tidy::mode::FIX) {
+				r.note = mode_note(blocked);
+			}
+			out.reports.push_back(std::move(r));
+		};
+
+		// type-notation = short: x:Int32 becomes x%. The compiler has no warning for it, so the tokens of the file are looked at: A colon that
+		// touches a name and a type is the type of the name, which is what the compiler reads as well.
+		if (cfg.type_notation == tidy::notation::short_form) {
+			auto tokens = blitz::tools::tokenize(text);
+			size_t at   = 0;
+			std::vector<size_t> begins;
+			for (auto const& t : tokens) {
+				begins.push_back(at);
+				at += t.text.size();
+			}
+			for (size_t t = 1; t + 1 < tokens.size(); t++) {
+				if (!tokens[t].is(blitz::tools::kind::separator) || !tokens[t - 1].is(blitz::tools::kind::word) || !tokens[t + 1].is(blitz::tools::kind::word)) {
+					continue;
+				}
+				auto type = blitz::tools::lower(tokens[t + 1].text);
+				const char* suffix = nullptr;
+				if ((type == "int") || (type == "int32")) {
+					suffix = "%";
+				} else if ((type == "long") || (type == "int64")) {
+					suffix = "%%";
+				} else if ((type == "float") || (type == "float32") || (type == "real") || (type == "real32") || (type == "single")) {
+					suffix = "#";
+				} else if ((type == "double") || (type == "float64") || (type == "real64")) {
+					suffix = "##";
+				} else if (type == "string") {
+					suffix = "$";
+				}
+				// A name that has a type character already has one type too many.
+				char last = tokens[t - 1].text.back();
+				if (!suffix || (last == '%') || (last == '#') || (last == '$')) {
+					continue;
+				}
+				// The line and column of the colon.
+				uint64_t line = 1;
+				while ((line < ln.starts.size()) && (ln.starts[line] <= begins[t])) {
+					line++;
+				}
+				ast::location where;
+				where.line   = line;
+				where.column = begins[t] - ln.starts[line - 1] + 1;
+				where.length = tokens[t].text.size() + tokens[t + 1].text.size();
+				fix candidate;
+				candidate.warning     = "type-notation";
+				candidate.where       = where;
+				candidate.message     = "The type is written in the long form.";
+				candidate.edits       = { { begins[t], begins[t + 1] + tokens[t + 1].text.size(), suffix } };
+				candidate.fingerprint = "type-notation|" + std::to_string(begins[t]) + "|" + ln.line_text(line);
+				if (rejected.count(candidate.fingerprint) == 0) {
+					out.fixes.push_back(std::move(candidate));
+				}
+			}
+		}
+
+		bool want_raii   = cfg.mode_of("resource-acquisition-is-initialization") != tidy::mode::OFF;
+		bool want_split  = cfg.mode_of("one-declare-per-variable") != tidy::mode::OFF;
+		bool want_parens = cfg.mode_of("parentheses-around-arguments") != tidy::mode::OFF;
+		// Parentheses around the condition of If, ElseIf, While, Until and Select. The keywords are found in the tokens of the file: they
+		// start a statement at the start of a line and behind a : or a Then or Else, and the condition ends at the Then, the : or the end
+		// of the line. The compiler decides afterwards whether the result is still a program.
+		if (cfg.mode_of("parentheses-around-condition") != tidy::mode::OFF) {
+			using blitz::tools::kind;
+			auto tokens = blitz::tools::tokenize(text);
+			std::vector<size_t> begins;
+			size_t              position = 0;
+			for (auto const& t : tokens) {
+				begins.push_back(position);
+				position += t.text.size();
+			}
+			bool statement_start = true;
+			for (size_t t = 0; t < tokens.size(); t++) {
+				auto const& tok = tokens[t];
+				if (tok.is(kind::space) || tok.is(kind::comment)) {
+					continue;
+				}
+				if (tok.is(kind::newline) || tok.is(kind::separator)) {
+					statement_start = true;
+					continue;
+				}
+				bool starts = statement_start;
+				statement_start = false;
+				auto word       = blitz::tools::lower(tok.text);
+				if (!tok.is(kind::word)) {
+					continue;
+				}
+				if ((word == "then") || (word == "else")) {
+					statement_start = true; // If a Then If b Then c
+					continue;
+				}
+				if (!starts || ((word != "if") && (word != "elseif") && (word != "while") && (word != "until") && (word != "select"))) {
+					continue;
+				}
+				// The condition: up to the Then at the top level, the next separator, or the end of the line.
+				size_t first = t + 1, last = t, depth = 0;
+				for (size_t u = t + 1; u < tokens.size(); u++) {
+					auto const& tk = tokens[u];
+					if (tk.is(kind::newline) || tk.is(kind::comment) || (tk.is(kind::separator) && depth == 0)) {
+						break;
+					}
+					if (tk.is_symbol("(") || tk.is_symbol("[")) {
+						depth++;
+					} else if ((tk.is_symbol(")") || tk.is_symbol("]")) && depth > 0) {
+						depth--;
+					} else if ((depth == 0) && tk.is(kind::word) && (blitz::tools::lower(tk.text) == "then") && ((word == "if") || (word == "elseif"))) {
+						break;
+					}
+					if (!tk.is(kind::space)) {
+						last = u;
+					}
+				}
+				while ((first < tokens.size()) && tokens[first].is(kind::space)) {
+					first++;
+				}
+				if (last < first) {
+					continue; // No condition
+				}
+				// Already in parentheses: the first one closes at the last token.
+				if (tokens[first].is_symbol("(")) {
+					int  nesting = 0;
+					size_t close = first;
+					for (size_t u = first; u <= last; u++) {
+						nesting += tokens[u].is_symbol("(") ? 1 : (tokens[u].is_symbol(")") ? -1 : 0);
+						if (nesting == 0) {
+							close = u;
+							break;
+						}
+					}
+					if (close == last) {
+						continue;
+					}
+				}
+				uint64_t line = 1;
+				while ((line < ln.starts.size()) && (ln.starts[line] <= begins[first])) {
+					line++;
+				}
+				ast::location where;
+				where.line   = line;
+				where.column = begins[first] - ln.starts[line - 1] + 1;
+				where.length = begins[last] + tokens[last].text.size() - begins[first];
+				offer("parentheses-around-condition", where, "The condition of '" + tok.text + "' is not in parentheses.", { { begins[first], begins[first], "(" }, { begins[last] + tokens[last].text.size(), begins[last] + tokens[last].text.size(), ")" } }, false);
+			}
+		}
+
+		if (want_raii || want_split || want_parens) {
+			std::set<std::string> variables, functions;
+			for (auto const& fn : a.program->functions) {
+				functions.insert(lower(fn->name));
+				for (auto const& param : fn->parameters) {
+					variables.insert(lower(param.name));
+				}
+			}
+			for (auto const& ref : blocks) {
+				for (auto const& stmt : *ref.block) {
+					if (auto* d = dynamic_cast<ast::declare const*>(stmt.get())) {
+						for (auto const& var : d->variables) {
+							variables.insert(lower(var.name));
+						}
+					}
+				}
+			}
+			for (auto const& name : functions) {
+				variables.erase(name);
+			}
+
+			for (auto const& ref : blocks) {
+				auto& list = *ref.block;
+				for (size_t idx = 0; idx < list.size(); idx++) {
+					auto* stmt = list[idx].get();
+					if (!is_file(stmt->where, primary)) {
+						continue;
+					}
+
+					if (auto* d = dynamic_cast<ast::declare const*>(stmt)) {
+						if (want_split && (d->variables.size() > 1)) {
+							size_t begin = ln.offset(d->covers.line, d->covers.column);
+							size_t first = ln.offset(d->variables.front().covers.line, d->variables.front().covers.column);
+							size_t last  = ln.offset(d->variables.back().covers.end_line, d->variables.back().covers.end_column);
+							if ((first > begin) && (last > first)) {
+								bool        alone  = ln.only_blank_before(begin) && ln.only_blank_after(ln.offset(d->covers.end_line, d->covers.end_column));
+								std::string prefix = text.substr(begin, first - begin);
+								std::string between = alone ? line_break(text) + ln.indent(begin) : std::string(" : ");
+								std::string joined;
+								for (size_t v = 0; v < d->variables.size(); v++) {
+									auto const& var = d->variables[v];
+									if (v > 0) {
+										joined += between + prefix;
+									}
+									size_t vb = ln.offset(var.covers.line, var.covers.column), ve = ln.offset(var.covers.end_line, var.covers.end_column);
+									joined += text.substr(vb, ve - vb);
+								}
+								offer("one-declare-per-variable", d->where, "More than one variable is declared in one statement.", { { first, last, joined } }, false);
+							}
+						}
+						if (want_raii && !d->constant) {
+							for (auto const& var : d->variables) {
+								if (var.initial || var.array_size || !is_file(var.where, primary) || (var.covers.line == 0)) {
+									continue;
+								}
+								// A Global is only set once when it has no value, but every time the declaration is passed when it has one.
+								bool unsafe = d->global && ((ref.block != ref.top) || ref.in_function || has_label[ref.top]);
+								std::vector<text_edit> edits;
+								size_t                 at = ln.offset(var.covers.end_line, var.covers.end_column);
+
+								// The statements in front of the assignment may only do things that don't matter to it: declare other variables or
+								// set them to values without side effects, and neither mention this variable nor change what the value reads.
+								std::string name = lower(var.name);
+								for (size_t next = idx + 1; next < list.size() && next <= idx + 8; next++) {
+									auto*                 other = list[next].get();
+									std::set<std::string> reads, writes;
+									if (auto* as = dynamic_cast<ast::assign const*>(other)) {
+										auto* target = dynamic_cast<ast::reference const*>(as->target.get());
+										if (!target || !free_of_effects(as->value.get(), variables, reads) || !variables.count(lower(target->name))) {
+											break;
+										}
+										if ((lower(target->name) == name) && !reads.count(name) && is_file(as->where, primary) && (as->value->covers.line != 0)) {
+											// Whatever was declared or set in between must not be something this value reads.
+											bool clash = false;
+											for (size_t between = idx + 1; between < next; between++) {
+												std::set<std::string> mentioned, ignored;
+												auto*                 mid = list[between].get();
+												if (auto* mid_as = dynamic_cast<ast::assign const*>(mid)) {
+													free_of_effects(mid_as->value.get(), variables, mentioned);
+													mentioned.insert(lower(dynamic_cast<ast::reference const*>(mid_as->target.get())->name));
+												} else if (auto* mid_d = dynamic_cast<ast::declare const*>(mid)) {
+													for (auto const& mv : mid_d->variables) {
+														free_of_effects(mv.initial.get(), variables, mentioned);
+														mentioned.insert(lower(mv.name));
+													}
+												}
+												clash = clash || mentioned.count(name);
+												for (auto const& written : mentioned) {
+													// Reading is fine, as long as nothing in between sets it: be strict and refuse every shared name.
+													clash = clash || reads.count(written);
+												}
+											}
+											size_t vb = ln.offset(as->value->covers.line, as->value->covers.column), ve = ln.offset(as->value->covers.end_line, as->value->covers.end_column);
+											std::vector<text_edit> merged;
+											if (!clash && (ve > vb) && delete_lines(ln, as->covers, as->covers, merged)) {
+												edits.push_back({ at, at, " = " + text.substr(vb, ve - vb) });
+												edits.insert(edits.end(), merged.begin(), merged.end());
+											}
+											break;
+										}
+									} else if (auto* od = dynamic_cast<ast::declare const*>(other)) {
+										bool fine = !od->constant;
+										for (auto const& ov : od->variables) {
+											fine = fine && !ov.array_size && (!ov.initial || free_of_effects(ov.initial.get(), variables, reads)) && (lower(ov.name) != name);
+										}
+										if (!fine) {
+											break;
+										}
+									} else {
+										break;
+									}
+								}
+								if (edits.empty()) {
+									edits.push_back({ at, at, " = " + default_value(var) });
+								}
+								offer("resource-acquisition-is-initialization", var.where, "'" + var.name + "' is declared without a value.", std::move(edits), unsafe);
+							}
+						}
+					} else if (want_parens) {
+						auto* call = dynamic_cast<ast::call_statement const*>(stmt);
+						if (!call || !call->invocation || call->invocation->arguments.empty() || (call->covers.line == 0)) {
+							continue;
+						}
+						auto const& first_arg = call->invocation->arguments.front();
+						if (first_arg->covers.line == 0) {
+							continue;
+						}
+						size_t begin = ln.offset(call->covers.line, call->covers.column), end = ln.offset(call->covers.end_line, call->covers.end_column);
+						size_t arg   = ln.offset(first_arg->covers.line, first_arg->covers.column);
+						if ((end <= begin) || (arg <= begin) || (arg >= end)) {
+							continue;
+						}
+						// Name(Arguments) is already what is wanted, but Name (a)+b, c is not.
+						auto tokens = blitz::tools::tokenize(text.substr(begin, end - begin));
+						std::vector<size_t> significant;
+						for (size_t t = 0; t < tokens.size(); t++) {
+							if (!tokens[t].is(blitz::tools::kind::space) && !tokens[t].is(blitz::tools::kind::comment)) {
+								significant.push_back(t);
+							}
+						}
+						if ((significant.size() < 2) || !tokens[significant[0]].is(blitz::tools::kind::word) || !tokens[significant[1]].is_symbol("(") ) {
+							if ((significant.size() >= 2) && tokens[significant[1]].is(blitz::tools::kind::separator)) {
+								continue; // Name:Type, which has no gap to put the parenthesis in.
+							}
+						} else {
+							int  depth = 0;
+							size_t closing = 0;
+							for (size_t t = 1; t < significant.size(); t++) {
+								auto const& tok = tokens[significant[t]];
+								depth += tok.is_symbol("(") ? 1 : (tok.is_symbol(")") ? -1 : 0);
+								if (depth == 0) {
+									closing = t;
+									break;
+								}
+							}
+							if ((closing != 0) && (closing + 1 == significant.size())) {
+								continue;
+							}
+						}
+						size_t name_end = begin + tokens[significant[0]].text.size();
+						if (name_end > arg) {
+							continue;
+						}
+						offer("parentheses-around-arguments", call->where, "The arguments of '" + call->invocation->name + "' are not in parentheses.", { { name_end, arg, "(" }, { end, end, ")" } }, false);
+					}
+				}
+			}
 		}
 		return out;
 	}
@@ -660,6 +1015,9 @@ blitz::tidy::result blitz::tidy::run(std::string const& text, config const& cfg)
 			if (fixed.count(rule.name)) {
 				res.fixed.emplace_back(rule.name, fixed[rule.name]);
 			}
+		}
+		if (fixed.count("type-notation")) {
+			res.fixed.emplace_back("type-notation", fixed["type-notation"]);
 		}
 		res.text    = current;
 		res.changed = (current != text);

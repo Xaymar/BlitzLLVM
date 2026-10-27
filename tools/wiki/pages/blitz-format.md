@@ -46,19 +46,19 @@ The settings come from a file next to the source code, and the command line over
 
 ```text
 # Spaces, like the rest of the project
-indent_style = space
-indent_width = 2
-keyword_case = capitalized
-operator_spacing = spaced
+indent-style = space
+indent-width = 2
+keyword-case = capitalized
+operator-spacing = spaced
 ```
 
 `blitz-format.json` is a JSON object with the same keys, where yes/no settings can be `true` and `false` and numbers can be numbers. (The two kinds of file are told apart by their first character, so either name can hold either.)
 
 ```json
 {
-  "indent_style": "space",
-  "indent_width": 2,
-  "max_blank_lines": 2
+  "indent-style": "space",
+  "indent-width": 2,
+  "max-blank-lines": 2
 }
 ```
 
@@ -66,27 +66,31 @@ Names are not case sensitive. Every setting has a default, which is used when no
 
 | Setting | Values | Default | Meaning |
 | --- | --- | --- | --- |
-| `indent_style` | tab \| space | `tab` | Indent with one tab per level, or with indent_width spaces. |
-| `indent_width` | 1 - 16 | `4` | Spaces per level when indent_style is space. |
-| `indent_case` | true \| false | `true` | Put Case and Default one level in from Select, so that the code under them is two levels in. |
-| `indent_labels` | true \| false | `false` | Put .label lines at the indent of the code around them. Otherwise they start in the first column. |
-| `keyword_case` | preserve \| lower \| upper \| capitalized | `capitalized` | How keywords are written: if, IF, If. Capitalized is the spelling of the manuals (If, EndIf, Wend). Names and commands are never changed. |
-| `operator_spacing` | preserve \| spaced \| compact | `spaced` | Spaces around + - * / ^ = < > <= >= <>. Compact removes them. Mod, And, Or, Xor, Shl, Shr and Sar always have spaces. A sign (-1) never has a space behind it. |
-| `separator_spacing` | preserve \| spaced \| compact | `spaced` | Spaces around the : between statements. |
-| `comma_space` | true \| false | `true` | A space behind each comma, and none in front of it. |
-| `paren_inner_space` | true \| false | `false` | A space behind ( and in front of ). |
-| `paren_space` | preserve \| never | `preserve` | Never removes the space in Name (x) so that it reads Name(x). Keywords (If (x)) keep their space either way. |
-| `comment_gap` | 0 - 16 | `1` | Spaces between code and a comment behind it. 0 keeps the space that is there, which keeps comments that are lined up in a column. |
-| `comment_space` | true \| false | `false` | Add a space after the ; when the comment starts with a letter or a digit. ;;; and ;---- are left alone. |
-| `max_blank_lines` | -1 - 100 | `1` | The most blank lines in a row. More are removed. -1 allows any number. |
-| `blank_lines_around_declarations` | 0 - 10 | `1` | Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone. |
-| `trim_trailing_space` | true \| false | `true` | Remove spaces and tabs at the end of lines (also in comments). |
-| `final_newline` | true \| false | `true` | End the file with a line break, and remove blank lines at the end. |
-| `line_ending` | auto \| lf \| crlf \| cr | `auto` | Auto uses what the first line break of the file is, or lf if there is none. |
+| `indent-style` | tab \| space | `tab` | Indent with one tab per level, or with indent-width spaces. |
+| `indent-width` | 1 - 16 | `4` | Spaces per level when indent-style is space. |
+| `indent-case` | true \| false | `true` | Put Case and Default one level in from Select, so that the code under them is two levels in. |
+| `indent-labels` | true \| false | `false` | Put .label lines at the indent of the code around them. Otherwise they start in the first column. |
+| `keyword-case` | preserve \| lower \| upper \| capitalized | `capitalized` | How keywords are written: if, IF, If. Capitalized is the spelling of the manuals (If, EndIf, Wend). Names and commands are never changed. |
+| `operator-spacing` | preserve \| spaced \| compact | `spaced` | Spaces around + - * / ^ = < > <= >= <>. Compact removes them. Mod, And, Or, Xor, Shl, Shr and Sar always have spaces. A sign (-1) never has a space behind it. |
+| `separator-spacing` | preserve \| spaced \| compact | `spaced` | Spaces around the : between statements. |
+| `comma-space` | true \| false | `true` | A space behind each comma, and none in front of it. |
+| `paren-inner-space` | true \| false | `false` | A space behind ( and in front of ). |
+| `paren-space` | preserve \| never | `preserve` | Never removes the space in Name (x) so that it reads Name(x). Keywords (If (x)) keep their space either way. |
+| `comment-gap` | 0 - 16 | `1` | Spaces between code and a comment behind it. 0 keeps the space that is there, which keeps comments that are lined up in a column. |
+| `comment-space` | true \| false | `false` | Add a space after the ; when the comment starts with a letter or a digit. ;;; and ;---- are left alone. |
+| `max-blank-lines` | -1 - 100 | `1` | The most blank lines in a row. More are removed. -1 allows any number. |
+| `blank-lines-around-declarations` | 0 - 10 | `1` | Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone. |
+| `align-assignments` | true \| false | `false` | Line up the `=` of assignments on consecutive lines. See [Alignment](#alignment). |
+| `align-declares` | true \| false | `false` | Line up the names and the `=` of `Const`, `Dim`, `Local` and `Global` on consecutive lines. See [Alignment](#alignment). |
+| `align-data` | left \| right \| off | `off` | Line up the values of `Data` statements on consecutive lines in columns, to the left or to the right (so that the commas line up). `true` is `left` and `false` is `off`. See [Alignment](#alignment). |
+| `wrap-after` | 0 - 1000 | `120` | Break a line that is longer than this many characters after a `:` between statements. See [Long lines](#long-lines). |
+| `trim-trailing-space` | true \| false | `true` | Remove spaces and tabs at the end of lines (also in comments). |
+| `final-newline` | true \| false | `true` | End the file with a line break, and remove blank lines at the end. |
+| `line-ending` | auto \| lf \| crlf \| cr | `auto` | Auto uses what the first line break of the file is, or lf if there is none. |
 
 ## What the style does
 
-Blocks are indented by one level: The body of a `Function`, `Type`, `If` (block form), `ElseIf`/`Else`, `For`, `While`, `Repeat` and `Select`. `Case` and `Default` are one level in from `Select` unless `indent_case` is off. An `If` with its statement on the same line (`If a Then b Else c`) has no block. The statements on a line that are separated by `:` count one after the other, so `For i = 1 To 3 : Print i : Next` stays on one line and doesn't change the indentation after it. Code that doesn't match up (a `Next` without a `For`) never indents below the first column.
+Blocks are indented by one level: The body of a `Function`, `Type`, `If` (block form), `ElseIf`/`Else`, `For`, `While`, `Repeat` and `Select`. `Case` and `Default` are one level in from `Select` unless `indent-case` is off. An `If` with its statement on the same line (`If a Then b Else c`) has no block. The statements on a line that are separated by `:` count one after the other, so `For i = 1 To 3 : Print i : Next` stays on one line and doesn't change the indentation after it. Code that doesn't match up (a `Next` without a `For`) never indents below the first column.
 
 Before:
 
@@ -134,10 +138,83 @@ Keywords are the words of the language (`If`, `EndIf`, `Wend`, `Mod`, `And`, `In
 
 A `-` or `+` in front of a value (`x = -1`, `Case -1`, `Step -1`) is a sign and stays close to its number. After a name that is not a keyword with a space in front and none behind (`Print -1`, `a -1`) it could be a sign or a subtraction, so the spacing around it stays as it was written.
 
-Comments, strings and numbers keep their text. The only thing that changes in a comment is the white space at the end (with `trim_trailing_space`), and a missing space after the `;` if `comment_space` is on.
+Comments, strings and numbers keep their text. The only thing that changes in a comment is the white space at the end (with `trim-trailing-space`), and a missing space after the `;` if `comment-space` is on.
+
+## Alignment
+
+`align-assignments` and `align-declares` line up lines that follow each other, with the same indent. A blank line, a comment line, a line of another kind or a line that is indented differently ends the group. They are off by default.
+
+```blitzbasic
+a=1
+longer=2
+p\x=3
+Const A=1
+Local Longer:Int32=2
+Global b=3
+Dim arr(5)
+```
+
+becomes, with `align-assignments = true` and `align-declares = true`,
+
+```blitzbasic
+a      = 1
+longer = 2
+p\x    = 3
+Const  A            = 1
+Local  Longer:Int32 = 2
+Global b            = 3
+Dim    arr(5)
+```
+
+* Lines with more than one statement (`a = 1 : b = 2`) are left alone, and so is an `If` with its statement on the same line: there is no telling which `=` to line up. They end the group.
+* A declaration of several variables (`Local a, b = 1`) has its name lined up with the others, but its `=` stays where it is.
+* A comment behind the code stays behind the code.
+
+`align-data` sets the values of consecutive `Data` statements in columns, each as wide as its widest value:
+
+```blitzbasic
+Data 1,22,3
+Data 100,2,3333
+Data "a",5
+```
+
+becomes
+
+```blitzbasic
+Data 1,   22, 3
+Data 100, 2,  3333
+Data "a", 5
+```
+
+With `align-data = right` the values end in the same place instead, so that the commas line up:
+
+```blitzbasic
+Data   1, 22,    3
+Data 100,  2, 3333
+Data "a",  5
+```
+
+## Long lines
+
+A line that is longer than `wrap-after` characters (a tab counts as `indent-width`) is broken after the last `:` between statements that still fits, or after the first one if none does. `0` never breaks lines.
+
+```blitzbasic
+For i = 1 To 3 : Print "A very long text that is printed" : Print "and another long text, printed after it" : Next
+```
+
+becomes
+
+```blitzbasic
+For i = 1 To 3
+	Print "A very long text that is printed"
+	Print "and another long text, printed after it"
+Next
+```
+
+That is the only place where the program stays the same: Blitz has no way to continue a statement on the next line. A single statement that is too long stays as it is, and so does everything that follows an `If` on its line, as in `If a Then b : c` the `c` belongs to the `If` and would not on a line of its own. The statements in front of such an `If` are still broken off.
 
 ## Notes
 
-* A `Function` or `Type` that is not inside another block counts as a declaration. `blank_lines_around_declarations` puts blank lines above it (above the comment lines directly over it, which belong to it) and below its `End`.
+* A `Function` or `Type` that is not inside another block counts as a declaration. `blank-lines-around-declarations` puts blank lines above it (above the comment lines directly over it, which belong to it) and below its `End`.
 * The result is stable: Formatting the formatted text doesn't change it.
 * The compiler is the judge of what a program means. `blitz-format` doesn't compile anything, so it formats code that has errors, too.

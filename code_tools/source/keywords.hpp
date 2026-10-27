@@ -19,4 +19,8 @@ namespace blitz::tools {
 	/** Keywords that work like a function and are written directly in front of the parenthesis: Int(x), Abs(x).
 	 */
 	bool keyword_is_function(std::string_view lower_word);
+
+	/** Whether the word is the name of a type as it is written behind a colon (x:Int32, x:Float, x:String), in any case.
+	 */
+	bool is_type_name(std::string_view word);
 } // namespace blitz::tools

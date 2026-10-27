@@ -19,8 +19,14 @@ namespace blitz::tidy {
 		mode        default_mode;   // FIX for rules that can be fixed without changing the program, REPORT for the rest.
 		const char* fix;            // What the fix does.
 		const char* unsafe;         // When the fix changes the program (needs "unsafe"), empty if it never does.
+		const char* description = nullptr; // What the rule looks for, for the rules that are not a warning of the compiler.
 	};
 
 	std::vector<rule> const& all_rules();
 	rule const*              find_rule(std::string const& name);
+
+	/** The name a rule has now, if it was known by another one: short-type-notation is expand-short-to-long-notation. Names that are
+	 * not an old one are returned as they are.
+	 */
+	std::string canonical_rule(std::string const& name);
 } // namespace blitz::tidy

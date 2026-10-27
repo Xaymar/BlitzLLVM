@@ -30,11 +30,14 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-lossy-real-to-real", true, mode::FIX, "Converts on purpose: Float(value), Half(value)", "" },
 		{ "implicit-string-to-number", true, mode::FIX, "Converts on purpose: Int(value), Float(value), ...", "" },
 		{ "implicit-lossy-int-to-real", true, mode::FIX, "Converts on purpose: Float(value), Double(value), Half(value)", "" },
+		{ "one-declare-per-variable", true, mode::OFF, "Local a, b = 1 becomes one Local (or Global) per line.", "", "A Local or Global declares more than one variable." },
+		{ "parentheses-around-arguments", true, mode::OFF, "Foo 1, 2 becomes Foo(1, 2) for a command or function that is called as a statement.", "", "The arguments of a call that is a statement are not in parentheses." },
+		{ "resource-acquisition-is-initialization", true, mode::OFF, "Gives a variable a value where it is declared: 0, 0.0, \"\" or Null, or the value that the statement behind it assigns if that is free of side effects and not behind a condition. Never moves the result of a call (Create, Load, Copy...).", "A Global that is declared in a loop or in code with labels: the declaration then sets it again each time it is passed.", "A Local or Global is declared without a value, so that the variable can be used before something was assigned to it." },
+		{ "parentheses-around-condition", true, mode::OFF, "If a Then b becomes If (a) Then b, also ElseIf, While, Until and Select.", "", "The condition of an If, ElseIf, While, Until or Select is not in parentheses." },
 		{ "implicit-variable", true, mode::FIX, "Declares the variable with its type in front of the statement of the function that first uses it.", "Variables of the main program: an Include can declare them somewhere else." },
 		{ "unused-result", false, mode::REPORT, "", "" },
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },
-		{ "short-type-notation", true, mode::OFF, "Writes the type in the long form: x% becomes x:Int32, x# x:Float32, x## x:Float64, x%% x:Int64, x$ x:String", "" },
-		{ "unreachable-code", true, mode::FIX, "Removes the statements after Return, End, Goto or Exit, up to the next label or Data.", "" },
+		{ "unreachable-code", false, mode::REPORT, "", "" },
 		{ "unused-variable", true, mode::FIX, "Removes a Local of a function that is not mentioned anywhere else.", "Locals of the main program and Globals: an Include can use them." },
 		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x:Int32", "" },
 		{ "unused-function", true, mode::FIX, "Removes the function, if its name is not mentioned anywhere else.", "Always: another file can call the function." },
@@ -42,8 +45,23 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 	return list;
 }
 
-blitz::tidy::rule const* blitz::tidy::find_rule(std::string const& name)
+std::string blitz::tidy::canonical_rule(std::string const& name)
 {
+	// The names rules had before, and the spelling of "parentheses" that was asked for.
+	static const std::vector<std::pair<const char*, const char*>> old{
+		{ "parantheses-around-arguments", "parentheses-around-arguments" },
+	};
+	for (auto const& [from, to] : old) {
+		if (name == from) {
+			return to;
+		}
+	}
+	return name;
+}
+
+blitz::tidy::rule const* blitz::tidy::find_rule(std::string const& name_in)
+{
+	std::string name = canonical_rule(name_in);
 	for (auto const& r : all_rules()) {
 		if (name == r.name) {
 			return &r;

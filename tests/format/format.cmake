@@ -235,6 +235,9 @@ elseif(CASE STREQUAL "spacing")
 	expect_format("a=1 : b=2\n" "a = 1:b = 2\n" --separator-spacing=compact)
 	# Fields and types have no spaces; names and numbers keep their text.
 	expect_format("p . Foo = New Foo\np\\x = q \\ y\nLocal a.Foo, b# = $FF + 0x1F + .5\n" "p . Foo = New Foo\np\\x = q\\y\nLocal a.Foo, b# = $FF + 0x1F + .5\n")
+	# The : of a type touches the name and the type, and is not a statement separator.
+	expect_format("Local a:Int32=1,b:Float\nFunction F:String(x:Int,y:Float32)\nEnd Function\n" "Local a:Int32 = 1, b:Float\n\nFunction F:String(x:Int, y:Float32)\nEnd Function\n")
+	expect_format("a=1:b=2 : c:Int=3\n" "a = 1 : b = 2 : c:Int = 3\n")
 	# Strings and comments are untouched.
 	expect_format("Print \"a  ,  b\"+\"=>\" ;  keep   this  \n" "Print \"a  ,  b\" + \"=>\" ;  keep   this\n")
 	# The other spellings of the comparisons stay.
@@ -263,6 +266,69 @@ elseif(CASE STREQUAL "blank_lines")
 	expect_format("Function F()\nEnd Function\n" "Function F()\nEnd Function\n")
 	# A function inside another block (not valid, but not ours to judge) is not a declaration.
 	expect_format("If a\nFunction F()\nEnd Function\nEndIf\n" "If a\n\tFunction F()\n\tEnd Function\nEndIf\n")
+
+elseif(CASE STREQUAL "align")
+	# Off by default.
+	expect_format("a=1\nlonger=2\n" "a = 1\nlonger = 2\n")
+	# Assignments on consecutive lines have their = in the same column. Fields and indexes are part of the target.
+	expect_format("a=1\nlonger=2\nx\\y=3\nlist[1]=4\n" "a       = 1\nlonger  = 2\nx\\y     = 3\nlist[1] = 4\n" --align-assignments)
+	# A blank line, a comment line, another indent or another kind of line ends a group.
+	expect_format("a=1\n\nlonger=2\nb=1\n; text\nlonger=2\nPrint 1\nc=1\nlonger_name=2\n" "a = 1\n\nlonger = 2\nb      = 1\n; text\nlonger = 2\nPrint 1\nc           = 1\nlonger_name = 2\n" --align-assignments)
+	expect_format("If x\na=1\nlonger=2\nEndIf\nb=1\n" "If x\n\ta      = 1\n\tlonger = 2\nEndIf\nb = 1\n" --align-assignments)
+	# Lines with more than one assignment are left alone, and so are statements that only have an = in them.
+	expect_format("a=1\nb=2 : c=3\nlonger=4\nIf d=1 Then e=2\nf=5\nlonger_name=6\n" "a = 1\nb = 2 : c = 3\nlonger = 4\nIf d = 1 Then e = 2\nf           = 5\nlonger_name = 6\n" --align-assignments)
+	# A trailing comment stays behind the line.
+	expect_format("a=1 ;one\nlonger=2 ;two\n" "a      = 1 ;one\nlonger = 2 ;two\n" --align-assignments)
+	# Declarations: the names and the = line up (Dim has no =).
+	expect_format("Const A=1\nLocal Longer:Int32=2\nGlobal b=3\nDim arr(5)\n" "Const  A            = 1
+Local  Longer:Int32 = 2
+Global b            = 3
+Dim    arr(5)
+" --align-declares)
+	expect_format("Local a=1\nLocal b, c=2\nLocal longer=3\n" "Local a      = 1\nLocal b, c = 2\nLocal longer = 3\n" --align-declares)
+	# Declarations and assignments are different groups.
+	expect_format("Local a=1\nlonger=2\nLocal bbb=3\n" "Local a = 1\nlonger = 2\nLocal bbb = 3\n" --align-declares --align-assignments)
+	# Data statements are lined up in columns.
+	expect_format("Data 1,22,3\nData 100,2,3333\nData \"a\",5\nPrint 1\nData 1,2\n" "Data 1,   22, 3\nData 100, 2,  3333\nData \"a\", 5\nPrint 1\nData 1, 2\n" --align-data)
+	expect_format("Data 1,22\nData 100,2\n" "Data 1, 22\nData 100, 2\n")
+	expect_format("Data 1,22,3\nData 100,2,3333\n" "Data 1,   22, 3\nData 100, 2,  3333\n" --align-data=left)
+	expect_format("Data 1,22,3\nData 100,2,3333\n" "Data 1,   22, 3\nData 100, 2,  3333\n" --align-data=true)
+	expect_format("Data 1,22,3\nData 100,2,3333\n" "Data 1, 22, 3\nData 100, 2, 3333\n" --align-data=false)
+	# Right aligned: the commas line up.
+	expect_format("Data 1,22,3\nData 100,2,3333\nData \"a\",5\n" "Data   1, 22,    3\nData 100,  2, 3333\nData \"a\",  5\n" --align-data=right)
+	# The settings are listed.
+	blitz_format(--print-config --align-assignments --align-declares --align-data=right)
+	expect_rc(0)
+	if(NOT OUT MATCHES "align-assignments = true\nalign-declares = true\nalign-data = right\n")
+		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
+	endif()
+
+elseif(CASE STREQUAL "wrap")
+	# A line that is too long is broken after a : between statements, and only there.
+	set(_LONG "Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\" : Print \"cccccccccccccccccccc\"\n")
+	expect_format("${_LONG}" "Print \"aaaaaaaaaaaaaaaaaaaa\"\nPrint \"bbbbbbbbbbbbbbbbbbbb\"\nPrint \"cccccccccccccccccccc\"\n" --wrap-after=40)
+	# As much as fits stays on the line.
+	expect_format("${_LONG}" "Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\nPrint \"cccccccccccccccccccc\"\n" --wrap-after=60)
+	# Short enough, or 0: nothing changes.
+	expect_format("${_LONG}" "Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\" : Print \"cccccccccccccccccccc\"\n")
+	expect_format("${_LONG}" "Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\" : Print \"cccccccccccccccccccc\"\n" --wrap-after=0)
+	# The indent counts, a comment stays behind the last statement, and the lines are indented as the code is.
+	expect_format("For i=1 To 2 : Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\" : Next ;done\n" "For i = 1 To 2\n\tPrint \"aaaaaaaaaaaaaaaaaaaa\"\n\tPrint \"bbbbbbbbbbbbbbbbbbbb\"\nNext ;done\n" --wrap-after=40)
+	# What follows an If on its line belongs to the If, so that line is never broken after the If. What is in front of it is.
+	expect_format("If a Then Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\n" "If a Then Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\n" --wrap-after=30)
+	expect_format("x=1 : If a Then Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\n" "x = 1\nIf a Then Print \"aaaaaaaaaaaaaaaaaaaa\" : Print \"bbbbbbbbbbbbbbbbbbbb\"\n" --wrap-after=30)
+	# A statement that is too long on its own can't be broken.
+	expect_format("Print \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n" "Print \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n" --wrap-after=20)
+	# Types keep their colon.
+	expect_format("Local aaaaaaaaaaaa:Int32=1 : Local bbbbbbbbbbbb:Float=2\n" "Local aaaaaaaaaaaa:Int32 = 1\nLocal bbbbbbbbbbbb:Float = 2\n" --wrap-after=30)
+	# The default is 120.
+	blitz_format(--print-config)
+	expect_rc(0)
+	if(NOT OUT MATCHES "wrap-after = 120\n")
+		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
+	endif()
+	blitz_format(--wrap-after=5000 --print-config)
+	expect_rc(2)
 
 elseif(CASE STREQUAL "line_endings")
 	# Auto keeps what the first line break is.
@@ -304,7 +370,7 @@ elseif(CASE STREQUAL "config")
 	# The settings that are used.
 	blitz_format(--print-config project/other/a.bb)
 	expect_rc(0)
-	if(NOT OUT MATCHES "indent_style = space\nindent_width = 2\n")
+	if(NOT OUT MATCHES "indent-style = space\nindent-width = 2\n")
 		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
 	endif()
 
@@ -411,7 +477,7 @@ elseif(CASE STREQUAL "errors")
 	expect_rc(2)
 	blitz_format(--keyword-case=sideways a.bb)
 	expect_rc(2)
-	if(NOT ERR MATCHES "keyword_case")
+	if(NOT ERR MATCHES "keyword-case")
 		message(FATAL_ERROR "The error should name the setting:\n${ERR}")
 	endif()
 	blitz_format(missing.bb)
@@ -434,7 +500,7 @@ elseif(CASE STREQUAL "errors")
 elseif(CASE STREQUAL "help")
 	blitz_format(--help)
 	expect_rc(0)
-	foreach(_TEXT IN ITEMS "--check" "--diff" "in place" ".blitz-format" "blitz-format.json" "indent_style" "keyword_case" "operator_spacing" "line_ending")
+	foreach(_TEXT IN ITEMS "--check" "--diff" "in place" ".blitz-format" "blitz-format.json" "indent-style" "keyword-case" "operator-spacing" "line-ending")
 		if(NOT OUT MATCHES "${_TEXT}")
 			message(FATAL_ERROR "--help doesn't mention '${_TEXT}':\n${OUT}")
 		endif()

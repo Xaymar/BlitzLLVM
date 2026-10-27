@@ -43,7 +43,23 @@ void blitz::tidy::config::apply(std::vector<std::pair<std::string, std::string>>
 	for (auto const& [name, value] : settings) {
 		std::string key = lower(name);
 		std::replace(key.begin(), key.end(), '_', '-');
-		if (key == "unsafe") {
+		key = canonical_rule(key);
+		if ((key == "type-notation") || (key == "expand-short-to-long-notation") || (key == "short-type-notation")) {
+			// The last two are the rules this setting replaces: on is long, off is keep.
+			auto text = lower(value);
+			if ((text == "long") || (text == "fix") || (text == "true")) {
+				type_notation = notation::long_form;
+			} else if (text == "short") {
+				if (key != "type-notation") {
+					throw std::runtime_error("'" + value + "' is not off or fix (" + key + "), use type-notation=short|long|keep.");
+				}
+				type_notation = notation::short_form;
+			} else if ((text == "keep") || (text == "off") || (text == "false") || (text == "report")) {
+				type_notation = notation::keep;
+			} else {
+				throw std::runtime_error("'" + value + "' is not keep, short or long (type-notation).");
+			}
+		} else if (key == "unsafe") {
 			unsafe = boolean(key, value);
 		} else if (key == "max-passes") {
 			try {
