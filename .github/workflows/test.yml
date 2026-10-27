@@ -17,9 +17,9 @@ name: Test
 
 on:
   pull_request:
-    branches: [root]
+    branches: [root, ci-verify-base]
   push:
-    branches: [root]
+    branches: [root, ci-verify-base]
   workflow_dispatch:
 
 concurrency:
