@@ -17,7 +17,7 @@ A release is a version tag on a commit of the `root` branch. Pushing the tag mak
 
 3. Watch the Release workflow. It creates the release with the tag as its title.
 
-Tag names are numbers only, with no `v`: `0.2.0`, or `0.2.0.1`. A suffix after a dash such as `0.2.0-rc1` makes it a pre-release. The `nightly` tag never matches, so it is unaffected. It stays on its own blank commit that the Nightly workflow manages, and the release workflow never touches it.
+Tag names are numbers only, with no `v`: `0.2.0`, or `0.2.0.1`. A suffix after a dash such as `0.2.0-rc1` makes it a pre-release. The `nightly`, `daily`, `weekly`, `monthly` and `yearly` tags never match, so they are unaffected. They stay on their own blank commits, and the release workflow never touches them.
 
 ## What is published
 
@@ -40,3 +40,14 @@ The script can be run locally in a clone with all tags and history. `--dry-run` 
 ```sh
 .github/scripts/release.py 0.2.0 --dry-run
 ```
+
+## Daily, weekly, monthly and yearly builds
+
+The Promote workflow (`.github/workflows/promote.yml`, script `.github/scripts/promote.py`) runs every day at 05:00 UTC and copies the latest `nightly` release into four pre-releases: `daily`, `weekly`, `monthly` and `yearly`. They are for people who want a build that changes less often than the nightly one.
+
+* A release is replaced when the nightly holds another commit than it does, and its last promotion was in an earlier day, ISO week (starting Monday), month or year. So `daily` takes the nightly of the day before, `weekly` the first one of each week, `monthly` the first one of each month and `yearly` the first one of each year. A run that GitHub skipped is made up by the next one. When no new nightly was built since, nothing happens.
+* The files are copied from the `nightly` release, not from the workflow artifacts, which expire after 90 days. The new files are uploaded first, the old ones deleted afterwards, and the description is written last, so a failed run is simply repeated by the next one. If the nightly release is being replaced at that moment, the run stops and tries again the next day.
+* The first time, the tag is created on a blank commit without files, as for `nightly`. Tags are never moved or force pushed: the commit, its date and the version of the nightly build are in the description of the release.
+* The workflow only needs `contents: write`. It does not run for pull requests.
+
+To try it, start the Promote workflow by hand (Actions, Promote, Run workflow). It is a dry run by default and prints what would be promoted. Untick `dry_run` to promote right away, and use `force` to ignore the checks above. Locally, with the GitHub CLI signed in, `.github/scripts/promote.py --dry-run` does the same, and `--now 2026-11-01T05:00:00Z` shows what a run at another time would do.
