@@ -164,6 +164,10 @@ void bb_end_graphics(void)
 		vkDestroySampler(g.device, g.sampler_clamp, nullptr);
 		vkDestroySampler(g.device, g.sampler_repeat_mips, nullptr);
 		vkDestroySampler(g.device, g.sampler_clamp_mips, nullptr);
+		vkDestroySampler(g.device, g.sampler_point_repeat, nullptr);
+		vkDestroySampler(g.device, g.sampler_point_clamp, nullptr);
+		vkDestroySampler(g.device, g.sampler_point_repeat_mips, nullptr);
+		vkDestroySampler(g.device, g.sampler_point_clamp_mips, nullptr);
 		if (profile_query_pool) {
 			vkDestroyQueryPool(g.device, profile_query_pool, nullptr);
 			profile_query_pool = VK_NULL_HANDLE;

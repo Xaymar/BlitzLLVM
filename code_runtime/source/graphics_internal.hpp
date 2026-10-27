@@ -248,6 +248,10 @@ namespace bb::gfx {
 		VkSampler             sampler_clamp  = VK_NULL_HANDLE;
 		VkSampler             sampler_repeat_mips = VK_NULL_HANDLE; // The same, going through the mip levels of a texture.
 		VkSampler             sampler_clamp_mips  = VK_NULL_HANDLE;
+		VkSampler             sampler_point_repeat = VK_NULL_HANDLE; // Texture flag 1024: nearest texel, nearest level.
+		VkSampler             sampler_point_clamp  = VK_NULL_HANDLE;
+		VkSampler             sampler_point_repeat_mips = VK_NULL_HANDLE;
+		VkSampler             sampler_point_clamp_mips  = VK_NULL_HANDLE;
 		gpu_image            textures[TEXTURES];
 		VkDescriptorSet       sets[TEXTURES];
 
@@ -471,7 +475,7 @@ namespace bb::gfx {
 	////////////////////////////////////////////////////////////////////////////
 	// Textures
 	////////////////////////////////////////////////////////////////////////////
-	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_MIPMAPS = 8, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32 };
+	enum texture_flags { TEXTURE_ALPHA = 2, TEXTURE_MASKED = 4, TEXTURE_MIPMAPS = 8, TEXTURE_CLAMP_U = 16, TEXTURE_CLAMP_V = 32, TEXTURE_POINT = 1024 };
 
 
 	// LoadTexture(file, flags): flags are 1 = color, 2 = alpha channel, 4 = masked (black is transparent), 8 = mip maps, 16/32 = clamp U/V.
