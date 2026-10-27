@@ -151,6 +151,7 @@ namespace bb {
 		float    bound_min[3] = { 0, 0, 0 }, bound_max[3] = { 0, 0, 0 };
 		bool     painted = false;
 		material paint;
+		int      lightmap = 0; // The texture of the lightmap of a face of a level, which BSPLighting puts on the first layer or takes off.
 
 		buffer<vertex3d> vertices;
 		buffer<uint32_t> indices;

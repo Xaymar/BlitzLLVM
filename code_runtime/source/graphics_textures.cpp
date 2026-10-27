@@ -290,6 +290,29 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 	return int32_t(texture_table.size);
 }
 
+// A texture from pixels that are already in memory (4 bytes each, red first), for what the runtime builds itself, such as the
+// lightmaps of a level. The flags are the ones of CreateTexture, and blend is what it does on a later layer.
+int32_t bb_texture_from_rgba(int32_t width, int32_t height, int32_t flags, int32_t blend, const uint8_t* pixels)
+{
+	texture_entry entry;
+	entry.used   = true;
+	entry.flags  = flags;
+	entry.blend  = blend;
+	entry.width  = width;
+	entry.height = height;
+	if (active()) {
+		upload_texture(entry.image, entry.set, uint32_t(width), uint32_t(height), pixels, texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0);
+	}
+	for (uint32_t i = 0; i < texture_table.size; i++) {
+		if (!texture_table[i].used) {
+			texture_table[i] = entry;
+			return int32_t(i) + 1;
+		}
+	}
+	texture_table.push(entry);
+	return int32_t(texture_table.size);
+}
+
 int32_t bb_filter_texture_flags(const char* file, int32_t flags)
 {
 	if (!file) {
