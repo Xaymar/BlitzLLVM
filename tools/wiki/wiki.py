@@ -469,7 +469,7 @@ def build(commands):
 def check(commands, blitzcc):
     errors = []
     for c in commands:
-        if c.category == "Other":
+        if (c.dialect, c.category) == (categories.BASIC, "Other"):
             errors.append("%s has no category" % c.name)
     pages = {fn[:-3] for fn in os.listdir(OUT) if fn.endswith(".md")}
     for fn in sorted(os.listdir(OUT)):
