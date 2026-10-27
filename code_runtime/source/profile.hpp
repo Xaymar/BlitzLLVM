@@ -17,11 +17,11 @@
 // Measures how long the parts of the runtime take. BLITZ_FPS=1 prints the sums once a second, together with the fps.
 // The timers only run in programs that were compiled with --profile (or -d), as they sit in per-call paths such as EntityInView and CopyRect.
 namespace bb {
-	enum profile_slot { PROFILE_UPDATE_WORLD, PROFILE_ANIMATION, PROFILE_RENDER_WORLD, PROFILE_IN_VIEW, PROFILE_COPY_RECT, PROFILE_FLIP, PROFILE_DELAY, PROFILE_COUNT };
+	enum profile_slot { PROFILE_UPDATE_WORLD, PROFILE_ANIMATION, PROFILE_RENDER_WORLD, PROFILE_IN_VIEW, PROFILE_COPY_RECT, PROFILE_FLIP, PROFILE_DELAY, PROFILE_SCAN, PROFILE_COLLECT, PROFILE_DRAWS, PROFILE_GROUP, PROFILE_RECORD, PROFILE_COUNT };
 
 	inline bool              profile_enabled = false;
 	inline uint64_t          profile_ticks[PROFILE_COUNT] = {};
-	inline const char* const profile_names[PROFILE_COUNT] = { "UpdateWorld", "animation", "RenderWorld", "EntityInView", "CopyRect", "Flip", "Delay" };
+	inline const char* const profile_names[PROFILE_COUNT] = { "UpdateWorld", "animation", "RenderWorld", "EntityInView", "CopyRect", "Flip", "Delay", "  RenderWorld: lights+cameras", "  RenderWorld: collect", "  RenderWorld: draws", "  RenderWorld: sort+group", "  record commands" };
 
 	struct profile_scope {
 		int      slot;
