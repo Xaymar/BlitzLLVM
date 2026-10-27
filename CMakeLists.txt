@@ -132,12 +132,10 @@ endif()
 
 # Fail the install when a license is missing, so that rules which silently install nothing (a stale copy of the install
 # rules in code_compiler, say) can not ship a bundle without them. Declared after the sub-projects, so it runs after their installs.
-set(BLITZ_REQUIRED_LICENSES
-	BlitzLLVM/LICENSE.adoc SDL3/LICENSE.txt SDL3_image/LICENSE.txt SDL3_image/optional/LICENSE.dav1d.txt SDL3_image/optional/LICENSE.avif.txt
-	SDL3_image/optional/LICENSE.jxl.txt SDL3_image/optional/LICENSE.webp.txt SDL3_mixer/LICENSE.txt SDL3_mixer/optional/LICENSE.opus.txt
-	SDL3_mixer/optional/LICENSE.opusfile.txt SDL3_mixer/optional/LICENSE.ogg-vorbis.txt Vulkan-Headers/LICENSE.md
-	VulkanMemoryAllocator/LICENSE.txt
-)
+set(BLITZ_REQUIRED_LICENSES BlitzLLVM/LICENSE.adoc Vulkan-Headers/LICENSE.md VulkanMemoryAllocator/LICENSE.txt ${BLITZRT_REQUIRED_LICENSES})
+# check-licenses.sh reads the same list, so that it does not ask a package for the licenses of libraries that the system provides.
+list(JOIN BLITZ_REQUIRED_LICENSES "\n" _REQUIRED_LICENSES)
+file(WRITE "${CMAKE_BINARY_DIR}/required-licenses.txt" "${_REQUIRED_LICENSES}\nstb/LICENSE\n")
 install(CODE "
 	foreach(_LICENSE IN ITEMS ${BLITZ_REQUIRED_LICENSES})
 		if(NOT EXISTS \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/licenses/\${_LICENSE}\")
@@ -176,7 +174,20 @@ endif()
 # blitzcc hands everything to clang, and programs load the Vulkan loader when they start.
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+# Libraries that the build took from the system instead of bundling them (code_runtime/dependencies.cmake).
+get_property(_DEB_DEPENDS GLOBAL PROPERTY BLITZ_DEB_DEPENDS)
+get_property(_DEB_RECOMMENDS GLOBAL PROPERTY BLITZ_DEB_RECOMMENDS)
+list(REMOVE_DUPLICATES _DEB_DEPENDS)
+list(REMOVE_DUPLICATES _DEB_RECOMMENDS)
+list(JOIN _DEB_DEPENDS ", " _DEB_DEPENDS)
+list(JOIN _DEB_RECOMMENDS ", " _DEB_RECOMMENDS)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "clang, libvulkan1")
+if(_DEB_DEPENDS)
+	string(APPEND CPACK_DEBIAN_PACKAGE_DEPENDS ", ${_DEB_DEPENDS}")
+endif()
+if(_DEB_RECOMMENDS)
+	set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "${_DEB_RECOMMENDS}")
+endif()
 set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
 set(CPACK_RPM_COMPONENT_INSTALL ON)
 set(CPACK_RPM_FILE_NAME RPM-DEFAULT)

@@ -98,13 +98,16 @@ install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(FILES "$<TARGET_FILE:blitzrt>" ${BLITZRT_LIBRARIES} DESTINATION lib/blitzllvm/runtime${BLITZRT_ARCH_DIR})
 install(FILES ${BLITZRT_INLINE_FILES} DESTINATION lib/blitzllvm/runtime/inline)
 install(FILES "userlibs/README.txt" DESTINATION userlibs)
-# The licenses of BlitzLLVM and of every dependency that ends up in the program: <licenses>/BlitzLLVM, SDL3, SDL3_image, SDL3_mixer
+# The licenses of BlitzLLVM and of every bundled dependency that ends up in the program (the ones of the system's libraries are
+# shipped by their packages): <licenses>/BlitzLLVM, SDL3, SDL3_image, SDL3_mixer
 # Vulkan-Headers, stb_truetype and VulkanMemoryAllocator. SDL_image and SDL_mixer install their own license and those of the codecs they were built with (libwebp,
 # libjxl, libavif, dav1d, ...), which are taken from their install directories. The others are taken from their sources.
 function(blitz_install_licenses DESTINATION)
 	set(_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 	install(FILES "${_ROOT}/LICENSE.adoc" DESTINATION "${DESTINATION}/BlitzLLVM" ${ARGN})
-	install(FILES "${_ROOT}/third_party/SDL/LICENSE.txt" DESTINATION "${DESTINATION}/SDL3" ${ARGN})
+	if(BLITZRT_BUNDLED_SDL3)
+		install(FILES "${_ROOT}/third_party/SDL/LICENSE.txt" DESTINATION "${DESTINATION}/SDL3" ${ARGN})
+	endif()
 	install(DIRECTORY "${_ROOT}/third_party/Vulkan-Headers/LICENSES" DESTINATION "${DESTINATION}/Vulkan-Headers" ${ARGN})
 	install(FILES "${_ROOT}/third_party/Vulkan-Headers/LICENSE.md" DESTINATION "${DESTINATION}/Vulkan-Headers" ${ARGN})
 	install(FILES "${_ROOT}/third_party/stb/LICENSE" DESTINATION "${DESTINATION}/stb" ${ARGN})
