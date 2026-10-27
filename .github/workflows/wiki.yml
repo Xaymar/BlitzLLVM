@@ -1,37 +1,124 @@
+# The wiki is generated, and the result is not part of root. Only what it is made from is: the text of the commands
+# (tools/wiki/text, tools/wiki/pages), the categories and wiki.py, the list of commands (tests/suite/functions.txt), and
+# the hand written pages and media in docs/wiki. This workflow
+#   - on a pull request: builds the wiki into a temporary folder and runs `wiki.py check` on it (broken links, missing
+#     pages, sections out of order), and compiles the examples with the latest nightly compiler. Nothing is committed.
+#   - on a push to root: builds the wiki again and publishes it to the branch `wiki` of this repository (one regular
+#     commit per change, so the history shows how the pages changed) and to the GitHub wiki.
+#   - by hand: builds and publishes to the branch named in the input (not to the GitHub wiki unless run on root).
+# Pushing to `wiki` with the workflow token does not start any workflow, and none of these triggers watches `wiki`, so
+# publishing can not loop.
+
 name: Wiki
 
 on:
   push:
     branches: [root]
-    paths:
+    paths: &paths
+      - 'tools/wiki/**'
       - 'docs/wiki/**'
+      - 'tests/suite/functions.txt'
+      - 'tools/suite_functions.py'
       - '.github/workflows/wiki.yml'
+  pull_request:
+    branches: [root]
+    paths: *paths
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch of this repository to publish the generated wiki to'
+        default: wiki
 
 concurrency:
-  group: wiki
-  cancel-in-progress: false
+  group: wiki-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  wiki:
+  build:
+    name: Build the wiki
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Publish docs/wiki to the wiki
+      - name: Build
+        run: python3 tools/wiki/wiki.py build --out wiki-out
+      - name: Check
+        # Builds on its own into a temporary folder, so this also proves a clean build passes.
+        run: python3 tools/wiki/wiki.py check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wiki
+          path: wiki-out
+          if-no-files-found: error
+
+  examples:
+    name: Compile the examples
+    runs-on: ubuntu-latest
+    # The nightly compiler can lag behind a pull request that adds commands, so this reports but does not block.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the nightly compiler
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
-          rsync -a --delete --exclude .git docs/wiki/ wiki/
-          cd wiki
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "The wiki is up to date."
-            exit 0
+          gh release download nightly --repo "$GITHUB_REPOSITORY" --pattern '*linux-x64*.zip' --dir nightly
+          unzip -q nightly/*.zip -d nightly/x
+          chmod +x nightly/x/bin/blitzcc
+          nightly/x/bin/blitzcc --help | head -n 3 || true
+      - name: Compile and run the examples
+        env:
+          XDG_RUNTIME_DIR: /tmp/xdg
+        run: |
+          mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+          python3 tools/wiki/wiki.py check --blitzcc "$PWD/nightly/x/bin/blitzcc"
+
+  publish:
+    name: Publish the wiki
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BRANCH: ${{ github.event.inputs.branch || 'wiki' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/download-artifact@v4
+        with:
+          name: wiki
+          path: wiki-out
+      - name: Publish to the ${{ env.BRANCH }} branch
+        run: |
+          [ "$BRANCH" != root ] || { echo "Refusing to publish over root."; exit 1; }
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$REMOTE" "$BRANCH" >/dev/null; then
+            git clone --quiet --depth 1 --branch "$BRANCH" "$REMOTE" published
+          else
+            git init -q -b "$BRANCH" published
+            git -C published remote add origin "$REMOTE"
           fi
+          rsync -a --delete --exclude .git wiki-out/ published/
+          cd published
+          if [ -z "$(git status --porcelain)" ]; then echo "The $BRANCH branch is up to date."; exit 0; fi
           git add -A
           git -c user.name="$(git -C .. log -1 --format=%aN)" -c user.email="$(git -C .. log -1 --format=%aE)" \
-            commit -m "Update the wiki from ${GITHUB_SHA::7}"
+            commit -q -m "Update the wiki from ${GITHUB_SHA::7}" -m "Generated by .github/workflows/wiki.yml. Do not edit: change the sources on root instead."
+          git push origin "HEAD:refs/heads/$BRANCH"
+      - name: Publish to the GitHub wiki
+        # Only from root. A run by hand on another branch must not replace the pages people read.
+        if: github.ref == 'refs/heads/root'
+        run: |
+          git clone --quiet "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+          rsync -a --delete --exclude .git wiki-out/ wiki/
+          cd wiki
+          if [ -z "$(git status --porcelain)" ]; then echo "The wiki is up to date."; exit 0; fi
+          git add -A
+          git -c user.name="$(git -C .. log -1 --format=%aN)" -c user.email="$(git -C .. log -1 --format=%aE)" \
+            commit -q -m "Update the wiki from ${GITHUB_SHA::7}"
           git push origin HEAD
