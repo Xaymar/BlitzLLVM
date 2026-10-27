@@ -254,6 +254,8 @@ if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/libdav1d.
 	file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.tmp/*.sha3")
 	file(REMOVE ${_STAMPS})
 	file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst")
+	# The stamp of the fetched codec sources goes too, as a restored cache has the stamp but not the submodules in the source tree.
+	file(REMOVE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin.codecs")
 endif()
 blitz_dependency(SDL3_image SDL_image
 	PATCH_FUNCTION blitz_fetch_image_codecs
