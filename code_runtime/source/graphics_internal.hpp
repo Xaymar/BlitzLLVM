@@ -874,7 +874,7 @@ int32_t bb_graphics_width(void);
 int32_t bb_graphics_height(void);
 int32_t bb_front_buffer(void);
 int32_t bb_back_buffer(void);
-void bb_set_buffer(int32_t buffer);
+int32_t bb_set_buffer(int32_t buffer);
 void bb_app_title(const char* title, const char* close_prompt);
 void bb_flip(int32_t vwait);
 int32_t bb_graphics_depth(void);

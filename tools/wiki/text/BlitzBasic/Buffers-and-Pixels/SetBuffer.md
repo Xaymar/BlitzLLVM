@@ -24,4 +24,5 @@ WaitKey
 
 ![SetBuffer](media/buffers/setbuffer.png)
 @param buffer  A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`.
+@returns BlitzPlus only: the buffer that was set before, so it can be set again later. Blitz3D gives nothing back.
 @gap A buffer that does not exist stops the program with an error message.

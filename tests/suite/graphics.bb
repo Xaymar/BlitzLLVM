@@ -118,7 +118,9 @@ If GetEnv$("BLITZ_HEADLESS") = "" Then
 	CreateDir folder
 	SetBuffer ImageBuffer(frames, 0)
 	Cls
-	SetBuffer BackBuffer()
+	; BlitzPlus gives back the buffer that was set before.
+	Check "SetBuffer gives the old buffer", SetBuffer(BackBuffer()), ImageBuffer(frames, 0)
+	Check "SetBuffer gives the old buffer again", SetBuffer(BackBuffer()), BackBuffer()
 	SaveImage frames, folder + "/frames.bmp", 0
 	loaded = LoadImage(folder + "/frames.bmp")
 	CheckTrue "LoadImage", loaded <> 0

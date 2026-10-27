@@ -16,8 +16,6 @@ blitzplus_msvc2017/_release/samples/Birdie/3dfingy.bb
 # Restore of a label that does not exist in the function
 blitzplus_msvc2017/_release/samples/James/Games/Explosions/exploding_alien_death.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
-blitzplus_msvc2017/_release/samples/Mak/blitzpaint.bb
-# Expression does not return a value (289:6)
 blitzplus_msvc2017/_release/samples/Mak/line_test.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
 blitzplus_msvc2017/_release/samples/Mak/simple_htmlview.bb
