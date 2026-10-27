@@ -576,6 +576,29 @@ elseif(CASE STREQUAL "runtime_layout")
 		message(FATAL_ERROR "Expected the message to say where it looked, got:\n${ERR}")
 	endif()
 
+elseif(CASE STREQUAL "runtime_architecture")
+	# The libraries of the target are in the folder of its architecture, when there is one. Cross-compiling shows the link line even
+	# though the link itself may fail here, so the result is not checked.
+	get_filename_component(_BIN_DIR "${BLITZCC}" DIRECTORY)
+	file(COPY "${_BIN_DIR}/runtime/" DESTINATION "${WORK}/runtime/x86_64")
+	file(COPY "${_BIN_DIR}/runtime/" DESTINATION "${WORK}/runtime/arm64")
+	file(COPY "${_BIN_DIR}/runtime/inline" DESTINATION "${WORK}/runtime")
+	blitzcc(--verbose --runtime-dir "${WORK}/runtime" --target aarch64-unknown-linux-gnu "${PROGRAM}" -o "${WORK}/arm64")
+	expect_contains("runtime/arm64/")
+	expect_missing("runtime/x86_64/")
+	blitzcc(--verbose --runtime-dir "${WORK}/runtime" --target x86_64-unknown-linux-gnu "${PROGRAM}" -o "${WORK}/x64")
+	expect_contains("runtime/x86_64/")
+	expect_missing("runtime/arm64/")
+	# The sources to inline are shared by all architectures.
+	expect_contains("runtime/inline")
+	# Without the folder the libraries next to it are used, and the message says that they are for this computer.
+	file(REMOVE_RECURSE "${WORK}/runtime/arm64")
+	blitzcc(--verbose --runtime-dir "${WORK}/runtime" --target aarch64-unknown-linux-gnu "${PROGRAM}" -o "${WORK}/arm64")
+	string(FIND "${ERR}" "The runtime has no 'arm64' libraries" _AT)
+	if(_AT EQUAL -1)
+		message(FATAL_ERROR "Expected a warning for the missing arm64 libraries, got:\n${ERR}")
+	endif()
+
 elseif(CASE STREQUAL "verbose_long_only")
 	# -v used to be the short form of --verbose, now it is the version like in the original.
 	blitzcc(--verbose "${PROGRAM}" -o "${EXE}")
