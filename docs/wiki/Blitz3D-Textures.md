@@ -10,8 +10,24 @@ Creating, loading, transforming and filtering textures.
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
 * [ClearTextureFilters](ClearTextureFilters)
+* [CreateSampler](CreateSampler) 〔BlitzLLVM〕
 * [CreateTexture](CreateTexture)
+* [FreeSampler](FreeSampler) 〔BlitzLLVM〕
 * [FreeTexture](FreeTexture)
+* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
+* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
+* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
+* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
+* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
+* [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕
+* [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕
+* [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
+* [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕
+* [GetSamplerFilterMin](GetSamplerFilterMin) 〔BlitzLLVM〕
+* [GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕
+* [GetSamplerLodBias](GetSamplerLodBias) 〔BlitzLLVM〕
+* [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕
+* [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
 * [LoadAnimTexture](LoadAnimTexture)
 * [LoadTexture](LoadTexture)
 * [PositionTexture](PositionTexture)
@@ -19,6 +35,18 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [ScaleTexture](ScaleTexture)
 * [SetCubeFace](SetCubeFace)
 * [SetCubeMode](SetCubeMode)
+* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
+* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
+* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
+* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
+* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
+* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
+* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
+* [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
+* [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
+* [SetSamplerLodMax](SetSamplerLodMax) 〔BlitzLLVM〕
+* [SetSamplerLodMin](SetSamplerLodMin) 〔BlitzLLVM〕
+* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 * [TextureBlend](TextureBlend)
 * [TextureBuffer](TextureBuffer)
 * [TextureCoords](TextureCoords)

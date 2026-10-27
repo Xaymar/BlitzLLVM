@@ -22,6 +22,6 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Sprites](Blitz3D-Sprites) (6): Camera-facing sprites.
 * [Surfaces](Blitz3D-Surfaces) (29): Vertices, triangles and surfaces of a mesh.
 * [Terrain](Blitz3D-Terrain) (10): Height-map terrains.
-* [Textures](Blitz3D-Textures) (17): Creating, loading, transforming and filtering textures.
+* [Textures](Blitz3D-Textures) (45): Creating, loading, transforming and filtering textures.
 * [Transforms](Blitz3D-Transforms) (13): Converting points, vectors and normals between entity spaces.
 * [World](Blitz3D-World) (14): Rendering, updating and clearing the 3D world.

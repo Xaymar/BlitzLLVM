@@ -131,6 +131,7 @@ void bb_end_graphics(void)
 		vkDestroyPipelineLayout(g.device, g.layout, nullptr);
 		vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
 		vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
+		destroy_user_samplers();
 		vkDestroySampler(g.device, g.sampler, nullptr);
 		vkDestroySampler(g.device, g.sampler_repeat, nullptr);
 		vkDestroySampler(g.device, g.sampler_clamp, nullptr);

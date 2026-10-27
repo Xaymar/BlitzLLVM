@@ -22,6 +22,17 @@ The multiplayer commands (`StartNetGame`, `HostNetGame`, `JoinNetGame`, `StopNet
 
 Textures with flag 8 get a chain of mip maps and are sampled with trilinear filtering, which blends between two levels. The levels are made by averaging 2 by 2 texels, so masked (flag 4) and alpha textures average their alpha as well, which is also what the original did and makes their edges soft from afar. The levels of a texture that is drawn on (`TextureBuffer`) are made again before the texture is next used in a scene. The levels that are stored in a block compressed DDS file are used instead of made ones. A texture with frames (`LoadAnimTexture`, `CreateTexture` with frames) is one sheet, so its smallest levels blend the frames that are next to each other. There is no anisotropic filtering.
 
+## Samplers
+
+`CreateSampler`, `SetTextureSampler` and the `SetSampler...` commands are an extension. A sampler holds how a texture is read, and one sampler can be set on many textures. Without a sampler a texture is read with what its flags say. The modes are numbers:
+
+| Setting | 0 | 1 | 2 | 3 |
+| --- | --- | --- | --- | --- |
+| Filters (`SetSamplerFilterMin`, `Mag`, `Mip`) | Nearest | Linear | | |
+| Address modes (`SetSamplerAddressModeU`, `V`, `W`) | Repeat | Mirror | Clamp | Border (`SetSamplerBorderColor`, opaque black by default) |
+
+`SetSamplerAnisotropy` takes 1 (off) or more and is kept inside the limit of the graphics card, which is also what happens to `SetSamplerLodBias`. `SetSamplerLodMin` and `SetSamplerLodMax` count mip levels from level 0. A sampler does not make mip levels (flag 8 does, see Mip maps above). Every setting can be read back with the `GetSampler...` commands (`GetSamplerAnisotropy`, `GetSamplerBorderColorR` to `A` and so on), which return what the sampler keeps. Without the `VK_EXT_custom_border_color` extension a border color is read as the closest of transparent black, opaque black and opaque white. `FreeSampler` sends the textures that use the sampler back to the settings of their flags.
+
 ## Depth buffer
 
 The depth buffer is reversed and a 32-bit float: the near plane of `CameraRange` is written as 1 and the far plane as 0, and the closer surface wins. Blitz3D used a 16 or 24-bit buffer that is 0 at the near plane, which spends most of its precision close to the camera and makes far surfaces flicker through each other (z-fighting). With the reversed float buffer the precision is almost even over the whole range, so distant surfaces that are close together stay apart without having to push `near` out. This changes nothing a program can see except that z-fighting is much rarer. The depth is still not linear in the buffer itself (it is `near / distance` for a perspective camera, and linear for `CameraProjMode 2`), but the buffer is never read back by a program: `ProjectedZ` is the distance in front of the camera, and `Graphics3D`'s depth argument is not used.

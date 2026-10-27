@@ -31,6 +31,7 @@ namespace bb::gfx {
 	state g;
 	bb::buffer<texture_entry> texture_table;
 	bb::buffer<image_entry> image_table;
+	bb::buffer<sampler_entry> sampler_table;
 
 	image_entry* image_of(int handle)
 	{
@@ -289,6 +290,14 @@ namespace bb::gfx {
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 	}
 
+	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, VkSampler sampler)
+	{
+		flush(); // What was recorded may use the old sampler.
+		vkDeviceWaitIdle(g.device);
+		write_descriptor(set, image.view, sampler);
+		image.sampler = sampler;
+	}
+
 	static void allocate_descriptor(VkDescriptorSet& set)
 	{
 		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
@@ -414,6 +423,58 @@ namespace bb::gfx {
 			return clamp ? g.sampler_clamp_mips : g.sampler_repeat_mips;
 		}
 		return clamp ? g.sampler_clamp : g.sampler_repeat;
+	}
+
+	VkSampler create_user_sampler(sampler_entry const& s)
+	{
+		static const VkFilter      filters[2]   = { VK_FILTER_NEAREST, VK_FILTER_LINEAR };
+		static const VkSamplerAddressMode modes[4] = { VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER };
+		VkPhysicalDeviceProperties properties;
+		vkGetPhysicalDeviceProperties(g.physical, &properties);
+
+		VkSamplerCreateInfo info = { VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+		info.minFilter           = filters[s.filter_min];
+		info.magFilter           = filters[s.filter_mag];
+		info.mipmapMode          = s.filter_mip ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
+		info.addressModeU        = modes[s.address[0]];
+		info.addressModeV        = modes[s.address[1]];
+		info.addressModeW        = modes[s.address[2]];
+		float limit              = properties.limits.maxSamplerLodBias;
+		info.mipLodBias          = s.lod_bias > limit ? limit : (s.lod_bias < -limit ? -limit : s.lod_bias);
+		float max_aniso          = properties.limits.maxSamplerAnisotropy;
+		if (g.can_anisotropy && (s.anisotropy > 1.0f)) {
+			info.anisotropyEnable = VK_TRUE;
+			info.maxAnisotropy    = s.anisotropy > max_aniso ? max_aniso : s.anisotropy;
+		}
+		info.minLod       = s.lod_min;
+		info.maxLod       = s.lod_max < s.lod_min ? s.lod_min : s.lod_max;
+		// Without the extension the border is the closest of transparent black, opaque black and opaque white.
+		VkSamplerCustomBorderColorCreateInfoEXT custom = { VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT };
+		if (g.can_custom_border) {
+			for (int i = 0; i < 4; i++) {
+				custom.customBorderColor.float32[i] = s.border[i];
+			}
+			custom.format = VK_FORMAT_UNDEFINED;
+			info.pNext    = &custom;
+			info.borderColor = VK_BORDER_COLOR_FLOAT_CUSTOM_EXT;
+		} else if (s.border[3] < 0.5f) {
+			info.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+		} else {
+			info.borderColor = (s.border[0] + s.border[1] + s.border[2] > 1.5f) ? VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE : VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+		}
+		VkSampler sampler;
+		check(vkCreateSampler(g.device, &info, nullptr, &sampler), "vkCreateSampler");
+		return sampler;
+	}
+
+	void destroy_user_samplers()
+	{
+		for (uint32_t i = 0; i < sampler_table.size; i++) {
+			if (sampler_table[i].vk) {
+				vkDestroySampler(g.device, sampler_table[i].vk, nullptr);
+				sampler_table[i].vk = VK_NULL_HANDLE;
+			}
+		}
 	}
 
 	static VkFormat vulkan_format(block_format format)
@@ -763,18 +824,42 @@ namespace bb::gfx {
 		vkGetPhysicalDeviceFeatures(g.physical, &supported);
 		g.can_wireframe        = supported.fillModeNonSolid == VK_TRUE;
 		enabled.fillModeNonSolid = supported.fillModeNonSolid;
+		g.can_anisotropy         = supported.samplerAnisotropy == VK_TRUE;
+		enabled.samplerAnisotropy = supported.samplerAnisotropy;
+
+		// Border colors that are not black or white need an extension.
+		uint32_t device_extension_count = 0;
+		vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &device_extension_count, nullptr);
+		std::vector<VkExtensionProperties> available(device_extension_count);
+		vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &device_extension_count, available.data());
+		VkPhysicalDeviceCustomBorderColorFeaturesEXT border_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
+		for (VkExtensionProperties const& e : available) {
+			if (strcmp(e.extensionName, VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME) == 0) {
+				VkPhysicalDeviceCustomBorderColorFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
+				VkPhysicalDeviceFeatures2 query2 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+				query2.pNext = &query;
+				vkGetPhysicalDeviceFeatures2(g.physical, &query2);
+				if (query.customBorderColors && query.customBorderColorWithoutFormat) {
+					g.can_custom_border = true;
+					border_features.customBorderColors = border_features.customBorderColorWithoutFormat = VK_TRUE;
+				}
+			}
+		}
 
 		VkPhysicalDeviceVulkan13Features features13 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
 		features13.dynamicRendering                 = VK_TRUE;
 		features13.synchronization2                 = VK_TRUE;
+		if (g.can_custom_border) {
+			features13.pNext = &border_features;
+		}
 
-		const char*        device_extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		const char*        device_extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME };
 		VkDeviceCreateInfo device_info         = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 		device_info.pNext                      = &features13;
 		device_info.pEnabledFeatures           = &enabled;
 		device_info.queueCreateInfoCount       = 1;
 		device_info.pQueueCreateInfos          = &queue_info;
-		device_info.enabledExtensionCount      = 1;
+		device_info.enabledExtensionCount      = g.can_custom_border ? 2 : 1;
 		device_info.ppEnabledExtensionNames    = device_extensions;
 		check(vkCreateDevice(g.physical, &device_info, nullptr, &g.device), "vkCreateDevice");
 

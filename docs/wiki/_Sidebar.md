@@ -661,11 +661,27 @@
 <li><a href="TerrainZ">TerrainZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Textures">Textures</a> (17)</summary>
+<li><details><summary><a href="Blitz3D-Textures">Textures</a> (45)</summary>
 <ul>
 <li><a href="ClearTextureFilters">ClearTextureFilters</a></li>
+<li><a href="CreateSampler">CreateSampler</a> 〔BlitzLLVM〕</li>
 <li><a href="CreateTexture">CreateTexture</a></li>
+<li><a href="FreeSampler">FreeSampler</a> 〔BlitzLLVM〕</li>
 <li><a href="FreeTexture">FreeTexture</a></li>
+<li><a href="GetSamplerAddressModeU">GetSamplerAddressModeU</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerAddressModeV">GetSamplerAddressModeV</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerAddressModeW">GetSamplerAddressModeW</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerAnisotropy">GetSamplerAnisotropy</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerBorderColorA">GetSamplerBorderColorA</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerBorderColorB">GetSamplerBorderColorB</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerBorderColorG">GetSamplerBorderColorG</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerBorderColorR">GetSamplerBorderColorR</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerFilterMag">GetSamplerFilterMag</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerFilterMin">GetSamplerFilterMin</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerFilterMip">GetSamplerFilterMip</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerLodBias">GetSamplerLodBias</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerLodMax">GetSamplerLodMax</a> 〔BlitzLLVM〕</li>
+<li><a href="GetSamplerLodMin">GetSamplerLodMin</a> 〔BlitzLLVM〕</li>
 <li><a href="LoadAnimTexture">LoadAnimTexture</a></li>
 <li><a href="LoadTexture">LoadTexture</a></li>
 <li><a href="PositionTexture">PositionTexture</a></li>
@@ -673,6 +689,18 @@
 <li><a href="ScaleTexture">ScaleTexture</a></li>
 <li><a href="SetCubeFace">SetCubeFace</a></li>
 <li><a href="SetCubeMode">SetCubeMode</a></li>
+<li><a href="SetSamplerAddressModeU">SetSamplerAddressModeU</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerAddressModeV">SetSamplerAddressModeV</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerAddressModeW">SetSamplerAddressModeW</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerAnisotropy">SetSamplerAnisotropy</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerBorderColor">SetSamplerBorderColor</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerFilterMag">SetSamplerFilterMag</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerFilterMin">SetSamplerFilterMin</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerFilterMip">SetSamplerFilterMip</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerLodBias">SetSamplerLodBias</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerLodMax">SetSamplerLodMax</a> 〔BlitzLLVM〕</li>
+<li><a href="SetSamplerLodMin">SetSamplerLodMin</a> 〔BlitzLLVM〕</li>
+<li><a href="SetTextureSampler">SetTextureSampler</a> 〔BlitzLLVM〕</li>
 <li><a href="TextureBlend">TextureBlend</a></li>
 <li><a href="TextureBuffer">TextureBuffer</a></li>
 <li><a href="TextureCoords">TextureCoords</a></li>
