@@ -792,8 +792,10 @@ namespace bb::gfx {
 				units.push_back(i);
 			}
 		}
-		auto key = [](draw_record const& d) {
-			return std::make_tuple(uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+		// Draws that can discard go after those that cannot, as they only add to what is there, and the solid ones can then
+		// be depth tested before they are shaded.
+		auto key = [&](draw_record const& d) {
+			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
 		};
 		std::stable_sort(units.begin(), units.end(), [&](uint32_t a, uint32_t b) { return key(draws[a]) < key(draws[b]); });
 		std::vector<draw_record> sorted;
