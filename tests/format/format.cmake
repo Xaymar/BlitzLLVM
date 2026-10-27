@@ -267,6 +267,34 @@ elseif(CASE STREQUAL "blank_lines")
 	# A function inside another block (not valid, but not ours to judge) is not a declaration.
 	expect_format("If a\nFunction F()\nEnd Function\nEndIf\n" "If a\n\tFunction F()\n\tEnd Function\nEndIf\n")
 
+elseif(CASE STREQUAL "align")
+	# Off by default.
+	expect_format("a=1\nlonger=2\n" "a = 1\nlonger = 2\n")
+	# Assignments on consecutive lines have their = in the same column. Fields and indexes are part of the target.
+	expect_format("a=1\nlonger=2\nx\\y=3\nlist[1]=4\n" "a       = 1\nlonger  = 2\nx\\y     = 3\nlist[1] = 4\n" --align-assignments)
+	# A blank line, a comment line, another indent or another kind of line ends a group.
+	expect_format("a=1\n\nlonger=2\nb=1\n; text\nlonger=2\nPrint 1\nc=1\nlonger_name=2\n" "a = 1\n\nlonger = 2\nb      = 1\n; text\nlonger = 2\nPrint 1\nc           = 1\nlonger_name = 2\n" --align-assignments)
+	expect_format("If x\na=1\nlonger=2\nEndIf\nb=1\n" "If x\n\ta      = 1\n\tlonger = 2\nEndIf\nb = 1\n" --align-assignments)
+	# Lines with more than one assignment are left alone, and so are statements that only have an = in them.
+	expect_format("a=1\nb=2 : c=3\nlonger=4\nIf d=1 Then e=2\nf=5\nlonger_name=6\n" "a = 1\nb = 2 : c = 3\nlonger = 4\nIf d = 1 Then e = 2\nf           = 5\nlonger_name = 6\n" --align-assignments)
+	# A trailing comment stays behind the line.
+	expect_format("a=1 ;one\nlonger=2 ;two\n" "a      = 1 ;one\nlonger = 2 ;two\n" --align-assignments)
+	# Declarations: the names and the = line up (Dim has no =).
+	expect_format("Const A=1\nLocal Longer:Int32=2\nGlobal b=3\nDim arr(5)\n" "Const  A            = 1
+Local  Longer:Int32 = 2
+Global b            = 3
+Dim    arr(5)
+" --align-declares)
+	expect_format("Local a=1\nLocal b, c=2\nLocal longer=3\n" "Local a      = 1\nLocal b, c = 2\nLocal longer = 3\n" --align-declares)
+	# Declarations and assignments are different groups.
+	expect_format("Local a=1\nlonger=2\nLocal bbb=3\n" "Local a = 1\nlonger = 2\nLocal bbb = 3\n" --align-declares --align-assignments)
+	# The settings are listed.
+	blitz_format(--print-config --align-assignments --align-declares)
+	expect_rc(0)
+	if(NOT OUT MATCHES "align_assignments = true\nalign_declares = true\n")
+		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
+	endif()
+
 elseif(CASE STREQUAL "line_endings")
 	# Auto keeps what the first line break is.
 	expect_format("a=1\r\nb=2\r\n" "a = 1\r\nb = 2\r\n")

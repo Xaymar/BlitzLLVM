@@ -80,6 +80,8 @@ Names are not case sensitive. Every setting has a default, which is used when no
 | `comment_space` | true \| false | `false` | Add a space after the ; when the comment starts with a letter or a digit. ;;; and ;---- are left alone. |
 | `max_blank_lines` | -1 - 100 | `1` | The most blank lines in a row. More are removed. -1 allows any number. |
 | `blank_lines_around_declarations` | 0 - 10 | `1` | Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone. |
+| `align_assignments` | true \| false | `false` | Line up the `=` of assignments on consecutive lines. See [Alignment](#alignment). |
+| `align_declares` | true \| false | `false` | Line up the names and the `=` of `Const`, `Dim`, `Local` and `Global` on consecutive lines. See [Alignment](#alignment). |
 | `trim_trailing_space` | true \| false | `true` | Remove spaces and tabs at the end of lines (also in comments). |
 | `final_newline` | true \| false | `true` | End the file with a line break, and remove blank lines at the end. |
 | `line_ending` | auto \| lf \| crlf \| cr | `auto` | Auto uses what the first line break of the file is, or lf if there is none. |
@@ -135,6 +137,36 @@ Keywords are the words of the language (`If`, `EndIf`, `Wend`, `Mod`, `And`, `In
 A `-` or `+` in front of a value (`x = -1`, `Case -1`, `Step -1`) is a sign and stays close to its number. After a name that is not a keyword with a space in front and none behind (`Print -1`, `a -1`) it could be a sign or a subtraction, so the spacing around it stays as it was written.
 
 Comments, strings and numbers keep their text. The only thing that changes in a comment is the white space at the end (with `trim_trailing_space`), and a missing space after the `;` if `comment_space` is on.
+
+## Alignment
+
+`align_assignments` and `align_declares` line up lines that follow each other, with the same indent. A blank line, a comment line, a line of another kind or a line that is indented differently ends the group. They are off by default.
+
+```blitzbasic
+a=1
+longer=2
+p\x=3
+Const A=1
+Local Longer:Int32=2
+Global b=3
+Dim arr(5)
+```
+
+becomes, with `align_assignments = true` and `align_declares = true`,
+
+```blitzbasic
+a      = 1
+longer = 2
+p\x    = 3
+Const  A            = 1
+Local  Longer:Int32 = 2
+Global b            = 3
+Dim    arr(5)
+```
+
+* Lines with more than one statement (`a = 1 : b = 2`) are left alone, and so is an `If` with its statement on the same line: there is no telling which `=` to line up. They end the group.
+* A declaration of several variables (`Local a, b = 1`) has its name lined up with the others, but its `=` stays where it is.
+* A comment behind the code stays behind the code.
 
 ## Notes
 

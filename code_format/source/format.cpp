@@ -339,6 +339,10 @@ namespace {
 		bool        comment_only = false;
 		bool        decl_start = false;
 		bool        decl_end = false;
+		// What align_assignments and align_declares work with.
+		enum class align_kind { none, assignment, declaration } align = align_kind::none;
+		size_t name_at = std::string::npos; // Declarations: where the white space in front of the name starts, which is behind the keyword
+		size_t eq_at   = std::string::npos; // Where the white space in front of the single = of the line starts
 	};
 
 	struct nesting {
@@ -382,16 +386,137 @@ namespace {
 		}
 	};
 
-	std::string render_line(source_line const& line, std::vector<item> const& items, options const& o)
+	// 'starts' gets the offset in the result at which the white space in front of each item starts.
+	std::string render_line(source_line const& line, std::vector<item> const& items, options const& o, std::vector<size_t>* starts = nullptr)
 	{
 		std::string out;
 		for (size_t i = 0; i < items.size(); i++) {
+			if (starts) {
+				starts->push_back(out.size());
+			}
 			if (i > 0) {
 				out += gap_between(items[i - 1], items[i], o);
 			}
 			out += items[i].tok.is(kind::word) ? render_word(items[i], o) : items[i].tok.text;
 		}
 		return out;
+	}
+
+	// The index of the first item behind the target of an assignment (a name, with fields and indexes), or 0 if the line doesn't start with one.
+	size_t end_of_target(std::vector<item> const& items)
+	{
+		size_t i = 0;
+		if (items.empty() || !items[0].tok.is(kind::word) || items[0].keyword) {
+			return 0;
+		}
+		i++;
+		while (i < items.size()) {
+			if (items[i].type_colon && (i + 1 < items.size())) {
+				i += 2;
+			} else if (items[i].tok.is_symbol("\\") && (i + 1 < items.size()) && items[i + 1].tok.is(kind::word)) {
+				i += 2;
+			} else if (is_open(items[i])) {
+				int depth = 0;
+				for (; i < items.size(); i++) {
+					depth += is_open(items[i]) - is_close(items[i]);
+					if (depth == 0) {
+						break;
+					}
+				}
+				if (i >= items.size()) {
+					return 0;
+				}
+				i++;
+			} else {
+				break;
+			}
+		}
+		return i;
+	}
+
+	// Works out whether the line is one that align_assignments or align_declares lines up, and where its parts are. Lines with more than one
+	// statement are not: `a = 1 : b = 2` has two assignments, and lining up one of them says nothing.
+	void describe_alignment(std::vector<item> const& items, std::vector<size_t> const& starts, out_line& ol)
+	{
+		if (items.size() < 2) {
+			return;
+		}
+		for (auto const& it : items) {
+			if (it.tok.is(kind::separator) && !it.type_colon) {
+				return;
+			}
+		}
+
+		if (items[0].keyword && ((items[0].lower == "const") || (items[0].lower == "local") || (items[0].lower == "global") || (items[0].lower == "dim"))) {
+			ol.align   = out_line::align_kind::declaration;
+			ol.name_at = starts[1];
+			// One variable per line, or there is no telling which = to line up.
+			int depth = 0;
+			for (size_t i = 1; i < items.size(); i++) {
+				depth += is_open(items[i]) - is_close(items[i]);
+				if ((depth == 0) && items[i].tok.is_symbol(",")) {
+					return;
+				}
+			}
+			depth = 0;
+			for (size_t i = 1; i < items.size(); i++) {
+				depth += is_open(items[i]) - is_close(items[i]);
+				if ((depth == 0) && items[i].tok.is_symbol("=")) {
+					if (i + 1 < items.size()) {
+						ol.eq_at = starts[i];
+					}
+					break;
+				}
+			}
+			return;
+		}
+
+		size_t target = end_of_target(items);
+		if ((target > 0) && (target + 1 < items.size()) && items[target].tok.is_symbol("=")) {
+			ol.align = out_line::align_kind::assignment;
+			ol.eq_at = starts[target];
+		}
+	}
+
+	// Lines that follow each other with the same indent and the same kind are lined up: the = of assignments and declarations, and the names
+	// of declarations (Const, Local, Global and Dim have different lengths).
+	void align_lines(std::vector<out_line>& lines, options const& o)
+	{
+		for (size_t first = 0; first < lines.size();) {
+			auto what = lines[first].align;
+			size_t last = first + 1;
+			while ((last < lines.size()) && (lines[last].align == what) && (lines[last].indent == lines[first].indent)) {
+				last++;
+			}
+			bool wanted = (what == out_line::align_kind::assignment) ? o.align_assignments : ((what == out_line::align_kind::declaration) && o.align_declares);
+			if (wanted && (last - first > 1)) {
+				if (what == out_line::align_kind::declaration) {
+					size_t width = 0;
+					for (size_t i = first; i < last; i++) {
+						width = std::max(width, lines[i].name_at);
+					}
+					for (size_t i = first; i < last; i++) {
+						size_t pad = width - lines[i].name_at;
+						lines[i].text.insert(lines[i].name_at, std::string(pad, ' '));
+						if (lines[i].eq_at != std::string::npos) {
+							lines[i].eq_at += pad;
+						}
+					}
+				}
+				size_t width = 0;
+				for (size_t i = first; i < last; i++) {
+					if (lines[i].eq_at != std::string::npos) {
+						width = std::max(width, lines[i].eq_at);
+					}
+				}
+				for (size_t i = first; i < last; i++) {
+					if (lines[i].eq_at != std::string::npos) {
+						lines[i].text.insert(lines[i].eq_at, std::string(width - lines[i].eq_at, ' '));
+					}
+				}
+			}
+			first = last;
+		}
 	}
 
 	std::string render_comment(std::string text, options const& o)
@@ -495,8 +620,10 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 
 		ol.indent = indent.value_or(nest.depth());
 		(void)is_label;
-		std::string text = render_line(line, line.items, o);
-		bool        has_code = !line.items.empty();
+		std::vector<size_t> starts;
+		std::string         text     = render_line(line, line.items, o, &starts);
+		bool                has_code = !line.items.empty();
+		describe_alignment(line.items, starts, ol);
 		if (line.has_comment) {
 			std::string gap;
 			if (has_code) {
@@ -568,6 +695,10 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 	}
 	while (!result.empty() && result.back().blank) {
 		result.pop_back();
+	}
+
+	if (o.align_assignments || o.align_declares) {
+		align_lines(result, o);
 	}
 
 	std::string newline;
