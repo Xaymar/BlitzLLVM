@@ -1,9 +1,9 @@
 name: Pull Request
 
 # Builds every pull request that changes the binaries to verify that it compiles (see paths below; a pull request that only
-# changes documentation or tests gets no build, and no comment). The pull request comment is created by pull-request-pending.yml and
-# filled with the results by pull-request-comment.yml, because
-# pull requests from forks only get a read-only token here and can not comment themselves.
+# changes documentation or tests gets no build, and no comment). The pull request comment is written by pull-request-comment.yml
+# (when a build starts and when it finished), because pull requests from forks only get a read-only token here and can not
+# comment themselves.
 
 on:
   pull_request:
@@ -213,16 +213,3 @@ jobs:
         with:
           path: packages/${{ env.ARTIFACT }}.pkg
           archive: false
-
-  # Hands the pull request number to pull-request-comment.yml, which runs outside of the pull request's context.
-  info:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Record the pull request
-        env:
-          NUMBER: ${{ github.event.pull_request.number }}
-        run: echo "$NUMBER" > pull-request-number
-      - uses: actions/upload-artifact@v4
-        with:
-          name: pull-request-info
-          path: pull-request-number
