@@ -1,32 +1,16 @@
 # The programs of the original Blitz3D and BlitzPlus that compile, but stop with an error in tools/original_programs.py run-one (BLITZ_HEADLESS=1, a few
 # seconds), as the tests run it in CI: in a virtual X server (xvfb-run), where a few programs do something else than without a display. They are expected to fail
 # (WILL_FAIL, label pending); the first error of each is the reason. Paths are relative to extra/.
-blitz3d/_release/Games/bb3d_asteroids/EdzUpAsteroids.bb
-# Runtime Error: ScaleMesh: entity or surface 0 does not exist.
 blitz3d/_release/Games/TunnelRun/tr.bb
-# Runtime Error: HideEntity: entity or surface 0 does not exist.
+# Runtime Error: Object does not exist.
 blitz3d/_release/Games/wing_ring/wing_ring.bb
-# Runtime Error: ImageWidth: the image does not exist.
-blitz3d/_release/samples/birdie/Brush Tiles/tt.bb
-# Runtime Error: TextureCoords: the texture does not exist.
+# Runtime Error: EntityShininess: entity or surface 0 does not exist.
 blitz3d/_release/samples/birdie/dolphin/dolphin.bb
-# Runtime Error: HideEntity: entity or surface 0 does not exist.
-blitz3d/_release/samples/birdie/dominos/dominos.bb
-# Runtime Error: ScaleTexture: the texture does not exist.
-blitz3d/_release/samples/birdie/Fire Effect/Fire Effect/Main.bb
 # Runtime Error: HideEntity: entity or surface 0 does not exist.
 blitz3d/_release/samples/birdie/Jet Tails/Main.bb
 # Runtime Error: RotateMesh: entity or surface 0 does not exist.
-blitz3d/_release/samples/birdie/lodBalls/subdiv.bb
-# Runtime Error: EntityTexture: entity or surface 0 does not exist.
 blitz3d/_release/samples/birdie/LodMesh/lmesh.bb
 # Runtime Error: EntityTexture: entity or surface 0 does not exist.
-blitz3d/_release/samples/birdie/te/TE.bb
-# Runtime Error: ScaleTexture: the texture does not exist.
-blitz3d/_release/samples/birdie/Terrain Tiling/tt.bb
-# Runtime Error: DrawImage: the image does not exist.
-blitz3d/_release/samples/birdie/thunder/thunder.bb
-# Runtime Error: ScaleTexture: the texture does not exist.
 blitz3d/_release/samples/Hi-Toro/Death Island/deathisland.bb
 # Runtime Error: EntityShininess: entity or surface 0 does not exist.
 blitz3d/_release/samples/Hi-Toro/Shooter/Shooter/shooter-testbed.bb
@@ -45,15 +29,5 @@ blitz3d/_release/samples/si/fps/fps.bb
 # Runtime Error: ScaleEntity: entity or surface 0 does not exist.
 blitz3d/_release/samples/zenith/scare/scare.bb
 # Runtime Error: ScaleEntity: entity or surface 0 does not exist.
-blitzplus_msvc2017/_release/games/SlideBlock/Slideblock.bb
-# Runtime Error: TileImage: the image does not exist.
-blitzplus_msvc2017/_release/games/Spider/spider.bb
-# Runtime Error: DrawImage: the image does not exist.
-blitzplus_msvc2017/_release/samples/Birdie/ISO.bb
-# Runtime Error: HandleImage: the image does not exist.
 blitzplus_msvc2017/_release/samples/Mak/font_test.bb
 # Runtime Error: No font selected
-blitzplus_msvc2017/_release/samples/Snarty/BlitzALERT+/BlitzALERT.bb
-# Runtime Error: DrawBlock: the image does not exist.
-blitzplus_msvc2017/_release/samples/TeraBit/dj3/DJ3.bb
-# Runtime Error: DrawBlock: the image does not exist.

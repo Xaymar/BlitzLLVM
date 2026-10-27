@@ -13,6 +13,7 @@
 // Loading models: the .b3d files of Blitz3D (and the .3ds files of 3D Studio, see model_3ds.cpp) are read into a tree of nodes, which become entities, meshes and an animation.
 
 #include "model_internal.hpp"
+#include "path.h"
 
 using namespace bb;
 using namespace bb::anim;
@@ -163,7 +164,7 @@ namespace {
 
 	bool read_model(const char* path, model& m)
 	{
-		FILE* file = fopen(path, "rb");
+		FILE* file = fopen(bb_native_path(path), "rb");
 		if (!file) {
 			return false;
 		}
@@ -256,7 +257,7 @@ namespace {
 
 	bool file_exists(const char* path)
 	{
-		FILE* f = fopen(path, "rb");
+		FILE* f = fopen(bb_native_path(path), "rb");
 		if (f) {
 			fclose(f);
 			return true;

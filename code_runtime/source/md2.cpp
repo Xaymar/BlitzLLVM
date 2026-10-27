@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include <unordered_map>
+#include "path.h"
 
 extern "C" {
 void bb_runtime_error(const char* message);
@@ -244,7 +245,7 @@ namespace {
 
 	md2_data* read_md2(const char* path)
 	{
-		FILE* f = fopen(path, "rb");
+		FILE* f = fopen(bb_native_path(path), "rb");
 		if (!f) {
 			return nullptr;
 		}

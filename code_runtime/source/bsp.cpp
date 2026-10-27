@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include <map>
+#include "path.h"
 
 extern "C" {
 void    bb_runtime_error(const char* message);
@@ -176,7 +177,7 @@ namespace {
 
 	bool exists(const char* path)
 	{
-		FILE* f = fopen(path, "rb");
+		FILE* f = fopen(bb_native_path(path), "rb");
 		if (f) {
 			fclose(f);
 			return true;
@@ -219,7 +220,7 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 	if (parent && !get_entity(parent)) {
 		bb_runtime_error("LoadBSP: the parent does not exist.");
 	}
-	FILE* f = file ? fopen(file, "rb") : nullptr;
+	FILE* f = file ? fopen(bb_native_path(file), "rb") : nullptr;
 	if (!f) {
 		return 0;
 	}

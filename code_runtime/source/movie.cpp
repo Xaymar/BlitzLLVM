@@ -32,6 +32,7 @@ extern "C" {
 #include <opus_multistream.h>
 
 #include "graphics_internal.hpp"
+#include "path.h"
 
 namespace {
 	// The functions of FFmpeg that are used. Each is a pointer that is filled in when the libraries are loaded.
@@ -653,7 +654,7 @@ int32_t bb_open_movie(const char* file)
 	m        = movie();
 	m.used   = true;
 
-	bool opened = (ff.avformat_open_input(&m.format, file, nullptr, nullptr) >= 0) && (ff.avformat_find_stream_info(m.format, nullptr) >= 0);
+	bool opened = (ff.avformat_open_input(&m.format, bb_native_path(file), nullptr, nullptr) >= 0) && (ff.avformat_find_stream_info(m.format, nullptr) >= 0);
 	for (unsigned i = 0; opened && (i < m.format->nb_streams); i++) {
 		AVCodecParameters* parameters = m.format->streams[i]->codecpar;
 		if ((parameters->codec_type == AVMEDIA_TYPE_VIDEO) && (m.video_index < 0) && !(m.format->streams[i]->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
