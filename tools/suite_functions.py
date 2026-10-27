@@ -113,6 +113,7 @@ EXTENSIONS = {
     "settexturesampler": ("blitz3d", "SetTextureSampler%texture%sampler"),
     "textureready": ("blitz3d", "%TextureReady%texture"),
     "imageready": ("graphics", "%ImageReady%image"),
+    "entityready": ("blitz3d", "%EntityReady%entity"),
     "asyncloading": ("graphics", "AsyncLoading%enabled"),
     "byte": ("math", "%Byte#value"),
     "ubyte": ("math", "%UByte#value"),

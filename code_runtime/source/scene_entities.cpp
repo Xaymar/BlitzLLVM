@@ -131,7 +131,7 @@ namespace bb::scene {
 
 	static void destroy_entity(int handle)
 	{
-		entity* e = get_entity(handle);
+		entity* e = get_entity_raw(handle); // A model that is still being parsed is dropped, not waited for.
 		if (!e) {
 			return;
 		}
@@ -150,6 +150,9 @@ namespace bb::scene {
 		e->surfaces.release();
 		if (e->plane_draw) {
 			release_surface(e->plane_draw);
+		}
+		if (e->loading) {
+			destroy_model_load(e->loading, handle);
 		}
 		if (e->anim) {
 			destroy_animation(e->anim);
@@ -298,12 +301,27 @@ int bb::entity_count()
 	return int(entities.size);
 }
 
-bb::entity* bb::get_entity(int handle)
+bb::entity* bb::get_entity_raw(int handle)
 {
 	if ((handle < 1) || (uint32_t(handle) > entities.size)) {
 		return nullptr;
 	}
 	return entities[uint32_t(handle) - 1];
+}
+
+bb::entity* bb::get_entity(int handle)
+{
+	entity* e = get_entity_raw(handle);
+	if (e && e->unresolved) {
+		resolve_model(handle, *e);
+	}
+	return e;
+}
+
+void bb::set_entity_kind(int handle, int kind)
+{
+	entities[uint32_t(handle) - 1]->kind     = kind;
+	entity_kinds[uint32_t(handle) - 1]       = uint8_t(kind + 1);
 }
 
 bb::cull_record& bb::cull_record_of(int handle)

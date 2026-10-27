@@ -103,6 +103,11 @@ namespace bb::gfx {
 		}
 		// A frame spares about two milliseconds for uploads; what is left over is done by a later frame or by whatever needs it.
 		Uint64 limit = SDL_GetPerformanceCounter() + SDL_GetPerformanceFrequency() / 500;
+		while (bb::models_pump_one()) { // Models first, as building one starts the loading of its textures.
+			if (SDL_GetPerformanceCounter() > limit) {
+				return;
+			}
+		}
 		for (uint32_t i = 0; i < texture_table.size; i++) {
 			texture_entry& t = texture_table[i];
 			if (t.used && t.pending && async_finished(t.pending) && t.pending->ok) {

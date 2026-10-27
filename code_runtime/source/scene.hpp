@@ -192,6 +192,8 @@ namespace bb {
 		bool   smooth = true;
 	};
 
+	struct model_load; // A model that is still being parsed on a loader thread, see b3d.cpp.
+
 	struct entity {
 		int         kind   = PIVOT;
 		int         parent = 0; // Handle, 0 for none.
@@ -243,6 +245,8 @@ namespace bb {
 		surface*         plane_draw = nullptr;  // Where that part is made for the renderer, as it depends on the camera.
 		animation*       anim    = nullptr; // Of the top of an animated model, see animation.cpp
 		md2_state*       md2     = nullptr; // Of a model from an .md2 file, see md2.cpp
+		model_load*      loading = nullptr; // Set for a model from LoadMesh or LoadAnimMesh with AsyncLoading on, see resolve_model.
+		bool             unresolved = false; // The model of loading is not built yet.
 		anim_node*       pending_keys = nullptr; // The keys that SetAnimKey made, which become a sequence with AddAnimSeq.
 
 		// Camera
@@ -269,7 +273,17 @@ namespace bb {
 
 	/** Highest entity handle in use. Handles start at 1. */
 	int          entity_count();
+	/** The entity of a handle. An entity whose model is still being parsed is finished first, which waits for the parsing. */
 	entity*      get_entity(int handle);
+	/** The same without finishing the model, for what only asks whether it is there. */
+	entity*      get_entity_raw(int handle);
+	/** Waits for the parsing of a model and builds it into the entity that stood in for it (b3d.cpp). */
+	void         resolve_model(int handle, entity& e);
+	/** Builds one model that is done being parsed, if there is one. */
+	bool         models_pump_one();
+	void         destroy_model_load(model_load* l, int handle);
+	/** For loading models: the kind that an entity turned out to be. */
+	void         set_entity_kind(int handle, int kind);
 	void         world_matrix(int handle, float* out);
 
 	/** Counts the changes of surfaces that a cull_record was made from, which are all of the records that are not made again. */
