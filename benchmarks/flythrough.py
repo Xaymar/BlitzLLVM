@@ -85,7 +85,7 @@ def main():
         line = next((l for l in output.splitlines() if "RESULT " in l), None)
         if result.returncode != 0 or line is None:
             sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, output[-2000:]))
-        values = {k: float(v) for k, v in re.findall(r"(\w+)=([-\d.]+)", line.split("RESULT ", 1)[1])}
+        values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
         frametimes = []
         if os.path.isfile(env["BENCH_FRAMETIMES"]):
             frametimes = [int(l) for l in open(env["BENCH_FRAMETIMES"]).read().split()]

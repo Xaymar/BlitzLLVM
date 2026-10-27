@@ -214,5 +214,5 @@ If timesfile$ <> "" Then
 EndIf
 
 avg# = total / frames / 1000
-DebugLog "RESULT objects=" + objects + " frames=" + frames + " seed=" + seed + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " ms_avg=" + avg + " ms_min=" + (s(0) / 1000) + " ms_median=" + (s(frames / 2) / 1000) + " ms_p95=" + (s(p95) / 1000) + " ms_max=" + (s(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + (trissum / frames) + " draws=" + (drawsum / frames) + " pipelines=" + (pipesum / frames) + " textures=" + (texsum / frames) + " buffers=" + (bufsum / frames)
+DebugLog "RESULT objects=" + objects + " frames=" + frames + " seed=" + seed + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " ms_avg=" + avg + " ms_min=" + (s(0) / 1000) + " ms_median=" + (s(frames / 2) / 1000) + " ms_p95=" + (s(p95) / 1000) + " ms_max=" + (s(frames - 1) / 1000) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " pipelines=" + Int(pipesum / frames) + " textures=" + Int(texsum / frames) + " buffers=" + Int(bufsum / frames)
 End
