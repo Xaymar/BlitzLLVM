@@ -17,6 +17,7 @@
 #include <windows.h>
 #endif
 #include "commands.hpp"
+#include "keywords.hpp"
 #include "lift.hpp"
 #include "module.hpp"
 
@@ -41,6 +42,8 @@ namespace {
 				  << "  --info           Describe the program (functions, globals, what it needs from the runtime) and stop.\n"
 				  << "  --commands       With --info: list every command the program calls.\n"
 				  << "  --blitzcc <path> The blitzcc that builds the IR. Defaults to the one next to blitz-recompiler.\n"
+				  << "  --userlibs-dir <dir> The directory with the .decls files (and libraries) for the user libraries that the program calls. Defaults to $BLITZLLVM_USERLIBS,\n"
+				  << "                   then the userlibs directory of the installation. A call of a function with no matching declaration is not translated.\n"
 				  << "  --strict         Fail if any part of the program can't be translated, instead of raising a runtime error when it is used.\n"
 				  << "  -v               Print every step.\n"
 				  << "  -q               Print nothing except errors.\n"
@@ -87,7 +90,7 @@ namespace {
 int main(int argc, char** argv)
 {
 	using namespace blitz::recompiler;
-	fs::path                 input, output, blitzcc;
+	fs::path                 input, output, blitzcc, userlibs;
 	bool                     emit_ir = false, info = false, list_commands = false, strict = false, verbose = false, quiet = false;
 	std::vector<std::string> passthrough;
 	try {
@@ -116,6 +119,8 @@ int main(int argc, char** argv)
 				list_commands = true;
 			} else if (a == "--blitzcc") {
 				blitzcc = value();
+			} else if (a == "--userlibs-dir") {
+				userlibs = value();
 			} else if (a == "--strict") {
 				strict = true;
 			} else if (a == "-v") {
@@ -184,6 +189,25 @@ int main(int argc, char** argv)
 		lift_options options;
 		options.keep_going = !strict;
 		options.verbose    = verbose;
+		// The user libraries are declared in the .decls files, where blitzcc looks for them too.
+		if (userlibs.empty()) {
+			if (const char* env = std::getenv("BLITZLLVM_USERLIBS"); env && *env) {
+				userlibs = env;
+			} else {
+				auto bin_dir = executable_path().parent_path();
+				for (auto const& candidate : { bin_dir / ".." / "userlibs", bin_dir / "userlibs", bin_dir / ".." / "share" / "blitzllvm" / "userlibs" }) {
+					if (fs::is_directory(candidate)) {
+						userlibs = fs::weakly_canonical(candidate);
+						break;
+					}
+				}
+			}
+		}
+		if (!userlibs.empty()) {
+			options.userlibs     = blitz::keywords::load_userlibs(userlibs);
+			options.userlibs_dir = fs::absolute(userlibs).generic_string();
+		}
+		options.source_dir = fs::absolute(input).parent_path().generic_string();
 		auto result        = lift(program, options);
 		if (!quiet) {
 			std::cout << result.functions << " functions, " << result.instructions << " instructions";

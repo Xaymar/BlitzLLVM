@@ -23,6 +23,7 @@ add_executable(${PROJECT_NAME})
 init_project(${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME blitz-recompiler)
 target_sources(${PROJECT_NAME} PRIVATE "source/main.cpp")
+target_link_libraries(recompilerlib PUBLIC blitzfront)
 target_link_libraries(${PROJECT_NAME} PRIVATE recompilerlib)
 target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${CMAKE_PROJECT_VERSION}")
 
