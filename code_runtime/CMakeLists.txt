@@ -109,6 +109,8 @@ if(MSVC)
 	# No C++ runtime dependencies: the library is linked by clang into programs.
 	target_compile_options(blitzrt PRIVATE /GR- /EHs-c- /Zc:preprocessor)
 	target_compile_definitions(blitzrt PRIVATE _HAS_EXCEPTIONS=0)
+	# The vectorized STL algorithms need helpers (__std_rotate, ...) that older toolsets' msvcprt.lib lacks, see dependencies.cmake.
+	target_compile_definitions(blitzrt PRIVATE _USE_STD_VECTOR_ALGORITHMS=0 _USE_STD_VECTOR_FLOATING_ALGORITHMS=0)
 	# Programs are linked by clang, which uses the dynamic release C runtime.
 	target_compile_options(blitzrt PRIVATE /MD)
 endif()
