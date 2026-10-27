@@ -229,9 +229,12 @@ Function WorkSieve%()
 	sieve(0) = 0 : sieve(1) = 0
 	For i = 2 To 1414
 		If sieve(i) = 1 Then
-			For j = i * i To 2000000 Step i
+			; Not a For ... Step i loop: the original only accepts a constant Step.
+			j = i * i
+			While j <= 2000000
 				sieve(j) = 0
-			Next
+				j = j + i
+			Wend
 		EndIf
 	Next
 	count = 0
