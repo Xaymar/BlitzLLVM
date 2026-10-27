@@ -32,8 +32,9 @@ Print Sqr(16)
 
 ## Related commands
 
-* [SeedRnd](SeedRnd)
+* [Short](Short) 〔BlitzLLVM〕
 * [Sin](Sin)
 * [Tan](Tan)
+* [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

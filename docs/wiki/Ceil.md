@@ -32,9 +32,9 @@ Print Ceil(-2.1)
 
 ## Related commands
 
-* [ATan](ATan)
-* [ATan2](ATan2)
+* [Byte](Byte) 〔BlitzLLVM〕
+* [ByteSwap](ByteSwap) 〔BlitzLLVM〕
 * [Cos](Cos)
-* [Exp](Exp)
+* [Double](Double) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

@@ -31,8 +31,8 @@ Print Cos(60)
 ## Related commands
 
 * [ACos](ACos)
-* [ATan2](ATan2)
+* [ByteSwap](ByteSwap) 〔BlitzLLVM〕
 * [Ceil](Ceil)
-* [Exp](Exp)
+* [Double](Double) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

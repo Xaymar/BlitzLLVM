@@ -32,9 +32,9 @@ Print Floor(-2.1)
 
 ## Related commands
 
-* [Cos](Cos)
+* [Double](Double) 〔BlitzLLVM〕
 * [Exp](Exp)
-* [Log](Log)
-* [Log10](Log10)
+* [Half](Half) 〔BlitzLLVM〕
+* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

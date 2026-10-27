@@ -34,7 +34,7 @@ Print a = b
 
 * [Rnd](Rnd)
 * [RndSeed](RndSeed)
-* [Sin](Sin)
-* [Sqr](Sqr)
+* [SatULong](SatULong) 〔BlitzLLVM〕
+* [SatUShort](SatUShort) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

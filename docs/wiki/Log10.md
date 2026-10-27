@@ -30,9 +30,9 @@ Print Log10(1000)
 
 ## Related commands
 
-* [Floor](Floor)
+* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 * [Log](Log)
-* [Rand](Rand)
-* [Rnd](Rnd)
+* [Long](Long) 〔BlitzLLVM〕
+* [PopCount](PopCount) 〔BlitzLLVM〕
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)

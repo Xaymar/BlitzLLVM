@@ -249,25 +249,48 @@
 <li><a href="RuntimeStats">RuntimeStats</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Math">Math</a> (17)</summary>
+<li><details><summary><a href="BlitzBasic-Math">Math</a> (40)</summary>
 <ul>
 <li><a href="ACos">ACos</a></li>
 <li><a href="ASin">ASin</a></li>
 <li><a href="ATan">ATan</a></li>
 <li><a href="ATan2">ATan2</a></li>
+<li><a href="Byte">Byte</a> 〔BlitzLLVM〕</li>
+<li><a href="ByteSwap">ByteSwap</a> 〔BlitzLLVM〕</li>
 <li><a href="Ceil">Ceil</a></li>
 <li><a href="Cos">Cos</a></li>
+<li><a href="Double">Double</a> 〔BlitzLLVM〕</li>
 <li><a href="Exp">Exp</a></li>
 <li><a href="Floor">Floor</a></li>
+<li><a href="Half">Half</a> 〔BlitzLLVM〕</li>
+<li><a href="LeadingZeros">LeadingZeros</a> 〔BlitzLLVM〕</li>
 <li><a href="Log">Log</a></li>
 <li><a href="Log10">Log10</a></li>
+<li><a href="Long">Long</a> 〔BlitzLLVM〕</li>
+<li><a href="PopCount">PopCount</a> 〔BlitzLLVM〕</li>
 <li><a href="Rand">Rand</a></li>
 <li><a href="Rnd">Rnd</a></li>
 <li><a href="RndSeed">RndSeed</a></li>
+<li><a href="RotL">RotL</a> 〔BlitzLLVM〕</li>
+<li><a href="RotR">RotR</a> 〔BlitzLLVM〕</li>
+<li><a href="SatByte">SatByte</a> 〔BlitzLLVM〕</li>
+<li><a href="SatInt">SatInt</a> 〔BlitzLLVM〕</li>
+<li><a href="SatLong">SatLong</a> 〔BlitzLLVM〕</li>
+<li><a href="SatShort">SatShort</a> 〔BlitzLLVM〕</li>
+<li><a href="SatUByte">SatUByte</a> 〔BlitzLLVM〕</li>
+<li><a href="SatUInt">SatUInt</a> 〔BlitzLLVM〕</li>
+<li><a href="SatULong">SatULong</a> 〔BlitzLLVM〕</li>
+<li><a href="SatUShort">SatUShort</a> 〔BlitzLLVM〕</li>
 <li><a href="SeedRnd">SeedRnd</a></li>
+<li><a href="Short">Short</a> 〔BlitzLLVM〕</li>
 <li><a href="Sin">Sin</a></li>
 <li><a href="Sqr">Sqr</a></li>
 <li><a href="Tan">Tan</a></li>
+<li><a href="TrailingZeros">TrailingZeros</a> 〔BlitzLLVM〕</li>
+<li><a href="UByte">UByte</a> 〔BlitzLLVM〕</li>
+<li><a href="UInt">UInt</a> 〔BlitzLLVM〕</li>
+<li><a href="ULong">ULong</a> 〔BlitzLLVM〕</li>
+<li><a href="UShort">UShort</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
 <li><details><summary><a href="BlitzBasic-Mouse">Mouse</a> (15)</summary>

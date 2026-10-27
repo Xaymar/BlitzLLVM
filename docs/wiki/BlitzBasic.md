@@ -19,7 +19,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Joystick](BlitzBasic-Joystick) (21): Joystick and gamepad axes, buttons and hats.
 * [Keyboard](BlitzBasic-Keyboard) (6): Key state, key hits and waiting for keys.
 * [Language](BlitzBasic-Language) (1): Statistics and helpers that belong to the language itself.
-* [Math](BlitzBasic-Math) (17): Trigonometry, rounding, random numbers and other numeric helpers.
+* [Math](BlitzBasic-Math) (40): Trigonometry, rounding, random numbers and other numeric helpers.
 * [Mouse](BlitzBasic-Mouse) (15): Mouse position, speed and buttons.
 * [Movies](BlitzBasic-Movies) (6): Playing back movie files.
 * [Multiplayer](BlitzBasic-Multiplayer) (14): Hosting and joining a network game and exchanging messages.

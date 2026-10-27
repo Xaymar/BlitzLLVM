@@ -57,6 +57,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [BSPLighting](BSPLighting)
 * [BufferDirty](BufferDirty)
 * [ButtonState](ButtonState)
+* [Byte](Byte) 〔BlitzLLVM〕
+* [ByteSwap](ByteSwap) 〔BlitzLLVM〕
 
 ## C
 
@@ -213,6 +215,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [DisplayY](DisplayY) 〔BlitzLLVM〕
 * [Dither](Dither)
 * [DottedIP](DottedIP)
+* [Double](Double) 〔BlitzLLVM〕
 * [DrawBlock](DrawBlock)
 * [DrawBlockRect](DrawBlockRect)
 * [DrawImage](DrawImage)
@@ -368,6 +371,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## H
 
+* [Half](Half) 〔BlitzLLVM〕
 * [HandleImage](HandleImage)
 * [HandleSprite](HandleSprite)
 * [Hex](Hex)
@@ -426,6 +430,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## L
 
+* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 * [Left](Left)
 * [Len](Len)
 * [LightColor](LightColor)
@@ -460,6 +465,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [LockTextArea](LockTextArea)
 * [Log](Log)
 * [Log10](Log10)
+* [Long](Long) 〔BlitzLLVM〕
 * [LoopSound](LoopSound)
 * [Lower](Lower)
 * [LSet](LSet)
@@ -554,6 +560,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [PokeFloat](PokeFloat)
 * [PokeInt](PokeInt)
 * [PokeShort](PokeShort)
+* [PopCount](PopCount) 〔BlitzLLVM〕
 * [PositionEntity](PositionEntity)
 * [PositionMesh](PositionMesh)
 * [PositionTexture](PositionTexture)
@@ -613,12 +620,22 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [RotateMesh](RotateMesh)
 * [RotateSprite](RotateSprite)
 * [RotateTexture](RotateTexture)
+* [RotL](RotL) 〔BlitzLLVM〕
+* [RotR](RotR) 〔BlitzLLVM〕
 * [RSet](RSet)
 * [RuntimeError](RuntimeError)
 * [RuntimeStats](RuntimeStats)
 
 ## S
 
+* [SatByte](SatByte) 〔BlitzLLVM〕
+* [SatInt](SatInt) 〔BlitzLLVM〕
+* [SatLong](SatLong) 〔BlitzLLVM〕
+* [SatShort](SatShort) 〔BlitzLLVM〕
+* [SatUByte](SatUByte) 〔BlitzLLVM〕
+* [SatUInt](SatUInt) 〔BlitzLLVM〕
+* [SatULong](SatULong) 〔BlitzLLVM〕
+* [SatUShort](SatUShort) 〔BlitzLLVM〕
 * [SaveBuffer](SaveBuffer)
 * [SaveImage](SaveImage)
 * [ScaleEntity](ScaleEntity)
@@ -674,6 +691,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SetTextAreaText](SetTextAreaText)
 * [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 * [SetToolBarTips](SetToolBarTips)
+* [Short](Short) 〔BlitzLLVM〕
 * [ShowEntity](ShowEntity)
 * [ShowGadget](ShowGadget)
 * [ShowPointer](ShowPointer)
@@ -735,6 +753,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [TileImage](TileImage)
 * [TimerTicks](TimerTicks)
 * [TotalVidMem](TotalVidMem)
+* [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 * [TranslateEntity](TranslateEntity)
 * [TreeViewNodeText](TreeViewNodeText)
 * [TreeViewRoot](TreeViewRoot)
@@ -745,11 +764,14 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## U
 
+* [UByte](UByte) 〔BlitzLLVM〕
 * [UDPMsgIP](UDPMsgIP)
 * [UDPMsgPort](UDPMsgPort)
 * [UDPStreamIP](UDPStreamIP)
 * [UDPStreamPort](UDPStreamPort)
 * [UDPTimeouts](UDPTimeouts)
+* [UInt](UInt) 〔BlitzLLVM〕
+* [ULong](ULong) 〔BlitzLLVM〕
 * [UncheckMenu](UncheckMenu)
 * [UnlockBuffer](UnlockBuffer)
 * [UnlockTextArea](UnlockTextArea)
@@ -759,6 +781,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [UpdateWindowMenu](UpdateWindowMenu)
 * [UpdateWorld](UpdateWorld)
 * [Upper](Upper)
+* [UShort](UShort) 〔BlitzLLVM〕
 
 ## V
 
