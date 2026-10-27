@@ -32,7 +32,7 @@ namespace {
 
 int blitz::tools::run(driver const& tool, int argc, char** argv)
 {
-	bool                     in_place = false, check = false, diff = false, quiet = false, no_config = false, print_config = false;
+	bool                     in_place = false, recursive = false, check = false, diff = false, quiet = false, no_config = false, print_config = false;
 	std::filesystem::path    config_file;
 	std::string              stdin_name = "<stdin>";
 	bool                     stdin_named = false;
@@ -48,6 +48,7 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 					  << "  -i, --in-place          rewrite the files\n"
 					  << "      --check             list the files that would change, exit 1 if there are any\n"
 					  << "      --diff              show a unified diff of the changes, exit 1 if there are any\n"
+					  << "  -r, --recursive         use every .bb, .b3d and .bp file beneath the directories that are given\n"
 					  << "  -q, --quiet             no messages except errors\n"
 					  << "      --config=FILE       use this configuration file instead of the nearest one\n"
 					  << "      --no-config         ignore configuration files\n"
@@ -67,6 +68,8 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 			return 0;
 		} else if ((arg == "-i") || (arg == "--in-place")) {
 			in_place = true;
+		} else if ((arg == "-r") || (arg == "--recursive")) {
+			recursive = true;
 		} else if (arg == "--check") {
 			check = true;
 		} else if (arg == "--diff") {
@@ -108,6 +111,34 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 	}
 	if (files.empty()) {
 		files.push_back("-");
+	}
+
+	// A directory is every source file beneath it with -r, and a mistake without.
+	{
+		std::vector<std::string> expanded;
+		for (auto const& file : files) {
+			std::error_code ec;
+			if ((file != "-") && std::filesystem::is_directory(file, ec)) {
+				if (!recursive) {
+					std::cerr << tool.name << ": " << file << ": is a directory, use -r to process the files beneath it.\n";
+					return 2;
+				}
+				try {
+					for (auto const& found : find_sources(file)) {
+						expanded.push_back(found.generic_string());
+					}
+				} catch (std::exception const& ex) {
+					std::cerr << tool.name << ": " << ex.what() << "\n";
+					return 2;
+				}
+			} else {
+				expanded.push_back(file);
+			}
+		}
+		files = expanded;
+		if (files.empty()) {
+			return 0; // Directories without sources
+		}
 	}
 
 	std::map<std::filesystem::path, settings> cache;
