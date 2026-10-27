@@ -599,7 +599,7 @@ def vertex_shader_3d():
 
 
 
-def fragment_shader_masked(mask_offset, fog=False):
+def fragment_shader_masked(mask_offset, fog=False, discard=True):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
@@ -710,16 +710,18 @@ def fragment_shader_masked(mask_offset, fog=False):
         result = b.construct(4, b.extract(lit_rgb, 0), b.extract(lit_rgb, 1), b.extract(lit_rgb, 2), b.extract(result, 3))
         # Pixels that are less solid than the first value of the mask are not drawn at all, which is what makes
         # leaves and fences work with depth.
-        boolean = b.new_type("bool", "TypeBool")
-        cut = b.emit("FOrdLessThan", boolean, b.extract(result, 3), b.extract(mask, 0))
-        kill_label, merge_label = b.m.id(), b.m.id()
-        b.m.code += [
-            Module.inst("SelectionMerge", merge_label, 0),
-            Module.inst("BranchConditional", cut, kill_label, merge_label),
-            Module.inst("Label", kill_label),
-            Module.inst("Kill"),
-            Module.inst("Label", merge_label),
-        ]
+        # Without that, as for what has no mask, the GPU can test the depth before the shader runs.
+        if discard:
+            boolean = b.new_type("bool", "TypeBool")
+            cut = b.emit("FOrdLessThan", boolean, b.extract(result, 3), b.extract(mask, 0))
+            kill_label, merge_label = b.m.id(), b.m.id()
+            b.m.code += [
+                Module.inst("SelectionMerge", merge_label, 0),
+                Module.inst("BranchConditional", cut, kill_label, merge_label),
+                Module.inst("Label", kill_label),
+                Module.inst("Kill"),
+                Module.inst("Label", merge_label),
+            ]
     if fog:
         # Linear between the near and far distance (x and y), if it is on (z). This is per pixel, so that it also
         # works for things that are much bigger than they look.
@@ -840,5 +842,6 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment", fragment_shader_masked(16), out)
     emit("bb_shader_vertex_3d", vertex_shader_3d(), out)
     emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)
+    emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, discard=False), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)

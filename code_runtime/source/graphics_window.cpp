@@ -133,6 +133,7 @@ void bb_end_graphics(void)
 		destroy_gamma();
 		destroy_frame_slot_buffers();
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
+		vkDestroyPipeline(g.device, g.solid3d, nullptr);
 		vkDestroyPipeline(g.device, g.blend3d, nullptr);
 		vkDestroyPipeline(g.device, g.mul3d, nullptr);
 		vkDestroyPipeline(g.device, g.mul2x3d, nullptr);
