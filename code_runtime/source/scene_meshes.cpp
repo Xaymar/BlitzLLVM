@@ -13,6 +13,9 @@
 // Meshes and surfaces: making them, changing them and looking at them.
 
 #include "scene_internal.hpp"
+#include <array>
+#include <cstring>
+#include <unordered_map>
 
 using namespace bb;
 using namespace bb::scene;
@@ -208,28 +211,59 @@ namespace bb::scene {
 		}
 	}
 
+	// The way the original does it: every triangle adds its unit normal (not weighted by its size) to all vertices that are at
+	// the same position, so that the corners of triangles that do not share indices are still smooth.
 	static void update_normals(surface* s)
 	{
-		for (uint32_t i = 0; i < s->vertices.size; i++) {
-			s->vertices[i].nx = s->vertices[i].ny = s->vertices[i].nz = 0;
-		}
+		struct position {
+			float x, y, z;
+			bool operator==(const position& o) const { return x == o.x && y == o.y && z == o.z; }
+		};
+		struct position_hash {
+			size_t operator()(const position& p) const
+			{
+				uint32_t h = 2166136261u;
+				for (float f : { p.x, p.y, p.z }) {
+					uint32_t bits;
+					std::memcpy(&bits, &f, sizeof(bits));
+					h = (h ^ bits) * 16777619u;
+				}
+				return h;
+			}
+		};
+		// Adding 0 turns -0 into 0, which is the same position.
+		auto key_of = [](const vertex3d& v) { return position{ v.x + 0.0f, v.y + 0.0f, v.z + 0.0f }; };
+		std::unordered_map<position, std::array<float, 3>, position_hash> sums;
+		sums.reserve(s->vertices.size);
 		for (uint32_t i = 0; i + 2 < s->indices.size; i += 3) {
 			vertex3d &a = s->vertices[s->indices[i]], &b = s->vertices[s->indices[i + 1]], &c = s->vertices[s->indices[i + 2]];
 			float e1[3] = { b.x - a.x, b.y - a.y, b.z - a.z }, e2[3] = { c.x - a.x, c.y - a.y, c.z - a.z };
 			float n[3] = { e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0] };
+			float length = std::sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+			if (length <= 0.000001f) {
+				continue;
+			}
 			vertex3d* corners[3] = { &a, &b, &c };
 			for (vertex3d* v : corners) {
-				v->nx += n[0];
-				v->ny += n[1];
-				v->nz += n[2];
+				auto& sum = sums[key_of(*v)];
+				sum[0] += n[0] / length;
+				sum[1] += n[1] / length;
+				sum[2] += n[2] / length;
 			}
 		}
 		for (uint32_t i = 0; i < s->vertices.size; i++) {
-			float n[3] = { s->vertices[i].nx, s->vertices[i].ny, s->vertices[i].nz };
+			vertex3d& v = s->vertices[i];
+			float n[3] = { 0, 0, 0 };
+			auto found = sums.find(key_of(v));
+			if (found != sums.end()) {
+				n[0] = found->second[0];
+				n[1] = found->second[1];
+				n[2] = found->second[2];
+			}
 			length_normalize(n);
-			s->vertices[i].nx = n[0];
-			s->vertices[i].ny = n[1];
-			s->vertices[i].nz = n[2];
+			v.nx = n[0];
+			v.ny = n[1];
+			v.nz = n[2];
 		}
 		s->dirty = true;
 		bb::surface_changed(*s);
