@@ -50,7 +50,7 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 	auto field = [&](uint32_t index, const char* llvm_type) {
 		auto p = tmp(), v = tmp();
 		emit(p + " = getelementptr inbounds { ptr, i32, i32, i32, i32 }, ptr " + var->pointer + ", i32 0, i32 " + std::to_string(index));
-		emit(v + " = load " + llvm_type + ", ptr " + p);
+		emit(v + " = load " + llvm_type + ", ptr " + p + ", !tbaa !900003");
 		return v;
 	};
 
@@ -100,6 +100,7 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 	emit(p + " = getelementptr inbounds " + blitz::types::to_llvm(var->type) + ", ptr " + data + ", i64 " + linear);
 	address result{ p, var->type, var->sname, 0, false };
 	result.need = need;
+	result.element = true;
 	return result;
 }
 

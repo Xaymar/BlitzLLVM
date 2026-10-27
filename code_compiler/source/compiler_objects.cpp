@@ -212,7 +212,7 @@ blitz::compiler::value blitz::compiler::load_address(address const& addr)
 		throw blitz::error(std::filesystem::path(), { 0, 0 }, { 0, 0 }, "An array can only be used with an index.");
 	}
 	auto r = tmp();
-	emit(r + " = load " + blitz::types::to_llvm(addr.type) + ", ptr " + addr.pointer);
+	emit(r + " = load " + blitz::types::to_llvm(addr.type) + ", ptr " + addr.pointer + (addr.element ? ", !tbaa !900004" : ""));
 	return { r, addr.type, addr.sname };
 }
 
