@@ -221,18 +221,25 @@ void bb_copy_rect(int32_t sx, int32_t sy, int32_t w, int32_t h, int32_t dx, int3
 	if (!from.image || !to.image) {
 		bb_runtime_error("CopyRect: the buffer does not exist.");
 	}
-	// Clip against both buffers.
-	if (sx < 0) { dx -= sx; w += sx; sx = 0; }
-	if (sy < 0) { dy -= sy; h += sy; sy = 0; }
-	if (dx < 0) { sx -= dx; w += dx; dx = 0; }
-	if (dy < 0) { sy -= dy; h += dy; dy = 0; }
-	if (sx + w > from.w) { w = from.w - sx; }
-	if (sy + h > from.h) { h = from.h - sy; }
-	if (dx + w > to.w) { w = to.w - dx; }
-	if (dy + h > to.h) { h = to.h - dy; }
-	if ((w <= 0) || (h <= 0)) {
+	// Clip against both buffers. The numbers are the ones of the program, and the sums of them are not always numbers that fit in 32 bits.
+	int64_t x0 = sx, y0 = sy, x1 = dx, y1 = dy, cw = w, ch = h;
+	if (x0 < 0) { x1 -= x0; cw += x0; x0 = 0; }
+	if (y0 < 0) { y1 -= y0; ch += y0; y0 = 0; }
+	if (x1 < 0) { x0 -= x1; cw += x1; x1 = 0; }
+	if (y1 < 0) { y0 -= y1; ch += y1; y1 = 0; }
+	if (x0 + cw > from.w) { cw = from.w - x0; }
+	if (y0 + ch > from.h) { ch = from.h - y0; }
+	if (x1 + cw > to.w) { cw = to.w - x1; }
+	if (y1 + ch > to.h) { ch = to.h - y1; }
+	if ((cw <= 0) || (ch <= 0)) {
 		return;
 	}
+	sx = int32_t(x0);
+	sy = int32_t(y0);
+	dx = int32_t(x1);
+	dy = int32_t(y1);
+	w  = int32_t(cw);
+	h  = int32_t(ch);
 
 	// The detour for parts of the same image goes through a buffer that is big enough.
 	if (from.image->image == to.image->image) {
