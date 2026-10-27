@@ -92,10 +92,10 @@ def run_one(out, program, seconds=5):
     """Programs of the originals are games and demos that loop until a key is pressed, so one that is still running after a few
     seconds without a window has got past its start and counts as good. One that stops with an error, or crashes, does not.
     Some write their settings or scores next to themselves, and what they find there changes what they do, so the folder is put back
-    afterwards. Programs of one folder must not run at the same time."""
+    afterwards. Programs of one folder must not run at the same time. Requesters (RequestFont, RequestColor) are accepted as they start."""
     source = os.path.join(ROOT, program)
     folder = os.path.dirname(source)
-    env = dict(os.environ, BLITZ_HEADLESS="1")
+    env = dict(os.environ, BLITZ_HEADLESS="1", BLITZ_DIALOG_ANSWER="0")  # Requesters are accepted as they start.
     files = snapshot(folder)
     try:
         run = subprocess.run([exe_path(out, program)], cwd=folder, env=env, capture_output=True, text=True, timeout=seconds, stdin=subprocess.DEVNULL)

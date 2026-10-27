@@ -225,6 +225,16 @@ namespace bb::gui {
 			return dialog.accepted;
 		}
 
+		// BLITZ_DIALOG_ANSWER=<n> answers a requester without showing it, for automated runs: 0 accepts what it starts with, anything else cancels it.
+		bool answered(bool& accepted)
+		{
+			const char* answer = getenv("BLITZ_DIALOG_ANSWER");
+			if (answer) {
+				accepted = atoi(answer) == 0;
+			}
+			return answer != nullptr;
+		}
+
 		struct file_result {
 			volatile bool done = false;
 			char*         path = nullptr;
@@ -277,6 +287,13 @@ extern "C" {
 
 int32_t bb_request_color(int32_t r, int32_t g, int32_t b)
 {
+	bool accepted = false;
+	if (answered(accepted)) {
+		requested[0] = r < 0 ? 0 : (r > 255 ? 255 : r);
+		requested[1] = g < 0 ? 0 : (g > 255 ? 255 : g);
+		requested[2] = b < 0 ? 0 : (b > 255 ? 255 : b);
+		return accepted ? 1 : 0;
+	}
 	if (!bb_gui_live()) {
 		return 0;
 	}
@@ -313,6 +330,10 @@ int32_t bb_requested_blue(void)
 // The font that was picked, or 0 for none. Fonts here are the built-in one in a height.
 int32_t bb_request_font(void)
 {
+	bool accepted = false;
+	if (answered(accepted)) {
+		return accepted ? bb_load_font("Arial", font_sizes[2], 0, 0, 0) : 0;
+	}
 	if (!bb_gui_live()) {
 		return 0;
 	}
