@@ -248,12 +248,12 @@ set(_SDL3_IMAGE_LICENSES SDL3_image/LICENSE.txt SDL3_image/optional/LICENSE.dav1
 	SDL3_image/optional/LICENSE.jxl.txt SDL3_image/optional/LICENSE.webp.txt)
 blitz_check_licenses(SDL3_image BEFORE ${_SDL3_IMAGE_LICENSES})
 # An install of SDL_image from before its codecs were shared libraries has them as static libraries, which would be linked into programs.
-# Build it again, ExternalContent would not notice that.
+# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
 if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/libdav1d.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst/lib/dav1d.lib")
 	message(STATUS "SDL3_image was installed with static codecs, building it again.")
 	file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.tmp/*.sha3")
 	file(REMOVE ${_STAMPS})
-	file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst")
+	file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.dst" "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin")
 	# The stamp of the fetched codec sources goes too, as a restored cache has the stamp but not the submodules in the source tree.
 	file(REMOVE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_image.bin.codecs")
 endif()
