@@ -164,6 +164,13 @@ set(TEST_DIRECTORY "${PROJECT_SOURCE_DIR}/../tests")
 # window and a GPU end with _pixels, and only run for real with -DBLITZ_TEST_GPU=ON.
 option(BLITZ_TEST_GPU "Also run the tests that need a window and a GPU" OFF)
 file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/suite")
+# The Draw3D2 tests (tests/suite/draw3d2_*) use the Draw3D2 userlib of tests/draw3d2, which calls two functions of user32.dll. Where there is no
+# user32.dll a small library of the same name next to the programs stands in for it.
+set(_DRAW3D2_USERLIBS --userlibs-dir "${TEST_DIRECTORY}/draw3d2/userlibs")
+if(NOT WIN32)
+	add_library(draw3d2_user32 SHARED "${TEST_DIRECTORY}/draw3d2/shim/user32_shim.c")
+	set_target_properties(draw3d2_user32 PROPERTIES OUTPUT_NAME user32 LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/suite")
+endif()
 file(GLOB_RECURSE _SUITE_TESTS CONFIGURE_DEPENDS "${TEST_DIRECTORY}/suite/*.bb")
 foreach(_FILE IN LISTS _SUITE_TESTS)
 	file(RELATIVE_PATH _RELATIVE "${TEST_DIRECTORY}/suite" "${_FILE}")
@@ -185,6 +192,9 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 			set(_SUFFIX)
 		endif()
 		set(_EXE "${PROJECT_BINARY_DIR}/suite/${_NAME}${_SUFFIX}${CMAKE_EXECUTABLE_SUFFIX}")
+		if(_NAME MATCHES "^draw3d2_")
+			list(APPEND _OPTIONS ${_DRAW3D2_USERLIBS})
+		endif()
 		if(_RELATIVE MATCHES "^reject/")
 			# Programs that are wrong and have to be refused by the compiler.
 			add_test(NAME "${_PREFIX}-compile-${_NAME}" COMMAND ${PROJECT_NAME} ${_OPTIONS} "${_FILE}" -o "${_EXE}")
