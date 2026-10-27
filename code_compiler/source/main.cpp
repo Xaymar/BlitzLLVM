@@ -154,7 +154,7 @@ namespace {
 				  << "                        once a second. Costs a clock read per call of them, so it is off unless asked for or implied by -d.\n"
 				  << "  --no-runtime-inline   Don't compile the hot parts of the runtime (runtime/inline) together with the program. Without it they are\n"
 				  << "                        optimized with the program (-flto=thin), which falls back to the plain build when the linker can't do it.\n"
-				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler, then '../lib/blitzllvm/runtime'.\n"
+				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to '../lib/blitzllvm/runtime' relative to the compiler, then 'runtime' next to it.\n"
 				  << "  --userlibs-dir <dir>  Where the userlibs (*.decls) to list with -k and +k are. The libraries are loaded when the program runs, from there, then from where the program is, then from where the source is, then through the system. Defaults to $BLITZLLVM_USERLIBS, then 'userlibs' next to 'bin', next to the compiler, then '../share/blitzllvm/userlibs'.\n"
 				  << "  --keep-temps          Don't delete the intermediate files.\n"
 				  << "  --dump-tokens         Only print the tokens of the input file, for debugging the lexer.\n"
@@ -522,14 +522,18 @@ int main(int argc, char** argv)
 		auto ir_file = temp_dir / "program.ll";
 		write_file(ir_file, ir);
 
-		// Everything in the runtime directory is part of the runtime, and gets linked in.
-		// Next to the compiler for the portable layout (bin/runtime), in ../lib/blitzllvm/runtime for the system layout of packages.
+		// Everything in the runtime directory is part of the runtime, and gets linked in. It is <prefix>/lib/blitzllvm/runtime when the
+		// compiler is <prefix>/bin/blitzcc (zips and packages), and 'runtime' next to the compiler in the build directory.
 		auto runtime_dir = opt.runtime_dir;
+		std::vector<std::filesystem::path> runtime_candidates{ executable_path().parent_path() / ".." / "lib" / "blitzllvm" / "runtime", executable_path().parent_path() / "runtime" };
 		if (runtime_dir.empty()) {
-			auto bin_dir = executable_path().parent_path();
-			runtime_dir  = bin_dir / "runtime";
-			if (!std::filesystem::is_directory(runtime_dir) && std::filesystem::is_directory(bin_dir / ".." / "lib" / "blitzllvm" / "runtime")) {
-				runtime_dir = std::filesystem::weakly_canonical(bin_dir / ".." / "lib" / "blitzllvm" / "runtime");
+			runtime_dir = runtime_candidates.front();
+			for (auto const& candidate : runtime_candidates) {
+				std::error_code ec;
+				if (std::filesystem::is_directory(candidate, ec)) {
+					runtime_dir = std::filesystem::weakly_canonical(candidate, ec);
+					break;
+				}
 			}
 		}
 		std::vector<std::string> libraries;
@@ -543,6 +547,13 @@ int main(int argc, char** argv)
 			std::sort(libraries.begin(), libraries.end());
 		}
 		if (libraries.empty()) {
+			if (opt.runtime_dir.empty()) {
+				std::string looked;
+				for (auto const& candidate : runtime_candidates) {
+					looked += (looked.empty() ? "'" : ", '") + candidate.lexically_normal().generic_string() + "'";
+				}
+				throw std::runtime_error("No runtime libraries found, looked in " + looked + ". Keep the 'lib' directory next to 'bin', or use --runtime-dir.");
+			}
 			throw std::runtime_error("No runtime libraries found in '" + runtime_dir.generic_string() + "', use --runtime-dir.");
 		}
 
@@ -683,16 +694,21 @@ int main(int argc, char** argv)
 			return 1;
 		}
 		// Movies are played with the shared libraries of FFmpeg, which the runtime loads when the program opens one (see movie.cpp). They
-		// are looked for next to the program, so a program that has movies gets them copied there.
+		// are looked for next to the program, so a program that has movies gets them copied there from the runtime directory.
 		if (ir.find("@bb_open_movie") != std::string::npos && std::filesystem::is_directory(runtime_dir)) {
 			std::error_code ec;
+			size_t          copied = 0;
 			for (auto const& entry : std::filesystem::directory_iterator(runtime_dir)) {
 				auto name = entry.path().filename().string();
 				auto ext  = entry.path().extension().string();
 				bool shared = (ext == ".dll") || (ext == ".dylib") || (name.find(".so.") != std::string::npos);
 				if (shared) {
 					std::filesystem::copy_file(entry.path(), opt.output.parent_path() / name, std::filesystem::copy_options::overwrite_existing, ec);
+					copied += ec ? 0 : 1;
 				}
+			}
+			if ((copied == 0) && !opt.quiet) {
+				std::cerr << "warning: The program opens movies, but no shared libraries of FFmpeg could be copied from '" << runtime_dir.generic_string() << "' next to it, so it can't play them." << std::endl;
 			}
 		}
 		if (run_it) {
