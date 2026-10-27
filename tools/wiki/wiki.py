@@ -246,6 +246,7 @@ def generic_pages(cats):
     """Every page that is not a command, category or dialect page, as (name, title). Found by listing the wiki folder,
     so a new hand written or generated page shows up in the sidebar without anyone editing a list."""
     own = {"Home", "Command-Index", "_Sidebar"} | set(DIALECT_ORDER)
+    own.update(page for page, _, _ in feature_pages())  # these are listed on the Differences page
     for dialect in cats:
         for category, cmds in cats[dialect].items():
             own.add(cmds[0].page)
