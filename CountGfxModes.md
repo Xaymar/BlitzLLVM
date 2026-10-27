@@ -25,7 +25,7 @@ The number of full screen display modes. Use [GfxModeWidth](GfxModeWidth), [GfxM
 
 ## Differences
 
-* The modes are the ones of the main display. When they cannot be asked, for example without a display, a list of common sizes is given: 640x480, 800x600, 1024x768, 1280x720, 1280x1024 and 1920x1080.
+* The modes are the ones of the main display. When they cannot be asked, for example without a display, a list of common sizes is given: 19 sizes from 640x480 to 3840x2160 (640x480, 800x600, 1024x768, 1152x864, 1280x720, 1280x768, 1280x800, 1280x960, 1280x1024, 1360x768, 1366x768, 1440x900, 1600x900, 1600x1200, 1680x1050, 1920x1080, 1920x1200, 2560x1440 and 3840x2160), which is about what a display offers, so that a program that saved the number of a mode finds it again.
 
 ## Examples
 
