@@ -35,6 +35,22 @@ Function Env$(name$, fallback$)
 	Return value$
 End Function
 
+; The random numbers come from this generator and not from Rnd, because Rnd gives different numbers in BlitzLLVM and in the
+; original Blitz3D, and then the two would not draw the same scene. It is the Park-Miller generator, with Schrage's way of
+; multiplying without leaving 31 bits, so it gives the same numbers in both.
+Global BenchState = 1
+
+Function BenchSeedRnd(seed)
+	BenchState = (seed Mod 2147483646) + 1
+	If BenchState < 1 Then BenchState = BenchState + 2147483646
+End Function
+
+Function BenchRnd#(low#, high#)
+	BenchState = 16807 * (BenchState Mod 127773) - 2836 * (BenchState / 127773)
+	If BenchState <= 0 Then BenchState = BenchState + 2147483647
+	Return low + (high - low) * (BenchState / 2147483647.0)
+End Function
+
 Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), 32, 2
 SetBuffer BackBuffer()
 
@@ -46,7 +62,7 @@ still = Int(Env$("BENCH_STATIC", 0))
 If count < 20 Then count = 20
 If frames < 1 Then frames = 1
 
-SeedRnd seed
+BenchSeedRnd seed
 
 ; The center line of the river on the plateau. It meanders on the way in and comes straight at the lip (z = 0).
 Function RiverX#(z#)
@@ -198,10 +214,10 @@ For i = 0 To count - 1
 	EndIf
 	spr(i) = CopyEntity(templates(k))
 	ShowEntity spr(i)
-	phase(i) = Rnd(0, 1)
-	ox(i) = Rnd(-1, 1)
-	oy(i) = Rnd(0, 1)
-	oz(i) = Rnd(-1, 1)
+	phase(i) = BenchRnd(0, 1)
+	ox(i) = BenchRnd(-1, 1)
+	oy(i) = BenchRnd(0, 1)
+	oz(i) = BenchRnd(-1, 1)
 Next
 creation# = (BenchMicros() - creationstart) / 1000.0
 
