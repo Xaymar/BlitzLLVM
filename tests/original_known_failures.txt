@@ -4,13 +4,9 @@ blitz3d/_release/samples/mak/anim/makbot/MAK-sfx.bb
 # AnimateEntity does not exist
 blitzplus_msvc2017/_release/games/Insectoids/insectoids.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
-blitzplus_msvc2017/_release/games/WizardWars/wizardwars.bb
-# Parser: unexpected end of line at 470:59
 blitzplus_msvc2017/_release/samples/James/Games/Explosions/exploding_alien_death.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
 blitzplus_msvc2017/_release/samples/Mak/line_test.bb
 # HidePointer/ShowPointer take no arguments here, BlitzPlus takes one
 blitzplus_msvc2017/_release/samples/Rob/BlitzAlarm/Blitz Alarm Clock.bb
 # PlayMusic takes 1 argument here, the program passes 2
-blitzplus_msvc2017/_release/samples/TeraBit/dungeon/DNovice.bb
-# Parser: unexpected ':' at 59:73
