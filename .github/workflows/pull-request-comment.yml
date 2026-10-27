@@ -1,34 +1,38 @@
 name: Pull Request Comment
 
-# Reports the result of the 'Pull Request' workflow in the pull request, with links to the built binaries. A single comment
-# is kept per pull request. pull-request-pending.yml creates it as "Build pending" when the pull request is opened or updated,
-# and this replaces it with the result.
+# Lists the builds of the 'Pull Request' workflow in the pull request, with links to the built binaries. A single comment is
+# kept per pull request: the newest commit is listed in full, the commits before it are folded into <details> blocks (see
+# .github/scripts/pr-build-report.py). The comment is only touched when a build starts ("Build pending" for that commit) or
+# finishes (the result), so a pull request that causes no build never gets or changes a comment.
 #
-# This runs on workflow_run, in the context of the base repository, so that it can comment on pull requests from forks too.
-# For the same reason it never checks out or executes anything from the pull request. The only thing taken from the run is the
-# pull request number, which is validated before use. workflow_run only triggers for workflows on the default branch, so this
-# starts working once it was merged.
+# This runs on workflow_run, in the context of the base repository, so that it can comment on pull requests from forks too
+# without using pull_request_target. For the same reason it never checks out or executes anything from the pull request. The
+# only things taken from the triggering run are its id, URL, head commit and conclusion (GitHub generated, hex / numeric), and
+# the branch of the head repository, which is passed through an environment variable and only used to look up the pull request.
+# workflow_run only triggers for workflows on the default branch, so this starts working once it was merged.
 
 on:
   workflow_run:
     workflows: ['Pull Request']
-    types: [completed]
+    types: [requested, completed]
 
 permissions:
   actions: read
   pull-requests: write
 
+# Serialized per commit's branch, so a "pending" and a result can not interleave their updates of the comment.
+concurrency:
+  group: pull-request-comment-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+
 jobs:
   comment:
     runs-on: ubuntu-latest
-    # A run that was superseded by a newer push is skipped below, as it is no longer the head of the pull request.
     if: github.event.workflow_run.event == 'pull_request'
     steps:
-      - uses: actions/download-artifact@v4
+      # Only the scripts of the base repository, never anything of the pull request.
+      - uses: actions/checkout@v4
         with:
-          name: pull-request-info
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ github.token }}
+          sparse-checkout: .github/scripts
       - name: Create or update the comment
         env:
           GH_TOKEN: ${{ github.token }}
@@ -36,49 +40,45 @@ jobs:
           RUN_ID: ${{ github.event.workflow_run.id }}
           RUN_URL: ${{ github.event.workflow_run.html_url }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          ACTION: ${{ github.event.action }}
           CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         run: |
-          # The file comes from the pull request's workflow run, so treat it as untrusted.
-          NUMBER="$(head -c 16 pull-request-number | tr -d '[:space:]')"
+          # Find the pull request of the run, and only report on the commit that is still its head.
+          NUMBER="$(gh api "repos/${GH_REPO}/pulls" -f state=open -f head="${HEAD_OWNER}:${HEAD_BRANCH}" --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number" | head -n1)"
           case "$NUMBER" in
-            ''|*[!0-9]*) echo "Invalid pull request number."; exit 1 ;;
+            '') echo "No open pull request has ${HEAD_SHA} as its head, skipping."; exit 0 ;;
+            *[!0-9]*) echo "Invalid pull request number."; exit 1 ;;
           esac
 
-          # Only report on the commit that is still the head of the pull request.
-          CURRENT="$(gh api "repos/${GH_REPO}/pulls/${NUMBER}" --jq .head.sha)"
-          if [ "$CURRENT" != "$HEAD_SHA" ]; then
-            echo "The pull request moved on to ${CURRENT}, skipping."
-            exit 0
+          if [ "$ACTION" = requested ]; then
+            STATE=pending
+          else
+            case "$CONCLUSION" in
+              success) STATE=success ;;
+              cancelled) STATE=cancelled ;;
+              *) STATE=failure ;;
+            esac
           fi
 
           MARKER='<!-- blitzllvm-pr-build -->'
-          case "$CONCLUSION" in
-            success) STATUS='✅ Build succeeded' ;;
-            cancelled) STATUS='⚪ Build cancelled' ;;
-            *) STATUS='❌ Build failed' ;;
-          esac
-          {
-            echo "$MARKER"
-            echo "## ${STATUS}"
-            echo
-            echo "Commit \`${HEAD_SHA::7}\` · [Workflow run](${RUN_URL})"
-            echo
-            ROWS="$(gh api --paginate "repos/${GH_REPO}/actions/runs/${RUN_ID}/artifacts" \
-              --jq ".artifacts[] | select(.name != \"pull-request-info\" and .expired == false) | \"| [\(.name)](https://github.com/${GH_REPO}/actions/runs/${RUN_ID}/artifacts/\(.id)) | \(.size_in_bytes / 1048576 * 10 | round / 10) MiB |\"" | sort)"
-            if [ -n "$ROWS" ]; then
-              echo '| Binaries | Size |'
-              echo '| --- | --- |'
-              echo "$ROWS"
-              echo
-              echo '_Downloading artifacts requires being signed in to GitHub. They expire after 90 days._'
-            else
-              echo 'No binaries were produced.'
-            fi
-          } > comment.md
-
-          # Update our comment if there is one, otherwise create it.
           ID="$(gh api --paginate "repos/${GH_REPO}/issues/${NUMBER}/comments" \
-            --jq "[.[] | select(.user.type == \"Bot\" and (.body | startswith(\"${MARKER}\")))][0].id // empty" | head -n1)"
+            --jq "[.[] | select(.user.type == \"Bot\" and (.body | startswith(\"${MARKER}\")))][0] | select(. != null) | .id" | head -n1)"
+          ARGS=()
+          if [ -n "$ID" ]; then
+            gh api "repos/${GH_REPO}/issues/comments/${ID}" --jq .body > previous.md
+            ARGS+=(--previous previous.md)
+          fi
+
+          if [ "$STATE" != pending ]; then
+            gh api --paginate "repos/${GH_REPO}/actions/runs/${RUN_ID}/artifacts" \
+              --jq ".artifacts[] | select(.expired == false) | \"| [\(.name)](https://github.com/${GH_REPO}/actions/runs/${RUN_ID}/artifacts/\(.id)) | \(.size_in_bytes / 1048576 * 10 | round / 10) MiB |\"" | sort > rows.md
+            ARGS+=(--rows rows.md)
+          fi
+
+          python3 .github/scripts/pr-build-report.py --sha "$HEAD_SHA" --state "$STATE" --run-url "$RUN_URL" "${ARGS[@]}" > comment.md
+
           if [ -n "$ID" ]; then
             gh api -X PATCH "repos/${GH_REPO}/issues/comments/${ID}" -F body=@comment.md > /dev/null
           else
