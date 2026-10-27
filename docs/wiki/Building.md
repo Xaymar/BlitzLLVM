@@ -69,6 +69,20 @@ cmake --build --preset windows-x64-msvc2022 --config Release
 
 The compiler ends up in the build directory as `blitzcc` (`blitzcc.exe`), with the runtime in a `runtime` directory next to it (an install puts it in `lib/blitzllvm/runtime`).
 
+### System libraries (Linux)
+
+On Linux the dependencies can come from the distribution instead of the submodules, which keeps them out of the packages and lets the distribution update them. Each one has a cache variable that is `AUTO` (use the system's if `pkg-config` finds a new enough copy, otherwise build the submodule), `ON` (fail if there is none) or `OFF` (always build the submodule):
+
+| Variable | Takes | How programs use it |
+| --- | --- | --- |
+| `BLITZ_SYSTEM_SDL3` | SDL3 (3.4.0 or newer, `BLITZ_SDL3_MINIMUM_VERSION`) | linked as a shared library |
+| `BLITZ_SYSTEM_SDL3_IMAGE`, `BLITZ_SYSTEM_SDL3_MIXER` | SDL3_image and SDL3_mixer (need the system's SDL3) | linked as shared libraries |
+| `BLITZ_SYSTEM_IMAGE_CODECS` | libavif (with dav1d), libjxl and libwebp | loaded when a program opens such an image |
+| `BLITZ_SYSTEM_AUDIO_CODECS` | opusfile (with libopus and libogg) | loaded when a program plays an Opus file |
+| `BLITZ_SYSTEM_FFMPEG` | FFmpeg, but only if it is LGPL and has the decoders listed in `dependencies.cmake` | loaded when a program opens a movie |
+
+The libraries that programs link to are written to `runtime/system-libraries.txt` next to the runtime, which `blitzcc` adds to the link. On Debian and Ubuntu the `.deb` depends on (or, for the libraries that are loaded when needed, recommends) the packages that own them, at least in the version that the package was built with. The distributions ship FFmpeg with GPL parts (check with `avcodec_license()`), so the bundled LGPL build is used there. Windows and macOS always build the submodules.
+
 ## Install
 
 ```sh
