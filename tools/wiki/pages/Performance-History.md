@@ -9,58 +9,58 @@ What each performance change did to speed, memory and package size, with the num
 
 Numbers from different machines, resolutions, object counts or builds are **not comparable**. Compare only the before and after of one row.
 
-| Name | What it is |
+| Term | What it is |
 | --- | --- |
-| Areldir | A real GPU machine: Ryzen 7 9800X3D (large L3 cache, which hides cache misses), RTX 4080 SUPER, Windows 11, Vulkan, Release builds. Frame times in the 3D and Stranded II rows are milliseconds per frame. |
-| llvmpipe | The software Vulkan rasterizer of a 4 core cloud container. Most of the frame is the CPU drawing pixels, so changes to draw calls barely show in the time. With a tiny window (64x36) it measures the CPU side instead, which is why it is used for the million-object runs. |
+| Real GPU system | Ryzen 7 9800X3D (large L3 cache, which hides cache misses), RTX 4080 SUPER, Windows 11, Vulkan, Release builds. Frame times in the 3D and Stranded II rows are milliseconds per frame. RAM and the Windows version are not stated in the pull requests. |
+| llvmpipe | The software Vulkan rasterizer of a cloud container. Where a pull request states the core count (4) it is listed, otherwise the CPU is unknown. Most of the frame is the CPU drawing pixels, so changes to draw calls barely show in the time. With a tiny window (64x36) it measures the CPU side instead, which is why it is used for the million-object runs. |
 | Fly-through | `benchmarks/flythrough.bb`: a scripted camera through a field of up to a million entities of 16 kinds, 640x360 (see [benchmarks/README.adoc](https://github.com/Xaymar/BlitzLLVM/blob/root/benchmarks/README.adoc)). |
 | Stranded II | `tools/benchmark_stranded2.py`: a walk through a map of the game, 1280x720, 3000 frames, no vsync. |
-| Noise | Run-to-run noise on Areldir is 2-4% for the fly-through and about 0.1 ms for Stranded II. A change inside that is not a result. |
+| Noise | Run-to-run noise on the real GPU system is 2-4% for the fly-through and about 0.1 ms for Stranded II. A change inside that is not a result. |
 
 Status of a pull request is **merged**, **open** (still a draft or under review) or **closed** (not merged). A **Result** of "regression" means the number got worse, whatever the reason.
 
 ## 3D drawing: batching and culling
 
-| Date, PR | What changed | Benchmark, machine | Before | After and change | Result |
+| Date, PR | What changed | Benchmark and hardware | Before | After and change | Result |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-26<br>[#84](https://github.com/Xaymar/BlitzLLVM/pull/84) merged | Per-draw data in a storage buffer, equal draws merged into one instanced call, solid draws grouped by state, meshes outside the view skipped | `benchmark_draws`, 5000 copies of one mesh, llvmpipe 320x240 | 5000 draws<br>248 ms | 1 draw<br>234 ms (-5.6%) | Faster |
+| 2026-10-26<br>[#84](https://github.com/Xaymar/BlitzLLVM/pull/84) merged | Per-draw data in a storage buffer, equal draws merged into one instanced call, solid draws grouped by state, meshes outside the view skipped | `benchmark_draws`, 5000 copies of one mesh 320x240<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 5000 draws<br>248 ms | 1 draw<br>234 ms (-5.6%) | Faster |
 |  |  | 5000 distinct meshes | 5000 draws<br>291 ms | 5000 draws<br>256-278 ms (-4% to -12%) | Faster |
 |  |  | 5000 copies, 16 textures | 5000 draws<br>255 ms | 16 draws<br>261 ms (+2.4%) | Same (draws -99.7%, time within noise) |
 |  |  | 10 meshes of 50k triangles | 88 ms | 109 ms (+24%) | **Regression** (llvmpipe only, cause not isolated, not checked on a real GPU) |
 |  |  | 2500 copies, half see-through | 2500 draws<br>122 ms | 2 draws<br>110 ms (-9.8%) | Faster |
 |  |  | 80% of the draws outside the view | 5000 draws<br>about 250 ms | 1 draw<br>52 ms (about -79%) | Faster |
 |  |  | mixed | 3502 draws<br>181 ms | 1019 draws<br>185 ms (+2.2%) | Same (draws -71%, time within noise) |
-| 2026-10-27<br>[#85](https://github.com/Xaymar/BlitzLLVM/pull/85) merged | Sprites outside each camera's view are not sent to the GPU (base 37ed421) | 20000 textured sprites in all directions, Areldir 640x480, 3000 frames, 5 runs median | 9.31 ms<br>20000 draws | 5.40 ms (-42%)<br>2585 draws | Faster |
+| 2026-10-27<br>[#85](https://github.com/Xaymar/BlitzLLVM/pull/85) merged | Sprites outside each camera's view are not sent to the GPU (base 37ed421) | 20000 textured sprites in all directions 640x480, 3000 frames, 5 runs median<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 9.31 ms<br>20000 draws | 5.40 ms (-42%)<br>2585 draws | Faster |
 |  |  | 20000 sprites in the front hemisphere | 7.19 ms<br>20000 draws | 6.78 ms (-5.7%)<br>13808 draws | Same (inside the run-to-run spread of 6.6-9.3 ms) |
 |  |  | `benchmark_draws` layouts without sprites | 0.69-3.84 ms | 0.68-3.84 ms (0%) | No change (the PR notes `copies` +0.08 ms as noise) |
-| 2026-10-27<br>[#138](https://github.com/Xaymar/BlitzLLVM/pull/138) merged | See-through draws of equal state grouped in distance bands of about 9% | Stranded II random island, Areldir, 2 runs (nightly 8695 / 2e9e7f7 against 91ed805) | 194 draws<br>313 draws | 117 draws (-40%)<br>131 draws (-58%) | Fewer draws; frame time 2.32 → 2.32 and 2.28 → 2.29 ms, no change |
+| 2026-10-27<br>[#138](https://github.com/Xaymar/BlitzLLVM/pull/138) merged | See-through draws of equal state grouped in distance bands of about 9% | Stranded II random island, 2 runs (nightly 8695 / 2e9e7f7 against 91ed805)<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 194 draws<br>313 draws | 117 draws (-40%)<br>131 draws (-58%) | Fewer draws; frame time 2.32 → 2.32 and 2.28 → 2.29 ms, no change |
 |  |  | Survival Guide | 494 draws<br>491 draws<br>2.38 ms<br>2.34 ms | 410 draws (-17%)<br>417 draws (-15%)<br>2.26 ms (-5.0%)<br>2.33 ms (-0.4%) | Slightly faster, near noise |
 |  |  | Shooting Range | 726 draws<br>705 draws<br>2.75 ms<br>2.65 ms | 698 draws (-3.9%)<br>713 draws (+1.1%)<br>2.58 ms (-6.2%)<br>2.59 ms (-2.3%) | Slightly faster, near noise |
-| 2026-10-27<br>[#138](https://github.com/Xaymar/BlitzLLVM/pull/138) merged | Input polled at most once per millisecond; no `getenv` on every poll | Sampling profile, Areldir (before the `getenv` fix) | 10-12% of main-thread samples in `strchr` from `getenv`<br>about 10% of CPU in event pumping (llvmpipe profile) | not measured separately | The gain is part of the frame times above; no separate before and after exists |
+| 2026-10-27<br>[#138](https://github.com/Xaymar/BlitzLLVM/pull/138) merged | Input polled at most once per millisecond; no `getenv` on every poll | Sampling profile (before the `getenv` fix)<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 10-12% of main-thread samples in `strchr` from `getenv`<br>about 10% of CPU in event pumping (profile on a software rasterizer) | not measured separately | The gain is part of the frame times above; no separate before and after exists |
 | 2026-10-27<br>[#142](https://github.com/Xaymar/BlitzLLVM/pull/142) merged | `children` count and a `first_free` slot hint, so entity creation and `CopyEntity` stop scanning all entities | Creating 1,000,000 entities | about 40 minutes<br>(extrapolated from 50k = 4.9 s, 100k = 23 s, 200k = 99 s) | about 0.25 s on the GPU machine (about -99.99%) | Faster (the "before" is an extrapolation, not a run) |
-| 2026-10-27<br>[#142](https://github.com/Xaymar/BlitzLLVM/pull/142) merged | The fly-through benchmark itself (the baseline for the rows below) | Areldir, 600 frames, `-O3` |  | 1M objects 314.4 ms<br>27,054 draws<br>9.3M triangles<br>20k objects 3.05 ms<br>601 draws | Baseline |
-| 2026-10-27<br>[#156](https://github.com/Xaymar/BlitzLLVM/pull/156) merged | A byte table of entity kinds, so the scans for lights, cameras and mirrors do not read every 560 byte entity | Fly-through 1M, Areldir; base = root + #154 | 342.1 ms<br>349.1 ms<br>mean 345.6 ms | 333.1 ms<br>322.8 ms<br>mean 328.0 ms (-5.1%, PR says about 4%) | Faster. At 20k: 2.853 → 3.018 ms (+5.8%, one run, within noise) |
+| 2026-10-27<br>[#142](https://github.com/Xaymar/BlitzLLVM/pull/142) merged | The fly-through benchmark itself (the baseline for the rows below) | 600 frames, `-O3`<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown |  | 1M objects 314.4 ms<br>27,054 draws<br>9.3M triangles<br>20k objects 3.05 ms<br>601 draws | Baseline |
+| 2026-10-27<br>[#156](https://github.com/Xaymar/BlitzLLVM/pull/156) merged | A byte table of entity kinds, so the scans for lights, cameras and mirrors do not read every 560 byte entity | Fly-through 1M; base = root + #154<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 342.1 ms<br>349.1 ms<br>mean 345.6 ms | 333.1 ms<br>322.8 ms<br>mean 328.0 ms (-5.1%, PR says about 4%) | Faster. At 20k: 2.853 → 3.018 ms (+5.8%, one run, within noise) |
 |  |  | The three scans only (`lights+cameras` timer) | 9.2 ms of 332 ms | not stated |  |
-|  |  | Fly-through 1M, llvmpipe | `lights+cameras` 89 ms per 3 frames<br>393 ms/frame | 3 ms per 3 frames<br>352 ms/frame (-10%) | Faster; weaker CPUs gain more |
-| 2026-10-27<br>[#157](https://github.com/Xaymar/BlitzLLVM/pull/157) closed | Reuse the world matrix made while collecting meshes | Fly-through 1M, Areldir | 342.1 ms<br>349.1 ms<br>mean 345.6 ms | 343.4 ms<br>357.0 ms<br>mean 350.2 ms (+1.3%) | No gain, see "Experiments that did not help" |
-| 2026-10-27<br>[#158](https://github.com/Xaymar/BlitzLLVM/pull/158) merged | Prefetch the entities that the mesh scan and the draw loop read a few steps ahead | Fly-through 1M, Areldir; base = root + #154 | 342.1 ms<br>349.1 ms<br>mean 345.6 ms | 282.8 ms<br>291.0 ms<br>mean 286.9 ms (-17%, PR says about 15%) | Faster. At 20k: 2.853 → 2.878 ms (+0.9%, noise) |
-|  |  | Fly-through 1M, llvmpipe 64x36, scan prefetch | 352 ms | 323 ms (-8.2%) | Faster |
+|  |  | Fly-through 1M<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | `lights+cameras` 89 ms per 3 frames<br>393 ms/frame | 3 ms per 3 frames<br>352 ms/frame (-10%) | Faster; weaker CPUs gain more |
+| 2026-10-27<br>[#157](https://github.com/Xaymar/BlitzLLVM/pull/157) closed | Reuse the world matrix made while collecting meshes | Fly-through 1M<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 342.1 ms<br>349.1 ms<br>mean 345.6 ms | 343.4 ms<br>357.0 ms<br>mean 350.2 ms (+1.3%) | No gain, see "Experiments that did not help" |
+| 2026-10-27<br>[#158](https://github.com/Xaymar/BlitzLLVM/pull/158) merged | Prefetch the entities that the mesh scan and the draw loop read a few steps ahead | Fly-through 1M; base = root + #154<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 342.1 ms<br>349.1 ms<br>mean 345.6 ms | 282.8 ms<br>291.0 ms<br>mean 286.9 ms (-17%, PR says about 15%) | Faster. At 20k: 2.853 → 2.878 ms (+0.9%, noise) |
+|  |  | Fly-through 1M 64x36, scan prefetch<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 352 ms | 323 ms (-8.2%) | Faster |
 |  |  | draw prefetch (measured after the scan prefetch) | 330 ms | 265 ms (-20%) | Faster |
-| 2026-10-27<br>[#173](https://github.com/Xaymar/BlitzLLVM/pull/173) merged | A sphere around every mesh is remembered and tested before the entity is read (commit 1; the PR also holds a sprite-sphere commit, measured in #190) | Fly-through 1M, Areldir, 3 alternating runs, base 4551b00, commit 1 only | 265.0 ms<br>269.1 ms<br>287.7 ms<br>mean 273.9 ms | 207.8 ms<br>197.1 ms<br>198.9 ms<br>mean 201.3 ms (-26.5%, 1.36x) | Faster. Triangles and draws identical (9,414,963 / 156) |
+| 2026-10-27<br>[#173](https://github.com/Xaymar/BlitzLLVM/pull/173) merged | A sphere around every mesh is remembered and tested before the entity is read (commit 1; the PR also holds a sprite-sphere commit, measured in #190) | Fly-through 1M, 3 alternating runs, base 4551b00, commit 1 only<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 265.0 ms<br>269.1 ms<br>287.7 ms<br>mean 273.9 ms | 207.8 ms<br>197.1 ms<br>198.9 ms<br>mean 201.3 ms (-26.5%, 1.36x) | Faster. Triangles and draws identical (9,414,963 / 156) |
 |  |  | Fly-through 20k | 2.598 ms<br>2.612 ms<br>2.595 ms<br>mean 2.602 ms | 1.757 ms<br>1.755 ms<br>1.757 ms<br>mean 1.756 ms (-32.5%, 1.48x) | Faster |
-|  |  | Fly-through 1M, llvmpipe 64x36, 150 frames, both commits | 310 ms<br>317 ms<br>mean 313.5 ms | 182 ms<br>181 ms<br>mean 181.5 ms (about -42%) | Faster |
-| 2026-10-27<br>[#190](https://github.com/Xaymar/BlitzLLVM/pull/190) merged | A sphere around sprites too (a quarter of the benchmark's entities) | Fly-through 20k, Areldir, 1500 frames, 3 alternating runs; base 983ad98 (has #173) | 1.447 ms | 1.112 ms (-23% (1.30x)) | Faster |
+|  |  | Fly-through 1M 64x36, 150 frames, both commits<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 310 ms<br>317 ms<br>mean 313.5 ms | 182 ms<br>181 ms<br>mean 181.5 ms (about -42%) | Faster |
+| 2026-10-27<br>[#190](https://github.com/Xaymar/BlitzLLVM/pull/190) merged | A sphere around sprites too (a quarter of the benchmark's entities) | Fly-through 20k, 1500 frames, 3 alternating runs; base 983ad98 (has #173)<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 1.447 ms | 1.112 ms (-23% (1.30x)) | Faster |
 |  |  | Fly-through 1M, 600 frames | 165.5 ms | 100.8 ms (-39% (1.64x)) | Faster; the second 1M pair was slower for both builds (machine noise) |
-| open<br>[#193](https://github.com/Xaymar/BlitzLLVM/pull/193) open (draft) | No `discard` in solid shaders, solids drawn near to far in 2 bands per octave | Fly-through 200k, llvmpipe 640x360 | 20.0 ms | 19.4 ms (shader only, -3.0%)<br>17.0 ms (all commits, -15%) | Faster; Areldir numbers are still to come |
-|  |  | Fly-through 200k, llvmpipe 1280x720 | 34.0 ms<br>32.4 ms<br>mean 33.2 ms | 32.8 ms<br>30.7 ms<br>mean 31.8 ms (shader only, -4.4%)<br>26.7 ms<br>25.9 ms<br>mean 26.3 ms (all commits, -21%) | Faster; 0, 1, 2, 4 and 8 bands per octave were tried at 640x360 and 1280x720, 2 was best, 8 was slower (draws 82 → 306) |
+| open<br>[#193](https://github.com/Xaymar/BlitzLLVM/pull/193) open (draft) | No `discard` in solid shaders, solids drawn near to far in 2 bands per octave | Fly-through 200k 640x360<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 20.0 ms | 19.4 ms (shader only, -3.0%)<br>17.0 ms (all commits, -15%) | Faster; real GPU numbers are still to come |
+|  |  | Fly-through 200k 1280x720<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 34.0 ms<br>32.4 ms<br>mean 33.2 ms | 32.8 ms<br>30.7 ms<br>mean 31.8 ms (shader only, -4.4%)<br>26.7 ms<br>25.9 ms<br>mean 26.3 ms (all commits, -21%) | Faster; 0, 1, 2, 4 and 8 bands per octave were tried at 640x360 and 1280x720, 2 was best, 8 was slower (draws 82 → 306) |
 
-The fly-through "base" is not the same build in every row (each pull request rebased onto the current `root`), so the 1M numbers of different rows must not be chained. For orientation only: the Areldir 1M frame time was 314 ms in the first run of #142 and 165.5 ms in the base of #190, with #156, #158, #173 and other changes merged in between. Those are different runs, so the per-pull-request rows above are the ones that isolate a change.
+The fly-through "base" is not the same build in every row (each pull request rebased onto the current `root`), so the 1M numbers of different rows must not be chained. For orientation only: the 1M frame time on the Ryzen 7 9800X3D / RTX 4080 SUPER system was 314 ms in the first run of #142 and 165.5 ms in the base of #190, with #156, #158, #173 and other changes merged in between. Those are different runs, so the per-pull-request rows above are the ones that isolate a change.
 
 ## Entity-level work in `UpdateWorld`
 
-| Date, PR | What changed | Benchmark, machine | Before | After and change | Result |
+| Date, PR | What changed | Benchmark and hardware | Before | After and change | Result |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-27<br>[#98](https://github.com/Xaymar/BlitzLLVM/pull/98) merged | A bounding box tree per `Collisions` rule, so a mover tests only entities near its path | `tools/benchmark_collisions.py`, llvmpipe: 1000 statics, 100 movers, polygons | 112.1 ms | 2.9 ms (-97% (38x)) | Faster |
+| 2026-10-27<br>[#98](https://github.com/Xaymar/BlitzLLVM/pull/98) merged | A bounding box tree per `Collisions` rule, so a mover tests only entities near its path | `tools/benchmark_collisions.py`: 1000 statics, 100 movers, polygons<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 112.1 ms | 2.9 ms (-97% (38x)) | Faster |
 |  |  | 5000 statics, 200 movers, polygons | 1168.9 ms | 16.2 ms (-99% (72x)) | Faster |
 |  |  | 5000 statics, 200 movers, boxes | 1095.4 ms | 7.6 ms (-99% (143x)) | Faster |
 |  |  | 5000 statics, 200 movers, spheres | 40.1 ms | 4.9 ms (-88% (8x)) | Faster |
@@ -69,39 +69,39 @@ The PR notes that `LinePick`, `EntityVisible` and `CameraPick` stay linear (1-2 
 
 ## Frames in flight, the GPU thread and profiling
 
-| Date, PR | What changed | Benchmark, machine | Before | After and change | Result |
+| Date, PR | What changed | Benchmark and hardware | Before | After and change | Result |
 | --- | --- | --- | --- | --- | --- |
-| 2026-10-26<br>[#87](https://github.com/Xaymar/BlitzLLVM/pull/87) merged | Submit, fence wait and present on a thread of their own, so `Flip` returns early | `tools/benchmark_overlap.py`, llvmpipe 640x480, 2000 spheres, no program logic | 63.9 ms (sync) | 60.7 ms (-5.0%) | Faster |
+| 2026-10-26<br>[#87](https://github.com/Xaymar/BlitzLLVM/pull/87) merged | Submit, fence wait and present on a thread of their own, so `Flip` returns early | `tools/benchmark_overlap.py` 640x480, 2000 spheres, no program logic<br>CPU: 4 cores, model unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 63.9 ms (sync) | 60.7 ms (-5.0%) | Faster |
 |  |  | ~10 ms of program logic per frame | 71.3 ms | 63.0 ms (-12%) | Faster |
 |  |  | ~40 ms of program logic per frame | 105.6 ms | 63.6 ms (-40%) | Faster |
-|  |  | Real GPU (Windows), 5 runs, 0 / 20000 / 100000 / 400000 units of work | 1.38 ms<br>1.48 ms<br>1.97 ms<br>3.88 ms | 1.44 ms (+4.3%, noise)<br>1.34 ms (-9.5%)<br>1.68 ms (-15%)<br>3.43 ms (-12%) | Faster once there is work to overlap |
-| 2026-10-27<br>[#131](https://github.com/Xaymar/BlitzLLVM/pull/131) merged | Profiling timers only run in programs built with `blitzcc --profile` (or `-d`) | 2M calls of `EntityInView` and `CopyRect`, llvmpipe | `EntityInView` 197-200 ns<br>`CopyRect` 114-119 ns (timers stubbed out) | 197-218 ns<br>118-126 ns (always-on timers, the old state; within noise) | No measurable change; tidiness only |
-| 2026-10-27<br>[#151](https://github.com/Xaymar/BlitzLLVM/pull/151) merged | GPU thread time and per-pass GPU time in `BLITZ_FPS` | Stranded II Survival Guide, Areldir 1280x720 |  | about 1.7 ms of a 2.2 ms frame is the GPU side<br>the main thread is blocked about three quarters of each frame | Measurement only; found that the wait is the GPU, not a lock |
-| 2026-10-27<br>[#167](https://github.com/Xaymar/BlitzLLVM/pull/167) merged | Two frames in flight: the CPU records frame N+1 while the GPU renders frame N (baseline = #151) | Stranded II Survival Guide, Areldir 1280x720, 3000 frames, `--profile`, 2 alternating runs | 2.70 ms | 2.58 ms (-4.4%) | Faster |
+|  |  | 5 runs, 0 / 20000 / 100000 / 400000 units of work<br>CPU: unknown<br>GPU: unknown (chosen by Vulkan)<br>RAM: unknown<br>VRAM: unknown<br>OS: Windows, version unknown | 1.38 ms<br>1.48 ms<br>1.97 ms<br>3.88 ms | 1.44 ms (+4.3%, noise)<br>1.34 ms (-9.5%)<br>1.68 ms (-15%)<br>3.43 ms (-12%) | Faster once there is work to overlap |
+| 2026-10-27<br>[#131](https://github.com/Xaymar/BlitzLLVM/pull/131) merged | Profiling timers only run in programs built with `blitzcc --profile` (or `-d`) | 2M calls of `EntityInView` and `CopyRect`<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | `EntityInView` 197-200 ns<br>`CopyRect` 114-119 ns (timers stubbed out) | 197-218 ns<br>118-126 ns (always-on timers, the old state; within noise) | No measurable change; tidiness only |
+| 2026-10-27<br>[#151](https://github.com/Xaymar/BlitzLLVM/pull/151) merged | GPU thread time and per-pass GPU time in `BLITZ_FPS` | Stranded II Survival Guide 1280x720<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown |  | about 1.7 ms of a 2.2 ms frame is the GPU side<br>the main thread is blocked about three quarters of each frame | Measurement only; found that the wait is the GPU, not a lock |
+| 2026-10-27<br>[#167](https://github.com/Xaymar/BlitzLLVM/pull/167) merged | Two frames in flight: the CPU records frame N+1 while the GPU renders frame N (baseline = #151) | Stranded II Survival Guide 1280x720, 3000 frames, `--profile`, 2 alternating runs<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | 2.70 ms | 2.58 ms (-4.4%) | Faster |
 |  |  | Shooting Range, same setup | 3.11 ms | 2.41 ms (2.27-2.55 between runs) (-22%) | Faster |
 |  |  | Later runs without `--profile` (100, 400, 1000 frames), baseline → PR | Survival Guide 3.11 ms<br>Survival Guide 2.58 ms<br>Shooting Range 2.89 ms<br>Shooting Range 2.71 ms | Survival Guide 2.58 ms (-17%)<br>Survival Guide 2.20 ms (-15%)<br>Shooting Range 2.60 ms (-10%)<br>Shooting Range 2.19 ms (-19%) | Faster. Input lag grows by at most one frame |
-| 2026-10-27<br>[#185](https://github.com/Xaymar/BlitzLLVM/pull/185) closed | Time swapchain image acquire; try more swapchain images and other present modes | Stranded II, Areldir, 2 runs per setting | default 1.96-1.99 ms<br>about 530 fps | `BLITZ_SWAP_EXTRA=3` or `5`: 1.95-1.99 ms (0%)<br>mailbox: 2.80 ms (+41%)<br>360 fps, capped | Not the cause, closed (mailbox is a regression) |
-| open<br>[#154](https://github.com/Xaymar/BlitzLLVM/pull/154) open (draft) | Five phase timers inside `RenderWorld` in the profile output | Fly-through 200k, llvmpipe 64x36, per second |  | `collect` 214.5 ms<br>`draws` 247.8 ms<br>`sort+group` 57.4 ms<br>`lights+cameras` 7.9 ms<br>`record commands` 5.7 ms<br>of 1032.1 ms `RenderWorld` | Measurement only; the 1M Areldir profile (project report) was collect 55%, draws 29%, sort+group 8%, lights/cameras 3% of about 345 ms |
+| 2026-10-27<br>[#185](https://github.com/Xaymar/BlitzLLVM/pull/185) closed | Time swapchain image acquire; try more swapchain images and other present modes | Stranded II, 2 runs per setting<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | default 1.96-1.99 ms<br>about 530 fps | `BLITZ_SWAP_EXTRA=3` or `5`: 1.95-1.99 ms (0%)<br>mailbox: 2.80 ms (+41%)<br>360 fps, capped | Not the cause, closed (mailbox is a regression) |
+| open<br>[#154](https://github.com/Xaymar/BlitzLLVM/pull/154) open (draft) | Five phase timers inside `RenderWorld` in the profile output | Fly-through 200k 64x36, per second<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown |  | `collect` 214.5 ms<br>`draws` 247.8 ms<br>`sort+group` 57.4 ms<br>`lights+cameras` 7.9 ms<br>`record commands` 5.7 ms<br>of 1032.1 ms `RenderWorld` | Measurement only; the 1M profile on the Ryzen 7 9800X3D / RTX 4080 SUPER system (project report) was collect 55%, draws 29%, sort+group 8%, lights/cameras 3% of about 345 ms |
 
 The Stranded II frame times of #138 and #167 come from different baselines (the nightly of that moment against a branch) and are not chained: #185 measured about 1.96-1.99 ms per frame later on the same machine with everything merged.
 
 ## GPU memory
 
-| Date, PR | What changed | Benchmark, machine | Before | After and change | Result |
+| Date, PR | What changed | Benchmark and hardware | Before | After and change | Result |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-27<br>[#150](https://github.com/Xaymar/BlitzLLVM/pull/150) merged | All GPU memory through VulkanMemoryAllocator instead of hand-written `vkAllocateMemory` code | none |  |  | A cleanup that keeps the same memory properties. No speed or memory measurement was made. It found and fixed leaks of the entity buffer and the surface buffers at shutdown |
 
 ## Compiler and generated code
 
-| Date, PR | What changed | Benchmark, machine | Before | After and change | Result |
+| Date, PR | What changed | Benchmark and hardware | Before | After and change | Result |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-26<br>[#86](https://github.com/Xaymar/BlitzLLVM/pull/86) merged | `-O3 -funroll-loops` by default (was `-O2`), fast-math flags `reassoc nsz arcp contract afn` on Float operations | none |  |  | **Never benchmarked** ("not benchmarked on a real GPU/CPU yet"). `nnan ninf` stay opt-in because they break `x <> x`, `n = n` and Inf/NaN results |
-| 2026-10-27<br>[#94](https://github.com/Xaymar/BlitzLLVM/pull/94) merged | Index, division and object checks emitted as a compare and a cold branch; `Sqr`, `Floor`, `Ceil`, `Exp`, `Log`, `Log10`, `Sin`, `Cos` as LLVM intrinsics | llvmpipe container, x86-64, `-O3`, 100M iterations | 1D array 207 ms | 45 ms (-78% (4.6x)) | Faster |
+| 2026-10-27<br>[#94](https://github.com/Xaymar/BlitzLLVM/pull/94) merged | Index, division and object checks emitted as a compare and a cold branch; `Sqr`, `Floor`, `Ceil`, `Exp`, `Log`, `Log10`, `Sin`, `Cos` as LLVM intrinsics | `-O3`, 100M iterations<br>CPU: x86-64, model unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 1D array 207 ms | 45 ms (-78% (4.6x)) | Faster |
 |  |  | 2D array | 700 ms | 102 ms (-85% (6.9x)) | Faster |
 |  |  | type list walk with field access | 610 ms | 210 ms (-66% (2.9x)) | Faster |
 |  |  | `Sqr`/`Floor`/`Sin` loop, 20M | 234 ms | 175 ms (-25%) | Faster |
 |  |  | `Rand`/`Rnd`, integer division, strings | unchanged | unchanged (0%) | No change |
-| 2026-10-27<br>[#104](https://github.com/Xaymar/BlitzLLVM/pull/104) merged | `Peek`/`Poke` and `Rnd`/`Rand` emitted in the program; hot runtime sources built together with the program with thin LTO | cloud box, llvmpipe, 4 cores, best of 5: banks (40 x 1 MiB) | 184 ms | 41 ms (-78%) | Faster |
+| 2026-10-27<br>[#104](https://github.com/Xaymar/BlitzLLVM/pull/104) merged | `Peek`/`Poke` and `Rnd`/`Rand` emitted in the program; hot runtime sources built together with the program with thin LTO | best of 5: banks (40 x 1 MiB)<br>CPU: 4 cores, model unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 184 ms | 41 ms (-78%) | Faster |
 |  |  | strings (2M `Mid`/`Left`/`Asc`/concat) | 247 ms | 173 ms (-30% (1.43x)) | Faster (only the runtime sources help; the IR fast paths gave 248 ms) |
 |  |  | `Rnd`/`Rand`, 30M | 343 ms | 283 ms (-17%) | Faster |
 |  |  | types (`New`/`Each`/`Delete`) | 61 ms | 59 ms (-3%) | No real change |
@@ -111,7 +111,7 @@ The Stranded II frame times of #138 and #167 come from different baselines (the 
 
 ## Movies and audio
 
-| Date, PR | What changed | Benchmark, machine | Before | After and change | Result |
+| Date, PR | What changed | Benchmark and hardware | Before | After and change | Result |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-27<br>[#125](https://github.com/Xaymar/BlitzLLVM/pull/125) merged | Movies play with FFmpeg as shared libraries | Package size (zip), Linux and macOS | not stated | Linux 9.8 MiB<br>macOS 7.2 MiB<br>about 3 MiB bigger (about +3 MiB) | **Regression in size** (new feature); no playback speed was measured |
 | 2026-10-27<br>[#162](https://github.com/Xaymar/BlitzLLVM/pull/162) merged | FFmpeg built with `--enable-small` and without code that only encoders and bitstream filters use | Linux x86-64, five libraries | 8,552,456 B | 6,177,096 B (-27.8%) | Smaller (zipped 3,135,670 → 2,275,955 B, -27.4%) |
@@ -123,7 +123,7 @@ The Stranded II frame times of #138 and #167 come from different baselines (the 
 
 ## Package size and build time
 
-| Date, PR | What changed | Benchmark, machine | Before | After and change | Result |
+| Date, PR | What changed | Benchmark and hardware | Before | After and change | Result |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-26<br>[#16](https://github.com/Xaymar/BlitzLLVM/pull/16) merged | SDL3 without the Direct3D, OpenGL and DirectSound drivers on Windows | Windows package |  | about 0.3 MiB smaller (project notes; the PR lists no number) | Smaller |
 | 2026-10-26<br>[#82](https://github.com/Xaymar/BlitzLLVM/pull/82) merged | Section garbage collection at link time | Hello World, Linux x86-64, unstripped, clang | 10.38 MB | 3.49 MB (-66%) | Smaller (gcc: 11.70 → 4.27 MB, -64%) |
@@ -140,12 +140,12 @@ The Stranded II frame times of #138 and #167 come from different baselines (the 
 
 These were measured and dropped, so nobody has to try them again.
 
-| Date, PR | What was tried | Benchmark, machine | Result |
+| Date, PR | What was tried | Benchmark and hardware | Result |
 | --- | --- | --- | --- |
-| 2026-10-27<br>[#157](https://github.com/Xaymar/BlitzLLVM/pull/157) closed | Keep the world matrix made by `collect_mesh` for the draw loop | Fly-through, Areldir 640x360: 1M objects 342.1 / 349.1 → 343.4 / 357.0 ms; 20k objects 2.853 → 3.203 ms (one run, +12%). llvmpipe: 250 → 241 ms (-3.6%) | No gain on the real GPU machine, possibly slower; closed |
-| 2026-10-27<br>[#185](https://github.com/Xaymar/BlitzLLVM/pull/185) closed | More swapchain images, other present modes | Stranded II, Areldir | No change with more images; mailbox 2.80 ms against 1.96-1.99 ms, capped at 360 fps. Image acquire is only 1-2 ms per second; closed |
+| 2026-10-27<br>[#157](https://github.com/Xaymar/BlitzLLVM/pull/157) closed | Keep the world matrix made by `collect_mesh` for the draw loop | Fly-through 640x360, 1M objects 342.1 / 349.1 → 343.4 / 357.0 ms; 20k objects 2.853 → 3.203 ms (one run, +12%)<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown<br>Fly-through, 250 → 241 ms (-3.6%)<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | No gain on the real GPU machine, possibly slower; closed |
+| 2026-10-27<br>[#185](https://github.com/Xaymar/BlitzLLVM/pull/185) closed | More swapchain images, other present modes | Stranded II<br>CPU: Ryzen 7 9800X3D<br>GPU: RTX 4080 SUPER<br>RAM: unknown<br>VRAM: 16 GB (card specification)<br>OS: Windows 11, version unknown | No change with more images; mailbox 2.80 ms against 1.96-1.99 ms, capped at 360 fps. Image acquire is only 1-2 ms per second; closed |
 | 2026-10-27<br>none (project report) | Split the entity into a hot and a cold part | Fly-through 1M | About 2%; dropped |
-| 2026-10-27<br>none ([#138](https://github.com/Xaymar/BlitzLLVM/pull/138)) | Batch image uploads into one command buffer | Stranded II start-up, llvmpipe | 894 ms against 891 ms; not committed |
+| 2026-10-27<br>none ([#138](https://github.com/Xaymar/BlitzLLVM/pull/138)) | Batch image uploads into one command buffer | Stranded II start-up<br>CPU: unknown<br>GPU: llvmpipe (software Vulkan)<br>RAM: unknown<br>VRAM: none (system memory)<br>OS: Linux container, version unknown | 894 ms against 891 ms; not committed |
 | 2026-10-26<br>[#82](https://github.com/Xaymar/BlitzLLVM/pull/82) | Thin or full LTO of the runtime and dependencies as bitcode | Hello World, clang | 3.75 MB against 3.49 MB with section GC, and 16-32 s compile times; not used. The sources-with-the-program route of #104 replaced it |
 | 2026-10-27<br>[#104](https://github.com/Xaymar/BlitzLLVM/pull/104) | Merge the runtime as bitcode with `llvm-link` | Runtime benchmarks | Same speedups as the sources route, but couples the program to the clang version; not used |
 | 2026-10-26<br>[#86](https://github.com/Xaymar/BlitzLLVM/pull/86) | `--fast-math full` (adds `nnan ninf`) as the default | Behavior test | Breaks NaN and Inf checks; stays opt-in |
@@ -153,6 +153,6 @@ These were measured and dropped, so nobody has to try them again.
 ## Not measured yet
 
 - [#86](https://github.com/Xaymar/BlitzLLVM/pull/86) (`-O3` and fast-math) and [#150](https://github.com/Xaymar/BlitzLLVM/pull/150) (VMA) have no before and after numbers.
-- [#84](https://github.com/Xaymar/BlitzLLVM/pull/84) was measured only on llvmpipe, where the GPU wait hides draw-call savings. Areldir numbers for the draw counts of that change do not exist.
-- [#193](https://github.com/Xaymar/BlitzLLVM/pull/193) waits for Areldir numbers.
+- [#84](https://github.com/Xaymar/BlitzLLVM/pull/84) was measured only on llvmpipe, where the GPU wait hides draw-call savings. Real GPU numbers for the draw counts of that change do not exist.
+- [#193](https://github.com/Xaymar/BlitzLLVM/pull/193) waits for real GPU numbers.
 - The effect of `--enable-small` on movie decode speed ([#162](https://github.com/Xaymar/BlitzLLVM/pull/162)).
