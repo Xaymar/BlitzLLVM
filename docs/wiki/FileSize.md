@@ -6,11 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 FileSize:Int32 file:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | The name of the file. Strings are stored with a 4 byte length in front, so "hello" takes 9 bytes. |
+
+**Returns:** The size of a file in bytes, or 0 when it does not exist.
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("files_size_example.tmp")
@@ -24,13 +40,7 @@ DeleteFile "files_size_example.tmp"
 9
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The name of the file. Strings are stored with a 4 byte length in front, so "hello" takes 9 bytes. |
-
-**Returns:** The size of a file in bytes, or 0 when it does not exist.
-
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [CopyFile](CopyFile)

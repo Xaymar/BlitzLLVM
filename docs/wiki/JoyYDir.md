@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyYDir:Int32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Like [JoyY](JoyY), but as a direction only: -1 for up, 1 for down, 0 in the middle.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Like [JoyY](JoyY), but as a direction only: -1 for up, 1 for down, 0 in the midd
 
 **Returns:** -1, 0 or 1.
 
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

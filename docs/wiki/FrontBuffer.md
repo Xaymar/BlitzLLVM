@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 FrontBuffer:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the front buffer: the picture that is on the screen. [Flip](Flip) updates it from the back buffer.
 
-**Returns:** The handle of the front buffer.
-
 **Differences and known gaps:**
 
 * The front buffer holds what the last Flip showed. [SaveBuffer](SaveBuffer) of it is the way to take a screenshot.
 
-## Related commands
+## Parameters
+
+**Returns:** The handle of the front buffer.
+
+## Related Commands
 
 * [BackBuffer](BackBuffer)
 * [BufferDirty](BufferDirty)

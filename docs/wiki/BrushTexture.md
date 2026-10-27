@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 BrushTexture brush:Int32, texture:Int32, frame:Int32=0, index:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Puts a texture on one of the layers of the brush. Layer 0 is the base texture, further layers are blended on top of it using [TextureBlend](TextureBlend). For a texture from [LoadAnimTexture](LoadAnimTexture) the frame chooses the cell to show.
+
+**Differences and known gaps:**
+
+* Layers 0 to 7 are accepted. The original help documents only 0 to 3 for this command.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `brush` | Int32 | required | The brush. |
+| `texture` | Int32 | required | The texture to put on the brush. |
+| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
+| `index` | Int32 | `0` | Layer number. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -42,20 +61,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![BrushTexture](media/brushes/brushtexture.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `brush` | Int32 | required | The brush. |
-| `texture` | Int32 | required | The texture to put on the brush. |
-| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
-| `index` | Int32 | `0` | Layer number. Defaults to 0. |
-
-**Differences and known gaps:**
-
-* Layers 0 to 7 are accepted. The original help documents only 0 to 3 for this command.
-
-## Related commands
+## Related Commands
 
 * [BrushAlpha](BrushAlpha)
 * [BrushBlend](BrushBlend)

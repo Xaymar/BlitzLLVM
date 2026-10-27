@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
 
+## Command Syntax
+
 ```blitzbasic
 LightRange light:Int32, range:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets how far a point or spot light reaches. The light is full strength next to the light and fades steadily to nothing at the range, so everything beyond it stays dark. The original calls the value approximate, so try a few values until the scene looks right. The default is 1000. Directional lights ignore it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `light` | Int32 | required | Light handle. |
+| `range` | Float32 | required | How far the light reaches. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -33,14 +46,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![LightRange](media/blitz3d/lightrange.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `light` | Int32 | required | Light handle. |
-| `range` | Float32 | required | How far the light reaches. |
-
-## Related commands
+## Related Commands
 
 * [CreateLight](CreateLight)
 * [LightColor](LightColor)

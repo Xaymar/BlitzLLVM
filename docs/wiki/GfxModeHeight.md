@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxModeHeight:Int32 mode:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The height in pixels of a display mode.
+
+**Differences and known gaps:**
+
+* A mode number that does not exist stops the program with an error message.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ The height in pixels of a display mode.
 
 **Returns:** The height in pixels.
 
-**Differences and known gaps:**
-
-* A mode number that does not exist stops the program with an error message.
-
-## Related commands
+## Related Commands
 
 * [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
 * [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕

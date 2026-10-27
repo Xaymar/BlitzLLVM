@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 TextureHeight:Int32 texture:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The height of the texture in pixels, as it was created or loaded. For a texture made with LoadAnimTexture it is the height of one frame. Returns 0 for a handle that does not exist.
 
-## Related commands
+## Related Commands
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)

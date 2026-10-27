@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 CollisionTriangle:Int32 entity:Int32, collision_index:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The number of the triangle, in the surface from CollisionSurface, that was hit. Triangle numbers start at 0, like the ones used by [TriangleVertex](TriangleVertex). It is 0 for collisions with ellipsoids and boxes.
 
-## Related commands
+## Related Commands
 
 * [CollisionEntity](CollisionEntity)
 * [CollisionNX](CollisionNX)

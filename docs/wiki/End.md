@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 End
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Stops the program right away. Everything that is output so far is written out first, and the exit code is 0.
+
+## Examples
 
 ```blitzbasic
 Print "before"
@@ -24,7 +30,7 @@ Print "never printed"
 before
 ```
 
-## Related commands
+## Related Commands
 
 * [DebugLog](DebugLog)
 * [Delay](Delay)

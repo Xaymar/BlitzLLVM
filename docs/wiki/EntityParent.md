@@ -6,14 +6,28 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityParent entity:Int32, parent:Int32, global:Int32=1
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Attaches an entity to a parent, or detaches it with a parent of 0. The child then follows the parent's position, rotation and scale, but moving the child never moves the parent. With `global` set to 1 (the default) the child stays where it is in the world and its local values are changed to match. With 0 its local values stay and it jumps to wherever they now lead.
 An entity cannot be attached to one of its own children.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `parent` | Int32 | required | Handle of the new parent, 0 for none. |
+| `global` | Int32 | `1` | 1 to keep the world position and angle, 0 to keep the local values. Defaults to 1. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -40,15 +54,11 @@ While Not KeyHit(1)
 Wend
 ```
 
+## Media
+
 ![EntityParent](media/blitz3d/entityparent.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `parent` | Int32 | required | Handle of the new parent, 0 for none. |
-| `global` | Int32 | `1` | 1 to keep the world position and angle, 0 to keep the local values. Defaults to 1. |
-
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

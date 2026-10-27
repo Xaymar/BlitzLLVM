@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 ShowEntity entity:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Makes a hidden entity visible and part of collisions again. It undoes [HideEntity](HideEntity) for this entity only, so children that were hidden on their own stay hidden, and nothing shows while a parent is still hidden. Showing an entity also forgets where it was last frame, so it does not collide on its way from the old position.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

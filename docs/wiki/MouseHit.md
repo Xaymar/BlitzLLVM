@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseHit:Int32 button:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Counts presses of a mouse button since the last time MouseHit asked about that button. Use it for clicks that should do one thing and not repeat while the button is held, and [MouseDown](MouseDown) for dragging.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `button` | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
+
+**Returns:** How many times the button was pressed since the last call.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,13 +40,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `button` | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
-
-**Returns:** How many times the button was pressed since the last call.
-
-## Related commands
+## Related Commands
 
 * [MouseDown](MouseDown)
 * [MouseWait](MouseWait)

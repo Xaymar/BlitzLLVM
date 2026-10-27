@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 UpdateWindowMenu window:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Redraws the menu bar of a window after you changed its menus. It only has to be called after commands like `CreateMenu`, `CheckMenu` or `SetMenuText`, and one call after a bunch of changes is enough.
+
+**Differences and known gaps:**
+
+* Menus here change the screen right away, so this command only asks for a redraw.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `window` | Int32 | required | Handle of a window. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,15 +41,7 @@ Repeat
 Until e = $803 Or (e = $1001 And EventData() = 1)
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window. |
-
-**Differences and known gaps:**
-
-* Menus here change the screen right away, so this command only asks for a redraw.
-
-## Related commands
+## Related Commands
 
 * [ActivateWindow](ActivateWindow)
 * [ActiveWindow](ActiveWindow)

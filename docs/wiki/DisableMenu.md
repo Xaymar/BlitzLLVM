@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
+## Command Syntax
+
 ```blitzbasic
 DisableMenu menu:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Greys out a menu item so it cannot be chosen and sends no events. [EnableMenu](EnableMenu) brings it back.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `menu` | Int32 | required | Handle of a menu or item. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,13 +38,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![DisableMenu](media/menus/disablemenu.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `menu` | Int32 | required | Handle of a menu or item. |
-
-## Related commands
+## Related Commands
 
 * [CheckMenu](CheckMenu)
 * [CreateMenu](CreateMenu)

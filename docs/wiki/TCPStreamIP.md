@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 TCPStreamIP:Int32 tcp_stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The address on the other end of a TCP stream, as a number for [DottedIP](DottedIP).
 
-## Related commands
+## Related Commands
 
 * [AcceptTCPStream](AcceptTCPStream)
 * [CloseTCPStream](CloseTCPStream)

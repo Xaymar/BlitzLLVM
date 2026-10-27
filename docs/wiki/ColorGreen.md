@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 ColorGreen:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The green part, 0 to 255, of the current drawing color.
 
-## Related commands
+## Related Commands
 
 * [ClsColor](ClsColor)
 * [Color](Color)

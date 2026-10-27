@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
+## Command Syntax
+
 ```blitzbasic
 SetGadgetIconStrip gadget:Int32, icon_strip:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives a list box, combo box or tabber the icons to use for its entries. Afterwards the icon number given to [AddGadgetItem](AddGadgetItem), [InsertGadgetItem](InsertGadgetItem) or [ModifyGadgetItem](ModifyGadgetItem) picks one.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| `icon_strip` | Int32 | required |  |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -32,14 +45,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![SetGadgetIconStrip](media/toolbars/setgadgeticonstrip.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
-| `icon_strip` | Int32 | required |  |
-
-## Related commands
+## Related Commands
 
 * [FreeIconStrip](FreeIconStrip)
 * [LoadIconStrip](LoadIconStrip)

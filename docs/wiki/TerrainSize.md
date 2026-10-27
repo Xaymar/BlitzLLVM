@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
+## Command Syntax
+
 ```blitzbasic
 TerrainSize:Int32 terrain:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The grid size that the terrain was created with, which is the width of the picture for [LoadTerrain](LoadTerrain).
 
-## Related commands
+## Related Commands
 
 * [CreateTerrain](CreateTerrain)
 * [LoadTerrain](LoadTerrain)

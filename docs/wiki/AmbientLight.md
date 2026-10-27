@@ -6,15 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 AmbientLight red:Float32, green:Float32, blue:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Sets the color of the light that reaches every surface equally, from every direction. With only ambient light, objects look flat because nothing is brighter on one side than another. Lights from [CreateLight](CreateLight) add shading on top of it. The default is 127, 127, 127, a medium gray; 0, 0, 0 leaves unlit parts black.
 
 The example removes the lights from a scene and steps the ambient light from black to white.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `red` | Float32 | required | Red part, 0 to 255. |
+| `green` | Float32 | required | Green part, 0 to 255. |
+| `blue` | Float32 | required | Blue part, 0 to 255. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -38,15 +52,11 @@ For i = 0 To 19
 Next
 ```
 
+## Media
+
 ![AmbientLight](media/world/ambientlight.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `red` | Float32 | required | Red part, 0 to 255. |
-| `green` | Float32 | required | Green part, 0 to 255. |
-| `blue` | Float32 | required | Blue part, 0 to 255. |
-
-## Related commands
+## Related Commands
 
 * [ActiveTextures](ActiveTextures)
 * [AntiAlias](AntiAlias)

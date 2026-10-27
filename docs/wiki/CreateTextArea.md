@@ -6,39 +6,24 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 CreateTextArea:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Makes a box for editing several lines of text, with scroll bars. The user can type, select with the mouse or with Shift and the arrow keys, and use Ctrl+A, C, X and V. Every change sends a $401 event; [TextAreaText](TextAreaText) reads the result. Style 1 turns line wrapping on so text is only scrolled vertically, and 65536 can be added to not follow the group when it is resized.
 
-```blitzbasic
-Graphics 320, 240, 32, 2
-win  = CreateWindow("Notes", 10, 10, 300, 180, Desktop(), 3)
-area = CreateTextArea(10, 10, 270, 120, win, 1)
-ActivateGadget area
-Repeat
-	e = WaitEvent()
-	If e = $401 Then SetGadgetText win, "Notes - " + TextAreaLen(area) + " chars"
-Until e = $803
-```
+**Differences and known gaps:**
 
-![CreateTextArea](media/textareas/createtextarea.gif)
+* Without wrapping, a bar along the bottom appears once a line does not fit. Besides the bar, the cursor keys scroll sideways, and so does the mouse wheel while Shift is held.
+* It is not a rich text control: it holds colors and bold or italic for ranges of text, but no pictures, links or paragraph styles.
 
-The bar along the bottom of a text area that does not wrap:
-
-```blitzbasic
-Graphics 320, 240, 32, 2
-win  = CreateWindow("Notes", 10, 10, 300, 120, Desktop(), 3)
-area = CreateTextArea(10, 10, 270, 60, win)
-SetTextAreaText area, "A line that is much too long to fit in this text area," + Chr$(10) + "and a short one."
-Repeat
-Until WaitEvent() = $803
-```
-
-![A text area with a bar](media/textareas/createtextarea_bar.png)
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -51,12 +36,38 @@ Until WaitEvent() = $803
 
 **Returns:** A handle for the text area.
 
-**Differences and known gaps:**
+## Examples
 
-* Without wrapping, a bar along the bottom appears once a line does not fit. Besides the bar, the cursor keys scroll sideways, and so does the mouse wheel while Shift is held.
-* It is not a rich text control: it holds colors and bold or italic for ranges of text, but no pictures, links or paragraph styles.
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Notes", 10, 10, 300, 180, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 120, win, 1)
+ActivateGadget area
+Repeat
+	e = WaitEvent()
+	If e = $401 Then SetGadgetText win, "Notes - " + TextAreaLen(area) + " chars"
+Until e = $803
+```
 
-## Related commands
+
+The bar along the bottom of a text area that does not wrap:
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win  = CreateWindow("Notes", 10, 10, 300, 120, Desktop(), 3)
+area = CreateTextArea(10, 10, 270, 60, win)
+SetTextAreaText area, "A line that is much too long to fit in this text area," + Chr$(10) + "and a short one."
+Repeat
+Until WaitEvent() = $803
+```
+
+## Media
+
+![CreateTextArea](media/textareas/createtextarea.gif)
+
+![A text area with a bar](media/textareas/createtextarea_bar.png)
+
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [CreateTextField](CreateTextField)

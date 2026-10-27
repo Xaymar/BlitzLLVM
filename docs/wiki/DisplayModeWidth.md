@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 DisplayModeWidth:Int32 display:Int32, mode:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 The width in pixels of a mode from the list of a display. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+**Differences and known gaps:**
+
+* A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,11 +31,7 @@ The width in pixels of a mode from the list of a display. This is a BlitzLLVM ex
 
 **Returns:** The width, or 0 if the display or mode does not exist.
 
-**Differences and known gaps:**
-
-* A display or mode number that does not exist gives 0 instead of stopping the program, unlike [GfxModeWidth](GfxModeWidth).
-
-## Related commands
+## Related Commands
 
 * [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
 * [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕

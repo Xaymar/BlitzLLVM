@@ -6,15 +6,31 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 CameraPick:Int32 camera:Int32, viewport_x:Float32, viewport_y:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Finds the entity that appears at a pixel of a camera's view, which is how you select things with the mouse. The coordinates are in pixels of the camera's viewport, like [MouseX](MouseX) and [MouseY](MouseY) give them, with 0, 0 at the top left. The ray runs as far as the camera's far range.
 
 Only entities with an [EntityPickMode](EntityPickMode) are found. Afterwards [PickedX](PickedX), [PickedEntity](PickedEntity) and the other Picked commands describe the hit.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `camera` | Int32 | required | The camera whose view is used. |
+| `viewport_x` | Float32 | required | Horizontal pixel position inside the camera's viewport. |
+| `viewport_y` | Float32 | required | Vertical pixel position inside the camera's viewport. |
+
+**Returns:** The entity found, or 0 if there was none.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -51,17 +67,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CameraPick](media/picking/camerapick.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | The camera whose view is used. |
-| `viewport_x` | Float32 | required | Horizontal pixel position inside the camera's viewport. |
-| `viewport_y` | Float32 | required | Vertical pixel position inside the camera's viewport. |
-
-**Returns:** The entity found, or 0 if there was none.
-
-## Related commands
+## Related Commands
 
 * [EntityPick](EntityPick)
 * [EntityPickMode](EntityPickMode)

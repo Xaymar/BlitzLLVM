@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 UDPTimeouts recv_timeout:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets how long [RecvUDPMsg](RecvUDPMsg) waits for a message. The default is 0, which returns right away. Negative values count as 0.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `recv_timeout` | Int32 | required | Time to wait in milliseconds. |
 
-## Related commands
+## Related Commands
 
 * [CloseUDPStream](CloseUDPStream)
 * [CreateUDPStream](CreateUDPStream)

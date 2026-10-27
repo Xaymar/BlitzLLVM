@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 SetSamplerFilterMip sampler:Int32, mode:Int32
 ```
+
+## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
@@ -18,16 +22,18 @@ Chooses how the mip levels of a texture are read. With 0 the level that is close
 | 0 | Nearest: the texel that is closest, which shows blocks. |
 | 1 | Linear: blends the texels around the point, the default. |
 
+**Differences and known gaps:**
+
+* The mode has to be 0 or 1, other values stop the program with an error.
+
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sampler` | Int32 | required | The sampler to change. |
 | `mode` | Int32 | required | The filter mode from the table above. |
 
-**Differences and known gaps:**
-
-* The mode has to be 0 or 1, other values stop the program with an error.
-
-## Related commands
+## Related Commands
 
 * [GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕
 * [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕

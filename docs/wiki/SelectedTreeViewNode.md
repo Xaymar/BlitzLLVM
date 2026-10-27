@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 SelectedTreeViewNode:Int32 treeview:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The handle of the selected node, or 0 if none is selected.
 
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [CollapseTreeViewNode](CollapseTreeViewNode)

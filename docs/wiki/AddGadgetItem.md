@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 AddGadgetItem gadget:Int32, item:String, select:Int32=0, icon:Int32=-1
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Adds an entry at the end of a list box, combo box or tabber. For a tabber the entry is a new tab. Use [InsertGadgetItem](InsertGadgetItem) to put it somewhere else.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| `item` | String | required |  |
+| `select` | Int32 | `0` | True makes it the selected entry. Defaults to False. |
+| `icon` | Int32 | `-1` | Number of an icon in the icon strip given with [SetGadgetIconStrip](SetGadgetIconStrip). Defaults to -1, which means none. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,16 +40,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![AddGadgetItem](media/gadgets/addgadgetitem.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
-| `item` | String | required |  |
-| `select` | Int32 | `0` | True makes it the selected entry. Defaults to False. |
-| `icon` | Int32 | `-1` | Number of an icon in the icon strip given with [SetGadgetIconStrip](SetGadgetIconStrip). Defaults to -1, which means none. |
-
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [ClearGadgetItems](ClearGadgetItems)

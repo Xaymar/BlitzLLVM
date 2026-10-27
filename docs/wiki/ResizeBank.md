@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 ResizeBank bank:Int32, size:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Changes the size of a bank. The start of the bank is kept, and when it grows the new part is filled with zeros.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `bank` | Int32 | required | The bank to resize. |
+| `size` | Int32 | required | The new size in bytes. |
+
+## Examples
 
 ```blitzbasic
 bank = CreateBank(4)
@@ -30,12 +43,7 @@ FreeBank bank
 0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to resize. |
-| `size` | Int32 | required | The new size in bytes. |
-
-## Related commands
+## Related Commands
 
 * [BankSize](BankSize)
 * [CopyBank](CopyBank)

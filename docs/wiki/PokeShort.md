@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 PokeShort bank:Int32, offset:Int32, value:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes a 2-byte value, low byte first. Values outside 0 to 65535 wrap around.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Writes a 2-byte value, low byte first. Values outside 0 to 65535 wrap around.
 | `offset` | Int32 | required | Position in bytes. |
 | `value` | Int32 | required | The value to store. |
 
-## Related commands
+## Related Commands
 
 * [PeekShort](PeekShort)
 * [PokeByte](PokeByte)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
+## Command Syntax
+
 ```blitzbasic
 SendNetMsg:Int32 type:Int32, msg:String, from_player:Int32, to_player:Int32=0, reliable:Int32=1
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sends a message from a player of this program to one other player or to everyone.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -24,7 +30,7 @@ Sends a message from a player of this program to one other player or to everyone
 
 **Returns:** 1 when the message was sent, 0 when `from_player` is not a player of this program.
 
-## Related commands
+## Related Commands
 
 * [CreateNetPlayer](CreateNetPlayer)
 * [DeleteNetPlayer](DeleteNetPlayer)

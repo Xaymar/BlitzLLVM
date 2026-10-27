@@ -6,19 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 CommandLine:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+**Returns:** The arguments the program was started with as one string, with a space between them. It is empty when there are none. A program run by `blitzcc` gets the arguments given after `--args`.
+
+## Examples
 
 ```blitzbasic
 Print "Started with: " + CommandLine$()
 ```
 
-**Returns:** The arguments the program was started with as one string, with a space between them. It is empty when there are none. A program run by `blitzcc` gets the arguments given after `--args`.
-
-## Related commands
+## Related Commands
 
 * [AppTitle](AppTitle)
 * [CreateTimer](CreateTimer)

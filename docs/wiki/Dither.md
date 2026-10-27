@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 Dither enable:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Switches dithering for 16 bit color modes on or off, which hides banding in gradients.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True to dither, False not to. |
-
 **Differences and known gaps:**
 
 * Does nothing: 16 bit modes are not supported and the screen always has 8 bits per color channel, so there is nothing to dither.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `enable` | Int32 | required | True to dither, False not to. |
+
+## Related Commands
 
 * [CaptureWorld](CaptureWorld)
 * [ClearWorld](ClearWorld)

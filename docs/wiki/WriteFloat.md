@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 WriteFloat stream:Int32, float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes a float in 4 bytes.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `stream` | Int32 | required | The stream to write to. |
+| `float` | Float32 | required | The value to write. |
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("streams_float_example.tmp")
@@ -28,12 +41,7 @@ DeleteFile "streams_float_example.tmp"
 3.25
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to write to. |
-| `float` | Float32 | required | The value to write. |
-
-## Related commands
+## Related Commands
 
 * [ReadFloat](ReadFloat)
 * [WriteByte](WriteByte)

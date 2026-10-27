@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 SetSliderRange slider:Int32, visible:Int32, total:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Says how much the slider covers. Both numbers are in the units you like, such as the number of lines. The value then goes from 0 to total minus visible, and the size of the handle matches visible compared to total.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `slider` | Int32 | required | Handle of a slider. |
+| `visible` | Int32 | required | How much is seen at once. |
+| `total` | Int32 | required | How much there is altogether. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,13 +39,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `slider` | Int32 | required | Handle of a slider. |
-| `visible` | Int32 | required | How much is seen at once. |
-| `total` | Int32 | required | How much there is altogether. |
-
-## Related commands
+## Related Commands
 
 * [SetButtonState](SetButtonState)
 * [SetGadgetFont](SetGadgetFont)

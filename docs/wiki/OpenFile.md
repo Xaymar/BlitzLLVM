@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 OpenFile:Int32 filename:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Opens an existing file for reading and writing at once, keeping what is in it. Use [SeekFile](SeekFile) to move around before you read or write.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `filename` | String | required | The file to open. |
+
+**Returns:** A file handle, or 0 when the file does not exist.
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("files_open_example.tmp")
@@ -34,13 +48,7 @@ DeleteFile "files_open_example.tmp"
 9
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `filename` | String | required | The file to open. |
-
-**Returns:** A file handle, or 0 when the file does not exist.
-
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [CopyFile](CopyFile)

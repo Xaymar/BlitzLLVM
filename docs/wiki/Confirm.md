@@ -6,20 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 Confirm:Int32 text:String, serious:Int32=0
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Shows a question with an OK and a Cancel button and waits for the answer. Lines can be split with `Chr$(13)`. The second parameter chooses a warning symbol instead of the information symbol.
 
-```blitzbasic
-Graphics 320, 240, 32, 2
-If Confirm("Delete all saves?", 1) Then
-	Notify "They are gone."
-EndIf
-```
+**Differences and known gaps:**
+
+* The box is a message box of the operating system and not part of the program window. When the program runs without a screen it writes the text to the error output and answers 0.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -28,11 +31,16 @@ EndIf
 
 **Returns:** 1 for OK, 0 for Cancel.
 
-**Differences and known gaps:**
+## Examples
 
-* The box is a message box of the operating system and not part of the program window. When the program runs without a screen it writes the text to the error output and answers 0.
+```blitzbasic
+Graphics 320, 240, 32, 2
+If Confirm("Delete all saves?", 1) Then
+	Notify "They are gone."
+EndIf
+```
 
-## Related commands
+## Related Commands
 
 * [ActiveObjects](ActiveObjects)
 * [AutoSuspend](AutoSuspend)

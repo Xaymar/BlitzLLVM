@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 ClearGadgetItems gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Removes every entry of a list box, combo box or tabber.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,11 +38,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
-
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [AddGadgetItem](AddGadgetItem)

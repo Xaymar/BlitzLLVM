@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
+## Command Syntax
+
 ```blitzbasic
 Graphics3D width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -21,6 +25,22 @@ Opens the window, or full screen mode, that 3D programs are drawn in. It has to 
 | 2 | Window. |
 | 3 | Window whose size can be changed by the user; the picture is scaled to fit. |
 | 4 | Window without a border: no title bar and no frame. This is a BlitzLLVM extension that original Blitz does not have. |
+
+**Differences and known gaps:**
+
+* The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
+* A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `width` | Int32 | required | Width of the picture in pixels. |
+| `height` | Int32 | required | Height of the picture in pixels. |
+| `depth` | Int32 | `0` | Color depth: 0 for the best, or 16, 24 or 32. Defaults to 0. |
+| `mode` | Int32 | `0` | Window or full screen as in the table. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 640, 480, 0, 2
@@ -36,19 +56,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | Width of the picture in pixels. |
-| `height` | Int32 | required | Height of the picture in pixels. |
-| `depth` | Int32 | `0` | Color depth: 0 for the best, or 16, 24 or 32. Defaults to 0. |
-| `mode` | Int32 | `0` | Window or full screen as in the table. Defaults to 0. |
-
-**Differences and known gaps:**
-
-* The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
-* A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
-
-## Related commands
+## Related Commands
 
 * [CountGfxModes3D](CountGfxModes3D)
 * [GfxDriver3D](GfxDriver3D)

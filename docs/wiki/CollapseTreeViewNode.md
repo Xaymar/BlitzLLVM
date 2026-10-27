@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 CollapseTreeViewNode node:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Folds a node so its children are hidden. They keep existing, and [ExpandTreeViewNode](ExpandTreeViewNode) shows them again. A node deep in the tree is only seen when everything above it is open.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `node` | Int32 | required | Handle of a node. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,11 +38,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `node` | Int32 | required | Handle of a node. |
-
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [ExpandTreeViewNode](ExpandTreeViewNode)

@@ -6,11 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 TrisRendered:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+**Returns:** The number of triangles that the last [RenderWorld](RenderWorld) drew. It is 0 before the first RenderWorld, and one cube is 12.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -24,9 +36,7 @@ Flip
 WaitKey
 ```
 
-**Returns:** The number of triangles that the last [RenderWorld](RenderWorld) drew. It is 0 before the first RenderWorld, and one cube is 12.
-
-## Related commands
+## Related Commands
 
 * [RenderWorld](RenderWorld)
 * [Stats3D](Stats3D)

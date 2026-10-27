@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 Write string:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes text at the text cursor like [Print](Print), but without starting a new line, so the next Write or Print continues behind it.
+
+**Differences and known gaps:**
+
+* Without a graphics window the text goes to the console instead.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text to write. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -25,17 +41,11 @@ Print "A new line."
 WaitKey
 ```
 
+## Media
+
 ![Write](media/fonts/write.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to write. |
-
-**Differences and known gaps:**
-
-* Without a graphics window the text goes to the console instead.
-
-## Related commands
+## Related Commands
 
 * [StringWidth](StringWidth)
 * [Text](Text)

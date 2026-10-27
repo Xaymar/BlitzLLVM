@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 CreateSphere:Int32 segments:Int32=8, parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates a sphere with a radius of 1 around the origin. `segments` sets how round it looks. A sphere has `2 * segments * (segments - 1) * 2` triangles, so 8 gives 224 and 16 gives 960: use the smallest number that still looks smooth at the distance the sphere is seen from. Valid values are 2 to 100.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `segments` | Int32 | `8` | Detail of the sphere, 2 to 100. Defaults to 8. |
+| `parent` | Int32 | `0` | Entity the sphere follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new sphere.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -31,16 +46,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateSphere](media/blitz3d/createsphere.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `segments` | Int32 | `8` | Detail of the sphere, 2 to 100. Defaults to 8. |
-| `parent` | Int32 | `0` | Entity the sphere follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new sphere.
-
-## Related commands
+## Related Commands
 
 * [CreateCone](CreateCone)
 * [CreateCube](CreateCube)

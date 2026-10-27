@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 RestoreWindow window:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Puts a window back to the position and size it had before it was minimized or maximized. Nothing happens to a window that is in neither state. This command is undocumented in the official help, but it exists in all versions of BlitzPlus.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `window` | Int32 | required | Handle of a window. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -22,11 +34,7 @@ RestoreWindow win
 Notify "Back at " + GadgetWidth(win) + " x " + GadgetHeight(win)
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window. |
-
-## Related commands
+## Related Commands
 
 * [ActivateWindow](ActivateWindow)
 * [ActiveWindow](ActiveWindow)

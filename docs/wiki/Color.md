@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 Color red:Int32, green:Int32, blue:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets the color that `Plot`, `Line`, `Rect`, `Oval` and `Text` draw with.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `red` | Int32 | required | Red part, 0 to 255. |
+| `green` | Int32 | required | Green part, 0 to 255. |
+| `blue` | Int32 | required | Blue part, 0 to 255. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,15 +40,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![Color](media/drawing/color.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `red` | Int32 | required | Red part, 0 to 255. |
-| `green` | Int32 | required | Green part, 0 to 255. |
-| `blue` | Int32 | required | Blue part, 0 to 255. |
-
-## Related commands
+## Related Commands
 
 * [ClsColor](ClsColor)
 * [ColorBlue](ColorBlue)

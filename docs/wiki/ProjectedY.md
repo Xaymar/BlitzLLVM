@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 ProjectedY:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Gives the vertical screen position of the point that the last [CameraProject](CameraProject) looked at, in pixels from the top edge of the screen.
 
+## Parameters
+
 **Returns:** The Y position in pixels.
 
-## Related commands
+## Related Commands
 
 * [DeltaYaw](DeltaYaw)
 * [ProjectedX](ProjectedX)

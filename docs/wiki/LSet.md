@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 LSet:String string:String, size:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Makes a string exactly `size` characters long by cutting it off or padding it with spaces on the right, so the text stays on the left. Useful for columns.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text. |
+| `size` | Int32 | required | The length of the result. |
+
+**Returns:** A string of exactly `size` characters.
+
+## Examples
 
 ```blitzbasic
 Print "[" + LSet$("ab", 5) + "]"
@@ -24,14 +39,7 @@ Print "[" + LSet$("abcdef", 3) + "]"
 [abc]
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
-| `size` | Int32 | required | The length of the result. |
-
-**Returns:** A string of exactly `size` characters.
-
-## Related commands
+## Related Commands
 
 * [Len](Len)
 * [Lower](Lower)

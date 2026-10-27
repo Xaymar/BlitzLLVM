@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 SetTextAreaFont textarea:Int32, font:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Changes the font of the whole text area.
+
+**Differences and known gaps:**
+
+* Only the size of the font is used, every font is drawn with the built-in typeface.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `textarea` | Int32 | required | Handle of a text area. |
+| `font` | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,16 +41,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `font` | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
-
-**Differences and known gaps:**
-
-* Only the size of the font is used, every font is drawn with the built-in typeface.
-
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [CreateTextArea](CreateTextArea)

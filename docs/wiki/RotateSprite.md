@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
+## Command Syntax
+
 ```blitzbasic
 RotateSprite sprite:Int32, angle:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Rolls a sprite around the line from the camera to it. The angle is absolute, in degrees, and not added to the old one. A rolling sprite is the usual way to make spinning smoke or sparks.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sprite` | Int32 | required | The sprite. |
 | `angle` | Float32 | required | Roll angle in degrees. |
 
-## Related commands
+## Related Commands
 
 * [CreateSprite](CreateSprite)
 * [HandleSprite](HandleSprite)

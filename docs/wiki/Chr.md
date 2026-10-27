@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Chr:String ascii:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the one-character string for a character code. [Asc](Asc) does the opposite.
+
+**Differences and known gaps:**
+
+* Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `ascii` | Int32 | required | The character code, 0 to 255. |
+
+**Returns:** A string with a single character.
+
+## Examples
 
 ```blitzbasic
 Print Chr$(72) + Chr$(105)
@@ -22,17 +40,7 @@ Print Chr$(72) + Chr$(105)
 Hi
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `ascii` | Int32 | required | The character code, 0 to 255. |
-
-**Returns:** A string with a single character.
-
-**Differences and known gaps:**
-
-* Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
-
-## Related commands
+## Related Commands
 
 * [Asc](Asc)
 * [Bin](Bin)

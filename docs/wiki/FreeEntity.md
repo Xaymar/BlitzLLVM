@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 FreeEntity entity:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Removes an entity from the world and releases what it used, including all of its children. The handle is invalid afterwards; using it stops the program with an error. Entities are also freed when the program ends, so call this when you want something gone during the game, such as a spent bullet.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [HideEntity](HideEntity)

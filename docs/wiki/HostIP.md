@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 HostIP:Int32 host_index:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
+
+**Differences and known gaps:**
+
+* Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used. Only IPv4 addresses are returned, and an index past the last one returns 0.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ _Not documented yet._
 
 **Returns:** One of the addresses found by the last [CountHostIPs](CountHostIPs), as a number for [DottedIP](DottedIP).
 
-**Differences and known gaps:**
-
-* Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used. Only IPv4 addresses are returned, and an index past the last one returns 0.
-
-## Related commands
+## Related Commands
 
 * [CountHostIPs](CountHostIPs)
 * [DottedIP](DottedIP)

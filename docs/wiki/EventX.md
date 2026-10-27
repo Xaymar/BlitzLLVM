@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
+## Command Syntax
+
 ```blitzbasic
 EventX:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the first coordinate of the last event: where the mouse was for $203 and $205, and where a window went to for $801 or how wide it became for $802.
+
+## Parameters
+
+**Returns:** The X value, see the table at [EventData](EventData). Positions on a canvas are relative to the canvas.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -29,11 +39,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![EventX](media/events/eventx.png)
 
-**Returns:** The X value, see the table at [EventData](EventData). Positions on a canvas are relative to the canvas.
-
-## Related commands
+## Related Commands
 
 * [EventData](EventData)
 * [EventID](EventID)

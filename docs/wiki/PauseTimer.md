@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 PauseTimer timer:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Stops a timer from ticking and posting events until [ResumeTimer](ResumeTimer) is called. Its tick count stays where it is.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `timer` | Int32 | required | A timer from `CreateTimer`. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,11 +37,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timer` | Int32 | required | A timer from `CreateTimer`. |
-
-## Related commands
+## Related Commands
 
 * [HotKeyEvent](HotKeyEvent)
 * [ResetTimer](ResetTimer)

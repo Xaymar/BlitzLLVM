@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 ProjectedZ:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Tells how far in front of the camera the point of the last [CameraProject](CameraProject) is. It is meant to tell you whether the point is visible at all, since a point behind the camera gives a screen position that would be drawn in the wrong place.
 
-**Returns:** The distance of the point in front of the camera. Negative for points behind it.
-
 **Differences and known gaps:**
 
 * In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible. Here it is the real distance in front of the camera, which is negative or 0 for points that can not be seen.
 
-## Related commands
+## Parameters
+
+**Returns:** The distance of the point in front of the camera. Negative for points behind it.
+
+## Related Commands
 
 * [ProjectedX](ProjectedX)
 * [ProjectedY](ProjectedY)

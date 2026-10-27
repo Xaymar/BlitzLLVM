@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 PickedSurface:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The handle of the surface that the latest pick hit, usable with the surface commands. It is 0 when the entity was picked as a sphere or box.
 
-## Related commands
+## Related Commands
 
 * [PickedEntity](PickedEntity)
 * [PickedNX](PickedNX)

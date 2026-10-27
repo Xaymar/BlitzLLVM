@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
+## Command Syntax
+
 ```blitzbasic
 CreateSprite:Int32 parent:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -17,6 +21,20 @@ Creates a sprite: a flat square of two triangles that extends from -1, -1 to 1, 
 Sprites have their own commands for scale, rotation and handle: [ScaleSprite](ScaleSprite), [RotateSprite](RotateSprite) and [HandleSprite](HandleSprite). Everything else, such as position, texture and color, works as for any entity.
 
 A parent makes the sprite follow another entity. The sprite is still created at 0, 0, 0, not at the parent's position.
+
+**Differences and known gaps:**
+
+* Sprites are always drawn full-bright and visible from both sides, whatever [EntityFX](EntityFX) says. The original only does this for sprites made with LoadSprite.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `parent` | Int32 | `0` | Optional parent entity. |
+
+**Returns:** An entity handle for the sprite.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -46,19 +64,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateSprite](media/sprites/createsprite.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | `0` | Optional parent entity. |
-
-**Returns:** An entity handle for the sprite.
-
-**Differences and known gaps:**
-
-* Sprites are always drawn full-bright and visible from both sides, whatever [EntityFX](EntityFX) says. The original only does this for sprites made with LoadSprite.
-
-## Related commands
+## Related Commands
 
 * [HandleSprite](HandleSprite)
 * [LoadSprite](LoadSprite)

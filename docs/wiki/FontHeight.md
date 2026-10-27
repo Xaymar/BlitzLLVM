@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 FontHeight:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The height in pixels of a character of the current font, as set by [SetFont](SetFont). Use it to place lines of text below each other.
+
+**Differences and known gaps:**
+
+* The height is the height that was requested, as with Windows fonts. For a font that is not found, the built-in bitmap font is used, where [FontWidth](FontWidth) is the same number.
+
+## Parameters
+
+**Returns:** The height of a character in pixels.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,13 +42,7 @@ Flip
 WaitKey
 ```
 
-**Returns:** The height of a character in pixels.
-
-**Differences and known gaps:**
-
-* The height is the height that was requested, as with Windows fonts. For a font that is not found, the built-in bitmap font is used, where [FontWidth](FontWidth) is the same number.
-
-## Related commands
+## Related Commands
 
 * [FontWidth](FontWidth)
 * [FreeFont](FreeFont)

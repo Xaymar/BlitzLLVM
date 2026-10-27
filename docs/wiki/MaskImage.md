@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 MaskImage image:Int32, red:Int32, green:Int32, blue:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Chooses the color that [DrawImage](DrawImage) leaves out when it draws the image. The default is black. Setting a color that the picture does not contain makes every pixel visible, which is how to show black pixels. [DrawBlock](DrawBlock) ignores the mask.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+| `red` | Int32 | required | Red part of the mask color, 0 to 255. |
+| `green` | Int32 | required | Green part of the mask color, 0 to 255. |
+| `blue` | Int32 | required | Blue part of the mask color, 0 to 255. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -37,16 +52,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![MaskImage](media/images/maskimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `red` | Int32 | required | Red part of the mask color, 0 to 255. |
-| `green` | Int32 | required | Green part of the mask color, 0 to 255. |
-| `blue` | Int32 | required | Blue part of the mask color, 0 to 255. |
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

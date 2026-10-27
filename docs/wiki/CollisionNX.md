@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 CollisionNX:Float32 entity:Int32, collision_index:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The X part of the surface normal at the numbered collision, the direction the other surface pushes back. Together with CollisionNY and CollisionNZ it is a vector of length 1.
 
-## Related commands
+## Related Commands
 
 * [CollisionEntity](CollisionEntity)
 * [CollisionNY](CollisionNY)

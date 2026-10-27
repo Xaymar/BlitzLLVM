@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 AvailVidMem:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The amount of video memory that is free, in bytes. Every image and texture uses some of it.
 
-**Returns:** The free video memory in bytes.
-
 **Differences and known gaps:**
 
 * The graphics card cannot be asked how much of its memory is still free. This returns the same number as [TotalVidMem](TotalVidMem), and 0 when no graphics window is open.
 
-## Related commands
+## Parameters
+
+**Returns:** The free video memory in bytes.
+
+## Related Commands
 
 * [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕
 * [CountDisplays](CountDisplays) 〔BlitzLLVM〕

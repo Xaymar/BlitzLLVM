@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 FreeFont font:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Releases a font that was loaded with [LoadFont](LoadFont). If it was the current font, the built-in font is selected again.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `font` | Int32 | required | The font to free. |
-
 **Differences and known gaps:**
 
 * A font that does not exist stops the program with an error message.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `font` | Int32 | required | The font to free. |
+
+## Related Commands
 
 * [FontHeight](FontHeight)
 * [FontWidth](FontWidth)

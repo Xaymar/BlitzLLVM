@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 TextFieldText:String textfield:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The text in the field, even for a password field.
 
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [FormatTextAreaText](FormatTextAreaText)

@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 Stats3D:Float32 type:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Gives debugging numbers about the engine. The original help has no entry for this command, and its numbers were only meant for the developers. Index 0 is the number of triangles that the collisions of the last [UpdateWorld](UpdateWorld) looked at.
+
+**Differences and known gaps:**
+
+* The original also reports the vertices and triangles of the terrains in indexes 1 and 2. Those are always 0 here.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ Gives debugging numbers about the engine. The original help has no entry for thi
 
 **Returns:** The number, or 0 for an index that has no value.
 
-**Differences and known gaps:**
-
-* The original also reports the vertices and triangles of the terrains in indexes 1 and 2. Those are always 0 here.
-
-## Related commands
+## Related Commands
 
 * [HWTexUnits](HWTexUnits)
 * [RenderWorld](RenderWorld)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 GadgetItemText:String gadget:Int32, index:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The text of that entry.
 
-## Related commands
+## Related Commands
 
 * [GadgetFont](GadgetFont)
 * [GadgetGroup](GadgetGroup)

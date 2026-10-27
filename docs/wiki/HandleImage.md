@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 HandleImage image:Int32, x:Int32, y:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets the handle of an image: the point of the image that is placed at the position given to [DrawImage](DrawImage). The handle is measured from the top left corner of the image, and it is also the point around which [RotateImage](RotateImage) and [ScaleImage](ScaleImage) work. It may lie outside of the image.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+| `x` | Int32 | required | Horizontal position of the handle, counted from the left edge. |
+| `y` | Int32 | required | Vertical position of the handle, counted from the top edge. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -38,15 +52,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![HandleImage](media/images/handleimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `x` | Int32 | required | Horizontal position of the handle, counted from the left edge. |
-| `y` | Int32 | required | Vertical position of the handle, counted from the top edge. |
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

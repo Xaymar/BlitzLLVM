@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 ACos:Float32 float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the angle whose cosine is the given number. The result is in degrees, from 0 to 180. A number outside -1 to 1 has no such angle.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `float` | Float32 | required | The cosine, from -1 to 1. |
+
+**Returns:** The angle in degrees.
+
+## Examples
 
 ```blitzbasic
 Print ACos(0.5)
@@ -22,13 +36,7 @@ Print ACos(0.5)
 60.0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The cosine, from -1 to 1. |
-
-**Returns:** The angle in degrees.
-
-## Related commands
+## Related Commands
 
 * [ASin](ASin)
 * [ATan](ATan)

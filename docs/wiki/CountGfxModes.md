@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 CountGfxModes:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The number of full screen display modes. Use [GfxModeWidth](GfxModeWidth), [GfxModeHeight](GfxModeHeight) and [GfxModeDepth](GfxModeDepth) with a number from 1 to this value to learn what each mode is.
+
+**Differences and known gaps:**
+
+* The modes are the ones of the main display. When they cannot be asked, for example without a display, a list of common sizes is given: 640x480, 800x600, 1024x768, 1280x720, 1280x1024 and 1920x1080.
+
+## Parameters
+
+**Returns:** The number of modes.
+
+## Examples
 
 ```blitzbasic
 Print CountGfxModes() + " graphics modes"
@@ -22,13 +36,7 @@ Next
 WaitKey
 ```
 
-**Returns:** The number of modes.
-
-**Differences and known gaps:**
-
-* The modes are the ones of the main display. When they cannot be asked, for example without a display, a list of common sizes is given: 640x480, 800x600, 1024x768, 1280x720, 1280x1024 and 1920x1080.
-
-## Related commands
+## Related Commands
 
 * [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕
 * [CountDisplays](CountDisplays) 〔BlitzLLVM〕

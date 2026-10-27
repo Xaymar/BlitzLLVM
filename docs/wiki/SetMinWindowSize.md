@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 SetMinWindowSize window:Int32, width:Int32=-1, height:Int32=-1
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Sets how small the user may make a window. Without the sizes, the current size of the window becomes the smallest one. The biggest size is always the size of the desktop.
+
+**Differences and known gaps:**
+
+* The help lists height before width in its syntax line, the real order is width then height.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `window` | Int32 | required | Handle of a window that can be resized. |
+| `width` | Int32 | `-1` | Smallest width. Defaults to -1, which takes the current width. |
+| `height` | Int32 | `-1` | Smallest height. Defaults to -1, which takes the current height. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -22,17 +40,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window that can be resized. |
-| `width` | Int32 | `-1` | Smallest width. Defaults to -1, which takes the current width. |
-| `height` | Int32 | `-1` | Smallest height. Defaults to -1, which takes the current height. |
-
-**Differences and known gaps:**
-
-* The help lists height before width in its syntax line, the real order is width then height.
-
-## Related commands
+## Related Commands
 
 * [ActivateWindow](ActivateWindow)
 * [ActiveWindow](ActiveWindow)

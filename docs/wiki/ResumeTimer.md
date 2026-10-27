@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 ResumeTimer timer:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Lets a timer paused with [PauseTimer](PauseTimer) tick again.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `timer` | Int32 | required | A timer from `CreateTimer`. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,11 +38,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timer` | Int32 | required | A timer from `CreateTimer`. |
-
-## Related commands
+## Related Commands
 
 * [PauseTimer](PauseTimer)
 * [QueryObject](QueryObject)

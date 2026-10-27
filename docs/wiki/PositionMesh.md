@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 PositionMesh mesh:Int32, x:Float32, y:Float32, z:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Moves every vertex of a mesh by an offset, permanently. Unlike [PositionEntity](PositionEntity) it changes the mesh itself: all copies made with [CopyEntity](CopyEntity) move with it, and the origin of the mesh is no longer its center. Use it to move the pivot point of a model before parenting it.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Moves every vertex of a mesh by an offset, permanently. Unlike [PositionEntity](
 | `y` | Float32 | required | Offset along Y. |
 | `z` | Float32 | required | Offset along Z. |
 
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CopyMesh](CopyMesh)

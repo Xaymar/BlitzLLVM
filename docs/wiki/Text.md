@@ -6,13 +6,33 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 Text x:Int32, y:Int32, text:String, centre_x:Int32=0, centre_y:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws text into the current buffer with the drawing color. The position is the top left corner of the text, unless one of the two centering flags asks for the position to be the middle of the text.
+
+**Differences and known gaps:**
+
+* The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font. Characters 128 and above show the glyphs of the bitmap font, and the text is not smoothed.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position of the text. |
+| `y` | Int32 | required | Vertical position of the text. |
+| `text` | String | required | The text to draw. |
+| `centre_x` | Int32 | `0` | 1 to use x as the middle of the text instead of its left edge. Defaults to 0. |
+| `centre_y` | Int32 | `0` | 1 to use y as the middle of the text instead of its top edge. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,21 +48,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![Text](media/fonts/text.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the text. |
-| `y` | Int32 | required | Vertical position of the text. |
-| `text` | String | required | The text to draw. |
-| `centre_x` | Int32 | `0` | 1 to use x as the middle of the text instead of its left edge. Defaults to 0. |
-| `centre_y` | Int32 | `0` | 1 to use y as the middle of the text instead of its top edge. Defaults to 0. |
-
-**Differences and known gaps:**
-
-* The built-in 8x8 pixel bitmap font is always used, scaled to the height of the current font. Characters 128 and above show the glyphs of the bitmap font, and the text is not smoothed.
-
-## Related commands
+## Related Commands
 
 * [StringHeight](StringHeight)
 * [StringWidth](StringWidth)

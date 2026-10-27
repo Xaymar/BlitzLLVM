@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 DisplayName:String display:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 The name of a display, as the system calls it. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+**Differences and known gaps:**
+
+* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ The name of a display, as the system calls it. This is a BlitzLLVM extension: th
 
 **Returns:** The name of the display, or an empty text if the display does not exist.
 
-**Differences and known gaps:**
-
-* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-
-## Related commands
+## Related Commands
 
 * [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
 * [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕

@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 CreatePlane:Int32 segments:Int32=1, parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates a flat, endless ground at height 0 that faces up. It is handy for outdoor scenes where the player should never see an edge. The plane is one-sided, so it is not seen from below. More `segments` split it into smaller squares, which gives lights and fog more vertices to work with and hides problems some graphics cards have with big flat triangles.
+
+**Differences and known gaps:**
+
+* Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that. Drawing is not limited: the part of the plane that a camera sees is made again for every frame.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `segments` | Int32 | `1` | How many pieces the plane is divided into per side, 1 to 16. Defaults to 1. |
+| `parent` | Int32 | `0` | Entity the plane follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new plane.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -32,20 +51,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreatePlane](media/blitz3d/createplane.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `segments` | Int32 | `1` | How many pieces the plane is divided into per side, 1 to 16. Defaults to 1. |
-| `parent` | Int32 | `0` | Entity the plane follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new plane.
-
-**Differences and known gaps:**
-
-* Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that. Drawing is not limited: the part of the plane that a camera sees is made again for every frame.
-
-## Related commands
+## Related Commands
 
 * [CreateCone](CreateCone)
 * [CreateCube](CreateCube)

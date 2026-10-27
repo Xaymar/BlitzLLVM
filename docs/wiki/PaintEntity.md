@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 PaintEntity entity:Int32, brush:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Applies everything in a brush to an entity at once: color, shininess, alpha, blend, texture and effects. Define a brush once and paint many entities with it instead of repeating several commands.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 | `brush` | Int32 | required | Brush handle. |
 
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

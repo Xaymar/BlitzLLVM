@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Byte:Int32 value:Float32
 ```
+
+## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
@@ -16,6 +20,20 @@ Byte:Int32 value:Float32
 Converts a number or a text to a Byte, an 8-bit integer from -128 to 127. This is a BlitzLLVM extension: the originals only know `Int` and `Float`. A whole number that is too large keeps its lowest 8 bits (`Byte(128)` is -128), a real is rounded to the nearest whole number (halves go to the even one) and stops at -128 or 127 if it is outside. Use [SatByte](SatByte) to stop whole numbers at -128 and 127 as well.
 
 The result is a Byte, which turns into an `Int` when it is calculated with.
+
+**Differences and known gaps:**
+
+* Not in the originals, which have no integers of other sizes.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `value` | Float32 | required | A number or a text with a number in it. |
+
+**Returns:** The Byte.
+
+## Examples
 
 ```blitzbasic
 Print Byte(100)
@@ -31,17 +49,7 @@ Print Byte(-1000.0)
 -128
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `value` | Float32 | required | A number or a text with a number in it. |
-
-**Returns:** The Byte.
-
-**Differences and known gaps:**
-
-* Not in the originals, which have no integers of other sizes.
-
-## Related commands
+## Related Commands
 
 * [ByteSwap](ByteSwap) 〔BlitzLLVM〕
 * [SatByte](SatByte) 〔BlitzLLVM〕

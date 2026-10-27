@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 BrushAlpha brush:Int32, alpha:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -16,12 +20,14 @@ Sets how see-through painted surfaces are. 1 is solid, 0 is invisible and values
 
 A surface with alpha 0 is not drawn but still takes part in collisions, which is the difference to [HideEntity](HideEntity).
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `brush` | Int32 | required | The brush. |
 | `alpha` | Float32 | required | Opacity, 0 to 1. The default is 1. |
 
-## Related commands
+## Related Commands
 
 * [BrushBlend](BrushBlend)
 * [BrushColor](BrushColor)

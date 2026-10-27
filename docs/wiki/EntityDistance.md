@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityDistance:Float32 source_entity:Int32, destination_entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The distance between the world positions of two entities.
 
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

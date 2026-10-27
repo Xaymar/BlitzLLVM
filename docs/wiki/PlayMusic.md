@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 PlayMusic:Int32 midifile:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Loads a music file and plays it right away. The returned channel can be paused, resumed, stopped and changed with the Channel commands. Unlike a sound from [LoadSound](LoadSound) the file is read again each time the command is used, so a short pause is possible for large files. Music plays once and does not loop.
+
+**Differences and known gaps:**
+
+* MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA. WAV, MP3, OGG and FLAC work.
+* The German help lists a second parameter that picks looping. It is not part of the official command and not accepted here.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `midifile` | String | required |  |
+
+**Returns:** The channel the music plays on, or 0 if the file could not be played.
+
+## Examples
 
 ```blitzbasic
 ; Any music file works, change the path to one of your own.
@@ -24,18 +43,7 @@ Wend
 StopChannel ch
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `midifile` | String | required |  |
-
-**Returns:** The channel the music plays on, or 0 if the file could not be played.
-
-**Differences and known gaps:**
-
-* MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA. WAV, MP3, OGG and FLAC work.
-* The German help lists a second parameter that picks looping. It is not part of the official command and not accepted here.
-
-## Related commands
+## Related Commands
 
 * [PauseChannel](PauseChannel)
 * [PlayCDTrack](PlayCDTrack)

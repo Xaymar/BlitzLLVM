@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 Collisions source_type:Int32, destination_type:Int32, method:Int32, response:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -29,6 +33,21 @@ The source type is the one that moves and gets pushed back. The destination type
 | 3 | Slides, but only sideways and upwards: it does not slip down slopes. |
 
 Hidden entities, and entities with a hidden parent, are not collided with.
+
+**Differences and known gaps:**
+
+* Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `source_type` | Int32 | required | Collision type of the entities that move. |
+| `destination_type` | Int32 | required | Collision type of the entities they can hit. |
+| `method` | Int32 | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
+| `response` | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -75,20 +94,11 @@ For frame = 0 To 49
 Next
 ```
 
+## Media
+
 ![Collisions](media/collisions/collisions.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `source_type` | Int32 | required | Collision type of the entities that move. |
-| `destination_type` | Int32 | required | Collision type of the entities they can hit. |
-| `method` | Int32 | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
-| `response` | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. |
-
-**Differences and known gaps:**
-
-* Types outside 0 to 999, or a method or response outside 1 to 3, stop the program with a runtime error.
-
-## Related commands
+## Related Commands
 
 * [ClearCollisions](ClearCollisions)
 * [CollisionNY](CollisionNY)

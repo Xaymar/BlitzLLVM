@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 SetBuffer buffer:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Chooses where drawing commands such as `Rect`, `Text`, [DrawImage](DrawImage) and `Plot` draw to: the back buffer, the front buffer, or the buffer of an image or texture. A program usually calls `SetBuffer BackBuffer()` once after `Graphics`. Switching the buffer puts the [Origin](Origin) and the viewport back to their defaults and the text cursor of `Print` to the top left corner.
+
+**Differences and known gaps:**
+
+* A buffer that does not exist stops the program with an error message.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `buffer` | Int32 | required | A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -32,17 +48,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![SetBuffer](media/buffers/setbuffer.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | required | A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`. |
-
-**Differences and known gaps:**
-
-* A buffer that does not exist stops the program with an error message.
-
-## Related commands
+## Related Commands
 
 * [BackBuffer](BackBuffer)
 * [BufferDirty](BufferDirty)

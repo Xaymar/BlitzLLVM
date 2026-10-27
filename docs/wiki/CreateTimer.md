@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 CreateTimer:Int32 hertz:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Creates a timer that ticks a given number of times per second. [WaitTimer](WaitTimer) waits for the next tick, which keeps a loop at a steady speed without depending on how fast the computer is.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `hertz` | Int32 | required | Ticks per second, above 0. |
+
+**Returns:** A timer handle.
+
+## Examples
 
 ```blitzbasic
 timer = CreateTimer(50)
@@ -27,13 +41,7 @@ Print "five ticks at 50 per second"
 five ticks at 50 per second
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `hertz` | Int32 | required | Ticks per second, above 0. |
-
-**Returns:** A timer handle.
-
-## Related commands
+## Related Commands
 
 * [AppTitle](AppTitle)
 * [CommandLine](CommandLine)

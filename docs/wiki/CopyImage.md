@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 CopyImage:Int32 image:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Makes a new image that has the same pictures, handle and mask color as an existing one. Changes to the copy, such as [ScaleImage](ScaleImage), do not change the original, so copy an image before you transform it for several uses.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image to copy. |
+
+**Returns:** A handle for the new image.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -24,13 +38,7 @@ Print ImageWidth(original) + " and " + ImageWidth(copy)
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to copy. |
-
-**Returns:** A handle for the new image.
-
-## Related commands
+## Related Commands
 
 * [CreateImage](CreateImage)
 * [DrawImage](DrawImage)

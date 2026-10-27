@@ -6,13 +6,37 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
+## Command Syntax
+
 ```blitzbasic
 CreateToolBar:Int32 icons:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Makes a row of icon buttons from a picture file. The picture holds square icons side by side, and the number of icons is its width divided by its height. The pixel in the top left corner is the transparent color, and an icon that is only that color becomes a gap between buttons. Clicking a button sends $401 and [EventData](EventData) is the number of the icon, counted from 0.
+
+**Differences and known gaps:**
+
+* The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `icons` | String | required |  |
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the toolbar. |
+| `height` | Int32 | required | Height of the toolbar. |
+| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int32 | `0` | Reserved. Defaults to 0. |
+
+**Returns:** A handle for the toolbar.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -34,25 +58,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![CreateToolBar](media/toolbars/createtoolbar.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `icons` | String | required |  |
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the toolbar. |
-| `height` | Int32 | required | Height of the toolbar. |
-| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
-| `style` | Int32 | `0` | Reserved. Defaults to 0. |
-
-**Returns:** A handle for the toolbar.
-
-**Differences and known gaps:**
-
-* The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
-
-## Related commands
+## Related Commands
 
 * [DisableToolBarItem](DisableToolBarItem)
 * [EnableToolBarItem](EnableToolBarItem)

@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 GetSurfaceBrush:Int32 surface:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Makes a new brush that has the look that was painted on a mesh surface. Free it with [FreeBrush](FreeBrush) afterwards.
+
+**Differences and known gaps:**
+
+* A surface that was never painted gives a plain white brush.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ Makes a new brush that has the look that was painted on a mesh surface. Free it 
 
 **Returns:** A brush handle.
 
-**Differences and known gaps:**
-
-* A surface that was never painted gives a plain white brush.
-
-## Related commands
+## Related Commands
 
 * [BrushAlpha](BrushAlpha)
 * [BrushBlend](BrushBlend)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 CountGadgetItems:Int32 gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** How many entries it has.
 
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [AddGadgetItem](AddGadgetItem)

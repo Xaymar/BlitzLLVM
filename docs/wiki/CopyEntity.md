@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 CopyEntity:Int32 entity:Int32, parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Makes a new entity from an existing one and returns its handle. The copy shares the original's mesh, so changing the mesh itself, for example with `RotateMesh` or by adding vertices, changes every copy. Entity properties such as position, rotation, scale, color and alpha belong to each copy and can be changed apart. Children are copied too. Copying is much cheaper than loading the same file again.
+
+**Differences and known gaps:**
+
+* A copy of a hidden entity is visible, where the original gives the copy the hidden state. Show or hide the copy yourself.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle to copy. |
+| `parent` | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the copy.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -35,20 +54,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CopyEntity](media/blitz3d/copyentity.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle to copy. |
-| `parent` | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the copy.
-
-**Differences and known gaps:**
-
-* A copy of a hidden entity is visible, where the original gives the copy the hidden state. Show or hide the copy yourself.
-
-## Related commands
+## Related Commands
 
 * [FreeEntity](FreeEntity)
 * [HideEntity](HideEntity)

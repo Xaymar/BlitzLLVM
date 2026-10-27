@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 LoopSound sound:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Marks a sound so that it plays in an endless loop whenever it is played from now on. It does not start the sound: call [PlaySound](PlaySound) for that. Channels that already play the sound are not changed. Stop a looping sound with [StopChannel](StopChannel).
+
+**Differences and known gaps:**
+
+* There is no command to switch looping off again.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -23,15 +39,7 @@ Delay 1800
 StopChannel ch
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
-
-**Differences and known gaps:**
-
-* There is no command to switch looping off again.
-
-## Related commands
+## Related Commands
 
 * [FreeSound](FreeSound)
 * [Load3DSound](Load3DSound)

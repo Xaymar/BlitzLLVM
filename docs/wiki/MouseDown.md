@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseDown:Int32 button:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether a mouse button is held down at this moment.
+
+**Differences and known gaps:**
+
+* A button number outside 1 to 3 always gives 0. Extra buttons of the mouse are not supported.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `button` | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
+
+**Returns:** 1 while the button is held down, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -31,17 +49,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `button` | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
-
-**Returns:** 1 while the button is held down, otherwise 0.
-
-**Differences and known gaps:**
-
-* A button number outside 1 to 3 always gives 0. Extra buttons of the mouse are not supported.
-
-## Related commands
+## Related Commands
 
 * [MouseHit](MouseHit)
 * [MouseWait](MouseWait)

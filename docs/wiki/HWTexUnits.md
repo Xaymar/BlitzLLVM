@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 HWTexUnits:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** How many textures a triangle can have at once. It is 8 here; on the original it was the number of texture stages that the graphics card had, usually 2 to 8.
 
-## Related commands
+## Related Commands
 
 * [Dither](Dither)
 * [HWMultiTex](HWMultiTex)

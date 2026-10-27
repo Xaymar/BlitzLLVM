@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 FreeTimer timer:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Deletes a timer you no longer need. Passing 0 does nothing.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `timer` | Int32 | required | The timer handle. |
 
-## Related commands
+## Related Commands
 
 * [CreateTimer](CreateTimer)
 * [End](End)

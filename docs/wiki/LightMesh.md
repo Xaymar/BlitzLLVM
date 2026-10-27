@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
 
+## Command Syntax
+
 ```blitzbasic
 LightMesh mesh:Int32, red:Float32, green:Float32, blue:Float32, range:Float32=0, x:Float32=0, y:Float32=0, z:Float32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -17,6 +21,21 @@ Lights a mesh without any light in the world, by adding color to its vertices on
 With a `range` of 0 the color is added to every vertex alike. Otherwise only vertices that face the position get light, and the more directly they face it and the closer they are, the more they get. `range` scales the strength, so doubling it doubles the light.
 
 The color is added to what the vertices already have and is kept: calling the command again brightens the mesh further, and it is not undone by anything but painting the vertices again.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `mesh` | Int32 | required | Mesh handle. |
+| `red` | Float32 | required | Red part of the light, 0 to 255. |
+| `green` | Float32 | required | Green part of the light, 0 to 255. |
+| `blue` | Float32 | required | Blue part of the light, 0 to 255. |
+| `range` | Float32 | `0` | Strength of the light, 0 for the same amount on every vertex. Defaults to 0. |
+| `x` | Float32 | `0` | X position of the light in the mesh's own space. Defaults to 0. |
+| `y` | Float32 | `0` | Y position of the light in the mesh's own space. Defaults to 0. |
+| `z` | Float32 | `0` | Z position of the light in the mesh's own space. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -36,20 +55,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![LightMesh](media/blitz3d/lightmesh.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `red` | Float32 | required | Red part of the light, 0 to 255. |
-| `green` | Float32 | required | Green part of the light, 0 to 255. |
-| `blue` | Float32 | required | Blue part of the light, 0 to 255. |
-| `range` | Float32 | `0` | Strength of the light, 0 for the same amount on every vertex. Defaults to 0. |
-| `x` | Float32 | `0` | X position of the light in the mesh's own space. Defaults to 0. |
-| `y` | Float32 | `0` | Y position of the light in the mesh's own space. Defaults to 0. |
-| `z` | Float32 | `0` | Z position of the light in the mesh's own space. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [CreateLight](CreateLight)
 * [LightColor](LightColor)

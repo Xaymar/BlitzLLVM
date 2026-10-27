@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 FindSurface:Int32 mesh:Int32, brush:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Looks for the surface of a mesh that was painted with the given brush. Returns its handle, or 0 if no surface of the mesh has that brush. Use it to add geometry to an existing surface instead of creating a new one every time.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Looks for the surface of a mesh that was painted with the given brush. Returns i
 
 **Returns:** The handle of the surface, or 0 if there is none.
 
-## Related commands
+## Related Commands
 
 * [ClearSurface](ClearSurface)
 * [CreateSurface](CreateSurface)

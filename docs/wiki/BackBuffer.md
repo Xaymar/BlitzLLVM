@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 BackBuffer:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the back buffer: the hidden picture that all drawing goes to when it is selected with [SetBuffer](SetBuffer). Draw a whole frame into it and show it with [Flip](Flip). This is the usual way to animate without flicker.
+
+## Parameters
+
+**Returns:** The handle of the back buffer.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,9 +36,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-**Returns:** The handle of the back buffer.
-
-## Related commands
+## Related Commands
 
 * [BufferDirty](BufferDirty)
 * [FrontBuffer](FrontBuffer)

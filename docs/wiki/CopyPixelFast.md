@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 CopyPixelFast src_x:Int32, src_y:Int32, src_buffer:Int32, dest_x:Int32, dest_y:Int32, dest_buffer:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The quick form of [CopyPixel](CopyPixel). Both buffers must be locked with [LockBuffer](LockBuffer) first, and the position is not checked against the edges of the original.
+
+**Differences and known gaps:**
+
+* A buffer that is not locked stops the program with an error message. Positions outside of a buffer are ignored instead of writing into other memory like the original could.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -23,11 +33,7 @@ The quick form of [CopyPixel](CopyPixel). Both buffers must be locked with [Lock
 | `dest_y` | Int32 | required | Vertical position to copy to. |
 | `dest_buffer` | Int32 | `0` | The locked buffer to copy to. Defaults to the current buffer. |
 
-**Differences and known gaps:**
-
-* A buffer that is not locked stops the program with an error message. Positions outside of a buffer are ignored instead of writing into other memory like the original could.
-
-## Related commands
+## Related Commands
 
 * [CopyPixel](CopyPixel)
 * [CopyRect](CopyRect)

@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 CreateButton:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=1
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
@@ -23,6 +27,26 @@ Makes a button with a caption. The style picks what it is:
 | 5 | Cancel button, also fires when Escape is pressed inside its group |
 
 Add 65536 to keep the button from following when its group is resized. Radio buttons that share a group belong together, so put sets of them on different panels to keep them apart. Use [ButtonState](ButtonState) and [SetButtonState](SetButtonState) for check boxes and radio buttons.
+
+**Differences and known gaps:**
+
+* Buttons are drawn in the look of the program, not with the controls of the operating system.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `text` | String | required | Caption of the button. |
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the button. |
+| `height` | Int32 | required | Height of the button. |
+| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int32 | `1` | Kind of button, see the table. Defaults to 1. |
+
+**Returns:** A handle for the button.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -39,25 +63,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![CreateButton](media/gadgets/createbutton.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | Caption of the button. |
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the button. |
-| `height` | Int32 | required | Height of the button. |
-| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
-| `style` | Int32 | `1` | Kind of button, see the table. Defaults to 1. |
-
-**Returns:** A handle for the button.
-
-**Differences and known gaps:**
-
-* Buttons are drawn in the look of the program, not with the controls of the operating system.
-
-## Related commands
+## Related Commands
 
 * [ButtonState](ButtonState)
 * [CreateComboBox](CreateComboBox)

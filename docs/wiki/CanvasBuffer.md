@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
+## Command Syntax
+
 ```blitzbasic
 CanvasBuffer:Int32 canvas:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the buffer that a canvas is drawn to. Make it the target with `SetBuffer`, draw with the usual 2D commands like `Rect`, `Line` and `Text`, and then call [FlipCanvas](FlipCanvas) to show the result. The buffer is as big as the canvas was when this was called first.
+
+**Differences and known gaps:**
+
+* The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit. The original smooths this stretching, here the picture is scaled by the renderer.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `canvas` | Int32 | required | Handle of a canvas made with [CreateCanvas](CreateCanvas). |
+
+**Returns:** A buffer handle that works with `SetBuffer`, `LockBuffer`, `ReadPixel` and the other buffer commands.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -30,19 +48,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![CanvasBuffer](media/canvas/canvasbuffer.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `canvas` | Int32 | required | Handle of a canvas made with [CreateCanvas](CreateCanvas). |
-
-**Returns:** A buffer handle that works with `SetBuffer`, `LockBuffer`, `ReadPixel` and the other buffer commands.
-
-**Differences and known gaps:**
-
-* The buffer keeps its size when the canvas is resized with `SetGadgetShape`, and what is shown is stretched to fit. The original smooths this stretching, here the picture is scaled by the renderer.
-
-## Related commands
+## Related Commands
 
 * [CreateCanvas](CreateCanvas)
 * [DesktopBuffer](DesktopBuffer)

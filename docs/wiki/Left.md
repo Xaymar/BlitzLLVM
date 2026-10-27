@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Left:String string:String, count:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the first characters of a string. Asking for more characters than there are returns the whole string.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text. |
+| `count` | Int32 | required | How many characters to take. |
+
+**Returns:** The first `count` characters.
+
+## Examples
 
 ```blitzbasic
 Print Left$("hello", 2)
@@ -24,14 +39,7 @@ he
 hello
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
-| `count` | Int32 | required | How many characters to take. |
-
-**Returns:** The first `count` characters.
-
-## Related commands
+## Related Commands
 
 * [Hex](Hex)
 * [Instr](Instr)

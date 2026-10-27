@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 CloseUDPStream udp_stream:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Closes a UDP stream and gives its port back.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `udp_stream` | Int32 | required | The stream to close. |
 
-## Related commands
+## Related Commands
 
 * [AcceptTCPStream](AcceptTCPStream)
 * [CloseTCPServer](CloseTCPServer)

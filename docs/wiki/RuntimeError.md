@@ -6,27 +6,35 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 RuntimeError message:String
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Shows an error message and ends the program with a non-zero exit code. Use it for problems your program cannot recover from.
 
-```blitzbasic
-If FileType("level.dat") = 0 Then RuntimeError "level.dat is missing"
-```
+**Differences and known gaps:**
+
+* The message is printed as `Runtime Error: ...` on the standard error output, not shown in a dialog box.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `message` | String | required | The text that describes what went wrong. |
 
-**Differences and known gaps:**
+## Examples
 
-* The message is printed as `Runtime Error: ...` on the standard error output, not shown in a dialog box.
+```blitzbasic
+If FileType("level.dat") = 0 Then RuntimeError "level.dat is missing"
+```
 
-## Related commands
+## Related Commands
 
 * [Microseconds](Microseconds) 〔BlitzLLVM〕
 * [MilliSecs](MilliSecs)

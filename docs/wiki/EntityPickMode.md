@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 EntityPickMode entity:Int32, pick_geometry:Int32, obscurer:Int32=1
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -25,13 +29,15 @@ The `obscurer` argument only matters for [EntityVisible](EntityVisible). An obsc
 
 Sprites can only be picked with the sphere or box mode, because they have no mesh triangles.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | The entity. |
 | `pick_geometry` | Int32 | required | Shape to test, 0 to 3. |
 | `obscurer` | Int32 | `1` | True if the entity blocks EntityVisible. Defaults to True. |
 
-## Related commands
+## Related Commands
 
 * [CameraPick](CameraPick)
 * [EntityPick](EntityPick)

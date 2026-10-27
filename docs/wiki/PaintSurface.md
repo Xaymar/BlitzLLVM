@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 PaintSurface surface:Int32, brush:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Applies a brush to one surface: its color, texture, alpha, shininess, blend mode and effects. Unlike [PaintMesh](PaintMesh) the other surfaces of the mesh stay as they are, so you can give each part of a model a different look.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `surface` | Int32 | required | Surface handle. |
 | `brush` | Int32 | required | Brush handle. |
 
-## Related commands
+## Related Commands
 
 * [ClearSurface](ClearSurface)
 * [CreateSurface](CreateSurface)

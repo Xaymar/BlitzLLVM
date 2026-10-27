@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 CountHostIPs:Int32 host_name:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Looks up a host name and returns how many addresses it has. Use [HostIP](HostIP) to get them. A name that cannot be found returns 0. An empty name is this computer, which has one address for every network interface that is up, with the loopback address (127.0.0.1) last.
+
+**Differences and known gaps:**
+
+* Only IPv4 addresses are counted. `UDPStreamIP` is the first address of this computer.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `host_name` | String | required | A host name such as `localhost`, or an address as text. |
+
+**Returns:** The number of addresses.
+
+## Examples
 
 ```blitzbasic
 Print CountHostIPs("localhost") >= 1
@@ -22,17 +40,7 @@ Print CountHostIPs("localhost") >= 1
 1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `host_name` | String | required | A host name such as `localhost`, or an address as text. |
-
-**Returns:** The number of addresses.
-
-**Differences and known gaps:**
-
-* Only IPv4 addresses are counted. `UDPStreamIP` is the first address of this computer.
-
-## Related commands
+## Related Commands
 
 * [CloseTCPStream](CloseTCPStream)
 * [CloseUDPStream](CloseUDPStream)

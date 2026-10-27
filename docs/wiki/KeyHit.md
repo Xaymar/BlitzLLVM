@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
+## Command Syntax
+
 ```blitzbasic
 KeyHit:Int32 key:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Counts how often a key was pressed since the last time KeyHit asked about that same key. The count starts again from zero on every call, so the key must be released and pressed again to count another time. This is the right choice for one-shot actions like pausing or shooting, while [KeyDown](KeyDown) suits continuous movement.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `key` | Int32 | required | The scancode of the key, 1 to 255. |
+
+**Returns:** How many times the key was pressed since the last call.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -27,13 +41,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `key` | Int32 | required | The scancode of the key, 1 to 255. |
-
-**Returns:** How many times the key was pressed since the last call.
-
-## Related commands
+## Related Commands
 
 * [GetKey](GetKey)
 * [KeyDown](KeyDown)

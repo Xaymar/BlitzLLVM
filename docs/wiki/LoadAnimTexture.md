@@ -6,15 +6,38 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 LoadAnimTexture:Int32 file:String, flags:Int32, width:Int32, height:Int32, first:Int32, count:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Loads one picture that holds several frames laid out left to right, top to bottom, and returns a texture that can show any of them. Choose the frame to show with the frame argument of [EntityTexture](EntityTexture), [BrushTexture](BrushTexture) or [TextureBuffer](TextureBuffer). The flags are the same as for [CreateTexture](CreateTexture).
 
 `first_frame` is the cell that counts as frame 0, and `frame_count` is how many cells are used from there. A sheet 256 pixels wide with 64 pixel frames has four cells per row, so cell 5 is the second cell of the second row.
+
+**Differences and known gaps:**
+
+* TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | Picture file that contains all frames. |
+| `flags` | Int32 | required | Texture flags, see CreateTexture. |
+| `width` | Int32 | required |  |
+| `height` | Int32 | required |  |
+| `first` | Int32 | required |  |
+| `count` | Int32 | required |  |
+
+**Returns:** A texture handle, or 0 if the file could not be loaded.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -51,24 +74,11 @@ For i = 0 To 39
 Next
 ```
 
+## Media
+
 ![LoadAnimTexture](media/textures/loadanimtexture.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Picture file that contains all frames. |
-| `flags` | Int32 | required | Texture flags, see CreateTexture. |
-| `width` | Int32 | required |  |
-| `height` | Int32 | required |  |
-| `first` | Int32 | required |  |
-| `count` | Int32 | required |  |
-
-**Returns:** A texture handle, or 0 if the file could not be loaded.
-
-**Differences and known gaps:**
-
-* TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
-
-## Related commands
+## Related Commands
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)

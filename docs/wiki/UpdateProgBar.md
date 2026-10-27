@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 UpdateProgBar progbar:Int32, progress:Float32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Sets how full a progress bar is.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `progbar` | Int32 | required | Handle of a progress bar. |
 | `progress` | Float32 | required | How far it got from 0 (empty) to 1 (full). |
 
-## Related commands
+## Related Commands
 
 * [CreateProgBar](CreateProgBar)
 * [ShowGadget](ShowGadget)

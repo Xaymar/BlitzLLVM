@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GraphicsDepth:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The color depth of the graphics mode in bits.
 
-**Returns:** The depth in bits.
-
 **Differences and known gaps:**
 
 * Always 32: the picture has 8 bits for each of red, green and blue, with 8 more for alpha where a program uses it.
 
-## Related commands
+## Parameters
+
+**Returns:** The depth in bits.
+
+## Related Commands
 
 * [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
 * [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕

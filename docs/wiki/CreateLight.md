@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
 
+## Command Syntax
+
 ```blitzbasic
 CreateLight:Int32 type:Int32=1, parent:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -19,6 +23,17 @@ Creates a light and returns its handle. Without a light everything in the world 
 * **3, spot** is a cone of light that shines along its forward direction (+Z). See [LightConeAngles](LightConeAngles).
 
 A new light is white, sits at the origin and has a range of 1000. Any other value for `type` creates a directional light. Only the 8 lights that come first in the world affect a frame, so plan with 8 at most.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `type` | Int32 | `1` | 1 for a directional light, 2 for a point light, 3 for a spot light. Defaults to 1. |
+| `parent` | Int32 | `0` | Entity the light follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new light.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -37,16 +52,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateLight](media/blitz3d/createlight.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `type` | Int32 | `1` | 1 for a directional light, 2 for a point light, 3 for a spot light. Defaults to 1. |
-| `parent` | Int32 | `0` | Entity the light follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new light.
-
-## Related commands
+## Related Commands
 
 * [LightColor](LightColor)
 * [LightConeAngles](LightConeAngles)

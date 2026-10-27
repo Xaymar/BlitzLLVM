@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 ModifyTreeViewNode node:Int32, text:String, icon:Int32=-1
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Changes the text of a node.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `node` | Int32 | required | Handle of a node. |
+| `text` | String | required | The new text. |
+| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,13 +38,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `node` | Int32 | required | Handle of a node. |
-| `text` | String | required | The new text. |
-| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
-
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [CollapseTreeViewNode](CollapseTreeViewNode)

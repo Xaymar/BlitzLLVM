@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 CloseDir dir:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Closes a folder that was opened with [ReadDir](ReadDir).
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `dir` | Int32 | required | The folder handle. |
 
-## Related commands
+## Related Commands
 
 * [ChangeDir](ChangeDir)
 * [CloseFile](CloseFile)

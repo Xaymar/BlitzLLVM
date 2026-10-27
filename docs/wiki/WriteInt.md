@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 WriteInt stream:Int32, int:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes an integer in 4 bytes, low byte first.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `stream` | Int32 | required | The stream to write to. |
+| `int` | Int32 | required | The value to write. |
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("streams_int_example.tmp")
@@ -31,12 +44,7 @@ DeleteFile "streams_int_example.tmp"
 -42
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to write to. |
-| `int` | Int32 | required | The value to write. |
-
-## Related commands
+## Related Commands
 
 * [ReadInt](ReadInt)
 * [WriteByte](WriteByte)

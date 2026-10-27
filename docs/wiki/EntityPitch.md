@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityPitch:Float32 entity:Int32, global:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Reads the rotation around X in degrees. The angles are worked out from the orientation of the entity, so after several turns they can be a different but equal combination of pitch, yaw and roll than the ones you used.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Reads the rotation around X in degrees. The angles are worked out from the orien
 
 **Returns:** Pitch angle of the entity, relative to its parent or with `global` set to 1 in the world.
 
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

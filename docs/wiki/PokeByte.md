@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 PokeByte bank:Int32, offset:Int32, value:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes one byte. Values outside 0 to 255 wrap around, so 300 is stored as 44 and -1 as 255.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `bank` | Int32 | required | The bank to write to. |
+| `offset` | Int32 | required | Position in bytes. |
+| `value` | Int32 | required | The value to store. |
+
+## Examples
 
 ```blitzbasic
 bank = CreateBank(2)
@@ -28,13 +42,7 @@ FreeBank bank
 255
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to write to. |
-| `offset` | Int32 | required | Position in bytes. |
-| `value` | Int32 | required | The value to store. |
-
-## Related commands
+## Related Commands
 
 * [PeekByte](PeekByte)
 * [PokeFloat](PokeFloat)

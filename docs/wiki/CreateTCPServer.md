@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 CreateTCPServer:Int32 port:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Starts listening for TCP connections on a port. Clients connect with [OpenTCPStream](OpenTCPStream) and you take them with [AcceptTCPStream](AcceptTCPStream).
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Starts listening for TCP connections on a port. Clients connect with [OpenTCPStr
 
 **Returns:** A server handle, or 0 when the port cannot be used, for example because another program already listens on it.
 
-## Related commands
+## Related Commands
 
 * [AcceptTCPStream](AcceptTCPStream)
 * [CloseTCPServer](CloseTCPServer)

@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 DeleteDir dir:String
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Deletes a folder. The folder has to be empty.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `dir` | String | required | The folder to delete. |
 
-## Related commands
+## Related Commands
 
 * [ChangeDir](ChangeDir)
 * [CloseDir](CloseDir)

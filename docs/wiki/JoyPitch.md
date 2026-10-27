@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyPitch:Float32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The rotation of the joystick around its X axis, from -180 to 180. Most gamepads have no such axis and give -180. See the note on the extra axes at [JoyZ](JoyZ).
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ The rotation of the joystick around its X axis, from -180 to 180. Most gamepads 
 
 **Returns:** The pitch in degrees, -180 if the joystick has no such axis, or 0 if there is no joystick.
 
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

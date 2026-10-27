@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 SetSliderValue slider:Int32, value:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Moves the slider to a value from 0 to total minus visible. It does not send an event.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `slider` | Int32 | required | Handle of a slider. |
 | `value` | Int32 | required | The new position. |
 
-## Related commands
+## Related Commands
 
 * [SetButtonState](SetButtonState)
 * [SetGadgetFont](SetGadgetFont)

@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
+## Command Syntax
+
 ```blitzbasic
 CreateTerrain:Int32 grid_size:Int32, parent:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -17,6 +21,21 @@ Creates a flat terrain with `grid_size` squares along each side. Terrain heights
 A texture with a scale of 1 covers one grid square, so scale the texture by the grid size to stretch it over the whole terrain. See [ScaleTexture](ScaleTexture).
 
 A parent makes the terrain follow another entity. The terrain is still created at 0, 0, 0, not at the parent's position.
+
+**Differences and known gaps:**
+
+* The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise. Here any size from 2 to 4096 is accepted.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `grid_size` | Int32 | required | Number of grid squares along each side. |
+| `parent` | Int32 | `0` | Optional parent entity. |
+
+**Returns:** An entity handle for the terrain.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -47,20 +66,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateTerrain](media/terrain/createterrain.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `grid_size` | Int32 | required | Number of grid squares along each side. |
-| `parent` | Int32 | `0` | Optional parent entity. |
-
-**Returns:** An entity handle for the terrain.
-
-**Differences and known gaps:**
-
-* The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise. Here any size from 2 to 4096 is accepted.
-
-## Related commands
+## Related Commands
 
 * [LoadTerrain](LoadTerrain)
 * [ModifyTerrain](ModifyTerrain)

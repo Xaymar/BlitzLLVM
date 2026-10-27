@@ -6,26 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 CreateSlider:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=1
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Makes a scroll bar the user can drag. Style 1 is horizontal and 2 is vertical, and 65536 can be added to not follow the group when it is resized. The range is set with [SetSliderRange](SetSliderRange) and a $401 event with the new value arrives when it moves. [SliderValue](SliderValue) reads it at any time.
 
-```blitzbasic
-Graphics 320, 240, 32, 2
-win = CreateWindow("Slider", 10, 10, 300, 140, Desktop(), 3)
-sl  = CreateSlider(10, 10, 270, 22, win, 1)
-SetSliderRange sl, 10, 110
-Repeat
-	e = WaitEvent()
-	If e = $401 Then SetGadgetText win, "Value " + SliderValue(sl)
-Until e = $803
-```
-
-![CreateSlider](media/gadgets/createslider.gif)
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -38,7 +31,24 @@ Until e = $803
 
 **Returns:** A handle for the slider.
 
-## Related commands
+## Examples
+
+```blitzbasic
+Graphics 320, 240, 32, 2
+win = CreateWindow("Slider", 10, 10, 300, 140, Desktop(), 3)
+sl  = CreateSlider(10, 10, 270, 22, win, 1)
+SetSliderRange sl, 10, 110
+Repeat
+	e = WaitEvent()
+	If e = $401 Then SetGadgetText win, "Value " + SliderValue(sl)
+Until e = $803
+```
+
+## Media
+
+![CreateSlider](media/gadgets/createslider.gif)
+
+## Related Commands
 
 * [CreateButton](CreateButton)
 * [CreateComboBox](CreateComboBox)

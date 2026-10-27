@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 PickedY:Float32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The world Y coordinate of the point where the latest pick touched an entity.
 
-## Related commands
+## Related Commands
 
 * [PickedEntity](PickedEntity)
 * [PickedNX](PickedNX)

@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Rand:Int32 from:Int32, to:Int32=1
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns a random whole number from `from` to `to`, both included. With one argument the range is 1 up to that number. The same seed (see [SeedRnd](SeedRnd)) always gives the same sequence.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `from` | Int32 | required | Lowest result, or the highest when `to` is left out. |
+| `to` | Int32 | `1` | Highest result. Defaults to 1. |
+
+**Returns:** A random integer in the range.
+
+## Examples
 
 ```blitzbasic
 SeedRnd 1234
@@ -26,14 +41,7 @@ Print Rand(5, 5)
 5
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `from` | Int32 | required | Lowest result, or the highest when `to` is left out. |
-| `to` | Int32 | `1` | Highest result. Defaults to 1. |
-
-**Returns:** A random integer in the range.
-
-## Related commands
+## Related Commands
 
 * [Long](Long) 〔BlitzLLVM〕
 * [PopCount](PopCount) 〔BlitzLLVM〕

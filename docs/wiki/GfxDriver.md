@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxDriver:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 The number of the graphics driver that draws the program. This is a BlitzLLVM extension: the original has no way to ask which driver was picked. Once a graphics window is open it is the GPU in use, before that it is the driver that [SetGfxDriver](SetGfxDriver) chose, or 1.
+
+## Parameters
+
+**Returns:** The driver number, from 1 to [CountGfxDrivers](CountGfxDrivers).
+
+## Examples
 
 ```blitzbasic
 SetGfxDriver CountGfxDrivers()
@@ -21,9 +31,7 @@ Print "Drawing with " + GfxDriverName(GfxDriver())
 WaitKey
 ```
 
-**Returns:** The driver number, from 1 to [CountGfxDrivers](CountGfxDrivers).
-
-## Related commands
+## Related Commands
 
 * [CountGfxDrivers](CountGfxDrivers)
 * [GfxDriverName](GfxDriverName)

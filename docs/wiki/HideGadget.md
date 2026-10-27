@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 HideGadget gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Makes a gadget invisible, with everything inside it. It also cannot be used. [ShowGadget](ShowGadget) brings it back. It is quicker than freeing and making it again.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of the gadget. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -29,13 +41,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![HideGadget](media/gadgets/hidegadget.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [AddGadgetItem](AddGadgetItem)

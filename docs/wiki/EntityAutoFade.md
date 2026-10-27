@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityAutoFade entity:Int32, near:Float32, far:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Makes an entity fade away with distance to the camera. Closer than `near` it is solid, farther than `far` it is invisible and between the two its alpha goes down gradually. This hides entities popping in at the far end of a scene without fog.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Makes an entity fade away with distance to the camera. Closer than `near` it is 
 | `near` | Float32 | required | Distance where fading starts. |
 | `far` | Float32 | required | Distance where the entity is gone. |
 
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityBlend](EntityBlend)

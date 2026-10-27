@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
+## Command Syntax
+
 ```blitzbasic
 FlushKeys
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Throws away everything the keyboard has recorded so far: the queue of typed characters that [GetKey](GetKey) hands out, the keys counted as held for [KeyDown](KeyDown) and the presses counted for [KeyHit](KeyHit). Call it once before a screen that waits for input, such as a menu or a new level, so that button mashing from the previous screen does not skip it. Do not call it every frame, or the program will never see a key.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,7 +34,7 @@ Flip
 WaitKey
 ```
 
-## Related commands
+## Related Commands
 
 * [GetKey](GetKey)
 * [KeyDown](KeyDown)

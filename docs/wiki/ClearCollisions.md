@@ -6,15 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 ClearCollisions
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Removes every rule made with [Collisions](Collisions), so that nothing collides until you add rules again. The types, radii and boxes of entities are not touched.
 
-## Related commands
+## Related Commands
 
 * [CollisionEntity](CollisionEntity)
 * [CollisionNX](CollisionNX)

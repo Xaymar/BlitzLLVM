@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyUDir:Int32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Like [JoyU](JoyU), but as a direction only: -1 when the axis is pushed more than a third of the way to its low end, 1 when it is pushed more than a third of the way to its high end, otherwise 0.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Like [JoyU](JoyU), but as a direction only: -1 when the axis is pushed more than
 
 **Returns:** -1, 0 or 1.
 
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

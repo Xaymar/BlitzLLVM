@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 SetSamplerBorderColor sampler:Int32, r:Float32, g:Float32, b:Float32, a:Float32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Sets the color that is read where an address mode is border (3), see [SetSamplerAddressModeU](SetSamplerAddressModeU). The color goes from 0 to 1 for each part, and values outside of it are kept inside. The default is opaque black (0, 0, 0, 1). This is a BlitzLLVM extension.
+
+**Differences and known gaps:**
+
+* Graphics cards without the `VK_EXT_custom_border_color` extension can only do transparent black, opaque black and opaque white, so any other color is read as the closest of the three. Colors from this command are still returned as they were set by the `GetSamplerBorderColor` commands.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -22,11 +32,7 @@ Sets the color that is read where an address mode is border (3), see [SetSampler
 | `b` | Float32 | required | Blue, 0 to 1. |
 | `a` | Float32 | required | Alpha, 0 to 1. |
 
-**Differences and known gaps:**
-
-* Graphics cards without the `VK_EXT_custom_border_color` extension can only do transparent black, opaque black and opaque white, so any other color is read as the closest of the three. Colors from this command are still returned as they were set by the `GetSamplerBorderColor` commands.
-
-## Related commands
+## Related Commands
 
 * [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
 * [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕

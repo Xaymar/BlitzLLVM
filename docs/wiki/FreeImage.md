@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 FreeImage image:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Releases an image and its video memory. The handle must not be used afterwards.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to free. |
-
 **Differences and known gaps:**
 
 * Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image to free. |
+
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

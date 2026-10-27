@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxMode3DExists:Int32 width:Int32, height:Int32, depth:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Asks whether a resolution is available for 3D, before opening it with [Graphics3D](Graphics3D). It lets a game offer only the sizes that work.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `width` | Int32 | required | Width in pixels. |
+| `height` | Int32 | required | Height in pixels. |
+| `depth` | Int32 | required | Color depth in bits. |
+
+**Returns:** True if a full screen mode of that size can be used.
+
+## Examples
 
 ```blitzbasic
 If GfxMode3DExists(1024, 768, 32) Then
@@ -27,15 +43,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | Width in pixels. |
-| `height` | Int32 | required | Height in pixels. |
-| `depth` | Int32 | required | Color depth in bits. |
-
-**Returns:** True if a full screen mode of that size can be used.
-
-## Related commands
+## Related Commands
 
 * [CountGfxModes3D](CountGfxModes3D)
 * [GfxDriver3D](GfxDriver3D)

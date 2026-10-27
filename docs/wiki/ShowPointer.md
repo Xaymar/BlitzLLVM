@@ -6,15 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 ShowPointer
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Shows the mouse pointer again after [HidePointer](HidePointer).
 
-## Related commands
+## Related Commands
 
 * [HidePointer](HidePointer)
 * [SetGamma](SetGamma)

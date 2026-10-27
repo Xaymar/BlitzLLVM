@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 ATan:Float32 float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the angle whose tangent is the given number, in degrees from -90 to 90. When you have both sides of the triangle, [ATan2](ATan2) is usually the better choice because it knows which quadrant the angle is in.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `float` | Float32 | required | The tangent. |
+
+**Returns:** The angle in degrees.
+
+## Examples
 
 ```blitzbasic
 Print ATan(1)
@@ -22,13 +36,7 @@ Print ATan(1)
 45.0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The tangent. |
-
-**Returns:** The angle in degrees.
-
-## Related commands
+## Related Commands
 
 * [ACos](ACos)
 * [ASin](ASin)

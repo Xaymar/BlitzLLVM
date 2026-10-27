@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
+## Command Syntax
+
 ```blitzbasic
 TerrainY:Float32 terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Gives the height of the ground at a point of the world, including the terrain's position, scale and the blending between grid points. The Y you pass in does not matter for an upright terrain. This is the simple way to keep something standing on the ground.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `terrain` | Int32 | required | The terrain. |
+| `world_x` | Float32 | required |  |
+| `world_y` | Float32 | required |  |
+| `world_z` | Float32 | required |  |
+
+**Returns:** The world Y coordinate of the ground at that position.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -47,18 +64,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![TerrainY](media/terrain/terrainy.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `terrain` | Int32 | required | The terrain. |
-| `world_x` | Float32 | required |  |
-| `world_y` | Float32 | required |  |
-| `world_z` | Float32 | required |  |
-
-**Returns:** The world Y coordinate of the ground at that position.
-
-## Related commands
+## Related Commands
 
 * [CreateTerrain](CreateTerrain)
 * [LoadTerrain](LoadTerrain)

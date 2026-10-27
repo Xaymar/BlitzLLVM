@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 DisableGadget gadget:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Greys a gadget out so it ignores the user and sends no events. A disabled window disables everything inside it. Combined with a child window this makes a dialog that blocks the window behind it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of the gadget. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -24,13 +36,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![DisableGadget](media/gadgets/disablegadget.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [AddGadgetItem](AddGadgetItem)

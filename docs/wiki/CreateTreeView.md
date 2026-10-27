@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 CreateTreeView:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Makes a list of nodes that can be opened and closed, like a folder view. Clicking a node sends $401 with the tree as the source, and [SelectedTreeViewNode](SelectedTreeViewNode) tells which. The tree starts out empty: add nodes below the node that [TreeViewRoot](TreeViewRoot) gives.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the tree. |
+| `height` | Int32 | required | Height of the tree. |
+| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
+
+**Returns:** A handle for the tree view.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -27,20 +46,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![CreateTreeView](media/treeviews/createtreeview.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the tree. |
-| `height` | Int32 | required | Height of the tree. |
-| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
-| `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
-
-**Returns:** A handle for the tree view.
-
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [CollapseTreeViewNode](CollapseTreeViewNode)

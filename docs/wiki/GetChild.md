@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 GetChild:Int32 entity:Int32, index:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Reads one of the entities attached to a parent. The index starts at 1, so loop from 1 to [CountChildren](CountChildren) to visit all of them. Only direct children are listed, not their children.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Reads one of the entities attached to a parent. The index starts at 1, so loop f
 
 **Returns:** The handle of the child.
 
-## Related commands
+## Related Commands
 
 * [FindChild](FindChild)
 * [FreeEntity](FreeEntity)

@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 ResetEntity entity:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Forgets the entity's collision history. UpdateWorld normally moves a colliding entity along the path from its previous position to the current one. If you teleport an entity with [PositionEntity](PositionEntity), call ResetEntity afterwards so that it does not get stopped by whatever lies between the two places. It also clears the entity's list of recent collisions.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | The entity. |
 
-## Related commands
+## Related Commands
 
 * [CollisionEntity](CollisionEntity)
 * [EntityBox](EntityBox)

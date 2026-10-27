@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
+## Command Syntax
+
 ```blitzbasic
 EventData:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
@@ -37,6 +41,12 @@ Gives the extra number of the event that [WaitEvent](WaitEvent) took last. What 
 | AppEndModal | $2005 | - | - | - |
 | TimerTick | $4001 | Ticks so far | Timer | - |
 
+## Parameters
+
+**Returns:** The data of the event, see the table. Keeps its value until the next call of `WaitEvent`.
+
+## Examples
+
 ```blitzbasic
 Graphics 320, 240, 32, 2
 win  = CreateWindow("Keys", 20, 20, 260, 120, Desktop(), 3)
@@ -47,11 +57,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![EventData](media/events/eventdata.png)
 
-**Returns:** The data of the event, see the table. Keeps its value until the next call of `WaitEvent`.
-
-## Related commands
+## Related Commands
 
 * [EventID](EventID)
 * [EventSource](EventSource)

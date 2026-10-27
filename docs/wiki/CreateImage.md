@@ -6,13 +6,33 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 CreateImage:Int32 width:Int32, height:Int32, frames:Int32=1
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Creates an empty image that is filled with black, which is the default mask color and so draws as transparent. Draw into it by making it the current buffer with [ImageBuffer](ImageBuffer). An image can hold several frames of the same size next to each other, such as the steps of an animation, which are chosen with the frame number of [DrawImage](DrawImage).
+
+**Differences and known gaps:**
+
+* A graphics window must be open, because images live in video memory. A size that is zero or negative stops the program with an error.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `width` | Int32 | required | Width of one frame in pixels. |
+| `height` | Int32 | required | Height of one frame in pixels. |
+| `frames` | Int32 | `1` | Number of frames. Defaults to 1. |
+
+**Returns:** A handle for the image.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -37,21 +57,11 @@ While n < 40
 Wend
 ```
 
+## Media
+
 ![CreateImage](media/images/createimage.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | Width of one frame in pixels. |
-| `height` | Int32 | required | Height of one frame in pixels. |
-| `frames` | Int32 | `1` | Number of frames. Defaults to 1. |
-
-**Returns:** A handle for the image.
-
-**Differences and known gaps:**
-
-* A graphics window must be open, because images live in video memory. A size that is zero or negative stops the program with an error.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [DrawImage](DrawImage)

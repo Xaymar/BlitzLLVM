@@ -6,13 +6,36 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 CreateListBox:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Makes a list of entries from which the user can pick one. A scroll bar appears when there are more entries than fit. Clicking an entry sends $401 with the gadget as the source, and the entry is given by [SelectedGadgetItem](SelectedGadgetItem).
+
+**Differences and known gaps:**
+
+* Only one entry can be selected at a time.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the list. |
+| `height` | Int32 | required | Height of the list. |
+| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
+
+**Returns:** A handle for the list box.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -28,24 +51,11 @@ Repeat
 Until e = $803
 ```
 
+## Media
+
 ![CreateListBox](media/gadgets/createlistbox.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the list. |
-| `height` | Int32 | required | Height of the list. |
-| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
-| `style` | Int32 | `0` | 0, or 65536 to not follow the group when it is resized. Defaults to 0. |
-
-**Returns:** A handle for the list box.
-
-**Differences and known gaps:**
-
-* Only one entry can be selected at a time.
-
-## Related commands
+## Related Commands
 
 * [CreateButton](CreateButton)
 * [CreateComboBox](CreateComboBox)

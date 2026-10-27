@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 Desktop:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the handle of the desktop, the group that top level windows live in. Pass it as the group of [CreateWindow](CreateWindow). With [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) it tells the size of the screen. [DesktopBuffer](DesktopBuffer) is what you draw to if you want to paint on it.
+
+**Differences and known gaps:**
+
+* The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the screen. Windows cannot be placed outside of the program's window.
+
+## Parameters
+
+**Returns:** A handle that stands for the desktop.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -22,13 +36,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-**Returns:** A handle that stands for the desktop.
-
-**Differences and known gaps:**
-
-* The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the screen. Windows cannot be placed outside of the program's window.
-
-## Related commands
+## Related Commands
 
 * [ClientWidth](ClientWidth)
 * [CreateWindow](CreateWindow)

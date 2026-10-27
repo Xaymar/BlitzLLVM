@@ -6,21 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 CurrentDate:String
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns today's date from the system clock as day, abbreviated month and year, for example `26 Oct 2026`.
 
+## Parameters
+
+**Returns:** The date as text.
+
+## Examples
+
 ```blitzbasic
 Print "Today is " + CurrentDate$()
 ```
 
-**Returns:** The date as text.
-
-## Related commands
+## Related Commands
 
 * [Bin](Bin)
 * [Chr](Chr)

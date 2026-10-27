@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 TileImage image:Int32, x:Int32=0, y:Int32=0, frame:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Like [TileBlock](TileBlock), but the mask color is left out, so what is behind the tiles shows through.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image to repeat. |
+| `x` | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
+| `y` | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
+| `frame` | Int32 | `0` | Which frame to use. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -32,16 +47,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![TileImage](media/images/tileimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to repeat. |
-| `x` | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
-| `y` | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
-| `frame` | Int32 | `0` | Which frame to use. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
+## Command Syntax
+
 ```blitzbasic
 StartNetGame:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Asks on the console whether to host or to join a game and does what was chosen, using the game name `BlitzLLVM game`. Joining asks for the address of the host.
 
-**Returns:** 2 when a game was hosted, 1 when one was joined and 0 when nothing was started or it failed.
-
 **Differences and known gaps:**
 
 * The original showed a dialog box with the games found in the network. Use [HostNetGame](HostNetGame) and [JoinNetGame](JoinNetGame) when you need to choose in your own interface.
 
-## Related commands
+## Parameters
+
+**Returns:** 2 when a game was hosted, 1 when one was joined and 0 when nothing was started or it failed.
+
+## Related Commands
 
 * [CreateNetPlayer](CreateNetPlayer)
 * [DeleteNetPlayer](DeleteNetPlayer)

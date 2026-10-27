@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 SetSamplerLodMax sampler:Int32, lod:Float32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Sets the smallest mip level that may be used, counted from level 0. A maximum of 0 never goes past the whole texture, which turns mip mapping off for what it reads. The default is 1000, which is every level there is. This is a BlitzLLVM extension: the originals read every texture with the settings of its flags and do not have samplers.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sampler` | Int32 | required | The sampler to change. |
 | `lod` | Float32 | required | The highest level, 0 or more. A value below the minimum is read as the minimum. |
 
-## Related commands
+## Related Commands
 
 * [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕
 * [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕

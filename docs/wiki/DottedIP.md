@@ -6,11 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 DottedIP:String IP:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `IP` | Int32 | required | The address as a whole number, with the first part in the highest byte. |
+
+**Returns:** An address as text, with its four parts separated by dots.
+
+## Examples
 
 ```blitzbasic
 Print DottedIP$($7F000001)
@@ -22,13 +38,7 @@ Print DottedIP$($C0A80164)
 192.168.1.100
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `IP` | Int32 | required | The address as a whole number, with the first part in the highest byte. |
-
-**Returns:** An address as text, with its four parts separated by dots.
-
-## Related commands
+## Related Commands
 
 * [HostIP](HostIP)
 * [TCPStreamIP](TCPStreamIP)

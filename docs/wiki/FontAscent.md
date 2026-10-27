@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
+## Command Syntax
+
 ```blitzbasic
 FontAscent:Int32 font:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** How many pixels the font rises above the baseline. Add [FontDescent](FontDescent) to get the height of a line.
 
-## Related commands
+## Related Commands
 
 * [FontDescent](FontDescent)
 * [FontName](FontName)

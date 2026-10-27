@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 TFormFilter enable:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Chooses how [TFormImage](TFormImage), [ScaleImage](ScaleImage) and [RotateImage](RotateImage) look pixels up. With the filter on, the colors of neighboring pixels are blended for a smooth result. With it off, the nearest pixel is taken, which keeps hard edges and is the right choice for pixel art.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `enable` | Int32 | required | True for smooth results (the default), False for the nearest pixel. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -39,13 +51,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![TFormFilter](media/images/tformfilter.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True for smooth results (the default), False for the nearest pixel. |
-
-## Related commands
+## Related Commands
 
 * [SaveImage](SaveImage)
 * [ScaleImage](ScaleImage)

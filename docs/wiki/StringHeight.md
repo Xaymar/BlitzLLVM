@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 StringHeight:Int32 string:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The height in pixels that a text has in the current font.
+
+**Differences and known gaps:**
+
+* Text has only one line, so this is always the height of one character.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ The height in pixels that a text has in the current font.
 
 **Returns:** The height of the text.
 
-**Differences and known gaps:**
-
-* Text has only one line, so this is always the height of one character.
-
-## Related commands
+## Related Commands
 
 * [FontHeight](FontHeight)
 * [Print](Print)

@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 LockBuffer buffer:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Makes a copy of the pixels of a buffer that [ReadPixelFast](ReadPixelFast) and [WritePixelFast](WritePixelFast) can use quickly. What the program writes reaches the buffer when [UnlockBuffer](UnlockBuffer) is called, so do not forget it. Do not use the other drawing commands while a buffer is locked.
+
+**Differences and known gaps:**
+
+* Up to 8 buffers can be locked at the same time.
+* The lock works on a copy: drawing commands and [ReadPixel](ReadPixel) do not see what was written until the buffer is unlocked, and when pixels were written, the whole copy replaces the buffer on unlocking, which discards anything that drawing commands drew meanwhile.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `buffer` | Int32 | `0` | The buffer to lock. Defaults to the current buffer. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -29,18 +46,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![LockBuffer](media/buffers/lockbuffer.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | `0` | The buffer to lock. Defaults to the current buffer. |
-
-**Differences and known gaps:**
-
-* Up to 8 buffers can be locked at the same time.
-* The lock works on a copy: drawing commands and [ReadPixel](ReadPixel) do not see what was written until the buffer is unlocked, and when pixels were written, the whole copy replaces the buffer on unlocking, which discards anything that drawing commands drew meanwhile.
-
-## Related commands
+## Related Commands
 
 * [BackBuffer](BackBuffer)
 * [BufferDirty](BufferDirty)

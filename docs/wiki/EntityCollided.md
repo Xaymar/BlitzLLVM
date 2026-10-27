@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 EntityCollided:Int32 entity:Int32, type:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Finds out whether the entity hit something of a given collision type during the last [UpdateWorld](UpdateWorld), and which one. It is the quick way to ask "am I standing on ground?" without looping over every collision.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Finds out whether the entity hit something of a given collision type during the 
 
 **Returns:** The first colliding entity of that type, or 0 if there was none.
 
-## Related commands
+## Related Commands
 
 * [CollisionEntity](CollisionEntity)
 * [EntityBox](EntityBox)

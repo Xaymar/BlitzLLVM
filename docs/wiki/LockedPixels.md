@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
+## Command Syntax
+
 ```blitzbasic
 LockedPixels:Int32 buffer:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the pixels of a locked buffer as a bank, so you can read and write them with `PeekByte`, `PokeInt` and friends, which is quicker than `ReadPixel` and `WritePixel` for many pixels. Change them, call `UnlockBuffer` and the changes show up in the buffer.
+
+**Differences and known gaps:**
+
+* The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card. Nothing is changed before `UnlockBuffer`.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
+
+**Returns:** The handle of a bank with the pixels.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -33,19 +51,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![LockedPixels](media/canvas/lockedpixels.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
-
-**Returns:** The handle of a bank with the pixels.
-
-**Differences and known gaps:**
-
-* The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card. Nothing is changed before `UnlockBuffer`.
-
-## Related commands
+## Related Commands
 
 * [LockedFormat](LockedFormat)
 * [LockedPitch](LockedPitch)

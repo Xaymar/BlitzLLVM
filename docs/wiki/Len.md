@@ -6,11 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Len:Int32 string:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
+
+_Not documented yet._
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text to measure. |
+
+**Returns:** How many characters a string has. An empty string has 0.
+
+## Examples
 
 ```blitzbasic
 Print Len("hello")
@@ -20,13 +36,7 @@ Print Len("hello")
 5
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to measure. |
-
-**Returns:** How many characters a string has. An empty string has 0.
-
-## Related commands
+## Related Commands
 
 * [Instr](Instr)
 * [Left](Left)

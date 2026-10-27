@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 SetButtonState button:Int32, state:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Ticks or unticks a check box or radio button. Making a radio button ticked unticks the others in its group. It does not send an event.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `button` | Int32 | required | Handle of a button of style 2 or 3. |
 | `state` | Int32 | required | 1 for ticked, 0 for not. |
 
-## Related commands
+## Related Commands
 
 * [ButtonState](ButtonState)
 * [SetGadgetFont](SetGadgetFont)

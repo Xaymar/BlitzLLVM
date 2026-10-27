@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 WritePixel x:Int32, y:Int32, argb:Int32, buffer:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets a pixel of a buffer to a color given as an ARGB number, for example `(red Shl 16) Or (green Shl 8) Or blue`. This works without a lock, but each call is slow. Lock the buffer and use [WritePixelFast](WritePixelFast) for many pixels.
+
+**Differences and known gaps:**
+
+* A position outside of the buffer is ignored.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position of the pixel. |
+| `y` | Int32 | required | Vertical position of the pixel. |
+| `argb` | Int32 | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
+| `buffer` | Int32 | `0` | The buffer to write to. Defaults to the current buffer. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -25,18 +44,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the pixel. |
-| `y` | Int32 | required | Vertical position of the pixel. |
-| `argb` | Int32 | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
-| `buffer` | Int32 | `0` | The buffer to write to. Defaults to the current buffer. |
-
-**Differences and known gaps:**
-
-* A position outside of the buffer is ignored.
-
-## Related commands
+## Related Commands
 
 * [CopyPixel](CopyPixel)
 * [CopyPixelFast](CopyPixelFast)

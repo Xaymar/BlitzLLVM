@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 MD2AnimTime:Float32 md2:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The exact frame that the MD2 model is at. Between frames 3 and 4 the value lies between 3 and 4.
 
-## Related commands
+## Related Commands
 
 * [AddAnimSeq](AddAnimSeq)
 * [AnimateMD2](AnimateMD2)

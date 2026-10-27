@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityFX entity:Int32, fx:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -20,6 +24,15 @@ Switches extra effects on for an entity. The flags add up, so 3 is full-bright w
 * **8**: the entity ignores fog.
 * **16**: draw both sides of the triangles.
 * **32**: force alpha blending, which is needed for the alpha of vertex colors to work.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `fx` | Int32 | required | Sum of the effect flags, 0 for none. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -42,14 +55,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![EntityFX](media/blitz3d/entityfx.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `fx` | Int32 | required | Sum of the effect flags, 0 for none. |
-
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

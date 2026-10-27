@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 ReadString:String stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Reads a string that [WriteString](WriteString) wrote: first its length, then its text.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Reads a string that [WriteString](WriteString) wrote: first its length, then its
 
 **Returns:** The string.
 
-## Related commands
+## Related Commands
 
 * [ReadAvail](ReadAvail)
 * [ReadByte](ReadByte)

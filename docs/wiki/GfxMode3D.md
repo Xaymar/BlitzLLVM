@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxMode3D:Int32 mode:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Tells whether the given mode from the list of modes can be used for 3D.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Tells whether the given mode from the list of modes can be used for 3D.
 
 **Returns:** True if the mode can show 3D.
 
-## Related commands
+## Related Commands
 
 * [CountGfxModes3D](CountGfxModes3D)
 * [GfxDriver3D](GfxDriver3D)

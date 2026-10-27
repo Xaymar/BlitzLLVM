@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 PickedEntity:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The entity that the latest [CameraPick](CameraPick), [EntityPick](EntityPick) or [LinePick](LinePick) found, or 0 if it found nothing.
 
-## Related commands
+## Related Commands
 
 * [PickedNX](PickedNX)
 * [PickedNY](PickedNY)

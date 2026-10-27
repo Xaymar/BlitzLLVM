@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 CountTriangles:Int32 surface:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The number of triangles of the surface.
 
-## Related commands
+## Related Commands
 
 * [ClearSurface](ClearSurface)
 * [CountSurfaces](CountSurfaces)

@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Language](BlitzBasic-Language)
 
+## Command Syntax
+
 ```blitzbasic
 RuntimeStats
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes how many objects exist to the debug log, which helps to find objects that are never freed. It prints `Active objects` and `Unreleased objs`.
 
+## Examples
+
 ```blitzbasic
 RuntimeStats
 ```
 
-## Related commands
+## Related Commands
 
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Language](BlitzBasic-Language)

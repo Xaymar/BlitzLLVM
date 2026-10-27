@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 GetBrushTexture:Int32 brush:Int32, index:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Returns the texture on one layer of the brush, or 0 if there is none. Combine it with [TextureName](TextureName) to find out which file a painted surface uses.
+
+**Differences and known gaps:**
+
+* A layer without a texture gives 0. The original hands out a handle to an empty texture instead.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,11 +31,7 @@ Returns the texture on one layer of the brush, or 0 if there is none. Combine it
 
 **Returns:** A new handle for the texture of that layer, or 0. Free it separately when you no longer need it; the brush keeps its texture.
 
-**Differences and known gaps:**
-
-* A layer without a texture gives 0. The original hands out a handle to an empty texture instead.
-
-## Related commands
+## Related Commands
 
 * [BrushAlpha](BrushAlpha)
 * [BrushBlend](BrushBlend)

@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Instr:Int32 string:String, find:String, from:Int32=1
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Finds the first position of a piece of text inside another string. Positions start at 1, and 0 means it was not found. The search tells upper and lower case apart.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text to search in. |
+| `find` | String | required | The text to look for. |
+| `from` | Int32 | `1` | Position to start searching at. Defaults to 1. |
+
+**Returns:** The position of the first match, or 0.
+
+## Examples
 
 ```blitzbasic
 Print Instr("hello world", "o")
@@ -26,15 +42,7 @@ Print Instr("hello", "z")
 0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to search in. |
-| `find` | String | required | The text to look for. |
-| `from` | Int32 | `1` | Position to start searching at. Defaults to 1. |
-
-**Returns:** The position of the first match, or 0.
-
-## Related commands
+## Related Commands
 
 * [CurrentTime](CurrentTime)
 * [Hex](Hex)

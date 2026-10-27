@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseZSpeed:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 How far the wheel moved since the last call, in notches. Rolling away from you is positive and towards you negative.
 
-**Returns:** The wheel movement since the previous call.
-
 **Differences and known gaps:**
 
 * The original only ever gives -1, 0 or 1. A wheel that is turned several notches between two calls can give a larger number here.
 
-## Related commands
+## Parameters
+
+**Returns:** The wheel movement since the previous call.
+
+## Related Commands
 
 * [MouseDown](MouseDown)
 * [MouseHit](MouseHit)

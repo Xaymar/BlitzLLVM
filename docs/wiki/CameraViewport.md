@@ -6,14 +6,30 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
+## Command Syntax
+
 ```blitzbasic
 CameraViewport camera:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Restricts the camera to a rectangle of the graphics buffer. Use it for split screen, a rear view mirror or a minimap. The camera keeps its aspect ratio from the size of the rectangle, so a narrow viewport does not squash the picture. Parts of the rectangle outside the buffer are cut off.
 The camera clears only its own rectangle, so two cameras with separate viewports can share one frame.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `camera` | Int32 | required | Camera handle. |
+| `x` | Int32 | required | Left edge of the viewport in the buffer. |
+| `y` | Int32 | required | Top edge of the viewport in the buffer. |
+| `width` | Int32 | required | Width of the viewport in pixels. |
+| `height` | Int32 | required | Height of the viewport in pixels. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -37,17 +53,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CameraViewport](media/blitz3d/cameraviewport.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `x` | Int32 | required | Left edge of the viewport in the buffer. |
-| `y` | Int32 | required | Top edge of the viewport in the buffer. |
-| `width` | Int32 | required | Width of the viewport in pixels. |
-| `height` | Int32 | required | Height of the viewport in pixels. |
-
-## Related commands
+## Related Commands
 
 * [CameraClsColor](CameraClsColor)
 * [CameraClsMode](CameraClsMode)

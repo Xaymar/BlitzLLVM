@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 CopyBank src_bank:Int32, src_offset:Int32, dest_bank:Int32, dest_offset:Int32, count:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Copies bytes from one bank to another, or inside the same bank. Overlapping parts inside a single bank are handled correctly.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `src_bank` | Int32 | required | The bank to copy from. |
+| `src_offset` | Int32 | required | Where in that bank to start. |
+| `dest_bank` | Int32 | required | The bank to copy into. |
+| `dest_offset` | Int32 | required | Where in that bank to start. |
+| `count` | Int32 | required | How many bytes to copy. |
+
+## Examples
 
 ```blitzbasic
 source = CreateBank(4)
@@ -32,15 +48,7 @@ FreeBank destination
 13
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_bank` | Int32 | required | The bank to copy from. |
-| `src_offset` | Int32 | required | Where in that bank to start. |
-| `dest_bank` | Int32 | required | The bank to copy into. |
-| `dest_offset` | Int32 | required | Where in that bank to start. |
-| `count` | Int32 | required | How many bytes to copy. |
-
-## Related commands
+## Related Commands
 
 * [BankSize](BankSize)
 * [CreateBank](CreateBank)

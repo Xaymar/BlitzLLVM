@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 GetJoy:Int32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, Blitz3D
 
 Takes the next joystick button press out of a queue and returns the number of the button, or 0 if no button was pressed since the last call. It is the joystick counterpart of [GetMouse](GetMouse). GetJoy is undocumented in the original help but exists in all three dialects.
+
+**Differences and known gaps:**
+
+* Up to 32 buttons per joystick are supported, and a joystick with more reports only the first 32.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+
+**Returns:** The number of the button that was pressed (counted from 1), or 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,17 +46,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
-
-**Returns:** The number of the button that was pressed (counted from 1), or 0.
-
-**Differences and known gaps:**
-
-* Up to 32 buttons per joystick are supported, and a joystick with more reports only the first 32.
-
-## Related commands
+## Related Commands
 
 * [FlushJoy](FlushJoy)
 * [JoyDown](JoyDown)

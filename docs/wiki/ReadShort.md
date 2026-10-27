@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 ReadShort:Int32 stream:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The next 2 bytes of the stream as a number from 0 to 65535.
 
-## Related commands
+## Related Commands
 
 * [ReadAvail](ReadAvail)
 * [ReadByte](ReadByte)

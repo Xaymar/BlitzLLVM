@@ -6,13 +6,33 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
+## Command Syntax
+
 ```blitzbasic
 LinePick:Int32 x:Float32, y:Float32, z:Float32, dx:Float32, dy:Float32, dz:Float32, radius:Float32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Looks along a line from a start point in a direction and returns the first pickable entity it meets. The direction is not normalized: the line ends where `x + dx, y + dy, z + dz` ends, so longer vectors look further. With a radius greater than 0 the line becomes a thick tube, which finds things that a hairline would slip past.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Float32 | required | Start X in world coordinates. |
+| `y` | Float32 | required | Start Y. |
+| `z` | Float32 | required | Start Z. |
+| `dx` | Float32 | required | How far the line goes along X. |
+| `dy` | Float32 | required | How far the line goes along Y. |
+| `dz` | Float32 | required | How far the line goes along Z. |
+| `radius` | Float32 | `0` | Thickness of the line. Defaults to 0. |
+
+**Returns:** The entity found, or 0.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -35,19 +55,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Float32 | required | Start X in world coordinates. |
-| `y` | Float32 | required | Start Y. |
-| `z` | Float32 | required | Start Z. |
-| `dx` | Float32 | required | How far the line goes along X. |
-| `dy` | Float32 | required | How far the line goes along Y. |
-| `dz` | Float32 | required | How far the line goes along Z. |
-| `radius` | Float32 | `0` | Thickness of the line. Defaults to 0. |
-
-**Returns:** The entity found, or 0.
-
-## Related commands
+## Related Commands
 
 * [CameraPick](CameraPick)
 * [EntityPick](EntityPick)

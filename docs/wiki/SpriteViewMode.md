@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
+## Command Syntax
+
 ```blitzbasic
 SpriteViewMode sprite:Int32, view_mode:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -22,6 +26,19 @@ Chooses how a sprite turns in relation to the camera.
 | 4 | Only turns around the vertical axis to face the camera. It stays upright, like a billboard tree. |
 
 The example shows all four modes while the camera circles them and tilts from side to side. The arrow on each sprite points to its up direction.
+
+**Differences and known gaps:**
+
+* The descriptions in the official help do not exactly match the engine. This page describes what the engine does, and so does this runtime.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `sprite` | Int32 | required | The sprite. |
+| `view_mode` | Int32 | required | 1 to 4, see the table. Values outside that range select mode 1. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -60,18 +77,11 @@ For frame = 0 To 39
 Next
 ```
 
+## Media
+
 ![SpriteViewMode](media/sprites/spriteviewmode.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sprite` | Int32 | required | The sprite. |
-| `view_mode` | Int32 | required | 1 to 4, see the table. Values outside that range select mode 1. |
-
-**Differences and known gaps:**
-
-* The descriptions in the official help do not exactly match the engine. This page describes what the engine does, and so does this runtime.
-
-## Related commands
+## Related Commands
 
 * [CreateSprite](CreateSprite)
 * [HandleSprite](HandleSprite)

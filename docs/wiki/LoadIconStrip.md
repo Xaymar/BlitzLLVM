@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
+## Command Syntax
+
 ```blitzbasic
 LoadIconStrip:Int32 file:String
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Loads a picture of icons placed side by side to use for the entries of list boxes, combo boxes and tabbers. Hand the result to [SetGadgetIconStrip](SetGadgetIconStrip). The icons are squares with the height of the picture.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required | Picture file with the icons. |
+
+**Returns:** A handle for the icon strip.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -28,13 +42,7 @@ Notify "Strip " + icons
 FreeIconStrip icons
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Picture file with the icons. |
-
-**Returns:** A handle for the icon strip.
-
-## Related commands
+## Related Commands
 
 * [EnableToolBarItem](EnableToolBarItem)
 * [FreeIconStrip](FreeIconStrip)

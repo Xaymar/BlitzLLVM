@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityRoll:Float32 entity:Int32, global:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Reads the rotation around Z in degrees.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Reads the rotation around Z in degrees.
 
 **Returns:** Roll angle of the entity, relative to its parent or with `global` set to 1 in the world.
 
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

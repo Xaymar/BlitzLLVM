@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
+## Command Syntax
+
 ```blitzbasic
 HandleSprite sprite:Int32, x_handle:Float32, y_handle:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Moves the point that the sprite is held at, which is also the point it turns and scales around. 0, 0 is the middle. The handle is measured in half the size of the sprite, so -1, -1 is one corner and 1, 1 the opposite one.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Moves the point that the sprite is held at, which is also the point it turns and
 | `x_handle` | Float32 | required | Horizontal handle position. The default is 0. |
 | `y_handle` | Float32 | required | Vertical handle position. The default is 0. |
 
-## Related commands
+## Related Commands
 
 * [CreateSprite](CreateSprite)
 * [LoadSprite](LoadSprite)

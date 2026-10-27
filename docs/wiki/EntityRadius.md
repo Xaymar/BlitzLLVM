@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 EntityRadius entity:Int32, x_radius:Float32, y_radius:Float32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -16,13 +20,15 @@ Sets the size of the entity's collision ellipsoid. Every entity that moves into 
 
 The horizontal radius applies to both width and depth. Leave out the second radius to get a sphere.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | The entity. |
 | `x_radius` | Float32 | required | Radius in the X and Z directions. |
 | `y_radius` | Float32 | `0` | Radius in the Y direction. Defaults to x_radius. |
 
-## Related commands
+## Related Commands
 
 * [CollisionEntity](CollisionEntity)
 * [EntityBox](EntityBox)

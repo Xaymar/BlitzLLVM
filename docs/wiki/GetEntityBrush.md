@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
+## Command Syntax
+
 ```blitzbasic
 GetEntityBrush:Int32 entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Makes a new brush that has the same look as an entity: its color, alpha, shininess, blend mode, effects and textures. Free the brush with [FreeBrush](FreeBrush) when you no longer need it.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Makes a new brush that has the same look as an entity: its color, alpha, shinine
 
 **Returns:** A brush handle.
 
-## Related commands
+## Related Commands
 
 * [BrushAlpha](BrushAlpha)
 * [BrushBlend](BrushBlend)

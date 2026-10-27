@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 ScaleTexture texture:Int32, u_scale:Float32, v_scale:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets how large the texture appears on a surface. Values above 1 enlarge the image, so it repeats less often; values below 1 shrink it, so it repeats more often. The call replaces the previous scale, and every entity that uses the texture is affected at once.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `texture` | Int32 | required | The texture to scale. |
+| `u_scale` | Float32 | required | Horizontal size factor. 1 is unchanged, 2 is twice as wide. |
+| `v_scale` | Float32 | required | Vertical size factor. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -49,15 +63,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![ScaleTexture](media/textures/scaletexture.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to scale. |
-| `u_scale` | Float32 | required | Horizontal size factor. 1 is unchanged, 2 is twice as wide. |
-| `v_scale` | Float32 | required | Vertical size factor. |
-
-## Related commands
+## Related Commands
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)

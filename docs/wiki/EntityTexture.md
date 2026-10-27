@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityTexture entity:Int32, texture:Int32, frame:Int32=0, index:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Puts a texture on the whole entity, replacing the one of its mesh. `frame` picks the frame of an animated texture and `index` picks the layer for multitexturing, 0 to 7, see `TextureBlend`. Textures made with [CreateTexture](CreateTexture) or [LoadTexture](LoadTexture) can be shared between any number of entities.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `texture` | Int32 | required | Texture handle. |
+| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
+| `index` | Int32 | `0` | Texture layer, 0 to 7. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -38,16 +53,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![EntityTexture](media/blitz3d/entitytexture.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `texture` | Int32 | required | Texture handle. |
-| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
-| `index` | Int32 | `0` | Texture layer, 0 to 7. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

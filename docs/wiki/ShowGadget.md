@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 ShowGadget gadget:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Shows a gadget that was hidden with [HideGadget](HideGadget), together with the gadgets inside it.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `gadget` | Int32 | required | Handle of the gadget. |
 
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [AddGadgetItem](AddGadgetItem)

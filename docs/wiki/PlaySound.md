@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 PlaySound:Int32 sound:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Starts a sound and returns the channel it plays on. Every call starts a new channel, so the same sound can play several times over itself. The channel starts with the volume and pan that were set on the sound with [SoundVolume](SoundVolume) and [SoundPan](SoundPan), and a sound that is marked by [LoopSound](LoopSound) repeats until the channel is stopped.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
+
+**Returns:** The channel handle, or 0 if the sound could not be played (for example without a sound device).
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -27,13 +41,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
-
-**Returns:** The channel handle, or 0 if the sound could not be played (for example without a sound device).
-
-## Related commands
+## Related Commands
 
 * [FreeSound](FreeSound)
 * [Load3DSound](Load3DSound)

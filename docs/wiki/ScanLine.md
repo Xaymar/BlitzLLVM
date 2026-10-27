@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 ScanLine:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
-**Returns:** Always 0. The original returned the line the monitor was drawing, which a modern display cannot tell.
-
 **Differences and known gaps:**
 
 * Always returns 0. Use `VWait` or `Flip` to synchronise with the display instead.
 
-## Related commands
+## Parameters
+
+**Returns:** Always 0. The original returned the line the monitor was drawing, which a modern display cannot tell.
+
+## Related Commands
 
 * [Line](Line)
 * [Plot](Plot)

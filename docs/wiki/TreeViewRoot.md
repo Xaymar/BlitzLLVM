@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 TreeViewRoot:Int32 treeview:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the invisible node at the top of a tree. It is the parent of the top level nodes and cannot be freed or selected.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Gives the invisible node at the top of a tree. It is the parent of the top level
 
 **Returns:** The handle of the root node.
 
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [CollapseTreeViewNode](CollapseTreeViewNode)

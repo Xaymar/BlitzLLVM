@@ -6,13 +6,24 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GfxModeDepth:Int32 mode:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The color depth in bits of a display mode.
+
+**Differences and known gaps:**
+
+* A mode number that does not exist stops the program with an error message.
+* Palette and 16 bit modes are not supported, so every mode is listed with 32 bits however the display could show it.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,12 +31,7 @@ The color depth in bits of a display mode.
 
 **Returns:** The depth in bits, always 32.
 
-**Differences and known gaps:**
-
-* A mode number that does not exist stops the program with an error message.
-* Palette and 16 bit modes are not supported, so every mode is listed with 32 bits however the display could show it.
-
-## Related commands
+## Related Commands
 
 * [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
 * [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕

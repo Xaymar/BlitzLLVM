@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
+## Command Syntax
+
 ```blitzbasic
 NetMsgData:String
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The text of the message that [RecvNetMsg](RecvNetMsg) took last. It is empty for the system messages.
 
-## Related commands
+## Related Commands
 
 * [CreateNetPlayer](CreateNetPlayer)
 * [NetMsgFrom](NetMsgFrom)

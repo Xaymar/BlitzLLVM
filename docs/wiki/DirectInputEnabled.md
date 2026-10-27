@@ -6,21 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 DirectInputEnabled:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, Blitz3D
 
 Tells whether the program asked for DirectInput style input with [EnableDirectInput](EnableDirectInput). It is an undocumented command of the original and only exists so that old programs still compile.
 
-**Returns:** 1 if the setting is on, otherwise 0.
-
 **Differences and known gaps:**
 
 * There is no DirectInput on this platform. The command only reports the value last given to EnableDirectInput (initially 1); input always comes from SDL.
 
-## Related commands
+## Parameters
+
+**Returns:** 1 if the setting is on, otherwise 0.
+
+## Related Commands
 
 * [EnableDirectInput](EnableDirectInput)
 * [FlushMouse](FlushMouse)

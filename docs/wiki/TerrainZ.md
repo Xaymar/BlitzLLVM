@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
+## Command Syntax
+
 ```blitzbasic
 TerrainZ:Float32 terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Returns the Z coordinate of the ground below or above a point of the world. As with [TerrainX](TerrainX) this only differs from the Z you passed in when the terrain is rotated.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -23,7 +29,7 @@ Returns the Z coordinate of the ground below or above a point of the world. As w
 
 **Returns:** The world Z coordinate of the ground at that position.
 
-## Related commands
+## Related Commands
 
 * [CreateTerrain](CreateTerrain)
 * [LoadTerrain](LoadTerrain)

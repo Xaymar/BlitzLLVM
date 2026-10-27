@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 ResumeChannel channel:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Continues a channel that [PauseChannel](PauseChannel) paused.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
 
-## Related commands
+## Related Commands
 
 * [ChannelPan](ChannelPan)
 * [ChannelPitch](ChannelPitch)

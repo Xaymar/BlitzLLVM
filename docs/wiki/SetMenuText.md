@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
+## Command Syntax
+
 ```blitzbasic
 SetMenuText menu:Int32, text:String
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Changes the text of a menu title or item.
+
+**Differences and known gaps:**
+
+* The text can be read back with [MenuText](MenuText) here. The original cannot read it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `menu` | Int32 | required | Handle of a menu or item. |
+| `text` | String | required | The new text. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,16 +43,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `menu` | Int32 | required | Handle of a menu or item. |
-| `text` | String | required | The new text. |
-
-**Differences and known gaps:**
-
-* The text can be read back with [MenuText](MenuText) here. The original cannot read it.
-
-## Related commands
+## Related Commands
 
 * [CheckMenu](CheckMenu)
 * [CreateMenu](CreateMenu)

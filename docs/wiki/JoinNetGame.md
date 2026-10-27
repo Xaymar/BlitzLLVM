@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
+## Command Syntax
+
 ```blitzbasic
 JoinNetGame:Int32 game_name:String, ip_address:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Joins a game that another program hosts, which is found by its address.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Joins a game that another program hosts, which is found by its address.
 
 **Returns:** 1 when the game was joined, 0 when it was not found or has another name.
 
-## Related commands
+## Related Commands
 
 * [CreateNetPlayer](CreateNetPlayer)
 * [DeleteNetPlayer](DeleteNetPlayer)

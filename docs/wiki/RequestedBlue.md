@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
 
+## Command Syntax
+
 ```blitzbasic
 RequestedBlue:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The blue part, 0 to 255, of the color the last [RequestColor](RequestColor) picked. 0 before any color was picked.
 
-## Related commands
+## Related Commands
 
 * [RequestColor](RequestColor)
 * [RequestDir](RequestDir)

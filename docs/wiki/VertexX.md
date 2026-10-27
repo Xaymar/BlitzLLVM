@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 VertexX:Float32 surface:Int32, index:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The X position of the vertex in the space of the mesh, not affected by the entity's position or scale.
 
-## Related commands
+## Related Commands
 
 * [VertexAlpha](VertexAlpha)
 * [VertexBlue](VertexBlue)

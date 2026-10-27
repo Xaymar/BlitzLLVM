@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 MouseYSpeed:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 How far the pointer moved up or down since the last call. See [MouseXSpeed](MouseXSpeed).
 
+## Parameters
+
 **Returns:** The change of the vertical position since the previous call.
 
-## Related commands
+## Related Commands
 
 * [MouseDown](MouseDown)
 * [MouseHit](MouseHit)

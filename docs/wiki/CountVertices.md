@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
+## Command Syntax
+
 ```blitzbasic
 CountVertices:Int32 surface:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Reports how many vertices a surface has. Vertex indexes run from 0 to one less than this number, so it is the upper bound of a loop over all vertices.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Reports how many vertices a surface has. Vertex indexes run from 0 to one less t
 
 **Returns:** The number of vertices of the surface.
 
-## Related commands
+## Related Commands
 
 * [CountSurfaces](CountSurfaces)
 * [CountTriangles](CountTriangles)

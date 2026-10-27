@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
+## Command Syntax
+
 ```blitzbasic
 WriteString stream:Int32, string:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Writes a string as its length in 4 bytes followed by its text, without a line ending. Read it back with [ReadString](ReadString).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `stream` | Int32 | required | The stream to write to. |
+| `string` | String | required | The text to write. |
+
+## Examples
 
 ```blitzbasic
 file = WriteFile("streams_string_example.tmp")
@@ -30,12 +43,7 @@ DeleteFile "streams_string_example.tmp"
 Hello
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to write to. |
-| `string` | String | required | The text to write. |
-
-## Related commands
+## Related Commands
 
 * [ReadString](ReadString)
 * [WriteByte](WriteByte)

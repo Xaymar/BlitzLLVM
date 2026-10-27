@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 RefreshRateAt:Int32 display:Int32, width:Int32, height:Int32, index:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 One of the refresh rates a display supports at a size, counted from the lowest. Rates that are the same after rounding to whole Hz are given once. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+**Differences and known gaps:**
+
+* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -23,11 +33,7 @@ One of the refresh rates a display supports at a size, counted from the lowest. 
 
 **Returns:** The refresh rate in Hz, or 0 if there is no such rate.
 
-**Differences and known gaps:**
-
-* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-
-## Related commands
+## Related Commands
 
 * [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
 * [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕

@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
+## Command Syntax
+
 ```blitzbasic
 Windowed3D:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** True if the 3D picture can be shown in a window, which is the case on every desktop and always here. If it is False the program can only run full screen.
 
-## Related commands
+## Related Commands
 
 * [CountGfxModes3D](CountGfxModes3D)
 * [GfxDriver3D](GfxDriver3D)

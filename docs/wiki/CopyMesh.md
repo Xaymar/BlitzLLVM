@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 CopyMesh:Int32 mesh:Int32, parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Makes an independent copy of a mesh with its own vertices and triangles. This differs from [CopyEntity](CopyEntity), whose copies share the mesh: after a `CopyMesh` you can reshape, paint or flip the copy without touching the original. The copy is made at the origin even if the source was moved.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ Makes an independent copy of a mesh with its own vertices and triangles. This di
 
 **Returns:** The handle of the copy.
 
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CreateMesh](CreateMesh)

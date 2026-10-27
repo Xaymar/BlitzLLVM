@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 CreateDir dir:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Creates a folder. Nothing happens when it already exists.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `dir` | String | required | The folder to create. |
+
+## Examples
 
 ```blitzbasic
 CreateDir "files_create_example"
@@ -24,11 +36,7 @@ DeleteDir "files_create_example"
 2
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | String | required | The folder to create. |
-
-## Related commands
+## Related Commands
 
 * [ChangeDir](ChangeDir)
 * [CloseDir](CloseDir)

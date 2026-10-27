@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
+## Command Syntax
+
 ```blitzbasic
 KeyDown:Int32 key:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Tells whether a key is held down right now. Keys are named by their scancode, which is the position of the key on the keyboard and does not change with the keyboard layout. Some of them: Escape 1, the digit row 2 to 11, Backspace 14, Tab 15, Enter 28, left Ctrl 29, left Shift 42, right Shift 54, left Alt 56, Space 57, F1 to F10 59 to 68, F11 87, F12 88, Up 200, Left 203, Right 205, Down 208, Insert 210 and Delete 211. The letter keys follow the top left to bottom right order of a US keyboard, so Q is 16, A is 30 and Z is 44.
+
+**Differences and known gaps:**
+
+* Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
+* Without an open graphics window nothing can be pressed, and the function returns 0.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `key` | Int32 | required | The scancode of the key, 1 to 255. |
+
+**Returns:** 1 while the key is held down, otherwise 0.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -30,18 +49,7 @@ While Not KeyDown(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `key` | Int32 | required | The scancode of the key, 1 to 255. |
-
-**Returns:** 1 while the key is held down, otherwise 0.
-
-**Differences and known gaps:**
-
-* Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
-* Without an open graphics window nothing can be pressed, and the function returns 0.
-
-## Related commands
+## Related Commands
 
 * [GetKey](GetKey)
 * [KeyHit](KeyHit)

@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 CreateMesh:Int32 parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates an empty mesh with no surfaces, vertices or triangles. Fill it with [CreateSurface](CreateSurface), [AddVertex](AddVertex) and [AddTriangle](AddTriangle) to build your own geometry, or with [AddMesh](AddMesh) to put other meshes together.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `parent` | Int32 | `0` | Entity the mesh follows, or 0 for none. Defaults to 0. |
+
+**Returns:** The handle of the new mesh.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -35,15 +49,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![CreateMesh](media/blitz3d/createmesh.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | `0` | Entity the mesh follows, or 0 for none. Defaults to 0. |
-
-**Returns:** The handle of the new mesh.
-
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CopyMesh](CopyMesh)

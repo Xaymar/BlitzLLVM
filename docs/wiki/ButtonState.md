@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 ButtonState:Int32 button:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Says whether a check box or radio button is ticked. The state of normal buttons is always 0.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `button` | Int32 | required | Handle of a button made with style 2 or 3. |
+
+**Returns:** 1 if it is ticked, 0 if not.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,13 +39,7 @@ Repeat
 Until e = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `button` | Int32 | required | Handle of a button made with style 2 or 3. |
-
-**Returns:** 1 if it is ticked, 0 if not.
-
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [AddGadgetItem](AddGadgetItem)

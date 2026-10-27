@@ -6,13 +6,33 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 TFormImage image:Int32, a:Float32, b:Float32, c:Float32, d:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Transforms every frame of an image with a 2x2 matrix. With the values `a, b, c, d` a point `(x, y)` of the picture, measured from the handle, goes to `(a*x + c*y, b*x + d*y)`. The matrix `a=1, b=0, c=0.6, d=1` tilts the picture to the right, and [ScaleImage](ScaleImage) and [RotateImage](RotateImage) are special cases. The image becomes as large as the result needs.
+
+**Differences and known gaps:**
+
+* A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+| `a` | Float32 | required | Horizontal part of the first column of the matrix. |
+| `b` | Float32 | required | Vertical part of the first column of the matrix. |
+| `c` | Float32 | required | Horizontal part of the second column of the matrix. |
+| `d` | Float32 | required | Vertical part of the second column of the matrix. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -34,21 +54,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![TFormImage](media/images/tformimage.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `a` | Float32 | required | Horizontal part of the first column of the matrix. |
-| `b` | Float32 | required | Vertical part of the first column of the matrix. |
-| `c` | Float32 | required | Horizontal part of the second column of the matrix. |
-| `d` | Float32 | required | Vertical part of the second column of the matrix. |
-
-**Differences and known gaps:**
-
-* A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

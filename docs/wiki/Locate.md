@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
+## Command Syntax
+
 ```blitzbasic
 Locate x:Int32, y:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, Blitz3D
 
 Moves the text cursor of [Print](Print) and [Write](Write) to a position in pixels. The position is on the screen and not in the current buffer.
+
+**Differences and known gaps:**
+
+* The position is limited to the window.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position of the cursor in pixels. |
+| `y` | Int32 | required | Vertical position of the cursor in pixels. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,18 +43,11 @@ Print "Bottom"
 WaitKey
 ```
 
+## Media
+
 ![Locate](media/fonts/locate.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the cursor in pixels. |
-| `y` | Int32 | required | Vertical position of the cursor in pixels. |
-
-**Differences and known gaps:**
-
-* The position is limited to the window.
-
-## Related commands
+## Related Commands
 
 * [Input](Input)
 * [LoadFont](LoadFont)

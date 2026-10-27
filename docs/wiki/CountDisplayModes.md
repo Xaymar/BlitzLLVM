@@ -6,13 +6,31 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 CountDisplayModes:Int32 display:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 The number of modes a display can be set to. The list has every combination of size, depth and refresh rate once, goes from the smallest width to the largest, and has the mode that the display is in now. Ask [DisplayModeWidth](DisplayModeWidth), [DisplayModeHeight](DisplayModeHeight), [DisplayModeDepth](DisplayModeDepth) and [DisplayModeRefreshRate](DisplayModeRefreshRate) for what each mode is. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display. [CountGfxModes](CountGfxModes) lists the modes of the main display only, and with no rates.
+
+**Differences and known gaps:**
+
+* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+
+**Returns:** The number of modes, or 0 if the display does not exist.
+
+## Examples
 
 ```blitzbasic
 d = PrimaryDisplay()
@@ -22,17 +40,7 @@ Next
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
-
-**Returns:** The number of modes, or 0 if the display does not exist.
-
-**Differences and known gaps:**
-
-* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-
-## Related commands
+## Related Commands
 
 * [CountDisplays](CountDisplays) 〔BlitzLLVM〕
 * [CountGfxDrivers](CountGfxDrivers)

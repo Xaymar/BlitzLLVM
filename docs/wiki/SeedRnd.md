@@ -6,13 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 SeedRnd seed:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Restarts the random number generator from a seed. The same seed always gives the same numbers from [Rand](Rand) and [Rnd](Rnd), which is useful for replays and procedurally generated levels. Every program starts with the same seed (4660), so it gets the same random numbers on every run until you use `SeedRnd MilliSecs()` for different ones.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `seed` | Int32 | required | The starting value. |
+
+## Examples
 
 ```blitzbasic
 SeedRnd 42
@@ -26,11 +38,7 @@ Print a = b
 1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `seed` | Int32 | required | The starting value. |
-
-## Related commands
+## Related Commands
 
 * [Rnd](Rnd)
 * [RndSeed](RndSeed)

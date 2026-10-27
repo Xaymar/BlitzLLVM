@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GraphicsWidth:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The width of the graphics window in pixels, as given to [Graphics](Graphics).
 
+## Parameters
+
 **Returns:** The width in pixels.
 
-## Related commands
+## Related Commands
 
 * [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
 * [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕

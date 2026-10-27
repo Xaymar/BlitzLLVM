@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Replace:String string:String, from:String, to:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Replaces every occurrence of a piece of text with another. What was put in is not searched again, so replacing `a` with `aa` does not loop.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text to change. |
+| `from` | String | required | What to look for. |
+| `to` | String | required | What to put in its place. May be empty to remove it. |
+
+**Returns:** The changed text.
+
+## Examples
 
 ```blitzbasic
 Print Replace$("a-b-c", "-", "+")
@@ -24,15 +40,7 @@ a+b+c
 abc
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to change. |
-| `from` | String | required | What to look for. |
-| `to` | String | required | What to put in its place. May be empty to remove it. |
-
-**Returns:** The changed text.
-
-## Related commands
+## Related Commands
 
 * [LSet](LSet)
 * [Mid](Mid)

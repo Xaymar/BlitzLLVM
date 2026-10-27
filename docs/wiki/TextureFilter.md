@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 TextureFilter match_text:String, texture_flags:Int32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
@@ -16,12 +20,14 @@ Adds a rule: every texture loaded afterwards whose file name contains the given 
 
 This is mostly useful when loading a mesh, since you do not choose the flags of the textures it pulls in. A rule such as `TextureFilter "_alpha", 1 + 2` makes every file with `_alpha` in its name an alpha texture.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `match_text` | String | required | Text to look for in the file name. |
 | `texture_flags` | Int32 | `0` |  |
 
-## Related commands
+## Related Commands
 
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateTexture](CreateTexture)

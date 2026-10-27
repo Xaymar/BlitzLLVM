@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
+## Command Syntax
+
 ```blitzbasic
 GetMouse:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Takes the next mouse button press out of a queue and returns its number: 1 for the left button, 2 for the right and 3 for the middle button. It returns 0 if nothing was pressed since the last call. Unlike [MouseHit](MouseHit) it does not need to be told which button to look at.
+
+**Differences and known gaps:**
+
+* The queue holds 15 presses and forgets the oldest ones when it is full.
+
+## Parameters
+
+**Returns:** The number of the button that was pressed, or 0 if there is none.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -28,13 +42,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-**Returns:** The number of the button that was pressed, or 0 if there is none.
-
-**Differences and known gaps:**
-
-* The queue holds 15 presses and forgets the oldest ones when it is full.
-
-## Related commands
+## Related Commands
 
 * [FlushMouse](FlushMouse)
 * [MouseDown](MouseDown)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 CollisionSurface:Int32 entity:Int32, collision_index:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The handle of the surface of the other entity that was closest to the touching point, for use with the surface commands such as [CountTriangles](CountTriangles). It is 0 when the other entity is hit as an ellipsoid or box, since those have no surface.
 
-## Related commands
+## Related Commands
 
 * [CollisionEntity](CollisionEntity)
 * [CollisionNX](CollisionNX)

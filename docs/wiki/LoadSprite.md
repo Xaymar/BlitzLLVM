@@ -6,13 +6,33 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
+## Command Syntax
+
 ```blitzbasic
 LoadSprite:Int32 file:String, texture_flags:Int32=1, parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates a sprite and gives it a texture loaded from a picture file in one step. The sprite is drawn without lighting. How it blends depends on the flags: with the alpha flag (2) or the masked flag (4) it is blended by its alpha, otherwise it is added to what is behind it, which suits glows and flares.
+
+**Differences and known gaps:**
+
+* A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending. The result looks the same unless the sprite is moved over other transparent things.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `file` | String | required |  |
+| `texture_flags` | Int32 | `1` |  |
+| `parent` | Int32 | `0` | Optional parent entity. |
+
+**Returns:** An entity handle for the sprite, or 0 if the file could not be loaded.
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -41,21 +61,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![LoadSprite](media/sprites/loadsprite.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required |  |
-| `texture_flags` | Int32 | `1` |  |
-| `parent` | Int32 | `0` | Optional parent entity. |
-
-**Returns:** An entity handle for the sprite, or 0 if the file could not be loaded.
-
-**Differences and known gaps:**
-
-* A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending. The result looks the same unless the sprite is moved over other transparent things.
-
-## Related commands
+## Related Commands
 
 * [CreateSprite](CreateSprite)
 * [HandleSprite](HandleSprite)

@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 DisplayHeight:Int32 display:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 The height in pixels of what a display shows right now, which is the resolution of the desktop on it. This is a BlitzLLVM extension: the originals have no way to ask for more than the main display.
+
+**Differences and known gaps:**
+
+* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ The height in pixels of what a display shows right now, which is the resolution 
 
 **Returns:** The height in pixels, or 0 if the display does not exist.
 
-**Differences and known gaps:**
-
-* A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
-
-## Related commands
+## Related Commands
 
 * [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
 * [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕

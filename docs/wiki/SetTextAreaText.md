@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 SetTextAreaText textarea:Int32, text:String, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Writes text into a text area at a place. It replaces the given number of characters or lines there, so a length of 0 only inserts.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `textarea` | Int32 | required | Handle of a text area. |
+| `text` | String | required | The text to write. |
+| `pos` | Int32 | `0` |  |
+| `len` | Int32 | `-1` |  |
+| `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,15 +41,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `text` | String | required | The text to write. |
-| `pos` | Int32 | `0` |  |
-| `len` | Int32 | `-1` |  |
-| `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
-
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [CreateTextArea](CreateTextArea)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
+## Command Syntax
+
 ```blitzbasic
 NetPlayerName:String player:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** The name of a player. The player number 0 gives `<all>` and one that does not exist gives `<unknown>`.
 
-## Related commands
+## Related Commands
 
 * [CreateNetPlayer](CreateNetPlayer)
 * [DeleteNetPlayer](DeleteNetPlayer)

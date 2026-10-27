@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 NextFile:String dir:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the name of the next entry of a folder opened with [ReadDir](ReadDir). The names `.` and `..` are among them, and the order is up to the file system. An empty string means there are no more.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `dir` | Int32 | required | The folder handle from [ReadDir](ReadDir). |
+
+**Returns:** A file or folder name without its path, or an empty string at the end.
+
+## Examples
 
 ```blitzbasic
 CreateDir "files_next_example"
@@ -33,13 +47,7 @@ DeleteDir "files_next_example"
 only.txt
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | Int32 | required | The folder handle from [ReadDir](ReadDir). |
-
-**Returns:** A file or folder name without its path, or an empty string at the end.
-
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [CopyFile](CopyFile)

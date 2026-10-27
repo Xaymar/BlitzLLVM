@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 InsertGadgetItem gadget:Int32, index:Int32, item:String, icon:Int32=-1
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Puts a new entry into a list box, combo box or tabber before the entry with the given number.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| `index` | Int32 | required | Where the entry goes, starting at 0. |
+| `item` | String | required |  |
+| `icon` | Int32 | `-1` | Number of an icon of the gadget. Defaults to -1, which means none. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -25,14 +40,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
-| `index` | Int32 | required | Where the entry goes, starting at 0. |
-| `item` | String | required |  |
-| `icon` | Int32 | `-1` | Number of an icon of the gadget. Defaults to -1, which means none. |
-
-## Related commands
+## Related Commands
 
 * [ActivateGadget](ActivateGadget)
 * [AddGadgetItem](AddGadgetItem)

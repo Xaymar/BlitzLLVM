@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 SetSamplerFilterMag sampler:Int32, mode:Int32
 ```
+
+## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
@@ -20,16 +24,18 @@ Chooses how texels are read when a texture is drawn bigger than it is (magnifica
 | 0 | Nearest: the texel that is closest, which shows blocks. |
 | 1 | Linear: blends the texels around the point, the default. |
 
+**Differences and known gaps:**
+
+* The mode has to be 0 or 1, other values stop the program with an error.
+
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `sampler` | Int32 | required | The sampler to change. |
 | `mode` | Int32 | required | The filter mode from the table above. |
 
-**Differences and known gaps:**
-
-* The mode has to be 0 or 1, other values stop the program with an error.
-
-## Related commands
+## Related Commands
 
 * [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕
 * [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕

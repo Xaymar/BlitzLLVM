@@ -6,19 +6,25 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
+## Command Syntax
+
 ```blitzbasic
 SelectTreeViewNode node:Int32
 ```
+
+## Description
 
 **Works in:** BlitzPlus
 
 Selects a node, as if the user clicked it. There is no way to remove the selection afterwards other than selecting another node.
 
+## Parameters
+
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `node` | Int32 | required | Handle of a node. |
 
-## Related commands
+## Related Commands
 
 * [AddTreeViewNode](AddTreeViewNode)
 * [CollapseTreeViewNode](CollapseTreeViewNode)

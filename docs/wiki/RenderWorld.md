@@ -6,15 +6,31 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 RenderWorld tween:Float32=1
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Draws the whole 3D world into the back buffer, once for every visible camera, inside that camera's viewport. Cameras that are hidden or have a projection mode of 0 are skipped. The 2D drawing commands work on top of the result, so text and shapes drawn after RenderWorld appear in front of the 3D picture. Call [Flip](Flip) afterwards to show the frame.
 
 The optional tween value is for smooth movement when the game logic runs at a lower rate than the screen. First call [CaptureWorld](CaptureWorld) to remember where everything is, then move the entities to their new places, then draw with a tween from 0 to 1: 0 shows the captured positions, 1 the current ones, and anything between shows the entities part of the way. The example slides a cube across with 20 frames drawn between two positions of the world.
+
+**Differences and known gaps:**
+
+* Entities that are made or hidden after [CaptureWorld](CaptureWorld) are drawn where they are, they do not fade in.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `tween` | Float32 | `1` | How far between the captured state (0) and the current state (1) to draw. Defaults to 1. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -41,17 +57,11 @@ For i = 0 To 19
 Next
 ```
 
+## Media
+
 ![RenderWorld](media/world/renderworld.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `tween` | Float32 | `1` | How far between the captured state (0) and the current state (1) to draw. Defaults to 1. |
-
-**Differences and known gaps:**
-
-* Entities that are made or hidden after [CaptureWorld](CaptureWorld) are drawn where they are, they do not fade in.
-
-## Related commands
+## Related Commands
 
 * [CaptureWorld](CaptureWorld)
 * [ClearWorld](ClearWorld)

@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
+## Command Syntax
+
 ```blitzbasic
 GraphicsHeight:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 The height of the graphics window in pixels, as given to [Graphics](Graphics).
 
+## Parameters
+
 **Returns:** The height in pixels.
 
-## Related commands
+## Related Commands
 
 * [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
 * [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕

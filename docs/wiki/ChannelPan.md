@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 ChannelPan channel:Int32, pan:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Moves a playing channel between the left and the right speaker. It can be called at any time while the sound plays.
+
+**Differences and known gaps:**
+
+* Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+| `pan` | Float32 | required | -1 is only left, 0 the middle and 1 only right. Values outside that range are limited to it. |
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -26,16 +43,7 @@ Next
 StopChannel ch
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-| `pan` | Float32 | required | -1 is only left, 0 the middle and 1 only right. Values outside that range are limited to it. |
-
-**Differences and known gaps:**
-
-* Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
-
-## Related commands
+## Related Commands
 
 * [ChannelPitch](ChannelPitch)
 * [ChannelPlaying](ChannelPlaying)

@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 LockTextArea textarea:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Holds back redrawing of a text area while you change a lot of it, which is faster and does not flicker. Call [UnlockTextArea](UnlockTextArea) afterwards.
+
+**Differences and known gaps:**
+
+* While a text area is locked it sends no events for the changes you make.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `textarea` | Int32 | required | Handle of a text area. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -27,15 +43,7 @@ Repeat
 Until WaitEvent() = $803
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-
-**Differences and known gaps:**
-
-* While a text area is locked it sends no events for the changes you make.
-
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [CreateTextArea](CreateTextArea)

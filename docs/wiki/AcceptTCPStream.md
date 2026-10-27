@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
+## Command Syntax
+
 ```blitzbasic
 AcceptTCPStream:Int32 tcp_server:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Takes the next connection that a client made to a TCP server and returns a stream for it. If nobody connected within the accept timeout of [TCPTimeouts](TCPTimeouts), which is 0 until you set it, it returns 0, so call it in a loop.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `tcp_server` | Int32 | required | The server from [CreateTCPServer](CreateTCPServer). |
+
+**Returns:** A TCP stream, or 0 when nobody connected.
+
+## Examples
 
 ```blitzbasic
 TCPTimeouts 1000, 1000
@@ -35,13 +49,7 @@ CloseTCPServer server
 hello server
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `tcp_server` | Int32 | required | The server from [CreateTCPServer](CreateTCPServer). |
-
-**Returns:** A TCP stream, or 0 when nobody connected.
-
-## Related commands
+## Related Commands
 
 * [CloseTCPServer](CloseTCPServer)
 * [CloseTCPStream](CloseTCPStream)

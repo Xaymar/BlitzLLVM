@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 AnimTime:Float32 entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** How far into the current sequence the animation is, in frames. The value starts at 0 at the beginning of the sequence and can have a fractional part between two frames.
 
-## Related commands
+## Related Commands
 
 * [AddAnimSeq](AddAnimSeq)
 * [AnimLength](AnimLength)

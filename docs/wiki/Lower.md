@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Lower:String string:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns a copy of the string with every letter in lower case.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text. |
+
+**Returns:** The lower case text.
+
+## Examples
 
 ```blitzbasic
 Print Lower$("Hello World 1!")
@@ -22,13 +36,7 @@ Print Lower$("Hello World 1!")
 hello world 1!
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
-
-**Returns:** The lower case text.
-
-## Related commands
+## Related Commands
 
 * [Left](Left)
 * [Len](Len)

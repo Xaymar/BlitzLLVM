@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
+## Command Syntax
+
 ```blitzbasic
 CreatePanel:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Makes a rectangle that other gadgets can be placed on, so you can group them, hide them together or move them together. Give it a color with [SetPanelColor](SetPanelColor) or a picture with [SetPanelImage](SetPanelImage). Style 1 draws a frame around it.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the panel. |
+| `height` | Int32 | required | Height of the panel. |
+| `group` | Int32 | required | Window, tabber, canvas or another panel that holds it. |
+| `style` | Int32 | `0` | 1 draws a frame. Add 65536 to not follow the group when it is resized. Defaults to 0. |
+
+**Returns:** A handle for the panel.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -26,20 +45,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![CreatePanel](media/gadgets/createpanel.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the panel. |
-| `height` | Int32 | required | Height of the panel. |
-| `group` | Int32 | required | Window, tabber, canvas or another panel that holds it. |
-| `style` | Int32 | `0` | 1 draws a frame. Add 65536 to not follow the group when it is resized. Defaults to 0. |
-
-**Returns:** A handle for the panel.
-
-## Related commands
+## Related Commands
 
 * [CreateButton](CreateButton)
 * [CreateComboBox](CreateComboBox)

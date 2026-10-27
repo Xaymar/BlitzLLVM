@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 MaximizeWindow window:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Makes a window as big as the desktop. [RestoreWindow](RestoreWindow) brings back the size it had before, and [WindowMaximized](WindowMaximized) says whether it is in this state.
+
+**Differences and known gaps:**
+
+* The window fills the whole program window, also when it was made without flag 2 and so cannot be resized by the user.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `window` | Int32 | required | Handle of a window. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -22,17 +38,11 @@ Repeat
 Until WaitEvent() = $803
 ```
 
+## Media
+
 ![MaximizeWindow](media/windows/maximizewindow.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window. |
-
-**Differences and known gaps:**
-
-* The window fills the whole program window, also when it was made without flag 2 and so cannot be resized by the user.
-
-## Related commands
+## Related Commands
 
 * [ActivateWindow](ActivateWindow)
 * [ActiveWindow](ActiveWindow)

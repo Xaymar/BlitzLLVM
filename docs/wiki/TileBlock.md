@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 TileBlock image:Int32, x:Int32=0, y:Int32=0, frame:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Fills the whole current buffer with copies of a frame of an image, drawn without transparency. The pattern starts at the given offset, which makes scrolling backgrounds easy: change the offset a little every frame.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image to repeat. |
+| `x` | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
+| `y` | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
+| `frame` | Int32 | `0` | Which frame to use. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -33,16 +48,11 @@ While n < 40
 Wend
 ```
 
+## Media
+
 ![TileBlock](media/images/tileblock.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to repeat. |
-| `x` | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
-| `y` | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
-| `frame` | Int32 | `0` | Which frame to use. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [DrawBlock](DrawBlock)
 * [DrawBlockRect](DrawBlockRect)

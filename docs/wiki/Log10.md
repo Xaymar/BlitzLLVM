@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Log10:Float32 float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the logarithm to base 10, which is how many times 10 goes into the number.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `float` | Float32 | required | A number above 0. |
+
+**Returns:** The logarithm to base 10.
+
+## Examples
 
 ```blitzbasic
 Print Log10(1000)
@@ -22,13 +36,7 @@ Print Log10(1000)
 3.0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | A number above 0. |
-
-**Returns:** The logarithm to base 10.
-
-## Related commands
+## Related Commands
 
 * [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 * [Log](Log)

@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 NameEntity entity:Int32, name:String
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Gives an entity a name that you can read back with [EntityName](EntityName) or search for with [FindChild](FindChild). Entities loaded from model files keep the names of the objects in the file.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 | `name` | String | required | The name. |
 
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 Oval x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32=1
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws an ellipse inside the box given by position and size.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Int32 | required | Horizontal position of the left side of the box. |
+| `y` | Int32 | required | Vertical position of the top of the box. |
+| `width` | Int32 | required | Width of the box. |
+| `height` | Int32 | required | Height of the box. |
+| `solid` | Int32 | `1` | 1 fills the ellipse, 0 draws only its outline. Defaults to 1. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,17 +42,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![Oval](media/drawing/oval.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the left side of the box. |
-| `y` | Int32 | required | Vertical position of the top of the box. |
-| `width` | Int32 | required | Width of the box. |
-| `height` | Int32 | required | Height of the box. |
-| `solid` | Int32 | `1` | 1 fills the ellipse, 0 draws only its outline. Defaults to 1. |
-
-## Related commands
+## Related Commands
 
 * [Line](Line)
 * [Origin](Origin)

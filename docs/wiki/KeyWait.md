@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
+## Command Syntax
+
 ```blitzbasic
 KeyWait:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 The BlitzPlus name for [WaitKey](WaitKey). It behaves exactly the same.
+
+## Parameters
+
+**Returns:** The character code of the key that was typed.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -22,9 +32,7 @@ Flip
 KeyWait()
 ```
 
-**Returns:** The character code of the key that was typed.
-
-## Related commands
+## Related Commands
 
 * [GetKey](GetKey)
 * [KeyDown](KeyDown)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
+## Command Syntax
+
 ```blitzbasic
 GetSamplerAddressModeU:Int32 sampler:Int32
 ```
 
+## Description
+
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Returns the address mode of the horizontal texture coordinate (u) that the sampler has, as it was set with [SetSamplerAddressModeU](SetSamplerAddressModeU) (or the default of [CreateSampler](CreateSampler)). This is a BlitzLLVM extension. The value is the one that the sampler keeps, which is the one that was given after it was kept inside what is accepted: 0 repeat, 1 mirror, 2 clamp or 3 border.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Returns the address mode of the horizontal texture coordinate (u) that the sampl
 
 **Returns:** The setting: 0 repeat, 1 mirror, 2 clamp or 3 border.
 
-## Related commands
+## Related Commands
 
 * [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
 * [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕

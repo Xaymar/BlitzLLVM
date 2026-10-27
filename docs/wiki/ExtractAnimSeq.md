@@ -6,13 +6,30 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 ExtractAnimSeq:Int32 entity:Int32, first_frame:Int32, last_frame:Int32, anim_seq:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Cuts a range of frames out of an existing sequence and makes it a sequence of its own, which is how you split one long animation, as MD2 files and many exporters produce, into walk, run and idle clips that can each be played with [Animate](Animate).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | The animated entity. |
+| `first_frame` | Int32 | required | First frame of the clip. |
+| `last_frame` | Int32 | required | Last frame of the clip. |
+| `anim_seq` | Int32 | `0` | Sequence to take the frames from. Defaults to 0. |
+
+**Returns:** The number of the new sequence, or -1 if the entity has no animation.
+
+## Examples
 
 ```blitzbasic
 ; Split a long animation into clips; the frame numbers come from your model.
@@ -36,16 +53,7 @@ While Not KeyHit(1)
 Wend
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The animated entity. |
-| `first_frame` | Int32 | required | First frame of the clip. |
-| `last_frame` | Int32 | required | Last frame of the clip. |
-| `anim_seq` | Int32 | `0` | Sequence to take the frames from. Defaults to 0. |
-
-**Returns:** The number of the new sequence, or -1 if the entity has no animation.
-
-## Related commands
+## Related Commands
 
 * [AddAnimSeq](AddAnimSeq)
 * [AnimLength](AnimLength)

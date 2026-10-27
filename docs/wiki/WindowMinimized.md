@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
+## Command Syntax
+
 ```blitzbasic
 WindowMinimized:Int32 window:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** 1 if the window is hidden with [MinimizeWindow](MinimizeWindow), otherwise 0.
 
-## Related commands
+## Related Commands
 
 * [ActivateWindow](ActivateWindow)
 * [ActiveWindow](ActiveWindow)

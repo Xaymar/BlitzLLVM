@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
+## Command Syntax
+
 ```blitzbasic
 EventY:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 Gives the second coordinate of the last event, like [EventX](EventX): the mouse position for $203 and $205, the window position for $801 and the height for $802.
+
+## Parameters
+
+**Returns:** The Y value, see the table at [EventData](EventData).
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 32, 2
@@ -23,9 +33,7 @@ Repeat
 Until e = $803
 ```
 
-**Returns:** The Y value, see the table at [EventData](EventData).
-
-## Related commands
+## Related Commands
 
 * [EventData](EventData)
 * [EventID](EventID)

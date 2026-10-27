@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
+## Command Syntax
+
 ```blitzbasic
 TextAreaLine:Int32 textarea:Int32, char:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The number of the line that character is on, starting at 0.
 
-## Related commands
+## Related Commands
 
 * [AddTextAreaText](AddTextAreaText)
 * [TextAreaChar](TextAreaChar)

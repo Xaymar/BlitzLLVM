@@ -6,13 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 TurnEntity entity:Int32, pitch:Float32, yaw:Float32, roll:Float32, global:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Turns an entity by an amount from its current orientation. Call it every frame with small angles to spin something, such as a coin or a camera that follows the mouse.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `entity` | Int32 | required | Entity handle. |
+| `pitch` | Float32 | required | Rotation around X in degrees. |
+| `yaw` | Float32 | required | Rotation around Y in degrees. |
+| `roll` | Float32 | required | Rotation around Z in degrees. |
+| `global` | Int32 | `0` | 1 to turn around the axes of the world instead of the parent. Defaults to 0. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -30,17 +46,11 @@ While Not KeyHit(1)
 Wend
 ```
 
+## Media
+
 ![TurnEntity](media/blitz3d/turnentity.gif)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `pitch` | Float32 | required | Rotation around X in degrees. |
-| `yaw` | Float32 | required | Rotation around Y in degrees. |
-| `roll` | Float32 | required | Rotation around Z in degrees. |
-| `global` | Int32 | `0` | 1 to turn around the axes of the world instead of the parent. Defaults to 0. |
-
-## Related commands
+## Related Commands
 
 * [CopyEntity](CopyEntity)
 * [FreeEntity](FreeEntity)

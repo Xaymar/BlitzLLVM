@@ -6,15 +6,31 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
+## Command Syntax
+
 ```blitzbasic
 TFormPoint x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Converts a point from the coordinate system of one entity to that of another. Every entity has its own space with its origin at the entity's position, and the axes turned and scaled with it. The world is the space of entity 0. The converted point is stored and read back with [TFormedX](TFormedX), [TFormedY](TFormedY) and [TFormedZ](TFormedZ).
 
 Use it to find where something attached to an entity is in the world, for example the muzzle of a gun, or to turn a world position into one that is relative to a door or an elevator.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x` | Float32 | required | X of the point in the source space. |
+| `y` | Float32 | required | Y of the point in the source space. |
+| `z` | Float32 | required | Z of the point in the source space. |
+| `source_entity` | Int32 | required | Entity whose space the point is in, or 0 for the world. |
+| `dest_entity` | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
+
+## Examples
 
 ```blitzbasic
 Graphics3D 320, 240, 0, 2
@@ -37,15 +53,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Float32 | required | X of the point in the source space. |
-| `y` | Float32 | required | Y of the point in the source space. |
-| `z` | Float32 | required | Z of the point in the source space. |
-| `source_entity` | Int32 | required | Entity whose space the point is in, or 0 for the world. |
-| `dest_entity` | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
-
-## Related commands
+## Related Commands
 
 * [TFormedX](TFormedX)
 * [TFormedY](TFormedY)

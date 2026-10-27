@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
+## Command Syntax
+
 ```blitzbasic
 ReadFile:Int32 filename:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Opens an existing file for reading, starting at its beginning.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `filename` | String | required | The file to open. |
+
+**Returns:** A file handle, or 0 when the file does not exist, which you should always check.
+
+## Examples
 
 ```blitzbasic
 Print ReadFile("files_read_nothing_here")
@@ -22,13 +36,7 @@ Print ReadFile("files_read_nothing_here")
 0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `filename` | String | required | The file to open. |
-
-**Returns:** A file handle, or 0 when the file does not exist, which you should always check.
-
-## Related commands
+## Related Commands
 
 * [CloseFile](CloseFile)
 * [CopyFile](CopyFile)

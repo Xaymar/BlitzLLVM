@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 Exp:Float32 float:Float32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns e (2.71828...) raised to the given power. It is the opposite of [Log](Log).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `float` | Float32 | required | The exponent. |
+
+**Returns:** e to the power of `float`.
+
+## Examples
 
 ```blitzbasic
 Print Exp(1)
@@ -22,13 +36,7 @@ Print Exp(1)
 2.71828
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The exponent. |
-
-**Returns:** e to the power of `float`.
-
-## Related commands
+## Related Commands
 
 * [Cos](Cos)
 * [Double](Double) 〔BlitzLLVM〕

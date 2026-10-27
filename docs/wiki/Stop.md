@@ -6,9 +6,13 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
+## Command Syntax
+
 ```blitzbasic
 Stop
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
@@ -18,7 +22,7 @@ In the original this paused the program in the debugger so that you could look a
 
 * Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached. In any other build `Stop` does nothing.
 
-## Related commands
+## Related Commands
 
 * [RuntimeError](RuntimeError)
 * [SetEnv](SetEnv)

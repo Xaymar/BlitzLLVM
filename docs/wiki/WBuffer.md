@@ -6,23 +6,29 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
+## Command Syntax
+
 ```blitzbasic
 WBuffer enable:Int32
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Switches between a Z buffer and a W buffer for depth sorting. A W buffer spreads the precision of the depth values more evenly with distance on some graphics cards.
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True to use a W buffer. |
-
 **Differences and known gaps:**
 
 * Does nothing: the depth buffer is always the same reversed 32 bit float one (see Differences).
 
-## Related commands
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `enable` | Int32 | required | True to use a W buffer. |
+
+## Related Commands
 
 * [TrisRendered](TrisRendered)
 * [UpdateWorld](UpdateWorld)

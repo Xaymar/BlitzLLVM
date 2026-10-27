@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
+## Command Syntax
+
 ```blitzbasic
 PeekShort:Int32 bank:Int32, offset:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The 2-byte value at an offset, from 0 to 65535. Negative numbers that were poked come back as their unsigned form, for example -2 reads as 65534.
 
-## Related commands
+## Related Commands
 
 * [PeekByte](PeekByte)
 * [PeekFloat](PeekFloat)

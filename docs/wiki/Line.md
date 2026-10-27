@@ -6,13 +6,28 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
+## Command Syntax
+
 ```blitzbasic
 Line x1:Int32, y1:Int32, x2:Int32, y2:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Draws a line between two points. Both end points are drawn, and the line is made of whole pixels like in the original.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `x1` | Int32 | required | Horizontal position of the start. |
+| `y1` | Int32 | required | Vertical position of the start. |
+| `x2` | Int32 | required | Horizontal position of the end. |
+| `y2` | Int32 | required | Vertical position of the end. |
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -26,16 +41,11 @@ Flip
 WaitKey
 ```
 
+## Media
+
 ![Line](media/drawing/line.png)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x1` | Int32 | required | Horizontal position of the start. |
-| `y1` | Int32 | required | Vertical position of the start. |
-| `x2` | Int32 | required | Horizontal position of the end. |
-| `y2` | Int32 | required | Vertical position of the end. |
-
-## Related commands
+## Related Commands
 
 * [ColorRed](ColorRed)
 * [GetColor](GetColor)

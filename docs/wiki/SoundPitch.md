@@ -6,13 +6,26 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
+## Command Syntax
+
 ```blitzbasic
 SoundPitch sound:Int32, pitch:Int32
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Sets the playback frequency that channels of this sound start with, in hertz. Channels that are already playing keep theirs: use [ChannelPitch](ChannelPitch) for those.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
+| `pitch` | Int32 | required |  |
+
+## Examples
 
 ```blitzbasic
 ; MakeBeep writes beep.wav, see the LoadSound example for the code.
@@ -25,12 +38,7 @@ PlaySound snd
 Delay 1000
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
-| `pitch` | Int32 | required |  |
-
-## Related commands
+## Related Commands
 
 * [ChannelPitch](ChannelPitch)
 * [FreeSound](FreeSound)

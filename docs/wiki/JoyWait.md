@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyWait:Int32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, Blitz3D
 
 Stops the program until a joystick button is pressed and returns its number. A program that has to keep drawing should poll [GetJoy](GetJoy) or [JoyHit](JoyHit) instead.
+
+**Differences and known gaps:**
+
+* If no joystick is connected the function returns 0 right away instead of waiting forever.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,11 +30,7 @@ Stops the program until a joystick button is pressed and returns its number. A p
 
 **Returns:** The number of the button that was pressed.
 
-**Differences and known gaps:**
-
-* If no joystick is connected the function returns 0 right away instead of waiting forever.
-
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

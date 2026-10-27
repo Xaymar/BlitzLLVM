@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 MeshCullBox mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets the box that decides whether a mesh is in view. By default the box is taken from the mesh vertices when it is made; for a model that animates it may be too small and the mesh disappears at the edge of the screen although parts of it are still visible. Make the box big enough for every pose. The box is given in the space of the mesh: `x`, `y` and `z` is the corner with the smallest coordinates.
+
+**Differences and known gaps:**
+
+* The box only affects [EntityInView](EntityInView). The renderer does not cull meshes against the camera, so the box has no influence on what is drawn.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -24,11 +34,7 @@ Sets the box that decides whether a mesh is in view. By default the box is taken
 | `height` | Float32 | required | Size of the box along Y. |
 | `depth` | Float32 | required | Size of the box along Z. |
 
-**Differences and known gaps:**
-
-* The box only affects [EntityInView](EntityInView). The renderer does not cull meshes against the camera, so the box has no influence on what is drawn.
-
-## Related commands
+## Related Commands
 
 * [AddMesh](AddMesh)
 * [CopyMesh](CopyMesh)

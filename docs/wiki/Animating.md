@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 Animating:Int32 entity:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** True while the entity is playing an animation, and False when it is stopped, has finished a one-shot animation or has no animation at all.
 
-## Related commands
+## Related Commands
 
 * [Animate](Animate)
 * [AnimateMD2](AnimateMD2)

@@ -6,15 +6,25 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
+## Command Syntax
+
 ```blitzbasic
 AnimateMD2 md2:Int32, mode:Int32=1, speed:Float32=1, first_frame:Int32=0, last_frame:Int32=9999, transition:Float32=0
 ```
+
+## Description
 
 **Works in:** Blitz3D
 
 Plays frames of an MD2 model. The model moves on while [UpdateWorld](UpdateWorld) runs, and the frames between the first and the last are blended smoothly. The mode values are the same as for [Animate](Animate): 0 stop, 1 loop, 2 ping-pong, 3 one-shot.
 
 A transition above 0 blends from the pose the model is in now to the first frame over that many frames instead of snapping to it, so switching from idle to walk looks smooth.
+
+**Differences and known gaps:**
+
+* The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -25,11 +35,7 @@ A transition above 0 blends from the pose the model is in now to the first frame
 | `last_frame` | Int32 | `9999` | Last frame of the clip. Defaults to the last frame of the model. |
 | `transition` | Float32 | `0` | Frames of blending into the first frame. Defaults to 0. |
 
-**Differences and known gaps:**
-
-* The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
-
-## Related commands
+## Related Commands
 
 * [Animate](Animate)
 * [LoadMD2](LoadMD2)

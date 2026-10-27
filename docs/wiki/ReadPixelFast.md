@@ -6,13 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
+## Command Syntax
+
 ```blitzbasic
 ReadPixelFast:Int32 x:Int32, y:Int32, buffer:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](ReadPixel). The buffer has to be locked with [LockBuffer](LockBuffer).
+
+**Differences and known gaps:**
+
+* A buffer that is not locked stops the program with an error message. In the original a position outside of the buffer reads other memory.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -22,11 +32,7 @@ Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](
 
 **Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
 
-**Differences and known gaps:**
-
-* A buffer that is not locked stops the program with an error message. In the original a position outside of the buffer reads other memory.
-
-## Related commands
+## Related Commands
 
 * [CopyPixel](CopyPixel)
 * [CopyPixelFast](CopyPixelFast)

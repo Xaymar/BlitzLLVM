@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
+## Command Syntax
+
 ```blitzbasic
 MenuEnabled:Int32 menu:Int32
 ```
 
+## Description
+
 **Works in:** BlitzPlus
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ _Not documented yet._
 
 **Returns:** 1 if it can be chosen, 0 if it was disabled.
 
-## Related commands
+## Related Commands
 
 * [CheckMenu](CheckMenu)
 * [CreateMenu](CreateMenu)

@@ -6,17 +6,23 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
+## Command Syntax
+
 ```blitzbasic
 RndSeed:Int32
 ```
+
+## Description
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 _Not documented yet._
 
+## Parameters
+
 **Returns:** The current seed of the random number generator. Store it and give it to [SeedRnd](SeedRnd) later to replay a sequence of random numbers.
 
-## Related commands
+## Related Commands
 
 * [Rand](Rand)
 * [Rnd](Rnd)

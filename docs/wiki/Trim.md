@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Trim:String string:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Removes spaces, tabs and other invisible characters from both ends of a string.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text. |
+
+**Returns:** The text without the blanks at its ends.
+
+## Examples
 
 ```blitzbasic
 Print "[" + Trim$("   hi there  ") + "]"
@@ -22,13 +36,7 @@ Print "[" + Trim$("   hi there  ") + "]"
 [hi there]
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
-
-**Returns:** The text without the blanks at its ends.
-
-## Related commands
+## Related Commands
 
 * [RSet](RSet)
 * [String](String)

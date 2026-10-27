@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
+## Command Syntax
+
 ```blitzbasic
 JoyXDir:Int32 port:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Like [JoyX](JoyX), but as a direction only: -1 when pushed left past a third of the range, 1 when pushed right past a third, otherwise 0. Handy for menus.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Like [JoyX](JoyX), but as a direction only: -1 when pushed left past a third of 
 
 **Returns:** -1, 0 or 1.
 
-## Related commands
+## Related Commands
 
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)

@@ -6,13 +6,32 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
+## Command Syntax
+
 ```blitzbasic
 ImageBuffer:Int32 image:Int32, frame:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the buffer of one frame of an image, which [SetBuffer](SetBuffer) can make the target of all drawing commands. The buffer is also the one that [LockBuffer](LockBuffer) and [ReadPixel](ReadPixel) work on.
+
+**Differences and known gaps:**
+
+* A frame number that does not exist stops the program with an error message.
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | Int32 | required | The image. |
+| `frame` | Int32 | `0` | The frame whose buffer to return. Defaults to 0. |
+
+**Returns:** A buffer handle for [SetBuffer](SetBuffer) and the pixel commands.
+
+## Examples
 
 ```blitzbasic
 Graphics 320, 240, 0, 2
@@ -32,18 +51,7 @@ Flip
 WaitKey
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `frame` | Int32 | `0` | The frame whose buffer to return. Defaults to 0. |
-
-**Returns:** A buffer handle for [SetBuffer](SetBuffer) and the pixel commands.
-
-**Differences and known gaps:**
-
-* A frame number that does not exist stops the program with an error message.
-
-## Related commands
+## Related Commands
 
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)

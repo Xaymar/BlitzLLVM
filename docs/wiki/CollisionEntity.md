@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
+## Command Syntax
+
 ```blitzbasic
 CollisionEntity:Int32 entity:Int32, collision_index:Int32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 _Not documented yet._
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +27,7 @@ _Not documented yet._
 
 **Returns:** The other entity of one of the collisions that happened to this entity in the last [UpdateWorld](UpdateWorld). The index runs from 1 to [CountCollisions](CountCollisions).
 
-## Related commands
+## Related Commands
 
 * [CollisionNX](CollisionNX)
 * [CollisionNY](CollisionNY)

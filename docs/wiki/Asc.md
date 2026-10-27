@@ -6,13 +6,27 @@
 
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
+## Command Syntax
+
 ```blitzbasic
 Asc:Int32 string:String
 ```
 
+## Description
+
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
 
 Returns the character code of the first character of a string. It is the opposite of [Chr](Chr).
+
+## Parameters
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `string` | String | required | The text. Only its first character counts. |
+
+**Returns:** A code from 0 to 255.
+
+## Examples
 
 ```blitzbasic
 Print Asc("A")
@@ -24,13 +38,7 @@ Print Asc("BCD")
 66
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. Only its first character counts. |
-
-**Returns:** A code from 0 to 255.
-
-## Related commands
+## Related Commands
 
 * [Bin](Bin)
 * [Chr](Chr)

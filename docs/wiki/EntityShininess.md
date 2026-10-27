@@ -6,20 +6,26 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
+## Command Syntax
+
 ```blitzbasic
 EntityShininess entity:Int32, shininess:Float32
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Sets how strongly lights shine back from the entity as highlights. 0, the default, is matt. Values near 1 give a polished look, like a billiard ball, but only where a light hits the surface head on.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `entity` | Int32 | required | Entity handle. |
 | `shininess` | Float32 | required | Strength of the highlight, 0 to 1. |
 
-## Related commands
+## Related Commands
 
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)

@@ -6,13 +6,19 @@
 
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
+## Command Syntax
+
 ```blitzbasic
 CreateMirror:Int32 parent:Int32=0
 ```
 
+## Description
+
 **Works in:** Blitz3D
 
 Creates a mirror entity: an endless horizontal floor that is invisible but flips everything above it to the other side, which is how a polished, reflecting floor was drawn in the original. Position it with [PositionEntity](PositionEntity) to set its height.
+
+## Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -20,7 +26,7 @@ Creates a mirror entity: an endless horizontal floor that is invisible but flips
 
 **Returns:** The handle of the mirror.
 
-## Related commands
+## Related Commands
 
 * [CreateCone](CreateCone)
 * [CreateCube](CreateCube)
