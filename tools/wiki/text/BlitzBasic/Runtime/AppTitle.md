@@ -9,4 +9,4 @@ AppTitle "My game"
 ```
 @param title         The window title.
 @param close_prompt  The question the original asked before closing the window.
-@gap The title is only used once a graphics mode is open. The question is asked when somebody closes the window, see [Differences](Differences#apptitle).
+@gap The title is only used once a graphics mode is open. The question is asked when somebody closes the window. If they cancel, the program carries on; otherwise the window closes as it would have without the question.

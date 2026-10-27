@@ -25,7 +25,7 @@ Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to 
 
 **Differences and known gaps:**
 
-* Only `.b3d` and `.3ds` files can be loaded. `.x` files are not read, so the result is 0. The 3D Studio loader is described in [Differences](Differences#3d-studio-models).
+* Only `.b3d` and `.3ds` files can be loaded. `.x` files are not read, so the result is 0. The 3D Studio loader is described in [3D Studio models](3D-Studio-Models).
 
 ## Related commands
 

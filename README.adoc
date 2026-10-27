@@ -19,6 +19,8 @@ The goal is to run existing programs unchanged:
 
 Where BlitzLLVM behaves differently, or a feature is still missing, it is listed on the link:docs/wiki/Differences.md[Differences page] and in the "Differences and known gaps" part of each command's page in the link:docs/wiki/Command-Index.md[command reference].
 
+The Differences page is generated, so never edit it by hand. A command that differs gets an `@gap` line in its file in `tools/wiki/text/<Dialect>/<Category>/<Command>.md`. A difference that no single command causes (a renderer detail, a new type, an environment variable) gets a page of its own in `tools/wiki/pages/`, with a line `@difference One sentence summary.` under its heading. Then run `python3 tools/wiki/wiki.py build`, which lists both on the Differences page, and commit the result.
+
 == New in BlitzLLVM
 
 Beyond the originals:

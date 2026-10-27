@@ -12,7 +12,12 @@ Microseconds  ; returns UInt64
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Like [MilliSecs](MilliSecs), but counts microseconds (millionths of a second) and returns a `UInt64`, because the count needs far more than 32 bits. This is a BlitzLLVM extension: the originals only have [MilliSecs](MilliSecs). See [Differences](Differences#microseconds-and-uint64) for how a `UInt64` behaves.
+Like [MilliSecs](MilliSecs), but counts microseconds (millionths of a second) and returns a `UInt64`, because the count needs far more than 32 bits. This is a BlitzLLVM extension: the originals only have [MilliSecs](MilliSecs).
+* Keep the result in a variable declared with `:UInt64` (for example `start:UInt64 = Microseconds()`). A variable with no type or with `%` is an `Int`, which keeps only the lowest 32 bits and may come out negative; `#` is a `Float`, which rounds.
+* `Str` and `Print` write all digits, and an expression with a `UInt64` and an `Int` is calculated as a `UInt64`, so `Microseconds() - start` is the elapsed time. Comparisons are unsigned, and `Int()` and `Float()` convert the value (the `Int` loses the upper bits).
+* The start of the count is not fixed, like `MilliSecs`: only differences between two calls mean something. The clock is the system clock, so it can jump when the time is set.
+* A 32-bit `Int` would overflow after 35 minutes, and a `Float` (24 bits of precision) stops counting single microseconds after 16 seconds. See [Types everywhere](Types) for the other new types.
+
 
 ```blitzbasic
 start:UInt64 = Microseconds()

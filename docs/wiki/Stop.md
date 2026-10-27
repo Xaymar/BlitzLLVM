@@ -16,7 +16,7 @@ In the original this paused the program in the debugger so that you could look a
 
 **Differences and known gaps:**
 
-* Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached. In any other build `Stop` does nothing. See [Differences](Differences#stop).
+* Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached. In any other build `Stop` does nothing.
 
 ## Related commands
 

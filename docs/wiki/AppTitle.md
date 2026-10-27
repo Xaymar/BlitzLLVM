@@ -26,7 +26,7 @@ AppTitle "My game"
 
 **Differences and known gaps:**
 
-* The title is only used once a graphics mode is open. The question is asked when somebody closes the window, see [Differences](Differences#apptitle).
+* The title is only used once a graphics mode is open. The question is asked when somebody closes the window. If they cancel, the program carries on; otherwise the window closes as it would have without the question.
 
 ## Related commands
 

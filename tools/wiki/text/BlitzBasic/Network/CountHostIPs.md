@@ -13,4 +13,4 @@ Print CountHostIPs("localhost") >= 1
 ```
 @param host_name  A host name such as `localhost`, or an address as text.
 @returns The number of addresses.
-@gap Only IPv4 addresses are counted. See [Differences](Differences#network-addresses).
+@gap Only IPv4 addresses are counted. `UDPStreamIP` is the first address of this computer.
