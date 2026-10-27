@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-ScaleEntity entity%, x_scale#, y_scale#, z_scale#, global%=0
+ScaleEntity entity:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32, global:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -37,11 +37,11 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `x_scale` | Float | required | Size along X. |
-| `y_scale` | Float | required | Size along Y. |
-| `z_scale` | Float | required | Size along Z. |
-| `global` | Int | `0` | 1 to scale independent of the parent. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle. |
+| `x_scale` | Float32 | required | Size along X. |
+| `y_scale` | Float32 | required | Size along Y. |
+| `z_scale` | Float32 | required | Size along Z. |
+| `global` | Int32 | `0` | 1 to scale independent of the parent. Defaults to 0. |
 
 ## Related commands
 

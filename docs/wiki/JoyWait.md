@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
 ```blitzbasic
-JoyWait port%=0  ; returns Int
+JoyWait:Int32 port:Int32=0
 ```
 
 **Works in:** Blitz2D, Blitz3D
@@ -16,7 +16,7 @@ Stops the program until a joystick button is pressed and returns its number. A p
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `port` | Int | `0` | The joystick to wait for, counted from 0. Defaults to 0. |
+| `port` | Int32 | `0` | The joystick to wait for, counted from 0. Defaults to 0. |
 
 **Returns:** The number of the button that was pressed.
 

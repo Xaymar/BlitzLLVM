@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
 ```blitzbasic
-CanvasBuffer canvas%  ; returns Int
+CanvasBuffer:Int32 canvas:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -34,7 +34,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `canvas` | Int | required | Handle of a canvas made with [CreateCanvas](CreateCanvas). |
+| `canvas` | Int32 | required | Handle of a canvas made with [CreateCanvas](CreateCanvas). |
 
 **Returns:** A buffer handle that works with `SetBuffer`, `LockBuffer`, `ReadPixel` and the other buffer commands.
 

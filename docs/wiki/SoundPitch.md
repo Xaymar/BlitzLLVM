@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-SoundPitch sound%, pitch%
+SoundPitch sound:Int32, pitch:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -27,8 +27,8 @@ Delay 1000
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required | A handle from [LoadSound](LoadSound). |
-| `pitch` | Int | required |  |
+| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
+| `pitch` | Int32 | required |  |
 
 ## Related commands
 

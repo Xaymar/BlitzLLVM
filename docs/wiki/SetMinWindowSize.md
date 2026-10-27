@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-SetMinWindowSize window%, width%=-1, height%=-1
+SetMinWindowSize window:Int32, width:Int32=-1, height:Int32=-1
 ```
 
 **Works in:** BlitzPlus
@@ -24,9 +24,9 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `window` | Int | required | Handle of a window that can be resized. |
-| `width` | Int | `-1` | Smallest width. Defaults to -1, which takes the current width. |
-| `height` | Int | `-1` | Smallest height. Defaults to -1, which takes the current height. |
+| `window` | Int32 | required | Handle of a window that can be resized. |
+| `width` | Int32 | `-1` | Smallest width. Defaults to -1, which takes the current width. |
+| `height` | Int32 | `-1` | Smallest height. Defaults to -1, which takes the current height. |
 
 **Differences and known gaps:**
 

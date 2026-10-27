@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
 ```blitzbasic
-ModifyTerrain terrain%, terrain_x%, terrain_z%, height#, realtime%=0
+ModifyTerrain terrain:Int32, terrain_x:Int32, terrain_z:Int32, height:Float32, realtime:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,11 +16,11 @@ Sets the height of one grid point of the terrain. Heights are between 0 and 1 an
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required | The terrain. |
-| `terrain_x` | Int | required |  |
-| `terrain_z` | Int | required |  |
-| `height` | Float | required | New height, 0 to 1. |
-| `realtime` | Int | `0` | True to apply the change immediately instead of at the next render. Defaults to False. |
+| `terrain` | Int32 | required | The terrain. |
+| `terrain_x` | Int32 | required |  |
+| `terrain_z` | Int32 | required |  |
+| `height` | Float32 | required | New height, 0 to 1. |
+| `realtime` | Int32 | `0` | True to apply the change immediately instead of at the next render. Defaults to False. |
 
 **Differences and known gaps:**
 

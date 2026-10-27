@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-WriteInt stream%, int%
+WriteInt stream:Int32, int:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -33,8 +33,8 @@ DeleteFile "streams_int_example.tmp"
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required | The stream to write to. |
-| `int` | Int | required | The value to write. |
+| `stream` | Int32 | required | The stream to write to. |
+| `int` | Int32 | required | The value to write. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-InsertGadgetItem gadget%, index%, item$, icon%=-1
+InsertGadgetItem gadget:Int32, index:Int32, item:String, icon:Int32=-1
 ```
 
 **Works in:** BlitzPlus
@@ -27,10 +27,10 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of a list box, combo box or tabber. |
-| `index` | Int | required | Where the entry goes, starting at 0. |
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| `index` | Int32 | required | Where the entry goes, starting at 0. |
 | `item` | String | required |  |
-| `icon` | Int | `-1` | Number of an icon of the gadget. Defaults to -1, which means none. |
+| `icon` | Int32 | `-1` | Number of an icon of the gadget. Defaults to -1, which means none. |
 
 ## Related commands
 

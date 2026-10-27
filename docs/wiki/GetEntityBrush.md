@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-GetEntityBrush entity%  ; returns Int
+GetEntityBrush:Int32 entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Makes a new brush that has the same look as an entity: its color, alpha, shinine
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
+| `entity` | Int32 | required | The entity. |
 
 **Returns:** A brush handle.
 

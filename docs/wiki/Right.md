@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Right string$, count%  ; returns String
+Right:String string:String, count:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -25,7 +25,7 @@ lo
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `string` | String | required | The text. |
-| `count` | Int | required | How many characters to take. |
+| `count` | Int32 | required | How many characters to take. |
 
 **Returns:** The last `count` characters.
 

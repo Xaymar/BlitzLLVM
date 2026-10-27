@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-GammaRed red%  ; returns Float
+GammaRed:Float32 red:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -25,7 +25,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `red` | Int | required | The input value, 0 to 255. |
+| `red` | Int32 | required | The input value, 0 to 255. |
 
 **Returns:** The output value for the input.
 

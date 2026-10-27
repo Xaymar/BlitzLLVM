@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-ImagesOverlap image1%, x1%, y1%, image2%, x2%, y2%  ; returns Int
+ImagesOverlap:Int32 image1:Int32, x1:Int32, y1:Int32, image2:Int32, x2:Int32, y2:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,12 +16,12 @@ Tells whether the boxes of two images touch, which is quick but counts transpare
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image1` | Int | required | The first image. |
-| `x1` | Int | required | Horizontal position where the first image is drawn. |
-| `y1` | Int | required | Vertical position where the first image is drawn. |
-| `image2` | Int | required | The second image. |
-| `x2` | Int | required | Horizontal position where the second image is drawn. |
-| `y2` | Int | required | Vertical position where the second image is drawn. |
+| `image1` | Int32 | required | The first image. |
+| `x1` | Int32 | required | Horizontal position where the first image is drawn. |
+| `y1` | Int32 | required | Vertical position where the first image is drawn. |
+| `image2` | Int32 | required | The second image. |
+| `x2` | Int32 | required | Horizontal position where the second image is drawn. |
+| `y2` | Int32 | required | Vertical position where the second image is drawn. |
 
 **Returns:** 1 if the boxes overlap, otherwise 0.
 

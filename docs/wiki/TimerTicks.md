@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-TimerTicks timer%  ; returns Int
+TimerTicks:Int32 timer:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -26,7 +26,7 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `timer` | Int | required | A timer from `CreateTimer`. |
+| `timer` | Int32 | required | A timer from `CreateTimer`. |
 
 **Returns:** The number of ticks.
 

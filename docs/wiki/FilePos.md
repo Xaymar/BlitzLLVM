@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
 ```blitzbasic
-FilePos file_stream%  ; returns Int
+FilePos:Int32 file_stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file_stream` | Int | required | The file handle. |
+| `file_stream` | Int32 | required | The file handle. |
 
 **Returns:** The position in the file where the next read or write happens, counted in bytes from the start. A newly opened file is at 0.
 

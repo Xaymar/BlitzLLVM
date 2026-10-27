@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
 
 ```blitzbasic
-BSPLighting bsp%, use_lightmaps%
+BSPLighting bsp:Int32, use_lightmaps:Int32
 ```
 
 **Works in:** Blitz3D
@@ -84,8 +84,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bsp` | Int | required | The level. |
-| `use_lightmaps` | Int | required | True for lightmaps, False for vertex lighting. Defaults to True. |
+| `bsp` | Int32 | required | The level. |
+| `use_lightmaps` | Int32 | required | True for lightmaps, False for vertex lighting. Defaults to True. |
 
 **Differences and known gaps:**
 

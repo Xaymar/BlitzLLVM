@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Bin value%  ; returns String
+Bin:String value:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Print Bin$(5)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `value` | Int | required | The number to convert. |
+| `value` | Int32 | required | The number to convert. |
 
 **Returns:** A string of 32 digits, 0 and 1.
 

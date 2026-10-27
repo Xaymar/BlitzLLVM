@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-ChannelPitch channel%, pitch%
+ChannelPitch channel:Int32, pitch:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -28,8 +28,8 @@ StopChannel ch
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required | A channel handle from [PlaySound](PlaySound). |
-| `pitch` | Int | required |  |
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound). |
+| `pitch` | Int32 | required |  |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityColor entity%, red#, green#, blue#
+EntityColor entity:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
 **Works in:** Blitz3D
@@ -40,10 +40,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `red` | Float | required | Red part, 0 to 255. |
-| `green` | Float | required | Green part, 0 to 255. |
-| `blue` | Float | required | Blue part, 0 to 255. |
+| `entity` | Int32 | required | Entity handle. |
+| `red` | Float32 | required | Red part, 0 to 255. |
+| `green` | Float32 | required | Green part, 0 to 255. |
+| `blue` | Float32 | required | Blue part, 0 to 255. |
 
 ## Related commands
 

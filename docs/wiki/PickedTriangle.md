@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
 ```blitzbasic
-PickedTriangle  ; returns Int
+PickedTriangle:Int32
 ```
 
 **Works in:** Blitz3D

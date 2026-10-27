@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
 ```blitzbasic
-FileSize file$  ; returns Int
+FileSize:Int32 file:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

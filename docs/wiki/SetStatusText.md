@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-SetStatusText window%, text$  ; returns Int
+SetStatusText:Int32 window:Int32, text:String
 ```
 
 **Works in:** BlitzPlus
@@ -26,7 +26,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `window` | Int | required | Handle of a window made with flag 8. |
+| `window` | Int32 | required | Handle of a window made with flag 8. |
 | `text` | String | required | Text to show. |
 
 **Returns:** Always 0. The original returns a value that is not documented.

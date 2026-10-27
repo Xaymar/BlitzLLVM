@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-ClearWorld entities%=1, brushes%=1, textures%=1
+ClearWorld entities:Int32=1, brushes:Int32=1, textures:Int32=1
 ```
 
 **Works in:** Blitz3D
@@ -34,9 +34,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entities` | Int | `1` | True to free every entity. Defaults to True. |
-| `brushes` | Int | `1` | True to free every brush. Defaults to True. |
-| `textures` | Int | `1` | True to free every texture. Defaults to True. |
+| `entities` | Int32 | `1` | True to free every entity. Defaults to True. |
+| `brushes` | Int32 | `1` | True to free every brush. Defaults to True. |
+| `textures` | Int32 | `1` | True to free every texture. Defaults to True. |
 
 ## Related commands
 

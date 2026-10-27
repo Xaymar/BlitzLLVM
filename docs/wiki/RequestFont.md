@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
 
 ```blitzbasic
-RequestFont  ; returns Int
+RequestFont:Int32
 ```
 
 **Works in:** BlitzPlus

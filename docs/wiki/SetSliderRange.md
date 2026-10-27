@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SetSliderRange slider%, visible%, total%
+SetSliderRange slider:Int32, visible:Int32, total:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -27,9 +27,9 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `slider` | Int | required | Handle of a slider. |
-| `visible` | Int | required | How much is seen at once. |
-| `total` | Int | required | How much there is altogether. |
+| `slider` | Int32 | required | Handle of a slider. |
+| `visible` | Int32 | required | How much is seen at once. |
+| `total` | Int32 | required | How much there is altogether. |
 
 ## Related commands
 

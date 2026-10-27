@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
 ```blitzbasic
-EntityPickMode entity%, pick_geometry%, obscurer%=1
+EntityPickMode entity:Int32, pick_geometry:Int32, obscurer:Int32=1
 ```
 
 **Works in:** Blitz3D
@@ -27,9 +27,9 @@ Sprites can only be picked with the sphere or box mode, because they have no mes
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
-| `pick_geometry` | Int | required | Shape to test, 0 to 3. |
-| `obscurer` | Int | `1` | True if the entity blocks EntityVisible. Defaults to True. |
+| `entity` | Int32 | required | The entity. |
+| `pick_geometry` | Int32 | required | Shape to test, 0 to 3. |
+| `obscurer` | Int32 | `1` | True if the entity blocks EntityVisible. Defaults to True. |
 
 ## Related commands
 

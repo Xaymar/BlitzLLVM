@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-MaximizeWindow window%
+MaximizeWindow window:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -26,7 +26,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `window` | Int | required | Handle of a window. |
+| `window` | Int32 | required | Handle of a window. |
 
 **Differences and known gaps:**
 

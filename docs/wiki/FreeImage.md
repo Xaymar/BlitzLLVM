@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-FreeImage image%
+FreeImage image:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Releases an image and its video memory. The handle must not be used afterwards.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image to free. |
+| `image` | Int32 | required | The image to free. |
 
 **Differences and known gaps:**
 

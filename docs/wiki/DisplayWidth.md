@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-DisplayWidth display%  ; returns Int
+DisplayWidth:Int32 display:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,7 +16,7 @@ The width in pixels of what a display shows right now, which is the resolution o
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The width in pixels, or 0 if the display does not exist.
 

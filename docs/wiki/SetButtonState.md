@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SetButtonState button%, state%
+SetButtonState button:Int32, state:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,8 +16,8 @@ Ticks or unticks a check box or radio button. Making a radio button ticked untic
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `button` | Int | required | Handle of a button of style 2 or 3. |
-| `state` | Int | required | 1 for ticked, 0 for not. |
+| `button` | Int32 | required | Handle of a button of style 2 or 3. |
+| `state` | Int32 | required | 1 for ticked, 0 for not. |
 
 ## Related commands
 

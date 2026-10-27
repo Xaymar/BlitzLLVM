@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-UpdateGamma calibrate%=0
+UpdateGamma calibrate:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Makes the gamma tables that [SetGamma](SetGamma) changed count: the window is sh
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `calibrate` | Int | `0` | 1 to use the calibration of the display. Defaults to 0. |
+| `calibrate` | Int32 | `0` | 1 to use the calibration of the display. Defaults to 0. |
 
 **Differences and known gaps:**
 

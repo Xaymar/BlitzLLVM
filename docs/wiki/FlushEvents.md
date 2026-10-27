@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-FlushEvents kind%=-1, source%=0
+FlushEvents kind:Int32=-1, source:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -25,8 +25,8 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `kind` | Int | `-1` | Event kind or group to remove. Defaults to -1, which means all. |
-| `source` | Int | `0` | Only remove events from this object. Defaults to 0, which means any. |
+| `kind` | Int32 | `-1` | Event kind or group to remove. Defaults to -1, which means all. |
+| `source` | Int32 | `0` | Only remove events from this object. Defaults to 0, which means any. |
 
 ## Related commands
 

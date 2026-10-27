@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraZoom camera%, zoom#
+CameraZoom camera:Int32, zoom:Float32
 ```
 
 **Works in:** Blitz3D
@@ -36,8 +36,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `zoom` | Float | required | Magnification, 1 by default. |
+| `camera` | Int32 | required | Camera handle. |
+| `zoom` | Float32 | required | Magnification, 1 by default. |
 
 ## Related commands
 

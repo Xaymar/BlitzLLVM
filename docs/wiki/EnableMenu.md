@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
 ```blitzbasic
-EnableMenu menu%
+EnableMenu menu:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ Makes a menu item usable again after [DisableMenu](DisableMenu).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `menu` | Int | required | Handle of a menu or item. |
+| `menu` | Int32 | required | Handle of a menu or item. |
 
 ## Related commands
 

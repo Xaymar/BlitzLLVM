@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
 ```blitzbasic
-LoadTerrain heightmap_file$, parent%=0  ; returns Int
+LoadTerrain:Int32 heightmap_file:String, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -51,7 +51,7 @@ WaitKey
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `heightmap_file` | String | required |  |
-| `parent` | Int | `0` | Optional parent entity. |
+| `parent` | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the terrain.
 

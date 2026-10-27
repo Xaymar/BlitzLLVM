@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-HWMultiTex enable%
+HWMultiTex enable:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Switches multitexturing on or off, so that a triangle with several textures is d
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | True to use multitexturing when the card has it. |
+| `enable` | Int32 | required | True to use multitexturing when the card has it. |
 
 **Differences and known gaps:**
 

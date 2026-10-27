@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
 ```blitzbasic
-LoadIconStrip file$  ; returns Int
+LoadIconStrip:Int32 file:String
 ```
 
 **Works in:** BlitzPlus

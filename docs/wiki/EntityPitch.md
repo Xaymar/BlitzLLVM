@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityPitch entity%, global%=0  ; returns Float
+EntityPitch:Float32 entity:Int32, global:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Reads the rotation around X in degrees. The angles are worked out from the orien
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `global` | Int | `0` | 1 for the angle in the world. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle. |
+| `global` | Int32 | `0` | 1 for the angle in the world. Defaults to 0. |
 
 **Returns:** Pitch angle of the entity, relative to its parent or with `global` set to 1 in the world.
 

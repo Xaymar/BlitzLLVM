@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
 ```blitzbasic
-LinePick x#, y#, z#, dx#, dy#, dz#, radius#=0  ; returns Int
+LinePick:Int32 x:Float32, y:Float32, z:Float32, dx:Float32, dy:Float32, dz:Float32, radius:Float32=0
 ```
 
 **Works in:** Blitz3D
@@ -37,13 +37,13 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Float | required | Start X in world coordinates. |
-| `y` | Float | required | Start Y. |
-| `z` | Float | required | Start Z. |
-| `dx` | Float | required | How far the line goes along X. |
-| `dy` | Float | required | How far the line goes along Y. |
-| `dz` | Float | required | How far the line goes along Z. |
-| `radius` | Float | `0` | Thickness of the line. Defaults to 0. |
+| `x` | Float32 | required | Start X in world coordinates. |
+| `y` | Float32 | required | Start Y. |
+| `z` | Float32 | required | Start Z. |
+| `dx` | Float32 | required | How far the line goes along X. |
+| `dy` | Float32 | required | How far the line goes along Y. |
+| `dz` | Float32 | required | How far the line goes along Z. |
+| `radius` | Float32 | `0` | Thickness of the line. Defaults to 0. |
 
 **Returns:** The entity found, or 0.
 

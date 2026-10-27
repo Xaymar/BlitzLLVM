@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
 ```blitzbasic
-CollisionNY entity%, collision_index%  ; returns Float
+CollisionNY:Float32 entity:Int32, collision_index:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity that moved. |
-| `collision_index` | Int | required |  |
+| `entity` | Int32 | required | The entity that moved. |
+| `collision_index` | Int32 | required |  |
 
 **Returns:** The Y part of the surface normal at the numbered collision. Ground that you stand on has a value close to 1.
 

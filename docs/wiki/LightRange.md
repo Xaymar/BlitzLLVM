@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
 
 ```blitzbasic
-LightRange light%, range#
+LightRange light:Int32, range:Float32
 ```
 
 **Works in:** Blitz3D
@@ -37,8 +37,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `light` | Int | required | Light handle. |
-| `range` | Float | required | How far the light reaches. |
+| `light` | Int32 | required | Light handle. |
+| `range` | Float32 | required | How far the light reaches. |
 
 ## Related commands
 

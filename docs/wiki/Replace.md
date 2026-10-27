@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Replace string$, from$, to$  ; returns String
+Replace:String string:String, from:String, to:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

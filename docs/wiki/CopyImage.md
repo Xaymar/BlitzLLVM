@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-CopyImage image%  ; returns Int
+CopyImage:Int32 image:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,7 +26,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image to copy. |
+| `image` | Int32 | required | The image to copy. |
 
 **Returns:** A handle for the new image.
 

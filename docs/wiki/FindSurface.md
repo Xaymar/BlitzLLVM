@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-FindSurface mesh%, brush%  ; returns Int
+FindSurface:Int32 mesh:Int32, brush:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Looks for the surface of a mesh that was painted with the given brush. Returns i
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `brush` | Int | required | Brush handle to look for. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `brush` | Int32 | required | Brush handle to look for. |
 
 **Returns:** The handle of the surface, or 0 if there is none.
 

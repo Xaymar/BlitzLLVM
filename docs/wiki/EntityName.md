@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityName entity%  ; returns String
+EntityName:String entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
+| `entity` | Int32 | required | Entity handle. |
 
 **Returns:** The name of the entity, an empty string if it has none.
 

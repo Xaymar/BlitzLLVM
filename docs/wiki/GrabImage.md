@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-GrabImage image%, x%, y%, frame%=0
+GrabImage image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -36,10 +36,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image to copy into. |
-| `x` | Int | required | Left edge of the part of the buffer to copy. |
-| `y` | Int | required | Top edge of the part of the buffer to copy. |
-| `frame` | Int | `0` | The frame to copy into. Defaults to 0. |
+| `image` | Int32 | required | The image to copy into. |
+| `x` | Int32 | required | Left edge of the part of the buffer to copy. |
+| `y` | Int32 | required | Top edge of the part of the buffer to copy. |
+| `frame` | Int32 | `0` | The frame to copy into. Defaults to 0. |
 
 **Differences and known gaps:**
 

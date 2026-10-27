@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-CreateLabel text$, x%, y%, width%, height%, group%, style%=0  ; returns Int
+CreateLabel:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -38,12 +38,12 @@ Until WaitEvent() = $803
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `text` | String | required | The text to show. |
-| `x` | Int | required | Horizontal position inside the group. |
-| `y` | Int | required | Vertical position inside the group. |
-| `width` | Int | required | Width of the label. |
-| `height` | Int | required | Height of the label. |
-| `group` | Int | required | Window, panel, tabber or canvas that holds it. |
-| `style` | Int | `0` | Frame, see the table. Defaults to 0. |
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the label. |
+| `height` | Int32 | required | Height of the label. |
+| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
+| `style` | Int32 | `0` | Frame, see the table. Defaults to 0. |
 
 **Returns:** A handle for the label.
 

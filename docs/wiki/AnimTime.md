@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-AnimTime entity%  ; returns Float
+AnimTime:Float32 entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
+| `entity` | Int32 | required | The entity. |
 
 **Returns:** How far into the current sequence the animation is, in frames. The value starts at 0 at the beginning of the sequence and can have a fractional part between two frames.
 

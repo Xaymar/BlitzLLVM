@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
 ```blitzbasic
-MouseDown button%  ; returns Int
+MouseDown:Int32 button:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -33,7 +33,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `button` | Int | required | 1 for the left, 2 for the right, 3 for the middle button. |
+| `button` | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
 
 **Returns:** 1 while the button is held down, otherwise 0.
 

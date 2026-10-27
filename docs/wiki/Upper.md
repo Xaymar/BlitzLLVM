@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Upper string$  ; returns String
+Upper:String string:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

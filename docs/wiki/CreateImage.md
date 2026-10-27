@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-CreateImage width%, height%, frames%=1  ; returns Int
+CreateImage:Int32 width:Int32, height:Int32, frames:Int32=1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -41,9 +41,9 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required | Width of one frame in pixels. |
-| `height` | Int | required | Height of one frame in pixels. |
-| `frames` | Int | `1` | Number of frames. Defaults to 1. |
+| `width` | Int32 | required | Width of one frame in pixels. |
+| `height` | Int32 | required | Height of one frame in pixels. |
+| `frames` | Int32 | `1` | Number of frames. Defaults to 1. |
 
 **Returns:** A handle for the image.
 

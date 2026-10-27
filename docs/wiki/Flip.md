@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-Flip vwait%=1
+Flip vwait:Int32=1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -33,7 +33,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `vwait` | Int | `1` | 1 waits for the display to be ready before flipping, which avoids tearing. 0 does not wait. Defaults to 1. |
+| `vwait` | Int32 | `1` | 1 waits for the display to be ready before flipping, which avoids tearing. 0 does not wait. Defaults to 1. |
 
 **Differences and known gaps:**
 

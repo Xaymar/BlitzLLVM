@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-UpdateNormals mesh%
+UpdateNormals mesh:Int32
 ```
 
 **Works in:** Blitz3D
@@ -48,7 +48,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
+| `mesh` | Int32 | required | Mesh handle. |
 
 ## Related commands
 

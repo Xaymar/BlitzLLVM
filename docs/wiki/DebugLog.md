@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-DebugLog text$
+DebugLog text:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

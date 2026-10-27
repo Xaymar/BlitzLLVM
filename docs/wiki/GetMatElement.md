@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-GetMatElement entity%, row%, column%  ; returns Float
+GetMatElement:Float32 entity:Int32, row:Int32, column:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ Reads one number from the world transformation of the entity. Row and column cou
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `row` | Int | required | Row of the matrix, 0 to 3. |
-| `column` | Int | required | Column of the matrix, 0 to 2. |
+| `entity` | Int32 | required | Entity handle. |
+| `row` | Int32 | required | Row of the matrix, 0 to 3. |
+| `column` | Int32 | required | Column of the matrix, 0 to 2. |
 
 **Returns:** The value of the matrix element.
 

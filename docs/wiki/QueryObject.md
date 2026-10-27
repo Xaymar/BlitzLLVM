@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-QueryObject object%, query_id%  ; returns Int
+QueryObject:Int32 object:Int32, query_id:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -24,8 +24,8 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `object` | Int | required | A window, gadget or font. |
-| `query_id` | Int | required |  |
+| `object` | Int32 | required | A window, gadget or font. |
+| `query_id` | Int32 | required |  |
 
 **Differences and known gaps:**
 

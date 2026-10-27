@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-SendUDPMsg udp_stream%, dest_ip%, dest_port%=0
+SendUDPMsg udp_stream:Int32, dest_ip:Int32, dest_port:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,9 +16,9 @@ Sends what you wrote to the stream as one message and empties the stream for the
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `udp_stream` | Int | required | The stream to send from. |
-| `dest_ip` | Int | required | The receiver's address as a number. |
-| `dest_port` | Int | `0` | The receiver's port. Defaults to 0, which means the port of this stream. |
+| `udp_stream` | Int32 | required | The stream to send from. |
+| `dest_ip` | Int32 | required | The receiver's address as a number. |
+| `dest_port` | Int32 | `0` | The receiver's port. Defaults to 0, which means the port of this stream. |
 
 ## Related commands
 

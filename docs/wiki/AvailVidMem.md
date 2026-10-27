@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-AvailVidMem  ; returns Int
+AvailVidMem:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-SetSamplerAddressModeU sampler%, mode%
+SetSamplerAddressModeU sampler:Int32, mode:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -25,8 +25,8 @@ Chooses what is read where the horizontal texture coordinate (u) is not between 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sampler` | Int | required | The sampler to change. |
-| `mode` | Int | required | The address mode from the table above. |
+| `sampler` | Int32 | required | The sampler to change. |
+| `mode` | Int32 | required | The address mode from the table above. |
 
 **Differences and known gaps:**
 

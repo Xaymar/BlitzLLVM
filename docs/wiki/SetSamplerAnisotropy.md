@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-SetSamplerAnisotropy sampler%, anisotropy#
+SetSamplerAnisotropy sampler:Int32, anisotropy:Float32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,8 +16,8 @@ Sets the most samples that are taken along a slanted surface, such as a floor th
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sampler` | Int | required | The sampler to change. |
-| `anisotropy` | Float | required | The most samples along the surface, 1 or more. |
+| `sampler` | Int32 | required | The sampler to change. |
+| `anisotropy` | Float32 | required | The most samples along the surface, 1 or more. |
 
 **Differences and known gaps:**
 

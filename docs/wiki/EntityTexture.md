@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityTexture entity%, texture%, frame%=0, index%=0
+EntityTexture entity:Int32, texture:Int32, frame:Int32=0, index:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -42,10 +42,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `texture` | Int | required | Texture handle. |
-| `frame` | Int | `0` | Frame of an animated texture. Defaults to 0. |
-| `index` | Int | `0` | Texture layer, 0 to 7. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle. |
+| `texture` | Int32 | required | Texture handle. |
+| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
+| `index` | Int32 | `0` | Texture layer, 0 to 7. Defaults to 0. |
 
 ## Related commands
 

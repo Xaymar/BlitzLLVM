@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-AnimLength entity%  ; returns Int
+AnimLength:Int32 entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
+| `entity` | Int32 | required | The entity. |
 
 **Returns:** The length of the entity's current sequence, in frames. It is 0 for an entity that has no animation.
 

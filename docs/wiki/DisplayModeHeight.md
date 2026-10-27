@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-DisplayModeHeight display%, mode%  ; returns Int
+DisplayModeHeight:Int32 display:Int32, mode:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,8 +16,8 @@ The height in pixels of a mode from the list of a display. This is a BlitzLLVM e
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
-| `mode` | Int | required | The mode number, from 1 to [CountDisplayModes](CountDisplayModes). |
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `mode` | Int32 | required | The mode number, from 1 to [CountDisplayModes](CountDisplayModes). |
 
 **Returns:** The height, or 0 if the display or mode does not exist.
 

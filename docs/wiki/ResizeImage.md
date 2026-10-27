@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-ResizeImage image%, width#, height#
+ResizeImage image:Int32, width:Float32, height:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -40,9 +40,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
-| `width` | Float | required | New width of a frame in pixels. |
-| `height` | Float | required | New height of a frame in pixels. |
+| `image` | Int32 | required | The image. |
+| `width` | Float32 | required | New width of a frame in pixels. |
+| `height` | Float32 | required | New height of a frame in pixels. |
 
 **Differences and known gaps:**
 

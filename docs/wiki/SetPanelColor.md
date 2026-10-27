@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SetPanelColor panel%, red%, green%, blue%
+SetPanelColor panel:Int32, red:Int32, green:Int32, blue:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -25,10 +25,10 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `panel` | Int | required | Handle of a panel. |
-| `red` | Int | required | Red part, 0 to 255. |
-| `green` | Int | required | Green part, 0 to 255. |
-| `blue` | Int | required | Blue part, 0 to 255. |
+| `panel` | Int32 | required | Handle of a panel. |
+| `red` | Int32 | required | Red part, 0 to 255. |
+| `green` | Int32 | required | Green part, 0 to 255. |
+| `blue` | Int32 | required | Blue part, 0 to 255. |
 
 ## Related commands
 

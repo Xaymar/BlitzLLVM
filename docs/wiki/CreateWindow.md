@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-CreateWindow text$, x%, y%, width%, height%, group%=0, style%=15  ; returns Int
+CreateWindow:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32=0, style:Int32=15
 ```
 
 **Works in:** BlitzPlus
@@ -47,12 +47,12 @@ Until asked = 2
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `text` | String | required |  |
-| `x` | Int | required | Horizontal position inside the group. |
-| `y` | Int | required | Vertical position inside the group. |
-| `width` | Int | required | Width of the window. |
-| `height` | Int | required | Height of the window. |
-| `group` | Int | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
-| `style` | Int | `15` | Sum of the flags above. Defaults to 15. |
+| `x` | Int32 | required | Horizontal position inside the group. |
+| `y` | Int32 | required | Vertical position inside the group. |
+| `width` | Int32 | required | Width of the window. |
+| `height` | Int32 | required | Height of the window. |
+| `group` | Int32 | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
+| `style` | Int32 | `15` | Sum of the flags above. Defaults to 15. |
 
 **Returns:** A handle for the window.
 

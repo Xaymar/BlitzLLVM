@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-MD2AnimLength md2%  ; returns Int
+MD2AnimLength:Int32 md2:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `md2` | Int | required | The MD2 entity. |
+| `md2` | Int32 | required | The MD2 entity. |
 
 **Returns:** The number of frames that the MD2 file contains in total.
 

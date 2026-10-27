@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-TFormFilter enable%
+TFormFilter enable:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -43,7 +43,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | True for smooth results (the default), False for the nearest pixel. |
+| `enable` | Int32 | required | True for smooth results (the default), False for the nearest pixel. |
 
 ## Related commands
 

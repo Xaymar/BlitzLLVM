@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-LoadAnimMesh file$, parent%=0  ; returns Int
+LoadAnimMesh:Int32 file:String, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -17,7 +17,7 @@ Loads a model together with its parts and animation. The result is a pivot at th
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required | Path of the model file. |
-| `parent` | Int | `0` | Entity the model follows, or 0 for none. Defaults to 0. |
+| `parent` | Int32 | `0` | Entity the model follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the top entity, or 0 if the file could not be loaded.
 

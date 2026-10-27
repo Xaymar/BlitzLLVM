@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Floor float#  ; returns Float
+Floor:Float32 float:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,7 +26,7 @@ Print Floor(-2.1)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `float` | Float | required | The number to round down. |
+| `float` | Float32 | required | The number to round down. |
 
 **Returns:** The largest whole number that is not above `float`.
 

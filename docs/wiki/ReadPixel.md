@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-ReadPixel x%, y%, buffer%=0  ; returns Int
+ReadPixel:Int32 x:Int32, y:Int32, buffer:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -27,9 +27,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position of the pixel. |
-| `y` | Int | required | Vertical position of the pixel. |
-| `buffer` | Int | `0` | The buffer to read from. Defaults to the current buffer. |
+| `x` | Int32 | required | Horizontal position of the pixel. |
+| `y` | Int32 | required | Vertical position of the pixel. |
+| `buffer` | Int32 | `0` | The buffer to read from. Defaults to the current buffer. |
 
 **Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
 ```blitzbasic
-DirectInputEnabled  ; returns Int
+DirectInputEnabled:Int32
 ```
 
 **Works in:** Blitz2D, Blitz3D

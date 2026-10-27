@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-ClearSurface surface%, clear_vertices%=1, clear_triangles%=1
+ClearSurface surface:Int32, clear_vertices:Int32=1, clear_triangles:Int32=1
 ```
 
 **Works in:** Blitz3D
@@ -28,9 +28,9 @@ Print CountVertices(surf) + " vertices, " + CountTriangles(surf) + " triangles"
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `clear_vertices` | Int | `1` | 1 to remove the vertices. Defaults to 1. |
-| `clear_triangles` | Int | `1` | 1 to remove the triangles. Defaults to 1. |
+| `surface` | Int32 | required | Surface handle. |
+| `clear_vertices` | Int32 | `1` | 1 to remove the vertices. Defaults to 1. |
+| `clear_triangles` | Int32 | `1` | 1 to remove the triangles. Defaults to 1. |
 
 ## Related commands
 

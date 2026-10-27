@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
 ```blitzbasic
-JoyY port%=0  ; returns Float
+JoyY:Float32 port:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The vertical position of the main stick, from -1 (up) to 1 (down).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The position from -1 to 1, or 0 if there is no joystick.
 

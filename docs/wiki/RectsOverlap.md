@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-RectsOverlap x1%, y1%, width1%, height1%, x2%, y2%, width2%, height2%  ; returns Int
+RectsOverlap:Int32 x1:Int32, y1:Int32, width1:Int32, height1:Int32, x2:Int32, y2:Int32, width2:Int32, height2:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -22,14 +22,14 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x1` | Int | required | Left edge of the first rectangle. |
-| `y1` | Int | required | Top edge of the first rectangle. |
-| `width1` | Int | required | Width of the first rectangle. |
-| `height1` | Int | required | Height of the first rectangle. |
-| `x2` | Int | required | Left edge of the second rectangle. |
-| `y2` | Int | required | Top edge of the second rectangle. |
-| `width2` | Int | required | Width of the second rectangle. |
-| `height2` | Int | required | Height of the second rectangle. |
+| `x1` | Int32 | required | Left edge of the first rectangle. |
+| `y1` | Int32 | required | Top edge of the first rectangle. |
+| `width1` | Int32 | required | Width of the first rectangle. |
+| `height1` | Int32 | required | Height of the first rectangle. |
+| `x2` | Int32 | required | Left edge of the second rectangle. |
+| `y2` | Int32 | required | Top edge of the second rectangle. |
+| `width2` | Int32 | required | Width of the second rectangle. |
+| `height2` | Int32 | required | Height of the second rectangle. |
 
 **Returns:** 1 if the rectangles overlap, otherwise 0.
 

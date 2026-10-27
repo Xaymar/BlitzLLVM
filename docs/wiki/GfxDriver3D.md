@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
 ```blitzbasic
-GfxDriver3D driver%  ; returns Int
+GfxDriver3D:Int32 driver:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Tells whether a graphics driver can draw 3D.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `driver` | Int | required | Number of the driver, from 1 to the number that [CountGfxDrivers](CountGfxDrivers) reports. |
+| `driver` | Int32 | required | Number of the driver, from 1 to the number that [CountGfxDrivers](CountGfxDrivers) reports. |
 
 **Returns:** True if the driver can draw 3D pictures.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
 ```blitzbasic
-Rect x%, y%, width%, height%, solid%=1
+Rect x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32=1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -31,11 +31,11 @@ Next
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position of the left side. |
-| `y` | Int | required | Vertical position of the top. |
-| `width` | Int | required | Width in pixels. |
-| `height` | Int | required | Height in pixels. |
-| `solid` | Int | `1` | 1 fills the rectangle, 0 draws only the outline. Defaults to 1. |
+| `x` | Int32 | required | Horizontal position of the left side. |
+| `y` | Int32 | required | Vertical position of the top. |
+| `width` | Int32 | required | Width in pixels. |
+| `height` | Int32 | required | Height in pixels. |
+| `solid` | Int32 | `1` | 1 fills the rectangle, 0 draws only the outline. Defaults to 1. |
 
 ## Related commands
 

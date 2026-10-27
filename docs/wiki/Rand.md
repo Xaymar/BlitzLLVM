@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Rand from%, to%=1  ; returns Int
+Rand:Int32 from:Int32, to:Int32=1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -28,8 +28,8 @@ Print Rand(5, 5)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `from` | Int | required | Lowest result, or the highest when `to` is left out. |
-| `to` | Int | `1` | Highest result. Defaults to 1. |
+| `from` | Int32 | required | Lowest result, or the highest when `to` is left out. |
+| `to` | Int32 | `1` | Highest result. Defaults to 1. |
 
 **Returns:** A random integer in the range.
 

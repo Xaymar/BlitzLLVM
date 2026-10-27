@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
 ```blitzbasic
-Collisions source_type%, destination_type%, method%, response%
+Collisions source_type:Int32, destination_type:Int32, method:Int32, response:Int32
 ```
 
 **Works in:** Blitz3D
@@ -79,10 +79,10 @@ Next
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `source_type` | Int | required | Collision type of the entities that move. |
-| `destination_type` | Int | required | Collision type of the entities they can hit. |
-| `method` | Int | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
-| `response` | Int | required | 1 stop, 2 slide, 3 slide without slipping down slopes. |
+| `source_type` | Int32 | required | Collision type of the entities that move. |
+| `destination_type` | Int32 | required | Collision type of the entities they can hit. |
+| `method` | Int32 | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
+| `response` | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. |
 
 **Differences and known gaps:**
 

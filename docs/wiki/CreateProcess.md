@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-CreateProcess command$  ; returns Int
+CreateProcess:Int32 command:String
 ```
 
 **Works in:** BlitzPlus

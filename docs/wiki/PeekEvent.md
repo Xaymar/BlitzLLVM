@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
 ```blitzbasic
-PeekEvent  ; returns Int
+PeekEvent:Int32
 ```
 
 **Works in:** BlitzPlus

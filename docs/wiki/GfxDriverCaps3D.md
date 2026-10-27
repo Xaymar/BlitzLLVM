@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
 ```blitzbasic
-GfxDriverCaps3D  ; returns Int
+GfxDriverCaps3D:Int32
 ```
 
 **Works in:** Blitz3D

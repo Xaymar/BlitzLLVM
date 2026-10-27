@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-GammaGreen green%  ; returns Float
+GammaGreen:Float32 green:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The output value of the green gamma table for an input value, as set by [SetGamm
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `green` | Int | required | The input value, 0 to 255. |
+| `green` | Int32 | required | The input value, 0 to 255. |
 
 **Returns:** The output value for the input.
 

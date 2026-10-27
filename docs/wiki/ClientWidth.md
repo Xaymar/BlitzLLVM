@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-ClientWidth group%  ; returns Int
+ClientWidth:Int32 group:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -25,7 +25,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `group` | Int | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
+| `group` | Int32 | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
 
 **Returns:** The usable width in pixels.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-PositionTexture texture%, u_offset#, v_offset#
+PositionTexture texture:Int32, u_offset:Float32, v_offset:Float32
 ```
 
 **Works in:** Blitz3D
@@ -45,9 +45,9 @@ Next
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture to move. |
-| `u_offset` | Float | required |  |
-| `v_offset` | Float | required |  |
+| `texture` | Int32 | required | The texture to move. |
+| `u_offset` | Float32 | required |  |
+| `v_offset` | Float32 | required |  |
 
 ## Related commands
 

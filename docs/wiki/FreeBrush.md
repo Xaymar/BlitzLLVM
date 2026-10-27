@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-FreeBrush brush%
+FreeBrush brush:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Releases a brush. Things that were painted with it keep the look they got, becau
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `brush` | Int | required | The brush to free. |
+| `brush` | Int32 | required | The brush to free. |
 
 ## Related commands
 

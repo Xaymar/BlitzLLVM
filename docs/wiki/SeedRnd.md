@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-SeedRnd seed%
+SeedRnd seed:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -28,7 +28,7 @@ Print a = b
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `seed` | Int | required | The starting value. |
+| `seed` | Int32 | required | The starting value. |
 
 ## Related commands
 

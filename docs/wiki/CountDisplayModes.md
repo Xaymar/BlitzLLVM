@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-CountDisplayModes display%  ; returns Int
+CountDisplayModes:Int32 display:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -24,7 +24,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The number of modes, or 0 if the display does not exist.
 

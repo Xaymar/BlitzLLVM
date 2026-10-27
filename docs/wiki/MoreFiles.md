@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
 ```blitzbasic
-MoreFiles dir%  ; returns Int
+MoreFiles:Int32 dir:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -28,7 +28,7 @@ Notify n + " entries"
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `dir` | Int | required | A folder handle from `ReadDir`. |
+| `dir` | Int32 | required | A folder handle from `ReadDir`. |
 
 **Returns:** 1 if more entries follow, 0 if not. Undocumented in the official help.
 

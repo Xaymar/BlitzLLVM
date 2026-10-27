@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-FreeSound sound%
+FreeSound sound:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ FreeSound snd
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required | A handle from [LoadSound](LoadSound) or [Load3DSound](Load3DSound). |
+| `sound` | Int32 | required | A handle from [LoadSound](LoadSound) or [Load3DSound](Load3DSound). |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-ImageWidth image%  ; returns Int
+ImageWidth:Int32 image:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ The width of one frame of an image in pixels.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
+| `image` | Int32 | required | The image. |
 
 **Returns:** The width of a frame.
 

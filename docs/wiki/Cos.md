@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Cos degrees#  ; returns Float
+Cos:Float32 degrees:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Print Cos(60)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `degrees` | Float | required | The angle in degrees. |
+| `degrees` | Float32 | required | The angle in degrees. |
 
 **Returns:** A value from -1 to 1.
 

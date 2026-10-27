@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-SetBuffer buffer%
+SetBuffer buffer:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -36,7 +36,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | required | A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`. |
+| `buffer` | Int32 | required | A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
 ```blitzbasic
-HandleSprite sprite%, x_handle#, y_handle#
+HandleSprite sprite:Int32, x_handle:Float32, y_handle:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ Moves the point that the sprite is held at, which is also the point it turns and
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sprite` | Int | required | The sprite. |
-| `x_handle` | Float | required | Horizontal handle position. The default is 0. |
-| `y_handle` | Float | required | Vertical handle position. The default is 0. |
+| `sprite` | Int32 | required | The sprite. |
+| `x_handle` | Float32 | required | Horizontal handle position. The default is 0. |
+| `y_handle` | Float32 | required | Vertical handle position. The default is 0. |
 
 ## Related commands
 

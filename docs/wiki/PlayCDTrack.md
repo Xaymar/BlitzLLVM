@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-PlayCDTrack track%, mode%=1  ; returns Int
+PlayCDTrack:Int32 track:Int32, mode:Int32=1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -22,8 +22,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `track` | Int | required | The track number, counted from 1. |
-| `mode` | Int | `1` | 1 plays the track once (the default), 2 repeats it and 3 plays on to the end of the disc. |
+| `track` | Int32 | required | The track number, counted from 1. |
+| `mode` | Int32 | `1` | 1 plays the track once (the default), 2 repeats it and 3 plays on to the end of the disc. |
 
 **Returns:** The channel of the track, or 0 if it could not be played.
 

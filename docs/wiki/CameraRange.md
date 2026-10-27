@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraRange camera%, near#, far#
+CameraRange camera:Int32, near:Float32, far:Float32
 ```
 
 **Works in:** Blitz3D
@@ -40,9 +40,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `near` | Float | required | Closest distance that is drawn. Must be greater than 0. |
-| `far` | Float | required | Farthest distance that is drawn. Must be greater than `near`. |
+| `camera` | Int32 | required | Camera handle. |
+| `near` | Float32 | required | Closest distance that is drawn. Must be greater than 0. |
+| `far` | Float32 | required | Farthest distance that is drawn. Must be greater than `near`. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-LockTextArea textarea%
+LockTextArea textarea:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -29,7 +29,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
+| `textarea` | Int32 | required | Handle of a text area. |
 
 **Differences and known gaps:**
 

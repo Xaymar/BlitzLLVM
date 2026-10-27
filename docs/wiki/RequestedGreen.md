@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Dialogs](BlitzPlus-Dialogs)
 
 ```blitzbasic
-RequestedGreen  ; returns Int
+RequestedGreen:Int32
 ```
 
 **Works in:** BlitzPlus

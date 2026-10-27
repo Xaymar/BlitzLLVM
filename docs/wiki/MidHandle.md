@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-MidHandle image%
+MidHandle image:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -32,7 +32,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
+| `image` | Int32 | required | The image. |
 
 ## Related commands
 

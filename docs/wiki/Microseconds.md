@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-Microseconds  ; returns UInt64
+Microseconds:UInt64
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.

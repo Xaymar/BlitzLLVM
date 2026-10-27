@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Sprites](Blitz3D-Sprites)
 
 ```blitzbasic
-ScaleSprite sprite%, x_scale#, y_scale#
+ScaleSprite sprite:Int32, x_scale:Float32, y_scale:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ Changes the width and height of a sprite. A sprite starts as 2 by 2 units, so a 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sprite` | Int | required | The sprite. |
-| `x_scale` | Float | required | Width factor. |
-| `y_scale` | Float | required | Height factor. |
+| `sprite` | Int32 | required | The sprite. |
+| `x_scale` | Float32 | required | Width factor. |
+| `y_scale` | Float32 | required | Height factor. |
 
 ## Related commands
 

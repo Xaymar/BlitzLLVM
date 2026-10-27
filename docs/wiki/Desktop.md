@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-Desktop  ; returns Int
+Desktop:Int32
 ```
 
 **Works in:** BlitzPlus

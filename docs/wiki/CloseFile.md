@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
 ```blitzbasic
-CloseFile file_stream%
+CloseFile file_stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Closes a file and writes out everything that is still waiting to be written. Alw
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `file_stream` | Int | required | The file handle. |
+| `file_stream` | Int32 | required | The file handle. |
 
 ## Related commands
 

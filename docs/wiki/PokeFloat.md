@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
 ```blitzbasic
-PokeFloat bank%, offset%, value#
+PokeFloat bank:Int32, offset:Int32, value:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -29,9 +29,9 @@ FreeBank bank
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required | The bank to write to. |
-| `offset` | Int | required | Position in bytes. |
-| `value` | Float | required | The float to store. |
+| `bank` | Int32 | required | The bank to write to. |
+| `offset` | Int32 | required | Position in bytes. |
+| `value` | Float32 | required | The float to store. |
 
 ## Related commands
 

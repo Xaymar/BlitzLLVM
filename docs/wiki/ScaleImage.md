@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-ScaleImage image%, xscale#, yscale#
+ScaleImage image:Int32, xscale:Float32, yscale:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -40,9 +40,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
-| `xscale` | Float | required | Horizontal factor. |
-| `yscale` | Float | required | Vertical factor. |
+| `image` | Int32 | required | The image. |
+| `xscale` | Float32 | required | Horizontal factor. |
+| `yscale` | Float32 | required | Vertical factor. |
 
 **Differences and known gaps:**
 

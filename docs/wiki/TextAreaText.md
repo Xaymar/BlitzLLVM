@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-TextAreaText textarea%, pos%=0, len%=-1, units%=1  ; returns String
+TextAreaText:String textarea:Int32, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
 **Works in:** BlitzPlus
@@ -26,10 +26,10 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
-| `pos` | Int | `0` |  |
-| `len` | Int | `-1` |  |
-| `units` | Int | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+| `textarea` | Int32 | required | Handle of a text area. |
+| `pos` | Int32 | `0` |  |
+| `len` | Int32 | `-1` |  |
+| `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 **Returns:** The text.
 

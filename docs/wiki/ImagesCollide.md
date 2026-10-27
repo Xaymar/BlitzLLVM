@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-ImagesCollide image1%, x1%, y1%, frame1%, image2%, x2%, y2%, frame2%  ; returns Int
+ImagesCollide:Int32 image1:Int32, x1:Int32, y1:Int32, frame1:Int32, image2:Int32, x2:Int32, y2:Int32, frame2:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -37,14 +37,14 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image1` | Int | required | The first image. |
-| `x1` | Int | required | Horizontal position where the first image is drawn. |
-| `y1` | Int | required | Vertical position where the first image is drawn. |
-| `frame1` | Int | required | The frame of the first image. |
-| `image2` | Int | required | The second image. |
-| `x2` | Int | required | Horizontal position where the second image is drawn. |
-| `y2` | Int | required | Vertical position where the second image is drawn. |
-| `frame2` | Int | required | The frame of the second image. |
+| `image1` | Int32 | required | The first image. |
+| `x1` | Int32 | required | Horizontal position where the first image is drawn. |
+| `y1` | Int32 | required | Vertical position where the first image is drawn. |
+| `frame1` | Int32 | required | The frame of the first image. |
+| `image2` | Int32 | required | The second image. |
+| `x2` | Int32 | required | Horizontal position where the second image is drawn. |
+| `y2` | Int32 | required | Vertical position where the second image is drawn. |
+| `frame2` | Int32 | required | The frame of the second image. |
 
 **Returns:** 1 if visible pixels of the two images are on top of each other, otherwise 0.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
 ```blitzbasic
-CheckMenu menu%
+CheckMenu menu:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -33,7 +33,7 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `menu` | Int | required | Handle of a menu item made with [CreateMenu](CreateMenu). |
+| `menu` | Int32 | required | Handle of a menu item made with [CreateMenu](CreateMenu). |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Tree Views](BlitzPlus-Tree-Views)
 
 ```blitzbasic
-TreeViewNodeText node%  ; returns String
+TreeViewNodeText:String node:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `node` | Int | required | Handle of a node. |
+| `node` | Int32 | required | Handle of a node. |
 
 **Returns:** The text of the node.
 

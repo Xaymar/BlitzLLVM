@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
 ```blitzbasic
-Line x1%, y1%, x2%, y2%
+Line x1:Int32, y1:Int32, x2:Int32, y2:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -30,10 +30,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x1` | Int | required | Horizontal position of the start. |
-| `y1` | Int | required | Vertical position of the start. |
-| `x2` | Int | required | Horizontal position of the end. |
-| `y2` | Int | required | Vertical position of the end. |
+| `x1` | Int32 | required | Horizontal position of the start. |
+| `y1` | Int32 | required | Vertical position of the start. |
+| `x2` | Int32 | required | Horizontal position of the end. |
+| `y2` | Int32 | required | Vertical position of the end. |
 
 ## Related commands
 

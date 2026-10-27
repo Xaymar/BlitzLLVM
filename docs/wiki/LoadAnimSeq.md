@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-LoadAnimSeq entity%, file$  ; returns Int
+LoadAnimSeq:Int32 entity:Int32, file:String
 ```
 
 **Works in:** Blitz3D
@@ -34,7 +34,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity that receives the sequence. |
+| `entity` | Int32 | required | The entity that receives the sequence. |
 | `file` | String | required | File with the animation, for example a .b3d. |
 
 **Returns:** The number of the new sequence, which is also the highest sequence number the entity has. If the file cannot be read nothing is added and the number of the last existing sequence comes back; -1 means the entity has no animation.

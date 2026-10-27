@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-TextFieldText textfield%  ; returns String
+TextFieldText:String textfield:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textfield` | Int | required | Handle of a text field. |
+| `textfield` | Int32 | required | Handle of a text field. |
 
 **Returns:** The text in the field, even for a password field.
 

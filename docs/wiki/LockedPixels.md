@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
 ```blitzbasic
-LockedPixels buffer%=0  ; returns Int
+LockedPixels:Int32 buffer:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -37,7 +37,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | `0` | Locked buffer. Defaults to the current one. |
+| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
 
 **Returns:** The handle of a bank with the pixels.
 

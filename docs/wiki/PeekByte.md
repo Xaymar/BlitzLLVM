@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
 ```blitzbasic
-PeekByte bank%, offset%  ; returns Int
+PeekByte:Int32 bank:Int32, offset:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,8 +16,8 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required | The bank to read. |
-| `offset` | Int | required | Position in bytes. |
+| `bank` | Int32 | required | The bank to read. |
+| `offset` | Int32 | required | Position in bytes. |
 
 **Returns:** The byte at an offset, from 0 to 255.
 

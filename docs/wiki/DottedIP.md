@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-DottedIP IP%  ; returns String
+DottedIP:String IP:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Print DottedIP$($C0A80164)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `IP` | Int | required | The address as a whole number, with the first part in the highest byte. |
+| `IP` | Int32 | required | The address as a whole number, with the first part in the highest byte. |
 
 **Returns:** An address as text, with its four parts separated by dots.
 

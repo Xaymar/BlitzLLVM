@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-PointEntity entity%, target%, roll#=0
+PointEntity entity:Int32, target:Int32, roll:Float32=0
 ```
 
 **Works in:** Blitz3D
@@ -42,9 +42,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `target` | Int | required | Entity to aim at. |
-| `roll` | Float | `0` | Roll angle of the result in degrees. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle. |
+| `target` | Int32 | required | Entity to aim at. |
+| `roll` | Float32 | `0` | Roll angle of the result in degrees. Defaults to 0. |
 
 ## Related commands
 

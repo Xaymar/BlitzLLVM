@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-GadgetWidth gadget%  ; returns Int
+GadgetWidth:Int32 gadget:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of the gadget. |
+| `gadget` | Int32 | required | Handle of the gadget. |
 
 **Returns:** The width of the whole gadget including its frame. For the width of the inside use [ClientWidth](ClientWidth).
 

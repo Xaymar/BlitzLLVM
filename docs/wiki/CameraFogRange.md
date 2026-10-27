@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraFogRange camera%, near#, far#
+CameraFogRange camera:Int32, near:Float32, far:Float32
 ```
 
 **Works in:** Blitz3D
@@ -41,9 +41,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `near` | Float | required | Distance where the fog starts. |
-| `far` | Float | required | Distance where everything is fully fogged. |
+| `camera` | Int32 | required | Camera handle. |
+| `near` | Float32 | required | Distance where the fog starts. |
+| `far` | Float32 | required | Distance where everything is fully fogged. |
 
 ## Related commands
 

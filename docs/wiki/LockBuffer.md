@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-LockBuffer buffer%=0
+LockBuffer buffer:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -33,7 +33,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | `0` | The buffer to lock. Defaults to the current buffer. |
+| `buffer` | Int32 | `0` | The buffer to lock. Defaults to the current buffer. |
 
 **Differences and known gaps:**
 

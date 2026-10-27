@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-CreateUDPStream port%=0  ; returns Int
+CreateUDPStream:Int32 port:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -36,7 +36,7 @@ CloseUDPStream b
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `port` | Int | `0` | The port to receive on. Defaults to 0, which lets the system pick one. |
+| `port` | Int32 | `0` | The port to receive on. Defaults to 0, which lets the system pick one. |
 
 **Returns:** A UDP stream, or 0 when the port cannot be used.
 

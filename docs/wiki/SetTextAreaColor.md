@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-SetTextAreaColor textarea%, red%, green%, blue%, background%=0
+SetTextAreaColor textarea:Int32, red:Int32, green:Int32, blue:Int32, background:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -29,11 +29,11 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
-| `red` | Int | required | Red part, 0 to 255. |
-| `green` | Int | required | Green part, 0 to 255. |
-| `blue` | Int | required | Blue part, 0 to 255. |
-| `background` | Int | `0` | 0 sets the text color, 1 sets the background color. Defaults to 0. |
+| `textarea` | Int32 | required | Handle of a text area. |
+| `red` | Int32 | required | Red part, 0 to 255. |
+| `green` | Int32 | required | Green part, 0 to 255. |
+| `blue` | Int32 | required | Blue part, 0 to 255. |
+| `background` | Int32 | `0` | 0 sets the text color, 1 sets the background color. Defaults to 0. |
 
 ## Related commands
 

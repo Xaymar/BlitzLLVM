@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-LoadMesh file$, parent%=0  ; returns Int
+LoadMesh:Int32 file:String, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -19,7 +19,7 @@ Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required | Path of the model file. |
-| `parent` | Int | `0` | Entity the mesh follows, or 0 for none. Defaults to 0. |
+| `parent` | Int32 | `0` | Entity the mesh follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the mesh, or 0 if the file could not be loaded.
 

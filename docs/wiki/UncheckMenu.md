@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
 ```blitzbasic
-UncheckMenu menu%
+UncheckMenu menu:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ Removes the check mark that [CheckMenu](CheckMenu) put in front of an item.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `menu` | Int | required | Handle of a menu item. |
+| `menu` | Int32 | required | Handle of a menu item. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Display](Blitz3D-Display)
 
 ```blitzbasic
-GfxMode3DExists width%, height%, depth%  ; returns Int
+GfxMode3DExists:Int32 width:Int32, height:Int32, depth:Int32
 ```
 
 **Works in:** Blitz3D
@@ -29,9 +29,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required | Width in pixels. |
-| `height` | Int | required | Height in pixels. |
-| `depth` | Int | required | Color depth in bits. |
+| `width` | Int32 | required | Width in pixels. |
+| `height` | Int32 | required | Height in pixels. |
+| `depth` | Int32 | required | Color depth in bits. |
 
 **Returns:** True if a full screen mode of that size can be used.
 

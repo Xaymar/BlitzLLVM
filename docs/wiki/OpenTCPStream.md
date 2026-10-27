@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-OpenTCPStream server$, server_port%, local_port%=0  ; returns Int
+OpenTCPStream:Int32 server:String, server_port:Int32, local_port:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,8 +26,8 @@ Print OpenTCPStream("127.0.0.1", 40754)
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `server` | String | required | The address of the server, as a name or as dotted numbers. |
-| `server_port` | Int | required | The port the server listens on. |
-| `local_port` | Int | `0` | The port to connect from. Defaults to 0, which lets the system pick one. |
+| `server_port` | Int32 | required | The port the server listens on. |
+| `local_port` | Int32 | `0` | The port to connect from. Defaults to 0, which lets the system pick one. |
 
 **Returns:** A TCP stream, or 0 when the connection could not be made.
 

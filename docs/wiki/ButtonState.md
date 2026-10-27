@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-ButtonState button%  ; returns Int
+ButtonState:Int32 button:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -27,7 +27,7 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `button` | Int | required | Handle of a button made with style 2 or 3. |
+| `button` | Int32 | required | Handle of a button made with style 2 or 3. |
 
 **Returns:** 1 if it is ticked, 0 if not.
 

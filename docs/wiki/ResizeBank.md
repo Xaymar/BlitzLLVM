@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Banks](BlitzBasic-Banks)
 
 ```blitzbasic
-ResizeBank bank%, size%
+ResizeBank bank:Int32, size:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -32,8 +32,8 @@ FreeBank bank
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bank` | Int | required | The bank to resize. |
-| `size` | Int | required | The new size in bytes. |
+| `bank` | Int32 | required | The bank to resize. |
+| `size` | Int32 | required | The new size in bytes. |
 
 ## Related commands
 

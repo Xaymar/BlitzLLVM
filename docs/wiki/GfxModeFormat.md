@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-GfxModeFormat mode%  ; returns Int
+GfxModeFormat:Int32 mode:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ How the pixels of a display mode are stored, as a number that BlitzPlus uses wit
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mode` | Int | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
+| `mode` | Int32 | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
 
 **Returns:** The format number.
 

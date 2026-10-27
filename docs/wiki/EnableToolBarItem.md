@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
 ```blitzbasic
-EnableToolBarItem toolbar%, index%
+EnableToolBarItem toolbar:Int32, index:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,8 +16,8 @@ Turns an icon that was disabled with [DisableToolBarItem](DisableToolBarItem) ba
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `toolbar` | Int | required | Handle of a toolbar. |
-| `index` | Int | required | Number of the icon, counted from 0 and not counting gaps. |
+| `toolbar` | Int32 | required | Handle of a toolbar. |
+| `index` | Int32 | required | Number of the icon, counted from 0 and not counting gaps. |
 
 ## Related commands
 

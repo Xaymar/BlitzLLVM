@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-VertexCoords surface%, index%, x#, y#, z#
+VertexCoords surface:Int32, index:Int32, x:Float32, y:Float32, z:Float32
 ```
 
 **Works in:** Blitz3D
@@ -53,11 +53,11 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `index` | Int | required | Index of the vertex, from 0. |
-| `x` | Float | required | New X position. |
-| `y` | Float | required | New Y position. |
-| `z` | Float | required | New Z position. |
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
+| `x` | Float32 | required | New X position. |
+| `y` | Float32 | required | New Y position. |
+| `z` | Float32 | required | New Z position. |
 
 ## Related commands
 

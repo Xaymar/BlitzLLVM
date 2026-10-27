@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SliderValue slider%  ; returns Int
+SliderValue:Int32 slider:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `slider` | Int | required | Handle of a slider. |
+| `slider` | Int32 | required | Handle of a slider. |
 
 **Returns:** The current position, from 0 to total minus visible.
 

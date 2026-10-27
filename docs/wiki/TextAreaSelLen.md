@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-TextAreaSelLen textarea%, units%=1  ; returns Int
+TextAreaSelLen:Int32 textarea:Int32, units:Int32=1
 ```
 
 **Works in:** BlitzPlus
@@ -29,8 +29,8 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
-| `units` | Int | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+| `textarea` | Int32 | required | Handle of a text area. |
+| `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 **Returns:** The size of the selection.
 

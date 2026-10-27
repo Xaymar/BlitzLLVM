@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-ReadString stream%  ; returns String
+ReadString:String stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Reads a string that [WriteString](WriteString) wrote: first its length, then its
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required | The stream to read from. |
+| `stream` | Int32 | required | The stream to read from. |
 
 **Returns:** The string.
 

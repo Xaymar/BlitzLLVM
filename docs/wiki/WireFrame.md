@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-WireFrame enable%
+WireFrame enable:Int32
 ```
 
 **Works in:** Blitz3D
@@ -37,7 +37,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | True for wireframe, False for solid. |
+| `enable` | Int32 | required | True for wireframe, False for solid. |
 
 **Differences and known gaps:**
 

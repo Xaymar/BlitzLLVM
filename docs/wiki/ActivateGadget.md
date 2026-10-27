@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-ActivateGadget gadget%
+ActivateGadget gadget:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -28,7 +28,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of the gadget that should get the focus. |
+| `gadget` | Int32 | required | Handle of the gadget that should get the focus. |
 
 ## Related commands
 

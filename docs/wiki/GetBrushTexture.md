@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-GetBrushTexture brush%, index%=0  ; returns Int
+GetBrushTexture:Int32 brush:Int32, index:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Returns the texture on one layer of the brush, or 0 if there is none. Combine it
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `brush` | Int | required | The brush. |
-| `index` | Int | `0` | Layer number, 0 to 7. Defaults to 0. |
+| `brush` | Int32 | required | The brush. |
+| `index` | Int32 | `0` | Layer number, 0 to 7. Defaults to 0. |
 
 **Returns:** A new handle for the texture of that layer, or 0. Free it separately when you no longer need it; the brush keeps its texture.
 

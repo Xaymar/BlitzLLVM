@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-PositionEntity entity%, x#, y#, z#, global%=0
+PositionEntity entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -37,11 +37,11 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `x` | Float | required | X position. |
-| `y` | Float | required | Y position. |
-| `z` | Float | required | Z position. |
-| `global` | Int | `0` | 1 to use the world position instead of one relative to the parent. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle. |
+| `x` | Float32 | required | X position. |
+| `y` | Float32 | required | Y position. |
+| `z` | Float32 | required | Z position. |
+| `global` | Int32 | `0` | 1 to use the world position instead of one relative to the parent. Defaults to 0. |
 
 ## Related commands
 

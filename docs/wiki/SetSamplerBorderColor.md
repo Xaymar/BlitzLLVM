@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-SetSamplerBorderColor sampler%, r#, g#, b#, a#
+SetSamplerBorderColor sampler:Int32, r:Float32, g:Float32, b:Float32, a:Float32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,11 +16,11 @@ Sets the color that is read where an address mode is border (3), see [SetSampler
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sampler` | Int | required | The sampler to change. |
-| `r` | Float | required | Red, 0 to 1. |
-| `g` | Float | required | Green, 0 to 1. |
-| `b` | Float | required | Blue, 0 to 1. |
-| `a` | Float | required | Alpha, 0 to 1. |
+| `sampler` | Int32 | required | The sampler to change. |
+| `r` | Float32 | required | Red, 0 to 1. |
+| `g` | Float32 | required | Green, 0 to 1. |
+| `b` | Float32 | required | Blue, 0 to 1. |
+| `a` | Float32 | required | Alpha, 0 to 1. |
 
 **Differences and known gaps:**
 

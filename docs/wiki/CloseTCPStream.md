@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-CloseTCPStream tcp_stream%
+CloseTCPStream tcp_stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Closes a TCP stream. The other side sees the stream end once it has read everyth
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `tcp_stream` | Int | required | The stream to close. |
+| `tcp_stream` | Int32 | required | The stream to close. |
 
 ## Related commands
 

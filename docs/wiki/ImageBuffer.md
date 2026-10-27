@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-ImageBuffer image%, frame%=0  ; returns Int
+ImageBuffer:Int32 image:Int32, frame:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -34,8 +34,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
-| `frame` | Int | `0` | The frame whose buffer to return. Defaults to 0. |
+| `image` | Int32 | required | The image. |
+| `frame` | Int32 | `0` | The frame whose buffer to return. Defaults to 0. |
 
 **Returns:** A buffer handle for [SetBuffer](SetBuffer) and the pixel commands.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-CreateTimer hertz%  ; returns Int
+CreateTimer:Int32 hertz:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -29,7 +29,7 @@ five ticks at 50 per second
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `hertz` | Int | required | Ticks per second, above 0. |
+| `hertz` | Int32 | required | Ticks per second, above 0. |
 
 **Returns:** A timer handle.
 

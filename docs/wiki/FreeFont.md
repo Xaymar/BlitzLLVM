@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
 ```blitzbasic
-FreeFont font%
+FreeFont font:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Releases a font that was loaded with [LoadFont](LoadFont). If it was the current
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `font` | Int | required | The font to free. |
+| `font` | Int32 | required | The font to free. |
 
 **Differences and known gaps:**
 

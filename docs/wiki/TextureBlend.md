@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-TextureBlend texture%, blend%
+TextureBlend texture:Int32, blend:Int32
 ```
 
 **Works in:** Blitz3D
@@ -60,8 +60,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture to change. |
-| `blend` | Int | required | Blend mode from the table above. |
+| `texture` | Int32 | required | The texture to change. |
+| `blend` | Int32 | required | Blend mode from the table above. |
 
 **Differences and known gaps:**
 

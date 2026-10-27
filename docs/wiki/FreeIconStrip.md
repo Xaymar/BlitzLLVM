@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
 ```blitzbasic
-FreeIconStrip icon_strip%
+FreeIconStrip icon_strip:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ Frees an icon strip that was loaded with [LoadIconStrip](LoadIconStrip). Only ne
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `icon_strip` | Int | required |  |
+| `icon_strip` | Int32 | required |  |
 
 ## Related commands
 

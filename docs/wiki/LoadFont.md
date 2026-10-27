@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
 ```blitzbasic
-LoadFont fontname$, height%=12, bold%=0, italic%=0, underline%=0  ; returns Int
+LoadFont:Int32 fontname:String, height:Int32=12, bold:Int32=0, italic:Int32=0, underline:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -41,10 +41,10 @@ WaitKey
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `fontname` | String | required | The name of the font, such as "Arial". |
-| `height` | Int | `12` | The height of a character in pixels. Defaults to 12. |
-| `bold` | Int | `0` | True for a bold font. Defaults to False. |
-| `italic` | Int | `0` | True for an italic font. Defaults to False. |
-| `underline` | Int | `0` | True for an underlined font. Defaults to False. |
+| `height` | Int32 | `12` | The height of a character in pixels. Defaults to 12. |
+| `bold` | Int32 | `0` | True for a bold font. Defaults to False. |
+| `italic` | Int32 | `0` | True for an italic font. Defaults to False. |
+| `underline` | Int32 | `0` | True for an underlined font. Defaults to False. |
 
 **Returns:** A handle for the font. A font that does not exist still gives a valid handle.
 

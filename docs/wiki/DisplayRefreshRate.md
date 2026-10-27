@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-DisplayRefreshRate display%  ; returns Int
+DisplayRefreshRate:Int32 display:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,7 +16,7 @@ How many times per second a display shows a new picture right now, in Hz. A rate
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The refresh rate in Hz, or 0 if the display does not exist.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-DisplayDepth display%  ; returns Int
+DisplayDepth:Int32 display:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,7 +16,7 @@ The color depth in bits per pixel of what a display shows right now, always 32. 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The depth in bits, or 0 if the display does not exist.
 

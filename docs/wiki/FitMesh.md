@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-FitMesh mesh%, x#, y#, z#, width#, height#, depth#, uniform%=0
+FitMesh mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32, uniform:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,14 +16,14 @@ Scales and moves a mesh so that it exactly fills a box. `x`, `y` and `z` are the
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `x` | Float | required | X of the box corner. |
-| `y` | Float | required | Y of the box corner. |
-| `z` | Float | required | Z of the box corner. |
-| `width` | Float | required | Size of the box along X. |
-| `height` | Float | required | Size of the box along Y. |
-| `depth` | Float | required | Size of the box along Z. |
-| `uniform` | Int | `0` | 1 to scale by the same factor on all axes, 0 to stretch to the box. Defaults to 0. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `x` | Float32 | required | X of the box corner. |
+| `y` | Float32 | required | Y of the box corner. |
+| `z` | Float32 | required | Z of the box corner. |
+| `width` | Float32 | required | Size of the box along X. |
+| `height` | Float32 | required | Size of the box along Y. |
+| `depth` | Float32 | required | Size of the box along Z. |
+| `uniform` | Int32 | `0` | 1 to scale by the same factor on all axes, 0 to stretch to the box. Defaults to 0. |
 
 ## Related commands
 

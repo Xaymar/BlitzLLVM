@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-VertexNZ surface%, index%  ; returns Float
+VertexNZ:Float32 surface:Int32, index:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `index` | Int | required | Index of the vertex, from 0. |
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
 
 **Returns:** The Z part of the normal of the vertex.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
 ```blitzbasic
-Viewport x%, y%, width%, height%
+Viewport x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -31,10 +31,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position of the left side of the viewport. |
-| `y` | Int | required | Vertical position of the top of the viewport. |
-| `width` | Int | required | Width in pixels. |
-| `height` | Int | required | Height in pixels. |
+| `x` | Int32 | required | Horizontal position of the left side of the viewport. |
+| `y` | Int32 | required | Vertical position of the top of the viewport. |
+| `width` | Int32 | required | Width in pixels. |
+| `height` | Int32 | required | Height in pixels. |
 
 ## Related commands
 

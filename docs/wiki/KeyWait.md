@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
 ```blitzbasic
-KeyWait  ; returns Int
+KeyWait:Int32
 ```
 
 **Works in:** BlitzPlus

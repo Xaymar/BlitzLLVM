@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-MeshWidth mesh%  ; returns Float
+MeshWidth:Float32 mesh:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Reads the size of the mesh along X, taken from the vertices. Entity scale does n
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
+| `mesh` | Int32 | required | Mesh handle. |
 
 **Returns:** The width of the mesh.
 

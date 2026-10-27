@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [BSP](Blitz3D-BSP)
 
 ```blitzbasic
-BSPAmbientLight bsp%, red#, green#, blue#
+BSPAmbientLight bsp:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,10 +16,10 @@ Sets a color that a level is brightened with. Levels ignore the normal [AmbientL
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `bsp` | Int | required | The level. |
-| `red` | Float | required | Red part, 0 to 255. |
-| `green` | Float | required | Green part, 0 to 255. |
-| `blue` | Float | required | Blue part, 0 to 255. |
+| `bsp` | Int32 | required | The level. |
+| `red` | Float32 | required | Red part, 0 to 255. |
+| `green` | Float32 | required | Green part, 0 to 255. |
+| `blue` | Float32 | required | Blue part, 0 to 255. |
 
 **Differences and known gaps:**
 

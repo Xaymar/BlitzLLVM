@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-PositionMesh mesh%, x#, y#, z#
+PositionMesh mesh:Int32, x:Float32, y:Float32, z:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,10 +16,10 @@ Moves every vertex of a mesh by an offset, permanently. Unlike [PositionEntity](
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `x` | Float | required | Offset along X. |
-| `y` | Float | required | Offset along Y. |
-| `z` | Float | required | Offset along Z. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `x` | Float32 | required | Offset along X. |
+| `y` | Float32 | required | Offset along Y. |
+| `z` | Float32 | required | Offset along Z. |
 
 ## Related commands
 

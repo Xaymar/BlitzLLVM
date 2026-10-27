@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-SaveBuffer buffer%, bmpfile$  ; returns Int
+SaveBuffer:Int32 buffer:Int32, bmpfile:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -27,7 +27,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | required | The buffer to save. |
+| `buffer` | Int32 | required | The buffer to save. |
 | `bmpfile` | String | required | The path of the file to write. |
 
 **Returns:** 1 if the file was written, otherwise 0.

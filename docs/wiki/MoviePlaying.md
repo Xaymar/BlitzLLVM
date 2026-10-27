@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
 
 ```blitzbasic
-MoviePlaying movie%  ; returns Int
+MoviePlaying:Int32 movie:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Tells whether a movie is still playing. It becomes 0 when the movie reaches its 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required | A movie handle from [OpenMovie](OpenMovie). |
+| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
 
 **Returns:** 1 while the movie plays, otherwise 0.
 

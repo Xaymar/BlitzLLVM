@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-WriteFloat stream%, float#
+WriteFloat stream:Int32, float:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -30,8 +30,8 @@ DeleteFile "streams_float_example.tmp"
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required | The stream to write to. |
-| `float` | Float | required | The value to write. |
+| `stream` | Int32 | required | The stream to write to. |
+| `float` | Float32 | required | The value to write. |
 
 ## Related commands
 

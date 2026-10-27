@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
 ```blitzbasic
-EntityBox entity%, x#, y#, z#, width#, height#, depth#
+EntityBox entity:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
 ```
 
 **Works in:** Blitz3D
@@ -18,13 +18,13 @@ Without a call to EntityBox the box runs from -1 to 1 on every axis around the e
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
-| `x` | Float | required | Left side of the box, relative to the entity. |
-| `y` | Float | required | Bottom of the box. |
-| `z` | Float | required | Front of the box. |
-| `width` | Float | required | Size of the box along X. |
-| `height` | Float | required | Size of the box along Y. |
-| `depth` | Float | required | Size of the box along Z. |
+| `entity` | Int32 | required | The entity. |
+| `x` | Float32 | required | Left side of the box, relative to the entity. |
+| `y` | Float32 | required | Bottom of the box. |
+| `z` | Float32 | required | Front of the box. |
+| `width` | Float32 | required | Size of the box along X. |
+| `height` | Float32 | required | Size of the box along Y. |
+| `depth` | Float32 | required | Size of the box along Z. |
 
 ## Related commands
 

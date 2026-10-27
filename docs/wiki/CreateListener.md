@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [3D Sound](Blitz3D-3D-Sound)
 
 ```blitzbasic
-CreateListener parent%, rolloff_factor#=1, doppler_scale#=1, distance_scale#=1  ; returns Int
+CreateListener:Int32 parent:Int32, rolloff_factor:Float32=1, doppler_scale:Float32=1, distance_scale:Float32=1
 ```
 
 **Works in:** Blitz3D
@@ -35,10 +35,10 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `parent` | Int | required | The entity that carries the listener, typically the camera. |
-| `rolloff_factor` | Float | `1` | How fast sounds get quiet with distance: 0 means they do not, 1 is the normal rate and above that makes them fade faster. Defaults to 1. |
-| `doppler_scale` | Float | `1` | How strong the pitch change of moving sounds is: 0 turns it off, 1 is the real one and 2 shifts twice as far. Defaults to 1. |
-| `distance_scale` | Float | `1` | How many meters one unit of your world is, which sets the distances that volume falls off over and how fast things move for the doppler shift. Defaults to 1. |
+| `parent` | Int32 | required | The entity that carries the listener, typically the camera. |
+| `rolloff_factor` | Float32 | `1` | How fast sounds get quiet with distance: 0 means they do not, 1 is the normal rate and above that makes them fade faster. Defaults to 1. |
+| `doppler_scale` | Float32 | `1` | How strong the pitch change of moving sounds is: 0 turns it off, 1 is the real one and 2 shifts twice as far. Defaults to 1. |
+| `distance_scale` | Float32 | `1` | How many meters one unit of your world is, which sets the distances that volume falls off over and how fast things move for the doppler shift. Defaults to 1. |
 
 **Returns:** A handle for the listener.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-UpdateWorld elapsed_time#=1
+UpdateWorld elapsed_time:Float32=1
 ```
 
 **Works in:** Blitz3D
@@ -39,7 +39,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `elapsed_time` | Float | `1` | Animation speed of the whole world: 1 plays animations at their own speed, 2 at double speed, 0.5 at half. Defaults to 1. |
+| `elapsed_time` | Float32 | `1` | Animation speed of the whole world: 1 plays animations at their own speed, 2 at double speed, 0.5 at half. Defaults to 1. |
 
 ## Related commands
 

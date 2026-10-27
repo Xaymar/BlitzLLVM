@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-ASin float#  ; returns Float
+ASin:Float32 float:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Print ASin(0.5)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `float` | Float | required | The sine, from -1 to 1. |
+| `float` | Float32 | required | The sine, from -1 to 1. |
 
 **Returns:** The angle in degrees.
 

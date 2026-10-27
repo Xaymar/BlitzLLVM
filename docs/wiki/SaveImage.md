@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-SaveImage image%, bmpfile$, frame%=0  ; returns Int
+SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -28,9 +28,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
+| `image` | Int32 | required | The image. |
 | `bmpfile` | String | required |  |
-| `frame` | Int | `0` | The frame to save. Defaults to 0. |
+| `frame` | Int32 | `0` | The frame to save. Defaults to 0. |
 
 **Returns:** 1 if the file was written, otherwise 0.
 

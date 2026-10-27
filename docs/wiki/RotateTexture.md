@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-RotateTexture texture%, angle#
+RotateTexture texture:Int32, angle:Float32
 ```
 
 **Works in:** Blitz3D
@@ -17,8 +17,8 @@ The rotation turns the coordinates around their origin (the corner of the pictur
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture to turn. |
-| `angle` | Float | required | Angle in degrees. |
+| `texture` | Int32 | required | The texture to turn. |
+| `angle` | Float32 | required | Angle in degrees. |
 
 ## Related commands
 

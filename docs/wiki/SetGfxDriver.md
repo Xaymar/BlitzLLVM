@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-SetGfxDriver driver%
+SetGfxDriver driver:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Chooses the graphics driver for the next [Graphics](Graphics) call. This is the 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `driver` | Int | required | The driver number, starting at 1. |
+| `driver` | Int32 | required | The driver number, starting at 1. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
 ```blitzbasic
-VectorYaw x#, y#, z#  ; returns Float
+VectorYaw:Float32 x:Float32, y:Float32, z:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ Finds the yaw angle that an entity would need to point along a direction. The di
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Float | required | X of the direction. |
-| `y` | Float | required | Y of the direction. |
-| `z` | Float | required | Z of the direction. |
+| `x` | Float32 | required | X of the direction. |
+| `y` | Float32 | required | Y of the direction. |
+| `z` | Float32 | required | Z of the direction. |
 
 **Returns:** The yaw angle in degrees.
 

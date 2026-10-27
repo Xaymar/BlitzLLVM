@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraClsColor camera%, red#, green#, blue#
+CameraClsColor camera:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
 **Works in:** Blitz3D
@@ -33,10 +33,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `red` | Float | required | Red part, 0 to 255. |
-| `green` | Float | required | Green part, 0 to 255. |
-| `blue` | Float | required | Blue part, 0 to 255. |
+| `camera` | Int32 | required | Camera handle. |
+| `red` | Float32 | required | Red part, 0 to 255. |
+| `green` | Float32 | required | Green part, 0 to 255. |
+| `blue` | Float32 | required | Blue part, 0 to 255. |
 
 ## Related commands
 

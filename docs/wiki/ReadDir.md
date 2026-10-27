@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
 ```blitzbasic
-ReadDir dirname$  ; returns Int
+ReadDir:Int32 dirname:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

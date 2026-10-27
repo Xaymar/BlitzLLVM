@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-BrushAlpha brush%, alpha#
+BrushAlpha brush:Int32, alpha:Float32
 ```
 
 **Works in:** Blitz3D
@@ -18,8 +18,8 @@ A surface with alpha 0 is not drawn but still takes part in collisions, which is
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `brush` | Int | required | The brush. |
-| `alpha` | Float | required | Opacity, 0 to 1. The default is 1. |
+| `brush` | Int32 | required | The brush. |
+| `alpha` | Float32 | required | Opacity, 0 to 1. The default is 1. |
 
 ## Related commands
 

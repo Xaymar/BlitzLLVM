@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Exp float#  ; returns Float
+Exp:Float32 float:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Print Exp(1)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `float` | Float | required | The exponent. |
+| `float` | Float32 | required | The exponent. |
 
 **Returns:** e to the power of `float`.
 

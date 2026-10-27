@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
 ```blitzbasic
-DisableToolBarItem toolbar%, index%
+DisableToolBarItem toolbar:Int32, index:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -32,8 +32,8 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `toolbar` | Int | required | Handle of a toolbar. |
-| `index` | Int | required | Number of the icon, counted from 0 and not counting gaps. |
+| `toolbar` | Int32 | required | Handle of a toolbar. |
+| `index` | Int32 | required | Number of the icon, counted from 0 and not counting gaps. |
 
 ## Related commands
 

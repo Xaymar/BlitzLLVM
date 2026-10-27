@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
 ```blitzbasic
-SetFont font%
+SetFont font:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Chooses the font that [Text](Text), [Print](Print), [StringWidth](StringWidth) a
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `font` | Int | required | A handle from [LoadFont](LoadFont). 0 goes back to the built-in font. |
+| `font` | Int32 | required | A handle from [LoadFont](LoadFont). 0 goes back to the built-in font. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Lights](Blitz3D-Lights)
 
 ```blitzbasic
-LightConeAngles light%, inner_angle#, outer_angle#
+LightConeAngles light:Int32, inner_angle:Float32, outer_angle:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ Sets the inner and outer angle of a spot light in degrees. Inside the inner angl
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `light` | Int | required | Light handle. |
-| `inner_angle` | Float | required | Angle of the fully lit center of the cone. |
-| `outer_angle` | Float | required | Angle where the light has faded out. |
+| `light` | Int32 | required | Light handle. |
+| `inner_angle` | Float32 | required | Angle of the fully lit center of the cone. |
+| `outer_angle` | Float32 | required | Angle where the light has faded out. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-Graphics width%, height%, depth%=0, mode%=0
+Graphics width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -28,10 +28,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `width` | Int | required | Width of the picture in pixels. |
-| `height` | Int | required | Height of the picture in pixels. |
-| `depth` | Int | `0` | Color depth in bits: 0, 16, 24 or 32. Defaults to 0, which lets the system choose. |
-| `mode` | Int | `0` | 0 opens a window, 1 uses full screen, 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0. |
+| `width` | Int32 | required | Width of the picture in pixels. |
+| `height` | Int32 | required | Height of the picture in pixels. |
+| `depth` | Int32 | `0` | Color depth in bits: 0, 16, 24 or 32. Defaults to 0, which lets the system choose. |
+| `mode` | Int32 | `0` | 0 opens a window, 1 uses full screen, 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0. |
 
 **Differences and known gaps:**
 

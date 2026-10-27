@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-GetSamplerAnisotropy sampler%  ; returns Float
+GetSamplerAnisotropy:Float32 sampler:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,7 +16,7 @@ Returns the anisotropy that the sampler has, as it was set with [SetSamplerAniso
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sampler` | Int | required | The sampler to ask. |
+| `sampler` | Int32 | required | The sampler to ask. |
 
 **Returns:** The setting: 1 or more.
 

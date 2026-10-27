@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-DisplayX display%  ; returns Int
+DisplayX:Int32 display:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,7 +16,7 @@ The left edge of a display on the desktop. The main display is usually at 0, and
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `display` | Int | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The position in pixels, or 0 if the display does not exist.
 

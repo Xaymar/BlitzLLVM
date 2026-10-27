@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
 ```blitzbasic
-FlipCanvas canvas%, vwait%=0
+FlipCanvas canvas:Int32, vwait:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -28,8 +28,8 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `canvas` | Int | required | Handle of a canvas. |
-| `vwait` | Int | `0` | 1 waits for the display to be ready, 0 shows it right away. Defaults to 1. |
+| `canvas` | Int32 | required | Handle of a canvas. |
+| `vwait` | Int32 | `0` | 1 waits for the display to be ready, 0 shows it right away. Defaults to 1. |
 
 **Differences and known gaps:**
 

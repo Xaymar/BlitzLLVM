@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-AppTitle title$, close_prompt$=\
+AppTitle title:String, close_prompt:String=\
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

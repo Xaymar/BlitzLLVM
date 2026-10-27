@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityOrder entity%, order%
+EntityOrder entity:Int32, order:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Changes the drawing order of an entity. 0 draws it normally. A positive value dr
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `order` | Int | required | Greater than 0 for behind everything, less than 0 for in front, 0 for normal. |
+| `entity` | Int32 | required | Entity handle. |
+| `order` | Int32 | required | Greater than 0 for behind everything, less than 0 for in front, 0 for normal. |
 
 ## Related commands
 

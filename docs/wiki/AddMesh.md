@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-AddMesh source_mesh%, dest_mesh%
+AddMesh source_mesh:Int32, dest_mesh:Int32
 ```
 
 **Works in:** Blitz3D
@@ -43,8 +43,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `source_mesh` | Int | required | Mesh that is copied into the other. |
-| `dest_mesh` | Int | required | Mesh that receives the surfaces. |
+| `source_mesh` | Int32 | required | Mesh that is copied into the other. |
+| `dest_mesh` | Int32 | required | Mesh that receives the surfaces. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-LoopSound sound%
+LoopSound sound:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -25,7 +25,7 @@ StopChannel ch
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required | A handle from [LoadSound](LoadSound). |
+| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
 
 **Differences and known gaps:**
 

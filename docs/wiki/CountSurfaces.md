@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-CountSurfaces mesh%  ; returns Int
+CountSurfaces:Int32 mesh:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
+| `mesh` | Int32 | required | Mesh handle. |
 
 **Returns:** The number of surfaces in the mesh.
 

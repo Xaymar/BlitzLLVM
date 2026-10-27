@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-CreatePivot parent%=0  ; returns Int
+CreatePivot:Int32 parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -40,7 +40,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `parent` | Int | `0` | Entity the pivot follows, or 0 for none. Defaults to 0. |
+| `parent` | Int32 | `0` | Entity the pivot follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new pivot.
 

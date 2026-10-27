@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-StopChannel channel%
+StopChannel channel:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,7 +26,7 @@ Print ChannelPlaying(ch)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
 
 ## Related commands
 

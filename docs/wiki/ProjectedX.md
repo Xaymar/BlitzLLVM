@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
 ```blitzbasic
-ProjectedX  ; returns Float
+ProjectedX:Float32
 ```
 
 **Works in:** Blitz3D

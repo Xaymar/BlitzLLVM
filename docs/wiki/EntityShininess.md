@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityShininess entity%, shininess#
+EntityShininess entity:Int32, shininess:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Sets how strongly lights shine back from the entity as highlights. 0, the defaul
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `shininess` | Float | required | Strength of the highlight, 0 to 1. |
+| `entity` | Int32 | required | Entity handle. |
+| `shininess` | Float32 | required | Strength of the highlight, 0 to 1. |
 
 ## Related commands
 

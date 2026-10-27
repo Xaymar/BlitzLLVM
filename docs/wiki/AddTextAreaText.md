@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-AddTextAreaText textarea%, text$
+AddTextAreaText textarea:Int32, text:String
 ```
 
 **Works in:** BlitzPlus
@@ -29,7 +29,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
+| `textarea` | Int32 | required | Handle of a text area. |
 | `text` | String | required | Text to append. |
 
 ## Related commands

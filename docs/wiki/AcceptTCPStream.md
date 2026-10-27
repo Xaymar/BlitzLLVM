@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-AcceptTCPStream tcp_server%  ; returns Int
+AcceptTCPStream:Int32 tcp_server:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -37,7 +37,7 @@ hello server
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `tcp_server` | Int | required | The server from [CreateTCPServer](CreateTCPServer). |
+| `tcp_server` | Int32 | required | The server from [CreateTCPServer](CreateTCPServer). |
 
 **Returns:** A TCP stream, or 0 when nobody connected.
 

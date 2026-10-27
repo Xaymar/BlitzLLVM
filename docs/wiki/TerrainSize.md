@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
 ```blitzbasic
-TerrainSize terrain%  ; returns Int
+TerrainSize:Int32 terrain:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required | The terrain. |
+| `terrain` | Int32 | required | The terrain. |
 
 **Returns:** The grid size that the terrain was created with, which is the width of the picture for [LoadTerrain](LoadTerrain).
 

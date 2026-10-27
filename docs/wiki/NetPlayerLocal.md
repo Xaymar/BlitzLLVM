@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
 ```blitzbasic
-NetPlayerLocal player%  ; returns Int
+NetPlayerLocal:Int32 player:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `player` | Int | required | The player number. |
+| `player` | Int32 | required | The player number. |
 
 **Returns:** 1 when a player belongs to this program and 0 when it belongs to another one or does not exist.
 

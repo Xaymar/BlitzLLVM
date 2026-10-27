@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-CloseUDPStream udp_stream%
+CloseUDPStream udp_stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Closes a UDP stream and gives its port back.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `udp_stream` | Int | required | The stream to close. |
+| `udp_stream` | Int32 | required | The stream to close. |
 
 ## Related commands
 

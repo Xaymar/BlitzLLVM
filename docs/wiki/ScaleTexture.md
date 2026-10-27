@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-ScaleTexture texture%, u_scale#, v_scale#
+ScaleTexture texture:Int32, u_scale:Float32, v_scale:Float32
 ```
 
 **Works in:** Blitz3D
@@ -53,9 +53,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture to scale. |
-| `u_scale` | Float | required | Horizontal size factor. 1 is unchanged, 2 is twice as wide. |
-| `v_scale` | Float | required | Vertical size factor. |
+| `texture` | Int32 | required | The texture to scale. |
+| `u_scale` | Float32 | required | Horizontal size factor. 1 is unchanged, 2 is twice as wide. |
+| `v_scale` | Float32 | required | Vertical size factor. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CreateCamera parent%=0  ; returns Int
+CreateCamera:Int32 parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -36,7 +36,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `parent` | Int | `0` | Entity the camera follows, or 0 for none. Defaults to 0. |
+| `parent` | Int32 | `0` | Entity the camera follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new camera.
 

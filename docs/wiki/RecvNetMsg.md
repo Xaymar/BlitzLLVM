@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Multiplayer](BlitzBasic-Multiplayer)
 
 ```blitzbasic
-RecvNetMsg  ; returns Int
+RecvNetMsg:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

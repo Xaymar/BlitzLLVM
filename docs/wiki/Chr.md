@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Chr ascii%  ; returns String
+Chr:String ascii:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ Hi
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `ascii` | Int | required | The character code, 0 to 255. |
+| `ascii` | Int32 | required | The character code, 0 to 255. |
 
 **Returns:** A string with a single character.
 

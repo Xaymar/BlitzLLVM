@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Display](BlitzBasic-Display)
 
 ```blitzbasic
-VWait frames%=1
+VWait frames:Int32=1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -24,7 +24,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `frames` | Int | `1` | How many frames to wait for. Defaults to 1. |
+| `frames` | Int32 | `1` | How many frames to wait for. Defaults to 1. |
 
 **Differences and known gaps:**
 

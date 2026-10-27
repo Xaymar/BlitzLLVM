@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-ActiveTextures  ; returns Int
+ActiveTextures:Int32
 ```
 
 **Works in:** Blitz3D

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SelectedGadgetItem gadget%  ; returns Int
+SelectedGadgetItem:Int32 gadget:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of a list box, combo box or tabber. |
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
 
 **Returns:** The number of the selected entry starting at 0, or -1 if nothing is selected.
 

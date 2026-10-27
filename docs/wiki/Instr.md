@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Instr string$, find$, from%=1  ; returns Int
+Instr:Int32 string:String, find:String, from:Int32=1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -30,7 +30,7 @@ Print Instr("hello", "z")
 |---|---|---|---|
 | `string` | String | required | The text to search in. |
 | `find` | String | required | The text to look for. |
-| `from` | Int | `1` | Position to start searching at. Defaults to 1. |
+| `from` | Int32 | `1` | Position to start searching at. Defaults to 1. |
 
 **Returns:** The position of the first match, or 0.
 

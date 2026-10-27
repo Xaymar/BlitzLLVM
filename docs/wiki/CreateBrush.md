@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-CreateBrush red#=255, green#=255, blue#=255  ; returns Int
+CreateBrush:Int32 red:Float32=255, green:Float32=255, blue:Float32=255
 ```
 
 **Works in:** Blitz3D
@@ -52,9 +52,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `red` | Float | `255` | Red part, 0 to 255. Defaults to 255. |
-| `green` | Float | `255` | Green part, 0 to 255. Defaults to 255. |
-| `blue` | Float | `255` | Blue part, 0 to 255. Defaults to 255. |
+| `red` | Float32 | `255` | Red part, 0 to 255. Defaults to 255. |
+| `green` | Float32 | `255` | Green part, 0 to 255. Defaults to 255. |
+| `blue` | Float32 | `255` | Blue part, 0 to 255. Defaults to 255. |
 
 **Returns:** A brush handle.
 

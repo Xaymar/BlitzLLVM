@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Hex value%  ; returns String
+Hex:String value:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,7 +26,7 @@ FFFFFFFF
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `value` | Int | required | The number to convert. |
+| `value` | Int32 | required | The number to convert. |
 
 **Returns:** A string of 8 digits, 0 to 9 and A to F.
 

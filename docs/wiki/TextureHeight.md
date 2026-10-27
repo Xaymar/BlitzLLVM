@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-TextureHeight texture%  ; returns Int
+TextureHeight:Int32 texture:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture. |
+| `texture` | Int32 | required | The texture. |
 
 **Returns:** The height of the texture in pixels, as it was created or loaded. For a texture made with LoadAnimTexture it is the height of one frame. Returns 0 for a handle that does not exist.
 

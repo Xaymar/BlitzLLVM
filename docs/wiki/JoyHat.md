@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
 ```blitzbasic
-JoyHat port%=0  ; returns Int
+JoyHat:Int32 port:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,7 +26,7 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `port` | Int | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** The angle of the hat, or -1 if it is centered or the joystick has no hat.
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-ResetTimer timer%
+ResetTimer timer:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -27,7 +27,7 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `timer` | Int | required | A timer from `CreateTimer`. |
+| `timer` | Int32 | required | A timer from `CreateTimer`. |
 
 ## Related commands
 

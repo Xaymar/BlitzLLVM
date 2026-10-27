@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-FreeTexture texture%
+FreeTexture texture:Int32
 ```
 
 **Works in:** Blitz3D
@@ -18,7 +18,7 @@ Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, b
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The texture to free. |
+| `texture` | Int32 | required | The texture to free. |
 
 **Differences and known gaps:**
 

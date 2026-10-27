@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-ImageRectOverlap image%, x%, y%, rect_x%, rect_y%, rect_width%, rect_height%  ; returns Int
+ImageRectOverlap:Int32 image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,13 +16,13 @@ Tells whether a rectangle touches the box of an image at a position. Transparent
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
-| `x` | Int | required | Horizontal position where the image is drawn. |
-| `y` | Int | required | Vertical position where the image is drawn. |
-| `rect_x` | Int | required | Left edge of the rectangle. |
-| `rect_y` | Int | required | Top edge of the rectangle. |
-| `rect_width` | Int | required | Width of the rectangle. |
-| `rect_height` | Int | required | Height of the rectangle. |
+| `image` | Int32 | required | The image. |
+| `x` | Int32 | required | Horizontal position where the image is drawn. |
+| `y` | Int32 | required | Vertical position where the image is drawn. |
+| `rect_x` | Int32 | required | Left edge of the rectangle. |
+| `rect_y` | Int32 | required | Top edge of the rectangle. |
+| `rect_width` | Int32 | required | Width of the rectangle. |
+| `rect_height` | Int32 | required | Height of the rectangle. |
 
 **Returns:** 1 if the rectangle touches the box of the image, otherwise 0.
 

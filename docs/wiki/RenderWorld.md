@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [World](Blitz3D-World)
 
 ```blitzbasic
-RenderWorld tween#=1
+RenderWorld tween:Float32=1
 ```
 
 **Works in:** Blitz3D
@@ -45,7 +45,7 @@ Next
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `tween` | Float | `1` | How far between the captured state (0) and the current state (1) to draw. Defaults to 1. |
+| `tween` | Float32 | `1` | How far between the captured state (0) and the current state (1) to draw. Defaults to 1. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-LoadAnimTexture file$, flags%, width%, height%, first%, count%  ; returns Int
+LoadAnimTexture:Int32 file:String, flags:Int32, width:Int32, height:Int32, first:Int32, count:Int32
 ```
 
 **Works in:** Blitz3D
@@ -56,11 +56,11 @@ Next
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `file` | String | required | Picture file that contains all frames. |
-| `flags` | Int | required | Texture flags, see CreateTexture. |
-| `width` | Int | required |  |
-| `height` | Int | required |  |
-| `first` | Int | required |  |
-| `count` | Int | required |  |
+| `flags` | Int32 | required | Texture flags, see CreateTexture. |
+| `width` | Int32 | required |  |
+| `height` | Int32 | required |  |
+| `first` | Int32 | required |  |
+| `count` | Int32 | required |  |
 
 **Returns:** A texture handle, or 0 if the file could not be loaded.
 

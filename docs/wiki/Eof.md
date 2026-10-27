@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-Eof stream%  ; returns Int
+Eof:Int32 stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -32,7 +32,7 @@ b
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required | The stream to check. |
+| `stream` | Int32 | required | The stream to check. |
 
 **Returns:** 1 when a file has been read to its end, otherwise 0.
 

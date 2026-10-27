@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-WritePixelFast x%, y%, argb%, buffer%=0
+WritePixelFast x:Int32, y:Int32, argb:Int32, buffer:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -36,10 +36,10 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position of the pixel. |
-| `y` | Int | required | Vertical position of the pixel. |
-| `argb` | Int | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
-| `buffer` | Int | `0` | The locked buffer to write to. Defaults to the current buffer. |
+| `x` | Int32 | required | Horizontal position of the pixel. |
+| `y` | Int32 | required | Vertical position of the pixel. |
+| `argb` | Int32 | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
+| `buffer` | Int32 | `0` | The locked buffer to write to. Defaults to the current buffer. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-PaintSurface surface%, brush%
+PaintSurface surface:Int32, brush:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Applies a brush to one surface: its color, texture, alpha, shininess, blend mode
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `brush` | Int | required | Brush handle. |
+| `surface` | Int32 | required | Surface handle. |
+| `brush` | Int32 | required | Brush handle. |
 
 ## Related commands
 

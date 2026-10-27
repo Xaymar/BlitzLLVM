@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-AutoSuspend enable%
+AutoSuspend enable:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -24,7 +24,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `enable` | Int | required | 1 turns it on, 0 turns it off. |
+| `enable` | Int32 | required | 1 turns it on, 0 turns it off. |
 
 ## Related commands
 

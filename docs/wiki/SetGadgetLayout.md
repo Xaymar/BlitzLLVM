@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SetGadgetLayout gadget%, left%, right%, top%, bottom%
+SetGadgetLayout gadget:Int32, left:Int32, right:Int32, top:Int32, bottom:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -29,11 +29,11 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of the gadget. |
-| `left` | Int | required | Behavior of the left edge: 0, 1 or 2. |
-| `right` | Int | required | Behavior of the right edge: 0, 1 or 2. |
-| `top` | Int | required | Behavior of the top edge: 0, 1 or 2. |
-| `bottom` | Int | required | Behavior of the bottom edge: 0, 1 or 2. |
+| `gadget` | Int32 | required | Handle of the gadget. |
+| `left` | Int32 | required | Behavior of the left edge: 0, 1 or 2. |
+| `right` | Int32 | required | Behavior of the right edge: 0, 1 or 2. |
+| `top` | Int32 | required | Behavior of the top edge: 0, 1 or 2. |
+| `bottom` | Int32 | required | Behavior of the bottom edge: 0, 1 or 2. |
 
 ## Related commands
 

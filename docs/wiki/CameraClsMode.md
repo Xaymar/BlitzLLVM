@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Cameras](Blitz3D-Cameras)
 
 ```blitzbasic
-CameraClsMode camera%, cls_color%, cls_zbuffer%
+CameraClsMode camera:Int32, cls_color:Int32, cls_zbuffer:Int32
 ```
 
 **Works in:** Blitz3D
@@ -39,9 +39,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `camera` | Int | required | Camera handle. |
-| `cls_color` | Int | required | True to clear the color buffer, false to keep what is there. |
-| `cls_zbuffer` | Int | required | True to clear the depth buffer, false to keep it. |
+| `camera` | Int32 | required | Camera handle. |
+| `cls_color` | Int32 | required | True to clear the color buffer, false to keep what is there. |
+| `cls_zbuffer` | Int32 | required | True to clear the depth buffer, false to keep it. |
 
 ## Related commands
 

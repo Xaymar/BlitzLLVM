@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-AddAnimSeq entity%, length%  ; returns Int
+AddAnimSeq:Int32 entity:Int32, length:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Turns the keys made with [SetAnimKey](SetAnimKey) into a new animation sequence 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
-| `length` | Int | required | Length of the sequence in frames. |
+| `entity` | Int32 | required | The entity. |
+| `length` | Int32 | required | Length of the sequence in frames. |
 
 **Returns:** The number of the new sequence.
 

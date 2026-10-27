@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Menus](BlitzPlus-Menus)
 
 ```blitzbasic
-SetMenuText menu%, text$
+SetMenuText menu:Int32, text:String
 ```
 
 **Works in:** BlitzPlus
@@ -28,7 +28,7 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `menu` | Int | required | Handle of a menu or item. |
+| `menu` | Int32 | required | Handle of a menu or item. |
 | `text` | String | required | The new text. |
 
 **Differences and known gaps:**

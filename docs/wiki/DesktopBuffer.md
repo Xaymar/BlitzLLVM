@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Canvas](BlitzPlus-Canvas)
 
 ```blitzbasic
-DesktopBuffer  ; returns Int
+DesktopBuffer:Int32
 ```
 
 **Works in:** BlitzPlus

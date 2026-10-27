@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-SetCubeFace texture%, face%
+SetCubeFace texture:Int32, face:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Chooses which of the six faces of a cube map the next drawing on the texture buf
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The cube map texture. |
-| `face` | Int | required | Face number, 0 to 5. The default is 1. |
+| `texture` | Int32 | required | The cube map texture. |
+| `face` | Int32 | required | Face number, 0 to 5. The default is 1. |
 
 **Differences and known gaps:**
 

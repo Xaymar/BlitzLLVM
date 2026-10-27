@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-CountVertices surface%  ; returns Int
+CountVertices:Int32 surface:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Reports how many vertices a surface has. Vertex indexes run from 0 to one less t
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
+| `surface` | Int32 | required | Surface handle. |
 
 **Returns:** The number of vertices of the surface.
 

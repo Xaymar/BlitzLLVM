@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-PaintMesh mesh%, brush%
+PaintMesh mesh:Int32, brush:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Applies a brush to every surface of a mesh: color, texture, alpha, shininess, bl
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `brush` | Int | required | Brush handle. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `brush` | Int32 | required | Brush handle. |
 
 ## Related commands
 

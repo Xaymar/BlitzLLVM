@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-UByte value#  ; returns Int
+UByte:Int32 value:Float32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -31,7 +31,7 @@ Print UByte(300.0)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `value` | Float | required | A number or a text with a number in it. |
+| `value` | Float32 | required | A number or a text with a number in it. |
 
 **Returns:** The UByte.
 

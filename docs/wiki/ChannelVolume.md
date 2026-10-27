@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Audio](BlitzBasic-Audio)
 
 ```blitzbasic
-ChannelVolume channel%, volume#
+ChannelVolume channel:Int32, volume:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -28,8 +28,8 @@ StopChannel ch
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | Int | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-| `volume` | Float | required | 0 is silence and 1 is the full volume of the sound. Values outside that range are limited to it. |
+| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+| `volume` | Float32 | required | 0 is silence and 1 is the full volume of the sound. Values outside that range are limited to it. |
 
 ## Related commands
 

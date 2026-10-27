@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Streams](BlitzBasic-Streams)
 
 ```blitzbasic
-WriteLine stream%, string$
+WriteLine stream:Int32, string:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Writes text followed by a carriage return and a line feed. Read it back with [Re
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `stream` | Int | required | The stream to write to. |
+| `stream` | Int32 | required | The stream to write to. |
 | `string` | String | required | The text to write. |
 
 ## Related commands

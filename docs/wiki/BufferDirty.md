@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-BufferDirty buffer%
+BufferDirty buffer:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Tells the system that a buffer was changed behind its back so that it has to be 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `buffer` | Int | required | The buffer that was changed. |
+| `buffer` | Int32 | required | The buffer that was changed. |
 
 **Differences and known gaps:**
 

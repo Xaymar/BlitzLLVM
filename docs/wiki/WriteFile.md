@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Files](BlitzBasic-Files)
 
 ```blitzbasic
-WriteFile filename$  ; returns Int
+WriteFile:Int32 filename:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

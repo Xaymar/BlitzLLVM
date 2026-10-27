@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Toolbars](BlitzPlus-Toolbars)
 
 ```blitzbasic
-SetToolBarTips toolbar%, tips$
+SetToolBarTips toolbar:Int32, tips:String
 ```
 
 **Works in:** BlitzPlus
@@ -34,7 +34,7 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `toolbar` | Int | required | Handle of a toolbar. |
+| `toolbar` | Int32 | required | Handle of a toolbar. |
 | `tips` | String | required | Hints separated by commas. |
 
 **Differences and known gaps:**

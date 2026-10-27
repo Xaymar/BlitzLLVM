@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-CreateSphere segments%=8, parent%=0  ; returns Int
+CreateSphere:Int32 segments:Int32=8, parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -35,8 +35,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `segments` | Int | `8` | Detail of the sphere, 2 to 100. Defaults to 8. |
-| `parent` | Int | `0` | Entity the sphere follows, or 0 for none. Defaults to 0. |
+| `segments` | Int32 | `8` | Detail of the sphere, 2 to 100. Defaults to 8. |
+| `parent` | Int32 | `0` | Entity the sphere follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new sphere.
 

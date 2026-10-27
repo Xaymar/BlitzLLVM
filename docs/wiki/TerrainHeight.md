@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
 ```blitzbasic
-TerrainHeight terrain%, terrain_x%, terrain_z%  ; returns Float
+TerrainHeight:Float32 terrain:Int32, terrain_x:Int32, terrain_z:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required | The terrain. |
-| `terrain_x` | Int | required |  |
-| `terrain_z` | Int | required |  |
+| `terrain` | Int32 | required | The terrain. |
+| `terrain_x` | Int32 | required |  |
+| `terrain_z` | Int32 | required |  |
 
 **Returns:** The height of one grid point of the terrain, from 0 to 1, before the entity's scale is applied. Positions outside the grid are moved to the nearest edge. This reads the points you set with ModifyTerrain; use [TerrainY](TerrainY) to find the height at any world position.
 

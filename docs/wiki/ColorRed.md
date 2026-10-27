@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
 ```blitzbasic
-ColorRed  ; returns Int
+ColorRed:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

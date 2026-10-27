@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Events](BlitzPlus-Events)
 
 ```blitzbasic
-WaitEvent timeout%=-1  ; returns Int
+WaitEvent:Int32 timeout:Int32=-1
 ```
 
 **Works in:** BlitzPlus
@@ -30,7 +30,7 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `timeout` | Int | `-1` | Longest time to wait in milliseconds. -1 waits forever, 0 does not wait. Defaults to -1. |
+| `timeout` | Int32 | `-1` | Longest time to wait in milliseconds. -1 waits forever, 0 does not wait. Defaults to -1. |
 
 **Returns:** The kind of the event, or 0 if the time ran out.
 

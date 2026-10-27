@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Transforms](Blitz3D-Transforms)
 
 ```blitzbasic
-DeltaPitch src_entity%, dest_entity%  ; returns Float
+DeltaPitch:Float32 src_entity:Int32, dest_entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Tells you how far an entity has to tilt around its sideways axis to look at anot
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `src_entity` | Int | required | The entity that should tilt. |
-| `dest_entity` | Int | required | The entity it should look at. |
+| `src_entity` | Int32 | required | The entity that should tilt. |
+| `dest_entity` | Int32 | required | The entity it should look at. |
 
 **Returns:** The tilt needed, in degrees.
 

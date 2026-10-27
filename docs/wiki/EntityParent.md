@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityParent entity%, parent%, global%=1
+EntityParent entity:Int32, parent:Int32, global:Int32=1
 ```
 
 **Works in:** Blitz3D
@@ -44,9 +44,9 @@ Wend
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `parent` | Int | required | Handle of the new parent, 0 for none. |
-| `global` | Int | `1` | 1 to keep the world position and angle, 0 to keep the local values. Defaults to 1. |
+| `entity` | Int32 | required | Entity handle. |
+| `parent` | Int32 | required | Handle of the new parent, 0 for none. |
+| `global` | Int32 | `1` | 1 to keep the world position and angle, 0 to keep the local values. Defaults to 1. |
 
 ## Related commands
 

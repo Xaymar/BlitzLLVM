@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Text Areas](BlitzPlus-Text-Areas)
 
 ```blitzbasic
-SetTextAreaTabs textarea%, tabs%
+SetTextAreaTabs textarea:Int32, tabs:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -26,8 +26,8 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `textarea` | Int | required | Handle of a text area. |
-| `tabs` | Int | required | Width of a tab. |
+| `textarea` | Int32 | required | Handle of a text area. |
+| `tabs` | Int32 | required | Width of a tab. |
 
 ## Related commands
 

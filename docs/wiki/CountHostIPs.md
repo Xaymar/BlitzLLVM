@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-CountHostIPs host_name$  ; returns Int
+CountHostIPs:Int32 host_name:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

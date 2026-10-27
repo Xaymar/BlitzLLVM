@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Collisions](Blitz3D-Collisions)
 
 ```blitzbasic
-GetEntityType entity%  ; returns Int
+GetEntityType:Int32 entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity. |
+| `entity` | Int32 | required | The entity. |
 
 **Returns:** The collision type that was given to the entity with EntityType, or 0 if it never got one.
 

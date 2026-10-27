@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-CreateMesh parent%=0  ; returns Int
+CreateMesh:Int32 parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -39,7 +39,7 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `parent` | Int | `0` | Entity the mesh follows, or 0 for none. Defaults to 0. |
+| `parent` | Int32 | `0` | Entity the mesh follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new mesh.
 

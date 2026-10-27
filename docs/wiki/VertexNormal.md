@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Surfaces](Blitz3D-Surfaces)
 
 ```blitzbasic
-VertexNormal surface%, index%, nx#, ny#, nz#
+VertexNormal surface:Int32, index:Int32, nx:Float32, ny:Float32, nz:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,11 +16,11 @@ Sets the normal of a vertex: the direction it faces, which decides how light hit
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `surface` | Int | required | Surface handle. |
-| `index` | Int | required | Index of the vertex, from 0. |
-| `nx` | Float | required | X part of the normal. |
-| `ny` | Float | required | Y part of the normal. |
-| `nz` | Float | required | Z part of the normal. |
+| `surface` | Int32 | required | Surface handle. |
+| `index` | Int32 | required | Index of the vertex, from 0. |
+| `nx` | Float32 | required | X part of the normal. |
+| `ny` | Float32 | required | Y part of the normal. |
+| `nz` | Float32 | required | Z part of the normal. |
 
 ## Related commands
 

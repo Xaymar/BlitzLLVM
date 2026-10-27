@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Fonts and Text](BlitzBasic-Fonts-and-Text)
 
 ```blitzbasic
-StringHeight string$  ; returns Int
+StringHeight:Int32 string:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

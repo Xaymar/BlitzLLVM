@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [3D Sound](Blitz3D-3D-Sound)
 
 ```blitzbasic
-EmitSound sound%, entity%  ; returns Int
+EmitSound:Int32 sound:Int32, entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -18,8 +18,8 @@ The example is the one under [CreateListener](CreateListener).
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sound` | Int | required | A sound handle. |
-| `entity` | Int | required | The entity the sound comes from. |
+| `sound` | Int32 | required | A sound handle. |
+| `entity` | Int32 | required | The entity the sound comes from. |
 
 **Returns:** A channel handle for the playing sound.
 

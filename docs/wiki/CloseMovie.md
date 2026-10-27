@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
 
 ```blitzbasic
-CloseMovie movie%
+CloseMovie movie:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movi
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required | A movie handle from OpenMovie. |
+| `movie` | Int32 | required | A movie handle from OpenMovie. |
 
 **Differences and known gaps:**
 

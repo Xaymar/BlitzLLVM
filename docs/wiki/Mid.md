@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Mid string$, start%, count%=-1  ; returns String
+Mid:String string:String, start:Int32, count:Int32=-1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -27,8 +27,8 @@ llo
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `string` | String | required | The text. |
-| `start` | Int | required | Position of the first character to take. |
-| `count` | Int | `-1` | How many characters to take. Defaults to all that are left. |
+| `start` | Int32 | required | Position of the first character to take. |
+| `count` | Int32 | `-1` | How many characters to take. Defaults to all that are left. |
 
 **Returns:** The piece of the string.
 

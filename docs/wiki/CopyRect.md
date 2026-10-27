@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels)
 
 ```blitzbasic
-CopyRect source_x%, source_y%, width%, height%, dest_x%, dest_y%, src_buffer%=0, dest_buffer%=0
+CopyRect source_x:Int32, source_y:Int32, width:Int32, height:Int32, dest_x:Int32, dest_y:Int32, src_buffer:Int32=0, dest_buffer:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -32,14 +32,14 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `source_x` | Int | required | Left edge of the area to copy. |
-| `source_y` | Int | required | Top edge of the area to copy. |
-| `width` | Int | required | Width of the area. |
-| `height` | Int | required | Height of the area. |
-| `dest_x` | Int | required | Left edge of the target area. |
-| `dest_y` | Int | required | Top edge of the target area. |
-| `src_buffer` | Int | `0` | The buffer to copy from. Defaults to the current buffer. |
-| `dest_buffer` | Int | `0` | The buffer to copy to. Defaults to the current buffer. |
+| `source_x` | Int32 | required | Left edge of the area to copy. |
+| `source_y` | Int32 | required | Top edge of the area to copy. |
+| `width` | Int32 | required | Width of the area. |
+| `height` | Int32 | required | Height of the area. |
+| `dest_x` | Int32 | required | Left edge of the target area. |
+| `dest_y` | Int32 | required | Top edge of the target area. |
+| `src_buffer` | Int32 | `0` | The buffer to copy from. Defaults to the current buffer. |
+| `dest_buffer` | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
 
 **Differences and known gaps:**
 

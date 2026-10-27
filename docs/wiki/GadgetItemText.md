@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-GadgetItemText gadget%, index%  ; returns String
+GadgetItemText:String gadget:Int32, index:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,8 +16,8 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of a list box, combo box or tabber. |
-| `index` | Int | required | Number of the entry, starting at 0. |
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| `index` | Int32 | required | Number of the entry, starting at 0. |
 
 **Returns:** The text of that entry.
 

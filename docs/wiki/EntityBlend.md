@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityBlend entity%, blend%
+EntityBlend entity:Int32, blend:Int32
 ```
 
 **Works in:** Blitz3D
@@ -20,8 +20,8 @@ Chooses how the entity's pixels are mixed with what is already on screen.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `blend` | Int | required | 1 for alpha, 2 for multiply, 3 for add. |
+| `entity` | Int32 | required | Entity handle. |
+| `blend` | Int32 | required | 1 for alpha, 2 for multiply, 3 for add. |
 
 ## Related commands
 

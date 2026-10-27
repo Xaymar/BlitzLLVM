@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
 ```blitzbasic
-TerrainX terrain%, world_x#, world_y#, world_z#  ; returns Float
+TerrainX:Float32 terrain:Int32, world_x:Float32, world_y:Float32, world_z:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,10 +16,10 @@ Looks at the terrain from straight above a point in the world and returns the X 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required | The terrain. |
-| `world_x` | Float | required |  |
-| `world_y` | Float | required |  |
-| `world_z` | Float | required |  |
+| `terrain` | Int32 | required | The terrain. |
+| `world_x` | Float32 | required |  |
+| `world_y` | Float32 | required |  |
+| `world_z` | Float32 | required |  |
 
 **Returns:** The world X coordinate of the ground below or above the point.
 

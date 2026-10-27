@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Sqr float#  ; returns Float
+Sqr:Float32 float:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,7 +26,7 @@ Print Sqr(16)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `float` | Float | required | A number of 0 or more. |
+| `float` | Float32 | required | A number of 0 or more. |
 
 **Returns:** The square root.
 

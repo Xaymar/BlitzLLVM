@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Joystick](BlitzBasic-Joystick)
 
 ```blitzbasic
-WaitJoy port%=0  ; returns Int
+WaitJoy:Int32 port:Int32=0
 ```
 
 **Works in:** Blitz2D, Blitz3D
@@ -28,7 +28,7 @@ Delay 1000
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `port` | Int | `0` | The joystick to wait for, counted from 0. Defaults to 0. |
+| `port` | Int32 | `0` | The joystick to wait for, counted from 0. Defaults to 0. |
 
 **Returns:** The number of the button that was pressed.
 

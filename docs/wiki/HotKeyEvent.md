@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [System](BlitzPlus-System)
 
 ```blitzbasic
-HotKeyEvent rawkey%, modifier%, ev_id%, ev_data%=0, ev_x%=0, ev_y%=0, ev_z%=0, ev_source%=0
+HotKeyEvent rawkey:Int32, modifier:Int32, ev_id:Int32, ev_data:Int32=0, ev_x:Int32=0, ev_y:Int32=0, ev_z:Int32=0, ev_source:Int32=0
 ```
 
 **Works in:** BlitzPlus
@@ -26,14 +26,14 @@ Until e = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `rawkey` | Int | required |  |
-| `modifier` | Int | required | Sum of 1 (shift), 2 (control) and 4 (alt). |
-| `ev_id` | Int | required |  |
-| `ev_data` | Int | `0` |  |
-| `ev_x` | Int | `0` |  |
-| `ev_y` | Int | `0` |  |
-| `ev_z` | Int | `0` |  |
-| `ev_source` | Int | `0` |  |
+| `rawkey` | Int32 | required |  |
+| `modifier` | Int32 | required | Sum of 1 (shift), 2 (control) and 4 (alt). |
+| `ev_id` | Int32 | required |  |
+| `ev_data` | Int32 | `0` |  |
+| `ev_x` | Int32 | `0` |  |
+| `ev_y` | Int32 | `0` |  |
+| `ev_z` | Int32 | `0` |  |
+| `ev_source` | Int32 | `0` |  |
 
 ## Related commands
 

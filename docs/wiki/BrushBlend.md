@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-BrushBlend brush%, blend%
+BrushBlend brush:Int32, blend:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Chooses how painted surfaces are mixed with what is already on the screen: 1 alp
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `brush` | Int | required | The brush. |
-| `blend` | Int | required | 1, 2 or 3. |
+| `brush` | Int32 | required | The brush. |
+| `blend` | Int32 | required | 1, 2 or 3. |
 
 ## Related commands
 

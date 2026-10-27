@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Picking](Blitz3D-Picking)
 
 ```blitzbasic
-PickedX  ; returns Float
+PickedX:Float32
 ```
 
 **Works in:** Blitz3D

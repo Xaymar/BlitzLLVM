@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Brushes](Blitz3D-Brushes)
 
 ```blitzbasic
-BrushFX brush%, fx%
+BrushFX brush:Int32, fx:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Switches extra effects on or off with a sum of flags: 1 full-bright (no lighting
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `brush` | Int | required | The brush. |
-| `fx` | Int | required | Sum of the flags above. |
+| `brush` | Int32 | required | The brush. |
+| `fx` | Int32 | required | Sum of the flags above. |
 
 ## Related commands
 

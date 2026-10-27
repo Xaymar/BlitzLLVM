@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-SetSamplerLodMax sampler%, lod#
+SetSamplerLodMax sampler:Int32, lod:Float32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,8 +16,8 @@ Sets the smallest mip level that may be used, counted from level 0. A maximum of
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sampler` | Int | required | The sampler to change. |
-| `lod` | Float | required | The highest level, 0 or more. A value below the minimum is read as the minimum. |
+| `sampler` | Int32 | required | The sampler to change. |
+| `lod` | Float32 | required | The highest level, 0 or more. A value below the minimum is read as the minimum. |
 
 ## Related commands
 

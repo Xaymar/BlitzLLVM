@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Network](BlitzBasic-Network)
 
 ```blitzbasic
-UDPMsgPort udp_stream%  ; returns Int
+UDPMsgPort:Int32 udp_stream:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -16,7 +16,7 @@ _Not documented yet._
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `udp_stream` | Int | required | The stream. |
+| `udp_stream` | Int32 | required | The stream. |
 
 **Returns:** The port of the sender of the last message that [RecvUDPMsg](RecvUDPMsg) received.
 

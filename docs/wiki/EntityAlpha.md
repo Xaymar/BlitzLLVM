@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-EntityAlpha entity%, alpha#
+EntityAlpha entity:Int32, alpha:Float32
 ```
 
 **Works in:** Blitz3D
@@ -37,8 +37,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `alpha` | Float | required | Opacity from 0 to 1. Defaults to 1 on a new entity. |
+| `entity` | Int32 | required | Entity handle. |
+| `alpha` | Float32 | required | Opacity from 0 to 1. Defaults to 1 on a new entity. |
 
 ## Related commands
 

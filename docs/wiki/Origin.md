@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Drawing](BlitzBasic-Drawing)
 
 ```blitzbasic
-Origin x%, y%
+Origin x:Int32, y:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -34,8 +34,8 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `x` | Int | required | Horizontal position of the new origin in the buffer. |
-| `y` | Int | required | Vertical position of the new origin in the buffer. |
+| `x` | Int32 | required | Horizontal position of the new origin in the buffer. |
+| `y` | Int32 | required | Vertical position of the new origin in the buffer. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-SetCubeMode texture%, mode%
+SetCubeMode texture:Int32, mode:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,8 +16,8 @@ Selects what a cube map (texture flag 128) shows on a surface: 1 the reflection 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `texture` | Int | required | The cube map texture. |
-| `mode` | Int | required | 1, 2 or 3, plus 4 for the space of the camera. The default is 1. |
+| `texture` | Int32 | required | The cube map texture. |
+| `mode` | Int32 | required | 1, 2 or 3, plus 4 for the space of the camera. The default is 1. |
 
 **Differences and known gaps:**
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-RotateEntity entity%, pitch#, yaw#, roll#, global%=0
+RotateEntity entity:Int32, pitch:Float32, yaw:Float32, roll:Float32, global:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,11 +16,11 @@ Turns an entity to an absolute orientation. The three angles are in degrees: pit
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
-| `pitch` | Float | required | Rotation around X in degrees. |
-| `yaw` | Float | required | Rotation around Y in degrees. |
-| `roll` | Float | required | Rotation around Z in degrees. |
-| `global` | Int | `0` | 1 to use angles of the world instead of angles relative to the parent. Defaults to 0. |
+| `entity` | Int32 | required | Entity handle. |
+| `pitch` | Float32 | required | Rotation around X in degrees. |
+| `yaw` | Float32 | required | Rotation around Y in degrees. |
+| `roll` | Float32 | required | Rotation around Z in degrees. |
+| `global` | Int32 | `0` | 1 to use angles of the world instead of angles relative to the parent. Defaults to 0. |
 
 ## Related commands
 

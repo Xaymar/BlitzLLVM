@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-HandleImage image%, x%, y%
+HandleImage image:Int32, x:Int32, y:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -42,9 +42,9 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
-| `x` | Int | required | Horizontal position of the handle, counted from the left edge. |
-| `y` | Int | required | Vertical position of the handle, counted from the top edge. |
+| `image` | Int32 | required | The image. |
+| `x` | Int32 | required | Horizontal position of the handle, counted from the left edge. |
+| `y` | Int32 | required | Vertical position of the handle, counted from the top edge. |
 
 ## Related commands
 

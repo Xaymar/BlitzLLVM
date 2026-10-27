@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Mouse](BlitzBasic-Mouse)
 
 ```blitzbasic
-MouseYSpeed  ; returns Int
+MouseYSpeed:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Terrain](Blitz3D-Terrain)
 
 ```blitzbasic
-TerrainDetail terrain%, detail_level%, morph%=0
+TerrainDetail terrain:Int32, detail_level:Int32, morph:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,9 +16,9 @@ Chooses how many triangles the terrain may use at a time, about 2000 being typic
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `terrain` | Int | required | The terrain. |
-| `detail_level` | Int | required | Number of triangles to use. |
-| `morph` | Int | `0` |  |
+| `terrain` | Int32 | required | The terrain. |
+| `detail_level` | Int32 | required | Number of triangles to use. |
+| `morph` | Int32 | `0` |  |
 
 **Differences and known gaps:**
 

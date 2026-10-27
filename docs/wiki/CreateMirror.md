@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-CreateMirror parent%=0  ; returns Int
+CreateMirror:Int32 parent:Int32=0
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Creates a mirror entity: an endless horizontal floor that is invisible but flips
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `parent` | Int | `0` | Entity the mirror follows, or 0 for none. Defaults to 0. |
+| `parent` | Int32 | `0` | Entity the mirror follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the mirror.
 

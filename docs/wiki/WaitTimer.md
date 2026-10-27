@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Runtime](BlitzBasic-Runtime)
 
 ```blitzbasic
-WaitTimer timer%  ; returns Int
+WaitTimer:Int32 timer:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -27,7 +27,7 @@ FreeTimer timer
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `timer` | Int | required | The timer handle. |
+| `timer` | Int32 | required | The timer handle. |
 
 **Returns:** The number of ticks since the last call, at least 1.
 

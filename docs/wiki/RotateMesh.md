@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Meshes](Blitz3D-Meshes)
 
 ```blitzbasic
-RotateMesh mesh%, pitch#, yaw#, roll#
+RotateMesh mesh:Int32, pitch:Float32, yaw:Float32, roll:Float32
 ```
 
 **Works in:** Blitz3D
@@ -16,10 +16,10 @@ Turns every vertex of a mesh around the origin, permanently. The angles are in d
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `mesh` | Int | required | Mesh handle. |
-| `pitch` | Float | required | Rotation around X in degrees. |
-| `yaw` | Float | required | Rotation around Y in degrees. |
-| `roll` | Float | required | Rotation around Z in degrees. |
+| `mesh` | Int32 | required | Mesh handle. |
+| `pitch` | Float32 | required | Rotation around X in degrees. |
+| `yaw` | Float32 | required | Rotation around Y in degrees. |
+| `roll` | Float32 | required | Rotation around Z in degrees. |
 
 ## Related commands
 

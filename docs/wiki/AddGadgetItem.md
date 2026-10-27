@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-AddGadgetItem gadget%, item$, select%=0, icon%=-1
+AddGadgetItem gadget:Int32, item:String, select:Int32=0, icon:Int32=-1
 ```
 
 **Works in:** BlitzPlus
@@ -29,10 +29,10 @@ Until WaitEvent() = $803
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `gadget` | Int | required | Handle of a list box, combo box or tabber. |
+| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
 | `item` | String | required |  |
-| `select` | Int | `0` | True makes it the selected entry. Defaults to False. |
-| `icon` | Int | `-1` | Number of an icon in the icon strip given with [SetGadgetIconStrip](SetGadgetIconStrip). Defaults to -1, which means none. |
+| `select` | Int32 | `0` | True makes it the selected entry. Defaults to False. |
+| `icon` | Int32 | `-1` | Number of an icon in the icon strip given with [SetGadgetIconStrip](SetGadgetIconStrip). Defaults to -1, which means none. |
 
 ## Related commands
 

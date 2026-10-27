@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Gadgets](BlitzPlus-Gadgets)
 
 ```blitzbasic
-SetSliderValue slider%, value%
+SetSliderValue slider:Int32, value:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -16,8 +16,8 @@ Moves the slider to a value from 0 to total minus visible. It does not send an e
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `slider` | Int | required | Handle of a slider. |
-| `value` | Int | required | The new position. |
+| `slider` | Int32 | required | Handle of a slider. |
+| `value` | Int32 | required | The new position. |
 
 ## Related commands
 

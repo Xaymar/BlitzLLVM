@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Strings](BlitzBasic-Strings)
 
 ```blitzbasic
-Len string$  ; returns Int
+Len:Int32 string:String
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

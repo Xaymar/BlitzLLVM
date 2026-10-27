@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Textures](Blitz3D-Textures)
 
 ```blitzbasic
-SetSamplerAddressModeW sampler%, mode%
+SetSamplerAddressModeW sampler:Int32, mode:Int32
 ```
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
@@ -16,8 +16,8 @@ Chooses what is read where the depth texture coordinate (w), which flat textures
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `sampler` | Int | required | The sampler to change. |
-| `mode` | Int | required | The address mode, 0 to 3. |
+| `sampler` | Int32 | required | The sampler to change. |
+| `mode` | Int32 | required | The address mode, 0 to 3. |
 
 **Differences and known gaps:**
 

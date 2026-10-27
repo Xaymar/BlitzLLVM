@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Math](BlitzBasic-Math)
 
 ```blitzbasic
-Rnd from#, to#=0  ; returns Float
+Rnd:Float32 from:Float32, to:Float32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -26,8 +26,8 @@ Print r >= 5 And r < 6
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `from` | Float | required | Lowest result, or the limit when `to` is left out. |
-| `to` | Float | `0` | The limit, never reached. Defaults to 0. |
+| `from` | Float32 | required | Lowest result, or the limit when `to` is left out. |
+| `to` | Float32 | `0` | The limit, never reached. Defaults to 0. |
 
 **Returns:** A random float in the range.
 

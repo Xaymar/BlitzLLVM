@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-TFormImage image%, a#, b#, c#, d#
+TFormImage image:Int32, a:Float32, b:Float32, c:Float32, d:Float32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -38,11 +38,11 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image. |
-| `a` | Float | required | Horizontal part of the first column of the matrix. |
-| `b` | Float | required | Vertical part of the first column of the matrix. |
-| `c` | Float | required | Horizontal part of the second column of the matrix. |
-| `d` | Float | required | Vertical part of the second column of the matrix. |
+| `image` | Int32 | required | The image. |
+| `a` | Float32 | required | Horizontal part of the first column of the matrix. |
+| `b` | Float32 | required | Vertical part of the first column of the matrix. |
+| `c` | Float32 | required | Horizontal part of the second column of the matrix. |
+| `d` | Float32 | required | Vertical part of the second column of the matrix. |
 
 **Differences and known gaps:**
 

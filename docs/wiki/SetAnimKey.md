@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Animation](Blitz3D-Animation)
 
 ```blitzbasic
-SetAnimKey entity%, frame%, pos_key%=1, rot_key%=1, scale_key%=1
+SetAnimKey entity:Int32, frame:Int32, pos_key:Int32=1, rot_key:Int32=1, scale_key:Int32=1
 ```
 
 **Works in:** Blitz3D
@@ -18,11 +18,11 @@ Each of the three flags decides which part of the pose is stored. Setting a key 
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | The entity whose pose is recorded. |
-| `frame` | Int | required | Frame number of the key, starting at 0. |
-| `pos_key` | Int | `1` | True to store the position. Defaults to True. |
-| `rot_key` | Int | `1` | True to store the rotation. Defaults to True. |
-| `scale_key` | Int | `1` | True to store the scale. Defaults to True. |
+| `entity` | Int32 | required | The entity whose pose is recorded. |
+| `frame` | Int32 | required | Frame number of the key, starting at 0. |
+| `pos_key` | Int32 | `1` | True to store the position. Defaults to True. |
+| `rot_key` | Int32 | `1` | True to store the rotation. Defaults to True. |
+| `scale_key` | Int32 | `1` | True to store the scale. Defaults to True. |
 
 ## Related commands
 

@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Images](BlitzBasic-Images)
 
 ```blitzbasic
-DrawBlock image%, x%, y%, frame%=0
+DrawBlock image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -38,10 +38,10 @@ WaitKey
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `image` | Int | required | The image to draw. |
-| `x` | Int | required | Horizontal position of the handle of the image. |
-| `y` | Int | required | Vertical position of the handle of the image. |
-| `frame` | Int | `0` | Which frame to draw. Defaults to 0. |
+| `image` | Int32 | required | The image to draw. |
+| `x` | Int32 | required | Horizontal position of the handle of the image. |
+| `y` | Int32 | required | Vertical position of the handle of the image. |
+| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
 
 ## Related commands
 

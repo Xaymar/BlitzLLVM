@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Keyboard](BlitzBasic-Keyboard)
 
 ```blitzbasic
-GetKey  ; returns Int
+GetKey:Int32
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D

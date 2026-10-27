@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [Blitz3D](Blitz3D) · [Entities](Blitz3D-Entities)
 
 ```blitzbasic
-ShowEntity entity%
+ShowEntity entity:Int32
 ```
 
 **Works in:** Blitz3D
@@ -16,7 +16,7 @@ Makes a hidden entity visible and part of collisions again. It undoes [HideEntit
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `entity` | Int | required | Entity handle. |
+| `entity` | Int32 | required | Entity handle. |
 
 ## Related commands
 

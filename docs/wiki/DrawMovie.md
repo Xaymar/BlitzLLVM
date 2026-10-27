@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzBasic](BlitzBasic) · [Movies](BlitzBasic-Movies)
 
 ```blitzbasic
-DrawMovie movie%, x%=0, y%=0, w%=-1, h%=-1  ; returns Int
+DrawMovie:Int32 movie:Int32, x:Int32=0, y:Int32=0, w:Int32=-1, h:Int32=-1
 ```
 
 **Works in:** Blitz2D, BlitzPlus, Blitz3D
@@ -33,11 +33,11 @@ CloseMovie m
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `movie` | Int | required | A movie handle from [OpenMovie](OpenMovie). |
-| `x` | Int | `0` | Horizontal position of the top left corner. Defaults to 0. |
-| `y` | Int | `0` | Vertical position of the top left corner. Defaults to 0. |
-| `w` | Int | `-1` | Width to draw at. Defaults to the width of the movie. |
-| `h` | Int | `-1` | Height to draw at. Defaults to the height of the movie. |
+| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
+| `x` | Int32 | `0` | Horizontal position of the top left corner. Defaults to 0. |
+| `y` | Int32 | `0` | Vertical position of the top left corner. Defaults to 0. |
+| `w` | Int32 | `-1` | Width to draw at. Defaults to the width of the movie. |
+| `h` | Int32 | `-1` | Height to draw at. Defaults to the height of the movie. |
 
 **Differences and known gaps:**
 

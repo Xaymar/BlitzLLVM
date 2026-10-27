@@ -7,7 +7,7 @@
 [Command Index](Command-Index) · [BlitzPlus](BlitzPlus) · [Windows](BlitzPlus-Windows)
 
 ```blitzbasic
-UpdateWindowMenu window%
+UpdateWindowMenu window:Int32
 ```
 
 **Works in:** BlitzPlus
@@ -27,7 +27,7 @@ Until e = $803 Or (e = $1001 And EventData() = 1)
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `window` | Int | required | Handle of a window. |
+| `window` | Int32 | required | Handle of a window. |
 
 **Differences and known gaps:**
 
