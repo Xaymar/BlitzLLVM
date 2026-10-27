@@ -131,8 +131,7 @@ void bb_end_graphics(void)
 		empty_graveyard();
 		destroy_surface_buffers();
 		destroy_gamma();
-		destroy_buffer(g.scene_buffer, g.scene_allocation);
-		destroy_buffer(g.entity_buffer, g.entity_allocation);
+		destroy_frame_slot_buffers();
 		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
 		vkDestroyPipeline(g.device, g.blend3d, nullptr);
 		vkDestroyPipeline(g.device, g.mul3d, nullptr);
@@ -152,6 +151,7 @@ void bb_end_graphics(void)
 		stop_gpu_thread();
 		destroy_buffer(g.vertex_buffer, g.vertex_allocation);
 		destroy_buffer(g.vertex_buffer_alt, g.vertex_allocation_alt);
+		destroy_buffer(g.vertex_buffer_alt2, g.vertex_allocation_alt2);
 		vkDestroyPipeline(g.device, g.triangles, nullptr);
 		vkDestroyPipeline(g.device, g.lines, nullptr);
 		vkDestroyPipelineLayout(g.device, g.layout, nullptr);
@@ -163,13 +163,12 @@ void bb_end_graphics(void)
 		vkDestroySampler(g.device, g.sampler_clamp, nullptr);
 		vkDestroySampler(g.device, g.sampler_repeat_mips, nullptr);
 		vkDestroySampler(g.device, g.sampler_clamp_mips, nullptr);
-		vkDestroySemaphore(g.device, g.acquired, nullptr);
 		if (profile_query_pool) {
 			vkDestroyQueryPool(g.device, profile_query_pool, nullptr);
 			profile_query_pool = VK_NULL_HANDLE;
 			profile_mark_state = -1;
 		}
-		vkDestroyFence(g.device, g.fence, nullptr);
+		destroy_frame_slots();
 		vkDestroyCommandPool(g.device, g.pool, nullptr);
 		destroy_allocator();
 		vkDestroyDevice(g.device, nullptr);
@@ -266,12 +265,12 @@ void bb_flip(int32_t vwait)
 			Uint64 now = SDL_GetTicks();
 			if (now - last >= 1000) {
 				fprintf(stderr, "fps: %d, submits: %d, waiting: %.1f ms\n", frames, profile_submits, double(profile_wait) * 1000.0 / double(SDL_GetPerformanceFrequency()));
-				fprintf(stderr, "  gpu thread: execute %.1f ms (of which vkQueueSubmit %.1f ms), present %.1f ms, overlapped frames %d\n", double(profile_gpu_execute) * 1000.0 / double(SDL_GetPerformanceFrequency()), double(profile_gpu_submit) * 1000.0 / double(SDL_GetPerformanceFrequency()), double(profile_gpu_present) * 1000.0 / double(SDL_GetPerformanceFrequency()), profile_overlap);
+				fprintf(stderr, "  gpu thread: vkQueueSubmit %.1f ms, vkQueuePresentKHR %.1f ms, frames that had to be waited for %d\n", double(profile_gpu_submit) * 1000.0 / double(SDL_GetPerformanceFrequency()), double(profile_gpu_present) * 1000.0 / double(SDL_GetPerformanceFrequency()), profile_overlap);
 				fprintf(stderr, "  gpu passes: scene %.1f ms, 2d %.1f ms, copy %.1f ms, present %.1f ms, frame %.1f ms\n", profile_gpu_pass[0] * 1e-6, profile_gpu_pass[1] * 1e-6, profile_gpu_pass[2] * 1e-6, profile_gpu_pass[3] * 1e-6, profile_gpu_pass[4] * 1e-6);
 				for (double& pass : profile_gpu_pass) {
 					pass = 0.0;
 				}
-				profile_gpu_execute = profile_gpu_submit = profile_gpu_present = 0;
+				profile_gpu_submit = profile_gpu_present = 0;
 				profile_overlap     = 0;
 				for (int i = 0; i < bb::PROFILE_COUNT; i++) {
 					fprintf(stderr, "  %s: %.1f ms\n", bb::profile_names[i], double(bb::profile_ticks[i]) * 1000.0 / double(SDL_GetPerformanceFrequency()));
@@ -291,7 +290,7 @@ void bb_flip(int32_t vwait)
 		g.vsync = vsync;
 		g.resized = true;
 	}
-	wait_gpu(); // To know whether the last present wants a new swapchain.
+	poll_resized(); // To know whether the last present wants a new swapchain.
 	ensure_swapchain();
 	if (g.swapchain == VK_NULL_HANDLE) {
 		flush();
