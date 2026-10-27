@@ -82,3 +82,63 @@ that big (65535 vertices at most), and the next `mesh->lock` is a null access: t
 A quarter of the flythrough objects (kinds 12 to 15) are sprites, so the original manages at most 65532 objects, which is why it
 crashed at 100000 and passed at 50000. `flythrough.py` stops with a message above that with the original, and `--objects 60000` is the
 highest round number to compare the two. A mesh surface has the same limit: its triangles are `unsigned short` vertex indices (`Surface::Triangle`), so it holds at most 65535 vertices.
+
+== waterfall: a river over a cliff, made of see-through sprites
+
+`waterfall.bb` is the opposite of the flythrough: little geometry, a lot of blending. A river meanders over a plateau and falls
+30 units off a cliff into a pool. The ground is one mesh of about 43000 triangles. Everything that looks like water is a sprite
+with the same soft, round, see-through texture:
+
+[cols="1,1,3"]
+|===
+| Share | What | How it moves
+
+| 35% | river | drifts along the river on the plateau to the lip, 600 frames from start to lip
+| 40% | waterfall | leaves the lip, speeds up and drops in 80 frames, gets bigger and thinner on the way down
+| 25% | mist | the cloud at the foot: rises, spreads and fades, 140 frames from birth to gone
+|===
+
+The sprites overlap a lot, and the fall and the mist are in front of each other, so the GPU blends many layers for most pixels
+and the sprites have to be drawn from the back to the front. That is what it measures: sorting and drawing thousands of
+blended sprites, and what culling them (sprites outside the view or hidden by the cliff) saves. The more sprites, the thinner each
+one is (above 5000), so that the picture stays a waterfall and not a white wall. Where every sprite is depends only on the frame
+number, and the camera swings 45 degrees to both sides in front of the fall (1200 frames are one lap), so every run, and every
+machine, draws the same frames.
+
+[source,sh]
+----
+python3 benchmarks/waterfall.py --quick                   # 500 sprites, 30 frames: does it work?
+python3 benchmarks/waterfall.py                           # 5000 sprites, 300 frames
+python3 benchmarks/waterfall.py --sprites 50000           # a heavy fall
+python3 benchmarks/waterfall.py --sprites 50000 --static  # the water stays still, only the camera moves
+----
+
+It takes the same options as the flythrough (`--frames`, `--seed`, `--size`, `--shot`, `--label`, `--debug`, `--profile`,
+`--no-save`, and `BENCH_SPRITES`, `BENCH_FRAMES`, `BENCH_SEED`, `BENCH_SIZE` for the defaults) and prints the same table. Because
+the sprites move every frame, it also prints `update`, the time the program spends moving them (it is part of `ms/frame`, which
+is the update, `RenderWorld` and `Flip`). `--static` places the sprites once, and then `ms/frame` is only rendering. Results are saved
+as `benchmarks/results/waterfall-*.json` and `waterfall.csv`.
+
+=== With the original Blitz3D
+
+To compare the speed of BlitzLLVM with the original, `waterfall.bb` uses only commands that the original Blitz3D has as well. The
+two things it does not have are in `waterfall_llvm.bi` (the microsecond timer and the draw counters of `Stats3D`) and
+`waterfall_original.bi` (`MilliSecs`, and draw counters of 0). The runner looks at `blitzcc -v`, builds with the right one,
+leaves out `-O3` and `--profile` for the original, sets `BLITZPATH` to the folder with `bin` in it, and reads the result from a file
+because the original has no output to a console:
+
+[source,bat]
+----
+python benchmarks\waterfall.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe --sprites 5000
+python benchmarks\waterfall.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe --sprites 5000
+----
+
+The original times have a resolution of one millisecond, so use enough frames (`--frames 1500`) and look at the average.
+
+NOTE: The original `SaveBuffer` writes a BMP whatever the file is called, so a `--shot` made with the original needs converting to compare it.
+
+NOTE: The original Blitz3D can have at most 16383 sprites. All sprites share one vertex buffer of 4 vertices each, `Sprite::allocIndex` grows
+it with `createMesh( mesh_size*4,mesh_size*2,0 )` (`blitz3d/sprite.cpp`), `gxGraphics::createMesh` returns 0 when Direct3D 7 cannot make a vertex
+buffer that big (65535 vertices at most), and the next `mesh->lock` is a null access: the program dies with an access violation (exit code
+3221225477). So `waterfall.py` stops with a message above 16383 sprites with the original, and 15000 is the highest round number to compare
+the two (`--sprites 15000`). A mesh surface has the same limit: its triangles are `unsigned short` vertex indices (`Surface::Triangle`), so at most 65535 vertices.
