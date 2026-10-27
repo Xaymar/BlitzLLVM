@@ -44,7 +44,7 @@ def render(state, junit=None, tests=TESTS):
 class ReportTest(unittest.TestCase):
     def test_pending_table_is_folded(self):
         text = render("pending")
-        self.assertIn("<details><summary>Tests (3)</summary>", text)
+        self.assertIn("<details><summary>Tests (5)</summary>", text)
         self.assertLess(text.index("5 tests"), text.index("<details>"))
 
     def test_failed_test_is_visible_with_output(self):

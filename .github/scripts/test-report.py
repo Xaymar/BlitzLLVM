@@ -179,7 +179,7 @@ def main():
         if bad:
             text = "\n".join(out + listing)
         else:
-            text = "\n".join(out + [f"<details><summary>Tests ({len(shown + rest)})</summary>", ""] + listing + ["", "</details>"])
+            text = "\n".join(out + [f"<details><summary>Tests ({sum(len(rows[r]) for r in shown + rest)})</summary>", ""] + listing + ["", "</details>"])
     else:
         text = "\n".join(out + (table + [line(r) for r in shown] if shown else []))
     # The end of the output of every failed test, as far as it fits.
@@ -192,7 +192,7 @@ def main():
                     text += block
     if rest and args.state != "pending":
         text += "\n"
-        details = ["", f"<details><summary>Passed or skipped ({len(rest)})</summary>", ""] + table + [line(r) for r in rest] + ["", "</details>"]
+        details = ["", f"<details><summary>Passed or skipped ({sum(len(rows[r]) for r in rest)})</summary>", ""] + table + [line(r) for r in rest] + ["", "</details>"]
         if len(text) + len("\n".join(details)) > LIMIT:
             details = ["", f"{len(rest)} tests that passed or were skipped are not listed, as the comment would be too long."]
         text += "\n".join(details)
