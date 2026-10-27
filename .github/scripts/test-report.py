@@ -2,12 +2,15 @@
 """Renders the comment that lists every test with its Debug and Release result (see test.yml).
 
   test-report.py --state pending|done|skipped|cancelled|failed --sha SHA [--run-url URL]
-                 [--tests ctest-tests.json] [--junit ctest-junit.xml] [--previous previous-comment.md]
+                 [--tests ctest-tests.json] [--junit ctest-junit.xml] [--previous previous-comment.md] [--skipped skipped.json]
 
 The names of the tests come from `ctest --show-only=json-v1` (--tests), the results from `ctest --output-junit` (--junit). If
 there is no list yet (the comment is reset before the project was configured), the names are taken from the previous comment.
 The Debug and the Release run of a test are told apart by "debug" in its name (suite-debug-run-x, gui-autosuspend-debug-on),
 and shown in one row. The markdown goes to standard output.
+
+--skipped is the file that test-select.py writes: {test name: reason} for the tests that the change does not affect and that were not
+run. They show as skipped with the reason in a Note column, and are not counted as "not run".
 """
 import argparse
 import json
@@ -92,7 +95,13 @@ def main():
     p.add_argument("--tests")
     p.add_argument("--junit")
     p.add_argument("--previous")
+    p.add_argument("--skipped")
     args = p.parse_args()
+
+    skipped = {}
+    if args.skipped:
+        with open(args.skipped, encoding="utf-8") as f:
+            skipped = json.load(f)
 
     names = read_names(args)
     results = {} if args.state == "pending" else read_results(args.junit)
@@ -100,9 +109,15 @@ def main():
     default = PENDING if args.state == "pending" else NOTRUN
 
     rows = {}
+    notes = {}
     for row, config in names:
         # The result is looked up by the name ctest gave the test.
-        rows.setdefault(row, {})[config] = results.get(join(row, config), default)
+        name = join(row, config)
+        if name in skipped:
+            rows.setdefault(row, {})[config] = SKIP
+            notes[row] = skipped[name]
+        else:
+            rows.setdefault(row, {})[config] = results.get(name, default)
 
     header = STATES.get(args.state)
     if header is None:
@@ -126,7 +141,8 @@ def main():
 
     def line(row):
         r = rows[row]
-        return f"| `{row}` | {r.get('debug', MISSING)} | {r.get('release', MISSING)} |"
+        note = f" {notes.get(row, '')} |" if notes else ""
+        return f"| `{row}` | {r.get('debug', MISSING)} | {r.get('release', MISSING)} |{note}"
 
     bad = [r for r in sorted(rows) if any(v in (FAIL, NOTRUN) for v in rows[r].values())]
     waiting = [r for r in sorted(rows) if r not in bad and any(v == PENDING for v in rows[r].values())]
@@ -138,7 +154,10 @@ def main():
     out.append(f"{sum(len(r) for r in rows.values())} tests · {PASS} {counts[PASS]} · {FAIL} {counts[FAIL]} · {SKIP} {counts[SKIP]} skipped"
                + (f" · {PENDING} {counts[PENDING]}" if counts[PENDING] else "") + (f" · {NOTRUN} {counts[NOTRUN]} not run" if counts[NOTRUN] else ""))
     out.append("")
-    table = ["| Test | Debug | Release |", "| --- | :---: | :---: |"]
+    if skipped:
+        out += [f"{len(skipped)} tests were skipped, as the files that this change touches do not affect them (see the Note column). "
+                "Everything runs on root, and on a pull request with the label `run-all-tests`.", ""]
+    table = ["| Test | Debug | Release |" + (" Note |" if notes else ""), "| --- | :---: | :---: |" + (" --- |" if notes else "")]
 
     shown = bad + waiting
     body = out + (table + [line(r) for r in shown] if shown else [])
