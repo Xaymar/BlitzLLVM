@@ -782,6 +782,9 @@ namespace bb::gfx {
 		std::stable_sort(items.data, items.data + items.size, before);
 	}
 
+	// Whether the screen areas of see-through draws are worth finding: not when the last frame had them in long runs already.
+	static bool blended_bounds_wanted = true;
+
 	// What is see-through has to be drawn from far to near where it overlaps, but two draws that can not be in the same place
 	// of the screen give the same picture in either order. So each draw goes to the first layer after the draws it can overlap
 	// that are not of its state, and the layers are drawn one after the other with the draws of one state next to each other,
@@ -789,6 +792,7 @@ namespace bb::gfx {
 	static void group_blended(uint32_t first, uint32_t last)
 	{
 		if (last - first < 2) {
+			blended_bounds_wanted = true;
 			return;
 		}
 		// Long runs of the same state are already as few calls as grouping could make of them (sprites that share a shape and a
@@ -797,7 +801,8 @@ namespace bb::gfx {
 		for (uint32_t i = first + 1; i < last; i++) {
 			runs += same_draw_state(draws[i - 1], draws[i]) ? 0 : 1;
 		}
-		if (runs * 32 < last - first) {
+		blended_bounds_wanted = runs * 32 >= last - first;
+		if (!blended_bounds_wanted) {
 			return;
 		}
 		std::vector<uint32_t> units;
@@ -1315,7 +1320,7 @@ namespace bb::gfx {
 			count    = 1;
 		}
 		float screen[4] = { -1, -1, 1, 1 };
-		if (pass == 1) {
+		if (pass == 1 && blended_bounds_wanted) {
 			screen_bounds(*e, m, screen);
 		}
 		// Blitz3D takes the surfaces of an entity from the back of its queue, so the last surface is drawn first.
