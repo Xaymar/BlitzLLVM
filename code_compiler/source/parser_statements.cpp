@@ -308,7 +308,7 @@ void blitz::parser::parse_declare(ast::block& into)
 		auto& slots = node->global ? _global_slots : (_in_function ? _function_slots : _main_slots);
 		for (auto& decl : node->variables) {
 			if (!decl.array_size) {
-				slots.emplace(lower(decl.name), slot{ &decl.type, &decl.struct_name, decl.type != blitz::types::type::UNKNOWN });
+				slots.emplace(lower(decl.name), slot{ &decl.type, &decl.struct_name });
 			}
 		}
 	}

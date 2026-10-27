@@ -29,11 +29,11 @@ namespace blitz {
 		int                                _depth; // Block nesting depth, functions may only exist at depth 0.
 		std::string                        _struct_name; // Type name found by the last parse_type_suffix, for `Name.TypeName`.
 
-		// Type suffixes on a use of a name (`msg$`) give a type to the Local, Global, parameter or function that was declared without one.
+		// A type suffix on a use of a name (`msg$`) has to match the Local, Global, parameter or function it refers to. Like in the
+		// original, a name declared without a type is an Int and is never given the type of a later use.
 		struct slot {
 			blitz::types::type* type;
 			std::string*        struct_name;
-			bool                typed; // Declared with a type, or already given one by an earlier use.
 		};
 		struct use {
 			blitz::token          name;
@@ -98,7 +98,7 @@ namespace blitz {
 		void parse_identifier_statement(ast::block& into);
 		void expect_block_end(const char* single, const char* first, const char* second);
 
-		// Suffix propagation
+		// Suffix checks
 		void note_variable_use(blitz::token const& name, blitz::types::type type, std::string const& struct_name);
 		void note_function_use(blitz::token const& name, blitz::types::type type, std::string const& struct_name);
 		void apply_suffix(slot& target, use const& by);

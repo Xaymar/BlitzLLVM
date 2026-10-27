@@ -46,7 +46,7 @@ std::unique_ptr<blitz::ast::program> blitz::parser::parse(std::filesystem::path 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Suffix propagation
+// Suffix checks
 ////////////////////////////////////////////////////////////////////////////////
 void blitz::parser::note_variable_use(blitz::token const& name, blitz::types::type type, std::string const& struct_name)
 {
@@ -72,13 +72,9 @@ void blitz::parser::note_function_use(blitz::token const& name, blitz::types::ty
 
 void blitz::parser::apply_suffix(slot& target, use const& by)
 {
-	if (!target.typed) {
-		*target.type        = by.type;
-		*target.struct_name = by.struct_name;
-		target.typed        = true;
-		return;
-	}
-	if ((*target.type == by.type) && ((by.type != blitz::types::type::STRUCT) || (lower(*target.struct_name) == lower(by.struct_name)))) {
+	// A name declared without a type is an Int, a later use does not change that (the original reports "Variable type mismatch").
+	auto type = (*target.type == blitz::types::type::UNKNOWN) ? blitz::types::type::INT32 : *target.type;
+	if ((type == by.type) && ((by.type != blitz::types::type::STRUCT) || (lower(*target.struct_name) == lower(by.struct_name)))) {
 		return;
 	}
 	if (!_suffix_error) {
@@ -87,7 +83,7 @@ void blitz::parser::apply_suffix(slot& target, use const& by)
 		};
 		_suffix_error = std::make_unique<blitz::error>(blitz::error(by.file, by.name.location, by.name.location,
 			blitz::format("Type mismatch: '%s' is used as %s, but was defined as %s.", by.name.text.c_str(), describe(by.type, by.struct_name).c_str(),
-						  describe(*target.type, *target.struct_name).c_str())));
+						  describe(type, *target.struct_name).c_str())));
 	}
 }
 
