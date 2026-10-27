@@ -609,9 +609,6 @@ namespace {
 					}
 
 					if (auto* d = dynamic_cast<ast::declare const*>(stmt)) {
-						if (d->constant) {
-							continue;
-						}
 						if (want_split && (d->variables.size() > 1)) {
 							size_t begin = ln.offset(d->covers.line, d->covers.column);
 							size_t first = ln.offset(d->variables.front().covers.line, d->variables.front().covers.column);
@@ -632,7 +629,7 @@ namespace {
 								offer("one-declare-per-variable", d->where, "More than one variable is declared in one statement.", { { first, last, joined } }, false);
 							}
 						}
-						if (want_raii) {
+						if (want_raii && !d->constant) {
 							for (auto const& var : d->variables) {
 								if (var.initial || var.array_size || !is_file(var.where, primary) || (var.covers.line == 0)) {
 									continue;

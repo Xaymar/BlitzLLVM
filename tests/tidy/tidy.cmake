@@ -285,7 +285,9 @@ elseif(CASE STREQUAL "one_declare")
 	expect_tidy("Local a, b:Float = 1.5, c.Foo, d\nGlobal e = 1, f$\nType Foo\nField x\nEnd Type\nPrint a + b + d + e\nPrint f\nPrint c\\x\n" "Local a\nLocal b:Float = 1.5\nLocal c.Foo\nLocal d\nGlobal e = 1\nGlobal f$\nType Foo\nField x\nEnd Type\nPrint a + b + d + e\nPrint f\nPrint c\\x\n" --one-declare-per-variable)
 	# The new lines are indented like the declaration, and a declaration that shares its line keeps the line.
 	expect_tidy("Function F()\n\tLocal a = 1, b = 2 ; both\n\tLocal c, d : Print a + b\nEnd Function\nF()\n" "Function F()\n\tLocal a = 1\n\tLocal b = 2 ; both\n\tLocal c : Local d : Print a + b\nEnd Function\nF()\n" --one-declare-per-variable)
-	# Nothing is done when the rule is off, Const is left alone, and a rule can be set to only report.
+	# Const is split as well.
+	expect_tidy("Const c = 1, d = 2, e$ = \"x\"\nPrint c + d + Len(e)\n" "Const c = 1\nConst d = 2\nConst e$ = \"x\"\nPrint c + d + Len(e)\n" --one-declare-per-variable)
+	# Nothing is done when the rule is off, and a rule can be set to only report.
 	expect_tidy("Local a, b\nConst c = 1, d = 2\nPrint a + b + c + d\n" "Local a, b\nConst c = 1, d = 2\nPrint a + b + c + d\n")
 	file(WRITE "${WORK}/report.bb" "Local a, b\nPrint a + b\n")
 	tidy_text(--default=off --one-declare-per-variable=report "${WORK}/report.bb")
