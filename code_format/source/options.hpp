@@ -29,6 +29,7 @@ namespace blitz::format {
 		int           blank_lines_around_declarations = 1; // Before a Function or Type (and its comments), and after it
 		bool          align_assignments     = false; // Line up the = of assignments on consecutive lines
 		bool          align_declares        = false; // Line up the names and = of Const, Dim, Local and Global on consecutive lines
+		bool          align_data            = false; // Line up the values of Data statements on consecutive lines in columns
 		bool          trim_trailing_space   = true;
 		bool          final_newline         = true;
 		ending_style line_ending           = ending_style::automatic;

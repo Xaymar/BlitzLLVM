@@ -296,10 +296,13 @@ Dim    arr(5)
 	expect_format("Local a=1\nLocal b, c=2\nLocal longer=3\n" "Local a      = 1\nLocal b, c = 2\nLocal longer = 3\n" --align-declares)
 	# Declarations and assignments are different groups.
 	expect_format("Local a=1\nlonger=2\nLocal bbb=3\n" "Local a = 1\nlonger = 2\nLocal bbb = 3\n" --align-declares --align-assignments)
+	# Data statements are lined up in columns.
+	expect_format("Data 1,22,3\nData 100,2,3333\nData \"a\",5\nPrint 1\nData 1,2\n" "Data 1,   22, 3\nData 100, 2,  3333\nData \"a\", 5\nPrint 1\nData 1, 2\n" --align-data)
+	expect_format("Data 1,22\nData 100,2\n" "Data 1, 22\nData 100, 2\n")
 	# The settings are listed.
-	blitz_format(--print-config --align-assignments --align-declares)
+	blitz_format(--print-config --align-assignments --align-declares --align-data)
 	expect_rc(0)
-	if(NOT OUT MATCHES "align_assignments = true\nalign_declares = true\n")
+	if(NOT OUT MATCHES "align_assignments = true\nalign_declares = true\nalign_data = true\n")
 		message(FATAL_ERROR "Unexpected configuration:\n${OUT}")
 	endif()
 

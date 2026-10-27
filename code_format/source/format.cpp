@@ -340,9 +340,10 @@ namespace {
 		bool        decl_start = false;
 		bool        decl_end = false;
 		// What align_assignments and align_declares work with.
-		enum class align_kind { none, assignment, declaration } align = align_kind::none;
+		enum class align_kind { none, assignment, declaration, data } align = align_kind::none;
 		size_t name_at = std::string::npos; // Declarations: where the white space in front of the name starts, which is behind the keyword
 		size_t eq_at   = std::string::npos; // Where the white space in front of the single = of the line starts
+		std::vector<std::pair<size_t, size_t>> cells; // Data: where the values start and end
 	};
 
 	struct nesting {
@@ -387,7 +388,7 @@ namespace {
 	};
 
 	// 'starts' gets the offset in the result at which the white space in front of each item starts.
-	std::string render_line(source_line const& line, std::vector<item> const& items, options const& o, std::vector<size_t>* starts = nullptr)
+	std::string render_line(source_line const& line, std::vector<item> const& items, options const& o, std::vector<size_t>* starts = nullptr, std::vector<size_t>* begins = nullptr)
 	{
 		std::string out;
 		for (size_t i = 0; i < items.size(); i++) {
@@ -396,6 +397,9 @@ namespace {
 			}
 			if (i > 0) {
 				out += gap_between(items[i - 1], items[i], o);
+			}
+			if (begins) {
+				begins->push_back(out.size());
 			}
 			out += items[i].tok.is(kind::word) ? render_word(items[i], o) : items[i].tok.text;
 		}
@@ -436,7 +440,7 @@ namespace {
 
 	// Works out whether the line is one that align_assignments or align_declares lines up, and where its parts are. Lines with more than one
 	// statement are not: `a = 1 : b = 2` has two assignments, and lining up one of them says nothing.
-	void describe_alignment(std::vector<item> const& items, std::vector<size_t> const& starts, out_line& ol)
+	void describe_alignment(std::vector<item> const& items, std::vector<size_t> const& starts, std::vector<size_t> const& begins, out_line& ol)
 	{
 		if (items.size() < 2) {
 			return;
@@ -445,6 +449,21 @@ namespace {
 			if (it.tok.is(kind::separator) && !it.type_colon) {
 				return;
 			}
+		}
+
+		if (items[0].keyword && (items[0].lower == "data")) {
+			// The values, which are what is between the commas.
+			ol.align    = out_line::align_kind::data;
+			size_t from = 1;
+			for (size_t i = 1; i <= items.size(); i++) {
+				if ((i == items.size()) || items[i].tok.is_symbol(",")) {
+					if (i > from) {
+						ol.cells.emplace_back(begins[from], (i == items.size()) ? begins[i - 1] + items[i - 1].tok.text.size() : starts[i]);
+					}
+					from = i + 1;
+				}
+			}
+			return;
 		}
 
 		if (items[0].keyword && ((items[0].lower == "const") || (items[0].lower == "local") || (items[0].lower == "global") || (items[0].lower == "dim"))) {
@@ -488,8 +507,25 @@ namespace {
 			while ((last < lines.size()) && (lines[last].align == what) && (lines[last].indent == lines[first].indent)) {
 				last++;
 			}
-			bool wanted = (what == out_line::align_kind::assignment) ? o.align_assignments : ((what == out_line::align_kind::declaration) && o.align_declares);
-			if (wanted && (last - first > 1)) {
+			bool wanted = (what == out_line::align_kind::assignment) ? o.align_assignments : ((what == out_line::align_kind::declaration) ? o.align_declares : ((what == out_line::align_kind::data) && o.align_data));
+			if (wanted && (what == out_line::align_kind::data) && (last - first > 1)) {
+				// Each column is as wide as its widest value, and the next value starts behind it.
+				std::vector<size_t> widths;
+				for (size_t i = first; i < last; i++) {
+					for (size_t c = 0; c < lines[i].cells.size(); c++) {
+						if (c >= widths.size()) {
+							widths.push_back(0);
+						}
+						widths[c] = std::max(widths[c], lines[i].cells[c].second - lines[i].cells[c].first);
+					}
+				}
+				for (size_t i = first; i < last; i++) {
+					for (size_t c = lines[i].cells.size(); c-- > 1;) {
+						size_t pad = widths[c - 1] - (lines[i].cells[c - 1].second - lines[i].cells[c - 1].first);
+						lines[i].text.insert(lines[i].cells[c].first, std::string(pad, ' '));
+					}
+				}
+			} else if (wanted && (last - first > 1)) {
 				if (what == out_line::align_kind::declaration) {
 					size_t width = 0;
 					for (size_t i = first; i < last; i++) {
@@ -620,10 +656,10 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 
 		ol.indent = indent.value_or(nest.depth());
 		(void)is_label;
-		std::vector<size_t> starts;
-		std::string         text     = render_line(line, line.items, o, &starts);
+		std::vector<size_t> starts, begins;
+		std::string         text     = render_line(line, line.items, o, &starts, &begins);
 		bool                has_code = !line.items.empty();
-		describe_alignment(line.items, starts, ol);
+		describe_alignment(line.items, starts, begins, ol);
 		if (line.has_comment) {
 			std::string gap;
 			if (has_code) {
@@ -697,7 +733,7 @@ std::string blitz::format::format_source(std::string const& source_in, options c
 		result.pop_back();
 	}
 
-	if (o.align_assignments || o.align_declares) {
+	if (o.align_assignments || o.align_declares || o.align_data) {
 		align_lines(result, o);
 	}
 

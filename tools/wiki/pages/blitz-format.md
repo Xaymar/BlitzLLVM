@@ -82,6 +82,7 @@ Names are not case sensitive. Every setting has a default, which is used when no
 | `blank_lines_around_declarations` | 0 - 10 | `1` | Blank lines to have before a Function or Type (above the comments that belong to it) and after its End. 0 leaves them alone. |
 | `align_assignments` | true \| false | `false` | Line up the `=` of assignments on consecutive lines. See [Alignment](#alignment). |
 | `align_declares` | true \| false | `false` | Line up the names and the `=` of `Const`, `Dim`, `Local` and `Global` on consecutive lines. See [Alignment](#alignment). |
+| `align_data` | true \| false | `false` | Line up the values of `Data` statements on consecutive lines in columns. See [Alignment](#alignment). |
 | `trim_trailing_space` | true \| false | `true` | Remove spaces and tabs at the end of lines (also in comments). |
 | `final_newline` | true \| false | `true` | End the file with a line break, and remove blank lines at the end. |
 | `line_ending` | auto \| lf \| crlf \| cr | `auto` | Auto uses what the first line break of the file is, or lf if there is none. |
@@ -167,6 +168,22 @@ Dim    arr(5)
 * Lines with more than one statement (`a = 1 : b = 2`) are left alone, and so is an `If` with its statement on the same line: there is no telling which `=` to line up. They end the group.
 * A declaration of several variables (`Local a, b = 1`) has its name lined up with the others, but its `=` stays where it is.
 * A comment behind the code stays behind the code.
+
+`align_data` sets the values of consecutive `Data` statements in columns, each as wide as its widest value:
+
+```blitzbasic
+Data 1,22,3
+Data 100,2,3333
+Data "a",5
+```
+
+becomes
+
+```blitzbasic
+Data 1,   22, 3
+Data 100, 2,  3333
+Data "a", 5
+```
 
 ## Notes
 
