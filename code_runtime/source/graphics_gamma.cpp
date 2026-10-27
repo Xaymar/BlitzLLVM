@@ -90,7 +90,7 @@ namespace {
 
 		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		VkShaderModule fs = create_shader(bb_shader_fragment_gamma, sizeof(bb_shader_fragment_gamma));
-		pipeline          = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false);
+		pipeline          = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, layout, false, false);
 		vkDestroyShaderModule(g.device, vs, nullptr);
 		vkDestroyShaderModule(g.device, fs, nullptr);
 
