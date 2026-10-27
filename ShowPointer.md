@@ -21,6 +21,10 @@ ShowPointer
 
 Shows the mouse pointer again after [HidePointer](HidePointer).
 
+## Differences
+
+* BlitzPlus lets the pointer be shown per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
+
 ## Related Commands
 
 [HidePointer](HidePointer), [SetGamma](SetGamma), [SetGfxDriver](SetGfxDriver), [TotalVidMem](TotalVidMem)

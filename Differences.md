@@ -151,6 +151,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [GraphicsFormat](GraphicsFormat#differences): Always 4.
 * [GraphicsLost](GraphicsLost#differences): Always 0.
 * [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
+* [HidePointer](HidePointer#differences): BlitzPlus lets the pointer be hidden per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
 * [HostIP](HostIP#differences): Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used.
 * [HtmlViewRun](HtmlViewRun#differences) 〔BlitzLLVM〕: The script is not run, as there is no page.
 * [HWMultiTex](HWMultiTex#differences): Accepted and ignored.
@@ -251,6 +252,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [SetTextAreaFont](SetTextAreaFont#differences): Only the size of the font is used, every font is drawn with the built-in typeface.
 * [SetToolBarTips](SetToolBarTips#differences): A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed.
 * [Short](Short#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [ShowPointer](ShowPointer#differences): BlitzPlus lets the pointer be shown per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
 * [SpriteViewMode](SpriteViewMode#differences): The descriptions in the official help do not exactly match the engine.
 * [StartNetGame](StartNetGame#differences): The original showed a dialog box with the games found in the network.
 * [Stats3D](Stats3D#differences): The original also reports the vertices and triangles of the terrains in indexes 1 and 2.

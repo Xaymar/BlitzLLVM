@@ -21,6 +21,10 @@ HidePointer
 
 Hides the mouse pointer while it is over the window. Programs that draw their own pointer or look around with the mouse use this. The pointer is shown again by [ShowPointer](ShowPointer).
 
+## Differences
+
+* BlitzPlus lets the pointer be hidden per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
+
 ## Examples
 
 ```blitzbasic
