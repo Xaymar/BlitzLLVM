@@ -1,0 +1,59 @@
+= Benchmarks
+
+Benchmarks are Blitz programs with a small Python runner each. They are heavy, so they are not part of the test suite or of
+the CI: you run them by hand, when you want to know what a change did to the speed.
+
+The older benchmarks are in `tools/` (`benchmark_draws`, `benchmark_collisions`, `benchmark_overlap`, `benchmark_stranded2`) and
+are used the same way.
+
+== flythrough: a camera through a field of many entities
+
+`flythrough.bb` makes a field of entities (a million with `--objects 1000000`) and flies a camera through it on a loop that is
+the same on every run. The positions come from a fixed seed, and the camera moves one step per frame, not per second, so two runs
+see exactly the same frames and their numbers can be compared. Entity `i` is one of 16 kinds, so every kind has the same share:
+
+[cols="1,3"]
+|===
+| Kinds | What
+
+| 0, 1 | cube, lit with one color / textured
+| 2, 3 | sphere, smooth lit / flat shaded (`EntityFX 4`)
+| 4, 5 | cone, textured / cylinder, lit
+| 6 | octahedron with vertex colors (`EntityFX 2`)
+| 7 | sphere, full-bright and textured (`EntityFX 1`)
+| 8, 9 | cube with alpha 0.5 / sphere with additive blending (`EntityBlend 3`)
+| 10 | cube drawn on both sides (`EntityFX 16`)
+| 11 | a loaded model (`tests/suite/models/textured.3ds`, a cube if it is missing)
+| 12-15 | sprites: textured, alpha, additive, and a flat color with a fixed rotation
+|===
+
+All of them are made with `CopyEntity` of one hidden template per kind, with a random position, rotation and size.
+The field keeps the same density for any count (about 3 units per entity), so the camera sees about the same share of it.
+
+=== Running it
+
+[source,sh]
+----
+python3 benchmarks/flythrough.py --quick                       # 2000 objects, 30 frames: does it work?
+python3 benchmarks/flythrough.py                               # 20000 objects, 300 frames
+python3 benchmarks/flythrough.py --objects 1000000 --frames 600 # the full run
+----
+
+The runner builds the program with `build/code_compiler/blitzcc` (or `--blitzcc PATH`), runs it and prints one table. Options:
+`--objects`, `--frames`, `--seed`, `--size WxH`, `--shot FILE` (saves the last frame), `--label NAME` (such as the GPU, it
+is stored with the result), `--debug` (`-d`, no optimization), `--profile` (builds with `--profile`, so that `BLITZ_FPS=1` prints
+the timers of the runtime), and `--no-save`. The defaults can be set with `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_SEED` and `BENCH_SIZE`.
+The program itself reads `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_WARMUP`, `BENCH_SEED`, `BENCH_W`, `BENCH_H`, `BENCH_RANGE`, `BENCH_MODEL`,
+`BENCH_SHOT` and `BENCH_FRAMETIMES`, see the top of `flythrough.bb`.
+
+It reports the time to make the entities, the milliseconds per frame (average, minimum, median, 95th percentile, maximum; a frame is
+`RenderWorld` and `Flip`), the frames per second, and per frame the triangles (`TrisRendered`) and the draw calls, pipeline, texture
+and buffer binds (`Stats3D(1000..1003)`). The first `BENCH_WARMUP` frames (default 5) are not counted, they build the GPU buffers.
+
+Every run is saved in `benchmarks/results/` (ignored by git): a JSON file with the build configuration, the compiler version, the
+platform and the time of every frame, and a line in `flythrough.csv`. Compare runs only when the build configuration (`-O3` or `-d`, `--profile`),
+the size, the seed, the count and the machine are the same.
+
+NOTE: Without a display the runner uses `xvfb-run`, which with Mesa is llvmpipe, a software rasterizer: the milliseconds are then
+mostly the CPU drawing pixels, which makes that only a smoke test. The counts are exact everywhere. Use a real GPU for timings. A million
+entities need several GB of memory and a long time to create on a slow computer.
