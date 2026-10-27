@@ -31,12 +31,7 @@ Forgets the entity's collision history. UpdateWorld normally moves a colliding e
 
 ## Related Commands
 
-* [CollisionEntity](CollisionEntity)
-* [EntityBox](EntityBox)
-* [EntityCollided](EntityCollided)
-* [EntityRadius](EntityRadius)
-* [EntityType](EntityType)
-* [GetEntityType](GetEntityType)
+[CollisionEntity](CollisionEntity), [EntityBox](EntityBox), [EntityCollided](EntityCollided), [EntityRadius](EntityRadius), [EntityType](EntityType), [GetEntityType](GetEntityType)
 
 <div align="center">
 

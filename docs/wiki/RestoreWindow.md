@@ -41,14 +41,7 @@ Notify "Back at " + GadgetWidth(win) + " x " + GadgetHeight(win)
 
 ## Related Commands
 
-* [ActivateWindow](ActivateWindow)
-* [ActiveWindow](ActiveWindow)
-* [CreateWindow](CreateWindow)
-* [MaximizeWindow](MaximizeWindow)
-* [MinimizeWindow](MinimizeWindow)
-* [SetMinWindowSize](SetMinWindowSize)
-* [UpdateWindowMenu](UpdateWindowMenu)
-* [WindowMaximized](WindowMaximized)
+[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [CreateWindow](CreateWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow), [SetMinWindowSize](SetMinWindowSize), [UpdateWindowMenu](UpdateWindowMenu), [WindowMaximized](WindowMaximized)
 
 <div align="center">
 

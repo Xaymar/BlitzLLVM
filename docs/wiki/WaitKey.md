@@ -43,10 +43,7 @@ Delay 1000
 
 ## Related Commands
 
-* [GetKey](GetKey)
-* [KeyDown](KeyDown)
-* [KeyHit](KeyHit)
-* [KeyWait](KeyWait)
+[GetKey](GetKey), [KeyDown](KeyDown), [KeyHit](KeyHit), [KeyWait](KeyWait)
 
 <div align="center">
 

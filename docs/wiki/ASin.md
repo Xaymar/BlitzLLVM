@@ -43,10 +43,7 @@ Print ASin(0.5)
 
 ## Related Commands
 
-* [ACos](ACos)
-* [ATan](ATan)
-* [ATan2](ATan2)
-* [Sin](Sin)
+[ACos](ACos), [ATan](ATan), [ATan2](ATan2), [Sin](Sin)
 
 <div align="center">
 

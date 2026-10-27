@@ -29,14 +29,7 @@ Forgets joystick button presses that nobody has looked at yet, on every connecte
 
 ## Related Commands
 
-* [GetJoy](GetJoy)
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyPitch](JoyPitch)
-* [JoyRoll](JoyRoll)
-* [JoyType](JoyType)
-* [WaitJoy](WaitJoy)
+[GetJoy](GetJoy), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [WaitJoy](WaitJoy)
 
 <div align="center">
 

@@ -61,14 +61,7 @@ Until e = $803 Or (e = $1001 And EventData() = 2)
 
 ## Related Commands
 
-* [CheckMenu](CheckMenu)
-* [DisableMenu](DisableMenu)
-* [EnableMenu](EnableMenu)
-* [MenuChecked](MenuChecked)
-* [MenuEnabled](MenuEnabled)
-* [MenuText](MenuText)
-* [SetMenuText](SetMenuText)
-* [UncheckMenu](UncheckMenu)
+[CheckMenu](CheckMenu), [DisableMenu](DisableMenu), [EnableMenu](EnableMenu), [MenuChecked](MenuChecked), [MenuEnabled](MenuEnabled), [MenuText](MenuText), [SetMenuText](SetMenuText), [UncheckMenu](UncheckMenu)
 
 <div align="center">
 

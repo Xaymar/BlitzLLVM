@@ -43,10 +43,7 @@ Print MilliSecs() - start >= 95
 
 ## Related Commands
 
-* [CreateTimer](CreateTimer)
-* [DebugLog](DebugLog)
-* [End](End)
-* [ExecFile](ExecFile)
+[CreateTimer](CreateTimer), [DebugLog](DebugLog), [End](End), [ExecFile](ExecFile)
 
 <div align="center">
 

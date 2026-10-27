@@ -57,14 +57,7 @@ WaitKey
 
 ## Related Commands
 
-* [DrawImageRect](DrawImageRect)
-* [ImageBuffer](ImageBuffer)
-* [ImageHeight](ImageHeight)
-* [ImageRectOverlap](ImageRectOverlap)
-* [ImagesCollide](ImagesCollide)
-* [ImageWidth](ImageWidth)
-* [ImageXHandle](ImageXHandle)
-* [ImageYHandle](ImageYHandle)
+[DrawImageRect](DrawImageRect), [ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageRectOverlap](ImageRectOverlap), [ImagesCollide](ImagesCollide), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
 
 <div align="center">
 

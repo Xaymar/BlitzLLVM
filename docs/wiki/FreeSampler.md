@@ -33,14 +33,7 @@ Deletes a sampler. The textures that read through it go back to the settings of 
 
 ## Related Commands
 
-* [CreateSampler](CreateSampler) 〔BlitzLLVM〕
-* [FreeTexture](FreeTexture)
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
-* [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
+[CreateSampler](CreateSampler) 〔BlitzLLVM〕, [FreeTexture](FreeTexture), [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕, [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕, [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕, [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕, [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
 
 <div align="center">
 

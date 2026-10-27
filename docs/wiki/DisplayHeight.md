@@ -39,14 +39,7 @@ The height in pixels of what a display shows right now, which is the resolution 
 
 ## Related Commands
 
-* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
-* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
-* [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
-* [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕
-* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
-* [DisplayName](DisplayName) 〔BlitzLLVM〕
-* [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
-* [DisplayScale](DisplayScale) 〔BlitzLLVM〕
+[DisplayDepth](DisplayDepth) 〔BlitzLLVM〕, [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕, [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕, [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕, [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕, [DisplayName](DisplayName) 〔BlitzLLVM〕, [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕, [DisplayScale](DisplayScale) 〔BlitzLLVM〕
 
 <div align="center">
 

@@ -72,9 +72,7 @@ Wend
 
 ## Related Commands
 
-* [AddAnimSeq](AddAnimSeq)
-* [AnimateMD2](AnimateMD2)
-* [Animating](Animating)
+[AddAnimSeq](AddAnimSeq), [AnimateMD2](AnimateMD2), [Animating](Animating)
 
 <div align="center">
 

@@ -54,10 +54,7 @@ WaitKey
 
 ## Related Commands
 
-* [GetColor](GetColor)
-* [Line](Line)
-* [Oval](Oval)
-* [Plot](Plot)
+[GetColor](GetColor), [Line](Line), [Oval](Oval), [Plot](Plot)
 
 <div align="center">
 

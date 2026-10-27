@@ -54,14 +54,7 @@ only.txt
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [FilePos](FilePos)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
-* [SeekFile](SeekFile)
-* [WriteFile](WriteFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [FilePos](FilePos), [OpenFile](OpenFile), [ReadFile](ReadFile), [SeekFile](SeekFile), [WriteFile](WriteFile)
 
 <div align="center">
 

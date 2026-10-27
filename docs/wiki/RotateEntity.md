@@ -35,14 +35,7 @@ Turns an entity to an absolute orientation. The three angles are in degrees: pit
 
 ## Related Commands
 
-* [CopyEntity](CopyEntity)
-* [FreeEntity](FreeEntity)
-* [HideEntity](HideEntity)
-* [MoveEntity](MoveEntity)
-* [NameEntity](NameEntity)
-* [PaintEntity](PaintEntity)
-* [PointEntity](PointEntity)
-* [PositionEntity](PositionEntity)
+[CopyEntity](CopyEntity), [FreeEntity](FreeEntity), [HideEntity](HideEntity), [MoveEntity](MoveEntity), [NameEntity](NameEntity), [PaintEntity](PaintEntity), [PointEntity](PointEntity), [PositionEntity](PositionEntity)
 
 <div align="center">
 

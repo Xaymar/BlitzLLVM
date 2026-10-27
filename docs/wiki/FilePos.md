@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [FileSize](FileSize)
-* [FileType](FileType)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [FileSize](FileSize), [FileType](FileType), [NextFile](NextFile), [OpenFile](OpenFile), [ReadFile](ReadFile)
 
 <div align="center">
 

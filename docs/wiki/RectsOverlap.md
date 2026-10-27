@@ -48,10 +48,7 @@ WaitKey
 
 ## Related Commands
 
-* [ImageRectOverlap](ImageRectOverlap)
-* [ImagesOverlap](ImagesOverlap)
-* [MaskImage](MaskImage)
-* [MidHandle](MidHandle)
+[ImageRectOverlap](ImageRectOverlap), [ImagesOverlap](ImagesOverlap), [MaskImage](MaskImage), [MidHandle](MidHandle)
 
 <div align="center">
 

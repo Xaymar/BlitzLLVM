@@ -32,14 +32,7 @@ Gives an entity a name that you can read back with [EntityName](EntityName) or s
 
 ## Related Commands
 
-* [CopyEntity](CopyEntity)
-* [FreeEntity](FreeEntity)
-* [HideEntity](HideEntity)
-* [MoveEntity](MoveEntity)
-* [PaintEntity](PaintEntity)
-* [PointEntity](PointEntity)
-* [PositionEntity](PositionEntity)
-* [RotateEntity](RotateEntity)
+[CopyEntity](CopyEntity), [FreeEntity](FreeEntity), [HideEntity](HideEntity), [MoveEntity](MoveEntity), [PaintEntity](PaintEntity), [PointEntity](PointEntity), [PositionEntity](PositionEntity), [RotateEntity](RotateEntity)
 
 <div align="center">
 

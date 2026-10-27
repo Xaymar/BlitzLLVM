@@ -29,11 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ClsColor](ClsColor)
-* [Color](Color)
-* [ColorBlue](ColorBlue)
-* [ColorGreen](ColorGreen)
-* [GetColor](GetColor)
+[ClsColor](ClsColor), [Color](Color), [ColorBlue](ColorBlue), [ColorGreen](ColorGreen), [GetColor](GetColor)
 
 <div align="center">
 

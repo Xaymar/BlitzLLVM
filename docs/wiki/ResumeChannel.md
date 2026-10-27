@@ -31,12 +31,7 @@ Continues a channel that [PauseChannel](PauseChannel) paused.
 
 ## Related Commands
 
-* [ChannelPan](ChannelPan)
-* [ChannelPitch](ChannelPitch)
-* [ChannelPlaying](ChannelPlaying)
-* [ChannelVolume](ChannelVolume)
-* [PauseChannel](PauseChannel)
-* [StopChannel](StopChannel)
+[ChannelPan](ChannelPan), [ChannelPitch](ChannelPitch), [ChannelPlaying](ChannelPlaying), [ChannelVolume](ChannelVolume), [PauseChannel](PauseChannel), [StopChannel](StopChannel)
 
 <div align="center">
 

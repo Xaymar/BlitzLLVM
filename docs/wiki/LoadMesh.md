@@ -40,14 +40,7 @@ Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to 
 
 ## Related Commands
 
-* [AddMesh](AddMesh)
-* [CopyMesh](CopyMesh)
-* [CreateMesh](CreateMesh)
-* [FitMesh](FitMesh)
-* [FlipMesh](FlipMesh)
-* [LoadAnimMesh](LoadAnimMesh)
-* [PaintMesh](PaintMesh)
-* [PositionMesh](PositionMesh)
+[AddMesh](AddMesh), [CopyMesh](CopyMesh), [CreateMesh](CreateMesh), [FitMesh](FitMesh), [FlipMesh](FlipMesh), [LoadAnimMesh](LoadAnimMesh), [PaintMesh](PaintMesh), [PositionMesh](PositionMesh)
 
 <div align="center">
 

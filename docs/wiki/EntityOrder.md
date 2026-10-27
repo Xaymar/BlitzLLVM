@@ -32,14 +32,7 @@ Changes the drawing order of an entity. 0 draws it normally. A positive value dr
 
 ## Related Commands
 
-* [EntityAlpha](EntityAlpha)
-* [EntityAutoFade](EntityAutoFade)
-* [EntityBlend](EntityBlend)
-* [EntityClass](EntityClass)
-* [EntityColor](EntityColor)
-* [EntityDistance](EntityDistance)
-* [EntityFX](EntityFX)
-* [EntityInView](EntityInView)
+[EntityAlpha](EntityAlpha), [EntityAutoFade](EntityAutoFade), [EntityBlend](EntityBlend), [EntityClass](EntityClass), [EntityColor](EntityColor), [EntityDistance](EntityDistance), [EntityFX](EntityFX), [EntityInView](EntityInView)
 
 <div align="center">
 

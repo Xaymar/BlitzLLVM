@@ -49,10 +49,7 @@ FreeIconStrip icons
 
 ## Related Commands
 
-* [EnableToolBarItem](EnableToolBarItem)
-* [FreeIconStrip](FreeIconStrip)
-* [SetGadgetIconStrip](SetGadgetIconStrip)
-* [SetToolBarTips](SetToolBarTips)
+[EnableToolBarItem](EnableToolBarItem), [FreeIconStrip](FreeIconStrip), [SetGadgetIconStrip](SetGadgetIconStrip), [SetToolBarTips](SetToolBarTips)
 
 <div align="center">
 

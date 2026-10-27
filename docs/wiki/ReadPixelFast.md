@@ -39,11 +39,7 @@ Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](
 
 ## Related Commands
 
-* [CopyPixel](CopyPixel)
-* [CopyPixelFast](CopyPixelFast)
-* [ReadPixel](ReadPixel)
-* [WritePixel](WritePixel)
-* [WritePixelFast](WritePixelFast)
+[CopyPixel](CopyPixel), [CopyPixelFast](CopyPixelFast), [ReadPixel](ReadPixel), [WritePixel](WritePixel), [WritePixelFast](WritePixelFast)
 
 <div align="center">
 

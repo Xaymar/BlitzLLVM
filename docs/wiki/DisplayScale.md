@@ -39,14 +39,7 @@ The factor by which the system wants things on a display to be larger than norma
 
 ## Related Commands
 
-* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
-* [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
-* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
-* [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
-* [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕
-* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
-* [DisplayName](DisplayName) 〔BlitzLLVM〕
-* [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
+[DisplayDepth](DisplayDepth) 〔BlitzLLVM〕, [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕, [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕, [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕, [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕, [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕, [DisplayName](DisplayName) 〔BlitzLLVM〕, [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
 
 <div align="center">
 

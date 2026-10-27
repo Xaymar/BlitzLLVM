@@ -35,10 +35,7 @@ Switches dithering for 16 bit color modes on or off, which hides banding in grad
 
 ## Related Commands
 
-* [CaptureWorld](CaptureWorld)
-* [ClearWorld](ClearWorld)
-* [HWMultiTex](HWMultiTex)
-* [HWTexUnits](HWTexUnits)
+[CaptureWorld](CaptureWorld), [ClearWorld](ClearWorld), [HWMultiTex](HWMultiTex), [HWTexUnits](HWTexUnits)
 
 <div align="center">
 

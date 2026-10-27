@@ -48,10 +48,7 @@ Print Rand(5, 5)
 
 ## Related Commands
 
-* [Long](Long) 〔BlitzLLVM〕
-* [PopCount](PopCount) 〔BlitzLLVM〕
-* [Rnd](Rnd)
-* [RndSeed](RndSeed)
+[Long](Long) 〔BlitzLLVM〕, [PopCount](PopCount) 〔BlitzLLVM〕, [Rnd](Rnd), [RndSeed](RndSeed)
 
 <div align="center">
 

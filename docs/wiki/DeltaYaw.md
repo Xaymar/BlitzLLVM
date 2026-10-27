@@ -51,10 +51,7 @@ WaitKey
 
 ## Related Commands
 
-* [DeltaPitch](DeltaPitch)
-* [ProjectedX](ProjectedX)
-* [ProjectedY](ProjectedY)
-* [VectorYaw](VectorYaw)
+[DeltaPitch](DeltaPitch), [ProjectedX](ProjectedX), [ProjectedY](ProjectedY), [VectorYaw](VectorYaw)
 
 <div align="center">
 

@@ -48,10 +48,7 @@ WaitKey
 
 ## Related Commands
 
-* [GammaBlue](GammaBlue)
-* [GammaGreen](GammaGreen)
-* [SetGamma](SetGamma)
-* [UpdateGamma](UpdateGamma)
+[GammaBlue](GammaBlue), [GammaGreen](GammaGreen), [SetGamma](SetGamma), [UpdateGamma](UpdateGamma)
 
 <div align="center">
 

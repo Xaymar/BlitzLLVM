@@ -58,13 +58,7 @@ c
 
 ## Related Commands
 
-* [ReadAvail](ReadAvail)
-* [ReadByte](ReadByte)
-* [ReadFloat](ReadFloat)
-* [ReadInt](ReadInt)
-* [ReadShort](ReadShort)
-* [ReadString](ReadString)
-* [WriteLine](WriteLine)
+[ReadAvail](ReadAvail), [ReadByte](ReadByte), [ReadFloat](ReadFloat), [ReadInt](ReadInt), [ReadShort](ReadShort), [ReadString](ReadString), [WriteLine](WriteLine)
 
 <div align="center">
 

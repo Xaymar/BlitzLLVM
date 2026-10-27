@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseUDPStream](CloseUDPStream)
-* [CreateUDPStream](CreateUDPStream)
-* [TCPStreamPort](TCPStreamPort)
-* [UDPMsgIP](UDPMsgIP)
-* [UDPMsgPort](UDPMsgPort)
-* [UDPStreamIP](UDPStreamIP)
-* [UDPTimeouts](UDPTimeouts)
+[AcceptTCPStream](AcceptTCPStream), [CloseUDPStream](CloseUDPStream), [CreateUDPStream](CreateUDPStream), [TCPStreamPort](TCPStreamPort), [UDPMsgIP](UDPMsgIP), [UDPMsgPort](UDPMsgPort), [UDPStreamIP](UDPStreamIP), [UDPTimeouts](UDPTimeouts)
 
 <div align="center">
 

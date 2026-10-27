@@ -48,10 +48,7 @@ FreeBank bank
 
 ## Related Commands
 
-* [PeekInt](PeekInt)
-* [PokeByte](PokeByte)
-* [PokeFloat](PokeFloat)
-* [PokeShort](PokeShort)
+[PeekInt](PeekInt), [PokeByte](PokeByte), [PokeFloat](PokeFloat), [PokeShort](PokeShort)
 
 <div align="center">
 

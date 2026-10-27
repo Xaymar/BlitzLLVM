@@ -34,10 +34,7 @@ Reads one of the entities attached to a parent. The index starts at 1, so loop f
 
 ## Related Commands
 
-* [FindChild](FindChild)
-* [FreeEntity](FreeEntity)
-* [GetMatElement](GetMatElement)
-* [GetParent](GetParent)
+[FindChild](FindChild), [FreeEntity](FreeEntity), [GetMatElement](GetMatElement), [GetParent](GetParent)
 
 <div align="center">
 

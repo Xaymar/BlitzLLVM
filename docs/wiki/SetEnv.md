@@ -32,10 +32,7 @@ Sets an environment variable for this program and for the programs it starts wit
 
 ## Related Commands
 
-* [GetEnv](GetEnv)
-* [MilliSecs](MilliSecs)
-* [RuntimeError](RuntimeError)
-* [Stop](Stop)
+[GetEnv](GetEnv), [MilliSecs](MilliSecs), [RuntimeError](RuntimeError), [Stop](Stop)
 
 <div align="center">
 

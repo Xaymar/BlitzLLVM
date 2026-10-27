@@ -44,10 +44,7 @@ hello
 
 ## Related Commands
 
-* [ExecFile](ExecFile)
-* [FreeTimer](FreeTimer)
-* [Microseconds](Microseconds) 〔BlitzLLVM〕
-* [SetEnv](SetEnv)
+[ExecFile](ExecFile), [FreeTimer](FreeTimer), [Microseconds](Microseconds) 〔BlitzLLVM〕, [SetEnv](SetEnv)
 
 <div align="center">
 

@@ -50,14 +50,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [AddTextAreaText](AddTextAreaText)
-* [CreateTextArea](CreateTextArea)
-* [FormatTextAreaText](FormatTextAreaText)
-* [SetTextAreaColor](SetTextAreaColor)
-* [SetTextAreaFont](SetTextAreaFont)
-* [SetTextAreaTabs](SetTextAreaTabs)
-* [SetTextAreaText](SetTextAreaText)
-* [UnlockTextArea](UnlockTextArea)
+[AddTextAreaText](AddTextAreaText), [CreateTextArea](CreateTextArea), [FormatTextAreaText](FormatTextAreaText), [SetTextAreaColor](SetTextAreaColor), [SetTextAreaFont](SetTextAreaFont), [SetTextAreaTabs](SetTextAreaTabs), [SetTextAreaText](SetTextAreaText), [UnlockTextArea](UnlockTextArea)
 
 <div align="center">
 

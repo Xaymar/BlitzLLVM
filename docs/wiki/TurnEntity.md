@@ -57,14 +57,7 @@ Wend
 
 ## Related Commands
 
-* [CopyEntity](CopyEntity)
-* [FreeEntity](FreeEntity)
-* [HideEntity](HideEntity)
-* [MoveEntity](MoveEntity)
-* [NameEntity](NameEntity)
-* [PaintEntity](PaintEntity)
-* [PointEntity](PointEntity)
-* [PositionEntity](PositionEntity)
+[CopyEntity](CopyEntity), [FreeEntity](FreeEntity), [HideEntity](HideEntity), [MoveEntity](MoveEntity), [NameEntity](NameEntity), [PaintEntity](PaintEntity), [PointEntity](PointEntity), [PositionEntity](PositionEntity)
 
 <div align="center">
 

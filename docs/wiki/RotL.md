@@ -55,10 +55,7 @@ Print RotL(ULong(1) Shl 63, 1)
 
 ## Related Commands
 
-* [Rnd](Rnd)
-* [RndSeed](RndSeed)
-* [RotR](RotR) 〔BlitzLLVM〕
-* [SatByte](SatByte) 〔BlitzLLVM〕
+[Rnd](Rnd), [RndSeed](RndSeed), [RotR](RotR) 〔BlitzLLVM〕, [SatByte](SatByte) 〔BlitzLLVM〕
 
 <div align="center">
 

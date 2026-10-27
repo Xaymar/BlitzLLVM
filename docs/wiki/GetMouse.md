@@ -49,14 +49,7 @@ Wend
 
 ## Related Commands
 
-* [FlushMouse](FlushMouse)
-* [MouseDown](MouseDown)
-* [MouseHit](MouseHit)
-* [MouseWait](MouseWait)
-* [MouseX](MouseX)
-* [MouseXSpeed](MouseXSpeed)
-* [MoveMouse](MoveMouse)
-* [WaitMouse](WaitMouse)
+[FlushMouse](FlushMouse), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MoveMouse](MoveMouse), [WaitMouse](WaitMouse)
 
 <div align="center">
 

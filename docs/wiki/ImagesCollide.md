@@ -69,10 +69,7 @@ WaitKey
 
 ## Related Commands
 
-* [ImageRectCollide](ImageRectCollide)
-* [ImageRectOverlap](ImageRectOverlap)
-* [ImagesOverlap](ImagesOverlap)
-* [ImageWidth](ImageWidth)
+[ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImagesOverlap](ImagesOverlap), [ImageWidth](ImageWidth)
 
 <div align="center">
 

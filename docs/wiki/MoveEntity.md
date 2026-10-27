@@ -34,14 +34,7 @@ Moves an entity in the direction it faces. The offset is in the entity's own spa
 
 ## Related Commands
 
-* [CopyEntity](CopyEntity)
-* [FreeEntity](FreeEntity)
-* [HideEntity](HideEntity)
-* [NameEntity](NameEntity)
-* [PaintEntity](PaintEntity)
-* [PointEntity](PointEntity)
-* [PositionEntity](PositionEntity)
-* [RotateEntity](RotateEntity)
+[CopyEntity](CopyEntity), [FreeEntity](FreeEntity), [HideEntity](HideEntity), [NameEntity](NameEntity), [PaintEntity](PaintEntity), [PointEntity](PointEntity), [PositionEntity](PositionEntity), [RotateEntity](RotateEntity)
 
 <div align="center">
 

@@ -56,10 +56,7 @@ Wend
 
 ## Related Commands
 
-* [DisplayY](DisplayY) 〔BlitzLLVM〕
-* [EndGraphics](EndGraphics)
-* [GammaBlue](GammaBlue)
-* [GammaGreen](GammaGreen)
+[DisplayY](DisplayY) 〔BlitzLLVM〕, [EndGraphics](EndGraphics), [GammaBlue](GammaBlue), [GammaGreen](GammaGreen)
 
 <div align="center">
 

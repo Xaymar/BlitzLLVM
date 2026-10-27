@@ -33,12 +33,7 @@ Tells whether the graphics were lost, which happened to the original when anothe
 
 ## Related Commands
 
-* [EndGraphics](EndGraphics)
-* [Graphics](Graphics)
-* [GraphicsDepth](GraphicsDepth)
-* [GraphicsFormat](GraphicsFormat)
-* [GraphicsHeight](GraphicsHeight)
-* [GraphicsWidth](GraphicsWidth)
+[EndGraphics](EndGraphics), [Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsFormat](GraphicsFormat), [GraphicsHeight](GraphicsHeight), [GraphicsWidth](GraphicsWidth)
 
 <div align="center">
 

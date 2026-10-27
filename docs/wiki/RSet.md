@@ -46,10 +46,7 @@ Print "[" + RSet$("abcdef", 3) + "]"
 
 ## Related Commands
 
-* [LSet](LSet)
-* [Replace](Replace)
-* [Right](Right)
-* [String](String)
+[LSet](LSet), [Replace](Replace), [Right](Right), [String](String)
 
 <div align="center">
 

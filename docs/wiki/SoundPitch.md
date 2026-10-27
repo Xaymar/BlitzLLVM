@@ -45,14 +45,7 @@ Delay 1000
 
 ## Related Commands
 
-* [ChannelPitch](ChannelPitch)
-* [FreeSound](FreeSound)
-* [Load3DSound](Load3DSound)
-* [LoadSound](LoadSound)
-* [LoopSound](LoopSound)
-* [PlaySound](PlaySound)
-* [SoundPan](SoundPan)
-* [SoundVolume](SoundVolume)
+[ChannelPitch](ChannelPitch), [FreeSound](FreeSound), [Load3DSound](Load3DSound), [LoadSound](LoadSound), [LoopSound](LoopSound), [PlaySound](PlaySound), [SoundPan](SoundPan), [SoundVolume](SoundVolume)
 
 <div align="center">
 

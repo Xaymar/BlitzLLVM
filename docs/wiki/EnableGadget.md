@@ -45,14 +45,7 @@ Until e = $803
 
 ## Related Commands
 
-* [ActivateGadget](ActivateGadget)
-* [AddGadgetItem](AddGadgetItem)
-* [ClearGadgetItems](ClearGadgetItems)
-* [CountGadgetItems](CountGadgetItems)
-* [DisableGadget](DisableGadget)
-* [FreeGadget](FreeGadget)
-* [HideGadget](HideGadget)
-* [ShowGadget](ShowGadget)
+[ActivateGadget](ActivateGadget), [AddGadgetItem](AddGadgetItem), [ClearGadgetItems](ClearGadgetItems), [CountGadgetItems](CountGadgetItems), [DisableGadget](DisableGadget), [FreeGadget](FreeGadget), [HideGadget](HideGadget), [ShowGadget](ShowGadget)
 
 <div align="center">
 

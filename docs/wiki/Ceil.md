@@ -45,10 +45,7 @@ Print Ceil(-2.1)
 
 ## Related Commands
 
-* [Byte](Byte) 〔BlitzLLVM〕
-* [ByteSwap](ByteSwap) 〔BlitzLLVM〕
-* [Cos](Cos)
-* [Double](Double) 〔BlitzLLVM〕
+[Byte](Byte) 〔BlitzLLVM〕, [ByteSwap](ByteSwap) 〔BlitzLLVM〕, [Cos](Cos), [Double](Double) 〔BlitzLLVM〕
 
 <div align="center">
 

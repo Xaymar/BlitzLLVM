@@ -32,14 +32,7 @@ Sets how long to wait. Reading from a TCP stream waits for data until the read t
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseTCPServer](CloseTCPServer)
-* [CloseTCPStream](CloseTCPStream)
-* [CreateTCPServer](CreateTCPServer)
-* [OpenTCPStream](OpenTCPStream)
-* [TCPStreamIP](TCPStreamIP)
-* [TCPStreamPort](TCPStreamPort)
-* [UDPTimeouts](UDPTimeouts)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CreateTCPServer](CreateTCPServer), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort), [UDPTimeouts](UDPTimeouts)
 
 <div align="center">
 

@@ -33,14 +33,7 @@ The rotation around the vertical axis, from -180 to 180. Most joysticks do not h
 
 ## Related Commands
 
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyPitch](JoyPitch)
-* [JoyRoll](JoyRoll)
-* [JoyType](JoyType)
-* [JoyU](JoyU)
-* [JoyUDir](JoyUDir)
+[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [JoyU](JoyU), [JoyUDir](JoyUDir)
 
 <div align="center">
 

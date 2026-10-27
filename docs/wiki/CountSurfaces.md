@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AddVertex](AddVertex)
-* [ClearSurface](ClearSurface)
-* [CountTriangles](CountTriangles)
-* [CountVertices](CountVertices)
+[AddVertex](AddVertex), [ClearSurface](ClearSurface), [CountTriangles](CountTriangles), [CountVertices](CountVertices)
 
 <div align="center">
 

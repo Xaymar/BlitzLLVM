@@ -36,14 +36,7 @@ Chooses which set of texture coordinates of the mesh the texture reads: 0 for th
 
 ## Related Commands
 
-* [ClearTextureFilters](ClearTextureFilters)
-* [CreateTexture](CreateTexture)
-* [TextureBlend](TextureBlend)
-* [TextureBuffer](TextureBuffer)
-* [TextureFilter](TextureFilter)
-* [TextureHeight](TextureHeight)
-* [TextureName](TextureName)
-* [TextureWidth](TextureWidth)
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureWidth](TextureWidth)
 
 <div align="center">
 

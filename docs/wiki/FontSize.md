@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [FontAscent](FontAscent)
-* [FontDescent](FontDescent)
-* [FontName](FontName)
-* [FontStyle](FontStyle)
+[FontAscent](FontAscent), [FontDescent](FontDescent), [FontName](FontName), [FontStyle](FontStyle)
 
 <div align="center">
 

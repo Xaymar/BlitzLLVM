@@ -33,12 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CollisionEntity](CollisionEntity)
-* [EntityBox](EntityBox)
-* [EntityCollided](EntityCollided)
-* [EntityRadius](EntityRadius)
-* [EntityType](EntityType)
-* [ResetEntity](ResetEntity)
+[CollisionEntity](CollisionEntity), [EntityBox](EntityBox), [EntityCollided](EntityCollided), [EntityRadius](EntityRadius), [EntityType](EntityType), [ResetEntity](ResetEntity)
 
 <div align="center">
 

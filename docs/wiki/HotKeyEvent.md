@@ -50,10 +50,7 @@ Until e = $803
 
 ## Related Commands
 
-* [FontSize](FontSize)
-* [FontStyle](FontStyle)
-* [Notify](Notify)
-* [PauseTimer](PauseTimer)
+[FontSize](FontSize), [FontStyle](FontStyle), [Notify](Notify), [PauseTimer](PauseTimer)
 
 <div align="center">
 

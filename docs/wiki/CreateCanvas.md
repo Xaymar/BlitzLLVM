@@ -69,9 +69,7 @@ Until e = $803
 
 ## Related Commands
 
-* [CanvasBuffer](CanvasBuffer)
-* [DesktopBuffer](DesktopBuffer)
-* [FlipCanvas](FlipCanvas)
+[CanvasBuffer](CanvasBuffer), [DesktopBuffer](DesktopBuffer), [FlipCanvas](FlipCanvas)
 
 <div align="center">
 

@@ -47,10 +47,7 @@ Print CountVertices(surf) + " vertices, " + CountTriangles(surf) + " triangles"
 
 ## Related Commands
 
-* [CreateSurface](CreateSurface)
-* [FindSurface](FindSurface)
-* [GetSurface](GetSurface)
-* [PaintSurface](PaintSurface)
+[CreateSurface](CreateSurface), [FindSurface](FindSurface), [GetSurface](GetSurface), [PaintSurface](PaintSurface)
 
 <div align="center">
 

@@ -46,10 +46,7 @@ Print r >= 5 And r < 6
 
 ## Related Commands
 
-* [PopCount](PopCount) 〔BlitzLLVM〕
-* [Rand](Rand)
-* [RndSeed](RndSeed)
-* [SeedRnd](SeedRnd)
+[PopCount](PopCount) 〔BlitzLLVM〕, [Rand](Rand), [RndSeed](RndSeed), [SeedRnd](SeedRnd)
 
 <div align="center">
 

@@ -33,10 +33,7 @@ Writes a 2-byte value, low byte first. Values outside 0 to 65535 wrap around.
 
 ## Related Commands
 
-* [PeekShort](PeekShort)
-* [PokeByte](PokeByte)
-* [PokeFloat](PokeFloat)
-* [PokeInt](PokeInt)
+[PeekShort](PeekShort), [PokeByte](PokeByte), [PokeFloat](PokeFloat), [PokeInt](PokeInt)
 
 <div align="center">
 

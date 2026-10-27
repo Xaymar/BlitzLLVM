@@ -33,14 +33,7 @@ The color depth of the graphics mode in bits.
 
 ## Related Commands
 
-* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
-* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
-* [GfxModeDepth](GfxModeDepth)
-* [Graphics](Graphics)
-* [GraphicsFormat](GraphicsFormat)
-* [GraphicsHeight](GraphicsHeight)
-* [GraphicsLost](GraphicsLost)
-* [GraphicsWidth](GraphicsWidth)
+[DisplayDepth](DisplayDepth) 〔BlitzLLVM〕, [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕, [GfxModeDepth](GfxModeDepth), [Graphics](Graphics), [GraphicsFormat](GraphicsFormat), [GraphicsHeight](GraphicsHeight), [GraphicsLost](GraphicsLost), [GraphicsWidth](GraphicsWidth)
 
 <div align="center">
 

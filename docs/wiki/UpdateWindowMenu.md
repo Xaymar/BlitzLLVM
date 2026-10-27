@@ -48,14 +48,7 @@ Until e = $803 Or (e = $1001 And EventData() = 1)
 
 ## Related Commands
 
-* [ActivateWindow](ActivateWindow)
-* [ActiveWindow](ActiveWindow)
-* [CreateWindow](CreateWindow)
-* [MaximizeWindow](MaximizeWindow)
-* [MinimizeWindow](MinimizeWindow)
-* [RestoreWindow](RestoreWindow)
-* [SetMinWindowSize](SetMinWindowSize)
-* [WindowMenu](WindowMenu)
+[ActivateWindow](ActivateWindow), [ActiveWindow](ActiveWindow), [CreateWindow](CreateWindow), [MaximizeWindow](MaximizeWindow), [MinimizeWindow](MinimizeWindow), [RestoreWindow](RestoreWindow), [SetMinWindowSize](SetMinWindowSize), [WindowMenu](WindowMenu)
 
 <div align="center">
 

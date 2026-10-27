@@ -37,12 +37,7 @@ Changing the type resets the entity's collision movement, as [ResetEntity](Reset
 
 ## Related Commands
 
-* [CollisionEntity](CollisionEntity)
-* [EntityBox](EntityBox)
-* [EntityCollided](EntityCollided)
-* [EntityRadius](EntityRadius)
-* [GetEntityType](GetEntityType)
-* [ResetEntity](ResetEntity)
+[CollisionEntity](CollisionEntity), [EntityBox](EntityBox), [EntityCollided](EntityCollided), [EntityRadius](EntityRadius), [GetEntityType](GetEntityType), [ResetEntity](ResetEntity)
 
 <div align="center">
 

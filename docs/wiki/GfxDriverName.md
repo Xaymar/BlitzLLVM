@@ -37,14 +37,7 @@ The name of a graphics driver. Numbers go from 1 to [CountGfxDrivers](CountGfxDr
 
 ## Related Commands
 
-* [DisplayName](DisplayName) 〔BlitzLLVM〕
-* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
-* [GfxModeDepth](GfxModeDepth)
-* [GfxModeExists](GfxModeExists)
-* [GfxModeFormat](GfxModeFormat)
-* [GfxModeHeight](GfxModeHeight)
-* [GfxModeWidth](GfxModeWidth)
-* [SetGfxDriver](SetGfxDriver)
+[DisplayName](DisplayName) 〔BlitzLLVM〕, [GfxDriver](GfxDriver) 〔BlitzLLVM〕, [GfxModeDepth](GfxModeDepth), [GfxModeExists](GfxModeExists), [GfxModeFormat](GfxModeFormat), [GfxModeHeight](GfxModeHeight), [GfxModeWidth](GfxModeWidth), [SetGfxDriver](SetGfxDriver)
 
 <div align="center">
 

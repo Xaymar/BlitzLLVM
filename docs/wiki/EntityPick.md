@@ -34,11 +34,7 @@ Looks straight ahead along the entity's own Z axis, as far as the range, and ret
 
 ## Related Commands
 
-* [CameraPick](CameraPick)
-* [EntityPickMode](EntityPickMode)
-* [EntityVisible](EntityVisible)
-* [LinePick](LinePick)
-* [PickedEntity](PickedEntity)
+[CameraPick](CameraPick), [EntityPickMode](EntityPickMode), [EntityVisible](EntityVisible), [LinePick](LinePick), [PickedEntity](PickedEntity)
 
 <div align="center">
 

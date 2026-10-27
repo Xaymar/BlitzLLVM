@@ -43,10 +43,7 @@ Print Sin(30)
 
 ## Related Commands
 
-* [ASin](ASin)
-* [SeedRnd](SeedRnd)
-* [Short](Short) 〔BlitzLLVM〕
-* [Sqr](Sqr)
+[ASin](ASin), [SeedRnd](SeedRnd), [Short](Short) 〔BlitzLLVM〕, [Sqr](Sqr)
 
 <div align="center">
 

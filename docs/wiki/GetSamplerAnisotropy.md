@@ -35,14 +35,7 @@ Returns the anisotropy that the sampler has, as it was set with [SetSamplerAniso
 
 ## Related Commands
 
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
-* [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕
-* [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕
-* [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
-* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
+[GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕, [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕, [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕, [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕, [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕, [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕, [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
 
 <div align="center">
 

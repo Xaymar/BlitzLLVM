@@ -33,14 +33,7 @@ Starts listening for TCP connections on a port. Clients connect with [OpenTCPStr
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseTCPServer](CloseTCPServer)
-* [CloseTCPStream](CloseTCPStream)
-* [CreateUDPStream](CreateUDPStream)
-* [OpenTCPStream](OpenTCPStream)
-* [TCPStreamIP](TCPStreamIP)
-* [TCPStreamPort](TCPStreamPort)
-* [TCPTimeouts](TCPTimeouts)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseTCPStream](CloseTCPStream), [CreateUDPStream](CreateUDPStream), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort), [TCPTimeouts](TCPTimeouts)
 
 <div align="center">
 

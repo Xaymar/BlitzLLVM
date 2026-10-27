@@ -50,12 +50,7 @@ Hello
 
 ## Related Commands
 
-* [ReadString](ReadString)
-* [WriteByte](WriteByte)
-* [WriteFloat](WriteFloat)
-* [WriteInt](WriteInt)
-* [WriteLine](WriteLine)
-* [WriteShort](WriteShort)
+[ReadString](ReadString), [WriteByte](WriteByte), [WriteFloat](WriteFloat), [WriteInt](WriteInt), [WriteLine](WriteLine), [WriteShort](WriteShort)
 
 <div align="center">
 

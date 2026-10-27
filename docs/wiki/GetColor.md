@@ -32,11 +32,7 @@ Reads the pixel at a position of the current buffer and makes it the drawing col
 
 ## Related Commands
 
-* [ClsColor](ClsColor)
-* [Color](Color)
-* [ColorBlue](ColorBlue)
-* [ColorGreen](ColorGreen)
-* [ColorRed](ColorRed)
+[ClsColor](ClsColor), [Color](Color), [ColorBlue](ColorBlue), [ColorGreen](ColorGreen), [ColorRed](ColorRed)
 
 <div align="center">
 

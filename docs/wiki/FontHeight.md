@@ -49,11 +49,7 @@ WaitKey
 
 ## Related Commands
 
-* [FontWidth](FontWidth)
-* [FreeFont](FreeFont)
-* [LoadFont](LoadFont)
-* [SetFont](SetFont)
-* [StringHeight](StringHeight)
+[FontWidth](FontWidth), [FreeFont](FreeFont), [LoadFont](LoadFont), [SetFont](SetFont), [StringHeight](StringHeight)
 
 <div align="center">
 

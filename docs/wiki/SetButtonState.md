@@ -32,14 +32,7 @@ Ticks or unticks a check box or radio button. Making a radio button ticked untic
 
 ## Related Commands
 
-* [ButtonState](ButtonState)
-* [SetGadgetFont](SetGadgetFont)
-* [SetGadgetLayout](SetGadgetLayout)
-* [SetGadgetShape](SetGadgetShape)
-* [SetGadgetText](SetGadgetText)
-* [SetPanelColor](SetPanelColor)
-* [SetPanelImage](SetPanelImage)
-* [SetSliderRange](SetSliderRange)
+[ButtonState](ButtonState), [SetGadgetFont](SetGadgetFont), [SetGadgetLayout](SetGadgetLayout), [SetGadgetShape](SetGadgetShape), [SetGadgetText](SetGadgetText), [SetPanelColor](SetPanelColor), [SetPanelImage](SetPanelImage), [SetSliderRange](SetSliderRange)
 
 <div align="center">
 

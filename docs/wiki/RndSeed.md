@@ -29,10 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [Rand](Rand)
-* [Rnd](Rnd)
-* [RotL](RotL) 〔BlitzLLVM〕
-* [SeedRnd](SeedRnd)
+[Rand](Rand), [Rnd](Rnd), [RotL](RotL) 〔BlitzLLVM〕, [SeedRnd](SeedRnd)
 
 <div align="center">
 

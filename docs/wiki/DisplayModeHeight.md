@@ -40,14 +40,7 @@ The height in pixels of a mode from the list of a display. This is a BlitzLLVM e
 
 ## Related Commands
 
-* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
-* [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
-* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
-* [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕
-* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
-* [DisplayName](DisplayName) 〔BlitzLLVM〕
-* [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
-* [GfxModeHeight](GfxModeHeight)
+[DisplayDepth](DisplayDepth) 〔BlitzLLVM〕, [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕, [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕, [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕, [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕, [DisplayName](DisplayName) 〔BlitzLLVM〕, [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕, [GfxModeHeight](GfxModeHeight)
 
 <div align="center">
 

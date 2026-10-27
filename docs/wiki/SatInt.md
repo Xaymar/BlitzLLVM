@@ -54,14 +54,7 @@ Print SatInt(Long(-7))
 
 ## Related Commands
 
-* [SatByte](SatByte) 〔BlitzLLVM〕
-* [SatLong](SatLong) 〔BlitzLLVM〕
-* [SatShort](SatShort) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [SatUInt](SatUInt) 〔BlitzLLVM〕
-* [SatULong](SatULong) 〔BlitzLLVM〕
-* [SatUShort](SatUShort) 〔BlitzLLVM〕
-* [UInt](UInt) 〔BlitzLLVM〕
+[SatByte](SatByte) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatShort](SatShort) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕
 
 <div align="center">
 

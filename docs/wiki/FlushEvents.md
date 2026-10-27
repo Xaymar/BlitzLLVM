@@ -43,10 +43,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [CreateProcess](CreateProcess)
-* [DebugObjects](DebugObjects)
-* [FontAscent](FontAscent)
-* [FontDescent](FontDescent)
+[CreateProcess](CreateProcess), [DebugObjects](DebugObjects), [FontAscent](FontAscent), [FontDescent](FontDescent)
 
 <div align="center">
 

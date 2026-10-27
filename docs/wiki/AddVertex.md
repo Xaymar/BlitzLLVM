@@ -44,14 +44,7 @@ Triangles that meet at a corner can share one vertex, which saves memory, but th
 
 ## Related Commands
 
-* [AddTriangle](AddTriangle)
-* [TriangleVertex](TriangleVertex)
-* [VertexAlpha](VertexAlpha)
-* [VertexBlue](VertexBlue)
-* [VertexColor](VertexColor)
-* [VertexCoords](VertexCoords)
-* [VertexGreen](VertexGreen)
-* [VertexNormal](VertexNormal)
+[AddTriangle](AddTriangle), [TriangleVertex](TriangleVertex), [VertexAlpha](VertexAlpha), [VertexBlue](VertexBlue), [VertexColor](VertexColor), [VertexCoords](VertexCoords), [VertexGreen](VertexGreen), [VertexNormal](VertexNormal)
 
 <div align="center">
 

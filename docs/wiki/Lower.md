@@ -43,10 +43,7 @@ hello world 1!
 
 ## Related Commands
 
-* [Left](Left)
-* [Len](Len)
-* [LSet](LSet)
-* [Mid](Mid)
+[Left](Left), [Len](Len), [LSet](LSet), [Mid](Mid)
 
 <div align="center">
 

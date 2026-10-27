@@ -35,10 +35,7 @@ Makes the gamma tables that [SetGamma](SetGamma) changed count: the window is sh
 
 ## Related Commands
 
-* [GammaBlue](GammaBlue)
-* [GammaGreen](GammaGreen)
-* [GammaRed](GammaRed)
-* [SetGamma](SetGamma)
+[GammaBlue](GammaBlue), [GammaGreen](GammaGreen), [GammaRed](GammaRed), [SetGamma](SetGamma)
 
 <div align="center">
 

@@ -60,14 +60,7 @@ WaitKey
 
 ## Related Commands
 
-* [CopyEntity](CopyEntity)
-* [FreeEntity](FreeEntity)
-* [HideEntity](HideEntity)
-* [MoveEntity](MoveEntity)
-* [NameEntity](NameEntity)
-* [PaintEntity](PaintEntity)
-* [PointEntity](PointEntity)
-* [RotateEntity](RotateEntity)
+[CopyEntity](CopyEntity), [FreeEntity](FreeEntity), [HideEntity](HideEntity), [MoveEntity](MoveEntity), [NameEntity](NameEntity), [PaintEntity](PaintEntity), [PointEntity](PointEntity), [RotateEntity](RotateEntity)
 
 <div align="center">
 

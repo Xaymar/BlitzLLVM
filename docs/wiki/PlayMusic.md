@@ -50,10 +50,7 @@ StopChannel ch
 
 ## Related Commands
 
-* [PauseChannel](PauseChannel)
-* [PlayCDTrack](PlayCDTrack)
-* [PlaySound](PlaySound)
-* [ResumeChannel](ResumeChannel)
+[PauseChannel](PauseChannel), [PlayCDTrack](PlayCDTrack), [PlaySound](PlaySound), [ResumeChannel](ResumeChannel)
 
 <div align="center">
 

@@ -35,10 +35,7 @@ Switches multitexturing on or off, so that a triangle with several textures is d
 
 ## Related Commands
 
-* [ClearWorld](ClearWorld)
-* [Dither](Dither)
-* [HWTexUnits](HWTexUnits)
-* [RenderWorld](RenderWorld)
+[ClearWorld](ClearWorld), [Dither](Dither), [HWTexUnits](HWTexUnits), [RenderWorld](RenderWorld)
 
 <div align="center">
 

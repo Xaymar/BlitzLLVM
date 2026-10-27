@@ -31,14 +31,7 @@ Releases a brush. Things that were painted with it keep the look they got, becau
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [BrushFX](BrushFX)
-* [CreateBrush](CreateBrush)
-* [GetEntityBrush](GetEntityBrush)
-* [GetSurfaceBrush](GetSurfaceBrush)
-* [LoadBrush](LoadBrush)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushColor](BrushColor), [BrushFX](BrushFX), [CreateBrush](CreateBrush), [GetEntityBrush](GetEntityBrush), [GetSurfaceBrush](GetSurfaceBrush), [LoadBrush](LoadBrush)
 
 <div align="center">
 

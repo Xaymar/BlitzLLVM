@@ -33,14 +33,7 @@ Like [JoyY](JoyY), but as a direction only: -1 for up, 1 for down, 0 in the midd
 
 ## Related Commands
 
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyUDir](JoyUDir)
-* [JoyVDir](JoyVDir)
-* [JoyXDir](JoyXDir)
-* [JoyY](JoyY)
-* [JoyZDir](JoyZDir)
+[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyUDir](JoyUDir), [JoyVDir](JoyVDir), [JoyXDir](JoyXDir), [JoyY](JoyY), [JoyZDir](JoyZDir)
 
 <div align="center">
 

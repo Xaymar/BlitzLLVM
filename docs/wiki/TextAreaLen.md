@@ -34,14 +34,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AddTextAreaText](AddTextAreaText)
-* [TextAreaChar](TextAreaChar)
-* [TextAreaCursor](TextAreaCursor)
-* [TextAreaLine](TextAreaLine)
-* [TextAreaLineLen](TextAreaLineLen)
-* [TextAreaSelLen](TextAreaSelLen)
-* [TextAreaText](TextAreaText)
-* [TextFieldText](TextFieldText)
+[AddTextAreaText](AddTextAreaText), [TextAreaChar](TextAreaChar), [TextAreaCursor](TextAreaCursor), [TextAreaLine](TextAreaLine), [TextAreaLineLen](TextAreaLineLen), [TextAreaSelLen](TextAreaSelLen), [TextAreaText](TextAreaText), [TextFieldText](TextFieldText)
 
 <div align="center">
 

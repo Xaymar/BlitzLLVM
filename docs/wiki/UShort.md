@@ -54,14 +54,7 @@ Print UShort(70000.0)
 
 ## Related Commands
 
-* [SatShort](SatShort) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [SatUInt](SatUInt) 〔BlitzLLVM〕
-* [SatUShort](SatUShort) 〔BlitzLLVM〕
-* [Short](Short) 〔BlitzLLVM〕
-* [UByte](UByte) 〔BlitzLLVM〕
-* [UInt](UInt) 〔BlitzLLVM〕
-* [ULong](ULong) 〔BlitzLLVM〕
+[SatShort](SatShort) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [Short](Short) 〔BlitzLLVM〕, [UByte](UByte) 〔BlitzLLVM〕, [UInt](UInt) 〔BlitzLLVM〕, [ULong](ULong) 〔BlitzLLVM〕
 
 <div align="center">
 

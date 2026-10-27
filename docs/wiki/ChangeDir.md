@@ -46,11 +46,7 @@ DeleteDir "files_change_example"
 
 ## Related Commands
 
-* [CloseDir](CloseDir)
-* [CreateDir](CreateDir)
-* [CurrentDir](CurrentDir)
-* [DeleteDir](DeleteDir)
-* [ReadDir](ReadDir)
+[CloseDir](CloseDir), [CreateDir](CreateDir), [CurrentDir](CurrentDir), [DeleteDir](DeleteDir), [ReadDir](ReadDir)
 
 <div align="center">
 

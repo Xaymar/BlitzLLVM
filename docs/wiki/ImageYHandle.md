@@ -33,14 +33,7 @@ The vertical position of the handle of an image, counted from its top edge.
 
 ## Related Commands
 
-* [AutoMidHandle](AutoMidHandle)
-* [ImageBuffer](ImageBuffer)
-* [ImageHeight](ImageHeight)
-* [ImageRectCollide](ImageRectCollide)
-* [ImageRectOverlap](ImageRectOverlap)
-* [ImageWidth](ImageWidth)
-* [ImageXHandle](ImageXHandle)
-* [MidHandle](MidHandle)
+[AutoMidHandle](AutoMidHandle), [ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [MidHandle](MidHandle)
 
 <div align="center">
 

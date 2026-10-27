@@ -29,11 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ChangeDir](ChangeDir)
-* [CloseDir](CloseDir)
-* [CreateDir](CreateDir)
-* [DeleteDir](DeleteDir)
-* [ReadDir](ReadDir)
+[ChangeDir](ChangeDir), [CloseDir](CloseDir), [CreateDir](CreateDir), [DeleteDir](DeleteDir), [ReadDir](ReadDir)
 
 <div align="center">
 

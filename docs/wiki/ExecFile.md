@@ -43,10 +43,7 @@ Print ExecFile("this-program-does-not-exist")
 
 ## Related Commands
 
-* [Delay](Delay)
-* [End](End)
-* [FreeTimer](FreeTimer)
-* [GetEnv](GetEnv)
+[Delay](Delay), [End](End), [FreeTimer](FreeTimer), [GetEnv](GetEnv)
 
 <div align="center">
 

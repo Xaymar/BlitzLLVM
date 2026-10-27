@@ -108,8 +108,7 @@ WaitKey
 
 ## Related Commands
 
-* [BSPAmbientLight](BSPAmbientLight)
-* [LoadBSP](LoadBSP)
+[BSPAmbientLight](BSPAmbientLight), [LoadBSP](LoadBSP)
 
 <div align="center">
 

@@ -32,14 +32,7 @@ Moves the position where the next read or write happens. Positions count bytes f
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [FilePos](FilePos)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
-* [WriteFile](WriteFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [FilePos](FilePos), [NextFile](NextFile), [OpenFile](OpenFile), [ReadFile](ReadFile), [WriteFile](WriteFile)
 
 <div align="center">
 

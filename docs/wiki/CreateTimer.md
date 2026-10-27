@@ -48,10 +48,7 @@ five ticks at 50 per second
 
 ## Related Commands
 
-* [AppTitle](AppTitle)
-* [CommandLine](CommandLine)
-* [FreeTimer](FreeTimer)
-* [WaitTimer](WaitTimer)
+[AppTitle](AppTitle), [CommandLine](CommandLine), [FreeTimer](FreeTimer), [WaitTimer](WaitTimer)
 
 <div align="center">
 

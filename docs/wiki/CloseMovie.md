@@ -35,14 +35,7 @@ Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movi
 
 ## Related Commands
 
-* [DrawMovie](DrawMovie)
-* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
-* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
-* [OpenMovie](OpenMovie)
-* [PauseMovie](PauseMovie) 〔BlitzLLVM〕
-* [PlayMovie](PlayMovie) 〔BlitzLLVM〕
-* [SeekMovie](SeekMovie) 〔BlitzLLVM〕
-* [StopMovie](StopMovie) 〔BlitzLLVM〕
+[DrawMovie](DrawMovie), [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕, [LoopMovie](LoopMovie) 〔BlitzLLVM〕, [OpenMovie](OpenMovie), [PauseMovie](PauseMovie) 〔BlitzLLVM〕, [PlayMovie](PlayMovie) 〔BlitzLLVM〕, [SeekMovie](SeekMovie) 〔BlitzLLVM〕, [StopMovie](StopMovie) 〔BlitzLLVM〕
 
 <div align="center">
 

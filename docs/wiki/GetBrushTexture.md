@@ -38,14 +38,7 @@ Returns the texture on one layer of the brush, or 0 if there is none. Combine it
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [BrushFX](BrushFX)
-* [BrushShininess](BrushShininess)
-* [BrushTexture](BrushTexture)
-* [GetEntityBrush](GetEntityBrush)
-* [GetSurfaceBrush](GetSurfaceBrush)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushColor](BrushColor), [BrushFX](BrushFX), [BrushShininess](BrushShininess), [BrushTexture](BrushTexture), [GetEntityBrush](GetEntityBrush), [GetSurfaceBrush](GetSurfaceBrush)
 
 <div align="center">
 

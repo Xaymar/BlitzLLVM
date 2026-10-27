@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AlignToVector](AlignToVector)
-* [CopyEntity](CopyEntity)
-* [CreatePivot](CreatePivot)
-* [EntityAlpha](EntityAlpha)
+[AlignToVector](AlignToVector), [CopyEntity](CopyEntity), [CreatePivot](CreatePivot), [EntityAlpha](EntityAlpha)
 
 <div align="center">
 

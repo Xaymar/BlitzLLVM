@@ -35,14 +35,7 @@ Returns the address mode of the vertical texture coordinate (v) that the sampler
 
 ## Related Commands
 
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
-* [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕
-* [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕
-* [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
+[GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕, [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕, [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕, [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕, [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕, [GetSamplerBorderColorR](GetSamplerBorderColorR) 〔BlitzLLVM〕, [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
 
 <div align="center">
 

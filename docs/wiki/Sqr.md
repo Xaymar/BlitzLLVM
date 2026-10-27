@@ -45,10 +45,7 @@ Print Sqr(16)
 
 ## Related Commands
 
-* [Short](Short) 〔BlitzLLVM〕
-* [Sin](Sin)
-* [Tan](Tan)
-* [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
+[Short](Short) 〔BlitzLLVM〕, [Sin](Sin), [Tan](Tan), [TrailingZeros](TrailingZeros) 〔BlitzLLVM〕
 
 <div align="center">
 

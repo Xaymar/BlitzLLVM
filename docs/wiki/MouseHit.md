@@ -47,14 +47,7 @@ Wend
 
 ## Related Commands
 
-* [MouseDown](MouseDown)
-* [MouseWait](MouseWait)
-* [MouseX](MouseX)
-* [MouseXSpeed](MouseXSpeed)
-* [MouseY](MouseY)
-* [MouseYSpeed](MouseYSpeed)
-* [MouseZ](MouseZ)
-* [MouseZSpeed](MouseZSpeed)
+[MouseDown](MouseDown), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ), [MouseZSpeed](MouseZSpeed)
 
 <div align="center">
 

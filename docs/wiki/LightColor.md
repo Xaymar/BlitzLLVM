@@ -34,10 +34,7 @@ Sets the color of the light. 255, 255, 255 is full white light, 0, 0, 0 adds not
 
 ## Related Commands
 
-* [CreateLight](CreateLight)
-* [LightConeAngles](LightConeAngles)
-* [LightMesh](LightMesh)
-* [LightRange](LightRange)
+[CreateLight](CreateLight), [LightConeAngles](LightConeAngles), [LightMesh](LightMesh), [LightRange](LightRange)
 
 <div align="center">
 

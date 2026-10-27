@@ -43,10 +43,7 @@ Print Exp(1)
 
 ## Related Commands
 
-* [Cos](Cos)
-* [Double](Double) 〔BlitzLLVM〕
-* [Floor](Floor)
-* [Half](Half) 〔BlitzLLVM〕
+[Cos](Cos), [Double](Double) 〔BlitzLLVM〕, [Floor](Floor), [Half](Half) 〔BlitzLLVM〕
 
 <div align="center">
 

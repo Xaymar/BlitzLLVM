@@ -63,14 +63,7 @@ WaitKey
 
 ## Related Commands
 
-* [VertexAlpha](VertexAlpha)
-* [VertexBlue](VertexBlue)
-* [VertexCoords](VertexCoords)
-* [VertexGreen](VertexGreen)
-* [VertexNormal](VertexNormal)
-* [VertexNX](VertexNX)
-* [VertexNY](VertexNY)
-* [VertexNZ](VertexNZ)
+[VertexAlpha](VertexAlpha), [VertexBlue](VertexBlue), [VertexCoords](VertexCoords), [VertexGreen](VertexGreen), [VertexNormal](VertexNormal), [VertexNX](VertexNX), [VertexNY](VertexNY), [VertexNZ](VertexNZ)
 
 <div align="center">
 

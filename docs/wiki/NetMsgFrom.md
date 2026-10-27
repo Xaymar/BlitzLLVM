@@ -29,14 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CreateNetPlayer](CreateNetPlayer)
-* [NetMsgData](NetMsgData)
-* [NetMsgTo](NetMsgTo)
-* [NetMsgType](NetMsgType)
-* [NetPlayerLocal](NetPlayerLocal)
-* [NetPlayerName](NetPlayerName)
-* [RecvNetMsg](RecvNetMsg)
-* [SendNetMsg](SendNetMsg)
+[CreateNetPlayer](CreateNetPlayer), [NetMsgData](NetMsgData), [NetMsgTo](NetMsgTo), [NetMsgType](NetMsgType), [NetPlayerLocal](NetPlayerLocal), [NetPlayerName](NetPlayerName), [RecvNetMsg](RecvNetMsg), [SendNetMsg](SendNetMsg)
 
 <div align="center">
 

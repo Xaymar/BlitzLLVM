@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ClearSurface](ClearSurface)
-* [CountSurfaces](CountSurfaces)
-* [CountVertices](CountVertices)
-* [CreateSurface](CreateSurface)
+[ClearSurface](ClearSurface), [CountSurfaces](CountSurfaces), [CountVertices](CountVertices), [CreateSurface](CreateSurface)
 
 <div align="center">
 

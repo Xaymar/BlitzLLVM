@@ -31,14 +31,7 @@ Closes a TCP stream. The other side sees the stream end once it has read everyth
 
 ## Related Commands
 
-* [AcceptTCPStream](AcceptTCPStream)
-* [CloseTCPServer](CloseTCPServer)
-* [CloseUDPStream](CloseUDPStream)
-* [CreateTCPServer](CreateTCPServer)
-* [CreateUDPStream](CreateUDPStream)
-* [OpenTCPStream](OpenTCPStream)
-* [TCPStreamIP](TCPStreamIP)
-* [TCPStreamPort](TCPStreamPort)
+[AcceptTCPStream](AcceptTCPStream), [CloseTCPServer](CloseTCPServer), [CloseUDPStream](CloseUDPStream), [CreateTCPServer](CreateTCPServer), [CreateUDPStream](CreateUDPStream), [OpenTCPStream](OpenTCPStream), [TCPStreamIP](TCPStreamIP), [TCPStreamPort](TCPStreamPort)
 
 <div align="center">
 

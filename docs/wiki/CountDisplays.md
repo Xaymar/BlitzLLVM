@@ -44,10 +44,7 @@ WaitKey
 
 ## Related Commands
 
-* [CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕
-* [CountGfxDrivers](CountGfxDrivers)
-* [CountGfxModes](CountGfxModes)
-* [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
+[CountDisplayModes](CountDisplayModes) 〔BlitzLLVM〕, [CountGfxDrivers](CountGfxDrivers), [CountGfxModes](CountGfxModes), [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
 
 <div align="center">
 

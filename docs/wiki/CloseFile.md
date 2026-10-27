@@ -31,14 +31,7 @@ Closes a file and writes out everything that is still waiting to be written. Alw
 
 ## Related Commands
 
-* [CloseDir](CloseDir)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
-* [SeekFile](SeekFile)
-* [WriteFile](WriteFile)
+[CloseDir](CloseDir), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [NextFile](NextFile), [OpenFile](OpenFile), [ReadFile](ReadFile), [SeekFile](SeekFile), [WriteFile](WriteFile)
 
 <div align="center">
 

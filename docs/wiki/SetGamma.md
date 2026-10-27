@@ -67,11 +67,7 @@ WaitKey
 
 ## Related Commands
 
-* [GammaBlue](GammaBlue)
-* [GammaGreen](GammaGreen)
-* [GammaRed](GammaRed)
-* [SetGfxDriver](SetGfxDriver)
-* [UpdateGamma](UpdateGamma)
+[GammaBlue](GammaBlue), [GammaGreen](GammaGreen), [GammaRed](GammaRed), [SetGfxDriver](SetGfxDriver), [UpdateGamma](UpdateGamma)
 
 <div align="center">
 

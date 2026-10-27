@@ -45,10 +45,7 @@ FFFFFFFF
 
 ## Related Commands
 
-* [CurrentDate](CurrentDate)
-* [CurrentTime](CurrentTime)
-* [Instr](Instr)
-* [Left](Left)
+[CurrentDate](CurrentDate), [CurrentTime](CurrentTime), [Instr](Instr), [Left](Left)
 
 <div align="center">
 

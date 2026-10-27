@@ -41,10 +41,7 @@ If FileType("level.dat") = 0 Then RuntimeError "level.dat is missing"
 
 ## Related Commands
 
-* [Microseconds](Microseconds) 〔BlitzLLVM〕
-* [MilliSecs](MilliSecs)
-* [SetEnv](SetEnv)
-* [Stop](Stop)
+[Microseconds](Microseconds) 〔BlitzLLVM〕, [MilliSecs](MilliSecs), [SetEnv](SetEnv), [Stop](Stop)
 
 <div align="center">
 

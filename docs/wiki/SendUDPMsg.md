@@ -33,14 +33,7 @@ Sends what you wrote to the stream as one message and empties the stream for the
 
 ## Related Commands
 
-* [CloseUDPStream](CloseUDPStream)
-* [CreateUDPStream](CreateUDPStream)
-* [RecvUDPMsg](RecvUDPMsg)
-* [UDPMsgIP](UDPMsgIP)
-* [UDPMsgPort](UDPMsgPort)
-* [UDPStreamIP](UDPStreamIP)
-* [UDPStreamPort](UDPStreamPort)
-* [UDPTimeouts](UDPTimeouts)
+[CloseUDPStream](CloseUDPStream), [CreateUDPStream](CreateUDPStream), [RecvUDPMsg](RecvUDPMsg), [UDPMsgIP](UDPMsgIP), [UDPMsgPort](UDPMsgPort), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort), [UDPTimeouts](UDPTimeouts)
 
 <div align="center">
 

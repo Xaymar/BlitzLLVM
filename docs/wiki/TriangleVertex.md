@@ -35,14 +35,7 @@ Tells which vertex is at a corner of a triangle, which is how you walk over the 
 
 ## Related Commands
 
-* [AddTriangle](AddTriangle)
-* [AddVertex](AddVertex)
-* [VertexAlpha](VertexAlpha)
-* [VertexBlue](VertexBlue)
-* [VertexColor](VertexColor)
-* [VertexCoords](VertexCoords)
-* [VertexGreen](VertexGreen)
-* [VertexNormal](VertexNormal)
+[AddTriangle](AddTriangle), [AddVertex](AddVertex), [VertexAlpha](VertexAlpha), [VertexBlue](VertexBlue), [VertexColor](VertexColor), [VertexCoords](VertexCoords), [VertexGreen](VertexGreen), [VertexNormal](VertexNormal)
 
 <div align="center">
 

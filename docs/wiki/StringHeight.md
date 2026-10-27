@@ -37,10 +37,7 @@ The height in pixels that a text has in the current font.
 
 ## Related Commands
 
-* [FontHeight](FontHeight)
-* [Print](Print)
-* [SetFont](SetFont)
-* [StringWidth](StringWidth)
+[FontHeight](FontHeight), [Print](Print), [SetFont](SetFont), [StringWidth](StringWidth)
 
 <div align="center">
 

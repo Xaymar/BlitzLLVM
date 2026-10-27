@@ -43,10 +43,7 @@ Print Log(10)
 
 ## Related Commands
 
-* [Half](Half) 〔BlitzLLVM〕
-* [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
-* [Log10](Log10)
-* [Long](Long) 〔BlitzLLVM〕
+[Half](Half) 〔BlitzLLVM〕, [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕, [Log10](Log10), [Long](Long) 〔BlitzLLVM〕
 
 <div align="center">
 

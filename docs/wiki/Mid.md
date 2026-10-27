@@ -47,10 +47,7 @@ llo
 
 ## Related Commands
 
-* [Lower](Lower)
-* [LSet](LSet)
-* [Replace](Replace)
-* [Right](Right)
+[Lower](Lower), [LSet](LSet), [Replace](Replace), [Right](Right)
 
 <div align="center">
 

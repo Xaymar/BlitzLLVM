@@ -60,10 +60,7 @@ WaitKey
 
 ## Related Commands
 
-* [DrawBlockRect](DrawBlockRect)
-* [DrawImage](DrawImage)
-* [DrawImageRect](DrawImageRect)
-* [TileBlock](TileBlock)
+[DrawBlockRect](DrawBlockRect), [DrawImage](DrawImage), [DrawImageRect](DrawImageRect), [TileBlock](TileBlock)
 
 <div align="center">
 

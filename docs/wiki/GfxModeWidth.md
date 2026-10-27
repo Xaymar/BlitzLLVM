@@ -37,14 +37,7 @@ The width in pixels of a display mode.
 
 ## Related Commands
 
-* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
-* [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕
-* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
-* [GfxDriverName](GfxDriverName)
-* [GfxModeDepth](GfxModeDepth)
-* [GfxModeExists](GfxModeExists)
-* [GfxModeFormat](GfxModeFormat)
-* [GfxModeHeight](GfxModeHeight)
+[DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕, [DisplayWidth](DisplayWidth) 〔BlitzLLVM〕, [GfxDriver](GfxDriver) 〔BlitzLLVM〕, [GfxDriverName](GfxDriverName), [GfxModeDepth](GfxModeDepth), [GfxModeExists](GfxModeExists), [GfxModeFormat](GfxModeFormat), [GfxModeHeight](GfxModeHeight)
 
 <div align="center">
 

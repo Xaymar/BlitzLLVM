@@ -55,14 +55,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [CollapseTreeViewNode](CollapseTreeViewNode)
-* [ExpandTreeViewNode](ExpandTreeViewNode)
-* [FreeTreeViewNode](FreeTreeViewNode)
-* [InsertTreeViewNode](InsertTreeViewNode)
-* [ModifyTreeViewNode](ModifyTreeViewNode)
-* [SelectedTreeViewNode](SelectedTreeViewNode)
-* [SelectTreeViewNode](SelectTreeViewNode)
-* [TreeViewNodeText](TreeViewNodeText)
+[CollapseTreeViewNode](CollapseTreeViewNode), [ExpandTreeViewNode](ExpandTreeViewNode), [FreeTreeViewNode](FreeTreeViewNode), [InsertTreeViewNode](InsertTreeViewNode), [ModifyTreeViewNode](ModifyTreeViewNode), [SelectedTreeViewNode](SelectedTreeViewNode), [SelectTreeViewNode](SelectTreeViewNode), [TreeViewNodeText](TreeViewNodeText)
 
 <div align="center">
 

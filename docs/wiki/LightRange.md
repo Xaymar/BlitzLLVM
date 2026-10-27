@@ -57,10 +57,7 @@ WaitKey
 
 ## Related Commands
 
-* [CreateLight](CreateLight)
-* [LightColor](LightColor)
-* [LightConeAngles](LightConeAngles)
-* [LightMesh](LightMesh)
+[CreateLight](CreateLight), [LightColor](LightColor), [LightConeAngles](LightConeAngles), [LightMesh](LightMesh)
 
 <div align="center">
 

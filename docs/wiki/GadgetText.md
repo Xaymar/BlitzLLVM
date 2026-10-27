@@ -45,14 +45,7 @@ Until e = $803
 
 ## Related Commands
 
-* [GadgetFont](GadgetFont)
-* [GadgetGroup](GadgetGroup)
-* [GadgetHeight](GadgetHeight)
-* [GadgetItemText](GadgetItemText)
-* [GadgetWidth](GadgetWidth)
-* [GadgetX](GadgetX)
-* [GadgetY](GadgetY)
-* [SetGadgetText](SetGadgetText)
+[GadgetFont](GadgetFont), [GadgetGroup](GadgetGroup), [GadgetHeight](GadgetHeight), [GadgetItemText](GadgetItemText), [GadgetWidth](GadgetWidth), [GadgetX](GadgetX), [GadgetY](GadgetY), [SetGadgetText](SetGadgetText)
 
 <div align="center">
 

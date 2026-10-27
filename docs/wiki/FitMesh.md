@@ -38,14 +38,7 @@ Scales and moves a mesh so that it exactly fills a box. `x`, `y` and `z` are the
 
 ## Related Commands
 
-* [AddMesh](AddMesh)
-* [CopyMesh](CopyMesh)
-* [CreateMesh](CreateMesh)
-* [FlipMesh](FlipMesh)
-* [LoadAnimMesh](LoadAnimMesh)
-* [LoadMesh](LoadMesh)
-* [PaintMesh](PaintMesh)
-* [PositionMesh](PositionMesh)
+[AddMesh](AddMesh), [CopyMesh](CopyMesh), [CreateMesh](CreateMesh), [FlipMesh](FlipMesh), [LoadAnimMesh](LoadAnimMesh), [LoadMesh](LoadMesh), [PaintMesh](PaintMesh), [PositionMesh](PositionMesh)
 
 <div align="center">
 

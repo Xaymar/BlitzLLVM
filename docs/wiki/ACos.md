@@ -43,10 +43,7 @@ Print ACos(0.5)
 
 ## Related Commands
 
-* [ASin](ASin)
-* [ATan](ATan)
-* [ATan2](ATan2)
-* [Cos](Cos)
+[ASin](ASin), [ATan](ATan), [ATan2](ATan2), [Cos](Cos)
 
 <div align="center">
 

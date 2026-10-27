@@ -43,14 +43,7 @@ Print ReadFile("files_read_nothing_here")
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteFile](DeleteFile)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadDir](ReadDir)
-* [SeekFile](SeekFile)
-* [WriteFile](WriteFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteFile](DeleteFile), [NextFile](NextFile), [OpenFile](OpenFile), [ReadDir](ReadDir), [SeekFile](SeekFile), [WriteFile](WriteFile)
 
 <div align="center">
 

@@ -55,12 +55,7 @@ WaitKey
 
 ## Related Commands
 
-* [CopyPixelFast](CopyPixelFast)
-* [CopyRect](CopyRect)
-* [ReadPixel](ReadPixel)
-* [ReadPixelFast](ReadPixelFast)
-* [WritePixel](WritePixel)
-* [WritePixelFast](WritePixelFast)
+[CopyPixelFast](CopyPixelFast), [CopyRect](CopyRect), [ReadPixel](ReadPixel), [ReadPixelFast](ReadPixelFast), [WritePixel](WritePixel), [WritePixelFast](WritePixelFast)
 
 <div align="center">
 

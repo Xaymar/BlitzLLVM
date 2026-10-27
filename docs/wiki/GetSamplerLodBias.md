@@ -35,14 +35,7 @@ Returns the lod bias that the sampler has, as it was set with [SetSamplerLodBias
 
 ## Related Commands
 
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
-* [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕
-* [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
-* [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
+[GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕, [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕, [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕, [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕, [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕, [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕, [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
 
 <div align="center">
 

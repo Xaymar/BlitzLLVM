@@ -48,14 +48,7 @@ DeleteFile "files_copy_b.tmp"
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [DeleteFile](DeleteFile)
-* [FilePos](FilePos)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
-* [SeekFile](SeekFile)
-* [WriteFile](WriteFile)
+[CloseFile](CloseFile), [DeleteFile](DeleteFile), [FilePos](FilePos), [NextFile](NextFile), [OpenFile](OpenFile), [ReadFile](ReadFile), [SeekFile](SeekFile), [WriteFile](WriteFile)
 
 <div align="center">
 

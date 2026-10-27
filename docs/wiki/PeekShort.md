@@ -34,10 +34,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [PeekByte](PeekByte)
-* [PeekFloat](PeekFloat)
-* [PeekInt](PeekInt)
-* [PokeShort](PokeShort)
+[PeekByte](PeekByte), [PeekFloat](PeekFloat), [PeekInt](PeekInt), [PokeShort](PokeShort)
 
 <div align="center">
 

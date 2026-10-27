@@ -44,10 +44,7 @@ Sets a 3x3 matrix that is applied to every model loaded from files with a certai
 
 ## Related Commands
 
-* [FlipMesh](FlipMesh)
-* [LoadAnimMesh](LoadAnimMesh)
-* [LoadMesh](LoadMesh)
-* [MeshCullBox](MeshCullBox)
+[FlipMesh](FlipMesh), [LoadAnimMesh](LoadAnimMesh), [LoadMesh](LoadMesh), [MeshCullBox](MeshCullBox)
 
 <div align="center">
 

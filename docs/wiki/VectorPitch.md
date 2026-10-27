@@ -35,10 +35,7 @@ Finds the pitch angle that an entity would need to point along a direction. 0, 0
 
 ## Related Commands
 
-* [DeltaPitch](DeltaPitch)
-* [TFormPoint](TFormPoint)
-* [TFormVector](TFormVector)
-* [VectorYaw](VectorYaw)
+[DeltaPitch](DeltaPitch), [TFormPoint](TFormPoint), [TFormVector](TFormVector), [VectorYaw](VectorYaw)
 
 <div align="center">
 

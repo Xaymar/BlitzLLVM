@@ -41,8 +41,7 @@ WaitKey
 
 ## Related Commands
 
-* [GetKey](GetKey)
-* [KeyDown](KeyDown)
+[GetKey](GetKey), [KeyDown](KeyDown)
 
 <div align="center">
 

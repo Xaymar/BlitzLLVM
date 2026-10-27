@@ -32,14 +32,7 @@ Sets the stereo position that channels of this sound start with. Channels that a
 
 ## Related Commands
 
-* [ChannelPan](ChannelPan)
-* [FreeSound](FreeSound)
-* [Load3DSound](Load3DSound)
-* [LoadSound](LoadSound)
-* [LoopSound](LoopSound)
-* [PlaySound](PlaySound)
-* [SoundPitch](SoundPitch)
-* [SoundVolume](SoundVolume)
+[ChannelPan](ChannelPan), [FreeSound](FreeSound), [Load3DSound](Load3DSound), [LoadSound](LoadSound), [LoopSound](LoopSound), [PlaySound](PlaySound), [SoundPitch](SoundPitch), [SoundVolume](SoundVolume)
 
 <div align="center">
 

@@ -41,9 +41,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [ActiveObjects](ActiveObjects)
-* [Confirm](Confirm)
-* [CreateProcess](CreateProcess)
+[ActiveObjects](ActiveObjects), [Confirm](Confirm), [CreateProcess](CreateProcess)
 
 <div align="center">
 

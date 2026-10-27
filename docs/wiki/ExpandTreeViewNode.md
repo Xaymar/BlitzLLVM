@@ -31,14 +31,7 @@ Opens a node so that its children are seen. See [CollapseTreeViewNode](CollapseT
 
 ## Related Commands
 
-* [AddTreeViewNode](AddTreeViewNode)
-* [CollapseTreeViewNode](CollapseTreeViewNode)
-* [FreeTreeViewNode](FreeTreeViewNode)
-* [InsertTreeViewNode](InsertTreeViewNode)
-* [ModifyTreeViewNode](ModifyTreeViewNode)
-* [SelectedTreeViewNode](SelectedTreeViewNode)
-* [SelectTreeViewNode](SelectTreeViewNode)
-* [TreeViewNodeText](TreeViewNodeText)
+[AddTreeViewNode](AddTreeViewNode), [CollapseTreeViewNode](CollapseTreeViewNode), [FreeTreeViewNode](FreeTreeViewNode), [InsertTreeViewNode](InsertTreeViewNode), [ModifyTreeViewNode](ModifyTreeViewNode), [SelectedTreeViewNode](SelectedTreeViewNode), [SelectTreeViewNode](SelectTreeViewNode), [TreeViewNodeText](TreeViewNodeText)
 
 <div align="center">
 

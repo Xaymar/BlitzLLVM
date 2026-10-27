@@ -46,10 +46,7 @@ hello
 
 ## Related Commands
 
-* [Hex](Hex)
-* [Instr](Instr)
-* [Len](Len)
-* [Lower](Lower)
+[Hex](Hex), [Instr](Instr), [Len](Len), [Lower](Lower)
 
 <div align="center">
 

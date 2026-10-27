@@ -33,14 +33,7 @@ Like [JoyU](JoyU), but as a direction only: -1 when the axis is pushed more than
 
 ## Related Commands
 
-* [JoyDown](JoyDown)
-* [JoyHat](JoyHat)
-* [JoyHit](JoyHit)
-* [JoyU](JoyU)
-* [JoyVDir](JoyVDir)
-* [JoyXDir](JoyXDir)
-* [JoyYDir](JoyYDir)
-* [JoyZDir](JoyZDir)
+[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyU](JoyU), [JoyVDir](JoyVDir), [JoyXDir](JoyXDir), [JoyYDir](JoyYDir), [JoyZDir](JoyZDir)
 
 <div align="center">
 

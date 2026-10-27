@@ -31,14 +31,7 @@ Selects a node, as if the user clicked it. There is no way to remove the selecti
 
 ## Related Commands
 
-* [AddTreeViewNode](AddTreeViewNode)
-* [CollapseTreeViewNode](CollapseTreeViewNode)
-* [ExpandTreeViewNode](ExpandTreeViewNode)
-* [FreeTreeViewNode](FreeTreeViewNode)
-* [InsertTreeViewNode](InsertTreeViewNode)
-* [ModifyTreeViewNode](ModifyTreeViewNode)
-* [SelectedTreeViewNode](SelectedTreeViewNode)
-* [TreeViewNodeText](TreeViewNodeText)
+[AddTreeViewNode](AddTreeViewNode), [CollapseTreeViewNode](CollapseTreeViewNode), [ExpandTreeViewNode](ExpandTreeViewNode), [FreeTreeViewNode](FreeTreeViewNode), [InsertTreeViewNode](InsertTreeViewNode), [ModifyTreeViewNode](ModifyTreeViewNode), [SelectedTreeViewNode](SelectedTreeViewNode), [TreeViewNodeText](TreeViewNodeText)
 
 <div align="center">
 

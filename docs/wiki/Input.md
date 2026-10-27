@@ -37,10 +37,7 @@ Reads a line of text that the user types, ended with Enter, and returns it witho
 
 ## Related Commands
 
-* [FontWidth](FontWidth)
-* [FreeFont](FreeFont)
-* [LoadFont](LoadFont)
-* [Locate](Locate)
+[FontWidth](FontWidth), [FreeFont](FreeFont), [LoadFont](LoadFont), [Locate](Locate)
 
 <div align="center">
 

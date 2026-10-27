@@ -29,14 +29,7 @@ How far the pointer moved up or down since the last call. See [MouseXSpeed](Mous
 
 ## Related Commands
 
-* [MouseDown](MouseDown)
-* [MouseHit](MouseHit)
-* [MouseWait](MouseWait)
-* [MouseX](MouseX)
-* [MouseXSpeed](MouseXSpeed)
-* [MouseY](MouseY)
-* [MouseZ](MouseZ)
-* [MouseZSpeed](MouseZSpeed)
+[MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseZ](MouseZ), [MouseZSpeed](MouseZSpeed)
 
 <div align="center">
 

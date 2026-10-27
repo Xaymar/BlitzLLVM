@@ -42,10 +42,7 @@ One of the refresh rates a display supports at a size, counted from the lowest. 
 
 ## Related Commands
 
-* [CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕
-* [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕
-* [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕
-* [HidePointer](HidePointer)
+[CountRefreshRates](CountRefreshRates) 〔BlitzLLVM〕, [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕, [DisplayRefreshRate](DisplayRefreshRate) 〔BlitzLLVM〕, [HidePointer](HidePointer)
 
 <div align="center">
 

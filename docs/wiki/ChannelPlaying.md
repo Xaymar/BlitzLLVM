@@ -56,12 +56,7 @@ Delay 500
 
 ## Related Commands
 
-* [ChannelPan](ChannelPan)
-* [ChannelPitch](ChannelPitch)
-* [ChannelVolume](ChannelVolume)
-* [PauseChannel](PauseChannel)
-* [ResumeChannel](ResumeChannel)
-* [StopChannel](StopChannel)
+[ChannelPan](ChannelPan), [ChannelPitch](ChannelPitch), [ChannelVolume](ChannelVolume), [PauseChannel](PauseChannel), [ResumeChannel](ResumeChannel), [StopChannel](StopChannel)
 
 <div align="center">
 

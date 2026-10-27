@@ -35,14 +35,7 @@ The height in pixels of a mode from the list of 3D modes. This is a BlitzLLVM ex
 
 ## Related Commands
 
-* [CountGfxModes3D](CountGfxModes3D)
-* [GfxDriver3D](GfxDriver3D)
-* [GfxDriverCaps3D](GfxDriverCaps3D)
-* [GfxMode3D](GfxMode3D)
-* [GfxMode3DExists](GfxMode3DExists)
-* [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕
-* [Graphics3D](Graphics3D)
-* [Windowed3D](Windowed3D)
+[CountGfxModes3D](CountGfxModes3D), [GfxDriver3D](GfxDriver3D), [GfxDriverCaps3D](GfxDriverCaps3D), [GfxMode3D](GfxMode3D), [GfxMode3DExists](GfxMode3DExists), [GfxMode3DWidth](GfxMode3DWidth) 〔BlitzLLVM〕, [Graphics3D](Graphics3D), [Windowed3D](Windowed3D)
 
 <div align="center">
 

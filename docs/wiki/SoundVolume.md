@@ -32,14 +32,7 @@ Sets the volume that channels of this sound start with. Channels that are alread
 
 ## Related Commands
 
-* [ChannelVolume](ChannelVolume)
-* [FreeSound](FreeSound)
-* [Load3DSound](Load3DSound)
-* [LoadSound](LoadSound)
-* [LoopSound](LoopSound)
-* [PlaySound](PlaySound)
-* [SoundPan](SoundPan)
-* [SoundPitch](SoundPitch)
+[ChannelVolume](ChannelVolume), [FreeSound](FreeSound), [Load3DSound](Load3DSound), [LoadSound](LoadSound), [LoopSound](LoopSound), [PlaySound](PlaySound), [SoundPan](SoundPan), [SoundPitch](SoundPitch)
 
 <div align="center">
 

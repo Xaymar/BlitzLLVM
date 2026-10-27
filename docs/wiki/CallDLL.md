@@ -43,9 +43,7 @@ Print CallDLL("kernel32", "GetCurrentProcessId")
 
 ## Related Commands
 
-* [BankSize](BankSize)
-* [CopyBank](CopyBank)
-* [CreateBank](CreateBank)
+[BankSize](BankSize), [CopyBank](CopyBank), [CreateBank](CreateBank)
 
 <div align="center">
 

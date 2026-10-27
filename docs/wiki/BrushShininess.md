@@ -32,14 +32,7 @@ Sets the strength of the specular highlight on painted surfaces. 0 gives matt su
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [BrushFX](BrushFX)
-* [BrushTexture](BrushTexture)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetBrushTexture](GetBrushTexture)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushColor](BrushColor), [BrushFX](BrushFX), [BrushTexture](BrushTexture), [CreateBrush](CreateBrush), [FreeBrush](FreeBrush), [GetBrushTexture](GetBrushTexture)
 
 <div align="center">
 

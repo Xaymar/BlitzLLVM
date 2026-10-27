@@ -37,14 +37,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CloseUDPStream](CloseUDPStream)
-* [DottedIP](DottedIP)
-* [HostIP](HostIP)
-* [TCPStreamIP](TCPStreamIP)
-* [UDPMsgIP](UDPMsgIP)
-* [UDPMsgPort](UDPMsgPort)
-* [UDPStreamPort](UDPStreamPort)
-* [UDPTimeouts](UDPTimeouts)
+[CloseUDPStream](CloseUDPStream), [DottedIP](DottedIP), [HostIP](HostIP), [TCPStreamIP](TCPStreamIP), [UDPMsgIP](UDPMsgIP), [UDPMsgPort](UDPMsgPort), [UDPStreamPort](UDPStreamPort), [UDPTimeouts](UDPTimeouts)
 
 <div align="center">
 

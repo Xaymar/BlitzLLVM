@@ -49,10 +49,7 @@ Print Instr("hello", "z")
 
 ## Related Commands
 
-* [CurrentTime](CurrentTime)
-* [Hex](Hex)
-* [Left](Left)
-* [Len](Len)
+[CurrentTime](CurrentTime), [Hex](Hex), [Left](Left), [Len](Len)
 
 <div align="center">
 

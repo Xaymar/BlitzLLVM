@@ -36,14 +36,7 @@ Turns shading of the terrain on or off. Shaded terrains cost a little more speed
 
 ## Related Commands
 
-* [CreateTerrain](CreateTerrain)
-* [LoadTerrain](LoadTerrain)
-* [TerrainDetail](TerrainDetail)
-* [TerrainHeight](TerrainHeight)
-* [TerrainSize](TerrainSize)
-* [TerrainX](TerrainX)
-* [TerrainY](TerrainY)
-* [TerrainZ](TerrainZ)
+[CreateTerrain](CreateTerrain), [LoadTerrain](LoadTerrain), [TerrainDetail](TerrainDetail), [TerrainHeight](TerrainHeight), [TerrainSize](TerrainSize), [TerrainX](TerrainX), [TerrainY](TerrainY), [TerrainZ](TerrainZ)
 
 <div align="center">
 

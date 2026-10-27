@@ -35,14 +35,7 @@ Returns the filter mode for a texture drawn smaller than it is that the sampler 
 
 ## Related Commands
 
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕
-* [GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕
-* [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
-* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
+[GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕, [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕, [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕, [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕, [GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕, [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕, [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 
 <div align="center">
 

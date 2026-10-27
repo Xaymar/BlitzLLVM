@@ -32,14 +32,7 @@ Switches extra effects on or off with a sum of flags: 1 full-bright (no lighting
 
 ## Related Commands
 
-* [BrushAlpha](BrushAlpha)
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [BrushShininess](BrushShininess)
-* [BrushTexture](BrushTexture)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetBrushTexture](GetBrushTexture)
+[BrushAlpha](BrushAlpha), [BrushBlend](BrushBlend), [BrushColor](BrushColor), [BrushShininess](BrushShininess), [BrushTexture](BrushTexture), [CreateBrush](CreateBrush), [FreeBrush](FreeBrush), [GetBrushTexture](GetBrushTexture)
 
 <div align="center">
 

@@ -33,8 +33,7 @@ Copies everything that is left in one stream into another, in pieces of `buffer_
 
 ## Related Commands
 
-* [Eof](Eof)
-* [ReadAvail](ReadAvail)
+[Eof](Eof), [ReadAvail](ReadAvail)
 
 <div align="center">
 

@@ -68,13 +68,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [CreateButton](CreateButton)
-* [CreateComboBox](CreateComboBox)
-* [CreateListBox](CreateListBox)
-* [CreatePanel](CreatePanel)
-* [CreateProgBar](CreateProgBar)
-* [CreateSlider](CreateSlider)
-* [CreateTabber](CreateTabber)
+[CreateButton](CreateButton), [CreateComboBox](CreateComboBox), [CreateListBox](CreateListBox), [CreatePanel](CreatePanel), [CreateProgBar](CreateProgBar), [CreateSlider](CreateSlider), [CreateTabber](CreateTabber)
 
 <div align="center">
 

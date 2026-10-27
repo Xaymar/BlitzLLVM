@@ -31,14 +31,7 @@ Sets how long [RecvUDPMsg](RecvUDPMsg) waits for a message. The default is 0, wh
 
 ## Related Commands
 
-* [CloseUDPStream](CloseUDPStream)
-* [CreateUDPStream](CreateUDPStream)
-* [RecvUDPMsg](RecvUDPMsg)
-* [TCPTimeouts](TCPTimeouts)
-* [UDPMsgIP](UDPMsgIP)
-* [UDPMsgPort](UDPMsgPort)
-* [UDPStreamIP](UDPStreamIP)
-* [UDPStreamPort](UDPStreamPort)
+[CloseUDPStream](CloseUDPStream), [CreateUDPStream](CreateUDPStream), [RecvUDPMsg](RecvUDPMsg), [TCPTimeouts](TCPTimeouts), [UDPMsgIP](UDPMsgIP), [UDPMsgPort](UDPMsgPort), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort)
 
 <div align="center">
 

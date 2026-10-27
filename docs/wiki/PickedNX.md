@@ -29,14 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [PickedEntity](PickedEntity)
-* [PickedNY](PickedNY)
-* [PickedNZ](PickedNZ)
-* [PickedSurface](PickedSurface)
-* [PickedTime](PickedTime)
-* [PickedTriangle](PickedTriangle)
-* [PickedX](PickedX)
-* [PickedY](PickedY)
+[PickedEntity](PickedEntity), [PickedNY](PickedNY), [PickedNZ](PickedNZ), [PickedSurface](PickedSurface), [PickedTime](PickedTime), [PickedTriangle](PickedTriangle), [PickedX](PickedX), [PickedY](PickedY)
 
 <div align="center">
 

@@ -40,14 +40,7 @@ How many times per second a display shows a new picture right now, in Hz. A rate
 
 ## Related Commands
 
-* [DisplayDepth](DisplayDepth) 〔BlitzLLVM〕
-* [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕
-* [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕
-* [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕
-* [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕
-* [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕
-* [DisplayName](DisplayName) 〔BlitzLLVM〕
-* [DisplayScale](DisplayScale) 〔BlitzLLVM〕
+[DisplayDepth](DisplayDepth) 〔BlitzLLVM〕, [DisplayHeight](DisplayHeight) 〔BlitzLLVM〕, [DisplayModeDepth](DisplayModeDepth) 〔BlitzLLVM〕, [DisplayModeHeight](DisplayModeHeight) 〔BlitzLLVM〕, [DisplayModeRefreshRate](DisplayModeRefreshRate) 〔BlitzLLVM〕, [DisplayModeWidth](DisplayModeWidth) 〔BlitzLLVM〕, [DisplayName](DisplayName) 〔BlitzLLVM〕, [DisplayScale](DisplayScale) 〔BlitzLLVM〕
 
 <div align="center">
 

@@ -51,10 +51,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [DesktopBuffer](DesktopBuffer)
-* [FlipCanvas](FlipCanvas)
-* [LockedPitch](LockedPitch)
-* [LockedPixels](LockedPixels)
+[DesktopBuffer](DesktopBuffer), [FlipCanvas](FlipCanvas), [LockedPitch](LockedPitch), [LockedPixels](LockedPixels)
 
 <div align="center">
 

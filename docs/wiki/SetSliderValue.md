@@ -32,14 +32,7 @@ Moves the slider to a value from 0 to total minus visible. It does not send an e
 
 ## Related Commands
 
-* [SetButtonState](SetButtonState)
-* [SetGadgetFont](SetGadgetFont)
-* [SetGadgetLayout](SetGadgetLayout)
-* [SetGadgetShape](SetGadgetShape)
-* [SetGadgetText](SetGadgetText)
-* [SetPanelColor](SetPanelColor)
-* [SetSliderRange](SetSliderRange)
-* [SliderValue](SliderValue)
+[SetButtonState](SetButtonState), [SetGadgetFont](SetGadgetFont), [SetGadgetLayout](SetGadgetLayout), [SetGadgetShape](SetGadgetShape), [SetGadgetText](SetGadgetText), [SetPanelColor](SetPanelColor), [SetSliderRange](SetSliderRange), [SliderValue](SliderValue)
 
 <div align="center">
 

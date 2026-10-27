@@ -32,14 +32,7 @@ Applies everything in a brush to an entity at once: color, shininess, alpha, ble
 
 ## Related Commands
 
-* [CopyEntity](CopyEntity)
-* [FreeEntity](FreeEntity)
-* [HideEntity](HideEntity)
-* [MoveEntity](MoveEntity)
-* [NameEntity](NameEntity)
-* [PointEntity](PointEntity)
-* [PositionEntity](PositionEntity)
-* [RotateEntity](RotateEntity)
+[CopyEntity](CopyEntity), [FreeEntity](FreeEntity), [HideEntity](HideEntity), [MoveEntity](MoveEntity), [NameEntity](NameEntity), [PointEntity](PointEntity), [PositionEntity](PositionEntity), [RotateEntity](RotateEntity)
 
 <div align="center">
 

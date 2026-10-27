@@ -68,11 +68,7 @@ Next
 
 ## Related Commands
 
-* [AnimateMD2](AnimateMD2)
-* [LoadAnimSeq](LoadAnimSeq)
-* [MD2Animating](MD2Animating)
-* [MD2AnimLength](MD2AnimLength)
-* [MD2AnimTime](MD2AnimTime)
+[AnimateMD2](AnimateMD2), [LoadAnimSeq](LoadAnimSeq), [MD2Animating](MD2Animating), [MD2AnimLength](MD2AnimLength), [MD2AnimTime](MD2AnimTime)
 
 <div align="center">
 

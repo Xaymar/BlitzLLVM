@@ -35,9 +35,7 @@ Print "Started with: " + CommandLine$()
 
 ## Related Commands
 
-* [AppTitle](AppTitle)
-* [CreateTimer](CreateTimer)
-* [DebugLog](DebugLog)
+[AppTitle](AppTitle), [CreateTimer](CreateTimer), [DebugLog](DebugLog)
 
 <div align="center">
 

@@ -65,14 +65,7 @@ WaitKey
 
 ## Related Commands
 
-* [CopyImage](CopyImage)
-* [CreateImage](CreateImage)
-* [DrawImage](DrawImage)
-* [FreeImage](FreeImage)
-* [GrabImage](GrabImage)
-* [HandleImage](HandleImage)
-* [LoadAnimImage](LoadAnimImage)
-* [TFormFilter](TFormFilter)
+[CopyImage](CopyImage), [CreateImage](CreateImage), [DrawImage](DrawImage), [FreeImage](FreeImage), [GrabImage](GrabImage), [HandleImage](HandleImage), [LoadAnimImage](LoadAnimImage), [TFormFilter](TFormFilter)
 
 <div align="center">
 

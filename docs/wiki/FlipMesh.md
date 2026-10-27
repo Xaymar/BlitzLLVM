@@ -55,14 +55,7 @@ WaitKey
 
 ## Related Commands
 
-* [AddMesh](AddMesh)
-* [CopyMesh](CopyMesh)
-* [CreateMesh](CreateMesh)
-* [FitMesh](FitMesh)
-* [LoadAnimMesh](LoadAnimMesh)
-* [LoadMesh](LoadMesh)
-* [PaintMesh](PaintMesh)
-* [PositionMesh](PositionMesh)
+[AddMesh](AddMesh), [CopyMesh](CopyMesh), [CreateMesh](CreateMesh), [FitMesh](FitMesh), [LoadAnimMesh](LoadAnimMesh), [LoadMesh](LoadMesh), [PaintMesh](PaintMesh), [PositionMesh](PositionMesh)
 
 <div align="center">
 

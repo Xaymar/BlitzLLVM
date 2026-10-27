@@ -33,12 +33,7 @@ Sets the color that [Cls](Cls) clears with. It does not change the drawing color
 
 ## Related Commands
 
-* [Cls](Cls)
-* [Color](Color)
-* [ColorBlue](ColorBlue)
-* [ColorGreen](ColorGreen)
-* [ColorRed](ColorRed)
-* [GetColor](GetColor)
+[Cls](Cls), [Color](Color), [ColorBlue](ColorBlue), [ColorGreen](ColorGreen), [ColorRed](ColorRed), [GetColor](GetColor)
 
 <div align="center">
 

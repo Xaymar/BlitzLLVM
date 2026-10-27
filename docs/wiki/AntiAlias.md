@@ -35,10 +35,7 @@ Switches full-screen anti-aliasing, which smooths the jagged edges of triangles,
 
 ## Related Commands
 
-* [ActiveTextures](ActiveTextures)
-* [AmbientLight](AmbientLight)
-* [CaptureWorld](CaptureWorld)
-* [ClearWorld](ClearWorld)
+[ActiveTextures](ActiveTextures), [AmbientLight](AmbientLight), [CaptureWorld](CaptureWorld), [ClearWorld](ClearWorld)
 
 <div align="center">
 

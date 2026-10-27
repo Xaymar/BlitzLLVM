@@ -41,14 +41,7 @@ Sets the color that is read where an address mode is border (3), see [SetSampler
 
 ## Related Commands
 
-* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
-* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
-* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
-* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
-* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
-* [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
-* [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
+[SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕, [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕, [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕, [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕, [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕, [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕, [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕, [SetSamplerLodBias](SetSamplerLodBias) 〔BlitzLLVM〕
 
 <div align="center">
 

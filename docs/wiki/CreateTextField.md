@@ -57,14 +57,7 @@ Until e = $803
 
 ## Related Commands
 
-* [AddTextAreaText](AddTextAreaText)
-* [CreateTextArea](CreateTextArea)
-* [FormatTextAreaText](FormatTextAreaText)
-* [LockTextArea](LockTextArea)
-* [SetTextAreaColor](SetTextAreaColor)
-* [SetTextAreaFont](SetTextAreaFont)
-* [SetTextAreaTabs](SetTextAreaTabs)
-* [TextFieldText](TextFieldText)
+[AddTextAreaText](AddTextAreaText), [CreateTextArea](CreateTextArea), [FormatTextAreaText](FormatTextAreaText), [LockTextArea](LockTextArea), [SetTextAreaColor](SetTextAreaColor), [SetTextAreaFont](SetTextAreaFont), [SetTextAreaTabs](SetTextAreaTabs), [TextFieldText](TextFieldText)
 
 <div align="center">
 

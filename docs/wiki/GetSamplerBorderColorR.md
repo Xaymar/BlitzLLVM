@@ -35,14 +35,7 @@ Returns the red part of the border color that the sampler has, as it was set wit
 
 ## Related Commands
 
-* [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
-* [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕
-* [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕
-* [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕
-* [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕
-* [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕
+[GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕, [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕, [GetSamplerAddressModeW](GetSamplerAddressModeW) 〔BlitzLLVM〕, [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕, [GetSamplerBorderColorA](GetSamplerBorderColorA) 〔BlitzLLVM〕, [GetSamplerBorderColorB](GetSamplerBorderColorB) 〔BlitzLLVM〕, [GetSamplerBorderColorG](GetSamplerBorderColorG) 〔BlitzLLVM〕, [GetSamplerFilterMag](GetSamplerFilterMag) 〔BlitzLLVM〕
 
 <div align="center">
 

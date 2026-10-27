@@ -54,10 +54,7 @@ Print Short(100000.0)
 
 ## Related Commands
 
-* [SatShort](SatShort) 〔BlitzLLVM〕
-* [SatUShort](SatUShort) 〔BlitzLLVM〕
-* [SeedRnd](SeedRnd)
-* [UShort](UShort) 〔BlitzLLVM〕
+[SatShort](SatShort) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕, [SeedRnd](SeedRnd), [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 

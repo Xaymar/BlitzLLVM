@@ -46,14 +46,7 @@ Until e = $803
 
 ## Related Commands
 
-* [SetButtonState](SetButtonState)
-* [SetGadgetFont](SetGadgetFont)
-* [SetGadgetLayout](SetGadgetLayout)
-* [SetGadgetShape](SetGadgetShape)
-* [SetGadgetText](SetGadgetText)
-* [SetPanelColor](SetPanelColor)
-* [SetPanelImage](SetPanelImage)
-* [SetSliderValue](SetSliderValue)
+[SetButtonState](SetButtonState), [SetGadgetFont](SetGadgetFont), [SetGadgetLayout](SetGadgetLayout), [SetGadgetShape](SetGadgetShape), [SetGadgetText](SetGadgetText), [SetPanelColor](SetPanelColor), [SetPanelImage](SetPanelImage), [SetSliderValue](SetSliderValue)
 
 <div align="center">
 

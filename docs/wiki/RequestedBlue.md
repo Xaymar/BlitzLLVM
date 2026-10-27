@@ -29,10 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [RequestColor](RequestColor)
-* [RequestDir](RequestDir)
-* [RequestedGreen](RequestedGreen)
-* [RequestedRed](RequestedRed)
+[RequestColor](RequestColor), [RequestDir](RequestDir), [RequestedGreen](RequestedGreen), [RequestedRed](RequestedRed)
 
 <div align="center">
 

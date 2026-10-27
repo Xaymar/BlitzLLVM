@@ -37,11 +37,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CountHostIPs](CountHostIPs)
-* [DottedIP](DottedIP)
-* [TCPStreamIP](TCPStreamIP)
-* [UDPMsgIP](UDPMsgIP)
-* [UDPStreamIP](UDPStreamIP)
+[CountHostIPs](CountHostIPs), [DottedIP](DottedIP), [TCPStreamIP](TCPStreamIP), [UDPMsgIP](UDPMsgIP), [UDPStreamIP](UDPStreamIP)
 
 <div align="center">
 

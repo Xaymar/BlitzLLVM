@@ -38,14 +38,7 @@ Sets the most samples that are taken along a slanted surface, such as a floor th
 
 ## Related Commands
 
-* [GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕
-* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
-* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
-* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
-* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
-* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
-* [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
+[GetSamplerAnisotropy](GetSamplerAnisotropy) 〔BlitzLLVM〕, [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕, [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕, [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕, [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕, [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕, [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕, [SetSamplerFilterMip](SetSamplerFilterMip) 〔BlitzLLVM〕
 
 <div align="center">
 

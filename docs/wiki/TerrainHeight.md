@@ -35,14 +35,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [CreateTerrain](CreateTerrain)
-* [LoadTerrain](LoadTerrain)
-* [TerrainDetail](TerrainDetail)
-* [TerrainShading](TerrainShading)
-* [TerrainSize](TerrainSize)
-* [TerrainX](TerrainX)
-* [TerrainY](TerrainY)
-* [TerrainZ](TerrainZ)
+[CreateTerrain](CreateTerrain), [LoadTerrain](LoadTerrain), [TerrainDetail](TerrainDetail), [TerrainShading](TerrainShading), [TerrainSize](TerrainSize), [TerrainX](TerrainX), [TerrainY](TerrainY), [TerrainZ](TerrainZ)
 
 <div align="center">
 

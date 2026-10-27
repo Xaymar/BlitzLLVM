@@ -39,12 +39,7 @@ Without a call to EntityBox the box runs from -1 to 1 on every axis around the e
 
 ## Related Commands
 
-* [CollisionEntity](CollisionEntity)
-* [EntityCollided](EntityCollided)
-* [EntityRadius](EntityRadius)
-* [EntityType](EntityType)
-* [GetEntityType](GetEntityType)
-* [ResetEntity](ResetEntity)
+[CollisionEntity](CollisionEntity), [EntityCollided](EntityCollided), [EntityRadius](EntityRadius), [EntityType](EntityType), [GetEntityType](GetEntityType), [ResetEntity](ResetEntity)
 
 <div align="center">
 

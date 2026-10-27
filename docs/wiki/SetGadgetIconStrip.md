@@ -56,9 +56,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [FreeIconStrip](FreeIconStrip)
-* [LoadIconStrip](LoadIconStrip)
-* [SetToolBarTips](SetToolBarTips)
+[FreeIconStrip](FreeIconStrip), [LoadIconStrip](LoadIconStrip), [SetToolBarTips](SetToolBarTips)
 
 <div align="center">
 

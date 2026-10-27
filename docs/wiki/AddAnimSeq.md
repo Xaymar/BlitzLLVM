@@ -34,14 +34,7 @@ Turns the keys made with [SetAnimKey](SetAnimKey) into a new animation sequence 
 
 ## Related Commands
 
-* [AnimLength](AnimLength)
-* [AnimSeq](AnimSeq)
-* [AnimTime](AnimTime)
-* [ExtractAnimSeq](ExtractAnimSeq)
-* [LoadAnimSeq](LoadAnimSeq)
-* [MD2AnimLength](MD2AnimLength)
-* [MD2AnimTime](MD2AnimTime)
-* [SetAnimKey](SetAnimKey)
+[AnimLength](AnimLength), [AnimSeq](AnimSeq), [AnimTime](AnimTime), [ExtractAnimSeq](ExtractAnimSeq), [LoadAnimSeq](LoadAnimSeq), [MD2AnimLength](MD2AnimLength), [MD2AnimTime](MD2AnimTime), [SetAnimKey](SetAnimKey)
 
 <div align="center">
 

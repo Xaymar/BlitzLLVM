@@ -37,14 +37,7 @@ How the pixels of a display mode are stored, as a number that BlitzPlus uses wit
 
 ## Related Commands
 
-* [CountGfxDrivers](CountGfxDrivers)
-* [GfxDriver](GfxDriver) 〔BlitzLLVM〕
-* [GfxDriverName](GfxDriverName)
-* [GfxModeDepth](GfxModeDepth)
-* [GfxModeExists](GfxModeExists)
-* [GfxModeHeight](GfxModeHeight)
-* [GfxModeWidth](GfxModeWidth)
-* [GraphicsFormat](GraphicsFormat)
+[CountGfxDrivers](CountGfxDrivers), [GfxDriver](GfxDriver) 〔BlitzLLVM〕, [GfxDriverName](GfxDriverName), [GfxModeDepth](GfxModeDepth), [GfxModeExists](GfxModeExists), [GfxModeHeight](GfxModeHeight), [GfxModeWidth](GfxModeWidth), [GraphicsFormat](GraphicsFormat)
 
 <div align="center">
 

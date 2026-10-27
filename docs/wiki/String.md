@@ -44,10 +44,7 @@ ababab
 
 ## Related Commands
 
-* [Right](Right)
-* [RSet](RSet)
-* [Trim](Trim)
-* [Upper](Upper)
+[Right](Right), [RSet](RSet), [Trim](Trim), [Upper](Upper)
 
 <div align="center">
 

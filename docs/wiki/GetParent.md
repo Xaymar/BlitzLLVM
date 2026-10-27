@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [EntityParent](EntityParent)
-* [GetChild](GetChild)
-* [GetMatElement](GetMatElement)
-* [HideEntity](HideEntity)
+[EntityParent](EntityParent), [GetChild](GetChild), [GetMatElement](GetMatElement), [HideEntity](HideEntity)
 
 <div align="center">
 

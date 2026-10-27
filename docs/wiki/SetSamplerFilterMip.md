@@ -42,14 +42,7 @@ Chooses how the mip levels of a texture are read. With 0 the level that is close
 
 ## Related Commands
 
-* [GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕
-* [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕
-* [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕
-* [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕
-* [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕
-* [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕
-* [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕
-* [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
+[GetSamplerFilterMip](GetSamplerFilterMip) 〔BlitzLLVM〕, [SetSamplerAddressModeU](SetSamplerAddressModeU) 〔BlitzLLVM〕, [SetSamplerAddressModeV](SetSamplerAddressModeV) 〔BlitzLLVM〕, [SetSamplerAddressModeW](SetSamplerAddressModeW) 〔BlitzLLVM〕, [SetSamplerAnisotropy](SetSamplerAnisotropy) 〔BlitzLLVM〕, [SetSamplerBorderColor](SetSamplerBorderColor) 〔BlitzLLVM〕, [SetSamplerFilterMag](SetSamplerFilterMag) 〔BlitzLLVM〕, [SetSamplerFilterMin](SetSamplerFilterMin) 〔BlitzLLVM〕
 
 <div align="center">
 

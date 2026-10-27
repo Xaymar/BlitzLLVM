@@ -49,14 +49,7 @@ Wend
 
 ## Related Commands
 
-* [JoyDown](JoyDown)
-* [JoyHit](JoyHit)
-* [JoyPitch](JoyPitch)
-* [JoyRoll](JoyRoll)
-* [JoyType](JoyType)
-* [JoyU](JoyU)
-* [JoyUDir](JoyUDir)
-* [JoyV](JoyV)
+[JoyDown](JoyDown), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [JoyU](JoyU), [JoyUDir](JoyUDir), [JoyV](JoyV)
 
 <div align="center">
 

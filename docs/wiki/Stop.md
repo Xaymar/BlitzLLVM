@@ -29,10 +29,7 @@ In the original this paused the program in the debugger so that you could look a
 
 ## Related Commands
 
-* [RuntimeError](RuntimeError)
-* [SetEnv](SetEnv)
-* [SystemProperty](SystemProperty)
-* [WaitTimer](WaitTimer)
+[RuntimeError](RuntimeError), [SetEnv](SetEnv), [SystemProperty](SystemProperty), [WaitTimer](WaitTimer)
 
 <div align="center">
 

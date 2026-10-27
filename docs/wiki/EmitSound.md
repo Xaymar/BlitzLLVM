@@ -36,7 +36,7 @@ The example is the one under [CreateListener](CreateListener).
 
 ## Related Commands
 
-* [CreateListener](CreateListener)
+[CreateListener](CreateListener)
 
 <div align="center">
 

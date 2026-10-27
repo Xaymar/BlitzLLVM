@@ -47,10 +47,7 @@ Notify n + " entries"
 
 ## Related Commands
 
-* [FileSize](FileSize)
-* [FileType](FileType)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
+[FileSize](FileSize), [FileType](FileType), [NextFile](NextFile), [OpenFile](OpenFile)
 
 <div align="center">
 

@@ -47,9 +47,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [FlipCanvas](FlipCanvas)
-* [LockedFormat](LockedFormat)
-* [LockedPixels](LockedPixels)
+[FlipCanvas](FlipCanvas), [LockedFormat](LockedFormat), [LockedPixels](LockedPixels)
 
 <div align="center">
 

@@ -33,14 +33,7 @@ Reads the size of the mesh along Z, taken from the vertices. Entity scale does n
 
 ## Related Commands
 
-* [AddMesh](AddMesh)
-* [CopyMesh](CopyMesh)
-* [CreateMesh](CreateMesh)
-* [FitMesh](FitMesh)
-* [FlipMesh](FlipMesh)
-* [MeshCullBox](MeshCullBox)
-* [MeshHeight](MeshHeight)
-* [MeshWidth](MeshWidth)
+[AddMesh](AddMesh), [CopyMesh](CopyMesh), [CreateMesh](CreateMesh), [FitMesh](FitMesh), [FlipMesh](FlipMesh), [MeshCullBox](MeshCullBox), [MeshHeight](MeshHeight), [MeshWidth](MeshWidth)
 
 <div align="center">
 

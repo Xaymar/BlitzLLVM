@@ -42,8 +42,7 @@ WaitKey
 
 ## Related Commands
 
-* [ClsColor](ClsColor)
-* [Color](Color)
+[ClsColor](ClsColor), [Color](Color)
 
 <div align="center">
 

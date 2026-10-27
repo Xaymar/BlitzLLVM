@@ -29,10 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [RequestedBlue](RequestedBlue)
-* [RequestedGreen](RequestedGreen)
-* [RequestFile](RequestFile)
-* [RequestFont](RequestFont)
+[RequestedBlue](RequestedBlue), [RequestedGreen](RequestedGreen), [RequestFile](RequestFile), [RequestFont](RequestFont)
 
 <div align="center">
 

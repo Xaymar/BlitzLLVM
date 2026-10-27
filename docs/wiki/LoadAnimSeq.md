@@ -54,14 +54,7 @@ Wend
 
 ## Related Commands
 
-* [AddAnimSeq](AddAnimSeq)
-* [AnimLength](AnimLength)
-* [AnimSeq](AnimSeq)
-* [AnimTime](AnimTime)
-* [ExtractAnimSeq](ExtractAnimSeq)
-* [LoadMD2](LoadMD2)
-* [MD2AnimLength](MD2AnimLength)
-* [MD2AnimTime](MD2AnimTime)
+[AddAnimSeq](AddAnimSeq), [AnimLength](AnimLength), [AnimSeq](AnimSeq), [AnimTime](AnimTime), [ExtractAnimSeq](ExtractAnimSeq), [LoadMD2](LoadMD2), [MD2AnimLength](MD2AnimLength), [MD2AnimTime](MD2AnimTime)
 
 <div align="center">
 

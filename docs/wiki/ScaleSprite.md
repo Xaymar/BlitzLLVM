@@ -33,11 +33,7 @@ Changes the width and height of a sprite. A sprite starts as 2 by 2 units, so a 
 
 ## Related Commands
 
-* [CreateSprite](CreateSprite)
-* [HandleSprite](HandleSprite)
-* [LoadSprite](LoadSprite)
-* [RotateSprite](RotateSprite)
-* [SpriteViewMode](SpriteViewMode)
+[CreateSprite](CreateSprite), [HandleSprite](HandleSprite), [LoadSprite](LoadSprite), [RotateSprite](RotateSprite), [SpriteViewMode](SpriteViewMode)
 
 <div align="center">
 

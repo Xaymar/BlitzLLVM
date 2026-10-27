@@ -62,14 +62,7 @@ WaitKey
 
 ## Related Commands
 
-* [CopyImage](CopyImage)
-* [CreateImage](CreateImage)
-* [DrawImage](DrawImage)
-* [FreeImage](FreeImage)
-* [HandleImage](HandleImage)
-* [LoadAnimImage](LoadAnimImage)
-* [LoadImage](LoadImage)
-* [MaskImage](MaskImage)
+[CopyImage](CopyImage), [CreateImage](CreateImage), [DrawImage](DrawImage), [FreeImage](FreeImage), [HandleImage](HandleImage), [LoadAnimImage](LoadAnimImage), [LoadImage](LoadImage), [MaskImage](MaskImage)
 
 <div align="center">
 

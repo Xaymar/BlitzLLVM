@@ -36,14 +36,7 @@ Puts the pointer at a position of the graphics buffer, in buffer pixels. After t
 
 ## Related Commands
 
-* [FlushMouse](FlushMouse)
-* [GetMouse](GetMouse)
-* [MouseDown](MouseDown)
-* [MouseHit](MouseHit)
-* [MouseWait](MouseWait)
-* [MouseX](MouseX)
-* [MouseXSpeed](MouseXSpeed)
-* [WaitMouse](WaitMouse)
+[FlushMouse](FlushMouse), [GetMouse](GetMouse), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [WaitMouse](WaitMouse)
 
 <div align="center">
 

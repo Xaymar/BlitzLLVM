@@ -46,10 +46,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [PauseTimer](PauseTimer)
-* [Proceed](Proceed)
-* [ResetTimer](ResetTimer)
-* [ResumeTimer](ResumeTimer)
+[PauseTimer](PauseTimer), [Proceed](Proceed), [ResetTimer](ResetTimer), [ResumeTimer](ResumeTimer)
 
 <div align="center">
 

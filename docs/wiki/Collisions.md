@@ -105,10 +105,7 @@ Next
 
 ## Related Commands
 
-* [ClearCollisions](ClearCollisions)
-* [CollisionNY](CollisionNY)
-* [CollisionNZ](CollisionNZ)
-* [CountCollisions](CountCollisions)
+[ClearCollisions](ClearCollisions), [CollisionNY](CollisionNY), [CollisionNZ](CollisionNZ), [CountCollisions](CountCollisions)
 
 <div align="center">
 

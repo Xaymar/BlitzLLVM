@@ -35,10 +35,7 @@ Reads one number from the world transformation of the entity. Row and column cou
 
 ## Related Commands
 
-* [FreeEntity](FreeEntity)
-* [GetChild](GetChild)
-* [GetParent](GetParent)
-* [HideEntity](HideEntity)
+[FreeEntity](FreeEntity), [GetChild](GetChild), [GetParent](GetParent), [HideEntity](HideEntity)
 
 <div align="center">
 

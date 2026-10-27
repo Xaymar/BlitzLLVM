@@ -45,9 +45,7 @@ Until e = $803
 
 ## Related Commands
 
-* [PauseTimer](PauseTimer)
-* [ResetTimer](ResetTimer)
-* [ResumeTimer](ResumeTimer)
+[PauseTimer](PauseTimer), [ResetTimer](ResetTimer), [ResumeTimer](ResumeTimer)
 
 <div align="center">
 

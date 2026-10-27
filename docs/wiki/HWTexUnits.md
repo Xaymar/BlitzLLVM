@@ -29,10 +29,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [Dither](Dither)
-* [HWMultiTex](HWMultiTex)
-* [RenderWorld](RenderWorld)
-* [Stats3D](Stats3D)
+[Dither](Dither), [HWMultiTex](HWMultiTex), [RenderWorld](RenderWorld), [Stats3D](Stats3D)
 
 <div align="center">
 

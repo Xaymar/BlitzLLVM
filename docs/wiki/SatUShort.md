@@ -54,14 +54,7 @@ Print SatUShort(5)
 
 ## Related Commands
 
-* [SatByte](SatByte) 〔BlitzLLVM〕
-* [SatInt](SatInt) 〔BlitzLLVM〕
-* [SatLong](SatLong) 〔BlitzLLVM〕
-* [SatShort](SatShort) 〔BlitzLLVM〕
-* [SatUByte](SatUByte) 〔BlitzLLVM〕
-* [SatUInt](SatUInt) 〔BlitzLLVM〕
-* [SatULong](SatULong) 〔BlitzLLVM〕
-* [UShort](UShort) 〔BlitzLLVM〕
+[SatByte](SatByte) 〔BlitzLLVM〕, [SatInt](SatInt) 〔BlitzLLVM〕, [SatLong](SatLong) 〔BlitzLLVM〕, [SatShort](SatShort) 〔BlitzLLVM〕, [SatUByte](SatUByte) 〔BlitzLLVM〕, [SatUInt](SatUInt) 〔BlitzLLVM〕, [SatULong](SatULong) 〔BlitzLLVM〕, [UShort](UShort) 〔BlitzLLVM〕
 
 <div align="center">
 

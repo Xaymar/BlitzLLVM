@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [AddTextAreaText](AddTextAreaText)
-* [FormatTextAreaText](FormatTextAreaText)
-* [SetTextAreaText](SetTextAreaText)
-* [TextAreaChar](TextAreaChar)
-* [TextAreaCursor](TextAreaCursor)
-* [TextAreaLen](TextAreaLen)
-* [TextAreaLine](TextAreaLine)
-* [TextAreaText](TextAreaText)
+[AddTextAreaText](AddTextAreaText), [FormatTextAreaText](FormatTextAreaText), [SetTextAreaText](SetTextAreaText), [TextAreaChar](TextAreaChar), [TextAreaCursor](TextAreaCursor), [TextAreaLen](TextAreaLen), [TextAreaLine](TextAreaLine), [TextAreaText](TextAreaText)
 
 <div align="center">
 

@@ -32,10 +32,7 @@ Applies a brush to one surface: its color, texture, alpha, shininess, blend mode
 
 ## Related Commands
 
-* [ClearSurface](ClearSurface)
-* [CreateSurface](CreateSurface)
-* [FindSurface](FindSurface)
-* [GetSurface](GetSurface)
+[ClearSurface](ClearSurface), [CreateSurface](CreateSurface), [FindSurface](FindSurface), [GetSurface](GetSurface)
 
 <div align="center">
 

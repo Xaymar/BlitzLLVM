@@ -45,10 +45,7 @@ Print a = b
 
 ## Related Commands
 
-* [Rnd](Rnd)
-* [RndSeed](RndSeed)
-* [SatULong](SatULong) 〔BlitzLLVM〕
-* [SatUShort](SatUShort) 〔BlitzLLVM〕
+[Rnd](Rnd), [RndSeed](RndSeed), [SatULong](SatULong) 〔BlitzLLVM〕, [SatUShort](SatUShort) 〔BlitzLLVM〕
 
 <div align="center">
 

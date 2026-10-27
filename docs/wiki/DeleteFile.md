@@ -44,14 +44,7 @@ Print FileType("files_delete_example.tmp")
 
 ## Related Commands
 
-* [CloseFile](CloseFile)
-* [CopyFile](CopyFile)
-* [DeleteDir](DeleteDir)
-* [NextFile](NextFile)
-* [OpenFile](OpenFile)
-* [ReadFile](ReadFile)
-* [SeekFile](SeekFile)
-* [WriteFile](WriteFile)
+[CloseFile](CloseFile), [CopyFile](CopyFile), [DeleteDir](DeleteDir), [NextFile](NextFile), [OpenFile](OpenFile), [ReadFile](ReadFile), [SeekFile](SeekFile), [WriteFile](WriteFile)
 
 <div align="center">
 

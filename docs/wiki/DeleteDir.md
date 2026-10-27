@@ -31,12 +31,7 @@ Deletes a folder. The folder has to be empty.
 
 ## Related Commands
 
-* [ChangeDir](ChangeDir)
-* [CloseDir](CloseDir)
-* [CreateDir](CreateDir)
-* [CurrentDir](CurrentDir)
-* [DeleteFile](DeleteFile)
-* [ReadDir](ReadDir)
+[ChangeDir](ChangeDir), [CloseDir](CloseDir), [CreateDir](CreateDir), [CurrentDir](CurrentDir), [DeleteFile](DeleteFile), [ReadDir](ReadDir)
 
 <div align="center">
 

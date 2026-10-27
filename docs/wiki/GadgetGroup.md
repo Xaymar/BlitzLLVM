@@ -33,14 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [ActivateGadget](ActivateGadget)
-* [GadgetFont](GadgetFont)
-* [GadgetHeight](GadgetHeight)
-* [GadgetItemText](GadgetItemText)
-* [GadgetText](GadgetText)
-* [GadgetWidth](GadgetWidth)
-* [GadgetX](GadgetX)
-* [GadgetY](GadgetY)
+[ActivateGadget](ActivateGadget), [GadgetFont](GadgetFont), [GadgetHeight](GadgetHeight), [GadgetItemText](GadgetItemText), [GadgetText](GadgetText), [GadgetWidth](GadgetWidth), [GadgetX](GadgetX), [GadgetY](GadgetY)
 
 <div align="center">
 

@@ -76,14 +76,7 @@ WaitKey
 
 ## Related Commands
 
-* [CreateTerrain](CreateTerrain)
-* [ModifyTerrain](ModifyTerrain)
-* [TerrainDetail](TerrainDetail)
-* [TerrainHeight](TerrainHeight)
-* [TerrainShading](TerrainShading)
-* [TerrainSize](TerrainSize)
-* [TerrainX](TerrainX)
-* [TerrainY](TerrainY)
+[CreateTerrain](CreateTerrain), [ModifyTerrain](ModifyTerrain), [TerrainDetail](TerrainDetail), [TerrainHeight](TerrainHeight), [TerrainShading](TerrainShading), [TerrainSize](TerrainSize), [TerrainX](TerrainX), [TerrainY](TerrainY)
 
 <div align="center">
 

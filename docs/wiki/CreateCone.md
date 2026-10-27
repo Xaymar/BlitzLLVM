@@ -62,12 +62,7 @@ WaitKey
 
 ## Related Commands
 
-* [CreateCube](CreateCube)
-* [CreateCylinder](CreateCylinder)
-* [CreateMesh](CreateMesh)
-* [CreateMirror](CreateMirror)
-* [CreatePlane](CreatePlane)
-* [CreateSphere](CreateSphere)
+[CreateCube](CreateCube), [CreateCylinder](CreateCylinder), [CreateMesh](CreateMesh), [CreateMirror](CreateMirror), [CreatePlane](CreatePlane), [CreateSphere](CreateSphere)
 
 <div align="center">
 

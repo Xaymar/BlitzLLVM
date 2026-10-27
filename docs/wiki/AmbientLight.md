@@ -63,9 +63,7 @@ Next
 
 ## Related Commands
 
-* [ActiveTextures](ActiveTextures)
-* [AntiAlias](AntiAlias)
-* [CaptureWorld](CaptureWorld)
+[ActiveTextures](ActiveTextures), [AntiAlias](AntiAlias), [CaptureWorld](CaptureWorld)
 
 <div align="center">
 

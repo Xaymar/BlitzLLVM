@@ -33,10 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [Animate](Animate)
-* [AnimateMD2](AnimateMD2)
-* [AnimLength](AnimLength)
-* [MD2Animating](MD2Animating)
+[Animate](Animate), [AnimateMD2](AnimateMD2), [AnimLength](AnimLength), [MD2Animating](MD2Animating)
 
 <div align="center">
 

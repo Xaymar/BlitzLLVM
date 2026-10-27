@@ -33,14 +33,7 @@ Receives the next UDP message, if one has arrived, and makes it readable from th
 
 ## Related Commands
 
-* [CloseUDPStream](CloseUDPStream)
-* [CreateUDPStream](CreateUDPStream)
-* [SendUDPMsg](SendUDPMsg)
-* [UDPMsgIP](UDPMsgIP)
-* [UDPMsgPort](UDPMsgPort)
-* [UDPStreamIP](UDPStreamIP)
-* [UDPStreamPort](UDPStreamPort)
-* [UDPTimeouts](UDPTimeouts)
+[CloseUDPStream](CloseUDPStream), [CreateUDPStream](CreateUDPStream), [SendUDPMsg](SendUDPMsg), [UDPMsgIP](UDPMsgIP), [UDPMsgPort](UDPMsgPort), [UDPStreamIP](UDPStreamIP), [UDPStreamPort](UDPStreamPort), [UDPTimeouts](UDPTimeouts)
 
 <div align="center">
 

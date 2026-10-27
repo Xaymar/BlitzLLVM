@@ -37,10 +37,7 @@ The output value of the blue gamma table for an input value, as set by [SetGamma
 
 ## Related Commands
 
-* [GammaGreen](GammaGreen)
-* [GammaRed](GammaRed)
-* [SetGamma](SetGamma)
-* [UpdateGamma](UpdateGamma)
+[GammaGreen](GammaGreen), [GammaRed](GammaRed), [SetGamma](SetGamma), [UpdateGamma](UpdateGamma)
 
 <div align="center">
 

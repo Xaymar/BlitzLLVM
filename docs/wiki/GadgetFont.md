@@ -33,14 +33,7 @@ Gives the font a gadget is drawn with. The official help lists the command as un
 
 ## Related Commands
 
-* [GadgetGroup](GadgetGroup)
-* [GadgetHeight](GadgetHeight)
-* [GadgetItemText](GadgetItemText)
-* [GadgetText](GadgetText)
-* [GadgetWidth](GadgetWidth)
-* [GadgetX](GadgetX)
-* [GadgetY](GadgetY)
-* [SetGadgetFont](SetGadgetFont)
+[GadgetGroup](GadgetGroup), [GadgetHeight](GadgetHeight), [GadgetItemText](GadgetItemText), [GadgetText](GadgetText), [GadgetWidth](GadgetWidth), [GadgetX](GadgetX), [GadgetY](GadgetY), [SetGadgetFont](SetGadgetFont)
 
 <div align="center">
 

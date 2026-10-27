@@ -35,14 +35,7 @@ Releases an image and its video memory. The handle must not be used afterwards.
 
 ## Related Commands
 
-* [CopyImage](CopyImage)
-* [CreateImage](CreateImage)
-* [DrawImage](DrawImage)
-* [GrabImage](GrabImage)
-* [HandleImage](HandleImage)
-* [LoadAnimImage](LoadAnimImage)
-* [LoadImage](LoadImage)
-* [MaskImage](MaskImage)
+[CopyImage](CopyImage), [CreateImage](CreateImage), [DrawImage](DrawImage), [GrabImage](GrabImage), [HandleImage](HandleImage), [LoadAnimImage](LoadAnimImage), [LoadImage](LoadImage), [MaskImage](MaskImage)
 
 <div align="center">
 

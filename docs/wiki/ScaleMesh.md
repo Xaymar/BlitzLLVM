@@ -34,14 +34,7 @@ Multiplies the coordinates of every vertex by a factor per axis, permanently, ar
 
 ## Related Commands
 
-* [AddMesh](AddMesh)
-* [CopyMesh](CopyMesh)
-* [CreateMesh](CreateMesh)
-* [FitMesh](FitMesh)
-* [FlipMesh](FlipMesh)
-* [LoadAnimMesh](LoadAnimMesh)
-* [LoadMesh](LoadMesh)
-* [PaintMesh](PaintMesh)
+[AddMesh](AddMesh), [CopyMesh](CopyMesh), [CreateMesh](CreateMesh), [FitMesh](FitMesh), [FlipMesh](FlipMesh), [LoadAnimMesh](LoadAnimMesh), [LoadMesh](LoadMesh), [PaintMesh](PaintMesh)
 
 <div align="center">
 

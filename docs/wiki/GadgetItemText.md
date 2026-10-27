@@ -34,14 +34,7 @@ _Not documented yet._
 
 ## Related Commands
 
-* [GadgetFont](GadgetFont)
-* [GadgetGroup](GadgetGroup)
-* [GadgetHeight](GadgetHeight)
-* [GadgetText](GadgetText)
-* [GadgetWidth](GadgetWidth)
-* [GadgetX](GadgetX)
-* [GadgetY](GadgetY)
-* [SetGadgetText](SetGadgetText)
+[GadgetFont](GadgetFont), [GadgetGroup](GadgetGroup), [GadgetHeight](GadgetHeight), [GadgetText](GadgetText), [GadgetWidth](GadgetWidth), [GadgetX](GadgetX), [GadgetY](GadgetY), [SetGadgetText](SetGadgetText)
 
 <div align="center">
 

@@ -34,14 +34,7 @@ A surface with alpha 0 is not drawn but still takes part in collisions, which is
 
 ## Related Commands
 
-* [BrushBlend](BrushBlend)
-* [BrushColor](BrushColor)
-* [BrushFX](BrushFX)
-* [BrushShininess](BrushShininess)
-* [BrushTexture](BrushTexture)
-* [CreateBrush](CreateBrush)
-* [FreeBrush](FreeBrush)
-* [GetBrushTexture](GetBrushTexture)
+[BrushBlend](BrushBlend), [BrushColor](BrushColor), [BrushFX](BrushFX), [BrushShininess](BrushShininess), [BrushTexture](BrushTexture), [CreateBrush](CreateBrush), [FreeBrush](FreeBrush), [GetBrushTexture](GetBrushTexture)
 
 <div align="center">
 

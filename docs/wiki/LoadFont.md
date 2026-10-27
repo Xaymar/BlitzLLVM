@@ -69,10 +69,7 @@ WaitKey
 
 ## Related Commands
 
-* [FontHeight](FontHeight)
-* [FontWidth](FontWidth)
-* [FreeFont](FreeFont)
-* [SetFont](SetFont)
+[FontHeight](FontHeight), [FontWidth](FontWidth), [FreeFont](FreeFont), [SetFont](SetFont)
 
 <div align="center">
 

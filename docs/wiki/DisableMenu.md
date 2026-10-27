@@ -49,14 +49,7 @@ Until WaitEvent() = $803
 
 ## Related Commands
 
-* [CheckMenu](CheckMenu)
-* [CreateMenu](CreateMenu)
-* [EnableMenu](EnableMenu)
-* [MenuChecked](MenuChecked)
-* [MenuEnabled](MenuEnabled)
-* [MenuText](MenuText)
-* [SetMenuText](SetMenuText)
-* [UncheckMenu](UncheckMenu)
+[CheckMenu](CheckMenu), [CreateMenu](CreateMenu), [EnableMenu](EnableMenu), [MenuChecked](MenuChecked), [MenuEnabled](MenuEnabled), [MenuText](MenuText), [SetMenuText](SetMenuText), [UncheckMenu](UncheckMenu)
 
 <div align="center">
 

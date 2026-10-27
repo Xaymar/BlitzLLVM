@@ -44,10 +44,7 @@ Until e = $803
 
 ## Related Commands
 
-* [HotKeyEvent](HotKeyEvent)
-* [ResetTimer](ResetTimer)
-* [ResumeTimer](ResumeTimer)
-* [TimerTicks](TimerTicks)
+[HotKeyEvent](HotKeyEvent), [ResetTimer](ResetTimer), [ResumeTimer](ResumeTimer), [TimerTicks](TimerTicks)
 
 <div align="center">
 

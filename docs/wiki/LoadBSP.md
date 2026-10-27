@@ -127,8 +127,7 @@ WaitKey
 
 ## Related Commands
 
-* [BSPAmbientLight](BSPAmbientLight)
-* [BSPLighting](BSPLighting)
+[BSPAmbientLight](BSPAmbientLight), [BSPLighting](BSPLighting)
 
 <div align="center">
 

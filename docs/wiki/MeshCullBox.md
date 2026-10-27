@@ -41,14 +41,7 @@ Sets the box that decides whether a mesh is in view. By default the box is taken
 
 ## Related Commands
 
-* [AddMesh](AddMesh)
-* [CopyMesh](CopyMesh)
-* [CreateMesh](CreateMesh)
-* [FitMesh](FitMesh)
-* [FlipMesh](FlipMesh)
-* [MeshDepth](MeshDepth)
-* [MeshHeight](MeshHeight)
-* [MeshWidth](MeshWidth)
+[AddMesh](AddMesh), [CopyMesh](CopyMesh), [CreateMesh](CreateMesh), [FitMesh](FitMesh), [FlipMesh](FlipMesh), [MeshDepth](MeshDepth), [MeshHeight](MeshHeight), [MeshWidth](MeshWidth)
 
 <div align="center">
 

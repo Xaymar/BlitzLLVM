@@ -33,13 +33,7 @@ Reads a string that [WriteString](WriteString) wrote: first its length, then its
 
 ## Related Commands
 
-* [ReadAvail](ReadAvail)
-* [ReadByte](ReadByte)
-* [ReadFloat](ReadFloat)
-* [ReadInt](ReadInt)
-* [ReadLine](ReadLine)
-* [ReadShort](ReadShort)
-* [WriteString](WriteString)
+[ReadAvail](ReadAvail), [ReadByte](ReadByte), [ReadFloat](ReadFloat), [ReadInt](ReadInt), [ReadLine](ReadLine), [ReadShort](ReadShort), [WriteString](WriteString)
 
 <div align="center">
 

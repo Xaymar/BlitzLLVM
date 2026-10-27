@@ -32,12 +32,7 @@ Writes one byte. Values outside 0 to 255 wrap around.
 
 ## Related Commands
 
-* [ReadByte](ReadByte)
-* [WriteFloat](WriteFloat)
-* [WriteInt](WriteInt)
-* [WriteLine](WriteLine)
-* [WriteShort](WriteShort)
-* [WriteString](WriteString)
+[ReadByte](ReadByte), [WriteFloat](WriteFloat), [WriteInt](WriteInt), [WriteLine](WriteLine), [WriteShort](WriteShort), [WriteString](WriteString)
 
 <div align="center">
 

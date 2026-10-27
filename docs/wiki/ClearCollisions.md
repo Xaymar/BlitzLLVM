@@ -25,10 +25,7 @@ Removes every rule made with [Collisions](Collisions), so that nothing collides 
 
 ## Related Commands
 
-* [CollisionEntity](CollisionEntity)
-* [CollisionNX](CollisionNX)
-* [Collisions](Collisions)
-* [CountCollisions](CountCollisions)
+[CollisionEntity](CollisionEntity), [CollisionNX](CollisionNX), [Collisions](Collisions), [CountCollisions](CountCollisions)
 
 <div align="center">
 

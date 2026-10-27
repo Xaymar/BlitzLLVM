@@ -46,10 +46,7 @@ Print ATan2(0, -1)
 
 ## Related Commands
 
-* [ACos](ACos)
-* [ASin](ASin)
-* [ATan](ATan)
-* [Byte](Byte) 〔BlitzLLVM〕
+[ACos](ACos), [ASin](ASin), [ATan](ATan), [Byte](Byte) 〔BlitzLLVM〕
 
 <div align="center">
 
