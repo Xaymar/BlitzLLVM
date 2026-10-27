@@ -13,6 +13,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
+#include <xmmintrin.h>
+#endif
 
 // The 3D world of a Blitz program: entities (pivots, cameras, lights and meshes) in a hierarchy.
 //
@@ -22,6 +25,18 @@
 // This part knows nothing about the GPU. graphics.cpp draws what is in here.
 
 namespace bb {
+	/** Asks for the cache line at an address to be loaded, which is a hint and changes nothing else. */
+	inline void prefetch(const void* address)
+	{
+#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
+		_mm_prefetch(static_cast<const char*>(address), _MM_HINT_T0);
+#elif defined(__GNUC__) || defined(__clang__)
+		__builtin_prefetch(address);
+#else
+		(void)address;
+#endif
+	}
+
 	// A growable array for plain data, which avoids needing the C++ standard library in programs.
 	template<typename T>
 	struct buffer {
