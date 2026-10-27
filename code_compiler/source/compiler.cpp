@@ -439,9 +439,9 @@ blitz::compiler::variable& blitz::compiler::lookup(std::string const& name, type
 	return _locals[lower(name)];
 }
 
-void blitz::compiler::warn_typeless(ast::location const& where, std::string const& name)
+void blitz::compiler::warn_typeless(ast::location const& where, std::string const& name, std::string const& kind)
 {
-	warn(where, "typeless-declaration", "'" + name + "' has no type, it is an Int.", "Add the type to the name: '" + name + "%' (Int), '" + name + "#' (Float), '" + name + "$' (String) or '" + name + ".TypeName' (object).");
+	warn(where, "typeless-declaration", kind + "'" + name + "' has no type, it is an Int.", "Add the type to the name: '" + name + "%' (Int), '" + name + "#' (Float), '" + name + "$' (String) or '" + name + ".TypeName' (object).");
 }
 
 void blitz::compiler::report_unused(std::map<std::string, variable>& variables)
@@ -539,6 +539,14 @@ std::string blitz::compiler::generate(ast::program const& program)
 			throw err(fn->where, "Function '" + fn->name + "' has already been defined.");
 		}
 		_functions[key] = function_info{ "@\"bb.f." + std::to_string(_counter++) + "\"", fn.get() };
+		if (!fn->typed) {
+			warn_typeless(fn->where, fn->name, "Function ");
+		}
+		for (auto const& param : fn->parameters) {
+			if (!param.typed) {
+				warn_typeless(param.where, param.name, "Parameter ");
+			}
+		}
 	}
 
 	// Same for global variables and constants.

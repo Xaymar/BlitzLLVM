@@ -28,7 +28,7 @@ std::vector<blitz::warning_info> const& blitz::all_warnings()
 		{ "implicit-number-to-string", 3, false, "A number is turned into a String." },
 		{ "unreachable-code", 3, true, "A statement follows a Return, End, Goto or Exit and can never run (unless a label makes it reachable)." },
 		{ "unused-variable", 3, true, "A variable is never read, so it is optimized away." },
-		{ "typeless-declaration", 4, false, "Local, Global, Const or Dim has no type (like 'Local x' instead of 'Local x%')." },
+		{ "typeless-declaration", 4, false, "Local, Global, Const, Dim, Function, parameter or Field has no type (like 'Local x' instead of 'Local x%')." },
 		{ "unused-function", 4, true, "A function is never called, so it is optimized away." },
 	};
 	return list;

@@ -307,6 +307,7 @@ namespace blitz {
 			std::string        name;
 			std::string        struct_name;
 			blitz::types::type type = blitz::types::type::INT32;
+			bool               typed = false; // If the program gave it a type, instead of the default Int.
 			expression_ptr     initial; // Optional default value
 		};
 
@@ -315,6 +316,7 @@ namespace blitz {
 			location           where;
 			std::string        name;
 			blitz::types::type type = blitz::types::type::INT32;
+			bool               typed = false; // If the program gave it a type, instead of the default Int.
 			std::string        struct_name;
 			expression_ptr     array_size;
 		};

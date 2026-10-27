@@ -62,7 +62,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 | `implicit-number-to-string` | 3 | A number assigned or passed to a String. |
 | `unreachable-code` (notice) | 3 | A statement after `Return`, `End`, `Goto` or `Exit` in the same block, which can never run. Labels and `Data` do not count. Only the first one is reported. |
 | `unused-variable` (notice) | 3 | A `Local` or `Global` variable that is never read (writing to it does not count). It is optimized away. |
-| `typeless-declaration` | 4 | `Local`, `Global`, `Const` or `Dim` without a type (`Local x`): the variable is an Int, which is not always what was meant. |
+| `typeless-declaration` | 4 | A `Local`, `Global`, `Const`, `Dim`, `Function` (its result), function parameter or `Field` without a type (`Local x`, `Function Foo(a)`, `Field size`): it is an Int, which is not always what was meant. |
 | `unused-function` (notice) | 4 | A function that is never called. It is optimized away. |
 
 `blitzcc --help` lists the same warnings.

@@ -966,6 +966,25 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -Wno-return-missing-value "${WORK}/bare.bb")
 	expect_no_err("[-Wreturn-missing-value]")
 
+	# Functions, parameters and fields without a type are Ints too.
+	file(WRITE "${WORK}/typeless.bb"
+		"Type Box\n"
+		"\tField size\n"
+		"\tField weight#\n"
+		"End Type\n"
+		"Print Plain(1, 2)\nPrint Typed%(1, 2)\n"
+		"Function Plain(a, b%)\n\tReturn a\nEnd Function\n"
+		"Function Typed%(a%, b%)\n\tReturn a\nEnd Function\n")
+	blitzcc(-c -W4 "${WORK}/typeless.bb")
+	expect_err("typeless.bb:2:8: warning: Field 'size' has no type, it is an Int. [-Wtypeless-declaration]")
+	expect_err("warning: Function 'Plain' has no type, it is an Int. [-Wtypeless-declaration]")
+	expect_err("warning: Parameter 'a' has no type, it is an Int. [-Wtypeless-declaration]")
+	expect_no_err("'b' has no type")
+	expect_no_err("'weight' has no type")
+	expect_no_err("'Typed' has no type")
+	blitzcc(-c "${WORK}/typeless.bb")
+	expect_no_err("[-Wtypeless-declaration]")
+
 	# A number that is written in the program and fits is fine.
 	file(WRITE "${WORK}/fits.bb" "Local b:byte = 100\nLocal f# = 1000\nPrint b + f\n")
 	blitzcc(-c -W4 "${WORK}/fits.bb")

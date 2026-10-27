@@ -204,7 +204,7 @@ namespace blitz {
 		// Errors and warnings
 		blitz::error err(ast::location const& where, std::string const& reason) const;
 		void         warn(ast::location const& where, const char* name, std::string const& reason, std::string const& notice = std::string());
-		void         warn_typeless(ast::location const& where, std::string const& name);
+		void         warn_typeless(ast::location const& where, std::string const& name, std::string const& kind = "");
 		void         report_unused(std::map<std::string, variable>& variables);
 		bool         is_lossy(blitz::types::type from, blitz::types::type to, std::string const& literal) const;
 
