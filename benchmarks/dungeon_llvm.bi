@@ -25,3 +25,7 @@ End Function
 Function BenchBuffers()
 	Return Stats3D(1003)
 End Function
+
+Function BenchMaxSprites()
+	Return 1000000000
+End Function
