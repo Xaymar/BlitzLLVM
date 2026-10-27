@@ -22,8 +22,8 @@ Holds a movie where it is: the picture stays, the sound stops, and the clock of 
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [LoopMovie](LoopMovie) 〔BlitzLLVM〕
-* [MovieHeight](MovieHeight)
 * [OpenMovie](OpenMovie)
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 * [SeekMovie](SeekMovie) 〔BlitzLLVM〕

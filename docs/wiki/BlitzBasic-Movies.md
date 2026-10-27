@@ -11,6 +11,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [LoopMovie](LoopMovie) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
 * [MovieLength](MovieLength) 〔BlitzLLVM〕

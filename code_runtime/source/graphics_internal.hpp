@@ -690,6 +690,7 @@ namespace bb::gfx {
 	void free_image(image_entry& e);
 	void draw_stretched(int32_t handle, int x, int y, int w, int h);
 	void replace_pixels(int32_t handle, const uint8_t* rgba);
+	void replace_texture_pixels(int32_t handle, const uint8_t* rgba);
 	/** An image for the program's own use (the characters of a font), which no handle of a program means. */
 	int  make_internal_image(int width, int height, const uint8_t* rgba);
 	void free_internal_image(int handle);

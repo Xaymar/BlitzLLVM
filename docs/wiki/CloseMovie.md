@@ -31,8 +31,8 @@ Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movi
 ## Related Commands
 
 * [DrawMovie](DrawMovie)
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [LoopMovie](LoopMovie) 〔BlitzLLVM〕
-* [MovieHeight](MovieHeight)
 * [OpenMovie](OpenMovie)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕

@@ -1398,6 +1398,7 @@ void bb_render_world(float tween)
 	if (!active()) {
 		return;
 	}
+	bb_movie_update(); // The textures of movies are up to date for this frame.
 	if (resolve_target(g.target).image && (g.target >= image_buffer_base) && (g.target < texture_buffer_base)) {
 		fail("RenderWorld can not draw to an image, use a texture.");
 	}

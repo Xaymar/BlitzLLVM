@@ -51,8 +51,8 @@ WaitKey
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [LoopMovie](LoopMovie) 〔BlitzLLVM〕
-* [MovieHeight](MovieHeight)
 * [PauseMovie](PauseMovie) 〔BlitzLLVM〕
 * [PlayMovie](PlayMovie) 〔BlitzLLVM〕
 * [SeekMovie](SeekMovie) 〔BlitzLLVM〕

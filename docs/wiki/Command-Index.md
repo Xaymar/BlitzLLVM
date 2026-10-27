@@ -330,6 +330,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GetKey](GetKey)
 * [GetMatElement](GetMatElement)
 * [GetMouse](GetMouse)
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [GetParent](GetParent)
 * [GetSamplerAddressModeU](GetSamplerAddressModeU) 〔BlitzLLVM〕
 * [GetSamplerAddressModeV](GetSamplerAddressModeV) 〔BlitzLLVM〕

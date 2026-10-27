@@ -34,7 +34,7 @@ Tells whether a movie is still playing. It becomes 0 when the movie reaches its 
 
 * [CloseMovie](CloseMovie)
 * [DrawMovie](DrawMovie)
-* [LoopMovie](LoopMovie) 〔BlitzLLVM〕
+* [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕
 * [MovieHeight](MovieHeight)
 * [MovieLength](MovieLength) 〔BlitzLLVM〕
 * [MoviePosition](MoviePosition) 〔BlitzLLVM〕
