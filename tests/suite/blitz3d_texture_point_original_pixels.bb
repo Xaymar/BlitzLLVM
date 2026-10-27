@@ -64,6 +64,10 @@ Show Strip(1)
 CheckRow "Linear", 128, 128, 178, 77, 229, 26, 229, 26, 178, 77, 128, 128, 77, 178, 26, 229, 26, 229, 77, 178
 
 Show Strip(1024)
+; The square must be there at all: a red half, a blue half and the black of the camera around it.
+CheckTrue "Red half is drawn", ((ReadPixel(60, 60, BackBuffer()) Shr 16) And 255) > 200
+CheckTrue "Blue half is drawn", (ReadPixel(100, 60, BackBuffer()) And 255) > 200
+CheckTrue "Outside the square is black", (ReadPixel(10, 60, BackBuffer()) And $FFFFFF) = 0
 CheckRow "Point", 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 0, 255, 0, 255, 0, 255, 0, 255
 
 Show Strip(1025)

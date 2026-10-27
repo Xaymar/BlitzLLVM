@@ -46,6 +46,7 @@ Function Show(t, dist#, name$)
 	PositionEntity cube, 0, 0, dist# + 1
 	RenderWorld
 	Row name$, 60
+	Flip
 	SaveBuffer FrontBuffer(), name$ + ".bmp"
 End Function
 
