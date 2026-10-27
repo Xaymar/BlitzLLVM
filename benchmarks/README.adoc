@@ -75,3 +75,46 @@ python benchmarks\flythrough.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe --objects
 The original times have a resolution of one millisecond, so use enough frames and look at the average. The original `SaveBuffer`
 writes a BMP whatever the file is called, so a `--shot` made with it needs converting to compare it. Run benchmarks windowed only
 (they are), the original changes the screen settings in fullscreen.
+
+== dungeon: a walk through torch-lit rooms
+
+`dungeon.bb` is the benchmark for hiding things. A dungeon of rooms (16 by default) lies in a snake of rows, and room `i` is joined
+to room `i + 1` by a corridor. A room has a floor, a ceiling, four walls with doorways, four pillars, and in each corner a torch.
+Every room is one mesh (a few thousand triangles), plus loose props (barrels, crates and balls, `--props` of them) that are entities of
+their own. The camera walks through the middle of every room, 0.2 units per frame (120 frames per room), looks 9 units ahead, bobs and
+sways, and starts again at the last room. So at any moment the camera sees one room and a bit of the next, and the walls hide the rest:
+that is what culling (the rooms and sprites that are out of view) and early-Z (the pixels behind a wall) can save.
+
+Every torch is a point light and has `--particles` sprites (12 by default): half of them flame (small, orange, added to the picture,
+rising and shrinking in 20 frames) and half smoke (grey, see-through, rising, growing and thinning out in 90 frames). A graphics card
+has 8 lights, so the 8 torches nearest to the camera are on (they flicker) and the others are hidden. All sprites are updated in
+every frame, also those in rooms that nobody sees, as a game would not bother to hide them.
+
+[source,sh]
+----
+python3 benchmarks/dungeon.py --quick                                    # 4 rooms, 30 frames: does it work?
+python3 benchmarks/dungeon.py                                            # 16 rooms, 4 torches each, 600 frames
+python3 benchmarks/dungeon.py --rooms 100 --torches 6 --particles 20    # a big dungeon with lots of fire
+python3 benchmarks/dungeon.py --static                                   # the fire stays still, only the camera moves
+----
+
+It takes the same options as the others (`--frames`, `--seed`, `--size`, `--shot`, `--label`, `--debug`, `--profile`, `--no-save`, and
+`BENCH_ROOMS`, `BENCH_TORCHES`, `BENCH_PARTICLES`, `BENCH_PROPS`, `BENCH_FRAMES`, `BENCH_SEED`, `BENCH_SIZE` for the defaults) and
+prints the same table, with `update` (lights and particles, part of `ms/frame`). The rooms, torches and particles scale separately:
+more rooms make more that can be hidden, more particles make more blending. Random numbers come from a small generator in the program
+and not from `Rnd`, so BlitzLLVM and the original Blitz3D draw the same frames.
+
+=== With the original Blitz3D
+
+As with the other benchmarks, `dungeon.bb` uses only commands that the original Blitz3D has too. The microsecond timer and the draw
+counters are in `dungeon_llvm.bi`, and `dungeon_original.bi` has `MilliSecs` and counters of 0. The runner picks the right one by
+`blitzcc -v` and leaves out `-O3` and `--profile` for the original:
+
+[source,bat]
+----
+python benchmarks\dungeon.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe
+python benchmarks\dungeon.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe
+----
+
+The original times have a resolution of one millisecond, so use enough frames. The original `SaveBuffer` writes a BMP whatever the file is
+called. Run benchmarks windowed only (they are), the original changes the screen settings in fullscreen.
