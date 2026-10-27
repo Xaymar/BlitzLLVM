@@ -907,7 +907,7 @@
 <li><a href="Windowed3D">Windowed3D</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Entities">Entities</a> (39)</summary>
+<li><details><summary><a href="Blitz3D-Entities">Entities</a> (40)</summary>
 <ul>
 <li><a href="AlignToVector">AlignToVector</a></li>
 <li><a href="CopyEntity">CopyEntity</a></li>
@@ -925,6 +925,7 @@
 <li><a href="EntityOrder">EntityOrder</a></li>
 <li><a href="EntityParent">EntityParent</a></li>
 <li><a href="EntityPitch">EntityPitch</a></li>
+<li><a href="EntityReady">EntityReady</a> 〔BlitzLLVM〕</li>
 <li><a href="EntityRoll">EntityRoll</a></li>
 <li><a href="EntityShininess">EntityShininess</a></li>
 <li><a href="EntityTexture">EntityTexture</a></li>

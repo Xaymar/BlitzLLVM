@@ -5,8 +5,14 @@
 # Asynchronous loading
 
 
-The originals decode every picture before `LoadTexture` or `LoadImage` return. BlitzLLVM can instead read the file, return a handle at once and decode on worker threads, so that the program can do other setup in the meantime. It is off by default, so a program behaves as in the original unless it turns it on with [AsyncLoading](AsyncLoading) or the environment variable `BLITZ_ASYNC_LOAD=1`.
+The originals decode every picture and parse every model before `LoadTexture`, `LoadImage`, `LoadMesh` or `LoadAnimMesh` return. BlitzLLVM can instead read the file, return a handle at once and decode on worker threads, so that the program can do other setup in the meantime. It is off by default, so a program behaves as in the original unless it turns it on with [AsyncLoading](AsyncLoading) or the environment variable `BLITZ_ASYNC_LOAD=1`.
 
 Everything that needs the picture waits for it by itself, so a program does not have to change: drawing, [TextureWidth](TextureWidth), [ImageWidth](ImageWidth), [ReadPixel](ReadPixel) and the rest. [TextureReady](TextureReady) and [ImageReady](ImageReady) only ask, for programs that want to show a loading screen or to measure.
 
 A missing file or a file that is no picture still gives 0 from the load command, because the file is read and its header checked right away. The file is read when the command is called, so it can be deleted or replaced afterwards. What cannot be known until decoding is whether the picture is complete: a file with a valid header that cannot be decoded raises an error the first time the picture is used. Cube maps (flag 128) and sheets of frames are loaded without threads.
+
+## Models
+
+[LoadMesh](LoadMesh) and [LoadAnimMesh](LoadAnimMesh) read the file and check its header (`.b3d` and `.3ds`) when they are called, give the handle of an empty entity, and parse the file on a worker thread. The entity is filled in the first time anything asks for it, which is any command that takes the entity, or when [Flip](Flip) finds the parsing done. So `m = LoadMesh("a.b3d") : PositionEntity m, 1, 2, 3` waits for the model right there, while a loop that loads fifty models and uses them afterwards parses them side by side. The textures of a model are loaded when it is built, and with asynchronous loading on they are decoded on the worker threads as well. [EntityReady](EntityReady) says whether a model is built and its textures are done.
+
+A missing file, a `.x` file (still an empty model) and a file that is no model give the same result as without asynchronous loading. A `.b3d` or `.3ds` file that has a valid header but cannot be read stops the program at its first use with an error, and not as a 0 from the load. [LoadAnimSeq](LoadAnimSeq) is not moved to other threads.

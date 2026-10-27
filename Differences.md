@@ -13,7 +13,7 @@ This page is made from the pages it links to (see `tools/wiki/wiki.py`), so it i
 Differences that are not caused by one command.
 
 * [3D Studio models](3D-Studio-Models): Extension: `LoadMesh` and `LoadAnimMesh` also read `.3ds` files.
-* [Asynchronous loading](Asynchronous-Loading): Extension: `AsyncLoading` makes `LoadTexture` and `LoadImage` decode on other threads, and `TextureReady` and `ImageReady` say whether a picture is done.
+* [Asynchronous loading](Asynchronous-Loading): Extension: `AsyncLoading` makes `LoadTexture`, `LoadImage`, `LoadMesh` and `LoadAnimMesh` decode on other threads, and `TextureReady`, `ImageReady` and `EntityReady` say whether something is done.
 * [blitz-format](blitz-format): Extension: `blitz-format` formats `.bb` source code (indentation, keyword case, spacing, blank lines, line endings) from a `.blitz-format` file; the original has no formatter.
 * [Blitz-Tidy](Blitz-Tidy): Extension: `blitz-tidy` fixes the warnings of `blitzcc` in Blitz source files; the original has no such tool.
 * [Color depth](Color-Depth): The depth argument of `Graphics` is ignored: the picture is always 8 bits per channel, and `Dither` and `WBuffer` do nothing.
@@ -51,7 +51,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [AnimateMD2](AnimateMD2#differences): The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
 * [AntiAlias](AntiAlias#differences): Accepted and ignored.
 * [AppTitle](AppTitle#differences): The title is only used once a graphics mode is open.
-* [AsyncLoading](AsyncLoading#differences) 〔BlitzLLVM〕: With asynchronous loading on, a picture with a valid header that cannot be decoded raises its error when it is first used and not as a 0 from the load.
+* [AsyncLoading](AsyncLoading#differences) 〔BlitzLLVM〕: With asynchronous loading on, a picture or model with a valid header that cannot be decoded raises its error when it is first used and not as a 0 from the load.
 * [AvailVidMem](AvailVidMem#differences): The graphics card cannot be asked how much of its memory is still free.
 * [BrushTexture](BrushTexture#differences): Layers 0 to 7 are accepted.
 * [BSPAmbientLight](BSPAmbientLight#differences): The original adds the color to the light of each face before the texture is applied, and lights the vertices of a level with point and spot lights too.

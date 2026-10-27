@@ -25,6 +25,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [EntityOrder](EntityOrder)
 * [EntityParent](EntityParent)
 * [EntityPitch](EntityPitch)
+* [EntityReady](EntityReady) 〔BlitzLLVM〕
 * [EntityRoll](EntityRoll)
 * [EntityShininess](EntityShininess)
 * [EntityTexture](EntityTexture)

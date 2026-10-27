@@ -261,6 +261,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [EntityPickMode](EntityPickMode)
 * [EntityPitch](EntityPitch)
 * [EntityRadius](EntityRadius)
+* [EntityReady](EntityReady) 〔BlitzLLVM〕
 * [EntityRoll](EntityRoll)
 * [EntityShininess](EntityShininess)
 * [EntityTexture](EntityTexture)
