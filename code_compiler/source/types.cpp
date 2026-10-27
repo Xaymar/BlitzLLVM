@@ -60,6 +60,38 @@ std::string blitz::types::to_string(blitz::types::type type)
 	return "Unknown";
 }
 
+std::string blitz::types::display(blitz::types::type type)
+{
+	switch (type) {
+	case type::INT8:
+		return "Byte";
+	case type::UINT8:
+		return "UByte";
+	case type::INT16:
+		return "Short";
+	case type::UINT16:
+		return "UShort";
+	case type::INT32:
+		return "Int";
+	case type::UINT32:
+		return "UInt";
+	case type::INT64:
+		return "Long";
+	case type::UINT64:
+		return "ULong";
+	case type::FLOAT16:
+		return "Half";
+	case type::FLOAT32:
+		return "Float";
+	case type::FLOAT64:
+		return "Double";
+	case type::STRING:
+		return "String";
+	default:
+		return "Unknown";
+	}
+}
+
 blitz::types::type blitz::types::from_string(std::string text)
 {
 	std::transform(text.cbegin(), text.cend(), text.begin(), [](char from) {

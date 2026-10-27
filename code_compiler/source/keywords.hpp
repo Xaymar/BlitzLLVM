@@ -16,15 +16,23 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include "types.hpp"
 
 namespace blitz::keywords {
+	// A parameter of a function of a user library. A pointer ('*', or ':Pointer') is a bank or an object, passed as the address of its memory.
+	struct user_param {
+		std::string        name;
+		blitz::types::type type    = blitz::types::type::INT32;
+		bool               pointer = false;
+	};
+
 	// A function that a user library (userlibs/*.decls) declares.
 	struct user_function {
-		std::string                                name;
-		char                                       ret = 'v'; // v = nothing, i = Int32, f = Float32, s = String.
-		std::vector<std::pair<std::string, char>> params; // Name and type, which is i, f, s or p (pointer).
-		std::string                                lib;    // The library from the .lib directive, such as 'mylib.dll'.
-		std::string                                symbol; // The name in the library: the decorated name, or else the name above.
+		std::string                            name;
+		blitz::types::type                     ret = blitz::types::type::UNKNOWN; // UNKNOWN is nothing: The function is void.
+		std::vector<user_param>                params;
+		std::string                            lib;    // The library from the .lib directive, such as 'mylib.dll'.
+		std::string                            symbol; // The name in the library: the decorated name, or else the name above.
 	};
 
 	// The words that are part of the language itself, such as Dim or While, sorted. Words with a space (End If) are left out.

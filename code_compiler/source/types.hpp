@@ -57,6 +57,9 @@ namespace blitz {
 		std::string to_string(blitz::types::type type);
 		blitz::types::type from_string(std::string text);
 
+		/** The name the documentation uses for the type, such as UInt64. */
+		std::string display(blitz::types::type type);
+
 		bool     is_integer(blitz::types::type type);
 		bool     is_real(blitz::types::type type);
 		bool     is_signed(blitz::types::type type);

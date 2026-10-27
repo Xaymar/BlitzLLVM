@@ -38,3 +38,44 @@ UL_EXPORT int32_t UlLoad(const int32_t* memory)
 {
 	return *memory;
 }
+
+// Every size of number: Narrow ones are extended by the caller and come back extended by the callee.
+UL_EXPORT int8_t UlByte(int8_t value)
+{
+	return (int8_t)-value;
+}
+
+UL_EXPORT uint8_t UlUByte(uint8_t value)
+{
+	return (uint8_t)(value + 100);
+}
+
+UL_EXPORT int16_t UlShort(int16_t value)
+{
+	return (int16_t)-value;
+}
+
+UL_EXPORT uint16_t UlUShort(uint16_t value)
+{
+	return (uint16_t)(value + 10000);
+}
+
+UL_EXPORT uint32_t UlUInt(uint32_t value)
+{
+	return value + value;
+}
+
+UL_EXPORT int64_t UlLong(int64_t value)
+{
+	return value * 2;
+}
+
+UL_EXPORT uint64_t UlULong(uint64_t value)
+{
+	return value + 1;
+}
+
+UL_EXPORT double UlDouble(double value)
+{
+	return value * 2;
+}
