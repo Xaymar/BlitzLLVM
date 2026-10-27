@@ -135,12 +135,9 @@ namespace bb::gui {
 
 		void mouse_position(SDL_Event const& e, int* x, int* y)
 		{
-			int ww = 1, wh = 1;
-			SDL_GetWindowSize(bb::gfx::g.window, &ww, &wh);
 			float ex = e.type == SDL_EVENT_MOUSE_MOTION ? e.motion.x : e.button.x;
 			float ey = e.type == SDL_EVENT_MOUSE_MOTION ? e.motion.y : e.button.y;
-			*x       = int(ex * float(bb::gfx::g.width) / float(ww));
-			*y       = int(ey * float(bb::gfx::g.height) / float(wh));
+			bb::gfx::window_to_buffer(ex, ey, x, y);
 		}
 
 		bool on_event(void const* data)

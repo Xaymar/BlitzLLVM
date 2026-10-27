@@ -479,12 +479,27 @@ namespace bb::gfx {
 		gpu_image& shown = *apply_gamma(front);
 
 		barrier(g.swap_images[index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		buffer_rect area = fit_buffer(float(g.swap_extent.width), float(g.swap_extent.height));
+		VkFilter    filter = VK_FILTER_NEAREST;
+		if (g.fullscreen) {
+			// Black around the buffer. Whole-number sizes stay sharp, others are smoothed.
+			VkClearColorValue       black = {};
+			VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			vkCmdClearColorImage(g.cmd, g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &black, 1, &range);
+			const char* rule = getenv("BLITZ_FULLSCREEN_FILTER"); // "nearest" or "linear" instead of the choice by size.
+			if (rule && (strcmp(rule, "linear") == 0)) {
+				filter = VK_FILTER_LINEAR;
+			} else if (!rule || (strcmp(rule, "nearest") != 0)) {
+				filter = (fmodf(area.w, float(front.width)) == 0.0f && fmodf(area.h, float(front.height)) == 0.0f) ? VK_FILTER_NEAREST : VK_FILTER_LINEAR;
+			}
+		}
 		VkImageBlit blit       = {};
 		blit.srcSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 		blit.srcOffsets[1]     = { int32_t(shown.width), int32_t(shown.height), 1 };
 		blit.dstSubresource    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		blit.dstOffsets[1]     = { int32_t(g.swap_extent.width), int32_t(g.swap_extent.height), 1 };
-		vkCmdBlitImage(g.cmd, shown.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
+		blit.dstOffsets[0]     = { int32_t(area.x), int32_t(area.y), 0 };
+		blit.dstOffsets[1]     = { int32_t(area.x + area.w), int32_t(area.y + area.h), 1 };
+		vkCmdBlitImage(g.cmd, shown.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, filter);
 		barrier(g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 		barrier(front.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 

@@ -282,17 +282,16 @@ namespace bb::gfx {
 			}
 			case SDL_EVENT_MOUSE_MOTION: {
 				// Mouse position is reported in window coordinates, programs expect buffer coordinates.
-				int ww = 1, wh = 1;
-				SDL_GetWindowSize(g.window, &ww, &wh);
-				float dx = event.motion.xrel * float(g.width) / float(ww), dy = event.motion.yrel * float(g.height) / float(wh);
+				float px = 1, py = 1;
+				buffer_pixel_size(&px, &py);
+				float dx = event.motion.xrel / px, dy = event.motion.yrel / py;
 				if (g.mouse_relative) {
 					g.mouse_px = fminf(fmaxf(g.mouse_px + dx, 0.0f), float(g.width - 1));
 					g.mouse_py = fminf(fmaxf(g.mouse_py + dy, 0.0f), float(g.height - 1));
 					g.mouse_x  = int(g.mouse_px);
 					g.mouse_y  = int(g.mouse_py);
 				} else {
-					g.mouse_x = int(event.motion.x * float(g.width) / float(ww));
-					g.mouse_y = int(event.motion.y * float(g.height) / float(wh));
+					window_to_buffer(event.motion.x, event.motion.y, &g.mouse_x, &g.mouse_y);
 				}
 				g.mouse_dx += dx;
 				g.mouse_dy += dy;
@@ -329,9 +328,9 @@ namespace bb::gfx {
 		if (g.mouse_relative && (SDL_GetTicks() - g.mouse_move_tick > 300)) {
 			g.mouse_relative = false;
 			SDL_SetWindowRelativeMouseMode(g.window, false);
-			int ww = 1, wh = 1;
-			SDL_GetWindowSize(g.window, &ww, &wh);
-			SDL_WarpMouseInWindow(g.window, float(g.mouse_x) * float(ww) / float(g.width), float(g.mouse_y) * float(wh) / float(g.height));
+			float wx = 0, wy = 0;
+			buffer_to_window(float(g.mouse_x), float(g.mouse_y), &wx, &wy);
+			SDL_WarpMouseInWindow(g.window, wx, wy);
 			g.mouse_dx = g.mouse_dy = 0;
 		}
 	}
