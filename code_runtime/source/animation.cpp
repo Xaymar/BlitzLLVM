@@ -329,6 +329,7 @@ namespace bb::anim {
 						}
 						sk->posed = true;
 					}
+					float box_lo[3] = { 1e30f, 1e30f, 1e30f }, box_hi[3] = { -1e30f, -1e30f, -1e30f };
 					for (uint32_t v = 0; v < surf->vertices.size; v++) {
 						const float* p  = &sk->posed_position[v * 3];
 						const float* n3 = &sk->posed_normal[v * 3];
@@ -362,12 +363,20 @@ namespace bb::anim {
 						vert.x = local[0];
 						vert.y = local[1];
 						vert.z = local[2];
+						for (int k = 0; k < 3; k++) {
+							box_lo[k] = local[k] < box_lo[k] ? local[k] : box_lo[k];
+							box_hi[k] = local[k] > box_hi[k] ? local[k] : box_hi[k];
+						}
 						vert.nx = local_normal[0];
 						vert.ny = local_normal[1];
 						vert.nz = local_normal[2];
 					}
 					surf->dirty = true;
 					bb::surface_changed(*surf);
+					// The box is known now, so the renderer and the collisions do not have to go over all vertices again.
+					memcpy(surf->bound_min, box_lo, sizeof(box_lo));
+					memcpy(surf->bound_max, box_hi, sizeof(box_hi));
+					surf->bound_valid = true;
 				}
 			}
 			bb_free(skin);
