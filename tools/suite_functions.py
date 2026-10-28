@@ -36,7 +36,7 @@ BY_COMPILER = {
     "abs", "sgn", "mod", "int", "float", "str", "handle", "object", "before", "after", "first", "last", "new", "delete",
     "insert", "each", "pi", "true", "false", "null", "dim", "restore", "read", "end", "stop",
     # Numbers of the sized types (compiler_numeric.cpp)
-    "byte", "ubyte", "short", "ushort", "uint", "long", "ulong", "half", "double",
+    "byte", "ubyte", "short", "ushort", "uint", "long", "ulong", "half", "double", "pointer",
     "satbyte", "satubyte", "satshort", "satushort", "satint", "satuint", "satlong", "satulong",
     "popcount", "leadingzeros", "trailingzeros", "rotl", "rotr", "byteswap",
 }
@@ -129,6 +129,7 @@ EXTENSIONS = {
     "ulong": ("math", "%ULong#value"),
     "half": ("math", "%Half#value"),
     "double": ("math", "%Double#value"),
+    "pointer": ("math", "*Pointer%value"),
     "satbyte": ("math", "%SatByte#value"),
     "satubyte": ("math", "%SatUByte#value"),
     "satshort": ("math", "%SatShort#value"),
@@ -146,7 +147,7 @@ EXTENSIONS = {
 }
 
 SYMBOL = re.compile(r'(?:rtSym|sym)\(\s*"([^"]+)"')
-NAME = re.compile(r"^[%#$&!]?([A-Za-z_][A-Za-z0-9_]*)")
+NAME = re.compile(r"^[%#$&!*]?([A-Za-z_][A-Za-z0-9_]*)")
 
 
 def originals():

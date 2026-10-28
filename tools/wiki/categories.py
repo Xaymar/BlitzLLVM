@@ -81,7 +81,7 @@ _OVERRIDES = {}
 for _names, _category in (
         ("rnd rndseed seedrnd rand", "Randomization"),
         ("millisecs microseconds currentdate currenttime delay createtimer waittimer freetimer", "Time and Date"),
-        ("byte ubyte short ushort uint long ulong half double", "Types"),
+        ("byte ubyte short ushort uint long ulong half double pointer", "Types"),
         ("end stop", "Keywords"),
         ("apptitle calldll commandline debuglog getenv runtimeerror runtimestats setenv systemproperty execfile",
          "Other")):

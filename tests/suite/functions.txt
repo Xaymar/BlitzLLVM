@@ -513,6 +513,7 @@ byteswap	math	done	%ByteSwap%value
 ceil	math	done	#Ceil#float
 cos	math	done	#Cos#degrees
 double	math	done	%Double#value
+pointer	math	done	*Pointer%value
 exp	math	done	#Exp#float
 floor	math	done	#Floor#float
 half	math	done	%Half#value
