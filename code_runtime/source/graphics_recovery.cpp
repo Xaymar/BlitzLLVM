@@ -30,21 +30,39 @@
 #include "graphics_internal.hpp"
 #include "memory.h"
 #include "graphics_save.hpp"
+#include <chrono>
 
 using namespace bb::gfx;
 
 namespace {
-	constexpr int max_recoveries = 2; // The third loss ends the program.
+	constexpr int max_recoveries = 2; // The third loss within the cooldown ends the program.
+	constexpr long long default_cooldown_ms = 5 * 60 * 1000; // Without a loss for this long, the count starts again.
 
 	bool        lost          = false;       // A loss was noted, the graphics are made again at the next safe point.
 	VkResult    lost_result   = VK_SUCCESS;
 	const char* lost_what     = "";
 	bool        simulated     = false;       // The note is from the test hook.
-	int         recoveries    = 0;           // How often the graphics were made again.
+	int         recoveries    = 0;           // How often the graphics were made again since the cooldown.
+	bool        had_loss      = false;
+	std::chrono::steady_clock::time_point last_loss; // When the previous loss was noted.
 	int         unreported    = 0;           // Losses that GraphicsLost did not tell the program about yet.
 	bool        recovering    = false;
 	uint32_t    flips         = 0;           // Calls of Flip that got as far as the safe point.
 	std::vector<void*> dummies;              // Memory that stood in for buffers that could not be made.
+
+	// BLITZLLVM_DEVICE_LOSS_COOLDOWN_MS: how long without a loss makes the next one count as the first again.
+	long long cooldown_ms()
+	{
+		const char* value = getenv("BLITZLLVM_DEVICE_LOSS_COOLDOWN_MS");
+		if (value && value[0]) {
+			char* end = nullptr;
+			long long ms = strtoll(value, &end, 10);
+			if (end != value && ms >= 0) {
+				return ms;
+			}
+		}
+		return default_cooldown_ms;
+	}
 
 	bool env_enabled(const char* name, bool otherwise)
 	{
@@ -276,6 +294,12 @@ namespace bb::gfx {
 		} else {
 			snprintf(why, sizeof(why), "%s in %s", result_name(lost_result), lost_what);
 		}
+		auto now = std::chrono::steady_clock::now();
+		if (had_loss && recoveries > 0 && std::chrono::duration_cast<std::chrono::milliseconds>(now - last_loss).count() >= cooldown_ms()) {
+			recoveries = 0;
+		}
+		last_loss = now;
+		had_loss  = true;
 		if (recoveries >= max_recoveries) {
 			give_up(why);
 		}
