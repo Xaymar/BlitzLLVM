@@ -271,12 +271,6 @@ int32_t bb_scan_line(void)
 	return 0;
 }
 
-// Graphics are never lost: the images are in GPU memory that stays.
-int32_t bb_graphics_lost(void)
-{
-	return 0;
-}
-
 // The buffer that is drawn to at the moment.
 int32_t bb_graphics_buffer(void)
 {

@@ -72,6 +72,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_scene3d.cpp"
 	"source/graphics_info.cpp"
 	"source/graphics_gamma.cpp"
+	"source/graphics_recovery.cpp"
 	"source/graphics_displays.cpp"
 	"source/graphics_input.cpp"
 	"source/graphics_joystick.cpp"

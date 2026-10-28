@@ -109,6 +109,75 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 }
 
+} // extern "C"
+
+// Gives back everything the device made and then the device, the surface and the instance, and not the window. The images of
+// textures and images are gone before this (freed, or released if they are made again), so are the buffers.
+void bb::gfx::destroy_device_objects()
+{
+	for (int i = 0; i < 2; i++) {
+		destroy_image(g.buffers[i]);
+	}
+	destroy_depth_cache();
+	if (scratch) {
+		destroy_buffer(scratch, scratch_allocation);
+		scratch_size = 0;
+	}
+	empty_graveyard();
+	destroy_surface_buffers();
+	destroy_gamma();
+	destroy_frame_slot_buffers();
+	destroy_pipelines_3d();
+	if (g.cull_pipeline) {
+		vkDestroyPipeline(g.device, g.cull_pipeline, nullptr);
+	}
+	vkDestroyPipelineLayout(g.device, g.cull_pipeline_layout, nullptr);
+	vkDestroyDescriptorSetLayout(g.device, g.cull_layout, nullptr);
+	vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
+	vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
+	if (g.input_layout) {
+		vkDestroyDescriptorSetLayout(g.device, g.input_layout, nullptr);
+		g.input_layout = VK_NULL_HANDLE;
+	}
+	for (int i = 0; i < TEXTURES; i++) {
+		destroy_image(g.textures[i]);
+	}
+	destroy_swapchain();
+	stop_gpu_thread();
+	destroy_buffer(g.vertex_buffer, g.vertex_allocation);
+	destroy_buffer(g.vertex_buffer_alt, g.vertex_allocation_alt);
+	destroy_buffer(g.vertex_buffer_alt2, g.vertex_allocation_alt2);
+	destroy_pipeline_twins();
+	vkDestroyPipeline(g.device, g.triangles, nullptr);
+	vkDestroyPipeline(g.device, g.lines, nullptr);
+	vkDestroyPipelineLayout(g.device, g.layout, nullptr);
+	vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
+	vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
+	destroy_user_samplers();
+	vkDestroySampler(g.device, g.sampler, nullptr);
+	vkDestroySampler(g.device, g.sampler_repeat, nullptr);
+	vkDestroySampler(g.device, g.sampler_clamp, nullptr);
+	vkDestroySampler(g.device, g.sampler_repeat_mips, nullptr);
+	vkDestroySampler(g.device, g.sampler_clamp_mips, nullptr);
+	vkDestroySampler(g.device, g.sampler_point_repeat, nullptr);
+	vkDestroySampler(g.device, g.sampler_point_clamp, nullptr);
+	vkDestroySampler(g.device, g.sampler_point_repeat_mips, nullptr);
+	vkDestroySampler(g.device, g.sampler_point_clamp_mips, nullptr);
+	if (profile_query_pool) {
+		vkDestroyQueryPool(g.device, profile_query_pool, nullptr);
+		profile_query_pool = VK_NULL_HANDLE;
+		profile_mark_state = -1;
+	}
+	destroy_frame_slots();
+	vkDestroyCommandPool(g.device, g.pool, nullptr);
+	destroy_allocator();
+	vkDestroyDevice(g.device, nullptr);
+	SDL_Vulkan_DestroySurface(g.instance, g.surface, nullptr);
+	vkDestroyInstance(g.instance, nullptr);
+}
+
+extern "C" {
+
 void bb_end_graphics(void)
 {
 	if (!g.created) {
@@ -117,9 +186,6 @@ void bb_end_graphics(void)
 	if (!g.headless) {
 		flush(); // What was asked for is drawn before it all goes away.
 		gpu_idle();
-		for (int i = 0; i < 2; i++) {
-			destroy_image(g.buffers[i]);
-		}
 		for (uint32_t i = 0; i < texture_table.size; i++) {
 			if (texture_table[i].used) {
 				free_texture(texture_table[i]);
@@ -132,64 +198,7 @@ void bb_end_graphics(void)
 		}
 		save_finish_all(); // The pictures that are still being written are written before the program ends.
 		async_shutdown(); // The pictures that were still loading went with the freed handles.
-		for (uint32_t i = 0; i < max_depths; i++) {
-			destroy_image(depth_cache[i]);
-		}
-		if (scratch) {
-			destroy_buffer(scratch, scratch_allocation);
-			scratch_size = 0;
-		}
-		empty_graveyard();
-		destroy_surface_buffers();
-		destroy_gamma();
-		destroy_frame_slot_buffers();
-		destroy_pipelines_3d();
-		if (g.cull_pipeline) {
-			vkDestroyPipeline(g.device, g.cull_pipeline, nullptr);
-		}
-		vkDestroyPipelineLayout(g.device, g.cull_pipeline_layout, nullptr);
-		vkDestroyDescriptorSetLayout(g.device, g.cull_layout, nullptr);
-		vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
-		vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
-		if (g.input_layout) {
-			vkDestroyDescriptorSetLayout(g.device, g.input_layout, nullptr);
-			g.input_layout = VK_NULL_HANDLE;
-		}
-		for (int i = 0; i < TEXTURES; i++) {
-			destroy_image(g.textures[i]);
-		}
-		destroy_swapchain();
-		stop_gpu_thread();
-		destroy_buffer(g.vertex_buffer, g.vertex_allocation);
-		destroy_buffer(g.vertex_buffer_alt, g.vertex_allocation_alt);
-		destroy_buffer(g.vertex_buffer_alt2, g.vertex_allocation_alt2);
-		destroy_pipeline_twins();
-		vkDestroyPipeline(g.device, g.triangles, nullptr);
-		vkDestroyPipeline(g.device, g.lines, nullptr);
-		vkDestroyPipelineLayout(g.device, g.layout, nullptr);
-		vkDestroyDescriptorPool(g.device, g.set_pool, nullptr);
-		vkDestroyDescriptorSetLayout(g.device, g.set_layout, nullptr);
-		destroy_user_samplers();
-		vkDestroySampler(g.device, g.sampler, nullptr);
-		vkDestroySampler(g.device, g.sampler_repeat, nullptr);
-		vkDestroySampler(g.device, g.sampler_clamp, nullptr);
-		vkDestroySampler(g.device, g.sampler_repeat_mips, nullptr);
-		vkDestroySampler(g.device, g.sampler_clamp_mips, nullptr);
-		vkDestroySampler(g.device, g.sampler_point_repeat, nullptr);
-		vkDestroySampler(g.device, g.sampler_point_clamp, nullptr);
-		vkDestroySampler(g.device, g.sampler_point_repeat_mips, nullptr);
-		vkDestroySampler(g.device, g.sampler_point_clamp_mips, nullptr);
-		if (profile_query_pool) {
-			vkDestroyQueryPool(g.device, profile_query_pool, nullptr);
-			profile_query_pool = VK_NULL_HANDLE;
-			profile_mark_state = -1;
-		}
-		destroy_frame_slots();
-		vkDestroyCommandPool(g.device, g.pool, nullptr);
-		destroy_allocator();
-		vkDestroyDevice(g.device, nullptr);
-		SDL_Vulkan_DestroySurface(g.instance, g.surface, nullptr);
-		vkDestroyInstance(g.instance, nullptr);
+		destroy_device_objects();
 		SDL_DestroyWindow(g.window);
 		SDL_Quit();
 	}
@@ -276,6 +285,7 @@ void bb_flip(int32_t vwait)
 	if (!active()) {
 		return;
 	}
+	recovery_flip_begin(); // Where a device that was lost is made good again.
 	async_pump();
 	{
 		// BLITZ_FPS=1 reports how many frames are shown each second.
@@ -329,6 +339,7 @@ void bb_flip(int32_t vwait)
 	record_operations();
 	g.front_touched = false;
 	present_front(true);
+	recovery_flip_end();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
