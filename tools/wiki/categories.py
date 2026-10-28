@@ -155,7 +155,7 @@ _RULES = {
         (r"^camera|^createcamera", B3D, "Cameras"),
         (r"light", B3D, "Lights"),
         (r"brush", B3D, "Brushes"),
-        (r"texture|sampler|setcube|loadanimtexture|positiontexture|rotatetexture|scaletexture", B3D, "Textures"),
+        (r"texture|sampler|setcube|loadanimtexture|loadatlas|positiontexture|rotatetexture|scaletexture", B3D, "Textures"),
         (r"vertex|vertices|triangle|surface|updatenormals|clearsurface|addvertex|addtriangle", B3D, "Surfaces"),
         (r"mesh|fitmesh|flipmesh|addmesh|paintmesh|loadermatrix|createcube|createsphere|createcone|createcylinder|"
          r"createplane|createmirror|loadanimmesh", B3D, "Meshes"),
