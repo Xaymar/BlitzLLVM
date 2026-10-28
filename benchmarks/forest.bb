@@ -11,7 +11,7 @@
 ; Environment variables:
 ;   BENCH_TREES    how many trees are made (default 1800)
 ;   BENCH_GRASS    how many blades of grass are made (default 600000, in clumps, in the area the camera walks through; each is opaque, 5 vertices, 0.25 to 1.9 units tall; only the tip of a blade moves in the wind, in the areas within 45 units of the camera)
-;   BENCH_LEAVES   leaf cards on each branch of a spruce (default 7)
+;   BENCH_LEAVES   single leaves on each twig (default 28)
 ;   BENCH_PEBBLES  how many pebbles are made (default 14000: gravel and stones, 6 vertices each)
 ;   BENCH_INSECTS  how many glowing insects fly around (default 40; each has a glow sprite)
 ;   BENCH_INSECT_LIGHTS  how many of them have a light too (default 6): a graphics card has 8 lights, and the scene has a moon and a torch as well. The
@@ -46,6 +46,8 @@ Const BRIDGEHALF# = 6.4
 
 Global BridgeX# = 0
 Global leaftexture = 0
+; A leaf card is this much of the size a twig is given: one leaf is about 0.45 units long (the card holds a leaf of 0.85 of its width).
+Const LEAFSCALE# = 0.3
 Global TrunkPh# = 0
 Global TrunkAmp# = 0
 Global MoonX# = 0
@@ -626,18 +628,21 @@ Function AddBlob(s, cx#, y#, cz#, rad#, h#, segs, r, g, b)
 	Next
 End Function
 
-; A leaf card: a square of leaves, one face (the leaf mesh is drawn with culling off), lit as if it faced away from the middle of the crown (nx, ny, nz) so that the crown shades as a whole.
-Function AddLeaf(s, cx#, cy#, cz#, sz#, rot#, tilt#, nx#, ny#, nz#, r, g, b)
+; One leaf: a card of 2 x sz with one of the four leaf shapes of the leaf texture (cell 0 to 3), one face (the leaf mesh is drawn with culling off), lit as if it faced away from the middle of the crown
+; (nx, ny, nz) so that the crown shades as a whole.
+Function AddLeaf(s, cx#, cy#, cz#, sz#, rot#, tilt#, nx#, ny#, nz#, r, g, b, cell)
+	u0# = (cell And 1) * 0.5
+	v0# = (cell Shr 1) * 0.5
 	ux# = Cos(rot) * sz
 	uz# = Sin(rot) * sz
 	vx# = Sin(tilt) * Cos(rot + 90) * sz
 	vy# = Cos(tilt) * sz
 	vz# = Sin(tilt) * Sin(rot + 90) * sz
 	base = CountVertices(s)
-	v = AddVertex(s, cx - ux - vx, cy - vy, cz - uz - vz, 0, 1)
-	v = AddVertex(s, cx + ux - vx, cy - vy, cz + uz - vz, 1, 1)
-	v = AddVertex(s, cx + ux + vx, cy + vy, cz + uz + vz, 1, 0)
-	v = AddVertex(s, cx - ux + vx, cy + vy, cz - uz + vz, 0, 0)
+	v = AddVertex(s, cx - ux - vx, cy - vy, cz - uz - vz, u0, v0 + 0.5)
+	v = AddVertex(s, cx + ux - vx, cy - vy, cz + uz - vz, u0 + 0.5, v0 + 0.5)
+	v = AddVertex(s, cx + ux + vx, cy + vy, cz + uz + vz, u0 + 0.5, v0)
+	v = AddVertex(s, cx - ux + vx, cy + vy, cz - uz + vz, u0, v0)
 	For k = 0 To 3
 		VertexNormal s, base + k, nx, ny, nz
 		VertexColor s, base + k, r, g, b
@@ -695,7 +700,7 @@ Function AddBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, r0#, r1#, sides)
 	Next
 End Function
 
-; Leaves on a branch: count cards along it (more towards the tip) and around it, each turned away from the middle of the crown (cx, cy, cz) so that the outside of the
+; Leaves on a branch: count single leaves along it (more towards the tip) and around it, each turned away from the middle of the crown (cx, cy, cz) so that the outside of the
 ; crown is lit and the inside is dark.
 Function LeafBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, count, size#, spread#, cx#, cy#, cz#, r, g, b)
 	For i = 1 To count
@@ -710,11 +715,12 @@ Function LeafBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, count, size#, spread#, cx#,
 		nx# = px - cx : ny# = py - cy : nz# = pz - cz
 		l# = Sqr(nx * nx + ny * ny + nz * nz) + 0.001
 		shade# = BenchRnd(0.8, 1.15)
-		sz# = size * BenchRnd(0.8, 1.2)
+		sz# = size * LEAFSCALE * BenchRnd(0.8, 1.2)
+		cell = Int(Floor(BenchRnd(0, 3.99)))
 		rot# = BenchRnd(0, 180)
 		tilt# = BenchRnd(-60, 60)
 		out# = 0.5 + 0.5 * (ny / l)
-		AddLeaf s, px, py, pz, sz, rot, tilt, nx / l, ny / l * 0.5 + 0.5, nz / l, r * shade * (0.6 + 0.5 * out), g * shade * (0.6 + 0.5 * out), b * shade * (0.6 + 0.5 * out)
+		AddLeaf s, px, py, pz, sz, rot, tilt, nx / l, ny / l * 0.5 + 0.5, nz / l, r * shade * (0.6 + 0.5 * out), g * shade * (0.6 + 0.5 * out), b * shade * (0.6 + 0.5 * out), cell
 	Next
 End Function
 
@@ -1020,32 +1026,34 @@ Function MakePuff()
 	Return t
 End Function
 
-; A cluster of leaves: 28 small ovals, light at the middle and dark at the edge, cut out by alpha (flags 2 and 4) with grey where nothing is, so no dark border shows. A hash of the number and not the generator places them.
+; The leaves: four single leaves of different shapes, one in each quarter of the texture (64 x 64 texels each): pointed, a little broader at the stem (the left), curved to one side
+; and with a light midrib and side veins, darker towards the edge. Cut out by alpha (flags 2 and 4) with grey where nothing is, so no dark border shows.
 Function MakeLeaves()
-	t = CreateTexture(64, 64, 1 + 2 + 4 + 8)
+	t = CreateTexture(128, 128, 1 + 2 + 4 + 8)
 	SetBuffer TextureBuffer(t)
 	LockBuffer TextureBuffer(t)
-	For y = 0 To 63
-		For x = 0 To 63
+	For y = 0 To 127
+		For x = 0 To 127
 			WritePixelFast x, y, $00B0B0B0, TextureBuffer(t)
 		Next
 	Next
-	For k = 0 To 27
-		lx# = 6 + ((k * 7919) Mod 53)
-		ly# = 6 + ((k * 104729) Mod 53)
-		ang# = (k * 61) Mod 180
-		lr# = 5 + (k Mod 3)
-		For y = Int(ly - lr - 1) To Int(ly + lr + 1)
-			For x = Int(lx - lr - 1) To Int(lx + lr + 1)
-				If x >= 0 And x < 64 And y >= 0 And y < 64 Then
-					dx# = x - lx
-					dy# = y - ly
-					u# = (dx * Cos(ang) + dy * Sin(ang)) / lr
-					w# = (dy * Cos(ang) - dx * Sin(ang)) / (lr * 0.5)
-					q# = u * u + w * w
-					If q < 1 Then
-						c = 150 + Int((1 - q) * 105)
-						WritePixelFast x, y, $FF000000 Or (c Shl 16) Or (c Shl 8) Or c, TextureBuffer(t)
+	For cell = 0 To 3
+		ox = (cell And 1) * 64
+		oy = (cell Shr 1) * 64
+		wide# = 0.36 + 0.05 * cell
+		bend# = (cell Mod 3 - 1) * 5.0
+		For y = 0 To 63
+			For x = 0 To 63
+				u# = (x - 32) / 28.0
+				v# = (y - 32) - bend * u * u
+				If Abs(u) < 1 Then
+					hw# = wide * 28 * (1 - u * u) ^ 0.7 * (1 - 0.3 * u)
+					If Abs(v) < hw Then
+						c = 205 - Int(70 * Abs(v) / hw)
+						side# = Abs(v) - (u + 1) * 6
+						If Abs(Sin(side * 55)) < 0.16 Then c = c + 25
+						If Abs(v) < 1.3 Then c = 255
+						WritePixelFast ox + x, oy + y, $FF000000 Or (c Shl 16) Or (c Shl 8) Or c, TextureBuffer(t)
 					EndIf
 				EndIf
 			Next
@@ -1156,7 +1164,7 @@ SetBuffer BackBuffer()
 
 treecount = Int(Env$("BENCH_TREES", 1800))
 grasscount = Int(Env$("BENCH_GRASS", 600000))
-leafcards = Int(Env$("BENCH_LEAVES", 7))
+leafcards = Int(Env$("BENCH_LEAVES", 28))
 pebblecount = Int(Env$("BENCH_PEBBLES", 14000))
 insects = Int(Env$("BENCH_INSECTS", 40))
 insectlights = Int(Env$("BENCH_INSECT_LIGHTS", 6))
