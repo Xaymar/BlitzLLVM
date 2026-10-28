@@ -368,10 +368,26 @@ elseif(CASE STREQUAL "report_only")
 elseif(CASE STREQUAL "unsafe")
 	file(COPY "${TESTS}/cases/dead_code.bb" DESTINATION "${WORK}")
 	tidy_text("${WORK}/dead_code.bb")
-	expect_contains(OUT "Function Unused()")
+	expect_contains(OUT "Function Unused")
 	expect_contains(ERR "turn on \"unsafe\"")
 	tidy_text(--unsafe "${WORK}/dead_code.bb")
-	expect_missing(OUT "Function Unused()")
+	expect_missing(OUT "Function Unused")
+
+elseif(CASE STREQUAL "return_types")
+	# A function without a type gets Void or Int by default. Float and String change what the callers get, so they need unsafe.
+	file(COPY "${TESTS}/cases/returns.bb" DESTINATION "${WORK}")
+	tidy_text("${WORK}/returns.bb")
+	expect_contains(OUT "Function Show:Void(value%)")
+	expect_contains(OUT "Function Early:Void(value%)")
+	expect_contains(OUT "Function Count:Int32()")
+	expect_contains(OUT "Function Half()")
+	expect_contains(ERR "turn on \"unsafe\"")
+	tidy_text(--unsafe "${WORK}/returns.bb")
+	expect_contains(OUT "Function Half:Float32()")
+	expect_contains(OUT "Function Name:String()")
+	# The Returns disagree: nothing to infer.
+	expect_contains(OUT "Function Mixed(flag%)")
+	expect_contains(OUT "Function Blank(flag%)")
 
 elseif(CASE STREQUAL "config")
 	# .blitz-tidy in a directory, blitz-tidy.json in a directory below it, the nearest wins, and the command line wins over both.

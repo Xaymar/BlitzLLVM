@@ -453,6 +453,8 @@ namespace {
 						candidate.edits.push_back({ ln.offset(e.at.line, e.at.column), ln.offset(e.at.end_line, e.at.end_column), e.text });
 					}
 					have = in_file;
+					// The type of a function from its Return statements: anything but Void and Int changes what the callers get.
+					candidate.unsafe = (f.warning == "typeless-declaration") && (f.detail == "changes-program");
 				} else if (f.warning == "implicit-variable") {
 					// Declare it in front of the statement of the function (or the main program) that uses it first.
 					for (auto const& ref : blocks) {

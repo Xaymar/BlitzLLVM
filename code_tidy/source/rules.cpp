@@ -39,7 +39,7 @@ std::vector<blitz::tidy::rule> const& blitz::tidy::all_rules()
 		{ "implicit-number-to-string", true, mode::FIX, "Converts on purpose: Str(value)", "" },
 		{ "unreachable-code", false, mode::REPORT, "", "" },
 		{ "unused-variable", true, mode::FIX, "Removes a Local of a function that is not mentioned anywhere else.", "Locals of the main program and Globals: an Include can use them." },
-		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x:Int32", "" },
+		{ "typeless-declaration", true, mode::FIX, "Gives the variable the type it has anyway: Local x:Int32. A function gets the type its Return statements give: Void if none gives a value, Int32, Float32 or String if all give that.", "A function whose Returns give a Float32 or a String: it returns an Int now, and the callers get something else once it has the type." },
 		{ "unused-function", true, mode::FIX, "Removes the function, if its name is not mentioned anywhere else.", "Always: another file can call the function." },
 	};
 	return list;
