@@ -324,6 +324,7 @@ namespace bb::anim {
 						vert.nz = local_normal[2];
 					}
 					surf->dirty = true;
+					bb::surface_epoch++;
 					bb::surface_changed(*surf);
 				}
 			}

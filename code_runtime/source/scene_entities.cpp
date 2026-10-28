@@ -23,6 +23,8 @@ using namespace bb::scene;
 
 namespace bb {
 	uint32_t mesh_epoch = 1;
+	uint32_t surface_epoch = 1;
+	uint32_t texture_epoch = 1;
 	float ambient_light[3] = { 0.5f, 0.5f, 0.5f };
 	float render_tween = 1.0f;
 }
@@ -271,6 +273,7 @@ namespace bb::scene {
 				own->indices.size = original->indices.size;
 				own->painted = original->painted;
 				own->paint   = original->paint;
+				bb::surface_epoch++;
 				own->skin    = original->skin ? clone_skin(*original->skin) : nullptr;
 			} else {
 				original->refs++; // Shares the geometry.

@@ -162,6 +162,7 @@ void bb_paint_surface(int32_t surface_handle, int32_t brush)
 	surface* s = need_surface(surface_handle, "PaintSurface");
 	s->paint   = need_brush(brush, "PaintSurface").look;
 	s->painted = true;
+	bb::surface_epoch++;
 }
 
 void bb_paint_mesh(int32_t mesh, int32_t brush)
@@ -171,6 +172,7 @@ void bb_paint_mesh(int32_t mesh, int32_t brush)
 	for (uint32_t i = 0; i < e->surfaces.size; i++) {
 		e->surfaces[i]->paint   = look;
 		e->surfaces[i]->painted = true;
+		bb::surface_epoch++;
 	}
 }
 

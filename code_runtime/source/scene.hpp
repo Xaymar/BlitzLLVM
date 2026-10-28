@@ -298,6 +298,9 @@ namespace bb {
 
 	/** Counts the changes of surfaces that a cull_record was made from, which are all of the records that are not made again. */
 	extern uint32_t mesh_epoch;
+	/** Bumped whenever the geometry or the paint of any surface may have changed, and whenever anything about a texture may have. */
+	extern uint32_t surface_epoch;
+	extern uint32_t texture_epoch;
 
 	/** To be called after the vertices of a surface (and so the box around them) were changed. */
 	inline void surface_changed(surface& s)
