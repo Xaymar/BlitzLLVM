@@ -32,6 +32,9 @@ namespace {
 	// when the share has dropped to 90% of this.
 	constexpr double   move_share = 0.05;
 	constexpr double   move_hysteresis = 0.9;
+	// Sorting the members of the cells in view and visiting them in order costs more than reading every mesh once this share of the
+	// meshes are in cells that are in view, so the grid is not used for that look. BLITZ_GRID_SCAN_SHARE=<share> overrides it.
+	constexpr double   scan_share = 0.1;
 
 	// What stands in a list for an entity. It only counts as long as the generation is the one the entity has now, which is changed
 	// whenever the entity leaves the place it was put in, so that a list never has to be searched to take something out.
@@ -54,6 +57,7 @@ namespace {
 	std::unordered_map<uint64_t, uint32_t> cell_index;
 	std::vector<entry>      loose;     // The meshes that are not in a cell.
 	std::vector<uint32_t>   candidates;
+	std::vector<cell*>      seen_cells; // The cells that are in view for the look being made.
 	uint32_t                mesh_count = 0;
 	bool                    active     = false;
 	float                   cell_size  = 0;
@@ -267,6 +271,32 @@ void bb::grid_leave(int handle)
 	loose.push_back({ uint32_t(handle), generations[index] });
 }
 
+static void promote_loose()
+{
+	// Meshes that stayed the same since they were looked at (and so have a record) go in a cell, if they are not asked about all
+	// the time. They are not put in the cells before the looks above, as these are what makes the records.
+	if (cell_size == 0) {
+		choose_cell_size();
+	}
+	if (cell_size > 0) {
+		size_t kept = 0;
+		for (size_t i = 0; i < loose.size(); i++) {
+			entry    m     = loose[i];
+			uint32_t index = m.handle - 1;
+			entity*  e     = get_entity_raw(int(m.handle));
+			if (generations[index] != m.generation || !e) {
+				continue;
+			}
+			if (!(grid_flags[index] & 2) && record_holds(int(m.handle), *e) && promote(int(m.handle), *e)) {
+				continue;
+			}
+			grid_flags[index] &= uint8_t(~2);
+			loose[kept++] = m;
+		}
+		loose.resize(kept);
+	}
+}
+
 bool bb::grid_visit(const float* planes, const float* origin, float camera_growth, void (*visit)(int, entity&, void*), void* user,
 					bool (*outside)(int, entity&, void*))
 {
@@ -290,7 +320,10 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 		activate();
 	}
 
-	candidates.clear();
+	static const double scan_limit = getenv("BLITZ_GRID_SCAN_SHARE") ? atof(getenv("BLITZ_GRID_SCAN_SHARE")) : scan_share;
+	// Cells with most of the meshes in them being asked about cost more than looking at everything.
+	seen_cells.clear();
+	size_t seen_live = loose.size();
 	for (cell& c : cells) {
 		if (c.live == 0) {
 			continue;
@@ -298,6 +331,22 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 		if (!box_may_be_seen(c, origin, planes, fmaxf(c.radius, c.sprite_radius * camera_growth))) {
 			continue;
 		}
+		seen_cells.push_back(&c);
+		seen_live += c.live;
+	}
+	static const bool debug = getenv("BLITZ_GRID_DEBUG") != nullptr;
+	if (debug) {
+		fprintf(stderr, "grid: candidates %zu of %u\n", seen_live, mesh_count);
+	}
+	if (seen_live > size_t(double(mesh_count) * scan_limit)) {
+		// The look at everything makes the records, so the meshes can go in cells after it.
+		promote_loose();
+		return false;
+	}
+
+	candidates.clear();
+	for (cell* cp : seen_cells) {
+		cell&    c    = *cp;
 		uint32_t kept = 0;
 		for (size_t i = 0; i < c.members.size(); i++) {
 			entry m = c.members[i];
@@ -361,28 +410,7 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 		}
 	}
 
-	// Meshes that stayed the same since they were looked at (and so have a record) go in a cell, if they are not asked about all
-	// the time. They are not put in the cells before the looks above, as these are what makes the records.
-	if (cell_size == 0) {
-		choose_cell_size();
-	}
-	if (cell_size > 0) {
-		size_t kept = 0;
-		for (size_t i = 0; i < loose.size(); i++) {
-			entry    m     = loose[i];
-			uint32_t index = m.handle - 1;
-			entity*  e     = get_entity_raw(int(m.handle));
-			if (generations[index] != m.generation || !e) {
-				continue;
-			}
-			if (!(grid_flags[index] & 2) && record_holds(int(m.handle), *e) && promote(int(m.handle), *e)) {
-				continue;
-			}
-			grid_flags[index] &= uint8_t(~2);
-			loose[kept++] = m;
-		}
-		loose.resize(kept);
-	}
+	promote_loose();
 	return true;
 }
 

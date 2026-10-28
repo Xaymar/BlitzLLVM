@@ -172,4 +172,18 @@ PositionEntity cubes(4011), 40005, 0, 100
 Frames
 Check "And out again", TrisRendered(), 120, 0
 
+; Seeing all of the cubes, the grid has nothing to save, and reading every mesh is used instead (more than a tenth of them are in cells that
+; are in view). The picture is the same, also when the camera goes back (at this distance a cube is lost to rounding with or without the grid).
+PositionEntity cam, 25000, 0, -59900
+CameraRange cam, 1, 200000
+Frames
+Check "Everything in view", TrisRendered(), 60000, 12
+PositionEntity cam, 0, 0, 0
+CameraRange cam, 1, 1000
+Frames
+Check "Back to a few in view", TrisRendered(), 120, 0
+PositionEntity cubes(4010), 65, 0, 100
+Frames
+Check "Moved into view after reading everything", TrisRendered(), 132, 0
+
 End
