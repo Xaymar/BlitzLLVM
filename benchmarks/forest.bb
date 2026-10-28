@@ -11,7 +11,7 @@
 ; Environment variables:
 ;   BENCH_TREES    how many trees are made (default 1800)
 ;   BENCH_GRASS    how many blades of grass are made (default 600000, in clumps, in the area the camera walks through; each is opaque, 5 vertices, 0.25 to 1.9 units tall; only the tip of a blade moves in the wind, in the areas within 45 units of the camera)
-;   BENCH_LEAVES   single leaves on each twig (default 56)
+;   BENCH_LEAVES   single leaves on each twig (default 24)
 ;   BENCH_PEBBLES  how many pebbles are made (default 14000: gravel and stones, 6 vertices each)
 ;   BENCH_INSECTS  how many glowing insects fly around (default 40; each has a glow sprite)
 ;   BENCH_INSECT_LIGHTS  how many of them have a light too (default 6): a graphics card has 8 lights, and the scene has a moon and a torch as well. The
@@ -782,37 +782,91 @@ Function AddTrunk(s, h#, rb#, rt#)
 	Next
 End Function
 
-; A branch that branches: a tube from (x, y, z) in direction (dx, dy, dz) for length, rad thick, then nchild branches that leave it at ang degrees (in random directions around it, leaning up a little),
-; spaced along its outer part, each shrink times as long and 0.6 times as thick, down to depth 0, where a twig carries a cluster of leaf cards along and around it. Branches in between
-; carry a few leaves too. So the leaves sit on thin twigs, the twigs on small branches and those on boughs, as on a real tree. (cx, cy, cz) is the middle of the crown, for the shading.
+; A branch that branches: a tube from (x, y, z) in direction (dx, dy, dz) for length, rad thick, down to depth 0. The branch is not straight: it is three pieces, each bent a little from the one before, and it
+; gets thinner along its length. A branch of length 2 has nchild side branches, a longer one more and a shorter one fewer, so that every branch has as many as it can carry; none grow from the lower
+; third (the tree lost its low branches as it grew), and the nearer to the tip, the shorter they are (shrink times the length of the parent), so that the crown is a cone or a dome and not a mess. They leave
+; at ang degrees in random directions around the branch, leaning up a little, and are 0.6 times as thick. Leaves sit only on the thin branches (depth 0: many, depth 1: a few), so that the thick parts
+; of the tree are bare wood, and the leaves sit on twigs, the twigs on small branches and those on boughs, as on a real tree. (cx, cy, cz) is the middle of the crown, for the shading.
 Function Grow(s, ls, x#, y#, z#, dx#, dy#, dz#, length#, rad#, depth, nchild, ang#, shrink#, leafn, size#, r, g, b, cx#, cy#, cz#)
-	ex# = x + dx * length
-	ey# = y + dy * length
-	ez# = z + dz * length
-	sides = 4
+	x0# = x : y0# = y : z0# = z
+	sides = 3
+	If rad > 0.03 Then sides = 4
 	If rad > 0.05 Then sides = 6
-	AddBranch s, x, y, z, ex, ey, ez, rad, rad * 0.65, sides
+	; Leaves on the pieces of thin branches only: a twig (depth 0) has the most.
+	leaves = 0
+	spreadl# = size * 0.3
 	If depth = 0 Then
-		LeafBranch ls, x, y, z, ex, ey, ez, leafn, size, size * 0.4, cx, cy, cz, r, g, b
-	Else
-		LeafBranch ls, x, y, z, ex, ey, ez, leafn / 3, size, size * 0.3, cx, cy, cz, r, g, b
-		For i = 1 To nchild
-			t# = 0.3 + 0.7 * i / nchild
+		leaves = leafn / 3
+		spreadl = size * 0.4
+	EndIf
+	If depth = 1 Then leaves = leafn / 8
+	; Piece 1: bent a little from the one before.
+	dl# = Sqr(dx * dx + dy * dy + dz * dz)
+	dx = dx / dl : dy = dy / dl : dz = dz / dl
+	d0x# = dx : d0y# = dy : d0z# = dz
+	x1# = x0 + dx * length / 3
+	y1# = y0 + dy * length / 3
+	z1# = z0 + dz * length / 3
+	AddBranch s, x0, y0, z0, x1, y1, z1, rad * 1.0000, rad * 0.8392, sides
+	LeafBranch ls, x0, y0, z0, x1, y1, z1, leaves, size, spreadl, cx, cy, cz, r, g, b
+	; Piece 2: bent a little from the one before.
+	dx = dx + BenchRnd(-1, 1) * 0.3
+	dy = dy + BenchRnd(-1, 1) * 0.3
+	dz = dz + BenchRnd(-1, 1) * 0.3
+	dl# = Sqr(dx * dx + dy * dy + dz * dz)
+	dx = dx / dl : dy = dy / dl : dz = dz / dl
+	d1x# = dx : d1y# = dy : d1z# = dz
+	x2# = x1 + dx * length / 3
+	y2# = y1 + dy * length / 3
+	z2# = z1 + dz * length / 3
+	AddBranch s, x1, y1, z1, x2, y2, z2, rad * 0.8833, rad * 0.7283, sides
+	LeafBranch ls, x1, y1, z1, x2, y2, z2, leaves, size, spreadl, cx, cy, cz, r, g, b
+	; Piece 3: bent a little from the one before.
+	dx = dx + BenchRnd(-1, 1) * 0.3
+	dy = dy + BenchRnd(-1, 1) * 0.3
+	dz = dz + BenchRnd(-1, 1) * 0.3
+	dl# = Sqr(dx * dx + dy * dy + dz * dz)
+	dx = dx / dl : dy = dy / dl : dz = dz / dl
+	d2x# = dx : d2y# = dy : d2z# = dz
+	x3# = x2 + dx * length / 3
+	y3# = y2 + dy * length / 3
+	z3# = z2 + dz * length / 3
+	AddBranch s, x2, y2, z2, x3, y3, z3, rad * 0.7667, rad * 0.6175, sides
+	LeafBranch ls, x2, y2, z2, x3, y3, z3, leaves, size, spreadl, cx, cy, cz, r, g, b
+	If depth > 0 Then
+		kids = Int(nchild * length / 2.0 + 0.5)
+		If kids < 2 Then kids = 2
+		For i = 1 To kids
+			t# = 0.33 + 0.67 * (i - 0.5) / kids
+			; The piece the child grows from, and where on it.
+			sdx# = d2x : sdy# = d2y : sdz# = d2z
+			px0# = x2 : py0# = y2 : pz0# = z2 : px1# = x3 : py1# = y3 : pz1# = z3
+			f# = t * 3 - 2
+			If t < 0.6667 Then
+				sdx = d1x : sdy = d1y : sdz = d1z
+				px0 = x1 : py0 = y1 : pz0 = z1 : px1 = x2 : py1 = y2 : pz1 = z2
+				f = t * 3 - 1
+			EndIf
+			If t < 0.3333 Then
+				sdx = d0x : sdy = d0y : sdz = d0z
+				px0 = x0 : py0 = y0 : pz0 = z0 : px1 = x1 : py1 = y1 : pz1 = z1
+				f = t * 3
+			EndIf
 			rx# = BenchRnd(-1, 1)
 			ry# = BenchRnd(-1, 1)
 			rz# = BenchRnd(-1, 1)
-			dt# = rx * dx + ry * dy + rz * dz
-			px# = rx - dt * dx
-			py# = ry - dt * dy
-			pz# = rz - dt * dz
-			pl# = Sqr(px * px + py * py + pz * pz) + 0.001
+			dt# = rx * sdx + ry * sdy + rz * sdz
+			qx# = rx - dt * sdx
+			qy# = ry - dt * sdy
+			qz# = rz - dt * sdz
+			pl# = Sqr(qx * qx + qy * qy + qz * qz) + 0.001
 			a# = ang * BenchRnd(0.75, 1.2)
-			ndx# = dx * Cos(a) + px / pl * Sin(a)
-			ndy# = dy * Cos(a) + py / pl * Sin(a) + 0.1
-			ndz# = dz * Cos(a) + pz / pl * Sin(a)
+			ndx# = sdx * Cos(a) + qx / pl * Sin(a)
+			ndy# = sdy * Cos(a) + qy / pl * Sin(a) + 0.1
+			ndz# = sdz * Cos(a) + qz / pl * Sin(a)
 			nl# = Sqr(ndx * ndx + ndy * ndy + ndz * ndz)
-			sl# = length * shrink * BenchRnd(0.8, 1.1)
-			Grow s, ls, x + (ex - x) * t, y + (ey - y) * t, z + (ez - z) * t, ndx / nl, ndy / nl, ndz / nl, sl, rad * 0.6, depth - 1, nchild, ang, shrink, leafn, size, r, g, b, cx, cy, cz
+			sl# = length * shrink * (1.15 - 0.6 * t) * BenchRnd(0.8, 1.1)
+			Grow s, ls, px0 + (px1 - px0) * f, py0 + (py1 - py0) * f, pz0 + (pz1 - pz0) * f, ndx / nl, ndy / nl, ndz / nl, sl, rad * 0.6, depth - 1, nchild, ang, shrink, leafn, size, r, g, b, cx, cy, cz
 		Next
 	EndIf
 End Function
@@ -838,7 +892,7 @@ Function MakeTree(kind, variant, leaves)
 					ang# = i * 90 + w * 41 + variant * 11
 					ox# = TrunkOX(y)
 					oz# = TrunkOZ(y)
-					Grow s, ls, ox, y, oz, Cos(ang) * 0.97, -0.2, Sin(ang) * 0.97, length, 0.05 * (length / 2.2 + 0.3), 1, 3, 62, 0.42, leaves, 0.85, 52 * k, 100 * k, 62 * k, 0, y + 1.5, 0
+					Grow s, ls, ox, y, oz, Cos(ang) * 0.97, -0.2, Sin(ang) * 0.97, length, 0.05 * (length / 2.2 + 0.3), 2, 4, 62, 0.45, leaves, 0.85, 52 * k, 100 * k, 62 * k, 0, y + 1.5, 0
 				Next
 			Next
 			LeafBranch ls, 0, 7.0, 0, 0, 8.0, 0, leaves * 2, 0.8, 0.2, 0, 6, 0, 60 * k, 110 * k, 68 * k
@@ -848,7 +902,7 @@ Function MakeTree(kind, variant, leaves)
 			For i = 0 To 4
 				ang# = i * 72 + variant * 17
 				yb# = 2.6 + (i Mod 2) * 0.4
-				Grow s, ls, TrunkOX(yb), yb, TrunkOZ(yb), Cos(ang) * 0.7, 0.7, Sin(ang) * 0.7, 2.3, 0.13, 2, 2, 42, 0.64, leaves, 0.95, 66 * k, 120 * k, 52 * k, 0, 4.2, 0
+				Grow s, ls, TrunkOX(yb), yb, TrunkOZ(yb), Cos(ang) * 0.7, 0.7, Sin(ang) * 0.7, 2.3, 0.13, 3, 3, 42, 0.62, leaves, 0.95, 66 * k, 120 * k, 52 * k, 0, 4.2, 0
 			Next
 			LeafBranch ls, 0, 4.6, 0, 0, 5.6, 0, leaves * 2, 1.0, 0.7, 0, 4.2, 0, 70 * k, 124 * k, 54 * k
 		Default
@@ -857,7 +911,7 @@ Function MakeTree(kind, variant, leaves)
 			For i = 0 To 6
 				ang# = i * 51 + variant * 23
 				y# = 2.0 + i * 0.45
-				Grow s, ls, TrunkOX(y), y, TrunkOZ(y), Cos(ang) * 0.6, 0.8, Sin(ang) * 0.6, 1.6, 0.05, 1, 2, 38, 0.6, leaves, 0.85, 120 * k, 160 * k, 60 * k, 0, 4.2, 0
+				Grow s, ls, TrunkOX(y), y, TrunkOZ(y), Cos(ang) * 0.6, 0.8, Sin(ang) * 0.6, 1.6, 0.05, 2, 3, 38, 0.6, leaves, 0.85, 120 * k, 160 * k, 60 * k, 0, 4.2, 0
 			Next
 			LeafBranch ls, 0, 5.0, 0, 0, 5.8, 0, leaves * 2, 0.9, 0.5, 0, 4.2, 0, 128 * k, 168 * k, 64 * k
 	End Select
@@ -1195,7 +1249,7 @@ SetBuffer BackBuffer()
 
 treecount = Int(Env$("BENCH_TREES", 1800))
 grasscount = Int(Env$("BENCH_GRASS", 600000))
-leafcards = Int(Env$("BENCH_LEAVES", 56))
+leafcards = Int(Env$("BENCH_LEAVES", 24))
 pebblecount = Int(Env$("BENCH_PEBBLES", 14000))
 insects = Int(Env$("BENCH_INSECTS", 40))
 insectlights = Int(Env$("BENCH_INSECT_LIGHTS", 6))
