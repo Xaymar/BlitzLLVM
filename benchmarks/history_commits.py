@@ -9,7 +9,7 @@ Builds the compiler of every commit that has a different code state and runs the
 
 --repo is a clone with the submodules (it is checked out and built in, so do not use a clone you are working in). A "code state" is the
 trees of code_compiler, code_runtime and third_party: commits that only change documentation, tests, CI or the wiki have the same state as the
-commit before, and share its result. The result of every state is saved in benchmarks/history/commits/<commit>.json, with the commits that
+commit before, and share its result. The result of every state is saved in commits/<commit>.json in the checkout of the performance-history branch, with the commits that
 share it; a build that fails is saved with the end of its log. Commits that already have a result are skipped, so it can be stopped and
 continued. The commits are taken in the order of `git rev-list --reverse --topo-order`, merge commits included.
 """
@@ -21,7 +21,8 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "history", "commits")
+RESULTS = os.environ.get("PERF_HISTORY", os.path.join(os.path.dirname(os.path.dirname(HERE)), "performance-history"))
+OUT = os.path.join(RESULTS, "commits")
 
 
 def git(repo, *args, check=True):
