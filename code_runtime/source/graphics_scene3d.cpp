@@ -52,6 +52,10 @@ namespace bb::gfx {
 		if (gpu->index_buffer) {
 			graveyard.push({ gpu->index_buffer, gpu->index_allocation });
 		}
+		if (gpu->cluster_index_buffer) {
+			graveyard.push({ gpu->cluster_index_buffer, gpu->cluster_index_allocation });
+		}
+		gpu->clusters.release();
 		delete gpu;
 	}
 
@@ -60,6 +64,7 @@ namespace bb::gfx {
 		for (surface_gpu* gpu = surface_list; gpu; gpu = gpu->next) {
 			destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
 			destroy_buffer(gpu->index_buffer, gpu->index_allocation);
+			destroy_buffer(gpu->cluster_index_buffer, gpu->cluster_index_allocation);
 		}
 	}
 
@@ -87,6 +92,7 @@ namespace bb::gfx {
 			memcpy(gpu->vertex_mapped, s.vertices.data, size_t(vsize));
 			memcpy(gpu->index_mapped, s.indices.data, size_t(isize));
 			gpu->index_count = s.indices.size;
+			gpu->clusters_valid = false;
 			return gpu;
 		}
 		release_surface_gpu(gpu);
@@ -250,6 +256,210 @@ namespace bb::gfx {
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 	}
 
+	// How much of the buffers for culling on the GPU the draws that wait use: what is filled in when the draws are collected, and what is
+	// given to the draws when they are recorded.
+	static uint32_t cull_filled_clusters = 0, cull_filled_groups = 0, cull_filled_commands = 1; // Command 0 is for the lanes that have no cluster.
+	static uint32_t cull_recorded_groups = 0, cull_recorded_commands = 1;
+
+	// Makes room in the buffers for culling on the GPU. Like the buffer of draw data this is only done while nothing is recorded, and what
+	// the filled part holds is kept.
+	static void ensure_cull(uint32_t clusters, uint32_t groups, uint32_t commands)
+	{
+		acquire_frame();
+		cull_buffers& c       = g.cull;
+		bool          changed = false;
+		auto          grow    = [&](uint32_t& capacity, uint32_t needed, uint32_t stride, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped) {
+			if (needed <= capacity) {
+				return;
+			}
+			uint32_t bigger = capacity ? capacity : 1024;
+			while (bigger < needed) {
+				bigger *= 2;
+			}
+			VkBuffer      new_buffer     = VK_NULL_HANDLE;
+			VmaAllocation new_allocation = VK_NULL_HANDLE;
+			void*         new_mapped     = nullptr;
+			create_buffer(VkDeviceSize(bigger) * stride, usage, host, new_buffer, new_allocation, host ? &new_mapped : nullptr);
+			if (host && buffer) {
+				memcpy(new_mapped, *mapped, size_t(capacity) * stride);
+			}
+			if (buffer) {
+				graveyard.push({ buffer, allocation });
+			}
+			buffer     = new_buffer;
+			allocation = new_allocation;
+			if (host) {
+				*mapped = new_mapped;
+			}
+			capacity = bigger;
+			changed  = true;
+		};
+		// All three are made together, as a descriptor can not point at no buffer.
+		clusters = std::max(clusters, 1u);
+		groups   = std::max(groups, 1u);
+		commands = std::max(commands, 1u);
+		grow(c.clusters_capacity, clusters, sizeof(gpu_cluster), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, c.clusters, c.clusters_allocation, &c.clusters_mapped);
+		grow(c.groups_capacity, groups, sizeof(gpu_cluster_group), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, c.groups, c.groups_allocation, &c.groups_mapped);
+		grow(c.commands_capacity, commands, sizeof(gpu_draw_command), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, false, c.commands, c.commands_allocation, nullptr);
+		if (!changed) {
+			return;
+		}
+		VkDescriptorBufferInfo infos[3]  = { { c.clusters, 0, VK_WHOLE_SIZE }, { c.groups, 0, VK_WHOLE_SIZE }, { c.commands, 0, VK_WHOLE_SIZE } };
+		VkWriteDescriptorSet   writes[3] = {};
+		for (uint32_t i = 0; i < 3; i++) {
+			writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writes[i].dstSet          = c.set;
+			writes[i].dstBinding      = i;
+			writes[i].descriptorCount = 1;
+			writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writes[i].pBufferInfo     = &infos[i];
+		}
+		vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
+	}
+
+	// A draw of that many clusters needs groups for the shader and room for the commands it writes.
+	static void cull_account(uint32_t clusters)
+	{
+		cull_filled_groups += (clusters + cluster_group_size - 1) / cluster_group_size;
+		cull_filled_commands += clusters;
+		ensure_cull(cull_filled_clusters, cull_filled_groups, cull_filled_commands);
+	}
+
+	// Orders the triangles of a surface by where they are and cuts them into runs (clusters) that each have a sphere around them, so
+	// that the GPU can decide for each run whether any of it is in view. The order of the triangles does not matter for a surface that is
+	// solid: what is nearest wins. Returns whether there are clusters now.
+	static bool make_clusters(bb::surface const& s, surface_gpu& gpu)
+	{
+		if (gpu.clusters_made && (flush_number - gpu.clusters_flush < 30)) {
+			return false; // A surface that changes every frame would be sorted every frame.
+		}
+		uint32_t triangles = s.indices.size / 3;
+		float    lo[3] = { INFINITY, INFINITY, INFINITY }, hi[3] = { -INFINITY, -INFINITY, -INFINITY };
+		for (uint32_t i = 0; i < s.indices.size; i++) {
+			if (s.indices[i] >= s.vertices.size) {
+				return false;
+			}
+		}
+		for (uint32_t v = 0; v < s.vertices.size; v++) {
+			const float p[3] = { s.vertices[v].x, s.vertices[v].y, s.vertices[v].z };
+			for (int k = 0; k < 3; k++) {
+				lo[k] = fminf(lo[k], p[k]);
+				hi[k] = fmaxf(hi[k], p[k]);
+			}
+		}
+		float extent[3];
+		for (int k = 0; k < 3; k++) {
+			extent[k] = fmaxf(hi[k] - lo[k], 1e-20f);
+		}
+		// A Morton code of the center of each triangle puts those that are close together close together in the order.
+		auto spread = [](uint32_t x) {
+			x = (x | (x << 16)) & 0x030000FFu;
+			x = (x | (x << 8)) & 0x0300F00Fu;
+			x = (x | (x << 4)) & 0x030C30C3u;
+			x = (x | (x << 2)) & 0x09249249u;
+			return x;
+		};
+		std::vector<std::pair<uint32_t, uint32_t>> order(triangles);
+		for (uint32_t t = 0; t < triangles; t++) {
+			float center[3] = { 0, 0, 0 };
+			for (int c = 0; c < 3; c++) {
+				bb::vertex3d const& v = s.vertices[s.indices[t * 3 + c]];
+				center[0] += v.x;
+				center[1] += v.y;
+				center[2] += v.z;
+			}
+			uint32_t q[3];
+			for (int k = 0; k < 3; k++) {
+				float unit = (center[k] / 3.0f - lo[k]) / extent[k];
+				q[k]       = uint32_t(fminf(fmaxf(unit, 0.0f), 1.0f) * 1023.0f);
+			}
+			order[t] = { spread(q[0]) | (spread(q[1]) << 1) | (spread(q[2]) << 2), t };
+		}
+		std::sort(order.begin(), order.end());
+
+		VkBuffer      buffer     = VK_NULL_HANDLE;
+		VmaAllocation allocation = VK_NULL_HANDLE;
+		uint32_t*     mapped     = nullptr;
+		create_buffer(VkDeviceSize(triangles) * 3 * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, true, buffer, allocation, reinterpret_cast<void**>(&mapped));
+		gpu.clusters.clear();
+		for (uint32_t first = 0; first < triangles; first += cluster_triangles) {
+			uint32_t count = std::min(cluster_triangles, triangles - first);
+			float    box_lo[3] = { INFINITY, INFINITY, INFINITY }, box_hi[3] = { -INFINITY, -INFINITY, -INFINITY };
+			for (uint32_t k = 0; k < count; k++) {
+				for (int c = 0; c < 3; c++) {
+					uint32_t index = s.indices[order[first + k].second * 3 + c];
+					mapped[(first + k) * 3 + c] = index;
+					bb::vertex3d const& v = s.vertices[index];
+					const float p[3] = { v.x, v.y, v.z };
+					for (int a = 0; a < 3; a++) {
+						box_lo[a] = fminf(box_lo[a], p[a]);
+						box_hi[a] = fmaxf(box_hi[a], p[a]);
+					}
+				}
+			}
+			gpu_cluster cluster = {};
+			float       reach   = 0;
+			for (int a = 0; a < 3; a++) {
+				cluster.sphere[a] = 0.5f * (box_lo[a] + box_hi[a]);
+			}
+			for (uint32_t k = 0; k < count * 3; k++) {
+				bb::vertex3d const& v = s.vertices[mapped[first * 3 + k]];
+				float dx = v.x - cluster.sphere[0], dy = v.y - cluster.sphere[1], dz = v.z - cluster.sphere[2];
+				reach = fmaxf(reach, dx * dx + dy * dy + dz * dz);
+			}
+			cluster.sphere[3]   = sqrtf(reach) * 1.0001f + 1e-6f;
+			// The cone around the directions that the faces look in: the faces that all look away from the camera need not be drawn.
+			// Faces without an area do not draw anything and are left out. Clockwise faces look at the camera.
+			const float front_sign = 1.0f;
+			float sum[3] = { 0, 0, 0 };
+			std::vector<float> normals;
+			for (uint32_t k = 0; k < count; k++) {
+				bb::vertex3d const* v[3];
+				for (int c = 0; c < 3; c++) {
+					v[c] = &s.vertices[mapped[(first + k) * 3 + c]];
+				}
+				float e1[3] = { v[1]->x - v[0]->x, v[1]->y - v[0]->y, v[1]->z - v[0]->z };
+				float e2[3] = { v[2]->x - v[0]->x, v[2]->y - v[0]->y, v[2]->z - v[0]->z };
+				float n[3]  = { e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0] };
+				float len   = sqrtf(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+				if (!(len > 1e-20f)) {
+					continue;
+				}
+				for (int a = 0; a < 3; a++) {
+					n[a] /= len;
+					sum[a] += n[a];
+					normals.push_back(n[a]);
+				}
+			}
+			float axis_len = sqrtf(sum[0] * sum[0] + sum[1] * sum[1] + sum[2] * sum[2]);
+			cluster.cone[3] = 2.0f;
+			if (axis_len > 1e-6f) {
+				float mindot = 1.0f;
+				for (size_t k = 0; k < normals.size(); k += 3) {
+					mindot = fminf(mindot, (normals[k] * sum[0] + normals[k + 1] * sum[1] + normals[k + 2] * sum[2]) / axis_len);
+				}
+				if (mindot > 0.1f) {
+					for (int a = 0; a < 3; a++) {
+						cluster.cone[a] = front_sign * sum[a] / axis_len;
+					}
+					cluster.cone[3] = fminf(1.0f, sqrtf(fmaxf(0.0f, 1.0f - mindot * mindot)) + 0.002f);
+				}
+			}
+			cluster.first_index = int32_t(first * 3);
+			cluster.index_count = int32_t(count * 3);
+			gpu.clusters.push(cluster);
+		}
+		if (gpu.cluster_index_buffer) {
+			graveyard.push({ gpu.cluster_index_buffer, gpu.cluster_index_allocation });
+		}
+		gpu.cluster_index_buffer     = buffer;
+		gpu.cluster_index_allocation = allocation;
+		gpu.clusters_valid           = true;
+		gpu.clusters_made            = true;
+		gpu.clusters_flush           = flush_number;
+		return true;
+	}
+
 	void create_3d()
 	{
 		// Scene uniform buffer, with its descriptor set.
@@ -260,9 +470,22 @@ namespace bb::gfx {
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.scene_layout), "vkCreateDescriptorSetLayout");
 
 		// The data of each draw is in a buffer, so that draws of the same thing can be a single call.
-		VkDescriptorSetLayoutBinding entity_binding = { 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		VkDescriptorSetLayoutBinding entity_binding = { 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_COMPUTE_BIT, nullptr };
 		set_info.pBindings                          = &entity_binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.entity_layout), "vkCreateDescriptorSetLayout");
+
+		if (g.can_gpu_cull) {
+			// The clusters, the runs of them for each draw and the commands that come out: see compute_shader_cull in generate_shaders.py.
+			VkDescriptorSetLayoutBinding cull_bindings[3] = {
+				{ 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
+				{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
+				{ 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT, nullptr },
+			};
+			VkDescriptorSetLayoutCreateInfo cull_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
+			cull_info.bindingCount                    = 3;
+			cull_info.pBindings                       = cull_bindings;
+			check(vkCreateDescriptorSetLayout(g.device, &cull_info, nullptr, &g.cull_layout), "vkCreateDescriptorSetLayout");
+		}
 
 		// Each of the frames that can be in flight has its own, as the program writes them while the GPU reads the other.
 		for (uint32_t slot = 0; slot < frame_slots; slot++) {
@@ -286,6 +509,10 @@ namespace bb::gfx {
 			alloc.pSetLayouts = &g.entity_layout;
 			check(vkAllocateDescriptorSets(g.device, &alloc, &g.entity_set), "vkAllocateDescriptorSets");
 			ensure_entities(1024);
+			if (g.can_gpu_cull) {
+				alloc.pSetLayouts = &g.cull_layout;
+				check(vkAllocateDescriptorSets(g.device, &alloc, &g.cull.set), "vkAllocateDescriptorSets");
+			}
 		}
 		select_frame_slot(0);
 
@@ -295,6 +522,26 @@ namespace bb::gfx {
 		layout_info.setLayoutCount         = 4;
 		layout_info.pSetLayouts            = layouts;
 		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
+
+		if (g.can_gpu_cull) {
+			VkDescriptorSetLayout cull_layouts[2] = { g.entity_layout, g.cull_layout };
+			VkPushConstantRange   cull_push       = { VK_SHADER_STAGE_COMPUTE_BIT, 0, 6 * 16 + 16 }; // The planes of the view and the first group.
+			VkPipelineLayoutCreateInfo cull_layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+			cull_layout_info.setLayoutCount             = 2;
+			cull_layout_info.pSetLayouts                = cull_layouts;
+			cull_layout_info.pushConstantRangeCount     = 1;
+			cull_layout_info.pPushConstantRanges        = &cull_push;
+			check(vkCreatePipelineLayout(g.device, &cull_layout_info, nullptr, &g.cull_pipeline_layout), "vkCreatePipelineLayout");
+			VkShaderModule cs = create_shader(bb_shader_compute_cull, sizeof(bb_shader_compute_cull));
+			VkComputePipelineCreateInfo cull_pipeline = { VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
+			cull_pipeline.stage.sType                 = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+			cull_pipeline.stage.stage                 = VK_SHADER_STAGE_COMPUTE_BIT;
+			cull_pipeline.stage.module                = cs;
+			cull_pipeline.stage.pName                 = "main";
+			cull_pipeline.layout                      = g.cull_pipeline_layout;
+			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.cull_pipeline), "vkCreateComputePipelines");
+			vkDestroyShaderModule(g.device, cs, nullptr);
+		}
 
 		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
 		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
@@ -356,6 +603,8 @@ namespace bb::gfx {
 
 	void forget_recorded()
 	{
+		cull_filled_clusters = cull_filled_groups = cull_recorded_groups = 0;
+		cull_filled_commands = cull_recorded_commands = 1;
 		flush_number++; // What was recorded has been drawn, so its buffers can be filled again.
 		draws.clear();
 		pushes.clear();
@@ -366,7 +615,7 @@ namespace bb::gfx {
 	// Whether two draws only differ in their data, which makes them instances of the same call.
 	static bool same_draw_state(draw_record const& a, draw_record const& b)
 	{
-		return (a.pipeline == b.pipeline) && (a.vertex_buffer == b.vertex_buffer) && (a.index_buffer == b.index_buffer) && (a.index_count == b.index_count)
+		return !a.cluster_count && !b.cluster_count && (a.pipeline == b.pipeline) && (a.vertex_buffer == b.vertex_buffer) && (a.index_buffer == b.index_buffer) && (a.index_count == b.index_count)
 			&& (a.texture == b.texture) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write);
 	}
 
@@ -389,6 +638,55 @@ namespace bb::gfx {
 			vkCmdCopyImage(g.cmd, face(i).image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, c.sheet.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 		}
 		transition(c.sheet, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
+
+	// Has the GPU decide for the clusters of the draws of a scene which are in view, writing a command for each that draws it or not.
+	static void record_culling(scene_record const& scene)
+	{
+		gpu_cluster_group* groups = static_cast<gpu_cluster_group*>(g.cull.groups_mapped);
+		uint32_t           first  = cull_recorded_groups;
+		for (uint32_t i = 0; i < scene.draw_count; i++) {
+			draw_record& d = draws[scene.first_draw + i];
+			if (!d.cluster_count) {
+				continue;
+			}
+			d.first_command = cull_recorded_commands;
+			for (uint32_t done = 0; done < d.cluster_count; done += cluster_group_size) {
+				gpu_cluster_group group = {};
+				group.draw          = int32_t(scene.first_draw + i);
+				group.first_cluster = int32_t(d.first_cluster + done);
+				group.clusters      = int32_t(std::min(cluster_group_size, d.cluster_count - done));
+				group.first_command = int32_t(cull_recorded_commands + done);
+				group.growth        = d.growth;
+				group.cone          = (d.cone && !scene.reflected) ? 1.0f : 0.0f;
+				groups[cull_recorded_groups++] = group;
+			}
+			cull_recorded_commands += d.cluster_count;
+			stats3d.clusters += d.cluster_count;
+		}
+		if (cull_recorded_groups == first) {
+			return;
+		}
+		struct {
+			float   planes[24];
+			int32_t first_group[4];
+		} push = {};
+		memcpy(push.planes, scene.cull_planes, sizeof(push.planes));
+		push.first_group[0] = int32_t(first);
+		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline);
+		VkDescriptorSet sets[2] = { g.entity_set, g.cull.set };
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.cull_pipeline_layout, 0, 2, sets, 0, nullptr);
+		vkCmdPushConstants(g.cmd, g.cull_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
+		vkCmdDispatch(g.cmd, cull_recorded_groups - first, 1, 1);
+		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
+		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
+		written.dstStageMask     = VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
+		written.dstAccessMask    = VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+		VkDependencyInfo dependency = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+		dependency.memoryBarrierCount = 1;
+		dependency.pMemoryBarriers    = &written;
+		vkCmdPipelineBarrier2(g.cmd, &dependency);
 	}
 
 	// Draws what a camera had waiting.
@@ -416,6 +714,7 @@ namespace bb::gfx {
 				transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 			}
 		}
+		record_culling(scene);
 		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 		target.image->mips_stale = target.image->mips > 1;
 		bool fresh_depth = depth_image.layout == VK_IMAGE_LAYOUT_UNDEFINED;
@@ -549,7 +848,11 @@ namespace bb::gfx {
 				bound_indices  = d.index_buffer;
 				stats3d.buffers++;
 			}
-			vkCmdDrawIndexed(g.cmd, d.index_count, instances, 0, 0, scene.first_draw + i);
+			if (d.cluster_count) {
+				vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands, VkDeviceSize(d.first_command) * sizeof(gpu_draw_command), d.cluster_count, sizeof(gpu_draw_command));
+			} else {
+				vkCmdDrawIndexed(g.cmd, d.index_count, instances, 0, 0, scene.first_draw + i);
+			}
 			stats3d.draws++;
 			i += instances;
 		}
@@ -687,6 +990,31 @@ namespace bb::gfx {
 			}
 		}
 		return corners_outside_view(corners, planes);
+	}
+
+	// Whether the box around a mesh is completely inside of what the camera sees. There is nothing for the GPU to cull of such a
+	// mesh, so it is drawn whole. Meshes without a box (planes, nothing) are not inside.
+	static bool mesh_inside_view(bb::entity& mesh, const float* m, const float* origin, const float* planes)
+	{
+		float lo[3], hi[3];
+		if (!planes || mesh.plane_divs || !bb::mesh_bounds(mesh, lo, hi) || (lo[0] > hi[0])) {
+			return false;
+		}
+		for (int corner = 0; corner < 8; corner++) {
+			float local[3] = { (corner & 1) ? hi[0] : lo[0], (corner & 2) ? hi[1] : lo[1], (corner & 4) ? hi[2] : lo[2] };
+			float place[3];
+			for (int row = 0; row < 3; row++) {
+				place[row] = m[0 + row] * local[0] + m[4 + row] * local[1] + m[8 + row] * local[2] + float(double(m[12 + row]) - double(origin[row]));
+			}
+			for (int plane = 0; plane < 6; plane++) {
+				const float* p = planes + plane * 4;
+				// A bit of room for the error of the floats: a corner this close to a plane counts as outside of it.
+				if (p[0] * place[0] + p[1] * place[1] + p[2] * place[2] + p[3] < 0.01f) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	// Whether a sphere is completely outside of what the camera sees, which is also the case for the box inside of it (see
@@ -1215,6 +1543,8 @@ namespace bb::gfx {
 	}
 	static float current_planes[24]; // The planes of what the camera sees, see mesh_collector.
 	static bool  have_planes;
+	static bool  gpu_cones;          // Whether it also leaves out the clusters of faces that look away.
+	static bool  gpu_culling;        // Whether the camera of this pass lets the GPU cull the clusters of big surfaces.
 	static float current_pixels[2];  // Pixels per unit at a depth of 1 (perspective) or at any depth (orthographic), and whether it is orthographic.
 	static float current_view[3];    // Zoom, far plane and height divided by width of the camera, for planes.
 
@@ -1623,6 +1953,23 @@ namespace bb::gfx {
 
 			// Only alpha and add blending look at the alpha, which is what the depth fade changes.
 			push.soft[0] = (e->sprite_mode && surface_blended && (blend != 2) && depth_test) ? e->sprite_depth_fade : 0.0f;
+
+			// What is solid and has many triangles can have the clusters of triangles that are out of view left out by the GPU, unless the whole
+			// mesh is in view.
+			uint32_t cull_clusters = 0, cull_first = 0;
+			if (gpu_culling && (pass == 0) && depth_test && !surface_blended && (shape == gpu) && !e->sprite_mode && !e->plane_divs
+				&& (surface.indices.size >= cluster_min_triangles * 3) && (surface.indices.size == gpu->index_count)
+				&& !mesh_inside_view(*e, m, current_origin, current_planes)) {
+				if (gpu->clusters_valid || make_clusters(surface, *gpu)) {
+					cull_clusters = gpu->clusters.size;
+					cull_first    = cull_filled_clusters;
+					ensure_cull(cull_filled_clusters + cull_clusters, cull_filled_groups, cull_filled_commands);
+					memcpy(static_cast<gpu_cluster*>(g.cull.clusters_mapped) + cull_first, gpu->clusters.data, size_t(cull_clusters) * sizeof(gpu_cluster));
+					cull_filled_clusters += cull_clusters;
+					gpu->used_by_flush = flush_number;
+				}
+			}
+
 			int mode = surface_blended ? ((blend == 2) ? 2 : ((blend == 3) ? 3 : 1)) : 0;
 			draw_record record;
 			record.push_index   = pushes.size;
@@ -1638,6 +1985,51 @@ namespace bb::gfx {
 			record.depth        = item.depth;
 			record.unit_start   = true;
 			memcpy(record.screen, screen, sizeof(screen));
+			record.cone          = false;
+			record.cluster_count = cull_clusters;
+			record.first_cluster = cull_first;
+			record.first_command = 0;
+			record.growth        = 1.0f;
+			if (cull_clusters) {
+				// The most that the matrix can lengthen a vector by: the square root of the largest row sum of M^T M, which is the size of the entity
+				// for the scales and turns that Blitz3D makes, and still a limit for a matrix that shears.
+				float most = 0;
+				for (int i = 0; i < 3; i++) {
+					float row_sum = 0;
+					for (int j = 0; j < 3; j++) {
+						float dot = 0;
+						for (int k = 0; k < 3; k++) {
+							dot += push.model[k][i] * push.model[k][j];
+						}
+						row_sum += fabsf(dot);
+					}
+					most = fmaxf(most, row_sum);
+				}
+				record.growth = sqrtf(most) * 1.0001f;
+				// The faces that look away are only known when the matrix turns and scales the same in every direction (not
+				// mirrored), the faces are cut at all, and the camera looks from a point.
+				float g3[3][3];
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						g3[i][j] = push.model[i][j];
+					}
+				}
+				float det = g3[0][0] * (g3[1][1] * g3[2][2] - g3[1][2] * g3[2][1]) - g3[0][1] * (g3[1][0] * g3[2][2] - g3[1][2] * g3[2][0]) + g3[0][2] * (g3[1][0] * g3[2][1] - g3[1][1] * g3[2][0]);
+				bool similar = det > 0;
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						float dot = 0;
+						for (int k = 0; k < 3; k++) {
+							dot += push.model[k][i] * push.model[k][j];
+						}
+						float want = (i == j) ? most : 0.0f;
+						similar    = similar && (fabsf(dot - want) <= 1e-3f * most);
+					}
+				}
+				record.cone = similar && record.cull && gpu_cones && current_pixels[1] == 0.0f;
+				cull_account(cull_clusters);
+				record.index_buffer = gpu->cluster_index_buffer;
+			}
 			shape->used_by_flush = flush_number;
 			ensure_entities(draws.size + 1 + 7);
 			draws.push(record);
@@ -1667,6 +2059,9 @@ namespace bb::gfx {
 				more.texture         = extra_handle;
 				more.depth_write     = false;
 				more.unit_start      = false;
+				if (more.cluster_count) {
+					cull_account(more.cluster_count);
+				}
 				switch (extra->blend) {
 				case 3:
 					more.pipeline = g.add3d;
@@ -1709,6 +2104,9 @@ namespace bb::gfx {
 				tint.unit_start       = false;
 				tint.push_index = pushes.size;
 				pushes.push(tint_push);
+				if (tint.cluster_count) {
+					cull_account(tint.cluster_count);
+				}
 				ensure_entities(draws.size + 1);
 				draws.push(tint);
 			}
@@ -1732,6 +2130,9 @@ namespace bb::gfx {
 				ambient.unit_start       = false;
 				ambient.push_index = pushes.size;
 				pushes.push(ambient_push);
+				if (ambient.cluster_count) {
+					cull_account(ambient.cluster_count);
+				}
 				ensure_entities(draws.size + 1);
 				draws.push(ambient);
 			}
@@ -1786,9 +2187,91 @@ namespace bb::gfx {
 		}
 	}
 
+	// The planes of what a view-projection matrix (without a translation) sees, with normals of length 1: left, right, bottom,
+	// top, far and near (the depth is reversed).
+	static void view_planes(const float* vp, float (*planes)[4])
+	{
+		float row[4][4];
+		for (int r = 0; r < 4; r++) {
+			for (int c = 0; c < 4; c++) {
+				row[r][c] = vp[c * 4 + r];
+			}
+		}
+		for (int c = 0; c < 4; c++) {
+			planes[0][c] = row[3][c] + row[0][c];
+			planes[1][c] = row[3][c] - row[0][c];
+			planes[2][c] = row[3][c] + row[1][c];
+			planes[3][c] = row[3][c] - row[1][c];
+			planes[4][c] = row[2][c];
+			planes[5][c] = row[3][c] - row[2][c];
+		}
+		for (int i = 0; i < 6; i++) {
+			float len = sqrtf(planes[i][0] * planes[i][0] + planes[i][1] * planes[i][1] + planes[i][2] * planes[i][2]);
+			for (int c = 0; c < 4 && len > 1e-12f; c++) {
+				planes[i][c] /= len;
+			}
+		}
+	}
+
+	// What a camera culls by: the settings of CameraCulling, and the view that CameraCullingSource names, if it does.
+	struct culling_choice {
+		int   flags      = 1;     // 1 = frustum culling, 2 = culling on the GPU.
+		bool  has_source = false; // Whether the planes are the ones of another camera.
+		float planes[24] = {};    // Of that camera, for positions relative to 'origin'.
+		float origin[3]  = {};
+	};
+
+	static void culling_planes_of(bb::entity const& cam, int handle, int target_w, int target_h, float* planes, float* origin)
+	{
+		int vx, vy, vw, vh;
+		if (!camera_viewport(cam, target_w, target_h, vx, vy, vw, vh)) {
+			vw = target_w;
+			vh = target_h;
+		}
+		float world[16], view[16], proj[16], vp[16];
+		bb::world_matrix(handle, world);
+		bb::mat_affine_inverse(world, view);
+		view[12] = view[13] = view[14] = 0;
+		projection(proj, cam, float(vw), float(vh));
+		bb::mat_multiply(vp, proj, view);
+		view_planes(vp, reinterpret_cast<float (*)[4]>(planes));
+		memcpy(origin, world + 12, sizeof(float) * 3);
+	}
+
+	// Follows the chain of CameraCullingSource to the camera that does its own culling. A chain that is a loop, or ends in a
+	// camera that is gone, stops where it is. A camera that does not draw (CameraProjMode 0) can still be the one that decides.
+	static culling_choice choose_culling(int handle, bb::entity const& cam, int target_w, int target_h)
+	{
+		culling_choice choice;
+		int            seen[8];
+		int            count   = 0;
+		int            current = handle;
+		bb::entity const* e = &cam;
+		while (e->cam_cull_source && count < 8) {
+			seen[count++] = current;
+			int next = e->cam_cull_source;
+			bb::entity const* n = bb::get_entity(next);
+			bool loops = false;
+			for (int i = 0; i < count; i++) {
+				loops = loops || (seen[i] == next);
+			}
+			if (!n || (n->kind != bb::CAMERA) || loops) {
+				break;
+			}
+			current = next;
+			e       = n;
+		}
+		choice.flags = e->cam_cull_flags;
+		if (current != handle) {
+			choice.has_source = true;
+			culling_planes_of(*e, current, target_w, target_h, choice.planes, choice.origin);
+		}
+		return choice;
+	}
+
 	// Draws the world for a camera that is at cam_world and looks through view. The pictures that mirrors make are
 	// drawn first and keep to the depth of each other, with the triangles the other way around as the image is reversed.
-	static void render_pass(bb::entity& cam, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
+	static void render_pass(bb::entity& cam, culling_choice const& culling, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
 	{
 		if (scenes.size >= max_scenes) {
 			flush();
@@ -1850,41 +2333,33 @@ namespace bb::gfx {
 		prepare_light_grid(cam, data, float(vw), float(vh));
 
 		draw_list list;
-		// The planes of the view with the normals of length 1, from the rows of the matrix: left, right, bottom, top,
-		// far and near (the depth is reversed).
+		// The planes of the view with the normals of length 1, or the ones of the camera that this one takes its culling from. The
+		// mirrors of a camera look from somewhere else and so cull by themselves.
 		float planes[6][4];
-		{
-			const float* vp = data.viewprojection;
-			float row[4][4];
-			for (int r = 0; r < 4; r++) {
-				for (int c = 0; c < 4; c++) {
-					row[r][c] = vp[c * 4 + r];
-				}
-			}
-			for (int c = 0; c < 4; c++) {
-				planes[0][c] = row[3][c] + row[0][c];
-				planes[1][c] = row[3][c] - row[0][c];
-				planes[2][c] = row[3][c] + row[1][c];
-				planes[3][c] = row[3][c] - row[1][c];
-				planes[4][c] = row[2][c];
-				planes[5][c] = row[3][c] - row[2][c];
-			}
+		view_planes(data.viewprojection, planes);
+		if (culling.has_source && !reflected) {
 			for (int i = 0; i < 6; i++) {
-				float len = sqrtf(planes[i][0] * planes[i][0] + planes[i][1] * planes[i][1] + planes[i][2] * planes[i][2]);
-				for (int c = 0; c < 4 && len > 1e-12f; c++) {
-					planes[i][c] /= len;
+				const float* source = culling.planes + i * 4;
+				double       shift  = 0;
+				for (int k = 0; k < 3; k++) {
+					shift += double(source[k]) * (double(current_origin[k]) - double(culling.origin[k]));
 				}
+				memcpy(planes[i], source, sizeof(float) * 3);
+				planes[i][3] = float(double(source[3]) + shift);
 			}
 		}
 		memcpy(current_planes, planes, sizeof(current_planes));
-		have_planes = true;
+		memcpy(scene.cull_planes, planes, sizeof(scene.cull_planes));
+		gpu_culling = g.can_gpu_cull && ((culling.flags & 2) != 0);
+		gpu_cones   = (culling.flags & 4) != 0;
+		have_planes = (culling.flags & 1) != 0;
 		float camera_norm = 0;
 		for (int i = 0; i < 12; i++) {
 			if ((i & 3) != 3) {
 				camera_norm += current_camera[i] * current_camera[i];
 			}
 		}
-		mesh_collector collector = { &list, view, current_origin, &planes[0][0], fmaxf(1.0f, sqrtf(camera_norm)) };
+		mesh_collector collector = { &list, view, current_origin, have_planes ? &planes[0][0] : nullptr, fmaxf(1.0f, sqrtf(camera_norm)) };
 		{
 			bb::profile_scope timer(bb::PROFILE_COLLECT);
 			bb::for_each_visible(bb::MESH, collect_mesh, &collector);
@@ -1959,6 +2434,7 @@ namespace bb::gfx {
 		float world[16], view[16];
 		bb::world_matrix(handle, world);
 		bb::mat_affine_inverse(world, view);
+		culling_choice culling = choose_culling(handle, cam, target.w, target.h);
 
 		// The camera is cleared once, before anything is drawn.
 		bool clear_color = cam.cam_clear_color, clear_depth = cam.cam_clear_depth;
@@ -1973,10 +2449,10 @@ namespace bb::gfx {
 			bb::mat_multiply(reflect, steps, inverse);
 			bb::mat_multiply(mirrored, reflect, world);
 			bb::mat_affine_inverse(mirrored, mirrored_view);
-			render_pass(cam, data, mirrored, mirrored_view, true, clear_color, clear_depth, vx, vy, vw, vh, target);
+			render_pass(cam, culling, data, mirrored, mirrored_view, true, clear_color, clear_depth, vx, vy, vw, vh, target);
 			clear_color = clear_depth = false;
 		}
-		render_pass(cam, data, world, view, false, clear_color, clear_depth, vx, vy, vw, vh, target);
+		render_pass(cam, culling, data, world, view, false, clear_color, clear_depth, vx, vy, vw, vh, target);
 	}
 
 	static void collect_camera(int handle, bb::entity&, void* user)
@@ -2131,6 +2607,7 @@ int32_t bb_draw_stats(int32_t which)
 	case 1: return int32_t(stats3d.pipelines);
 	case 2: return int32_t(stats3d.textures);
 	case 3: return int32_t(stats3d.buffers);
+	case 4: return int32_t(stats3d.clusters);
 	}
 	return 0;
 }

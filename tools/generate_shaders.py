@@ -20,11 +20,14 @@ OP = dict(
     Load=61, Store=62, AccessChain=65, Decorate=71, MemberDecorate=72, CompositeConstruct=80, CompositeExtract=81,
     ImageSampleImplicitLod=87, FSub=131, FMul=133, Label=248, Return=253,
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
-    TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, SelectionMerge=247, BranchConditional=250, Kill=252,
+    TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, Phi=245, Branch=249, FOrdGreaterThan=186,
+    IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
+EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
+BUILTIN_WORKGROUP_ID, BUILTIN_LOCAL_INVOCATION_ID = 26, 27
 DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35)
 BUILTIN_INSTANCE_INDEX = 43
 BUILTIN_FRAG_COORD = 15
@@ -333,6 +336,7 @@ class Builder:
 GLSL_FABS, GLSL_POW, GLSL_STEP = 4, 26, 48
 GLSL_FLOOR, GLSL_FRACT = 8, 10
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
+GLSL_SQRT, GLSL_FMIN = 31, 37
 
 
 # The lights of a camera that entities pick eight of (max_lights in graphics_internal.hpp), after the rest of the block.
@@ -366,7 +370,7 @@ def declare_scene(b):
     return b.variable("Uniform", scene, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
 
 
-def declare_entities(b):
+def declare_entities(b, set_index=2):
     """
     What differs for each draw: the entity_push of graphics_internal.hpp, one for each instance in a buffer that is read
     with the index of the instance, which is where the draw call says it starts (firstInstance) plus the number of the
@@ -385,7 +389,7 @@ def declare_entities(b):
         Module.inst("MemberDecorate", block, 0, DECORATION["NonWritable"]),
         Module.inst("Decorate", block, DECORATION["BufferBlock"]),
     ]
-    return b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 2), (DECORATION["Binding"], 0)]), entity
+    return b.variable("Uniform", block, [(DECORATION["DescriptorSet"], set_index), (DECORATION["Binding"], 0)]), entity
 
 
 def entity_member(b, entities, instance, index):
@@ -948,6 +952,127 @@ def fragment_shader_gamma():
     return b.m.assemble()
 
 
+def compute_shader_cull():
+    """
+    Decides for chunks of 64 clusters (runs of triangles of a big mesh, with a sphere around them) of draws whether they are
+    inside of what the camera sees, and writes the command that draws each: a count of 0 instances when not. The commands are
+    then drawn with a single indirect call for each draw, see record_scene. The planes are the ones of the view in camera
+    relative space, like the matrices of the entities are.
+
+    #version 450
+    layout(local_size_x = 64) in;
+    struct Cluster { vec4 sphere; ivec4 range; vec4 cone; }; // Center and radius, in the space of the mesh. First index and number of indices. Axis of the normals of the faces and the cutoff (more than 1: no cone).
+    struct Group { ivec4 draw; vec4 growth; };               // Number of the draw, first cluster, clusters, first command. x: how much the matrix of the draw can lengthen a vector, y: 1 when the faces turned away can be left out (the matrix only turns and scales, and the camera looks from a point).
+    struct Command { int indexCount, instanceCount, firstIndex, vertexOffset, firstInstance; };
+    struct Entity { vec4 model0, model1, model2; vec4 rest[6]; };
+    layout(set = 0, binding = 0) readonly buffer Entities { Entity entities[]; };
+    layout(set = 1, binding = 0) readonly buffer Clusters { Cluster clusters[]; };
+    layout(set = 1, binding = 1) readonly buffer Groups { Group groups[]; };
+    layout(set = 1, binding = 2) buffer Commands { Command commands[]; };
+    layout(push_constant) uniform Push { vec4 planes[6]; ivec4 base; } push;   // base.x: the first group of this dispatch.
+    void main() {
+        Group group = groups[push.base.x + gl_WorkGroupID.x];
+        int lane = int(gl_LocalInvocationID.x);
+        bool valid = lane < group.draw.z;
+        Cluster c = clusters[group.draw.y + (valid ? lane : 0)];
+        Entity e = entities[group.draw.x];
+        vec4 p = vec4(c.sphere.xyz, 1.0);
+        vec3 center = vec3(dot(e.model0, p), dot(e.model1, p), dot(e.model2, p));
+        float radius = c.sphere.w * group.growth.x * 1.001 + 0.01 + 1e-5 * (abs(center.x) + abs(center.y) + abs(center.z));
+        float inside = dot(push.planes[0].xyz, center) + push.planes[0].w;
+        for (int i = 1; i < 6; i++) inside = min(inside, dot(push.planes[i].xyz, center) + push.planes[i].w);
+        int slot = valid ? group.draw.w + lane : 0;    // Command 0 is where the lanes that have no cluster write to.
+        vec3 axis = vec3(dot(e.model0.xyz, c.cone.xyz), dot(e.model1.xyz, c.cone.xyz), dot(e.model2.xyz, c.cone.xyz));
+        bool away = group.growth.y > 0.5 && dot(center, axis) >= (c.cone.w * length(center) + radius) * length(axis);   // The camera is at the origin.
+        commands[slot] = Command(c.range.y, (inside + radius >= 0.0 && !away) ? 1 : 0, c.range.x, 0, group.draw.x);
+    }
+    """
+    b = Builder()
+    f, v3, v4, i32, iv4 = b.float(), b.vec(3), b.vec(4), b.int(), b.new_type(("ivec", 4), "TypeVector", b.int(), 4)
+    void, fn = b.void(), b.fn()
+    iv3 = b.new_type(("ivec", 3), "TypeVector", b.int(), 3)
+    boolean = b.new_type("bool", "TypeBool")
+    zero, one = b.const_int(0), b.const_int(1)
+
+    def buffer(name, set_index, binding, element, stride, writable):
+        array = b.new_type(("runtime", name), "TypeRuntimeArray", element)
+        b.m.annotations.append(Module.inst("Decorate", array, DECORATION["ArrayStride"], stride))
+        block = b.struct(name, array)
+        b.m.annotations += [Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0), Module.inst("Decorate", block, DECORATION["BufferBlock"])]
+        if not writable:
+            b.m.annotations.append(Module.inst("MemberDecorate", block, 0, DECORATION["NonWritable"]))
+        return b.variable("Uniform", block, [(DECORATION["DescriptorSet"], set_index), (DECORATION["Binding"], binding)])
+
+    entities, _ = declare_entities(b, 0)
+    cluster = b.struct("cluster", v4, iv4, v4)
+    group = b.struct("group", iv4, v4)
+    command = b.struct("command", i32, i32, i32, i32, i32)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", cluster, 0, DECORATION["Offset"], 0), Module.inst("MemberDecorate", cluster, 1, DECORATION["Offset"], 16), Module.inst("MemberDecorate", cluster, 2, DECORATION["Offset"], 32),
+        Module.inst("MemberDecorate", group, 0, DECORATION["Offset"], 0), Module.inst("MemberDecorate", group, 1, DECORATION["Offset"], 16),
+    ]
+    for index in range(5):
+        b.m.annotations.append(Module.inst("MemberDecorate", command, index, DECORATION["Offset"], index * 4))
+    clusters = buffer("clusters", 1, 0, cluster, 48, False)
+    groups = buffer("groups", 1, 1, group, 32, False)
+    commands = buffer("commands", 1, 2, command, 20, True)
+
+    planes = b.array(v4, 6, "planes")
+    b.m.annotations.append(Module.inst("Decorate", planes, DECORATION["ArrayStride"], 16))
+    push = b.struct("push", planes, iv4)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", push, 0, DECORATION["Offset"], 0),
+        Module.inst("MemberDecorate", push, 1, DECORATION["Offset"], 96),
+        Module.inst("Decorate", push, DECORATION["Block"]),
+    ]
+    push_var = b.variable("PushConstant", push)
+    workgroup = b.variable("Input", iv3, [(DECORATION["BuiltIn"], BUILTIN_WORKGROUP_ID)])
+    local = b.variable("Input", iv3, [(DECORATION["BuiltIn"], BUILTIN_LOCAL_INVOCATION_ID)])
+
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", EXECUTION_MODEL_GLCOMPUTE, main, string_words("main"), workgroup, local))
+    b.m.header.append(Module.inst("ExecutionMode", main, EXECUTION_MODE_LOCAL_SIZE, 64, 1, 1))
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+
+    def int_member(vector, index):
+        return b.emit("CompositeExtract", i32, vector, index)
+
+    base = b.load(iv4, b.access("PushConstant", iv4, push_var, one))
+    group_id = b.emit("IAdd", i32, int_member(base, 0), b.emit("CompositeExtract", i32, b.load(iv3, workgroup), 0))
+    lane = b.emit("CompositeExtract", i32, b.load(iv3, local), 0)
+    draw = b.load(iv4, b.access("Uniform", iv4, groups, zero, group_id, zero))
+    growth_values = b.load(v4, b.access("Uniform", v4, groups, zero, group_id, one))
+    growth, turned = b.extract(growth_values, 0), b.extract(growth_values, 1)
+    entity_index, first_cluster, cluster_count, first_command = (int_member(draw, k) for k in range(4))
+    valid = b.emit("SLessThan", boolean, lane, cluster_count)
+    cluster_index = b.emit("IAdd", i32, first_cluster, b.emit("Select", i32, valid, lane, zero))
+    sphere = b.load(v4, b.access("Uniform", v4, clusters, zero, cluster_index, zero))
+    range_ = b.load(iv4, b.access("Uniform", iv4, clusters, zero, cluster_index, one))
+    cone = b.load(v4, b.access("Uniform", v4, clusters, zero, cluster_index, b.const_int(2)))
+    p = b.construct(4, b.extract(sphere, 0), b.extract(sphere, 1), b.extract(sphere, 2), b.const_float(1.0))
+    center = b.construct(3, *(b.dot(entity_member(b, entities, entity_index, row), p) for row in range(3)))
+    magnitude = b.fadd(f, b.fadd(f, b.ext(f, GLSL_FABS, b.extract(center, 0)), b.ext(f, GLSL_FABS, b.extract(center, 1))), b.ext(f, GLSL_FABS, b.extract(center, 2)))
+    radius = b.fadd(f, b.fadd(f, b.fmul(f, b.fmul(f, b.extract(sphere, 3), growth), b.const_float(1.001)), b.const_float(0.01)), b.fmul(f, b.const_float(1e-5), magnitude))
+    inside = None
+    for plane in range(6):
+        pl = b.load(v4, b.access("PushConstant", v4, push_var, zero, b.const_int(plane)))
+        distance = b.fadd(f, b.dot(b.swizzle(pl, 3), center), b.extract(pl, 3))
+        inside = distance if inside is None else b.ext(f, GLSL_FMIN, inside, distance)
+    visible = b.emit("FOrdGreaterThanEqual", boolean, b.fadd(f, inside, radius), b.const_float(0.0))
+    direction = b.construct(4, b.extract(cone, 0), b.extract(cone, 1), b.extract(cone, 2), b.const_float(0.0))
+    axis = b.construct(3, *(b.dot(entity_member(b, entities, entity_index, row), direction) for row in range(3)))
+    reach = b.fmul(f, b.fadd(f, b.fmul(f, b.extract(cone, 3), b.ext(f, GLSL_LENGTH, center)), radius), b.ext(f, GLSL_LENGTH, axis))
+    away = b.emit("LogicalAnd", boolean, b.emit("FOrdLessThan", boolean, b.const_float(0.5), turned), b.emit("FOrdGreaterThanEqual", boolean, b.dot(center, axis), reach))
+    visible = b.emit("LogicalAnd", boolean, visible, b.emit("LogicalNot", boolean, away))
+    slot = b.emit("Select", i32, valid, b.emit("IAdd", i32, first_command, lane), zero)
+    values = (int_member(range_, 1), b.emit("Select", i32, visible, one, zero), int_member(range_, 0), zero, entity_index)
+    for index, value in enumerate(values):
+        b.store(b.access("Uniform", i32, commands, zero, slot, b.const_int(index)), value)
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def emit(name, words, out):
     out.write("static const unsigned int %s[] = {\n" % name)
     for index in range(0, len(words), 8):
@@ -964,3 +1089,4 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, cutout=False), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
+    emit("bb_shader_compute_cull", compute_shader_cull(), out)

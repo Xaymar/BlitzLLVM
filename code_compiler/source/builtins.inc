@@ -445,6 +445,8 @@
 		{ "cameraviewport", "bb_camera_viewport", 'v', "iiiii", 5, {}, false },
 		{ "camerazoom", "bb_camera_zoom", 'v', "if", 2, {}, false },
 		{ "cameraprojmode", "bb_camera_proj_mode", 'v', "ii", 2, {}, false },
+		{ "cameraculling", "bb_camera_culling", 'v', "ii", 2, {}, false },
+		{ "cameracullingsource", "bb_camera_culling_source", 'v', "ii", 1, { 0, 0 }, false },
 		// 3D: Lights
 		{ "lightcolor", "bb_light_color", 'v', "ifff", 4, {}, false },
 		{ "lightrange", "bb_light_range", 'v', "if", 2, {}, false },
