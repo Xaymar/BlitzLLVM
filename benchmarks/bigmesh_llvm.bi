@@ -11,7 +11,7 @@ End Function
 
 Function BenchCulling(camera)
 	mode$ = GetEnv$("BENCH_CULL")
-	If mode$ = "" Then mode$ = "1"
+	If mode$ = "" Then mode$ = "3"
 	CameraCulling camera, Int(mode$)
 End Function
 

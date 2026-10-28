@@ -242,8 +242,8 @@ not leave out any of it; it is what `CameraCulling` flag 2 (culling of faces on 
 
 [source,sh]
 ----
-python3 benchmarks/bigmesh.py --cull 1      # frustum culling of meshes only, the default
-python3 benchmarks/bigmesh.py --cull 3      # and the GPU culls the faces that are out of view
+python3 benchmarks/bigmesh.py --cull 1      # frustum culling of meshes only
+python3 benchmarks/bigmesh.py --cull 3      # and the GPU culls the faces that are out of view, the default
 python3 benchmarks/bigmesh.py --surfaces 4 --grid 255 --frames 120
 ----
 
