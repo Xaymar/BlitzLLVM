@@ -9,10 +9,11 @@ Usage: render_doppler_samples.py <blitzcc> <output folder>
 """
 import os
 import struct
-import subprocess
 import sys
 import tempfile
 import wave
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))
+import procutil  # noqa: E402
 
 blitzcc, out_dir = (os.path.abspath(a) for a in sys.argv[1:3])
 os.makedirs(out_dir, exist_ok=True)
@@ -45,12 +46,12 @@ def record(name, scale, distance):
 	# The source starts 60 units in front of the listener and passes it at 3 units every 50 ms.
 	with open("play.bb", "w") as f:
 		f.write(SOURCE % (60.0, scale, distance))
-	subprocess.run([blitzcc, "play.bb", "-o", "play"], check=True, capture_output=True)
+	procutil.run([blitzcc, "play.bb", "-o", "play"], check=True, capture_output=True)
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
 	env.pop("BLITZ_HEADLESS", None)
-	subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read()
 	count = len(data) // 4
 	left = struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2]
