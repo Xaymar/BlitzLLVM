@@ -1,0 +1,43 @@
+{
+ "commit": "8c7fb5d8ad4107d4c94ce29780276f7255193125",
+ "commits": [
+  "8c7fb5d8ad4107d4c94ce29780276f7255193125"
+ ],
+ "subject": "Add Origin, Viewport, Locate, fonts, and make Print and Write show their text in the window like the original",
+ "date": "2026-10-26",
+ "label": "c0085-8c7fb5d8",
+ "rev": "8c7fb5d8ad4107d4c94ce29780276f7255193125",
+ "compiler": "Usage: C:\\claude-bench\\scratch\\c0085-8c7fb5d8\\install\\bin\\blitzcc.exe [options] <input.bb> Compiles a BlitzBasic program into a single executable using LLVM. Options: -o <file> Name of the output file. Defaults to the input name. -O0 -O1 -O2 -O3 -Os -Oz LLVM optimization level, defaults to -O2. -S, --emit-llvm Only write the generated LLVM IR (.ll), don't build an executable. --target <triple> Build for another target, such as x86_64-linux-gnu or aarch64-apple-darwin. --llvm-flag <flag> Pass <flag> to the LLVM/clang driver as-is, such as -flto, -march=native or -fuse-ld=lld. Can be given multiple times. --llvm-arg <arg> Pass <arg> to LLVM itself (clang -mllvm <arg>). Can be given multiple times. --cc <path> Which clang to use. Defaults to $BLITZLLVM_CC, then 'clang'. --runtime-dir <dir> Where the runtime libraries to link are. Defaults to 'runtime' next to the compiler, then '../lib/blitzllvm/runtime'. --keep-temps Don't delete the intermediate files. --dump-tokens Only print the tokens of the input file, for debugging the lexer. -v, --verbose Print the commands that are run. -h, --help Show this text. Everything after a lone '--' is passed to clang as-is.",
+ "runs": 3,
+ "machine": {
+  "cpu": "AMD Ryzen 7 9800X3D",
+  "threads": 16,
+  "ram": "64 GB DDR5-6400",
+  "os": "Windows 11 Pro 24H2 (10.0.26100)",
+  "gpu": "NVIDIA GeForce RTX 4080 SUPER",
+  "vram": "16 GB",
+  "renderer": "Vulkan, NVIDIA driver (native)"
+ },
+ "benchmarks": {
+  "compile": {
+   "hello": {
+    "error": "error: Unknown option -q, see --help."
+   },
+   "flythrough": {
+    "error": "error: Unknown option -q, see --help."
+   }
+  },
+  "emitted": {
+   "error": "build failed: original: error: Unknown option -q, see --help."
+  },
+  "flythrough": {
+   "error": "build failed: original: error: Unknown option -q, see --help."
+  },
+  "waterfall": {
+   "error": "build failed: original: error: Unknown option -q, see --help."
+  },
+  "dungeon": {
+   "error": "build failed: original: error: Unknown option -q, see --help."
+  }
+ }
+}
