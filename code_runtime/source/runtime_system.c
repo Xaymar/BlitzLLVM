@@ -14,6 +14,7 @@
 // The console, math, random numbers, time and timers.
 
 #include <ctype.h>
+#include "handle_check.h"
 #include "memory.h"
 #include <math.h>
 #include <stdint.h>
@@ -256,9 +257,11 @@ int32_t bb_create_timer(float hertz)
 
 void bb_free_timer(int32_t handle)
 {
-	if (handle != 0) {
-		bb_timer_get(handle, "FreeTimer")->used = 0;
+	if (handle == 0) {
+		BB_DEBUG_HANDLE_MISSING("FreeTimer", "timer", handle); // Any other build leaves the 0 of a timer alone.
+		return;
 	}
+	bb_timer_get(handle, "FreeTimer")->used = 0;
 }
 
 int32_t bb_wait_timer(int32_t handle)

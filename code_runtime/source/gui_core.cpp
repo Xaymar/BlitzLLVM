@@ -6,6 +6,7 @@
 // The tables of the GUI and what all gadgets have: where they are, whether they are shown and enabled, their text and
 // font, and the layout that makes them follow the group that they are in.
 
+#include "handle_check.h"
 #include "gui_internal.hpp"
 #include "memory.h"
 
@@ -535,6 +536,7 @@ extern "C" {
 void bb_free_gadget(int32_t handle)
 {
 	if (!handle) {
+		BB_DEBUG_HANDLE_MISSING("FreeGadget", "gadget", handle);
 		return;
 	}
 	need_gadget(handle, "FreeGadget");

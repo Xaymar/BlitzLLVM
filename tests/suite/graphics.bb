@@ -179,7 +179,7 @@ SetFont font
 FreeFont font
 Check "FreeFont while in use", FontHeight(), 8
 FreeFont second
-FreeFont 0
+If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then FreeFont 0
 suite_checks = suite_checks + 1
 
 ; Handles, and which rectangles touch. An image is drawn with its handle at the position it is given.

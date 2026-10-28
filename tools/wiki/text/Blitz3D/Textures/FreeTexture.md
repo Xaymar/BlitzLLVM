@@ -7,4 +7,4 @@ Releases a texture and its memory. Entities and brushes that were already painte
 Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, but freeing the ones you no longer need keeps memory use down.
 @param texture  The texture to free.
 @gap [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
-@gap A debug build (`-d`) stops the program when the texture does not exist (a texture that is freed already), see [Debug handle checks](Debug-Handle-Checks). Freeing the 0 of a texture that failed to load is fine everywhere.
+@gap A debug build (`-d`) stops the program when the texture does not exist (a texture that is freed already), see [Debug handle checks](Debug-Handle-Checks). The 0 of a texture that failed to load is an error too.

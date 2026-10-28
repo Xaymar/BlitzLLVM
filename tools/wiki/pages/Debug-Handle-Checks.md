@@ -16,12 +16,12 @@ What a debug build checks, on top of what every build already refuses (banks, fi
 
 | Handle | Commands | Release build |
 | --- | --- | --- |
-| Texture | `FreeTexture` of a freed texture, `TextureWidth`, `TextureHeight`, `EntityTexture` and `BrushTexture` with a texture that does not exist | ignored, 0 and ignored |
-| Image | `FreeImage` of an image that is freed already | ignored |
+| Texture | `FreeTexture` of a freed texture or 0, `TextureWidth`, `TextureHeight`, `EntityTexture` and `BrushTexture` with a texture that does not exist | ignored, 0 and ignored |
+| Image | `FreeImage` of an image that is freed already or 0 | ignored |
 | Sound | every sound command with the 0 of a sound that failed to load | ignored |
 | Channel | every channel command with a channel that was never given out | ignored |
 | Movie | every movie command with the 0 of a movie that failed to open or a movie that was closed | ignored, 0 |
 
-Some uses of the 0 are common ways of writing "if there is one", and the original accepts them, so no build stops for them: `FreeTexture`, `FreeImage`, `FreeSound` and `CloseMovie` of 0, `EntityTexture` and `BrushTexture` with the texture 0 (which takes the texture off), and a channel that is over, as channels end by themselves. `Object.Type(handle)` gives `Null` for a handle that names no object in every build, as the language says.
+The 0 that a failed load gives counts as a handle that does not exist, so `FreeTexture`, `FreeImage`, `FreeSound`, `CloseMovie`, `FreeFont`, `FreeTimer`, `FreeGadget` and `FreeTreeViewNode` of 0 stop a debug build as well (freeing, closing and deleting must be given something that exists); `FreeEntity`, `FreeBrush`, `FreeBank`, `CloseFile`, `Delete` and the like already stop every build. What stays legal: `EntityTexture` and `BrushTexture` with the texture 0 (which takes the texture off), and a channel that is over, as channels end by themselves. `Object.Type(handle)` gives `Null` for a handle that names no object in every build, as the language says.
 
 A debug build also ignores [AsyncLoading](AsyncLoading), [AsyncSaving](AsyncSaving) and the environment variables `BLITZ_ASYNC_LOAD` and `BLITZ_ASYNC_SAVE`. A file that can not be loaded or decoded then stops the program at the command that loaded it, and a save that fails tells so in the result of the command that asked for it. The commands themselves keep working: [TextureReady](TextureReady), [ImageReady](ImageReady) and [EntityReady](EntityReady) always give 1, and [SavesPending](SavesPending) always gives 0.
