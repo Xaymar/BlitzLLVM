@@ -261,3 +261,17 @@ same rules as for the other benchmarks apply: windowed, at most 2048 in each dir
 (`--rounds` times) and prints the median microseconds per frame of each. In BlitzLLVM `FrontBuffer()` is the back buffer, so both
 should be the same; in the original Blitz3D the front buffer is the picture on the screen. It works with both compilers
 (`--blitzcc`), and runs windowed only.
+
+NOTE: The original Blitz3D cannot open a window above 2047x2047 (not 2048: Direct3D 7 and DirectDraw have an off-by-one in the largest
+surface). Above that it stops with "Unable to create 3D Scene"; that is why it could not start at 2560x1440 on the 4080 SUPER machine.
+The runner stops with a clear message above 2047 in either direction with the original; BlitzLLVM has no such limit.
+
+== collision_oracle: a fixed course for the collision code
+
+`collision_oracle.bb` pushes seven movers (spheres and one ellipsoid) along fixed paths into spheres, polygon meshes (cube,
+cone, ramp) and a box, with response 1, 2 and 3, and writes the position and every `Collision*` value of every mover for every
+frame to a text file (`ORACLE_OUT`, `ORACLE_FRAMES`). It is not a speed test: it is what two compilers, or two collision
+backends, are compared with line by line. Values are written in units of 0.0001 so that float formatting cannot differ. Run it
+with the original through `tools/original_blitz3d.sh run` and with `blitzcc`, then `diff` the files. `CollisionEntity` is written
+as the creation number of the entity, because the original returns pointers; `CollisionSurface` also differs for that reason,
+so leave it out of the comparison.
