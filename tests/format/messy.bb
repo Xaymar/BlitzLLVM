@@ -51,3 +51,6 @@ Print total  :  Print p\x
 Delete p
 Goto done
 .done
+Function Split(value:Int32,out   high:Int32 , INOUT low:Int32,in k:Int32=1)
+high=value
+End Function

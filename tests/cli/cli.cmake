@@ -509,6 +509,9 @@ elseif(CASE STREQUAL "keywords")
 	expect_line("createcube")
 	expect_line("CliAdd")
 	expect_line("CliShow")
+	expect_line("In")
+	expect_line("Out")
+	expect_line("InOut")
 	# Words with a space are the same keyword as the one without it, and are not listed.
 	expect_missing("End If")
 	# Keywords only, no syntax.
