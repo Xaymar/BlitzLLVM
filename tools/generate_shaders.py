@@ -22,13 +22,13 @@ OP = dict(
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
-    Image=100, ImageFetch=95, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48,
+    Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstant=50,
     IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
 BUILTIN_WORKGROUP_ID, BUILTIN_LOCAL_INVOCATION_ID = 26, 27
-DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35, SpecId=1)
+DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35, SpecId=1, InputAttachmentIndex=43)
 BUILTIN_INSTANCE_INDEX = 43
 BUILTIN_FRAG_COORD = 15
 
@@ -626,11 +626,15 @@ def vertex_shader_3d():
 
 
 
-def fragment_shader_masked(mask_offset, fog=False, cutout=True):
+def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
     With cutout=False the 3D one never discards, which leaves the depth test before the shader.
+    With blend=True (3D only) the shader blends itself, for Dither 2: it reads what the color attachment holds (an input attachment,
+    which VK_KHR_dynamic_rendering_local_read and VK_EXT_rasterization_order_attachment_access make possible while the draws
+    that touch a pixel stay in order), mixes it with the color it makes as the fixed-function blend of the mode would (the
+    mode is the specialization constants 1 to 5, see below), adds the noise of Dither to the result, and writes that without blending.
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
@@ -647,6 +651,8 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
     }
     """
     b = Builder()
+    if blend:
+        b.m.header.insert(1, Module.inst("Capability", 40))  # InputAttachment
     f, v2, v3, v4 = b.float(), b.vec(2), b.vec(3), b.vec(4)
     void, fn = b.void(), b.fn()
     c1 = b.const_float(1.0)
@@ -678,6 +684,10 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
         in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
         # The depth of what was drawn before the sprites, for SpriteDepthFade.
         depth_tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
+        if blend:
+            # What the target holds at this pixel: dimension SubpassData, sampled 2 (read without a sampler), set 4, attachment 0.
+            subpass = b.new_type("subpass", "TypeImage", f, 6, 0, 0, 0, 2, 0)
+            target = b.variable("UniformConstant", subpass, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["InputAttachmentIndex"], 0)])
         interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag]
 
     main, label = b.m.id(), b.m.id()
@@ -840,30 +850,64 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
         #   layout(constant_id = 0) const bool dither = false;
         #   if (dither) { vec2 xy = floor(gl_FragCoord.xy) + vec2(scene.projection.w - 1.0);
         #                 rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0; }
-        boolean = b.new_type("bool", "TypeBool")
-        dither_on = b.m.id()
-        b.m.types.append(Module.inst("SpecConstantTrue", boolean, dither_on))
-        b.m.annotations.append(Module.inst("Decorate", dither_on, DECORATION["SpecId"], 0))
-        before_dither, dither_label, dither_merge = b.m.id(), b.m.id(), b.m.id()
-        b.m.code += [
-            Module.inst("Branch", before_dither),
-            Module.inst("Label", before_dither),
-            Module.inst("SelectionMerge", dither_merge, 0),
-            Module.inst("BranchConditional", dither_on, dither_label, dither_merge),
-            Module.inst("Label", dither_label),
-        ]
-        w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
-        frag = b.load(v4, in_frag)
-        shift = b.fsub(f, w, c1)
-        px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
-        py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
-        along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
-        noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
-        offset = b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
-        dithered = b.fadd(v3, rgb, b.scale(3, b.const_vec(3, 1.0), offset))
-        b.m.code += [Module.inst("Branch", dither_merge), Module.inst("Label", dither_merge)]
-        rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
-        result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
+        # The shader that blends itself dithers what it blends instead, always, as it is only used when Dither is 2.
+        def noise_offset():
+            w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
+            frag = b.load(v4, in_frag)
+            shift = b.fsub(f, w, c1)
+            px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
+            py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
+            along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
+            noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
+            return b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+
+        if blend:
+            # The blend of the fixed-function pipeline, with the factors as specialization constants (ids 1 to 5). The factor of
+            # the color that is drawn is a * source_alpha + b * destination, and the factor of what is there is c + d * source_alpha
+            # + e * drawn color. The alpha is always as with blending by alpha, as in the pipelines. The modes are
+            #   by alpha  a=1 b=0 c=1 d=-1 e=0      multiply        a=0 b=1 c=0 d=0 e=0
+            #   add       a=1 b=0 c=1 d=0  e=0      multiply by 2   a=0 b=1 c=0 d=0 e=1
+            #   layout(input_attachment_index = 0, set = 4, binding = 0) uniform subpassInput target;
+            #   vec4 there = subpassLoad(target);
+            #   rgb = rgb * (fa * a + fb * there.rgb) + there.rgb * (fc + fd * a + fe * rgb);  alpha = a + there.a * (1 - a);
+            #   rgb += noise;
+            ivec2 = b.new_type("ivec2", "TypeVector", b.int(), 2)
+            zero_i = b.const_int(0)
+            origin = b.m.id()
+            b.m.types.append(Module.inst("ConstantComposite", ivec2, origin, zero_i, zero_i))
+            factors = []
+            for number, default in enumerate((1.0, 0.0, 1.0, -1.0, 0.0), start=1):
+                constant = b.m.id()
+                b.m.types.append(Module.inst("SpecConstant", f, constant, float_bits(default)))
+                b.m.annotations.append(Module.inst("Decorate", constant, DECORATION["SpecId"], number))
+                factors.append(constant)
+            fa, fb, fc, fd, fe = factors
+            there = b.emit("ImageRead", v4, b.load(subpass, target), origin)
+            there_rgb = b.swizzle(there, 3)
+            alpha = b.extract(result, 3)
+            drawn_factor = b.fadd(v3, b.scale(3, there_rgb, fb), b.construct(3, *([b.fmul(f, fa, alpha)] * 3)))
+            there_factor = b.fadd(v3, b.scale(3, rgb, fe), b.construct(3, *([b.fadd(f, fc, b.fmul(f, fd, alpha))] * 3)))
+            blended = b.fadd(v3, b.emit("FMul", v3, rgb, drawn_factor), b.emit("FMul", v3, there_rgb, there_factor))
+            blended = b.fadd(v3, blended, b.scale(3, b.const_vec(3, 1.0), noise_offset()))
+            blended_alpha = b.fadd(f, alpha, b.fmul(f, b.extract(there, 3), b.fsub(f, c1, alpha)))
+            result = b.construct(4, b.extract(blended, 0), b.extract(blended, 1), b.extract(blended, 2), blended_alpha)
+        else:
+            boolean = b.new_type("bool", "TypeBool")
+            dither_on = b.m.id()
+            b.m.types.append(Module.inst("SpecConstantTrue", boolean, dither_on))
+            b.m.annotations.append(Module.inst("Decorate", dither_on, DECORATION["SpecId"], 0))
+            before_dither, dither_label, dither_merge = b.m.id(), b.m.id(), b.m.id()
+            b.m.code += [
+                Module.inst("Branch", before_dither),
+                Module.inst("Label", before_dither),
+                Module.inst("SelectionMerge", dither_merge, 0),
+                Module.inst("BranchConditional", dither_on, dither_label, dither_merge),
+                Module.inst("Label", dither_label),
+            ]
+            dithered = b.fadd(v3, rgb, b.scale(3, b.const_vec(3, 1.0), noise_offset()))
+            b.m.code += [Module.inst("Branch", dither_merge), Module.inst("Label", dither_merge)]
+            rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
+            result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
     b.store(out_color, result)
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
@@ -1118,6 +1162,7 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_vertex_3d", vertex_shader_3d(), out)
     emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)
     emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, cutout=False), out)
+    emit("bb_shader_fragment_3d_blend", fragment_shader_masked(96, fog=True, blend=True), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
     emit("bb_shader_compute_cull", compute_shader_cull(), out)
