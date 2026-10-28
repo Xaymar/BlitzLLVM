@@ -94,7 +94,7 @@ A setting is `--name=value` on the command line, `name = value` in a `.blitz-tid
 
 Files are rewritten in place and the only output is the name of each file, one per line, followed by the findings that were left in it (the rules set to `report` and the fixes that were refused). Without files, or with `-`, the standard input is fixed and the result written to the standard output. `--check` and `--diff` change nothing.
 
-Options: `-i` (does nothing, files are always rewritten in place), `-r`/`--recursive`, `--check`, `--diff`, `-q`, `--config=FILE`, `--no-config`, `--stdin-filepath=PATH`, `--print-config`, `--rules` and `-v`.
+Options: `-i` (does nothing, files are always rewritten in place), `-r`/`--recursive`, `--check`, `--diff`, `-q`, `--config=FILE`, `--no-config`, `--stdin-filepath=PATH`, `--print-config`, `--rules`, `-h`/`--help` and `-v`/`--version`. `--help` and `--version` print and stop right away (exit code 0), whatever else is on the command line; `--version` writes `blitz-tidy <version>`.
 
 `-r` replaces every directory in the command line with the `.bb` files below it (`.b3d` is a 3D model format as well, so it is not used) (any case of the extension, in sorted order, symbolic links to directories are not followed). Each file is fixed with the configuration file that is closest to it. Files named on the command line are always used, whatever their extension, and a directory without `-r` is an error.
 
