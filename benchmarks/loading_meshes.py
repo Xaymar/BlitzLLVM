@@ -87,7 +87,7 @@ def main():
         if build.returncode != 0:
             sys.exit("Building the benchmark failed:\n" + (build.stdout + build.stderr)[-2000:])
         print("%d models of %d triangles, %d runs each, %s" % (args.meshes, args.triangles, args.runs, version or "unknown compiler"))
-        print("%-10s %10s %10s %10s %10s" % ("mode", "load ms", "work ms", "use ms", "total ms"))
+        print("%-10s %10s %10s %10s %10s %10s" % ("mode", "load ms", "work ms", "build ms", "use ms", "total ms"))
         for mode in (["blocking", "async"] if llvm else ["blocking"]):
             results = []
             for run in range(args.runs + 1):
@@ -103,7 +103,7 @@ def main():
                     continue # The first run warms the file cache.
                 results.append({k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", open(result_file).read())})
             med = lambda key: statistics.median(r[key] for r in results)
-            print("%-10s %10.1f %10.1f %10.1f %10.1f" % (mode, med("load_ms"), med("work_ms"), med("use_ms"), med("total_ms")))
+            print("%-10s %10.1f %10.1f %10.1f %10.1f %10.1f" % (mode, med("load_ms"), med("work_ms"), med("build_ms"), med("use_ms"), med("total_ms")))
 
 
 if __name__ == "__main__":

@@ -364,13 +364,46 @@ namespace {
 		return true;
 	}
 
-	// Surfaces for the triangle groups of a node, with vertices passed through the matrix (or as they are).
-	// If skin is true, what each vertex came from is remembered in order to find out which bones belong to it.
-	void build_surfaces(model& m, node_info& node, int entity_handle, const float* matrix, buffer<uint32_t>* sources, buffer<surface*>* made)
+	// The vertices and indices of one surface, made from a triangle group without touching the scene.
+	struct prepared_group {
+		buffer<vertex3d> vertices;
+		buffer<uint32_t> indices;
+		buffer<uint32_t> source; // Which vertex of the node each vertex came from.
+		void*            gpu = nullptr; // The buffers for the graphics card, if a loader thread made them.
+	};
+
+	struct prepared_node {
+		buffer<prepared_group> groups;
+	};
+
+	// Everything of a model that can be made without the scene, which is what loader threads do after parsing.
+	struct prepared_model {
+		buffer<prepared_node> nodes; // One for each node of the model, empty for those that are not built.
+
+		void release()
+		{
+			for (uint32_t i = 0; i < nodes.size; i++) {
+				for (uint32_t g = 0; g < nodes[i].groups.size; g++) {
+					nodes[i].groups[g].vertices.release();
+					nodes[i].groups[g].indices.release();
+					nodes[i].groups[g].source.release();
+					if (nodes[i].groups[g].gpu) {
+						gfx::surface_prebuild_drop(nodes[i].groups[g].gpu);
+					}
+				}
+				nodes[i].groups.release();
+			}
+			nodes.release();
+		}
+	};
+
+	// Vertices and indices for the triangle groups of a node, with vertices passed through the matrix (or as they are).
+	// A node that has no normals gets them made like UpdateNormals does.
+	void prepare_surfaces(node_info& node, const float* matrix, bool upload, prepared_node& into)
 	{
 		for (uint32_t g = 0; g < node.groups.size; g++) {
 			triangle_group& group = *node.groups[g];
-			surface*        s     = create_surface(entity_handle);
+			prepared_group  made  = {};
 
 			// Only the vertices that this group uses.
 			buffer<int> remap;
@@ -378,7 +411,6 @@ namespace {
 			for (uint32_t i = 0; i < node.vertices.size; i++) {
 				remap.push(-1);
 			}
-			buffer<uint32_t> source;
 			for (uint32_t i = 0; i < group.indices.size; i++) {
 				uint32_t original = group.indices[i];
 				if (original >= node.vertices.size) {
@@ -405,16 +437,40 @@ namespace {
 					out.g = float_to_half(v.color[1]);
 					out.b = float_to_half(v.color[2]);
 					out.a = float_to_half(v.color[3]);
-					remap[original] = int(s->vertices.size);
-					s->vertices.push(out);
-					source.push(original);
+					remap[original] = int(made.vertices.size);
+					made.vertices.push(out);
+					made.source.push(original);
 				}
-				s->indices.push(uint32_t(remap[original]));
+				made.indices.push(uint32_t(remap[original]));
 			}
+			remap.release();
+			if (!node.has_normals) {
+				compute_normals(made.vertices, made.indices);
+			}
+			if (upload) {
+				made.gpu = gfx::surface_prebuild(made.vertices.data, made.vertices.size, made.indices.data, made.indices.size);
+			}
+			into.groups.push(made);
+		}
+	}
+
+	// Makes the surfaces of a node in the scene from what prepare_surfaces made, which they take over.
+	// If sources is given, what each vertex came from is remembered in order to find out which bones belong to it.
+	void build_surfaces(model& m, node_info& node, int entity_handle, prepared_node& prepared, buffer<uint32_t>* sources, buffer<surface*>* made)
+	{
+		for (uint32_t g = 0; g < node.groups.size; g++) {
+			triangle_group& group = *node.groups[g];
+			prepared_group& from  = prepared.groups[g];
+			surface*        s     = create_surface(entity_handle);
+			s->vertices           = from.vertices;
+			s->indices            = from.indices;
+			from.vertices         = {};
+			from.indices          = {};
 			s->dirty = true;
 			bb::surface_changed(*s);
-			if (!node.has_normals) {
-				recalculate_normals(s);
+			if (from.gpu) {
+				gfx::surface_adopt(*s, from.gpu); // The first draw has nothing left to upload.
+				from.gpu = nullptr;
 			}
 
 			int       brush = group.brush >= 0 ? group.brush : node.mesh_brush;
@@ -425,17 +481,45 @@ namespace {
 			}
 			if (sources) {
 				sources->push(0); // Marks a new surface.
-				for (uint32_t i = 0; i < source.size; i++) {
-					sources->push(source[i]);
+				for (uint32_t i = 0; i < from.source.size; i++) {
+					sources->push(from.source[i]);
 				}
 				sources->push(0xFFFFFFFFu);
 			}
 			if (made) {
 				made->push(s);
 			}
-			source.release();
-			remap.release();
 		}
+	}
+
+	// The world matrices of the nodes of a model, which are the same as long as it is not changed.
+	void prepare_model(model& m, bool hierarchy, bool upload, prepared_model& out)
+	{
+		buffer<float*> models;
+		for (uint32_t i = 0; i < m.nodes.size; i++) {
+			node_info& n = *m.nodes[i];
+			float*     world = nullptr;
+			if (!hierarchy) {
+				world = static_cast<float*>(malloc(16 * sizeof(float)));
+				float local[16];
+				compose(local, n.pos, n.scale, n.rot);
+				if (n.parent >= 0) {
+					mat_multiply(world, models[uint32_t(n.parent)], local);
+				} else {
+					memcpy(world, local, sizeof(local));
+				}
+			}
+			models.push(world);
+			prepared_node made = {};
+			if (n.has_mesh && (hierarchy || !n.hidden)) {
+				prepare_surfaces(n, world, upload, made);
+			}
+			out.nodes.push(made);
+		}
+		for (uint32_t i = 0; i < models.size; i++) {
+			free(models[i]);
+		}
+		models.release();
 	}
 
 	void set_transform(entity& e, node_info const& n)
@@ -449,7 +533,7 @@ namespace {
 
 	// The whole model as entities, with its animation.
 	// reuse is the handle of an entity that is made the top of the model, or 0 to make a new one.
-	int build_hierarchy(model& m, int parent, int reuse)
+	int build_hierarchy(model& m, prepared_model& prepared, int parent, int reuse)
 	{
 		animation* anim = new animation();
 		anim->frames    = m.frames > 0 ? m.frames : 1;
@@ -517,7 +601,7 @@ namespace {
 			}
 			buffer<uint32_t> sources;
 			buffer<surface*> surfaces;
-			build_surfaces(m, n, handles[i], nullptr, &sources, &surfaces);
+			build_surfaces(m, n, handles[i], prepared.nodes[i], &sources, &surfaces);
 
 			// Every bone below this node (or this node) that pulls on its vertices.
 			bool skinned = false;
@@ -602,32 +686,18 @@ namespace {
 	}
 
 	// The whole model as one mesh, as it looks without animation.
-	int build_static(model& m, int parent, int reuse)
+	int build_static(model& m, prepared_model& prepared, int parent, int reuse)
 	{
 		int mesh = reuse ? reuse : create_entity(MESH, parent);
 		if (m.nodes[0]->name) {
 			bb_name_entity(mesh, m.nodes[0]->name);
 		}
-		buffer<float*> models;
 		for (uint32_t i = 0; i < m.nodes.size; i++) {
-			node_info& n     = *m.nodes[i];
-			float*     world = static_cast<float*>(malloc(16 * sizeof(float)));
-			float      local[16];
-			compose(local, n.pos, n.scale, n.rot);
-			if (n.parent >= 0) {
-				mat_multiply(world, models[uint32_t(n.parent)], local);
-			} else {
-				memcpy(world, local, sizeof(local));
-			}
-			models.push(world);
+			node_info& n = *m.nodes[i];
 			if (n.has_mesh && !n.hidden) {
-				build_surfaces(m, n, mesh, world, nullptr, nullptr);
+				build_surfaces(m, n, mesh, prepared.nodes[i], nullptr, nullptr);
 			}
 		}
-		for (uint32_t i = 0; i < models.size; i++) {
-			free(models[i]);
-		}
-		models.release();
 		return mesh;
 	}
 } // namespace
@@ -638,13 +708,22 @@ struct bb::model_load {
 		uint8_t* data = nullptr;
 		size_t   size = 0;
 		char*    path = nullptr;
+		bool     anim = false;
 		model    m;
-		void     run() override { ok = parse_model(path, data, size, m); }
+		prepared_model prepared; // The vertices and indices of the surfaces, made on the loader thread as well.
+		void     run() override
+		{
+			ok = parse_model(path, data, size, m);
+			if (ok) {
+				prepare_model(m, anim, true, prepared);
+			}
+		}
 		~job_t() override
 		{
 			free(data);
 			free(path);
 			m.release();
+			prepared.release();
 		}
 	};
 	job_t*      job   = nullptr; // Null once the model is built.
@@ -697,7 +776,10 @@ namespace {
 		}
 		if (!async) {
 			free(data);
-			int handle = anim ? build_hierarchy(m, parent, 0) : build_static(m, parent, 0);
+			prepared_model prepared;
+			prepare_model(m, anim, false, prepared);
+			int handle = anim ? build_hierarchy(m, prepared, parent, 0) : build_static(m, prepared, parent, 0);
+			prepared.release();
 			m.release();
 			return handle;
 		}
@@ -706,6 +788,7 @@ namespace {
 		model_load::job_t* job = new model_load::job_t();
 		job->data = data;
 		job->size = got;
+		job->anim = anim;
 		job->path = static_cast<char*>(malloc(strlen(file) + 1));
 		strcpy(job->path, file);
 		l->job  = job;
@@ -734,9 +817,9 @@ void bb::resolve_model(int handle, entity& e)
 		fail(l->what);
 	}
 	if (l->anim) {
-		build_hierarchy(job->m, e.parent, handle);
+		build_hierarchy(job->m, job->prepared, e.parent, handle);
 	} else {
-		build_static(job->m, e.parent, handle);
+		build_static(job->m, job->prepared, e.parent, handle);
 	}
 	collect_textures(*l, job->m);
 	gfx::async_discard(job);

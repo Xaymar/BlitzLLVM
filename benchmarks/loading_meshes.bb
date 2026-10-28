@@ -45,6 +45,12 @@ For i = 1 To work
 Next
 worked = BenchMicros()
 
+; Asking for the surfaces is what finishes a model that was parsed on another thread.
+For i = 0 To count - 1
+	If CountSurfaces(model(i)) = 0 Then RuntimeError "Model " + i + " has no surfaces"
+Next
+built = BenchMicros()
+
 ; Each model is shown once, which is what needs it.
 For i = 0 To count - 1
 	ShowEntity model(i)
@@ -61,7 +67,7 @@ For i = 0 To count - 1
 	triangles = triangles + CountTriangles(GetSurface(model(i), 1))
 Next
 
-line$ = "RESULT meshes=" + count + " load_ms=" + ((loaded - start) / 1000.0) + " work_ms=" + ((worked - loaded) / 1000.0) + " use_ms=" + ((used - worked) / 1000.0) + " total_ms=" + ((used - start) / 1000.0) + " ready=" + ready + " triangles=" + triangles + " x=" + Int(x#)
+line$ = "RESULT meshes=" + count + " load_ms=" + ((loaded - start) / 1000.0) + " work_ms=" + ((worked - loaded) / 1000.0) + " build_ms=" + ((built - worked) / 1000.0) + " use_ms=" + ((used - built) / 1000.0) + " total_ms=" + ((used - start) / 1000.0) + " ready=" + ready + " triangles=" + triangles + " x=" + Int(x#)
 resultfile$ = Env$("BENCH_RESULT", "")
 If resultfile$ <> ""
 	f = WriteFile(resultfile$)

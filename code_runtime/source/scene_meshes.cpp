@@ -215,6 +215,13 @@ namespace bb::scene {
 	// the same position, so that the corners of triangles that do not share indices are still smooth.
 	static void update_normals(surface* s)
 	{
+		bb::compute_normals(s->vertices, s->indices);
+		s->dirty = true;
+		bb::surface_changed(*s);
+	}
+
+	static void compute_normals_impl(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices)
+	{
 		struct position {
 			float x, y, z;
 			bool operator==(const position& o) const { return x == o.x && y == o.y && z == o.z; }
@@ -234,9 +241,9 @@ namespace bb::scene {
 		// Adding 0 turns -0 into 0, which is the same position.
 		auto key_of = [](const vertex3d& v) { return position{ v.x + 0.0f, v.y + 0.0f, v.z + 0.0f }; };
 		std::unordered_map<position, std::array<float, 3>, position_hash> sums;
-		sums.reserve(s->vertices.size);
-		for (uint32_t i = 0; i + 2 < s->indices.size; i += 3) {
-			vertex3d &a = s->vertices[s->indices[i]], &b = s->vertices[s->indices[i + 1]], &c = s->vertices[s->indices[i + 2]];
+		sums.reserve(vertices.size);
+		for (uint32_t i = 0; i + 2 < indices.size; i += 3) {
+			vertex3d &a = vertices[indices[i]], &b = vertices[indices[i + 1]], &c = vertices[indices[i + 2]];
 			float e1[3] = { b.x - a.x, b.y - a.y, b.z - a.z }, e2[3] = { c.x - a.x, c.y - a.y, c.z - a.z };
 			float n[3] = { e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0] };
 			float length = std::sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
@@ -251,8 +258,8 @@ namespace bb::scene {
 				sum[2] += n[2] / length;
 			}
 		}
-		for (uint32_t i = 0; i < s->vertices.size; i++) {
-			vertex3d& v = s->vertices[i];
+		for (uint32_t i = 0; i < vertices.size; i++) {
+			vertex3d& v = vertices[i];
 			float n[3] = { 0, 0, 0 };
 			auto found = sums.find(key_of(v));
 			if (found != sums.end()) {
@@ -265,8 +272,6 @@ namespace bb::scene {
 			v.ny = n[1];
 			v.nz = n[2];
 		}
-		s->dirty = true;
-		bb::surface_changed(*s);
 	}
 
 	int new_mesh(int parent)
@@ -348,6 +353,11 @@ namespace bb::scene {
 bb::surface* bb::create_surface(int mesh_handle)
 {
 	return surface_of(new_surface(mesh_handle));
+}
+
+void bb::compute_normals(buffer<vertex3d>& vertices, buffer<uint32_t> const& indices)
+{
+	compute_normals_impl(vertices, indices);
 }
 
 void bb::recalculate_normals(surface* s)
