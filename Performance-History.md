@@ -7,14 +7,14 @@ How fast BlitzLLVM is, and what each performance change did to it. Every row is 
 
 ## How the numbers are made
 
-* Every benchmark is built with the compiler of the commit of that row (its default options) and run **10 times**. A number is the **mean** of the runs, followed by ± the standard deviation. All runs are in `benchmarks/history/` (JSON).
+* Every benchmark is built with the compiler of the commit of that row (its default options) and run **10 times**. A number is the **mean** of the runs, followed by ± the standard deviation. All runs are in the `performance-history` branch (JSON).
 * The programs are the ones of the latest `root` (`benchmarks/`, run by `benchmarks/history.py`), so every compiler runs the same program. Where an old compiler can not build the BlitzLLVM include (no `Microseconds`, no `Stats3D`), the include for the original Blitz3D is used: its timer has a resolution of a millisecond and it has no draw counters. Programs are shown as `n/a` where a compiler can not build or run them.
 * A change in brackets is against the last row above that has a number, so after a run of `n/a` rows it spans several revisions.
 * Results are sectioned by **machine definition**: CPU, GPU, OS and version, RAM, VRAM and the renderer or converter. Numbers of different machine definitions can not be compared.
 * The original Blitz3D 1.118 is a Windows program. Here it runs under Wine, and its Direct3D 7 is converted to OpenGL by wined3d on llvmpipe. That is only there to have a number to put next to the others (and for the pixel comparisons); it is **not** what the original does on a real computer.
 * llvmpipe is a software rasterizer: most of a frame is the CPU drawing pixels, so changes that save GPU work or draw calls barely show. A real GPU is needed for those; those runs have to be added as a machine definition of their own.
 * **TODO**: neighbouring rows are tested one pair at a time, so with this many rows a few false 📈/📉 are expected at p < 0.01; a correction for the number of comparisons (or one regression over all rows) would be better, and more runs make the test stronger.
-* To rebuild this page after a merge that affects performance: build the compiler, run `python3 benchmarks/history.py --blitzcc PATH --label NAME`, add the revision to `benchmarks/history/revisions.json` and run `python3 benchmarks/history_page.py`.
+* To rebuild this page after a merge that affects performance: build the compiler, run `python3 benchmarks/history.py --blitzcc PATH --label NAME`, add the revision to `revisions.json` and run `python3 benchmarks/history_page.py`.
 
 ## Machine 1: Vulkan on llvmpipe
 
