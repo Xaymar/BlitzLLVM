@@ -25,17 +25,11 @@ using namespace bb::gfx;
 
 namespace bb::gfx {
 
-	// What a tile of an atlas reads through. With a gutter of g pixels the levels up to log2(g) only reach into the gutter (they are
-	// only used if the atlas has mip maps); without one it stays on the first level.
-	static VkSampler view_sampler(texture_entry const& t)
+	// The sampler of the descriptor set of a view. The fragment shader reads views itself (see texture_view), so this one is only what
+	// the set has.
+	static VkSampler view_sampler(texture_entry const&)
 	{
-		int lod = 0;
-		if (t.gutter > 1 && t.image.mips > 1) {
-			while ((2 << lod) <= t.gutter) {
-				lod++;
-			}
-		}
-		return lod > 0 ? atlas_sampler((t.flags & TEXTURE_POINT) != 0, lod) : texture_sampler(t.flags & ~TEXTURE_MIPMAPS);
+		return texture_sampler(TEXTURE_CLAMP_U | TEXTURE_CLAMP_V);
 	}
 
 	texture_entry* texture_of(int reference)
@@ -84,8 +78,7 @@ namespace bb::gfx {
 			return;
 		}
 		if (t->atlas) {
-			image_or_set = uintptr_t(t->image.view);
-			sampler      = uintptr_t(view_sampler(*t));
+			image_or_set = uintptr_t(t->image.view); // Views are read by the shader with their own settings, so only the image counts.
 		} else {
 			image_or_set = uintptr_t(t->set);
 		}
@@ -110,18 +103,49 @@ namespace bb::gfx {
 			uv[2] = uv[2] * fx + float(cell % cols) * fx;
 			uv[3] = uv[3] * fy + float(cell / cols) * fy;
 		}
-		if (t && t->atlas) {
-			// The rectangle of an atlas view. Linear filtering reads half a texel past what it is given, so the edge of the rectangle
-			// is half a texel in, which keeps the neighbouring tiles out; the nearest texel (flag 1024) has nothing to bleed.
-			float inset = ((t->flags & TEXTURE_POINT) || t->gutter > 0) ? 0.0f : 0.5f;
-			float aw = float(t->width), ah = float(t->height);
-			float w = float(t->rect[2]) - 2.0f * inset, h = float(t->rect[3]) - 2.0f * inset;
-			w       = w < 0.0f ? 0.0f : w;
-			h       = h < 0.0f ? 0.0f : h;
-			uv[0] *= w / aw;
-			uv[1] *= h / ah;
-			uv[2] = uv[2] * w / aw + (float(t->rect[0]) + inset) / aw;
-			uv[3] = uv[3] * h / ah + (float(t->rect[1]) + inset) / ah;
+	}
+
+	// A view of an atlas is read by the fragment shader itself (view_sample in generate_shaders.py), because a sampler can neither wrap
+	// nor go down the mip levels inside a rectangle of an image. The coordinates it is given are the ones of the tile.
+	void texture_view(texture_entry const* t, float* v0, float* v1, float* v2)
+	{
+		memset(v0, 0, 4 * sizeof(float));
+		memset(v1, 0, 4 * sizeof(float));
+		memset(v2, 0, 4 * sizeof(float));
+		if (!t || !t->atlas) {
+			return;
+		}
+		for (int i = 0; i < 4; i++) {
+			v0[i] = float(t->rect[i]);
+		}
+		int            mode[2] = { 0, 0 };
+		bool           linear[3] = { true, true, true }; // Magnification, minification, between levels.
+		float          bias = 0.0f, lod_min = 0.0f, lod_max = 1000.0f;
+		const float*   border = nullptr;
+		if (t->sampler && uint32_t(t->sampler) <= sampler_table.size && sampler_table[uint32_t(t->sampler) - 1].used) {
+			sampler_entry const& s = sampler_table[uint32_t(t->sampler) - 1];
+			mode[0] = s.address[0];
+			mode[1] = s.address[1];
+			linear[0] = s.filter_mag != 0;
+			linear[1] = s.filter_min != 0;
+			linear[2] = s.filter_mip != 0;
+			bias    = s.lod_bias;
+			lod_min = s.lod_min;
+			lod_max = s.lod_max;
+			border  = s.border;
+		} else {
+			mode[0] = mode[1] = (t->flags & (TEXTURE_CLAMP_U | TEXTURE_CLAMP_V)) ? 2 : 0;
+			linear[0] = linear[1] = linear[2] = !(t->flags & TEXTURE_POINT);
+		}
+		int levels = (t->flags & TEXTURE_MIPMAPS) || t->sampler ? t->view_levels : 1;
+		v1[0] = float(mode[0] + 4 * mode[1] + 16 * (linear[0] ? 1 : 0) + 32 * (linear[1] ? 1 : 0) + 64 * (linear[2] ? 1 : 0) + 128 * (levels - 1));
+		v1[1] = bias;
+		v1[2] = lod_min;
+		v1[3] = lod_max;
+		if (border) {
+			for (int i = 0; i < 4; i++) {
+				v2[i] = border[i];
+			}
 		}
 	}
 
@@ -761,13 +785,13 @@ static int32_t texture_from_picture(const char* file, int32_t flags, picture& so
 }
 
 // Small textures that are loaded from files are merged into pages of 1024x1024 pixels, so that the 3D renderer (which groups its draws by
-// the image and sampler they read, see texture_bind_key) draws what uses them in fewer calls. A merged texture keeps its handle and
-// becomes a view of the page, the same as AtlasTexture makes: a rectangle in the page, with a gutter of one pixel of repeated edge colour
-// around it, so that what the texture would have clamped to is what it reads. Only textures that this does not change are merged: loaded,
-// 8 bits per channel, one level, clamped (a repeating texture would read its neighbours), not a sphere or cube map, a render target, a
-// sheet of frames or an atlas, and with no sampler of its own. Whatever then needs a picture of its own (TextureBuffer, SetTextureSampler,
-// ScaleTexture, PositionTexture, RotateTexture) gets one back with texture_unatlas. The rectangles of freed textures are not reused;
-// a page goes when its last view does.
+// the image they read, see texture_bind_key) draws what uses them in fewer calls. A merged texture keeps its handle and becomes a view of
+// the page, the same as AtlasTexture makes: a rectangle in the page whose mip levels are copied to the levels of the page (the tile is
+// placed where its position is a multiple of 2 to the number of its levels, so that level k is at the position divided by 2^k). The
+// fragment shader reads views itself (texture_view), wrapping and mixing the levels inside the rectangle, so repeating, mirroring,
+// borders and mip maps are what the texture had, and nothing of the next tile is ever read. Only textures that this does not change are
+// merged: loaded, 8 bits per channel, not a sphere or cube map, a render target, a sheet of frames or an atlas. TextureBuffer gives a
+// texture a picture of its own again (texture_unatlas). The rectangles of freed textures are not reused; a page goes when its last view does.
 extern "C++" {
 namespace bb::gfx {
 	namespace {
@@ -788,7 +812,7 @@ namespace bb::gfx {
 			atlas_setting   = (off && (off[0] == '1')) ? 0 : 1;
 			const char* max = SDL_getenv("BLITZ_TEXTURE_ATLAS_MAX");
 			atlas_limit     = max ? atoi(max) : 256;
-			atlas_limit     = atlas_limit > atlas_page_size - 2 ? atlas_page_size - 2 : atlas_limit;
+			atlas_limit     = atlas_limit > atlas_page_size ? atlas_page_size : atlas_limit;
 			const char* log = SDL_getenv("BLITZ_TEXTURE_ATLAS_LOG");
 			atlas_log       = log && (log[0] == '1');
 		}
@@ -808,16 +832,7 @@ namespace bb::gfx {
 			if ((t.frames != 1) || (t.frame_w != 0)) {
 				return "frames";
 			}
-			if (t.flags & TEXTURE_MIPMAPS) {
-				return "mip maps";
-			}
-			if (!(t.flags & (TEXTURE_CLAMP_U | TEXTURE_CLAMP_V))) {
-				return "repeats";
-			}
-			if (t.sampler) {
-				return "own sampler";
-			}
-			if (t.image.block != block_format::none || t.image.ten || t.image.srgb || t.image.mips != 1 || t.image.format != VK_FORMAT_R8G8B8A8_UNORM) {
+			if (t.image.block != block_format::none || t.image.ten || t.image.srgb || t.image.mips_stale || t.image.format != VK_FORMAT_R8G8B8A8_UNORM) {
 				return "format";
 			}
 			if (t.width < 1 || t.height < 1 || t.width > atlas_limit || t.height > atlas_limit) {
@@ -839,63 +854,61 @@ namespace bb::gfx {
 			page.flags    = TEXTURE_CLAMP_U | TEXTURE_CLAMP_V;
 			page.width = page.height = atlas_page_size;
 			std::vector<uint8_t> zeros(size_t(atlas_page_size) * size_t(atlas_page_size) * 4, 0);
-			upload_texture(page.image, page.set, atlas_page_size, atlas_page_size, zeros.data(), texture_sampler(page.flags));
+			upload_texture(page.image, page.set, atlas_page_size, atlas_page_size, zeros.data(), texture_sampler(page.flags), true);
 			open_page  = add_texture(page);
 			cursor_x = cursor_y = row_height = 0;
+		}
+
+		int align_up(int value, int align)
+		{
+			return (value + align - 1) / align * align;
 		}
 
 		// Moves the texture at this index of the table into the open page.
 		void atlas_place(uint32_t index)
 		{
 			int w = texture_table[index].width, h = texture_table[index].height;
-			int cw = w + 2, ch = h + 2;
+			int levels = int(texture_table[index].image.mips);
+			int align  = 1 << (levels - 1);
 			if (!page_usable(open_page)) {
 				new_page();
 			}
-			if (cursor_x + cw > atlas_page_size) {
+			int px = align_up(cursor_x, align), py = align_up(cursor_y, align);
+			if (px + w > atlas_page_size) {
 				cursor_x = 0;
 				cursor_y += row_height;
 				row_height = 0;
+				px = 0;
+				py = align_up(cursor_y, align);
 			}
-			if (cursor_y + ch > atlas_page_size) {
+			if (py + h > atlas_page_size) {
 				new_page();
+				px = py = 0;
 			}
 			texture_entry& t    = texture_table[index]; // After new_page, which can move the table.
 			texture_entry& page = texture_table[uint32_t(open_page) - 1];
-			int            px = cursor_x + 1, py = cursor_y + 1;
 
-			// The picture, and the edge of it repeated around it.
-			auto region = [&](int sx, int sy, int dx, int dy, int rw, int rh) {
-				VkImageCopy r = {};
-				r.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-				r.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-				r.srcOffset      = { sx, sy, 0 };
-				r.dstOffset      = { dx, dy, 0 };
-				r.extent         = { uint32_t(rw), uint32_t(rh), 1 };
-				return r;
-			};
-			VkImageCopy copies[9] = {
-				region(0, 0, px, py, w, h),
-				region(0, 0, px, py - 1, w, 1),
-				region(0, h - 1, px, py + h, w, 1),
-				region(0, 0, px - 1, py, 1, h),
-				region(w - 1, 0, px + w, py, 1, h),
-				region(0, 0, px - 1, py - 1, 1, 1),
-				region(w - 1, 0, px + w, py - 1, 1, 1),
-				region(0, h - 1, px - 1, py + h, 1, 1),
-				region(w - 1, h - 1, px + w, py + h, 1, 1),
-			};
+			// Every level of the picture goes to the same level of the page.
+			VkImageCopy copies[16];
+			for (int k = 0; k < levels; k++) {
+				VkImageCopy& r   = copies[k];
+				r                = {};
+				r.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, uint32_t(k), 0, 1 };
+				r.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, uint32_t(k), 0, 1 };
+				r.dstOffset      = { px >> k, py >> k, 0 };
+				r.extent         = { uint32_t(w >> k > 1 ? w >> k : 1), uint32_t(h >> k > 1 ? h >> k : 1), 1 };
+			}
 			begin_commands();
 			VkImageLayout page_before = page.image.layout;
 			transition(t.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 			transition(page.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			vkCmdCopyImage(g.cmd, t.image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, page.image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 9, copies);
+			vkCmdCopyImage(g.cmd, t.image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, page.image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, uint32_t(levels), copies);
 			transition(page.image, page_before);
 			submit_commands();
 
 			t.atlas     = open_page;
 			t.auto_view = true;
-			t.gutter    = 1;
+			t.view_levels = levels;
 			t.rect[0] = px;
 			t.rect[1] = py;
 			t.rect[2] = w;
@@ -906,8 +919,9 @@ namespace bb::gfx {
 			VkSampler sampler = view_sampler(t);
 			t.image.sampler = sampler;
 			write_descriptor(t.set, page.image.view, sampler);
-			cursor_x += cw;
-			row_height = ch > row_height ? ch : row_height;
+			cursor_x = px + w;
+			cursor_y = py > cursor_y ? py : cursor_y;
+			row_height = (py + h - cursor_y) > row_height ? (py + h - cursor_y) : row_height;
 		}
 
 		void release_page(int handle)
@@ -986,11 +1000,11 @@ namespace bb::gfx {
 		vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
 		t.set   = VK_NULL_HANDLE;
 		t.image = gpu_image();
-		upload_texture(t.image, t.set, uint32_t(w), uint32_t(h), pixels, texture_sampler(t.flags));
+		upload_texture(t.image, t.set, uint32_t(w), uint32_t(h), pixels, texture_sampler(t.flags), t.view_levels > 1);
 		bb_free(pixels);
 		t.atlas     = 0;
 		t.auto_view = false;
-		t.gutter    = 0;
+		t.view_levels = 1;
 		t.width     = w;
 		t.height    = h;
 		memset(t.rect, 0, sizeof(t.rect));
@@ -1178,13 +1192,14 @@ int32_t bb_load_atlas(const char* file, int32_t flags, int32_t gutter)
 	if (gutter < 0) {
 		bb_runtime_error("LoadAtlas: The gutter can't be negative.");
 	}
+	// The gutter is not needed any more: views are read inside their rectangle, whatever the wrapping and the levels are.
 	if (flags & (64 | 128)) {
 		bb_runtime_error("LoadAtlas: Sphere and cube maps can't be atlases.");
 	}
 	int32_t handle = bb_load_texture(file, flags | TEXTURE_CLAMP_U | TEXTURE_CLAMP_V);
 	if (handle) {
 		texture_of(handle)->is_atlas = true;
-		texture_table[uint32_t(handle & bb::texture_handle_mask) - 1].gutter = gutter;
+		texture_of(handle)->view_flags = flags;
 	}
 	return handle;
 }
@@ -1206,8 +1221,7 @@ int32_t bb_atlas_texture(int32_t atlas, int32_t x, int32_t y, int32_t w, int32_t
 	texture_entry  entry;
 	entry.used   = true;
 	entry.atlas  = index;
-	entry.flags  = a->flags & ~TEXTURE_MIPMAPS; // Without a gutter lower levels would mix neighbouring tiles.
-	entry.gutter = a->gutter;
+	entry.flags  = (a->flags & ~(TEXTURE_CLAMP_U | TEXTURE_CLAMP_V)) | (a->view_flags & (TEXTURE_CLAMP_U | TEXTURE_CLAMP_V)); // Wrapping is the program's: the atlas clamps for itself.
 	entry.blend  = a->blend;
 	entry.file   = a->file ? full_path(a->file) : nullptr;
 	entry.width  = a->width;
@@ -1217,6 +1231,20 @@ int32_t bb_atlas_texture(int32_t atlas, int32_t x, int32_t y, int32_t w, int32_t
 	entry.rect[1] = y;
 	entry.rect[2] = w;
 	entry.rect[3] = h;
+	// The levels of the atlas that still show only this tile: a level k is the rectangle divided by 2^k, which is exact while all four numbers divide.
+	entry.view_levels = 1;
+	if ((a->flags & TEXTURE_MIPMAPS) && a->image.mips > 1) {
+		int levels = int(a->image.mips);
+		int values[4] = { x, y, w, h };
+		for (int v : values) {
+			int fits = 1;
+			while (fits < levels && (v % (1 << fits)) == 0) {
+				fits++;
+			}
+			levels = fits < levels ? fits : levels;
+		}
+		entry.view_levels = levels;
+	}
 	if (active() && a->image.view) {
 		allocate_descriptor(entry.set);
 		VkSampler sampler = view_sampler(entry);
@@ -1291,7 +1319,6 @@ void bb_clear_textures(void)
 void bb_scale_texture(int32_t handle, float u, float v)
 {
 	texture_entry* t = need_texture(handle, "ScaleTexture");
-	bb::gfx::texture_unatlas(*t);
 	t->uv[0]         = (u != 0) ? 1.0f / u : 1.0f;
 	t->uv[1]         = (v != 0) ? 1.0f / v : 1.0f;
 }
@@ -1299,7 +1326,6 @@ void bb_scale_texture(int32_t handle, float u, float v)
 void bb_position_texture(int32_t handle, float u, float v)
 {
 	texture_entry* t = need_texture(handle, "PositionTexture");
-	bb::gfx::texture_unatlas(*t);
 	t->uv[2]         = u;
 	t->uv[3]         = v;
 }
@@ -1308,7 +1334,6 @@ void bb_position_texture(int32_t handle, float u, float v)
 void bb_rotate_texture(int32_t handle, float angle)
 {
 	texture_entry* t = need_texture(handle, "RotateTexture");
-	bb::gfx::texture_unatlas(*t);
 	t->rotation = -angle * 0.017453292519943295f;
 }
 
@@ -1534,7 +1559,6 @@ void bb_set_sampler_lod_max(int32_t handle, float lod)
 void bb_set_texture_sampler(int32_t texture, int32_t handle)
 {
 	texture_entry* t = need_texture(texture, "SetTextureSampler");
-	bb::gfx::texture_unatlas(*t);
 	if (handle) {
 		need_sampler(handle, "SetTextureSampler");
 	}

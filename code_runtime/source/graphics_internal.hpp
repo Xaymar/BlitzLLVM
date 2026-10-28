@@ -408,9 +408,10 @@ namespace bb::gfx {
 		char*           file = nullptr;         // Where it was loaded from (the full path), for TextureName.
 		int             alias = 0;              // Another handle to the texture of this one (GetBrushTexture), which has all of its state.
 		bool            is_atlas = false;       // Loaded with LoadAtlas, which AtlasTexture makes views of.
+		int             view_flags = 0;         // Atlas: the flags that LoadAtlas was given, which the views start with (the atlas itself always clamps).
 		int             atlas = 0;              // For a view made by AtlasTexture: the handle of the atlas, whose image this one samples in the rectangle below.
-		int             gutter = 0;             // Atlas: how many pixels of repeated edge colour every tile has around it in the picture. For a view: the same, copied.
 		int             rect[4] = {};           // Where the view is in the atlas, in pixels: x, y, width, height.
+		int             view_levels = 1;        // For a view: how many mip levels of the tile are in the atlas, at the position of the first one divided by 2 for each level.
 		bool            auto_view = false;      // A view into a page that the runtime made (see texture_atlas_pump): it was a texture of its own before and goes back to being one when it is changed.
 		bool            internal = false;       // A page of such views: not a texture that a program has.
 		bool            atlas_tried = false;    // Whether texture_atlas_pump has looked at this texture.
@@ -577,6 +578,9 @@ namespace bb::gfx {
 		float texgen[4]; // x: 1 for a sphere map and 2 for a cube map, y: what the cube map shows, z: whether in the space of the camera, w: half a texel of a face.
 		float lights[4]; // Which lights of the scene light this, two to a float: the place of the first plus 256 times the place of the second.
 		float soft[4];   // x: SpriteDepthFade distance for the fragment shader, 0 if off.
+		float view0[4];  // For a texture that is a view of an atlas (see texture_view): the rectangle, the settings of the sampler and the border color. view0.w is 0 for any other texture.
+		float view1[4];
+		float view2[4];
 	};
 
 
@@ -900,6 +904,8 @@ namespace bb::gfx {
 	/** Frees a page of merged textures if none is left in it. */
 	void texture_release_page(int handle);
 	void texture_uv(texture_entry const* texture, int reference, float* uv);
+	/** What the fragment shader needs to read a view of an atlas itself (see view_sample in generate_shaders.py); all zero for any other texture. */
+	void texture_view(texture_entry const* texture, float* view0, float* view1, float* view2);
 	void texture_rotation(texture_entry const* texture, float* extra);
 	void texture_texgen(texture_entry const* texture, float* texgen);
 	/** Copies the faces of a cube map into the sheet that 3D samples. */
@@ -1022,7 +1028,6 @@ namespace bb::gfx {
 	/** Makes the set of an image read it through this sampler. Waits until the GPU is done with the old one. */
 	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, VkSampler sampler);
 	void destroy_user_samplers();
-	VkSampler atlas_sampler(bool point, int max_lod);
 	/** Makes the levels below the first of a texture again, if something was drawn to it since. Expects an open command buffer. */
 	void refresh_mips(gpu_image& image);
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */

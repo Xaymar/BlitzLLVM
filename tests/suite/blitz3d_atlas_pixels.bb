@@ -114,6 +114,28 @@ CheckTrue "The top half shows green on the right", ((Rgb(100, 60) Shr 8) And 255
 FreeTexture atlas
 FreeTexture half
 
+; Coordinates beyond the tile wrap inside it (flags 1 repeat; no clamp flags were given to LoadAtlas), also far away with mip maps,
+; and the green tile never shows red however they are mirrored or repeated.
+For mips = 0 To 8 Step 8
+	atlas = LoadAtlas("suite_atlas.bmp", 1 + mips)
+	red = AtlasTexture(atlas, 0, 0, 32, 32)
+	green = AtlasTexture(atlas, 32, 0, 32, 32)
+	ScaleTexture red, 0.3, 0.3
+	PositionTexture green, 0.7, 0.9
+	ScaleTexture green, 0.2, 0.2
+	Check "A repeated red tile (mips " + mips + ")", Wrong(red, 255, 0, 0), 0
+	Check "A repeated green tile (mips " + mips + ")", Wrong(green, 0, 255, 0), 0
+	mirror = CreateSampler()
+	SetSamplerAddressModeU mirror, 1
+	SetSamplerAddressModeV mirror, 1
+	SetTextureSampler red, mirror
+	Check "A mirrored red tile (mips " + mips + ")", Wrong(red, 255, 0, 0), 0
+	FreeSampler mirror
+	FreeTexture atlas
+	FreeTexture red
+	FreeTexture green
+Next
+
 ; A gutter: tiles of 64 pixels with 4 pixels around them in a cell of 72 that starts at 2 (so the cells do not line up with
 ; the larger mip levels), where the cell is the color of its tile. Tiles map exactly (no half texel margin), and mip maps are
 ; kept down to the level that a gutter of 4 allows: even far away no dark or green mixes into red. The level that is one more

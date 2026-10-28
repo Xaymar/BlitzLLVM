@@ -2153,6 +2153,7 @@ namespace bb::gfx {
 			push.params[3]   = e->shininess + paint.shininess;
 			texture_entry* texture = texture_of(texture_handle);
 			texture_uv(texture, texture_handle, push.uv);
+			texture_view(texture, push.view0, push.view1, push.view2);
 			// Masked textures are cut out where they are nearly not there, which is what makes leaves and fences solid.
 			bool cutout = texture && (texture->flags & TEXTURE_MASKED);
 			push.mask[0] = cutout ? 0.5f * item.alpha * paint.alpha : 0.0f;
@@ -2177,7 +2178,7 @@ namespace bb::gfx {
 			// (frames, other layers, scaling, turning, generated coordinates) or has a mesh of its own keeps the square.
 			surface_gpu* shape = gpu;
 			static const bool hulls = !getenv("BLITZ_NO_SPRITE_HULL");
-			if (hulls && e->sprite_mode && sprite_pixels >= sprite_hull_min_pixels && texture && texture->hull.valid && texture->set && !paint.texture && surface.vertices.size == 4 && !(texture_handle & ~bb::texture_handle_mask) && texture->frames == 1 && texture->frame_w == 0 && !texture->atlas
+			if (hulls && e->sprite_mode && sprite_pixels >= sprite_hull_min_pixels && texture && texture->hull.valid && texture->set && !paint.texture && surface.vertices.size == 4 && !(texture_handle & ~bb::texture_handle_mask) && texture->frames == 1 && texture->frame_w == 0 && (!texture->atlas || texture->auto_view)
 				&& texture->uv[0] == 1 && texture->uv[1] == 1 && texture->uv[2] == 0 && texture->uv[3] == 0 && texture->rotation == 0 && !(texture->flags & (64 | 128))) {
 				bool layered = false;
 				for (int layer = 0; layer < 7; layer++) {
@@ -2296,6 +2297,7 @@ namespace bb::gfx {
 				texture_rotation(extra, more_push.extra);
 				texture_texgen(extra, more_push.texgen);
 				texture_uv(extra, extra_handle, more_push.uv);
+				texture_view(extra, more_push.view0, more_push.view1, more_push.view2);
 				more_push.mask[0]    = 0;
 				more_push.mask[1]    = 1; // No fog again either, the first layer has it.
 				more.texture         = extra_handle;
@@ -2341,6 +2343,7 @@ namespace bb::gfx {
 				tint_push.mask[1]     = 1;
 				tint_push.mask[2]     = 0;
 				tint_push.mask[3]     = 0;
+				memset(tint_push.view0, 0, sizeof(tint_push.view0)); // The white texture is no view.
 				tint.texture          = 0;
 				tint.texture_set      = tint.texture_sampler = 0;
 				tint.pipeline         = g.mul3d;
