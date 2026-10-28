@@ -228,6 +228,48 @@ pitches = [p for p in pitches if p > 0]
 steps = [abs(pitches[i + 1] - pitches[i]) / expected for i in range(len(pitches) - 1)]
 check("doppler glides: the pitch goes from %.1f to %.1f Hz, the largest step between 40 ms is %.1f%%" % (pitches[0], min(pitches), max(steps) * 100), pitches[0] > expected * 0.98 and min(pitches) < expected * 0.93 and max(steps) < 0.08)
 
+# Programs that draw every frame never call Delay, so the position of what they emit from has to be followed while they render and
+# flip, and a program that sets ChannelVolume every frame (as the original allows) must not undo it for the time that the frame takes. A sound to the right of the listener comes out of the right speaker, and the pitch still follows the movement. Skipped (77)
+# without a window.
+def play_rendering(source_x, listener_step=0, source_step=0, seconds=1.5):
+	body = (
+		'Graphics3D 160, 120, 0, 2\ncam = CreateCamera()\ns = Load3DSound("tone.wav")\nLoopSound s\nlistener = CreatePivot()\nsource = CreatePivot()\n'
+		"PositionEntity source, %f, 0, 100\nCreateListener listener, 0, 1, 1\nc = EmitSound(s, source)\nstart = MilliSecs()\ntick = start\n"
+		"While MilliSecs() - start < %d\n\tIf MilliSecs() - tick >= 50\n\t\ttick = tick + 50\n\t\tMoveEntity listener, 0, 0, %f\n\t\tMoveEntity source, 0, 0, %f\n\tEndIf\n"
+		"\tChannelVolume c, 1.0\n\tbusy = MilliSecs()\n\twhile MilliSecs() - busy < 20\n\twend\n\tUpdateWorld\n\tRenderWorld\n\tFlip\nWend\n"
+	) % (source_x, int(seconds * 1000), listener_step, source_step)
+	with open("play.bb", "w") as source:
+		source.write(body)
+	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
+		raise SystemExit("compiling failed")
+	if os.path.exists("sdlaudio.raw"):
+		os.remove("sdlaudio.raw")
+	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
+	env.pop("BLITZ_HEADLESS", None)
+	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
+	if not os.path.exists("sdlaudio.raw"):
+		print("no disk audio driver or window")
+		raise SystemExit(77)
+	data = open("sdlaudio.raw", "rb").read()
+	count = len(data) // 4
+	both = struct.unpack("<%dh" % (count * 2), data[: count * 4])
+	return list(both[0::2]), list(both[1::2])  # The first half second is left out, the sound is only placed from the first frame on.
+
+
+tone("tone.wav", 22050, 1, 16)
+for what, x, side in (("right of the listener", 500, "right"), ("left of the listener", -500, "left"), ("in front of the listener", 0, "both")):
+	left, right = (channel[OUTPUT_RATE // 2 :] for channel in play_rendering(x))
+	peak_left, peak_right = max(abs(v) for v in left), max(abs(v) for v in right)
+	if side == "right":
+		ok = peak_right > 1000 and peak_left < peak_right * 0.5
+	elif side == "left":
+		ok = peak_left > 1000 and peak_right < peak_left * 0.5
+	else:
+		ok = peak_left > 1000 and 0.8 < peak_right / peak_left < 1.25
+	check("3D sound %s while rendering: peaks %d left, %d right" % (what, peak_left, peak_right), ok)
+frequency = samples_after(play_rendering(0, 0, 1)[0], 0.9, 0.4)
+check("doppler while rendering, source moving away: %.1f Hz is below %.1f Hz" % (frequency, expected), expected * 0.90 < frequency < expected * 0.97)
+
 # The sound of movies (OpenMovie), which plays on a stream of its own: a tone of 440 Hz for 3 seconds in a movie of every format. The movies
 # are the ones of tests/suite/movies, whose picture is not looked at here.
 movies = os.path.join(os.path.dirname(fixtures), "suite", "movies")
