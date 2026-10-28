@@ -28,6 +28,31 @@ namespace {
 	{
 		into.insert(into.end(), from.begin(), from.end()); // Later entries win, the tools apply them in order.
 	}
+
+	void print_help(blitz::tools::driver const& tool)
+	{
+		std::cout << tool.name << " - " << tool.summary << "\n\n"
+				  << "Usage: " << tool.name << " [options] [file...]\n\n"
+				  << "The files are rewritten in place, and the name of each is written to the standard output. Without files, or with -,\n"
+				  << "the standard input is read and the result written to the standard output.\n\n"
+				  << "      --check             change nothing, list the files that would change, exit 1 if there are any\n"
+				  << "      --diff              change nothing, show a unified diff of the changes, exit 1 if there are any\n"
+				  << "  -r, --recursive         use every .bb file beneath the directories that are given\n"
+				  << "  -i, --in-place          does nothing, files are always rewritten in place\n"
+				  << "  -q, --quiet             do not write the names of the files\n"
+				  << "      --config=FILE       use this configuration file instead of the nearest one\n"
+				  << "      --no-config         ignore configuration files\n"
+				  << "      --stdin-filepath=P  the name of stdin, for messages and for finding the configuration file\n"
+				  << "      --print-config      show the settings that would be used\n"
+				  << "      --KEY=VALUE         a setting (--KEY alone is true, --no-KEY is false) that overrides the configuration file\n"
+				  << "  -v, --version           show the version\n\n"
+				  << "The settings are read from " << tool.config_names[0];
+		for (size_t n = 1; n < tool.config_names.size(); n++) {
+			std::cout << " or " << tool.config_names[n];
+		}
+		std::cout << " in the directory of the file or the nearest parent directory.\n\n"
+				  << tool.options_help;
+	}
 } // namespace
 
 int blitz::tools::run(driver const& tool, int argc, char** argv)
@@ -39,34 +64,23 @@ int blitz::tools::run(driver const& tool, int argc, char** argv)
 	settings                 cli;
 	std::vector<std::string> files;
 
+	// --help and --version answer before anything else is looked at, so a bad option, a missing file or a configuration
+	// error next to them does not matter. Whichever of the two comes first wins.
 	for (int i = 1; i < argc; i++) {
 		std::string arg = argv[i];
-		if ((arg == "-h") || (arg == "--help")) {
-			std::cout << tool.name << " - " << tool.summary << "\n\n"
-					  << "Usage: " << tool.name << " [options] [file...]\n\n"
-					  << "The files are rewritten in place, and the name of each is written to the standard output. Without files, or with -,\n"
-					  << "the standard input is read and the result written to the standard output.\n\n"
-					  << "      --check             change nothing, list the files that would change, exit 1 if there are any\n"
-					  << "      --diff              change nothing, show a unified diff of the changes, exit 1 if there are any\n"
-					  << "  -r, --recursive         use every .bb file beneath the directories that are given\n"
-					  << "  -i, --in-place          does nothing, files are always rewritten in place\n"
-					  << "  -q, --quiet             do not write the names of the files\n"
-					  << "      --config=FILE       use this configuration file instead of the nearest one\n"
-					  << "      --no-config         ignore configuration files\n"
-					  << "      --stdin-filepath=P  the name of stdin, for messages and for finding the configuration file\n"
-					  << "      --print-config      show the settings that would be used\n"
-					  << "      --KEY=VALUE         a setting (--KEY alone is true, --no-KEY is false) that overrides the configuration file\n"
-					  << "  -v, --version           show the version\n\n"
-					  << "The settings are read from " << tool.config_names[0];
-			for (size_t n = 1; n < tool.config_names.size(); n++) {
-				std::cout << " or " << tool.config_names[n];
-			}
-			std::cout << " in the directory of the file or the nearest parent directory.\n\n"
-					  << tool.options_help;
-			return 0;
-		} else if ((arg == "-v") || (arg == "--version")) {
+		if ((arg == "-v") || (arg == "--version")) {
 			std::cout << tool.name << " " << tool.version << "\n";
 			return 0;
+		} else if ((arg == "-h") || (arg == "--help")) {
+			print_help(tool);
+			return 0;
+		}
+	}
+
+	for (int i = 1; i < argc; i++) {
+		std::string arg = argv[i];
+		if ((arg == "-v") || (arg == "--version") || (arg == "-h") || (arg == "--help")) {
+			// Answered above.
 		} else if ((arg == "-i") || (arg == "--in-place")) {
 			// Files are always rewritten in place, the option stays so that existing command lines work.
 		} else if ((arg == "-r") || (arg == "--recursive")) {

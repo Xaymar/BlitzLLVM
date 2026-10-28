@@ -397,7 +397,7 @@ set_tests_properties(tools-library PROPERTIES LABELS "tools")
 
 # blitz-format: The style it applies, its options and configuration files, --check/--diff/-i, and that the formatted program
 # compiles to the same LLVM IR. Each case is in tests/format/format.cmake.
-foreach(_CASE IN ITEMS default same_program check_diff in_place stdin indent keywords spacing comments blank_lines align wrap line_endings config recursive symlinks in_place_atomic errors help language_keywords repository)
+foreach(_CASE IN ITEMS default same_program check_diff in_place stdin indent keywords spacing comments blank_lines align wrap line_endings config recursive symlinks in_place_atomic errors help help_version_first language_keywords repository)
 	add_test(
 		NAME "format-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}
@@ -414,7 +414,7 @@ endforeach()
 
 # blitz-tidy: the fixes (programs in tests/tidy/cases come out as the ones in tests/tidy/expected, and behave the same), the options and
 # the configuration files. Each case is in tests/tidy/tidy.cmake.
-foreach(_CASE IN ITEMS fix check recursive diff in_place stdin rules rule_modes type_notation one_declare parentheses condition raii report_only unsafe return_types config include broken)
+foreach(_CASE IN ITEMS fix check recursive diff in_place stdin rules rule_modes type_notation one_declare parentheses condition raii report_only unsafe return_types config include broken help)
 	add_test(
 		NAME "tidy-${_CASE}"
 		COMMAND ${CMAKE_COMMAND}
@@ -422,6 +422,7 @@ foreach(_CASE IN ITEMS fix check recursive diff in_place stdin rules rule_modes 
 			"-DTIDY=$<TARGET_FILE:tidy>"
 			"-DBLITZCC=$<TARGET_FILE:${PROJECT_NAME}>"
 			"-DTESTS=${TEST_DIRECTORY}/tidy"
+			"-DVERSION=${CMAKE_PROJECT_VERSION}"
 			"-DWORK=${PROJECT_BINARY_DIR}/tidy/${_CASE}"
 			-P "${TEST_DIRECTORY}/tidy/tidy.cmake"
 	)
