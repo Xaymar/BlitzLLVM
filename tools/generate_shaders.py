@@ -23,12 +23,13 @@ OP = dict(
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstant=50,
+    Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
     IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
 BUILTIN_WORKGROUP_ID, BUILTIN_LOCAL_INVOCATION_ID = 26, 27
-DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35, SpecId=1, InputAttachmentIndex=43)
+DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35, SpecId=1, InputAttachmentIndex=43, Coherent=23)
 BUILTIN_INSTANCE_INDEX = 43
 BUILTIN_FRAG_COORD = 15
 
@@ -626,7 +627,7 @@ def vertex_shader_3d():
 
 
 
-def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
+def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
@@ -651,7 +652,12 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
     }
     """
     b = Builder()
-    if blend:
+    if interlock:
+        # Prototype: the target is a storage image read and written inside a pixel interlock (VK_EXT_fragment_shader_interlock).
+        blend = True
+        b.m.header.insert(1, Module.inst("Extension", string_words("SPV_EXT_fragment_shader_interlock")))
+        b.m.header.insert(1, Module.inst("Capability", 5378))  # FragmentShaderPixelInterlockEXT
+    if blend and not interlock:
         b.m.header.insert(1, Module.inst("Capability", 40))  # InputAttachment
     f, v2, v3, v4 = b.float(), b.vec(2), b.vec(3), b.vec(4)
     void, fn = b.void(), b.fn()
@@ -684,7 +690,10 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
         in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
         # The depth of what was drawn before the sprites, for SpriteDepthFade.
         depth_tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
-        if blend:
+        if interlock:
+            storage_image = b.new_type("storage_image", "TypeImage", f, 1, 0, 0, 0, 2, 4)  # 2D, no sampler, Rgba8
+            target = b.variable("UniformConstant", storage_image, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["Coherent"],)])
+        elif blend:
             # What the target holds at this pixel: dimension SubpassData, sampled 2 (read without a sampler), set 4, attachment 0.
             subpass = b.new_type("subpass", "TypeImage", f, 6, 0, 0, 0, 2, 0)
             target = b.variable("UniformConstant", subpass, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["InputAttachmentIndex"], 0)])
@@ -693,6 +702,8 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
     b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
+    if interlock:
+        b.m.header.append(Module.inst("ExecutionMode", main, 5366))  # PixelInterlockOrderedEXT
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
@@ -891,7 +902,13 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
                 b.m.annotations.append(Module.inst("Decorate", constant, DECORATION["SpecId"], number))
                 factors.append(constant)
             fa, fb, fc, fd, fe = factors
-            there = b.emit("ImageRead", v4, b.load(subpass, target), origin)
+            if interlock:
+                at = b.load(v4, in_frag)
+                pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(at, 0)), b.emit("ConvertFToS", b.int(), b.extract(at, 1)))
+                b.m.code.append(Module.inst("BeginInvocationInterlockEXT"))
+                there = b.emit("ImageRead", v4, b.load(storage_image, target), pixel)
+            else:
+                there = b.emit("ImageRead", v4, b.load(subpass, target), origin)
             there_rgb = b.swizzle(there, 3)
             alpha = b.extract(result, 3)
             drawn_factor = b.fadd(v3, b.scale(3, there_rgb, fb), b.construct(3, *([b.fmul(f, fa, alpha)] * 3)))
@@ -917,7 +934,11 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
             b.m.code += [Module.inst("Branch", dither_merge), Module.inst("Label", dither_merge)]
             rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
             result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
-    b.store(out_color, result)
+    if interlock:
+        b.m.code.append(Module.inst("ImageWrite", b.load(storage_image, target), pixel, result))
+        b.m.code.append(Module.inst("EndInvocationInterlockEXT"))
+    else:
+        b.store(out_color, result)
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
 
@@ -1172,6 +1193,7 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment_3d", fragment_shader_masked(96, fog=True), out)
     emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, cutout=False), out)
     emit("bb_shader_fragment_3d_blend", fragment_shader_masked(96, fog=True, blend=True), out)
+    emit("bb_shader_fragment_3d_blend_interlock", fragment_shader_masked(96, fog=True, interlock=True), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
     emit("bb_shader_compute_cull", compute_shader_cull(), out)
