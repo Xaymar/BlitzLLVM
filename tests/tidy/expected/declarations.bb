@@ -6,7 +6,7 @@ Const Limit:Int32 = 10
 Global total:Int32
 Local lead:Int32, second:Int32 = 5
 
-Function Sum(count)
+Function Sum:Int32(count)
 	Local i:Int32
 	Local result:Int32
 	For i = 1 To count
