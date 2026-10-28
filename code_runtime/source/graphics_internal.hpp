@@ -819,7 +819,7 @@ namespace bb::gfx {
 		int      rank;     // 4 discrete, 3 integrated, 2 virtual, 1 software or other, 0 cannot be used.
 		bool     usable;   // Does Vulkan 1.3 and can draw.
 		bool     fallback; // Not a real GPU: there is no window system or Vulkan driver to ask.
-		bool     blend_dither; // Can blend in the fragment shader, which is what makes Dither 2 possible (see can_blend_in_shader).
+		bool     blend_dither; // Can blend in the fragment shader, which is what makes Dither 2 possible (see can_blend_in_shader and can_interlock_in_shader).
 	};
 	extern gpu_entry gpus[max_gpus];
 	extern uint32_t  gpu_total;

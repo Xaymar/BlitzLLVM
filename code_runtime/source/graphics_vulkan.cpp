@@ -1049,8 +1049,9 @@ namespace bb::gfx {
 	// (rasterization order attachment access), and a fifth set of descriptors can be bound. BLITZ_NO_BLEND_DITHER=1 says no, for comparing.
 	bool can_blend_in_shader(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
 	{
-		const char* off = getenv("BLITZ_NO_BLEND_DITHER");
-		if ((off && off[0] && (off[0] != '0')) || (props.limits.maxBoundDescriptorSets < 5)) {
+		const char* off      = getenv("BLITZ_NO_BLEND_DITHER");
+		const char* no_local = getenv("BLITZ_NO_LOCAL_READ_DITHER");
+		if ((off && off[0] && (off[0] != '0')) || (no_local && no_local[0] && (no_local[0] != '0')) || (props.limits.maxBoundDescriptorSets < 5)) {
 			return false;
 		}
 		uint32_t count = 0;
@@ -1072,6 +1073,34 @@ namespace bb::gfx {
 		query.pNext                                                                    = &local_features;
 		vkGetPhysicalDeviceFeatures2(device, &query);
 		return local_features.dynamicRenderingLocalRead && order_features.rasterizationOrderColorAttachmentAccess;
+	}
+
+	// The other way to blend in the fragment shader, for the GPUs that lack the two extensions above: the shader reads and writes the
+	// target as a storage image inside a pixel interlock (VK_EXT_fragment_shader_interlock), which keeps the draws that touch a pixel in
+	// order. BLITZ_NO_INTERLOCK_DITHER=1 says no, and so does BLITZ_NO_BLEND_DITHER=1, for comparing.
+	bool can_interlock_in_shader(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
+	{
+		const char* off     = getenv("BLITZ_NO_BLEND_DITHER");
+		const char* no_lock = getenv("BLITZ_NO_INTERLOCK_DITHER");
+		if ((off && off[0] && (off[0] != '0')) || (no_lock && no_lock[0] && (no_lock[0] != '0')) || (props.limits.maxBoundDescriptorSets < 5)) {
+			return false;
+		}
+		uint32_t count = 0;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
+		std::vector<VkExtensionProperties> available(count);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &count, available.data());
+		bool has = false;
+		for (VkExtensionProperties const& e : available) {
+			has = has || (strcmp(e.extensionName, VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME) == 0);
+		}
+		if (!has) {
+			return false;
+		}
+		VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT };
+		VkPhysicalDeviceFeatures2                          query    = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+		query.pNext                                                 = &features;
+		vkGetPhysicalDeviceFeatures2(device, &query);
+		return features.fragmentShaderPixelInterlock == VK_TRUE;
 	}
 
 	// The same GPU twice has the same name: of those the n-th is the n-th.
@@ -1135,7 +1164,7 @@ namespace bb::gfx {
 			entry.device = props.deviceID;
 			entry.twin   = twin_of(devices, d);
 			entry.usable = can_draw(devices[d], props);
-			entry.blend_dither = entry.usable && can_blend_in_shader(devices[d], props);
+			entry.blend_dither = entry.usable && (can_blend_in_shader(devices[d], props) || can_interlock_in_shader(devices[d], props));
 			switch (props.deviceType) {
 			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:   entry.rank = 4; break;
 			case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: entry.rank = 3; break;
@@ -1305,34 +1334,13 @@ namespace bb::gfx {
 			features13.pNext                                     = &local_read;
 		}
 
-		// Prototype: the interlock extension, only when asked for with BLITZ_INTERLOCK_DITHER=1.
+		// Where the two extensions are missing, Dither 2 uses the pixel interlock if the GPU has it.
 		VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT interlock_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT };
-		{
-			const char* want = getenv("BLITZ_INTERLOCK_DITHER");
-			if (want && want[0] && (want[0] != '0')) {
-				uint32_t count = 0;
-				vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &count, nullptr);
-				std::vector<VkExtensionProperties> available(count);
-				vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &count, available.data());
-				bool has = false;
-				for (VkExtensionProperties const& e : available) {
-					has = has || (strcmp(e.extensionName, VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME) == 0);
-				}
-				fprintf(stderr, "BLITZ_INTERLOCK_DITHER: %s %s\n", physical_props.deviceName, has ? "has VK_EXT_fragment_shader_interlock" : "has no VK_EXT_fragment_shader_interlock");
-				if (has) {
-					VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT query_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT };
-					VkPhysicalDeviceFeatures2                          query          = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
-					query.pNext                                                       = &query_features;
-					vkGetPhysicalDeviceFeatures2(g.physical, &query);
-					fprintf(stderr, "BLITZ_INTERLOCK_DITHER: fragmentShaderPixelInterlock = %d\n", int(query_features.fragmentShaderPixelInterlock));
-					if (query_features.fragmentShaderPixelInterlock) {
-						g.can_interlock                          = true;
-						interlock_features.fragmentShaderPixelInterlock = VK_TRUE;
-						interlock_features.pNext                 = features13.pNext;
-						features13.pNext                         = &interlock_features;
-					}
-				}
-			}
+		g.can_interlock = !g.can_blend_dither && can_interlock_in_shader(g.physical, physical_props);
+		if (g.can_interlock) {
+			interlock_features.fragmentShaderPixelInterlock = VK_TRUE;
+			interlock_features.pNext                        = features13.pNext;
+			features13.pNext                                = &interlock_features;
 		}
 		const char* device_extensions[5] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		uint32_t    device_extension_total = 1;
