@@ -175,34 +175,39 @@ End Function
 ; what the ground looks like is in the textures: a bump map that repeats every 4 units, and a picture of the whole world (made in MakeGroundPicture).
 Function MakeTerrain()
 	m = CreateMesh()
-	s = CreateSurface(m)
 	n = 200
 	cell# = WORLD * 2 / n
-	For iz = 0 To n
-		For ix = 0 To n
-			x# = -WORLD + ix * cell
-			z# = -WORLD + iz * cell
-			h# = Height(x, z)
-			; The slope gives the frame the bump map is in: tangent along +x, bitangent along +z, normal up.
-			hx# = (Height(x + 0.4, z) - Height(x - 0.4, z)) / 0.8
-			hz# = (Height(x, z + 0.4) - Height(x, z - 0.4)) / 0.8
-			il# = 1 / Sqr(1 + hx * hx)
-			jl# = 1 / Sqr(1 + hz * hz)
-			nl# = 1 / Sqr(1 + hx * hx + hz * hz)
-			v = AddVertex(s, x, h, z, x / 4, z / 4)
-			VertexTexCoords s, v, (x + WORLD) / (2 * WORLD), (z + WORLD) / (2 * WORLD), 0, 1
-			BumpColor x, h, z, il, hx * il, 0, 0, hz * jl, jl, -hx * nl, nl, -hz * nl, 1
-			VertexColor s, v, CR, CG, CB
+	; Four bands, one surface each: one surface of 80000 triangles is more than the 65535 primitives a Direct3D 7 draw call can have, and the original Blitz3D then
+	; draws nothing of it.
+	For band = 0 To 3
+		s = CreateSurface(m)
+		z0 = band * 50
+		For iz = z0 To z0 + 50
+			For ix = 0 To n
+				x# = -WORLD + ix * cell
+				z# = -WORLD + iz * cell
+				h# = Height(x, z)
+				; The slope gives the frame the bump map is in: tangent along +x, bitangent along +z, normal up.
+				hx# = (Height(x + 0.4, z) - Height(x - 0.4, z)) / 0.8
+				hz# = (Height(x, z + 0.4) - Height(x, z - 0.4)) / 0.8
+				il# = 1 / Sqr(1 + hx * hx)
+				jl# = 1 / Sqr(1 + hz * hz)
+				nl# = 1 / Sqr(1 + hx * hx + hz * hz)
+				v = AddVertex(s, x, h, z, x / 4, z / 4)
+				VertexTexCoords s, v, (x + WORLD) / (2 * WORLD), (z + WORLD) / (2 * WORLD), 0, 1
+				BumpColor x, h, z, il, hx * il, 0, 0, hz * jl, jl, -hx * nl, nl, -hz * nl, 1
+				VertexColor s, v, CR, CG, CB
+			Next
 		Next
-	Next
-	For iz = 0 To n - 1
-		For ix = 0 To n - 1
-			a = iz * (n + 1) + ix
-			b = a + 1
-			c = a + n + 1
-			d = c + 1
-			AddTriangle s, a, c, b
-			AddTriangle s, b, c, d
+		For iz = 0 To 49
+			For ix = 0 To n - 1
+				a = iz * (n + 1) + ix
+				b = a + 1
+				c = a + n + 1
+				d = c + 1
+				AddTriangle s, a, c, b
+				AddTriangle s, b, c, d
+			Next
 		Next
 	Next
 	Return m
