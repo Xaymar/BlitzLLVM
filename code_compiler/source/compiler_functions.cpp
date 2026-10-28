@@ -581,6 +581,7 @@ void blitz::compiler::gen_main(ast::program const& program)
 	gen_block(program.main);
 	report_unused(_locals);
 	if (!_terminated) {
+		call_runtime("bb_end", type::UNKNOWN, {}); // Falling off the end is End, which takes the graphics down before the libraries unwind.
 		emit_terminator("ret i32 0");
 	}
 
