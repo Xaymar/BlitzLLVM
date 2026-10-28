@@ -89,7 +89,11 @@ namespace bb::gfx {
 	[[noreturn]] void fail(const char* what)
 	{
 		char buffer[256];
-		snprintf(buffer, sizeof(buffer), "Graphics: %s", what);
+		if (restoring_graphics()) {
+			snprintf(buffer, sizeof(buffer), "Graphics: the graphics device was lost and could not be made again: %s", what);
+		} else {
+			snprintf(buffer, sizeof(buffer), "Graphics: %s", what);
+		}
 		bb_runtime_error(buffer);
 		exit(1);
 	}
@@ -97,8 +101,16 @@ namespace bb::gfx {
 	void check(VkResult result, const char* what)
 	{
 		if (result != VK_SUCCESS) {
+			if (is_device_loss(result) && recovery_enabled()) {
+				note_device_loss(result, what); // The graphics are made again where a frame begins.
+				return;
+			}
 			char buffer[256];
-			snprintf(buffer, sizeof(buffer), "%s failed (VkResult %d).", what, int(result));
+			if (is_device_loss(result)) {
+				snprintf(buffer, sizeof(buffer), "the graphics device was lost (%s in %s) and making the graphics again is turned off.", result_name(result), what);
+			} else {
+				snprintf(buffer, sizeof(buffer), "%s failed (VkResult %d).", what, int(result));
+			}
 			fail(buffer);
 		}
 	}
@@ -110,6 +122,17 @@ namespace bb::gfx {
 		img.mips = mips;
 		img.width  = width;
 		img.height = height;
+		img.recipe         = new image_recipe();
+		img.recipe->width  = width;
+		img.recipe->height = height;
+		img.recipe->mips   = mips;
+		img.recipe->usage  = usage;
+		img.recipe->format = format;
+		img.recipe->aspect = aspect;
+		if (components) {
+			img.recipe->mapping     = *components;
+			img.recipe->has_mapping = true;
+		}
 		// Dither 2 blends in the shader, which reads what it draws to.
 		if (g.can_blend_dither && (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)) {
 			usage |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
@@ -138,7 +161,14 @@ namespace bb::gfx {
 		VmaAllocationCreateInfo alloc = {};
 		alloc.usage                   = VMA_MEMORY_USAGE_AUTO;
 		alloc.requiredFlags           = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-		check(vmaCreateImage(g.allocator, &info, &alloc, &img.image, &img.allocation, nullptr), "vmaCreateImage");
+		VkResult created = vmaCreateImage(g.allocator, &info, &alloc, &img.image, &img.allocation, nullptr);
+		check(created, "vmaCreateImage");
+		if (created != VK_SUCCESS) {
+			// Only a lost device gets here. The image stays without its GPU objects, and is made again by rebuild_image.
+			img.image = VK_NULL_HANDLE;
+			img.allocation = VK_NULL_HANDLE;
+			return img;
+		}
 
 		VkImageViewCreateInfo view         = { VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
 		view.image                         = img.image;
@@ -162,7 +192,7 @@ namespace bb::gfx {
 		return img;
 	}
 
-	void destroy_image(gpu_image& img)
+	void release_image(gpu_image& img)
 	{
 		if (img.view) {
 			vkDestroyImageView(g.device, img.view, nullptr);
@@ -173,6 +203,16 @@ namespace bb::gfx {
 		if (img.image) {
 			vmaDestroyImage(g.allocator, img.image, img.allocation);
 		}
+		img.view        = VK_NULL_HANDLE;
+		img.target_view = VK_NULL_HANDLE;
+		img.image       = VK_NULL_HANDLE;
+		img.allocation  = VK_NULL_HANDLE;
+	}
+
+	void destroy_image(gpu_image& img)
+	{
+		release_image(img);
+		delete img.recipe;
 		img = gpu_image();
 	}
 
@@ -422,7 +462,8 @@ namespace bb::gfx {
 	}
 
 	// Uploads RGBA pixels into a new image that can be sampled and drawn to, with all of its mip levels if asked for.
-	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels, bool mipmaps, bool srgb = false, bool ten = false)
+	// With remember the recipe of the image keeps the pixels, so that the image can be made again (rebuild_image does not want that: it has the pixels).
+	static void upload_pixels(gpu_image& image, uint32_t width, uint32_t height, const uint8_t* pixels, bool mipmaps, bool srgb = false, bool ten = false, bool remember = true)
 	{
 		// Pixels of 10 bits hold every mip level one after the other, as the picture was made on the CPU (see mip_chain_ten).
 		uint32_t     levels = (ten && mipmaps) ? mip_count(width, height) : 1;
@@ -441,6 +482,18 @@ namespace bb::gfx {
 		image                   = create_image(width, height, usage, ten ? VK_FORMAT_A2B10G10R10_UNORM_PACK32 : (srgb ? VK_FORMAT_R8G8B8A8_SRGB : VK_FORMAT_R8G8B8A8_UNORM), VK_IMAGE_ASPECT_COLOR_BIT, nullptr, mipmaps ? mip_count(width, height) : 1);
 		image.ten               = ten;
 		image.srgb              = srgb;
+		if (remember && recovery_enabled()) {
+			image_recipe& recipe = *image.recipe;
+			recipe.kind          = image_recipe::content::pixels;
+			recipe.mipmaps       = mipmaps;
+			recipe.srgb          = srgb;
+			recipe.ten           = ten;
+			recipe.data.assign(pixels, pixels + size);
+		}
+		if (!image.image) {
+			destroy_buffer(staging, staging_allocation); // The device is lost, the recipe is all there is until it is back.
+			return;
+		}
 
 		begin_commands();
 		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -604,7 +657,7 @@ namespace bb::gfx {
 		return (properties.optimalTilingFeatures & needed) == needed;
 	}
 
-	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb)
+	static void upload_blocks(gpu_image& image, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb, bool remember)
 	{
 		srgb = srgb && (p.block != block_format::bc4) && (p.block != block_format::bc5);
 		// The levels the file has are used as they are, when mip maps are wanted.
@@ -630,6 +683,20 @@ namespace bb::gfx {
 		image.block   = p.block;
 		image.opaque  = opaque;
 		image.sampler = sampler;
+		if (remember && recovery_enabled()) {
+			image_recipe& recipe = *image.recipe;
+			recipe.kind          = image_recipe::content::blocks;
+			recipe.mipmaps       = mipmaps;
+			recipe.srgb          = srgb;
+			recipe.opaque        = opaque;
+			recipe.block         = p.block;
+			recipe.block_mips    = p.mips;
+			recipe.data.assign(p.blocks, p.blocks + p.size);
+		}
+		if (!image.image) {
+			destroy_buffer(staging, staging_allocation);
+			return;
+		}
 
 		begin_commands();
 		barrier(image.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -653,9 +720,68 @@ namespace bb::gfx {
 		submit_commands();
 
 		destroy_buffer(staging, staging_allocation);
+	}
 
+	void upload_compressed(gpu_image& image, VkDescriptorSet& set, picture const& p, VkSampler sampler, bool opaque, bool mipmaps, bool srgb)
+	{
+		upload_blocks(image, p, sampler, opaque, mipmaps, srgb, true);
 		allocate_descriptor(set);
 		write_descriptor(set, image.view, sampler);
+	}
+
+	void rebuild_image(gpu_image& img)
+	{
+		if (img.image || !img.recipe) {
+			return;
+		}
+		image_recipe*                 recipe = img.recipe;
+		VkImageLayout                 layout = img.layout;
+		VkSampler                     sampler = img.sampler;
+		uint32_t                      width = img.width, height = img.height;
+		gpu_image                     fresh;
+		switch (recipe->kind) {
+		case image_recipe::content::pixels:
+			upload_pixels(fresh, recipe->width, recipe->height, recipe->data.data(), recipe->mipmaps, recipe->srgb, recipe->ten, false);
+			break;
+		case image_recipe::content::blocks: {
+			picture p;
+			p.block  = recipe->block;
+			p.width  = int(recipe->width);
+			p.height = int(recipe->height);
+			p.blocks = recipe->data.data();
+			p.size   = recipe->data.size();
+			p.mips   = recipe->block_mips;
+			upload_blocks(fresh, p, sampler, recipe->opaque, recipe->mipmaps, recipe->srgb, false);
+			break;
+		}
+		case image_recipe::content::blank:
+			fresh = create_image(recipe->width, recipe->height, recipe->usage, recipe->format, recipe->aspect, recipe->has_mapping ? &recipe->mapping : nullptr, recipe->mips);
+			if (fresh.image && (layout != VK_IMAGE_LAYOUT_UNDEFINED)) {
+				// Nothing is in it, so it starts out clear.
+				begin_commands();
+				barrier(fresh.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, recipe->aspect);
+				if (recipe->aspect == VK_IMAGE_ASPECT_COLOR_BIT) {
+					VkClearColorValue       clear = {};
+					VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, recipe->mips, 0, 1 };
+					vkCmdClearColorImage(g.cmd, fresh.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear, 1, &range);
+				}
+				barrier(fresh.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, layout, recipe->aspect);
+				fresh.layout = layout;
+				submit_commands();
+			}
+			break;
+		}
+		// What is not in the recipe stays as it was.
+		fresh.block   = img.block;
+		fresh.opaque  = img.opaque;
+		fresh.sampler = sampler;
+		fresh.ten     = img.ten;
+		fresh.srgb    = img.srgb;
+		fresh.width   = width;
+		fresh.height  = height;
+		delete fresh.recipe; // The one that create_image made.
+		fresh.recipe  = recipe;
+		img = fresh;
 	}
 
 	// Whether images of A2B10G10R10 can be sampled and filtered, which is all they need: their mip maps are made on the CPU.
@@ -897,6 +1023,9 @@ namespace bb::gfx {
 	{
 		VkSurfaceCapabilitiesKHR caps;
 		check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(g.physical, g.surface, &caps), "vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
+		if (device_lost()) {
+			return; // Made again with the rest of the graphics.
+		}
 
 		int w = 0, h = 0;
 		SDL_GetWindowSizeInPixels(g.window, &w, &h);
@@ -970,6 +1099,9 @@ namespace bb::gfx {
 		info.presentMode              = mode;
 		info.clipped                  = VK_TRUE;
 		check(vkCreateSwapchainKHR(g.device, &info, nullptr, &g.swapchain), "vkCreateSwapchainKHR");
+		if (!g.swapchain) {
+			return; // The device is lost.
+		}
 
 		g.swap_count = max_swapchain_images;
 		check(vkGetSwapchainImagesKHR(g.device, g.swapchain, &g.swap_count, g.swap_images), "vkGetSwapchainImagesKHR");

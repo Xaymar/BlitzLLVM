@@ -316,7 +316,7 @@ namespace bb::gfx {
 		texture_entry* t = live_texture_of(handle);
 		if (t && active() && t->image.view) {
 			sprite_hull_drop(t->hull); // A movie changes every frame.
-			write_pixels(t->image, 0, 0, t->width, t->height, rgba);
+			write_pixels(t->image, 0, 0, t->width, t->height, rgba, false, false);
 		}
 	}
 } // namespace bb::gfx
@@ -1292,3 +1292,85 @@ float bb_get_sampler_border_color_g(int32_t h) { return need_sampler(h, "GetSamp
 float bb_get_sampler_border_color_b(int32_t h) { return need_sampler(h, "GetSamplerBorderColorB")->border[2]; }
 float bb_get_sampler_border_color_a(int32_t h) { return need_sampler(h, "GetSamplerBorderColorA")->border[3]; }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// A lost device (see graphics_recovery.cpp)
+////////////////////////////////////////////////////////////////////////////////
+namespace bb::gfx {
+	// The handles of a copy of an image (an atlas view has one, the image of a cube map has one of its face) that belongs to another.
+	static void forget_handles(gpu_image& image)
+	{
+		image.image      = VK_NULL_HANDLE;
+		image.view       = VK_NULL_HANDLE;
+		image.target_view = VK_NULL_HANDLE;
+		image.allocation = VK_NULL_HANDLE;
+	}
+
+	// Lets go of everything the textures have on the GPU. Each keeps the recipe of its images; a texture has a descriptor set
+	// if it has one, as they are made together.
+	void textures_release()
+	{
+		for (uint32_t i = 0; i < texture_table.size; i++) {
+			texture_entry& t = texture_table[i];
+			if (!t.used) {
+				continue;
+			}
+			t.set = VK_NULL_HANDLE; // The pool it came from is going.
+			if (t.atlas) {
+				forget_handles(t.image);
+			} else if (t.cube) {
+				cube_store(t);
+				for (gpu_image& face : t.cube->faces) {
+					release_image(face);
+				}
+				release_image(t.cube->sheet);
+				forget_handles(t.image);
+			} else {
+				release_image(t.image);
+			}
+		}
+	}
+
+	// Makes the images again from their recipes, and the sets that sample them.
+	void textures_rebuild()
+	{
+		auto describe = [](gpu_image& image, VkDescriptorSet& set, VkSampler sampler) {
+			allocate_descriptor(set);
+			if (image.view) {
+				write_descriptor(set, image.view, sampler);
+			}
+			image.sampler = sampler;
+		};
+		for (uint32_t i = 0; i < texture_table.size; i++) {
+			texture_entry& t = texture_table[i];
+			if (!t.used || t.atlas) {
+				continue;
+			}
+			VkSampler chosen = t.sampler ? sampler_vk(sampler_table[uint32_t(t.sampler) - 1]) : texture_sampler(t.flags);
+			if (t.cube) {
+				for (gpu_image& face : t.cube->faces) {
+					rebuild_image(face);
+				}
+				rebuild_image(t.cube->sheet);
+				t.image = t.cube->faces[t.cube->face];
+				describe(t.cube->sheet, t.set, t.sampler ? chosen : g.sampler_clamp);
+				t.cube->stamp = 0xFFFFFFFFu; // The sheet is empty, the next scene that uses the cube map makes it again.
+			} else if (t.image.recipe) {
+				rebuild_image(t.image);
+				describe(t.image, t.set, chosen);
+			}
+		}
+		// The views of atlases sample the image of their atlas.
+		for (uint32_t i = 0; i < texture_table.size; i++) {
+			texture_entry& t = texture_table[i];
+			if (!t.used || !t.atlas) {
+				continue;
+			}
+			texture_entry& a = texture_table[uint32_t(t.atlas) - 1];
+			if (a.used && a.image.recipe) {
+				t.image = a.image;
+				describe(t.image, t.set, view_sampler(t));
+			}
+		}
+	}
+} // namespace bb::gfx

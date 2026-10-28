@@ -83,11 +83,39 @@ namespace bb::gfx {
 		return out;
 	}
 
+	// What the program wrote is part of the recipe of the image, so that the image has it again after the device was lost.
+	static void remember_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native)
+	{
+		if (!img.recipe || native || img.ten || (&img == &g.buffers[0]) || (&img == &g.buffers[1]) || (img.format != VK_FORMAT_R8G8B8A8_UNORM && img.format != VK_FORMAT_R8G8B8A8_SRGB)) {
+			return;
+		}
+		image_recipe& recipe = *img.recipe;
+		if (recipe.kind == image_recipe::content::blocks) {
+			return; // Drawn to or written, such an image is turned into RGBA first.
+		}
+		if ((x < 0) || (y < 0) || (w <= 0) || (h <= 0) || (uint32_t(x + w) > recipe.width) || (uint32_t(y + h) > recipe.height)) {
+			return;
+		}
+		if (recipe.kind == image_recipe::content::blank) {
+			// An image that was cleared when it was made (a resized one) starts from transparent black.
+			recipe.kind    = image_recipe::content::pixels;
+			recipe.mipmaps = recipe.mips > 1;
+			recipe.srgb    = img.srgb;
+			recipe.data.assign(size_t(recipe.width) * recipe.height * 4, 0);
+		}
+		for (int row = 0; row < h; row++) {
+			memcpy(recipe.data.data() + (size_t(y + row) * recipe.width + size_t(x)) * 4, rgba + size_t(row) * size_t(w) * 4, size_t(w) * 4);
+		}
+	}
+
 	// The other way around.
-	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native)
+	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native, bool remember)
 	{
 		image_generation++;
 		img.mips_stale = img.mips > 1;
+		if (remember && recovery_enabled()) {
+			remember_pixels(img, x, y, w, h, rgba, native);
+		}
 		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * pixel_bytes(img.format);
 		VkBuffer       staging;
 		VmaAllocation staging_allocation;
@@ -381,7 +409,7 @@ namespace bb::gfx {
 	{
 		image_entry* e = image_of(handle);
 		if (e && active()) {
-			write_pixels(e->image, 0, 0, e->frame_w, e->frame_h, rgba);
+			write_pixels(e->image, 0, 0, e->frame_w, e->frame_h, rgba, false, false);
 		}
 	}
 } // namespace bb::gfx
@@ -1161,3 +1189,36 @@ int32_t bb_live_images(void)
 	return count;
 }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// A lost device (see graphics_recovery.cpp)
+////////////////////////////////////////////////////////////////////////////////
+namespace bb::gfx {
+	// Lets go of what the images have on the GPU, and keeps the recipe of each.
+	void images_release()
+	{
+		for (uint32_t i = 0; i < image_table.size; i++) {
+			image_entry& e = image_table[i];
+			if (e.used) {
+				e.set = VK_NULL_HANDLE; // The pool it came from is going.
+				release_image(e.image);
+			}
+		}
+	}
+
+	void images_rebuild()
+	{
+		for (uint32_t i = 0; i < image_table.size; i++) {
+			image_entry& e = image_table[i];
+			if (!e.used || !e.image.recipe) {
+				continue;
+			}
+			rebuild_image(e.image);
+			allocate_descriptor(e.set);
+			if (e.image.view) {
+				write_descriptor(e.set, e.image.view, g.sampler);
+			}
+			e.image.sampler = g.sampler;
+		}
+	}
+} // namespace bb::gfx

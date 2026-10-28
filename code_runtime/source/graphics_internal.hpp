@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <memory>
 #include <vector>
 
 #include "scene.hpp"
@@ -162,7 +163,25 @@ namespace bb::gfx {
 	// The block compressed formats that DDS files can be uploaded as.
 	enum class block_format { none, bc1, bc2, bc3, bc4, bc5, bc7 };
 
+	/** What it takes to make an image again when the device is lost (see graphics_recovery.cpp): how it was created and, for the ones that are loaded or written
+	    by the program, the bytes that were uploaded to it. What the GPU draws or copies into an image is not part of this. Copies of an image share it. */
+	struct image_recipe {
+		enum class content { blank, pixels, blocks };
+		uint32_t           width = 0, height = 0, mips = 1;
+		VkImageUsageFlags  usage = 0;
+		VkFormat           format = VK_FORMAT_R8G8B8A8_UNORM;
+		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+		VkComponentMapping mapping = {};
+		bool               has_mapping = false;
+		content            kind = content::blank;
+		bool               mipmaps = false, srgb = false, ten = false, opaque = false;
+		block_format       block = block_format::none;
+		int                block_mips = 1;             // blocks: how many levels the data has.
+		std::vector<uint8_t> data;                     // pixels: RGBA8 rows (or all levels of 10 bit pixels); blocks: all levels of blocks.
+	};
+
 	struct gpu_image {
+		image_recipe*  recipe = nullptr;               // Owned by the image that made it, copies of an image (atlas views, the image of a cube map) only look. destroy_image deletes it.
 		block_format   block   = block_format::none; // Not none if the image holds compressed blocks, which can be sampled but not drawn to.
 		bool           srgb    = false;              // Stored as sRGB: sampling gives linear values, while the bytes that are read and written are the encoded ones.
 		bool           ten     = false;              // Holds A2B10G10R10 instead of RGBA8: a texture with more than 8 bits per channel and no partial alpha. Drawing to it turns it into RGBA8 first.
@@ -770,6 +789,25 @@ namespace bb::gfx {
 	target_ref resolve_target(int handle);
 	[[noreturn]] void fail(const char* what);
 	void check(VkResult result, const char* what);
+	// A lost device (graphics_recovery.cpp)
+	const char* result_name(VkResult result);
+	/** VK_ERROR_DEVICE_LOST and VK_ERROR_SURFACE_LOST_KHR, which the graphics are made again after. */
+	bool is_device_loss(VkResult result);
+	/** Whether a lost device is made good again (BLITZLLVM_DEVICE_RECOVERY=0 turns it off, then the program ends with an error). */
+	bool recovery_enabled();
+	/** A loss was noted and the graphics are not made again yet, so Vulkan calls fail meanwhile. */
+	bool device_lost();
+	/** The graphics are being made again: errors say so. */
+	bool restoring_graphics();
+	void note_device_loss(VkResult result, const char* what);
+	/** Zeroed memory that stands in for the mapping of a buffer that could not be made because the device is lost; it goes when the graphics are made again. */
+	void* lost_dummy_memory(size_t size);
+	/** Makes the graphics again if the device was lost. Only where no call of the program is half done: Flip, GraphicsLost. */
+	void recover_if_lost();
+	void recovery_flip_begin();
+	void recovery_flip_end();
+	/** Forgets an error the submission thread had not reported yet. */
+	void gpu_clear_error();
 	/** The memory of buffers and images comes from VulkanMemoryAllocator, which is made once the device exists and has to be destroyed before it. */
 	void create_allocator(PFN_vkGetInstanceProcAddr get_instance_proc);
 	void destroy_allocator();
@@ -778,6 +816,10 @@ namespace bb::gfx {
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
 	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1);
 	void destroy_image(gpu_image& img);
+	/** Destroys what the GPU has of an image and keeps what it takes to make it again: the recipe, the size, the layout. */
+	void release_image(gpu_image& img);
+	/** Makes an image that release_image let go of again, with what it held. The layout is the one it had; an image that was only created is cleared. */
+	void rebuild_image(gpu_image& img);
 	/** Destroys the buffers of every surface that is still alive, which the window closing would otherwise leave behind. */
 	void destroy_surface_buffers();
 	VkShaderModule create_shader(const unsigned int* words, size_t size);
@@ -809,6 +851,15 @@ namespace bb::gfx {
 	/** Writes the image that was presented to the file of BLITZ_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();
+	/** Gives back everything the Vulkan device made, and the device with its surface and instance. The window stays. */
+	void destroy_device_objects();
+	/** The depth buffers of the sizes that were drawn to, and the sets that sample them. */
+	void destroy_depth_cache();
+	/** A lost device: let go of what the textures and images have on the GPU, keeping what it takes to make them again, and make them again on the new device. */
+	void textures_release();
+	void textures_rebuild();
+	void images_release();
+	void images_rebuild();
 	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false);
 	void create_buffers(uint32_t width, uint32_t height);
 	void create_swapchain();
@@ -936,7 +987,8 @@ namespace bb::gfx {
 	uint32_t pixel_bytes(VkFormat format);
 	/** Reads pixels as RGBA8, or with native set as the image has them (R, G, B, A in the order of its format). */
 	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native = false);
-	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native = false);
+	/** With remember the pixels also go into the recipe of the image, to be there after a lost device; what is rewritten every frame (a movie) does not need that. */
+	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native = false, bool remember = true);
 	/** Loads a picture file with SDL_image, and DDS files with our own decoder. The surface is for the caller to destroy. */
 	SDL_Surface* load_surface(const char* file);
 
