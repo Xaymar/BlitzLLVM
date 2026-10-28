@@ -84,4 +84,16 @@ PositionEntity copies(0), 0, 0, 0
 RenderWorld
 Check "One that comes back", Stats3D(1000), 1, 0
 
+; Frames of one animated texture are cells of one image, so entities that show different frames are still one call.
+For i = 0 To 99
+	PositionEntity copies(i), (i Mod 10) - 4.5, (i / 10) - 4.5, 0
+Next
+sheet = LoadAnimTexture("../checker.png", 1, 32, 32, 0, 4)
+For i = 0 To 99
+	EntityTexture copies(i), sheet, i Mod 4
+Next
+RenderWorld
+CheckTrue "Frames of one texture are one call (" + Stats3D(1000) + " calls)", Stats3D(1000) <= 1
+CheckTrue "Frames of one texture are one texture (" + Stats3D(1002) + ")", Stats3D(1002) <= 1
+
 Done "blitz3d_batching_pixels"
