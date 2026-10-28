@@ -944,7 +944,8 @@ namespace bb::gfx {
 			}
 		}
 
-		uint32_t count = caps.minImageCount + 1;
+		// MAILBOX needs a spare image: the display and the window system may each hold one, and the program must still find one to draw to.
+		uint32_t count = caps.minImageCount + ((mode == VK_PRESENT_MODE_MAILBOX_KHR) ? 3 : 1);
 		if ((caps.maxImageCount > 0) && (count > caps.maxImageCount)) {
 			count = caps.maxImageCount;
 		}
