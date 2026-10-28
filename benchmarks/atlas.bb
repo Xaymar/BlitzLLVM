@@ -10,6 +10,8 @@
 ; Environment variables:
 ;   BENCH_TEXTURES  how many different textures there are (default 200)
 ;   BENCH_OBJECTS   how many cubes (default 2000)
+;   BENCH_BACKDROP  size n of a lit, textured terrain of n by n squares behind everything (default 0: none), 2 n * n triangles
+;   BENCH_SPRITES   how many sprites with the small textures are laid over the scene (default 0), blended, so drawn in order
 ;   BENCH_FRAMES    how many frames are timed (default 300)
 ;   BENCH_WARMUP    frames that are rendered but not timed (default 5)
 ;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
@@ -66,12 +68,56 @@ original = CreateCube()
 HideEntity original
 
 ; The cubes are on a grid of 50 by n that the camera looks at, which cube has which texture comes from a counter and no random numbers.
-Dim cubes(objects - 1)
+Dim cubes(objects)
 For i = 0 To objects - 1
 	cubes(i) = CopyEntity(original)
 	EntityTexture cubes(i), loaded((i * 7) Mod textures)
 	PositionEntity cubes(i), (i Mod 50) * 2.5 - 62, (i / 50) * 2.5 - 12, 60
 	ScaleEntity cubes(i), 0.9, 0.9, 0.9
+Next
+
+; A detailed backdrop: a hilly terrain of backdrop * backdrop squares with one big 1024 pixel texture (with mip maps), lit by the light.
+backdrop = Int(Env$("BENCH_BACKDROP", 0))
+If backdrop > 0 Then
+	If backdrop > 250 Then backdrop = 250
+	big = CreateTexture(1024, 1024, 1 + 8 + 4096)
+	SetBuffer TextureBuffer(big)
+	For y = 0 To 1023 Step 8
+		For x = 0 To 1023 Step 8
+			Color 60 + ((x * 7 + y * 13) Mod 150), 90 + ((x * 3 + y * 5) Mod 120), 50 + ((x * 11 + y * 3) Mod 100)
+			Rect x, y, 8, 8, 1
+		Next
+	Next
+	SetBuffer BackBuffer()
+	terrain = CreateMesh()
+	surf = CreateSurface(terrain)
+	For z = 0 To backdrop
+		For x = 0 To backdrop
+			AddVertex surf, (x - backdrop / 2) * 1.5, Sin(x * 11.0) * 2.0 + Cos(z * 7.0) * 2.0, z * 1.5, x * 8.0 / backdrop, z * 8.0 / backdrop
+		Next
+	Next
+	For z = 0 To backdrop - 1
+		For x = 0 To backdrop - 1
+			v = z * (backdrop + 1) + x
+			AddTriangle surf, v, v + backdrop + 1, v + 1
+			AddTriangle surf, v + 1, v + backdrop + 1, v + backdrop + 2
+		Next
+	Next
+	UpdateNormals terrain
+	EntityTexture terrain, big
+	PositionEntity terrain, 0, -12, 20
+EndIf
+
+; Sprites with the small textures on top of it, in layers in front of the camera. They are blended, so they are drawn in order.
+sprites = Int(Env$("BENCH_SPRITES", 0))
+Dim sprite(sprites)
+For i = 0 To sprites - 1
+	sprite(i) = CreateSprite()
+	EntityTexture sprite(i), loaded((i * 7) Mod textures)
+	EntityBlend sprite(i), 1
+	EntityAlpha sprite(i), 0.85
+	ScaleSprite sprite(i), 0.6, 0.6
+	PositionEntity sprite(i), (i Mod 100) * 0.9 - 45, ((i / 100) Mod 40) * 0.8 - 12, 15 + (i / 4000) * 3
 Next
 creation# = (BenchMicros() - creationstart) / 1000.0
 
@@ -83,6 +129,9 @@ For f = 0 To total - 1
 	TurnEntity camera, 0, 0.05, 0
 	For i = 0 To objects - 1 Step 50
 		TurnEntity cubes(i), 1, 2, 0
+	Next
+	For i = 0 To sprites - 1 Step 25
+		TurnEntity sprite(i), 0, 0, 1
 	Next
 	RenderWorld
 	Flip 0
@@ -118,7 +167,7 @@ Next
 p95 = frames * 95 / 100
 If p95 >= frames Then p95 = frames - 1
 
-result$ = "RESULT textures=" + textures + " objects=" + objects + " frames=" + frames + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " load_ms=" + loadtime + " first_ms=" + firstframe + " ms_avg=" + avg + " ms_min=" + (times(0) / 1000.0) + " ms_median=" + (times(frames / 2) / 1000.0) + " ms_p95=" + (times(p95) / 1000.0) + " ms_max=" + (times(frames - 1) / 1000.0) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " textures_bound=" + Int(texsum / frames)
+result$ = "RESULT textures=" + textures + " objects=" + objects + " backdrop=" + backdrop + " sprites=" + sprites + " frames=" + frames + " width=" + GraphicsWidth() + " height=" + GraphicsHeight() + " create_ms=" + creation + " load_ms=" + loadtime + " first_ms=" + firstframe + " ms_avg=" + avg + " ms_min=" + (times(0) / 1000.0) + " ms_median=" + (times(frames / 2) / 1000.0) + " ms_p95=" + (times(p95) / 1000.0) + " ms_max=" + (times(frames - 1) / 1000.0) + " fps=" + (1000 / avg) + " tris=" + Int(trissum / frames) + " draws=" + Int(drawsum / frames) + " textures_bound=" + Int(texsum / frames)
 DebugLog result$
 resultfile$ = GetEnv$("BENCH_RESULT")
 If resultfile$ <> "" Then

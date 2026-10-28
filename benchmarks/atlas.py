@@ -6,7 +6,7 @@
 Builds benchmarks/atlas.bb with blitzcc, runs it and prints the frame times and what the frames cost: a field of cubes with many
 different small textures. The result is also saved as JSON (and added to a CSV) in benchmarks/results/.
 
-    python3 benchmarks/atlas.py [--blitzcc PATH] [--textures N] [--objects N] [--frames N] [--size WxH] [--no-atlas]
+    python3 benchmarks/atlas.py [--blitzcc PATH] [--textures N] [--objects N] [--backdrop N] [--sprites N] [--frames N] [--size WxH] [--no-atlas]
                                  [--debug] [--profile] [--label NAME] [--shot FILE] [--no-save]
 
 --no-atlas sets BLITZ_NO_TEXTURE_ATLAS=1, for the run to compare with (the original Blitz3D has no merging and ignores it).
@@ -55,6 +55,8 @@ def main():
     parser.add_argument("--blitzcc")
     parser.add_argument("--textures", type=int, default=int(os.environ.get("BENCH_TEXTURES", 200)))
     parser.add_argument("--objects", type=int, default=int(os.environ.get("BENCH_OBJECTS", 2000)))
+    parser.add_argument("--backdrop", type=int, default=int(os.environ.get("BENCH_BACKDROP", 0)), help="size n of a hilly textured terrain of n*n squares behind the cubes")
+    parser.add_argument("--sprites", type=int, default=int(os.environ.get("BENCH_SPRITES", 0)), help="how many blended sprites with the small textures lie over the scene")
     parser.add_argument("--frames", type=int, default=int(os.environ.get("BENCH_FRAMES", 300)))
     parser.add_argument("--size", default=os.environ.get("BENCH_SIZE", "640x360"))
     parser.add_argument("--quick", action="store_true", help="40 textures, 400 objects, 30 frames")
@@ -92,7 +94,7 @@ def main():
         build = procutil.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
-        env = dict(os.environ, BENCH_TEXTURES=str(args.textures), BENCH_OBJECTS=str(args.objects), BENCH_FRAMES=str(args.frames), BENCH_W=width, BENCH_H=height,
+        env = dict(os.environ, BENCH_TEXTURES=str(args.textures), BENCH_OBJECTS=str(args.objects), BENCH_BACKDROP=str(args.backdrop), BENCH_SPRITES=str(args.sprites), BENCH_FRAMES=str(args.frames), BENCH_W=width, BENCH_H=height,
                    BENCH_FRAMETIMES=os.path.join(directory, "frametimes.txt"), BENCH_RESULT=os.path.join(directory, "result.txt"))
         if args.no_atlas:
             env["BLITZ_NO_TEXTURE_ATLAS"] = "1"
@@ -100,7 +102,7 @@ def main():
             env["BLITZ_FPS"] = "1"
         if args.shot:
             env["BENCH_SHOT"] = os.path.abspath(args.shot)
-        print("Running %d textures, %d objects, %d frames, %sx%s, build %s%s" % (args.textures, args.objects, args.frames, width, height, " ".join(flags), ", atlas off" if args.no_atlas else ""), flush=True)
+        print("Running %d textures, %d objects, %d backdrop, %d sprites, %d frames, %sx%s, build %s%s" % (args.textures, args.objects, args.backdrop, args.sprites, args.frames, width, height, " ".join(flags), ", atlas off" if args.no_atlas else ""), flush=True)
         # The program writes its pictures to its working directory.
         result = procutil.run(runner + [program], env=env, cwd=directory, capture_output=True, text=True)
         output = result.stdout + result.stderr
@@ -136,12 +138,12 @@ def main():
         out = os.path.join(HERE, "results")
         os.makedirs(out, exist_ok=True)
         stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        name = "atlas-%s-%d" % (stamp, args.textures)
+        name = "atlas-%s-%d-%d-%d" % (stamp, args.textures, args.backdrop, args.sprites)
         with open(os.path.join(out, name + ".json"), "w") as f:
             json.dump(dict(record, frame_times_us=frametimes), f, indent=1)
         csv_path = os.path.join(out, "atlas.csv")
         new = not os.path.isfile(csv_path)
-        keys = ("textures", "objects", "frames", "load_ms", "first_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "textures_bound")
+        keys = ("textures", "objects", "backdrop", "sprites", "frames", "load_ms", "first_ms", "ms_avg", "ms_min", "ms_median", "ms_p95", "ms_max", "fps", "tris", "draws", "textures_bound")
         with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
             if new:
