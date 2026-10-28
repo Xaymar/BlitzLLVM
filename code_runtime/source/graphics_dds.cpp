@@ -777,6 +777,103 @@ namespace bb::gfx {
 		return !memcmp(d, "\x89PNG", 4) || ((d[0] == 0xFF) && (d[1] == 0xD8)) || !memcmp(d, "GIF8", 4) || !memcmp(d, "DDS ", 4) || ((d[0] == 'B') && (d[1] == 'M')) || (!memcmp(d, "RIFF", 4) && !memcmp(d + 8, "WEBP", 4)) || !memcmp(d + 4, "ftypavif", 8) || ((d[0] == 0xFF) && (d[1] == 0x0A)) || !memcmp(d, "\x00\x00\x00\x0cJXL ", 8);
 	}
 
+	bool animation_possible(const uint8_t* d, size_t n)
+	{
+		if (n < 12) {
+			return false;
+		}
+		if (!memcmp(d, "GIF8", 4) || (!memcmp(d, "RIFF", 4) && !memcmp(d + 8, "WEBP", 4)) || !memcmp(d + 4, "ftypavi", 7)) {
+			return true;
+		}
+		return false;
+	}
+
+	// Textures can't be bigger than this on every device we care about (Vulkan only promises 4096).
+	static constexpr int animation_sheet_limit = 8192;
+
+	int load_animation_sheet(const char* file, int first, int count, animation_sheet& out)
+	{
+		size_t size = 0;
+		void*  data = SDL_LoadFile(bb_native_path(file), &size);
+		if (!data) {
+			return 0;
+		}
+		if (!animation_possible(static_cast<const uint8_t*>(data), size)) {
+			SDL_free(data);
+			return 0;
+		}
+		SDL_IOStream* io = SDL_IOFromConstMem(data, size);
+		open_codec_libraries();
+		const char*    dot = strrchr(file, '.');
+		IMG_Animation* anim = io ? IMG_LoadAnimationTyped_IO(io, true, dot ? dot + 1 : nullptr) : nullptr;
+		SDL_free(data);
+		if (!anim) {
+			report_missing_codec(file);
+			return 0;
+		}
+		if (anim->count < 2) {
+			IMG_FreeAnimation(anim);
+			return 0; // Just a picture.
+		}
+		int done = -1;
+		if ((first >= 0) && (first < anim->count)) {
+			int n = (count < 1) ? (anim->count - first) : count;
+			int w = anim->w, h = anim->h;
+			if ((first + n) <= anim->count) {
+				int cols = 1;
+				while (cols * cols < n) {
+					cols++;
+				}
+				if (cols * w > animation_sheet_limit) {
+					cols = animation_sheet_limit / w;
+				}
+				int rows = cols > 0 ? (n + cols - 1) / cols : 0;
+				if ((cols < 1) || (rows * h > animation_sheet_limit)) {
+					fprintf(stderr, "warning: Can't load '%s': %d frames of %dx%d do not fit in a texture of %d pixels.\n", file, n, w, h, animation_sheet_limit);
+				} else {
+					SDL_Surface* sheet = SDL_CreateSurface(cols * w, rows * h, SDL_PIXELFORMAT_RGBA32);
+					out.delays         = static_cast<int*>(bb_malloc(sizeof(int) * size_t(n)));
+					bool alpha         = false;
+					for (int i = 0; sheet && (i < n); i++) {
+						SDL_Surface* frame = SDL_ConvertSurface(anim->frames[first + i], SDL_PIXELFORMAT_RGBA32);
+						if (!frame) {
+							continue;
+						}
+						SDL_SetSurfaceBlendMode(frame, SDL_BLENDMODE_NONE);
+						SDL_Rect dest = { (i % cols) * w, (i / cols) * h, w, h };
+						SDL_BlitSurface(frame, nullptr, sheet, &dest);
+						for (int y = 0; !alpha && (y < frame->h); y++) {
+							for (int x = 0; x < frame->w; x++) {
+								if (static_cast<uint8_t*>(frame->pixels)[size_t(y) * size_t(frame->pitch) + size_t(x) * 4 + 3] != 255) {
+									alpha = true;
+									break;
+								}
+							}
+						}
+						SDL_DestroySurface(frame);
+						int delay     = anim->delays[first + i];
+						out.delays[i] = (delay > 0) ? delay : 100; // Like browsers, a frame without a delay lasts 100 ms.
+					}
+					if (sheet) {
+						out.sheet.surface   = sheet;
+						out.sheet.width     = sheet->w;
+						out.sheet.height    = sheet->h;
+						out.sheet.has_alpha = alpha;
+						out.frames          = n;
+						out.frame_w         = w;
+						out.frame_h         = h;
+						done                = 1;
+					} else {
+						bb_free(out.delays);
+						out.delays = nullptr;
+					}
+				}
+			}
+		}
+		IMG_FreeAnimation(anim);
+		return done;
+	}
+
 	SDL_Surface* load_surface(const char* file)
 	{
 		picture p;

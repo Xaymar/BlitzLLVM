@@ -152,6 +152,7 @@ namespace bb::gfx {
 			destroy_image(e.image);
 		}
 		bb_free(e.solid);
+		bb_free(e.delays);
 		e = image_entry();
 	}
 
@@ -180,6 +181,7 @@ namespace bb::gfx {
 		sprite_hull_drop(t.hull);
 		delete t.cube;
 		bb_free(t.file);
+		bb_free(t.delays);
 		t = texture_entry();
 	}
 
@@ -657,6 +659,8 @@ namespace bb::gfx {
 } // namespace bb::gfx
 }
 
+static int32_t texture_from_picture(const char* file, int32_t flags, picture& source);
+
 // Loads a texture with exactly these flags. Where alpha comes from is what the original does: nothing, if the flag is
 // not there, and with it the alpha channel of the image if it has one, and otherwise how bright each pixel is.
 int32_t bb_load_texture_flags(const char* file, int32_t flags)
@@ -699,6 +703,12 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 	if (!load_picture(file, source)) {
 		return 0; // Blitz gives 0 for missing files.
 	}
+	return texture_from_picture(file, flags, source);
+}
+
+// Makes the texture of a picture, which it takes over.
+static int32_t texture_from_picture(const char* file, int32_t flags, picture& source)
+{
 	prepared_texture prepared;
 	if (!prepare_texture(source, flags, active(), active() && compressed_supported(source.block), active() && ten_bit_supported(), prepared)) {
 		free_picture(source);
@@ -847,6 +857,26 @@ int32_t bb_texture_height(int32_t handle)
 // count of them from the first. 0 if there are not that many frames in the picture. Where the coordinates wrap around, they do so over the whole sheet.
 int32_t bb_load_anim_texture(const char* file, int32_t flags, int32_t width, int32_t height, int32_t first, int32_t count)
 {
+	// An animated file with no frame size is its frames, packed into a sheet: the extension of the original.
+	if (file && ((width < 1) || (height < 1))) {
+		animation_sheet animation;
+		int loaded = load_animation_sheet(file, first, count, animation);
+		if (loaded < 0) {
+			return 0;
+		}
+		if (loaded > 0) {
+			int32_t handle = texture_from_picture(file, bb_filter_texture_flags(file, flags), animation.sheet);
+			if (texture_entry* t = handle ? texture_of(handle) : nullptr) {
+				t->frames  = animation.frames;
+				t->frame_w = animation.frame_w;
+				t->frame_h = animation.frame_h;
+				t->delays  = animation.delays;
+			} else {
+				bb_free(animation.delays);
+			}
+			return handle;
+		}
+	}
 	int32_t handle = bb_load_texture(file, flags);
 	if (!handle) {
 		return 0;
@@ -920,6 +950,20 @@ int32_t bb_atlas_texture(int32_t atlas, int32_t x, int32_t y, int32_t w, int32_t
 		entry.image.sampler = sampler;
 	}
 	return add_texture(entry);
+}
+
+// TextureFrames(texture): how many frames the texture has, which is 1 for one without.
+int32_t bb_texture_frames(int32_t handle)
+{
+	texture_entry* t = need_texture(handle, "TextureFrames");
+	return (t->frames > 0) ? t->frames : 1;
+}
+
+// TextureFrameDelay(texture, frame): how long the frame of an animated picture lasts in milliseconds, 0 for anything else.
+int32_t bb_texture_frame_delay(int32_t handle, int32_t frame)
+{
+	texture_entry* t = need_texture(handle, "TextureFrameDelay");
+	return (t->delays && (frame >= 0) && (frame < t->frames)) ? t->delays[frame] : 0;
 }
 
 // The full path of the file a texture was loaded from, and nothing for one that was made.

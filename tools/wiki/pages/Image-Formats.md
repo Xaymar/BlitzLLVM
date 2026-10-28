@@ -21,6 +21,8 @@ The original read what Windows 98 could load: BMP, PNG, JPEG, JPEG 2000, GIF, TG
 
 TGA files have no marker at the start that identifies them, so they are recognized by the extension of the file name: a TGA file that is named `.dat` is not read. TIFF is switched off in the build, and nothing reads JPEG 2000. Convert TIFF and JPEG 2000 files to PNG, WebP or another format from the list before loading them. The code for a few of the extra formats (WebP, AVIF and JPEG XL) is in shared libraries that are shipped with the program, and a program that loads such a file warns once if one of them is missing.
 
+Animated GIF, WebP and AVIF files load as frames with [LoadAnimTexture](LoadAnimTexture) and [LoadAnimImage](LoadAnimImage) when the frame size is 0. Animated PNG (APNG) is intentionally not supported: it loads as an ordinary PNG, showing its first frame.
+
 Saving is a separate list, see [Saving pictures](Saving-Pictures): PNG, JPEG, WebP, JPEG XL, TGA and BMP can be written, AVIF, GIF and the others can only be read.
 
 Anything that is not in the table, or is damaged, gives 0 from the command (or a runtime error where the command has no way to report it, such as [LoadTerrain](LoadTerrain)).
