@@ -32,6 +32,7 @@ import re
 import shutil
 import sys
 import tempfile
+import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
 import procutil  # noqa: E402
 
@@ -42,6 +43,23 @@ ROOT = os.path.dirname(HERE)
 # Direct3D 7 limits the window to 2048 in each direction (measured on Areldir: 2048x2048 works, 2049x1080 and 500x3000 fail): the original Blitz3D then stops with
 # "Unable to create 3D Scene".
 ORIGINAL_MAX_SIZE = 2048
+
+def copy_synced(source, target):
+    """Copies a file and makes sure it is on disk and can be read again before the compiler looks for it."""
+    shutil.copyfile(source, target)
+    with open(target, "rb+") as f:
+        f.flush()
+        os.fsync(f.fileno())
+    for attempt in range(20):
+        try:
+            with open(target, "rb") as f:
+                if f.read() == open(source, "rb").read():
+                    return
+        except OSError:
+            pass
+        time.sleep(0.25)
+    sys.exit("Could not read back %s." % target)
+
 
 def find_compiler(given):
     if given:
@@ -100,9 +118,16 @@ def main():
         # Compiled from a copy with the include of this compiler next to it, whatever folder the original compiler resolves
         # includes from.
         source = os.path.join(directory, "forest.bb")
-        shutil.copy(os.path.join(HERE, "forest.bb"), source)
-        shutil.copy(os.path.join(HERE, "forest_llvm.bi" if llvm else "forest_original.bi"), os.path.join(directory, "forest_counters.bi"))
-        build = procutil.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
+        include = os.path.join(directory, "forest_counters.bi")
+        copy_synced(os.path.join(HERE, "forest.bb"), source)
+        copy_synced(os.path.join(HERE, "forest_llvm.bi" if llvm else "forest_original.bi"), include)
+        # The original compiler once did not find the include on Areldir right after it was written (probably a virus scanner or the file system still
+        # holding the new file), so a build that fails with an include error is tried again a few times.
+        for attempt in range(5):
+            build = procutil.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
+            if build.returncode == 0 or "include" not in (build.stdout + build.stderr).lower() or not os.path.isfile(include):
+                break
+            time.sleep(1 + attempt)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
         env = dict(os.environ, BENCH_TREES=str(args.trees), BENCH_GRASS=str(args.grass), BENCH_PEBBLES=str(args.pebbles), BENCH_INSECTS=str(args.insects), BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,
