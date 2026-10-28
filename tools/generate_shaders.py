@@ -849,7 +849,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
         # before it is rounded, so that lighting, fog and blending are not bands but a pattern, and exact colors stay.
         #   layout(constant_id = 0) const bool dither = false;
         #   if (dither) { vec2 xy = floor(gl_FragCoord.xy) + vec2(scene.projection.w - 1.0);
-        #                 rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0; }
+        #                 rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0 * (not exact); }
         # The shader that blends itself dithers what it blends instead, always, as it is only used when Dither is 2.
         def noise_offset():
             w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
@@ -860,6 +860,15 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
             along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
             noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
             return b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+
+        def noise_for(color):
+            # A channel that the 8 bit target shows exactly gets no noise: a GPU may convert with a little error, which turns the
+            # lowest noise (half a step below) into a step below the color, in some pixels. Within 1/64 of a step counts as exact.
+            #   vec3 steps = rgb * 255.0;  noise * step(1.0 / 64.0, abs(steps - floor(steps + 0.5)));
+            steps = b.fmul(v3, color, b.const_vec(3, 255.0))
+            away = b.ext(v3, GLSL_FABS, b.fsub(v3, steps, b.ext(v3, GLSL_FLOOR, b.fadd(v3, steps, b.const_vec(3, 0.5)))))
+            inexact = b.ext(v3, GLSL_STEP, b.const_vec(3, 1.0 / 64.0), away)
+            return b.fmul(v3, b.scale(3, b.const_vec(3, 1.0), noise_offset()), inexact)
 
         if blend:
             # The blend of the fixed-function pipeline, with the factors as specialization constants (ids 1 to 5). The factor of
@@ -888,7 +897,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
             drawn_factor = b.fadd(v3, b.scale(3, there_rgb, fb), b.construct(3, *([b.fmul(f, fa, alpha)] * 3)))
             there_factor = b.fadd(v3, b.scale(3, rgb, fe), b.construct(3, *([b.fadd(f, fc, b.fmul(f, fd, alpha))] * 3)))
             blended = b.fadd(v3, b.emit("FMul", v3, rgb, drawn_factor), b.emit("FMul", v3, there_rgb, there_factor))
-            blended = b.fadd(v3, blended, b.scale(3, b.const_vec(3, 1.0), noise_offset()))
+            blended = b.fadd(v3, blended, noise_for(blended))
             blended_alpha = b.fadd(f, alpha, b.fmul(f, b.extract(there, 3), b.fsub(f, c1, alpha)))
             result = b.construct(4, b.extract(blended, 0), b.extract(blended, 1), b.extract(blended, 2), blended_alpha)
         else:
@@ -904,7 +913,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False):
                 Module.inst("BranchConditional", dither_on, dither_label, dither_merge),
                 Module.inst("Label", dither_label),
             ]
-            dithered = b.fadd(v3, rgb, b.scale(3, b.const_vec(3, 1.0), noise_offset()))
+            dithered = b.fadd(v3, rgb, noise_for(rgb))
             b.m.code += [Module.inst("Branch", dither_merge), Module.inst("Label", dither_merge)]
             rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
             result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
