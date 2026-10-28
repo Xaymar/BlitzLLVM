@@ -9,6 +9,17 @@ are used the same way.
 The programs in `original/` run in the original BlitzBasic / Blitz3D as well and give the baseline for the performance history, see
 `original/README.adoc`.
 
+== Ending a benchmark
+
+The runners start compilers and benchmark programs through `tools/procutil.py` (`procutil.run` and `procutil.Popen` replace
+`subprocess.run` and `subprocess.Popen`). Whenever a script ends, no matter how (it finishes, raises, times out, gets Ctrl-C, SIGTERM or
+a closed console window, or is killed hard), everything it started is terminated with it, grandchildren included, and the script never
+asks first. A benchmark process that outlives its script would distort every later measurement.
+
+On Windows the children live in a Job Object that is killed with the script; elsewhere each child gets its own process group, killed by
+the script and by a small watcher process if the script dies without cleaning up. `tests/cli/procutil.py` (the `procutil` test) proves
+this for exit, exception, kill, interrupt and timeout. New scripts that start programs must use `procutil`, not `subprocess` directly.
+
 == flythrough: a camera through a field of many entities
 
 `flythrough.bb` makes a field of entities (a million with `--objects 1000000`) and flies a camera through it on a loop that is
