@@ -80,7 +80,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 	SDL_StartTextInput(g.window);
 	g.auto_suspend = (mode == 1); // Fullscreen programs are suspended when they are not in front, unless they say not.
-	if (const char* path = getenv("BLITZ_TEST_WINDOW_FLAGS")) {
+	if (const char* path = bb_env("BLITZLLVM_TEST_WINDOW_FLAGS")) {
 		// Test hook: the flags SDL gave the window, as a number in the named file.
 		if (FILE* file = fopen(path, "w")) {
 			fprintf(file, "%llu", (unsigned long long)SDL_GetWindowFlags(g.window));
@@ -91,7 +91,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	create_vulkan();
 	create_buffers(uint32_t(width), uint32_t(height));
 	create_swapchain();
-	if (const char* path = getenv("BLITZ_TEST_LAYOUT")) {
+	if (const char* path = bb_env("BLITZLLVM_TEST_LAYOUT")) {
 		// Test hook: the size of the window in pixels, where the buffer is shown in it, and the buffer coordinates of
 		// the window corners and center, one number per line in the named file.
 		if (FILE* file = fopen(path, "w")) {

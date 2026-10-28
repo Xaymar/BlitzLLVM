@@ -130,12 +130,12 @@ const char* bb_get_env(const char* name)
 }
 
 // SetEnv name, value: sets an environment variable for this program and what it starts.
-// Set whenever BLITZ_TEST_EVENTS may have changed, so the input code looks at the environment only then: reading it is slow.
+// Set whenever BLITZLLVM_TEST_EVENTS may have changed, so the input code looks at the environment only then: reading it is slow.
 int bb_test_events_dirty = 1;
 
 void bb_set_env(const char* name, const char* value)
 {
-	if (!strcmp(bb_s(name), "BLITZ_TEST_EVENTS")) {
+	if (!strcmp(bb_s(name), "BLITZLLVM_TEST_EVENTS") || !strcmp(bb_s(name), "BLITZ_TEST_EVENTS")) {
 		bb_test_events_dirty = 1;
 	}
 #if defined(_WIN32)

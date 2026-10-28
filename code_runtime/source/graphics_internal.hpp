@@ -806,7 +806,7 @@ namespace bb::gfx {
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
-	/** Writes the image that was presented to the file of BLITZ_TEST_PRESENT, for tests. */
+	/** Writes the image that was presented to the file of BLITZLLVM_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();
 	void upload_texture(gpu_image& image, VkDescriptorSet& set, uint32_t width, uint32_t height, const uint8_t* pixels, VkSampler sampler, bool mipmaps = false, bool srgb = false, bool ten = false);

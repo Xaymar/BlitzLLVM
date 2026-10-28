@@ -13,7 +13,7 @@ If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	End
 EndIf
 
-SetEnv "BLITZ_TEST_PRESENT", "present.tmp"
+SetEnv "BLITZLLVM_TEST_PRESENT", "present.tmp"
 Graphics 160, 120, 32, 2
 SetBuffer BackBuffer()
 
