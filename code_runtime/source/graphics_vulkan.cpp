@@ -109,6 +109,10 @@ namespace bb::gfx {
 		img.mips = mips;
 		img.width  = width;
 		img.height = height;
+		// Dither 2 blends in the shader, which reads what it draws to.
+		if (g.can_blend_dither && (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)) {
+			usage |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+		}
 
 		VkImageCreateInfo info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
 		info.imageType         = VK_IMAGE_TYPE_2D;

@@ -229,7 +229,8 @@ namespace bb::gfx {
 		return gpu;
 	}
 
-	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format)
+	// With shader_blend the fragment shader is the one that blends itself (Dither 2) and the pipeline does not blend.
+	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, bool shader_blend)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
@@ -238,11 +239,21 @@ namespace bb::gfx {
 		stages[1].stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
 		stages[1].module                          = fs;
 		stages[1].pName                           = "main";
-		// Whether the shader dithers is a constant of the pipeline, so that it costs nothing when it is off.
-		VkBool32                 dither_on = dither_code() > 0.0f ? VK_TRUE : VK_FALSE;
-		VkSpecializationMapEntry dither_entry = { 0, 0, sizeof(VkBool32) };
-		VkSpecializationInfo     specialization = { 1, &dither_entry, sizeof(VkBool32), &dither_on };
-		stages[1].pSpecializationInfo             = &specialization;
+		// Whether the shader dithers is a constant of the pipeline, so that it costs nothing when it is off. The shader that blends
+		// itself has the factors of its mode (see fragment_shader_masked in tools/generate_shaders.py) as constants 1 to 5.
+		static const float factors[5][5] = { { 1, 0, 1, 0, 0 }, { 1, 0, 1, -1, 0 }, { 0, 1, 0, 0, 0 }, { 1, 0, 1, 0, 0 }, { 0, 1, 0, 0, 1 } };
+		struct {
+			VkBool32 dither;
+			float    factor[5];
+		} constants;
+		constants.dither = dither_code() > 0.0f ? VK_TRUE : VK_FALSE;
+		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
+		VkSpecializationMapEntry entries[6] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
+		for (uint32_t i = 0; i < 5; i++) {
+			entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
+		}
+		VkSpecializationInfo specialization = { shader_blend ? 6u : 1u, entries, sizeof(constants), &constants };
+		stages[1].pSpecializationInfo       = &specialization;
 
 		VkVertexInputBindingDescription   binding       = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
 		VkVertexInputAttributeDescription attributes[5] = {
@@ -282,7 +293,7 @@ namespace bb::gfx {
 		depth.depthCompareOp                        = VK_COMPARE_OP_GREATER_OR_EQUAL;
 
 		VkPipelineColorBlendAttachmentState blend = {};
-		blend.blendEnable                         = (mode != 0) ? VK_TRUE : VK_FALSE;
+		blend.blendEnable                         = ((mode != 0) && !shader_blend) ? VK_TRUE : VK_FALSE;
 		blend.srcColorBlendFactor                 = VK_BLEND_FACTOR_SRC_ALPHA;
 		blend.dstColorBlendFactor                 = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 		blend.colorBlendOp                        = VK_BLEND_OP_ADD;
@@ -293,6 +304,10 @@ namespace bb::gfx {
 		VkPipelineColorBlendStateCreateInfo blending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
 		blending.attachmentCount                     = 1;
 		blending.pAttachments                        = &blend;
+		if (shader_blend) {
+			// The shader reads what is there, and the draws that touch a pixel keep their order while it does.
+			blending.flags = VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT;
+		}
 
 		// Modes: 0 = no blending, 1 = by alpha, 2 = multiply with what is there, 3 = add to what is there.
 		if (mode == 2) {
@@ -316,6 +331,14 @@ namespace bb::gfx {
 		rendering.colorAttachmentCount          = 1;
 		rendering.pColorAttachmentFormats       = &format;
 		rendering.depthAttachmentFormat         = depth_format;
+		// The color attachment is also input attachment 0.
+		uint32_t                               input_index = 0;
+		VkRenderingInputAttachmentIndexInfoKHR inputs      = { VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO_KHR };
+		inputs.colorAttachmentCount                         = 1;
+		inputs.pColorAttachmentInputIndices                 = &input_index;
+		if (shader_blend) {
+			rendering.pNext = &inputs;
+		}
 
 		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
 		info.pNext                        = &rendering;
@@ -336,11 +359,11 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false)
+	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false, bool shader_blend = false)
 	{
-		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM);
+		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM, shader_blend);
 		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
-			add_pipeline_twin(pipeline, build_pipeline_3d(vs, fs, mode, wire, g.buffer_format));
+			add_pipeline_twin(pipeline, build_pipeline_3d(vs, fs, mode, wire, g.buffer_format, shader_blend));
 		}
 		return pipeline;
 	}
@@ -634,10 +657,15 @@ namespace bb::gfx {
 		}
 		select_frame_slot(0);
 
-		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade.
-		VkDescriptorSetLayout layouts[4]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout };
+		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade. Set 4, if the GPU can blend in the shader, is the target.
+		if (g.can_blend_dither) {
+			VkDescriptorSetLayoutBinding input_binding = { 0, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+			set_info.pBindings                         = &input_binding;
+			check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.input_layout), "vkCreateDescriptorSetLayout");
+		}
+		VkDescriptorSetLayout layouts[5]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout, g.input_layout };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount         = 4;
+		layout_info.setLayoutCount         = g.can_blend_dither ? 5 : 4;
 		layout_info.pSetLayouts            = layouts;
 		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
 
@@ -669,20 +697,26 @@ namespace bb::gfx {
 		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
 		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
 		VkShaderModule fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
+		// With Dither 2 the blended things are drawn by the shader that blends itself.
+		bool           shader_blend = dither_level() == 2;
+		VkShaderModule fs_blend     = shader_blend ? create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend)) : fs;
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
 		g.solid3d         = create_pipeline_3d(vs, fs_solid, 0);
-		g.blend3d         = create_pipeline_3d(vs, fs, 1);
-		g.mul3d           = create_pipeline_3d(vs, fs, 2);
-		g.add3d           = create_pipeline_3d(vs, fs, 3);
-		g.mul2x3d         = create_pipeline_3d(vs, fs, 4);
+		g.blend3d         = create_pipeline_3d(vs, fs_blend, 1, false, shader_blend);
+		g.mul3d           = create_pipeline_3d(vs, fs_blend, 2, false, shader_blend);
+		g.add3d           = create_pipeline_3d(vs, fs_blend, 3, false, shader_blend);
+		g.mul2x3d         = create_pipeline_3d(vs, fs_blend, 4, false, shader_blend);
 		if (g.can_wireframe) {
 			for (int mode = 0; mode < 4; mode++) {
-				g.wire3d[mode] = create_pipeline_3d(vs, fs, mode, true);
+				g.wire3d[mode] = create_pipeline_3d(vs, (mode != 0) ? fs_blend : fs, mode, true, shader_blend && (mode != 0));
 			}
 		}
 		vkDestroyShaderModule(g.device, vs, nullptr);
 		vkDestroyShaderModule(g.device, fs, nullptr);
 		vkDestroyShaderModule(g.device, fs_solid, nullptr);
+		if (shader_blend) {
+			vkDestroyShaderModule(g.device, fs_blend, nullptr);
+		}
 	}
 
 	void destroy_pipelines_3d()
@@ -865,7 +899,19 @@ namespace bb::gfx {
 			}
 		}
 		record_culling(scene);
-		transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		// With Dither 2, blended things are blended by their shader, which reads the target while it is drawn to.
+		bool shader_blends = false;
+		if (dither_level() == 2) {
+			for (uint32_t i = 0; i < scene.draw_count; i++) {
+				VkPipeline pipeline = draws[scene.first_draw + i].pipeline;
+				if ((pipeline != g.opaque3d) && (pipeline != g.solid3d) && (pipeline != g.wire3d[0])) {
+					shader_blends = true;
+					break;
+				}
+			}
+		}
+		VkImageLayout target_layout = shader_blends ? VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		transition(*target.image, target_layout);
 		target.image->mips_stale = target.image->mips > 1;
 		bool fresh_depth = depth_image.layout == VK_IMAGE_LAYOUT_UNDEFINED;
 		if (fresh_depth) {
@@ -875,7 +921,7 @@ namespace bb::gfx {
 
 		VkRenderingAttachmentInfo color = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
 		color.imageView                 = target.image->target_view ? target.image->target_view : target.image->view;
-		color.imageLayout               = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		color.imageLayout               = target_layout;
 		color.loadOp                    = VK_ATTACHMENT_LOAD_OP_LOAD;
 		color.storeOp                   = VK_ATTACHMENT_STORE_OP_STORE;
 		VkRenderingAttachmentInfo depth = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
@@ -918,6 +964,10 @@ namespace bb::gfx {
 
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 2, 1, &g.entity_set, 0, nullptr);
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &g.sets[TEXTURE_WHITE], 0, nullptr); // Nothing to read the depth of yet.
+		if (shader_blends) {
+			VkDescriptorSet target_set = input_set_for(*target.image);
+			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 4, 1, &target_set, 0, nullptr);
+		}
 
 		// The data of every draw goes to the buffer in the order of the draws, and the number of the draw is the first
 		// instance of its call: draws that are the same in everything but their data are one call of many instances.
@@ -1009,6 +1059,9 @@ namespace bb::gfx {
 		vkCmdEndRendering(g.cmd);
 		if (read_only) {
 			barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+		}
+		if (shader_blends) {
+			transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL); // The rest draws to it the usual way.
 		}
 	}
 

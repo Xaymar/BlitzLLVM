@@ -150,6 +150,10 @@ void bb_end_graphics(void)
 		vkDestroyDescriptorSetLayout(g.device, g.cull_layout, nullptr);
 		vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
 		vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);
+		if (g.input_layout) {
+			vkDestroyDescriptorSetLayout(g.device, g.input_layout, nullptr);
+			g.input_layout = VK_NULL_HANDLE;
+		}
 		for (int i = 0; i < TEXTURES; i++) {
 			destroy_image(g.textures[i]);
 		}
