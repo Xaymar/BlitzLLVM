@@ -119,7 +119,7 @@ int32_t bb_load_sprite(const char* file, int32_t flags, int32_t parent)
 	int32_t sprite = bb_create_sprite(parent);
 	bb_entity_texture(sprite, texture, 0, 0);
 	bb_entity_fx(sprite, 1);
-	bb_entity_blend(sprite, ((flags & 4) || (flags & 2)) ? 1 : 3);
+	bb_entity_blend(sprite, (flags & 4) ? 0 : ((flags & 2) ? 1 : 3));
 	return sprite;
 }
 }
