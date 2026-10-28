@@ -25,7 +25,7 @@ Files are rewritten in place, and the only output is the name of each file, one 
 | `--stdin-filepath=PATH` | The name of the standard input, shown in `--check` and `--diff` and used to find the configuration file. |
 | `--print-config` | Write the settings that would be used, in the format of `.blitz-format`. |
 | `--KEY=VALUE` | Set one of the settings below. `--KEY` alone sets a yes/no setting to `true`, and `--no-KEY` to `false`. `-` and `_` are the same in `KEY`. |
-| `-h`, `--help`, `-v`, `--version` | Help and version. |
+| `-h`, `--help`, `-v`, `--version` | Write the help, or the name and the version (`blitz-format <version>`), and stop with exit code 0 before anything else on the command line is looked at. |
 
 The exit code is 0 when everything went well, 1 when `--check` or `--diff` found a file that would change, and 2 when a file or a setting was refused. A file that can't be formatted doesn't stop the others.
 
