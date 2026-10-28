@@ -13,15 +13,22 @@ If GetEnv$("BLITZ_HEADLESS") <> "" Then
 	End
 EndIf
 
-; The 8 bits of each channel that a pixel has, from ReadPixel64, which is the same for every depth.
+; The 8 bits of each channel that a pixel has, from the Float16 channels of ReadPixel64, which is the same for every depth.
+Function Channel(x, y, which)
+	Local r:Float16, g:Float16, b:Float16, a:Float16
+	ReadPixel64 x, y, BackBuffer(), r, g, b, a
+	If which = 0 Then Return Int(Float(r) * 255 + 0.5)
+	If which = 1 Then Return Int(Float(g) * 255 + 0.5)
+	Return Int(Float(b) * 255 + 0.5)
+End Function
 Function R(x, y)
-	Return Int((ReadPixel64(x, y, BackBuffer()) Shr 40) And 255)
+	Return Channel(x, y, 0)
 End Function
 Function G(x, y)
-	Return Int((ReadPixel64(x, y, BackBuffer()) Shr 24) And 255)
+	Return Channel(x, y, 1)
 End Function
 Function B(x, y)
-	Return Int((ReadPixel64(x, y, BackBuffer()) Shr 8) And 255)
+	Return Channel(x, y, 2)
 End Function
 
 ; The Int that WritePixel takes for a color with 8 bits for each channel: A2R10G10B10 for 30 bits, ARGB otherwise.
@@ -76,15 +83,16 @@ Function TryDepth(depth, deep)
 	FreeTexture tex
 
 	; What ReadPixel and WritePixel have is what the buffer stores: A2R10G10B10 for 30 bits, and ARGB with 8 bits each otherwise.
-	; ReadPixel64 and WritePixel64 have 16 bits for each of A, R, G and B from the top, whatever the buffer is.
+	; ReadPixel64 and WritePixel64 have the channels as Float16, and ReadPixel64 gives the memory of the pixel as a Long.
 	Local word = (3 Shl 30) Or (1000 Shl 20) Or (500 Shl 10) Or 123 ; red 1000, green 500, blue 123
-	Local wide:Long = (Long($FFFF) Shl 48) Or (Long($9ABC) Shl 32) Or (Long($5678) Shl 16) Or Long($1234)
-	Local narrow:Long = (Long($FFFF) Shl 48) Or (Long($8080) Shl 32) Or (Long($4040) Shl 16) Or Long($2020)
-	Local none:Long = 0
+	Local r:Float16, g:Float16, b:Float16, a:Float16
+	Local stored:Long
 	If depth = 30
 		WritePixel 50, 50, word
 		CheckTrue name + "30 bits keep the word", ReadPixel(50, 50) = word
-		Check name + "30 bits in 64, red", Int((ReadPixel64(50, 50) Shr 32) And $FFFF), 64062
+		stored = ReadPixel64(50, 50, 0, r, g, b, a)
+		Check name + "30 bits in 64, red", Float(r), 1000.0 / 1023.0, 0.001
+		Check name + "30 bits in 64, alpha", Float(a), 1.0, 0.001
 		LockBuffer BackBuffer()
 		CheckTrue name + "Locked word", ReadPixelFast(50, 50) = word
 		Check name + "LockedFormat", LockedFormat(), 5
@@ -95,27 +103,35 @@ Function TryDepth(depth, deep)
 		UnlockBuffer BackBuffer()
 		CheckTrue name + "Unlocked word", ReadPixel(52, 50) = word
 	ElseIf depth = 64
-		WritePixel64 50, 50, wide
-		; A half precision float has 11 significant bits, so 16 bit values come back rounded to the nearest one it can have (32 apart at the top).
-		CheckTrue name + "64 bits are half floats, alpha", Int((ReadPixel64(50, 50) Shr 48) And $FFFF) = $FFFF
-		Check name + "64 bits are half floats, red", Int((ReadPixel64(50, 50) Shr 32) And $FFFF), $9ABC, 32
-		Check name + "64 bits are half floats, green", Int((ReadPixel64(50, 50) Shr 16) And $FFFF), $5678, 32
-		Check name + "64 bits are half floats, blue", Int(ReadPixel64(50, 50) And $FFFF), $1234, 16
-		Local stored:Long = ReadPixel64(50, 50)
-		Check name + "ReadPixel has the top 8 bits, red", (ReadPixel(50, 50) Shr 16) And 255, $9A, 1
+		; Half floats are kept exactly, and values above 1 stay (the Long is the memory: R lowest, then G, B and A, each the bits of a half).
+		WritePixel64 50, 50, 0, 0.5, 0.25, 2.0, 1.0
+		stored = ReadPixel64(50, 50, 0, r, g, b, a)
+		Check name + "64 bits, red", Float(r), 0.5, 0
+		Check name + "64 bits, green", Float(g), 0.25, 0
+		Check name + "64 bits, blue above 1", Float(b), 2.0, 0
+		Check name + "64 bits, alpha", Float(a), 1.0, 0
+		CheckTrue name + "64 bits, the Long is the memory", stored = ($3C00 Shl 48) Or ($4000 Shl 32) Or ($3400 Shl 16) Or $3800
+		Check name + "ReadPixel has the top 8 bits, red", (ReadPixel(50, 50) Shr 16) And 255, 128, 1
+		Check name + "ReadPixel clamps blue", ReadPixel(50, 50) And 255, 255, 0
 		LockBuffer BackBuffer()
 		CheckTrue name + "Locked 64 bits", ReadPixelFast64(50, 50) = stored
+		CheckTrue name + "Locked 64 bits with channels", ReadPixelFast64(50, 50, 0, r, g, b, a) = stored
+		Check name + "Locked 64 bits, blue above 1", Float(b), 2.0, 0
 		Check name + "LockedFormat", LockedFormat(), 6
 		Check name + "LockedPitch", LockedPitch(), 64 * 8
-		WritePixelFast64 51, 50, stored
+		WritePixelFast64 51, 50, 0, r, g, b, a
 		CopyPixelFast 51, 50, BackBuffer(), 52, 50, BackBuffer()
 		CheckTrue name + "CopyPixelFast keeps all of it", ReadPixelFast64(52, 50) = stored
 		UnlockBuffer BackBuffer()
 		CheckTrue name + "Unlocked 64 bits", ReadPixel64(52, 50) = stored
 	Else
-		WritePixel64 50, 50, narrow
-		CheckTrue name + "8 bits in 64", (ReadPixel64(50, 50) And $FFFFFFFFFFFF) = (narrow And $FFFFFFFFFFFF)
-		CheckTrue name + "8 bits ReadPixel", (ReadPixel(50, 50) And $FFFFFF) = $804020
+		; Not made of floats: the channels are the value from 0 to 1 that the stored bits mean, and writing clamps to 0 to 1.
+		WritePixel64 50, 50, 0, 0.5, 0.25, 2.0, 1.0
+		ReadPixel64 50, 50, 0, r, g, b, a
+		Check name + "8 bits in 64, red", Float(r), 0.5, 0.01
+		Check name + "8 bits in 64, green", Float(g), 0.25, 0.01
+		Check name + "8 bits in 64, blue is clamped", Float(b), 1.0, 0.001
+		Check name + "8 bits ReadPixel", ReadPixel(50, 50) And $FFFFFF, $8040FF, 0
 		LockBuffer BackBuffer()
 		Check name + "LockedFormat", LockedFormat(), 4
 		UnlockBuffer BackBuffer()
