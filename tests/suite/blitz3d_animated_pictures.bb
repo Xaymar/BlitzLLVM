@@ -8,11 +8,12 @@ Include "check.bb"
 Graphics3D 320, 240, 32, 2
 SetBuffer BackBuffer()
 
-Dim files$(1)
+Dim files$(2)
 files$(0) = "images/anim.gif"
 files$(1) = "images/anim.webp"
+files$(2) = "images/anim.avif"
 
-For i = 0 To 1
+For i = 0 To 2
 	name$ = files$(i)
 	tex = LoadAnimTexture(name$, 1, 0, 0, 0, 0)
 	CheckTrue name$ + " loads as an animated texture", tex <> 0
