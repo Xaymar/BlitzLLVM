@@ -17,6 +17,9 @@
 #include <array>
 #include <cstring>
 #include <unordered_map>
+#if defined(__SSE__) || defined(_M_X64) || (defined(_M_IX86_FP) && (_M_IX86_FP >= 1))
+#include <xmmintrin.h>
+#endif
 
 using namespace bb;
 using namespace bb::scene;
@@ -357,6 +360,38 @@ void bb::recalculate_normals(surface* s)
 	update_normals(s);
 }
 
+namespace {
+	// The box around the positions of the vertices. A vertex starts with x, y and z, so one four wide load reads the
+	// position and the first normal component, which is ignored. min and max return the second operand when a position
+	// is NaN, which is what the plain compare and select did, so the box is the same as before without the branches.
+	void vertex_bounds(const vertex3d* vertices, uint32_t count, float* lo, float* hi)
+	{
+#if defined(__SSE__) || defined(_M_X64) || (defined(_M_IX86_FP) && (_M_IX86_FP >= 1))
+		__m128 vlo = _mm_set1_ps(1e30f), vhi = _mm_set1_ps(-1e30f);
+		for (uint32_t v = 0; v < count; v++) {
+			__m128 c = _mm_loadu_ps(&vertices[v].x);
+			vlo      = _mm_min_ps(c, vlo);
+			vhi      = _mm_max_ps(c, vhi);
+		}
+		float a[4], b[4];
+		_mm_storeu_ps(a, vlo);
+		_mm_storeu_ps(b, vhi);
+		memcpy(lo, a, 3 * sizeof(float));
+		memcpy(hi, b, 3 * sizeof(float));
+#else
+		lo[0] = lo[1] = lo[2] = 1e30f;
+		hi[0] = hi[1] = hi[2] = -1e30f;
+		for (uint32_t v = 0; v < count; v++) {
+			const float c[3] = { vertices[v].x, vertices[v].y, vertices[v].z };
+			for (int k = 0; k < 3; k++) {
+				lo[k] = c[k] < lo[k] ? c[k] : lo[k];
+				hi[k] = c[k] > hi[k] ? c[k] : hi[k];
+			}
+		}
+#endif
+	}
+} // namespace
+
 bool bb::mesh_bounds(entity& e, float* lo, float* hi)
 {
 	lo[0] = lo[1] = lo[2] = 1e30f;
@@ -369,15 +404,8 @@ bool bb::mesh_bounds(entity& e, float* lo, float* hi)
 		}
 		// The box of a surface is kept until it changes, which is when it is marked as dirty.
 		if (s.dirty || !s.bound_valid) {
-			float slo[3] = { 1e30f, 1e30f, 1e30f }, shi[3] = { -1e30f, -1e30f, -1e30f };
-			for (uint32_t v = 0; v < s.vertices.size; v++) {
-				const vertex3d& vert = s.vertices[v];
-				const float     c[3] = { vert.x, vert.y, vert.z };
-				for (int k = 0; k < 3; k++) {
-					slo[k] = c[k] < slo[k] ? c[k] : slo[k];
-					shi[k] = c[k] > shi[k] ? c[k] : shi[k];
-				}
-			}
+			float slo[3], shi[3];
+			vertex_bounds(s.vertices.data, s.vertices.size, slo, shi);
 			memcpy(s.bound_min, slo, sizeof(slo));
 			memcpy(s.bound_max, shi, sizeof(shi));
 			s.bound_valid = !s.dirty;
