@@ -2850,6 +2850,7 @@ void bb_render_world(float tween)
 		return;
 	}
 	bb_movie_update(); // The textures of movies are up to date for this frame.
+	bb_sound_update(); // Programs that render every frame never wait with Delay, the sounds of entities follow them here.
 	if (resolve_target(g.target).image && (g.target >= image_buffer_base) && (g.target < texture_buffer_base)) {
 		fail("RenderWorld can not draw to an image, use a texture.");
 	}
