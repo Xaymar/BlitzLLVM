@@ -910,7 +910,7 @@ Function Grow(s, ls, x#, y#, z#, dx#, dy#, dz#, length#, rad#, depth, nchild, an
 	EndIf
 End Function
 
-; A tree: kind 0 is a spruce (a trunk with a whorl of four branches every 0.8 units, shorter towards the top, each with side twigs), 1 a broadleaf tree (a trunk that forks into five boughs, each
+; A tree: kind 0 is a spruce (a trunk, bare below, with rings of four or five branches that sit closer together and get shorter towards the top, each with side twigs), 1 a broadleaf tree (a trunk that forks into five boughs, each
 ; branching twice more) and 2 a birch (a slim trunk with thin boughs that go up and branch once). variant shifts the colors. The mesh is the trunk and the branches, with a second mesh as its
 ; child that holds the leaf cards, which sit on the twigs (leaves is how many cards a twig has).
 Function MakeTree(kind, variant, leaves)
@@ -926,11 +926,16 @@ Function MakeTree(kind, variant, leaves)
 		Case 0
 			TrunkAmp = 0.06
 			AddTrunk s, 7.4, 0.22, 0.03
-			For w = 0 To 7
-				y# = 1.2 + w * 0.78
-				length# = 2.2 - w * 0.22
-				For i = 0 To 3
-					ang# = i * 90 + w * 41 + variant * 11
+			For w = 0 To 10
+				; The lowest branches died off under the higher ones, so the trunk is bare there. The rings sit closer together towards
+				; the top and the branches get shorter.
+				u# = w / 10.0
+				y# = 2.3 + 4.9 * (1 - (1 - u) * Sqr(1 - u))
+				length# = 2.3 - 1.95 * u
+				wn = 4
+				If w > 5 Then wn = 5
+				For i = 0 To wn - 1
+					ang# = i * 360.0 / wn + w * 41 + variant * 11
 					ox# = TrunkOX(y)
 					oz# = TrunkOZ(y)
 					Grow s, ls, ox, y, oz, Cos(ang) * 0.97, -0.2, Sin(ang) * 0.97, length, 0.05 * (length / 2.2 + 0.3), 2, 4, 62, 0.45, leaves, 0.85, 52 * k, 100 * k, 62 * k, 0, y + 1.5, 0
