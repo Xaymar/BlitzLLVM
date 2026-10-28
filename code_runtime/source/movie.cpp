@@ -221,6 +221,16 @@ namespace {
 		m = movie();
 	}
 
+	// Closes the movies that the program left open: their sound streams, pictures and decoders go before the libraries do.
+	void release_all()
+	{
+		for (movie& m : movies) {
+			if (m.used) {
+				release(m);
+			}
+		}
+	}
+
 	bool open_decoder(AVFormatContext* format, int index, AVCodecContext*& context)
 	{
 		AVCodecParameters* parameters = format->streams[index]->codecpar;
@@ -643,6 +653,7 @@ int32_t bb_open_movie(const char* file)
 	if (!file || !load_ffmpeg()) {
 		return 0;
 	}
+	bb_on_exit(release_all);
 	size_t slot = 1;
 	while ((slot < movies.size()) && movies[slot].used) {
 		slot++;

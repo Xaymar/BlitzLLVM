@@ -140,8 +140,26 @@ static __declspec(thread) bb_file_state bb_files = { NULL, 1, 0 };
 static _Thread_local bb_file_state bb_files = { NULL, 1, 0 };
 #endif
 
+void bb_on_exit(void (*hook)(void));
+
+// Closes the files and network streams that the program left open, so that what was written reaches the disk and the sockets
+// are shut down before the libraries are, not whenever exit() gets to them. Directories hold nothing that needs closing.
+static void bb_close_all_streams(void)
+{
+	for (int32_t i = 1; i < bb_files.stream_count; i++) {
+		bb_stream* stream = &bb_files.streams[i];
+		if (stream->kind == BB_STREAM_FILE) {
+			fclose(stream->file);
+		} else if ((stream->kind != BB_STREAM_NONE) && stream->close) {
+			stream->close(stream);
+		}
+		bb_stream_remove(i);
+	}
+}
+
 int32_t bb_stream_add(bb_stream stream)
 {
+	bb_on_exit(bb_close_all_streams);
 	for (int32_t i = 1; i < bb_files.stream_count; i++) {
 		if (bb_files.streams[i].kind == BB_STREAM_NONE) {
 			bb_files.streams[i] = stream;
