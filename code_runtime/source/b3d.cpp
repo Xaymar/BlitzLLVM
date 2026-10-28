@@ -184,11 +184,11 @@ namespace {
 		return true;
 	}
 
-	// Whether the bytes start like a model that is parsed on another thread: .b3d and .3ds, which are the ones that need nothing from
-	// the program's thread. Anything else (.x, and what is no model at all) is handled before LoadMesh returns.
+	// Whether the bytes start like a model that is parsed on another thread: .b3d, .3ds and .x, which are the ones that need nothing from
+	// the program's thread. Anything else (what is no model at all) is handled before LoadMesh returns.
 	bool model_recognized(const uint8_t* data, size_t got)
 	{
-		return ((got > 12) && !memcmp(data, "BB3D", 4)) || ((got > 6) && (data[0] == 0x4D) && (data[1] == 0x4D));
+		return ((got > 12) && !memcmp(data, "BB3D", 4)) || ((got > 6) && (data[0] == 0x4D) && (data[1] == 0x4D)) || ((got > 16) && !memcmp(data, "xof ", 4));
 	}
 
 	// Parses the bytes of a model. Only reads its input and fills m, so it can run on a loader thread.
@@ -255,15 +255,7 @@ namespace {
 		} else if ((got > 6) && (data[0] == 0x4D) && (data[1] == 0x4D)) {
 			ok = read_3ds(data, got, m);
 		} else if ((got > 16) && !memcmp(data, "xof ", 4)) {
-			// DirectX .x files (text, binary and compressed) are not read yet: the model is a single empty part, so that a
-			// program that loaded one goes on without it being on screen.
-			static bool told = false;
-			if (!told) {
-				told = true;
-				fprintf(stderr, "Warning: DirectX .x models are not supported yet, '%s' is empty.\n", path);
-			}
-			m.nodes.push(new node_info());
-			ok = true;
+			ok = read_x(data, got, m, nullptr);
 		}
 
 		// Textures are found next to the model.
@@ -572,11 +564,11 @@ namespace {
 	int build_hierarchy(model& m, prepared_model& prepared, int parent, int reuse)
 	{
 		animation* anim = new animation();
-		anim->frames    = m.frames > 0 ? m.frames : 1;
+		anim->frames    = (m.frames > 0 || m.animated) ? m.frames : 1;
 		anim->fps       = m.fps;
 		anim->sequences.push({ 0, anim->frames });
 
-		bool has_motion = false;
+		bool has_motion = m.animated;
 		buffer<int> handles;
 		for (uint32_t i = 0; i < m.nodes.size; i++) {
 			node_info& n = *m.nodes[i];
