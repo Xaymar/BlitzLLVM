@@ -31,7 +31,7 @@ Sets a pixel of a buffer to a color given as an ARGB number, for example `(red S
 ## Differences
 
 * A position outside of the buffer is ignored.
-* A buffer that [Graphics3D](Graphics3D) made with the depth 30 takes A2R10G10B10 (2 bits of alpha on top, then 10 for each of red, green and blue), and one with 64 takes ARGB with 8 bits for each, which is widened. [WritePixel64](WritePixel64) takes all 64 bits. See [Color depth](Color-Depth).
+* A buffer that [Graphics3D](Graphics3D) made with the depth 30 takes A2R10G10B10 (2 bits of alpha on top, then 10 for each of red, green and blue), and one with 64 takes ARGB with 8 bits for each, which is widened. [WritePixel64](WritePixel64) takes Float16 channels. See [Color depth](Color-Depth).
 
 ## Examples
 

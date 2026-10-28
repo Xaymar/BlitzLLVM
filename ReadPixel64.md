@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-ReadPixel64:Int64 x:Int32, y:Int32, buffer:Int32=0
+ReadPixel64:Int64 x:Int32, y:Int32, buffer:Int32=0, Out red:Float16=0, Out green:Float16=0, Out blue:Float16=0, Out alpha:Float16=0
 ```
 
 | Parameter | Type | Default | Description |
@@ -22,14 +22,23 @@ ReadPixel64:Int64 x:Int32, y:Int32, buffer:Int32=0
 | `x` | Int32 | required | Horizontal position of the pixel. |
 | `y` | Int32 | required | Vertical position of the pixel. |
 | `buffer` | Int32 | `0` | The buffer to read from. Defaults to the current buffer. |
+| `red` | Out Float16 | `0` | Variable of type Float16 that gets the red of the pixel, from 0 to 1. Can be left out. |
+| `green` | Out Float16 | `0` | Variable of type Float16 that gets the green of the pixel, from 0 to 1. Can be left out. |
+| `blue` | Out Float16 | `0` | Variable of type Float16 that gets the blue of the pixel, from 0 to 1. Can be left out. |
+| `alpha` | Out Float16 | `0` | Variable of type Float16 that gets the alpha of the pixel, from 0 to 1. Can be left out. |
 
-**Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
+**Returns:** The pixel as the buffer stores it, 8 bytes with the first byte in the lowest bits (for the depth 64 that is the red, green, blue and alpha half floats), or 0 if the position is outside of the buffer.
 
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Returns the color of a pixel of a buffer as a `Long`. The color has 16 bits for each of alpha, red, green and blue from the top (`$AAAARRRRGGGGBBBB`), whatever the buffer is made of, so nothing is lost in a buffer that [Graphics3D](Graphics3D) made with the depth 64, see [Color depth](Color-Depth). A buffer with 8 bits per channel gives each of them times 257 (`$FF` is `$FFFF`), and one with 10 bits fills the lower bits from the upper ones. This is a BlitzLLVM extension: the originals have no buffers with more than 8 bits per channel.
+Reads the color of a pixel as half precision floats (Float16) into the variables that are given, and returns the pixel as the buffer stores it. A buffer made with the depth 64 stores half floats, so the channels are exactly what is stored, even above 1; for the other depths they are the value from 0 to 1 that the stored bits mean. This is a BlitzLLVM extension.
+
+## Differences
+
+* The color is not turned into an integer: the channels are Float16, and the returned number is the memory of the pixel (8 bytes for the depth 64, the 4 bytes of the stored word for the others). See [Color depth](Color-Depth).
 
 ## Examples
 
@@ -37,9 +46,10 @@ Returns the color of a pixel of a buffer as a `Long`. The color has 16 bits for 
 Graphics3D 320, 240, 64, 2
 SetBuffer BackBuffer()
 Cls
-WritePixel64 10, 10, $FFFF123456789ABC
-Local c:Long = ReadPixel64(10, 10)
-Print Hex(Int((c Shr 32) And $FFFF)) + " is the red of the pixel with 16 bits"
+WritePixel64 10, 10, 0, 0.5, 0.25, 2.0, 1.0
+Local r:Float16, g:Float16, b:Float16, a:Float16
+Local c:Long = ReadPixel64(10, 10, 0, r, g, b, a)
+Print "red " + r + ", green " + g + ", blue " + b + ", alpha " + a
 WaitKey
 ```
 

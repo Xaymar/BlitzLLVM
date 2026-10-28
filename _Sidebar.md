@@ -55,7 +55,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (280)</summary>
+<li><details><summary>Commands (281)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -245,6 +245,7 @@
 <li><a href="RawInputs#differences">RawInputs</a></li>
 <li><a href="RawInputsEnabled#differences">RawInputsEnabled</a></li>
 <li><a href="ReadPixel#differences">ReadPixel</a></li>
+<li><a href="ReadPixel64#differences">ReadPixel64</a> 〔BlitzLLVM〕</li>
 <li><a href="ReadPixelFast#differences">ReadPixelFast</a></li>
 <li><a href="ReadPixelFast64#differences">ReadPixelFast64</a> 〔BlitzLLVM〕</li>
 <li><a href="RefreshRateAt#differences">RefreshRateAt</a> 〔BlitzLLVM〕</li>

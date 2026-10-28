@@ -14,21 +14,25 @@
 
 
 ```blitzbasic
-WritePixelFast64 x:Int32, y:Int32, argb:Int64, buffer:Int32=0
+WritePixelFast64 x:Int32, y:Int32, buffer:Int32=0, red:Float16, green:Float16, blue:Float16, alpha:Float16
 ```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `x` | Int32 | required | Horizontal position of the pixel. |
 | `y` | Int32 | required | Vertical position of the pixel. |
-| `argb` | Int64 | required | The color, with 16 bits for each of alpha, red, green and blue from the top. |
-| `buffer` | Int32 | `0` | The locked buffer to write to. Defaults to the current buffer. |
+| `buffer` | Int32 | `0` | The locked buffer to write to. Pass 0 for the current buffer. |
+| `red` | Float16 | required | The red of the color, as a Float16. |
+| `green` | Float16 | required | The green of the color, as a Float16. |
+| `blue` | Float16 | required | The blue of the color, as a Float16. |
+| `alpha` | Float16 | required | The alpha of the color, as a Float16. |
 
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Sets a pixel of a locked buffer to a color given in the form of [WritePixel64](WritePixel64). The buffer has to be locked with [LockBuffer](LockBuffer) and the change shows when it is unlocked. This is a BlitzLLVM extension.
+Writes the color of a pixel of a locked buffer from four half precision floats (Float16), like [WritePixel64](WritePixel64). The buffer has to be locked with [LockBuffer](LockBuffer). This is a BlitzLLVM extension.
 
 ## Differences
 
@@ -41,7 +45,7 @@ Graphics3D 320, 240, 64, 2
 SetBuffer BackBuffer()
 LockBuffer
 For x = 0 To 255
-	WritePixelFast64 x, 10, (Long($FFFF) Shl 48) Or (Long(x * 257) Shl 32) Or Long($4000)
+	WritePixelFast64 x, 10, 0, x / 255.0, 0.25, 0.0, 1.0
 Next
 UnlockBuffer
 Flip

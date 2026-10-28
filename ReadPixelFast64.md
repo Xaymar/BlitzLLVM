@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-ReadPixelFast64:Int64 x:Int32, y:Int32, buffer:Int32=0
+ReadPixelFast64:Int64 x:Int32, y:Int32, buffer:Int32=0, Out red:Float16=0, Out green:Float16=0, Out blue:Float16=0, Out alpha:Float16=0
 ```
 
 | Parameter | Type | Default | Description |
@@ -22,14 +22,18 @@ ReadPixelFast64:Int64 x:Int32, y:Int32, buffer:Int32=0
 | `x` | Int32 | required | Horizontal position of the pixel. |
 | `y` | Int32 | required | Vertical position of the pixel. |
 | `buffer` | Int32 | `0` | The locked buffer to read from. Defaults to the current buffer. |
+| `red` | Out Float16 | `0` | Variable of type Float16 that gets the red of the pixel, from 0 to 1. Can be left out. |
+| `green` | Out Float16 | `0` | Variable of type Float16 that gets the green of the pixel, from 0 to 1. Can be left out. |
+| `blue` | Out Float16 | `0` | Variable of type Float16 that gets the blue of the pixel, from 0 to 1. Can be left out. |
+| `alpha` | Out Float16 | `0` | Variable of type Float16 that gets the alpha of the pixel, from 0 to 1. Can be left out. |
 
-**Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
+**Returns:** The pixel as the buffer stores it, 8 bytes with the first byte in the lowest bits (for the depth 64 that is the red, green, blue and alpha half floats), or 0 if the position is outside of the buffer.
 
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Returns the color of a pixel of a locked buffer in the same form as [ReadPixel64](ReadPixel64). The buffer has to be locked with [LockBuffer](LockBuffer). This is a BlitzLLVM extension.
+Reads the color of a pixel of a locked buffer in the same form as [ReadPixel64](ReadPixel64). The buffer has to be locked with [LockBuffer](LockBuffer). This is a BlitzLLVM extension.
 
 ## Differences
 
@@ -41,10 +45,11 @@ Returns the color of a pixel of a locked buffer in the same form as [ReadPixel64
 Graphics3D 320, 240, 64, 2
 SetBuffer BackBuffer()
 LockBuffer
-WritePixelFast64 5, 5, $FFFF000011112222
-Local c:Long = ReadPixelFast64(5, 5)
+WritePixelFast64 5, 5, 0, 0.5, 0.25, 2.0, 1.0
+Local r:Float16, g:Float16, b:Float16, a:Float16
+Local c:Long = ReadPixelFast64(5, 5, 0, r, g, b, a)
 UnlockBuffer
-Print Hex(Int(c And $FFFF))
+Print "blue " + b
 WaitKey
 ```
 

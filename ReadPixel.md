@@ -32,7 +32,7 @@ Returns the color of a pixel of a buffer as an ARGB number: red, green and blue 
 ## Differences
 
 * Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
-* The buffers that [Graphics3D](Graphics3D) makes with a depth above 32 are read as they are stored: with the depth 30 the number is A2R10G10B10 (2 bits of alpha on top, then 10 for each of red, green and blue), and with 64 it is ARGB with the upper 8 bits of each channel, which loses the rest. [ReadPixel64](ReadPixel64) gives all of them. See [Color depth](Color-Depth).
+* The buffers that [Graphics3D](Graphics3D) makes with a depth above 32 are read as they are stored: with the depth 30 the number is A2R10G10B10 (2 bits of alpha on top, then 10 for each of red, green and blue), and with 64 it is ARGB with 8 bits of each channel (the half floats clamped to 0 to 1), which loses the rest. [ReadPixel64](ReadPixel64) gives the Float16 channels. See [Color depth](Color-Depth).
 
 ## Examples
 

@@ -161,8 +161,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [GfxModeHeight](GfxModeHeight#differences): A mode number that does not exist stops the program with an error message.
 * [GfxModeWidth](GfxModeWidth#differences): A mode number that does not exist stops the program with an error message.
 * [GrabImage](GrabImage#differences): Parts that lie outside of the buffer are not copied and keep what the frame had before.
-* [Graphics](Graphics#differences): The color depth picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16.
-* [Graphics3D](Graphics3D#differences): The depth does not pick a video mode, it picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16.
+* [Graphics](Graphics#differences): The color depth picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 with half precision floats.
+* [Graphics3D](Graphics3D#differences): The depth does not pick a video mode, it picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 with half precision floats.
 * [GraphicsDepth](GraphicsDepth#differences): It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these.
 * [GraphicsFormat](GraphicsFormat#differences): Always 4.
 * [GraphicsLost](GraphicsLost#differences): Always 0.
@@ -238,6 +238,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [RawInputs](RawInputs#differences): This is a BlitzLLVM extension: the original has no such command, and gets its mouse speed from DirectInput.
 * [RawInputsEnabled](RawInputsEnabled#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ReadPixel](ReadPixel#differences): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
+* [ReadPixel64](ReadPixel64#differences) 〔BlitzLLVM〕: The color is not turned into an integer: the channels are Float16, and the returned number is the memory of the pixel (8 bytes for the depth 64, the 4 bytes of the stored word for the others).
 * [ReadPixelFast](ReadPixelFast#differences): A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message.
 * [ReadPixelFast64](ReadPixelFast64#differences) 〔BlitzLLVM〕: A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message.
 * [RefreshRateAt](RefreshRateAt#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
