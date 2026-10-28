@@ -9,14 +9,16 @@
 import os
 import subprocess
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../tools"))
+import procutil  # noqa: E402
 
 
 def main():
     blitzcc, source, work, mode = sys.argv[1], sys.argv[2], os.path.abspath(sys.argv[3]), sys.argv[4]
     os.makedirs(work, exist_ok=True)
     exe = os.path.join(work, "profile")
-    subprocess.run([blitzcc] + (["--profile"] if mode == "on" else []) + [source, "-o", exe], check=True, stdout=subprocess.DEVNULL)
-    result = subprocess.run([exe], env=dict(os.environ, BLITZ_FPS="1"), capture_output=True, text=True, timeout=60)
+    procutil.run([blitzcc] + (["--profile"] if mode == "on" else []) + [source, "-o", exe], check=True, stdout=subprocess.DEVNULL)
+    result = procutil.run([exe], env=dict(os.environ, BLITZ_FPS="1"), capture_output=True, text=True, timeout=60)
     reported = "fps:" in result.stderr
     if reported != (mode == "on"):
         print("profile: BLITZ_FPS=1 %s, but the program was compiled with profiling %s.\n%s" % ("reported" if reported else "was silent", mode, result.stderr))
