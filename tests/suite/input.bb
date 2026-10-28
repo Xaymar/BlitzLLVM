@@ -132,6 +132,14 @@ Check "EnableDirectInput off", DirectInputEnabled(), 0
 EnableDirectInput True
 Check "EnableDirectInput on", DirectInputEnabled(), 1
 
+; RawInputs is off until it is asked for, and says what it was given. Where the platform has no raw mouse it changes nothing.
+Check "RawInputs initially", RawInputsEnabled(), 0
+CheckTrue "HWRawInputs", HWRawInputs() = 0 Or HWRawInputs() = 1
+RawInputs True
+Check "RawInputs on", RawInputsEnabled(), 1
+RawInputs False
+Check "RawInputs off", RawInputsEnabled(), 0
+
 ; The clipboard holds text. It has to be opened before it is used.
 OpenClipboard 0
 EmptyClipboard
