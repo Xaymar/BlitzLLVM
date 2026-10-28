@@ -71,8 +71,11 @@ namespace bb::collision {
 				empty   = false;
 				return;
 			}
-			lo = { fminf(lo.x, p.x), fminf(lo.y, p.y), fminf(lo.z, p.z) };
-			hi = { fmaxf(hi.x, p.x), fmaxf(hi.y, p.y), fmaxf(hi.z, p.z) };
+			// Same as fminf and fmaxf, which do not get inlined and were a tenth of the time of a busy UpdateWorld.
+			auto less    = [](float a, float b) { return (a < b) || (b != b); };
+			auto greater = [](float a, float b) { return (a > b) || (b != b); };
+			lo = { less(p.x, lo.x) ? p.x : lo.x, less(p.y, lo.y) ? p.y : lo.y, less(p.z, lo.z) ? p.z : lo.z };
+			hi = { greater(p.x, hi.x) ? p.x : hi.x, greater(p.y, hi.y) ? p.y : hi.y, greater(p.z, hi.z) ? p.z : hi.z };
 		}
 
 		bool overlaps(box3 const& o) const
