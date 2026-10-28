@@ -25,6 +25,8 @@ DrawMovie:Int32 movie:Int32, x:Int32=0, y:Int32=0, w:Int32=-1, h:Int32=-1
 | `w` | Int32 | `-1` | Width to draw at. Defaults to the width of the movie. |
 | `h` | Int32 | `-1` | Height to draw at. Defaults to the height of the movie. |
 
+**Returns:** 1 while the movie is still playing, 0 once it has ended or was stopped.
+
 ## Description
 
 Draws the current picture of a movie into the current buffer. For a video the movie plays by itself at its normal speed and DrawMovie shows the newest picture, so call it once per frame. The position and size are in screen pixels, the origin and viewport are ignored, and the movie has to lie completely inside the screen.

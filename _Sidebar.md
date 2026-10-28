@@ -55,7 +55,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (278)</summary>
+<li><details><summary>Commands (280)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -176,7 +176,9 @@
 <li><a href="Half#differences">Half</a> 〔BlitzLLVM〕</li>
 <li><a href="HidePointer#differences">HidePointer</a></li>
 <li><a href="HostIP#differences">HostIP</a></li>
+<li><a href="HtmlViewEventURL#differences">HtmlViewEventURL</a> 〔BlitzLLVM〕</li>
 <li><a href="HtmlViewRun#differences">HtmlViewRun</a> 〔BlitzLLVM〕</li>
+<li><a href="HtmlViewStatus#differences">HtmlViewStatus</a> 〔BlitzLLVM〕</li>
 <li><a href="HWMultiTex#differences">HWMultiTex</a></li>
 <li><a href="HWRawInputs#differences">HWRawInputs</a></li>
 <li><a href="ImageBuffer#differences">ImageBuffer</a></li>

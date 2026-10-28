@@ -22,6 +22,8 @@ QueryObject:Int32 object:Int32, query_id:Int32
 | `object` | Int32 | required | A window, gadget or font. |
 | `query_id` | Int32 | required |  |
 
+**Returns:** The handle of the system that the query asks for, or 0 if the object has none (see the difference below).
+
 ## Description
 
 In the original it gives the Windows handle behind a gadget (query 1 is the HWND, 2 the HWND of the client area, 3 the HFONT), so it can be used with the Windows API.

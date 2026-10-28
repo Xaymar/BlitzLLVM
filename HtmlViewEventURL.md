@@ -29,6 +29,10 @@ HtmlViewEventURL:String htmlview:Int32
 
 Gives the address of the link that the user clicked last, for a gadget made with the style 2.
 
+## Differences
+
+* Always an empty text, as links cannot be clicked.
+
 ## Related Commands
 
 [CreateHtmlView](CreateHtmlView) 〔BlitzLLVM〕, [HtmlViewBack](HtmlViewBack) 〔BlitzLLVM〕, [HtmlViewCurrentURL](HtmlViewCurrentURL) 〔BlitzLLVM〕, [HtmlViewForward](HtmlViewForward) 〔BlitzLLVM〕, [HtmlViewGo](HtmlViewGo) 〔BlitzLLVM〕, [HtmlViewRun](HtmlViewRun) 〔BlitzLLVM〕, [HtmlViewStatus](HtmlViewStatus) 〔BlitzLLVM〕

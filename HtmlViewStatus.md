@@ -21,13 +21,17 @@ HtmlViewStatus:Int32 htmlview:Int32
 |---|---|---|---|
 | `htmlview` | Int32 | required | The handle from [CreateHtmlView](CreateHtmlView). |
 
-**Returns:** 0 or 1. Always 0 here, as no page is loaded.
+**Returns:** 0 for loaded and 1 for loading. Always 0 here, as no page is loaded.
 
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Tells whether the page is still loading: 0 for loaded and 1 for loading.
+
+## Differences
+
+* Always 0, as no page is ever loaded or loading.
 
 ## Related Commands
 

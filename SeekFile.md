@@ -22,6 +22,8 @@ SeekFile:Int32 file_stream:Int32, pos:Int32
 | `file_stream` | Int32 | required | The file handle. |
 | `pos` | Int32 | required | The new position in bytes. |
 
+**Returns:** The new position in bytes from the start of the file, or -1 if the position could not be set.
+
 ## Description
 
 Moves the position where the next read or write happens. Positions count bytes from the start of the file.

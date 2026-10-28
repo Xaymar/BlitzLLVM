@@ -169,7 +169,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
 * [HidePointer](HidePointer#differences): BlitzPlus lets the pointer be hidden per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
 * [HostIP](HostIP#differences): Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used.
+* [HtmlViewEventURL](HtmlViewEventURL#differences) 〔BlitzLLVM〕: Always an empty text, as links cannot be clicked.
 * [HtmlViewRun](HtmlViewRun#differences) 〔BlitzLLVM〕: The script is not run, as there is no page.
+* [HtmlViewStatus](HtmlViewStatus#differences) 〔BlitzLLVM〕: Always 0, as no page is ever loaded or loading.
 * [HWMultiTex](HWMultiTex#differences): Accepted and ignored.
 * [HWRawInputs](HWRawInputs#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ImageBuffer](ImageBuffer#differences): A frame number that does not exist stops the program with an error message.

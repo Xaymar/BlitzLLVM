@@ -24,7 +24,7 @@ CreateListener:Int32 parent:Int32, rolloff_factor:Float32=1, doppler_scale:Float
 | `doppler_scale` | Float32 | `1` | How strong the pitch change of moving sounds is: 0 turns it off, 1 is the real one and 2 shifts twice as far. Defaults to 1. |
 | `distance_scale` | Float32 | `1` | How many meters one unit of your world is, which sets the distances that volume falls off over and how fast things move for the doppler shift. Defaults to 1. |
 
-**Returns:** A handle for the listener.
+**Returns:** Always 1. The original gives the entity handle of the listener.
 
 ## Description
 
@@ -34,6 +34,7 @@ Creates the ear that 3D sounds are heard with. It is carried by another entity, 
 
 * Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original. The pitch follows the speeds along the line between the listener and the sound, with sound moving at 340 meters per second. Speeds are measured from how far the entities moved in their last step, so a sound that comes from an entity that was placed somewhere (and not moved) has no shift; nothing moves faster than 90% of the speed of sound as far as the shift is concerned. The shift follows a change of the speeds over about a tenth of a second, so a sound that passes the listener glides from the high pitch to the low one and does not jump.
 * Samples of a source that drives past the listener at 60 meters per second, recorded with tools/render_doppler_samples.py: [doppler_off.wav](media/audio/doppler_off.wav) (doppler scale 0, steady 441 Hz), [doppler_on.wav](media/audio/doppler_on.wav) (scale 1, about 535 Hz while it comes closer, gliding down to 375 Hz as it passes and leaves) and [doppler_far.wav](media/audio/doppler_far.wav) (distance scale 0.25, so the speeds are a quarter and the shift is smaller).
+* The listener is not an entity here: [CreateListener](CreateListener) returns 1 and nothing else, so the value cannot be moved, turned or freed like the entity of the original. Position and turn the entity that carries it instead.
 
 ## Examples
 
