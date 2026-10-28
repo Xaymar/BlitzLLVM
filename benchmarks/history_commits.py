@@ -35,13 +35,33 @@ def code_key(repo, commit):
     return tuple(r.stdout.split()) if r.returncode == 0 else (commit,)
 
 
+def fetch_binary(repo_slug, commit, dest):
+    """Downloads the artifacts of the CI runs of a commit with `gh` and gives the folder that has blitzcc (or None). For a machine that can not build."""
+    shutil.rmtree(dest, ignore_errors=True)
+    os.makedirs(dest)
+    runs = subprocess.run(["gh", "run", "list", "-R", repo_slug, "--commit", commit, "--json", "databaseId,conclusion,workflowName", "--limit", "20"],
+                          capture_output=True, text=True)
+    try:
+        ids = [r["databaseId"] for r in json.loads(runs.stdout) if r["conclusion"] == "success"]
+    except ValueError:
+        ids = []
+    for i in ids:
+        subprocess.run(["gh", "run", "download", str(i), "-R", repo_slug, "-D", os.path.join(dest, str(i)), "--pattern", "*windows*x64*"], capture_output=True, text=True)
+        for root, _, files in os.walk(dest):
+            for f in files:
+                if f in ("blitzcc", "blitzcc.exe"):
+                    return root
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--repo", required=True)
     parser.add_argument("--since", required=True, help="the first commit (exclusive: its children are taken)")
     parser.add_argument("--until", default="origin/root")
     parser.add_argument("--limit", type=int, default=0)
-    parser.add_argument("--scratch", default="/home/user/commit-builds")
+    parser.add_argument("--scratch", default=os.path.join(os.path.expanduser("~"), "commit-builds"))
+    parser.add_argument("--download", metavar="OWNER/REPO", help="do not build: download the CI binaries of every commit with gh (Windows)")
     args = parser.parse_args()
     os.makedirs(OUT, exist_ok=True)
     commits = git(args.repo, "rev-list", "--reverse", "--topo-order", args.since + ".." + args.until).split()
@@ -67,18 +87,24 @@ def main():
         os.makedirs(scratch)
         record = {"commit": first, "commits": group, "subject": git(args.repo, "log", "-1", "--format=%s", first),
                   "date": git(args.repo, "log", "-1", "--format=%as", first)}
-        build = subprocess.run(["/home/user/bench/build_rev.sh", first, label], capture_output=True, text=True)
-        built = os.path.join("/home/user/revs", label)
-        if build.returncode != 0 or not os.path.isfile(os.path.join(built, "blitzcc")):
+        if args.download:
+            built = fetch_binary(args.download, first, os.path.join(scratch, "ci"))
+            exe = os.path.join(built or "", "blitzcc.exe")
+            build = subprocess.CompletedProcess([], 0 if built else 1, "", "no CI binary for this commit")
+        else:
+            build = subprocess.run(["/home/user/bench/build_rev.sh", first, label], capture_output=True, text=True)
+            built = os.path.join("/home/user/revs", label)
+            exe = os.path.join(built, "blitzcc")
+        if build.returncode != 0 or not os.path.isfile(exe):
             tail = ""
-            log = os.path.join(built, "build.log")
+            log = os.path.join(built or "", "build.log")
             if os.path.isfile(log):
                 tail = "\n".join(open(log, errors="replace").read().splitlines()[-12:])
             record["build_error"] = (tail or build.stdout + build.stderr)[-1500:]
             print("%s %s build failed" % (label, first[:8]), flush=True)
         else:
             out = os.path.join(scratch, "result.json")
-            run = subprocess.run([sys.executable, os.path.join(HERE, "history.py"), "--quick", "--blitzcc", os.path.join(built, "blitzcc"),
+            run = subprocess.run([sys.executable, os.path.join(HERE, "history.py"), "--quick", "--blitzcc", exe,
                                   "--label", label, "--rev", first, "--out", out], capture_output=True, text=True, stdin=subprocess.DEVNULL)
             if os.path.isfile(out):
                 record.update(json.load(open(out)))
@@ -87,7 +113,8 @@ def main():
                 record["run_error"] = (run.stdout + run.stderr)[-800:]
             print("%s %s ok" % (label, first[:8]), flush=True)
         json.dump(record, open(path, "w"), indent=1)
-        shutil.rmtree(built, ignore_errors=True)
+        if not args.download:
+            shutil.rmtree(built, ignore_errors=True)
         shutil.rmtree(scratch, ignore_errors=True)
         done += 1
         if args.limit and done >= args.limit:

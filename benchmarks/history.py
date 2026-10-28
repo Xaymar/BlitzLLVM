@@ -34,7 +34,10 @@ import json
 import os
 import platform
 import re
-import resource
+try:
+    import resource
+except ImportError:  # Windows: the CPU time of a program is then its wall time
+    resource = None
 import shutil
 import statistics
 import struct
@@ -86,7 +89,7 @@ class Compiler:
     def __init__(self, path, wine):
         self.path = path
         self.wine = wine
-        self.display = [] if os.environ.get("DISPLAY") else ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24"]
+        self.display = [] if os.environ.get("DISPLAY") or os.name == "nt" else ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24"]
         if wine:
             self.env = dict(os.environ, WINEARCH="win32", WINEPREFIX=os.environ.get("WINEPREFIX", "/opt/wine32"), WINEDEBUG="-all",
                             BLITZPATH="Z:" + WINE_HOME.replace("/", "\\"))
@@ -142,12 +145,15 @@ def parse_result(path):
 def run_program(compiler, program, env, cwd, timeout=900, args=()):
     """Runs a program; gives (rusage CPU seconds of it, wall seconds, output)."""
     full = dict(compiler.env, **env)
-    before = resource.getrusage(resource.RUSAGE_CHILDREN)
+    before = resource.getrusage(resource.RUSAGE_CHILDREN) if resource else None
     t0 = time.time()
     r = subprocess.run(compiler.run_cmd(program) + list(args), cwd=cwd, env=full, capture_output=True, text=True, timeout=timeout)
     wall = time.time() - t0
-    after = resource.getrusage(resource.RUSAGE_CHILDREN)
-    cpu = (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)
+    if resource:
+        after = resource.getrusage(resource.RUSAGE_CHILDREN)
+        cpu = (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)
+    else:
+        cpu = wall
     return cpu, wall, r.stdout + r.stderr, r.returncode
 
 
@@ -400,6 +406,8 @@ def bench_stranded2(compiler, runs):
 
 
 def machine(wine=False):
+    if os.environ.get("PERF_MACHINE"):  # a JSON file that describes the machine, for a machine that is not the Linux container (Windows)
+        return json.load(open(os.environ["PERF_MACHINE"]))
     cpu = "unknown"
     try:
         for l in open("/proc/cpuinfo"):
