@@ -72,14 +72,14 @@ void blitz::compiler::scope_end(scope& sc)
 void blitz::compiler::store_value(address const& target, value const& v)
 {
 	if (target.type != type::STRING) {
-		emit("store " + blitz::types::to_llvm(target.type) + " " + v.repr + ", ptr " + target.pointer);
+		emit("store " + blitz::types::to_llvm(target.type) + " " + v.repr + ", ptr " + target.pointer + (target.element ? ", !tbaa !900004" : ""));
 		return;
 	}
 	declare("bb_str_assign", "declare ptr @bb_str_assign(ptr, ptr)");
 	auto old = tmp(), fresh = tmp();
-	emit(old + " = load ptr, ptr " + target.pointer);
+	emit(old + " = load ptr, ptr " + target.pointer + (target.element ? ", !tbaa !900004" : ""));
 	emit(fresh + " = call ptr @bb_str_assign(ptr " + old + ", ptr " + v.repr + ")");
-	emit("store ptr " + fresh + ", ptr " + target.pointer);
+	emit("store ptr " + fresh + ", ptr " + target.pointer + (target.element ? ", !tbaa !900004" : ""));
 	_uses_strings = true;
 }
 

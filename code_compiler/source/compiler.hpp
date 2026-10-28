@@ -83,6 +83,7 @@ namespace blitz {
 			uint32_t           count = 0; // Not 0 if this is an array and not an element.
 			bool               constant = false;
 			int                need = 1; // Registers the original compiler needed for the expression that finds it.
+			bool               element = false; // An element of a Dim array, which no descriptor aliases.
 		};
 
 		struct function_info {
@@ -239,6 +240,7 @@ namespace blitz {
 		std::string di_global(std::string const& name, blitz::types::type t, std::string const& sname, uint32_t count, ast::location const& where);
 		void        di_begin_module();
 		std::string di_end_module();
+		std::string tbaa_metadata();
 
 		// Emission
 		std::string tmp();
