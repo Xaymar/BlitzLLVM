@@ -738,12 +738,8 @@ namespace bb::gfx {
 			}
 			return done ? 1 : 0;
 		}
-		static bool exit_hook = false;
-		if (!exit_hook) {
-			// A program that ends (End, running out of lines, a runtime error) still gets the pictures it saved.
-			exit_hook = true;
-			atexit([] { save_finish_all(); });
-		}
+		// A program that ends (End, running out of lines, a runtime error) still gets the pictures it saved.
+		bb_on_exit([] { save_finish_all(); });
 		prune_jobs();
 		for (size_t i = 0; i < jobs.size(); i++) {
 			if (jobs[i]->path == path) {

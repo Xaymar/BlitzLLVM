@@ -228,18 +228,41 @@ void bb_init(int32_t argc, char** argv)
 #endif
 }
 
-// What has to be taken down before the libraries are (set by the parts that start threads), as exit() would unwind them
-// while the threads still work. Not run by a runtime error, as what it was in the middle of may not be taken down safely.
-void (*bb_exit_hook)(void) = NULL;
+// What has to be taken down before the libraries are, as exit() would unwind them while threads still work. The parts that
+// start threads or open devices register their teardown here; it runs last-registered first, once, whichever way the
+// program ends (End, the window closing, running out of lines, a runtime error).
+#define BB_EXIT_HOOKS 16
+static void (*bb_exit_hooks[BB_EXIT_HOOKS])(void);
+static int bb_exit_hook_count = 0;
+static int bb_shutting_down   = 0;
+
+void bb_on_exit(void (*hook)(void))
+{
+	for (int i = 0; i < bb_exit_hook_count; i++) {
+		if (bb_exit_hooks[i] == hook) {
+			return;
+		}
+	}
+	if (bb_exit_hook_count < BB_EXIT_HOOKS) {
+		bb_exit_hooks[bb_exit_hook_count++] = hook;
+	}
+}
+
+void bb_shutdown(void)
+{
+	if (bb_shutting_down) {
+		return; // A teardown that fails must not start another one.
+	}
+	bb_shutting_down = 1;
+	fflush(stdout);
+	while (bb_exit_hook_count > 0) {
+		bb_exit_hooks[--bb_exit_hook_count]();
+	}
+}
 
 void bb_exit(void)
 {
-	fflush(stdout);
-	if (bb_exit_hook) {
-		void (*hook)(void) = bb_exit_hook;
-		bb_exit_hook = NULL;
-		hook();
-	}
+	bb_shutdown();
 	exit(0);
 }
 
@@ -257,6 +280,7 @@ void bb_runtime_error(const char* message)
 		MessageBoxA(NULL, bb_s(message), "Runtime Error", 0x10); // MB_ICONERROR
 	}
 #endif
+	bb_shutdown();
 	exit(1);
 }
 
