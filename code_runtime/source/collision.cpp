@@ -34,6 +34,7 @@
 
 #include "collision_internal.hpp"
 #include "environment.h"
+#include "scene_internal.hpp"
 
 extern "C" {
 void bb_runtime_error(const char* message);
@@ -970,7 +971,16 @@ float   bb_collision_nx(int32_t handle, int32_t index) { return contact_at(handl
 float   bb_collision_ny(int32_t handle, int32_t index) { return contact_at(handle, index, "CollisionNY").normal.y; }
 float   bb_collision_nz(int32_t handle, int32_t index) { return contact_at(handle, index, "CollisionNZ").normal.z; }
 float   bb_collision_time(int32_t handle, int32_t index) { return contact_at(handle, index, "CollisionTime").time; }
-int32_t bb_collision_surface(int32_t handle, int32_t index) { return contact_at(handle, index, "CollisionSurface").surface; }
+// The surface is the same handle that GetSurface gives for the entity that was hit; 0 when there is none (spheres, boxes, terrains).
+int32_t bb_collision_surface(int32_t handle, int32_t index)
+{
+	contact const& c = contact_at(handle, index, "CollisionSurface");
+	entity*        e = (c.surface > 0) ? get_entity(c.entity) : nullptr;
+	if (!e || (uint32_t(c.surface) > e->surfaces.size)) {
+		return 0;
+	}
+	return bb::scene::surface_handle(e->surfaces[uint32_t(c.surface) - 1]);
+}
 int32_t bb_collision_triangle(int32_t handle, int32_t index) { return contact_at(handle, index, "CollisionTriangle").triangle; }
 
 // The entity of the given type that this one collided with, or 0.
