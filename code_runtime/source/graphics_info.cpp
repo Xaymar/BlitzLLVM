@@ -165,6 +165,19 @@ int32_t bb_hw_tex_units(void)
 	return 8;
 }
 
+// A BlitzLLVM extension: the highest value that Dither does something with on the driver in use (or the one that will be used if
+// no graphics window is open yet). 1 is noise before the buffer, 2 also dithers what blending makes, which the GPU needs two
+// extensions for. Dither 2 does what Dither 1 does where this is 1.
+int32_t bb_hw_dither(void)
+{
+	list_gpus();
+	if (g.created) {
+		return g.can_blend_dither ? 2 : 1;
+	}
+	int driver = (driver_choice > 0) ? driver_choice : 1;
+	return gpus[driver - 1].blend_dither ? 2 : 1;
+}
+
 int32_t bb_count_gfx_modes(void)
 {
 	list_modes();

@@ -25,7 +25,7 @@ namespace {
 	bool  ready   = false;
 	bool  changed = true;  // The applied tables are not yet in the buffer of the GPU.
 	uint32_t presented = 0;  // Presented pictures, which move the noise.
-	bool  dither  = false; // Whether the shown picture gets noise before it is rounded to 8 bits.
+	int   dither  = 0;     // What Dither was asked for: 0 off, 1 the shown picture gets noise before it is rounded to 8 bits and 3D drawing gets it before the buffer, 2 also blends in the shader.
 
 	VkPipelineLayout layout   = VK_NULL_HANDLE;
 	VkPipeline       pipeline = VK_NULL_HANDLE;
@@ -118,7 +118,12 @@ namespace {
 namespace bb::gfx {
 	float dither_code()
 	{
-		return dither ? 1.0f + 5.588238f * float(presented % 64u) : 0.0f;
+		return (dither > 0) ? 1.0f + 5.588238f * float(presented % 64u) : 0.0f;
+	}
+
+	int dither_level()
+	{
+		return ((dither > 1) && !g.can_blend_dither) ? 1 : dither;
 	}
 
 	gpu_image* apply_gamma(gpu_image& front)
@@ -126,7 +131,7 @@ namespace bb::gfx {
 		need_gamma();
 		bool identity = is_identity();
 		// A buffer of more than 8 bits per channel is always converted here, so that the picture is RGBA8 and Dither has something to hide.
-		if (identity && !dither && !dump_path() && (front.format == VK_FORMAT_R8G8B8A8_UNORM)) {
+		if (identity && (dither == 0) && !dump_path() && (front.format == VK_FORMAT_R8G8B8A8_UNORM)) {
 			return &front;
 		}
 		if (!pipeline) {
@@ -139,7 +144,7 @@ namespace bb::gfx {
 				table_mapped[i * 4 + 0] = applied[0][i] / 255.0f;
 				table_mapped[i * 4 + 1] = applied[1][i] / 255.0f;
 				table_mapped[i * 4 + 2] = applied[2][i] / 255.0f;
-				table_mapped[i * 4 + 3] = (i == 0 && dither) ? 1.0f : 0.0f; // The first row says whether to dither.
+				table_mapped[i * 4 + 3] = (i == 0 && (dither > 0)) ? 1.0f : 0.0f; // The first row says whether to dither.
 			}
 		}
 		if (front_view != front.view) {
@@ -254,14 +259,17 @@ void bb_set_gamma(int32_t source_red, int32_t source_green, int32_t source_blue,
 }
 
 // Dither: the picture of the window gets temporal Interleaved Gradient Noise of half a step of 8 bits when it is shown, so that
-// what the gamma tables and rounding do to a gradient is not seen as bands. Every other drawing command is not
-// touched. Takes effect with the next picture that is shown.
+// what the gamma tables and rounding do to a gradient is not seen as bands. 3D drawing gets it before its colors are rounded
+// to the buffer, and with 2 also after blending, if the GPU can blend in the shader (HWDither). Without that 2 is 1. Takes
+// effect with the next picture that is shown.
 void bb_dither(int32_t enable)
 {
-	if ((enable != 0) != dither) {
-		dither  = enable != 0;
-		changed = true;
-		if (g.created && !g.headless) {
+	int level = (enable == 0) ? 0 : ((enable >= 2) ? 2 : 1); // Every other value is on, as it was.
+	if (level != dither) {
+		int before = dither_level();
+		dither     = level;
+		changed    = true;
+		if (g.created && !g.headless && (dither_level() != before)) {
 			rebuild_pipelines_3d();
 		}
 	}
