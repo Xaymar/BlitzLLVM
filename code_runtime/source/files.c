@@ -16,6 +16,7 @@
 // are converted to what the system wants where that is possible.
 
 #include "files_internal.h"
+#include "memory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Paths
@@ -48,7 +49,7 @@ static char* bb_find_name(const char* directory, const char* name)
 static char* bb_match_case(char* path)
 {
 	size_t length = strlen(path);
-	char*  out    = (char*)malloc(length + 1);
+	char*  out    = (char*)bb_malloc(length + 1);
 	if (!out) {
 		bb_runtime_error("Out of memory.");
 	}
@@ -68,7 +69,7 @@ static char* bb_match_case(char* path)
 		char* name = bb_copy(next, part);
 		// What is built so far, or the current folder when nothing is.
 		char* parent = bb_copy(used ? out : ".", used ? used : 1);
-		char* join   = (char*)malloc(used + part + 2);
+		char* join   = (char*)bb_malloc(used + part + 2);
 		if (!join) {
 			bb_runtime_error("Out of memory.");
 		}
@@ -78,7 +79,7 @@ static char* bb_match_case(char* path)
 			replacement = bb_find_name(parent, name);
 		}
 		const char* use = replacement ? replacement : name;
-		out = (char*)realloc(out, used + strlen(use) + 2);
+		out = (char*)bb_realloc(out, used + strlen(use) + 2);
 		if (!out) {
 			bb_runtime_error("Out of memory.");
 		}
@@ -87,17 +88,17 @@ static char* bb_match_case(char* path)
 		}
 		memcpy(out + used, use, strlen(use) + 1);
 		used += strlen(use);
-		free(replacement);
-		free(join);
-		free(parent);
-		free(name);
+		bb_free(replacement);
+		bb_free(join);
+		bb_free(parent);
+		bb_free(name);
 		next += part + (end ? 1 : 0);
 		if (end && !*next) {
 			out[used++] = '/'; // A folder that was written with a separator at its end.
 			out[used]   = 0;
 		}
 	}
-	free(path);
+	bb_free(path);
 	return out;
 }
 #endif
@@ -139,7 +140,7 @@ int32_t bb_stream_add(bb_stream stream)
 	}
 	if (bb_stream_count >= bb_stream_cap) {
 		bb_stream_cap = bb_stream_cap ? bb_stream_cap * 2 : 64;
-		bb_streams    = (bb_stream*)realloc(bb_streams, (size_t)bb_stream_cap * sizeof(bb_stream));
+		bb_streams    = (bb_stream*)bb_realloc(bb_streams, (size_t)bb_stream_cap * sizeof(bb_stream));
 		if (!bb_streams) {
 			bb_runtime_error("Out of memory.");
 		}
@@ -172,7 +173,7 @@ int32_t bb_open(const char* path, const char* mode)
 {
 	char* real = bb_path(path);
 	FILE* file = fopen(real, mode);
-	free(real);
+	bb_free(real);
 	if (!file) {
 		return 0;
 	}
@@ -275,7 +276,7 @@ void bb_copy_stream(int32_t source, int32_t destination, int32_t buffer_size)
 		bb_runtime_error("CopyStream: the buffer size is not valid.");
 	}
 	bb_stream* target = bb_stream_get(destination, "CopyStream");
-	uint8_t*   buffer = (uint8_t*)malloc((size_t)buffer_size);
+	uint8_t*   buffer = (uint8_t*)bb_malloc((size_t)buffer_size);
 	if (!buffer) {
 		bb_runtime_error("CopyStream: out of memory.");
 	}
@@ -287,7 +288,7 @@ void bb_copy_stream(int32_t source, int32_t destination, int32_t buffer_size)
 			break;
 		}
 	}
-	free(buffer);
+	bb_free(buffer);
 }
 
 int32_t bb_read_byte(int32_t handle)
@@ -323,7 +324,7 @@ float bb_read_float(int32_t handle)
 const char* bb_read_line(int32_t handle)
 {
 	size_t cap = 128, len = 0;
-	char*  buffer = (char*)malloc(cap);
+	char*  buffer = (char*)bb_malloc(cap);
 	uint8_t c;
 	while (bb_read_bytes(handle, &c, 1, "ReadLine") == 1) {
 		if (c == '\n') {
@@ -334,7 +335,7 @@ const char* bb_read_line(int32_t handle)
 		}
 		if (len + 1 >= cap) {
 			cap *= 2;
-			buffer = (char*)realloc(buffer, cap);
+			buffer = (char*)bb_realloc(buffer, cap);
 		}
 		buffer[len++] = (char)c;
 	}
@@ -367,7 +368,7 @@ const char* bb_read_string(int32_t handle)
 	if ((size_t)length > limit) {
 		length = (int32_t)limit;
 	}
-	char* buffer = (char*)malloc((size_t)length + 1);
+	char* buffer = (char*)bb_malloc((size_t)length + 1);
 	size_t got   = bb_read_bytes(handle, buffer, (size_t)length, "ReadString");
 	buffer[got]  = 0;
 	return buffer;

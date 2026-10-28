@@ -14,6 +14,7 @@
 // the time: the graphics drivers are the GPUs, and the modes are the ones of the display.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 using namespace bb::gfx;
 
@@ -116,7 +117,7 @@ const char* bb_gfx_driver_name(int32_t driver)
 {
 	need_driver(driver, "GfxDriverName");
 	const char* name = gpus[driver - 1].name;
-	char*       copy = static_cast<char*>(malloc(strlen(name) + 1));
+	char*       copy = static_cast<char*>(bb_malloc(strlen(name) + 1));
 	strcpy(copy, name);
 	return copy;
 }

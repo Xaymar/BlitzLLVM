@@ -7,6 +7,7 @@
 // program, with positions inside of the canvas.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 #include "gui_internal.hpp"
 
@@ -381,15 +382,15 @@ namespace bb::gui {
 					}
 				}
 				int   add  = int(strlen(clean));
-				char* body = static_cast<char*>(malloc(size_t(before - (hi - lo) + add) + 1));
+				char* body = static_cast<char*>(bb_malloc(size_t(before - (hi - lo) + add) + 1));
 				memcpy(body, g.text, size_t(lo));
 				memcpy(body + lo, clean, size_t(add));
 				memcpy(body + lo + add, g.text + hi, size_t(before - hi));
 				body[before - (hi - lo) + add] = 0;
-				free(g.text);
+				bb_free(g.text);
 				g.text   = body;
 				g.caret  = g.anchor = lo + add;
-				free(clean);
+				bb_free(clean);
 				caret_to_view(g);
 				post_action(handle, key);
 			} else {
@@ -546,7 +547,7 @@ namespace bb::gui {
 			case SDL_SCANCODE_X:
 				if (ctrl) {
 					if (hi > lo) {
-						char* part = static_cast<char*>(malloc(size_t(hi - lo) + 1));
+						char* part = static_cast<char*>(bb_malloc(size_t(hi - lo) + 1));
 						memcpy(part, g.text + lo, size_t(hi - lo));
 						part[hi - lo] = 0;
 						for (char* p = part; *p; p++) {
@@ -556,7 +557,7 @@ namespace bb::gui {
 							}
 						}
 						SDL_SetClipboardText(part);
-						free(part);
+						bb_free(part);
 						if (key == SDL_SCANCODE_X) {
 							replace_selection(handle, g, "", last_char);
 						}

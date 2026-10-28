@@ -14,6 +14,7 @@
 // The loaders of each file type fill it, and b3d.cpp builds the entities of it.
 #pragma once
 #include "animation_internal.hpp"
+#include "memory.h"
 
 namespace bb::models {
 	struct reader {
@@ -63,7 +64,7 @@ namespace bb::models {
 				return nullptr;
 			}
 			size_t length = pos - start;
-			char*  out    = static_cast<char*>(malloc(length + 1));
+			char*  out    = static_cast<char*>(bb_malloc(length + 1));
 			memcpy(out, data + start, length);
 			out[length] = 0;
 			pos++;
@@ -128,11 +129,11 @@ namespace bb::models {
 		void release()
 		{
 			for (uint32_t i = 0; i < textures.size; i++) {
-				free(textures[i].name);
+				bb_free(textures[i].name);
 			}
 			for (uint32_t i = 0; i < nodes.size; i++) {
 				node_info* n = nodes[i];
-				free(n->name);
+				bb_free(n->name);
 				n->vertices.release();
 				for (uint32_t g = 0; g < n->groups.size; g++) {
 					n->groups[g]->indices.release();
@@ -149,7 +150,7 @@ namespace bb::models {
 			textures.release();
 			brushes.release();
 			nodes.release();
-			free(directory);
+			bb_free(directory);
 		}
 	};
 	/** Reads the 3D Studio model in the data into the model. False if it is not one. */

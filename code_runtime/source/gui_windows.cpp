@@ -6,6 +6,7 @@
 // activated in: the one that was activated last is on top.
 
 #include "gui_internal.hpp"
+#include "memory.h"
 
 namespace bb::gui {
 	static int active = 0;
@@ -102,7 +103,7 @@ namespace bb::gui {
 				}
 			}
 		}
-		free(m->text);
+		bb_free(m->text);
 		m->text = nullptr;
 		m->kids.release();
 		m->used = false;

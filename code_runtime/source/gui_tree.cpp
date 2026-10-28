@@ -5,6 +5,7 @@
 // Tree views and the nodes in them. A tree view has a root node that is not shown and that all other nodes are in.
 
 #include "gui_internal.hpp"
+#include "memory.h"
 
 namespace bb::gui {
 	static node* need_node(int handle, const char* what)
@@ -58,7 +59,7 @@ namespace bb::gui {
 				}
 			}
 		}
-		free(n->text);
+		bb_free(n->text);
 		n->text = nullptr;
 		n->kids.release();
 		n->used = false;

@@ -13,6 +13,7 @@
 // Command buffers and the list of operations that 2D drawing and 3D scenes are recorded into.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 #include <utility>
 
@@ -802,7 +803,7 @@ namespace bb::gfx {
 		}
 		if (g.op_count == g.op_cap) {
 			g.op_cap = g.op_cap ? g.op_cap * 2 : 256;
-			g.ops    = static_cast<operation*>(realloc(g.ops, g.op_cap * sizeof(operation)));
+			g.ops    = static_cast<operation*>(bb_realloc(g.ops, g.op_cap * sizeof(operation)));
 			if (!g.ops) {
 				fail("Out of memory.");
 			}

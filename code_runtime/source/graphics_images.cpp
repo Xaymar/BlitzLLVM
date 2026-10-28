@@ -13,6 +13,7 @@
 // Images: loading, frames, handles and drawing them.
 
 #include <string>
+#include "memory.h"
 
 #include "graphics_internal.hpp"
 #include "graphics_save.hpp"
@@ -56,7 +57,7 @@ namespace bb::gfx {
 		submit_commands();
 
 		size_t   count = size_t(w) * size_t(h);
-		uint8_t* out   = static_cast<uint8_t*>(malloc(count * (native ? pixel_bytes(img.format) : 4)));
+		uint8_t* out   = static_cast<uint8_t*>(bb_malloc(count * (native ? pixel_bytes(img.format) : 4)));
 		if (native) {
 			memcpy(out, mapped, count * pixel_bytes(img.format));
 		} else if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
@@ -201,7 +202,7 @@ namespace bb::gfx {
 		}
 		width        = rgba->w;
 		height       = rgba->h;
-		uint8_t* out = static_cast<uint8_t*>(malloc(size_t(width) * size_t(height) * 4));
+		uint8_t* out = static_cast<uint8_t*>(bb_malloc(size_t(width) * size_t(height) * 4));
 		for (int y = 0; y < height; y++) {
 			memcpy(out + size_t(y) * size_t(width) * 4, static_cast<uint8_t*>(rgba->pixels) + size_t(y) * size_t(rgba->pitch), size_t(width) * 4);
 		}
@@ -240,7 +241,7 @@ namespace bb::gfx {
 		{
 			SDL_free(data);
 			free_picture(blocks);
-			free(pixels);
+			bb_free(pixels);
 		}
 
 		void run() override
@@ -430,7 +431,7 @@ int32_t bb_load_image(const char* file)
 		return 0;
 	}
 	int32_t handle = make_image(w, h, w, h, 1, 0, pixels);
-	free(pixels);
+	bb_free(pixels);
 	return handle;
 }
 
@@ -455,11 +456,11 @@ int32_t bb_load_anim_image(const char* file, int32_t frame_w, int32_t frame_h, i
 		return 0;
 	}
 	if ((frame_w <= 0) || (frame_h <= 0) || (count <= 0) || (frame_w > w) || (frame_h > h) || (first < 0)) {
-		free(pixels);
+		bb_free(pixels);
 		return 0;
 	}
 	int32_t handle = make_image(w, h, frame_w, frame_h, count, first, pixels);
-	free(pixels);
+	bb_free(pixels);
 	return handle;
 }
 
@@ -474,7 +475,7 @@ int32_t bb_gui_load_strip(const char* file, int32_t* size, int32_t* count, char*
 	}
 	int sz = h, n = w / sz;
 	if ((sz < 1) || (n < 1)) {
-		free(pixels);
+		bb_free(pixels);
 		return 0;
 	}
 	uint8_t trans[3] = { pixels[0], pixels[1], pixels[2] };
@@ -489,7 +490,7 @@ int32_t bb_gui_load_strip(const char* file, int32_t* size, int32_t* count, char*
 		blank[i] = same ? 1 : 0;
 	}
 	int32_t handle = make_image(w, h, w, h, 1, 0, pixels);
-	free(pixels);
+	bb_free(pixels);
 	if (image_entry* e = image_of(handle)) {
 		e->mask[0] = trans[0];
 		e->mask[1] = trans[1];
@@ -507,12 +508,12 @@ int32_t bb_create_image(int32_t width, int32_t height, int32_t frames)
 		bb_runtime_error("CreateImage: needs a size and at least one frame.");
 	}
 	size_t   sheet_w = size_t(width) * size_t(frames);
-	uint8_t* pixels  = static_cast<uint8_t*>(calloc(sheet_w * size_t(height), 4));
+	uint8_t* pixels  = static_cast<uint8_t*>(bb_calloc(sheet_w * size_t(height), 4));
 	for (size_t i = 0; i < sheet_w * size_t(height); i++) {
 		pixels[i * 4 + 3] = 255; // Black, which is what is masked by default.
 	}
 	int32_t handle = make_image(int(sheet_w), height, width, height, frames, 0, pixels);
-	free(pixels);
+	bb_free(pixels);
 	return handle;
 }
 
@@ -801,9 +802,9 @@ static const uint8_t* solid_pixels(image_entry* e)
 	if (e->solid && (e->solid_generation == image_generation)) {
 		return e->solid;
 	}
-	free(e->solid);
+	bb_free(e->solid);
 	size_t count = size_t(e->sheet_w) * size_t(e->sheet_h);
-	e->solid     = static_cast<uint8_t*>(malloc(count ? count : 1));
+	e->solid     = static_cast<uint8_t*>(bb_malloc(count ? count : 1));
 	memset(e->solid, 1, count);
 	if (active() && e->set && e->masked) {
 		flush();
@@ -812,7 +813,7 @@ static const uint8_t* solid_pixels(image_entry* e)
 		for (size_t i = 0; i < count; i++) {
 			e->solid[i] = (rgba[i * 4] == e->mask[0] && rgba[i * 4 + 1] == e->mask[1] && rgba[i * 4 + 2] == e->mask[2]) ? 0 : 1;
 		}
-		free(rgba);
+		bb_free(rgba);
 	}
 	e->solid_generation = image_generation;
 	return e->solid;
@@ -925,7 +926,7 @@ int32_t bb_copy_image(int32_t handle)
 	copy.masked = e->masked;
 	if (pixels) {
 		upload_texture(copy.image, copy.set, uint32_t(copy.sheet_w), uint32_t(copy.sheet_h), pixels, g.sampler);
-		free(pixels);
+		bb_free(pixels);
 	}
 	return add_image(copy);
 }
@@ -974,7 +975,7 @@ void bb_tform_image(int32_t handle, float a, float b, float c, float d)
 
 	int      frames = e->frames;
 	size_t   sheet_w = size_t(iw) * size_t(frames);
-	uint8_t* out = static_cast<uint8_t*>(calloc(sheet_w * size_t(ih), 4));
+	uint8_t* out = static_cast<uint8_t*>(bb_calloc(sheet_w * size_t(ih), 4));
 	uint8_t* old = nullptr;
 	if (active() && e->set) {
 		flush();
@@ -1018,7 +1019,7 @@ void bb_tform_image(int32_t handle, float a, float b, float c, float d)
 			}
 		}
 	}
-	free(old);
+	bb_free(old);
 
 	if (active() && e->set) {
 		gpu_idle();
@@ -1026,7 +1027,7 @@ void bb_tform_image(int32_t handle, float a, float b, float c, float d)
 		destroy_image(e->image);
 		upload_texture(e->image, e->set, uint32_t(sheet_w), uint32_t(ih), out, g.sampler);
 	}
-	free(out);
+	bb_free(out);
 	e->sheet_w  = int(sheet_w);
 	e->sheet_h  = ih;
 	e->frame_w  = iw;
@@ -1069,17 +1070,17 @@ int32_t bb_load_buffer(int32_t buffer, const char* file)
 		return 0;
 	}
 	if (!active()) {
-		free(pixels);
+		bb_free(pixels);
 		return 1;
 	}
 	target_ref target = resolve_target(buffer);
 	if (!target.image) {
-		free(pixels);
+		bb_free(pixels);
 		bb_runtime_error("LoadBuffer: the buffer does not exist.");
 	}
 
 	// Looks every pixel of the buffer up in the picture, blending the four around it.
-	uint8_t* scaled = static_cast<uint8_t*>(malloc(size_t(target.w) * size_t(target.h) * 4));
+	uint8_t* scaled = static_cast<uint8_t*>(bb_malloc(size_t(target.w) * size_t(target.h) * 4));
 	for (int y = 0; y < target.h; y++) {
 		float sy = (float(y) + 0.5f) * float(height) / float(target.h) - 0.5f;
 		int   y0 = int(floorf(sy));
@@ -1099,11 +1100,11 @@ int32_t bb_load_buffer(int32_t buffer, const char* file)
 			}
 		}
 	}
-	free(pixels);
+	bb_free(pixels);
 
 	flush();
 	write_pixels(*target.image, target.x, target.y, target.w, target.h, scaled);
-	free(scaled);
+	bb_free(scaled);
 	return 1;
 }
 

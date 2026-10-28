@@ -15,6 +15,7 @@
 // 0 or an empty text instead of stopping the program, because displays can be unplugged while a program runs.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 #include <algorithm>
 #include <string>
@@ -182,7 +183,7 @@ namespace {
 
 	const char* text(const std::string& value)
 	{
-		char* copy = static_cast<char*>(malloc(value.size() + 1));
+		char* copy = static_cast<char*>(bb_malloc(value.size() + 1));
 		memcpy(copy, value.c_str(), value.size() + 1);
 		return copy;
 	}

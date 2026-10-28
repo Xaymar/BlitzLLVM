@@ -13,6 +13,7 @@
 // The window, the buffers, Flip, and information about the graphics.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 #include "graphics_save.hpp"
 
 using namespace bb::gfx;
@@ -196,7 +197,7 @@ void bb_end_graphics(void)
 		SDL_DestroyWindow(g.window);
 		SDL_Quit();
 	}
-	free(g.ops);
+	bb_free(g.ops);
 	forget_recorded();
 	g = state();
 }

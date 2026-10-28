@@ -13,6 +13,7 @@
 // Loading models: the .b3d files of Blitz3D (and the .3ds files of 3D Studio, see model_3ds.cpp) are read into a tree of nodes, which become entities, meshes and an animation.
 
 #include "model_internal.hpp"
+#include "memory.h"
 #include "load_pool.hpp"
 #include "path.h"
 
@@ -177,7 +178,7 @@ namespace {
 			fclose(file);
 			return false; // Not something that has a size, like a folder.
 		}
-		data = static_cast<uint8_t*>(malloc(size_t(length) + 1));
+		data = static_cast<uint8_t*>(bb_malloc(size_t(length) + 1));
 		got  = fread(data, 1, size_t(length), file);
 		fclose(file);
 		return true;
@@ -232,7 +233,7 @@ namespace {
 					}
 					while ((r.pos < stop) && !r.failed) {
 						brush_info b;
-						free(r.read_string());
+						bb_free(r.read_string());
 						for (int i = 0; i < 4; i++) b.color[i] = r.read_float();
 						b.shininess = r.read_float();
 						b.blend     = r.read_int();
@@ -272,7 +273,7 @@ namespace {
 			slash = back;
 		}
 		size_t length_dir = slash ? size_t(slash - path) + 1 : 0;
-		m.directory       = static_cast<char*>(malloc(length_dir + 1));
+		m.directory       = static_cast<char*>(bb_malloc(length_dir + 1));
 		memcpy(m.directory, path, length_dir);
 		m.directory[length_dir] = 0;
 		return ok;
@@ -286,7 +287,7 @@ namespace {
 			return false;
 		}
 		bool ok = parse_model(path, data, got, m);
-		free(data);
+		bb_free(data);
 		return ok;
 	}
 
@@ -315,7 +316,7 @@ namespace {
 			return 0;
 		}
 		// The name may have a path from the machine that made the model, and uses backslashes.
-		char* name = static_cast<char*>(malloc(strlen(t.name) + 1));
+		char* name = static_cast<char*>(bb_malloc(strlen(t.name) + 1));
 		strcpy(name, t.name);
 		for (char* c = name; *c; c++) {
 			if (*c == '\\') {
@@ -327,7 +328,7 @@ namespace {
 		const char* plain = (name[0] == '.' && name[1] == '/') ? name + 2 : name;
 
 		size_t dir_length = strlen(m.directory);
-		char*  path       = static_cast<char*>(malloc(dir_length + strlen(name) + 2));
+		char*  path       = static_cast<char*>(bb_malloc(dir_length + strlen(name) + 2));
 		// The filters of TextureFilter look at the name that the model has for it.
 		int32_t     flags         = bb_filter_texture_flags(t.name, t.flags ? t.flags : 1);
 		const char* candidates[2] = { plain, base };
@@ -342,8 +343,8 @@ namespace {
 				break;
 			}
 		}
-		free(path);
-		free(name);
+		bb_free(path);
+		bb_free(name);
 		return t.handle;
 	}
 
@@ -500,7 +501,7 @@ namespace {
 			node_info& n = *m.nodes[i];
 			float*     world = nullptr;
 			if (!hierarchy) {
-				world = static_cast<float*>(malloc(16 * sizeof(float)));
+				world = static_cast<float*>(bb_malloc(16 * sizeof(float)));
 				float local[16];
 				compose(local, n.pos, n.scale, n.rot);
 				if (n.parent >= 0) {
@@ -517,7 +518,7 @@ namespace {
 			out.nodes.push(made);
 		}
 		for (uint32_t i = 0; i < models.size; i++) {
-			free(models[i]);
+			bb_free(models[i]);
 		}
 		models.release();
 	}
@@ -720,8 +721,8 @@ struct bb::model_load {
 		}
 		~job_t() override
 		{
-			free(data);
-			free(path);
+			bb_free(data);
+			bb_free(path);
 			m.release();
 			prepared.release();
 		}
@@ -765,17 +766,17 @@ namespace {
 		bool async = gfx::async_loading() && model_recognized(data, got);
 		model m;
 		if (!async && !parse_model(file, data, got, m)) {
-			free(data);
+			bb_free(data);
 			m.release();
 			return 0;
 		}
 		if (parent && !get_entity(parent)) {
-			free(data);
+			bb_free(data);
 			m.release();
 			fail(anim ? "LoadAnimMesh: the parent does not exist." : "LoadMesh: the parent does not exist.");
 		}
 		if (!async) {
-			free(data);
+			bb_free(data);
 			prepared_model prepared;
 			prepare_model(m, anim, false, prepared);
 			int handle = anim ? build_hierarchy(m, prepared, parent, 0) : build_static(m, prepared, parent, 0);
@@ -789,7 +790,7 @@ namespace {
 		job->data = data;
 		job->size = got;
 		job->anim = anim;
-		job->path = static_cast<char*>(malloc(strlen(file) + 1));
+		job->path = static_cast<char*>(bb_malloc(strlen(file) + 1));
 		strcpy(job->path, file);
 		l->job  = job;
 		l->anim = anim;

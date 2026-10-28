@@ -9,13 +9,14 @@
 // is wrapped at the edge of a text area is still one line.
 
 #include "gui_internal.hpp"
+#include "memory.h"
 
 namespace bb::gui {
 	// Turns all the ways to end a line into the one that text areas use.
 	void normalize_text(const char* text, char** out, int* length)
 	{
 		size_t size = text ? strlen(text) : 0;
-		char*  mem  = static_cast<char*>(malloc(size + 1));
+		char*  mem  = static_cast<char*>(bb_malloc(size + 1));
 		if (!mem) {
 			gui_error("Out of memory.");
 		}
@@ -144,7 +145,7 @@ namespace bb::gui {
 			}
 			added[add] = 0;
 		}
-		char* body = static_cast<char*>(malloc(size_t(length - len + add) + 1));
+		char* body = static_cast<char*>(bb_malloc(size_t(length - len + add) + 1));
 		if (!body) {
 			gui_error("Out of memory.");
 		}
@@ -152,9 +153,9 @@ namespace bb::gui {
 		memcpy(body + pos, added, size_t(add));
 		memcpy(body + pos + add, g.text + pos + len, size_t(length - pos - len));
 		body[length - len + add] = 0;
-		free(g.text);
+		bb_free(g.text);
 		g.text = body;
-		free(added);
+		bb_free(added);
 		shift_formats(g, pos, len, add);
 		int total = length - len + add;
 		// What was selected is kept, as far as it still exists.
@@ -173,7 +174,7 @@ namespace bb::gui {
 				break;
 			}
 		}
-		free(g.text);
+		bb_free(g.text);
 		g.text = fresh;
 		int total = int(strlen(g.text));
 		g.caret   = g.caret > total ? total : g.caret;
@@ -352,7 +353,7 @@ const char* bb_text_area_text(int32_t handle, int32_t pos, int32_t len, int32_t 
 	if (!adjust_range(*g, &pos, &len, units)) {
 		return copy_string("");
 	}
-	char* out = static_cast<char*>(malloc(size_t(len) + 1));
+	char* out = static_cast<char*>(bb_malloc(size_t(len) + 1));
 	memcpy(out, g->text + pos, size_t(len));
 	out[len] = 0;
 	return out;

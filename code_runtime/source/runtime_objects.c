@@ -13,6 +13,7 @@
 // Objects of Blitz types, handles, arrays and Data.
 
 #include <ctype.h>
+#include "memory.h"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -96,14 +97,14 @@ static bb_object* bb_object_memory(size_t size)
 {
 	size = (size + 15) & ~(size_t)15;
 	if (size > BB_OBJECT_BLOCK / 8) {
-		bb_object* object = (bb_object*)calloc(1, size);
+		bb_object* object = (bb_object*)bb_calloc(1, size);
 		if (!object) {
 			bb_runtime_error("Out of memory.");
 		}
 		return object;
 	}
 	if (size > bb_block_left) {
-		bb_block = (char*)calloc(1, BB_OBJECT_BLOCK);
+		bb_block = (char*)bb_calloc(1, BB_OBJECT_BLOCK);
 		if (!bb_block) {
 			bb_runtime_error("Out of memory.");
 		}
@@ -146,7 +147,7 @@ void bb_object_delete(bb_object* object, bb_list* list)
 			char** slot  = (char**)((char*)object + list->strings[1 + 2 * i]);
 			int32_t count = list->strings[2 + 2 * i];
 			for (int32_t k = 0; k < (count ? count : 1); k++) {
-				free(slot[k]);
+				bb_free(slot[k]);
 				slot[k] = NULL;
 			}
 		}
@@ -237,12 +238,12 @@ int32_t bb_handle(bb_object* object, const bb_list* list)
 	if (object->handle == 0) {
 		if (bb_handle_count >= bb_handle_cap) {
 			int32_t cap = bb_handle_cap ? bb_handle_cap * 2 : 1024;
-			void*   handles = realloc(bb_handles, (size_t)cap * sizeof(bb_object*));
+			void*   handles = bb_realloc(bb_handles, (size_t)cap * sizeof(bb_object*));
 			if (!handles) {
 				bb_runtime_error("Out of memory.");
 			}
 			bb_handles = (bb_object**)handles;
-			void* lists = realloc(bb_handle_lists, (size_t)cap * sizeof(bb_list*));
+			void* lists = bb_realloc(bb_handle_lists, (size_t)cap * sizeof(bb_list*));
 			if (!lists) {
 				bb_runtime_error("Out of memory.");
 			}
@@ -294,7 +295,7 @@ void bb_dim_free_strings(bb_array* array)
 	}
 	char** elements = (char**)array->data;
 	for (int64_t i = 0; i < total; i++) {
-		free(elements[i]);
+		bb_free(elements[i]);
 		elements[i] = NULL;
 	}
 }
@@ -327,8 +328,8 @@ void bb_dim(bb_array* array, int64_t element_size, int32_t dimensions, int32_t b
 		array->pitch += (int32_t)(64 / element_size);
 		total = total / array->size[0] * array->pitch;
 	}
-	free(array->data);
-	array->data = calloc((size_t)total, (size_t)element_size);
+	bb_free(array->data);
+	array->data = bb_calloc((size_t)total, (size_t)element_size);
 	if (!array->data) {
 		bb_runtime_error("Out of memory.");
 	}

@@ -13,6 +13,7 @@
 // Reading and writing pixels, and copying them between buffers.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 using namespace bb::gfx;
 
@@ -222,7 +223,7 @@ void bb_unlock_buffer(int32_t buffer)
 			sprite_hull_compute(t->hull, l->pixels, l->region.w, l->region.h, size_t(l->region.w), t->flags);
 		}
 	}
-	free(l->pixels);
+	bb_free(l->pixels);
 	*l = locked_buffer();
 }
 
@@ -253,7 +254,7 @@ static bool fetch_canonical(int32_t x, int32_t y, int32_t buffer, const char* wh
 	flush();
 	uint8_t* pixel = read_pixels(*target.image, target.x + x, target.y + y, 1, 1, is_deep(format));
 	out            = raw_to_canonical(format, pixel);
-	free(pixel);
+	bb_free(pixel);
 	return true;
 }
 

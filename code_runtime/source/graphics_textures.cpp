@@ -13,6 +13,7 @@
 // Textures: loading, flags, filters and the layers of a texture.
 
 #include <string>
+#include "memory.h"
 #include <vector>
 
 #include "graphics_internal.hpp"
@@ -108,7 +109,7 @@ namespace bb::gfx {
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &e.set);
 			destroy_image(e.image);
 		}
-		free(e.solid);
+		bb_free(e.solid);
 		e = image_entry();
 	}
 
@@ -134,7 +135,7 @@ namespace bb::gfx {
 		}
 		sprite_hull_drop(t.hull);
 		delete t.cube;
-		free(t.file);
+		bb_free(t.file);
 		t = texture_entry();
 	}
 
@@ -150,7 +151,7 @@ namespace bb::gfx {
 	static void make_cube(texture_entry& entry, const uint8_t* strip, int strip_width)
 	{
 		int      w = entry.width, h = entry.height;
-		uint8_t* face_pixels = static_cast<uint8_t*>(calloc(size_t(w) * size_t(h), 4));
+		uint8_t* face_pixels = static_cast<uint8_t*>(bb_calloc(size_t(w) * size_t(h), 4));
 		entry.cube           = new cube_data();
 		for (int face = 0; face < 6; face++) {
 			for (int y = 0; y < h; y++) {
@@ -166,10 +167,10 @@ namespace bb::gfx {
 			}
 			create_pixel_image(entry.cube->faces[face], uint32_t(w), uint32_t(h), face_pixels);
 		}
-		free(face_pixels);
-		uint8_t* blank = static_cast<uint8_t*>(calloc(size_t(w) * 3 * size_t(h) * 2, 4));
+		bb_free(face_pixels);
+		uint8_t* blank = static_cast<uint8_t*>(bb_calloc(size_t(w) * 3 * size_t(h) * 2, 4));
 		upload_texture(entry.cube->sheet, entry.set, uint32_t(w * 3), uint32_t(h * 2), blank, g.sampler_clamp);
-		free(blank);
+		bb_free(blank);
 		entry.image = entry.cube->faces[entry.cube->face];
 	}
 	static bb::buffer<texture_filter> texture_filters;
@@ -220,7 +221,7 @@ namespace bb::gfx {
 		bool        absolute = (file[0] == '/') || (file[0] == '\\') || (file[0] && (file[1] == ':'));
 		const char* cwd      = absolute ? nullptr : SDL_GetCurrentDirectory();
 		size_t      length   = strlen(file) + (cwd ? strlen(cwd) : 0) + 2;
-		char*       joined   = static_cast<char*>(malloc(length));
+		char*       joined   = static_cast<char*>(bb_malloc(length));
 		snprintf(joined, length, "%s%s%s", cwd ? cwd : "", (cwd && cwd[0] && (cwd[strlen(cwd) - 1] != '/') && (cwd[strlen(cwd) - 1] != '\\')) ? "/" : "", file);
 		SDL_free(const_cast<char*>(cwd));
 
@@ -230,7 +231,7 @@ namespace bb::gfx {
 		} else if (joined[0] && (joined[1] == ':')) {
 			prefix = ((joined[2] == '/') || (joined[2] == '\\')) ? 3 : 2;
 		}
-		char* out = static_cast<char*>(malloc(length + 1));
+		char* out = static_cast<char*>(bb_malloc(length + 1));
 		memcpy(out, joined, prefix);
 		size_t used = prefix, base = prefix;
 		for (char* part = joined + prefix; *part;) {
@@ -257,7 +258,7 @@ namespace bb::gfx {
 			part = *end ? end + 1 : end;
 		}
 		out[used] = 0;
-		free(joined);
+		bb_free(joined);
 		return out;
 	}
 } // namespace bb::gfx
@@ -300,12 +301,12 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 		entry.frames = 1;
 		make_cube(entry, nullptr, 0);
 	} else if (active()) {
-		uint8_t* pixels = static_cast<uint8_t*>(calloc(size_t(entry.width) * size_t(entry.height), 4));
+		uint8_t* pixels = static_cast<uint8_t*>(bb_calloc(size_t(entry.width) * size_t(entry.height), 4));
 		for (size_t i = 0; i < size_t(entry.width) * size_t(entry.height); i++) {
 			pixels[i * 4 + 3] = 255;
 		}
 		upload_texture(entry.image, entry.set, uint32_t(entry.width), uint32_t(entry.height), pixels, texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0);
-		free(pixels);
+		bb_free(pixels);
 	}
 	for (uint32_t i = 0; i < texture_table.size; i++) {
 		if (!texture_table[i].used) {
@@ -346,7 +347,7 @@ int32_t bb_filter_texture_flags(const char* file, int32_t flags)
 		return flags;
 	}
 	size_t length = strlen(file);
-	char*  lower  = static_cast<char*>(malloc(length + 1));
+	char*  lower  = static_cast<char*>(bb_malloc(length + 1));
 	for (size_t i = 0; i <= length; i++) {
 		char c   = file[i];
 		lower[i] = (c >= 'A' && c <= 'Z') ? char(c + 32) : c;
@@ -356,7 +357,7 @@ int32_t bb_filter_texture_flags(const char* file, int32_t flags)
 			flags |= texture_filters[i].flags;
 		}
 	}
-	free(lower);
+	bb_free(lower);
 	return flags;
 }
 
@@ -464,7 +465,7 @@ namespace bb::gfx {
 				for (uint32_t level = 0; level < levels; level++) {
 					total += size_t((rgba->w >> level) ? (rgba->w >> level) : 1) * size_t((rgba->h >> level) ? (rgba->h >> level) : 1);
 				}
-				out.ten = static_cast<uint32_t*>(malloc(total * 4));
+				out.ten = static_cast<uint32_t*>(bb_malloc(total * 4));
 				std::vector<uint16_t> current(size_t(rgba->w) * size_t(rgba->h) * 4), next;
 				for (int y = 0; y < rgba->h; y++) {
 					memcpy(current.data() + size_t(y) * size_t(rgba->w) * 4, static_cast<const uint8_t*>(wide->pixels) + size_t(y) * size_t(wide->pitch), size_t(rgba->w) * 8);
@@ -530,7 +531,7 @@ namespace bb::gfx {
 				if (out.rgba) {
 					SDL_DestroySurface(out.rgba);
 				}
-				free(out.ten);
+				bb_free(out.ten);
 			}
 
 			void run() override
@@ -565,7 +566,7 @@ namespace bb::gfx {
 				upload_texture(entry.image, entry.set, uint32_t(p.rgba->w), uint32_t(p.rgba->h), ten ? reinterpret_cast<const uint8_t*>(p.ten) : static_cast<const uint8_t*>(p.rgba->pixels), texture_sampler(flags), (flags & TEXTURE_MIPMAPS) != 0, (flags & TEXTURE_SRGB) != 0, ten);
 				SDL_DestroySurface(p.rgba);
 				p.rgba = nullptr;
-				free(p.ten);
+				bb_free(p.ten);
 				p.ten = nullptr;
 			}
 		}
@@ -673,7 +674,7 @@ int32_t bb_load_texture_flags(const char* file, int32_t flags)
 		// Six faces next to each other.
 		if (rgba->w % 6) {
 			SDL_DestroySurface(rgba);
-			free(entry.file);
+			bb_free(entry.file);
 			return 0;
 		}
 		entry.width = rgba->w / 6;
@@ -811,7 +812,7 @@ const char* bb_texture_name(int32_t handle)
 {
 	texture_entry* t    = need_texture(handle, "TextureName");
 	const char*    name = t->file ? t->file : "";
-	char*          copy = static_cast<char*>(malloc(strlen(name) + 1));
+	char*          copy = static_cast<char*>(bb_malloc(strlen(name) + 1));
 	strcpy(copy, name);
 	return copy;
 }
@@ -833,7 +834,7 @@ void bb_set_cube_mode(int32_t handle, int32_t mode)
 void bb_clear_texture_filters(void)
 {
 	for (uint32_t i = 0; i < texture_filters.size; i++) {
-		free(texture_filters[i].match);
+		bb_free(texture_filters[i].match);
 	}
 	texture_filters.clear();
 }
@@ -885,7 +886,7 @@ void bb_texture_filter(const char* match, int32_t flags)
 {
 	const char* text   = match ? match : "";
 	size_t      length = strlen(text);
-	char*       lower  = static_cast<char*>(malloc(length + 1));
+	char*       lower  = static_cast<char*>(bb_malloc(length + 1));
 	for (size_t i = 0; i <= length; i++) {
 		char c   = text[i];
 		lower[i] = (c >= 'A' && c <= 'Z') ? char(c + 32) : c;

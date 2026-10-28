@@ -6,6 +6,7 @@
 // font, and the layout that makes them follow the group that they are in.
 
 #include "gui_internal.hpp"
+#include "memory.h"
 
 #include <SDL3/SDL.h>
 
@@ -34,7 +35,7 @@ namespace bb::gui {
 	char* copy_string(const char* s)
 	{
 		size_t length = s ? strlen(s) : 0;
-		char*  out    = static_cast<char*>(malloc(length + 1));
+		char*  out    = static_cast<char*>(bb_malloc(length + 1));
 		if (!out) {
 			bb_runtime_error("Out of memory.");
 		}
@@ -48,7 +49,7 @@ namespace bb::gui {
 	void set_string(char*& field, const char* value)
 	{
 		char* fresh = copy_string(value);
-		free(field);
+		bb_free(field);
 		field = fresh;
 	}
 
@@ -487,18 +488,18 @@ namespace bb::gui {
 		if (active_window() == handle) {
 			set_active_window(0, false);
 		}
-		free(g->text);
+		bb_free(g->text);
 		g->text = nullptr;
 		for (uint32_t i = 0; i < g->items.size; i++) {
-			free(g->items[i].text);
+			bb_free(g->items[i].text);
 		}
 		g->items.release();
 		g->kids.release();
 		g->formats.release();
 		g->tool_enabled.release();
-		free(g->tips);
+		bb_free(g->tips);
 		g->tips = nullptr;
-		free(g->status);
+		bb_free(g->status);
 		g->status = nullptr;
 		if (g->root) {
 			free_node(g->root);
