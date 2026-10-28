@@ -15,7 +15,7 @@ Const W = 128, H = 96
 Graphics3D W, H, 32, 2
 SetBuffer BackBuffer()
 
-camera = CreateCamera()
+Global camera = CreateCamera()
 PositionEntity camera, 0, 2, -3
 RotateEntity camera, 25, 0, 0
 CameraClsColor camera, 0, 0, 0
@@ -25,9 +25,9 @@ CameraFogColor camera, 200, 60, 20
 CameraRange camera, 0.1, 100
 
 ; A bright floor that fades into the fog with the distance.
-floor = CreatePlane()
-EntityFX floor, 1
-EntityColor floor, 40, 40, 40
+Global ground = CreatePlane()
+EntityFX ground, 1
+EntityColor ground, 40, 40, 40
 
 Dim off(H), on(H), again(H)
 
@@ -65,4 +65,30 @@ For y = 0 To H - 1
 Next
 CheckTrue "Dither changes pixels of the gradient", changed > 10
 Check "Dither changes no channel by more than one step", worst, 1
+
+; Colors that 8 bits show exactly get no noise: a GPU can convert the lowest noise (half a step below) to the step below the
+; color, so without fog the picture is the same with Dither 1 as without, for a dark and a bright gray.
+CameraFogMode camera, 0
+Dim without(W, H)
+Function Differing(gray)
+	EntityColor ground, gray, gray, gray
+	Local x, y, n = 0
+	Dither 0
+	RenderWorld
+	For y = 0 To H - 1
+		For x = 0 To W - 1
+			without(x, y) = ReadPixel(x, y, BackBuffer()) And $FFFFFF
+		Next
+	Next
+	Dither 1
+	RenderWorld
+	For y = 0 To H - 1
+		For x = 0 To W - 1
+			If (ReadPixel(x, y, BackBuffer()) And $FFFFFF) <> without(x, y) Then n = n + 1
+		Next
+	Next
+	Return n
+End Function
+Check "An exact dark gray does not change with Dither", Differing(1), 0
+Check "An exact bright gray does not change with Dither", Differing(100), 0
 Done "blitz3d_dither_pixels"
