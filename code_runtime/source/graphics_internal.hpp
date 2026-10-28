@@ -404,6 +404,7 @@ namespace bb::gfx {
 		int             frames = 1;             // More than one for a texture that is a sheet of frames, see LoadAnimTexture.
 		int             frame_w = 0, frame_h = 0; // The size of a frame, if there are frames.
 		int             first_frame = 0;        // The cell of the sheet that is the first frame.
+		int*            delays = nullptr;       // For an animated picture: how long each frame lasts in milliseconds.
 		char*           file = nullptr;         // Where it was loaded from (the full path), for TextureName.
 		int             alias = 0;              // Another handle to the texture of this one (GetBrushTexture), which has all of its state.
 		bool            is_atlas = false;       // Loaded with LoadAtlas, which AtlasTexture makes views of.
@@ -438,6 +439,7 @@ namespace bb::gfx {
 		int             frames = 1, frame_w = 0, frame_h = 0;
 		int             sheet_w = 0, sheet_h = 0;
 		int             first = 0; // Index of the first frame in the sheet.
+		int*            delays = nullptr; // For an animated picture: how long each frame lasts in milliseconds.
 		int             handle_x = 0, handle_y = 0;
 		uint8_t         mask[3] = { 0, 0, 0 };
 		bool            masked  = true;
@@ -961,6 +963,16 @@ namespace bb::gfx {
 	/** Finds the hull of sprites (see sprite_hull_compute) of a picture of compressed blocks, from its first level. */
 	void picture_sprite_hull(picture const& p, int flags, sprite_hull& hull);
 	void free_picture(picture& p);
+	/** An animated picture (GIF, animated WebP or AVIF) with its frames packed into a grid sheet. */
+	struct animation_sheet {
+		picture sheet;
+		int     frames = 0, frame_w = 0, frame_h = 0;
+		int*    delays = nullptr; // malloc'ed, one in milliseconds for each frame.
+	};
+	/** Whether the file starts like a picture that can hold several frames. */
+	bool animation_possible(const uint8_t* data, size_t size);
+	/** Loads frames first..first+count-1 (count below 1 is all of the rest) of an animated file. 1 if it did, 0 if the file is not an animated picture, and -1 if it is but does not have those frames or they do not fit in a texture. */
+	int load_animation_sheet(const char* file, int first, int count, animation_sheet& out);
 	/** Decodes blocks to RGBA, whose rows have no padding. BC4 is grey, and BC5 is a normal map. */
 	void decode_blocks(block_format format, int width, int height, const uint8_t* blocks, uint8_t* rgba);
 	size_t block_bytes(block_format format, int width, int height);
@@ -1112,6 +1124,10 @@ int32_t bb_load_image(const char* file);
 int32_t bb_image_ready(int32_t handle);
 int32_t bb_load_anim_image(const char* file, int32_t frame_w, int32_t frame_h, int32_t first, int32_t count);
 int32_t bb_create_image(int32_t width, int32_t height, int32_t frames);
+int32_t bb_image_frames(int32_t handle);
+int32_t bb_image_frame_delay(int32_t handle, int32_t frame);
+int32_t bb_texture_frames(int32_t handle);
+int32_t bb_texture_frame_delay(int32_t handle, int32_t frame);
 void bb_free_image(int32_t handle);
 int32_t bb_image_width(int32_t handle);
 int32_t bb_image_height(int32_t handle);

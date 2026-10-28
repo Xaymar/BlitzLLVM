@@ -440,6 +440,30 @@ int32_t bb_load_image(const char* file)
 // LoadAnimImage(file, width, height, first, count): a sheet of frames that are width x height.
 int32_t bb_load_anim_image(const char* file, int32_t frame_w, int32_t frame_h, int32_t first, int32_t count)
 {
+	// An animated file with no frame size is its frames, packed into a sheet: the extension of the original.
+	if (file && ((frame_w < 1) || (frame_h < 1))) {
+		animation_sheet animation;
+		int loaded = load_animation_sheet(file, first, count, animation);
+		if (loaded < 0) {
+			return 0;
+		}
+		if (loaded > 0) {
+			int      w = 0, h = 0;
+			uint8_t* pixels = picture_pixels(animation.sheet, w, h);
+			if (!pixels) {
+				bb_free(animation.delays);
+				return 0;
+			}
+			int32_t handle = make_image(w, h, animation.frame_w, animation.frame_h, animation.frames, 0, pixels);
+			bb_free(pixels);
+			if (image_entry* e = image_of(handle)) {
+				e->delays = animation.delays;
+			} else {
+				bb_free(animation.delays);
+			}
+			return handle;
+		}
+	}
 	picture source;
 	if (!file || !load_picture(file, source)) {
 		return 0;
@@ -533,6 +557,19 @@ void bb_free_image(int32_t handle)
 int32_t bb_image_width(int32_t handle)
 {
 	return need_image(handle, "ImageWidth")->frame_w;
+}
+
+// ImageFrames(image): how many frames the image has, which is 1 for one without.
+int32_t bb_image_frames(int32_t handle)
+{
+	return need_image(handle, "ImageFrames")->frames;
+}
+
+// ImageFrameDelay(image, frame): how long the frame of an animated picture lasts in milliseconds, 0 for anything else.
+int32_t bb_image_frame_delay(int32_t handle, int32_t frame)
+{
+	image_entry* e = need_image(handle, "ImageFrameDelay");
+	return (e->delays && (frame >= 0) && (frame < e->frames)) ? e->delays[frame] : 0;
 }
 
 int32_t bb_image_height(int32_t handle)

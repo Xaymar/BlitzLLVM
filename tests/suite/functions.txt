@@ -274,6 +274,8 @@ textureblend	blitz3d	done	TextureBlend%texture%blend
 texturebuffer	blitz3d	done	%TextureBuffer%texture%frame=0
 texturecoords	blitz3d	done	TextureCoords%texture%coords
 texturefilter	blitz3d	done	TextureFilter$match_text%texture_flags=0
+textureframes	blitz3d	done	%TextureFrames%texture
+textureframedelay	blitz3d	done	%TextureFrameDelay%texture%frame
 textureheight	blitz3d	done	%TextureHeight%texture
 texturename	blitz3d	done	$TextureName%texture
 texturewidth	blitz3d	done	%TextureWidth%texture
@@ -401,6 +403,8 @@ handleimage	graphics	done	HandleImage%image%x%y
 hidepointer	graphics	done	HidePointer
 imagebuffer	graphics	done	%ImageBuffer%image%frame=0
 imageheight	graphics	done	%ImageHeight%image
+imageframes	graphics	done	%ImageFrames%image
+imageframedelay	graphics	done	%ImageFrameDelay%image%frame
 imagerectcollide	graphics	done	%ImageRectCollide%image%x%y%frame%rect_x%rect_y%rect_width%rect_height
 imagerectoverlap	graphics	done	%ImageRectOverlap%image%x%y%rect_x%rect_y%rect_width%rect_height
 imagescollide	graphics	done	%ImagesCollide%image1%x1%y1%frame1%image2%x2%y2%frame2
