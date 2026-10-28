@@ -216,21 +216,62 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 	std::vector<operand> operands(total);
 	size_t               offset = (entry->lead && (args == 1) && (total == 2)) ? 1 : 0;
 	for (size_t idx = 0; idx < args; idx++) {
-		operands[idx + offset] = capture(node->arguments[idx].get());
-		given[idx + offset]    = true;
+		if (entry->params[idx + offset] == 'X') {
+			// An Out parameter takes the address of a variable, array element or field to write to.
+			auto const* arg = node->arguments[idx].get();
+			bool        place = dynamic_cast<ast::reference const*>(arg) || dynamic_cast<ast::field_access const*>(arg) || dynamic_cast<ast::index_access const*>(arg);
+			if (auto c = dynamic_cast<ast::call const*>(arg)) {
+				place = find_dim(c->name) != nullptr; // `Dim` arrays are indexed like a call.
+			}
+			auto describe = "Out parameter " + std::to_string(idx + offset + 1) + " of '" + node->name + "'";
+			if (!place) {
+				throw err(arg->where, describe + " needs a variable, array element or field to write to, not a value.");
+			}
+			operand o;
+			o.code = capture_code([&] {
+				auto addr = gen_address(arg, true);
+				if (addr.constant || addr.count) {
+					throw err(arg->where, describe + (addr.constant ? " can't write to a constant." : " can't take a whole array, give it an element."));
+				}
+				if (addr.type != type::FLOAT16) {
+					throw err(arg->where, describe + " has to be given a variable of type Float16, not " + blitz::types::display(addr.type) + ".");
+				}
+				o.v      = value{ addr.pointer, type::STRUCT };
+				o.v.need = addr.need;
+			});
+			operands[idx + offset] = std::move(o);
+		} else {
+			operands[idx + offset] = capture(node->arguments[idx].get());
+		}
+		given[idx + offset] = true;
 	}
 	for (size_t idx = 0; idx < total; idx++) {
 		if (!given[idx]) {
-			auto want       = builtin_type(entry->params[idx]);
-			operands[idx].v = (want == type::STRING) ? zero(want) : constant(want, entry->defaults[idx]);
+			auto want = builtin_type(entry->params[idx]);
+			if (entry->params[idx] == 'X') {
+				operands[idx].v = value{ "null", type::STRUCT };
+			} else {
+				operands[idx].v = (want == type::STRING) ? zero(want) : constant(want, entry->defaults[idx]);
+			}
 			operands[idx].v.need = 1;
 		}
 	}
 	int chain = place_sequence(operands);
 	for (size_t idx = 0; idx < args; idx++) {
+		if (entry->params[idx + offset] == 'X') {
+			values[idx + offset] = operands[idx + offset].v;
+			continue;
+		}
 		auto want            = builtin_type(entry->params[idx + offset]);
 		// Anything can be turned into a string without it being surprising, so only warn for the other direction.
 		values[idx + offset] = convert(operands[idx + offset].v, want, node->arguments[idx]->where, want != type::STRING, std::string(), &node->arguments[idx]->covers);
+		if (entry->params[idx + offset] == 'x') {
+			// A Float16 goes to the runtime as its 16 bits, in a 32 bit number, which every calling convention agrees on.
+			auto bits = tmp(), wide = tmp();
+			emit(bits + " = bitcast half " + values[idx + offset].repr + " to i16");
+			emit(wide + " = zext i16 " + bits + " to i32");
+			values[idx + offset] = value{ wide, type::INT32 };
+		}
 	}
 	for (size_t idx = 0; idx < total; idx++) {
 		if (!given[idx]) {
