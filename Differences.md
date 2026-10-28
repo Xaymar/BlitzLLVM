@@ -29,6 +29,7 @@ Differences that are not caused by one command.
 * [Image formats](Image-Formats): Picture files: TIFF and JPEG 2000 are not read, but WebP, AVIF, JPEG XL, DDS and several other formats are.
 * [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
+* [Lost graphics device](Lost-Graphics-Device): Extension: a graphics device that is lost (a driver crash, a GPU reset) is made again, and a device that keeps getting lost within a few minutes ends the program with an error.
 * [Many lights](Many-Lights): Extension: up to 127 lights can exist in a scene, and each draw is lit by the eight that affect it the most; the original lights everything with the first eight.
 * [Memory](Memory): Extension: programs allocate from the runtime's own allocator, which cuts small blocks out of large spans instead of asking the system for each one; the original uses the Windows heap.
 * [Mip maps](Mip-Maps): Flag 8 textures get trilinear filtered mip chains, and anisotropic filtering can be turned on with a sampler, which the originals could not.
@@ -165,7 +166,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [Graphics3D](Graphics3D#differences): The depth does not pick a video mode, it picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 with half precision floats.
 * [GraphicsDepth](GraphicsDepth#differences): It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these.
 * [GraphicsFormat](GraphicsFormat#differences): Always 4.
-* [GraphicsLost](GraphicsLost#differences): Always 0.
 * [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
 * [HidePointer](HidePointer#differences): BlitzPlus lets the pointer be hidden per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
 * [HostIP](HostIP#differences): Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used.

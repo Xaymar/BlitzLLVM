@@ -17,15 +17,33 @@
 GraphicsLost:Int32
 ```
 
-**Returns:** 1 if the graphics were lost, otherwise 0.
+**Returns:** 1 once after the graphics were lost and made again, then 0 until it happens again. Programs that never draw into images and textures have nothing to do when it is 1.
 
 ## Description
 
-Tells whether the graphics were lost, which happened to the original when another program took over the display. The program then had to draw its images again.
+Tells whether the graphics were lost, which happened to the original when another program took over the display. In BlitzLLVM the graphics are lost when the graphics driver crashes or the GPU is reset; they are made again on their own, and this tells the program that it happened, see [Lost graphics device](Lost-Graphics-Device).
 
-## Differences
+## Examples
 
-* Always 0. Images are kept in video memory that other programs cannot take.
+```blitzbasic
+Graphics 640, 480, 0, 2
+SetBuffer BackBuffer()
+Local shield = CreateImage(32, 32)
+DrawShield shield
+While Not KeyHit(1)
+	Cls
+	DrawImage shield, 100, 100
+	Flip
+	If GraphicsLost() Then DrawShield shield ; Whatever was drawn into the image is gone, draw it again.
+Wend
+
+Function DrawShield(image)
+	SetBuffer ImageBuffer(image)
+	Color 40, 90, 200
+	Oval 0, 0, 32, 32, 1
+	SetBuffer BackBuffer()
+End Function
+```
 
 ## Related Commands
 

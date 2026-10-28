@@ -18,7 +18,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (33)</summary>
+<li><details><summary>Features (34)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -37,6 +37,7 @@
 <li><a href="Image-Formats">Image formats</a></li>
 <li><a href="Language">Language</a></li>
 <li><a href="Large-Meshes">Large Meshes</a></li>
+<li><a href="Lost-Graphics-Device">Lost graphics device</a></li>
 <li><a href="Many-Lights">Many lights</a></li>
 <li><a href="Memory">Memory</a></li>
 <li><a href="Mip-Maps">Mip maps</a></li>
@@ -55,7 +56,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (281)</summary>
+<li><details><summary>Commands (280)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -172,7 +173,6 @@
 <li><a href="Graphics3D#differences">Graphics3D</a></li>
 <li><a href="GraphicsDepth#differences">GraphicsDepth</a></li>
 <li><a href="GraphicsFormat#differences">GraphicsFormat</a></li>
-<li><a href="GraphicsLost#differences">GraphicsLost</a></li>
 <li><a href="Half#differences">Half</a> 〔BlitzLLVM〕</li>
 <li><a href="HidePointer#differences">HidePointer</a></li>
 <li><a href="HostIP#differences">HostIP</a></li>
