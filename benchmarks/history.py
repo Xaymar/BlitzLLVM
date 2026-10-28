@@ -9,7 +9,7 @@ Runs the common benchmarks with one compiler, several times each, and saves the 
 
 Every benchmark is run --runs times (3). The number that is kept is the mean of the runs, with the standard deviation next to it; all
 runs are kept in the JSON file as well, so rows can be compared (benchmarks/history_page.py calls a change real when it is over two standard deviations of the difference
-between neighbouring rows). benchmarks/history/NAME.json is the default output.
+between neighbouring rows). NAME.json in the checkout of the performance-history branch (PERF_HISTORY, default ../performance-history next to the repository) is the default output.
 
 The benchmarks are the ones in this folder, compiled with the compiler that is given, so the compiler of a commit or the original
 Blitz3D (--wine runs the original Blitz3D 1.118 under Wine, tools/original_blitz3d.sh setup installs it):
@@ -46,6 +46,7 @@ import zlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+RESULTS = os.environ.get("PERF_HISTORY", os.path.join(os.path.dirname(ROOT), "performance-history"))  # a checkout of the performance-history branch
 WINE_HOME = os.environ.get("B3D_ORIG_HOME", "/opt/b3d")
 QUICK = False  # --quick: the short set for every commit (no Stranded II compile, a smaller emitted-code run)
 
@@ -459,7 +460,7 @@ def main():
     if not args.blitzcc and not args.wine:
         sys.exit("Give --blitzcc or --wine.")
     compiler = Compiler(os.path.abspath(args.blitzcc) if args.blitzcc else None, args.wine)
-    out = args.out or os.path.join(HERE, "history", args.label + ".json")
+    out = args.out or os.path.join(RESULTS, args.label + ".json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     record = {"label": args.label, "rev": args.rev, "date": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
               "compiler": compiler.version, "runs": args.runs, "machine": machine(args.wine), "benchmarks": {}}

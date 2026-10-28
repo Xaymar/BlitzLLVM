@@ -12,14 +12,14 @@ The programs in `original/` run in the original BlitzBasic / Blitz3D as well and
 == history: the numbers of the Performance History wiki page
 
 `history.py` runs the common benchmarks with one compiler, 10 times each, drops the best and the worst run of every number and averages the other 8. It saves
-the runs in `benchmarks/history/<label>.json`. The programs are always the ones of the latest `root`, built with the compiler of the commit in question, so
+the runs in `<label>.json` in a checkout of the `performance-history` branch (`PERF_HISTORY`, default `../performance-history`). The programs are always the ones of the latest `root`, built with the compiler of the commit in question, so
 every compiler runs the same program (a compiler that can not build the BlitzLLVM include of a benchmark uses the original's, which counts in milliseconds).
 
 [source,sh]
 ----
 python3 benchmarks/history.py --blitzcc /path/to/blitzcc --label r31-pr123-name --rev <commit>   # BlitzLLVM
 python3 benchmarks/history.py --wine --label r00-original                                        # the original Blitz3D 1.118 under Wine
-python3 benchmarks/history_page.py                                                               # writes tools/wiki/pages/Performance-History.md
+python3 benchmarks/history_page.py                                                               # writes Performance-History.md there
 ----
 
 The sections of the page and what feeds them:
