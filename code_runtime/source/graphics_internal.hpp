@@ -318,6 +318,7 @@ namespace bb::gfx {
 		bool                  can_wireframe  = false;
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
+		bool                  can_blend_dither  = false; // The extensions that let the fragment shader blend are on.
 		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
 		VmaAllocation         scene_allocation = VK_NULL_HANDLE;
@@ -781,6 +782,8 @@ namespace bb::gfx {
 	gpu_image* apply_gamma(gpu_image& front);
 	/** Fourth value of scene_data::projection: 0 when Dither is off, else 1 plus the shift of the noise of the picture that is made now. */
 	float dither_code();
+	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader. */
+	int dither_level();
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
@@ -802,6 +805,7 @@ namespace bb::gfx {
 		int      rank;     // 4 discrete, 3 integrated, 2 virtual, 1 software or other, 0 cannot be used.
 		bool     usable;   // Does Vulkan 1.3 and can draw.
 		bool     fallback; // Not a real GPU: there is no window system or Vulkan driver to ask.
+		bool     blend_dither; // Can blend in the fragment shader, which is what makes Dither 2 possible (see can_blend_in_shader).
 	};
 	extern gpu_entry gpus[max_gpus];
 	extern uint32_t  gpu_total;
