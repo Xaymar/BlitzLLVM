@@ -19,6 +19,10 @@ The original [SaveBuffer](SaveBuffer) and [SaveImage](SaveImage) only wrote BMP 
 
 AVIF can be read but not written: the AV1 encoder is the biggest part of an AVIF library and would about double the size of every program, which is why it is left out of the build. Convert to WebP or JPEG XL instead.
 
+The same 640x360 screenshot (921,738 bytes as BMP), cut to the area that shows the differences and saved with different settings, then loaded again. Lossless files are the same as the original, the lossy ones lose detail where it is sharp (JPEG at quality 40 shows blocks and smeared colors):
+
+![The same picture saved as PNG, JPEG, WebP and JPEG XL with different settings](media/saving/formats.png)
+
 ## Settings
 
 The settings are one text of `name=value` pairs, separated by commas, semicolons or spaces. Names are not case sensitive, and a name without a value (`progressive`) means `=1`. A setting that the format of the file does not use is ignored, so one text can be used for several files. A name that does not exist or a value that is not allowed is reported once on the console and ignored, the rest still counts.
