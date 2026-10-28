@@ -628,6 +628,42 @@ Function AddBlob(s, cx#, y#, cz#, rad#, h#, segs, r, g, b)
 	Next
 End Function
 
+; The wind moves the leaves and the thin branches of the trees (a thick branch, or the trunk, stays where it is). The trees are copies of nine templates that share their mesh, so a template sways
+; as a whole: while a template is made, every vertex that moves is written down here (the surface it is in, its number, where it is, and how much it moves, 0 to 1). Dim arrays have to be
+; declared in the main program for the original Blitz3D, so they are here, before the functions that fill them.
+Const SWAYMAX = 400000
+Dim SwSurf(SWAYMAX)
+Dim SwIdx(SWAYMAX)
+Dim SwX#(SWAYMAX)
+Dim SwY#(SWAYMAX)
+Dim SwZ#(SWAYMAX)
+Dim SwW#(SWAYMAX)
+Dim TplFirst(8)
+Dim TplCount(8)
+Global SwayN = 0
+Global CurTpl = 0
+Global SwayOn = 1
+
+; How much a place on a tree moves: nothing at the trunk, more further out and higher up.
+Function Flex#(x#, y#, z#)
+	f# = (Sqr(x * x + z * z) - 0.2) / 2.2 + (y - 2.0) * 0.03
+	If f < 0 Then f = 0
+	If f > 1 Then f = 1
+	Return f
+End Function
+
+Function SwayAdd(sf, idx, x#, y#, z#, w#)
+	If CurTpl > 0 And SwayOn = 1 And w > 0.02 And SwayN < SWAYMAX Then
+		SwSurf(SwayN) = sf
+		SwIdx(SwayN) = idx
+		SwX(SwayN) = x
+		SwY(SwayN) = y
+		SwZ(SwayN) = z
+		SwW(SwayN) = w
+		SwayN = SwayN + 1
+	EndIf
+End Function
+
 ; One leaf: a card of 2 x sz with one of the four leaf shapes of the leaf texture (cell 0 to 3), one face (the leaf mesh is drawn with culling off). The stem of the leaf is at
 ; (ax, ay, az), the leaf grows from there in direction (ux, uy, uz) (its length is 2 x sz x 0.88) and its blade is wide in direction (vx, vy, vz), both unit vectors at right angles.
 ; It is lit as if it faced away from the middle of the crown (nx, ny, nz) so that the crown shades as a whole.
@@ -645,6 +681,7 @@ Function AddLeaf(s, ax#, ay#, az#, ux#, uy#, uz#, vx#, vy#, vz#, sz#, nx#, ny#, 
 	For k = 0 To 3
 		VertexNormal s, base + k, nx, ny, nz
 		VertexColor s, base + k, r, g, b
+		SwayAdd s, base + k, VertexX(s, base + k), VertexY(s, base + k), VertexZ(s, base + k), Flex(cx, cy, cz)
 	Next
 	AddTriangle s, base, base + 3, base + 1
 	AddTriangle s, base + 1, base + 3, base + 2
@@ -774,12 +811,14 @@ End Function
 
 ; The trunk, in 9 pieces from a little under the ground up to height h, rb thick at the bottom and rt at the top.
 Function AddTrunk(s, h#, rb#, rt#)
+	SwayOn = 0
 	For i = 0 To 8
 		y0# = h * i / 9
 		y1# = h * (i + 1) / 9
 		If i = 0 Then y0 = -0.25
 		AddBranch s, TrunkOX(y0), y0, TrunkOZ(y0), TrunkOX(y1), y1, TrunkOZ(y1), TrunkR(y0, h, rb, rt), TrunkR(y1, h, rb, rt), 8
 	Next
+	SwayOn = 1
 End Function
 
 ; A branch that branches: a tube from (x, y, z) in direction (dx, dy, dz) for length, rad thick, down to depth 0. The branch is not straight: it is three pieces, each bent a little from the one before, and it
@@ -875,6 +914,8 @@ End Function
 ; branching twice more) and 2 a birch (a slim trunk with thin boughs that go up and branch once). variant shifts the colors. The mesh is the trunk and the branches, with a second mesh as its
 ; child that holds the leaf cards, which sit on the twigs (leaves is how many cards a twig has).
 Function MakeTree(kind, variant, leaves)
+	CurTpl = kind * 3 + variant + 1
+	TplFirst(kind * 3 + variant) = SwayN
 	m = CreateMesh()
 	s = CreateSurface(m)
 	lm = CreateMesh(m)
@@ -924,6 +965,8 @@ Function MakeTree(kind, variant, leaves)
 	EndIf
 	EntityFX lm, 2 + 16
 	EntityTexture lm, leaftexture
+	TplCount(kind * 3 + variant) = SwayN - TplFirst(kind * 3 + variant)
+	CurTpl = 0
 	Return m
 End Function
 
@@ -1798,6 +1841,21 @@ For f = 0 To warmup + frames - 1
 			gust# = tfh(i) * 0.07 * Sin(g * 2.1 + gx * 4 - gz * 3)
 			VertexCoords tfsurf(i), tftip(i), gx + gust + amp, tfy(i), gz + amp * 0.5
 		EndIf
+	Next
+
+	; The wind moves the leaves and thin branches of the trees: a slow sway with a flutter on top, a little different for each template.
+	For tp = 0 To 8
+		ph# = tp * 47.0
+		For n = TplFirst(tp) To TplFirst(tp) + TplCount(tp) - 1
+			sx# = SwX(n)
+			sy# = SwY(n)
+			sz2# = SwZ(n)
+			w# = SwW(n)
+			wdx# = w * (0.07 * Sin(g * 2.2 + ph + sx * 25) + 0.03 * Sin(g * 6.1 + sy * 40 + sz2 * 31))
+			wdz# = w * (0.05 * Sin(g * 1.9 + ph * 1.3 + sz2 * 27) + 0.03 * Sin(g * 5.3 + sx * 37))
+			wdy# = w * 0.02 * Sin(g * 3.1 + ph + sx * 20)
+			VertexCoords SwSurf(n), SwIdx(n), sx + wdx, sy + wdy, sz2 + wdz
+		Next
 	Next
 
 	; The torch flickers.
