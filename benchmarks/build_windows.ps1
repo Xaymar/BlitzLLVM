@@ -20,6 +20,11 @@ $ErrorActionPreference = "Continue"  # cmake and git write progress to stderr, w
 New-Item -ItemType Directory -Force $Out | Out-Null
 $log = Join-Path $Out "build.log"
 cmake -S . -B $Build -G "Visual Studio 18 2026" -A x64 -DBLITZLLVM_REQUIRE_NASM=ON *> $log
+if ($LASTEXITCODE -ne 0 -and (Select-String -Path $log -Pattern "did not install the licenses" -Quiet)) {
+    # The dependencies of the kept build folder were made without something that this commit adds (Opus, for example): build them again, once.
+    Remove-Item -Recurse -Force (Join-Path $Build "ExternalContentFiles") -ErrorAction SilentlyContinue
+    cmake -S . -B $Build -G "Visual Studio 18 2026" -A x64 -DBLITZLLVM_REQUIRE_NASM=ON *>> $log
+}
 if ($LASTEXITCODE -ne 0) { exit 2 }
 cmake --build $Build --config Release *>> $log
 if ($LASTEXITCODE -ne 0) { exit 2 }
