@@ -364,11 +364,12 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
-	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false, bool shader_blend = false)
+	// The twin for a buffer that is not RGBA8 blends by the fixed function: fs_plain is the shader for that (fs when it is not given).
+	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false, bool shader_blend = false, VkShaderModule fs_plain = VK_NULL_HANDLE)
 	{
 		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM, shader_blend);
 		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
-			add_pipeline_twin(pipeline, build_pipeline_3d(vs, fs, mode, wire, g.buffer_format, shader_blend));
+			add_pipeline_twin(pipeline, build_pipeline_3d(vs, (shader_blend && fs_plain) ? fs_plain : fs, mode, wire, g.buffer_format, false));
 		}
 		return pipeline;
 	}
@@ -707,13 +708,13 @@ namespace bb::gfx {
 		VkShaderModule fs_blend     = shader_blend ? (blend_interlock() ? create_shader(bb_shader_fragment_3d_blend_interlock, sizeof(bb_shader_fragment_3d_blend_interlock)) : create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend))) : fs;
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
 		g.solid3d         = create_pipeline_3d(vs, fs_solid, 0);
-		g.blend3d         = create_pipeline_3d(vs, fs_blend, 1, false, shader_blend);
-		g.mul3d           = create_pipeline_3d(vs, fs_blend, 2, false, shader_blend);
-		g.add3d           = create_pipeline_3d(vs, fs_blend, 3, false, shader_blend);
-		g.mul2x3d         = create_pipeline_3d(vs, fs_blend, 4, false, shader_blend);
+		g.blend3d         = create_pipeline_3d(vs, fs_blend, 1, false, shader_blend, fs);
+		g.mul3d           = create_pipeline_3d(vs, fs_blend, 2, false, shader_blend, fs);
+		g.add3d           = create_pipeline_3d(vs, fs_blend, 3, false, shader_blend, fs);
+		g.mul2x3d         = create_pipeline_3d(vs, fs_blend, 4, false, shader_blend, fs);
 		if (g.can_wireframe) {
 			for (int mode = 0; mode < 4; mode++) {
-				g.wire3d[mode] = create_pipeline_3d(vs, (mode != 0) ? fs_blend : fs, mode, true, shader_blend && (mode != 0));
+				g.wire3d[mode] = create_pipeline_3d(vs, (mode != 0) ? fs_blend : fs, mode, true, shader_blend && (mode != 0), fs);
 			}
 		}
 		vkDestroyShaderModule(g.device, vs, nullptr);
@@ -906,7 +907,7 @@ namespace bb::gfx {
 		record_culling(scene);
 		// With Dither 2, blended things are blended by their shader, which reads the target while it is drawn to.
 		bool shader_blends = false;
-		if (dither_level() == 2) {
+		if ((dither_level() == 2) && blends_in_shader(target.image->format)) {
 			for (uint32_t i = 0; i < scene.draw_count; i++) {
 				VkPipeline pipeline = draws[scene.first_draw + i].pipeline;
 				if ((pipeline != g.opaque3d) && (pipeline != g.solid3d) && (pipeline != g.wire3d[0])) {
@@ -1027,16 +1028,6 @@ namespace bb::gfx {
 
 			if (interlock) {
 				bool blended = (d.pipeline != g.opaque3d) && (d.pipeline != g.solid3d) && (d.pipeline != g.wire3d[0]);
-				if (blended && (target.image->format != VK_FORMAT_R8G8B8A8_UNORM)) {
-					// The storage image the shader writes is RGBA8, so what is not blended into such a target is left out.
-					static bool told = false;
-					if (!told) {
-						told = true;
-						fprintf(stderr, "Dither 2 can not blend into a target that is not RGBA8 with the pixel interlock, so blended drawing is skipped there.\n");
-					}
-					i += instances;
-					continue;
-				}
 				if (blended != storage_mode) {
 					vkCmdEndRendering(g.cmd);
 					transition(*target.image, blended ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);

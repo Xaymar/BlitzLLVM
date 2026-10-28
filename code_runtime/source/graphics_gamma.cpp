@@ -124,7 +124,13 @@ namespace bb::gfx {
 	// Dither 2 with a storage image and a pixel interlock, for the GPUs that lack local read and rasterization order access.
 	bool blend_interlock()
 	{
-		return g.can_interlock && !g.can_blend_dither && (g.buffer_format == VK_FORMAT_R8G8B8A8_UNORM); // The storage image is RGBA8.
+		return g.can_interlock && !g.can_blend_dither;
+	}
+
+	bool blends_in_shader(VkFormat target)
+	{
+		// Only targets of 8 bits per color blend in the shader (alpha is not counted); the buffers of 10 and 16 bits keep the fixed function, as Dither 1.
+		return (target == VK_FORMAT_R8G8B8A8_UNORM) || (target != g.buffer_format);
 	}
 
 	int dither_level()
