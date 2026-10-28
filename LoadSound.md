@@ -32,7 +32,7 @@ The example writes a short beep as `beep.wav` first, so that it needs no other f
 ## Differences
 
 * MIDI , module and Windows Media files are not supported.
-* Without a sound device (or with the environment variable `BLITZ_HEADLESS` set) a file that exists still gives a handle, but nothing is played and the play commands return channel 0.
+* Without a sound device (or with the environment variable `BLITZLLVM_HEADLESS` set) a file that exists still gives a handle, but nothing is played and the play commands return channel 0.
 
 ## Examples
 

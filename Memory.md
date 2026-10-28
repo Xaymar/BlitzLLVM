@@ -35,9 +35,9 @@ These environment variables are read when the program starts:
 |===
 | Variable | Effect
 
-| `BLITZ_ALLOC_DEBUG=1` | Freed blocks are filled with a pattern; a block that is written to after it was freed, or freed twice, stops the program with a message when it is reused or freed. New blocks are filled with another pattern, so reading what was never written stands out. The blocks that were not freed are reported when the program ends. Slower.
-| `BLITZ_ALLOC_STATS=1` | Counts the blocks and bytes that were not freed and reports them at the end.
-| `BLITZ_ALLOC_SYSTEM=1` | Everything goes to the system allocator, for tools that watch it (valgrind, AddressSanitizer, heap profilers).
+| `BLITZLLVM_DEBUG_ALLOC=1` | Freed blocks are filled with a pattern; a block that is written to after it was freed, or freed twice, stops the program with a message when it is reused or freed. New blocks are filled with another pattern, so reading what was never written stands out. The blocks that were not freed are reported when the program ends. Slower.
+| `BLITZLLVM_DEBUG_ALLOC_STATS=1` | Counts the blocks and bytes that were not freed and reports them at the end.
+| `BLITZLLVM_ALLOC_SYSTEM=1` | Everything goes to the system allocator, for tools that watch it (valgrind, AddressSanitizer, heap profilers).
 |===
 
 The blocks that are reported at the end include the ones the C++ library keeps for the whole run, so a few dozen are normal.

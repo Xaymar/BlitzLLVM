@@ -10,6 +10,6 @@
 * The program sees only the size it asked for: `GraphicsWidth`, `GraphicsHeight`, `ReadPixel`, `GrabImage` and `SaveBuffer` use the picture, and never the black bars or the size of the display.
 * `MouseX`, `MouseY`, `MouseXSpeed`, `MouseYSpeed`, `MoveMouse` and the gadgets and dialogs of BlitzPlus use the coordinates of the picture. The mouse over a black bar is at the nearest edge of the picture.
 * A picture that is larger than the display is made smaller to fit it.
-* The picture is not scaled with smoothing when its size is a whole number times the size you asked for, so pixel art stays sharp. Other sizes are smoothed. The environment variable `BLITZ_FULLSCREEN_FILTER` can be `nearest` or `linear` to choose, and `BLITZ_FULLSCREEN_SCALE` can be `integer` to only make the picture larger by whole numbers (the black bars are then larger).
+* The picture is not scaled with smoothing when its size is a whole number times the size you asked for, so pixel art stays sharp. Other sizes are smoothed. The environment variable `BLITZLLVM_FULLSCREEN_FILTER` can be `nearest` or `linear` to choose, and `BLITZLLVM_FULLSCREEN_SCALE` can be `integer` to only make the picture larger by whole numbers (the black bars are then larger).
 * Windows (modes 0, 2, 3 and 4) are not changed. A resizable window (mode 3) still scales the picture to the whole window.
 * The display modes in `GfxModeExists` and `GfxMode3DExists` are not used for the window. Any size is allowed, and the video mode of the display never changes, so Alt-Tab is instant and the desktop is not rearranged.

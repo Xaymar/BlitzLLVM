@@ -10,6 +10,7 @@
 <li><a href="Installation">Installation</a></li>
 <li><a href="Building">Building</a></li>
 <li><a href="Language-Quirks">Language Quirks</a></li>
+<li><a href="Environment-Variables">Environment variables</a></li>
 <li><a href="Releasing">Releasing</a></li>
 <li><a href="Spatial-Grid">Spatial grid</a></li>
 </ul>

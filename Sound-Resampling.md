@@ -5,4 +5,4 @@
 # Sound resampling
 
 
-The original played sounds through FMOD, which brings them to the rate of the sound device with linear interpolation. That leaves mirror images of the sound above its own bandwidth, which makes sounds with a low rate (11025 Hz files like the rain of Stranded II) bright and crisp, and takes a little off the top of the rest. SDL_mixer resamples cleanly, so the same files sound duller. Set the environment variable `BLITZ_AUDIO_CLASSIC` (to anything) before the program starts to do what the original did. Pitch and looping are the same either way.
+The original played sounds through FMOD, which brings them to the rate of the sound device with linear interpolation. That leaves mirror images of the sound above its own bandwidth, which makes sounds with a low rate (11025 Hz files like the rain of Stranded II) bright and crisp, and takes a little off the top of the rest. SDL_mixer resamples cleanly, so the same files sound duller. Set the environment variable `BLITZLLVM_LEGACY_AUDIO_RESAMPLING` to `1` before the program starts to do what the original did. Pitch and looping are the same either way.

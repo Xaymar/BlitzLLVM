@@ -40,7 +40,7 @@ Differences that are not caused by one command.
 * [Presentation sync](Presentation-Sync): Extension: `Flip 2` syncs the picture with the display without making the program wait.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
 * [Saving pictures](Saving-Pictures): Extension: [SaveBuffer](SaveBuffer), [SaveImage](SaveImage) and the new [SaveTexture](SaveTexture) write PNG, JPEG, WebP, JPEG XL, TGA and BMP files with settings, mark them as made by the program, and can encode on another thread with [AsyncSaving](AsyncSaving).
-* [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZ_AUDIO_CLASSIC` restores the FMOD sound.
+* [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZLLVM_LEGACY_AUDIO_RESAMPLING` restores the FMOD sound.
 * [Sprite depth fade](Sprite-Depth-Fade): Extension: `SpriteDepthFade` fades see-through sprites out where they get close to solid geometry (soft particles); the original has no such command.
 * [Sprite shapes](Sprite-Shapes): Sprites with a round or cut-out texture are drawn as the smallest octagon that the texture can be seen in, not as a square; the picture is the same within one level of a color.
 * [Types everywhere](Types): Extension: `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double` work everywhere a type can be written.
