@@ -1050,10 +1050,7 @@ namespace bb::gfx {
 	// (rasterization order attachment access), and a fifth set of descriptors can be bound. BLITZLLVM_BLEND_DITHER=0 says no, for comparing.
 	bool can_blend_in_shader(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
 	{
-		const char* off      = getenv("BLITZ_NO_BLEND_DITHER");
-		const char* no_local = getenv("BLITZ_NO_LOCAL_READ_DITHER");
-		if ((off && off[0] && (off[0] != '0')) || (no_local && no_local[0] && (no_local[0] != '0')) || (props.limits.maxBoundDescriptorSets < 5)) {
-		if (!bb_env_bool("BLITZLLVM_BLEND_DITHER", true) || (props.limits.maxBoundDescriptorSets < 5)) {
+		if (!bb_env_bool("BLITZLLVM_BLEND_DITHER", true) || !bb_env_bool("BLITZLLVM_DITHER_LOCAL_READ", true) || (props.limits.maxBoundDescriptorSets < 5)) {
 			return false;
 		}
 		uint32_t count = 0;
@@ -1079,12 +1076,10 @@ namespace bb::gfx {
 
 	// The other way to blend in the fragment shader, for the GPUs that lack the two extensions above: the shader reads and writes the
 	// target as a storage image inside a pixel interlock (VK_EXT_fragment_shader_interlock), which keeps the draws that touch a pixel in
-	// order. BLITZ_NO_INTERLOCK_DITHER=1 says no, and so does BLITZ_NO_BLEND_DITHER=1, for comparing.
+	// order. BLITZLLVM_DITHER_INTERLOCK=0 says no, and so does BLITZLLVM_BLEND_DITHER=0, for comparing.
 	bool can_interlock_in_shader(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
 	{
-		const char* off     = getenv("BLITZ_NO_BLEND_DITHER");
-		const char* no_lock = getenv("BLITZ_NO_INTERLOCK_DITHER");
-		if ((off && off[0] && (off[0] != '0')) || (no_lock && no_lock[0] && (no_lock[0] != '0')) || (props.limits.maxBoundDescriptorSets < 5)) {
+		if (!bb_env_bool("BLITZLLVM_BLEND_DITHER", true) || !bb_env_bool("BLITZLLVM_DITHER_INTERLOCK", true) || (props.limits.maxBoundDescriptorSets < 5)) {
 			return false;
 		}
 		uint32_t count = 0;

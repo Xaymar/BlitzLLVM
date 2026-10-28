@@ -2179,10 +2179,8 @@ namespace bb::gfx {
 			// same smaller shape, which has less to fill in and is no pixel different. Anything that changes where the texture is
 			// (frames, other layers, scaling, turning, generated coordinates) or has a mesh of its own keeps the square.
 			surface_gpu* shape = gpu;
-			static const bool hulls = !getenv("BLITZ_NO_SPRITE_HULL");
-			if (hulls && e->sprite_mode && sprite_pixels >= sprite_hull_min_pixels && texture && texture->hull.valid && texture->set && !paint.texture && surface.vertices.size == 4 && !(texture_handle & ~bb::texture_handle_mask) && texture->frames == 1 && texture->frame_w == 0 && !texture->atlas
 			static const bool hulls = bb_env_bool("BLITZLLVM_SPRITE_HULL", true);
-			if (hulls && e->sprite_mode && sprite_pixels >= sprite_hull_min_pixels && texture && texture->hull.valid && texture->set && !paint.texture && surface.vertices.size == 4 && !(texture_handle & ~bb::texture_handle_mask) && texture->frames == 1 && texture->frame_w == 0
+			if (hulls && e->sprite_mode && sprite_pixels >= sprite_hull_min_pixels && texture && texture->hull.valid && texture->set && !paint.texture && surface.vertices.size == 4 && !(texture_handle & ~bb::texture_handle_mask) && texture->frames == 1 && texture->frame_w == 0 && !texture->atlas
 				&& texture->uv[0] == 1 && texture->uv[1] == 1 && texture->uv[2] == 0 && texture->uv[3] == 0 && texture->rotation == 0 && !(texture->flags & (64 | 128))) {
 				bool layered = false;
 				for (int layer = 0; layer < 7; layer++) {

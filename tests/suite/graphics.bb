@@ -180,7 +180,7 @@ SetFont font
 FreeFont font
 Check "FreeFont while in use", FontHeight(), 8
 FreeFont second
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then FreeFont 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then FreeFont 0
 suite_checks = suite_checks + 1
 
 ; Handles, and which rectangles touch. An image is drawn with its handle at the position it is given.
@@ -310,7 +310,7 @@ Check "Stats3D other", Stats3D(5), 0
 movie = OpenMovie("suite_does_not_exist.avi")
 Check "OpenMovie", movie, 0
 ; A debug build (-d) stops the program at a command that is given the 0 of a movie that could not be opened, see tests/suite/fail.
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then
 	Check "MovieWidth", MovieWidth(movie), 0
 	Check "MovieHeight", MovieHeight(movie), 0
 	Check "MoviePlaying", MoviePlaying(movie), 0

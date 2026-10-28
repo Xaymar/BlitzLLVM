@@ -5,13 +5,13 @@
 ; is skipped without one. A build without -d does nothing (a read gives 0), and a debug build stops with an error (tests/suite/fail/pixel_fast_*).
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_pixel_fast_unlocked_pixels: skipped, there is no window."
 	End
 EndIf
 
 ; The debug build is the one that stops, and the programs in fail/ look at that.
-If GetEnv$("BLITZ_SUITE_DEBUG") <> "" Then End
+If GetEnv$("BLITZLLVM_TEST_DEBUG") <> "" Then End
 
 Graphics 64, 48, 32, 2
 SetBuffer BackBuffer()

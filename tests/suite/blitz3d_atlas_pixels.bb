@@ -6,7 +6,7 @@
 ; mix in the neighbouring tile at every edge if the views did not keep half a texel away from it.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_atlas_pixels: skipped, there is no window."
 	End
 EndIf
@@ -95,7 +95,7 @@ For mips = 0 To 8 Step 8
 
 	; The atlas can go while its views are still used, which keep the picture.
 	FreeTexture atlas
-	If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then Check "A freed atlas has no width", TextureWidth(atlas), 0
+	If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then Check "A freed atlas has no width", TextureWidth(atlas), 0
 	Check "A view outlives its atlas", Wrong(green, 0, 255, 0), 0
 	Check "The width of a view outlives its atlas", TextureWidth(green), 32
 	FreeTexture red

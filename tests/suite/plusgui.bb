@@ -347,7 +347,7 @@ FreeGadget pn
 FreeGadget tab
 FreeGadget plain
 FreeGadget win
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then FreeGadget 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then FreeGadget 0
 
 ; Requesters that have nobody to ask give nothing.
 CheckFalse "RequestColor without a window", RequestColor(10, 20, 30)

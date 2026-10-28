@@ -94,7 +94,7 @@ CheckTrue "ResumeTimer", TimerTicks(timer) > ticks
 ResetTimer timer
 CheckTrue "ResetTimer", TimerTicks(timer) <= 1
 FreeTimer timer
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then FreeTimer 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then FreeTimer 0
 slow = CreateTimer(2)
 Delay 600
 Check "Slow timer ticks", WaitTimer(slow), 1

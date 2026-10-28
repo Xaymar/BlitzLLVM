@@ -73,7 +73,7 @@ Check "Saving without threads is done at once", SavesPending(), 0
 Check "The file is there at once", Differs(unique + "sync.png"), 0
 
 ; A debug build ignores AsyncSaving and saves on the spot, so that a failing save is reported by the call that asked for it.
-If GetEnv$("BLITZ_SUITE_DEBUG") <> "" Then
+If GetEnv$("BLITZLLVM_TEST_DEBUG") <> "" Then
 	AsyncSaving True
 	Check "A debug build saves on the spot", SaveBuffer(FrontBuffer(), unique + "debug.png"), 1
 	Check "A debug build has nothing pending", SavesPending(), 0
