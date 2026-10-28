@@ -17,6 +17,7 @@
 #include "memory.h"
 #include "scene_internal.hpp"
 #include "runtime_internal.h"
+#include "handle_check.h"
 
 using namespace bb;
 using namespace bb::scene;
@@ -654,6 +655,9 @@ void bb_entity_fx(int32_t handle, int32_t fx)
 void bb_entity_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index)
 {
 	entity* e = need(handle, "EntityTexture");
+	if (texture && !bb_texture_exists(texture)) { // A 0 takes the texture off.
+		BB_DEBUG_HANDLE_MISSING("EntityTexture", "texture", texture);
+	}
 	if (texture && (frame > 0)) {
 		texture |= frame << texture_frame_shift;
 	}
