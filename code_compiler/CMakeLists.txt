@@ -233,6 +233,11 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 		endif()
 		# The Release and the Debug run of a program use the same files in tests/suite (suite_tmp_*) and ports, so they take turns.
 		set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY RESOURCE_LOCK "suite-${_NAME}")
+		if(_NAME STREQUAL "blitz3d_dither_blend_pixels" AND BLITZ_TEST_GPU)
+			# Again without the local read extensions, which is how the pixel interlock gets used where it is there.
+			add_test(NAME "${_PREFIX}-run-${_NAME}-interlock" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
+			set_tests_properties("${_PREFIX}-run-${_NAME}-interlock" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite;gpu" ENVIRONMENT "BLITZ_SUITE_PROGRAM=${_EXE};BLITZ_NO_LOCAL_READ_DITHER=1" RESOURCE_LOCK "suite-${_NAME}")
+		endif()
 		if(_NAME STREQUAL "network" OR _NAME STREQUAL "multiplayer")
 			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY RESOURCE_LOCK "suite-network-ports")
 		endif()
