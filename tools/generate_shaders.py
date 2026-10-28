@@ -25,6 +25,7 @@ OP = dict(
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstant=50,
     Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
     IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
+    FOrdEqual=180, FOrdLessThanEqual=188, LogicalOr=166, DPdx=207, DPdy=208,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
@@ -338,11 +339,14 @@ GLSL_FABS, GLSL_POW, GLSL_STEP = 4, 26, 48
 GLSL_FLOOR, GLSL_FRACT = 8, 10
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
 GLSL_SQRT, GLSL_FMIN = 31, 37
+GLSL_EXP2, GLSL_LOG2, GLSL_FMIX = 29, 30, 46
 
 
 # The lights of a camera that entities pick eight of (max_lights in graphics_internal.hpp), after the rest of the block.
 MAX_LIGHTS = 128
 SCENE_LIGHTS = 176
+# Members of the entity_push of graphics_internal.hpp (all vec4): 3 rows of the model, material, params, uv, mask, extra, texgen, lights, soft, and three for the views of atlases.
+ENTITY_MEMBERS = 14
 
 
 def declare_scene(b):
@@ -379,11 +383,11 @@ def declare_entities(b, set_index=2):
     Returns the variable of the buffer.
     """
     v4 = b.vec(4)
-    entity = b.struct("entity", v4, v4, v4, v4, v4, v4, v4, v4, v4, v4, v4)
-    for index in range(11):
+    entity = b.struct("entity", *([v4] * ENTITY_MEMBERS))
+    for index in range(ENTITY_MEMBERS):
         b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
     entities = b.new_type("entities", "TypeRuntimeArray", entity)
-    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], 176))
+    b.m.annotations.append(Module.inst("Decorate", entities, DECORATION["ArrayStride"], ENTITY_MEMBERS * 16))
     block = b.struct("entity_block", entities)
     b.m.annotations += [
         Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
@@ -464,6 +468,7 @@ def vertex_shader_3d():
     in_instance = b.variable("Input", b.int(), [(DECORATION["BuiltIn"], BUILTIN_INSTANCE_INDEX)])
     out_mask = b.variable("Output", b.vec(4), [(DECORATION["Location"], 6), (DECORATION["Flat"],)])
     out_soft = b.variable("Output", b.vec(4), [(DECORATION["Location"], 8), (DECORATION["Flat"],)])
+    out_views = [b.variable("Output", b.vec(4), [(DECORATION["Location"], 9 + k), (DECORATION["Flat"],)]) for k in range(3)]  # Views of atlases, see view_sample.
 
     # Inputs and outputs
     in_pos = b.variable("Input", v3, [(DECORATION["Location"], 0)])
@@ -487,13 +492,15 @@ def vertex_shader_3d():
     out_vertex = b.variable("Output", per_vertex)
 
     main, label = b.m.id(), b.m.id()
-    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft))
+    b.m.header.append(Module.inst("EntryPoint", 0, main, string_words("main"), in_pos, in_normal, in_uv, in_color, in_uv2, out_uv, out_color, out_depth, out_color_flat, out_spec, out_spec_flat, out_vertex, in_instance, out_mask, out_dir, out_soft, *out_views))
     b.m.names.append(Module.inst("Name", main, string_words("main")))
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
     instance = b.load(b.int(), in_instance)
     b.store(out_mask, entity_member(b, entities, instance, 6))
     b.store(out_soft, entity_member(b, entities, instance, 10))
+    for k in range(3):
+        b.store(out_views[k], entity_member(b, entities, instance, 11 + k))
 
     def push_member(index):
         return entity_member(b, entities, instance, index)
@@ -627,6 +634,117 @@ def vertex_shader_3d():
 
 
 
+def view_sample(b, image, uv, ddx, ddy, v0, v1, v2):
+    """
+    What a view of an atlas reads (a tile that AtlasTexture or the runtime made, see texture_view in graphics_textures.cpp), the way a
+    sampler would if it could wrap and mip inside a rectangle of an image: the tile is the rectangle (v0: x, y, width, height in texels of
+    the first level, aligned so that level k is at the position divided by 2^k), the coordinates are the ones of the tile (0 to 1 is the
+    tile), and the settings of the texture are in the other two values:
+      v1.x = address mode of u (0 repeat, 1 mirror, 2 clamp, 3 border) + 4 * mode of v + 16 * linear magnification + 32 * linear minification
+             + 64 * linear between mip levels + 128 * (levels - 1), v1.y, v1.z, v1.w: bias, lowest and highest level of detail; v2: the border color.
+    Four texels are fetched from each of two levels and mixed by hand, with the wrapping done on the texel numbers, so that nothing from
+    the next tile is ever read, whatever the mode is. `uv`, `ddx` and `ddy` are the coordinates and their derivatives (taken where all
+    pixels of a quad agree on the branch, see the caller).
+
+        vec4 view_sample(sampler2D tex, vec2 uv, vec2 ddx, vec2 ddy, vec4 v0, vec4 v1, vec4 v2) {
+            vec2 size = v0.zw;
+            float rho = max(length(ddx * size), length(ddy * size));
+            float lod = log2(max(rho, 1e-8)) + v1.y;
+            bool minify = lod > 0.0;
+            float top = float(levels - 1);
+            lod = clamp(lod, v1.z, min(v1.w, top));
+            float l0 = floor(lod), l1 = min(l0 + 1.0, top), f = lod - l0;
+            f = mipLinear ? f : step(0.5, f);
+            return mix(tap(l0), tap(l1), f);        // tap: bilinear (or nearest) at one level, wrapped by texel number
+        }
+    """
+    f, v2t, v4 = b.float(), b.vec(2), b.vec(4)
+    boolean = b.new_type("bool", "TypeBool")
+    iv2 = b.new_type("ivec2", "TypeVector", b.int(), 2)
+    zero, one, half, two = b.const_float(0.0), b.const_float(1.0), b.const_float(0.5), b.const_float(2.0)
+
+    def fmin(x, y): return b.ext(f, GLSL_FMIN, x, y)
+    def fmax(x, y): return b.ext(f, GLSL_FMAX, x, y)
+    def floor_(x): return b.ext(f, GLSL_FLOOR, x)
+    def add(x, y): return b.fadd(f, x, y)
+    def sub(x, y): return b.fsub(f, x, y)
+    def mul(x, y): return b.fmul(f, x, y)
+    def sel(cond, x, y): return b.emit("Select", f, cond, x, y)
+    def eq(x, y): return b.emit("FOrdEqual", boolean, x, y)
+    def lt(x, y): return b.emit("FOrdLessThan", boolean, x, y)
+    def ge(x, y): return b.emit("FOrdGreaterThanEqual", boolean, x, y)
+    def lor(x, y): return b.emit("LogicalOr", boolean, x, y)
+    def land(x, y): return b.emit("LogicalAnd", boolean, x, y)
+    def lerp(x, y, t): return b.ext(v4, GLSL_FMIX, x, y, b.construct(4, t, t, t, t))
+    def comp(vec, i): return b.extract(vec, i)
+
+    # The settings.
+    packed = comp(v1, 0)
+    top = floor_(mul(packed, b.const_float(1.0 / 128.0)))
+    rest = sub(packed, mul(top, b.const_float(128.0)))
+    mip_linear = floor_(mul(rest, b.const_float(1.0 / 64.0)))
+    rest = sub(rest, mul(mip_linear, b.const_float(64.0)))
+    min_linear = floor_(mul(rest, b.const_float(1.0 / 32.0)))
+    rest = sub(rest, mul(min_linear, b.const_float(32.0)))
+    mag_linear = floor_(mul(rest, b.const_float(1.0 / 16.0)))
+    rest = sub(rest, mul(mag_linear, b.const_float(16.0)))
+    mode_v = floor_(mul(rest, b.const_float(0.25)))
+    mode_u = sub(rest, mul(mode_v, b.const_float(4.0)))
+
+    # Which level, from how fast the coordinates change over the tile.
+    size = b.emit("VectorShuffle", v2t, v0, v0, 2, 3)
+    gx, gy = b.fmul(v2t, ddx, size), b.fmul(v2t, ddy, size)
+    rho = fmax(b.ext(f, GLSL_LENGTH, gx), b.ext(f, GLSL_LENGTH, gy))
+    lod = add(b.ext(f, GLSL_LOG2, fmax(rho, b.const_float(1e-8))), comp(v1, 1))
+    minify = lt(zero, lod)
+    lod = b.ext(f, GLSL_FCLAMP, lod, comp(v1, 2), fmin(comp(v1, 3), top))
+    l0 = floor_(lod)
+    l1 = fmin(add(l0, one), top)
+    fraction = sub(lod, l0)
+    fraction = sel(lt(half, mip_linear), fraction, b.ext(f, GLSL_STEP, half, fraction))
+    linear = sel(minify, min_linear, mag_linear)
+
+    def wrap(i, n, mode):
+        """The texel number i (a whole number as a float) inside 0 to n - 1, and 1 if it was outside and the mode is the border."""
+        repeated = sub(i, mul(n, floor_(b.fdiv(f, i, n))))
+        n2 = mul(n, two)
+        folded = sub(i, mul(n2, floor_(b.fdiv(f, i, n2))))
+        mirrored = sel(lt(folded, n), folded, sub(sub(n2, one), folded))
+        clamped = b.ext(f, GLSL_FCLAMP, i, zero, sub(n, one))
+        index = sel(eq(mode, zero), repeated, sel(eq(mode, one), mirrored, clamped))
+        outside = lor(lt(i, zero), ge(i, n))
+        return index, sel(land(eq(mode, b.const_float(3.0)), outside), one, zero)
+
+    border = v2
+    image_value = image
+
+    def tap(level):
+        scale_down = b.ext(f, GLSL_EXP2, b.fsub(f, zero, level))
+        wl = fmax(one, floor_(mul(comp(v0, 2), scale_down)))
+        hl = fmax(one, floor_(mul(comp(v0, 3), scale_down)))
+        ox, oy = floor_(mul(comp(v0, 0), scale_down)), floor_(mul(comp(v0, 1), scale_down))
+        px, py = mul(comp(uv, 0), wl), mul(comp(uv, 1), hl)
+        px = sub(px, mul(half, linear))
+        py = sub(py, mul(half, linear))
+        ix, iy = floor_(px), floor_(py)
+        fx, fy = mul(sub(px, ix), linear), mul(sub(py, iy), linear)
+        level_int = b.emit("ConvertFToS", b.int(), level)
+        colors = []
+        for dy in (0, 1):
+            for dx in (0, 1):
+                xi, outx = wrap(add(ix, b.const_float(float(dx))), wl, mode_u)
+                yi, outy = wrap(add(iy, b.const_float(float(dy))), hl, mode_v)
+                coord = b.emit("CompositeConstruct", iv2, b.emit("ConvertFToS", b.int(), add(ox, xi)), b.emit("ConvertFToS", b.int(), add(oy, yi)))
+                texel = b.emit("ImageFetch", v4, image_value, coord, 2, level_int)
+                outside = b.ext(f, GLSL_FMAX, outx, outy)
+                colors.append(b.fadd(v4, texel, b.scale(4, b.fsub(v4, border, texel), outside)))
+        top_row = lerp(colors[0], colors[1], fx)
+        bottom_row = lerp(colors[2], colors[3], fx)
+        return lerp(top_row, bottom_row, fy)
+
+    return lerp(tap(l0), tap(l1), fraction)
+
+
 def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
@@ -687,6 +805,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         in_mask = b.variable("Input", v4, [(DECORATION["Location"], 6), (DECORATION["Flat"],)])
         in_dir = b.variable("Input", v4, [(DECORATION["Location"], 7)])
         in_soft = b.variable("Input", v4, [(DECORATION["Location"], 8), (DECORATION["Flat"],)])
+        in_views = [b.variable("Input", v4, [(DECORATION["Location"], 9 + k), (DECORATION["Flat"],)]) for k in range(3)]  # Views of atlases, see view_sample.
         in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
         # The depth of what was drawn before the sprites, for SpriteDepthFade.
         depth_tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
@@ -697,7 +816,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             # What the target holds at this pixel: dimension SubpassData, sampled 2 (read without a sampler), set 4, attachment 0.
             subpass = b.new_type("subpass", "TypeImage", f, 6, 0, 0, 0, 2, 0)
             target = b.variable("UniformConstant", subpass, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["InputAttachmentIndex"], 0)])
-        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag]
+        interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag, *in_views]
 
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
@@ -738,6 +857,20 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         sheet_uv = b.construct(2, b.fdiv(f, b.fadd(f, column, s_face), b.const_float(3.0)), b.fdiv(f, b.fadd(f, row, t_face), two))
         uv = b.fadd(v2, uv, b.scale(2, b.fsub(v2, sheet_uv, uv), is_cube))
     t = b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), uv)
+    if fog:
+        # A view of an atlas samples its tile by hand: the hardware sampler could neither wrap nor mip inside a rectangle of an image. The
+        # derivatives are taken before the branch, and the branch is the same for all pixels of a primitive, which is a draw of one entity.
+        view0, view1, view2 = (b.load(v4, in_views[k]) for k in range(3))
+        ddx, ddy = b.emit("DPdx", v2, uv), b.emit("DPdy", v2, uv)
+        boolean = b.new_type("bool", "TypeBool")
+        is_view = b.emit("FOrdGreaterThan", boolean, b.extract(view0, 3), b.const_float(0.0))
+        entry_label = label
+        view_label, merge_label = b.m.id(), b.m.id()
+        b.m.code += [Module.inst("SelectionMerge", merge_label, 0), Module.inst("BranchConditional", is_view, view_label, merge_label), Module.inst("Label", view_label)]
+        by_hand = view_sample(b, b.emit("Image", image, b.load(sampled, tex)), uv, ddx, ddy, view0, view1, view2)
+        end_label = b.m.id()
+        b.m.code += [Module.inst("Branch", end_label), Module.inst("Label", end_label), Module.inst("Branch", merge_label), Module.inst("Label", merge_label)]
+        t = b.emit("Phi", v4, by_hand, end_label, t, entry_label)
     if fog:
         mask = b.load(v4, in_mask)
     else:
