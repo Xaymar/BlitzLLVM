@@ -126,43 +126,52 @@ char* bb_path(const char* path)
 //
 // Files, directories and (see network.c) connections are all handles into this table. Index 0 is never used.
 ////////////////////////////////////////////////////////////////////////////////
-static bb_stream* bb_streams      = NULL;
-static int32_t    bb_stream_count = 1;
-static int32_t    bb_stream_cap   = 0;
+// The file and stream handles of the running program. thread_local, as the program runs on one thread.
+typedef struct bb_file_state {
+	bb_stream* streams;
+	int32_t    stream_count;
+	int32_t    stream_cap;
+} bb_file_state;
+
+#if defined(_MSC_VER)
+static __declspec(thread) bb_file_state bb_files = { NULL, 1, 0 };
+#else
+static _Thread_local bb_file_state bb_files = { NULL, 1, 0 };
+#endif
 
 int32_t bb_stream_add(bb_stream stream)
 {
-	for (int32_t i = 1; i < bb_stream_count; i++) {
-		if (bb_streams[i].kind == BB_STREAM_NONE) {
-			bb_streams[i] = stream;
+	for (int32_t i = 1; i < bb_files.stream_count; i++) {
+		if (bb_files.streams[i].kind == BB_STREAM_NONE) {
+			bb_files.streams[i] = stream;
 			return i;
 		}
 	}
-	if (bb_stream_count >= bb_stream_cap) {
-		bb_stream_cap = bb_stream_cap ? bb_stream_cap * 2 : 64;
-		bb_streams    = (bb_stream*)bb_realloc(bb_streams, (size_t)bb_stream_cap * sizeof(bb_stream));
-		if (!bb_streams) {
+	if (bb_files.stream_count >= bb_files.stream_cap) {
+		bb_files.stream_cap = bb_files.stream_cap ? bb_files.stream_cap * 2 : 64;
+		bb_files.streams    = (bb_stream*)bb_realloc(bb_files.streams, (size_t)bb_files.stream_cap * sizeof(bb_stream));
+		if (!bb_files.streams) {
 			bb_runtime_error("Out of memory.");
 		}
 	}
-	bb_streams[bb_stream_count] = stream;
-	return bb_stream_count++;
+	bb_files.streams[bb_files.stream_count] = stream;
+	return bb_files.stream_count++;
 }
 
 bb_stream* bb_stream_get(int32_t handle, const char* what)
 {
-	if ((handle <= 0) || (handle >= bb_stream_count) || (bb_streams[handle].kind == BB_STREAM_NONE)) {
+	if ((handle <= 0) || (handle >= bb_files.stream_count) || (bb_files.streams[handle].kind == BB_STREAM_NONE)) {
 		char message[96];
 		snprintf(message, sizeof(message), "%s: the file or stream does not exist.", what);
 		bb_runtime_error(message);
 	}
-	return &bb_streams[handle];
+	return &bb_files.streams[handle];
 }
 
 void bb_stream_remove(int32_t handle)
 {
-	if ((handle > 0) && (handle < bb_stream_count)) {
-		memset(&bb_streams[handle], 0, sizeof(bb_stream));
+	if ((handle > 0) && (handle < bb_files.stream_count)) {
+		memset(&bb_files.streams[handle], 0, sizeof(bb_stream));
 	}
 }
 
@@ -430,8 +439,8 @@ int32_t bb_read_avail(int32_t handle)
 int32_t bb_live_streams(void)
 {
 	int32_t count = 0;
-	for (int32_t i = 1; i < bb_stream_count; i++) {
-		count += (bb_streams[i].kind != BB_STREAM_NONE) ? 1 : 0;
+	for (int32_t i = 1; i < bb_files.stream_count; i++) {
+		count += (bb_files.streams[i].kind != BB_STREAM_NONE) ? 1 : 0;
 	}
 	return count;
 }
