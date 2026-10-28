@@ -228,6 +228,47 @@ pitches = [p for p in pitches if p > 0]
 steps = [abs(pitches[i + 1] - pitches[i]) / expected for i in range(len(pitches) - 1)]
 check("doppler glides: the pitch goes from %.1f to %.1f Hz, the largest step between 40 ms is %.1f%%" % (pitches[0], min(pitches), max(steps) * 100), pitches[0] > expected * 0.98 and min(pitches) < expected * 0.93 and max(steps) < 0.08)
 
+# Volume falloff: the peak of a sound that is `units` away from the listener, relative to the same sound next to it. The runtime's own
+# curve ("new") is 1 / (1 + rolloff * meters * 0.05); BLITZLLVM_VOLUME_FALLOFF=soloud gives 1 / (1 + rolloff * (meters - 1)) as SoLoud does and
+# =legacy the one of the original (FMOD 3), meters ^ -rolloff, both from a meter on.
+def play_distance(units, rolloff, distance, model):
+	body = (
+		's = Load3DSound("tone.wav")\nLoopSound s\nlistener = CreatePivot()\nsource = CreatePivot()\nPositionEntity source, 0, 0, %f\n'
+		"CreateListener listener, %f, 1, %f\nc = EmitSound(s, source)\nFor i = 1 To 20\n\tDelay 50\nNext\n"
+	) % (units, rolloff, distance)
+	with open("play.bb", "w") as source:
+		source.write(body)
+	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
+		raise SystemExit("compiling failed")
+	if os.path.exists("sdlaudio.raw"):
+		os.remove("sdlaudio.raw")
+	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
+	env.pop("BLITZ_HEADLESS", None)
+	env.pop("BLITZLLVM_VOLUME_FALLOFF", None)
+	if model != "new":
+		env["BLITZLLVM_VOLUME_FALLOFF"] = model
+	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
+	data = open("sdlaudio.raw", "rb").read()
+	count = len(data) // 4
+	samples = list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2])
+	return max(abs(v) for v in samples[OUTPUT_RATE // 2 :])
+
+
+for model in ("new", "soloud", "legacy"):
+	reference = play_distance(0, 1.0, 1.0, model)
+	for units, rolloff, distance in ((10, 1.0, 1.0), (100, 1.0, 1.0), (10, 2.0, 1.0), (100, 0.0, 1.0), (50, 1.0, 0.5), (0.5, 1.0, 1.0)):
+		meters = units * distance
+		if model == "new":
+			wanted = 1.0 / (1.0 + rolloff * meters * 0.05)
+		elif meters <= 1.0:
+			wanted = 1.0
+		elif model == "soloud":
+			wanted = 1.0 / (1.0 + rolloff * (meters - 1.0))
+		else:
+			wanted = meters**-rolloff
+		gain = play_distance(units, rolloff, distance, model) / reference
+		check("%s falloff at %g units, rolloff %g, distance scale %g: gain %.3f is %.3f" % (model, units, rolloff, distance, gain, wanted), abs(gain - wanted) < 0.03)
+
 # Programs that draw every frame never call Delay, so the position of what they emit from has to be followed while they render and
 # flip, and a program that sets ChannelVolume every frame (as the original allows) must not undo it for the time that the frame takes. A sound to the right of the listener comes out of the right speaker, and the pitch still follows the movement. Skipped (77)
 # without a window.
