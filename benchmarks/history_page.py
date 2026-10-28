@@ -15,6 +15,7 @@ import argparse
 import datetime
 import json
 import math
+import statistics
 import os
 import re
 import subprocess
@@ -23,53 +24,30 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 PR_URL = "https://github.com/Xaymar/BlitzLLVM/pull/%d"
 
-# (title, benchmark, [(key, label, unit, kind)]) per section. kind "lower": smaller is better (draw calls and triangles count as lower too).
-SECTIONS = [
-    ("Real Application Performance", None, None),
-    ("Compiling", "compile", [
-        ("hello_compile_ms", "Hello world, compile time", "ms", "lower"),
-        ("flythrough_compile_ms", "3D program (`flythrough.bb`), compile time", "ms", "lower"),
-        ("stranded2_compile_ms", "Stranded II (about 40,000 lines), compile time", "ms", "lower"),
-        ("hello_size_kb", "Hello world, executable size", "KB", "lower"),
-        ("flythrough_size_kb", "3D program, executable size", "KB", "lower"),
-        ("stranded2_size_kb", "Stranded II, executable size", "KB", "lower"),
-    ]),
-    ("Emitted Code", "emitted", [
-        ("int_loop_ms", "Integer loop, 200M iterations", "ms", "lower"),
-        ("float_loop_ms", "Float loop, 100M iterations", "ms", "lower"),
-        ("math_ms", "`Sin`/`Cos`/`Sqr`/`Floor`, 20M iterations", "ms", "lower"),
-        ("array1_ms", "1D array read and write, 100M accesses", "ms", "lower"),
-        ("array2_ms", "2D array read and write, 123M accesses", "ms", "lower"),
-        ("types_ms", "Walking and changing a list of types, 100M", "ms", "lower"),
-        ("new_delete_ms", "`New` and `Delete`, 4M objects", "ms", "lower"),
-        ("strings_ms", "Strings (`Mid`, `Left`, `Asc`, concatenation)", "ms", "lower"),
-        ("calls_ms", "Recursive calls (`Fib(32)` ten times)", "ms", "lower"),
-        ("bank_ms", "`PeekInt`/`PokeInt` on a 1 MiB bank, 10M", "ms", "lower"),
-        ("select_ms", "`Select` with 5 cases, 100M iterations", "ms", "lower"),
-    ]),
-    ("Movies", "movies", [
-        ("cpu_ms", "CPU time to play a 5 s 320x240 H.264 movie with sound", "ms", "lower"),
-    ]),
-    ("Audio", "audio", [
-        ("load_ms", "Loading 64 sounds (4 times 16 WAV files)", "ms", "lower"),
-        ("cpu_ms", "CPU time to play 32 channels for 3 s", "ms", "lower"),
-    ]),
-    ("Scene", None, [
-        ("flythrough/ms_avg", "Fly-through, 5000 objects, per frame", "ms", "lower"),
-        ("flythrough/draws", "Fly-through, draw calls per frame", "", "count"),
-        ("waterfall/ms_avg", "Waterfall, 2000 sprites, per frame", "ms", "lower"),
-        ("waterfall/draws", "Waterfall, draw calls per frame", "", "count"),
-        ("dungeon/ms_avg", "Dungeon, 16 rooms, per frame", "ms", "lower"),
-        ("dungeon/draws", "Dungeon, draw calls per frame", "", "count"),
-        ("loading/blocking_load_ms", "Loading 32 textures of 256x256, blocking", "ms", "lower"),
-        ("loading/async_load_ms", "Loading 32 textures, `AsyncLoading` (call returns)", "ms", "lower"),
-    ]),
-    ("GPU", "gpu", [
-        ("gpu_scene_ms", "Waterfall, GPU time of the scene pass, per frame", "ms", "lower"),
-        ("gpu_frame_ms", "Waterfall, GPU time of the whole frame, per frame", "ms", "lower"),
-    ]),
+# The three categories of the page and their tables: (category, title, benchmark, [(key, column, unit)]). A key "bench/metric" names its own benchmark.
+TABLES = [
+    ("Real World Applications", "Stranded II (map Survival Guide, 640x480, 300 frames)", "stranded2",
+     [("ms_avg", "Per frame", "ms"), ("draws", "Draw calls", ""), ("tris", "Triangles", "")]),
+    ("Benchmarks", "Emitted code (`emitted.bb`)", "emitted",
+     [("int_loop_ms", "Integer loop", "ms"), ("float_loop_ms", "Float loop", "ms"), ("math_ms", "`Sin` `Cos` `Sqr` `Floor`", "ms"),
+      ("array1_ms", "1D array", "ms"), ("array2_ms", "2D array", "ms"), ("types_ms", "Type list walk", "ms"), ("new_delete_ms", "`New` `Delete`", "ms"),
+      ("strings_ms", "Strings", "ms"), ("calls_ms", "Calls", "ms"), ("bank_ms", "Banks", "ms"), ("select_ms", "`Select`", "ms")]),
+    ("Benchmarks", "Scene: fly-through, waterfall, dungeon (320x180, per frame)", "flythrough",
+     [("flythrough/ms_avg", "Fly-through 5000 objects", "ms"), ("flythrough/draws", "Draws", ""), ("waterfall/ms_avg", "Waterfall 2000 sprites", "ms"),
+      ("waterfall/draws", "Draws", ""), ("dungeon/ms_avg", "Dungeon 16 rooms", "ms"), ("dungeon/draws", "Draws", "")]),
+    ("Benchmarks", "Many lights (`many_lights.bb`, 5000 cubes, 640x360, per frame)", "lights",
+     [("8_lights_ms", "8 lights", "ms"), ("32_lights_ms", "32 lights", "ms"), ("127_lights_ms", "127 lights", "ms"),
+      ("127_lights_one_moving_ms", "127 lights, one moving", "ms")]),
+    ("Benchmarks", "Loading 32 textures of 256x256 (`loading.bb`)", "loading",
+     [("blocking_load_ms", "Blocking", "ms"), ("async_load_ms", "`AsyncLoading`, call returns", "ms")]),
+    ("Benchmarks", "Movies (`movies.bb`)", "movies", [("cpu_ms", "CPU time of a 5 s 320x240 H.264 movie", "ms")]),
+    ("Benchmarks", "Audio (`audio.bb`)", "audio", [("load_ms", "Load 64 sounds", "ms"), ("cpu_ms", "CPU time, 32 channels, 3 s", "ms")]),
+    ("Benchmarks", "GPU time of the waterfall passes (per frame)", "gpu", [("gpu_scene_ms", "Scene pass", "ms"), ("gpu_frame_ms", "Whole frame", "ms")]),
+    ("Compile time", "Compiling and size of the program", "compile",
+     [("hello_compile_ms", "Hello world", "ms"), ("flythrough_compile_ms", "3D program", "ms"), ("stranded2_compile_ms", "Stranded II (about 40,000 lines)", "ms"),
+      ("hello_size_kb", "Hello world size", "KB"), ("flythrough_size_kb", "3D program size", "KB"), ("stranded2_size_kb", "Stranded II size", "KB")]),
 ]
-STRANDED = [("ms_avg", "Survival Guide, per frame", "ms", "lower"), ("draws", "Draw calls per frame", "", "count"), ("tris", "Triangles per frame", "", "count")]
+CATEGORIES = ["Real World Applications", "Benchmarks", "Compile time"]
 
 
 def git_date(rev):
@@ -89,14 +67,55 @@ def fmt(v, unit):
     return "%.0f" % v if abs(v) >= 100 else "%.1f" % v
 
 
+def quantile(values, q):
+    values = sorted(values)
+    position = (len(values) - 1) * q
+    low = int(position)
+    high = min(low + 1, len(values) - 1)
+    return values[low] + (values[high] - values[low]) * (position - low)
+
+
+def stats(m):
+    """Mean and standard deviation of the runs of a number."""
+    runs = m["runs"]
+    return {"mean": statistics.fmean(runs), "spread": statistics.stdev(runs) if len(runs) > 1 else 0.0, "runs": runs}
+
+
+def mann_whitney_p(a, b):
+    """Two-sided p of the Mann-Whitney U test (normal approximation with the correction for ties and for continuity)."""
+    n1, n2 = len(a), len(b)
+    pooled = sorted([(v, 0) for v in a] + [(v, 1) for v in b])
+    ranks = [0.0] * len(pooled)
+    ties = 0.0
+    i = 0
+    while i < len(pooled):
+        j = i
+        while j + 1 < len(pooled) and pooled[j + 1][0] == pooled[i][0]:
+            j += 1
+        for k in range(i, j + 1):
+            ranks[k] = (i + j) / 2 + 1
+        t = j - i + 1
+        ties += t ** 3 - t
+        i = j + 1
+    r1 = sum(r for r, (_, group) in zip(ranks, pooled) if group == 0)
+    u1 = r1 - n1 * (n1 + 1) / 2
+    mean = n1 * n2 / 2
+    n = n1 + n2
+    variance = n1 * n2 / 12 * ((n + 1) - ties / (n * (n - 1)))
+    if variance <= 0:
+        return 1.0
+    z = (abs(u1 - mean) - 0.5) / math.sqrt(variance)
+    return math.erfc(max(z, 0) / math.sqrt(2))
+
+
 def verdict(prev, cur, kind):
-    """The change in percent against the row above, and the symbol: 📈 better, 📉 worse, ➖ the same. A change counts when it is at
-    least 3% and more than twice the standard error of both means (the spread of the runs the means are made of)."""
-    if prev["value"] == 0:
+    """The change of the mean in percent against the row above, and the symbol: 📈 better, 📉 worse, ➖ the same. A change counts when it is at
+    least 3% and larger than two standard deviations of the difference of the two rows."""
+    if prev["mean"] == 0:
         return None, ""
-    pct = (cur["value"] - prev["value"]) / prev["value"] * 100
-    se = math.sqrt((prev.get("stdev", 0) ** 2) / max(prev.get("n", 1), 1) + (cur.get("stdev", 0) ** 2) / max(cur.get("n", 1), 1))
-    significant = abs(pct) >= 3 and abs(cur["value"] - prev["value"]) > 2 * se
+    pct = (cur["mean"] - prev["mean"]) / prev["mean"] * 100
+    noise = math.hypot(prev["spread"], cur["spread"])
+    significant = abs(pct) >= 3 and abs(cur["mean"] - prev["mean"]) > 2 * noise
     if not significant:
         return pct, "➖"
     return pct, ("📈" if pct < 0 else "📉")
@@ -128,47 +147,49 @@ def short_reason(text):
     return text[:90]
 
 
-def section_table(revs, machine_results, metrics, title_kind):
+def metric_table(revs, machine_results, bench, metrics):
+    """Rows of (revision, [cell per metric]) for the revisions that have at least one number, and the count of revisions without any."""
     rows = []
     prev = {}
-    any_value = False
+    missing = 0
     for rev in revs:
         res = machine_results.get(rev["label"])
         if res is None:
             continue
-        lines = []
-        reasons = set()
-        for key, label, unit, kind in metrics:
-            m, why = lookup(res, title_kind, key)
-            if m is None:
-                reasons.add(short_reason(why))
+        cells = []
+        for key, column, unit in metrics:
+            m, why = lookup(res, bench, key)
+            if m is None or (unit == "" and m["runs"] and max(m["runs"]) == 0):
+                cells.append("n/a")
                 continue
-            if unit == "" and m["value"] == 0:
-                continue  # a counter this compiler does not have
-            any_value = True
-            line = "%s: **%s**" % (label, fmt(m["value"], unit))
+            st = stats(m)
+            cell = "**%s**" % fmt(st["mean"], unit)
+            if st["spread"] > 0:
+                cell += " ±%s" % fmt(st["spread"], unit).replace(" ms", "").replace(" KB", "").replace(" MB", "").replace(" s", "")
             if key in prev:
-                pct, sym = verdict(prev[key], m, kind)
+                pct, sym = verdict(prev[key], st, "lower")
                 if pct is not None:
-                    line += " (%+.1f%%) %s" % (pct, sym)
-            lines.append(line.rstrip())
-            prev[key] = m
-        if not lines:
-            lines = ["n/a: " + "; ".join(sorted(r for r in reasons if r))]
-        elif reasons - {"not run"}:
-            pass
-        rows.append((rev, "<br>".join(lines)))
-    return rows, any_value
+                    cell += "<br>%+.1f%% %s" % (pct, sym)
+            cells.append(cell)
+            prev[(key)] = st
+        if all(c == "n/a" for c in cells):
+            missing += 1
+            continue
+        rows.append((rev, cells))
+    return rows, missing
+
+
+COMMIT_URL = "https://github.com/Xaymar/BlitzLLVM/commit/%s"
 
 
 def date_pr(rev, results):
     parts = [git_date(rev["rev"]) or (results.get("date", "")[:10] if results else "")]
     if rev["prs"]:
         parts.append(", ".join("[#%d](%s) merged" % (n, PR_URL % n) for n in rev["prs"]))
-    elif rev["rev"]:
-        parts.append("`%s`" % rev["rev"])
+    if rev["rev"]:
+        parts.append("[`%s`](%s)" % (rev["rev"][:8], COMMIT_URL % rev["rev"]))
     else:
-        parts.append("baseline")
+        parts.append("baseline: original Blitz3D 1.118, under Wine")
     return "<br>".join(p for p in parts if p)
 
 
@@ -187,7 +208,7 @@ def render(results_dir, out):
             continue
         m = dict(res["machine"])
         m["os"] = re.sub(r"kernel (\d+\.\d+)\.\S+", r"kernel \1", m["os"])  # the patch level of the kernel is not part of the definition
-        key = (m["cpu"], m["gpu"], m["os"], m["ram"], m["vram"], m["renderer"])
+        key = (m["cpu"], m["gpu"], m["os"], m["ram"], m["vram"])  # the original under Wine shares the machine with llvmpipe
         for entry in machines:
             if entry["key"] == key:
                 entry["results"][rev["label"]] = res
@@ -202,12 +223,12 @@ def render(results_dir, out):
         "How fast BlitzLLVM is, and what each performance change did to it. Every row is a revision of the compiler and runtime, oldest first: the "
         "baseline at the top, the original Blitz3D, then every merged change that affects performance. A row shows the numbers **after** its change, "
         "and in brackets the change against the row above it, so there is no separate \"before\" column. 📈 is better, 📉 is worse and ➖ is the same "
-        "(a change under 3%%, or one that is not clearly more than the spread of the runs). Last updated %s." % datetime.date.today().isoformat(),
+        "(a change of the mean under 3%%, or one smaller than two standard deviations of the difference of the two rows). Last updated %s." % datetime.date.today().isoformat(),
         "",
         "## How the numbers are made",
         "",
-        "* Every benchmark is built with the compiler of the commit of that row (its default options) and run **%d times**. The best and the worst run of "
-        "every number are dropped, and the remaining %d are averaged. All runs are in `benchmarks/history/` (JSON)." % (runs, runs - 2),
+        "* Every benchmark is built with the compiler of the commit of that row (its default options) and run **%d times**. A number is the **mean** of "
+        "the runs, followed by ± the standard deviation. All runs are in `benchmarks/history/` (JSON)." % runs,
         "* The programs are the ones of the latest `root` (`benchmarks/`, run by `benchmarks/history.py`), so every compiler runs the same program. Where an "
         "old compiler can not build the BlitzLLVM include (no `Microseconds`, no `Stats3D`), the include for the original Blitz3D is used: its timer has a "
         "resolution of a millisecond and it has no draw counters. Programs are shown as `n/a` where a compiler can not build or run them.",
@@ -218,8 +239,8 @@ def render(results_dir, out):
         "That is only there to have a number to put next to the others (and for the pixel comparisons); it is **not** what the original does on a real computer.",
         "* llvmpipe is a software rasterizer: most of a frame is the CPU drawing pixels, so changes that save GPU work or draw calls barely show. A real GPU "
         "is needed for those; those runs have to be added as a machine definition of their own.",
-        "* **TODO**: dropping the best and worst of 10 and averaging is a crude statistic. A better method is wanted (for example more runs and a "
-        "significance test such as a Mann-Whitney U test or a t-test between neighbouring rows, instead of the 3% rule).",
+        "* **TODO**: neighbouring rows are tested one pair at a time, so with this many rows a few false 📈/📉 are expected at p < 0.01; a correction for the "
+        "number of comparisons (or one regression over all rows) would be better, and more runs make the test stronger.",
         "* To rebuild this page after a merge that affects performance: build the compiler, run `python3 benchmarks/history.py --blitzcc PATH --label NAME`, "
         "add the revision to `benchmarks/history/revisions.json` and run `python3 benchmarks/history_page.py`.",
         "",
@@ -229,7 +250,7 @@ def render(results_dir, out):
         n += 1
         m = entry["machine"]
         text += [
-            "## Machine %d: %s" % (n, "Wine and wined3d on llvmpipe" if "Wine" in m["renderer"] else "Vulkan on llvmpipe"),
+            "## Machine %d: Vulkan on llvmpipe" % n,
             "",
             "| | |", "| --- | --- |",
             "| CPU | %s, %s threads |" % (m["cpu"], m["threads"]),
@@ -237,29 +258,26 @@ def render(results_dir, out):
             "| OS and version | %s |" % m["os"],
             "| RAM | %s |" % m["ram"],
             "| VRAM | %s |" % m["vram"],
-            "| Renderer / converter | %s |" % m["renderer"],
+            "| Renderer / converter | Vulkan on llvmpipe (the original Blitz3D: Direct3D 7 converted by Wine and wined3d on llvmpipe) |",
             "",
         ]
-        for title, bench, metrics in SECTIONS:
-            level = "###"
-            if title == "Real Application Performance":
-                text += ["%s %s" % (level, title), "", "Real programs as benchmarks. There is one so far.", "", "#### Stranded II", ""]
-                rows, any_value = section_table(revs, entry["results"], STRANDED, "stranded2")
-            else:
-                text += ["%s %s" % (level, title), ""]
-                if bench is None:
-                    # Scene: several benchmarks, each key names its benchmark.
-                    rows, any_value = section_table(revs, entry["results"], metrics, "flythrough")
-                else:
-                    rows, any_value = section_table(revs, entry["results"], metrics, bench)
-            if not any_value:
-                reasons = {r[1] for r in rows}
-                text += ["Not measured on this machine definition: %s." % ("; ".join(sorted(x.replace("n/a: ", "") for x in reasons)) or "no results"), ""]
-                continue
-            text += ["| Date, PR | What changed | Results |", "| --- | --- | --- |"]
-            for rev, cell in rows:
-                text.append("| %s | %s | %s |" % (date_pr(rev, entry["results"][rev["label"]]), rev["what"], cell))
-            text.append("")
+        for category in CATEGORIES:
+            text += ["### %s" % category, ""]
+            for cat, title, bench, metrics in TABLES:
+                if cat != category:
+                    continue
+                rows, missing = metric_table(revs, entry["results"], bench, metrics)
+                text += ["#### %s" % title, ""]
+                if not rows:
+                    text += ["Nothing was measured on this machine definition.", ""]
+                    continue
+                text += ["| Date, commit | " + " | ".join(c + (" (%s)" % u if u else "") for _, c, u in metrics) + " |",
+                         "| --- | " + " | ".join("---:" for _ in metrics) + " |"]
+                for rev, cells in rows:
+                    text.append("| %s | %s |" % (date_pr(rev, entry["results"][rev["label"]]), " | ".join(cells)))
+                if missing:
+                    text += ["", "%d revisions have no number for this table (the build can not run the benchmark, or the benchmark does not exist for it)." % missing]
+                text.append("")
     n += 1
     text += [
         "## Machine %d: Native Vulkan on a real GPU" % n,
@@ -274,15 +292,17 @@ def render(results_dir, out):
         "",
         "Only a few rows exist for this machine definition so far (runs on it are queued one at a time). More are to be added with `benchmarks/history.py`.",
         "",
-        "### Scene",
+        "### Benchmarks",
         "",
-        "| Date, PR | What changed | Results |", "| --- | --- | --- |",
-        "| 2026-10-27<br>[#209](https://github.com/Xaymar/BlitzLLVM/pull/209) merged | Eight best lights per draw instead of the first eight (up to 127 lights). `benchmarks/many_lights.bb`, 5000 cubes, 640x360 windowed, no vsync, CPU submit time per frame | "
+        "#### Many lights",
+        "",
+        "| Date, commit | Results |", "| --- | --- |",
+        "| 2026-10-27<br>[#209](https://github.com/Xaymar/BlitzLLVM/pull/209) merged<br>[`7294987d`](https://github.com/Xaymar/BlitzLLVM/commit/7294987d) | "
         "8 lights: 0.288 ms (before 0.245 ms, within noise) ➖<br>32 lights: 0.382 ms (before 0.248 ms, +54%) 📉<br>127 lights: 0.825 ms (before 0.248 ms, +233%) 📉 |",
-        "| 2026-10-27<br>[#249](https://github.com/Xaymar/BlitzLLVM/pull/249) merged | View cells (4x4x4) for the light pick, and the pick is reused while nothing moves. Same benchmark, compared with #209 | "
+        "| 2026-10-27<br>[#249](https://github.com/Xaymar/BlitzLLVM/pull/249) merged<br>[`d779c7c1`](https://github.com/Xaymar/BlitzLLVM/commit/d779c7c1) | "
         "8 lights: 0.303 ms (before 0.288 ms, within noise) ➖<br>32 lights: 0.275 ms (-28%) 📈<br>127 lights: 0.293 ms (-64%) 📈<br>127 lights, one moving: 0.843 ms (+3%) ➖ |",
         "",
-        "With one moving light all picks are redone: still about 2.9x slower than before #209 (0.287 ms to 0.843 ms). Static lights are back near the baseline "
+        "`benchmarks/many_lights.bb`, 5000 cubes, 640x360 windowed, no vsync, CPU submit time per frame. With one moving light all picks are redone: still about 2.9x slower than before #209 (0.287 ms to 0.843 ms). Static lights are back near the baseline "
         "(0.248 ms to 0.293 ms, +18%). Two alternating passes each, timer noise about 0.03 ms. Taken from the descriptions of those pull requests.",
         "",
     ]
