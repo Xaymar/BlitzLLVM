@@ -10,7 +10,12 @@ $ErrorActionPreference = "Stop"
 if (-not $env:BLITZLLVM_MSYS2) { $env:BLITZLLVM_MSYS2 = "C:\msys64" }
 Set-Location $Repo
 git checkout -q --detach $Commit
-git submodule update --init --jobs 8 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer third_party/stb third_party/VulkanMemoryAllocator third_party/FFmpeg 2>&1 | Out-Null
+# Old commits do not have every submodule, so only the ones that exist at this commit are fetched.
+$wanted = "cmake/version", "cmake/externalcontent", "third_party/Vulkan-Headers", "third_party/SDL", "third_party/SDL_image", "third_party/SDL_mixer", "third_party/stb", "third_party/VulkanMemoryAllocator", "third_party/FFmpeg"
+$present = @(git ls-files --stage | Where-Object { $_ -match '^160000' } | ForEach-Object { ($_ -split "\t")[1] })
+$ErrorActionPreference = "Continue"
+git submodule update --init --jobs 8 ($wanted | Where-Object { $present -contains $_ }) 2>&1 | Out-Null
+$ErrorActionPreference = "Stop"
 New-Item -ItemType Directory -Force $Out | Out-Null
 $log = Join-Path $Out "build.log"
 cmake -S . -B $Build -G "Visual Studio 18 2026" -A x64 -DBLITZLLVM_REQUIRE_NASM=ON *> $log
