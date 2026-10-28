@@ -1027,6 +1027,16 @@ namespace bb::gfx {
 
 			if (interlock) {
 				bool blended = (d.pipeline != g.opaque3d) && (d.pipeline != g.solid3d) && (d.pipeline != g.wire3d[0]);
+				if (blended && (target.image->format != VK_FORMAT_R8G8B8A8_UNORM)) {
+					// The storage image the shader writes is RGBA8, so what is not blended into such a target is left out.
+					static bool told = false;
+					if (!told) {
+						told = true;
+						fprintf(stderr, "Dither 2 can not blend into a target that is not RGBA8 with the pixel interlock, so blended drawing is skipped there.\n");
+					}
+					i += instances;
+					continue;
+				}
 				if (blended != storage_mode) {
 					vkCmdEndRendering(g.cmd);
 					transition(*target.image, blended ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
