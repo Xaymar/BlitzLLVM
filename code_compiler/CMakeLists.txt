@@ -220,7 +220,7 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 		set_tests_properties("${_PREFIX}-compile-${_NAME}" PROPERTIES FIXTURES_SETUP "${_PREFIX}-${_NAME}" LABELS "suite")
 		if(_NAME STREQUAL "blitz3d_async_mesh_pixels")
 			# DEBUG: run under gdb so a crash prints a backtrace of every thread.
-			add_test(NAME "${_PREFIX}-run-${_NAME}" COMMAND gdb -batch -ex run -ex "bt 30" -ex "thread apply all bt 20" -ex "info sharedlibrary" --args "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
+			add_test(NAME "${_PREFIX}-run-${_NAME}" COMMAND gdb -batch -ex run -ex "bt 30" -ex "thread apply all bt 20" -ex "bt 30" --args "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
 			set_tests_properties("${_PREFIX}-run-${_NAME}" PROPERTIES FAIL_REGULAR_EXPRESSION "SIGSEGV|SIGABRT|SIGBUS")
 		else()
 			add_test(NAME "${_PREFIX}-run-${_NAME}" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
