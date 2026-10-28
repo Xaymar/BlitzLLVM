@@ -34,3 +34,8 @@ End Function
 Function BenchMaxSprites()
 	Return 1000000000
 End Function
+
+; Shows the frame. Flip 2 syncs the picture with the display without making the program wait, so the time stays the time of the program.
+Function BenchFlip()
+	Flip 2
+End Function
