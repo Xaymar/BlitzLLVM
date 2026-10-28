@@ -23,6 +23,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))
+import procutil  # noqa: E402
 
 BENCH = r'''
 Global bench_t0
@@ -106,7 +108,7 @@ def main():
     with tempfile.TemporaryDirectory() as directory:
         game = prepare(root, directory)
         program = os.path.join(game, "stranded2_bench")
-        subprocess.run([compiler, "-q"] + os.environ.get("BENCH_BLITZCC_ARGS", "").split() + [os.path.join(game, "StrandedII.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        procutil.run([compiler, "-q"] + os.environ.get("BENCH_BLITZCC_ARGS", "").split() + [os.path.join(game, "StrandedII.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         env = dict(os.environ, BENCH_FRAMES=os.environ.get("BENCH_FRAMES", "300"), BENCH_W=os.environ.get("BENCH_W", "800"), BENCH_H=os.environ.get("BENCH_H", "600"))
         if os.environ.get("BENCH_KEEP"):
             # Keeps the program and the debug information, which is what turns the addresses of BLITZ_SAMPLE into names.
@@ -114,7 +116,7 @@ def main():
         print("%-16s %9s %7s %10s %9s %8s %10s" % ("map", "tris", "draws", "pipelines", "textures", "buffers", "ms/frame"))
         for name in maps:
             env["BENCH_MAP"] = name
-            result = subprocess.run(runner + [program, "-win"], cwd=game, env=env, capture_output=True, text=True, timeout=1800)
+            result = procutil.run(runner + [program, "-win"], cwd=game, env=env, capture_output=True, text=True, timeout=1800)
             output = result.stdout + result.stderr
             values = dict(re.findall(r"(\w+)=([\d.]+)", output))
             if "draws" not in values:
