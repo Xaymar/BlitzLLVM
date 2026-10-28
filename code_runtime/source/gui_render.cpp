@@ -6,6 +6,7 @@
 // window, which is then shown. What is on the desktop is drawn back to front: the window that was active last is last.
 
 #include "gui_internal.hpp"
+#include "memory.h"
 
 extern "C" {
 void    bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode);
@@ -151,12 +152,12 @@ namespace bb::gui {
 			if (length <= 0) {
 				return;
 			}
-			char* copy = static_cast<char*>(malloc(size_t(length) + 1));
+			char* copy = static_cast<char*>(bb_malloc(size_t(length) + 1));
 			memcpy(copy, text, size_t(length));
 			copy[length] = 0;
 			color(c);
 			bb_gui_text(x, y, copy, font, size);
-			free(copy);
+			bb_free(copy);
 		}
 
 		rgb text_color_of(gadget const& g)
@@ -348,7 +349,7 @@ namespace bb::gui {
 			rect saved = clip;
 			clip_to(intersect(saved, { x + 2, y + 2, g.w - 4, g.h - 4 }));
 			int         length = g.text ? int(strlen(g.text)) : 0;
-			char*       shown  = static_cast<char*>(malloc(size_t(length) + 1));
+			char*       shown  = static_cast<char*>(bb_malloc(size_t(length) + 1));
 			for (int i = 0; i < length; i++) {
 				shown[i] = (g.style & 1) ? '*' : g.text[i];
 			}
@@ -367,7 +368,7 @@ namespace bb::gui {
 			if ((ui.focus == handle) && (hi == lo) && blink_on()) {
 				vline(tx + field_x(g, g.caret), ty - 1, size + 2, black);
 			}
-			free(shown);
+			bb_free(shown);
 			clip_to(saved);
 		}
 

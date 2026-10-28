@@ -13,6 +13,7 @@
 // Vulkan: the device, the swapchain, pipelines, and the images and buffers on the GPU.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 #include <unordered_map>
 #include <vector>
@@ -658,7 +659,7 @@ namespace bb::gfx {
 		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging, 1, &copy);
 		submit_commands();
 
-		uint8_t*        pixels = static_cast<uint8_t*>(malloc(size_t(size)));
+		uint8_t*        pixels = static_cast<uint8_t*>(bb_malloc(size_t(size)));
 		const uint32_t* packed = static_cast<const uint32_t*>(mapped);
 		for (size_t i = 0; i < size_t(image.width) * image.height; i++) {
 			uint32_t v = packed[i];
@@ -676,7 +677,7 @@ namespace bb::gfx {
 		gpu_idle();
 		upload_pixels(image, width, height, pixels, mipmaps);
 		destroy_image(old);
-		free(pixels);
+		bb_free(pixels);
 		image.sampler = sampler;
 		write_descriptor(set, image.view, sampler);
 	}
@@ -707,7 +708,7 @@ namespace bb::gfx {
 		vkCmdCopyImageToBuffer(g.cmd, image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, staging, 1, &copy);
 		submit_commands();
 
-		uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(image.width) * image.height * 4));
+		uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(image.width) * image.height * 4));
 		decode_blocks(image.block, int(image.width), int(image.height), static_cast<const uint8_t*>(mapped), pixels);
 		destroy_buffer(staging, staging_allocation);
 		if (image.opaque) {
@@ -723,7 +724,7 @@ namespace bb::gfx {
 		gpu_idle();
 		destroy_image(image);
 		upload_pixels(image, width, height, pixels, mipmaps, srgb);
-		free(pixels);
+		bb_free(pixels);
 		write_descriptor(set, image.view, sampler);
 	}
 
@@ -1313,7 +1314,7 @@ namespace bb::gfx {
 		const uint8_t white[4] = { 255, 255, 255, 255 };
 		create_texture(TEXTURE_WHITE, 1, 1, white);
 
-		uint8_t* atlas = static_cast<uint8_t*>(calloc(font_columns * 8 * font_rows * 8 * 4, 1));
+		uint8_t* atlas = static_cast<uint8_t*>(bb_calloc(font_columns * 8 * font_rows * 8 * 4, 1));
 		for (uint32_t glyph = 0; glyph < BB_FONT_GLYPHS; glyph++) {
 			uint32_t gx = (glyph % font_columns) * 8, gy = (glyph / font_columns) * 8;
 			for (uint32_t row = 0; row < 8; row++) {
@@ -1325,7 +1326,7 @@ namespace bb::gfx {
 			}
 		}
 		create_texture(TEXTURE_FONT, font_columns * 8, font_rows * 8, atlas);
-		free(atlas);
+		bb_free(atlas);
 
 		void* mapped;
 		create_buffer(sizeof(vertex) * max_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, g.vertex_buffer, g.vertex_allocation, &mapped);

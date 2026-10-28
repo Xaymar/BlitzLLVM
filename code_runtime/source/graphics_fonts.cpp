@@ -7,6 +7,7 @@
 // that picture. A name that is not found has no font, and text is drawn with the built-in bitmap font instead.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 #define STBTT_assert(x) ((void)0)
 #define STB_TRUETYPE_IMPLEMENTATION
@@ -54,7 +55,7 @@ namespace bb::gfx {
 		// Lower case letters and digits only.
 		char* normalize(const char* text, size_t length)
 		{
-			char* out = static_cast<char*>(malloc(length + 1));
+			char* out = static_cast<char*>(bb_malloc(length + 1));
 			size_t n = 0;
 			for (size_t i = 0; i < length; i++) {
 				char c = text[i];
@@ -89,7 +90,7 @@ namespace bb::gfx {
 				return SDL_ENUM_SUCCESS;
 			}
 			size_t length = strlen(directory) + strlen(name) + 2;
-			char*  full   = static_cast<char*>(malloc(length));
+			char*  full   = static_cast<char*>(bb_malloc(length));
 			snprintf(full, length, "%s%s%s", directory, ((directory[0] && (directory[strlen(directory) - 1] != '/') && (directory[strlen(directory) - 1] != '\\')) ? "/" : ""), name);
 			SDL_PathInfo info;
 			if (SDL_GetPathInfo(full, &info) && (info.type == SDL_PATHTYPE_DIRECTORY)) {
@@ -98,7 +99,7 @@ namespace bb::gfx {
 					int deeper = *depth + 1;
 					scan_folder(full, deeper);
 				}
-				free(full);
+				bb_free(full);
 			} else if (is_font_file(name)) {
 				font_file entry;
 				entry.path = full;
@@ -106,7 +107,7 @@ namespace bb::gfx {
 				entry.key  = normalize(name, size_t(dot - name));
 				font_files.push(entry);
 			} else {
-				free(full);
+				bb_free(full);
 			}
 			return SDL_ENUM_CONTINUE;
 		}
@@ -252,7 +253,7 @@ namespace bb::gfx {
 			if (!result.file && key[0]) {
 				result = find_file(key, bold, italic);
 			}
-			free(key);
+			bb_free(key);
 			return result;
 		}
 
@@ -283,7 +284,7 @@ namespace bb::gfx {
 			return;
 		}
 		int      w = r.w + 1;
-		uint8_t* out = static_cast<uint8_t*>(calloc(size_t(w) * size_t(r.h), 1));
+		uint8_t* out = static_cast<uint8_t*>(bb_calloc(size_t(w) * size_t(r.h), 1));
 		for (int y = 0; y < r.h; y++) {
 			for (int x = 0; x < r.w; x++) {
 				uint8_t v = r.bitmap[y * r.w + x];
@@ -291,7 +292,7 @@ namespace bb::gfx {
 				out[y * w + x + 1] = out[y * w + x + 1] > v ? out[y * w + x + 1] : v;
 			}
 		}
-		free(r.bitmap);
+		bb_free(r.bitmap);
 		r.bitmap = out;
 		r.w      = w;
 	}
@@ -304,7 +305,7 @@ namespace bb::gfx {
 		// The top moves right, by a fifth of the height above the baseline.
 		int extra = (r.top < 0 ? -r.top : 0) / 5 + 1;
 		int w     = r.w + extra;
-		uint8_t* out = static_cast<uint8_t*>(calloc(size_t(w) * size_t(r.h), 1));
+		uint8_t* out = static_cast<uint8_t*>(bb_calloc(size_t(w) * size_t(r.h), 1));
 		for (int y = 0; y < r.h; y++) {
 			int above = -(r.top + y); // Rows above the baseline.
 			int shift = above > 0 ? above / 5 : 0;
@@ -312,7 +313,7 @@ namespace bb::gfx {
 				out[y * w + x + shift] = r.bitmap[y * r.w + x];
 			}
 		}
-		free(r.bitmap);
+		bb_free(r.bitmap);
 		r.bitmap = out;
 		r.w      = w;
 	}
@@ -407,7 +408,7 @@ namespace bb::gfx {
 				r.w = r.h = 0;
 			}
 			if ((r.w > 0) && (r.h > 0)) {
-				r.bitmap = static_cast<uint8_t*>(calloc(size_t(r.w) * size_t(r.h), 1));
+				r.bitmap = static_cast<uint8_t*>(bb_calloc(size_t(r.w) * size_t(r.h), 1));
 				stbtt_MakeGlyphBitmap(&info, r.bitmap, r.w, r.h, r.w, scale, scale, glyph_index);
 				r.left = x0;
 				r.top  = y0; // From the baseline, which is above for negative numbers.
@@ -454,7 +455,7 @@ namespace bb::gfx {
 		}
 		font->atlas_w = width;
 		font->atlas_h = y + row + 1;
-		font->pixels  = static_cast<uint8_t*>(calloc(size_t(font->atlas_w) * size_t(font->atlas_h), 4));
+		font->pixels  = static_cast<uint8_t*>(bb_calloc(size_t(font->atlas_w) * size_t(font->atlas_h), 4));
 		for (int i = 0; i < char_count; i++) {
 			raster&      r  = rasters[i];
 			const glyph& g_ = font->glyphs[i];
@@ -465,7 +466,7 @@ namespace bb::gfx {
 					px[3] = r.bitmap[yy * r.w + xx];
 				}
 			}
-			free(r.bitmap);
+			bb_free(r.bitmap);
 		}
 		return font;
 	}
@@ -478,7 +479,7 @@ namespace bb::gfx {
 		if (font->image) {
 			free_internal_image(font->image);
 		}
-		free(font->pixels);
+		bb_free(font->pixels);
 		delete font;
 	}
 
@@ -518,7 +519,7 @@ namespace bb::gfx {
 		}
 		if (!font->image && font->pixels && active()) {
 			font->image = make_internal_image(font->atlas_w, font->atlas_h, font->pixels);
-			free(font->pixels);
+			bb_free(font->pixels);
 			font->pixels = nullptr;
 		}
 		if (!font->image) {

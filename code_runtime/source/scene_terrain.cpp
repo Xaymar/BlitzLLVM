@@ -13,6 +13,7 @@
 // Terrains.
 
 #include "scene_internal.hpp"
+#include "memory.h"
 
 using namespace bb;
 using namespace bb::scene;
@@ -126,7 +127,7 @@ int32_t bb_create_terrain(int32_t size, int32_t parent)
 	entity* e    = get_entity(mesh);
 	e->terrain   = new terrain_data();
 	e->terrain->size    = size;
-	e->terrain->heights = static_cast<float*>(calloc(size_t(size + 1) * size_t(size + 1), sizeof(float)));
+	e->terrain->heights = static_cast<float*>(bb_calloc(size_t(size + 1) * size_t(size + 1), sizeof(float)));
 	new_surface(mesh);
 	return mesh;
 }
@@ -209,11 +210,11 @@ int32_t bb_load_terrain(const char* file, int32_t parent)
 		shift++;
 	}
 	if (width != height) {
-		free(pixels);
+		bb_free(pixels);
 		bb_runtime_error("Terrain must be square");
 	}
 	if ((1 << shift) != width) {
-		free(pixels);
+		bb_free(pixels);
 		bb_runtime_error("Illegal terrain size");
 	}
 	int32_t terrain = bb_create_terrain(width, parent);
@@ -224,7 +225,7 @@ int32_t bb_load_terrain(const char* file, int32_t parent)
 			bb_modify_terrain(terrain, x, height - 1 - y, float(m) / 255.0f, 0);
 		}
 	}
-	free(pixels);
+	bb_free(pixels);
 	return terrain;
 }
 }

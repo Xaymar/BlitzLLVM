@@ -16,6 +16,7 @@
 // vertices. The visibility data is not used: all of the level is drawn.
 
 #include "scene.hpp"
+#include "memory.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -153,7 +154,7 @@ namespace {
 	// The texture of one lightmap of the level, with the gamma of LoadBSP applied.
 	int make_lightmap(const uint8_t* rgb, float gamma)
 	{
-		uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(lightmap_size) * lightmap_size * 4));
+		uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(lightmap_size) * lightmap_size * 4));
 		uint8_t  curve[256];
 		float    power = 1.0f / (1.0f + (gamma > 0 ? gamma : 0.0f));
 		for (int i = 0; i < 256; i++) {
@@ -166,7 +167,7 @@ namespace {
 			pixels[i * 4 + 3] = 255;
 		}
 		int texture = bb_texture_from_rgba(lightmap_size, lightmap_size, lightmap_flags, lightmap_blend, pixels);
-		free(pixels);
+		bb_free(pixels);
 		return texture;
 	}
 
@@ -190,8 +191,8 @@ namespace {
 	{
 		static const char* extensions[] = { ".tga", ".jpg", ".png", ".dds" };
 		size_t             length       = strlen(directory) + strlen(name) + 64;
-		char*              path         = static_cast<char*>(malloc(length));
-		char*              up           = static_cast<char*>(malloc(length));
+		char*              path         = static_cast<char*>(bb_malloc(length));
+		char*              up           = static_cast<char*>(bb_malloc(length));
 		int                texture      = 0;
 		strcpy(up, directory);
 		for (int depth = 0; depth < 4 && !texture; depth++) {
@@ -206,8 +207,8 @@ namespace {
 			}
 			strcat(up, "../");
 		}
-		free(path);
-		free(up);
+		bb_free(path);
+		bb_free(up);
 		return texture;
 	}
 } // namespace
@@ -231,9 +232,9 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 		fclose(f);
 		return 0;
 	}
-	uint8_t* data = static_cast<uint8_t*>(malloc(size_t(size)));
+	uint8_t* data = static_cast<uint8_t*>(bb_malloc(size_t(size)));
 	if (fread(data, 1, size_t(size), f) != size_t(size)) {
-		free(data);
+		bb_free(data);
 		fclose(f);
 		return 0;
 	}
@@ -241,12 +242,12 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 
 	header const& h = *reinterpret_cast<header const*>(data);
 	if ((h.magic != 0x50534249u) || (h.version != 46)) {
-		free(data);
+		bb_free(data);
 		return 0;
 	}
 	for (int i = 0; i < 17; i++) {
 		if (!in_file(h.lumps[i], size_t(size))) {
-			free(data);
+			bb_free(data);
 			return 0;
 		}
 	}
@@ -260,11 +261,11 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 	int                 face_count     = h.lumps[LUMP_FACES].length / int(sizeof(level_face));
 	const uint8_t*      lightmaps      = data + h.lumps[LUMP_LIGHTMAPS].offset;
 	int                 lightmap_count = h.lumps[LUMP_LIGHTMAPS].length / (lightmap_size * lightmap_size * 3);
-	int*                lightmap_handle = static_cast<int*>(calloc(size_t(lightmap_count > 0 ? lightmap_count : 1), sizeof(int)));
+	int*                lightmap_handle = static_cast<int*>(bb_calloc(size_t(lightmap_count > 0 ? lightmap_count : 1), sizeof(int)));
 	std::map<uint64_t, surface*> surface_of; // By texture and lightmap.
 
 	// Where the level is, for finding the textures.
-	char* directory = static_cast<char*>(malloc(strlen(file) + 1));
+	char* directory = static_cast<char*>(bb_malloc(strlen(file) + 1));
 	strcpy(directory, file);
 	char* slash = strrchr(directory, '/');
 	char* back  = strrchr(directory, '\\');
@@ -279,8 +280,8 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 	entity*  e      = get_entity(handle);
 	e->cls          = "BSP";
 	e->fx           = 1; // It is not lit by lights. What lights it is a lightmap, or the colors of its vertices where there is none.
-	int*      handle_of_texture  = static_cast<int*>(calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(int)));
-	bool*     tried              = static_cast<bool*>(calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(bool)));
+	int*      handle_of_texture  = static_cast<int*>(bb_calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(int)));
+	bool*     tried              = static_cast<bool*>(bb_calloc(size_t(texture_count > 0 ? texture_count : 1) + 1, sizeof(bool)));
 
 	for (int k = 0; k < face_count; k++) {
 		level_face const& face = faces[k];
@@ -347,7 +348,7 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 			}
 			int step = 1 << tessellation;
 			int sx = (px - 1) * step + 1, sy = (py - 1) * step + 1;
-			blend_vertex* grid = static_cast<blend_vertex*>(calloc(size_t(sx) * size_t(sy), sizeof(blend_vertex)));
+			blend_vertex* grid = static_cast<blend_vertex*>(bb_calloc(size_t(sx) * size_t(sy), sizeof(blend_vertex)));
 			const level_vertex* control = vertices + face.vertex;
 			for (int y = 0; y < sy; y += step) {
 				for (int x = 0; x < sx; x += step) {
@@ -378,7 +379,7 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 					s.indices.push(n + uint32_t(sx));
 				}
 			}
-			free(grid);
+			bb_free(grid);
 		} else {
 			if ((face.meshvert < 0) || (face.meshvert > meshvert_count) || (face.meshverts > meshvert_count - face.meshvert)) {
 				continue;
@@ -404,11 +405,11 @@ int32_t bb_load_bsp(const char* file, float gamma, int32_t parent)
 		s.bound_valid = false;
 	}
 
-	free(lightmap_handle);
-	free(handle_of_texture);
-	free(tried);
-	free(directory);
-	free(data);
+	bb_free(lightmap_handle);
+	bb_free(handle_of_texture);
+	bb_free(tried);
+	bb_free(directory);
+	bb_free(data);
 	return handle;
 }
 

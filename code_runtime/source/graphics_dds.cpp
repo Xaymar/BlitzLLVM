@@ -16,6 +16,7 @@
 // kept with their blocks, for textures that use mip maps.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 #include <algorithm>
 #include "path.h"
@@ -532,7 +533,7 @@ namespace bb::gfx {
 				out.height = int(height);
 				out.size   = bytes;
 				out.mips   = int(levels);
-				out.blocks = static_cast<uint8_t*>(malloc(bytes));
+				out.blocks = static_cast<uint8_t*>(bb_malloc(bytes));
 				if (!out.blocks) {
 					return false;
 				}
@@ -541,7 +542,7 @@ namespace bb::gfx {
 				if ((f.type == block_format::bc2) || (f.type == block_format::bc3)) {
 					out.has_alpha = true;
 				} else if ((f.type == block_format::bc1) || (f.type == block_format::bc7)) {
-					uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(width) * height * 4));
+					uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(width) * height * 4));
 					if (pixels) {
 						decode_blocks(f.type, int(width), int(height), data, pixels);
 						for (size_t i = 0; i < size_t(width) * height; i++) {
@@ -550,7 +551,7 @@ namespace bb::gfx {
 								break;
 							}
 						}
-						free(pixels);
+						bb_free(pixels);
 					}
 				}
 				return true;
@@ -559,7 +560,7 @@ namespace bb::gfx {
 				return false;
 			}
 
-			uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(width) * height * 4));
+			uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(width) * height * 4));
 			if (!pixels) {
 				return false;
 			}
@@ -594,7 +595,7 @@ namespace bb::gfx {
 			out.width     = int(width);
 			out.height    = int(height);
 			out.has_alpha = has_alpha;
-			free(pixels);
+			bb_free(pixels);
 			return out.surface != nullptr;
 		}
 	} // namespace
@@ -604,7 +605,7 @@ namespace bb::gfx {
 		if (p.surface) {
 			SDL_DestroySurface(p.surface);
 		}
-		free(p.blocks);
+		bb_free(p.blocks);
 		p = picture();
 	}
 
@@ -612,11 +613,11 @@ namespace bb::gfx {
 	{
 		SDL_Surface* surface = p.surface;
 		if (!surface && p.blocks) {
-			uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(p.width) * size_t(p.height) * 4));
+			uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(p.width) * size_t(p.height) * 4));
 			if (pixels) {
 				decode_blocks(p.block, p.width, p.height, p.blocks, pixels);
 				surface = make_surface(pixels, p.width, p.height, p.has_alpha);
-				free(pixels);
+				bb_free(pixels);
 			}
 		}
 		p.surface = nullptr;
@@ -630,11 +631,11 @@ namespace bb::gfx {
 		if (!p.blocks || p.width <= 0 || p.height <= 0) {
 			return;
 		}
-		uint8_t* pixels = static_cast<uint8_t*>(malloc(size_t(p.width) * size_t(p.height) * 4));
+		uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(p.width) * size_t(p.height) * 4));
 		if (pixels) {
 			decode_blocks(p.block, p.width, p.height, p.blocks, pixels);
 			sprite_hull_compute(hull, pixels, p.width, p.height, size_t(p.width), flags);
-			free(pixels);
+			bb_free(pixels);
 		}
 	}
 

@@ -13,6 +13,7 @@
 // Entities: making them, the tree they are in, where they are, and their names, copies and appearance.
 
 #include <initializer_list>
+#include "memory.h"
 #include "scene_internal.hpp"
 
 using namespace bb;
@@ -164,10 +165,10 @@ namespace bb::scene {
 			destroy_pending_keys(e->pending_keys);
 		}
 		if (e->terrain) {
-			free(e->terrain->heights);
+			bb_free(e->terrain->heights);
 			delete e->terrain;
 		}
-		free(e->name);
+		bb_free(e->name);
 		delete e;
 		entities[uint32_t(handle) - 1]     = nullptr;
 		entity_kinds[uint32_t(handle) - 1] = 0;
@@ -243,7 +244,7 @@ namespace bb::scene {
 		if (from->terrain) {
 			copy.terrain          = new terrain_data(*from->terrain);
 			size_t count          = size_t(from->terrain->size + 1) * size_t(from->terrain->size + 1);
-			copy.terrain->heights = static_cast<float*>(malloc(count * sizeof(float)));
+			copy.terrain->heights = static_cast<float*>(bb_malloc(count * sizeof(float)));
 			memcpy(copy.terrain->heights, from->terrain->heights, count * sizeof(float));
 		}
 		copy.surfaces.data = nullptr;
@@ -271,7 +272,7 @@ namespace bb::scene {
 		}
 		if (from->name) {
 			size_t length = strlen(from->name);
-			to->name      = static_cast<char*>(malloc(length + 1));
+			to->name      = static_cast<char*>(bb_malloc(length + 1));
 			memcpy(to->name, from->name, length + 1);
 		}
 
@@ -658,9 +659,9 @@ void bb_point_entity(int32_t handle, int32_t target, float roll)
 void bb_name_entity(int32_t handle, const char* name)
 {
 	entity* e = need(handle, "NameEntity");
-	free(e->name);
+	bb_free(e->name);
 	size_t length = name ? strlen(name) : 0;
-	e->name       = static_cast<char*>(malloc(length + 1));
+	e->name       = static_cast<char*>(bb_malloc(length + 1));
 	memcpy(e->name, name ? name : "", length + 1);
 }
 
@@ -669,7 +670,7 @@ const char* bb_entity_name(int32_t handle)
 	entity*     e      = need(handle, "EntityName");
 	const char* name   = e->name ? e->name : "";
 	size_t      length = strlen(name);
-	char*       copy   = static_cast<char*>(malloc(length + 1)); // The name can be changed while the program has this.
+	char*       copy   = static_cast<char*>(bb_malloc(length + 1)); // The name can be changed while the program has this.
 	memcpy(copy, name, length + 1);
 	return copy;
 }

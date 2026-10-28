@@ -16,6 +16,7 @@
 // Without a sound device (or with BLITZ_HEADLESS set) all of this still works, it just stays silent.
 
 #include <math.h>
+#include "memory.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -122,11 +123,11 @@ static MIX_Audio* bb_classic_audio(const char* path, const SDL_AudioSpec* file)
 	spec.freq     = file->freq;
 
 	size_t capacity = 1 << 16, used = 0;
-	char*  data     = (char*)malloc(capacity);
+	char*  data     = (char*)bb_malloc(capacity);
 	for (;;) {
 		if (used + 8192 > capacity) {
 			capacity *= 2;
-			data = (char*)realloc(data, capacity);
+			data = (char*)bb_realloc(data, capacity);
 		}
 		int got = MIX_DecodeAudio(decoder, data + used, 8192, &spec);
 		if (got <= 0) {
@@ -142,7 +143,7 @@ static MIX_Audio* bb_classic_audio(const char* path, const SDL_AudioSpec* file)
 	MIX_Audio* audio  = NULL;
 	if (frames > 1 && out > 1) {
 		float* in  = (float*)data;
-		float* res = (float*)malloc(out * (size_t)channels * sizeof(float));
+		float* res = (float*)bb_malloc(out * (size_t)channels * sizeof(float));
 		double step = (double)file->freq / device.freq;
 		for (size_t i = 0; i < out; i++) {
 			double  at = (double)i * step;
@@ -158,9 +159,9 @@ static MIX_Audio* bb_classic_audio(const char* path, const SDL_AudioSpec* file)
 		result.channels = channels;
 		result.freq     = device.freq;
 		audio = MIX_LoadRawAudio(bb_mixer, res, out * (size_t)channels * sizeof(float), &result);
-		free(res);
+		bb_free(res);
 	}
-	free(data);
+	bb_free(data);
 	return audio;
 }
 
@@ -208,7 +209,7 @@ static int32_t bb_load(const char* path, int is_3d)
 	if (bb_audio_ready()) {
 		sound.audio = MIX_LoadAudio(bb_mixer, real, true);
 		if (!sound.audio) {
-			free(real);
+			bb_free(real);
 			return 0; // Missing or unusable files give 0, like in Blitz.
 		}
 		SDL_AudioSpec spec;
@@ -226,12 +227,12 @@ static int32_t bb_load(const char* path, int is_3d)
 		// No sound device: just remember that the file is there.
 		FILE* file = fopen(real, "rb");
 		if (!file) {
-			free(real);
+			bb_free(real);
 			return 0;
 		}
 		fclose(file);
 	}
-	free(real);
+	bb_free(real);
 
 	for (int32_t i = 1; i < bb_sound_count; i++) {
 		if (!bb_sounds[i].used) {
@@ -241,7 +242,7 @@ static int32_t bb_load(const char* path, int is_3d)
 	}
 	if (bb_sound_count >= bb_sound_cap) {
 		bb_sound_cap = bb_sound_cap ? bb_sound_cap * 2 : 64;
-		bb_sounds    = (bb_sound*)realloc(bb_sounds, (size_t)bb_sound_cap * sizeof(bb_sound));
+		bb_sounds    = (bb_sound*)bb_realloc(bb_sounds, (size_t)bb_sound_cap * sizeof(bb_sound));
 	}
 	bb_sounds[bb_sound_count] = sound;
 	return bb_sound_count++;
@@ -332,7 +333,7 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	if (!slot) {
 		if (bb_channel_count >= bb_channel_cap) {
 			bb_channel_cap = bb_channel_cap ? bb_channel_cap * 2 : 64;
-			bb_channels    = (bb_channel*)realloc(bb_channels, (size_t)bb_channel_cap * sizeof(bb_channel));
+			bb_channels    = (bb_channel*)bb_realloc(bb_channels, (size_t)bb_channel_cap * sizeof(bb_channel));
 		}
 		slot = bb_channel_count++;
 	}

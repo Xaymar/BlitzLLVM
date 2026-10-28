@@ -17,6 +17,7 @@
 // mesh along, each by a weight. Animating moves the bones, and then every vertex is put where its bones say.
 
 #include "animation_internal.hpp"
+#include "memory.h"
 
 namespace bb {
 	void destroy_skin(skin_data* s)
@@ -218,7 +219,7 @@ namespace bb::anim {
 	void apply_pose(animation& a, float frame)
 	{
 		uint32_t count = a.nodes.size;
-		float*   models = static_cast<float*>(malloc(size_t(count) * 16 * sizeof(float)));
+		float*   models = static_cast<float*>(bb_malloc(size_t(count) * 16 * sizeof(float)));
 		bool     any_bones = false;
 		for (uint32_t i = 0; i < count; i++) {
 			anim_node& n = *a.nodes[i];
@@ -252,7 +253,7 @@ namespace bb::anim {
 
 		if (any_bones) {
 			// Bone matrices: from the bind pose to now.
-			float* skin = static_cast<float*>(malloc(size_t(count) * 16 * sizeof(float)));
+			float* skin = static_cast<float*>(bb_malloc(size_t(count) * 16 * sizeof(float)));
 			for (uint32_t i = 0; i < count; i++) {
 				mat_multiply(skin + i * 16, models + i * 16, a.nodes[i]->inverse_bind);
 			}
@@ -313,9 +314,9 @@ namespace bb::anim {
 					bb::surface_changed(*surf);
 				}
 			}
-			free(skin);
+			bb_free(skin);
 		}
-		free(models);
+		bb_free(models);
 	}
 
 	// The model that an entity is part of: the closest entity above that has an animation.

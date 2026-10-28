@@ -6,6 +6,7 @@
 // tabbers have.
 
 #include "gui_internal.hpp"
+#include "memory.h"
 #include <string>
 #include <vector>
 
@@ -362,7 +363,7 @@ void bb_clear_gadget_items(int32_t handle)
 	gadget* g = need_gadget(handle, "ClearGadgetItems");
 	need_list(g, "ClearGadgetItems");
 	for (uint32_t i = 0; i < g->items.size; i++) {
-		free(g->items[i].text);
+		bb_free(g->items[i].text);
 	}
 	g->items.clear();
 	g->selected = -1;
@@ -426,7 +427,7 @@ void bb_remove_gadget_item(int32_t handle, int32_t index)
 	gadget* g = need_gadget(handle, "RemoveGadgetItem");
 	need_list(g, "RemoveGadgetItem");
 	check_index(g, index, 0);
-	free(g->items[uint32_t(index)].text);
+	bb_free(g->items[uint32_t(index)].text);
 	for (uint32_t k = uint32_t(index) + 1; k < g->items.size; k++) {
 		g->items[k - 1] = g->items[k];
 	}

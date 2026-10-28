@@ -18,6 +18,7 @@
 // Strings are NUL-terminated UTF-8, where NULL is the empty string. Strings are immutable and currently never freed.
 
 #include <ctype.h>
+#include "memory.h"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -44,7 +45,7 @@ const char* bb_s(const char* s)
 
 char* bb_alloc(size_t length)
 {
-	char* mem = (char*)malloc(length + 1);
+	char* mem = (char*)bb_malloc(length + 1);
 	if (!mem) {
 		fputs("Out of memory.\n", stderr);
 		exit(1);
@@ -77,7 +78,7 @@ char* bb_own(const char* s)
 		return NULL; // The empty string needs no memory.
 	}
 	size_t length = strlen(s);
-	char*  mem    = (char*)malloc(length + 1);
+	char*  mem    = (char*)bb_malloc(length + 1);
 	if (!mem) {
 		fputs("Out of memory.\n", stderr);
 		exit(1);
@@ -90,7 +91,7 @@ void bb_pool_push(char* s)
 {
 	if (bb_pool_size == bb_pool_cap) {
 		bb_pool_cap = bb_pool_cap ? bb_pool_cap * 2 : 256;
-		bb_pool     = (char**)realloc(bb_pool, bb_pool_cap * sizeof(char*));
+		bb_pool     = (char**)bb_realloc(bb_pool, bb_pool_cap * sizeof(char*));
 		if (!bb_pool) {
 			fputs("Out of memory.\n", stderr);
 			exit(1);
@@ -117,7 +118,7 @@ int32_t bb_str_mark(void)
 void bb_str_release(int32_t mark)
 {
 	while (bb_pool_size > (size_t)mark) {
-		free(bb_pool[--bb_pool_size]);
+		bb_free(bb_pool[--bb_pool_size]);
 	}
 }
 
@@ -127,11 +128,11 @@ const char* bb_str_assign(const char* old, const char* value)
 	// A temporary that was just made (s = s + "x" gives the concatenation) is not copied, the variable takes it over.
 	if (value && *value && bb_pool_size && (bb_pool[bb_pool_size - 1] == value)) {
 		bb_pool_size--;
-		free((char*)old);
+		bb_free((char*)old);
 		return value;
 	}
 	char* copy = bb_own(value);
-	free((char*)old);
+	bb_free((char*)old);
 	return copy;
 }
 
@@ -142,13 +143,13 @@ const char* bb_str_dup(const char* value)
 
 void bb_str_free(const char* s)
 {
-	free((char*)s);
+	bb_free((char*)s);
 }
 
 void bb_str_free_array(const char** elements, int32_t count)
 {
 	for (int32_t i = 0; i < count; i++) {
-		free((char*)elements[i]);
+		bb_free((char*)elements[i]);
 		elements[i] = NULL;
 	}
 }

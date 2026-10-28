@@ -13,6 +13,7 @@
 // The command line, environment and other things of the program and the system.
 
 #include "files_internal.h"
+#include "memory.h"
 
 // System
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +33,7 @@ const char* bb_command_line(void)
 	for (int i = 1; i < bb_argc; i++) {
 		length += strlen(bb_argv[i]) + 1;
 	}
-	char* out = (char*)malloc(length + 1);
+	char* out = (char*)bb_malloc(length + 1);
 	out[0]    = 0;
 	for (int i = 1; i < bb_argc; i++) {
 		if (i > 1) {
@@ -63,7 +64,7 @@ static const char* bb_app_dir(void)
 			strcpy(buffer, resolved);
 			length = strlen(buffer);
 		}
-		free(resolved);
+		bb_free(resolved);
 	}
 #endif
 	buffer[length] = 0;
@@ -189,7 +190,7 @@ const char* bb_lset(const char* text, int32_t width)
 	if (width < 0) {
 		width = 0;
 	}
-	char* out = (char*)malloc((size_t)width + 1);
+	char* out = (char*)bb_malloc((size_t)width + 1);
 	for (int32_t i = 0; i < width; i++) {
 		out[i] = ((size_t)i < len) ? text[i] : ' ';
 	}
@@ -203,7 +204,7 @@ const char* bb_rset(const char* text, int32_t width)
 	if (width < 0) {
 		width = 0;
 	}
-	char* out = (char*)malloc((size_t)width + 1);
+	char* out = (char*)bb_malloc((size_t)width + 1);
 	for (int32_t i = 0; i < width; i++) {
 		int64_t source = (int64_t)i - ((int64_t)width - (int64_t)len);
 		out[i]         = ((source >= 0) && ((size_t)source < len)) ? text[source] : ' ';

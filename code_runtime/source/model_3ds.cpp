@@ -22,6 +22,7 @@
 // Meshes are stored in the world, so each is moved back by where its tag puts it at the first frame, and then the tag moves it.
 
 #include "model_internal.hpp"
+#include "memory.h"
 
 using namespace bb;
 using namespace bb::anim;
@@ -142,13 +143,13 @@ namespace {
 		void release()
 		{
 			for (uint32_t i = 0; i < materials.size; i++) {
-				free(materials[i]->name);
-				free(materials[i]->map);
+				bb_free(materials[i]->name);
+				bb_free(materials[i]->map);
 				delete materials[i];
 			}
 			for (uint32_t i = 0; i < objects.size; i++) {
 				object3ds* o = objects[i];
-				free(o->name);
+				bb_free(o->name);
 				o->mesh.vertices.release();
 				o->mesh.uvs.release();
 				o->mesh.faces.release();
@@ -158,8 +159,8 @@ namespace {
 			}
 			for (uint32_t i = 0; i < nodes.size; i++) {
 				node3ds* n = nodes[i];
-				free(n->name);
-				free(n->instance);
+				bb_free(n->name);
+				bb_free(n->instance);
 				n->pos.data.release();
 				n->rot.data.release();
 				n->scale.data.release();
@@ -214,7 +215,7 @@ namespace {
 		each_chunk(r, end, [&](uint32_t id, size_t stop) {
 			switch (id) {
 			case 0xA000:
-				free(m.name);
+				bb_free(m.name);
 				m.name = r.read_string();
 				break;
 			case 0xA020:
@@ -245,7 +246,7 @@ namespace {
 				each_chunk(r, stop, [&](uint32_t sub, size_t sub_stop) {
 					switch (sub) {
 					case 0xA300:
-						free(m.map);
+						bb_free(m.map);
 						m.map = r.read_string();
 						break;
 					case 0xA351:
@@ -313,7 +314,7 @@ namespace {
 								mesh.face_material[face] = found;
 							}
 						}
-						free(name);
+						bb_free(name);
 					} else if (sub == 0x4150) {
 						for (uint32_t i = 0; (i < count) && !r.failed; i++) {
 							mesh.smoothing[i] = u32(r);
@@ -410,7 +411,7 @@ namespace {
 		each_chunk(r, end, [&](uint32_t id, size_t stop) {
 			switch (id) {
 			case 0xB010: {
-				free(n->name);
+				bb_free(n->name);
 				n->name         = r.read_string();
 				n->flags        = u16(r);
 				u16(r);
@@ -419,7 +420,7 @@ namespace {
 				break;
 			}
 			case 0xB011:
-				free(n->instance);
+				bb_free(n->instance);
 				n->instance = r.read_string();
 				break;
 			case 0xB020:
@@ -599,7 +600,7 @@ namespace {
 		if (!s) {
 			return nullptr;
 		}
-		char* out = static_cast<char*>(malloc(strlen(s) + 1));
+		char* out = static_cast<char*>(bb_malloc(strlen(s) + 1));
 		strcpy(out, s);
 		return out;
 	}

@@ -16,6 +16,7 @@
 // 1 is the fastest and 9 searches the longest.
 
 #include "graphics_save.hpp"
+#include "memory.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -530,7 +531,7 @@ namespace bb::gfx {
 		out.push_back(uint8_t(adler >> 16));
 		out.push_back(uint8_t(adler >> 8));
 		out.push_back(uint8_t(adler));
-		auto* result = static_cast<unsigned char*>(malloc(out.size()));
+		auto* result = static_cast<unsigned char*>(bb_malloc(out.size()));
 		if (!result) {
 			return nullptr;
 		}
