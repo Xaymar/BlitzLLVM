@@ -56,6 +56,8 @@ typedef struct bb_channel {
 	int32_t    entity; // For sounds that come from somewhere in the world, 0 otherwise.
 	float      volume;
 	float      pan;
+	float      gain3d; // What distance does to the volume of a sound that comes from an entity (1 for others).
+	float      pan3d;  // Where the entity is, from the listener's left (-1) to right (1).
 	int        frequency;
 	float      ratio; // What the sound itself is played at, the doppler shift comes on top.
 	bb_motion  motion;
@@ -327,8 +329,11 @@ void bb_sound_pitch(int32_t handle, int32_t hertz)
 }
 
 // Sets the track to what the channel says. Gains are 0 to 1, and the pan from left (-1) to right (1).
-static void bb_channel_apply(bb_channel* channel, float volume, float pan)
+// ChannelVolume and ChannelPan set what the program wants, the position of the entity is on top of that.
+static void bb_channel_apply(bb_channel* channel)
 {
+	float volume = channel->volume * channel->gain3d;
+	float pan    = bb_clamp(channel->pan + channel->pan3d, -1.0f, 1.0f);
 	MIX_SetTrackGain(channel->track, bb_clamp(volume, 0.0f, 1.0f));
 	MIX_StereoGains gains;
 	gains.left  = pan > 0 ? 1.0f - pan : 1.0f;
@@ -375,13 +380,14 @@ static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 	channel->pan       = sound->pan;
 	channel->frequency = sound->pitch;
 	channel->ratio     = 1.0f;
+	channel->gain3d    = 1.0f;
 
 	MIX_SetTrackAudio(channel->track, sound->audio);
 	if (sound->pitch > 0 && sound->frequency > 0) {
 		channel->ratio = (float)sound->pitch / (float)sound->frequency;
 		MIX_SetTrackFrequencyRatio(channel->track, channel->ratio);
 	}
-	bb_channel_apply(channel, channel->volume, channel->pan);
+	bb_channel_apply(channel);
 	// The loop count has to be given while starting, MIX_SetTrackLoops does nothing for a track that is not playing yet.
 	SDL_PropertiesID options = SDL_CreateProperties();
 	SDL_SetNumberProperty(options, MIX_PROP_PLAY_LOOPS_NUMBER, sound->loop ? -1 : 0);
@@ -465,7 +471,7 @@ void bb_channel_volume(int32_t handle, float volume)
 	bb_channel* channel = bb_channel_get(handle);
 	if (channel) {
 		channel->volume = bb_clamp(volume, 0.0f, 1.0f);
-		bb_channel_apply(channel, channel->volume, channel->pan);
+		bb_channel_apply(channel);
 	}
 }
 
@@ -474,7 +480,7 @@ void bb_channel_pan(int32_t handle, float pan)
 	bb_channel* channel = bb_channel_get(handle);
 	if (channel) {
 		channel->pan = bb_clamp(pan, -1.0f, 1.0f);
-		bb_channel_apply(channel, channel->volume, channel->pan);
+		bb_channel_apply(channel);
 	}
 }
 
@@ -580,7 +586,9 @@ void bb_sound_update(void)
 		if ((world > 1e-3f) && (rl > 1e-6f)) {
 			pan = (dx * rx + dy * ry + dz * rz) / (world * rl);
 		}
-		bb_channel_apply(channel, channel->volume * gain, bb_clamp(channel->pan + pan, -1.0f, 1.0f));
+		channel->gain3d = gain;
+		channel->pan3d  = pan;
+		bb_channel_apply(channel);
 
 		// The pitch: what the source moves along the line to the listener, and what the listener does.
 		if (world > 1e-3f) {
