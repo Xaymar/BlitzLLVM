@@ -1452,13 +1452,25 @@ namespace bb::gfx {
 			}
 		};
 		struct state_hash {
+			// The pointers are aligned and the table of some standard libraries only looks at the low bits of a hash, so every
+			// value is mixed on its own (draws that only differ in a pointer would otherwise all end up in a few buckets).
+			static size_t mix(uint64_t h, uint64_t v)
+			{
+				h ^= v + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
+				h ^= h >> 32;
+				h *= 0xd6e8feb86659fd93ull;
+				h ^= h >> 32;
+				return size_t(h);
+			}
 			size_t operator()(state_key const& k) const
 			{
-				size_t h = k.pipeline * 31 + k.vertex_buffer;
-				h        = h * 31 + k.index_buffer;
-				h        = h * 31 + k.index_count;
-				h        = h * 31 + size_t(k.texture_set) * 31 + size_t(k.texture_sampler);
-				return h * 4 + (k.cull ? 2 : 0) + (k.depth_write ? 1 : 0);
+				size_t h = mix(0, k.pipeline);
+				h        = mix(h, k.vertex_buffer);
+				h        = mix(h, k.index_buffer);
+				h        = mix(h, k.index_count);
+				h        = mix(h, k.texture_set);
+				h        = mix(h, k.texture_sampler);
+				return mix(h, (k.cull ? 2 : 0) + (k.depth_write ? 1 : 0));
 			}
 		};
 		std::unordered_map<state_key, int, state_hash> states;
