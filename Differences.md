@@ -33,6 +33,7 @@ Differences that are not caused by one command.
 * [Multiplayer](Multiplayer): Multiplayer uses TCP on port 40500 instead of DirectPlay, so games only play with other BlitzLLVM games.
 * [Numbers of other sizes](Numbers-of-Other-Sizes): Extension: `Byte`, `Short`, `UInt`, `Long`, `Half`, `Double` and the like, with conversions, saturating versions, bit functions and Double math.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
+* [Saving pictures](Saving-Pictures): Extension: [SaveBuffer](SaveBuffer), [SaveImage](SaveImage) and the new [SaveTexture](SaveTexture) write PNG, JPEG, WebP, JPEG XL, TGA and BMP files with settings, mark them as made by the program, and can encode on another thread with [AsyncSaving](AsyncSaving).
 * [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZ_AUDIO_CLASSIC` restores the FMOD sound.
 * [Sprite depth fade](Sprite-Depth-Fade): Extension: `SpriteDepthFade` fades see-through sprites out where they get close to solid geometry (soft particles); the original has no such command.
 * [Sprite shapes](Sprite-Shapes): Sprites with a round or cut-out texture are drawn as the smallest octagon that the texture can be seen in, not as a square; the picture is the same within one level of a color.
@@ -54,6 +55,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [AntiAlias](AntiAlias#differences): Accepted and ignored.
 * [AppTitle](AppTitle#differences): The title is only used once a graphics mode is open.
 * [AsyncLoading](AsyncLoading#differences) 〔BlitzLLVM〕: With asynchronous loading on, a picture or model with a valid header that cannot be decoded raises its error when it is first used and not as a 0 from the load.
+* [AsyncSaving](AsyncSaving#differences) 〔BlitzLLVM〕: With asynchronous saving on, a file that can't be written (a folder that does not exist, a full disk) is not a 0 from the save command, but is counted by SavesFailed.
 * [AvailVidMem](AvailVidMem#differences): The graphics card cannot be asked how much of its memory is still free.
 * [BrushTexture](BrushTexture#differences): Layers 0 to 7 are accepted.
 * [BSPAmbientLight](BSPAmbientLight#differences): The original adds the color to the light of each face before the texture is applied, and lights the vertices of a level with point and spot lights too.
@@ -236,7 +238,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [SatUInt](SatUInt#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [SatULong](SatULong#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [SatUShort](SatUShort#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
-* [SaveBuffer](SaveBuffer#differences): A name that ends with `.png` gives a PNG file and any other name a BMP file.
+* [SaveBuffer](SaveBuffer#differences): The original only writes BMP files.
 * [SaveImage](SaveImage#differences): The original only writes BMP files.
 * [ScaleImage](ScaleImage#differences): Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
 * [ScanLine](ScanLine#differences): Always returns 0.

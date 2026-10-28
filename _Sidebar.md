@@ -17,7 +17,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (27)</summary>
+<li><details><summary>Features (28)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -40,6 +40,7 @@
 <li><a href="Multiplayer">Multiplayer</a></li>
 <li><a href="Numbers-of-Other-Sizes">Numbers of other sizes</a></li>
 <li><a href="Samplers">Samplers</a></li>
+<li><a href="Saving-Pictures">Saving pictures</a></li>
 <li><a href="Sound-Resampling">Sound resampling</a></li>
 <li><a href="Sprite-Depth-Fade">Sprite depth fade</a></li>
 <li><a href="Sprite-Shapes">Sprite shapes</a></li>
@@ -48,7 +49,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (255)</summary>
+<li><details><summary>Commands (256)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -60,6 +61,7 @@
 <li><a href="AntiAlias#differences">AntiAlias</a></li>
 <li><a href="AppTitle#differences">AppTitle</a></li>
 <li><a href="AsyncLoading#differences">AsyncLoading</a> 〔BlitzLLVM〕</li>
+<li><a href="AsyncSaving#differences">AsyncSaving</a> 〔BlitzLLVM〕</li>
 <li><a href="AvailVidMem#differences">AvailVidMem</a></li>
 <li><a href="BrushTexture#differences">BrushTexture</a></li>
 <li><a href="BSPAmbientLight#differences">BSPAmbientLight</a></li>
@@ -639,9 +641,10 @@
 <li><a href="Write">Write</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Images">Images</a> (34)</summary>
+<li><details><summary><a href="BlitzBasic-Images">Images</a> (37)</summary>
 <ul>
 <li><a href="AsyncLoading">AsyncLoading</a> 〔BlitzLLVM〕</li>
+<li><a href="AsyncSaving">AsyncSaving</a> 〔BlitzLLVM〕</li>
 <li><a href="AutoMidHandle">AutoMidHandle</a></li>
 <li><a href="CopyImage">CopyImage</a></li>
 <li><a href="CreateImage">CreateImage</a></li>
@@ -670,6 +673,8 @@
 <li><a href="ResizeImage">ResizeImage</a></li>
 <li><a href="RotateImage">RotateImage</a></li>
 <li><a href="SaveImage">SaveImage</a></li>
+<li><a href="SavesFailed">SavesFailed</a> 〔BlitzLLVM〕</li>
+<li><a href="SavesPending">SavesPending</a> 〔BlitzLLVM〕</li>
 <li><a href="ScaleImage">ScaleImage</a></li>
 <li><a href="TFormFilter">TFormFilter</a></li>
 <li><a href="TFormImage">TFormImage</a></li>
@@ -1076,7 +1081,7 @@
 <li><a href="TerrainZ">TerrainZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Textures">Textures</a> (46)</summary>
+<li><details><summary><a href="Blitz3D-Textures">Textures</a> (47)</summary>
 <ul>
 <li><a href="ClearTextureFilters">ClearTextureFilters</a></li>
 <li><a href="CreateSampler">CreateSampler</a> 〔BlitzLLVM〕</li>
@@ -1101,6 +1106,7 @@
 <li><a href="LoadTexture">LoadTexture</a></li>
 <li><a href="PositionTexture">PositionTexture</a></li>
 <li><a href="RotateTexture">RotateTexture</a></li>
+<li><a href="SaveTexture">SaveTexture</a> 〔BlitzLLVM〕</li>
 <li><a href="ScaleTexture">ScaleTexture</a></li>
 <li><a href="SetCubeFace">SetCubeFace</a></li>
 <li><a href="SetCubeMode">SetCubeMode</a></li>

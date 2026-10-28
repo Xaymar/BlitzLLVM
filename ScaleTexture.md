@@ -70,7 +70,7 @@ WaitKey
 
 ## Related Commands
 
-[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [SetTextureSampler](SetTextureSampler) 〔BlitzLLVM〕
+[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [SaveTexture](SaveTexture) 〔BlitzLLVM〕
 
 <div align="center">
 

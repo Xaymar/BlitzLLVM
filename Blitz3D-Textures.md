@@ -32,6 +32,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [LoadTexture](LoadTexture)
 * [PositionTexture](PositionTexture)
 * [RotateTexture](RotateTexture)
+* [SaveTexture](SaveTexture) 〔BlitzLLVM〕
 * [ScaleTexture](ScaleTexture)
 * [SetCubeFace](SetCubeFace)
 * [SetCubeMode](SetCubeMode)

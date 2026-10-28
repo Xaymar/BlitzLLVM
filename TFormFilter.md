@@ -58,7 +58,7 @@ WaitKey
 
 ## Related Commands
 
-[SaveImage](SaveImage), [ScaleImage](ScaleImage), [TFormImage](TFormImage), [TileBlock](TileBlock)
+[SavesPending](SavesPending) 〔BlitzLLVM〕, [ScaleImage](ScaleImage), [TFormImage](TFormImage), [TileBlock](TileBlock)
 
 <div align="center">
 

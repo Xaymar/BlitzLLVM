@@ -39,7 +39,7 @@ This is a BlitzLLVM extension: the originals load every picture and model before
 
 ## Related Commands
 
-[AutoMidHandle](AutoMidHandle), [CopyImage](CopyImage)
+[AsyncSaving](AsyncSaving) 〔BlitzLLVM〕, [AutoMidHandle](AutoMidHandle)
 
 <div align="center">
 

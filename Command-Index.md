@@ -39,6 +39,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [Asc](Asc)
 * [ASin](ASin)
 * [AsyncLoading](AsyncLoading) 〔BlitzLLVM〕
+* [AsyncSaving](AsyncSaving) 〔BlitzLLVM〕
 * [ATan](ATan)
 * [ATan2](ATan2)
 * [AutoMidHandle](AutoMidHandle)
@@ -691,6 +692,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [SatUShort](SatUShort) 〔BlitzLLVM〕
 * [SaveBuffer](SaveBuffer)
 * [SaveImage](SaveImage)
+* [SavesFailed](SavesFailed) 〔BlitzLLVM〕
+* [SavesPending](SavesPending) 〔BlitzLLVM〕
+* [SaveTexture](SaveTexture) 〔BlitzLLVM〕
 * [ScaleEntity](ScaleEntity)
 * [ScaleImage](ScaleImage)
 * [ScaleMesh](ScaleMesh)

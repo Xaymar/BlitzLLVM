@@ -10,6 +10,7 @@ Loading, drawing, transforming and colliding images.
 Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
 * [AsyncLoading](AsyncLoading) 〔BlitzLLVM〕
+* [AsyncSaving](AsyncSaving) 〔BlitzLLVM〕
 * [AutoMidHandle](AutoMidHandle)
 * [CopyImage](CopyImage)
 * [CreateImage](CreateImage)
@@ -38,6 +39,8 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [ResizeImage](ResizeImage)
 * [RotateImage](RotateImage)
 * [SaveImage](SaveImage)
+* [SavesFailed](SavesFailed) 〔BlitzLLVM〕
+* [SavesPending](SavesPending) 〔BlitzLLVM〕
 * [ScaleImage](ScaleImage)
 * [TFormFilter](TFormFilter)
 * [TFormImage](TFormImage)
