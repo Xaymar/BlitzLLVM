@@ -1006,6 +1006,36 @@ namespace bb::gfx {
 		return false;
 	}
 
+	// Whether the GPU can blend in the fragment shader, which Dither 2 does to dither the result of blending: the shader reads what
+	// the color attachment holds (dynamic rendering local read) while the draws that touch a pixel stay in order
+	// (rasterization order attachment access), and a fifth set of descriptors can be bound. BLITZ_NO_BLEND_DITHER=1 says no, for comparing.
+	bool can_blend_in_shader(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
+	{
+		const char* off = getenv("BLITZ_NO_BLEND_DITHER");
+		if ((off && off[0] && (off[0] != '0')) || (props.limits.maxBoundDescriptorSets < 5)) {
+			return false;
+		}
+		uint32_t count = 0;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
+		std::vector<VkExtensionProperties> available(count);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &count, available.data());
+		bool local_read = false, access_order = false;
+		for (VkExtensionProperties const& e : available) {
+			local_read   = local_read || (strcmp(e.extensionName, VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME) == 0);
+			access_order = access_order || (strcmp(e.extensionName, VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME) == 0);
+		}
+		if (!local_read || !access_order) {
+			return false;
+		}
+		VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR          local_features  = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES_KHR };
+		VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT order_features  = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT };
+		local_features.pNext                                                           = &order_features;
+		VkPhysicalDeviceFeatures2 query                                                = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+		query.pNext                                                                    = &local_features;
+		vkGetPhysicalDeviceFeatures2(device, &query);
+		return local_features.dynamicRenderingLocalRead && order_features.rasterizationOrderColorAttachmentAccess;
+	}
+
 	// The same GPU twice has the same name: of those the n-th is the n-th.
 	uint32_t twin_of(VkPhysicalDevice* devices, uint32_t d)
 	{
@@ -1067,6 +1097,7 @@ namespace bb::gfx {
 			entry.device = props.deviceID;
 			entry.twin   = twin_of(devices, d);
 			entry.usable = can_draw(devices[d], props);
+			entry.blend_dither = entry.usable && can_blend_in_shader(devices[d], props);
 			switch (props.deviceType) {
 			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:   entry.rank = 4; break;
 			case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: entry.rank = 3; break;
@@ -1222,13 +1253,35 @@ namespace bb::gfx {
 			features13.pNext = &border_features;
 		}
 
-		const char*        device_extensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME };
+		// Dither 2 blends in the shader, which needs two more extensions.
+		VkPhysicalDeviceProperties physical_props;
+		vkGetPhysicalDeviceProperties(g.physical, &physical_props);
+		g.can_blend_dither = can_blend_in_shader(g.physical, physical_props);
+		VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR          local_read   = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES_KHR };
+		VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT access_order = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT };
+		if (g.can_blend_dither) {
+			local_read.dynamicRenderingLocalRead                = VK_TRUE;
+			access_order.rasterizationOrderColorAttachmentAccess = VK_TRUE;
+			local_read.pNext                                     = &access_order;
+			access_order.pNext                                   = features13.pNext;
+			features13.pNext                                     = &local_read;
+		}
+
+		const char* device_extensions[4] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		uint32_t    device_extension_total = 1;
+		if (g.can_custom_border) {
+			device_extensions[device_extension_total++] = VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME;
+		}
+		if (g.can_blend_dither) {
+			device_extensions[device_extension_total++] = VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME;
+			device_extensions[device_extension_total++] = VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME;
+		}
 		VkDeviceCreateInfo device_info         = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 		device_info.pNext                      = &features13;
 		device_info.pEnabledFeatures           = &enabled;
 		device_info.queueCreateInfoCount       = 1;
 		device_info.pQueueCreateInfos          = &queue_info;
-		device_info.enabledExtensionCount      = g.can_custom_border ? 2 : 1;
+		device_info.enabledExtensionCount      = device_extension_total;
 		device_info.ppEnabledExtensionNames    = device_extensions;
 		check(vkCreateDevice(g.physical, &device_info, nullptr, &g.device), "vkCreateDevice");
 
