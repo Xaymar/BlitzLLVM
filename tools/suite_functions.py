@@ -42,6 +42,8 @@ BY_COMPILER = {
 }
 
 # Functions BlitzLLVM adds on top of the originals: name, module and signature in the style of the originals.
+# Signatures of the extensions mark a parameter that the command writes to with a '>' in front of its type (Out), and
+# one it reads and writes with a '<' (InOut). Parameters without a mark are In.
 EXTENSIONS = {
     "createhtmlview": ("plusgui", "%CreateHtmlView%x%y%width%height%group%style=0"),
     "htmlviewgo": ("plusgui", "HtmlViewGo%htmlview$URL"),

@@ -199,7 +199,7 @@ def command_html(c, siblings, links, media, doc, free, split_text, related, prod
     sig = c.signature()
     out = ["<h1>%s%s</h1>" % (ESC(sig), ESC(c.mark))]
     if c.params:
-        rows = ["<b>%s</b> (%s%s) - %s" % (ESC(n), t, ", optional, default %s" % ESC(d) if d else "",
+        rows = ["<b>%s</b> (%s%s) - %s" % (ESC(n), t if " " in t else "In " + t, ", optional, default %s" % ESC(d) if d else "",
                                            inline(doc["param"].get(n, ""), links, media)) for t, n, d in c.params]
         out += ["<h1>Parameters</h1>", table("<br />\n".join(rows))]
     if doc["returns"]:
