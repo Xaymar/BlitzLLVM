@@ -1513,23 +1513,24 @@ namespace bb::gfx {
 		for (int l : layer) {
 			layers = std::max(layers, l + 1);
 		}
+		// A counting sort by layer, then the draws of each layer are put in the order of their state (a layer is small, so
+		// this costs less than a table of every layer and state). Both keep the order of equal keys.
 		std::vector<uint32_t> order(units.size());
-		if (size_t(layers) * states_count <= (size_t(1) << 20)) {
-			std::vector<uint32_t> start(size_t(layers) * states_count + 1, 0);
+		std::vector<uint32_t> start(size_t(layers) + 1, 0);
+		for (size_t u = 0; u < units.size(); u++) {
+			start[size_t(layer[u]) + 1]++;
+		}
+		for (size_t k = 1; k < start.size(); k++) {
+			start[k] += start[k - 1];
+		}
+		{
+			std::vector<uint32_t> next(start.begin(), start.end() - 1);
 			for (size_t u = 0; u < units.size(); u++) {
-				start[size_t(layer[u]) * states_count + size_t(state[u]) + 1]++;
+				order[next[size_t(layer[u])]++] = uint32_t(u);
 			}
-			for (size_t k = 1; k < start.size(); k++) {
-				start[k] += start[k - 1];
-			}
-			for (size_t u = 0; u < units.size(); u++) {
-				order[start[size_t(layer[u]) * states_count + size_t(state[u])]++] = uint32_t(u);
-			}
-		} else {
-			for (size_t u = 0; u < order.size(); u++) {
-				order[u] = uint32_t(u);
-			}
-			std::stable_sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return std::make_pair(layer[a], state[a]) < std::make_pair(layer[b], state[b]); });
+		}
+		for (int l = 0; l < layers; l++) {
+			std::stable_sort(order.begin() + start[l], order.begin() + start[l + 1], [&](uint32_t a, uint32_t b) { return state[a] < state[b]; });
 		}
 		std::vector<draw_record> sorted;
 		sorted.reserve(last - first);
@@ -2623,6 +2624,7 @@ namespace bb::gfx {
 			sort_items(list.behind, true);
 			sort_items(list.blended, false);
 			sort_items(list.front, true);
+
 		}
 
 		scene.first_draw = draws.size;
