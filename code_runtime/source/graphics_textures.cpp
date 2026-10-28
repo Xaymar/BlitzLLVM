@@ -816,9 +816,7 @@ int32_t bb_texture_exists(int32_t handle)
 void bb_free_texture(int32_t handle)
 {
 	if (!live_texture_of(handle)) {
-		if (handle != 0) { // A 0 is a texture that failed to load, which programs free without asking.
-			BB_DEBUG_HANDLE_MISSING("FreeTexture", "texture", handle);
-		}
+		BB_DEBUG_HANDLE_MISSING("FreeTexture", "texture", handle);
 		return;
 	}
 	texture_entry& t = texture_table[uint32_t(handle & bb::texture_handle_mask) - 1];

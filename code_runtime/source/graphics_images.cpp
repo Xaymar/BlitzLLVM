@@ -521,12 +521,11 @@ int32_t bb_create_image(int32_t width, int32_t height, int32_t frames)
 
 void bb_free_image(int32_t handle)
 {
-	// Freeing what is already gone (or never was) does nothing, as programs rely on, except in a debug build. Freeing the 0 of an image
-	// that failed to load is allowed there too, as that is how programs write "free it if there is one".
+	// Freeing what is already gone (or never was, 0 included) does nothing, as programs rely on, except in a debug build.
 	image_entry* e = image_of(handle);
 	if (e) {
 		free_image(*e);
-	} else if (handle != 0) {
+	} else {
 		BB_DEBUG_HANDLE_MISSING("FreeImage", "image", handle);
 	}
 }

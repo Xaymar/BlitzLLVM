@@ -13,6 +13,7 @@
 
 // Drawing of lines, shapes and text.
 
+#include "handle_check.h"
 #include "graphics_internal.hpp"
 #include "memory.h"
 #include "runtime_internal.h"
@@ -360,6 +361,7 @@ void bb_set_font(int32_t handle)
 void bb_free_font(int32_t handle)
 {
 	if (!handle) {
+		BB_DEBUG_HANDLE_MISSING("FreeFont", "font", handle);
 		return;
 	}
 	font_entry* f = font_of(handle);

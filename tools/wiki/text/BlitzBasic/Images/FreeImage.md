@@ -5,4 +5,4 @@
 Releases an image and its video memory. The handle must not be used afterwards.
 @param image  The image to free.
 @gap Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
-@gap A debug build (`-d`) stops the program when the image is freed already, see [Debug handle checks](Debug-Handle-Checks). Freeing the 0 of an image that failed to load is fine everywhere.
+@gap A debug build (`-d`) stops the program when the image is freed already, see [Debug handle checks](Debug-Handle-Checks). The 0 of an image that failed to load is an error too.

@@ -723,7 +723,7 @@ void bb_close_movie(int32_t handle)
 {
 	if (movie* m = movie_of(handle)) {
 		release(*m);
-	} else if (handle != 0) { // A 0 is a movie that failed to open, which programs close without asking.
+	} else {
 		BB_DEBUG_HANDLE_MISSING("CloseMovie", "movie", handle);
 	}
 }

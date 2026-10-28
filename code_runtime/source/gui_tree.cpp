@@ -5,6 +5,7 @@
 
 // Tree views and the nodes in them. A tree view has a root node that is not shown and that all other nodes are in.
 
+#include "handle_check.h"
 #include "gui_internal.hpp"
 #include "memory.h"
 #include "runtime_internal.h"
@@ -214,6 +215,7 @@ void bb_collapse_tree_view_node(int32_t handle)
 void bb_free_tree_view_node(int32_t handle)
 {
 	if (!handle) {
+		BB_DEBUG_HANDLE_MISSING("FreeTreeViewNode", "tree view node", handle);
 		return;
 	}
 	node* n = need_node(handle, "FreeTreeViewNode");
