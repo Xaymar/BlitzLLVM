@@ -477,6 +477,7 @@ flushmouse	input	done	FlushMouse
 getjoy	input	done	%GetJoy%port=0
 getkey	input	done	%GetKey
 getmouse	input	done	%GetMouse
+hwrawinputs	input	done	%HWRawInputs
 joydown	input	done	%JoyDown%button%port=0
 joyhat	input	done	%JoyHat%port=0
 joyhit	input	done	%JoyHit%button%port=0
@@ -507,6 +508,8 @@ mouseyspeed	input	done	%MouseYSpeed
 mousez	input	done	%MouseZ
 mousezspeed	input	done	%MouseZSpeed
 movemouse	input	done	MoveMouse%x%y
+rawinputs	input	done	RawInputs%enable
+rawinputsenabled	input	done	%RawInputsEnabled
 waitjoy	input	done	%WaitJoy%port=0
 waitkey	input	done	%WaitKey
 waitmouse	input	done	%WaitMouse

@@ -489,6 +489,32 @@ int32_t bb_mouse_z_speed(void)
 	return v;
 }
 
+// A BlitzLLVM extension: asks for the mouse as the hardware reports it, see bb_mouse_x_speed and the wheel in drain.
+void bb_raw_inputs(int32_t enable)
+{
+	g.raw_inputs = enable != 0;
+	if (!g.raw_inputs) {
+		g.mouse_z_frac = 0;
+	}
+}
+
+int32_t bb_raw_inputs_enabled(void)
+{
+	return g.raw_inputs ? 1 : 0;
+}
+
+// 1 if the mouse can be asked for without the acceleration of the system, else 0. Only a mouse of a desktop window system can.
+int32_t bb_hw_raw_inputs(void)
+{
+	if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
+		return 0;
+	}
+	const char* driver = SDL_GetCurrentVideoDriver();
+	bool        ok     = driver && SDL_strcmp(driver, "dummy") && SDL_strcmp(driver, "offscreen") && SDL_HasMouse();
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	return ok ? 1 : 0;
+}
+
 int32_t bb_mouse_z(void)
 {
 	if (active()) {
