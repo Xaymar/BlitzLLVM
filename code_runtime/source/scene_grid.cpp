@@ -34,7 +34,7 @@ namespace {
 	constexpr double   move_share = 0.05;
 	constexpr double   move_hysteresis = 0.9;
 	// Sorting the members of the cells in view and visiting them in order costs more than reading every mesh once this share of the
-	// meshes are in cells that are in view, so the grid is not used for that look. BLITZ_GRID_SCAN_SHARE=<share> overrides it.
+	// meshes are in cells that are in view, so the grid is not used for that look. BLITZLLVM_SPATIAL_GRID_SCAN_SHARE=<share> overrides it.
 	constexpr double   scan_share = 0.1;
 
 	// What stands in a list for an entity. It only counts as long as the generation is the one the entity has now, which is changed
@@ -321,7 +321,7 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 		activate();
 	}
 
-	static const double scan_limit = getenv("BLITZ_GRID_SCAN_SHARE") ? atof(getenv("BLITZ_GRID_SCAN_SHARE")) : scan_share;
+	static const double scan_limit = bb_env_double("BLITZLLVM_SPATIAL_GRID_SCAN_SHARE", scan_share);
 	// Cells with most of the meshes in them being asked about cost more than looking at everything.
 	seen_cells.clear();
 	size_t seen_live = loose.size();
@@ -422,7 +422,7 @@ void bb::grid_touched(int handle)
 
 void bb::grid_begin_frame()
 {
-	static const double limit_override = getenv("BLITZ_GRID_MAX_MOVED") ? atof(getenv("BLITZ_GRID_MAX_MOVED")) : -1;
+	static const double limit_override = bb_env_double("BLITZLLVM_SPATIAL_GRID_MAX_MOVED", -1);
 	moved = touched.size();
 	double limit = limit_override >= 0 ? limit_override : move_share * double(mesh_count);
 	if (!suppressed && double(moved) > limit) {
