@@ -210,6 +210,9 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 			set_tests_properties("${_PREFIX}-compile-${_NAME}" PROPERTIES PASS_REGULAR_EXPRESSION "${_EXPECT}" LABELS "suite")
 			continue()
 		endif()
+		if(_RELATIVE MATCHES "^fail/.*_pixels\\.bb$" AND NOT BLITZ_TEST_GPU)
+			continue()  # Needs a window and a GPU to fail the way it is meant to.
+		endif()
 		if(_RELATIVE MATCHES "^pending/" AND _CONFIG STREQUAL "debug")
 			continue()  # A placeholder is the same in both, so it is only checked once.
 		endif()
