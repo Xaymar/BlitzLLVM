@@ -24,6 +24,7 @@
 #include <stb_image_write.h>
 
 #include "graphics_internal.hpp"
+#include "handle_check.h"
 #include "path.h"
 
 #include <cctype>
@@ -697,6 +698,9 @@ namespace bb::gfx {
 
 	bool save_async_enabled()
 	{
+		if (bb_is_debug()) {
+			return false; // A debug build saves on the spot, so that a failing save is reported by the call that asked for it.
+		}
 		if (!async_decided) {
 			async_decided   = true;
 			const char* env = SDL_getenv("BLITZ_ASYNC_SAVE");
