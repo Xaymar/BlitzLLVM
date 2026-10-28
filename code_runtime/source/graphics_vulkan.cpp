@@ -114,6 +114,9 @@ namespace bb::gfx {
 		if (g.can_blend_dither && (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)) {
 			usage |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
 		}
+		if (g.can_interlock && (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) && (format == VK_FORMAT_R8G8B8A8_UNORM)) {
+			usage |= VK_IMAGE_USAGE_STORAGE_BIT;
+		}
 
 		VkImageCreateInfo info = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
 		info.imageType         = VK_IMAGE_TYPE_2D;
@@ -1302,7 +1305,34 @@ namespace bb::gfx {
 			features13.pNext                                     = &local_read;
 		}
 
-		const char* device_extensions[4] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		// Prototype: the interlock extension, only when asked for with BLITZ_INTERLOCK_DITHER=1.
+		VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT interlock_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT };
+		{
+			const char* want = getenv("BLITZ_INTERLOCK_DITHER");
+			if (want && want[0] && (want[0] != '0')) {
+				uint32_t count = 0;
+				vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &count, nullptr);
+				std::vector<VkExtensionProperties> available(count);
+				vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &count, available.data());
+				bool has = false;
+				for (VkExtensionProperties const& e : available) {
+					has = has || (strcmp(e.extensionName, VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME) == 0);
+				}
+				if (has) {
+					VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT query_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT };
+					VkPhysicalDeviceFeatures2                          query          = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+					query.pNext                                                       = &query_features;
+					vkGetPhysicalDeviceFeatures2(g.physical, &query);
+					if (query_features.fragmentShaderPixelInterlock) {
+						g.can_interlock                          = true;
+						interlock_features.fragmentShaderPixelInterlock = VK_TRUE;
+						interlock_features.pNext                 = features13.pNext;
+						features13.pNext                         = &interlock_features;
+					}
+				}
+			}
+		}
+		const char* device_extensions[5] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		uint32_t    device_extension_total = 1;
 		if (g.can_custom_border) {
 			device_extensions[device_extension_total++] = VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME;
@@ -1310,6 +1340,9 @@ namespace bb::gfx {
 		if (g.can_blend_dither) {
 			device_extensions[device_extension_total++] = VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME;
 			device_extensions[device_extension_total++] = VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME;
+		}
+		if (g.can_interlock) {
+			device_extensions[device_extension_total++] = VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME;
 		}
 		VkDeviceCreateInfo device_info         = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 		device_info.pNext                      = &features13;

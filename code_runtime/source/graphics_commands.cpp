@@ -313,7 +313,7 @@ namespace bb::gfx {
 		constexpr uint32_t sets_per_pool = 64;
 		frame_slot&        slot          = frames[current_slot];
 		if (slot.input_pools.empty() || (slot.input_used == sets_per_pool)) {
-			VkDescriptorPoolSize       size = { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, sets_per_pool };
+			VkDescriptorPoolSize       size = { blend_interlock() ? VK_DESCRIPTOR_TYPE_STORAGE_IMAGE : VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, sets_per_pool };
 			VkDescriptorPoolCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
 			info.maxSets                    = sets_per_pool;
 			info.poolSizeCount              = 1;
@@ -331,11 +331,11 @@ namespace bb::gfx {
 		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets");
 		slot.input_used++;
 
-		VkDescriptorImageInfo image_info = { VK_NULL_HANDLE, target.target_view ? target.target_view : target.view, VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR };
+		VkDescriptorImageInfo image_info = { VK_NULL_HANDLE, target.target_view ? target.target_view : target.view, blend_interlock() ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR };
 		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 		write.dstSet                     = set;
 		write.descriptorCount            = 1;
-		write.descriptorType             = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		write.descriptorType             = blend_interlock() ? VK_DESCRIPTOR_TYPE_STORAGE_IMAGE : VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 		write.pImageInfo                 = &image_info;
 		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 		return set;
