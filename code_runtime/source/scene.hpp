@@ -199,6 +199,7 @@ namespace bb {
 		int         kind   = PIVOT;
 		int         parent = 0; // Handle, 0 for none.
 		int         children = 0; // How many entities have this one as their parent, so that copies and FreeEntity need no search for them.
+		uint64_t    sibling = 0; // When it became a child of its parent: children are numbered by this, not by their handle, like the original.
 		bool        hidden = false;
 		char*       name   = nullptr;
 
@@ -289,6 +290,10 @@ namespace bb {
 	/** For loading models: the kind that an entity turned out to be. */
 	void         set_entity_kind(int handle, int kind);
 	void         world_matrix(int handle, float* out);
+	/** The handles of the children of an entity, in the order they became its children. */
+	void         children_of(int handle, buffer<int>& out);
+	/** Makes an entity the last child of its parent. */
+	void         adopt(entity& e);
 
 	/** Counts the changes of surfaces that a cull_record was made from, which are all of the records that are not made again. */
 	extern uint32_t mesh_epoch;
