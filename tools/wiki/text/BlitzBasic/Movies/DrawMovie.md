@@ -25,5 +25,6 @@ CloseMovie m
 @param y      Vertical position of the top left corner. Defaults to 0.
 @param w      Width to draw at. Defaults to the width of the movie.
 @param h      Height to draw at. Defaults to the height of the movie.
+@returns 1 while the movie is still playing, 0 once it has ended or was stopped.
 @gap Draws the newest picture whose time has come, stretched to the size given (smooth, not pixel by pixel). It does not look at the origin and viewport, like the original, and a movie that goes over the edge of the screen is cut at it. What a program shows at the start, in the middle and at the end of a 3 second movie, drawn at its size, at a smaller size and at a bigger one, is in [drawmovie_start.png](media/movies/drawmovie_start.png), [drawmovie_middle.png](media/movies/drawmovie_middle.png) and [drawmovie_end.png](media/movies/drawmovie_end.png) (made by tools/render_movie_samples.py).
 @gap A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
