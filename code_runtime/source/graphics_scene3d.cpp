@@ -2014,8 +2014,6 @@ namespace bb::gfx {
 				// Held somewhere else than in the middle, it hangs from there.
 				m[12 + axis] = position[axis] - e->sprite_handle[0] * m[0 + axis] - e->sprite_handle[1] * m[4 + axis];
 			}
-			fullbright = true;
-			two_sided  = true;
 			if (have_planes && mesh_outside_view(*e, m, current_origin, current_planes)) {
 				return;
 			}
