@@ -90,7 +90,7 @@ class Command:
     def __init__(self, key, module, signature):
         self.key, self.module = key, module
         m = re.match(r"^([%#$&!]?)(\w+)(.*)$", signature)
-        self.ret = TYPES[m.group(1)] if m.group(1) else "None"
+        self.ret = TYPES[m.group(1)] if m.group(1) else "Void"
         self.name = m.group(2)
         # A '>' in front of the type is an Out parameter, and '~' is a Float16.
         self.params = [(("Out " if o else "") + TYPES[s], n, d) for o, s, n, d in re.findall(r"(>?)([%#$!~])(\w+)(?:=([^%#$!~>]*))?", m.group(3))]
@@ -122,7 +122,7 @@ class Command:
     def signature(self):
         if self.syntax:
             return "\n".join(self.syntax)
-        name = self.name if self.ret == "None" else "%s:%s" % (self.name, self.ret)
+        name = "%s:%s" % (self.name, self.ret)
         if not self.params:
             return name
         parts = [("Out " if t.startswith("Out ") else "") + "%s:%s%s" % (n, t[4:] if t.startswith("Out ") else t, "=" + d if d else "") for t, n, d in self.params]
