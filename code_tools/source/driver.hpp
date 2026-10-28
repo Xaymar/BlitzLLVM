@@ -15,6 +15,10 @@
 //         --print-config          write the settings that would be used, then exit
 //         --KEY=VALUE             a setting; --KEY alone is true and --no-KEY is false
 //
+// -h/--help and -v/--version are answered first, before the other arguments are looked at: they print and the exit code is 0, whatever else is
+// given. A new tool that uses run() gets them for free, it only has to fill in `name` and `version`; a tool with its own argument parsing has to do the
+// same and print "<name> <version>" for --version, as blitzcc and the tools here do.
+//
 // Exit codes: 0 done (and nothing to change with --check/--diff), 1 something would change, 2 an error.
 #pragma once
 #include <functional>
