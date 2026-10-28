@@ -1290,6 +1290,13 @@ namespace bb::gfx {
 		}
 	}
 
+	// Whether a mesh that the spatial grid did not ask about is really outside of the view, which debug programs check.
+	static bool mesh_skippable(int handle, bb::entity&, void* user)
+	{
+		mesh_collector* c = static_cast<mesh_collector*>(user);
+		return sphere_outside_view(bb::cull_record_of(handle), c->origin, c->planes, c->camera_growth);
+	}
+
 	static void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
@@ -2565,7 +2572,9 @@ namespace bb::gfx {
 		mesh_collector collector = { &list, view, current_origin, have_planes ? &planes[0][0] : nullptr, fmaxf(1.0f, sqrtf(camera_norm)) };
 		{
 			bb::profile_scope timer(bb::PROFILE_COLLECT);
-			bb::for_each_visible(bb::MESH, collect_mesh, &collector);
+			if (!bb::grid_visit(collector.planes, collector.origin, collector.camera_growth, collect_mesh, &collector, mesh_skippable)) {
+				bb::for_each_visible(bb::MESH, collect_mesh, &collector);
+			}
 		}
 		{
 			bb::profile_scope timer(bb::PROFILE_GROUP);
@@ -2865,6 +2874,7 @@ void bb_render_world(float tween)
 	data.ambient[3] = 1;
 	// Things captured by CaptureWorld are drawn between where they were and where they are.
 	bb::render_tween = tween < 0 ? 0 : (tween > 1 ? 1 : tween);
+	bb::grid_begin_frame();
 	light_collector lights = { &data, 0 };
 	camera_collector cameras;
 	camera_collector mirrors;
@@ -2903,6 +2913,7 @@ void bb_render_world(float tween)
 	}
 	cameras.handles.release();
 	mirrors.handles.release();
+	bb::grid_end_frame();
 	bb::render_tween = 1.0f;
 }
 

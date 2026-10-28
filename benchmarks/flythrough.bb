@@ -12,6 +12,7 @@
 ;   BENCH_SEED     seed of the random positions (default 1)
 ;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
 ;   BENCH_RANGE    how far the camera sees (default 300)
+;   BENCH_MOVING   how many objects are moved a little every frame, spread over the field (default 0)
 ;   BENCH_MODEL    path of a model for LoadMesh (optional, a cube is used if it is empty or does not load)
 ;   BENCH_SHOT     file to save the last frame to (optional)
 ;   BENCH_RESULT   file to write the RESULT line to (optional, it is also in the debug log)
@@ -156,9 +157,13 @@ Next
 ; The field is a box with the same density whatever the count: about 3 units per entity along each side. The camera
 ; flies through the middle of it, so about the same number of entities are around it at every count.
 side# = Float(objects) ^ (1.0 / 3.0) * 3
+moving = Int(Env$("BENCH_MOVING", 0))
+If moving > objects Then moving = objects
+Dim all(objects - 1)
 creationstart = BenchMicros()
 For i = 0 To objects - 1
 	e = CopyEntity(templates(i Mod KINDS))
+	all(i) = e
 	ShowEntity e
 	; The numbers are drawn into variables first: the original Blitz3D evaluates the arguments of a call in another order than BlitzLLVM
 	; does (for three the second, the third and then the first), which would put the objects in other places in the two.
@@ -193,6 +198,10 @@ total# = 0
 
 For f = 0 To warmup + frames - 1
 	CameraStep camera, f, side
+	; The moved objects are evenly spread over the field, as the field is filled in the order they are made in.
+	For m = 0 To moving - 1
+		TranslateEntity all(m * (objects / moving)), 0.01, 0, 0
+	Next
 	t0 = BenchMicros()
 	RenderWorld
 	Flip 0
