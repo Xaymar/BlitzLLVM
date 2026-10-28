@@ -28,6 +28,7 @@
 //   calls of the program before the next one run on a device that is lost.
 
 #include "graphics_internal.hpp"
+#include "environment.h"
 #include "memory.h"
 #include "graphics_save.hpp"
 #include <chrono>
@@ -53,24 +54,8 @@ namespace {
 	// BLITZLLVM_DEVICE_LOSS_COOLDOWN_MS: how long without a loss makes the next one count as the first again.
 	long long cooldown_ms()
 	{
-		const char* value = getenv("BLITZLLVM_DEVICE_LOSS_COOLDOWN_MS");
-		if (value && value[0]) {
-			char* end = nullptr;
-			long long ms = strtoll(value, &end, 10);
-			if (end != value && ms >= 0) {
-				return ms;
-			}
-		}
-		return default_cooldown_ms;
-	}
-
-	bool env_enabled(const char* name, bool otherwise)
-	{
-		const char* value = getenv(name);
-		if (!value || !value[0]) {
-			return otherwise;
-		}
-		return value[0] != '0';
+		double ms = bb_env_double("BLITZLLVM_DEVICE_LOSS_COOLDOWN_MS", double(default_cooldown_ms));
+		return ms >= 0 ? static_cast<long long>(ms) : default_cooldown_ms;
 	}
 
 	// The Flip numbers of BLITZLLVM_SIMULATE_DEVICE_LOSS, read once.
@@ -84,7 +69,7 @@ namespace {
 		static simulation s;
 		if (!s.read) {
 			s.read = true;
-			if (const char* value = getenv("BLITZLLVM_SIMULATE_DEVICE_LOSS")) {
+			if (const char* value = bb_env("BLITZLLVM_SIMULATE_DEVICE_LOSS")) {
 				for (const char* p = value; *p;) {
 					char* end = nullptr;
 					unsigned long number = strtoul(p, &end, 10);
@@ -96,7 +81,7 @@ namespace {
 					p = end;
 				}
 			}
-			s.late = env_enabled("BLITZLLVM_SIMULATE_DEVICE_LOSS_LATE", false);
+			s.late = bb_env_bool("BLITZLLVM_SIMULATE_DEVICE_LOSS_LATE", 0) != 0;
 		}
 		return s;
 	}
@@ -242,7 +227,7 @@ namespace bb::gfx {
 	{
 		static int enabled = -1;
 		if (enabled < 0) {
-			enabled = env_enabled("BLITZLLVM_DEVICE_RECOVERY", true) ? 1 : 0;
+			enabled = bb_env_bool("BLITZLLVM_DEVICE_RECOVERY", 1) != 0 ? 1 : 0;
 		}
 		return enabled == 1;
 	}
