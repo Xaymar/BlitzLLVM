@@ -173,6 +173,7 @@ getsurfacebrush	blitz3d	done	%GetSurfaceBrush%surface
 gfxdrivercaps3d	blitz3d	done	%GfxDriverCaps3D
 handlesprite	blitz3d	done	HandleSprite%sprite#x_handle#y_handle
 hideentity	blitz3d	done	HideEntity%entity
+hwdither	blitz3d	done	%HWDither
 hwmultitex	blitz3d	done	HWMultiTex%enable
 hwtexunits	blitz3d	done	%HWTexUnits
 lightcolor	blitz3d	done	LightColor%light#red#green#blue
