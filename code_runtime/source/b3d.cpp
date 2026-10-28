@@ -16,6 +16,7 @@
 #include "memory.h"
 #include "load_pool.hpp"
 #include "path.h"
+#include <mutex>
 
 using namespace bb;
 using namespace bb::anim;
@@ -164,6 +165,11 @@ namespace {
 		}
 	}
 
+	// The matrix of LoaderMatrix for .x files, which loader threads read.
+	std::mutex x_matrix_lock;
+	float      x_matrix[9];
+	bool       x_matrix_set = false;
+
 	// The bytes of a file, which the caller frees. False if there is no such file.
 	bool read_file_bytes(const char* path, uint8_t*& data, size_t& got)
 	{
@@ -255,7 +261,14 @@ namespace {
 		} else if ((got > 6) && (data[0] == 0x4D) && (data[1] == 0x4D)) {
 			ok = read_3ds(data, got, m);
 		} else if ((got > 16) && !memcmp(data, "xof ", 4)) {
-			ok = read_x(data, got, m, nullptr);
+			float matrix[9];
+			bool  turned;
+			{
+				std::lock_guard<std::mutex> guard(x_matrix_lock);
+				turned = x_matrix_set;
+				memcpy(matrix, x_matrix, sizeof(matrix));
+			}
+			ok = read_x(data, got, m, turned ? matrix : nullptr);
 		}
 
 		// Textures are found next to the model.
@@ -1082,10 +1095,20 @@ int32_t bb_load_anim_seq(int32_t handle, const char* file)
 }
 
 // LoaderMatrix extension, the nine numbers of a matrix: how models of that file type are turned when they are loaded.
-// Only .b3d files can be loaded, and the original does not use the matrix for those, so this only remembers it.
+// Only the one for .x files is used. 3D Studio models always have y and z swapped, and .b3d files are never turned, as in the original.
 void bb_loader_matrix(const char* extension, float xx, float xy, float xz, float yx, float yy, float yz, float zx, float zy, float zz)
 {
-	(void)extension;
-	(void)xx; (void)xy; (void)xz; (void)yx; (void)yy; (void)yz; (void)zx; (void)zy; (void)zz;
+	if (!extension) {
+		return;
+	}
+	if (extension[0] == '.') {
+		extension++;
+	}
+	if ((extension[0] == 'x' || extension[0] == 'X') && !extension[1]) {
+		const float matrix[9] = { xx, xy, xz, yx, yy, yz, zx, zy, zz };
+		std::lock_guard<std::mutex> guard(x_matrix_lock);
+		memcpy(x_matrix, matrix, sizeof(matrix));
+		x_matrix_set = true;
+	}
 }
 }
