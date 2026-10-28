@@ -20,7 +20,7 @@
 		},
 		"graphics": {
 			"description": "2D graphics, images, fonts, DDS and PNG, displays, gamma and input.",
-			"tests": ["^suite-(debug-)?(compile|run)-(graphics(_(?!movies)|$)|displays|gfx_driver|input)", "^profile-"]
+			"tests": ["^suite-(debug-)?(compile|run)-(graphics(_(?!movies)|$)|displays|gfx_driver|input|fail-pixel_fast_)", "^profile-"]
 		},
 		"movies": {
 			"description": "Movies, also as textures.",
