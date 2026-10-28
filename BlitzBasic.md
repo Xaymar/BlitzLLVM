@@ -10,7 +10,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 
 * [Audio](BlitzBasic-Audio) (17): Sounds, channels and music.
 * [Banks](BlitzBasic-Banks) (15): Raw memory blocks you can peek, poke and pass to libraries.
-* [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels) (16): Drawing targets, locking and reading or writing single pixels.
+* [Buffers and Pixels](BlitzBasic-Buffers-and-Pixels) (20): Drawing targets, locking and reading or writing single pixels.
 * [Display](BlitzBasic-Display) (45): Opening a graphics mode, listing drivers, displays and modes, gamma and video memory.
 * [Drawing](BlitzBasic-Drawing) (14): Colors, shapes, text positioning and the viewport.
 * [Files](BlitzBasic-Files) (18): Opening, reading, writing and listing files and directories.

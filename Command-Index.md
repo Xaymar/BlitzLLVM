@@ -634,7 +634,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [ReadInt](ReadInt)
 * [ReadLine](ReadLine)
 * [ReadPixel](ReadPixel)
+* [ReadPixel64](ReadPixel64) 〔BlitzLLVM〕
 * [ReadPixelFast](ReadPixelFast)
+* [ReadPixelFast64](ReadPixelFast64) 〔BlitzLLVM〕
 * [ReadShort](ReadShort)
 * [ReadString](ReadString)
 * [Rect](Rect)
@@ -890,6 +892,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [WriteInt](WriteInt)
 * [WriteLine](WriteLine)
 * [WritePixel](WritePixel)
+* [WritePixel64](WritePixel64) 〔BlitzLLVM〕
 * [WritePixelFast](WritePixelFast)
+* [WritePixelFast64](WritePixelFast64) 〔BlitzLLVM〕
 * [WriteShort](WriteShort)
 * [WriteString](WriteString)

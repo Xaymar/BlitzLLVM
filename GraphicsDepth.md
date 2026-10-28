@@ -25,7 +25,7 @@ The color depth of the graphics mode in bits.
 
 ## Differences
 
-* Always 32: the picture has 8 bits for each of red, green and blue, with 8 more for alpha where a program uses it.
+* It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these. See [Color depth](Color-Depth).
 
 ## Related Commands
 

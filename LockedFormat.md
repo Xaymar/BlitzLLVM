@@ -30,6 +30,7 @@ Says how the pixels of a locked buffer are stored. Lock the buffer first with `L
 ## Differences
 
 * Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte). Code that handles the other formats still works, it just never runs.
+* 5 is A2R10G10B10 in 32 bits, which a buffer made by [Graphics3D](Graphics3D) with the depth 30 has, and 6 is A16R16G16B16 in 64 bits, for the depth 64. They are BlitzLLVM additions. See [Color depth](Color-Depth).
 
 ## Examples
 

@@ -32,6 +32,7 @@ Returns the color of a pixel of a buffer as an ARGB number: red, green and blue 
 ## Differences
 
 * Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
+* The buffers that [Graphics3D](Graphics3D) makes with a depth above 32 are read as they are stored: with the depth 30 the number is A2R10G10B10 (2 bits of alpha on top, then 10 for each of red, green and blue), and with 64 it is ARGB with the upper 8 bits of each channel, which loses the rest. [ReadPixel64](ReadPixel64) gives all of them. See [Color depth](Color-Depth).
 
 ## Examples
 
@@ -48,7 +49,7 @@ WaitKey
 
 ## Related Commands
 
-[CopyPixel](CopyPixel), [CopyPixelFast](CopyPixelFast), [ReadPixelFast](ReadPixelFast), [WritePixel](WritePixel), [WritePixelFast](WritePixelFast)
+[CopyPixel](CopyPixel), [CopyPixelFast](CopyPixelFast), [ReadPixel64](ReadPixel64) 〔BlitzLLVM〕, [ReadPixelFast](ReadPixelFast), [ReadPixelFast64](ReadPixelFast64) 〔BlitzLLVM〕, [WritePixel](WritePixel), [WritePixelFast](WritePixelFast), [WritePixelFast64](WritePixelFast64) 〔BlitzLLVM〕
 
 <div align="center">
 

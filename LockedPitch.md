@@ -27,6 +27,10 @@ LockedPitch:Int32 buffer:Int32=0
 
 Gives how many bytes one row of pixels of a locked buffer takes, which you need to find the pixel at x, y: `y * pitch + x * 4`.
 
+## Differences
+
+* A buffer that [Graphics3D](Graphics3D) made with the depth 64 has 8 bytes for each pixel, so a row takes `width * 8` bytes. See [Color depth](Color-Depth).
+
 ## Examples
 
 ```blitzbasic

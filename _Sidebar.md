@@ -47,7 +47,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (251)</summary>
+<li><details><summary>Commands (255)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -191,6 +191,7 @@
 <li><a href="Locate#differences">Locate</a></li>
 <li><a href="LockBuffer#differences">LockBuffer</a></li>
 <li><a href="LockedFormat#differences">LockedFormat</a></li>
+<li><a href="LockedPitch#differences">LockedPitch</a></li>
 <li><a href="LockedPixels#differences">LockedPixels</a></li>
 <li><a href="LockTextArea#differences">LockTextArea</a></li>
 <li><a href="Long#differences">Long</a> 〔BlitzLLVM〕</li>
@@ -221,6 +222,7 @@
 <li><a href="QueryObject#differences">QueryObject</a></li>
 <li><a href="ReadPixel#differences">ReadPixel</a></li>
 <li><a href="ReadPixelFast#differences">ReadPixelFast</a></li>
+<li><a href="ReadPixelFast64#differences">ReadPixelFast64</a> 〔BlitzLLVM〕</li>
 <li><a href="RefreshRateAt#differences">RefreshRateAt</a> 〔BlitzLLVM〕</li>
 <li><a href="RenderWorld#differences">RenderWorld</a></li>
 <li><a href="RequestColor#differences">RequestColor</a></li>
@@ -299,7 +301,9 @@
 <li><a href="WireFrame#differences">WireFrame</a></li>
 <li><a href="Write#differences">Write</a></li>
 <li><a href="WritePixel#differences">WritePixel</a></li>
+<li><a href="WritePixel64#differences">WritePixel64</a> 〔BlitzLLVM〕</li>
 <li><a href="WritePixelFast#differences">WritePixelFast</a></li>
+<li><a href="WritePixelFast64#differences">WritePixelFast64</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
 </ul>
@@ -505,7 +509,7 @@
 <li><a href="WriteBytes">WriteBytes</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Buffers-and-Pixels">Buffers and Pixels</a> (16)</summary>
+<li><details><summary><a href="BlitzBasic-Buffers-and-Pixels">Buffers and Pixels</a> (20)</summary>
 <ul>
 <li><a href="BackBuffer">BackBuffer</a></li>
 <li><a href="BufferDirty">BufferDirty</a></li>
@@ -517,12 +521,16 @@
 <li><a href="LoadBuffer">LoadBuffer</a></li>
 <li><a href="LockBuffer">LockBuffer</a></li>
 <li><a href="ReadPixel">ReadPixel</a></li>
+<li><a href="ReadPixel64">ReadPixel64</a> 〔BlitzLLVM〕</li>
 <li><a href="ReadPixelFast">ReadPixelFast</a></li>
+<li><a href="ReadPixelFast64">ReadPixelFast64</a> 〔BlitzLLVM〕</li>
 <li><a href="SaveBuffer">SaveBuffer</a></li>
 <li><a href="SetBuffer">SetBuffer</a></li>
 <li><a href="UnlockBuffer">UnlockBuffer</a></li>
 <li><a href="WritePixel">WritePixel</a></li>
+<li><a href="WritePixel64">WritePixel64</a> 〔BlitzLLVM〕</li>
 <li><a href="WritePixelFast">WritePixelFast</a></li>
+<li><a href="WritePixelFast64">WritePixelFast64</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
 <li><details><summary><a href="BlitzBasic-Display">Display</a> (45)</summary>

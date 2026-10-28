@@ -16,7 +16,7 @@ Differences that are not caused by one command.
 * [Asynchronous loading](Asynchronous-Loading): Extension: `AsyncLoading` makes `LoadTexture`, `LoadImage`, `LoadMesh` and `LoadAnimMesh` decode on other threads, and `TextureReady`, `ImageReady` and `EntityReady` say whether something is done.
 * [blitz-format](blitz-format): Extension: `blitz-format` formats `.bb` source code (indentation, keyword case, spacing, blank lines, line endings) from a `.blitz-format` file; the original has no formatter.
 * [Blitz-Tidy](Blitz-Tidy): Extension: `blitz-tidy` fixes the warnings of `blitzcc` in Blitz source files; the original has no such tool.
-* [Color depth](Color-Depth): The depth argument of `Graphics` is ignored: the picture is always 8 bits per channel, and `WBuffer` does nothing. `Dither` adds noise to the shown picture instead of dithering 16-bit color.
+* [Color depth](Color-Depth): The depth argument of `Graphics` and `Graphics3D` does not pick a display mode: it picks what the picture is made of, which is never less than 8 bits per channel. 16-bit and palette modes do not exist, and `WBuffer` does nothing. `Dither` adds noise to the shown picture instead of dithering 16-bit color.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
 * [Depth buffer](Depth-Buffer): The depth buffer is a reversed 32-bit float, so z-fighting is much rarer.
@@ -150,9 +150,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [GfxModeHeight](GfxModeHeight#differences): A mode number that does not exist stops the program with an error message.
 * [GfxModeWidth](GfxModeWidth#differences): A mode number that does not exist stops the program with an error message.
 * [GrabImage](GrabImage#differences): Parts that lie outside of the buffer are not copied and keep what the frame had before.
-* [Graphics](Graphics#differences): The color depth is accepted but ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
-* [Graphics3D](Graphics3D#differences): The depth is ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported.
-* [GraphicsDepth](GraphicsDepth#differences): Always 32: the picture has 8 bits for each of red, green and blue, with 8 more for alpha where a program uses it.
+* [Graphics](Graphics#differences): The color depth picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16.
+* [Graphics3D](Graphics3D#differences): The depth does not pick a video mode, it picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16.
+* [GraphicsDepth](GraphicsDepth#differences): It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these.
 * [GraphicsFormat](GraphicsFormat#differences): Always 4.
 * [GraphicsLost](GraphicsLost#differences): Always 0.
 * [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
@@ -185,6 +185,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [Locate](Locate#differences): The position is limited to the window.
 * [LockBuffer](LockBuffer#differences): Up to 8 buffers can be locked at the same time.
 * [LockedFormat](LockedFormat#differences): Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte).
+* [LockedPitch](LockedPitch#differences): A buffer that [Graphics3D](Graphics3D) made with the depth 64 has 8 bytes for each pixel, so a row takes `width * 8` bytes.
 * [LockedPixels](LockedPixels#differences): The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card.
 * [LockTextArea](LockTextArea#differences): While a text area is locked it sends no events for the changes you make.
 * [Long](Long#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
@@ -215,6 +216,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [QueryObject](QueryObject#differences): All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget.
 * [ReadPixel](ReadPixel#differences): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
 * [ReadPixelFast](ReadPixelFast#differences): A buffer that is not locked stops the program with an error message.
+* [ReadPixelFast64](ReadPixelFast64#differences) 〔BlitzLLVM〕: A buffer that is not locked stops the program with an error message.
 * [RefreshRateAt](RefreshRateAt#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [RenderWorld](RenderWorld#differences): Entities that are made or hidden after [CaptureWorld](CaptureWorld) are drawn where they are, they do not fade in.
 * [RequestColor](RequestColor#differences): The picker is drawn by the program inside its own window and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors.
@@ -293,4 +295,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [WireFrame](WireFrame#differences): On a graphics driver that can not draw lines instead of triangles the call is ignored and the world stays solid.
 * [Write](Write#differences): Without a graphics window the text goes to the console instead.
 * [WritePixel](WritePixel#differences): A position outside of the buffer is ignored.
+* [WritePixel64](WritePixel64#differences) 〔BlitzLLVM〕: A position outside of the buffer is ignored.
 * [WritePixelFast](WritePixelFast#differences): A buffer that is not locked stops the program with an error message.
+* [WritePixelFast64](WritePixelFast64#differences) 〔BlitzLLVM〕: A position outside of the buffer is ignored, and a buffer that is not locked stops the program with an error message.

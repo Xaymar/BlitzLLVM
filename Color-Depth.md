@@ -5,6 +5,21 @@
 # Color depth
 
 
-`Graphics` and `Graphics3D` always make at least an 8-bit-per-channel R8G8B8 picture, with an A8 alpha channel where a program uses one. The depth argument is ignored, because palette and 16-bit rendering are not supported. `GraphicsDepth`, `GfxModeDepth`, `DisplayDepth` and `DisplayModeDepth` always say 32, the mode lists have each size once instead of once per depth the display could show, and `GfxModeExists` and `GfxMode3DExists` do not look at their depth argument. `WBuffer` does nothing, because the depth buffer is the float one described in the depth buffer page. `Dither` does not dither 16-bit color, as there is none: it adds temporal Interleaved Gradient Noise to the picture when it is shown (see the `Dither` command), which hides the bands that `SetGamma` and the rounding to 8 bits would otherwise make.
+The depth argument of `Graphics` and `Graphics3D` decides what the front and back buffer are made of, so that what is drawn on top of each other many times does not lose its small steps to rounding:
+
+| Depth | Format of the buffers |
+|---|---|
+| 24 | R8G8B8X8: 8 bits for red, green and blue. The alpha channel is not used. |
+| 30 | R10G10B10A2: 10 bits for red, green and blue, and 2 for alpha. |
+| 32 | R8G8B8A8: 8 bits for each, with alpha. |
+| 64 | R16G16B16A16: 16 bits for each, with alpha. |
+
+0 (the best there is) and 16 (a 16-bit mode in the original) give 32, and so does any other number, with a warning on the console. If the graphics card can't draw to the format that was asked for, the next smaller of the list is used, and a warning says so. Pixels are read and written the way the buffer stores them, with the alpha on top: `ReadPixel`, `WritePixel`, `ReadPixelFast`, `WritePixelFast` and the `CopyPixel`s take and give ARGB for 24 and 32, A2R10G10B10 for 30, and the upper 8 bits of each channel as ARGB for 64. `ReadPixel64`, `WritePixel64`, `ReadPixelFast64` and `WritePixelFast64` use a `Long` with 16 bits for each of A, R, G and B from the top (`$AAAARRRRGGGGBBBB`) for every depth, and keep all of the 64 bits. `LockedPixels` has 4 bytes for each pixel (the number of `ReadPixel`) or 8 for the depth 64 (the `Long`), `LockedPitch` fits, and `LockedFormat` says 5 for A2R10G10B10 and 6 for A16R16G16B16. Textures and images always stay RGBA8, and `SaveBuffer`, `GrabImage` and `CopyRect` convert on the way. What is shown on the screen is always R8G8B8A8, because HDR is not supported: the wider buffers are converted when they are shown, with the noise of `Dither` if it is on, which hides the bands that the rounding to 8 bits would otherwise make.
+
+Below, 100 see-through layers whose alpha grows from column to column are added on top of each other, once for each depth. With 8 bits per channel every layer rounds to 0 or to a whole step, and the ramp has few steps; with 30 and 64 bits the layers add up.
+
+![The same 16 columns of 100 faint layers drawn with the depths 32, 24, 30 and 64, from top to bottom](media/graphics/color-depth-ramp.png)
+
+`GraphicsDepth` says what the buffers have. `GfxModeDepth`, `DisplayDepth` and `DisplayModeDepth` always say 32, the mode lists have each size once instead of once per depth the display could show, and `GfxModeExists` and `GfxMode3DExists` do not look at their depth argument. `WBuffer` does nothing, because the depth buffer is the float one described in the depth buffer page.
 
 ![A gradient shown through gamma tables that squeeze it, without Dither (top) and with Dither in two frames after each other (middle and bottom), contrast enlarged](media/dither/before-after.png)
