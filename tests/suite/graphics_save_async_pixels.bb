@@ -59,9 +59,9 @@ Flip 2
 If Instr(CommandLine$(), "child") > 0
 	AsyncSaving True
 	For i = 0 To 3
-		SaveBuffer FrontBuffer(), GetEnv$("BLITZ_SAVE_TEST_PREFIX") + i + ".png", "compression=9"
+		SaveBuffer FrontBuffer(), GetEnv$("BLITZLLVM_TEST_SAVE_PREFIX") + i + ".png", "compression=9"
 	Next
-	SaveBuffer FrontBuffer(), GetEnv$("BLITZ_SAVE_TEST_PREFIX") + "j.jxl", "lossless=1,effort=7"
+	SaveBuffer FrontBuffer(), GetEnv$("BLITZLLVM_TEST_SAVE_PREFIX") + "j.jxl", "lossless=1,effort=7"
 	End
 EndIf
 
@@ -159,12 +159,12 @@ Check "Saving without threads again", SaveBuffer(FrontBuffer(), unique + "sync2.
 Check "Nothing is pending after a save without threads", SavesPending(), 0
 
 ; A program that ends with saves going on still has its files: the other program saves and ends at once.
-program$ = GetEnv$("BLITZ_SUITE_PROGRAM")
+program$ = GetEnv$("BLITZLLVM_TEST_PROGRAM")
 If program = "" Then
 	Print "graphics_save_async_pixels: the program is not known, so the ending was not tested."
 	suite_checks = suite_checks + 1
 Else
-	SetEnv "BLITZ_SAVE_TEST_PREFIX", unique + "child_"
+	SetEnv "BLITZLLVM_TEST_SAVE_PREFIX", unique + "child_"
 	CheckTrue "Starting the other program", CreateProcess(Chr$(34) + program + Chr$(34) + " child")
 	start = MilliSecs()
 	missing = 5

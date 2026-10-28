@@ -58,7 +58,7 @@ CheckS "NetPlayerName$ of an unknown player", NetPlayerName$(12345), "<unknown>"
 Check "NetPlayerLocal of an unknown player", NetPlayerLocal(12345), 0
 Check "JoinNetGame without a game", JoinNetGame(GAME, "127.0.0.1"), 0
 
-program$ = GetEnv$("BLITZ_SUITE_PROGRAM")
+program$ = GetEnv$("BLITZLLVM_TEST_PROGRAM")
 If program = ""
 	Print "multiplayer: the other program is not known, so there was nobody to play with."
 	suite_checks = suite_checks + 1

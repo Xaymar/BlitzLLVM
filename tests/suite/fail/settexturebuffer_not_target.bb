@@ -6,6 +6,6 @@
 ; Expect: not a render target
 texture = CreateTexture(8, 8, 1)
 buffer = TextureBuffer(texture)
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then RuntimeError("SetBuffer: the texture is not a render target (release build, not checked).")
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then RuntimeError("SetBuffer: the texture is not a render target (release build, not checked).")
 SetBuffer buffer
 Print "SetBuffer did not stop the program."

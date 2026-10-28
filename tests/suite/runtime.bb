@@ -33,7 +33,7 @@ CheckTrue "SystemProperty$ systemdir", Len(SystemProperty$("systemdir")) > 0
 ; appdir is where the program is, not where it was started from, and ends with a separator.
 appdir$ = SystemProperty$("appdir")
 CheckTrue "appdir ends with a separator", Right$(appdir, 1) = "/" Or Right$(appdir, 1) = "\"
-program$ = GetEnv$("BLITZ_SUITE_PROGRAM")
+program$ = GetEnv$("BLITZLLVM_TEST_PROGRAM")
 If Len(program) > 0
 	; The test is started from tests/suite, the program is in the build folder.
 	slash = 0
@@ -45,18 +45,18 @@ EndIf
 CheckS "SystemProperty$ unknown", SystemProperty$("this property does not exist"), ""
 
 ; Environment variables
-CheckS "GetEnv$ without it", GetEnv$("BLITZ_SUITE_UNSET_VARIABLE"), ""
-SetEnv "BLITZ_SUITE_VARIABLE", "some value"
-CheckS "SetEnv", GetEnv$("BLITZ_SUITE_VARIABLE"), "some value"
-SetEnv "BLITZ_SUITE_VARIABLE", "changed"
-CheckS "SetEnv again", GetEnv$("BLITZ_SUITE_VARIABLE"), "changed"
+CheckS "GetEnv$ without it", GetEnv$("BLITZLLVM_TEST_UNSET_VARIABLE"), ""
+SetEnv "BLITZLLVM_TEST_VARIABLE", "some value"
+CheckS "SetEnv", GetEnv$("BLITZLLVM_TEST_VARIABLE"), "some value"
+SetEnv "BLITZLLVM_TEST_VARIABLE", "changed"
+CheckS "SetEnv again", GetEnv$("BLITZLLVM_TEST_VARIABLE"), "changed"
 CheckTrue "GetEnv$ of what the system has", Len(GetEnv$("PATH")) > 0
 
 ; ExecFile starts a program and tells whether that worked.
 CheckFalse "ExecFile of something that is not there", ExecFile("suite_does_not_exist.exe")
 
 ; Stop does nothing in a build that is not a debug build, where it is a breakpoint (tests/cli/stop.bb has that one).
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then Stop
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then Stop
 suite_checks = suite_checks + 1
 
 ; These do not give anything back, so all that can be checked is that they work.

@@ -228,9 +228,9 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 		endif()
 		if(_NAME MATCHES "_pixels$" AND BLITZ_TEST_GPU)
 			# The program is told where it is, for the ones that start themselves again (graphics_save_async_pixels).
-			set_tests_properties("${_PREFIX}-run-${_NAME}" PROPERTIES LABELS "suite;gpu" ENVIRONMENT "BLITZ_SUITE_PROGRAM=${_EXE}")
+			set_tests_properties("${_PREFIX}-run-${_NAME}" PROPERTIES LABELS "suite;gpu" ENVIRONMENT "BLITZLLVM_TEST_PROGRAM=${_EXE}")
 		else()
-			set_tests_properties("${_PREFIX}-run-${_NAME}" PROPERTIES ENVIRONMENT "BLITZLLVM_HEADLESS=1;BLITZ_SUITE_PROGRAM=${_EXE}")
+			set_tests_properties("${_PREFIX}-run-${_NAME}" PROPERTIES ENVIRONMENT "BLITZLLVM_HEADLESS=1;BLITZLLVM_TEST_PROGRAM=${_EXE}")
 		endif()
 		# The Release and the Debug run of a program use the same files in tests/suite (suite_tmp_*) and ports, so they take turns.
 		set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY RESOURCE_LOCK "suite-${_NAME}")
@@ -244,7 +244,7 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 		endif()
 		if(_CONFIG STREQUAL "debug")
 			# For the few programs that behave differently in a debug build (Stop is a breakpoint there).
-			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY ENVIRONMENT "BLITZ_SUITE_DEBUG=1")
+			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY ENVIRONMENT "BLITZLLVM_TEST_DEBUG=1")
 		endif()
 		if(_RELATIVE MATCHES "^fail/")
 			# A program can say which error it has to stop with, in a line that starts with "; Expect: ", which is a regular expression. Any other
