@@ -701,7 +701,7 @@ setpanelcolor	plusgui	done	SetPanelColor%panel%red%green%blue
 setpanelimage	plusgui	done	SetPanelImage%panel$file
 setsliderrange	plusgui	done	SetSliderRange%slider%visible%total
 setslidervalue	plusgui	done	SetSliderValue%slider%value
-setstatustext	plusgui	done	%SetStatusText%window$text
+setstatustext	plusgui	done	SetStatusText%window$text
 settextareacolor	plusgui	done	SetTextAreaColor%textarea%red%green%blue%background=0
 settextareafont	plusgui	done	SetTextAreaFont%textarea%font
 settextareatabs	plusgui	done	SetTextAreaTabs%textarea%tabs

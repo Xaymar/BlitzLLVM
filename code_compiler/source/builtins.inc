@@ -788,7 +788,7 @@
 		{ "setpanelimage", "bb_set_panel_image", 'v', "is", 2, { 0, 0 }, false },
 		{ "setsliderrange", "bb_set_slider_range", 'v', "iii", 3, { 0, 0, 0 }, false },
 		{ "setslidervalue", "bb_set_slider_value", 'v', "ii", 2, { 0, 0 }, false },
-		{ "setstatustext", "bb_set_status_text", 'i', "is", 2, { 0, 0 }, false },
+		{ "setstatustext", "bb_set_status_text", 'v', "is", 2, { 0, 0 }, false },
 		{ "settextareacolor", "bb_set_text_area_color", 'v', "iiiii", 4, { 0, 0, 0, 0, 0 }, false },
 		{ "settextareafont", "bb_set_text_area_font", 'v', "ii", 2, { 0, 0 }, false },
 		{ "settextareatabs", "bb_set_text_area_tabs", 'v', "ii", 2, { 0, 0 }, false },
