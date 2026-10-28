@@ -39,6 +39,19 @@ namespace bb::gfx {
 		if (t->pending) {
 			resolve_texture(*t);
 		}
+		if (t->atlas) {
+			// A view samples the image of its atlas, which may have been loaded, or turned into another format, since the view was made.
+			texture_entry& a = texture_table[uint32_t(t->atlas) - 1];
+			if (a.pending) {
+				resolve_texture(a);
+			}
+			if (a.image.view != t->image.view) {
+				t->image = a.image;
+				if (g.device && t->set) {
+					set_descriptor_sampler(t->image, t->set, texture_sampler(t->flags));
+				}
+			}
+		}
 		return t;
 	}
 
@@ -69,6 +82,19 @@ namespace bb::gfx {
 			uv[1] *= fy;
 			uv[2] = uv[2] * fx + float(cell % cols) * fx;
 			uv[3] = uv[3] * fy + float(cell / cols) * fy;
+		}
+		if (t && t->atlas) {
+			// The rectangle of an atlas view. Linear filtering reads half a texel past what it is given, so the edge of the rectangle
+			// is half a texel in, which keeps the neighbouring tiles out; the nearest texel (flag 1024) has nothing to bleed.
+			float inset = (t->flags & TEXTURE_POINT) ? 0.0f : 0.5f;
+			float aw = float(t->width), ah = float(t->height);
+			float w = float(t->rect[2]) - 2.0f * inset, h = float(t->rect[3]) - 2.0f * inset;
+			w       = w < 0.0f ? 0.0f : w;
+			h       = h < 0.0f ? 0.0f : h;
+			uv[0] *= w / aw;
+			uv[1] *= h / ah;
+			uv[2] = uv[2] * w / aw + (float(t->rect[0]) + inset) / aw;
+			uv[3] = uv[3] * h / ah + (float(t->rect[1]) + inset) / ah;
 		}
 	}
 
@@ -125,7 +151,9 @@ namespace bb::gfx {
 			flush(); // What was asked to be drawn with it comes first.
 			gpu_idle();
 			vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
-			if (t.cube) {
+			if (t.atlas) {
+				// The image belongs to the atlas.
+			} else if (t.cube) {
 				cube_store(t);
 				for (gpu_image& face : t.cube->faces) {
 					destroy_image(face);
@@ -601,6 +629,9 @@ namespace bb::gfx {
 		if (t->alias) {
 			t = &texture_table[uint32_t(t->alias) - 1];
 		}
+		if (t->atlas) {
+			t = &texture_table[uint32_t(t->atlas) - 1]; // A view is ready when its atlas is.
+		}
 		if (t->pending) {
 			if (!async_finished(t->pending)) {
 				return false;
@@ -752,7 +783,7 @@ void bb_collect_textures(void)
 			}
 			bool shared = false;
 			for (uint32_t k = 0; k < texture_table.size; k++) {
-				shared |= texture_table[k].used && (texture_table[k].alias == int(i) + 1);
+				shared |= texture_table[k].used && ((texture_table[k].alias == int(i) + 1) || (texture_table[k].atlas == int(i) + 1));
 			}
 			if (!shared) {
 				free_texture(t);
@@ -776,13 +807,13 @@ void bb_free_texture(int32_t handle)
 int32_t bb_texture_width(int32_t handle)
 {
 	texture_entry* t = live_texture_of(handle);
-	return t ? (t->frame_w > 0 ? t->frame_w : t->width) : 0;
+	return t ? (t->atlas ? t->rect[2] : (t->frame_w > 0 ? t->frame_w : t->width)) : 0;
 }
 
 int32_t bb_texture_height(int32_t handle)
 {
 	texture_entry* t = live_texture_of(handle);
-	return t ? (t->frame_h > 0 ? t->frame_h : t->height) : 0;
+	return t ? (t->atlas ? t->rect[3] : (t->frame_h > 0 ? t->frame_h : t->height)) : 0;
 }
 
 // LoadAnimTexture(file, flags, width, height, first, count): a picture that is a sheet of frames of this size, with
@@ -807,6 +838,55 @@ int32_t bb_load_anim_texture(const char* file, int32_t flags, int32_t width, int
 	t->frame_h     = height;
 	t->first_frame = first;
 	return handle;
+}
+
+// LoadAtlas(file, flags): a picture that AtlasTexture cuts tiles out of. It is a texture like any other, but it clamps at its
+// edges and its flags are the ones of LoadTexture.
+int32_t bb_load_atlas(const char* file, int32_t flags)
+{
+	if (flags & (64 | 128)) {
+		bb_runtime_error("LoadAtlas: Sphere and cube maps can't be atlases.");
+	}
+	int32_t handle = bb_load_texture(file, flags | TEXTURE_CLAMP_U | TEXTURE_CLAMP_V);
+	if (handle) {
+		texture_of(handle)->is_atlas = true;
+	}
+	return handle;
+}
+
+// AtlasTexture(atlas, x, y, width, height): a texture that shows this rectangle of the atlas (in pixels). It has no picture
+// of its own, only its own scale, rotation and blend, so any number of them cost one image. 0 if the rectangle is not in the atlas.
+// FreeTexture on the atlas only takes its handle away while views exist; the picture goes with the last of them.
+int32_t bb_atlas_texture(int32_t atlas, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+	texture_entry* a = live_texture_of(atlas);
+	if (!a || !a->is_atlas) {
+		bb_runtime_error("AtlasTexture: needs a texture from LoadAtlas.");
+		return 0;
+	}
+	if ((w < 1) || (h < 1) || (x < 0) || (y < 0) || (x > a->width - w) || (y > a->height - h)) {
+		return 0;
+	}
+	int            index = atlas & bb::texture_handle_mask;
+	texture_entry  entry;
+	entry.used   = true;
+	entry.atlas  = index;
+	entry.flags  = a->flags & ~TEXTURE_MIPMAPS; // Lower levels would mix neighbouring tiles.
+	entry.blend  = a->blend;
+	entry.file   = a->file ? full_path(a->file) : nullptr;
+	entry.width  = a->width;
+	entry.height = a->height;
+	entry.image  = a->image;
+	entry.rect[0] = x;
+	entry.rect[1] = y;
+	entry.rect[2] = w;
+	entry.rect[3] = h;
+	if (active() && a->image.view) {
+		allocate_descriptor(entry.set);
+		write_descriptor(entry.set, a->image.view, texture_sampler(entry.flags));
+		entry.image.sampler = texture_sampler(entry.flags);
+	}
+	return add_texture(entry);
 }
 
 // The full path of the file a texture was loaded from, and nothing for one that was made.

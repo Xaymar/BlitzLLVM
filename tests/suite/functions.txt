@@ -37,6 +37,7 @@ addanimseq	blitz3d	done	%AddAnimSeq%entity%length
 addmesh	blitz3d	done	AddMesh%source_mesh%dest_mesh
 addtriangle	blitz3d	done	%AddTriangle%surface%v0%v1%v2
 addvertex	blitz3d	done	%AddVertex%surface#x#y#z#u=0#v=0#w=1
+atlastexture	blitz3d	done	%AtlasTexture%atlas%x%y%width%height
 aligntovector	blitz3d	done	AlignToVector%entity#vector_x#vector_y#vector_z%axis#rate=1
 ambientlight	blitz3d	done	AmbientLight#red#green#blue
 animate	blitz3d	done	Animate%entity%mode=1#speed=1%sequence=0#transition=0
@@ -184,6 +185,7 @@ linepick	blitz3d	done	%LinePick#x#y#z#dx#dy#dz#radius=0
 loadanimmesh	blitz3d	done	%LoadAnimMesh$file%parent=0
 loadanimseq	blitz3d	done	%LoadAnimSeq%entity$file
 loadanimtexture	blitz3d	done	%LoadAnimTexture$file%flags%width%height%first%count
+loadatlas	blitz3d	done	%LoadAtlas$file%flags=1
 loadbrush	blitz3d	done	%LoadBrush$file%texture_flags=1#u_scale=1#v_scale=1
 loadbsp	blitz3d	done	%LoadBSP$file#gamma_adj=0%parent=0
 loadermatrix	blitz3d	done	LoaderMatrix$file_ext#xx#xy#xz#yx#yy#yz#zx#zy#zz

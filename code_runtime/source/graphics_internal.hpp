@@ -404,6 +404,9 @@ namespace bb::gfx {
 		int             first_frame = 0;        // The cell of the sheet that is the first frame.
 		char*           file = nullptr;         // Where it was loaded from (the full path), for TextureName.
 		int             alias = 0;              // Another handle to the texture of this one (GetBrushTexture), which has all of its state.
+		bool            is_atlas = false;       // Loaded with LoadAtlas, which AtlasTexture makes views of.
+		int             atlas = 0;              // For a view made by AtlasTexture: the handle of the atlas, whose image this one samples in the rectangle below.
+		int             rect[4] = {};           // Where the view is in the atlas, in pixels: x, y, width, height.
 		bool            freed = false;          // FreeTexture was called while something still uses it, so it only goes once nothing does.
 		int             sampler = 0;            // The sampler of SetTextureSampler, or 0 for the one that the flags pick.
 		cube_data*      cube = nullptr;         // For a cube map: image is the face that is chosen, and set samples the sheet.
@@ -1017,6 +1020,8 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 int32_t bb_filter_texture_flags(const char* file, int32_t flags);
 void bb_reset_texture_filters(void);
 int32_t bb_texture_alias(int32_t handle);
+int32_t bb_load_atlas(const char* file, int32_t flags);
+int32_t bb_atlas_texture(int32_t atlas, int32_t x, int32_t y, int32_t w, int32_t h);
 void bb_collect_textures(void);
 int32_t bb_texture_in_use(int32_t handle);
 int32_t bb_load_texture_flags(const char* file, int32_t flags);

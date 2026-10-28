@@ -269,6 +269,8 @@
 		{ "entitytexture", "bb_entity_texture", 'v', "iiii", 2, { 0, 0, 0, 0 }, false },
 		{ "loadtexture", "bb_load_texture", 'i', "si", 1, { 0, 9 }, false },
 		{ "freetexture", "bb_free_texture", 'v', "i", 1, {}, false },
+		{ "loadatlas", "bb_load_atlas", 'i', "si", 1, { 0, 9 }, false },
+		{ "atlastexture", "bb_atlas_texture", 'i', "iiiii", 5, {}, false },
 		{ "loadanimtexture", "bb_load_anim_texture", 'i', "siiiii", 6, {}, false },
 		{ "texturename", "bb_texture_name", 's', "i", 1, {}, false },
 		{ "texturecoords", "bb_texture_coords", 'v', "ii", 2, {}, false },
