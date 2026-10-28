@@ -66,7 +66,7 @@ namespace bb::gfx {
 
 	// Test programs can't press anything, so BLITZ_TEST_EVENTS (set with SetEnv) does it for them the next time events are
 	// looked at: a list separated by commas of kN (key N, a scancode, goes down and up), mN (mouse button N goes down and
-	// up), wN (the wheel turns by N), rX:Y (the mouse moves by X and Y) and tTEXT (TEXT is typed). It is used up by being read.
+	// up), wN (the wheel turns by N), fN (the wheel turns by N tenths), rX:Y (the mouse moves by X and Y) and tTEXT (TEXT is typed). It is used up by being read.
 	static void push_test_events()
 	{
 		if (!bb_test_events_dirty) {
@@ -131,6 +131,12 @@ namespace bb::gfx {
 				}
 				event.motion.x = float(g.mouse_x);
 				event.motion.y = float(g.mouse_y);
+				SDL_PushEvent(&event);
+				break;
+			case 'f': // fN, the wheel turns by N tenths.
+				event.type           = SDL_EVENT_MOUSE_WHEEL;
+				event.wheel.windowID = window;
+				event.wheel.y        = float(n) / 10.0f;
 				SDL_PushEvent(&event);
 				break;
 			case 't':
@@ -279,6 +285,17 @@ namespace bb::gfx {
 			}
 			case SDL_EVENT_MOUSE_WHEEL:
 				g.mouse_dz += event.wheel.y;
+				if (g.raw_inputs) {
+					// Wheels and touchpads that turn in small steps add up to whole ones.
+					g.mouse_z_frac += event.wheel.y;
+					int whole = int(g.mouse_z_frac);
+					g.mouse_z_frac -= float(whole);
+					g.mouse_z += whole;
+					if (whole) {
+						bb_event_post(0x204, whole, g.mouse_x, g.mouse_y, 0, 0);
+					}
+					break;
+				}
 				g.mouse_z += int(event.wheel.y);
 				bb_event_post(0x204, int(event.wheel.y), g.mouse_x, g.mouse_y, 0, 0);
 				break;
