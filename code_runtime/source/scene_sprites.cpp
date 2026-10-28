@@ -33,8 +33,13 @@ int32_t bb_create_sprite(int32_t parent)
 	}
 	add_oriented_triangle(s, 0, 1, 2);
 	add_oriented_triangle(s, 0, 2, 3);
+	// The original has no normals on a sprite, so nothing lights it beyond the ambient light once EntityFX takes fullbright away.
+	for (uint32_t i = 0; i < 4; i++) {
+		s->vertices[i].nx = s->vertices[i].ny = s->vertices[i].nz = 0;
+	}
 	entity* e      = get_entity(mesh);
 	e->sprite_mode = 1;
+	e->fx          = 1; // Fullbright, which EntityFX can take away again.
 	return mesh;
 }
 
