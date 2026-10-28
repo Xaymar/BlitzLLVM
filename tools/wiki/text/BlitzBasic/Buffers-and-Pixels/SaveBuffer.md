@@ -19,5 +19,5 @@ WaitKey
 @param buffer    The buffer to save.
 @param bmpfile   The path of the file to write.
 @param settings  How to encode the file, such as `"quality=85,subsampling=444"`. Settings that don't apply to the format of the file are ignored. Defaults to an empty string.
-@returns 1 if the file was written, otherwise 0.
+@returns 1 if the file was written, otherwise 0. With [AsyncSaving](AsyncSaving) on, 1 means that the save was queued, see [SavesFailed](SavesFailed).
 @gap The original only writes BMP files. Here the ending of the name picks PNG, JPEG, WebP, JPEG XL, TGA or BMP, the `settings` argument is new, and files other than BMP and TGA say which program made them.

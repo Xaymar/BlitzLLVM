@@ -646,6 +646,71 @@ namespace bb::gfx {
 		return true;
 	}
 
+	namespace {
+		bool async_setting = false;
+		bool async_decided = false;
+
+		struct save_job : load_job {
+			std::vector<uint8_t> pixels;
+			int                  width = 0, height = 0;
+			std::string          path;
+			save_format          format = save_format::bmp;
+			save_settings        settings;
+			std::string          title;
+
+			void run() override
+			{
+				std::string error;
+				ok = save_picture_file(pixels.data(), width, height, path, format, settings, title, error);
+				if (!ok) {
+					warn_once("Can't save '" + path + "': " + error + ".");
+				}
+				std::vector<uint8_t>().swap(pixels);
+			}
+		};
+
+		std::vector<save_job*> jobs; // Only the program's thread looks at these.
+		int                    failed = 0;
+
+		void finish_job(save_job* job)
+		{
+			async_wait(job);
+			if (!job->ok) {
+				failed++;
+			}
+			delete job;
+		}
+
+		void prune_jobs()
+		{
+			size_t kept = 0;
+			for (size_t i = 0; i < jobs.size(); i++) {
+				if (async_finished(jobs[i])) {
+					finish_job(jobs[i]);
+				} else {
+					jobs[kept++] = jobs[i];
+				}
+			}
+			jobs.resize(kept);
+		}
+	} // namespace
+
+	bool save_async_enabled()
+	{
+		if (!async_decided) {
+			async_decided   = true;
+			const char* env = SDL_getenv("BLITZ_ASYNC_SAVE");
+			async_setting   = env && (env[0] == '1');
+		}
+		return async_setting;
+	}
+
+	void save_async_set(bool enabled)
+	{
+		async_decided = true;
+		async_setting = enabled;
+	}
+
 	int32_t save_submit(uint8_t* rgba, int width, int height, const char* file, const char* settings_text)
 	{
 		std::unique_ptr<uint8_t, void (*)(void*)> pixels(rgba, free);
@@ -662,14 +727,63 @@ namespace bb::gfx {
 			warn_once("Can't save '" + std::string(file) + "': AVIF files can't be written, the encoder is not part of BlitzLLVM.");
 			return 0;
 		}
-		open_codec_libraries();
-		std::string path  = std::string(static_cast<const char*>(bb_native_path(file)));
-		std::string error;
-		bool        done = save_picture_file(pixels.get(), width, height, path, format, settings, save_title(), error);
-		if (!done) {
-			warn_once("Can't save '" + path + "': " + error + ".");
+		open_codec_libraries(); // Before another thread can look for the encoders.
+		std::string path = std::string(static_cast<const char*>(bb_native_path(file)));
+		std::string title = save_title();
+		if (!save_async_enabled()) {
+			std::string error;
+			bool        done = save_picture_file(pixels.get(), width, height, path, format, settings, title, error);
+			if (!done) {
+				warn_once("Can't save '" + path + "': " + error + ".");
+			}
+			return done ? 1 : 0;
 		}
-		return done ? 1 : 0;
+		static bool exit_hook = false;
+		if (!exit_hook) {
+			// A program that ends (End, running out of lines, a runtime error) still gets the pictures it saved.
+			exit_hook = true;
+			atexit([] { save_finish_all(); });
+		}
+		prune_jobs();
+		for (size_t i = 0; i < jobs.size(); i++) {
+			if (jobs[i]->path == path) {
+				// Two threads writing the same file would mix them up, so the earlier save is done first.
+				async_wait(jobs[i]);
+				prune_jobs();
+				break;
+			}
+		}
+		save_job* job = new save_job();
+		job->pixels.assign(pixels.get(), pixels.get() + size_t(width) * size_t(height) * 4);
+		job->width    = width;
+		job->height   = height;
+		job->path     = path;
+		job->format   = format;
+		job->settings = settings;
+		job->title    = title;
+		jobs.push_back(job);
+		async_submit(job);
+		return 1;
+	}
+
+	int32_t save_pending_count()
+	{
+		prune_jobs();
+		return int32_t(jobs.size());
+	}
+
+	int32_t save_failed_count()
+	{
+		prune_jobs();
+		return failed;
+	}
+
+	void save_finish_all()
+	{
+		for (save_job* job : jobs) {
+			finish_job(job);
+		}
+		jobs.clear();
 	}
 
 } // namespace bb::gfx

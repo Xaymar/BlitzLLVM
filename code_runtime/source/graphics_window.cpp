@@ -127,6 +127,7 @@ void bb_end_graphics(void)
 				free_image(image_table[i]);
 			}
 		}
+		save_finish_all(); // The pictures that are still being written are written before the program ends.
 		async_shutdown(); // The pictures that were still loading went with the freed handles.
 		for (uint32_t i = 0; i < max_depths; i++) {
 			destroy_image(depth_cache[i]);

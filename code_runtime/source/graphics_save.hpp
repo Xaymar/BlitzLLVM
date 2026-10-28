@@ -63,7 +63,15 @@ namespace bb::gfx {
 	/** Encodes and writes. Returns false with a reason in error if it could not. The pixels are RGBA and rows have no padding. */
 	bool save_picture_file(const uint8_t* rgba, int width, int height, const std::string& native_path, save_format format, const save_settings& settings, const std::string& title, std::string& error);
 
-	/** Saves a picture, which is taken over (malloc'ed). Returns 0 if it can't be saved, otherwise 1. */
+	/** Whether saving goes on another thread (AsyncSaving, or BLITZ_ASYNC_SAVE=1). */
+	bool save_async_enabled();
+	void save_async_set(bool enabled);
+	/** Saves a picture, which is taken over (malloc'ed). Returns 0 if it can't be saved, otherwise 1 (1 also when the work only went to another thread). */
 	int32_t save_submit(uint8_t* rgba, int width, int height, const char* file, const char* settings);
+	/** How many saves are still going on, and how many that went on another thread failed so far. */
+	int32_t save_pending_count();
+	int32_t save_failed_count();
+	/** Waits until every save is done. Called when the graphics end, and before a file that is written again. */
+	void save_finish_all();
 
 } // namespace bb::gfx

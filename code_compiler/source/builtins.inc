@@ -662,6 +662,9 @@
 		{ "saveimage", "bb_save_image", 'i', "isis", 2, { 0, 0, 0, 0 }, false },
 		{ "savebuffer", "bb_save_buffer", 'i', "iss", 2, { 0, 0, 0 }, false },
 		{ "savetexture", "bb_save_texture", 'i', "isis", 2, { 0, 0, 0, 0 }, false },
+		{ "asyncsaving", "bb_async_saving", 'v', "i", 1, {}, false },
+		{ "savespending", "bb_saves_pending", 'i', "", 0, {}, false },
+		{ "savesfailed", "bb_saves_failed", 'i', "", 0, {}, false },
 		{ "createtexture", "bb_create_texture", 'i', "iiii", 2, { 0, 0, 1, 1 }, false },
 		// Pixels
 		{ "lockbuffer", "bb_lock_buffer", 'v', "i", 0, { 0 }, false },

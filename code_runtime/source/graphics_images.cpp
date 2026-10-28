@@ -763,6 +763,22 @@ int32_t bb_save_texture(int32_t handle, const char* file, int32_t frame, const c
 	return buffer ? bb_save_buffer(buffer, file, settings) : 0;
 }
 
+// ASYNC_SAVING: whether the encoding and writing of saved pictures go on another thread.
+void bb_async_saving(int32_t enabled)
+{
+	save_async_set(enabled != 0);
+}
+
+int32_t bb_saves_pending(void)
+{
+	return save_pending_count();
+}
+
+int32_t bb_saves_failed(void)
+{
+	return save_failed_count();
+}
+
 int32_t bb_image_x_handle(int32_t handle)
 {
 	return need_image(handle, "ImageXHandle")->handle_x;

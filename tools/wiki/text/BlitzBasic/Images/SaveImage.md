@@ -19,5 +19,5 @@ WaitKey
 @param file      The path of the file to write.
 @param frame     The frame to save. Defaults to 0.
 @param settings  How to encode the file, such as `"quality=85"`. Defaults to an empty string.
-@returns 1 if the file was written, otherwise 0.
+@returns 1 if the file was written, otherwise 0. With [AsyncSaving](AsyncSaving) on, 1 means that the save was queued, see [SavesFailed](SavesFailed).
 @gap The original only writes BMP files. Here the ending of the name picks PNG, JPEG, WebP, JPEG XL, TGA or BMP, and the `settings` argument is new.
