@@ -555,6 +555,9 @@ int32_t bb_raw_inputs_enabled(void)
 // 1 if the mouse can be asked for without the acceleration of the system, else 0. Only a mouse of a desktop window system can.
 int32_t bb_hw_raw_inputs(void)
 {
+	if (g.created && g.headless) {
+		return 0;
+	}
 	if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
 		return 0;
 	}

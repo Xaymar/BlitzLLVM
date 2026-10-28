@@ -121,5 +121,26 @@ Print "Y"
 CheckTrue "Input at the bottom keeps its line", Lit(0, 104, 8, 8) > 3
 SetBuffer BackBuffer()
 
+; RawInputs: unaccelerated movement and the fractions of the wheel, with rX:Y moving the mouse and fN turning the wheel by N tenths.
+FlushMouse
+RawInputs True
+Check "Raw speed x at rest", MouseXSpeed(), 0
+SetEnv "BLITZ_TEST_EVENTS", "r7:-3"
+CheckTrue "HWRawInputs", HWRawInputs() = 1 ; There is a window.
+If HWRawInputs()
+	Check "Raw speed x", MouseXSpeed(), 7
+	Check "Raw speed y", MouseYSpeed(), -3
+	Check "Raw speed x is used up", MouseXSpeed(), 0
+EndIf
+; The wheel adds up its fractions, and a whole step is seen once they make one.
+If HWRawInputs()
+	z = MouseZ()
+	SetEnv "BLITZ_TEST_EVENTS", "f4,f4"
+	Check "Raw wheel below one step", MouseZ(), z
+	SetEnv "BLITZ_TEST_EVENTS", "f4"
+	Check "Raw wheel adds up", MouseZ(), z + 1
+EndIf
+RawInputs False
+
 EndGraphics
 Done "input_pixels"
