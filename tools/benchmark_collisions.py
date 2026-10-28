@@ -16,6 +16,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))
+import procutil  # noqa: E402
 
 
 def main():
@@ -28,7 +30,7 @@ def main():
         sys.exit("There is no display and no xvfb-run.")
     with tempfile.TemporaryDirectory() as directory:
         program = os.path.join(directory, "benchmark")
-        subprocess.run([compiler, os.path.join(root, "tools", "benchmark_collisions.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL)
+        procutil.run([compiler, os.path.join(root, "tools", "benchmark_collisions.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL)
         print("%-8s %-8s %-7s %12s %12s %9s" % ("statics", "movers", "method", "broad ms", "brute ms", "gain"))
         for statics, movers, method in cases:
             results = {}
@@ -37,7 +39,7 @@ def main():
                 env.pop("BLITZ_NO_BROADPHASE", None)
                 if mode == "brute":
                     env["BLITZ_NO_BROADPHASE"] = "1"
-                run = subprocess.run(runner + [program], env=env, capture_output=True, text=True)
+                run = procutil.run(runner + [program], env=env, capture_output=True, text=True)
                 found = re.search(r"update_ms=([0-9.]+)", run.stdout + run.stderr)
                 results[mode] = float(found.group(1)) if found else float("nan")
             print("%-8d %-8d %-7d %12.2f %12.2f %8.1fx" % (statics, movers, method, results["broad"], results["brute"], results["brute"] / results["broad"]))
