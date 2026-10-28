@@ -194,7 +194,7 @@ namespace bb::gfx {
 		SDL_UnlockMutex(gpu_mutex);
 	}
 
-	// GPU timestamps for BLITZ_FPS (programs compiled with --profile): each mark is the end of a pass, and the time since the
+	// GPU timestamps for BLITZLLVM_PROFILE_FPS (programs compiled with --profile): each mark is the end of a pass, and the time since the
 	// mark before is that pass's. They are read back when the slot is used again, as its command buffer is done by then.
 	VkQueryPool    profile_query_pool = VK_NULL_HANDLE;
 	double         profile_gpu_pass[5] = {};

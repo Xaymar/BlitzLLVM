@@ -46,7 +46,7 @@ def main():
     parser.add_argument("--frames", type=int, default=60)
     parser.add_argument("--size", default="640x360")
     parser.add_argument("--shot", help="save the last picture to this file (a .bmp)")
-    parser.add_argument("--profile", action="store_true", help="build with --profile and read the GPU time of the passes (BLITZ_FPS=1), which a fast GPU does not hide")
+    parser.add_argument("--profile", action="store_true", help="build with --profile and read the GPU time of the passes (BLITZLLVM_PROFILE_FPS=1), which a fast GPU does not hide")
     parser.add_argument("--camera", default="circle", choices=("circle", "above"), help="above: the whole mesh is in view")
     args = parser.parse_args()
     width, height = args.size.lower().split("x")
@@ -80,7 +80,7 @@ def main():
             env["BENCH_SHOT"] = shot_file
         if args.profile and llvm:
             env["BENCH_FPS_ON"] = "1"
-            env["BLITZ_FPS"] = "1"
+            env["BLITZLLVM_PROFILE_FPS"] = "1"
         print("Running %dx%d surfaces of %dx%d squares, %d frames, %sx%s, CameraCulling %s" % (args.surfaces, args.surfaces, args.grid, args.grid, args.frames, width, height, args.cull if llvm else "n/a"), flush=True)
         result = procutil.run(runner + [program], env=env, cwd=directory, capture_output=True, text=True)
         line = None
@@ -115,7 +115,7 @@ def main():
     if args.profile and llvm and not gpu_frames:
         print("  gpu         no time yet: the runtime reports once a second and leaves the first out, so use --frames 3000 or more")
     if gpu_frames:
-        print("  gpu         scene %.3f ms, frame %.3f ms per frame (%d frames, from BLITZ_FPS)" % (gpu_sums["scene"] / gpu_frames, gpu_sums["frame"] / gpu_frames, gpu_frames))
+        print("  gpu         scene %.3f ms, frame %.3f ms per frame (%d frames, from BLITZLLVM_PROFILE_FPS)" % (gpu_sums["scene"] / gpu_frames, gpu_sums["frame"] / gpu_frames, gpu_frames))
     print("  build       %s" % (version or "unknown compiler"))
 
 

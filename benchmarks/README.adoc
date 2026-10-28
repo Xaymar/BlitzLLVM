@@ -55,7 +55,7 @@ python3 benchmarks/flythrough.py --objects 1000000 --frames 600 # the full run
 
 The runner builds the program with `build/code_compiler/blitzcc` (or `--blitzcc PATH`), runs it and prints one table. Options:
 `--objects`, `--frames`, `--seed`, `--size WxH`, `--shot FILE` (saves the last frame), `--label NAME` (such as the GPU, it
-is stored with the result), `--debug` (`-d`, no optimization), `--profile` (builds with `--profile`, so that `BLITZ_FPS=1` prints
+is stored with the result), `--debug` (`-d`, no optimization), `--profile` (builds with `--profile`, so that `BLITZLLVM_PROFILE_FPS=1` prints
 the timers of the runtime), and `--no-save`. The defaults can be set with `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_SEED` and `BENCH_SIZE`.
 The program itself reads `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_WARMUP`, `BENCH_SEED`, `BENCH_W`, `BENCH_H`, `BENCH_RANGE`, `BENCH_MOVING` (how many objects are moved every frame, to see what the spatial grid costs when things move), `BENCH_MODEL`,
 `BENCH_SHOT` and `BENCH_FRAMETIMES`, see the top of `flythrough.bb`. `BENCH_DITHER=2` sets the Dither level and `BENCH_GPU=2` the graphics driver (also for the waterfall).
@@ -204,7 +204,7 @@ and not from `Rnd`, so BlitzLLVM and the original Blitz3D draw the same frames.
 === GPU time
 
 `ms/frame` is the time of the program, and `Flip` does not wait for the GPU, so it can miss what the GPU saves (for instance with early-Z).
-With `--profile` the runner builds with `--profile` and runs with `BLITZ_FPS=1`, reads the GPU timestamps of the passes that the runtime reports
+With `--profile` the runner builds with `--profile` and runs with `BLITZLLVM_PROFILE_FPS=1`, reads the GPU timestamps of the passes that the runtime reports
 once a second (the first second, which makes the dungeon, is left out) and prints the GPU time per frame (`scene`, `2d`, `frame`).
 Use a size that is limited by the GPU (`--size 1920x1080`) and compare the `scene` time.
 
@@ -247,7 +247,7 @@ python3 benchmarks/bigmesh.py --cull 3      # and the GPU culls the faces that a
 python3 benchmarks/bigmesh.py --surfaces 4 --grid 255 --frames 120
 ----
 
-`Flip` does not wait for the GPU or the screen here (`Flip 0`), so use `--profile` (BLITZ_FPS=1, as the other benchmarks) for the GPU time of a frame, and `--camera above` for the worst case, where the whole mesh is in view. It prints the time of a frame, the triangles that were given to the GPU (all of them in both cases, the GPU decides later) and the
+`Flip` does not wait for the GPU or the screen here (`Flip 0`), so use `--profile` (BLITZLLVM_PROFILE_FPS=1, as the other benchmarks) for the GPU time of a frame, and `--camera above` for the worst case, where the whole mesh is in view. It prints the time of a frame, the triangles that were given to the GPU (all of them in both cases, the GPU decides later) and the
 clusters of faces that the GPU decided about. Without a display it runs under llvmpipe, where the CPU rasterizes and the numbers say
 little about a real GPU; run it on one and alternate the settings a few times.
 

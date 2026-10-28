@@ -331,7 +331,7 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	endforeach()
 endif()
 
-# BLITZ_FPS=1 only reports in programs that were compiled with --profile.
+# BLITZLLVM_PROFILE_FPS=1 only reports in programs that were compiled with --profile.
 if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	foreach(_PROFILE IN ITEMS on off)
 		add_test(

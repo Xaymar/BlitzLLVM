@@ -29,7 +29,7 @@ using namespace bb::gfx;
 
 namespace bb::gfx {
 
-	draw_stats stats3d; // What the recorded draws cost, for Stats3D and BLITZ_FPS.
+	draw_stats stats3d; // What the recorded draws cost, for Stats3D and BLITZLLVM_PROFILE_FPS.
 
 	uint32_t flush_number = 0;
 
