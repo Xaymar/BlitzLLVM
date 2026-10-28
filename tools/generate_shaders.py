@@ -664,8 +664,12 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
     c1 = b.const_float(1.0)
     epsilon = b.const_float(0.002)
 
-    image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+    # In 3D the textures are arrays with a layer for each frame, and the layer is the second value of soft.
+    image = b.new_type("image", "TypeImage", f, 1, 0, 1 if fog else 0, 0, 1, 0)
     sampled = b.new_type("sampled", "TypeSampledImage", image)
+    if fog:
+        image_2d = b.new_type("image_2d", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+        sampled_2d = b.new_type("sampled_2d", "TypeSampledImage", image_2d)
     mask_block = b.struct("mask", v4)
     if not fog:
         b.m.annotations += [
@@ -689,7 +693,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         in_soft = b.variable("Input", v4, [(DECORATION["Location"], 8), (DECORATION["Flat"],)])
         in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
         # The depth of what was drawn before the sprites, for SpriteDepthFade.
-        depth_tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
+        depth_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 3), (DECORATION["Binding"], 0)])
         if interlock:
             storage_image = b.new_type("storage_image", "TypeImage", f, 1, 0, 0, 0, 2, 4)  # 2D, no sampler, Rgba8
             target = b.variable("UniformConstant", storage_image, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["Coherent"],)])
@@ -737,6 +741,8 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         column = b.fsub(f, face, b.fmul(f, b.const_float(3.0), row))
         sheet_uv = b.construct(2, b.fdiv(f, b.fadd(f, column, s_face), b.const_float(3.0)), b.fdiv(f, b.fadd(f, row, t_face), two))
         uv = b.fadd(v2, uv, b.scale(2, b.fsub(v2, sheet_uv, uv), is_cube))
+    if fog:
+        uv = b.construct(3, b.extract(uv, 0), b.extract(uv, 1), b.extract(b.load(v4, in_soft), 1))
     t = b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), uv)
     if fog:
         mask = b.load(v4, in_mask)
@@ -824,7 +830,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             Module.inst("Label", soft_label),
         ]
         ivec2 = b.new_type("ivec2", "TypeVector", b.int(), 2)
-        fetched = b.emit("Image", image, b.load(sampled, depth_tex))
+        fetched = b.emit("Image", image_2d, b.load(sampled_2d, depth_tex))
         frag = b.load(v4, in_frag)
         pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(frag, 0)), b.emit("ConvertFToS", b.int(), b.extract(frag, 1)))
         scene_depth = b.extract(b.emit("ImageFetch", v4, fetched, pixel), 0)
