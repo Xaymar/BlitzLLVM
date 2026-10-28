@@ -228,24 +228,72 @@ void bb_init(int32_t argc, char** argv)
 #endif
 }
 
-// What has to be taken down before the libraries are (set by the parts that start threads), as exit() would unwind them
-// while the threads still work. Not run by a runtime error, as what it was in the middle of may not be taken down safely.
-void (*bb_exit_hook)(void) = NULL;
+// What has to be taken down before the libraries are, as exit() would unwind them while threads still work. The parts that
+// start threads or open devices register their teardown here; it runs last-registered first, once, whichever way the
+// program ends (End, the window closing, running out of lines, a runtime error).
+#define BB_EXIT_HOOKS 16
+
+// What belongs to one running program. There is one per thread that runs a program (the thread that calls main), and the
+// parts of the runtime that today keep file-level state move in here one by one.
+typedef struct bb_runtime {
+	void (*exit_hooks[BB_EXIT_HOOKS])(void);
+	int exit_hook_count;
+	int shutting_down;
+} bb_runtime;
+
+#if defined(_MSC_VER)
+static __declspec(thread) bb_runtime bb_the_runtime;
+#else
+static _Thread_local bb_runtime bb_the_runtime;
+#endif
+
+void bb_on_exit(void (*hook)(void))
+{
+	bb_runtime* rt = &bb_the_runtime;
+	for (int i = 0; i < rt->exit_hook_count; i++) {
+		if (rt->exit_hooks[i] == hook) {
+			return;
+		}
+	}
+	if (rt->exit_hook_count < BB_EXIT_HOOKS) {
+		rt->exit_hooks[rt->exit_hook_count++] = hook;
+	}
+}
+
+void bb_shutdown(void)
+{
+	bb_runtime* rt = &bb_the_runtime;
+	if (rt->shutting_down) {
+		return; // A teardown that fails must not start another one.
+	}
+	rt->shutting_down = 1;
+	fflush(stdout);
+	while (rt->exit_hook_count > 0) {
+		rt->exit_hooks[--rt->exit_hook_count]();
+	}
+}
 
 void bb_exit(void)
 {
-	fflush(stdout);
-	if (bb_exit_hook) {
-		void (*hook)(void) = bb_exit_hook;
-		bb_exit_hook = NULL;
-		hook();
-	}
+	bb_shutdown();
 	exit(0);
 }
 
 void bb_end(void)
 {
 	bb_exit();
+}
+
+// The program starts here, not in the compiled code: the runtime is set up, the program (bb_program, made by the compiler)
+// runs, and the runtime is taken down in one place again, however the program ends.
+int32_t bb_program(void);
+
+int main(int argc, char** argv)
+{
+	bb_init(argc, argv);
+	int32_t result = bb_program();
+	bb_shutdown();
+	return result;
 }
 
 void bb_runtime_error(const char* message)
@@ -257,6 +305,7 @@ void bb_runtime_error(const char* message)
 		MessageBoxA(NULL, bb_s(message), "Runtime Error", 0x10); // MB_ICONERROR
 	}
 #endif
+	bb_shutdown();
 	exit(1);
 }
 

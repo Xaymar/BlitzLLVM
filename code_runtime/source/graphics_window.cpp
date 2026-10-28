@@ -34,7 +34,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	if (g.created) {
 		bb_end_graphics();
 	}
-	bb_exit_hook = bb_end_graphics; // The program ends with the graphics taken down, while the Vulkan driver's threads still have what they need.
+	bb_on_exit(bb_end_graphics); // The program ends with the graphics taken down, while the Vulkan driver's threads still have what they need.
 
 	bb_reset_texture_filters();
 	g.requested_depth = depth;
