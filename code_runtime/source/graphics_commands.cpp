@@ -89,8 +89,16 @@ namespace bb::gfx {
 		}
 	}
 
-	static int SDLCALL gpu_main(void*)
+	// What the submission thread is given when it starts. It works with these and not with the graphics state, which belongs to
+	// the thread that runs the program.
+	struct gpu_context {
+		VkQueue queue;
+	};
+	static gpu_context gpu_start;
+
+	static int SDLCALL gpu_main(void* argument)
 	{
+		VkQueue queue = static_cast<gpu_context*>(argument)->queue;
 		for (;;) {
 			SDL_LockMutex(gpu_mutex);
 			while (!gpu_queue_count && !gpu_quit) {
@@ -117,7 +125,7 @@ namespace bb::gfx {
 			info.signalSemaphoreCount  = job.signal ? 1 : 0;
 			info.pSignalSemaphores     = &job.signal;
 			Uint64   submit_start      = BB_PROFILE_NOW();
-			VkResult result            = vkQueueSubmit(g.queue, 1, &info, slot.fence);
+			VkResult result            = vkQueueSubmit(queue, 1, &info, slot.fence);
 			Uint64   submit_time       = BB_PROFILE_NOW() - submit_start;
 			SDL_LockMutex(gpu_mutex);
 			profile_gpu_submit += submit_time;
@@ -135,7 +143,7 @@ namespace bb::gfx {
 				present.pImageIndices      = &job.index;
 				Uint64 present_start       = BB_PROFILE_NOW();
 				SDL_LockMutex(swapchain_mutex); // Acquiring an image on the program's thread uses the swapchain too.
-				result                     = vkQueuePresentKHR(g.queue, &present);
+				result                     = vkQueuePresentKHR(queue, &present);
 				SDL_UnlockMutex(swapchain_mutex);
 				SDL_LockMutex(gpu_mutex);
 				profile_gpu_present += BB_PROFILE_NOW() - present_start;
@@ -521,7 +529,8 @@ namespace bb::gfx {
 		if (!gpu_thread) {
 			gpu_mutex  = SDL_CreateMutex();
 			gpu_cond   = SDL_CreateCondition();
-			gpu_thread = SDL_CreateThread(gpu_main, "BlitzLLVM GPU", nullptr);
+			gpu_start.queue = g.queue;
+			gpu_thread      = SDL_CreateThread(gpu_main, "BlitzLLVM GPU", &gpu_start);
 			if (!gpu_thread) {
 				fail("The submission thread could not be started.");
 			}
