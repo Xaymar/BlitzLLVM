@@ -27,11 +27,7 @@ LoadSprite:Int32 file:String, texture_flags:Int32=1, parent:Int32=0
 
 ## Description
 
-Creates a sprite and gives it a texture loaded from a picture file in one step. The sprite is drawn without lighting. How it blends depends on the flags: with the alpha flag (2) or the masked flag (4) it is blended by its alpha, otherwise it is added to what is behind it, which suits glows and flares.
-
-## Differences
-
-* A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending. The result looks the same unless the sprite is moved over other transparent things.
+Creates a sprite and gives it a texture loaded from a picture file in one step. The sprite is drawn without lighting. How it blends depends on the flags: with the masked flag (4) it is drawn without blending and the black cut away, with the alpha flag (2) it is blended by its alpha, otherwise it is added to what is behind it, which suits glows and flares.
 
 ## Examples
 

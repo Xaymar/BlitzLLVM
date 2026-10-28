@@ -53,7 +53,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (256)</summary>
+<li><details><summary>Commands (257)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -105,7 +105,6 @@
 <li><a href="CreateListener#differences">CreateListener</a></li>
 <li><a href="CreateMenu#differences">CreateMenu</a></li>
 <li><a href="CreatePlane#differences">CreatePlane</a></li>
-<li><a href="CreateSprite#differences">CreateSprite</a></li>
 <li><a href="CreateTabber#differences">CreateTabber</a></li>
 <li><a href="CreateTerrain#differences">CreateTerrain</a></li>
 <li><a href="CreateTextArea#differences">CreateTextArea</a></li>
@@ -173,6 +172,7 @@
 <li><a href="HostIP#differences">HostIP</a></li>
 <li><a href="HtmlViewRun#differences">HtmlViewRun</a> 〔BlitzLLVM〕</li>
 <li><a href="HWMultiTex#differences">HWMultiTex</a></li>
+<li><a href="HWRawInputs#differences">HWRawInputs</a></li>
 <li><a href="ImageBuffer#differences">ImageBuffer</a></li>
 <li><a href="ImagesCollide#differences">ImagesCollide</a></li>
 <li><a href="Include#differences">Include</a></li>
@@ -192,7 +192,6 @@
 <li><a href="LoadImage#differences">LoadImage</a></li>
 <li><a href="LoadMesh#differences">LoadMesh</a></li>
 <li><a href="LoadSound#differences">LoadSound</a></li>
-<li><a href="LoadSprite#differences">LoadSprite</a></li>
 <li><a href="LoadTerrain#differences">LoadTerrain</a></li>
 <li><a href="LoadTexture#differences">LoadTexture</a></li>
 <li><a href="Locate#differences">Locate</a></li>
@@ -227,6 +226,8 @@
 <li><a href="ProjectedX#differences">ProjectedX</a></li>
 <li><a href="ProjectedZ#differences">ProjectedZ</a></li>
 <li><a href="QueryObject#differences">QueryObject</a></li>
+<li><a href="RawInputs#differences">RawInputs</a></li>
+<li><a href="RawInputsEnabled#differences">RawInputsEnabled</a></li>
 <li><a href="ReadPixel#differences">ReadPixel</a></li>
 <li><a href="ReadPixelFast#differences">ReadPixelFast</a></li>
 <li><a href="ReadPixelFast64#differences">ReadPixelFast64</a> 〔BlitzLLVM〕</li>
@@ -721,12 +722,13 @@
 <li><a href="WaitKey">WaitKey</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Mouse">Mouse</a> (15)</summary>
+<li><details><summary><a href="BlitzBasic-Mouse">Mouse</a> (18)</summary>
 <ul>
 <li><a href="DirectInputEnabled">DirectInputEnabled</a></li>
 <li><a href="EnableDirectInput">EnableDirectInput</a></li>
 <li><a href="FlushMouse">FlushMouse</a></li>
 <li><a href="GetMouse">GetMouse</a></li>
+<li><a href="HWRawInputs">HWRawInputs</a></li>
 <li><a href="MouseDown">MouseDown</a></li>
 <li><a href="MouseHit">MouseHit</a></li>
 <li><a href="MouseWait">MouseWait</a></li>
@@ -737,6 +739,8 @@
 <li><a href="MouseZ">MouseZ</a></li>
 <li><a href="MouseZSpeed">MouseZSpeed</a></li>
 <li><a href="MoveMouse">MoveMouse</a></li>
+<li><a href="RawInputs">RawInputs</a></li>
+<li><a href="RawInputsEnabled">RawInputsEnabled</a></li>
 <li><a href="WaitMouse">WaitMouse</a></li>
 </ul>
 </details></li>

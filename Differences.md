@@ -98,7 +98,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateListener](CreateListener#differences): Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original.
 * [CreateMenu](CreateMenu#differences): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
 * [CreatePlane](CreatePlane#differences): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
-* [CreateSprite](CreateSprite#differences): Sprites are always drawn full-bright and visible from both sides, whatever [EntityFX](EntityFX) says.
 * [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
 * [CreateTerrain](CreateTerrain#differences): The original only accepts powers of two (32, 64, 128 and so on) and stops with a runtime error otherwise.
 * [CreateTextArea](CreateTextArea#differences): Without wrapping, a bar along the bottom appears once a line does not fit.
@@ -166,6 +165,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [HostIP](HostIP#differences): Without a call of [CountHostIPs](CountHostIPs) the addresses of this computer are used.
 * [HtmlViewRun](HtmlViewRun#differences) 〔BlitzLLVM〕: The script is not run, as there is no page.
 * [HWMultiTex](HWMultiTex#differences): Accepted and ignored.
+* [HWRawInputs](HWRawInputs#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ImageBuffer](ImageBuffer#differences): A frame number that does not exist stops the program with an error message.
 * [ImagesCollide](ImagesCollide#differences): A frame number that does not exist stops the program with an error message.
 * [Include](Include#differences): The original opens a relative path from the folder the compiler runs in; BlitzLLVM starts at the file that includes it.
@@ -185,7 +185,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [LoadImage](LoadImage#differences): TIFF and JPEG 2000 files do not load, which the original read.
 * [LoadMesh](LoadMesh#differences): Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist.
 * [LoadSound](LoadSound#differences): MIDI , module and Windows Media files are not supported.
-* [LoadSprite](LoadSprite#differences): A sprite loaded with the masked flag is blended by alpha here, with the black cut out, while the original draws it without blending.
 * [LoadTerrain](LoadTerrain#differences): The official help says that the red channel is used.
 * [LoadTexture](LoadTexture#differences): Flag 2048 (sRGB conversion) and flag 4096 (render target) are new, see above.
 * [Locate](Locate#differences): The position is limited to the window.
@@ -220,6 +219,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [ProjectedX](ProjectedX#differences): The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane.
 * [ProjectedZ](ProjectedZ#differences): In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible.
 * [QueryObject](QueryObject#differences): All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget.
+* [RawInputs](RawInputs#differences): This is a BlitzLLVM extension: the original has no such command, and gets its mouse speed from DirectInput.
+* [RawInputsEnabled](RawInputsEnabled#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ReadPixel](ReadPixel#differences): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
 * [ReadPixelFast](ReadPixelFast#differences): A buffer that is not locked stops the program with an error message.
 * [ReadPixelFast64](ReadPixelFast64#differences) 〔BlitzLLVM〕: A buffer that is not locked stops the program with an error message.
