@@ -50,6 +50,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_async.cpp"
 	"source/graphics_save.hpp"
 	"source/graphics_jpeg.cpp"
+	"source/graphics_deflate.cpp"
 	"source/graphics_textures.cpp"
 	"source/graphics_fonts.cpp"
 	"source/graphics_scene3d.cpp"

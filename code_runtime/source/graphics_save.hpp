@@ -30,4 +30,7 @@ namespace bb::gfx {
 	/** Encodes RGBA pixels (without row padding; alpha is ignored) to a JPEG file in memory. exif is the TIFF structure of the metadata, or empty. */
 	bool jpeg_encode(const uint8_t* rgba, int width, int height, const jpeg_options& options, const std::vector<uint8_t>& exif, std::vector<uint8_t>& out);
 
+	/** A zlib stream of the data, malloc'ed, at a level from 0 (stored) to 9 (smallest) like zlib's. Null if it ran out of memory. */
+	unsigned char* zlib_compress(const unsigned char* data, int size, int* out_size, int level);
+
 } // namespace bb::gfx
