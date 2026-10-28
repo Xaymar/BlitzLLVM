@@ -61,6 +61,8 @@ def main():
     parser.add_argument("--until", default="origin/root")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--scratch", default=os.path.join(os.path.expanduser("~"), "commit-builds"))
+    parser.add_argument("--build-script", metavar="SCRIPT", help="build with this PowerShell script (Windows; benchmarks/build_windows.ps1) instead of build_rev.sh")
+    parser.add_argument("--build-dir", default=os.path.join(os.path.expanduser("~"), "commit-build-tree"), help="build folder that is kept between commits")
     parser.add_argument("--download", metavar="OWNER/REPO", help="do not build: download the CI binaries of every commit with gh (Windows)")
     args = parser.parse_args()
     os.makedirs(OUT, exist_ok=True)
@@ -91,6 +93,15 @@ def main():
             built = fetch_binary(args.download, first, os.path.join(scratch, "ci"))
             exe = os.path.join(built or "", "blitzcc.exe")
             build = subprocess.CompletedProcess([], 0 if built else 1, "", "no CI binary for this commit")
+        elif args.build_script:
+            built = os.path.join(scratch, "install")
+            build = subprocess.run(["powershell", "-NoProfile", "-File", args.build_script, "-Repo", args.repo, "-Commit", first, "-Out", built,
+                                    "-Build", args.build_dir], capture_output=True, text=True)
+            for root, _, files in os.walk(built):
+                if "blitzcc.exe" in files:
+                    built = root
+                    break
+            exe = os.path.join(built, "blitzcc.exe")
         else:
             build = subprocess.run(["/home/user/bench/build_rev.sh", first, label], capture_output=True, text=True)
             built = os.path.join("/home/user/revs", label)
@@ -113,7 +124,7 @@ def main():
                 record["run_error"] = (run.stdout + run.stderr)[-800:]
             print("%s %s ok" % (label, first[:8]), flush=True)
         json.dump(record, open(path, "w"), indent=1)
-        if not args.download:
+        if not args.download and not args.build_script:
             shutil.rmtree(built, ignore_errors=True)
         shutil.rmtree(scratch, ignore_errors=True)
         done += 1
