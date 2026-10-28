@@ -257,10 +257,13 @@ jobs:
         working-directory: build/code_compiler
         # -j: the GPU tests are small. The ones that move the focus of a window are RUN_SERIAL. A test that skips itself (77)
         # is reported as skipped and does not fail the run. A partial selection runs the tests that the 'Select the tests' step
-        # listed (with the fixtures they need), and the others are not part of the results.
+        # listed (with the fixtures they need), and the others are not part of the results. --repeat until-pass:3: Mesa's software
+        # Vulkan driver (lavapipe) crashes now and then inside its own LLVM shader compiler thread (blitz3d_async_mesh_pixels, in
+        # LLVM's SelectionDAG; the whole stack is inside libvulkan_lvp), which is not something that this code does. A test that
+        # passes on the second or third try is reported as passed, one that fails every time still fails the run.
         run: |
           SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
-          xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
+          xvfb-run -a -s "-screen 0 1280x1024x24" ctest -C Release -j"$(nproc)" --repeat until-pass:3 --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
       - name: Report the results in the test comment
         # Also after a failure or a cancel, so the comment is never left pending. A run that was cancelled by a newer push is
         # not the head of the pull request anymore, so test-comment.sh leaves the comment to the new run.
