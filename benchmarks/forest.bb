@@ -1270,9 +1270,9 @@ CameraProjMode camera, 1
 ; Fullscreen bloom with render targets only (no shaders): the picture of the world is copied into a texture, then raised to the fourth power (bright parts stay, dark parts vanish) while
 ; being shrunk to half and then a quarter of its size, blurred there with seven added, shifted copies of itself (first sideways, then up and down, twice), and
 ; finally added on top of the picture. All of it is drawn by cameras that look at flat squares far away from the world, like the water. BENCH_BLOOM=0 turns it off,
-; BENCH_BLOOM_GAIN is how many times the blur is added (default 2).
+; BENCH_BLOOM_GAIN is how many times the blur is added (default 1).
 bloom = Int(Env$("BENCH_BLOOM", 1))
-bloomgain = Int(Env$("BENCH_BLOOM_GAIN", 2))
+bloomgain = Int(Env$("BENCH_BLOOM_GAIN", 1))
 If bloom Then
 	scrw = GraphicsWidth()
 	scrh = GraphicsHeight()
