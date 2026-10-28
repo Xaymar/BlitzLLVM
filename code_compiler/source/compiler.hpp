@@ -148,6 +148,14 @@ namespace blitz {
 		std::string                                  _di_scope;
 		std::filesystem::path                        _di_sp_file;
 		ast::location                                _loc;       // Where the instructions that are emitted come from.
+		struct copy_out {
+			std::string        local;   // Where the function keeps the parameter.
+			std::string        target;  // The pointer that the caller passed.
+			blitz::types::type type;
+			std::string        sname;
+			bool               optional; // The caller may have left it out, in which case the pointer is null.
+		};
+		std::vector<copy_out>                        _copy_outs; // Out and InOut parameters of the function that is generated.
 		uint32_t                                     _arg = 0;   // Number of the parameter that is being declared, 0 for variables.
 
 		// Everything generated while it is alive belongs to the given location.
@@ -357,5 +365,9 @@ namespace blitz {
 		void gen_goto(ast::goto_statement const* node);
 		void gen_gosub(ast::gosub_statement const* node);
 		void gen_gosub_return(ast::location const& where);
+		void gen_copy_outs();
+		void check_written(ast::function const& fn);
+		void gen_reference_parameter(ast::parameter const& param, variable const& var, size_t idx);
+		address gen_reference_argument(ast::call const* node, size_t idx, ast::parameter const& param, ast::function const& fn);
 	};
 } // namespace blitz

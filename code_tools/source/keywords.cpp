@@ -12,8 +12,8 @@ namespace {
 	constexpr std::string_view spellings[] = {
 		"Abs",   "After",  "And",    "Before",    "Case",     "Const",  "Data",       "Default", "Delete", "Dim",      "Each",    "Else",       "ElseIf", "End",
 		"EndIf", "Exit",   "False",      "Field",  "First",  "Float",    "For",     "Forever",    "Function", "Global", "Gosub",
-		"Goto",  "Handle", "If",     "Include",   "Insert",   "Int",    "Last",       "Local",   "Mod",    "New",      "Next",    "Not",        "Null",   "Object",
-		"Or",    "Pi",     "Read",   "Repeat",    "Restore",  "Return", "Sar",        "Select",  "Sgn",    "Shl",      "Shr",     "Step",       "Stop",   "Str",
+		"Goto",  "Handle", "If",     "In",  "Include",   "InOut",   "Insert",   "Int",    "Last",       "Local",   "Mod",    "New",      "Next",    "Not",        "Null",   "Object",
+		"Or",    "Out",  "Pi",     "Read",   "Repeat",    "Restore",  "Return", "Sar",        "Select",  "Sgn",    "Shl",      "Shr",     "Step",       "Stop",   "Str",
 		"Then",  "To",     "True",   "Type",      "Until",    "Wend",   "While",      "Xor",
 	};
 } // namespace

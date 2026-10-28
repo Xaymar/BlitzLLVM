@@ -60,6 +60,17 @@ void blitz::parser::parse_function()
 	expect_symbol("(");
 	if (!is_symbol(tk(), ")")) {
 		while (true) {
+			// `In`, `Out` and `InOut` only mean something in front of another name, so they stay usable as names.
+			auto mode = ast::direction::IN;
+			{
+				auto word = lower(tk().text);
+				bool word_first = (tk().type == blitz::token::variant::TEXT) && ((word == "in") || (word == "out") || (word == "inout"));
+				bool name_next  = (tk(1).type == blitz::token::variant::TEXT) && !reserved.count(lower(tk(1).text));
+				if (word_first && name_next) {
+					mode = (word == "in") ? ast::direction::IN : ((word == "out") ? ast::direction::OUT : ast::direction::INOUT);
+					advance();
+				}
+			}
 			auto pname = tk();
 			if ((pname.type != blitz::token::variant::TEXT) || reserved.count(lower(pname.text))) {
 				throw error(pname, blitz::format("Unexpected %s, expected a parameter name.", pname.to_string().c_str()));
@@ -71,6 +82,7 @@ void blitz::parser::parse_function()
 
 			ast::parameter param;
 			param.where = here(pname);
+			param.mode  = mode;
 			param.name  = pname.text;
 			param.type  = parse_type_suffix(pname);
 			param.struct_name = _struct_name;

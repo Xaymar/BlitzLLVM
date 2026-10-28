@@ -509,6 +509,9 @@ elseif(CASE STREQUAL "keywords")
 	expect_line("createcube")
 	expect_line("CliAdd")
 	expect_line("CliShow")
+	expect_line("In")
+	expect_line("Out")
+	expect_line("InOut")
 	# Words with a space are the same keyword as the one without it, and are not listed.
 	expect_missing("End If")
 	# Keywords only, no syntax.
@@ -1107,13 +1110,19 @@ elseif(CASE STREQUAL "warnings")
 		"Print Bare()\n"
 		"Local lstep# = 0.5\n"
 		"For lreal# = 0 To 1 Step lstep\n"
-		"Next\n")
+		"Next\n"
+		"Function KeepsValue(InOut a%)\n"
+		"\tIf a > 0 Then Return\n"
+		"\ta = 1\n"
+		"End Function\n"
+		"Local kept% = 0\n"
+		"KeepsValue kept\n")
 
 	# Every warning turns on at its level, and stays on above it. -W2 is the default.
 	set(_WARNINGS
 		"implicit-lossy-int-to-int:1" "loop-iterator-type-unsafe:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
 		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-missing-value:2" "return-type-mismatch:2" "unused-result:2"
-		"implicit-number-to-string:3" "short-type-notation:3" "unreachable-code:3" "unused-variable:3"
+		"implicit-number-to-string:3" "inout-parameter-unwritten:3" "short-type-notation:3" "unreachable-code:3" "unused-variable:3"
 		"typeless-declaration:4" "unused-function:4" "loop-unroll-requires-constant:4")
 	foreach(_LEVEL RANGE 0 4)
 		blitzcc(-c -W${_LEVEL} "${WORK}/w.bb")
@@ -1389,6 +1398,94 @@ elseif(CASE STREQUAL "warnings")
 	foreach(_OPTION IN ITEMS "-W0 .. -W4" "-W<name>" "-Werror")
 		expect_contains("${_OPTION}")
 	endforeach()
+
+elseif(CASE STREQUAL "parameter_modes")
+	macro(expect_err TEXT)
+		string(FIND "${ERR}" "${TEXT}" _AT)
+		if(_AT EQUAL -1)
+			message(FATAL_ERROR "Expected '${TEXT}' in the messages, got:\n${ERR}")
+		endif()
+	endmacro()
+	macro(expect_no_err TEXT)
+		string(FIND "${ERR}" "${TEXT}" _AT)
+		if(NOT _AT EQUAL -1)
+			message(FATAL_ERROR "Did not expect '${TEXT}' in the messages, got:\n${ERR}")
+		endif()
+	endmacro()
+	# Writes a program with a function and a call, compiles it, and expects the compiler to refuse it with the message.
+	function(refuse NAME TEXT FUNCTION CALL)
+		file(WRITE "${WORK}/${NAME}.bb" "${FUNCTION}\n${CALL}\n")
+		blitzcc(-c "${WORK}/${NAME}.bb")
+		if(RC EQUAL 0)
+			message(FATAL_ERROR "${NAME}: the program was accepted.")
+		endif()
+		string(FIND "${ERR}" "${TEXT}" _AT)
+		if(_AT EQUAL -1)
+			message(FATAL_ERROR "${NAME}: expected '${TEXT}', got:\n${ERR}")
+		endif()
+	endfunction()
+	function(accept NAME FUNCTION CALL)
+		file(WRITE "${WORK}/${NAME}.bb" "${FUNCTION}\n${CALL}\n")
+		blitzcc(-c -W4 "${WORK}/${NAME}.bb")
+		if(NOT RC EQUAL 0)
+			message(FATAL_ERROR "${NAME}: the program was refused:\n${ERR}")
+		endif()
+		set(ERR "${ERR}" PARENT_SCOPE)
+	endfunction()
+
+	# What the caller can pass.
+	set(_SET "Function Set(Out a:Int32)\n\ta = 1\nEnd Function")
+	refuse(literal "needs a variable, array element or field to write to, not a value" "${_SET}" "Set 5")
+	refuse(expression "needs a variable, array element or field to write to, not a value" "${_SET}" "Local v:Int32\nSet v + 1")
+	refuse(call_result "needs a variable, array element or field to write to, not a value" "${_SET}" "Set Abs(1)")
+	refuse(constant "can't write to a constant" "${_SET}" "Const c:Int32 = 3\nSet c")
+	refuse(wrong_type "has to be given a variable of type Int, not Float" "${_SET}" "Local f:Float32\nSet f")
+	refuse(whole_array "can't take a whole array" "${_SET}" "Local a:Int32[3]\nSet a")
+	refuse(inout_literal "needs a variable, array element or field to write to, not a value" "Function Inc(InOut a:Int32)\n\ta = a + 1\nEnd Function" "Inc 1")
+	refuse(missing_required "expects 1 to 1 arguments, got 0" "${_SET}" "Set")
+
+	# Out has to be written on every path.
+	refuse(out_unwritten "Out parameter 'a' of 'Skip' is not written on every path" "Function Skip(Out a:Int32)\nEnd Function" "Local v:Int32\nSkip v")
+	refuse(out_one_branch "Out parameter 'a' of 'Skip' is not written on every path" "Function Skip(f:Int32, Out a:Int32)\n\tIf f Then a = 1\nEnd Function" "Local v:Int32\nSkip 1, v")
+	refuse(out_early_return "Out parameter 'a' of 'Skip' is not written on every path" "Function Skip(f:Int32, Out a:Int32)\n\tIf f Then Return\n\ta = 1\nEnd Function" "Local v:Int32\nSkip 1, v")
+	refuse(out_loop "Out parameter 'a' of 'Skip' is not written on every path" "Function Skip(Out a:Int32)\n\tWhile 0\n\t\ta = 1\n\tWend\nEnd Function" "Local v:Int32\nSkip v")
+	refuse(out_exit "Out parameter 'a' of 'Skip' is not written on every path" "Function Skip(f:Int32, Out a:Int32)\n\tRepeat\n\t\tIf f Then Exit\n\t\ta = 1\n\tUntil 1\nEnd Function" "Local v:Int32\nSkip 1, v")
+	refuse(out_select "Out parameter 'a' of 'Skip' is not written on every path" "Function Skip(f:Int32, Out a:Int32)\n\tSelect f\n\t\tCase 1\n\t\t\ta = 1\n\tEnd Select\nEnd Function" "Local v:Int32\nSkip 1, v")
+	# These write on every path.
+	set(_FINE
+		"Function Ok(f:Int32, Out a:Int32)\n\tIf f Then\n\t\ta = 1\n\tElse\n\t\ta = 2\n\tEndIf\nEnd Function"
+		"Function Ok(f:Int32, Out a:Int32)\n\ta = 0\n\tIf f Then Return\n\ta = 1\nEnd Function"
+		"Function Ok(f:Int32, Out a:Int32)\n\tSelect f\n\t\tCase 1\n\t\t\ta = 1\n\t\tDefault\n\t\t\ta = 2\n\tEnd Select\nEnd Function"
+		"Function Ok(f:Int32, Out a:Int32)\n\tRepeat\n\t\ta = 1\n\t\tIf f Then Exit\n\tUntil 1\nEnd Function"
+		"Function Ok(f:Int32, Out a:Int32)\n\tFor a = 0 To 3\n\tNext\nEnd Function"
+		"Function Other(Out b:Int32)\n\tb = 1\nEnd Function\nFunction Ok(f:Int32, Out a:Int32)\n\tOther(a)\nEnd Function")
+	set(_INDEX 0)
+	foreach(_CODE IN LISTS _FINE)
+		accept(fine${_INDEX} "${_CODE}" "Local v:Int32\nOk 1, v")
+		expect_no_err("not written")
+		math(EXPR _INDEX "${_INDEX} + 1")
+	endforeach()
+
+	# InOut only warns, for every path that leaves without writing.
+	accept(inout_unwritten "Function Skip(f:Int32, InOut a:Int32)\n\tIf f Then Return\n\tIf f + 1 Then Return\nEnd Function" "Local v:Int32\nSkip 1, v")
+	expect_err("inout_unwritten.bb:2:12: warning: InOut parameter 'a' of 'Skip' is not written on this path, the caller keeps the value it had. [-Winout-parameter-unwritten]")
+	expect_err("inout_unwritten.bb:3:16: warning: InOut parameter 'a' of 'Skip' is not written on this path")
+	expect_err("inout_unwritten.bb:4:1: warning: InOut parameter 'a' of 'Skip' is not written on this path")
+	accept(inout_written "Function Add(InOut a:Int32)\n\ta = a + 1\nEnd Function" "Local v:Int32\nAdd v")
+	expect_no_err("inout-parameter-unwritten")
+	blitzcc(-c -W2 "${WORK}/inout_unwritten.bb")
+	expect_ok()
+	expect_no_err("inout-parameter-unwritten")
+	blitzcc(-c -W2 -Winout-parameter-unwritten "${WORK}/inout_unwritten.bb")
+	expect_ok()
+	expect_err("inout-parameter-unwritten")
+	blitzcc(-c -Werror -W3 "${WORK}/inout_unwritten.bb")
+	if(RC EQUAL 0)
+		message(FATAL_ERROR "-Werror should have turned the warning into an error.")
+	endif()
+
+	# In, Out and InOut stay usable as names, and In is the default.
+	accept(names "Function F(in:Int32, out:Int32, inout:Int32)\n\tPrint in + out + inout\nEnd Function\nFunction G(In a:Int32)\n\ta = 1\nEnd Function" "Local in:Int32 = 1\nF in, 2, 3\nG in")
 
 elseif(CASE STREQUAL "temp_directory")
 	# A build keeps its files in a folder of its own that is new, can't be guessed from the names of the files, and is private: a folder
