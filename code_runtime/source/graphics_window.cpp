@@ -283,6 +283,9 @@ extern "C" void bb_set_profile(int32_t profile)
 void bb_flip(int32_t vwait)
 {
 	bb::profile_scope timer(bb::PROFILE_FLIP);
+	if (bb::profile_enabled) {
+		bb::profile_frame = bb::profile_frame + 1;
+	}
 	if (!active()) {
 		return;
 	}

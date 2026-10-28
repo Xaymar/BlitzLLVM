@@ -20,6 +20,7 @@ namespace bb {
 
 	inline bool              profile_enabled = false;
 	inline bool              profile_symbols = false; // The program was built with -g or -d, so addresses can be turned into names.
+	inline volatile uint32_t profile_frame   = 0;     // How many Flips there were, which the call stacks of the sampler are tagged with.
 	inline uint64_t          profile_ticks[PROFILE_COUNT] = {};
 	inline const char* const profile_names[PROFILE_COUNT] = { "UpdateWorld", "animation", "RenderWorld", "EntityInView", "CopyRect", "Flip", "Delay", "  RenderWorld: lights+cameras", "  RenderWorld: collect", "  RenderWorld: draws", "  RenderWorld: sort+group", "  record commands" };
 
@@ -49,10 +50,61 @@ namespace bb {
 	inline HANDLE sampled_thread = nullptr;
 	inline const char* sample_path = nullptr;
 
+	// The call stacks (x64 only, and only when the program has symbols) go to <file>.stacks: a header, then one record per sample, in the order of <file>.
+	// All numbers are little endian. The first address of a record is where the sample was; the others are the return addresses of its callers.
+	constexpr int STACK_FRAMES = 8;
+#pragma pack(push, 1)
+	struct stack_header {
+		char     magic[4];   // "BBST"
+		uint32_t version;    // 1
+		uint32_t max_frames; // STACK_FRAMES: how many addresses a record has room for
+		uint64_t base;       // Where the program is loaded, like the first number of <file>
+	};
+	struct stack_sample {
+		uint32_t  frame;                // How many Flips there were before the sample
+		uint32_t  depth;                // How many of the addresses are used
+		uint64_t  microseconds;         // Since the sampler started
+		uintptr_t frames[STACK_FRAMES]; // Addresses (pointer sized, 64 bit here)
+	};
+#pragma pack(pop)
+
+#if defined(_M_X64) || defined(__x86_64__)
+	inline bool stack_walking_supported = true;
+	// Unwinds with the tables of the program (RtlLookupFunctionEntry), so it needs no frame pointers.
+	inline uint32_t walk_stack(CONTEXT context, uintptr_t* frames)
+	{
+		uint32_t depth = 0;
+		while (depth < STACK_FRAMES) {
+			frames[depth++] = uintptr_t(context.Rip);
+			DWORD64            image   = 0;
+			PRUNTIME_FUNCTION  entry   = RtlLookupFunctionEntry(context.Rip, &image, nullptr);
+			if (!entry) {
+				break;
+			}
+			PVOID  handler_data;
+			DWORD64 frame;
+			RtlVirtualUnwind(UNW_FLAG_NHANDLER, image, context.Rip, entry, &context, &handler_data, &frame, nullptr);
+			if (!context.Rip) {
+				break;
+			}
+		}
+		return depth;
+	}
+#else
+	inline bool stack_walking_supported = false;
+	inline uint32_t walk_stack(CONTEXT&, uintptr_t*) { return 0; }
+#endif
+	inline bool stack_walking = false;
+
 	inline DWORD WINAPI sampler_main(LPVOID)
 	{
 		static uintptr_t samples[1 << 20];
+		static stack_sample stacks[1 << 20];
 		size_t           count = 0;
+		size_t           stacks_written = 0;
+		LARGE_INTEGER    frequency, begin;
+		QueryPerformanceFrequency(&frequency);
+		QueryPerformanceCounter(&begin);
 		DWORD            last  = GetTickCount();
 		while (true) {
 			Sleep(1);
@@ -60,8 +112,16 @@ namespace bb {
 				continue;
 			}
 			CONTEXT context = {};
-			context.ContextFlags = CONTEXT_CONTROL;
+			context.ContextFlags = CONTEXT_CONTROL | (stack_walking ? CONTEXT_INTEGER : 0);
 			if (GetThreadContext(sampled_thread, &context) && (count < (1 << 20))) {
+				if (stack_walking) {
+					LARGE_INTEGER now;
+					QueryPerformanceCounter(&now);
+					stack_sample& entry = stacks[count];
+					entry.frame         = profile_frame;
+					entry.microseconds  = uint64_t(now.QuadPart - begin.QuadPart) * 1000000 / uint64_t(frequency.QuadPart);
+					entry.depth         = walk_stack(context, entry.frames);
+				}
 #if defined(_M_ARM64) || defined(__aarch64__)
 				samples[count++] = uintptr_t(context.Pc);
 #elif defined(_M_IX86) || defined(__i386__)
@@ -73,6 +133,21 @@ namespace bb {
 			ResumeThread(sampled_thread);
 			if (GetTickCount() - last > 4000) {
 				last    = GetTickCount();
+				if (stack_walking) {
+					// Appends the samples that are new to <file>.stacks, see the wiki page Environment-Variables.
+					char stacks_path[600];
+					snprintf(stacks_path, sizeof(stacks_path), "%s.stacks", sample_path);
+					FILE* g = fopen(stacks_path, stacks_written ? "ab" : "wb");
+					if (g) {
+						if (!stacks_written) {
+							stack_header header = { { 'B', 'B', 'S', 'T' }, 1, STACK_FRAMES, uint64_t(GetModuleHandleA(nullptr)) };
+							fwrite(&header, sizeof(header), 1, g);
+						}
+						fwrite(stacks + stacks_written, sizeof(stack_sample), count - stacks_written, g);
+						stacks_written = count;
+						fclose(g);
+					}
+				}
 				FILE* f = fopen(sample_path, "wb");
 				if (f) {
 					uintptr_t base = uintptr_t(GetModuleHandleA(nullptr));
@@ -124,6 +199,8 @@ namespace bb {
 		if (!sample_path || sampled_thread) {
 			return;
 		}
+		// Call stacks need the symbols to be of any use, so they are only recorded for programs that were built with --profile and -g (or -d).
+		stack_walking = stack_walking_supported && profile_symbols;
 		DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &sampled_thread, 0, FALSE, DUPLICATE_SAME_ACCESS);
 		CreateThread(nullptr, 0, sampler_main, nullptr, 0, nullptr);
 	}
