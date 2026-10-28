@@ -19,11 +19,11 @@ CameraCulling:Void camera:Int32, flags:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `camera` | In | Int32 | required | Camera handle. |
-| `flags` | In | Int32 | required | 1 = frustum culling (default), 2 = culling of faces on the GPU (default off), 4 = with 2, also leave out the faces that look away on the GPU (default off). Other bits are ignored. |
+| `flags` | In | Int32 | required | 1 = frustum culling (default), 2 = culling of faces on the GPU (default), 4 = with 2, also leave out the faces that look away on the GPU (default off). Other bits are ignored. |
 
 ## Description
 
-Chooses what is left out of the picture of a camera before it is given to the GPU. `flags` is a set of bits: 1 turns on frustum culling (meshes that are completely outside of what the camera sees are not drawn at all) and is on by default, 2 turns on culling on the GPU, which leaves out the faces of big meshes that are outside of the view and is off by default, and 4 (together with 2) also leaves out the faces of big meshes that all look away from the camera, which is off by default too. Both are only an optimization and never change the picture. See [Culling](Culling) for how they work and when they help. This is a BlitzLLVM extension: the originals leave this to Direct3D.
+Chooses what is left out of the picture of a camera before it is given to the GPU. `flags` is a set of bits (the default is 3, bits 1 and 2): 1 turns on frustum culling (meshes that are completely outside of what the camera sees are not drawn at all) and is on by default, 2 turns on culling on the GPU, which leaves out the faces of big meshes that are outside of the view and is on by default too, and 4 (together with 2) also leaves out the faces of big meshes that all look away from the camera, which is off by default too. The flags are only an optimization and never change the picture. See [Culling](Culling) for how they work and when they help. This is a BlitzLLVM extension: the originals leave this to Direct3D.
 
 `CameraCulling camera, 0` draws everything, which is useful to measure what culling saves. The bits of `flags` can be used alone: `CameraCulling camera, 2` lets the GPU cull but still gives every mesh to it. The setting is used by the camera that `CameraCullingSource` names for the cameras that take their culling from it.
 
