@@ -38,6 +38,7 @@ __declspec(dllimport) int __stdcall MessageBoxA(void*, const char*, const char*,
 #endif
 
 #include "runtime_internal.h"
+#include "handle_check.h"
 
 const char* bb_s(const char* s)
 {
@@ -326,6 +327,17 @@ void bb_runtime_error(const char* message)
 #endif
 	bb_shutdown();
 	exit(1);
+}
+
+void bb_handle_error(const char* what, const char* kind, int32_t handle)
+{
+	char message[160];
+	if (handle == 0) {
+		snprintf(message, sizeof(message), "%s: the %s is 0, which is no %s (was it made, or did it fail to load?).", what, kind, kind);
+	} else {
+		snprintf(message, sizeof(message), "%s: the %s %d does not exist (never made or already freed).", what, kind, (int)handle);
+	}
+	bb_runtime_error(message);
 }
 
 void bb_check_div(int64_t divisor)
