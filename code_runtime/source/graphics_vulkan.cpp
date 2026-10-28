@@ -541,8 +541,33 @@ namespace bb::gfx {
 		return sampler;
 	}
 
+	static VkSampler atlas_samplers[2][16];
+
+	// The sampler of a tile of an atlas with a gutter: clamped, and not going further down the mip levels than the gutter keeps clean.
+	VkSampler atlas_sampler(bool point, int max_lod)
+	{
+		max_lod = max_lod < 0 ? 0 : (max_lod > 15 ? 15 : max_lod);
+		VkSampler& slot = atlas_samplers[point ? 1 : 0][max_lod];
+		if (!slot) {
+			sampler_entry s;
+			s.filter_min = s.filter_mag = s.filter_mip = point ? 0 : 1;
+			s.address[0] = s.address[1] = s.address[2] = 2;
+			s.lod_max = float(max_lod);
+			slot      = create_user_sampler(s);
+		}
+		return slot;
+	}
+
 	void destroy_user_samplers()
 	{
+		for (auto& row : atlas_samplers) {
+			for (VkSampler& slot : row) {
+				if (slot) {
+					vkDestroySampler(g.device, slot, nullptr);
+					slot = VK_NULL_HANDLE;
+				}
+			}
+		}
 		for (uint32_t i = 0; i < sampler_table.size; i++) {
 			if (sampler_table[i].vk) {
 				vkDestroySampler(g.device, sampler_table[i].vk, nullptr);
