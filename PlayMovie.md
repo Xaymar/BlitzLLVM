@@ -27,6 +27,10 @@ PlayMovie movie:Int32
 
 Lets a movie play on after [PauseMovie](PauseMovie), or from its start after [StopMovie](StopMovie) or when it has ended. The movie goes on from the picture and the sound where it was paused. A movie that was opened plays by itself the first time it is drawn or asked about, so this is only needed after a pause, or to start a movie that was paused before it was used. This is a BlitzLLVM extension: the originals can only play a movie to its end.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

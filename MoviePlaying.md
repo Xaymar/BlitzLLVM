@@ -30,6 +30,7 @@ Tells whether a movie is still playing. It becomes 0 when the movie reaches its 
 ## Differences
 
 * Nothing , the same as the original. It becomes 0 once the last picture has been shown and its sound has played, and calling it is what starts a movie that was not drawn yet. Movies do not loop: open the movie again to play it again.
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 
 ## Related Commands
 

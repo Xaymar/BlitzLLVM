@@ -25,6 +25,10 @@ StopChannel channel:Int32
 
 Stops a channel and releases it. The handle can not be used afterwards, and commands that are given a channel that has ended are ignored.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the channel was never given out. A channel that is over is fine everywhere, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

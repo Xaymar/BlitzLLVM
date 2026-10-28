@@ -28,6 +28,10 @@ LoopMovie movie:Int32, loop:Int32=1
 
 Makes a movie begin again at its start when it reaches its end, so that [MoviePlaying](MoviePlaying) stays 1 until looping is turned off, or the movie is closed. Turn it off with `LoopMovie movie, False`: the movie then plays to the end it is at and stops. This is a BlitzLLVM extension: the originals can only play a movie once. The sound of the end is played to its last sample before the movie begins again, so there is a short pause in the sound between the rounds.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

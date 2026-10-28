@@ -26,6 +26,10 @@ SoundVolume sound:Int32, volume:Float32
 
 Sets the volume that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelVolume](ChannelVolume) for those.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Related Commands
 
 [ChannelVolume](ChannelVolume), [FreeSound](FreeSound), [Load3DSound](Load3DSound), [LoadSound](LoadSound), [LoopSound](LoopSound), [PlaySound](PlaySound), [SoundPan](SoundPan), [SoundPitch](SoundPitch)

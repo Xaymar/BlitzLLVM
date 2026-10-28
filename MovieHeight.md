@@ -30,6 +30,7 @@ The height of the pictures of a movie in pixels.
 ## Differences
 
 * Nothing , the same as the original. It is the size of the picture in the file.
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 
 ## Related Commands
 

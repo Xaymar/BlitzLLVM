@@ -26,6 +26,10 @@ ChannelVolume channel:Int32, volume:Float32
 
 Sets the volume of one channel. It can be changed while the sound plays, for example to fade it out.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the channel was never given out. A channel that is over is fine everywhere, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

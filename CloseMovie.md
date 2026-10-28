@@ -28,6 +28,7 @@ Closes a movie that [OpenMovie](OpenMovie) opened and frees what it used. A movi
 ## Differences
 
 * Nothing , the same as the original. The picture and sound stop.
+* A debug build (`-d`) stops the program when the movie is closed already, see [Debug handle checks](Debug-Handle-Checks). The 0 of a movie that failed to open is an error too.
 
 ## Related Commands
 

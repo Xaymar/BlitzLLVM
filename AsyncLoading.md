@@ -31,6 +31,8 @@ Turns loading of pictures and models on other threads on or off. It is off at fi
 
 [LoadTexture](LoadTexture) and [LoadImage](LoadImage) still give 0 for a file that is missing or is no picture. A file that is a picture or model by its header but cannot be decoded (a cut off download, for example) cannot give 0 any more: the program stops with an error the first time it uses it, instead of at the load (a model that cannot be read stops the program with a message that names the command). Models in DirectX .x format and files that are no model are loaded as before. Cube maps and sheets of frames are loaded as before. Changing the setting does not change pictures that are loading already.
 
+A program compiled with `-d` (a debug build) ignores this command and `BLITZ_ASYNC_LOAD`, and always loads on the spot: a file that cannot be loaded or decoded then stops the program at the command that loaded it, and not at the first use. Release builds do what is described above.
+
 This is a BlitzLLVM extension: the originals load every picture and model before the command returns.
 
 ## Differences

@@ -28,6 +28,7 @@ Releases an image and its video memory. The handle must not be used afterwards.
 ## Differences
 
 * Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
+* A debug build (`-d`) stops the program when the image is freed already, see [Debug handle checks](Debug-Handle-Checks). The 0 of an image that failed to load is an error too.
 
 ## Related Commands
 

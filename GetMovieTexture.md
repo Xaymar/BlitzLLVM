@@ -31,6 +31,10 @@ Gives a texture that shows the movie, so that a movie can be on any surface of a
 
 Every call for the same movie gives the same texture. It belongs to the movie, so do not free it with [FreeTexture](FreeTexture): it is freed with [CloseMovie](CloseMovie). It is an ordinary color texture without mip maps, which can be given to an entity with [EntityTexture](EntityTexture), a brush with [BrushTexture](BrushTexture) and so on, and whose sampler can be changed with [SetTextureSampler](SetTextureSampler).
 
+## Differences
+
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

@@ -27,6 +27,10 @@ StopMovie movie:Int32
 
 Stops a movie and puts it back at its start. The sound stops, [MoviePlaying](MoviePlaying) is 0 and [DrawMovie](DrawMovie) draws the first picture, until [PlayMovie](PlayMovie) plays the movie from its start again. The difference to [PauseMovie](PauseMovie) is where the movie is afterwards, and that a stopped movie does not count as playing. The movie stays open; [CloseMovie](CloseMovie) frees it. This is a BlitzLLVM extension: the originals can only play a movie to its end.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Related Commands
 
 [CloseMovie](CloseMovie), [DrawMovie](DrawMovie), [GetMovieTexture](GetMovieTexture) 〔BlitzLLVM〕, [LoopMovie](LoopMovie) 〔BlitzLLVM〕, [OpenMovie](OpenMovie), [PauseMovie](PauseMovie) 〔BlitzLLVM〕, [PlayMovie](PlayMovie) 〔BlitzLLVM〕, [SeekMovie](SeekMovie) 〔BlitzLLVM〕

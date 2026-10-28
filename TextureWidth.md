@@ -27,6 +27,10 @@ TextureWidth:Int32 texture:Int32
 
 _Not documented yet._
 
+## Differences
+
+* A debug build (`-d`) stops the program when the texture does not exist, other builds give 0, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Related Commands
 
 [AtlasTexture](AtlasTexture), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureReady](TextureReady) 〔BlitzLLVM〕

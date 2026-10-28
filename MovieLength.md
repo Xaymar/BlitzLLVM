@@ -29,6 +29,10 @@ MovieLength:Float32 movie:Int32
 
 Gives how long a movie is, in seconds. The length is what the file says; some formats (MPEG programs) only estimate it from their bit rate, and once the movie has been decoded to its end the time of its last picture is used if that is longer. This is a BlitzLLVM extension: the originals do not tell how long a movie is.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

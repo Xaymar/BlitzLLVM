@@ -31,6 +31,7 @@ Puts a texture on one of the layers of the brush. Layer 0 is the base texture, f
 ## Differences
 
 * Layers 0 to 7 are accepted. The original help documents only 0 to 3 for this command.
+* A debug build (`-d`) stops the program when the texture is not 0 and does not exist, see [Debug handle checks](Debug-Handle-Checks).
 
 ## Examples
 

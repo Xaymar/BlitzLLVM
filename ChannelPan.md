@@ -29,6 +29,7 @@ Moves a playing channel between the left and the right speaker. It can be called
 ## Differences
 
 * Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
+* A debug build (`-d`) stops the program when the channel was never given out. A channel that is over is fine everywhere, see [Debug handle checks](Debug-Handle-Checks).
 
 ## Examples
 

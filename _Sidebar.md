@@ -18,7 +18,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (31)</summary>
+<li><details><summary>Features (32)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -28,6 +28,7 @@
 <li><a href="Colors">Colors</a></li>
 <li><a href="Console-Window">Console window on Windows</a></li>
 <li><a href="Culling">Culling</a></li>
+<li><a href="Debug-Handle-Checks">Debug handle checks</a></li>
 <li><a href="Depth-Buffer">Depth buffer</a></li>
 <li><a href="DirectX-Models">DirectX models</a></li>
 <li><a href="Displays">Displays</a></li>
@@ -53,7 +54,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (257)</summary>
+<li><details><summary>Commands (278)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -79,6 +80,7 @@
 <li><a href="ChannelPan#differences">ChannelPan</a></li>
 <li><a href="ChannelPitch#differences">ChannelPitch</a></li>
 <li><a href="ChannelPlaying#differences">ChannelPlaying</a></li>
+<li><a href="ChannelVolume#differences">ChannelVolume</a></li>
 <li><a href="Chr#differences">Chr</a></li>
 <li><a href="ClientHeight#differences">ClientHeight</a></li>
 <li><a href="ClientWidth#differences">ClientWidth</a></li>
@@ -132,8 +134,10 @@
 <li><a href="DrawImage#differences">DrawImage</a></li>
 <li><a href="DrawImageRect#differences">DrawImageRect</a></li>
 <li><a href="DrawMovie#differences">DrawMovie</a></li>
+<li><a href="EmitSound#differences">EmitSound</a></li>
 <li><a href="EnableDirectInput#differences">EnableDirectInput</a></li>
 <li><a href="EndGraphics#differences">EndGraphics</a></li>
+<li><a href="EntityTexture#differences">EntityTexture</a></li>
 <li><a href="Flip#differences">Flip</a></li>
 <li><a href="FlipCanvas#differences">FlipCanvas</a></li>
 <li><a href="FlushJoy#differences">FlushJoy</a></li>
@@ -152,6 +156,7 @@
 <li><a href="GetJoy#differences">GetJoy</a></li>
 <li><a href="GetKey#differences">GetKey</a></li>
 <li><a href="GetMouse#differences">GetMouse</a></li>
+<li><a href="GetMovieTexture#differences">GetMovieTexture</a> 〔BlitzLLVM〕</li>
 <li><a href="GetSurfaceBrush#differences">GetSurfaceBrush</a></li>
 <li><a href="GfxDriver3D#differences">GfxDriver3D</a></li>
 <li><a href="GfxDriverCaps3D#differences">GfxDriverCaps3D</a></li>
@@ -201,6 +206,7 @@
 <li><a href="LockedPixels#differences">LockedPixels</a></li>
 <li><a href="LockTextArea#differences">LockTextArea</a></li>
 <li><a href="Long#differences">Long</a> 〔BlitzLLVM〕</li>
+<li><a href="LoopMovie#differences">LoopMovie</a> 〔BlitzLLVM〕</li>
 <li><a href="LoopSound#differences">LoopSound</a></li>
 <li><a href="MaximizeWindow#differences">MaximizeWindow</a></li>
 <li><a href="MeshCullBox#differences">MeshCullBox</a></li>
@@ -213,13 +219,20 @@
 <li><a href="MouseZSpeed#differences">MouseZSpeed</a></li>
 <li><a href="MoveMouse#differences">MoveMouse</a></li>
 <li><a href="MovieHeight#differences">MovieHeight</a></li>
+<li><a href="MovieLength#differences">MovieLength</a> 〔BlitzLLVM〕</li>
 <li><a href="MoviePlaying#differences">MoviePlaying</a></li>
+<li><a href="MoviePosition#differences">MoviePosition</a> 〔BlitzLLVM〕</li>
+<li><a href="MovieVolume#differences">MovieVolume</a> 〔BlitzLLVM〕</li>
 <li><a href="MovieWidth#differences">MovieWidth</a></li>
 <li><a href="Notify#differences">Notify</a></li>
 <li><a href="OpenMovie#differences">OpenMovie</a></li>
+<li><a href="PauseChannel#differences">PauseChannel</a></li>
+<li><a href="PauseMovie#differences">PauseMovie</a> 〔BlitzLLVM〕</li>
 <li><a href="PickedTime#differences">PickedTime</a></li>
 <li><a href="PlayCDTrack#differences">PlayCDTrack</a></li>
+<li><a href="PlayMovie#differences">PlayMovie</a> 〔BlitzLLVM〕</li>
 <li><a href="PlayMusic#differences">PlayMusic</a></li>
+<li><a href="PlaySound#differences">PlaySound</a></li>
 <li><a href="PopCount#differences">PopCount</a> 〔BlitzLLVM〕</li>
 <li><a href="Print#differences">Print</a></li>
 <li><a href="Proceed#differences">Proceed</a></li>
@@ -238,6 +251,7 @@
 <li><a href="RequestFile#differences">RequestFile</a></li>
 <li><a href="RequestFont#differences">RequestFont</a></li>
 <li><a href="ResizeImage#differences">ResizeImage</a></li>
+<li><a href="ResumeChannel#differences">ResumeChannel</a></li>
 <li><a href="RotL#differences">RotL</a> 〔BlitzLLVM〕</li>
 <li><a href="RotR#differences">RotR</a> 〔BlitzLLVM〕</li>
 <li><a href="RuntimeError#differences">RuntimeError</a></li>
@@ -253,6 +267,7 @@
 <li><a href="SaveImage#differences">SaveImage</a></li>
 <li><a href="ScaleImage#differences">ScaleImage</a></li>
 <li><a href="ScanLine#differences">ScanLine</a></li>
+<li><a href="SeekMovie#differences">SeekMovie</a> 〔BlitzLLVM〕</li>
 <li><a href="SetBuffer#differences">SetBuffer</a></li>
 <li><a href="SetCubeFace#differences">SetCubeFace</a></li>
 <li><a href="SetCubeMode#differences">SetCubeMode</a></li>
@@ -275,12 +290,17 @@
 <li><a href="SetToolBarTips#differences">SetToolBarTips</a></li>
 <li><a href="Short#differences">Short</a> 〔BlitzLLVM〕</li>
 <li><a href="ShowPointer#differences">ShowPointer</a></li>
+<li><a href="SoundPan#differences">SoundPan</a></li>
+<li><a href="SoundPitch#differences">SoundPitch</a></li>
+<li><a href="SoundVolume#differences">SoundVolume</a></li>
 <li><a href="SpriteDepthFade#differences">SpriteDepthFade</a> 〔BlitzLLVM〕</li>
 <li><a href="SpriteViewMode#differences">SpriteViewMode</a></li>
 <li><a href="StartNetGame#differences">StartNetGame</a></li>
 <li><a href="Stats3D#differences">Stats3D</a></li>
 <li><a href="Step#differences">Step</a></li>
 <li><a href="Stop#differences">Stop</a></li>
+<li><a href="StopChannel#differences">StopChannel</a></li>
+<li><a href="StopMovie#differences">StopMovie</a> 〔BlitzLLVM〕</li>
 <li><a href="StringHeight#differences">StringHeight</a></li>
 <li><a href="StringWidth#differences">StringWidth</a></li>
 <li><a href="SystemProperty#differences">SystemProperty</a></li>
@@ -290,7 +310,9 @@
 <li><a href="TextureBlend#differences">TextureBlend</a></li>
 <li><a href="TextureBuffer#differences">TextureBuffer</a></li>
 <li><a href="TextureCoords#differences">TextureCoords</a></li>
+<li><a href="TextureHeight#differences">TextureHeight</a></li>
 <li><a href="TextureName#differences">TextureName</a></li>
+<li><a href="TextureWidth#differences">TextureWidth</a></li>
 <li><a href="TFormImage#differences">TFormImage</a></li>
 <li><a href="TotalVidMem#differences">TotalVidMem</a></li>
 <li><a href="TrailingZeros#differences">TrailingZeros</a> 〔BlitzLLVM〕</li>

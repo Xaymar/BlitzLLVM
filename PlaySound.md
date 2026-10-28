@@ -27,6 +27,10 @@ PlaySound:Int32 sound:Int32
 
 Starts a sound and returns the channel it plays on. Every call starts a new channel, so the same sound can play several times over itself. The channel starts with the volume and pan that were set on the sound with [SoundVolume](SoundVolume) and [SoundPan](SoundPan), and a sound that is marked by [LoopSound](LoopSound) repeats until the channel is stopped.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

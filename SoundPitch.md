@@ -26,6 +26,10 @@ SoundPitch sound:Int32, pitch:Int32
 
 Sets the playback frequency that channels of this sound start with, in hertz. Channels that are already playing keep theirs: use [ChannelPitch](ChannelPitch) for those.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

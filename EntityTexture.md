@@ -28,6 +28,10 @@ EntityTexture entity:Int32, texture:Int32, frame:Int32=0, index:Int32=0
 
 Puts a texture on the whole entity, replacing the one of its mesh. `frame` picks the frame of an animated texture and `index` picks the layer for multitexturing, 0 to 7, see `TextureBlend`. Textures made with [CreateTexture](CreateTexture) or [LoadTexture](LoadTexture) can be shared between any number of entities.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the texture is not 0 and does not exist, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

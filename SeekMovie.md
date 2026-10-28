@@ -30,6 +30,10 @@ Puts a movie at a position, in seconds from its start. The picture of that posit
 
 The decoders go to the picture before the position that stands on its own and decode up to the position, which takes longer when those pictures are far apart. For files that cannot be seeked that way (MPEG programs sometimes) the movie is decoded from its start.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

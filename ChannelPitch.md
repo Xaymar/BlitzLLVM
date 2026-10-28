@@ -29,6 +29,7 @@ Changes the speed and the pitch of a channel that is playing or paused. The valu
 ## Differences
 
 * Changing the pitch also changes the speed, because the sound is resampled. There is no way to keep the speed.
+* A debug build (`-d`) stops the program when the channel was never given out. A channel that is over is fine everywhere, see [Debug handle checks](Debug-Handle-Checks).
 
 ## Examples
 

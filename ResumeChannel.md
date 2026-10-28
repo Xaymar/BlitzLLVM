@@ -25,6 +25,10 @@ ResumeChannel channel:Int32
 
 Continues a channel that [PauseChannel](PauseChannel) paused.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the channel was never given out. A channel that is over is fine everywhere, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Related Commands
 
 [ChannelPan](ChannelPan), [ChannelPitch](ChannelPitch), [ChannelPlaying](ChannelPlaying), [ChannelVolume](ChannelVolume), [PauseChannel](PauseChannel), [StopChannel](StopChannel)

@@ -28,6 +28,7 @@ Marks a sound so that it plays in an endless loop whenever it is played from now
 ## Differences
 
 * There is no command to switch looping off again.
+* A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 
 ## Examples
 

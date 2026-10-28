@@ -25,6 +25,10 @@ PauseChannel channel:Int32
 
 Pauses a channel. The sound stays where it is until [ResumeChannel](ResumeChannel) continues it. A paused channel is still reported as playing by [ChannelPlaying](ChannelPlaying).
 
+## Differences
+
+* A debug build (`-d`) stops the program when the channel was never given out. A channel that is over is fine everywhere, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

@@ -29,6 +29,10 @@ MoviePosition:Float32 movie:Int32
 
 Gives where a movie is, in seconds from its start. The position counts the time that the movie plays: it stands still while the movie is paused ([PauseMovie](PauseMovie)) and stops at the end of the movie. Asking for it starts a movie that was not drawn yet, like [MoviePlaying](MoviePlaying). This is a BlitzLLVM extension: the originals do not tell where a movie is.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic

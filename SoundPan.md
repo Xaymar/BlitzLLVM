@@ -26,6 +26,10 @@ SoundPan sound:Int32, pan:Float32
 
 Sets the stereo position that channels of this sound start with. Channels that are already playing keep theirs: use [ChannelPan](ChannelPan) for those.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Related Commands
 
 [ChannelPan](ChannelPan), [FreeSound](FreeSound), [Load3DSound](Load3DSound), [LoadSound](LoadSound), [LoopSound](LoopSound), [PlaySound](PlaySound), [SoundPitch](SoundPitch), [SoundVolume](SoundVolume)

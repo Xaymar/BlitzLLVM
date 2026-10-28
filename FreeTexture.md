@@ -30,6 +30,7 @@ Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, b
 ## Differences
 
 * [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
+* A debug build (`-d`) stops the program when the texture does not exist (a texture that is freed already), see [Debug handle checks](Debug-Handle-Checks). The 0 of a texture that failed to load is an error too.
 
 ## Related Commands
 

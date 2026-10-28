@@ -30,6 +30,7 @@ Tells whether a channel is still playing. A paused channel counts as playing, an
 ## Differences
 
 * A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
+* A debug build (`-d`) stops the program when the channel was never given out. A channel that is over is fine everywhere, see [Debug handle checks](Debug-Handle-Checks).
 
 ## Examples
 

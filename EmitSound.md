@@ -30,6 +30,10 @@ Plays a sound from an entity, which becomes quieter and more to one side the fur
 
 The example is the one under [CreateListener](CreateListener).
 
+## Differences
+
+* A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Related Commands
 
 [CreateListener](CreateListener)

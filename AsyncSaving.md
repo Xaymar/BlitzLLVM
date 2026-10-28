@@ -29,6 +29,8 @@ Turns saving of pictures on other threads on or off. It is off at first, and the
 
 [SavesPending](SavesPending) says how many saves are not done, and [SavesFailed](SavesFailed) how many of them could not write their file. A program that ends (with [End](End), by running out of lines or with a runtime error) waits for the saves that are still going on, so the files are always written. Saving the same file again while the first save is going on waits for the first one. Settings and the title for the metadata are taken when the command is called. A save that is refused at once (a format that can't be written, a buffer that does not exist) still gives 0.
 
+A program compiled with `-d` (a debug build) ignores this command and `BLITZ_ASYNC_SAVE`, and always saves on the spot, so a save that fails is reported by the command that asked for it. Release builds do what is described above.
+
 This is a BlitzLLVM extension: the originals write every file before the command returns.
 
 ## Differences

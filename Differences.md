@@ -20,6 +20,7 @@ Differences that are not caused by one command.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
 * [Culling](Culling): Extension: `CameraCulling` and `CameraCullingSource` choose what is left out of the picture before it is drawn. The picture is the same.
+* [Debug handle checks](Debug-Handle-Checks): Extension: a program compiled with `-d` stops with an error when a command is given a handle that names nothing, and always loads and saves on the spot.
 * [Depth buffer](Depth-Buffer): The depth buffer is a reversed 32-bit float, so z-fighting is much rarer.
 * [DirectX models](DirectX-Models): Damaged files: a `.x` file that ends or breaks in the middle of an object loads what is before the damage (with a warning on the console) instead of failing.
 * [Displays](Displays): Extension: commands for every connected display and its modes.
@@ -72,6 +73,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [ChannelPan](ChannelPan#differences): Panning is done by turning down the opposite speaker, so the sound does not get louder when it is panned to one side.
 * [ChannelPitch](ChannelPitch#differences): Changing the pitch also changes the speed, because the sound is resampled.
 * [ChannelPlaying](ChannelPlaying#differences): A handle of 0, which the play commands give when there is no sound device or the sound failed to load, is never playing.
+* [ChannelVolume](ChannelVolume#differences): A debug build (`-d`) stops the program when the channel was never given out.
 * [Chr](Chr#differences): Strings end at the first zero byte, so `Chr$(0)` is the same as an empty string.
 * [ClientHeight](ClientHeight#differences): The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask.
 * [ClientWidth](ClientWidth#differences): The desktop is as big as the primary display (all of it, not only the area free of the task bar), where there is a display to ask.
@@ -125,8 +127,10 @@ Commands that differ from the original or are not finished, with the first of th
 * [DrawImage](DrawImage#differences): A frame number that does not exist stops the program with an error message.
 * [DrawImageRect](DrawImageRect#differences): Only the part that lies inside the frame is drawn.
 * [DrawMovie](DrawMovie#differences): Draws the newest picture whose time has come, stretched to the size given (smooth, not pixel by pixel).
+* [EmitSound](EmitSound#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [EnableDirectInput](EnableDirectInput#differences): Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it.
 * [EndGraphics](EndGraphics#differences): The original opens a new window of the default size, or a console.
+* [EntityTexture](EntityTexture#differences): A debug build (`-d`) stops the program when the texture is not 0 and does not exist, see [Debug handle checks](Debug-Handle-Checks).
 * [Flip](Flip#differences): Without a graphics window nothing happens.
 * [FlipCanvas](FlipCanvas#differences): The second parameter is accepted, but there is nothing to wait for and it makes no difference.
 * [FlushJoy](FlushJoy#differences): Buttons that are currently held are not released.
@@ -145,6 +149,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [GetJoy](GetJoy#differences): Up to 32 buttons per joystick are supported, and a joystick with more reports only the first 32.
 * [GetKey](GetKey#differences): The queue holds 64 characters, and the oldest ones are dropped when it is full.
 * [GetMouse](GetMouse#differences): The queue holds 15 presses and forgets the oldest ones when it is full.
+* [GetMovieTexture](GetMovieTexture#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [GetSurfaceBrush](GetSurfaceBrush#differences): A surface that was never painted gives a plain white brush.
 * [GfxDriver3D](GfxDriver3D#differences): A GPU can unless it does not do Vulkan 1.3 or has no queue that draws, which is 0.
 * [GfxDriverCaps3D](GfxDriverCaps3D#differences): It always reports 100: there are no cube maps, the texture flag for them is accepted and ignored.
@@ -194,6 +199,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [LockedPixels](LockedPixels#differences): The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card.
 * [LockTextArea](LockTextArea#differences): While a text area is locked it sends no events for the changes you make.
 * [Long](Long#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
+* [LoopMovie](LoopMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [LoopSound](LoopSound#differences): There is no command to switch looping off again.
 * [MaximizeWindow](MaximizeWindow#differences): The window fills the whole program window, also when it was made without flag 2 and so cannot be resized by the user.
 * [MeshCullBox](MeshCullBox#differences): The box only affects [EntityInView](EntityInView).
@@ -206,13 +212,20 @@ Commands that differ from the original or are not finished, with the first of th
 * [MouseZSpeed](MouseZSpeed#differences): The original only ever gives -1, 0 or 1.
 * [MoveMouse](MoveMouse#differences): The pointer is not warped on the desktop.
 * [MovieHeight](MovieHeight#differences): Nothing , the same as the original.
+* [MovieLength](MovieLength#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [MoviePlaying](MoviePlaying#differences): Nothing , the same as the original.
+* [MoviePosition](MoviePosition#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+* [MovieVolume](MovieVolume#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [MovieWidth](MovieWidth#differences): Nothing , the same as the original.
 * [Notify](Notify#differences): The box is a message box of the operating system and not part of the program window.
 * [OpenMovie](OpenMovie#differences): Movies are decoded by FFmpeg, whose shared libraries have to be next to the program: blitzcc copies them there when the program uses OpenMovie, and without them (or for a file that can't be played) the result is 0, which programs already have to handle.
+* [PauseChannel](PauseChannel#differences): A debug build (`-d`) stops the program when the channel was never given out.
+* [PauseMovie](PauseMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [PickedTime](PickedTime#differences): The official help describes this as the time taken to calculate the pick.
 * [PlayCDTrack](PlayCDTrack#differences): Always returns 0 and plays nothing.
+* [PlayMovie](PlayMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [PlayMusic](PlayMusic#differences): MIDI is not supported, and neither are the tracker formats (MOD, S3M, XM, IT) and WMA.
+* [PlaySound](PlaySound#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [PopCount](PopCount#differences) 〔BlitzLLVM〕: Not in the originals.
 * [Print](Print#differences): Without a graphics window the text goes to the console instead.
 * [Proceed](Proceed#differences): The box is a message box of the operating system.
@@ -231,6 +244,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [RequestFile](RequestFile#differences): It is the file dialog of the operating system, so it looks different on each system.
 * [RequestFont](RequestFont#differences): Only the size can be picked, from 8 to 32 points in a list, and the result is always the built-in font.
 * [ResizeImage](ResizeImage#differences): The picture is stretched with smooth filtering, where the original used simple pixel picking.
+* [ResumeChannel](ResumeChannel#differences): A debug build (`-d`) stops the program when the channel was never given out.
 * [RotL](RotL#differences) 〔BlitzLLVM〕: Not in the originals, which have `Shl`, `Shr` and `Sar` only.
 * [RotR](RotR#differences) 〔BlitzLLVM〕: Not in the originals, which have `Shl`, `Shr` and `Sar` only.
 * [RuntimeError](RuntimeError#differences): The message is printed as `Runtime Error: ...` on the standard error output, not shown in a dialog box.
@@ -246,6 +260,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [SaveImage](SaveImage#differences): The original only writes BMP files.
 * [ScaleImage](ScaleImage#differences): Scaling uses the same smooth filter as [TFormImage](TFormImage), which [TFormFilter](TFormFilter) can turn off.
 * [ScanLine](ScanLine#differences): Always returns 0.
+* [SeekMovie](SeekMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [SetBuffer](SetBuffer#differences): A debug build (`-d`) stops with an error when the buffer is the `TextureBuffer` of a texture that was not made with flag 4096 (render target), see CreateTexture.
 * [SetCubeFace](SetCubeFace#differences): The face numbers follow the cube map of Direct3D: 0 is -X, 1 is +Z, 2 is +X, 3 is -Z, 4 is +Y and 5 is -Y.
 * [SetCubeMode](SetCubeMode#differences): The faces are copied into one sheet whenever a scene that uses the cube map is drawn, so the edges between faces can show a thin seam when the picture is magnified a lot.
@@ -268,12 +283,17 @@ Commands that differ from the original or are not finished, with the first of th
 * [SetToolBarTips](SetToolBarTips#differences): A hint shows below its button after the mouse rested on it for half a second, in a yellow box, and goes when the mouse moves to another button or is pressed.
 * [Short](Short#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ShowPointer](ShowPointer#differences): BlitzPlus lets the pointer be shown per canvas; here the canvas is accepted and ignored, as there is only one window pointer.
+* [SoundPan](SoundPan#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+* [SoundPitch](SoundPitch#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+* [SoundVolume](SoundVolume#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [SpriteDepthFade](SpriteDepthFade#differences) 〔BlitzLLVM〕: The original has no such command.
 * [SpriteViewMode](SpriteViewMode#differences): The descriptions in the official help do not exactly match the engine.
 * [StartNetGame](StartNetGame#differences): The original showed a dialog box with the games found in the network.
 * [Stats3D](Stats3D#differences): The original also reports the vertices and triangles of the terrains in indexes 1 and 2.
 * [Step](Step#differences): The original only accepts a constant after `Step` and reports "Step value must be constant" otherwise.
 * [Stop](Stop#differences): Only a build made with the debug option (`-d`) stops: it is a breakpoint for a debugger, and ends the program with a signal when none is attached.
+* [StopChannel](StopChannel#differences): A debug build (`-d`) stops the program when the channel was never given out.
+* [StopMovie](StopMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [StringHeight](StringHeight#differences): Text has only one line, so this is always the height of one character.
 * [StringWidth](StringWidth#differences): With the built-in bitmap font every character has the same width, so this is the number of characters times [FontWidth](FontWidth).
 * [SystemProperty](SystemProperty#differences): Off Windows `windowsdir` and `systemdir` are the folders where the system keeps its settings and its libraries, not the Windows folders.
@@ -283,7 +303,9 @@ Commands that differ from the original or are not finished, with the first of th
 * [TextureBlend](TextureBlend#differences): Modes 1, 2, 3 and 5 are drawn on layers above the first.
 * [TextureBuffer](TextureBuffer#differences): SetBuffer on a texture buffer needs the texture to have flag 4096, which the original did not have; a debug build (`-d`) stops with an error otherwise.
 * [TextureCoords](TextureCoords#differences): Only these two sets exist, the call sets or clears the same switch as the flag 65536 of LoadTexture and CreateTexture.
+* [TextureHeight](TextureHeight#differences): A debug build (`-d`) stops the program when the texture does not exist, other builds give 0, see [Debug handle checks](Debug-Handle-Checks).
 * [TextureName](TextureName#differences): The original turns the path into lower case.
+* [TextureWidth](TextureWidth#differences): A debug build (`-d`) stops the program when the texture does not exist, other builds give 0, see [Debug handle checks](Debug-Handle-Checks).
 * [TFormImage](TFormImage#differences): A matrix that cannot be inverted (for example `a=0, b=0`) stops the program with an error message.
 * [TotalVidMem](TotalVidMem#differences): The answer comes from the graphics card and is cut off at 2 GB because it has to fit into an integer.
 * [TrailingZeros](TrailingZeros#differences) 〔BlitzLLVM〕: Not in the originals.

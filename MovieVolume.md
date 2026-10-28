@@ -28,6 +28,10 @@ MovieVolume movie:Int32, volume:Float32
 
 Sets the volume of the sound of a movie, from 0 (silent) to 1 (the sound of the file, which is also the volume of a new movie). Values outside of that are brought to the nearest of the two. The volume stays when the movie is paused, stopped or sought. The picture is not affected. This is a BlitzLLVM extension: the originals play a movie at the volume of the file.
 
+## Differences
+
+* A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
+
 ## Examples
 
 ```blitzbasic
