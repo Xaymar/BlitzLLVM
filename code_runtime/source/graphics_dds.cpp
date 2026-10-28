@@ -678,6 +678,14 @@ namespace bb::gfx {
 			}
 		}
 		SDL_free(names);
+		// With the system's codecs (BLITZ_SYSTEM_IMAGE_CODECS) nothing is next to the program, so the encoders are looked up in the libraries of the system.
+		static const char* const system_names[] = { "libwebp.so.7", "libwebp.so.6", "libwebp.so", "libwebp.7.dylib", "libwebp.dylib", "libwebp.dll", "libwebp-7.dll",
+													"libjxl.so.0.11", "libjxl.so.0.10", "libjxl.so.0.9", "libjxl.so.0.8", "libjxl.so.0.7", "libjxl.so", "libjxl.dylib", "libjxl.0.11.dylib", "jxl.dll", "libjxl.dll" };
+		for (const char* name : system_names) {
+			if (SDL_SharedObject* object = SDL_LoadObject(name)) {
+				codec_objects.push_back(object);
+			}
+		}
 	}
 
 	void* codec_symbol(const char* name)
