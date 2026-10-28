@@ -26,13 +26,13 @@ LoadMesh:Int32 file:String, parent:Int32=0
 
 ## Description
 
-Loads a model from a file as one mesh entity. Any hierarchy and animation in the file is thrown away and the whole model is merged into a single mesh, which is what you want for scenery and props. The original reads `.b3d`, `.x` and `.3ds`; here `.b3d` and `.3ds` files work, and `.x` files are only a stub. The mesh is made at the origin even with a `parent`. If the file cannot be found the result is 0, so check it.
+Loads a model from a file as one mesh entity. Any hierarchy and animation in the file is thrown away and the whole model is merged into a single mesh, which is what you want for scenery and props. The original reads `.b3d`, `.x` and `.3ds`, and so does this; the file type is told by what is in the file, not by its name. Parts of the model that are painted the same (the same colors, picture and so on) share a surface, the parts below a part are put in before it, and a normal of a scaled part is scaled by the square of that, as in the original. The mesh is made at the origin even with a `parent`. If the file cannot be found the result is 0, so check it.
 
 Use [LoadAnimMesh](LoadAnimMesh) when the model has bones or parts that need to move on their own.
 
 ## Differences
 
-* Only `.b3d` and `.3ds` files can be loaded. A DirectX `.x` file (there are three kinds: text, binary and compressed) is not read yet: it gives an empty mesh without surfaces, and a warning is printed once, so that a program that loaded one goes on without the model. The 3D Studio loader is described in [3D Studio models](3D-Studio-Models).
+* Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist. The DirectX loader is described in [DirectX models](DirectX-Models) and the 3D Studio loader in [3D Studio models](3D-Studio-Models).
 
 ## Related Commands
 

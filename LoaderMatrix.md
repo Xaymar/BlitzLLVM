@@ -36,7 +36,7 @@ Sets a 3x3 matrix that is applied to every model loaded from files with a certai
 
 ## Differences
 
-* The matrix is remembered but never used. `.3ds` files always get Y and Z swapped, the default, and `.x` files can not be loaded.
+* Only the matrix for `x` is used. `.3ds` files always get Y and Z swapped, the default, and `.b3d` files are never turned (as in the original).
 
 ## Related Commands
 

@@ -18,7 +18,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (30)</summary>
+<li><details><summary>Features (31)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -29,6 +29,7 @@
 <li><a href="Console-Window">Console window on Windows</a></li>
 <li><a href="Culling">Culling</a></li>
 <li><a href="Depth-Buffer">Depth buffer</a></li>
+<li><a href="DirectX-Models">DirectX models</a></li>
 <li><a href="Displays">Displays</a></li>
 <li><a href="DPI-Scaling">DPI scaling on Windows</a></li>
 <li><a href="Fullscreen">Fullscreen</a></li>
