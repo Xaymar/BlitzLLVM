@@ -242,6 +242,10 @@ lie along the banks (dark, concentrated at the water's edge), 600000 small opaqu
 a blade moves in the wind, in the areas near the camera) and 40 glowing insects fly around, six of them with a light. The night sky has a moon and stars.
 Everything is made in code, there are no files.
 
+image::images/forest-torch.png[The torch at the bridge,width=100%]
+
+image::images/forest-river.png[The river from the bridge,width=100%]
+
 What it measures, besides plain triangle and draw call throughput (about 1.3 million triangles and 1100 draw calls per frame):
 
 * bump mapping the way the original Blitz3D does it (Direct3D 7 Dot3, `TextureBlend 4`, with the light direction in the vertex colors) on the ground, the
