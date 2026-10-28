@@ -236,11 +236,124 @@
   "what": "Sprites drawn as the part of the square that their texture is visible in"
  },
  {
-  "label": "r30-root",
+  "label": "r30-pr236-dds-sprite-shapes",
   "rev": "c298bc27",
   "prs": [
    236
   ],
-  "what": "Current root (sprite shapes of compressed textures)"
+  "what": "Sprite shapes also for compressed (DDS) textures"
+ },
+ {
+  "label": "r31-pr193-early-z",
+  "rev": "a7f3114c",
+  "prs": [
+   193
+  ],
+  "what": "Solid draws first, and no `discard` in the solid fragment shader, so the GPU can reject hidden pixels early"
+ },
+ {
+  "label": "r32-pr209-best-lights",
+  "rev": "7294987d",
+  "prs": [
+   209
+  ],
+  "what": "The eight best lights per draw instead of the first eight (up to 127 lights)"
+ },
+ {
+  "label": "r33-pr239-swapchain-sync",
+  "rev": "b82e1545",
+  "prs": [
+   239
+  ],
+  "what": "Swapchain image acquire synchronized with present, and retried on `VK_NOT_READY`"
+ },
+ {
+  "label": "r34-pr229-depth-fade",
+  "rev": "949ad972",
+  "prs": [
+   229
+  ],
+  "what": "Depth fade left out of the solid fragment shader"
+ },
+ {
+  "label": "r35-pr222-see-through-grouping",
+  "rev": "d43d6cba",
+  "prs": [
+   222,
+   242
+  ],
+  "what": "See-through grouping skips screen-area work when the last frame did not group, and skips draws already in long runs (#222 did not build by itself, so this is the state with its fix #242)"
+ },
+ {
+  "label": "r36-pr249-light-pick-reuse",
+  "rev": "d779c7c1",
+  "prs": [
+   249
+  ],
+  "what": "Light pick per view cell, and the lights picked for an entity are kept while nothing moves"
+ },
+ {
+  "label": "r37-pr230-10-bit-textures",
+  "rev": "7d20b0cb",
+  "prs": [
+   230
+  ],
+  "what": "Pictures of more than 8 bits per channel kept as 10 bits in `LoadTexture`"
+ },
+ {
+  "label": "r38-pr244-array-layout",
+  "rev": "b624ecde",
+  "prs": [
+   244
+  ],
+  "what": "The first index of an array is stored fastest, like the original, and LLVM is told that elements never overlap the descriptor"
+ },
+ {
+  "label": "r39-pr245-strings",
+  "rev": "37b7e424",
+  "prs": [
+   245
+  ],
+  "what": "A string variable takes over the temporary it is given; integers converted to strings without `snprintf`"
+ },
+ {
+  "label": "r40-pr246-object-blocks",
+  "rev": "84694ad4",
+  "prs": [
+   246
+  ],
+  "what": "Objects are cut out of large blocks instead of one `calloc` each"
+ },
+ {
+  "label": "r41-pr257-pixel-access",
+  "rev": "e708b01d",
+  "prs": [
+   257
+  ],
+  "what": "Pixels are read and written as the buffer stores them; deeper buffers converted to RGBA8 when read"
+ },
+ {
+  "label": "r42-pr238-gpu-culling",
+  "rev": "a0e6edba",
+  "prs": [
+   238
+  ],
+  "what": "The three buffers of culling on the GPU are made together, so no descriptor points at no buffer"
+ },
+ {
+  "label": "r43-pr247-async-models",
+  "rev": "380cb002",
+  "prs": [
+   247
+  ],
+  "what": "Graphics buffers of asynchronously loaded models are made on the loader thread"
+ },
+ {
+  "label": "r44-root",
+  "rev": "8b95a9ff",
+  "prs": [
+   260
+  ],
+  "what": "Latest root at the time of the run"
  }
 ]

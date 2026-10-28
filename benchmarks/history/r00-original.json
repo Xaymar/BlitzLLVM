@@ -1,14 +1,14 @@
 {
  "label": "r00-original",
  "rev": "1.118",
- "date": "2026-10-27T20:23:56+00:00",
+ "date": "2026-10-28T03:45:37+00:00",
  "compiler": "Blitz3D 1.118 (original) under Wine",
  "runs": 10,
  "machine": {
   "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
   "threads": 4,
   "ram": "16 GB",
-  "os": "Ubuntu 24.04.5 LTS, kernel 6.18.44-fc-v165",
+  "os": "Ubuntu 24.04.5 LTS, kernel 6.18.44-fc-v180",
   "gpu": "none (Mesa llvmpipe, software rasterizer)",
   "vram": "none (system memory)",
   "renderer": "Wine 9.0 wined3d (Direct3D 7 converted to OpenGL), Mesa llvmpipe 25.2.8"
@@ -629,6 +629,9 @@
     "stdev": 0.0,
     "n": 8
    }
+  },
+  "lights": {
+   "error": "build failed: original: Parsing...\nGenerating...\n\"/tmp/tmpifduiuqb/many_lights.bb\":23:1:23:1:Duplicate identifier"
   }
  }
 }
