@@ -397,7 +397,10 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 void blitz::compiler::gen_select(ast::select_statement const* node)
 {
 	auto subject = gen(node->subject.get());
-	auto end_l   = label("select.end");
+	if (subject.type == type::UNKNOWN) {
+		throw err(node->subject->where, "Expression does not return a value.");
+	}
+	auto end_l = label("select.end");
 
 	// Test all cases in order, the Default (wherever it is) runs if none matched.
 	std::vector<std::string> body_labels;
@@ -445,6 +448,13 @@ void blitz::compiler::gen_return(ast::return_statement const* node)
 	}
 	if (_in_main) {
 		throw err(node->where, "Return can only be used inside of a function, or after a Gosub.");
+	}
+	if (_return_void) {
+		if (node->value) {
+			throw err(node->value->where, "Return can't give a value in a function that returns Void.");
+		}
+		emit_terminator("br label %" + _exit_label);
+		return;
 	}
 	if (!node->value && _return_typed) {
 		std::string suggestion = blitz::types::is_integer(_return_type) ? "0" : (blitz::types::is_real(_return_type) ? "0.0" : (_return_type == type::STRING ? "\"\"" : "Null"));

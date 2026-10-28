@@ -393,7 +393,7 @@ std::string blitz::compiler::truthy(value v, ast::location const& where)
 	} else if (v.type == type::STRUCT) {
 		emit(r + " = icmp ne ptr " + v.repr + ", null");
 	} else {
-		throw err(where, "Expression has no value.");
+		throw err(where, "Expression does not return a value.");
 	}
 	return r;
 }

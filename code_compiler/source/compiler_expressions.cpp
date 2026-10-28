@@ -397,6 +397,12 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 	}
 
 	auto ret = fn.type;
+	if (fn.is_void) {
+		emit("call void " + it->second.symbol + "(" + list + ")");
+		value none{ "", type::UNKNOWN };
+		none.need = chain;
+		return none;
+	}
 	auto r   = tmp();
 	emit(r + " = call " + blitz::types::to_llvm(ret) + " " + it->second.symbol + "(" + list + ")");
 	if (ret == type::STRING) {

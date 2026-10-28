@@ -37,10 +37,21 @@ void blitz::parser::parse_function()
 	auto fn   = std::make_unique<ast::function>();
 	fn->where = here(first);
 	fn->name  = name.text;
-	fn->type  = parse_type_suffix(name);
+	if (is_void_suffix(name)) {
+		// `Name:Void` returns no data, so it has no type to convert to.
+		advance();
+		advance();
+		_struct_name.clear();
+		fn->is_void = true;
+	} else {
+		fn->type = parse_type_suffix(name);
+	}
 	fn->struct_name = _struct_name;
 	_functions.emplace(lower(fn->name), slot{ &fn->type, &fn->struct_name });
-	if (fn->type == blitz::types::type::UNKNOWN) {
+	if (fn->is_void) {
+		fn->type  = blitz::types::type::UNKNOWN;
+		fn->typed = true;
+	} else if (fn->type == blitz::types::type::UNKNOWN) {
 		fn->type = blitz::types::type::INT32;
 	} else {
 		fn->typed = true;
@@ -54,6 +65,9 @@ void blitz::parser::parse_function()
 				throw error(pname, blitz::format("Unexpected %s, expected a parameter name.", pname.to_string().c_str()));
 			}
 			advance();
+			if (is_void_suffix(pname)) {
+				throw error(tk(1), "Void is only a type for functions, a parameter needs a type that holds data.");
+			}
 
 			ast::parameter param;
 			param.where = here(pname);
@@ -163,6 +177,9 @@ void blitz::parser::parse_type_decl()
 				throw error(fname, blitz::format("Unexpected %s, expected a field name.", fname.to_string().c_str()));
 			}
 			advance();
+			if (is_void_suffix(fname)) {
+				throw error(tk(1), "Void is only a type for functions, a field needs a type that holds data.");
+			}
 
 			ast::field_decl field;
 			field.where       = here(fname);
