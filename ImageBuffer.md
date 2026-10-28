@@ -54,7 +54,7 @@ WaitKey
 
 ## Related Commands
 
-[CopyImage](CopyImage), [ImageHeight](ImageHeight), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
+[ImageFrameDelay](ImageFrameDelay), [ImageFrames](ImageFrames), [ImageHeight](ImageHeight), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle)
 
 <div align="center">
 

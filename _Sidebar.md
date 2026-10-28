@@ -672,7 +672,7 @@
 <li><a href="Write">Write</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Images">Images</a> (37)</summary>
+<li><details><summary><a href="BlitzBasic-Images">Images</a> (39)</summary>
 <ul>
 <li><a href="AsyncLoading">AsyncLoading</a> 〔BlitzLLVM〕</li>
 <li><a href="AsyncSaving">AsyncSaving</a> 〔BlitzLLVM〕</li>
@@ -687,6 +687,8 @@
 <li><a href="GrabImage">GrabImage</a></li>
 <li><a href="HandleImage">HandleImage</a></li>
 <li><a href="ImageBuffer">ImageBuffer</a></li>
+<li><a href="ImageFrameDelay">ImageFrameDelay</a></li>
+<li><a href="ImageFrames">ImageFrames</a></li>
 <li><a href="ImageHeight">ImageHeight</a></li>
 <li><a href="ImageReady">ImageReady</a> 〔BlitzLLVM〕</li>
 <li><a href="ImageRectCollide">ImageRectCollide</a></li>
@@ -1115,7 +1117,7 @@
 <li><a href="TerrainZ">TerrainZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Textures">Textures</a> (49)</summary>
+<li><details><summary><a href="Blitz3D-Textures">Textures</a> (51)</summary>
 <ul>
 <li><a href="AtlasTexture">AtlasTexture</a></li>
 <li><a href="ClearTextureFilters">ClearTextureFilters</a></li>
@@ -1162,6 +1164,8 @@
 <li><a href="TextureBuffer">TextureBuffer</a></li>
 <li><a href="TextureCoords">TextureCoords</a></li>
 <li><a href="TextureFilter">TextureFilter</a></li>
+<li><a href="TextureFrameDelay">TextureFrameDelay</a></li>
+<li><a href="TextureFrames">TextureFrames</a></li>
 <li><a href="TextureHeight">TextureHeight</a></li>
 <li><a href="TextureName">TextureName</a></li>
 <li><a href="TextureReady">TextureReady</a> 〔BlitzLLVM〕</li>

@@ -33,7 +33,7 @@ _Not documented yet._
 
 ## Related Commands
 
-[AtlasTexture](AtlasTexture), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureName](TextureName), [TextureReady](TextureReady) 〔BlitzLLVM〕, [TextureWidth](TextureWidth)
+[TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureFrameDelay](TextureFrameDelay), [TextureFrames](TextureFrames), [TextureName](TextureName), [TextureReady](TextureReady) 〔BlitzLLVM〕
 
 <div align="center">
 

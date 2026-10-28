@@ -29,7 +29,7 @@ The height of one frame of an image in pixels.
 
 ## Related Commands
 
-[CopyImage](CopyImage), [ImageBuffer](ImageBuffer), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
+[ImageBuffer](ImageBuffer), [ImageFrameDelay](ImageFrameDelay), [ImageFrames](ImageFrames), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle)
 
 <div align="center">
 

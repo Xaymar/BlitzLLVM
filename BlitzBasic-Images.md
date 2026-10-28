@@ -22,6 +22,8 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [GrabImage](GrabImage)
 * [HandleImage](HandleImage)
 * [ImageBuffer](ImageBuffer)
+* [ImageFrameDelay](ImageFrameDelay)
+* [ImageFrames](ImageFrames)
 * [ImageHeight](ImageHeight)
 * [ImageReady](ImageReady) 〔BlitzLLVM〕
 * [ImageRectCollide](ImageRectCollide)

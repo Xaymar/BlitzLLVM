@@ -38,7 +38,7 @@ Remember to set the buffer back to [BackBuffer](BackBuffer) before you render th
 
 ## Related Commands
 
-[AtlasTexture](AtlasTexture), [TextureBlend](TextureBlend), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureReady](TextureReady) 〔BlitzLLVM〕, [TextureWidth](TextureWidth)
+[TextureBlend](TextureBlend), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureFrameDelay](TextureFrameDelay), [TextureFrames](TextureFrames), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureReady](TextureReady) 〔BlitzLLVM〕
 
 <div align="center">
 

@@ -33,7 +33,7 @@ Tells you which file the texture was loaded from, which is handy after loading a
 
 ## Related Commands
 
-[AtlasTexture](AtlasTexture), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureReady](TextureReady) 〔BlitzLLVM〕, [TextureWidth](TextureWidth)
+[TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureFrameDelay](TextureFrameDelay), [TextureFrames](TextureFrames), [TextureHeight](TextureHeight), [TextureReady](TextureReady) 〔BlitzLLVM〕
 
 <div align="center">
 

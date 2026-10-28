@@ -80,7 +80,7 @@ WaitKey
 
 ## Related Commands
 
-[AtlasTexture](AtlasTexture), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureReady](TextureReady) 〔BlitzLLVM〕, [TextureWidth](TextureWidth)
+[TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureFrameDelay](TextureFrameDelay), [TextureFrames](TextureFrames), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureReady](TextureReady) 〔BlitzLLVM〕
 
 <div align="center">
 

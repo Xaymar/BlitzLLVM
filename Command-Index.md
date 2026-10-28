@@ -426,6 +426,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 * [If](If)
 * [ImageBuffer](ImageBuffer)
+* [ImageFrameDelay](ImageFrameDelay)
+* [ImageFrames](ImageFrames)
 * [ImageHeight](ImageHeight)
 * [ImageReady](ImageReady) 〔BlitzLLVM〕
 * [ImageRectCollide](ImageRectCollide)
@@ -808,6 +810,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [TextureBuffer](TextureBuffer)
 * [TextureCoords](TextureCoords)
 * [TextureFilter](TextureFilter)
+* [TextureFrameDelay](TextureFrameDelay)
+* [TextureFrames](TextureFrames)
 * [TextureHeight](TextureHeight)
 * [TextureName](TextureName)
 * [TextureReady](TextureReady) 〔BlitzLLVM〕

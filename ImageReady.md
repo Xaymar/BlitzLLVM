@@ -33,7 +33,7 @@ This is a BlitzLLVM extension: the originals have no asynchronous loading.
 
 ## Related Commands
 
-[CopyImage](CopyImage), [ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle), [ImageYHandle](ImageYHandle)
+[ImageBuffer](ImageBuffer), [ImageFrameDelay](ImageFrameDelay), [ImageFrames](ImageFrames), [ImageHeight](ImageHeight), [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageXHandle](ImageXHandle)
 
 <div align="center">
 

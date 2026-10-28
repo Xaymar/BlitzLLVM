@@ -29,7 +29,7 @@ The horizontal position of the handle of an image, counted from its left edge.
 
 ## Related Commands
 
-[AutoMidHandle](AutoMidHandle), [ImageBuffer](ImageBuffer), [ImageHeight](ImageHeight), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectCollide](ImageRectCollide), [ImageRectOverlap](ImageRectOverlap), [ImageWidth](ImageWidth), [ImageYHandle](ImageYHandle)
+[AutoMidHandle](AutoMidHandle), [ImageBuffer](ImageBuffer), [ImageFrameDelay](ImageFrameDelay), [ImageFrames](ImageFrames), [ImageHeight](ImageHeight), [ImageReady](ImageReady) 〔BlitzLLVM〕, [ImageRectCollide](ImageRectCollide), [ImageYHandle](ImageYHandle)
 
 <div align="center">
 
