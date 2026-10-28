@@ -47,6 +47,14 @@ jobs:
       - name: Build
         if: github.event_name != 'pull_request'
         run: python3 tools/wiki/wiki.py build --out wiki-out
+      - name: Add the performance history
+        # The benchmark results and their pages are not part of root: they live on their own branch, performance-history.
+        if: github.event_name != 'pull_request'
+        run: |
+          git fetch --quiet --depth 1 origin performance-history || { echo "No performance-history branch."; exit 0; }
+          for page in Performance-History Performance-History-by-Commit; do
+            git show "FETCH_HEAD:$page.md" > "wiki-out/$page.md" || rm -f "wiki-out/$page.md"
+          done
       - name: Check
         # Builds on its own into a temporary folder, so this also proves a clean build passes.
         run: python3 tools/wiki/wiki.py check
