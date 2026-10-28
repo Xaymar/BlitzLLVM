@@ -60,12 +60,13 @@ namespace bb::gfx {
 
 	// The buffers can have more than 8 bits per channel (the depth of Graphics3D). Their pixels are read and written as the
 	// image has them (R, G, B, A in the order of its format), and these turn them into what a program sees:
-	//  - The canonical value has 16 bits for each of A, R, G and B, from the top: 0xAAAARRRRGGGGBBBB. Every format fits.
+	//  - The canonical value has 16 bits for each of A, R, G and B, from the top: 0xAAAARRRRGGGGBBBB. Every format fits (the half
+	//    precision floats of R16G16B16A16 are clamped to 0 to 1 and rounded to the nearest 16 bit value, and back to the nearest half).
 	//  - The Int has the alpha on top, then red, green and blue: 8 bits for each for RGBA8 and for R16G16B16A16 (which loses the
 	//    lower 8), and A2R10G10B10 for R10G10B10A2, which is the stored word with red and blue swapped.
 	static bool is_deep(VkFormat format)
 	{
-		return (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) || (format == VK_FORMAT_R16G16B16A16_UNORM);
+		return (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) || (format == VK_FORMAT_R16G16B16A16_SFLOAT);
 	}
 
 	static uint64_t make_canonical(uint64_t a, uint64_t r, uint64_t g, uint64_t b)
@@ -90,10 +91,10 @@ namespace bb::gfx {
 			memcpy(&v, p, 4);
 			return make_canonical(uint64_t(v >> 30) * 21845, widen10(v & 1023), widen10((v >> 10) & 1023), widen10((v >> 20) & 1023));
 		}
-		if (format == VK_FORMAT_R16G16B16A16_UNORM) {
+		if (format == VK_FORMAT_R16G16B16A16_SFLOAT) {
 			uint16_t w[4];
 			memcpy(w, p, 8);
-			return make_canonical(w[3], w[0], w[1], w[2]);
+			return make_canonical(half_to_unorm16(w[3]), half_to_unorm16(w[0]), half_to_unorm16(w[1]), half_to_unorm16(w[2]));
 		}
 		return make_canonical(uint64_t(p[3]) * 257, uint64_t(p[0]) * 257, uint64_t(p[1]) * 257, uint64_t(p[2]) * 257);
 	}
@@ -103,8 +104,8 @@ namespace bb::gfx {
 		if (format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
 			uint32_t v = narrow(c, 32, 1023) | (narrow(c, 16, 1023) << 10) | (narrow(c, 0, 1023) << 20) | (narrow(c, 48, 3) << 30);
 			memcpy(p, &v, 4);
-		} else if (format == VK_FORMAT_R16G16B16A16_UNORM) {
-			uint16_t w[4] = { uint16_t(c >> 32), uint16_t(c >> 16), uint16_t(c), uint16_t(c >> 48) };
+		} else if (format == VK_FORMAT_R16G16B16A16_SFLOAT) {
+			uint16_t w[4] = { unorm16_to_half(uint16_t(c >> 32)), unorm16_to_half(uint16_t(c >> 16)), unorm16_to_half(uint16_t(c)), unorm16_to_half(uint16_t(c >> 48)) };
 			memcpy(p, w, 8);
 		} else {
 			p[0] = uint8_t(narrow(c, 32, 255));
@@ -191,7 +192,7 @@ void bb_unlock_buffer(int32_t buffer)
 		for (size_t i = 0; i < count && ((i + 1) * bytes <= size_t(size)); i++) {
 			if (is_deep(l->format)) {
 				uint64_t canonical;
-				if (l->format == VK_FORMAT_R16G16B16A16_UNORM) {
+				if (l->format == VK_FORMAT_R16G16B16A16_SFLOAT) {
 					memcpy(&canonical, data + i * 8, 8); // A, R, G, B from the top.
 				} else {
 					int32_t word;
@@ -566,7 +567,7 @@ int32_t bb_locked_pixels(int32_t buffer)
 		for (size_t i = 0; is_deep(l->format) && (i < count); i++) {
 			// What a program reads is the Int of the pixel for 30 bits, and the 64 bits (A, R, G, B from the top) for 64.
 			uint64_t canonical = raw_to_canonical(l->format, l->pixels + i * bytes);
-			if (l->format == VK_FORMAT_R16G16B16A16_UNORM) {
+			if (l->format == VK_FORMAT_R16G16B16A16_SFLOAT) {
 				memcpy(data + i * 8, &canonical, 8);
 			} else {
 				int32_t word = canonical_to_int(l->format, canonical);
@@ -607,6 +608,6 @@ int32_t bb_locked_format(int32_t buffer)
 	if (!l) {
 		bb_runtime_error("Buffer is not locked");
 	}
-	return l->format == VK_FORMAT_A2B10G10R10_UNORM_PACK32 ? 5 : (l->format == VK_FORMAT_R16G16B16A16_UNORM ? 6 : 4);
+	return l->format == VK_FORMAT_A2B10G10R10_UNORM_PACK32 ? 5 : (l->format == VK_FORMAT_R16G16B16A16_SFLOAT ? 6 : 4);
 }
 }

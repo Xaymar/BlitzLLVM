@@ -767,7 +767,7 @@ namespace bb::gfx {
 	}
 
 	// Depth 24 is R8G8B8X8, which is RGBA8 with the alpha left alone; 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is
-	// R16G16B16A16. 0 and 16 are what the original takes to be the best the display has and a 16 bit mode, and both are 32.
+	// R16G16B16A16 as half precision floats. 0 and 16 are what the original takes to be the best the display has and a 16 bit mode, and both are 32.
 	VkFormat pick_buffer_format(int depth, int& actual)
 	{
 		struct choice {
@@ -775,7 +775,7 @@ namespace bb::gfx {
 			VkFormat format;
 		};
 		static const choice choices[] = {
-			{ 64, VK_FORMAT_R16G16B16A16_UNORM },
+			{ 64, VK_FORMAT_R16G16B16A16_SFLOAT },
 			{ 32, VK_FORMAT_R8G8B8A8_UNORM },
 			{ 30, VK_FORMAT_A2B10G10R10_UNORM_PACK32 },
 		};
