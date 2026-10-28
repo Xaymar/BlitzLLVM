@@ -8,6 +8,7 @@
 ; Environment variables:
 ;   BENCH_OBJECTS  how many entities are made (default 20000, one million is 1000000)
 ;   BENCH_FRAMES   how many frames are timed (default 300)
+;   BENCH_GPU      the graphics driver number for SetGfxDriver (optional, default is the one the program picks)
 ;   BENCH_DITHER   the Dither level (default 0; 2 needs BlitzLLVM, the original only knows on and off)
 ;   BENCH_WARMUP   frames that are rendered but not timed, they make the GPU buffers (default 5)
 ;   BENCH_SEED     seed of the random positions (default 1)
@@ -32,6 +33,7 @@ Include "flythrough_counters.bi"
 
 Const KINDS = 16
 
+If GetEnv$("BENCH_GPU") <> "" Then SetGfxDriver Int(GetEnv$("BENCH_GPU"))
 Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), 32, 2
 SetBuffer BackBuffer()
 Dither Int(Env$("BENCH_DITHER", 0))

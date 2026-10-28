@@ -58,7 +58,7 @@ The runner builds the program with `build/code_compiler/blitzcc` (or `--blitzcc 
 is stored with the result), `--debug` (`-d`, no optimization), `--profile` (builds with `--profile`, so that `BLITZ_FPS=1` prints
 the timers of the runtime), and `--no-save`. The defaults can be set with `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_SEED` and `BENCH_SIZE`.
 The program itself reads `BENCH_OBJECTS`, `BENCH_FRAMES`, `BENCH_WARMUP`, `BENCH_SEED`, `BENCH_W`, `BENCH_H`, `BENCH_RANGE`, `BENCH_MOVING` (how many objects are moved every frame, to see what the spatial grid costs when things move), `BENCH_MODEL`,
-`BENCH_SHOT` and `BENCH_FRAMETIMES`, see the top of `flythrough.bb`. `BENCH_DITHER=2` sets the Dither level (also for the waterfall).
+`BENCH_SHOT` and `BENCH_FRAMETIMES`, see the top of `flythrough.bb`. `BENCH_DITHER=2` sets the Dither level and `BENCH_GPU=2` the graphics driver (also for the waterfall).
 
 It reports the time to make the entities, the milliseconds per frame (average, minimum, median, 95th percentile, maximum; a frame is
 `RenderWorld` and `Flip`), the frames per second, and per frame the triangles (`TrisRendered`) and the draw calls, pipeline, texture
