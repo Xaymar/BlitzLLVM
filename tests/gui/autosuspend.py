@@ -14,6 +14,8 @@ import shutil
 import subprocess
 import sys
 import time
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../tools"))
+import procutil  # noqa: E402
 
 SKIP = 77
 
@@ -48,33 +50,33 @@ def main():
     source = os.path.join(os.path.dirname(os.path.abspath(__file__)), "autosuspend.bb")
     exe = os.path.join(work, "autosuspend")
     # BLITZCC_OPTIONS (for example "-d") adds options to the compiler, so that the test runs in Debug as well.
-    subprocess.run([blitzcc] + os.environ.get("BLITZCC_OPTIONS", "").split() + [source, "-o", exe], check=True, stdout=subprocess.DEVNULL)
+    procutil.run([blitzcc] + os.environ.get("BLITZCC_OPTIONS", "").split() + [source, "-o", exe], check=True, stdout=subprocess.DEVNULL)
     progress = os.path.join(work, "progress.txt")
     if os.path.exists(progress):
         os.remove(progress)
     env = dict(os.environ, BLITZ_PROGRESS=progress, BLITZ_SECONDS="20", BLITZ_SUSPEND="1" if mode == "on" else "0")
-    program = subprocess.Popen([exe], env=env, cwd=work)
+    program = procutil.Popen([exe], env=env, cwd=work)
     try:
         window = None
 
         def found():
             nonlocal window
-            out = subprocess.run(["xdotool", "search", "--pid", str(program.pid)], capture_output=True, text=True).stdout.split()
+            out = procutil.run(["xdotool", "search", "--pid", str(program.pid)], capture_output=True, text=True).stdout.split()
             window = out[0] if out else None
             return window is not None
 
         assert wait_for(found, 20), "the window of the program was not found"
-        subprocess.run(["xdotool", "windowfocus", window], check=True)
+        procutil.run(["xdotool", "windowfocus", window], check=True)
         assert wait_for(lambda: frames(progress) > 0, 20), "the program did not start drawing"
 
         root = None
-        for line in subprocess.run(["xwininfo", "-root"], capture_output=True, text=True).stdout.splitlines():
+        for line in procutil.run(["xwininfo", "-root"], capture_output=True, text=True).stdout.splitlines():
             if "Window id" in line:
                 root = line.split()[3]
         assert root, "the root window was not found"
 
         # The window loses the focus: a program that is suspended stands still, the others do not.
-        subprocess.run(["xdotool", "windowfocus", root], check=True)
+        procutil.run(["xdotool", "windowfocus", root], check=True)
         time.sleep(0.5)
         before = frames(progress)
         time.sleep(1.0)
@@ -85,7 +87,7 @@ def main():
             assert after > before, f"the program stopped without AutoSuspend: {before} -> {after} frames"
 
         # And goes on when it is in front again.
-        subprocess.run(["xdotool", "windowfocus", window], check=True)
+        procutil.run(["xdotool", "windowfocus", window], check=True)
         assert wait_for(lambda: frames(progress) > after, 5), "the program did not go on when its window was in front"
     finally:
         program.kill()
