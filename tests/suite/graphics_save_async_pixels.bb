@@ -72,6 +72,19 @@ Check "Saving without threads", SaveBuffer(FrontBuffer(), unique + "sync.png"), 
 Check "Saving without threads is done at once", SavesPending(), 0
 Check "The file is there at once", Differs(unique + "sync.png"), 0
 
+; A debug build ignores AsyncSaving and saves on the spot, so that a failing save is reported by the call that asked for it.
+If GetEnv$("BLITZ_SUITE_DEBUG") <> "" Then
+	AsyncSaving True
+	Check "A debug build saves on the spot", SaveBuffer(FrontBuffer(), unique + "debug.png"), 1
+	Check "A debug build has nothing pending", SavesPending(), 0
+	Check "The file of a debug build is there at once", Differs(unique + "debug.png"), 0
+	Check "A debug build tells that a save failed", SaveBuffer(FrontBuffer(), unique + "nodir/x.png"), 0
+	DeleteFile unique + "sync.png"
+	DeleteFile unique + "debug.png"
+	Done "graphics_save_async_pixels"
+	End
+EndIf
+
 AsyncSaving True
 Dim names$(5)
 names(0) = unique + "0.png" : names(1) = unique + "1.jpg" : names(2) = unique + "2.webp"
