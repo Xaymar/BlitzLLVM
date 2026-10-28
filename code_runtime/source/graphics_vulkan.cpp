@@ -739,6 +739,13 @@ namespace bb::gfx {
 		VkSampler                     sampler = img.sampler;
 		uint32_t                      width = img.width, height = img.height;
 		gpu_image                     fresh;
+		bool read_again  = recipe->from_file && recipe->kind != image_recipe::content::blank;
+		bool placeholder = false;
+		if (read_again) {
+			reload_recipe_file(*recipe);
+			placeholder = !recipe->from_file; // The magenta picture stays as the data of the recipe.
+			read_again  = !placeholder;
+		}
 		switch (recipe->kind) {
 		case image_recipe::content::pixels:
 			upload_pixels(fresh, recipe->width, recipe->height, recipe->data.data(), recipe->mipmaps, recipe->srgb, recipe->ten, false);
@@ -771,11 +778,15 @@ namespace bb::gfx {
 			}
 			break;
 		}
+		if (read_again) {
+			recipe->data.clear(); // The file has it.
+			recipe->data.shrink_to_fit();
+		}
 		// What is not in the recipe stays as it was.
-		fresh.block   = img.block;
+		fresh.block   = placeholder ? block_format::none : img.block;
 		fresh.opaque  = img.opaque;
 		fresh.sampler = sampler;
-		fresh.ten     = img.ten;
+		fresh.ten     = placeholder ? false : img.ten;
 		fresh.srgb    = img.srgb;
 		fresh.width   = width;
 		fresh.height  = height;

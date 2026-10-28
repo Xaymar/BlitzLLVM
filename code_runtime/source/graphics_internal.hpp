@@ -178,7 +178,15 @@ namespace bb::gfx {
 		block_format       block = block_format::none;
 		int                block_mips = 1;             // blocks: how many levels the data has.
 		std::vector<uint8_t> data;                     // pixels: RGBA8 rows (or all levels of 10 bit pixels); blocks: all levels of blocks.
+		// A texture that was loaded from a file keeps no data: it reads the file again (reload_recipe_file). The first write to it makes data from what it has.
+		bool               from_file = false;
+		std::string        file;
+		int                file_flags = 0;
+		uint64_t           file_size = 0;              // Of the file when it was loaded, to tell if it was changed since.
+		int64_t            file_time = 0;
 	};
+	/** Fills the data of a recipe that is from a file by decoding the file again. A file that is gone, can't be decoded or is not the picture it was gets a placeholder (magenta) of the same size, and the recipe keeps that instead. */
+	void reload_recipe_file(image_recipe& recipe);
 
 	struct gpu_image {
 		image_recipe*  recipe = nullptr;               // Owned by the image that made it, copies of an image (atlas views, the image of a cube map) only look. destroy_image deletes it.
