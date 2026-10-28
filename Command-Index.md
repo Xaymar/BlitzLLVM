@@ -42,6 +42,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [AsyncSaving](AsyncSaving) 〔BlitzLLVM〕
 * [ATan](ATan)
 * [ATan2](ATan2)
+* [AtlasTexture](AtlasTexture)
 * [AutoMidHandle](AutoMidHandle)
 * [AutoSuspend](AutoSuspend)
 * [AvailVidMem](AvailVidMem)
@@ -485,6 +486,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [LoadAnimMesh](LoadAnimMesh)
 * [LoadAnimSeq](LoadAnimSeq)
 * [LoadAnimTexture](LoadAnimTexture)
+* [LoadAtlas](LoadAtlas)
 * [LoadBrush](LoadBrush)
 * [LoadBSP](LoadBSP)
 * [LoadBuffer](LoadBuffer)

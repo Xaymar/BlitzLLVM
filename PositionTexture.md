@@ -62,7 +62,7 @@ Next
 
 ## Related Commands
 
-[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [RotateTexture](RotateTexture), [SaveTexture](SaveTexture) 〔BlitzLLVM〕, [ScaleTexture](ScaleTexture)
+[AtlasTexture](AtlasTexture), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [RotateTexture](RotateTexture), [SaveTexture](SaveTexture) 〔BlitzLLVM〕, [ScaleTexture](ScaleTexture)
 
 <div align="center">
 

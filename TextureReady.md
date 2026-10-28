@@ -33,7 +33,7 @@ This is a BlitzLLVM extension: the originals have no asynchronous loading.
 
 ## Related Commands
 
-[ClearTextureFilters](ClearTextureFilters), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureWidth](TextureWidth)
+[AtlasTexture](AtlasTexture), [TextureBlend](TextureBlend), [TextureBuffer](TextureBuffer), [TextureCoords](TextureCoords), [TextureFilter](TextureFilter), [TextureHeight](TextureHeight), [TextureName](TextureName), [TextureWidth](TextureWidth)
 
 <div align="center">
 

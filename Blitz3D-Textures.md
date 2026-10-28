@@ -9,6 +9,7 @@ Creating, loading, transforming and filtering textures.
 
 Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 
+* [AtlasTexture](AtlasTexture)
 * [ClearTextureFilters](ClearTextureFilters)
 * [CreateSampler](CreateSampler) 〔BlitzLLVM〕
 * [CreateTexture](CreateTexture)
@@ -29,6 +30,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [GetSamplerLodMax](GetSamplerLodMax) 〔BlitzLLVM〕
 * [GetSamplerLodMin](GetSamplerLodMin) 〔BlitzLLVM〕
 * [LoadAnimTexture](LoadAnimTexture)
+* [LoadAtlas](LoadAtlas)
 * [LoadTexture](LoadTexture)
 * [PositionTexture](PositionTexture)
 * [RotateTexture](RotateTexture)

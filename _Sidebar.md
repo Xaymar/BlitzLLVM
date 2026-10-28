@@ -1089,8 +1089,9 @@
 <li><a href="TerrainZ">TerrainZ</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Textures">Textures</a> (47)</summary>
+<li><details><summary><a href="Blitz3D-Textures">Textures</a> (49)</summary>
 <ul>
+<li><a href="AtlasTexture">AtlasTexture</a></li>
 <li><a href="ClearTextureFilters">ClearTextureFilters</a></li>
 <li><a href="CreateSampler">CreateSampler</a> 〔BlitzLLVM〕</li>
 <li><a href="CreateTexture">CreateTexture</a></li>
@@ -1111,6 +1112,7 @@
 <li><a href="GetSamplerLodMax">GetSamplerLodMax</a> 〔BlitzLLVM〕</li>
 <li><a href="GetSamplerLodMin">GetSamplerLodMin</a> 〔BlitzLLVM〕</li>
 <li><a href="LoadAnimTexture">LoadAnimTexture</a></li>
+<li><a href="LoadAtlas">LoadAtlas</a></li>
 <li><a href="LoadTexture">LoadTexture</a></li>
 <li><a href="PositionTexture">PositionTexture</a></li>
 <li><a href="RotateTexture">RotateTexture</a></li>

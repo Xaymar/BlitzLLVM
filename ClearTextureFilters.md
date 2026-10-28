@@ -23,7 +23,7 @@ Removes every rule that was added with [TextureFilter](TextureFilter). Textures 
 
 ## Related Commands
 
-[CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [SaveTexture](SaveTexture) 〔BlitzLLVM〕, [ScaleTexture](ScaleTexture)
+[AtlasTexture](AtlasTexture), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [SaveTexture](SaveTexture) 〔BlitzLLVM〕
 
 <div align="center">
 

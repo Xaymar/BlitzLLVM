@@ -52,7 +52,7 @@ This is a BlitzLLVM extension: the originals can only save buffers and images.
 
 ## Related Commands
 
-[ClearTextureFilters](ClearTextureFilters), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [ScaleTexture](ScaleTexture)
+[AtlasTexture](AtlasTexture), [CreateTexture](CreateTexture), [FreeTexture](FreeTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [ScaleTexture](ScaleTexture)
 
 <div align="center">
 

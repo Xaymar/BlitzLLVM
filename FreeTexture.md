@@ -33,7 +33,7 @@ Textures are also freed by [ClearWorld](ClearWorld) and when the program ends, b
 
 ## Related Commands
 
-[CreateTexture](CreateTexture), [FreeSampler](FreeSampler) 〔BlitzLLVM〕, [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [SaveTexture](SaveTexture) 〔BlitzLLVM〕, [ScaleTexture](ScaleTexture)
+[AtlasTexture](AtlasTexture), [CreateTexture](CreateTexture), [LoadAnimTexture](LoadAnimTexture), [LoadTexture](LoadTexture), [PositionTexture](PositionTexture), [RotateTexture](RotateTexture), [SaveTexture](SaveTexture) 〔BlitzLLVM〕, [ScaleTexture](ScaleTexture)
 
 <div align="center">
 
