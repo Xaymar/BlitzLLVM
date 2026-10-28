@@ -23,6 +23,10 @@ BackBuffer:Int32
 
 Returns the back buffer: the hidden picture that all drawing goes to when it is selected with [SetBuffer](SetBuffer). Draw a whole frame into it and show it with [Flip](Flip). This is the usual way to animate without flicker.
 
+## Differences
+
+* [FrontBuffer](FrontBuffer) returns this same handle, because a program cannot draw to the picture on the screen.
+
 ## Examples
 
 ```blitzbasic

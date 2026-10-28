@@ -58,6 +58,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [AsyncLoading](AsyncLoading#differences) 〔BlitzLLVM〕: With asynchronous loading on, a picture or model with a valid header that cannot be decoded raises its error when it is first used and not as a 0 from the load.
 * [AsyncSaving](AsyncSaving#differences) 〔BlitzLLVM〕: With asynchronous saving on, a file that can't be written (a folder that does not exist, a full disk) is not a 0 from the save command, but is counted by SavesFailed.
 * [AvailVidMem](AvailVidMem#differences): The graphics card cannot be asked how much of its memory is still free.
+* [BackBuffer](BackBuffer#differences): [FrontBuffer](FrontBuffer) returns this same handle, because a program cannot draw to the picture on the screen.
 * [BrushTexture](BrushTexture#differences): Layers 0 to 7 are accepted.
 * [BSPAmbientLight](BSPAmbientLight#differences): The original adds the color to the light of each face before the texture is applied, and lights the vertices of a level with point and spot lights too.
 * [BSPLighting](BSPLighting#differences): The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness.
@@ -136,7 +137,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [FreeImage](FreeImage#differences): Freeing a handle that is 0 or was already freed does nothing, while other commands stop with an error when they get such a handle.
 * [FreeSound](FreeSound#differences): Using the handle of a sound that was freed stops the program with an error message, while 0 is accepted and ignored.
 * [FreeTexture](FreeTexture#differences): [ActiveTextures](ActiveTextures) keeps counting a freed texture until the last entity or brush that uses it is gone.
-* [FrontBuffer](FrontBuffer#differences): The front buffer holds what the last Flip showed.
+* [FrontBuffer](FrontBuffer#differences): The original returned a separate front buffer, so `SetBuffer FrontBuffer()` drew directly to the screen without a Flip.
 * [GammaBlue](GammaBlue#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
 * [GammaGreen](GammaGreen#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).
 * [GammaRed](GammaRed#differences): The tables change what the window shows and never the gamma of the display, see [SetGamma](SetGamma).

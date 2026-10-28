@@ -50,7 +50,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (256)</summary>
+<li><details><summary>Commands (257)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -64,6 +64,7 @@
 <li><a href="AsyncLoading#differences">AsyncLoading</a> 〔BlitzLLVM〕</li>
 <li><a href="AsyncSaving#differences">AsyncSaving</a> 〔BlitzLLVM〕</li>
 <li><a href="AvailVidMem#differences">AvailVidMem</a></li>
+<li><a href="BackBuffer#differences">BackBuffer</a></li>
 <li><a href="BrushTexture#differences">BrushTexture</a></li>
 <li><a href="BSPAmbientLight#differences">BSPAmbientLight</a></li>
 <li><a href="BSPLighting#differences">BSPLighting</a></li>

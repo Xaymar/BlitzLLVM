@@ -17,15 +17,15 @@
 FrontBuffer:Int32
 ```
 
-**Returns:** The handle of the front buffer.
+**Returns:** The handle of the back buffer.
 
 ## Description
 
-Returns the front buffer: the picture that is on the screen. [Flip](Flip) updates it from the back buffer.
+Returns the same handle as [BackBuffer](BackBuffer). A program cannot draw to the picture that is on the screen: it draws to the back buffer and [Flip](Flip) shows it.
 
 ## Differences
 
-* The front buffer holds what the last Flip showed. [SaveBuffer](SaveBuffer) of it is the way to take a screenshot.
+* The original returned a separate front buffer, so `SetBuffer FrontBuffer()` drew directly to the screen without a Flip. Here it is the back buffer, which keeps programs that select it working, but what is drawn only shows after [Flip](Flip). [SaveBuffer](SaveBuffer) of it saves what the program drew, which after a Flip is the picture that was shown.
 
 ## Related Commands
 
