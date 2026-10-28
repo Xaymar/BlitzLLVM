@@ -398,6 +398,19 @@ namespace {
 		}
 	};
 
+	// A normal that goes through a matrix the way the original does it: by the cofactor matrix, whose columns are the cross products
+	// of the other two columns, and without making it one long again. For a turn it is the same, and for a scale of s it is s * s.
+	void transform_normal(const float* m, const float* n, float* out)
+	{
+		const float *i = m, *j = m + 4, *k = m + 8;
+		float        c0[3] = { j[1] * k[2] - j[2] * k[1], j[2] * k[0] - j[0] * k[2], j[0] * k[1] - j[1] * k[0] };
+		float        c1[3] = { k[1] * i[2] - k[2] * i[1], k[2] * i[0] - k[0] * i[2], k[0] * i[1] - k[1] * i[0] };
+		float        c2[3] = { i[1] * j[2] - i[2] * j[1], i[2] * j[0] - i[0] * j[2], i[0] * j[1] - i[1] * j[0] };
+		for (int a = 0; a < 3; a++) {
+			out[a] = c0[a] * n[0] + c1[a] * n[1] + c2[a] * n[2];
+		}
+	}
+
 	// Vertices and indices for the triangle groups of a node, with vertices passed through the matrix (or as they are).
 	// A node that has no normals gets them made like UpdateNormals does.
 	void prepare_surfaces(node_info& node, const float* matrix, bool upload, prepared_node& into)
@@ -423,7 +436,7 @@ namespace {
 					if (matrix) {
 						float p[3], n[3];
 						transform_point(matrix, v.pos, p);
-						transform_direction(matrix, v.normal, n);
+						transform_normal(matrix, v.normal, n);
 						out.x = p[0]; out.y = p[1]; out.z = p[2];
 						out.nx = n[0]; out.ny = n[1]; out.nz = n[2];
 					} else {
@@ -453,6 +466,28 @@ namespace {
 			}
 			into.groups.push(made);
 		}
+	}
+
+	// Do two brushes of a model paint the same? Surfaces of a mesh that was merged are made for each one that does not.
+	bool same_brush(model& m, int a, int b)
+	{
+		if (a == b) {
+			return true;
+		}
+		if ((a < 0) || (b < 0)) {
+			return false;
+		}
+		brush_info const& x = m.brushes[uint32_t(a)];
+		brush_info const& y = m.brushes[uint32_t(b)];
+		if (memcmp(x.color, y.color, sizeof(x.color)) || (x.shininess != y.shininess) || (x.blend != y.blend) || (x.fx != y.fx)) {
+			return false;
+		}
+		// What the brush has for a picture: none, one that is there (the same one is the same handle), or one that was not found,
+		// which the original does not tell apart from another that was not found.
+		if ((x.texture < 0) || (y.texture < 0)) {
+			return x.texture == y.texture;
+		}
+		return texture_of_model(m, x.texture) == texture_of_model(m, y.texture);
 	}
 
 	// Makes the surfaces of a node in the scene from what prepare_surfaces made, which they take over.
@@ -693,12 +728,125 @@ namespace {
 		if (m.nodes[0]->name) {
 			bb_name_entity(mesh, m.nodes[0]->name);
 		}
+		// The parts are put together the way the original does it: below a node before the node, which decides in what order the
+		// surfaces are made.
+		buffer<int> first_child, next_sibling, order;
 		for (uint32_t i = 0; i < m.nodes.size; i++) {
-			node_info& n = *m.nodes[i];
-			if (n.has_mesh && !n.hidden) {
-				build_surfaces(m, n, mesh, prepared.nodes[i], nullptr, nullptr);
+			first_child.push(-1);
+			next_sibling.push(-1);
+		}
+		for (uint32_t i = m.nodes.size; i > 0; i--) {
+			int p = m.nodes[i - 1]->parent;
+			if (p >= 0) {
+				next_sibling[i - 1]      = first_child[uint32_t(p)];
+				first_child[uint32_t(p)] = int(i - 1);
 			}
 		}
+		for (uint32_t top = 0; top < m.nodes.size; top++) {
+			if (m.nodes[top]->parent >= 0) {
+				continue;
+			}
+			// Down to the first leaf, and then back up through the siblings.
+			int at = int(top);
+			for (;;) {
+				while (first_child[uint32_t(at)] >= 0) {
+					at = first_child[uint32_t(at)];
+				}
+				for (;;) {
+					order.push(at);
+					if (next_sibling[uint32_t(at)] >= 0) {
+						at = next_sibling[uint32_t(at)];
+						break;
+					}
+					at = m.nodes[uint32_t(at)]->parent;
+					if (at < 0) {
+						break;
+					}
+				}
+				if (at < 0) {
+					break;
+				}
+			}
+		}
+
+		// Which surface each group goes into: the first one made for a brush that paints the same. Surfaces that only one group
+		// goes into keep the buffers that a loader thread made for them.
+		struct target {
+			int      brush;
+			uint32_t groups;
+			surface* s;
+		};
+		buffer<target>   targets;
+		buffer<uint32_t> choice; // For each (node, group) in the order, the target.
+		for (uint32_t k = 0; k < order.size; k++) {
+			node_info& n = *m.nodes[uint32_t(order[k])];
+			if (!n.has_mesh || n.hidden) {
+				continue;
+			}
+			for (uint32_t g = 0; g < n.groups.size; g++) {
+				int      brush = n.groups[g]->brush >= 0 ? n.groups[g]->brush : n.mesh_brush;
+				uint32_t t     = 0;
+				while ((t < targets.size) && !same_brush(m, targets[t].brush, brush)) {
+					t++;
+				}
+				if (t == targets.size) {
+					target made = { brush, 0, nullptr };
+					targets.push(made);
+				}
+				targets[t].groups++;
+				choice.push(t);
+			}
+		}
+		uint32_t at_group = 0;
+		for (uint32_t k = 0; k < order.size; k++) {
+			node_info& n = *m.nodes[uint32_t(order[k])];
+			if (!n.has_mesh || n.hidden) {
+				continue;
+			}
+			prepared_node& from = prepared.nodes[uint32_t(order[k])];
+			for (uint32_t g = 0; g < n.groups.size; g++) {
+				target&         t    = targets[choice[at_group++]];
+				prepared_group& part = from.groups[g];
+				if (!t.s) {
+					t.s = create_surface(mesh);
+					material paint;
+					if (material_of(m, t.brush, paint)) {
+						t.s->paint   = paint;
+						t.s->painted = true;
+					}
+				}
+				surface* s = t.s;
+				if (t.groups == 1) {
+					s->vertices   = part.vertices;
+					s->indices    = part.indices;
+					part.vertices = {};
+					part.indices  = {};
+				} else {
+					uint32_t base = s->vertices.size;
+					for (uint32_t i = 0; i < part.vertices.size; i++) {
+						s->vertices.push(part.vertices[i]);
+					}
+					for (uint32_t i = 0; i < part.indices.size; i++) {
+						s->indices.push(base + part.indices[i]);
+					}
+				}
+				s->dirty = true;
+				bb::surface_changed(*s);
+				if (part.gpu) {
+					if (t.groups == 1) {
+						gfx::surface_adopt(*s, part.gpu); // The first draw has nothing left to upload.
+					} else {
+						gfx::surface_prebuild_drop(part.gpu);
+					}
+					part.gpu = nullptr;
+				}
+			}
+		}
+		first_child.release();
+		next_sibling.release();
+		order.release();
+		targets.release();
+		choice.release();
 		return mesh;
 	}
 } // namespace
