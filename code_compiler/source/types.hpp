@@ -49,6 +49,8 @@ namespace blitz {
 			DOUBLE = FLOAT64,
 			// UTF-8 String
 			STRING,
+			// Native pointer, as wide as the pointers of the platform (32 bits on x86, 64 bits on x86_64 and arm64)
+			POINTER,
 			// User-defined Struct
 			STRUCT,
 		};

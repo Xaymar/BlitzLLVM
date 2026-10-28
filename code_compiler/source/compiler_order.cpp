@@ -114,7 +114,7 @@ int blitz::compiler::default_need(ast::expression const* expr)
 // into the instruction when they are the right operand (and for some operators the left), so they cost no register.
 int blitz::compiler::direct_kind(ast::expression const* expr, value const& v)
 {
-	if (!is_number(v.type) && (v.type != type::STRUCT)) {
+	if (!is_number(v.type) && (v.type != type::STRUCT) && (v.type != type::POINTER)) {
 		return 0;
 	}
 	if (is_zero_constant(v.repr) || is_nonzero_constant(v.repr)) {

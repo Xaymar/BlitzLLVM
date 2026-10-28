@@ -93,6 +93,9 @@ std::string blitz::compiler::di_type(type t, std::string const& sname, uint32_t 
 	case type::STRING:
 		base = md("!DIDerivedType(tag: DW_TAG_pointer_type, name: \"String\", baseType: null, size: 64)");
 		break;
+	case type::POINTER:
+		base = md("!DIDerivedType(tag: DW_TAG_pointer_type, name: \"Pointer\", baseType: null, size: 64)");
+		break;
 	case type::STRUCT: {
 		auto known = _types.find(sname);
 		base       = md("!DIDerivedType(tag: DW_TAG_pointer_type, name: " + md_string(known != _types.end() ? known->second.name : (sname.empty() ? "Object" : sname)) + ", baseType: null, size: 64)");
@@ -110,7 +113,7 @@ std::string blitz::compiler::di_type(type t, std::string const& sname, uint32_t 
 	}
 	}
 	if (count) {
-		uint64_t size = (t == type::STRING || t == type::STRUCT) ? 64 : blitz::types::bits(t);
+		uint64_t size = (t == type::STRING || t == type::STRUCT || t == type::POINTER) ? 64 : blitz::types::bits(t);
 		return md("!DICompositeType(tag: DW_TAG_array_type, baseType: " + base + ", size: " + std::to_string(size * count) + ", elements: " + md("!{" + md("!DISubrange(count: " + std::to_string(count) + ")") + "}") + ")");
 	}
 	return base;

@@ -37,7 +37,7 @@ void blitz::parser::parse_function()
 	auto fn   = std::make_unique<ast::function>();
 	fn->where = here(first);
 	fn->name  = name.text;
-	fn->type  = parse_type_suffix(name);
+	fn->type  = parse_type_suffix(name, true);
 	fn->struct_name = _struct_name;
 	_functions.emplace(lower(fn->name), slot{ &fn->type, &fn->struct_name });
 	if (fn->type == blitz::types::type::UNKNOWN) {
@@ -58,7 +58,7 @@ void blitz::parser::parse_function()
 			ast::parameter param;
 			param.where = here(pname);
 			param.name  = pname.text;
-			param.type  = parse_type_suffix(pname);
+			param.type  = parse_type_suffix(pname, true);
 			param.struct_name = _struct_name;
 			param.typed = (param.type != blitz::types::type::UNKNOWN);
 			if (param.type == blitz::types::type::UNKNOWN) {
@@ -167,7 +167,7 @@ void blitz::parser::parse_type_decl()
 			ast::field_decl field;
 			field.where       = here(fname);
 			field.name        = fname.text;
-			field.type        = parse_type_suffix(fname);
+			field.type        = parse_type_suffix(fname, true);
 			field.struct_name = _struct_name;
 			field.typed = (field.type != blitz::types::type::UNKNOWN);
 			if (field.type == blitz::types::type::UNKNOWN) {
@@ -207,7 +207,7 @@ void blitz::parser::parse_dim(ast::block& into)
 		ast::dim_declaration decl;
 		decl.where       = here(name);
 		decl.name        = name.text;
-		decl.type        = parse_type_suffix(name);
+		decl.type        = parse_type_suffix(name, true);
 		decl.struct_name = _struct_name;
 		expect_symbol("(");
 		while (true) {

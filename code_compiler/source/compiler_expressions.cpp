@@ -143,7 +143,12 @@ blitz::compiler::value blitz::compiler::gen_builtin(ast::call const* node, bool&
 		return convert(gen(node->arguments[0].get()), type::FLOAT32, node->where, false);
 	} else if (key == "str") {
 		need(1, 1);
-		return convert(gen(node->arguments[0].get()), type::STRING, node->where, false);
+		auto v = gen(node->arguments[0].get());
+		if (v.type == type::POINTER) {
+			// The address as a number without a sign, like ULong(pointer).
+			v = convert_explicit(v, type::UINT64, false, node->where);
+		}
+		return convert(v, type::STRING, node->where, false);
 	} else if ((key == "abs") || (key == "sgn")) {
 		need(1, 1);
 		auto v = gen(node->arguments[0].get());
@@ -487,6 +492,21 @@ std::string blitz::compiler::compare(ast::binary::op kind, value lhs, value rhs,
 	}
 
 	auto r = tmp();
+	if ((lhs.type == type::POINTER) || (rhs.type == type::POINTER)) {
+		// Pointers are compared with pointers and Null, as unsigned addresses. Numbers have to be turned into a pointer first.
+		auto as_pointer = [&](value v) {
+			if ((v.type == type::STRUCT) && v.sname.empty() && (v.repr == "null")) {
+				return value{ "null", type::POINTER };
+			} else if (v.type != type::POINTER) {
+				throw err(where, "A Pointer can only be compared with a Pointer and Null, use Pointer(value) to convert a number.");
+			}
+			return v;
+		};
+		lhs = as_pointer(lhs);
+		rhs = as_pointer(rhs);
+		emit(r + " = icmp " + pred_u + " ptr " + lhs.repr + ", " + rhs.repr);
+		return r;
+	}
 	if ((lhs.type == type::STRUCT) || (rhs.type == type::STRUCT)) {
 		if ((lhs.type != type::STRUCT) || (rhs.type != type::STRUCT)) {
 			throw err(where, "Objects can only be compared with objects and Null.");

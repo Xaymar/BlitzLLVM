@@ -109,7 +109,7 @@ namespace blitz {
 		void resolve_suffixes();
 
 		// Expressions
-		blitz::types::type                 parse_type_suffix(blitz::token const& name);
+		blitz::types::type                 parse_type_suffix(blitz::token const& name, bool declaration = false);
 		std::vector<ast::expression_ptr>   parse_arguments();
 		ast::expression_ptr                parse_expression();
 		ast::expression_ptr                parse_or();

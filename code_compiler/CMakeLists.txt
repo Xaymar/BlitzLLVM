@@ -200,7 +200,7 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 		if(_RELATIVE MATCHES "^reject/")
 			# Programs that are wrong and have to be refused by the compiler.
 			add_test(NAME "${_PREFIX}-compile-${_NAME}" COMMAND ${PROJECT_NAME} ${_OPTIONS} "${_FILE}" -o "${_EXE}")
-			set_tests_properties("${_PREFIX}-compile-${_NAME}" PROPERTIES PASS_REGULAR_EXPRESSION "Type mismatch|Division by zero" LABELS "suite")
+			set_tests_properties("${_PREFIX}-compile-${_NAME}" PROPERTIES PASS_REGULAR_EXPRESSION "Type mismatch|Division by zero|Pointer" LABELS "suite")
 			continue()
 		endif()
 		if(_RELATIVE MATCHES "^pending/" AND _CONFIG STREQUAL "debug")

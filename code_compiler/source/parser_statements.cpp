@@ -297,7 +297,7 @@ void blitz::parser::parse_declare(ast::block& into)
 		ast::declaration decl;
 		decl.where = here(name_tk);
 		decl.name  = name_tk.text;
-		decl.type        = parse_type_suffix(name_tk);
+		decl.type        = parse_type_suffix(name_tk, true);
 		decl.struct_name = _struct_name;
 		if (is_symbol(tk(), "[")) {
 			advance();
@@ -434,7 +434,7 @@ void blitz::parser::parse_for(ast::block& into)
 	node->variable        = std::make_unique<ast::reference>();
 	node->variable->where = here(name);
 	node->variable->name  = name.text;
-	node->variable->type  = parse_type_suffix(name);
+	node->variable->type  = parse_type_suffix(name, true);
 	node->variable->struct_name = _struct_name;
 	note_variable_use(name, node->variable->type, _struct_name);
 

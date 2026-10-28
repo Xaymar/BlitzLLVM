@@ -33,6 +33,7 @@ namespace {
 		{ "byte", { type::INT8, false } },     { "ubyte", { type::UINT8, false } },   { "short", { type::INT16, false } },
 		{ "ushort", { type::UINT16, false } }, { "uint", { type::UINT32, false } },   { "long", { type::INT64, false } },
 		{ "ulong", { type::UINT64, false } },  { "half", { type::FLOAT16, false } },  { "double", { type::FLOAT64, false } },
+		{ "pointer", { type::POINTER, false } },
 		{ "satbyte", { type::INT8, true } },   { "satubyte", { type::UINT8, true } }, { "satshort", { type::INT16, true } },
 		{ "satushort", { type::UINT16, true } }, { "satint", { type::INT32, true } }, { "satuint", { type::UINT32, true } },
 		{ "satlong", { type::INT64, true } },  { "satulong", { type::UINT64, true } },
@@ -176,6 +177,27 @@ blitz::compiler::value blitz::compiler::gen_numeric(ast::call const* node, bool&
 // What Byte(x), Short(x), Sat... and the other conversion functions do.
 blitz::compiler::value blitz::compiler::convert_explicit(value v, type to, bool saturate, ast::location const& where)
 {
+	if ((v.type == type::POINTER) || (to == type::POINTER)) {
+		// The address as a whole number as wide as the biggest pointer, which is then converted like any other whole number.
+		if (v.type == to) {
+			return v;
+		} else if (v.type == type::POINTER) {
+			if (!t::is_integer(to)) {
+				throw err(where, "A Pointer can only be converted to a whole number.");
+			}
+			auto r = tmp();
+			emit(r + " = ptrtoint ptr " + v.repr + " to i64");
+			return convert_explicit({ r, type::UINT64 }, to, saturate, where);
+		} else if ((v.type == type::STRUCT) && v.sname.empty() && (v.repr == "null")) {
+			return { "null", to };
+		} else if (!t::is_integer(v.type)) {
+			throw err(where, "A Pointer can only be made from a whole number.");
+		}
+		auto wide = convert(v, t::is_signed(v.type) ? type::INT64 : type::UINT64, where, false);
+		auto r    = tmp();
+		emit(r + " = inttoptr i64 " + wide.repr + " to ptr");
+		return { r, type::POINTER };
+	}
 	if (!is_number(v.type) && (v.type != type::STRING)) {
 		throw err(where, "Conversion requires a number or a string.");
 	}

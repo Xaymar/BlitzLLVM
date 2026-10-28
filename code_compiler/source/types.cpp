@@ -42,6 +42,8 @@ const std::pair<const char*, blitz::types::type> _map_to[] = {
 	{ "float64", blitz::types::type::DOUBLE },  //
 	{ "real64", blitz::types::type::DOUBLE },   //
 	{ "string", blitz::types::type::STRING },   //
+	{ "pointer", blitz::types::type::POINTER }, //
+	{ "ptr", blitz::types::type::POINTER },     //
 };
 
 std::string blitz::types::to_string(blitz::types::type type)
@@ -86,6 +88,8 @@ std::string blitz::types::display(blitz::types::type type)
 		return "Double";
 	case type::STRING:
 		return "String";
+	case type::POINTER:
+		return "Pointer";
 	default:
 		return "Unknown";
 	}
@@ -118,6 +122,8 @@ std::string blitz::types::long_name(blitz::types::type type)
 		return "Float64";
 	case type::STRING:
 		return "String";
+	case type::POINTER:
+		return "Pointer";
 	default:
 		return "Unknown";
 	}
@@ -214,6 +220,7 @@ std::string blitz::types::to_llvm(blitz::types::type type)
 	case type::FLOAT64:
 		return "double";
 	case type::STRING:
+	case type::POINTER:
 	case type::STRUCT:
 		return "ptr";
 	case type::UNKNOWN:

@@ -145,7 +145,7 @@ std::string blitz::compiler::string_constant(std::string const& text)
 ////////////////////////////////////////////////////////////////////////////////
 blitz::compiler::value blitz::compiler::zero(type t)
 {
-	if ((t == type::STRING) || (t == type::STRUCT)) {
+	if ((t == type::STRING) || (t == type::STRUCT) || (t == type::POINTER)) {
 		return { "null", t };
 	} else if (blitz::types::is_real(t)) {
 		return { "0.0", t };
@@ -277,6 +277,8 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 			return { "0.0", to };
 		} else if (to == type::STRING) {
 			return { "null", to };
+		} else if (to == type::POINTER) {
+			return { "null", to };
 		}
 	}
 
@@ -352,12 +354,19 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 		return convert(wide, to, where, false);
 	}
 
+	if ((from.type == type::POINTER) || (to == type::POINTER)) {
+		// A pointer is only turned into a number, and a number into a pointer, on purpose.
+		throw err(where, "Can't convert from " + t::long_name(from.type) + " to " + t::long_name(to) + " without saying so, use " + t::converter(to) + "(value).");
+	}
 	throw err(where, "Can't convert from " + t::to_string(from.type) + " to " + t::to_string(to) + ".");
 }
 
 type blitz::compiler::common_type(type lhs, type rhs, ast::location const& where)
 {
 	namespace t = blitz::types;
+	if ((lhs == type::POINTER) || (rhs == type::POINTER)) {
+		throw err(where, "A Pointer can't be used in a calculation, convert it to a whole number with Long(value) first.");
+	}
 	if (!is_number(lhs) || !is_number(rhs)) {
 		throw err(where, "Operation requires numbers.");
 	}
@@ -390,7 +399,7 @@ std::string blitz::compiler::truthy(value v, ast::location const& where)
 		// Conditions are integers in Blitz, so a string is true when it starts with a number that is not 0.
 		auto num = convert(v, type::INT32, where, false);
 		emit(r + " = icmp ne i32 " + num.repr + ", 0");
-	} else if (v.type == type::STRUCT) {
+	} else if ((v.type == type::STRUCT) || (v.type == type::POINTER)) {
 		emit(r + " = icmp ne ptr " + v.repr + ", null");
 	} else {
 		throw err(where, "Expression has no value.");
