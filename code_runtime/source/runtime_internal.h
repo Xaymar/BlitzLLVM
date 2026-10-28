@@ -16,10 +16,23 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// A string is a pointer to its first character. The 4 bytes in front of it hold the length, so strings can contain NUL (Chr(0)),
+// and a NUL follows the last character, so C code can read it as a C string (up to the first NUL). The empty string is NULL.
+#define BB_STRING_HEADER 4
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 const char* bb_s(const char* s);
+size_t      bb_slen(const char* s);
 char*       bb_alloc(size_t length);
 char*       bb_copy(const char* data, size_t length);
 char*       bb_own(const char* s);
 void        bb_pool_push(char* s);
 void        bb_runtime_error(const char* message);
 void        bb_debug_log(const char* text);
+void        bb_log_text(const char* text);
+void        bb_str_free(const char* s);
+#ifdef __cplusplus
+}
+#endif
