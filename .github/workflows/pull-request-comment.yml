@@ -46,7 +46,11 @@ jobs:
           CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         run: |
           # Find the pull request of the run, and only report on the commit that is still its head.
-          NUMBER="$(gh api "repos/${GH_REPO}/pulls" -f state=open -f head="${HEAD_OWNER}:${HEAD_BRANCH}" --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number" | head -n1)"
+          # -X GET is required: gh api turns -f fields into a POST body otherwise, which tries to create a pull request
+          # and fails with 'HTTP 422: "base" wasn't supplied'.
+          if ! NUMBER="$(gh api -X GET "repos/${GH_REPO}/pulls" -f state=open -f head="${HEAD_OWNER}:${HEAD_BRANCH}" --jq ".[] | select(.head.sha == \"${HEAD_SHA}\") | .number" | head -n1)"; then
+            echo "Could not look up the pull request of ${HEAD_SHA}, skipping."; exit 0
+          fi
           case "$NUMBER" in
             '') echo "No open pull request has ${HEAD_SHA} as its head, skipping."; exit 0 ;;
             *[!0-9]*) echo "Invalid pull request number."; exit 1 ;;
