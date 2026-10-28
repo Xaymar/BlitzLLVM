@@ -12,7 +12,7 @@
 		},
 		"audio": {
 			"description": "Sound, music and what comes out of the speakers.",
-			"tests": ["^suite-(debug-)?(compile|run)-audio$", "^audio-output"]
+			"tests": ["^suite-(debug-)?(compile|run)-(audio$|fail-(playsound|freesound|stopchannel)_)", "^audio-output"]
 		},
 		"network": {
 			"description": "Sockets, streams over the network and multiplayer.",
@@ -20,11 +20,11 @@
 		},
 		"graphics": {
 			"description": "2D graphics, images, fonts, DDS and PNG, displays, gamma and input.",
-			"tests": ["^suite-(debug-)?(compile|run)-(graphics(_(?!movies)|$)|displays|gfx_driver|input|fail-pixel_fast_)", "^profile-"]
+			"tests": ["^suite-(debug-)?(compile|run)-(graphics(_(?!movies)|$)|displays|gfx_driver|input|fail-pixel_fast_|fail-freeimage_)", "^profile-"]
 		},
 		"movies": {
 			"description": "Movies, also as textures.",
-			"tests": ["^suite-(debug-)?(compile|run)-graphics_movies"]
+			"tests": ["^suite-(debug-)?(compile|run)-(graphics_movies|fail-(closemovie|moviewidth)_)"]
 		},
 		"gui": {
 			"description": "BlitzPlus windows and gadgets, and the window focus and close prompt.",
@@ -32,7 +32,7 @@
 		},
 		"3d": {
 			"description": "Blitz3D: entities, meshes, cameras, lights, textures, collisions, animation and models.",
-			"tests": ["^suite-(debug-)?(compile|run)-(blitz3d_|draw3d2_|fail-createtexture_frames|fail-settexturebuffer_not_target)"]
+			"tests": ["^suite-(debug-)?(compile|run)-(blitz3d_|draw3d2_|fail-createtexture_frames|fail-settexturebuffer_not_target|fail-(freetexture|texturewidth|entitytexture|brushtexture)_)"]
 		},
 		"original": {
 			"description": "The samples and games of the original Blitz3D and BlitzPlus compile.",
