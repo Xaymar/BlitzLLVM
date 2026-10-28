@@ -273,5 +273,5 @@ cone, ramp) and a box, with response 1, 2 and 3, and writes the position and eve
 frame to a text file (`ORACLE_OUT`, `ORACLE_FRAMES`). It is not a speed test: it is what two compilers, or two collision
 backends, are compared with line by line. Values are written in units of 0.0001 so that float formatting cannot differ. Run it
 with the original through `tools/original_blitz3d.sh run` and with `blitzcc`, then `diff` the files. `CollisionEntity` is written
-as the creation number of the entity, because the original returns pointers; `CollisionSurface` also differs for that reason,
-so leave it out of the comparison.
+as the creation number of the entity, and `CollisionSurface` as the index of the surface on that entity, because the original
+returns pointers for both.

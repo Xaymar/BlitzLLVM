@@ -34,6 +34,14 @@ Function IdOf(e)
 	Return 0
 End Function
 
+; The original gives pointers as surface handles, so surfaces are written as their index on the entity
+Function SurfaceIdOf(e, surf)
+	For k = 1 To CountSurfaces(e)
+		If GetSurface(e, k) = surf Then Return k
+	Next
+	Return 0
+End Function
+
 Function F$(v#)
 	; Written in units of 0.0001, so that no float formatting differs between the compilers
 	Return Int(v * 10000 + 0.5 * Sgn(v))
@@ -116,7 +124,7 @@ For frame = 1 To frames
 	For i = 1 To 7
 		line$ = frame + " " + i + " " + F(EntityX(m(i))) + " " + F(EntityY(m(i))) + " " + F(EntityZ(m(i))) + " n=" + CountCollisions(m(i))
 		For c = 1 To CountCollisions(m(i))
-			line$ = line$ + " [" + IdOf(CollisionEntity(m(i), c)) + " " + F(CollisionX(m(i), c)) + " " + F(CollisionY(m(i), c)) + " " + F(CollisionZ(m(i), c)) + " " + F(CollisionNX(m(i), c)) + " " + F(CollisionNY(m(i), c)) + " " + F(CollisionNZ(m(i), c)) + " " + CollisionSurface(m(i), c) + " " + CollisionTriangle(m(i), c) + "]"
+			line$ = line$ + " [" + IdOf(CollisionEntity(m(i), c)) + " " + F(CollisionX(m(i), c)) + " " + F(CollisionY(m(i), c)) + " " + F(CollisionZ(m(i), c)) + " " + F(CollisionNX(m(i), c)) + " " + F(CollisionNY(m(i), c)) + " " + F(CollisionNZ(m(i), c)) + " " + SurfaceIdOf(CollisionEntity(m(i), c), CollisionSurface(m(i), c)) + " " + CollisionTriangle(m(i), c) + "]"
 		Next
 		WriteLine file, line$
 	Next
