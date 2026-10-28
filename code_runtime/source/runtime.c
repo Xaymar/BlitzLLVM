@@ -228,10 +228,24 @@ void bb_init(int32_t argc, char** argv)
 #endif
 }
 
-void bb_end(void)
+// What has to be taken down before the libraries are (set by the parts that start threads), as exit() would unwind them
+// while the threads still work. Not run by a runtime error, as what it was in the middle of may not be taken down safely.
+void (*bb_exit_hook)(void) = NULL;
+
+void bb_exit(void)
 {
 	fflush(stdout);
+	if (bb_exit_hook) {
+		void (*hook)(void) = bb_exit_hook;
+		bb_exit_hook = NULL;
+		hook();
+	}
 	exit(0);
+}
+
+void bb_end(void)
+{
+	bb_exit();
 }
 
 void bb_runtime_error(const char* message)

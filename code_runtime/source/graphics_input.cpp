@@ -153,8 +153,7 @@ namespace bb::gfx {
 					bb_event_post(0x803, 0, 0, 0, 0, 0); // A program that asked for events is told instead.
 					break;
 				}
-				fflush(stdout);
-				exit(0); // Closing the window ends the program, like in Blitz.
+				bb_exit(); // Closing the window ends the program, like in Blitz.
 			case SDL_EVENT_WINDOW_FOCUS_LOST:
 				g.suspended = true;
 				bb_event_post(0x2001, 0, 0, 0, 0, 0);
