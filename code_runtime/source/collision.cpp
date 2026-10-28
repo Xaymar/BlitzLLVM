@@ -161,7 +161,13 @@ namespace bb::collision {
 	{
 		switch (method) {
 		case 1:
-			return hit_sphere(c, line, radius, { tform[12], tform[13], tform[14] }, e.radius[0]);
+			if (hit_sphere(c, line, radius, { tform[12], tform[13], tform[14] }, e.radius[0])) {
+				// The original has no triangle for a sphere: its CollisionTriangle is 65535 (and the surface 0).
+				c.surface  = 0;
+				c.triangle = 65535;
+				return true;
+			}
+			return false;
 		case 2: {
 			box3 area;
 			area.add(line.o);
