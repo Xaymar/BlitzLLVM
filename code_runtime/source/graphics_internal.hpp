@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 
 #include "scene.hpp"
 #include "font8x8.inc"
@@ -111,6 +112,7 @@ void bb_gui_idle(void);
 	X(vkDestroyDescriptorSetLayout) \
 	X(vkCreateDescriptorPool) \
 	X(vkDestroyDescriptorPool) \
+	X(vkResetDescriptorPool) \
 	X(vkAllocateDescriptorSets) \
 	X(vkUpdateDescriptorSets) \
 	X(vkCreatePipelineLayout) \
@@ -297,6 +299,7 @@ namespace bb::gfx {
 		VkPipelineLayout      layout3d       = VK_NULL_HANDLE;
 		// What differs for each draw (entity_push), read by the shaders with the number of the draw as instance.
 		VkDescriptorSetLayout entity_layout   = VK_NULL_HANDLE;
+		VkDescriptorSetLayout input_layout    = VK_NULL_HANDLE; // Set 4 of the 3D pipelines, only there if can_blend_dither: the target, which the shader reads to blend.
 		VkDescriptorSet       entity_set      = VK_NULL_HANDLE;
 		VkBuffer              entity_buffer   = VK_NULL_HANDLE;
 		VmaAllocation         entity_allocation = VK_NULL_HANDLE;
@@ -485,6 +488,8 @@ namespace bb::gfx {
 		void*           scene_mapped      = nullptr;
 		VkDescriptorSet scene_set         = VK_NULL_HANDLE;
 		cull_buffers    cull;
+		std::vector<VkDescriptorPool> input_pools; // Sets that read a target as an input attachment (Dither 2), given out by input_set_for until the frame is done.
+		uint32_t        input_used        = 0;     // Sets taken from the last of the pools.
 		int             state    = 0;  // 0 free, 1 waits for the submission thread, 2 sent to the GPU.
 		int64_t         flush_id = -1; // The last flush that is in it.
 		submit_job      job;
@@ -813,6 +818,8 @@ namespace bb::gfx {
 	void list_gpus();
 	void empty_graveyard();
 	void acquire_frame();
+	/** A set that lets a shader read the target as an input attachment, which is good until the frame that is recorded now is done. */
+	VkDescriptorSet input_set_for(gpu_image& target);
 	bool flush_is_done(uint32_t flush);
 	void poll_resized();
 	void create_frame_slots();

@@ -274,6 +274,10 @@ namespace bb::gfx {
 		check(vkResetFences(g.device, 1, &slot.fence), "vkResetFences");
 		profile_wait += BB_PROFILE_NOW() - wait_start;
 		slot.state = 0;
+		for (VkDescriptorPool pool : slot.input_pools) {
+			vkResetDescriptorPool(g.device, pool, 0);
+		}
+		slot.input_used = 0;
 		if (slot.flush_id > completed_flush) {
 			completed_flush = slot.flush_id;
 		}
@@ -293,6 +297,40 @@ namespace bb::gfx {
 		finish_slot(current_slot);
 		gpu_check();
 		slot_acquired = true;
+	}
+
+	// The sets that read targets come from pools that are emptied once the frame that used them is done.
+	VkDescriptorSet input_set_for(gpu_image& target)
+	{
+		constexpr uint32_t sets_per_pool = 64;
+		frame_slot&        slot          = frames[current_slot];
+		if (slot.input_pools.empty() || (slot.input_used == sets_per_pool)) {
+			VkDescriptorPoolSize       size = { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, sets_per_pool };
+			VkDescriptorPoolCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO };
+			info.maxSets                    = sets_per_pool;
+			info.poolSizeCount              = 1;
+			info.pPoolSizes                 = &size;
+			VkDescriptorPool pool;
+			check(vkCreateDescriptorPool(g.device, &info, nullptr, &pool), "vkCreateDescriptorPool");
+			slot.input_pools.push_back(pool);
+			slot.input_used = 0;
+		}
+		VkDescriptorSetAllocateInfo alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+		alloc.descriptorPool              = slot.input_pools.back();
+		alloc.descriptorSetCount          = 1;
+		alloc.pSetLayouts                 = &g.input_layout;
+		VkDescriptorSet set;
+		check(vkAllocateDescriptorSets(g.device, &alloc, &set), "vkAllocateDescriptorSets");
+		slot.input_used++;
+
+		VkDescriptorImageInfo image_info = { VK_NULL_HANDLE, target.target_view ? target.target_view : target.view, VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR };
+		VkWriteDescriptorSet  write      = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+		write.dstSet                     = set;
+		write.descriptorCount            = 1;
+		write.descriptorType             = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		write.pImageInfo                 = &image_info;
+		vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+		return set;
 	}
 
 	// Waits until nothing is using the queue and the swapchain, which is needed before using either.
@@ -424,6 +462,9 @@ namespace bb::gfx {
 	void destroy_frame_slots()
 	{
 		for (frame_slot& slot : frames) {
+			for (VkDescriptorPool pool : slot.input_pools) {
+				vkDestroyDescriptorPool(g.device, pool, nullptr);
+			}
 			vkDestroySemaphore(g.device, slot.acquired, nullptr);
 			vkDestroyFence(g.device, slot.fence, nullptr);
 			slot = frame_slot();
