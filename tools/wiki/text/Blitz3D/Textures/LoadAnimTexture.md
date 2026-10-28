@@ -5,6 +5,8 @@ Loads one picture that holds several frames laid out left to right, top to botto
 
 `first_frame` is the cell that counts as frame 0, and `frame_count` is how many cells are used from there. A sheet 256 pixels wide with 64 pixel frames has four cells per row, so cell 5 is the second cell of the second row.
 
+**Animated pictures.** With a `frame_width` or `frame_height` of 0, an animated GIF, animated WebP or animated AVIF file loads as its frames: they are packed into a sheet, [TextureWidth](TextureWidth) and [TextureHeight](TextureHeight) are the size of one frame, [TextureFrames](TextureFrames) is how many there are, and [TextureFrameDelay](TextureFrameDelay) is how long each lasts. `first_frame` and `frame_count` then choose some of the frames (a `frame_count` of 0 is all the rest). The sheet is at most 8192 pixels wide and high; an animation that needs more is not loaded and a warning says so. Memory is 4 bytes per pixel of every frame, so a 512x512 animation of 100 frames takes 100 MB. A file that is not animated loads as before.
+
 ```blitzbasic
 ;media gif textures/loadanimtexture.gif 40 10
 Graphics3D 320, 240, 0, 2

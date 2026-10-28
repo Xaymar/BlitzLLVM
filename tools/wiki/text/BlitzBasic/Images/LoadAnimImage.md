@@ -5,6 +5,8 @@ Loads a picture file that contains several frames next to each other and cuts it
 
 The example makes its own sheet first with [CreateImage](CreateImage) and [SaveImage](SaveImage), so that it needs no other file.
 
+**Animated pictures.** With a `cellwidth` or `cellheight` of 0, an animated GIF, animated WebP or animated AVIF file loads as its frames, packed into a sheet: [ImageWidth](ImageWidth) and [ImageHeight](ImageHeight) are the size of one frame, [ImageFrames](ImageFrames) is how many there are, and [ImageFrameDelay](ImageFrameDelay) is how long each lasts. `first` and `count` then choose some of the frames (a `count` of 0 is all the rest). The sheet is at most 8192 pixels wide and high; an animation that needs more is not loaded and a warning says so. A file that is not animated fails to load as before.
+
 ```blitzbasic
 Graphics 320, 240, 0, 2
 SetBuffer BackBuffer()
