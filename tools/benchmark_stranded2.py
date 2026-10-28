@@ -56,13 +56,19 @@ Function bench_end()
 	Local ms=MilliSecs()-bench_t0
 	Local frames=Int(GetEnv$("BENCH_FRAMES"))
 	If GetEnv$("BENCH_SHOT")<>"" Then SaveBuffer(BackBuffer(),GetEnv$("BENCH_SHOT"))
-	DebugLog "ms_per_frame="+(Float(ms)/Float(frames))+" draws="+Stats3D(1000)+" pipelines="+Stats3D(1001)+" textures="+Stats3D(1002)+" buffers="+Stats3D(1003)+" tris="+TrisRendered()
+	Local result$="ms_per_frame="+(Float(ms)/Float(frames))+" draws="+Stats3D(1000)+" pipelines="+Stats3D(1001)+" textures="+Stats3D(1002)+" buffers="+Stats3D(1003)+" tris="+TrisRendered()
+	DebugLog result$
+	; The original Blitz3D has no output of a program to read, so the result is also written to a file.
+	If GetEnv$("BENCH_RESULT")<>"" Then
+		Local f=WriteFile(GetEnv$("BENCH_RESULT"))
+		If f<>0 Then WriteLine f,result$:CloseFile f
+	EndIf
 	End
 End Function
 '''
 
 
-def prepare(root, directory):
+def prepare(root, directory, original=False):
     game = os.path.join(directory, "stranded2")
     shutil.copytree(os.path.join(root, "tests", "stranded2"), game)
     path = os.path.join(game, "StrandedII.bb")
@@ -73,8 +79,12 @@ def prepare(root, directory):
     text = text.replace("\tgframe=gframe+1\n", "\tgframe=gframe+1\n\tbench_frame=bench_frame+1\n\tIf bench_frame=Int(GetEnv$(\"BENCH_FRAMES\")) Then bench_end()\n", 1)
     text = text.replace("\tFlip\n\t\nWend", "\tFlip False\n\t\nWend", 1) # Without waiting for the display, which would cap the frames.
     text = text.replace("Const Cversion$", "Global bench_frame\nConst Cversion$", 1)
+    bench = BENCH
+    if original:
+        # The original Blitz3D has no draw counters.
+        bench = re.sub(r"Stats3D\(\d+\)", "0", bench)
     with open(path, "wb") as f:
-        f.write((text + BENCH).encode("latin-1"))
+        f.write((text + bench).encode("latin-1"))
     path = os.path.join(game, "includes", "input.bb")
     with open(path, "rb") as f:
         text = f.read().decode("latin-1").replace("\r\n", "\n")
@@ -123,4 +133,5 @@ def main():
             print("%-16s %9s %7s %10s %9s %8s %10.2f" % (name, values["tris"], values["draws"], values["pipelines"], values["textures"], values["buffers"], float(values["ms_per_frame"])))
 
 
-main()
+if __name__ == "__main__":
+    main()
