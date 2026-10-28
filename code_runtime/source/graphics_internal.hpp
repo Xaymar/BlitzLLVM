@@ -737,7 +737,7 @@ namespace bb::gfx {
 	};
 
 	// Shared state
-	extern state g;
+	extern constinit thread_local state g; // Belongs to the thread that runs the program; the other threads (the GPU submission thread, the loaders) are handed what they need.
 	extern bb::buffer<texture_entry> texture_table;
 	extern bb::buffer<image_entry> image_table;
 	extern bb::buffer<sampler_entry> sampler_table;
