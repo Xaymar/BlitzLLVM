@@ -79,7 +79,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [Collisions](Collisions#differences): Types outside 0 to 999, or a method outside 1 to 3, stop the program with a runtime error.
 * [CollisionTime](CollisionTime#differences): The official help says this is the time taken to calculate the collision.
 * [Confirm](Confirm#differences): The box is a message box of the operating system and not part of the program window.
-* [CopyEntity](CopyEntity#differences): A copy of a hidden entity is visible, where the original gives the copy the hidden state.
 * [CopyPixel](CopyPixel#differences): A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
 * [CopyPixelFast](CopyPixelFast#differences): A buffer that is not locked stops the program with an error message.
 * [CopyRect](CopyRect#differences): Parts of the rectangle that lie outside of either buffer are cut off.

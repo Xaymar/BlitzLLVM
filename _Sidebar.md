@@ -53,7 +53,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (257)</summary>
+<li><details><summary>Commands (256)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -86,7 +86,6 @@
 <li><a href="Collisions#differences">Collisions</a></li>
 <li><a href="CollisionTime#differences">CollisionTime</a></li>
 <li><a href="Confirm#differences">Confirm</a></li>
-<li><a href="CopyEntity#differences">CopyEntity</a></li>
 <li><a href="CopyPixel#differences">CopyPixel</a></li>
 <li><a href="CopyPixelFast#differences">CopyPixelFast</a></li>
 <li><a href="CopyRect#differences">CopyRect</a></li>

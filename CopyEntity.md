@@ -26,11 +26,7 @@ CopyEntity:Int32 entity:Int32, parent:Int32=0
 
 ## Description
 
-Makes a new entity from an existing one and returns its handle. The copy shares the original's mesh, so changing the mesh itself, for example with `RotateMesh` or by adding vertices, changes every copy. Entity properties such as position, rotation, scale, color and alpha belong to each copy and can be changed apart. Children are copied too. Copying is much cheaper than loading the same file again.
-
-## Differences
-
-* A copy of a hidden entity is visible, where the original gives the copy the hidden state. Show or hide the copy yourself.
+Makes a new entity from an existing one and returns its handle. The copy shares the original's mesh, so changing the mesh itself, for example with `RotateMesh` or by adding vertices, changes every copy. Entity properties such as position, rotation, scale, color and alpha belong to each copy and can be changed apart. Children are copied too, in the order they became children. A camera, a light or a terrain has no copy: `CopyEntity` makes a pivot with the same name, place and collision settings instead. A copy of a hidden entity is visible, which is how a hidden original can serve as a template. Copying is much cheaper than loading the same file again.
 
 ## Examples
 
