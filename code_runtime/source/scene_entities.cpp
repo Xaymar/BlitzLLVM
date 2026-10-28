@@ -253,6 +253,8 @@ namespace bb::scene {
 		copy.surfaces.size = copy.surfaces.cap = 0;
 		*to = copy;
 		adopt(*to); // The copy became a child of its parent now, not when the original did.
+		to->captured = false;
+		reset_movement(handle); // It starts where it is, not where the original was at the last UpdateWorld.
 		for (uint32_t i = 0; !plain && i < from->surfaces.size; i++) {
 			surface* original = from->surfaces[i];
 			if (original->skin || from->md2) {
