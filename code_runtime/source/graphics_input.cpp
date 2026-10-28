@@ -66,7 +66,7 @@ namespace bb::gfx {
 
 	// Test programs can't press anything, so BLITZ_TEST_EVENTS (set with SetEnv) does it for them the next time events are
 	// looked at: a list separated by commas of kN (key N, a scancode, goes down and up), mN (mouse button N goes down and
-	// up), wN (the wheel turns by N) and tTEXT (TEXT is typed). It is used up by being read.
+	// up), wN (the wheel turns by N), rX:Y (the mouse moves by X and Y) and tTEXT (TEXT is typed). It is used up by being read.
 	static void push_test_events()
 	{
 		if (!bb_test_events_dirty) {
@@ -120,6 +120,17 @@ namespace bb::gfx {
 				event.type         = SDL_EVENT_MOUSE_WHEEL;
 				event.wheel.windowID = window;
 				event.wheel.y      = float(n);
+				SDL_PushEvent(&event);
+				break;
+			case 'r': // rX:Y, the mouse moves by X and Y without anything telling where it is.
+				event.type             = SDL_EVENT_MOUSE_MOTION;
+				event.motion.windowID  = window;
+				event.motion.xrel      = float(n);
+				if (const char* colon = strchr(item, ':')) {
+					event.motion.yrel = float(atoi(colon + 1));
+				}
+				event.motion.x = float(g.mouse_x);
+				event.motion.y = float(g.mouse_y);
 				SDL_PushEvent(&event);
 				break;
 			case 't':
@@ -446,10 +457,30 @@ void bb_flush_mouse(void)
 	g.mouse_dx = g.mouse_dy = g.mouse_dz = 0;
 }
 
+// With RawInputs the window keeps the pointer for as long as the speed is asked for, and the movement is the one the
+// hardware reports, without the acceleration of the system. Like with MoveMouse it is let go after a while.
+static void capture_for_speed()
+{
+	if (!g.raw_inputs || !active() || !bb_hw_raw_inputs()) {
+		return;
+	}
+	g.mouse_move_tick = SDL_GetTicks();
+	if (!g.mouse_relative) {
+		g.mouse_relative = true;
+		g.mouse_dx = g.mouse_dy = 0;
+		g.mouse_px              = float(g.mouse_x);
+		g.mouse_py              = float(g.mouse_y);
+		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE, "0");
+		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE, "1");
+		SDL_SetWindowRelativeMouseMode(g.window, true);
+	}
+}
+
 // How far the mouse moved since the last time this was asked.
 int32_t bb_mouse_x_speed(int32_t canvas)
 {
 	(void)canvas;
+	capture_for_speed();
 	if (active()) {
 		pump();
 	}
@@ -466,6 +497,7 @@ int32_t bb_mouse_x_speed(int32_t canvas)
 int32_t bb_mouse_y_speed(int32_t canvas)
 {
 	(void)canvas;
+	capture_for_speed();
 	if (active()) {
 		pump();
 	}
