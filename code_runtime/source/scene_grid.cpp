@@ -335,7 +335,7 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 		seen_cells.push_back(&c);
 		seen_live += c.live;
 	}
-	static const bool debug = getenv("BLITZ_GRID_DEBUG") != nullptr;
+	static const bool debug = bb_env_bool("BLITZLLVM_DEBUG_SPATIAL_GRID", false);
 	if (debug) {
 		fprintf(stderr, "grid: candidates %zu of %u\n", seen_live, mesh_count);
 	}

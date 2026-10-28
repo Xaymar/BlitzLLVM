@@ -548,11 +548,10 @@ namespace bb::gfx {
 		SDL_BroadcastCondition(gpu_cond);
 		SDL_UnlockMutex(gpu_mutex);
 
-		// BLITZ_SYNC_GPU=1 waits for every frame, as if there was no thread (for comparing and for finding errors).
+		// BLITZLLVM_DEBUG_SYNC_GPU=1 waits for every frame, as if there was no thread (for comparing and for finding errors).
 		static int synchronous = -1;
 		if (synchronous < 0) {
-			const char* value = getenv("BLITZ_SYNC_GPU");
-			synchronous       = (value && value[0] && (value[0] != '0')) ? 1 : 0;
+			synchronous = bb_env_bool("BLITZLLVM_DEBUG_SYNC_GPU", false) ? 1 : 0;
 		}
 		select_frame_slot((current_slot + 1) % frame_slots);
 		if (synchronous) {

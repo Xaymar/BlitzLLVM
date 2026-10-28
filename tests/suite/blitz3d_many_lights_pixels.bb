@@ -102,7 +102,7 @@ PositionEntity dark_light, 0, 0, -8
 RenderWorld
 CheckTrue "A strong negative light is picked and darkens (" + R(80, 60) + ")", R(80, 60) < eight - 60
 
-; A field of cubes with many lights of all kinds, seen from different places. The test runs with BLITZ_CHECK_LIGHTS, which
+; A field of cubes with many lights of all kinds, seen from different places. The test runs with BLITZLLVM_DEBUG_CHECK_LIGHTS, which
 ; makes the runtime rate the lights of every draw twice (by the cells of the view and by all lights) and stop if the eight
 ; are not the same.
 HideEntity bright

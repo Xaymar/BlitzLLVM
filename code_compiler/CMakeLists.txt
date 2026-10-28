@@ -224,7 +224,7 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 		set_tests_properties("${_PREFIX}-run-${_NAME}" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite")
 		if(_NAME STREQUAL "blitz3d_many_lights_pixels")
 			# Makes the runtime check the lights that the cells of the view pick against those of all lights.
-			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY ENVIRONMENT "BLITZ_CHECK_LIGHTS=1")
+			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY ENVIRONMENT "BLITZLLVM_DEBUG_CHECK_LIGHTS=1")
 		endif()
 		if(_NAME MATCHES "_pixels$" AND BLITZ_TEST_GPU)
 			# The program is told where it is, for the ones that start themselves again (graphics_save_async_pixels).
@@ -380,7 +380,7 @@ find_package(Threads REQUIRED)
 target_link_libraries(memory_test PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
 add_test(NAME memory-allocator COMMAND memory_test)
 add_test(NAME memory-allocator-debug COMMAND memory_test)
-set_tests_properties(memory-allocator-debug PROPERTIES ENVIRONMENT "BLITZ_ALLOC_DEBUG=1")
+set_tests_properties(memory-allocator-debug PROPERTIES ENVIRONMENT "BLITZLLVM_DEBUG_ALLOC=1")
 set_tests_properties(memory-allocator memory-allocator-debug PROPERTIES LABELS "memory")
 
 # The library that blitz-format and blitz-tidy share: Tokens that join back to the source (of every program in tests/), keywords,

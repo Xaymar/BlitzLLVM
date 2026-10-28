@@ -40,13 +40,13 @@ void   bb_aligned_free(void* ptr);
 size_t bb_malloc_size(void* ptr);        // Usable size of a block of ours; 0 for blocks of the system.
 size_t bb_system_usable_size(void* ptr); // The same for the system allocator (where it can tell).
 
-// Counters, only kept when BLITZ_ALLOC_DEBUG or BLITZ_ALLOC_STATS is set (see the wiki page Memory).
+// Counters, only kept when BLITZLLVM_DEBUG_ALLOC or BLITZLLVM_DEBUG_ALLOC_STATS is set (see the wiki page Memory).
 typedef struct bb_mem_stats {
 	size_t tiny_spans;
 	size_t small_spans;
-	size_t live_blocks; // Blocks of ours that were not freed (needs BLITZ_ALLOC_STATS).
+	size_t live_blocks; // Blocks of ours that were not freed (needs BLITZLLVM_DEBUG_ALLOC_STATS).
 	size_t live_bytes;
-	size_t system_blocks; // Blocks passed to the system (needs BLITZ_ALLOC_STATS).
+	size_t system_blocks; // Blocks passed to the system (needs BLITZLLVM_DEBUG_ALLOC_STATS).
 } bb_mem_stats;
 void bb_mem_get_stats(bb_mem_stats* out);
 

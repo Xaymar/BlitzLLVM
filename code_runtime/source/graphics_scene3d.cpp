@@ -1769,8 +1769,8 @@ namespace bb::gfx {
 			uint32_t cell, found;
 			if (grid.enabled && grid_cell_of(center, radius, cell)) {
 				found = rate_lights(grid.lists[cell], grid.counts[cell], center, radius, places);
-				// With BLITZ_CHECK_LIGHTS the lights of all are rated as well, and have to be the same (the tests do that).
-				static const bool check = getenv("BLITZ_CHECK_LIGHTS") != nullptr;
+				// With BLITZLLVM_DEBUG_CHECK_LIGHTS the lights of all are rated as well, and have to be the same (the tests do that).
+				static const bool check = bb_env_bool("BLITZLLVM_DEBUG_CHECK_LIGHTS", false);
 				if (check) {
 					uint32_t all[draw_lights];
 					uint32_t all_found = rate_lights(nullptr, current_light_count, center, radius, all);
@@ -2090,7 +2090,7 @@ namespace bb::gfx {
 					&& (record.light_center[0] == world[0]) && (record.light_center[1] == world[1]) && (record.light_center[2] == world[2]);
 				if (hit) {
 					memcpy(push.lights, record.light_places, sizeof(push.lights));
-					static const bool check = getenv("BLITZ_CHECK_LIGHTS") != nullptr;
+					static const bool check = bb_env_bool("BLITZLLVM_DEBUG_CHECK_LIGHTS", false);
 					if (check) {
 						float again[4];
 						choose_lights(again, true, center, radius);
