@@ -24,7 +24,7 @@ OP = dict(
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstant=50,
     Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
-    IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
+    IAdd=128, IMul=132, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
@@ -1184,6 +1184,126 @@ def compute_shader_cull():
     return b.m.assemble()
 
 
+def compute_shader_static():
+    """
+    The draws that the GPU drives (BLITZLLVM_GPU_DRAWS): for every entry of the table of static draws it writes the data of the draw for this
+    camera, which is the entry with where the camera is taken off its place (the same float subtraction the program makes for the draws it
+    collects), and the command that draws it, with a count of 0 instances when the sphere around it is outside of the view. The table is padded
+    with empty entries to a multiple of 64, so no lane has to be left out.
+
+    #version 450
+    layout(local_size_x = 64) in;
+    struct Entity { vec4 v[11]; };
+    struct Info { vec4 sphere; ivec4 range; vec4 extra; };   // Sphere in the space of the mesh. First index and number of indices. x: how much the matrix can lengthen a vector.
+    struct Command { int indexCount, instanceCount, firstIndex, vertexOffset, firstInstance; };
+    layout(set = 0, binding = 0) buffer Entities { Entity entities[]; };
+    layout(set = 1, binding = 0) readonly buffer Table { Entity table[]; };
+    layout(set = 1, binding = 1) readonly buffer Infos { Info infos[]; };
+    layout(set = 1, binding = 2) buffer Commands { Command commands[]; };
+    layout(push_constant) uniform Push { vec4 planes[6]; vec4 origin; ivec4 base; } push;   // base.x: first entity written, base.y: first command written.
+    void main() {
+        int i = int(gl_WorkGroupID.x) * 64 + int(gl_LocalInvocationID.x);
+        Entity e = table[i];
+        e.v[0].w -= push.origin.x; e.v[1].w -= push.origin.y; e.v[2].w -= push.origin.z;
+        entities[push.base.x + i] = e;
+        Info n = infos[i];
+        vec4 p = vec4(n.sphere.xyz, 1.0);
+        vec3 center = vec3(dot(e.v[0], p), dot(e.v[1], p), dot(e.v[2], p));
+        float radius = n.sphere.w * n.extra.x * 1.001 + 0.01 + 1e-5 * (abs(center.x) + abs(center.y) + abs(center.z));
+        float inside = dot(push.planes[0].xyz, center) + push.planes[0].w;
+        for (int k = 1; k < 6; k++) inside = min(inside, dot(push.planes[k].xyz, center) + push.planes[k].w);
+        commands[push.base.y + i] = Command(n.range.y, (inside + radius >= 0.0 && n.range.y > 0) ? 1 : 0, n.range.x, 0, push.base.x + i);
+    }
+    """
+    b = Builder()
+    f, v3, v4, i32 = b.float(), b.vec(3), b.vec(4), b.int()
+    iv4 = b.new_type(("ivec", 4), "TypeVector", b.int(), 4)
+    iv3 = b.new_type(("ivec", 3), "TypeVector", b.int(), 3)
+    void, fn = b.void(), b.fn()
+    boolean = b.new_type("bool", "TypeBool")
+    zero, one, two = b.const_int(0), b.const_int(1), b.const_int(2)
+
+    def buffer(name, set_index, binding, element, stride, writable):
+        array = b.new_type(("runtime", name), "TypeRuntimeArray", element)
+        b.m.annotations.append(Module.inst("Decorate", array, DECORATION["ArrayStride"], stride))
+        block = b.struct(name, array)
+        b.m.annotations += [Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0), Module.inst("Decorate", block, DECORATION["BufferBlock"])]
+        if not writable:
+            b.m.annotations.append(Module.inst("MemberDecorate", block, 0, DECORATION["NonWritable"]))
+        return b.variable("Uniform", block, [(DECORATION["DescriptorSet"], set_index), (DECORATION["Binding"], binding)])
+
+    entity = b.struct("entity", *([v4] * 11))
+    for index in range(11):
+        b.m.annotations.append(Module.inst("MemberDecorate", entity, index, DECORATION["Offset"], index * 16))
+    info = b.struct("info", v4, iv4, v4)
+    command = b.struct("command", i32, i32, i32, i32, i32)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", info, 0, DECORATION["Offset"], 0), Module.inst("MemberDecorate", info, 1, DECORATION["Offset"], 16), Module.inst("MemberDecorate", info, 2, DECORATION["Offset"], 32),
+    ]
+    for index in range(5):
+        b.m.annotations.append(Module.inst("MemberDecorate", command, index, DECORATION["Offset"], index * 4))
+    entities = buffer("static_entities", 0, 0, entity, 176, True)
+    table = buffer("static_table", 1, 0, entity, 176, False)
+    infos = buffer("static_infos", 1, 1, info, 48, False)
+    commands = buffer("static_commands", 1, 2, command, 20, True)
+
+    planes = b.array(v4, 6, "planes")
+    b.m.annotations.append(Module.inst("Decorate", planes, DECORATION["ArrayStride"], 16))
+    push = b.struct("static_push", planes, v4, iv4)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", push, 0, DECORATION["Offset"], 0),
+        Module.inst("MemberDecorate", push, 1, DECORATION["Offset"], 96),
+        Module.inst("MemberDecorate", push, 2, DECORATION["Offset"], 112),
+        Module.inst("Decorate", push, DECORATION["Block"]),
+    ]
+    push_var = b.variable("PushConstant", push)
+    workgroup = b.variable("Input", iv3, [(DECORATION["BuiltIn"], BUILTIN_WORKGROUP_ID)])
+    local = b.variable("Input", iv3, [(DECORATION["BuiltIn"], BUILTIN_LOCAL_INVOCATION_ID)])
+
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", EXECUTION_MODEL_GLCOMPUTE, main, string_words("main"), workgroup, local))
+    b.m.header.append(Module.inst("ExecutionMode", main, EXECUTION_MODE_LOCAL_SIZE, 64, 1, 1))
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+
+    def int_member(vector, index):
+        return b.emit("CompositeExtract", i32, vector, index)
+
+    base = b.load(iv4, b.access("PushConstant", iv4, push_var, two))
+    origin = b.load(v4, b.access("PushConstant", v4, push_var, one))
+    group_id = b.emit("CompositeExtract", i32, b.load(iv3, workgroup), 0)
+    lane = b.emit("CompositeExtract", i32, b.load(iv3, local), 0)
+    i = b.emit("IAdd", i32, b.emit("IMul", i32, group_id, b.const_int(64)), lane)
+    out = b.emit("IAdd", i32, int_member(base, 0), i)
+    rows = []
+    for k in range(11):
+        value = b.load(v4, b.access("Uniform", v4, table, zero, i, b.const_int(k)))
+        if k < 3:
+            value = b.construct(4, b.extract(value, 0), b.extract(value, 1), b.extract(value, 2), b.fsub(f, b.extract(value, 3), b.extract(origin, k)))
+        rows.append(value)
+        b.store(b.access("Uniform", v4, entities, zero, out, b.const_int(k)), value)
+    sphere = b.load(v4, b.access("Uniform", v4, infos, zero, i, zero))
+    range_ = b.load(iv4, b.access("Uniform", iv4, infos, zero, i, one))
+    extra = b.load(v4, b.access("Uniform", v4, infos, zero, i, two))
+    p = b.construct(4, b.extract(sphere, 0), b.extract(sphere, 1), b.extract(sphere, 2), b.const_float(1.0))
+    center = b.construct(3, *(b.dot(rows[row], p) for row in range(3)))
+    magnitude = b.fadd(f, b.fadd(f, b.ext(f, GLSL_FABS, b.extract(center, 0)), b.ext(f, GLSL_FABS, b.extract(center, 1))), b.ext(f, GLSL_FABS, b.extract(center, 2)))
+    radius = b.fadd(f, b.fadd(f, b.fmul(f, b.fmul(f, b.extract(sphere, 3), b.extract(extra, 0)), b.const_float(1.001)), b.const_float(0.01)), b.fmul(f, b.const_float(1e-5), magnitude))
+    inside = None
+    for plane in range(6):
+        pl = b.load(v4, b.access("PushConstant", v4, push_var, zero, b.const_int(plane)))
+        distance = b.fadd(f, b.dot(b.swizzle(pl, 3), center), b.extract(pl, 3))
+        inside = distance if inside is None else b.ext(f, GLSL_FMIN, inside, distance)
+    index_count = int_member(range_, 1)
+    visible = b.emit("LogicalAnd", boolean, b.emit("FOrdGreaterThanEqual", boolean, b.fadd(f, inside, radius), b.const_float(0.0)), b.emit("SGreaterThan", boolean, index_count, zero))
+    slot = b.emit("IAdd", i32, int_member(base, 1), i)
+    values = (index_count, b.emit("Select", i32, visible, one, zero), int_member(range_, 0), zero, out)
+    for index, value in enumerate(values):
+        b.store(b.access("Uniform", i32, commands, zero, slot, b.const_int(index)), value)
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def emit(name, words, out):
     out.write("static const unsigned int %s[] = {\n" % name)
     for index in range(0, len(words), 8):
@@ -1203,3 +1323,4 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
     emit("bb_shader_compute_cull", compute_shader_cull(), out)
+    emit("bb_shader_compute_static", compute_shader_static(), out)
