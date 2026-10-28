@@ -5,10 +5,11 @@
 """
 Runs the common benchmarks with one compiler, several times each, and saves the numbers for the Performance History wiki page.
 
-    python3 benchmarks/history.py --blitzcc PATH --label NAME [--runs 10] [--only compile,emitted,...] [--wine] [--out FILE]
+    python3 benchmarks/history.py --blitzcc PATH --label NAME [--runs 3] [--only compile,emitted,...] [--wine] [--out FILE]
 
-Every benchmark is run --runs times (10). The best and the worst run of each number are dropped and the other runs are averaged
-(with 10 runs, the mean of 8). All runs are kept in the JSON file as well. benchmarks/history/NAME.json is the default output.
+Every benchmark is run --runs times (3). The number that is kept is the mean of the runs, with the standard deviation next to it; all
+runs are kept in the JSON file as well, so rows can be compared (benchmarks/history_page.py calls a change real when it is over two standard deviations of the difference
+between neighbouring rows). benchmarks/history/NAME.json is the default output.
 
 The benchmarks are the ones in this folder, compiled with the compiler that is given, so the compiler of a commit or the original
 Blitz3D (--wine runs the original Blitz3D 1.118 under Wine, tools/original_blitz3d.sh setup installs it):
@@ -18,6 +19,7 @@ Blitz3D (--wine runs the original Blitz3D 1.118 under Wine, tools/original_blitz
     movies     benchmarks/movies.bb: CPU time of playing a movie                  (Movies)
     audio      benchmarks/audio.bb: load time and CPU time of mixing              (Audio)
     flythrough benchmarks/flythrough.bb, waterfall.bb, dungeon.bb, loading.bb      (Scene)
+    lights     benchmarks/many_lights.bb: 8, 32 and 127 lights                    (Scene)
     gpu        GPU time of the passes of the waterfall, from BLITZ_FPS            (GPU)
     stranded2  tests/stranded2 with tools/benchmark_stranded2.py                   (Real Application Performance)
 
@@ -45,6 +47,7 @@ import zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 WINE_HOME = os.environ.get("B3D_ORIG_HOME", "/opt/b3d")
+QUICK = False  # --quick: the short set for every commit (no Stranded II compile, a smaller emitted-code run)
 
 # The size of every window and the amount of work of the scene benchmarks: small enough to run ten times a commit on llvmpipe.
 SCENES = {
@@ -57,22 +60,24 @@ SCENES = {
 }
 
 
-def trimmed_mean(values):
-    """Drops the best and the worst, averages the rest. With fewer than 3 values it is the plain mean."""
-    values = sorted(values)
-    if len(values) >= 3:
-        values = values[1:-1]
-    return sum(values) / len(values)
+def quantile(sorted_values, q):
+    """Linear interpolation between the closest ranks."""
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+    position = (len(sorted_values) - 1) * q
+    low = int(position)
+    high = min(low + 1, len(sorted_values) - 1)
+    return sorted_values[low] + (sorted_values[high] - sorted_values[low]) * (position - low)
 
 
 def summarize(runs):
-    """runs: list of {key: number}. Gives {key: {"value": trimmed mean, "runs": [...], "min": , "max": }}"""
+    """runs: list of {key: number}. Gives {key: {"value": mean, "stdev": , "runs": [...], "min": , "max": }}"""
     out = {}
     for key in runs[0]:
         series = [r[key] for r in runs if key in r]
-        kept = sorted(series)[1:-1] if len(series) >= 3 else series  # the runs that the mean is made of
-        out[key] = {"value": trimmed_mean(series), "runs": series, "min": min(series), "max": max(series),
-                    "stdev": statistics.stdev(kept) if len(kept) > 1 else 0.0, "n": len(kept)}
+        ordered = sorted(series)
+        out[key] = {"value": statistics.fmean(series), "stdev": statistics.stdev(series) if len(series) > 1 else 0.0,
+                    "runs": series, "min": ordered[0], "max": ordered[-1], "n": len(series)}
     return out
 
 
@@ -219,7 +224,7 @@ def bench_emitted(compiler, runs):
             result_file = os.path.join(d, "result.txt")
             if os.path.exists(result_file):
                 os.remove(result_file)
-            run_program(compiler, program, {"BENCH_SCALE": "10", "BENCH_RESULT": compiler.native_path(result_file)}, d)
+            run_program(compiler, program, {"BENCH_SCALE": "3" if QUICK else "10", "BENCH_RESULT": compiler.native_path(result_file)}, d)
             if not os.path.isfile(result_file):
                 raise RuntimeError("no result")
             r = parse_result(result_file)
@@ -241,9 +246,10 @@ def bench_compile(compiler, runs):
         shutil.copy(os.path.join(HERE, "flythrough_original.bi"), os.path.join(d, "flythrough_counters.bi"))
         targets["hello"] = (hello, d)
         targets["flythrough"] = (os.path.join(d, "flythrough.bb"), d)
-        game = os.path.join(d, "stranded2")
-        shutil.copytree(os.path.join(ROOT, "tests", "stranded2"), game)
-        targets["stranded2"] = (os.path.join(game, "StrandedII.bb"), game)
+        if not QUICK:
+            game = os.path.join(d, "stranded2")
+            shutil.copytree(os.path.join(ROOT, "tests", "stranded2"), game)
+            targets["stranded2"] = (os.path.join(game, "StrandedII.bb"), game)
         out = {}
         for name, (src, cwd) in targets.items():
             results = []
@@ -308,6 +314,25 @@ def bench_audio(compiler, runs):
             if r.get("loaded", 0) == 0:
                 raise RuntimeError("no sound loaded")
             results.append({"load_ms": r["load_ms"], "cpu_ms": cpu * 1000})
+        return summarize(results)
+
+
+def bench_lights(compiler, runs):
+    """benchmarks/many_lights.bb: what 8, 32 and 127 point lights cost (RenderWorld on the CPU, 5000 cubes). The original lights with 8."""
+    with tempfile.TemporaryDirectory() as d:
+        program, _ = build(compiler, d, "many_lights")
+        results = []
+        for i in range(runs):
+            result_file = os.path.join(d, "many_lights.txt")
+            if os.path.exists(result_file):
+                os.remove(result_file)
+            run_program(compiler, program, {}, d)
+            if not os.path.isfile(result_file):
+                raise RuntimeError("no result")
+            r = {}
+            for name, value in re.findall(r"^(.*?): ([\d.]+) ms/frame", open(result_file).read(), re.M):
+                r[re.sub(r"\W+", "_", name.strip()).strip("_") + "_ms"] = float(value)
+            results.append(r)
         return summarize(results)
 
 
@@ -409,6 +434,7 @@ BENCHMARKS = {
     "waterfall": lambda c, n: bench_scene(c, "waterfall", n),
     "dungeon": lambda c, n: bench_scene(c, "dungeon", n),
     "loading": bench_loading,
+    "lights": bench_lights,
     "gpu": bench_gpu,
     "stranded2": bench_stranded2,
 }
@@ -420,10 +446,16 @@ def main():
     parser.add_argument("--wine", action="store_true", help="the original Blitz3D under Wine (tools/original_blitz3d.sh setup)")
     parser.add_argument("--label", required=True)
     parser.add_argument("--rev", default="", help="commit or pull request this compiler was built from")
-    parser.add_argument("--runs", type=int, default=10)
+    parser.add_argument("--runs", type=int, default=3)
     parser.add_argument("--only", default=",".join(BENCHMARKS))
+    parser.add_argument("--quick", action="store_true", help="the short set for every commit: compile, emitted, flythrough, waterfall, dungeon")
     parser.add_argument("--out")
     args = parser.parse_args()
+    if args.quick:
+        global QUICK
+        QUICK = True
+        if args.only == ",".join(BENCHMARKS):
+            args.only = "compile,emitted,flythrough,waterfall,dungeon"
     if not args.blitzcc and not args.wine:
         sys.exit("Give --blitzcc or --wine.")
     compiler = Compiler(os.path.abspath(args.blitzcc) if args.blitzcc else None, args.wine)
