@@ -793,6 +793,8 @@ namespace bb::gfx {
 	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader. */
 	int dither_level();
 	bool blend_interlock();
+	/** Whether Dither 2 blends in the shader when drawing to a target of that format: only for 8 bits per color. */
+	bool blends_in_shader(VkFormat target);
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
