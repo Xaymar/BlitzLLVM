@@ -914,6 +914,8 @@ namespace bb::gfx {
 	/** Whether the first bytes are those of a picture format that is loaded, so that decoding can go on without the caller. */
 	bool picture_recognized(const uint8_t* data, size_t size);
 	void open_codec_libraries();
+	/** A function of one of the opened codec libraries (WebP, JPEG XL, AVIF) by its name, or null. */
+	void* codec_symbol(const char* name);
 	/** Loading on other threads (graphics_async.cpp). Off, LoadTexture and LoadImage decode before they return. */
 	void async_set_loading(bool enabled);
 	/** Stops the loader threads, once nothing is waiting for them any more. */
@@ -1090,8 +1092,9 @@ void bb_resize_image(int32_t handle, float new_width, float new_height);
 void bb_grab_image(int32_t handle, int32_t x, int32_t y, int32_t frame);
 int32_t bb_image_buffer(int32_t handle, int32_t frame);
 int32_t bb_texture_buffer(int32_t handle, int32_t frame);
-int32_t bb_save_image(int32_t handle, const char* file, int32_t frame);
-int32_t bb_save_buffer(int32_t buffer, const char* file);
+int32_t bb_save_image(int32_t handle, const char* file, int32_t frame, const char* settings);
+int32_t bb_save_buffer(int32_t buffer, const char* file, const char* settings);
+int32_t bb_save_texture(int32_t handle, const char* file, int32_t frame, const char* settings);
 void bb_lock_buffer(int32_t buffer);
 void bb_unlock_buffer(int32_t buffer);
 int32_t bb_read_pixel_fast(int32_t x, int32_t y, int32_t buffer);

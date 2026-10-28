@@ -21,6 +21,7 @@
 #include "path.h"
 #include <cstring>
 #include <string>
+#include <vector>
 
 using namespace bb::gfx;
 
@@ -646,6 +647,7 @@ namespace bb::gfx {
 		bool        found;
 	};
 	codec_family codec_families[] = { { "avif", " avif ", false }, { "jxl", " jxl ", false }, { "webp", " webp ", false } };
+	std::vector<SDL_SharedObject*> codec_objects; // Every library that was opened, for the functions that the encoders look up.
 
 	void open_codec_libraries()
 	{
@@ -666,12 +668,26 @@ namespace bb::gfx {
 			if (!shared) {
 				continue;
 			}
-			bool opened_library = SDL_LoadObject((std::string(base) + name).c_str()) != nullptr;
+			SDL_SharedObject* object = SDL_LoadObject((std::string(base) + name).c_str());
+			if (object) {
+				codec_objects.push_back(object);
+			}
+			bool opened_library = object != nullptr;
 			for (auto& family : codec_families) {
 				family.found = family.found || (opened_library && (name.find(family.name) != std::string::npos));
 			}
 		}
 		SDL_free(names);
+	}
+
+	void* codec_symbol(const char* name)
+	{
+		for (SDL_SharedObject* object : codec_objects) {
+			if (SDL_FunctionPointer function = SDL_LoadFunction(object, name)) {
+				return reinterpret_cast<void*>(function);
+			}
+		}
+		return nullptr;
 	}
 
 	void report_missing_codec(const char* file)

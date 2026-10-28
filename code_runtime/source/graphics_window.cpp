@@ -13,6 +13,7 @@
 // The window, the buffers, Flip, and information about the graphics.
 
 #include "graphics_internal.hpp"
+#include "graphics_save.hpp"
 
 using namespace bb::gfx;
 
@@ -257,6 +258,7 @@ int32_t bb_set_buffer(int32_t buffer)
 void bb_app_title(const char* title, const char* close_prompt)
 {
 	snprintf(g.close_prompt, sizeof(g.close_prompt), "%s", close_prompt ? close_prompt : "");
+	save_set_title(title); // Saved pictures say which program made them.
 	if (active()) {
 		SDL_SetWindowTitle(g.window, title ? title : "");
 	}

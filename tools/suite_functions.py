@@ -120,6 +120,7 @@ EXTENSIONS = {
     "imageready": ("graphics", "%ImageReady%image"),
     "entityready": ("blitz3d", "%EntityReady%entity"),
     "asyncloading": ("graphics", "AsyncLoading%enabled"),
+    "savetexture": ("blitz3d", "%SaveTexture%texture$file%frame=0$settings=\\"),
     "byte": ("math", "%Byte#value"),
     "ubyte": ("math", "%UByte#value"),
     "short": ("math", "%Short#value"),
