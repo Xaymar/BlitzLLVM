@@ -307,7 +307,7 @@ def category_page(dialect, category, cmds):
     return "\n".join(out)
 
 
-GENERIC_FIRST = ["Installation", "Building", "Language", "Language-Quirks", "Warnings", "Differences", "Releasing"]
+GENERIC_FIRST = ["Installation", "Building", "Language", "Language-Quirks", "Warnings", "Environment-Variables", "Differences", "Releasing"]
 
 
 def generic_pages(cats):
