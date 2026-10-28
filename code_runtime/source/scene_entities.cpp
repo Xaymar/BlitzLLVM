@@ -226,13 +226,16 @@ namespace bb::scene {
 	static int copy_entity(int source, int parent)
 	{
 		entity* from = get_entity(source);
-		int     handle = add_entity(from->kind, parent);
+		// The original has no copy of a camera, a light or a terrain: what it makes of them is a pivot in the same place.
+		bool    plain  = from->kind == CAMERA || from->kind == LIGHT || from->terrain;
+		int     handle = add_entity(plain ? PIVOT : from->kind, parent);
 		entity* to     = get_entity(handle);
 		copy_was.push(source);
 		copy_now.push(handle);
 
 		// Everything is copied over, except what owns memory.
 		entity copy = *from;
+		copy.kind   = plain ? PIVOT : from->kind;
 		copy.parent = parent;
 		copy.children = 0; // The children are copied below, which counts them.
 		copy.name   = nullptr;
@@ -246,17 +249,11 @@ namespace bb::scene {
 		}
 		copy.plane_draw = nullptr; // Made again when it is drawn.
 		copy.terrain = nullptr;
-		if (from->terrain) {
-			copy.terrain          = new terrain_data(*from->terrain);
-			size_t count          = size_t(from->terrain->size + 1) * size_t(from->terrain->size + 1);
-			copy.terrain->heights = static_cast<float*>(bb_malloc(count * sizeof(float)));
-			memcpy(copy.terrain->heights, from->terrain->heights, count * sizeof(float));
-		}
 		copy.surfaces.data = nullptr;
 		copy.surfaces.size = copy.surfaces.cap = 0;
 		*to = copy;
 		adopt(*to); // The copy became a child of its parent now, not when the original did.
-		for (uint32_t i = 0; i < from->surfaces.size; i++) {
+		for (uint32_t i = 0; !plain && i < from->surfaces.size; i++) {
 			surface* original = from->surfaces[i];
 			if (original->skin || from->md2) {
 				// The vertices of a skinned mesh follow the bones of this copy, and those of an .md2 model its frames, so
