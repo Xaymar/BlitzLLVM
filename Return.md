@@ -20,7 +20,7 @@ Return value
 
 ## Description
 
-Leaves the current [Function](Function), giving back `value` when the function has a return type. In code that was entered with [Gosub](Gosub), `Return` goes back to the line after the `Gosub`.
+Leaves the current [Function](Function), giving back `value` when the function has a return type. In a function declared `Void`, `Return` can not give a value. In code that was entered with [Gosub](Gosub), `Return` goes back to the line after the `Gosub`.
 
 ## Examples
 

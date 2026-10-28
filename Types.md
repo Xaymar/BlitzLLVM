@@ -8,3 +8,8 @@
 The originals only have `Int`, `Float` and `String` (and custom types). BlitzLLVM adds `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double`, and every one of them, as well as `String` and custom types, works as a `Global`, a `Local`, a parameter (with default values), a return type, a field of a `Type`, a `Const` and the type of a `Dim` array. Types are written in the short form with a sign after the name (`%` Int, `%%` Long, `#` Float, `##` Double, `$` String, `.Name` custom type) or in the long form with `:Type` (`Count:UInt`, `Function Now:ULong()`). Whole numbers wrap around at the size of their type, so a `UByte` that is 255 and gets 1 added is 0, and `ULong` and `UInt` are never negative. `tests/suite/language_types.bb` checks the combinations.
 
 The tables of built-in functions in the compiler can use the same types for parameters and return values (`b B h H i I l u x f d s`), not just `i f s`.
+
+## Void
+
+
+`Void` is only a return type, written in the long form (`Function Log:Void(message:String)`), and there is no short form. A `Void` function is called as a statement; `Return` inside of it takes no value, and giving it one is an error. Using a call of it as a value (`x = Log("a")`, `Print Log("a")`, `Return Log("a")`) or in a condition (`If`, `While`, `Until`, `Select`) is an error, too, because there is nothing to use. `Void` can not be the type of a parameter, a variable or a field. Without `Void`, a function that has no `Return value` still returns an `Int`, as in the originals.
