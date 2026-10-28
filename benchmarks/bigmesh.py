@@ -8,7 +8,7 @@ triangles, which is what CameraCulling flag 2 (culling of faces on the GPU) is f
 
     python3 benchmarks/bigmesh.py [--blitzcc PATH] [--cull FLAGS] [--surfaces N] [--grid N] [--frames N] [--size WxH]
 
---cull is the CameraCulling flags of BlitzLLVM (1 is the default, 3 adds the GPU) and is ignored by the original Blitz3D, which can
+--cull is the CameraCulling flags of BlitzLLVM (3 is the default, which has the GPU cull faces too; 1 is meshes only) and is ignored by the original Blitz3D, which can
 also be used with --blitzcc (see flythrough.py). Without a display the program runs under xvfb-run, which with Mesa means llvmpipe:
 the times are then mostly the CPU rasterizing and only a smoke test. Run each setting a few times and alternate them.
 """
@@ -40,7 +40,7 @@ def find_compiler(given):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--blitzcc")
-    parser.add_argument("--cull", default="1")
+    parser.add_argument("--cull", default="3")
     parser.add_argument("--surfaces", type=int, default=6)
     parser.add_argument("--grid", type=int, default=128)
     parser.add_argument("--frames", type=int, default=60)
