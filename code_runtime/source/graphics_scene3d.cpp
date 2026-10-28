@@ -1068,6 +1068,11 @@ namespace bb::gfx {
 			}
 			texture_entry*  tex = texture_of(d.texture);
 			VkDescriptorSet set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE];
+			if (tex && tex->atlas && set == tex->set) {
+				// Views are read by the shader with their own settings, so all views of an image share the set of the atlas.
+				texture_entry& atlas = texture_table[uint32_t(tex->atlas) - 1];
+				set                  = atlas.set ? atlas.set : set;
+			}
 			if (set != bound_set) {
 				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
 				bound_set = set;
