@@ -6,7 +6,7 @@ Chooses how a sprite turns in relation to the camera.
 | Mode | Behavior |
 |---|---|
 | 1 | Faces the camera and turns with it, so it always looks flat towards you. This is the default. |
-| 2 | Free: keeps the orientation of the entity itself and ignores the camera, so it can be seen edge-on. |
+| 2 | Fixed: keeps the orientation of the entity itself and ignores the camera, so it can be seen edge-on. Its back is not drawn unless [EntityFX](EntityFX) has the two-sided flag (16). |
 | 3 | Faces the camera but keeps the entity's own up direction. |
 | 4 | Only turns around the vertical axis to face the camera. It stays upright, like a billboard tree. |
 
@@ -52,5 +52,5 @@ Next
 
 ![SpriteViewMode](media/sprites/spriteviewmode.gif)
 @param sprite     The sprite.
-@param view_mode  1 to 4, see the table. Values outside that range select mode 1.
+@param view_mode  1 to 4, see the table. Any other number turns the sprite neither way, so it behaves like mode 2.
 @gap The descriptions in the official help do not exactly match the engine. This page describes what the engine does, and so does this runtime.
