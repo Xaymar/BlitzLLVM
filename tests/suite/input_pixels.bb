@@ -12,6 +12,7 @@ If GetEnv$("BLITZ_HEADLESS") <> "" Then
 	End
 EndIf
 
+SetEnv "BLITZ_TEST_PRESENT", "present.tmp"
 Graphics 160, 120, 32, 2
 SetBuffer BackBuffer()
 
@@ -54,20 +55,38 @@ Check "GetKey Backspace", GetKey(), 8
 Check "GetKey Escape", GetKey(), 27
 Check "GetKey is empty again", GetKey(), 0
 
+; Print, Write and Input draw on the picture the window shows, which a program can't select, so this reads what the runtime presented.
+Function Shown(x, y)
+	ReadPixel(0, 0) ; Sends what was drawn, which shows it.
+	f = ReadFile("present.tmp")
+	If f = 0 Then RuntimeError "Nothing was presented."
+	skip = 0
+	For line = 1 To 3
+		skip = skip + Len(ReadLine$(f)) + 1
+	Next
+	SeekFile f, skip + (y * 160 + x) * 3
+	r = ReadByte(f)
+	g = ReadByte(f)
+	b = ReadByte(f)
+	CloseFile f
+	Return (r Shl 16) Or (g Shl 8) Or b
+End Function
+
 ; Input shows the prompt and what is typed in the window, and the line goes on below.
 Function Lit(x, y, w, h)
 	n = 0
 	For yy = y To y + h - 1
 		For xx = x To x + w - 1
-			If (ReadPixel(xx, yy) And $FFFFFF) = $FFFFFF Then n = n + 1
+			If Shown(xx, yy) = $FFFFFF Then n = n + 1
 		Next
 	Next
 	Return n
 End Function
 
-SetBuffer FrontBuffer()
+SetBuffer BackBuffer()
 ClsColor 0, 0, 0
 Cls
+Flip
 Color 255, 255, 255
 Locate 0, 8
 FlushKeys
@@ -94,6 +113,7 @@ CheckS "Input of nothing", Input$("Name? "), ""
 ; Input scrolls the window like Print when the line is at the bottom.
 ClsColor 0, 0, 0
 Cls
+Flip
 Locate 0, 112
 SetEnv "BLITZ_TEST_EVENTS", "tX,k28"
 CheckS "Input at the bottom", Input$(""), "X"

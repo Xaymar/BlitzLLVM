@@ -227,7 +227,8 @@ int32_t bb_graphics_height(void)
 
 int32_t bb_front_buffer(void)
 {
-	return front_buffer;
+	// Programs cannot draw to the picture on the screen, so what they ask for is the back buffer.
+	return back_buffer;
 }
 
 int32_t bb_back_buffer(void)
