@@ -31,7 +31,7 @@ Graphics 320, 240, 32, 2
 SetBuffer BackBuffer()
 CheckTrue "BackBuffer", BackBuffer() <> 0
 CheckTrue "FrontBuffer", FrontBuffer() <> 0
-CheckTrue "The buffers are different", BackBuffer() <> FrontBuffer()
+Check "FrontBuffer is the BackBuffer", FrontBuffer(), BackBuffer()
 Check "BackBuffer stays the same", BackBuffer(), BackBuffer()
 Flip
 Flip False

@@ -78,16 +78,18 @@ ResetGamma
 Flip
 Check "back to normal", Shown(10, 10), $6496C8
 
-; UpdateGamma also changes what a program shows that draws to the front buffer and never flips.
+; FrontBuffer is the back buffer, so what is drawn there is shown through the tables after Flip.
 SetBuffer FrontBuffer()
 Color 40, 80, 120
 Rect 0, 0, W, H, 1
 SetGamma 40, 80, 120, 200, 100, 50
 UpdateGamma
+Flip
 Check "the front buffer is shown through the tables", Shown(5, 5), $C86432
 Check "the front buffer is not changed", ReadPixel(5, 5) And $FFFFFF, $285078
 
 ResetGamma
+Flip
 Check "front buffer back to normal", Shown(5, 5), $285078
 
 ; Fractions and values out of range are kept.
