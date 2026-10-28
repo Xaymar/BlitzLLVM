@@ -13,7 +13,7 @@ int32_t bb_gui_text_width(int32_t font, const char* s, int32_t length, int32_t s
 }
 
 namespace bb::gui {
-	ui_state ui;
+	thread_local ui_state ui;
 
 	constexpr int default_font_size = 12;
 	constexpr int menu_font_size    = 12;
