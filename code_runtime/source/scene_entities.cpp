@@ -82,6 +82,7 @@ namespace bb::scene {
 		if (parent) {
 			need(parent, "CreateEntity")->children++;
 			e->parent = parent;
+			adopt(*e);
 		}
 		// Every slot below first_free is taken, so a program that makes a million entities does not walk over them all each time.
 		for (uint32_t i = first_free; i < entities.size; i++) {
@@ -254,6 +255,7 @@ namespace bb::scene {
 		copy.surfaces.data = nullptr;
 		copy.surfaces.size = copy.surfaces.cap = 0;
 		*to = copy;
+		adopt(*to); // The copy became a child of its parent now, not when the original did.
 		for (uint32_t i = 0; i < from->surfaces.size; i++) {
 			surface* original = from->surfaces[i];
 			if (original->skin || from->md2) {
@@ -280,11 +282,14 @@ namespace bb::scene {
 			memcpy(to->name, from->name, length + 1);
 		}
 
-		for (uint32_t i = 0; from->children > 0 && i < entities.size; i++) {
-			if (entities[i] && (entities[i]->parent == source) && (int(i) + 1 != handle)) {
-				copy_entity(int(i) + 1, handle);
+		buffer<int> kids;
+		children_of(source, kids);
+		for (uint32_t i = 0; i < kids.size; i++) {
+			if (kids[i] != handle) {
+				copy_entity(kids[i], handle);
 			}
 		}
+		kids.release();
 		if (from->anim) {
 			to->anim = clone_animation(*from->anim, copy_was, copy_now);
 		}
@@ -301,6 +306,31 @@ namespace bb::scene {
 int bb::create_entity(int kind, int parent)
 {
 	return add_entity(kind, parent);
+}
+
+static uint64_t sibling_counter = 0;
+
+void bb::adopt(entity& e)
+{
+	e.sibling = ++sibling_counter;
+}
+
+void bb::children_of(int handle, buffer<int>& out)
+{
+	for (uint32_t i = 0; i < entities.size; i++) {
+		if (entities[i] && (entities[i]->parent == handle)) {
+			out.push(int(i) + 1);
+		}
+	}
+	// The order they became children in, which is not the order of the handles once a handle has been used again.
+	for (uint32_t i = 1; i < out.size; i++) {
+		int      value = out[i];
+		uint32_t j     = i;
+		for (; j > 0 && entities[uint32_t(out[j - 1]) - 1]->sibling > entities[uint32_t(value) - 1]->sibling; j--) {
+			out[j] = out[j - 1];
+		}
+		out[j] = value;
+	}
 }
 
 int bb::entity_count()
@@ -466,7 +496,10 @@ void bb_entity_parent(int32_t handle, int32_t parent, int32_t global)
 	if (e->parent) {
 		get_entity(e->parent)->children--;
 	}
-	e->parent = parent;
+	if (e->parent != parent) {
+		e->parent = parent;
+		adopt(*e);
+	}
 	if (parent) {
 		get_entity(parent)->children++;
 	}

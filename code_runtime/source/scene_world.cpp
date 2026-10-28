@@ -35,17 +35,15 @@ int32_t bb_count_children(int32_t handle)
 	return count;
 }
 
-// The children are numbered from 1, in the order they were made.
+// The children are numbered from 1, in the order they became children.
 int32_t bb_get_child(int32_t handle, int32_t index)
 {
 	need(handle, "GetChild");
-	for (int other = 1; other <= entity_count(); other++) {
-		entity* e = get_entity(other);
-		if (e && (e->parent == handle) && (--index == 0)) {
-			return other;
-		}
-	}
-	return 0;
+	buffer<int> kids;
+	children_of(handle, kids);
+	int32_t child = (index >= 1 && uint32_t(index) <= kids.size) ? kids[uint32_t(index) - 1] : 0;
+	kids.release();
+	return child;
 }
 
 int32_t bb_get_parent(int32_t handle)
