@@ -22,3 +22,8 @@ End Function
 Function BenchBuffers()
 	Return 0
 End Function
+
+; Shows the frame without waiting for the display (the original has no Flip 2).
+Function BenchFlip()
+	Flip 0
+End Function
