@@ -411,6 +411,9 @@ namespace bb::gfx {
 		int             atlas = 0;              // For a view made by AtlasTexture: the handle of the atlas, whose image this one samples in the rectangle below.
 		int             gutter = 0;             // Atlas: how many pixels of repeated edge colour every tile has around it in the picture. For a view: the same, copied.
 		int             rect[4] = {};           // Where the view is in the atlas, in pixels: x, y, width, height.
+		bool            auto_view = false;      // A view into a page that the runtime made (see texture_atlas_pump): it was a texture of its own before and goes back to being one when it is changed.
+		bool            internal = false;       // A page of such views: not a texture that a program has.
+		bool            atlas_tried = false;    // Whether texture_atlas_pump has looked at this texture.
 		bool            freed = false;          // FreeTexture was called while something still uses it, so it only goes once nothing does.
 		int             sampler = 0;            // The sampler of SetTextureSampler, or 0 for the one that the flags pick.
 		cube_data*      cube = nullptr;         // For a cube map: image is the face that is chosen, and set samples the sheet.
@@ -885,6 +888,17 @@ namespace bb::gfx {
 	bb::surface* sprite_hull_surface(sprite_hull& hull);
 	/** What a texture is read as: its descriptor set, or for a view of an atlas the image and sampler that its own set holds, so that views of one atlas are the same. */
 	void texture_bind_key(texture_entry const* texture, uintptr_t& image_or_set, uintptr_t& sampler);
+	/** Puts the small textures that were loaded since the last call into pages that they share (see the notes at its definition). */
+	void texture_atlas_pump();
+	/** Gives a texture that the pump made a view of its own picture again, for what changes its pixels, scale or sampler. */
+	void texture_unatlas(texture_entry& texture);
+	/** Whether textures are merged by the runtime. */
+	bool texture_atlas_enabled();
+	void texture_atlas_set(bool enabled);
+	/** Says that there are textures to look at. */
+	void texture_atlas_changed();
+	/** Frees a page of merged textures if none is left in it. */
+	void texture_release_page(int handle);
 	void texture_uv(texture_entry const* texture, int reference, float* uv);
 	void texture_rotation(texture_entry const* texture, float* extra);
 	void texture_texgen(texture_entry const* texture, float* texgen);
@@ -1067,6 +1081,7 @@ int32_t bb_load_texture(const char* file, int32_t flags);
 int32_t bb_texture_ready(int32_t handle);
 int32_t bb_texture_loading(int32_t handle);
 void bb_async_loading(int32_t enabled);
+void bb_texture_atlas(int32_t enabled);
 void bb_free_texture(int32_t handle);
 int32_t bb_texture_width(int32_t handle);
 int32_t bb_texture_height(int32_t handle);

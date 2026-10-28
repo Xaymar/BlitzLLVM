@@ -2897,6 +2897,7 @@ void bb_render_world(float tween)
 	if (resolve_target(g.target).image && (g.target >= image_buffer_base) && (g.target < texture_buffer_base)) {
 		fail("RenderWorld can not draw to an image, use a texture.");
 	}
+	texture_atlas_pump(); // Small textures that were loaded since are merged before anything is recorded with them.
 	acquire_frame(); // The buffers that the scene is written to are not read by the frame before any more.
 	g.triangles_drawn = 0;
 	stats3d           = {};

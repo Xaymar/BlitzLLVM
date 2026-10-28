@@ -763,6 +763,7 @@ int32_t bb_texture_buffer(int32_t handle, int32_t frame)
 	if (!t) {
 		bb_runtime_error("TextureBuffer: the texture does not exist.");
 	}
+	texture_unatlas(*t);
 	if (t->atlas) {
 		bb_runtime_error("TextureBuffer: a view made by AtlasTexture has no buffer, use the atlas.");
 	}

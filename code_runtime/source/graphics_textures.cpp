@@ -422,6 +422,7 @@ int32_t bb_filter_texture_flags(const char* file, int32_t flags)
 
 static int32_t add_texture(texture_entry const& entry)
 {
+	bb::gfx::texture_atlas_changed();
 	for (uint32_t i = 0; i < texture_table.size; i++) {
 		if (!texture_table[i].used) {
 			texture_table[i] = entry;
@@ -759,6 +760,257 @@ static int32_t texture_from_picture(const char* file, int32_t flags, picture& so
 	return add_texture(entry);
 }
 
+// Small textures that are loaded from files are merged into pages of 1024x1024 pixels, so that the 3D renderer (which groups its draws by
+// the image and sampler they read, see texture_bind_key) draws what uses them in fewer calls. A merged texture keeps its handle and
+// becomes a view of the page, the same as AtlasTexture makes: a rectangle in the page, with a gutter of one pixel of repeated edge colour
+// around it, so that what the texture would have clamped to is what it reads. Only textures that this does not change are merged: loaded,
+// 8 bits per channel, one level, clamped (a repeating texture would read its neighbours), not a sphere or cube map, a render target, a
+// sheet of frames or an atlas, and with no sampler of its own. Whatever then needs a picture of its own (TextureBuffer, SetTextureSampler,
+// ScaleTexture, PositionTexture, RotateTexture) gets one back with texture_unatlas. The rectangles of freed textures are not reused;
+// a page goes when its last view does.
+extern "C++" {
+namespace bb::gfx {
+	namespace {
+		constexpr int atlas_page_size = 1024;
+		int           atlas_setting   = -1; // -1: not looked at yet.
+		int           atlas_limit     = 0;
+		bool          atlas_dirty     = false;
+		bool          atlas_log       = false;
+		int           open_page       = 0;  // The handle of the page that is being filled.
+		int           cursor_x = 0, cursor_y = 0, row_height = 0;
+
+		void atlas_init()
+		{
+			if (atlas_setting >= 0) {
+				return;
+			}
+			const char* off = SDL_getenv("BLITZ_NO_TEXTURE_ATLAS");
+			atlas_setting   = (off && (off[0] == '1')) ? 0 : 1;
+			const char* max = SDL_getenv("BLITZ_TEXTURE_ATLAS_MAX");
+			atlas_limit     = max ? atoi(max) : 256;
+			atlas_limit     = atlas_limit > atlas_page_size - 2 ? atlas_page_size - 2 : atlas_limit;
+			const char* log = SDL_getenv("BLITZ_TEXTURE_ATLAS_LOG");
+			atlas_log       = log && (log[0] == '1');
+		}
+
+		// Why a texture stays as it is, or null if it can be merged.
+		const char* atlas_reject(texture_entry const& t)
+		{
+			if (t.pending || t.alias || t.atlas || t.is_atlas || t.internal || t.freed) {
+				return "not a plain texture";
+			}
+			if (!t.file || !t.set || !t.image.view) {
+				return "not loaded from a file";
+			}
+			if (t.cube || (t.flags & (64 | 128 | TEXTURE_TARGET | TEXTURE_SRGB))) {
+				return "sphere, cube, target or sRGB";
+			}
+			if ((t.frames != 1) || (t.frame_w != 0)) {
+				return "frames";
+			}
+			if (t.flags & TEXTURE_MIPMAPS) {
+				return "mip maps";
+			}
+			if (!(t.flags & (TEXTURE_CLAMP_U | TEXTURE_CLAMP_V))) {
+				return "repeats";
+			}
+			if (t.sampler) {
+				return "own sampler";
+			}
+			if (t.image.block != block_format::none || t.image.ten || t.image.srgb || t.image.mips != 1 || t.image.format != VK_FORMAT_R8G8B8A8_UNORM) {
+				return "format";
+			}
+			if (t.width < 1 || t.height < 1 || t.width > atlas_limit || t.height > atlas_limit) {
+				return "big";
+			}
+			return nullptr;
+		}
+
+		bool page_usable(int handle)
+		{
+			return handle && uint32_t(handle) <= texture_table.size && texture_table[uint32_t(handle) - 1].used && texture_table[uint32_t(handle) - 1].internal;
+		}
+
+		void new_page()
+		{
+			texture_entry page;
+			page.used     = true;
+			page.internal = true;
+			page.flags    = TEXTURE_CLAMP_U | TEXTURE_CLAMP_V;
+			page.width = page.height = atlas_page_size;
+			std::vector<uint8_t> zeros(size_t(atlas_page_size) * size_t(atlas_page_size) * 4, 0);
+			upload_texture(page.image, page.set, atlas_page_size, atlas_page_size, zeros.data(), texture_sampler(page.flags));
+			open_page  = add_texture(page);
+			cursor_x = cursor_y = row_height = 0;
+		}
+
+		// Moves the texture at this index of the table into the open page.
+		void atlas_place(uint32_t index)
+		{
+			int w = texture_table[index].width, h = texture_table[index].height;
+			int cw = w + 2, ch = h + 2;
+			if (!page_usable(open_page)) {
+				new_page();
+			}
+			if (cursor_x + cw > atlas_page_size) {
+				cursor_x = 0;
+				cursor_y += row_height;
+				row_height = 0;
+			}
+			if (cursor_y + ch > atlas_page_size) {
+				new_page();
+			}
+			texture_entry& t    = texture_table[index]; // After new_page, which can move the table.
+			texture_entry& page = texture_table[uint32_t(open_page) - 1];
+			int            px = cursor_x + 1, py = cursor_y + 1;
+
+			// The picture, and the edge of it repeated around it.
+			auto region = [&](int sx, int sy, int dx, int dy, int rw, int rh) {
+				VkImageCopy r = {};
+				r.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+				r.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+				r.srcOffset      = { sx, sy, 0 };
+				r.dstOffset      = { dx, dy, 0 };
+				r.extent         = { uint32_t(rw), uint32_t(rh), 1 };
+				return r;
+			};
+			VkImageCopy copies[9] = {
+				region(0, 0, px, py, w, h),
+				region(0, 0, px, py - 1, w, 1),
+				region(0, h - 1, px, py + h, w, 1),
+				region(0, 0, px - 1, py, 1, h),
+				region(w - 1, 0, px + w, py, 1, h),
+				region(0, 0, px - 1, py - 1, 1, 1),
+				region(w - 1, 0, px + w, py - 1, 1, 1),
+				region(0, h - 1, px - 1, py + h, 1, 1),
+				region(w - 1, h - 1, px + w, py + h, 1, 1),
+			};
+			begin_commands();
+			VkImageLayout page_before = page.image.layout;
+			transition(t.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+			transition(page.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			vkCmdCopyImage(g.cmd, t.image.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, page.image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 9, copies);
+			transition(page.image, page_before);
+			submit_commands();
+
+			t.atlas     = open_page;
+			t.auto_view = true;
+			t.gutter    = 1;
+			t.rect[0] = px;
+			t.rect[1] = py;
+			t.rect[2] = w;
+			t.rect[3] = h;
+			t.width = t.height = atlas_page_size;
+			destroy_image(t.image);
+			t.image         = page.image;
+			VkSampler sampler = view_sampler(t);
+			t.image.sampler = sampler;
+			write_descriptor(t.set, page.image.view, sampler);
+			cursor_x += cw;
+			row_height = ch > row_height ? ch : row_height;
+		}
+
+		void release_page(int handle)
+		{
+			if (!page_usable(handle)) {
+				return;
+			}
+			for (uint32_t i = 0; i < texture_table.size; i++) {
+				if (texture_table[i].used && (texture_table[i].atlas == handle)) {
+					return;
+				}
+			}
+			free_texture(texture_table[uint32_t(handle) - 1]);
+			if (open_page == handle) {
+				open_page = 0;
+			}
+		}
+	} // namespace
+
+	bool texture_atlas_enabled()
+	{
+		atlas_init();
+		return atlas_setting == 1;
+	}
+
+	void texture_atlas_set(bool enabled)
+	{
+		atlas_init();
+		atlas_setting = enabled ? 1 : 0;
+	}
+
+	void texture_atlas_pump()
+	{
+		if (!atlas_dirty || !active() || !texture_atlas_enabled()) {
+			return;
+		}
+		atlas_dirty = false;
+		bool synced = false;
+		for (uint32_t i = 0; i < texture_table.size; i++) {
+			texture_entry& t = texture_table[i];
+			if (!t.used || t.atlas_tried) {
+				continue;
+			}
+			if (t.pending) {
+				atlas_dirty = true; // Not decoded yet.
+				continue;
+			}
+			t.atlas_tried = true;
+			const char* why = atlas_reject(t);
+			if (atlas_log) {
+				fprintf(stderr, "texture atlas: %s %dx%d flags %d: %s\n", t.file ? t.file : "(made)", t.width, t.height, t.flags, why ? why : "merged");
+			}
+			if (why) {
+				continue;
+			}
+			if (!synced) {
+				flush(); // What was asked to be drawn with the textures comes first.
+				gpu_idle();
+				synced = true;
+			}
+			atlas_place(i);
+		}
+	}
+
+	void texture_unatlas(texture_entry& t)
+	{
+		if (!t.auto_view) {
+			return;
+		}
+		int page_handle = t.atlas;
+		flush();
+		gpu_idle();
+		texture_entry& page = texture_table[uint32_t(page_handle) - 1];
+		int            w = t.rect[2], h = t.rect[3];
+		uint8_t*       pixels = read_pixels(page.image, t.rect[0], t.rect[1], w, h);
+		vkFreeDescriptorSets(g.device, g.set_pool, 1, &t.set);
+		t.set   = VK_NULL_HANDLE;
+		t.image = gpu_image();
+		upload_texture(t.image, t.set, uint32_t(w), uint32_t(h), pixels, texture_sampler(t.flags));
+		bb_free(pixels);
+		t.atlas     = 0;
+		t.auto_view = false;
+		t.gutter    = 0;
+		t.width     = w;
+		t.height    = h;
+		memset(t.rect, 0, sizeof(t.rect));
+		release_page(page_handle);
+	}
+
+	void texture_atlas_changed()
+	{
+		atlas_dirty = true;
+	}
+
+	void texture_release_page(int handle)
+	{
+		if (handle) {
+			release_page(handle);
+		}
+	}
+} // namespace bb::gfx
+}
+
 // TextureReady(texture): 1 once the texture is loaded, without waiting for it.
 int32_t bb_texture_ready(int32_t handle)
 {
@@ -779,6 +1031,13 @@ int32_t bb_texture_loading(int32_t handle)
 void bb_async_loading(int32_t enabled)
 {
 	async_set_loading(enabled != 0);
+}
+
+// TextureAtlas(enabled): whether small clamped textures that are loaded from files are merged into shared images, which makes the 3D
+// renderer need fewer calls. On unless BLITZ_NO_TEXTURE_ATLAS=1; only textures loaded after it is called are affected.
+void bb_texture_atlas(int32_t enabled)
+{
+	bb::gfx::texture_atlas_set(enabled != 0);
 }
 
 int32_t bb_load_texture(const char* file, int32_t flags)
@@ -823,7 +1082,9 @@ void bb_collect_textures(void)
 				shared |= texture_table[k].used && ((texture_table[k].alias == int(i) + 1) || (texture_table[k].atlas == int(i) + 1));
 			}
 			if (!shared) {
+				int page = t.auto_view ? t.atlas : 0;
 				free_texture(t);
+				bb::gfx::texture_release_page(page);
 				changed = true;
 			}
 		}
@@ -1030,6 +1291,7 @@ void bb_clear_textures(void)
 void bb_scale_texture(int32_t handle, float u, float v)
 {
 	texture_entry* t = need_texture(handle, "ScaleTexture");
+	bb::gfx::texture_unatlas(*t);
 	t->uv[0]         = (u != 0) ? 1.0f / u : 1.0f;
 	t->uv[1]         = (v != 0) ? 1.0f / v : 1.0f;
 }
@@ -1037,6 +1299,7 @@ void bb_scale_texture(int32_t handle, float u, float v)
 void bb_position_texture(int32_t handle, float u, float v)
 {
 	texture_entry* t = need_texture(handle, "PositionTexture");
+	bb::gfx::texture_unatlas(*t);
 	t->uv[2]         = u;
 	t->uv[3]         = v;
 }
@@ -1044,7 +1307,9 @@ void bb_position_texture(int32_t handle, float u, float v)
 // The original keeps the negated angle in radians.
 void bb_rotate_texture(int32_t handle, float angle)
 {
-	need_texture(handle, "RotateTexture")->rotation = -angle * 0.017453292519943295f;
+	texture_entry* t = need_texture(handle, "RotateTexture");
+	bb::gfx::texture_unatlas(*t);
+	t->rotation = -angle * 0.017453292519943295f;
 }
 
 void bb_texture_blend(int32_t handle, int32_t mode)
@@ -1083,7 +1348,7 @@ int32_t bb_live_textures(void)
 {
 	int32_t count = 0;
 	for (uint32_t i = 0; i < texture_table.size; i++) {
-		count += (texture_table[i].used && !texture_table[i].alias) ? 1 : 0;
+		count += (texture_table[i].used && !texture_table[i].alias && !texture_table[i].internal) ? 1 : 0;
 	}
 	return count;
 }
@@ -1269,6 +1534,7 @@ void bb_set_sampler_lod_max(int32_t handle, float lod)
 void bb_set_texture_sampler(int32_t texture, int32_t handle)
 {
 	texture_entry* t = need_texture(texture, "SetTextureSampler");
+	bb::gfx::texture_unatlas(*t);
 	if (handle) {
 		need_sampler(handle, "SetTextureSampler");
 	}

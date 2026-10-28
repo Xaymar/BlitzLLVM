@@ -373,7 +373,7 @@ int32_t bb_active_textures(void)
 {
 	int32_t count = 0;
 	for (uint32_t i = 0; i < texture_table.size; i++) {
-		count += (texture_table[i].used && !texture_table[i].alias) ? 1 : 0;
+		count += (texture_table[i].used && !texture_table[i].alias && !texture_table[i].internal) ? 1 : 0;
 	}
 	return count;
 }
