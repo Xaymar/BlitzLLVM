@@ -60,3 +60,15 @@ The indices of an array with several dimensions are added up as `i0 + i1 * size1
 ### Left to right
 
 The order of the original is mildly surprising, and no other language does it. To get left to right order for arguments, operators, array indices and stores, build with `blitzcc --sane-evaluation-order`. Programs that call `Rnd`, `Rand` or read files several times in one expression then give other results than in the original, so only use it for programs that do not depend on the order.
+
+## Strings with Chr$(0)
+
+A string knows its length, so `Chr$(0)` is a character like any other, as in the original (whose strings are `std::string`). `Len`, `+`, comparison, `Left$`, `Right$`, `Mid$`, `Instr`, `Replace$`, `Upper$`, `Lower$`, `Trim$`, `LSet$`, `RSet$`, `String$`, `WriteString`, `ReadString`, `WriteLine`, `ReadLine`, `Print`, `DebugLog` and network messages keep everything after a NUL.
+
+```blitzbasic
+a$ = "ab" + Chr$(0) + "cd"
+Print Len(a)          ; 5
+Print Instr(a, "cd")  ; 4
+```
+
+A NUL always follows the last character, so a string given to the operating system, a library or a userlib is read as a C string and ends at the first NUL. That includes file names, window titles, `Text` and the arguments of userlib functions. Strings that a userlib returns end at their first NUL.
