@@ -474,9 +474,9 @@ Function MakeGroundPicture()
 			w# = 1 - dist / 16
 			If w < 0 Then w = 0
 			w = w * w * 1.4
-			r = Int(FMin(255, CR * grain * (0.85 + w * 1.6)))
-			g = Int(FMin(255, CG * grain * (1.18 + w * 0.9)))
-			b = Int(FMin(255, CB * grain * (1.25 + w * 0.4)))
+			r = Int(FMin(255, CR * grain * (0.95 + w * 1.6)))
+			g = Int(FMin(255, CG * grain * (1.28 + w * 0.9)))
+			b = Int(FMin(255, CB * grain * (1.45 + w * 0.4)))
 			WritePixelFast px, py, $FF000000 Or (r Shl 16) Or (g Shl 8) Or b, TextureBuffer(t)
 		Next
 	Next
@@ -517,9 +517,9 @@ End Function
 ; (along the normal) and the torch (with the distance), and it is fixed: the flicker of the torch and the lights of the insects do not light bumped things, and the
 ; objects that have bumps must not turn (so the trees stand straight). The result goes in CR, CG and CB.
 Function BumpColor(px#, py#, pz#, tx#, ty#, tz#, bx#, by#, bz#, nx#, ny#, nz#, torch)
-	lx# = MoonX * 0.8 + nx * 0.55
-	ly# = MoonY * 0.8 + ny * 0.55
-	lz# = MoonZ * 0.8 + nz * 0.55
+	lx# = MoonX * 0.8 + nx * 0.8
+	ly# = MoonY * 0.8 + ny * 0.8
+	lz# = MoonZ * 0.8 + nz * 0.8
 	If torch = 1 Then
 		dx# = TorchX - px
 		dy# = TorchY - py
@@ -535,7 +535,7 @@ Function BumpColor(px#, py#, pz#, tx#, ty#, tz#, bx#, by#, bz#, nx#, ny#, nz#, t
 	EndIf
 	a# = lx * tx + ly * ty + lz * tz
 	b# = lx * bx + ly * by + lz * bz
-	c# = lx * nx + ly * ny + lz * nz + 0.2
+	c# = lx * nx + ly * ny + lz * nz + 0.3
 	If a > 1 Then a = 1
 	If a < -1 Then a = -1
 	If b > 1 Then b = 1
