@@ -13,6 +13,7 @@
 // The window, the buffers, Flip, and information about the graphics.
 
 #include "graphics_internal.hpp"
+#include "graphics_save.hpp"
 
 using namespace bb::gfx;
 
@@ -126,6 +127,7 @@ void bb_end_graphics(void)
 				free_image(image_table[i]);
 			}
 		}
+		save_finish_all(); // The pictures that are still being written are written before the program ends.
 		async_shutdown(); // The pictures that were still loading went with the freed handles.
 		for (uint32_t i = 0; i < max_depths; i++) {
 			destroy_image(depth_cache[i]);
@@ -257,6 +259,7 @@ int32_t bb_set_buffer(int32_t buffer)
 void bb_app_title(const char* title, const char* close_prompt)
 {
 	snprintf(g.close_prompt, sizeof(g.close_prompt), "%s", close_prompt ? close_prompt : "");
+	save_set_title(title); // Saved pictures say which program made them.
 	if (active()) {
 		SDL_SetWindowTitle(g.window, title ? title : "");
 	}

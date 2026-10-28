@@ -15,6 +15,7 @@
 #include <string>
 
 #include "graphics_internal.hpp"
+#include "graphics_save.hpp"
 #include "path.h"
 
 using namespace bb::gfx;
@@ -380,19 +381,6 @@ namespace bb::gfx {
 			write_pixels(e->image, 0, 0, e->frame_w, e->frame_h, rgba);
 		}
 	}
-
-	static int32_t save_pixels(const uint8_t* rgba, int w, int h, const char* file)
-	{
-		SDL_Surface* surface = SDL_CreateSurfaceFrom(w, h, SDL_PIXELFORMAT_RGBA32, const_cast<uint8_t*>(rgba), w * 4);
-		if (!surface) {
-			return 0;
-		}
-		size_t length = strlen(file);
-		bool   png    = (length > 4) && !SDL_strcasecmp(file + length - 4, ".png");
-		bool   done   = png ? IMG_SavePNG(surface, file) : SDL_SaveBMP(surface, file);
-		SDL_DestroySurface(surface);
-		return done ? 1 : 0;
-	}
 } // namespace bb::gfx
 
 extern "C" {
@@ -740,7 +728,7 @@ int32_t bb_texture_buffer(int32_t handle, int32_t frame)
 	return texture_buffer_base + (handle & bb::texture_handle_mask) * 1024 + frame;
 }
 
-int32_t bb_save_image(int32_t handle, const char* file, int32_t frame)
+int32_t bb_save_image(int32_t handle, const char* file, int32_t frame, const char* settings)
 {
 	image_entry* e = need_image(handle, "SaveImage");
 	if (!active() || !e->set || !file || (frame < 0) || (frame >= e->frames)) {
@@ -751,12 +739,10 @@ int32_t bb_save_image(int32_t handle, const char* file, int32_t frame)
 	frame_position(*e, frame, fx, fy);
 	ensure_color_image(e->image, e->set);
 	uint8_t* pixels = read_pixels(e->image, fx, fy, e->frame_w, e->frame_h);
-	int32_t  result = save_pixels(pixels, e->frame_w, e->frame_h, file);
-	free(pixels);
-	return result;
+	return save_submit(pixels, e->frame_w, e->frame_h, file, settings);
 }
 
-int32_t bb_save_buffer(int32_t buffer, const char* file)
+int32_t bb_save_buffer(int32_t buffer, const char* file, const char* settings)
 {
 	if (!active() || !file) {
 		return 0;
@@ -767,9 +753,30 @@ int32_t bb_save_buffer(int32_t buffer, const char* file)
 		return 0;
 	}
 	uint8_t* pixels = read_pixels(*target.image, target.x, target.y, target.w, target.h);
-	int32_t  result = save_pixels(pixels, target.w, target.h, file);
-	free(pixels);
-	return result;
+	return save_submit(pixels, target.w, target.h, file, settings);
+}
+
+// SAVE_TEXTURE: one frame of a texture, which is its buffer saved.
+int32_t bb_save_texture(int32_t handle, const char* file, int32_t frame, const char* settings)
+{
+	int32_t buffer = bb_texture_buffer(handle, frame);
+	return buffer ? bb_save_buffer(buffer, file, settings) : 0;
+}
+
+// ASYNC_SAVING: whether the encoding and writing of saved pictures go on another thread.
+void bb_async_saving(int32_t enabled)
+{
+	save_async_set(enabled != 0);
+}
+
+int32_t bb_saves_pending(void)
+{
+	return save_pending_count();
+}
+
+int32_t bb_saves_failed(void)
+{
+	return save_failed_count();
 }
 
 int32_t bb_image_x_handle(int32_t handle)
