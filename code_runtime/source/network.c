@@ -50,9 +50,23 @@ typedef int bb_socket;
 extern void        bb_runtime_error(const char* message);
 extern const char* bb_str_from_i64(int64_t v);
 
-static int32_t bb_read_timeout   = 10000;
-static int32_t bb_accept_timeout = 0;
-static int32_t bb_udp_timeout    = 0; // How long RecvUDPMsg waits for a message.
+#define BB_MAX_HOST_IPS 64
+
+// What the network commands remember for the running program. thread_local, as the program runs on one thread.
+typedef struct bb_network_state {
+	int32_t read_timeout;
+	int32_t accept_timeout;
+	int32_t udp_timeout; // How long RecvUDPMsg waits for a message.
+	int32_t host_ips[BB_MAX_HOST_IPS];
+	int32_t host_ip_count;
+	int     host_looked_up; // Whether CountHostIPs was called, so that HostIP does not guess.
+} bb_network_state;
+
+#if defined(_MSC_VER)
+static __declspec(thread) bb_network_state bb_net = { 10000, 0, 0, { 0 }, 0, 0 };
+#else
+static _Thread_local bb_network_state bb_net = { 10000, 0, 0, { 0 }, 0, 0 };
+#endif
 
 static void bb_network_init(void)
 {
@@ -157,7 +171,7 @@ static size_t bb_tcp_read(bb_stream* stream, void* data, size_t size)
 	size_t  got  = 0;
 	char*   dest = (char*)data;
 	while (got < size) {
-		if (!bb_available(tcp->sock) && !bb_wait_readable(tcp->sock, bb_read_timeout)) {
+		if (!bb_available(tcp->sock) && !bb_wait_readable(tcp->sock, bb_net.read_timeout)) {
 			break;
 		}
 		int n = recv(tcp->sock, dest + got, (int)(size - got), 0);
@@ -243,8 +257,8 @@ static bb_tcp* bb_tcp_get(int32_t handle, const char* what, int server)
 
 void bb_tcp_timeouts(int32_t read, int32_t accept)
 {
-	bb_read_timeout   = read;
-	bb_accept_timeout = accept;
+	bb_net.read_timeout   = read;
+	bb_net.accept_timeout = accept;
 }
 
 int32_t bb_open_tcp_stream(const char* server, int32_t port, int32_t local_port)
@@ -329,7 +343,7 @@ void bb_close_tcp_server(int32_t handle)
 int32_t bb_accept_tcp_stream(int32_t server)
 {
 	bb_tcp* tcp = bb_tcp_get(server, "AcceptTCPStream", 1);
-	if (!bb_wait_readable(tcp->sock, bb_accept_timeout)) {
+	if (!bb_wait_readable(tcp->sock, bb_net.accept_timeout)) {
 		return 0;
 	}
 	struct sockaddr_in remote;
@@ -340,12 +354,6 @@ int32_t bb_accept_tcp_stream(int32_t server)
 	}
 	return bb_tcp_add(client, bb_ip_to_int(remote.sin_addr), ntohs(remote.sin_port), 0);
 }
-
-#define BB_MAX_HOST_IPS 64
-
-static int32_t bb_host_ips[BB_MAX_HOST_IPS];
-static int32_t bb_host_ip_count = 0;
-static int     bb_host_looked_up = 0; // Whether CountHostIPs was called, so that HostIP does not guess.
 
 static void bb_host_ip_add(int32_t* list, int32_t* count, int32_t ip)
 {
@@ -405,11 +413,11 @@ int32_t bb_count_host_ips(const char* host)
 {
 	bb_network_init();
 	const char* name = host ? host : "";
-	bb_host_ip_count = 0;
-	bb_host_looked_up = 1;
+	bb_net.host_ip_count = 0;
+	bb_net.host_looked_up = 1;
 	if (!*name) {
-		bb_host_ip_count = bb_local_ips(bb_host_ips);
-		return bb_host_ip_count;
+		bb_net.host_ip_count = bb_local_ips(bb_net.host_ips);
+		return bb_net.host_ip_count;
 	}
 	struct addrinfo hints, *result = NULL, *entry;
 	memset(&hints, 0, sizeof(hints));
@@ -419,21 +427,21 @@ int32_t bb_count_host_ips(const char* host)
 		return 0;
 	}
 	for (entry = result; entry; entry = entry->ai_next) {
-		bb_host_ip_add(bb_host_ips, &bb_host_ip_count, bb_ip_to_int(((struct sockaddr_in*)entry->ai_addr)->sin_addr));
+		bb_host_ip_add(bb_net.host_ips, &bb_net.host_ip_count, bb_ip_to_int(((struct sockaddr_in*)entry->ai_addr)->sin_addr));
 	}
 	freeaddrinfo(result);
-	return bb_host_ip_count;
+	return bb_net.host_ip_count;
 }
 
 // HostIP(index): an address found by the last CountHostIPs, counting from 1. Without one, the addresses of this computer.
 int32_t bb_host_ip(int32_t index)
 {
 	bb_network_init();
-	if (!bb_host_looked_up) {
-		bb_host_looked_up = 1;
-		bb_host_ip_count  = bb_local_ips(bb_host_ips);
+	if (!bb_net.host_looked_up) {
+		bb_net.host_looked_up = 1;
+		bb_net.host_ip_count  = bb_local_ips(bb_net.host_ips);
 	}
-	return ((index >= 1) && (index <= bb_host_ip_count)) ? bb_host_ips[index - 1] : 0;
+	return ((index >= 1) && (index <= bb_net.host_ip_count)) ? bb_net.host_ips[index - 1] : 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -564,7 +572,7 @@ void bb_send_udp_msg(int32_t handle, int32_t ip, int32_t port)
 int32_t bb_recv_udp_msg(int32_t handle)
 {
 	bb_udp* udp = bb_udp_get(handle, "RecvUDPMsg");
-	if (!bb_wait_readable(udp->sock, bb_udp_timeout)) {
+	if (!bb_wait_readable(udp->sock, bb_net.udp_timeout)) {
 		return 0;
 	}
 	bb_free(udp->in);
@@ -585,7 +593,7 @@ int32_t bb_recv_udp_msg(int32_t handle)
 
 void bb_udp_timeouts(int32_t receive)
 {
-	bb_udp_timeout = receive < 0 ? 0 : receive;
+	bb_net.udp_timeout = receive < 0 ? 0 : receive;
 }
 
 // The address of this computer, which is where the stream receives.
