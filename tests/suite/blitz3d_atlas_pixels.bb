@@ -38,18 +38,23 @@ Function Rgb(x, y)
 End Function
 
 ; Where the front of the cube is, found by drawing it white.
-RenderWorld
-Global x0 = 1000, x1 = -1, y0 = 1000, y1 = -1
-For y = 0 To 119
-	For x = 0 To 159
-		If ReadPixel(x, y, BackBuffer()) And $FFFFFF Then
-			If x < x0 Then x0 = x
-			If x > x1 Then x1 = x
-			If y < y0 Then y0 = y
-			If y > y1 Then y1 = y
-		EndIf
+Global x0, x1, y0, y1
+Function Bounds()
+	EntityTexture cube, 0
+	RenderWorld
+	x0 = 1000 : x1 = -1 : y0 = 1000 : y1 = -1
+	For y = 0 To 119
+		For x = 0 To 159
+			If ReadPixel(x, y, BackBuffer()) And $FFFFFF Then
+				If x < x0 Then x0 = x
+				If x > x1 Then x1 = x
+				If y < y0 Then y0 = y
+				If y > y1 Then y1 = y
+			EndIf
+		Next
 	Next
-Next
+End Function
+Bounds()
 CheckTrue "The cube is on screen", x1 - x0 > 60 And y1 - y0 > 60
 
 ; How many pixels of the front of the cube are not this color.
@@ -106,4 +111,31 @@ EntityTexture cube, half
 RenderWorld
 CheckTrue "The top half shows red on the left", Abs(((Rgb(60, 60) Shr 16) And 255) - 255) < 12 And (Rgb(60, 60) And $FF00) < $0C00
 CheckTrue "The top half shows green on the right", ((Rgb(100, 60) Shr 8) And 255) > 240 And ((Rgb(100, 60) Shr 16) And 255) < 12
+FreeTexture atlas
+FreeTexture half
+
+; A gutter: tiles of 64 pixels with 4 pixels around them in a cell of 72 that starts at 2 (so the cells do not line up with
+; the larger mip levels), where the cell is the color of its tile. Tiles map exactly (no half texel margin), and mip maps are
+; kept down to the level that a gutter of 4 allows: even far away no dark or green mixes into red. The level that is one more
+; (texels of 8) would, which is what the cube at distance 20 asks for if it was let.
+sheet = CreateTexture(160, 80, 1 + 4096)
+SetBuffer TextureBuffer(sheet)
+Color 40, 40, 40 : Rect 0, 0, 160, 80, 1
+Color 255, 0, 0 : Rect 2, 2, 72, 72, 1
+Color 0, 255, 0 : Rect 74, 2, 72, 72, 1
+SaveBuffer TextureBuffer(sheet), "suite_atlas_gutter.bmp"
+SetBuffer BackBuffer()
+FreeTexture sheet
+atlas = LoadAtlas("suite_atlas_gutter.bmp", 1 + 8, 4)
+CheckTrue "LoadAtlas with a gutter", atlas <> 0
+red = AtlasTexture(atlas, 6, 6, 64, 64)
+green = AtlasTexture(atlas, 78, 6, 64, 64)
+Bounds()
+Check "Red tile with a gutter, magnified", Wrong(red, 255, 0, 0), 0
+Check "Green tile with a gutter, magnified", Wrong(green, 0, 255, 0), 0
+PositionEntity cube, 0, 0, 20
+Bounds()
+CheckTrue "The far cube is on screen", x1 - x0 >= 4
+Check "Red tile with a gutter, far away with mip maps", Wrong(red, 255, 0, 0), 0
+Check "Green tile with a gutter, far away with mip maps", Wrong(green, 0, 255, 0), 0
 Done "blitz3d_atlas_pixels"

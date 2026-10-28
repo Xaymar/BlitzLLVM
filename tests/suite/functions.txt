@@ -185,7 +185,7 @@ linepick	blitz3d	done	%LinePick#x#y#z#dx#dy#dz#radius=0
 loadanimmesh	blitz3d	done	%LoadAnimMesh$file%parent=0
 loadanimseq	blitz3d	done	%LoadAnimSeq%entity$file
 loadanimtexture	blitz3d	done	%LoadAnimTexture$file%flags%width%height%first%count
-loadatlas	blitz3d	done	%LoadAtlas$file%flags=1
+loadatlas	blitz3d	done	%LoadAtlas$file%flags=1%gutter=0
 loadbrush	blitz3d	done	%LoadBrush$file%texture_flags=1#u_scale=1#v_scale=1
 loadbsp	blitz3d	done	%LoadBSP$file#gamma_adj=0%parent=0
 loadermatrix	blitz3d	done	LoaderMatrix$file_ext#xx#xy#xz#yx#yy#yz#zx#zy#zz

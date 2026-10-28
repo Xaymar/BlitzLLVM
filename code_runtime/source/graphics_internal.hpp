@@ -406,6 +406,7 @@ namespace bb::gfx {
 		int             alias = 0;              // Another handle to the texture of this one (GetBrushTexture), which has all of its state.
 		bool            is_atlas = false;       // Loaded with LoadAtlas, which AtlasTexture makes views of.
 		int             atlas = 0;              // For a view made by AtlasTexture: the handle of the atlas, whose image this one samples in the rectangle below.
+		int             gutter = 0;             // Atlas: how many pixels of repeated edge colour every tile has around it in the picture. For a view: the same, copied.
 		int             rect[4] = {};           // Where the view is in the atlas, in pixels: x, y, width, height.
 		bool            freed = false;          // FreeTexture was called while something still uses it, so it only goes once nothing does.
 		int             sampler = 0;            // The sampler of SetTextureSampler, or 0 for the one that the flags pick.
@@ -971,6 +972,7 @@ namespace bb::gfx {
 	/** Makes the set of an image read it through this sampler. Waits until the GPU is done with the old one. */
 	void set_descriptor_sampler(gpu_image& image, VkDescriptorSet set, VkSampler sampler);
 	void destroy_user_samplers();
+	VkSampler atlas_sampler(bool point, int max_lod);
 	/** Makes the levels below the first of a texture again, if something was drawn to it since. Expects an open command buffer. */
 	void refresh_mips(gpu_image& image);
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
@@ -1020,7 +1022,7 @@ int32_t bb_create_texture(int32_t width, int32_t height, int32_t flags, int32_t 
 int32_t bb_filter_texture_flags(const char* file, int32_t flags);
 void bb_reset_texture_filters(void);
 int32_t bb_texture_alias(int32_t handle);
-int32_t bb_load_atlas(const char* file, int32_t flags);
+int32_t bb_load_atlas(const char* file, int32_t flags, int32_t gutter);
 int32_t bb_atlas_texture(int32_t atlas, int32_t x, int32_t y, int32_t w, int32_t h);
 void bb_collect_textures(void);
 int32_t bb_texture_in_use(int32_t handle);

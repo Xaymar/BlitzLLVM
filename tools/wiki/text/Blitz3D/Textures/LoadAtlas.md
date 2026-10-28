@@ -5,7 +5,7 @@ Loads a picture as a texture atlas: one image that holds many small pictures (ti
 
 The flags are the same as for [LoadTexture](LoadTexture). An atlas always clamps at its edges (flags 16 and 32 are added), as a repeating atlas has no use. You can also use the atlas itself as a texture. [FreeTexture](FreeTexture) on the atlas only takes its handle away while tiles made from it exist; the picture is released with the last of them.
 
-Tiles are drawn from the first mip level only, as the smaller levels mix neighbouring tiles. Flag 8 (mip maps) still gives the atlas itself mip maps. If your tiles are packed without a gap, linear filtering is kept from reading the neighbouring tile by a half texel margin, see [AtlasTexture](AtlasTexture).
+**Gutter.** Tiles are drawn from the first mip level only, as the smaller levels mix neighbouring tiles, and are kept half a texel away from their neighbours so that linear filtering does not read them. If you pack the picture with a gutter instead, pass its size in `gutter`: every tile then has that many pixels around it in the picture that repeat the colors of its edge (extruded by your packing tool). The tile rectangles you give [AtlasTexture](AtlasTexture) are the tiles without the gutter. With a gutter, tiles map exactly (no half texel zoom) and, if the atlas has mip maps (flag 8), they use them down to level log2(gutter): a gutter of 1 gives the first level only, 2 gives two levels, 4 gives three, and so on.
 
 ```blitzbasic
 ;media still textures/loadatlas.png
@@ -45,4 +45,5 @@ WaitKey
 ![LoadAtlas](media/textures/loadatlas.png)
 @param file   Picture file that contains all tiles.
 @param flags  Texture flags, see LoadTexture. Defaults to 1.
+@param gutter Pixels of repeated edge color around every tile in the picture. Defaults to 0, which means there are none.
 @returns A texture handle, or 0 if the file could not be loaded.

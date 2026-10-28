@@ -23,6 +23,19 @@ using namespace bb::gfx;
 
 namespace bb::gfx {
 
+	// What a tile of an atlas reads through. With a gutter of g pixels the levels up to log2(g) only reach into the gutter (they are
+	// only used if the atlas has mip maps); without one it stays on the first level.
+	static VkSampler view_sampler(texture_entry const& t)
+	{
+		int lod = 0;
+		if (t.gutter > 1 && t.image.mips > 1) {
+			while ((2 << lod) <= t.gutter) {
+				lod++;
+			}
+		}
+		return lod > 0 ? atlas_sampler((t.flags & TEXTURE_POINT) != 0, lod) : texture_sampler(t.flags & ~TEXTURE_MIPMAPS);
+	}
+
 	texture_entry* texture_of(int reference)
 	{
 		int handle = reference & bb::texture_handle_mask;
@@ -46,7 +59,7 @@ namespace bb::gfx {
 			if (a.image.view != t->image.view) {
 				t->image = a.image;
 				if (g.device && t->set) {
-					set_descriptor_sampler(t->image, t->set, texture_sampler(t->flags));
+					set_descriptor_sampler(t->image, t->set, view_sampler(*t));
 				}
 			}
 		}
@@ -84,7 +97,7 @@ namespace bb::gfx {
 		if (t && t->atlas) {
 			// The rectangle of an atlas view. Linear filtering reads half a texel past what it is given, so the edge of the rectangle
 			// is half a texel in, which keeps the neighbouring tiles out; the nearest texel (flag 1024) has nothing to bleed.
-			float inset = (t->flags & TEXTURE_POINT) ? 0.0f : 0.5f;
+			float inset = ((t->flags & TEXTURE_POINT) || t->gutter > 0) ? 0.0f : 0.5f;
 			float aw = float(t->width), ah = float(t->height);
 			float w = float(t->rect[2]) - 2.0f * inset, h = float(t->rect[3]) - 2.0f * inset;
 			w       = w < 0.0f ? 0.0f : w;
@@ -840,14 +853,18 @@ int32_t bb_load_anim_texture(const char* file, int32_t flags, int32_t width, int
 
 // LoadAtlas(file, flags): a picture that AtlasTexture cuts tiles out of. It is a texture like any other, but it clamps at its
 // edges and its flags are the ones of LoadTexture.
-int32_t bb_load_atlas(const char* file, int32_t flags)
+int32_t bb_load_atlas(const char* file, int32_t flags, int32_t gutter)
 {
+	if (gutter < 0) {
+		bb_runtime_error("LoadAtlas: The gutter can't be negative.");
+	}
 	if (flags & (64 | 128)) {
 		bb_runtime_error("LoadAtlas: Sphere and cube maps can't be atlases.");
 	}
 	int32_t handle = bb_load_texture(file, flags | TEXTURE_CLAMP_U | TEXTURE_CLAMP_V);
 	if (handle) {
 		texture_of(handle)->is_atlas = true;
+		texture_table[uint32_t(handle & bb::texture_handle_mask) - 1].gutter = gutter;
 	}
 	return handle;
 }
@@ -869,7 +886,8 @@ int32_t bb_atlas_texture(int32_t atlas, int32_t x, int32_t y, int32_t w, int32_t
 	texture_entry  entry;
 	entry.used   = true;
 	entry.atlas  = index;
-	entry.flags  = a->flags & ~TEXTURE_MIPMAPS; // Lower levels would mix neighbouring tiles.
+	entry.flags  = a->flags & ~TEXTURE_MIPMAPS; // Without a gutter lower levels would mix neighbouring tiles.
+	entry.gutter = a->gutter;
 	entry.blend  = a->blend;
 	entry.file   = a->file ? full_path(a->file) : nullptr;
 	entry.width  = a->width;
@@ -881,8 +899,9 @@ int32_t bb_atlas_texture(int32_t atlas, int32_t x, int32_t y, int32_t w, int32_t
 	entry.rect[3] = h;
 	if (active() && a->image.view) {
 		allocate_descriptor(entry.set);
-		write_descriptor(entry.set, a->image.view, texture_sampler(entry.flags));
-		entry.image.sampler = texture_sampler(entry.flags);
+		VkSampler sampler = view_sampler(entry);
+		write_descriptor(entry.set, a->image.view, sampler);
+		entry.image.sampler = sampler;
 	}
 	return add_texture(entry);
 }
