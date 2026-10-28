@@ -98,6 +98,7 @@
 		{ "gfxdrivercaps3d", "bb_gfx_driver_caps_3d", 'i', "", 0, {}, false },
 		{ "hwtexunits", "bb_hw_tex_units", 'i', "", 0, {}, false },
 		{ "hwdither", "bb_hw_dither", 'i', "", 0, {}, false },
+		{ "hwrawinputs", "bb_hw_raw_inputs", 'i', "", 0, {}, false },
 		{ "countgfxmodes", "bb_count_gfx_modes", 'i', "", 0, {}, false },
 		{ "countgfxmodes3d", "bb_count_gfx_modes_3d", 'i', "", 0, {}, false },
 		{ "gfxmodewidth", "bb_gfx_mode_width", 'i', "i", 1, {}, false },
@@ -604,6 +605,8 @@
 		{ "keywait", "bb_wait_key", 'i', "", 0, {}, false },
 		{ "enabledirectinput", "bb_enable_direct_input", 'v', "i", 1, {}, false },
 		{ "directinputenabled", "bb_direct_input_enabled", 'i', "", 0, {}, false },
+		{ "rawinputs", "bb_raw_inputs", 'v', "i", 1, {}, false },
+		{ "rawinputsenabled", "bb_raw_inputs_enabled", 'i', "", 0, {}, false },
 		{ "flushjoy", "bb_flush_joy", 'v', "", 0, {}, false },
 		// Clipboard (from the user32 library that Blitz programs declare)
 		{ "openclipboard", "bb_open_clipboard", 'i', "i", 0, { 0 }, false },
