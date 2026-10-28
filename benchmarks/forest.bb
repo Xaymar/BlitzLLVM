@@ -11,7 +11,7 @@
 ; Environment variables:
 ;   BENCH_TREES    how many trees are made (default 1800)
 ;   BENCH_GRASS    how many blades of grass are made (default 600000, in clumps, in the area the camera walks through; each is opaque, 5 vertices, 0.25 to 1.9 units tall; only the tip of a blade moves in the wind, in the areas within 45 units of the camera)
-;   BENCH_LEAVES   single leaves on each twig (default 24)
+;   BENCH_LEAVES   single leaves on each twig (default 18)
 ;   BENCH_PEBBLES  how many pebbles are made (default 14000: gravel and stones, 6 vertices each)
 ;   BENCH_INSECTS  how many glowing insects fly around (default 40; each has a glow sprite)
 ;   BENCH_INSECT_LIGHTS  how many of them have a light too (default 6): a graphics card has 8 lights, and the scene has a moon and a torch as well. The
@@ -737,7 +737,7 @@ Function AddBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, r0#, r1#, sides)
 End Function
 
 ; Leaves on a branch: count single leaves along it (more towards the tip), each growing out of the branch on a short stem: it points away from the branch at 25 to 75 degrees, around the branch
-; at random, sags a little under its own weight and lies roughly flat (turned a little around its own axis). Each is shaded to face away from the middle of the crown (cx, cy, cz) so that the
+; at random, tilts up and lies roughly flat, facing the light (turned a little around its own axis). Each is shaded to face away from the middle of the crown (cx, cy, cz) so that the
 ; outside of the crown is lit and the inside is dark.
 Function LeafBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, count, size#, spread#, cx#, cy#, cz#, r, g, b)
 	dx# = x1 - x0
@@ -763,7 +763,8 @@ Function LeafBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, count, size#, spread#, cx#,
 		qx = qx / ql : qy = qy / ql : qz = qz / ql
 		ang# = BenchRnd(25, 75)
 		ux# = dx * Cos(ang) + qx * Sin(ang)
-		uy# = dy * Cos(ang) + qy * Sin(ang) - 0.25
+		; Leaves turn towards the light: the stem is flattened and tilts up, so that the blade faces up (to the moon) and not to the side.
+		uy# = (dy * Cos(ang) + qy * Sin(ang)) * 0.4 + 0.4
 		uz# = dz * Cos(ang) + qz * Sin(ang)
 		ul# = Sqr(ux * ux + uy * uy + uz * uz)
 		ux = ux / ul : uy = uy / ul : uz = uz / ul
@@ -775,7 +776,7 @@ Function LeafBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, count, size#, spread#, cx#,
 		Else
 			wx = wx / wl : wz = wz / wl
 		EndIf
-		roll# = BenchRnd(-50, 50)
+		roll# = BenchRnd(-30, 30)
 		cx2# = uy * wz - uz * wy
 		cy2# = uz * wx - ux * wz
 		cz2# = ux * wy - uy * wx
@@ -1297,7 +1298,7 @@ SetBuffer BackBuffer()
 
 treecount = Int(Env$("BENCH_TREES", 1800))
 grasscount = Int(Env$("BENCH_GRASS", 600000))
-leafcards = Int(Env$("BENCH_LEAVES", 24))
+leafcards = Int(Env$("BENCH_LEAVES", 18))
 pebblecount = Int(Env$("BENCH_PEBBLES", 14000))
 insects = Int(Env$("BENCH_INSECTS", 40))
 insectlights = Int(Env$("BENCH_INSECT_LIGHTS", 6))
