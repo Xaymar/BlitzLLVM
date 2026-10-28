@@ -19,10 +19,11 @@ import re
 import shutil
 import statistics
 import struct
-import subprocess
 import sys
 import tempfile
 import zlib
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
+import procutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -63,7 +64,7 @@ def main():
                 compiler = c
                 break
     compiler = compiler or shutil.which("blitzcc") or sys.exit("blitzcc not found, build it or pass --blitzcc.")
-    version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
+    version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
     llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
     if not llvm:
         os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
@@ -75,7 +76,7 @@ def main():
         program = os.path.join(directory, "loading" + (".exe" if platform.system() == "Windows" else ""))
         shutil.copy(os.path.join(HERE, "loading.bb"), os.path.join(directory, "loading.bb"))
         shutil.copy(os.path.join(HERE, "loading_llvm.bi" if llvm else "loading_original.bi"), os.path.join(directory, "loading_counters.bi"))
-        build = subprocess.run([compiler, "-q"] + (["-O3"] if llvm else []) + ["-o", program, os.path.join(directory, "loading.bb")], cwd=directory, capture_output=True, text=True)
+        build = procutil.run([compiler, "-q"] + (["-O3"] if llvm else []) + ["-o", program, os.path.join(directory, "loading.bb")], cwd=directory, capture_output=True, text=True)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed:\n" + (build.stdout + build.stderr)[-2000:])
         print("%d pictures of %dx%d, %d runs each, %s" % (args.textures, args.size, args.size, args.runs, version or "unknown compiler"))
@@ -88,7 +89,7 @@ def main():
                     os.remove(result_file)
                 env = dict(os.environ, BENCH_DIR=directory, BENCH_TEXTURES=str(args.textures), BENCH_WORK=str(args.work), BENCH_FLIP_EVERY=str(args.flip_every), BENCH_FLAGS=str(args.flags),
                            BENCH_ASYNC="1" if mode == "async" else "0", BENCH_RESULT=result_file)
-                subprocess.run(runner + [program], env=env, capture_output=True, text=True)
+                procutil.run(runner + [program], env=env, capture_output=True, text=True)
                 if not os.path.isfile(result_file):
                     sys.exit("The benchmark failed in mode " + mode)
                 if run == 0:
