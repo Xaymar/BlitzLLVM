@@ -10,7 +10,7 @@
 ;
 ; Environment variables:
 ;   BENCH_TREES    how many trees are made (default 1800)
-;   BENCH_GRASS    how many blades of grass are made (default 250000, in clumps, in the area the camera walks through of 3 to 6; each is opaque, 5 vertices, 0.25 to 1.9 units tall; only the tip of a blade moves in the wind, in the areas within 45 units of the camera)
+;   BENCH_GRASS    how many blades of grass are made (default 600000, in clumps, in the area the camera walks through; each is opaque, 5 vertices, 0.25 to 1.9 units tall; only the tip of a blade moves in the wind, in the areas within 45 units of the camera)
 ;   BENCH_LEAVES   leaf cards on each branch of a spruce (default 7)
 ;   BENCH_PEBBLES  how many pebbles are made (default 14000: gravel and stones, 6 vertices each)
 ;   BENCH_INSECTS  how many glowing insects fly around (default 40; each has a glow sprite)
@@ -19,7 +19,9 @@
 ;   BENCH_FRAMES   how many frames are timed (default 600)
 ;   BENCH_WARMUP   frames that are rendered but not timed, they make the GPU buffers (default 5)
 ;   BENCH_START    frame number the walk and the insects start at (default 0, other values are for screenshots)
-;   BENCH_VIEWRIVER  1 puts the camera on the bridge, looking down the river, for screenshots (default 0)
+;   BENCH_VIEWRIVER  1 puts the camera on the bridge, looking down the river, 2 at the torch, for screenshots (default 0)
+;   BENCH_BLOOM    1 draws the fullscreen bloom (default), 0 leaves it out
+;   BENCH_BLOOM_GAIN  how many times the blur is added to the picture (default 1)
 ;   BENCH_SEED     seed of the random placement (default 1)
 ;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
 ;   BENCH_SHOT     file to save the last frame to (optional)
@@ -267,9 +269,11 @@ End Function
 
 ; The full moon, as seen with the eye: a pale disc whose big dark seas have uneven edges, dozens of craters of all sizes (a darker floor, a bright rim), fine grain, and a little darkening
 ; at the edge. Nothing around it: no glow. The craters and seas are placed by the generator of the scene (in the same order every time).
+; The moon's brightness per texel (the original needs arrays to be declared in the main program).
+Dim lum#(255, 255)
+
 Function MakeMoon()
 	t = CreateTexture(256, 256, 3)
-	Dim lum#(255, 255)
 	For y = 0 To 255
 		For x = 0 To 255
 			px# = (x - 127.5) / 121.0
@@ -848,6 +852,13 @@ End Function
 
 ; Boards, posts and rails of an old bridge from the near bank to the far bank over the river, wide 2.6 units, with bumps (and the torch light fixed in them): weathered grey wood
 ; with moss, a deck that has sagged, boards that are missing or broken and a fence that is not straight.
+; The post positions of the bridge (the original needs arrays to be declared in the main program).
+Dim brpx#(6)
+Dim brptop#(6)
+Dim brpz#(6)
+Dim brplx#(6)
+Dim brplz#(6)
+
 Function MakeBridge()
 	m = CreateMesh()
 	s = CreateSurface(m)
@@ -884,33 +895,28 @@ Function MakeBridge()
 	; The fence on each side: seven posts that are not evenly spaced, not equally tall, thick or straight, with a rail along the top and one in the middle between
 	; them that is cut into pieces, one of which is missing in places. The posts are round, and so are the rails.
 	For side = -1 To 1 Step 2
-		Dim px#(6)
-		Dim ptop#(6)
-		Dim pz#(6)
-		Dim plx#(6)
-		Dim plz#(6)
 		For i = 0 To 6
 			jitter# = BenchRnd(-0.25, 0.25)
 			If i = 0 Or i = 6 Then jitter = jitter * 0.3
-			px(i) = x0 + 0.1 + i * (x1 - x0 - 0.2) / 6 + jitter
-			pz(i) = side * 1.2 + BenchRnd(-0.05, 0.05)
-			ptop(i) = 1.9 + BenchRnd(-0.1, 0.14)
-			plx(i) = BenchRnd(-0.05, 0.05)
-			plz(i) = BenchRnd(-0.06, 0.06)
+			brpx(i) = x0 + 0.1 + i * (x1 - x0 - 0.2) / 6 + jitter
+			brpz(i) = side * 1.2 + BenchRnd(-0.05, 0.05)
+			brptop(i) = 1.9 + BenchRnd(-0.1, 0.14)
+			brplx(i) = BenchRnd(-0.05, 0.05)
+			brplz(i) = BenchRnd(-0.06, 0.06)
 			r0# = BenchRnd(0.065, 0.1)
-			AddBranch s, px(i), 1.0, pz(i), px(i) + plx(i), ptop(i), pz(i) + plz(i), r0, r0 * 0.85, 6
+			AddBranch s, brpx(i), 1.0, brpz(i), brpx(i) + brplx(i), brptop(i), brpz(i) + brplz(i), r0, r0 * 0.85, 6
 		Next
 		For i = 0 To 5
 			; The top rail: one piece from post to post, a little past them and not level.
 			ra# = BenchRnd(0.02, 0.07)
 			rb# = BenchRnd(0.02, 0.07)
 			rr# = BenchRnd(0.035, 0.055)
-			AddBranch s, px(i) + plx(i) * 0.9 - ra, ptop(i) - 0.1 + BenchRnd(-0.03, 0.03), pz(i) + plz(i) * 0.9, px(i + 1) + plx(i + 1) * 0.9 + rb, ptop(i + 1) - 0.1 + BenchRnd(-0.03, 0.03), pz(i + 1) + plz(i + 1) * 0.9, rr, rr * 0.9, 5
+			AddBranch s, brpx(i) + brplx(i) * 0.9 - ra, brptop(i) - 0.1 + BenchRnd(-0.03, 0.03), brpz(i) + brplz(i) * 0.9, brpx(i + 1) + brplx(i + 1) * 0.9 + rb, brptop(i + 1) - 0.1 + BenchRnd(-0.03, 0.03), brpz(i + 1) + brplz(i + 1) * 0.9, rr, rr * 0.9, 5
 			; The middle rail, which is missing in one piece in six.
 			gone# = BenchRnd(0, 1)
 			If gone > 0.17 Then
 				rr = BenchRnd(0.03, 0.045)
-				AddBranch s, px(i) + plx(i) * 0.5, 1.5 + BenchRnd(-0.05, 0.05), pz(i) + plz(i) * 0.5 + 0.02, px(i + 1) + plx(i + 1) * 0.5, 1.5 + BenchRnd(-0.05, 0.05), pz(i + 1) + plz(i + 1) * 0.5 - 0.02, rr, rr * 0.9, 5
+				AddBranch s, brpx(i) + brplx(i) * 0.5, 1.5 + BenchRnd(-0.05, 0.05), brpz(i) + brplz(i) * 0.5 + 0.02, brpx(i + 1) + brplx(i + 1) * 0.5, 1.5 + BenchRnd(-0.05, 0.05), brpz(i + 1) + brplz(i + 1) * 0.5 - 0.02, rr, rr * 0.9, 5
 			EndIf
 		Next
 	Next
@@ -1676,8 +1682,8 @@ For f = 0 To warmup + frames - 1
 
 	; Insects: each circles around its center, bobbing up and down.
 	For i = 0 To insects - 1
-		sp# = g * bugs(i)
-		PositionEntity bug(i), bugx(i) + Sin(sp + bugp(i)) * bugr(i), bugy(i) + 0.5 * Sin(sp * 1.7 + bugq(i)), bugz(i) + Cos(sp * 0.8 + bugp(i)) * bugr(i)
+		bsp# = g * bugs(i)
+		PositionEntity bug(i), bugx(i) + Sin(bsp + bugp(i)) * bugr(i), bugy(i) + 0.5 * Sin(bsp * 1.7 + bugq(i)), bugz(i) + Cos(bsp * 0.8 + bugp(i)) * bugr(i)
 	Next
 
 	; The wind moves the tip of every blade (the highest vertex; the rest stays) in the areas near the camera: a sway with gusts that travels across the ground.
@@ -1716,6 +1722,7 @@ For f = 0 To warmup + frames - 1
 	updated# = BenchMicros() - t0
 
 	RenderWorld
+	scenetris = TrisRendered()
 	If bloom Then
 		CopyRect 0, 0, scrw, scrh, 0, 0, BackBuffer(), TextureBuffer(screentex)
 		CameraProjMode camera, 0
@@ -1742,7 +1749,7 @@ For f = 0 To warmup + frames - 1
 		pipesum = pipesum + BenchPipelines()
 		texsum = texsum + BenchTextures()
 		bufsum = bufsum + BenchBuffers()
-		trissum = trissum + TrisRendered()
+		trissum = trissum + scenetris
 	EndIf
 Next
 
