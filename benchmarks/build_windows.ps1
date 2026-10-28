@@ -7,6 +7,7 @@
 # Environment: BLITZLLVM_MSYS2 is the folder of MSYS2 (default C:\msys64), NASM must be on the PATH.
 param([Parameter(Mandatory)] $Repo, [Parameter(Mandatory)] $Commit, [Parameter(Mandatory)] $Out, [Parameter(Mandatory)] $Build)
 $ErrorActionPreference = "Stop"
+$PSDefaultParameterValues["Out-File:Encoding"] = "utf8"  # Windows PowerShell writes the log as UTF-16 otherwise, which the Python side can not read.
 if (-not $env:BLITZLLVM_MSYS2) { $env:BLITZLLVM_MSYS2 = "C:\msys64" }
 Set-Location $Repo
 git checkout -q --detach $Commit
@@ -24,3 +25,8 @@ cmake --build $Build --config Release *>> $log
 if ($LASTEXITCODE -ne 0) { exit 2 }
 cmake --install $Build --config Release --prefix $Out *>> $log
 if ($LASTEXITCODE -ne 0) { exit 2 }
+# The first commits only have the compiler and no install rule: its compiler.exe is what the later commits call blitzcc.exe.
+if (-not (Get-ChildItem $Out -Recurse -Filter blitzcc.exe)) {
+    $compiler = Get-ChildItem $Build -Recurse -Filter compiler.exe | Where-Object { $_.FullName -match "Release" } | Select-Object -First 1
+    if ($compiler) { Copy-Item $compiler.FullName (Join-Path $Out "blitzcc.exe") }
+}
