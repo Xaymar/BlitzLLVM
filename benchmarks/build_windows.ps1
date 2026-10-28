@@ -16,7 +16,7 @@ $wanted = "cmake/version", "cmake/externalcontent", "third_party/Vulkan-Headers"
 $present = @(git ls-files --stage | Where-Object { $_ -match '^160000' } | ForEach-Object { ($_ -split "\t")[1] })
 $ErrorActionPreference = "Continue"
 git submodule update --init --jobs 8 ($wanted | Where-Object { $present -contains $_ }) 2>&1 | Out-Null
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"  # cmake and git write progress to stderr, which Windows PowerShell would turn into an error; the exit codes are checked.
 New-Item -ItemType Directory -Force $Out | Out-Null
 $log = Join-Path $Out "build.log"
 cmake -S . -B $Build -G "Visual Studio 18 2026" -A x64 -DBLITZLLVM_REQUIRE_NASM=ON *> $log
