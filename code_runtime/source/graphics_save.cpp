@@ -717,7 +717,7 @@ namespace bb::gfx {
 
 	int32_t save_submit(uint8_t* rgba, int width, int height, const char* file, const char* settings_text)
 	{
-		std::unique_ptr<uint8_t, void (*)(void*)> pixels(rgba, free);
+		std::unique_ptr<uint8_t, void (*)(void*)> pixels(rgba, bb_free);
 		if (!rgba || !file || !*file) {
 			return 0;
 		}
