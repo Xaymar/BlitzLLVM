@@ -4,7 +4,7 @@
 @syntax Function Name[type](parameter[type][= default], ...)
 @syntax     statements
 @syntax End Function
-Declares a function. A type character after the name (`%`, `#`, `$`) or a long type (`Name:Float`) sets what it returns, and parameters are typed the same way. A parameter with `= value` is optional and gets that value when the call leaves it out. [Return](Return) leaves the function, with a value when it has a return type. Functions can only be declared outside of other code, they may call each other in any order, and they end with `End Function`. Variables made inside are local to the function; use [Global](Global) for variables that every function sees.
+Declares a function. A type character after the name (`%`, `#`, `$`) or a long type (`Name:Float`) sets what it returns, and parameters are typed the same way. A parameter with `= value` is optional and gets that value when the call leaves it out. [Return](Return) leaves the function, with a value when it has a return type. A function that returns no data is declared with the long type `Void` (`Function Log:Void(message:String)`). A `Void` function can only be called as a statement, `Return` in it takes no value, and it can not be used in an expression or a condition; all of these are errors. Functions can only be declared outside of other code, they may call each other in any order, and they end with `End Function`. Variables made inside are local to the function; use [Global](Global) for variables that every function sees.
 
 ```blitzbasic
 ;run
