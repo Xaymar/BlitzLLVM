@@ -55,33 +55,33 @@ Check "The picture is 8 wide", TextureWidth(GetBrushTexture(brush)), 8
 Check "Tiled twice across", VertexU(s, 1), 2
 Check "Tiled once up", VertexV(s, 1), 0
 
-; Faces in one smoothing group share their vertices and have one normal there; faces in different groups do not.
+; Faces in one smoothing group share their vertices and have one normal there; faces in different groups do not. Both folds have the
+; same material, so LoadMesh puts them into one surface (as the original does for parts with the same brush): the vertices of "smooth"
+; come first, then those of "hard".
 folds = LoadMesh("models/smooth.3ds")
-Check "Two folds, two surfaces", CountSurfaces(folds), 2
-smooth = GetSurface(folds, 1)
-hard = GetSurface(folds, 2)
-Check "Smooth vertices", CountVertices(smooth), 4
-Check "Hard vertices", CountVertices(hard), 6
+Check "Two folds, one surface for the material", CountSurfaces(folds), 1
+both = GetSurface(folds, 1)
+Check "Smooth and hard vertices", CountVertices(both), 10
 ; The edge between the folds is along z at the origin. The ground is flat and the other fold leans towards x (3D Studio's z is up).
 found = 0
-For i = 0 To CountVertices(smooth) - 1
-	If Abs(VertexX(smooth, i)) < 0.001 And Abs(VertexZ(smooth, i)) < 0.001 Then
+For i = 0 To 3
+	If Abs(VertexX(both, i)) < 0.001 And Abs(VertexZ(both, i)) < 0.001 Then
 		found = found + 1
-		Check "Smooth normal x", VertexNX(smooth, i), 0.447, 0.01
-		Check "Smooth normal y", VertexNY(smooth, i), 0.894, 0.01
+		Check "Smooth normal x", VertexNX(both, i), 0.447, 0.01
+		Check "Smooth normal y", VertexNY(both, i), 0.894, 0.01
 	EndIf
 Next
 Check "One vertex at the edge when smooth", found, 1
 ground = 0 : leaning = 0
-For i = 0 To CountVertices(hard) - 1
-	If Abs(VertexX(hard, i)) < 0.001 And Abs(VertexZ(hard, i)) < 0.001 Then
-		If Abs(VertexNX(hard, i)) < 0.01 Then
+For i = 4 To 9
+	If Abs(VertexX(both, i)) < 0.001 And Abs(VertexZ(both, i)) < 0.001 Then
+		If Abs(VertexNX(both, i)) < 0.01 Then
 			ground = ground + 1
-			Check "Ground normal y", VertexNY(hard, i), 1, 0.01
+			Check "Ground normal y", VertexNY(both, i), 1, 0.01
 		Else
 			leaning = leaning + 1
-			Check "Leaning normal x", VertexNX(hard, i), 0.707, 0.01
-			Check "Leaning normal y", VertexNY(hard, i), 0.707, 0.01
+			Check "Leaning normal x", VertexNX(both, i), 0.707, 0.01
+			Check "Leaning normal y", VertexNY(both, i), 0.707, 0.01
 		EndIf
 	EndIf
 Next
@@ -132,7 +132,7 @@ Check "Arm z at 5", EntityZ(arm, True), 2, 0.001
 
 ; LoadMesh makes one mesh of it, as it is at the start.
 flat = LoadMesh("models/anim.3ds")
-Check "One mesh has a surface for each node", CountSurfaces(flat), 3
+Check "One mesh has one surface for the brush that every node has", CountSurfaces(flat), 1
 Check "As the file has it, x", EntityX(flat), 0
 Check "Reaches the tip", MeshWidth(flat), 8, 0.01
 
