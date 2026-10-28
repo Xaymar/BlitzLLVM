@@ -615,8 +615,80 @@ namespace bb::gfx {
 				bb_free(p.ten);
 				p.ten = nullptr;
 			}
+			// What the file has is not kept in memory too: after a lost device the file is read again.
+			image_recipe* recipe = entry.image.recipe;
+			SDL_PathInfo  info;
+			if (recipe && entry.file && (recipe->kind != image_recipe::content::blank) && !recipe->data.empty() && SDL_GetPathInfo(bb_native_path(entry.file), &info) && (info.type == SDL_PATHTYPE_FILE)) {
+				recipe->from_file  = true;
+				recipe->file       = entry.file;
+				recipe->file_flags = flags;
+				recipe->file_size  = info.size;
+				recipe->file_time  = info.modify_time;
+				recipe->data.clear();
+				recipe->data.shrink_to_fit();
+			}
 		}
 	} // namespace
+
+	void reload_recipe_file(image_recipe& recipe)
+	{
+		const char* problem = nullptr;
+		SDL_PathInfo info;
+		picture      source;
+		prepared_texture prepared;
+		recipe.data.clear();
+		if (!SDL_GetPathInfo(bb_native_path(recipe.file.c_str()), &info) || (info.type != SDL_PATHTYPE_FILE)) {
+			problem = "the file is gone";
+		} else if (!load_picture(recipe.file.c_str(), source)) {
+			problem = "the file can't be read as a picture";
+		} else if (!prepare_texture(source, recipe.file_flags, true, recipe.kind == image_recipe::content::blocks && compressed_supported(recipe.block), ten_bit_supported(), prepared)) {
+			free_picture(source);
+			problem = "the file can't be decoded";
+		} else {
+			free_picture(source);
+			int w = prepared.compressed ? prepared.source.width : prepared.rgba->w;
+			int h = prepared.compressed ? prepared.source.height : prepared.rgba->h;
+			if ((uint32_t(w) != recipe.width) || (uint32_t(h) != recipe.height) || (prepared.compressed != (recipe.kind == image_recipe::content::blocks)) || ((prepared.ten != nullptr) != recipe.ten)) {
+				problem = "the picture in the file has another size or format now";
+			} else if (prepared.compressed) {
+				recipe.data.assign(prepared.source.blocks, prepared.source.blocks + prepared.source.size);
+			} else if (prepared.ten) {
+				uint32_t levels = recipe.mipmaps ? mip_count(recipe.width, recipe.height) : 1;
+				size_t   total  = 0;
+				for (uint32_t level = 0; level < levels; level++) {
+					total += size_t((recipe.width >> level) ? (recipe.width >> level) : 1) * size_t((recipe.height >> level) ? (recipe.height >> level) : 1);
+				}
+				recipe.data.assign(reinterpret_cast<uint8_t*>(prepared.ten), reinterpret_cast<uint8_t*>(prepared.ten) + total * 4);
+			} else {
+				recipe.data.resize(size_t(w) * size_t(h) * 4);
+				for (int y = 0; y < h; y++) {
+					memcpy(recipe.data.data() + size_t(y) * size_t(w) * 4, static_cast<const uint8_t*>(prepared.rgba->pixels) + size_t(y) * size_t(prepared.rgba->pitch), size_t(w) * 4);
+				}
+			}
+			if (!problem && ((uint64_t(info.size) != recipe.file_size) || (int64_t(info.modify_time) != recipe.file_time))) {
+				fprintf(stderr, "warning: the file '%s' was changed since it was loaded, the texture has the picture that is in it now.\n", recipe.file.c_str());
+			}
+			if (prepared.compressed) {
+				free_picture(prepared.source);
+			}
+			if (prepared.rgba) {
+				SDL_DestroySurface(prepared.rgba);
+			}
+			bb_free(prepared.ten);
+		}
+		if (problem) {
+			fprintf(stderr, "warning: the texture from '%s' can't be had back after the lost graphics device (%s), it is magenta now.\n", recipe.file.c_str(), problem);
+			recipe.kind       = image_recipe::content::pixels;
+			recipe.block      = block_format::none;
+			recipe.ten        = false;
+			recipe.from_file  = false;
+			recipe.data.resize(size_t(recipe.width) * size_t(recipe.height) * 4);
+			for (size_t i = 0; i < recipe.data.size(); i += 4) {
+				recipe.data[i] = recipe.data[i + 2] = recipe.data[i + 3] = 255;
+				recipe.data[i + 1] = 0;
+			}
+		}
+	}
 
 	void resolve_texture(texture_entry& t)
 	{

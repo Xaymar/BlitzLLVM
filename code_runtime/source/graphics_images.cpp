@@ -96,6 +96,19 @@ namespace bb::gfx {
 		if ((x < 0) || (y < 0) || (w <= 0) || (h <= 0) || (uint32_t(x + w) > recipe.width) || (uint32_t(y + h) > recipe.height)) {
 			return;
 		}
+		if (recipe.from_file) {
+			// The data comes from the file, which is not what the texture will be with this write: take it from the texture.
+			recipe.from_file = false;
+			if (img.image && !device_lost()) {
+				uint8_t* current = read_pixels(img, 0, 0, int(recipe.width), int(recipe.height));
+				recipe.data.assign(current, current + size_t(recipe.width) * recipe.height * 4);
+				bb_free(current);
+			} else {
+				recipe.from_file = true;
+				reload_recipe_file(recipe);
+				recipe.from_file = false;
+			}
+		}
 		if (recipe.kind == image_recipe::content::blank) {
 			// An image that was cleared when it was made (a resized one) starts from transparent black.
 			recipe.kind    = image_recipe::content::pixels;
