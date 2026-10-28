@@ -645,7 +645,7 @@ namespace bb::gfx {
 		VkBuffer    index_buffer;
 		uint32_t    index_count;
 		int         texture; // Handle, 0 for none.
-		uintptr_t   texture_set; // What the handle is bound as (its descriptor set), which is what draws are grouped by: handles that share one are the same state.
+		uintptr_t   texture_set, texture_sampler; // What the handle is bound as, which is what draws are grouped by (see texture_bind_key): handles with the same are the same state.
 		VkPipeline  pipeline;
 		bool        cull, depth_test, depth_write;
 		float       depth;      // Distance in front of the camera of the entity, which orders what is see-through.
@@ -883,6 +883,8 @@ namespace bb::gfx {
 	void sprite_hull_drop(sprite_hull& hull);
 	/** The geometry to draw a sprite with, or null for the square. */
 	bb::surface* sprite_hull_surface(sprite_hull& hull);
+	/** What a texture is read as: its descriptor set, or for a view of an atlas the image and sampler that its own set holds, so that views of one atlas are the same. */
+	void texture_bind_key(texture_entry const* texture, uintptr_t& image_or_set, uintptr_t& sampler);
 	void texture_uv(texture_entry const* texture, int reference, float* uv);
 	void texture_rotation(texture_entry const* texture, float* extra);
 	void texture_texgen(texture_entry const* texture, float* texgen);
