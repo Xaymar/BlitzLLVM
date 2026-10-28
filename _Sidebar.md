@@ -17,7 +17,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (29)</summary>
+<li><details><summary>Features (30)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -35,6 +35,7 @@
 <li><a href="Language">Language</a></li>
 <li><a href="Large-Meshes">Large Meshes</a></li>
 <li><a href="Many-Lights">Many lights</a></li>
+<li><a href="Memory">Memory</a></li>
 <li><a href="Mip-Maps">Mip maps</a></li>
 <li><a href="Movie-Controls">Movie controls</a></li>
 <li><a href="Multiplayer">Multiplayer</a></li>
