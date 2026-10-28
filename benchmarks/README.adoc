@@ -9,6 +9,38 @@ are used the same way.
 The programs in `original/` run in the original BlitzBasic / Blitz3D as well and give the baseline for the performance history, see
 `original/README.adoc`.
 
+== history: the numbers of the Performance History wiki page
+
+`history.py` runs the common benchmarks with one compiler, 10 times each, drops the best and the worst run of every number and averages the other 8. It saves
+the runs in `benchmarks/history/<label>.json`. The programs are always the ones of the latest `root`, built with the compiler of the commit in question, so
+every compiler runs the same program (a compiler that can not build the BlitzLLVM include of a benchmark uses the original's, which counts in milliseconds).
+
+[source,sh]
+----
+python3 benchmarks/history.py --blitzcc /path/to/blitzcc --label r31-pr123-name --rev <commit>   # BlitzLLVM
+python3 benchmarks/history.py --wine --label r00-original                                        # the original Blitz3D 1.118 under Wine
+python3 benchmarks/history_page.py                                                               # writes tools/wiki/pages/Performance-History.md
+----
+
+The sections of the page and what feeds them:
+
+[cols="1,3"]
+|===
+| Section | Benchmark
+
+| Real Application Performance | Stranded II (`tools/benchmark_stranded2.py`): milliseconds per frame, draw calls, triangles
+| Compiling | time and size of compiling a hello world, `flythrough.bb` and Stranded II
+| Emitted Code | `emitted.bb`: loops, math, arrays, types, strings, calls, banks and `Select` with `MilliSecs`, so that the original runs it as well
+| Movies | `movies.bb`: CPU time of playing a 5 second movie (BlitzLLVM only)
+| Audio | `audio.bb`: load time and CPU time of mixing 32 channels
+| Scene | `flythrough.bb`, `waterfall.bb`, `dungeon.bb` and `loading.bb` at small sizes
+| GPU | GPU time of the waterfall passes, from `--profile` and `BLITZ_FPS=1`
+|===
+
+`revisions.json` lists the revisions in the order of the history (oldest first, the original on top) and what each one changed. After a merge that affects
+performance: build it, run `history.py` for it, add it to `revisions.json` and run `history_page.py`. Without a display the programs run on llvmpipe (a
+software rasterizer): that is a machine definition of its own on the page, and the numbers of a real GPU are another one.
+
 == flythrough: a camera through a field of many entities
 
 `flythrough.bb` makes a field of entities (a million with `--objects 1000000`) and flies a camera through it on a loop that is
