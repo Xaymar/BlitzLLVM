@@ -11,7 +11,7 @@
 ; Environment variables:
 ;   BENCH_TREES    how many trees are made (default 1800)
 ;   BENCH_GRASS    how many blades of grass are made (default 600000, in clumps, in the area the camera walks through; each is opaque, 5 vertices, 0.25 to 1.9 units tall; only the tip of a blade moves in the wind, in the areas within 45 units of the camera)
-;   BENCH_LEAVES   single leaves on each twig (default 28)
+;   BENCH_LEAVES   single leaves on each twig (default 56)
 ;   BENCH_PEBBLES  how many pebbles are made (default 14000: gravel and stones, 6 vertices each)
 ;   BENCH_INSECTS  how many glowing insects fly around (default 40; each has a glow sprite)
 ;   BENCH_INSECT_LIGHTS  how many of them have a light too (default 6): a graphics card has 8 lights, and the scene has a moon and a torch as well. The
@@ -628,21 +628,20 @@ Function AddBlob(s, cx#, y#, cz#, rad#, h#, segs, r, g, b)
 	Next
 End Function
 
-; One leaf: a card of 2 x sz with one of the four leaf shapes of the leaf texture (cell 0 to 3), one face (the leaf mesh is drawn with culling off), lit as if it faced away from the middle of the crown
-; (nx, ny, nz) so that the crown shades as a whole.
-Function AddLeaf(s, cx#, cy#, cz#, sz#, rot#, tilt#, nx#, ny#, nz#, r, g, b, cell)
+; One leaf: a card of 2 x sz with one of the four leaf shapes of the leaf texture (cell 0 to 3), one face (the leaf mesh is drawn with culling off). The stem of the leaf is at
+; (ax, ay, az), the leaf grows from there in direction (ux, uy, uz) (its length is 2 x sz x 0.88) and its blade is wide in direction (vx, vy, vz), both unit vectors at right angles.
+; It is lit as if it faced away from the middle of the crown (nx, ny, nz) so that the crown shades as a whole.
+Function AddLeaf(s, ax#, ay#, az#, ux#, uy#, uz#, vx#, vy#, vz#, sz#, nx#, ny#, nz#, r, g, b, cell)
 	u0# = (cell And 1) * 0.5
 	v0# = (cell Shr 1) * 0.5
-	ux# = Cos(rot) * sz
-	uz# = Sin(rot) * sz
-	vx# = Sin(tilt) * Cos(rot + 90) * sz
-	vy# = Cos(tilt) * sz
-	vz# = Sin(tilt) * Sin(rot + 90) * sz
+	cx# = ax + ux * sz * 0.88
+	cy# = ay + uy * sz * 0.88
+	cz# = az + uz * sz * 0.88
 	base = CountVertices(s)
-	v = AddVertex(s, cx - ux - vx, cy - vy, cz - uz - vz, u0, v0 + 0.5)
-	v = AddVertex(s, cx + ux - vx, cy - vy, cz + uz - vz, u0 + 0.5, v0 + 0.5)
-	v = AddVertex(s, cx + ux + vx, cy + vy, cz + uz + vz, u0 + 0.5, v0)
-	v = AddVertex(s, cx - ux + vx, cy + vy, cz - uz + vz, u0, v0)
+	v = AddVertex(s, cx - ux * sz - vx * sz, cy - uy * sz - vy * sz, cz - uz * sz - vz * sz, u0, v0 + 0.5)
+	v = AddVertex(s, cx + ux * sz - vx * sz, cy + uy * sz - vy * sz, cz + uz * sz - vz * sz, u0 + 0.5, v0 + 0.5)
+	v = AddVertex(s, cx + ux * sz + vx * sz, cy + uy * sz + vy * sz, cz + uz * sz + vz * sz, u0 + 0.5, v0)
+	v = AddVertex(s, cx - ux * sz + vx * sz, cy - uy * sz + vy * sz, cz - uz * sz + vz * sz, u0, v0)
 	For k = 0 To 3
 		VertexNormal s, base + k, nx, ny, nz
 		VertexColor s, base + k, r, g, b
@@ -700,27 +699,59 @@ Function AddBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, r0#, r1#, sides)
 	Next
 End Function
 
-; Leaves on a branch: count single leaves along it (more towards the tip) and around it, each turned away from the middle of the crown (cx, cy, cz) so that the outside of the
-; crown is lit and the inside is dark.
+; Leaves on a branch: count single leaves along it (more towards the tip), each growing out of the branch on a short stem: it points away from the branch at 25 to 75 degrees, around the branch
+; at random, sags a little under its own weight and lies roughly flat (turned a little around its own axis). Each is shaded to face away from the middle of the crown (cx, cy, cz) so that the
+; outside of the crown is lit and the inside is dark.
 Function LeafBranch(s, x0#, y0#, z0#, x1#, y1#, z1#, count, size#, spread#, cx#, cy#, cz#, r, g, b)
+	dx# = x1 - x0
+	dy# = y1 - y0
+	dz# = z1 - z0
+	dl# = Sqr(dx * dx + dy * dy + dz * dz) + 0.0001
+	dx = dx / dl : dy = dy / dl : dz = dz / dl
 	For i = 1 To count
 		t# = BenchRnd(0.15, 1.0)
 		t = Sqr(t)
-		ox# = BenchRnd(-1, 1) * spread
-		oy# = BenchRnd(-0.6, 1) * spread
-		oz# = BenchRnd(-1, 1) * spread
-		px# = x0 + (x1 - x0) * t + ox
-		py# = y0 + (y1 - y0) * t + oy
-		pz# = z0 + (z1 - z0) * t + oz
+		px# = x0 + (x1 - x0) * t
+		py# = y0 + (y1 - y0) * t
+		pz# = z0 + (z1 - z0) * t
+		; A direction at right angles to the branch, at random around it.
+		rx# = BenchRnd(-1, 1)
+		ry# = BenchRnd(-1, 1)
+		rz# = BenchRnd(-1, 1)
+		dt# = rx * dx + ry * dy + rz * dz
+		qx# = rx - dt * dx
+		qy# = ry - dt * dy
+		qz# = rz - dt * dz
+		ql# = Sqr(qx * qx + qy * qy + qz * qz) + 0.001
+		qx = qx / ql : qy = qy / ql : qz = qz / ql
+		ang# = BenchRnd(25, 75)
+		ux# = dx * Cos(ang) + qx * Sin(ang)
+		uy# = dy * Cos(ang) + qy * Sin(ang) - 0.25
+		uz# = dz * Cos(ang) + qz * Sin(ang)
+		ul# = Sqr(ux * ux + uy * uy + uz * uz)
+		ux = ux / ul : uy = uy / ul : uz = uz / ul
+		; The blade is wide sideways (at right angles to the leaf and to up), then turned around the leaf's own axis.
+		wx# = uz : wy# = 0 : wz# = -ux
+		wl# = Sqr(wx * wx + wz * wz)
+		If wl < 0.05 Then
+			wx = qx : wy = qy : wz = qz
+		Else
+			wx = wx / wl : wz = wz / wl
+		EndIf
+		roll# = BenchRnd(-50, 50)
+		cx2# = uy * wz - uz * wy
+		cy2# = uz * wx - ux * wz
+		cz2# = ux * wy - uy * wx
+		vx# = wx * Cos(roll) + cx2 * Sin(roll)
+		vy# = wy * Cos(roll) + cy2 * Sin(roll)
+		vz# = wz * Cos(roll) + cz2 * Sin(roll)
 		nx# = px - cx : ny# = py - cy : nz# = pz - cz
 		l# = Sqr(nx * nx + ny * ny + nz * nz) + 0.001
 		shade# = BenchRnd(0.8, 1.15)
 		sz# = size * LEAFSCALE * BenchRnd(0.8, 1.2)
 		cell = Int(Floor(BenchRnd(0, 3.99)))
-		rot# = BenchRnd(0, 180)
-		tilt# = BenchRnd(-60, 60)
 		out# = 0.5 + 0.5 * (ny / l)
-		AddLeaf s, px, py, pz, sz, rot, tilt, nx / l, ny / l * 0.5 + 0.5, nz / l, r * shade * (0.6 + 0.5 * out), g * shade * (0.6 + 0.5 * out), b * shade * (0.6 + 0.5 * out), cell
+		AddLeaf s, px, py, pz, ux, uy, uz, vx, vy, vz, sz, nx / l, ny / l * 0.5 + 0.5, nz / l, r * shade * (0.6 + 0.5 * out), g * shade * (0.6 + 0.5 * out), b * shade * (0.6 + 0.5 * out), cell
 	Next
 End Function
 
@@ -1164,7 +1195,7 @@ SetBuffer BackBuffer()
 
 treecount = Int(Env$("BENCH_TREES", 1800))
 grasscount = Int(Env$("BENCH_GRASS", 600000))
-leafcards = Int(Env$("BENCH_LEAVES", 28))
+leafcards = Int(Env$("BENCH_LEAVES", 56))
 pebblecount = Int(Env$("BENCH_PEBBLES", 14000))
 insects = Int(Env$("BENCH_INSECTS", 40))
 insectlights = Int(Env$("BENCH_INSECT_LIGHTS", 6))
