@@ -238,6 +238,11 @@ namespace bb::gfx {
 		stages[1].stage                           = VK_SHADER_STAGE_FRAGMENT_BIT;
 		stages[1].module                          = fs;
 		stages[1].pName                           = "main";
+		// Whether the shader dithers is a constant of the pipeline, so that it costs nothing when it is off.
+		VkBool32                 dither_on = dither_code() > 0.0f ? VK_TRUE : VK_FALSE;
+		VkSpecializationMapEntry dither_entry = { 0, 0, sizeof(VkBool32) };
+		VkSpecializationInfo     specialization = { 1, &dither_entry, sizeof(VkBool32), &dither_on };
+		stages[1].pSpecializationInfo             = &specialization;
 
 		VkVertexInputBindingDescription   binding       = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
 		VkVertexInputAttributeDescription attributes[5] = {
@@ -571,6 +576,8 @@ namespace bb::gfx {
 		return true;
 	}
 
+	void build_pipelines_3d();
+
 	void create_3d()
 	{
 		// Scene uniform buffer, with its descriptor set.
@@ -654,6 +661,11 @@ namespace bb::gfx {
 			vkDestroyShaderModule(g.device, cs, nullptr);
 		}
 
+		build_pipelines_3d();
+	}
+
+	void build_pipelines_3d()
+	{
 		VkShaderModule vs = create_shader(bb_shader_vertex_3d, sizeof(bb_shader_vertex_3d));
 		VkShaderModule fs = create_shader(bb_shader_fragment_3d, sizeof(bb_shader_fragment_3d));
 		VkShaderModule fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
@@ -671,6 +683,33 @@ namespace bb::gfx {
 		vkDestroyShaderModule(g.device, vs, nullptr);
 		vkDestroyShaderModule(g.device, fs, nullptr);
 		vkDestroyShaderModule(g.device, fs_solid, nullptr);
+	}
+
+	void destroy_pipelines_3d()
+	{
+		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
+		vkDestroyPipeline(g.device, g.solid3d, nullptr);
+		vkDestroyPipeline(g.device, g.blend3d, nullptr);
+		vkDestroyPipeline(g.device, g.mul3d, nullptr);
+		vkDestroyPipeline(g.device, g.mul2x3d, nullptr);
+		vkDestroyPipeline(g.device, g.add3d, nullptr);
+		for (VkPipeline& pipeline : g.wire3d) {
+			if (pipeline) {
+				vkDestroyPipeline(g.device, pipeline, nullptr);
+				pipeline = VK_NULL_HANDLE;
+			}
+		}
+	}
+
+	void rebuild_pipelines_3d()
+	{
+		if (!g.layout3d) {
+			return;
+		}
+		flush(); // What was recorded still uses the old ones.
+		wait_gpu();
+		destroy_pipelines_3d();
+		build_pipelines_3d();
 	}
 	gpu_image          depth_cache[max_depths];
 	static VkDescriptorSet depth_sets[max_depths]; // Each depth buffer as something to sample, made when a sprite with a depth fade needs it.
@@ -2420,7 +2459,7 @@ namespace bb::gfx {
 		data.projection[0] = cam.cam_near;
 		data.projection[1] = cam.cam_far;
 		data.projection[2] = (cam.cam_projection == 2) ? 1.0f : 0.0f;
-		data.projection[3] = 0;
+		data.projection[3] = dither_code();
 		memset(data.eye, 0, sizeof(float) * 3);
 		for (uint32_t i = 0; i < current_light_count; i++) {
 			float* light = data.light_position[i];
