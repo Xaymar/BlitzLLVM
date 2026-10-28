@@ -108,7 +108,7 @@ Function Error#(name$)
 End Function
 
 Draw
-Flip
+Flip 2
 
 ; Every format: the call works, the file is made, and it holds the picture (exactly for what has no loss).
 Dim names$(6)
