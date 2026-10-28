@@ -35,7 +35,7 @@ namespace bb::gfx {
 	// The bytes a pixel takes in an image that programs read and write as RGBA8: the buffers can be deeper than that.
 	uint32_t pixel_bytes(VkFormat format)
 	{
-		return (format == VK_FORMAT_R16G16B16A16_UNORM) ? 8 : 4;
+		return (format == VK_FORMAT_R16G16B16A16_SFLOAT) ? 8 : 4;
 	}
 
 	// Copies the pixels of a rectangle of an image into new memory, as RGBA.
@@ -71,10 +71,10 @@ namespace bb::gfx {
 				out[i * 4 + 2] = uint8_t((((v >> 20) & 1023) * 255 + 511) / 1023);
 				out[i * 4 + 3] = uint8_t((v >> 30) * 85);
 			}
-		} else if (img.format == VK_FORMAT_R16G16B16A16_UNORM) {
+		} else if (img.format == VK_FORMAT_R16G16B16A16_SFLOAT) {
 			const uint16_t* wide = static_cast<const uint16_t*>(mapped);
 			for (size_t i = 0; i < count * 4; i++) {
-				out[i] = uint8_t((uint32_t(wide[i]) * 255 + 32767) / 65535);
+				out[i] = uint8_t((uint32_t(half_to_unorm16(wide[i])) * 255 + 32767) / 65535);
 			}
 		} else {
 			memcpy(out, mapped, count * 4);
@@ -102,10 +102,10 @@ namespace bb::gfx {
 				uint32_t a = (uint32_t(rgba[i * 4 + 3]) + 42) / 85;
 				packed[i]  = ((uint32_t(rgba[i * 4 + 0]) * 1023 + 127) / 255) | (((uint32_t(rgba[i * 4 + 1]) * 1023 + 127) / 255) << 10) | (((uint32_t(rgba[i * 4 + 2]) * 1023 + 127) / 255) << 20) | ((a > 3 ? 3 : a) << 30);
 			}
-		} else if (img.format == VK_FORMAT_R16G16B16A16_UNORM) {
+		} else if (img.format == VK_FORMAT_R16G16B16A16_SFLOAT) {
 			uint16_t* wide = static_cast<uint16_t*>(mapped);
 			for (size_t i = 0; i < count * 4; i++) {
-				wide[i] = uint16_t(rgba[i] * 257); // 255 * 257 = 65535.
+				wide[i] = unorm16_to_half(uint16_t(rgba[i] * 257)); // 255 * 257 = 65535.
 			}
 		} else {
 			memcpy(mapped, rgba, count * 4);

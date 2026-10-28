@@ -913,7 +913,23 @@ namespace bb::gfx {
 	void forget_recorded();
 	void record_scene(uint32_t index, int target_handle);
 	void record_copy(uint32_t index);
-	/** The bytes a pixel of the format takes in memory when it is read or written natively: 4, or 8 for R16G16B16A16. */
+	/** A channel of R16G16B16A16 (half precision float) as 16 bits from 0 to 65535: values outside 0 to 1 (HDR) are clamped, as the integer views can't have them. */
+	inline uint16_t half_to_unorm16(uint16_t half)
+	{
+		float value = half_to_float(half);
+		if (!(value > 0.0f)) {
+			return 0; // Includes not a number.
+		}
+		return (value >= 1.0f) ? uint16_t(65535) : uint16_t(value * 65535.0f + 0.5f);
+	}
+
+	/** The other way around. */
+	inline uint16_t unorm16_to_half(uint16_t value)
+	{
+		return float_to_half(float(value) * (1.0f / 65535.0f));
+	}
+
+	/** The bytes a pixel of the format takes in memory when it is read or written natively: 4, or 8 for R16G16B16A16 (half precision floats). */
 	uint32_t pixel_bytes(VkFormat format);
 	/** Reads pixels as RGBA8, or with native set as the image has them (R, G, B, A in the order of its format). */
 	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native = false);
