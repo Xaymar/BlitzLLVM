@@ -1318,11 +1318,13 @@ namespace bb::gfx {
 				for (VkExtensionProperties const& e : available) {
 					has = has || (strcmp(e.extensionName, VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME) == 0);
 				}
+				fprintf(stderr, "BLITZ_INTERLOCK_DITHER: %s %s\n", physical_props.deviceName, has ? "has VK_EXT_fragment_shader_interlock" : "has no VK_EXT_fragment_shader_interlock");
 				if (has) {
 					VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT query_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT };
 					VkPhysicalDeviceFeatures2                          query          = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
 					query.pNext                                                       = &query_features;
 					vkGetPhysicalDeviceFeatures2(g.physical, &query);
+					fprintf(stderr, "BLITZ_INTERLOCK_DITHER: fragmentShaderPixelInterlock = %d\n", int(query_features.fragmentShaderPixelInterlock));
 					if (query_features.fragmentShaderPixelInterlock) {
 						g.can_interlock                          = true;
 						interlock_features.fragmentShaderPixelInterlock = VK_TRUE;
