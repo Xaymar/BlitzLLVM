@@ -197,8 +197,7 @@ namespace bb::gfx {
 		if (!s.dirty && s.gpu && static_cast<surface_gpu*>(s.gpu)->vertex_buffer) { // No buffer: the device was lost, see destroy_surface_buffers.
 			return static_cast<surface_gpu*>(s.gpu);
 		}
-		s.dirty       = false;
-		s.bound_valid = false;
+		s.dirty = false;
 		surface_gpu* gpu = static_cast<surface_gpu*>(s.gpu);
 		if ((s.vertices.size == 0) || (s.indices.size == 0)) {
 			release_surface_gpu(gpu);
@@ -1928,7 +1927,8 @@ namespace bb::gfx {
 		bb::surface& s = *e.plane_draw;
 		s.vertices.clear();
 		s.indices.clear();
-		s.dirty = true;
+		s.dirty       = true;
+		s.bound_valid = false;
 		if (!e.surfaces.size) {
 			return nullptr;
 		}
