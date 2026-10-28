@@ -27,3 +27,4 @@ Until WaitEvent() = $803
 @param buffer  Locked buffer. Defaults to the current one.
 @returns The handle of a bank with the pixels.
 @gap The bank is a copy of the pixels that is written back when the buffer is unlocked, it is not the memory of the graphics card. Nothing is changed before `UnlockBuffer`.
+@gap A buffer that [Graphics3D](Graphics3D) made with the depth 30 has 4 bytes for each pixel in the form A2R10G10B10 (a 32 bit number), and one with the depth 64 has 8 bytes for each pixel with 16 bits for each of alpha, red, green and blue from the top (a 64 bit number). See [Color depth](Color-Depth).

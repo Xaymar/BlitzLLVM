@@ -17,11 +17,11 @@ WaitKey
 ![Graphics](media/display/graphics.png)
 @param width   Width of the picture in pixels.
 @param height  Height of the picture in pixels.
-@param depth   Color depth in bits: 0, 16, 24 or 32. Defaults to 0, which lets the system choose.
+@param depth   Color depth in bits: 24, 30, 32 or 64, which pick the format of the buffers, or 0 for 32. Defaults to 0.
 @param mode    0 opens a window, 1 uses full screen (a borderless window over the display, see [Fullscreen](Fullscreen)), 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0.
-@gap The color depth is accepted but ignored: the picture always has at least 8 bits each of red, green and blue (with 8 bits of alpha where it is used), because palette and 16 bit rendering are not supported. [GraphicsDepth](GraphicsDepth) says 32 whatever you ask for.
+@gap The color depth picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16. 0 and 16 give 32, as does any other number, because palette and 16 bit rendering are not supported. See [Color depth](Color-Depth).
 @gap Full screen (mode 1) does not change the video mode of the display: the picture is shown at the largest size that fits with its aspect ratio kept, and the rest is black. See [Fullscreen](Fullscreen).
 @gap In a resizable window (mode 3) the picture is scaled to the size of the window, and the mouse position is converted to picture pixels.
 @gap The modes 6 and 7 of Blitz3D, which pause the program while the window is in the background, act like 2 and 3. The program keeps running.
-@gap In a window without a border (mode 4) the color depth is not used either, and the window has the size you ask for and cannot be resized by the user.
+@gap A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
 @gap A width or height below 1 stops the program with an error message.

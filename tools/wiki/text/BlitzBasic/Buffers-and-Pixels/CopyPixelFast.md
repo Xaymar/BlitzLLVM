@@ -9,3 +9,4 @@ The quick form of [CopyPixel](CopyPixel). Both buffers must be locked with [Lock
 @param dest_y       Vertical position to copy to.
 @param dest_buffer  The locked buffer to copy to. Defaults to the current buffer.
 @gap A buffer that is not locked stops the program with an error message. Positions outside of a buffer are ignored instead of writing into other memory like the original could.
+@gap Pixels are copied with all the bits that the buffers have: a buffer made by [Graphics3D](Graphics3D) with the depth 64 does not lose anything on the way. See [Color depth](Color-Depth).

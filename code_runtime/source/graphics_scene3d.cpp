@@ -112,7 +112,7 @@ namespace bb::gfx {
 		return gpu;
 	}
 
-	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false)
+	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
@@ -189,7 +189,7 @@ namespace bb::gfx {
 		dynamic.dynamicStateCount                = 5;
 		dynamic.pDynamicStates                   = dynamic_states;
 
-		VkFormat                      format    = VK_FORMAT_R8G8B8A8_UNORM;
+		VkFormat                      format    = color_format;
 		VkPipelineRenderingCreateInfo rendering = { VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 		rendering.colorAttachmentCount          = 1;
 		rendering.pColorAttachmentFormats       = &format;
@@ -211,6 +211,15 @@ namespace bb::gfx {
 
 		VkPipeline pipeline;
 		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines (3D)");
+		return pipeline;
+	}
+
+	static VkPipeline create_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire = false)
+	{
+		VkPipeline pipeline = build_pipeline_3d(vs, fs, mode, wire, VK_FORMAT_R8G8B8A8_UNORM);
+		if (g.buffer_format != VK_FORMAT_R8G8B8A8_UNORM) {
+			add_pipeline_twin(pipeline, build_pipeline_3d(vs, fs, mode, wire, g.buffer_format));
+		}
 		return pipeline;
 	}
 
@@ -507,7 +516,7 @@ namespace bb::gfx {
 			}
 
 			if (d.pipeline != bound_pipeline) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.pipeline);
+				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_for(d.pipeline, target.image->format));
 				bound_pipeline = d.pipeline;
 				stats3d.pipelines++;
 			}
@@ -585,13 +594,7 @@ namespace bb::gfx {
 		}
 		transition(*from.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		transition(*to.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		VkImageCopy copy    = {};
-		copy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		copy.srcOffset      = { from.x + c.sx, from.y + c.sy, 0 };
-		copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-		copy.dstOffset      = { to.x + c.dx, to.y + c.dy, 0 };
-		copy.extent         = { uint32_t(c.w), uint32_t(c.h), 1 };
-		vkCmdCopyImage(g.cmd, from.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, to.image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+		copy_region(*from.image, from.x + c.sx, from.y + c.sy, *to.image, to.x + c.dx, to.y + c.dy, c.w, c.h);
 		transition(*from.image, previous_from);
 		transition(*to.image, previous_to);
 	}

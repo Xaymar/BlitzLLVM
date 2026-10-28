@@ -16,3 +16,4 @@ Until WaitEvent() = $803
 ```
 @param buffer  Locked buffer. Defaults to the current one.
 @returns Bytes in a row. For the buffer of a 200 pixel wide canvas that is 800.
+@gap A buffer that [Graphics3D](Graphics3D) made with the depth 64 has 8 bytes for each pixel, so a row takes `width * 8` bytes. See [Color depth](Color-Depth).

@@ -28,10 +28,16 @@ namespace bb::gfx {
 	uint32_t    image_generation = 1;
 	static bool transform_filter = true; // TFormFilter: whether TFormImage and the others blend neighbouring pixels.
 
-	// Copies the pixels of a rectangle of an image into new memory, as RGBA.
-	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h)
+	// The bytes a pixel takes in an image that programs read and write as RGBA8: the buffers can be deeper than that.
+	uint32_t pixel_bytes(VkFormat format)
 	{
-		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
+		return (format == VK_FORMAT_R16G16B16A16_UNORM) ? 8 : 4;
+	}
+
+	// Copies the pixels of a rectangle of an image into new memory, as RGBA.
+	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native)
+	{
+		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * pixel_bytes(img.format);
 		VkBuffer       staging;
 		VmaAllocation staging_allocation;
 		void*          mapped;
@@ -48,23 +54,58 @@ namespace bb::gfx {
 		transition(img, previous);
 		submit_commands();
 
-		uint8_t* out = static_cast<uint8_t*>(malloc(size_t(size)));
-		memcpy(out, mapped, size_t(size));
+		size_t   count = size_t(w) * size_t(h);
+		uint8_t* out   = static_cast<uint8_t*>(malloc(count * (native ? pixel_bytes(img.format) : 4)));
+		if (native) {
+			memcpy(out, mapped, count * pixel_bytes(img.format));
+		} else if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+			const uint32_t* packed = static_cast<const uint32_t*>(mapped);
+			for (size_t i = 0; i < count; i++) {
+				uint32_t v     = packed[i];
+				out[i * 4 + 0] = uint8_t(((v & 1023) * 255 + 511) / 1023);
+				out[i * 4 + 1] = uint8_t((((v >> 10) & 1023) * 255 + 511) / 1023);
+				out[i * 4 + 2] = uint8_t((((v >> 20) & 1023) * 255 + 511) / 1023);
+				out[i * 4 + 3] = uint8_t((v >> 30) * 85);
+			}
+		} else if (img.format == VK_FORMAT_R16G16B16A16_UNORM) {
+			const uint16_t* wide = static_cast<const uint16_t*>(mapped);
+			for (size_t i = 0; i < count * 4; i++) {
+				out[i] = uint8_t((uint32_t(wide[i]) * 255 + 32767) / 65535);
+			}
+		} else {
+			memcpy(out, mapped, count * 4);
+		}
 		destroy_buffer(staging, staging_allocation);
 		return out;
 	}
 
 	// The other way around.
-	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba)
+	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native)
 	{
 		image_generation++;
 		img.mips_stale = img.mips > 1;
-		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * 4;
+		VkDeviceSize   size = VkDeviceSize(w) * VkDeviceSize(h) * pixel_bytes(img.format);
 		VkBuffer       staging;
 		VmaAllocation staging_allocation;
 		void*          mapped;
 		create_buffer(size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, true, staging, staging_allocation, &mapped);
-		memcpy(mapped, rgba, size_t(size));
+		size_t count = size_t(w) * size_t(h);
+		if (native) {
+			memcpy(mapped, rgba, count * pixel_bytes(img.format));
+		} else if (img.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+			uint32_t* packed = static_cast<uint32_t*>(mapped);
+			for (size_t i = 0; i < count; i++) {
+				uint32_t a = (uint32_t(rgba[i * 4 + 3]) + 42) / 85;
+				packed[i]  = ((uint32_t(rgba[i * 4 + 0]) * 1023 + 127) / 255) | (((uint32_t(rgba[i * 4 + 1]) * 1023 + 127) / 255) << 10) | (((uint32_t(rgba[i * 4 + 2]) * 1023 + 127) / 255) << 20) | ((a > 3 ? 3 : a) << 30);
+			}
+		} else if (img.format == VK_FORMAT_R16G16B16A16_UNORM) {
+			uint16_t* wide = static_cast<uint16_t*>(mapped);
+			for (size_t i = 0; i < count * 4; i++) {
+				wide[i] = uint16_t(rgba[i] * 257); // 255 * 257 = 65535.
+			}
+		} else {
+			memcpy(mapped, rgba, count * 4);
+		}
 
 		begin_commands();
 		VkImageLayout previous = img.layout;
@@ -670,13 +711,7 @@ void bb_grab_image(int32_t handle, int32_t x, int32_t y, int32_t frame)
 	VkImageLayout previous_source = source.image->layout;
 	transition(*source.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	transition(e->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	VkImageCopy copy    = {};
-	copy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	copy.srcOffset      = { source.x + int32_t(sx), source.y + int32_t(sy), 0 };
-	copy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	copy.dstOffset      = { fx + int32_t(dx), fy + int32_t(dy), 0 };
-	copy.extent         = { uint32_t(w), uint32_t(h), 1 };
-	vkCmdCopyImage(g.cmd, source.image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, e->image.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+	copy_region(*source.image, source.x + int32_t(sx), source.y + int32_t(sy), e->image, fx + int32_t(dx), fy + int32_t(dy), int(w), int(h));
 	transition(*source.image, previous_source);
 	transition(e->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	submit_commands();

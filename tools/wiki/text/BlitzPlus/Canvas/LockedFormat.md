@@ -17,3 +17,4 @@ Until WaitEvent() = $803
 @param buffer  Locked buffer. Defaults to the current one.
 @returns A number that tells how the pixels are laid out: 1 is 16 bit with 5-6-5, 2 is 16 bit with 5-5-5, 3 is 24 bit and 4 is 32 bit with an unused byte.
 @gap Always 4, because every buffer here has four bytes for each pixel (blue first, then green, red and an unused byte). Code that handles the other formats still works, it just never runs.
+@gap 5 is A2R10G10B10 in 32 bits, which a buffer made by [Graphics3D](Graphics3D) with the depth 30 has, and 6 is A16R16G16B16 in 64 bits, for the depth 64. They are BlitzLLVM additions. See [Color depth](Color-Depth).

@@ -162,6 +162,7 @@ namespace bb::gfx {
 		bool           ten     = false;              // Holds A2B10G10R10 instead of RGBA8: a texture with more than 8 bits per channel and no partial alpha. Drawing to it turns it into RGBA8 first.
 		bool           opaque  = false;              // Compressed: whether the alpha is forced to 1, which it is when the texture has no alpha flag.
 		VkSampler      sampler = VK_NULL_HANDLE;     // Compressed: what the descriptor set of the image uses, for when it is turned into RGBA.
+		VkFormat       format = VK_FORMAT_R8G8B8A8_UNORM; // What the image was created with.
 		VkImage        image  = VK_NULL_HANDLE;
 		VmaAllocation  allocation = VK_NULL_HANDLE;
 		VkImageView    view   = VK_NULL_HANDLE;   // All mip levels, for sampling.
@@ -208,6 +209,9 @@ namespace bb::gfx {
 	struct state {
 		bool headless = false;
 		bool created  = false;
+		int      requested_depth = 32;                           // The depth that Graphics was asked for.
+		int      buffer_depth    = 32;                           // The depth that the buffers have: 24, 30, 32 or 64.
+		VkFormat buffer_format   = VK_FORMAT_R8G8B8A8_UNORM;     // What the front and back buffer are made of, which the depth of Graphics decides.
 		char close_prompt[256] = ""; // What AppTitle asks before the window is closed, empty to close without asking.
 
 		// Window
@@ -654,6 +658,7 @@ namespace bb::gfx {
 		uint8_t*   pixels  = nullptr;
 		bool       changed = false;
 		int        bank    = 0; // The bank that LockedPixels made, which has the pixels the way BlitzPlus has them.
+		VkFormat   format  = VK_FORMAT_R8G8B8A8_UNORM; // What the pixels are: RGBA8 (4 bytes), or as the buffer has them if it is deeper (4 or 8 bytes).
 	};
 
 	// Shared state
@@ -697,7 +702,16 @@ namespace bb::gfx {
 	void destroy_surface_buffers();
 	VkShaderModule create_shader(const unsigned int* words, size_t size);
 	/** A pipeline of the 2D renderer's kind. Without vertices it draws the one triangle that covers the target, and replaces what is there. */
-	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true);
+	/** The format of the buffers that a depth of Graphics gives, or the closest one the device can draw to; actual is the depth that it stands for. */
+	VkFormat pick_buffer_format(int depth, int& actual);
+	VkPipeline create_pipeline(VkShaderModule vs, VkShaderModule fs, VkPrimitiveTopology topology, VkPipelineLayout layout, bool vertices = true, bool for_buffers = true);
+	/** The pipeline to draw to an image of that format: base itself, or its twin for the buffers if they are not RGBA8 and that is what the image is. */
+	VkPipeline pipeline_for(VkPipeline base, VkFormat format);
+	/** Records the copy of a rectangle between two images that are in the transfer layouts. Images of different depths are converted on the way. */
+	void copy_region(gpu_image& from, int sx, int sy, gpu_image& to, int dx, int dy, int w, int h);
+	/** Remembers the twin of a pipeline that draws to the buffers. */
+	void       add_pipeline_twin(VkPipeline base, VkPipeline twin);
+	void       destroy_pipeline_twins();
 	void write_descriptor(VkDescriptorSet set, VkImageView view, VkSampler sampler);
 	void allocate_descriptor(VkDescriptorSet& set);
 	/** Shows the front buffer through the gamma tables if they are not the identity. Expects an open command buffer and the front buffer to be copied from, returns the image to present. */
@@ -809,8 +823,11 @@ namespace bb::gfx {
 	void forget_recorded();
 	void record_scene(uint32_t index, int target_handle);
 	void record_copy(uint32_t index);
-	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h);
-	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba);
+	/** The bytes a pixel of the format takes in memory when it is read or written natively: 4, or 8 for R16G16B16A16. */
+	uint32_t pixel_bytes(VkFormat format);
+	/** Reads pixels as RGBA8, or with native set as the image has them (R, G, B, A in the order of its format). */
+	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native = false);
+	void write_pixels(gpu_image& img, int x, int y, int w, int h, const uint8_t* rgba, bool native = false);
 	/** Loads a picture file with SDL_image, and DDS files with our own decoder. The surface is for the caller to destroy. */
 	SDL_Surface* load_surface(const char* file);
 
