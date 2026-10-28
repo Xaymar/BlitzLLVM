@@ -311,6 +311,7 @@
 		{ "imageready", "bb_image_ready", 'i', "i", 1, {}, false },
 		{ "entityready", "bb_entity_ready", 'i', "i", 1, {}, false },
 		{ "asyncloading", "bb_async_loading", 'v', "i", 1, {}, false },
+		{ "textureatlas", "bb_texture_atlas", 'v', "i", 1, {}, false },
 		{ "textureheight", "bb_texture_height", 'i', "i", 1, {}, false },
 		{ "entitydistance", "bb_entity_distance", 'f', "ii", 2, {}, false },
 		{ "pointentity", "bb_point_entity", 'v', "iif", 2, { 0, 0, 0 }, false },

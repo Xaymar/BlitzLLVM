@@ -115,6 +115,7 @@ _RULES = {
     ],
     "graphics": [
         (r"graphics3d|gfx.*3d|windowed3d|countgfxmodes3d", B3D, "Display"),
+        (r"textureatlas", B3D, "Textures"),
         (r"movie", BASIC, "Movies"),
         (r"font|stringwidth|stringheight|^text$|^print$|^write$|^input$|^locate$", BASIC, "Fonts and Text"),
         (r"image|asyncloading|asyncsaving|savespending|savesfailed|midhandle|automidhandle|drawblock|tileblock|tformfilter|maskimage|handleimage|grabimage|^rectsoverlap$",
