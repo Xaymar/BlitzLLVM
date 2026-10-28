@@ -13,6 +13,7 @@
 // See memory.h for the design.
 
 #include "memory.h"
+#include "environment.h"
 
 #include <atomic>
 #include <new>

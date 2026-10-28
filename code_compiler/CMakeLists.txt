@@ -63,7 +63,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE BLITZLLVM_VERSION="${CMAKE_PR
 # The hot parts of the runtime also come as source, which blitzcc compiles together with the program so that they can be inlined into it.
 set(_RT "${PROJECT_SOURCE_DIR}/../code_runtime/source")
 set(BLITZRT_INLINE_FILES "${_RT}/runtime.c" "${_RT}/runtime_objects.c" "${_RT}/runtime_strings.c" "${_RT}/runtime_system.c" "${_RT}/banks.c"
-	"${_RT}/runtime_internal.h" "${_RT}/handle_check.h" "${_RT}/files_internal.h" "${_RT}/streams.h" "${_RT}/memory.h")
+	"${_RT}/runtime_internal.h" "${_RT}/handle_check.h" "${_RT}/files_internal.h" "${_RT}/streams.h" "${_RT}/memory.h" "${_RT}/environment.h")
 
 # The libraries of the runtime are per architecture: <runtime>/x86_64, <runtime>/arm64, <runtime>/x86. blitzcc picks the folder of the
 # target. macOS has none, where one universal library holds every architecture.
@@ -368,7 +368,7 @@ foreach(_CASE IN ITEMS default quiet very_quiet options_not_case_sensitive compi
 endforeach()
 
 # The allocator of the runtime, on its own: sizes, reuse, foreign pointers, threads, operator new/delete.
-add_executable(memory_test "${TEST_DIRECTORY}/memory/memory_test.cpp" "${PROJECT_SOURCE_DIR}/../code_runtime/source/memory.cpp")
+add_executable(memory_test "${TEST_DIRECTORY}/memory/memory_test.cpp" "${PROJECT_SOURCE_DIR}/../code_runtime/source/memory.cpp" "${PROJECT_SOURCE_DIR}/../code_runtime/source/environment.c")
 target_compile_definitions(memory_test PRIVATE BB_ALLOC_NO_SDL)
 target_include_directories(memory_test PRIVATE "${PROJECT_SOURCE_DIR}/../code_runtime/source")
 if(BLITZ_REPLACE_MALLOC)

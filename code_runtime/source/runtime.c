@@ -20,6 +20,7 @@
 
 #include <ctype.h>
 #include "memory.h"
+#include "environment.h"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -232,6 +233,7 @@ static int32_t bb_debug_build = 0;
 void bb_set_debug(int32_t debug)
 {
 	bb_debug_build = debug;
+	bb_env_report_deprecated();
 }
 
 int32_t bb_is_debug(void)
