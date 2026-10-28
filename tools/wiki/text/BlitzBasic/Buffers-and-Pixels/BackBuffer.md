@@ -15,3 +15,4 @@ While Not KeyHit(1)
 Wend
 ```
 @returns The handle of the back buffer.
+@gap [FrontBuffer](FrontBuffer) returns this same handle, because a program cannot draw to the picture on the screen.
