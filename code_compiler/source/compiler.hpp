@@ -366,6 +366,7 @@ namespace blitz {
 		void gen_gosub(ast::gosub_statement const* node);
 		void gen_gosub_return(ast::location const& where);
 		void gen_copy_outs();
+		void check_written(ast::function const& fn);
 		void gen_reference_parameter(ast::parameter const& param, variable const& var, size_t idx);
 		address gen_reference_argument(ast::call const* node, size_t idx, ast::parameter const& param, ast::function const& fn);
 	};

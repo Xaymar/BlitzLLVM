@@ -227,6 +227,7 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	}
 
 	std::string sp = di_begin_function(fn.name, linkage_name(info.symbol), fn.where, fn.type, lower(fn.struct_name), &fn.parameters, true);
+	check_written(fn);
 	prepare_flow(fn.body);
 	_exit_label = label("fn.exit");
 	_ret_slot   = "%ret.slot";
@@ -370,6 +371,187 @@ void blitz::compiler::gen_copy_outs()
 		if (out.optional) {
 			emit_terminator("br label %" + done);
 			begin_label(done);
+		}
+	}
+}
+
+namespace {
+	using blitz::compiler_detail::lower;
+	namespace ast = blitz::ast;
+
+	// How far a function got with writing to an Out or InOut parameter. Unreachable is a state too, so that paths merge properly.
+	enum written : int { UNREACHABLE = 0, UNWRITTEN = 1, WRITTEN = 2 };
+
+	int merge(int a, int b)
+	{
+		if (a == UNREACHABLE) return b;
+		if (b == UNREACHABLE) return a;
+		return std::min(a, b);
+	}
+} // namespace
+
+// Out parameters have to be written on every path that leaves the function, and InOut parameters should be.
+void blitz::compiler::check_written(ast::function const& fn)
+{
+	for (auto const& param : fn.parameters) {
+		if (param.mode == ast::direction::IN) {
+			continue;
+		}
+		auto name = lower(param.name);
+
+		// Gotos and Gosubs make the paths too hard to follow, so those functions are not checked.
+		bool jumps = false;
+		std::vector<std::pair<ast::location, int>>   returns;
+		std::vector<std::vector<int>>                exits;
+
+		// Whether the expression gives the parameter to a parameter of another function (or itself) that writes to it.
+		std::function<bool(ast::expression const*)> expr_writes = [&](ast::expression const* e) -> bool {
+			if (!e) {
+				return false;
+			}
+			if (auto c = dynamic_cast<ast::call const*>(e)) {
+				auto it = _functions.find(lower(c->name));
+				for (size_t idx = 0; idx < c->arguments.size(); idx++) {
+					if ((it != _functions.end()) && (idx < it->second.declaration->parameters.size()) && (it->second.declaration->parameters[idx].mode != ast::direction::IN)) {
+						if (auto r = dynamic_cast<ast::reference const*>(c->arguments[idx].get())) {
+							if (lower(r->name) == name) {
+								return true;
+							}
+						}
+					}
+					if (expr_writes(c->arguments[idx].get())) {
+						return true;
+					}
+				}
+				return false;
+			} else if (auto b = dynamic_cast<ast::binary const*>(e)) {
+				return expr_writes(b->lhs.get()) || expr_writes(b->rhs.get());
+			} else if (auto u = dynamic_cast<ast::unary const*>(e)) {
+				return expr_writes(u->operand.get());
+			} else if (auto f = dynamic_cast<ast::field_access const*>(e)) {
+				return expr_writes(f->object.get());
+			} else if (auto i = dynamic_cast<ast::index_access const*>(e)) {
+				return expr_writes(i->base.get()) || expr_writes(i->index.get());
+			}
+			return false;
+		};
+		auto is_param = [&](ast::expression const* e) {
+			auto r = dynamic_cast<ast::reference const*>(e);
+			return r && (lower(r->name) == name);
+		};
+
+		std::function<int(ast::block const&, int)> flow = [&](ast::block const& block, int state) -> int {
+			for (auto const& stmt : block) {
+				if (state == UNREACHABLE) {
+					break;
+				}
+				auto raw = stmt.get();
+				if (auto a = dynamic_cast<ast::assign const*>(raw)) {
+					if (is_param(a->target.get()) || expr_writes(a->value.get())) {
+						state = WRITTEN;
+					}
+				} else if (auto c = dynamic_cast<ast::call_statement const*>(raw)) {
+					if (expr_writes(c->invocation.get())) {
+						state = WRITTEN;
+					}
+				} else if (auto r = dynamic_cast<ast::read_statement const*>(raw)) {
+					for (auto const& t : r->targets) {
+						if (is_param(t.get())) {
+							state = WRITTEN;
+						}
+					}
+				} else if (auto i = dynamic_cast<ast::if_statement const*>(raw)) {
+					if (!i->branches.empty() && expr_writes(i->branches.front().condition.get())) {
+						state = WRITTEN;
+					}
+					int  after = UNREACHABLE;
+					bool other = false;
+					for (auto const& b : i->branches) {
+						after = merge(after, flow(b.body, state));
+						other = other || !b.condition;
+					}
+					state = other ? after : merge(after, state);
+				} else if (auto w = dynamic_cast<ast::while_statement const*>(raw)) {
+					if (expr_writes(w->condition.get())) {
+						state = WRITTEN;
+					}
+					exits.emplace_back();
+					flow(w->body, state);
+					int after = state;
+					for (int e : exits.back()) after = merge(after, e);
+					exits.pop_back();
+					state = after;
+				} else if (auto rp = dynamic_cast<ast::repeat_statement const*>(raw)) {
+					exits.emplace_back();
+					int end = flow(rp->body, state);
+					int after = UNREACHABLE;
+					if (rp->condition) {
+						after = (end != UNREACHABLE) ? ((expr_writes(rp->condition.get()) ? WRITTEN : end)) : UNREACHABLE;
+					}
+					for (int e : exits.back()) after = merge(after, e);
+					exits.pop_back();
+					state = after;
+				} else if (auto f = dynamic_cast<ast::for_statement const*>(raw)) {
+					if (is_param(f->variable.get()) || expr_writes(f->from.get()) || expr_writes(f->to.get()) || expr_writes(f->step.get())) {
+						state = WRITTEN;
+					}
+					exits.emplace_back();
+					flow(f->body, state);
+					int after = state;
+					for (int e : exits.back()) after = merge(after, e);
+					exits.pop_back();
+					state = after;
+				} else if (auto s = dynamic_cast<ast::select_statement const*>(raw)) {
+					if (expr_writes(s->subject.get())) {
+						state = WRITTEN;
+					}
+					int  after       = UNREACHABLE;
+					bool has_default = false;
+					for (auto const& c : s->cases) {
+						after       = merge(after, flow(c.body, state));
+						has_default = has_default || c.values.empty();
+					}
+					state = has_default ? after : merge(after, state);
+				} else if (dynamic_cast<ast::exit_statement const*>(raw)) {
+					if (!exits.empty()) {
+						exits.back().push_back(state);
+					}
+					state = UNREACHABLE;
+				} else if (auto rt = dynamic_cast<ast::return_statement const*>(raw)) {
+					if (expr_writes(rt->value.get())) {
+						state = WRITTEN;
+					}
+					returns.emplace_back(rt->where, state);
+					state = UNREACHABLE;
+				} else if (dynamic_cast<ast::end_statement const*>(raw) || dynamic_cast<ast::stop_statement const*>(raw)) {
+					state = UNREACHABLE;
+				} else if (dynamic_cast<ast::goto_statement const*>(raw) || dynamic_cast<ast::gosub_statement const*>(raw) || dynamic_cast<ast::label_statement const*>(raw)) {
+					jumps = true;
+				}
+			}
+			return state;
+		};
+
+		int end = flow(fn.body, UNWRITTEN);
+		if (jumps) {
+			continue;
+		}
+		ast::location finish = fn.where;
+		if (fn.covers.end_line) {
+			finish.line   = fn.covers.end_line;
+			finish.column = 1; // The End Function.
+		}
+		if (end == UNWRITTEN) {
+			returns.emplace_back(finish, UNWRITTEN);
+		}
+		for (auto const& leave : returns) {
+			if (leave.second != UNWRITTEN) {
+				continue;
+			}
+			if (param.mode == ast::direction::OUT) {
+				throw err(leave.first, "Out parameter '" + param.name + "' of '" + fn.name + "' is not written on every path, it has to be before the function returns.");
+			}
+			warn(leave.first, "inout-parameter-unwritten", "InOut parameter '" + param.name + "' of '" + fn.name + "' is not written on this path, the caller keeps the value it had.", "Write to '" + param.name + "' before returning, or declare it with 'In'.");
 		}
 	}
 }

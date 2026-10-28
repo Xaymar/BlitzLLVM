@@ -27,6 +27,7 @@ std::vector<blitz::warning_info> const& blitz::all_warnings()
 		{ "return-type-mismatch", 2, false, "Return gives back a value of another type than the function was declared with." },
 		{ "unused-result", 2, false, "The result of a function is thrown away." },
 		{ "implicit-number-to-string", 3, false, "A number is turned into a String." },
+		{ "inout-parameter-unwritten", 3, false, "A function returns without having written to an InOut parameter, so the caller's variable is not changed." },
 		{ "short-type-notation", 3, false, "A type is written as a character behind the name (x%, x#, x$) instead of the long form (x:Int32, x:Float32, x:String)." },
 		{ "unreachable-code", 3, true, "A statement follows a Return, End, Goto or Exit and can never run (unless a label makes it reachable)." },
 		{ "unused-variable", 3, true, "A variable is never read, so it is optimized away." },
