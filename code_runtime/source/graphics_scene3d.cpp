@@ -304,7 +304,7 @@ namespace bb::gfx {
 		VkPipelineColorBlendStateCreateInfo blending = { VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO };
 		blending.attachmentCount                     = 1;
 		blending.pAttachments                        = &blend;
-		if (shader_blend) {
+		if (shader_blend && !blend_interlock()) {
 			// The shader reads what is there, and the draws that touch a pixel keep their order while it does.
 			blending.flags = VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT;
 		}
@@ -336,8 +336,13 @@ namespace bb::gfx {
 		VkRenderingInputAttachmentIndexInfoKHR inputs      = { VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO_KHR };
 		inputs.colorAttachmentCount                         = 1;
 		inputs.pColorAttachmentInputIndices                 = &input_index;
-		if (shader_blend) {
+		if (shader_blend && !blend_interlock()) {
 			rendering.pNext = &inputs;
+		}
+		if (shader_blend && blend_interlock()) {
+			// The shader writes the target itself, as a storage image: no color attachment.
+			rendering.colorAttachmentCount = 0;
+			blending.attachmentCount       = 0;
 		}
 
 		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
@@ -658,14 +663,14 @@ namespace bb::gfx {
 		select_frame_slot(0);
 
 		// Set 3 is the depth of what was drawn before the blended sprites, for SpriteDepthFade. Set 4, if the GPU can blend in the shader, is the target.
-		if (g.can_blend_dither) {
-			VkDescriptorSetLayoutBinding input_binding = { 0, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		if (g.can_blend_dither || blend_interlock()) {
+			VkDescriptorSetLayoutBinding input_binding = { 0, blend_interlock() ? VK_DESCRIPTOR_TYPE_STORAGE_IMAGE : VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 			set_info.pBindings                         = &input_binding;
 			check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.input_layout), "vkCreateDescriptorSetLayout");
 		}
-		VkDescriptorSetLayout layouts[5]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout, g.input_layout };
+		VkDescriptorSetLayout layouts[5]   = { g.set_layout, g.scene_layout, g.entity_layout, g.set_layout, (g.can_blend_dither || blend_interlock()) ? g.input_layout : g.set_layout };
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-		layout_info.setLayoutCount         = g.can_blend_dither ? 5 : 4;
+		layout_info.setLayoutCount         = (g.can_blend_dither || blend_interlock()) ? 5 : 4;
 		layout_info.pSetLayouts            = layouts;
 		check(vkCreatePipelineLayout(g.device, &layout_info, nullptr, &g.layout3d), "vkCreatePipelineLayout");
 
@@ -699,7 +704,7 @@ namespace bb::gfx {
 		VkShaderModule fs_solid = create_shader(bb_shader_fragment_3d_solid, sizeof(bb_shader_fragment_3d_solid));
 		// With Dither 2 the blended things are drawn by the shader that blends itself.
 		bool           shader_blend = dither_level() == 2;
-		VkShaderModule fs_blend     = shader_blend ? create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend)) : fs;
+		VkShaderModule fs_blend     = shader_blend ? (blend_interlock() ? create_shader(bb_shader_fragment_3d_blend_interlock, sizeof(bb_shader_fragment_3d_blend_interlock)) : create_shader(bb_shader_fragment_3d_blend, sizeof(bb_shader_fragment_3d_blend))) : fs;
 		g.opaque3d        = create_pipeline_3d(vs, fs, 0);
 		g.solid3d         = create_pipeline_3d(vs, fs_solid, 0);
 		g.blend3d         = create_pipeline_3d(vs, fs_blend, 1, false, shader_blend);
@@ -910,7 +915,8 @@ namespace bb::gfx {
 				}
 			}
 		}
-		VkImageLayout target_layout = shader_blends ? VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		bool          interlock     = shader_blends && blend_interlock();
+		VkImageLayout target_layout = (shader_blends && !interlock) ? VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		transition(*target.image, target_layout);
 		target.image->mips_stale = target.image->mips > 1;
 		bool fresh_depth = depth_image.layout == VK_IMAGE_LAYOUT_UNDEFINED;
@@ -976,6 +982,11 @@ namespace bb::gfx {
 			entities[scene.first_draw + i] = pushes[draws[scene.first_draw + i].push_index];
 		}
 
+		// With the interlock the blended draws go to the target as a storage image, which is a pass of its own without a color attachment.
+		VkRenderingInfo info_storage = info;
+		info_storage.colorAttachmentCount = 0;
+		info_storage.pColorAttachments    = nullptr;
+		bool storage_mode = false;
 		VkPipeline      bound_pipeline = VK_NULL_HANDLE;
 		VkDescriptorSet bound_set      = VK_NULL_HANDLE;
 		VkBuffer        bound_vertices = VK_NULL_HANDLE, bound_indices = VK_NULL_HANDLE;
@@ -998,7 +1009,7 @@ namespace bb::gfx {
 				barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 				depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 				depth.loadOp      = VK_ATTACHMENT_LOAD_OP_LOAD;
-				vkCmdBeginRendering(g.cmd, &info);
+				vkCmdBeginRendering(g.cmd, storage_mode ? &info_storage : &info);
 				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
 				VkDescriptorSet depth_set = depth_set_for(depth_image);
@@ -1014,6 +1025,20 @@ namespace bb::gfx {
 				instances++;
 			}
 
+			if (interlock) {
+				bool blended = (d.pipeline != g.opaque3d) && (d.pipeline != g.solid3d) && (d.pipeline != g.wire3d[0]);
+				if (blended != storage_mode) {
+					vkCmdEndRendering(g.cmd);
+					transition(*target.image, blended ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+					storage_mode = blended;
+					depth.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+					vkCmdBeginRendering(g.cmd, storage_mode ? &info_storage : &info);
+					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+					bound_pipeline = VK_NULL_HANDLE;
+					bound_cull = bound_test = bound_write = -1;
+				}
+			}
 			if (d.pipeline != bound_pipeline) {
 				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_for(d.pipeline, target.image->format));
 				bound_pipeline = d.pipeline;

@@ -121,9 +121,15 @@ namespace bb::gfx {
 		return (dither > 0) ? 1.0f + 5.588238f * float(presented % 64u) : 0.0f;
 	}
 
+	// Prototype: Dither 2 with a storage image and a pixel interlock (BLITZ_INTERLOCK_DITHER=1; BLITZ_NO_BLEND_DITHER=1 to use it where local read exists too).
+	bool blend_interlock()
+	{
+		return g.can_interlock && !g.can_blend_dither && (g.buffer_format == VK_FORMAT_R8G8B8A8_UNORM); // The storage image is RGBA8.
+	}
+
 	int dither_level()
 	{
-		return ((dither > 1) && !g.can_blend_dither) ? 1 : dither;
+		return ((dither > 1) && !g.can_blend_dither && !blend_interlock()) ? 1 : dither;
 	}
 
 	gpu_image* apply_gamma(gpu_image& front)

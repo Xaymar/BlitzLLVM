@@ -321,6 +321,7 @@ namespace bb::gfx {
 		bool                  can_wireframe  = false;
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
+		bool                  can_interlock     = false; // Prototype: VK_EXT_fragment_shader_interlock is on.
 		bool                  can_blend_dither  = false; // The extensions that let the fragment shader blend are on.
 		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
@@ -791,6 +792,7 @@ namespace bb::gfx {
 	float dither_code();
 	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader. */
 	int dither_level();
+	bool blend_interlock();
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
