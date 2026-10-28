@@ -49,6 +49,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_LIGHT_GRID` | The grid that finds the lights that reach a mesh. |
 | `BLITZLLVM_LIGHT_CACHE` | Remembering which lights reach a mesh. |
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[Spatial-Grid]]. |
+| `BLITZLLVM_DEVICE_RECOVERY` | Making the graphics again after the graphics device was lost, see [[Lost-Graphics-Device]]. Off, a lost device ends the program and no copies of the pixels are kept. |
 
 ## Tuning
 
@@ -56,6 +57,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 |---|---|---|
 | `BLITZLLVM_SPATIAL_GRID_SCAN_SHARE` | built in | The share of the meshes in the cells that are in view above which the grid is not used for that look, see [[Spatial-Grid]]. |
 | `BLITZLLVM_SPATIAL_GRID_MAX_MOVED` | built in | How many meshes may move in a frame before the grid is left alone. |
+| `BLITZLLVM_DEVICE_LOSS_COOLDOWN_MS` | `300000` | How many milliseconds without a lost graphics device make the next loss count as the first again; the third loss within it ends the program, see [[Lost-Graphics-Device]]. |
 
 ## Debugging and profiling
 
@@ -68,6 +70,8 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_DEBUG_SYNC_GPU` | `0` | Waits for the GPU after every frame, as if it had no thread. |
 | `BLITZLLVM_DEBUG_CHECK_LIGHTS` | `0` | Rates the lights of all meshes as well and stops if the grid and the cache gave different ones. |
 | `BLITZLLVM_DEBUG_SPATIAL_GRID` | `0` | Prints how many meshes the grid found each frame. |
+| `BLITZLLVM_SIMULATE_DEVICE_LOSS` | not set | Flip numbers (`3,8`) at which the graphics device counts as lost, by making all the graphics again on a device that works, see [[Lost-Graphics-Device]]. |
+| `BLITZLLVM_SIMULATE_DEVICE_LOSS_LATE` | `0` | The simulated loss is only noticed after the Flip, so the calls up to the next Flip run against a lost device. |
 
 ## Compiler and tools
 
