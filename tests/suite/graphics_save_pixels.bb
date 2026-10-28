@@ -5,7 +5,7 @@
 ; BMP, PNG, JPEG, WebP, JPEG XL and TGA files, their settings, and the metadata that says which program made the file.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_save_pixels: skipped, there is no window."
 	End
 EndIf

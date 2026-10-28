@@ -33,7 +33,7 @@ For i = 0 To 2
 
 	CloseMovie movie
 	; A debug build (-d) stops the program at a command that is given a movie that is closed, see tests/suite/fail.
-	If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then
+	If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then
 		Check "MoviePlaying after CloseMovie of " + files(i), MoviePlaying(movie), 0
 		Check "MovieWidth after CloseMovie of " + files(i), MovieWidth(movie), 0
 	EndIf
@@ -62,8 +62,8 @@ For i = 0 To 2
 	Check "A movie plays for 3 s of the time that it is not paused for " + files(i) + " (" + elapsed + " ms)", elapsed, 4500, 900
 	CloseMovie movie
 Next
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then PauseMovie 0
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then PlayMovie 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then PauseMovie 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then PlayMovie 0
 
 ; MovieLength says how long the movie is, and MoviePosition where it is: it counts the time that the movie plays, stands still while
 ; it is paused and stops at the end.
@@ -114,7 +114,7 @@ For i = 0 To 2
 	Check "SeekMovie after the end of " + files(i), MoviePlaying(movie), 0
 	CloseMovie movie
 Next
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then SeekMovie 0, 1.0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then SeekMovie 0, 1.0
 
 ; StopMovie ends the playback and goes back to the start: MoviePlaying is 0 and the position stays at the start until PlayMovie, which
 ; plays the movie from its start again. A movie that has ended is played again by PlayMovie as well.
@@ -140,7 +140,7 @@ For i = 0 To 2
 	Check "MoviePosition after PlayMovie after the end of " + files(i), MoviePosition(movie), 0.0, 0.3
 	CloseMovie movie
 Next
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then StopMovie 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then StopMovie 0
 
 ; LoopMovie makes a movie begin again where it ends, until it is turned off (LoopMovie movie, False) and then it ends.
 For i = 0 To 2
@@ -164,10 +164,10 @@ For i = 0 To 2
 	CheckTrue "A movie that does not loop ends within its length for " + files(i) + " (" + elapsed + " ms)", elapsed < 3500
 	CloseMovie movie
 Next
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then LoopMovie 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then LoopMovie 0
 
 ; A debug build (-d) stops the program at a command that is given the 0 of a movie that could not be opened, see tests/suite/fail.
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then
 	Check "MovieLength of no movie", MovieLength(0), 0.0, 0.0001
 	Check "MoviePosition of no movie", MoviePosition(0), 0.0, 0.0001
 EndIf
@@ -179,7 +179,7 @@ MovieVolume movie, 7.0
 MovieVolume movie, -1.0
 Check "MoviePlaying after MovieVolume", MoviePlaying(movie), 1
 CloseMovie movie
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then MovieVolume 0, 1.0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then MovieVolume 0, 1.0
 
 ; Handles can be used again.
 a = OpenMovie("movies/colors.mpg")
@@ -195,7 +195,7 @@ CloseMovie c
 Check "OpenMovie of a file that does not exist", OpenMovie("movies/does_not_exist.mpg"), 0
 Check "OpenMovie of a file that is not a movie", OpenMovie("check.bb"), 0
 Check "OpenMovie of nothing", OpenMovie(""), 0
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then
 	Check "MovieWidth of no movie", MovieWidth(0), 0
 	Check "MoviePlaying of no movie", MoviePlaying(0), 0
 	CloseMovie 0

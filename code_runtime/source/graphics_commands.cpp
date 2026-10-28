@@ -17,6 +17,7 @@
 #include "memory.h"
 
 #include <utility>
+#include "environment.h"
 
 using namespace bb::gfx;
 
@@ -205,7 +206,7 @@ namespace bb::gfx {
 		SDL_UnlockMutex(gpu_mutex);
 	}
 
-	// GPU timestamps for BLITZ_FPS (programs compiled with --profile): each mark is the end of a pass, and the time since the
+	// GPU timestamps for BLITZLLVM_PROFILE_FPS (programs compiled with --profile): each mark is the end of a pass, and the time since the
 	// mark before is that pass's. They are read back when the slot is used again, as its command buffer is done by then.
 	VkQueryPool    profile_query_pool = VK_NULL_HANDLE;
 	double         profile_gpu_pass[5] = {};
@@ -568,11 +569,10 @@ namespace bb::gfx {
 		SDL_BroadcastCondition(gpu_cond);
 		SDL_UnlockMutex(gpu_mutex);
 
-		// BLITZ_SYNC_GPU=1 waits for every frame, as if there was no thread (for comparing and for finding errors).
+		// BLITZLLVM_DEBUG_SYNC_GPU=1 waits for every frame, as if there was no thread (for comparing and for finding errors).
 		static int synchronous = -1;
 		if (synchronous < 0) {
-			const char* value = getenv("BLITZ_SYNC_GPU");
-			synchronous       = (value && value[0] && (value[0] != '0')) ? 1 : 0;
+			synchronous = bb_env_bool("BLITZLLVM_DEBUG_SYNC_GPU", false) ? 1 : 0;
 		}
 		select_frame_slot((current_slot + 1) % frame_slots);
 		if (synchronous) {
@@ -812,7 +812,7 @@ namespace bb::gfx {
 			VkClearColorValue       black = {};
 			VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 			vkCmdClearColorImage(g.cmd, g.swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &black, 1, &range);
-			const char* rule = getenv("BLITZ_FULLSCREEN_FILTER"); // "nearest" or "linear" instead of the choice by size.
+			const char* rule = bb_env("BLITZLLVM_FULLSCREEN_FILTER"); // "nearest" or "linear" instead of the choice by size.
 			if (rule && (strcmp(rule, "linear") == 0)) {
 				filter = VK_FILTER_LINEAR;
 			} else if (!rule || (strcmp(rule, "nearest") != 0)) {

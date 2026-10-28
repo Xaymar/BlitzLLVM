@@ -4,11 +4,11 @@
 ; CreateSprite sprites come out like they do with the original Blitz3D 1.118: 15 sprites with different scales, rolls, handles,
 ; view modes (including numbers that are none of them, which are fixed), FX flags (no fullbright means lit by the ambient light
 ; only, as a sprite has no normals), a copy and a child of a scaled and turned pivot, seen from two cameras. The pictures
-; (images/sprite_modes_original_<n>.png) were made by the original under Wine with BLITZ_WRITE_REFERENCE=<prefix> set and
+; (images/sprite_modes_original_<n>.png) were made by the original under Wine with BLITZLLVM_TEST_WRITE_REFERENCE=<prefix> set and
 ; converted to PNG; at least 99% of the pixels are within 8 of a pixel next to them.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_sprite_modes_pixels: skipped, there is no window."
 	End
 EndIf
@@ -71,8 +71,8 @@ For k = 1 To 2
 	Case 3 : PositionEntity camera, 5, 0, 20 : RotateEntity camera, 0, 200, 0
 	End Select
 	RenderWorld
-	If GetEnv$("BLITZ_WRITE_REFERENCE") <> "" Then
-		SaveBuffer BackBuffer(), GetEnv$("BLITZ_WRITE_REFERENCE") + k + ".bmp"
+	If GetEnv$("BLITZLLVM_TEST_WRITE_REFERENCE") <> "" Then
+		SaveBuffer BackBuffer(), GetEnv$("BLITZLLVM_TEST_WRITE_REFERENCE") + k + ".bmp"
 	Else
 		reference = LoadImage("images/sprite_modes_original_" + k + ".png")
 		CheckTrue "The picture of the original is there (" + k + ")", reference <> 0

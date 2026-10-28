@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "runtime_internal.h"
+#include "environment.h"
 
 using namespace bb::gfx;
 
@@ -97,7 +98,7 @@ namespace {
 		listed  = true;
 
 		// Test programs run without a window, and have no display to ask: SDL's dummy driver is one display.
-		if (getenv("BLITZ_HEADLESS") && !getenv("SDL_VIDEO_DRIVER")) {
+		if (bb_env_bool("BLITZLLVM_HEADLESS", 0) && !getenv("SDL_VIDEO_DRIVER")) {
 			SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "dummy");
 		}
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO)) {

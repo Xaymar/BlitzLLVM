@@ -34,6 +34,8 @@ option(BLITZ_CUSTOM_ALLOCATOR "Use the runtime's own allocator at all (OFF is fo
 
 target_sources(blitzrt PRIVATE
 	"source/memory.h"
+	"source/environment.h"
+	"source/environment.c"
 	"source/runtime.c"
 	"source/runtime_objects.c"
 	"source/runtime_strings.c"

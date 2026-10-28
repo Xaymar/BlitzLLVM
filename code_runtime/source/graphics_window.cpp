@@ -16,6 +16,7 @@
 #include "graphics_internal.hpp"
 #include "memory.h"
 #include "graphics_save.hpp"
+#include "environment.h"
 
 using namespace bb::gfx;
 
@@ -41,7 +42,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	g.requested_depth = depth;
 	g.buffer_depth    = (depth == 24 || depth == 30 || depth == 64) ? depth : 32;
 	g.buffer_format   = VK_FORMAT_R8G8B8A8_UNORM;
-	g.headless = getenv("BLITZ_HEADLESS") != nullptr;
+	g.headless = bb_env_bool("BLITZLLVM_HEADLESS", 0) != 0;
 	g.width    = uint32_t(width);
 	g.height   = uint32_t(height);
 	g.created  = true;
@@ -79,7 +80,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	}
 	SDL_StartTextInput(g.window);
 	g.auto_suspend = (mode == 1); // Fullscreen programs are suspended when they are not in front, unless they say not.
-	if (const char* path = getenv("BLITZ_TEST_WINDOW_FLAGS")) {
+	if (const char* path = bb_env("BLITZLLVM_TEST_WINDOW_FLAGS")) {
 		// Test hook: the flags SDL gave the window, as a number in the named file.
 		if (FILE* file = fopen(path, "w")) {
 			fprintf(file, "%llu", (unsigned long long)SDL_GetWindowFlags(g.window));
@@ -90,7 +91,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	create_vulkan();
 	create_buffers(uint32_t(width), uint32_t(height));
 	create_swapchain();
-	if (const char* path = getenv("BLITZ_TEST_LAYOUT")) {
+	if (const char* path = bb_env("BLITZLLVM_TEST_LAYOUT")) {
 		// Test hook: the size of the window in pixels, where the buffer is shown in it, and the buffer coordinates of
 		// the window corners and center, one number per line in the named file.
 		if (FILE* file = fopen(path, "w")) {
@@ -272,7 +273,7 @@ void bb_app_title(const char* title, const char* close_prompt)
 	}
 }
 
-// A program compiled with --profile (or -d) turns the timers of profile.hpp on, which BLITZ_FPS and BLITZ_SAMPLE then report.
+// A program compiled with --profile (or -d) turns the timers of profile.hpp on, which BLITZLLVM_PROFILE_FPS and BLITZLLVM_PROFILE_SAMPLE then report.
 extern "C" void bb_set_profile(int32_t profile)
 {
 	bb::profile_enabled = (profile != 0);
@@ -288,12 +289,12 @@ void bb_flip(int32_t vwait)
 	recovery_flip_begin(); // Where a device that was lost is made good again.
 	async_pump();
 	{
-		// BLITZ_FPS=1 reports how many frames are shown each second.
+		// BLITZLLVM_PROFILE_FPS=1 reports how many frames are shown each second.
 		static int    enabled = -1;
 		static Uint64 last    = 0;
 		static int    frames  = 0;
 		if (enabled < 0) {
-			enabled = (bb::profile_enabled && getenv("BLITZ_FPS")) ? 1 : 0;
+			enabled = (bb::profile_enabled && bb_env_bool("BLITZLLVM_PROFILE_FPS", false)) ? 1 : 0;
 			if (bb::profile_enabled) {
 				bb::profile_start_sampler();
 			}

@@ -5,7 +5,7 @@
 ; texture is masked: what is drawn second shows over what is drawn first, whichever is nearer.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_transparency_depth_pixels: skipped, there is no window."
 	End
 EndIf

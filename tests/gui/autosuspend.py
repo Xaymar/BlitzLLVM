@@ -54,7 +54,7 @@ def main():
     progress = os.path.join(work, "progress.txt")
     if os.path.exists(progress):
         os.remove(progress)
-    env = dict(os.environ, BLITZ_PROGRESS=progress, BLITZ_SECONDS="20", BLITZ_SUSPEND="1" if mode == "on" else "0")
+    env = dict(os.environ, BLITZLLVM_TEST_PROGRESS=progress, BLITZLLVM_TEST_SECONDS="20", BLITZLLVM_TEST_SUSPEND="1" if mode == "on" else "0")
     program = procutil.Popen([exe], env=env, cwd=work)
     try:
         window = None

@@ -32,6 +32,7 @@
 #include <memory>
 #include <mutex>
 #include <set>
+#include "environment.h"
 
 namespace bb::gfx {
 
@@ -703,8 +704,7 @@ namespace bb::gfx {
 		}
 		if (!async_decided) {
 			async_decided   = true;
-			const char* env = SDL_getenv("BLITZ_ASYNC_SAVE");
-			async_setting   = env && (env[0] == '1');
+			async_setting = bb_env_bool("BLITZLLVM_ASYNC_SAVE", false) != 0;
 		}
 		return async_setting;
 	}

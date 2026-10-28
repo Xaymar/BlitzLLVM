@@ -6,7 +6,7 @@
 ; red for a second, then green, then blue (see graphics_movies.bb), and the texture follows them while the world is rendered.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_movies_texture_pixels: skipped, there is no window."
 	End
 EndIf
@@ -73,6 +73,6 @@ For i = 0 To 2
 	CloseMovie movie
 Next
 
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then Check "GetMovieTexture of no movie", GetMovieTexture(0), 0
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then Check "GetMovieTexture of no movie", GetMovieTexture(0), 0
 
 Print "graphics_movies_texture_pixels: " + suite_checks + " checks passed."

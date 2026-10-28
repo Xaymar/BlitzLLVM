@@ -7,7 +7,7 @@
 ; Debug programs also compare the grid with a look at every mesh, and stop with an error if it left out one that is in view.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_grid_pixels: skipped, there is no window."
 	End
 EndIf

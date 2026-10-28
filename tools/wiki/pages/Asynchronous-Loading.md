@@ -5,7 +5,7 @@
 
 @difference Extension: `AsyncLoading` makes `LoadTexture`, `LoadImage`, `LoadMesh` and `LoadAnimMesh` decode on other threads, and `TextureReady`, `ImageReady` and `EntityReady` say whether something is done.
 
-The originals decode every picture and parse every model before `LoadTexture`, `LoadImage`, `LoadMesh` or `LoadAnimMesh` return. BlitzLLVM can instead read the file, return a handle at once and decode on worker threads, so that the program can do other setup in the meantime. It is off by default, so a program behaves as in the original unless it turns it on with [AsyncLoading](AsyncLoading) or the environment variable `BLITZ_ASYNC_LOAD=1`.
+The originals decode every picture and parse every model before `LoadTexture`, `LoadImage`, `LoadMesh` or `LoadAnimMesh` return. BlitzLLVM can instead read the file, return a handle at once and decode on worker threads, so that the program can do other setup in the meantime. It is off by default, so a program behaves as in the original unless it turns it on with [AsyncLoading](AsyncLoading) or the environment variable `BLITZLLVM_ASYNC_LOAD=1`.
 
 Everything that needs the picture waits for it by itself, so a program does not have to change: drawing, [TextureWidth](TextureWidth), [ImageWidth](ImageWidth), [ReadPixel](ReadPixel) and the rest. [TextureReady](TextureReady) and [ImageReady](ImageReady) only ask, for programs that want to show a loading screen or to measure.
 

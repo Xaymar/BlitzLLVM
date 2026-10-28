@@ -49,10 +49,10 @@ def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False, 
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
-	env.pop("BLITZ_HEADLESS", None)
-	env.pop("BLITZ_AUDIO_CLASSIC", None)
+	env.pop("BLITZLLVM_HEADLESS", None)
+	env.pop("BLITZLLVM_LEGACY_AUDIO_RESAMPLING", None)
 	if classic:
-		env["BLITZ_AUDIO_CLASSIC"] = "1"
+		env["BLITZLLVM_LEGACY_AUDIO_RESAMPLING"] = "1"
 	run = procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	if not os.path.exists("sdlaudio.raw"):
 		print("no disk audio driver")
@@ -125,7 +125,7 @@ for what, setup, after, expected in (
 	frequency, smoothness, length = analyze(samples)
 	check("%s: pitch %.1f Hz is %.1f Hz" % (what, frequency, expected), abs(frequency - expected) < expected * 0.01)
 
-# BLITZ_AUDIO_CLASSIC resamples like the original (linear interpolation), which keeps the pitch but adds the mirror images of a low-rate
+# BLITZLLVM_LEGACY_AUDIO_RESAMPLING resamples like the original (linear interpolation), which keeps the pitch but adds the mirror images of a low-rate
 # sound above its own bandwidth. SDL_mixer's own resampling leaves them out.
 def image_energy(samples):
 	loud = [i for i, v in enumerate(samples) if abs(v) > 300]
@@ -164,7 +164,7 @@ def play_moving(listener_step, source_step, scale=1.0, distance=1.0, name="tone.
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
-	env.pop("BLITZ_HEADLESS", None)
+	env.pop("BLITZLLVM_HEADLESS", None)
 	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read()
 	count = len(data) // 4
@@ -213,7 +213,7 @@ def play_start_stop():
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
-	env.pop("BLITZ_HEADLESS", None)
+	env.pop("BLITZLLVM_HEADLESS", None)
 	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read()
 	count = len(data) // 4
@@ -245,7 +245,7 @@ def play_rendering(source_x, listener_step=0, source_step=0, seconds=1.5):
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
-	env.pop("BLITZ_HEADLESS", None)
+	env.pop("BLITZLLVM_HEADLESS", None)
 	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	if not os.path.exists("sdlaudio.raw"):
 		print("no disk audio driver or window")
@@ -282,7 +282,7 @@ for movie in ("colors.mpg", "colors.avi", "colors.mp4", "colors.webm"):
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
-	env.pop("BLITZ_HEADLESS", None)
+	env.pop("BLITZLLVM_HEADLESS", None)
 	run = procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read() if os.path.exists("sdlaudio.raw") else b""
 	count = len(data) // 4
@@ -301,7 +301,7 @@ for volume in ("1.0", "0.5", "0.0"):
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
-	env.pop("BLITZ_HEADLESS", None)
+	env.pop("BLITZLLVM_HEADLESS", None)
 	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read() if os.path.exists("sdlaudio.raw") else b""
 	count = len(data) // 4

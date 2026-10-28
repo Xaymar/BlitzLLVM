@@ -4,9 +4,9 @@
 ; A debug build (-d) stops ReadPixelFast64 on a buffer that is not locked. Other builds do nothing, so there the same message is
 ; raised by the program itself. Needs a window and a GPU, so this is skipped without one.
 ; Expect: the buffer has to be locked
-If GetEnv$("BLITZ_HEADLESS") <> "" Then RuntimeError("the buffer has to be locked (skipped, there is no window).")
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then RuntimeError("the buffer has to be locked (skipped, there is no window).")
 Graphics 64, 48, 32, 2
 SetBuffer BackBuffer()
-If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then RuntimeError("ReadPixelFast64: the buffer has to be locked with LockBuffer (release build, not checked).")
+If GetEnv$("BLITZLLVM_TEST_DEBUG") = "" Then RuntimeError("ReadPixelFast64: the buffer has to be locked with LockBuffer (release build, not checked).")
 v = ReadPixelFast64(3, 3, 0)
 Print "The command did not stop the program."

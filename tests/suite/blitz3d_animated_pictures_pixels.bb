@@ -5,7 +5,7 @@
 ; right frames of an image and of a texture.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_animated_pictures_pixels: skipped, there is no window."
 	End
 EndIf

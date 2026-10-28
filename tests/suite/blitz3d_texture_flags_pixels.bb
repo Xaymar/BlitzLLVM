@@ -6,7 +6,7 @@
 ; holds linear values, 55 for this grey, while ReadPixel on the texture still returns the bytes of the file.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_texture_flags_pixels: skipped, there is no window."
 	End
 EndIf

@@ -10,7 +10,7 @@ over a cliff, made of thousands of see-through sprites. The result is also saved
                                      [--debug] [--profile] [--label NAME] [--shot FILE] [--no-save]
 
 --sprites defaults to $BENCH_SPRITES or 5000, --frames to $BENCH_FRAMES or 300; "--sprites 50000" is the heavy run, and
-"--quick" is 500 sprites and 30 frames for a look whether it works. -d builds without optimization (which BLITZ_FPS
+"--quick" is 500 sprites and 30 frames for a look whether it works. -d builds without optimization (which BLITZLLVM_PROFILE_FPS
 profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the
@@ -62,7 +62,7 @@ def main():
     parser.add_argument("--quick", action="store_true", help="500 sprites, 30 frames")
     parser.add_argument("--static", action="store_true", help="the water stays where it starts, only the camera moves")
     parser.add_argument("--debug", action="store_true", help="build with -d (no optimization)")
-    parser.add_argument("--profile", action="store_true", help="build with --profile, for BLITZ_FPS=1")
+    parser.add_argument("--profile", action="store_true", help="build with --profile, for BLITZLLVM_PROFILE_FPS=1")
     parser.add_argument("--label", default="", help="name of this run in the result, such as the GPU")
     parser.add_argument("--shot", help="save the last frame to this file")
     parser.add_argument("--no-save", action="store_true", help="don't write benchmarks/results/")
@@ -109,7 +109,7 @@ def main():
         if args.static:
             env["BENCH_STATIC"] = "1"
         if args.profile and llvm:
-            env["BLITZ_FPS"] = "1"
+            env["BLITZLLVM_PROFILE_FPS"] = "1"
         if args.shot:
             env["BENCH_SHOT"] = os.path.abspath(args.shot)
         print("Running %d sprites, %d frames, %sx%s, build %s" % (args.sprites, args.frames, width, height, " ".join(flags)), flush=True)
@@ -122,7 +122,7 @@ def main():
         if result.returncode != 0 or line is None:
             sys.exit("The benchmark failed (exit code %d):\n%s" % (result.returncode, output[-2000:]))
         values = {k: float(v) for k, v in re.findall(r"(\w+)=([-+\d.eE]+)", line.split("RESULT ", 1)[1])}
-        # With --profile the runtime reports the GPU time of the passes once a second (BLITZ_FPS=1), summed over the frames of that
+        # With --profile the runtime reports the GPU time of the passes once a second (BLITZLLVM_PROFILE_FPS=1), summed over the frames of that
         # second: the first second is left out (the sprites are made and the GPU buffers filled), the others are averaged per frame.
         gpu = {}
         if args.profile and llvm:
@@ -157,7 +157,7 @@ def main():
         "build": " ".join(flags),
         "platform": platform.platform(),
         "display": "xvfb" if runner else "native",
-        "blitz_fps_hint": "BLITZ_FPS=1 prints the runtime timers once a second" if args.profile else "",
+        "blitz_fps_hint": "BLITZLLVM_PROFILE_FPS=1 prints the runtime timers once a second" if args.profile else "",
         "result": values,
         "gpu": gpu,
     }
@@ -169,7 +169,7 @@ def main():
     print("  per frame   %.0f triangles, %.0f draw calls, %.0f pipeline binds, %.0f texture binds, %.0f buffer binds"
           % (values["tris"], values["draws"], values["pipelines"], values["textures"], values["buffers"]))
     if gpu:
-        print("  gpu         scene %.3f ms, 2d %.3f ms, frame %.3f ms per frame (%d frames, from BLITZ_FPS, summed GPU passes)" % (gpu["gpu_scene_ms"], gpu["gpu_2d_ms"], gpu["gpu_frame_ms"], gpu["gpu_frames"]))
+        print("  gpu         scene %.3f ms, 2d %.3f ms, frame %.3f ms per frame (%d frames, from BLITZLLVM_PROFILE_FPS, summed GPU passes)" % (gpu["gpu_scene_ms"], gpu["gpu_2d_ms"], gpu["gpu_frame_ms"], gpu["gpu_frames"]))
     print("  build       %s (%s)" % (record["build"] or "no options", version or "unknown compiler"))
 
     if not args.no_save:

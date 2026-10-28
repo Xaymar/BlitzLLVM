@@ -11,7 +11,7 @@ draw calls and the triangles.
 A map is the name of a file in mods/Stranded II/maps (such as "Survival Guide"), or "random" for a random island.
 BENCH_FRAMES is how many frames are timed (default 300), BENCH_W and BENCH_H the size of the window (default 800x600),
 BENCH_SHOT=<file> saves the last frame as a picture, BENCH_BLITZCC_ARGS are more arguments for blitzcc (such as -g), and
-BENCH_KEEP=<directory> keeps a copy of the game and the program that was built, for profiling (BLITZ_SAMPLE=<file>). The copy of the game that is run starts in the map at once
+BENCH_KEEP=<directory> keeps a copy of the game and the program that was built, for profiling (BLITZLLVM_PROFILE_SAMPLE=<file>). The copy of the game that is run starts in the map at once
 and does not wait for 50 frames per second, the rest is the game as it is. On Windows run it from the CI build.
 
 Without a display it runs under xvfb-run, which with Mesa means llvmpipe: the times are then mostly the CPU rasterizing
@@ -111,7 +111,7 @@ def main():
         procutil.run([compiler, "-q"] + os.environ.get("BENCH_BLITZCC_ARGS", "").split() + [os.path.join(game, "StrandedII.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         env = dict(os.environ, BENCH_FRAMES=os.environ.get("BENCH_FRAMES", "300"), BENCH_W=os.environ.get("BENCH_W", "800"), BENCH_H=os.environ.get("BENCH_H", "600"))
         if os.environ.get("BENCH_KEEP"):
-            # Keeps the program and the debug information, which is what turns the addresses of BLITZ_SAMPLE into names.
+            # Keeps the program and the debug information, which is what turns the addresses of BLITZLLVM_PROFILE_SAMPLE into names.
             shutil.copytree(game, os.environ["BENCH_KEEP"], dirs_exist_ok=True)
         print("%-16s %9s %7s %10s %9s %8s %10s" % ("map", "tris", "draws", "pipelines", "textures", "buffers", "ms/frame"))
         for name in maps:

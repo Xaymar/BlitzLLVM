@@ -7,7 +7,7 @@
 ; pictures also have to keep their colors and their mask, and still show after their pixels were read.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_texture_formats_pixels: skipped, there is no window."
 	End
 EndIf

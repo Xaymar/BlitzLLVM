@@ -5,7 +5,7 @@
 ; fixed-function blender, so asking for Dither 2 there must still draw the blend, with no pixel further than a step from the exact value.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_dither_blend_deep_pixels: skipped, there is no window."
 	End
 EndIf

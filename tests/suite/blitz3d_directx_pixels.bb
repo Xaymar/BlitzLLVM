@@ -5,7 +5,7 @@
 ; which side of a triangle is its front, and that the frame of the model puts it where it is.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_directx_pixels: skipped, there is no window."
 	End
 EndIf

@@ -5,7 +5,7 @@
 ; SavesFailed with SaveBuffer SaveImage SaveTexture, and that a program that ends with saves going on still gets its files.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_save_async_pixels: skipped, there is no window."
 	End
 EndIf
@@ -59,9 +59,9 @@ Flip 2
 If Instr(CommandLine$(), "child") > 0
 	AsyncSaving True
 	For i = 0 To 3
-		SaveBuffer FrontBuffer(), GetEnv$("BLITZ_SAVE_TEST_PREFIX") + i + ".png", "compression=9"
+		SaveBuffer FrontBuffer(), GetEnv$("BLITZLLVM_TEST_SAVE_PREFIX") + i + ".png", "compression=9"
 	Next
-	SaveBuffer FrontBuffer(), GetEnv$("BLITZ_SAVE_TEST_PREFIX") + "j.jxl", "lossless=1,effort=7"
+	SaveBuffer FrontBuffer(), GetEnv$("BLITZLLVM_TEST_SAVE_PREFIX") + "j.jxl", "lossless=1,effort=7"
 	End
 EndIf
 
@@ -73,7 +73,7 @@ Check "Saving without threads is done at once", SavesPending(), 0
 Check "The file is there at once", Differs(unique + "sync.png"), 0
 
 ; A debug build ignores AsyncSaving and saves on the spot, so that a failing save is reported by the call that asked for it.
-If GetEnv$("BLITZ_SUITE_DEBUG") <> "" Then
+If GetEnv$("BLITZLLVM_TEST_DEBUG") <> "" Then
 	AsyncSaving True
 	Check "A debug build saves on the spot", SaveBuffer(FrontBuffer(), unique + "debug.png"), 1
 	Check "A debug build has nothing pending", SavesPending(), 0
@@ -159,12 +159,12 @@ Check "Saving without threads again", SaveBuffer(FrontBuffer(), unique + "sync2.
 Check "Nothing is pending after a save without threads", SavesPending(), 0
 
 ; A program that ends with saves going on still has its files: the other program saves and ends at once.
-program$ = GetEnv$("BLITZ_SUITE_PROGRAM")
+program$ = GetEnv$("BLITZLLVM_TEST_PROGRAM")
 If program = "" Then
 	Print "graphics_save_async_pixels: the program is not known, so the ending was not tested."
 	suite_checks = suite_checks + 1
 Else
-	SetEnv "BLITZ_SAVE_TEST_PREFIX", unique + "child_"
+	SetEnv "BLITZLLVM_TEST_SAVE_PREFIX", unique + "child_"
 	CheckTrue "Starting the other program", CreateProcess(Chr$(34) + program + Chr$(34) + " child")
 	start = MilliSecs()
 	missing = 5

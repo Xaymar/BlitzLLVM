@@ -27,6 +27,12 @@
 
 #include "memory.h"
 
+// What the runtime has in runtime.c; environment.c asks it whether this is a debug build.
+extern "C" int32_t bb_is_debug(void)
+{
+	return 0;
+}
+
 #if defined(BB_INTERPOSE_MALLOC)
 extern "C" void* __libc_malloc(size_t);
 extern "C" void  __libc_free(void*);

@@ -54,7 +54,7 @@ Files carry Exif metadata with the description and the software set to `Generate
 
 ## On another thread
 
-Encoding takes time that a game may not have in a frame. On a test machine a 1920x1080 screenshot took about 60 ms as JPEG, 80 ms to 2 seconds as PNG (`compression=1` to `9`), 165 ms as lossy WebP and 80 ms to 3 seconds as JPEG XL (`effort=3` to a lossless `effort=7`). [AsyncSaving](AsyncSaving) `True` (or `BLITZ_ASYNC_SAVE=1` in the environment) makes the save commands only read the pixels, and a worker thread encodes and writes the file. [SavesPending](SavesPending) and [SavesFailed](SavesFailed) tell how it is going, and a program that ends waits for its saves. It is off by default, so a save has written its file when the command returns.
+Encoding takes time that a game may not have in a frame. On a test machine a 1920x1080 screenshot took about 60 ms as JPEG, 80 ms to 2 seconds as PNG (`compression=1` to `9`), 165 ms as lossy WebP and 80 ms to 3 seconds as JPEG XL (`effort=3` to a lossless `effort=7`). [AsyncSaving](AsyncSaving) `True` (or `BLITZLLVM_ASYNC_SAVE=1` in the environment) makes the save commands only read the pixels, and a worker thread encodes and writes the file. [SavesPending](SavesPending) and [SavesFailed](SavesFailed) tell how it is going, and a program that ends waits for its saves. It is off by default, so a save has written its file when the command returns.
 
 ## Libraries
 

@@ -9,12 +9,12 @@
 ; ScaleImage RotateImage LoadBuffer LockedPixels LockedPitch LockedFormat.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_pixels: skipped, there is no window."
 	End
 EndIf
 
-SetEnv "BLITZ_TEST_PRESENT", "present.tmp"
+SetEnv "BLITZLLVM_TEST_PRESENT", "present.tmp"
 Graphics 160, 120, 32, 2
 SetBuffer BackBuffer()
 

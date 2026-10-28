@@ -17,6 +17,7 @@
 #include "graphics_internal.hpp"
 #include "memory.h"
 #include "runtime_internal.h"
+#include "environment.h"
 
 using namespace bb::gfx;
 
@@ -39,7 +40,7 @@ namespace {
 		modes.push({ width, height, depth });
 	}
 
-	// The fullscreen modes of the display. Without one (and without a window, as with BLITZ_HEADLESS, which is looked at
+	// The fullscreen modes of the display. Without one (and without a window, as with BLITZLLVM_HEADLESS, which is looked at
 	// here because Graphics may not have been called yet) a few common sizes are listed.
 	void list_modes()
 	{
@@ -47,7 +48,7 @@ namespace {
 			return;
 		}
 		modes_listed = true;
-		if (!g.headless && !getenv("BLITZ_HEADLESS") && SDL_InitSubSystem(SDL_INIT_VIDEO)) {
+		if (!g.headless && !bb_env_bool("BLITZLLVM_HEADLESS", 0) && SDL_InitSubSystem(SDL_INIT_VIDEO)) {
 			int                count   = 0;
 			SDL_DisplayMode**  display = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &count);
 			for (int i = 0; display && (i < count); i++) {

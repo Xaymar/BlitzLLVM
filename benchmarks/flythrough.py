@@ -10,7 +10,7 @@ also saved as JSON (and added to a CSV) in benchmarks/results/.
                                      [--debug] [--profile] [--label NAME] [--shot FILE] [--no-save]
 
 --objects defaults to $BENCH_OBJECTS or 20000, --frames to $BENCH_FRAMES or 300; "--objects 1000000" is the full run, and
-"--quick" is 2000 objects and 30 frames for a look whether it works. -d builds without optimization (which BLITZ_FPS
+"--quick" is 2000 objects and 30 frames for a look whether it works. -d builds without optimization (which BLITZLLVM_PROFILE_FPS
 profiling needs together with --profile); the build configuration is part of the result so runs are not mixed up.
 
 The original Blitz3D works too, so that its speed can be compared: --blitzcc C:\\Blitz3D\\bin\\blitzcc.exe (BLITZPATH is set to the
@@ -62,7 +62,7 @@ def main():
     parser.add_argument("--size", default=os.environ.get("BENCH_SIZE", "640x360"))
     parser.add_argument("--quick", action="store_true", help="2000 objects, 30 frames")
     parser.add_argument("--debug", action="store_true", help="build with -d (no optimization)")
-    parser.add_argument("--profile", action="store_true", help="build with --profile, for BLITZ_FPS=1")
+    parser.add_argument("--profile", action="store_true", help="build with --profile, for BLITZLLVM_PROFILE_FPS=1")
     parser.add_argument("--label", default="", help="name of this run in the result, such as the GPU")
     parser.add_argument("--shot", help="save the last frame to this file")
     parser.add_argument("--no-save", action="store_true", help="don't write benchmarks/results/")
@@ -132,7 +132,7 @@ def main():
         "build": " ".join(flags),
         "platform": platform.platform(),
         "display": "xvfb" if runner else "native",
-        "blitz_fps_hint": "BLITZ_FPS=1 prints the runtime timers once a second" if args.profile else "",
+        "blitz_fps_hint": "BLITZLLVM_PROFILE_FPS=1 prints the runtime timers once a second" if args.profile else "",
         "result": values,
     }
     print("\n  objects     %12d" % values["objects"])

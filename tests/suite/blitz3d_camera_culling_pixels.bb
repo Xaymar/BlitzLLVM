@@ -6,7 +6,7 @@
 ; so this is skipped without one.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_camera_culling_pixels: skipped, there is no window."
 	End
 EndIf

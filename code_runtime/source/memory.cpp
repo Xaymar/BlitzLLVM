@@ -13,6 +13,7 @@
 // See memory.h for the design.
 
 #include "memory.h"
+#include "environment.h"
 
 #include <atomic>
 #include <new>
@@ -42,6 +43,7 @@ __declspec(dllimport) void* __stdcall VirtualAlloc(void*, size_t, unsigned long,
 
 #if !defined(BB_INTERPOSE_MALLOC) && !defined(BB_ALLOC_NO_SDL)
 #include <SDL3/SDL_stdinc.h>
+#include "environment.h"
 #endif
 
 #if defined(BB_INTERPOSE_MALLOC)
@@ -192,12 +194,9 @@ namespace {
 		int expected = 0;
 		if (g_state.compare_exchange_strong(expected, 1)) {
 			init_classes();
-			const char* debug  = getenv("BLITZ_ALLOC_DEBUG");
-			const char* stats  = getenv("BLITZ_ALLOC_STATS");
-			const char* system = getenv("BLITZ_ALLOC_SYSTEM");
-			g_debug            = debug && *debug && *debug != '0';
-			g_stats            = g_debug || (stats && *stats && *stats != '0');
-			g_system           = system && *system && *system != '0';
+			g_debug  = bb_env_bool("BLITZLLVM_DEBUG_ALLOC", false) != 0;
+			g_stats  = g_debug || bb_env_bool("BLITZLLVM_DEBUG_ALLOC_STATS", false);
+			g_system = bb_env_bool("BLITZLLVM_ALLOC_SYSTEM", false) != 0;
 #if defined(BB_ALLOC_PASSTHROUGH)
 			g_system = true;
 #endif

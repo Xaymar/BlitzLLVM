@@ -16,6 +16,7 @@
 
 #include "graphics_internal.hpp"
 #include "handle_check.h"
+#include "environment.h"
 
 namespace bb::gfx {
 
@@ -149,8 +150,7 @@ namespace bb::gfx {
 			return false; // A debug build loads on the spot, so that a file that can't be loaded stops the program at the call that asked for it.
 		}
 		if (setting < 0) {
-			const char* env = SDL_getenv("BLITZ_ASYNC_LOAD");
-			setting         = (env && (env[0] == '1')) ? 1 : 0;
+			setting = bb_env_bool("BLITZLLVM_ASYNC_LOAD", false) ? 1 : 0;
 		}
 		return setting == 1;
 	}

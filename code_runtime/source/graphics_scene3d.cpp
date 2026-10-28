@@ -23,12 +23,13 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include "environment.h"
 
 using namespace bb::gfx;
 
 namespace bb::gfx {
 
-	draw_stats stats3d; // What the recorded draws cost, for Stats3D and BLITZ_FPS.
+	draw_stats stats3d; // What the recorded draws cost, for Stats3D and BLITZLLVM_PROFILE_FPS.
 
 	uint32_t flush_number = 0;
 
@@ -1671,7 +1672,7 @@ namespace bb::gfx {
 	static void prepare_light_grid(bb::entity const& cam, scene_data const& data, float width, float height)
 	{
 		grid.enabled = false;
-		static const bool allowed = !getenv("BLITZ_NO_LIGHT_GRID");
+		static const bool allowed = bb_env_bool("BLITZLLVM_LIGHT_GRID", true);
 		if (!allowed || current_light_count <= draw_lights || cam.cam_projection != 1 || cam.cam_near <= 0 || cam.cam_far <= cam.cam_near * 1.5f) {
 			return;
 		}
@@ -1781,8 +1782,8 @@ namespace bb::gfx {
 			uint32_t cell, found;
 			if (grid.enabled && grid_cell_of(center, radius, cell)) {
 				found = rate_lights(grid.lists[cell], grid.counts[cell], center, radius, places);
-				// With BLITZ_CHECK_LIGHTS the lights of all are rated as well, and have to be the same (the tests do that).
-				static const bool check = getenv("BLITZ_CHECK_LIGHTS") != nullptr;
+				// With BLITZLLVM_DEBUG_CHECK_LIGHTS the lights of all are rated as well, and have to be the same (the tests do that).
+				static const bool check = bb_env_bool("BLITZLLVM_DEBUG_CHECK_LIGHTS", false);
 				if (check) {
 					uint32_t all[draw_lights];
 					uint32_t all_found = rate_lights(nullptr, current_light_count, center, radius, all);
@@ -2096,13 +2097,13 @@ namespace bb::gfx {
 					radius += column * 0.5f * (hi[axis] - lo[axis]);
 				}
 				// An entity that did not move, with lights that did not, has the same lights as the last time.
-				static const bool cached = !getenv("BLITZ_NO_LIGHT_CACHE");
+				static const bool cached = bb_env_bool("BLITZLLVM_LIGHT_CACHE", true);
 				bb::cull_record& record = bb::cull_record_of(item.handle);
 				bool hit = cached && (record.light_hash == current_light_hash) && (record.light_radius == radius)
 					&& (record.light_center[0] == world[0]) && (record.light_center[1] == world[1]) && (record.light_center[2] == world[2]);
 				if (hit) {
 					memcpy(push.lights, record.light_places, sizeof(push.lights));
-					static const bool check = getenv("BLITZ_CHECK_LIGHTS") != nullptr;
+					static const bool check = bb_env_bool("BLITZLLVM_DEBUG_CHECK_LIGHTS", false);
 					if (check) {
 						float again[4];
 						choose_lights(again, true, center, radius);
@@ -2191,7 +2192,7 @@ namespace bb::gfx {
 			// same smaller shape, which has less to fill in and is no pixel different. Anything that changes where the texture is
 			// (frames, other layers, scaling, turning, generated coordinates) or has a mesh of its own keeps the square.
 			surface_gpu* shape = gpu;
-			static const bool hulls = !getenv("BLITZ_NO_SPRITE_HULL");
+			static const bool hulls = bb_env_bool("BLITZLLVM_SPRITE_HULL", true);
 			if (hulls && e->sprite_mode && sprite_pixels >= sprite_hull_min_pixels && texture && texture->hull.valid && texture->set && !paint.texture && surface.vertices.size == 4 && !(texture_handle & ~bb::texture_handle_mask) && texture->frames == 1 && texture->frame_w == 0 && !texture->atlas
 				&& texture->uv[0] == 1 && texture->uv[1] == 1 && texture->uv[2] == 0 && texture->uv[3] == 0 && texture->rotation == 0 && !(texture->flags & (64 | 128))) {
 				bool layered = false;

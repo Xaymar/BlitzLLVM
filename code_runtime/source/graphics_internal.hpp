@@ -856,7 +856,7 @@ namespace bb::gfx {
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
-	/** Writes the image that was presented to the file of BLITZ_TEST_PRESENT, for tests. */
+	/** Writes the image that was presented to the file of BLITZLLVM_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();
 	/** Gives back everything the Vulkan device made, and the device with its surface and instance. The window stays. */

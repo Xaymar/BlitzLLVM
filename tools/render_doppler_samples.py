@@ -50,7 +50,7 @@ def record(name, scale, distance):
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
-	env.pop("BLITZ_HEADLESS", None)
+	env.pop("BLITZLLVM_HEADLESS", None)
 	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read()
 	count = len(data) // 4
