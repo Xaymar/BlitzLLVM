@@ -26,3 +26,6 @@ UlShortLong%%(value%%):"UlLong"
 UlULong:ULong(value:ULong)
 UlDouble:Double(value:Double)
 UlShortDouble##(value##):"UlDouble"
+; A Pointer can be returned too, and goes into a parameter of the same type as it is.
+UlSelf*(memory*)
+UlOffset:Pointer(memory:Pointer, bytes:Int)

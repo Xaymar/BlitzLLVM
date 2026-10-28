@@ -81,7 +81,7 @@ namespace {
 			return true;
 		case '*':
 			r.next();
-			type    = blitz::types::type::STRUCT;
+			type    = blitz::types::type::POINTER;
 			pointer = true;
 			return true;
 		case ':': {
@@ -91,7 +91,7 @@ namespace {
 			auto name = blitz::compiler_detail::lower(r.word);
 			r.next();
 			if ((name == "pointer") || (name == "ptr")) {
-				type    = blitz::types::type::STRUCT;
+				type    = blitz::types::type::POINTER;
 				pointer = true;
 			} else if (allow_void && (name == "void")) {
 				type = blitz::types::type::UNKNOWN;
@@ -148,9 +148,6 @@ namespace {
 					blitz::types::type type;
 					bool               pointer;
 					if (read_type(r, type, pointer, true)) {
-						if (pointer) {
-							throw std::runtime_error("a function can't return a pointer");
-						}
 						fn.ret = type;
 					}
 				}
@@ -198,6 +195,8 @@ namespace {
 			return "#";
 		} else if (type == blitz::types::type::STRING) {
 			return "$";
+		} else if (type == blitz::types::type::POINTER) {
+			return "*";
 		}
 		return "";
 	}
@@ -209,7 +208,7 @@ namespace {
 		name += suffix_of(ret);
 		std::string list;
 		for (size_t idx = 0; idx < params.size(); idx++) {
-			std::string param = (idx ? "," : "") + params[idx].first + (params[idx].second == 'p' ? std::string("*") : suffix_of(params[idx].second));
+			std::string param = (idx ? "," : "") + params[idx].first + suffix_of(params[idx].second);
 			list += (idx >= required) ? "[" + param + "]" : param;
 		}
 		return name + " ( " + list + (list.empty() ? ")" : " )");
@@ -267,7 +266,7 @@ void blitz::keywords::dump(std::ostream& out, bool syntax, std::filesystem::path
 	for (auto const& fn : load_userlibs(userlibs)) {
 		std::vector<std::pair<std::string, char>> params;
 		for (auto const& param : fn.params) {
-			params.emplace_back(param.name, param.pointer ? 'p' : blitz::compiler_detail::type_code(param.type));
+			params.emplace_back(param.name, blitz::compiler_detail::type_code(param.type));
 		}
 		out << (syntax ? syntax_of(fn.name, blitz::compiler_detail::type_code(fn.ret), params, params.size()) : fn.name) << "\n";
 	}

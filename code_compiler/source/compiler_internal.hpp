@@ -56,7 +56,7 @@ namespace blitz::compiler_detail {
 	}
 
 	// The codes of the tables of built-in functions: v nothing, b Int8, B UInt8, h Int16, H UInt16, i Int32, I UInt32, l Int64,
-	// u UInt64, x Float16, f Float32, d Float64, s String. The table of user libraries also uses p for a pointer.
+	// u UInt64, x Float16, f Float32, d Float64, s String, p Pointer.
 	inline type builtin_type(char c)
 	{
 		switch (c) {
@@ -84,6 +84,8 @@ namespace blitz::compiler_detail {
 			return type::FLOAT64;
 		case 's':
 			return type::STRING;
+		case 'p':
+			return type::POINTER;
 		default:
 			return type::UNKNOWN;
 		}
@@ -91,7 +93,7 @@ namespace blitz::compiler_detail {
 
 	inline char type_code(type t)
 	{
-		for (char c : { 'b', 'B', 'h', 'H', 'i', 'I', 'l', 'u', 'x', 'f', 'd', 's' }) {
+		for (char c : { 'b', 'B', 'h', 'H', 'i', 'I', 'l', 'u', 'x', 'f', 'd', 's', 'p' }) {
 			if (builtin_type(c) == t) {
 				return c;
 			}

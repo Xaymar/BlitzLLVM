@@ -79,3 +79,13 @@ UL_EXPORT double UlDouble(double value)
 {
 	return value * 2;
 }
+
+UL_EXPORT void* UlSelf(void* memory)
+{
+	return memory;
+}
+
+UL_EXPORT void* UlOffset(void* memory, int32_t bytes)
+{
+	return (char*)memory + bytes;
+}

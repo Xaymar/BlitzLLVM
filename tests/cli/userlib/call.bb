@@ -27,3 +27,6 @@ Print UlShortLong(-5000000000)
 Print UlULong(18446744073709551614)
 Print UlDouble(0.25)
 Print UlShortDouble(0.5)
+Print Long(UlSelf(bank)) <> 0
+Print Long(UlOffset(UlSelf(bank), 4)) - Long(UlSelf(bank))
+Print UlLoad(UlSelf(bank))

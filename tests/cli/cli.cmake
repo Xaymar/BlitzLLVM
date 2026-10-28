@@ -89,6 +89,8 @@ macro(expect_userlib_output)
 	# The short and the long form of the types, and every size of number.
 	expect_contains("5\n9\n3.0\n3.0\nhello, a\nhello, b\n78\n")
 	expect_contains("-100\n44\n-30000\n4464\n1705032704\n-10000000000\n-10000000000\n18446744073709551615\n0.5\n1.0\n")
+	# A Pointer is returned, passed on and compared.
+	expect_contains("1.0\n1\n4\n78\n")
 endmacro()
 
 
@@ -564,12 +566,13 @@ elseif(CASE STREQUAL "keywords_bad_userlib")
 	if(RC EQUAL 0 OR _AT EQUAL -1)
 		message(FATAL_ERROR "An unknown type was accepted: ${ERR}")
 	endif()
-	file(WRITE "${WORK}/userlibs/bad.decls" ".lib \"a.dll\"\nCliAdd*(a:Int)\n")
-	blitzcc(-k --userlibs-dir "${WORK}/userlibs")
-	string(FIND "${ERR}" "can't return a pointer" _AT)
-	if(RC EQUAL 0 OR _AT EQUAL -1)
-		message(FATAL_ERROR "A pointer as the return type was accepted: ${ERR}")
-	endif()
+	# A Pointer is a type like any other, and can be returned.
+	file(WRITE "${WORK}/userlibs/ok.decls" ".lib \"a.dll\"\nCliPtr*(a:Int)\nCliPtrLong:Pointer(a:Pointer)\n")
+	file(REMOVE "${WORK}/userlibs/bad.decls")
+	blitzcc(+k --userlibs-dir "${WORK}/userlibs")
+	expect_ok()
+	expect_line("CliPtr* ( a% )")
+	expect_line("CliPtrLong* ( a* )")
 
 elseif(CASE STREQUAL "version")
 	blitzcc(-v)
@@ -795,6 +798,8 @@ elseif(CASE STREQUAL "userlib_shared")
 	expect_contains("UlULong% ( value% )\n")
 	expect_contains("UlShortLong% ( value% )\n")
 	expect_contains("UlShortDouble# ( value# )\n")
+	expect_contains("UlSelf* ( memory* )\n")
+	expect_contains("UlOffset* ( memory*,bytes% )\n")
 	# Without the userlibs the functions don't exist.
 	blitzcc(-q "${TESTS}/cli/userlib/call.bb" --userlibs-dir "${WORK}")
 	if(RC EQUAL 0)

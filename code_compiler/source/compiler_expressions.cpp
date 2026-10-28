@@ -288,7 +288,7 @@ blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool&
 		auto        v     = operands[idx].v;
 		auto const& param = entry->params[idx];
 		if (param.pointer) {
-			if (v.type == type::STRUCT) {
+			if ((v.type == type::STRUCT) || (v.type == type::POINTER)) {
 				values.push_back(v);
 			} else {
 				v = convert(v, type::INT32, expr->where, true, std::string(), &expr->covers);
