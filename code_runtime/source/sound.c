@@ -87,6 +87,29 @@ static bb_motion bb_listener_motion;
 #define BB_DOPPLER_SMOOTHING 0.12f
 
 // Starts the sound system the first time it is needed. Returns whether there is something to play on.
+void bb_on_exit(void (*hook)(void));
+
+// Takes the sound device down before the program ends, as its thread would run on while the libraries unwind.
+static void bb_audio_shutdown(void)
+{
+	for (int32_t i = 1; i < bb_channel_count; i++) {
+		if (bb_channels[i].used) {
+			MIX_DestroyTrack(bb_channels[i].track);
+		}
+	}
+	for (int32_t i = 1; i < bb_sound_count; i++) {
+		if (bb_sounds[i].audio) {
+			MIX_DestroyAudio(bb_sounds[i].audio);
+		}
+	}
+	if (bb_mixer) {
+		MIX_DestroyMixer(bb_mixer);
+		bb_mixer = NULL;
+	}
+	MIX_Quit();
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+}
+
 static int bb_audio_ready(void)
 {
 	if (bb_audio_tried) {
@@ -100,6 +123,7 @@ static int bb_audio_ready(void)
 		return 0;
 	}
 	bb_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+	bb_on_exit(bb_audio_shutdown);
 	return bb_mixer != NULL;
 }
 
