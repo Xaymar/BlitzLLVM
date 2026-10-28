@@ -569,9 +569,8 @@ void blitz::compiler::gen_main(ast::program const& program)
 	ast::location start;
 	start.file = std::make_shared<const std::filesystem::path>(source);
 	start.line = start.column = 1;
-	std::string sp = di_begin_function("main", "main", start, type::INT32, "", nullptr, false);
+	std::string sp = di_begin_function("main", "bb_program", start, type::INT32, "", nullptr, false);
 	prepare_flow(program.main);
-	call_runtime("bb_init", type::UNKNOWN, { { "%argc", type::INT32 }, { "%argv", type::STRUCT } });
 	if (debug) {
 		call_runtime("bb_set_debug", type::UNKNOWN, { { "1", type::INT32 } });
 	}
@@ -586,7 +585,7 @@ void blitz::compiler::gen_main(ast::program const& program)
 	}
 
 	di_end_function();
-	_definitions << "define i32 @main(i32 %argc, ptr %argv)" << (sp.empty() ? "" : " !dbg " + sp) << " {\n"
+	_definitions << "define i32 @bb_program()" << (sp.empty() ? "" : " !dbg " + sp) << " {\n"
 				 << "entry:\n"
 				 << _allocas.str() << _body.str() << "}\n\n";
 }

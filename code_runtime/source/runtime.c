@@ -271,6 +271,18 @@ void bb_end(void)
 	bb_exit();
 }
 
+// The program starts here, not in the compiled code: the runtime is set up, the program (bb_program, made by the compiler)
+// runs, and the runtime is taken down in one place again, however the program ends.
+int32_t bb_program(void);
+
+int main(int argc, char** argv)
+{
+	bb_init(argc, argv);
+	int32_t result = bb_program();
+	bb_shutdown();
+	return result;
+}
+
 void bb_runtime_error(const char* message)
 {
 	fflush(stdout);
