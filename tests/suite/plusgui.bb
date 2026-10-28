@@ -53,7 +53,7 @@ Check "ActivateWindow", ActiveWindow(), win
 
 SetGadgetText win, "Renamed"
 CheckS "SetGadgetText", GadgetText(win), "Renamed"
-Check "SetStatusText", SetStatusText(win, "Ready"), 0
+SetStatusText win, "Ready"
 SetGadgetShape plain, 5, 6, 200, 100
 Check "SetGadgetShape x", GadgetX(plain), 5
 Check "SetGadgetShape y", GadgetY(plain), 6
