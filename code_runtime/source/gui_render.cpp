@@ -34,7 +34,7 @@ int32_t bb_gui_live(void);
 }
 
 namespace bb::gui {
-	void (*overlay_draw)() = nullptr;
+	thread_local void (*overlay_draw)() = nullptr;
 
 	namespace {
 		struct rect {
@@ -1076,7 +1076,7 @@ namespace bb::gui {
 			return;
 		}
 		// The cursor of what has the focus blinks.
-		static int last_phase = -1;
+		static thread_local int last_phase = -1;
 		gadget*    f          = gadget_of(ui.focus);
 		if (f && ((f->kind == K_TEXTFIELD) || (f->kind == K_TEXTAREA))) {
 			int phase = (bb_millisecs() / 500) & 1;

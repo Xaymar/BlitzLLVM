@@ -18,7 +18,7 @@ void bb_restore_window(int32_t handle);
 }
 
 namespace bb::gui {
-	bool (*modal_handler)(void const* event) = nullptr;
+	thread_local bool (*modal_handler)(void const* event) = nullptr;
 
 	namespace {
 		enum part {
