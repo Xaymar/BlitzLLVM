@@ -232,31 +232,44 @@ void bb_init(int32_t argc, char** argv)
 // start threads or open devices register their teardown here; it runs last-registered first, once, whichever way the
 // program ends (End, the window closing, running out of lines, a runtime error).
 #define BB_EXIT_HOOKS 16
-static void (*bb_exit_hooks[BB_EXIT_HOOKS])(void);
-static int bb_exit_hook_count = 0;
-static int bb_shutting_down   = 0;
+
+// What belongs to one running program. There is one per thread that runs a program (the thread that calls main), and the
+// parts of the runtime that today keep file-level state move in here one by one.
+typedef struct bb_runtime {
+	void (*exit_hooks[BB_EXIT_HOOKS])(void);
+	int exit_hook_count;
+	int shutting_down;
+} bb_runtime;
+
+#if defined(_MSC_VER)
+static __declspec(thread) bb_runtime bb_the_runtime;
+#else
+static _Thread_local bb_runtime bb_the_runtime;
+#endif
 
 void bb_on_exit(void (*hook)(void))
 {
-	for (int i = 0; i < bb_exit_hook_count; i++) {
-		if (bb_exit_hooks[i] == hook) {
+	bb_runtime* rt = &bb_the_runtime;
+	for (int i = 0; i < rt->exit_hook_count; i++) {
+		if (rt->exit_hooks[i] == hook) {
 			return;
 		}
 	}
-	if (bb_exit_hook_count < BB_EXIT_HOOKS) {
-		bb_exit_hooks[bb_exit_hook_count++] = hook;
+	if (rt->exit_hook_count < BB_EXIT_HOOKS) {
+		rt->exit_hooks[rt->exit_hook_count++] = hook;
 	}
 }
 
 void bb_shutdown(void)
 {
-	if (bb_shutting_down) {
+	bb_runtime* rt = &bb_the_runtime;
+	if (rt->shutting_down) {
 		return; // A teardown that fails must not start another one.
 	}
-	bb_shutting_down = 1;
+	rt->shutting_down = 1;
 	fflush(stdout);
-	while (bb_exit_hook_count > 0) {
-		bb_exit_hooks[--bb_exit_hook_count]();
+	while (rt->exit_hook_count > 0) {
+		rt->exit_hooks[--rt->exit_hook_count]();
 	}
 }
 
