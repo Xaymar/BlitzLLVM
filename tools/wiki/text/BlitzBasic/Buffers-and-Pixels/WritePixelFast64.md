@@ -18,4 +18,4 @@ WaitKey
 @param y       Vertical position of the pixel.
 @param argb    The color, with 16 bits for each of alpha, red, green and blue from the top.
 @param buffer  The locked buffer to write to. Defaults to the current buffer.
-@gap A position outside of the buffer is ignored, and a buffer that is not locked stops the program with an error message.
+@gap A position outside of the buffer is ignored, and a buffer that is not locked is ignored by a build without `-d` and stops a debug build (`-d`) with an error message.
