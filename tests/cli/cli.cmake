@@ -542,6 +542,29 @@ elseif(CASE STREQUAL "keywords_syntax")
 	expect_line("CliName$ ( id% )")
 	expect_line("CliShow ( text$,handle* )")
 
+elseif(CASE STREQUAL "keywords_native")
+	blitzcc(--dump-keywords --userlibs-dir "${USERLIBS}")
+	expect_ok()
+	expect_line("Dim")
+	# Types by their full names, parameters with a default have it behind an '='.
+	expect_line("left:String param1:String, param2:Int32")
+	expect_line("mid:String param1:String, param2:Int32, param3:Int32=-1")
+	expect_line("rand:Int32 param1:Int32=1, param2:Int32")
+	# Returns nothing: no type behind the name.
+	expect_line("print param1:String=\"\"")
+	# Userlibs keep the exact size and the pointer, which +k can't show.
+	expect_line("CliAdd:Int32 a:Int32, b:Int32")
+	expect_line("CliScale:Float32 value:Float32, factor:Float32")
+	expect_line("CliName:String id:Int32")
+	expect_line("CliShow text:String, handle:Pointer")
+	expect_missing("%")
+	expect_missing("(")
+	# Nothing is compiled.
+	file(GLOB _CREATED "${WORK}/*")
+	if(_CREATED)
+		message(FATAL_ERROR "Dumping keywords created files: ${_CREATED}")
+	endif()
+
 elseif(CASE STREQUAL "keywords_bad_userlib")
 	file(WRITE "${WORK}/userlibs/bad.decls" "CliAdd%(a%)\n")
 	blitzcc(-k --userlibs-dir "${WORK}/userlibs")

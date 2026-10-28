@@ -214,6 +214,41 @@ namespace {
 		}
 		return name + " ( " + list + (list.empty() ? ")" : " )");
 	}
+
+	// The type by its full name, as the wiki lists it, for the codes of the tables ('p' is the address of a bank or object).
+	std::string native_type_of(char code)
+	{
+		if (code == 'p') {
+			return "Pointer";
+		}
+		return blitz::types::long_name(blitz::compiler_detail::builtin_type(code));
+	}
+
+	std::string number_of(double value)
+	{
+		std::ostringstream out;
+		out << value;
+		return out.str();
+	}
+
+	// Name and syntax in the notation of the wiki ('Name:Int32 a:Int32, b:Float32=1'): The return type is behind the name unless
+	// there is none, and a parameter with a default value has it behind an '='.
+	std::string native_syntax_of(std::string name, char ret, std::vector<std::pair<std::string, char>> const& params, size_t required, double const* defaults, bool lead = false)
+	{
+		// With one argument for two parameters, the argument is the second one: Rand(10) is Rand(1, 10).
+		bool first = lead && (params.size() == 2) && (required == 1);
+		if (ret != 'v') {
+			name += ":" + native_type_of(ret);
+		}
+		std::string list;
+		for (size_t idx = 0; idx < params.size(); idx++) {
+			list += (idx ? ", " : " ") + params[idx].first + ":" + native_type_of(params[idx].second);
+			if (first ? (idx == 0) : (idx >= required)) {
+				list += "=" + ((params[idx].second == 's') ? std::string("\"\"") : number_of(defaults ? defaults[idx] : 0));
+			}
+		}
+		return name + list;
+	}
 } // namespace
 
 std::vector<std::string> blitz::keywords::language()
@@ -250,7 +285,7 @@ std::vector<blitz::keywords::user_function> blitz::keywords::load_userlibs(std::
 	return functions;
 }
 
-void blitz::keywords::dump(std::ostream& out, bool syntax, std::filesystem::path const& userlibs)
+void blitz::keywords::dump(std::ostream& out, dump_mode mode, std::filesystem::path const& userlibs)
 {
 	for (auto const& word : language()) {
 		out << word << "\n";
@@ -261,7 +296,18 @@ void blitz::keywords::dump(std::ostream& out, bool syntax, std::filesystem::path
 		for (size_t idx = 0; entry.params[idx]; idx++) {
 			params.emplace_back("param" + std::to_string(idx + 1), entry.params[idx]);
 		}
-		out << (syntax ? syntax_of(entry.name, entry.ret, params, size_t(entry.required)) : std::string(entry.name)) << "\n";
+		switch (mode) {
+		case dump_mode::NAMES:
+			out << entry.name;
+			break;
+		case dump_mode::BLITZ3D:
+			out << syntax_of(entry.name, entry.ret, params, size_t(entry.required));
+			break;
+		case dump_mode::NATIVE:
+			out << native_syntax_of(entry.name, entry.ret, params, size_t(entry.required), entry.defaults, entry.lead);
+			break;
+		}
+		out << "\n";
 	}
 
 	for (auto const& fn : load_userlibs(userlibs)) {
@@ -269,7 +315,18 @@ void blitz::keywords::dump(std::ostream& out, bool syntax, std::filesystem::path
 		for (auto const& param : fn.params) {
 			params.emplace_back(param.name, param.pointer ? 'p' : blitz::compiler_detail::type_code(param.type));
 		}
-		out << (syntax ? syntax_of(fn.name, blitz::compiler_detail::type_code(fn.ret), params, params.size()) : fn.name) << "\n";
+		switch (mode) {
+		case dump_mode::NAMES:
+			out << fn.name;
+			break;
+		case dump_mode::BLITZ3D:
+			out << syntax_of(fn.name, blitz::compiler_detail::type_code(fn.ret), params, params.size());
+			break;
+		case dump_mode::NATIVE:
+			out << native_syntax_of(fn.name, blitz::compiler_detail::type_code(fn.ret), params, params.size(), nullptr);
+			break;
+		}
+		out << "\n";
 	}
 	out.flush();
 }
