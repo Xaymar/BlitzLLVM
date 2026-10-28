@@ -10,6 +10,7 @@
 ; Environment variables:
 ;   BENCH_SPRITES  how many water sprites are made (default 5000; 50000 is a heavy fall)
 ;   BENCH_FRAMES   how many frames are timed (default 300)
+;   BENCH_DITHER   the Dither level (default 0; 2 needs BlitzLLVM, the original only knows on and off)
 ;   BENCH_WARMUP   frames that are rendered but not timed, they make the GPU buffers (default 5)
 ;   BENCH_SEED     seed of the random sprite offsets (default 1)
 ;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
@@ -53,6 +54,7 @@ End Function
 
 Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), 32, 2
 SetBuffer BackBuffer()
+Dither Int(Env$("BENCH_DITHER", 0))
 
 count = Int(Env$("BENCH_SPRITES", 5000))
 frames = Int(Env$("BENCH_FRAMES", 300))
