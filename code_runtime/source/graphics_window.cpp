@@ -140,17 +140,7 @@ void bb_end_graphics(void)
 		destroy_surface_buffers();
 		destroy_gamma();
 		destroy_frame_slot_buffers();
-		vkDestroyPipeline(g.device, g.opaque3d, nullptr);
-	vkDestroyPipeline(g.device, g.solid3d, nullptr);
-		vkDestroyPipeline(g.device, g.blend3d, nullptr);
-		vkDestroyPipeline(g.device, g.mul3d, nullptr);
-		vkDestroyPipeline(g.device, g.mul2x3d, nullptr);
-		vkDestroyPipeline(g.device, g.add3d, nullptr);
-		for (VkPipeline pipeline : g.wire3d) {
-			if (pipeline) {
-				vkDestroyPipeline(g.device, pipeline, nullptr);
-			}
-		}
+		destroy_pipelines_3d();
 		if (g.cull_pipeline) {
 			vkDestroyPipeline(g.device, g.cull_pipeline, nullptr);
 		}

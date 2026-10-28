@@ -781,6 +781,9 @@ namespace bb::gfx {
 	gpu_image* apply_gamma(gpu_image& front);
 	/** Fourth value of scene_data::projection: 0 when Dither is off, else 1 plus the shift of the noise of the picture that is made now. */
 	float dither_code();
+	/** Makes the 3D pipelines again, as whether they dither is part of them. */
+	void rebuild_pipelines_3d();
+	void destroy_pipelines_3d();
 	/** Writes the image that was presented to the file of BLITZ_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();

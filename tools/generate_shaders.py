@@ -22,13 +22,13 @@ OP = dict(
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
-    Image=100, ImageFetch=95, Phi=245, Branch=249, FOrdGreaterThan=186,
+    Image=100, ImageFetch=95, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48,
     IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
 BUILTIN_WORKGROUP_ID, BUILTIN_LOCAL_INVOCATION_ID = 26, 27
-DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35)
+DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35, SpecId=1)
 BUILTIN_INSTANCE_INDEX = 43
 BUILTIN_FRAG_COORD = 15
 
@@ -833,11 +833,25 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
         rgb = b.swizzle(result, 3)
         rgb = b.fadd(v3, rgb, b.scale(3, b.fsub(v3, fog_color, rgb), amount))
         result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
-        # Dither: the fourth value of the projection is 0 when it is off, else 1 plus the shift of the noise of this frame.
+        # Dither: a specialization constant (id 0, the pipelines are made again when Dither changes), so that the code is not
+        # in the pipeline at all when it is off. The fourth value of the projection is 1 plus the shift of the noise of this frame.
         # The color gets temporal Interleaved Gradient Noise (Jimenez, 2014) of less than half a step of the 8 bit target
         # before it is rounded, so that lighting, fog and blending are not bands but a pattern, and exact colors stay.
-        #   float w = scene.projection.w; vec2 xy = floor(gl_FragCoord.xy) + vec2(w - 1.0);
-        #   rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0 * step(0.5, w);
+        #   layout(constant_id = 0) const bool dither = false;
+        #   if (dither) { vec2 xy = floor(gl_FragCoord.xy) + vec2(scene.projection.w - 1.0);
+        #                 rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0; }
+        boolean = b.new_type("bool", "TypeBool")
+        dither_on = b.m.id()
+        b.m.types.append(Module.inst("SpecConstantTrue", boolean, dither_on))
+        b.m.annotations.append(Module.inst("Decorate", dither_on, DECORATION["SpecId"], 0))
+        before_dither, dither_label, dither_merge = b.m.id(), b.m.id(), b.m.id()
+        b.m.code += [
+            Module.inst("Branch", before_dither),
+            Module.inst("Label", before_dither),
+            Module.inst("SelectionMerge", dither_merge, 0),
+            Module.inst("BranchConditional", dither_on, dither_label, dither_merge),
+            Module.inst("Label", dither_label),
+        ]
         w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
         frag = b.load(v4, in_frag)
         shift = b.fsub(f, w, c1)
@@ -845,8 +859,10 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True):
         py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
         along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
         noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
-        offset = b.fmul(f, b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0)), b.ext(f, GLSL_STEP, b.const_float(0.5), w))
-        rgb = b.fadd(v3, rgb, b.scale(3, b.const_vec(3, 1.0), offset))
+        offset = b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+        dithered = b.fadd(v3, rgb, b.scale(3, b.const_vec(3, 1.0), offset))
+        b.m.code += [Module.inst("Branch", dither_merge), Module.inst("Label", dither_merge)]
+        rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
         result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
     b.store(out_color, result)
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]

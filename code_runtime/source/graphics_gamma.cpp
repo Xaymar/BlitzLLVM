@@ -261,6 +261,9 @@ void bb_dither(int32_t enable)
 	if ((enable != 0) != dither) {
 		dither  = enable != 0;
 		changed = true;
+		if (g.created && !g.headless) {
+			rebuild_pipelines_3d();
+		}
 	}
 }
 
