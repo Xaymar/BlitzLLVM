@@ -18,7 +18,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (32)</summary>
+<li><details><summary>Features (33)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -44,6 +44,7 @@
 <li><a href="Multiplayer">Multiplayer</a></li>
 <li><a href="Numbers-of-Other-Sizes">Numbers of other sizes</a></li>
 <li><a href="Parameter-Modes">Parameter modes (In, Out, InOut)</a></li>
+<li><a href="Presentation-Sync">Presentation sync</a></li>
 <li><a href="Samplers">Samplers</a></li>
 <li><a href="Saving-Pictures">Saving pictures</a></li>
 <li><a href="Sound-Resampling">Sound resampling</a></li>
