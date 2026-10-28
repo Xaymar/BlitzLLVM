@@ -277,6 +277,7 @@ void bb_check_index(int32_t index, int32_t count)
 typedef struct bb_array {
 	void*   data;
 	int32_t size[4];
+	int32_t pitch; // Elements from one row to the next, which is size[0] plus some padding.
 } bb_array;
 
 // Frees the strings in an array that is about to be made again, which is what the elements of a string array own.
@@ -285,8 +286,8 @@ void bb_dim_free_strings(bb_array* array)
 	if (!array->data) {
 		return;
 	}
-	int64_t total = 1;
-	for (int32_t i = 0; i < 4; i++) {
+	int64_t total = array->pitch;
+	for (int32_t i = 1; i < 4; i++) {
 		if (array->size[i]) {
 			total *= array->size[i];
 		}
@@ -318,6 +319,13 @@ void bb_dim(bb_array* array, int64_t element_size, int32_t dimensions, int32_t b
 		} else {
 			array->size[i] = 0;
 		}
+	}
+	// Rows that are a multiple of 1 KiB apart all land in a few sets of the cache, which makes walking down a column slow (and
+	// slower still when the rows are 4 KiB apart), so such rows get a cache line of padding.
+	array->pitch = array->size[0];
+	if ((dimensions > 1) && (element_size > 0) && (element_size <= 64) && ((((int64_t)array->size[0]) * element_size) % 1024 == 0)) {
+		array->pitch += (int32_t)(64 / element_size);
+		total = total / array->size[0] * array->pitch;
 	}
 	free(array->data);
 	array->data = calloc((size_t)total, (size_t)element_size);

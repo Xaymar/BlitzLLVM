@@ -49,7 +49,7 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 
 	auto field = [&](uint32_t index, const char* llvm_type) {
 		auto p = tmp(), v = tmp();
-		emit(p + " = getelementptr inbounds { ptr, i32, i32, i32, i32 }, ptr " + var->pointer + ", i32 0, i32 " + std::to_string(index));
+		emit(p + " = getelementptr inbounds { ptr, i32, i32, i32, i32, i32 }, ptr " + var->pointer + ", i32 0, i32 " + std::to_string(index));
 		emit(v + " = load " + llvm_type + ", ptr " + p + ", !tbaa !900003");
 		return v;
 	};
@@ -76,6 +76,7 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 	}
 
 	// The first index changes fastest in memory, like in the original, so a loop over the first index walks through memory in order.
+	// A row is `pitch` elements long, which is the size of the first dimension and some padding, see bb_dim.
 	std::string linear, stride;
 	for (uint32_t dim = 0; dim < var->dims; dim++) {
 		auto index = convert(operands[dim].v, type::INT32, node->arguments[dim]->where, true, std::string(), &node->arguments[dim]->covers);
@@ -89,7 +90,11 @@ blitz::compiler::address blitz::compiler::gen_dim_address(ast::call const* node)
 		emit(wide_size + " = sext i32 " + size + " to i64");
 		if (dim == 0) {
 			linear = wide;
-			stride = wide_size;
+			if (var->dims > 1) {
+				auto pitch = field(5, "i32"), wide_pitch = tmp();
+				emit(wide_pitch + " = sext i32 " + pitch + " to i64");
+				stride = wide_pitch;
+			}
 		} else {
 			auto scaled = tmp(), sum = tmp();
 			emit(scaled + " = mul i64 " + wide + ", " + stride);
