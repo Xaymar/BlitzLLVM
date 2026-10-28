@@ -12,9 +12,10 @@ movietexture.gif (the same movie on a turning cube), movietexture_start.png, mov
 Needs ffmpeg and xvfb-run.
 """
 import os
-import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))
+import procutil  # noqa: E402
 
 blitzcc, output = (os.path.abspath(p) for p in sys.argv[1:3])
 os.makedirs(output, exist_ok=True)
@@ -64,25 +65,25 @@ CloseMovie movie
 
 def render(program, prefix, work):
 	"""Plays the movie with the program, which saves the frames, and keeps three of them and a GIF."""
-	subprocess.run(["rm", "-rf", "frames"], check=True)
+	procutil.run(["rm", "-rf", "frames"], check=True)
 	os.makedirs("frames")
 	with open("play.bb", "w") as source:
 		source.write(program)
-	subprocess.run([blitzcc, "+q", "play.bb", "-o", "play"], check=True)
+	procutil.run([blitzcc, "+q", "play.bb", "-o", "play"], check=True)
 	env = dict(os.environ, XDG_RUNTIME_DIR=tempfile.mkdtemp(), SDL_AUDIODRIVER="dummy")
-	subprocess.run(["xvfb-run", "-a", "./play"], env=env, check=True, timeout=120)
+	procutil.run(["xvfb-run", "-a", "./play"], env=env, check=True, timeout=120)
 	frames = sorted(os.listdir("frames"))
 	print(len(frames), "frames")
 	for name, index in (("start", 0), ("middle", len(frames) // 2), ("end", len(frames) - 2)):
 		with open("frames/" + frames[index], "rb") as source, open(os.path.join(output, "%s_%s.png" % (prefix, name)), "wb") as target:
 			target.write(source.read())
-	subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", "25", "-i", "frames/f%03d.png", "-vf",
+	procutil.run(["ffmpeg", "-v", "error", "-y", "-framerate", "25", "-i", "frames/f%03d.png", "-vf",
 					"split[a][b];[a]palettegen=max_colors=64[p];[b][p]paletteuse=dither=none", os.path.join(output, prefix + ".gif")], check=True)
 
 
 with tempfile.TemporaryDirectory() as work:
 	os.chdir(work)
-	subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=160x120:r=25:d=3", "-f", "lavfi", "-i", "sine=f=440:d=3:r=22050",
+	procutil.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=160x120:r=25:d=3", "-f", "lavfi", "-i", "sine=f=440:d=3:r=22050",
 					"-c:v", "mpeg1video", "-b:v", "400k", "-c:a", "mp2", "-b:a", "48k", "-ac", "1", "test.mpg"], check=True)
 	render(PROGRAM, "drawmovie", work)
 	render(TEXTURE_PROGRAM, "movietexture", work)
