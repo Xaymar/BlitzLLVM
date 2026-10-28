@@ -6,7 +6,7 @@
 
   close_prompt.py <blitzcc> <close_prompt.bb> <work directory>
 
-Needs a display (xvfb-run is fine). The program writes to the debug log, because Print would go to the window. The prompt is answered with BLITZ_DIALOG_ANSWER, 0 being OK and 1 being Cancel.
+Needs a display (xvfb-run is fine). The program writes to the debug log, because Print would go to the window. The prompt is answered with BLITZLLVM_DIALOG_ANSWER, 0 being OK and 1 being Cancel.
 """
 import os
 import signal
@@ -23,8 +23,8 @@ procutil.run([blitzcc] + os.environ.get("BLITZCC_OPTIONS", "").split() + [source
 
 
 def close(answer):
-    env = dict(os.environ, BLITZ_DIALOG_ANSWER=str(answer))
-    env.pop("BLITZ_HEADLESS", None)
+    env = dict(os.environ, BLITZLLVM_DIALOG_ANSWER=str(answer))
+    env.pop("BLITZLLVM_HEADLESS", None)
     process = procutil.Popen([exe], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
     if process.stdout.readline().strip() != "started":
         process.kill()

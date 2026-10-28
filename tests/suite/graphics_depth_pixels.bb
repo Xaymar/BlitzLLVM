@@ -8,7 +8,7 @@
 ; GraphicsDepth GraphicsWidth Graphics3D ReadPixel WritePixel Plot Rect CopyRect GrabImage DrawImage TextureBuffer.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_depth_pixels: skipped, there is no window."
 	End
 EndIf

@@ -6,7 +6,7 @@
 ; fills the square, one that was drawn to, and one with a visible pixel in every corner keep the square.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_sprite_hull_pixels: skipped, there is no window."
 	End
 EndIf

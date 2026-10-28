@@ -114,7 +114,7 @@ ResizeImage image, 64, 8
 Check "ResizeImage width", ImageWidth(image), 64
 Check "ResizeImage height", ImageHeight(image), 8
 
-If GetEnv$("BLITZ_HEADLESS") = "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") = "" Then
 	; Images come from files, with frames next to each other. Without a window nothing is drawn, so nothing is saved.
 	folder$ = "suite_tmp_graphics"
 	CreateDir folder

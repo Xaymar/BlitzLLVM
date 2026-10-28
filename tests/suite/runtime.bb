@@ -250,7 +250,7 @@ Else
 EndIf
 
 ; Questions have no one to answer them without a window: nothing is asked, and the safe answer is given.
-If GetEnv$("BLITZ_HEADLESS") <> ""
+If GetEnv$("BLITZLLVM_HEADLESS") <> ""
 	Notify "Nobody sees this."
 	Notify "Nor this.", True
 	Check "Confirm without a window", Confirm("Nobody sees this."), 0

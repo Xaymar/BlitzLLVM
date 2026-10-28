@@ -8,7 +8,7 @@
 ; and tTEXT types TEXT, all separated by commas.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "input_pixels: skipped, there is no window."
 	End
 EndIf

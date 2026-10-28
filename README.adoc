@@ -71,7 +71,7 @@ Common options (`blitzcc --help` lists all of them):
 | `--args <arg>...` | Arguments for the program that is run.
 |===
 
-The compiler emits textual LLVM IR and hands it, with the embedded runtime library, to `clang`. SDL3 is linked statically and the Vulkan loader is loaded when the program starts. The decoders for AVIF, JPEG XL and WebP images are shared libraries that `blitzcc` copies next to programs that have a window, so those programs come as an executable and a few libraries; a program that doesn't open a window is a single executable. Set `BLITZ_HEADLESS=1` to run a program without a window or GPU.
+The compiler emits textual LLVM IR and hands it, with the embedded runtime library, to `clang`. SDL3 is linked statically and the Vulkan loader is loaded when the program starts. The decoders for AVIF, JPEG XL and WebP images are shared libraries that `blitzcc` copies next to programs that have a window, so those programs come as an executable and a few libraries; a program that doesn't open a window is a single executable. Set `BLITZLLVM_HEADLESS=1` to run a program without a window or GPU.
 
 == Testing
 

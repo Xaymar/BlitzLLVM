@@ -6,7 +6,7 @@
 ; about as far as each other: the order is never changed to make fewer calls.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_transparency_pixels: skipped, there is no window."
 	End
 EndIf

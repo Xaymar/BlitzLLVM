@@ -8,7 +8,7 @@
 ; window, where the buffer is shown in it, and the buffer coordinates of the window corners and center.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_fullscreen_pixels: skipped, there is no window."
 	End
 EndIf

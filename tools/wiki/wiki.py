@@ -557,7 +557,7 @@ def check(commands, blitzcc):
                         errors.append("%s example %d does not compile:\n%s" % (name, i + 1, r.stdout + r.stderr))
                     elif run:
                         r = procutil.run([exe], capture_output=True, text=True, cwd=d, timeout=60,
-                                           env=dict(os.environ, BLITZ_HEADLESS="1"))
+                                           env=dict(os.environ, BLITZLLVM_HEADLESS="1"))
                         if expect is None or r.stdout.split() != expect.split():
                             errors.append("%s example %d printed:\n%s\nbut the page says:\n%s" %
                                           (name, i + 1, r.stdout, expect))

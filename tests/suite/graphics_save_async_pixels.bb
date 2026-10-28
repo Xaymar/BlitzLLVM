@@ -5,7 +5,7 @@
 ; SavesFailed with SaveBuffer SaveImage SaveTexture, and that a program that ends with saves going on still gets its files.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_save_async_pixels: skipped, there is no window."
 	End
 EndIf

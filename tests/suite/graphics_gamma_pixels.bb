@@ -7,7 +7,7 @@
 ; to a file after every present.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "graphics_gamma_pixels: skipped, there is no window."
 	End
 EndIf

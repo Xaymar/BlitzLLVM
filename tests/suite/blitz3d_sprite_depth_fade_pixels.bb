@@ -6,7 +6,7 @@
 ; is 255 times the alpha that is left of the sprite.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_sprite_depth_fade_pixels: skipped, there is no window."
 	End
 EndIf

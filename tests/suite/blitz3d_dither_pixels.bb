@@ -6,7 +6,7 @@
 ; that are one step off what it is without Dither, none that are two, and exact colors do not change at all.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_dither_pixels: skipped, there is no window."
 	End
 EndIf

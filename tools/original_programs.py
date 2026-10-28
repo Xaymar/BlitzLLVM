@@ -3,7 +3,7 @@
 
   original_programs.py list                    Print the programs, one per line (file names are relative to extra/)
   original_programs.py compile-one BLITZCC PROGRAM OUT   Compile one program, print the output of the compiler when it fails
-  original_programs.py run-one OUT PROGRAM     Run a compiled program without a window (BLITZ_HEADLESS=1) for a few seconds: still running or exit code 0 is a pass
+  original_programs.py run-one OUT PROGRAM     Run a compiled program without a window (BLITZLLVM_HEADLESS=1) for a few seconds: still running or exit code 0 is a pass
   original_programs.py compile BLITZCC [OUT]   Compile every program with BLITZCC, print a pass/fail list and the first error of each failure
 
 A program is a .bb file that no other .bb file of the same tree includes; the files that it includes are part of it.
@@ -97,7 +97,7 @@ def run_one(out, program, seconds=5):
     afterwards. Programs of one folder must not run at the same time. Requesters (RequestFont, RequestColor) are accepted as they start."""
     source = os.path.join(ROOT, program)
     folder = os.path.dirname(source)
-    env = dict(os.environ, BLITZ_HEADLESS="1", BLITZ_DIALOG_ANSWER="0")  # Requesters are accepted as they start.
+    env = dict(os.environ, BLITZLLVM_HEADLESS="1", BLITZLLVM_DIALOG_ANSWER="0")  # Requesters are accepted as they start.
     files = snapshot(folder)
     try:
         run = procutil.run([exe_path(out, program)], cwd=folder, env=env, capture_output=True, text=True, timeout=seconds, stdin=subprocess.DEVNULL)

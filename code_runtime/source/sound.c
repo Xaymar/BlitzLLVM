@@ -14,7 +14,7 @@
 // Sound: sounds are loaded once, and every time one is played it gets a channel, which can then be changed or stopped.
 // Everything is mixed by SDL3_mixer, which decodes WAV, MP3, OGG and FLAC.
 //
-// Without a sound device (or with BLITZ_HEADLESS set) all of this still works, it just stays silent.
+// Without a sound device (or with BLITZLLVM_HEADLESS set) all of this still works, it just stays silent.
 
 #include <math.h>
 #include "memory.h"
@@ -28,6 +28,7 @@
 
 #include "path.h"
 #include "handle_check.h"
+#include "environment.h"
 
 extern void bb_runtime_error(const char* message);
 extern int  bb_entity_world_matrix(int32_t handle, float* matrix);
@@ -130,7 +131,7 @@ static int bb_audio_ready(void)
 		return bb_audio.mixer != NULL;
 	}
 	bb_audio.tried = 1;
-	if (getenv("BLITZ_HEADLESS")) {
+	if (bb_env_bool("BLITZLLVM_HEADLESS", 0)) {
 		return 0;
 	}
 	if (!SDL_InitSubSystem(SDL_INIT_AUDIO) || !MIX_Init()) {

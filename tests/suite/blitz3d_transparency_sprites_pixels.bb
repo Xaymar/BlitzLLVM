@@ -7,7 +7,7 @@
 ; sprites from a fixed generator, so the order they are drawn in decides the picture.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_transparency_sprites_pixels: skipped, there is no window."
 	End
 EndIf

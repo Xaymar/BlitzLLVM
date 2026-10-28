@@ -6,7 +6,7 @@
 ; Skipped without a window.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_texture_blend_original_pixels: skipped, there is no window."
 	End
 EndIf

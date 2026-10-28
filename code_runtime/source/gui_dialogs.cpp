@@ -10,6 +10,7 @@
 
 #include "gui_internal.hpp"
 #include "runtime_internal.h"
+#include "environment.h"
 
 extern "C" {
 void    bb_graphics_idle(void);
@@ -227,10 +228,10 @@ namespace bb::gui {
 			return dialog.accepted;
 		}
 
-		// BLITZ_DIALOG_ANSWER=<n> answers a requester without showing it, for automated runs: 0 accepts what it starts with, anything else cancels it.
+		// BLITZLLVM_DIALOG_ANSWER=<n> answers a requester without showing it, for automated runs: 0 accepts what it starts with, anything else cancels it.
 		bool answered(bool& accepted)
 		{
-			const char* answer = getenv("BLITZ_DIALOG_ANSWER");
+			const char* answer = bb_env("BLITZLLVM_DIALOG_ANSWER");
 			if (answer) {
 				accepted = atoi(answer) == 0;
 			}

@@ -5,7 +5,7 @@
 ; the 3D hardware of its time) lit everything with the first eight. Needs a window and a GPU, so this is skipped without one.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_many_lights_pixels: skipped, there is no window."
 	End
 EndIf

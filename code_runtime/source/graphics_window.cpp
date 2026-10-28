@@ -16,6 +16,7 @@
 #include "graphics_internal.hpp"
 #include "memory.h"
 #include "graphics_save.hpp"
+#include "environment.h"
 
 using namespace bb::gfx;
 
@@ -41,7 +42,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	g.requested_depth = depth;
 	g.buffer_depth    = (depth == 24 || depth == 30 || depth == 64) ? depth : 32;
 	g.buffer_format   = VK_FORMAT_R8G8B8A8_UNORM;
-	g.headless = getenv("BLITZ_HEADLESS") != nullptr;
+	g.headless = bb_env_bool("BLITZLLVM_HEADLESS", 0) != 0;
 	g.width    = uint32_t(width);
 	g.height   = uint32_t(height);
 	g.created  = true;

@@ -8,7 +8,7 @@
 ; its noise goes in before the blend, where it gets smaller than what rounding hides.
 Include "check.bb"
 
-If GetEnv$("BLITZ_HEADLESS") <> "" Then
+If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
 	Print "blitz3d_dither_blend_pixels: skipped, there is no window."
 	End
 EndIf

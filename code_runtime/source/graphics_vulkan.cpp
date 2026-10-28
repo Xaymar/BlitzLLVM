@@ -25,6 +25,7 @@ BB_VK_INSTANCE(BB_VK_DEFINE)
 BB_VK_DEVICE(BB_VK_DEFINE)
 
 #include "shaders.inc"
+#include "environment.h"
 
 using namespace bb::gfx;
 
@@ -1142,7 +1143,7 @@ namespace bb::gfx {
 		};
 		PFN_vkGetInstanceProcAddr get_instance_proc = nullptr;
 		VkInstance                instance          = VK_NULL_HANDLE;
-		if (getenv("BLITZ_HEADLESS") || !SDL_InitSubSystem(SDL_INIT_VIDEO) || !(get_instance_proc = load_vulkan()) || (make_instance(instance) != VK_SUCCESS)) {
+		if (bb_env_bool("BLITZLLVM_HEADLESS", 0) || !SDL_InitSubSystem(SDL_INIT_VIDEO) || !(get_instance_proc = load_vulkan()) || (make_instance(instance) != VK_SUCCESS)) {
 			none();
 			return;
 		}

@@ -17,7 +17,7 @@
 // The original talks DirectPlay, which can not be used any more. Here the programs that join connect to the one that
 // hosts with TCP, which passes the messages on. Games made here can only play with each other.
 //
-// The port is 40500, or what the environment variable BLITZ_NETGAME_PORT says.
+// The port is 40500, or what the environment variable BLITZLLVM_NETGAME_PORT says.
 
 #include <stdint.h>
 #include "memory.h"
@@ -27,6 +27,7 @@
 
 #include "streams.h"
 #include "runtime_internal.h"
+#include "environment.h"
 
 extern void    bb_runtime_error(const char* message);
 extern int32_t bb_open_tcp_stream(const char* server, int32_t port, int32_t local_port);
@@ -496,8 +497,7 @@ static void bb_net_reset(void)
 
 static int32_t bb_net_port(void)
 {
-	const char* text = getenv("BLITZ_NETGAME_PORT");
-	int32_t     port = text ? atoi(text) : 0;
+	int32_t port = bb_env_int("BLITZLLVM_NETGAME_PORT", 0);
 	return (port > 0 && port < 65536) ? port : 40500;
 }
 
