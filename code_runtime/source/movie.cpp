@@ -728,11 +728,12 @@ void bb_close_movie(int32_t handle)
 	}
 }
 
-void bb_draw_movie(int32_t handle, int32_t x, int32_t y, int32_t w, int32_t h)
+// Gives 1 while the movie is still playing and 0 once it has ended or was stopped, like MoviePlaying.
+int32_t bb_draw_movie(int32_t handle, int32_t x, int32_t y, int32_t w, int32_t h)
 {
 	movie* m = need_movie(handle, "DrawMovie");
 	if (!m) {
-		return;
+		return 0;
 	}
 	update(*m);
 	if (m->changed) {
@@ -740,6 +741,7 @@ void bb_draw_movie(int32_t handle, int32_t x, int32_t y, int32_t w, int32_t h)
 		m->changed = false;
 	}
 	bb::gfx::draw_stretched(m->image, x, y, w > 0 ? w : m->width, h > 0 ? h : m->height);
+	return (m->finished || m->stopped) ? 0 : 1;
 }
 
 int32_t bb_movie_width(int32_t handle)

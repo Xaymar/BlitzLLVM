@@ -144,7 +144,7 @@
 		{ "autosuspend", "bb_auto_suspend", 'v', "i", 1, {}, false },
 		{ "openmovie", "bb_open_movie", 'i', "s", 1, {}, false },
 		{ "closemovie", "bb_close_movie", 'v', "i", 1, {}, false },
-		{ "drawmovie", "bb_draw_movie", 'v', "iiiii", 1, { 0, 0, 0, -1, -1 }, false },
+		{ "drawmovie", "bb_draw_movie", 'i', "iiiii", 1, { 0, 0, 0, -1, -1 }, false },
 		{ "moviewidth", "bb_movie_width", 'i', "i", 1, {}, false },
 		{ "movieheight", "bb_movie_height", 'i', "i", 1, {}, false },
 		{ "movieplaying", "bb_movie_playing", 'i', "i", 1, {}, false },
