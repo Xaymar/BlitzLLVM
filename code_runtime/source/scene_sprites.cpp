@@ -55,7 +55,7 @@ void bb_sprite_view_mode(int32_t handle, int32_t mode)
 {
 	entity* e = need_kind(handle, MESH, "SpriteViewMode");
 	if (e->sprite_mode) {
-		e->sprite_mode = (mode < 1 || mode > 4) ? 1 : mode;
+		e->sprite_mode = (mode < 1 || mode > 4) ? 2 : mode; // Any other number turns it neither way, which is fixed.
 	}
 }
 
