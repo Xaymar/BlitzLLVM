@@ -331,6 +331,11 @@ if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	endforeach()
 endif()
 
+# Every BLITZLLVM_ variable that the runtime and the compiler read is on the wiki page, and nothing reads the environment around bb_env.
+if(Python3_FOUND)
+	add_test(NAME environment-variables COMMAND ${Python3_EXECUTABLE} -I "${PROJECT_SOURCE_DIR}/../tools/check_environment.py" "${PROJECT_SOURCE_DIR}/..")
+endif()
+
 # BLITZLLVM_PROFILE_FPS=1 only reports in programs that were compiled with --profile.
 if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	foreach(_PROFILE IN ITEMS on off)
