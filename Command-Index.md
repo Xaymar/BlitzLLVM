@@ -416,6 +416,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [HtmlViewGo](HtmlViewGo) 〔BlitzLLVM〕
 * [HtmlViewRun](HtmlViewRun) 〔BlitzLLVM〕
 * [HtmlViewStatus](HtmlViewStatus) 〔BlitzLLVM〕
+* [HWDither](HWDither)
 * [HWMultiTex](HWMultiTex)
 * [HWTexUnits](HWTexUnits)
 
