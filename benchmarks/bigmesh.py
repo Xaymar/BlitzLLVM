@@ -17,9 +17,10 @@ import os
 import platform
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
+import procutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -51,7 +52,7 @@ def main():
     width, height = args.size.lower().split("x")
 
     compiler = find_compiler(args.blitzcc)
-    version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
+    version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
     llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
     if not llvm:
         os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
@@ -68,7 +69,7 @@ def main():
         source = os.path.join(directory, "bigmesh.bb")
         shutil.copy(os.path.join(HERE, "bigmesh.bb"), source)
         shutil.copy(os.path.join(HERE, "bigmesh_llvm.bi" if llvm else "bigmesh_original.bi"), os.path.join(directory, "bigmesh_counters.bi"))
-        build = subprocess.run([compiler, "-q"] + (["-O3"] if llvm else []) + (["--profile"] if args.profile and llvm else []) + ["-o", program, source], cwd=directory, capture_output=True, text=True)
+        build = procutil.run([compiler, "-q"] + (["-O3"] if llvm else []) + (["--profile"] if args.profile and llvm else []) + ["-o", program, source], cwd=directory, capture_output=True, text=True)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
         result_file = os.path.join(directory, "result.txt")
@@ -81,7 +82,7 @@ def main():
             env["BENCH_FPS_ON"] = "1"
             env["BLITZ_FPS"] = "1"
         print("Running %dx%d surfaces of %dx%d squares, %d frames, %sx%s, CameraCulling %s" % (args.surfaces, args.surfaces, args.grid, args.grid, args.frames, width, height, args.cull if llvm else "n/a"), flush=True)
-        result = subprocess.run(runner + [program], env=env, cwd=directory, capture_output=True, text=True)
+        result = procutil.run(runner + [program], env=env, cwd=directory, capture_output=True, text=True)
         line = None
         if os.path.isfile(result_file):
             line = next((l for l in open(result_file).read().splitlines() if "RESULT " in l), None)
