@@ -1,4 +1,4 @@
-; Used by the -k and +k tests of blitzcc.
+; Used by the -k, +k and --dump-keywords tests of blitzcc.
 .lib "cli_test.dll"
 
 CliAdd%(a%, b%):"CliAddImpl"

@@ -109,6 +109,7 @@ namespace {
 		bool                     sane_order   = false; // --sane-evaluation-order
 		bool                     dump_keys    = false; // -k
 		bool                     dump_syntax  = false; // +k
+		bool                     dump_native  = false; // --dump-keywords
 		bool                     version      = false; // -v
 		bool                     console      = false; // --console
 		std::vector<std::string> run_args; // For the program, when it is run.
@@ -143,7 +144,10 @@ namespace {
 				  << "                        file, line and column of the source (DWARF, or CodeView for Windows MSVC targets).\n"
 				  << "  -g                    Add the debug information to any build, such as an optimized one. Implied by -d.\n"
 				  << "  -k                    Dump all keywords: The language, the runtime and the functions of the userlibs.\n"
-				  << "  +k                    Dump all keywords, followed by their syntax.\n"
+				  << "  +k                    Dump all keywords, followed by their syntax, like Blitz3D: Every integer type is a '%' and every float type\n"
+				  << "                        a '#', as in 'Left$ ( param1$,param2% )'.\n"
+				  << "  --dump-keywords       Dump all keywords, followed by their syntax in our own notation, with every type by its name and\n"
+				  << "                        nothing converted to what Blitz3D can express, as in 'Left:String param1:String, param2:Int32'.\n"
 				  << "  -v                    Print the version of the compiler and runtime.\n"
 				  << "  --console             Windows only: Build a console program. By default programs are built for the GUI subsystem, which\n"
 				  << "                        doesn't open a console window; they use the console they were started from, if there is one.\n"
@@ -162,7 +166,7 @@ namespace {
 				  << "                        optimized with the program (-flto=thin), which falls back to the plain build when the linker can't do it.\n"
 				  << "  --runtime-dir <dir>   Where the runtime libraries to link are. Defaults to '../lib/blitzllvm/runtime' relative to the compiler, then 'runtime' next to it.\n"
 				  << "                        The libraries of the target are in its x86_64 or arm64 folder, when there is one.\n"
-				  << "  --userlibs-dir <dir>  Where the userlibs (*.decls) to list with -k and +k are. The libraries are loaded when the program runs, from there, then from where the program is, then from where the source is, then through the system. Defaults to $BLITZLLVM_USERLIBS, then 'userlibs' next to 'bin', next to the compiler, then '../share/blitzllvm/userlibs'.\n"
+				  << "  --userlibs-dir <dir>  Where the userlibs (*.decls) to list with -k, +k and --dump-keywords are. The libraries are loaded when the program runs, from there, then from where the program is, then from where the source is, then through the system. Defaults to $BLITZLLVM_USERLIBS, then 'userlibs' next to 'bin', next to the compiler, then '../share/blitzllvm/userlibs'.\n"
 				  << "  --keep-temps          Don't delete the intermediate files.\n"
 				  << "  --dump-tokens         Only print the tokens of the input file, for debugging the lexer.\n"
 				  << "  --verbose             Print the commands that are run.\n"
@@ -334,6 +338,8 @@ namespace {
 				opt.dump_keys = true;
 			} else if (lowered == "+k") {
 				opt.dump_keys = opt.dump_syntax = true;
+			} else if (arg == "--dump-keywords") {
+				opt.dump_keys = opt.dump_native = true;
 			} else if (lowered == "-v") {
 				opt.version = true;
 			} else if (arg == "--console") {
@@ -429,7 +435,7 @@ int main(int argc, char** argv)
 			return 0;
 		}
 		if (opt.dump_keys) {
-			blitz::keywords::dump(std::cout, opt.dump_syntax, find_userlibs(opt));
+			blitz::keywords::dump(std::cout, opt.dump_native ? blitz::keywords::dump_mode::NATIVE : (opt.dump_syntax ? blitz::keywords::dump_mode::BLITZ3D : blitz::keywords::dump_mode::NAMES), find_userlibs(opt));
 		}
 		if (opt.version) {
 			std::cout << "Compiler version:" << BLITZLLVM_VERSION << "\n"
