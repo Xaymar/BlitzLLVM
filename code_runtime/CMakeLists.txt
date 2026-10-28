@@ -87,6 +87,7 @@ target_sources(blitzrt PRIVATE
 	"source/animation.cpp"
 	"source/b3d.cpp"
 	"source/model_3ds.cpp"
+	"source/model_x.cpp"
 	"source/model_internal.hpp"
 	"source/animation_internal.hpp"
 	"source/md2.cpp"

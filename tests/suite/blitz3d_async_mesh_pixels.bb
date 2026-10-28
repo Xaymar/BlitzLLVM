@@ -69,10 +69,21 @@ Check "Async LoadMesh of a file that is no model", LoadMesh(junk_name$), 0
 Check "Async LoadAnimMesh of a file that is no model", LoadAnimMesh(junk_name$), 0
 DeleteFile junk_name$
 
-; A model that is not parsed by a thread, like .x, is the same as before.
-x = LoadMesh("models/directx.x")
+; DirectX models are parsed by a thread too, and are the same as when loaded at once.
+AsyncLoading False
+blocking_x = LoadMesh("models/x_text.x")
+AsyncLoading True
+x = LoadMesh("models/x_text.x")
 CheckTrue "A .x model", x <> 0
-Check "A .x model is ready", EntityReady(x), 1
+Check "Surfaces of an async .x model", CountSurfaces(x), CountSurfaces(blocking_x)
+Check "Vertices of an async .x model", CountVertices(GetSurface(x, 1)), CountVertices(GetSurface(blocking_x, 1))
+; Its picture is loaded by a thread as well, so it may take a moment after the model was used.
+waited = 0
+While (EntityReady(x) = 0) And (waited < 5000)
+	Delay 10
+	waited = waited + 10
+Wend
+Check "A .x model is ready once it was used", EntityReady(x), 1
 
 ; Many at once, used afterwards.
 Dim many(15)

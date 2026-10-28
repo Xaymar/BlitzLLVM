@@ -5,4 +5,4 @@ Loads a model together with its parts and animation. The result is a pivot at th
 @returns The handle of the top entity, or 0 if the file could not be loaded.
 @param file    Path of the model file.
 @param parent  Entity the model follows, or 0 for none. Defaults to 0.
-@gap Only `.b3d` and `.3ds` files can be loaded, see [LoadMesh](LoadMesh). A DirectX `.x` file gives an empty entity without children. A `.3ds` file brings its object hierarchy, keys, lights and cameras (a light is a light entity, a camera is a pivot that looks at its target), see [3D Studio models](3D-Studio-Models).
+@gap Models in `.b3d`, `.3ds` and DirectX `.x` files can be loaded, see [LoadMesh](LoadMesh). A DirectX `.x` file brings its frames as entities and the animation keys of its animation sets, see [DirectX models](DirectX-Models). A `.3ds` file brings its object hierarchy, keys, lights and cameras (a light is a light entity, a camera is a pivot that looks at its target), see [3D Studio models](3D-Studio-Models).
