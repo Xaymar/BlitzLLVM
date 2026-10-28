@@ -67,7 +67,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 | `short-type-notation` | 3 | A type written as a character behind the name (`x%`, `x%%`, `x#`, `x##`, `x$`) instead of the long form (`x:Int32`, `x:Int64`, `x:Float32`, `x:Float64`, `x:String`). The long form is the one the language is documented with. `.TypeName` has no other form and does not warn. `blitz-tidy` can rewrite it. |
 | `unreachable-code` (notice) | 3 | A statement after `Return`, `End`, `Goto` or `Exit` in the same block, which can never run. Labels and `Data` do not count. Only the first one is reported. |
 | `unused-variable` (notice) | 3 | A `Local` or `Global` variable that is never read (writing to it does not count). It is optimized away. |
-| `typeless-declaration` | 4 | A `Local`, `Global`, `Const`, `Dim`, `Function` (its result), function parameter or `Field` without a type (`Local x`, `Function Foo(a)`, `Field size`): it is an Int, which is not always what was meant. |
+| `typeless-declaration` | 4 | A `Local`, `Global`, `Const`, `Dim`, `Function` (its result), function parameter or `Field` without a type (`Local x`, `Function Foo(a)`, `Field size`): it is an Int, which is not always what was meant. For a function the notice says which type its `Return` statements give (`:Void` if none gives a value). |
 | `loop-unroll-requires-constant` | 4 | The `Step` of a `For` loop is not a constant, so the loop can not be unrolled. A constant step of 0 is an error. |
 | `unused-function` (notice) | 4 | A function that is never called. It is optimized away. |
 
