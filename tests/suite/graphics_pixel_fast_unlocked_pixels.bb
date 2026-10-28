@@ -20,9 +20,9 @@ Cls
 WritePixel 3, 3, $123456
 
 Check "ReadPixelFast unlocked", ReadPixelFast(3, 3), 0
-Check "ReadPixelFast64 unlocked", ReadPixelFast64(3, 3), 0
+Check "ReadPixelFast64 unlocked", ReadPixelFast64(3, 3, 0), 0
 WritePixelFast 4, 4, $FFFFFF
-WritePixelFast64 5, 5, $FFFFFFFFFFFFFFFF
+WritePixelFast64 5, 5, 0, 1.0, 1.0, 1.0, 1.0
 CopyPixelFast 3, 3, BackBuffer(), 6, 6, BackBuffer()
 Check "WritePixelFast unlocked", ReadPixel(4, 4) And $FFFFFF, 0
 Check "WritePixelFast64 unlocked", ReadPixel(5, 5) And $FFFFFF, 0

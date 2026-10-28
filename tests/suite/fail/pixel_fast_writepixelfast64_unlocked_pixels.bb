@@ -8,5 +8,5 @@ If GetEnv$("BLITZ_HEADLESS") <> "" Then RuntimeError("the buffer has to be locke
 Graphics 64, 48, 32, 2
 SetBuffer BackBuffer()
 If GetEnv$("BLITZ_SUITE_DEBUG") = "" Then RuntimeError("WritePixelFast64: the buffer has to be locked with LockBuffer (release build, not checked).")
-WritePixelFast64 4, 4, 1
+WritePixelFast64 4, 4, 0, 1.0, 1.0, 1.0, 1.0
 Print "The command did not stop the program."
