@@ -19,13 +19,14 @@ Stats3D:Float32 type:Int32
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `type` | Int32 | required | Which number: 0 to 9. |
+| `type` | Int32 | required | Which number: 0 to 9, or 1000 to 1004. |
 
 **Returns:** The number, or 0 for an index that has no value.
 
 ## Description
 
 Gives debugging numbers about the engine. The original help has no entry for this command, and its numbers were only meant for the developers. Index 0 is the number of triangles that the collisions of the last [UpdateWorld](UpdateWorld) looked at.
+Index 1000 to 1004 count what the last [RenderWorld](RenderWorld) cost, which does not depend on how fast the computer is: draw calls (1000), pipeline changes (1001), texture changes (1002), vertex and index buffer changes (1003) and the runs of faces that the GPU decided about with [CameraCulling](CameraCulling) bit 2 (1004). These are BlitzLLVM extensions.
 
 ## Differences
 

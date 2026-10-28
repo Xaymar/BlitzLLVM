@@ -19,6 +19,7 @@ Differences that are not caused by one command.
 * [Color depth](Color-Depth): The depth argument of `Graphics` and `Graphics3D` does not pick a display mode: it picks what the picture is made of, which is never less than 8 bits per channel. 16-bit and palette modes do not exist, and `WBuffer` does nothing. `Dither` adds noise to the shown picture instead of dithering 16-bit color.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
+* [Culling](Culling): Extension: `CameraCulling` and `CameraCullingSource` choose what is left out of the picture before it is drawn. The picture is the same.
 * [Depth buffer](Depth-Buffer): The depth buffer is a reversed 32-bit float, so z-fighting is much rarer.
 * [Displays](Displays): Extension: commands for every connected display and its modes.
 * [DPI scaling on Windows](DPI-Scaling): Programs on Windows are DPI aware: Windows does not scale their windows, so one pixel of the program is one pixel of the screen at any scaling.

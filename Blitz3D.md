@@ -12,7 +12,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Animation](Blitz3D-Animation) (16): Bone, vertex and MD2 animation.
 * [BSP](Blitz3D-BSP) (4): Quake 3 BSP levels.
 * [Brushes](Blitz3D-Brushes) (12): Reusable material settings applied to meshes, surfaces and entities.
-* [Cameras](Blitz3D-Cameras) (11): Camera range, viewport, fog and projection.
+* [Cameras](Blitz3D-Cameras) (13): Camera range, viewport, fog and projection.
 * [Collisions](Blitz3D-Collisions) (19): Collision types, responses and results.
 * [Display](Blitz3D-Display) (9): Opening 3D modes and querying driver capabilities.
 * [Entities](Blitz3D-Entities) (40): Creating, moving, scaling and querying entities.

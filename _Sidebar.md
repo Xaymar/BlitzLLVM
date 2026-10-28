@@ -17,7 +17,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (26)</summary>
+<li><details><summary>Features (27)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -26,6 +26,7 @@
 <li><a href="Color-Depth">Color depth</a></li>
 <li><a href="Colors">Colors</a></li>
 <li><a href="Console-Window">Console window on Windows</a></li>
+<li><a href="Culling">Culling</a></li>
 <li><a href="Depth-Buffer">Depth buffer</a></li>
 <li><a href="Displays">Displays</a></li>
 <li><a href="DPI-Scaling">DPI scaling on Windows</a></li>
@@ -865,10 +866,12 @@
 <li><a href="LoadBrush">LoadBrush</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Cameras">Cameras</a> (11)</summary>
+<li><details><summary><a href="Blitz3D-Cameras">Cameras</a> (13)</summary>
 <ul>
 <li><a href="CameraClsColor">CameraClsColor</a></li>
 <li><a href="CameraClsMode">CameraClsMode</a></li>
+<li><a href="CameraCulling">CameraCulling</a></li>
+<li><a href="CameraCullingSource">CameraCullingSource</a></li>
 <li><a href="CameraFogColor">CameraFogColor</a></li>
 <li><a href="CameraFogMode">CameraFogMode</a></li>
 <li><a href="CameraFogRange">CameraFogRange</a></li>
