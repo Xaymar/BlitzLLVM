@@ -312,8 +312,12 @@ namespace blitz {
 		////////////////////////////////////////////////////////////////////////
 		// Program
 		////////////////////////////////////////////////////////////////////////
+		/** How the value of a parameter travels: `In` (default) only into the function, `Out` only back to the caller, `InOut` both. */
+		enum class direction { IN, OUT, INOUT };
+
 		struct parameter {
 			location           where;
+			direction          mode = direction::IN;
 			std::string        name;
 			std::string        struct_name;
 			blitz::types::type type = blitz::types::type::INT32;

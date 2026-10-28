@@ -338,6 +338,40 @@ blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool&
 	return result;
 }
 
+// The variable, array element or field that an Out or InOut parameter writes to.
+blitz::compiler::address blitz::compiler::gen_reference_argument(ast::call const* node, size_t idx, ast::parameter const& param, ast::function const& fn)
+{
+	auto const* arg      = node->arguments[idx].get();
+	auto        keyword  = (param.mode == ast::direction::OUT) ? std::string("Out") : std::string("InOut");
+	auto        describe = keyword + " parameter '" + param.name + "' of '" + fn.name + "'";
+	bool        place    = dynamic_cast<ast::reference const*>(arg) || dynamic_cast<ast::field_access const*>(arg) || dynamic_cast<ast::index_access const*>(arg);
+	if (auto c = dynamic_cast<ast::call const*>(arg)) {
+		place = find_dim(c->name) != nullptr; // `Dim` arrays are indexed like a call.
+	}
+	if (!place) {
+		throw err(arg->where, describe + " needs a variable, array element or field to write to, not a value.");
+	}
+	auto addr = gen_address(arg, param.mode == ast::direction::OUT);
+	if (addr.constant) {
+		throw err(arg->where, describe + " can't write to a constant.");
+	}
+	if (addr.count) {
+		throw err(arg->where, describe + " can't take a whole array, give it an element.");
+	}
+	if ((addr.type != param.type) || ((param.type == type::STRUCT) && (addr.sname != lower(param.struct_name)))) {
+		auto name = [](type t, std::string const& sname) { return (t == type::STRUCT) ? "object of type '" + sname + "'" : blitz::types::display(t); };
+		throw err(arg->where, describe + " has to be given a variable of type " + name(param.type, lower(param.struct_name)) + ", not " + name(addr.type, addr.sname) + ".");
+	}
+	if (param.mode == ast::direction::INOUT) {
+		if (auto r = dynamic_cast<ast::reference const*>(arg)) {
+			if (auto var = find(r->name)) {
+				var->used = true;
+			}
+		}
+	}
+	return addr;
+}
+
 blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 {
 	auto key = lower(node->name);
@@ -381,6 +415,21 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 	std::vector<operand> operands;
 	for (size_t idx = 0; idx < fn.parameters.size(); idx++) {
 		auto const& param = fn.parameters[idx];
+		if (param.mode != ast::direction::IN) {
+			// Out and InOut take the address of a variable, or nothing if the argument was left out.
+			operand o;
+			if (idx < node->arguments.size()) {
+				o.code = capture_code([&] {
+					auto addr = gen_reference_argument(node, idx, param, fn);
+					o.v       = value{ addr.pointer, param.type, lower(param.struct_name) };
+					o.v.need  = addr.need;
+				});
+			} else {
+				o.v = value{ "null", type::STRUCT };
+			}
+			operands.push_back(std::move(o));
+			continue;
+		}
 		operands.push_back((idx < node->arguments.size()) ? capture(node->arguments[idx].get()) : capture(param.initial.get()));
 	}
 	int  chain = place_sequence(operands);
@@ -388,6 +437,10 @@ blitz::compiler::value blitz::compiler::gen_call(ast::call const* node)
 	for (size_t idx = 0; idx < fn.parameters.size(); idx++) {
 		auto const& param = fn.parameters[idx];
 		value       v;
+		if (param.mode != ast::direction::IN) {
+			list += (idx ? ", " : "") + std::string("ptr ") + operands[idx].v.repr;
+			continue;
+		}
 		if (idx < node->arguments.size()) {
 			v = convert(operands[idx].v, param.type, node->arguments[idx]->where, true, param.struct_name, &node->arguments[idx]->covers);
 		} else {

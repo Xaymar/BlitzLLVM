@@ -37,6 +37,7 @@ void blitz::compiler::begin_function()
 	_string_locals.clear();
 	_exit_label.clear();
 	_ret_slot.clear();
+	_copy_outs.clear();
 }
 
 void blitz::compiler::scope_begin(scope& sc)
@@ -179,7 +180,13 @@ void blitz::compiler::gen_gosub_return(ast::location const& where)
 	} else {
 		// In a function, Return also means returning from the function itself.
 		auto llvm = blitz::types::to_llvm(_return_type);
-		emit_terminator("ret " + llvm + " " + zero(_return_type).repr);
+		if (!_copy_outs.empty()) {
+			// Out and InOut parameters have to be handed back first.
+			emit("store " + llvm + " " + zero(_return_type).repr + ", ptr " + _ret_slot);
+			emit_terminator("br label %" + _exit_label);
+		} else {
+			emit_terminator("ret " + llvm + " " + zero(_return_type).repr);
+		}
 	}
 
 	begin_label(pop_l);
@@ -215,7 +222,8 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	auto const& info = _functions.at(lower(fn.name));
 	std::string params;
 	for (size_t idx = 0; idx < fn.parameters.size(); idx++) {
-		params += (idx ? ", " : "") + blitz::types::to_llvm(fn.parameters[idx].type) + " %a" + std::to_string(idx);
+		// Out and InOut parameters are the address of the variable of the caller.
+		params += (idx ? ", " : "") + ((fn.parameters[idx].mode == ast::direction::IN) ? blitz::types::to_llvm(fn.parameters[idx].type) : std::string("ptr")) + " %a" + std::to_string(idx);
 	}
 
 	std::string sp = di_begin_function(fn.name, linkage_name(info.symbol), fn.where, fn.type, lower(fn.struct_name), &fn.parameters, true);
@@ -230,7 +238,9 @@ void blitz::compiler::gen_function(ast::function const& fn)
 		_arg                  = uint32_t(idx + 1);
 		auto        var   = create_local(param.name, param.type, false, param.where, param.struct_name);
 		_arg                  = 0;
-		if (param.type == type::STRING) {
+		if (param.mode != ast::direction::IN) {
+			gen_reference_parameter(param, var, idx);
+		} else if (param.type == type::STRING) {
 			// What was passed belongs to the caller, so the function works on a copy.
 			declare("bb_str_dup", "declare ptr @bb_str_dup(ptr)");
 			auto copy = tmp();
@@ -251,6 +261,7 @@ void blitz::compiler::gen_function(ast::function const& fn)
 
 	// Everything leaves through here: what the function made is freed, and then the value goes back.
 	begin_label(_exit_label);
+	gen_copy_outs();
 	if (_uses_strings) {
 		declare("bb_str_mark", "declare i32 @bb_str_mark()");
 		_allocas << "  %entry.mark = call i32 @bb_str_mark()" << dbg() << "\n";
@@ -282,6 +293,85 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	_definitions << "define internal " << blitz::types::to_llvm(fn.type) << " " << info.symbol << "(" << params << ")" << (sp.empty() ? "" : " !dbg " + sp) << " {\n"
 				 << "entry:\n"
 				 << _allocas.str() << _body.str() << "}\n\n";
+}
+
+// Starts an Out or InOut parameter: Out begins with its default value, InOut with what the caller has.
+void blitz::compiler::gen_reference_parameter(ast::parameter const& param, variable const& var, size_t idx)
+{
+	auto arg  = "%a" + std::to_string(idx);
+	auto llvm = blitz::types::to_llvm(param.type);
+	bool optional = (param.initial != nullptr);
+
+	auto set_default = [&] {
+		auto v = convert(gen(param.initial.get()), param.type, param.where, true, param.struct_name);
+		if (param.type == type::STRING) {
+			declare("bb_str_dup", "declare ptr @bb_str_dup(ptr)");
+			auto copy = tmp();
+			emit(copy + " = call ptr @bb_str_dup(ptr " + v.repr + ")");
+			v = { copy, type::STRING };
+			_uses_strings = true;
+		}
+		emit("store " + llvm + " " + v.repr + ", ptr " + var.pointer);
+	};
+
+	if (param.mode == ast::direction::OUT) {
+		if (optional) {
+			set_default();
+		}
+	} else {
+		auto copy_in = [&] {
+			auto held = tmp();
+			emit(held + " = load " + llvm + ", ptr " + arg);
+			if (param.type == type::STRING) {
+				declare("bb_str_dup", "declare ptr @bb_str_dup(ptr)");
+				auto copy = tmp();
+				emit(copy + " = call ptr @bb_str_dup(ptr " + held + ")");
+				held = copy;
+				_uses_strings = true;
+			}
+			emit("store " + llvm + " " + held + ", ptr " + var.pointer);
+		};
+		if (optional) {
+			// The caller left it out, which means the default.
+			auto missing = tmp();
+			auto use_default = label("param.default"), use_given = label("param.given"), joined = label("param.ready");
+			emit(missing + " = icmp eq ptr " + arg + ", null");
+			emit_terminator("br i1 " + missing + ", label %" + use_default + ", label %" + use_given);
+			begin_label(use_default);
+			set_default();
+			emit_terminator("br label %" + joined);
+			begin_label(use_given);
+			copy_in();
+			emit_terminator("br label %" + joined);
+			begin_label(joined);
+		} else {
+			copy_in();
+		}
+	}
+	_copy_outs.push_back({ var.pointer, arg, param.type, lower(param.struct_name), optional });
+}
+
+// Hands the Out and InOut parameters back to the variables of the caller.
+void blitz::compiler::gen_copy_outs()
+{
+	for (auto const& out : _copy_outs) {
+		std::string done;
+		if (out.optional) {
+			auto missing = tmp();
+			auto store_l = label("param.store");
+			done         = label("param.stored");
+			emit(missing + " = icmp eq ptr " + out.target + ", null");
+			emit_terminator("br i1 " + missing + ", label %" + done + ", label %" + store_l);
+			begin_label(store_l);
+		}
+		auto held = tmp();
+		emit(held + " = load " + blitz::types::to_llvm(out.type) + ", ptr " + out.local);
+		store_value(address{ out.target, out.type, out.sname, 0, false }, value{ held, out.type, out.sname });
+		if (out.optional) {
+			emit_terminator("br label %" + done);
+			begin_label(done);
+		}
+	}
 }
 
 void blitz::compiler::gen_main(ast::program const& program)
