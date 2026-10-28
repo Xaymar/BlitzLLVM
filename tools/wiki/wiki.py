@@ -271,9 +271,10 @@ def command_page(c, siblings):
            nav(c) + "\n",
            "```blitzbasic\n%s\n```\n" % c.signature()]
     if c.params:
-        out.append("| Parameter | Type | Default | Description |\n|---|---|---|---|")
+        out.append("| Parameter | Mode | Type | Default | Description |\n|---|---|---|---|---|")
         for t, n, d in c.params:
-            out.append("| `%s` | %s | %s | %s |" % (n, t, "`%s`" % d if d else "required", doc["param"].get(n, "")))
+            mode, t = ("Out", t[4:]) if t.startswith("Out ") else ("In", t)
+            out.append("| `%s` | %s | %s | %s | %s |" % (n, mode, t, "`%s`" % d if d else "required", doc["param"].get(n, "")))
         out.append("")
     if doc["returns"]:
         out.append("**Returns:** %s\n" % doc["returns"])
