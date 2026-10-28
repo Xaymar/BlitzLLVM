@@ -843,7 +843,7 @@ namespace bb::gfx {
 			return { 0, 0, area_w, area_h };
 		}
 		float scale = fminf(area_w / float(g.width), area_h / float(g.height));
-		const char* rule = getenv("BLITZ_FULLSCREEN_SCALE"); // "integer" only enlarges by whole numbers.
+		const char* rule = bb_env("BLITZLLVM_FULLSCREEN_SCALE"); // "integer" only enlarges by whole numbers.
 		if (rule && (strcmp(rule, "integer") == 0) && (scale >= 1.0f)) {
 			scale = floorf(scale);
 		}
