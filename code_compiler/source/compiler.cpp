@@ -563,7 +563,7 @@ void blitz::compiler::collect_globals(ast::block const& block)
 					warn_typeless(decl.where, decl.name);
 				}
 				auto symbol = "@bb.d" + std::to_string(_counter++);
-				_globals << symbol << " = internal global { ptr, i32, i32, i32, i32 } zeroinitializer\n";
+				_globals << symbol << " = internal global { ptr, i32, i32, i32, i32, i32 } zeroinitializer\n";
 				variable var{ symbol, (decl.type == type::UNKNOWN) ? type::INT32 : decl.type, false, lower(decl.struct_name), 0, uint32_t(decl.sizes.size()) };
 				_arrays[key] = var;
 			}
