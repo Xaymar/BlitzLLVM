@@ -31,6 +31,7 @@
 
 extern void bb_runtime_error(const char* message);
 extern int  bb_entity_world_matrix(int32_t handle, float* matrix);
+extern int32_t bb_create_listener_entity(int32_t parent);
 
 typedef struct bb_sound {
 	MIX_Audio* audio;
@@ -557,12 +558,12 @@ static void bb_motion_update(bb_motion* motion, const float* position, Uint64 no
 
 int32_t bb_create_listener(int32_t entity, float rolloff, float doppler, float distance)
 {
-	bb_audio.listener_entity   = entity;
+	bb_audio.listener_entity   = bb_create_listener_entity(entity);
 	bb_audio.listener_rolloff  = rolloff;
 	bb_audio.listener_doppler  = doppler;
 	bb_audio.listener_distance = distance > 0.0f ? distance : 1.0f;
 	memset(&bb_audio.listener_motion, 0, sizeof(bb_audio.listener_motion));
-	return 1;
+	return bb_audio.listener_entity;
 }
 
 // Sounds that come from an entity get quieter with distance, move between the speakers and are shifted in pitch when they or

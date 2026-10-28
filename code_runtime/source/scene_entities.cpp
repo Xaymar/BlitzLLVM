@@ -461,6 +461,16 @@ int32_t bb_create_pivot(int32_t parent)
 	return add_entity(PIVOT, parent);
 }
 
+// The listener of the sound system is an entity of its own, like in the original: it sits at the position of its parent and can be
+// moved, turned, parented and freed like any other entity.
+int32_t bb_create_listener_entity(int32_t parent)
+{
+	int     handle = add_entity(PIVOT, parent);
+	entity* e      = get_entity(handle);
+	e->cls         = "Listener";
+	return handle;
+}
+
 int32_t bb_create_camera(int32_t parent)
 {
 	return add_entity(CAMERA, parent);

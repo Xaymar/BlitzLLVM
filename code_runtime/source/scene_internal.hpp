@@ -86,6 +86,7 @@ uint8_t* bb_file_pixels(const char* file, int32_t* width, int32_t* height);
 void bb_ambient_light(float r, float g, float b);
 int bb_entity_world_matrix(int32_t handle, float* matrix);
 int32_t bb_create_pivot(int32_t parent);
+int32_t bb_create_listener_entity(int32_t parent);
 int32_t bb_create_camera(int32_t parent);
 int32_t bb_create_light(int32_t type, int32_t parent);
 void bb_free_entity(int32_t handle);
