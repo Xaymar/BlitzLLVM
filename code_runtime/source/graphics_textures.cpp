@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "graphics_internal.hpp"
+#include "handle_check.h"
 #include "path.h"
 #include "runtime_internal.h"
 
@@ -806,9 +807,18 @@ void bb_collect_textures(void)
 	}
 }
 
+// Whether a texture handle (with or without the frame of a brush) names a texture that was made and not freed yet.
+int32_t bb_texture_exists(int32_t handle)
+{
+	return live_texture_of(handle) != nullptr;
+}
+
 void bb_free_texture(int32_t handle)
 {
 	if (!live_texture_of(handle)) {
+		if (handle != 0) { // A 0 is a texture that failed to load, which programs free without asking.
+			BB_DEBUG_HANDLE_MISSING("FreeTexture", "texture", handle);
+		}
 		return;
 	}
 	texture_entry& t = texture_table[uint32_t(handle & bb::texture_handle_mask) - 1];
@@ -820,12 +830,18 @@ void bb_free_texture(int32_t handle)
 int32_t bb_texture_width(int32_t handle)
 {
 	texture_entry* t = live_texture_of(handle);
+	if (!t) {
+		BB_DEBUG_HANDLE_MISSING("TextureWidth", "texture", handle);
+	}
 	return t ? (t->atlas ? t->rect[2] : (t->frame_w > 0 ? t->frame_w : t->width)) : 0;
 }
 
 int32_t bb_texture_height(int32_t handle)
 {
 	texture_entry* t = live_texture_of(handle);
+	if (!t) {
+		BB_DEBUG_HANDLE_MISSING("TextureHeight", "texture", handle);
+	}
 	return t ? (t->atlas ? t->rect[3] : (t->frame_h > 0 ? t->frame_h : t->height)) : 0;
 }
 
