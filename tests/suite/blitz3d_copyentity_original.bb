@@ -61,5 +61,19 @@ Check "The parent of a copy", GetParent(CopyEntity(ch, par)), par
 Check "A copy can be a child of its original", GetParent(CopyEntity(ch, ch)), ch
 Check "The original has a child now", CountChildren(ch), 1
 
+; A copy starts moving from where it is, not from where the original was at the last UpdateWorld, so the wall between does not stop it.
+Collisions 1, 2, 2, 1
+wall = CreateCube()
+ScaleEntity wall, 1, 100, 100
+PositionEntity wall, 50, 0, 0
+EntityType wall, 2
+src = CreateSphere()
+EntityType src, 1
+UpdateWorld
+PositionEntity src, 100, 0, 0
+moved = CopyEntity(src)
+UpdateWorld
+Check "A copy does not collide on the way from the original", EntityX(moved), 100
+
 EndGraphics
 Done "blitz3d_copyentity_original"
