@@ -27,8 +27,11 @@ namespace {
 	constexpr int      settle_looks = 3;
 	// A mesh much larger than the cells would be in the way of many, so it is looked at every time instead.
 	constexpr float    oversize = 2.0f;
-	// When more than one in this many meshes are not in a cell after the meshes were given the chance to, the grid is left for a while.
-	constexpr uint32_t retreat_share = 20;
+	// The grid costs a little for every mesh that is touched between two frames (it leaves its cell and goes back in later), so when
+	// more than this share of the meshes are touched in one frame, reading all of them is quicker and the grid is not used. It is used again
+	// when the share has dropped to 90% of this.
+	constexpr double   move_share = 0.05;
+	constexpr double   move_hysteresis = 0.9;
 
 	// What stands in a list for an entity. It only counts as long as the generation is the one the entity has now, which is changed
 	// whenever the entity leaves the place it was put in, so that a list never has to be searched to take something out.
@@ -56,7 +59,9 @@ namespace {
 	float                   cell_size  = 0;
 	uint32_t                seen_epoch = 0;
 	int                     settled    = 0;
-	int                     retreat_wait = 120; // Looks to wait after the grid was left.
+	std::vector<uint32_t>   touched;   // The meshes that something asked for since the last frame was drawn.
+	size_t                  moved      = 0; // How many that were, when this frame began.
+	bool                    suppressed = false; // So many are touched that the grid is not used, see move_share.
 
 	void reset_cell(cell& c)
 	{
@@ -266,8 +271,10 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 					bool (*outside)(int, entity&, void*))
 {
 	static const bool disabled = getenv("BLITZ_NO_SPATIAL_GRID") != nullptr;
-	if (!planes || disabled || (mesh_count < min_meshes)) {
-		deactivate();
+	if (!planes || disabled || (mesh_count < min_meshes) || suppressed) {
+		if (!suppressed) {
+			deactivate();
+		}
 		return false;
 	}
 	if (mesh_epoch != seen_epoch) {
@@ -376,12 +383,34 @@ bool bb::grid_visit(const float* planes, const float* origin, float camera_growt
 		}
 		loose.resize(kept);
 	}
-	// When so many meshes move all the time that they cannot stay in the cells, looking at them one by one is quicker, and the
-	// grid is tried again after a while.
-	if (loose.size() > mesh_count / retreat_share) {
-		deactivate();
-		settled = -retreat_wait;
-		retreat_wait = retreat_wait < (1 << 20) ? retreat_wait * 2 : retreat_wait; // Every time it is left it is for longer.
-	}
 	return true;
+}
+
+void bb::grid_touched(int handle)
+{
+	touched.push_back(uint32_t(handle));
+}
+
+void bb::grid_begin_frame()
+{
+	static const double limit_override = getenv("BLITZ_GRID_MAX_MOVED") ? atof(getenv("BLITZ_GRID_MAX_MOVED")) : -1;
+	moved = touched.size();
+	double limit = limit_override >= 0 ? limit_override : move_share * double(mesh_count);
+	if (!suppressed && double(moved) > limit) {
+		suppressed = true;
+		deactivate();
+	} else if (suppressed && double(moved) < limit * move_hysteresis) {
+		suppressed = false;
+		settled    = 0;
+	}
+}
+
+void bb::grid_end_frame()
+{
+	for (uint32_t h : touched) {
+		if (h - 1 < grid_flags.size) {
+			grid_flags[h - 1] &= uint8_t(~2);
+		}
+	}
+	touched.clear();
 }

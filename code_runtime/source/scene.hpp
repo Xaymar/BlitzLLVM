@@ -361,6 +361,10 @@ namespace bb {
 	// It has to be told about everything that can change where a mesh is or what the renderer remembers about it.
 	extern buffer<uint8_t> grid_flags; // Per entity: 1 = is in a cell of the grid, 2 = was touched since the grid looked at it.
 	void grid_leave(int handle);
+	void grid_touched(int handle);
+	/** Called by RenderWorld before and after the cameras draw: the first decides whether the grid is used for this frame from how many meshes were touched since the last one. */
+	void grid_begin_frame();
+	void grid_end_frame();
 	/** To be called when an entity (or the numbers a cull_record is made from) may have changed. */
 	inline void entity_moved(int handle)
 	{
@@ -369,7 +373,10 @@ namespace bb {
 			if (flags & 1) {
 				grid_leave(handle);
 			}
-			flags |= 2;
+			if (!(flags & 2)) {
+				flags |= 2;
+				grid_touched(handle);
+			}
 		}
 	}
 	void grid_entity_added(int handle, int kind);

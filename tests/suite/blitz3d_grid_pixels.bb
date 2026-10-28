@@ -144,4 +144,32 @@ TurnEntity cam, 0, 180, 0
 Frames
 Check "Camera turned back", TrisRendered(), 120, 0
 
+; So many meshes moving every frame that the grid is not used for a while (more than 5% of them), and then used again. The picture is
+; the same in both, also for meshes that are moved while it is not used.
+For k = 1 To 6
+	For i = 1000 To 1299
+		TranslateEntity cubes(i), 0, 0.01, 0
+	Next
+	RenderWorld
+Next
+Check "Many moving", TrisRendered(), 120, 0
+PositionEntity cubes(4010), 65, 0, 100
+For k = 1 To 3
+	For i = 1000 To 1299
+		TranslateEntity cubes(i), 0, 0.01, 0
+	Next
+	RenderWorld
+Next
+Check "Moved into view while many are moving", TrisRendered(), 132, 0
+Frames
+Frames
+Check "Moving stopped", TrisRendered(), 132, 0
+PositionEntity cubes(4011), 75, 0, 100
+Frames
+Check "Moved into view after the grid is used again", TrisRendered(), 144, 0
+PositionEntity cubes(4010), 40005, 0, 100
+PositionEntity cubes(4011), 40005, 0, 100
+Frames
+Check "And out again", TrisRendered(), 120, 0
+
 End
