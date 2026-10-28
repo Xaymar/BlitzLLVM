@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "collision_internal.hpp"
+#include "environment.h"
 
 extern "C" {
 void bb_runtime_error(const char* message);
@@ -280,7 +281,7 @@ namespace bb::collision {
 
 	bool broad_phase_enabled()
 	{
-		static const bool enabled = !getenv("BLITZ_NO_BROADPHASE");
+		static const bool enabled = bb_env_bool("BLITZLLVM_COLLISION_BROADPHASE", true);
 		return enabled;
 	}
 

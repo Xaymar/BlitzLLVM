@@ -1047,12 +1047,13 @@ namespace bb::gfx {
 
 	// Whether the GPU can blend in the fragment shader, which Dither 2 does to dither the result of blending: the shader reads what
 	// the color attachment holds (dynamic rendering local read) while the draws that touch a pixel stay in order
-	// (rasterization order attachment access), and a fifth set of descriptors can be bound. BLITZ_NO_BLEND_DITHER=1 says no, for comparing.
+	// (rasterization order attachment access), and a fifth set of descriptors can be bound. BLITZLLVM_BLEND_DITHER=0 says no, for comparing.
 	bool can_blend_in_shader(VkPhysicalDevice device, const VkPhysicalDeviceProperties& props)
 	{
 		const char* off      = getenv("BLITZ_NO_BLEND_DITHER");
 		const char* no_local = getenv("BLITZ_NO_LOCAL_READ_DITHER");
 		if ((off && off[0] && (off[0] != '0')) || (no_local && no_local[0] && (no_local[0] != '0')) || (props.limits.maxBoundDescriptorSets < 5)) {
+		if (!bb_env_bool("BLITZLLVM_BLEND_DITHER", true) || (props.limits.maxBoundDescriptorSets < 5)) {
 			return false;
 		}
 		uint32_t count = 0;

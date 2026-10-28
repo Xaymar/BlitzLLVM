@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <vector>
 #include "scene.hpp"
+#include "environment.h"
 
 extern "C" void    bb_runtime_error(const char* text);
 extern "C" int32_t bb_is_debug(void);
@@ -300,7 +301,7 @@ static void promote_loose()
 bool bb::grid_visit(const float* planes, const float* origin, float camera_growth, void (*visit)(int, entity&, void*), void* user,
 					bool (*outside)(int, entity&, void*))
 {
-	static const bool disabled = getenv("BLITZ_NO_SPATIAL_GRID") != nullptr;
+	static const bool disabled = !bb_env_bool("BLITZLLVM_SPATIAL_GRID", true);
 	if (!planes || disabled || (mesh_count < min_meshes) || suppressed) {
 		if (!suppressed) {
 			deactivate();
