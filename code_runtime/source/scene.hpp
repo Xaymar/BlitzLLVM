@@ -322,6 +322,7 @@ namespace bb {
 	/** To be called after the vertices of a surface (and so the box around them) were changed. */
 	inline void surface_changed(surface& s)
 	{
+		s.bound_valid = false;
 		if (s.cull_cached) {
 			s.cull_cached = false;
 			mesh_epoch++;
