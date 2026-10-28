@@ -19,6 +19,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.environ.get("PERF_HISTORY", os.path.join(os.path.dirname(os.path.dirname(HERE)), "performance-history"))
@@ -60,6 +61,7 @@ def main():
     parser.add_argument("--since", required=True, help="the first commit (exclusive: its children are taken)")
     parser.add_argument("--until", default="origin/root")
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--max-minutes", type=float, default=0, help="stop after the state that is running when this time is over (chunks)")
     parser.add_argument("--scratch", default=os.path.join(os.path.expanduser("~"), "commit-builds"))
     parser.add_argument("--build-script", metavar="SCRIPT", help="build with this PowerShell script (Windows; benchmarks/build_windows.ps1) instead of build_rev.sh")
     parser.add_argument("--build-dir", default=os.path.join(os.path.expanduser("~"), "commit-build-tree"), help="build folder that is kept between commits")
@@ -78,11 +80,15 @@ def main():
             states.append((key, [c]))
     print("%d commits, %d code states" % (len(commits), len(states)), flush=True)
     done = 0
+    started = time.time()
     for n, (key, group) in enumerate(states):
         first = group[0]
         path = os.path.join(OUT, first + ".json")
         if os.path.isfile(path):
             continue
+        if args.max_minutes and time.time() - started > args.max_minutes * 60:
+            print("time is over, %d states done" % done, flush=True)
+            break
         label = "c%04d-%s" % (n, first[:8])
         scratch = os.path.join(args.scratch, label)
         shutil.rmtree(scratch, ignore_errors=True)
