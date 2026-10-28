@@ -641,6 +641,7 @@ namespace bb::gfx {
 		VkBuffer    index_buffer;
 		uint32_t    index_count;
 		int         texture; // Handle, 0 for none.
+		uintptr_t   texture_set; // What the handle is bound as (its descriptor set), which is what draws are grouped by: handles that share one are the same state.
 		VkPipeline  pipeline;
 		bool        cull, depth_test, depth_write;
 		float       depth;      // Distance in front of the camera of the entity, which orders what is see-through.

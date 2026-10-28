@@ -796,11 +796,19 @@ namespace bb::gfx {
 		copies.clear();
 	}
 
+	// What a texture handle is bound as: handles of frames, aliases and views into one image share a descriptor set, so draws with
+	// them are instances of the same call.
+	static uintptr_t texture_set_of(int handle)
+	{
+		texture_entry* t = texture_of(handle);
+		return (t && t->set) ? uintptr_t(t->set) : 0;
+	}
+
 	// Whether two draws only differ in their data, which makes them instances of the same call.
 	static bool same_draw_state(draw_record const& a, draw_record const& b)
 	{
 		return !a.cluster_count && !b.cluster_count && (a.pipeline == b.pipeline) && (a.vertex_buffer == b.vertex_buffer) && (a.index_buffer == b.index_buffer) && (a.index_count == b.index_count)
-			&& (a.texture == b.texture) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write);
+			&& (a.texture_set == b.texture_set) && (a.cull == b.cull) && (a.depth_test == b.depth_test) && (a.depth_write == b.depth_write);
 	}
 
 	// Copies the faces of a cube map into its sheet, where 3D samples them from.
@@ -1405,12 +1413,12 @@ namespace bb::gfx {
 		struct state_key {
 			uintptr_t pipeline, vertex_buffer, index_buffer;
 			uint32_t  index_count;
-			int       texture;
+			uintptr_t texture_set;
 			bool      cull, depth_write;
 			bool operator==(state_key const& o) const
 			{
 				return (pipeline == o.pipeline) && (vertex_buffer == o.vertex_buffer) && (index_buffer == o.index_buffer) && (index_count == o.index_count)
-					&& (texture == o.texture) && (cull == o.cull) && (depth_write == o.depth_write);
+					&& (texture_set == o.texture_set) && (cull == o.cull) && (depth_write == o.depth_write);
 			}
 		};
 		struct state_hash {
@@ -1419,7 +1427,7 @@ namespace bb::gfx {
 				size_t h = k.pipeline * 31 + k.vertex_buffer;
 				h        = h * 31 + k.index_buffer;
 				h        = h * 31 + k.index_count;
-				h        = h * 31 + size_t(k.texture);
+				h        = h * 31 + size_t(k.texture_set);
 				return h * 4 + (k.cull ? 2 : 0) + (k.depth_write ? 1 : 0);
 			}
 		};
@@ -1433,7 +1441,7 @@ namespace bb::gfx {
 		auto cell = [&](float v) { return std::min(grid - 1, std::max(0, int(floorf((v * 0.5f + 0.5f) * grid)))); };
 		for (size_t u = 0; u < units.size(); u++) {
 			draw_record const& d = draws[units[u]];
-			state_key k = { uintptr_t(d.pipeline), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture, d.cull, d.depth_write };
+			state_key k = { uintptr_t(d.pipeline), uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count, d.texture_set, d.cull, d.depth_write };
 			// The same few states come again and again, so the last ones are looked at before the table is.
 			int found = -1;
 			for (int r = 0; r < recent_count; r++) {
@@ -1522,7 +1530,7 @@ namespace bb::gfx {
 		// Draws that can discard go after those that cannot, as they only add to what is there, and the solid ones can then
 		// be depth tested before they are shaded.
 		auto key = [&](draw_record const& d) {
-			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
+			return std::make_tuple(d.pipeline == g.opaque3d, uintptr_t(d.pipeline), d.cull, d.depth_write, d.texture_set, uintptr_t(d.vertex_buffer), uintptr_t(d.index_buffer), d.index_count);
 		};
 		std::stable_sort(units.begin(), units.end(), [&](uint32_t a, uint32_t b) { return key(draws[a]) < key(draws[b]); });
 		std::vector<draw_record> sorted;
@@ -2186,6 +2194,7 @@ namespace bb::gfx {
 			record.index_buffer = shape->index_buffer;
 			record.index_count  = shape->index_count;
 			record.texture      = (texture && texture->set) ? texture_handle : 0;
+			record.texture_set  = texture_set_of(record.texture);
 			record.pipeline     = (g.wireframe && g.wire3d[mode]) ? g.wire3d[mode] : (mode == 0 ? (cutout ? g.opaque3d : g.solid3d) : (mode == 1 ? g.blend3d : (mode == 2 ? g.mul3d : g.add3d)));
 			record.cull         = !(two_sided || ((e->fx | paint.fx) & 16));
 			record.depth_test   = depth_test;
@@ -2265,6 +2274,7 @@ namespace bb::gfx {
 				more_push.mask[0]    = 0;
 				more_push.mask[1]    = 1; // No fog again either, the first layer has it.
 				more.texture         = extra_handle;
+				more.texture_set     = texture_set_of(extra_handle);
 				more.depth_write     = false;
 				more.unit_start      = false;
 				if (more.cluster_count) {
@@ -2307,6 +2317,7 @@ namespace bb::gfx {
 				tint_push.mask[2]     = 0;
 				tint_push.mask[3]     = 0;
 				tint.texture          = 0;
+				tint.texture_set      = 0;
 				tint.pipeline         = g.mul3d;
 				tint.depth_write      = false;
 				tint.unit_start       = false;
