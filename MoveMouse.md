@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-MoveMouse x:Int32, y:Int32
+MoveMouse:Void x:Int32, y:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position in the graphics buffer. |
-| `y` | Int32 | required | Vertical position in the graphics buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position in the graphics buffer. |
+| `y` | In | Int32 | required | Vertical position in the graphics buffer. |
 
 ## Description
 

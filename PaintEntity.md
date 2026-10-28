@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-PaintEntity entity:Int32, brush:Int32
+PaintEntity:Void entity:Int32, brush:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `brush` | Int32 | required | Brush handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `brush` | In | Int32 | required | Brush handle. |
 
 ## Description
 

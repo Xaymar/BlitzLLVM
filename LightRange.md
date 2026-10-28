@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-LightRange light:Int32, range:Float32
+LightRange:Void light:Int32, range:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `light` | Int32 | required | Light handle. |
-| `range` | Float32 | required | How far the light reaches. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `light` | In | Int32 | required | Light handle. |
+| `range` | In | Float32 | required | How far the light reaches. |
 
 ## Description
 

@@ -17,10 +17,10 @@
 GetSurface:Int32 mesh:Int32, surface_index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `surface_index` | Int32 | required | Number of the surface, 1 up to the number of surfaces. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `surface_index` | In | Int32 | required | Number of the surface, 1 up to the number of surfaces. |
 
 **Returns:** The handle of the surface.
 

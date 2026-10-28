@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-EndGraphics
+EndGraphics:Void
 ```
 
 ## Description

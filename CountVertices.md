@@ -17,9 +17,9 @@
 CountVertices:Int32 surface:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
 
 **Returns:** The number of vertices of the surface.
 

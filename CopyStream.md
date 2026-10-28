@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-CopyStream src_stream:Int32, dest_stream:Int32, buffer_size:Int32=16384
+CopyStream:Void src_stream:Int32, dest_stream:Int32, buffer_size:Int32=16384
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_stream` | Int32 | required | The stream to read from. |
-| `dest_stream` | Int32 | required | The stream to write to. |
-| `buffer_size` | Int32 | `16384` | How many bytes to move at a time. Defaults to 16384. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `src_stream` | In | Int32 | required | The stream to read from. |
+| `dest_stream` | In | Int32 | required | The stream to write to. |
+| `buffer_size` | In | Int32 | `16384` | How many bytes to move at a time. Defaults to 16384. |
 
 ## Description
 

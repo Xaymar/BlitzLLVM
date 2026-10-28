@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-GrabImage image:Int32, x:Int32, y:Int32, frame:Int32=0
+GrabImage:Void image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to copy into. |
-| `x` | Int32 | required | Left edge of the part of the buffer to copy. |
-| `y` | Int32 | required | Top edge of the part of the buffer to copy. |
-| `frame` | Int32 | `0` | The frame to copy into. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to copy into. |
+| `x` | In | Int32 | required | Left edge of the part of the buffer to copy. |
+| `y` | In | Int32 | required | Top edge of the part of the buffer to copy. |
+| `frame` | In | Int32 | `0` | The frame to copy into. Defaults to 0. |
 
 ## Description
 

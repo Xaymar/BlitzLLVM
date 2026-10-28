@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-TFormNormal x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32
+TFormNormal:Void x:Float32, y:Float32, z:Float32, source_entity:Int32, dest_entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Float32 | required | X of the normal in the source space. |
-| `y` | Float32 | required | Y of the normal in the source space. |
-| `z` | Float32 | required | Z of the normal in the source space. |
-| `source_entity` | Int32 | required | Entity whose space the normal is in, or 0 for the world. |
-| `dest_entity` | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Float32 | required | X of the normal in the source space. |
+| `y` | In | Float32 | required | Y of the normal in the source space. |
+| `z` | In | Float32 | required | Z of the normal in the source space. |
+| `source_entity` | In | Int32 | required | Entity whose space the normal is in, or 0 for the world. |
+| `dest_entity` | In | Int32 | required | Entity whose space the result should be in, or 0 for the world. |
 
 ## Description
 

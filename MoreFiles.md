@@ -17,9 +17,9 @@
 MoreFiles:Int32 dir:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | Int32 | required | A folder handle from `ReadDir`. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `dir` | In | Int32 | required | A folder handle from `ReadDir`. |
 
 **Returns:** 1 if more entries follow, 0 if not. Undocumented in the official help.
 

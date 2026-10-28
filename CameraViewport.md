@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-CameraViewport camera:Int32, x:Int32, y:Int32, width:Int32, height:Int32
+CameraViewport:Void camera:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `x` | Int32 | required | Left edge of the viewport in the buffer. |
-| `y` | Int32 | required | Top edge of the viewport in the buffer. |
-| `width` | Int32 | required | Width of the viewport in pixels. |
-| `height` | Int32 | required | Height of the viewport in pixels. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `x` | In | Int32 | required | Left edge of the viewport in the buffer. |
+| `y` | In | Int32 | required | Top edge of the viewport in the buffer. |
+| `width` | In | Int32 | required | Width of the viewport in pixels. |
+| `height` | In | Int32 | required | Height of the viewport in pixels. |
 
 ## Description
 

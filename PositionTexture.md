@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-PositionTexture texture:Int32, u_offset:Float32, v_offset:Float32
+PositionTexture:Void texture:Int32, u_offset:Float32, v_offset:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to move. |
-| `u_offset` | Float32 | required |  |
-| `v_offset` | Float32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture to move. |
+| `u_offset` | In | Float32 | required |  |
+| `v_offset` | In | Float32 | required |  |
 
 ## Description
 

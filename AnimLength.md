@@ -17,9 +17,9 @@
 AnimLength:Int32 entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
 
 **Returns:** The length of the entity's current sequence, in frames. It is 0 for an entity that has no animation.
 

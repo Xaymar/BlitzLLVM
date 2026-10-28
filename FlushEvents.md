@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-FlushEvents kind:Int32=-1, source:Int32=0
+FlushEvents:Void kind:Int32=-1, source:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `kind` | Int32 | `-1` | Event kind or group to remove. Defaults to -1, which means all. |
-| `source` | Int32 | `0` | Only remove events from this object. Defaults to 0, which means any. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `kind` | In | Int32 | `-1` | Event kind or group to remove. Defaults to -1, which means all. |
+| `source` | In | Int32 | `0` | Only remove events from this object. Defaults to 0, which means any. |
 
 ## Description
 

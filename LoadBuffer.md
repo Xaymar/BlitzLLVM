@@ -17,10 +17,10 @@
 LoadBuffer:Int32 buffer:Int32, bmpfile:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | required | The buffer to fill. |
-| `bmpfile` | String | required | The path of the picture file. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `buffer` | In | Int32 | required | The buffer to fill. |
+| `bmpfile` | In | String | required | The path of the picture file. |
 
 **Returns:** 1 if the picture was loaded, otherwise 0.
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-BrushBlend brush:Int32, blend:Int32
+BrushBlend:Void brush:Int32, blend:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `brush` | Int32 | required | The brush. |
-| `blend` | Int32 | required | 1, 2 or 3. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `brush` | In | Int32 | required | The brush. |
+| `blend` | In | Int32 | required | 1, 2 or 3. |
 
 ## Description
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-BrushShininess brush:Int32, shininess:Float32
+BrushShininess:Void brush:Int32, shininess:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `brush` | Int32 | required | The brush. |
-| `shininess` | Float32 | required | Shininess, 0 to 1. The default is 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `brush` | In | Int32 | required | The brush. |
+| `shininess` | In | Float32 | required | Shininess, 0 to 1. The default is 0. |
 
 ## Description
 

@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-CameraFogRange camera:Int32, near:Float32, far:Float32
+CameraFogRange:Void camera:Int32, near:Float32, far:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `near` | Float32 | required | Distance where the fog starts. |
-| `far` | Float32 | required | Distance where everything is fully fogged. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `near` | In | Float32 | required | Distance where the fog starts. |
+| `far` | In | Float32 | required | Distance where everything is fully fogged. |
 
 ## Description
 

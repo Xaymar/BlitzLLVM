@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeIconStrip icon_strip:Int32
+FreeIconStrip:Void icon_strip:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `icon_strip` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `icon_strip` | In | Int32 | required |  |
 
 ## Description
 

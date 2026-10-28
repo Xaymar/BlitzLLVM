@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-CameraFogMode camera:Int32, mode:Int32
+CameraFogMode:Void camera:Int32, mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `mode` | Int32 | required | 0 for no fog, 1 for linear fog. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `mode` | In | Int32 | required | 0 for no fog, 1 for linear fog. |
 
 ## Description
 

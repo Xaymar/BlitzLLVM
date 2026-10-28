@@ -17,10 +17,10 @@
 LoadAnimSeq:Int32 entity:Int32, file:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity that receives the sequence. |
-| `file` | String | required | File with the animation, for example a .b3d. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity that receives the sequence. |
+| `file` | In | String | required | File with the animation, for example a .b3d. |
 
 **Returns:** The number of the new sequence, which is also the highest sequence number the entity has. If the file cannot be read nothing is added and the number of the last existing sequence comes back; -1 means the entity has no animation.
 

@@ -17,9 +17,9 @@
 HtmlViewStatus:Int32 htmlview:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `htmlview` | Int32 | required | The handle from [CreateHtmlView](CreateHtmlView). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `htmlview` | In | Int32 | required | The handle from [CreateHtmlView](CreateHtmlView). |
 
 **Returns:** 0 for loaded and 1 for loading. Always 0 here, as no page is loaded.
 

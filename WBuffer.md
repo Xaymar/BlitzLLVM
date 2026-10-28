@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-WBuffer enable:Int32
+WBuffer:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True to use a W buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | True to use a W buffer. |
 
 ## Description
 

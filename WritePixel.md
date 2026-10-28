@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-WritePixel x:Int32, y:Int32, argb:Int32, buffer:Int32=0
+WritePixel:Void x:Int32, y:Int32, argb:Int32, buffer:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the pixel. |
-| `y` | Int32 | required | Vertical position of the pixel. |
-| `argb` | Int32 | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
-| `buffer` | Int32 | `0` | The buffer to write to. Defaults to the current buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the pixel. |
+| `y` | In | Int32 | required | Vertical position of the pixel. |
+| `argb` | In | Int32 | required | The color. Only the lower 24 bits are used; the pixel is always opaque. |
+| `buffer` | In | Int32 | `0` | The buffer to write to. Defaults to the current buffer. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 MouseHit:Int32 button:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `button` | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `button` | In | Int32 | required | 1 for the left, 2 for the right, 3 for the middle button. |
 
 **Returns:** How many times the button was pressed since the last call.
 

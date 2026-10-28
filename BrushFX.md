@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-BrushFX brush:Int32, fx:Int32
+BrushFX:Void brush:Int32, fx:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `brush` | Int32 | required | The brush. |
-| `fx` | Int32 | required | Sum of the flags above. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `brush` | In | Int32 | required | The brush. |
+| `fx` | In | Int32 | required | Sum of the flags above. |
 
 ## Description
 

@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-FlushMouse
+FlushMouse:Void
 ```
 
 ## Description

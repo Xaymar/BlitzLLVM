@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SpriteDepthFade sprite:Int32, fade_distance:Float32
+SpriteDepthFade:Void sprite:Int32, fade_distance:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sprite` | Int32 | required | The sprite. |
-| `fade_distance` | Float32 | required | How far in front of a solid surface (world units) the sprite is faded out. 0 or less turns the effect off. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sprite` | In | Int32 | required | The sprite. |
+| `fade_distance` | In | Float32 | required | How far in front of a solid surface (world units) the sprite is faded out. 0 or less turns the effect off. |
 
 ## Description
 

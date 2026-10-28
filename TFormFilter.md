@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-TFormFilter enable:Int32
+TFormFilter:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True for smooth results (the default), False for the nearest pixel. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | True for smooth results (the default), False for the nearest pixel. |
 
 ## Description
 

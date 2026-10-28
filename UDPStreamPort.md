@@ -17,9 +17,9 @@
 UDPStreamPort:Int32 udp_stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `udp_stream` | Int32 | required | The stream. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `udp_stream` | In | Int32 | required | The stream. |
 
 **Returns:** The port the stream receives on.
 

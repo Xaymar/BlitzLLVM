@@ -17,10 +17,10 @@
 String:String string:String, repeat:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to repeat. |
-| `repeat` | Int32 | required | How many copies to join. 0 gives an empty string. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text to repeat. |
+| `repeat` | In | Int32 | required | How many copies to join. 0 gives an empty string. |
 
 **Returns:** The repeated text.
 

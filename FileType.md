@@ -17,9 +17,9 @@
 FileType:Int32 file:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The path to look at. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | The path to look at. |
 
 **Returns:** 0 when nothing is there, 1 for a file, 2 for a folder.
 

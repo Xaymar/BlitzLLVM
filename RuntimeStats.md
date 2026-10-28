@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-RuntimeStats
+RuntimeStats:Void
 ```
 
 ## Description

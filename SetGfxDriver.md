@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-SetGfxDriver driver:Int32
+SetGfxDriver:Void driver:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `driver` | Int32 | required | The driver number, starting at 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `driver` | In | Int32 | required | The driver number, starting at 1. |
 
 ## Description
 

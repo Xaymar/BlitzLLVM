@@ -17,13 +17,13 @@
 LoadFont:Int32 fontname:String, height:Int32=12, bold:Int32=0, italic:Int32=0, underline:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `fontname` | String | required | The name of the font, such as "Arial". |
-| `height` | Int32 | `12` | The height of a character in pixels. Defaults to 12. |
-| `bold` | Int32 | `0` | True for a bold font. Defaults to False. |
-| `italic` | Int32 | `0` | True for an italic font. Defaults to False. |
-| `underline` | Int32 | `0` | True for an underlined font. Defaults to False. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `fontname` | In | String | required | The name of the font, such as "Arial". |
+| `height` | In | Int32 | `12` | The height of a character in pixels. Defaults to 12. |
+| `bold` | In | Int32 | `0` | True for a bold font. Defaults to False. |
+| `italic` | In | Int32 | `0` | True for an italic font. Defaults to False. |
+| `underline` | In | Int32 | `0` | True for an underlined font. Defaults to False. |
 
 **Returns:** A handle for the font. A font that does not exist still gives a valid handle.
 

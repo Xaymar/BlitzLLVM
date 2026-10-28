@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-SendUDPMsg udp_stream:Int32, dest_ip:Int32, dest_port:Int32=0
+SendUDPMsg:Void udp_stream:Int32, dest_ip:Int32, dest_port:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `udp_stream` | Int32 | required | The stream to send from. |
-| `dest_ip` | Int32 | required | The receiver's address as a number. |
-| `dest_port` | Int32 | `0` | The receiver's port. Defaults to 0, which means the port of this stream. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `udp_stream` | In | Int32 | required | The stream to send from. |
+| `dest_ip` | In | Int32 | required | The receiver's address as a number. |
+| `dest_port` | In | Int32 | `0` | The receiver's port. Defaults to 0, which means the port of this stream. |
 
 ## Description
 

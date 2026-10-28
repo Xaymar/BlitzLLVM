@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-Animate entity:Int32, mode:Int32=1, speed:Float32=1, sequence:Int32=0, transition:Float32=0
+Animate:Void entity:Int32, mode:Int32=1, speed:Float32=1, sequence:Int32=0, transition:Float32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity to animate. |
-| `mode` | Int32 | `1` | 0 stop, 1 loop, 2 ping-pong, 3 one-shot. Defaults to 1. |
-| `speed` | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
-| `sequence` | Int32 | `0` | Number of the sequence to play. Defaults to 0. |
-| `transition` | Float32 | `0` | Frames to blend from the current pose to the first frame. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity to animate. |
+| `mode` | In | Int32 | `1` | 0 stop, 1 loop, 2 ping-pong, 3 one-shot. Defaults to 1. |
+| `speed` | In | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
+| `sequence` | In | Int32 | `0` | Number of the sequence to play. Defaults to 0. |
+| `transition` | In | Float32 | `0` | Frames to blend from the current pose to the first frame. Defaults to 0. |
 
 ## Description
 

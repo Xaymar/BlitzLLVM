@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-Viewport x:Int32, y:Int32, width:Int32, height:Int32
+Viewport:Void x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the left side of the viewport. |
-| `y` | Int32 | required | Vertical position of the top of the viewport. |
-| `width` | Int32 | required | Width in pixels. |
-| `height` | Int32 | required | Height in pixels. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the left side of the viewport. |
+| `y` | In | Int32 | required | Vertical position of the top of the viewport. |
+| `width` | In | Int32 | required | Width in pixels. |
+| `height` | In | Int32 | required | Height in pixels. |
 
 ## Description
 

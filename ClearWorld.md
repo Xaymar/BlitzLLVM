@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-ClearWorld entities:Int32=1, brushes:Int32=1, textures:Int32=1
+ClearWorld:Void entities:Int32=1, brushes:Int32=1, textures:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entities` | Int32 | `1` | True to free every entity. Defaults to True. |
-| `brushes` | Int32 | `1` | True to free every brush. Defaults to True. |
-| `textures` | Int32 | `1` | True to free every texture. Defaults to True. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entities` | In | Int32 | `1` | True to free every entity. Defaults to True. |
+| `brushes` | In | Int32 | `1` | True to free every brush. Defaults to True. |
+| `textures` | In | Int32 | `1` | True to free every texture. Defaults to True. |
 
 ## Description
 

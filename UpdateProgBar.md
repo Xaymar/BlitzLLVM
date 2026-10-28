@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-UpdateProgBar progbar:Int32, progress:Float32
+UpdateProgBar:Void progbar:Int32, progress:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `progbar` | Int32 | required | Handle of a progress bar. |
-| `progress` | Float32 | required | How far it got from 0 (empty) to 1 (full). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `progbar` | In | Int32 | required | Handle of a progress bar. |
+| `progress` | In | Float32 | required | How far it got from 0 (empty) to 1 (full). |
 
 ## Description
 

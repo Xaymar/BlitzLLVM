@@ -17,9 +17,9 @@
 GetSamplerAnisotropy:Float32 sampler:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to ask. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to ask. |
 
 **Returns:** The setting: 1 or more.
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-TextureFilter match_text:String, texture_flags:Int32=0
+TextureFilter:Void match_text:String, texture_flags:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `match_text` | String | required | Text to look for in the file name. |
-| `texture_flags` | Int32 | `0` |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `match_text` | In | String | required | Text to look for in the file name. |
+| `texture_flags` | In | Int32 | `0` |  |
 
 ## Description
 

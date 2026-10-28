@@ -17,14 +17,14 @@
 LoadAnimTexture:Int32 file:String, flags:Int32, width:Int32, height:Int32, first:Int32, count:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Picture file that contains all frames. |
-| `flags` | Int32 | required | Texture flags, see CreateTexture. |
-| `width` | Int32 | required |  |
-| `height` | Int32 | required |  |
-| `first` | Int32 | required |  |
-| `count` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | Picture file that contains all frames. |
+| `flags` | In | Int32 | required | Texture flags, see CreateTexture. |
+| `width` | In | Int32 | required |  |
+| `height` | In | Int32 | required |  |
+| `first` | In | Int32 | required |  |
+| `count` | In | Int32 | required |  |
 
 **Returns:** A texture handle, or 0 if the file could not be loaded.
 

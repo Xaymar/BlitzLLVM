@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeBank bank:Int32
+FreeBank:Void bank:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to free. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bank` | In | Int32 | required | The bank to free. |
 
 ## Description
 

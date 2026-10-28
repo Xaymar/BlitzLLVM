@@ -17,9 +17,9 @@
 LockedFormat:Int32 buffer:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `buffer` | In | Int32 | `0` | Locked buffer. Defaults to the current one. |
 
 **Returns:** A number that tells how the pixels are laid out: 1 is 16 bit with 5-6-5, 2 is 16 bit with 5-5-5, 3 is 24 bit and 4 is 32 bit with an unused byte.
 

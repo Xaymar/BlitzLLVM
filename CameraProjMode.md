@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-CameraProjMode camera:Int32, mode:Int32
+CameraProjMode:Void camera:Int32, mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `mode` | Int32 | required | 0 disables the camera, 1 is perspective, 2 is orthographic. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `mode` | In | Int32 | required | 0 disables the camera, 1 is perspective, 2 is orthographic. |
 
 ## Description
 

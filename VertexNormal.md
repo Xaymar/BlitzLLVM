@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-VertexNormal surface:Int32, index:Int32, nx:Float32, ny:Float32, nz:Float32
+VertexNormal:Void surface:Int32, index:Int32, nx:Float32, ny:Float32, nz:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required | Index of the vertex, from 0. |
-| `nx` | Float32 | required | X part of the normal. |
-| `ny` | Float32 | required | Y part of the normal. |
-| `nz` | Float32 | required | Z part of the normal. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `index` | In | Int32 | required | Index of the vertex, from 0. |
+| `nx` | In | Float32 | required | X part of the normal. |
+| `ny` | In | Float32 | required | Y part of the normal. |
+| `nz` | In | Float32 | required | Z part of the normal. |
 
 ## Description
 

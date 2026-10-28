@@ -17,14 +17,14 @@
 CreateHtmlView:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the gadget. |
-| `height` | Int32 | required | Height of the gadget. |
-| `group` | Int32 | required | The window or group the gadget is in. |
-| `style` | Int32 | `0` | 0 nothing, 1 no context menu, 2 do not follow links. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position inside the group. |
+| `y` | In | Int32 | required | Vertical position inside the group. |
+| `width` | In | Int32 | required | Width of the gadget. |
+| `height` | In | Int32 | required | Height of the gadget. |
+| `group` | In | Int32 | required | The window or group the gadget is in. |
+| `style` | In | Int32 | `0` | 0 nothing, 1 no context menu, 2 do not follow links. Defaults to 0. |
 
 **Returns:** The handle of the gadget.
 

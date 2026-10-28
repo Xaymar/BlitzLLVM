@@ -17,9 +17,9 @@
 GetEnv:String env_var:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `env_var` | String | required | The name of the variable. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `env_var` | In | String | required | The name of the variable. |
 
 **Returns:** The value of an environment variable, or an empty string when it is not set.
 

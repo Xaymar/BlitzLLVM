@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-CameraRange camera:Int32, near:Float32, far:Float32
+CameraRange:Void camera:Int32, near:Float32, far:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `near` | Float32 | required | Closest distance that is drawn. Must be greater than 0. |
-| `far` | Float32 | required | Farthest distance that is drawn. Must be greater than `near`. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `near` | In | Float32 | required | Closest distance that is drawn. Must be greater than 0. |
+| `far` | In | Float32 | required | Farthest distance that is drawn. Must be greater than `near`. |
 
 ## Description
 

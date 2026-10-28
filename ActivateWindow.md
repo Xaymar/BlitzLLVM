@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-ActivateWindow window:Int32
+ActivateWindow:Void window:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window made with [CreateWindow](CreateWindow). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `window` | In | Int32 | required | Handle of a window made with [CreateWindow](CreateWindow). |
 
 ## Description
 

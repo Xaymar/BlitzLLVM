@@ -17,9 +17,9 @@
 CreateSprite:Int32 parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | `0` | Optional parent entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `parent` | In | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the sprite.
 

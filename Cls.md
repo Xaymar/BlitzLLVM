@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-Cls
+Cls:Void
 ```
 
 ## Description

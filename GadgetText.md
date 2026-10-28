@@ -17,9 +17,9 @@
 GadgetText:String gadget:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of the gadget. |
 
 **Returns:** The text of the gadget.
 

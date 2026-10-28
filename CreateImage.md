@@ -17,11 +17,11 @@
 CreateImage:Int32 width:Int32, height:Int32, frames:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | Width of one frame in pixels. |
-| `height` | Int32 | required | Height of one frame in pixels. |
-| `frames` | Int32 | `1` | Number of frames. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `width` | In | Int32 | required | Width of one frame in pixels. |
+| `height` | In | Int32 | required | Height of one frame in pixels. |
+| `frames` | In | Int32 | `1` | Number of frames. Defaults to 1. |
 
 **Returns:** A handle for the image.
 

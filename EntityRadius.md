@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-EntityRadius entity:Int32, x_radius:Float32, y_radius:Float32=0
+EntityRadius:Void entity:Int32, x_radius:Float32, y_radius:Float32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
-| `x_radius` | Float32 | required | Radius in the X and Z directions. |
-| `y_radius` | Float32 | `0` | Radius in the Y direction. Defaults to x_radius. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
+| `x_radius` | In | Float32 | required | Radius in the X and Z directions. |
+| `y_radius` | In | Float32 | `0` | Radius in the Y direction. Defaults to x_radius. |
 
 ## Description
 

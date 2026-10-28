@@ -17,10 +17,10 @@
 CreateSurface:Int32 mesh:Int32, brush:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `brush` | Int32 | `0` | Brush that paints the new surface, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `brush` | In | Int32 | `0` | Brush that paints the new surface, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new surface.
 

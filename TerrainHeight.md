@@ -17,11 +17,11 @@
 TerrainHeight:Float32 terrain:Int32, terrain_x:Int32, terrain_z:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `terrain` | Int32 | required | The terrain. |
-| `terrain_x` | Int32 | required |  |
-| `terrain_z` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `terrain` | In | Int32 | required | The terrain. |
+| `terrain_x` | In | Int32 | required |  |
+| `terrain_z` | In | Int32 | required |  |
 
 **Returns:** The height of one grid point of the terrain, from 0 to 1, before the entity's scale is applied. Positions outside the grid are moved to the nearest edge. This reads the points you set with ModifyTerrain; use [TerrainY](TerrainY) to find the height at any world position.
 

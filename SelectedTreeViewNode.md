@@ -17,9 +17,9 @@
 SelectedTreeViewNode:Int32 treeview:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `treeview` | Int32 | required | Handle of a tree view. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `treeview` | In | Int32 | required | Handle of a tree view. |
 
 **Returns:** The handle of the selected node, or 0 if none is selected.
 

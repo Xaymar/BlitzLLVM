@@ -17,9 +17,9 @@
 ByteSwap:Int32 value:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `value` | Int32 | required | An integer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | In | Int32 | required | An integer. |
 
 **Returns:** The number with its bytes in the other order.
 

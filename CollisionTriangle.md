@@ -17,10 +17,10 @@
 CollisionTriangle:Int32 entity:Int32, collision_index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity that moved. |
-| `collision_index` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity that moved. |
+| `collision_index` | In | Int32 | required |  |
 
 **Returns:** The number of the triangle, in the surface from CollisionSurface, that was hit. Triangle numbers start at 0, like the ones used by [TriangleVertex](TriangleVertex). It is 0 for collisions with ellipsoids and boxes.
 

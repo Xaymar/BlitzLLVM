@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-BrushAlpha brush:Int32, alpha:Float32
+BrushAlpha:Void brush:Int32, alpha:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `brush` | Int32 | required | The brush. |
-| `alpha` | Float32 | required | Opacity, 0 to 1. The default is 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `brush` | In | Int32 | required | The brush. |
+| `alpha` | In | Float32 | required | Opacity, 0 to 1. The default is 1. |
 
 ## Description
 

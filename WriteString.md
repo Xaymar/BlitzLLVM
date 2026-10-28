@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-WriteString stream:Int32, string:String
+WriteString:Void stream:Int32, string:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to write to. |
-| `string` | String | required | The text to write. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `stream` | In | Int32 | required | The stream to write to. |
+| `string` | In | String | required | The text to write. |
 
 ## Description
 

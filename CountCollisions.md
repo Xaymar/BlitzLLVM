@@ -17,9 +17,9 @@
 CountCollisions:Int32 entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
 
 **Returns:** How many collisions the entity was involved in during the last [UpdateWorld](UpdateWorld). The entity that was hit gets the collision recorded too, so the destination of a collision also reports a count. Use it as the upper bound for the index of the `Collision...` commands, which count from 1.
 

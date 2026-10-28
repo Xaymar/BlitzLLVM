@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-ShowPointer
+ShowPointer:Void
 ```
 
 ## Description

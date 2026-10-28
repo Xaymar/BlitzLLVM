@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-CopyBank src_bank:Int32, src_offset:Int32, dest_bank:Int32, dest_offset:Int32, count:Int32
+CopyBank:Void src_bank:Int32, src_offset:Int32, dest_bank:Int32, dest_offset:Int32, count:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_bank` | Int32 | required | The bank to copy from. |
-| `src_offset` | Int32 | required | Where in that bank to start. |
-| `dest_bank` | Int32 | required | The bank to copy into. |
-| `dest_offset` | Int32 | required | Where in that bank to start. |
-| `count` | Int32 | required | How many bytes to copy. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `src_bank` | In | Int32 | required | The bank to copy from. |
+| `src_offset` | In | Int32 | required | Where in that bank to start. |
+| `dest_bank` | In | Int32 | required | The bank to copy into. |
+| `dest_offset` | In | Int32 | required | Where in that bank to start. |
+| `count` | In | Int32 | required | How many bytes to copy. |
 
 ## Description
 

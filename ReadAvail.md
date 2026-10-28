@@ -17,9 +17,9 @@
 ReadAvail:Int32 stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to check. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `stream` | In | Int32 | required | The stream to check. |
 
 **Returns:** How many bytes can be read right now without waiting. It is meant for network streams, where data arrives over time. On a file it gives 0 or what is left.
 

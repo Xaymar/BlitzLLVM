@@ -17,9 +17,9 @@
 GetMovieTexture:Int32 movie:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `movie` | In | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
 
 **Returns:** The handle of the texture, or 0 if the movie is not open.
 

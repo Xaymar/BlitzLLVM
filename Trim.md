@@ -17,9 +17,9 @@
 Trim:String string:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text. |
 
 **Returns:** The text without the blanks at its ends.
 

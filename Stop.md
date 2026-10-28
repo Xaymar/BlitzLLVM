@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-Stop
+Stop:Void
 ```
 
 ## Description

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetToolBarTips toolbar:Int32, tips:String
+SetToolBarTips:Void toolbar:Int32, tips:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `toolbar` | Int32 | required | Handle of a toolbar. |
-| `tips` | String | required | Hints separated by commas. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `toolbar` | In | Int32 | required | Handle of a toolbar. |
+| `tips` | In | String | required | Hints separated by commas. |
 
 ## Description
 

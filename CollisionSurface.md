@@ -17,10 +17,10 @@
 CollisionSurface:Int32 entity:Int32, collision_index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity that moved. |
-| `collision_index` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity that moved. |
+| `collision_index` | In | Int32 | required |  |
 
 **Returns:** The handle of the surface of the other entity that was closest to the touching point, for use with the surface commands such as [CountTriangles](CountTriangles). It is 0 when the other entity is hit as an ellipsoid or box, since those have no surface.
 

@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-MoveEntity entity:Int32, x:Float32, y:Float32, z:Float32
+MoveEntity:Void entity:Int32, x:Float32, y:Float32, z:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `x` | Float32 | required | Distance to the right. |
-| `y` | Float32 | required | Distance upwards. |
-| `z` | Float32 | required | Distance forward. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `x` | In | Float32 | required | Distance to the right. |
+| `y` | In | Float32 | required | Distance upwards. |
+| `z` | In | Float32 | required | Distance forward. |
 
 ## Description
 

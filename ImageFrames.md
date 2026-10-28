@@ -16,9 +16,9 @@
 ImageFrames:Int32 image:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to ask about. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to ask about. |
 
 **Returns:** The number of frames, at least 1.
 

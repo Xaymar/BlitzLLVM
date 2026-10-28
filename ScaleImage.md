@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-ScaleImage image:Int32, xscale:Float32, yscale:Float32
+ScaleImage:Void image:Int32, xscale:Float32, yscale:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `xscale` | Float32 | required | Horizontal factor. |
-| `yscale` | Float32 | required | Vertical factor. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `xscale` | In | Float32 | required | Horizontal factor. |
+| `yscale` | In | Float32 | required | Vertical factor. |
 
 ## Description
 

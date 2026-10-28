@@ -17,9 +17,9 @@
 KeyDown:Int32 key:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `key` | Int32 | required | The scancode of the key, 1 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `key` | In | Int32 | required | The scancode of the key, 1 to 255. |
 
 **Returns:** 1 while the key is held down, otherwise 0.
 

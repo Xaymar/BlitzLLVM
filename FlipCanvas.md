@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-FlipCanvas canvas:Int32, vwait:Int32=0
+FlipCanvas:Void canvas:Int32, vwait:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `canvas` | Int32 | required | Handle of a canvas. |
-| `vwait` | Int32 | `0` | 1 waits for the display to be ready, 0 shows it right away. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `canvas` | In | Int32 | required | Handle of a canvas. |
+| `vwait` | In | Int32 | `0` | 1 waits for the display to be ready, 0 shows it right away. Defaults to 1. |
 
 ## Description
 

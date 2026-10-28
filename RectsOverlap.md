@@ -17,16 +17,16 @@
 RectsOverlap:Int32 x1:Int32, y1:Int32, width1:Int32, height1:Int32, x2:Int32, y2:Int32, width2:Int32, height2:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x1` | Int32 | required | Left edge of the first rectangle. |
-| `y1` | Int32 | required | Top edge of the first rectangle. |
-| `width1` | Int32 | required | Width of the first rectangle. |
-| `height1` | Int32 | required | Height of the first rectangle. |
-| `x2` | Int32 | required | Left edge of the second rectangle. |
-| `y2` | Int32 | required | Top edge of the second rectangle. |
-| `width2` | Int32 | required | Width of the second rectangle. |
-| `height2` | Int32 | required | Height of the second rectangle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x1` | In | Int32 | required | Left edge of the first rectangle. |
+| `y1` | In | Int32 | required | Top edge of the first rectangle. |
+| `width1` | In | Int32 | required | Width of the first rectangle. |
+| `height1` | In | Int32 | required | Height of the first rectangle. |
+| `x2` | In | Int32 | required | Left edge of the second rectangle. |
+| `y2` | In | Int32 | required | Top edge of the second rectangle. |
+| `width2` | In | Int32 | required | Width of the second rectangle. |
+| `height2` | In | Int32 | required | Height of the second rectangle. |
 
 **Returns:** 1 if the rectangles overlap, otherwise 0.
 

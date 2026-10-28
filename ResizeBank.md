@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-ResizeBank bank:Int32, size:Int32
+ResizeBank:Void bank:Int32, size:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to resize. |
-| `size` | Int32 | required | The new size in bytes. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bank` | In | Int32 | required | The bank to resize. |
+| `size` | In | Int32 | required | The new size in bytes. |
 
 ## Description
 

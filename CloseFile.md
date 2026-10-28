@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-CloseFile file_stream:Int32
+CloseFile:Void file_stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file_stream` | Int32 | required | The file handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file_stream` | In | Int32 | required | The file handle. |
 
 ## Description
 

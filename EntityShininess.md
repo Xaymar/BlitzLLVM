@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-EntityShininess entity:Int32, shininess:Float32
+EntityShininess:Void entity:Int32, shininess:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `shininess` | Float32 | required | Strength of the highlight, 0 to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `shininess` | In | Float32 | required | Strength of the highlight, 0 to 1. |
 
 ## Description
 

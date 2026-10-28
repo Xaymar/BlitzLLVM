@@ -17,9 +17,9 @@
 PlaySound:Int32 sound:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sound` | In | Int32 | required | A handle from [LoadSound](LoadSound). |
 
 **Returns:** The channel handle, or 0 if the sound could not be played (for example without a sound device).
 

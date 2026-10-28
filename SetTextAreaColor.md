@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-SetTextAreaColor textarea:Int32, red:Int32, green:Int32, blue:Int32, background:Int32=0
+SetTextAreaColor:Void textarea:Int32, red:Int32, green:Int32, blue:Int32, background:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `red` | Int32 | required | Red part, 0 to 255. |
-| `green` | Int32 | required | Green part, 0 to 255. |
-| `blue` | Int32 | required | Blue part, 0 to 255. |
-| `background` | Int32 | `0` | 0 sets the text color, 1 sets the background color. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
+| `red` | In | Int32 | required | Red part, 0 to 255. |
+| `green` | In | Int32 | required | Green part, 0 to 255. |
+| `blue` | In | Int32 | required | Blue part, 0 to 255. |
+| `background` | In | Int32 | `0` | 0 sets the text color, 1 sets the background color. Defaults to 0. |
 
 ## Description
 

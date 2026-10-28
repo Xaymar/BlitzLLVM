@@ -14,19 +14,19 @@
 
 
 ```blitzbasic
-CopyRect source_x:Int32, source_y:Int32, width:Int32, height:Int32, dest_x:Int32, dest_y:Int32, src_buffer:Int32=0, dest_buffer:Int32=0
+CopyRect:Void source_x:Int32, source_y:Int32, width:Int32, height:Int32, dest_x:Int32, dest_y:Int32, src_buffer:Int32=0, dest_buffer:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `source_x` | Int32 | required | Left edge of the area to copy. |
-| `source_y` | Int32 | required | Top edge of the area to copy. |
-| `width` | Int32 | required | Width of the area. |
-| `height` | Int32 | required | Height of the area. |
-| `dest_x` | Int32 | required | Left edge of the target area. |
-| `dest_y` | Int32 | required | Top edge of the target area. |
-| `src_buffer` | Int32 | `0` | The buffer to copy from. Defaults to the current buffer. |
-| `dest_buffer` | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `source_x` | In | Int32 | required | Left edge of the area to copy. |
+| `source_y` | In | Int32 | required | Top edge of the area to copy. |
+| `width` | In | Int32 | required | Width of the area. |
+| `height` | In | Int32 | required | Height of the area. |
+| `dest_x` | In | Int32 | required | Left edge of the target area. |
+| `dest_y` | In | Int32 | required | Top edge of the target area. |
+| `src_buffer` | In | Int32 | `0` | The buffer to copy from. Defaults to the current buffer. |
+| `dest_buffer` | In | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 MeshWidth:Float32 mesh:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
 
 **Returns:** The width of the mesh.
 

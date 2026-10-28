@@ -17,9 +17,9 @@
 Sqr:Float32 float:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | A number of 0 or more. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `float` | In | Float32 | required | A number of 0 or more. |
 
 **Returns:** The square root.
 

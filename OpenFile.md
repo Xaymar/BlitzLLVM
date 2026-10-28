@@ -17,9 +17,9 @@
 OpenFile:Int32 filename:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `filename` | String | required | The file to open. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `filename` | In | String | required | The file to open. |
 
 **Returns:** A file handle, or 0 when the file does not exist.
 

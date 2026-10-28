@@ -17,10 +17,10 @@
 MeshesIntersect:Int32 mesh_a:Int32, mesh_b:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh_a` | Int32 | required | First mesh handle. |
-| `mesh_b` | Int32 | required | Second mesh handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh_a` | In | Int32 | required | First mesh handle. |
+| `mesh_b` | In | Int32 | required | Second mesh handle. |
 
 **Returns:** 1 if the meshes intersect, otherwise 0.
 

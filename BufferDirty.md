@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-BufferDirty buffer:Int32
+BufferDirty:Void buffer:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | required | The buffer that was changed. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `buffer` | In | Int32 | required | The buffer that was changed. |
 
 ## Description
 

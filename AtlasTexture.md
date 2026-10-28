@@ -16,13 +16,13 @@
 AtlasTexture:Int32 atlas:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `atlas` | Int32 | required | A texture made by LoadAtlas. |
-| `x` | Int32 | required | Left edge of the rectangle in pixels. |
-| `y` | Int32 | required | Top edge of the rectangle in pixels. |
-| `width` | Int32 | required | Width of the rectangle in pixels. |
-| `height` | Int32 | required | Height of the rectangle in pixels. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `atlas` | In | Int32 | required | A texture made by LoadAtlas. |
+| `x` | In | Int32 | required | Left edge of the rectangle in pixels. |
+| `y` | In | Int32 | required | Top edge of the rectangle in pixels. |
+| `width` | In | Int32 | required | Width of the rectangle in pixels. |
+| `height` | In | Int32 | required | Height of the rectangle in pixels. |
 
 **Returns:** A texture handle, or 0 if the rectangle is not completely inside the atlas.
 

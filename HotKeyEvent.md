@@ -14,19 +14,19 @@
 
 
 ```blitzbasic
-HotKeyEvent rawkey:Int32, modifier:Int32, ev_id:Int32, ev_data:Int32=0, ev_x:Int32=0, ev_y:Int32=0, ev_z:Int32=0, ev_source:Int32=0
+HotKeyEvent:Void rawkey:Int32, modifier:Int32, ev_id:Int32, ev_data:Int32=0, ev_x:Int32=0, ev_y:Int32=0, ev_z:Int32=0, ev_source:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `rawkey` | Int32 | required |  |
-| `modifier` | Int32 | required | Sum of 1 (shift), 2 (control) and 4 (alt). |
-| `ev_id` | Int32 | required |  |
-| `ev_data` | Int32 | `0` |  |
-| `ev_x` | Int32 | `0` |  |
-| `ev_y` | Int32 | `0` |  |
-| `ev_z` | Int32 | `0` |  |
-| `ev_source` | Int32 | `0` |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `rawkey` | In | Int32 | required |  |
+| `modifier` | In | Int32 | required | Sum of 1 (shift), 2 (control) and 4 (alt). |
+| `ev_id` | In | Int32 | required |  |
+| `ev_data` | In | Int32 | `0` |  |
+| `ev_x` | In | Int32 | `0` |  |
+| `ev_y` | In | Int32 | `0` |  |
+| `ev_z` | In | Int32 | `0` |  |
+| `ev_source` | In | Int32 | `0` |  |
 
 ## Description
 

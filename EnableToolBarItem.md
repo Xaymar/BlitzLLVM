@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-EnableToolBarItem toolbar:Int32, index:Int32
+EnableToolBarItem:Void toolbar:Int32, index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `toolbar` | Int32 | required | Handle of a toolbar. |
-| `index` | Int32 | required | Number of the icon, counted from 0 and not counting gaps. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `toolbar` | In | Int32 | required | Handle of a toolbar. |
+| `index` | In | Int32 | required | Number of the icon, counted from 0 and not counting gaps. |
 
 ## Description
 

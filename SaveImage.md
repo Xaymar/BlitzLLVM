@@ -17,11 +17,11 @@
 SaveImage:Int32 image:Int32, bmpfile:String, frame:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `bmpfile` | String | required |  |
-| `frame` | Int32 | `0` | The frame to save. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `bmpfile` | In | String | required |  |
+| `frame` | In | Int32 | `0` | The frame to save. Defaults to 0. |
 
 **Returns:** 1 if the file was written, otherwise 0. With [AsyncSaving](AsyncSaving) on, 1 means that the save was queued, see [SavesFailed](SavesFailed).
 

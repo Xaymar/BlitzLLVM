@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-LockBuffer buffer:Int32=0
+LockBuffer:Void buffer:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | `0` | The buffer to lock. Defaults to the current buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `buffer` | In | Int32 | `0` | The buffer to lock. Defaults to the current buffer. |
 
 ## Description
 

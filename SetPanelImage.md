@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetPanelImage panel:Int32, file:String
+SetPanelImage:Void panel:Int32, file:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `panel` | Int32 | required | Handle of a panel. |
-| `file` | String | required | Name of a picture file. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `panel` | In | Int32 | required | Handle of a panel. |
+| `file` | In | String | required | Name of a picture file. |
 
 ## Description
 

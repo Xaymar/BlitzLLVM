@@ -14,17 +14,17 @@
 
 
 ```blitzbasic
-VertexTexCoords surface:Int32, index:Int32, u:Float32, v:Float32, w:Float32=1, coord_set:Int32=0
+VertexTexCoords:Void surface:Int32, index:Int32, u:Float32, v:Float32, w:Float32=1, coord_set:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required | Index of the vertex, from 0. |
-| `u` | Float32 | required | Horizontal texture coordinate. |
-| `v` | Float32 | required | Vertical texture coordinate. |
-| `w` | Float32 | `1` | Third coordinate, unused. Defaults to 1. |
-| `coord_set` | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `index` | In | Int32 | required | Index of the vertex, from 0. |
+| `u` | In | Float32 | required | Horizontal texture coordinate. |
+| `v` | In | Float32 | required | Vertical texture coordinate. |
+| `w` | In | Float32 | `1` | Third coordinate, unused. Defaults to 1. |
+| `coord_set` | In | Int32 | `0` | Set of coordinates, 0 or 1. Defaults to 0. |
 
 ## Description
 

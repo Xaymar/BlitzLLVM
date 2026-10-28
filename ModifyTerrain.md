@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-ModifyTerrain terrain:Int32, terrain_x:Int32, terrain_z:Int32, height:Float32, realtime:Int32=0
+ModifyTerrain:Void terrain:Int32, terrain_x:Int32, terrain_z:Int32, height:Float32, realtime:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `terrain` | Int32 | required | The terrain. |
-| `terrain_x` | Int32 | required |  |
-| `terrain_z` | Int32 | required |  |
-| `height` | Float32 | required | New height, 0 to 1. |
-| `realtime` | Int32 | `0` | True to apply the change immediately instead of at the next render. Defaults to False. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `terrain` | In | Int32 | required | The terrain. |
+| `terrain_x` | In | Int32 | required |  |
+| `terrain_z` | In | Int32 | required |  |
+| `height` | In | Float32 | required | New height, 0 to 1. |
+| `realtime` | In | Int32 | `0` | True to apply the change immediately instead of at the next render. Defaults to False. |
 
 ## Description
 

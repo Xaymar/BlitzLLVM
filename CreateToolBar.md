@@ -17,15 +17,15 @@
 CreateToolBar:Int32 icons:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `icons` | String | required |  |
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the toolbar. |
-| `height` | Int32 | required | Height of the toolbar. |
-| `group` | Int32 | required | Window, panel, tabber or canvas that holds it. |
-| `style` | Int32 | `0` | Reserved. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `icons` | In | String | required |  |
+| `x` | In | Int32 | required | Horizontal position inside the group. |
+| `y` | In | Int32 | required | Vertical position inside the group. |
+| `width` | In | Int32 | required | Width of the toolbar. |
+| `height` | In | Int32 | required | Height of the toolbar. |
+| `group` | In | Int32 | required | Window, panel, tabber or canvas that holds it. |
+| `style` | In | Int32 | `0` | Reserved. Defaults to 0. |
 
 **Returns:** A handle for the toolbar.
 

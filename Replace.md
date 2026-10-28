@@ -17,11 +17,11 @@
 Replace:String string:String, from:String, to:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to change. |
-| `from` | String | required | What to look for. |
-| `to` | String | required | What to put in its place. May be empty to remove it. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text to change. |
+| `from` | In | String | required | What to look for. |
+| `to` | In | String | required | What to put in its place. May be empty to remove it. |
 
 **Returns:** The changed text.
 

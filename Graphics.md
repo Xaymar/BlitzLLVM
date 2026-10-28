@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-Graphics width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
+Graphics:Void width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | Width of the picture in pixels. |
-| `height` | Int32 | required | Height of the picture in pixels. |
-| `depth` | Int32 | `0` | Color depth in bits: 24, 30, 32 or 64, which pick the format of the buffers, or 0 for 32. Defaults to 0. |
-| `mode` | Int32 | `0` | 0 opens a window, 1 uses full screen (a borderless window over the display, see [Fullscreen](Fullscreen)), 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `width` | In | Int32 | required | Width of the picture in pixels. |
+| `height` | In | Int32 | required | Height of the picture in pixels. |
+| `depth` | In | Int32 | `0` | Color depth in bits: 24, 30, 32 or 64, which pick the format of the buffers, or 0 for 32. Defaults to 0. |
+| `mode` | In | Int32 | `0` | 0 opens a window, 1 uses full screen (a borderless window over the display, see [Fullscreen](Fullscreen)), 2 opens a window and 3 opens a window that the user can resize. 4 opens a window without a border: no title bar and no frame. Mode 4 is a BlitzLLVM extension that original Blitz does not have. Defaults to 0. |
 
 ## Description
 

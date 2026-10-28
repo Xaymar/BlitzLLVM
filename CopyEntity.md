@@ -17,10 +17,10 @@
 CopyEntity:Int32 entity:Int32, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle to copy. |
-| `parent` | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle to copy. |
+| `parent` | In | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the copy.
 

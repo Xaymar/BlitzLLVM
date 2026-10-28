@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-VertexCoords surface:Int32, index:Int32, x:Float32, y:Float32, z:Float32
+VertexCoords:Void surface:Int32, index:Int32, x:Float32, y:Float32, z:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required | Index of the vertex, from 0. |
-| `x` | Float32 | required | New X position. |
-| `y` | Float32 | required | New Y position. |
-| `z` | Float32 | required | New Z position. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `index` | In | Int32 | required | Index of the vertex, from 0. |
+| `x` | In | Float32 | required | New X position. |
+| `y` | In | Float32 | required | New Y position. |
+| `z` | In | Float32 | required | New Z position. |
 
 ## Description
 

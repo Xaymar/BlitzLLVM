@@ -17,10 +17,10 @@
 CollisionEntity:Int32 entity:Int32, collision_index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity that moved. |
-| `collision_index` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity that moved. |
+| `collision_index` | In | Int32 | required |  |
 
 **Returns:** The other entity of one of the collisions that happened to this entity in the last [UpdateWorld](UpdateWorld). The index runs from 1 to [CountCollisions](CountCollisions).
 

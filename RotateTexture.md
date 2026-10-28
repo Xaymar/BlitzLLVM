@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-RotateTexture texture:Int32, angle:Float32
+RotateTexture:Void texture:Int32, angle:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to turn. |
-| `angle` | Float32 | required | Angle in degrees. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture to turn. |
+| `angle` | In | Float32 | required | Angle in degrees. |
 
 ## Description
 

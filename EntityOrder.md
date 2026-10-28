@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-EntityOrder entity:Int32, order:Int32
+EntityOrder:Void entity:Int32, order:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `order` | Int32 | required | Greater than 0 for behind everything, less than 0 for in front, 0 for normal. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `order` | In | Int32 | required | Greater than 0 for behind everything, less than 0 for in front, 0 for normal. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 Ceil:Float32 float:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The number to round up. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `float` | In | Float32 | required | The number to round up. |
 
 **Returns:** The smallest whole number that is not below `float`.
 

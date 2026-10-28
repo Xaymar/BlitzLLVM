@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-CameraClsMode camera:Int32, cls_color:Int32, cls_zbuffer:Int32
+CameraClsMode:Void camera:Int32, cls_color:Int32, cls_zbuffer:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `cls_color` | Int32 | required | True to clear the color buffer, false to keep what is there. |
-| `cls_zbuffer` | Int32 | required | True to clear the depth buffer, false to keep it. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `cls_color` | In | Int32 | required | True to clear the color buffer, false to keep what is there. |
+| `cls_zbuffer` | In | Int32 | required | True to clear the depth buffer, false to keep it. |
 
 ## Description
 

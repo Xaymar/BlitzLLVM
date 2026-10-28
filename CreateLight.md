@@ -17,10 +17,10 @@
 CreateLight:Int32 type:Int32=1, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `type` | Int32 | `1` | 1 for a directional light, 2 for a point light, 3 for a spot light. Defaults to 1. |
-| `parent` | Int32 | `0` | Entity the light follows, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `type` | In | Int32 | `1` | 1 for a directional light, 2 for a point light, 3 for a spot light. Defaults to 1. |
+| `parent` | In | Int32 | `0` | Entity the light follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new light.
 

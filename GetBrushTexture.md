@@ -17,10 +17,10 @@
 GetBrushTexture:Int32 brush:Int32, index:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `brush` | Int32 | required | The brush. |
-| `index` | Int32 | `0` | Layer number, 0 to 7. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `brush` | In | Int32 | required | The brush. |
+| `index` | In | Int32 | `0` | Layer number, 0 to 7. Defaults to 0. |
 
 **Returns:** A new handle for the texture of that layer, or 0. Free it separately when you no longer need it; the brush keeps its texture.
 

@@ -17,11 +17,11 @@
 CreateCylinder:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `segments` | Int32 | `8` | Detail of the cylinder, 3 to 100. Defaults to 8. |
-| `solid` | Int32 | `1` | 1 for a cylinder with ends, 0 for a tube. Defaults to 1. |
-| `parent` | Int32 | `0` | Entity the cylinder follows, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `segments` | In | Int32 | `8` | Detail of the cylinder, 3 to 100. Defaults to 8. |
+| `solid` | In | Int32 | `1` | 1 for a cylinder with ends, 0 for a tube. Defaults to 1. |
+| `parent` | In | Int32 | `0` | Entity the cylinder follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new cylinder.
 

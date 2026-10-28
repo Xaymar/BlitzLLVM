@@ -17,9 +17,9 @@
 TextureName:String texture:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture. |
 
 **Returns:** The full path of the file, without any `.` or `..` parts.
 

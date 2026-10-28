@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-DeleteDir dir:String
+DeleteDir:Void dir:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | String | required | The folder to delete. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `dir` | In | String | required | The folder to delete. |
 
 ## Description
 

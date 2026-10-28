@@ -17,11 +17,11 @@
 Instr:Int32 string:String, find:String, from:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to search in. |
-| `find` | String | required | The text to look for. |
-| `from` | Int32 | `1` | Position to start searching at. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text to search in. |
+| `find` | In | String | required | The text to look for. |
+| `from` | In | Int32 | `1` | Position to start searching at. Defaults to 1. |
 
 **Returns:** The position of the first match, or 0.
 

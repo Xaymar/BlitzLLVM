@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-ActivateGadget gadget:Int32
+ActivateGadget:Void gadget:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget that should get the focus. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of the gadget that should get the focus. |
 
 ## Description
 

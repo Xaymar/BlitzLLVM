@@ -17,10 +17,10 @@
 LoadAnimMesh:Int32 file:String, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Path of the model file. |
-| `parent` | Int32 | `0` | Entity the model follows, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | Path of the model file. |
+| `parent` | In | Int32 | `0` | Entity the model follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the top entity, or 0 if the file could not be loaded.
 

@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-SelectTreeViewNode node:Int32
+SelectTreeViewNode:Void node:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `node` | Int32 | required | Handle of a node. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `node` | In | Int32 | required | Handle of a node. |
 
 ## Description
 

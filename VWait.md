@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-VWait frames:Int32=1
+VWait:Void frames:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `frames` | Int32 | `1` | How many frames to wait for. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `frames` | In | Int32 | `1` | How many frames to wait for. Defaults to 1. |
 
 ## Description
 

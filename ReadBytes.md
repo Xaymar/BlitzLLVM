@@ -17,12 +17,12 @@
 ReadBytes:Int32 bank:Int32, file:Int32, offset:Int32, count:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to fill. |
-| `file` | Int32 | required | A file opened for reading. |
-| `offset` | Int32 | required | Where in the bank to put the first byte. |
-| `count` | Int32 | required | How many bytes to read. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bank` | In | Int32 | required | The bank to fill. |
+| `file` | In | Int32 | required | A file opened for reading. |
+| `offset` | In | Int32 | required | Where in the bank to put the first byte. |
+| `count` | In | Int32 | required | How many bytes to read. |
 
 **Returns:** The number of bytes that were read.
 

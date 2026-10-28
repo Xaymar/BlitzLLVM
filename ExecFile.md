@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-ExecFile command:String
+ExecFile:Void command:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `command` | String | required | The command line to run. It is run by the system shell. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `command` | In | String | required | The command line to run. It is run by the system shell. |
 
 **Returns:** 1 when the command ran and ended without an error, otherwise 0.
 

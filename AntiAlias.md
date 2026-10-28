@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-AntiAlias enable:Int32
+AntiAlias:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True to switch it on, False to switch it off. It is off by default. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | True to switch it on, False to switch it off. It is off by default. |
 
 ## Description
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SoundVolume sound:Int32, volume:Float32
+SoundVolume:Void sound:Int32, volume:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
-| `volume` | Float32 | required | 0 is silence and 1 is full volume. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sound` | In | Int32 | required | A handle from [LoadSound](LoadSound). |
+| `volume` | In | Float32 | required | 0 is silence and 1 is full volume. |
 
 ## Description
 

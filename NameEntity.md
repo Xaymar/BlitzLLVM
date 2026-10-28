@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-NameEntity entity:Int32, name:String
+NameEntity:Void entity:Int32, name:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `name` | String | required | The name. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `name` | In | String | required | The name. |
 
 ## Description
 

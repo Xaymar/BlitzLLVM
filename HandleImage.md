@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-HandleImage image:Int32, x:Int32, y:Int32
+HandleImage:Void image:Int32, x:Int32, y:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `x` | Int32 | required | Horizontal position of the handle, counted from the left edge. |
-| `y` | Int32 | required | Vertical position of the handle, counted from the top edge. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `x` | In | Int32 | required | Horizontal position of the handle, counted from the left edge. |
+| `y` | In | Int32 | required | Vertical position of the handle, counted from the top edge. |
 
 ## Description
 

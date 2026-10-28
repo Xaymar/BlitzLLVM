@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-InsertGadgetItem gadget:Int32, index:Int32, item:String, icon:Int32=-1
+InsertGadgetItem:Void gadget:Int32, index:Int32, item:String, icon:Int32=-1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
-| `index` | Int32 | required | Where the entry goes, starting at 0. |
-| `item` | String | required |  |
-| `icon` | Int32 | `-1` | Number of an icon of the gadget. Defaults to -1, which means none. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of a list box, combo box or tabber. |
+| `index` | In | Int32 | required | Where the entry goes, starting at 0. |
+| `item` | In | String | required |  |
+| `icon` | In | Int32 | `-1` | Number of an icon of the gadget. Defaults to -1, which means none. |
 
 ## Description
 

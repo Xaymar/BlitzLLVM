@@ -17,9 +17,9 @@
 ReadShort:Int32 stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to read from. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `stream` | In | Int32 | required | The stream to read from. |
 
 **Returns:** The next 2 bytes of the stream as a number from 0 to 65535.
 

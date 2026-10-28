@@ -17,12 +17,12 @@
 CreateTexture:Int32 width:Int32, height:Int32, flags:Int32=0, frames:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | Width in pixels. |
-| `height` | Int32 | required | Height in pixels. |
-| `flags` | Int32 | `0` | Sum of the flags above. Defaults to 1. |
-| `frames` | Int32 | `1` | Number of animation frames. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `width` | In | Int32 | required | Width in pixels. |
+| `height` | In | Int32 | required | Height in pixels. |
+| `flags` | In | Int32 | `0` | Sum of the flags above. Defaults to 1. |
+| `frames` | In | Int32 | `1` | Number of animation frames. Defaults to 1. |
 
 **Returns:** A texture handle.
 

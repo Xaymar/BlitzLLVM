@@ -17,13 +17,13 @@
 DrawMovie:Int32 movie:Int32, x:Int32=0, y:Int32=0, w:Int32=-1, h:Int32=-1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
-| `x` | Int32 | `0` | Horizontal position of the top left corner. Defaults to 0. |
-| `y` | Int32 | `0` | Vertical position of the top left corner. Defaults to 0. |
-| `w` | Int32 | `-1` | Width to draw at. Defaults to the width of the movie. |
-| `h` | Int32 | `-1` | Height to draw at. Defaults to the height of the movie. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `movie` | In | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
+| `x` | In | Int32 | `0` | Horizontal position of the top left corner. Defaults to 0. |
+| `y` | In | Int32 | `0` | Vertical position of the top left corner. Defaults to 0. |
+| `w` | In | Int32 | `-1` | Width to draw at. Defaults to the width of the movie. |
+| `h` | In | Int32 | `-1` | Height to draw at. Defaults to the height of the movie. |
 
 **Returns:** 1 while the movie is still playing, 0 once it has ended or was stopped.
 

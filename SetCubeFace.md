@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetCubeFace texture:Int32, face:Int32
+SetCubeFace:Void texture:Int32, face:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The cube map texture. |
-| `face` | Int32 | required | Face number, 0 to 5. The default is 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The cube map texture. |
+| `face` | In | Int32 | required | Face number, 0 to 5. The default is 1. |
 
 ## Description
 

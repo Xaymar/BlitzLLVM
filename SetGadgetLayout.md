@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-SetGadgetLayout gadget:Int32, left:Int32, right:Int32, top:Int32, bottom:Int32
+SetGadgetLayout:Void gadget:Int32, left:Int32, right:Int32, top:Int32, bottom:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-| `left` | Int32 | required | Behavior of the left edge: 0, 1 or 2. |
-| `right` | Int32 | required | Behavior of the right edge: 0, 1 or 2. |
-| `top` | Int32 | required | Behavior of the top edge: 0, 1 or 2. |
-| `bottom` | Int32 | required | Behavior of the bottom edge: 0, 1 or 2. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of the gadget. |
+| `left` | In | Int32 | required | Behavior of the left edge: 0, 1 or 2. |
+| `right` | In | Int32 | required | Behavior of the right edge: 0, 1 or 2. |
+| `top` | In | Int32 | required | Behavior of the top edge: 0, 1 or 2. |
+| `bottom` | In | Int32 | required | Behavior of the bottom edge: 0, 1 or 2. |
 
 ## Description
 

@@ -17,10 +17,10 @@
 Confirm:Int32 text:String, serious:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | The question. |
-| `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `text` | In | String | required | The question. |
+| `serious` | In | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
 
 **Returns:** 1 for OK, 0 for Cancel.
 

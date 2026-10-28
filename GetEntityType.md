@@ -17,9 +17,9 @@
 GetEntityType:Int32 entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
 
 **Returns:** The collision type that was given to the entity with EntityType, or 0 if it never got one.
 

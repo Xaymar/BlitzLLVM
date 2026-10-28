@@ -17,10 +17,10 @@
 SeekFile:Int32 file_stream:Int32, pos:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file_stream` | Int32 | required | The file handle. |
-| `pos` | Int32 | required | The new position in bytes. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file_stream` | In | Int32 | required | The file handle. |
+| `pos` | In | Int32 | required | The new position in bytes. |
 
 **Returns:** The new position in bytes from the start of the file, or -1 if the position could not be set.
 

@@ -17,15 +17,15 @@
 ImageRectOverlap:Int32 image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `x` | Int32 | required | Horizontal position where the image is drawn. |
-| `y` | Int32 | required | Vertical position where the image is drawn. |
-| `rect_x` | Int32 | required | Left edge of the rectangle. |
-| `rect_y` | Int32 | required | Top edge of the rectangle. |
-| `rect_width` | Int32 | required | Width of the rectangle. |
-| `rect_height` | Int32 | required | Height of the rectangle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `x` | In | Int32 | required | Horizontal position where the image is drawn. |
+| `y` | In | Int32 | required | Vertical position where the image is drawn. |
+| `rect_x` | In | Int32 | required | Left edge of the rectangle. |
+| `rect_y` | In | Int32 | required | Top edge of the rectangle. |
+| `rect_width` | In | Int32 | required | Width of the rectangle. |
+| `rect_height` | In | Int32 | required | Height of the rectangle. |
 
 **Returns:** 1 if the rectangle touches the box of the image, otherwise 0.
 

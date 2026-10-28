@@ -17,9 +17,9 @@
 SliderValue:Int32 slider:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `slider` | Int32 | required | Handle of a slider. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `slider` | In | Int32 | required | Handle of a slider. |
 
 **Returns:** The current position, from 0 to total minus visible.
 

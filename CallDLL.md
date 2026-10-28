@@ -17,12 +17,12 @@
 CallDLL:Int32 dll_name:String, func_name:String, in_bank:Int32=0, out_bank:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dll_name` | String | required | Name of the library, without a path. |
-| `func_name` | String | required | Name of the function to call. |
-| `in_bank` | Int32 | `0` | A bank given to the function as input. Defaults to none. |
-| `out_bank` | Int32 | `0` | A bank given to the function to fill. Defaults to none. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `dll_name` | In | String | required | Name of the library, without a path. |
+| `func_name` | In | String | required | Name of the function to call. |
+| `in_bank` | In | Int32 | `0` | A bank given to the function as input. Defaults to none. |
+| `out_bank` | In | Int32 | `0` | A bank given to the function to fill. Defaults to none. |
 
 **Returns:** The value the function returned, or 0 when the library or function was not found.
 

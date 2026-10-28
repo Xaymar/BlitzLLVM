@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-EntityPickMode entity:Int32, pick_geometry:Int32, obscurer:Int32=1
+EntityPickMode:Void entity:Int32, pick_geometry:Int32, obscurer:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
-| `pick_geometry` | Int32 | required | Shape to test, 0 to 3. |
-| `obscurer` | Int32 | `1` | True if the entity blocks EntityVisible. Defaults to True. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
+| `pick_geometry` | In | Int32 | required | Shape to test, 0 to 3. |
+| `obscurer` | In | Int32 | `1` | True if the entity blocks EntityVisible. Defaults to True. |
 
 ## Description
 

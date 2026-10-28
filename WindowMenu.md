@@ -17,9 +17,9 @@
 WindowMenu:Int32 window:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `window` | In | Int32 | required | Handle of a window. |
 
 **Returns:** The handle of the root menu. It is the same on every call.
 

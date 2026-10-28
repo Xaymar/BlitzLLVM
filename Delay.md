@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-Delay millisecs:Int32
+Delay:Void millisecs:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `millisecs` | Int32 | required | How long to wait, in milliseconds. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `millisecs` | In | Int32 | required | How long to wait, in milliseconds. |
 
 ## Description
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetMenuText menu:Int32, text:String
+SetMenuText:Void menu:Int32, text:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `menu` | Int32 | required | Handle of a menu or item. |
-| `text` | String | required | The new text. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `menu` | In | Int32 | required | Handle of a menu or item. |
+| `text` | In | String | required | The new text. |
 
 ## Description
 

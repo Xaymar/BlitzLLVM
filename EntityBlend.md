@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-EntityBlend entity:Int32, blend:Int32
+EntityBlend:Void entity:Int32, blend:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `blend` | Int32 | required | 1 for alpha, 2 for multiply, 3 for add. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `blend` | In | Int32 | required | 1 for alpha, 2 for multiply, 3 for add. |
 
 ## Description
 

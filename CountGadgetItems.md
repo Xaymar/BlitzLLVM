@@ -17,9 +17,9 @@
 CountGadgetItems:Int32 gadget:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of a list box, combo box or tabber. |
 
 **Returns:** How many entries it has.
 

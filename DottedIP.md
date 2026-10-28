@@ -17,9 +17,9 @@
 DottedIP:String IP:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `IP` | Int32 | required | The address as a whole number, with the first part in the highest byte. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `IP` | In | Int32 | required | The address as a whole number, with the first part in the highest byte. |
 
 **Returns:** An address as text, with its four parts separated by dots.
 

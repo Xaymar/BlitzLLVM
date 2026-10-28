@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SeekMovie movie:Int32, seconds:Float32
+SeekMovie:Void movie:Int32, seconds:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
-| `seconds` | Float32 | required | The position in seconds. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `movie` | In | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
+| `seconds` | In | Float32 | required | The position in seconds. |
 
 ## Description
 

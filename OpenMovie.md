@@ -17,9 +17,9 @@
 OpenMovie:Int32 file:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The path of the movie file. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | The path of the movie file. |
 
 **Returns:** A movie handle, or 0 if the movie could not be opened.
 

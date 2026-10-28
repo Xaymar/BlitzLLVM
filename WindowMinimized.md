@@ -17,9 +17,9 @@
 WindowMinimized:Int32 window:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `window` | In | Int32 | required | Handle of a window. |
 
 **Returns:** 1 if the window is hidden with [MinimizeWindow](MinimizeWindow), otherwise 0.
 

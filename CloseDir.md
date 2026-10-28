@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-CloseDir dir:Int32
+CloseDir:Void dir:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | Int32 | required | The folder handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `dir` | In | Int32 | required | The folder handle. |
 
 ## Description
 

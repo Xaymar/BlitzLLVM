@@ -17,9 +17,9 @@
 ImageReady:Int32 image:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to ask about. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to ask about. |
 
 **Returns:** 1 if the image is loaded, and 0 if it is still loading or does not exist.
 

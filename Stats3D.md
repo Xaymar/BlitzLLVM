@@ -17,9 +17,9 @@
 Stats3D:Float32 type:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `type` | Int32 | required | Which number: 0 to 9, or 1000 to 1004. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `type` | In | Int32 | required | Which number: 0 to 9, or 1000 to 1004. |
 
 **Returns:** The number, or 0 for an index that has no value.
 

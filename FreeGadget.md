@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeGadget gadget:Int32
+FreeGadget:Void gadget:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. A window can be freed too. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of the gadget. A window can be freed too. |
 
 ## Description
 

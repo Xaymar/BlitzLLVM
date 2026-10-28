@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-LightConeAngles light:Int32, inner_angle:Float32, outer_angle:Float32
+LightConeAngles:Void light:Int32, inner_angle:Float32, outer_angle:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `light` | Int32 | required | Light handle. |
-| `inner_angle` | Float32 | required | Angle of the fully lit center of the cone. |
-| `outer_angle` | Float32 | required | Angle where the light has faded out. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `light` | In | Int32 | required | Light handle. |
+| `inner_angle` | In | Float32 | required | Angle of the fully lit center of the cone. |
+| `outer_angle` | In | Float32 | required | Angle where the light has faded out. |
 
 ## Description
 

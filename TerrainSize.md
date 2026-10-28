@@ -17,9 +17,9 @@
 TerrainSize:Int32 terrain:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `terrain` | Int32 | required | The terrain. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `terrain` | In | Int32 | required | The terrain. |
 
 **Returns:** The grid size that the terrain was created with, which is the width of the picture for [LoadTerrain](LoadTerrain).
 

@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-DrawImage image:Int32, x:Int32, y:Int32, frame:Int32=0
+DrawImage:Void image:Int32, x:Int32, y:Int32, frame:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to draw. |
-| `x` | Int32 | required | Horizontal position of the handle of the image. |
-| `y` | Int32 | required | Vertical position of the handle of the image. |
-| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to draw. |
+| `x` | In | Int32 | required | Horizontal position of the handle of the image. |
+| `y` | In | Int32 | required | Vertical position of the handle of the image. |
+| `frame` | In | Int32 | `0` | Which frame to draw. Defaults to 0. |
 
 ## Description
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-AddMesh source_mesh:Int32, dest_mesh:Int32
+AddMesh:Void source_mesh:Int32, dest_mesh:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `source_mesh` | Int32 | required | Mesh that is copied into the other. |
-| `dest_mesh` | Int32 | required | Mesh that receives the surfaces. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `source_mesh` | In | Int32 | required | Mesh that is copied into the other. |
+| `dest_mesh` | In | Int32 | required | Mesh that receives the surfaces. |
 
 ## Description
 

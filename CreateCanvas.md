@@ -17,14 +17,14 @@
 CreateCanvas:Int32 x:Int32, y:Int32, width:Int32, height:Int32, group:Int32, style:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the canvas. |
-| `height` | Int32 | required | Height of the canvas. |
-| `group` | Int32 | required | Window, panel or tabber that holds it. |
-| `style` | Int32 | `0` | 0 lets the canvas follow the size of its group when [SetGadgetLayout](SetGadgetLayout) says so, 65536 keeps it as it is. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position inside the group. |
+| `y` | In | Int32 | required | Vertical position inside the group. |
+| `width` | In | Int32 | required | Width of the canvas. |
+| `height` | In | Int32 | required | Height of the canvas. |
+| `group` | In | Int32 | required | Window, panel or tabber that holds it. |
+| `style` | In | Int32 | `0` | 0 lets the canvas follow the size of its group when [SetGadgetLayout](SetGadgetLayout) says so, 65536 keeps it as it is. Defaults to 0. |
 
 **Returns:** A handle for the canvas.
 

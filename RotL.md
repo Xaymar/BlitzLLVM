@@ -17,10 +17,10 @@
 RotL:Int32 value:Int32, count:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `value` | Int32 | required | An integer. |
-| `count` | Int32 | required | How many bits to turn by. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | In | Int32 | required | An integer. |
+| `count` | In | Int32 | required | How many bits to turn by. |
 
 **Returns:** The number with its bits turned.
 

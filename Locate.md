@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-Locate x:Int32, y:Int32
+Locate:Void x:Int32, y:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the cursor in pixels. |
-| `y` | Int32 | required | Vertical position of the cursor in pixels. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the cursor in pixels. |
+| `y` | In | Int32 | required | Vertical position of the cursor in pixels. |
 
 ## Description
 

@@ -17,10 +17,10 @@
 RSet:String string:String, size:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
-| `size` | Int32 | required | The length of the result. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text. |
+| `size` | In | Int32 | required | The length of the result. |
 
 **Returns:** A string of exactly `size` characters.
 

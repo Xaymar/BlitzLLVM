@@ -17,10 +17,10 @@
 AddAnimSeq:Int32 entity:Int32, length:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
-| `length` | Int32 | required | Length of the sequence in frames. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
+| `length` | In | Int32 | required | Length of the sequence in frames. |
 
 **Returns:** The number of the new sequence.
 

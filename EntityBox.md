@@ -14,18 +14,18 @@
 
 
 ```blitzbasic
-EntityBox entity:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
+EntityBox:Void entity:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
-| `x` | Float32 | required | Left side of the box, relative to the entity. |
-| `y` | Float32 | required | Bottom of the box. |
-| `z` | Float32 | required | Front of the box. |
-| `width` | Float32 | required | Size of the box along X. |
-| `height` | Float32 | required | Size of the box along Y. |
-| `depth` | Float32 | required | Size of the box along Z. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
+| `x` | In | Float32 | required | Left side of the box, relative to the entity. |
+| `y` | In | Float32 | required | Bottom of the box. |
+| `z` | In | Float32 | required | Front of the box. |
+| `width` | In | Float32 | required | Size of the box along X. |
+| `height` | In | Float32 | required | Size of the box along Y. |
+| `depth` | In | Float32 | required | Size of the box along Z. |
 
 ## Description
 

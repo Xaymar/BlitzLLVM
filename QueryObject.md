@@ -17,10 +17,10 @@
 QueryObject:Int32 object:Int32, query_id:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `object` | Int32 | required | A window, gadget or font. |
-| `query_id` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `object` | In | Int32 | required | A window, gadget or font. |
+| `query_id` | In | Int32 | required |  |
 
 **Returns:** The handle of the system that the query asks for, or 0 if the object has none (see the difference below).
 

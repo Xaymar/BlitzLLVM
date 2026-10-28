@@ -17,9 +17,9 @@
 CreateUDPStream:Int32 port:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `port` | Int32 | `0` | The port to receive on. Defaults to 0, which lets the system pick one. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `port` | In | Int32 | `0` | The port to receive on. Defaults to 0, which lets the system pick one. |
 
 **Returns:** A UDP stream, or 0 when the port cannot be used.
 

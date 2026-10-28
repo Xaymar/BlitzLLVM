@@ -17,9 +17,9 @@
 CountTreeViewNodes:Int32 parent_node:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent_node` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `parent_node` | In | Int32 | required |  |
 
 **Returns:** The number of children.
 

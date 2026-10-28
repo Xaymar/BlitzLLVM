@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-StopNetGame
+StopNetGame:Void
 ```
 
 ## Description

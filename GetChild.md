@@ -17,10 +17,10 @@
 GetChild:Int32 entity:Int32, index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle of the parent. |
-| `index` | Int32 | required | Number of the child, 1 up to the number of children. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle of the parent. |
+| `index` | In | Int32 | required | Number of the child, 1 up to the number of children. |
 
 **Returns:** The handle of the child.
 

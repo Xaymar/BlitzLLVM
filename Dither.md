@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-Dither enable:Int32
+Dither:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | 0 (False) not to dither, 1 (True) to dither, and 2 to dither what blending makes as well, see HWDither. It is off by default, and unlike in the original it does not matter which color depth was asked for. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | 0 (False) not to dither, 1 (True) to dither, and 2 to dither what blending makes as well, see HWDither. It is off by default, and unlike in the original it does not matter which color depth was asked for. |
 
 ## Description
 

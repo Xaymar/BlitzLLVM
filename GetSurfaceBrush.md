@@ -17,9 +17,9 @@
 GetSurfaceBrush:Int32 surface:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | The surface. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | The surface. |
 
 **Returns:** A brush handle.
 

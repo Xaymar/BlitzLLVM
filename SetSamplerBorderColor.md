@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-SetSamplerBorderColor sampler:Int32, r:Float32, g:Float32, b:Float32, a:Float32
+SetSamplerBorderColor:Void sampler:Int32, r:Float32, g:Float32, b:Float32, a:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to change. |
-| `r` | Float32 | required | Red, 0 to 1. |
-| `g` | Float32 | required | Green, 0 to 1. |
-| `b` | Float32 | required | Blue, 0 to 1. |
-| `a` | Float32 | required | Alpha, 0 to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to change. |
+| `r` | In | Float32 | required | Red, 0 to 1. |
+| `g` | In | Float32 | required | Green, 0 to 1. |
+| `b` | In | Float32 | required | Blue, 0 to 1. |
+| `a` | In | Float32 | required | Alpha, 0 to 1. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 Log:Float32 float:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | A number above 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `float` | In | Float32 | required | A number above 0. |
 
 **Returns:** The natural logarithm.
 

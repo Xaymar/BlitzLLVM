@@ -17,10 +17,10 @@
 PeekInt:Int32 bank:Int32, offset:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to read. |
-| `offset` | Int32 | required | Position in bytes of the first of the 4 bytes. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bank` | In | Int32 | required | The bank to read. |
+| `offset` | In | Int32 | required | Position in bytes of the first of the 4 bytes. |
 
 **Returns:** The 4-byte integer at an offset.
 

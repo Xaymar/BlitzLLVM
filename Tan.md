@@ -17,9 +17,9 @@
 Tan:Float32 degrees:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `degrees` | Float32 | required | The angle in degrees. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `degrees` | In | Float32 | required | The angle in degrees. |
 
 **Returns:** The tangent.
 

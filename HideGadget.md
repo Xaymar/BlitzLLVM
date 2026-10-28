@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-HideGadget gadget:Int32
+HideGadget:Void gadget:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of the gadget. |
 
 ## Description
 

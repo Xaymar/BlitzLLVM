@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-SetAnimTime entity:Int32, time:Float32, anim_seq:Int32=0
+SetAnimTime:Void entity:Int32, time:Float32, anim_seq:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
-| `time` | Float32 | required | Time in frames from the start of the sequence. |
-| `anim_seq` | Int32 | `0` | Sequence to pose, defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
+| `time` | In | Float32 | required | Time in frames from the start of the sequence. |
+| `anim_seq` | In | Int32 | `0` | Sequence to pose, defaults to 0. |
 
 ## Description
 

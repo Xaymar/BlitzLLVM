@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-ResizeImage image:Int32, width:Float32, height:Float32
+ResizeImage:Void image:Int32, width:Float32, height:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `width` | Float32 | required | New width of a frame in pixels. |
-| `height` | Float32 | required | New height of a frame in pixels. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `width` | In | Float32 | required | New width of a frame in pixels. |
+| `height` | In | Float32 | required | New height of a frame in pixels. |
 
 ## Description
 

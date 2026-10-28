@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetSamplerAnisotropy sampler:Int32, anisotropy:Float32
+SetSamplerAnisotropy:Void sampler:Int32, anisotropy:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to change. |
-| `anisotropy` | Float32 | required | The most samples along the surface, 1 or more. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to change. |
+| `anisotropy` | In | Float32 | required | The most samples along the surface, 1 or more. |
 
 ## Description
 

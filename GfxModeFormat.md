@@ -17,9 +17,9 @@
 GfxModeFormat:Int32 mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mode` | Int32 | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mode` | In | Int32 | required | The mode number, from 1 to [CountGfxModes](CountGfxModes). |
 
 **Returns:** The format number.
 

@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeTexture texture:Int32
+FreeTexture:Void texture:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to free. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture to free. |
 
 ## Description
 

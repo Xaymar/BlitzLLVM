@@ -17,9 +17,9 @@
 Floor:Float32 float:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The number to round down. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `float` | In | Float32 | required | The number to round down. |
 
 **Returns:** The largest whole number that is not above `float`.
 

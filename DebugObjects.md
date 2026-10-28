@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-DebugObjects
+DebugObjects:Void
 ```
 
 ## Description

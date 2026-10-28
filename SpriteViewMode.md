@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SpriteViewMode sprite:Int32, view_mode:Int32
+SpriteViewMode:Void sprite:Int32, view_mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sprite` | Int32 | required | The sprite. |
-| `view_mode` | Int32 | required | 1 to 4, see the table. Any other number turns the sprite neither way, so it behaves like mode 2. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sprite` | In | Int32 | required | The sprite. |
+| `view_mode` | In | Int32 | required | 1 to 4, see the table. Any other number turns the sprite neither way, so it behaves like mode 2. |
 
 ## Description
 

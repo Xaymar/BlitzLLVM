@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-RotateImage image:Int32, angle:Float32
+RotateImage:Void image:Int32, angle:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `angle` | Float32 | required | The angle in degrees. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `angle` | In | Float32 | required | The angle in degrees. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 WriteFile:Int32 filename:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `filename` | String | required | The file to create. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `filename` | In | String | required | The file to create. |
 
 **Returns:** A file handle, or 0 when the file cannot be created.
 

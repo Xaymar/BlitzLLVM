@@ -17,9 +17,9 @@
 Asc:Int32 string:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. Only its first character counts. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text. Only its first character counts. |
 
 **Returns:** A code from 0 to 255.
 

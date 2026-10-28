@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-RuntimeError message:String
+RuntimeError:Void message:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `message` | String | required | The text that describes what went wrong. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `message` | In | String | required | The text that describes what went wrong. |
 
 ## Description
 

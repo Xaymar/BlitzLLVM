@@ -14,19 +14,19 @@
 
 
 ```blitzbasic
-FormatTextAreaText textarea:Int32, red:Int32, green:Int32, blue:Int32, flags:Int32, pos:Int32=0, len:Int32=-1, units:Int32=1
+FormatTextAreaText:Void textarea:Int32, red:Int32, green:Int32, blue:Int32, flags:Int32, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `red` | Int32 | required | Red part of the text color, 0 to 255. |
-| `green` | Int32 | required | Green part of the text color, 0 to 255. |
-| `blue` | Int32 | required | Blue part of the text color, 0 to 255. |
-| `flags` | Int32 | required |  |
-| `pos` | Int32 | `0` |  |
-| `len` | Int32 | `-1` |  |
-| `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
+| `red` | In | Int32 | required | Red part of the text color, 0 to 255. |
+| `green` | In | Int32 | required | Green part of the text color, 0 to 255. |
+| `blue` | In | Int32 | required | Blue part of the text color, 0 to 255. |
+| `flags` | In | Int32 | required |  |
+| `pos` | In | Int32 | `0` |  |
+| `len` | In | Int32 | `-1` |  |
+| `units` | In | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 ## Description
 

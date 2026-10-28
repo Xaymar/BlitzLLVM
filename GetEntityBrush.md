@@ -17,9 +17,9 @@
 GetEntityBrush:Int32 entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
 
 **Returns:** A brush handle.
 

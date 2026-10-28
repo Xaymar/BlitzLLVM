@@ -17,9 +17,9 @@
 TextureHeight:Int32 texture:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture. |
 
 **Returns:** The height of the texture in pixels, as it was created or loaded. For a texture made with LoadAnimTexture it is the height of one frame. Returns 0 for a handle that does not exist.
 

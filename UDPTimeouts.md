@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-UDPTimeouts recv_timeout:Int32
+UDPTimeouts:Void recv_timeout:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `recv_timeout` | Int32 | required | Time to wait in milliseconds. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `recv_timeout` | In | Int32 | required | Time to wait in milliseconds. |
 
 ## Description
 

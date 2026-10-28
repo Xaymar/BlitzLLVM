@@ -17,14 +17,14 @@
 ImagesOverlap:Int32 image1:Int32, x1:Int32, y1:Int32, image2:Int32, x2:Int32, y2:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image1` | Int32 | required | The first image. |
-| `x1` | Int32 | required | Horizontal position where the first image is drawn. |
-| `y1` | Int32 | required | Vertical position where the first image is drawn. |
-| `image2` | Int32 | required | The second image. |
-| `x2` | Int32 | required | Horizontal position where the second image is drawn. |
-| `y2` | Int32 | required | Vertical position where the second image is drawn. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image1` | In | Int32 | required | The first image. |
+| `x1` | In | Int32 | required | Horizontal position where the first image is drawn. |
+| `y1` | In | Int32 | required | Vertical position where the first image is drawn. |
+| `image2` | In | Int32 | required | The second image. |
+| `x2` | In | Int32 | required | Horizontal position where the second image is drawn. |
+| `y2` | In | Int32 | required | Vertical position where the second image is drawn. |
 
 **Returns:** 1 if the boxes overlap, otherwise 0.
 

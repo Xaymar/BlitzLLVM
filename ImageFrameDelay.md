@@ -16,10 +16,10 @@
 ImageFrameDelay:Int32 image:Int32, frame:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to ask about. |
-| `frame` | Int32 | required | The frame, from 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to ask about. |
+| `frame` | In | Int32 | required | The frame, from 0. |
 
 **Returns:** The time in milliseconds, or 0 for an image that is not from an animated picture or a frame that it does not have.
 

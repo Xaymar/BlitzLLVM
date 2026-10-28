@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeEntity entity:Int32
+FreeEntity:Void entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
 
 ## Description
 

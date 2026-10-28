@@ -17,9 +17,9 @@
 AnimSeq:Int32 entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
 
 **Returns:** The number of the sequence that the entity is playing or was last set to, starting at 0.
 

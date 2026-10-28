@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-Text x:Int32, y:Int32, text:String, centre_x:Int32=0, centre_y:Int32=0
+Text:Void x:Int32, y:Int32, text:String, centre_x:Int32=0, centre_y:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the text. |
-| `y` | Int32 | required | Vertical position of the text. |
-| `text` | String | required | The text to draw. |
-| `centre_x` | Int32 | `0` | 1 to use x as the middle of the text instead of its left edge. Defaults to 0. |
-| `centre_y` | Int32 | `0` | 1 to use y as the middle of the text instead of its top edge. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the text. |
+| `y` | In | Int32 | required | Vertical position of the text. |
+| `text` | In | String | required | The text to draw. |
+| `centre_x` | In | Int32 | `0` | 1 to use x as the middle of the text instead of its left edge. Defaults to 0. |
+| `centre_y` | In | Int32 | `0` | 1 to use y as the middle of the text instead of its top edge. Defaults to 0. |
 
 ## Description
 

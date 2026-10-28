@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-EntityAlpha entity:Int32, alpha:Float32
+EntityAlpha:Void entity:Int32, alpha:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `alpha` | Float32 | required | Opacity from 0 to 1. Defaults to 1 on a new entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `alpha` | In | Float32 | required | Opacity from 0 to 1. Defaults to 1 on a new entity. |
 
 ## Description
 

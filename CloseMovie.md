@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-CloseMovie movie:Int32
+CloseMovie:Void movie:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `movie` | Int32 | required | A movie handle from OpenMovie. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `movie` | In | Int32 | required | A movie handle from OpenMovie. |
 
 ## Description
 

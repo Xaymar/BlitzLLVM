@@ -17,13 +17,13 @@
 LoadAnimImage:Int32 bmpfile:String, cellwidth:Int32, cellheight:Int32, first:Int32, count:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bmpfile` | String | required |  |
-| `cellwidth` | Int32 | required | Width of one frame. |
-| `cellheight` | Int32 | required | Height of one frame. |
-| `first` | Int32 | required | Number of the first frame in the sheet, usually 0. |
-| `count` | Int32 | required | How many frames to cut out. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bmpfile` | In | String | required |  |
+| `cellwidth` | In | Int32 | required | Width of one frame. |
+| `cellheight` | In | Int32 | required | Height of one frame. |
+| `first` | In | Int32 | required | Number of the first frame in the sheet, usually 0. |
+| `count` | In | Int32 | required | How many frames to cut out. |
 
 **Returns:** A handle for the image, or 0 if the file could not be loaded or the frame size does not fit.
 

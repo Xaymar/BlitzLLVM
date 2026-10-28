@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SoundPitch sound:Int32, pitch:Int32
+SoundPitch:Void sound:Int32, pitch:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
-| `pitch` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sound` | In | Int32 | required | A handle from [LoadSound](LoadSound). |
+| `pitch` | In | Int32 | required |  |
 
 ## Description
 

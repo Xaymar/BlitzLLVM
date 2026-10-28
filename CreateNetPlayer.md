@@ -17,9 +17,9 @@
 CreateNetPlayer:Int32 name:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `name` | String | required | The name of the player. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `name` | In | String | required | The name of the player. |
 
 **Returns:** A player number, or 0 when there is no game.
 

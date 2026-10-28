@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-UpdateGamma calibrate:Int32=0
+UpdateGamma:Void calibrate:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `calibrate` | Int32 | `0` | 1 to use the calibration of the display. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `calibrate` | In | Int32 | `0` | 1 to use the calibration of the display. Defaults to 0. |
 
 ## Description
 

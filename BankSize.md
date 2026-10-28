@@ -17,9 +17,9 @@
 BankSize:Int32 bank:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bank` | In | Int32 | required | The bank handle. |
 
 **Returns:** The size of a bank in bytes.
 

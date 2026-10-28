@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-ScaleEntity entity:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32, global:Int32=0
+ScaleEntity:Void entity:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32, global:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `x_scale` | Float32 | required | Size along X. |
-| `y_scale` | Float32 | required | Size along Y. |
-| `z_scale` | Float32 | required | Size along Z. |
-| `global` | Int32 | `0` | 1 to scale independent of the parent. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `x_scale` | In | Float32 | required | Size along X. |
+| `y_scale` | In | Float32 | required | Size along Y. |
+| `z_scale` | In | Float32 | required | Size along Z. |
+| `global` | In | Int32 | `0` | 1 to scale independent of the parent. Defaults to 0. |
 
 ## Description
 

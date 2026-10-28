@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetGadgetFont gadget:Int32, font:Int32
+SetGadgetFont:Void gadget:Int32, font:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-| `font` | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of the gadget. |
+| `font` | In | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
 
 ## Description
 

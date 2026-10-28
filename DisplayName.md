@@ -17,9 +17,9 @@
 DisplayName:String display:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `display` | In | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The name of the display, or an empty text if the display does not exist.
 

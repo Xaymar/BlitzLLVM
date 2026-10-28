@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-SetMinWindowSize window:Int32, width:Int32=-1, height:Int32=-1
+SetMinWindowSize:Void window:Int32, width:Int32=-1, height:Int32=-1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window that can be resized. |
-| `width` | Int32 | `-1` | Smallest width. Defaults to -1, which takes the current width. |
-| `height` | Int32 | `-1` | Smallest height. Defaults to -1, which takes the current height. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `window` | In | Int32 | required | Handle of a window that can be resized. |
+| `width` | In | Int32 | `-1` | Smallest width. Defaults to -1, which takes the current width. |
+| `height` | In | Int32 | `-1` | Smallest height. Defaults to -1, which takes the current height. |
 
 ## Description
 

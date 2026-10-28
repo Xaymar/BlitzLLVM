@@ -17,11 +17,11 @@
 GfxModeExists:Int32 width:Int32, height:Int32, depth:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | The width, or 0 for any width. |
-| `height` | Int32 | required | The height, or 0 for any height. |
-| `depth` | Int32 | required | The color depth in bits, which is not looked at, because every mode has 32 bits. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `width` | In | Int32 | required | The width, or 0 for any width. |
+| `height` | In | Int32 | required | The height, or 0 for any height. |
+| `depth` | In | Int32 | required | The color depth in bits, which is not looked at, because every mode has 32 bits. |
 
 **Returns:** 1 if a mode like that exists, otherwise 0.
 

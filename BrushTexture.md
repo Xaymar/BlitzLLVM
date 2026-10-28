@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-BrushTexture brush:Int32, texture:Int32, frame:Int32=0, index:Int32=0
+BrushTexture:Void brush:Int32, texture:Int32, frame:Int32=0, index:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `brush` | Int32 | required | The brush. |
-| `texture` | Int32 | required | The texture to put on the brush. |
-| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
-| `index` | Int32 | `0` | Layer number. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `brush` | In | Int32 | required | The brush. |
+| `texture` | In | Int32 | required | The texture to put on the brush. |
+| `frame` | In | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
+| `index` | In | Int32 | `0` | Layer number. Defaults to 0. |
 
 ## Description
 

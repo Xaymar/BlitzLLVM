@@ -17,9 +17,9 @@
 SelectedGadgetItem:Int32 gadget:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of a list box, combo box or tabber. |
 
 **Returns:** The number of the selected entry starting at 0, or -1 if nothing is selected.
 

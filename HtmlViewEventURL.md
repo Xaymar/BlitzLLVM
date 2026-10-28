@@ -17,9 +17,9 @@
 HtmlViewEventURL:String htmlview:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `htmlview` | Int32 | required | The handle from [CreateHtmlView](CreateHtmlView). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `htmlview` | In | Int32 | required | The handle from [CreateHtmlView](CreateHtmlView). |
 
 **Returns:** The address. Always an empty text here, as there are no links to click.
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetTextureSampler texture:Int32, sampler:Int32
+SetTextureSampler:Void texture:Int32, sampler:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to change. |
-| `sampler` | Int32 | required | The sampler to read it with, or 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture to change. |
+| `sampler` | In | Int32 | required | The sampler to read it with, or 0. |
 
 ## Description
 

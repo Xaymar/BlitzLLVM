@@ -17,9 +17,9 @@
 LockedPitch:Int32 buffer:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | `0` | Locked buffer. Defaults to the current one. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `buffer` | In | Int32 | `0` | Locked buffer. Defaults to the current one. |
 
 **Returns:** Bytes in a row. For the buffer of a 200 pixel wide canvas that is 800.
 

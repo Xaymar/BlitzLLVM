@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-AsyncSaving enabled:Int32
+AsyncSaving:Void enabled:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enabled` | Int32 | required | True to save on other threads, False to wait for every file. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enabled` | In | Int32 | required | True to save on other threads, False to wait for every file. |
 
 ## Description
 

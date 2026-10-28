@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-MaximizeWindow window:Int32
+MaximizeWindow:Void window:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `window` | In | Int32 | required | Handle of a window. |
 
 ## Description
 

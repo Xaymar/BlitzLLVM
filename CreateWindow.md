@@ -17,15 +17,15 @@
 CreateWindow:Int32 text:String, x:Int32, y:Int32, width:Int32, height:Int32, group:Int32=0, style:Int32=15
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required |  |
-| `x` | Int32 | required | Horizontal position inside the group. |
-| `y` | Int32 | required | Vertical position inside the group. |
-| `width` | Int32 | required | Width of the window. |
-| `height` | Int32 | required | Height of the window. |
-| `group` | Int32 | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
-| `style` | Int32 | `15` | Sum of the flags above. Defaults to 15. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `text` | In | String | required |  |
+| `x` | In | Int32 | required | Horizontal position inside the group. |
+| `y` | In | Int32 | required | Vertical position inside the group. |
+| `width` | In | Int32 | required | Width of the window. |
+| `height` | In | Int32 | required | Height of the window. |
+| `group` | In | Int32 | `0` | Desktop or another window. Defaults to 0, which means the desktop. |
+| `style` | In | Int32 | `15` | Sum of the flags above. Defaults to 15. |
 
 **Returns:** A handle for the window.
 

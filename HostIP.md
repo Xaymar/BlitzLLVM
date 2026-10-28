@@ -17,9 +17,9 @@
 HostIP:Int32 host_index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `host_index` | Int32 | required | The address to take, counting from 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `host_index` | In | Int32 | required | The address to take, counting from 1. |
 
 **Returns:** One of the addresses found by the last [CountHostIPs](CountHostIPs), as a number for [DottedIP](DottedIP).
 

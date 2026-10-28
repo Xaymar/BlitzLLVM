@@ -17,9 +17,9 @@
 EntityReady:Int32 entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity to ask about. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity to ask about. |
 
 **Returns:** 1 if the entity is loaded, and 0 if it is still loading or does not exist.
 

@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-TurnEntity entity:Int32, pitch:Float32, yaw:Float32, roll:Float32, global:Int32=0
+TurnEntity:Void entity:Int32, pitch:Float32, yaw:Float32, roll:Float32, global:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `pitch` | Float32 | required | Rotation around X in degrees. |
-| `yaw` | Float32 | required | Rotation around Y in degrees. |
-| `roll` | Float32 | required | Rotation around Z in degrees. |
-| `global` | Int32 | `0` | 1 to turn around the axes of the world instead of the parent. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `pitch` | In | Float32 | required | Rotation around X in degrees. |
+| `yaw` | In | Float32 | required | Rotation around Y in degrees. |
+| `roll` | In | Float32 | required | Rotation around Z in degrees. |
+| `global` | In | Int32 | `0` | 1 to turn around the axes of the world instead of the parent. Defaults to 0. |
 
 ## Description
 

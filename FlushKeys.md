@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-FlushKeys
+FlushKeys:Void
 ```
 
 ## Description

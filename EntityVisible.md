@@ -17,10 +17,10 @@
 EntityVisible:Int32 src_entity:Int32, dest_entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_entity` | Int32 | required | The entity that looks. |
-| `dest_entity` | Int32 | required | The entity it looks at. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `src_entity` | In | Int32 | required | The entity that looks. |
+| `dest_entity` | In | Int32 | required | The entity it looks at. |
 
 **Returns:** True if nothing in the way blocks the line, otherwise False.
 

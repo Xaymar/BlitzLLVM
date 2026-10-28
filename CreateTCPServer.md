@@ -17,9 +17,9 @@
 CreateTCPServer:Int32 port:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `port` | Int32 | required | The port to listen on. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `port` | In | Int32 | required | The port to listen on. |
 
 **Returns:** A server handle, or 0 when the port cannot be used, for example because another program already listens on it.
 

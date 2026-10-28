@@ -17,9 +17,9 @@
 CreateTimer:Int32 hertz:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `hertz` | Int32 | required | Ticks per second, above 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `hertz` | In | Int32 | required | Ticks per second, above 0. |
 
 **Returns:** A timer handle.
 

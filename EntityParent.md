@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-EntityParent entity:Int32, parent:Int32, global:Int32=1
+EntityParent:Void entity:Int32, parent:Int32, global:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `parent` | Int32 | required | Handle of the new parent, 0 for none. |
-| `global` | Int32 | `1` | 1 to keep the world position and angle, 0 to keep the local values. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `parent` | In | Int32 | required | Handle of the new parent, 0 for none. |
+| `global` | In | Int32 | `1` | 1 to keep the world position and angle, 0 to keep the local values. Defaults to 1. |
 
 ## Description
 

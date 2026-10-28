@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-PositionMesh mesh:Int32, x:Float32, y:Float32, z:Float32
+PositionMesh:Void mesh:Int32, x:Float32, y:Float32, z:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `x` | Float32 | required | Offset along X. |
-| `y` | Float32 | required | Offset along Y. |
-| `z` | Float32 | required | Offset along Z. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `x` | In | Float32 | required | Offset along X. |
+| `y` | In | Float32 | required | Offset along Y. |
+| `z` | In | Float32 | required | Offset along Z. |
 
 ## Description
 

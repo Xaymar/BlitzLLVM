@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-SetGadgetShape gadget:Int32, x:Int32, y:Int32, width:Int32, height:Int32
+SetGadgetShape:Void gadget:Int32, x:Int32, y:Int32, width:Int32, height:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of the gadget. |
-| `x` | Int32 | required | New horizontal position. |
-| `y` | Int32 | required | New vertical position. |
-| `width` | Int32 | required | New width. |
-| `height` | Int32 | required | New height. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of the gadget. |
+| `x` | In | Int32 | required | New horizontal position. |
+| `y` | In | Int32 | required | New vertical position. |
+| `width` | In | Int32 | required | New width. |
+| `height` | In | Int32 | required | New height. |
 
 ## Description
 

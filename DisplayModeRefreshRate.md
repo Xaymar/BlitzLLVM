@@ -17,10 +17,10 @@
 DisplayModeRefreshRate:Int32 display:Int32, mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
-| `mode` | Int32 | required | The mode number, from 1 to [CountDisplayModes](CountDisplayModes). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `display` | In | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `mode` | In | Int32 | required | The mode number, from 1 to [CountDisplayModes](CountDisplayModes). |
 
 **Returns:** The refresh rate in Hz, or 0 if the display or mode does not exist.
 

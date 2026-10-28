@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetTextAreaFont textarea:Int32, font:Int32
+SetTextAreaFont:Void textarea:Int32, font:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `font` | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
+| `font` | In | Int32 | required | Font handle from `LoadFont` or [RequestFont](RequestFont). |
 
 ## Description
 

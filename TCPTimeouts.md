@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-TCPTimeouts read_millis:Int32, accept_millis:Int32
+TCPTimeouts:Void read_millis:Int32, accept_millis:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `read_millis` | Int32 | required | Read timeout in milliseconds. |
-| `accept_millis` | Int32 | required | Accept timeout in milliseconds. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `read_millis` | In | Int32 | required | Read timeout in milliseconds. |
+| `accept_millis` | In | Int32 | required | Accept timeout in milliseconds. |
 
 ## Description
 

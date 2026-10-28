@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-ScaleSprite sprite:Int32, x_scale:Float32, y_scale:Float32
+ScaleSprite:Void sprite:Int32, x_scale:Float32, y_scale:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sprite` | Int32 | required | The sprite. |
-| `x_scale` | Float32 | required | Width factor. |
-| `y_scale` | Float32 | required | Height factor. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sprite` | In | Int32 | required | The sprite. |
+| `x_scale` | In | Float32 | required | Width factor. |
+| `y_scale` | In | Float32 | required | Height factor. |
 
 ## Description
 

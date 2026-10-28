@@ -17,9 +17,9 @@
 Exp:Float32 float:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The exponent. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `float` | In | Float32 | required | The exponent. |
 
 **Returns:** e to the power of `float`.
 

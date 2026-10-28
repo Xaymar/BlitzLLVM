@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-CaptureWorld
+CaptureWorld:Void
 ```
 
 ## Description

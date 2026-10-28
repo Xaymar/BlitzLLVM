@@ -14,19 +14,19 @@
 
 
 ```blitzbasic
-DrawBlockRect image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32, frame:Int32=0
+DrawBlockRect:Void image:Int32, x:Int32, y:Int32, rect_x:Int32, rect_y:Int32, rect_width:Int32, rect_height:Int32, frame:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to draw. |
-| `x` | Int32 | required | Horizontal position on the screen of the top left corner of the part. |
-| `y` | Int32 | required | Vertical position on the screen of the top left corner of the part. |
-| `rect_x` | Int32 | required | Left edge of the part inside the frame. |
-| `rect_y` | Int32 | required | Top edge of the part inside the frame. |
-| `rect_width` | Int32 | required | Width of the part. |
-| `rect_height` | Int32 | required | Height of the part. |
-| `frame` | Int32 | `0` | Which frame to draw. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to draw. |
+| `x` | In | Int32 | required | Horizontal position on the screen of the top left corner of the part. |
+| `y` | In | Int32 | required | Vertical position on the screen of the top left corner of the part. |
+| `rect_x` | In | Int32 | required | Left edge of the part inside the frame. |
+| `rect_y` | In | Int32 | required | Top edge of the part inside the frame. |
+| `rect_width` | In | Int32 | required | Width of the part. |
+| `rect_height` | In | Int32 | required | Height of the part. |
+| `frame` | In | Int32 | `0` | Which frame to draw. Defaults to 0. |
 
 ## Description
 

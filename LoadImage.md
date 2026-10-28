@@ -17,9 +17,9 @@
 LoadImage:Int32 bmpfile:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bmpfile` | String | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bmpfile` | In | String | required |  |
 
 **Returns:** A handle for the image, or 0 if the file could not be loaded.
 

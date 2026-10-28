@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-Collisions source_type:Int32, destination_type:Int32, method:Int32, response:Int32
+Collisions:Void source_type:Int32, destination_type:Int32, method:Int32, response:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `source_type` | Int32 | required | Collision type of the entities that move. |
-| `destination_type` | Int32 | required | Collision type of the entities they can hit. |
-| `method` | Int32 | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
-| `response` | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. Any other value slides without limiting how far, like the original. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `source_type` | In | Int32 | required | Collision type of the entities that move. |
+| `destination_type` | In | Int32 | required | Collision type of the entities they can hit. |
+| `method` | In | Int32 | required | 1 ellipsoid, 2 polygon, 3 box, see the table. |
+| `response` | In | Int32 | required | 1 stop, 2 slide, 3 slide without slipping down slopes. Any other value slides without limiting how far, like the original. |
 
 ## Description
 

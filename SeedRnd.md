@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-SeedRnd seed:Int32
+SeedRnd:Void seed:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `seed` | Int32 | required | The starting value. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `seed` | In | Int32 | required | The starting value. |
 
 ## Description
 

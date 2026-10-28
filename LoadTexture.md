@@ -17,10 +17,10 @@
 LoadTexture:Int32 file:String, flags:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Picture file to load. |
-| `flags` | Int32 | `1` | Sum of the texture flags, see CreateTexture. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | Picture file to load. |
+| `flags` | In | Int32 | `1` | Sum of the texture flags, see CreateTexture. Defaults to 1. |
 
 **Returns:** A texture handle, or 0 if the file could not be loaded.
 

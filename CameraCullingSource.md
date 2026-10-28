@@ -13,13 +13,13 @@
 
 
 ```blitzbasic
-CameraCullingSource camera_a:Int32, camera_b:Int32=0
+CameraCullingSource:Void camera_a:Int32, camera_b:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera_a` | Int32 | required | The camera that takes the culling. |
-| `camera_b` | Int32 | `0` | The camera whose culling it is, or 0 for its own. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera_a` | In | Int32 | required | The camera that takes the culling. |
+| `camera_b` | In | Int32 | `0` | The camera whose culling it is, or 0 for its own. |
 
 ## Description
 

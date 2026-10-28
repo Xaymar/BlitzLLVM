@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-CheckMenu menu:Int32
+CheckMenu:Void menu:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `menu` | Int32 | required | Handle of a menu item made with [CreateMenu](CreateMenu). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `menu` | In | Int32 | required | Handle of a menu item made with [CreateMenu](CreateMenu). |
 
 ## Description
 

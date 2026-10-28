@@ -17,15 +17,15 @@
 LinePick:Int32 x:Float32, y:Float32, z:Float32, dx:Float32, dy:Float32, dz:Float32, radius:Float32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Float32 | required | Start X in world coordinates. |
-| `y` | Float32 | required | Start Y. |
-| `z` | Float32 | required | Start Z. |
-| `dx` | Float32 | required | How far the line goes along X. |
-| `dy` | Float32 | required | How far the line goes along Y. |
-| `dz` | Float32 | required | How far the line goes along Z. |
-| `radius` | Float32 | `0` | Thickness of the line. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Float32 | required | Start X in world coordinates. |
+| `y` | In | Float32 | required | Start Y. |
+| `z` | In | Float32 | required | Start Z. |
+| `dx` | In | Float32 | required | How far the line goes along X. |
+| `dy` | In | Float32 | required | How far the line goes along Y. |
+| `dz` | In | Float32 | required | How far the line goes along Z. |
+| `radius` | In | Float32 | `0` | Thickness of the line. Defaults to 0. |
 
 **Returns:** The entity found, or 0.
 

@@ -17,12 +17,12 @@
 TextAreaText:String textarea:Int32, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `pos` | Int32 | `0` |  |
-| `len` | Int32 | `-1` |  |
-| `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
+| `pos` | In | Int32 | `0` |  |
+| `len` | In | Int32 | `-1` |  |
+| `units` | In | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 **Returns:** The text.
 

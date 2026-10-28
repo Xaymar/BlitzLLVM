@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-HidePointer
+HidePointer:Void
 ```
 
 ## Description

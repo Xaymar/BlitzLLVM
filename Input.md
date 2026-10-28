@@ -17,9 +17,9 @@
 Input:String prompt:String=\
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `prompt` | String | `\` | Text to show before the input. Defaults to nothing. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `prompt` | In | String | `\` | Text to show before the input. Defaults to nothing. |
 
 **Returns:** The line that was typed.
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetEnv env_var:String, value:String
+SetEnv:Void env_var:String, value:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `env_var` | String | required | The name of the variable. |
-| `value` | String | required | The new value. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `env_var` | In | String | required | The name of the variable. |
+| `value` | In | String | required | The new value. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 FileSize:Int32 file:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The name of the file. Strings are stored with a 4 byte length in front, so "hello" takes 9 bytes. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | The name of the file. Strings are stored with a 4 byte length in front, so "hello" takes 9 bytes. |
 
 **Returns:** The size of a file in bytes, or 0 when it does not exist.
 

@@ -17,9 +17,9 @@
 AcceptTCPStream:Int32 tcp_server:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `tcp_server` | Int32 | required | The server from [CreateTCPServer](CreateTCPServer). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `tcp_server` | In | Int32 | required | The server from [CreateTCPServer](CreateTCPServer). |
 
 **Returns:** A TCP stream, or 0 when nobody connected.
 

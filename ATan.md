@@ -17,9 +17,9 @@
 ATan:Float32 float:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The tangent. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `float` | In | Float32 | required | The tangent. |
 
 **Returns:** The angle in degrees.
 

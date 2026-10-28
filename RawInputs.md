@@ -13,12 +13,12 @@
 
 
 ```blitzbasic
-RawInputs enable:Int32
+RawInputs:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | 1 (True) to ask for the raw mouse, 0 (False) for the same as the original. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | 1 (True) to ask for the raw mouse, 0 (False) for the same as the original. |
 
 ## Description
 

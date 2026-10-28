@@ -14,17 +14,17 @@
 
 
 ```blitzbasic
-AlignToVector entity:Int32, vector_x:Float32, vector_y:Float32, vector_z:Float32, axis:Int32, rate:Float32=1
+AlignToVector:Void entity:Int32, vector_x:Float32, vector_y:Float32, vector_z:Float32, axis:Int32, rate:Float32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `vector_x` | Float32 | required | X part of the direction. |
-| `vector_y` | Float32 | required | Y part of the direction. |
-| `vector_z` | Float32 | required | Z part of the direction. |
-| `axis` | Int32 | required | Axis that is aligned: 1 for X, 2 for Y, 3 for Z. |
-| `rate` | Float32 | `1` | How much of the turn to do, 0 to 1. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `vector_x` | In | Float32 | required | X part of the direction. |
+| `vector_y` | In | Float32 | required | Y part of the direction. |
+| `vector_z` | In | Float32 | required | Z part of the direction. |
+| `axis` | In | Int32 | required | Axis that is aligned: 1 for X, 2 for Y, 3 for Z. |
+| `rate` | In | Float32 | `1` | How much of the turn to do, 0 to 1. Defaults to 1. |
 
 ## Description
 

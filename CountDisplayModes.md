@@ -17,9 +17,9 @@
 CountDisplayModes:Int32 display:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `display` | In | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
 
 **Returns:** The number of modes, or 0 if the display does not exist.
 

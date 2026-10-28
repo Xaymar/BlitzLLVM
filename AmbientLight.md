@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-AmbientLight red:Float32, green:Float32, blue:Float32
+AmbientLight:Void red:Float32, green:Float32, blue:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `red` | Float32 | required | Red part, 0 to 255. |
-| `green` | Float32 | required | Green part, 0 to 255. |
-| `blue` | Float32 | required | Blue part, 0 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `red` | In | Float32 | required | Red part, 0 to 255. |
+| `green` | In | Float32 | required | Green part, 0 to 255. |
+| `blue` | In | Float32 | required | Blue part, 0 to 255. |
 
 ## Description
 

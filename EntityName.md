@@ -17,9 +17,9 @@
 EntityName:String entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
 
 **Returns:** The name of the entity, an empty string if it has none.
 

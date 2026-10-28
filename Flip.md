@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-Flip vwait:Int32=1
+Flip:Void vwait:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `vwait` | Int32 | `1` | 1 waits for the display to be ready before flipping, which avoids tearing. 0 does not wait and may tear. 2 keeps the picture free of tearing but never makes the program wait (see below). Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `vwait` | In | Int32 | `1` | 1 waits for the display to be ready before flipping, which avoids tearing. 0 does not wait and may tear. 2 keeps the picture free of tearing but never makes the program wait (see below). Defaults to 1. |
 
 ## Description
 

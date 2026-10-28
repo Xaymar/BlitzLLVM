@@ -17,11 +17,11 @@
 CreateMenu:Int32 text:String, menu_id:Int32, parent_menu:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | Text of the title or item. Put `&` before a letter to underline it for the keyboard. An empty text is a separator. |
-| `menu_id` | Int32 | required |  |
-| `parent_menu` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `text` | In | String | required | Text of the title or item. Put `&` before a letter to underline it for the keyboard. An empty text is a separator. |
+| `menu_id` | In | Int32 | required |  |
+| `parent_menu` | In | Int32 | required |  |
 
 **Returns:** A handle for the menu.
 

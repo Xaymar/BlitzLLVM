@@ -17,9 +17,9 @@
 ClientHeight:Int32 group:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `group` | Int32 | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `group` | In | Int32 | required | Handle of a window, panel, tabber, canvas or the desktop. Other gadgets can give meaningless numbers. |
 
 **Returns:** The usable height in pixels.
 

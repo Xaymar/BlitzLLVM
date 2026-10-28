@@ -17,9 +17,9 @@
 TextureReady:Int32 texture:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to ask about. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture to ask about. |
 
 **Returns:** 1 if the texture is loaded, and 0 if it is still loading or does not exist.
 

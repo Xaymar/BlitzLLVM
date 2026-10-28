@@ -17,10 +17,10 @@
 GadgetItemText:String gadget:Int32, index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
-| `index` | Int32 | required | Number of the entry, starting at 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of a list box, combo box or tabber. |
+| `index` | In | Int32 | required | Number of the entry, starting at 0. |
 
 **Returns:** The text of that entry.
 

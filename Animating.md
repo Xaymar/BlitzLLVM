@@ -17,9 +17,9 @@
 Animating:Int32 entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
 
 **Returns:** True while the entity is playing an animation, and False when it is stopped, has finished a one-shot animation or has no animation at all.
 

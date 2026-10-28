@@ -17,10 +17,10 @@
 EntityInView:Int32 entity:Int32, camera:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `camera` | Int32 | required | Camera handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `camera` | In | Int32 | required | Camera handle. |
 
 **Returns:** 1 if the entity is visible to the camera, otherwise 0.
 

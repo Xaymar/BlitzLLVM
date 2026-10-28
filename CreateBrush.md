@@ -17,11 +17,11 @@
 CreateBrush:Int32 red:Float32=255, green:Float32=255, blue:Float32=255
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `red` | Float32 | `255` | Red part, 0 to 255. Defaults to 255. |
-| `green` | Float32 | `255` | Green part, 0 to 255. Defaults to 255. |
-| `blue` | Float32 | `255` | Blue part, 0 to 255. Defaults to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `red` | In | Float32 | `255` | Red part, 0 to 255. Defaults to 255. |
+| `green` | In | Float32 | `255` | Green part, 0 to 255. Defaults to 255. |
+| `blue` | In | Float32 | `255` | Blue part, 0 to 255. Defaults to 255. |
 
 **Returns:** A brush handle.
 

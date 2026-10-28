@@ -17,9 +17,9 @@
 NetPlayerName:String player:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `player` | Int32 | required | The player number. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `player` | In | Int32 | required | The player number. |
 
 **Returns:** The name of a player. The player number 0 gives `<all>` and one that does not exist gives `<unknown>`.
 

@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-Graphics3D width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
+Graphics3D:Void width:Int32, height:Int32, depth:Int32=0, mode:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `width` | Int32 | required | Width of the picture in pixels. |
-| `height` | Int32 | required | Height of the picture in pixels. |
-| `depth` | Int32 | `0` | Color depth, which picks the format of the buffers: 24 for R8G8B8X8, 30 for R10G10B10A2, 32 for R8G8B8A8 and 64 for R16G16B16A16 (half precision floats, never integers). 0 gives 32. Defaults to 0. |
-| `mode` | Int32 | `0` | Window or full screen as in the table. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `width` | In | Int32 | required | Width of the picture in pixels. |
+| `height` | In | Int32 | required | Height of the picture in pixels. |
+| `depth` | In | Int32 | `0` | Color depth, which picks the format of the buffers: 24 for R8G8B8X8, 30 for R10G10B10A2, 32 for R8G8B8A8 and 64 for R16G16B16A16 (half precision floats, never integers). 0 gives 32. Defaults to 0. |
+| `mode` | In | Int32 | `0` | Window or full screen as in the table. Defaults to 0. |
 
 ## Description
 

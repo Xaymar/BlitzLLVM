@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-ClearTextureFilters
+ClearTextureFilters:Void
 ```
 
 ## Description

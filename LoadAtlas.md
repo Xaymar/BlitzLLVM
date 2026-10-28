@@ -16,11 +16,11 @@
 LoadAtlas:Int32 file:String, flags:Int32=1, gutter:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Picture file that contains all tiles. |
-| `flags` | Int32 | `1` | Texture flags, see LoadTexture. Defaults to 1. |
-| `gutter` | Int32 | `0` | Pixels of repeated edge color around every tile in the picture. Defaults to 0, which means there are none. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | Picture file that contains all tiles. |
+| `flags` | In | Int32 | `1` | Texture flags, see LoadTexture. Defaults to 1. |
+| `gutter` | In | Int32 | `0` | Pixels of repeated edge color around every tile in the picture. Defaults to 0, which means there are none. |
 
 **Returns:** A texture handle, or 0 if the file could not be loaded.
 

@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-Print string:String=\
+Print:Void string:String=\
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | `\` | The text to write. Defaults to an empty line. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | `\` | The text to write. Defaults to an empty line. |
 
 ## Description
 

@@ -17,10 +17,10 @@
 EmitSound:Int32 sound:Int32, entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A sound handle. |
-| `entity` | Int32 | required | The entity the sound comes from. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sound` | In | Int32 | required | A sound handle. |
+| `entity` | In | Int32 | required | The entity the sound comes from. |
 
 **Returns:** A channel handle for the playing sound.
 

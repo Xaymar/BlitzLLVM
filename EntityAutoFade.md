@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-EntityAutoFade entity:Int32, near:Float32, far:Float32
+EntityAutoFade:Void entity:Int32, near:Float32, far:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `near` | Float32 | required | Distance where fading starts. |
-| `far` | Float32 | required | Distance where the entity is gone. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `near` | In | Float32 | required | Distance where fading starts. |
+| `far` | In | Float32 | required | Distance where the entity is gone. |
 
 ## Description
 

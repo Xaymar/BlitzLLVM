@@ -14,17 +14,17 @@
 
 
 ```blitzbasic
-AnimateMD2 md2:Int32, mode:Int32=1, speed:Float32=1, first_frame:Int32=0, last_frame:Int32=9999, transition:Float32=0
+AnimateMD2:Void md2:Int32, mode:Int32=1, speed:Float32=1, first_frame:Int32=0, last_frame:Int32=9999, transition:Float32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `md2` | Int32 | required | The MD2 entity. |
-| `mode` | Int32 | `1` | 0 to 3. Defaults to 1. |
-| `speed` | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
-| `first_frame` | Int32 | `0` | First frame of the clip. Defaults to 0. |
-| `last_frame` | Int32 | `9999` | Last frame of the clip. Defaults to the last frame of the model. |
-| `transition` | Float32 | `0` | Frames of blending into the first frame. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `md2` | In | Int32 | required | The MD2 entity. |
+| `mode` | In | Int32 | `1` | 0 to 3. Defaults to 1. |
+| `speed` | In | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
+| `first_frame` | In | Int32 | `0` | First frame of the clip. Defaults to 0. |
+| `last_frame` | In | Int32 | `9999` | Last frame of the clip. Defaults to the last frame of the model. |
+| `transition` | In | Float32 | `0` | Frames of blending into the first frame. Defaults to 0. |
 
 ## Description
 

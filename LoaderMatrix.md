@@ -14,21 +14,21 @@
 
 
 ```blitzbasic
-LoaderMatrix file_ext:String, xx:Float32, xy:Float32, xz:Float32, yx:Float32, yy:Float32, yz:Float32, zx:Float32, zy:Float32, zz:Float32
+LoaderMatrix:Void file_ext:String, xx:Float32, xy:Float32, xz:Float32, yx:Float32, yy:Float32, yz:Float32, zx:Float32, zy:Float32, zz:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file_ext` | String | required | File extension the matrix is for, for example `x` or `3ds`. |
-| `xx` | Float32 | required | Matrix value, row 1, column 1. |
-| `xy` | Float32 | required | Matrix value, row 1, column 2. |
-| `xz` | Float32 | required | Matrix value, row 1, column 3. |
-| `yx` | Float32 | required | Matrix value, row 2, column 1. |
-| `yy` | Float32 | required | Matrix value, row 2, column 2. |
-| `yz` | Float32 | required | Matrix value, row 2, column 3. |
-| `zx` | Float32 | required | Matrix value, row 3, column 1. |
-| `zy` | Float32 | required | Matrix value, row 3, column 2. |
-| `zz` | Float32 | required | Matrix value, row 3, column 3. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file_ext` | In | String | required | File extension the matrix is for, for example `x` or `3ds`. |
+| `xx` | In | Float32 | required | Matrix value, row 1, column 1. |
+| `xy` | In | Float32 | required | Matrix value, row 1, column 2. |
+| `xz` | In | Float32 | required | Matrix value, row 1, column 3. |
+| `yx` | In | Float32 | required | Matrix value, row 2, column 1. |
+| `yy` | In | Float32 | required | Matrix value, row 2, column 2. |
+| `yz` | In | Float32 | required | Matrix value, row 2, column 3. |
+| `zx` | In | Float32 | required | Matrix value, row 3, column 1. |
+| `zy` | In | Float32 | required | Matrix value, row 3, column 2. |
+| `zz` | In | Float32 | required | Matrix value, row 3, column 3. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 CountHostIPs:Int32 host_name:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `host_name` | String | required | A host name such as `localhost`, or an address as text. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `host_name` | In | String | required | A host name such as `localhost`, or an address as text. |
 
 **Returns:** The number of addresses.
 

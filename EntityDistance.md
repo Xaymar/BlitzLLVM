@@ -17,10 +17,10 @@
 EntityDistance:Float32 source_entity:Int32, destination_entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `source_entity` | Int32 | required | First entity handle. |
-| `destination_entity` | Int32 | required | Second entity handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `source_entity` | In | Int32 | required | First entity handle. |
+| `destination_entity` | In | Int32 | required | Second entity handle. |
 
 **Returns:** The distance between the world positions of two entities.
 

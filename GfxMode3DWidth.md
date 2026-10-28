@@ -17,9 +17,9 @@
 GfxMode3DWidth:Int32 mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mode` | Int32 | required | Number of the mode, 1 to [CountGfxModes3D](CountGfxModes3D). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mode` | In | Int32 | required | Number of the mode, 1 to [CountGfxModes3D](CountGfxModes3D). |
 
 **Returns:** The width in pixels.
 

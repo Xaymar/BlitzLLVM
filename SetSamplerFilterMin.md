@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetSamplerFilterMin sampler:Int32, mode:Int32
+SetSamplerFilterMin:Void sampler:Int32, mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to change. |
-| `mode` | Int32 | required | The filter mode from the table above. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to change. |
+| `mode` | In | Int32 | required | The filter mode from the table above. |
 
 ## Description
 

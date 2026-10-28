@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-PointEntity entity:Int32, target:Int32, roll:Float32=0
+PointEntity:Void entity:Int32, target:Int32, roll:Float32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `target` | Int32 | required | Entity to aim at. |
-| `roll` | Float32 | `0` | Roll angle of the result in degrees. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `target` | In | Int32 | required | Entity to aim at. |
+| `roll` | In | Float32 | `0` | Roll angle of the result in degrees. Defaults to 0. |
 
 ## Description
 

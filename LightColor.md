@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-LightColor light:Int32, red:Float32, green:Float32, blue:Float32
+LightColor:Void light:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `light` | Int32 | required | Light handle. |
-| `red` | Float32 | required | Red part of the light. |
-| `green` | Float32 | required | Green part of the light. |
-| `blue` | Float32 | required | Blue part of the light. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `light` | In | Int32 | required | Light handle. |
+| `red` | In | Float32 | required | Red part of the light. |
+| `green` | In | Float32 | required | Green part of the light. |
+| `blue` | In | Float32 | required | Blue part of the light. |
 
 ## Description
 

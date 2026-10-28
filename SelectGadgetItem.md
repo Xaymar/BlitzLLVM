@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SelectGadgetItem gadget:Int32, index:Int32
+SelectGadgetItem:Void gadget:Int32, index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a list box, combo box or tabber. |
-| `index` | Int32 | required | Number of the entry starting at 0, or -1 for no selection. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of a list box, combo box or tabber. |
+| `index` | In | Int32 | required | Number of the entry starting at 0, or -1 for no selection. |
 
 ## Description
 

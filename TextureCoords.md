@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-TextureCoords texture:Int32, coords:Int32
+TextureCoords:Void texture:Int32, coords:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture. |
-| `coords` | Int32 | required | 0 or 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture. |
+| `coords` | In | Int32 | required | 0 or 1. |
 
 ## Description
 

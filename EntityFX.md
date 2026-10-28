@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-EntityFX entity:Int32, fx:Int32
+EntityFX:Void entity:Int32, fx:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `fx` | Int32 | required | Sum of the effect flags, 0 for none. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `fx` | In | Int32 | required | Sum of the effect flags, 0 for none. |
 
 ## Description
 

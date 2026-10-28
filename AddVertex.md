@@ -17,15 +17,15 @@
 AddVertex:Int32 surface:Int32, x:Float32, y:Float32, z:Float32, u:Float32=0, v:Float32=0, w:Float32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `x` | Float32 | required | X position of the vertex. |
-| `y` | Float32 | required | Y position of the vertex. |
-| `z` | Float32 | required | Z position of the vertex. |
-| `u` | Float32 | `0` | Horizontal texture coordinate. Defaults to 0. |
-| `v` | Float32 | `0` | Vertical texture coordinate. Defaults to 0. |
-| `w` | Float32 | `1` | Third texture coordinate, unused. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `x` | In | Float32 | required | X position of the vertex. |
+| `y` | In | Float32 | required | Y position of the vertex. |
+| `z` | In | Float32 | required | Z position of the vertex. |
+| `u` | In | Float32 | `0` | Horizontal texture coordinate. Defaults to 0. |
+| `v` | In | Float32 | `0` | Vertical texture coordinate. Defaults to 0. |
+| `w` | In | Float32 | `1` | Third texture coordinate, unused. Defaults to 1. |
 
 **Returns:** The index of the new vertex, starting at 0.
 

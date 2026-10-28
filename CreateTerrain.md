@@ -17,10 +17,10 @@
 CreateTerrain:Int32 grid_size:Int32, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `grid_size` | Int32 | required | Number of grid squares along each side. |
-| `parent` | Int32 | `0` | Optional parent entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `grid_size` | In | Int32 | required | Number of grid squares along each side. |
+| `parent` | In | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the terrain.
 

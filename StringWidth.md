@@ -17,9 +17,9 @@
 StringWidth:Int32 string:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text to measure. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text to measure. |
 
 **Returns:** The width of the text.
 

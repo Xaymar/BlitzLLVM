@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-TileBlock image:Int32, x:Int32=0, y:Int32=0, frame:Int32=0
+TileBlock:Void image:Int32, x:Int32=0, y:Int32=0, frame:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to repeat. |
-| `x` | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
-| `y` | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
-| `frame` | Int32 | `0` | Which frame to use. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to repeat. |
+| `x` | In | Int32 | `0` | Horizontal offset of the pattern. Defaults to 0. |
+| `y` | In | Int32 | `0` | Vertical offset of the pattern. Defaults to 0. |
+| `frame` | In | Int32 | `0` | Which frame to use. Defaults to 0. |
 
 ## Description
 

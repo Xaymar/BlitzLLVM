@@ -17,9 +17,9 @@
 TextFieldText:String textfield:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textfield` | Int32 | required | Handle of a text field. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textfield` | In | Int32 | required | Handle of a text field. |
 
 **Returns:** The text in the field, even for a password field.
 

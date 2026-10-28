@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-WriteFloat stream:Int32, float:Float32
+WriteFloat:Void stream:Int32, float:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to write to. |
-| `float` | Float32 | required | The value to write. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `stream` | In | Int32 | required | The stream to write to. |
+| `float` | In | Float32 | required | The value to write. |
 
 ## Description
 

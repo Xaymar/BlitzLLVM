@@ -14,18 +14,18 @@
 
 
 ```blitzbasic
-WritePixel64 x:Int32, y:Int32, buffer:Int32=0, red:Float16, green:Float16, blue:Float16, alpha:Float16
+WritePixel64:Void x:Int32, y:Int32, buffer:Int32=0, red:Float16, green:Float16, blue:Float16, alpha:Float16
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the pixel. |
-| `y` | Int32 | required | Vertical position of the pixel. |
-| `buffer` | Int32 | `0` | The buffer to write to. Pass 0 for the current buffer. |
-| `red` | Float16 | required | The red of the color, as a Float16. |
-| `green` | Float16 | required | The green of the color, as a Float16. |
-| `blue` | Float16 | required | The blue of the color, as a Float16. |
-| `alpha` | Float16 | required | The alpha of the color, as a Float16. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the pixel. |
+| `y` | In | Int32 | required | Vertical position of the pixel. |
+| `buffer` | In | Int32 | `0` | The buffer to write to. Pass 0 for the current buffer. |
+| `red` | In | Float16 | required | The red of the color, as a Float16. |
+| `green` | In | Float16 | required | The green of the color, as a Float16. |
+| `blue` | In | Float16 | required | The blue of the color, as a Float16. |
+| `alpha` | In | Float16 | required | The alpha of the color, as a Float16. |
 
 ## Description
 

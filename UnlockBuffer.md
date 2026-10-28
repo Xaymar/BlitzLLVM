@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-UnlockBuffer buffer:Int32=0
+UnlockBuffer:Void buffer:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | `0` | The buffer to unlock. Defaults to the current buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `buffer` | In | Int32 | `0` | The buffer to unlock. Defaults to the current buffer. |
 
 ## Description
 

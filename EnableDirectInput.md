@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-EnableDirectInput enable:Int32
+EnableDirectInput:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | 1 to switch it on, 0 to switch it off. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | 1 to switch it on, 0 to switch it off. |
 
 ## Description
 

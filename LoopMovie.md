@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-LoopMovie movie:Int32, loop:Int32=1
+LoopMovie:Void movie:Int32, loop:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
-| `loop` | Int32 | `1` | 1 to loop the movie, 0 to play it once. The default is 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `movie` | In | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
+| `loop` | In | Int32 | `1` | 1 to loop the movie, 0 to play it once. The default is 1. |
 
 ## Description
 

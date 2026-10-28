@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-CameraClsColor camera:Int32, red:Float32, green:Float32, blue:Float32
+CameraClsColor:Void camera:Int32, red:Float32, green:Float32, blue:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `red` | Float32 | required | Red part, 0 to 255. |
-| `green` | Float32 | required | Green part, 0 to 255. |
-| `blue` | Float32 | required | Blue part, 0 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `red` | In | Float32 | required | Red part, 0 to 255. |
+| `green` | In | Float32 | required | Green part, 0 to 255. |
+| `blue` | In | Float32 | required | Blue part, 0 to 255. |
 
 ## Description
 

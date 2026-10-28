@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-DeleteFile file:String
+DeleteFile:Void file:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The file to delete. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | The file to delete. |
 
 ## Description
 

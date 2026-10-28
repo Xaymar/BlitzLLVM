@@ -17,11 +17,11 @@
 OpenTCPStream:Int32 server:String, server_port:Int32, local_port:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `server` | String | required | The address of the server, as a name or as dotted numbers. |
-| `server_port` | Int32 | required | The port the server listens on. |
-| `local_port` | Int32 | `0` | The port to connect from. Defaults to 0, which lets the system pick one. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `server` | In | String | required | The address of the server, as a name or as dotted numbers. |
+| `server_port` | In | Int32 | required | The port the server listens on. |
+| `local_port` | In | Int32 | `0` | The port to connect from. Defaults to 0, which lets the system pick one. |
 
 **Returns:** A TCP stream, or 0 when the connection could not be made.
 

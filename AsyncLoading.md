@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-AsyncLoading enabled:Int32
+AsyncLoading:Void enabled:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enabled` | Int32 | required | True to load on other threads, False to wait for every picture and model. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enabled` | In | Int32 | required | True to load on other threads, False to wait for every picture and model. |
 
 ## Description
 

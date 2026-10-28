@@ -17,9 +17,9 @@
 HostNetGame:Int32 game_name:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `game_name` | String | required | The name of the game. Joining programs have to use the same name. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `game_name` | In | String | required | The name of the game. Joining programs have to use the same name. |
 
 **Returns:** 2 when the game was started, 0 when it could not be, for example because the port is taken.
 

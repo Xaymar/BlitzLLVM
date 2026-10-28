@@ -17,10 +17,10 @@
 Rnd:Float32 from:Float32, to:Float32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `from` | Float32 | required | Lowest result, or the limit when `to` is left out. |
-| `to` | Float32 | `0` | The limit, never reached. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `from` | In | Float32 | required | Lowest result, or the limit when `to` is left out. |
+| `to` | In | Float32 | `0` | The limit, never reached. Defaults to 0. |
 
 **Returns:** A random float in the range.
 

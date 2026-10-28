@@ -14,17 +14,17 @@
 
 
 ```blitzbasic
-CopyPixel src_x:Int32, src_y:Int32, src_buffer:Int32, dest_x:Int32, dest_y:Int32, dest_buffer:Int32=0
+CopyPixel:Void src_x:Int32, src_y:Int32, src_buffer:Int32, dest_x:Int32, dest_y:Int32, dest_buffer:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_x` | Int32 | required | Horizontal position of the pixel to copy. |
-| `src_y` | Int32 | required | Vertical position of the pixel to copy. |
-| `src_buffer` | Int32 | required | The buffer to copy from. |
-| `dest_x` | Int32 | required | Horizontal position to copy to. |
-| `dest_y` | Int32 | required | Vertical position to copy to. |
-| `dest_buffer` | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `src_x` | In | Int32 | required | Horizontal position of the pixel to copy. |
+| `src_y` | In | Int32 | required | Vertical position of the pixel to copy. |
+| `src_buffer` | In | Int32 | required | The buffer to copy from. |
+| `dest_x` | In | Int32 | required | Horizontal position to copy to. |
+| `dest_y` | In | Int32 | required | Vertical position to copy to. |
+| `dest_buffer` | In | Int32 | `0` | The buffer to copy to. Defaults to the current buffer. |
 
 ## Description
 

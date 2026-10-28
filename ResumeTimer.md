@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-ResumeTimer timer:Int32
+ResumeTimer:Void timer:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timer` | Int32 | required | A timer from `CreateTimer`. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `timer` | In | Int32 | required | A timer from `CreateTimer`. |
 
 ## Description
 

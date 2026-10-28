@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-ChannelVolume channel:Int32, volume:Float32
+ChannelVolume:Void channel:Int32, volume:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-| `volume` | Float32 | required | 0 is silence and 1 is the full volume of the sound. Values outside that range are limited to it. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `channel` | In | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+| `volume` | In | Float32 | required | 0 is silence and 1 is the full volume of the sound. Values outside that range are limited to it. |
 
 ## Description
 

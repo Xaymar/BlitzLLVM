@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-RotateMesh mesh:Int32, pitch:Float32, yaw:Float32, roll:Float32
+RotateMesh:Void mesh:Int32, pitch:Float32, yaw:Float32, roll:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `pitch` | Float32 | required | Rotation around X in degrees. |
-| `yaw` | Float32 | required | Rotation around Y in degrees. |
-| `roll` | Float32 | required | Rotation around Z in degrees. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `pitch` | In | Float32 | required | Rotation around X in degrees. |
+| `yaw` | In | Float32 | required | Rotation around Y in degrees. |
+| `roll` | In | Float32 | required | Rotation around Z in degrees. |
 
 ## Description
 

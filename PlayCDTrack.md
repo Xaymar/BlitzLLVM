@@ -17,10 +17,10 @@
 PlayCDTrack:Int32 track:Int32, mode:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `track` | Int32 | required | The track number, counted from 1. |
-| `mode` | Int32 | `1` | 1 plays the track once (the default), 2 repeats it and 3 plays on to the end of the disc. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `track` | In | Int32 | required | The track number, counted from 1. |
+| `mode` | In | Int32 | `1` | 1 plays the track once (the default), 2 repeats it and 3 plays on to the end of the disc. |
 
 **Returns:** The channel of the track in the original. Always 0 here, as nothing is played.
 

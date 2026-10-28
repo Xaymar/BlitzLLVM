@@ -17,12 +17,12 @@
 RefreshRateAt:Int32 display:Int32, width:Int32, height:Int32, index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `display` | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
-| `width` | Int32 | required | The width in pixels of the size. |
-| `height` | Int32 | required | The height in pixels of the size. |
-| `index` | Int32 | required | The rate number, from 1 to [CountRefreshRates](CountRefreshRates). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `display` | In | Int32 | required | The display number, from 1 to [CountDisplays](CountDisplays). |
+| `width` | In | Int32 | required | The width in pixels of the size. |
+| `height` | In | Int32 | required | The height in pixels of the size. |
+| `index` | In | Int32 | required | The rate number, from 1 to [CountRefreshRates](CountRefreshRates). |
 
 **Returns:** The refresh rate in Hz, or 0 if there is no such rate.
 

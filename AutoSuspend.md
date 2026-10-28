@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-AutoSuspend enable:Int32
+AutoSuspend:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | 1 turns it on, 0 turns it off. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | 1 turns it on, 0 turns it off. |
 
 ## Description
 

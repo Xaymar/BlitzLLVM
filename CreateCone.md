@@ -17,11 +17,11 @@
 CreateCone:Int32 segments:Int32=8, solid:Int32=1, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `segments` | Int32 | `8` | Detail of the cone, 3 to 100. Defaults to 8. |
-| `solid` | Int32 | `1` | 1 for a cone with a base, 0 for an open one. Defaults to 1. |
-| `parent` | Int32 | `0` | Entity the cone follows, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `segments` | In | Int32 | `8` | Detail of the cone, 3 to 100. Defaults to 8. |
+| `solid` | In | Int32 | `1` | 1 for a cone with a base, 0 for an open one. Defaults to 1. |
+| `parent` | In | Int32 | `0` | Entity the cone follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new cone.
 

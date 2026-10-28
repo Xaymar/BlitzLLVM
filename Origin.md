@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-Origin x:Int32, y:Int32
+Origin:Void x:Int32, y:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the new origin in the buffer. |
-| `y` | Int32 | required | Vertical position of the new origin in the buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the new origin in the buffer. |
+| `y` | In | Int32 | required | Vertical position of the new origin in the buffer. |
 
 ## Description
 

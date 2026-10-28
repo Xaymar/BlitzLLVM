@@ -17,10 +17,10 @@
 ATan2:Float32 floata:Float32, floatb:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `floata` | Float32 | required | The vertical distance (y). |
-| `floatb` | Float32 | required | The horizontal distance (x). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `floata` | In | Float32 | required | The vertical distance (y). |
+| `floatb` | In | Float32 | required | The horizontal distance (x). |
 
 **Returns:** The angle in degrees.
 

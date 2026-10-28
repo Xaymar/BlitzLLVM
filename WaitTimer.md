@@ -17,9 +17,9 @@
 WaitTimer:Int32 timer:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timer` | Int32 | required | The timer handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `timer` | In | Int32 | required | The timer handle. |
 
 **Returns:** The number of ticks since the last call, at least 1.
 

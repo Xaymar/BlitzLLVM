@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-AutoMidHandle enable:Int32
+AutoMidHandle:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True to center the handle of new images, False to put it in the top left corner (the default). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | True to center the handle of new images, False to put it in the top left corner (the default). |
 
 ## Description
 

@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-ClearSurface surface:Int32, clear_vertices:Int32=1, clear_triangles:Int32=1
+ClearSurface:Void surface:Int32, clear_vertices:Int32=1, clear_triangles:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `clear_vertices` | Int32 | `1` | 1 to remove the vertices. Defaults to 1. |
-| `clear_triangles` | Int32 | `1` | 1 to remove the triangles. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `clear_vertices` | In | Int32 | `1` | 1 to remove the vertices. Defaults to 1. |
+| `clear_triangles` | In | Int32 | `1` | 1 to remove the triangles. Defaults to 1. |
 
 ## Description
 

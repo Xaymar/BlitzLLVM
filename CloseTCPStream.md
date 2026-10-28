@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-CloseTCPStream tcp_stream:Int32
+CloseTCPStream:Void tcp_stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `tcp_stream` | Int32 | required | The stream to close. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `tcp_stream` | In | Int32 | required | The stream to close. |
 
 ## Description
 

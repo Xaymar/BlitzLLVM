@@ -17,9 +17,9 @@
 MenuEnabled:Int32 menu:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `menu` | Int32 | required | Handle of a menu or item. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `menu` | In | Int32 | required | Handle of a menu or item. |
 
 **Returns:** 1 if it can be chosen, 0 if it was disabled.
 

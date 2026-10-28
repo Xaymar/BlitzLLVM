@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-AddTextAreaText textarea:Int32, text:String
+AddTextAreaText:Void textarea:Int32, text:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `text` | String | required | Text to append. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
+| `text` | In | String | required | Text to append. |
 
 ## Description
 

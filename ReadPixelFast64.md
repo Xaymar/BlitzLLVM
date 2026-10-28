@@ -17,15 +17,15 @@
 ReadPixelFast64:Int64 x:Int32, y:Int32, buffer:Int32=0, Out red:Float16=0, Out green:Float16=0, Out blue:Float16=0, Out alpha:Float16=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the pixel. |
-| `y` | Int32 | required | Vertical position of the pixel. |
-| `buffer` | Int32 | `0` | The locked buffer to read from. Defaults to the current buffer. |
-| `red` | Out Float16 | `0` | Variable of type Float16 that gets the red of the pixel, from 0 to 1. Can be left out. |
-| `green` | Out Float16 | `0` | Variable of type Float16 that gets the green of the pixel, from 0 to 1. Can be left out. |
-| `blue` | Out Float16 | `0` | Variable of type Float16 that gets the blue of the pixel, from 0 to 1. Can be left out. |
-| `alpha` | Out Float16 | `0` | Variable of type Float16 that gets the alpha of the pixel, from 0 to 1. Can be left out. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the pixel. |
+| `y` | In | Int32 | required | Vertical position of the pixel. |
+| `buffer` | In | Int32 | `0` | The locked buffer to read from. Defaults to the current buffer. |
+| `red` | Out | Float16 | `0` | Variable of type Float16 that gets the red of the pixel, from 0 to 1. Can be left out. |
+| `green` | Out | Float16 | `0` | Variable of type Float16 that gets the green of the pixel, from 0 to 1. Can be left out. |
+| `blue` | Out | Float16 | `0` | Variable of type Float16 that gets the blue of the pixel, from 0 to 1. Can be left out. |
+| `alpha` | Out | Float16 | `0` | Variable of type Float16 that gets the alpha of the pixel, from 0 to 1. Can be left out. |
 
 **Returns:** The pixel as the buffer stores it, 8 bytes with the first byte in the lowest bits (for the depth 64 that is the red, green, blue and alpha half floats), or 0 if the position is outside of the buffer.
 

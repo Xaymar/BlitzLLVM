@@ -14,17 +14,17 @@
 
 
 ```blitzbasic
-VertexColor surface:Int32, index:Int32, red:Float32, green:Float32, blue:Float32, alpha:Float32=1
+VertexColor:Void surface:Int32, index:Int32, red:Float32, green:Float32, blue:Float32, alpha:Float32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required | Index of the vertex, from 0. |
-| `red` | Float32 | required | Red part, 0 to 255. |
-| `green` | Float32 | required | Green part, 0 to 255. |
-| `blue` | Float32 | required | Blue part, 0 to 255. |
-| `alpha` | Float32 | `1` | Opacity, 0 to 1. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `index` | In | Int32 | required | Index of the vertex, from 0. |
+| `red` | In | Float32 | required | Red part, 0 to 255. |
+| `green` | In | Float32 | required | Green part, 0 to 255. |
+| `blue` | In | Float32 | required | Blue part, 0 to 255. |
+| `alpha` | In | Float32 | `1` | Opacity, 0 to 1. Defaults to 1. |
 
 ## Description
 

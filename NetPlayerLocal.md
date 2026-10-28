@@ -17,9 +17,9 @@
 NetPlayerLocal:Int32 player:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `player` | Int32 | required | The player number. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `player` | In | Int32 | required | The player number. |
 
 **Returns:** 1 when a player belongs to this program and 0 when it belongs to another one or does not exist.
 

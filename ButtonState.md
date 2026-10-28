@@ -17,9 +17,9 @@
 ButtonState:Int32 button:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `button` | Int32 | required | Handle of a button made with style 2 or 3. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `button` | In | Int32 | required | Handle of a button made with style 2 or 3. |
 
 **Returns:** 1 if it is ticked, 0 if not.
 

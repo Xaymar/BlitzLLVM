@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-ClsColor red:Int32, green:Int32, blue:Int32
+ClsColor:Void red:Int32, green:Int32, blue:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `red` | Int32 | required | Red part, 0 to 255. |
-| `green` | Int32 | required | Green part, 0 to 255. |
-| `blue` | Int32 | required | Blue part, 0 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `red` | In | Int32 | required | Red part, 0 to 255. |
+| `green` | In | Int32 | required | Green part, 0 to 255. |
+| `blue` | In | Int32 | required | Blue part, 0 to 255. |
 
 ## Description
 

@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-EntityType entity:Int32, collision_type:Int32, recursive:Int32=0
+EntityType:Void entity:Int32, collision_type:Int32, recursive:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
-| `collision_type` | Int32 | required | Collision type, 0 to 999. |
-| `recursive` | Int32 | `0` | True to give the type to all children as well. Defaults to False. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
+| `collision_type` | In | Int32 | required | Collision type, 0 to 999. |
+| `recursive` | In | Int32 | `0` | True to give the type to all children as well. Defaults to False. |
 
 ## Description
 

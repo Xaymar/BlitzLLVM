@@ -17,9 +17,9 @@
 GammaGreen:Float32 green:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `green` | Int32 | required | The input value, 0 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `green` | In | Int32 | required | The input value, 0 to 255. |
 
 **Returns:** The output value for the input.
 

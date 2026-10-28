@@ -17,9 +17,9 @@
 CopyImage:Int32 image:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to copy. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to copy. |
 
 **Returns:** A handle for the new image.
 

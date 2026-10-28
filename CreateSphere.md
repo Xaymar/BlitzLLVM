@@ -17,10 +17,10 @@
 CreateSphere:Int32 segments:Int32=8, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `segments` | Int32 | `8` | Detail of the sphere, 2 to 100. Defaults to 8. |
-| `parent` | Int32 | `0` | Entity the sphere follows, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `segments` | In | Int32 | `8` | Detail of the sphere, 2 to 100. Defaults to 8. |
+| `parent` | In | Int32 | `0` | Entity the sphere follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new sphere.
 

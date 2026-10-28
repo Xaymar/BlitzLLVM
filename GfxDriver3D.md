@@ -17,9 +17,9 @@
 GfxDriver3D:Int32 driver:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `driver` | Int32 | required | Number of the driver, from 1 to the number that [CountGfxDrivers](CountGfxDrivers) reports. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `driver` | In | Int32 | required | Number of the driver, from 1 to the number that [CountGfxDrivers](CountGfxDrivers) reports. |
 
 **Returns:** True if the driver can draw 3D pictures.
 

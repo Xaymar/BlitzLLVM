@@ -17,10 +17,10 @@
 FindSurface:Int32 mesh:Int32, brush:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `brush` | Int32 | required | Brush handle to look for. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `brush` | In | Int32 | required | Brush handle to look for. |
 
 **Returns:** The handle of the surface, or 0 if there is none.
 

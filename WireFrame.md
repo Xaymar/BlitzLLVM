@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-WireFrame enable:Int32
+WireFrame:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True for wireframe, False for solid. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | True for wireframe, False for solid. |
 
 ## Description
 

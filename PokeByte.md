@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-PokeByte bank:Int32, offset:Int32, value:Int32
+PokeByte:Void bank:Int32, offset:Int32, value:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to write to. |
-| `offset` | Int32 | required | Position in bytes. |
-| `value` | Int32 | required | The value to store. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bank` | In | Int32 | required | The bank to write to. |
+| `offset` | In | Int32 | required | Position in bytes. |
+| `value` | In | Int32 | required | The value to store. |
 
 ## Description
 

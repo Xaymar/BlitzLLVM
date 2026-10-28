@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-UpdateWorld elapsed_time:Float32=1
+UpdateWorld:Void elapsed_time:Float32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `elapsed_time` | Float32 | `1` | Animation speed of the whole world: 1 plays animations at their own speed, 2 at double speed, 0.5 at half. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `elapsed_time` | In | Float32 | `1` | Animation speed of the whole world: 1 plays animations at their own speed, 2 at double speed, 0.5 at half. Defaults to 1. |
 
 ## Description
 

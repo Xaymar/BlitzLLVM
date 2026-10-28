@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-UnlockTextArea textarea:Int32
+UnlockTextArea:Void textarea:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
 
 ## Description
 

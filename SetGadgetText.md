@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetGadgetText gadget:Int32, text:String
+SetGadgetText:Void gadget:Int32, text:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `gadget` | Int32 | required | Handle of a gadget that has text. |
-| `text` | String | required | The new text. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `gadget` | In | Int32 | required | Handle of a gadget that has text. |
+| `text` | In | String | required | The new text. |
 
 ## Description
 

@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeSampler sampler:Int32
+FreeSampler:Void sampler:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to delete. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to delete. |
 
 ## Description
 

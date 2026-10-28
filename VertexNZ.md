@@ -17,10 +17,10 @@
 VertexNZ:Float32 surface:Int32, index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required | Index of the vertex, from 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `index` | In | Int32 | required | Index of the vertex, from 0. |
 
 **Returns:** The Z part of the normal of the vertex.
 

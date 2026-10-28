@@ -17,9 +17,9 @@
 WaitEvent:Int32 timeout:Int32=-1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timeout` | Int32 | `-1` | Longest time to wait in milliseconds. -1 waits forever, 0 does not wait. Defaults to -1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `timeout` | In | Int32 | `-1` | Longest time to wait in milliseconds. -1 waits forever, 0 does not wait. Defaults to -1. |
 
 **Returns:** The kind of the event, or 0 if the time ran out.
 

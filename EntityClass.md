@@ -17,9 +17,9 @@
 EntityClass:String entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
 
 **Returns:** One of `Pivot`, `Light`, `Camera`, `Mirror`, `Listener`, `Sprite`, `Terrain`, `Plane`, `Mesh`, `MD2` or `BSP`.
 

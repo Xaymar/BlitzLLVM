@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-MaskImage image:Int32, red:Int32, green:Int32, blue:Int32
+MaskImage:Void image:Int32, red:Int32, green:Int32, blue:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `red` | Int32 | required | Red part of the mask color, 0 to 255. |
-| `green` | Int32 | required | Green part of the mask color, 0 to 255. |
-| `blue` | Int32 | required | Blue part of the mask color, 0 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `red` | In | Int32 | required | Red part of the mask color, 0 to 255. |
+| `green` | In | Int32 | required | Green part of the mask color, 0 to 255. |
+| `blue` | In | Int32 | required | Blue part of the mask color, 0 to 255. |
 
 ## Description
 

@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-SetFont font:Int32
+SetFont:Void font:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `font` | Int32 | required | A handle from [LoadFont](LoadFont). 0 goes back to the built-in font. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `font` | In | Int32 | required | A handle from [LoadFont](LoadFont). 0 goes back to the built-in font. |
 
 ## Description
 

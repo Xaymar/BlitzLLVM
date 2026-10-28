@@ -17,9 +17,9 @@
 CreateBank:Int32 size:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `size` | Int32 | `0` | Size in bytes. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `size` | In | Int32 | `0` | Size in bytes. Defaults to 0. |
 
 **Returns:** A bank handle.
 

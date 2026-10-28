@@ -17,11 +17,11 @@
 CameraPick:Int32 camera:Int32, viewport_x:Float32, viewport_y:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | The camera whose view is used. |
-| `viewport_x` | Float32 | required | Horizontal pixel position inside the camera's viewport. |
-| `viewport_y` | Float32 | required | Vertical pixel position inside the camera's viewport. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | The camera whose view is used. |
+| `viewport_x` | In | Float32 | required | Horizontal pixel position inside the camera's viewport. |
+| `viewport_y` | In | Float32 | required | Vertical pixel position inside the camera's viewport. |
 
 **Returns:** The entity found, or 0 if there was none.
 

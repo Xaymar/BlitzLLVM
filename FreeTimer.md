@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeTimer timer:Int32
+FreeTimer:Void timer:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `timer` | Int32 | required | The timer handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `timer` | In | Int32 | required | The timer handle. |
 
 ## Description
 

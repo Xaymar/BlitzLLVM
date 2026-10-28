@@ -17,9 +17,9 @@
 FontSize:Int32 font:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `font` | Int32 | required | A font handle from `LoadFont` or [RequestFont](RequestFont). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `font` | In | Int32 | required | A font handle from `LoadFont` or [RequestFont](RequestFont). |
 
 **Returns:** The size in points.
 

@@ -17,9 +17,9 @@
 RequestFile:String prompt:String=\
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `prompt` | String | `\` |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `prompt` | In | String | `\` |  |
 
 **Returns:** The full path of the file, or an empty string if nothing was picked.
 

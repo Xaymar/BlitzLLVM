@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-ResetEntity entity:Int32
+ResetEntity:Void entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity. |
 
 ## Description
 

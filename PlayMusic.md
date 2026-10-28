@@ -17,9 +17,9 @@
 PlayMusic:Int32 midifile:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `midifile` | String | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `midifile` | In | String | required |  |
 
 **Returns:** The channel the music plays on, or 0 if the file could not be played.
 

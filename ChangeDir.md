@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-ChangeDir dir:String
+ChangeDir:Void dir:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | String | required | The folder to go to. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `dir` | In | String | required | The folder to go to. |
 
 ## Description
 

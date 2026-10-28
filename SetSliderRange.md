@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-SetSliderRange slider:Int32, visible:Int32, total:Int32
+SetSliderRange:Void slider:Int32, visible:Int32, total:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `slider` | Int32 | required | Handle of a slider. |
-| `visible` | Int32 | required | How much is seen at once. |
-| `total` | Int32 | required | How much there is altogether. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `slider` | In | Int32 | required | Handle of a slider. |
+| `visible` | In | Int32 | required | How much is seen at once. |
+| `total` | In | Int32 | required | How much there is altogether. |
 
 ## Description
 

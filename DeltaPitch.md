@@ -17,10 +17,10 @@
 DeltaPitch:Float32 src_entity:Int32, dest_entity:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_entity` | Int32 | required | The entity that should tilt. |
-| `dest_entity` | Int32 | required | The entity it should look at. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `src_entity` | In | Int32 | required | The entity that should tilt. |
+| `dest_entity` | In | Int32 | required | The entity it should look at. |
 
 **Returns:** The tilt needed, in degrees.
 

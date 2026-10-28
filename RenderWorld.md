@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-RenderWorld tween:Float32=1
+RenderWorld:Void tween:Float32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `tween` | Float32 | `1` | How far between the captured state (0) and the current state (1) to draw. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `tween` | In | Float32 | `1` | How far between the captured state (0) and the current state (1) to draw. Defaults to 1. |
 
 ## Description
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetCubeMode texture:Int32, mode:Int32
+SetCubeMode:Void texture:Int32, mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The cube map texture. |
-| `mode` | Int32 | required | 1, 2 or 3, plus 4 for the space of the camera. The default is 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The cube map texture. |
+| `mode` | In | Int32 | required | 1, 2 or 3, plus 4 for the space of the camera. The default is 1. |
 
 ## Description
 

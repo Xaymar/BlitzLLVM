@@ -17,12 +17,12 @@
 WriteBytes:Int32 bank:Int32, file:Int32, offset:Int32, count:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to read from. |
-| `file` | Int32 | required | A file opened for writing. |
-| `offset` | Int32 | required | Where in the bank the first byte is. |
-| `count` | Int32 | required | How many bytes to write. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bank` | In | Int32 | required | The bank to read from. |
+| `file` | In | Int32 | required | A file opened for writing. |
+| `offset` | In | Int32 | required | Where in the bank the first byte is. |
+| `count` | In | Int32 | required | How many bytes to write. |
 
 **Returns:** The number of bytes that were written.
 

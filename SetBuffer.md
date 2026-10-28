@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-SetBuffer buffer:Int32
+SetBuffer:Void buffer:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | required | A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `buffer` | In | Int32 | required | A buffer from [BackBuffer](BackBuffer), [FrontBuffer](FrontBuffer), [ImageBuffer](ImageBuffer) or `TextureBuffer`. |
 
 **Returns:** BlitzPlus only: the buffer that was set before, so it can be set again later. Blitz3D gives nothing back.
 

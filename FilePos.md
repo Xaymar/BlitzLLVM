@@ -17,9 +17,9 @@
 FilePos:Int32 file_stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file_stream` | Int32 | required | The file handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file_stream` | In | Int32 | required | The file handle. |
 
 **Returns:** The position in the file where the next read or write happens, counted in bytes from the start. A newly opened file is at 0.
 

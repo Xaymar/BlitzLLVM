@@ -17,9 +17,9 @@
 JoyZDir:Int32 port:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `port` | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `port` | In | Int32 | `0` | The joystick to ask, counted from 0. Defaults to 0. |
 
 **Returns:** -1, 0 or 1.
 

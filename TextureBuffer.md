@@ -17,10 +17,10 @@
 TextureBuffer:Int32 texture:Int32, frame:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture. |
-| `frame` | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture. |
+| `frame` | In | Int32 | `0` | Frame of an animated texture. Defaults to 0. |
 
 **Returns:** A buffer handle for SetBuffer, SaveBuffer, CopyRect and the pixel commands. Every frame has its own buffer; a frame that the texture does not have gives 0.
 

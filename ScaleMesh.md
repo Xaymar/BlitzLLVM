@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-ScaleMesh mesh:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32
+ScaleMesh:Void mesh:Int32, x_scale:Float32, y_scale:Float32, z_scale:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `x_scale` | Float32 | required | Factor along X. |
-| `y_scale` | Float32 | required | Factor along Y. |
-| `z_scale` | Float32 | required | Factor along Z. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `x_scale` | In | Float32 | required | Factor along X. |
+| `y_scale` | In | Float32 | required | Factor along Y. |
+| `z_scale` | In | Float32 | required | Factor along Z. |
 
 ## Description
 

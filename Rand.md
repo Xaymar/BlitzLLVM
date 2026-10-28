@@ -17,10 +17,10 @@
 Rand:Int32 from:Int32, to:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `from` | Int32 | required | Lowest result, or the highest when `to` is left out. |
-| `to` | Int32 | `1` | Highest result. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `from` | In | Int32 | required | Lowest result, or the highest when `to` is left out. |
+| `to` | In | Int32 | `1` | Highest result. Defaults to 1. |
 
 **Returns:** A random integer in the range.
 

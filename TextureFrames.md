@@ -16,9 +16,9 @@
 TextureFrames:Int32 texture:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to ask about. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture to ask about. |
 
 **Returns:** The number of frames, at least 1.
 

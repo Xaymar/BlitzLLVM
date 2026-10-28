@@ -17,10 +17,10 @@
 JoinNetGame:Int32 game_name:String, ip_address:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `game_name` | String | required | The name of the game, which has to match the one given to [HostNetGame](HostNetGame). |
-| `ip_address` | String | required | The address of the host as dotted numbers, such as `192.168.1.20`. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `game_name` | In | String | required | The name of the game, which has to match the one given to [HostNetGame](HostNetGame). |
+| `ip_address` | In | String | required | The address of the host as dotted numbers, such as `192.168.1.20`. |
 
 **Returns:** 1 when the game was joined, 0 when it was not found or has another name.
 

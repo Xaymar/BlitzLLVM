@@ -17,9 +17,9 @@
 Hex:String value:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `value` | Int32 | required | The number to convert. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | In | Int32 | required | The number to convert. |
 
 **Returns:** A string of 8 digits, 0 to 9 and A to F.
 

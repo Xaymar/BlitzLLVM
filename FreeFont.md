@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeFont font:Int32
+FreeFont:Void font:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `font` | Int32 | required | The font to free. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `font` | In | Int32 | required | The font to free. |
 
 ## Description
 

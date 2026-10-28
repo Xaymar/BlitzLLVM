@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-ChannelPan channel:Int32, pan:Float32
+ChannelPan:Void channel:Int32, pan:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
-| `pan` | Float32 | required | -1 is only left, 0 the middle and 1 only right. Values outside that range are limited to it. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `channel` | In | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+| `pan` | In | Float32 | required | -1 is only left, 0 the middle and 1 only right. Values outside that range are limited to it. |
 
 ## Description
 

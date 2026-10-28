@@ -17,10 +17,10 @@
 EntityCollided:Int32 entity:Int32, type:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity that moved. |
-| `type` | Int32 | required | Collision type to look for. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity that moved. |
+| `type` | In | Int32 | required | Collision type to look for. |
 
 **Returns:** The first colliding entity of that type, or 0 if there was none.
 

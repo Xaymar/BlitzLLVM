@@ -17,9 +17,9 @@
 RequestDir:String prompt:String=\
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `prompt` | String | `\` | Text for the title of the dialog. Defaults to an empty string. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `prompt` | In | String | `\` | Text for the title of the dialog. Defaults to an empty string. |
 
 **Returns:** The full path of the folder, or an empty string if nothing was picked.
 

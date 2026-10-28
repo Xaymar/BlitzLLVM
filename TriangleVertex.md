@@ -17,11 +17,11 @@
 TriangleVertex:Int32 surface:Int32, index:Int32, vertex:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `index` | Int32 | required |  |
-| `vertex` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `index` | In | Int32 | required |  |
+| `vertex` | In | Int32 | required |  |
 
 **Returns:** The index of the vertex.
 

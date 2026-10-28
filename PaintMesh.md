@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-PaintMesh mesh:Int32, brush:Int32
+PaintMesh:Void mesh:Int32, brush:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `brush` | Int32 | required | Brush handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `brush` | In | Int32 | required | Brush handle. |
 
 ## Description
 

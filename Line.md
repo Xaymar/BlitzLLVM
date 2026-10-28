@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-Line x1:Int32, y1:Int32, x2:Int32, y2:Int32
+Line:Void x1:Int32, y1:Int32, x2:Int32, y2:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x1` | Int32 | required | Horizontal position of the start. |
-| `y1` | Int32 | required | Vertical position of the start. |
-| `x2` | Int32 | required | Horizontal position of the end. |
-| `y2` | Int32 | required | Vertical position of the end. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x1` | In | Int32 | required | Horizontal position of the start. |
+| `y1` | In | Int32 | required | Vertical position of the start. |
+| `x2` | In | Int32 | required | Horizontal position of the end. |
+| `y2` | In | Int32 | required | Vertical position of the end. |
 
 ## Description
 

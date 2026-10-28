@@ -17,11 +17,11 @@
 Mid:String string:String, start:Int32, count:Int32=-1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
-| `start` | Int32 | required | Position of the first character to take. |
-| `count` | Int32 | `-1` | How many characters to take. Defaults to all that are left. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text. |
+| `start` | In | Int32 | required | Position of the first character to take. |
+| `count` | In | Int32 | `-1` | How many characters to take. Defaults to all that are left. |
 
 **Returns:** The piece of the string.
 

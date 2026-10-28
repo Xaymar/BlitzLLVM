@@ -17,9 +17,9 @@
 SystemProperty:String property:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `property` | String | required | One of `tempdir`, `appdir`, `windowsdir` or `systemdir`. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `property` | In | String | required | One of `tempdir`, `appdir`, `windowsdir` or `systemdir`. |
 
 **Returns:** The path, or an empty string for a name that is not known.
 

@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-SetTextAreaText textarea:Int32, text:String, pos:Int32=0, len:Int32=-1, units:Int32=1
+SetTextAreaText:Void textarea:Int32, text:String, pos:Int32=0, len:Int32=-1, units:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `text` | String | required | The text to write. |
-| `pos` | Int32 | `0` |  |
-| `len` | Int32 | `-1` |  |
-| `units` | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
+| `text` | In | String | required | The text to write. |
+| `pos` | In | Int32 | `0` |  |
+| `len` | In | Int32 | `-1` |  |
+| `units` | In | Int32 | `1` | 1 counts characters, 2 counts lines. Defaults to 1. |
 
 ## Description
 

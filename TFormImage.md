@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-TFormImage image:Int32, a:Float32, b:Float32, c:Float32, d:Float32
+TFormImage:Void image:Int32, a:Float32, b:Float32, c:Float32, d:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `a` | Float32 | required | Horizontal part of the first column of the matrix. |
-| `b` | Float32 | required | Vertical part of the first column of the matrix. |
-| `c` | Float32 | required | Horizontal part of the second column of the matrix. |
-| `d` | Float32 | required | Vertical part of the second column of the matrix. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `a` | In | Float32 | required | Horizontal part of the first column of the matrix. |
+| `b` | In | Float32 | required | Vertical part of the first column of the matrix. |
+| `c` | In | Float32 | required | Horizontal part of the second column of the matrix. |
+| `d` | In | Float32 | required | Vertical part of the second column of the matrix. |
 
 ## Description
 

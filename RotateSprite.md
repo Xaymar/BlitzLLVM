@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-RotateSprite sprite:Int32, angle:Float32
+RotateSprite:Void sprite:Int32, angle:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sprite` | Int32 | required | The sprite. |
-| `angle` | Float32 | required | Roll angle in degrees. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sprite` | In | Int32 | required | The sprite. |
+| `angle` | In | Float32 | required | Roll angle in degrees. |
 
 ## Description
 

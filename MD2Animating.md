@@ -17,9 +17,9 @@
 MD2Animating:Int32 md2:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `md2` | Int32 | required | The MD2 entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `md2` | In | Int32 | required | The MD2 entity. |
 
 **Returns:** True while the MD2 model is playing an animation, otherwise False.
 

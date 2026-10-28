@@ -17,10 +17,10 @@
 PeekByte:Int32 bank:Int32, offset:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bank` | Int32 | required | The bank to read. |
-| `offset` | Int32 | required | Position in bytes. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bank` | In | Int32 | required | The bank to read. |
+| `offset` | In | Int32 | required | Position in bytes. |
 
 **Returns:** The byte at an offset, from 0 to 255.
 

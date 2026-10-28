@@ -17,9 +17,9 @@
 GetSamplerLodMax:Float32 sampler:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to ask. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to ask. |
 
 **Returns:** The setting: 0 or more, 1000 by default.
 

@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-CloseUDPStream udp_stream:Int32
+CloseUDPStream:Void udp_stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `udp_stream` | Int32 | required | The stream to close. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `udp_stream` | In | Int32 | required | The stream to close. |
 
 ## Description
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-CameraZoom camera:Int32, zoom:Float32
+CameraZoom:Void camera:Int32, zoom:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `zoom` | Float32 | required | Magnification, 1 by default. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `zoom` | In | Float32 | required | Magnification, 1 by default. |
 
 ## Description
 

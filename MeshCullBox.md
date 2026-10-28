@@ -14,18 +14,18 @@
 
 
 ```blitzbasic
-MeshCullBox mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
+MeshCullBox:Void mesh:Int32, x:Float32, y:Float32, z:Float32, width:Float32, height:Float32, depth:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `x` | Float32 | required | X of the box corner. |
-| `y` | Float32 | required | Y of the box corner. |
-| `z` | Float32 | required | Z of the box corner. |
-| `width` | Float32 | required | Size of the box along X. |
-| `height` | Float32 | required | Size of the box along Y. |
-| `depth` | Float32 | required | Size of the box along Z. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `x` | In | Float32 | required | X of the box corner. |
+| `y` | In | Float32 | required | Y of the box corner. |
+| `z` | In | Float32 | required | Z of the box corner. |
+| `width` | In | Float32 | required | Size of the box along X. |
+| `height` | In | Float32 | required | Size of the box along Y. |
+| `depth` | In | Float32 | required | Size of the box along Z. |
 
 ## Description
 

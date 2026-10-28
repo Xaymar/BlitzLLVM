@@ -17,11 +17,11 @@
 AddTreeViewNode:Int32 text:String, parent_node:Int32, icon:Int32=-1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | Text of the node. |
-| `parent_node` | Int32 | required |  |
-| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `text` | In | String | required | Text of the node. |
+| `parent_node` | In | Int32 | required |  |
+| `icon` | In | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
 
 **Returns:** A handle for the new node.
 

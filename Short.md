@@ -17,9 +17,9 @@
 Short:Int32 value:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `value` | Float32 | required | A number or a text with a number in it. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | In | Float32 | required | A number or a text with a number in it. |
 
 **Returns:** The Short.
 

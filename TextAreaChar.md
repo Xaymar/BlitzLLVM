@@ -17,10 +17,10 @@
 TextAreaChar:Int32 textarea:Int32, line:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `line` | Int32 | required | Number of the line, starting at 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
+| `line` | In | Int32 | required | Number of the line, starting at 0. |
 
 **Returns:** The position of the first character of that line, which can be used as the start of [TextAreaText](TextAreaText).
 

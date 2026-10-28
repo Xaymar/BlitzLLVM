@@ -17,10 +17,10 @@
 EntityPitch:Float32 entity:Int32, global:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `global` | Int32 | `0` | 1 for the angle in the world. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `global` | In | Int32 | `0` | 1 for the angle in the world. Defaults to 0. |
 
 **Returns:** Pitch angle of the entity, relative to its parent or with `global` set to 1 in the world.
 

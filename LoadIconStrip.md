@@ -17,9 +17,9 @@
 LoadIconStrip:Int32 file:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | Picture file with the icons. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | Picture file with the icons. |
 
 **Returns:** A handle for the icon strip.
 

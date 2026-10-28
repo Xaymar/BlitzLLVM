@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetSamplerLodMin sampler:Int32, lod:Float32
+SetSamplerLodMin:Void sampler:Int32, lod:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to change. |
-| `lod` | Float32 | required | The lowest level, 0 or more. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to change. |
+| `lod` | In | Float32 | required | The lowest level, 0 or more. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 ReadLine:String stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to read from. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `stream` | In | Int32 | required | The stream to read from. |
 
 **Returns:** The text of the line.
 

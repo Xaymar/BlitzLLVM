@@ -17,11 +17,11 @@
 VectorPitch:Float32 x:Float32, y:Float32, z:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Float32 | required | X of the direction. |
-| `y` | Float32 | required | Y of the direction. |
-| `z` | Float32 | required | Z of the direction. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Float32 | required | X of the direction. |
+| `y` | In | Float32 | required | Y of the direction. |
+| `z` | In | Float32 | required | Z of the direction. |
 
 **Returns:** The pitch angle in degrees.
 

@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetSamplerAddressModeU sampler:Int32, mode:Int32
+SetSamplerAddressModeU:Void sampler:Int32, mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to change. |
-| `mode` | Int32 | required | The address mode from the table above. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to change. |
+| `mode` | In | Int32 | required | The address mode from the table above. |
 
 ## Description
 

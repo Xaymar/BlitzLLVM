@@ -17,9 +17,9 @@
 ReadDir:Int32 dirname:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dirname` | String | required | The folder to list. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `dirname` | In | String | required | The folder to list. |
 
 **Returns:** A folder handle, or 0 when the folder does not exist.
 

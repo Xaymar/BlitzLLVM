@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-HWMultiTex enable:Int32
+HWMultiTex:Void enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `enable` | Int32 | required | True to use multitexturing when the card has it. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `enable` | In | Int32 | required | True to use multitexturing when the card has it. |
 
 ## Description
 

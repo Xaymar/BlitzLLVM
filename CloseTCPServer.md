@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-CloseTCPServer tcp_server:Int32
+CloseTCPServer:Void tcp_server:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `tcp_server` | Int32 | required | The server to close. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `tcp_server` | In | Int32 | required | The server to close. |
 
 ## Description
 

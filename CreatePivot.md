@@ -17,9 +17,9 @@
 CreatePivot:Int32 parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `parent` | Int32 | `0` | Entity the pivot follows, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `parent` | In | Int32 | `0` | Entity the pivot follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the new pivot.
 

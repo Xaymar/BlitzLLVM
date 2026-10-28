@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetStatusText window:Int32, text:String
+SetStatusText:Void window:Int32, text:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `window` | Int32 | required | Handle of a window made with flag 8. |
-| `text` | String | required | Text to show. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `window` | In | Int32 | required | Handle of a window made with flag 8. |
+| `text` | In | String | required | Text to show. |
 
 ## Description
 

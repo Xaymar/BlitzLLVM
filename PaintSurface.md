@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-PaintSurface surface:Int32, brush:Int32
+PaintSurface:Void surface:Int32, brush:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `brush` | Int32 | required | Brush handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `brush` | In | Int32 | required | Brush handle. |
 
 ## Description
 

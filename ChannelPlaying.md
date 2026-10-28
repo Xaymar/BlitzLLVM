@@ -17,9 +17,9 @@
 ChannelPlaying:Int32 channel:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `channel` | In | Int32 | required | A channel handle from [PlaySound](PlaySound) or [PlayMusic](PlayMusic). |
 
 **Returns:** 1 if the channel is playing or paused, otherwise 0.
 

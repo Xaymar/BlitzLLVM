@@ -17,9 +17,9 @@
 ImageXHandle:Int32 image:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
 
 **Returns:** The x position of the handle.
 

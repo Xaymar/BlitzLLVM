@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-Plot x:Int32, y:Int32
+Plot:Void x:Int32, y:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the pixel. |
-| `y` | Int32 | required | Vertical position of the pixel. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the pixel. |
+| `y` | In | Int32 | required | Vertical position of the pixel. |
 
 ## Description
 

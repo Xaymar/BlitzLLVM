@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-Notify text:String, serious:Int32=0
+Notify:Void text:String, serious:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | The message. |
-| `serious` | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `text` | In | String | required | The message. |
+| `serious` | In | Int32 | `0` | 1 for the warning symbol, 0 for information. Defaults to 0. |
 
 ## Description
 

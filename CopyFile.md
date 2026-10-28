@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-CopyFile file:String, to:String
+CopyFile:Void file:String, to:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The file to copy. |
-| `to` | String | required | The name of the copy. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | The file to copy. |
+| `to` | In | String | required | The name of the copy. |
 
 ## Description
 

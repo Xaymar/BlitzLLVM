@@ -17,9 +17,9 @@
 MD2AnimLength:Int32 md2:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `md2` | Int32 | required | The MD2 entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `md2` | In | Int32 | required | The MD2 entity. |
 
 **Returns:** The number of frames that the MD2 file contains in total.
 

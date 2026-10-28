@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-TextureBlend texture:Int32, blend:Int32
+TextureBlend:Void texture:Int32, blend:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to change. |
-| `blend` | Int32 | required | Blend mode from the table above. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture to change. |
+| `blend` | In | Int32 | required | Blend mode from the table above. |
 
 ## Description
 

@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-FlushJoy
+FlushJoy:Void
 ```
 
 ## Description

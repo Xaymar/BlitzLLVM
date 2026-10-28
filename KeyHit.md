@@ -17,9 +17,9 @@
 KeyHit:Int32 key:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `key` | Int32 | required | The scancode of the key, 1 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `key` | In | Int32 | required | The scancode of the key, 1 to 255. |
 
 **Returns:** How many times the key was pressed since the last call.
 

@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-TerrainDetail terrain:Int32, detail_level:Int32, morph:Int32=0
+TerrainDetail:Void terrain:Int32, detail_level:Int32, morph:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `terrain` | Int32 | required | The terrain. |
-| `detail_level` | Int32 | required | Number of triangles to use. |
-| `morph` | Int32 | `0` |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `terrain` | In | Int32 | required | The terrain. |
+| `detail_level` | In | Int32 | required | Number of triangles to use. |
+| `morph` | In | Int32 | `0` |  |
 
 ## Description
 

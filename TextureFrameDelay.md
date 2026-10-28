@@ -16,10 +16,10 @@
 TextureFrameDelay:Int32 texture:Int32, frame:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `texture` | Int32 | required | The texture to ask about. |
-| `frame` | Int32 | required | The frame, from 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `texture` | In | Int32 | required | The texture to ask about. |
+| `frame` | In | Int32 | required | The frame, from 0. |
 
 **Returns:** The time in milliseconds, or 0 for a texture that is not from an animated picture or a frame that it does not have.
 

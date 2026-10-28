@@ -13,13 +13,13 @@
 
 
 ```blitzbasic
-CameraCulling camera:Int32, flags:Int32
+CameraCulling:Void camera:Int32, flags:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `flags` | Int32 | required | 1 = frustum culling (default), 2 = culling of faces on the GPU (default off), 4 = with 2, also leave out the faces that look away on the GPU (default off). Other bits are ignored. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `flags` | In | Int32 | required | 1 = frustum culling (default), 2 = culling of faces on the GPU (default off), 4 = with 2, also leave out the faces that look away on the GPU (default off). Other bits are ignored. |
 
 ## Description
 

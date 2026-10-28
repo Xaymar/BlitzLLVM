@@ -14,15 +14,15 @@
 
 
 ```blitzbasic
-CameraProject camera:Int32, x:Float32, y:Float32, z:Float32
+CameraProject:Void camera:Int32, x:Float32, y:Float32, z:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `camera` | Int32 | required | Camera handle. |
-| `x` | Float32 | required | X coordinate in the world. |
-| `y` | Float32 | required | Y coordinate in the world. |
-| `z` | Float32 | required | Z coordinate in the world. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `camera` | In | Int32 | required | Camera handle. |
+| `x` | In | Float32 | required | X coordinate in the world. |
+| `y` | In | Float32 | required | Y coordinate in the world. |
+| `z` | In | Float32 | required | Z coordinate in the world. |
 
 ## Description
 

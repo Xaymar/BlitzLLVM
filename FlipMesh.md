@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FlipMesh mesh:Int32
+FlipMesh:Void mesh:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
 
 ## Description
 

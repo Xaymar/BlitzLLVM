@@ -17,10 +17,10 @@
 SaveBuffer:Int32 buffer:Int32, bmpfile:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `buffer` | Int32 | required | The buffer to save. |
-| `bmpfile` | String | required | The path of the file to write. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `buffer` | In | Int32 | required | The buffer to save. |
+| `bmpfile` | In | String | required | The path of the file to write. |
 
 **Returns:** 1 if the file was written, otherwise 0. With [AsyncSaving](AsyncSaving) on, 1 means that the save was queued, see [SavesFailed](SavesFailed).
 

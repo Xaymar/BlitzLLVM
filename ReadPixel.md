@@ -17,11 +17,11 @@
 ReadPixel:Int32 x:Int32, y:Int32, buffer:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the pixel. |
-| `y` | Int32 | required | Vertical position of the pixel. |
-| `buffer` | Int32 | `0` | The buffer to read from. Defaults to the current buffer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the pixel. |
+| `y` | In | Int32 | required | Vertical position of the pixel. |
+| `buffer` | In | Int32 | `0` | The buffer to read from. Defaults to the current buffer. |
 
 **Returns:** The color of the pixel, or 0 if the position is outside of the buffer.
 

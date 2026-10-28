@@ -17,10 +17,10 @@
 Left:String string:String, count:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `string` | String | required | The text. |
-| `count` | Int32 | required | How many characters to take. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `string` | In | String | required | The text. |
+| `count` | In | Int32 | required | How many characters to take. |
 
 **Returns:** The first `count` characters.
 

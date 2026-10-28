@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SoundPan sound:Int32, pan:Float32
+SoundPan:Void sound:Int32, pan:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
-| `pan` | Float32 | required | -1 is only left, 0 the middle and 1 only right. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sound` | In | Int32 | required | A handle from [LoadSound](LoadSound). |
+| `pan` | In | Float32 | required | -1 is only left, 0 the middle and 1 only right. |
 
 ## Description
 

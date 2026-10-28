@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-TerrainShading terrain:Int32, enable:Int32
+TerrainShading:Void terrain:Int32, enable:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `terrain` | Int32 | required | The terrain. |
-| `enable` | Int32 | required | True to enable shading. The default is False. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `terrain` | In | Int32 | required | The terrain. |
+| `enable` | In | Int32 | required | True to enable shading. The default is False. |
 
 ## Description
 

@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-DebugLog text:String
+DebugLog:Void text:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `text` | String | required | The text to log. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `text` | In | String | required | The text to log. |
 
 ## Description
 

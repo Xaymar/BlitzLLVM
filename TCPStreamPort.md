@@ -17,9 +17,9 @@
 TCPStreamPort:Int32 tcp_stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `tcp_stream` | Int32 | required | The stream. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `tcp_stream` | In | Int32 | required | The stream. |
 
 **Returns:** The port on the other end of a TCP stream.
 

@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-TranslateEntity entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32=0
+TranslateEntity:Void entity:Int32, x:Float32, y:Float32, z:Float32, global:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `x` | Float32 | required | Distance along X. |
-| `y` | Float32 | required | Distance along Y. |
-| `z` | Float32 | required | Distance along Z. |
-| `global` | Int32 | `0` | 1 to move along the world axes even when the entity has a parent that is turned. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `x` | In | Float32 | required | Distance along X. |
+| `y` | In | Float32 | required | Distance along Y. |
+| `z` | In | Float32 | required | Distance along Z. |
+| `global` | In | Int32 | `0` | 1 to move along the world axes even when the entity has a parent that is turned. Defaults to 0. |
 
 ## Description
 

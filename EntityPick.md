@@ -17,10 +17,10 @@
 EntityPick:Int32 entity:Int32, range:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity that looks. |
-| `range` | Float32 | required | Distance to look, in world units. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity that looks. |
+| `range` | In | Float32 | required | Distance to look, in world units. |
 
 **Returns:** The entity found, or 0.
 

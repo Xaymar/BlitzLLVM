@@ -17,9 +17,9 @@
 TrailingZeros:Int32 value:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `value` | Int32 | required | An integer. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `value` | In | Int32 | required | An integer. |
 
 **Returns:** How many of the lowest bits are 0.
 

@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-LoopSound sound:Int32
+LoopSound:Void sound:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sound` | In | Int32 | required | A handle from [LoadSound](LoadSound). |
 
 ## Description
 

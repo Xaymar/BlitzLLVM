@@ -17,10 +17,10 @@
 LoadMD2:Int32 file:String, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `file` | String | required | The .md2 file. |
-| `parent` | Int32 | `0` | Optional parent entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `file` | In | String | required | The .md2 file. |
+| `parent` | In | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle, or 0 if the file could not be loaded.
 

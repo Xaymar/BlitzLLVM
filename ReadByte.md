@@ -17,9 +17,9 @@
 ReadByte:Int32 stream:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `stream` | Int32 | required | The stream to read from. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `stream` | In | Int32 | required | The stream to read from. |
 
 **Returns:** The next byte of the stream, from 0 to 255.
 

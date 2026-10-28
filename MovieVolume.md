@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-MovieVolume movie:Int32, volume:Float32
+MovieVolume:Void movie:Int32, volume:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
-| `volume` | Float32 | required | The volume from 0 to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `movie` | In | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
+| `volume` | In | Float32 | required | The volume from 0 to 1. |
 
 ## Description
 

@@ -14,19 +14,19 @@
 
 
 ```blitzbasic
-LightMesh mesh:Int32, red:Float32, green:Float32, blue:Float32, range:Float32=0, x:Float32=0, y:Float32=0, z:Float32=0
+LightMesh:Void mesh:Int32, red:Float32, green:Float32, blue:Float32, range:Float32=0, x:Float32=0, y:Float32=0, z:Float32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle. |
-| `red` | Float32 | required | Red part of the light, 0 to 255. |
-| `green` | Float32 | required | Green part of the light, 0 to 255. |
-| `blue` | Float32 | required | Blue part of the light, 0 to 255. |
-| `range` | Float32 | `0` | Strength of the light, 0 for the same amount on every vertex. Defaults to 0. |
-| `x` | Float32 | `0` | X position of the light in the mesh's own space. Defaults to 0. |
-| `y` | Float32 | `0` | Y position of the light in the mesh's own space. Defaults to 0. |
-| `z` | Float32 | `0` | Z position of the light in the mesh's own space. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle. |
+| `red` | In | Float32 | required | Red part of the light, 0 to 255. |
+| `green` | In | Float32 | required | Green part of the light, 0 to 255. |
+| `blue` | In | Float32 | required | Blue part of the light, 0 to 255. |
+| `range` | In | Float32 | `0` | Strength of the light, 0 for the same amount on every vertex. Defaults to 0. |
+| `x` | In | Float32 | `0` | X position of the light in the mesh's own space. Defaults to 0. |
+| `y` | In | Float32 | `0` | Y position of the light in the mesh's own space. Defaults to 0. |
+| `z` | In | Float32 | `0` | Z position of the light in the mesh's own space. Defaults to 0. |
 
 ## Description
 

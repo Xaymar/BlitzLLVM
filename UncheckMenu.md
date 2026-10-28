@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-UncheckMenu menu:Int32
+UncheckMenu:Void menu:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `menu` | Int32 | required | Handle of a menu item. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `menu` | In | Int32 | required | Handle of a menu item. |
 
 ## Description
 

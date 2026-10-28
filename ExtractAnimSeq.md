@@ -17,12 +17,12 @@
 ExtractAnimSeq:Int32 entity:Int32, first_frame:Int32, last_frame:Int32, anim_seq:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The animated entity. |
-| `first_frame` | Int32 | required | First frame of the clip. |
-| `last_frame` | Int32 | required | Last frame of the clip. |
-| `anim_seq` | Int32 | `0` | Sequence to take the frames from. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The animated entity. |
+| `first_frame` | In | Int32 | required | First frame of the clip. |
+| `last_frame` | In | Int32 | required | Last frame of the clip. |
+| `anim_seq` | In | Int32 | `0` | Sequence to take the frames from. Defaults to 0. |
 
 **Returns:** The number of the new sequence, or -1 if the entity has no animation.
 

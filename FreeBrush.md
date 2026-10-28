@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeBrush brush:Int32
+FreeBrush:Void brush:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `brush` | Int32 | required | The brush to free. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `brush` | In | Int32 | required | The brush to free. |
 
 ## Description
 

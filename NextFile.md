@@ -17,9 +17,9 @@
 NextFile:String dir:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `dir` | Int32 | required | The folder handle from [ReadDir](ReadDir). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `dir` | In | Int32 | required | The folder handle from [ReadDir](ReadDir). |
 
 **Returns:** A file or folder name without its path, or an empty string at the end.
 

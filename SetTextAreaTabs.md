@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetTextAreaTabs textarea:Int32, tabs:Int32
+SetTextAreaTabs:Void textarea:Int32, tabs:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `textarea` | Int32 | required | Handle of a text area. |
-| `tabs` | Int32 | required | Width of a tab. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `textarea` | In | Int32 | required | Handle of a text area. |
+| `tabs` | In | Int32 | required | Width of a tab. |
 
 ## Description
 

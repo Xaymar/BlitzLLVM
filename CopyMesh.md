@@ -17,10 +17,10 @@
 CopyMesh:Int32 mesh:Int32, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mesh` | Int32 | required | Mesh handle to copy. |
-| `parent` | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mesh` | In | Int32 | required | Mesh handle to copy. |
+| `parent` | In | Int32 | `0` | Entity the copy follows, or 0 for none. Defaults to 0. |
 
 **Returns:** The handle of the copy.
 

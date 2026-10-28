@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-BSPLighting bsp:Int32, use_lightmaps:Int32
+BSPLighting:Void bsp:Int32, use_lightmaps:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `bsp` | Int32 | required | The level. |
-| `use_lightmaps` | Int32 | required | True for lightmaps, False for vertex lighting. Defaults to True. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `bsp` | In | Int32 | required | The level. |
+| `use_lightmaps` | In | Int32 | required | True for lightmaps, False for vertex lighting. Defaults to True. |
 
 ## Description
 

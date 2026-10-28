@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-ModifyTreeViewNode node:Int32, text:String, icon:Int32=-1
+ModifyTreeViewNode:Void node:Int32, text:String, icon:Int32=-1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `node` | Int32 | required | Handle of a node. |
-| `text` | String | required | The new text. |
-| `icon` | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `node` | In | Int32 | required | Handle of a node. |
+| `text` | In | String | required | The new text. |
+| `icon` | In | Int32 | `-1` | Number of an icon of the tree. Defaults to -1, which means none. |
 
 ## Description
 

@@ -14,14 +14,14 @@
 
 
 ```blitzbasic
-HandleSprite sprite:Int32, x_handle:Float32, y_handle:Float32
+HandleSprite:Void sprite:Int32, x_handle:Float32, y_handle:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sprite` | Int32 | required | The sprite. |
-| `x_handle` | Float32 | required | Horizontal handle position. The default is 0. |
-| `y_handle` | Float32 | required | Vertical handle position. The default is 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sprite` | In | Int32 | required | The sprite. |
+| `x_handle` | In | Float32 | required | Horizontal handle position. The default is 0. |
+| `y_handle` | In | Float32 | required | Vertical handle position. The default is 0. |
 
 ## Description
 

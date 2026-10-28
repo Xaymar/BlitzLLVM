@@ -17,9 +17,9 @@
 TreeViewNodeText:String node:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `node` | Int32 | required | Handle of a node. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `node` | In | Int32 | required | Handle of a node. |
 
 **Returns:** The text of the node.
 

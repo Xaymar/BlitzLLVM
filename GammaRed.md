@@ -17,9 +17,9 @@
 GammaRed:Float32 red:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `red` | Int32 | required | The input value, 0 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `red` | In | Int32 | required | The input value, 0 to 255. |
 
 **Returns:** The output value for the input.
 

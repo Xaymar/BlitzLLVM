@@ -17,9 +17,9 @@
 GfxDriverName:String driver:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `driver` | Int32 | required | The driver number, starting at 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `driver` | In | Int32 | required | The driver number, starting at 1. |
 
 **Returns:** The name of the driver.
 

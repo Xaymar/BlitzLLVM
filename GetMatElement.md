@@ -17,11 +17,11 @@
 GetMatElement:Float32 entity:Int32, row:Int32, column:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle. |
-| `row` | Int32 | required | Row of the matrix, 0 to 3. |
-| `column` | Int32 | required | Column of the matrix, 0 to 2. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle. |
+| `row` | In | Int32 | required | Row of the matrix, 0 to 3. |
+| `column` | In | Int32 | required | Column of the matrix, 0 to 2. |
 
 **Returns:** The value of the matrix element.
 

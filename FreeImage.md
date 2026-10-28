@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeImage image:Int32
+FreeImage:Void image:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image to free. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image to free. |
 
 ## Description
 

@@ -17,10 +17,10 @@
 FindChild:Int32 entity:Int32, name:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | Entity handle to search below. |
-| `name` | String | required | Name to search for. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | Entity handle to search below. |
+| `name` | In | String | required | Name to search for. |
 
 **Returns:** The handle of the child, or 0.
 

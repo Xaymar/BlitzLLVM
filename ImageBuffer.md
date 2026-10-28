@@ -17,10 +17,10 @@
 ImageBuffer:Int32 image:Int32, frame:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `image` | Int32 | required | The image. |
-| `frame` | Int32 | `0` | The frame whose buffer to return. Defaults to 0. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `image` | In | Int32 | required | The image. |
+| `frame` | In | Int32 | `0` | The frame whose buffer to return. Defaults to 0. |
 
 **Returns:** A buffer handle for [SetBuffer](SetBuffer) and the pixel commands.
 

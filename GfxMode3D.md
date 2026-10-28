@@ -17,9 +17,9 @@
 GfxMode3D:Int32 mode:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `mode` | Int32 | required | Number of the mode, 1 to [CountGfxModes3D](CountGfxModes3D). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `mode` | In | Int32 | required | Number of the mode, 1 to [CountGfxModes3D](CountGfxModes3D). |
 
 **Returns:** True if the mode can show 3D.
 

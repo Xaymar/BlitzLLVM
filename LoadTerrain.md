@@ -17,10 +17,10 @@
 LoadTerrain:Int32 heightmap_file:String, parent:Int32=0
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `heightmap_file` | String | required |  |
-| `parent` | Int32 | `0` | Optional parent entity. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `heightmap_file` | In | String | required |  |
+| `parent` | In | Int32 | `0` | Optional parent entity. |
 
 **Returns:** An entity handle for the terrain.
 

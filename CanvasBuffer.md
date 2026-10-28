@@ -17,9 +17,9 @@
 CanvasBuffer:Int32 canvas:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `canvas` | Int32 | required | Handle of a canvas made with [CreateCanvas](CreateCanvas). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `canvas` | In | Int32 | required | Handle of a canvas made with [CreateCanvas](CreateCanvas). |
 
 **Returns:** A buffer handle that works with `SetBuffer`, `LockBuffer`, `ReadPixel` and the other buffer commands.
 

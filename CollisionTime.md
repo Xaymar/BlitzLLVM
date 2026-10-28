@@ -17,10 +17,10 @@
 CollisionTime:Float32 entity:Int32, collision_index:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `entity` | Int32 | required | The entity that moved. |
-| `collision_index` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `entity` | In | Int32 | required | The entity that moved. |
+| `collision_index` | In | Int32 | required |  |
 
 **Returns:** How far along its path the entity was when it touched, as a fraction of the move done in that update, from 0 to 1. A value near 1 means it traveled almost the whole way before touching.
 

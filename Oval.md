@@ -14,16 +14,16 @@
 
 
 ```blitzbasic
-Oval x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32=1
+Oval:Void x:Int32, y:Int32, width:Int32, height:Int32, solid:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `x` | Int32 | required | Horizontal position of the left side of the box. |
-| `y` | Int32 | required | Vertical position of the top of the box. |
-| `width` | Int32 | required | Width of the box. |
-| `height` | Int32 | required | Height of the box. |
-| `solid` | Int32 | `1` | 1 fills the ellipse, 0 draws only its outline. Defaults to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `x` | In | Int32 | required | Horizontal position of the left side of the box. |
+| `y` | In | Int32 | required | Vertical position of the top of the box. |
+| `width` | In | Int32 | required | Width of the box. |
+| `height` | In | Int32 | required | Height of the box. |
+| `solid` | In | Int32 | `1` | 1 fills the ellipse, 0 draws only its outline. Defaults to 1. |
 
 ## Description
 

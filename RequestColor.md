@@ -17,11 +17,11 @@
 RequestColor:Int32 red:Int32=255, green:Int32=255, blue:Int32=255
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `red` | Int32 | `255` | Red the sliders start at, 0 to 255. Defaults to 255. |
-| `green` | Int32 | `255` | Green the sliders start at, 0 to 255. Defaults to 255. |
-| `blue` | Int32 | `255` | Blue the sliders start at, 0 to 255. Defaults to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `red` | In | Int32 | `255` | Red the sliders start at, 0 to 255. Defaults to 255. |
+| `green` | In | Int32 | `255` | Green the sliders start at, 0 to 255. Defaults to 255. |
+| `blue` | In | Int32 | `255` | Blue the sliders start at, 0 to 255. Defaults to 255. |
 
 **Returns:** 1 if the user pressed OK, 0 if the dialog was cancelled.
 

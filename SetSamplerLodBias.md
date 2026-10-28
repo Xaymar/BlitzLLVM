@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetSamplerLodBias sampler:Int32, bias:Float32
+SetSamplerLodBias:Void sampler:Int32, bias:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sampler` | Int32 | required | The sampler to change. |
-| `bias` | Float32 | required | The number of levels to add to the level that is picked. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sampler` | In | Int32 | required | The sampler to change. |
+| `bias` | In | Float32 | required | The number of levels to add to the level that is picked. |
 
 ## Description
 

@@ -17,9 +17,9 @@
 MovieLength:Float32 movie:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `movie` | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `movie` | In | Int32 | required | A movie handle from [OpenMovie](OpenMovie). |
 
 **Returns:** The length in seconds, or 0 if the movie is not open or its file does not say.
 

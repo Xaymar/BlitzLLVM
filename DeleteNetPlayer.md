@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-DeleteNetPlayer player:Int32
+DeleteNetPlayer:Void player:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `player` | Int32 | required | A player made with [CreateNetPlayer](CreateNetPlayer). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `player` | In | Int32 | required | A player made with [CreateNetPlayer](CreateNetPlayer). |
 
 ## Description
 

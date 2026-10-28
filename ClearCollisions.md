@@ -14,7 +14,7 @@
 
 
 ```blitzbasic
-ClearCollisions
+ClearCollisions:Void
 ```
 
 ## Description

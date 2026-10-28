@@ -17,9 +17,9 @@
 ACos:Float32 float:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `float` | Float32 | required | The cosine, from -1 to 1. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `float` | In | Float32 | required | The cosine, from -1 to 1. |
 
 **Returns:** The angle in degrees.
 

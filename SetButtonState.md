@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetButtonState button:Int32, state:Int32
+SetButtonState:Void button:Int32, state:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `button` | Int32 | required | Handle of a button of style 2 or 3. |
-| `state` | Int32 | required | 1 for ticked, 0 for not. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `button` | In | Int32 | required | Handle of a button of style 2 or 3. |
+| `state` | In | Int32 | required | 1 for ticked, 0 for not. |
 
 ## Description
 

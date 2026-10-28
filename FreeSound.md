@@ -14,12 +14,12 @@
 
 
 ```blitzbasic
-FreeSound sound:Int32
+FreeSound:Void sound:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `sound` | Int32 | required | A handle from [LoadSound](LoadSound) or [Load3DSound](Load3DSound). |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `sound` | In | Int32 | required | A handle from [LoadSound](LoadSound) or [Load3DSound](Load3DSound). |
 
 ## Description
 

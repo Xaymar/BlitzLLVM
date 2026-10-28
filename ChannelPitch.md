@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-ChannelPitch channel:Int32, pitch:Int32
+ChannelPitch:Void channel:Int32, pitch:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `channel` | Int32 | required | A channel handle from [PlaySound](PlaySound). |
-| `pitch` | Int32 | required |  |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `channel` | In | Int32 | required | A channel handle from [PlaySound](PlaySound). |
+| `pitch` | In | Int32 | required |  |
 
 ## Description
 

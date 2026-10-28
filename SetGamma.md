@@ -14,17 +14,17 @@
 
 
 ```blitzbasic
-SetGamma src_red:Int32, src_green:Int32, src_blue:Int32, dest_red:Float32, dest_green:Float32, dest_blue:Float32
+SetGamma:Void src_red:Int32, src_green:Int32, src_blue:Int32, dest_red:Float32, dest_green:Float32, dest_blue:Float32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `src_red` | Int32 | required | The input value for the red table, 0 to 255. |
-| `src_green` | Int32 | required | The input value for the green table, 0 to 255. |
-| `src_blue` | Int32 | required | The input value for the blue table, 0 to 255. |
-| `dest_red` | Float32 | required | The output value for red. |
-| `dest_green` | Float32 | required | The output value for green. |
-| `dest_blue` | Float32 | required | The output value for blue. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `src_red` | In | Int32 | required | The input value for the red table, 0 to 255. |
+| `src_green` | In | Int32 | required | The input value for the green table, 0 to 255. |
+| `src_blue` | In | Int32 | required | The input value for the blue table, 0 to 255. |
+| `dest_red` | In | Float32 | required | The output value for red. |
+| `dest_green` | In | Float32 | required | The output value for green. |
+| `dest_blue` | In | Float32 | required | The output value for blue. |
 
 ## Description
 

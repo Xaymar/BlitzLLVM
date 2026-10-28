@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-SetSliderValue slider:Int32, value:Int32
+SetSliderValue:Void slider:Int32, value:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `slider` | Int32 | required | Handle of a slider. |
-| `value` | Int32 | required | The new position. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `slider` | In | Int32 | required | Handle of a slider. |
+| `value` | In | Int32 | required | The new position. |
 
 ## Description
 

@@ -17,12 +17,12 @@
 AddTriangle:Int32 surface:Int32, v0:Int32, v1:Int32, v2:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `surface` | Int32 | required | Surface handle. |
-| `v0` | Int32 | required | Index of the first corner. |
-| `v1` | Int32 | required | Index of the second corner. |
-| `v2` | Int32 | required | Index of the third corner. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `surface` | In | Int32 | required | Surface handle. |
+| `v0` | In | Int32 | required | Index of the first corner. |
+| `v1` | In | Int32 | required | Index of the second corner. |
+| `v2` | In | Int32 | required | Index of the third corner. |
 
 **Returns:** The index of the new triangle, starting at 0.
 

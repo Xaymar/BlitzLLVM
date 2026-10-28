@@ -14,13 +14,13 @@
 
 
 ```blitzbasic
-HtmlViewRun htmlview:Int32, URL:String
+HtmlViewRun:Void htmlview:Int32, URL:String
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `htmlview` | Int32 | required | The handle from [CreateHtmlView](CreateHtmlView). |
-| `URL` | String | required | The script to run. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `htmlview` | In | Int32 | required | The handle from [CreateHtmlView](CreateHtmlView). |
+| `URL` | In | String | required | The script to run. |
 
 ## Description
 

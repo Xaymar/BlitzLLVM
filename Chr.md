@@ -17,9 +17,9 @@
 Chr:String ascii:Int32
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `ascii` | Int32 | required | The character code, 0 to 255. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `ascii` | In | Int32 | required | The character code, 0 to 255. |
 
 **Returns:** A string with a single character.
 

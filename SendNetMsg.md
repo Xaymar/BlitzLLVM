@@ -17,13 +17,13 @@
 SendNetMsg:Int32 type:Int32, msg:String, from_player:Int32, to_player:Int32=0, reliable:Int32=1
 ```
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `type` | Int32 | required | A message type from 1 to 99 that your program defines. |
-| `msg` | String | required | The text to send. Long texts arrive in one piece. |
-| `from_player` | Int32 | required | A player of this program. |
-| `to_player` | Int32 | `0` | The player to send to. Defaults to 0, which means everyone. |
-| `reliable` | Int32 | `1` | Defaults to 1. The original allowed unreliable delivery with 0, but here every message arrives. |
+| Parameter | Mode | Type | Default | Description |
+|---|---|---|---|---|
+| `type` | In | Int32 | required | A message type from 1 to 99 that your program defines. |
+| `msg` | In | String | required | The text to send. Long texts arrive in one piece. |
+| `from_player` | In | Int32 | required | A player of this program. |
+| `to_player` | In | Int32 | `0` | The player to send to. Defaults to 0, which means everyone. |
+| `reliable` | In | Int32 | `1` | Defaults to 1. The original allowed unreliable delivery with 0, but here every message arrives. |
 
 **Returns:** 1 when the message was sent, 0 when `from_player` is not a player of this program.
 
