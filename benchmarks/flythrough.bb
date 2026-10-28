@@ -9,6 +9,7 @@
 ; Environment variables:
 ;   BENCH_OBJECTS  how many entities are made (default 20000, one million is 1000000)
 ;   BENCH_FRAMES   how many frames are timed (default 300)
+;   BENCH_DITHER   the Dither level (default 0; 2 needs BlitzLLVM, the original only knows on and off)
 ;   BENCH_WARMUP   frames that are rendered but not timed, they make the GPU buffers (default 5)
 ;   BENCH_SEED     seed of the random positions (default 1)
 ;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
@@ -34,6 +35,7 @@ Const KINDS = 16
 
 Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), 32, 2
 SetBuffer BackBuffer()
+Dither Int(Env$("BENCH_DITHER", 0))
 
 Function Env$(name$, fallback$)
 	value$ = GetEnv$(name$)
