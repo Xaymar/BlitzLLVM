@@ -122,7 +122,7 @@ suite_checks = suite_checks + 1
 ; Flip finishes models that are done.
 flipped = LoadMesh("models/quad.3ds")
 For i = 1 To 200
-	Flip
+	Flip 2
 	If EntityReady(flipped) Then Exit
 	Delay 1
 Next

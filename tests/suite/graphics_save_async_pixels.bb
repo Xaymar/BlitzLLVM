@@ -53,7 +53,7 @@ Function Differs(name$)
 End Function
 
 Draw
-Flip
+Flip 2
 
 ; The child program: it saves on other threads and ends at once, the files still have to be written.
 If Instr(CommandLine$(), "child") > 0
@@ -106,7 +106,7 @@ expected = ReadPixel(50, 100, BackBuffer()) And $FFFFFF
 SaveBuffer BackBuffer(), unique + "copy.png"
 Color 255, 0, 0
 Rect 0, 0, 160, 120, 1
-Flip
+Flip 2
 Settle
 img = LoadImage(unique + "copy.png")
 CheckTrue "The save of a buffer that was drawn over loads", img <> 0
@@ -119,7 +119,7 @@ SaveBuffer BackBuffer(), unique + "twice.png", "compression=9"
 Color 0, 0, 255
 Rect 0, 0, 160, 120, 1
 SaveBuffer BackBuffer(), unique + "twice.png"
-Flip
+Flip 2
 Settle
 img = LoadImage(unique + "twice.png")
 Check "The later save of a file wins", ReadPixel(50, 100, ImageBuffer(img)) And $FFFFFF, $0000FF
@@ -127,7 +127,7 @@ FreeImage img
 
 ; Slow ones are pending for a while, and a file that can't be written is counted as failed.
 Draw
-Flip
+Flip 2
 For i = 0 To 2
 	SaveBuffer FrontBuffer(), unique + "slow" + i + ".jxl", "lossless=1,effort=9"
 Next

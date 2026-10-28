@@ -59,7 +59,7 @@ For i = 0 To 2
 		If t > 400 And t < 700 Then Near files(i) + " red on the quad", 255, 0, 0 : seen_red = 1
 		If t > 1400 And t < 1700 Then Near files(i) + " green on the quad", 0, 255, 0 : seen_green = 1
 		If t > 2400 And t < 2700 Then Near files(i) + " blue on the quad", 0, 0, 255 : seen_blue = 1
-		Flip
+		Flip 2
 		Delay 10
 		If t > 6000 Then RuntimeError files(i) + " did not end"
 	Wend

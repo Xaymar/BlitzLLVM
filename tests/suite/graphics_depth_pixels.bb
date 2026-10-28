@@ -116,9 +116,9 @@ Function TryDepth(depth, deep)
 	EndIf
 	; What is shown on the screen is RGBA8 whatever the depth is, with or without Dither.
 	Dither True
-	Flip
+	Flip 2
 	Dither False
-	Flip
+	Flip 2
 
 	; 3D: a cube in the middle with its own color.
 	camera = CreateCamera()

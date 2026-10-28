@@ -36,6 +36,7 @@ Check "FrontBuffer is the BackBuffer", FrontBuffer(), BackBuffer()
 Check "BackBuffer stays the same", BackBuffer(), BackBuffer()
 Flip
 Flip False
+Flip 2
 Cls
 suite_checks = suite_checks + 3
 EndGraphics
