@@ -110,6 +110,8 @@ namespace blitz {
 
 		// Expressions
 		blitz::types::type                 parse_type_suffix(blitz::token const& name);
+		/** If the tokens after the name are `:Void`. */
+		bool                               is_void_suffix(blitz::token const& name) const;
 		std::vector<ast::expression_ptr>   parse_arguments();
 		ast::expression_ptr                parse_expression();
 		ast::expression_ptr                parse_or();

@@ -105,6 +105,7 @@ namespace blitz {
 		std::map<std::string, int64_t>       _const_values;
 		std::string                          _return_sname;
 		bool                                 _return_typed = false;
+		bool                                 _return_void  = false; // Inside of a `Name:Void` function.
 		std::map<std::string, std::pair<std::string, ast::location>> _unknown; // Functions that were called but don't exist, so all can be reported at once.
 
 		// Data, in the order it appears in the program.

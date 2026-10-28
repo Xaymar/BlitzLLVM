@@ -209,6 +209,7 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	_return_type  = fn.type;
 	_return_sname = lower(fn.struct_name);
 	_return_typed = fn.typed;
+	_return_void  = fn.is_void;
 	_scope        = lower(fn.name);
 
 	auto const& info = _functions.at(lower(fn.name));
@@ -221,7 +222,9 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	prepare_flow(fn.body);
 	_exit_label = label("fn.exit");
 	_ret_slot   = "%ret.slot";
-	_allocas << "  " << _ret_slot << " = alloca " << blitz::types::to_llvm(fn.type) << "\n";
+	if (!fn.is_void) {
+		_allocas << "  " << _ret_slot << " = alloca " << blitz::types::to_llvm(fn.type) << "\n";
+	}
 	for (size_t idx = 0; idx < fn.parameters.size(); idx++) {
 		auto const& param = fn.parameters[idx];
 		_arg                  = uint32_t(idx + 1);
@@ -240,7 +243,9 @@ void blitz::compiler::gen_function(ast::function const& fn)
 	gen_block(fn.body);
 	report_unused(_locals);
 	if (!_terminated) {
-		emit("store " + blitz::types::to_llvm(fn.type) + " " + zero(fn.type).repr + ", ptr " + _ret_slot);
+		if (!fn.is_void) {
+			emit("store " + blitz::types::to_llvm(fn.type) + " " + zero(fn.type).repr + ", ptr " + _ret_slot);
+		}
 		emit_terminator("br label %" + _exit_label);
 	}
 
@@ -265,9 +270,13 @@ void blitz::compiler::gen_function(ast::function const& fn)
 			emit("call void @bb_str_release(i32 %entry.mark)");
 		}
 	}
-	auto result = tmp();
-	emit(result + " = load " + blitz::types::to_llvm(fn.type) + ", ptr " + _ret_slot);
-	emit_terminator("ret " + blitz::types::to_llvm(fn.type) + " " + result);
+	if (fn.is_void) {
+		emit_terminator("ret void");
+	} else {
+		auto result = tmp();
+		emit(result + " = load " + blitz::types::to_llvm(fn.type) + ", ptr " + _ret_slot);
+		emit_terminator("ret " + blitz::types::to_llvm(fn.type) + " " + result);
+	}
 
 	di_end_function();
 	_definitions << "define internal " << blitz::types::to_llvm(fn.type) << " " << info.symbol << "(" << params << ")" << (sp.empty() ? "" : " !dbg " + sp) << " {\n"
@@ -282,6 +291,7 @@ void blitz::compiler::gen_main(ast::program const& program)
 	_return_type  = type::INT32;
 	_return_sname = "";
 	_return_typed = false;
+	_return_void  = false;
 	_scope        = "";
 
 	ast::location start;
