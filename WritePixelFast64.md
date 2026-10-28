@@ -32,7 +32,7 @@ Sets a pixel of a locked buffer to a color given in the form of [WritePixel64](W
 
 ## Differences
 
-* A position outside of the buffer is ignored, and a buffer that is not locked stops the program with an error message.
+* A position outside of the buffer is ignored, and a buffer that is not locked is ignored by a build without `-d` and stops a debug build (`-d`) with an error message.
 
 ## Examples
 

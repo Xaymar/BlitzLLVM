@@ -80,7 +80,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CollisionTime](CollisionTime#differences): The official help says this is the time taken to calculate the collision.
 * [Confirm](Confirm#differences): The box is a message box of the operating system and not part of the program window.
 * [CopyPixel](CopyPixel#differences): A source pixel outside of its buffer is read as 0 (black), and a destination outside its buffer is skipped.
-* [CopyPixelFast](CopyPixelFast#differences): A buffer that is not locked stops the program with an error message.
+* [CopyPixelFast](CopyPixelFast#differences): A buffer that is not locked is ignored by a build without `-d`, and stops a debug build (`-d`) with an error message.
 * [CopyRect](CopyRect#differences): Parts of the rectangle that lie outside of either buffer are cut off.
 * [CountDisplayModes](CountDisplayModes#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [CountDisplays](CountDisplays#differences) 〔BlitzLLVM〕: When SDL knows of no display, for example without a display driver, there is one display called "Default" with the common sizes of [CountGfxModes](CountGfxModes).
@@ -222,8 +222,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [RawInputs](RawInputs#differences): This is a BlitzLLVM extension: the original has no such command, and gets its mouse speed from DirectInput.
 * [RawInputsEnabled](RawInputsEnabled#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ReadPixel](ReadPixel#differences): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
-* [ReadPixelFast](ReadPixelFast#differences): A buffer that is not locked stops the program with an error message.
-* [ReadPixelFast64](ReadPixelFast64#differences) 〔BlitzLLVM〕: A buffer that is not locked stops the program with an error message.
+* [ReadPixelFast](ReadPixelFast#differences): A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message.
+* [ReadPixelFast64](ReadPixelFast64#differences) 〔BlitzLLVM〕: A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message.
 * [RefreshRateAt](RefreshRateAt#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
 * [RenderWorld](RenderWorld#differences): Entities that are made or hidden after [CaptureWorld](CaptureWorld) are drawn where they are, they do not fade in.
 * [RequestColor](RequestColor#differences): The picker is drawn by the program inside its own window and is simpler than the Windows color dialog: three sliders and a preview, no palette and no custom colors.
@@ -303,5 +303,5 @@ Commands that differ from the original or are not finished, with the first of th
 * [Write](Write#differences): Without a graphics window the text goes to the console instead.
 * [WritePixel](WritePixel#differences): A position outside of the buffer is ignored.
 * [WritePixel64](WritePixel64#differences) 〔BlitzLLVM〕: A position outside of the buffer is ignored.
-* [WritePixelFast](WritePixelFast#differences): A buffer that is not locked stops the program with an error message.
-* [WritePixelFast64](WritePixelFast64#differences) 〔BlitzLLVM〕: A position outside of the buffer is ignored, and a buffer that is not locked stops the program with an error message.
+* [WritePixelFast](WritePixelFast#differences): A buffer that is not locked is ignored by a build without `-d`, and stops a debug build (`-d`) with an error message.
+* [WritePixelFast64](WritePixelFast64#differences) 〔BlitzLLVM〕: A position outside of the buffer is ignored, and a buffer that is not locked is ignored by a build without `-d` and stops a debug build (`-d`) with an error message.

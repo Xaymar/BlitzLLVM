@@ -31,7 +31,7 @@ Returns the color of a pixel of a locked buffer in the same form as [ReadPixel](
 
 ## Differences
 
-* A buffer that is not locked stops the program with an error message. In the original a position outside of the buffer reads other memory.
+* A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message. In the original a position outside of the buffer reads other memory.
 * The buffers that [Graphics3D](Graphics3D) makes with a depth above 32 are read as they are stored: with the depth 30 the number is A2R10G10B10, and with 64 it is ARGB with the upper 8 bits of each channel. [ReadPixelFast64](ReadPixelFast64) gives all of them. See [Color depth](Color-Depth).
 
 ## Related Commands

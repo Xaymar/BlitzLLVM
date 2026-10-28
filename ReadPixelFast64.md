@@ -33,7 +33,7 @@ Returns the color of a pixel of a locked buffer in the same form as [ReadPixel64
 
 ## Differences
 
-* A buffer that is not locked stops the program with an error message.
+* A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message.
 
 ## Examples
 
