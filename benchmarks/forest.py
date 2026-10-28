@@ -45,15 +45,20 @@ ROOT = os.path.dirname(HERE)
 ORIGINAL_MAX_SIZE = 2048
 
 def copy_synced(source, target):
-    """Copies a file and makes sure it is on disk and can be read again before the compiler looks for it."""
-    shutil.copyfile(source, target)
-    with open(target, "rb+") as f:
+    """Copies a file without a UTF-8 byte order mark (the original compiler stops at it with "Expecting end-of-file", and Windows tools like to add one) and makes
+    sure it is on disk and can be read again before the compiler looks for it."""
+    with open(source, "rb") as f:
+        data = f.read()
+    if data.startswith(b"\xef\xbb\xbf"):
+        data = data[3:]
+    with open(target, "wb") as f:
+        f.write(data)
         f.flush()
         os.fsync(f.fileno())
     for attempt in range(20):
         try:
             with open(target, "rb") as f:
-                if f.read() == open(source, "rb").read():
+                if f.read() == data:
                     return
         except OSError:
             pass
@@ -121,8 +126,7 @@ def main():
         include = os.path.join(directory, "forest_counters.bi")
         copy_synced(os.path.join(HERE, "forest.bb"), source)
         copy_synced(os.path.join(HERE, "forest_llvm.bi" if llvm else "forest_original.bi"), include)
-        # The original compiler once did not find the include on Areldir right after it was written (probably a virus scanner or the file system still
-        # holding the new file), so a build that fails with an include error is tried again a few times.
+        # A build that fails with an include error (a file that is not visible yet right after it was written) is tried again a few times.
         for attempt in range(5):
             build = procutil.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
             if build.returncode == 0 or "include" not in (build.stdout + build.stderr).lower() or not os.path.isfile(include):
