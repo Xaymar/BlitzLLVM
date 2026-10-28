@@ -604,10 +604,12 @@ namespace {
 					suffix = "##";
 				} else if (type == "string") {
 					suffix = "$";
+				} else if ((type == "pointer") || (type == "ptr")) {
+					suffix = "*";
 				}
 				// A name that has a type character already has one type too many.
 				char last = tokens[t - 1].text.back();
-				if (!suffix || (last == '%') || (last == '#') || (last == '$')) {
+				if (!suffix || (last == '%') || (last == '#') || (last == '$') || (last == '*')) {
 					continue;
 				}
 				// The line and column of the colon.

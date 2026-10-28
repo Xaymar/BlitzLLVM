@@ -233,6 +233,10 @@ elseif(CASE STREQUAL "spacing")
 	expect_format("Print (1)\nf (2)\nIf(a) Then b\n" "Print (1)\nf (2)\nIf (a) Then b\n")
 	expect_format("a=1:b=2 :c=3\n" "a = 1 : b = 2 : c = 3\n")
 	expect_format("a=1 : b=2\n" "a = 1:b = 2\n" --separator-spacing=compact)
+	# A Pointer name ends in a star, a multiplication does not: a star with an operand after it is a multiplication, except in a declaration.
+	expect_format("Local p*=Null\nGlobal q*\nx=a*b\ny=a*-b\nz=(a)*(b)\nIf p*=Null Then x=1\nDim l*(3)\n" "Local p* = Null\nGlobal q*\nx = a * b\ny = a * -b\nz = (a) * (b)\nIf p* = Null Then x = 1\nDim l*(3)\n")
+	expect_format("Function F*(a*,b*)\nEnd Function\n" "Function F*(a*, b*)\nEnd Function\n")
+	expect_format("Local p:Pointer=Null\nGlobal q:Pointer\n" "Local p:Pointer = Null\nGlobal q:Pointer\n")
 	# Fields and types have no spaces; names and numbers keep their text.
 	expect_format("p . Foo = New Foo\np\\x = q \\ y\nLocal a.Foo, b# = $FF + 0x1F + .5\n" "p . Foo = New Foo\np\\x = q\\y\nLocal a.Foo, b# = $FF + 0x1F + .5\n")
 	# The : of a type touches the name and the type, and is not a statement separator.

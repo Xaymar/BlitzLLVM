@@ -121,6 +121,29 @@ std::vector<blitz::tools::token> blitz::tools::tokenize(std::string_view data)
 			// The type character is part of the name: a%, a#, a$.
 			if ((chr() == '%') || (chr() == '#') || (chr() == '$')) {
 				at++;
+			} else if (chr() == '*') {
+				// `p*` is a Pointer, `a*b` a multiplication: like the compiler's parser, the `*` is part of the name unless an operand
+				// follows it, or the name is the one that a declaration introduces.
+				size_t after = 1;
+				while ((chr(after) == ' ') || (chr(after) == '\t')) {
+					after++;
+				}
+				int  n       = chr(after);
+				bool operand = is_ident(n) || (n == '(') || (n == '-') || (n == '+') || (n == '~') || (n == '"') || (n == '.') || (n == '$') || (n == '%');
+				bool declared = false;
+				for (size_t i = tokens.size(); i-- > 0;) {
+					if (tokens[i].type == kind::space) {
+						continue;
+					}
+					if (tokens[i].type == kind::word) {
+						auto word = lower(tokens[i].text);
+						declared  = (word == "function") || (word == "local") || (word == "global") || (word == "field") || (word == "const") || (word == "dim");
+					}
+					break;
+				}
+				if (!operand || declared) {
+					at++;
+				}
 			}
 			text_end = at;
 			emit(kind::word, start);

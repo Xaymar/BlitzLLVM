@@ -95,7 +95,7 @@ namespace {
 			auto& it = items[i];
 			if (it.tok.is(kind::word)) {
 				char last = it.tok.text.back();
-				bool plain = (last != '%') && (last != '#') && (last != '$');
+				bool plain = (last != '%') && (last != '#') && (last != '$') && (last != '*');
 				bool field = (i > 0) && (items[i - 1].tok.is_symbol("\\") || items[i - 1].tok.is_symbol("."));
 				it.keyword = plain && !field && !blitz::tools::keyword_spelling(it.tok.text).empty();
 			}
