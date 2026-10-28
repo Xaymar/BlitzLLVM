@@ -1052,6 +1052,8 @@ void bb_release_surface_gpu(void* gpu);
 void bb_graphics_idle(void);
 void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode);
 void bb_end_graphics(void);
+void bb_exit(void);
+extern void (*bb_exit_hook)(void);
 int32_t bb_graphics_width(void);
 int32_t bb_graphics_height(void);
 int32_t bb_front_buffer(void);
