@@ -81,7 +81,7 @@ def main():
                                   "--label", label, "--rev", first, "--out", out], capture_output=True, text=True, stdin=subprocess.DEVNULL)
             if os.path.isfile(out):
                 record.update(json.load(open(out)))
-                record["commit"], record["commits"] = first, group
+                record["commit"], record["commits"], record["date"] = first, group, git(args.repo, "log", "-1", "--format=%as", first)
             else:
                 record["run_error"] = (run.stdout + run.stderr)[-800:]
             print("%s %s ok" % (label, first[:8]), flush=True)
