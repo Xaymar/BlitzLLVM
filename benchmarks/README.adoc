@@ -234,6 +234,55 @@ called. Run benchmarks windowed only (they are), the original changes the screen
 NOTE: The original Blitz3D cannot open a window above 2048 in either direction (see the flythrough section for the measurements). The
 runner stops with a clear message above that with the original; BlitzLLVM has no such limit.
 
+== forest: a night forest with a river, bump maps and bloom
+
+`forest.bb` is the benchmark for a whole game-like scene. A dense forest of 1800 trees (spruces, broadleaf trees and birches with branches, twigs and
+see-through leaves) stands around a winding river. A dirt path leads to an old bridge, lit by a standing torch with an animated flame and embers. Pebbles
+lie along the banks (dark, concentrated at the water's edge), 600000 small opaque blades of grass grow in clumps (thinner towards the river, only the tip of
+a blade moves in the wind, in the areas near the camera) and 40 glowing insects fly around, six of them with a light. The night sky has a moon and stars.
+Everything is made in code, there are no files.
+
+What it measures, besides plain triangle and draw call throughput (about 1.3 million triangles and 1100 draw calls per frame):
+
+* bump mapping the way the original Blitz3D does it (Direct3D 7 Dot3, `TextureBlend 4`, with the light direction in the vertex colors) on the ground, the
+  bark and the bridge;
+* a mesh that changes every frame (the river surface, `VertexCoords` and `UpdateNormals`), and the grass tips changed by `VertexCoords`;
+* render targets: the picture of the river is drawn on the GPU every frame by a second camera and copied into a texture (`CopyRect` to `TextureBuffer`),
+  and a fullscreen bloom is made the same way (the frame is copied, multiplied with itself to keep the bright parts, shrunk, blurred with shifted, added
+  copies of itself and added back on top; `--no-bloom` leaves it out);
+* many lights (moon, torch and insects, the original uses the first 8 in creation order, BlitzLLVM the 8 nearest) and fog.
+
+[source,sh]
+----
+python3 benchmarks/forest.py --quick            # a small scene, 30 frames: does it work?
+python3 benchmarks/forest.py                    # the full scene, 600 frames
+python3 benchmarks/forest.py --no-bloom         # without the fullscreen bloom
+python3 benchmarks/forest.py --grass 1200000    # twice the grass
+----
+
+The camera walks along the path to the bridge and back (1200 frames are a round trip), so a run of fewer frames only sees the first part of the walk. Where
+everything is depends only on the seed and the frame number. It takes the same options as the other benchmarks (`--frames`, `--seed`, `--size`, `--shot`,
+`--label`, `--debug`, `--profile`, `--no-save`) and `--trees`, `--grass`, `--pebbles` and `--insects` (also `BENCH_TREES`, `BENCH_GRASS`, `BENCH_PEBBLES`,
+`BENCH_INSECTS`), and prints the same table. Results are saved as `benchmarks/results/forest-*.json` and `forest.csv`. `BENCH_VIEWRIVER=1` or `2`
+puts the camera on the bridge or at the torch, for screenshots.
+
+=== With the original Blitz3D
+
+`forest.bb` uses only commands that the original Blitz3D has as well. The BlitzLLVM-only commands are in `forest_llvm.bi` (the microsecond timer, the draw
+counters of `Stats3D` and anisotropic filtering with a sampler for every texture) and `forest_original.bi` (`MilliSecs`, draw counters of 0, no sampler). The
+runner picks the right one, as for the other benchmarks:
+
+[source,bat]
+----
+python benchmarks\forest.py --blitzcc C:\Blitz3D-V1.118\bin\blitzcc.exe
+python benchmarks\forest.py --blitzcc C:\BlitzLLVM\bin\blitzcc.exe
+----
+
+The scene stays within the original's limits: a surface never holds more than 65535 vertices (the grass is split into one mesh per area, and more
+surfaces when an area is bigger), there are a few hundred sprites, and the window can be at most 2048 in each direction. The original needs arrays to be
+declared in the main program and every texture to be a power of two, which the scene does as well. Under Wine (llvmpipe) the original draws the same scene,
+which was used to check that it compiles and renders correctly; its timing there means nothing.
+
 == bigmesh: a camera over one terrain of over a million triangles
 
 `bigmesh.bb` builds one mesh of 6 by 6 surfaces (each 128 by 128 squares, 16641 vertices, 32768 triangles) with hills and vertex colors made
