@@ -33,6 +33,8 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import wiki  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import procutil  # noqa: E402
 
 TAG = re.compile(r"^;media interact (\S+)(?: (\d+))?\s*$")
 STEP = re.compile(r"^;media (click|rclick|move|drag|type|key|wait|shots?)\b ?(.*)$")
@@ -54,19 +56,19 @@ def parse(src):
 
 
 def run(*args, **kw):
-    return subprocess.run(list(args), capture_output=True, text=True, **kw)
+    return procutil.run(list(args), capture_output=True, text=True, **kw)
 
 
 class Session:
     def __init__(self, exe, cwd):
         r, w = os.pipe()
-        self.xvfb = subprocess.Popen(["Xvfb", "-displayfd", str(w), "-screen", "0", "640x480x24", "-nolisten", "tcp"],
+        self.xvfb = procutil.Popen(["Xvfb", "-displayfd", str(w), "-screen", "0", "640x480x24", "-nolisten", "tcp"],
                                      pass_fds=(w,), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         os.close(w)
         self.display = ":" + os.read(r, 16).decode().strip()
         os.close(r)
         self.env = dict(os.environ, DISPLAY=self.display, XDG_RUNTIME_DIR=tempfile.mkdtemp())
-        self.app = subprocess.Popen([exe], env=self.env, cwd=cwd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        self.app = procutil.Popen([exe], env=self.env, cwd=cwd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         self.window = None
         for _ in range(100):
             time.sleep(0.1)
@@ -164,7 +166,7 @@ def play(blitzcc, rel, fps, steps, src):
         if dest.endswith(".png"):
             shutil.copyfile(frames[-1], dest)
         else:
-            subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(fps), "-i", os.path.join(d, "f%04d.png"),
+            procutil.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(fps), "-i", os.path.join(d, "f%04d.png"),
                             "-vf", "split[a][b];[a]palettegen=max_colors=64[p];[b][p]paletteuse=dither=none", dest],
                            check=True)
     return ""

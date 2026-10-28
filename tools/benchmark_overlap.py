@@ -18,6 +18,8 @@ import statistics
 import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))
+import procutil  # noqa: E402
 
 
 def main():
@@ -31,7 +33,7 @@ def main():
     runs = int(os.environ.get("BENCH_RUNS", "3"))
     with tempfile.TemporaryDirectory() as directory:
         program = os.path.join(directory, "benchmark")
-        subprocess.run([compiler, os.path.join(root, "tools", "benchmark_overlap.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL)
+        procutil.run([compiler, os.path.join(root, "tools", "benchmark_overlap.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL)
         print("%-10s %12s %12s %9s" % ("work", "thread ms", "sync ms", "gain"))
         for work in works:
             results = {}
@@ -42,7 +44,7 @@ def main():
                     env["BLITZ_SYNC_GPU"] = "1"
                 times = []
                 for _ in range(runs):
-                    result = subprocess.run(runner + [program], env=env, capture_output=True, text=True, timeout=600)
+                    result = procutil.run(runner + [program], env=env, capture_output=True, text=True, timeout=600)
                     match = re.search(r"ms_per_frame=([\d.]+)", result.stdout + result.stderr)
                     if match:
                         times.append(float(match.group(1)))

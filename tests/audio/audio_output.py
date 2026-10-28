@@ -9,9 +9,10 @@ import math
 import os
 import shutil
 import struct
-import subprocess
 import sys
 import wave
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../tools"))
+import procutil  # noqa: E402
 
 blitzcc, work = sys.argv[1:3]
 OPTIONS = os.environ.get("BLITZCC_OPTIONS", "").split()  # For example "-d", so that the test runs in Debug as well.
@@ -43,7 +44,7 @@ def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False, 
 			source.write('c = PlayMusic("%s", %d)\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, music, milliseconds))
 		else:
 			source.write('s = LoadSound("%s")\n%s\n%s\nc = PlaySound(s)\n%s\nDelay %d\nDebugLog "playing " + ChannelPlaying(c)\n' % (name, "LoopSound s" if loop else "", setup, after, milliseconds))
-	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
@@ -52,7 +53,7 @@ def play(name, setup="", after="", loop=True, milliseconds=1500, classic=False, 
 	env.pop("BLITZ_AUDIO_CLASSIC", None)
 	if classic:
 		env["BLITZ_AUDIO_CLASSIC"] = "1"
-	run = subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	run = procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	if not os.path.exists("sdlaudio.raw"):
 		print("no disk audio driver")
 		raise SystemExit(77)
@@ -158,13 +159,13 @@ def play_moving(listener_step, source_step, scale=1.0, distance=1.0, name="tone.
 	) % (name, scale, distance, listener_step, source_step)
 	with open("play.bb", "w") as source:
 		source.write(body)
-	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
 	env.pop("BLITZ_HEADLESS", None)
-	subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read()
 	count = len(data) // 4
 	return samples_after(list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2]), 0.9, 0.4)
@@ -207,13 +208,13 @@ def play_start_stop():
 	)
 	with open("play.bb", "w") as source:
 		source.write(body)
-	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
 	env.pop("BLITZ_HEADLESS", None)
-	subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read()
 	count = len(data) // 4
 	return list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2])
@@ -234,13 +235,13 @@ for movie in ("colors.mpg", "colors.avi", "colors.mp4", "colors.webm"):
 	shutil.copyfile(os.path.join(movies, movie), movie)
 	with open("play.bb", "w") as source:
 		source.write('m = OpenMovie("%s")\nDebugLog "opened " + m\nWhile MoviePlaying(m)\n\tDelay 20\nWend\n' % movie)
-	if subprocess.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if procutil.run([blitzcc] + OPTIONS + ["play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
 	env.pop("BLITZ_HEADLESS", None)
-	run = subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	run = procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read() if os.path.exists("sdlaudio.raw") else b""
 	count = len(data) // 4
 	samples = list(struct.unpack("<%dh" % (count * 2), data[: count * 4])[0::2])
@@ -253,13 +254,13 @@ peaks = {}
 for volume in ("1.0", "0.5", "0.0"):
 	with open("play.bb", "w") as source:
 		source.write('m = OpenMovie("colors.mp4")\nMovieVolume m, %s\nWhile MoviePlaying(m)\n\tDelay 20\nWend\n' % volume)
-	if subprocess.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
+	if procutil.run([blitzcc, "play.bb", "-o", "play"], capture_output=True).returncode != 0:
 		raise SystemExit("compiling failed")
 	if os.path.exists("sdlaudio.raw"):
 		os.remove("sdlaudio.raw")
 	env = dict(os.environ, SDL_AUDIODRIVER="disk", SDL_DISKAUDIODELAY="0")
 	env.pop("BLITZ_HEADLESS", None)
-	subprocess.run(["./play"], env=env, capture_output=True, timeout=60)
+	procutil.run(["./play"], env=env, capture_output=True, timeout=60)
 	data = open("sdlaudio.raw", "rb").read() if os.path.exists("sdlaudio.raw") else b""
 	count = len(data) // 4
 	peaks[volume] = max([abs(v) for v in struct.unpack("<%dh" % (count * 2), data[: count * 4])] + [0])

@@ -28,9 +28,10 @@ import os
 import platform
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../tools"))
+import procutil  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -79,7 +80,7 @@ def main():
     compiler = find_compiler(args.blitzcc)
     # The original Blitz3D prints only a version number for -v and has no optimization level or profiling, BlitzLLVM prints
     # "Compiler version:...". The same program is built with either, so that their speeds can be compared.
-    version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
+    version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
     llvm = bool(re.search(r"Compiler version:20\d\d\.", version))
     flags = ["-d"] if args.debug else (["-O3"] if llvm else [])
     if args.profile and llvm:
@@ -91,7 +92,7 @@ def main():
         # The original compiler reads its runtime and libraries from BLITZPATH, the folder that has bin\ in it.
         os.environ.setdefault("BLITZPATH", os.path.dirname(os.path.dirname(os.path.abspath(compiler))))
         # Without BLITZPATH the original prints an error instead of its version.
-        version = " ".join(subprocess.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
+        version = " ".join(procutil.run([compiler, "-v"], capture_output=True, text=True).stdout.split())
     if not llvm:
         # The original Blitz3D crashes with more than 16383 sprites (they share one vertex buffer of 4 vertices each).
         sprites = args.rooms * args.torches * args.particles
@@ -108,7 +109,7 @@ def main():
         source = os.path.join(directory, "dungeon.bb")
         shutil.copy(os.path.join(HERE, "dungeon.bb"), source)
         shutil.copy(os.path.join(HERE, "dungeon_llvm.bi" if llvm else "dungeon_original.bi"), os.path.join(directory, "dungeon_counters.bi"))
-        build = subprocess.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
+        build = procutil.run([compiler, "-q"] + flags + ["-o", program, source], cwd=directory, capture_output=True, text=True)
         if build.returncode != 0:
             sys.exit("Building the benchmark failed (exit code %d):\n%s" % (build.returncode, (build.stdout + build.stderr)[-2000:]))
         env = dict(os.environ, BENCH_ROOMS=str(args.rooms), BENCH_TORCHES=str(args.torches), BENCH_PARTICLES=str(args.particles), BENCH_PROPS=str(args.props), BENCH_CAMPFIRES=str(args.campfires), BENCH_COVERAGE="1" if args.coverage else "0", BENCH_SPRITESCALE=str(args.sprite_scale), BENCH_DEPTHFADE=str(args.depth_fade), BENCH_FRAMES=str(args.frames), BENCH_SEED=str(args.seed), BENCH_W=width, BENCH_H=height,
@@ -120,7 +121,7 @@ def main():
         if args.shot:
             env["BENCH_SHOT"] = os.path.abspath(args.shot)
         print("Running %d rooms, %d frames, %sx%s, build %s" % (args.rooms, args.frames, width, height, " ".join(flags)), flush=True)
-        result = subprocess.run(runner + [program], env=env, capture_output=True, text=True)
+        result = procutil.run(runner + [program], env=env, capture_output=True, text=True)
         output = result.stdout + result.stderr
         # The original Blitz3D has no stdout for a program, so the result is read from a file.
         line = None

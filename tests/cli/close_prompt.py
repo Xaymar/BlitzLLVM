@@ -12,18 +12,20 @@ import os
 import signal
 import subprocess
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../tools"))
+import procutil  # noqa: E402
 
 blitzcc, source, work = sys.argv[1:4]
 os.makedirs(work, exist_ok=True)
 exe = os.path.join(work, "close_prompt" + (".exe" if os.name == "nt" else ""))
 # BLITZCC_OPTIONS (for example "-d") adds options to the compiler, so that the test runs in Debug as well.
-subprocess.run([blitzcc] + os.environ.get("BLITZCC_OPTIONS", "").split() + [source, "-o", exe], check=True)
+procutil.run([blitzcc] + os.environ.get("BLITZCC_OPTIONS", "").split() + [source, "-o", exe], check=True)
 
 
 def close(answer):
     env = dict(os.environ, BLITZ_DIALOG_ANSWER=str(answer))
     env.pop("BLITZ_HEADLESS", None)
-    process = subprocess.Popen([exe], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
+    process = procutil.Popen([exe], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
     if process.stdout.readline().strip() != "started":
         process.kill()
         sys.exit("the program did not start")

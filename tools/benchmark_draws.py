@@ -16,6 +16,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))
+import procutil  # noqa: E402
 
 LAYOUTS = ["copies", "unique", "textured", "large", "blended", "offscreen", "mixed"]
 
@@ -30,12 +32,12 @@ def main():
         sys.exit("There is no display and no xvfb-run.")
     with tempfile.TemporaryDirectory() as directory:
         program = os.path.join(directory, "benchmark")
-        subprocess.run([compiler, os.path.join(root, "tools", "benchmark_draws.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL)
+        procutil.run([compiler, os.path.join(root, "tools", "benchmark_draws.bb"), "-o", program], check=True, stdout=subprocess.DEVNULL)
         env = dict(os.environ, BENCH_FRAMES=os.environ.get("BENCH_FRAMES", "10"))
         print("%-10s %9s %7s %10s %9s %8s %10s" % ("layout", "tris", "draws", "pipelines", "textures", "buffers", "ms/frame"))
         for layout in layouts:
             env["BENCH_LAYOUT"] = layout
-            result = subprocess.run(runner + [program], env=env, capture_output=True, text=True, timeout=600)
+            result = procutil.run(runner + [program], env=env, capture_output=True, text=True, timeout=600)
             line = (result.stdout + result.stderr).strip().splitlines()[-1] if (result.stdout + result.stderr).strip() else ""
             values = dict(re.findall(r"(\w+)=([\d.]+)", line))
             if "draws" not in values:

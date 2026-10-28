@@ -300,6 +300,12 @@ if(Python3_FOUND)
 	endif()
 endif()
 
+# The benchmark, test and tool scripts must not leave processes behind when they end (tools/procutil.py).
+if(Python3_FOUND)
+	add_test(NAME procutil COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/cli/procutil.py")
+	set_tests_properties(procutil PROPERTIES TIMEOUT 300)
+endif()
+
 # Closing a window that has an AppTitle close prompt needs a window, so it only runs with the GPU tests.
 if(Python3_FOUND AND BLITZ_TEST_GPU AND NOT WIN32)
 	foreach(_CONFIG IN ITEMS release debug)

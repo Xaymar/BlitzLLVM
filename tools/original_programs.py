@@ -13,6 +13,8 @@ import re
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))
+import procutil  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "extra"))
 TREES = [
@@ -98,7 +100,7 @@ def run_one(out, program, seconds=5):
     env = dict(os.environ, BLITZ_HEADLESS="1", BLITZ_DIALOG_ANSWER="0")  # Requesters are accepted as they start.
     files = snapshot(folder)
     try:
-        run = subprocess.run([exe_path(out, program)], cwd=folder, env=env, capture_output=True, text=True, timeout=seconds, stdin=subprocess.DEVNULL)
+        run = procutil.run([exe_path(out, program)], cwd=folder, env=env, capture_output=True, text=True, timeout=seconds, stdin=subprocess.DEVNULL)
     except subprocess.TimeoutExpired:
         return True, "still running"
     finally:
@@ -110,7 +112,7 @@ def compile_one(blitzcc, program, out):
     exe = exe_path(out, program)
     source = os.path.join(ROOT, program)
     try:
-        run = subprocess.run([blitzcc, source, "-o", exe], cwd=os.path.dirname(source), capture_output=True, text=True, timeout=300)
+        run = procutil.run([blitzcc, source, "-o", exe], cwd=os.path.dirname(source), capture_output=True, text=True, timeout=300)
         text = (run.stdout + run.stderr).strip()
         return program, run.returncode == 0, text
     except subprocess.TimeoutExpired:

@@ -18,13 +18,14 @@ import argparse
 import os
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import wiki  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import procutil  # noqa: E402
 
 TAG = re.compile(r"^;media (still|gif) (\S+)(?: (\d+) (\d+))?\s*$")
 
@@ -60,15 +61,15 @@ def render(blitzcc, kind, rel, frames, fps, src):
         with open(path, "w", encoding="utf-8") as f:
             f.write(instrument(src, kind, out, frames))
         exe = os.path.join(d, "example")
-        r = subprocess.run([blitzcc, "+q", "-o", exe, path], capture_output=True, text=True)
+        r = procutil.run([blitzcc, "+q", "-o", exe, path], capture_output=True, text=True)
         if r.returncode != 0:
             return r.stdout + r.stderr
-        r = subprocess.run(["xvfb-run", "-a", exe], capture_output=True, text=True, env=env, timeout=120)
+        r = procutil.run(["xvfb-run", "-a", exe], capture_output=True, text=True, env=env, timeout=120)
         if kind == "still":
             return "" if os.path.exists(dest) else "no screenshot was saved\n" + r.stdout + r.stderr
         if not os.path.exists(os.path.join(d, "f%04d.png" % (frames - 1))):
             return "only %d frames were saved\n%s" % (len([n for n in os.listdir(d) if n.startswith("f")]), r.stderr)
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(fps), "-i", os.path.join(d, "f%04d.png"),
+        procutil.run(["ffmpeg", "-v", "error", "-y", "-framerate", str(fps), "-i", os.path.join(d, "f%04d.png"),
                         "-vf", "split[a][b];[a]palettegen=max_colors=64[p];[b][p]paletteuse=dither=none", dest],
                        check=True)
     return ""

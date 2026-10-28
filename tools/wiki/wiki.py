@@ -37,7 +37,6 @@ import collections
 import os
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
 
@@ -46,6 +45,8 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, ".."))
 import categories  # noqa: E402
 import suite_functions  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import procutil  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
 LIST = os.path.join(ROOT, "tests", "suite", "functions.txt")
@@ -550,11 +551,11 @@ def check(commands, blitzcc):
                     with open(path, "w", encoding="utf-8") as f:
                         f.write(src)
                     exe = os.path.join(d, "example")
-                    r = subprocess.run([blitzcc, "+q", "-o", exe, path], capture_output=True, text=True)
+                    r = procutil.run([blitzcc, "+q", "-o", exe, path], capture_output=True, text=True)
                     if r.returncode != 0:
                         errors.append("%s example %d does not compile:\n%s" % (name, i + 1, r.stdout + r.stderr))
                     elif run:
-                        r = subprocess.run([exe], capture_output=True, text=True, cwd=d, timeout=60,
+                        r = procutil.run([exe], capture_output=True, text=True, cwd=d, timeout=60,
                                            env=dict(os.environ, BLITZ_HEADLESS="1"))
                         if expect is None or r.stdout.split() != expect.split():
                             errors.append("%s example %d printed:\n%s\nbut the page says:\n%s" %
