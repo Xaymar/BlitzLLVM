@@ -63,21 +63,30 @@ typedef struct bb_channel {
 	Uint64     shift_time; // When it was last moved toward it, 0 while it has not started.
 } bb_channel;
 
-static MIX_Mixer*  bb_mixer       = NULL;
-static int         bb_audio_tried = 0;
-static bb_sound*   bb_sounds      = NULL;
-static int32_t     bb_sound_count = 1;
-static int32_t     bb_sound_cap   = 0;
-static bb_channel* bb_channels    = NULL;
-static int32_t     bb_channel_count = 1;
-static int32_t     bb_channel_cap = 0;
+// Everything the sound system keeps for the running program, in one place. It is thread_local, as the program runs on one
+// thread and nothing else may touch the device.
+typedef struct bb_audio_state {
+	MIX_Mixer*  mixer;
+	int         tried;
+	bb_sound*   sounds;
+	int32_t     sound_count;
+	int32_t     sound_cap;
+	bb_channel* channels;
+	int32_t     channel_count;
+	int32_t     channel_cap;
+	// The listener, who 3D sounds are heard from.
+	int32_t   listener_entity;
+	float     listener_rolloff;
+	float     listener_doppler;
+	float     listener_distance; // Meters in a unit of the world.
+	bb_motion listener_motion;
+} bb_audio_state;
 
-// The listener, who 3D sounds are heard from.
-static int32_t bb_listener_entity = 0;
-static float   bb_listener_rolloff = 1.0f;
-static float   bb_listener_doppler = 1.0f;
-static float   bb_listener_distance = 1.0f; // Meters in a unit of the world.
-static bb_motion bb_listener_motion;
+#if defined(_MSC_VER)
+static __declspec(thread) bb_audio_state bb_audio = { NULL, 0, NULL, 1, 0, NULL, 1, 0, 0, 1.0f, 1.0f, 1.0f };
+#else
+static _Thread_local bb_audio_state bb_audio = { NULL, 0, NULL, 1, 0, NULL, 1, 0, 0, 1.0f, 1.0f, 1.0f };
+#endif
 
 // How fast sound moves, in meters per second.
 #define BB_SPEED_OF_SOUND 340.0f
@@ -92,19 +101,19 @@ void bb_on_exit(void (*hook)(void));
 // Takes the sound device down before the program ends, as its thread would run on while the libraries unwind.
 static void bb_audio_shutdown(void)
 {
-	for (int32_t i = 1; i < bb_channel_count; i++) {
-		if (bb_channels[i].used) {
-			MIX_DestroyTrack(bb_channels[i].track);
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used) {
+			MIX_DestroyTrack(bb_audio.channels[i].track);
 		}
 	}
-	for (int32_t i = 1; i < bb_sound_count; i++) {
-		if (bb_sounds[i].audio) {
-			MIX_DestroyAudio(bb_sounds[i].audio);
+	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
+		if (bb_audio.sounds[i].audio) {
+			MIX_DestroyAudio(bb_audio.sounds[i].audio);
 		}
 	}
-	if (bb_mixer) {
-		MIX_DestroyMixer(bb_mixer);
-		bb_mixer = NULL;
+	if (bb_audio.mixer) {
+		MIX_DestroyMixer(bb_audio.mixer);
+		bb_audio.mixer = NULL;
 	}
 	MIX_Quit();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -112,19 +121,19 @@ static void bb_audio_shutdown(void)
 
 static int bb_audio_ready(void)
 {
-	if (bb_audio_tried) {
-		return bb_mixer != NULL;
+	if (bb_audio.tried) {
+		return bb_audio.mixer != NULL;
 	}
-	bb_audio_tried = 1;
+	bb_audio.tried = 1;
 	if (getenv("BLITZ_HEADLESS")) {
 		return 0;
 	}
 	if (!SDL_InitSubSystem(SDL_INIT_AUDIO) || !MIX_Init()) {
 		return 0;
 	}
-	bb_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+	bb_audio.mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
 	bb_on_exit(bb_audio_shutdown);
-	return bb_mixer != NULL;
+	return bb_audio.mixer != NULL;
 }
 
 // The original plays sounds through FMOD, which brings them to the speakers' rate by linear interpolation. That adds a lot of high frequencies
@@ -134,7 +143,7 @@ static int bb_audio_ready(void)
 static MIX_Audio* bb_classic_audio(const char* path, const SDL_AudioSpec* file)
 {
 	SDL_AudioSpec device;
-	if (!MIX_GetMixerFormat(bb_mixer, &device) || (device.freq <= 0) || (file->channels <= 0) || (file->freq <= 0)) {
+	if (!MIX_GetMixerFormat(bb_audio.mixer, &device) || (device.freq <= 0) || (file->channels <= 0) || (file->freq <= 0)) {
 		return NULL;
 	}
 	MIX_AudioDecoder* decoder = MIX_CreateAudioDecoder(path, 0);
@@ -182,7 +191,7 @@ static MIX_Audio* bb_classic_audio(const char* path, const SDL_AudioSpec* file)
 		result.format   = SDL_AUDIO_F32;
 		result.channels = channels;
 		result.freq     = device.freq;
-		audio = MIX_LoadRawAudio(bb_mixer, res, out * (size_t)channels * sizeof(float), &result);
+		audio = MIX_LoadRawAudio(bb_audio.mixer, res, out * (size_t)channels * sizeof(float), &result);
 		bb_free(res);
 	}
 	bb_free(data);
@@ -201,20 +210,20 @@ static bb_sound* bb_sound_get(int32_t handle, const char* what)
 		memset(&none, 0, sizeof(none));
 		return &none;
 	}
-	if ((handle < 0) || (handle >= bb_sound_count) || !bb_sounds[handle].used) {
+	if ((handle < 0) || (handle >= bb_audio.sound_count) || !bb_audio.sounds[handle].used) {
 		char message[96];
 		snprintf(message, sizeof(message), "%s: the sound does not exist.", what);
 		bb_runtime_error(message);
 	}
-	return &bb_sounds[handle];
+	return &bb_audio.sounds[handle];
 }
 
 static bb_channel* bb_channel_get(int32_t handle)
 {
-	if ((handle <= 0) || (handle >= bb_channel_count) || !bb_channels[handle].used) {
+	if ((handle <= 0) || (handle >= bb_audio.channel_count) || !bb_audio.channels[handle].used) {
 		return NULL; // Channels end by themselves, programs can still hold on to them.
 	}
-	return &bb_channels[handle];
+	return &bb_audio.channels[handle];
 }
 
 static int32_t bb_load(const char* path, int is_3d)
@@ -231,7 +240,7 @@ static int32_t bb_load(const char* path, int is_3d)
 	sound.is_3d  = is_3d;
 
 	if (bb_audio_ready()) {
-		sound.audio = MIX_LoadAudio(bb_mixer, real, true);
+		sound.audio = MIX_LoadAudio(bb_audio.mixer, real, true);
 		if (!sound.audio) {
 			bb_free(real);
 			return 0; // Missing or unusable files give 0, like in Blitz.
@@ -258,25 +267,25 @@ static int32_t bb_load(const char* path, int is_3d)
 	}
 	bb_free(real);
 
-	for (int32_t i = 1; i < bb_sound_count; i++) {
-		if (!bb_sounds[i].used) {
-			bb_sounds[i] = sound;
+	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
+		if (!bb_audio.sounds[i].used) {
+			bb_audio.sounds[i] = sound;
 			return i;
 		}
 	}
-	if (bb_sound_count >= bb_sound_cap) {
-		bb_sound_cap = bb_sound_cap ? bb_sound_cap * 2 : 64;
-		bb_sounds    = (bb_sound*)bb_realloc(bb_sounds, (size_t)bb_sound_cap * sizeof(bb_sound));
+	if (bb_audio.sound_count >= bb_audio.sound_cap) {
+		bb_audio.sound_cap = bb_audio.sound_cap ? bb_audio.sound_cap * 2 : 64;
+		bb_audio.sounds    = (bb_sound*)bb_realloc(bb_audio.sounds, (size_t)bb_audio.sound_cap * sizeof(bb_sound));
 	}
-	bb_sounds[bb_sound_count] = sound;
-	return bb_sound_count++;
+	bb_audio.sounds[bb_audio.sound_count] = sound;
+	return bb_audio.sound_count++;
 }
 
 int32_t bb_live_sounds(void)
 {
 	int32_t count = 0;
-	for (int32_t i = 1; i < bb_sound_count; i++) {
-		count += bb_sounds[i].used ? 1 : 0;
+	for (int32_t i = 1; i < bb_audio.sound_count; i++) {
+		count += bb_audio.sounds[i].used ? 1 : 0;
 	}
 	return count;
 }
@@ -294,10 +303,10 @@ int32_t bb_load_3d_sound(const char* path)
 void bb_free_sound(int32_t handle)
 {
 	bb_sound* sound = bb_sound_get(handle, "FreeSound");
-	for (int32_t i = 1; i < bb_channel_count; i++) {
-		if (bb_channels[i].used && (bb_channels[i].sound == handle)) {
-			MIX_DestroyTrack(bb_channels[i].track);
-			memset(&bb_channels[i], 0, sizeof(bb_channel));
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used && (bb_audio.channels[i].sound == handle)) {
+			MIX_DestroyTrack(bb_audio.channels[i].track);
+			memset(&bb_audio.channels[i], 0, sizeof(bb_channel));
 		}
 	}
 	if (sound->audio) {
@@ -339,32 +348,32 @@ static void bb_channel_apply(bb_channel* channel, float volume, float pan)
 static int32_t bb_play(int32_t handle, int32_t entity, const char* what)
 {
 	bb_sound* sound = bb_sound_get(handle, what);
-	if (!bb_mixer || !sound->audio) {
+	if (!bb_audio.mixer || !sound->audio) {
 		return 0;
 	}
 
 	// Reuse the slot of a channel that is over.
 	int32_t slot = 0;
-	for (int32_t i = 1; i < bb_channel_count; i++) {
-		if (bb_channels[i].used && !MIX_TrackPlaying(bb_channels[i].track) && !MIX_TrackPaused(bb_channels[i].track)) {
-			MIX_DestroyTrack(bb_channels[i].track);
-			memset(&bb_channels[i], 0, sizeof(bb_channel));
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		if (bb_audio.channels[i].used && !MIX_TrackPlaying(bb_audio.channels[i].track) && !MIX_TrackPaused(bb_audio.channels[i].track)) {
+			MIX_DestroyTrack(bb_audio.channels[i].track);
+			memset(&bb_audio.channels[i], 0, sizeof(bb_channel));
 		}
-		if (!slot && !bb_channels[i].used) {
+		if (!slot && !bb_audio.channels[i].used) {
 			slot = i;
 		}
 	}
 	if (!slot) {
-		if (bb_channel_count >= bb_channel_cap) {
-			bb_channel_cap = bb_channel_cap ? bb_channel_cap * 2 : 64;
-			bb_channels    = (bb_channel*)bb_realloc(bb_channels, (size_t)bb_channel_cap * sizeof(bb_channel));
+		if (bb_audio.channel_count >= bb_audio.channel_cap) {
+			bb_audio.channel_cap = bb_audio.channel_cap ? bb_audio.channel_cap * 2 : 64;
+			bb_audio.channels    = (bb_channel*)bb_realloc(bb_audio.channels, (size_t)bb_audio.channel_cap * sizeof(bb_channel));
 		}
-		slot = bb_channel_count++;
+		slot = bb_audio.channel_count++;
 	}
 
-	bb_channel* channel = &bb_channels[slot];
+	bb_channel* channel = &bb_audio.channels[slot];
 	memset(channel, 0, sizeof(*channel));
-	channel->track = MIX_CreateTrack(bb_mixer);
+	channel->track = MIX_CreateTrack(bb_audio.mixer);
 	if (!channel->track) {
 		return 0;
 	}
@@ -482,7 +491,7 @@ void bb_channel_pitch(int32_t handle, int32_t hertz)
 {
 	bb_channel* channel = bb_channel_get(handle);
 	if (channel && (hertz > 0)) {
-		bb_sound* sound = &bb_sounds[channel->sound];
+		bb_sound* sound = &bb_audio.sounds[channel->sound];
 		if (sound->frequency > 0) {
 			channel->ratio = (float)hertz / (float)sound->frequency;
 			MIX_SetTrackFrequencyRatio(channel->track, channel->ratio);
@@ -538,11 +547,11 @@ static void bb_motion_update(bb_motion* motion, const float* position, Uint64 no
 
 int32_t bb_create_listener(int32_t entity, float rolloff, float doppler, float distance)
 {
-	bb_listener_entity   = entity;
-	bb_listener_rolloff  = rolloff;
-	bb_listener_doppler  = doppler;
-	bb_listener_distance = distance > 0.0f ? distance : 1.0f;
-	memset(&bb_listener_motion, 0, sizeof(bb_listener_motion));
+	bb_audio.listener_entity   = entity;
+	bb_audio.listener_rolloff  = rolloff;
+	bb_audio.listener_doppler  = doppler;
+	bb_audio.listener_distance = distance > 0.0f ? distance : 1.0f;
+	memset(&bb_audio.listener_motion, 0, sizeof(bb_audio.listener_motion));
 	return 1;
 }
 
@@ -550,17 +559,17 @@ int32_t bb_create_listener(int32_t entity, float rolloff, float doppler, float d
 // the listener move.
 void bb_sound_update(void)
 {
-	if (!bb_mixer || !bb_listener_entity) {
+	if (!bb_audio.mixer || !bb_audio.listener_entity) {
 		return;
 	}
 	float listener[16];
-	if (!bb_entity_world_matrix(bb_listener_entity, listener)) {
+	if (!bb_entity_world_matrix(bb_audio.listener_entity, listener)) {
 		return;
 	}
 	Uint64 now = SDL_GetTicksNS();
-	bb_motion_update(&bb_listener_motion, listener + 12, now);
-	for (int32_t i = 1; i < bb_channel_count; i++) {
-		bb_channel* channel = &bb_channels[i];
+	bb_motion_update(&bb_audio.listener_motion, listener + 12, now);
+	for (int32_t i = 1; i < bb_audio.channel_count; i++) {
+		bb_channel* channel = &bb_audio.channels[i];
 		if (!channel->used || !channel->entity) {
 			continue;
 		}
@@ -571,8 +580,8 @@ void bb_sound_update(void)
 		bb_motion_update(&channel->motion, source + 12, now);
 		float dx = source[12] - listener[12], dy = source[13] - listener[13], dz = source[14] - listener[14];
 		float world    = sqrtf(dx * dx + dy * dy + dz * dz); // In units of the world.
-		float distance = world * bb_listener_distance;       // In meters.
-		float gain     = 1.0f / (1.0f + bb_listener_rolloff * distance * 0.05f);
+		float distance = world * bb_audio.listener_distance;       // In meters.
+		float gain     = 1.0f / (1.0f + bb_audio.listener_rolloff * distance * 0.05f);
 		// The listener's right is the first column of its matrix.
 		float rx = listener[0], ry = listener[1], rz = listener[2];
 		float rl = sqrtf(rx * rx + ry * ry + rz * rz);
@@ -586,10 +595,10 @@ void bb_sound_update(void)
 		if (world > 1e-3f) {
 			float ux = dx / world, uy = dy / world, uz = dz / world;
 			float* sv = channel->motion.speed;
-			float* lv = bb_listener_motion.speed;
-			float  source_away      = (sv[0] * ux + sv[1] * uy + sv[2] * uz) * bb_listener_distance;
-			float  listener_toward  = (lv[0] * ux + lv[1] * uy + lv[2] * uz) * bb_listener_distance;
-			float wanted = bb_doppler_ratio(listener_toward, source_away, bb_listener_doppler);
+			float* lv = bb_audio.listener_motion.speed;
+			float  source_away      = (sv[0] * ux + sv[1] * uy + sv[2] * uz) * bb_audio.listener_distance;
+			float  listener_toward  = (lv[0] * ux + lv[1] * uy + lv[2] * uz) * bb_audio.listener_distance;
+			float wanted = bb_doppler_ratio(listener_toward, source_away, bb_audio.listener_doppler);
 			if (!channel->shift_time) {
 				channel->shift = 1.0f;
 			} else {
