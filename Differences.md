@@ -162,8 +162,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [GfxModeHeight](GfxModeHeight#differences): A mode number that does not exist stops the program with an error message.
 * [GfxModeWidth](GfxModeWidth#differences): A mode number that does not exist stops the program with an error message.
 * [GrabImage](GrabImage#differences): Parts that lie outside of the buffer are not copied and keep what the frame had before.
-* [Graphics](Graphics#differences): The color depth picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 with half precision floats.
-* [Graphics3D](Graphics3D#differences): The depth does not pick a video mode, it picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 with half precision floats.
+* [Graphics](Graphics#differences): `Graphics` is the same command as [Graphics3D](Graphics3D): there is no 2D-only mode, so the 3D commands work after `Graphics` as well.
+* [Graphics3D](Graphics3D#differences): Unlike in Blitz3D, mode 0 always opens a window, and `Graphics` and `Graphics3D` are the same command.
 * [GraphicsDepth](GraphicsDepth#differences): It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these.
 * [GraphicsFormat](GraphicsFormat#differences): Always 4.
 * [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).

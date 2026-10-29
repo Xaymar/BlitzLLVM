@@ -30,6 +30,7 @@ Opens the graphics window and has to be called before any drawing command. Calli
 
 ## Differences
 
+* `Graphics` is the same command as [Graphics3D](Graphics3D): there is no 2D-only mode, so the 3D commands work after `Graphics` as well.
 * The color depth picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 with half precision floats. 0 and 16 give 32, as does any other number, because palette and 16 bit rendering are not supported. See [Color depth](Color-Depth).
 * Full screen (mode 1) does not change the video mode of the display: the picture is shown at the largest size that fits with its aspect ratio kept, and the rest is black. See [Fullscreen](Fullscreen).
 * In a resizable window (mode 3) the picture is scaled to the size of the window, and the mouse position is converted to picture pixels.
