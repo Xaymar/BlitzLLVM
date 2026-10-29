@@ -10,6 +10,7 @@
 ;   BENCH_FRAMES   how many frames are timed (default 300)
 ;   BENCH_GPU      the graphics driver number for SetGfxDriver (optional, default is the one the program picks)
 ;   BENCH_DITHER   the Dither level (default 0; 2 needs BlitzLLVM, the original only knows on and off)
+;   BENCH_ANTIALIAS  the AntiAlias mode (default 0; 2 is SMAA T2x and needs BlitzLLVM)
 ;   BENCH_WARMUP   frames that are rendered but not timed, they make the GPU buffers (default 5)
 ;   BENCH_SEED     seed of the random positions (default 1)
 ;   BENCH_W, BENCH_H  size of the window (default 640 x 360)
@@ -37,6 +38,7 @@ If GetEnv$("BENCH_GPU") <> "" Then SetGfxDriver Int(GetEnv$("BENCH_GPU"))
 Graphics3D Int(Env$("BENCH_W", 640)), Int(Env$("BENCH_H", 360)), 32, 2
 SetBuffer BackBuffer()
 Dither Int(Env$("BENCH_DITHER", 0))
+AntiAlias Int(Env$("BENCH_ANTIALIAS", 0))
 
 Function Env$(name$, fallback$)
 	value$ = GetEnv$(name$)
