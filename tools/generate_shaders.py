@@ -641,6 +641,45 @@ def vertex_shader_3d():
 
 
 
+PALETTE_ROWS = 68  # Rows of the lookup texture of the palette: 64 of the 6 bit lookup, the gaps and the grid flag, 3 of the per channel lookup.
+
+
+def palette_nearest_code(b, lookup, color):
+    """
+    The color of the palette that is nearest to the color (a vec3 from 0 to 1). The lookup texture is 4096 x 68 pixels:
+      rows 0 to 63    the nearest color for each color of 6 bits per channel: red is the column within a block of 64, green the row, blue the block
+      row 64          pixel 0 has the average gap of the colors of red, green and blue (0 to 1), pixel 1 is 1 if the palette is a grid
+      rows 65 to 67   with a grid: for each value of 8 bits of red, green and blue, the nearest level of that channel (exact)
+    A grid is a palette that has every combination of the levels of its channels (the default one has 8 x 8 x 4), where the nearest color
+    is the nearest level of each channel on its own.
+    """
+    f, v3, v4 = b.float(), b.vec(3), b.vec(4)
+    boolean = b.new_type("bool", "TypeBool")
+    zero = b.const_float(0.0)
+    rows = float(PALETTE_ROWS)
+
+    def sample(u, v):
+        return b.emit("ImageSampleExplicitLod", v4, lookup, b.construct(2, u, v), 2, zero)
+
+    flag = b.extract(sample(b.const_float(1.5 / 4096.0), b.const_float(64.5 / rows)), 0)
+    is_grid = b.emit("FOrdGreaterThan", boolean, flag, b.const_float(0.5))
+    before, then, other, merge = b.m.id(), b.m.id(), b.m.id(), b.m.id()
+    b.m.code += [Module.inst("Branch", before), Module.inst("Label", before), Module.inst("SelectionMerge", merge, 0),
+                 Module.inst("BranchConditional", is_grid, then, other), Module.inst("Label", then)]
+    steps = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, b.ext(v3, GLSL_FCLAMP, color, b.const_vec(3, 0.0), b.const_vec(3, 1.0)), b.const_vec(3, 255.0)), b.const_vec(3, 0.5)))
+    channels = []
+    for c in range(3):
+        u = b.fmul(f, b.fadd(f, b.extract(steps, c), b.const_float(0.5)), b.const_float(1.0 / 4096.0))
+        channels.append(b.extract(sample(u, b.const_float((65.5 + c) / rows)), 0))
+    exact = b.construct(3, *channels)
+    b.m.code += [Module.inst("Branch", merge), Module.inst("Label", other)]
+    cell = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, b.ext(v3, GLSL_FCLAMP, color, b.const_vec(3, 0.0), b.const_vec(3, 1.0)), b.const_vec(3, 63.0)), b.const_vec(3, 0.5)))
+    column = b.fadd(f, b.fadd(f, b.fmul(f, b.extract(cell, 2), b.const_float(64.0)), b.extract(cell, 0)), b.const_float(0.5))
+    approximate = b.swizzle(sample(b.fmul(f, column, b.const_float(1.0 / 4096.0)), b.fmul(f, b.fadd(f, b.extract(cell, 1), b.const_float(0.5)), b.const_float(1.0 / rows))), 3)
+    b.m.code += [Module.inst("Branch", merge), Module.inst("Label", merge)]
+    return b.emit("Phi", v3, exact, then, approximate, other)
+
+
 def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
@@ -718,7 +757,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag]
 
     # Depth 8 of Graphics: what is drawn is made into the nearest color of the palette (set 1, binding 1 is the lookup texture, see
-    # fragment_shader_palette for how it is laid out: 4096 x 65, the 65th row has the average gap of the colors of each channel).
+    # fragment_shader_palette for how it is laid out: see palette_nearest_code).
     # Specialization constant 11 says the target is such a buffer (the pipeline for it is a twin of the other).
     #   layout(constant_id = 11) const bool palette = false;
     #   layout(set = 1, binding = 1) uniform sampler2D lut;
@@ -739,20 +778,17 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             b.m.code += [Module.inst("Branch", before), Module.inst("Label", before), Module.inst("SelectionMerge", merge, 0),
                          Module.inst("BranchConditional", flag, then, merge), Module.inst("Label", then)]
             made = make()
-            b.m.code += [Module.inst("Branch", merge), Module.inst("Label", merge)]
-            return b.emit("Phi", value_type, made, then, before_value, before)
+            last = b.m.id()  # make() may have blocks of its own, so the one that leaves is a new one
+            b.m.code += [Module.inst("Branch", last), Module.inst("Label", last), Module.inst("Branch", merge), Module.inst("Label", merge)]
+            return b.emit("Phi", value_type, made, last, before_value, before)
 
         def palette_pick(color, offset=None):
             """The color of the palette nearest to the color, with the offset (noise, in the unit of 1 for a whole channel) times the gaps of the palette added first."""
             lookup = b.load(lut_type, lut)
-            zero_l = b.const_float(0.0)
             if offset is not None:
-                gaps = b.swizzle(b.emit("ImageSampleExplicitLod", v4, lookup, b.construct(2, b.const_float(0.5 / 4096.0), b.const_float(64.5 / 65.0)), 2, zero_l), 3)
+                gaps = b.swizzle(b.emit("ImageSampleExplicitLod", v4, lookup, b.construct(2, b.const_float(0.5 / 4096.0), b.const_float(64.5 / PALETTE_ROWS)), 2, b.const_float(0.0)), 3)
                 color = b.fadd(v3, color, b.scale(3, gaps, offset))
-            cell = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, b.ext(v3, GLSL_FCLAMP, color, b.const_vec(3, 0.0), b.const_vec(3, 1.0)), b.const_vec(3, 63.0)), b.const_vec(3, 0.5)))
-            column = b.fadd(f, b.fadd(f, b.fmul(f, b.extract(cell, 2), b.const_float(64.0)), b.extract(cell, 0)), b.const_float(0.5))
-            coordinate = b.construct(2, b.fmul(f, column, b.const_float(1.0 / 4096.0)), b.fmul(f, b.fadd(f, b.extract(cell, 1), b.const_float(0.5)), b.const_float(1.0 / 65.0)))
-            return b.swizzle(b.emit("ImageSampleExplicitLod", v4, lookup, coordinate, 2, zero_l), 3)
+            return palette_nearest_code(b, lookup, color)
 
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
@@ -1151,7 +1187,7 @@ def fragment_shader_gamma():
 def fragment_shader_palette():
     """
     The same as the gamma shader for a Graphics of depth 8: the color that results is made into the nearest color of the palette. The
-    palette is a lookup texture of 4096 x 65 pixels (the 65th row has the average gap of the colors of each channel) that has the nearest palette color for every color of 6 bits per channel: red is
+    palette is a lookup texture of 4096 x 68 pixels (see palette_nearest_code) that has the nearest palette color for every color of 6 bits per channel: red is
     the column within a block of 64, green the row, and blue the block. The noise is one step of the palette for each channel
     instead of a step of 8 bits: the rows 0 to 2 of the table have it in the fourth value (255 times the step, or 0 for no dither).
 
@@ -1221,12 +1257,7 @@ def fragment_shader_palette():
         row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.const_int(channel)))
         dithered.append(b.fadd(f, channels[channel], b.fmul(f, centered, b.extract(row, 3))))
     color = b.construct(3, *dithered)
-    cell = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, b.ext(v3, GLSL_FCLAMP, color, b.const_vec(3, 0.0), b.const_vec(3, 1.0)), b.const_vec(3, 63.0)), b.const_vec(3, 0.5)))
-    half = b.const_float(0.5)
-    column = b.fadd(f, b.fadd(f, b.fmul(f, b.extract(cell, 2), b.const_float(64.0)), b.extract(cell, 0)), half)
-    u = b.fmul(f, column, b.const_float(1.0 / 4096.0))
-    v = b.fmul(f, b.fadd(f, b.extract(cell, 1), half), b.const_float(1.0 / 65.0))
-    picked = b.swizzle(b.emit("ImageSampleExplicitLod", v4, b.load(sampled, palette), b.construct(2, u, v), 2, b.const_float(0.0)), 3)
+    picked = palette_nearest_code(b, b.load(sampled, palette), color)
     b.store(out_color, b.construct(4, b.extract(picked, 0), b.extract(picked, 1), b.extract(picked, 2), b.const_float(1.0)))
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()

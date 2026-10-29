@@ -14,6 +14,7 @@
 // person that runs it. The tables are applied to the picture of the window instead, when it is shown: the front buffer
 // is not touched, so ReadPixel, SaveBuffer and the like see what was drawn.
 
+#include <algorithm>
 #include "graphics_internal.hpp"
 #include "shaders.inc"
 #include "environment.h"
@@ -106,7 +107,7 @@ namespace {
 	// The lookup texture: for every color of 6 bits per channel, the color of the palette that is nearest to the middle of it.
 	void update_palette_lookup()
 	{
-		std::vector<uint8_t> pixels(4096 * 65 * 4);
+		std::vector<uint8_t> pixels(size_t(4096) * 68 * 4);
 		for (int z = 0; z < 64; z++) {
 			for (int y = 0; y < 64; y++) {
 				for (int x = 0; x < 64; x++) {
@@ -120,17 +121,56 @@ namespace {
 				}
 			}
 		}
-		// The last row has the gaps of the palette (how far apart the colors of a channel are, from 0 to 1) in its first pixel: the shaders of 3D
-		// add the noise of Dither in steps of them.
+		// Row 64 has the gaps of the palette (how far apart the colors of a channel are, from 0 to 1) in its first pixel: the shaders of 3D
+		// add the noise of Dither in steps of them. Its second pixel says whether the palette is a grid, a palette with every combination
+		// of the levels of its channels (the default one is), for which the rows 65 to 67 have the nearest level of red, green and blue
+		// for every value of 8 bits, so that it is found exactly instead of by the 6 bit lookup.
+		uint8_t* gap_row = &pixels[size_t(64) * 4096 * 4];
 		for (int c = 0; c < 3; c++) {
-			pixels[size_t(64) * 4096 * 4 + c] = uint8_t(palette_steps[c] + 0.5f);
+			gap_row[c] = uint8_t(palette_steps[c] + 0.5f);
 		}
-		pixels[size_t(64) * 4096 * 4 + 3] = 255;
+		gap_row[3] = 255;
+		std::vector<int> levels[3];
+		for (int c = 0; c < 3; c++) {
+			bool seen[256] = {};
+			for (int i = 0; i < 256; i++) {
+				seen[palette[i][c]] = true;
+			}
+			for (int v = 0; v < 256; v++) {
+				if (seen[v]) {
+					levels[c].push_back(v);
+				}
+			}
+		}
+		std::vector<uint32_t> colors;
+		for (int i = 0; i < 256; i++) {
+			colors.push_back(uint32_t(palette[i][0]) | (uint32_t(palette[i][1]) << 8) | (uint32_t(palette[i][2]) << 16));
+		}
+		std::sort(colors.begin(), colors.end());
+		size_t distinct = size_t(std::unique(colors.begin(), colors.end()) - colors.begin());
+		bool   grid     = (levels[0].size() * levels[1].size() * levels[2].size() == distinct);
+		gap_row[4] = grid ? 255 : 0;
+		gap_row[7] = 255;
+		if (grid) {
+			for (int c = 0; c < 3; c++) {
+				for (int v = 0; v < 256; v++) {
+					int best = levels[c][0];
+					for (int level : levels[c]) {
+						if (abs(level - v) < abs(best - v)) {
+							best = level;
+						}
+					}
+					uint8_t* out = &pixels[(size_t(65 + c) * 4096 + size_t(v)) * 4];
+					out[0] = out[1] = out[2] = uint8_t(best);
+					out[3] = 255;
+				}
+			}
+		}
 		wait_gpu();
 		if (!palette_lookup.image) {
-			upload_texture(palette_lookup, palette_set, 4096, 65, pixels.data(), g.sampler_point_clamp);
+			upload_texture(palette_lookup, palette_set, 4096, 68, pixels.data(), g.sampler_point_clamp);
 		} else {
-			write_pixels(palette_lookup, 0, 0, 4096, 65, pixels.data(), false, false);
+			write_pixels(palette_lookup, 0, 0, 4096, 68, pixels.data(), false, false);
 		}
 		palette_changed = false;
 	}
