@@ -431,16 +431,16 @@ Check "smallest number divided by the constant -1", smallest / -1, smallest
 Check "divide by -1", 7 / minus_one, -7
 Check "divide by something else after the check", -7 / (minus_one + 3), -3
 
-; A real number that does not fit in an integer stops at the smallest or largest number, and NaN is 0.
+; A real number that does not fit in an Int, and NaN, become the smallest number like in the original.
 Local too_big# = 3000000000.0
 Local too_small# = -3000000000.0
 Local not_a_number# = Sqr(minus_one)
 Local fits_not = too_big
-Check "real too large for an integer", fits_not, 2147483647
+Check "real too large for an integer", fits_not, -2147483647 - 1
 fits_not = too_small
 Check "real too small for an integer", fits_not, -2147483647 - 1
 fits_not = not_a_number
-Check "NaN assigned to an integer", fits_not, 0
+Check "NaN assigned to an integer", fits_not, -2147483647 - 1
 Local fits_byte:Byte = 300.5
 Check "real too large for a byte", fits_byte, 127
 

@@ -329,7 +329,7 @@ namespace blitz {
 		value gen_userlib(ast::call const* node, bool& handled);
 		value gen_numeric(ast::call const* node, bool& handled);
 		value convert_explicit(value v, blitz::types::type to, bool saturate, ast::location const& where);
-		value saturate_real(value v, blitz::types::type to, ast::location const& where);
+		value saturate_real(value v, blitz::types::type to, ast::location const& where, bool indefinite = false);
 		value saturate_integer(value v, blitz::types::type to, ast::location const& where);
 		blitz::keywords::user_function const* find_userlib(std::string const& key) const;
 		value gen_unary(ast::unary const* node);

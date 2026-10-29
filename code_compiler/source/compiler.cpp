@@ -319,8 +319,8 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 			warn(where, "implicit-lossy-real-to-int", "Implicit conversion from " + t::long_name(from.type) + " to " + t::long_name(to) + ", the fractional part is lost.", "Use " + t::converter(to) + "(value) to convert on purpose, or Sat" + t::converter(to) + "(value) to stop at the limits of " + t::long_name(to) + ".", wrap_in(where, covers, t::converter(to)));
 		}
 		// Blitz rounds to the nearest whole number (halves go to the even one) instead of cutting off the fraction. What does not fit
-		// stops at the smallest or largest number and NaN is 0, as a plain conversion of LLVM is undefined for them.
-		return saturate_real(from, to, where);
+		// (and NaN) becomes the smallest Int/Int64, like in the original, as a plain conversion of LLVM is undefined for them.
+		return saturate_real(from, to, where, true);
 	} else if (from_real && to_real) {
 		auto r = tmp();
 		emit(r + (t::bits(to) > t::bits(from.type) ? " = fpext " : " = fptrunc ") + from_llvm + " " + from.repr + " to " + to_llvm);
