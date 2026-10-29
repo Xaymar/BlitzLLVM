@@ -12,6 +12,8 @@
 
 // Meshes and surfaces: making them, changing them and looking at them.
 
+#include <time.h>
+#include <stdio.h>
 #include "scene_internal.hpp"
 #include <array>
 #include <cstring>
@@ -391,8 +393,28 @@ namespace {
 	}
 } // namespace
 
+namespace {
+	// Temporary: BLITZLLVM_MESH_BOUNDS_STATS=1 prints the work of mesh_bounds once per second (never part of the PR).
+	struct mb_stats {
+		bool     on = false;
+		uint64_t calls = 0, visits = 0, dirty = 0, scans = 0, scanned_vertices = 0, skinned_scans = 0, last = 0;
+		mb_stats() { const char* v = getenv("BLITZLLVM_MESH_BOUNDS_STATS"); on = v && v[0] == '1'; }
+		void tick()
+		{
+			uint64_t now = uint64_t(clock()) / (CLOCKS_PER_SEC / 1000);
+			if (!last) { last = now; }
+			if (now - last >= 1000) {
+				fprintf(stderr, "MB_STATS calls %llu visits %llu dirty %llu scans %llu vertices %llu skinned_scans %llu\n", (unsigned long long)calls, (unsigned long long)visits, (unsigned long long)dirty, (unsigned long long)scans, (unsigned long long)scanned_vertices, (unsigned long long)skinned_scans);
+				calls = visits = dirty = scans = scanned_vertices = skinned_scans = 0;
+				last = now;
+			}
+		}
+	} mbs;
+}
+
 bool bb::mesh_bounds(entity& e, float* lo, float* hi)
 {
+	if (mbs.on) { mbs.calls++; mbs.tick(); }
 	lo[0] = lo[1] = lo[2] = 1e30f;
 	hi[0] = hi[1] = hi[2] = -1e30f;
 	bool any = false;
@@ -402,7 +424,9 @@ bool bb::mesh_bounds(entity& e, float* lo, float* hi)
 			continue;
 		}
 		// The box of a surface is kept until it changes, which is when surface_changed makes it invalid.
+		if (mbs.on) { mbs.visits++; mbs.dirty += s.dirty; }
 		if (!s.bound_valid) {
+			if (mbs.on) { mbs.scans++; mbs.scanned_vertices += s.vertices.size; mbs.skinned_scans += s.skin != nullptr; }
 			float slo[3], shi[3];
 			vertex_bounds(s.vertices.data, s.vertices.size, slo, shi);
 			memcpy(s.bound_min, slo, sizeof(slo));
