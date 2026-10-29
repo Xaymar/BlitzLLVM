@@ -118,6 +118,8 @@ function(blitz_install_licenses DESTINATION)
 	install(FILES "${_ROOT}/third_party/Vulkan-Headers/LICENSE.md" DESTINATION "${DESTINATION}/Vulkan-Headers" ${ARGN})
 	install(FILES "${_ROOT}/third_party/stb/LICENSE" DESTINATION "${DESTINATION}/stb" ${ARGN})
 	install(FILES "${_ROOT}/third_party/VulkanMemoryAllocator/LICENSE.txt" DESTINATION "${DESTINATION}/VulkanMemoryAllocator" ${ARGN})
+	# The shaders and lookup textures of AntiAlias (tools/generate_smaa.py).
+	install(FILES "${_ROOT}/tools/smaa/LICENSE" DESTINATION "${DESTINATION}/SMAA" ${ARGN})
 	foreach(_DIRECTORY IN LISTS BLITZRT_LICENSES)
 		install(DIRECTORY "${_DIRECTORY}/" DESTINATION "${DESTINATION}" ${ARGN})
 	endforeach()

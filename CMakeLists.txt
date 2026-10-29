@@ -132,7 +132,7 @@ endif()
 
 # Fail the install when a license is missing, so that rules which silently install nothing (a stale copy of the install
 # rules in code_compiler, say) can not ship a bundle without them. Declared after the sub-projects, so it runs after their installs.
-set(BLITZ_REQUIRED_LICENSES BlitzLLVM/LICENSE.adoc Vulkan-Headers/LICENSE.md VulkanMemoryAllocator/LICENSE.txt ${BLITZRT_REQUIRED_LICENSES})
+set(BLITZ_REQUIRED_LICENSES BlitzLLVM/LICENSE.adoc Vulkan-Headers/LICENSE.md VulkanMemoryAllocator/LICENSE.txt SMAA/LICENSE ${BLITZRT_REQUIRED_LICENSES})
 # check-licenses.sh reads the same list, so that it does not ask a package for the licenses of libraries that the system provides.
 list(JOIN BLITZ_REQUIRED_LICENSES "\n" _REQUIRED_LICENSES)
 file(WRITE "${CMAKE_BINARY_DIR}/required-licenses.txt" "${_REQUIRED_LICENSES}\nstb/LICENSE\n")
