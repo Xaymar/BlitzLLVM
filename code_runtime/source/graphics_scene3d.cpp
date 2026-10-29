@@ -90,7 +90,10 @@ namespace bb::gfx {
 	// Makes sure the GPU has the current geometry of the surface.
 	void* surface_prebuild(const bb::vertex3d* vertices, uint32_t vertex_count, const uint32_t* indices, uint32_t index_count)
 	{
-		if (!g.allocator || !vertex_count || !index_count) {
+		// Any thread: the allocator is the one that the program's thread handed over (see close_prebuild), held for as long as this runs.
+		std::shared_lock<std::shared_mutex> gate(prebuild_lock_gate());
+		VmaAllocator allocator = prebuild_allocator_unlocked();
+		if (!allocator || !vertex_count || !index_count) {
 			return nullptr;
 		}
 		surface_gpu* gpu     = new surface_gpu();
@@ -107,16 +110,18 @@ namespace bb::gfx {
 
 		info.size  = VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d);
 		info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		bool ok    = vmaCreateBuffer(g.allocator, &info, &alloc, &gpu->vertex_buffer, &gpu->vertex_allocation, &result) == VK_SUCCESS;
+		bool ok    = vmaCreateBuffer(allocator, &info, &alloc, &gpu->vertex_buffer, &gpu->vertex_allocation, &result) == VK_SUCCESS;
 		if (ok) {
 			gpu->vertex_mapped = result.pMappedData;
 			info.size          = VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t);
 			info.usage         = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-			ok                 = vmaCreateBuffer(g.allocator, &info, &alloc, &gpu->index_buffer, &gpu->index_allocation, &result) == VK_SUCCESS;
+			ok                 = vmaCreateBuffer(allocator, &info, &alloc, &gpu->index_buffer, &gpu->index_allocation, &result) == VK_SUCCESS;
 			gpu->index_mapped  = result.pMappedData;
 		}
 		if (!ok) {
-			destroy_buffer(gpu->vertex_buffer, gpu->vertex_allocation);
+			if (gpu->vertex_buffer) {
+				vmaDestroyBuffer(allocator, gpu->vertex_buffer, gpu->vertex_allocation);
+			}
 			delete gpu;
 			return nullptr;
 		}
