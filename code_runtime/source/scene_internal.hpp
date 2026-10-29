@@ -48,6 +48,8 @@ namespace bb::scene {
 	float rad(float degrees);
 	float deg(float radians);
 	entity* need(int handle, const char* what);
+	/** Like need, for the commands that move, turn, scale or re-parent the entity: an entity that EntityStatic made always static is automatic again. */
+	entity* need_moving(int handle, const char* what);
 	entity* need_kind(int handle, int kind, const char* what);
 	surface* need_surface(int handle, const char* what);
 	int add_entity(int kind, int parent);

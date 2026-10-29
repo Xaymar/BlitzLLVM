@@ -77,13 +77,29 @@ Check "Always does not wait, Auto does", TrisRendered(), 12
 Frames 20
 Check "Both in the table in the end", TrisRendered(), 0
 
-; Always is no promise that the mesh does not move: whatever the program does to it shows right away.
+; A mesh that is moved is not static: it is automatic again, and whatever the program does to it shows right away.
 PositionEntity e, 8, 100, 0
 Frames 1
 CheckTrue "Always moved away", Lit(8, 8) = 0
 PositionEntity e, 8, 8, 0
 Frames 1
 CheckTrue "Always moved back", Lit(8, 8)
+Check "Moved always mesh waits to settle again", TrisRendered(), 12
+Frames 20
+Check "Moved always mesh settled", TrisRendered(), 0
+For move = 1 To 5
+	EntityStatic e, 1
+	If move = 1 Then TranslateEntity e, 0, 0, 0
+	If move = 2 Then MoveEntity e, 0, 0, 0
+	If move = 3 Then TurnEntity e, 0, 0, 0
+	If move = 4 Then ScaleEntity e, 1, 1, 1
+	If move = 5 Then RotateEntity e, 0, 0, 0
+	Frames 1
+	Check "Always mesh is automatic after command " + move, TrisRendered(), 12
+	Frames 20
+Next
+EntityStatic e, 1
+Frames 20
 EntityColor e, 0, 0, 0
 Frames 1
 CheckTrue "Always colored black", Lit(8, 8) = 0
@@ -98,7 +114,6 @@ Check "Always is in the table again", TrisRendered(), 0
 
 ; A copy has the same setting.
 f = CopyEntity(e)
-PositionEntity f, 0, -8, 0
 Frames 3
 Check "The copy of an Always cube does not wait either", TrisRendered(), 0
 FreeEntity f
