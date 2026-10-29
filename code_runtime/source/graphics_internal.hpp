@@ -830,6 +830,10 @@ namespace bb::gfx {
 	VmaAllocator       prebuild_allocator_unlocked();
 	/** A buffer with its memory. Host buffers can be read and written by the CPU through 'mapped' (coherent, so nothing has to be flushed), the others are on the GPU. */
 	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped = nullptr);
+	// Vertex and index buffers of surfaces: the CPU only writes them (see BLITZLLVM_MESH_WRITE_ONLY).
+	void create_mesh_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation, void** mapped);
+	bool mesh_buffers_write_only();
+	void mesh_allocation_info(VmaAllocationCreateInfo& alloc);
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
 	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1, uint32_t layers = 1);
 	void destroy_image(gpu_image& img);

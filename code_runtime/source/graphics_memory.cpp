@@ -21,6 +21,7 @@
 // destroy_allocator), and the checks of its own use of Vulkan are for its developers.
 #define VMA_ASSERT(expr)
 #include "graphics_internal.hpp"
+#include "environment.h"
 
 namespace bb::gfx {
 	// The loader threads make the buffers of the surfaces of models (surface_prebuild), and the graphics state belongs to the thread of the
@@ -104,6 +105,55 @@ namespace bb::gfx {
 		if (mapped) {
 			*mapped = result.pMappedData;
 		}
+	}
+
+	bool mesh_buffers_write_only()
+	{
+		static const bool write_only = bb_env_bool("BLITZLLVM_MESH_WRITE_ONLY", false) != 0;
+		return write_only;
+	}
+
+	void mesh_allocation_info(VmaAllocationCreateInfo& alloc)
+	{
+		alloc                = {};
+		alloc.requiredFlags  = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		if (mesh_buffers_write_only()) {
+			// The CPU only writes these in order (memcpy) and never reads them, so the memory the GPU reads from, in video memory when the
+			// host can reach it (resizable BAR), is the one to ask for. Random access asks for cached memory in RAM, which the GPU reads over PCIe.
+			alloc.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
+			alloc.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+		} else {
+			alloc.usage = VMA_MEMORY_USAGE_AUTO;
+			alloc.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+		}
+	}
+
+	void create_mesh_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation, void** mapped)
+	{
+		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+		info.size               = size;
+		info.usage              = usage;
+		info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+		VmaAllocationCreateInfo alloc;
+		mesh_allocation_info(alloc);
+		VmaAllocationInfo result;
+		VkResult          created = vmaCreateBuffer(g.allocator, &info, &alloc, &buffer, &allocation, &result);
+		check(created, "vmaCreateBuffer");
+		if (created != VK_SUCCESS) {
+			buffer     = VK_NULL_HANDLE;
+			allocation = VK_NULL_HANDLE;
+			*mapped    = lost_dummy_memory(size_t(size));
+			return;
+		}
+		if (bb_env_bool("BLITZLLVM_MESH_REPORT", false)) {
+			static int reports = 0;
+			if (reports++ < 4) {
+				VkMemoryPropertyFlags flags = 0;
+				vmaGetAllocationMemoryProperties(g.allocator, allocation, &flags);
+				fprintf(stderr, "mesh buffer %llu bytes: memory flags 0x%x (device local %d, host cached %d)\n", static_cast<unsigned long long>(size), unsigned(flags), (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0, (flags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT) != 0);
+			}
+		}
+		*mapped = result.pMappedData;
 	}
 
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation)
