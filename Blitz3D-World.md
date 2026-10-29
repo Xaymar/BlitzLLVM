@@ -15,6 +15,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [CaptureWorld](CaptureWorld)
 * [ClearWorld](ClearWorld)
 * [Dither](Dither)
+* [DitherMode](DitherMode)
 * [DitherTemporal](DitherTemporal)
 * [HWDither](HWDither)
 * [HWMultiTex](HWMultiTex)

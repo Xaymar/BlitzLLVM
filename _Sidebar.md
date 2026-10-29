@@ -1197,7 +1197,7 @@
 <li><a href="VectorYaw">VectorYaw</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-World">World</a> (16)</summary>
+<li><details><summary><a href="Blitz3D-World">World</a> (17)</summary>
 <ul>
 <li><a href="ActiveTextures">ActiveTextures</a></li>
 <li><a href="AmbientLight">AmbientLight</a></li>
@@ -1205,6 +1205,7 @@
 <li><a href="CaptureWorld">CaptureWorld</a></li>
 <li><a href="ClearWorld">ClearWorld</a></li>
 <li><a href="Dither">Dither</a></li>
+<li><a href="DitherMode">DitherMode</a></li>
 <li><a href="DitherTemporal">DitherTemporal</a></li>
 <li><a href="HWDither">HWDither</a></li>
 <li><a href="HWMultiTex">HWMultiTex</a></li>

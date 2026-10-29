@@ -24,4 +24,4 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Terrain](Blitz3D-Terrain) (10): Height-map terrains.
 * [Textures](Blitz3D-Textures) (51): Creating, loading, transforming and filtering textures.
 * [Transforms](Blitz3D-Transforms) (13): Converting points, vectors and normals between entity spaces.
-* [World](Blitz3D-World) (16): Rendering, updating and clearing the 3D world.
+* [World](Blitz3D-World) (17): Rendering, updating and clearing the 3D world.

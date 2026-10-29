@@ -26,7 +26,7 @@ A BlitzLLVM extension: switches the movement of the noise of [Dither](Dither) on
 
 ## Related Commands
 
-[ClearWorld](ClearWorld), [Dither](Dither), [HWDither](HWDither), [HWMultiTex](HWMultiTex)
+[Dither](Dither), [DitherMode](DitherMode), [HWDither](HWDither), [HWMultiTex](HWMultiTex)
 
 <div align="center">
 
