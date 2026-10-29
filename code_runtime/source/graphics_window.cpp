@@ -21,6 +21,31 @@ using namespace bb::gfx;
 
 extern "C" int32_t bb_is_debug(void);
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+// The original Blitz windows have square corners; Windows 11 rounds every top-level window unless asked not to.
+static void disable_rounded_corners(SDL_Window* window)
+{
+#ifdef _WIN32
+	HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+	HMODULE dwmapi = LoadLibraryW(L"dwmapi.dll"); // Loaded at runtime, so older Windows versions keep working.
+	if (!hwnd || !dwmapi) {
+		return;
+	}
+	using set_attribute_t = HRESULT(WINAPI*)(HWND, DWORD, LPCVOID, DWORD);
+	if (auto set_attribute = (set_attribute_t)GetProcAddress(dwmapi, "DwmSetWindowAttribute")) {
+		const DWORD DWMWA_WINDOW_CORNER_PREFERENCE = 33, DWMWCP_DONOTROUND = 1;
+		DWORD preference = DWMWCP_DONOTROUND;
+		set_attribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference)); // Fails on versions before Windows 11; ignored.
+	}
+	FreeLibrary(dwmapi);
+#else
+	(void)window;
+#endif
+}
+
 extern "C" {
 
 // Graphics width, height, depth, mode.
@@ -76,6 +101,9 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		g.fullscreen = true;
 		SDL_SetWindowPosition(g.window, bounds.x, bounds.y); // For systems that do not move a fullscreen window.
 		SDL_SyncWindow(g.window);
+	}
+	if (mode != 1) {
+		disable_rounded_corners(g.window);
 	}
 	SDL_StartTextInput(g.window);
 	g.auto_suspend = (mode == 1); // Fullscreen programs are suspended when they are not in front, unless they say not.
