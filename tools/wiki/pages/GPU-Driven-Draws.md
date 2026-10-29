@@ -15,7 +15,7 @@ A mesh goes in the table after it has stayed untouched for four frames, and only
 
 ## What takes a mesh out of the table
 
-Any command that takes the entity (moving it, coloring it, hiding it, freeing it, painting it, ...) takes that mesh out of the table, and it goes back in after four frames without being touched (the next frame for a mesh with `EntityStatic 1`, so even an always static mesh that is changed shows exactly what the program did, never an old picture of it). These throw the whole table away, because every mesh depends on them: any change of a light, the vertices or paint of any surface, any command that takes a texture, `WireFrame`, and a change of `Dither`. When such a change happens every frame (an animated mesh, a program that changes a texture each frame) the table waits longer and longer before it is made again, so a scene that changes all the time is drawn the usual way.
+Any command that takes the entity (moving it, coloring it, hiding it, freeing it, painting it, ...) takes that mesh out of the table, and it goes back in after four frames without being touched (a mesh with `EntityStatic 1` that is moved, turned, scaled or re-parented goes back to `EntityStatic 0`; anything else that changes it is shown at once and it goes back in the next frame without the wait). These throw the whole table away, because every mesh depends on them: any change of a light, the vertices or paint of any surface, any command that takes a texture, `WireFrame`, and a change of `Dither`. When such a change happens every frame (an animated mesh, a program that changes a texture each frame) the table waits longer and longer before it is made again, so a scene that changes all the time is drawn the usual way.
 
 ## Differences
 
