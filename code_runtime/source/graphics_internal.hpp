@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <shared_mutex>
 #include <string>
 #include <vector>
 
@@ -823,6 +824,10 @@ namespace bb::gfx {
 	/** The memory of buffers and images comes from VulkanMemoryAllocator, which is made once the device exists and has to be destroyed before it. */
 	void create_allocator(PFN_vkGetInstanceProcAddr get_instance_proc);
 	void destroy_allocator();
+	/** Loader threads make buffers with the allocator while this is open: it is handed to them when it is made, and taken back (waiting for them) here. */
+	void close_prebuild();
+	std::shared_mutex& prebuild_lock_gate();
+	VmaAllocator       prebuild_allocator_unlocked();
 	/** A buffer with its memory. Host buffers can be read and written by the CPU through 'mapped' (coherent, so nothing has to be flushed), the others are on the GPU. */
 	void create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, bool host, VkBuffer& buffer, VmaAllocation& allocation, void** mapped = nullptr);
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
