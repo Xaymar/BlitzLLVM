@@ -22,7 +22,7 @@ OP = dict(
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
-    Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstant=50,
+    Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstant=50, SpecConstantComposite=51,
     Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
     IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
@@ -885,6 +885,19 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         #   if (dither) { vec2 xy = floor(gl_FragCoord.xy) + vec2(scene.projection.w - 1.0);
         #                 rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0 * (not exact); }
         # The shader that blends itself dithers what it blends instead, always, as it is only used when Dither is 2.
+        # The noise is one step of the target: 1 / 255 for an 8 bit target, and a larger one for the 16, 15 and 12 bit buffers (their
+        # bits per channel are fewer). Specialization constants 8 to 10 are 255 / (largest value of the channel) for red, green and blue,
+        # which is 1 unless the buffer of Graphics has fewer than 8 bits per channel (the pipelines are made again with the buffer).
+        #   layout(constant_id = 8) const float scale_r = 1.0;  (9 for green, 10 for blue)
+        scales = []
+        for number in (8, 9, 10):
+            constant = b.m.id()
+            b.m.types.append(Module.inst("SpecConstant", f, constant, float_bits(1.0)))
+            b.m.annotations.append(Module.inst("Decorate", constant, DECORATION["SpecId"], number))
+            scales.append(constant)
+        scale = b.m.id()
+        b.m.types.append(Module.inst("SpecConstantComposite", v3, scale, *scales))
+
         def noise_offset():
             w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
             frag = b.load(v4, in_frag)
@@ -896,13 +909,13 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             return b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
 
         def noise_for(color):
-            # A channel that the 8 bit target shows exactly gets no noise: a GPU may convert with a little error, which turns the
+            # A channel that the target shows exactly gets no noise: a GPU may convert with a little error, which turns the
             # lowest noise (half a step below) into a step below the color, in some pixels. Within 1/64 of a step counts as exact.
-            #   vec3 steps = rgb * 255.0;  noise * step(1.0 / 64.0, abs(steps - floor(steps + 0.5)));
-            steps = b.fmul(v3, color, b.const_vec(3, 255.0))
+            #   vec3 steps = rgb * 255.0 / scale;  noise * scale * step(1.0 / 64.0, abs(steps - floor(steps + 0.5)));
+            steps = b.emit("FDiv", v3, b.fmul(v3, color, b.const_vec(3, 255.0)), scale)
             away = b.ext(v3, GLSL_FABS, b.fsub(v3, steps, b.ext(v3, GLSL_FLOOR, b.fadd(v3, steps, b.const_vec(3, 0.5)))))
             inexact = b.ext(v3, GLSL_STEP, b.const_vec(3, 1.0 / 64.0), away)
-            return b.fmul(v3, b.scale(3, b.const_vec(3, 1.0), noise_offset()), inexact)
+            return b.fmul(v3, b.scale(3, scale, noise_offset()), inexact)
 
         if blend:
             # The blend of the fixed-function pipeline, with the factors as specialization constants (ids 1 to 5). The factor of

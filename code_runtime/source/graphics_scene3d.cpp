@@ -256,17 +256,26 @@ namespace bb::gfx {
 			VkBool32 dither;
 			float    factor[5];
 			float    limit[2];
+			float    scale[3];
 		} constants;
 		constants.dither = dither_code() > 0.0f ? VK_TRUE : VK_FALSE;
 		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
 		memcpy(constants.limit, limits, sizeof(limits));
-		VkSpecializationMapEntry entries[8] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
+		// The noise is a step of the target: 255 / (largest value of a channel) times the one of 8 bits, for the buffers of 16, 15 and 12 bits.
+		const packed_layout* packed = packed_layout_of(color_format);
+		for (int c = 0; c < 3; c++) {
+			constants.scale[c] = packed ? 255.0f / float((1u << packed->bits[c]) - 1u) : 1.0f;
+		}
+		VkSpecializationMapEntry entries[11] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
 		for (uint32_t i = 0; i < 5; i++) {
 			entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
 		}
 		entries[6]                                       = { 6, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) };
 		entries[7]                                       = { 7, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) };
-		VkSpecializationInfo specialization              = { 8u, entries, sizeof(constants), &constants };
+		for (uint32_t i = 0; i < 3; i++) {
+			entries[8 + i] = { 8 + i, uint32_t(offsetof(decltype(constants), scale) + i * sizeof(float)), sizeof(float) };
+		}
+		VkSpecializationInfo specialization              = { 11u, entries, sizeof(constants), &constants };
 		stages[1].pSpecializationInfo                    = &specialization;
 		VkSpecializationMapEntry vertex_entries[2]       = { { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) }, { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) } };
 		VkSpecializationInfo     vertex_specialization   = { 2u, vertex_entries, sizeof(constants), &constants };
