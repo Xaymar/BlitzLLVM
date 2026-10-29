@@ -26,8 +26,9 @@ extern "C" {
 // Graphics width, height, depth, mode. Graphics3D is this same function: there is no 2D-only mode, so the 3D commands work
 // after either of them.
 // Modes: 0 = windowed, 1 = fullscreen, 2 = windowed, 3 = resizable window,
-// 4 = window without a border (a BlitzLLVM extension). The depth picks what the buffers are made of: 24 is R8G8B8X8,
-// 30 is R10G10B10A2, 32 (and 0 and 16) is R8G8B8A8 and 64 is R16G16B16A16 as half precision floats.
+// 4 = window without a border (a BlitzLLVM extension). The depth picks what the buffers are made of: 8 is a palette of 256 colors
+// (see GraphicsPallet), 12 is R4G4B4A4, 15 is A1R5G5B5, 16 is R5G6B5, 24 is R8G8B8X8, 30 is R10G10B10A2, 32 (and 0) is R8G8B8A8 and
+// 64 is R16G16B16A16 as half precision floats.
 void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 {
 	if ((width <= 0) || (height <= 0)) {
@@ -40,7 +41,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 
 	bb_reset_texture_filters();
 	g.requested_depth = depth;
-	g.buffer_depth    = (depth == 24 || depth == 30 || depth == 64) ? depth : 32;
+	g.buffer_depth    = (depth == 8 || depth == 12 || depth == 15 || depth == 16 || depth == 24 || depth == 30 || depth == 64) ? depth : 32;
 	g.buffer_format   = VK_FORMAT_R8G8B8A8_UNORM;
 	g.headless = bb_env_bool("BLITZLLVM_HEADLESS", 0) != 0;
 	g.width    = uint32_t(width);
@@ -340,6 +341,7 @@ void bb_flip(int32_t vwait)
 		return; // Minimized
 	}
 	// What was asked for and the present are sent together.
+	prepare_palette();
 	begin_commands();
 	record_operations();
 	g.front_touched = false;

@@ -1013,6 +1013,13 @@ namespace bb::gfx {
 	/** Loads a picture file with SDL_image, and DDS files with our own decoder. The surface is for the caller to destroy. */
 	SDL_Surface* load_surface(const char* file);
 
+	/** How a buffer of 16, 15 or 12 bits keeps a pixel: the first bit and the number of bits of red, green, blue and alpha (0 bits is no alpha). Null for any other format. */
+	struct packed_layout {
+		VkFormat format;
+		uint8_t  shift[4];
+		uint8_t  bits[4];
+	};
+	const packed_layout* packed_layout_of(VkFormat format);
 	/** A picture file that is either decoded (surface), or a DDS file whose blocks are kept as they are. */
 	struct picture {
 		SDL_Surface* surface   = nullptr;
