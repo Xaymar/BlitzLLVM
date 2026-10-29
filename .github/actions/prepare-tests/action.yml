@@ -25,7 +25,7 @@ runs:
       shell: bash
       # In the same place as it was built (the workspace of the runner is the same on every job of a platform), because the tests
       # are registered with absolute paths.
-      run: tar -xzf "$RUNNER_TEMP/test-build/test-build.tgz"
+      run: gzip -dc "$RUNNER_TEMP/test-build/test-build.tgz" | tar -xf -
     - name: Select the tests
       shell: bash
       working-directory: build/code_compiler

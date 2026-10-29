@@ -76,6 +76,7 @@ jobs:
           PY
 
   build:
+    name: build (${{ matrix.name }})
     needs: matrix
     strategy:
       # One platform failing fails the whole run: the other platforms are cancelled instead of building to the end.
@@ -204,7 +205,8 @@ jobs:
         if: inputs.tests
         shell: bash
         run: |
-          tar -czf "$RUNNER_TEMP/test-build.tgz" --exclude='*.o' --exclude='*.obj' --exclude='*.pdb' --exclude='*.ilk' --exclude='*.pch' --exclude='.ninja_*' --exclude='build/ExternalContentFiles' build
+          # Through a pipe: GNU tar reads "D:\a\..." as a file on a computer called D.
+          tar -cf - --exclude='*.o' --exclude='*.obj' --exclude='*.pdb' --exclude='*.ilk' --exclude='*.pch' --exclude='.ninja_*' --exclude='build/ExternalContentFiles' build | gzip -1 > "$RUNNER_TEMP/test-build.tgz"
           ls -l "$RUNNER_TEMP/test-build.tgz"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: inputs.tests
