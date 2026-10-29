@@ -150,7 +150,7 @@ main() {
 		fi
 
 		[ $changed -eq 1 ] && echo "pre-commit: updated copyright header of '$file'."
-	done < <(git diff --cached --name-only -z --diff-filter=ACM)
+	done < <(git diff --cached --name-only -z --diff-filter=ACMR)
 	return $status
 }
 
