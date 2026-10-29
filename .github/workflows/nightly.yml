@@ -83,7 +83,7 @@ jobs:
       - name: Install git for checkout
         if: matrix.container
         run: |
-          if command -v dnf >/dev/null; then dnf install -y git tar; else pacman -Sy --noconfirm git tar; fi
+          if command -v dnf >/dev/null; then dnf install -y git tar; else pacman -Syu --noconfirm git tar; fi
       - uses: actions/checkout@v4
       - name: Trust the checkout
         # The container user is not the owner of the workspace, and git refuses to work in it otherwise.
