@@ -226,6 +226,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [DisplayX](DisplayX) 〔BlitzLLVM〕
 * [DisplayY](DisplayY) 〔BlitzLLVM〕
 * [Dither](Dither)
+* [DitherTemporal](DitherTemporal)
 * [DottedIP](DottedIP)
 * [Double](Double) 〔BlitzLLVM〕
 * [DrawBlock](DrawBlock)
