@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push --force-with-lease origin claude/*)",
+      "Bash(git push --force-with-lease -u origin claude/*)",
+      "Bash(git push -u origin claude/*)",
+      "Bash(git push origin claude/*)"
+    ]
+  }
+}
