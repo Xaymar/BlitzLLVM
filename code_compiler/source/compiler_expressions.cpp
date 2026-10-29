@@ -309,6 +309,9 @@ blitz::compiler::value blitz::compiler::gen_userlib(ast::call const* node, bool&
 	if (!entry) {
 		return {};
 	}
+	if ((node->type != type::UNKNOWN) && (entry->ret != type::UNKNOWN) && (node->type != entry->ret)) {
+		throw err(node->where, "Type mismatch: '" + node->name + "' is used as '" + blitz::types::to_string(node->type) + "', but was defined as '" + blitz::types::to_string(entry->ret) + "'.");
+	}
 	auto args = node->arguments.size();
 	if (args != entry->params.size()) {
 		throw err(node->where, "Function '" + node->name + "' expects " + std::to_string(entry->params.size()) + " arguments, got " + std::to_string(args) + ".");
