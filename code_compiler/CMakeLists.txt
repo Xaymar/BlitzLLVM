@@ -431,9 +431,11 @@ endforeach()
 
 # Which tests a change has to run (.github/scripts/test-select.py, tests/test_selection.json): the mapping logic, and that every program of the suite is in an area.
 # The comment that lists the results (.github/scripts/test-report.py): what is folded away and what stays visible.
+# The hook that decides which git pushes need no permission prompt (.claude/hooks/check-git-push.py).
 if(Python3_FOUND)
 	add_test(NAME ci-test-select COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/ci/test_select.py")
 	add_test(NAME ci-test-report COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/ci/test_report.py")
+	add_test(NAME ci-push-hook COMMAND ${Python3_EXECUTABLE} "${TEST_DIRECTORY}/ci/test_push_hook.py")
 endif()
 
 add_test(
