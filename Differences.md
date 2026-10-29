@@ -59,7 +59,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [Animate](Animate#differences): The transition argument is accepted but ignored: the entity jumps to the first frame of the new animation.
 * [AnimateEntity](AnimateEntity#differences) 〔BlitzLLVM〕: The transition argument is accepted but ignored, like in Animate.
 * [AnimateMD2](AnimateMD2#differences): The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
-* [AntiAlias](AntiAlias#differences): Accepted and ignored.
+* [AntiAlias](AntiAlias#differences): The original handed the setting to the graphics driver, where it did nothing on most hardware of the time.
 * [AppTitle](AppTitle#differences): The title is only used once a graphics mode is open.
 * [AsyncLoading](AsyncLoading#differences) 〔BlitzLLVM〕: With asynchronous loading on, a picture or model with a valid header that cannot be decoded raises its error when it is first used and not as a 0 from the load.
 * [AsyncSaving](AsyncSaving#differences) 〔BlitzLLVM〕: With asynchronous saving on, a file that can't be written (a folder that does not exist, a full disk) is not a 0 from the save command, but is counted by SavesFailed.
