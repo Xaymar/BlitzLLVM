@@ -260,6 +260,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [EntityDistance](EntityDistance)
 * [EntityFX](EntityFX)
 * [EntityInView](EntityInView)
+* [EntityLightChannel](EntityLightChannel) 〔BlitzLLVM〕
 * [EntityName](EntityName)
 * [EntityOrder](EntityOrder)
 * [EntityParent](EntityParent)

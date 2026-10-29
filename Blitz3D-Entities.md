@@ -22,6 +22,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [EntityDistance](EntityDistance)
 * [EntityFX](EntityFX)
 * [EntityInView](EntityInView)
+* [EntityLightChannel](EntityLightChannel) 〔BlitzLLVM〕
 * [EntityName](EntityName)
 * [EntityOrder](EntityOrder)
 * [EntityParent](EntityParent)

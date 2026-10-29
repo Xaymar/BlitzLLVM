@@ -15,7 +15,7 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Cameras](Blitz3D-Cameras) (13): Camera range, viewport, fog and projection.
 * [Collisions](Blitz3D-Collisions) (19): Collision types, responses and results.
 * [Display](Blitz3D-Display) (9): Opening 3D modes and querying driver capabilities.
-* [Entities](Blitz3D-Entities) (41): Creating, moving, scaling and querying entities.
+* [Entities](Blitz3D-Entities) (42): Creating, moving, scaling and querying entities.
 * [Lights](Blitz3D-Lights) (5): Light types, color, range and cone angles.
 * [Meshes](Blitz3D-Meshes) (23): Creating, loading, transforming and querying meshes.
 * [Picking](Blitz3D-Picking) (15): Finding what lies under a point, line or camera position.
