@@ -639,7 +639,7 @@ static int compiler_main(int argc, char** argv)
 		}
 		// Libraries of the system that the runtime was built to use instead of its own copies (packages of Linux), one linker flag per line.
 		// A line "#system <name>" says that the system provides what is loaded at run time instead of shipped next to the programs:
-		// "ffmpeg" for the libraries of FFmpeg and "image-codecs" for the codecs of SDL_image.
+		// "ffmpeg" for the libraries of FFmpeg, "image-codecs" for the codecs of SDL_image and "audio-codecs" for Opus (opusfile, libopus and libogg).
 		std::vector<std::string> system_libraries;
 		std::set<std::string>    system_loaded;
 		if (!windows_target) {
@@ -822,10 +822,12 @@ static int compiler_main(int argc, char** argv)
 		}
 		// Shared libraries are not linked into the program but loaded by it when it needs them, from the directory of the program. So the
 		// ones that a program may need are copied from the runtime directory next to it: the libraries of FFmpeg when it opens movies (see
-		// movie.cpp), and the image codecs (AVIF, JPEG XL and WebP, loaded by SDL_image) when it has a window, which is what loads images.
+		// movie.cpp), the image codecs (AVIF, JPEG XL and WebP, loaded by SDL_image) when it has a window, which is what loads images, and the
+		// Opus libraries (loaded by SDL_mixer for .opus files, and by movie.cpp) when it loads sounds or opens movies.
 		if (std::filesystem::is_directory(lib_dir)) {
-			auto copy_shared = [&](bool ffmpeg, const char* what) {
-				if (system_loaded.count(ffmpeg ? "ffmpeg" : "image-codecs")) {
+			enum class family { ffmpeg, image, audio };
+			auto copy_shared = [&](family wanted, const char* what) {
+				if (system_loaded.count(wanted == family::ffmpeg ? "ffmpeg" : (wanted == family::image ? "image-codecs" : "audio-codecs"))) {
 					return;
 				}
 				std::error_code ec;
@@ -834,11 +836,14 @@ static int compiler_main(int argc, char** argv)
 					auto name      = entry.path().filename().string();
 					auto ext       = entry.path().extension().string();
 					bool shared    = (ext == ".dll") || (ext == ".dylib") || (name.find(".so.") != std::string::npos);
-					bool is_ffmpeg = false;
-					for (auto family : { "avcodec", "avformat", "avutil", "swscale", "swresample" }) {
-						is_ffmpeg = is_ffmpeg || (name.find(family) != std::string::npos);
+					family has = family::image;
+					for (auto library : { "avcodec", "avformat", "avutil", "swscale", "swresample" }) {
+						has = (name.find(library) != std::string::npos) ? family::ffmpeg : has;
 					}
-					if (shared && (is_ffmpeg == ffmpeg)) {
+					for (auto library : { "opus", "ogg" }) {
+						has = (name.find(library) != std::string::npos) ? family::audio : has;
+					}
+					if (shared && (has == wanted)) {
 						// Programs that are running from that directory have these libraries mapped, and writing into the file they are mapped from
 						// crashes them. So a copy that is there already is kept, and a new one is made beside it and moved over it.
 						auto target = opt.output.parent_path() / name;
@@ -863,10 +868,17 @@ static int compiler_main(int argc, char** argv)
 				}
 			};
 			if (ir.find("@bb_open_movie") != std::string::npos) {
-				copy_shared(true, "opens movies (needs the libraries of FFmpeg)");
+				copy_shared(family::ffmpeg, "opens movies (needs the libraries of FFmpeg)");
+				copy_shared(family::audio, "opens movies (needs libopus to play Opus sound)");
 			}
 			if (ir.find("@bb_graphics") != std::string::npos) {
-				copy_shared(false, "loads images (needs the codec libraries of SDL_image to open AVIF, JPEG XL and WebP files)");
+				copy_shared(family::image, "loads images (needs the codec libraries of SDL_image to open AVIF, JPEG XL and WebP files)");
+			}
+			for (auto sound : { "@bb_load_sound", "@bb_load_3d_sound", "@bb_play_music" }) {
+				if (ir.find(sound) != std::string::npos) {
+					copy_shared(family::audio, "loads sounds (needs the Opus libraries to play .opus files)");
+					break;
+				}
 			}
 		}
 		if (run_it) {
