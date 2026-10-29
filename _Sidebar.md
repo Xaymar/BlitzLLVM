@@ -12,6 +12,7 @@
 <li><a href="Language-Quirks">Language Quirks</a></li>
 <li><a href="Environment-Variables">Environment variables</a></li>
 <li><a href="Releasing">Releasing</a></li>
+<li><a href="GPU-Driven-Draws">GPU-driven draws</a></li>
 <li><a href="Spatial-Grid">Spatial grid</a></li>
 </ul>
 
