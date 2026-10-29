@@ -78,4 +78,4 @@ Check "Two tenths of the way", VertexX(surf, 1), 19.6, 0.05
 
 FreeEntity md2_model
 DeleteFile name
-Done "md2_pose"
+Done "blitz3d_md2_pose"
