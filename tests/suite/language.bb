@@ -408,4 +408,15 @@ label_hit = 2
 Return
 .after_ünder
 
+; A default value is worked out in the function, so a variable of the caller with the same name is not seen.
+Global default_source = 100
+Function DefaultFromGlobal(a, b = default_source)
+	Return a + b
+End Function
+Function DefaultCaller()
+	Local default_source = 5
+	Return DefaultFromGlobal(1)
+End Function
+Check "default value does not see the locals of the caller", DefaultCaller(), 101
+
 Done "language"
