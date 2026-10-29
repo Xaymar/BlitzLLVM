@@ -109,7 +109,7 @@ namespace bb::gfx {
 
 	bool mesh_buffers_write_only()
 	{
-		static const bool write_only = bb_env_bool("BLITZLLVM_MESH_WRITE_ONLY", false) != 0;
+		static const bool write_only = bb_env_bool("BLITZLLVM_MESH_WRITE_ONLY", true) != 0;
 		return write_only;
 	}
 

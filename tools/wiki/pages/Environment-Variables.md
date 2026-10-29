@@ -34,7 +34,6 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start; va
 | `BLITZLLVM_HEADLESS` | `0` | Runs without a window and without sound; dialogs answer with what is safe. For automated runs. |
 | `BLITZLLVM_DIALOG_ANSWER` | not set | The number of the button that a dialog presses without being shown, for automated runs, see [[Multiplayer]]. |
 | `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[Memory]]. |
-| `BLITZLLVM_MESH_WRITE_ONLY` | `0` | Asks for write-only memory (video memory the CPU can reach, where there is some) for the vertex and index buffers of meshes, instead of memory the CPU may also read, which is in RAM on most GPUs. Being measured. |
 
 ## Features that can be turned off
 
@@ -51,6 +50,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_LIGHT_GRID` | The grid that finds the lights that reach a mesh. |
 | `BLITZLLVM_LIGHT_CACHE` | Remembering which lights reach a mesh. |
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[Spatial-Grid]]. |
+| `BLITZLLVM_MESH_WRITE_ONLY` | The memory of the vertex and index buffers of meshes: video memory the CPU can reach, where there is some, instead of memory in RAM that the GPU reads over PCIe. |
 | `BLITZLLVM_DEVICE_RECOVERY` | Making the graphics again after the graphics device was lost, see [[Lost-Graphics-Device]]. Off, a lost device ends the program and no copies of the pixels are kept. |
 
 ## Tuning
