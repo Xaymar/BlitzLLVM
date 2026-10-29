@@ -342,7 +342,12 @@ blitz::compiler::value blitz::compiler::convert(value from, type to, ast::locati
 			warn(where, "implicit-string-to-number", "Implicit conversion from String to " + t::long_name(to) + ".", "Use " + t::converter(to) + "(value) to convert on purpose.", wrap_in(where, covers, t::converter(to)));
 		}
 		if (to_int) {
-			// Like atoi: what does not fit stops at the largest number, and 64 bit targets get more room.
+			// Like atoi: what does not fit stops at the largest number, and 64 bit targets get more room. Unsigned targets
+			// have room for the whole positive range.
+			if (!t::is_signed(to)) {
+				bool wide = t::bits(to) > 32;
+				return convert(call_runtime(wide ? "bb_str_to_u64" : "bb_str_to_u32", wide ? type::UINT64 : type::UINT32, { from }), to, where, false);
+			}
 			if (t::bits(to) > 32) {
 				return convert(call_runtime("bb_str_to_i64", type::INT64, { from }), to, where, false);
 			}

@@ -102,15 +102,15 @@ const char* bb_str_from_f64(double v)
 // Unlike the original, a `$` or `0x` prefix gives hexadecimal and a `%` or `0b` prefix gives binary digits, as in source
 // code. Those are bit patterns: they wrap around instead of stopping at the largest number, so "$FFFFFFFF" is -1 as an
 // Int, 4294967295 as a UInt, and a prefix without digits ("$", "0x", "0bz") is 0.
-static int64_t bb_str_parse(const char* s, bool* prefixed)
+static uint64_t bb_str_parse(const char* s, bool* prefixed, bool* negative)
 {
 	s = bb_s(s);
 	while (isspace((unsigned char)*s)) {
 		s++;
 	}
-	bool negative = false;
+	*negative = false;
 	if ((*s == '-') || (*s == '+')) {
-		negative = (*s == '-');
+		*negative = (*s == '-');
 		s++;
 	}
 
@@ -122,56 +122,76 @@ static int64_t bb_str_parse(const char* s, bool* prefixed)
 		base = ((s[1] == 'x') || (s[1] == 'X')) ? 16 : 2;
 		s += 2;
 	}
-	if (base != 10) {
-		uint64_t v = 0;
-		for (;; s++) {
-			unsigned digit;
-			if ((*s >= '0') && (*s <= '9')) {
-				digit = (unsigned)(*s - '0');
-			} else if ((*s >= 'a') && (*s <= 'f')) {
-				digit = (unsigned)(*s - 'a') + 10;
-			} else if ((*s >= 'A') && (*s <= 'F')) {
-				digit = (unsigned)(*s - 'A') + 10;
-			} else {
-				break;
-			}
-			if (digit >= base) {
-				break;
-			}
-			v = v * base + digit;
-		}
-		*prefixed = true;
-		return negative ? (int64_t)(0 - v) : (int64_t)v;
-	}
 
-	*prefixed      = false;
-	uint64_t limit = negative ? (uint64_t)INT64_MAX + 1 : (uint64_t)INT64_MAX, v = 0;
-	for (; (*s >= '0') && (*s <= '9'); s++) {
-		unsigned digit = (unsigned)(*s - '0');
-		if (v > (limit - digit) / 10) {
-			v = limit;
+	// Decimal numbers stop at the largest number (UINT64_MAX here), prefixed ones wrap around.
+	*prefixed  = (base != 10);
+	uint64_t v = 0;
+	for (;; s++) {
+		unsigned digit;
+		if ((*s >= '0') && (*s <= '9')) {
+			digit = (unsigned)(*s - '0');
+		} else if ((base == 16) && (*s >= 'a') && (*s <= 'f')) {
+			digit = (unsigned)(*s - 'a') + 10;
+		} else if ((base == 16) && (*s >= 'A') && (*s <= 'F')) {
+			digit = (unsigned)(*s - 'A') + 10;
+		} else {
 			break;
 		}
-		v = v * 10 + digit;
+		if (digit >= base) {
+			break;
+		}
+		if ((base == 10) && (v > (UINT64_MAX - digit) / 10)) {
+			return UINT64_MAX;
+		}
+		v = v * base + digit;
 	}
-	return negative ? (int64_t)(0 - v) : (int64_t)v;
+	return v;
 }
 
 int64_t bb_str_to_i64(const char* s)
 {
-	bool prefixed;
-	return bb_str_parse(s, &prefixed);
+	bool     prefixed, negative;
+	uint64_t v = bb_str_parse(s, &prefixed, &negative);
+	if (!prefixed) {
+		uint64_t limit = negative ? (uint64_t)INT64_MAX + 1 : (uint64_t)INT64_MAX;
+		v              = (v > limit) ? limit : v;
+	}
+	return negative ? (int64_t)(0 - v) : (int64_t)v;
 }
 
 // The same for 32 bits, which is what Int and the implicit conversion of the original give.
 int32_t bb_str_to_i32(const char* s)
 {
-	bool    prefixed;
-	int64_t v = bb_str_parse(s, &prefixed);
+	bool    prefixed, negative;
+	int64_t v = (int64_t)bb_str_parse(s, &prefixed, &negative);
 	if (prefixed) {
+		v = (int64_t)(negative ? (0 - (uint64_t)v) : (uint64_t)v);
 		return (int32_t)(uint32_t)((uint64_t)v & 0xFFFFFFFFu);
 	}
+	v = bb_str_to_i64(s);
 	return (v > INT32_MAX) ? INT32_MAX : ((v < INT32_MIN) ? INT32_MIN : (int32_t)v);
+}
+
+// For UInt and ULong targets, which have the whole range of positive numbers: "4294967295" is not cut off at the largest
+// Int. A negative number wraps around, like converting the negative Int would.
+uint64_t bb_str_to_u64(const char* s)
+{
+	bool     prefixed, negative;
+	uint64_t v = bb_str_parse(s, &prefixed, &negative);
+	return negative ? (uint64_t)bb_str_to_i64(s) : v;
+}
+
+uint32_t bb_str_to_u32(const char* s)
+{
+	bool     prefixed, negative;
+	uint64_t v = bb_str_parse(s, &prefixed, &negative);
+	if (prefixed) {
+		return (uint32_t)(negative ? (0 - v) : v);
+	}
+	if (negative) {
+		return (uint32_t)bb_str_to_i32(s);
+	}
+	return (v > UINT32_MAX) ? UINT32_MAX : (uint32_t)v;
 }
 
 double bb_str_to_f64(const char* s)
