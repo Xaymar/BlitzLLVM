@@ -25,6 +25,7 @@ required=(
 	Vulkan-Headers/LICENSE.md
 	stb/LICENSE
 	VulkanMemoryAllocator/LICENSE.txt
+	SMAA/LICENSE
 	Blitz3D/LICENSE.TXT
 	BlitzPlus/LICENSE.TXT
 )

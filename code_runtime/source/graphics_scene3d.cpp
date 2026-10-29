@@ -828,7 +828,7 @@ namespace bb::gfx {
 		}
 	}
 
-	static gpu_image& depth_for(uint32_t width, uint32_t height)
+	gpu_image& depth_for(uint32_t width, uint32_t height)
 	{
 		for (uint32_t i = 0; i < max_depths; i++) {
 			if (depth_cache[i].image && (depth_cache[i].width == width) && (depth_cache[i].height == height)) {
@@ -848,6 +848,7 @@ namespace bb::gfx {
 	static bb::buffer<entity_push> pushes; // The data of the draws, in the order they were made: the draws point to it, so that they are small to move.
 	bb::buffer<scene_record> scenes;
 	bb::buffer<copy_record>  copies;
+	bb::buffer<antialias_record> antialiases;
 
 	void forget_recorded()
 	{
@@ -857,6 +858,7 @@ namespace bb::gfx {
 		draws.clear();
 		pushes.clear();
 		scenes.clear();
+		antialiases.clear();
 		copies.clear();
 	}
 
@@ -2607,6 +2609,10 @@ namespace bb::gfx {
 
 	// Draws the world for a camera that is at cam_world and looks through view. The pictures that mirrors make are
 	// drawn first and keep to the depth of each other, with the triangles the other way around as the image is reversed.
+	static antialias_plan aa_plan;     // What AntiAlias does for the camera that is drawn.
+	static float          aa_vp[16];   // The view and projection of the camera without the jitter, and where it is.
+	static double         aa_origin[3];
+
 	static void render_pass(bb::entity& cam, culling_choice const& culling, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
 	{
 		if (scenes.size >= max_scenes) {
@@ -2632,6 +2638,20 @@ namespace bb::gfx {
 		memcpy(view_rotation, view, sizeof(view_rotation));
 		view_rotation[12] = view_rotation[13] = view_rotation[14] = 0;
 		memcpy(current_origin, cam_world + 12, sizeof(current_origin));
+		if (aa_plan.mode) {
+			// SMAA T2x: the picture moves by a fraction of a pixel, which the pass after the camera undoes by looking at where everything was.
+			if (!reflected) {
+				bb::mat_multiply(aa_vp, proj, view_rotation);
+				memcpy(aa_origin, current_origin, sizeof(aa_origin));
+			}
+			if (cam.cam_projection == 2) {
+				proj[12] += aa_plan.jitter[0];
+				proj[13] += aa_plan.jitter[1];
+			} else {
+				proj[8] += aa_plan.jitter[0];
+				proj[9] += aa_plan.jitter[1];
+			}
+		}
 		bb::mat_multiply(data.viewprojection, proj, view_rotation);
 		for (int axis = 0; axis < 3; axis++) {
 			for (int k = 0; k < 3; k++) {
@@ -2774,6 +2794,7 @@ namespace bb::gfx {
 		bb::world_matrix(handle, world);
 		bb::mat_affine_inverse(world, view);
 		culling_choice culling = choose_culling(handle, cam, target.w, target.h);
+		aa_plan = antialias_begin(handle, int(g.target), target, vx, vy, vw, vh);
 
 		// The camera is cleared once, before anything is drawn.
 		bool clear_color = cam.cam_clear_color, clear_depth = cam.cam_clear_depth;
@@ -2792,6 +2813,10 @@ namespace bb::gfx {
 			clear_color = clear_depth = false;
 		}
 		render_pass(cam, culling, data, world, view, false, clear_color, clear_depth, vx, vy, vw, vh, target);
+		if (aa_plan.mode) {
+			antialias_end(aa_plan, handle, int(g.target), target, vx, vy, vw, vh, aa_vp, aa_origin, !cam.cam_clear_color);
+			aa_plan = antialias_plan();
+		}
 	}
 
 	static void collect_camera(int handle, bb::entity&, void* user)
@@ -2991,6 +3016,7 @@ void bb_render_world(float tween)
 		fail("RenderWorld can not draw to an image, use a texture.");
 	}
 	acquire_frame(); // The buffers that the scene is written to are not read by the frame before any more.
+	antialias_new_frame();
 	g.triangles_drawn = 0;
 	stats3d           = {};
 

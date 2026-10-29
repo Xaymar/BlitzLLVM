@@ -74,6 +74,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_scene3d.cpp"
 	"source/graphics_info.cpp"
 	"source/graphics_gamma.cpp"
+	"source/graphics_smaa.cpp"
 	"source/graphics_recovery.cpp"
 	"source/graphics_displays.cpp"
 	"source/graphics_input.cpp"
@@ -114,6 +115,7 @@ target_sources(blitzrt PRIVATE
 	"source/scene.hpp"
 	"source/font8x8.inc"
 	"source/shaders.inc"
+	"source/smaa.inc"
 )
 target_sources(blitzrt PRIVATE "source/memory.cpp")
 if(NOT BLITZ_CUSTOM_ALLOCATOR)
