@@ -53,6 +53,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_LIGHT_CACHE` | Remembering which lights reach a mesh. |
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[Spatial-Grid]]. |
 | `BLITZLLVM_MESH_WRITE_ONLY` | The memory of the vertex and index buffers of meshes: video memory the CPU can reach, where there is some, instead of memory in RAM that the GPU reads over PCIe. |
+| `BLITZLLVM_ALLOC_RELEASE` | Giving the memory of allocator spans that stayed empty for a second back to the system, see [[Memory]]. |
 | `BLITZLLVM_DEVICE_RECOVERY` | Making the graphics again after the graphics device was lost, see [[Lost-Graphics-Device]]. Off, a lost device ends the program and no copies of the pixels are kept. |
 
 ## Tuning

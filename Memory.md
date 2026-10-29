@@ -15,7 +15,9 @@ Strings, objects, arrays, banks and everything the runtime does internally ask f
 | Normal | more | the system allocator as it is; these are rare enough that nothing is gained
 |===
 
-Free blocks are kept in a list per thread and size class, so allocating and freeing take no lock and make no system call. A thread that frees much more than it allocates (for example the main thread freeing what a loader thread of [AsyncLoading](AsyncLoading) made) hands batches of free blocks to a shared pool that the other threads take from. Spans are never given back to the system, so a program that once needed a lot of small blocks keeps that memory for later small blocks. Memory that comes from the system for the first time is already zero, so `calloc` of fresh blocks does not clear it again.
+Free blocks are kept in a list per thread and size class, so allocating and freeing take no lock and make no system call. A thread that frees much more than it allocates (for example the main thread freeing what a loader thread of [AsyncLoading](AsyncLoading) made) hands batches of free blocks to a shared pool that the other threads take from. Spans in which every block has been free for more than a second are given back to the system, so a program that once needed a lot of small blocks (a level that was loaded and freed) does not keep that memory for the rest of its run. The address range of a span stays reserved and the span is used again before a new one is taken; its memory reads as zero again, like the memory of a span that was never used. One empty span per size class always stays, so a program that frees and allocates in turns does not give a span back and take it again each time.
+
+The check is not done by `malloc` and `free` (they never read the clock): Flip and the places where a program waits (`Delay`, `WaitKey` and the like) look at most every quarter second. A span counts as empty when all its blocks are in the shared pool or in the free list of the thread that looks; a block in the free list of another thread keeps its span, which is only a delay since those lists are handed to the pool when they grow or the thread ends. Memory that comes from the system for the first time is already zero, so `calloc` of fresh blocks does not clear it again.
 
 All spans lie in one address range that is reserved when the program starts (16 GiB of address space on 64 bit systems, nothing is used until a span is needed; if the system refuses it the program falls back to smaller ranges, and in the end to the system allocator). A pointer is the allocator's when it lies in that range, which is one comparison. So `free` and `realloc` of a block that came from somewhere else are passed on to the system and keep working.
 
@@ -37,6 +39,7 @@ These environment variables are read when the program starts:
 
 | `BLITZLLVM_DEBUG_ALLOC=1` | Freed blocks are filled with a pattern; a block that is written to after it was freed, or freed twice, stops the program with a message when it is reused or freed. New blocks are filled with another pattern, so reading what was never written stands out. The blocks that were not freed are reported when the program ends. Slower.
 | `BLITZLLVM_DEBUG_ALLOC_STATS=1` | Counts the blocks and bytes that were not freed and reports them at the end.
+| `BLITZLLVM_ALLOC_RELEASE=0` | Spans are kept, as in versions before the release of empty spans, to compare the memory use over time.
 | `BLITZLLVM_ALLOC_SYSTEM=1` | Everything goes to the system allocator, for tools that watch it (valgrind, AddressSanitizer, heap profilers).
 |===
 
