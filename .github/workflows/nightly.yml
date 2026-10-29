@@ -63,7 +63,7 @@ jobs:
         if: matrix.container
         run: |
           if command -v dnf >/dev/null; then dnf install -y git tar; else pacman -Syu --noconfirm git tar; fi
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Trust the checkout
         # The container user is not the owner of the workspace, and git refuses to work in it otherwise.
         if: matrix.container
@@ -84,10 +84,10 @@ jobs:
         run: pacman -Syu --noconfirm --needed base-devel git zstd nasm ninja clang lld python-pipx python-filelock libx11 libxext libxcursor libxi libxrandr libxss libxtst libxfixes wayland wayland-protocols libxkbcommon libdecor alsa-lib libpulse systemd-libs libdrm mesa libarchive ruby ruby-stdlib
       - name: Install CMake
         # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
-        # is always the latest one, as with the setup-cmake action it replaces, which downloaded and unpacked CMake each time.
+        # is a fixed version, so the release binaries are not built with a CMake that nobody looked at; raise it by hand.
         shell: bash
         run: |
-          pipx install cmake
+          pipx install cmake==4.4.4
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.local/bin:$PATH"
           cmake --version
@@ -115,7 +115,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends ninja-build nasm libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev rpm libarchive-tools zstd
       - name: Install Linux dependencies for SDL
         if: matrix.kind == 'deb' && !inputs.clean
-        uses: awalsh128/cache-apt-pkgs-action@v1.4.3
+        uses: awalsh128/cache-apt-pkgs-action@5902b33ae29014e6ca012c5d8025d4346556bd40 # v1.4.3
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
           # them on every run. The key is made from the list and the month.
@@ -135,7 +135,7 @@ jobs:
       - name: Install MSYS2 for FFmpeg
         if: runner.os == 'Windows'
         id: msys2
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2
         with:
           msystem: ${{ matrix.msystem }}
           update: false
@@ -151,7 +151,7 @@ jobs:
       # The prefix is not shared with the caches from before the dependencies were submodules, as those were built from another source directory.
       - name: Cache dependencies
         if: ${{ !inputs.clean }}
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: build/ExternalContentFiles
           key: submodule-dependencies-${{ matrix.name }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
@@ -180,7 +180,7 @@ jobs:
           [ "$RUNNER_OS" != Windows ] || .github/scripts/check-std-helpers.sh dist
           (cd dist && find . -type f) | .github/scripts/check-licenses.sh "$ARTIFACT" build/required-licenses.txt
           (cd dist && find . -type f) | .github/scripts/check-help.sh "$ARTIFACT"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: runner.os != 'Linux'
         with:
           name: ${{ env.ARTIFACT }}
@@ -210,7 +210,7 @@ jobs:
         if: matrix.kind == 'pacman'
         run: |
           mkdir packages
-          gem install --no-document fpm
+          gem install --no-document fpm -v 1.18.0
           # Arch installs gems into the user's directory, which is not on the PATH.
           export PATH="$(gem env gemdir)/bin:$(ruby -e 'print Gem.user_dir')/bin:$PATH"
           DESTDIR="$PWD/stage" cmake --install build --config Release --component system --prefix /usr
@@ -227,7 +227,7 @@ jobs:
           mkdir -p snap-stage
           DESTDIR="$PWD/snap-stage" cmake --install build --config Release --component system --prefix /usr
           sed -i "s/@VERSION@/$VERSION/" snap/snapcraft.yaml
-          sudo snap install snapcraft --classic
+          sudo snap install snapcraft --classic --channel=latest/stable
           sudo snapcraft pack --destructive-mode --output "packages/${ARTIFACT}.snap"
           unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.snap" build/required-licenses.txt
           unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.snap"
@@ -242,7 +242,7 @@ jobs:
           pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-licenses.sh "${ARTIFACT}.pkg" build/required-licenses.txt
           pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-help.sh "${ARTIFACT}.pkg"
           ls -l packages
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: runner.os != 'Windows'
         with:
           name: ${{ env.ARTIFACT }}-packages
@@ -256,13 +256,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Determine the version
         # The same one as in the builds, from the commit date.
         run: |
           git submodule update --init --depth 1 cmake/version
           echo "VERSION=$(cmake -P cmake/project_version.cmake)" >> "$GITHUB_ENV"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: artifacts
       - name: Publish nightly release

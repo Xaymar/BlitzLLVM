@@ -49,7 +49,7 @@ jobs:
       mode: ${{ steps.detect.outputs.mode }}
       selection: ${{ steps.detect.outputs.selection }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # A push only needs the commit it stopped at, which is fetched below. A pull request needs no history: its changed files
           # come from the API (the whole pull request, not the latest commit).
@@ -145,7 +145,7 @@ jobs:
       SHA: ${{ github.event.pull_request.head.sha }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Check out the submodules
         if: env.RUN == 'true'
         # The same ones the build needs, and shallow. extra/ holds reference sources only, except for the two with the original samples and games, which the tests compile.
@@ -163,9 +163,9 @@ jobs:
       - name: Install CMake
         if: env.RUN == 'true'
         # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
-        # is always the latest one, as with the setup-cmake action it replaces, which downloaded and unpacked CMake each time.
+        # is a fixed version, so the release binaries are not built with a CMake that nobody looked at; raise it by hand.
         shell: bash
-        run: pipx install cmake && cmake --version
+        run: pipx install cmake==4.4.4 && cmake --version
       - name: Date the package cache
         if: env.RUN == 'true'
         id: month
@@ -173,7 +173,7 @@ jobs:
         run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
       - name: Install dependencies
         if: env.RUN == 'true'
-        uses: awalsh128/cache-apt-pkgs-action@v1.4.3
+        uses: awalsh128/cache-apt-pkgs-action@5902b33ae29014e6ca012c5d8025d4346556bd40 # v1.4.3
         with:
           # The packages and the files they installed are restored from the cache, so apt does not update, download and unpack
           # them on every run. The key is made from the list and the month.
@@ -189,7 +189,7 @@ jobs:
       - name: Cache the build
         if: env.RUN == 'true'
         id: build
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: build
           key: test-build-linux-x64-${{ steps.sources.outputs.hash }}
@@ -197,7 +197,7 @@ jobs:
       # restored from what the nightly builds of root saved and are not compiled again.
       - name: Cache dependencies
         if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: build/ExternalContentFiles
           key: submodule-dependencies-linux-x64-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
@@ -283,7 +283,7 @@ jobs:
           .github/scripts/test-comment.sh post "$NUMBER" "$SHA" "$RUNNER_TEMP/comment.md"
       - name: Keep what the tests wrote
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-output
           path: |
