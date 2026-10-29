@@ -285,7 +285,7 @@ namespace bb {
 
 		// The light channels, one bit each: lights light the entities that have a channel in common with them. This is
 		// the channel of an entity (EntityLightChannel), which for a light is the channels it shines into.
-		uint8_t light_channel = 255;
+		uint64_t light_channel = ~uint64_t(0);
 	};
 
 	// Matrices are 4x4, column-major, for column vectors.
@@ -360,7 +360,7 @@ namespace bb {
 		float    light_center[3];
 		float    light_radius;
 		uint32_t light_hash; // Of the lights they were picked from, 0 if none were.
-		uint8_t  light_channel; // The light channels of the entity that they were picked for.
+		uint64_t light_channel; // The light channels of the entity that they were picked for.
 		float    light_places[4];
 	};
 	cull_record& cull_record_of(int handle);
