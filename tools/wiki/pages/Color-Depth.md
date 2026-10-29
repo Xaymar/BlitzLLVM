@@ -9,7 +9,7 @@ The depth argument of `Graphics` and `Graphics3D` decides what the front and bac
 
 | Depth | Format of the buffers |
 |---|---|
-| 8 | A palette of 256 colors, see below. The buffer is drawn in R8G8B8A8, and what is shown and read is the nearest color of the palette. |
+| 8 | A palette of 256 colors, see below. The buffer is R8G8B8A8 and holds colors of the palette. |
 | 12 | R4G4B4A4: 4 bits for each, with alpha. |
 | 15 | A1R5G5B5: 5 bits for red, green and blue, and 1 for alpha. |
 | 16 | R5G6B5: 5 bits for red and blue and 6 for green. The alpha channel is not used. |
@@ -22,11 +22,11 @@ The depth argument of `Graphics` and `Graphics3D` decides what the front and bac
 
 ## Palette (depth 8)
 
-A `Graphics` or `Graphics3D` with a depth of 8 has 256 colors. The graphics card has no storage with an index per pixel that it could blend and light into, so the buffers stay R8G8B8A8 while they are drawn to (lighting, fog and blending work as they do with 32), and the colors are made into the nearest ones of the palette where the picture leaves the buffer: when it is shown in the window, and when `ReadPixel`, `LockBuffer`, `SaveBuffer`, `GrabImage` and the like read the front or back buffer, so a program sees the colors that the window shows. Nearest is the smallest distance in red, green and blue; the window does it with a lookup texture with the nearest color of every color of 6 bits per channel.
+A `Graphics` or `Graphics3D` with a depth of 8 has 256 colors. The graphics card has no storage with an index per pixel that it could blend and light into, so the buffers stay R8G8B8A8 but hold only colors of the palette: the shaders of 3D drawing light, fog and dither in full color and then make the result into the nearest color of the palette (the smallest distance in red, green and blue, from a lookup texture with the nearest color of every color of 6 bits per channel), and with `Dither 2` blended draws read the palette colors that are there and blend them the same way. Draws that blend by the fixed-function blender (no Dither 2) and 2D drawing are made into palette colors when the picture is shown, and `ReadPixel`, `LockBuffer`, `SaveBuffer`, `GrabImage` and the like give palette colors for the front and back buffer.
 
 `GraphicsPalette imagefile$` sets the palette from a picture of 16 by 16 pixels, where the pixel at x,y is the color with the number y * 16 + x (the numbers only matter to the program that made the picture). Without it, or with an empty name, the palette has every color with 3 bits of red, 3 of green and 2 of blue, from 0,0,0 to 255,255,255, in the order of the bits RRRGGGBB. It can be called before or after `Graphics`.
 
-With `Dither` on, the noise of the shown picture is one step of the palette for each channel (the average gap between the values that the palette has for it: 36.4 for red and green and 85 for blue in the default palette), added before the nearest color is picked, so that a gradient is a fine pattern of palette colors that the eye averages out instead of bands. Without it every color is simply the nearest one.
+With `Dither` on, the noise is one step of the palette for each channel (the average gap between the values that the palette has for it: 36.4 for red and green and 85 for blue in the default palette), added before the nearest color is picked, so that a gradient is a fine pattern of palette colors that the eye averages out instead of bands. Without it every color is simply the nearest one.
 
 The pictures below are the same scene with the depths 32, 16, 15, 12 and 8, without and with `Dither`.
 
