@@ -809,6 +809,11 @@ void bb_entity_order(int32_t handle, int32_t order)
 	need(handle, "EntityOrder")->order = order;
 }
 
+void bb_entity_static(int32_t handle, int32_t is_static)
+{
+	need(handle, "EntityStatic")->static_mode = (is_static > 0) - (is_static < 0);
+}
+
 void bb_entity_blend(int32_t handle, int32_t blend)
 {
 	need(handle, "EntityBlend")->blend = (blend < 1 || blend > 3) ? 1 : blend;

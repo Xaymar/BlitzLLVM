@@ -55,6 +55,7 @@ EXTENSIONS = {
     "htmlviewcurrenturl": ("plusgui", "$HtmlViewCurrentURL%htmlview"),
     "htmlvieweventurl": ("plusgui", "$HtmlViewEventURL%htmlview"),
     "entitydepthfade": ("blitz3d", "EntityDepthFade%entity#fade_distance"),
+    "entitystatic": ("blitz3d", "EntityStatic%entity%is_static"),
     "spritedepthfade": ("blitz3d", "SpriteDepthFade%sprite#fade_distance"),
     "animateentity": ("blitz3d", "AnimateEntity%entity%mode=1#speed=1%sequence=0#transition=0"),
     "gfxdriver": ("graphics", "%GfxDriver"),
