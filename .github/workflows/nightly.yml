@@ -227,7 +227,7 @@ jobs:
           mkdir -p snap-stage
           DESTDIR="$PWD/snap-stage" cmake --install build --config Release --component system --prefix /usr
           sed -i "s/@VERSION@/$VERSION/" snap/snapcraft.yaml
-          sudo snap install snapcraft --classic
+          sudo snap install snapcraft --classic --channel=latest/stable
           sudo snapcraft pack --destructive-mode --output "packages/${ARTIFACT}.snap"
           unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-licenses.sh "${ARTIFACT}.snap" build/required-licenses.txt
           unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.snap"
