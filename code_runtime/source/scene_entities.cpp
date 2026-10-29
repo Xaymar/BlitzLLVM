@@ -82,10 +82,10 @@ namespace bb::scene {
 		entity* e = new entity();
 		e->kind   = kind;
 		if (parent) {
-			need(parent, "CreateEntity")->children++;
+			need(parent, "CreateEntity");
 			e->parent = parent;
-			adopt(*e);
 		}
+		int handle = 0;
 		// Every slot below first_free is taken, so a program that makes a million entities does not walk over them all each time.
 		for (uint32_t i = first_free; i < entities.size; i++) {
 			if (!entities[i]) {
@@ -94,15 +94,22 @@ namespace bb::scene {
 				cull_records[i].epoch = 0;
 				first_free      = i + 1;
 				grid_entity_added(int(i) + 1, kind);
-				return int(i) + 1;
+				handle = int(i) + 1;
+				break;
 			}
 		}
-		first_free = entities.size + 1;
-		entities.push(e);
-		entity_kinds.push(uint8_t(kind + 1));
-		cull_records.push(cull_record{});
-		grid_entity_added(int(entities.size), kind);
-		return int(entities.size);
+		if (!handle) {
+			first_free = entities.size + 1;
+			entities.push(e);
+			entity_kinds.push(uint8_t(kind + 1));
+			cull_records.push(cull_record{});
+			grid_entity_added(int(entities.size), kind);
+			handle = int(entities.size);
+		}
+		if (parent) {
+			link_child(handle);
+		}
+		return handle;
 	}
 
 	// An entity lets go of a surface: it is gone once the last entity that has it is.
@@ -142,14 +149,12 @@ namespace bb::scene {
 		if (!e) {
 			return;
 		}
-		// Children go with their parent.
-		for (uint32_t i = 0; e->children > 0 && i < entities.size; i++) {
-			if (entities[i] && (entities[i]->parent == handle)) {
-				destroy_entity(int(i) + 1);
-			}
+		// Children go with their parent, and each one takes itself out of the list.
+		while (e->first_child) {
+			destroy_entity(e->first_child);
 		}
-		if (entity* parent = e->parent ? get_entity(e->parent) : nullptr) {
-			parent->children--;
+		if (e->parent) {
+			unlink_child(handle);
 		}
 		for (uint32_t i = 0; i < e->surfaces.size; i++) {
 			release_surface(e->surfaces[i]);
@@ -240,6 +245,9 @@ namespace bb::scene {
 		copy.kind   = plain ? PIVOT : from->kind;
 		copy.parent = parent;
 		copy.children = 0; // The children are copied below, which counts them.
+		copy.first_child = copy.last_child = 0;
+		copy.prev_sibling = to->prev_sibling; // Where add_entity put it in the children of its parent.
+		copy.next_sibling = to->next_sibling;
 		copy.name   = nullptr;
 		copy.anim   = nullptr;
 		copy.md2    = nullptr;
@@ -254,7 +262,6 @@ namespace bb::scene {
 		copy.surfaces.data = nullptr;
 		copy.surfaces.size = copy.surfaces.cap = 0;
 		*to = copy;
-		adopt(*to); // The copy became a child of its parent now, not when the original did.
 		to->captured = false;
 		reset_movement(handle); // It starts where it is, not where the original was at the last UpdateWorld.
 		for (uint32_t i = 0; !plain && i < from->surfaces.size; i++) {
@@ -312,28 +319,43 @@ int bb::create_entity(int kind, int parent)
 	return add_entity(kind, parent);
 }
 
-static uint64_t sibling_counter = 0;
-
-void bb::adopt(entity& e)
+void bb::link_child(int handle)
 {
-	e.sibling = ++sibling_counter;
+	entity* e      = get_entity_raw(handle);
+	entity* parent = get_entity_raw(e->parent);
+	e->prev_sibling = parent->last_child;
+	e->next_sibling = 0;
+	if (parent->last_child) {
+		get_entity_raw(parent->last_child)->next_sibling = handle;
+	} else {
+		parent->first_child = handle;
+	}
+	parent->last_child = handle;
+	parent->children++;
+}
+
+void bb::unlink_child(int handle)
+{
+	entity* e      = get_entity_raw(handle);
+	entity* parent = get_entity_raw(e->parent);
+	if (e->prev_sibling) {
+		get_entity_raw(e->prev_sibling)->next_sibling = e->next_sibling;
+	} else {
+		parent->first_child = e->next_sibling;
+	}
+	if (e->next_sibling) {
+		get_entity_raw(e->next_sibling)->prev_sibling = e->prev_sibling;
+	} else {
+		parent->last_child = e->prev_sibling;
+	}
+	e->prev_sibling = e->next_sibling = 0;
+	parent->children--;
 }
 
 void bb::children_of(int handle, buffer<int>& out)
 {
-	for (uint32_t i = 0; i < entities.size; i++) {
-		if (entities[i] && (entities[i]->parent == handle)) {
-			out.push(int(i) + 1);
-		}
-	}
-	// The order they became children in, which is not the order of the handles once a handle has been used again.
-	for (uint32_t i = 1; i < out.size; i++) {
-		int      value = out[i];
-		uint32_t j     = i;
-		for (; j > 0 && entities[uint32_t(out[j - 1]) - 1]->sibling > entities[uint32_t(value) - 1]->sibling; j--) {
-			out[j] = out[j - 1];
-		}
-		out[j] = value;
+	for (int child = get_entity_raw(handle)->first_child; child; child = get_entity_raw(child)->next_sibling) {
+		out.push(child);
 	}
 }
 
@@ -507,15 +529,14 @@ void bb_entity_parent(int32_t handle, int32_t parent, int32_t global)
 	}
 	float world[16];
 	world_matrix(handle, world);
-	if (e->parent) {
-		get_entity(e->parent)->children--;
-	}
 	if (e->parent != parent) {
+		if (e->parent) {
+			unlink_child(handle);
+		}
 		e->parent = parent;
-		adopt(*e);
-	}
-	if (parent) {
-		get_entity(parent)->children++;
+		if (parent) {
+			link_child(handle);
+		}
 	}
 	if (global) {
 		// Keep the position in the world.
@@ -732,15 +753,14 @@ const char* bb_entity_name(int32_t handle)
 int32_t bb_find_child(int32_t parent, const char* name)
 {
 	need(parent, "FindChild");
-	for (uint32_t i = 0; i < entities.size; i++) {
-		if (entities[i] && (entities[i]->parent == parent)) {
-			if (entities[i]->name && name && same_name(entities[i]->name, name)) {
-				return int32_t(i) + 1;
-			}
-			int32_t found = bb_find_child(int32_t(i) + 1, name);
-			if (found) {
-				return found;
-			}
+	for (int child = get_entity_raw(parent)->first_child; child; child = get_entity_raw(child)->next_sibling) {
+		entity* e = get_entity_raw(child);
+		if (e->name && name && same_name(e->name, name)) {
+			return child;
+		}
+		int32_t found = bb_find_child(child, name);
+		if (found) {
+			return found;
 		}
 	}
 	return 0;
