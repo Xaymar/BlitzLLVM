@@ -37,3 +37,7 @@ While Not KeyHit(1)
 	Flip
 Wend
 ```
+
+Enlarged eight times, the edge of a sphere (top) and of thin bars (bottom) with AntiAlias 0, 1 and 2 from left to right:
+
+![AntiAlias 0, 1 and 2](media/world/antialias.png)
