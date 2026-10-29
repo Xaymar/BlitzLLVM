@@ -100,11 +100,9 @@ namespace bb::gfx {
 		gpu->vertex_capacity = vertex_count + vertex_count / 4 + 16;
 		gpu->index_capacity  = index_count + index_count / 4 + 48;
 
-		VmaAllocationCreateInfo alloc = {};
-		alloc.usage                   = VMA_MEMORY_USAGE_AUTO;
-		alloc.flags                   = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
-		alloc.requiredFlags           = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-		VkBufferCreateInfo info       = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+		VmaAllocationCreateInfo alloc;
+		mesh_allocation_info(alloc);
+		VkBufferCreateInfo info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		info.sharingMode              = VK_SHARING_MODE_EXCLUSIVE;
 		VmaAllocationInfo result;
 
@@ -229,10 +227,10 @@ namespace bb::gfx {
 		// A bit of room, so that surfaces that grow and shrink do not need new buffers all the time.
 		gpu->vertex_capacity = s.vertices.size + s.vertices.size / 4 + 16;
 		gpu->index_capacity  = s.indices.size + s.indices.size / 4 + 48;
-		create_buffer(VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, true, gpu->vertex_buffer, gpu->vertex_allocation, &gpu->vertex_mapped);
+		create_mesh_buffer(VkDeviceSize(gpu->vertex_capacity) * sizeof(bb::vertex3d), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, gpu->vertex_buffer, gpu->vertex_allocation, &gpu->vertex_mapped);
 		memcpy(gpu->vertex_mapped, s.vertices.data, size_t(vsize));
 
-		create_buffer(VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, true, gpu->index_buffer, gpu->index_allocation, &gpu->index_mapped);
+		create_mesh_buffer(VkDeviceSize(gpu->index_capacity) * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT, gpu->index_buffer, gpu->index_allocation, &gpu->index_mapped);
 		memcpy(gpu->index_mapped, s.indices.data, size_t(isize));
 
 		gpu->index_count = s.indices.size;

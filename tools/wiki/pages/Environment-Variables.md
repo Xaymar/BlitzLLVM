@@ -50,6 +50,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_LIGHT_GRID` | The grid that finds the lights that reach a mesh. |
 | `BLITZLLVM_LIGHT_CACHE` | Remembering which lights reach a mesh. |
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[Spatial-Grid]]. |
+| `BLITZLLVM_MESH_WRITE_ONLY` | The memory of the vertex and index buffers of meshes: video memory the CPU can reach, where there is some, instead of memory in RAM that the GPU reads over PCIe. |
 | `BLITZLLVM_DEVICE_RECOVERY` | Making the graphics again after the graphics device was lost, see [[Lost-Graphics-Device]]. Off, a lost device ends the program and no copies of the pixels are kept. |
 
 ## Tuning
@@ -68,6 +69,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see below. |
 | `BLITZLLVM_DEBUG_ALLOC` | `0` | Fills freed and new blocks with patterns and stops when a freed block is written to or freed twice, see [[Memory]]. |
 | `BLITZLLVM_DEBUG_ALLOC_STATS` | `0` | Counts the blocks and bytes that were not freed and reports them at the end, see [[Memory]]. |
+| `BLITZLLVM_MESH_REPORT` | `0` | Prints the memory flags of the first four vertex and index buffers of meshes (device local, host cached). |
 | `BLITZLLVM_DEBUG_SYNC_GPU` | `0` | Waits for the GPU after every frame, as if it had no thread. |
 | `BLITZLLVM_DEBUG_CHECK_LIGHTS` | `0` | Rates the lights of all meshes as well and stops if the grid and the cache gave different ones. |
 | `BLITZLLVM_DEBUG_SPATIAL_GRID` | `0` | Prints how many meshes the grid found each frame. |
