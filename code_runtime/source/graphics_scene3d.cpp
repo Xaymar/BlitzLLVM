@@ -1202,12 +1202,15 @@ namespace bb::gfx {
 		transition(*to.image, previous_to);
 	}
 
+	static uint8_t light_channels[max_lights]; // The light channels of the lights that were collected.
+
 	static void collect_light(int handle, bb::entity& light, void* user)
 	{
 		light_collector* c = static_cast<light_collector*>(user);
 		if (c->count >= no_light) {
 			return;
 		}
+		light_channels[c->count] = light.light_channel;
 		float m[16];
 		bb::world_matrix(handle, m);
 		float* position = c->data->light_position[c->count];
@@ -1655,7 +1658,25 @@ namespace bb::gfx {
 
 	static scene_data* current_lights;      // The lights of the camera that is being collected for, relative to it.
 	static uint32_t    current_light_count; // How many of them there are.
-	static uint32_t    current_light_hash;  // Of where they are, how far they reach and their colors, so that a pick from them can be reused.
+	static uint32_t    current_light_hash;  // Of where they are, how far they reach, their colors and channels, so that a pick from them can be reused.
+
+	// For each channel an entity can have (a bit for each of 8) whether every light shares one with it, which is when
+	// nothing has to be left out (0 not known yet, 1 yes, 2 no).
+	static uint8_t channel_shares_all[256];
+
+	static bool lights_all_share(uint8_t channel)
+	{
+		if (!channel_shares_all[channel]) {
+			channel_shares_all[channel] = 1;
+			for (uint32_t i = 0; i < current_light_count; i++) {
+				if (!(light_channels[i] & channel)) {
+					channel_shares_all[channel] = 2;
+					break;
+				}
+			}
+		}
+		return channel_shares_all[channel] == 1;
+	}
 
 	// Writes the places of lights in the table of the scene into what a draw sends: two to a float.
 	static void pack_lights(float* out, const uint32_t* places)
@@ -1832,9 +1853,32 @@ namespace bb::gfx {
 	// Picks the eight lights that light a sphere (relative to the camera) the most, see light_effect. Nothing that is left out
 	// could have changed a pixel unless more than eight lights reach the sphere, so scenes with eight lights or fewer are lit as
 	// they always were.
-	static void choose_lights(float* out, bool have_sphere, const float* center, float radius)
+	static void choose_lights(float* out, bool have_sphere, const float* center, float radius, uint8_t channel)
 	{
 		uint32_t places[draw_lights];
+		if (!lights_all_share(channel)) {
+			// Only the lights that share a channel with the entity count, and they are picked as if there were no others.
+			uint8_t  shared[max_lights];
+			uint32_t shared_count = 0;
+			for (uint32_t i = 0; i < current_light_count; i++) {
+				if (light_channels[i] & channel) {
+					shared[shared_count++] = uint8_t(i);
+				}
+			}
+			uint32_t found = 0;
+			if (have_sphere && shared_count > draw_lights) {
+				found = rate_lights(shared, shared_count, center, radius, places);
+			} else {
+				for (; found < shared_count && found < draw_lights; found++) {
+					places[found] = shared[found];
+				}
+			}
+			for (uint32_t i = found; i < draw_lights; i++) {
+				places[i] = no_light;
+			}
+			pack_lights(out, places);
+			return;
+		}
 		for (uint32_t i = 0; i < draw_lights; i++) {
 			places[i] = (i < current_light_count) ? i : no_light;
 		}
@@ -2151,6 +2195,7 @@ namespace bb::gfx {
 			float lo[3], hi[3], center[3] = {}, radius = 0;
 			bool  have_sphere = !fullbright && !e->plane_divs && !e->terrain && bb::mesh_bounds(*e, lo, hi) && (lo[0] <= hi[0]);
 			if (have_sphere && current_light_count > draw_lights) {
+				uint8_t channel = e->light_channel;
 				float world[3];
 				for (int row = 0; row < 3; row++) {
 					world[row] = m[12 + row];
@@ -2166,27 +2211,28 @@ namespace bb::gfx {
 				// An entity that did not move, with lights that did not, has the same lights as the last time.
 				static const bool cached = bb_env_bool("BLITZLLVM_LIGHT_CACHE", true);
 				bb::cull_record& record = bb::cull_record_of(item.handle);
-				bool hit = cached && (record.light_hash == current_light_hash) && (record.light_radius == radius)
+				bool hit = cached && (record.light_hash == current_light_hash) && (record.light_channel == channel) && (record.light_radius == radius)
 					&& (record.light_center[0] == world[0]) && (record.light_center[1] == world[1]) && (record.light_center[2] == world[2]);
 				if (hit) {
 					memcpy(push.lights, record.light_places, sizeof(push.lights));
 					static const bool check = bb_env_bool("BLITZLLVM_DEBUG_CHECK_LIGHTS", false);
 					if (check) {
 						float again[4];
-						choose_lights(again, true, center, radius);
+						choose_lights(again, true, center, radius, channel);
 						if (memcmp(again, push.lights, sizeof(again))) {
 							fail("The lights that were kept for an entity are not the lights of its sphere.");
 						}
 					}
 				} else {
-					choose_lights(push.lights, true, center, radius);
+					choose_lights(push.lights, true, center, radius, channel);
 					record.light_hash = current_light_hash;
+					record.light_channel = channel;
 					record.light_radius = radius;
 					memcpy(record.light_center, world, sizeof(world));
 					memcpy(record.light_places, push.lights, sizeof(push.lights));
 				}
 			} else {
-				choose_lights(push.lights, false, center, radius);
+				choose_lights(push.lights, false, center, radius, e->light_channel);
 			}
 		}
 
@@ -3007,6 +3053,7 @@ void bb_render_world(float tween)
 		bb::profile_scope scan(bb::PROFILE_SCAN);
 		bb::for_each_visible(bb::LIGHT, collect_light, &lights);
 		current_light_count = lights.count;
+		memset(channel_shares_all, 0, sizeof(channel_shares_all));
 	{
 		// FNV-1a over what decides how much each light does (not the cones, they are not part of that).
 		uint32_t hash = 2166136261u;
@@ -3017,6 +3064,7 @@ void bb_render_world(float tween)
 					hash = (hash ^ b[k]) * 16777619u;
 				}
 			}
+			hash = (hash ^ light_channels[i]) * 16777619u;
 		}
 		current_light_hash = hash | 1u;
 	}
