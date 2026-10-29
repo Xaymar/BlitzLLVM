@@ -791,12 +791,13 @@ float2 SMAAColorEdgeDetectionPS(float2 texcoord,
     float2 maxDelta = max(delta.xy, delta.zw);
 
     // Calculate left-left and top-top deltas:
+    // Fixed for BlitzLLVM, iryoku/smaa#11: the deltas of the far neighbors are between neighboring pixels.
     float3 Cleftleft  = SMAASamplePoint(colorTex, offset[2].xy).rgb;
-    t = abs(C - Cleftleft);
+    t = abs(Cleft - Cleftleft);
     delta.z = max(max(t.r, t.g), t.b);
 
     float3 Ctoptop = SMAASamplePoint(colorTex, offset[2].zw).rgb;
-    t = abs(C - Ctoptop);
+    t = abs(Ctop - Ctoptop);
     delta.w = max(max(t.r, t.g), t.b);
 
     // Calculate the final maximum delta:
