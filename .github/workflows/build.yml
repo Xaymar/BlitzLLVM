@@ -1,7 +1,7 @@
 name: Build
 
 # The build and packaging of all platforms, for the Nightly workflow (which publishes the result), the Periodic workflow (through
-# Nightly, with 'clean') and the Pull Request workflow (which only checks that it builds). The caller decides what to do with the
+# Nightly, with 'clean') and the Test workflow (which builds pull requests and tests them). The caller decides what to do with the
 # artifacts, which are named blitzllvm-<version>-<platform> and, for the Linux and macOS packages, blitzllvm-<version>-<platform>-packages.
 on:
   workflow_call:
@@ -16,6 +16,10 @@ on:
         default: false
       platforms:
         description: 'Only build these platforms (names from the list in the job "Select the platforms", separated by spaces). Empty builds all of them'
+        type: string
+        default: ''
+      exclude:
+        description: 'Do not build these platforms (names, separated by spaces)'
         type: string
         default: ''
       packages:
@@ -41,6 +45,7 @@ jobs:
         id: select
         env:
           PLATFORMS: ${{ inputs.platforms }}
+          EXCLUDE: ${{ inputs.exclude }}
         # Each Linux package is built on the system it is made for: the deb on both Ubuntu LTS releases (26.04 is a public
         # preview runner), the rpm in Fedora and the Arch package in Arch Linux (which has no arm64 container image). The snap
         # is made from the 24.04 build (core24). The Test workflow uses ubuntu24.04-x64, windows-x64 and macos-universal.
@@ -65,7 +70,8 @@ jobs:
           every = json.load(open("all.json"))
           unknown = set(wanted) - {p["name"] for p in every}
           assert not unknown, "unknown platforms: " + " ".join(sorted(unknown))
-          include = [p for p in every if not wanted or p["name"] in wanted]
+          exclude = os.environ["EXCLUDE"].split()
+          include = [p for p in every if (not wanted or p["name"] in wanted) and p["name"] not in exclude]
           print("include=" + json.dumps(include))
           PY
 
