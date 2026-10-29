@@ -181,6 +181,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [ImagesCollide](ImagesCollide#differences): A frame number that does not exist stops the program with an error message.
 * [Include](Include#differences): The original opens a relative path from the folder the compiler runs in; BlitzLLVM starts at the file that includes it.
 * [Input](Input#differences): Without a graphics window the prompt is written to the console (standard output) and the line is read from the console (standard input).
+* [Int](Int#differences): The originals read a text with `atoi`, so `Int("$FF")` and `Int("0x10")` are 0 there.
 * [JoyHat](JoyHat#differences): Without any joystick the original returns -1 as well, but this runtime returns 0, which looks like "up".
 * [JoyType](JoyType#differences): The original uses 1 for a digital and 2 for an analog joystick.
 * [JoyWait](JoyWait#differences): If no joystick is connected the function returns 0 right away instead of waiting forever.

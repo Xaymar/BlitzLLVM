@@ -19,7 +19,7 @@ Byte:Int32 value:Float32
 
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
-| `value` | In | Float32 | required | A number or a text with a number in it. |
+| `value` | In | Float32 | required | A number or a text with a number in it. A text may start with `$`, `0x`, `%` or `0b` for hexadecimal or binary digits. |
 
 **Returns:** The Byte.
 

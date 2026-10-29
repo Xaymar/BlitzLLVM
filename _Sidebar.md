@@ -58,7 +58,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (282)</summary>
+<li><details><summary>Commands (283)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -189,6 +189,7 @@
 <li><a href="ImagesCollide#differences">ImagesCollide</a></li>
 <li><a href="Include#differences">Include</a></li>
 <li><a href="Input#differences">Input</a></li>
+<li><a href="Int#differences">Int</a></li>
 <li><a href="JoyHat#differences">JoyHat</a></li>
 <li><a href="JoyType#differences">JoyType</a></li>
 <li><a href="JoyWait#differences">JoyWait</a></li>

@@ -20,7 +20,11 @@ Int:Int32(value)
 
 ## Description
 
-Converts a number or a text to an integer. A float is rounded to the nearest whole number, with halves going to the even one, so `Int(2.5)` is 2 and `Int(3.5)` is 4. A text is read from its start and ends at the first character that is not part of a number, which gives 0 when the text does not start with one.
+Converts a number or a text to an integer. A float is rounded to the nearest whole number, with halves going to the even one, so `Int(2.5)` is 2 and `Int(3.5)` is 4. A text is read from its start and ends at the first character that is not part of a number, which gives 0 when the text does not start with one. A text can also start with `$` or `0x` for hexadecimal digits and `%` or `0b` for binary digits, so `Int("$FF")` is 255, and `Int("-0b101")` is -5. Those are bit patterns: too many digits wrap around, so `Int("$FFFFFFFF")` is -1, and a prefix without digits is 0.
+
+## Differences
+
+* The originals read a text with `atoi`, so `Int("$FF")` and `Int("0x10")` are 0 there. BlitzLLVM reads `$`, `0x`, `%` and `0b` numbers in texts the way source code does.
 
 ## Examples
 
@@ -29,6 +33,8 @@ Print Int(3.5)
 Print Int(2.5)
 Print Int(-1.2)
 Print Int("42 apples")
+Print Int("$FF")
+Print Int("0b101")
 ```
 
 ```text
@@ -36,6 +42,8 @@ Print Int("42 apples")
 2
 -1
 42
+255
+5
 ```
 
 ## Related Commands
