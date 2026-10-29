@@ -180,7 +180,6 @@ hideentity	blitz3d	done	HideEntity%entity
 hwdither	blitz3d	done	%HWDither
 hwmultitex	blitz3d	done	HWMultiTex%enable
 hwtexunits	blitz3d	done	%HWTexUnits
-lightchannel	blitz3d	done	LightChannel%light%channel
 lightcolor	blitz3d	done	LightColor%light#red#green#blue
 lightconeangles	blitz3d	done	LightConeAngles%light#inner_angle#outer_angle
 lightmesh	blitz3d	done	LightMesh%mesh#red#green#blue#range=0#x=0#y=0#z=0

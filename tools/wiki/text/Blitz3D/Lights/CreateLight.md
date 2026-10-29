@@ -7,7 +7,7 @@ Creates a light and returns its handle. Without a light everything in the world 
 * **2, point** is like a light bulb. It shines in all directions from its position and fades out until its range.
 * **3, spot** is a cone of light that shines along its forward direction (+Z). See [LightConeAngles](LightConeAngles).
 
-A new light is white, sits at the origin and has a range of 1000. Any other value for `type` creates a directional light. An entity is lit by 8 lights at most, see [Many-Lights](Many-Lights), so plan with 8 at most. With [LightChannel](LightChannel) and [EntityLightChannel](EntityLightChannel) an entity can be lit by some of the lights only.
+A new light is white, sits at the origin and has a range of 1000. Any other value for `type` creates a directional light. An entity is lit by 8 lights at most, see [Many-Lights](Many-Lights), so plan with 8 at most. With [EntityLightChannel](EntityLightChannel) an entity can be lit by some of the lights only.
 
 ```blitzbasic
 ;media still blitz3d/createlight.png

@@ -459,7 +459,6 @@
 		// 3D: Lights
 		{ "lightcolor", "bb_light_color", 'v', "ifff", 4, {}, false },
 		{ "lightrange", "bb_light_range", 'v', "if", 2, {}, false },
-		{ "lightchannel", "bb_light_channel", 'v', "ii", 2, {}, false },
 		// 3D: Meshes
 		{ "createcube", "bb_create_cube", 'i', "i", 0, { 0 }, false },
 		{ "createsphere", "bb_create_sphere", 'i', "ii", 0, { 8, 0 }, false },

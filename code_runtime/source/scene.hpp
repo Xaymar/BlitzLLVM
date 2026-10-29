@@ -284,7 +284,7 @@ namespace bb {
 		float light_cone[2]  = { 0, 90 }; // Inner and outer angle of a spot light, in degrees.
 
 		// The light channels, one bit each: lights light the entities that have a channel in common with them. This is
-		// the channel of an entity for EntityLightChannel, and of a light for LightChannel.
+		// the channel of an entity (EntityLightChannel), which for a light is the channels it shines into.
 		uint8_t light_channel = 255;
 	};
 
