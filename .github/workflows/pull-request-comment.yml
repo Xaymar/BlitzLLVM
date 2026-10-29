@@ -81,8 +81,10 @@ jobs:
           fi
 
           if [ "$STATE" != pending ]; then
+            # The names come from the workflow file of the pull request, so only plain file names are put into the markdown
+            # table of the comment (no brackets, bars, backticks or line breaks that could turn into a link or a new row).
             gh api --paginate "repos/${GH_REPO}/actions/runs/${RUN_ID}/artifacts" \
-              --jq ".artifacts[] | select(.expired == false) | \"| [\(.name)](https://github.com/${GH_REPO}/actions/runs/${RUN_ID}/artifacts/\(.id)) | \(.size_in_bytes / 1048576 * 10 | round / 10) MiB |\"" | sort > rows.md
+              --jq ".artifacts[] | select(.expired == false and (.name | test(\"^[A-Za-z0-9._+-]+$\"))) | \"| [\(.name)](https://github.com/${GH_REPO}/actions/runs/${RUN_ID}/artifacts/\(.id)) | \(.size_in_bytes / 1048576 * 10 | round / 10) MiB |\"" | sort > rows.md
             ARGS+=(--rows rows.md)
           fi
 
