@@ -397,6 +397,18 @@ def entity_member(b, entities, instance, index):
     return b.load(b.vec(4), b.access("Uniform", b.vec(4), entities, b.const_int(0), instance, b.const_int(index)))
 
 
+def spec_limits(b, f, first_id):
+    """The lower and upper limit of a color as two float specialization constants (ids first_id and first_id + 1), which are 0 and 1,
+    or what a half precision float target holds when it is not to limit the colors (negative lights, brighter than white)."""
+    limits = []
+    for number, default in enumerate((0.0, 1.0)):
+        constant = b.m.id()
+        b.m.types.append(Module.inst("SpecConstant", f, constant, float_bits(default)))
+        b.m.annotations.append(Module.inst("Decorate", constant, DECORATION["SpecId"], first_id + number))
+        limits.append(constant)
+    return limits
+
+
 def vertex_shader_3d():
     """
     Lit the way Blitz3D (fixed function) does: per vertex, ambient plus up to 8 directional or point lights, which are
@@ -575,7 +587,9 @@ def vertex_shader_3d():
     entity_rgb = b.swizzle(material, 3)
     vertex_rgb = b.swizzle(color, 3)
     base = b.fadd(v3, entity_rgb, b.scale(3, b.fsub(v3, vertex_rgb, entity_rgb), use_vertex_color))
-    rgb = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, base, lit), zeros, ones)
+    # Specialization constants 0 and 1 are the limits of the color: 0 and 1, but wider for a target of half precision floats.
+    low, high = spec_limits(b, f, 0)
+    rgb = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, base, lit), b.construct(3, low, low, low), b.construct(3, high, high, high))
 
     vertex_alpha = b.fadd(f, c1, b.fmul(f, b.fsub(f, b.extract(color, 3), c1), use_vertex_alpha))
     entity_alpha = b.fmul(f, b.extract(material, 3), vertex_alpha)
@@ -777,13 +791,16 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         # TextureBlend of the first texture, as the stages of Direct3D 7 do it: the texture is the first argument and the
         # color of the lighting the second. Each result is limited to what a color can be, as a stage is.
         zeros3, ones3 = b.const_vec(3, 0.0), b.const_vec(3, 1.0)
+        # Specialization constants 6 and 7 are the limits of the color of a stage: 0 and 1, but wider for a target of half precision floats.
+        low, high = spec_limits(b, f, 6)
+        lows, highs = b.construct(3, low, low, low), b.construct(3, high, high, high)
         col, texel = b.swizzle(color, 3), b.swizzle(t, 3)
         half3 = b.const_vec(3, 0.5)
         by_alpha = b.fadd(v3, col, b.scale(3, b.fsub(v3, texel, col), b.extract(t, 3)))
-        added = b.ext(v3, GLSL_FCLAMP, b.fadd(v3, texel, col), zeros3, ones3)
+        added = b.ext(v3, GLSL_FCLAMP, b.fadd(v3, texel, col), lows, highs)
         dotted = b.ext(f, GLSL_FCLAMP, b.fmul(f, b.dot(b.fsub(v3, texel, half3), b.fsub(v3, col, half3)), b.const_float(4.0)), b.const_float(0.0), c1)
         dot3 = b.construct(3, dotted, dotted, dotted)
-        twice = b.ext(v3, GLSL_FCLAMP, b.scale(3, b.fmul(v3, texel, col), b.const_float(2.0)), zeros3, ones3)
+        twice = b.ext(v3, GLSL_FCLAMP, b.scale(3, b.fmul(v3, texel, col), b.const_float(2.0)), lows, highs)
         multiplied = b.swizzle(result, 3)
 
         def weight(code):
