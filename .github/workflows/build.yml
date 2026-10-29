@@ -14,30 +14,68 @@ on:
         description: 'Upload every package and archive as a file of its own that is not zipped again, instead of one artifact per platform that holds a directory'
         type: boolean
         default: false
+      platforms:
+        description: 'Only build these platforms (names from the list in the job "Select the platforms", separated by spaces). Empty builds all of them'
+        type: string
+        default: ''
+      packages:
+        description: 'Package the build (archives, deb, rpm, Arch package, snap, macOS package) and upload them. Without it only the build is made'
+        type: boolean
+        default: true
+      tests:
+        description: 'Also configure the tests that need a window and a GPU, and upload the build tree for the Test workflow as test-build-<platform>'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
+  matrix:
+    name: Select the platforms
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.select.outputs.include }}
+    steps:
+      - name: Select the platforms
+        id: select
+        env:
+          PLATFORMS: ${{ inputs.platforms }}
+        # Each Linux package is built on the system it is made for: the deb on both Ubuntu LTS releases (26.04 is a public
+        # preview runner), the rpm in Fedora and the Arch package in Arch Linux (which has no arm64 container image). The snap
+        # is made from the 24.04 build (core24). The Test workflow uses ubuntu24.04-x64, windows-x64 and macos-universal.
+        run: |
+          cat > all.json <<'JSON'
+          [
+            { "name": "windows-x64", "os": "windows-latest", "platform": "x64", "msystem": "UCRT64", "msys": "make nasm diffutils mingw-w64-ucrt-x86_64-gcc" },
+            { "name": "windows-arm64", "os": "windows-11-arm", "platform": "ARM64", "msystem": "CLANGARM64", "msys": "make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread" },
+            { "name": "ubuntu24.04-x64", "os": "ubuntu-24.04", "kind": "deb", "snap": true },
+            { "name": "ubuntu26.04-x64", "os": "ubuntu-26.04", "kind": "deb" },
+            { "name": "fedora-x64", "os": "ubuntu-latest", "container": "fedora:latest", "kind": "rpm" },
+            { "name": "arch-x64", "os": "ubuntu-latest", "container": "archlinux:latest", "kind": "pacman" },
+            { "name": "ubuntu24.04-arm64", "os": "ubuntu-24.04-arm", "kind": "deb", "snap": true },
+            { "name": "ubuntu26.04-arm64", "os": "ubuntu-26.04-arm", "kind": "deb" },
+            { "name": "fedora-arm64", "os": "ubuntu-24.04-arm", "container": "fedora:latest", "kind": "rpm" },
+            { "name": "macos-universal", "os": "macos-latest", "architectures": "arm64;x86_64" }
+          ]
+          JSON
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          wanted = os.environ["PLATFORMS"].split()
+          every = json.load(open("all.json"))
+          unknown = set(wanted) - {p["name"] for p in every}
+          assert not unknown, "unknown platforms: " + " ".join(sorted(unknown))
+          include = [p for p in every if not wanted or p["name"] in wanted]
+          print("include=" + json.dumps(include))
+          PY
+
   build:
+    needs: matrix
     strategy:
       # One platform failing fails the whole run: the other platforms are cancelled instead of building to the end.
       fail-fast: true
       matrix:
-        include:
-          - { name: windows-x64, os: windows-latest, platform: x64, msystem: UCRT64, msys: 'make nasm diffutils mingw-w64-ucrt-x86_64-gcc' }
-          - { name: windows-arm64, os: windows-11-arm, platform: ARM64, msystem: CLANGARM64, msys: 'make diffutils mingw-w64-clang-aarch64-clang mingw-w64-clang-aarch64-libwinpthread' }
-          # Each Linux package is built on the system it is made for: the deb on both Ubuntu LTS releases (26.04 is a public
-          # preview runner), the rpm in Fedora and the Arch package in Arch Linux (which has no arm64 container image). The snap
-          # is made from the 24.04 build (core24).
-          - { name: ubuntu24.04-x64, os: ubuntu-24.04, kind: deb, snap: true }
-          - { name: ubuntu26.04-x64, os: ubuntu-26.04, kind: deb }
-          - { name: fedora-x64, os: ubuntu-latest, container: 'fedora:latest', kind: rpm }
-          - { name: arch-x64, os: ubuntu-latest, container: 'archlinux:latest', kind: pacman }
-          - { name: ubuntu24.04-arm64, os: ubuntu-24.04-arm, kind: deb, snap: true }
-          - { name: ubuntu26.04-arm64, os: ubuntu-26.04-arm, kind: deb }
-          - { name: fedora-arm64, os: ubuntu-24.04-arm, container: 'fedora:latest', kind: rpm }
-          - { name: macos-universal, os: macos-latest, architectures: 'arm64;x86_64' }
+        include: ${{ fromJSON(needs.matrix.outputs.include) }}
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
@@ -144,17 +182,35 @@ jobs:
         shell: bash
         env:
           ARCHITECTURES: ${{ matrix.architectures }}
+          # Registers the tests that need a window and a GPU, which the Test workflow runs (it does not change what is built).
+          GPU_TESTS: ${{ inputs.tests && '-DBLITZ_TEST_GPU=ON' || '' }}
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
-            cmake -S . -B build -G "Visual Studio 18 2026" -A ${{ matrix.platform }} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON
+            cmake -S . -B build -G "Visual Studio 18 2026" -A ${{ matrix.platform }} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           else
-            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${ARCHITECTURES:+-DCMAKE_OSX_ARCHITECTURES="$ARCHITECTURES"} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ${ARCHITECTURES:+-DCMAKE_OSX_ARCHITECTURES="$ARCHITECTURES"} -DBlitzLLVM_VERSION="$VERSION" -DBLITZLLVM_REQUIRE_NASM=ON -DBLITZLLVM_REQUIRE_HELP=ON $GPU_TESTS
           fi
       - name: Build
         run: cmake --build build --config Release
+      - name: Keep the build for the tests
+        # The Test workflow runs ctest on this tree instead of building again. Without the objects and the dependencies' sources (the runtime
+        # and everything the tests run are in the tree), as a tar file because artifacts lose the permissions of the files.
+        if: inputs.tests
+        shell: bash
+        run: |
+          tar -czf "$RUNNER_TEMP/test-build.tgz" --exclude='*.o' --exclude='*.obj' --exclude='*.pdb' --exclude='*.ilk' --exclude='*.pch' --exclude='.ninja_*' --exclude='build/ExternalContentFiles' build
+          ls -l "$RUNNER_TEMP/test-build.tgz"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: inputs.tests
+        with:
+          name: test-build-${{ matrix.name }}
+          path: ${{ runner.temp }}/test-build.tgz
+          # Only for the Test workflow of this run.
+          retention-days: 1
+          compression-level: 0
       - name: Package
         # Linux ships only the deb, rpm and Arch packages (see below), no archive.
-        if: runner.os != 'Linux'
+        if: runner.os != 'Linux' && inputs.packages
         shell: bash
         env:
           LOOSE: ${{ inputs.loose }}
@@ -176,19 +232,19 @@ jobs:
           list | .github/scripts/check-licenses.sh "$NAME" build/required-licenses.txt
           list | .github/scripts/check-help.sh "$NAME"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: runner.os != 'Linux' && !inputs.loose
+        if: runner.os != 'Linux' && inputs.packages && !inputs.loose
         with:
           name: ${{ env.ARTIFACT }}
           path: dist
       # With 'loose' every file is uploaded on its own with 'archive: false', so it is a separate entry that is not zipped. The
       # artifact is named after the file.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: runner.os != 'Linux' && inputs.loose
+        if: runner.os != 'Linux' && inputs.packages && inputs.loose
         with:
           path: ${{ env.ARTIFACT }}.zip
           archive: false
       - name: Build the deb (Linux)
-        if: matrix.kind == 'deb'
+        if: inputs.packages && matrix.kind == 'deb'
         run: |
           mkdir packages
           (cd build && cpack -G DEB -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
@@ -199,7 +255,7 @@ jobs:
           dpkg-deb --contents "packages/${ARTIFACT}.deb" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.deb"
           ls -l packages
       - name: Build the rpm (Linux)
-        if: matrix.kind == 'rpm'
+        if: inputs.packages && matrix.kind == 'rpm'
         run: |
           mkdir packages
           (cd build && cpack -G RPM -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
@@ -209,7 +265,7 @@ jobs:
           rpm -qlp "packages/${ARTIFACT}.rpm" | .github/scripts/check-help.sh "${ARTIFACT}.rpm"
           ls -l packages
       - name: Build the Arch package (Linux)
-        if: matrix.kind == 'pacman'
+        if: inputs.packages && matrix.kind == 'pacman'
         run: |
           mkdir packages
           gem install --no-document fpm -v 1.18.0
@@ -223,7 +279,7 @@ jobs:
           bsdtar -tf "packages/${ARTIFACT}.pkg.tar.zst" | .github/scripts/check-help.sh "${ARTIFACT}.pkg.tar.zst"
           ls -l packages
       - name: Build the snap (Linux)
-        if: matrix.snap
+        if: inputs.packages && matrix.snap
         run: |
           # The files of the deb are packed again as a classic snap, see snap/snapcraft.yaml. ubuntu-24.04 matches its base, core24.
           mkdir -p snap-stage
@@ -235,7 +291,7 @@ jobs:
           unsquashfs -l "packages/${ARTIFACT}.snap" | awk '{print $NF}' | .github/scripts/check-help.sh "${ARTIFACT}.snap"
           ls -l packages
       - name: Build packages (macOS)
-        if: runner.os == 'macOS'
+        if: inputs.packages && runner.os == 'macOS'
         run: |
           mkdir packages
           (cd build && cpack -G productbuild -C Release -D CPACK_COMPONENTS_ALL=system -B "$PWD/../packages")
@@ -245,32 +301,32 @@ jobs:
           pkgutil --payload-files "packages/${ARTIFACT}.pkg" | .github/scripts/check-help.sh "${ARTIFACT}.pkg"
           ls -l packages
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: runner.os != 'Windows' && !inputs.loose
+        if: runner.os != 'Windows' && inputs.packages && !inputs.loose
         with:
           name: ${{ env.ARTIFACT }}-packages
           path: packages
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.loose && matrix.kind == 'deb'
+        if: inputs.packages && inputs.loose && matrix.kind == 'deb'
         with:
           path: packages/${{ env.ARTIFACT }}.deb
           archive: false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.loose && matrix.kind == 'rpm'
+        if: inputs.packages && inputs.loose && matrix.kind == 'rpm'
         with:
           path: packages/${{ env.ARTIFACT }}.rpm
           archive: false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.loose && matrix.kind == 'pacman'
+        if: inputs.packages && inputs.loose && matrix.kind == 'pacman'
         with:
           path: packages/${{ env.ARTIFACT }}.pkg.tar.zst
           archive: false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.loose && matrix.snap
+        if: inputs.packages && inputs.loose && matrix.snap
         with:
           path: packages/${{ env.ARTIFACT }}.snap
           archive: false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: inputs.loose && runner.os == 'macOS'
+        if: inputs.packages && inputs.loose && runner.os == 'macOS'
         with:
           path: packages/${{ env.ARTIFACT }}.pkg
           archive: false
