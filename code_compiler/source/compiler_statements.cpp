@@ -188,7 +188,7 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 					declare("bb_str_free_array", "declare void @bb_str_free_array(ptr, i32)");
 					emit("call void @bb_str_free_array(ptr " + var.pointer + ", i32 " + std::to_string(var.count) + ")");
 				}
-				emit("store " + array + " zeroinitializer, ptr " + var.pointer);
+				emit(zero_memory(var.pointer, array));
 			}
 			continue;
 		}

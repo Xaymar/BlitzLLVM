@@ -218,6 +218,7 @@ namespace blitz {
 
 		/** Every warning that was emitted is also kept here, with what would fix it, for tools such as blitz-tidy. */
 		std::vector<finding> findings;
+		std::map<std::string, size_t> _typeless_functions; // Where the finding of a function without a type is, by the place of the function.
 
 		/** Generate LLVM IR for the given program. Throws blitz::error on failure. */
 		std::string generate(ast::program const& program);
@@ -268,6 +269,7 @@ namespace blitz {
 		void        emit(std::string const& line);
 		void        emit_terminator(std::string const& line);
 		void        begin_label(std::string const& name);
+		std::string zero_memory(std::string const& pointer, std::string const& array_type);
 		void        declare(std::string const& symbol, std::string const& line);
 		std::string string_constant(std::string const& text);
 

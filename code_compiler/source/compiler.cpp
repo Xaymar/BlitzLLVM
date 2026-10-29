@@ -421,6 +421,14 @@ blitz::compiler::variable* blitz::compiler::find(std::string const& name)
 	return nullptr;
 }
 
+// Sets the memory of an array to 0. A store of the whole array as a constant takes clang minutes and gigabytes for a big array (1 million
+// elements take 21 seconds, 5 million more than 7 GB), a memset takes no time.
+std::string blitz::compiler::zero_memory(std::string const& pointer, std::string const& array_type)
+{
+	declare("llvm.memset.p0.i64", "declare void @llvm.memset.p0.i64(ptr, i8, i64, i1)");
+	return "call void @llvm.memset.p0.i64(ptr " + pointer + ", i8 0, i64 ptrtoint (ptr getelementptr (" + array_type + ", ptr null, i32 1) to i64), i1 false)";
+}
+
 blitz::compiler::variable blitz::compiler::create_local(std::string const& name, type t, bool is_constant, ast::location const& where, std::string const& sname, uint32_t count)
 {
 	auto key = lower(name);
@@ -435,7 +443,7 @@ blitz::compiler::variable blitz::compiler::create_local(std::string const& name,
 	if (count) {
 		auto array = "[" + std::to_string(count) + " x " + llvm + "]";
 		_allocas << "  " << ptr << " = alloca " << array << "\n";
-		_allocas << "  store " << array << " zeroinitializer, ptr " << ptr << "\n";
+		_allocas << "  " << zero_memory(ptr, array) << "\n";
 	} else {
 		_allocas << "  " << ptr << " = alloca " << llvm << "\n";
 		_allocas << "  store " << llvm << " " << zero(t).repr << ", ptr " << ptr << "\n";
@@ -481,7 +489,12 @@ void blitz::compiler::warn_typeless(ast::location const& where, std::string cons
 		uint64_t at = where.column + name.size();
 		edits.push_back(edit{ *where.file, ast::range{ where.line, at, where.line, at }, ":Int32" });
 	}
+	auto before = findings.size();
 	warn(where, "typeless-declaration", kind + "'" + name + "' has no type, it is an Int.", "Add the type to the name: '" + name + ":Int32', '" + name + ":Float32', '" + name + ":String' or '" + name + ".TypeName' (object).", std::move(edits));
+	if ((kind == "Function ") && (findings.size() > before) && where.file) {
+		// suggest_return_type adds to this finding once it knows what the function returns.
+		_typeless_functions[where.file->generic_string() + ":" + std::to_string(where.line) + ":" + std::to_string(where.column)] = before;
+	}
 }
 
 void blitz::compiler::warn_short_notations(std::vector<ast::short_notation> const& notations)
