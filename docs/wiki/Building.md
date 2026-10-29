@@ -107,7 +107,7 @@ This compiles and runs every program in `tests/` and the function test suite in 
 
 ### Continuous integration
 
-The `Test` workflow (`.github/workflows/test.yml`) runs the tests on Linux (all of them, or only the ones a change can affect, see below), for every pull request to `root` and for every push to `root`. It also runs the tests that need a window and a GPU (`-DBLITZ_TEST_GPU=ON`): the runners have no GPU, so Mesa's llvmpipe renders Vulkan on the CPU inside a virtual X server (`xvfb-run`). To run the same thing on your own Linux machine:
+The `Test` workflow (`.github/workflows/test.yml`) runs the tests on Linux, Windows and macOS (all of them, or only the ones a change can affect, see below), for every pull request to `root` and for every push to `root`. It also runs the tests that need a window and a GPU (`-DBLITZ_TEST_GPU=ON`): the runners have no GPU, so Mesa's llvmpipe renders Vulkan on the CPU inside a virtual X server (`xvfb-run`). To run the same thing on your own Linux machine:
 
 ```sh
 sudo apt-get install -y mesa-vulkan-drivers xvfb xdotool x11-utils
@@ -115,6 +115,10 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=ON
 cmake --build build
 cd build/code_compiler && xvfb-run -a ctest -j8 --output-on-failure
 ```
+
+#### Windows and macOS
+
+`Test (Windows)` (x64) and `Test (macOS)` (arm64) run the same selection as Linux. Neither runner has a GPU, so Windows renders Vulkan on the CPU with Mesa's lavapipe (installed by `jakoch/install-vulkan-sdk-action`), and macOS uses MoltenVK, which needs a Metal device: if the runner has none, the tests that need a window and a GPU (`_pixels`) are left out and the run says so in a warning. These jobs do not write the test comment; their job summary lists the tests that skipped themselves. CMake does not register these tests on Windows: the close prompt test, the `profile-*_pixels` tests, the audio output tests (they use SDL's disk audio driver and a Unix signal) and the AutoSuspend tests (they need `xdotool` on X11). The other platforms build the runtime with a different toolchain, so a failure on only one platform is a platform bug, not a flaky test.
 
 #### Which tests run
 
@@ -134,14 +138,14 @@ To change the rules, edit `tests/test_selection.json`: `areas` says which tests 
 
 #### Requiring the tests before a pull request can be merged
 
-The check is named **Test (Linux)**. A workflow on its own never blocks a merge; GitHub only blocks it for checks that the repository marks as *required*. This is a repository setting, so the maintainer has to make it (it can not be part of a pull request).
+The checks are named **Test (Linux)**, **Test (Windows)** and **Test (macOS)**. A workflow on its own never blocks a merge; GitHub only blocks it for checks that the repository marks as *required*. This is a repository setting, so the maintainer has to make it (it can not be part of a pull request).
 
 1. Merge the pull request that adds `test.yml`, and let it run once on `root` (or on any pull request). GitHub only offers a check in the list below after it has run in the repository during the last 7 days.
 2. Open the repository on GitHub, then **Settings → Rules → Rulesets → New ruleset → New branch ruleset**. (The older way is **Settings → Branches → Add branch protection rule** with the branch name pattern `root`; the steps below are the same.)
 3. Give it a name such as `root`, set **Enforcement status** to **Active**, and under **Target branches** choose **Add target → Include by pattern** and enter `root`.
 4. Under **Branch rules** tick **Require a pull request before merging**, and **Require status checks to pass**.
-5. In **Require status checks to pass**, tick **Require branches to be up to date before merging** if a pull request has to be tested on top of the current `root` (recommended), then **Add checks**, search for `Test (Linux)` and select it. Do the same for the three `build (...)` checks of the Pull Request workflow if the builds should be required as well. Leave the source on **Any source**, or pick **GitHub Actions**.
-6. **Create**. The merge button of a pull request is now disabled until `Test (Linux)` is green, and pushes straight to `root` are refused too (unless the ruleset lists a bypass for administrators).
+5. In **Require status checks to pass**, tick **Require branches to be up to date before merging** if a pull request has to be tested on top of the current `root` (recommended), then **Add checks**, search for `Test (Linux)`, `Test (Windows)` and `Test (macOS)` and select them. Do the same for the three `build (...)` checks of the Pull Request workflow if the builds should be required as well. Leave the source on **Any source**, or pick **GitHub Actions**.
+6. **Create**. The merge button of a pull request is now disabled until those checks are green, and pushes straight to `root` are refused too (unless the ruleset lists a bypass for administrators).
 
 Things to know:
 
