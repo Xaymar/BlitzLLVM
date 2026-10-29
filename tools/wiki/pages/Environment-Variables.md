@@ -34,6 +34,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start; va
 | `BLITZLLVM_HEADLESS` | `0` | Runs without a window and without sound; dialogs answer with what is safe. For automated runs. |
 | `BLITZLLVM_DIALOG_ANSWER` | not set | The number of the button that a dialog presses without being shown, for automated runs, see [[Multiplayer]]. |
 | `BLITZLLVM_ALLOC_SYSTEM` | `0` | Uses the allocator of the system instead of the one of the runtime, see [[Memory]]. |
+| `BLITZLLVM_MESH_WRITE_ONLY` | `0` | Asks for write-only memory (video memory the CPU can reach, where there is some) for the vertex and index buffers of meshes, instead of memory the CPU may also read, which is in RAM on most GPUs. Being measured. |
 
 ## Features that can be turned off
 
@@ -68,6 +69,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see below. |
 | `BLITZLLVM_DEBUG_ALLOC` | `0` | Fills freed and new blocks with patterns and stops when a freed block is written to or freed twice, see [[Memory]]. |
 | `BLITZLLVM_DEBUG_ALLOC_STATS` | `0` | Counts the blocks and bytes that were not freed and reports them at the end, see [[Memory]]. |
+| `BLITZLLVM_MESH_REPORT` | `0` | Prints the memory flags of the first four vertex and index buffers of meshes (device local, host cached). |
 | `BLITZLLVM_DEBUG_SYNC_GPU` | `0` | Waits for the GPU after every frame, as if it had no thread. |
 | `BLITZLLVM_DEBUG_CHECK_LIGHTS` | `0` | Rates the lights of all meshes as well and stops if the grid and the cache gave different ones. |
 | `BLITZLLVM_DEBUG_SPATIAL_GRID` | `0` | Prints how many meshes the grid found each frame. |
