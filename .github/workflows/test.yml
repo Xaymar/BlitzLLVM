@@ -18,15 +18,16 @@ name: Test
 # What belongs to which part is in tests/test_selection.json, and how it works is in docs/wiki/Building.md, Which tests run. A file without a rule
 # runs everything. A push to root runs everything, so a rule that skips too much is found there.
 #
-# The builds: nothing is built here. The jobs Build (...) call build.yml for one platform each (without packages), which uploads the
-# build tree, and the test jobs run ctest on it (.github/actions/prepare-tests). Each platform builds once and tests as soon as its own
-# build is done.
+# The builds: this workflow is the build of a pull request (it replaces the Pull Request workflow). The jobs Build (...) call build.yml
+# for one test platform each, which uploads the build tree next to the packages (when the pull request changes the binaries), and the
+# test jobs run ctest on it (.github/actions/prepare-tests). Each platform builds once and tests as soon as its own build is done. The
+# other platforms are built by 'Build (other platforms)', which the tests do not wait for. pull-request-comment.yml lists the packages.
 #
 # The test comment: for pull requests of this repository, a single comment (found by the hidden marker on its first line) lists
 # every test with its result in the Debug and in the Release version, a column for each platform (.github/scripts/test-report.py
 # renders it, .github/scripts/test-comment.sh posts it). It is reset to pending as soon as the run starts, and written by the job
 # 'Test comment' once the three platforms are done, also when the tests failed or the run was cancelled. It is separate from the
-# comment about the build of pull-request.yml.
+# comment about the build of pull-request-comment.yml.
 
 on:
   pull_request:
@@ -53,6 +54,8 @@ jobs:
       # all, partial or none, and the whole selection as JSON (see .github/scripts/test-select.py).
       mode: ${{ steps.detect.outputs.mode }}
       selection: ${{ steps.detect.outputs.selection }}
+      # Whether the pull request changes the binaries, so that the builds are packaged and uploaded (see .github/scripts/pr-needs-build.sh).
+      packages: ${{ steps.detect.outputs.packages }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -104,6 +107,9 @@ jobs:
           MODE="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["mode"])' "$SELECTION")"
           echo "Selection: $SELECTION"
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          PACKAGES=false
+          [ "$EVENT" != pull_request ] || PACKAGES="$(.github/scripts/pr-needs-build.sh "$NUMBER")"
+          echo "packages=$PACKAGES" >> "$GITHUB_OUTPUT"
           echo "selection=$SELECTION" >> "$GITHUB_OUTPUT"
           {
             echo "### Test selection: $MODE"
@@ -138,7 +144,8 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       platforms: ubuntu24.04-x64
-      packages: false
+      packages: ${{ needs.changes.outputs.packages == 'true' }}
+      loose: true
       tests: true
 
   build-windows:
@@ -148,7 +155,8 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       platforms: windows-x64
-      packages: false
+      packages: ${{ needs.changes.outputs.packages == 'true' }}
+      loose: true
       tests: true
 
   build-macos:
@@ -158,8 +166,19 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       platforms: macos-universal
-      packages: false
+      packages: ${{ needs.changes.outputs.packages == 'true' }}
+      loose: true
       tests: true
+
+  # The other platforms and the packages: only for a pull request that changes the binaries. They do not hold back the tests.
+  build-other:
+    name: Build (other platforms)
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    uses: ./.github/workflows/build.yml
+    with:
+      exclude: ubuntu24.04-x64 windows-x64 macos-universal
+      loose: true
 
   linux:
     name: Test (Linux)
