@@ -105,6 +105,16 @@ namespace bb::gfx {
 		if (!worker_count) {
 			return;
 		}
+		// Nothing to do until a job is done, which most frames none is: the tables are not read for nothing. Jobs that failed stay in
+		// them (the error is for whoever uses the picture) and would be asked about every frame otherwise.
+		static uint32_t seen     = 0;
+		static bool     leftover = false;
+		uint32_t        done     = finished_count.load();
+		if ((done == seen) && !leftover) {
+			return;
+		}
+		seen     = done;
+		leftover = true; // Until the tables were read to their end.
 		// A frame spares about two milliseconds for uploads; what is left over is done by a later frame or by whatever needs it.
 		Uint64 limit = SDL_GetPerformanceCounter() + SDL_GetPerformanceFrequency() / 500;
 		while (bb::models_pump_one()) { // Models first, as building one starts the loading of its textures.
@@ -130,6 +140,7 @@ namespace bb::gfx {
 				}
 			}
 		}
+		leftover = false;
 	}
 
 	const bool* async_block_support()
