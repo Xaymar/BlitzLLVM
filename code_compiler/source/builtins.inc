@@ -373,6 +373,7 @@
 		{ "scalesprite", "bb_scale_sprite", 'v', "iff", 3, {}, false },
 		{ "rotatesprite", "bb_rotate_sprite", 'v', "if", 2, {}, false },
 		{ "spriteviewmode", "bb_sprite_view_mode", 'v', "ii", 2, {}, false },
+		{ "entitydepthfade", "bb_entity_depth_fade", 'v', "if", 2, {}, false },
 		{ "spritedepthfade", "bb_sprite_depth_fade", 'v', "if", 2, {}, false },
 		{ "createplane", "bb_create_plane", 'i', "ii", 0, { 1, 0 }, false },
 		{ "scaletexture", "bb_scale_texture", 'v', "iff", 3, {}, false },

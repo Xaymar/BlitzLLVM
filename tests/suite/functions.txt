@@ -123,6 +123,7 @@ entityclass	blitz3d	done	$EntityClass%entity
 entitycollided	blitz3d	done	%EntityCollided%entity%type
 entitycolor	blitz3d	done	EntityColor%entity#red#green#blue
 entitydistance	blitz3d	done	#EntityDistance%source_entity%destination_entity
+entitydepthfade	blitz3d	done	EntityDepthFade%entity#fade_distance
 entityfx	blitz3d	done	EntityFX%entity%fx
 entityinview	blitz3d	done	%EntityInView%entity%camera
 entityname	blitz3d	done	$EntityName%entity
