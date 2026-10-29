@@ -479,7 +479,7 @@ namespace {
 		if (a == b) {
 			return true;
 		}
-		if ((a < 0) || (b < 0)) {
+		if ((a < 0) || (b < 0) || (uint32_t(a) >= m.brushes.size) || (uint32_t(b) >= m.brushes.size)) {
 			return false;
 		}
 		brush_info const& x = m.brushes[uint32_t(a)];
