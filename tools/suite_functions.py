@@ -45,6 +45,7 @@ BY_COMPILER = {
 # Signatures of the extensions mark a parameter that the command writes to with a '>' in front of its type (Out), and
 # one it reads and writes with a '<' (InOut). Parameters without a mark are In.
 EXTENSIONS = {
+    "entitylightchannel": ("blitz3d", "EntityLightChannel%entity%channel"),
     "createhtmlview": ("plusgui", "%CreateHtmlView%x%y%width%height%group%style=0"),
     "htmlviewgo": ("plusgui", "HtmlViewGo%htmlview$URL"),
     "htmlviewrun": ("plusgui", "HtmlViewRun%htmlview$URL"),

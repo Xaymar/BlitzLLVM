@@ -13,15 +13,15 @@ Function Rand01#()
 	Return Float(seed) / 2147483647.0
 End Function
 
-Const CUBES = 5000
+Const CUBE_COUNT = 5000
 camera = CreateCamera()
 PositionEntity camera, 0, 40, -60
 RotateEntity camera, 30, 0, 0
 CameraRange camera, 0.5, 400
 AmbientLight 20, 20, 20
 
-Dim cubes(CUBES)
-For i = 1 To CUBES
+Dim cubes(CUBE_COUNT)
+For i = 1 To CUBE_COUNT
 	cubes(i) = CreateCube()
 	PositionEntity cubes(i), Rand01() * 200 - 100, 0, Rand01() * 200 - 100
 Next

@@ -697,6 +697,11 @@ void bb_entity_fx(int32_t handle, int32_t fx)
 	need(handle, "EntityFX")->fx = fx;
 }
 
+void bb_entity_light_channel(int32_t handle, int32_t channel)
+{
+	need(handle, "EntityLightChannel")->light_channel = uint8_t(channel);
+}
+
 void bb_entity_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index)
 {
 	entity* e = need(handle, "EntityTexture");
