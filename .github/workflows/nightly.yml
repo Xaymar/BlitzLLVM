@@ -84,10 +84,10 @@ jobs:
         run: pacman -Syu --noconfirm --needed base-devel git zstd nasm ninja clang lld python-pipx python-filelock libx11 libxext libxcursor libxi libxrandr libxss libxtst libxfixes wayland wayland-protocols libxkbcommon libdecor alsa-lib libpulse systemd-libs libdrm mesa libarchive ruby ruby-stdlib
       - name: Install CMake
         # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
-        # is always the latest one, as with the setup-cmake action it replaces, which downloaded and unpacked CMake each time.
+        # is a fixed version, so the release binaries are not built with a CMake that nobody looked at; raise it by hand.
         shell: bash
         run: |
-          pipx install cmake
+          pipx install cmake==4.4.4
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.local/bin:$PATH"
           cmake --version

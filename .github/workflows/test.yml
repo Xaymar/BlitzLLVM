@@ -163,9 +163,9 @@ jobs:
       - name: Install CMake
         if: env.RUN == 'true'
         # From PyPI, which is a few seconds on every runner. The project needs a newer CMake than the runners ship, and this
-        # is always the latest one, as with the setup-cmake action it replaces, which downloaded and unpacked CMake each time.
+        # is a fixed version, so the release binaries are not built with a CMake that nobody looked at; raise it by hand.
         shell: bash
-        run: pipx install cmake && cmake --version
+        run: pipx install cmake==4.4.4 && cmake --version
       - name: Date the package cache
         if: env.RUN == 'true'
         id: month
