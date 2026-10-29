@@ -394,4 +394,18 @@ Const FoldWrapped = FoldSmallest / -1
 Const FoldProduct = 9223372036854775807 * 2
 Check "constants that overflow compile", 1, 1
 
+; Labels can be written with characters that are not ASCII.
+label_hit = 0
+Goto größe
+label_hit = 1
+.größe
+Check "Goto a label with a non ASCII name", label_hit, 0
+Gosub ünder
+Check "Gosub a label with a non ASCII name", label_hit, 2
+Goto after_ünder
+.ünder
+label_hit = 2
+Return
+.after_ünder
+
 Done "language"
