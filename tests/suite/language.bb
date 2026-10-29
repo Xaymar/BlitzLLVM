@@ -388,4 +388,10 @@ Function StringFromFloat$()
 	Return 1.2
 End Function
 
+; Constants that do not fit wrap around like the program does, instead of crashing the compiler.
+Const FoldSmallest = -9223372036854775807 - 1
+Const FoldWrapped = FoldSmallest / -1
+Const FoldProduct = 9223372036854775807 * 2
+Check "constants that overflow compile", 1, 1
+
 Done "language"

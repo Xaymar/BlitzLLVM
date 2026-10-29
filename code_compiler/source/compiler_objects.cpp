@@ -42,7 +42,7 @@ bool blitz::compiler::fold_int(ast::expression const* expr, int64_t& out)
 		int64_t v;
 		if (fold_int(u->operand.get(), v)) {
 			if (u->kind == ast::unary::op::NEGATE) {
-				out = -v;
+				out = int64_t(0 - uint64_t(v)); // Wraps around, as the program does.
 				return true;
 			} else if (u->kind == ast::unary::op::PLUS) {
 				out = v;
@@ -54,17 +54,18 @@ bool blitz::compiler::fold_int(ast::expression const* expr, int64_t& out)
 		if (fold_int(b->lhs.get(), l) && fold_int(b->rhs.get(), r)) {
 			switch (b->kind) {
 			case ast::binary::op::ADD:
-				out = l + r;
+				out = int64_t(uint64_t(l) + uint64_t(r));
 				return true;
 			case ast::binary::op::SUBTRACT:
-				out = l - r;
+				out = int64_t(uint64_t(l) - uint64_t(r));
 				return true;
 			case ast::binary::op::MULTIPLY:
-				out = l * r;
+				out = int64_t(uint64_t(l) * uint64_t(r));
 				return true;
 			case ast::binary::op::DIVIDE:
 				if (r != 0) {
-					out = l / r;
+					// The smallest number divided by -1 does not fit, it wraps around to itself.
+					out = (r == -1) ? int64_t(0 - uint64_t(l)) : (l / r);
 					return true;
 				}
 				break;
