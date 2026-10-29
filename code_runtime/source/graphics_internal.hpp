@@ -860,6 +860,16 @@ namespace bb::gfx {
 	bool dither_temporal();
 	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader. */
 	int dither_level();
+	/** Whether the buffers are those of a Graphics with a depth of 8: RGBA8 that is shown, and read, as the nearest colors of the palette (GraphicsPalette). */
+	bool palette_mode();
+	void ensure_palette_lookup();
+	VkImageView palette_lookup_view();
+	/** Puts the palette in the lookup texture that the present of a Graphics with a depth of 8 uses, if it changed. Needs no open command buffer. */
+	void prepare_palette();
+	/** The number of the color of the palette that is nearest to a color. */
+	int palette_nearest(uint8_t red, uint8_t green, uint8_t blue);
+	/** Makes the colors of RGBA pixels into the nearest ones of the palette, and leaves the alpha. */
+	void palette_snap(uint8_t* rgba, size_t count);
 	bool blend_interlock();
 	/** Whether Dither 2 blends in the shader when drawing to a target of that format: only for 8 bits per color. */
 	bool blends_in_shader(VkFormat target);
@@ -1006,6 +1016,13 @@ namespace bb::gfx {
 
 	/** The bytes a pixel of the format takes in memory when it is read or written natively: 4, or 8 for R16G16B16A16 (half precision floats). */
 	uint32_t pixel_bytes(VkFormat format);
+	/** How a buffer of 16, 15 or 12 bits keeps a pixel: the first bit and the number of bits of red, green, blue and alpha (0 bits is no alpha). Null for any other format. */
+	struct packed_layout {
+		VkFormat format;
+		uint8_t  shift[4];
+		uint8_t  bits[4];
+	};
+	const packed_layout* packed_layout_of(VkFormat format);
 	/** Reads pixels as RGBA8, or with native set as the image has them (R, G, B, A in the order of its format). */
 	uint8_t* read_pixels(gpu_image& img, int x, int y, int w, int h, bool native = false, uint32_t layer = 0);
 	/** With remember the pixels also go into the recipe of the image, to be there after a lost device; what is rewritten every frame (a movie) does not need that. */

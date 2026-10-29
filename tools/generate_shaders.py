@@ -18,11 +18,11 @@ OP = dict(
     TypeVoid=19, TypeInt=21, TypeFloat=22, TypeVector=23, TypeImage=25, TypeSampledImage=27, TypeStruct=30,
     TypePointer=32, TypeFunction=33, Constant=43, ConstantComposite=44, Function=54, FunctionEnd=56, Variable=59,
     Load=61, Store=62, AccessChain=65, Decorate=71, MemberDecorate=72, CompositeConstruct=80, CompositeExtract=81,
-    ImageSampleImplicitLod=87, FSub=131, FMul=133, Label=248, Return=253,
+    ImageSampleImplicitLod=87, ImageSampleExplicitLod=88, FSub=131, FMul=133, Label=248, Return=253,
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
-    Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstant=50,
+    Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstantFalse=49, SpecConstant=50, SpecConstantComposite=51,
     Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
     IAdd=128, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
@@ -641,6 +641,45 @@ def vertex_shader_3d():
 
 
 
+PALETTE_ROWS = 68  # Rows of the lookup texture of the palette: 64 of the 6 bit lookup, the gaps and the grid flag, 3 of the per channel lookup.
+
+
+def palette_nearest_code(b, lookup, color):
+    """
+    The color of the palette that is nearest to the color (a vec3 from 0 to 1). The lookup texture is 4096 x 68 pixels:
+      rows 0 to 63    the nearest color for each color of 6 bits per channel: red is the column within a block of 64, green the row, blue the block
+      row 64          pixel 0 has the average gap of the colors of red, green and blue (0 to 1), pixel 1 is 1 if the palette is a grid
+      rows 65 to 67   with a grid: for each value of 8 bits of red, green and blue, the nearest level of that channel (exact)
+    A grid is a palette that has every combination of the levels of its channels (the default one has 8 x 8 x 4), where the nearest color
+    is the nearest level of each channel on its own.
+    """
+    f, v3, v4 = b.float(), b.vec(3), b.vec(4)
+    boolean = b.new_type("bool", "TypeBool")
+    zero = b.const_float(0.0)
+    rows = float(PALETTE_ROWS)
+
+    def sample(u, v):
+        return b.emit("ImageSampleExplicitLod", v4, lookup, b.construct(2, u, v), 2, zero)
+
+    flag = b.extract(sample(b.const_float(1.5 / 4096.0), b.const_float(64.5 / rows)), 0)
+    is_grid = b.emit("FOrdGreaterThan", boolean, flag, b.const_float(0.5))
+    before, then, other, merge = b.m.id(), b.m.id(), b.m.id(), b.m.id()
+    b.m.code += [Module.inst("Branch", before), Module.inst("Label", before), Module.inst("SelectionMerge", merge, 0),
+                 Module.inst("BranchConditional", is_grid, then, other), Module.inst("Label", then)]
+    steps = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, b.ext(v3, GLSL_FCLAMP, color, b.const_vec(3, 0.0), b.const_vec(3, 1.0)), b.const_vec(3, 255.0)), b.const_vec(3, 0.5)))
+    channels = []
+    for c in range(3):
+        u = b.fmul(f, b.fadd(f, b.extract(steps, c), b.const_float(0.5)), b.const_float(1.0 / 4096.0))
+        channels.append(b.extract(sample(u, b.const_float((65.5 + c) / rows)), 0))
+    exact = b.construct(3, *channels)
+    b.m.code += [Module.inst("Branch", merge), Module.inst("Label", other)]
+    cell = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, b.ext(v3, GLSL_FCLAMP, color, b.const_vec(3, 0.0), b.const_vec(3, 1.0)), b.const_vec(3, 63.0)), b.const_vec(3, 0.5)))
+    column = b.fadd(f, b.fadd(f, b.fmul(f, b.extract(cell, 2), b.const_float(64.0)), b.extract(cell, 0)), b.const_float(0.5))
+    approximate = b.swizzle(sample(b.fmul(f, column, b.const_float(1.0 / 4096.0)), b.fmul(f, b.fadd(f, b.extract(cell, 1), b.const_float(0.5)), b.const_float(1.0 / rows))), 3)
+    b.m.code += [Module.inst("Branch", merge), Module.inst("Label", merge)]
+    return b.emit("Phi", v3, exact, then, approximate, other)
+
+
 def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
@@ -716,6 +755,40 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             subpass = b.new_type("subpass", "TypeImage", f, 6, 0, 0, 0, 2, 0)
             target = b.variable("UniformConstant", subpass, [(DECORATION["DescriptorSet"], 4), (DECORATION["Binding"], 0), (DECORATION["InputAttachmentIndex"], 0)])
         interface += [in_depth, in_color_flat, in_spec, in_spec_flat, in_mask, in_dir, in_soft, in_frag]
+
+    # Depth 8 of Graphics: what is drawn is made into the nearest color of the palette (set 1, binding 1 is the lookup texture, see
+    # fragment_shader_palette for how it is laid out: see palette_nearest_code).
+    # Specialization constant 11 says the target is such a buffer (the pipeline for it is a twin of the other).
+    #   layout(constant_id = 11) const bool palette = false;
+    #   layout(set = 1, binding = 1) uniform sampler2D lut;
+    boolean = b.new_type("bool", "TypeBool")
+    if fog:
+        palette = b.m.id()
+        b.m.types.append(Module.inst("SpecConstantFalse", boolean, palette))
+        b.m.annotations.append(Module.inst("Decorate", palette, DECORATION["SpecId"], 11))
+        lut_type = sampled_2d if fog else sampled
+        lut = b.variable("UniformConstant", lut_type, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 1)])
+        dither_on = b.m.id()
+        b.m.types.append(Module.inst("SpecConstantTrue", boolean, dither_on))
+        b.m.annotations.append(Module.inst("Decorate", dither_on, DECORATION["SpecId"], 0))
+
+        def if_flag(flag, make, before_value, value_type):
+            """Runs make() only where the flag is true, and gives its value there and before_value elsewhere."""
+            before, then, merge = b.m.id(), b.m.id(), b.m.id()
+            b.m.code += [Module.inst("Branch", before), Module.inst("Label", before), Module.inst("SelectionMerge", merge, 0),
+                         Module.inst("BranchConditional", flag, then, merge), Module.inst("Label", then)]
+            made = make()
+            last = b.m.id()  # make() may have blocks of its own, so the one that leaves is a new one
+            b.m.code += [Module.inst("Branch", last), Module.inst("Label", last), Module.inst("Branch", merge), Module.inst("Label", merge)]
+            return b.emit("Phi", value_type, made, last, before_value, before)
+
+        def palette_pick(color, offset=None):
+            """The color of the palette nearest to the color, with the offset (noise, in the unit of 1 for a whole channel) times the gaps of the palette added first."""
+            lookup = b.load(lut_type, lut)
+            if offset is not None:
+                gaps = b.swizzle(b.emit("ImageSampleExplicitLod", v4, lookup, b.construct(2, b.const_float(0.5 / 4096.0), b.const_float(64.5 / PALETTE_ROWS)), 2, b.const_float(0.0)), 3)
+                color = b.fadd(v3, color, b.scale(3, gaps, offset))
+            return palette_nearest_code(b, lookup, color)
 
     main, label = b.m.id(), b.m.id()
     b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), *interface))
@@ -885,10 +958,32 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         #   if (dither) { vec2 xy = floor(gl_FragCoord.xy) + vec2(scene.projection.w - 1.0);
         #                 rgb += (fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0 * (not exact); }
         # The shader that blends itself dithers what it blends instead, always, as it is only used when Dither is 2.
-        def noise_offset():
+        # The noise is one step of the target: 1 / 255 for an 8 bit target, and a larger one for the 16, 15 and 12 bit buffers (their
+        # bits per channel are fewer). Specialization constants 8 to 10 are 255 / (largest value of the channel) for red, green and blue,
+        # which is 1 unless the buffer of Graphics has fewer than 8 bits per channel (the pipelines are made again with the buffer).
+        #   layout(constant_id = 8) const float scale_r = 1.0;  (9 for green, 10 for blue)
+        scales = []
+        for number in (8, 9, 10):
+            constant = b.m.id()
+            b.m.types.append(Module.inst("SpecConstant", f, constant, float_bits(1.0)))
+            b.m.annotations.append(Module.inst("Decorate", constant, DECORATION["SpecId"], number))
+            scales.append(constant)
+        scale = b.m.id()
+        b.m.types.append(Module.inst("SpecConstantComposite", v3, scale, *scales))
+
+        # The buffers of fewer bits show the lattice of the noise if every channel gets the same value: each channel after the first
+        # moves the pixel by its own offset (scale - 1 limited to 1, so that 8 bit targets, where scale is 1, keep one noise for all).
+        #   float shift = scene.projection.w - 1.0 + channel_offset * min(scale_channel - 1.0, 1.0);
+        zero_f = b.const_float(0.0)
+        scale_channels = [b.extract(scale, i) for i in range(3)]
+
+        def noise_offset(channel):
             w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
             frag = b.load(v4, in_frag)
             shift = b.fsub(f, w, c1)
+            if channel:
+                moves = b.ext(f, GLSL_FMIN, b.ext(f, GLSL_FMAX, b.fsub(f, scale_channels[channel], c1), zero_f), c1)
+                shift = b.fadd(f, shift, b.fmul(f, moves, b.const_float((0.0, 23.0, 61.0)[channel])))
             px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
             py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
             along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
@@ -896,13 +991,22 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             return b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
 
         def noise_for(color):
-            # A channel that the 8 bit target shows exactly gets no noise: a GPU may convert with a little error, which turns the
+            # A channel that the target shows exactly gets no noise: a GPU may convert with a little error, which turns the
             # lowest noise (half a step below) into a step below the color, in some pixels. Within 1/64 of a step counts as exact.
-            #   vec3 steps = rgb * 255.0;  noise * step(1.0 / 64.0, abs(steps - floor(steps + 0.5)));
-            steps = b.fmul(v3, color, b.const_vec(3, 255.0))
+            #   vec3 steps = rgb * 255.0 / scale;  noise * scale * step(1.0 / 64.0, abs(steps - floor(steps + 0.5)));
+            steps = b.emit("FDiv", v3, b.fmul(v3, color, b.const_vec(3, 255.0)), scale)
             away = b.ext(v3, GLSL_FABS, b.fsub(v3, steps, b.ext(v3, GLSL_FLOOR, b.fadd(v3, steps, b.const_vec(3, 0.5)))))
             inexact = b.ext(v3, GLSL_STEP, b.const_vec(3, 1.0 / 64.0), away)
-            return b.fmul(v3, b.scale(3, b.const_vec(3, 1.0), noise_offset()), inexact)
+            noise = b.construct(3, *[b.fmul(f, noise_offset(c), scale_channels[c]) for c in range(3)])
+            return b.fmul(v3, noise, inexact)
+
+        def palette_finish(plain, raw=None):
+            # With the palette (specialization constant 11) the color is made into the nearest color of it at the end, after lighting,
+            # fog and blending, with the noise of Dither (a step of the palette, from the gaps in the last row of the lookup).
+            #   if (palette) rgb = nearest(rgb + (dither ? noise - 0.5 : 0) * gaps);
+            raw = plain if raw is None else raw
+            amount = b.fmul(f, b.fmul(f, noise_offset(0), b.const_float(255.0)), b.emit("Select", f, dither_on, c1, zero_f))
+            return if_flag(palette, lambda: palette_pick(raw, amount), plain, v3)
 
         if blend:
             # The blend of the fixed-function pipeline, with the factors as specialization constants (ids 1 to 5). The factor of
@@ -937,25 +1041,25 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             drawn_factor = b.fadd(v3, b.scale(3, there_rgb, fb), b.construct(3, *([b.fmul(f, fa, alpha)] * 3)))
             there_factor = b.fadd(v3, b.scale(3, rgb, fe), b.construct(3, *([b.fadd(f, fc, b.fmul(f, fd, alpha))] * 3)))
             blended = b.fadd(v3, b.emit("FMul", v3, rgb, drawn_factor), b.emit("FMul", v3, there_rgb, there_factor))
-            blended = b.fadd(v3, blended, noise_for(blended))
+            quiet = b.emit("Select", f, palette, zero_f, c1)  # the palette picks with its own noise
+            blended = palette_finish(b.fadd(v3, blended, b.scale(3, noise_for(blended), quiet)), blended)
             blended_alpha = b.fadd(f, alpha, b.fmul(f, b.extract(there, 3), b.fsub(f, c1, alpha)))
             result = b.construct(4, b.extract(blended, 0), b.extract(blended, 1), b.extract(blended, 2), blended_alpha)
         else:
-            boolean = b.new_type("bool", "TypeBool")
-            dither_on = b.m.id()
-            b.m.types.append(Module.inst("SpecConstantTrue", boolean, dither_on))
-            b.m.annotations.append(Module.inst("Decorate", dither_on, DECORATION["SpecId"], 0))
+            not_palette = b.emit("LogicalNot", boolean, palette)
+            dither_plain = b.emit("LogicalAnd", boolean, dither_on, not_palette)
             before_dither, dither_label, dither_merge = b.m.id(), b.m.id(), b.m.id()
             b.m.code += [
                 Module.inst("Branch", before_dither),
                 Module.inst("Label", before_dither),
                 Module.inst("SelectionMerge", dither_merge, 0),
-                Module.inst("BranchConditional", dither_on, dither_label, dither_merge),
+                Module.inst("BranchConditional", dither_plain, dither_label, dither_merge),
                 Module.inst("Label", dither_label),
             ]
             dithered = b.fadd(v3, rgb, noise_for(rgb))
             b.m.code += [Module.inst("Branch", dither_merge), Module.inst("Label", dither_merge)]
             rgb = b.emit("Phi", v3, dithered, dither_label, rgb, before_dither)
+            rgb = palette_finish(rgb)
             result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
     if interlock:
         b.m.code.append(Module.inst("ImageWrite", b.load(storage_image, target), pixel, result))
@@ -1076,6 +1180,85 @@ def fragment_shader_gamma():
     offset = b.fmul(f, b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0)), enabled)
     channels = [b.fadd(f, channel, offset) for channel in channels]
     b.store(out_color, b.construct(4, *channels, b.const_float(1.0)))
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
+def fragment_shader_palette():
+    """
+    The same as the gamma shader for a Graphics of depth 8: the color that results is made into the nearest color of the palette. The
+    palette is a lookup texture of 4096 x 68 pixels (see palette_nearest_code) that has the nearest palette color for every color of 6 bits per channel: red is
+    the column within a block of 64, green the row, and blue the block. The noise is one step of the palette for each channel
+    instead of a step of 8 bits: the rows 0 to 2 of the table have it in the fourth value (255 times the step, or 0 for no dither).
+
+    #version 450
+    layout(set = 0, binding = 0) uniform sampler2D tex;
+    layout(set = 1, binding = 0) uniform Gamma { vec4 table[256]; } gamma;
+    layout(set = 2, binding = 0) uniform sampler2D palette;
+    layout(push_constant) uniform Dither { float shift; } pc;
+    layout(location = 0) in vec2 inUV;
+    layout(location = 0) out vec4 outColor;
+    void main() {
+        vec3 step = floor(texture(tex, inUV).rgb * 255.0 + 0.5);
+        vec3 color = vec3(gamma.table[int(step.r)].r, gamma.table[int(step.g)].g, gamma.table[int(step.b)].b);
+        vec2 xy = floor(gl_FragCoord.xy) + vec2(pc.shift);
+        float noise = fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715))));
+        color += (noise - 0.5) / 255.0 * vec3(gamma.table[0].w, gamma.table[1].w, gamma.table[2].w);
+        vec3 cell = floor(clamp(color, 0.0, 1.0) * 63.0 + 0.5);
+        outColor = vec4(textureLod(palette, vec2((cell.b * 64.0 + cell.r + 0.5) / 4096.0, (cell.g + 0.5) / 65.0), 0.0).rgb, 1.0);
+    }
+    """
+    b = Builder()
+    f, v2, v3, v4, i32 = b.float(), b.vec(2), b.vec(3), b.vec(4), b.int()
+    void, fn = b.void(), b.fn()
+    image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+    sampled = b.new_type("sampled", "TypeSampledImage", image)
+    table = b.array(v4, 256, "table")
+    block = b.struct("gamma", table)
+    b.m.annotations += [
+        Module.inst("Decorate", table, DECORATION["ArrayStride"], 16),
+        Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
+        Module.inst("Decorate", block, DECORATION["Block"]),
+    ]
+    shift_block = b.struct("dither", f)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", shift_block, 0, DECORATION["Offset"], 0),
+        Module.inst("Decorate", shift_block, DECORATION["Block"]),
+    ]
+    shift_push = b.variable("PushConstant", shift_block)
+    tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
+    gamma = b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
+    palette = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 2), (DECORATION["Binding"], 0)])
+    in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
+    out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, out_color, in_frag))
+    b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+
+    shown = b.swizzle(b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), b.load(v2, in_uv)), 3)
+    steps = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, shown, b.const_vec(3, 255.0)), b.const_vec(3, 0.5)))
+    channels = []
+    for channel in range(3):
+        step = b.emit("ConvertFToS", i32, b.extract(steps, channel))
+        row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), step))
+        channels.append(b.extract(row, channel))
+    frag = b.load(v4, in_frag)
+    shift = b.load(f, b.access("PushConstant", f, shift_push, b.const_int(0)))
+    px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
+    py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
+    along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
+    noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
+    centered = b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+    dithered = []
+    for channel in range(3):
+        row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.const_int(channel)))
+        dithered.append(b.fadd(f, channels[channel], b.fmul(f, centered, b.extract(row, 3))))
+    color = b.construct(3, *dithered)
+    picked = palette_nearest_code(b, b.load(sampled, palette), color)
+    b.store(out_color, b.construct(4, b.extract(picked, 0), b.extract(picked, 1), b.extract(picked, 2), b.const_float(1.0)))
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
 
@@ -1219,4 +1402,5 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment_3d_blend_interlock", fragment_shader_masked(96, fog=True, interlock=True), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
+    emit("bb_shader_fragment_palette", fragment_shader_palette(), out)
     emit("bb_shader_compute_cull", compute_shader_cull(), out)
