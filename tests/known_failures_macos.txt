@@ -1,0 +1,19 @@
+# Tests that are expected to fail on this platform, one name per line (# starts a comment). They are the tests that failed the first time
+# the Test workflow ran on it (the run of the pull request that added it). A test in this list is registered with WILL_FAIL and the
+# label "pending": it stays visible in the results, and the run only fails when one of them passes, which means it has to be removed
+# from the list. A program that does not compile has its run test in the list as well, as that has no program to run.
+audio-output
+audio-output-debug
+cli-runtime_architecture
+cli-temp_directory
+format-in_place_atomic
+suite-compile-language
+suite-debug-compile-language
+suite-debug-run-graphics_movies
+suite-debug-run-language
+suite-debug-run-network_udp_limit
+suite-debug-run-runtime
+suite-run-graphics_movies
+suite-run-language
+suite-run-network_udp_limit
+suite-run-runtime

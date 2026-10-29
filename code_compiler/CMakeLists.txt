@@ -460,3 +460,25 @@ add_test(
 	NAME "lex-test"
 	COMMAND ${PROJECT_NAME} --dump-tokens "${TEST_DIRECTORY}/test.bb"
 )
+
+# Tests that fail on a platform today (tests/known_failures_<platform>.txt). They are expected to fail, like the original programs above: the
+# results show them as pending, and the run only fails when one of them passes, as it has to leave the list then.
+if(WIN32)
+	set(_KNOWN_FAILURES "${TEST_DIRECTORY}/known_failures_windows.txt")
+elseif(APPLE)
+	set(_KNOWN_FAILURES "${TEST_DIRECTORY}/known_failures_macos.txt")
+endif()
+if(_KNOWN_FAILURES)
+	set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_KNOWN_FAILURES}")
+	file(STRINGS "${_KNOWN_FAILURES}" _KNOWN_TESTS REGEX "^[^#]")
+	foreach(_TEST IN LISTS _KNOWN_TESTS)
+		if(TEST "${_TEST}")
+			set_tests_properties("${_TEST}" PROPERTIES WILL_FAIL TRUE)
+			get_test_property("${_TEST}" LABELS _LABELS)
+			if(NOT _LABELS)
+				set(_LABELS)
+			endif()
+			set_tests_properties("${_TEST}" PROPERTIES LABELS "${_LABELS};pending")
+		endif()
+	endforeach()
+endif()
