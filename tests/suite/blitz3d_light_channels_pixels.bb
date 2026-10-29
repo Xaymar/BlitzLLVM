@@ -47,6 +47,19 @@ EntityLightChannel light, 255
 RenderWorld
 Check "An entity in no channel is not lit", R(80, 60), 0, 3
 
+; The channels are a UInt64, so the highest one works too.
+Local top:ULong = "$8000000000000000"
+Local rest:ULong = "$7FFFFFFFFFFFFFFF"
+EntityLightChannel light, top
+EntityLightChannel sphere, top
+RenderWorld
+Check "Channel 64 lights an entity in channel 64", R(80, 60), 30, 6
+EntityLightChannel sphere, rest
+RenderWorld
+Check "Channel 64 does not light an entity in channels 1 to 63", R(80, 60), 0, 3
+EntityLightChannel sphere, 0
+EntityLightChannel light, 255
+
 ; Lights that do not share a channel with the entity do not count towards the eight that light it. Eight bright lights of
 ; channel 2 come before a dim one of channel 1, which would be left out if the channels were not looked at first.
 FreeEntity light
