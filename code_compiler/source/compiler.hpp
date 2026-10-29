@@ -292,6 +292,7 @@ namespace blitz {
 		variable*   find_dim(std::string const& name);
 		address     gen_dim_address(ast::call const* node);
 		uint32_t    array_count(ast::expression const* size, ast::location const& where);
+		uint64_t    array_element_size(blitz::types::type t);
 		void        gen_dim(ast::dim_statement const* node);
 		bool        fold_int(ast::expression const* expr, int64_t& out);
 		/** A constant of a Data statement: an integer, a float or a string. */

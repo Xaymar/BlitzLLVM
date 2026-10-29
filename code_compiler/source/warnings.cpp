@@ -18,6 +18,7 @@ std::vector<blitz::warning_info> const& blitz::all_warnings()
 	static const std::vector<warning_info> list{
 		{ "implicit-lossy-int-to-int", 1, false, "An integer is turned into one that is smaller or has another sign, which can change the number." },
 		{ "loop-iterator-type-unsafe", 1, false, "A For loop counts with a real number, which can't count exactly, so it may run once more or less than expected or never end." },
+		{ "large-local-array", 1, false, "A Local array in a function is bigger than 4 KiB, so every call has to make it again." },
 		{ "implicit-lossy-real-to-int", 1, false, "A Float is turned into an integer, which rounds it and loses the fractional part." },
 		{ "implicit-lossy-real-to-real", 1, false, "A real number is turned into a smaller one, such as a Double into a Float." },
 		{ "implicit-string-to-number", 1, false, "A String is turned into a number, which is 0 if it isn't one." },

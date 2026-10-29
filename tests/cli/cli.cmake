@@ -1197,6 +1197,30 @@ elseif(CASE STREQUAL "warnings")
 	expect_err("w.bb:11:1: warning: The result of 'Foo' is not used. [-Wunused-result]")
 	expect_err("w.bb:4:7: warning: 't' has no type, it is an Int. [-Wtypeless-declaration]")
 
+	# Local arrays above 4 KiB in a function (level 1); the main program, small arrays and Global/Dim ones are left alone.
+	file(WRITE "${WORK}/bigarray.bb"
+		"Local mainbig%[5000]\n"
+		"Dim dimmed%(5000)\n"
+		"Function Big%()\n"
+		"\tLocal big%[2000]\n"
+		"\tLocal small%[1000]\n"
+		"\tLocal names$[600]\n"
+		"\tReturn big[1] + small[1] + Len(names[1])\n"
+		"End Function\n"
+		"Print Big() + mainbig[1] + dimmed(1)\n")
+	blitzcc(-c -W1 "${WORK}/bigarray.bb")
+	expect_ok()
+	expect_err("bigarray.bb:4:8: warning: 'big' is a Local array of 8 KiB, which is made again on every call of the function. [-Wlarge-local-array]")
+	expect_err("\nnotice: A Local array above 4 KiB costs time on every call, and above 64 KiB it lives on the heap.")
+	expect_err("'names' is a Local array of 5 KiB")
+	expect_no_err("'small'")
+	expect_no_err("'mainbig'")
+	expect_no_err("'dimmed'")
+	blitzcc(-c -W0 "${WORK}/bigarray.bb")
+	expect_no_err("[-Wlarge-local-array]")
+	blitzcc(-c -Wno-large-local-array "${WORK}/bigarray.bb")
+	expect_no_err("[-Wlarge-local-array]")
+
 	# Conversions name both types and the function that converts on purpose.
 	file(WRITE "${WORK}/conv.bb" "Local i% = Long(5000000000)\nLocal f# = Long(5)\nLocal s$ = 5\nLocal n% = \"12\"\nLocal d# = Double(3)\nPrint i + f + d + n + s\n")
 	blitzcc(-c -W4 "${WORK}/conv.bb")

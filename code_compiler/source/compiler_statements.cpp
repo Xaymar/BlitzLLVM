@@ -171,6 +171,10 @@ void blitz::compiler::gen_declare(ast::declare const* node)
 			}
 			type t = (decl.type == type::UNKNOWN) ? type::INT32 : decl.type;
 			uint32_t count = decl.array_size ? array_count(decl.array_size.get(), decl.where) : 0;
+			if (count && !_in_main && uint64_t(count) * array_element_size(t) > 4096) {
+				auto kib = (uint64_t(count) * array_element_size(t) + 1023) / 1024;
+				warn(decl.where, "large-local-array", "'" + decl.name + "' is a Local array of " + std::to_string(kib) + " KiB, which is made again on every call of the function.", "A Local array above 4 KiB costs time on every call, and above 64 KiB it lives on the heap. Declare it with Global or Dim outside of the function to make it once, or turn this off with -Wno-large-local-array.");
+			}
 			var            = create_local(decl.name, t, false, decl.where, decl.struct_name, count);
 			auto& stored        = _locals[lower(decl.name)];
 			stored.where        = decl.where;
