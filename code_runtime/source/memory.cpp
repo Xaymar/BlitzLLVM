@@ -32,10 +32,13 @@
 #if defined(_WIN32)
 #include <malloc.h>
 extern "C" {
-__declspec(dllimport) void* __stdcall VirtualAlloc(void*, size_t, unsigned long, unsigned long);
+__declspec(dllimport) void*              __stdcall VirtualAlloc(void*, size_t, unsigned long, unsigned long);
+__declspec(dllimport) int                __stdcall VirtualFree(void*, size_t, unsigned long);
+__declspec(dllimport) unsigned long long __stdcall GetTickCount64(void);
 }
 #else
 #include <sys/mman.h>
+#include <time.h>
 #if defined(BB_INTERPOSE_MALLOC)
 #include <dlfcn.h>
 #endif
@@ -74,6 +77,11 @@ namespace {
 	constexpr int    CLASSES      = 40;     // Classes 24-39: 2560 to 32768 bytes.
 	constexpr size_t MAX_SMALL    = 32768;
 
+	constexpr uint32_t RELEASE_AFTER_MS = 1000; // A span has to be empty this long before it goes back to the system.
+	constexpr uint32_t SWEEP_MS         = 250;  // How often the tick looks (at most), and the least time between two looks at a class.
+	constexpr uint32_t SWEEP_MAX_MS     = 4000; // Classes that have nothing empty are looked at less and less often, up to this.
+	constexpr int      RESERVE_SPANS    = 1;    // Empty spans that stay per class, so that a program which frees and allocates in turns finds one.
+
 #if UINTPTR_MAX > 0xFFFFFFFFu
 	constexpr size_t REGION_TRY[] = { size_t(16) << 30, size_t(4) << 30, size_t(1) << 30, size_t(256) << 20 };
 #else
@@ -90,7 +98,7 @@ namespace {
 	uintptr_t           g_base  = 0;
 	size_t              g_size  = 0;
 	std::atomic<size_t> g_used{ 0 };
-	uint8_t             g_class_of[MAX_GRANULES]; // class + 1 for each 64 KiB of the region that was handed out.
+	uint8_t             g_class_of[MAX_GRANULES]; // For each 64 KiB of the region that was handed out: class + 1 in the low 6 bits, the number of 64 KiB before it in its span in the high 2 bits.
 	size_t              g_class_size[CLASSES];
 	uint32_t            g_batch[CLASSES]; // Blocks that move between a thread and the pool at once.
 
@@ -98,12 +106,28 @@ namespace {
 	bool             g_debug = false; // Poison freed memory and report double frees and writes after free.
 	bool             g_stats = false; // Count live blocks.
 	bool             g_system = false; // Everything goes to the system (for tools that watch it, like valgrind).
+	bool             g_release = true; // Spans that stay empty go back to the system (BLITZLLVM_ALLOC_RELEASE).
 
 	std::atomic<size_t> g_tiny_spans{ 0 };
 	std::atomic<size_t> g_small_spans{ 0 };
 	std::atomic<size_t> g_live_blocks{ 0 };
 	std::atomic<size_t> g_live_bytes{ 0 };
 	std::atomic<size_t> g_system_blocks{ 0 };
+	std::atomic<size_t> g_released_spans{ 0 };
+	std::atomic<size_t> g_reused_spans{ 0 };
+	std::atomic<size_t> g_spare_spans{ 0 }; // Spans that were given back and wait to be used again.
+
+	// Spans that were given back: the address range stays ours, only the memory behind it went. Taken from first when a thread needs a span.
+	std::atomic<bool>      g_spare_lock{ false };
+	uint32_t*              g_spare_tiny  = nullptr; // First granule of each.
+	uint32_t*              g_spare_small = nullptr;
+	size_t                 g_spare_tiny_count  = 0;
+	size_t                 g_spare_small_count = 0;
+	std::atomic<uint32_t>  g_sweep_lock{ 0 };
+	std::atomic<uint32_t>  g_last_tick{ 0 };
+	uint32_t*              g_empty_since = nullptr; // Per first granule of a span: when a sweep first found it empty (milliseconds, 0 = not).
+	uint32_t               g_next_sweep[CLASSES]; // Per class: not looked at before this.
+	uint32_t               g_wait[CLASSES];       // Per class: how long to wait after a look that found nothing empty.
 
 	struct alignas(64) pool {
 		std::atomic<bool>     lock{ false };
@@ -197,6 +221,7 @@ namespace {
 			g_debug  = bb_env_bool("BLITZLLVM_DEBUG_ALLOC", false) != 0;
 			g_stats  = g_debug || bb_env_bool("BLITZLLVM_DEBUG_ALLOC_STATS", false);
 			g_system = bb_env_bool("BLITZLLVM_ALLOC_SYSTEM", false) != 0;
+			g_release = bb_env_bool("BLITZLLVM_ALLOC_RELEASE", true) != 0;
 #if defined(BB_ALLOC_PASSTHROUGH)
 			g_system = true;
 #endif
@@ -250,13 +275,66 @@ namespace {
 		return uintptr_t(p) - g_base < g_size;
 	}
 
+	inline int class_at(size_t granule)
+	{
+		return int(g_class_of[granule] & 63) - 1;
+	}
+
 	// Poison for freed memory in debug mode.
 	constexpr unsigned char DEAD = 0xDD, FRESH = 0xCD;
 
+	void spare_lock()
+	{
+		while (g_spare_lock.exchange(true, std::memory_order_acquire)) {
+			while (g_spare_lock.load(std::memory_order_relaxed)) {
+			}
+		}
+	}
+	void spare_unlock()
+	{
+		g_spare_lock.store(false, std::memory_order_release);
+	}
+
+	void mark_span(size_t first, size_t granules, int c)
+	{
+		for (size_t g = 0; g < granules; g++) {
+			g_class_of[first + g] = uint8_t((c + 1) | (g << 6));
+		}
+	}
+
 	void* take_span(int c)
 	{
-		size_t bytes = c < TINY_CLASSES ? TINY_SPAN : SMALL_SPAN;
-		size_t at    = g_used.fetch_add(bytes, std::memory_order_relaxed);
+		bool   tiny  = c < TINY_CLASSES;
+		size_t bytes = tiny ? TINY_SPAN : SMALL_SPAN;
+		if (g_spare_spans.load(std::memory_order_relaxed)) {
+			// A span that was given back: its memory is zero again, like the one of a span that was never used.
+			size_t first = 0;
+			bool   found = false;
+			spare_lock();
+			size_t& count = tiny ? g_spare_tiny_count : g_spare_small_count;
+			if (count) {
+				first = (tiny ? g_spare_tiny : g_spare_small)[--count];
+				found = true;
+			}
+			spare_unlock();
+			if (found) {
+				g_spare_spans.fetch_sub(1, std::memory_order_relaxed);
+				char* span = reinterpret_cast<char*>(g_base + first * GRANULE);
+#if defined(_WIN32)
+				if (!VirtualAlloc(span, bytes, 0x1000 /*MEM_COMMIT*/, 4)) {
+					spare_lock();
+					(tiny ? g_spare_tiny : g_spare_small)[count++] = uint32_t(first);
+					spare_unlock();
+					g_spare_spans.fetch_add(1, std::memory_order_relaxed);
+					return nullptr;
+				}
+#endif
+				mark_span(first, bytes / GRANULE, c);
+				g_reused_spans.fetch_add(1, std::memory_order_relaxed);
+				return span;
+			}
+		}
+		size_t at = g_used.fetch_add(bytes, std::memory_order_relaxed);
 		if (at + bytes > g_size) {
 			return nullptr;
 		}
@@ -266,10 +344,8 @@ namespace {
 			return nullptr;
 		}
 #endif
-		for (size_t g = 0; g < bytes / GRANULE; g++) {
-			g_class_of[(at / GRANULE) + g] = uint8_t(c + 1);
-		}
-		(c < TINY_CLASSES ? g_tiny_spans : g_small_spans).fetch_add(1, std::memory_order_relaxed);
+		mark_span(at / GRANULE, bytes / GRANULE, c);
+		(tiny ? g_tiny_spans : g_small_spans).fetch_add(1, std::memory_order_relaxed);
 		return span;
 	}
 
@@ -382,7 +458,7 @@ namespace {
 
 	inline void free_region(void* ptr)
 	{
-		int c = int(g_class_of[(uintptr_t(ptr) - g_base) / GRANULE]) - 1;
+		int c = class_at((uintptr_t(ptr) - g_base) / GRANULE);
 		if (BB_UNLIKELY(g_stats)) {
 			size_t cs = g_class_size[c];
 			if (g_debug) {
@@ -432,6 +508,236 @@ namespace {
 			g_system_blocks.fetch_add(1, std::memory_order_relaxed);
 		}
 		return p;
+	}
+
+	uint32_t now_ms()
+	{
+#if defined(_WIN32)
+		return uint32_t(GetTickCount64());
+#else
+		struct timespec ts;
+		clock_gettime(CLOCK_MONOTONIC, &ts);
+		return uint32_t(uint64_t(ts.tv_sec) * 1000u + uint64_t(ts.tv_nsec) / 1000000u);
+#endif
+	}
+
+	// Gives the memory of a span back to the system. It reads as zero again when it is used, on every platform.
+	bool decommit(void* span, size_t bytes)
+	{
+#if defined(_WIN32)
+		return VirtualFree(span, bytes, 0x4000 /*MEM_DECOMMIT*/) != 0;
+#elif defined(__linux__)
+		return madvise(span, bytes, MADV_DONTNEED) == 0;
+#else
+		int flags = MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED;
+#if defined(MAP_NORESERVE)
+		flags |= MAP_NORESERVE;
+#endif
+		return mmap(span, bytes, PROT_READ | PROT_WRITE, flags, -1, 0) != MAP_FAILED;
+#endif
+	}
+
+	bool prepare_sweeps()
+	{
+		if (g_empty_since) {
+			return true;
+		}
+		size_t granules = g_size / GRANULE;
+		auto*  since    = static_cast<uint32_t*>(SYS_CALLOC(granules, sizeof(uint32_t)));
+		auto*  tiny     = static_cast<uint32_t*>(SYS_CALLOC(granules, sizeof(uint32_t)));
+		auto*  small    = static_cast<uint32_t*>(SYS_CALLOC(granules / (SMALL_SPAN / GRANULE) + 1, sizeof(uint32_t)));
+		if (!since || !tiny || !small) {
+			SYS_FREE(since);
+			SYS_FREE(tiny);
+			SYS_FREE(small);
+			return false;
+		}
+		for (int c = 0; c < CLASSES; c++) {
+			g_wait[c] = SWEEP_MS;
+		}
+		g_spare_tiny  = tiny;
+		g_spare_small = small;
+		g_empty_since = since;
+		return true;
+	}
+
+	void give_to_pool(int c, node* chunk)
+	{
+		pool& p = g_pool[c];
+		pool_lock(p);
+		chunk->batch = p.batches;
+		p.batches    = chunk;
+		p.count.fetch_add(1, std::memory_order_relaxed);
+		pool_unlock(p);
+	}
+
+	// Looks for spans in which every block is free (the free blocks of the pools and of the calling thread, which are all that can
+	// be seen; blocks in the lists of other threads keep their span alive) and gives the ones that stayed empty back. Returns how many.
+	size_t sweep(uint32_t now)
+	{
+		uint32_t expected = 0;
+		if (!g_sweep_lock.compare_exchange_strong(expected, 1) ) {
+			return 0;
+		}
+		size_t released = 0;
+		size_t granules = g_used.load(std::memory_order_relaxed) / GRANULE;
+		if (granules > g_size / GRANULE) {
+			granules = g_size / GRANULE;
+		}
+		if (granules && prepare_sweeps()) {
+			uint32_t stamp = now ? now : 1;
+			cache&   t     = t_cache;
+			bool     look[CLASSES];
+			bool     reset[CLASSES];
+			node*    lists[CLASSES];
+			int      empties[CLASSES];
+			int      seen[CLASSES];
+			bool     any = false;
+			for (int c = 0; c < CLASSES; c++) {
+				size_t nblocks = (c < TINY_CLASSES ? TINY_SPAN : SMALL_SPAN) / g_class_size[c];
+				size_t free_at_most = size_t(g_pool[c].count.load(std::memory_order_relaxed)) * g_batch[c] + t.count[c];
+				look[c]    = false;
+				reset[c]   = free_at_most < nblocks; // Not enough free blocks for an empty span: whatever was found before is stale.
+				lists[c]   = nullptr;
+				empties[c] = seen[c] = 0;
+				if (!reset[c] && int32_t(stamp - g_next_sweep[c]) >= 0) {
+					look[c] = true;
+					any     = true;
+				}
+			}
+			auto* counts = any ? static_cast<uint16_t*>(SYS_CALLOC(granules, sizeof(uint16_t))) : nullptr;
+			if (counts) {
+				// Take the free blocks of the classes out of the pools and count them for each span.
+				for (int c = 0; c < CLASSES; c++) {
+					if (!look[c]) {
+						continue;
+					}
+					pool& p = g_pool[c];
+					pool_lock(p);
+					node* batches = p.batches;
+					p.batches     = nullptr;
+					p.count.store(0, std::memory_order_relaxed);
+					pool_unlock(p);
+					node* all = nullptr;
+					while (batches) {
+						node* next = batches->batch;
+						node* last = batches;
+						while (last->next) {
+							last = last->next;
+						}
+						last->next = all;
+						all        = batches;
+						batches    = next;
+					}
+					if (t.head[c]) {
+						node* last = t.head[c];
+						while (last->next) {
+							last = last->next;
+						}
+						last->next = all;
+						all        = t.head[c];
+						t.head[c]  = nullptr;
+						t.count[c] = 0;
+					}
+					lists[c] = all;
+					for (node* n = all; n; n = n->next) {
+						size_t g = (uintptr_t(n) - g_base) / GRANULE;
+						if (g < granules) { // Spans that were taken since the sweep began are left alone.
+							counts[g - (g_class_of[g] >> 6)]++;
+						}
+					}
+				}
+			}
+			// Decide for each span.
+			for (size_t g = 0; g < granules;) {
+				int c = class_at(g);
+				if (c < 0 || (g_class_of[g] >> 6) != 0) {
+					g++;
+					continue;
+				}
+				size_t span_granules = c < TINY_CLASSES ? 1 : SMALL_SPAN / GRANULE;
+				if (reset[c]) {
+					g_empty_since[g] = 0;
+				} else if (counts && look[c]) {
+					size_t nblocks = (c < TINY_CLASSES ? TINY_SPAN : SMALL_SPAN) / g_class_size[c];
+					if (counts[g] != nblocks) {
+						g_empty_since[g] = 0;
+					} else {
+						empties[c]++;
+						bool ripe = false;
+						if (!g_empty_since[g]) {
+							g_empty_since[g] = stamp;
+						} else {
+							ripe = stamp - g_empty_since[g] >= RELEASE_AFTER_MS;
+						}
+						if (++seen[c] > RESERVE_SPANS && ripe) {
+							counts[g] = 0xFFFF; // Marks it as to be given back.
+						}
+					}
+				}
+				g += span_granules;
+			}
+			if (counts) {
+				for (int c = 0; c < CLASSES; c++) {
+					if (!look[c]) {
+						continue;
+					}
+					// Put back what stays, without the blocks of the spans that go.
+					node*    chunk = nullptr;
+					uint32_t k     = 0;
+					for (node* n = lists[c]; n;) {
+						node*  next = n->next;
+						size_t g    = (uintptr_t(n) - g_base) / GRANULE;
+						if (g >= granules || counts[g - (g_class_of[g] >> 6)] != 0xFFFF) {
+							n->next = chunk;
+							chunk   = n;
+							if (++k == g_batch[c]) {
+								give_to_pool(c, chunk);
+								chunk = nullptr;
+								k     = 0;
+							}
+						}
+						n = next;
+					}
+					if (chunk) {
+						give_to_pool(c, chunk);
+					}
+					g_wait[c] = empties[c] ? SWEEP_MS : (g_wait[c] * 2 > SWEEP_MAX_MS ? SWEEP_MAX_MS : g_wait[c] * 2);
+					g_next_sweep[c] = stamp + g_wait[c];
+				}
+				for (size_t g = 0; g < granules;) {
+					int c = class_at(g);
+					if (c < 0 || (g_class_of[g] >> 6) != 0) {
+						g++;
+						continue;
+					}
+					bool   tiny           = c < TINY_CLASSES;
+					size_t span_granules = tiny ? 1 : SMALL_SPAN / GRANULE;
+					if (counts[g] == 0xFFFF) {
+						g_empty_since[g] = 0;
+						for (size_t i = 0; i < span_granules; i++) {
+							g_class_of[g + i] = 0;
+						}
+						if (decommit(reinterpret_cast<void*>(g_base + g * GRANULE), span_granules * GRANULE)) {
+							spare_lock();
+							if (tiny) {
+								g_spare_tiny[g_spare_tiny_count++] = uint32_t(g);
+							} else {
+								g_spare_small[g_spare_small_count++] = uint32_t(g);
+							}
+							spare_unlock();
+							g_spare_spans.fetch_add(1, std::memory_order_relaxed);
+						}
+						g_released_spans.fetch_add(1, std::memory_order_relaxed);
+						released++;
+					}
+					g += span_granules;
+				}
+			}
+			SYS_FREE(counts);
+		}
+		g_sweep_lock.store(0, std::memory_order_release);
+		return released;
 	}
 } // namespace
 
@@ -495,7 +801,7 @@ void* bb_realloc(void* ptr, size_t size)
 		return bb_malloc(size);
 	}
 	if (ours(ptr)) {
-		size_t cs = g_class_size[int(g_class_of[(uintptr_t(ptr) - g_base) / GRANULE]) - 1];
+		size_t cs = g_class_size[class_at((uintptr_t(ptr) - g_base) / GRANULE)];
 		if (size <= cs && (size > cs / 2 || cs <= 16) && size) {
 			return ptr; // Still fits, and does not waste more than half.
 		}
@@ -551,7 +857,7 @@ void bb_aligned_free(void* ptr)
 size_t bb_malloc_size(void* ptr)
 {
 	if (ptr && ours(ptr)) {
-		return g_class_size[int(g_class_of[(uintptr_t(ptr) - g_base) / GRANULE]) - 1];
+		return g_class_size[class_at((uintptr_t(ptr) - g_base) / GRANULE)];
 	}
 	return 0;
 }
@@ -576,6 +882,30 @@ void bb_mem_get_stats(bb_mem_stats* out)
 	out->live_blocks   = g_live_blocks.load();
 	out->live_bytes    = g_live_bytes.load();
 	out->system_blocks = g_system_blocks.load();
+	out->released_spans = g_released_spans.load();
+	out->reused_spans   = g_reused_spans.load();
+	out->spare_spans    = g_spare_spans.load();
+}
+
+size_t bb_mem_release_idle(uint32_t now_ms)
+{
+	if (g_state.load(std::memory_order_acquire) != 2 || !g_base || !g_release) {
+		return 0;
+	}
+	return sweep(now_ms);
+}
+
+void bb_mem_tick(void)
+{
+	if (g_state.load(std::memory_order_relaxed) != 2 || !g_release || !g_base) {
+		return;
+	}
+	uint32_t now = now_ms();
+	if (now - g_last_tick.load(std::memory_order_relaxed) < SWEEP_MS) {
+		return;
+	}
+	g_last_tick.store(now, std::memory_order_relaxed);
+	sweep(now);
 }
 
 } // extern "C"
