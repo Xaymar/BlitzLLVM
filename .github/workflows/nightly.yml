@@ -38,7 +38,7 @@ concurrency:
 
 jobs:
   build:
-    # The platforms, packages and their checks are in build.yml, which the Pull Request workflow uses as well.
+    # The platforms, packages and their checks are in build.yml, which the Test workflow uses as well.
     uses: ./.github/workflows/build.yml
     with:
       clean: ${{ inputs.clean == true }}

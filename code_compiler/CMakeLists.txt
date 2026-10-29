@@ -254,6 +254,11 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 			add_test(NAME "${_PREFIX}-run-${_NAME}-interlock" COMMAND "${_EXE}" WORKING_DIRECTORY "${TEST_DIRECTORY}/suite")
 			set_tests_properties("${_PREFIX}-run-${_NAME}-interlock" PROPERTIES FIXTURES_REQUIRED "${_PREFIX}-${_NAME}" LABELS "suite;gpu" ENVIRONMENT "BLITZLLVM_TEST_PROGRAM=${_EXE};BLITZLLVM_DITHER_LOCAL_READ=0" RESOURCE_LOCK "suite-${_NAME}")
 		endif()
+		file(STRINGS "${_FILE}" _MOVES_MOUSE REGEX "[Mm]ove[Mm]ouse" LIMIT_COUNT 1)
+		if(_MOVES_MOUSE)
+			# The pointer is shared by every window on the screen, so the programs that move it take turns, and the others run in parallel.
+			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY RESOURCE_LOCK "mouse")
+		endif()
 		if(_NAME STREQUAL "network" OR _NAME STREQUAL "multiplayer")
 			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY RESOURCE_LOCK "suite-network-ports")
 		endif()
@@ -455,3 +460,41 @@ add_test(
 	NAME "lex-test"
 	COMMAND ${PROJECT_NAME} --dump-tokens "${TEST_DIRECTORY}/test.bb"
 )
+
+# Tests that fail on a platform today (tests/known_failures_<platform>.txt). They are expected to fail, like the original programs above: the
+# results show them as pending, and the run only fails when one of them passes, as it has to leave the list then. A program that does not
+# compile can not be expected to fail "in its run test" (ctest does not start a test whose fixture setup failed, even with WILL_FAIL), so
+# the compile test of such a program and its run test are disabled instead (they show as not run).
+if(WIN32)
+	set(_KNOWN_FAILURES "${TEST_DIRECTORY}/known_failures_windows.txt")
+elseif(APPLE)
+	set(_KNOWN_FAILURES "${TEST_DIRECTORY}/known_failures_macos.txt")
+endif()
+if(_KNOWN_FAILURES)
+	set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_KNOWN_FAILURES}")
+	file(STRINGS "${_KNOWN_FAILURES}" _KNOWN_TESTS REGEX "^[^#]")
+	foreach(_TEST IN LISTS _KNOWN_TESTS)
+		set(_PROPERTY WILL_FAIL)
+		if(_TEST MATCHES "^disabled: ")
+			# For a test that crashes: WILL_FAIL only turns a failed exit code around, not a crash.
+			string(REGEX REPLACE "^disabled: " "" _TEST "${_TEST}")
+			set(_PROPERTY DISABLED)
+		endif()
+		if(NOT TEST "${_TEST}")
+			continue()
+		endif()
+		string(REGEX REPLACE "^(suite-(debug-)?)run-" "\\1compile-" _COMPILE "${_TEST}")
+		if(_TEST MATCHES "^suite-(debug-)?compile-" OR (NOT _COMPILE STREQUAL _TEST AND _COMPILE IN_LIST _KNOWN_TESTS))
+			set(_PROPERTY DISABLED)
+		endif()
+		get_test_property("${_TEST}" LABELS _LABELS)
+		if(NOT _LABELS)
+			set(_LABELS)
+		endif()
+		set_tests_properties("${_TEST}" PROPERTIES ${_PROPERTY} TRUE LABELS "${_LABELS};pending")
+		if(_PROPERTY STREQUAL "DISABLED" AND TEST "${_TEST}-interlock")
+			# The second run of the dither programs (without the local read extensions) needs the same program.
+			set_tests_properties("${_TEST}-interlock" PROPERTIES DISABLED TRUE)
+		endif()
+	endforeach()
+endif()
