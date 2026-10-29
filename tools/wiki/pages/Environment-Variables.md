@@ -64,7 +64,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | Variable | Default | What it does |
 |---|---|---|
 | `BLITZLLVM_PROFILE_FPS` | `0` | Prints the frames per second and the timers of the runtime once a second. Needs a program made with `--profile` or `-d`. |
-| `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. |
+| `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see below. |
 | `BLITZLLVM_DEBUG_ALLOC` | `0` | Fills freed and new blocks with patterns and stops when a freed block is written to or freed twice, see [[Memory]]. |
 | `BLITZLLVM_DEBUG_ALLOC_STATS` | `0` | Counts the blocks and bytes that were not freed and reports them at the end, see [[Memory]]. |
 | `BLITZLLVM_DEBUG_SYNC_GPU` | `0` | Waits for the GPU after every frame, as if it had no thread. |
@@ -72,6 +72,24 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_DEBUG_SPATIAL_GRID` | `0` | Prints how many meshes the grid found each frame. |
 | `BLITZLLVM_SIMULATE_DEVICE_LOSS` | not set | Flip numbers (`3,8`) at which the graphics device counts as lost, by making all the graphics again on a device that works, see [[Lost-Graphics-Device]]. |
 | `BLITZLLVM_SIMULATE_DEVICE_LOSS_LATE` | `0` | The simulated loss is only noticed after the Flip, so the calls up to the next Flip run against a lost device. |
+
+### Format of the call stack file
+
+x64 Windows programs built with `--profile` and `-g` (or `-d`) write `<file>.stacks` next to `<file>`, which keeps its format (the load address of the program, then one instruction address per sample). The call stacks are not recorded without the symbols, as they could not be turned into names. All numbers are little endian. The file starts with a header, followed by one record per sample, in the order of `<file>`; it grows every four seconds.
+
+| Header | Size | What |
+|---|---|---|
+| magic | 4 | `BBST` |
+| version | 4 | `1` |
+| max_frames | 4 | How many addresses a record has room for (`8`) |
+| base | 8 | Where the program is loaded |
+
+| Record | Size | What |
+|---|---|---|
+| frame | 4 | How many `Flip` calls there were before the sample, to cut the samples per phase |
+| depth | 4 | How many of the addresses are used |
+| microseconds | 8 | Since the sampler started |
+| addresses | 8 * max_frames | Where the sample was, then the return addresses of the callers (subtract `base` and look up in the debug information) |
 
 ## Compiler and tools
 
