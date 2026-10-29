@@ -46,6 +46,7 @@ BY_COMPILER = {
 # one it reads and writes with a '<' (InOut). Parameters without a mark are In.
 EXTENSIONS = {
     "lightchannel": ("blitz3d", "LightChannel%light%channel"),
+    "entitylightchannel": ("blitz3d", "EntityLightChannel%entity%channel"),
     "createhtmlview": ("plusgui", "%CreateHtmlView%x%y%width%height%group%style=0"),
     "htmlviewgo": ("plusgui", "HtmlViewGo%htmlview$URL"),
     "htmlviewrun": ("plusgui", "HtmlViewRun%htmlview$URL"),
