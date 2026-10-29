@@ -565,7 +565,7 @@ void blitz::compiler::collect_globals(ast::block const& block)
 			}
 			for (auto const& decl : d->variables) {
 				auto key = lower(decl.name);
-				if (_global_variables.count(key)) {
+				if (_global_variables.count(key) || _arrays.count(key)) {
 					throw err(decl.where, "'" + decl.name + "' has already been declared.");
 				}
 				type t = decl.type;
@@ -609,6 +609,9 @@ void blitz::compiler::collect_globals(ast::block const& block)
 						throw err(decl.where, "'" + decl.name + "' has already been declared as something else.");
 					}
 					continue;
+				}
+				if (_global_variables.count(key)) {
+					throw err(decl.where, "'" + decl.name + "' has already been declared as something else.");
 				}
 				if (decl.type == type::STRUCT) {
 					_struct_uses.emplace_back(decl.struct_name, decl.where);
