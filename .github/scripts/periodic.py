@@ -40,10 +40,16 @@ class PeriodicError(Exception):
     pass
 
 
+def redact(text):
+    """Hides the token, which is part of the URL that git pushes to and so of the command and of git's messages."""
+    token = os.environ.get("GH_TOKEN")
+    return text.replace(token, "***") if token else text
+
+
 def run(*command, check=True, **kwargs):
     result = subprocess.run(command, capture_output=True, text=True, **kwargs)
     if check and result.returncode != 0:
-        raise PeriodicError(f"{' '.join(command[:4])} failed: {result.stderr.strip() or result.stdout.strip()}")
+        raise PeriodicError(redact(f"{' '.join(command[:4])} failed: {result.stderr.strip() or result.stdout.strip()}"))
     return result
 
 
@@ -53,7 +59,7 @@ def api(path, *args, check=True):
     if result.returncode != 0:
         if not check and "404" in result.stderr:
             return None
-        raise PeriodicError(f"gh api {path} failed: {result.stderr.strip() or result.stdout.strip()}")
+        raise PeriodicError(redact(f"gh api {path} failed: {result.stderr.strip() or result.stdout.strip()}"))
     return json.loads(result.stdout) if result.stdout.strip() else None
 
 
