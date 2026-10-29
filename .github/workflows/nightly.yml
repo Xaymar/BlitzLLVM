@@ -291,9 +291,12 @@ jobs:
           # The tag stays on a single blank commit that has no files, so it can never collide with real history. It is only
           # created once; later builds just update the release and its assets.
           if [ -z "$(git ls-remote --tags "$REMOTE" refs/tags/nightly)" ]; then
-            git init -q
-            git -c user.name=github-actions -c user.email=actions@github.com commit -q --allow-empty -m "Nightly"
-            git push -q "$REMOTE" HEAD:refs/tags/nightly
+            # In a repository of its own: here it would be a commit on top of the checkout, with all of its files.
+            BLANK="$(mktemp -d)"
+            git -C "$BLANK" init -q
+            git -C "$BLANK" -c user.name=github-actions -c user.email=actions@github.com commit -q --allow-empty -m "Nightly"
+            git -C "$BLANK" push -q "$REMOTE" HEAD:refs/tags/nightly
+            rm -rf "$BLANK"
           fi
           if gh release view nightly >/dev/null 2>&1; then
             # Asset names contain the version, so remove the previous ones instead of leaving them behind.
