@@ -95,6 +95,11 @@ void bb_light_range(int32_t handle, float range)
 	need_kind(handle, LIGHT, "LightRange")->light_range = range;
 }
 
+void bb_light_channel(int32_t handle, int32_t channel)
+{
+	need_kind(handle, LIGHT, "LightChannel")->light_channel = uint8_t(channel);
+}
+
 // Camera fog.
 void bb_camera_fog_mode(int32_t handle, int32_t mode)
 {
