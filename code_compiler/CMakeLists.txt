@@ -400,8 +400,10 @@ find_package(Threads REQUIRED)
 target_link_libraries(memory_test PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
 add_test(NAME memory-allocator COMMAND memory_test)
 add_test(NAME memory-allocator-debug COMMAND memory_test)
+add_test(NAME memory-allocator-keep-spans COMMAND memory_test)
 set_tests_properties(memory-allocator-debug PROPERTIES ENVIRONMENT "BLITZLLVM_DEBUG_ALLOC=1")
-set_tests_properties(memory-allocator memory-allocator-debug PROPERTIES LABELS "memory")
+set_tests_properties(memory-allocator-keep-spans PROPERTIES ENVIRONMENT "BLITZLLVM_ALLOC_RELEASE=0")
+set_tests_properties(memory-allocator memory-allocator-debug memory-allocator-keep-spans PROPERTIES LABELS "memory")
 
 # The library that blitz-format and blitz-tidy share: Tokens that join back to the source (of every program in tests/), keywords,
 # configuration files, edits and diffs.
