@@ -486,6 +486,7 @@ blitz::compiler::variable& blitz::compiler::lookup(std::string const& name, type
 		var->used = true;
 		return *var;
 	}
+	refuse_array(name, where);
 	warn(where, "implicit-variable", "'" + name + "' was not declared, it is a new local variable.", "Declare it first, such as 'Local " + name + "'.", {}, declaration_suffix(hint, sname));
 	// Variables that were not declared are automatically declared as local.
 	if (hint == type::STRUCT) {
@@ -493,6 +494,14 @@ blitz::compiler::variable& blitz::compiler::lookup(std::string const& name, type
 	}
 	create_local(name, (hint == type::UNKNOWN) ? type::INT32 : hint, false, ast::location{}, sname);
 	return _locals[lower(name)];
+}
+
+// A name that belongs to an array is not a new variable.
+void blitz::compiler::refuse_array(std::string const& name, ast::location const& where)
+{
+	if (find_dim(name)) {
+		throw err(where, "'" + name + "' is an array, it can't be used as a variable.");
+	}
 }
 
 // What goes behind the name of a variable to give it the type.

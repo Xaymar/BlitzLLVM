@@ -235,6 +235,7 @@ namespace blitz {
 		// Errors and warnings
 		blitz::error err(ast::location const& where, std::string const& reason) const;
 		void         warn(ast::location const& where, const char* name, std::string const& reason, std::string const& notice = std::string(), std::vector<edit> edits = {}, std::string const& detail = std::string());
+		void               refuse_array(std::string const& name, ast::location const& where);
 		static std::string declaration_suffix(blitz::types::type t, std::string const& sname);
 		void         warn_short_notations(std::vector<ast::short_notation> const& notations);
 		void         warn_typeless(ast::location const& where, std::string const& name, std::string const& kind = "");
