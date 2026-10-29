@@ -207,7 +207,7 @@ jobs:
         if: matrix.kind == 'pacman'
         run: |
           mkdir packages
-          gem install --no-document fpm
+          gem install --no-document fpm -v 1.18.0
           # Arch installs gems into the user's directory, which is not on the PATH.
           export PATH="$(gem env gemdir)/bin:$(ruby -e 'print Gem.user_dir')/bin:$PATH"
           DESTDIR="$PWD/stage" cmake --install build --config Release --component system --prefix /usr
