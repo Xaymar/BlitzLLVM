@@ -29,6 +29,11 @@ required=(
 	BlitzPlus/LICENSE.TXT
 )
 if [[ -n "${2:-}" ]]; then
+	# A missing or empty list would silently reduce the check to the two sample licenses, so it fails instead.
+	if [[ ! -s "$2" ]]; then
+		echo "MISSING  $name: the list of required licenses '$2' is missing or empty" >&2
+		exit 1
+	fi
 	# The licenses of the sample programs are shipped whatever the libraries are.
 	mapfile -t required < <(grep -v '^$' "$2"; printf '%s\n' Blitz3D/LICENSE.TXT BlitzPlus/LICENSE.TXT)
 fi
