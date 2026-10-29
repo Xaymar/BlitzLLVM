@@ -308,7 +308,6 @@ suite-debug-run-graphics_formats_pixels
 suite-debug-run-graphics_fullscreen_pixels
 suite-debug-run-graphics_gamma_pixels
 suite-debug-run-graphics_is_graphics3d_pixels
-suite-debug-run-graphics_movies
 suite-debug-run-graphics_movies_pixels
 suite-debug-run-graphics_movies_texture_pixels
 suite-debug-run-graphics_pixel_fast_unlocked_pixels
@@ -349,7 +348,6 @@ suite-run-graphics_depth_pixels
 suite-run-graphics_dither_deep_present_pixels
 suite-run-graphics_dither_mode_pixels
 suite-run-graphics_gamma_pixels
-suite-run-graphics_movies
 suite-run-graphics_pixels
 disabled: suite-run-graphics_save_async_pixels
 disabled: suite-run-graphics_save_pixels
