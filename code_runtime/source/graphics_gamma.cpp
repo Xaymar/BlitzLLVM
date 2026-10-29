@@ -17,6 +17,7 @@
 #include "graphics_internal.hpp"
 #include "shaders.inc"
 #include "environment.h"
+#include <vector>
 
 using namespace bb::gfx;
 
@@ -28,6 +29,16 @@ namespace {
 	uint32_t presented = 0;  // Presented pictures, which move the noise.
 	int   dither_moves = -1; // Whether the noise moves from frame to frame (DitherTemporal): -1 until BLITZLLVM_DITHER_TEMPORAL was read.
 	int   dither  = 0;     // What Dither was asked for: 0 off, 1 the shown picture gets noise before it is rounded to 8 bits and 3D drawing gets it before the buffer, 2 also blends in the shader.
+
+	// The palette of a Graphics with a depth of 8: the colors that can be shown, and the nearest of them for every color of 6 bits per channel (the lookup texture).
+	uint8_t         palette[256][3];
+	bool            palette_ready   = false;
+	bool            palette_changed = true; // The lookup texture does not have the palette yet.
+	float           palette_steps[3];       // How far apart the colors of a channel are on average, in the 0 to 255 of a color: the noise of Dither.
+	VkPipelineLayout palette_layout   = VK_NULL_HANDLE;
+	VkPipeline       palette_pipeline = VK_NULL_HANDLE;
+	gpu_image        palette_lookup;
+	VkDescriptorSet  palette_set      = VK_NULL_HANDLE;
 
 	VkPipelineLayout layout   = VK_NULL_HANDLE;
 	VkPipeline       pipeline = VK_NULL_HANDLE;
@@ -62,6 +73,62 @@ namespace {
 		}
 	}
 
+	// All the colors there are with 3 bits of red and green and 2 of blue, from 0,0,0 to 255,255,255, with the blue in the lowest 2 bits of the index.
+	void default_palette()
+	{
+		for (int i = 0; i < 256; i++) {
+			palette[i][0] = uint8_t(((i >> 5) * 255 + 3) / 7);
+			palette[i][1] = uint8_t((((i >> 2) & 7) * 255 + 3) / 7);
+			palette[i][2] = uint8_t(((i & 3) * 255 + 1) / 3);
+		}
+	}
+
+	void palette_prepare()
+	{
+		if (!palette_ready) {
+			palette_ready = true;
+			default_palette();
+		}
+		// The noise of a channel is the average gap between the values it has: a palette with 8 values of red has gaps of 36.4.
+		for (int c = 0; c < 3; c++) {
+			bool seen[256] = {};
+			int  count     = 0;
+			for (int i = 0; i < 256; i++) {
+				if (!seen[palette[i][c]]) {
+					seen[palette[i][c]] = true;
+					count++;
+				}
+			}
+			palette_steps[c] = (count > 1) ? 255.0f / float(count - 1) : 255.0f;
+		}
+	}
+
+	// The lookup texture: for every color of 6 bits per channel, the color of the palette that is nearest to the middle of it.
+	void update_palette_lookup()
+	{
+		std::vector<uint8_t> pixels(4096 * 64 * 4);
+		for (int z = 0; z < 64; z++) {
+			for (int y = 0; y < 64; y++) {
+				for (int x = 0; x < 64; x++) {
+					uint8_t rgb[3] = { uint8_t((x * 255 + 31) / 63), uint8_t((y * 255 + 31) / 63), uint8_t((z * 255 + 31) / 63) };
+					int     index  = palette_nearest(rgb[0], rgb[1], rgb[2]);
+					uint8_t* out   = &pixels[(size_t(y) * 4096 + size_t(z) * 64 + size_t(x)) * 4];
+					out[0]         = palette[index][0];
+					out[1]         = palette[index][1];
+					out[2]         = palette[index][2];
+					out[3]         = 255;
+				}
+			}
+		}
+		wait_gpu();
+		if (!palette_lookup.image) {
+			upload_texture(palette_lookup, palette_set, 4096, 64, pixels.data(), g.sampler_point_clamp);
+		} else {
+			write_pixels(palette_lookup, 0, 0, 4096, 64, pixels.data(), false, false);
+		}
+		palette_changed = false;
+	}
+
 	float clamp_gamma(float value)
 	{
 		return value < 0 ? 0 : (value > 255 ? 255 : value);
@@ -77,6 +144,25 @@ namespace {
 			}
 		}
 		return true;
+	}
+
+	// The pipeline for a depth of 8: the same inputs as the other one, and the lookup texture of the palette as a third set.
+	void create_palette_resources()
+	{
+		VkDescriptorSetLayout layouts[3] = { g.set_layout, g.scene_layout, g.set_layout };
+		VkPipelineLayoutCreateInfo info  = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
+		VkPushConstantRange shift        = { VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(float) };
+		info.setLayoutCount              = 3;
+		info.pSetLayouts                 = layouts;
+		info.pushConstantRangeCount      = 1;
+		info.pPushConstantRanges         = &shift;
+		check(vkCreatePipelineLayout(g.device, &info, nullptr, &palette_layout), "vkCreatePipelineLayout");
+
+		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
+		VkShaderModule fs = create_shader(bb_shader_fragment_palette, sizeof(bb_shader_fragment_palette));
+		palette_pipeline  = create_pipeline(vs, fs, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, palette_layout, false, false);
+		vkDestroyShaderModule(g.device, vs, nullptr);
+		vkDestroyShaderModule(g.device, fs, nullptr);
 	}
 
 	void create_resources()
@@ -150,6 +236,56 @@ namespace bb::gfx {
 		return (target == VK_FORMAT_R8G8B8A8_UNORM) || (target != g.buffer_format);
 	}
 
+	bool palette_mode()
+	{
+		return g.created && (g.buffer_depth == 8);
+	}
+
+	void prepare_palette()
+	{
+		if (palette_mode() && !g.headless && (palette_changed || !palette_lookup.image)) {
+			palette_prepare();
+			update_palette_lookup();
+			changed = true; // The noise follows the gaps of the palette.
+		}
+	}
+
+	int palette_nearest(uint8_t red, uint8_t green, uint8_t blue)
+	{
+		palette_prepare();
+		int      best     = 0;
+		uint32_t best_gap = ~0u;
+		for (int i = 0; i < 256; i++) {
+			int      dr  = int(palette[i][0]) - int(red), dg = int(palette[i][1]) - int(green), db = int(palette[i][2]) - int(blue);
+			uint32_t gap = uint32_t(dr * dr + dg * dg + db * db);
+			if (gap < best_gap) {
+				best_gap = gap;
+				best     = i;
+				if (gap == 0) {
+					break;
+				}
+			}
+		}
+		return best;
+	}
+
+	void palette_snap(uint8_t* rgba, size_t count)
+	{
+		palette_prepare();
+		uint32_t last_in = 0xFFFFFFFFu, last_out = 0;
+		for (size_t i = 0; i < count; i++) {
+			uint32_t key = uint32_t(rgba[i * 4 + 0]) | (uint32_t(rgba[i * 4 + 1]) << 8) | (uint32_t(rgba[i * 4 + 2]) << 16);
+			if (key != last_in) {
+				int index = palette_nearest(rgba[i * 4 + 0], rgba[i * 4 + 1], rgba[i * 4 + 2]);
+				last_in   = key;
+				last_out  = uint32_t(palette[index][0]) | (uint32_t(palette[index][1]) << 8) | (uint32_t(palette[index][2]) << 16);
+			}
+			rgba[i * 4 + 0] = uint8_t(last_out);
+			rgba[i * 4 + 1] = uint8_t(last_out >> 8);
+			rgba[i * 4 + 2] = uint8_t(last_out >> 16);
+		}
+	}
+
 	int dither_level()
 	{
 		return ((dither > 1) && !g.can_blend_dither && !blend_interlock()) ? 1 : dither;
@@ -160,12 +296,18 @@ namespace bb::gfx {
 		need_gamma();
 		bool identity = is_identity();
 		// A buffer of more than 8 bits per channel is always converted here, so that the picture is RGBA8 and Dither has something to hide.
-		if (identity && (dither == 0) && !dump_path() && (front.format == VK_FORMAT_R8G8B8A8_UNORM)) {
+		bool palettized = palette_mode();
+		if (identity && (dither == 0) && !dump_path() && (front.format == VK_FORMAT_R8G8B8A8_UNORM) && !palettized) {
 			return &front;
 		}
 		if (!pipeline) {
 			create_resources();
 		}
+		if (palettized && !palette_pipeline) {
+			create_palette_resources();
+		}
+		// A buffer with fewer than 8 bits per channel is shown exactly, so the noise of 8 bits would only spoil it.
+		bool noise = (dither > 0) && !packed_layout_of(front.format);
 		if (changed) {
 			changed = false;
 			wait_gpu(); // The frame before may still read the tables.
@@ -173,7 +315,8 @@ namespace bb::gfx {
 				table_mapped[i * 4 + 0] = applied[0][i] / 255.0f;
 				table_mapped[i * 4 + 1] = applied[1][i] / 255.0f;
 				table_mapped[i * 4 + 2] = applied[2][i] / 255.0f;
-				table_mapped[i * 4 + 3] = (i == 0 && (dither > 0)) ? 1.0f : 0.0f; // The first row says whether to dither.
+				// The first row says whether to dither. With a palette the first three have how far apart the colors of red, green and blue are.
+				table_mapped[i * 4 + 3] = (!noise || (palettized ? (i >= 3) : (i != 0))) ? 0.0f : (palettized ? palette_steps[i] : 1.0f);
 			}
 		}
 		if (front_view != front.view) {
@@ -205,14 +348,18 @@ namespace bb::gfx {
 		VkRect2D   scissor  = { { 0, 0 }, { shown.width, shown.height } };
 		vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 		vkCmdSetScissor(g.cmd, 0, 1, &scissor);
-		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		VkPipelineLayout used = palettized ? palette_layout : layout;
+		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, palettized ? palette_pipeline : pipeline);
 		uint32_t offset = 0;
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &front_set, 0, nullptr);
-		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 1, 1, &table_set, 1, &offset);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, used, 0, 1, &front_set, 0, nullptr);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, used, 1, 1, &table_set, 1, &offset);
+		if (palettized) {
+			vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, used, 2, 1, &palette_set, 0, nullptr);
+		}
 		// The noise moves every frame (and repeats after 64): the same offset is added to x and y. It stays with DitherTemporal 0.
 		float shift = dither_shift();
 		presented++;
-		vkCmdPushConstants(g.cmd, layout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(shift), &shift);
+		vkCmdPushConstants(g.cmd, used, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(shift), &shift);
 		vkCmdDraw(g.cmd, 3, 1, 0, 0);
 		vkCmdEndRendering(g.cmd);
 
@@ -265,6 +412,15 @@ namespace bb::gfx {
 			destroy_buffer(dump_buffer, dump_allocation);
 			dump_size   = 0;
 		}
+		if (palette_pipeline) {
+			wait_gpu();
+			destroy_image(palette_lookup);
+			vkDestroyPipeline(g.device, palette_pipeline, nullptr);
+			vkDestroyPipelineLayout(g.device, palette_layout, nullptr);
+			palette_pipeline = VK_NULL_HANDLE;
+			palette_set      = VK_NULL_HANDLE;
+			palette_changed  = true;
+		}
 		if (pipeline) {
 			vkDestroyPipeline(g.device, pipeline, nullptr);
 			vkDestroyPipelineLayout(g.device, layout, nullptr);
@@ -311,6 +467,50 @@ void bb_dither(int32_t enable)
 void bb_dither_temporal(int32_t enable)
 {
 	dither_moves = (enable != 0) ? 1 : 0;
+}
+
+// GraphicsPallet imagefile: the 256 colors that a Graphics with a depth of 8 shows. The file is a picture of 16 by 16 pixels, read from the
+// top left to the right and then down, so that the pixel at x,y is the color with the number y * 16 + x. Without a file (an empty name)
+// the palette is the one of all colors with 3 bits of red and green and 2 of blue, from 0,0,0 to 255,255,255. It can be set before
+// Graphics, and takes effect with the next picture that is shown.
+void bb_graphics_pallet(const char* file)
+{
+	palette_ready = true;
+	if (!file || !file[0]) {
+		default_palette();
+	} else {
+		SDL_Surface* loaded = load_surface(file);
+		if (!loaded) {
+			bb_runtime_error("GraphicsPallet: the picture could not be loaded.");
+			return;
+		}
+		SDL_Surface* rgba = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
+		SDL_DestroySurface(loaded);
+		if (!rgba) {
+			bb_runtime_error("GraphicsPallet: the picture could not be read.");
+			return;
+		}
+		if ((rgba->w != 16) || (rgba->h != 16)) {
+			SDL_DestroySurface(rgba);
+			bb_runtime_error("GraphicsPallet: the picture has to be 16 by 16 pixels.");
+			return;
+		}
+		for (int y = 0; y < 16; y++) {
+			const uint8_t* row = static_cast<const uint8_t*>(rgba->pixels) + size_t(y) * size_t(rgba->pitch);
+			for (int x = 0; x < 16; x++) {
+				memcpy(palette[y * 16 + x], row + x * 4, 3);
+			}
+		}
+		SDL_DestroySurface(rgba);
+	}
+	palette_prepare();
+	palette_changed = true;
+	changed         = true;
+	if (g.created && !g.headless && palette_mode()) {
+		wait_gpu();
+		g.front_touched = true;
+		flush();
+	}
 }
 
 // Makes the tables count. The original also had them corrected for the calibration of the display, which a window

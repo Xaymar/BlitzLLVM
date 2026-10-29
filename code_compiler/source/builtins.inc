@@ -622,6 +622,7 @@
 		{ "setclipboarddata", "bb_set_clipboard_data", 'i', "is", 2, {}, false },
 		// Graphics information
 		{ "graphicsdepth", "bb_graphics_depth", 'i', "", 0, {}, false },
+		{ "graphicspallet", "bb_graphics_pallet", 'v', "s", 1, {}, false },
 		{ "gfxmode3dexists", "bb_gfx_mode_3d_exists", 'i', "iii", 3, {}, false },
 		{ "windowed3d", "bb_windowed_3d", 'i', "", 0, {}, false },
 		{ "totalvidmem", "bb_total_vid_mem", 'i', "", 0, {}, false },
