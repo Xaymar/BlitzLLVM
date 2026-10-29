@@ -419,6 +419,7 @@ namespace bb::gfx {
 		s.scene_mapped = g.scene_mapped;
 		s.scene_set = g.scene_set;
 		s.cull = g.cull;
+		s.statics = g.statics;
 	}
 
 	static void load_slot(frame_slot const& s)
@@ -436,6 +437,7 @@ namespace bb::gfx {
 		g.scene_mapped = s.scene_mapped;
 		g.scene_set = s.scene_set;
 		g.cull = s.cull;
+		g.statics = s.statics;
 	}
 
 	void select_frame_slot(uint32_t index)
@@ -477,6 +479,9 @@ namespace bb::gfx {
 			destroy_buffer(g.cull.groups, g.cull.groups_allocation);
 			destroy_buffer(g.cull.commands, g.cull.commands_allocation);
 			g.cull = cull_buffers();
+			destroy_buffer(g.statics.table, g.statics.table_allocation);
+			destroy_buffer(g.statics.infos, g.statics.infos_allocation);
+			g.statics = static_buffers();
 		}
 		select_frame_slot(0);
 	}

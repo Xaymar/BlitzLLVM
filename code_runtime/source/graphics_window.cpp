@@ -165,6 +165,10 @@ void bb::gfx::destroy_device_objects()
 		vkDestroyPipeline(g.device, g.cull_pipeline, nullptr);
 	}
 	vkDestroyPipelineLayout(g.device, g.cull_pipeline_layout, nullptr);
+	if (g.static_pipeline) {
+		vkDestroyPipeline(g.device, g.static_pipeline, nullptr);
+	}
+	vkDestroyPipelineLayout(g.device, g.static_pipeline_layout, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.cull_layout, nullptr);
 	vkDestroyPipelineLayout(g.device, g.layout3d, nullptr);
 	vkDestroyDescriptorSetLayout(g.device, g.scene_layout, nullptr);

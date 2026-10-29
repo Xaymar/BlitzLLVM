@@ -55,6 +55,7 @@ namespace bb::scene {
 		vertex3d vert = { x, y, z, nx, ny, nz, u, v, half_one, half_one, half_one, half_one, u, v };
 		s->vertices.push(vert);
 		s->dirty = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 		return s->vertices.size - 1;
 	}
@@ -76,6 +77,7 @@ namespace bb::scene {
 		s->indices.push(b);
 		s->indices.push(c);
 		s->dirty = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 	}
 
@@ -87,6 +89,7 @@ namespace bb::scene {
 		s->indices.push(b);
 		s->indices.push(c);
 		s->dirty = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 	}
 
@@ -211,6 +214,7 @@ namespace bb::scene {
 	{
 		bb::compute_normals(s->vertices, s->indices);
 		s->dirty = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 	}
 
@@ -286,6 +290,7 @@ namespace bb::scene {
 			exit(1);
 		}
 		s->dirty = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 		return s->vertices[uint32_t(index)];
 	}
@@ -300,6 +305,7 @@ namespace bb::scene {
 				apply(&s->vertices[v].x, arg);
 			}
 			s->dirty = true;
+			bb::surface_epoch++;
 			bb::surface_changed(*s);
 		}
 	}
@@ -481,6 +487,7 @@ int32_t bb_add_triangle(int32_t handle, int32_t a, int32_t b, int32_t c)
 	s->indices.push(uint32_t(b));
 	s->indices.push(uint32_t(c));
 	s->dirty = true;
+	bb::surface_epoch++;
 	bb::surface_changed(*s);
 	return int32_t(s->indices.size / 3) - 1;
 }
@@ -540,6 +547,7 @@ void bb_flip_mesh(int32_t mesh)
 			s->vertices[v].nz = -s->vertices[v].nz;
 		}
 		s->dirty = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 	}
 }
@@ -573,6 +581,7 @@ void bb_rotate_mesh(int32_t mesh, float pitch, float yaw, float roll)
 			}
 		}
 		s->dirty = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 	}
 }
@@ -658,6 +667,7 @@ static void add_surfaces(int32_t destination, entity const& source)
 			into          = surface_of(new_surface(destination));
 			into->paint   = from.paint;
 			into->painted = from.painted;
+			bb::surface_epoch++;
 		}
 		uint32_t base = into->vertices.size;
 		for (uint32_t v = 0; v < from.vertices.size; v++) {
@@ -667,6 +677,7 @@ static void add_surfaces(int32_t destination, entity const& source)
 			into->indices.push(from.indices[t] + base);
 		}
 		into->dirty       = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*into);
 		into->bound_valid = false;
 	}
@@ -733,6 +744,7 @@ void bb_fit_mesh(int32_t mesh, float x, float y, float z, float w, float h, floa
 			vert.nz = n[2];
 		}
 		s->dirty       = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 		s->bound_valid = false;
 	}
@@ -760,6 +772,7 @@ void bb_clear_surface(int32_t handle, int32_t vertices, int32_t triangles)
 		s->indices.clear();
 	}
 	s->dirty       = true;
+	bb::surface_epoch++;
 	bb::surface_changed(*s);
 	s->bound_valid = false;
 }
@@ -775,6 +788,7 @@ void bb_vertex_coords(int32_t handle, int32_t index, float x, float y, float z)
 	v.y         = y;
 	v.z         = z;
 	s->dirty       = true;
+	bb::surface_epoch++;
 	bb::surface_changed(*s);
 	s->bound_valid = false;
 }
@@ -815,6 +829,7 @@ void bb_light_mesh(int32_t mesh, float r, float g, float b, float range, float x
 			}
 		}
 		s->dirty = true;
+		bb::surface_epoch++;
 		bb::surface_changed(*s);
 	}
 }

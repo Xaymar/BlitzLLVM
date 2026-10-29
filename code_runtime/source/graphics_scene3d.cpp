@@ -412,11 +412,95 @@ namespace bb::gfx {
 		return pipeline;
 	}
 
+	////////////////////////////////////////////////////////////////////////////
+	// Draws that the GPU drives (BLITZLLVM_GPU_DRAWS=1)
+	//
+	// Meshes that stay as they are for a few frames get their draws made once, and these are kept in a table that is also on the GPU. For
+	// each camera a compute shader moves the table by where the camera is, decides which of its entries are in view and writes the
+	// commands, which are then drawn with one indirect call for each run of entries that are the same in everything but their data. The
+	// CPU does not collect or make draws for them while they stay in the table. Whatever may change an entry takes its entity out of
+	// the table again (entity_moved, which every command that asks for an entity calls), and whatever all entries share throws the
+	// whole table away: the lights, the geometry or paint of any surface, any texture, the pipelines.
+	////////////////////////////////////////////////////////////////////////////
+	namespace gpu_static {
+		constexpr uint32_t lanes           = 64;    // Entries are padded to this, the size of a group of the compute shader.
+		constexpr uint32_t settle_frames   = 4;     // Frames an entity has to stay untouched before it is put in the table.
+		constexpr uint32_t batch_per_frame = 20000; // Entities that are looked at for the table in one frame.
+		constexpr uint32_t none            = 0xFFFFFFFFu;
+
+		// What entries have to share to be drawn by the same call.
+		struct entry_key {
+			VkPipeline   pipeline;
+			int          texture; // The handle that the draw was made with.
+			uintptr_t    texture_set;
+			VkBuffer     vertex_buffer, index_buffer;
+			surface_gpu* gpu;
+			bool         cull, depth_test, depth_write;
+		};
+		struct run {
+			uint32_t  first, count, live;
+			entry_key key;
+		};
+		struct fresh { // An entry that is made, and not in the table yet.
+			int         handle;
+			uint32_t    frame;
+			entity_push push;
+			gpu_cluster info;
+			entry_key   key;
+		};
+		struct built_from {
+			uint32_t   mesh, surface, texture, lights, light_count;
+			bool       wireframe;
+			VkPipeline opaque, solid, wire;
+		};
+
+		bool                     enabled = false;
+		bool                     started = false;
+		std::vector<entity_push> table;        // Padded to lanes, the entries after the live ones are empty.
+		std::vector<gpu_cluster> infos;
+		std::vector<entry_key>   keys;
+		std::vector<int>         owner;        // The entity of an entry, 0 for one that is switched off.
+		std::vector<uint32_t>    next_entry;   // The next entry of the same entity.
+		std::vector<uint32_t>    run_of;
+		std::vector<run>         runs;
+		std::vector<uint32_t>    log;          // The entries that were switched off since the table was made.
+		std::vector<fresh>       made;
+		std::vector<uint32_t>    queue;        // Entities that may go in the table, once they have settled.
+		size_t                   queue_head = 0;
+		std::vector<uint32_t>    first_entry, member_of, last_touch;
+		std::vector<uint8_t>     queued;
+		uint64_t                 version = 1;  // Of the table, changes whenever it is made again.
+		uint32_t                 generation = 1; // Entities are in the table when member_of is this.
+		uint32_t                 captured_last = 0; // Entities that the last look at the queue made entries of.
+		uint32_t                 frame = 0, captured_frame = 0, cooldown = 0, live_entities = 0, last_publish = 0;
+		uint32_t                 pending_scenes = 0; // Scenes that wait to be recorded and draw from the table.
+		uint32_t                 reserved = 0;       // Entries of those, which have room in the buffer of draw data after the draws.
+		built_from               built = {};
+
+		inline void size_for(uint32_t handle)
+		{
+			if (first_entry.size() < handle) {
+				size_t size = std::max<size_t>(handle, first_entry.size() * 2);
+				first_entry.resize(size, none);
+				member_of.resize(size, 0);
+				last_touch.resize(size, 0);
+				queued.resize(size, 0);
+			}
+		}
+		inline bool member(int handle)
+		{
+			uint32_t index = uint32_t(handle) - 1;
+			return index < member_of.size() && member_of[index] == generation;
+		}
+	}
+
+
 	// Makes room in the buffer of draw data for that many draws. This is only done while nothing is being recorded, and
 	// what was drawn before has been waited for, so the old buffer can go. It is filled when the draws are recorded.
 	static void ensure_entities(uint32_t count)
 	{
 		acquire_frame(); // The frame before in this slot may still read the descriptor set and the buffer.
+		count += gpu_static::reserved; // The entries of the table that cameras draw come after all the draws.
 		if (count <= g.entity_capacity) {
 			return;
 		}
@@ -710,6 +794,7 @@ namespace bb::gfx {
 			if (g.can_gpu_cull) {
 				alloc.pSetLayouts = &g.cull_layout;
 				check(vkAllocateDescriptorSets(g.device, &alloc, &g.cull.set), "vkAllocateDescriptorSets");
+				check(vkAllocateDescriptorSets(g.device, &alloc, &g.statics.set), "vkAllocateDescriptorSets"); // Of the draws that the GPU drives, which have the same kinds of buffers.
 			}
 		}
 		select_frame_slot(0);
@@ -744,6 +829,16 @@ namespace bb::gfx {
 			cull_pipeline.layout                      = g.cull_pipeline_layout;
 			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.cull_pipeline), "vkCreateComputePipelines");
 			vkDestroyShaderModule(g.device, cs, nullptr);
+
+			// The draws that the GPU drives: the same sets, and the planes, where the camera is and where to write.
+			VkPushConstantRange static_push = { VK_SHADER_STAGE_COMPUTE_BIT, 0, 6 * 16 + 16 + 16 };
+			cull_layout_info.pPushConstantRanges = &static_push;
+			check(vkCreatePipelineLayout(g.device, &cull_layout_info, nullptr, &g.static_pipeline_layout), "vkCreatePipelineLayout");
+			VkShaderModule ss = create_shader(bb_shader_compute_static, sizeof(bb_shader_compute_static));
+			cull_pipeline.stage.module = ss;
+			cull_pipeline.layout       = g.static_pipeline_layout;
+			check(vkCreateComputePipelines(g.device, VK_NULL_HANDLE, 1, &cull_pipeline, nullptr, &g.static_pipeline), "vkCreateComputePipelines");
+			vkDestroyShaderModule(g.device, ss, nullptr);
 		}
 
 		build_pipelines_3d();
@@ -851,10 +946,12 @@ namespace bb::gfx {
 	bb::buffer<copy_record>  copies;
 	bb::buffer<antialias_record> antialiases;
 
+
 	void forget_recorded()
 	{
 		cull_filled_clusters = cull_filled_groups = cull_recorded_groups = 0;
 		cull_filled_commands = cull_recorded_commands = 1;
+		gpu_static::pending_scenes = gpu_static::reserved = 0;
 		flush_number++; // What was recorded has been drawn, so its buffers can be filled again.
 		draws.clear();
 		pushes.clear();
@@ -948,10 +1045,103 @@ namespace bb::gfx {
 		vkCmdPipelineBarrier2(g.cmd, &dependency);
 	}
 
+	// Brings the copy of the table that this frame uses up to date, and points its descriptors at the buffers.
+	static void static_sync()
+	{
+		using namespace gpu_static;
+		static_buffers& s       = g.statics;
+		uint32_t        padded  = uint32_t(table.size());
+		bool            rewrite = false;
+		if (s.capacity < padded) {
+			if (s.table) {
+				graveyard.push({ s.table, s.table_allocation });
+				graveyard.push({ s.infos, s.infos_allocation });
+			}
+			uint32_t capacity = (padded + padded / 4 + lanes - 1) / lanes * lanes;
+			create_buffer(VkDeviceSize(capacity) * sizeof(entity_push), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, s.table, s.table_allocation, &s.table_mapped);
+			create_buffer(VkDeviceSize(capacity) * sizeof(gpu_cluster), VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, true, s.infos, s.infos_allocation, &s.infos_mapped);
+			s.capacity = capacity;
+			s.version  = 0;
+			rewrite    = true;
+		}
+		if (s.version != version) {
+			memcpy(s.table_mapped, table.data(), size_t(padded) * sizeof(entity_push));
+			memcpy(s.infos_mapped, infos.data(), size_t(padded) * sizeof(gpu_cluster));
+			s.version      = version;
+			s.log_position = uint32_t(log.size());
+		} else {
+			for (; s.log_position < log.size(); s.log_position++) {
+				static_cast<gpu_cluster*>(s.infos_mapped)[log[s.log_position]].index_count = 0;
+			}
+		}
+		if (rewrite || (s.commands_bound != g.cull.commands)) {
+			VkDescriptorBufferInfo infos_[3]  = { { s.table, 0, VK_WHOLE_SIZE }, { s.infos, 0, VK_WHOLE_SIZE }, { g.cull.commands, 0, VK_WHOLE_SIZE } };
+			VkWriteDescriptorSet   writes[3] = {};
+			for (uint32_t i = 0; i < 3; i++) {
+				writes[i].sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				writes[i].dstSet          = s.set;
+				writes[i].dstBinding      = i;
+				writes[i].descriptorCount = 1;
+				writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+				writes[i].pBufferInfo     = &infos_[i];
+			}
+			vkUpdateDescriptorSets(g.device, 3, writes, 0, nullptr);
+			s.commands_bound = g.cull.commands;
+		}
+	}
+
+	// Writes the draw data and the commands of the table for the camera of a scene.
+	static void record_static_pass(scene_record const& scene)
+	{
+		if (!scene.static_count) {
+			return;
+		}
+		static_sync();
+		struct {
+			float   planes[24];
+			float   origin[4];
+			int32_t base[4];
+		} push = {};
+		if (scene.have_planes) {
+			memcpy(push.planes, scene.cull_planes, sizeof(push.planes));
+		} else {
+			for (int i = 0; i < 6; i++) {
+				push.planes[i * 4 + 3] = 1.0f; // Every point is inside of these.
+			}
+		}
+		memcpy(push.origin, scene.origin, sizeof(scene.origin));
+		push.base[0] = int32_t(scene.static_entities);
+		push.base[1] = int32_t(scene.static_commands);
+		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline);
+		VkDescriptorSet sets[2] = { g.entity_set, g.statics.set };
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_COMPUTE, g.static_pipeline_layout, 0, 2, sets, 0, nullptr);
+		vkCmdPushConstants(g.cmd, g.static_pipeline_layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
+		vkCmdDispatch(g.cmd, scene.static_count / gpu_static::lanes, 1, 1);
+		VkMemoryBarrier2 written = { VK_STRUCTURE_TYPE_MEMORY_BARRIER_2 };
+		written.srcStageMask     = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+		written.srcAccessMask    = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT;
+		written.dstStageMask     = VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+		written.dstAccessMask    = VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_STORAGE_READ_BIT;
+		VkDependencyInfo dependency   = { VK_STRUCTURE_TYPE_DEPENDENCY_INFO };
+		dependency.memoryBarrierCount = 1;
+		dependency.pMemoryBarriers    = &written;
+		vkCmdPipelineBarrier2(g.cmd, &dependency);
+	}
+
 	// Draws what a camera had waiting.
 	void record_scene(uint32_t index, int target_handle)
 	{
 		scene_record& scene  = scenes[index];
+		if (scene.static_count) {
+			// Their data goes after the data of all the draws, and the data of the scenes before this one that have some.
+			uint32_t base = draws.size;
+			for (uint32_t before = 0; before < index; before++) {
+				base += scenes[before].static_count;
+			}
+			scene.static_entities = base;
+			scene.static_commands = cull_recorded_commands;
+			cull_recorded_commands += scene.static_count;
+		}
 		target_ref    target = resolve_target(target_handle);
 		if (!target.image) {
 			return;
@@ -974,6 +1164,21 @@ namespace bb::gfx {
 			}
 		}
 		record_culling(scene);
+		if (scene.static_count) {
+			for (gpu_static::run const& r : gpu_static::runs) {
+				texture_entry* tex = r.live ? texture_of(r.key.texture) : nullptr;
+				if (tex && tex->cube) {
+					if (tex->cube->stamp != scene_stamp) {
+						tex->cube->stamp = scene_stamp;
+						cube_refresh(*tex);
+					}
+				} else if (tex && tex->set && (tex->image.image != target.image->image)) {
+					refresh_mips(tex->image);
+					transition(tex->image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+				}
+			}
+			record_static_pass(scene);
+		}
 		// With Dither 2, blended things are blended by their shader, which reads the target while it is drawn to.
 		bool shader_blends = false;
 		if ((dither_level() == 2) && blends_in_shader(target.image->format)) {
@@ -1079,7 +1284,63 @@ namespace bb::gfx {
 			}
 		}
 		bool read_only = false;
+		bool static_done = (scene.static_count == 0);
+		// The draws that the GPU drives come after what is drawn behind everything, and before the rest.
+		auto emit_static = [&]() {
+			static_done = true;
+			for (gpu_static::run const& r : gpu_static::runs) {
+				if (!r.live) {
+					continue;
+				}
+				gpu_static::entry_key const& k = r.key;
+				if (k.pipeline != bound_pipeline) {
+					vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_for(k.pipeline, target.image->format));
+					bound_pipeline = k.pipeline;
+					stats3d.pipelines++;
+				}
+				int cull = k.cull ? (scene.reflected ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT) : VK_CULL_MODE_NONE;
+				if (cull != bound_cull) {
+					vkCmdSetCullMode(g.cmd, VkCullModeFlags(cull));
+					bound_cull = cull;
+				}
+				if (int(k.depth_test) != bound_test) {
+					vkCmdSetDepthTestEnable(g.cmd, k.depth_test ? VK_TRUE : VK_FALSE);
+					bound_test = k.depth_test;
+				}
+				bool write = k.depth_write && !read_only;
+				if (int(write) != bound_write) {
+					vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
+					bound_write = write;
+				}
+				texture_entry*  tex = texture_of(k.texture);
+				VkDescriptorSet set = (tex && tex->set && (tex->cube || (tex->image.image != target.image->image))) ? tex->set : g.sets[TEXTURE_WHITE_3D];
+				if (set != bound_set) {
+					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 0, 1, &set, 0, nullptr);
+					bound_set = set;
+					stats3d.textures++;
+				}
+				if ((k.vertex_buffer != bound_vertices) || (k.index_buffer != bound_indices)) {
+					VkDeviceSize offset = 0;
+					vkCmdBindVertexBuffers(g.cmd, 0, 1, &k.vertex_buffer, &offset);
+					vkCmdBindIndexBuffer(g.cmd, k.index_buffer, 0, VK_INDEX_TYPE_UINT32);
+					bound_vertices = k.vertex_buffer;
+					bound_indices  = k.index_buffer;
+					stats3d.buffers++;
+				}
+				constexpr uint32_t most = 1u << 24;
+				for (uint32_t done = 0; done < r.count; done += most) {
+					vkCmdDrawIndexedIndirect(g.cmd, g.cull.commands, VkDeviceSize(scene.static_commands + r.first + done) * sizeof(gpu_draw_command), std::min(most, r.count - done), sizeof(gpu_draw_command));
+				}
+				stats3d.draws++;
+				if (k.gpu) {
+					k.gpu->used_by_flush = flush_number; // The GPU reads the buffers again.
+				}
+			}
+		};
 		for (uint32_t i = 0; i < scene.draw_count;) {
+			if (!static_done && (i >= scene.static_after) && !read_only && !storage_mode) {
+				emit_static();
+			}
 			if ((i == soft_first) && !read_only) {
 				vkCmdEndRendering(g.cmd);
 				barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -1156,6 +1417,20 @@ namespace bb::gfx {
 			}
 			stats3d.draws++;
 			i += instances;
+		}
+		if (!static_done) {
+			if (storage_mode) {
+				vkCmdEndRendering(g.cmd);
+				transition(*target.image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+				storage_mode = false;
+				depth.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+				vkCmdBeginRendering(g.cmd, &info);
+				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				bound_pipeline = VK_NULL_HANDLE;
+				bound_cull = bound_test = bound_write = -1;
+			}
+			emit_static();
 		}
 		vkCmdEndRendering(g.cmd);
 		if (read_only) {
@@ -1405,6 +1680,9 @@ namespace bb::gfx {
 	static void collect_mesh(int handle, bb::entity& mesh, void* user)
 	{
 		mesh_collector* c = static_cast<mesh_collector*>(user);
+		if (c->skip_static && gpu_static::member(handle)) {
+			return; // The GPU draws it, see gpu_static.
+		}
 		// What is outside of the view is found from the record, without reading the rest of the entity or making its matrix.
 		static_assert(offsetof(bb::entity, rotation) == offsetof(bb::entity, position) + 3 * sizeof(float) && offsetof(bb::entity, scale) == offsetof(bb::entity, rotation) + 3 * sizeof(float), "place, rotation and scale are remembered as one piece");
 		bb::cull_record& record = bb::cull_record_of(handle);
@@ -2525,6 +2803,349 @@ namespace bb::gfx {
 		}
 	}
 
+	// How much the matrix of a draw can lengthen a vector by at most, see record.growth.
+	static float static_growth(entity_push const& push)
+	{
+		float most = 0;
+		for (int i = 0; i < 3; i++) {
+			float row_sum = 0;
+			for (int j = 0; j < 3; j++) {
+				float dot = 0;
+				for (int k = 0; k < 3; k++) {
+					dot += push.model[k][i] * push.model[k][j];
+				}
+				row_sum += fabsf(dot);
+			}
+			most = fmaxf(most, row_sum);
+		}
+		return sqrtf(most) * 1.0001f;
+	}
+
+	static bool static_texture_ready(int reference)
+	{
+		int handle = reference & bb::texture_handle_mask;
+		if ((handle < 1) || (uint32_t(handle) > texture_table.size)) {
+			return true;
+		}
+		texture_entry const& t = texture_table[uint32_t(handle) - 1];
+		if (t.pending || (t.alias && texture_table[uint32_t(t.alias) - 1].pending) || (t.atlas && texture_table[uint32_t(t.atlas) - 1].pending)) {
+			return false;
+		}
+		return true;
+	}
+
+	// Whether the draws of a mesh can be kept: only solid meshes that stand alone and are drawn the same way by every camera.
+	static bool static_eligible(bb::entity& e)
+	{
+		if ((e.kind != bb::MESH) || e.hidden || e.parent || e.captured || e.order || e.sprite_mode || e.plane_divs || e.terrain || e.cls || e.has_cull_box
+			|| (e.fade_far > 0) || e.unresolved || e.anim || e.md2 || e.loading || (e.alpha <= 0.001f) || (e.surfaces.size == 0)) {
+			return false;
+		}
+		if (!static_texture_ready(e.texture)) {
+			return false;
+		}
+		for (uint32_t i = 0; i < e.surfaces.size; i++) {
+			bb::surface const& s = *e.surfaces[i];
+			if (s.skin || surface_is_blended(e, s, e.alpha) || (s.painted && !static_texture_ready(s.paint.texture))) {
+				return false;
+			}
+		}
+		for (int layer = 0; layer < 7; layer++) {
+			if (e.layers[layer]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	static void static_queue(int handle)
+	{
+		using namespace gpu_static;
+		size_for(uint32_t(handle));
+		if (!queued[uint32_t(handle) - 1]) {
+			queued[uint32_t(handle) - 1] = 1;
+			queue.push_back(uint32_t(handle));
+		}
+	}
+
+	// Throws the table away, because something that every entry depends on changed.
+	static void static_invalidate()
+	{
+		using namespace gpu_static;
+		if (pending_scenes) {
+			flush(); // What waits to be recorded is drawn from the table as it is.
+		}
+		for (uint32_t entry = 0; entry < owner.size(); entry++) {
+			if (owner[entry]) {
+				static_queue(owner[entry]);
+			}
+		}
+		generation++;
+		table.clear();
+		infos.clear();
+		keys.clear();
+		owner.clear();
+		next_entry.clear();
+		run_of.clear();
+		runs.clear();
+		log.clear();
+		made.clear();
+		live_entities = 0;
+		version++;
+	}
+
+	// Takes the entries of an entity out of the table, because the program may have changed it. It is drawn the usual way from then on.
+	static void static_demote(int handle)
+	{
+		using namespace gpu_static;
+		if (pending_scenes) {
+			flush(); // What waits to be recorded draws it the way it was.
+		}
+		for (uint32_t entry = first_entry[uint32_t(handle) - 1]; entry != none; entry = next_entry[entry]) {
+			infos[entry].index_count = 0;
+			owner[entry]             = 0;
+			runs[run_of[entry]].live--;
+			log.push_back(entry);
+		}
+		member_of[uint32_t(handle) - 1] = 0;
+		live_entities--;
+	}
+
+	// Makes the table from what is in it and what was made since, ordered so that entries which are drawn by the same call are together.
+	static void static_publish()
+	{
+		using namespace gpu_static;
+		if (made.empty()) {
+			return;
+		}
+		if (pending_scenes) {
+			flush();
+		}
+		struct source {
+			bool     fresh;
+			uint32_t index;
+		};
+		std::vector<source> all;
+		all.reserve(owner.size() + made.size());
+		for (uint32_t entry = 0; entry < owner.size(); entry++) {
+			if (owner[entry]) {
+				all.push_back({ false, entry });
+			}
+		}
+		for (uint32_t i = 0; i < made.size(); i++) {
+			fresh const& f = made[i];
+			if (last_touch[uint32_t(f.handle) - 1] > f.frame) {
+				continue; // The program asked for it since, it is made again when it has settled.
+			}
+			all.push_back({ true, i });
+		}
+		auto key_of = [&](source const& s) -> entry_key const& { return s.fresh ? made[s.index].key : keys[s.index]; };
+		std::stable_sort(all.begin(), all.end(), [&](source const& a, source const& b) {
+			entry_key const& x = key_of(a);
+			entry_key const& y = key_of(b);
+			return std::tie(x.pipeline, x.texture_set, x.vertex_buffer, x.index_buffer, x.cull, x.depth_test, x.depth_write)
+				< std::tie(y.pipeline, y.texture_set, y.vertex_buffer, y.index_buffer, y.cull, y.depth_test, y.depth_write);
+		});
+
+		uint32_t                 padded = (uint32_t(all.size()) + lanes - 1) / lanes * lanes;
+		std::vector<entity_push> new_table(padded);
+		std::vector<gpu_cluster> new_infos(padded);
+		std::vector<entry_key>   new_keys(padded);
+		std::vector<int>         new_owner(padded, 0);
+		std::vector<uint32_t>    new_next(padded, none), new_run(padded, 0);
+		std::vector<run>         new_runs;
+		for (uint32_t i = 0; i < all.size(); i++) {
+			source const& s = all[i];
+			if (s.fresh) {
+				new_table[i]  = made[s.index].push;
+				new_infos[i]  = made[s.index].info;
+				new_keys[i]   = made[s.index].key;
+				new_owner[i]  = made[s.index].handle;
+			} else {
+				new_table[i]  = table[s.index];
+				new_infos[i]  = infos[s.index];
+				new_keys[i]   = keys[s.index];
+				new_owner[i]  = owner[s.index];
+			}
+			entry_key const& k = new_keys[i];
+			if (new_runs.empty() || std::tie(k.pipeline, k.texture_set, k.vertex_buffer, k.index_buffer, k.cull, k.depth_test, k.depth_write)
+				!= std::tie(new_runs.back().key.pipeline, new_runs.back().key.texture_set, new_runs.back().key.vertex_buffer, new_runs.back().key.index_buffer, new_runs.back().key.cull, new_runs.back().key.depth_test, new_runs.back().key.depth_write)) {
+				new_runs.push_back({ i, 0, 0, k });
+			}
+			new_runs.back().count++;
+			new_runs.back().live++;
+			new_run[i] = uint32_t(new_runs.size() - 1);
+		}
+		// The padding is part of the last run's table but not of any run: its commands draw nothing.
+		generation++;
+		live_entities = 0;
+		for (uint32_t i = uint32_t(all.size()); i-- > 0;) {
+			uint32_t handle = uint32_t(new_owner[i]);
+			size_for(handle);
+			if (member_of[handle - 1] != generation) {
+				member_of[handle - 1]  = generation;
+				first_entry[handle - 1] = none;
+				live_entities++;
+			}
+			new_next[i]             = first_entry[handle - 1];
+			first_entry[handle - 1] = i;
+		}
+		table     = std::move(new_table);
+		infos     = std::move(new_infos);
+		keys      = std::move(new_keys);
+		owner     = std::move(new_owner);
+		next_entry = std::move(new_next);
+		run_of    = std::move(new_run);
+		runs      = std::move(new_runs);
+		log.clear();
+		made.clear();
+		version++;
+		last_publish = frame;
+	}
+
+	// Looks at what changed since the table was made. Called by every camera that is not a mirror, before it takes its place in the scenes.
+	static void static_begin()
+	{
+		using namespace gpu_static;
+		if (!started) {
+			return;
+		}
+		built_from now = { bb::mesh_epoch, bb::surface_epoch, bb::texture_epoch, current_light_hash, current_light_count, g.wireframe, g.opaque3d, g.solid3d, g.wire3d[0] };
+		if (memcmp(&now, &built, sizeof(now)) != 0) {
+			static uint32_t last_change = 0, backoff = 0;
+			if (!table.empty() || !made.empty()) {
+				static_invalidate();
+			}
+			// Something that changes all the time (an animation) must not make the table over and over.
+			backoff = (frame - last_change < 120) ? std::min<uint32_t>(backoff * 2, 960) : 2 * settle_frames;
+			last_change = frame;
+			cooldown    = std::max(cooldown, backoff);
+			built       = now;
+		}
+		if (!made.empty() && ((captured_last == 0) || (made.size() >= 200000) || (frame - last_publish >= 120))) {
+			static_publish();
+		}
+	}
+
+	// Makes the draws of one entity for the table. 0: it is not for the table (for now), 1: they are made, 2: it has not settled yet.
+	static int static_capture_entity(int handle)
+	{
+		using namespace gpu_static;
+		bb::entity* e = bb::get_entity_raw(handle);
+		if (!e || (e->kind != bb::MESH)) {
+			return 0;
+		}
+		size_for(uint32_t(handle));
+		if (frame - last_touch[uint32_t(handle) - 1] < settle_frames) {
+			return 2;
+		}
+		if (member(handle) || !static_eligible(*e)) {
+			return 0;
+		}
+		float lo[3], hi[3];
+		if (!bb::mesh_bounds(*e, lo, hi) || (lo[0] > hi[0])) {
+			return 0;
+		}
+		float m[16];
+		bb::world_matrix(handle, m);
+		uint32_t   draws_before = draws.size, pushes_before = pushes.size;
+		uint32_t   triangles    = g.triangles_drawn;
+		draw_item  item         = { handle, e->alpha, 0.0f, 0 };
+		draw_entity(item, 0, true);
+		g.triangles_drawn = triangles; // Nothing is drawn for this.
+		bool     ok    = (draws.size > draws_before);
+		uint32_t first = uint32_t(made.size());
+		for (uint32_t i = draws_before; ok && (i < draws.size); i++) {
+			draw_record const& rec = draws[i];
+			if (!rec.unit_start || rec.cluster_count || ((rec.pipeline != g.opaque3d) && (rec.pipeline != g.solid3d) && !(g.wireframe && (rec.pipeline == g.wire3d[0])))) {
+				ok = false;
+				break;
+			}
+			fresh f = {};
+			f.handle = handle;
+			f.frame  = frame;
+			f.push   = pushes[rec.push_index];
+			for (int row = 0; row < 3; row++) {
+				f.push.model[row][3] = m[12 + row]; // Where the camera is is taken off on the GPU.
+			}
+			for (int axis = 0; axis < 3; axis++) {
+				f.info.sphere[axis] = 0.5f * (lo[axis] + hi[axis]);
+			}
+			f.info.sphere[3]    = 0.5f * sqrtf((hi[0] - lo[0]) * (hi[0] - lo[0]) + (hi[1] - lo[1]) * (hi[1] - lo[1]) + (hi[2] - lo[2]) * (hi[2] - lo[2]));
+			f.info.first_index  = 0;
+			f.info.index_count  = int32_t(rec.index_count);
+			f.info.cone[0]      = static_growth(f.push);
+			f.info.cone[3]      = 2.0f;
+			f.key.pipeline      = rec.pipeline;
+			f.key.texture       = rec.texture;
+			f.key.texture_set   = rec.texture_set;
+			f.key.vertex_buffer = rec.vertex_buffer;
+			f.key.index_buffer  = rec.index_buffer;
+			f.key.cull          = rec.cull;
+			f.key.depth_test    = rec.depth_test;
+			f.key.depth_write   = rec.depth_write;
+			f.key.gpu           = nullptr;
+			for (uint32_t n = 0; n < e->surfaces.size; n++) {
+				surface_gpu* gpu = static_cast<surface_gpu*>(e->surfaces[n]->gpu);
+				if (gpu && (gpu->vertex_buffer == rec.vertex_buffer)) {
+					f.key.gpu = gpu;
+				}
+			}
+			ok = ok && f.key.gpu;
+			made.push_back(f);
+		}
+		draws.size  = draws_before;
+		pushes.size = pushes_before;
+		if (!ok) {
+			made.resize(first);
+			return 0;
+		}
+		return 1;
+	}
+
+	// Looks at some of the entities that wait to be put in the table. Once a frame, by the first camera that is not a mirror, after it has its lights.
+	static void static_capture()
+	{
+		using namespace gpu_static;
+		if (captured_frame == frame) {
+			return;
+		}
+		captured_frame = frame;
+		captured_last  = 0;
+		if (cooldown) {
+			cooldown--;
+			return;
+		}
+		if (!started) {
+			started = true;
+			for (int handle = 1; handle <= bb::entity_count(); handle++) {
+				bb::entity* e = bb::get_entity_raw(handle);
+				if (e && (e->kind == bb::MESH)) {
+					static_queue(handle);
+				}
+			}
+		}
+		uint32_t budget = batch_per_frame;
+		size_t   count  = queue.size() - queue_head;
+		while (budget && count) {
+			uint32_t handle = queue[queue_head++];
+			count--;
+			budget--;
+			queued[handle - 1] = 0;
+			int result = static_capture_entity(int(handle));
+			if (result == 1) {
+				captured_last++;
+			} else if (result == 2) {
+				queue.push_back(handle);
+				queued[handle - 1] = 1;
+			}
+		}
+		if (queue_head > 65536 && queue_head * 2 > queue.size()) {
+			queue.erase(queue.begin(), queue.begin() + ptrdiff_t(queue_head));
+			queue_head = 0;
+		}
+	}
+
 	// Perspective projection for Blitz3D: looking down +Z, X to the right, Y up. The depth is reversed, 1 at the near plane
 	// and 0 at the far plane, which together with the float depth buffer keeps the precision even over the whole range
 	// instead of using most of it close to the camera.
@@ -2663,6 +3284,10 @@ namespace bb::gfx {
 
 	static void render_pass(bb::entity& cam, culling_choice const& culling, scene_data const& shared, const float* cam_world, const float* view, bool reflected, bool clear_color, bool clear_depth, int vx, int vy, int vw, int vh, target_ref const& target)
 	{
+		bool use_static = gpu_static::enabled && !reflected; // Seen in a mirror, everything is drawn the usual way.
+		if (use_static) {
+			static_begin();
+		}
 		if (scenes.size >= max_scenes) {
 			flush();
 		}
@@ -2738,6 +3363,9 @@ namespace bb::gfx {
 			light_weight[i]    = fabsf(color[0]) * 0.3f + fabsf(color[1]) * 0.59f + fabsf(color[2]) * 0.11f;
 		}
 		prepare_light_grid(cam, data, float(vw), float(vh));
+		if (use_static) {
+			static_capture();
+		}
 
 		draw_list list;
 		// The planes of the view with the normals of length 1, or the ones of the camera that this one takes its culling from. The
@@ -2767,11 +3395,28 @@ namespace bb::gfx {
 			}
 		}
 		mesh_collector collector = { &list, view, current_origin, have_planes ? &planes[0][0] : nullptr, fmaxf(1.0f, sqrtf(camera_norm)) };
+		scene.have_planes = have_planes;
+		memcpy(scene.origin, current_origin, sizeof(scene.origin));
+		if (use_static && gpu_static::live_entities) {
+			// The table is drawn for this camera by the GPU, so the meshes in it are left out when collecting.
+			scene.static_count   = uint32_t(gpu_static::table.size());
+			collector.skip_static = true;
+			gpu_static::reserved += scene.static_count;
+			gpu_static::pending_scenes++;
+			cull_filled_commands += scene.static_count;
+			ensure_cull(cull_filled_clusters, cull_filled_groups, cull_filled_commands);
+			ensure_entities(draws.size + 1);
+		}
 		{
 			bb::profile_scope timer(bb::PROFILE_COLLECT);
+			bb::gpu_static_skip        = collector.skip_static;
+			bb::gpu_static_member_of   = gpu_static::member_of.data();
+			bb::gpu_static_member_size = uint32_t(gpu_static::member_of.size());
+			bb::gpu_static_generation  = gpu_static::generation;
 			if (!bb::grid_visit(collector.planes, collector.origin, collector.camera_growth, collect_mesh, &collector, mesh_skippable)) {
 				bb::for_each_visible(bb::MESH, collect_mesh, &collector);
 			}
+			bb::gpu_static_skip = false;
 		}
 		{
 			bb::profile_scope timer(bb::PROFILE_GROUP);
@@ -2786,6 +3431,7 @@ namespace bb::gfx {
 			draw_entity(list.behind[i], 2, false);
 		}
 		uint32_t opaque_first = draws.size;
+		scene.static_after    = opaque_first - scene.first_draw;
 		{
 			bb::profile_scope timer(bb::PROFILE_DRAWS);
 			for (uint32_t i = 0; i < list.opaque.size; i++) {
@@ -2917,6 +3563,21 @@ namespace bb::gfx {
 		return e;
 	}
 } // namespace bb::gfx
+
+// Something may have changed the entity (see entity_moved): the entries in the table that are made from it can not be trusted any more.
+void bb::gpu_static_touched(int handle)
+{
+	using namespace bb::gfx::gpu_static;
+	if ((handle < 1) || !started) {
+		return;
+	}
+	size_for(uint32_t(handle));
+	last_touch[uint32_t(handle) - 1] = frame;
+	if (member_of[uint32_t(handle) - 1] == generation) {
+		bb::gfx::static_demote(handle);
+	}
+	bb::gfx::static_queue(handle);
+}
 
 extern "C" {
 
@@ -3059,6 +3720,12 @@ void bb_render_world(float tween)
 	bb::profile_scope timer(bb::PROFILE_RENDER_WORLD);
 	if (!active()) {
 		return;
+	}
+	{
+		static const bool wanted = bb_env_bool("BLITZLLVM_GPU_DRAWS", false);
+		gpu_static::enabled      = wanted && g.can_gpu_cull && g.static_pipeline;
+		bb::gpu_static_active    = gpu_static::enabled;
+		gpu_static::frame++;
 	}
 	bb_movie_update(); // The textures of movies are up to date for this frame.
 	bb_sound_update(); // Programs that render every frame never wait with Delay, the sounds of entities follow them here.

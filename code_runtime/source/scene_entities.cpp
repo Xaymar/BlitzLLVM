@@ -24,6 +24,12 @@ using namespace bb::scene;
 
 namespace bb {
 	uint32_t mesh_epoch = 1;
+	uint32_t surface_epoch = 1;
+	uint32_t texture_epoch = 1;
+	bool     gpu_static_active = false;
+	bool     gpu_static_skip = false;
+	const uint32_t* gpu_static_member_of = nullptr;
+	uint32_t gpu_static_member_size = 0, gpu_static_generation = 0;
 	float ambient_light[3] = { 0.5f, 0.5f, 0.5f };
 	float render_tween = 1.0f;
 }
@@ -279,6 +285,7 @@ namespace bb::scene {
 				own->indices.size = original->indices.size;
 				own->painted = original->painted;
 				own->paint   = original->paint;
+				bb::surface_epoch++;
 				own->skin    = original->skin ? clone_skin(*original->skin) : nullptr;
 			} else {
 				original->refs++; // Shares the geometry.
@@ -433,6 +440,9 @@ void bb::for_each_visible(int kind, void (*visit)(int, entity&, void*), void* us
 			}
 		}
 		if (entity_kinds[i] != wanted) {
+			continue;
+		}
+		if (gpu_static_skipped(int(i) + 1)) {
 			continue;
 		}
 		entity* e = entities[i];

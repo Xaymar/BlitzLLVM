@@ -318,6 +318,21 @@ namespace bb {
 
 	/** Counts the changes of surfaces that a cull_record was made from, which are all of the records that are not made again. */
 	extern uint32_t mesh_epoch;
+	/** Bumped whenever the geometry or the paint of any surface may have changed, and whenever anything about a texture may have: what the draws that the GPU drives (gpu_static_*) were made from. */
+	extern uint32_t surface_epoch;
+	extern uint32_t texture_epoch;
+	/** The draws that the GPU drives (BLITZLLVM_GPU_DRAWS=1) have to know when an entity may have changed. */
+	extern bool     gpu_static_active;
+	void            gpu_static_touched(int handle);
+	/** While the meshes are collected for a camera that the GPU draws the table for, the ones in it are not visited: the table is checked by this. */
+	extern bool            gpu_static_skip;
+	extern const uint32_t* gpu_static_member_of;
+	extern uint32_t        gpu_static_member_size, gpu_static_generation;
+	inline bool gpu_static_skipped(int handle)
+	{
+		uint32_t index = uint32_t(handle) - 1;
+		return gpu_static_skip && (index < gpu_static_member_size) && (gpu_static_member_of[index] == gpu_static_generation);
+	}
 
 	/** To be called after the vertices of a surface (and so the box around them) were changed. */
 	inline void surface_changed(surface& s)
@@ -396,6 +411,9 @@ namespace bb {
 	/** To be called when an entity (or the numbers a cull_record is made from) may have changed. */
 	inline void entity_moved(int handle)
 	{
+		if (gpu_static_active) {
+			gpu_static_touched(handle);
+		}
 		if (uint32_t(handle) - 1 < grid_flags.size) {
 			uint8_t& flags = grid_flags[uint32_t(handle) - 1];
 			if (flags & 1) {

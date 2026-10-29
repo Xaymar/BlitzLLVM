@@ -254,6 +254,19 @@ namespace bb::gfx {
 		uint32_t        clusters_capacity = 0, groups_capacity = 0, commands_capacity = 0;
 	};
 
+	/** The table of the draws that the GPU drives (BLITZLLVM_GPU_DRAWS), once for each frame in flight: a copy of what graphics_scene3d.cpp keeps, brought up to date when a frame records. */
+	struct static_buffers {
+		VkDescriptorSet set = VK_NULL_HANDLE;
+		VkBuffer        table = VK_NULL_HANDLE, infos = VK_NULL_HANDLE;
+		VmaAllocation   table_allocation = VK_NULL_HANDLE, infos_allocation = VK_NULL_HANDLE;
+		void*           table_mapped = nullptr;
+		void*           infos_mapped = nullptr;
+		uint32_t        capacity = 0;     // Entries.
+		uint64_t        version = 0;      // Of the table that it holds a copy of, 0 for none.
+		uint32_t        log_position = 0; // How much of the list of entries that were switched off since is done in the copy.
+		VkBuffer        commands_bound = VK_NULL_HANDLE; // The buffer of commands that the set points at.
+	};
+
 	struct state {
 		bool headless = false;
 		bool created  = false;
@@ -344,6 +357,9 @@ namespace bb::gfx {
 		VkPipelineLayout      cull_pipeline_layout = VK_NULL_HANDLE;
 		VkPipeline            cull_pipeline  = VK_NULL_HANDLE;
 		cull_buffers          cull;
+		static_buffers        statics;
+		VkPipelineLayout      static_pipeline_layout = VK_NULL_HANDLE;
+		VkPipeline            static_pipeline = VK_NULL_HANDLE;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            solid3d        = VK_NULL_HANDLE; // The same without the discard, so that depth is tested before the shader runs.
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
@@ -531,6 +547,7 @@ namespace bb::gfx {
 		void*           scene_mapped      = nullptr;
 		VkDescriptorSet scene_set         = VK_NULL_HANDLE;
 		cull_buffers    cull;
+		static_buffers  statics;
 		std::vector<VkDescriptorPool> input_pools; // Sets that read a target as an input attachment (Dither 2), given out by input_set_for until the frame is done.
 		uint32_t        input_used        = 0;     // Sets taken from the last of the pools.
 		int             state    = 0;  // 0 free, 1 waits for the submission thread, 2 sent to the GPU.
@@ -704,6 +721,10 @@ namespace bb::gfx {
 		float    color[3];
 		int      x, y, w, h; // Area of the target image that it draws to.
 		float    cull_planes[24]; // The planes of the view, for the culling of clusters on the GPU.
+		bool     have_planes;     // Whether the view is culled at all.
+		float    origin[3];       // Where the camera is, which the draws that the GPU drives are moved by.
+		// The draws that the GPU drives (BLITZLLVM_GPU_DRAWS) come after the ones with order behind everything: how many entries there are (a multiple of the lanes of a group), where their data and commands go.
+		uint32_t static_count, static_after, static_entities, static_commands;
 	};
 
 
@@ -773,6 +794,7 @@ namespace bb::gfx {
 		const float* origin; // Where the camera is, which positions are relative to on the GPU.
 		const float* planes; // 6 planes of what the camera sees (4 floats each) for camera-relative positions, or nothing.
 		float        camera_growth; // How much longer than 1 the axes of the camera are (at least 1), which sprites that face it are scaled by.
+		bool         skip_static = false; // The meshes in the table of the draws that the GPU drives are drawn from there, see gpu_static.
 	};
 
 

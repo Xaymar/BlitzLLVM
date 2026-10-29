@@ -372,6 +372,7 @@ namespace bb::anim {
 						vert.nz = local_normal[2];
 					}
 					surf->dirty = true;
+					bb::surface_epoch++;
 					bb::surface_changed(*surf);
 					// The box is known now, so the renderer and the collisions do not have to go over all vertices again.
 					memcpy(surf->bound_min, box_lo, sizeof(box_lo));

@@ -28,6 +28,7 @@ Variables of the compiler (`blitzcc`) and the tools are read when they start; va
 |---|---|---|
 | `BLITZLLVM_ASYNC_LOAD` | `0` | Loads pictures and models on other threads, see [[Asynchronous-Loading]]. |
 | `BLITZLLVM_ASYNC_SAVE` | `0` | Saves pictures on other threads, see [[Saving-Pictures]]. |
+| `BLITZLLVM_GPU_DRAWS` | `0` | Draws the meshes that stay as they are from a table that the GPU drives (experimental), see [[GPU-Driven-Draws]]. |
 | `BLITZLLVM_FULLSCREEN_FILTER` | by size | `nearest` or `linear` for the picture of a fullscreen program, see [[Fullscreen]]. |
 | `BLITZLLVM_FULLSCREEN_SCALE` | smooth | `integer` only enlarges the picture by whole numbers, see [[Fullscreen]]. |
 | `BLITZLLVM_NETGAME_PORT` | `40500` | The TCP port of multiplayer games, see [[Multiplayer]]. |
