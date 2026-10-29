@@ -114,6 +114,7 @@ deltapitch	blitz3d	done	#DeltaPitch%src_entity%dest_entity
 deltayaw	blitz3d	done	#DeltaYaw%src_entity%dest_entity
 dither	blitz3d	done	Dither%enable
 dithertemporal	blitz3d	done	DitherTemporal%enable
+dithermode	blitz3d	done	DitherMode%mode%level=1
 emitsound	blitz3d	done	%EmitSound%sound%entity
 entityalpha	blitz3d	done	EntityAlpha%entity#alpha
 entityautofade	blitz3d	done	EntityAutoFade%entity#near#far

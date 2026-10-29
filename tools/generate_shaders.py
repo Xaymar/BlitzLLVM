@@ -338,6 +338,79 @@ GLSL_FABS, GLSL_POW, GLSL_STEP = 4, 26, 48
 GLSL_FLOOR, GLSL_FRACT = 8, 10
 GLSL_FMAX, GLSL_FCLAMP, GLSL_LENGTH = 40, 43, 66
 GLSL_SQRT, GLSL_FMIN = 31, 37
+GLSL_EXP2 = 29
+
+BAYER_MAX_LEVELS = 8  # The most levels of DitherMode (an 256 x 256 matrix); see bayer_offset. Keep in sync with max_bayer_levels in graphics_internal.hpp.
+
+
+def bayer_offset(b, x, y, shift_x, shift_y, step, levels):
+    """
+    The Bayer threshold of DitherMode 1 for a pixel, as an offset of less than half a step of 8 bits (the threshold minus half,
+    over 255), the same as noise is in Dither. The pattern has `levels` levels (from 1 to BAYER_MAX_LEVELS) of 2 x 2, so a matrix
+    of 2^levels pixels on a side, and its levels are unrolled with the ones above `levels` counting nothing, as levels may be
+    a constant of the pipeline. The steps of the frame are made on the CPU, as DitherTemporal moves the pattern: shift_x is
+    frame % levels and shift_y is frame % max(levels / 2, 1), and step is frame % 4^levels (all 0 without DitherTemporal). Every frame has each threshold as often as the matrix does.
+
+        float Bayer(uvec2 xy, uint levels) {
+            xy.x += shift_x; xy.y -= shift_y;
+            float val = 0., div = 0., mul = 1.;
+            for (uint level = levels; level >= 1u; level--) {
+                mul *= 4.;
+                vec2 bayer = mod(floor(vec2(xy) * exp2(1. - float(level))), 2.);
+                float x2 = bayer.x * 2.;
+                val += mix(x2, 3. - x2, bayer.y) / 3. * mul;
+                div += mul;
+            }
+            float thresh = val / div;
+            float colors = pow(4., float(levels));
+            float rank = floor(thresh * (colors - 1.) + 0.5);       // The thresholds are rank / (colors - 1).
+            thresh = mod(rank + step, colors) / max(colors - 1., 1.); // The frame moves every pixel to the next rank, and around.
+            return (thresh - 0.5) / 255.;
+        }
+    """
+    f = b.float()
+    x = b.fadd(f, x, shift_x)
+    y = b.fsub(f, y, shift_y)
+    c0, c1, c2, c3 = b.const_float(0.0), b.const_float(1.0), b.const_float(2.0), b.const_float(3.0)
+
+    def mod2(value):
+        return b.fsub(f, value, b.fmul(f, c2, b.ext(f, GLSL_FLOOR, b.fmul(f, value, b.const_float(0.5)))))
+
+    val, div = c0, c0
+    for level in range(1, BAYER_MAX_LEVELS + 1):
+        counts = b.ext(f, GLSL_STEP, b.const_float(float(level)), levels)  # 1 if level <= levels
+        mul = b.ext(f, GLSL_EXP2, b.fmul(f, c2, b.fadd(f, b.fsub(f, levels, b.const_float(float(level))), c1)))  # 4^(levels - level + 1)
+        scale = b.const_float(2.0 ** (1 - level))
+        bx = mod2(b.ext(f, GLSL_FLOOR, b.fmul(f, x, scale)))
+        by = mod2(b.ext(f, GLSL_FLOOR, b.fmul(f, y, scale)))
+        x2 = b.fmul(f, bx, c2)
+        mixed = b.fadd(f, x2, b.fmul(f, b.fsub(f, b.fsub(f, c3, x2), x2), by))
+        weight = b.fmul(f, counts, mul)
+        val = b.fadd(f, val, b.fmul(f, b.fdiv(f, mixed, c3), weight))
+        div = b.fadd(f, div, weight)
+    thresh = b.fdiv(f, val, b.ext(f, GLSL_FMAX, div, b.const_float(1e-6)))
+    # The thresholds are rank / (colors - 1) for the ranks 0 to colors - 1; the step moves every pixel to the rank that is `step`
+    # further, and wraps around, so every frame has each threshold exactly as often as the matrix does (see the docstring).
+    colors = b.ext(f, GLSL_EXP2, b.fmul(f, c2, levels))
+    last = b.ext(f, GLSL_FMAX, b.fsub(f, colors, c1), c1)
+    rank = b.fadd(f, b.fmul(f, thresh, last), b.const_float(0.5))
+    rank = b.fadd(f, b.ext(f, GLSL_FLOOR, rank), step)
+    rank = b.fsub(f, rank, b.fmul(f, colors, b.ext(f, GLSL_FLOOR, b.fdiv(f, rank, colors))))
+    thresh = b.fdiv(f, rank, last)
+    return b.fmul(f, b.fsub(f, thresh, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+
+
+def picture_offset(b, frag, push, noise):
+    """
+    The offset that Dither adds to the picture that is shown (in 0 to 1 colors, before the table of what may have none): noise, or with
+    DitherMode 1 the Bayer threshold. The push constants are the shift of the noise, then the steps and levels of bayer_offset.
+    """
+    f = b.float()
+    pushed = [b.load(f, b.access("PushConstant", f, push, b.const_int(member))) for member in range(1, 5)]
+    gradient = b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+    bayer = bayer_offset(b, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), *pushed)
+    is_bayer = b.emit("FOrdGreaterThan", b.new_type("bool", "TypeBool"), pushed[3], b.const_float(0.0))
+    return b.emit("Select", f, is_bayer, bayer, gradient)
 
 
 # The lights of a camera that entities pick eight of (max_lights in graphics_internal.hpp), after the rest of the block.
@@ -349,7 +422,7 @@ def declare_scene(b):
     """The block that holds what is the same for everything a camera draws, see scene_data in graphics.cpp."""
     v4 = b.vec(4)
     lights = b.array(v4, MAX_LIGHTS, "lights")
-    scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4, v4, lights, v4, v4, v4, v4)
+    scene = b.struct("scene", b.mat4(), v4, lights, lights, v4, v4, v4, lights, v4, v4, v4, v4, v4)
     b.m.annotations += [
         Module.inst("MemberDecorate", scene, 0, DECORATION["Offset"], 0),
         Module.inst("MemberDecorate", scene, 0, DECORATION["ColMajor"]),
@@ -365,6 +438,7 @@ def declare_scene(b):
         Module.inst("MemberDecorate", scene, 9, DECORATION["Offset"], 144),
         Module.inst("MemberDecorate", scene, 10, DECORATION["Offset"], 160),
         Module.inst("MemberDecorate", scene, 11, DECORATION["Offset"], SCENE_LIGHTS + MAX_LIGHTS * 48),  # Near, far and whether orthographic, to turn depth back into distance.
+        Module.inst("MemberDecorate", scene, 12, DECORATION["Offset"], SCENE_LIGHTS + MAX_LIGHTS * 48 + 16),  # The steps of the Bayer pattern of this frame, see bayer_offset.
         Module.inst("Decorate", lights, DECORATION["ArrayStride"], 16),
         Module.inst("Decorate", scene, DECORATION["Block"]),
     ]
@@ -983,6 +1057,15 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         zero_f = b.const_float(0.0)
         scale_channels = [b.extract(scale, i) for i in range(3)]
 
+        # DitherMode 1 swaps the noise for the Bayer threshold (see bayer_offset): the number of its levels is a constant of the
+        # pipeline (id 12, 0 for Interleaved Gradient Noise), and the steps of the frame are the vector after the projection.
+        #   layout(constant_id = 12) const float bayer_levels = 0.0;
+        #   float offset = (bayer_levels > 0.0) ? Bayer(xy, bayer_levels) : (ign - 0.5) / 255.0;
+        bayer_levels = b.m.id()
+        b.m.types.append(Module.inst("SpecConstant", f, bayer_levels, float_bits(0.0)))
+        b.m.annotations.append(Module.inst("Decorate", bayer_levels, DECORATION["SpecId"], 12))
+        boolean_type = b.new_type("bool", "TypeBool")
+
         def noise_offset(channel):
             w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
             frag = b.load(v4, in_frag)
@@ -994,7 +1077,15 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
             along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
             noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
-            return b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+            gradient = b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+            # The Bayer pattern of the channels of the buffers of fewer bits is moved by the same offsets as the noise is.
+            steps = b.load(v4, b.access("Uniform", v4, scene, b.const_int(12)))
+            bx, by = b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), b.ext(f, GLSL_FLOOR, b.extract(frag, 1))
+            if channel:
+                bx, by = b.fadd(f, bx, b.fsub(f, shift, b.fsub(f, w, c1))), b.fadd(f, by, b.fsub(f, shift, b.fsub(f, w, c1)))
+            bayer = bayer_offset(b, bx, by, b.extract(steps, 0), b.extract(steps, 1), b.extract(steps, 2), bayer_levels)
+            is_bayer = b.emit("FOrdGreaterThan", boolean_type, bayer_levels, b.const_float(0.0))
+            return b.emit("Select", f, is_bayer, bayer, gradient)
 
         def noise_for(color):
             # A channel that the target shows exactly gets no noise: a GPU may convert with a little error, which turns the
@@ -1130,7 +1221,7 @@ def fragment_shader_gamma():
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
     layout(set = 1, binding = 0) uniform Gamma { vec4 table[256]; } gamma;
-    layout(push_constant) uniform Dither { float shift; } pc;
+    layout(push_constant) uniform Dither { float shift; float bayer_x, bayer_y, bayer_step, bayer_levels; } pc;  // The last four are for DitherMode 1, see bayer_offset (levels is 0 for noise).
     layout(location = 0) in vec2 inUV;
     layout(location = 0) out vec4 outColor;
     void main() {
@@ -1155,11 +1246,9 @@ def fragment_shader_gamma():
         Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
         Module.inst("Decorate", block, DECORATION["Block"]),
     ]
-    shift_block = b.struct("dither", f)
-    b.m.annotations += [
-        Module.inst("MemberDecorate", shift_block, 0, DECORATION["Offset"], 0),
-        Module.inst("Decorate", shift_block, DECORATION["Block"]),
-    ]
+    shift_block = b.struct("dither", f, f, f, f, f)
+    b.m.annotations += [Module.inst("MemberDecorate", shift_block, member, DECORATION["Offset"], member * 4) for member in range(5)]
+    b.m.annotations.append(Module.inst("Decorate", shift_block, DECORATION["Block"]))
     shift_push = b.variable("PushConstant", shift_block)
     tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
     gamma = b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
@@ -1195,7 +1284,7 @@ def fragment_shader_gamma():
     along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
     noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
     enabled = b.extract(b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.const_int(0))), 3)
-    offset = b.fmul(f, b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0)), enabled)
+    offset = b.fmul(f, picture_offset(b, frag, shift_push, noise), enabled)
     # A channel that the 8 bit target shows exactly gets no noise (as in the 3D shader): a GPU may convert with a little error,
     # which turns the lowest noise (half a step below) into a step below the color in some pixels. Within 1/64 of a step is exact.
     colors = b.construct(3, *channels)
@@ -1220,7 +1309,7 @@ def fragment_shader_palette():
     layout(set = 0, binding = 0) uniform sampler2D tex;
     layout(set = 1, binding = 0) uniform Gamma { vec4 table[256]; } gamma;
     layout(set = 2, binding = 0) uniform sampler2D palette;
-    layout(push_constant) uniform Dither { float shift; } pc;
+    layout(push_constant) uniform Dither { float shift; float bayer_x, bayer_y, bayer_step, bayer_levels; } pc;  // The last four are for DitherMode 1, see bayer_offset.
     layout(location = 0) in vec2 inUV;
     layout(location = 0) out vec4 outColor;
     void main() {
@@ -1245,11 +1334,9 @@ def fragment_shader_palette():
         Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
         Module.inst("Decorate", block, DECORATION["Block"]),
     ]
-    shift_block = b.struct("dither", f)
-    b.m.annotations += [
-        Module.inst("MemberDecorate", shift_block, 0, DECORATION["Offset"], 0),
-        Module.inst("Decorate", shift_block, DECORATION["Block"]),
-    ]
+    shift_block = b.struct("dither", f, f, f, f, f)
+    b.m.annotations += [Module.inst("MemberDecorate", shift_block, member, DECORATION["Offset"], member * 4) for member in range(5)]
+    b.m.annotations.append(Module.inst("Decorate", shift_block, DECORATION["Block"]))
     shift_push = b.variable("PushConstant", shift_block)
     tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
     gamma = b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
@@ -1276,7 +1363,7 @@ def fragment_shader_palette():
     py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
     along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
     noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
-    centered = b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+    centered = picture_offset(b, frag, shift_push, noise)
     dithered = []
     for channel in range(3):
         row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.const_int(channel)))
