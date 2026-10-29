@@ -764,6 +764,13 @@ static int compiler_main(int argc, char** argv)
 			// The runtime is partly C++, which the C driver does not link the library of.
 #ifdef __APPLE__
 			command.push_back("-lc++");
+			// SDL3 and its codecs are static libraries, so the program links the frameworks they use (and the Objective-C runtime, which clang
+			// only links by itself for Objective-C sources).
+			command.push_back("-lobjc");
+			for (const char* framework : { "AppKit", "AudioToolbox", "AVFoundation", "Carbon", "CoreAudio", "CoreFoundation", "CoreGraphics", "CoreHaptics", "CoreMedia", "CoreVideo", "ForceFeedback", "Foundation", "GameController", "ImageIO", "IOKit", "Metal", "QuartzCore", "UniformTypeIdentifiers" }) {
+				command.push_back("-framework");
+				command.push_back(framework);
+			}
 #else
 			command.push_back("-lstdc++");
 #endif
