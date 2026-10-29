@@ -154,48 +154,92 @@ namespace bb::anim {
 	////////////////////////////////////////////////////////////////////////////
 	// Where a node is at a time
 	////////////////////////////////////////////////////////////////////////////
+	// Whether the keys are in the order of their frames. The keys that were looked at before are not looked at again.
 	template<typename K>
-	void find_keys(buffer<K> const& keys, float frame, uint32_t& before, uint32_t& after, float& blend)
+	bool keys_sorted(buffer<K> const& keys, key_cache& cache)
+	{
+		if (cache.checked > keys.size) {
+			cache.checked = 0; // They were replaced by others.
+			cache.sorted  = true;
+		}
+		for (uint32_t i = cache.checked > 1 ? cache.checked : 1; cache.sorted && i < keys.size; i++) {
+			cache.sorted = !(keys[i].frame < keys[i - 1].frame);
+		}
+		cache.checked = keys.size;
+		return cache.sorted;
+	}
+
+	// The first key (after the first one) that is not before the frame, and the one before it. Keys that are in order are found where
+	// the last frame was or next to it, or by halving; keys that are not in order are read one after the other, as they always were.
+	template<typename K>
+	void find_keys(buffer<K> const& keys, key_cache& cache, float frame, uint32_t& before, uint32_t& after, float& blend)
 	{
 		if (frame <= keys[0].frame) {
 			before = after = 0;
 			blend          = 0;
 			return;
 		}
-		for (uint32_t i = 1; i < keys.size; i++) {
-			if (frame <= keys[i].frame) {
-				before = i - 1;
-				after  = i;
-				float span = keys[i].frame - keys[i - 1].frame;
-				blend      = span > 1e-6f ? (frame - keys[i - 1].frame) / span : 0;
-				return;
+		uint32_t n = keys.size;
+		uint32_t i = n;
+		if (!keys_sorted(keys, cache)) {
+			for (uint32_t k = 1; k < n; k++) {
+				if (frame <= keys[k].frame) {
+					i = k;
+					break;
+				}
+			}
+		} else if (n > 1 && frame <= keys[n - 1].frame) {
+			uint32_t h = cache.hint;
+			if ((h >= 1) && (h < n) && (keys[h - 1].frame < frame) && (frame <= keys[h].frame)) {
+				i = h;
+			} else if ((h >= 1) && (h + 1 < n) && (keys[h].frame < frame) && (frame <= keys[h + 1].frame)) {
+				i = h + 1;
+			} else {
+				uint32_t low = 1, high = n - 1; // keys[high] is not before the frame
+				while (low < high) {
+					uint32_t middle = low + (high - low) / 2;
+					if (frame <= keys[middle].frame) {
+						high = middle;
+					} else {
+						low = middle + 1;
+					}
+				}
+				i = low;
 			}
 		}
-		before = after = keys.size - 1;
-		blend          = 0;
+		if (i >= n) {
+			before = after = n - 1;
+			blend          = 0;
+			return;
+		}
+		cache.hint = i;
+		before     = i - 1;
+		after      = i;
+		float span = keys[i].frame - keys[i - 1].frame;
+		blend      = span > 1e-6f ? (frame - keys[i - 1].frame) / span : 0;
 	}
 
-	void sample_vector(buffer<key3> const& keys, float frame, float* out)
+	void sample_vector(buffer<key3> const& keys, key_cache& cache, float frame, float* out)
 	{
 		if (keys.size == 0) {
 			return;
 		}
 		uint32_t a, b;
 		float    t;
-		find_keys(keys, frame, a, b, t);
+		find_keys(keys, cache, frame, a, b, t);
 		for (int i = 0; i < 3; i++) {
 			out[i] = keys[a].v[i] + (keys[b].v[i] - keys[a].v[i]) * t;
 		}
 	}
 
-	void sample_rotation(buffer<key4> const& keys, float frame, float* out)
+	void sample_rotation(buffer<key4> const& keys, key_cache& cache, float frame, float* out)
 	{
 		if (keys.size == 0) {
 			return;
 		}
 		uint32_t a, b;
 		float    t;
-		find_keys(keys, frame, a, b, t);
+		find_keys(keys, cache, frame, a, b, t);
 		float sign = 1;
 		float d    = keys[a].q[0] * keys[b].q[0] + keys[a].q[1] * keys[b].q[1] + keys[a].q[2] * keys[b].q[2] + keys[a].q[3] * keys[b].q[3];
 		if (d < 0) {
@@ -212,9 +256,9 @@ namespace bb::anim {
 		memcpy(pos, n.pos, sizeof(n.pos));
 		memcpy(scale, n.scale, sizeof(n.scale));
 		memcpy(rot, n.rot, sizeof(n.rot));
-		sample_vector(n.pos_keys, frame, pos);
-		sample_vector(n.scale_keys, frame, scale);
-		sample_rotation(n.rot_keys, frame, rot);
+		sample_vector(n.pos_keys, n.pos_cache, frame, pos);
+		sample_vector(n.scale_keys, n.scale_cache, frame, scale);
+		sample_rotation(n.rot_keys, n.rot_cache, frame, rot);
 	}
 
 	// Puts everything in a model where it belongs at a frame, which includes moving the vertices of skinned meshes.
