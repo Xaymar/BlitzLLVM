@@ -132,6 +132,7 @@ namespace blitz {
 		bool                                             _uses_strings = false; // Whether the function that is generated has any.
 		std::string                                      _exit_label;
 		std::string                                      _ret_slot;
+		std::vector<std::string>                         _heap_locals;        // Arrays of the function that live on the heap and are freed when it ends.
 		std::vector<std::pair<std::string, uint32_t>>    _string_locals;      // Where strings live that are freed when the function ends.
 
 		// Goto and Gosub, for the function that is being generated.
@@ -291,6 +292,7 @@ namespace blitz {
 		variable*   find_dim(std::string const& name);
 		address     gen_dim_address(ast::call const* node);
 		uint32_t    array_count(ast::expression const* size, ast::location const& where);
+		uint64_t    array_element_size(blitz::types::type t);
 		void        gen_dim(ast::dim_statement const* node);
 		bool        fold_int(ast::expression const* expr, int64_t& out);
 		/** A constant of a Data statement: an integer, a float or a string. */

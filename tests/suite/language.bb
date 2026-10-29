@@ -469,4 +469,17 @@ Function BigLocalArray(index)
 End Function
 Check "big local array", BigLocalArray(99999), 99999
 
+; Big arrays live on the heap, so many calls that each hold one do not use up the stack, and each call has its own.
+Function NestedBigArray(depth)
+	Local own[50000]
+	Local strings$[20000]
+	Check "nested big array starts empty", own[depth] + Len(strings[depth]), 0
+	own[depth] = depth + 1
+	strings[depth] = "level" + depth
+	If depth < 300 Then NestedBigArray(depth + 1)
+	Check "nested big array is kept", own[depth] , depth + 1
+	Check "nested big string array is kept", strings[depth], "level" + depth
+End Function
+NestedBigArray(0)
+
 Done "language"

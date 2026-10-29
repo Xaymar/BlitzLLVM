@@ -35,6 +35,7 @@ void blitz::compiler::begin_function()
 	_terminated   = false;
 	_uses_strings = false;
 	_string_locals.clear();
+	_heap_locals.clear();
 	_exit_label.clear();
 	_ret_slot.clear();
 	_copy_outs.clear();
@@ -333,6 +334,12 @@ void blitz::compiler::gen_function(ast::function const& fn)
 		if (fn.type != type::STRING) {
 			declare("bb_str_release", "declare void @bb_str_release(i32)");
 			emit("call void @bb_str_release(i32 %entry.mark)");
+		}
+	}
+	if (!_heap_locals.empty()) {
+		declare("bb_free", "declare void @bb_free(ptr)");
+		for (auto const& array : _heap_locals) {
+			emit("call void @bb_free(ptr " + array + ")");
 		}
 	}
 	if (fn.is_void) {
