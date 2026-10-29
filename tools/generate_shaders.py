@@ -425,7 +425,7 @@ def vertex_shader_3d():
         vec4 ambient;
         vec4 lightPosition[8];   // Direction towards the light if w == 0, position and range (w) otherwise.
         vec4 lightColor[8];
-        vec4 fog;                // Near, far and whether it is on.
+        vec4 fog;                // Near, far, whether it is on and whether it is spherical.
         vec4 fogColor;
         vec4 eye;                // Where the camera is.
         vec4 lightDirection[8];  // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
@@ -486,7 +486,7 @@ def vertex_shader_3d():
     out_uv = b.variable("Output", v2, [(DECORATION["Location"], 0)])
     out_dir = b.variable("Output", v4, [(DECORATION["Location"], 7)])  # Cube maps: where to look, and the inset of a face (0 if not a cube map).
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 1)])
-    out_depth = b.variable("Output", f, [(DECORATION["Location"], 2)])
+    out_depth = b.variable("Output", v4, [(DECORATION["Location"], 2)])  # Depth along the view axis, and where the point is relative to the camera.
     out_color_flat = b.variable("Output", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
     out_spec = b.variable("Output", v3, [(DECORATION["Location"], 4)])
     out_spec_flat = b.variable("Output", v3, [(DECORATION["Location"], 5), (DECORATION["Flat"],)])
@@ -634,7 +634,7 @@ def vertex_shader_3d():
     look = b.fadd(v3, look, b.scale(3, b.fsub(v3, incident_raw, look), b.ext(f, GLSL_STEP, b.const_float(2.5), cube_mode)))
     look = b.fadd(v3, look, b.scale(3, b.fsub(v3, to_camera(look), look), b.extract(texgen, 2)))
     b.store(out_dir, b.construct(4, b.extract(look, 0), b.extract(look, 1), b.extract(look, 2), b.fmul(f, b.extract(texgen, 3), is_cube)))
-    b.store(out_depth, b.extract(clip, 3))  # For the fog, which the fragment shader takes care of.
+    b.store(out_depth, b.construct(4, b.extract(clip, 3), b.extract(world, 0), b.extract(world, 1), b.extract(world, 2)))  # For the fog, which the fragment shader takes care of.
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
 
@@ -737,7 +737,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
     interface = [in_uv, in_color, out_color]
     if fog:
         scene = declare_scene(b)
-        in_depth = b.variable("Input", f, [(DECORATION["Location"], 2)])
+        in_depth = b.variable("Input", v4, [(DECORATION["Location"], 2)])
         in_color_flat = b.variable("Input", v4, [(DECORATION["Location"], 3), (DECORATION["Flat"],)])
         in_spec = b.variable("Input", v3, [(DECORATION["Location"], 4)])
         in_spec_flat = b.variable("Input", v3, [(DECORATION["Location"], 5), (DECORATION["Flat"],)])
@@ -944,7 +944,13 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         parameters = b.load(v4, b.access("Uniform", v4, scene, b.const_int(4)))
         fog_color = b.swizzle(b.load(v4, b.access("Uniform", v4, scene, b.const_int(5))), 3)
         span = b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(parameters, 1), b.extract(parameters, 0)), b.const_float(1e-4))
-        amount = b.fmul(f, b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, b.load(f, in_depth), b.extract(parameters, 0)), span), b.const_float(0.0), c1), b.extract(parameters, 2))
+        # Spherical fog (w is 1) measures the distance to the camera instead of the depth along its view axis. The position
+        # is interpolated and the length taken per pixel, so that the fog is round even on triangles that are much bigger than they look.
+        depth_in = b.load(v4, in_depth)
+        planar = b.extract(depth_in, 0)
+        radial = b.ext(f, GLSL_LENGTH, b.emit("VectorShuffle", v3, depth_in, depth_in, 1, 2, 3))
+        distance_to_camera = b.fadd(f, planar, b.fmul(f, b.fsub(f, radial, planar), b.extract(parameters, 3)))
+        amount = b.fmul(f, b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.fsub(f, distance_to_camera, b.extract(parameters, 0)), span), b.const_float(0.0), c1), b.extract(parameters, 2))
         # The second value of the mask turns the fog off for what is drawn on top of what already has it.
         amount = b.fmul(f, amount, b.fsub(f, c1, b.extract(mask, 1)))
         rgb = b.swizzle(result, 3)

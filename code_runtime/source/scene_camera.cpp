@@ -98,7 +98,7 @@ void bb_light_range(int32_t handle, float range)
 // Camera fog.
 void bb_camera_fog_mode(int32_t handle, int32_t mode)
 {
-	need_kind(handle, CAMERA, "CameraFogMode")->fog_mode = mode ? 1 : 0;
+	need_kind(handle, CAMERA, "CameraFogMode")->fog_mode = (mode == 2) ? 2 : (mode ? 1 : 0); // Anything else that is not 0 is linear, as before.
 }
 
 void bb_camera_fog_range(int32_t handle, float near_distance, float far_distance)

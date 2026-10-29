@@ -2627,7 +2627,7 @@ namespace bb::gfx {
 		data.fog[0] = cam.fog_near;
 		data.fog[1] = cam.fog_far;
 		data.fog[2] = cam.fog_mode ? 1.0f : 0.0f;
-		data.fog[3] = 0;
+		data.fog[3] = (cam.fog_mode == 2) ? 1.0f : 0.0f;
 		data.projection[0] = cam.cam_near;
 		data.projection[1] = cam.cam_far;
 		data.projection[2] = (cam.cam_projection == 2) ? 1.0f : 0.0f;

@@ -274,7 +274,7 @@ namespace bb {
 		int   cam_projection = 1; // 0 = disabled, 1 = perspective, 2 = orthographic
 		int   cam_cull_flags = 3; // CameraCulling: 1 = frustum culling, 2 = culling of the faces of big meshes on the GPU, 4 = with 2, also the faces that look away. Default 3.
 		int   cam_cull_source = 0; // CameraCullingSource: the camera whose culling this one uses, 0 for its own.
-		int   fog_mode = 0;       // 0 = off, 1 = linear
+		int   fog_mode = 0;       // 0 = off, 1 = linear, 2 = linear by the distance to the camera
 		float fog_near = 1, fog_far = 1000;
 		float fog_color[3] = { 0, 0, 0 };
 

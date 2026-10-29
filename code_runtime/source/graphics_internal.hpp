@@ -583,7 +583,7 @@ namespace bb::gfx {
 	struct scene_data {
 		float viewprojection[16];
 		float ambient[4];
-		float fog[4];       // Near, far and whether it is on.
+		float fog[4];       // Near, far, whether it is on and whether it is measured to the camera.
 		float fog_color[4];
 		float eye[4];                       // Where the camera is, for the highlights of lights.
 		float camera[3][4];                 // The right, up and forward axes of the camera, for textures that are made from the view.
