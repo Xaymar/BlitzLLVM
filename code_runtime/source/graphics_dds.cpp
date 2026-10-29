@@ -647,7 +647,7 @@ namespace bb::gfx {
 		const char* extensions; // Of the files that need it, each in lower case and between spaces.
 		bool        found;
 	};
-	codec_family codec_families[] = { { "avif", " avif ", false }, { "jxl", " jxl ", false }, { "webp", " webp ", false } };
+	codec_family codec_families[] = { { "avif", " avif ", false }, { "jxl", " jxl ", false }, { "webp", " webp ", false }, { "opusfile", " opus ogg ", false } };
 	std::vector<SDL_SharedObject*> codec_objects; // Every library that was opened, for the functions that the encoders look up.
 
 	void open_codec_libraries()
@@ -884,3 +884,14 @@ namespace bb::gfx {
 	}
 
 } // namespace bb::gfx
+
+// Opus sounds are loaded by SDL_mixer (sound.c), whose libopusfile is next to the program like the codecs of SDL_image and has to be opened by its path first.
+extern "C" void bb_open_audio_codecs(void)
+{
+	bb::gfx::open_codec_libraries();
+}
+
+extern "C" void bb_report_missing_audio_codec(const char* file)
+{
+	bb::gfx::report_missing_codec(file);
+}

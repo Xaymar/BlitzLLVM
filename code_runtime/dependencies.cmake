@@ -482,7 +482,7 @@ else()
 endif()
 
 # SDL_mixer builds libopus, opusfile and libogg itself when it is told to use its vendored copies, which are submodules of its
-# repository that a clone does not fetch. Only those three are fetched, as no other decoder that needs a library is used. A stamp
+# repository that a clone does not fetch. They are built as shared libraries, like the codecs of SDL_image. Only those three are fetched, as no other decoder that needs a library is used. A stamp
 # next to the build directory records the revision that was prepared, so that a restored dependency cache skips this.
 function(blitz_fetch_audio_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH)
 	execute_process(
@@ -509,13 +509,15 @@ function(blitz_fetch_audio_codecs TEMP_PATH SOURCE_PATH BINARY_PATH INSTALL_PATH
 	file(WRITE "${_STAMP}" "${_REVISION}")
 endfunction()
 
-# Plays the sounds. Decoders for WAV, MP3 (dr_mp3), OGG Vorbis (stb_vorbis) and FLAC (dr_flac) are built in, Opus (libopus and
-# opusfile, which play .opus files and Opus in .ogg files) is linked in statically from the vendored copies, or with the system's
-# (BLITZ_SYSTEM_AUDIO_CODECS) loaded by SDL_mixer when a program opens such a file.
+# Plays the sounds. Decoders for WAV, MP3 (dr_mp3), OGG Vorbis (stb_vorbis) and FLAC (dr_flac) are built in. Opus (libopus and
+# opusfile, which play .opus files and Opus in .ogg files, and libogg) is a set of shared libraries that SDL_mixer loads when a program
+# opens such a file, the vendored ones that are shipped and copied next to programs by blitzcc, or the system's (BLITZ_SYSTEM_AUDIO_CODECS).
+# Like the codecs of SDL_image that keeps the programs small and means that an update of the runtime doesn't change them.
 blitz_system_library(_SYSTEM_AUDIO_CODECS AUDIO_CODECS opusfile)
 set(_SDL3_MIXER_LICENSES SDL3_mixer/LICENSE.txt SDL3_mixer/optional/LICENSE.opus.txt SDL3_mixer/optional/LICENSE.opusfile.txt
 	SDL3_mixer/optional/LICENSE.ogg-vorbis.txt)
-set(_SDL3_MIXER_BUILD_ARGS -DSDLMIXER_VENDORED=ON -DSDLMIXER_DEPS_SHARED=OFF)
+set(_SDL3_MIXER_BUILD_ARGS -DSDLMIXER_VENDORED=ON -DSDLMIXER_DEPS_SHARED=ON
+	-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON "-DCMAKE_INSTALL_RPATH=${_SHARED_RPATH}" ${_SHARED_STRIP})
 set(_SDL3_MIXER_PATCH PATCH_FUNCTION blitz_fetch_audio_codecs)
 if(_SYSTEM_AUDIO_CODECS)
 	set(_SDL3_MIXER_LICENSES SDL3_mixer/LICENSE.txt)
@@ -527,6 +529,16 @@ if(_SYSTEM_SDL3_MIXER)
 	blitz_register_system_library(LINKED sdl3-mixer SDL3_mixer _SONAME)
 	list(APPEND _SYSTEM_LIBRARIES "-l:${_SONAME}")
 else()
+	if(EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst/lib/libopus.a" OR EXISTS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst/lib/opus.lib")
+		# An install of SDL_mixer from before Opus was a shared library has it as a static library, which would be linked into programs (also
+		# with the system's Opus, as the copy that was built then links the vendored one).
+		# Build it again from scratch, ExternalContent would not notice that and would build the old configuration.
+		message(STATUS "SDL3_mixer was installed with static Opus, building it again.")
+		file(GLOB _STAMPS "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.tmp/*.sha3")
+		file(REMOVE ${_STAMPS})
+		file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.dst" "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.bin")
+		file(REMOVE "${CMAKE_BINARY_DIR}/ExternalContentFiles/SDL3_mixer.bin.codecs")
+	endif()
 	if(_SYSTEM_AUDIO_CODECS)
 		message(STATUS "Using the system's opusfile")
 		blitz_register_system_library(LOADED opusfile opusfile _IGNORED)
@@ -547,15 +559,15 @@ endif()
 
 # Movies with Opus sound are decoded with the libopus that SDL_mixer built, whose headers it does not install. They are copied next to
 # the other includes of SDL_mixer (which a restored dependency cache keeps), fetching the submodule first if the clone doesn't have it.
-# With the system's codecs the runtime links to the system's libopus, as SDL_mixer only loads opusfile when it needs it.
+# The runtime only has the headers: it loads the library when a movie has Opus sound (see movie.cpp), the one next to the program or the
+# system's with BLITZ_SYSTEM_AUDIO_CODECS.
 set(_OPUS_HEADERS "${SDL3_mixer_INSTALL_PATH}/include/opus")
 if(_SYSTEM_AUDIO_CODECS OR _SYSTEM_SDL3_MIXER)
 	execute_process(COMMAND "${PKG_CONFIG_EXECUTABLE}" --exists opus RESULT_VARIABLE _RESULT)
 	if(NOT _RESULT EQUAL 0)
 		message(FATAL_ERROR "The runtime plays the Opus sound of movies with libopus, but pkg-config has no 'opus'. Install its development package.")
 	endif()
-	blitz_register_system_library(LINKED opus opus _SONAME)
-	list(APPEND _SYSTEM_LIBRARIES "-l:${_SONAME}")
+	blitz_register_system_library(LOADED opus opus _IGNORED)
 	set(_OPUS_HEADERS "")
 elseif(NOT EXISTS "${_OPUS_HEADERS}/opus_multistream.h")
 	set(_OPUS_SOURCE "${PROJECT_SOURCE_DIR}/third_party/SDL_mixer/external/opus")
@@ -815,41 +827,55 @@ else()
 	file(COPY "${_FFMPEG_SOURCE}/COPYING.LGPLv2.1" "${_FFMPEG_SOURCE}/LICENSE.md" DESTINATION "${FFMPEG_INSTALL_PATH}/share/licenses/FFmpeg")
 endif()
 
-# SDL_image's codecs (libavif, dav1d, libjxl, brotli, highway and libwebp) are shared libraries: they are shipped with the runtime and copied
-# next to the programs that load images. On Windows they are DLLs in bin/ (their import libraries in lib/ are not needed, as SDL_image loads them
-# by name), elsewhere they are in lib/ with their version in the file name.
+# The codecs of SDL_image (libavif, dav1d, libjxl, brotli, highway and libwebp) and of SDL_mixer (libopus, opusfile and libogg) are shared
+# libraries: they are shipped with the runtime and copied next to the programs that load images or sounds. On Windows they are DLLs in
+# bin/ (their import libraries in lib/ are not needed, as the SDL libraries load them by name), elsewhere they are in lib/ with their
+# version in the file name.
 # SDL_image opens them by name (libavif-16.dll, libavif.so.16, libavif.16.dylib), which is what the link libavif.so and libavif.dylib point at.
 # Installing a link copies the link and not the file, so the files are copied under that name, and those are what is shipped.
-set(_SDL3_IMAGE_CODECS "")
-if(NOT _SYSTEM_SDL3_IMAGE AND NOT _SYSTEM_IMAGE_CODECS)
-	set(_SDL3_IMAGE_STAGE "${SDL3_image_INSTALL_PATH}/runtime")
-	file(MAKE_DIRECTORY "${_SDL3_IMAGE_STAGE}")
+function(blitz_stage_shared_libraries INSTALL_PATH RESULT)
+	set(_STAGE "${INSTALL_PATH}/runtime")
+	file(MAKE_DIRECTORY "${_STAGE}")
+	set(_STAGED "")
 	if(WIN32)
-		file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/bin/*.dll")
-		foreach(_LIBRARY IN LISTS _SDL3_IMAGE_SHARED)
+		file(GLOB _SHARED "${INSTALL_PATH}/bin/*.dll")
+		foreach(_LIBRARY IN LISTS _SHARED)
 			cmake_path(GET _LIBRARY FILENAME _NAME)
-			file(COPY_FILE "${_LIBRARY}" "${_SDL3_IMAGE_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
-			list(APPEND _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_STAGE}/${_NAME}")
+			file(COPY_FILE "${_LIBRARY}" "${_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
+			list(APPEND _STAGED "${_STAGE}/${_NAME}")
 		endforeach()
 	else()
 		if(APPLE)
-			file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/lib/lib*.dylib")
+			file(GLOB _SHARED "${INSTALL_PATH}/lib/lib*.dylib")
 		else()
-			file(GLOB _SDL3_IMAGE_SHARED "${SDL3_image_INSTALL_PATH}/lib/lib*.so")
+			file(GLOB _SHARED "${INSTALL_PATH}/lib/lib*.so")
 		endif()
-		foreach(_LIBRARY IN LISTS _SDL3_IMAGE_SHARED)
+		foreach(_LIBRARY IN LISTS _SHARED)
 			if(NOT IS_SYMLINK "${_LIBRARY}")
 				continue()
 			endif()
 			file(READ_SYMLINK "${_LIBRARY}" _NAME)
 			cmake_path(GET _NAME FILENAME _NAME)
 			file(REAL_PATH "${_LIBRARY}" _REAL)
-			file(COPY_FILE "${_REAL}" "${_SDL3_IMAGE_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
-			list(APPEND _SDL3_IMAGE_CODECS "${_SDL3_IMAGE_STAGE}/${_NAME}")
+			file(COPY_FILE "${_REAL}" "${_STAGE}/${_NAME}" ONLY_IF_DIFFERENT)
+			list(APPEND _STAGED "${_STAGE}/${_NAME}")
 		endforeach()
 	endif()
+	set(${RESULT} "${_STAGED}" PARENT_SCOPE)
+endfunction()
+
+set(_SDL3_IMAGE_CODECS "")
+if(NOT _SYSTEM_SDL3_IMAGE AND NOT _SYSTEM_IMAGE_CODECS)
+	blitz_stage_shared_libraries("${SDL3_image_INSTALL_PATH}" _SDL3_IMAGE_CODECS)
 	if(NOT _SDL3_IMAGE_CODECS)
 		message(FATAL_ERROR "SDL_image did not install its codec libraries (avif, dav1d, jxl and webp) in '${SDL3_image_INSTALL_PATH}'.")
+	endif()
+endif()
+set(_SDL3_MIXER_CODECS "")
+if(NOT _SYSTEM_SDL3_MIXER AND NOT _SYSTEM_AUDIO_CODECS)
+	blitz_stage_shared_libraries("${SDL3_mixer_INSTALL_PATH}" _SDL3_MIXER_CODECS)
+	if(NOT _SDL3_MIXER_CODECS)
+		message(FATAL_ERROR "SDL_mixer did not install its codec libraries (opus, opusfile and ogg) in '${SDL3_mixer_INSTALL_PATH}'.")
 	endif()
 endif()
 
@@ -860,12 +886,10 @@ set(BLITZRT_REQUIRED_LICENSES "")
 set(BLITZRT_INCLUDE_DIRECTORIES "")
 set(BLITZRT_BUNDLED_SDL3 OFF)
 if(WIN32)
-	set(_LIBRARY_PATTERN "*.lib")
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/SDL3-static.lib")
 	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/SDL3_image-static.lib")
 	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/SDL3_mixer-static.lib")
 else()
-	set(_LIBRARY_PATTERN "*.a")
 	set(_SDL3_LIBRARY "${SDL3_INSTALL_PATH}/lib/libSDL3.a")
 	set(_SDL3_IMAGE_LIBRARY "${SDL3_image_INSTALL_PATH}/lib/libSDL3_image.a")
 	set(_SDL3_MIXER_LIBRARY "${SDL3_mixer_INSTALL_PATH}/lib/libSDL3_mixer.a")
@@ -878,9 +902,8 @@ if(NOT _SYSTEM_SDL3)
 	list(APPEND BLITZRT_REQUIRED_LICENSES SDL3/LICENSE.txt)
 endif()
 
-# SDL_image and SDL_mixer install the libraries of their codecs (libavif, dav1d, libjxl, brotli, highway and libwebp; libopus,
-# opusfile and libogg) next to themselves, and programs have to link to those as well. The licenses of SDL_image and SDL_mixer and of the
-# codecs built into them are installed next to them, as their notices have to be shipped with programs that include them.
+# The licenses of SDL_image and SDL_mixer and of the codecs built into them are installed next to them, as their notices have to be shipped
+# with programs that include them. The shared libraries of their codecs are shipped with the runtime and copied next to programs by blitzcc.
 if(NOT _SYSTEM_SDL3_IMAGE)
 	list(APPEND BLITZRT_INCLUDE_DIRECTORIES "${SDL3_image_INSTALL_PATH}/include")
 	list(APPEND BLITZRT_LIBRARIES "${_SDL3_IMAGE_LIBRARY}")
@@ -893,8 +916,6 @@ if(NOT _SYSTEM_SDL3_MIXER)
 	list(APPEND BLITZRT_LIBRARIES "${_SDL3_MIXER_LIBRARY}")
 	list(APPEND BLITZRT_LICENSES "${SDL3_mixer_INSTALL_PATH}/share/licenses")
 	list(APPEND BLITZRT_REQUIRED_LICENSES ${_SDL3_MIXER_LICENSES})
-	file(GLOB _SDL3_MIXER_CODECS "${SDL3_mixer_INSTALL_PATH}/lib/${_LIBRARY_PATTERN}")
-	list(REMOVE_ITEM _SDL3_MIXER_CODECS "${_SDL3_MIXER_LIBRARY}")
 	list(APPEND BLITZRT_LIBRARIES ${_SDL3_MIXER_CODECS})
 endif()
 if(NOT _SYSTEM_FFMPEG)
@@ -927,6 +948,9 @@ if(_SYSTEM_FFMPEG)
 endif()
 if(_SYSTEM_IMAGE_CODECS OR _SYSTEM_SDL3_IMAGE)
 	list(APPEND _SYSTEM_LIBRARIES "#system image-codecs")
+endif()
+if(_SYSTEM_AUDIO_CODECS OR _SYSTEM_SDL3_MIXER)
+	list(APPEND _SYSTEM_LIBRARIES "#system audio-codecs")
 endif()
 string(REPLACE ";" "\n" _SYSTEM_LIBRARIES_TEXT "${_SYSTEM_LIBRARIES}")
 file(WRITE "${_SYSTEM_LIBRARIES_FILE}.tmp" "${_SYSTEM_LIBRARIES_TEXT}\n")
