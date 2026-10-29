@@ -956,7 +956,7 @@ namespace bb::gfx {
 
 	// Depth 24 is R8G8B8X8, which is RGBA8 with the alpha left alone; 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 as half
 	// precision floats. 16 is R5G6B5, 15 is A1R5G5B5 and 12 is R4G4B4A4, which 3D drawing and 2D drawing fill with the precision they have.
-	// 8 is a palette of 256 colors (GraphicsPallet): the buffer is RGBA8 as it is drawn to, and what is shown and read is the nearest color
+	// 8 is a palette of 256 colors (GraphicsPalette): the buffer is RGBA8 as it is drawn to, and what is shown and read is the nearest color
 	// of the palette. 0 is what the original takes to be the best the display has, which is 32.
 	VkFormat pick_buffer_format(int depth, int& actual)
 	{

@@ -27,7 +27,7 @@ extern "C" {
 // after either of them.
 // Modes: 0 = windowed, 1 = fullscreen, 2 = windowed, 3 = resizable window,
 // 4 = window without a border (a BlitzLLVM extension). The depth picks what the buffers are made of: 8 is a palette of 256 colors
-// (see GraphicsPallet), 12 is R4G4B4A4, 15 is A1R5G5B5, 16 is R5G6B5, 24 is R8G8B8X8, 30 is R10G10B10A2, 32 (and 0) is R8G8B8A8 and
+// (see GraphicsPalette), 12 is R4G4B4A4, 15 is A1R5G5B5, 16 is R5G6B5, 24 is R8G8B8X8, 30 is R10G10B10A2, 32 (and 0) is R8G8B8A8 and
 // 64 is R16G16B16A16 as half precision floats.
 void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 {

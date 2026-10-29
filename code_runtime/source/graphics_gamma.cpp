@@ -469,11 +469,11 @@ void bb_dither_temporal(int32_t enable)
 	dither_moves = (enable != 0) ? 1 : 0;
 }
 
-// GraphicsPallet imagefile: the 256 colors that a Graphics with a depth of 8 shows. The file is a picture of 16 by 16 pixels, read from the
+// GraphicsPalette imagefile: the 256 colors that a Graphics with a depth of 8 shows. The file is a picture of 16 by 16 pixels, read from the
 // top left to the right and then down, so that the pixel at x,y is the color with the number y * 16 + x. Without a file (an empty name)
 // the palette is the one of all colors with 3 bits of red and green and 2 of blue, from 0,0,0 to 255,255,255. It can be set before
 // Graphics, and takes effect with the next picture that is shown.
-void bb_graphics_pallet(const char* file)
+void bb_graphics_palette(const char* file)
 {
 	palette_ready = true;
 	if (!file || !file[0]) {
@@ -481,18 +481,18 @@ void bb_graphics_pallet(const char* file)
 	} else {
 		SDL_Surface* loaded = load_surface(file);
 		if (!loaded) {
-			bb_runtime_error("GraphicsPallet: the picture could not be loaded.");
+			bb_runtime_error("GraphicsPalette: the picture could not be loaded.");
 			return;
 		}
 		SDL_Surface* rgba = SDL_ConvertSurface(loaded, SDL_PIXELFORMAT_RGBA32);
 		SDL_DestroySurface(loaded);
 		if (!rgba) {
-			bb_runtime_error("GraphicsPallet: the picture could not be read.");
+			bb_runtime_error("GraphicsPalette: the picture could not be read.");
 			return;
 		}
 		if ((rgba->w != 16) || (rgba->h != 16)) {
 			SDL_DestroySurface(rgba);
-			bb_runtime_error("GraphicsPallet: the picture has to be 16 by 16 pixels.");
+			bb_runtime_error("GraphicsPalette: the picture has to be 16 by 16 pixels.");
 			return;
 		}
 		for (int y = 0; y < 16; y++) {

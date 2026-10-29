@@ -860,7 +860,7 @@ namespace bb::gfx {
 	bool dither_temporal();
 	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader. */
 	int dither_level();
-	/** Whether the buffers are those of a Graphics with a depth of 8: RGBA8 that is shown, and read, as the nearest colors of the palette (GraphicsPallet). */
+	/** Whether the buffers are those of a Graphics with a depth of 8: RGBA8 that is shown, and read, as the nearest colors of the palette (GraphicsPalette). */
 	bool palette_mode();
 	/** Puts the palette in the lookup texture that the present of a Graphics with a depth of 8 uses, if it changed. Needs no open command buffer. */
 	void prepare_palette();

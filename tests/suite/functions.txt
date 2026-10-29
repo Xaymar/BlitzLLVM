@@ -397,7 +397,7 @@ graphics	graphics	done	Graphics%width%height%depth=0%mode=0
 graphics3d	graphics	done	Graphics3D%width%height%depth=0%mode=0
 graphicsbuffer	graphics	done	%GraphicsBuffer
 graphicsdepth	graphics	done	%GraphicsDepth
-graphicspallet	graphics	done	GraphicsPallet$imagefile
+graphicspalette	graphics	done	GraphicsPalette$imagefile
 graphicsheight	graphics	done	%GraphicsHeight
 graphicslost	graphics	done	%GraphicsLost
 graphicswidth	graphics	done	%GraphicsWidth
