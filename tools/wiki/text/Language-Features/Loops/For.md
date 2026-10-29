@@ -7,7 +7,7 @@
 @syntax For variable.Type = Each Type
 @syntax     statements
 @syntax Next
-Counts `variable` from `from` up to `limit`, running the statements once for each number. With [Step](Step) it changes by that amount instead of 1, and counts down when the amount is negative. The limit is worked out again before every pass, so changing a variable that it uses changes how often the loop runs, while the step is worked out once. The variable has to be a number, but a real number (`Float`) does not count exactly: the loop may run once more or less than expected, or never end (warning `loop-iterator-type-unsafe`). [Next](Next) ends the loop. `For ... = Each` walks through all objects of a custom type instead.
+Counts `variable` from `from` up to `limit`, running the statements once for each number. With [Step](Step) it changes by that amount instead of 1, and counts down when the amount is negative. The limit is worked out again before every pass, so changing a variable that it uses changes how often the loop runs, while the step is worked out once. The variable has to be a number, but a real number (`Float`) does not count exactly: the loop may run once more or less than expected, or never end (warning `loop-iterator-type-unsafe`). The start, limit and step are turned into the type of the variable: a `Byte` that counts to a limit above 255 never gets there, and the loop never ends (warning `loop-type-mismatch`, an error in a program compiled with `-d`). [Next](Next) ends the loop. `For ... = Each` walks through all objects of a custom type instead.
 
 ```blitzbasic
 ;run

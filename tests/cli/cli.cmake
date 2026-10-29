@@ -1176,11 +1176,15 @@ elseif(CASE STREQUAL "warnings")
 		"\ta = 1\n"
 		"End Function\n"
 		"Local kept% = 0\n"
-		"KeepsValue kept\n")
+		"KeepsValue kept\n"
+		"Local lend% = 5\n"
+		"Local lsmall:byte\n"
+		"For lsmall = 0 To lend\n"
+		"Next\n")
 
 	# Every warning turns on at its level, and stays on above it. -W2 is the default.
 	set(_WARNINGS
-		"implicit-lossy-int-to-int:1" "loop-iterator-type-unsafe:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
+		"implicit-lossy-int-to-int:1" "loop-iterator-type-unsafe:1" "loop-type-mismatch:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
 		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-missing-value:2" "return-type-mismatch:2" "unused-result:2"
 		"implicit-number-to-string:3" "inout-parameter-unwritten:3" "short-type-notation:3" "unreachable-code:3" "unused-variable:3"
 		"typeless-declaration:4" "unused-function:4" "loop-unroll-requires-constant:4")
@@ -1235,6 +1239,32 @@ elseif(CASE STREQUAL "warnings")
 	expect_no_err("[-Wlarge-local-array]")
 	blitzcc(-c -Wno-large-local-array "${WORK}/bigarray.bb")
 	expect_no_err("[-Wlarge-local-array]")
+
+	# A For loop whose start, end or step has another type than the counter is an error with -d (every mismatch) and a warning in a release.
+	file(WRITE "${WORK}/looptype.bb" "Local n% = 300\nFor b:Byte = 0 To n\nNext\n")
+	blitzcc(-c "${WORK}/looptype.bb")
+	expect_ok()
+	expect_err("looptype.bb:2:19: warning: The End of the For loop is Int, but 'b' is Byte.")
+	expect_err("[-Wloop-type-mismatch]")
+	blitzcc(-c -d "${WORK}/looptype.bb")
+	expect_failed()
+	expect_err("looptype.bb:2:19: error: The End of the For loop is Int, but 'b' is Byte.")
+	expect_err("[-Werror=loop-type-mismatch]")
+	file(WRITE "${WORK}/looptype_round.bb" "Local x# = 2.5\nFor k = 1 To x\nNext\n")
+	blitzcc(-c "${WORK}/looptype_round.bb")
+	expect_ok()
+	expect_err("warning: The End of the For loop is Float, but 'k' is Int. The counter is an integer, so the End is rounded. [-Wloop-type-mismatch]")
+	blitzcc(-c -d "${WORK}/looptype_round.bb")
+	expect_failed()
+	expect_err("error: The End of the For loop is Float, but 'k' is Int. The counter is an integer, so the End is rounded. [-Werror=loop-type-mismatch]")
+	blitzcc(-c -d -Wno-error=loop-type-mismatch "${WORK}/looptype.bb")
+	expect_ok()
+	expect_err("warning: The End of the For loop is Int, but 'b' is Byte.")
+	blitzcc(-c -d -Wno-loop-type-mismatch "${WORK}/looptype.bb")
+	expect_ok()
+	expect_no_err("[-Wloop-type-mismatch]")
+	blitzcc(-c -d -W0 "${WORK}/looptype.bb")
+	expect_ok()
 
 	# Conversions name both types and the function that converts on purpose.
 	file(WRITE "${WORK}/conv.bb" "Local i% = Long(5000000000)\nLocal f# = Long(5)\nLocal s$ = 5\nLocal n% = \"12\"\nLocal d# = Double(3)\nPrint i + f + d + n + s\n")
@@ -1456,7 +1486,7 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -W0 -Werror=unreachable-code "${WORK}/w.bb")
 	expect_failed()
 	expect_err("w.bb:13:1: error: This statement can never run. [-Werror=unreachable-code]")
-	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=loop-iterator-type-unsafe -Wno-error=unused-result -Wno-error=return-missing-value -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
+	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=loop-iterator-type-unsafe -Wno-error=loop-type-mismatch -Wno-error=unused-result -Wno-error=return-missing-value -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
 	expect_ok()
 	expect_err("[-Wimplicit-lossy-real-to-int]")
 

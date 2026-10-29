@@ -62,5 +62,8 @@ namespace blitz {
 
 		bool enabled(std::string const& name) const;
 		bool is_error(std::string const& name) const;
+
+		/** Whether -Werror=<name> or -Wno-error=<name> was given, which decides whether the warning is an error whatever else is set. */
+		bool error_given(std::string const& name) const;
 	};
 } // namespace blitz
