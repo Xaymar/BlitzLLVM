@@ -1123,7 +1123,9 @@ def fragment_shader_gamma():
     new value of red, green and blue (from 0 to 1) in the row. The fourth value of the first row is 1 when Dither is on:
     the result then gets temporal Interleaved Gradient Noise (Jimenez, 2014) of up to half a step of the 8 bit picture
     added, so that the steps that rounding makes are not lines but a pattern that the eye averages. The pattern moves
-    every frame: the push constant is 5.588238 * float(frame % 64), added to both coordinates of the pixel.
+    every frame: the push constant is 5.588238 * float(frame % 64), added to both coordinates of the pixel. A picture of more
+    than 8 bits (Graphics depth 30 or 64) is not rounded before: the value between the two rows of its steps is taken, so
+    this is the one place that turns it into 8 bits, and where Dither has something to hide. A color that 8 bits show gets no noise.
 
     #version 450
     layout(set = 0, binding = 0) uniform sampler2D tex;
@@ -1132,15 +1134,17 @@ def fragment_shader_gamma():
     layout(location = 0) in vec2 inUV;
     layout(location = 0) out vec4 outColor;
     void main() {
-        vec3 step = floor(texture(tex, inUV).rgb * 255.0 + 0.5);
-        vec3 color = vec3(gamma.table[int(step.r)].r, gamma.table[int(step.g)].g, gamma.table[int(step.b)].b);
+        vec3 at = clamp(texture(tex, inUV).rgb * 255.0, 0.0, 255.0), low = floor(at);
+        vec3 color = vec3(mix(gamma.table[int(low.r)].r, gamma.table[int(min(low.r + 1.0, 255.0))].r, at.r - low.r), ...green, blue...);
         vec2 xy = floor(gl_FragCoord.xy) + vec2(pc.shift);
         float noise = fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715))));
-        outColor = vec4(color + (noise - 0.5) / 255.0 * gamma.table[0].w, 1.0);
+        vec3 steps = color * 255.0;
+        outColor = vec4(color + (noise - 0.5) / 255.0 * gamma.table[0].w * step(1.0 / 64.0, abs(steps - floor(steps + 0.5))), 1.0);
     }
     """
     b = Builder()
     f, v2, v3, v4, i32 = b.float(), b.vec(2), b.vec(3), b.vec(4), b.int()
+    c1 = b.const_float(1.0)
     void, fn = b.void(), b.fn()
     image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
     sampled = b.new_type("sampled", "TypeSampledImage", image)
@@ -1169,12 +1173,20 @@ def fragment_shader_gamma():
     b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
 
     shown = b.swizzle(b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), b.load(v2, in_uv)), 3)
-    steps = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, shown, b.const_vec(3, 255.0)), b.const_vec(3, 0.5)))
+    # The tables have a value for each of the 256 steps of 8 bits. A deeper picture lies between two of them, so the value is
+    # taken between the two rows (as is for 8 bits), and the picture is only rounded to 8 bits by Dither or by the target.
+    position = b.ext(v3, GLSL_FCLAMP, b.fmul(v3, shown, b.const_vec(3, 255.0)), b.const_vec(3, 0.0), b.const_vec(3, 255.0))
+    below = b.ext(v3, GLSL_FLOOR, position)
     channels = []
     for channel in range(3):
-        step = b.emit("ConvertFToS", i32, b.extract(steps, channel))
-        row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), step))
-        channels.append(b.extract(row, channel))
+        low = b.extract(below, channel)
+        part = b.fsub(f, b.extract(position, channel), low)
+        high = b.ext(f, GLSL_FMIN, b.fadd(f, low, c1), b.const_float(255.0))
+        rows = []
+        for step in (low, high):
+            row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.emit("ConvertFToS", i32, step)))
+            rows.append(b.extract(row, channel))
+        channels.append(b.fadd(f, rows[0], b.fmul(f, b.fsub(f, rows[1], rows[0]), part)))
     # Temporal Interleaved Gradient Noise of the pixel: fract(52.9829189 * fract(dot(pixel + shift, (0.06711056, 0.00583715)))).
     frag = b.load(v4, in_frag)
     shift = b.load(f, b.access("PushConstant", f, shift_push, b.const_int(0)))
@@ -1184,7 +1196,14 @@ def fragment_shader_gamma():
     noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
     enabled = b.extract(b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.const_int(0))), 3)
     offset = b.fmul(f, b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0)), enabled)
-    channels = [b.fadd(f, channel, offset) for channel in channels]
+    # A channel that the 8 bit target shows exactly gets no noise (as in the 3D shader): a GPU may convert with a little error,
+    # which turns the lowest noise (half a step below) into a step below the color in some pixels. Within 1/64 of a step is exact.
+    colors = b.construct(3, *channels)
+    steps = b.fmul(v3, colors, b.const_vec(3, 255.0))
+    away = b.ext(v3, GLSL_FABS, b.fsub(v3, steps, b.ext(v3, GLSL_FLOOR, b.fadd(v3, steps, b.const_vec(3, 0.5)))))
+    inexact = b.ext(v3, GLSL_STEP, b.const_vec(3, 1.0 / 64.0), away)
+    colors = b.fadd(v3, colors, b.fmul(v3, b.scale(3, b.const_vec(3, 1.0), offset), inexact))
+    channels = [b.extract(colors, channel) for channel in range(3)]
     b.store(out_color, b.construct(4, *channels, b.const_float(1.0)))
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
     return b.m.assemble()
