@@ -15,6 +15,9 @@ on:
       - 'LICENSE.adoc'
       - '.github/scripts/check-licenses.sh'
       - '.github/workflows/nightly.yml'
+  # By hand, for a commit that no push built (one that only changed documentation), so that it can be released. Only a run on
+  # root replaces the nightly release.
+  workflow_dispatch:
   # The Periodic workflow builds the daily, weekly, monthly and yearly releases with this workflow, without caches.
   workflow_call:
     inputs:
@@ -270,7 +273,8 @@ jobs:
         with:
           path: artifacts
       - name: Publish nightly release
-        if: ${{ !inputs.clean }}
+        # A manual run of another branch only proves that it builds.
+        if: ${{ !inputs.clean && github.ref == 'refs/heads/root' }}
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
