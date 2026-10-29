@@ -118,6 +118,26 @@ Check "Long converter", Long("%11"), 3
 Check "UByte converter", UByte("0x80"), 128
 Check "UInt converter", UInt("0xFFFFFFFF") = 4294967295, 1
 
+; UInt and ULong take the whole positive range from decimal text too, and Int stops at its largest number.
+Local du32:UInt = "4294967295"
+Local du32b:UInt = "9999999999"
+Local du64:ULong = "18446744073709551615"
+Local du64b:ULong = "99999999999999999999"
+Local du64c:ULong = "10000000000"
+Local nu32:UInt = "-1"
+Local nu64:ULong = "-1"
+Check "UInt largest", du32 = 4294967295, 1
+Check "UInt too large stops at largest", du32b = 4294967295, 1
+Check "ULong largest", du64 = 18446744073709551615, 1
+Check "ULong too large stops at largest", du64b = 18446744073709551615, 1
+Check "ULong above 32 bits", du64c = 10000000000, 1
+Check "Negative UInt wraps", nu32 = 4294967295, 1
+Check "Negative ULong wraps", nu64 = 18446744073709551615, 1
+Check "UInt converter decimal", UInt("3000000000") = 3000000000, 1
+Check "UByte decimal", UByte("200"), 200
+Check "UShort decimal", UShort("65535"), 65535
+Check "Int still stops at its largest", Int("4294967295"), 2147483647
+
 ; Conditions are Ints.
 x = 0
 If "3" Then x = 1
