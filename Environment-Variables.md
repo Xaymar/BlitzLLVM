@@ -98,6 +98,7 @@ x64 Windows programs built with `--profile` and `-g` (or `-d`) write `<file>.sta
 | Variable | What it does |
 |---|---|
 | `BLITZLLVM_CC` | The C compiler `blitzcc` hands the program to. |
+| `BLITZLLVM_HARDENING=0` | Leaves out the hardening flags that `blitzcc` gives the C compiler for Linux and macOS programs (stack protector, `_FORTIFY_SOURCE`, read-only relocations, control flow protection). |
 | `BLITZLLVM_USERLIBS` | The directory with the user libraries and their `.decls` files, see [[Blitz-Tidy]]. |
 
 ## Tests
