@@ -54,26 +54,59 @@ std::string blitz::format(const char* format, ...)
 	return {buffer.data(), buffer.data() + length};
 }
 
+namespace {
+	// The last file an excerpt was taken from, with where its lines begin.
+	struct excerpt_data {
+		std::filesystem::path           file;
+		std::uintmax_t                  size = 0;
+		std::filesystem::file_time_type time;
+		std::string                     data;
+		std::vector<size_t>             line_starts;
+	};
+
+	excerpt_data& excerpt_cache()
+	{
+		static excerpt_data cache;
+		return cache;
+	}
+} // namespace
+
+void blitz::forget_source_excerpts()
+{
+	excerpt_cache() = excerpt_data();
+}
+
 std::string blitz::source_excerpt(std::filesystem::path const& file, uint64_t line, uint64_t column, uint64_t length)
 {
 	if (line == 0 || file.empty()) {
 		return {};
 	}
-	std::ifstream stream(file, std::ios::binary);
-	if (!stream) {
-		return {};
-	}
-	std::string data((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-
-	// Find the line, which ends at "\n", "\r\n" or "\r". A line after the last one is the end of the file, which is empty.
-	size_t start = 0;
-	for (uint64_t current = 1; current < line; current++) {
-		size_t end = data.find_first_of("\r\n", start);
-		if (end == std::string::npos) {
+	// Every warning asks for an excerpt, so the last file is kept with where its lines begin, instead of being read and scanned again.
+	auto& cache = excerpt_cache();
+	auto& data = cache.data;
+	auto& line_starts = cache.line_starts;
+	std::error_code ec;
+	auto            size = std::filesystem::file_size(file, ec);
+	auto            time = std::filesystem::last_write_time(file, ec);
+	if (line_starts.empty() || (cache.file != file) || (cache.size != size) || (cache.time != time)) {
+		std::ifstream stream(file, std::ios::binary);
+		if (!stream) {
 			return {};
 		}
-		start = end + ((data[end] == '\r' && end + 1 < data.size() && data[end + 1] == '\n') ? 2 : 1);
+		data.assign(std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>());
+		cache.file = file;
+		cache.size = size;
+		cache.time = time;
+		line_starts.assign(1, 0);
+		// Lines end at "\n", "\r\n" or "\r". A line after the last one is the end of the file, which is empty.
+		for (size_t end = data.find_first_of("\r\n"); end != std::string::npos; end = data.find_first_of("\r\n", line_starts.back())) {
+			line_starts.push_back(end + ((data[end] == '\r' && end + 1 < data.size() && data[end + 1] == '\n') ? 2 : 1));
+		}
 	}
+	if (line > line_starts.size()) {
+		return {};
+	}
+	size_t start = line_starts[line - 1];
 	std::string text = data.substr(start, data.find_first_of("\r\n", start) - start);
 
 	// Columns count bytes, starting at 1. A column behind the line (like the end of the file) points right after it.

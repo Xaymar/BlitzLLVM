@@ -1008,6 +1008,7 @@ blitz::tidy::result blitz::tidy::run(std::string const& text, config const& cfg)
 			r.note    = "not fixed: the limit of " + std::to_string(cfg.max_passes) + " passes was reached";
 			left.reports.push_back(std::move(r));
 		}
+		blitz::forget_source_excerpts();
 		for (auto& r : left.reports) {
 			r.excerpt = blitz::source_excerpt(temp.path(), r.line, r.column, r.length);
 			res.reports.push_back(std::move(r));

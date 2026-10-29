@@ -41,6 +41,9 @@ namespace blitz {
 	 * be read. Without a column (0) only the line is shown. Long lines are cut around the column. */
 	std::string source_excerpt(std::filesystem::path const& file, uint64_t line, uint64_t column, uint64_t length = 0);
 
+	/** Forgets the file that source_excerpt kept, for when a file is written again under the same name. */
+	void forget_source_excerpts();
+
 	/** "file:line:column: kind: reason", with the file lexically normalized (no "." or ".." parts), followed by the source_excerpt
 	 * and, if there is one, a "notice: <notice>" line, without a trailing new line. */
 	std::string diagnostic(std::filesystem::path const& file, uint64_t line, uint64_t column, std::string const& kind, std::string const& reason, uint64_t length = 0, std::string const& notice = std::string());
