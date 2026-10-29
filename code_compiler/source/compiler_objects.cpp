@@ -160,6 +160,7 @@ blitz::compiler::address blitz::compiler::gen_address(ast::expression const* exp
 	if (auto r = dynamic_cast<ast::reference const*>(expr)) {
 		variable* var = find(r->name);
 		if (!var) {
+			refuse_array(r->name, r->where);
 			warn(r->where, "implicit-variable", "'" + r->name + "' was not declared, it is a new local variable.", "Declare it first, such as 'Local " + r->name + "'.", {}, declaration_suffix(r->type, r->struct_name));
 			create_local(r->name, (r->type == type::UNKNOWN) ? type::INT32 : r->type, false, r->where, r->struct_name);
 			var = find(r->name);
