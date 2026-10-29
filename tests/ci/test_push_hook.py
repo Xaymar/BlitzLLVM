@@ -29,6 +29,16 @@ class PushHook(unittest.TestCase):
             "git push --force-with-lease origin claude/x",
             "git push -u --force-with-lease origin claude/x",
             "git push --force-with-lease --force-if-includes origin claude/x",
+            "git push --force-with-lease=claude/x origin HEAD:refs/heads/claude/x",
+            "git push --force-with-lease=claude/project-thread-o2kfe2:11707ed74a88b725237ebf9654907a3b8bcc4e81 origin HEAD:refs/heads/claude/project-thread-o2kfe2",
+            "git push -u --force-with-lease=refs/heads/claude/x:abcdef0 origin HEAD:claude/x",
+            "git push origin HEAD:claude/x",
+            "git push origin HEAD:refs/heads/claude/x",
+            "git push origin +claude/x",
+            "git push origin +HEAD:refs/heads/claude/x",
+            "git push origin claude/x:claude/x",
+            "git push -f origin claude/x",
+            "git push --force origin HEAD:claude/x",
         ])
 
     def test_not_a_push(self):
@@ -38,11 +48,16 @@ class PushHook(unittest.TestCase):
     def test_force_and_delete_denied(self):
         self.check("deny", [
             "git push --force origin root",
-            "git push -f origin claude/x",
-            "git push --force origin claude/x",
+            "git push --force origin root",
+            "git push -f origin main",
             "git push --force-with-lease origin root",
             "git push --force-with-lease=root origin claude/x",
-            "git push origin +claude/x",
+            "git push --force-with-lease=claude/x:abcdef0 origin HEAD:root",
+            "git push --force-with-lease=claude/x origin HEAD:refs/heads/root",
+            "git push --force-with-lease=claude/x origin HEAD:refs/heads/claude/x HEAD:refs/heads/root",
+            "git push -f origin +HEAD:refs/heads/claude/../root",
+            "git push origin +root",
+            "git push origin +refs/heads/root",
             "git push origin +HEAD:root",
             "git push origin :claude/x",
             "git push origin :root",
@@ -86,7 +101,8 @@ class PushHook(unittest.TestCase):
             "git push origin root",
             "git push origin claude/x claude/y",
             "git push origin claude/x:root",
-            "git push origin HEAD:claude/x",
+            "git push origin HEAD:root",
+            "git push origin HEAD:refs/heads/main",
             "git push upstream claude/x",
             "git push --force-with-lease origin claude/x ",
             "git push --force-with-lease origin claude/x claude/y",
@@ -117,7 +133,8 @@ class PushHook(unittest.TestCase):
             "git push origin claude/a b",
             "git push origin claude/x\\y",
             "git push origin Claude/x",
-            "git push origin refs/heads/claude/x",
+            "git push origin HEAD:claude/x.lock",
+            "git push origin HEAD:refs/heads/claude/../root",
         ])
 
     def test_aliases_and_configuration(self):
