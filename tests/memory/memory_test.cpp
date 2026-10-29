@@ -228,6 +228,146 @@ static void test_threads()
 	CHECK(spans < 20000);
 }
 
+// Resident memory of the process in KiB (0 where it cannot be told).
+static size_t resident_kib()
+{
+#if defined(__linux__)
+	FILE* f = fopen("/proc/self/statm", "r");
+	if (!f) {
+		return 0;
+	}
+	unsigned long total = 0, resident = 0;
+	if (fscanf(f, "%lu %lu", &total, &resident) != 2) {
+		resident = 0;
+	}
+	fclose(f);
+	return size_t(resident) * 4;
+#else
+	return 0;
+#endif
+}
+
+// Spans that stay empty for a second go back to the system; spans with a block in use stay; a given back span works again.
+// The clock is the test's (bb_mem_release_idle), so nothing waits.
+static void test_release()
+{
+	constexpr int count = 400000, size = 100; // About 45 MB of 112 byte blocks.
+	// The tests before left empty spans behind: let them go first.
+	bb_mem_release_idle(10000);
+	bb_mem_release_idle(11500);
+	std::vector<void*> blocks(count);
+	for (int i = 0; i < count; i++) {
+		blocks[i] = bb_malloc(size);
+		memset(blocks[i], 0x5A, size);
+	}
+	// Every 500th block stays (a span holds 585): no span is empty, nothing may go.
+	for (int i = 0; i < count; i++) {
+		if (i % 500) {
+			bb_free(blocks[i]);
+		}
+	}
+	CHECK(bb_mem_release_idle(100000) == 0);
+	CHECK(bb_mem_release_idle(120000) == 0);
+	for (int i = 0; i < count; i += 500) {
+		CHECK(verify(blocks[i], 0, 0) && static_cast<unsigned char*>(blocks[i])[size - 1] == 0x5A);
+		bb_free(blocks[i]);
+	}
+	bb_mem_stats before;
+	bb_mem_get_stats(&before);
+	size_t rss_before = resident_kib();
+	const char* switch_value = getenv("BLITZLLVM_ALLOC_RELEASE");
+	if (switch_value && !strcmp(switch_value, "0")) { // Turned off: spans stay where they are.
+		CHECK(bb_mem_release_idle(140000) == 0);
+		CHECK(bb_mem_release_idle(145000) == 0);
+		puts("release: off");
+		return;
+	}
+	CHECK(bb_mem_release_idle(140000) == 0);   // First seen empty.
+	CHECK(bb_mem_release_idle(140500) == 0);   // Only half a second.
+	size_t released = bb_mem_release_idle(141200);
+	CHECK(released > 50);
+	bb_mem_stats after;
+	bb_mem_get_stats(&after);
+	CHECK(after.released_spans - before.released_spans == released);
+	CHECK(after.spare_spans >= released);
+	size_t rss_after = resident_kib();
+	printf("release: %zu spans given back, resident %zu -> %zu MiB\n", released, rss_before / 1024, rss_after / 1024);
+	if (rss_before) {
+		CHECK(rss_after + 20 * 1024 < rss_before);
+	}
+	// The spans come back into use: no new address range, memory that is zero, contents that stay.
+	bb_mem_stats mid;
+	bb_mem_get_stats(&mid);
+	for (int i = 0; i < count / 2; i++) {
+		unsigned char* p = static_cast<unsigned char*>(bb_calloc(1, size));
+		for (int k = 0; k < size; k += 17) {
+			CHECK(p[k] == 0);
+		}
+		fill(p, size, unsigned(i));
+		blocks[i] = p;
+	}
+	bb_mem_stats reuse;
+	bb_mem_get_stats(&reuse);
+	CHECK(reuse.reused_spans > mid.reused_spans);
+	CHECK(reuse.tiny_spans == mid.tiny_spans); // The given back spans were enough.
+	for (int i = 0; i < count / 2; i++) {
+		CHECK(verify(blocks[i], size, unsigned(i)));
+		bb_free(blocks[i]);
+	}
+	// A full cycle again with the spans that are in use again.
+	bb_mem_release_idle(200000);
+	bb_mem_release_idle(201100);
+}
+
+// Sweeps run on one thread while others allocate, free and hand blocks over: nothing may be damaged or lost.
+static void test_release_threads()
+{
+	std::atomic<bool> stop{ false };
+	std::atomic<int>  bad{ 0 };
+	std::vector<std::thread> workers;
+	for (int t = 0; t < 3; t++) {
+		workers.emplace_back([&, t] {
+			unsigned seed = unsigned(t) * 977u;
+			while (!stop) {
+				std::vector<std::pair<void*, unsigned>> mine;
+				int n = 20000 + int(seed % 20000);
+				for (int i = 0; i < n; i++) {
+					seed = seed * 1664525u + 1013904223u;
+					size_t sz = 16 + (seed >> 8) % 1500;
+					void*  p  = bb_malloc(sz);
+					fill(p, sz < 48 ? sz : 48, seed);
+					mine.emplace_back(p, seed);
+				}
+				for (auto& b : mine) {
+					if (!verify(b.first, 16, b.second)) {
+						bad++;
+					}
+					bb_free(b.first);
+				}
+			}
+		});
+	}
+	uint32_t clock = 1000000;
+	auto     end   = std::chrono::steady_clock::now() + std::chrono::milliseconds(1500);
+	size_t   given = 0;
+	while (std::chrono::steady_clock::now() < end) {
+		clock += 400; // Every sweep looks as if the last one was a while ago.
+		given += bb_mem_release_idle(clock);
+		void* p = bb_malloc(200); // The sweeping thread uses the allocator as well.
+		bb_free(p);
+	}
+	stop = true;
+	for (auto& w : workers) {
+		w.join();
+	}
+	CHECK(bad == 0);
+	printf("release threads: %zu spans given back\n", given);
+	const char* switch_value = getenv("BLITZLLVM_ALLOC_RELEASE");
+	if (switch_value && !strcmp(switch_value, "0")) {
+		CHECK(given == 0);
+	}
+}
+
 static void benchmark()
 {
 	using clock = std::chrono::steady_clock;
@@ -269,6 +409,8 @@ int main()
 	test_foreign();
 	test_aligned_and_new();
 	test_threads();
+	test_release();
+	test_release_threads();
 	benchmark();
 	if (failures) {
 		fprintf(stderr, "%d checks failed.\n", failures);

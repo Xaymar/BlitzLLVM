@@ -19,13 +19,17 @@
 //
 // Free memory is kept in per-thread lists, so most allocations and frees take no lock and make no system call. Threads hand
 // batches of free blocks to a shared pool per class when they have too many (a thread that only frees what another one allocated),
-// and take them from there when they have none. Spans are never given back to the system.
+// and take them from there when they have none. Spans in which every block was free for more than a second go back to the system
+// (the address range stays reserved, the memory behind it is released and reads as zero when the span is used again), except for one
+// empty span per class. BLITZLLVM_ALLOC_RELEASE=0 turns that off. The check runs in bb_mem_tick, which the runtime calls from Flip and
+// while it waits; allocating and freeing do not look at the clock.
 //
 // A block is ours when its address lies in the reserved range, which is a single comparison. That makes `free`, `realloc` and
 // `bb_mem_size` safe for pointers of the system allocator or other libraries: they are passed on to the system.
 #pragma once
 
 #include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,8 +51,17 @@ typedef struct bb_mem_stats {
 	size_t live_blocks; // Blocks of ours that were not freed (needs BLITZLLVM_DEBUG_ALLOC_STATS).
 	size_t live_bytes;
 	size_t system_blocks; // Blocks passed to the system (needs BLITZLLVM_DEBUG_ALLOC_STATS).
+	size_t released_spans; // Spans that were given back to the system so far.
+	size_t reused_spans;   // Of those, the ones that were taken again.
+	size_t spare_spans;    // Spans that are given back right now.
 } bb_mem_stats;
 void bb_mem_get_stats(bb_mem_stats* out);
+
+// Gives back the spans that stayed empty for a second. Cheap when called often (it only reads the clock); the work is done at most
+// every 250 ms. Called from Flip and from the places where a program waits.
+void bb_mem_tick(void);
+// The same with a clock of the caller (milliseconds), looking right now. Returns the number of spans that were given back. For tests.
+size_t bb_mem_release_idle(uint32_t now_ms);
 
 #ifdef __cplusplus
 }
