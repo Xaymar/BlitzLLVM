@@ -15,7 +15,7 @@ FILES="$(gh api --paginate "repos/${GH_REPO}/pulls/${NUMBER}/files" --jq '.[] | 
 [ -n "$FILES" ] || { echo true; exit 0; }
 
 # Only what changes the binaries. Documentation, the wiki, the tests and the tools do not.
-if printf '%s\n' "$FILES" | grep -q -E '^(code_compiler/|code_runtime/|cmake/|third_party/|CMakeLists\.txt$|CMakePresets\.json$|\.gitmodules$|LICENSE\.adoc$|\.github/scripts/check-licenses\.sh$|\.github/workflows/pull-request\.yml$)'; then
+if printf '%s\n' "$FILES" | grep -q -E '^(code_compiler/|code_runtime/|cmake/|third_party/|CMakeLists\.txt$|CMakePresets\.json$|\.gitmodules$|LICENSE\.adoc$|\.github/scripts/check-licenses\.sh$|\.github/workflows/(pull-request|build)\.yml$)'; then
   echo true
 else
   echo false
