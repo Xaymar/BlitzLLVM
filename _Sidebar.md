@@ -568,7 +568,7 @@
 <li><a href="WritePixelFast64">WritePixelFast64</a> 〔BlitzLLVM〕</li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Display">Display</a> (45)</summary>
+<li><details><summary><a href="BlitzBasic-Display">Display</a> (46)</summary>
 <ul>
 <li><a href="AvailVidMem">AvailVidMem</a></li>
 <li><a href="CountDisplayModes">CountDisplayModes</a> 〔BlitzLLVM〕</li>
@@ -605,6 +605,7 @@
 <li><a href="GraphicsFormat">GraphicsFormat</a></li>
 <li><a href="GraphicsHeight">GraphicsHeight</a></li>
 <li><a href="GraphicsLost">GraphicsLost</a></li>
+<li><a href="GraphicsPalette">GraphicsPalette</a></li>
 <li><a href="GraphicsWidth">GraphicsWidth</a></li>
 <li><a href="HidePointer">HidePointer</a></li>
 <li><a href="PrimaryDisplay">PrimaryDisplay</a> 〔BlitzLLVM〕</li>

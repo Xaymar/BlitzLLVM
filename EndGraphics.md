@@ -39,7 +39,7 @@ Print "The window is closed, this goes to the console"
 
 ## Related Commands
 
-[Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsFormat](GraphicsFormat), [GraphicsHeight](GraphicsHeight), [GraphicsLost](GraphicsLost), [GraphicsWidth](GraphicsWidth)
+[Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsFormat](GraphicsFormat), [GraphicsHeight](GraphicsHeight), [GraphicsLost](GraphicsLost), [GraphicsPalette](GraphicsPalette), [GraphicsWidth](GraphicsWidth)
 
 <div align="center">
 

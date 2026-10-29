@@ -396,6 +396,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GraphicsFormat](GraphicsFormat)
 * [GraphicsHeight](GraphicsHeight)
 * [GraphicsLost](GraphicsLost)
+* [GraphicsPalette](GraphicsPalette)
 * [GraphicsWidth](GraphicsWidth)
 
 ## H

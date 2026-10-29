@@ -29,7 +29,7 @@ How the pixels of the graphics window are stored, as a number that BlitzPlus use
 
 ## Related Commands
 
-[EndGraphics](EndGraphics), [GfxModeFormat](GfxModeFormat), [Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsHeight](GraphicsHeight), [GraphicsLost](GraphicsLost), [GraphicsWidth](GraphicsWidth)
+[EndGraphics](EndGraphics), [GfxModeFormat](GfxModeFormat), [Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsHeight](GraphicsHeight), [GraphicsLost](GraphicsLost), [GraphicsPalette](GraphicsPalette), [GraphicsWidth](GraphicsWidth)
 
 <div align="center">
 

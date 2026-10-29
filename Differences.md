@@ -16,7 +16,7 @@ Differences that are not caused by one command.
 * [Asynchronous loading](Asynchronous-Loading): Extension: `AsyncLoading` makes `LoadTexture`, `LoadImage`, `LoadMesh` and `LoadAnimMesh` decode on other threads, and `TextureReady`, `ImageReady` and `EntityReady` say whether something is done.
 * [blitz-format](blitz-format): Extension: `blitz-format` formats `.bb` source code (indentation, keyword case, spacing, blank lines, line endings) from a `.blitz-format` file; the original has no formatter.
 * [Blitz-Tidy](Blitz-Tidy): Extension: `blitz-tidy` fixes the warnings of `blitzcc` in Blitz source files; the original has no such tool.
-* [Color depth](Color-Depth): The depth argument of `Graphics` and `Graphics3D` does not pick a display mode: it picks what the picture is made of, which is never less than 8 bits per channel. 16-bit and palette modes do not exist, and `WBuffer` does nothing. `Dither` adds noise to the shown picture instead of dithering 16-bit color.
+* [Color depth](Color-Depth): The depth argument of `Graphics` and `Graphics3D` does not pick a display mode: it picks what the buffers are made of (8, 12, 15, 16, 24, 30, 32 or 64), and the window always shows RGBA8. The 8-bit palette mode has a palette that `GraphicsPalette` sets, and `WBuffer` does nothing. `Dither` adds noise of one step of the buffer.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
 * [Culling](Culling): Extension: `CameraCulling` and `CameraCullingSource` choose what is left out of the picture before it is drawn. The picture is the same.
@@ -164,7 +164,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [GrabImage](GrabImage#differences): Parts that lie outside of the buffer are not copied and keep what the frame had before.
 * [Graphics](Graphics#differences): `Graphics` is the same command as [Graphics3D](Graphics3D): there is no 2D-only mode, so the 3D commands work after `Graphics` as well.
 * [Graphics3D](Graphics3D#differences): Unlike in Blitz3D, mode 0 always opens a window, and `Graphics` and `Graphics3D` are the same command.
-* [GraphicsDepth](GraphicsDepth#differences): It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these.
+* [GraphicsDepth](GraphicsDepth#differences): It is the depth of the buffers that [Graphics](Graphics) or [Graphics3D](Graphics3D) made: 8, 12, 15, 16, 24, 30, 32 or 64, and 32 if the depth that was asked for is none of these.
 * [GraphicsFormat](GraphicsFormat#differences): Always 4.
 * [Half](Half#differences) 〔BlitzLLVM〕: Not in the originals, which only have the 32-bit real (`Float`).
 * [HidePointer](HidePointer#differences): BlitzPlus lets the pointer be hidden per canvas; here the canvas is accepted and ignored, as there is only one window pointer.

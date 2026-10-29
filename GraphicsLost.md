@@ -47,7 +47,7 @@ End Function
 
 ## Related Commands
 
-[EndGraphics](EndGraphics), [Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsFormat](GraphicsFormat), [GraphicsHeight](GraphicsHeight), [GraphicsWidth](GraphicsWidth)
+[EndGraphics](EndGraphics), [Graphics](Graphics), [GraphicsDepth](GraphicsDepth), [GraphicsFormat](GraphicsFormat), [GraphicsHeight](GraphicsHeight), [GraphicsPalette](GraphicsPalette), [GraphicsWidth](GraphicsWidth)
 
 <div align="center">
 

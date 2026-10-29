@@ -44,6 +44,7 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [GraphicsFormat](GraphicsFormat)
 * [GraphicsHeight](GraphicsHeight)
 * [GraphicsLost](GraphicsLost)
+* [GraphicsPalette](GraphicsPalette)
 * [GraphicsWidth](GraphicsWidth)
 * [HidePointer](HidePointer)
 * [PrimaryDisplay](PrimaryDisplay) 〔BlitzLLVM〕
