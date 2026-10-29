@@ -898,10 +898,19 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         scale = b.m.id()
         b.m.types.append(Module.inst("SpecConstantComposite", v3, scale, *scales))
 
-        def noise_offset():
+        # The buffers of fewer bits show the lattice of the noise if every channel gets the same value: each channel after the first
+        # moves the pixel by its own offset (scale - 1 limited to 1, so that 8 bit targets, where scale is 1, keep one noise for all).
+        #   float shift = scene.projection.w - 1.0 + channel_offset * min(scale_channel - 1.0, 1.0);
+        zero_f = b.const_float(0.0)
+        scale_channels = [b.extract(scale, i) for i in range(3)]
+
+        def noise_offset(channel):
             w = b.extract(b.load(v4, b.access("Uniform", v4, scene, b.const_int(11))), 3)
             frag = b.load(v4, in_frag)
             shift = b.fsub(f, w, c1)
+            if channel:
+                moves = b.ext(f, GLSL_FMIN, b.ext(f, GLSL_FMAX, b.fsub(f, scale_channels[channel], c1), zero_f), c1)
+                shift = b.fadd(f, shift, b.fmul(f, moves, b.const_float((0.0, 23.0, 61.0)[channel])))
             px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
             py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
             along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
@@ -915,7 +924,8 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             steps = b.emit("FDiv", v3, b.fmul(v3, color, b.const_vec(3, 255.0)), scale)
             away = b.ext(v3, GLSL_FABS, b.fsub(v3, steps, b.ext(v3, GLSL_FLOOR, b.fadd(v3, steps, b.const_vec(3, 0.5)))))
             inexact = b.ext(v3, GLSL_STEP, b.const_vec(3, 1.0 / 64.0), away)
-            return b.fmul(v3, b.scale(3, scale, noise_offset()), inexact)
+            noise = b.construct(3, *[b.fmul(f, noise_offset(c), scale_channels[c]) for c in range(3)])
+            return b.fmul(v3, noise, inexact)
 
         if blend:
             # The blend of the fixed-function pipeline, with the factors as specialization constants (ids 1 to 5). The factor of
