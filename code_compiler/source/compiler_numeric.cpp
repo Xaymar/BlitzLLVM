@@ -64,7 +64,7 @@ namespace {
 } // namespace
 
 // A real becomes the nearest whole number (halves go to the even one), and what does not fit stops at the smallest or largest number.
-blitz::compiler::value blitz::compiler::saturate_real(value v, type to, ast::location const& where)
+blitz::compiler::value blitz::compiler::saturate_real(value v, type to, ast::location const& where, bool indefinite)
 {
 	if (v.type == type::FLOAT16) {
 		v = convert(v, type::FLOAT32, where, false);
@@ -78,6 +78,16 @@ blitz::compiler::value blitz::compiler::saturate_real(value v, type to, ast::loc
 	declare(name, "declare " + to_llvm + " @" + name + "(" + from_llvm + ")");
 	auto r = tmp();
 	emit(r + " = call " + to_llvm + " @" + name + "(" + from_llvm + " " + rounded + ")");
+	if (indefinite && ((to == type::INT32) || (to == type::INT64))) {
+		// The processor of the original gives the smallest number for NaN and for what does not fit, which is what a program may rely on.
+		auto limit = (to == type::INT32) ? std::string("2147483648.0") : std::string("9223372036854775808.0");
+		auto above = tmp(), below = tmp(), inside = tmp(), result = tmp();
+		emit(above + " = fcmp oge " + from_llvm + " " + rounded + ", -" + limit);
+		emit(below + " = fcmp olt " + from_llvm + " " + rounded + ", " + limit);
+		emit(inside + " = and i1 " + above + ", " + below);
+		emit(result + " = select i1 " + inside + ", " + to_llvm + " " + r + ", " + to_llvm + " " + int_min(to));
+		return { result, to };
+	}
 	return { r, to };
 }
 

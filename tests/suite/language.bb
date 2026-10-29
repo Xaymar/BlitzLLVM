@@ -388,4 +388,76 @@ Function StringFromFloat$()
 	Return 1.2
 End Function
 
+; Constants that do not fit wrap around like the program does, instead of crashing the compiler.
+Const FoldSmallest = -9223372036854775807 - 1
+Const FoldWrapped = FoldSmallest / -1
+Const FoldProduct = 9223372036854775807 * 2
+Check "constants that overflow compile", 1, 1
+
+; Labels can be written with characters that are not ASCII.
+label_hit = 0
+Goto größe
+label_hit = 1
+.größe
+Check "Goto a label with a non ASCII name", label_hit, 0
+Gosub ünder
+Check "Gosub a label with a non ASCII name", label_hit, 2
+Goto after_ünder
+.ünder
+label_hit = 2
+Return
+.after_ünder
+
+; A default value is worked out in the function, so a variable of the caller with the same name is not seen.
+Global default_source = 100
+Function DefaultFromGlobal(a, b = default_source)
+	Return a + b
+End Function
+Function DefaultCaller()
+	Local default_source = 5
+	Return DefaultFromGlobal(1)
+End Function
+Check "default value does not see the locals of the caller", DefaultCaller(), 101
+
+; The smallest number divided by -1 wraps around to itself, it does not stop the program.
+Function MinusOne()
+	Return -1
+End Function
+Local smallest = -2147483647 - 1
+Local minus_one = MinusOne()
+Check "smallest number divided by -1", smallest / minus_one, smallest
+Check "smallest number Mod -1", smallest Mod minus_one, 0
+Check "smallest number divided by the constant -1", smallest / -1, smallest
+Check "divide by -1", 7 / minus_one, -7
+Check "divide by something else after the check", -7 / (minus_one + 3), -3
+
+; A real number that does not fit in an Int, and NaN, become the smallest number like in the original.
+Local too_big# = 3000000000.0
+Local too_small# = -3000000000.0
+Local not_a_number# = Sqr(minus_one)
+Local fits_not = too_big
+Check "real too large for an integer", fits_not, -2147483647 - 1
+fits_not = too_small
+Check "real too small for an integer", fits_not, -2147483647 - 1
+fits_not = not_a_number
+Check "NaN assigned to an integer", fits_not, -2147483647 - 1
+Local fits_byte:Byte = 300.5
+Check "real too large for a byte", fits_byte, 127
+
+; A function that makes an array again must not leave the assignment writing into the old memory.
+Dim regrown_ints(10)
+Dim regrown_strings$(10)
+Function RegrowInts()
+	Dim regrown_ints(5000)
+	Return 5
+End Function
+Function RegrowStrings$()
+	Dim regrown_strings$(5000)
+	Return "regrown"
+End Function
+regrown_ints(3) = RegrowInts()
+Check "element set by a function that Dims the array", regrown_ints(3), 5
+regrown_strings$(3) = RegrowStrings$()
+CheckS "string element set by a function that Dims the array", regrown_strings$(3), "regrown"
+
 Done "language"
