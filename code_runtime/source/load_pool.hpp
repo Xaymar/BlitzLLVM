@@ -14,6 +14,7 @@
 
 // The loader threads (graphics_async.cpp), which pictures and models are decoded on.
 
+#include <atomic>
 #include <cstdint>
 
 namespace bb { struct surface; struct vertex3d; }
@@ -25,7 +26,7 @@ namespace bb::gfx {
 		virtual ~load_job() = default;
 		virtual void run()  = 0;
 		load_job*    next   = nullptr;
-		int          state  = 0;     // 0 waiting, 1 running, 2 done. Changed under the lock of the queue.
+		std::atomic<int> state{ 0 }; // 0 waiting, 1 running, 2 done. Changed under the lock of the queue, and read without it to ask if a job is done.
 		bool         cancelled = false;
 		bool         ok     = false; // Decoded without an error, set by run().
 	};
@@ -34,6 +35,8 @@ namespace bb::gfx {
 	bool async_loading();
 	void async_submit(load_job* job);
 	bool async_finished(load_job* job);
+	/** Counts the jobs that were done, so that a frame can tell if there is anything to look at. */
+	uint32_t async_finished_count();
 	void async_wait(load_job* job);
 	/** Takes the job away, waiting if a thread is working on it, and deletes it. */
 	void async_discard(load_job* job);
