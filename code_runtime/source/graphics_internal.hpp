@@ -592,6 +592,7 @@ namespace bb::gfx {
 		float light_color[max_lights][4];
 		float light_direction[max_lights][4]; // Where a spot light shines to, and the cosine of half its outer angle (below -1 if not a spot).
 		float projection[4];                // Near and far plane, and 1 if orthographic: turns depth back into distance for soft sprite edges. Fourth: see dither_code.
+		float dither[4];                    // The steps of the Bayer pattern of this picture (DitherMode 1), see dither_steps.
 	};
 	static_assert(sizeof(scene_data) <= scene_stride, "The scene data has to fit in the stride that is between the cameras.");
 
@@ -893,6 +894,12 @@ namespace bb::gfx {
 	float dither_code();
 	/** Whether the noise of Dither moves from picture to picture (DitherTemporal); when not, dither_code() has no shift. */
 	bool dither_temporal();
+	/** Most levels that DitherMode 1 (Bayer) can have: a matrix of 2^levels pixels on a side. Keep in sync with BAYER_MAX_LEVELS in tools/generate_shaders.py. */
+	constexpr int max_bayer_levels = 8;
+	/** Levels of the Bayer pattern that DitherMode 1 asked for, 0 for Interleaved Gradient Noise (DitherMode 0). */
+	int bayer_levels();
+	/** The three steps of the pattern of the picture that is made now: how far it is moved in x and in y, and how far the ranks of its thresholds are rotated. Needs the levels. */
+	void dither_steps(float out[3]);
 	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader. */
 	int dither_level();
 	/** Whether the buffers are those of a Graphics with a depth of 8: RGBA8 that is shown, and read, as the nearest colors of the palette (GraphicsPalette). */
