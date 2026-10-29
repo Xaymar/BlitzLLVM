@@ -305,6 +305,8 @@ namespace bb {
 	void         world_matrix(int handle, float* out);
 	/** The handles of the children of an entity, in the order they became its children. */
 	void         children_of(int handle, buffer<int>& out);
+	/** Changes whenever the children of any entity change, so that what was found in them can be kept until then. */
+	extern uint32_t child_list_version;
 	/** Makes an entity the last child of its parent (e.parent, which must not be 0). */
 	void         link_child(int handle);
 	/** Takes an entity out of the children of its parent (the entity keeps e.parent). */

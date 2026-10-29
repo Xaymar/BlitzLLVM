@@ -31,12 +31,38 @@ int32_t bb_count_children(int32_t handle)
 // The children are numbered from 1, in the order they became children.
 int32_t bb_get_child(int32_t handle, int32_t index)
 {
-	need(handle, "GetChild");
-	int32_t at = 0, number = 0;
-	for (at = get_entity_raw(handle)->first_child, number = 1; at && number < index; number++) {
-		at = get_entity_raw(at)->next_sibling;
+	entity* e = need(handle, "GetChild");
+	if ((index < 1) || (index > e->children)) {
+		return 0;
 	}
-	return (index >= 1) ? at : 0;
+	// A program that goes through the children one after the other asks for the next one of what it asked for last, so that is
+	// remembered until the children change. Otherwise the list is walked from the nearer end.
+	static int32_t  last_parent = 0, last_index = 0, last_child = 0;
+	static uint32_t last_version = 0;
+	int32_t         at = 0, number = 0;
+	if ((last_parent == handle) && (last_version == child_list_version) && (index >= last_index)) {
+		at     = last_child;
+		number = last_index;
+	} else if (index <= (e->children + 1) / 2) {
+		at     = e->first_child;
+		number = 1;
+	} else {
+		at     = e->last_child;
+		number = e->children;
+	}
+	while (number < index) {
+		at = get_entity_raw(at)->next_sibling;
+		number++;
+	}
+	while (number > index) {
+		at = get_entity_raw(at)->prev_sibling;
+		number--;
+	}
+	last_parent  = handle;
+	last_index   = index;
+	last_child   = at;
+	last_version = child_list_version;
+	return at;
 }
 
 int32_t bb_get_parent(int32_t handle)

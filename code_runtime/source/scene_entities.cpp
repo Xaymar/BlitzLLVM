@@ -319,8 +319,11 @@ int bb::create_entity(int kind, int parent)
 	return add_entity(kind, parent);
 }
 
+uint32_t bb::child_list_version = 0;
+
 void bb::link_child(int handle)
 {
+	child_list_version++;
 	entity* e      = get_entity_raw(handle);
 	entity* parent = get_entity_raw(e->parent);
 	e->prev_sibling = parent->last_child;
@@ -336,6 +339,7 @@ void bb::link_child(int handle)
 
 void bb::unlink_child(int handle)
 {
+	child_list_version++;
 	entity* e      = get_entity_raw(handle);
 	entity* parent = get_entity_raw(e->parent);
 	if (e->prev_sibling) {
