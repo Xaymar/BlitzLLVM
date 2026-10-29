@@ -358,4 +358,3 @@ suite-debug-run-graphics_movies
 # Movies fail every other run under load (the decoder times out); they are not run until that is looked at.
 disabled: suite-run-graphics_movies
 disabled: suite-run-graphics_movies_texture_pixels
-disabled: suite-debug-run-graphics_movies_texture_pixels
