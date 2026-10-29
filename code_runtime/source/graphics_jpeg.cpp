@@ -195,16 +195,19 @@ namespace bb::gfx {
 		// Forward DCT of 8x8 samples (already shifted to be around 0), separable and in floating point.
 		void forward_dct(const float* in, float* out)
 		{
-			static float table[8][8];
-			static bool  made = false;
-			if (!made) {
-				for (int u = 0; u < 8; u++) {
-					for (int x = 0; x < 8; x++) {
-						table[u][x] = float(std::cos((2 * x + 1) * u * 3.14159265358979323846 / 16.0) * (u == 0 ? std::sqrt(0.125) : 0.5));
+			// Made once and thread safe, as images are also saved by the threads that work in the background.
+			static const struct dct_table {
+				float entry[8][8];
+				dct_table()
+				{
+					for (int u = 0; u < 8; u++) {
+						for (int x = 0; x < 8; x++) {
+							entry[u][x] = float(std::cos((2 * x + 1) * u * 3.14159265358979323846 / 16.0) * (u == 0 ? std::sqrt(0.125) : 0.5));
+						}
 					}
 				}
-				made = true;
-			}
+			} dct;
+			const auto& table = dct.entry;
 			float tmp[64];
 			for (int y = 0; y < 8; y++) {
 				for (int u = 0; u < 8; u++) {
