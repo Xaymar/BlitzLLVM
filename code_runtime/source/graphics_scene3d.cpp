@@ -248,18 +248,29 @@ namespace bb::gfx {
 		// Whether the shader dithers is a constant of the pipeline, so that it costs nothing when it is off. The shader that blends
 		// itself has the factors of its mode (see fragment_shader_masked in tools/generate_shaders.py) as constants 1 to 5.
 		static const float factors[5][5] = { { 1, 0, 1, 0, 0 }, { 1, 0, 1, -1, 0 }, { 0, 1, 0, 0, 0 }, { 1, 0, 1, 0, 0 }, { 0, 1, 0, 0, 1 } };
+		// A target of half precision floats keeps colors below 0 (negative lights) and above 1, so nothing limits them for it: the limits
+		// are constants of the vertex shader (0 and 1) and of the fragment shader (6 and 7), and the largest half float for such a target.
+		const bool  wide    = (color_format == VK_FORMAT_R16G16B16A16_SFLOAT);
+		const float limits[2] = { wide ? -65504.0f : 0.0f, wide ? 65504.0f : 1.0f };
 		struct {
 			VkBool32 dither;
 			float    factor[5];
+			float    limit[2];
 		} constants;
 		constants.dither = dither_code() > 0.0f ? VK_TRUE : VK_FALSE;
 		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
-		VkSpecializationMapEntry entries[6] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
+		memcpy(constants.limit, limits, sizeof(limits));
+		VkSpecializationMapEntry entries[8] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
 		for (uint32_t i = 0; i < 5; i++) {
 			entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
 		}
-		VkSpecializationInfo specialization = { shader_blend ? 6u : 1u, entries, sizeof(constants), &constants };
-		stages[1].pSpecializationInfo       = &specialization;
+		entries[6]                                       = { 6, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) };
+		entries[7]                                       = { 7, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) };
+		VkSpecializationInfo specialization              = { 8u, entries, sizeof(constants), &constants };
+		stages[1].pSpecializationInfo                    = &specialization;
+		VkSpecializationMapEntry vertex_entries[2]       = { { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) }, { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) } };
+		VkSpecializationInfo     vertex_specialization   = { 2u, vertex_entries, sizeof(constants), &constants };
+		stages[0].pSpecializationInfo                    = &vertex_specialization;
 
 		VkVertexInputBindingDescription   binding       = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
 		VkVertexInputAttributeDescription attributes[5] = {
