@@ -46,10 +46,14 @@ std::string blitz::format(const char* format, ...)
 	va_list arg2;
 	va_start(arg1, format);
 	va_copy(arg2, arg1);
-	int               length = vsnprintf(nullptr, 0, format, arg1);
-	std::vector<char> buffer(length + 1);
-	vsnprintf(buffer.data(), buffer.size(), format, arg2);
+	int length = vsnprintf(nullptr, 0, format, arg1);
 	va_end(arg1);
+	if (length < 0) { // The text can't be made (an encoding error), so there is none.
+		va_end(arg2);
+		return {};
+	}
+	std::vector<char> buffer(size_t(length) + 1);
+	vsnprintf(buffer.data(), buffer.size(), format, arg2);
 	va_end(arg2);
 	return {buffer.data(), buffer.data() + length};
 }
