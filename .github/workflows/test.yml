@@ -1,11 +1,12 @@
 name: Test
 
-# Runs the whole test suite on Linux, including the tests that need a window and a GPU (the ones ending in _pixels, the
+# Runs the whole test suite on Linux, Windows and macOS (the jobs "Test (Linux)", "Test (Windows)" and "Test (macOS)"), including the tests that need a window and a GPU (the ones ending in _pixels, the
 # GUI and the close prompt tests). There is no GPU on the runners, so Mesa's llvmpipe renders Vulkan on the CPU, inside a
 # virtual X server (xvfb).
 #
-# The check that shows up on a pull request is named after the job: "Test (Linux)". Make that one required in the branch
-# protection rule or ruleset of root to block merging while the tests fail (see Building in the wiki). This workflow has
+# The checks that show up on a pull request are named after the jobs. Make them required in the branch protection rule or
+# ruleset of root to block merging while the tests fail (see Building in the wiki). Windows and macOS use a software Vulkan
+# driver (lavapipe, MoltenVK), see the job 'desktop' for what each platform runs. This workflow has
 # no 'paths' filter on purpose: a required check that is skipped for a pull request stays "pending" and blocks it forever.
 # Instead the 'changes' job always runs and decides which tests the commit can affect, and "Test (Linux)" always runs:
 #   - a push to root, a manual run, a pull request with the label "run-all-tests" and a change to anything that is shared (the
@@ -286,6 +287,184 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-output
+          path: |
+            build/code_compiler/Testing/Temporary/LastTest.log
+            build/code_compiler/gui
+            build/code_compiler/cli
+            build/code_compiler/audio
+          if-no-files-found: ignore
+      - name: Nothing to test
+        if: env.RUN != 'true'
+        run: echo "Nothing that the tests depend on changed (documentation, the wiki, other workflows), so there is nothing to test."
+
+  # Windows and macOS: the same selection and the same tests as Linux, in a job per platform, so each shows up as its own check
+  # ("Test (Windows)" and "Test (macOS)"). The Windows job builds with the same generator and options as the Windows build of
+  # build.yml, and the macOS job like the Linux one, so the dependencies come from the same caches (the nightly builds of root
+  # save them). The compiled tests are cached like the ones of Linux. Neither runner has a GPU, so:
+  #   - Windows renders Vulkan on the CPU with Mesa's lavapipe (the same as llvmpipe on Linux).
+  #   - macOS uses MoltenVK, which needs Metal. If the runner has no Metal device, the tests that need a window and a GPU are
+  #     left out (a warning says so) and everything else runs.
+  # The comment on the pull request is only written by the Linux job, as it lists the tests once. These jobs list the tests
+  # they skipped in their job summary (.github/scripts/test-skipped.py).
+  desktop:
+    name: Test (${{ matrix.name }})
+    needs: changes
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      # One platform failing cancels the other, like the builds.
+      fail-fast: true
+      matrix:
+        include:
+          - { name: Windows, os: windows-latest, key: windows-x64, python: python, msystem: UCRT64, msys: 'make nasm diffutils mingw-w64-ucrt-x86_64-gcc' }
+          - { name: macOS, os: macos-latest, key: macos-arm64, python: python3 }
+    defaults:
+      run:
+        shell: bash
+    env:
+      RUN: ${{ needs.changes.outputs.mode != 'none' }}
+      MODE: ${{ needs.changes.outputs.mode }}
+      SELECTION: ${{ needs.changes.outputs.selection }}
+      PY: ${{ matrix.python }}
+      # Whether the tests that need a window and a GPU are built and run (macOS decides below).
+      GPU: ON
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out the submodules
+        if: env.RUN == 'true'
+        run: git submodule update --init --depth 1 --jobs 8 cmake/version cmake/externalcontent third_party/Vulkan-Headers third_party/SDL third_party/SDL_image third_party/SDL_mixer third_party/stb third_party/VulkanMemoryAllocator third_party/FFmpeg extra/blitz3d extra/blitzplus_msvc2017
+      - name: Hash the dependency submodules
+        if: env.RUN == 'true'
+        id: dependencies
+        run: echo "hash=$(git ls-tree HEAD third_party/ | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Hash everything the build is made from
+        if: env.RUN == 'true'
+        id: sources
+        run: echo "hash=$(git ls-tree -r HEAD code_compiler code_runtime code_tools code_format code_tidy cmake third_party CMakeLists.txt CMakePresets.json .gitmodules LICENSE.adoc .github/workflows/test.yml | sha256sum | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Install CMake
+        if: env.RUN == 'true'
+        run: |
+          pipx install cmake==4.4.4
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.local/bin:$PATH"
+          cmake --version
+      - name: Install macOS dependencies
+        if: env.RUN == 'true' && runner.os == 'macOS'
+        # MoltenVK is the Vulkan driver, and is loaded directly (SDL_VULKAN_LIBRARY below), so no Vulkan loader is needed.
+        run: brew install ninja nasm molten-vk
+      - name: Install Windows dependencies
+        if: env.RUN == 'true' && runner.os == 'Windows'
+        run: |
+          choco install nasm -y --no-progress
+          echo 'C:\Program Files\NASM' >> "$GITHUB_PATH"
+      - name: Install MSYS2 for FFmpeg
+        if: env.RUN == 'true' && runner.os == 'Windows'
+        id: msys2
+        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: false
+          install: ${{ matrix.msys }}
+      - name: Tell the build where MSYS2 is
+        if: env.RUN == 'true' && runner.os == 'Windows'
+        run: echo "BLITZLLVM_MSYS2=${{ steps.msys2.outputs.msys2-location }}" >> "$GITHUB_ENV"
+      - name: Install a software Vulkan driver (Windows)
+        # The Vulkan loader (vulkan-1.dll) and Mesa's lavapipe, which the action registers as a driver.
+        if: env.RUN == 'true' && runner.os == 'Windows'
+        uses: jakoch/install-vulkan-sdk-action@d17de7e2f5e50efb5d2123efed18497d3c58c533 # v1.7.0
+        with:
+          install_runtime_only: true
+          install_runtime: true
+          install_lavapipe: true
+      - name: Select the Vulkan driver
+        if: env.RUN == 'true'
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then
+            echo 'VK_DRIVER_FILES=C:\lavapipe\share\vulkan\icd.d\lvp_icd.x86_64.json' >> "$GITHUB_ENV"
+          else
+            PREFIX="$(brew --prefix molten-vk)"
+            echo "SDL_VULKAN_LIBRARY=$PREFIX/lib/libMoltenVK.dylib" >> "$GITHUB_ENV"
+            echo "VK_ICD_FILENAMES=$PREFIX/etc/vulkan/icd.d/MoltenVK_icd.json" >> "$GITHUB_ENV"
+            # Whether the runner has a Metal device at all. Without one MoltenVK has no GPU to show.
+            if system_profiler SPDisplaysDataType 2>/dev/null | grep -q 'Metal'; then
+              echo "A Metal device is there, the GPU tests run."
+            else
+              echo "::warning::This runner has no Metal device, so the tests that need a window and a GPU are left out."
+              echo "GPU=OFF" >> "$GITHUB_ENV"
+            fi
+          fi
+      - name: Cache the build
+        if: env.RUN == 'true'
+        id: build
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: build
+          key: test-build-${{ matrix.key }}-${{ env.GPU }}-${{ steps.sources.outputs.hash }}
+      # On Windows the same cache (and key) as the Windows build of build.yml and nightly.yml.
+      - name: Cache dependencies
+        if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: build/ExternalContentFiles
+          key: submodule-dependencies-${{ matrix.key }}-${{ hashFiles('code_runtime/dependencies.cmake', 'cmake/externalcontent/ExternalContent.cmake') }}-${{ steps.dependencies.outputs.hash }}
+          restore-keys: |
+            submodule-dependencies-${{ matrix.key }}-
+      - name: Configure
+        if: env.RUN == 'true'
+        run: |
+          mkdir -p build
+          [ -f build/blitz-version ] || cmake -P cmake/project_version.cmake > build/blitz-version
+          VERSION="$(cat build/blitz-version)"
+          if [ "$RUNNER_OS" = Windows ]; then
+            cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DBLITZ_TEST_GPU=$GPU -DBLITZLLVM_REQUIRE_NASM=ON -DBlitzLLVM_VERSION="$VERSION"
+          else
+            cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBLITZ_TEST_GPU=$GPU -DBLITZLLVM_REQUIRE_NASM=ON -DBlitzLLVM_VERSION="$VERSION"
+          fi
+      - name: Select the tests
+        if: env.RUN == 'true'
+        working-directory: build/code_compiler
+        run: |
+          ctest -C Release --show-only=json-v1 > "$RUNNER_TEMP/tests.json"
+          if ! $PY "$GITHUB_WORKSPACE/.github/scripts/test-select.py" apply --selection "$SELECTION" --tests "$RUNNER_TEMP/tests.json" --selected "$RUNNER_TEMP/selected.txt" --skipped "$RUNNER_TEMP/skipped.json"; then
+            echo "::warning::The test selection failed, so every test runs."
+            rm -f "$RUNNER_TEMP/selected.txt" "$RUNNER_TEMP/skipped.json"
+            MODE=all
+            echo "MODE=all" >> "$GITHUB_ENV"
+          fi
+      - name: Build
+        if: env.RUN == 'true' && steps.build.outputs.cache-hit != 'true'
+        run: cmake --build build --config Release
+      - name: Create tests/checker.png
+        if: env.RUN == 'true'
+        run: |
+          $PY - <<'EOF'
+          import struct, zlib
+          size = 64
+          rows = b"".join(b"\x00" + b"".join((b"\xff\xff\xff" if ((x // 8) + (y // 8)) % 2 else b"\x20\x20\x20") for x in range(size)) for y in range(size))
+          def chunk(kind, data):
+              body = kind + data
+              return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body))
+          png = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b"")
+          open("tests/checker.png", "wb").write(png)
+          EOF
+      - name: Run the tests
+        if: env.RUN == 'true'
+        working-directory: build/code_compiler
+        # -j: the GPU tests are small. A test that skips itself (77) is reported as skipped and does not fail the run.
+        run: |
+          SELECTED=(); [ "$MODE" = partial ] && SELECTED=(--tests-from-file "$RUNNER_TEMP/selected.txt")
+          ctest -C Release -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${SELECTED[@]}"
+      - name: List the skipped tests
+        if: always() && env.RUN == 'true'
+        continue-on-error: true
+        run: |
+          ARGS=(); [ -f "$RUNNER_TEMP/skipped.json" ] && ARGS+=(--selection-skipped "$RUNNER_TEMP/skipped.json")
+          [ -f "$RUNNER_TEMP/junit.xml" ] && $PY .github/scripts/test-skipped.py --platform "${{ matrix.name }}" --gpu "$GPU" --junit "$RUNNER_TEMP/junit.xml" "${ARGS[@]}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep what the tests wrote
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: test-output-${{ matrix.key }}
           path: |
             build/code_compiler/Testing/Temporary/LastTest.log
             build/code_compiler/gui
