@@ -59,7 +59,7 @@ The indices of an array with several dimensions are added up as `i0 + i1 * size1
 
 ### Left to right
 
-The order of the original is mildly surprising, and no other language does it. To get left to right order for arguments, operators, array indices and stores, build with `blitzcc --sane-evaluation-order`. Programs that call `Rnd`, `Rand` or read files several times in one expression then give other results than in the original, so only use it for programs that do not depend on the order.
+The order of the original is mildly surprising, and no other language does it. To get left to right order for arguments (also of userlib functions), operators, array indices and stores, build with `blitzcc --sane-evaluation-order`. Programs that call `Rnd`, `Rand` or read files several times in one expression then give other results than in the original, so only use it for programs that do not depend on the order.
 
 ## Strings with Chr$(0)
 
