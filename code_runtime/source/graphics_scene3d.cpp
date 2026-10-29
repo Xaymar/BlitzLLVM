@@ -14,6 +14,7 @@
 // Drawing of the 3D world: lights, meshes, cameras, and what is on the screen.
 
 #include "graphics_internal.hpp"
+#include "memory.h"
 
 #include "shaders.inc"
 
@@ -3800,6 +3801,7 @@ void bb_release_surface_gpu(void* gpu)
 // Called by Delay, so programs that wait keep their window alive and showing what they drew.
 void bb_graphics_idle(void)
 {
+	bb_mem_tick(); // Gives back the allocator's spans that stayed empty for a second.
 	bb_sound_update();
 	bb_movie_update();
 	if (active()) {
