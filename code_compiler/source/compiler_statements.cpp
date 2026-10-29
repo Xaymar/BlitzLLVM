@@ -340,6 +340,37 @@ void blitz::compiler::gen_repeat(ast::repeat_statement const* node)
 	begin_label(end_l);
 }
 
+// The counter of a For loop has one type, and the start, end and step are turned into it. When it is smaller than the end (a Byte
+// counting to 300) it never reaches the end and the loop never stops, and a counter of another kind rounds what it is given.
+void blitz::compiler::warn_loop_type(ast::expression const* expr, std::string const& name, blitz::types::type counter, const char* part, blitz::types::type given)
+{
+	namespace t = blitz::types;
+	// A number that is written out and fits in the counter is fine (`For b:Byte = 0 To 10`).
+	data_value folded;
+	if (fold_data(expr, folded) && (folded.kind != data_value::STRING)) {
+		if (t::is_real(counter)) {
+			return;
+		}
+		double amount = (folded.kind == data_value::REAL) ? folded.f : double(folded.i);
+		unsigned bits = t::bits(counter);
+		double   lo   = t::is_signed(counter) ? -std::ldexp(1.0, int(bits) - 1) : 0.0;
+		double   hi   = t::is_signed(counter) ? std::ldexp(1.0, int(bits) - 1) - 1.0 : std::ldexp(1.0, int(bits)) - 1.0;
+		if ((amount == std::floor(amount)) && (amount >= lo) && (amount <= hi)) {
+			return;
+		}
+	}
+	auto const& where = expr->where;
+	std::string note;
+	if (t::is_integer(counter) && t::is_integer(given) && (t::bits(counter) < t::bits(given))) {
+		note = " A value that doesn't fit in " + t::display(counter) + " can't be reached by the counter, so the loop may never end.";
+	} else if (t::is_integer(counter) && t::is_real(given)) {
+		note = " The counter is an integer, so the " + std::string(part) + " is rounded.";
+	} else if (t::is_integer(counter) && !t::is_signed(counter) && t::is_signed(given)) {
+		note = " The counter can't go below 0, so a negative " + std::string(part) + " makes the loop never end.";
+	}
+	warn(where, "loop-type-mismatch", "The " + std::string(part) + " of the For loop is " + t::display(given) + ", but '" + name + "' is " + t::display(counter) + "." + note, "Give '" + name + "' and the " + part + " the same type, or turn this off with -Wno-loop-type-mismatch.");
+}
+
 void blitz::compiler::gen_for(ast::for_statement const* node)
 {
 	namespace t = blitz::types;
@@ -378,9 +409,20 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 
 	scope sc;
 	scope_begin(sc);
-	auto from = convert(gen(node->from.get()), var.type, node->from->where, true, std::string(), &node->from->covers);
-	auto step = node->step ? convert(gen(node->step.get()), var.type, node->step->where, true, std::string(), &node->step->covers) : constant(var.type, 1);
+	auto from_raw = gen(node->from.get());
+	auto from     = convert(from_raw, var.type, node->from->where, true, std::string(), &node->from->covers);
+	value step_raw{ "", var.type };
+	if (node->step) {
+		step_raw = gen(node->step.get());
+	}
+	auto step = node->step ? convert(step_raw, var.type, node->step->where, true, std::string(), &node->step->covers) : constant(var.type, 1);
 	scope_end(sc);
+	if (from_raw.type != var.type) {
+		warn_loop_type(node->from.get(), node->variable->name, var.type, "Start", from_raw.type);
+	}
+	if (node->step && (step_raw.type != var.type)) {
+		warn_loop_type(node->step.get(), node->variable->name, var.type, "Step", step_raw.type);
+	}
 	emit("store " + llvm + " " + from.repr + ", ptr " + var.pointer);
 
 	// A Return from a Gosub can jump into the middle of the loop, past the place where the step was worked out. It lives in the stack
@@ -403,8 +445,12 @@ void blitz::compiler::gen_for(ast::for_statement const* node)
 	// Like in the original, the limit is worked out again before every pass, so changing what it uses changes the loop.
 	scope limit_scope;
 	scope_begin(limit_scope);
-	auto to = convert(gen(node->to.get()), var.type, node->to->where, true, std::string(), &node->to->covers);
+	auto to_raw = gen(node->to.get());
+	auto to     = convert(to_raw, var.type, node->to->where, true, std::string(), &node->to->covers);
 	scope_end(limit_scope);
+	if (to_raw.type != var.type) {
+		warn_loop_type(node->to.get(), node->variable->name, var.type, "End", to_raw.type);
+	}
 	emit(cur + " = load " + llvm + ", ptr " + var.pointer);
 	if (sign) {
 		emit(neg + (real ? " = fcmp olt " : " = icmp slt ") + llvm + " " + step.repr + ", " + zero(var.type).repr);

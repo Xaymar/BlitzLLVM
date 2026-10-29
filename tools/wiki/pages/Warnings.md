@@ -52,6 +52,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 
 | Name | Level | Warns about |
 | --- | --- | --- |
+| `loop-type-mismatch` | 1 | The start, end or step of a `For` loop has another type than the counter (`For b:Byte = 0 To n` with an `Int`). A value that does not fit in the counter can never be reached, so the loop may never end; a real number is rounded for an integer counter. A number written in the program that fits is fine. |
 | `loop-iterator-type-unsafe` | 1 | A `For` loop whose variable is a real number (`Float`, `Half`, `Double`). Reals do not count exactly, so the loop can run once more or less than expected, or never end. |
 | `large-local-array` | 1 | A `Local` array in a function that takes more than 4 KiB (1024 `Int` entries), which has to be made and set to 0 again on every call; above 64 KiB it lives on the heap. Make it once with `Global` or `Dim` outside of the function. The main program is not checked. |
 | `implicit-lossy-int-to-int` | 1 | An integer assigned or passed to an integer that is smaller or has another sign (`Int` to `Byte`, `Int` to `UInt`, ...), which can change the number. A number written in the program that fits is fine. |

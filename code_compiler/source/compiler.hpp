@@ -359,6 +359,7 @@ namespace blitz {
 		void gen_if(ast::if_statement const* node);
 		void gen_while(ast::while_statement const* node);
 		void gen_repeat(ast::repeat_statement const* node);
+		void warn_loop_type(ast::expression const* expr, std::string const& name, blitz::types::type counter, const char* part, blitz::types::type given);
 		void gen_for(ast::for_statement const* node);
 		void gen_for_each(ast::for_statement const* node);
 		void gen_delete(ast::delete_statement const* node);

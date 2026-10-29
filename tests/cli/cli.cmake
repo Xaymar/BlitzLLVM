@@ -1161,11 +1161,15 @@ elseif(CASE STREQUAL "warnings")
 		"\ta = 1\n"
 		"End Function\n"
 		"Local kept% = 0\n"
-		"KeepsValue kept\n")
+		"KeepsValue kept\n"
+		"Local lend% = 5\n"
+		"Local lsmall:byte\n"
+		"For lsmall = 0 To lend\n"
+		"Next\n")
 
 	# Every warning turns on at its level, and stays on above it. -W2 is the default.
 	set(_WARNINGS
-		"implicit-lossy-int-to-int:1" "loop-iterator-type-unsafe:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
+		"implicit-lossy-int-to-int:1" "loop-iterator-type-unsafe:1" "loop-type-mismatch:1" "implicit-lossy-real-to-int:1" "implicit-lossy-real-to-real:1" "implicit-string-to-number:1"
 		"implicit-lossy-int-to-real:2" "implicit-variable:2" "return-missing-value:2" "return-type-mismatch:2" "unused-result:2"
 		"implicit-number-to-string:3" "inout-parameter-unwritten:3" "short-type-notation:3" "unreachable-code:3" "unused-variable:3"
 		"typeless-declaration:4" "unused-function:4" "loop-unroll-requires-constant:4")
@@ -1441,7 +1445,7 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -W0 -Werror=unreachable-code "${WORK}/w.bb")
 	expect_failed()
 	expect_err("w.bb:13:1: error: This statement can never run. [-Werror=unreachable-code]")
-	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=loop-iterator-type-unsafe -Wno-error=unused-result -Wno-error=return-missing-value -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
+	blitzcc(-c -Werror -Wno-error=implicit-lossy-real-to-int -Wno-error=implicit-lossy-int-to-int -Wno-error=implicit-lossy-int-to-real -Wno-error=implicit-lossy-real-to-real -Wno-error=implicit-string-to-number -Wno-error=typeless-declaration -Wno-error=implicit-variable -Wno-error=loop-iterator-type-unsafe -Wno-error=loop-type-mismatch -Wno-error=unused-result -Wno-error=return-missing-value -Wno-error=return-type-mismatch -Wno-error=implicit-number-to-string "${WORK}/w.bb")
 	expect_ok()
 	expect_err("[-Wimplicit-lossy-real-to-int]")
 
