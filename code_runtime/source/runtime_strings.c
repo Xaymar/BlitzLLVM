@@ -98,8 +98,11 @@ const char* bb_str_from_f64(double v)
 }
 
 // Like atoi in the original: optional white space and sign, then digits, and the first other character ends the number.
-// That means "1.9" and "1e3" are 1, and "$FF" and "0x10" are 0. Too large numbers stop at the largest one that fits.
-int64_t bb_str_to_i64(const char* s)
+// That means "1.9" and "1e3" are 1. Too large numbers stop at the largest one that fits.
+// Unlike the original, a `$` or `0x` prefix gives hexadecimal and a `%` or `0b` prefix gives binary digits, as in source
+// code. Those are bit patterns: they wrap around instead of stopping at the largest number, so "$FFFFFFFF" is -1 as an
+// Int, 4294967295 as a UInt, and a prefix without digits ("$", "0x", "0bz") is 0.
+static int64_t bb_str_parse(const char* s, bool* prefixed)
 {
 	s = bb_s(s);
 	while (isspace((unsigned char)*s)) {
@@ -110,6 +113,38 @@ int64_t bb_str_to_i64(const char* s)
 		negative = (*s == '-');
 		s++;
 	}
+
+	unsigned base = 10;
+	if ((s[0] == '$') || (s[0] == '%')) {
+		base = (s[0] == '$') ? 16 : 2;
+		s += 1;
+	} else if ((s[0] == '0') && ((s[1] == 'x') || (s[1] == 'X') || (s[1] == 'b') || (s[1] == 'B'))) {
+		base = ((s[1] == 'x') || (s[1] == 'X')) ? 16 : 2;
+		s += 2;
+	}
+	if (base != 10) {
+		uint64_t v = 0;
+		for (;; s++) {
+			unsigned digit;
+			if ((*s >= '0') && (*s <= '9')) {
+				digit = (unsigned)(*s - '0');
+			} else if ((*s >= 'a') && (*s <= 'f')) {
+				digit = (unsigned)(*s - 'a') + 10;
+			} else if ((*s >= 'A') && (*s <= 'F')) {
+				digit = (unsigned)(*s - 'A') + 10;
+			} else {
+				break;
+			}
+			if (digit >= base) {
+				break;
+			}
+			v = v * base + digit;
+		}
+		*prefixed = true;
+		return negative ? (int64_t)(0 - v) : (int64_t)v;
+	}
+
+	*prefixed      = false;
 	uint64_t limit = negative ? (uint64_t)INT64_MAX + 1 : (uint64_t)INT64_MAX, v = 0;
 	for (; (*s >= '0') && (*s <= '9'); s++) {
 		unsigned digit = (unsigned)(*s - '0');
@@ -122,10 +157,20 @@ int64_t bb_str_to_i64(const char* s)
 	return negative ? (int64_t)(0 - v) : (int64_t)v;
 }
 
+int64_t bb_str_to_i64(const char* s)
+{
+	bool prefixed;
+	return bb_str_parse(s, &prefixed);
+}
+
 // The same for 32 bits, which is what Int and the implicit conversion of the original give.
 int32_t bb_str_to_i32(const char* s)
 {
-	int64_t v = bb_str_to_i64(s);
+	bool    prefixed;
+	int64_t v = bb_str_parse(s, &prefixed);
+	if (prefixed) {
+		return (int32_t)(uint32_t)((uint64_t)v & 0xFFFFFFFFu);
+	}
 	return (v > INT32_MAX) ? INT32_MAX : ((v < INT32_MIN) ? INT32_MIN : (int32_t)v);
 }
 
