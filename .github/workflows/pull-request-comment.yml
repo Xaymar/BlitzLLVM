@@ -1,6 +1,6 @@
 name: Pull Request Comment
 
-# Lists the builds of the 'Pull Request' workflow in the pull request, with links to the built binaries. A single comment is
+# Lists the builds of the 'Test' workflow (which builds a pull request and tests it) in the pull request, with links to the built binaries. A single comment is
 # kept per pull request: the newest commit is listed in full, the commits before it are folded into <details> blocks (see
 # .github/scripts/pr-build-report.py). The comment is only touched when a build starts ("Build pending" for that commit) or
 # finishes (the result), so a pull request that causes no build never gets or changes a comment.
@@ -13,7 +13,7 @@ name: Pull Request Comment
 
 on:
   workflow_run:
-    workflows: ['Pull Request']
+    workflows: ['Test']
     types: [requested, completed]
 
 permissions:
@@ -64,11 +64,15 @@ jobs:
           if [ "$ACTION" = requested ]; then
             STATE=pending
           else
-            case "$CONCLUSION" in
-              success) STATE=success ;;
-              cancelled) STATE=cancelled ;;
-              *) STATE=failure ;;
-            esac
+            # The result is the one of the builds, not of the tests: a failing test does not make the build fail.
+            if [ "$(gh api --paginate "repos/${GH_REPO}/actions/runs/${RUN_ID}/jobs" --jq '[.jobs[] | select(.name | test("/ build \\(")) | select(.conclusion == "failure")] | length' | awk '{s += $1} END {print s + 0}')" != 0 ]; then
+              STATE=failure
+            else
+              case "$CONCLUSION" in
+                cancelled) STATE=cancelled ;;
+                *) STATE=success ;;
+              esac
+            fi
           fi
 
           MARKER='<!-- blitzllvm-pr-build -->'
@@ -84,7 +88,7 @@ jobs:
             # The names come from the workflow file of the pull request, so only plain file names are put into the markdown
             # table of the comment (no brackets, bars, backticks or line breaks that could turn into a link or a new row).
             gh api --paginate "repos/${GH_REPO}/actions/runs/${RUN_ID}/artifacts" \
-              --jq ".artifacts[] | select(.expired == false and (.name | test(\"^[A-Za-z0-9._+-]+$\"))) | \"| [\(.name)](https://github.com/${GH_REPO}/actions/runs/${RUN_ID}/artifacts/\(.id)) | \(.size_in_bytes / 1048576 * 10 | round / 10) MiB |\"" | sort > rows.md
+              --jq ".artifacts[] | select(.expired == false and (.name | test(\"^[A-Za-z0-9._+-]+$\")) and (.name | test(\"^test-\") | not)) | \"| [\(.name)](https://github.com/${GH_REPO}/actions/runs/${RUN_ID}/artifacts/\(.id)) | \(.size_in_bytes / 1048576 * 10 | round / 10) MiB |\"" | sort > rows.md
             ARGS+=(--rows rows.md)
           fi
 
