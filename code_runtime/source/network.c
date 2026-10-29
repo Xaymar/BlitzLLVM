@@ -447,8 +447,9 @@ int32_t bb_host_ip(int32_t index)
 // UDP
 ////////////////////////////////////////////////////////////////////////////////
 // The most a message may have. Every stream has one buffer of this size for what it receives, made with the stream, and a message that has
-// more is dropped (the sender can not make the program use more memory by sending more).
-#define BB_UDP_MAX_MESSAGE 16384
+// more is dropped (the sender can not make the program use more memory by sending more). A UDP datagram is 64 KiB at most on Windows and
+// Linux, so this takes every message a peer can send over IPv4 and the drop is only a guard.
+#define BB_UDP_MAX_MESSAGE 65536
 
 typedef struct bb_udp {
 	bb_socket sock;
