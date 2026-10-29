@@ -18,7 +18,7 @@ OP = dict(
     TypeVoid=19, TypeInt=21, TypeFloat=22, TypeVector=23, TypeImage=25, TypeSampledImage=27, TypeStruct=30,
     TypePointer=32, TypeFunction=33, Constant=43, ConstantComposite=44, Function=54, FunctionEnd=56, Variable=59,
     Load=61, Store=62, AccessChain=65, Decorate=71, MemberDecorate=72, CompositeConstruct=80, CompositeExtract=81,
-    ImageSampleImplicitLod=87, FSub=131, FMul=133, Label=248, Return=253,
+    ImageSampleImplicitLod=87, ImageSampleExplicitLod=88, FSub=131, FMul=133, Label=248, Return=253,
     ExtInstImport=11, ExtInst=12, TypeMatrix=24, TypeArray=28, VectorShuffle=79, FNegate=127, FAdd=129, FDiv=136,
     TypeBool=20, TypeRuntimeArray=29, FOrdLessThan=184, LogicalAnd=167, LogicalNot=168, SelectionMerge=247, BranchConditional=250, Kill=252,
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
@@ -1093,6 +1093,90 @@ def fragment_shader_gamma():
     return b.m.assemble()
 
 
+def fragment_shader_palette():
+    """
+    The same as the gamma shader for a Graphics of depth 8: the color that results is made into the nearest color of the palette. The
+    palette is a lookup texture of 4096 x 64 pixels that has the nearest palette color for every color of 6 bits per channel: red is
+    the column within a block of 64, green the row, and blue the block. The noise is one step of the palette for each channel
+    instead of a step of 8 bits: the rows 0 to 2 of the table have it in the fourth value (255 times the step, or 0 for no dither).
+
+    #version 450
+    layout(set = 0, binding = 0) uniform sampler2D tex;
+    layout(set = 1, binding = 0) uniform Gamma { vec4 table[256]; } gamma;
+    layout(set = 2, binding = 0) uniform sampler2D palette;
+    layout(push_constant) uniform Dither { float shift; } pc;
+    layout(location = 0) in vec2 inUV;
+    layout(location = 0) out vec4 outColor;
+    void main() {
+        vec3 step = floor(texture(tex, inUV).rgb * 255.0 + 0.5);
+        vec3 color = vec3(gamma.table[int(step.r)].r, gamma.table[int(step.g)].g, gamma.table[int(step.b)].b);
+        vec2 xy = floor(gl_FragCoord.xy) + vec2(pc.shift);
+        float noise = fract(52.9829189 * fract(dot(xy, vec2(0.06711056, 0.00583715))));
+        color += (noise - 0.5) / 255.0 * vec3(gamma.table[0].w, gamma.table[1].w, gamma.table[2].w);
+        vec3 cell = floor(clamp(color, 0.0, 1.0) * 63.0 + 0.5);
+        outColor = vec4(textureLod(palette, vec2((cell.b * 64.0 + cell.r + 0.5) / 4096.0, (cell.g + 0.5) / 64.0), 0.0).rgb, 1.0);
+    }
+    """
+    b = Builder()
+    f, v2, v3, v4, i32 = b.float(), b.vec(2), b.vec(3), b.vec(4), b.int()
+    void, fn = b.void(), b.fn()
+    image = b.new_type("image", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+    sampled = b.new_type("sampled", "TypeSampledImage", image)
+    table = b.array(v4, 256, "table")
+    block = b.struct("gamma", table)
+    b.m.annotations += [
+        Module.inst("Decorate", table, DECORATION["ArrayStride"], 16),
+        Module.inst("MemberDecorate", block, 0, DECORATION["Offset"], 0),
+        Module.inst("Decorate", block, DECORATION["Block"]),
+    ]
+    shift_block = b.struct("dither", f)
+    b.m.annotations += [
+        Module.inst("MemberDecorate", shift_block, 0, DECORATION["Offset"], 0),
+        Module.inst("Decorate", shift_block, DECORATION["Block"]),
+    ]
+    shift_push = b.variable("PushConstant", shift_block)
+    tex = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
+    gamma = b.variable("Uniform", block, [(DECORATION["DescriptorSet"], 1), (DECORATION["Binding"], 0)])
+    palette = b.variable("UniformConstant", sampled, [(DECORATION["DescriptorSet"], 2), (DECORATION["Binding"], 0)])
+    in_uv = b.variable("Input", v2, [(DECORATION["Location"], 0)])
+    out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), in_uv, out_color, in_frag))
+    b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+
+    shown = b.swizzle(b.emit("ImageSampleImplicitLod", v4, b.load(sampled, tex), b.load(v2, in_uv)), 3)
+    steps = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, shown, b.const_vec(3, 255.0)), b.const_vec(3, 0.5)))
+    channels = []
+    for channel in range(3):
+        step = b.emit("ConvertFToS", i32, b.extract(steps, channel))
+        row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), step))
+        channels.append(b.extract(row, channel))
+    frag = b.load(v4, in_frag)
+    shift = b.load(f, b.access("PushConstant", f, shift_push, b.const_int(0)))
+    px = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 0)), shift)
+    py = b.fadd(f, b.ext(f, GLSL_FLOOR, b.extract(frag, 1)), shift)
+    along = b.fadd(f, b.fmul(f, px, b.const_float(0.06711056)), b.fmul(f, py, b.const_float(0.00583715)))
+    noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.ext(f, GLSL_FRACT, along), b.const_float(52.9829189)))
+    centered = b.fmul(f, b.fsub(f, noise, b.const_float(0.5)), b.const_float(1.0 / 255.0))
+    dithered = []
+    for channel in range(3):
+        row = b.load(v4, b.access("Uniform", v4, gamma, b.const_int(0), b.const_int(channel)))
+        dithered.append(b.fadd(f, channels[channel], b.fmul(f, centered, b.extract(row, 3))))
+    color = b.construct(3, *dithered)
+    cell = b.ext(v3, GLSL_FLOOR, b.fadd(v3, b.fmul(v3, b.ext(v3, GLSL_FCLAMP, color, b.const_vec(3, 0.0), b.const_vec(3, 1.0)), b.const_vec(3, 63.0)), b.const_vec(3, 0.5)))
+    half = b.const_float(0.5)
+    column = b.fadd(f, b.fadd(f, b.fmul(f, b.extract(cell, 2), b.const_float(64.0)), b.extract(cell, 0)), half)
+    u = b.fmul(f, column, b.const_float(1.0 / 4096.0))
+    v = b.fmul(f, b.fadd(f, b.extract(cell, 1), half), b.const_float(1.0 / 64.0))
+    picked = b.swizzle(b.emit("ImageSampleExplicitLod", v4, b.load(sampled, palette), b.construct(2, u, v), 2, b.const_float(0.0)), 3)
+    b.store(out_color, b.construct(4, b.extract(picked, 0), b.extract(picked, 1), b.extract(picked, 2), b.const_float(1.0)))
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def compute_shader_cull():
     """
     Decides for chunks of 64 clusters (runs of triangles of a big mesh, with a sphere around them) of draws whether they are
@@ -1232,4 +1316,5 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment_3d_blend_interlock", fragment_shader_masked(96, fog=True, interlock=True), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
+    emit("bb_shader_fragment_palette", fragment_shader_palette(), out)
     emit("bb_shader_compute_cull", compute_shader_cull(), out)
