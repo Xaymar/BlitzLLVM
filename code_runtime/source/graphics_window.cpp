@@ -116,6 +116,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 // textures and images are gone before this (freed, or released if they are made again), so are the buffers.
 void bb::gfx::destroy_device_objects()
 {
+	close_prebuild(); // Before the buffers of the surfaces go: no loader thread makes another one from here on.
 	for (int i = 0; i < 2; i++) {
 		destroy_image(g.buffers[i]);
 	}
