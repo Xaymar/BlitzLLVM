@@ -766,6 +766,33 @@ blitz::compiler::value blitz::compiler::gen_binary_values(ast::binary const* nod
 		guard(zero_b, "Integer divide by zero");
 	}
 
+	if (!real && sign && ((node->kind == op::DIVIDE) || (node->kind == op::MODULO))) {
+		// The smallest number divided by -1 does not fit, which the processor reports as a divide error (SIGFPE) and LLVM calls undefined.
+		// The number wraps around to itself, as it does for the other operators, and the remainder is 0. -1 is replaced by 1 for the
+		// division, and the quotient of -1 is the negated number.
+		if (b.repr == "-1") {
+			auto r = tmp();
+			if (node->kind == op::DIVIDE) {
+				emit(r + " = sub " + llvm + " 0, " + a.repr);
+				return { r, result };
+			}
+			return { "0", result };
+		}
+		if (!is_nonzero_constant(b.repr)) {
+			auto minus_one = tmp(), safe = tmp(), r = tmp();
+			emit(minus_one + " = icmp eq " + llvm + " " + b.repr + ", -1");
+			emit(safe + " = select i1 " + minus_one + ", " + llvm + " 1, " + llvm + " " + b.repr);
+			emit(r + " = " + name + " " + llvm + " " + a.repr + ", " + safe);
+			if (node->kind == op::MODULO) {
+				return { r, result }; // x Mod 1 is 0, as is x Mod -1.
+			}
+			auto negated = tmp(), picked = tmp();
+			emit(negated + " = sub " + llvm + " 0, " + a.repr);
+			emit(picked + " = select i1 " + minus_one + ", " + llvm + " " + negated + ", " + llvm + " " + r);
+			return { picked, result };
+		}
+	}
+
 	auto r = tmp();
 	emit(r + " = " + name + (real && !fast_math.empty() ? " " + fast_math : std::string()) + " " + llvm + " " + a.repr + ", " + b.repr);
 	return { r, result };

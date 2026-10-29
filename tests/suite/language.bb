@@ -419,4 +419,16 @@ Function DefaultCaller()
 End Function
 Check "default value does not see the locals of the caller", DefaultCaller(), 101
 
+; The smallest number divided by -1 wraps around to itself, it does not stop the program.
+Function MinusOne()
+	Return -1
+End Function
+Local smallest = -2147483647 - 1
+Local minus_one = MinusOne()
+Check "smallest number divided by -1", smallest / minus_one, smallest
+Check "smallest number Mod -1", smallest Mod minus_one, 0
+Check "smallest number divided by the constant -1", smallest / -1, smallest
+Check "divide by -1", 7 / minus_one, -7
+Check "divide by something else after the check", -7 / (minus_one + 3), -3
+
 Done "language"
