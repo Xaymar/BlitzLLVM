@@ -296,12 +296,13 @@ jobs:
             git push -q "$REMOTE" HEAD:refs/tags/nightly
           fi
           if gh release view nightly >/dev/null 2>&1; then
-            # Asset names contain the version, so remove the previous ones instead of leaving them behind.
-            gh release view nightly --json assets --jq '.assets[].name' | while read -r name; do
-              gh release delete-asset nightly "$name" --yes
-            done
-            gh release edit nightly --prerelease --title "$TITLE" --notes "$NOTES"
+            # New files first, so the release is never without binaries (a cancelled or failed run would leave it empty
+            # otherwise). Asset names contain the version, so the previous ones are different files: remove those afterwards.
             gh release upload nightly release/* --clobber
+            gh release edit nightly --prerelease --title "$TITLE" --notes "$NOTES"
+            gh release view nightly --json assets --jq '.assets[].name' | while read -r name; do
+              [ -e "release/$name" ] || gh release delete-asset nightly "$name" --yes
+            done
           else
             gh release create nightly release/* --prerelease --verify-tag --title "$TITLE" --notes "$NOTES"
           fi
