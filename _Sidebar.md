@@ -19,7 +19,7 @@
 
 <details><summary><b><a href="Differences">Differences</a></b></summary>
 <ul>
-<li><details><summary>Features (34)</summary>
+<li><details><summary>Features (35)</summary>
 <ul>
 <li><a href="3D-Studio-Models">3D Studio models</a></li>
 <li><a href="Asynchronous-Loading">Asynchronous loading</a></li>
@@ -50,6 +50,7 @@
 <li><a href="Samplers">Samplers</a></li>
 <li><a href="Saving-Pictures">Saving pictures</a></li>
 <li><a href="Sound-Resampling">Sound resampling</a></li>
+<li><a href="Spherical-Fog">Spherical fog</a></li>
 <li><a href="Sprite-Depth-Fade">Sprite depth fade (soft edges)</a></li>
 <li><a href="Sprite-Shapes">Sprite shapes</a></li>
 <li><a href="Types">Types everywhere</a></li>
@@ -57,7 +58,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (281)</summary>
+<li><details><summary>Commands (282)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -78,6 +79,7 @@
 <li><a href="BufferDirty#differences">BufferDirty</a></li>
 <li><a href="Byte#differences">Byte</a> 〔BlitzLLVM〕</li>
 <li><a href="ByteSwap#differences">ByteSwap</a> 〔BlitzLLVM〕</li>
+<li><a href="CameraFogMode#differences">CameraFogMode</a></li>
 <li><a href="CanvasBuffer#differences">CanvasBuffer</a></li>
 <li><a href="CaptureWorld#differences">CaptureWorld</a></li>
 <li><a href="ChannelPan#differences">ChannelPan</a></li>
