@@ -670,6 +670,31 @@ static int compiler_main(int argc, char** argv)
 		if (!opt.target.empty()) {
 			command.push_back("--target=" + opt.target);
 		}
+		// Hardening of the program and the runtime that is built with it: stack protectors, checked copies, read-only relocations and
+		// control flow protection (x86). The Windows targets have their own (/GS is the default of their toolchains). Off with
+		// BLITZLLVM_HARDENING=0, for the case that a userlib or toolchain can't take them.
+		const char* hardening = std::getenv("BLITZLLVM_HARDENING");
+		if (!windows_target && !(hardening && std::string(hardening) == "0")) {
+			command.push_back("-fstack-protector-strong");
+#ifndef __APPLE__
+			if (opt.optimization != "-O0") {
+				command.push_back("-U_FORTIFY_SOURCE"); // Some distributions define it already.
+				command.push_back("-D_FORTIFY_SOURCE=2");
+			}
+			command.push_back("-Wl,-z,relro,-z,now");
+#endif
+			bool x86 = opt.target.empty() ? bool(
+#if defined(__x86_64__) || defined(__i386__)
+													true
+#else
+													false
+#endif
+													)
+										   : (opt.target.find("x86") != std::string::npos || opt.target.find("i386") != std::string::npos || opt.target.find("i686") != std::string::npos);
+			if (x86) {
+				command.push_back("-fcf-protection=full");
+			}
+		}
 		for (auto const& flag : opt.flags) {
 			command.push_back(flag);
 		}
