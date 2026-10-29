@@ -27,7 +27,7 @@ Tag names are numbers only, with no `v`: `0.2.0`, or `0.2.0.1`. A suffix after a
 
 ## Failures
 
-* No Nightly run for the commit: the tag is not on a commit that was pushed to `root`. Move the tag, or run the Nightly workflow for the commit.
+* No Nightly run for the commit: the tag is not on a commit that was pushed to `root`. Move the tag, or run the Nightly workflow by hand (Actions > Nightly > Run workflow) with the tag selected as the ref, which builds the commit without touching the nightly release. A push that only changes documentation or the wiki never starts a Nightly run, which is the usual reason.
 * The Nightly run failed or was cancelled: fix it, re-run it, then re-run the Release workflow.
 * Expired artifacts (GitHub keeps them for 90 days): re-run the Nightly workflow, then the Release workflow.
 
