@@ -264,7 +264,9 @@ namespace bb::gfx {
 			float    scale[3];
 			VkBool32 palette;
 		} constants;
-		constants.dither = dither_code() > 0.0f ? VK_TRUE : VK_FALSE;
+		// Only a target of 8 bits per color or less is dithered here (the packed buffers of 16, 15 and 12 bits by a step of their own, see below):
+		// deeper buffers keep what the shader makes, and the picture that is shown dithers when it turns them into 8 bits (see apply_gamma).
+		constants.dither = ((dither_code() > 0.0f) && ((color_format == VK_FORMAT_R8G8B8A8_UNORM) || packed_layout_of(color_format))) ? VK_TRUE : VK_FALSE;
 		// With a Graphics of depth 8 the shader makes the color into the nearest of the palette once it has lit, fogged, dithered (and blended, if it does).
 		constants.palette = (g.buffer_depth == 8) ? VK_TRUE : VK_FALSE;
 		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
