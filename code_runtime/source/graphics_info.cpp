@@ -291,12 +291,7 @@ int32_t bb_graphics_format(void)
 }
 
 // Settings for the graphics hardware of the time. A GPU does all of them as it sees fit. (Dither is in
-// graphics_gamma.cpp, where the picture is shown.)
-
-void bb_anti_alias(int32_t enable)
-{
-	(void)enable;
-}
+// graphics_gamma.cpp, where the picture is shown, and AntiAlias in graphics_smaa.cpp.)
 
 // The depth buffer is always the same float one.
 void bb_w_buffer(int32_t enable)
