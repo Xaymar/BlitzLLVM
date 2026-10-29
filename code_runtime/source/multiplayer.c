@@ -62,6 +62,9 @@ enum {
 // What a program that has not said hello yet may send: the hello is only the name of the game. Anything bigger is not one of us, and the host
 // would otherwise hold on to up to MAX_FRAME for each of the connections that are not even in the game.
 #define MAX_FRAME_BEFORE_HELLO 4096
+// What one program that joined may have in the game, and how long the name of a player is.
+#define MAX_PLAYERS_PER_CONNECTION 64
+#define MAX_PLAYER_NAME            255
 
 typedef struct bb_player {
 	int32_t id;
@@ -295,6 +298,16 @@ static void bb_net_host_frame(int connection, uint8_t kind, const uint8_t* paylo
 	}
 	switch (kind) {
 	case FRAME_CREATE: {
+		int owned = 0;
+		for (int i = 0; i < bb_net_player_count; i++) {
+			owned += (bb_net_players[i].connection == connection) ? 1 : 0;
+		}
+		if ((owned >= MAX_PLAYERS_PER_CONNECTION) || (length > MAX_PLAYER_NAME)) {
+			uint8_t none[4];
+			put32(none, 0); // 0 is the answer for a player that was not made.
+			bb_net_send(connection, FRAME_CREATED, none, 4);
+			break;
+		}
 		int32_t    id = bb_net_next_id++;
 		bb_player* p  = bb_net_add_player(id, (const char*)payload, length, 1, connection);
 		uint8_t    reply[4];
