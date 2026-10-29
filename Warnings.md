@@ -53,6 +53,7 @@ Warnings never stop the compilation, unless they are turned into errors with `-W
 | Name | Level | Warns about |
 | --- | --- | --- |
 | `loop-iterator-type-unsafe` | 1 | A `For` loop whose variable is a real number (`Float`, `Half`, `Double`). Reals do not count exactly, so the loop can run once more or less than expected, or never end. |
+| `large-local-array` | 1 | A `Local` array in a function that takes more than 4 KiB (1024 `Int` entries), which has to be made and set to 0 again on every call; above 64 KiB it lives on the heap. Make it once with `Global` or `Dim` outside of the function. The main program is not checked. |
 | `implicit-lossy-int-to-int` | 1 | An integer assigned or passed to an integer that is smaller or has another sign (`Int` to `Byte`, `Int` to `UInt`, ...), which can change the number. A number written in the program that fits is fine. |
 | `implicit-lossy-real-to-int` | 1 | A Float assigned or passed to an integer (`Local i% = 2.5`). It is rounded, like in the original, and the fractional part is lost. |
 | `implicit-lossy-real-to-real` | 1 | A real number assigned or passed to a smaller one (`Double` to `Float`). |
