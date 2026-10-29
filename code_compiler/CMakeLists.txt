@@ -462,7 +462,9 @@ add_test(
 )
 
 # Tests that fail on a platform today (tests/known_failures_<platform>.txt). They are expected to fail, like the original programs above: the
-# results show them as pending, and the run only fails when one of them passes, as it has to leave the list then.
+# results show them as pending, and the run only fails when one of them passes, as it has to leave the list then. A program that does not
+# compile can not be expected to fail "in its run test" (ctest does not start a test whose fixture setup failed, even with WILL_FAIL), so
+# the compile test of such a program and its run test are disabled instead (they show as not run).
 if(WIN32)
 	set(_KNOWN_FAILURES "${TEST_DIRECTORY}/known_failures_windows.txt")
 elseif(APPLE)
@@ -472,13 +474,23 @@ if(_KNOWN_FAILURES)
 	set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_KNOWN_FAILURES}")
 	file(STRINGS "${_KNOWN_FAILURES}" _KNOWN_TESTS REGEX "^[^#]")
 	foreach(_TEST IN LISTS _KNOWN_TESTS)
-		if(TEST "${_TEST}")
-			set_tests_properties("${_TEST}" PROPERTIES WILL_FAIL TRUE)
-			get_test_property("${_TEST}" LABELS _LABELS)
-			if(NOT _LABELS)
-				set(_LABELS)
-			endif()
-			set_tests_properties("${_TEST}" PROPERTIES LABELS "${_LABELS};pending")
+		set(_PROPERTY WILL_FAIL)
+		if(_TEST MATCHES "^disabled: ")
+			# For a test that crashes: WILL_FAIL only turns a failed exit code around, not a crash.
+			string(REGEX REPLACE "^disabled: " "" _TEST "${_TEST}")
+			set(_PROPERTY DISABLED)
 		endif()
+		if(NOT TEST "${_TEST}")
+			continue()
+		endif()
+		string(REGEX REPLACE "^(suite-(debug-)?)run-" "\\1compile-" _COMPILE "${_TEST}")
+		if(_TEST MATCHES "^suite-(debug-)?compile-" OR (NOT _COMPILE STREQUAL _TEST AND _COMPILE IN_LIST _KNOWN_TESTS))
+			set(_PROPERTY DISABLED)
+		endif()
+		get_test_property("${_TEST}" LABELS _LABELS)
+		if(NOT _LABELS)
+			set(_LABELS)
+		endif()
+		set_tests_properties("${_TEST}" PROPERTIES ${_PROPERTY} TRUE LABELS "${_LABELS};pending")
 	endforeach()
 endif()
