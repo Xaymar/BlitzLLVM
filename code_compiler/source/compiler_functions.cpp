@@ -240,20 +240,20 @@ void blitz::compiler::suggest_return_type(ast::function const& fn)
 		auto const& kind = *kinds.begin();
 		suffix = (kind == "int") ? ":Int32" : (kind == "float") ? ":Float32" : (kind == "string") ? ":String" : "";
 	}
-	for (auto& f : findings) {
-		if ((f.warning == "typeless-declaration") && (f.where.line == fn.where.line) && (f.where.column == fn.where.column) && f.where.file && fn.where.file && (*f.where.file == *fn.where.file) && (f.reason.rfind("Function ", 0) == 0)) {
-			f.detail = suffix;
-			if (!suffix.empty() && fn.name_where.file && (fn.name_where.line != 0)) {
-				// A type that is not Int changes what the callers get (Float 1.5 is 1 as an Int), so blitz-tidy leaves it to "unsafe".
-				uint64_t at = fn.name_where.column + fn.name.size();
-				f.edits.push_back(edit{ *fn.name_where.file, ast::range{ fn.name_where.line, at, fn.name_where.line, at }, suffix });
-				f.detail = ((suffix == ":Void") || (suffix == ":Int32")) ? suffix : "changes-program";
-			}
-			if (suffix == ":Void") {
-				f.notice = "It never returns a value: add ':Void' to the name, such as 'Function " + fn.name + ":Void'.";
-			} else if (!suffix.empty()) {
-				f.notice = "Every Return gives the same type: add '" + suffix + "' to the name, such as 'Function " + fn.name + suffix + "'.";
-			}
+	auto typeless = fn.where.file ? _typeless_functions.find(fn.where.file->generic_string() + ":" + std::to_string(fn.where.line) + ":" + std::to_string(fn.where.column)) : _typeless_functions.end();
+	if (typeless != _typeless_functions.end()) {
+		auto& f = findings[typeless->second];
+		f.detail = suffix;
+		if (!suffix.empty() && fn.name_where.file && (fn.name_where.line != 0)) {
+			// A type that is not Int changes what the callers get (Float 1.5 is 1 as an Int), so blitz-tidy leaves it to "unsafe".
+			uint64_t at = fn.name_where.column + fn.name.size();
+			f.edits.push_back(edit{ *fn.name_where.file, ast::range{ fn.name_where.line, at, fn.name_where.line, at }, suffix });
+			f.detail = ((suffix == ":Void") || (suffix == ":Int32")) ? suffix : "changes-program";
+		}
+		if (suffix == ":Void") {
+			f.notice = "It never returns a value: add ':Void' to the name, such as 'Function " + fn.name + ":Void'.";
+		} else if (!suffix.empty()) {
+			f.notice = "Every Return gives the same type: add '" + suffix + "' to the name, such as 'Function " + fn.name + suffix + "'.";
 		}
 	}
 }

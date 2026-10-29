@@ -481,7 +481,12 @@ void blitz::compiler::warn_typeless(ast::location const& where, std::string cons
 		uint64_t at = where.column + name.size();
 		edits.push_back(edit{ *where.file, ast::range{ where.line, at, where.line, at }, ":Int32" });
 	}
+	auto before = findings.size();
 	warn(where, "typeless-declaration", kind + "'" + name + "' has no type, it is an Int.", "Add the type to the name: '" + name + ":Int32', '" + name + ":Float32', '" + name + ":String' or '" + name + ".TypeName' (object).", std::move(edits));
+	if ((kind == "Function ") && (findings.size() > before) && where.file) {
+		// suggest_return_type adds to this finding once it knows what the function returns.
+		_typeless_functions[where.file->generic_string() + ":" + std::to_string(where.line) + ":" + std::to_string(where.column)] = before;
+	}
 }
 
 void blitz::compiler::warn_short_notations(std::vector<ast::short_notation> const& notations)
