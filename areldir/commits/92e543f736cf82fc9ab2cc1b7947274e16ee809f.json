@@ -1,0 +1,9 @@
+{
+ "commit": "92e543f736cf82fc9ab2cc1b7947274e16ee809f",
+ "commits": [
+  "92e543f736cf82fc9ab2cc1b7947274e16ee809f"
+ ],
+ "subject": "Add blitz-format",
+ "date": "2026-10-27",
+ "build_error": "          'std::function<std::string (const std::string &,const blitz::tools::settings &,const std::string &)> &std::function<std::string (const std::string &,const blitz::tools::settings &,const std::string &)>::operator =(_Fx &&)': could not deduce template argument for '__formal'\n              C:\\Program Files\\Microsoft Visual Studio\\18\\Enterprise\\VC\\Tools\\MSVC\\14.51.36231\\include\\functional(1305,92):\n              '_Enable_if_callable_t': is not a member of any direct or indirect base class of 'std::_Func_class<_Ret,const std::string &,const blitz::tools::settings &,const std::string &>'\n          with\n          [\n              _Ret=std::string\n          ]\n      C:\\claude-bench\\buildrepo\\code_format\\source\\main.cpp(30,6):\n      while trying to match the argument list '(std::function<std::string (const std::string &,const blitz::tools::settings &,const std::string &)>, main::<lambda_2>)'\n  \n  Scanning sources for module dependencies...\n  tools_test.vcxproj -> C:\\claude-bench\\build-tree\\code_tools\\Release\\tools_test.exe"
+}
