@@ -35,26 +35,9 @@ jobs:
           NUMBER: ${{ github.event.pull_request.number }}
         run: echo "build=$(.github/scripts/pr-needs-build.sh "$NUMBER")" | tee -a "$GITHUB_OUTPUT"
 
-  version:
+  build:
     needs: changes
     if: needs.changes.outputs.build == 'true'
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Determine the version
-        id: version
-        # Computed once from the commit date (see cmake/project_version.cmake), and handed to every build, so all artifacts of a
-        # run carry the same version.
-        run: |
-          git submodule update --init --depth 1 --jobs 8 cmake/version cmake/externalcontent
-          VERSION="$(cmake -P cmake/project_version.cmake)"
-          echo "Version: $VERSION"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-  build:
-    needs: version
     strategy:
       # One platform failing fails the whole run: the other platforms are cancelled instead of building to the end.
       fail-fast: true
@@ -75,10 +58,6 @@ jobs:
           - { name: macos-universal, os: macos-latest, architectures: 'arm64;x86_64' }
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
-    env:
-      VERSION: ${{ needs.version.outputs.version }}
-      # Every file a run produces is named blitzllvm-<version>-<platform>.<extension>.
-      ARTIFACT: blitzllvm-${{ needs.version.outputs.version }}-${{ matrix.name }}
     steps:
       # Containers have no git yet when checkout runs, so it is installed first.
       - name: Install git for checkout
@@ -113,6 +92,17 @@ jobs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           export PATH="$HOME/.local/bin:$PATH"
           cmake --version
+      - name: Determine the version
+        # From the commit date (see cmake/project_version.cmake), so every platform of a run gets the same version without a job of
+        # its own in front of the builds.
+        shell: bash
+        run: |
+          VERSION="$(cmake -P cmake/project_version.cmake)"
+          echo "Version: $VERSION"
+          {
+            echo "VERSION=$VERSION"
+            echo "ARTIFACT=blitzllvm-${VERSION}-${{ matrix.name }}"
+          } >> "$GITHUB_ENV"
       - name: Date the package cache
         id: month
         if: runner.os == 'Linux'
