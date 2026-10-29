@@ -26,9 +26,9 @@ Wend
 ```
 @param width  Width of the picture in pixels.
 @param height  Height of the picture in pixels.
-@param depth  Color depth, which picks the format of the buffers: 24 for R8G8B8X8, 30 for R10G10B10A2, 32 for R8G8B8A8 and 64 for R16G16B16A16 (half precision floats, never integers). 0 gives 32. Defaults to 0.
+@param depth  Color depth, which picks the format of the buffers: 8 for a palette of 256 colors (see [GraphicsPallet](GraphicsPallet)), 12 for R4G4B4A4, 15 for A1R5G5B5, 16 for R5G6B5, 24 for R8G8B8X8, 30 for R10G10B10A2, 32 for R8G8B8A8 and 64 for R16G16B16A16 (half precision floats, never integers). 0 gives 32. Defaults to 0.
 @param mode  Window or full screen as in the table. Defaults to 0.
 @gap Unlike in Blitz3D, mode 0 always opens a window, and `Graphics` and `Graphics3D` are the same command. The 3D commands do not need `Graphics3D` in particular.
-@gap The depth does not pick a video mode, it picks the format of the buffers: 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 with half precision floats. 0, 16 and any other number give 32 (with a warning for the others), and a format that the graphics card can't draw to gives the next smaller one. Pixels are read and written as 8 bits per channel whatever the depth is. See [Color depth](Color-Depth).
+@gap The depth does not pick a video mode, it picks the format of the buffers: 8 is a palette of 256 colors, 12 is R4G4B4A4, 15 is A1R5G5B5, 16 is R5G6B5, 24 is R8G8B8X8, 30 is R10G10B10A2, 32 is R8G8B8A8 and 64 is R16G16B16A16 with half precision floats. 0 and any other number give 32 (with a warning for the others), and a format that the graphics card can't draw to gives the next smaller one. Pixels are read and written as 8 bits per channel whatever the depth is. See [Color depth](Color-Depth).
 @gap Full screen (mode 1) does not change the video mode of the display: the picture is shown at the largest size that fits with its aspect ratio kept, and the rest is black. See [Fullscreen](Fullscreen).
 @gap A window without a border (mode 4) has the size you ask for and cannot be resized by the user.
