@@ -96,3 +96,8 @@ bool blitz::warning_settings::is_error(std::string const& name) const
 	}
 	return _error && !find_warning(name).hint;
 }
+
+bool blitz::warning_settings::error_given(std::string const& name) const
+{
+	return _errors.count(name) != 0;
+}

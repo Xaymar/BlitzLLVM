@@ -361,6 +361,7 @@ void blitz::compiler::warn_loop_type(ast::expression const* expr, std::string co
 	}
 	auto const& where = expr->where;
 	std::string note;
+	// In a program compiled with -d every mismatch is an error, in a release it is a warning.
 	if (t::is_integer(counter) && t::is_integer(given) && (t::bits(counter) < t::bits(given))) {
 		note = " A value that doesn't fit in " + t::display(counter) + " can't be reached by the counter, so the loop may never end.";
 	} else if (t::is_integer(counter) && t::is_real(given)) {
@@ -368,7 +369,7 @@ void blitz::compiler::warn_loop_type(ast::expression const* expr, std::string co
 	} else if (t::is_integer(counter) && !t::is_signed(counter) && t::is_signed(given)) {
 		note = " The counter can't go below 0, so a negative " + std::string(part) + " makes the loop never end.";
 	}
-	warn(where, "loop-type-mismatch", "The " + std::string(part) + " of the For loop is " + t::display(given) + ", but '" + name + "' is " + t::display(counter) + "." + note, "Give '" + name + "' and the " + part + " the same type, or turn this off with -Wno-loop-type-mismatch.");
+	warn(where, "loop-type-mismatch", "The " + std::string(part) + " of the For loop is " + t::display(given) + ", but '" + name + "' is " + t::display(counter) + "." + note, "Give '" + name + "' and the " + part + " the same type, or turn this off with -Wno-loop-type-mismatch.", {}, std::string(), true);
 }
 
 void blitz::compiler::gen_for(ast::for_statement const* node)
