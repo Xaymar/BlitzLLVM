@@ -444,4 +444,20 @@ Check "NaN assigned to an integer", fits_not, 0
 Local fits_byte:Byte = 300.5
 Check "real too large for a byte", fits_byte, 127
 
+; A function that makes an array again must not leave the assignment writing into the old memory.
+Dim regrown_ints(10)
+Dim regrown_strings$(10)
+Function RegrowInts()
+	Dim regrown_ints(5000)
+	Return 5
+End Function
+Function RegrowStrings$()
+	Dim regrown_strings$(5000)
+	Return "regrown"
+End Function
+regrown_ints(3) = RegrowInts()
+Check "element set by a function that Dims the array", regrown_ints(3), 5
+regrown_strings$(3) = RegrowStrings$()
+CheckS "string element set by a function that Dims the array", regrown_strings$(3), "regrown"
+
 Done "language"

@@ -550,6 +550,9 @@ void blitz::compiler::collect_globals(ast::block const& block)
 		} else if (auto dim = dynamic_cast<ast::dim_statement const*>(stmt.get())) {
 			for (auto const& decl : dim->arrays) {
 				auto key = lower(decl.name);
+				if (_collecting_function) {
+					_redim_in_function.insert(key);
+				}
 				auto old = _arrays.find(key);
 				if (old != _arrays.end()) {
 					// Dimensioning an array again is fine, as long as it stays the same kind of array.
@@ -609,9 +612,11 @@ std::string blitz::compiler::generate(ast::program const& program)
 
 	// Same for global variables and constants.
 	collect_globals(program.main);
+	_collecting_function = true;
 	for (auto const& fn : program.functions) {
 		collect_globals(fn->body);
 	}
+	_collecting_function = false;
 	register_types(program);
 	collect_data("", program.main);
 	for (auto const& fn : program.functions) {
