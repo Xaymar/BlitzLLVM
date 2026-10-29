@@ -74,21 +74,23 @@ namespace bb::gfx {
 
 		uint32_t crc32(const uint8_t* data, size_t size, uint32_t crc = 0)
 		{
-			static uint32_t table[256];
-			static bool     made = false;
-			if (!made) {
-				for (uint32_t i = 0; i < 256; i++) {
-					uint32_t c = i;
-					for (int k = 0; k < 8; k++) {
-						c = (c & 1) ? (0xedb88320u ^ (c >> 1)) : (c >> 1);
+			// Made once and thread safe, as this is also called by the threads that save in the background.
+			static const struct crc_table {
+				uint32_t entry[256];
+				crc_table()
+				{
+					for (uint32_t i = 0; i < 256; i++) {
+						uint32_t c = i;
+						for (int k = 0; k < 8; k++) {
+							c = (c & 1) ? (0xedb88320u ^ (c >> 1)) : (c >> 1);
+						}
+						entry[i] = c;
 					}
-					table[i] = c;
 				}
-				made = true;
-			}
+			} table;
 			crc = ~crc;
 			for (size_t i = 0; i < size; i++) {
-				crc = table[(crc ^ data[i]) & 0xff] ^ (crc >> 8);
+				crc = table.entry[(crc ^ data[i]) & 0xff] ^ (crc >> 8);
 			}
 			return ~crc;
 		}
