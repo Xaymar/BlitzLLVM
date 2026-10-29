@@ -23,8 +23,9 @@ extern "C" int32_t bb_is_debug(void);
 
 extern "C" {
 
-// Graphics width, height, depth, mode.
-// Modes: 0 = windowed (or fullscreen for 3D), 1 = fullscreen, 2 = windowed, 3 = resizable window,
+// Graphics width, height, depth, mode. Graphics3D is this same function: there is no 2D-only mode, so the 3D commands work
+// after either of them.
+// Modes: 0 = windowed, 1 = fullscreen, 2 = windowed, 3 = resizable window,
 // 4 = window without a border (a BlitzLLVM extension). The depth picks what the buffers are made of: 24 is R8G8B8X8,
 // 30 is R10G10B10A2, 32 (and 0 and 16) is R8G8B8A8 and 64 is R16G16B16A16 as half precision floats.
 void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
