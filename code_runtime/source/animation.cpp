@@ -610,12 +610,12 @@ namespace {
 		mat_affine_inverse(n->bind_model, n->inverse_bind);
 		int index = int(a.nodes.size);
 		a.nodes.push(n);
-		for (int other = 1; other <= entity_count(); other++) {
-			entity* child = get_entity(other);
-			if (child && (child->parent == handle)) {
-				add_nodes(a, other, index);
-			}
+		buffer<int> kids;
+		children_of(handle, kids);
+		for (uint32_t i = 0; i < kids.size; i++) {
+			add_nodes(a, kids[i], index);
 		}
+		kids.release();
 	}
 
 	// Moves the keys of the entity of a node to the node, for the frames from an offset on, and forgets them.
