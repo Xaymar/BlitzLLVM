@@ -132,6 +132,7 @@ namespace blitz {
 		bool                                             _uses_strings = false; // Whether the function that is generated has any.
 		std::string                                      _exit_label;
 		std::string                                      _ret_slot;
+		std::vector<std::string>                         _heap_locals;        // Arrays of the function that live on the heap and are freed when it ends.
 		std::vector<std::pair<std::string, uint32_t>>    _string_locals;      // Where strings live that are freed when the function ends.
 
 		// Goto and Gosub, for the function that is being generated.

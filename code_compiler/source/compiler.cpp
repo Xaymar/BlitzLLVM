@@ -441,9 +441,20 @@ blitz::compiler::variable blitz::compiler::create_local(std::string const& name,
 	auto ptr  = "%v" + std::to_string(_counter++);
 	auto llvm = blitz::types::to_llvm(t);
 	if (count) {
-		auto array = "[" + std::to_string(count) + " x " + llvm + "]";
-		_allocas << "  " << ptr << " = alloca " << array << "\n";
-		_allocas << "  " << zero_memory(ptr, array) << "\n";
+		// Arrays too big for the stack (1 MB on Windows) live on the heap, made zeroed when the function starts and freed when it ends.
+		// The main program has no end to free them at, it keeps them until the program ends.
+		uint64_t element = is_number(t) ? std::max<unsigned>(blitz::types::bits(t) / 8, 1) : 8;
+		if (uint64_t(count) * element > 65536) {
+			declare("bb_array_alloc", "declare ptr @bb_array_alloc(i64, i64)");
+			_allocas << "  " << ptr << " = call ptr @bb_array_alloc(i64 " << count << ", i64 " << element << ")\n";
+			if (!_in_main) {
+				_heap_locals.push_back(ptr);
+			}
+		} else {
+			auto array = "[" + std::to_string(count) + " x " + llvm + "]";
+			_allocas << "  " << ptr << " = alloca " << array << "\n";
+			_allocas << "  " << zero_memory(ptr, array) << "\n";
+		}
 	} else {
 		_allocas << "  " << ptr << " = alloca " << llvm << "\n";
 		_allocas << "  store " << llvm << " " << zero(t).repr << ", ptr " << ptr << "\n";
