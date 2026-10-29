@@ -41,7 +41,7 @@ Differences that are not caused by one command.
 * [Samplers](Samplers): Extension: samplers hold how a texture is read and can be shared between textures.
 * [Saving pictures](Saving-Pictures): Extension: [SaveBuffer](SaveBuffer), [SaveImage](SaveImage) and the new [SaveTexture](SaveTexture) write PNG, JPEG, WebP, JPEG XL, TGA and BMP files with settings, mark them as made by the program, and can encode on another thread with [AsyncSaving](AsyncSaving).
 * [Sound resampling](Sound-Resampling): Sounds are resampled cleanly, so low rate sounds are duller; `BLITZLLVM_LEGACY_AUDIO_RESAMPLING` restores the FMOD sound.
-* [Sprite depth fade](Sprite-Depth-Fade): Extension: `SpriteDepthFade` fades see-through sprites out where they get close to solid geometry (soft particles); the original has no such command.
+* [Sprite depth fade (soft edges)](Sprite-Depth-Fade): Extension: `SpriteDepthFade` and `EntityDepthFade` fade see-through sprites and entities out where they get close to solid geometry (soft particles); the original has no such command.
 * [Sprite shapes](Sprite-Shapes): Sprites with a round or cut-out texture are drawn as the smallest octagon that the texture can be seen in, not as a square; the picture is the same within one level of a color.
 * [Types everywhere](Types): Extension: `Byte`, `UByte`, `Short`, `UShort`, `UInt`, `Long`, `ULong`, `Half` and `Double` work everywhere a type can be written.
 * [Userlib declarations](Userlib-Declarations): `.decls` files take the long type names as well as the short ones, for all the new types.
@@ -132,6 +132,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [EmitSound](EmitSound#differences): A debug build (`-d`) stops the program when the sound is 0 (a sound that failed to load) or does not exist, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [EnableDirectInput](EnableDirectInput#differences): Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it.
 * [EndGraphics](EndGraphics#differences): The original opens a new window of the default size, or a console.
+* [EntityDepthFade](EntityDepthFade#differences) 〔BlitzLLVM〕: The original has no such command.
 * [EntityTexture](EntityTexture#differences): A debug build (`-d`) stops the program when the texture is not 0 and does not exist, see [Debug handle checks](Debug-Handle-Checks).
 * [Flip](Flip#differences): Without a graphics window nothing happens.
 * [FlipCanvas](FlipCanvas#differences): The second parameter is accepted, but there is nothing to wait for and it makes no difference.

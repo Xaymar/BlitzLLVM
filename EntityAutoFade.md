@@ -29,7 +29,7 @@ Makes an entity fade away with distance to the camera. Closer than `near` it is 
 
 ## Related Commands
 
-[EntityAlpha](EntityAlpha), [EntityBlend](EntityBlend), [EntityClass](EntityClass), [EntityColor](EntityColor), [EntityDistance](EntityDistance), [EntityFX](EntityFX), [EntityInView](EntityInView), [EntityName](EntityName)
+[EntityAlpha](EntityAlpha), [EntityBlend](EntityBlend), [EntityClass](EntityClass), [EntityColor](EntityColor), [EntityDepthFade](EntityDepthFade) 〔BlitzLLVM〕, [EntityDistance](EntityDistance), [EntityFX](EntityFX), [EntityInView](EntityInView)
 
 <div align="center">
 

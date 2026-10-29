@@ -28,6 +28,8 @@ SpriteDepthFade:Void sprite:Int32, fade_distance:Float32
 
 Fades a sprite out where it gets close to something solid behind it, which is what makes smoke, fire and fog made of sprites (soft particles) blend into the scene instead of cutting a hard line where they poke into a wall or the ground. The sprite is faded by the distance in front of the solid surface: at that distance or more it is as it would be without the command, and where it touches the surface it is gone. The distance is in world units (the same as `PositionEntity`), so a sprite 10 units across with a distance of 2 fades over the last 2 units next to the surface.
 
+[EntityDepthFade](EntityDepthFade) does the same for meshes and other entities that are not sprites.
+
 A distance close to 0 (or less) turns the effect off, which is the default, and sprites without it cost nothing extra. The effect needs the sprite to be see-through: it works with `EntityAlpha` and the alpha of the texture (`EntityBlend 1`), and with `EntityBlend 3` (add). It does nothing for sprites that are solid or masked, and with `EntityBlend 2` (multiply), which does not look at alpha. Only what was drawn before the see-through things is taken into account: solid meshes, terrain, planes and solid sprites (a sprite without alpha or blending) fade the sprite, but see-through sprites and meshes do not, other sprites with a depth fade included. It works for perspective and orthographic cameras.
 
 ## Differences

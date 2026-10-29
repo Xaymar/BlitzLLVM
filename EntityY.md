@@ -30,7 +30,7 @@ _Not documented yet._
 
 ## Related Commands
 
-[EntityAlpha](EntityAlpha), [EntityAutoFade](EntityAutoFade), [EntityBlend](EntityBlend), [EntityClass](EntityClass), [EntityColor](EntityColor), [EntityDistance](EntityDistance), [EntityFX](EntityFX), [EntityInView](EntityInView)
+[EntityAlpha](EntityAlpha), [EntityAutoFade](EntityAutoFade), [EntityBlend](EntityBlend), [EntityClass](EntityClass), [EntityColor](EntityColor), [EntityDepthFade](EntityDepthFade) 〔BlitzLLVM〕, [EntityDistance](EntityDistance), [EntityFX](EntityFX)
 
 <div align="center">
 

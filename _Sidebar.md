@@ -50,14 +50,14 @@
 <li><a href="Samplers">Samplers</a></li>
 <li><a href="Saving-Pictures">Saving pictures</a></li>
 <li><a href="Sound-Resampling">Sound resampling</a></li>
-<li><a href="Sprite-Depth-Fade">Sprite depth fade</a></li>
+<li><a href="Sprite-Depth-Fade">Sprite depth fade (soft edges)</a></li>
 <li><a href="Sprite-Shapes">Sprite shapes</a></li>
 <li><a href="Types">Types everywhere</a></li>
 <li><a href="Userlib-Declarations">Userlib declarations</a></li>
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (280)</summary>
+<li><details><summary>Commands (281)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -140,6 +140,7 @@
 <li><a href="EmitSound#differences">EmitSound</a></li>
 <li><a href="EnableDirectInput#differences">EnableDirectInput</a></li>
 <li><a href="EndGraphics#differences">EndGraphics</a></li>
+<li><a href="EntityDepthFade#differences">EntityDepthFade</a> 〔BlitzLLVM〕</li>
 <li><a href="EntityTexture#differences">EntityTexture</a></li>
 <li><a href="Flip#differences">Flip</a></li>
 <li><a href="FlipCanvas#differences">FlipCanvas</a></li>
@@ -962,7 +963,7 @@
 <li><a href="Windowed3D">Windowed3D</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Entities">Entities</a> (40)</summary>
+<li><details><summary><a href="Blitz3D-Entities">Entities</a> (41)</summary>
 <ul>
 <li><a href="AlignToVector">AlignToVector</a></li>
 <li><a href="CopyEntity">CopyEntity</a></li>
@@ -973,6 +974,7 @@
 <li><a href="EntityBlend">EntityBlend</a></li>
 <li><a href="EntityClass">EntityClass</a></li>
 <li><a href="EntityColor">EntityColor</a></li>
+<li><a href="EntityDepthFade">EntityDepthFade</a> 〔BlitzLLVM〕</li>
 <li><a href="EntityDistance">EntityDistance</a></li>
 <li><a href="EntityFX">EntityFX</a></li>
 <li><a href="EntityInView">EntityInView</a></li>

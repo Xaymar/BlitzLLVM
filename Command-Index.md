@@ -256,6 +256,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [EntityClass](EntityClass)
 * [EntityCollided](EntityCollided)
 * [EntityColor](EntityColor)
+* [EntityDepthFade](EntityDepthFade) 〔BlitzLLVM〕
 * [EntityDistance](EntityDistance)
 * [EntityFX](EntityFX)
 * [EntityInView](EntityInView)

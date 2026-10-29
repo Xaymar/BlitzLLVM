@@ -18,6 +18,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [EntityBlend](EntityBlend)
 * [EntityClass](EntityClass)
 * [EntityColor](EntityColor)
+* [EntityDepthFade](EntityDepthFade) 〔BlitzLLVM〕
 * [EntityDistance](EntityDistance)
 * [EntityFX](EntityFX)
 * [EntityInView](EntityInView)
