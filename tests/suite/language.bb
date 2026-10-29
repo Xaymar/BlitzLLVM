@@ -460,4 +460,13 @@ Check "element set by a function that Dims the array", regrown_ints(3), 5
 regrown_strings$(3) = RegrowStrings$()
 CheckS "string element set by a function that Dims the array", regrown_strings$(3), "regrown"
 
+; Big arrays of a function start out empty, and do not make the compiler slow.
+Function BigLocalArray(index)
+	Local big[100000]
+	Check "big local array starts empty", big[index], 0
+	big[index] = index
+	Return big[index]
+End Function
+Check "big local array", BigLocalArray(99999), 99999
+
 Done "language"

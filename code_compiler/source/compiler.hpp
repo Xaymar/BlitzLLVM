@@ -269,6 +269,7 @@ namespace blitz {
 		void        emit(std::string const& line);
 		void        emit_terminator(std::string const& line);
 		void        begin_label(std::string const& name);
+		std::string zero_memory(std::string const& pointer, std::string const& array_type);
 		void        declare(std::string const& symbol, std::string const& line);
 		std::string string_constant(std::string const& text);
 
