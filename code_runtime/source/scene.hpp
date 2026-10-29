@@ -29,7 +29,7 @@
 extern "C" void bb_runtime_error(const char* message);
 
 // How many light channels there are: 8, 32 or 64 (EXPERIMENT: to measure what wider channels cost). Wider than 8 bits
-// repeats what EntityLightChannel is given (an Int32) in the upper half.
+// takes what EntityLightChannel is given (a UInt64), as far as it fits.
 #define BLITZ_LIGHT_CHANNEL_BITS 64
 
 namespace bb {

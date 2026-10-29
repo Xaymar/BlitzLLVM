@@ -706,9 +706,9 @@ void bb_entity_fx(int32_t handle, int32_t fx)
 	need(handle, "EntityFX")->fx = fx;
 }
 
-void bb_entity_light_channel(int32_t handle, int32_t channel)
+void bb_entity_light_channel(int32_t handle, uint64_t channel)
 {
-	need(handle, "EntityLightChannel")->light_channel = bb::light_mask(uint32_t(channel)) | (sizeof(bb::light_mask) > 4 ? bb::light_mask(uint64_t(uint32_t(channel)) << 32) : bb::light_mask(0));
+	need(handle, "EntityLightChannel")->light_channel = bb::light_mask(channel);
 }
 
 void bb_entity_texture(int32_t handle, int32_t texture, int32_t frame, int32_t index)
