@@ -125,6 +125,10 @@ namespace {
 		return -1;
 	}
 
+	// What a compressed file may give: a few bytes can say that a thousand times as much is to be repeated, which is how a file that is a
+	// few hundred KiB takes all of the memory. Models are far from this size.
+	constexpr size_t max_inflated = size_t(256) * 1024 * 1024;
+
 	bool inflate_codes(inflater& z, huffman const& lengths, huffman const& distances)
 	{
 		for (;;) {
@@ -133,6 +137,9 @@ namespace {
 				return false;
 			}
 			if (symbol < 256) {
+				if (z.out->size >= max_inflated) {
+					return false;
+				}
 				z.out->push(uint8_t(symbol));
 			} else if (symbol == 256) {
 				return true;
@@ -147,7 +154,7 @@ namespace {
 					return false;
 				}
 				uint32_t distance = dist_base[d] + z.bits(dist_extra[d]);
-				if ((distance > z.out->size) || z.failed) {
+				if ((distance > z.out->size) || z.failed || (length > max_inflated - z.out->size)) {
 					return false;
 				}
 				for (uint32_t i = 0; i < length; i++) {
@@ -179,7 +186,7 @@ namespace {
 				}
 				uint32_t length = source[z.pos] | (source[z.pos + 1] << 8);
 				z.pos += 4;
-				if (z.pos + length > size) {
+				if ((z.pos + length > size) || (length > max_inflated - out.size)) {
 					return -1;
 				}
 				for (uint32_t i = 0; i < length; i++) {
