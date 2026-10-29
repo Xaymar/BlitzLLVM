@@ -380,6 +380,18 @@ jobs:
           if ! system_profiler SPDisplaysDataType 2>/dev/null | grep -q 'Metal'; then
             echo "::warning::This runner has no Metal device, so the tests that need a window and a GPU are left out."
             GPU=(-LE gpu); GPUSTATE=OFF
+            # They show as skipped (not as not run) in the test comment.
+            python3 - <<'PYTHON'
+          import json, os
+          temp = os.environ["RUNNER_TEMP"]
+          path = os.path.join(temp, "skipped.json")
+          skipped = json.load(open(path)) if os.path.exists(path) else {}
+          for test in json.load(open(os.path.join(temp, "tests.json")))["tests"]:
+              labels = [p["value"] for p in test.get("properties", []) if p["name"] == "LABELS"]
+              if any("gpu" in label for label in labels):
+                  skipped.setdefault(test["name"], "No Metal device on the runner")
+          json.dump(skipped, open(path, "w"))
+          PYTHON
           fi
           echo "GPUSTATE=$GPUSTATE" >> "$GITHUB_ENV"
           ctest -C Release -j"$(sysctl -n hw.ncpu)" --output-on-failure --timeout 600 --output-junit "$RUNNER_TEMP/junit.xml" "${GPU[@]}" "${SELECTED[@]}"
