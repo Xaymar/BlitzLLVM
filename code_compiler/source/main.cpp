@@ -307,11 +307,17 @@ namespace {
 	bool parse_arguments(int argc, char** argv, options& opt)
 	{
 		// --help and --version answer before anything else is looked at, so a bad option next to them does not matter. What is
-		// after --args or -- belongs to the program or to clang. Whichever of the two comes first wins.
+		// after --args or -- belongs to the program or to clang, and the value of an option such as -o is skipped. Whichever of the two
+		// comes first wins.
 		for (int idx = 1; idx < argc; idx++) {
 			std::string arg = argv[idx];
+			std::string lowered = arg;
+			std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c) { return char(std::tolower(c)); });
 			if ((arg == "--args") || (arg == "--")) {
 				break;
+			} else if ((lowered == "--fast-math") || (arg == "--userlibs-dir") || (arg == "-o") || (arg == "--target") || (arg == "--llvm-flag")
+					   || (arg == "--llvm-arg") || (arg == "--cc") || (arg == "--runtime-dir")) {
+				idx++; // The value of an option, which may well be spelled like --help.
 			} else if ((arg == "-h") || (arg == "--help")) {
 				opt.help = true;
 				return true;

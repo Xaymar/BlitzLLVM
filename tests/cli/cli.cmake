@@ -639,6 +639,10 @@ elseif(CASE STREQUAL "long_version")
 	blitzcc(--version --help)
 	expect_ok()
 	expect_missing("Usage")
+	# The value of an option is not an option: here --version is the (missing) runtime directory.
+	blitzcc(--runtime-dir --version "${PROGRAM}" -o "${EXE}")
+	expect_missing("blitzcc ${VERSION}")
+	expect_missing("Usage")
 
 elseif(CASE STREQUAL "runtime_inline")
 	# The hot parts of the runtime are compiled with the program, unless that is turned off, or -O0 or -d is used.
