@@ -106,7 +106,7 @@ namespace {
 	// The lookup texture: for every color of 6 bits per channel, the color of the palette that is nearest to the middle of it.
 	void update_palette_lookup()
 	{
-		std::vector<uint8_t> pixels(4096 * 64 * 4);
+		std::vector<uint8_t> pixels(4096 * 65 * 4);
 		for (int z = 0; z < 64; z++) {
 			for (int y = 0; y < 64; y++) {
 				for (int x = 0; x < 64; x++) {
@@ -120,11 +120,17 @@ namespace {
 				}
 			}
 		}
+		// The last row has the gaps of the palette (how far apart the colors of a channel are, from 0 to 1) in its first pixel: the shaders of 3D
+		// add the noise of Dither in steps of them.
+		for (int c = 0; c < 3; c++) {
+			pixels[size_t(64) * 4096 * 4 + c] = uint8_t(palette_steps[c] + 0.5f);
+		}
+		pixels[size_t(64) * 4096 * 4 + 3] = 255;
 		wait_gpu();
 		if (!palette_lookup.image) {
-			upload_texture(palette_lookup, palette_set, 4096, 64, pixels.data(), g.sampler_point_clamp);
+			upload_texture(palette_lookup, palette_set, 4096, 65, pixels.data(), g.sampler_point_clamp);
 		} else {
-			write_pixels(palette_lookup, 0, 0, 4096, 64, pixels.data(), false, false);
+			write_pixels(palette_lookup, 0, 0, 4096, 65, pixels.data(), false, false);
 		}
 		palette_changed = false;
 	}
@@ -236,6 +242,21 @@ namespace bb::gfx {
 		return (target == VK_FORMAT_R8G8B8A8_UNORM) || (target != g.buffer_format);
 	}
 
+	// The 3D pipelines read the lookup texture, so a Graphics of depth 8 has it before the first one is made.
+	void ensure_palette_lookup()
+	{
+		if ((g.buffer_depth == 8) && !palette_lookup.image) {
+			palette_prepare();
+			update_palette_lookup();
+		}
+	}
+
+	// The lookup texture, or the white one where there is no palette (the shaders of 3D still read it, but only use it with a palette).
+	VkImageView palette_lookup_view()
+	{
+		return palette_lookup.image ? palette_lookup.view : g.textures[TEXTURE_WHITE].view;
+	}
+
 	bool palette_mode()
 	{
 		return g.created && (g.buffer_depth == 8);
@@ -307,7 +328,8 @@ namespace bb::gfx {
 			create_palette_resources();
 		}
 		// A buffer with fewer than 8 bits per channel is shown exactly, so the noise of 8 bits would only spoil it.
-		bool noise = (dither > 0) && !packed_layout_of(front.format);
+		// With a palette the shaders of 3D have dithered already, to the palette.
+		bool noise = (dither > 0) && !packed_layout_of(front.format) && !palettized;
 		if (changed) {
 			changed = false;
 			wait_gpu(); // The frame before may still read the tables.
@@ -412,9 +434,13 @@ namespace bb::gfx {
 			destroy_buffer(dump_buffer, dump_allocation);
 			dump_size   = 0;
 		}
-		if (palette_pipeline) {
+		if (palette_lookup.image) {
 			wait_gpu();
 			destroy_image(palette_lookup);
+			palette_changed = true;
+		}
+		if (palette_pipeline) {
+			wait_gpu();
 			vkDestroyPipeline(g.device, palette_pipeline, nullptr);
 			vkDestroyPipelineLayout(g.device, palette_layout, nullptr);
 			palette_pipeline = VK_NULL_HANDLE;

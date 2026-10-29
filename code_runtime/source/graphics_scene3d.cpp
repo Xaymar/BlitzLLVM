@@ -257,8 +257,11 @@ namespace bb::gfx {
 			float    factor[5];
 			float    limit[2];
 			float    scale[3];
+			VkBool32 palette;
 		} constants;
 		constants.dither = dither_code() > 0.0f ? VK_TRUE : VK_FALSE;
+		// With a Graphics of depth 8 the shader makes the color into the nearest of the palette once it has lit, fogged, dithered (and blended, if it does).
+		constants.palette = (g.buffer_depth == 8) ? VK_TRUE : VK_FALSE;
 		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
 		memcpy(constants.limit, limits, sizeof(limits));
 		// The noise is a step of the target: 255 / (largest value of a channel) times the one of 8 bits, for the buffers of 16, 15 and 12 bits.
@@ -266,7 +269,7 @@ namespace bb::gfx {
 		for (int c = 0; c < 3; c++) {
 			constants.scale[c] = packed ? 255.0f / float((1u << packed->bits[c]) - 1u) : 1.0f;
 		}
-		VkSpecializationMapEntry entries[11] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
+		VkSpecializationMapEntry entries[12] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
 		for (uint32_t i = 0; i < 5; i++) {
 			entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
 		}
@@ -275,7 +278,8 @@ namespace bb::gfx {
 		for (uint32_t i = 0; i < 3; i++) {
 			entries[8 + i] = { 8 + i, uint32_t(offsetof(decltype(constants), scale) + i * sizeof(float)), sizeof(float) };
 		}
-		VkSpecializationInfo specialization              = { 11u, entries, sizeof(constants), &constants };
+		entries[11] = { 11, uint32_t(offsetof(decltype(constants), palette)), sizeof(VkBool32) };
+		VkSpecializationInfo specialization              = { 12u, entries, sizeof(constants), &constants };
 		stages[1].pSpecializationInfo                    = &specialization;
 		VkSpecializationMapEntry vertex_entries[2]       = { { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) }, { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) } };
 		VkSpecializationInfo     vertex_specialization   = { 2u, vertex_entries, sizeof(constants), &constants };
@@ -636,14 +640,21 @@ namespace bb::gfx {
 	void create_3d()
 	{
 		// Scene uniform buffer, with its descriptor set.
-		VkDescriptorSetLayoutBinding binding = { 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
+		// Binding 1 is the lookup texture of the palette of a Graphics of depth 8 (the white texture when there is none).
+		ensure_palette_lookup();
+		VkDescriptorSetLayoutBinding bindings[2] = {
+			{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+			{ 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr },
+		};
+		VkDescriptorSetLayoutBinding& binding = bindings[0];
 		VkDescriptorSetLayoutCreateInfo set_info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		set_info.bindingCount                    = 1;
-		set_info.pBindings                       = &binding;
+		set_info.bindingCount                    = 2;
+		set_info.pBindings                       = bindings;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.scene_layout), "vkCreateDescriptorSetLayout");
 
 		// The data of each draw is in a buffer, so that draws of the same thing can be a single call.
 		VkDescriptorSetLayoutBinding entity_binding = { 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_COMPUTE_BIT, nullptr };
+		set_info.bindingCount                       = 1;
 		set_info.pBindings                          = &entity_binding;
 		check(vkCreateDescriptorSetLayout(g.device, &set_info, nullptr, &g.entity_layout), "vkCreateDescriptorSetLayout");
 
@@ -677,6 +688,12 @@ namespace bb::gfx {
 			write.descriptorCount              = 1;
 			write.descriptorType               = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 			write.pBufferInfo                  = &buffer_info;
+			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
+			VkDescriptorImageInfo lookup_info = { g.sampler_point_clamp, palette_lookup_view(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+			write.dstBinding                  = 1;
+			write.descriptorType              = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			write.pBufferInfo                 = nullptr;
+			write.pImageInfo                  = &lookup_info;
 			vkUpdateDescriptorSets(g.device, 1, &write, 0, nullptr);
 
 			alloc.pSetLayouts = &g.entity_layout;
@@ -999,6 +1016,12 @@ namespace bb::gfx {
 			VkClearAttachment clear = {};
 			clear.aspectMask        = VK_IMAGE_ASPECT_COLOR_BIT;
 			clear.clearValue.color  = { { scene.color[0], scene.color[1], scene.color[2], 1.0f } };
+			if (g.buffer_depth == 8) {
+				// The buffer only holds colors of the palette.
+				uint8_t rgba[4] = { uint8_t(fminf(fmaxf(scene.color[0], 0.0f), 1.0f) * 255.0f + 0.5f), uint8_t(fminf(fmaxf(scene.color[1], 0.0f), 1.0f) * 255.0f + 0.5f), uint8_t(fminf(fmaxf(scene.color[2], 0.0f), 1.0f) * 255.0f + 0.5f), 255 };
+				palette_snap(rgba, 1);
+				clear.clearValue.color = { { rgba[0] / 255.0f, rgba[1] / 255.0f, rgba[2] / 255.0f, 1.0f } };
+			}
 			vkCmdClearAttachments(g.cmd, 1, &clear, 1, &rect);
 		}
 		if (scene.clear_depth) {

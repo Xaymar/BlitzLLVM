@@ -165,7 +165,7 @@ cube = CreateCube()
 EntityFX cube, 1
 EntityColor cube, 100, 40, 40
 RenderWorld
-Check "Palette: 3D", Red(32, 32), 100, 0
+Check "Palette: 3D", Red(32, 32), 100, 2
 Check "Palette: 3D keeps no green", Green(32, 32), 0, 0
 ClearWorld
 

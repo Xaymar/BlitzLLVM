@@ -862,6 +862,8 @@ namespace bb::gfx {
 	int dither_level();
 	/** Whether the buffers are those of a Graphics with a depth of 8: RGBA8 that is shown, and read, as the nearest colors of the palette (GraphicsPalette). */
 	bool palette_mode();
+	void ensure_palette_lookup();
+	VkImageView palette_lookup_view();
 	/** Puts the palette in the lookup texture that the present of a Graphics with a depth of 8 uses, if it changed. Needs no open command buffer. */
 	void prepare_palette();
 	/** The number of the color of the palette that is nearest to a color. */
