@@ -888,6 +888,21 @@ elseif(CASE STREQUAL "userlib_env")
 		message(FATAL_ERROR "--userlibs-dir did not win over BLITZLLVM_USERLIBS.")
 	endif()
 
+elseif(CASE STREQUAL "userlib_evaluation_order")
+	# Calls of a userlib evaluate their arguments like any other call: in the order of the original by default, and from left to right
+	# with --sane-evaluation-order.
+	build_userlib("${WORK}/userlibs" shared)
+	blitzcc(+q "${TESTS}/cli/userlib/evaluation_order.bb" --userlibs-dir "${WORK}/userlibs")
+	expect_ok()
+	if(NOT OUT STREQUAL "3421\n")
+		message(FATAL_ERROR "Expected the order of the original, got:\n${OUT}")
+	endif()
+	blitzcc(+q --sane-evaluation-order "${TESTS}/cli/userlib/evaluation_order.bb" --userlibs-dir "${WORK}/userlibs")
+	expect_ok()
+	if(NOT OUT STREQUAL "1234\n")
+		message(FATAL_ERROR "Expected left to right, got:\n${OUT}")
+	endif()
+
 elseif(CASE STREQUAL "userlib_missing_library")
 	# A declaration whose library is missing is only an error for a program that calls it, when it does, and the error names the library.
 	file(MAKE_DIRECTORY "${WORK}/userlibs")
