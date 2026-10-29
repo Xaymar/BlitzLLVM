@@ -120,7 +120,8 @@ namespace bb {
 		}
 	}
 
-	// Writes how the model looks into its surface.
+	// Writes how the model looks into its surface, straight from the frames of the file: every vertex is a blend of two positions (and
+	// of two normals), which are two frames, or the pose that a change of animation started from and the first frame of the new one.
 	static void show(entity& e)
 	{
 		md2_state& s = *e.md2;
@@ -129,23 +130,36 @@ namespace bb {
 		}
 		md2_data const& d = *s.data;
 		surface&        surf = *e.surfaces[0];
-		buffer<float>   positions, normals;
-		positions.reserve(uint32_t(d.verts) * 3);
-		normals.reserve(uint32_t(d.verts) * 3);
-		current_pose(s, positions.data, normals.data);
+		const float *pa, *pb, *na, *nb;
+		float        blend;
+		if (s.mode & 0x8000) {
+			// On the way from the old pose to the first frame of the new one.
+			int frame = int(s.time);
+			frame     = frame < 0 ? 0 : (frame >= d.frames ? d.frames - 1 : frame);
+			pa        = s.from_positions.data;
+			na        = s.from_normals.data;
+			pb        = d.positions.data + size_t(frame) * size_t(d.verts) * 3;
+			nb        = d.normals.data + size_t(frame) * size_t(d.verts) * 3;
+			blend     = s.transition_time;
+		} else {
+			pa    = d.positions.data + size_t(s.frame_a) * size_t(d.verts) * 3;
+			pb    = d.positions.data + size_t(s.frame_b) * size_t(d.verts) * 3;
+			na    = d.normals.data + size_t(s.frame_a) * size_t(d.verts) * 3;
+			nb    = d.normals.data + size_t(s.frame_b) * size_t(d.verts) * 3;
+			blend = s.blend;
+		}
 		for (int i = 0; i < d.verts && uint32_t(i) < surf.vertices.size; i++) {
-			vertex3d& v = surf.vertices[uint32_t(i)];
-			v.x         = positions.data[i * 3 + 0];
-			v.y         = positions.data[i * 3 + 1];
-			v.z         = positions.data[i * 3 + 2];
-			float n[3]  = { normals.data[i * 3 + 0], normals.data[i * 3 + 1], normals.data[i * 3 + 2] };
+			vertex3d&    v = surf.vertices[uint32_t(i)];
+			const size_t k = size_t(i) * 3;
+			v.x            = (pb[k + 0] - pa[k + 0]) * blend + pa[k + 0];
+			v.y            = (pb[k + 1] - pa[k + 1]) * blend + pa[k + 1];
+			v.z            = (pb[k + 2] - pa[k + 2]) * blend + pa[k + 2];
+			float n[3]     = { (nb[k + 0] - na[k + 0]) * blend + na[k + 0], (nb[k + 1] - na[k + 1]) * blend + na[k + 1], (nb[k + 2] - na[k + 2]) * blend + na[k + 2] };
 			normalize(n);
 			v.nx = n[0];
 			v.ny = n[1];
 			v.nz = n[2];
 		}
-		positions.release();
-		normals.release();
 		surf.dirty       = true;
 		bb::surface_changed(surf);
 		surf.bound_valid = false;
