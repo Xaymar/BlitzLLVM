@@ -138,6 +138,7 @@
 		{ "bufferdirty", "bb_buffer_dirty", 'v', "i", 1, {}, false },
 		{ "graphicsformat", "bb_graphics_format", 'i', "", 0, {}, false },
 		{ "dither", "bb_dither", 'v', "i", 1, {}, false },
+		{ "dithertemporal", "bb_dither_temporal", 'v', "i", 1, {}, false },
 		{ "antialias", "bb_anti_alias", 'v', "i", 1, {}, false },
 		{ "wbuffer", "bb_w_buffer", 'v', "i", 1, {}, false },
 		{ "hwmultitex", "bb_hw_multi_tex", 'v', "i", 1, {}, false },
