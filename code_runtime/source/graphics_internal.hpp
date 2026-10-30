@@ -171,6 +171,7 @@ namespace bb::gfx {
 	struct image_recipe {
 		enum class content { blank, pixels, blocks };
 		uint32_t           width = 0, height = 0, mips = 1, layers = 1; // pixels: all layers one after the other.
+		uint32_t           samples = 1;                                // Samples per pixel, for the images of order-independent transparency.
 		VkImageUsageFlags  usage = 0;
 		VkFormat           format = VK_FORMAT_R8G8B8A8_UNORM;
 		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -377,6 +378,7 @@ namespace bb::gfx {
 		VkPipeline            oit3d[4]       = {}; // The blended pipelines for order-independent transparency: alpha, multiply, add, multiply twice.
 		VkPipeline            oit3dm[4]      = {}; // The same for the second pass of the moment based kind (it reads the sums of the first).
 		VkPipeline            oit_moments3d  = VK_NULL_HANDLE; // The first pass of the moment based kind.
+		VkPipeline            oit_slots3d    = VK_NULL_HANDLE; // Alpha-blended things for the slots of samples.
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
 		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
@@ -908,7 +910,7 @@ namespace bb::gfx {
 	bool mesh_buffers_write_only();
 	void mesh_allocation_info(VmaAllocationCreateInfo& alloc);
 	void destroy_buffer(VkBuffer& buffer, VmaAllocation& allocation);
-	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1, uint32_t layers = 1);
+	gpu_image create_image(uint32_t width, uint32_t height, VkImageUsageFlags usage, VkFormat format = VK_FORMAT_R8G8B8A8_UNORM, VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT, const VkComponentMapping* components = nullptr, uint32_t mips = 1, uint32_t layers = 1, uint32_t samples = 1);
 	void destroy_image(gpu_image& img);
 	/** Destroys what the GPU has of an image and keeps what it takes to make it again: the recipe, the size, the layout. */
 	void release_image(gpu_image& img);
@@ -971,6 +973,9 @@ namespace bb::gfx {
 	// Order-independent transparency (graphics_oit.cpp).
 	bool oit_active();
 	bool oit_moments(); // Whether the moment based kind is on (BLITZLLVM_OIT=2).
+	uint32_t oit_slots(); // The slots of samples of the kind that sorts fragments in the samples of a pixel (BLITZLLVM_OIT=3 for 4, =4 for 8): 0 if it is off or the driver has no such samples.
+	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth);
+	void oit_slots_to_sampled(uint32_t width, uint32_t height);
 	VkPipelineLayout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
 	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2]);
 	void oit_moments_to_sampled(uint32_t width, uint32_t height);

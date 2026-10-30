@@ -25,10 +25,12 @@
 using namespace bb::gfx;
 
 namespace {
-	int asked = -1; // GraphicsOrderIndependentTransparency: -1 until BLITZLLVM_OIT was read, then 0 (off), 1 (weighted blended) or 2 (moment based).
+	int asked = -1; // GraphicsOrderIndependentTransparency: -1 until BLITZLLVM_OIT was read, then 0 (off), 1 (weighted blended), 2 (moment based), 3 (slots of 4 samples) or 4 (slots of 8).
 
 	// The four images and the set that reads them, for each size of target that was drawn to (as the depth buffers are).
 	struct image_set {
+		gpu_image       slot_color, slot_depth; // The slots of samples: multisampled color and depth.
+		VkImageLayout   slot_depth_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 		gpu_image       images[5]; // Sums of alpha, what remains of the light (or the optical depth, moment based), product of multiplied colors, sum of added colors, moments.
 		VkDescriptorSet set    = VK_NULL_HANDLE;
 		uint32_t        width  = 0, height = 0;
@@ -37,7 +39,7 @@ namespace {
 	image_set        cache[max_sizes];
 	VkPipelineLayout layout       = VK_NULL_HANDLE;
 	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
-	std::map<VkFormat, VkPipeline[4]> composites;
+	std::map<VkFormat, VkPipeline[5]> composites;
 	VkPipelineLayout layout3d_moments = VK_NULL_HANDLE;
 
 	constexpr VkFormat formats[5] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32G32B32A32_SFLOAT };
@@ -47,12 +49,12 @@ namespace {
 		if (set_layout) {
 			return;
 		}
-		VkDescriptorSetLayoutBinding bindings[5];
-		for (uint32_t i = 0; i < 5; i++) {
+		VkDescriptorSetLayoutBinding bindings[7];
+		for (uint32_t i = 0; i < 7; i++) {
 			bindings[i] = { i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 		}
 		VkDescriptorSetLayoutCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		info.bindingCount                    = 5;
+		info.bindingCount                    = 7;
 		info.pBindings                       = bindings;
 		check(vkCreateDescriptorSetLayout(g.device, &info, nullptr, &set_layout), "vkCreateDescriptorSetLayout");
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
@@ -91,6 +93,21 @@ namespace {
 				writes[i].pImageInfo      = &infos[i];
 			}
 			vkUpdateDescriptorSets(g.device, 5, writes, 0, nullptr);
+			if (uint32_t slots = oit_slots()) {
+				entry.slot_color = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT, nullptr, 1, 1, slots);
+				entry.slot_depth = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT, nullptr, 1, 1, slots);
+				VkDescriptorImageInfo slot_infos[2] = { { g.sampler_point_clamp, entry.slot_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL }, { g.sampler_point_clamp, entry.slot_depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL } };
+				VkWriteDescriptorSet  slot_writes[2];
+				for (uint32_t i = 0; i < 2; i++) {
+					slot_writes[i]                 = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+					slot_writes[i].dstSet          = entry.set;
+					slot_writes[i].dstBinding      = 5 + i;
+					slot_writes[i].descriptorCount = 1;
+					slot_writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+					slot_writes[i].pImageInfo      = &slot_infos[i];
+				}
+				vkUpdateDescriptorSets(g.device, 2, slot_writes, 0, nullptr);
+			}
 			entry.width  = width;
 			entry.height = height;
 			return entry;
@@ -108,9 +125,13 @@ namespace {
 		create_set_layout();
 		VkPipeline* made = composites[format];
 		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
-		const unsigned int* codes[4] = { bb_shader_fragment_oit_composite0, bb_shader_fragment_oit_composite1, bb_shader_fragment_oit_composite2, bb_shader_fragment_oit_composite3 };
-		const size_t        sizes[4] = { sizeof(bb_shader_fragment_oit_composite0), sizeof(bb_shader_fragment_oit_composite1), sizeof(bb_shader_fragment_oit_composite2), sizeof(bb_shader_fragment_oit_composite3) };
-		for (int mode = 0; mode < 4; mode++) {
+		const bool          eight    = (oit_slots() == 8);
+		const unsigned int* codes[5] = { bb_shader_fragment_oit_composite0, bb_shader_fragment_oit_composite1, bb_shader_fragment_oit_composite2, bb_shader_fragment_oit_composite3, eight ? bb_shader_fragment_oit_resolve8 : bb_shader_fragment_oit_resolve4 };
+		const size_t        sizes[5] = { sizeof(bb_shader_fragment_oit_composite0), sizeof(bb_shader_fragment_oit_composite1), sizeof(bb_shader_fragment_oit_composite2), sizeof(bb_shader_fragment_oit_composite3), eight ? sizeof(bb_shader_fragment_oit_resolve8) : sizeof(bb_shader_fragment_oit_resolve4) };
+		for (int mode = 0; mode < 5; mode++) {
+			if ((mode == 4) && !oit_slots()) {
+				continue;
+			}
 			VkShaderModule fs = create_shader(codes[mode], sizes[mode]);
 			VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 			stages[0].stage  = VK_SHADER_STAGE_VERTEX_BIT;
@@ -140,7 +161,7 @@ namespace {
 			blend.colorBlendOp                        = VK_BLEND_OP_ADD;
 			blend.alphaBlendOp                        = VK_BLEND_OP_ADD;
 			blend.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-			if ((mode == 3) || (mode == 0)) {
+			if ((mode == 3) || (mode == 0) || (mode == 4)) {
 				blend.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 				blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 				blend.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
@@ -194,7 +215,7 @@ namespace bb::gfx {
 	{
 		if (asked < 0) {
 			int32_t value = bb_env_int("BLITZLLVM_OIT", 0);
-			asked         = (value >= 2) ? 2 : ((value == 1) ? 1 : 0);
+			asked         = (value >= 4) ? 4 : ((value < 0) ? 0 : value);
 		}
 		return asked != 0;
 	}
@@ -202,6 +223,47 @@ namespace bb::gfx {
 	bool oit_moments()
 	{
 		return oit_active() && (asked == 2);
+	}
+
+	static void color_attachment(VkRenderingAttachmentInfo& out, gpu_image& image, float r, float g_, float b, float a);
+
+	// The samples per pixel that the slots use: 4 or 8 as asked, or what the driver can do for both color and depth, to sample and to draw to (0 if the kind is not asked for).
+	uint32_t oit_slots()
+	{
+		if (!oit_active() || (asked < 3)) {
+			return 0;
+		}
+		VkPhysicalDeviceProperties props;
+		vkGetPhysicalDeviceProperties(g.physical, &props);
+		VkSampleCountFlags have = props.limits.framebufferColorSampleCounts & props.limits.framebufferDepthSampleCounts & props.limits.sampledImageColorSampleCounts & props.limits.sampledImageDepthSampleCounts;
+		uint32_t           want = (asked == 4) ? 8 : 4;
+		if ((want == 8) && !(have & VK_SAMPLE_COUNT_8_BIT)) {
+			want = 4;
+		}
+		return (have & want) ? want : 0;
+	}
+
+	// The pass of the alpha-blended things for the slots: multisampled color (cleared to nothing) and depth (cleared to the far plane, which is 0).
+	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth)
+	{
+		image_set& entry = images_for(width, height);
+		color_attachment(*color, entry.slot_color, 0, 0, 0, 0);
+		barrier(entry.slot_depth.image, entry.slot_depth_layout, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+		entry.slot_depth_layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		*depth                  = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		depth->imageView        = entry.slot_depth.view;
+		depth->imageLayout      = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		depth->loadOp           = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depth->storeOp          = VK_ATTACHMENT_STORE_OP_STORE;
+		depth->clearValue.depthStencil = { 0.0f, 0 };
+	}
+
+	void oit_slots_to_sampled(uint32_t width, uint32_t height)
+	{
+		image_set& entry = images_for(width, height);
+		transition(entry.slot_color, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		barrier(entry.slot_depth.image, entry.slot_depth_layout, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+		entry.slot_depth_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 	}
 
 	// The 3D pipelines of the second pass of the moment based kind: they read the sums of the first (set 4) next to what the other 3D pipelines read.
@@ -287,7 +349,7 @@ namespace bb::gfx {
 		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &entry.set, 0, nullptr);
 		for (int mode = 0; mode < 3; mode++) {
 			if (modes & (1u << mode)) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[((mode == 0) && oit_moments()) ? 3 : mode]);
+				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[(mode == 0) ? (oit_slots() ? 4 : (oit_moments() ? 3 : 0)) : mode]);
 				vkCmdDraw(g.cmd, 3, 1, 0, 0);
 			}
 		}
@@ -303,6 +365,13 @@ namespace bb::gfx {
 						image = gpu_image();
 					}
 				}
+				for (gpu_image* image : { &entry.slot_color, &entry.slot_depth }) {
+					if (image->image) {
+						destroy_image(*image);
+						*image = gpu_image();
+					}
+				}
+				entry.slot_depth_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 				entry.set = VK_NULL_HANDLE; // The pool takes the set.
 				entry.width = entry.height = 0;
 			}
@@ -323,11 +392,12 @@ extern "C" {
 // It takes effect with the next picture, and does nothing where HWOrderIndependentTransparency is 0.
 void bb_graphics_order_independent_transparency(int32_t enable)
 {
-	int now = (enable >= 2) ? 2 : ((enable != 0) ? 1 : 0);
+	int now = (enable >= 4) ? 4 : ((enable < 0) ? 0 : enable);
 	if (now != asked) {
 		asked = now;
 		if (g.created && !g.headless) {
 			rebuild_pipelines_3d(); // Dither 2 and this do not blend the same way.
+			oit_destroy(); // The images and the passes over the picture depend on the kind (the device is idle after the rebuild).
 		}
 	}
 }

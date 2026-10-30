@@ -406,7 +406,12 @@ namespace bb::gfx {
 		VkFormat                            oit_formats[4] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT };
 		VkPipelineColorBlendAttachmentState oit_blend[4]   = {};
 		VkPipelineLayout                    layout         = g.layout3d;
-		if (oit) {
+		if (oit == 4) {
+			// Slots of samples: one half float color attachment with as many samples as there are slots, nothing blended (the sample mask and the depth test of the samples pick).
+			blend.blendEnable                = VK_FALSE;
+			multisample.rasterizationSamples = VkSampleCountFlagBits(oit_slots());
+		}
+		if (oit && (oit != 4)) {
 			const VkColorComponentFlags all = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 			for (VkPipelineColorBlendAttachmentState& state : oit_blend) {
 				state.colorWriteMask = 0;
@@ -1006,6 +1011,12 @@ namespace bb::gfx {
 			}
 			vkDestroyShaderModule(g.device, fs_oit, nullptr);
 		}
+		if (oit_slots()) {
+			// The alpha-blended things go to the slots, the multiplied and added ones to the sums as before.
+			VkShaderModule fs_slots = (oit_slots() == 8) ? create_shader(bb_shader_fragment_3d_oit_slots8, sizeof(bb_shader_fragment_3d_oit_slots8)) : create_shader(bb_shader_fragment_3d_oit_slots4, sizeof(bb_shader_fragment_3d_oit_slots4));
+			g.oit_slots3d = build_pipeline_3d(vs, fs_slots, 1, false, VK_FORMAT_R16G16B16A16_SFLOAT, false, 4);
+			vkDestroyShaderModule(g.device, fs_slots, nullptr);
+		}
 		if (g.can_wireframe) {
 			for (int mode = 0; mode < 4; mode++) {
 				g.wire3d[mode] = create_pipeline_3d(vs, (mode != 0) ? fs_blend : fs, mode, true, shader_blend && (mode != 0), fs);
@@ -1048,6 +1059,10 @@ namespace bb::gfx {
 		if (g.oit_moments3d) {
 			vkDestroyPipeline(g.device, g.oit_moments3d, nullptr);
 			g.oit_moments3d = VK_NULL_HANDLE;
+		}
+		if (g.oit_slots3d) {
+			vkDestroyPipeline(g.device, g.oit_slots3d, nullptr);
+			g.oit_slots3d = VK_NULL_HANDLE;
 		}
 	}
 
@@ -1461,6 +1476,9 @@ namespace bb::gfx {
 		uint32_t                  oit_begin = 0, oit_end = 0;
 		VkRenderingAttachmentInfo moment_colors[2];
 		VkRenderingInfo           moment_info = info;
+		// The slots of samples kind draws the alpha-blended things (phase 3) to a multisampled color and depth, then the multiplied and added ones (phase 4) to the sums.
+		VkRenderingAttachmentInfo slot_color, slot_depth;
+		VkRenderingInfo           slot_info = info;
 		const uint32_t            oit_w = target.image->width, oit_h = target.image->height;
 		auto oit_bit = [&](VkPipeline pipeline) -> uint32_t { return (pipeline == g.add3d) ? 2u : ((pipeline == g.mul3d || pipeline == g.mul2x3d) ? 1u : 0u); };
 		auto oit_index = [&](VkPipeline pipeline) -> int { return (pipeline == g.blend3d) ? 0 : ((pipeline == g.mul3d) ? 1 : ((pipeline == g.add3d) ? 2 : 3)); };
@@ -1541,7 +1559,28 @@ namespace bb::gfx {
 				}
 			}
 		};
-		for (uint32_t i = 0; (i < scene.draw_count) || (oit_phase == 1);) {
+		for (uint32_t i = 0; (i < scene.draw_count) || (oit_phase == 1) || (oit_phase == 3);) {
+			if ((oit_phase == 3) && (i >= oit_end)) {
+				// The slots are filled: the multiplied and added things are drawn to the sums, then both are put on the picture.
+				vkCmdEndRendering(g.cmd);
+				oit_slots_to_sampled(oit_w, oit_h);
+				oit_attachments(oit_w, oit_h, oit_colors);
+				oit_info                      = info;
+				oit_info.colorAttachmentCount = 4;
+				oit_info.pColorAttachments    = oit_colors;
+				depth.loadOp                  = VK_ATTACHMENT_LOAD_OP_LOAD;
+				vkCmdBeginRendering(g.cmd, &oit_info);
+				for (VkRenderingAttachmentInfo& attachment : oit_colors) {
+					attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+				}
+				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				bound_pipeline = VK_NULL_HANDLE;
+				bound_cull = bound_test = bound_write = -1;
+				oit_phase = 4;
+				i         = oit_begin;
+				continue;
+			}
 			if ((oit_phase == 1) && (i >= oit_end)) {
 				// The sums are done: the second pass draws the same range again, with the colors.
 				vkCmdEndRendering(g.cmd);
@@ -1593,8 +1632,44 @@ namespace bb::gfx {
 				i += instances; // Multiplied and added colors have no sums of the optical depth.
 				continue;
 			}
+			if ((oit_phase == 3) && (d.pipeline != g.blend3d)) {
+				i += instances; // The slots hold what is blended by alpha.
+				continue;
+			}
+			if ((oit_phase == 4) && d.oit && (d.pipeline == g.blend3d)) {
+				i += instances; // Already in the slots.
+				continue;
+			}
 			if (d.oit != oit_mode) {
-				if (d.oit && oit_moments()) {
+				if (d.oit && oit_slots()) {
+					vkCmdEndRendering(g.cmd);
+					oit_begin = i;
+					oit_end   = i;
+					while ((oit_end < scene.draw_count) && draws[scene.first_draw + oit_end].oit) {
+						oit_end++;
+					}
+					if (!read_only) {
+						// The slots test against the depth of the scene in the shader, so it is only read from here on (as with a depth fade).
+						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+						depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+						read_only         = true;
+					}
+					VkDescriptorSet depth_set = depth_set_for(depth_image);
+					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_set, 0, nullptr);
+					oit_attachments_slots(oit_w, oit_h, &slot_color, &slot_depth);
+					slot_info                      = info;
+					slot_info.colorAttachmentCount = 1;
+					slot_info.pColorAttachments    = &slot_color;
+					slot_info.pDepthAttachment     = &slot_depth;
+					oit_mode                       = true;
+					oit_modes                      = 0;
+					oit_phase                      = 3;
+					vkCmdBeginRendering(g.cmd, &slot_info);
+					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+					bound_pipeline = VK_NULL_HANDLE;
+					bound_cull = bound_test = bound_write = -1;
+				} else if (d.oit && oit_moments()) {
 					vkCmdEndRendering(g.cmd);
 					oit_begin = i;
 					oit_end   = i;
@@ -1661,7 +1736,7 @@ namespace bb::gfx {
 				oit_modes |= 1u << oit_bit(d.pipeline);
 			}
 			if (d.pipeline != bound_pipeline) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.oit ? ((oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : pipeline_for(d.pipeline, target.image->format));
+				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.oit ? ((oit_phase == 3) ? g.oit_slots3d : (oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : pipeline_for(d.pipeline, target.image->format));
 				bound_pipeline = d.pipeline;
 				stats3d.pipelines++;
 			}
@@ -1670,11 +1745,13 @@ namespace bb::gfx {
 				vkCmdSetCullMode(g.cmd, VkCullModeFlags(cull));
 				bound_cull = cull;
 			}
-			if (int(d.depth_test) != bound_test) {
-				vkCmdSetDepthTestEnable(g.cmd, d.depth_test ? VK_TRUE : VK_FALSE);
-				bound_test = d.depth_test;
+			// The depth of the slots picks the nearest fragment of each, so it is always tested and written there.
+			bool test_now = d.depth_test || (oit_phase == 3);
+			if (int(test_now) != bound_test) {
+				vkCmdSetDepthTestEnable(g.cmd, test_now ? VK_TRUE : VK_FALSE);
+				bound_test = test_now;
 			}
-			bool write = d.depth_write && !read_only;
+			bool write = (oit_phase == 3) || (d.depth_write && !read_only);
 			if (int(write) != bound_write) {
 				vkCmdSetDepthWriteEnable(g.cmd, write ? VK_TRUE : VK_FALSE);
 				bound_write = write;
