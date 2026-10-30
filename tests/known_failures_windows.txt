@@ -95,6 +95,7 @@ suite-debug-compile-blitz3d_sprite_depth_fade_pixels
 suite-debug-compile-blitz3d_sprite_hull_pixels
 suite-debug-compile-blitz3d_sprite_modes_pixels
 suite-debug-compile-blitz3d_texture_alpha_pixels
+suite-debug-compile-blitz3d_texture_blend_layers_pixels
 suite-debug-compile-blitz3d_texture_blend_original_pixels
 suite-debug-compile-blitz3d_texture_flags_pixels
 suite-debug-compile-blitz3d_texture_formats_pixels
@@ -273,6 +274,7 @@ suite-debug-run-blitz3d_sprite_depth_fade_pixels
 suite-debug-run-blitz3d_sprite_hull_pixels
 suite-debug-run-blitz3d_sprite_modes_pixels
 suite-debug-run-blitz3d_texture_alpha_pixels
+suite-debug-run-blitz3d_texture_blend_layers_pixels
 suite-debug-run-blitz3d_texture_blend_original_pixels
 suite-debug-run-blitz3d_texture_flags_pixels
 suite-debug-run-blitz3d_texture_formats_pixels
