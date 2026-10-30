@@ -336,5 +336,5 @@ does a fixed list of `LinePick` (with and without a radius), `EntityPick`, `Enti
 every `Picked*` value goes to a text file (`PICK_OUT`, `PICK_ENTITIES`, `PICK_COUNT`), so two compilers, or two pick backends, can
 be compared line by line; the scene as it was built is written too, so a difference in it can not be taken for a difference of the
 picks. The time of all the picks is written to `PICK_OUT` with `.time` added, so with many entities and picks it is a benchmark as
-well (on a real machine, with both compilers). Entities and surfaces are written as numbers (creation number, surface index)
+well (on a real machine, with both compilers). For timing set `PICK_BENCH=1`, which writes no results, so that the time is only that of the picks. Entities and surfaces are written as numbers (creation number, surface index)
 because the original returns pointers. Note that the original writes its files with CRLF line ends.
