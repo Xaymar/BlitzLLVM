@@ -37,6 +37,7 @@ void blitz::compiler::begin_function()
 	_terminated   = false;
 	_uses_strings = false;
 	_string_locals.clear();
+	_object_locals.clear();
 	_heap_locals.clear();
 	_exit_label.clear();
 	_ret_slot.clear();
@@ -72,9 +73,18 @@ void blitz::compiler::scope_end(scope& sc)
 	}
 }
 
-// Gives a variable, field or element a copy of the string and frees what it had before.
+// Gives a variable, field or element a copy of the string and frees what it had before. An object is held instead, and the
+// one it held before let go.
 void blitz::compiler::store_value(address const& target, value const& v)
 {
+	if ((target.type == type::STRUCT) && !target.sname.empty()) {
+		declare("bb_object_assign", "declare ptr @bb_object_assign(ptr, ptr, ptr)");
+		auto old = tmp(), fresh = tmp();
+		emit(old + " = load ptr, ptr " + target.pointer + (target.element ? ", !tbaa !900004" : ""));
+		emit(fresh + " = call ptr @bb_object_assign(ptr " + old + ", ptr " + v.repr + ", ptr " + need_type(target.sname, {}).list + ")");
+		emit("store ptr " + fresh + ", ptr " + target.pointer + (target.element ? ", !tbaa !900004" : ""));
+		return;
+	}
 	if (target.type != type::STRING) {
 		emit("store " + blitz::types::to_llvm(target.type) + " " + v.repr + ", ptr " + target.pointer + (target.element ? ", !tbaa !900004" : ""));
 		return;
@@ -301,6 +311,9 @@ void blitz::compiler::gen_function(ast::function const& fn)
 			auto copy = tmp();
 			emit(copy + " = call ptr @bb_str_dup(ptr %a" + std::to_string(idx) + ")");
 			emit("store ptr " + copy + ", ptr " + var.pointer);
+		} else if ((param.type == type::STRUCT) && !param.struct_name.empty()) {
+			// The function holds what it was given, so that it stays while the function runs.
+			store_value({ var.pointer, param.type, lower(param.struct_name), 0, false }, value{ "%a" + std::to_string(idx), param.type, lower(param.struct_name) });
 		} else {
 			emit("store " + blitz::types::to_llvm(param.type) + " %a" + std::to_string(idx) + ", ptr " + var.pointer);
 		}
@@ -324,6 +337,17 @@ void blitz::compiler::gen_function(ast::function const& fn)
 		emit("call void @bb_loop_leave(ptr " + each.second + ", ptr " + each.first + ")");
 	}
 	gen_copy_outs();
+	for (auto const& local : _object_locals) {
+		if (local.count) {
+			declare("bb_object_drop_array", "declare void @bb_object_drop_array(ptr, i64, ptr)");
+			emit("call void @bb_object_drop_array(ptr " + local.pointer + ", i64 " + std::to_string(local.count) + ", ptr " + need_type(local.sname, {}).list + ")");
+		} else {
+			declare("bb_object_drop", "declare void @bb_object_drop(ptr, ptr)");
+			auto held = tmp();
+			emit(held + " = load ptr, ptr " + local.pointer);
+			emit("call void @bb_object_drop(ptr " + held + ", ptr " + need_type(local.sname, {}).list + ")");
+		}
+	}
 	if (_uses_strings) {
 		declare("bb_str_mark", "declare i32 @bb_str_mark()");
 		_allocas << "  %entry.mark = call i32 @bb_str_mark()" << dbg() << "\n";
@@ -379,6 +403,10 @@ void blitz::compiler::gen_reference_parameter(ast::parameter const& param, varia
 			v = { copy, type::STRING };
 			_uses_strings = true;
 		}
+		if ((param.type == type::STRUCT) && !param.struct_name.empty()) {
+			store_value({ var.pointer, param.type, lower(param.struct_name), 0, false }, { v.repr, param.type, lower(param.struct_name) });
+			return;
+		}
 		emit("store " + llvm + " " + v.repr + ", ptr " + var.pointer);
 	};
 
@@ -396,6 +424,10 @@ void blitz::compiler::gen_reference_parameter(ast::parameter const& param, varia
 				emit(copy + " = call ptr @bb_str_dup(ptr " + held + ")");
 				held = copy;
 				_uses_strings = true;
+			}
+			if ((param.type == type::STRUCT) && !param.struct_name.empty()) {
+				store_value({ var.pointer, param.type, lower(param.struct_name), 0, false }, { held, param.type, lower(param.struct_name) });
+				return;
 			}
 			emit("store " + llvm + " " + held + ", ptr " + var.pointer);
 		};
