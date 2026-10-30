@@ -73,6 +73,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_PROFILE_SAMPLE` | not set | The file that receives where the program spends its time (sampled every millisecond). Windows only, needs `--profile`. With `-g` or `-d` as well, `<file>.stacks` also receives the call stacks, see below. |
 | `BLITZLLVM_DEBUG_ALLOC` | `0` | Fills freed and new blocks with patterns and stops when a freed block is written to or freed twice, see [[Memory]]. |
 | `BLITZLLVM_DEBUG_ALLOC_STATS` | `0` | Counts the blocks and bytes that were not freed and reports them at the end, see [[Memory]]. |
+| `BLITZLLVM_DEBUG_ALLOC_RELEASE` | `0` | Prints a line to stderr for every sweep that gave empty allocator spans back to the system: how many, when, and how long the longest was empty, see [[Memory]]. |
 | `BLITZLLVM_MESH_REPORT` | `0` | Prints the memory flags of the first four vertex and index buffers of meshes (device local, host cached). |
 | `BLITZLLVM_DEBUG_SYNC_GPU` | `0` | Waits for the GPU after every frame, as if it had no thread. |
 | `BLITZLLVM_DEBUG_CHECK_LIGHTS` | `0` | Rates the lights of all meshes as well and stops if the grid and the cache gave different ones. |

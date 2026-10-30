@@ -42,6 +42,7 @@ These environment variables are read when the program starts:
 | `BLITZLLVM_DEBUG_ALLOC=1` | Freed blocks are filled with a pattern; a block that is written to after it was freed, or freed twice, stops the program with a message when it is reused or freed. New blocks are filled with another pattern, so reading what was never written stands out. The blocks that were not freed are reported when the program ends. Slower.
 | `BLITZLLVM_DEBUG_ALLOC_STATS=1` | Counts the blocks and bytes that were not freed and reports them at the end.
 | `BLITZLLVM_ALLOC_RELEASE=0` | Spans are kept, as in versions before the release of empty spans, to compare the memory use over time.
+| `BLITZLLVM_DEBUG_ALLOC_RELEASE=1` | Prints a line to stderr for every sweep that gave spans back: how many, when, and how long the longest was empty.
 | `BLITZLLVM_ALLOC_SYSTEM=1` | Everything goes to the system allocator, for tools that watch it (valgrind, AddressSanitizer, heap profilers).
 |===
 
