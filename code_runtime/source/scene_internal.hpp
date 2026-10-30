@@ -185,7 +185,7 @@ void bb_camera_culling(int32_t handle, int32_t flags);
 void bb_camera_culling_source(int32_t handle, int32_t source);
 void bb_light_color(int32_t handle, float r, float g, float b);
 void bb_light_range(int32_t handle, float range);
-void bb_entity_light_channel(int32_t handle, int32_t channel);
+void bb_entity_light_channel(int32_t handle, uint64_t channel);
 void bb_camera_fog_mode(int32_t handle, int32_t mode);
 void bb_camera_fog_range(int32_t handle, float near_distance, float far_distance);
 void bb_camera_fog_color(int32_t handle, float r, float g, float b);
