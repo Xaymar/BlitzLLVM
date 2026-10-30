@@ -153,6 +153,8 @@ namespace bb::gfx {
 				int            showing   = p.showing;
 				uint64_t       number    = p.showing_number;
 				VkSwapchainKHR swapchain = p.s->swapchain;
+				VkImage        frame     = p.frame_images[showing]; // Taken under the lock: presenter_resize replaces the pictures while the thread is not busy.
+				uint32_t       frame_w   = p.frame_w, frame_h = p.frame_h;
 				SDL_UnlockMutex(p.mutex);
 
 				if (swapchain == VK_NULL_HANDLE) {
@@ -174,7 +176,6 @@ namespace bb::gfx {
 					continue;
 				}
 
-				VkImage                  frame = p.frame_images[showing];
 				VkCommandBufferBeginInfo begin = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 				begin.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 				vkResetCommandBuffer(p.cmd, 0);
@@ -183,7 +184,7 @@ namespace bb::gfx {
 				// The picture fills the window. Until the program draws one of the new size after a resize, the old one is stretched.
 				VkImageBlit blit    = {};
 				blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-				blit.srcOffsets[1]  = { int32_t(p.frame_w), int32_t(p.frame_h), 1 };
+				blit.srcOffsets[1]  = { int32_t(frame_w), int32_t(frame_h), 1 };
 				blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 				blit.dstOffsets[1]  = { int32_t(p.s->swap_extent.width), int32_t(p.s->swap_extent.height), 1 };
 				vkCmdBlitImage(p.cmd, frame, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, p.s->swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
@@ -333,6 +334,34 @@ namespace bb::gfx {
 		SDL_DestroyMutex(p->mutex);
 		delete p;
 		s.show = nullptr;
+	}
+
+	// The window changed its size: the three pictures are made again at the new one. The thread finishes what it shows first, then
+	// shows nothing until the next handover (the stretched old picture would only flicker before the new one).
+	void presenter_resize(surface_state& s, int width, int height)
+	{
+		presenter* p = s.show;
+		uint32_t   w = uint32_t(width > 0 ? width : 1), h = uint32_t(height > 0 ? height : 1);
+		if (!p || ((p->frame_w == w) && (p->frame_h == h))) {
+			return;
+		}
+		SDL_LockMutex(p->mutex);
+		while (p->busy) {
+			SDL_WaitCondition(p->cond, p->mutex);
+		}
+		p->showing = p->ready = -1;
+		p->drawing = 0;
+		int old[3] = { p->frames[0], p->frames[1], p->frames[2] };
+		for (int i = 0; i < 3; i++) {
+			p->frames[i]       = make_internal_target(int(w), int(h));
+			p->frame_images[i] = image_of(p->frames[i])->image.image;
+		}
+		p->frame_w = w;
+		p->frame_h = h;
+		SDL_UnlockMutex(p->mutex);
+		for (int frame : old) {
+			free_internal_image(frame); // Waits for the GPU, which may still blit from it.
+		}
 	}
 
 	int32_t presenter_buffer(surface_state& s)

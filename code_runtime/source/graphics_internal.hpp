@@ -48,7 +48,11 @@ void bb_runtime_error(const char* message);
 void bb_sound_update(void);
 void bb_movie_update(void);
 int32_t bb_line_pick(float x, float y, float z, float dx, float dy, float dz, float radius);
-int32_t bb_gui_event(const void* event);
+int32_t bb_gui_event(const void* event, int32_t window);
+int32_t bb_gui_used(void);
+int32_t bb_gui_window_origin(int32_t window, int32_t* x, int32_t* y);
+void    bb_gui_window_event(int32_t window, int32_t kind, int32_t a, int32_t b);
+int32_t bb_gui_window_surface(int32_t gadget);
 int32_t bb_gui_mouse_in(int32_t canvas, int32_t* x, int32_t* y);
 int32_t bb_gui_translate(int32_t kind, int32_t* x, int32_t* y, int32_t* source);
 void bb_gui_idle(void);
@@ -286,6 +290,7 @@ namespace bb::gfx {
 		VkSemaphore    acquired = VK_NULL_HANDLE;
 		int            vsync    = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
 		struct presenter* show = nullptr; // The thread that shows the window's pictures, where the window has one (graphics_presenter.cpp).
+		bool           gui = false;       // A window of the BlitzPlus GUI: its events go to the gadgets (bb_gui_event, bb_gui_window_event).
 	};
 
 	struct state {
@@ -999,6 +1004,8 @@ namespace bb::gfx {
 	constexpr int  max_extra_surfaces = 64;
 	surface_state* extra_surface(int handle);
 	surface_state* extra_surface_of_window(SDL_WindowID window);
+	int            extra_surface_handle(surface_state const* s);
+	bool           extra_surface_focused(); // Whether one of them has the keyboard focus.
 	int            create_extra_surface(const char* title, int width, int height, int resizable, int borderless);
 	void           destroy_extra_surface(int handle);
 	void           destroy_extra_surfaces();
@@ -1015,6 +1022,7 @@ namespace bb::gfx {
 	 * (with wait, the call returns once it was). The handover sends what was drawn and never waits for the GPU. */
 	int32_t    presenter_buffer(surface_state& s);
 	void       presenter_handover(surface_state& s, bool wait);
+	void       presenter_resize(surface_state& s, int width, int height); // The pictures take the size; nothing is shown until the next handover.
 	/** From the program's thread: an event of the window, and the swapchains the threads asked for. */
 	void       presenter_window_event(surface_state& s, const SDL_Event& event);
 	void       presenter_service();

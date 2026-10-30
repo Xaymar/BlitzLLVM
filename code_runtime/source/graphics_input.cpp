@@ -91,8 +91,11 @@ namespace bb::gfx {
 		unsetenv("BLITZ_TEST_EVENTS");
 		unsetenv("BLITZ_TEST_EVENTS");
 #endif
-		SDL_WindowID window = surface().window ? SDL_GetWindowID(surface().window) : 0;
-		Uint32       which  = 0; // dN: the device that the next events say they came from.
+		SDL_WindowID graphics_window = surface().window ? SDL_GetWindowID(surface().window) : 0;
+		SDL_WindowID window          = graphics_window;
+		Uint32       which           = 0; // dN: the device that the next events say they came from.
+		static SDL_WindowID placed_window = 0; // Where p put the mouse last, for m in a window besides the one of Graphics.
+		static float        placed_x = 0, placed_y = 0;
 		char* rest = nullptr;
 		for (char* item = SDL_strtok_r(copy, ",", &rest); item; item = SDL_strtok_r(nullptr, ",", &rest)) {
 			SDL_Event event = {};
@@ -123,6 +126,10 @@ namespace bb::gfx {
 				event.button.which   = which;
 				event.button.x        = float(g.mouse_x);
 				event.button.y        = float(g.mouse_y);
+				if ((window != graphics_window) && (placed_window == window)) {
+					event.button.x = placed_x; // In another window the mouse is where p put it last, in that window.
+					event.button.y = placed_y;
+				}
 				for (int phase = 0; phase < 2; phase++) {
 					bool down         = phase == 0;
 					event.type        = down ? SDL_EVENT_MOUSE_BUTTON_DOWN : SDL_EVENT_MOUSE_BUTTON_UP;
@@ -161,6 +168,27 @@ namespace bb::gfx {
 				event.wheel.y      = float(n);
 				SDL_PushEvent(&event);
 				break;
+			case '@': // @N: what follows goes to the window of gadget N (a window of the GUI); @0 is the window of Graphics again.
+				window = graphics_window;
+				if (surface_state* s = extra_surface(bb_gui_window_surface(n)); s && s->window) {
+					window = SDL_GetWindowID(s->window);
+				}
+				break;
+			case 'p': // pX:Y, the mouse moves to X,Y of the window (of the buffer, for the window of Graphics).
+				event.type            = SDL_EVENT_MOUSE_MOTION;
+				event.motion.windowID = window;
+				event.motion.x        = float(n);
+				if (const char* colon = strchr(item, ':')) {
+					event.motion.y = float(atoi(colon + 1));
+				}
+				if (window == graphics_window) {
+					buffer_to_window(event.motion.x, event.motion.y, &event.motion.x, &event.motion.y);
+				}
+				placed_window = window;
+				placed_x      = event.motion.x;
+				placed_y      = event.motion.y;
+				SDL_PushEvent(&event);
+				break;
 			case 'r': // rX:Y, the mouse moves by X and Y without anything telling where it is.
 				event.type             = SDL_EVENT_MOUSE_MOTION;
 				event.motion.windowID  = window;
@@ -193,29 +221,116 @@ namespace bb::gfx {
 		SDL_free(copy);
 	}
 
+	// The window that an event of the mouse, the keys or typing is from, 0 for the other kinds.
+	static SDL_WindowID input_event_window(SDL_Event const& event)
+	{
+		switch (event.type) {
+		case SDL_EVENT_MOUSE_MOTION:
+			return event.motion.windowID;
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
+			return event.button.windowID;
+		case SDL_EVENT_MOUSE_WHEEL:
+			return event.wheel.windowID;
+		case SDL_EVENT_KEY_DOWN:
+		case SDL_EVENT_KEY_UP:
+			return event.key.windowID;
+		case SDL_EVENT_TEXT_INPUT:
+			return event.text.windowID;
+		default:
+			return 0;
+		}
+	}
+
+	// What happened to a window of the GUI, for its gadget: 1 moved (to x, y), 2 sized (to w, h, in the units of the mouse), 3 asked to close,
+	// 4 got the focus, 5 lost it, 6 minimized, 7 maximized, 8 restored, 9 the mouse came in, 10 it left.
+	static void gui_window_event(int handle, SDL_Event const& event)
+	{
+		switch (event.type) {
+		case SDL_EVENT_WINDOW_MOVED:
+			bb_gui_window_event(handle, 1, event.window.data1, event.window.data2);
+			break;
+		case SDL_EVENT_WINDOW_RESIZED:
+			bb_gui_window_event(handle, 2, event.window.data1, event.window.data2);
+			break;
+		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+			bb_gui_window_event(handle, 3, 0, 0);
+			break;
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
+			bb_gui_window_event(handle, 4, 0, 0);
+			break;
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
+			bb_gui_window_event(handle, 5, 0, 0);
+			break;
+		case SDL_EVENT_WINDOW_MINIMIZED:
+			bb_gui_window_event(handle, 6, 0, 0);
+			break;
+		case SDL_EVENT_WINDOW_MAXIMIZED:
+			bb_gui_window_event(handle, 7, 0, 0);
+			break;
+		case SDL_EVENT_WINDOW_RESTORED:
+			bb_gui_window_event(handle, 8, 0, 0);
+			break;
+		case SDL_EVENT_WINDOW_MOUSE_ENTER:
+			bb_gui_window_event(handle, 9, 0, 0);
+			break;
+		case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+			bb_gui_window_event(handle, 10, 0, 0);
+			break;
+		default:
+			break;
+		}
+	}
+
 	static void drain()
 	{
 		SDL_Event event;
 		push_test_events();
 		while (SDL_PollEvent(&event)) {
+			// What happens to a window besides the one of Graphics is that window's. A window of the GUI tells its gadget; the mouse
+			// and keys in one are the program's as well, at the place of the window on the desktop of the GUI.
+			int32_t gui_window = 0, gui_x = 0, gui_y = 0;
 			if ((event.type >= SDL_EVENT_WINDOW_FIRST) && (event.type <= SDL_EVENT_WINDOW_LAST)) {
-				// What happens to a window besides the one of Graphics is that window's.
 				if (surface_state* other = extra_surface_of_window(event.window.windowID)) {
 					presenter_window_event(*other, event);
+					if (other->gui) {
+						gui_window_event(extra_surface_handle(other), event);
+					}
 					continue;
 				}
 			}
-			if (bb_gui_event(&event)) {
+			if (SDL_WindowID id = input_event_window(event)) {
+				if (surface_state* other = extra_surface_of_window(id)) {
+					int handle = extra_surface_handle(other);
+					if (!other->gui || !bb_gui_window_origin(handle, &gui_x, &gui_y)) {
+						continue; // A window that has no gadgets wants no input.
+					}
+					gui_window = handle;
+				}
+			}
+			if (bb_gui_event(&event, gui_window)) {
 				continue; // What the gadgets of the GUI use is not for the program.
 			}
+			// Where the mouse of an event is, in the coordinates of the program: of the buffer for the window of Graphics, of the
+			// desktop of the GUI for one of its windows.
+			auto at = [&](float ex, float ey, int* x, int* y) {
+				if (gui_window) {
+					*x = gui_x + int(floorf(ex));
+					*y = gui_y + int(floorf(ey));
+				} else {
+					window_to_buffer(ex, ey, x, y);
+				}
+			};
 			switch (event.type) {
 			case SDL_EVENT_QUIT:
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 				if (g.close_prompt[0] && !bb_confirm(g.close_prompt, 0)) {
 					break; // AppTitle's close prompt was answered with Cancel, so the program carries on.
 				}
-				if (bb_events_used()) {
-					bb_event_post(0x803, 0, 0, 0, 0, 0); // A program that asked for events is told instead.
+				// A program that asked for events is told instead; so is one that uses the GUI of BlitzPlus, whose windows close only when
+				// the program frees them (the window of Graphics, source 0, is one of them then). A quit signal still ends the program.
+				if (bb_events_used() || ((event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) && bb_gui_used())) {
+					bb_event_post(0x803, 0, 0, 0, 0, 0);
 					break;
 				}
 				bb_exit(); // Closing the window ends the program, like in Blitz.
@@ -411,13 +526,13 @@ namespace bb::gfx {
 					d->dx += dx;
 					d->dy += dy;
 				}
-				if (g.mouse_relative) {
+				if (g.mouse_relative && !gui_window) {
 					g.mouse_px = fminf(fmaxf(g.mouse_px + dx, 0.0f), float(g.width - 1));
 					g.mouse_py = fminf(fmaxf(g.mouse_py + dy, 0.0f), float(g.height - 1));
 					g.mouse_x  = int(g.mouse_px);
 					g.mouse_y  = int(g.mouse_py);
 				} else {
-					window_to_buffer(event.motion.x, event.motion.y, &g.mouse_x, &g.mouse_y);
+					at(event.motion.x, event.motion.y, &g.mouse_x, &g.mouse_y);
 				}
 				g.mouse_dx += dx;
 				g.mouse_dy += dy;
@@ -427,6 +542,9 @@ namespace bb::gfx {
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 				int b = button_index(event.button.button);
 				device_used(true, event.button.which);
+				if (gui_window) {
+					at(event.button.x, event.button.y, &g.mouse_x, &g.mouse_y); // The button says where it was pressed.
+				}
 				if (b) {
 					if (device_input* d = mouse_device_input(event.button.which)) {
 						d->mouse[b] = true;
@@ -446,6 +564,9 @@ namespace bb::gfx {
 			case SDL_EVENT_MOUSE_BUTTON_UP: {
 				int b = button_index(event.button.button);
 				device_used(true, event.button.which);
+				if (gui_window) {
+					at(event.button.x, event.button.y, &g.mouse_x, &g.mouse_y);
+				}
 				if (b) {
 					if (device_input* d = mouse_device_input(event.button.which)) {
 						d->mouse[b] = false;
@@ -484,7 +605,7 @@ namespace bb::gfx {
 		}
 		last = now;
 		drain();
-		while (g.auto_suspend && surface().suspended && surface().window) {
+		while (g.auto_suspend && surface().suspended && surface().window && !extra_surface_focused()) {
 			SDL_WaitEventTimeout(nullptr, 50);
 			drain();
 		}
