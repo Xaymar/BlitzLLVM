@@ -2670,6 +2670,24 @@ namespace bb::gfx {
 			}
 			int  texture_handle = paint.texture ? paint.texture : e->texture;
 			int  blend          = paint.blend ? paint.blend : e->blend;
+			// Direct3D 7 gets the stages of Blitz3D without the layers that have no texture or a TextureBlend of 0, so the layers that follow
+			// move up: the first texture that counts is the first stage, whatever layer it is on, and the others are the stages after it.
+			// The faces of a level keep their first layer as it is: the ambient light and the color of the level are made from it.
+			const bool bsp = e->cls && !strcmp(e->cls, "BSP");
+			int        stages[8], stage_count = 0;
+			if (bsp) {
+				stages[stage_count++] = texture_handle;
+			}
+			for (int layer = bsp ? 1 : 0; layer < 8; layer++) {
+				int            stage_handle = (layer == 0) ? texture_handle : (paint.layers[layer - 1] ? paint.layers[layer - 1] : e->layers[layer - 1]);
+				texture_entry* stage        = texture_of(stage_handle);
+				if (stage && stage->set && stage->blend) {
+					stages[stage_count++] = stage_handle;
+				}
+			}
+			if (stage_count && !bsp) {
+				texture_handle = stages[0];
+			}
 			bool surface_blended = surface_is_blended(*e, surface, item.alpha);
 			if (((pass == 0) && surface_blended) || ((pass == 1) && !surface_blended)) {
 				continue;
@@ -2816,11 +2834,11 @@ namespace bb::gfx {
 
 			// Textures on the layers after the first are drawn over the same triangles, and change what is there: the
 			// color map of a terrain gets its fine detail this way.
-			for (int layer = 0; layer < 7; layer++) {
-				int            extra_handle = paint.layers[layer] ? paint.layers[layer] : e->layers[layer];
+			for (int stage = 1; stage < stage_count; stage++) {
+				int            extra_handle = stages[stage];
 				texture_entry* extra        = texture_of(extra_handle);
-				if (!extra || !extra->set || surface_blended) {
-					continue;
+				if (surface_blended) {
+					break;
 				}
 				draw_record more     = record;
 				entity_push more_push = pushes[record.push_index];
