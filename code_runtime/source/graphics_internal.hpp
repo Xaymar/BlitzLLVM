@@ -379,6 +379,7 @@ namespace bb::gfx {
 		VkPipeline            oit3dm[4]      = {}; // The same for the second pass of the moment based kind (it reads the sums of the first).
 		VkPipeline            oit_moments3d  = VK_NULL_HANDLE; // The first pass of the moment based kind.
 		VkPipeline            oit_slots3d    = VK_NULL_HANDLE; // Alpha-blended things for the slots of samples.
+		VkPipeline            oit_peel3d     = VK_NULL_HANDLE; // Alpha-blended things for a layer of the depth peeling (BLITZLLVM_OIT=5).
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
 		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
@@ -976,6 +977,15 @@ namespace bb::gfx {
 	uint32_t oit_slots(); // The slots of samples of the kind that sorts fragments in the samples of a pixel (BLITZLLVM_OIT=3 for 4, =4 for 8): 0 if it is off or the driver has no such samples.
 	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo color[2], VkRenderingAttachmentInfo* depth);
 	void oit_slots_to_sampled(uint32_t width, uint32_t height);
+	bool oit_peel();             // The exact reference (BLITZLLVM_OIT=5): the alpha-blended things are drawn one layer per pass, from the farthest layer to the nearest.
+	uint32_t oit_peel_layers();  // How many layers there are most (BLITZLLVM_OIT_LAYERS, 128 if it is not set).
+	/** Starts layer `layer` of the peeling: a pass with the color of the layer (cleared to nothing) and the depth that the layer writes, and gives the set (for set 3) of the depth it has to be nearer than. */
+	VkDescriptorSet oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth);
+	void oit_peel_to_sampled(uint32_t width, uint32_t height, uint32_t layer);
+	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* out);
+	void oit_composite_layer(uint32_t width, uint32_t height);
+	void oit_accumulated_to_sampled(uint32_t width, uint32_t height);
+	void oit_composite_accumulated(VkFormat format, uint32_t width, uint32_t height);
 	VkPipelineLayout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
 	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2]);
 	void oit_moments_to_sampled(uint32_t width, uint32_t height);

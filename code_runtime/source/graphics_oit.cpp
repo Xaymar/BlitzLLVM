@@ -30,6 +30,9 @@ namespace {
 	// The four images and the set that reads them, for each size of target that was drawn to (as the depth buffers are).
 	struct image_set {
 		gpu_image       slot_color, slot_depth, slot_weight; // The slots of samples: multisampled color, depth and the weight of the fragment.
+	gpu_image       peel_color, peel_depth[2]; // The depth peeling: the color of a layer, and the depths of the layer and of the one before it.
+	VkImageLayout   peel_depth_layout[2] = { VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_UNDEFINED };
+	VkDescriptorSet peel_depth_set[2]    = {};
 		VkImageLayout   slot_depth_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 		gpu_image       images[5]; // Sums of alpha, what remains of the light (or the optical depth, moment based), product of multiplied colors, sum of added colors, moments.
 		VkDescriptorSet set    = VK_NULL_HANDLE;
@@ -39,7 +42,7 @@ namespace {
 	image_set        cache[max_sizes];
 	VkPipelineLayout layout       = VK_NULL_HANDLE;
 	VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
-	std::map<VkFormat, VkPipeline[5]> composites;
+	std::map<VkFormat, VkPipeline[7]> composites;
 	VkPipelineLayout layout3d_moments = VK_NULL_HANDLE;
 
 	constexpr VkFormat formats[5] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32G32B32A32_SFLOAT };
@@ -84,7 +87,7 @@ namespace {
 			VkWriteDescriptorSet  writes[5];
 			for (uint32_t i = 0; i < 5; i++) {
 				// The slots take their share out of the sums, which half floats are too coarse for.
-				entry.images[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, ((i == 0) && oit_slots()) ? VK_FORMAT_R32G32B32A32_SFLOAT : formats[i]);
+				entry.images[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, ((i == 0) && (oit_slots() || (asked == 5))) ? VK_FORMAT_R32G32B32A32_SFLOAT : formats[i]);
 				infos[i]        = { g.sampler_point_clamp, entry.images[i].view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 				writes[i]       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 				writes[i].dstSet          = entry.set;
@@ -110,6 +113,32 @@ namespace {
 				}
 				vkUpdateDescriptorSets(g.device, 3, slot_writes, 0, nullptr);
 			}
+			if (asked == 5) {
+				entry.peel_color = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_R16G16B16A16_SFLOAT);
+				VkDescriptorImageInfo layer_info  = { g.sampler_point_clamp, entry.peel_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+				VkWriteDescriptorSet  layer_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+				layer_write.dstSet          = entry.set;
+				layer_write.dstBinding      = 5;
+				layer_write.descriptorCount = 1;
+				layer_write.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				layer_write.pImageInfo      = &layer_info;
+				vkUpdateDescriptorSets(g.device, 1, &layer_write, 0, nullptr);
+				for (int i = 0; i < 2; i++) {
+					entry.peel_depth[i] = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
+					VkDescriptorSetAllocateInfo depth_alloc = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };
+					depth_alloc.descriptorPool     = g.set_pool;
+					depth_alloc.descriptorSetCount = 1;
+					depth_alloc.pSetLayouts        = &g.set_layout;
+					check(vkAllocateDescriptorSets(g.device, &depth_alloc, &entry.peel_depth_set[i]), "vkAllocateDescriptorSets");
+					VkDescriptorImageInfo depth_info  = { g.sampler_clamp, entry.peel_depth[i].view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL };
+					VkWriteDescriptorSet  depth_write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+					depth_write.dstSet          = entry.peel_depth_set[i];
+					depth_write.descriptorCount = 1;
+					depth_write.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+					depth_write.pImageInfo      = &depth_info;
+					vkUpdateDescriptorSets(g.device, 1, &depth_write, 0, nullptr);
+				}
+			}
 			entry.width  = width;
 			entry.height = height;
 			return entry;
@@ -128,10 +157,10 @@ namespace {
 		VkPipeline* made = composites[format];
 		VkShaderModule vs = create_shader(bb_shader_vertex_fullscreen, sizeof(bb_shader_vertex_fullscreen));
 		const bool          eight    = (oit_slots() == 8);
-		const unsigned int* codes[5] = { bb_shader_fragment_oit_composite0, bb_shader_fragment_oit_composite1, bb_shader_fragment_oit_composite2, bb_shader_fragment_oit_composite3, eight ? bb_shader_fragment_oit_resolve8 : bb_shader_fragment_oit_resolve4 };
-		const size_t        sizes[5] = { sizeof(bb_shader_fragment_oit_composite0), sizeof(bb_shader_fragment_oit_composite1), sizeof(bb_shader_fragment_oit_composite2), sizeof(bb_shader_fragment_oit_composite3), eight ? sizeof(bb_shader_fragment_oit_resolve8) : sizeof(bb_shader_fragment_oit_resolve4) };
-		for (int mode = 0; mode < 5; mode++) {
-			if ((mode == 4) && !oit_slots()) {
+		const unsigned int* codes[7] = { bb_shader_fragment_oit_composite0, bb_shader_fragment_oit_composite1, bb_shader_fragment_oit_composite2, bb_shader_fragment_oit_composite3, eight ? bb_shader_fragment_oit_resolve8 : bb_shader_fragment_oit_resolve4, bb_shader_fragment_oit_layer, bb_shader_fragment_oit_accumulated };
+		const size_t        sizes[7] = { sizeof(bb_shader_fragment_oit_composite0), sizeof(bb_shader_fragment_oit_composite1), sizeof(bb_shader_fragment_oit_composite2), sizeof(bb_shader_fragment_oit_composite3), eight ? sizeof(bb_shader_fragment_oit_resolve8) : sizeof(bb_shader_fragment_oit_resolve4), sizeof(bb_shader_fragment_oit_layer), sizeof(bb_shader_fragment_oit_accumulated) };
+		for (int mode = 0; mode < 7; mode++) {
+			if (((mode == 4) && !oit_slots()) || ((mode >= 5) && !oit_peel())) {
 				continue;
 			}
 			VkShaderModule fs = create_shader(codes[mode], sizes[mode]);
@@ -163,8 +192,14 @@ namespace {
 			blend.colorBlendOp                        = VK_BLEND_OP_ADD;
 			blend.alphaBlendOp                        = VK_BLEND_OP_ADD;
 			blend.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-			if ((mode == 3) || (mode == 0) || (mode == 4)) {
+			if ((mode == 3) || (mode == 0) || (mode == 4) || (mode == 5)) {
 				blend.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+				blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+				blend.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+				blend.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+			} else if (mode == 6) {
+				// The accumulated layers are premultiplied: they cover what is there by their alpha.
+				blend.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
 				blend.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 				blend.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
 				blend.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -217,7 +252,7 @@ namespace bb::gfx {
 	{
 		if (asked < 0) {
 			int32_t value = bb_env_int("BLITZLLVM_OIT", 0);
-			asked         = (value >= 4) ? 4 : ((value < 0) ? 0 : value);
+			asked         = (value >= 5) ? 5 : ((value < 0) ? 0 : value);
 		}
 		return asked != 0;
 	}
@@ -232,7 +267,7 @@ namespace bb::gfx {
 	// The samples per pixel that the slots use: 4 or 8 as asked, or what the driver can do for both color and depth, to sample and to draw to (0 if the kind is not asked for).
 	uint32_t oit_slots()
 	{
-		if (!oit_active() || (asked < 3)) {
+		if (!oit_active() || (asked < 3) || (asked > 4)) {
 			return 0;
 		}
 		VkPhysicalDeviceProperties props;
@@ -268,6 +303,79 @@ namespace bb::gfx {
 		transition(entry.slot_weight, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		barrier(entry.slot_depth.image, entry.slot_depth_layout, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 		entry.slot_depth_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+	}
+
+	bool oit_peel()
+	{
+		return oit_active() && (asked == 5);
+	}
+
+	uint32_t oit_peel_layers()
+	{
+		static const uint32_t layers = uint32_t(std::max(1, bb_env_int("BLITZLLVM_OIT_LAYERS", 128)));
+		return layers;
+	}
+
+	// A layer of the peeling: the color is cleared to nothing and the depth to the nearest value, so that what no layer wrote to stays out of the next layers.
+	// The layers alternate between the two depth images; the first one is tested against the depth of the scene (the caller binds that).
+	VkDescriptorSet oit_peel_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth)
+	{
+		image_set&     entry = images_for(width, height);
+		const uint32_t now   = layer & 1;
+		color_attachment(*color, entry.peel_color, 0, 0, 0, 0);
+		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+		entry.peel_depth_layout[now]   = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		*depth                         = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
+		depth->imageView               = entry.peel_depth[now].view;
+		depth->imageLayout             = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+		depth->loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depth->storeOp                 = VK_ATTACHMENT_STORE_OP_STORE;
+		depth->clearValue.depthStencil = { 1.0f, 0 };
+		return (layer > 0) ? entry.peel_depth_set[now ^ 1] : VK_NULL_HANDLE;
+	}
+
+	void oit_peel_to_sampled(uint32_t width, uint32_t height, uint32_t layer)
+	{
+		image_set&     entry = images_for(width, height);
+		const uint32_t now   = layer & 1;
+		transition(entry.peel_color, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		barrier(entry.peel_depth[now].image, entry.peel_depth_layout[now], VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+		entry.peel_depth_layout[now] = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+	}
+
+	// The layers are blended, from the farthest to the nearest, into a float image of their own (the 8 bits of the picture would round every layer).
+	void oit_accumulate_begin(uint32_t width, uint32_t height, uint32_t layer, VkRenderingAttachmentInfo* out)
+	{
+		image_set& entry = images_for(width, height);
+		color_attachment(*out, entry.images[0], 0, 0, 0, 0);
+		if (layer > 0) {
+			out->loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		}
+	}
+
+	// Blends the layer into the accumulated layers: inside a pass that draws to them.
+	void oit_composite_layer(uint32_t width, uint32_t height)
+	{
+		VkPipeline* pipelines = composites_for(VK_FORMAT_R32G32B32A32_SFLOAT);
+		image_set&  entry     = images_for(width, height);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &entry.set, 0, nullptr);
+		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[5]);
+		vkCmdDraw(g.cmd, 3, 1, 0, 0);
+	}
+
+	void oit_accumulated_to_sampled(uint32_t width, uint32_t height)
+	{
+		transition(images_for(width, height).images[0], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
+
+	// Puts the accumulated layers on the picture, once: inside a pass that draws to a target of the format.
+	void oit_composite_accumulated(VkFormat format, uint32_t width, uint32_t height)
+	{
+		VkPipeline* pipelines = composites_for(format);
+		image_set&  entry     = images_for(width, height);
+		vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &entry.set, 0, nullptr);
+		vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[6]);
+		vkCmdDraw(g.cmd, 3, 1, 0, 0);
 	}
 
 	// The 3D pipelines of the second pass of the moment based kind: they read the sums of the first (set 4) next to what the other 3D pipelines read.
@@ -369,13 +477,15 @@ namespace bb::gfx {
 						image = gpu_image();
 					}
 				}
-				for (gpu_image* image : { &entry.slot_color, &entry.slot_depth, &entry.slot_weight }) {
+				for (gpu_image* image : { &entry.slot_color, &entry.slot_depth, &entry.slot_weight, &entry.peel_color, &entry.peel_depth[0], &entry.peel_depth[1] }) {
 					if (image->image) {
 						destroy_image(*image);
 						*image = gpu_image();
 					}
 				}
 				entry.slot_depth_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+				entry.peel_depth_layout[0] = entry.peel_depth_layout[1] = VK_IMAGE_LAYOUT_UNDEFINED;
+				entry.peel_depth_set[0] = entry.peel_depth_set[1] = VK_NULL_HANDLE;
 				entry.set = VK_NULL_HANDLE; // The pool takes the set.
 				entry.width = entry.height = 0;
 			}
@@ -396,7 +506,7 @@ extern "C" {
 // It takes effect with the next picture, and does nothing where HWOrderIndependentTransparency is 0.
 void bb_graphics_order_independent_transparency(int32_t enable)
 {
-	int now = (enable >= 4) ? 4 : ((enable < 0) ? 0 : enable);
+	int now = (enable >= 5) ? 5 : ((enable < 0) ? 0 : enable);
 	if (now != asked) {
 		asked = now;
 		if (g.created && !g.headless) {

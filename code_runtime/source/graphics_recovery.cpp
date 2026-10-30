@@ -172,6 +172,7 @@ namespace {
 		}
 		g.oit_moments3d = VK_NULL_HANDLE;
 		g.oit_slots3d   = VK_NULL_HANDLE;
+		g.oit_peel3d    = VK_NULL_HANDLE;
 		g.can_wireframe = g.can_anisotropy = g.can_custom_border = g.can_interlock = g.can_blend_dither = false;
 		g.scene_buffer     = VK_NULL_HANDLE;
 		g.scene_allocation = VK_NULL_HANDLE;
