@@ -1251,7 +1251,9 @@ struct device_input {
 	float dx = 0, dy = 0, dz = 0; // Movement since it was asked for last.
 	float z_frac = 0;
 	int   z      = 0;
+	bool  changed = false; // Used since MouseChanged or KeyboardChanged asked for this device.
 };
+void device_used(bool mouse, Uint32 which); // A mouse or keyboard did something.
 device_input* mouse_device_input(Uint32 which);    // Null for touch, pen and mice that are not known.
 device_input* keyboard_device_input(Uint32 which);
 // What the commands with a Device argument give. Without such a device they give 0.
@@ -1292,6 +1294,13 @@ const char* bb_mouse_device_name(int32_t device);
 const char* bb_keyboard_device_name(int32_t device);
 int32_t bb_mouse_device_connected(int32_t device);
 int32_t bb_keyboard_device_connected(int32_t device);
+int32_t bb_mouse_changed(int32_t device);
+int32_t bb_keyboard_changed(int32_t device);
+int32_t bb_joy_changed(int32_t port);
+int32_t bb_last_mouse_device(void);
+int32_t bb_last_keyboard_device(void);
+int32_t bb_last_joy_device(void);
+void    bb_joy_virtual_input(int32_t kind, int32_t index, int32_t value);
 int32_t bb_joy_device_count(void);
 const char* bb_joy_device_name(int32_t port);
 int32_t bb_joy_device_connected(int32_t port);

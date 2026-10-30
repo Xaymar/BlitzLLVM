@@ -146,6 +146,14 @@ namespace bb::gfx {
 					bb_joy_attach_virtual(item[0] == '+');
 				}
 				break;
+			case 'j': // jbN: button N of the joystick that isn't real is pressed and let go. jaN:V: its axis N is put at V.
+				if (item[1] == 'b') {
+					bb_joy_virtual_input(0, atoi(item + 2), 0);
+				} else if (item[1] == 'a') {
+					const char* colon = strchr(item, ':');
+					bb_joy_virtual_input(1, atoi(item + 2), colon ? atoi(colon + 1) : 0);
+				}
+				break;
 			case 'w':
 				event.type         = SDL_EVENT_MOUSE_WHEEL;
 				event.wheel.windowID = window;
@@ -219,6 +227,10 @@ namespace bb::gfx {
 				break;
 			case SDL_EVENT_JOYSTICK_ADDED:
 			case SDL_EVENT_JOYSTICK_REMOVED:
+			case SDL_EVENT_JOYSTICK_AXIS_MOTION:
+			case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
+			case SDL_EVENT_JOYSTICK_BUTTON_UP:
+			case SDL_EVENT_JOYSTICK_HAT_MOTION:
 				joystick_event(event);
 				break;
 			case SDL_EVENT_WINDOW_FOCUS_LOST:
@@ -245,6 +257,9 @@ namespace bb::gfx {
 				surface().resized = true;
 				break;
 			case SDL_EVENT_KEY_DOWN: {
+				if (!event.key.repeat) {
+					device_used(false, event.key.which);
+				}
 				int key = blitz_key(event.key.scancode);
 				if (key) {
 					if (device_input* d = keyboard_device_input(event.key.which)) {
@@ -340,6 +355,7 @@ namespace bb::gfx {
 				break;
 			}
 			case SDL_EVENT_MOUSE_WHEEL:
+				device_used(true, event.wheel.which);
 				if (device_input* d = mouse_device_input(event.wheel.which)) {
 					d->dz += event.wheel.y;
 					if (g.raw_input) {
@@ -367,6 +383,7 @@ namespace bb::gfx {
 				bb_event_post(0x204, int(event.wheel.y), g.mouse_x, g.mouse_y, 0, 0);
 				break;
 			case SDL_EVENT_KEY_UP: {
+				device_used(false, event.key.which);
 				int key = blitz_key(event.key.scancode);
 				if (key) {
 					if (device_input* d = keyboard_device_input(event.key.which)) {
@@ -382,6 +399,7 @@ namespace bb::gfx {
 				float px = 1, py = 1;
 				buffer_pixel_size(&px, &py);
 				float dx = event.motion.xrel / px, dy = event.motion.yrel / py;
+				device_used(true, event.motion.which);
 				if (device_input* d = mouse_device_input(event.motion.which)) {
 					if (!d->placed) {
 						d->placed = true;
@@ -408,6 +426,7 @@ namespace bb::gfx {
 			}
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 				int b = button_index(event.button.button);
+				device_used(true, event.button.which);
 				if (b) {
 					if (device_input* d = mouse_device_input(event.button.which)) {
 						d->mouse[b] = true;
@@ -426,6 +445,7 @@ namespace bb::gfx {
 			}
 			case SDL_EVENT_MOUSE_BUTTON_UP: {
 				int b = button_index(event.button.button);
+				device_used(true, event.button.which);
 				if (b) {
 					if (device_input* d = mouse_device_input(event.button.which)) {
 						d->mouse[b] = false;
