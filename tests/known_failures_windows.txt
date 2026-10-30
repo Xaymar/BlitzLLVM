@@ -180,6 +180,7 @@ suite-debug-compile-multiplayer
 suite-debug-compile-multiplayer_limits
 suite-debug-compile-network
 suite-debug-compile-network_closed_peer
+suite-debug-compile-network_environment_startup_only
 suite-debug-compile-network_many_streams
 suite-debug-compile-network_udp_limit
 suite-debug-compile-numeric
@@ -341,6 +342,7 @@ suite-debug-run-multiplayer
 suite-debug-run-multiplayer_limits
 suite-debug-run-network
 suite-debug-run-network_closed_peer
+suite-debug-run-network_environment_startup_only
 suite-debug-run-network_many_streams
 suite-debug-run-network_udp_limit
 suite-debug-run-numeric
