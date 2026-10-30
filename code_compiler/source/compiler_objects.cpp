@@ -150,7 +150,7 @@ void blitz::compiler::register_types(ast::program const& program)
 			descriptor = info.list + ".strings";
 			_globals << descriptor << " = internal constant [" << (1 + 2 * string_fields) << " x i32] [i32 " << string_fields << entries << "]\n";
 		}
-		_globals << info.list << " = internal global { ptr, ptr, ptr, ptr } { ptr null, ptr null, ptr " << descriptor << ", ptr null }\n";
+		_globals << info.list << " = internal global { ptr, ptr, ptr, ptr, i64 } { ptr null, ptr null, ptr " << descriptor << ", ptr null, i64 0 }\n";
 	}
 }
 
@@ -290,6 +290,16 @@ void blitz::compiler::gen_for_each(ast::for_statement const* node)
 	}
 	auto pointer = var.pointer;
 
+	// While the loop runs, Delete keeps the memory of the objects it deletes (the loop finds its next object through the
+	// one it stands on, which Delete has set to Null in the variable). The flag also lets the exit of the function end
+	// the loop's claim when Return or Goto leaves it.
+	auto flag = "%each.flag" + std::to_string(_each_flags.size());
+	auto cur  = "%each.cur" + std::to_string(_each_flags.size());
+	_allocas << "  " << flag << " = alloca i8\n  store i8 0, ptr " << flag << "\n  " << cur << " = alloca ptr\n  store ptr null, ptr " << cur << "\n";
+	_each_flags.push_back({ flag, info.list });
+	declare("bb_loop_enter", "declare void @bb_loop_enter(ptr, ptr)");
+	emit("call void @bb_loop_enter(ptr " + info.list + ", ptr " + flag + ")");
+
 	auto first = call_runtime("bb_list_first", type::STRUCT, { { info.list, type::STRUCT } });
 	emit("store ptr " + first.repr + ", ptr " + pointer);
 
@@ -301,18 +311,25 @@ void blitz::compiler::gen_for_each(ast::for_statement const* node)
 	emit_terminator("br i1 " + more + ", label %" + body_l + ", label %" + end_l);
 
 	begin_label(body_l);
+	emit("store ptr " + current + ", ptr " + cur);
 	_exits.push_back(end_l);
 	gen_block(node->body);
 	_exits.pop_back();
 
 	// The body might have deleted the object, which still knows what comes next.
 	begin_label(step_l);
-	auto at = tmp();
+	auto at = tmp(), held = tmp(), gone = tmp();
 	emit(at + " = load ptr, ptr " + pointer);
-	auto next = call_runtime("bb_object_next", type::STRUCT, { { at, type::STRUCT } });
+	emit(held + " = load ptr, ptr " + cur);
+	emit(gone + " = icmp eq ptr " + at + ", null");
+	auto from = tmp();
+	emit(from + " = select i1 " + gone + ", ptr " + held + ", ptr " + at);
+	auto next = call_runtime("bb_object_next", type::STRUCT, { { from, type::STRUCT } });
 	emit("store ptr " + next.repr + ", ptr " + pointer);
 	emit_terminator("br label %" + cond_l);
 	begin_label(end_l);
+	declare("bb_loop_leave", "declare void @bb_loop_leave(ptr, ptr)");
+	emit("call void @bb_loop_leave(ptr " + info.list + ", ptr " + flag + ")");
 }
 
 void blitz::compiler::gen_delete(ast::delete_statement const* node)
@@ -322,7 +339,20 @@ void blitz::compiler::gen_delete(ast::delete_statement const* node)
 		call_runtime("bb_list_clear", type::UNKNOWN, { { info.list, type::STRUCT } });
 		return;
 	}
-	auto object = gen(node->object.get());
+	// A variable (or field, or array element) that is deleted becomes Null, so that it can't be used by mistake.
+	auto const* expr = node->object.get();
+	bool        place = dynamic_cast<ast::reference const*>(expr) || dynamic_cast<ast::field_access const*>(expr) || dynamic_cast<ast::index_access const*>(expr);
+	address     addr;
+	value       object;
+	if (place) {
+		addr = gen_address(expr, false);
+		if (addr.count) {
+			throw err(node->where, "An array can only be used with an index.");
+		}
+		object = load_address(addr);
+	} else {
+		object = gen(expr);
+	}
 	if (object.type != type::STRUCT) {
 		throw err(node->where, "Delete needs an object.");
 	}
@@ -331,6 +361,9 @@ void blitz::compiler::gen_delete(ast::delete_statement const* node)
 	}
 	auto& info = need_type(object.sname, node->where);
 	call_runtime("bb_object_delete", type::UNKNOWN, { object, { info.list, type::STRUCT } });
+	if (place && !addr.constant) {
+		emit("store ptr null, ptr " + addr.pointer);
+	}
 }
 
 void blitz::compiler::gen_insert(ast::insert_statement const* node)

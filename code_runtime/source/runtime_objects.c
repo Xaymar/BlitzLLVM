@@ -34,11 +34,14 @@ __declspec(dllimport) int __stdcall SetConsoleOutputCP(unsigned int);
 // Objects (Types)
 //
 // Every object starts with this header, which the compiler knows about (see register_types). Objects of a type are
-// in a doubly linked list. Deleted objects are taken out of the list and flagged, but their memory is kept, so that
-// variables that still point at them can be detected, and loops over the list can carry on. Once BB_OBJECT_DELAY more
-// objects of the same type were deleted, the oldest deleted object is handed out again by the next New of that type.
+// in a doubly linked list. Delete takes the object out of the list, flags it and frees its memory. Two things hold the
+// memory back for a while: a For Each loop over the type that is running (its next object is found through the deleted
+// one), and a program compiled with -d, which keeps the last BB_OBJECT_DELAY deleted objects of each type so that
+// variables that still point at one are reported as 'Object does not exist.'.
 ////////////////////////////////////////////////////////////////////////////////
 #define BB_OBJECT_DELETED 1
+
+extern int32_t bb_is_debug(void);
 
 typedef struct bb_object {
 	struct bb_object* next;
@@ -50,11 +53,13 @@ typedef struct bb_object {
 #define BB_OBJECT_DELAY 65536
 
 typedef struct bb_dead {
-	bb_object** ring;  // The deleted objects of this type, oldest first, starting at head.
+	bb_object** ring;    // With -d: the deleted objects of this type, oldest first, starting at head.
 	int32_t     cap;
 	int32_t     head;
 	int32_t     count;
-	bb_object*  spare; // Objects that are old enough to be handed out again, linked by next.
+	bb_object** pending; // Deleted while a For Each loop was running, freed when the last one ends.
+	int32_t     pending_cap;
+	int32_t     pending_count;
 } bb_dead;
 
 typedef struct bb_list {
@@ -62,6 +67,7 @@ typedef struct bb_list {
 	bb_object*     last;
 	const int32_t* strings; // How many fields (or arrays of them) are strings, then the offset and the count of each.
 	bb_dead*       dead;
+	int64_t        iterating; // How many For Each loops over this type are running.
 } bb_list;
 
 // Handles are numbers that stand in for objects. Index 0 is never used.
@@ -100,44 +106,11 @@ static void bb_list_unlink(bb_list* list, bb_object* object)
 static int32_t bb_objects_live    = 0; // Objects that were made and not deleted.
 static int32_t bb_objects_deleted = 0; // Objects that were deleted, but whose memory stays because programs may still hold them.
 
-// Objects are rarely freed (see above), so they are cut out of large zeroed blocks instead of asking the allocator for each one.
-#define BB_OBJECT_BLOCK 262144
-static char*  bb_block      = NULL;
-static size_t bb_block_left = 0;
-
-static bb_object* bb_object_memory(size_t size)
-{
-	size = (size + 15) & ~(size_t)15;
-	if (size > BB_OBJECT_BLOCK / 8) {
-		bb_object* object = (bb_object*)bb_calloc(1, size);
-		if (!object) {
-			bb_runtime_error("Out of memory.");
-		}
-		return object;
-	}
-	if (size > bb_block_left) {
-		bb_block = (char*)bb_calloc(1, BB_OBJECT_BLOCK);
-		if (!bb_block) {
-			bb_runtime_error("Out of memory.");
-		}
-		bb_block_left = BB_OBJECT_BLOCK;
-	}
-	bb_object* object = (bb_object*)bb_block;
-	bb_block += size;
-	bb_block_left -= size;
-	return object;
-}
-
 void* bb_object_new(int64_t size, bb_list* list)
 {
-	bb_object* object;
-	if (list->dead && list->dead->spare) {
-		object             = list->dead->spare;
-		list->dead->spare  = object->next;
-		memset(object, 0, (size_t)size);
-		bb_objects_deleted--;
-	} else {
-		object = bb_object_memory((size_t)size);
+	bb_object* object = (bb_object*)bb_calloc(1, (size_t)size);
+	if (!object) {
+		bb_runtime_error("Out of memory.");
 	}
 	bb_list_append(list, object);
 	bb_objects_live++;
@@ -152,42 +125,105 @@ void bb_check_object(void* pointer)
 	}
 }
 
+static bb_dead* bb_list_dead(bb_list* list)
+{
+	if (!list->dead) {
+		list->dead = (bb_dead*)bb_calloc(1, sizeof(bb_dead));
+	}
+	return list->dead;
+}
+
+static void bb_object_release(bb_object* object)
+{
+	bb_objects_deleted--;
+	bb_free(object);
+}
+
+static void bb_array_push(bb_object*** array, int32_t* count, int32_t* cap, bb_object* object)
+{
+	if (*count == *cap) {
+		int32_t      grown = *cap ? *cap * 2 : 64;
+		bb_object** items = (bb_object**)bb_realloc(*array, (size_t)grown * sizeof(bb_object*));
+		if (!items) {
+			bb_runtime_error("Out of memory.");
+		}
+		*array = items;
+		*cap   = grown;
+	}
+	(*array)[(*count)++] = object;
+}
+
+// The object has been unlinked, flagged and had its strings freed. Free its memory unless something still needs it.
 static void bb_object_retire(bb_object* object, bb_list* list)
 {
-	bb_dead* dead = list->dead;
+	bb_dead* dead = bb_list_dead(list);
 	if (!dead) {
-		dead = (bb_dead*)bb_calloc(1, sizeof(bb_dead));
-		if (!dead) {
-			return; // The object simply stays deleted.
-		}
-		list->dead = dead;
+		return; // The object simply stays deleted.
 	}
-	if (dead->count == BB_OBJECT_DELAY) {
-		// The oldest one is old enough now, its slot takes the new one.
-		bb_object* old = dead->ring[dead->head];
-		old->next      = dead->spare;
-		dead->spare    = old;
-		dead->ring[dead->head] = object;
-		dead->head             = (dead->head + 1) % dead->cap;
+	if (bb_is_debug()) {
+		// Keep it for a while, so that variables that still point at it are caught.
+		if (dead->count == dead->cap) {
+			// Grow the ring, and unroll it so that head is 0 again.
+			int32_t      cap  = dead->cap ? dead->cap * 2 : 64;
+			bb_object** ring = (bb_object**)bb_calloc((size_t)cap, sizeof(bb_object*));
+			if (!ring) {
+				return;
+			}
+			for (int32_t i = 0; i < dead->count; i++) {
+				ring[i] = dead->ring[(dead->head + i) % dead->cap];
+			}
+			bb_free(dead->ring);
+			dead->ring = ring;
+			dead->cap  = cap;
+			dead->head = 0;
+		}
+		dead->ring[(dead->head + dead->count) % dead->cap] = object;
+		dead->count++;
+		// The oldest are old enough now, unless a loop might still stand on them.
+		while (!list->iterating && (dead->count > BB_OBJECT_DELAY)) {
+			bb_object_release(dead->ring[dead->head]);
+			dead->head = (dead->head + 1) % dead->cap;
+			dead->count--;
+		}
 		return;
 	}
-	if (dead->count == dead->cap) {
-		// Grow the ring, and unroll it so that head is 0 again.
-		int32_t      cap  = dead->cap ? dead->cap * 2 : 64;
-		bb_object** ring = (bb_object**)bb_calloc((size_t)cap, sizeof(bb_object*));
-		if (!ring) {
-			return;
-		}
-		for (int32_t i = 0; i < dead->count; i++) {
-			ring[i] = dead->ring[(dead->head + i) % dead->cap];
-		}
-		bb_free(dead->ring);
-		dead->ring = ring;
-		dead->cap  = cap;
-		dead->head = 0;
+	if (list->iterating) {
+		bb_array_push(&dead->pending, &dead->pending_count, &dead->pending_cap, object);
+		return;
 	}
-	dead->ring[(dead->head + dead->count) % dead->cap] = object;
-	dead->count++;
+	bb_object_release(object);
+}
+
+// A For Each loop over the type starts. The flag says if this loop already counts (a Goto can jump back into it).
+void bb_loop_enter(bb_list* list, char* flag)
+{
+	if (!*flag) {
+		*flag = 1;
+		list->iterating++;
+	}
+}
+
+void bb_loop_leave(bb_list* list, char* flag)
+{
+	if (!*flag) {
+		return;
+	}
+	*flag = 0;
+	if (--list->iterating) {
+		return;
+	}
+	bb_dead* dead = list->dead;
+	if (dead) {
+		for (int32_t i = 0; i < dead->pending_count; i++) {
+			bb_object_release(dead->pending[i]);
+		}
+		dead->pending_count = 0;
+		while (dead->count > BB_OBJECT_DELAY) {
+			bb_object_release(dead->ring[dead->head]);
+			dead->head = (dead->head + 1) % dead->cap;
+			dead->count--;
+		}
+	}
 }
 
 void bb_object_delete(bb_object* object, bb_list* list)

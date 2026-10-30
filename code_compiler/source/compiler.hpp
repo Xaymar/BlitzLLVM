@@ -123,6 +123,7 @@ namespace blitz {
 		std::ostringstream              _allocas;
 		std::map<std::string, variable> _locals;
 		std::vector<std::string>        _exits;
+		std::vector<std::pair<std::string, std::string>> _each_flags; // Per For Each in the function: the flag of its claim and the list.
 		blitz::types::type              _return_type;
 		bool                            _in_main;
 		bool                            _terminated;
