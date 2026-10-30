@@ -209,7 +209,8 @@ jobs:
         run: |
           libraries=$(find build -name 'libblitzrt.a' -o -name 'blitzrt.lib')
           test -n "$libraries" || { echo "no blitzrt library found"; exit 1; }
-          python3 tools/check_no_fma.py --require ${ARCH:+--arch "$ARCH"} $libraries
+          python=$(command -v python3 || command -v python)
+          "$python" tools/check_no_fma.py --require ${ARCH:+--arch "$ARCH"} $libraries
       - name: Keep the build for the tests
         # The Test workflow runs ctest on this tree instead of building again. Without the objects and the dependencies' sources (the runtime
         # and everything the tests run are in the tree), as a tar file because artifacts lose the permissions of the files.
