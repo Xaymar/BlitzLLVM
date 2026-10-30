@@ -2691,6 +2691,8 @@ namespace bb::gfx {
 
 	// Where the entity that is drawn is among the see-through ones of the scene, from 0 for the farthest to 1 for the nearest (what order-independent transparency weighs by).
 	static float blended_rank = 1.0f;
+	// Places per unit of distance between the nearest and the farthest see-through entity, so that a fragment can move from the place of its entity.
+	static float blended_scale = 0.0f;
 
 	static void draw_entity(draw_item const& item, int pass, bool depth_test)
 	{
@@ -2921,6 +2923,7 @@ namespace bb::gfx {
 			// Only alpha and add blending look at the alpha, which is what the depth fade changes.
 			push.soft[0] = (surface_blended && (blend != 2) && depth_test) ? e->depth_fade : 0.0f;
 			push.soft[2] = blended_rank;
+			push.soft[3] = blended_scale;
 
 			// What is solid and has many triangles can have the clusters of triangles that are out of view left out by the GPU, unless the whole
 			// mesh is in view.
@@ -3762,6 +3765,8 @@ namespace bb::gfx {
 		{
 			bb::profile_scope timer(bb::PROFILE_DRAWS);
 			uint32_t rank_index = 0;
+			float span = (list.blended.size > 1) ? list.blended[0].depth - list.blended[list.blended.size - 1].depth : 0.0f;
+			blended_scale = (span > 1e-3f) ? 1.0f / span : 0.0f;
 			for (uint32_t i = 0; i < list.blended.size; i++) {
 				prefetch_entity(list.blended, i + 6);
 				// Entities at the same distance share their place, as the order they were made in does not tell which is in front.

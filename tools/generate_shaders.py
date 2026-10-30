@@ -581,7 +581,6 @@ def vertex_shader_3d():
 
     instance = b.load(b.int(), in_instance)
     b.store(out_mask, entity_member(b, entities, instance, 6))
-    b.store(out_soft, entity_member(b, entities, instance, 10))
 
     def push_member(index):
         return entity_member(b, entities, instance, index)
@@ -604,6 +603,15 @@ def vertex_shader_3d():
     clip = b.emit("MatrixTimesVector", v4, vp, world4)
     b.store(b.access("Output", v4, out_vertex, b.const_int(0)), clip)
     b.store(b.access("Output", f, out_vertex, b.const_int(1)), c1)
+
+    # soft.z is the place of the entity among the see-through ones (0 far, 1 near) and soft.w the places per unit of distance there are
+    # between the nearest and the farthest of them. The place of a fragment is soft.z - soft.w * depth: the entity's own place plus how much
+    # nearer or farther the fragment is than the entity's origin, so that entities that pass through one another weigh per pixel. With soft.w 0
+    # (sprites, which are all at the depth of their origin) it is the place of the entity.
+    soft_in = entity_member(b, entities, instance, 10)
+    origin = b.emit("MatrixTimesVector", v4, vp, b.construct(4, b.extract(row0, 3), b.extract(row1, 3), b.extract(row2, 3), c1))
+    place0 = b.fadd(f, b.extract(soft_in, 2), b.fmul(f, b.extract(soft_in, 3), b.extract(origin, 3)))
+    b.store(out_soft, b.construct(4, b.extract(soft_in, 0), b.extract(soft_in, 1), place0, b.extract(soft_in, 3)))
 
     lit = b.swizzle(b.load(v4, b.access("Uniform", v4, ubo, b.const_int(1))), 3)
     ones, zeros = b.const_vec(3, 1.0), b.const_vec(3, 0.0)
@@ -1073,7 +1081,8 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             b.m.code += [Module.inst("SelectionMerge", keep_s, 0), Module.inst("BranchConditional", behind, hide, keep_s), Module.inst("Label", hide), Module.inst("Kill"), Module.inst("Label", keep_s)]
             line = b.fadd(f, b.fmul(f, b.extract(frag_s, 0), b.const_float(0.06711056)), b.fmul(f, b.extract(frag_s, 1), b.const_float(0.00583715)))
             noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.const_float(52.9829189), b.ext(f, GLSL_FRACT, line)))
-            rank_s = b.extract(b.load(v4, in_soft), 2)
+            soft_s = b.load(v4, in_soft)
+            rank_s = b.fsub(f, b.extract(soft_s, 2), b.fmul(f, b.extract(soft_s, 3), b.extract(b.load(v4, in_depth), 0)))
             pick = b.ext(f, GLSL_FRACT, b.fadd(f, noise, b.fmul(f, rank_s, b.const_float(271.3))))
             slot = b.emit("ConvertFToS", b.int(), b.ext(f, GLSL_FLOOR, b.fmul(f, pick, b.const_float(float(slots)))))
             bit = b.emit("ShiftLeftLogical", b.int(), b.const_int(1), slot)
@@ -1081,6 +1090,7 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             rgb_s = b.ext(v3, GLSL_FCLAMP, b.swizzle(result, 3), b.const_vec(3, 0.0), b.const_vec(3, 1.0))
             a_s = b.ext(f, GLSL_FCLAMP, b.extract(result, 3), b.const_float(0.0), c1)
             b.store(out_color, b.construct(4, b.extract(rgb_s, 0), b.extract(rgb_s, 1), b.extract(rgb_s, 2), a_s))
+            rank_s = b.ext(f, GLSL_FMIN, rank_s, b.const_float(1.1))
             weight_s = b.ext(f, GLSL_EXP2, b.fmul(f, b.fsub(f, rank_s, c1), b.const_float(11.0)))
             b.store(out_weight, b.construct(4, weight_s, weight_s, weight_s, weight_s))
             b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
@@ -1170,10 +1180,14 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         if oit == 1:
             # The weight favors what is near by where the entity is among the see-through ones, which are drawn from far to near: it is 1 for the
             # nearest and halves with every 1 / 11 of the way back (2048 times less for the farthest, so half floats add up the nearest without overflow).
-            # The depth would tell layers that are some units apart in a large view apart badly, and the order of the entities is what the original goes by.
+            # The place of a fragment is the entity's place plus how much nearer or farther it is than the entity's origin, in places (see the vertex shader),
+            # so that entities that pass through one another weigh per pixel. The depth alone would tell layers that are some units apart in a large view
+            # apart badly, and the order of the entities is what the original goes by.
             # A steeper weight makes the color of a nearly see-through layer in front count as much as the layers behind it, which makes edges hard.
             #   float w = exp2(11.0 * (soft.z - 1.0));   accum = vec4(rgb * a * w, a * w); reveal = vec4(a); multiply = vec4(rgb * scale, 1); add = vec4(rgb * a, a);
-            rank = b.extract(b.load(v4, in_soft), 2)
+            soft_r = b.load(v4, in_soft)
+            rank = b.fsub(f, b.extract(soft_r, 2), b.fmul(f, b.extract(soft_r, 3), b.extract(b.load(v4, in_depth), 0)))
+            rank = b.ext(f, GLSL_FMIN, rank, b.const_float(1.1))  # A fragment can be nearer than the nearest entity's origin.
             weight_oit = b.ext(f, GLSL_EXP2, b.fmul(f, b.fsub(f, rank, c1), b.const_float(11.0)))
             # Blending by the fixed function limits the color and alpha that are drawn to 0 .. 1, which a float target does not, and an alpha above 1
             # would turn 1 - alpha negative in the product.
