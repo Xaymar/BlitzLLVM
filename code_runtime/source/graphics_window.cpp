@@ -68,9 +68,24 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	bb_on_exit(bb_end_graphics); // The program ends with the graphics taken down, while the Vulkan driver's threads still have what they need.
 
 	bb_reset_texture_filters();
+	if (const char* path = bb_env("BLITZLLVM_TEST_LAZY_DEVICE")) {
+		test_lazy_device(path); // Test hook: a device before the window, as a program that opens its own windows first would have (see graphics_surfaces.cpp).
+	}
+	// A device from before there was a window of Graphics (ensure_device) is kept, if it draws with the depth asked for: the
+	// window gets a surface on it. Otherwise the device is made again, for the depth.
+	bool keep_device  = g.device != VK_NULL_HANDLE;
+	int  actual_depth = 32;
+	if (keep_device && (pick_buffer_format(depth, actual_depth) != g.buffer_format)) {
+		bb_end_graphics();
+		keep_device = false;
+	}
 	g.requested_depth = depth;
-	g.buffer_depth    = (depth == 8 || depth == 12 || depth == 15 || depth == 16 || depth == 24 || depth == 30 || depth == 64) ? depth : 32;
-	g.buffer_format   = VK_FORMAT_R8G8B8A8_UNORM;
+	if (keep_device) {
+		g.buffer_depth = actual_depth; // The format stays, create_device would pick the same.
+	} else {
+		g.buffer_depth  = (depth == 8 || depth == 12 || depth == 15 || depth == 16 || depth == 24 || depth == 30 || depth == 64) ? depth : 32;
+		g.buffer_format = VK_FORMAT_R8G8B8A8_UNORM;
+	}
 	g.headless = bb_env_bool("BLITZLLVM_HEADLESS", 0) != 0;
 	g.width    = uint32_t(width);
 	g.height   = uint32_t(height);
@@ -120,9 +135,25 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 		}
 	}
 
-	create_vulkan();
+	if (keep_device) {
+		if (!SDL_Vulkan_CreateSurface(surface().window, g.instance, nullptr, &surface().surface)) {
+			fail(SDL_GetError());
+		}
+		// The queue of the device was picked with another window; the window system does not give one that cannot show pictures
+		// in this one, so that is an error of the driver.
+		VkBool32 present = VK_FALSE;
+		vkGetPhysicalDeviceSurfaceSupportKHR(g.physical, g.family, surface().surface, &present);
+		if (!present) {
+			fail("The graphics device that was picked before the window cannot show pictures in it.");
+		}
+	} else {
+		create_vulkan();
+	}
 	create_buffers(uint32_t(width), uint32_t(height));
 	create_swapchain();
+	if (const char* path = bb_env("BLITZLLVM_TEST_LAZY_DEVICE")) {
+		test_lazy_device_finish(path);
+	}
 	if (const char* path = bb_env("BLITZLLVM_TEST_EXTRA_SURFACES")) {
 		test_extra_surfaces(path); // Test hook: see graphics_surfaces.cpp.
 	}
@@ -215,15 +246,51 @@ void bb::gfx::destroy_device_objects()
 	vkDestroyCommandPool(g.device, g.pool, nullptr);
 	destroy_allocator();
 	vkDestroyDevice(g.device, nullptr);
-	SDL_Vulkan_DestroySurface(g.instance, surface().surface, nullptr);
+	if (surface().surface) {
+		SDL_Vulkan_DestroySurface(g.instance, surface().surface, nullptr);
+	}
 	vkDestroyInstance(g.instance, nullptr);
+}
+
+// A device while there is no window of Graphics, for windows of their own (see graphics_surfaces.cpp). The GPU is picked by
+// what can show pictures in a window, so a hidden one stands in for the windows to come and goes away again at once. The
+// device draws with a depth of 32 until Graphics asks for another one, which makes it again.
+bool bb::gfx::ensure_device()
+{
+	if (g.device) {
+		return true;
+	}
+	if (g.headless || bb_env_bool("BLITZLLVM_HEADLESS", 0)) {
+		return false;
+	}
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+		fail(SDL_GetError());
+	}
+	bb_on_exit(bb_end_graphics);
+	g.requested_depth = 32;
+	g.buffer_depth    = 32;
+	g.buffer_format   = VK_FORMAT_R8G8B8A8_UNORM;
+	create_instance();
+	SDL_Window* probe = SDL_CreateWindow("", 1, 1, SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN);
+	if (!probe) {
+		fail(SDL_GetError());
+	}
+	VkSurfaceKHR probe_surface = VK_NULL_HANDLE;
+	if (!SDL_Vulkan_CreateSurface(probe, g.instance, nullptr, &probe_surface)) {
+		fail(SDL_GetError());
+	}
+	create_device(probe_surface);
+	SDL_Vulkan_DestroySurface(g.instance, probe_surface, nullptr);
+	SDL_DestroyWindow(probe);
+	return true;
 }
 
 extern "C" {
 
+// Takes down the window of Graphics and the device, also a device that was made without a window (ensure_device).
 void bb_end_graphics(void)
 {
-	if (!g.created) {
+	if (!g.created && !g.device) {
 		return;
 	}
 	if (!g.headless) {
@@ -242,7 +309,9 @@ void bb_end_graphics(void)
 		save_finish_all(); // The pictures that are still being written are written before the program ends.
 		async_shutdown(); // The pictures that were still loading went with the freed handles.
 		destroy_device_objects();
-		SDL_DestroyWindow(surface().window);
+		if (surface().window) {
+			SDL_DestroyWindow(surface().window);
+		}
 		SDL_Quit();
 	}
 	bb_free(g.ops);

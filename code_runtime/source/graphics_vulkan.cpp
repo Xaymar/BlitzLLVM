@@ -1427,6 +1427,7 @@ namespace bb::gfx {
 	namespace {
 		PFN_vkGetInstanceProcAddr instance_proc = nullptr; // Of the instance that create_instance made, which the allocator needs.
 	} // namespace
+	uint32_t devices_made = 0;
 
 	void create_instance()
 	{
@@ -1586,6 +1587,7 @@ namespace bb::gfx {
 		device_info.enabledExtensionCount      = device_extension_total;
 		device_info.ppEnabledExtensionNames    = device_extensions;
 		check(vkCreateDevice(g.physical, &device_info, nullptr, &g.device), "vkCreateDevice");
+		devices_made++;
 
 #define BB_VK_LOAD_DEVICE(name) name = reinterpret_cast<PFN_##name>(vkGetDeviceProcAddr(g.device, #name));
 		BB_VK_DEVICE(BB_VK_LOAD_DEVICE)
