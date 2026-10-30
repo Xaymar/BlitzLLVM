@@ -139,7 +139,7 @@
 		{ "graphicsformat", "bb_graphics_format", 'i', "", 0, {}, false },
 		{ "dither", "bb_dither", 'v', "i", 1, {}, false },
 		{ "dithertemporal", "bb_dither_temporal", 'v', "i", 1, {}, false },
-		{ "transparentsortview", "bb_transparent_sort_view", 'v', "i", 1, {}, false },
+		{ "transparencysortdistancemode", "bb_transparency_sort_distance_mode", 'v', "i", 1, {}, false },
 		{ "dithermode", "bb_dither_mode", 'v', "ii", 1, { 0, 1 }, false },
 		{ "antialias", "bb_anti_alias", 'v', "i", 1, {}, false },
 		{ "wbuffer", "bb_w_buffer", 'v', "i", 1, {}, false },

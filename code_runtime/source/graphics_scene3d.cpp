@@ -1681,12 +1681,12 @@ namespace bb::gfx {
 
 	static float current_camera[16]; // Where the camera is, for sprites that face it.
 
-	// Whether see-through draws are ordered along the view axis (TransparentSortView, BLITZLLVM_TRANSPARENT_SORT_VIEW) and not by distance in space.
+	// Whether see-through draws are ordered along the view axis (TransparencySortDistanceMode, BLITZLLVM_TRANSPARENCY_SORT_DISTANCE_MODE) and not by distance in space.
 	static int sort_view = -1;
-	static bool transparent_sort_view()
+	static bool transparency_sort_distance_mode()
 	{
 		if (sort_view < 0) {
-			sort_view = bb_env_bool("BLITZLLVM_TRANSPARENT_SORT_VIEW", false) ? 1 : 0;
+			sort_view = (bb_env_int("BLITZLLVM_TRANSPARENCY_SORT_DISTANCE_MODE", 0) == 1) ? 1 : 0;
 		}
 		return sort_view != 0;
 	}
@@ -1744,10 +1744,10 @@ namespace bb::gfx {
 				has_solid = true;
 			}
 		}
-		// With TransparentSortView see-through draws are ordered by how far they are in front of the camera instead, which is what the
+		// With TransparencySortDistanceMode see-through draws are ordered by how far they are in front of the camera instead, which is what the
 		// depth buffer compares, so draws at nearly the same depth (flat layers, sprites that face the camera) do not swap towards the edges.
 		float sort = depth;
-		if (transparent_sort_view()) {
+		if (transparency_sort_distance_mode()) {
 			float length = sqrtf(current_camera[8] * current_camera[8] + current_camera[9] * current_camera[9] + current_camera[10] * current_camera[10]);
 			sort         = (length > 0) ? (dx * current_camera[8] + dy * current_camera[9] + dz * current_camera[10]) / length : depth;
 		}
@@ -3718,12 +3718,12 @@ int32_t bb_draw_stats(int32_t which)
 }
 
 // Draw only the edges of everything, if the GPU can.
-// A BlitzLLVM extension: whether see-through draws are ordered along the view axis of the camera (the distance in front of it, as the
-// depth buffer sees it) and not by the distance in space like the original does. It is off by default. It applies from the next
+// A BlitzLLVM extension: how see-through draws are ordered: along the view axis of the camera (the distance in front of it, as the
+// depth buffer sees it) and not by the distance in space like the original does. Mode 0 is the default, mode 1 the view distance. It applies from the next
 // RenderWorld, and does not change fading with EntityAutoFade, which keeps going by the distance in space.
-void bb_transparent_sort_view(int32_t enable)
+void bb_transparency_sort_distance_mode(int32_t mode)
 {
-	sort_view = (enable != 0) ? 1 : 0;
+	sort_view = (mode == 1) ? 1 : 0;
 }
 
 void bb_wire_frame(int32_t on)

@@ -777,7 +777,7 @@ namespace bb::gfx {
 		int   handle;
 		float alpha; // What is left of it after fading out with distance.
 		float depth; // Distance in space from the camera, which fading goes by.
-		float sort;  // What see-through draws are ordered by: the distance in space, or with TransparentSortView the distance along the view axis.
+		float sort;  // What see-through draws are ordered by: the distance in space, or with TransparencySortDistanceMode the distance along the view axis.
 		int   order;
 	};
 

@@ -306,7 +306,7 @@ tformnormal	blitz3d	done	TFormNormal#x#y#z%source_entity%dest_entity
 tformpoint	blitz3d	done	TFormPoint#x#y#z%source_entity%dest_entity
 tformvector	blitz3d	done	TFormVector#x#y#z%source_entity%dest_entity
 translateentity	blitz3d	done	TranslateEntity%entity#x#y#z%global=0
-transparentsortview	blitz3d	done	TransparentSortView%enable
+transparencysortdistancemode	blitz3d	done	TransparencySortDistanceMode%mode
 trianglevertex	blitz3d	done	%TriangleVertex%surface%index%vertex
 trisrendered	blitz3d	done	%TrisRendered
 turnentity	blitz3d	done	TurnEntity%entity#pitch#yaw#roll%global=0
