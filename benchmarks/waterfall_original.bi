@@ -27,3 +27,7 @@ End Function
 Function BenchFlip()
 	Flip 0
 End Function
+
+; The original has no buffers of more than 8 bits.
+Function BenchSaveRaw(path$)
+End Function
