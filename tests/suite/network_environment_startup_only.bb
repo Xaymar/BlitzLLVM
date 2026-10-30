@@ -20,4 +20,4 @@ stream = OpenTCPStream("127.0.0.1", 40500)
 CheckTrue "The port from the start is listened on", stream <> 0
 If stream <> 0 Then CloseTCPStream stream
 
-Done "environment_startup_only"
+Done "network_environment_startup_only"
