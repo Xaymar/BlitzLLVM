@@ -29,7 +29,7 @@ Like [JoyX](JoyX), but as a direction only: -1 when pushed left past a third of 
 
 ## Related Commands
 
-[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyUDir](JoyUDir), [JoyVDir](JoyVDir), [JoyX](JoyX), [JoyYDir](JoyYDir), [JoyZDir](JoyZDir)
+[JoyChanged](JoyChanged), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyUDir](JoyUDir), [JoyVDir](JoyVDir), [JoyX](JoyX), [JoyYDir](JoyYDir), [JoyZDir](JoyZDir)
 
 <div align="center">
 

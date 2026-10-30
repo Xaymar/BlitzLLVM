@@ -29,7 +29,7 @@ How far the pointer moved up or down since the last call. See [MouseXSpeed](Mous
 
 ## Related Commands
 
-[MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseZSpeed](MouseZSpeed)
+[MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseZSpeed](MouseZSpeed)
 
 <div align="center">
 

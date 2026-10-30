@@ -29,7 +29,7 @@ Like [JoyU](JoyU), but as a direction only: -1 when the axis is pushed more than
 
 ## Related Commands
 
-[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyU](JoyU), [JoyVDir](JoyVDir), [JoyXDir](JoyXDir), [JoyYDir](JoyYDir), [JoyZDir](JoyZDir)
+[JoyChanged](JoyChanged), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyU](JoyU), [JoyVDir](JoyVDir), [JoyXDir](JoyXDir), [JoyYDir](JoyYDir), [JoyZDir](JoyZDir)
 
 <div align="center">
 

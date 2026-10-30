@@ -49,7 +49,7 @@ Wend
 
 ## Related Commands
 
-[FlushJoy](FlushJoy), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [WaitJoy](WaitJoy)
+[FlushJoy](FlushJoy), [JoyChanged](JoyChanged), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [WaitJoy](WaitJoy)
 
 <div align="center">
 

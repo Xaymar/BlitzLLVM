@@ -40,7 +40,7 @@ Delay 1000
 
 ## Related Commands
 
-[FlushMouse](FlushMouse), [GetMouse](GetMouse), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseWait](MouseWait), [MoveMouse](MoveMouse)
+[FlushMouse](FlushMouse), [GetMouse](GetMouse), [LastMouseDevice](LastMouseDevice), [MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseWait](MouseWait), [MoveMouse](MoveMouse)
 
 <div align="center">
 

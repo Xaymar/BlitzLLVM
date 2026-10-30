@@ -42,7 +42,7 @@ WaitMouse
 
 ## Related Commands
 
-[GetMouse](GetMouse), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MoveMouse](MoveMouse), [WaitMouse](WaitMouse)
+[GetMouse](GetMouse), [LastMouseDevice](LastMouseDevice), [MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MoveMouse](MoveMouse), [WaitMouse](WaitMouse)
 
 <div align="center">
 

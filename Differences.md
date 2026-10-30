@@ -184,17 +184,22 @@ Commands that differ from the original or are not finished, with the first of th
 * [Include](Include#differences): The original opens a relative path from the folder the compiler runs in; BlitzLLVM starts at the file that includes it.
 * [Input](Input#differences): Without a graphics window the prompt is written to the console (standard output) and the line is read from the console (standard input).
 * [Int](Int#differences): The originals read a text with `atoi`, so `Int("$FF")` and `Int("0x10")` are 0 there.
+* [JoyChanged](JoyChanged#differences): This is a BlitzLLVM extension: the original has no such command.
 * [JoyDeviceConnected](JoyDeviceConnected#differences): This is a BlitzLLVM extension: the original has no such command.
 * [JoyDeviceCount](JoyDeviceCount#differences): This is a BlitzLLVM extension: the original has no such command.
 * [JoyDeviceName](JoyDeviceName#differences): This is a BlitzLLVM extension: the original has no such command.
 * [JoyHat](JoyHat#differences): Without any joystick the original returns -1 as well, but this runtime returns 0, which looks like "up".
 * [JoyType](JoyType#differences): The original uses 1 for a digital and 2 for an analog joystick.
 * [JoyWait](JoyWait#differences): If no joystick is connected the function returns 0 right away instead of waiting forever.
+* [KeyboardChanged](KeyboardChanged#differences): This is a BlitzLLVM extension: the original has no such command.
 * [KeyboardDeviceConnected](KeyboardDeviceConnected#differences): This is a BlitzLLVM extension: the original has no such command.
 * [KeyboardDeviceCount](KeyboardDeviceCount#differences): This is a BlitzLLVM extension: the original has no such command.
 * [KeyboardDeviceName](KeyboardDeviceName#differences): This is a BlitzLLVM extension: the original has no such command.
 * [KeyDown](KeyDown#differences): Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
 * [KeyHit](KeyHit#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
+* [LastJoyDevice](LastJoyDevice#differences): This is a BlitzLLVM extension: the original has no such command.
+* [LastKeyboardDevice](LastKeyboardDevice#differences): This is a BlitzLLVM extension: the original has no such command.
+* [LastMouseDevice](LastMouseDevice#differences): This is a BlitzLLVM extension: the original has no such command.
 * [LeadingZeros](LeadingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
 * [Load3DSound](Load3DSound#differences): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
 * [LoadAnimMesh](LoadAnimMesh#differences): Models in `.b3d`, `.3ds` and DirectX `.x` files can be loaded, see [LoadMesh](LoadMesh).
@@ -222,6 +227,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [Microseconds](Microseconds#differences) 〔BlitzLLVM〕: The value is a `UInt64`, which no original command returns.
 * [MinimizeWindow](MinimizeWindow#differences): There is no task bar, so a minimized window simply is not drawn and there is no way for the user to bring it back.
 * [ModifyTerrain](ModifyTerrain#differences): The realtime argument has no effect.
+* [MouseChanged](MouseChanged#differences): This is a BlitzLLVM extension: the original has no such command.
 * [MouseDeviceConnected](MouseDeviceConnected#differences): This is a BlitzLLVM extension: the original has no such command.
 * [MouseDeviceCount](MouseDeviceCount#differences): This is a BlitzLLVM extension: the original has no such command.
 * [MouseDeviceName](MouseDeviceName#differences): This is a BlitzLLVM extension: the original has no such command.

@@ -41,7 +41,7 @@ WaitKey
 
 ## Related Commands
 
-[GetKey](GetKey), [KeyboardDeviceConnected](KeyboardDeviceConnected), [KeyboardDeviceName](KeyboardDeviceName), [KeyDown](KeyDown)
+[KeyboardChanged](KeyboardChanged), [KeyboardDeviceConnected](KeyboardDeviceConnected), [KeyboardDeviceName](KeyboardDeviceName), [LastKeyboardDevice](LastKeyboardDevice)
 
 <div align="center">
 

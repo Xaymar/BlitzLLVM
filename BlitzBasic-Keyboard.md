@@ -11,10 +11,12 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
 * [FlushKeys](FlushKeys)
 * [GetKey](GetKey)
+* [KeyboardChanged](KeyboardChanged)
 * [KeyboardDeviceConnected](KeyboardDeviceConnected)
 * [KeyboardDeviceCount](KeyboardDeviceCount)
 * [KeyboardDeviceName](KeyboardDeviceName)
 * [KeyDown](KeyDown)
 * [KeyHit](KeyHit)
 * [KeyWait](KeyWait)
+* [LastKeyboardDevice](LastKeyboardDevice)
 * [WaitKey](WaitKey)

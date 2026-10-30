@@ -27,7 +27,7 @@ Forgets joystick button presses that nobody has looked at yet, on every connecte
 
 ## Related Commands
 
-[GetJoy](GetJoy), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [WaitJoy](WaitJoy)
+[GetJoy](GetJoy), [JoyChanged](JoyChanged), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [WaitJoy](WaitJoy)
 
 <div align="center">
 

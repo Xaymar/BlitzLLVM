@@ -46,7 +46,7 @@ Wend
 
 ## Related Commands
 
-[MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseX](MouseX), [MouseYSpeed](MouseYSpeed), [MouseZSpeed](MouseZSpeed)
+[MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseX](MouseX), [MouseYSpeed](MouseYSpeed), [MouseZSpeed](MouseZSpeed)
 
 <div align="center">
 

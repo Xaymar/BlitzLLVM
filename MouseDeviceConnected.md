@@ -46,7 +46,7 @@ Until KeyHit(1)
 
 ## Related Commands
 
-[MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY)
+[MouseChanged](MouseChanged), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed)
 
 <div align="center">
 

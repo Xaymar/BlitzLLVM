@@ -30,7 +30,7 @@ How far the wheel moved since the last call, in notches. Rolling away from you i
 
 ## Related Commands
 
-[MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseXSpeed](MouseXSpeed), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ)
+[MouseChanged](MouseChanged), [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseXSpeed](MouseXSpeed), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ)
 
 <div align="center">
 

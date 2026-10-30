@@ -29,7 +29,7 @@ Like [JoyZ](JoyZ), but as a direction only: -1, 0 or 1.
 
 ## Related Commands
 
-[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyUDir](JoyUDir), [JoyVDir](JoyVDir), [JoyXDir](JoyXDir), [JoyYDir](JoyYDir), [JoyZ](JoyZ)
+[JoyChanged](JoyChanged), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyUDir](JoyUDir), [JoyVDir](JoyVDir), [JoyXDir](JoyXDir), [JoyYDir](JoyYDir), [JoyZ](JoyZ)
 
 <div align="center">
 

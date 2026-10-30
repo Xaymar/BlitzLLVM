@@ -453,6 +453,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 ## J
 
 * [JoinNetGame](JoinNetGame)
+* [JoyChanged](JoyChanged)
 * [JoyDeviceConnected](JoyDeviceConnected)
 * [JoyDeviceCount](JoyDeviceCount)
 * [JoyDeviceName](JoyDeviceName)
@@ -477,6 +478,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## K
 
+* [KeyboardChanged](KeyboardChanged)
 * [KeyboardDeviceConnected](KeyboardDeviceConnected)
 * [KeyboardDeviceCount](KeyboardDeviceCount)
 * [KeyboardDeviceName](KeyboardDeviceName)
@@ -486,6 +488,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## L
 
+* [LastJoyDevice](LastJoyDevice)
+* [LastKeyboardDevice](LastKeyboardDevice)
+* [LastMouseDevice](LastMouseDevice)
 * [LeadingZeros](LeadingZeros) 〔BlitzLLVM〕
 * [Left](Left)
 * [Len](Len)
@@ -554,6 +559,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [ModifyTerrain](ModifyTerrain)
 * [ModifyTreeViewNode](ModifyTreeViewNode)
 * [MoreFiles](MoreFiles)
+* [MouseChanged](MouseChanged)
 * [MouseDeviceConnected](MouseDeviceConnected)
 * [MouseDeviceCount](MouseDeviceCount)
 * [MouseDeviceName](MouseDeviceName)

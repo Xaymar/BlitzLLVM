@@ -47,7 +47,7 @@ Delay 1000
 
 ## Related Commands
 
-[FlushJoy](FlushJoy), [GetJoy](GetJoy), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyWait](JoyWait)
+[FlushJoy](FlushJoy), [GetJoy](GetJoy), [JoyChanged](JoyChanged), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyWait](JoyWait)
 
 <div align="center">
 

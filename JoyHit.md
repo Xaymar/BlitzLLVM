@@ -44,7 +44,7 @@ Wend
 
 ## Related Commands
 
-[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType)
+[JoyChanged](JoyChanged), [JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll)
 
 <div align="center">
 

@@ -43,7 +43,7 @@ WaitKey
 
 ## Related Commands
 
-[GetKey](GetKey), [KeyboardDeviceConnected](KeyboardDeviceConnected)
+[GetKey](GetKey), [KeyboardChanged](KeyboardChanged)
 
 <div align="center">
 

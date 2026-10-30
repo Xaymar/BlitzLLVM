@@ -14,6 +14,8 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 * [FlushMouse](FlushMouse)
 * [GetMouse](GetMouse)
 * [HWRawInput](HWRawInput)
+* [LastMouseDevice](LastMouseDevice)
+* [MouseChanged](MouseChanged)
 * [MouseDeviceConnected](MouseDeviceConnected)
 * [MouseDeviceCount](MouseDeviceCount)
 * [MouseDeviceName](MouseDeviceName)

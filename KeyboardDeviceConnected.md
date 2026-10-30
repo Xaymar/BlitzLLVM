@@ -46,7 +46,7 @@ Until KeyHit(1)
 
 ## Related Commands
 
-[FlushKeys](FlushKeys), [GetKey](GetKey), [KeyboardDeviceCount](KeyboardDeviceCount), [KeyboardDeviceName](KeyboardDeviceName)
+[KeyboardChanged](KeyboardChanged), [KeyboardDeviceCount](KeyboardDeviceCount), [KeyboardDeviceName](KeyboardDeviceName), [LastKeyboardDevice](LastKeyboardDevice)
 
 <div align="center">
 

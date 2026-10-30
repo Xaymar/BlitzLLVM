@@ -43,7 +43,7 @@ WaitKey
 
 ## Related Commands
 
-[KeyboardDeviceConnected](KeyboardDeviceConnected), [KeyboardDeviceCount](KeyboardDeviceCount), [KeyDown](KeyDown), [KeyHit](KeyHit)
+[KeyboardChanged](KeyboardChanged), [KeyboardDeviceConnected](KeyboardDeviceConnected), [KeyboardDeviceCount](KeyboardDeviceCount), [LastKeyboardDevice](LastKeyboardDevice)
 
 <div align="center">
 
