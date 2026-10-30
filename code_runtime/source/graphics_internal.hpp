@@ -418,8 +418,8 @@ namespace bb::gfx {
 		float   mouse_px = 0, mouse_py = 0;
 		Uint64  mouse_move_tick = 0;
 		int     mouse_z = 0;
-		bool    raw_inputs = false; // RawInputs: unaccelerated mouse motion and the fractions of the wheel.
-		float   mouse_z_frac = 0; // Wheel movement that is not a whole step yet, only counted with raw_inputs.
+		bool    raw_input = false; // RawInput: unaccelerated mouse motion and the fractions of the wheel.
+		float   mouse_z_frac = 0; // Wheel movement that is not a whole step yet, only counted with raw_input.
 		uint32_t triangles_drawn = 0;
 	};
 
@@ -1208,9 +1208,9 @@ int32_t bb_mouse_x_speed(int32_t canvas);
 int32_t bb_mouse_y_speed(int32_t canvas);
 int32_t bb_mouse_z_speed(void);
 int32_t bb_mouse_z(void);
-void    bb_raw_inputs(int32_t enable);
-int32_t bb_raw_inputs_enabled(void);
-int32_t bb_hw_raw_inputs(void);
+void    bb_raw_input(int32_t enable);
+int32_t bb_raw_input_enabled(void);
+int32_t bb_hw_raw_input(void);
 void bb_move_mouse(int32_t x, int32_t y, int32_t canvas);
 void bb_hide_pointer(int32_t canvas);
 void bb_show_pointer(int32_t canvas);

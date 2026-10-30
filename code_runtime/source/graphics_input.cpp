@@ -291,7 +291,7 @@ namespace bb::gfx {
 			}
 			case SDL_EVENT_MOUSE_WHEEL:
 				g.mouse_dz += event.wheel.y;
-				if (g.raw_inputs) {
+				if (g.raw_input) {
 					// Wheels and touchpads that turn in small steps add up to whole ones.
 					g.mouse_z_frac += event.wheel.y;
 					int whole = int(g.mouse_z_frac);
@@ -480,11 +480,11 @@ void bb_flush_mouse(void)
 	g.mouse_dx = g.mouse_dy = g.mouse_dz = 0;
 }
 
-// With RawInputs the window keeps the pointer for as long as the speed is asked for, and the movement is the one the
+// With RawInput the window keeps the pointer for as long as the speed is asked for, and the movement is the one the
 // hardware reports, without the acceleration of the system. Like with MoveMouse it is let go after a while.
 static void capture_for_speed()
 {
-	if (!g.raw_inputs || !active() || !bb_hw_raw_inputs()) {
+	if (!g.raw_input || !active() || !bb_hw_raw_input()) {
 		return;
 	}
 	g.mouse_move_tick = SDL_GetTicks();
@@ -545,21 +545,21 @@ int32_t bb_mouse_z_speed(void)
 }
 
 // A BlitzLLVM extension: asks for the mouse as the hardware reports it, see bb_mouse_x_speed and the wheel in drain.
-void bb_raw_inputs(int32_t enable)
+void bb_raw_input(int32_t enable)
 {
-	g.raw_inputs = enable != 0;
-	if (!g.raw_inputs) {
+	g.raw_input = enable != 0;
+	if (!g.raw_input) {
 		g.mouse_z_frac = 0;
 	}
 }
 
-int32_t bb_raw_inputs_enabled(void)
+int32_t bb_raw_input_enabled(void)
 {
-	return g.raw_inputs ? 1 : 0;
+	return g.raw_input ? 1 : 0;
 }
 
 // 1 if the mouse can be asked for without the acceleration of the system, else 0. Only a mouse of a desktop window system can.
-int32_t bb_hw_raw_inputs(void)
+int32_t bb_hw_raw_input(void)
 {
 	if (g.created && g.headless) {
 		return 0;
