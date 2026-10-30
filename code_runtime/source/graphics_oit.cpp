@@ -29,7 +29,7 @@ namespace {
 
 	// The four images and the set that reads them, for each size of target that was drawn to (as the depth buffers are).
 	struct image_set {
-		gpu_image       slot_color, slot_depth; // The slots of samples: multisampled color and depth.
+		gpu_image       slot_color, slot_depth, slot_weight; // The slots of samples: multisampled color, depth and the weight of the fragment.
 		VkImageLayout   slot_depth_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 		gpu_image       images[5]; // Sums of alpha, what remains of the light (or the optical depth, moment based), product of multiplied colors, sum of added colors, moments.
 		VkDescriptorSet set    = VK_NULL_HANDLE;
@@ -49,12 +49,12 @@ namespace {
 		if (set_layout) {
 			return;
 		}
-		VkDescriptorSetLayoutBinding bindings[7];
-		for (uint32_t i = 0; i < 7; i++) {
+		VkDescriptorSetLayoutBinding bindings[8];
+		for (uint32_t i = 0; i < 8; i++) {
 			bindings[i] = { i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr };
 		}
 		VkDescriptorSetLayoutCreateInfo info = { VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-		info.bindingCount                    = 7;
+		info.bindingCount                    = 8;
 		info.pBindings                       = bindings;
 		check(vkCreateDescriptorSetLayout(g.device, &info, nullptr, &set_layout), "vkCreateDescriptorSetLayout");
 		VkPipelineLayoutCreateInfo layout_info = { VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
@@ -83,7 +83,8 @@ namespace {
 			VkDescriptorImageInfo infos[5];
 			VkWriteDescriptorSet  writes[5];
 			for (uint32_t i = 0; i < 5; i++) {
-				entry.images[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, formats[i]);
+				// The slots take their share out of the sums, which half floats are too coarse for.
+				entry.images[i] = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, ((i == 0) && oit_slots()) ? VK_FORMAT_R32G32B32A32_SFLOAT : formats[i]);
 				infos[i]        = { g.sampler_point_clamp, entry.images[i].view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 				writes[i]       = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 				writes[i].dstSet          = entry.set;
@@ -96,9 +97,10 @@ namespace {
 			if (uint32_t slots = oit_slots()) {
 				entry.slot_color = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT, nullptr, 1, 1, slots);
 				entry.slot_depth = create_image(width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT, nullptr, 1, 1, slots);
-				VkDescriptorImageInfo slot_infos[2] = { { g.sampler_point_clamp, entry.slot_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL }, { g.sampler_point_clamp, entry.slot_depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL } };
-				VkWriteDescriptorSet  slot_writes[2];
-				for (uint32_t i = 0; i < 2; i++) {
+				entry.slot_weight = create_image(width, height, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_ASPECT_COLOR_BIT, nullptr, 1, 1, slots);
+				VkDescriptorImageInfo slot_infos[3] = { { g.sampler_point_clamp, entry.slot_color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL }, { g.sampler_point_clamp, entry.slot_depth.view, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL }, { g.sampler_point_clamp, entry.slot_weight.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL } };
+				VkWriteDescriptorSet  slot_writes[3];
+				for (uint32_t i = 0; i < 3; i++) {
 					slot_writes[i]                 = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
 					slot_writes[i].dstSet          = entry.set;
 					slot_writes[i].dstBinding      = 5 + i;
@@ -106,7 +108,7 @@ namespace {
 					slot_writes[i].descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 					slot_writes[i].pImageInfo      = &slot_infos[i];
 				}
-				vkUpdateDescriptorSets(g.device, 2, slot_writes, 0, nullptr);
+				vkUpdateDescriptorSets(g.device, 3, slot_writes, 0, nullptr);
 			}
 			entry.width  = width;
 			entry.height = height;
@@ -244,10 +246,11 @@ namespace bb::gfx {
 	}
 
 	// The pass of the alpha-blended things for the slots: multisampled color (cleared to nothing) and depth (cleared to the far plane, which is 0).
-	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth)
+	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo color[2], VkRenderingAttachmentInfo* depth)
 	{
 		image_set& entry = images_for(width, height);
-		color_attachment(*color, entry.slot_color, 0, 0, 0, 0);
+		color_attachment(color[0], entry.slot_color, 0, 0, 0, 0);
+		color_attachment(color[1], entry.slot_weight, 0, 0, 0, 0);
 		barrier(entry.slot_depth.image, entry.slot_depth_layout, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 		entry.slot_depth_layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 		*depth                  = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO };
@@ -262,6 +265,7 @@ namespace bb::gfx {
 	{
 		image_set& entry = images_for(width, height);
 		transition(entry.slot_color, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transition(entry.slot_weight, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		barrier(entry.slot_depth.image, entry.slot_depth_layout, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 		entry.slot_depth_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 	}
@@ -365,7 +369,7 @@ namespace bb::gfx {
 						image = gpu_image();
 					}
 				}
-				for (gpu_image* image : { &entry.slot_color, &entry.slot_depth }) {
+				for (gpu_image* image : { &entry.slot_color, &entry.slot_depth, &entry.slot_weight }) {
 					if (image->image) {
 						destroy_image(*image);
 						*image = gpu_image();

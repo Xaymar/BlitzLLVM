@@ -879,7 +879,8 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         # Slots of samples: the fragment writes its color to one sample of a multisampled target, picked by the sample mask. The depth test of the
         # samples keeps the nearest fragment of each slot, and the pass that shows them sorts the slots of a pixel.
         out_mask = b.variable("Output", b.array(b.int(), 1, "sample_mask"), [(DECORATION["BuiltIn"], BUILTIN_SAMPLE_MASK)])
-        interface += [out_mask]
+        out_weight = b.variable("Output", v4, [(DECORATION["Location"], 1)])  # The weight of weighted blended OIT, which the pass over the picture takes out of the sums again.
+        interface += [out_mask, out_weight]
     if fog:
         scene = declare_scene(b)
         in_depth = b.variable("Input", v4, [(DECORATION["Location"], 2)])
@@ -1147,6 +1148,8 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             rgb_s = b.ext(v3, GLSL_FCLAMP, b.swizzle(result, 3), b.const_vec(3, 0.0), b.const_vec(3, 1.0))
             a_s = b.ext(f, GLSL_FCLAMP, b.extract(result, 3), b.const_float(0.0), c1)
             b.store(out_color, b.construct(4, b.extract(rgb_s, 0), b.extract(rgb_s, 1), b.extract(rgb_s, 2), a_s))
+            weight_s = b.ext(f, GLSL_EXP2, b.fmul(f, b.fsub(f, rank_s, c1), b.const_float(11.0)))
+            b.store(out_weight, b.construct(4, weight_s, weight_s, weight_s, weight_s))
             b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
             return b.m.assemble()
         if oit in (2, 3):
@@ -1901,21 +1904,25 @@ def fragment_shader_oit_composite(mode):
 
 def fragment_shader_oit_resolve(slots):
     """
-    Shows the slots of order-independent transparency (OIT mode 3 and 4): every pixel of the multisampled target holds up to `slots` fragments, one in each
-    sample, with their depth in the multisampled depth. They are sorted from near to far and blended in that order.
-    Set 0, binding 5 is the multisampled color and binding 6 the multisampled depth. The output is the average color with the opacity as alpha,
-    which the pipeline blends by alpha (like mode 0 of the composite).
+    Shows the slots of order-independent transparency (OIT mode 3 and 4) together with the weighted sums (hybrid transparency): every pixel of
+    the multisampled target holds up to `slots` fragments, one in each sample (color in binding 5, depth in 6, weight in 7), which are
+    sorted from near to far and blended in that order. The sums of weighted blended OIT (binding 0: color * alpha * weight and alpha * weight,
+    binding 1: what remains of the light) hold every fragment, so what the slots hold is taken out of them again, and what is left is the
+    rest of the layers, blended behind the slots as their average color with their opacity.
 
     #version 450
-    layout(set = 0, binding = 5) uniform sampler2DMS slot_color;
-    layout(set = 0, binding = 6) uniform sampler2DMS slot_depth;
+    layout(set = 0, binding = 0) uniform sampler2D accum;  // 1: reveal
+    layout(set = 0, binding = 5) uniform sampler2DMS slot_color;  // 6: depth, 7: weight
     layout(location = 0) out vec4 outColor;
     void main() {
         ivec2 p = ivec2(gl_FragCoord.xy);
-        // sort the slots by depth, nearest (largest depth, the depth buffer is reversed) first
-        vec3 light = vec3(0); float remains = 1.0;
-        for (int i = 0; i < slots; i++) { vec4 c = sorted[i]; light += remains * c.a * c.rgb; remains *= 1.0 - c.a; }
-        outColor = vec4(light / max(1.0 - remains, 1e-5), 1.0 - remains);
+        vec3 light = vec3(0); float remains = 1.0; vec4 taken = vec4(0);   // taken: what the slots hold of the sums
+        for (int i = 0; i < slots; i++) { vec4 c = sorted[i]; light += remains * c.a * c.rgb; remains *= 1.0 - c.a; taken += vec4(c.rgb * c.a, c.a) * w; }
+        vec4 rest = max(texelFetch(accum, p, 0) - taken, 0.0);
+        float behind = clamp(texelFetch(reveal, p, 0).x / max(remains, 1e-5), 0.0, 1.0);   // what the rest lets through
+        light += remains * (1.0 - behind) * rest.rgb / max(rest.a, 1e-6);
+        float covered = 1.0 - remains * behind;
+        outColor = vec4(light / max(covered, 1e-5), covered);
     }
     """
     b = Builder()
@@ -1924,8 +1931,13 @@ def fragment_shader_oit_resolve(slots):
     boolean = b.new_type("bool", "TypeBool")
     image_ms = b.new_type("image_ms", "TypeImage", f, 1, 0, 0, 1, 1, 0)
     sampled_ms = b.new_type("sampled_ms", "TypeSampledImage", image_ms)
+    image_2d = b.new_type("image_2d", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+    sampled_2d = b.new_type("sampled_2d", "TypeSampledImage", image_2d)
+    accum_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 0)])
+    reveal_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 1)])
     color_tex = b.variable("UniformConstant", sampled_ms, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 5)])
     depth_tex = b.variable("UniformConstant", sampled_ms, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 6)])
+    weight_tex = b.variable("UniformConstant", sampled_ms, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 7)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
     in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
     main, label = b.m.id(), b.m.id()
@@ -1938,28 +1950,40 @@ def fragment_shader_oit_resolve(slots):
     pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(frag, 0)), b.emit("ConvertFToS", b.int(), b.extract(frag, 1)))
     color_image = b.emit("Image", image_ms, b.load(sampled_ms, color_tex))
     depth_image = b.emit("Image", image_ms, b.load(sampled_ms, depth_tex))
-    # Each entry: [depth, r, g, b, a]
+    weight_image = b.emit("Image", image_ms, b.load(sampled_ms, weight_tex))
+    # Each entry: [depth, r, g, b, a, weight]
     entries = []
     for sample in range(slots):
         c = b.emit("ImageFetch", v4, color_image, pixel, 0x40, b.const_int(sample))
         z = b.extract(b.emit("ImageFetch", v4, depth_image, pixel, 0x40, b.const_int(sample)), 0)
-        entries.append([z, b.extract(c, 0), b.extract(c, 1), b.extract(c, 2), b.extract(c, 3)])
+        w = b.extract(b.emit("ImageFetch", v4, weight_image, pixel, 0x40, b.const_int(sample)), 0)
+        entries.append([z, b.extract(c, 0), b.extract(c, 1), b.extract(c, 2), b.extract(c, 3), w])
     # Bubble sort with selects: the nearest (the largest depth) ends up first.
-    for end in range(slots - 1, 0, -1):
-        for i in range(end):
+    for last in range(slots - 1, 0, -1):
+        for i in range(last):
             swap = b.emit("FOrdLessThan", boolean, entries[i][0], entries[i + 1][0])
             first, second = entries[i], entries[i + 1]
-            entries[i] = [b.emit("Select", f, swap, second[k], first[k]) for k in range(5)]
-            entries[i + 1] = [b.emit("Select", f, swap, first[k], second[k]) for k in range(5)]
+            entries[i] = [b.emit("Select", f, swap, second[k], first[k]) for k in range(6)]
+            entries[i + 1] = [b.emit("Select", f, swap, first[k], second[k]) for k in range(6)]
     zero, one = b.const_float(0.0), b.const_float(1.0)
     light = [zero, zero, zero]
+    taken = [zero, zero, zero, zero]
     remains = one
     for entry in entries:
         alpha = entry[4]
         weight = b.fmul(f, remains, alpha)
         light = [b.fadd(f, light[k], b.fmul(f, weight, entry[1 + k])) for k in range(3)]
         remains = b.fmul(f, remains, b.fsub(f, one, alpha))
-    covered = b.fsub(f, one, remains)
+        aw = b.fmul(f, alpha, entry[5])
+        taken = [b.fadd(f, taken[k], b.fmul(f, aw, entry[1 + k])) for k in range(3)] + [b.fadd(f, taken[3], aw)]
+    sums = b.emit("ImageFetch", v4, b.emit("Image", image_2d, b.load(sampled_2d, accum_tex)), pixel, 2, b.const_int(0))
+    reveal = b.extract(b.emit("ImageFetch", v4, b.emit("Image", image_2d, b.load(sampled_2d, reveal_tex)), pixel, 2, b.const_int(0)), 0)
+    rest = [b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(sums, k), taken[k]), zero) for k in range(4)]
+    behind = b.ext(f, GLSL_FCLAMP, b.fdiv(f, reveal, b.ext(f, GLSL_FMAX, remains, b.const_float(1e-5))), zero, one)
+    average = b.fdiv(f, one, b.ext(f, GLSL_FMAX, rest[3], b.const_float(1e-6)))
+    tail = b.fmul(f, remains, b.fsub(f, one, behind))
+    light = [b.fadd(f, light[k], b.fmul(f, tail, b.fmul(f, rest[k], average))) for k in range(3)]
+    covered = b.fsub(f, one, b.fmul(f, remains, behind))
     inverse = b.fdiv(f, one, b.ext(f, GLSL_FMAX, covered, b.const_float(1e-5)))
     b.store(out_color, b.construct(4, b.fmul(f, light[0], inverse), b.fmul(f, light[1], inverse), b.fmul(f, light[2], inverse), covered))
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
