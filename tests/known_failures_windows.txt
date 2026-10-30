@@ -38,6 +38,7 @@ suite-debug-compile-blitz3d_anim_texture_pixels
 suite-debug-compile-blitz3d_animated_pictures
 suite-debug-compile-blitz3d_animated_pictures_pixels
 suite-debug-compile-blitz3d_animation
+suite-debug-compile-blitz3d_antialias_dither_pixels
 suite-debug-compile-blitz3d_antialias_pixels
 suite-debug-compile-blitz3d_async_load_pixels
 suite-debug-compile-blitz3d_async_mesh_pixels
@@ -196,6 +197,7 @@ suite-debug-run-blitz3d_anim_texture_pixels
 suite-debug-run-blitz3d_animated_pictures
 suite-debug-run-blitz3d_animated_pictures_pixels
 suite-debug-run-blitz3d_animation
+suite-debug-run-blitz3d_antialias_dither_pixels
 suite-debug-run-blitz3d_antialias_pixels
 suite-debug-run-blitz3d_async_load_pixels
 suite-debug-run-blitz3d_async_mesh_pixels
