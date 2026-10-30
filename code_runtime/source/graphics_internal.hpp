@@ -921,7 +921,7 @@ namespace bb::gfx {
 	int bayer_levels();
 	/** The three steps of the pattern of the picture that is made now: how far it is moved in x and in y, and how far the ranks of its thresholds are rotated. Needs the levels. */
 	void dither_steps(float out[3]);
-	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader. */
+	/** What Dither does now: 0 off, 1 noise before the buffer, 2 also blending in the shader. It is 1 when 2 was asked for and the GPU can not blend in the shader, or AntiAlias is on (smoothing needs the picture that was blended). */
 	int dither_level();
 	/** Whether the buffers are those of a Graphics with a depth of 8: RGBA8 that is shown, and read, as the nearest colors of the palette (GraphicsPalette). */
 	bool palette_mode();
@@ -1067,6 +1067,8 @@ namespace bb::gfx {
 	antialias_plan antialias_begin(int camera, int target_handle, target_ref const& target, int vx, int vy, int vw, int vh);
 	/** Queues the smoothing of what the camera drew: vp is its view and projection without the shift, origin where it is. */
 	void antialias_end(antialias_plan const& plan, int camera, int target_handle, target_ref const& target, int vx, int vy, int vw, int vh, const float* vp, const double* origin, bool masked);
+	/** What AntiAlias was set to: 0 off, 1 SMAA, 2 SMAA T2x. Dither 2 is 1 while it is not 0. */
+	int antialias_mode();
 	/** Counts the calls of RenderWorld, so that a camera knows whether it was drawn by the one before. */
 	void antialias_new_frame();
 	void record_antialias(uint32_t index, int target_handle);

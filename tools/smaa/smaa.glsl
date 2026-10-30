@@ -5,9 +5,9 @@
 
 layout(push_constant) uniform Constants {
 	vec4 metrics;   // 1 / width, 1 / height, width, height of the picture.
-	vec4 subsample; // subsampleIndices of the weights pass.
+	vec4 subsample; // subsampleIndices of the weights pass. For the passes that write the picture: the steps of the Bayer pattern (DitherMode 1) and its levels.
 	mat4 reproject; // Resolve: from (x, y, depth, 1) in the clip space of this frame to that of the last one.
-	vec4 resolve;   // Weight of the last frame, whether to leave out what has no depth.
+	vec4 resolve;   // Weight of the last frame, whether to leave out what has no depth, then the code of Dither (0 for none, else 1 + the shift of the noise).
 	vec4 depthmap;  // Where the picture is in the depth: offset (xy) and size (zw) as parts of it.
 } pc;
 
@@ -54,6 +54,44 @@ layout(location = 2) in vec4 v_offset[3];
 layout(location = 0) out vec4 o_color;
 
 #if defined(PASS_BLEND) || defined(PASS_RESOLVE)
+// The Bayer threshold of DitherMode 1 for a pixel, as an offset of less than half a step of 8 bits: bayer_offset in tools/generate_shaders.py has
+// the explanation. subsample has the shifts of the frame, then its step (all 0 without DitherTemporal), and the levels of the pattern.
+float bayer_offset(vec2 xy)
+{
+	float levels = pc.subsample.w;
+	float x = xy.x + pc.subsample.x, y = xy.y - pc.subsample.y;
+	float val = 0.0, div = 0.0;
+	for (int level = 1; level <= 8; level++) {
+		float counts = step(float(level), levels);
+		float mul    = exp2(2.0 * (levels - float(level) + 1.0));
+		float scale  = exp2(float(1 - level));
+		float bx     = mod(floor(x * scale), 2.0);
+		float by     = mod(floor(y * scale), 2.0);
+		float x2     = bx * 2.0;
+		val += mix(x2, 3.0 - x2, by) / 3.0 * counts * mul;
+		div += counts * mul;
+	}
+	float thresh = val / max(div, 1e-6);
+	float colors = exp2(2.0 * levels);
+	float last   = max(colors - 1.0, 1.0);
+	float rank   = floor(thresh * last + 0.5) + pc.subsample.z;
+	rank -= colors * floor(rank / colors);
+	return (rank / last - 0.5) / 255.0;
+}
+
+// Dither: the picture is rounded to 8 bits when it is drawn to the target, so the noise of up to half a step is added here, after what was
+// smoothed was made, the same as the last thing the shaders of 3D do. A color that 8 bits show exactly gets none, as there.
+vec4 dithered(vec4 color)
+{
+	if (pc.resolve.z == 0.0) {
+		return color;
+	}
+	vec2 xy      = floor(gl_FragCoord.xy);
+	float offset = (pc.subsample.w > 0.0) ? bayer_offset(xy) : (fract(52.9829189 * fract(dot(xy + vec2(pc.resolve.z - 1.0), vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0;
+	vec3 steps   = color.rgb * 255.0;
+	return vec4(color.rgb + offset * step(1.0 / 64.0, abs(steps - floor(steps + 0.5))), color.a);
+}
+
 // Whether 3D drew in the pixel or next to it: the depth is 0 where it did not, and a camera that did not clear its
 // picture has other things drawn there.
 bool drawn_near(sampler2D depth, vec2 uv)
@@ -87,14 +125,14 @@ void main()
 	if ((pc.resolve.y > 0.5) && !drawn_near(tex2, v_texcoord)) {
 		o_color = textureLod(tex0, v_texcoord, 0.0);
 	} else {
-		o_color = SMAANeighborhoodBlendingPS(v_texcoord, v_offset[0], tex0, tex1);
+		o_color = dithered(SMAANeighborhoodBlendingPS(v_texcoord, v_offset[0], tex0, tex1));
 	}
 #elif defined(PASS_RESOLVE)
 	// tex0: this frame, tex1: the last frame, tex2: depth. SMAA T2x with the motion of the camera as velocity: where
 	// everything was last frame follows from the depth and the matrices of both frames.
 	vec4 current = textureLod(tex0, v_texcoord, 0.0);
 	if ((pc.resolve.x == 0.0) || ((pc.resolve.y > 0.5) && !drawn_near(tex2, v_texcoord))) {
-		o_color = current;
+		o_color = dithered(current);
 		return;
 	}
 	vec2 size    = pc.metrics.zw;
@@ -118,7 +156,7 @@ void main()
 		}
 	}
 	history.rgb = clamp(history.rgb, low, high);
-	o_color = vec4(mix(current.rgb, history.rgb, weight), current.a);
+	o_color = dithered(vec4(mix(current.rgb, history.rgb, weight), current.a));
 #endif
 }
 #endif
