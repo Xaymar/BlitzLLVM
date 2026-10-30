@@ -20,7 +20,7 @@
 	path = third_party/blitz3d_soloud
 	url = https://github.com/blitz-research/blitz3d_soloud.git
 	shallow = true
-[submodule "extra/blitzplus_msvc2017"]
+[submodule "third_party/blitzplus_msvc2017"]
 	path = third_party/blitzplus_msvc2017
 	url = https://github.com/blitz-research/blitzplus_msvc2017.git
 	shallow = true

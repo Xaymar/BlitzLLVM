@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""The sample programs and games that came with the original Blitz3D and BlitzPlus (the third_party/blitz3d and extra/blitzplus_msvc2017 submodules).
+"""The sample programs and games that came with the original Blitz3D and BlitzPlus (the third_party/blitz3d and third_party/blitzplus_msvc2017 submodules).
 
-  original_programs.py list                    Print the programs, one per line (file names are relative to third_party/ for blitz3d and to extra/ for blitzplus_msvc2017)
+  original_programs.py list                    Print the programs, one per line (file names are relative to third_party/)
   original_programs.py compile-one BLITZCC PROGRAM OUT   Compile one program, print the output of the compiler when it fails
   original_programs.py run-one OUT PROGRAM     Run a compiled program without a window (BLITZLLVM_HEADLESS=1) for a few seconds: still running or exit code 0 is a pass
   original_programs.py compile BLITZCC [OUT]   Compile every program with BLITZCC, print a pass/fail list and the first error of each failure
@@ -17,12 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".")
 import procutil  # noqa: E402
 
 REPO = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-# Where each original lives; program names start with the folder name of the original.
-ROOTS = {"blitz3d": os.path.join(REPO, "third_party"), "blitzplus_msvc2017": os.path.join(REPO, "extra")}
-
-
-def root_of(name):
-    return ROOTS[name.replace("\\", "/").split("/")[0]]
+ROOT = os.path.join(REPO, "third_party")
 TREES = [
     "blitz3d/_release/samples",
     "blitz3d/_release/Games",
@@ -56,7 +51,7 @@ def programs():
     """Every program in TREES as a path relative to the folder of its original, sorted."""
     result = []
     for tree in TREES:
-        top = os.path.join(root_of(tree), tree)
+        top = os.path.join(ROOT, tree)
         files = [os.path.join(d, f) for d, _, fs in os.walk(top) for f in fs if f.lower().endswith(".bb")]
         included = set()
         for f in files:
@@ -65,7 +60,7 @@ def programs():
                     target = resolve(os.path.dirname(f), name)
                     if target:
                         included.add(os.path.normcase(os.path.realpath(target)))
-        result += [os.path.relpath(f, root_of(tree)) for f in files if os.path.normcase(os.path.realpath(f)) not in included]
+        result += [os.path.relpath(f, ROOT) for f in files if os.path.normcase(os.path.realpath(f)) not in included]
     return sorted(result, key=str.lower)
 
 
@@ -101,7 +96,7 @@ def run_one(out, program, seconds=5):
     seconds without a window has got past its start and counts as good. One that stops with an error, or crashes, does not.
     Some write their settings or scores next to themselves, and what they find there changes what they do, so the folder is put back
     afterwards. Programs of one folder must not run at the same time. Requesters (RequestFont, RequestColor) are accepted as they start."""
-    source = os.path.join(root_of(program), program)
+    source = os.path.join(ROOT, program)
     folder = os.path.dirname(source)
     env = dict(os.environ, BLITZLLVM_HEADLESS="1", BLITZLLVM_DIALOG_ANSWER="0")  # Requesters are accepted as they start.
     files = snapshot(folder)
@@ -116,7 +111,7 @@ def run_one(out, program, seconds=5):
 
 def compile_one(blitzcc, program, out):
     exe = exe_path(out, program)
-    source = os.path.join(root_of(program), program)
+    source = os.path.join(ROOT, program)
     try:
         run = procutil.run([blitzcc, source, "-o", exe], cwd=os.path.dirname(source), capture_output=True, text=True, timeout=300)
         text = (run.stdout + run.stderr).strip()
