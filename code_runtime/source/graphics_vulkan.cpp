@@ -18,6 +18,7 @@
 #include "memory.h"
 
 #include <unordered_map>
+#include <iterator>
 #include <vector>
 
 #define BB_VK_DEFINE(name) PFN_##name name;
@@ -1141,8 +1142,10 @@ namespace bb::gfx {
 		// Flip 1 is FIFO, which is always available and makes the program wait for the display. Flip 0 shows at once (tearing).
 		// Flip 2 syncs the picture with the display without making the program wait: MAILBOX replaces a picture that was
 		// not shown yet with the newer one. Without MAILBOX it falls back to FIFO, which is synced but can make the program wait.
+		// A window with a thread of its own (graphics_presenter.cpp) uses MAILBOX, or else IMMEDIATE: a present that never waits for the
+		// display, so that the lock of its queue is held only for the call itself; the thread paces itself to the display instead.
 		VkPresentModeKHR mode = VK_PRESENT_MODE_FIFO_KHR;
-		if (s.vsync != 1) {
+		if ((s.vsync != 1) || s.show) {
 			uint32_t        mode_count = 0;
 			VkPresentModeKHR modes[16];
 			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, s.surface, &mode_count, nullptr);
@@ -1150,10 +1153,17 @@ namespace bb::gfx {
 				mode_count = 16;
 			}
 			vkGetPhysicalDeviceSurfacePresentModesKHR(g.physical, s.surface, &mode_count, modes);
-			VkPresentModeKHR wanted = (s.vsync == 2) ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+			VkPresentModeKHR wanted = ((s.vsync == 2) || s.show) ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
 			for (uint32_t i = 0; i < mode_count; i++) {
 				if (modes[i] == wanted) {
 					mode = modes[i];
+				}
+			}
+			if (s.show && (mode == VK_PRESENT_MODE_FIFO_KHR)) {
+				for (uint32_t i = 0; i < mode_count; i++) {
+					if (modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+						mode = modes[i];
+					}
 				}
 			}
 		}
@@ -1461,6 +1471,7 @@ namespace bb::gfx {
 		bool forced    = (driver_choice > 0) && !gpus[0].fallback;
 		int  best_score = -1;
 		g.physical      = VK_NULL_HANDLE;
+		uint32_t family_queues = 1;
 		for (uint32_t d = 0; d < device_count; d++) {
 			VkPhysicalDeviceProperties props;
 			vkGetPhysicalDeviceProperties(devices[d], &props);
@@ -1488,6 +1499,7 @@ namespace bb::gfx {
 						g.physical    = devices[d];
 						g.family      = f;
 						g.driver_used = driver + 1;
+						family_queues = families[f].queueCount;
 					}
 					break;
 				}
@@ -1501,11 +1513,23 @@ namespace bb::gfx {
 		}
 		vkGetPhysicalDeviceMemoryProperties(g.physical, &g.memory);
 
-		float                   priority    = 1.0f;
+		// Queue 0 is the one of Graphics. Where the family has more, the threads of windows get queues of their own, so that a present
+		// of one window that waits inside the driver holds up neither the other windows nor Graphics (graphics_presenter.cpp).
+		g.queue_count = family_queues;
+		if (g.queue_count > uint32_t(std::size(g.queues))) {
+			g.queue_count = uint32_t(std::size(g.queues));
+		}
+		if (g.queue_count < 1) {
+			g.queue_count = 1;
+		}
+		float                   priorities[std::size(g.queues)];
+		for (float& priority : priorities) {
+			priority = 1.0f;
+		}
 		VkDeviceQueueCreateInfo queue_info  = { VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO };
 		queue_info.queueFamilyIndex         = g.family;
-		queue_info.queueCount               = 1;
-		queue_info.pQueuePriorities         = &priority;
+		queue_info.queueCount               = g.queue_count;
+		queue_info.pQueuePriorities         = priorities;
 
 		// Drawing edges only is an optional feature.
 		VkPhysicalDeviceFeatures supported = {}, enabled = {};
@@ -1525,7 +1549,10 @@ namespace bb::gfx {
 		std::vector<VkExtensionProperties> available(device_extension_count);
 		vkEnumerateDeviceExtensionProperties(g.physical, nullptr, &device_extension_count, available.data());
 		VkPhysicalDeviceCustomBorderColorFeaturesEXT border_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
+		bool has_present_id = false, has_present_wait = false;
 		for (VkExtensionProperties const& e : available) {
+			has_present_id |= strcmp(e.extensionName, VK_KHR_PRESENT_ID_EXTENSION_NAME) == 0;
+			has_present_wait |= strcmp(e.extensionName, VK_KHR_PRESENT_WAIT_EXTENSION_NAME) == 0;
 			if (strcmp(e.extensionName, VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME) == 0) {
 				VkPhysicalDeviceCustomBorderColorFeaturesEXT query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT };
 				VkPhysicalDeviceFeatures2 query2 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
@@ -1538,11 +1565,35 @@ namespace bb::gfx {
 			}
 		}
 
+		// The threads of windows wait for the display with vkWaitForPresentKHR, outside the lock of their queue, where the driver has it.
+		VkPhysicalDevicePresentIdFeaturesKHR   present_id_features   = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR };
+		VkPhysicalDevicePresentWaitFeaturesKHR present_wait_features = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR };
+		g.can_present_wait = false;
+		if (has_present_id && has_present_wait) {
+			VkPhysicalDevicePresentIdFeaturesKHR   query_id   = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR };
+			VkPhysicalDevicePresentWaitFeaturesKHR query_wait = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR };
+			VkPhysicalDeviceFeatures2              query2     = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2 };
+			query_id.pNext   = &query_wait;
+			query2.pNext     = &query_id;
+			vkGetPhysicalDeviceFeatures2(g.physical, &query2);
+			if (query_id.presentId && query_wait.presentWait) {
+				g.can_present_wait                 = true;
+				present_id_features.presentId      = VK_TRUE;
+				present_wait_features.presentWait  = VK_TRUE;
+			}
+		}
+
 		VkPhysicalDeviceVulkan13Features features13 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
 		features13.dynamicRendering                 = VK_TRUE;
 		features13.synchronization2                 = VK_TRUE;
 		if (g.can_custom_border) {
 			features13.pNext = &border_features;
+		}
+		if (g.can_present_wait) {
+			present_wait_features.pNext = present_id_features.pNext = nullptr;
+			present_id_features.pNext   = &present_wait_features;
+			present_wait_features.pNext = features13.pNext;
+			features13.pNext            = &present_id_features;
 		}
 
 		// Dither 2 blends in the shader, which needs two more extensions.
@@ -1567,7 +1618,7 @@ namespace bb::gfx {
 			interlock_features.pNext                        = features13.pNext;
 			features13.pNext                                = &interlock_features;
 		}
-		const char* device_extensions[5] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		const char* device_extensions[7] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		uint32_t    device_extension_total = 1;
 		if (g.can_custom_border) {
 			device_extensions[device_extension_total++] = VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME;
@@ -1578,6 +1629,10 @@ namespace bb::gfx {
 		}
 		if (g.can_interlock) {
 			device_extensions[device_extension_total++] = VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME;
+		}
+		if (g.can_present_wait) {
+			device_extensions[device_extension_total++] = VK_KHR_PRESENT_ID_EXTENSION_NAME;
+			device_extensions[device_extension_total++] = VK_KHR_PRESENT_WAIT_EXTENSION_NAME;
 		}
 		VkDeviceCreateInfo device_info         = { VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO };
 		device_info.pNext                      = &features13;
@@ -1591,7 +1646,10 @@ namespace bb::gfx {
 
 #define BB_VK_LOAD_DEVICE(name) name = reinterpret_cast<PFN_##name>(vkGetDeviceProcAddr(g.device, #name));
 		BB_VK_DEVICE(BB_VK_LOAD_DEVICE)
-		vkGetDeviceQueue(g.device, g.family, 0, &g.queue);
+		for (uint32_t i = 0; i < g.queue_count; i++) {
+			vkGetDeviceQueue(g.device, g.family, i, &g.queues[i]);
+		}
+		g.queue = g.queues[0];
 		create_allocator(instance_proc);
 
 		VkCommandPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };

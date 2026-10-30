@@ -79,6 +79,7 @@ target_sources(blitzrt PRIVATE
 	"source/graphics_gamma.cpp"
 	"source/graphics_smaa.cpp"
 	"source/graphics_recovery.cpp"
+	"source/graphics_presenter.cpp"
 	"source/graphics_surfaces.cpp"
 	"source/graphics_displays.cpp"
 	"source/graphics_input.cpp"

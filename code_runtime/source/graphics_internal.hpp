@@ -85,6 +85,7 @@ void bb_gui_idle(void);
 	X(vkQueueWaitIdle) \
 	X(vkQueueSubmit) \
 	X(vkQueuePresentKHR) \
+	X(vkWaitForPresentKHR) \
 	X(vkCreateSwapchainKHR) \
 	X(vkDestroySwapchainKHR) \
 	X(vkGetSwapchainImagesKHR) \
@@ -284,6 +285,7 @@ namespace bb::gfx {
 		VkExtent2D     swap_extent = {};
 		VkSemaphore    acquired = VK_NULL_HANDLE;
 		int            vsync    = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
+		struct presenter* show = nullptr; // The thread that shows the window's pictures, where the window has one (graphics_presenter.cpp).
 	};
 
 	struct state {
@@ -304,8 +306,10 @@ namespace bb::gfx {
 		int              driver_used = 0; // The driver of the GPU that is in use.
 		VkDevice         device   = VK_NULL_HANDLE;
 		VmaAllocator     allocator = VK_NULL_HANDLE; // Where all the memory of buffers and images comes from. Destroyed before the device.
-		VkQueue          queue    = VK_NULL_HANDLE;
+		VkQueue          queue    = VK_NULL_HANDLE; // queues[0]: the one of Graphics, the program's thread and the submission thread.
 		uint32_t         family   = 0;
+		uint32_t         queue_count = 1;          // How many queues of the family were made; the others are for the threads of windows.
+		VkQueue          queues[8] = {};
 		VkPhysicalDeviceMemoryProperties memory = {};
 
 		VkCommandPool   pool  = VK_NULL_HANDLE;
@@ -378,6 +382,7 @@ namespace bb::gfx {
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
 		bool                  can_interlock     = false; // Prototype: VK_EXT_fragment_shader_interlock is on.
+		bool                  can_present_wait  = false; // VK_KHR_present_wait is on: a thread can wait for the display without holding a queue.
 		bool                  can_blend_dither  = false; // The extensions that let the fragment shader blend are on.
 		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
@@ -982,7 +987,9 @@ namespace bb::gfx {
 	bool ensure_device();
 
 	/** Windows besides the one of Graphics: a surface each, on the device that is shared. A handle is 1 or more, 0 is no window. */
+	constexpr int  max_extra_surfaces = 64;
 	surface_state* extra_surface(int handle);
+	surface_state* extra_surface_of_window(SDL_WindowID window);
 	int            create_extra_surface(const char* title, int width, int height, int resizable, int borderless);
 	void           destroy_extra_surface(int handle);
 	void           destroy_extra_surfaces();
@@ -991,6 +998,24 @@ namespace bb::gfx {
 	/** Test hook BLITZLLVM_TEST_LAZY_DEVICE: a device before the window of Graphics, used by a window of its own; then whether Graphics kept it. */
 	void           test_lazy_device(const char* path);
 	void           test_lazy_device_finish(const char* path);
+
+	/** The thread of a window, which shows the newest of its three pictures whenever there is one or the window asks, at the pace of the display (graphics_presenter.cpp). */
+	bool       start_presenter(surface_state& s);
+	void       stop_presenter(surface_state& s);
+	/** The picture the program draws into now, and the handover of what was drawn: it is shown next (with wait, the call returns once it was). */
+	gpu_image& presenter_frame(surface_state& s);
+	void       presenter_handover(surface_state& s, bool wait);
+	/** From the program's thread: an event of the window, and the swapchains the threads asked for. */
+	void       presenter_window_event(surface_state& s, const SDL_Event& event);
+	void       presenter_service();
+	void       presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents, uint32_t* shows);
+	void       test_presenters(const char* path);
+	/** A queue is used by one thread at a time: queue 0 by the program's thread, the submission thread and the threads of windows
+	 * that have no queue of their own; the others each by one window's thread. Waiting for the whole device takes all of them. */
+	void       queue_lock(uint32_t queue = 0);
+	void       queue_unlock(uint32_t queue = 0);
+	void       queue_lock_all();
+	void       queue_unlock_all();
 
 	// The graphics drivers, which are the GPUs.
 	constexpr uint32_t max_gpus = 16;
