@@ -207,7 +207,7 @@ jobs:
         env:
           ARCH: ${{ matrix.name == 'macos-universal' && 'arm64' || '' }}
         run: |
-          libraries=$(find build -name 'libblitzrt.a' -o -name 'blitzrt.lib')
+          libraries=$(find build \( -name 'blitzrt.a' -o -name 'libblitzrt.a' -o -name 'blitzrt.lib' \) -type f)
           test -n "$libraries" || { echo "no blitzrt library found"; exit 1; }
           python=$(command -v python3 || command -v python)
           "$python" tools/check_no_fma.py --require ${ARCH:+--arch "$ARCH"} $libraries
