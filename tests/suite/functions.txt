@@ -130,6 +130,7 @@ entityinview	blitz3d	done	%EntityInView%entity%camera
 entitylightchannel	blitz3d	done	EntityLightChannel%entity%channel
 entityname	blitz3d	done	$EntityName%entity
 entityorder	blitz3d	done	EntityOrder%entity%order
+entitystatic	blitz3d	done	EntityStatic%entity%is_static
 entityparent	blitz3d	done	EntityParent%entity%parent%global=1
 entitypick	blitz3d	done	%EntityPick%entity#range
 entitypickmode	blitz3d	done	EntityPickMode%entity%pick_geometry%obscurer=1

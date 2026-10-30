@@ -2836,9 +2836,10 @@ namespace bb::gfx {
 	}
 
 	// Whether the draws of a mesh can be kept: only solid meshes that stand alone and are drawn the same way by every camera.
+	// EntityStatic -1 keeps a mesh out of the table. 1 does not make a mesh eligible that is not, because those can not be drawn from it.
 	static bool static_eligible(bb::entity& e)
 	{
-		if ((e.kind != bb::MESH) || e.hidden || e.parent || e.captured || e.order || e.sprite_mode || e.plane_divs || e.terrain || e.cls || e.has_cull_box
+		if ((e.static_mode < 0) || (e.kind != bb::MESH) || e.hidden || e.parent || e.captured || e.order || e.sprite_mode || e.plane_divs || e.terrain || e.cls || e.has_cull_box
 			|| (e.fade_far > 0) || e.unresolved || e.anim || e.md2 || e.loading || (e.alpha <= 0.001f) || (e.surfaces.size == 0)) {
 			return false;
 		}
@@ -3037,7 +3038,7 @@ namespace bb::gfx {
 			return 0;
 		}
 		size_for(uint32_t(handle));
-		if (frame - last_touch[uint32_t(handle) - 1] < settle_frames) {
+		if ((e->static_mode <= 0) && (frame - last_touch[uint32_t(handle) - 1] < settle_frames)) { // EntityStatic 1 does not wait to settle.
 			return 2;
 		}
 		if (member(handle) || !static_eligible(*e)) {

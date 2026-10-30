@@ -66,6 +66,7 @@ suite-debug-compile-blitz3d_entities
 suite-debug-compile-blitz3d_entity_child_order
 suite-debug-compile-blitz3d_entity_children
 suite-debug-compile-blitz3d_entity_depth_fade_pixels
+suite-debug-compile-blitz3d_entity_static_pixels
 suite-debug-compile-blitz3d_envmaps_pixels
 suite-debug-compile-blitz3d_far_pixels
 suite-debug-compile-blitz3d_fog_sphere_pixels
@@ -223,6 +224,7 @@ suite-debug-run-blitz3d_entities
 suite-debug-run-blitz3d_entity_child_order
 suite-debug-run-blitz3d_entity_children
 suite-debug-run-blitz3d_entity_depth_fade_pixels
+suite-debug-run-blitz3d_entity_static_pixels
 suite-debug-run-blitz3d_envmaps_pixels
 suite-debug-run-blitz3d_far_pixels
 suite-debug-run-blitz3d_fog_sphere_pixels

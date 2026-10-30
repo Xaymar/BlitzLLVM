@@ -11,11 +11,11 @@ What is drawn does not change: the picture of a program is the same with and wit
 
 ## Which meshes go in the table
 
-A mesh goes in the table after it has stayed untouched for four frames, and only if it is solid and stands alone: no parent, no `EntityOrder`, no fade, not a sprite, plane, terrain, level, animated or skinned mesh, no extra texture layers and no see-through surfaces. Everything else is drawn as before. Cameras that look into a mirror draw everything the usual way.
+A mesh goes in the table after it has stayed untouched for four frames, and only if it is solid and stands alone: no parent, no `EntityOrder`, no fade, not a sprite, plane, terrain, level, animated or skinned mesh, no extra texture layers and no see-through surfaces. Everything else is drawn as before. `EntityStatic` changes the wait: with `-1` a mesh is never put in the table, with `1` it goes in without waiting for the four frames (it still has to be solid and stand alone), and with `0`, the default, the renderer decides as described. Cameras that look into a mirror draw everything the usual way.
 
 ## What takes a mesh out of the table
 
-Any command that takes the entity (moving it, coloring it, hiding it, freeing it, painting it, ...) takes that mesh out of the table, and it goes back in after four frames without being touched. These throw the whole table away, because every mesh depends on them: any change of a light, the vertices or paint of any surface, any command that takes a texture, `WireFrame`, and a change of `Dither`. When such a change happens every frame (an animated mesh, a program that changes a texture each frame) the table waits longer and longer before it is made again, so a scene that changes all the time is drawn the usual way.
+Any command that takes the entity (moving it, coloring it, hiding it, freeing it, painting it, ...) takes that mesh out of the table, and it goes back in after four frames without being touched (a mesh with `EntityStatic 1` that is moved, turned, scaled or re-parented goes back to `EntityStatic 0`; anything else that changes it is shown at once and it goes back in the next frame without the wait). These throw the whole table away, because every mesh depends on them: any change of a light, the vertices or paint of any surface, any command that takes a texture, `WireFrame`, and a change of `Dither`. When such a change happens every frame (an animated mesh, a program that changes a texture each frame) the table waits longer and longer before it is made again, so a scene that changes all the time is drawn the usual way.
 
 ## Differences
 

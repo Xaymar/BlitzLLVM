@@ -355,6 +355,7 @@
 		{ "addanimseq", "bb_add_anim_seq", 'i', "ii", 2, {}, false },
 		{ "copyentity", "bb_copy_entity", 'i', "ii", 1, { 0, 0 }, false },
 		{ "entityorder", "bb_entity_order", 'v', "ii", 2, {}, false },
+		{ "entitystatic", "bb_entity_static", 'v', "ii", 2, {}, false },
 		{ "entityblend", "bb_entity_blend", 'v', "ii", 2, {}, false },
 		{ "entityshininess", "bb_entity_shininess", 'v', "if", 2, {}, false },
 		{ "entityautofade", "bb_entity_auto_fade", 'v', "iff", 3, {}, false },

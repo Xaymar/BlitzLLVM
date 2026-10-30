@@ -64,6 +64,15 @@ namespace bb::scene {
 		return e;
 	}
 
+	entity* need_moving(int handle, const char* what)
+	{
+		entity* e = need(handle, what);
+		if (e->static_mode > 0) {
+			e->static_mode = 0; // It was not static after all.
+		}
+		return e;
+	}
+
 	entity* need_kind(int handle, int kind, const char* what)
 	{
 		entity* e = need(handle, what);
@@ -532,7 +541,7 @@ void bb_free_entity(int32_t handle)
 
 void bb_entity_parent(int32_t handle, int32_t parent, int32_t global)
 {
-	entity* e = need(handle, "EntityParent");
+	entity* e = need_moving(handle, "EntityParent");
 	if (parent) {
 		need(parent, "EntityParent");
 		for (int p = parent; p; p = get_entity(p)->parent) {
@@ -562,7 +571,7 @@ void bb_entity_parent(int32_t handle, int32_t parent, int32_t global)
 
 void bb_position_entity(int32_t handle, float x, float y, float z, int32_t global)
 {
-	entity* e = need(handle, "PositionEntity");
+	entity* e = need_moving(handle, "PositionEntity");
 	float   p[3] = { x, y, z };
 	if (global) {
 		world_to_local_point(*e, p, e->position);
@@ -573,7 +582,7 @@ void bb_position_entity(int32_t handle, float x, float y, float z, int32_t globa
 
 void bb_translate_entity(int32_t handle, float x, float y, float z, int32_t global)
 {
-	entity* e = need(handle, "TranslateEntity");
+	entity* e = need_moving(handle, "TranslateEntity");
 	if (global) {
 		float world[16];
 		world_matrix(handle, world);
@@ -589,7 +598,7 @@ void bb_translate_entity(int32_t handle, float x, float y, float z, int32_t glob
 // Moves relative to where the entity is facing.
 void bb_move_entity(int32_t handle, float x, float y, float z)
 {
-	entity* e = need(handle, "MoveEntity");
+	entity* e = need_moving(handle, "MoveEntity");
 	float   r[9];
 	rotation_matrix(r, e->rotation);
 	for (int row = 0; row < 3; row++) {
@@ -599,7 +608,7 @@ void bb_move_entity(int32_t handle, float x, float y, float z)
 
 void bb_rotate_entity(int32_t handle, float pitch, float yaw, float roll, int32_t global)
 {
-	entity* e = need(handle, "RotateEntity");
+	entity* e = need_moving(handle, "RotateEntity");
 	if (global && e->parent) {
 		// Rotation of the entity in the world: remove the parent's rotation.
 		float pm[16], inv[16], local[16], r[9];
@@ -625,7 +634,7 @@ void bb_rotate_entity(int32_t handle, float pitch, float yaw, float roll, int32_
 
 void bb_turn_entity(int32_t handle, float pitch, float yaw, float roll, int32_t global)
 {
-	entity* e = need(handle, "TurnEntity");
+	entity* e = need_moving(handle, "TurnEntity");
 	if (global) {
 		float world[16];
 		world_matrix(handle, world);
@@ -641,7 +650,7 @@ void bb_turn_entity(int32_t handle, float pitch, float yaw, float roll, int32_t 
 
 void bb_scale_entity(int32_t handle, float x, float y, float z, int32_t global)
 {
-	entity* e = need(handle, "ScaleEntity");
+	entity* e = need_moving(handle, "ScaleEntity");
 	if (e->terrain) {
 		e->terrain->dirty = true; // Its normals depend on the scale.
 	}
@@ -741,7 +750,7 @@ float bb_entity_distance(int32_t a, int32_t b)
 
 void bb_point_entity(int32_t handle, int32_t target, float roll)
 {
-	entity* e = need(handle, "PointEntity");
+	entity* e = need_moving(handle, "PointEntity");
 	need(target, "PointEntity");
 	float me[16], mt[16];
 	world_matrix(handle, me);
@@ -807,6 +816,11 @@ int32_t bb_copy_entity(int32_t handle, int32_t parent)
 void bb_entity_order(int32_t handle, int32_t order)
 {
 	need(handle, "EntityOrder")->order = order;
+}
+
+void bb_entity_static(int32_t handle, int32_t is_static)
+{
+	need(handle, "EntityStatic")->static_mode = (is_static > 0) - (is_static < 0);
 }
 
 void bb_entity_blend(int32_t handle, int32_t blend)
