@@ -538,9 +538,11 @@ mousey	input	done	%MouseY
 mouseyspeed	input	done	%MouseYSpeed
 mousez	input	done	%MouseZ
 mousezspeed	input	done	%MouseZSpeed
+lockmouse	input	done	LockMouse%window=0
 movemouse	input	done	MoveMouse%x%y
 rawinput	input	done	RawInput%enable
 rawinputenabled	input	done	%RawInputEnabled
+unlockmouse	input	done	UnlockMouse
 waitjoy	input	done	%WaitJoy%port=0
 waitkey	input	done	%WaitKey
 waitmouse	input	done	%WaitMouse

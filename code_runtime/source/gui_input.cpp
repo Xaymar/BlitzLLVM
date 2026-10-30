@@ -1737,6 +1737,30 @@ int32_t bb_gui_mouse_in(int32_t canvas, int32_t* x, int32_t* y)
 }
 
 extern "C" {
+// Where the usable area of a window or gadget is in the buffer, for LockMouse. 0 if there is no such gadget.
+int32_t bb_gui_area(int32_t handle, int32_t* x, int32_t* y, int32_t* w, int32_t* h)
+{
+	bb::gui::gadget* g = bb::gui::gadget_of(handle);
+	if (!g) {
+		return 0;
+	}
+	int ix = 0, iy = 0, iw = 0, ih = 0;
+	if (g->kind == bb::gui::K_WINDOW) {
+		bb::gui::absolute_client(handle, &ix, &iy);
+		int cx, cy;
+		bb::gui::client_rect(handle, &cx, &cy, &iw, &ih);
+	} else {
+		bb::gui::absolute_position(handle, &ix, &iy);
+		iw = g->w;
+		ih = g->h;
+	}
+	*x = ix;
+	*y = iy;
+	*w = iw;
+	*h = ih;
+	return 1;
+}
+
 void bb_activate_gadget(int32_t handle)
 {
 	bb::gui::need_gadget(handle, "ActivateGadget");
