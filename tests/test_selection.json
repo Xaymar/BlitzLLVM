@@ -53,7 +53,7 @@
 	},
 
 	"rules": [
-		{"match": "^(docs|extra)/", "areas": "none", "note": "Documentation and reference sources"},
+		{"match": "^(docs|extra|third_party/(blitz3d|blitz3d_soloud|blitzforum-help))(/|$)", "areas": "none", "note": "Documentation and reference sources"},
 		{"match": "^(README\\.adoc|BlitzLLVM\\.code-workspace|\\.gitignore|\\.gitattributes|\\.editorconfig|\\.clang-format|\\.clang-tidy)$", "areas": "none"},
 		{"match": "^tools/(check_environment\\.py|wiki/pages/Environment-Variables\\.md)$", "areas": [], "note": "Only the test environment-variables, which no area owns, runs"},
 		{"match": "^tools/(wiki/|benchmark_|generate_(?!shaders)|render_|culling_|extract_font)", "areas": "none", "note": "Wiki, benchmarks and fixture generators"},
