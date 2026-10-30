@@ -16,6 +16,7 @@ continued. The commits are taken in the order of `git rev-list --reverse --topo-
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -65,6 +66,8 @@ def main():
     parser.add_argument("--scratch", default=os.path.join(os.path.expanduser("~"), "commit-builds"))
     parser.add_argument("--build-script", metavar="SCRIPT", help="build with this PowerShell script (Windows; benchmarks/build_windows.ps1) instead of build_rev.sh")
     parser.add_argument("--build-dir", default=os.path.join(os.path.expanduser("~"), "commit-build-tree"), help="build folder that is kept between commits")
+    parser.add_argument("--tags", nargs="?", const=r"^\d+\.\d+\.\d+$", metavar="REGEX",
+                        help="only the code states of the commits that have a version tag (X.Y.Z, or the regex given); also writes tags/<tag>.json")
     parser.add_argument("--download", metavar="OWNER/REPO", help="do not build: download the CI binaries of every commit with gh (Windows)")
     args = parser.parse_args()
     os.makedirs(OUT, exist_ok=True)
@@ -78,7 +81,15 @@ def main():
         else:
             index[key] = len(states)
             states.append((key, [c]))
-    print("%d commits, %d code states" % (len(commits), len(states)), flush=True)
+    tagged = {}
+    if args.tags:
+        for line in git(args.repo, "for-each-ref", "--format=%(refname:short) %(*objectname) %(objectname)", "refs/tags").splitlines():
+            parts = line.split()
+            if re.search(args.tags, parts[0]):
+                tagged[parts[0]] = parts[1] if len(parts) > 2 else parts[-1]  # the commit of an annotated tag, or of a lightweight one
+        wanted = set(tagged.values())
+        states = [(k, g) for k, g in states if wanted & set(g)]
+    print("%d commits, %d code states%s" % (len(commits), len(states), (", %d tags" % len(tagged)) if args.tags else ""), flush=True)
     done = 0
     started = time.time()
     for n, (key, group) in enumerate(states):
@@ -136,6 +147,13 @@ def main():
         done += 1
         if args.limit and done >= args.limit:
             break
+    if args.tags:
+        os.makedirs(os.path.join(RESULTS, "tags"), exist_ok=True)
+        for tag, commit in tagged.items():
+            for key, group in states:
+                if commit in group and os.path.isfile(os.path.join(OUT, group[0] + ".json")):
+                    json.dump({"tag": tag, "commit": commit, "state": group[0], "date": git(args.repo, "log", "-1", "--format=%as", commit)},
+                              open(os.path.join(RESULTS, "tags", tag + ".json"), "w"), indent=1)
 
 
 if __name__ == "__main__":
