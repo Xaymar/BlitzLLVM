@@ -60,7 +60,7 @@ Common options (`blitzcc --help` lists all of them):
 |===
 | `-o <file>` | Create an executable instead of running the program.
 | `-O0` to `-O3`, `-Os`, `-Oz` | Optimization level, `-O3` by default.
-| `--fast-math <mode>` | `full`, `safe` (default) or `off`.
+| `--fast-math <mode>` | `full`, `safe`, or `precise` (default, also called `off`): exact IEEE results that are the same on every CPU.
 | `-d`, `-g` | Debug build, or debug information on any build.
 | `--console` | Windows only: build a console program. Programs are built for the GUI subsystem by default.
 | `-S`, `--emit-llvm` | Only write the LLVM IR.
