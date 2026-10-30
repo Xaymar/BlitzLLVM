@@ -29,7 +29,7 @@ Tells whether the program asked for DirectInput style input with [EnableDirectIn
 
 ## Related Commands
 
-[EnableDirectInput](EnableDirectInput), [FlushMouse](FlushMouse), [RawInputsEnabled](RawInputsEnabled)
+[EnableDirectInput](EnableDirectInput), [HWRawInput](HWRawInput), [RawInput](RawInput), [RawInputEnabled](RawInputEnabled)
 
 <div align="center">
 

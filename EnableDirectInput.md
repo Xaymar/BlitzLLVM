@@ -31,7 +31,7 @@ Switches the DirectInput setting on or off. In the original it chose between two
 
 ## Related Commands
 
-[DirectInputEnabled](DirectInputEnabled), [FlushMouse](FlushMouse), [GetMouse](GetMouse)
+[DirectInputEnabled](DirectInputEnabled), [HWRawInput](HWRawInput), [RawInput](RawInput), [RawInputEnabled](RawInputEnabled)
 
 <div align="center">
 

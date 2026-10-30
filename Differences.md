@@ -177,7 +177,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [HtmlViewRun](HtmlViewRun#differences) 〔BlitzLLVM〕: The script is not run, as there is no page.
 * [HtmlViewStatus](HtmlViewStatus#differences) 〔BlitzLLVM〕: Always 0, as no page is ever loaded or loading.
 * [HWMultiTex](HWMultiTex#differences): Accepted and ignored.
-* [HWRawInputs](HWRawInputs#differences): This is a BlitzLLVM extension: the original has no such command.
+* [HWRawInput](HWRawInput#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ImageBuffer](ImageBuffer#differences): A frame number that does not exist stops the program with an error message.
 * [ImagesCollide](ImagesCollide#differences): A frame number that does not exist stops the program with an error message.
 * [Include](Include#differences): The original opens a relative path from the folder the compiler runs in; BlitzLLVM starts at the file that includes it.
@@ -240,8 +240,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [ProjectedX](ProjectedX#differences): The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane.
 * [ProjectedZ](ProjectedZ#differences): In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible.
 * [QueryObject](QueryObject#differences): All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget.
-* [RawInputs](RawInputs#differences): This is a BlitzLLVM extension: the original has no such command, and gets its mouse speed from DirectInput.
-* [RawInputsEnabled](RawInputsEnabled#differences): This is a BlitzLLVM extension: the original has no such command.
+* [RawInput](RawInput#differences): This is a BlitzLLVM extension: the original has no such command, and gets its mouse speed from DirectInput.
+* [RawInputEnabled](RawInputEnabled#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ReadPixel](ReadPixel#differences): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.
 * [ReadPixel64](ReadPixel64#differences) 〔BlitzLLVM〕: The color is not turned into an integer: the channels are Float16, and the returned number is the memory of the pixel (8 bytes for the depth 64, the 4 bytes of the stored word for the others).
 * [ReadPixelFast](ReadPixelFast#differences): A buffer that is not locked is ignored by a build without `-d` (a read gives 0), and stops a debug build (`-d`) with an error message.

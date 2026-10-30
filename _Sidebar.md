@@ -186,7 +186,7 @@
 <li><a href="HtmlViewRun#differences">HtmlViewRun</a> 〔BlitzLLVM〕</li>
 <li><a href="HtmlViewStatus#differences">HtmlViewStatus</a> 〔BlitzLLVM〕</li>
 <li><a href="HWMultiTex#differences">HWMultiTex</a></li>
-<li><a href="HWRawInputs#differences">HWRawInputs</a></li>
+<li><a href="HWRawInput#differences">HWRawInput</a></li>
 <li><a href="ImageBuffer#differences">ImageBuffer</a></li>
 <li><a href="ImagesCollide#differences">ImagesCollide</a></li>
 <li><a href="Include#differences">Include</a></li>
@@ -249,8 +249,8 @@
 <li><a href="ProjectedX#differences">ProjectedX</a></li>
 <li><a href="ProjectedZ#differences">ProjectedZ</a></li>
 <li><a href="QueryObject#differences">QueryObject</a></li>
-<li><a href="RawInputs#differences">RawInputs</a></li>
-<li><a href="RawInputsEnabled#differences">RawInputsEnabled</a></li>
+<li><a href="RawInput#differences">RawInput</a></li>
+<li><a href="RawInputEnabled#differences">RawInputEnabled</a></li>
 <li><a href="ReadPixel#differences">ReadPixel</a></li>
 <li><a href="ReadPixel64#differences">ReadPixel64</a> 〔BlitzLLVM〕</li>
 <li><a href="ReadPixelFast#differences">ReadPixelFast</a></li>
@@ -764,7 +764,7 @@
 <li><a href="EnableDirectInput">EnableDirectInput</a></li>
 <li><a href="FlushMouse">FlushMouse</a></li>
 <li><a href="GetMouse">GetMouse</a></li>
-<li><a href="HWRawInputs">HWRawInputs</a></li>
+<li><a href="HWRawInput">HWRawInput</a></li>
 <li><a href="MouseDown">MouseDown</a></li>
 <li><a href="MouseHit">MouseHit</a></li>
 <li><a href="MouseWait">MouseWait</a></li>
@@ -775,8 +775,8 @@
 <li><a href="MouseZ">MouseZ</a></li>
 <li><a href="MouseZSpeed">MouseZSpeed</a></li>
 <li><a href="MoveMouse">MoveMouse</a></li>
-<li><a href="RawInputs">RawInputs</a></li>
-<li><a href="RawInputsEnabled">RawInputsEnabled</a></li>
+<li><a href="RawInput">RawInput</a></li>
+<li><a href="RawInputEnabled">RawInputEnabled</a></li>
 <li><a href="WaitMouse">WaitMouse</a></li>
 </ul>
 </details></li>

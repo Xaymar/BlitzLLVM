@@ -425,7 +425,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [HtmlViewStatus](HtmlViewStatus) 〔BlitzLLVM〕
 * [HWDither](HWDither)
 * [HWMultiTex](HWMultiTex)
-* [HWRawInputs](HWRawInputs)
+* [HWRawInput](HWRawInput)
 * [HWTexUnits](HWTexUnits)
 
 ## I
@@ -640,8 +640,8 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 ## R
 
 * [Rand](Rand)
-* [RawInputs](RawInputs)
-* [RawInputsEnabled](RawInputsEnabled)
+* [RawInput](RawInput)
+* [RawInputEnabled](RawInputEnabled)
 * [ReadAvail](ReadAvail)
 * [ReadByte](ReadByte)
 * [ReadBytes](ReadBytes)
