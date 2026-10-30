@@ -42,7 +42,7 @@ BlitzLLVM writes LLVM IR and hands it to `clang`, which has to be installed and 
 
 ## Graphics
 
-Programs draw through Vulkan 1.3 into an SDL3 window, so a Vulkan 1.3 capable driver has to be installed. The Vulkan loader is loaded when the program starts, and the result is a single executable. AVIF, JPEG XL and WebP images are decoded by shared libraries (`avif`, `dav1d`, `jxl`, `webp` and the libraries they use), which `blitzcc` copies next to programs that open a window; keep them next to the program when you ship it, or those three formats don't load (the program says so on the console). Set `BLITZLLVM_HEADLESS=1` to run a program without a window or GPU.
+Programs draw through Vulkan 1.3 into an SDL3 window, so a Vulkan 1.3 capable driver has to be installed. The Vulkan loader is loaded when the program starts, and the result is a single executable. AVIF, JPEG XL, TIFF and WebP images are decoded by shared libraries (`avif`, `dav1d`, `jxl`, `tiff`, `webp` and the libraries they use), which `blitzcc` copies next to programs that open a window; keep them next to the program when you ship it, or those four formats don't load (the program says so on the console). Set `BLITZLLVM_HEADLESS=1` to run a program without a window or GPU.
 
 ## Your first program
 

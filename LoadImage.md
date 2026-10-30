@@ -29,7 +29,7 @@ Loads a picture file into an image with one frame. Pixels that are black are dra
 
 ## Differences
 
-* TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and some other formats load instead, see [Image formats](Image-Formats). Files are decoded by SDL_image, and DDS files (DXT1 to DXT5, BC4, BC5, BC7 and uncompressed pictures) by the runtime itself, and block compressed ones stay compressed on the graphics card until the image is drawn to. See [LoadTexture](LoadTexture) for the formats of DDS files that are read.
+* JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read. WebP, AVIF, JPEG XL and some other formats load instead, see [Image formats](Image-Formats). Files are decoded by SDL_image, and DDS files (DXT1 to DXT5, BC4, BC5, BC7 and uncompressed pictures) by the runtime itself, and block compressed ones stay compressed on the graphics card until the image is drawn to. See [LoadTexture](LoadTexture) for the formats of DDS files that are read.
 * Backslashes in paths are changed into slashes on Linux and macOS, and a name that is not found as written is looked for in any case, as on Windows.
 
 ## Examples

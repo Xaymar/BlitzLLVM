@@ -13,13 +13,13 @@ The original read what Windows 98 could load: BMP, PNG, JPEG, JPEG 2000, GIF, TG
 | --- | --- | --- |
 | BMP, PNG, JPEG, GIF | Yes | Yes |
 | TGA | Yes | Yes, if the file name ends in `.tga` |
-| TIFF | Yes | No |
+| TIFF | Yes | Yes, but not with Deflate (ZIP) or JPEG compression |
 | JPEG 2000 | Yes | No |
 | WebP, AVIF, JPEG XL | No | Yes |
 | DDS | No | Yes (block compressed ones stay compressed on the graphics card, see [LoadTexture](LoadTexture)) |
 | ICO, CUR, PCX, PNM (PBM, PGM, PPM), QOI, SVG, XPM, XCF, XV, LBM | No | Yes |
 
-TGA files have no marker at the start that identifies them, so they are recognized by the extension of the file name: a TGA file that is named `.dat` is not read. TIFF is switched off in the build, and nothing reads JPEG 2000. Convert TIFF and JPEG 2000 files to PNG, WebP or another format from the list before loading them. The code for a few of the extra formats (WebP, AVIF and JPEG XL) is in shared libraries that are shipped with the program, and a program that loads such a file warns once if one of them is missing.
+TGA files have no marker at the start that identifies them, so they are recognized by the extension of the file name: a TGA file that is named `.dat` is not read. The TIFF reader is built without zlib and JPEG, so TIFF files with Deflate (ZIP) or JPEG compression are not read (on macOS the system reads TIFF files instead, which handles them; uncompressed, LZW, PackBits and CCITT ones are), and nothing reads JPEG 2000. Convert those files to PNG, WebP or another format from the list before loading them. The code for a few of the extra formats (WebP, AVIF, JPEG XL and TIFF) is in shared libraries that are shipped with the program, and a program that loads such a file warns once if one of them is missing.
 
 Animated GIF, WebP and AVIF files load as frames with [LoadAnimTexture](LoadAnimTexture) and [LoadAnimImage](LoadAnimImage) when the frame size is 0. Animated PNG (APNG) is intentionally not supported: it loads as an ordinary PNG, showing its first frame.
 

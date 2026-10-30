@@ -26,7 +26,7 @@ LoadTexture:Int32 file:String, flags:Int32=1
 
 ## Description
 
-Loads a picture file as a texture and returns its handle, or 0 if the file cannot be read. PNG, JPG, BMP, TGA (by the extension `.tga`), GIF, WebP, AVIF, JPEG XL, DDS and some other formats are supported (see [Image formats](Image-Formats)), but not TIFF or JPEG 2000. Loading the same file twice gives two separate textures.
+Loads a picture file as a texture and returns its handle, or 0 if the file cannot be read. PNG, JPG, BMP, TGA (by the extension `.tga`), GIF, WebP, AVIF, JPEG XL, DDS and some other formats are supported (see [Image formats](Image-Formats)), but not JPEG 2000, and TIFF only without Deflate or JPEG compression. Loading the same file twice gives two separate textures.
 
 DDS files that are block compressed (DXT1 to DXT5, BC4 and BC7) are sent to the graphics card as they are when it supports the format, which is nearly every desktop card. They then use a quarter to an eighth of the video memory of a PNG of the same size. A texture is turned into an ordinary 32 bit one the first time it is drawn to, for example with SetBuffer and TextureBuffer, which uses the full amount of memory from then on. A compressed file is decoded when it is loaded instead if the card cannot use its format, if flag 4 (masked) is given, if flag 2 is given and the file has no see-through pixels (it then gets its alpha from how bright it is), or if it is BC5, whose third channel is rebuilt. Without flag 2 the texture is opaque, as for every other file.
 
@@ -48,7 +48,7 @@ Textures that [TextureFilter](TextureFilter) matches by file name get extra flag
 ## Differences
 
 * Flag 2048 (sRGB conversion) and flag 4096 (render target) are new, see above. A program that is compiled with `-d` stops with an error when it sets the buffer of a texture without 4096.
-* TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
+* JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 * The video memory and high color flags are always in effect, see CreateTexture. A sphere map (64) uses the whole picture. A cube map (128) needs a picture of six faces next to each other, in the order of SetCubeFace, and gives 0 if its width cannot be divided by 6.
 
 ## Examples

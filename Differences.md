@@ -27,7 +27,7 @@ Differences that are not caused by one command.
 * [Displays](Displays): Extension: commands for every connected display and its modes.
 * [DPI scaling on Windows](DPI-Scaling): Programs on Windows are DPI aware: Windows does not scale their windows, so one pixel of the program is one pixel of the screen at any scaling.
 * [Fullscreen](Fullscreen): Fullscreen (mode 1 of `Graphics` and `Graphics3D`) is a borderless window over the main display that keeps the aspect ratio of the picture, instead of changing the video mode of the display.
-* [Image formats](Image-Formats): Picture files: TIFF and JPEG 2000 are not read, but WebP, AVIF, JPEG XL, DDS and several other formats are.
+* [Image formats](Image-Formats): Picture files: JPEG 2000 is not read, TIFF only without Deflate or JPEG compression, but WebP, AVIF, JPEG XL, DDS and several other formats are.
 * [Language](Language): A `Const` that holds a Float or a String can not be used in a `Data` value yet, only a Const that holds an integer.
 * [Large Meshes](Large-Meshes): Extension: a surface can hold more than 65535 vertices, where the original crashes in `RenderWorld`.
 * [Lost graphics device](Lost-Graphics-Device): Extension: a graphics device that is lost (a driver crash, a GPU reset) is made again, and a device that keeps getting lost within a few minutes ends the program with an error.
@@ -189,12 +189,12 @@ Commands that differ from the original or are not finished, with the first of th
 * [LeadingZeros](LeadingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
 * [Load3DSound](Load3DSound#differences): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
 * [LoadAnimMesh](LoadAnimMesh#differences): Models in `.b3d`, `.3ds` and DirectX `.x` files can be loaded, see [LoadMesh](LoadMesh).
-* [LoadAnimTexture](LoadAnimTexture#differences): TIFF and JPEG 2000 files do not load, which the original read.
+* [LoadAnimTexture](LoadAnimTexture#differences): JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read.
 * [LoadBSP](LoadBSP#differences): Lightmaps are used: a face that has one is drawn with it, and the other faces get the colors of their vertices.
-* [LoadBuffer](LoadBuffer#differences): Formats other than BMP load as well, but not TIFF or JPEG 2000, see [Image formats](Image-Formats).
+* [LoadBuffer](LoadBuffer#differences): Formats other than BMP load as well, but not JPEG 2000 or TIFF with Deflate or JPEG compression, see [Image formats](Image-Formats).
 * [LoaderMatrix](LoaderMatrix#differences): Only the matrix for `x` is used.
 * [LoadFont](LoadFont#differences): Fonts are found in the font folders of the system by name, so a name such as "Arial" or "Courier New" needs that font installed, and common names fall back to a similar font (Helvetica to Arial, for one).
-* [LoadImage](LoadImage#differences): TIFF and JPEG 2000 files do not load, which the original read.
+* [LoadImage](LoadImage#differences): JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read.
 * [LoadMesh](LoadMesh#differences): Models in `.b3d`, `.3ds` and DirectX `.x` files (text, binary and compressed) can be loaded; the other file types of the original do not exist.
 * [LoadSound](LoadSound#differences): MIDI , module and Windows Media files are not supported.
 * [LoadTerrain](LoadTerrain#differences): The official help says that the red channel is used.

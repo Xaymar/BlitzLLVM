@@ -40,7 +40,7 @@ The frames are the layers of one image on the graphics card, so a texture with 1
 
 ## Differences
 
-* TIFF and JPEG 2000 files do not load, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
+* JPEG 2000 files do not load, and TIFF files with Deflate or JPEG compression do not, which the original read. WebP, AVIF, JPEG XL and DDS load instead, see [Image formats](Image-Formats).
 * TextureWidth and TextureHeight report the size of one frame, not of the whole sheet.
 
 ## Examples

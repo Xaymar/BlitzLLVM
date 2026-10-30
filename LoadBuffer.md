@@ -30,7 +30,7 @@ Loads a picture file into a buffer, stretched to cover all of it. Returns whethe
 
 ## Differences
 
-* Formats other than BMP load as well, but not TIFF or JPEG 2000, see [Image formats](Image-Formats). The picture is always scaled to the size of the buffer, with smooth filtering.
+* Formats other than BMP load as well, but not JPEG 2000 or TIFF with Deflate or JPEG compression, see [Image formats](Image-Formats). The picture is always scaled to the size of the buffer, with smooth filtering.
 
 ## Examples
 
