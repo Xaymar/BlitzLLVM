@@ -602,6 +602,7 @@ namespace bb::gfx {
 		if (gpu.clusters_made && (flush_number - gpu.clusters_flush < 30)) {
 			return false; // A surface that changes every frame would be sorted every frame.
 		}
+		bb::profile_scope timer(bb::PROFILE_CLUSTERS);
 		uint32_t triangles = s.indices.size / 3;
 		float    lo[3] = { INFINITY, INFINITY, INFINITY }, hi[3] = { -INFINITY, -INFINITY, -INFINITY };
 		for (uint32_t i = 0; i < s.indices.size; i++) {
