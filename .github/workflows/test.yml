@@ -253,14 +253,17 @@ jobs:
           SKIPPED: ${{ runner.temp }}/skipped.json
       - name: Keep what the tests wrote
         if: failure()
+        shell: bash
+        run: |
+          # Tarred because upload-artifact rejects file names with characters such as '*' (cli/shell_quoting/star*).
+          existing=(); for p in build/code_compiler/Testing/Temporary/LastTest.log build/code_compiler/gui build/code_compiler/cli build/code_compiler/audio; do [ -e "$p" ] && existing+=("$p"); done
+          [ ${#existing[@]} -gt 0 ] && tar -czf "$RUNNER_TEMP/test-output.tar.gz" "${existing[@]}" || true
+      - name: Upload what the tests wrote
+        if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-output-Linux
-          path: |
-            build/code_compiler/Testing/Temporary/LastTest.log
-            build/code_compiler/gui
-            build/code_compiler/cli
-            build/code_compiler/audio
+          path: ${{ runner.temp }}/test-output.tar.gz
           if-no-files-found: ignore
       - name: Nothing to test
         if: env.RUN != 'true'
@@ -329,13 +332,17 @@ jobs:
           [ -f "$RUNNER_TEMP/junit.xml" ] && python .github/scripts/test-skipped.py --platform Windows --gpu ON --junit "$RUNNER_TEMP/junit.xml" ${SKIPPED:+--selection-skipped "$SKIPPED"} >> "$GITHUB_STEP_SUMMARY" || true
       - name: Keep what the tests wrote
         if: failure()
+        shell: bash
+        run: |
+          # Tarred because upload-artifact rejects file names with characters such as '*' (cli/shell_quoting/star*).
+          existing=(); for p in build/code_compiler/Testing/Temporary/LastTest.log build/code_compiler/gui build/code_compiler/cli; do [ -e "$p" ] && existing+=("$p"); done
+          [ ${#existing[@]} -gt 0 ] && tar -czf "$RUNNER_TEMP/test-output.tar.gz" "${existing[@]}" || true
+      - name: Upload what the tests wrote
+        if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-output-Windows
-          path: |
-            build/code_compiler/Testing/Temporary/LastTest.log
-            build/code_compiler/gui
-            build/code_compiler/cli
+          path: ${{ runner.temp }}/test-output.tar.gz
           if-no-files-found: ignore
       - name: Nothing to test
         if: env.RUN != 'true'
@@ -415,14 +422,17 @@ jobs:
           [ -f "$RUNNER_TEMP/junit.xml" ] && python3 .github/scripts/test-skipped.py --platform macOS --gpu "${GPUSTATE:-ON}" --junit "$RUNNER_TEMP/junit.xml" ${SKIPPED:+--selection-skipped "$SKIPPED"} >> "$GITHUB_STEP_SUMMARY" || true
       - name: Keep what the tests wrote
         if: failure()
+        shell: bash
+        run: |
+          # Tarred because upload-artifact rejects file names with characters such as '*' (cli/shell_quoting/star*).
+          existing=(); for p in build/code_compiler/Testing/Temporary/LastTest.log build/code_compiler/gui build/code_compiler/cli build/code_compiler/audio; do [ -e "$p" ] && existing+=("$p"); done
+          [ ${#existing[@]} -gt 0 ] && tar -czf "$RUNNER_TEMP/test-output.tar.gz" "${existing[@]}" || true
+      - name: Upload what the tests wrote
+        if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: test-output-macOS
-          path: |
-            build/code_compiler/Testing/Temporary/LastTest.log
-            build/code_compiler/gui
-            build/code_compiler/cli
-            build/code_compiler/audio
+          path: ${{ runner.temp }}/test-output.tar.gz
           if-no-files-found: ignore
       - name: Nothing to test
         if: env.RUN != 'true'
