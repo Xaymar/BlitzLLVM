@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""The sample programs and games that came with the original Blitz3D and BlitzPlus (the extra/blitz3d and extra/blitzplus_msvc2017 submodules).
+"""The sample programs and games that came with the original Blitz3D and BlitzPlus (the third_party/blitz3d and third_party/blitzplus_msvc2017 submodules).
 
-  original_programs.py list                    Print the programs, one per line (file names are relative to extra/)
+  original_programs.py list                    Print the programs, one per line (file names are relative to third_party/)
   original_programs.py compile-one BLITZCC PROGRAM OUT   Compile one program, print the output of the compiler when it fails
   original_programs.py run-one OUT PROGRAM     Run a compiled program without a window (BLITZLLVM_HEADLESS=1) for a few seconds: still running or exit code 0 is a pass
   original_programs.py compile BLITZCC [OUT]   Compile every program with BLITZCC, print a pass/fail list and the first error of each failure
@@ -16,7 +16,8 @@ from concurrent.futures import ThreadPoolExecutor
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "."))
 import procutil  # noqa: E402
 
-ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "extra"))
+REPO = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+ROOT = os.path.join(REPO, "third_party")
 TREES = [
     "blitz3d/_release/samples",
     "blitz3d/_release/Games",
@@ -47,7 +48,7 @@ def resolve(base, name):
 
 
 def programs():
-    """Every program in TREES as a path relative to ROOT, sorted."""
+    """Every program in TREES as a path relative to the folder of its original, sorted."""
     result = []
     for tree in TREES:
         top = os.path.join(ROOT, tree)

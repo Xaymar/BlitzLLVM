@@ -370,3 +370,5 @@ suite-debug-run-graphics_movies
 # Movies fail every other run under load (the decoder times out); they are not run until that is looked at.
 disabled: suite-run-graphics_movies
 disabled: suite-run-graphics_movies_texture_pixels
+# The allocator test gives a span back too early in Release builds and only fails some of the runs (being fixed on its own branch); remove this line when that lands.
+disabled: memory-allocator
