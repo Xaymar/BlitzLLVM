@@ -1240,6 +1240,30 @@ namespace bb::gfx {
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
 	bool ten_bit_supported();
 	void ensure_color_image(gpu_image& image, VkDescriptorSet set);
+// What one keyboard or mouse did, kept next to the combined state of all of them in g.
+struct device_input {
+	bool  keys[256]      = {};
+	int   key_hits[256]  = {};
+	bool  mouse[4]       = {};
+	int   mouse_hits[4]  = {};
+	bool  placed         = false; // The made up pointer of this mouse is put in the middle when it is first needed.
+	float px = 0, py = 0;         // Where the pointer of this mouse would be, moved only by this mouse.
+	float dx = 0, dy = 0, dz = 0; // Movement since it was asked for last.
+	float z_frac = 0;
+	int   z      = 0;
+};
+device_input* mouse_device_input(Uint32 which);    // Null for touch, pen and mice that are not known.
+device_input* keyboard_device_input(Uint32 which);
+// What the commands with a Device argument give. Without such a device they give 0.
+int32_t device_key_down(int32_t device, int32_t key);
+int32_t device_key_hit(int32_t device, int32_t key);
+int32_t device_mouse_down(int32_t device, int32_t button);
+int32_t device_mouse_hit(int32_t device, int32_t button);
+int32_t device_mouse_pos(int32_t device, bool y);
+int32_t device_mouse_speed(int32_t device, int axis); // 0 for X, 1 for Y, 2 for the wheel.
+int32_t device_mouse_z(int32_t device);
+void    device_flush_keys(int32_t device);
+void    device_flush_mouse(int32_t device);
 void device_event(const SDL_Event& event); // Mice and keyboards that were added or removed.
 void joystick_event(const SDL_Event& event); // The same for joysticks.
 } // namespace bb::gfx
@@ -1250,13 +1274,13 @@ void joystick_event(const SDL_Event& event); // The same for joysticks.
 extern "C" {
 int32_t bb_wait_key(void);
 int32_t bb_get_key(void);
-void bb_flush_keys(void);
+void bb_flush_keys(int32_t device);
 int32_t bb_get_mouse(void);
-void bb_flush_mouse(void);
-int32_t bb_mouse_x_speed(int32_t canvas);
-int32_t bb_mouse_y_speed(int32_t canvas);
-int32_t bb_mouse_z_speed(void);
-int32_t bb_mouse_z(void);
+void bb_flush_mouse(int32_t device);
+int32_t bb_mouse_x_speed(int32_t canvas, int32_t device);
+int32_t bb_mouse_y_speed(int32_t canvas, int32_t device);
+int32_t bb_mouse_z_speed(int32_t device);
+int32_t bb_mouse_z(int32_t device);
 void    bb_raw_input(int32_t enable);
 int32_t bb_raw_input_enabled(void);
 int32_t bb_hw_raw_input(void);
@@ -1277,12 +1301,12 @@ void bb_hide_pointer(int32_t canvas);
 void bb_show_pointer(int32_t canvas);
 int32_t bb_get_joy(int32_t port);
 void bb_flush_joy(void);
-int32_t bb_key_down(int32_t key);
-int32_t bb_key_hit(int32_t key);
-int32_t bb_mouse_x(int32_t canvas);
-int32_t bb_mouse_y(int32_t canvas);
-int32_t bb_mouse_down(int32_t button);
-int32_t bb_mouse_hit(int32_t button);
+int32_t bb_key_down(int32_t key, int32_t device);
+int32_t bb_key_hit(int32_t key, int32_t device);
+int32_t bb_mouse_x(int32_t canvas, int32_t device);
+int32_t bb_mouse_y(int32_t canvas, int32_t device);
+int32_t bb_mouse_down(int32_t button, int32_t device);
+int32_t bb_mouse_hit(int32_t button, int32_t device);
 void bb_cls(void);
 void bb_color(int32_t r, int32_t g_, int32_t b);
 void bb_clscolor(int32_t r, int32_t g_, int32_t b);
