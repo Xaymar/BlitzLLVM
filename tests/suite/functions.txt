@@ -130,6 +130,7 @@ deltayaw	blitz3d	done	#DeltaYaw%src_entity%dest_entity
 dither	blitz3d	done	Dither%enable
 dithertemporal	blitz3d	done	DitherTemporal%enable
 dithermode	blitz3d	done	DitherMode%mode%level=1
+graphicsorderindependenttransparency	blitz3d	done	GraphicsOrderIndependentTransparency%enable
 emitsound	blitz3d	done	%EmitSound%sound%entity
 entityalpha	blitz3d	done	EntityAlpha%entity#alpha
 entityautofade	blitz3d	done	EntityAutoFade%entity#near#far
@@ -195,6 +196,7 @@ gfxdrivercaps3d	blitz3d	done	%GfxDriverCaps3D
 handlesprite	blitz3d	done	HandleSprite%sprite#x_handle#y_handle
 hideentity	blitz3d	done	HideEntity%entity
 hwdither	blitz3d	done	%HWDither
+hworderindependenttransparency	blitz3d	done	%HWOrderIndependentTransparency
 hwmultitex	blitz3d	done	HWMultiTex%enable
 hwtexunits	blitz3d	done	%HWTexUnits
 lightcolor	blitz3d	done	LightColor%light#red#green#blue
