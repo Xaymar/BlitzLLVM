@@ -24,7 +24,7 @@ OP = dict(
     VectorTimesScalar=142, MatrixTimesVector=145, Dot=148, ConvertSToF=111, ConvertFToS=110,
     Image=100, ImageFetch=95, ImageRead=98, Phi=245, Branch=249, FOrdGreaterThan=186, SpecConstantTrue=48, SpecConstantFalse=49, SpecConstant=50, SpecConstantComposite=51,
     Extension=10, ImageWrite=99, BeginInvocationInterlockEXT=5364, EndInvocationInterlockEXT=5365,
-    IAdd=128, IMul=132, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
+    IAdd=128, IMul=132, ShiftLeftLogical=196, SGreaterThan=173, Select=169, SLessThan=177, FOrdGreaterThanEqual=190,
 )
 STORAGE = dict(UniformConstant=0, Input=1, Uniform=2, Output=3, PushConstant=9)
 EXECUTION_MODEL_GLCOMPUTE, EXECUTION_MODE_LOCAL_SIZE = 5, 17
@@ -32,6 +32,7 @@ BUILTIN_WORKGROUP_ID, BUILTIN_LOCAL_INVOCATION_ID = 26, 27
 DECORATION = dict(Block=2, BufferBlock=3, ColMajor=5, ArrayStride=6, MatrixStride=7, BuiltIn=11, Flat=14, NonWritable=24, Location=30, Binding=33, DescriptorSet=34, Offset=35, SpecId=1, InputAttachmentIndex=43, Coherent=23)
 BUILTIN_INSTANCE_INDEX = 43
 BUILTIN_FRAG_COORD = 15
+BUILTIN_SAMPLE_MASK = 20
 
 
 def string_words(text):
@@ -755,7 +756,7 @@ def palette_nearest_code(b, lookup, color):
     return b.emit("Phi", v3, exact, then, approximate, other)
 
 
-def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False, oit=0):
+def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False, oit=0, slots=4):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
@@ -827,6 +828,11 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         # Moment based OIT, second pass: 0 sums the color of each layer times its opacity and the light that gets through what is in front of it.
         # The sums of the first pass are set 4, binding 1 (of the optical depth) and 4 (of the powers of the depth).
         pass
+    elif oit == 4:
+        # Slots of samples: the fragment writes its color to one sample of a multisampled target, picked by the sample mask. The depth test of the
+        # samples keeps the nearest fragment of each slot, and the pass that shows them sorts the slots of a pixel.
+        out_mask = b.variable("Output", b.array(b.int(), 1, "sample_mask"), [(DECORATION["BuiltIn"], BUILTIN_SAMPLE_MASK)])
+        interface += [out_mask]
     if fog:
         scene = declare_scene(b)
         in_depth = b.variable("Input", v4, [(DECORATION["Location"], 2)])
@@ -1051,6 +1057,31 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         rgb = b.swizzle(result, 3)
         rgb = b.fadd(v3, rgb, b.scale(3, b.fsub(v3, fog_color, rgb), amount))
         result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
+        if oit == 4:
+            # What is behind the solid things is not drawn: the multisampled depth holds only the see-through fragments, so the depth of the scene is tested here.
+            #   if (gl_FragCoord.z < texelFetch(solid, ivec2(gl_FragCoord.xy), 0).x) discard;
+            #   float u = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));  // noise of the pixel
+            #   int slot = int(floor(fract(u + soft.z * 271.3) * slots));  gl_SampleMask[0] = 1 << slot;
+            #   outColor = vec4(clamp(rgb, 0, 1), clamp(a, 0, 1));
+            frag_s = b.load(v4, in_frag)
+            ivec2_s = b.new_type("ivec2", "TypeVector", b.int(), 2)
+            pixel_s = b.emit("CompositeConstruct", ivec2_s, b.emit("ConvertFToS", b.int(), b.extract(frag_s, 0)), b.emit("ConvertFToS", b.int(), b.extract(frag_s, 1)))
+            solid = b.extract(b.emit("ImageFetch", v4, b.emit("Image", image_2d, b.load(sampled_2d, depth_tex)), pixel_s, 2, b.const_int(0)), 0)
+            behind = b.emit("FOrdLessThan", boolean, b.extract(frag_s, 2), solid)
+            hide, keep_s = b.m.id(), b.m.id()
+            b.m.code += [Module.inst("SelectionMerge", keep_s, 0), Module.inst("BranchConditional", behind, hide, keep_s), Module.inst("Label", hide), Module.inst("Kill"), Module.inst("Label", keep_s)]
+            line = b.fadd(f, b.fmul(f, b.extract(frag_s, 0), b.const_float(0.06711056)), b.fmul(f, b.extract(frag_s, 1), b.const_float(0.00583715)))
+            noise = b.ext(f, GLSL_FRACT, b.fmul(f, b.const_float(52.9829189), b.ext(f, GLSL_FRACT, line)))
+            rank_s = b.extract(b.load(v4, in_soft), 2)
+            pick = b.ext(f, GLSL_FRACT, b.fadd(f, noise, b.fmul(f, rank_s, b.const_float(271.3))))
+            slot = b.emit("ConvertFToS", b.int(), b.ext(f, GLSL_FLOOR, b.fmul(f, pick, b.const_float(float(slots)))))
+            bit = b.emit("ShiftLeftLogical", b.int(), b.const_int(1), slot)
+            b.store(b.access("Output", b.int(), out_mask, b.const_int(0)), bit)
+            rgb_s = b.ext(v3, GLSL_FCLAMP, b.swizzle(result, 3), b.const_vec(3, 0.0), b.const_vec(3, 1.0))
+            a_s = b.ext(f, GLSL_FCLAMP, b.extract(result, 3), b.const_float(0.0), c1)
+            b.store(out_color, b.construct(4, b.extract(rgb_s, 0), b.extract(rgb_s, 1), b.extract(rgb_s, 2), a_s))
+            b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+            return b.m.assemble()
         if oit in (2, 3):
             # Moment based OIT (Munstermann et al., 2018) with four power moments. The layers are absorbers: a layer of the opacity a has the optical depth
             # -ln(1 - a), the light that gets through is exp(-sum of the optical depths in front). The first pass sums the optical depth b0 and its
@@ -1801,6 +1832,73 @@ def fragment_shader_oit_composite(mode):
     return b.m.assemble()
 
 
+def fragment_shader_oit_resolve(slots):
+    """
+    Shows the slots of order-independent transparency (OIT mode 3 and 4): every pixel of the multisampled target holds up to `slots` fragments, one in each
+    sample, with their depth in the multisampled depth. They are sorted from near to far and blended in that order.
+    Set 0, binding 5 is the multisampled color and binding 6 the multisampled depth. The output is the average color with the opacity as alpha,
+    which the pipeline blends by alpha (like mode 0 of the composite).
+
+    #version 450
+    layout(set = 0, binding = 5) uniform sampler2DMS slot_color;
+    layout(set = 0, binding = 6) uniform sampler2DMS slot_depth;
+    layout(location = 0) out vec4 outColor;
+    void main() {
+        ivec2 p = ivec2(gl_FragCoord.xy);
+        // sort the slots by depth, nearest (largest depth, the depth buffer is reversed) first
+        vec3 light = vec3(0); float remains = 1.0;
+        for (int i = 0; i < slots; i++) { vec4 c = sorted[i]; light += remains * c.a * c.rgb; remains *= 1.0 - c.a; }
+        outColor = vec4(light / max(1.0 - remains, 1e-5), 1.0 - remains);
+    }
+    """
+    b = Builder()
+    f, v4 = b.float(), b.vec(4)
+    void, fn = b.void(), b.fn()
+    boolean = b.new_type("bool", "TypeBool")
+    image_ms = b.new_type("image_ms", "TypeImage", f, 1, 0, 0, 1, 1, 0)
+    sampled_ms = b.new_type("sampled_ms", "TypeSampledImage", image_ms)
+    color_tex = b.variable("UniformConstant", sampled_ms, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 5)])
+    depth_tex = b.variable("UniformConstant", sampled_ms, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], 6)])
+    out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), out_color, in_frag))
+    b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+    ivec2 = b.new_type("ivec2", "TypeVector", b.int(), 2)
+    frag = b.load(v4, in_frag)
+    pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(frag, 0)), b.emit("ConvertFToS", b.int(), b.extract(frag, 1)))
+    color_image = b.emit("Image", image_ms, b.load(sampled_ms, color_tex))
+    depth_image = b.emit("Image", image_ms, b.load(sampled_ms, depth_tex))
+    # Each entry: [depth, r, g, b, a]
+    entries = []
+    for sample in range(slots):
+        c = b.emit("ImageFetch", v4, color_image, pixel, 0x40, b.const_int(sample))
+        z = b.extract(b.emit("ImageFetch", v4, depth_image, pixel, 0x40, b.const_int(sample)), 0)
+        entries.append([z, b.extract(c, 0), b.extract(c, 1), b.extract(c, 2), b.extract(c, 3)])
+    # Bubble sort with selects: the nearest (the largest depth) ends up first.
+    for end in range(slots - 1, 0, -1):
+        for i in range(end):
+            swap = b.emit("FOrdLessThan", boolean, entries[i][0], entries[i + 1][0])
+            first, second = entries[i], entries[i + 1]
+            entries[i] = [b.emit("Select", f, swap, second[k], first[k]) for k in range(5)]
+            entries[i + 1] = [b.emit("Select", f, swap, first[k], second[k]) for k in range(5)]
+    zero, one = b.const_float(0.0), b.const_float(1.0)
+    light = [zero, zero, zero]
+    remains = one
+    for entry in entries:
+        alpha = entry[4]
+        weight = b.fmul(f, remains, alpha)
+        light = [b.fadd(f, light[k], b.fmul(f, weight, entry[1 + k])) for k in range(3)]
+        remains = b.fmul(f, remains, b.fsub(f, one, alpha))
+    covered = b.fsub(f, one, remains)
+    inverse = b.fdiv(f, one, b.ext(f, GLSL_FMAX, covered, b.const_float(1e-5)))
+    b.store(out_color, b.construct(4, b.fmul(f, light[0], inverse), b.fmul(f, light[1], inverse), b.fmul(f, light[2], inverse), covered))
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def emit(name, words, out):
     out.write("static const unsigned int %s[] = {\n" % name)
     for index in range(0, len(words), 8):
@@ -1820,8 +1918,12 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment_3d_oit", fragment_shader_masked(96, fog=True, oit=1), out)
     emit("bb_shader_fragment_3d_oit_moments", fragment_shader_masked(96, fog=True, oit=2), out)
     emit("bb_shader_fragment_3d_oit_color", fragment_shader_masked(96, fog=True, oit=3), out)
+    emit("bb_shader_fragment_3d_oit_slots4", fragment_shader_masked(96, fog=True, oit=4, slots=4), out)
+    emit("bb_shader_fragment_3d_oit_slots8", fragment_shader_masked(96, fog=True, oit=4, slots=8), out)
     for oit_mode in range(4):
         emit("bb_shader_fragment_oit_composite%d" % oit_mode, fragment_shader_oit_composite(oit_mode), out)
+    emit("bb_shader_fragment_oit_resolve4", fragment_shader_oit_resolve(4), out)
+    emit("bb_shader_fragment_oit_resolve8", fragment_shader_oit_resolve(8), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
     emit("bb_shader_fragment_palette", fragment_shader_palette(), out)
