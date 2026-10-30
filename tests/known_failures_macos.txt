@@ -17,5 +17,3 @@ suite-run-graphics_movies
 suite-run-language
 suite-run-network_udp_limit
 suite-run-runtime
-# The allocator test gives a span back too early in Release builds and only fails some of the runs (being fixed on its own branch); remove this line when that lands.
-disabled: memory-allocator
