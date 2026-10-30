@@ -199,6 +199,18 @@ jobs:
           fi
       - name: Build
         run: cmake --build build --config Release
+      - name: Check that the runtime has no fused multiply-adds (arm64)
+        # The default fast-math mode "precise" gives the same floats on every CPU, which a fused multiply-add (one rounding instead of two)
+        # would break. Nobody can test Windows on ARM64 by hand, so the disassembly of the runtime is checked here.
+        if: contains(matrix.name, 'arm64') || matrix.name == 'macos-universal'
+        shell: bash
+        env:
+          ARCH: ${{ matrix.name == 'macos-universal' && 'arm64' || '' }}
+        run: |
+          libraries=$(find build \( -name 'blitzrt.a' -o -name 'libblitzrt.a' -o -name 'blitzrt.lib' \) -type f)
+          test -n "$libraries" || { echo "no blitzrt library found"; exit 1; }
+          python=$(command -v python3 || command -v python)
+          "$python" tools/check_no_fma.py --require ${ARCH:+--arch "$ARCH"} $libraries
       - name: Keep the build for the tests
         # The Test workflow runs ctest on this tree instead of building again. Without the objects and the dependencies' sources (the runtime
         # and everything the tests run are in the tree), as a tar file because artifacts lose the permissions of the files.
