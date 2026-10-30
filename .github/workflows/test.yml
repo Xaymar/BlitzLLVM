@@ -203,7 +203,7 @@ jobs:
       - name: Check out the submodules
         if: env.RUN == 'true'
         # Only the two with the original samples and games, which the tests compile.
-        run: git submodule update --init --depth 1 extra/blitz3d extra/blitzplus_msvc2017
+        run: git submodule update --init --depth 1 third_party/blitz3d extra/blitzplus_msvc2017
       - name: Date the package cache
         if: env.RUN == 'true'
         id: month
@@ -289,7 +289,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Check out the submodules
         if: env.RUN == 'true'
-        run: git submodule update --init --depth 1 extra/blitz3d extra/blitzplus_msvc2017
+        run: git submodule update --init --depth 1 third_party/blitz3d extra/blitzplus_msvc2017
       - name: Install a software Vulkan driver
         # The Vulkan loader (vulkan-1.dll) and Mesa's lavapipe (Vulkan on the CPU, like llvmpipe on Linux), which the action registers as a driver.
         if: env.RUN == 'true'
@@ -365,7 +365,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Check out the submodules
         if: env.RUN == 'true'
-        run: git submodule update --init --depth 1 extra/blitz3d extra/blitzplus_msvc2017
+        run: git submodule update --init --depth 1 third_party/blitz3d extra/blitzplus_msvc2017
       - name: Install MoltenVK
         # The Vulkan driver, loaded directly (SDL_VULKAN_LIBRARY below), so no Vulkan loader is needed. It needs Metal.
         if: env.RUN == 'true'
