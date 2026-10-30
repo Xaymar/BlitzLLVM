@@ -1583,11 +1583,16 @@ namespace bb::gfx {
 			}
 		}
 
+		// Timeline semaphores (every Vulkan 1.2 device has them): the handover of a picture to the thread of a window signals one.
+		VkPhysicalDeviceVulkan12Features features12 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
+		features12.timelineSemaphore                = VK_TRUE;
 		VkPhysicalDeviceVulkan13Features features13 = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
 		features13.dynamicRendering                 = VK_TRUE;
 		features13.synchronization2                 = VK_TRUE;
+		features13.pNext                            = &features12;
 		if (g.can_custom_border) {
-			features13.pNext = &border_features;
+			border_features.pNext = features13.pNext;
+			features13.pNext      = &border_features;
 		}
 		if (g.can_present_wait) {
 			present_wait_features.pNext = present_id_features.pNext = nullptr;

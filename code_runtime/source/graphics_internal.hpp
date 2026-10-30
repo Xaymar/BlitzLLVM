@@ -86,6 +86,7 @@ void bb_gui_idle(void);
 	X(vkQueueSubmit) \
 	X(vkQueuePresentKHR) \
 	X(vkWaitForPresentKHR) \
+	X(vkWaitSemaphores) \
 	X(vkCreateSwapchainKHR) \
 	X(vkDestroySwapchainKHR) \
 	X(vkGetSwapchainImagesKHR) \
@@ -541,6 +542,8 @@ namespace bb::gfx {
 	constexpr uint32_t frame_slots = 2;
 	struct submit_job {
 		VkSemaphore    wait = VK_NULL_HANDLE, signal = VK_NULL_HANDLE;
+		VkSemaphore    timeline = VK_NULL_HANDLE; // Also signaled, with timeline_value: the handover of a picture to the thread of a window.
+		uint64_t       timeline_value = 0;
 		bool           present = false;
 		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 		uint32_t       index = 0;
@@ -1002,8 +1005,9 @@ namespace bb::gfx {
 	/** The thread of a window, which shows the newest of its three pictures whenever there is one or the window asks, at the pace of the display (graphics_presenter.cpp). */
 	bool       start_presenter(surface_state& s);
 	void       stop_presenter(surface_state& s);
-	/** The picture the program draws into now, and the handover of what was drawn: it is shown next (with wait, the call returns once it was). */
-	gpu_image& presenter_frame(surface_state& s);
+	/** The buffer (for SetBuffer) of the picture the program draws into now, and the handover of what was drawn: it is shown next
+	 * (with wait, the call returns once it was). The handover sends what was drawn and never waits for the GPU. */
+	int32_t    presenter_buffer(surface_state& s);
 	void       presenter_handover(surface_state& s, bool wait);
 	/** From the program's thread: an event of the window, and the swapchains the threads asked for. */
 	void       presenter_window_event(surface_state& s, const SDL_Event& event);
@@ -1052,6 +1056,9 @@ namespace bb::gfx {
 	void transition(gpu_image& img, VkImageLayout to);
 	void record_operations();
 	void present_front(bool copy_back);
+	/** Records and sends everything that was asked for, puts the picture into the layout the thread of its window blits from, and
+	 * signals the timeline semaphore with the value once the GPU is done with all of it. The program's thread does not wait. */
+	void flush_handover(gpu_image& picture, VkSemaphore timeline, uint64_t value);
 
 	// Where the buffer is shown in an area of the given size: all of it in a window, in a fullscreen window the largest
 	// part with the aspect ratio of the buffer, centered. The rest is black.
@@ -1103,6 +1110,7 @@ namespace bb::gfx {
 	void replace_texture_pixels(int32_t handle, const uint8_t* rgba);
 	/** An image for the program's own use (the characters of a font), which no handle of a program means. */
 	int  make_internal_image(int width, int height, const uint8_t* rgba);
+	int  make_internal_target(int width, int height); // A black RGBA8 picture to draw to (SetBuffer ImageBuffer), not counted as one of the program's.
 	void free_internal_image(int handle);
 
 	// TrueType fonts, see graphics_fonts.cpp. Null if the system has no font of that name.
@@ -1364,6 +1372,7 @@ int32_t bb_graphics_height(void);
 int32_t bb_front_buffer(void);
 int32_t bb_back_buffer(void);
 int32_t bb_set_buffer(int32_t buffer);
+int32_t bb_graphics_buffer(void);
 void bb_app_title(const char* title, const char* close_prompt);
 void bb_flip(int32_t vwait);
 int32_t bb_graphics_depth(void);

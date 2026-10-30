@@ -25,6 +25,10 @@
 // This is a prototype for the windows of BlitzPlus and their canvases (see BLITZLLVM_TEST_PRESENTERS); the swapchain is still
 // made by the program's thread, which the thread asks for when the window changed its size.
 //
+// The pictures are images, so the program draws into one with SetBuffer and the 2D commands, as it does into the BackBuffer. A
+// handover sends what was drawn with a timeline semaphore signal of its number, which the blit of the thread waits for on the GPU,
+// so neither thread waits for the other.
+//
 // A present of one window must never hold up another window or Graphics. So the thread has a queue of its own where the device
 // has more than one (else it shares queue 0 under its lock), its swapchain never waits for the display (MAILBOX, or IMMEDIATE),
 // and it paces itself to the display outside of any lock: with vkWaitForPresentKHR where the driver has it, otherwise with a
@@ -45,7 +49,10 @@ namespace bb::gfx {
 		uint64_t        present_id   = 0;          // Of the last present, for vkWaitForPresentKHR; grows with every present.
 		uint64_t        period_ns    = 16666667;   // One refresh of the display, for pacing without present_wait.
 		uint64_t        next_show_ns = 0;          // When the next picture may be shown, by SDL_GetTicksNS.
-		gpu_image       frames[3];                 // Kept in VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL between uses.
+		int             frames[3] = { 0, 0, 0 };    // The three pictures: images (make_internal_target), so that SetBuffer can draw to them.
+		VkImage         frame_images[3] = {};       // Copies for the thread, which looks at no table.
+		uint32_t        frame_w = 1, frame_h = 1;
+		VkSemaphore     timeline = VK_NULL_HANDLE;  // Reaches the number of a handover once its drawing is done on the GPU; the blit waits for it.
 		int             drawing = 0, ready = -1, showing = -1; // Which of the three the program draws into, waits to be shown, is shown.
 		uint64_t        handovers = 0;             // How many pictures the program handed over; the number of a picture is its handover.
 		uint64_t        ready_number = 0, showing_number = 0, presented = 0; // presented: the number of the last picture that was shown.
@@ -85,6 +92,31 @@ namespace bb::gfx {
 			info.imageMemoryBarrierCount  = 1;
 			info.pImageMemoryBarriers     = &b;
 			vkCmdPipelineBarrier2(cmd, &info);
+		}
+
+		// Waits, on the thread of the window, until the timeline has reached the number of the picture: its drawing is done on the
+		// GPU. False when the thread was asked to quit, or the wait failed (the device is lost).
+		bool wait_for_drawing(presenter& p, uint64_t number)
+		{
+			VkSemaphoreWaitInfo info = { VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO };
+			info.semaphoreCount      = 1;
+			info.pSemaphores         = &p.timeline;
+			info.pValues             = &number;
+			for (;;) {
+				VkResult result = vkWaitSemaphores(p.device, &info, 100000000ull); // A tenth of a second at a time, to notice quit.
+				if (result == VK_SUCCESS) {
+					return true;
+				}
+				if (result != VK_TIMEOUT) {
+					return false;
+				}
+				SDL_LockMutex(p.mutex);
+				bool quit = p.quit;
+				SDL_UnlockMutex(p.mutex);
+				if (quit) {
+					return false;
+				}
+			}
 		}
 
 		// Tells the program's thread that the swapchain has to be made again, and waits until it was.
@@ -127,6 +159,12 @@ namespace bb::gfx {
 					ask_for_swapchain(p);
 					continue;
 				}
+				// The drawing of the picture has to be done before it is blitted: waited for here, on this thread and outside of every
+				// lock. Not as a wait of the blit's submit: a driver may then wait inside vkQueueSubmit or vkQueuePresentKHR for the
+				// signal, which the submission thread cannot give while this thread holds the lock of the queue (seen on llvmpipe).
+				if (!wait_for_drawing(p, number)) {
+					continue; // Asked to quit, or the device is lost.
+				}
 				// The thread is the only one that uses this swapchain, so it can wait for an image as long as it takes: in FIFO
 				// mode, that is until the display has shown one, which is what paces it.
 				uint32_t index  = 0;
@@ -136,7 +174,7 @@ namespace bb::gfx {
 					continue;
 				}
 
-				gpu_image&               frame = p.frames[showing];
+				VkImage                  frame = p.frame_images[showing];
 				VkCommandBufferBeginInfo begin = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 				begin.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 				vkResetCommandBuffer(p.cmd, 0);
@@ -145,10 +183,10 @@ namespace bb::gfx {
 				// The picture fills the window. Until the program draws one of the new size after a resize, the old one is stretched.
 				VkImageBlit blit    = {};
 				blit.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-				blit.srcOffsets[1]  = { int32_t(frame.width), int32_t(frame.height), 1 };
+				blit.srcOffsets[1]  = { int32_t(p.frame_w), int32_t(p.frame_h), 1 };
 				blit.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
 				blit.dstOffsets[1]  = { int32_t(p.s->swap_extent.width), int32_t(p.s->swap_extent.height), 1 };
-				vkCmdBlitImage(p.cmd, frame.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, p.s->swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
+				vkCmdBlitImage(p.cmd, frame, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, p.s->swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
 				thread_barrier(p.cmd, p.s->swap_images[index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 				vkEndCommandBuffer(p.cmd);
 
@@ -232,13 +270,19 @@ namespace bb::gfx {
 		}
 		int w = 1, h = 1;
 		SDL_GetWindowSizeInPixels(s.window, &w, &h);
-		begin_commands();
-		for (gpu_image& frame : p->frames) {
-			frame = create_image(uint32_t(w > 0 ? w : 1), uint32_t(h > 0 ? h : 1), VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-			barrier(frame.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			frame.layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		p->frame_w = uint32_t(w > 0 ? w : 1);
+		p->frame_h = uint32_t(h > 0 ? h : 1);
+		for (int i = 0; i < 3; i++) {
+			p->frames[i]       = make_internal_target(int(p->frame_w), int(p->frame_h));
+			p->frame_images[i] = image_of(p->frames[i])->image.image;
 		}
-		submit_commands();
+		// The pictures are blitted from once they were handed over, which puts them in the layout for that; nothing is shown before.
+		VkSemaphoreTypeCreateInfo timeline_info = { VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO };
+		timeline_info.semaphoreType             = VK_SEMAPHORE_TYPE_TIMELINE;
+		timeline_info.initialValue              = 0;
+		VkSemaphoreCreateInfo timeline_create    = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+		timeline_create.pNext                   = &timeline_info;
+		check(vkCreateSemaphore(g.device, &timeline_create, nullptr, &p->timeline), "vkCreateSemaphore");
 
 		VkCommandPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
 		pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -278,9 +322,10 @@ namespace bb::gfx {
 		SDL_UnlockMutex(p->mutex);
 		SDL_WaitThread(p->thread, nullptr);
 		gpu_idle();
-		for (gpu_image& frame : p->frames) {
-			destroy_image(frame);
+		for (int frame : p->frames) {
+			free_internal_image(frame);
 		}
+		vkDestroySemaphore(g.device, p->timeline, nullptr);
 		vkDestroySemaphore(g.device, p->acquired, nullptr);
 		vkDestroyFence(g.device, p->fence, nullptr);
 		vkDestroyCommandPool(g.device, p->pool, nullptr);
@@ -290,27 +335,29 @@ namespace bb::gfx {
 		s.show = nullptr;
 	}
 
-	gpu_image& presenter_frame(surface_state& s)
+	int32_t presenter_buffer(surface_state& s)
 	{
-		return s.show->frames[s.show->drawing];
+		return bb_image_buffer(s.show->frames[s.show->drawing], 0);
 	}
 
-	// The picture that was drawn is the newest: it is shown next, in place of one that waited and was never shown. Its drawing has
-	// to be done on the GPU before this (the prototype waits for it, the real thing will hand the thread a timeline value to wait
-	// for). With wait, returns once the picture was shown (FlipCanvas c, 1).
+	// The picture that was drawn is the newest: it is shown next, in place of one that waited and was never shown. What was drawn
+	// into it is sent to the GPU with the handover's number as the signal of the timeline, which the thread's blit waits for, so the
+	// program's thread never waits for the GPU here. With wait, returns once the picture was shown (FlipCanvas c, 1).
 	void presenter_handover(surface_state& s, bool wait)
 	{
-		presenter& p = *s.show;
+		presenter& p      = *s.show;
+		uint64_t   number = p.handovers + 1; // Only this thread changes handovers.
+		flush_handover(image_of(p.frames[p.drawing])->image, p.timeline, number);
 		SDL_LockMutex(p.mutex);
 		p.ready        = p.drawing;
-		p.ready_number = ++p.handovers;
+		p.handovers    = number;
+		p.ready_number = number;
 		for (int i = 0; i < 3; i++) {
 			if ((i != p.ready) && (i != p.showing)) {
 				p.drawing = i;
 				break;
 			}
 		}
-		uint64_t number = p.ready_number;
 		SDL_BroadcastCondition(p.cond);
 		while (wait && !p.quit && !p.needs_swapchain && (p.presented < number)) {
 			SDL_WaitCondition(p.cond, p.mutex); // A window that cannot show anything right now does not hold the program.
@@ -384,16 +431,16 @@ namespace bb::gfx {
 
 	namespace {
 		// The prototype's drawing: the picture is cleared to a color, on the program's thread, and the GPU is waited for.
+		// Draws the way a program does: SetBuffer on the picture of the window, then the 2D commands; nothing waits for the GPU.
 		void draw_color(surface_state& s, float r, float gr, float b)
 		{
-			gpu_image& frame = presenter_frame(s);
-			begin_commands();
-			barrier(frame.image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			VkClearColorValue       color = { { r, gr, b, 1.0f } };
-			VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-			vkCmdClearColorImage(g.cmd, frame.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
-			barrier(frame.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-			submit_commands();
+			int32_t saved = bb_graphics_buffer();
+			bb_set_buffer(presenter_buffer(s));
+			bb_clscolor(int32_t(r * 255.0f), int32_t(gr * 255.0f), int32_t(b * 255.0f));
+			bb_cls();
+			bb_color(255, 255, 255);
+			bb_rect(4, 4, 16, 16, 1);
+			bb_set_buffer(saved);
 		}
 
 		void idle_for(Uint32 ms)
