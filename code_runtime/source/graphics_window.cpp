@@ -157,6 +157,9 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	if (const char* path = bb_env("BLITZLLVM_TEST_EXTRA_SURFACES")) {
 		test_extra_surfaces(path); // Test hook: see graphics_surfaces.cpp.
 	}
+	if (const char* path = bb_env("BLITZLLVM_TEST_PRESENTERS")) {
+		test_presenters(path); // Test hook: see graphics_presenter.cpp.
+	}
 	if (const char* path = bb_env("BLITZLLVM_TEST_LAYOUT")) {
 		// Test hook: the size of the window in pixels, where the buffer is shown in it, and the buffer coordinates of
 		// the window corners and center, one number per line in the named file.

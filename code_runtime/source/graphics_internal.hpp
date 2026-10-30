@@ -284,6 +284,7 @@ namespace bb::gfx {
 		VkExtent2D     swap_extent = {};
 		VkSemaphore    acquired = VK_NULL_HANDLE;
 		int            vsync    = 1; // Flip's argument: 0 shows at once, 1 waits for the display, 2 syncs the picture only.
+		struct presenter* show = nullptr; // The thread that shows the window's pictures, where the window has one (graphics_presenter.cpp).
 	};
 
 	struct state {
@@ -982,7 +983,9 @@ namespace bb::gfx {
 	bool ensure_device();
 
 	/** Windows besides the one of Graphics: a surface each, on the device that is shared. A handle is 1 or more, 0 is no window. */
+	constexpr int  max_extra_surfaces = 64;
 	surface_state* extra_surface(int handle);
+	surface_state* extra_surface_of_window(SDL_WindowID window);
 	int            create_extra_surface(const char* title, int width, int height, int resizable, int borderless);
 	void           destroy_extra_surface(int handle);
 	void           destroy_extra_surfaces();
@@ -992,9 +995,20 @@ namespace bb::gfx {
 	void           test_lazy_device(const char* path);
 	void           test_lazy_device_finish(const char* path);
 
+	/** The thread of a window, which shows the newest of its three pictures whenever there is one or the window asks, at the pace of the display (graphics_presenter.cpp). */
+	bool       start_presenter(surface_state& s);
+	void       stop_presenter(surface_state& s);
+	/** The picture the program draws into now, and the handover of what was drawn: it is shown next (with wait, the call returns once it was). */
+	gpu_image& presenter_frame(surface_state& s);
+	void       presenter_handover(surface_state& s, bool wait);
+	/** From the program's thread: an event of the window, and the swapchains the threads asked for. */
+	void       presenter_window_event(surface_state& s, const SDL_Event& event);
+	void       presenter_service();
+	void       presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents);
+	void       test_presenters(const char* path);
 	/** The queue is used by the program's thread, the submission thread and the threads of the windows, one at a time. */
-	void queue_lock();
-	void queue_unlock();
+	void       queue_lock();
+	void       queue_unlock();
 
 	// The graphics drivers, which are the GPUs.
 	constexpr uint32_t max_gpus = 16;

@@ -23,7 +23,6 @@
 using namespace bb::gfx;
 
 namespace {
-	constexpr int max_extra_surfaces = 64;
 	surface_state* extras[max_extra_surfaces]; // Handle n is extras[n - 1].
 } // namespace
 
@@ -33,6 +32,16 @@ namespace bb::gfx {
 		return ((handle >= 1) && (handle <= max_extra_surfaces)) ? extras[handle - 1] : nullptr;
 	}
 
+	surface_state* extra_surface_of_window(SDL_WindowID window)
+	{
+		for (surface_state* s : extras) {
+			if (s && s->window && (SDL_GetWindowID(s->window) == window)) {
+				return s;
+			}
+		}
+		return nullptr;
+	}
+
 	void destroy_extra_surface(int handle)
 	{
 		surface_state* s = extra_surface(handle);
@@ -40,6 +49,7 @@ namespace bb::gfx {
 			return;
 		}
 		if (g.device) {
+			stop_presenter(*s);
 			destroy_swapchain(*s); // Waits for the GPU.
 			if (s->acquired) {
 				vkDestroySemaphore(g.device, s->acquired, nullptr);
@@ -147,13 +157,17 @@ namespace bb::gfx {
 		present.swapchainCount     = 1;
 		present.pSwapchains        = &s->swapchain;
 		present.pImageIndices      = &index;
+		queue_lock();
 		result = vkQueuePresentKHR(g.queue, &present);
+		if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)) {
+			vkQueueWaitIdle(g.queue);
+		}
+		queue_unlock();
 		if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR)) {
 			s->resized = true;
 		} else {
 			check(result, "vkQueuePresentKHR");
 		}
-		vkQueueWaitIdle(g.queue);
 		return true;
 	}
 
