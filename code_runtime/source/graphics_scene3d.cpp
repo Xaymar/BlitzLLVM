@@ -241,7 +241,7 @@ namespace bb::gfx {
 	}
 
 	// With shader_blend the fragment shader is the one that blends itself (Dither 2) and the pipeline does not blend.
-	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, bool shader_blend, bool oit = false)
+	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, bool shader_blend, int oit = 0)
 	{
 		VkPipelineShaderStageCreateInfo stages[2] = { { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO }, { VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO } };
 		stages[0].stage                           = VK_SHADER_STAGE_VERTEX_BIT;
@@ -390,8 +390,9 @@ namespace bb::gfx {
 		// Order-independent transparency draws to four images (see graphics_oit.cpp), of which the blend mode writes the ones it has sums in:
 		// alpha writes 0 (color * alpha * weight and alpha * weight, added) and 1 (the product of 1 - alpha), multiply writes 2 (the product
 		// of the colors), add writes 3 (color * alpha, added).
-		VkFormat                            oit_formats[4] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT };
+		VkFormat                            oit_formats[4] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT };
 		VkPipelineColorBlendAttachmentState oit_blend[4]   = {};
+		VkPipelineLayout                    layout         = g.layout3d;
 		if (oit) {
 			const VkColorComponentFlags all = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 			for (VkPipelineColorBlendAttachmentState& state : oit_blend) {
@@ -407,20 +408,39 @@ namespace bb::gfx {
 				oit_blend[i].alphaBlendOp        = VK_BLEND_OP_ADD;
 				oit_blend[i].colorWriteMask      = all;
 			};
-			if (mode == 1) {
+			if (oit == 2) {
+				// The first pass of the moment based kind: the optical depth, and the optical depth times the powers of the depth, added up.
+				oit_formats[0] = VK_FORMAT_R32_SFLOAT;
+				oit_formats[1] = VK_FORMAT_R32G32B32A32_SFLOAT;
 				sums(0, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
-				sums(1, VK_BLEND_FACTOR_ZERO, VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR);
-				oit_blend[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT;
-			} else if (mode == 3) {
-				sums(3, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
+				sums(1, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
+				rendering.colorAttachmentCount    = 2;
+				rendering.pColorAttachmentFormats = oit_formats;
+				blending.attachmentCount          = 2;
+				blending.pAttachments             = oit_blend;
 			} else {
-				sums(2, VK_BLEND_FACTOR_ZERO, VK_BLEND_FACTOR_SRC_COLOR);
-				oit_blend[2].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT;
+				if (oit == 3) {
+					// The second pass reads the sums of the first (the image of the optical depth is not an attachment in it).
+					oit_formats[1] = VK_FORMAT_UNDEFINED;
+					layout         = (mode == 1) ? oit_layout3d() : g.layout3d;
+				}
+				if (mode == 1) {
+					sums(0, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
+					if (oit == 1) {
+						sums(1, VK_BLEND_FACTOR_ZERO, VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR);
+						oit_blend[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT;
+					}
+				} else if (mode == 3) {
+					sums(3, VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE);
+				} else {
+					sums(2, VK_BLEND_FACTOR_ZERO, VK_BLEND_FACTOR_SRC_COLOR);
+					oit_blend[2].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT;
+				}
+				rendering.colorAttachmentCount    = 4;
+				rendering.pColorAttachmentFormats = oit_formats;
+				blending.attachmentCount          = 4;
+				blending.pAttachments             = oit_blend;
 			}
-			rendering.colorAttachmentCount    = 4;
-			rendering.pColorAttachmentFormats = oit_formats;
-			blending.attachmentCount          = 4;
-			blending.pAttachments             = oit_blend;
 		}
 
 		VkGraphicsPipelineCreateInfo info = { VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
@@ -435,7 +455,7 @@ namespace bb::gfx {
 		info.pDepthStencilState           = &depth;
 		info.pColorBlendState             = &blending;
 		info.pDynamicState                = &dynamic;
-		info.layout                       = g.layout3d;
+		info.layout                       = layout;
 
 		VkPipeline pipeline;
 		check(vkCreateGraphicsPipelines(g.device, VK_NULL_HANDLE, 1, &info, nullptr, &pipeline), "vkCreateGraphicsPipelines (3D)");
@@ -901,8 +921,19 @@ namespace bb::gfx {
 		g.mul2x3d         = create_pipeline_3d(vs, fs_blend, 4, false, shader_blend, fs);
 		if (oit_active()) {
 			VkShaderModule fs_oit = create_shader(bb_shader_fragment_3d_oit, sizeof(bb_shader_fragment_3d_oit));
-			for (int mode = 1; mode <= 4; mode++) {
-				g.oit3d[mode - 1] = build_pipeline_3d(vs, fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, false, true);
+			if (oit_moments()) {
+				VkShaderModule fs_moments = create_shader(bb_shader_fragment_3d_oit_moments, sizeof(bb_shader_fragment_3d_oit_moments));
+				VkShaderModule fs_color   = create_shader(bb_shader_fragment_3d_oit_color, sizeof(bb_shader_fragment_3d_oit_color));
+				g.oit_moments3d = build_pipeline_3d(vs, fs_moments, 1, false, VK_FORMAT_R8G8B8A8_UNORM, false, 2);
+				for (int mode = 1; mode <= 4; mode++) {
+					g.oit3dm[mode - 1] = build_pipeline_3d(vs, (mode == 1) ? fs_color : fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, false, 3);
+				}
+				vkDestroyShaderModule(g.device, fs_moments, nullptr);
+				vkDestroyShaderModule(g.device, fs_color, nullptr);
+			} else {
+				for (int mode = 1; mode <= 4; mode++) {
+					g.oit3d[mode - 1] = build_pipeline_3d(vs, fs_oit, mode, false, VK_FORMAT_R8G8B8A8_UNORM, false, 1);
+				}
 			}
 			vkDestroyShaderModule(g.device, fs_oit, nullptr);
 		}
@@ -938,6 +969,16 @@ namespace bb::gfx {
 				vkDestroyPipeline(g.device, pipeline, nullptr);
 				pipeline = VK_NULL_HANDLE;
 			}
+		}
+		for (VkPipeline& pipeline : g.oit3dm) {
+			if (pipeline) {
+				vkDestroyPipeline(g.device, pipeline, nullptr);
+				pipeline = VK_NULL_HANDLE;
+			}
+		}
+		if (g.oit_moments3d) {
+			vkDestroyPipeline(g.device, g.oit_moments3d, nullptr);
+			g.oit_moments3d = VK_NULL_HANDLE;
 		}
 	}
 
@@ -1346,6 +1387,11 @@ namespace bb::gfx {
 		VkRenderingInfo           oit_info  = info;
 		bool                      oit_mode  = false;
 		uint32_t                  oit_modes = 0;
+		// The moment based kind draws what is see-through twice: first (phase 1) to the sums of the optical depth and the moments, then (phase 2) the colors.
+		int                       oit_phase = 0;
+		uint32_t                  oit_begin = 0, oit_end = 0;
+		VkRenderingAttachmentInfo moment_colors[2];
+		VkRenderingInfo           moment_info = info;
 		const uint32_t            oit_w = target.image->width, oit_h = target.image->height;
 		auto oit_bit = [&](VkPipeline pipeline) -> uint32_t { return (pipeline == g.add3d) ? 2u : ((pipeline == g.mul3d || pipeline == g.mul2x3d) ? 1u : 0u); };
 		auto oit_index = [&](VkPipeline pipeline) -> int { return (pipeline == g.blend3d) ? 0 : ((pipeline == g.mul3d) ? 1 : ((pipeline == g.add3d) ? 2 : 3)); };
@@ -1354,6 +1400,7 @@ namespace bb::gfx {
 			oit_to_sampled(oit_w, oit_h);
 			depth.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 			oit_mode     = false;
+			oit_phase    = 0;
 			vkCmdBeginRendering(g.cmd, storage_mode ? &info_storage : &info);
 			VkViewport whole = { float(scene.x), float(scene.y), float(scene.w), float(scene.h), 0, 1 };
 			vkCmdSetViewport(g.cmd, 0, 1, &whole);
@@ -1425,7 +1472,30 @@ namespace bb::gfx {
 				}
 			}
 		};
-		for (uint32_t i = 0; i < scene.draw_count;) {
+		for (uint32_t i = 0; (i < scene.draw_count) || (oit_phase == 1);) {
+			if ((oit_phase == 1) && (i >= oit_end)) {
+				// The sums are done: the second pass draws the same range again, with the colors.
+				vkCmdEndRendering(g.cmd);
+				oit_moments_to_sampled(oit_w, oit_h);
+				oit_attachments_color(oit_w, oit_h, oit_colors);
+				oit_info                      = info;
+				oit_info.colorAttachmentCount = 4;
+				oit_info.pColorAttachments    = oit_colors;
+				depth.loadOp                  = VK_ATTACHMENT_LOAD_OP_LOAD;
+				vkCmdBeginRendering(g.cmd, &oit_info);
+				for (VkRenderingAttachmentInfo& attachment : oit_colors) {
+					attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+				}
+				vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+				vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+				VkDescriptorSet moment_set = oit_moment_set(oit_w, oit_h);
+				vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, oit_layout3d(), 4, 1, &moment_set, 0, nullptr);
+				bound_pipeline = VK_NULL_HANDLE;
+				bound_cull = bound_test = bound_write = -1;
+				oit_phase = 2;
+				i         = oit_begin;
+				continue;
+			}
 			if (!static_done && (i >= scene.static_after) && !read_only && !storage_mode && !oit_mode) {
 				emit_static();
 			}
@@ -1450,8 +1520,40 @@ namespace bb::gfx {
 				instances++;
 			}
 
+			if ((oit_phase == 1) && (d.pipeline != g.blend3d)) {
+				i += instances; // Multiplied and added colors have no sums of the optical depth.
+				continue;
+			}
 			if (d.oit != oit_mode) {
-				if (d.oit) {
+				if (d.oit && oit_moments()) {
+					vkCmdEndRendering(g.cmd);
+					oit_begin = i;
+					oit_end   = i;
+					while ((oit_end < scene.draw_count) && draws[scene.first_draw + oit_end].oit) {
+						oit_end++;
+					}
+					if ((soft_first < oit_end) && !read_only) {
+						// The sprites with a depth fade read the depth buffer, in both passes: it is only read from here on.
+						barrier(depth_image.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
+						depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+						VkDescriptorSet depth_set = depth_set_for(depth_image);
+						vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_set, 0, nullptr);
+						read_only = true;
+					}
+					oit_attachments_moments(oit_w, oit_h, moment_colors);
+					moment_info                       = info;
+					moment_info.colorAttachmentCount  = 2;
+					moment_info.pColorAttachments     = moment_colors;
+					depth.loadOp                      = VK_ATTACHMENT_LOAD_OP_LOAD;
+					oit_mode                          = true;
+					oit_modes                         = 0;
+					oit_phase                         = 1;
+					vkCmdBeginRendering(g.cmd, &moment_info);
+					vkCmdSetViewport(g.cmd, 0, 1, &viewport);
+					vkCmdSetScissor(g.cmd, 0, 1, &scissor);
+					bound_pipeline = VK_NULL_HANDLE;
+					bound_cull = bound_test = bound_write = -1;
+				} else if (d.oit) {
 					vkCmdEndRendering(g.cmd);
 					oit_attachments(oit_w, oit_h, oit_colors);
 					oit_info                    = info;
@@ -1490,7 +1592,7 @@ namespace bb::gfx {
 				oit_modes |= 1u << oit_bit(d.pipeline);
 			}
 			if (d.pipeline != bound_pipeline) {
-				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.oit ? g.oit3d[oit_index(d.pipeline)] : pipeline_for(d.pipeline, target.image->format));
+				vkCmdBindPipeline(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, d.oit ? ((oit_phase == 1) ? g.oit_moments3d : (oit_moments() ? g.oit3dm[oit_index(d.pipeline)] : g.oit3d[oit_index(d.pipeline)])) : pipeline_for(d.pipeline, target.image->format));
 				bound_pipeline = d.pipeline;
 				stats3d.pipelines++;
 			}

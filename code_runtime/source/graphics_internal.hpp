@@ -375,6 +375,8 @@ namespace bb::gfx {
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            solid3d        = VK_NULL_HANDLE; // The same without the discard, so that depth is tested before the shader runs.
 		VkPipeline            oit3d[4]       = {}; // The blended pipelines for order-independent transparency: alpha, multiply, add, multiply twice.
+		VkPipeline            oit3dm[4]      = {}; // The same for the second pass of the moment based kind (it reads the sums of the first).
+		VkPipeline            oit_moments3d  = VK_NULL_HANDLE; // The first pass of the moment based kind.
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
 		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
@@ -965,6 +967,12 @@ namespace bb::gfx {
 	void destroy_pipelines_3d();
 	// Order-independent transparency (graphics_oit.cpp).
 	bool oit_active();
+	bool oit_moments(); // Whether the moment based kind is on (BLITZLLVM_OIT=2).
+	VkPipelineLayout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
+	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2]);
+	void oit_moments_to_sampled(uint32_t width, uint32_t height);
+	void oit_attachments_color(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
+	VkDescriptorSet oit_moment_set(uint32_t width, uint32_t height);
 	void oit_attachments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
 	void oit_to_sampled(uint32_t width, uint32_t height);
 	void oit_composite(VkFormat format, uint32_t width, uint32_t height, uint32_t modes);
