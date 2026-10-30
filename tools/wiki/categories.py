@@ -140,7 +140,7 @@ _RULES = {
     ],
     "blitz3d": [
         (r"^(renderworld|updateworld|clearworld|captureworld|antialias|dither|wbuffer|wireframe|ambientlight|"
-         r"stats3d|trisrendered|hwmultitex|hwtexunits|hwdither|activetextures)", B3D, "World"),
+         r"stats3d|trisrendered|hwmultitex|hwtexunits|hwdither|activetextures|transparentsortview)", B3D, "World"),
         (r"^(gfxdrivercaps3d)", B3D, "Display"),
         (r"^(collisions|clearcollisions|collision|countcollisions|entitycollided|entitytype|entityradius|"
          r"entitybox|resetentity|getentitytype)", B3D, "Collisions"),
