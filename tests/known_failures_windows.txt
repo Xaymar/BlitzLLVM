@@ -168,6 +168,7 @@ suite-debug-compile-graphics_save_async_pixels
 suite-debug-compile-graphics_save_pixels
 suite-debug-compile-handles
 suite-debug-compile-input
+suite-debug-compile-input_devices_pixels
 suite-debug-compile-input_pixels
 suite-debug-compile-language
 suite-debug-compile-language_arithmetic
@@ -333,6 +334,7 @@ suite-debug-run-graphics_save_async_pixels
 suite-debug-run-graphics_save_pixels
 suite-debug-run-handles
 suite-debug-run-input
+suite-debug-run-input_devices_pixels
 suite-debug-run-input_pixels
 suite-debug-run-language
 suite-debug-run-language_arithmetic

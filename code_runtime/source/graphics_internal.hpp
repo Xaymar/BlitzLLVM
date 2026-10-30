@@ -1215,6 +1215,8 @@ namespace bb::gfx {
 	/** Turns a compressed image into an RGBA one, which can be drawn to. Does nothing for the others. */
 	bool ten_bit_supported();
 	void ensure_color_image(gpu_image& image, VkDescriptorSet set);
+void device_event(const SDL_Event& event); // Mice and keyboards that were added or removed.
+void joystick_event(const SDL_Event& event); // The same for joysticks.
 } // namespace bb::gfx
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1233,6 +1235,18 @@ int32_t bb_mouse_z(void);
 void    bb_raw_input(int32_t enable);
 int32_t bb_raw_input_enabled(void);
 int32_t bb_hw_raw_input(void);
+void    bb_input_pump(void);
+int32_t bb_input_active(void);
+int32_t bb_mouse_device_count(void);
+int32_t bb_keyboard_device_count(void);
+const char* bb_mouse_device_name(int32_t device);
+const char* bb_keyboard_device_name(int32_t device);
+int32_t bb_mouse_device_connected(int32_t device);
+int32_t bb_keyboard_device_connected(int32_t device);
+int32_t bb_joy_device_count(void);
+const char* bb_joy_device_name(int32_t port);
+int32_t bb_joy_device_connected(int32_t port);
+void    bb_joy_attach_virtual(int32_t attach);
 void bb_move_mouse(int32_t x, int32_t y, int32_t canvas);
 void bb_hide_pointer(int32_t canvas);
 void bb_show_pointer(int32_t canvas);
