@@ -324,6 +324,21 @@ blitz::ast::expression_ptr blitz::parser::parse_unary_inner()
 		node->type_name = type_tk.text;
 		node->last      = is_keyword(op, "last");
 		return node;
+	} else if (is_keyword(op, "insert")) {
+		advance();
+		auto node    = std::make_unique<ast::insert_expression>();
+		node->where  = here(op);
+		node->object = parse_unary();
+		if (is_keyword(tk(), "before")) {
+			node->after = false;
+		} else if (is_keyword(tk(), "after")) {
+			node->after = true;
+		} else {
+			throw error(tk(), blitz::format("Unexpected %s, expected 'Before' or 'After'.", tk().to_string().c_str()));
+		}
+		advance();
+		node->other = parse_unary();
+		return node;
 	} else if (is_keyword(op, "before") || is_keyword(op, "after")) {
 		advance();
 		auto node    = std::make_unique<ast::list_neighbor>();

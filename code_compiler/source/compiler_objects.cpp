@@ -357,7 +357,9 @@ void blitz::compiler::gen_delete(ast::delete_statement const* node)
 		throw err(node->where, "Delete needs an object.");
 	}
 	if (object.sname.empty()) {
-		return; // Deleting Null does nothing.
+		// Null has no type, so there is nothing to delete: this is a mistake in the program.
+		call_runtime("bb_check_object", type::UNKNOWN, { object });
+		return;
 	}
 	auto& info = need_type(object.sname, node->where);
 	call_runtime("bb_object_delete", type::UNKNOWN, { object, { info.list, type::STRUCT } });
@@ -368,18 +370,25 @@ void blitz::compiler::gen_delete(ast::delete_statement const* node)
 
 void blitz::compiler::gen_insert(ast::insert_statement const* node)
 {
-	auto object = gen(node->object.get());
-	auto other  = gen(node->other.get());
+	gen_insert_object(node->object.get(), node->other.get(), node->after, node->where);
+}
+
+blitz::compiler::value blitz::compiler::gen_insert_object(ast::expression const* object_expr, ast::expression const* other_expr, bool after, ast::location const& where)
+{
+	auto object = gen(object_expr);
+	auto other  = gen(other_expr);
 	if ((object.type != type::STRUCT) || (other.type != type::STRUCT)) {
-		throw err(node->where, "Insert needs two objects.");
+		throw err(where, "Insert needs two objects.");
 	}
 	std::string sname = object.sname.empty() ? other.sname : object.sname;
 	if (sname.empty()) {
-		return;
+		return object;
 	}
 	if (!object.sname.empty() && !other.sname.empty() && (object.sname != other.sname)) {
-		throw err(node->where, "Type mismatch: '" + object.sname + "' can't be inserted next to '" + other.sname + "'.");
+		throw err(where, "Type mismatch: '" + object.sname + "' can't be inserted next to '" + other.sname + "'.");
 	}
-	auto& info = need_type(sname, node->where);
-	call_runtime("bb_object_insert", type::UNKNOWN, { object, other, { node->after ? "1" : "0", type::INT32 }, { info.list, type::STRUCT } });
+	auto& info = need_type(sname, where);
+	call_runtime("bb_object_insert", type::UNKNOWN, { object, other, { after ? "1" : "0", type::INT32 }, { info.list, type::STRUCT } });
+	object.sname = sname;
+	return object;
 }

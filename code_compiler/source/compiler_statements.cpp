@@ -232,6 +232,8 @@ bool blitz::compiler::calls_function_of_program(ast::expression const* expr) con
 		return calls_function_of_program(i->base.get()) || calls_function_of_program(i->index.get());
 	} else if (auto n = dynamic_cast<ast::list_neighbor const*>(expr)) {
 		return calls_function_of_program(n->object.get());
+	} else if (auto n = dynamic_cast<ast::insert_expression const*>(expr)) {
+		return calls_function_of_program(n->object.get()) || calls_function_of_program(n->other.get());
 	} else if (auto h = dynamic_cast<ast::object_from_handle const*>(expr)) {
 		return calls_function_of_program(h->handle.get());
 	} else if (auto r = dynamic_cast<ast::reference const*>(expr)) {
