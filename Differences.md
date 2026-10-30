@@ -19,6 +19,7 @@ Differences that are not caused by one command.
 * [Color depth](Color-Depth): The depth argument of `Graphics` and `Graphics3D` does not pick a display mode: it picks what the buffers are made of (8, 12, 15, 16, 24, 30, 32 or 64), and the window always shows RGBA8. The 8-bit palette mode has a palette that `GraphicsPalette` sets, and `WBuffer` does nothing. `Dither` adds noise of one step of the buffer.
 * [Colors](Colors): 3D color commands take floats from 0 to 255 and vertex colors are 16-bit floats.
 * [Console window on Windows](Console-Window): Programs are GUI programs and use the terminal they were started from; `blitzcc --console` makes a console program.
+* [CPU features](CPU-Features): Extension: the runtime finds out which optional CPU instruction sets exist, and the environment variable `BLITZLLVM_CPU` lowers what it may use.
 * [Culling](Culling): Extension: `CameraCulling` and `CameraCullingSource` choose what is left out of the picture before it is drawn. The picture is the same.
 * [Debug handle checks](Debug-Handle-Checks): Extension: a program compiled with `-d` stops with an error when a command is given a handle that names nothing, and always loads and saves on the spot.
 * [Depth buffer](Depth-Buffer): The depth buffer is a reversed 32-bit float, so z-fighting is much rarer.
