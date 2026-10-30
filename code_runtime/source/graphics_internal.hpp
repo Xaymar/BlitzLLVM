@@ -640,7 +640,7 @@ namespace bb::gfx {
 		float extra[4]; // x: whether the texture uses the second set of coordinates, y and z: sine and cosine minus one of the rotation.
 		float texgen[4]; // x: 1 for a sphere map and 2 for a cube map, y: what the cube map shows, z: whether in the space of the camera, w: half a texel of a face.
 		float lights[4]; // Which lights of the scene light this, two to a float: the place of the first plus 256 times the place of the second.
-		float soft[4];   // x: SpriteDepthFade distance for the fragment shader, 0 if off. y: the layer of the texture (its frame, if it has them).
+		float soft[4];   // x: SpriteDepthFade distance for the fragment shader, 0 if off. y: the layer of the texture (its frame, if it has them). z: the place among the see-through entities, 0 (far) to 1 (near).
 	};
 
 
