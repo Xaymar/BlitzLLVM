@@ -8,7 +8,7 @@
 Include "check.bb"
 
 If GetEnv$("BLITZLLVM_HEADLESS") <> "" Then
-	Print "blitz3d_transparency_distance_sort_mode_pixels: skipped, there is no window."
+	Print "blitz3d_transparency_sort_pixels: skipped, there is no window."
 	End
 EndIf
 
@@ -49,4 +49,4 @@ CheckTrue "view axis: blue on top", Look("view") < -20
 TransparencyDistanceSortMode 0
 CheckTrue "back to the default: red on top", Look("off") > 20
 
-Print "blitz3d_transparency_distance_sort_mode_pixels: " + suite_checks + " checks passed."
+Print "blitz3d_transparency_sort_pixels: " + suite_checks + " checks passed."
