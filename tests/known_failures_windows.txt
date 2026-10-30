@@ -165,6 +165,7 @@ suite-debug-compile-input_pixels
 suite-debug-compile-language
 suite-debug-compile-language_arithmetic
 suite-debug-compile-language_arrays
+suite-debug-compile-language_object_reuse
 suite-debug-compile-language_parameter_modes
 suite-debug-compile-language_string_numbers
 suite-debug-compile-language_strings
@@ -321,6 +322,7 @@ suite-debug-run-input_pixels
 suite-debug-run-language
 suite-debug-run-language_arithmetic
 suite-debug-run-language_arrays
+suite-debug-run-language_object_reuse
 suite-debug-run-language_parameter_modes
 suite-debug-run-language_string_numbers
 suite-debug-run-language_strings
