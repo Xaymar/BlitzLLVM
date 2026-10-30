@@ -30,6 +30,7 @@ Back to [Blitz3D](Blitz3D) or the [Command Index](Command-Index).
 * [EntityReady](EntityReady) 〔BlitzLLVM〕
 * [EntityRoll](EntityRoll)
 * [EntityShininess](EntityShininess)
+* [EntityStatic](EntityStatic) 〔BlitzLLVM〕
 * [EntityTexture](EntityTexture)
 * [EntityX](EntityX)
 * [EntityY](EntityY)

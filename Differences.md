@@ -135,6 +135,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [EnableDirectInput](EnableDirectInput#differences): Only the value is remembered so that [DirectInputEnabled](DirectInputEnabled) can report it.
 * [EndGraphics](EndGraphics#differences): The original opens a new window of the default size, or a console.
 * [EntityDepthFade](EntityDepthFade#differences) 〔BlitzLLVM〕: The original has no such command.
+* [EntityStatic](EntityStatic#differences) 〔BlitzLLVM〕: The original has no such command.
 * [EntityTexture](EntityTexture#differences): A debug build (`-d`) stops the program when the texture is not 0 and does not exist, see [Debug handle checks](Debug-Handle-Checks).
 * [Flip](Flip#differences): Without a graphics window nothing happens.
 * [FlipCanvas](FlipCanvas#differences): The second parameter is accepted, but there is nothing to wait for and it makes no difference.

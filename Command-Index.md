@@ -272,6 +272,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [EntityReady](EntityReady) 〔BlitzLLVM〕
 * [EntityRoll](EntityRoll)
 * [EntityShininess](EntityShininess)
+* [EntityStatic](EntityStatic) 〔BlitzLLVM〕
 * [EntityTexture](EntityTexture)
 * [EntityType](EntityType)
 * [EntityVisible](EntityVisible)
