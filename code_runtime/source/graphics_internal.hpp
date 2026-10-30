@@ -972,6 +972,10 @@ namespace bb::gfx {
 	/** The same for any window that pictures are shown in. */
 	void create_swapchain(surface_state& s);
 	void destroy_swapchain(surface_state& s);
+	/** The instance and the functions of it; then a device whose queue draws and shows pictures in the surface, with everything that is drawn with. */
+	void create_instance();
+	void create_device(VkSurfaceKHR present_to);
+	/** Both, with the surface of the window of Graphics in between. */
 	void create_vulkan();
 
 	/** Windows besides the one of Graphics: a surface each, on the device that is shared. A handle is 1 or more, 0 is no window. */

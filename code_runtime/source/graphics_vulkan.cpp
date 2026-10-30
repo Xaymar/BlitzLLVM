@@ -1424,23 +1424,27 @@ namespace bb::gfx {
 		return -1;
 	}
 
-	void create_vulkan()
+	namespace {
+		PFN_vkGetInstanceProcAddr instance_proc = nullptr; // Of the instance that create_instance made, which the allocator needs.
+	} // namespace
+
+	void create_instance()
 	{
 		list_gpus();
-		auto get_instance_proc = load_vulkan();
-		if (!get_instance_proc) {
+		instance_proc = load_vulkan();
+		if (!instance_proc) {
 			fail("No Vulkan driver found.");
 		}
 		check(make_instance(g.instance), "vkCreateInstance (is Vulkan 1.3 installed?)");
 
-#define BB_VK_LOAD_INSTANCE(name) name = reinterpret_cast<PFN_##name>(get_instance_proc(g.instance, #name));
+#undef BB_VK_LOAD_INSTANCE
+#define BB_VK_LOAD_INSTANCE(name) name = reinterpret_cast<PFN_##name>(instance_proc(g.instance, #name));
 		BB_VK_INSTANCE(BB_VK_LOAD_INSTANCE)
+	}
 
-		if (!SDL_Vulkan_CreateSurface(surface().window, g.instance, nullptr, &surface().surface)) {
-			fail(SDL_GetError());
-		}
-
-		// Pick the GPU that SetGfxDriver chose, or else the first one that can draw to the window and does Vulkan 1.3,
+	void create_device(VkSurfaceKHR present_to)
+	{
+		// Pick the GPU that SetGfxDriver chose, or else the first one that can draw to the surface and does Vulkan 1.3,
 		// preferring a discrete one.
 		uint32_t device_count = 0;
 		vkEnumeratePhysicalDevices(g.instance, &device_count, nullptr);
@@ -1475,7 +1479,7 @@ namespace bb::gfx {
 			vkGetPhysicalDeviceQueueFamilyProperties(devices[d], &family_count, families);
 			for (uint32_t f = 0; f < family_count; f++) {
 				VkBool32 present = VK_FALSE;
-				vkGetPhysicalDeviceSurfaceSupportKHR(devices[d], f, surface().surface, &present);
+				vkGetPhysicalDeviceSurfaceSupportKHR(devices[d], f, present_to, &present);
 				if (present && (families[f].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
 					int score = (props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) ? 2 : 1;
 					if (score > best_score) {
@@ -1586,7 +1590,7 @@ namespace bb::gfx {
 #define BB_VK_LOAD_DEVICE(name) name = reinterpret_cast<PFN_##name>(vkGetDeviceProcAddr(g.device, #name));
 		BB_VK_DEVICE(BB_VK_LOAD_DEVICE)
 		vkGetDeviceQueue(g.device, g.family, 0, &g.queue);
-		create_allocator(get_instance_proc);
+		create_allocator(instance_proc);
 
 		VkCommandPoolCreateInfo pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
 		pool_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -1689,5 +1693,15 @@ namespace bb::gfx {
 		g.vertices_alt2 = static_cast<vertex*>(mapped);
 
 		create_3d();
+	}
+
+	// The instance, the surface of the window of Graphics and a device that shows pictures in that window.
+	void create_vulkan()
+	{
+		create_instance();
+		if (!SDL_Vulkan_CreateSurface(surface().window, g.instance, nullptr, &surface().surface)) {
+			fail(SDL_GetError());
+		}
+		create_device(surface().surface);
 	}
 } // namespace bb::gfx
