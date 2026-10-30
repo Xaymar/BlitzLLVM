@@ -674,7 +674,7 @@ namespace bb::collision {
 		uint32_t               cooldown = 0; // Picks that are not given a tree, as the tree was made again and again.
 		bool                   valid = false;
 		// For BLITZLLVM_PICK_STATS: what the tree did.
-		uint64_t               calls = 0, used = 0, builds = 0, overflow = 0, count_changed = 0, cooled = 0, small = 0, disabled = 0, found_total = 0;
+		uint64_t               calls = 0, used = 0, builds = 0, overflow = 0, count_changed = 0, cooled = 0, few = 0, disabled = 0, found_total = 0;
 	} pick_tree;
 
 	bool pick_broad_phase_enabled()
@@ -884,8 +884,8 @@ namespace bb::collision {
 			return;
 		}
 		if (FILE* f = fopen(path, "w")) {
-			fprintf(f, "runtime built %s %s\ncalls %llu used %llu disabled %llu small %llu cooled %llu builds %llu overflow %llu count_changed %llu\nentities %d items %u loose %u always %u found_avg %.1f\n", __DATE__, __TIME__, (unsigned long long)pick_tree.calls,
-			        (unsigned long long)pick_tree.used, (unsigned long long)pick_tree.disabled, (unsigned long long)pick_tree.small, (unsigned long long)pick_tree.cooled, (unsigned long long)pick_tree.builds,
+			fprintf(f, "runtime built %s %s\ncalls %llu used %llu disabled %llu few %llu cooled %llu builds %llu overflow %llu count_changed %llu\nentities %d items %u loose %u always %u found_avg %.1f\n", __DATE__, __TIME__, (unsigned long long)pick_tree.calls,
+			        (unsigned long long)pick_tree.used, (unsigned long long)pick_tree.disabled, (unsigned long long)pick_tree.few, (unsigned long long)pick_tree.cooled, (unsigned long long)pick_tree.builds,
 			        (unsigned long long)pick_tree.overflow, (unsigned long long)pick_tree.count_changed, entity_count(), pick_tree.items.size, pick_tree.loose_list.size, pick_tree.always.size,
 			        pick_tree.used ? double(pick_tree.found_total) / double(pick_tree.used) : 0.0);
 			fclose(f);
@@ -903,7 +903,7 @@ namespace bb::collision {
 			return false;
 		}
 		if (entity_count() < 32) {
-			pick_tree.small++;
+			pick_tree.few++;
 			return false;
 		}
 		if (!refresh_pick_phase()) {
