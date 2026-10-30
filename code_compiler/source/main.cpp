@@ -834,7 +834,7 @@ static int compiler_main(int argc, char** argv)
 		}
 		// Shared libraries are not linked into the program but loaded by it when it needs them, from the directory of the program. So the
 		// ones that a program may need are copied from the runtime directory next to it: the libraries of FFmpeg when it opens movies (see
-		// movie.cpp), the image codecs (AVIF, JPEG XL and WebP, loaded by SDL_image) when it has a window, which is what loads images, and the
+		// movie.cpp), the image codecs (AVIF, JPEG XL, TIFF and WebP, loaded by SDL_image) when it has a window, which is what loads images, and the
 		// Opus libraries (loaded by SDL_mixer for .opus files, and by movie.cpp) when it loads sounds or opens movies.
 		if (std::filesystem::is_directory(lib_dir)) {
 			enum class family { ffmpeg, image, audio };
@@ -884,7 +884,7 @@ static int compiler_main(int argc, char** argv)
 				copy_shared(family::audio, "opens movies (needs libopus to play Opus sound)");
 			}
 			if (ir.find("@bb_graphics") != std::string::npos) {
-				copy_shared(family::image, "loads images (needs the codec libraries of SDL_image to open AVIF, JPEG XL and WebP files)");
+				copy_shared(family::image, "loads images (needs the codec libraries of SDL_image to open AVIF, JPEG XL, TIFF and WebP files)");
 			}
 			for (auto sound : { "@bb_load_sound", "@bb_load_3d_sound", "@bb_play_music" }) {
 				if (ir.find(sound) != std::string::npos) {

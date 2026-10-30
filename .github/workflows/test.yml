@@ -214,7 +214,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@5902b33ae29014e6ca012c5d8025d4346556bd40 # v1.4.3
         with:
           # What the build links to at run time, and the software Vulkan driver, the virtual X server and the tools the GUI tests use.
-          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils
+          packages: ninja-build nasm pkg-config libavif-dev libjxl-dev libtiff-dev libwebp-dev libopusfile-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxss-dev libxtst-dev libxfixes-dev libwayland-dev libxkbcommon-dev libdecor-0-dev libasound2-dev libpulse-dev libudev-dev libdrm-dev libgbm-dev libegl-dev mesa-vulkan-drivers xvfb xdotool x11-utils
           version: 2-${{ steps.month.outputs.month }}
       - name: Create the runtime directory
         if: env.RUN == 'true'
