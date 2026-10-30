@@ -16,7 +16,7 @@ Programs made by BlitzLLVM and the tools read a few environment variables. All o
 
 A switch is `1` or `0` (`true`/`false`, `yes`/`no` and `on`/`off` work as well, in any case). Any other value than those that mean no counts as yes, and a variable that is set but empty counts as not set. A switch that is **on** by default is turned off with `0` and has no `NO_` in its name: `BLITZLLVM_SPRITE_HULL=0`. A switch that is **off** by default is turned on with `1`. The runtime reads all of them through one function, so they all work like this.
 
-Variables of the compiler (`blitzcc`) and the tools are read when they start; variables of the runtime are read by the program when it starts, or at the first use of the thing they control.
+Variables of the compiler (`blitzcc`) and the tools are read when they start. The runtime reads the `BLITZLLVM_` variables (and the old `BLITZ_` names) **once, when the program starts**, before any of its code runs. A program that changes one with `SetEnv` changes only what `GetEnv$` and the programs it starts see; it does not change how the runtime behaves, so a program can't switch features that are meant for the person who starts it. Set the variable before starting the program.
 
 ## Behaviour of the original
 
@@ -111,7 +111,7 @@ x64 Windows programs built with `--profile` and `-g` (or `-d`) write `<file>.sta
 
 ## Tests
 
-`BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT` and `BLITZLLVM_TEST_WINDOW_FLAGS` are read by the runtime and let the tests of BlitzLLVM look at what a window shows and press keys; the test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...). They can change at any time and are not for programs.
+`BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT` and `BLITZLLVM_TEST_WINDOW_FLAGS` are read by the runtime and let the tests of BlitzLLVM look at what a window shows and press keys; the test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...). They can change at any time and are not for programs. The tests of BlitzLLVM set `BLITZLLVM_TEST_LIVE_ENV=1` before starting a program so that the program can set these with `SetEnv`; that variable is read at the start as well and is not for programs.
 
 ## Old names
 
