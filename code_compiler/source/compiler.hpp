@@ -118,8 +118,37 @@ namespace blitz {
 		size_t                               _warning_errors = 0;
 		std::set<std::string>                _called; // Lower case names of the functions that are called.
 
+		// The code of the function that is being made. Unlike a stream it can be taken and put back without copying, which keeps the
+		// code of long chains of operators (a + b + c + ...) linear instead of copying it again at every operator.
+		struct code_buffer {
+			std::string text;
+
+			code_buffer& operator<<(std::string const& add)
+			{
+				text += add;
+				return *this;
+			}
+			code_buffer& operator<<(char const* add)
+			{
+				text += add;
+				return *this;
+			}
+			std::string const& str() const
+			{
+				return text;
+			}
+			void str(char const* value)
+			{
+				text = value;
+			}
+			void swap(code_buffer& other)
+			{
+				text.swap(other.text);
+			}
+		};
+
 		// Function state
-		std::ostringstream              _body;
+		code_buffer                     _body;
 		std::ostringstream              _allocas;
 		std::map<std::string, variable> _locals;
 		std::vector<std::string>        _exits;
@@ -261,9 +290,9 @@ namespace blitz {
 
 		// What is generated between scope_begin and scope_end frees the temporary strings that it made when it is done.
 		struct scope {
-			std::ostringstream outer;
-			size_t             before = 0;
-			bool               active = false;
+			code_buffer outer;
+			size_t      before = 0;
+			bool        active = false;
 		};
 		void        scope_begin(scope& s);
 		void        scope_end(scope& s);
@@ -324,6 +353,7 @@ namespace blitz {
 		std::string capture_code(std::function<void()> const& generate);
 		operand     capture(ast::expression const* expr);
 		void        place(std::string const& code);
+		void        place(std::string&& code); // Takes the code over when nothing was made yet.
 		int         place_sequence(std::vector<operand> const& operands);
 		int         default_need(ast::expression const* expr);
 		int         direct_kind(ast::expression const* expr, value const& v);

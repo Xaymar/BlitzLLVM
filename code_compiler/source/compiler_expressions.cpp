@@ -648,8 +648,8 @@ blitz::compiler::value blitz::compiler::gen_binary(ast::binary const* node)
 	bool rhs_first;
 	int  need;
 	plan_binary(node, l, r, rhs_first, need);
-	place(rhs_first ? r.code : l.code);
-	place(rhs_first ? l.code : r.code);
+	place(std::move(rhs_first ? r.code : l.code));
+	place(std::move(rhs_first ? l.code : r.code));
 	auto result = gen_binary_values(node, l.v, r.v);
 	result.need = need;
 	return result;
