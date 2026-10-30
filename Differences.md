@@ -101,7 +101,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateImage](CreateImage#differences): A graphics window must be open, because images live in video memory.
 * [CreateLabel](CreateLabel#differences): Gadgets without a font of their own are drawn with Tahoma at 12 pixels, or a similar font of the system (the built-in bitmap font when there is none).
 * [CreateListBox](CreateListBox#differences): Only one entry can be selected at a time.
-* [CreateListener](CreateListener#differences): Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is not necessarily the curve of the original.
+* [CreateListener](CreateListener#differences): Volume falls off as 1 / (1 + rolloff * meters * 0.05), which is gentler than the curve of the original: the original (FMOD 3) is at full volume up to one meter and then falls off as meters ^ -rolloff, so at 20 meters with rolloff 1 it is at 5% where this runtime is at 50%.
 * [CreateMenu](CreateMenu#differences): The shortcut underline for `&` is accepted but menus are only used with the mouse and the arrow keys.
 * [CreatePlane](CreatePlane#differences): Collisions and picks see the plane as one square 20000 units wide, so they miss it further out than that.
 * [CreateTabber](CreateTabber#differences): Gadgets created with the tabber as their group are drawn on it all the time, as in the original.
