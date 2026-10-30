@@ -992,6 +992,10 @@ namespace bb::gfx {
 	void           test_lazy_device(const char* path);
 	void           test_lazy_device_finish(const char* path);
 
+	/** The queue is used by the program's thread, the submission thread and the threads of the windows, one at a time. */
+	void queue_lock();
+	void queue_unlock();
+
 	// The graphics drivers, which are the GPUs.
 	constexpr uint32_t max_gpus = 16;
 	struct gpu_entry {
