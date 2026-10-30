@@ -24,12 +24,12 @@ std::string blitz::compiler::capture_code(std::function<void()> const& generate)
 		_body << label("dead") << ":\n";
 		_terminated = false;
 	}
-	std::ostringstream outer;
+	code_buffer outer;
 	outer.swap(_body);
 	std::string code;
 	try {
 		generate();
-		code = _body.str();
+		code = std::move(_body.text);
 	} catch (...) {
 		_body.swap(outer);
 		throw;
@@ -48,6 +48,15 @@ blitz::compiler::operand blitz::compiler::capture(ast::expression const* expr)
 void blitz::compiler::place(std::string const& code)
 {
 	_body << code;
+}
+
+void blitz::compiler::place(std::string&& code)
+{
+	if (_body.text.empty()) {
+		_body.text = std::move(code);
+	} else {
+		_body.text += code;
+	}
 }
 
 // Puts the code of the arguments of a call in the order the original evaluated them. Returns the registers the call needs.

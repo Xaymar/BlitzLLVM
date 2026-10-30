@@ -1274,6 +1274,13 @@ elseif(CASE STREQUAL "warnings")
 	blitzcc(-c -Wno-large-local-array "${WORK}/bigarray.bb")
 	expect_no_err("[-Wlarge-local-array]")
 
+	# A very long chain of operators (a + a + a ...) is generated in linear time. It used to copy the code of the whole chain at
+	# every operator, which took about a minute and a half for 100000 terms.
+	string(REPEAT "a + " 60000 _CHAIN)
+	file(WRITE "${WORK}/chain.bb" "Local a% = 1\nLocal x% = ${_CHAIN}a\nPrint x\n")
+	execute_process(COMMAND "${BLITZCC}" -q -S -o "${WORK}/chain.ll" "${WORK}/chain.bb" WORKING_DIRECTORY "${WORK}" RESULT_VARIABLE RC TIMEOUT 20)
+	expect_ok()
+
 	# A For loop whose start, end or step has another type than the counter is an error with -d (every mismatch) and a warning in a release.
 	file(WRITE "${WORK}/looptype.bb" "Local n% = 300\nFor b:Byte = 0 To n\nNext\n")
 	blitzcc(-c "${WORK}/looptype.bb")
