@@ -69,7 +69,7 @@ namespace bb::gfx {
 
 	// Test programs can't press anything, so BLITZLLVM_TEST_EVENTS (set with SetEnv) does it for them the next time events are
 	// looked at: a list separated by commas of kN (key N, a scancode, goes down and up), mN (mouse button N goes down and
-	// up), wN (the wheel turns by N), fN (the wheel turns by N tenths), rX:Y (the mouse moves by X and Y) and tTEXT (TEXT is typed). +mID and -mID plug in and remove the mouse with that ID, +kID and -kID the same for
+	// up), wN (the wheel turns by N), fN (the wheel turns by N tenths), rX:Y (the mouse moves by X and Y) and tTEXT (TEXT is typed). dN says that the events after it come from the device with the ID N. +mID and -mID plug in and remove the mouse with that ID, +kID and -kID the same for
 	// keyboards, and +j and -j attach and detach a virtual joystick. It is used up by being read.
 	static void push_test_events()
 	{
@@ -92,16 +92,21 @@ namespace bb::gfx {
 		unsetenv("BLITZ_TEST_EVENTS");
 #endif
 		SDL_WindowID window = surface().window ? SDL_GetWindowID(surface().window) : 0;
+		Uint32       which  = 0; // dN: the device that the next events say they came from.
 		char* rest = nullptr;
 		for (char* item = SDL_strtok_r(copy, ",", &rest); item; item = SDL_strtok_r(nullptr, ",", &rest)) {
 			SDL_Event event = {};
 			int       n     = atoi(item + 1);
 			switch (item[0]) {
+			case 'd':
+				which = Uint32(n);
+				break;
 			case 'k':
 				for (const key_map& entry : key_table) {
 					if (entry.blitz == n) {
 						event.key.scancode = entry.sdl;
 						event.key.windowID = window;
+						event.key.which    = which;
 						for (int phase = 0; phase < 2; phase++) {
 							bool down      = phase == 0;
 							event.type     = down ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
@@ -115,6 +120,7 @@ namespace bb::gfx {
 			case 'm':
 				event.button.button   = (n == 1) ? SDL_BUTTON_LEFT : ((n == 2) ? SDL_BUTTON_RIGHT : SDL_BUTTON_MIDDLE);
 				event.button.windowID = window;
+				event.button.which   = which;
 				event.button.x        = float(g.mouse_x);
 				event.button.y        = float(g.mouse_y);
 				for (int phase = 0; phase < 2; phase++) {
@@ -143,12 +149,14 @@ namespace bb::gfx {
 			case 'w':
 				event.type         = SDL_EVENT_MOUSE_WHEEL;
 				event.wheel.windowID = window;
+				event.wheel.which    = which;
 				event.wheel.y      = float(n);
 				SDL_PushEvent(&event);
 				break;
 			case 'r': // rX:Y, the mouse moves by X and Y without anything telling where it is.
 				event.type             = SDL_EVENT_MOUSE_MOTION;
 				event.motion.windowID  = window;
+				event.motion.which     = which;
 				event.motion.xrel      = float(n);
 				if (const char* colon = strchr(item, ':')) {
 					event.motion.yrel = float(atoi(colon + 1));
@@ -160,6 +168,7 @@ namespace bb::gfx {
 			case 'f': // fN, the wheel turns by N tenths.
 				event.type           = SDL_EVENT_MOUSE_WHEEL;
 				event.wheel.windowID = window;
+				event.wheel.which    = which;
 				event.wheel.y        = float(n) / 10.0f;
 				SDL_PushEvent(&event);
 				break;
@@ -238,6 +247,12 @@ namespace bb::gfx {
 			case SDL_EVENT_KEY_DOWN: {
 				int key = blitz_key(event.key.scancode);
 				if (key) {
+					if (device_input* d = keyboard_device_input(event.key.which)) {
+						if (!d->keys[key]) {
+							d->key_hits[key]++;
+						}
+						d->keys[key] = true;
+					}
 					if (!g.keys[key]) {
 						g.key_hits[key]++;
 					}
@@ -325,6 +340,17 @@ namespace bb::gfx {
 				break;
 			}
 			case SDL_EVENT_MOUSE_WHEEL:
+				if (device_input* d = mouse_device_input(event.wheel.which)) {
+					d->dz += event.wheel.y;
+					if (g.raw_input) {
+						d->z_frac += event.wheel.y;
+						int whole = int(d->z_frac);
+						d->z_frac -= float(whole);
+						d->z += whole;
+					} else {
+						d->z += int(event.wheel.y);
+					}
+				}
 				g.mouse_dz += event.wheel.y;
 				if (g.raw_input) {
 					// Wheels and touchpads that turn in small steps add up to whole ones.
@@ -343,6 +369,9 @@ namespace bb::gfx {
 			case SDL_EVENT_KEY_UP: {
 				int key = blitz_key(event.key.scancode);
 				if (key) {
+					if (device_input* d = keyboard_device_input(event.key.which)) {
+						d->keys[key] = false;
+					}
 					g.keys[key] = false;
 					bb_event_post(0x102, key, 0, 0, 0, 0);
 				}
@@ -353,6 +382,17 @@ namespace bb::gfx {
 				float px = 1, py = 1;
 				buffer_pixel_size(&px, &py);
 				float dx = event.motion.xrel / px, dy = event.motion.yrel / py;
+				if (device_input* d = mouse_device_input(event.motion.which)) {
+					if (!d->placed) {
+						d->placed = true;
+						d->px     = float(g.width - 1) / 2;
+						d->py     = float(g.height - 1) / 2;
+					}
+					d->px = fminf(fmaxf(d->px + dx, 0.0f), float(g.width - 1));
+					d->py = fminf(fmaxf(d->py + dy, 0.0f), float(g.height - 1));
+					d->dx += dx;
+					d->dy += dy;
+				}
 				if (g.mouse_relative) {
 					g.mouse_px = fminf(fmaxf(g.mouse_px + dx, 0.0f), float(g.width - 1));
 					g.mouse_py = fminf(fmaxf(g.mouse_py + dy, 0.0f), float(g.height - 1));
@@ -369,6 +409,10 @@ namespace bb::gfx {
 			case SDL_EVENT_MOUSE_BUTTON_DOWN: {
 				int b = button_index(event.button.button);
 				if (b) {
+					if (device_input* d = mouse_device_input(event.button.which)) {
+						d->mouse[b] = true;
+						d->mouse_hits[b]++;
+					}
 					g.mouse[b]      = true;
 					g.mouse_hits[b]++;
 					bb_event_post(0x201, b, g.mouse_x, g.mouse_y, event_modifiers(), 0);
@@ -383,6 +427,9 @@ namespace bb::gfx {
 			case SDL_EVENT_MOUSE_BUTTON_UP: {
 				int b = button_index(event.button.button);
 				if (b) {
+					if (device_input* d = mouse_device_input(event.button.which)) {
+						d->mouse[b] = false;
+					}
 					g.mouse[b] = false;
 					bb_event_post(0x202, b, g.mouse_x, g.mouse_y, event_modifiers(), 0);
 				}
@@ -479,12 +526,16 @@ int32_t bb_get_key(void)
 	return code;
 }
 
-void bb_flush_keys(void)
+void bb_flush_keys(int32_t device)
 {
 	if (!active()) {
 		return;
 	}
 	pump();
+	if (device >= 0) {
+		device_flush_keys(device);
+		return;
+	}
 	g.key_head = g.key_tail;
 	memset(g.keys, 0, sizeof(g.keys));
 	memset(g.key_hits, 0, sizeof(g.key_hits));
@@ -505,12 +556,16 @@ int32_t bb_get_mouse(void)
 	return button;
 }
 
-void bb_flush_mouse(void)
+void bb_flush_mouse(int32_t device)
 {
 	if (!active()) {
 		return;
 	}
 	pump();
+	if (device >= 0) {
+		device_flush_mouse(device);
+		return;
+	}
 	g.mouse_head = g.mouse_tail;
 	memset(g.mouse_hits, 0, sizeof(g.mouse_hits));
 	g.mouse_dx = g.mouse_dy = g.mouse_dz = 0;
@@ -536,12 +591,15 @@ static void capture_for_speed()
 }
 
 // How far the mouse moved since the last time this was asked.
-int32_t bb_mouse_x_speed(int32_t canvas)
+int32_t bb_mouse_x_speed(int32_t canvas, int32_t device)
 {
 	(void)canvas;
 	capture_for_speed();
 	if (active()) {
 		pump();
+	}
+	if (device >= 0) {
+		return device_mouse_speed(device, 0);
 	}
 	if (g.mouse_relative) {
 		int32_t v  = int32_t(g.mouse_dx);
@@ -553,12 +611,15 @@ int32_t bb_mouse_x_speed(int32_t canvas)
 	return v;
 }
 
-int32_t bb_mouse_y_speed(int32_t canvas)
+int32_t bb_mouse_y_speed(int32_t canvas, int32_t device)
 {
 	(void)canvas;
 	capture_for_speed();
 	if (active()) {
 		pump();
+	}
+	if (device >= 0) {
+		return device_mouse_speed(device, 1);
 	}
 	if (g.mouse_relative) {
 		int32_t v  = int32_t(g.mouse_dy);
@@ -570,10 +631,13 @@ int32_t bb_mouse_y_speed(int32_t canvas)
 	return v;
 }
 
-int32_t bb_mouse_z_speed(void)
+int32_t bb_mouse_z_speed(int32_t device)
 {
 	if (active()) {
 		pump();
+	}
+	if (device >= 0) {
+		return device_mouse_speed(device, 2);
 	}
 	int32_t v  = int32_t(g.mouse_dz);
 	g.mouse_dz -= float(v);
@@ -609,10 +673,13 @@ int32_t bb_hw_raw_input(void)
 	return ok ? 1 : 0;
 }
 
-int32_t bb_mouse_z(void)
+int32_t bb_mouse_z(int32_t device)
 {
 	if (active()) {
 		pump();
+	}
+	if (device >= 0) {
+		return device_mouse_z(device);
 	}
 	return g.mouse_z;
 }
@@ -673,21 +740,27 @@ int32_t bb_input_active(void)
 	return active() ? 1 : 0;
 }
 
-int32_t bb_key_down(int32_t key)
+int32_t bb_key_down(int32_t key, int32_t device)
 {
 	if (!active()) {
 		return 0;
 	}
 	pump();
+	if (device >= 0) {
+		return device_key_down(device, key);
+	}
 	return ((key > 0) && (key < 256) && g.keys[key]) ? 1 : 0;
 }
 
-int32_t bb_key_hit(int32_t key)
+int32_t bb_key_hit(int32_t key, int32_t device)
 {
 	if (!active()) {
 		return 0;
 	}
 	pump();
+	if (device >= 0) {
+		return device_key_hit(device, key);
+	}
 	if ((key > 0) && (key < 256)) {
 		int hits        = g.key_hits[key];
 		g.key_hits[key] = 0;
@@ -697,45 +770,59 @@ int32_t bb_key_hit(int32_t key)
 }
 
 // MouseX [canvas]: in the window, or in a canvas if one is given.
-int32_t bb_mouse_x(int32_t canvas)
+int32_t bb_mouse_x(int32_t canvas, int32_t device)
 {
 	if (active()) {
 		pump();
 	}
 	int32_t x = g.mouse_x, y = g.mouse_y;
+	if (device >= 0) {
+		x = device_mouse_pos(device, false);
+		y = device_mouse_pos(device, true);
+	}
 	if (canvas) {
 		bb_gui_mouse_in(canvas, &x, &y);
 	}
 	return x;
 }
 
-int32_t bb_mouse_y(int32_t canvas)
+int32_t bb_mouse_y(int32_t canvas, int32_t device)
 {
 	if (active()) {
 		pump();
 	}
 	int32_t x = g.mouse_x, y = g.mouse_y;
+	if (device >= 0) {
+		x = device_mouse_pos(device, false);
+		y = device_mouse_pos(device, true);
+	}
 	if (canvas) {
 		bb_gui_mouse_in(canvas, &x, &y);
 	}
 	return y;
 }
 
-int32_t bb_mouse_down(int32_t button)
+int32_t bb_mouse_down(int32_t button, int32_t device)
 {
 	if (!active()) {
 		return 0;
 	}
 	pump();
+	if (device >= 0) {
+		return device_mouse_down(device, button);
+	}
 	return ((button > 0) && (button < 4) && g.mouse[button]) ? 1 : 0;
 }
 
-int32_t bb_mouse_hit(int32_t button)
+int32_t bb_mouse_hit(int32_t button, int32_t device)
 {
 	if (!active()) {
 		return 0;
 	}
 	pump();
+	if (device >= 0) {
+		return device_mouse_hit(device, button);
+	}
 	if ((button > 0) && (button < 4)) {
 		int hits             = g.mouse_hits[button];
 		g.mouse_hits[button] = 0;
