@@ -23,17 +23,13 @@ AnimateEntity:Void entity:Int32, mode:Int32=1, speed:Float32=1, sequence:Int32=0
 | `mode` | In | Int32 | `1` | 0 stop, 1 loop, 2 ping-pong, 3 one-shot. Defaults to 1. |
 | `speed` | In | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
 | `sequence` | In | Int32 | `0` | Number of the sequence to play. Defaults to 0. |
-| `transition` | In | Float32 | `0` | Frames to blend from the current pose. Defaults to 0. |
+| `transition` | In | Float32 | `0` | Frames over which to blend from the current pose. Defaults to 0. |
 
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
 Another name for [Animate](Animate), with the same parameters and behavior. The original Blitz3D has no command of this name. It is the name PureBasic and FreeBasic use, and the original sample `MAK-sfx` uses it where Blitz3D has `Animate`, so it is accepted here as an alias.
-
-## Differences
-
-* The transition argument is accepted but ignored, like in Animate.
 
 ## Examples
 

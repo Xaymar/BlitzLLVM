@@ -60,14 +60,12 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (284)</summary>
+<li><details><summary>Commands (282)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
 <li><a href="ActiveWindow#differences">ActiveWindow</a></li>
 <li><a href="AddVertex#differences">AddVertex</a></li>
-<li><a href="Animate#differences">Animate</a></li>
-<li><a href="AnimateEntity#differences">AnimateEntity</a> 〔BlitzLLVM〕</li>
 <li><a href="AnimateMD2#differences">AnimateMD2</a></li>
 <li><a href="AntiAlias#differences">AntiAlias</a></li>
 <li><a href="AppTitle#differences">AppTitle</a></li>

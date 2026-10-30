@@ -23,7 +23,7 @@ Animate:Void entity:Int32, mode:Int32=1, speed:Float32=1, sequence:Int32=0, tran
 | `mode` | In | Int32 | `1` | 0 stop, 1 loop, 2 ping-pong, 3 one-shot. Defaults to 1. |
 | `speed` | In | Float32 | `1` | Playback speed, negative for backwards. Defaults to 1. |
 | `sequence` | In | Int32 | `0` | Number of the sequence to play. Defaults to 0. |
-| `transition` | In | Float32 | `0` | Frames to blend from the current pose to the first frame. Defaults to 0. |
+| `transition` | In | Float32 | `0` | Frames (as counted by UpdateWorld) over which the entity blends from its current pose to the first frame of the new animation. Defaults to 0, which jumps right in. |
 
 ## Description
 
@@ -37,10 +37,6 @@ Starts, changes or stops the skeletal or keyframe animation of an entity, such a
 | 3 | One-shot: play once and then stop at the last frame. |
 
 A negative speed plays the sequence backwards. A model has sequence 0 after loading; more sequences come from [LoadAnimSeq](LoadAnimSeq), [AddAnimSeq](AddAnimSeq) and [ExtractAnimSeq](ExtractAnimSeq). Calling Animate again with the same mode and sequence only changes the speed and does not restart the animation.
-
-## Differences
-
-* The transition argument is accepted but ignored: the entity jumps to the first frame of the new animation.
 
 ## Examples
 
