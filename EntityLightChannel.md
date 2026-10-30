@@ -20,13 +20,13 @@ EntityLightChannel:Void entity:Int32, channel:Int32
 | Parameter | Mode | Type | Default | Description |
 |---|---|---|---|---|
 | `entity` | In | Int32 | required | Entity handle, of an entity or of a light. |
-| `channel` | In | Int32 | required | The channels as bits (0 to 255): bit 0 is channel 1 up to bit 7 for channel 8. |
+| `channel` | In | Int32 | required | The channels as bits (a UInt64): bit 0 is channel 1 up to bit 63 for channel 64. |
 
 ## Description
 
 **〔BlitzLLVM〕** This command does not exist in the original Blitz products. BlitzLLVM adds it.
 
-Sets the light channels of an entity. A channel is one bit of `channel`, so there are 8 of them (1, 2, 4, 8, 16, 32, 64 and 128) and the values add up: 3 is channel 1 and 2. The default is 255, all channels, so entities that never use channels behave as before.
+Sets the light channels of an entity. A channel is one bit of `channel`, so there are 64 of them (1, 2, 4, 8 and so on up to 9223372036854775808) and the values add up: 3 is channel 1 and 2. The default is all 64 channels, so entities that never use channels behave as before. Channel 32 and up need a `ULong`, because an `Int` only has 32 bits.
 
 Lights are entities too, so this sets the channels a light shines into. An entity is only lit by the lights that share at least one channel with it, and 0 means no light reaches it (and a light with 0 lights nothing). Meshes, sprites and terrains all use it, and the channel of an entity is not passed on to its children.
 
