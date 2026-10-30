@@ -387,6 +387,11 @@ namespace {
 } // namespace
 
 namespace bb::gfx {
+	int antialias_mode()
+	{
+		return setting;
+	}
+
 	void antialias_new_frame()
 	{
 		frame_serial++;
@@ -622,11 +627,16 @@ extern "C" {
 void bb_anti_alias(int32_t enable)
 {
 	int mode = enable <= 0 ? 0 : (enable >= 2 ? 2 : 1);
+	// Dither 2 is Dither 1 while AntiAlias is on, which changes how 3D is drawn.
+	int dither_before = dither_level();
 	if ((mode == 0) && (setting != 0) && ready) {
 		// What it held is no longer needed. What waits to be drawn has to be drawn with it first.
 		flush();
 		destroy_antialias();
 	}
 	setting = mode;
+	if (g.created && !g.headless && (dither_level() != dither_before)) {
+		rebuild_pipelines_3d();
+	}
 }
 }

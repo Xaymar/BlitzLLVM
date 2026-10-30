@@ -88,4 +88,15 @@ Run 2, 4, "AntiAlias 2"
 DitherMode 1, 3
 Run 1, 1, "AntiAlias 1 with Bayer"
 Run 2, 4, "AntiAlias 2 with Bayer"
+
+; Dither 2 blends in the shader, which smoothing can not follow, so it is Dither 1 while AntiAlias is on: a blended triangle is the same picture.
+DitherMode 0, 1
+EntityAlpha m, 0.5
+Local same, i
+Dither 1
+AntiAlias 1
+Picture 1, True
+Dither 2
+Picture 1, False
+CheckTrue "Dither 2 is Dither 1 while AntiAlias is on (" + changed + " pixels differ)", changed = 0
 Done "blitz3d_antialias_dither_pixels"
