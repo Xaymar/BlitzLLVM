@@ -591,6 +591,8 @@
 		{ "mousezspeed", "bb_mouse_z_speed", 'i', "i", 0, { -1 }, false },
 		{ "mousez", "bb_mouse_z", 'i', "i", 0, { -1 }, false },
 		{ "movemouse", "bb_move_mouse", 'v', "iii", 2, { 0, 0, 0 }, false },
+		{ "lockmouse", "bb_lock_mouse", 'v', "i", 0, { 0 }, false },
+		{ "unlockmouse", "bb_unlock_mouse", 'v', "", 0, {}, false },
 		{ "hidepointer", "bb_hide_pointer", 'v', "i", 0, { 0 }, false },
 		{ "showpointer", "bb_show_pointer", 'v', "i", 0, { 0 }, false },
 		{ "getjoy", "bb_get_joy", 'i', "i", 0, { 0 }, false },
