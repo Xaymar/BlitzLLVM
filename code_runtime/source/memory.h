@@ -21,7 +21,7 @@
 // batches of free blocks to a shared pool per class when they have too many (a thread that only frees what another one allocated),
 // and take them from there when they have none. Spans in which every block was free for more than a second go back to the system
 // (the address range stays reserved, the memory behind it is released and reads as zero when the span is used again), except for one
-// empty span per class. BLITZLLVM_ALLOC_RELEASE=0 turns that off. The check runs in bb_mem_tick, which the runtime calls from Flip and
+// empty span per class. BLITZLLVM_ALLOC_RELEASE=0 turns that off, BLITZLLVM_DEBUG_ALLOC_RELEASE=1 reports each sweep that gave spans back on stderr. The check runs in bb_mem_tick, which the runtime calls from Flip and
 // while it waits; allocating and freeing do not look at the clock.
 //
 // A block is ours when its address lies in the reserved range, which is a single comparison. That makes `free`, `realloc` and
