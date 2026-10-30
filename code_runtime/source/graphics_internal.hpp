@@ -374,6 +374,7 @@ namespace bb::gfx {
 		VkPipeline            static_pipeline = VK_NULL_HANDLE;
 		VkPipeline            opaque3d       = VK_NULL_HANDLE;
 		VkPipeline            solid3d        = VK_NULL_HANDLE; // The same without the discard, so that depth is tested before the shader runs.
+		VkPipeline            oit3d[4]       = {}; // The blended pipelines for order-independent transparency: alpha, multiply, add, multiply twice.
 		VkPipeline            blend3d        = VK_NULL_HANDLE;
 		VkPipeline            mul3d          = VK_NULL_HANDLE;
 		VkPipeline            mul2x3d        = VK_NULL_HANDLE; // Multiplies by twice the color.
@@ -724,6 +725,7 @@ namespace bb::gfx {
 		uint32_t    first_command; // Where the GPU writes the commands to draw the clusters, once it is recorded.
 		float       growth; // How much its matrix lengthens a vector, at most.
 		bool        cone;   // Whether the GPU can leave out clusters of faces that all look away (CameraCulling bit 4), see record_culling.
+		bool        oit;    // Blended by the pass of order-independent transparency (see graphics_oit.cpp), with the pipeline of its blend mode in oit3d.
 	};
 
 
@@ -961,6 +963,12 @@ namespace bb::gfx {
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
+	// Order-independent transparency (graphics_oit.cpp).
+	bool oit_active();
+	void oit_attachments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[4]);
+	void oit_to_sampled(uint32_t width, uint32_t height);
+	void oit_composite(VkFormat format, uint32_t width, uint32_t height, uint32_t modes);
+	void oit_destroy();
 	/** Writes the image that was presented to the file of BLITZLLVM_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();
