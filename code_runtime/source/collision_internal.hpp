@@ -221,6 +221,8 @@ namespace bb::collision {
 	// Whether the entity and everything that it is below is shown.
 	bool is_enabled(int handle);
 	// Tests one entity that is collided with or picked, with the method of it (1 sphere, 2 polygons, 3 box). The matrix is the one of the entity.
+	// The entities (by number, in their order) that a pick along the line could hit. False if every entity is to be looked at.
+	bool pick_candidates(vec3 origin, vec3 direction, float radius, buffer<int> const*& out);
 	bool hit_entity(hit_info& c, line3 const& line, float radius, entity& e, const float* tform, int method);
 
 	bool hit_sphere(hit_info& c, line3 const& line, float radius, vec3 dest, float dest_radius);

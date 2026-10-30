@@ -48,8 +48,15 @@ namespace {
 		polygon_memory memory = only_obscuring ? polygon_memory() : remembered;
 		hit.surface           = memory.surface;
 		hit.triangle          = memory.triangle;
-		for (int handle = 1; handle <= entity_count(); handle++) {
-			entity* e = get_entity(handle);
+		// Only what is near the line is looked at, when there are enough entities for that to be worth it.
+		buffer<int> const* near_entities = nullptr;
+		if (!pick_candidates(origin, direction, radius, near_entities)) {
+			near_entities = nullptr;
+		}
+		uint32_t count = near_entities ? near_entities->size : uint32_t(entity_count());
+		for (uint32_t n = 0; n < count; n++) {
+			int     handle = near_entities ? (*near_entities)[n] : int(n) + 1;
+			entity* e      = get_entity(handle);
 			if (!e || (handle == ignore) || (handle == ignore2) || (e->pick_mode == 0) || !is_enabled(handle)) {
 				continue;
 			}
