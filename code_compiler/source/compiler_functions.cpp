@@ -28,6 +28,7 @@ void blitz::compiler::begin_function()
 	_allocas.str("");
 	_locals.clear();
 	_exits.clear();
+	_each_flags.clear();
 	_labels.clear();
 	_gosubs.clear();
 	_gosub_stack.clear();
@@ -316,6 +317,10 @@ void blitz::compiler::gen_function(ast::function const& fn)
 
 	// Everything leaves through here: what the function made is freed, and then the value goes back.
 	begin_label(_exit_label);
+	for (auto const& each : _each_flags) {
+		declare("bb_loop_leave", "declare void @bb_loop_leave(ptr, ptr)");
+		emit("call void @bb_loop_leave(ptr " + each.second + ", ptr " + each.first + ")");
+	}
 	gen_copy_outs();
 	if (_uses_strings) {
 		declare("bb_str_mark", "declare i32 @bb_str_mark()");

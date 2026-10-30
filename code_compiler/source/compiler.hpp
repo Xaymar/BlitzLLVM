@@ -123,6 +123,7 @@ namespace blitz {
 		std::ostringstream              _allocas;
 		std::map<std::string, variable> _locals;
 		std::vector<std::string>        _exits;
+		std::vector<std::pair<std::string, std::string>> _each_flags; // Per For Each in the function: the flag of its claim and the list.
 		blitz::types::type              _return_type;
 		bool                            _in_main;
 		bool                            _terminated;
@@ -345,6 +346,7 @@ namespace blitz {
 		value gen_new(ast::new_object const* node);
 		value gen_list_end(ast::list_end const* node);
 		value gen_neighbor(ast::list_neighbor const* node);
+		value gen_insert_object(ast::expression const* object_expr, ast::expression const* other_expr, bool after, ast::location const& where);
 		value gen_from_handle(ast::object_from_handle const* node);
 		std::string compare(ast::binary::op kind, value lhs, value rhs, ast::location const& where);
 
