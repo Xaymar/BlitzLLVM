@@ -52,6 +52,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 | `BLITZLLVM_DITHER_LOCAL_READ` | Blending in the shader through the local read extensions (only used where the GPU has them). |
 | `BLITZLLVM_DITHER_INTERLOCK` | Blending in the shader through the pixel interlock (only used where the GPU has it and the local read extensions are missing or off). |
 | `BLITZLLVM_COLLISION_BROADPHASE` | The broad phase of the collisions. |
+| `BLITZLLVM_PICK_BROADPHASE` | The broad phase of the picks (`LinePick`, `EntityPick`, `CameraPick`, `EntityVisible`), which only looks at the entities near the line. |
 | `BLITZLLVM_LIGHT_GRID` | The grid that finds the lights that reach a mesh. |
 | `BLITZLLVM_LIGHT_CACHE` | Remembering which lights reach a mesh. |
 | `BLITZLLVM_SPATIAL_GRID` | The grid that finds the meshes that are in view, see [[Spatial-Grid]]. |
