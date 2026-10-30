@@ -68,6 +68,34 @@ For t = Each Thing
 Next
 Check "Delete after leaving loops", Count(), 0
 
+; Insert as an expression, and Delete of the neighbours
+Local x.Thing, y.Thing, z.Thing
+x = New Thing : x\n = 1
+y = New Thing : y\n = 2
+z = Insert New Thing Before First Thing
+z\n = 3
+Local order$ = ""
+For t = Each Thing
+	order = order + t\n + ","
+Next
+Check "Insert expression", order, "3,1,2,"
+order = ""
+For t = Each Thing
+	order = order + t\n + ","
+	Delete After t
+Next
+Check "Delete After in a loop", order, "3,2,"
+order = ""
+Local tail.Thing = New Thing
+tail\n = 9
+For t = Each Thing
+	Delete Before t
+	order = order + t\n + ","
+Next
+Check "Delete Before in a loop", order, "3,2,9,"
+Check "Only the tail is left", Count(), 1
+Delete Each Thing
+
 Function FindThing%(n%)
 	Local t.Thing
 	For t = Each Thing

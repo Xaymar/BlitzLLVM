@@ -111,6 +111,7 @@ suite-debug-compile-fail-bank_poke_small
 suite-debug-compile-fail-brushtexture_freed
 suite-debug-compile-fail-closemovie_zero
 suite-debug-compile-fail-createtexture_frames
+suite-debug-compile-fail-delete_null
 suite-debug-compile-fail-dim_overflow
 suite-debug-compile-fail-entitytexture_freed
 suite-debug-compile-fail-freeimage_twice
@@ -124,6 +125,8 @@ suite-debug-compile-fail-pixel_fast_readpixelfast64_unlocked_pixels
 suite-debug-compile-fail-pixel_fast_readpixelfast_unlocked_pixels
 suite-debug-compile-fail-pixel_fast_writepixelfast64_unlocked_pixels
 suite-debug-compile-fail-pixel_fast_writepixelfast_unlocked_pixels
+suite-debug-compile-fail-object_deleted_field
+suite-debug-compile-fail-object_deleted_insert
 suite-debug-compile-fail-playsound_zero
 suite-debug-compile-fail-runtimeerror
 suite-debug-compile-fail-settexturebuffer_not_target
@@ -269,6 +272,7 @@ suite-debug-run-fail-bank_poke_small
 suite-debug-run-fail-brushtexture_freed
 suite-debug-run-fail-closemovie_zero
 suite-debug-run-fail-createtexture_frames
+suite-debug-run-fail-delete_null
 suite-debug-run-fail-dim_overflow
 suite-debug-run-fail-entitytexture_freed
 suite-debug-run-fail-freeimage_twice
@@ -282,6 +286,8 @@ suite-debug-run-fail-pixel_fast_readpixelfast64_unlocked_pixels
 suite-debug-run-fail-pixel_fast_readpixelfast_unlocked_pixels
 suite-debug-run-fail-pixel_fast_writepixelfast64_unlocked_pixels
 suite-debug-run-fail-pixel_fast_writepixelfast_unlocked_pixels
+suite-debug-run-fail-object_deleted_field
+suite-debug-run-fail-object_deleted_insert
 suite-debug-run-fail-playsound_zero
 suite-debug-run-fail-runtimeerror
 suite-debug-run-fail-settexturebuffer_not_target
