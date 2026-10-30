@@ -842,6 +842,9 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         out_mask = b.variable("Output", b.array(b.int(), 1, "sample_mask"), [(DECORATION["BuiltIn"], BUILTIN_SAMPLE_MASK)])
         out_weight = b.variable("Output", v4, [(DECORATION["Location"], 1)])  # The weight of weighted blended OIT, which the pass over the picture takes out of the sums again.
         interface += [out_mask, out_weight]
+    elif oit == 5:
+        # Depth peeling, the exact reference: one layer per pass, written as it is, nothing else.
+        pass
     if fog:
         scene = declare_scene(b)
         in_depth = b.variable("Input", v4, [(DECORATION["Location"], 2)])
@@ -1093,6 +1096,23 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             rank_s = b.ext(f, GLSL_FMIN, rank_s, b.const_float(1.1))
             weight_s = b.ext(f, GLSL_EXP2, b.fmul(f, b.fsub(f, rank_s, c1), b.const_float(11.0)))
             b.store(out_weight, b.construct(4, weight_s, weight_s, weight_s, weight_s))
+            b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+            return b.m.assemble()
+        if oit == 5:
+            # Depth peeling, from the farthest layer to the nearest: only what is nearer than the depth that is bound as the depth of the scene (the
+            # solid things in the first pass, the layer of the pass before in the others) is drawn, and the depth test keeps the farthest of those.
+            #   if (!(gl_FragCoord.z > texelFetch(previous, ivec2(gl_FragCoord.xy), 0).x)) discard;
+            #   outColor = vec4(clamp(rgb, 0, 1), clamp(a, 0, 1));
+            frag_p = b.load(v4, in_frag)
+            ivec2_p = b.new_type("ivec2", "TypeVector", b.int(), 2)
+            pixel_p = b.emit("CompositeConstruct", ivec2_p, b.emit("ConvertFToS", b.int(), b.extract(frag_p, 0)), b.emit("ConvertFToS", b.int(), b.extract(frag_p, 1)))
+            previous = b.extract(b.emit("ImageFetch", v4, b.emit("Image", image_2d, b.load(sampled_2d, depth_tex)), pixel_p, 2, b.const_int(0)), 0)
+            valid = b.emit("FOrdGreaterThan", boolean, b.extract(frag_p, 2), previous)
+            hide_p, keep_p = b.m.id(), b.m.id()
+            b.m.code += [Module.inst("SelectionMerge", keep_p, 0), Module.inst("BranchConditional", valid, keep_p, hide_p), Module.inst("Label", hide_p), Module.inst("Kill"), Module.inst("Label", keep_p)]
+            rgb_p = b.ext(v3, GLSL_FCLAMP, b.swizzle(result, 3), b.const_vec(3, 0.0), b.const_vec(3, 1.0))
+            a_p = b.ext(f, GLSL_FCLAMP, b.extract(result, 3), b.const_float(0.0), c1)
+            b.store(out_color, b.construct(4, b.extract(rgb_p, 0), b.extract(rgb_p, 1), b.extract(rgb_p, 2), a_p))
             b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
             return b.m.assemble()
         if oit in (2, 3):
@@ -1849,6 +1869,37 @@ def fragment_shader_oit_composite(mode):
     return b.m.assemble()
 
 
+def fragment_shader_oit_layer(binding=5):
+    """
+    Reads one image of the depth peeling (OIT mode 5) for the pipeline to blend: binding 5 is the color of a layer with its opacity as alpha (blended into
+    the accumulated layers, in a float image, from the farthest to the nearest), binding 0 the accumulated layers (put on the picture once).
+
+    #version 450
+    layout(set = 0, binding = 5) uniform sampler2D layer;
+    layout(location = 0) out vec4 outColor;
+    void main() { outColor = texelFetch(layer, ivec2(gl_FragCoord.xy), 0); }
+    """
+    b = Builder()
+    f, v4 = b.float(), b.vec(4)
+    void, fn = b.void(), b.fn()
+    image_2d = b.new_type("image_2d", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+    sampled_2d = b.new_type("sampled_2d", "TypeSampledImage", image_2d)
+    layer_tex = b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], binding)])
+    out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), out_color, in_frag))
+    b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+    ivec2 = b.new_type("ivec2", "TypeVector", b.int(), 2)
+    frag = b.load(v4, in_frag)
+    pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(frag, 0)), b.emit("ConvertFToS", b.int(), b.extract(frag, 1)))
+    b.store(out_color, b.emit("ImageFetch", v4, b.emit("Image", image_2d, b.load(sampled_2d, layer_tex)), pixel, 2, b.const_int(0)))
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def fragment_shader_oit_resolve(slots):
     """
     Shows the slots of order-independent transparency (OIT mode 3 and 4) together with the weighted sums (hybrid transparency): every pixel of
@@ -1960,6 +2011,9 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment_3d_oit_slots8", fragment_shader_masked(96, fog=True, oit=4, slots=8), out)
     for oit_mode in range(4):
         emit("bb_shader_fragment_oit_composite%d" % oit_mode, fragment_shader_oit_composite(oit_mode), out)
+    emit("bb_shader_fragment_3d_oit_peel", fragment_shader_masked(96, fog=True, oit=5), out)
+    emit("bb_shader_fragment_oit_layer", fragment_shader_oit_layer(5), out)
+    emit("bb_shader_fragment_oit_accumulated", fragment_shader_oit_layer(0), out)
     emit("bb_shader_fragment_oit_resolve4", fragment_shader_oit_resolve(4), out)
     emit("bb_shader_fragment_oit_resolve8", fragment_shader_oit_resolve(8), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
