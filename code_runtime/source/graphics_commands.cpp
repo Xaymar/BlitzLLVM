@@ -155,8 +155,26 @@ namespace bb::gfx {
 			info.pWaitDstStageMask     = &stage;
 			info.commandBufferCount    = 1;
 			info.pCommandBuffers       = &slot.cmd;
-			info.signalSemaphoreCount  = job.signal ? 1 : 0;
-			info.pSignalSemaphores     = &job.signal;
+			// The binary semaphore of the present and the timeline semaphore of a handover; the value of a binary one is ignored.
+			VkSemaphore signals[2];
+			uint64_t    values[2];
+			uint32_t    signal_count = 0;
+			if (job.signal) {
+				signals[signal_count] = job.signal;
+				values[signal_count++] = 0;
+			}
+			if (job.timeline) {
+				signals[signal_count] = job.timeline;
+				values[signal_count++] = job.timeline_value;
+			}
+			VkTimelineSemaphoreSubmitInfo timeline = { VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
+			timeline.signalSemaphoreValueCount     = signal_count;
+			timeline.pSignalSemaphoreValues        = values;
+			info.signalSemaphoreCount  = signal_count;
+			info.pSignalSemaphores     = signals;
+			if (job.timeline) {
+				info.pNext = &timeline;
+			}
 			Uint64   submit_start      = BB_PROFILE_NOW();
 			queue_lock();
 			VkResult result            = vkQueueSubmit(queue, 1, &info, slot.fence);
@@ -588,7 +606,7 @@ namespace bb::gfx {
 
 	// Sends the command buffer and returns at once, the present follows if asked for. The program can not use the command
 	// buffer or anything it records until acquire_frame has the slot again, nor the swapchain until wait_gpu.
-	static void submit_async(VkSemaphore wait, VkSemaphore signal, bool present, uint32_t index)
+	static void submit_async(VkSemaphore wait, VkSemaphore signal, bool present, uint32_t index, VkSemaphore timeline = VK_NULL_HANDLE, uint64_t timeline_value = 0)
 	{
 		check(vkEndCommandBuffer(g.cmd), "vkEndCommandBuffer");
 		if (device_lost()) {
@@ -606,7 +624,7 @@ namespace bb::gfx {
 		profile_submits++;
 		frame_slot& slot = frames[current_slot];
 		slot.flush_id    = int64_t(flush_number) - 1;
-		slot.job         = { wait, signal, present, surface().swapchain, index };
+		slot.job         = { wait, signal, timeline, timeline_value, present, surface().swapchain, index };
 		SDL_LockMutex(gpu_mutex);
 		slot.state = 1;
 		gpu_queue[(gpu_queue_head + gpu_queue_count) % frame_slots] = current_slot;
@@ -881,6 +899,22 @@ namespace bb::gfx {
 		profile_gpu_mark(3);
 		submit_async(surface().acquired, surface().swap_done[index], true, index);
 		gamma_after_present();
+	}
+
+	void flush_handover(gpu_image& picture, VkSemaphore timeline, uint64_t value)
+	{
+		if (g.headless || !g.created) {
+			return;
+		}
+		if (g.front_touched) {
+			flush(); // Drawing to the front buffer is shown first, by the path that presents.
+		}
+		prepare_palette();
+		begin_commands();
+		record_operations();
+		// The barrier comes after everything sent before on the queue, so the signal that follows it means all drawing into the picture is done.
+		transition(picture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		submit_async(VK_NULL_HANDLE, VK_NULL_HANDLE, false, 0, timeline, value);
 	}
 
 	// Records and sends everything that has been asked for.

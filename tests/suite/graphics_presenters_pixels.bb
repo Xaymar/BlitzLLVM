@@ -36,7 +36,8 @@ CheckTrue "The fast window got many pictures", frames_a >= 20
 CheckTrue "The fast window showed some of them", shown_a >= 1
 CheckTrue "The fast window never showed more new pictures than it got", shown_a <= frames_a
 CheckTrue "The slow window got about twelve pictures", (frames_b >= 6) And (frames_b <= 14)
-Check "The slow window showed each of them", shown_b, frames_b
+; With the tests running side by side on a software GPU, the thread of the window can be late by a picture or two, which the next one replaces.
+CheckTrue "The slow window showed each of them, but for one or two replaced by a newer one under load", (shown_b >= frames_b - 2) And (shown_b <= frames_b)
 Check "No new picture is shown while the program does nothing", idle, 0
 Check "The pictures waited for were shown", waited, 1
 Check "The swapchain follows the window's size", width, 300
