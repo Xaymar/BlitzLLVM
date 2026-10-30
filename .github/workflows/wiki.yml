@@ -52,7 +52,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           git fetch --quiet --depth 1 origin performance-history || { echo "No performance-history branch."; exit 0; }
-          for page in Performance-History Performance-History-by-Commit; do
+          for page in Performance-History Performance-History-by-Version; do
             git show "FETCH_HEAD:$page.md" > "wiki-out/$page.md" || rm -f "wiki-out/$page.md"
           done
       - name: Check
