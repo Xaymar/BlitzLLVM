@@ -157,7 +157,7 @@ namespace {
 	{
 		uint8_t* pixels = static_cast<uint8_t*>(bb_malloc(size_t(lightmap_size) * lightmap_size * 4));
 		uint8_t  curve[256];
-		float    power = 1.0f / (1.0f + (gamma > 0 ? gamma : 0.0f));
+		float    power = 1.0f - (gamma < 0 ? 0.0f : (gamma > 1 ? 1.0f : gamma)); // Each value is raised to 1 - gamma, as in the original.
 		for (int i = 0; i < 256; i++) {
 			curve[i] = uint8_t(255.0f * powf(float(i) / 255.0f, power) + 0.5f);
 		}
