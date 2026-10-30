@@ -30,6 +30,7 @@ Tells whether a mouse button is held down at this moment.
 ## Differences
 
 * A button number outside 1 to 3 always gives 0. Extra buttons of the mouse are not supported.
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 
 ## Examples
 

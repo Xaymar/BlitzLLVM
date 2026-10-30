@@ -26,6 +26,7 @@ How far the pointer moved sideways since the last time this function was called.
 ## Differences
 
 * Putting the pointer somewhere with MoveMouse does not count as movement, the same as in the original. To make that work on every platform the window captures the pointer for as long as the program keeps calling MoveMouse; it lets go about 300 milliseconds after the last call.
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 
 ## Examples
 

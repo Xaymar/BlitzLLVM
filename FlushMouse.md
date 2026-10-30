@@ -21,6 +21,10 @@ FlushMouse:Void
 
 Forgets mouse button presses that nobody has looked at yet: the queue behind [GetMouse](GetMouse) and [WaitMouse](WaitMouse), the presses counted for [MouseHit](MouseHit), and the movement counted by the speed functions. Use it before a screen that waits for a click so that earlier clicks do not skip it, but not in the main loop.
 
+## Differences
+
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
+
 ## Examples
 
 ```blitzbasic

@@ -31,6 +31,7 @@ Tells whether a key is held down right now. Keys are named by their scancode, wh
 
 * Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
 * Without an open graphics window nothing can be pressed, and the function returns 0.
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
 
 ## Examples
 

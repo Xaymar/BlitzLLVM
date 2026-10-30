@@ -27,6 +27,10 @@ MouseHit:Int32 button:Int32
 
 Counts presses of a mouse button since the last time MouseHit asked about that button. Use it for clicks that should do one thing and not repeat while the button is held, and [MouseDown](MouseDown) for dragging.
 
+## Differences
+
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
+
 ## Examples
 
 ```blitzbasic

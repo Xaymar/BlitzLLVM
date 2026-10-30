@@ -26,6 +26,7 @@ The position of the mouse wheel. It starts at 0 and counts up when the wheel is 
 ## Differences
 
 * Fine scrolling wheels and touchpads that report fractions of a notch are rounded to whole steps.
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 
 ## Examples
 

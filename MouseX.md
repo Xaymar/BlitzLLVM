@@ -23,6 +23,10 @@ MouseX:Int32
 
 The horizontal position of the pointer in the graphics buffer, from 0 on the left to `GraphicsWidth() - 1`. When the window is scaled, the position is converted back to buffer pixels. [MoveMouse](MoveMouse) sets it. BlitzPlus programs can also pass a canvas handle to get the position relative to that canvas.
 
+## Differences
+
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
+
 ## Examples
 
 ```blitzbasic

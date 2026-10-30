@@ -23,6 +23,10 @@ MouseYSpeed:Int32
 
 How far the pointer moved up or down since the last call. See [MouseXSpeed](MouseXSpeed).
 
+## Differences
+
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
+
 ## Related Commands
 
 [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseZSpeed](MouseZSpeed)

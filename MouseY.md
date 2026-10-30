@@ -23,6 +23,10 @@ MouseY:Int32
 
 The vertical position of the pointer in the graphics buffer, from 0 at the top to `GraphicsHeight() - 1`. See [MouseX](MouseX).
 
+## Differences
+
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
+
 ## Related Commands
 
 [MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseYSpeed](MouseYSpeed)

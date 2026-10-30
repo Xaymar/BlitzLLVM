@@ -26,6 +26,7 @@ How far the wheel moved since the last call, in notches. Rolling away from you i
 ## Differences
 
 * The original only ever gives -1, 0 or 1. A wheel that is turned several notches between two calls can give a larger number here.
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 
 ## Related Commands
 

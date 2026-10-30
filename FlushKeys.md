@@ -21,6 +21,10 @@ FlushKeys:Void
 
 Throws away everything the keyboard has recorded so far: the queue of typed characters that [GetKey](GetKey) hands out, the keys counted as held for [KeyDown](KeyDown) and the presses counted for [KeyHit](KeyHit). Call it once before a screen that waits for input, such as a menu or a new level, so that button mashing from the previous screen does not skip it. Do not call it every frame, or the program will never see a key.
 
+## Differences
+
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
+
 ## Examples
 
 ```blitzbasic

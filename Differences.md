@@ -139,6 +139,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [Flip](Flip#differences): Without a graphics window nothing happens.
 * [FlipCanvas](FlipCanvas#differences): The second parameter is accepted, but there is nothing to wait for and it makes no difference.
 * [FlushJoy](FlushJoy#differences): Buttons that are currently held are not released.
+* [FlushKeys](FlushKeys#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
+* [FlushMouse](FlushMouse#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 * [FontHeight](FontHeight#differences): The height is the height that was requested, as with Windows fonts.
 * [FontWidth](FontWidth#differences): Real fonts have a different width for each character, so this is the width of the widest one; use [StringWidth](StringWidth) for a text.
 * [FormatTextAreaText](FormatTextAreaText#differences): Underline and strike-through are not supported, as in the original.
@@ -192,6 +194,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [KeyboardDeviceCount](KeyboardDeviceCount#differences): This is a BlitzLLVM extension: the original has no such command.
 * [KeyboardDeviceName](KeyboardDeviceName#differences): This is a BlitzLLVM extension: the original has no such command.
 * [KeyDown](KeyDown#differences): Keys that have no scancode in the original table, such as Pause, Print Screen, the Windows keys and F13 and above, are never reported as pressed.
+* [KeyHit](KeyHit#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
 * [LeadingZeros](LeadingZeros#differences) 〔BlitzLLVM〕: Not in the originals.
 * [Load3DSound](Load3DSound#differences): See [3D Sound](Blitz3D-3D-Sound) for what is simulated: volume falls off with the distance and the stereo position follows the angle to the listener, and the pitch is shifted when the sound or the listener moves (see [CreateListener](CreateListener)).
 * [LoadAnimMesh](LoadAnimMesh#differences): Models in `.b3d`, `.3ds` and DirectX `.x` files can be loaded, see [LoadMesh](LoadMesh).
@@ -223,7 +226,11 @@ Commands that differ from the original or are not finished, with the first of th
 * [MouseDeviceCount](MouseDeviceCount#differences): This is a BlitzLLVM extension: the original has no such command.
 * [MouseDeviceName](MouseDeviceName#differences): This is a BlitzLLVM extension: the original has no such command.
 * [MouseDown](MouseDown#differences): A button number outside 1 to 3 always gives 0.
+* [MouseHit](MouseHit#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
+* [MouseX](MouseX#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 * [MouseXSpeed](MouseXSpeed#differences): Putting the pointer somewhere with MoveMouse does not count as movement, the same as in the original.
+* [MouseY](MouseY#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
+* [MouseYSpeed](MouseYSpeed#differences): The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one mouse.
 * [MouseZ](MouseZ#differences): Fine scrolling wheels and touchpads that report fractions of a notch are rounded to whole steps.
 * [MouseZSpeed](MouseZSpeed#differences): The original only ever gives -1, 0 or 1.
 * [MoveMouse](MoveMouse#differences): The pointer is not warped on the desktop.

@@ -60,7 +60,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (291)</summary>
+<li><details><summary>Commands (298)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -148,6 +148,8 @@
 <li><a href="Flip#differences">Flip</a></li>
 <li><a href="FlipCanvas#differences">FlipCanvas</a></li>
 <li><a href="FlushJoy#differences">FlushJoy</a></li>
+<li><a href="FlushKeys#differences">FlushKeys</a></li>
+<li><a href="FlushMouse#differences">FlushMouse</a></li>
 <li><a href="FontHeight#differences">FontHeight</a></li>
 <li><a href="FontWidth#differences">FontWidth</a></li>
 <li><a href="FormatTextAreaText#differences">FormatTextAreaText</a></li>
@@ -201,6 +203,7 @@
 <li><a href="KeyboardDeviceCount#differences">KeyboardDeviceCount</a></li>
 <li><a href="KeyboardDeviceName#differences">KeyboardDeviceName</a></li>
 <li><a href="KeyDown#differences">KeyDown</a></li>
+<li><a href="KeyHit#differences">KeyHit</a></li>
 <li><a href="LeadingZeros#differences">LeadingZeros</a> 〔BlitzLLVM〕</li>
 <li><a href="Load3DSound#differences">Load3DSound</a></li>
 <li><a href="LoadAnimMesh#differences">LoadAnimMesh</a></li>
@@ -232,7 +235,11 @@
 <li><a href="MouseDeviceCount#differences">MouseDeviceCount</a></li>
 <li><a href="MouseDeviceName#differences">MouseDeviceName</a></li>
 <li><a href="MouseDown#differences">MouseDown</a></li>
+<li><a href="MouseHit#differences">MouseHit</a></li>
+<li><a href="MouseX#differences">MouseX</a></li>
 <li><a href="MouseXSpeed#differences">MouseXSpeed</a></li>
+<li><a href="MouseY#differences">MouseY</a></li>
+<li><a href="MouseYSpeed#differences">MouseYSpeed</a></li>
 <li><a href="MouseZ#differences">MouseZ</a></li>
 <li><a href="MouseZSpeed#differences">MouseZSpeed</a></li>
 <li><a href="MoveMouse#differences">MoveMouse</a></li>

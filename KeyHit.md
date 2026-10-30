@@ -27,6 +27,10 @@ KeyHit:Int32 key:Int32
 
 Counts how often a key was pressed since the last time KeyHit asked about that same key. The count starts again from zero on every call, so the key must be released and pressed again to count another time. This is the right choice for one-shot actions like pausing or shooting, while [KeyDown](KeyDown) suits continuous movement.
 
+## Differences
+
+* The Device argument is a BlitzLLVM extension: the original has no such argument and only knows one keyboard.
+
 ## Examples
 
 ```blitzbasic
