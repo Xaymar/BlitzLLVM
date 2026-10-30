@@ -53,7 +53,8 @@ namespace bb::gfx {
 		bool            needs_swapchain = false;   // The thread cannot show anything until the program's thread makes the swapchain again.
 		bool            busy = false;              // The thread is showing a picture right now.
 		bool            quit = false;
-		uint32_t        presents = 0;              // How many times a picture was shown.
+		uint32_t        presents = 0;              // How many times a picture was shown, counting the times the window asked for it again.
+		uint32_t        shows    = 0;              // How many of those showed a new picture.
 		SDL_Thread*     thread = nullptr;
 		SDL_Mutex*      mutex  = nullptr;
 		SDL_Condition*  cond   = nullptr;
@@ -109,7 +110,8 @@ namespace bb::gfx {
 					SDL_UnlockMutex(p.mutex);
 					return 0;
 				}
-				if (p.ready >= 0) {
+				bool fresh = p.ready >= 0;
+				if (fresh) {
 					p.showing        = p.ready; // The picture shown before is free for the program from here on.
 					p.showing_number = p.ready_number;
 					p.ready          = -1;
@@ -200,6 +202,7 @@ namespace bb::gfx {
 				SDL_LockMutex(p.mutex);
 				if (result == VK_SUCCESS) {
 					p.presents++;
+					p.shows += fresh ? 1 : 0;
 					p.presented = number;
 				}
 				if ((presented == VK_ERROR_OUT_OF_DATE_KHR) || (presented == VK_SUBOPTIMAL_KHR)) {
@@ -368,13 +371,14 @@ namespace bb::gfx {
 		}
 	}
 
-	void presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents)
+	void presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents, uint32_t* shows)
 	{
 		presenter& p = *s.show;
 		SDL_LockMutex(p.mutex);
 		*handovers = p.handovers;
 		*presented = p.presented;
 		*presents  = p.presents;
+		*shows     = p.shows;
 		SDL_UnlockMutex(p.mutex);
 	}
 
@@ -438,36 +442,37 @@ namespace bb::gfx {
 			pump();
 			presenter_service();
 		}
-		// A last picture for each, waited for: everything handed over was shown when the counts are taken.
+		// A last picture for each, waited for: everything handed over was shown when the counts are taken. Counted are the new pictures
+		// shown (shows), not the times the window system asked for the picture again, which other windows passing over cause at will.
 		uint64_t handed_a, handed_b, shown_number;
-		uint32_t presents_a, presents_b, presents_a_idle, presents_b_idle, presents_resized;
+		uint32_t presents_a, presents_b, presents_resized, shows_a, shows_b, shows_a_idle, shows_b_idle, shows_resized;
 		draw_color(*A, 1.0f, 1.0f, 1.0f);
 		presenter_handover(*A, true);
 		frames_a++;
 		draw_color(*B, 1.0f, 1.0f, 1.0f);
 		presenter_handover(*B, true);
 		frames_b++;
-		presenter_counts(*A, &handed_a, &shown_number, &presents_a);
+		presenter_counts(*A, &handed_a, &shown_number, &presents_a, &shows_a);
 		int waited = (shown_number == handed_a) ? 1 : 0;
-		presenter_counts(*B, &handed_b, &shown_number, &presents_b);
+		presenter_counts(*B, &handed_b, &shown_number, &presents_b, &shows_b);
 		waited = (waited && (shown_number == handed_b)) ? 1 : 0;
 		idle_for(300);
-		presenter_counts(*A, &handed_a, &shown_number, &presents_a_idle);
-		presenter_counts(*B, &handed_b, &shown_number, &presents_b_idle);
-		uint32_t idle_presents = (presents_a_idle - presents_a) + (presents_b_idle - presents_b);
+		presenter_counts(*A, &handed_a, &shown_number, &presents_a, &shows_a_idle);
+		presenter_counts(*B, &handed_b, &shown_number, &presents_b, &shows_b_idle);
+		uint32_t idle_shows = (shows_a_idle - shows_a) + (shows_b_idle - shows_b);
 
 		SDL_SetWindowSize(A->window, 300, 200);
 		Uint64 resize_start = SDL_GetTicks();
 		do {
 			pump();
 			presenter_service();
-			presenter_counts(*A, &handed_a, &shown_number, &presents_resized);
+			presenter_counts(*A, &handed_a, &shown_number, &presents_resized, &shows_resized);
 			SDL_Delay(1);
-		} while ((SDL_GetTicks() - resize_start < 3000) && ((A->swap_extent.width != 300) || (presents_resized == presents_a_idle)));
-		int shown_resized = (presents_resized > presents_a_idle) ? 1 : 0;
+		} while ((SDL_GetTicks() - resize_start < 3000) && ((A->swap_extent.width != 300) || (presents_resized == presents_a)));
+		int shown_resized = (presents_resized > presents_a) ? 1 : 0;
 
 		if (FILE* file = fopen(path, "w")) {
-			fprintf(file, "%llu\n%u\n%llu\n%u\n%u\n%d\n%u\n%d\n", (unsigned long long)frames_a, presents_a, (unsigned long long)frames_b, presents_b, idle_presents, waited, A->swap_extent.width, shown_resized);
+			fprintf(file, "%llu\n%u\n%llu\n%u\n%u\n%d\n%u\n%d\n", (unsigned long long)frames_a, shows_a, (unsigned long long)frames_b, shows_b, idle_shows, waited, A->swap_extent.width, shown_resized);
 			fclose(file);
 		}
 		destroy_extra_surface(a);

@@ -1008,7 +1008,7 @@ namespace bb::gfx {
 	/** From the program's thread: an event of the window, and the swapchains the threads asked for. */
 	void       presenter_window_event(surface_state& s, const SDL_Event& event);
 	void       presenter_service();
-	void       presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents);
+	void       presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents, uint32_t* shows);
 	void       test_presenters(const char* path);
 	/** A queue is used by one thread at a time: queue 0 by the program's thread, the submission thread and the threads of windows
 	 * that have no queue of their own; the others each by one window's thread. Waiting for the whole device takes all of them. */
