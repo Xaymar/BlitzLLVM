@@ -17,6 +17,7 @@
 #include <stdint.h>
 
 #include "collision_internal.hpp"
+#include "scene_internal.hpp"
 
 namespace bb::collision {
 namespace {
@@ -172,7 +173,15 @@ float   bb_picked_nx(void) { return last_pick.normal.x; }
 float   bb_picked_ny(void) { return last_pick.normal.y; }
 float   bb_picked_nz(void) { return last_pick.normal.z; }
 float   bb_picked_time(void) { return last_pick.time; }
-int32_t bb_picked_surface(void) { return last_pick.surface; }
+// The same handle that GetSurface gives for the entity that was picked; 0 when there is none.
+int32_t bb_picked_surface(void)
+{
+	entity* e = (last_pick.surface > 0) ? get_entity(last_pick.entity) : nullptr;
+	if (!e || (uint32_t(last_pick.surface) > e->surfaces.size)) {
+		return 0;
+	}
+	return bb::scene::surface_handle(e->surfaces[uint32_t(last_pick.surface) - 1]);
+}
 int32_t bb_picked_triangle(void) { return last_pick.triangle; }
 
 }
