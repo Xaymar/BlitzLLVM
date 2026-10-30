@@ -956,7 +956,7 @@ namespace bb::gfx {
 	/** Writes the image that was presented to the file of BLITZLLVM_TEST_PRESENT, for tests. */
 	void gamma_after_present();
 	void destroy_gamma();
-	/** Gives back everything the Vulkan device made, and the device with its surface and instance. The window stays. */
+	/** Gives back everything the Vulkan device made, and the device with its surface (if there is one) and instance. The window stays. */
 	void destroy_device_objects();
 	/** The depth buffers of the sizes that were drawn to, and the sets that sample them. */
 	void destroy_depth_cache();
@@ -972,7 +972,14 @@ namespace bb::gfx {
 	/** The same for any window that pictures are shown in. */
 	void create_swapchain(surface_state& s);
 	void destroy_swapchain(surface_state& s);
+	/** The instance and the functions of it; then a device whose queue draws and shows pictures in the surface, with everything that is drawn with. */
+	void create_instance();
+	void create_device(VkSurfaceKHR present_to);
+	extern uint32_t devices_made; // How many devices create_device made so far, to tell a device from one that took its place.
+	/** Both, with the surface of the window of Graphics in between. */
 	void create_vulkan();
+	/** A device while there is no window of Graphics, picked with a hidden window that goes away again. True once there is a device, false without a display (headless). */
+	bool ensure_device();
 
 	/** Windows besides the one of Graphics: a surface each, on the device that is shared. A handle is 1 or more, 0 is no window. */
 	surface_state* extra_surface(int handle);
@@ -981,6 +988,9 @@ namespace bb::gfx {
 	void           destroy_extra_surfaces();
 	bool           show_color_in_extra_surface(int handle, float r, float g, float b);
 	void           test_extra_surfaces(const char* path);
+	/** Test hook BLITZLLVM_TEST_LAZY_DEVICE: a device before the window of Graphics, used by a window of its own; then whether Graphics kept it. */
+	void           test_lazy_device(const char* path);
+	void           test_lazy_device_finish(const char* path);
 
 	// The graphics drivers, which are the GPUs.
 	constexpr uint32_t max_gpus = 16;

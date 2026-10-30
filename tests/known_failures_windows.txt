@@ -150,6 +150,7 @@ suite-debug-compile-graphics_device_lost_pixels
 suite-debug-compile-graphics_dither_deep_present_pixels
 suite-debug-compile-graphics_dither_mode_pixels
 suite-debug-compile-graphics_extra_surfaces_pixels
+suite-debug-compile-graphics_lazy_device_pixels
 suite-debug-compile-graphics_fonts_limits
 suite-debug-compile-graphics_fonts_pixels
 suite-debug-compile-graphics_formats
@@ -315,6 +316,7 @@ suite-debug-run-graphics_device_lost_pixels
 suite-debug-run-graphics_dither_deep_present_pixels
 suite-debug-run-graphics_dither_mode_pixels
 suite-debug-run-graphics_extra_surfaces_pixels
+suite-debug-run-graphics_lazy_device_pixels
 suite-debug-run-graphics_fonts_limits
 suite-debug-run-graphics_fonts_pixels
 suite-debug-run-graphics_formats
