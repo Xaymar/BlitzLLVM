@@ -1040,15 +1040,13 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         rgb = b.fadd(v3, rgb, b.scale(3, b.fsub(v3, fog_color, rgb), amount))
         result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
         if oit:
-            # The weight favors what is near, as 10 / (1e-5 + (z / 5)^2 + (z / 200)^6) limited to 0.01 .. 3000 (paper, equation 10).
-            #   float u = z * z; float w = clamp(10.0 / (1e-5 + u / 25.0 + pow(u / 40000.0, 3.0)), 1e-2, 3e3);
-            #   accum = vec4(rgb * a * w, a * w); reveal = vec4(a); multiply = vec4(rgb * scale, 1); add = vec4(rgb * a, a);
-            depth_here = b.ext(f, GLSL_FMAX, b.extract(b.load(v4, in_depth), 0), b.const_float(0.0))
-            u = b.fmul(f, depth_here, depth_here)
-            cube = b.fdiv(f, u, b.const_float(40000.0))
-            cube = b.fmul(f, b.fmul(f, cube, cube), cube)
-            denominator = b.fadd(f, b.fadd(f, b.const_float(1e-5), b.fdiv(f, u, b.const_float(25.0))), cube)
-            weight_oit = b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.const_float(10.0), denominator), b.const_float(1e-2), b.const_float(3e3))
+            # The weight favors what is near by where the entity is among the see-through ones, which are drawn from far to near: it is 1 for the
+            # nearest and halves with every 1 / 11 of the way back (2048 times less for the farthest, so half floats add up the nearest without overflow).
+            # The depth would tell layers that are some units apart in a large view apart badly, and the order of the entities is what the original goes by.
+            # A steeper weight makes the color of a nearly see-through layer in front count as much as the layers behind it, which makes edges hard.
+            #   float w = exp2(11.0 * (soft.z - 1.0));   accum = vec4(rgb * a * w, a * w); reveal = vec4(a); multiply = vec4(rgb * scale, 1); add = vec4(rgb * a, a);
+            rank = b.extract(b.load(v4, in_soft), 2)
+            weight_oit = b.ext(f, GLSL_EXP2, b.fmul(f, b.fsub(f, rank, c1), b.const_float(11.0)))
             # Blending by the fixed function limits the color and alpha that are drawn to 0 .. 1, which a float target does not, and an alpha above 1
             # would turn 1 - alpha negative in the product.
             #   rgb = clamp(rgb, 0, 1); a = clamp(a, 0, 1);
