@@ -902,7 +902,8 @@ namespace bb::collision {
 			pick_tree.disabled++;
 			return false;
 		}
-		if (entity_count() < 32) {
+		// Checking each entity for changes costs about as much as looking at it for a few hundred of them (measured on Areldir).
+		if (entity_count() < 256) {
 			pick_tree.few++;
 			return false;
 		}
