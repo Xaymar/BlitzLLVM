@@ -139,6 +139,11 @@ if(NOT MSVC AND NOT APPLE)
 	# See dependencies.cmake: programs are linked with --gc-sections, which only drops what is in a section of its own.
 	target_compile_options(blitzrt PRIVATE -ffunction-sections -fdata-sections)
 endif()
+if(NOT MSVC)
+	# Float results have to be the same on every CPU (they are compared across the network): no fused multiply-add where the CPU has one,
+	# which GCC does by default and clang within an expression. MSVC does not contract with /fp:precise, its default.
+	target_compile_options(blitzrt PRIVATE -ffp-contract=off)
+endif()
 if(MSVC)
 	# No C++ runtime dependencies: the library is linked by clang into programs.
 	target_compile_options(blitzrt PRIVATE /GR- /EHs-c- /Zc:preprocessor)
