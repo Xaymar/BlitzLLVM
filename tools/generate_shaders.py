@@ -1116,7 +1116,11 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
             cube = b.fmul(f, b.fmul(f, cube, cube), cube)
             denominator = b.fadd(f, b.fadd(f, b.const_float(1e-5), b.fdiv(f, u, b.const_float(25.0))), cube)
             weight_oit = b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.const_float(10.0), denominator), b.const_float(1e-2), b.const_float(3e3))
-            rgb_oit, a_oit = b.swizzle(result, 3), b.extract(result, 3)
+            # Blending by the fixed function limits the color and alpha that are drawn to 0 .. 1, which a float target does not, and an alpha above 1
+            # would turn 1 - alpha negative in the product.
+            #   rgb = clamp(rgb, 0, 1); a = clamp(a, 0, 1);
+            rgb_oit = b.ext(v3, GLSL_FCLAMP, b.swizzle(result, 3), b.const_vec(3, 0.0), b.const_vec(3, 1.0))
+            a_oit = b.ext(f, GLSL_FCLAMP, b.extract(result, 3), b.const_float(0.0), c1)
             weighted = b.fmul(f, a_oit, weight_oit)
             scale_multiply = b.m.id()
             b.m.types.append(Module.inst("SpecConstant", f, scale_multiply, float_bits(1.0)))
