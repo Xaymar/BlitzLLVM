@@ -107,6 +107,7 @@ namespace {
 	bool             g_stats = false; // Count live blocks.
 	bool             g_system = false; // Everything goes to the system (for tools that watch it, like valgrind).
 	bool             g_release = true; // Spans that stay empty go back to the system (BLITZLLVM_ALLOC_RELEASE).
+	bool             g_log_release = false; // Every sweep that gives spans back says so on stderr (BLITZLLVM_DEBUG_ALLOC_RELEASE).
 
 	std::atomic<size_t> g_tiny_spans{ 0 };
 	std::atomic<size_t> g_small_spans{ 0 };
@@ -222,6 +223,7 @@ namespace {
 			g_stats  = g_debug || bb_env_bool("BLITZLLVM_DEBUG_ALLOC_STATS", false);
 			g_system = bb_env_bool("BLITZLLVM_ALLOC_SYSTEM", false) != 0;
 			g_release = bb_env_bool("BLITZLLVM_ALLOC_RELEASE", true) != 0;
+			g_log_release = bb_env_bool("BLITZLLVM_DEBUG_ALLOC_RELEASE", false) != 0;
 #if defined(BB_ALLOC_PASSTHROUGH)
 			g_system = true;
 #endif
@@ -579,7 +581,9 @@ namespace {
 		if (!g_sweep_lock.compare_exchange_strong(expected, 1) ) {
 			return 0;
 		}
-		size_t released = 0;
+		size_t   released = 0;
+		size_t   oldest   = 0; // The longest time in milliseconds that a span given back was empty.
+		uint32_t stamp0   = now ? now : 1;
 		size_t granules = g_used.load(std::memory_order_relaxed) / GRANULE;
 		if (granules > g_size / GRANULE) {
 			granules = g_size / GRANULE;
@@ -714,6 +718,9 @@ namespace {
 					bool   tiny           = c < TINY_CLASSES;
 					size_t span_granules = tiny ? 1 : SMALL_SPAN / GRANULE;
 					if (counts[g] == 0xFFFF) {
+						if (stamp0 - g_empty_since[g] > oldest) {
+							oldest = stamp0 - g_empty_since[g];
+						}
 						g_empty_since[g] = 0;
 						for (size_t i = 0; i < span_granules; i++) {
 							g_class_of[g + i] = 0;
@@ -737,6 +744,9 @@ namespace {
 			SYS_FREE(counts);
 		}
 		g_sweep_lock.store(0, std::memory_order_release);
+		if (g_log_release && released) {
+			fprintf(stderr, "alloc: gave back %zu spans at %u ms, the longest was empty for %zu ms\n", released, unsigned(stamp0), oldest);
+		}
 		return released;
 	}
 } // namespace
