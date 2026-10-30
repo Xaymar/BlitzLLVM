@@ -92,7 +92,7 @@
 		{"match": "^code_runtime/source/movie\\.cpp$", "areas": "movies"},
 		{"match": "^code_runtime/source/gui_[a-z_]+\\.(cpp|hpp)$", "areas": "gui"},
 		{"match": "^code_runtime/source/(scene[a-z_0-9]*|animation[a-z_]*|b3d|bsp|collision[a-z_]*|md2|model_[a-z0-9_]+|picking|graphics_scene3d)\\.(cpp|hpp)$", "areas": "3d"},
-		{"match": "^code_runtime/source/graphics_(input|joystick)\\.cpp$", "areas": ["graphics", "gui"]},
+		{"match": "^code_runtime/source/graphics_(input|joystick|devices)\\.cpp$", "areas": ["graphics", "gui"]},
 		{"match": "^code_runtime/source/graphics_[a-z0-9]+\\.cpp$", "areas": "gpu", "note": "Everything that draws shares the window and Vulkan code"},
 		{"match": "^code_runtime/source/shaders\\.inc$", "areas": "gpu"}
 	]
