@@ -21,7 +21,7 @@ Asc:Int32 string:String
 |---|---|---|---|---|
 | `string` | In | String | required | The text. Only its first character counts. |
 
-**Returns:** A code from 0 to 255.
+**Returns:** A code from 0 to 255, or -1 if the string is empty.
 
 ## Description
 
