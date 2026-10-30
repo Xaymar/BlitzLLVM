@@ -77,7 +77,7 @@ The compiler emits textual LLVM IR and hands it, with the embedded runtime libra
 
 `ctest` compiles and runs (headless) every program in `tests/` and lexes `tests/test.bb`. The function test suite, the audio test, the close prompt test and the AutoSuspend tests run twice: as the compiler builds by default (Release) and with `-d` (Debug, which implies `--profile`).
 
-The function test suite in `tests/suite` has a test for every function that Blitz3D and BlitzPlus provide, taken from the original sources in `extra/`. Tests that look at pixels end in `_pixels` and need a window and a GPU; they are skipped when headless and run for real with `-DBLITZ_TEST_GPU=ON`. `tools/suite_functions.py list` rewrites `tests/suite/functions.txt` from the originals, and `check` (also run by `ctest`) makes sure that every implemented function has a test. `tools/suite_signatures.py` compares the arguments of every function in `builtins.inc` with the original.
+The function test suite in `tests/suite` has a test for every function that Blitz3D and BlitzPlus provide, taken from the original sources in `third_party/` and `extra/`. Tests that look at pixels end in `_pixels` and need a window and a GPU; they are skipped when headless and run for real with `-DBLITZ_TEST_GPU=ON`. `tools/suite_functions.py list` rewrites `tests/suite/functions.txt` from the originals, and `check` (also run by `ctest`) makes sure that every implemented function has a test. `tools/suite_signatures.py` compares the arguments of every function in `builtins.inc` with the original.
 
 == Contributing
 
