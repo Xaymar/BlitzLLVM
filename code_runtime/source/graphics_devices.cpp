@@ -42,6 +42,13 @@ namespace {
 	device_list mice;
 	device_list keyboards;
 
+	// Which device did something last, and whether any did since it was asked for.
+	struct usage {
+		bool any  = false;
+		int  last = -1;
+	};
+	usage mouse_use, keyboard_use;
+
 	const char* name_of(bool mouse, Uint32 id)
 	{
 		return mouse ? SDL_GetMouseNameForID(id) : SDL_GetKeyboardNameForID(id);
@@ -57,18 +64,30 @@ namespace {
 		return nullptr;
 	}
 
-	void add(device_list& l, bool mouse, Uint32 id)
+	// Says if the device is one that was not known before.
+	bool add(device_list& l, bool mouse, Uint32 id)
 	{
 		if (device* d = find(l, id)) {
 			d->connected = true;
-			return;
+			return false;
+		}
+		// A device that comes back gets the slot it had, if the system names it the same as before.
+		if (const char* name = name_of(mouse, id); name && *name) {
+			for (int i = 0; i < l.count; i++) {
+				if (!l.list[i].connected && !SDL_strcmp(l.list[i].name, name)) {
+					l.list[i].id        = id;
+					l.list[i].connected = true;
+					l.list[i].input     = device_input();
+					return true;
+				}
+			}
 		}
 		if (l.implicit) { // The first real device takes the place of the made up one.
 			l.implicit = false;
 			l.count    = 0;
 		}
 		if (l.count >= max_devices) {
-			return;
+			return false;
 		}
 		device& d   = l.list[l.count++];
 		d.id        = id;
@@ -78,6 +97,16 @@ namespace {
 			SDL_strlcpy(d.name, name, sizeof(d.name));
 		} else {
 			SDL_snprintf(d.name, sizeof(d.name), "%s %u", mouse ? "Mouse" : "Keyboard", id);
+		}
+		return true;
+	}
+
+	void mark(device_list& l, usage& u, device* d)
+	{
+		u.any  = true;
+		u.last = d ? int(d - l.list) : -1;
+		if (d) {
+			d->input.changed = true;
 		}
 	}
 
@@ -145,6 +174,15 @@ namespace {
 } // namespace
 
 namespace bb::gfx {
+	void device_used(bool mouse, Uint32 which)
+	{
+		if (mouse) {
+			mark(mice, mouse_use, from_event(mice, true, which));
+		} else {
+			mark(keyboards, keyboard_use, from_event(keyboards, false, which));
+		}
+	}
+
 	device_input* mouse_device_input(Uint32 which)
 	{
 		device* d = from_event(mice, true, which);
@@ -263,7 +301,9 @@ namespace bb::gfx {
 		switch (event.type) {
 		case SDL_EVENT_MOUSE_ADDED:
 			scan(mice, true);
-			add(mice, true, event.mdevice.which);
+			if (add(mice, true, event.mdevice.which)) {
+				mark(mice, mouse_use, find(mice, event.mdevice.which)); // A new mouse counts as used once.
+			}
 			break;
 		case SDL_EVENT_MOUSE_REMOVED:
 			scan(mice, true);
@@ -273,7 +313,9 @@ namespace bb::gfx {
 			break;
 		case SDL_EVENT_KEYBOARD_ADDED:
 			scan(keyboards, false);
-			add(keyboards, false, event.kdevice.which);
+			if (add(keyboards, false, event.kdevice.which)) {
+				mark(keyboards, keyboard_use, find(keyboards, event.kdevice.which));
+			}
 			break;
 		case SDL_EVENT_KEYBOARD_REMOVED:
 			scan(keyboards, false);
@@ -288,6 +330,54 @@ namespace bb::gfx {
 } // namespace bb::gfx
 
 extern "C" {
+// True if the mouse (or any mouse, for -1) did something since this was asked last.
+int32_t bb_mouse_changed(int32_t device_index)
+{
+	get(mice, true, 0);
+	if (device_index < 0) {
+		bool changed   = mouse_use.any;
+		mouse_use.any = false;
+		return changed ? 1 : 0;
+	}
+	device* d = get(mice, true, device_index);
+	if (!d) {
+		return 0;
+	}
+	bool changed     = d->input.changed;
+	d->input.changed = false;
+	return changed ? 1 : 0;
+}
+
+int32_t bb_keyboard_changed(int32_t device_index)
+{
+	get(keyboards, false, 0);
+	if (device_index < 0) {
+		bool changed       = keyboard_use.any;
+		keyboard_use.any = false;
+		return changed ? 1 : 0;
+	}
+	device* d = get(keyboards, false, device_index);
+	if (!d) {
+		return 0;
+	}
+	bool changed     = d->input.changed;
+	d->input.changed = false;
+	return changed ? 1 : 0;
+}
+
+// The device that did something last, or -1 if none did or the system doesn't say which it was.
+int32_t bb_last_mouse_device(void)
+{
+	get(mice, true, 0);
+	return mouse_use.last;
+}
+
+int32_t bb_last_keyboard_device(void)
+{
+	get(keyboards, false, 0);
+	return keyboard_use.last;
+}
+
 // How many mice there are, including the ones that were removed again. At least 1.
 int32_t bb_mouse_device_count(void)
 {
