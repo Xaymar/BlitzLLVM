@@ -754,11 +754,13 @@ def palette_nearest_code(b, lookup, color):
     return b.emit("Phi", v3, exact, then, approximate, other)
 
 
-def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False):
+def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, interlock=False, oit=False):
     """
     The fragment shader of everything: the color of the vertex times the texture, where pixels that have the mask color
     are invisible if the mask is enabled (its fourth component is 1). This is how Blitz hides the background of images.
     With cutout=False the 3D one never discards, which leaves the depth test before the shader.
+    With oit=True (3D only) the shader does not blend or dither: it writes the terms that order-independent transparency adds up
+    (see GraphicsOrderIndependentTransparency) to four attachments and the pass that shows them does the rest.
     With blend=True (3D only) the shader blends itself, for Dither 2: it reads what the color attachment holds (an input attachment,
     which VK_KHR_dynamic_rendering_local_read and VK_EXT_rasterization_order_attachment_access make possible while the draws
     that touch a pixel stay in order), mixes it with the color it makes as the fixed-function blend of the mode would (the
@@ -809,6 +811,13 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
     in_color = b.variable("Input", v4, [(DECORATION["Location"], 1)])
     out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
     interface = [in_uv, in_color, out_color]
+    if oit:
+        # Weighted blended OIT (McGuire and Bavoil, 2013): 0 sums color * alpha * weight and alpha * weight, 1 multiplies 1 - alpha,
+        # 2 multiplies the color (multiply modes), 3 sums color * alpha (add). The pipeline of a blend mode writes only its own.
+        out_reveal = b.variable("Output", v4, [(DECORATION["Location"], 1)])
+        out_multiply = b.variable("Output", v4, [(DECORATION["Location"], 2)])
+        out_add = b.variable("Output", v4, [(DECORATION["Location"], 3)])
+        interface += [out_reveal, out_multiply, out_add]
     if fog:
         scene = declare_scene(b)
         in_depth = b.variable("Input", v4, [(DECORATION["Location"], 2)])
@@ -1030,6 +1039,29 @@ def fragment_shader_masked(mask_offset, fog=False, cutout=True, blend=False, int
         rgb = b.swizzle(result, 3)
         rgb = b.fadd(v3, rgb, b.scale(3, b.fsub(v3, fog_color, rgb), amount))
         result = b.construct(4, b.extract(rgb, 0), b.extract(rgb, 1), b.extract(rgb, 2), b.extract(result, 3))
+        if oit:
+            # The weight favors what is near, as 10 / (1e-5 + (z / 5)^2 + (z / 200)^6) limited to 0.01 .. 3000 (paper, equation 10).
+            #   float u = z * z; float w = clamp(10.0 / (1e-5 + u / 25.0 + pow(u / 40000.0, 3.0)), 1e-2, 3e3);
+            #   accum = vec4(rgb * a * w, a * w); reveal = vec4(a); multiply = vec4(rgb * scale, 1); add = vec4(rgb * a, a);
+            depth_here = b.ext(f, GLSL_FMAX, b.extract(b.load(v4, in_depth), 0), b.const_float(0.0))
+            u = b.fmul(f, depth_here, depth_here)
+            cube = b.fdiv(f, u, b.const_float(40000.0))
+            cube = b.fmul(f, b.fmul(f, cube, cube), cube)
+            denominator = b.fadd(f, b.fadd(f, b.const_float(1e-5), b.fdiv(f, u, b.const_float(25.0))), cube)
+            weight_oit = b.ext(f, GLSL_FCLAMP, b.fdiv(f, b.const_float(10.0), denominator), b.const_float(1e-2), b.const_float(3e3))
+            rgb_oit, a_oit = b.swizzle(result, 3), b.extract(result, 3)
+            weighted = b.fmul(f, a_oit, weight_oit)
+            scale_multiply = b.m.id()
+            b.m.types.append(Module.inst("SpecConstant", f, scale_multiply, float_bits(1.0)))
+            b.m.annotations.append(Module.inst("Decorate", scale_multiply, DECORATION["SpecId"], 20))
+            scaled = b.scale(3, rgb_oit, scale_multiply)
+            b.store(out_color, b.construct(4, b.extract(b.scale(3, rgb_oit, weighted), 0), b.extract(b.scale(3, rgb_oit, weighted), 1), b.extract(b.scale(3, rgb_oit, weighted), 2), weighted))
+            b.store(out_reveal, b.construct(4, a_oit, a_oit, a_oit, a_oit))
+            b.store(out_multiply, b.construct(4, b.extract(scaled, 0), b.extract(scaled, 1), b.extract(scaled, 2), c1))
+            added_oit = b.scale(3, rgb_oit, a_oit)
+            b.store(out_add, b.construct(4, b.extract(added_oit, 0), b.extract(added_oit, 1), b.extract(added_oit, 2), a_oit))
+            b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+            return b.m.assemble()
         # Dither: a specialization constant (id 0, the pipelines are made again when Dither changes), so that the code is not
         # in the pipeline at all when it is off. The fourth value of the projection is 1 plus the shift of the noise of this frame.
         # The color gets temporal Interleaved Gradient Noise (Jimenez, 2014) of less than half a step of the 8 bit target
@@ -1616,6 +1648,57 @@ def compute_shader_static():
     return b.m.assemble()
 
 
+def fragment_shader_oit_composite(mode):
+    """
+    Puts the sums that the pass of order-independent transparency made on the picture, one blend mode at a time, with the blend
+    state of the pipeline doing the rest. The four images are set 0, bindings 0 to 3: the sums of alpha (color * alpha * weight in
+    rgb and alpha * weight in a), what remains of the light (the product of 1 - alpha), the product of the multiplied colors and the sum of the added ones.
+    mode 0 gives the average color with the opacity as alpha (blended by alpha), 1 the product (multiplied with what is there), 2 the sum (added).
+
+    #version 450
+    layout(set = 0, binding = 0) uniform sampler2D accum; // 1 reveal, 2 multiplied, 3 added
+    layout(location = 0) out vec4 outColor;
+    void main() {
+        ivec2 p = ivec2(gl_FragCoord.xy);
+        vec4 a = texelFetch(accum, p, 0); float r = texelFetch(reveal, p, 0).x;
+        // mode 0: outColor = vec4(a.rgb / max(a.a, 1e-5), 1.0 - r);  mode 1: vec4(multiplied.rgb, 1);  mode 2: vec4(added.rgb, 0);
+    }
+    """
+    b = Builder()
+    f, v2, v4 = b.float(), b.vec(2), b.vec(4)
+    void, fn = b.void(), b.fn()
+    image_2d = b.new_type("image_2d", "TypeImage", f, 1, 0, 0, 0, 1, 0)
+    sampled_2d = b.new_type("sampled_2d", "TypeSampledImage", image_2d)
+    images = [b.variable("UniformConstant", sampled_2d, [(DECORATION["DescriptorSet"], 0), (DECORATION["Binding"], n)]) for n in range(4)]
+    out_color = b.variable("Output", v4, [(DECORATION["Location"], 0)])
+    in_frag = b.variable("Input", v4, [(DECORATION["BuiltIn"], BUILTIN_FRAG_COORD)])
+    main, label = b.m.id(), b.m.id()
+    b.m.header.append(Module.inst("EntryPoint", 4, main, string_words("main"), out_color, in_frag))
+    b.m.header.append(Module.inst("ExecutionMode", main, 7))  # OriginUpperLeft
+    b.m.names.append(Module.inst("Name", main, string_words("main")))
+    b.m.code += [Module.inst("Function", void, main, 0, fn), Module.inst("Label", label)]
+    ivec2 = b.new_type("ivec2", "TypeVector", b.int(), 2)
+    frag = b.load(v4, in_frag)
+    pixel = b.emit("CompositeConstruct", ivec2, b.emit("ConvertFToS", b.int(), b.extract(frag, 0)), b.emit("ConvertFToS", b.int(), b.extract(frag, 1)))
+
+    def fetch(n):
+        return b.emit("ImageFetch", v4, b.emit("Image", image_2d, b.load(sampled_2d, images[n])), pixel, 2, b.const_int(0))
+
+    if mode == 0:
+        sums, reveal = fetch(0), b.extract(fetch(1), 0)
+        average = b.scale(3, b.swizzle(sums, 3), b.fdiv(b.float(), b.const_float(1.0), b.ext(f, GLSL_FMAX, b.extract(sums, 3), b.const_float(1e-5))))
+        result = b.construct(4, b.extract(average, 0), b.extract(average, 1), b.extract(average, 2), b.fsub(f, b.const_float(1.0), reveal))
+    elif mode == 1:
+        product = fetch(2)
+        result = b.construct(4, b.extract(product, 0), b.extract(product, 1), b.extract(product, 2), b.const_float(1.0))
+    else:
+        total = fetch(3)
+        result = b.construct(4, b.extract(total, 0), b.extract(total, 1), b.extract(total, 2), b.const_float(0.0))
+    b.store(out_color, result)
+    b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
+    return b.m.assemble()
+
+
 def emit(name, words, out):
     out.write("static const unsigned int %s[] = {\n" % name)
     for index in range(0, len(words), 8):
@@ -1632,6 +1715,9 @@ with open(sys.argv[1], "w", newline="\n") as out:
     emit("bb_shader_fragment_3d_solid", fragment_shader_masked(96, fog=True, cutout=False), out)
     emit("bb_shader_fragment_3d_blend", fragment_shader_masked(96, fog=True, blend=True), out)
     emit("bb_shader_fragment_3d_blend_interlock", fragment_shader_masked(96, fog=True, interlock=True), out)
+    emit("bb_shader_fragment_3d_oit", fragment_shader_masked(96, fog=True, oit=True), out)
+    for oit_mode in range(3):
+        emit("bb_shader_fragment_oit_composite%d" % oit_mode, fragment_shader_oit_composite(oit_mode), out)
     emit("bb_shader_vertex_fullscreen", vertex_shader_fullscreen(), out)
     emit("bb_shader_fragment_gamma", fragment_shader_gamma(), out)
     emit("bb_shader_fragment_palette", fragment_shader_palette(), out)
