@@ -79,23 +79,39 @@ namespace bb::gfx {
 	static SDL_Mutex*     swapchain_mutex = nullptr; // vkAcquireNextImageKHR and vkQueuePresentKHR need the swapchain to be externally synchronized.
 	static bool           gpu_resized    = false; // The present asked for a new swapchain.
 	static VkResult       gpu_error      = VK_SUCCESS;
-	static SDL_Mutex*     queue_mutex    = nullptr; // vkQueueSubmit, vkQueuePresentKHR and vkDeviceWaitIdle, from whichever thread, one at a time.
+	static SDL_Mutex*     queue_mutex[8] = {};      // One for each queue: vkQueueSubmit and vkQueuePresentKHR on it, from whichever thread, one at a time.
 	static const char*    gpu_error_what = "";
 	Uint64                profile_gpu_submit  = 0; // Time that vkQueueSubmit took in the thread.
 	Uint64                profile_gpu_present = 0; // Time that vkQueuePresentKHR took in the thread.
 	int                   profile_overlap = 0; // Frames that were still in flight when the program needed their slot.
 
-	void queue_lock()
+	void queue_lock(uint32_t queue)
 	{
-		if (!queue_mutex) {
-			queue_mutex = SDL_CreateMutex(); // On the program's thread, before there is any other.
+		if (!queue_mutex[queue]) {
+			queue_mutex[queue] = SDL_CreateMutex(); // On the program's thread, before there is any other: it makes the device and starts the threads.
 		}
-		SDL_LockMutex(queue_mutex);
+		SDL_LockMutex(queue_mutex[queue]);
 	}
 
-	void queue_unlock()
+	void queue_unlock(uint32_t queue)
 	{
-		SDL_UnlockMutex(queue_mutex);
+		SDL_UnlockMutex(queue_mutex[queue]);
+	}
+
+	// vkDeviceWaitIdle wants every queue to itself. The program's thread calls it; the threads of windows take only their own queue, so
+	// there is one order of taking the locks and no deadlock.
+	void queue_lock_all()
+	{
+		for (uint32_t i = 0; i < g.queue_count; i++) {
+			queue_lock(i);
+		}
+	}
+
+	void queue_unlock_all()
+	{
+		for (uint32_t i = g.queue_count; i > 0; i--) {
+			queue_unlock(i - 1);
+		}
 	}
 
 	static void gpu_fail(VkResult result, const char* what)
@@ -399,9 +415,9 @@ namespace bb::gfx {
 	void gpu_idle()
 	{
 		wait_gpu();
-		queue_lock();
+		queue_lock_all();
 		vkDeviceWaitIdle(g.device);
-		queue_unlock();
+		queue_unlock_all();
 	}
 
 	void stop_gpu_thread()

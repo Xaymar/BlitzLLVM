@@ -85,6 +85,7 @@ void bb_gui_idle(void);
 	X(vkQueueWaitIdle) \
 	X(vkQueueSubmit) \
 	X(vkQueuePresentKHR) \
+	X(vkWaitForPresentKHR) \
 	X(vkCreateSwapchainKHR) \
 	X(vkDestroySwapchainKHR) \
 	X(vkGetSwapchainImagesKHR) \
@@ -305,8 +306,10 @@ namespace bb::gfx {
 		int              driver_used = 0; // The driver of the GPU that is in use.
 		VkDevice         device   = VK_NULL_HANDLE;
 		VmaAllocator     allocator = VK_NULL_HANDLE; // Where all the memory of buffers and images comes from. Destroyed before the device.
-		VkQueue          queue    = VK_NULL_HANDLE;
+		VkQueue          queue    = VK_NULL_HANDLE; // queues[0]: the one of Graphics, the program's thread and the submission thread.
 		uint32_t         family   = 0;
+		uint32_t         queue_count = 1;          // How many queues of the family were made; the others are for the threads of windows.
+		VkQueue          queues[8] = {};
 		VkPhysicalDeviceMemoryProperties memory = {};
 
 		VkCommandPool   pool  = VK_NULL_HANDLE;
@@ -379,6 +382,7 @@ namespace bb::gfx {
 		bool                  can_anisotropy = false;
 		bool                  can_custom_border = false;
 		bool                  can_interlock     = false; // Prototype: VK_EXT_fragment_shader_interlock is on.
+		bool                  can_present_wait  = false; // VK_KHR_present_wait is on: a thread can wait for the display without holding a queue.
 		bool                  can_blend_dither  = false; // The extensions that let the fragment shader blend are on.
 		bool                  wireframe      = false;
 		VkBuffer              scene_buffer   = VK_NULL_HANDLE; // One block of scene data for each scene that is waiting.
@@ -1006,9 +1010,12 @@ namespace bb::gfx {
 	void       presenter_service();
 	void       presenter_counts(surface_state& s, uint64_t* handovers, uint64_t* presented, uint32_t* presents);
 	void       test_presenters(const char* path);
-	/** The queue is used by the program's thread, the submission thread and the threads of the windows, one at a time. */
-	void       queue_lock();
-	void       queue_unlock();
+	/** A queue is used by one thread at a time: queue 0 by the program's thread, the submission thread and the threads of windows
+	 * that have no queue of their own; the others each by one window's thread. Waiting for the whole device takes all of them. */
+	void       queue_lock(uint32_t queue = 0);
+	void       queue_unlock(uint32_t queue = 0);
+	void       queue_lock_all();
+	void       queue_unlock_all();
 
 	// The graphics drivers, which are the GPUs.
 	constexpr uint32_t max_gpus = 16;
