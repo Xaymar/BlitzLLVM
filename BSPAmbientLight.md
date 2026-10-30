@@ -30,7 +30,7 @@ Sets the ambient light of a level, a color that is added to the light the level 
 
 ## Differences
 
-* The original adds the color to the light of each face before the texture is applied, and lights the vertices of a level with point and spot lights too. Here the color is added after the lightmap and the texture, as the texture times the color, and no light affects a level, so the result is the same where a texture is white or missing and close otherwise. The color is not changed by [BSPLightmapColor](BSPLightmapColor).
+* The original also lights the vertices of a level with point and spot lights, which have no effect on a level here. The color is not changed by [BSPLightmapColor](BSPLightmapColor).
 
 ## Related Commands
 

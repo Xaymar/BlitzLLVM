@@ -30,7 +30,7 @@ The example builds a level with one floor and a lightmap that has a bright spot 
 
 ## Differences
 
-* The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness. Vertex lighting uses the colors of the vertices, which a level made for lightmaps often has at full brightness, so it looks flat.
+* The lightmaps are drawn as a second layer that multiplies what is below once, as the original does. Vertex lighting uses the colors of the vertices, which a level made for lightmaps often has at full brightness, so it looks flat.
 
 ## Examples
 

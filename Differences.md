@@ -65,8 +65,8 @@ Commands that differ from the original or are not finished, with the first of th
 * [AvailVidMem](AvailVidMem#differences): The graphics card cannot be asked how much of its memory is still free.
 * [BackBuffer](BackBuffer#differences): [FrontBuffer](FrontBuffer) returns this same handle, because a program cannot draw to the picture on the screen.
 * [BrushTexture](BrushTexture#differences): Layers 0 to 7 are accepted.
-* [BSPAmbientLight](BSPAmbientLight#differences): The original adds the color to the light of each face before the texture is applied, and lights the vertices of a level with point and spot lights too.
-* [BSPLighting](BSPLighting#differences): The lightmaps are drawn as a second layer that multiplies what is below twice, as Quake stores them at half their brightness.
+* [BSPAmbientLight](BSPAmbientLight#differences): The original also lights the vertices of a level with point and spot lights, which have no effect on a level here.
+* [BSPLighting](BSPLighting#differences): The lightmaps are drawn as a second layer that multiplies what is below once, as the original does.
 * [BufferDirty](BufferDirty#differences): Has no effect.
 * [Byte](Byte#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [ByteSwap](ByteSwap#differences) 〔BlitzLLVM〕: Not in the originals.
