@@ -186,6 +186,8 @@ Print l\x
 3
 ```
 
+`Delete` frees the object at once and sets the variable it was given to `Null` (`Delete First Point` and `Delete After p` have no variable to set). Deleting an object that is `Null` does nothing, only the literal `Delete Null` is a runtime error. Inside `For ... Each`, the object of the loop and any other object of the type can be deleted. `Insert Object Before Other` and `Insert Object After Other` can also be used as an expression that gives the object back, such as `c = Insert New Point Before First Point`. A variable that still points at a deleted object must not be used: a program compiled with `-d` stops with `Object does not exist.`, other builds read freed memory.
+
 ## Data
 
 `Data` holds values in the program, `Read` takes the next one, and `Restore` goes back to a label.
