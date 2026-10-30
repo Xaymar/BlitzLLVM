@@ -65,7 +65,7 @@ CheckTrue "sorted by distance the order of creation changes the picture", Red(c1
 
 If HWOrderIndependentTransparency() Then
 	; 1 is weighted blended, 2 is moment based.
-	For kind = 1 To 2
+	For kind = 1 To 3
 	GraphicsOrderIndependentTransparency kind
 	c1 = TwoLayers(True)
 	c2 = TwoLayers(False)

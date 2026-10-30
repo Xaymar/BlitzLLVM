@@ -971,7 +971,7 @@ namespace bb::gfx {
 	bool oit_active();
 	bool oit_moments(); // Whether the moment based kind is on (BLITZLLVM_OIT=2).
 	uint32_t oit_slots(); // The slots of samples of the kind that sorts fragments in the samples of a pixel (BLITZLLVM_OIT=3 for 4, =4 for 8): 0 if it is off or the driver has no such samples.
-	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo* color, VkRenderingAttachmentInfo* depth);
+	void oit_attachments_slots(uint32_t width, uint32_t height, VkRenderingAttachmentInfo color[2], VkRenderingAttachmentInfo* depth);
 	void oit_slots_to_sampled(uint32_t width, uint32_t height);
 	VkPipelineLayout oit_layout3d(); // The layout of the 3D pipelines of its second pass: the sums of the first are set 4.
 	void oit_attachments_moments(uint32_t width, uint32_t height, VkRenderingAttachmentInfo out[2]);

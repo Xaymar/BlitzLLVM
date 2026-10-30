@@ -390,13 +390,22 @@ namespace bb::gfx {
 		// Order-independent transparency draws to four images (see graphics_oit.cpp), of which the blend mode writes the ones it has sums in:
 		// alpha writes 0 (color * alpha * weight and alpha * weight, added) and 1 (the product of 1 - alpha), multiply writes 2 (the product
 		// of the colors), add writes 3 (color * alpha, added).
-		VkFormat                            oit_formats[4] = { VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT };
+		VkFormat                            oit_formats[4] = { oit_slots() ? VK_FORMAT_R32G32B32A32_SFLOAT : VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R32_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT };
 		VkPipelineColorBlendAttachmentState oit_blend[4]   = {};
 		VkPipelineLayout                    layout         = g.layout3d;
+		VkPipelineColorBlendAttachmentState slot_blend[2]  = {};
+		VkFormat                            slot_formats[2] = {};
 		if (oit == 4) {
 			// Slots of samples: one half float color attachment with as many samples as there are slots, nothing blended (the sample mask and the depth test of the samples pick).
 			blend.blendEnable                = VK_FALSE;
 			multisample.rasterizationSamples = VkSampleCountFlagBits(oit_slots());
+			slot_blend[0] = slot_blend[1]    = blend;
+			slot_formats[0] = VK_FORMAT_R16G16B16A16_SFLOAT; // The color, and the weight of the fragment.
+			slot_formats[1] = VK_FORMAT_R16G16B16A16_SFLOAT;
+			rendering.colorAttachmentCount    = 2;
+			rendering.pColorAttachmentFormats = slot_formats;
+			blending.attachmentCount          = 2;
+			blending.pAttachments             = slot_blend;
 		}
 		if (oit && (oit != 4)) {
 			const VkColorComponentFlags all = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -1408,7 +1417,7 @@ namespace bb::gfx {
 		VkRenderingAttachmentInfo moment_colors[2];
 		VkRenderingInfo           moment_info = info;
 		// The slots of samples kind draws the alpha-blended things (phase 3) to a multisampled color and depth, then the multiplied and added ones (phase 4) to the sums.
-		VkRenderingAttachmentInfo slot_color, slot_depth;
+		VkRenderingAttachmentInfo slot_color[2], slot_depth;
 		VkRenderingInfo           slot_info = info;
 		const uint32_t            oit_w = target.image->width, oit_h = target.image->height;
 		auto oit_bit = [&](VkPipeline pipeline) -> uint32_t { return (pipeline == g.add3d) ? 2u : ((pipeline == g.mul3d || pipeline == g.mul2x3d) ? 1u : 0u); };
@@ -1567,10 +1576,6 @@ namespace bb::gfx {
 				i += instances; // The slots hold what is blended by alpha.
 				continue;
 			}
-			if ((oit_phase == 4) && d.oit && (d.pipeline == g.blend3d)) {
-				i += instances; // Already in the slots.
-				continue;
-			}
 			if (d.oit != oit_mode) {
 				if (d.oit && oit_slots()) {
 					vkCmdEndRendering(g.cmd);
@@ -1587,10 +1592,10 @@ namespace bb::gfx {
 					}
 					VkDescriptorSet depth_set = depth_set_for(depth_image);
 					vkCmdBindDescriptorSets(g.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, g.layout3d, 3, 1, &depth_set, 0, nullptr);
-					oit_attachments_slots(oit_w, oit_h, &slot_color, &slot_depth);
+					oit_attachments_slots(oit_w, oit_h, slot_color, &slot_depth);
 					slot_info                      = info;
-					slot_info.colorAttachmentCount = 1;
-					slot_info.pColorAttachments    = &slot_color;
+					slot_info.colorAttachmentCount = 2;
+					slot_info.pColorAttachments    = slot_color;
 					slot_info.pDepthAttachment     = &slot_depth;
 					oit_mode                       = true;
 					oit_modes                      = 0;
