@@ -413,6 +413,19 @@ set_tests_properties(memory-allocator-debug PROPERTIES ENVIRONMENT "BLITZLLVM_DE
 set_tests_properties(memory-allocator-keep-spans PROPERTIES ENVIRONMENT "BLITZLLVM_ALLOC_RELEASE=0")
 set_tests_properties(memory-allocator memory-allocator-debug memory-allocator-keep-spans PROPERTIES LABELS "memory")
 
+# The detection of CPU features of the runtime (code_runtime/source/cpu.c): the rules of BLITZLLVM_CPU on made up CPUs, and this CPU through
+# every setting, which must never report more than the CPU has. Built on its own, it needs nothing but the C library.
+add_executable(cpu_test "${TEST_DIRECTORY}/cpu/cpu_test.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/cpu.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/environment.c")
+target_include_directories(cpu_test PRIVATE "${PROJECT_SOURCE_DIR}/../code_runtime/source")
+add_test(NAME cpu-rules COMMAND cpu_test rules)
+foreach(_SETTING IN ITEMS "baseline" "v2" "v3" "v4" "native" "-avx2" "v3,-fma" "-sse4.1,-popcnt")
+	string(REGEX REPLACE "[^a-z0-9]+" "_" _NAME "${_SETTING}")
+	add_test(NAME "cpu-host-${_NAME}" COMMAND cpu_test host)
+	set_tests_properties("cpu-host-${_NAME}" PROPERTIES ENVIRONMENT "BLITZLLVM_CPU=${_SETTING}" LABELS "cpu")
+endforeach()
+add_test(NAME cpu-host-default COMMAND cpu_test host)
+set_tests_properties(cpu-rules cpu-host-default PROPERTIES LABELS "cpu")
+
 # The library that blitz-format and blitz-tidy share: Tokens that join back to the source (of every program in tests/), keywords,
 # configuration files, edits and diffs.
 add_test(NAME tools-library COMMAND tools_test "${TEST_DIRECTORY}")
