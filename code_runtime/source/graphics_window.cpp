@@ -123,6 +123,9 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 	create_vulkan();
 	create_buffers(uint32_t(width), uint32_t(height));
 	create_swapchain();
+	if (const char* path = bb_env("BLITZLLVM_TEST_EXTRA_SURFACES")) {
+		test_extra_surfaces(path); // Test hook: see graphics_surfaces.cpp.
+	}
 	if (const char* path = bb_env("BLITZLLVM_TEST_LAYOUT")) {
 		// Test hook: the size of the window in pixels, where the buffer is shown in it, and the buffer coordinates of
 		// the window corners and center, one number per line in the named file.
@@ -148,6 +151,7 @@ void bb_graphics(int32_t width, int32_t height, int32_t depth, int32_t mode)
 // textures and images are gone before this (freed, or released if they are made again), so are the buffers.
 void bb::gfx::destroy_device_objects()
 {
+	destroy_extra_surfaces(); // Their swapchains are of this device.
 	close_prebuild(); // Before the buffers of the surfaces go: no loader thread makes another one from here on.
 	for (int i = 0; i < 2; i++) {
 		destroy_image(g.buffers[i]);

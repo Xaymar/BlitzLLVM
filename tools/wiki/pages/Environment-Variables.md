@@ -111,8 +111,7 @@ x64 Windows programs built with `--profile` and `-g` (or `-d`) write `<file>.sta
 
 ## Tests
 
-`BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT` and `BLITZLLVM_TEST_WINDOW_FLAGS` are read by the runtime and let the tests of BlitzLLVM look at what a window shows and press keys; the test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...). They can change at any time and are not for programs. The tests of BlitzLLVM set `BLITZLLVM_TEST_LIVE_ENV=1` before starting a program so that the program can set these with `SetEnv`; that variable is read at the start as well and is not for programs.
-
+`BLITZLLVM_TEST_PRESENT`, `BLITZLLVM_TEST_EVENTS`, `BLITZLLVM_TEST_LAYOUT`, `BLITZLLVM_TEST_WINDOW_FLAGS` and `BLITZLLVM_TEST_EXTRA_SURFACES` are read by the runtime and let the tests of BlitzLLVM look at what a window shows, press keys, and open and close more windows than Graphics has; the test programs and their scripts read a few more (`BLITZLLVM_TEST_PROGRAM`, `BLITZLLVM_TEST_DEBUG`, ...). They can change at any time and are not for programs. The tests of BlitzLLVM set `BLITZLLVM_TEST_LIVE_ENV=1` before starting a program so that the program can set these with `SetEnv`; that variable is read at the start as well and is not for programs.
 ## Old names
 
 Before these names were unified the variables started with `BLITZ_`. The old names still work while the new one is not set, and a program made with `-d` prints a note once for every old name it used. They will be removed; `BLITZ_NO_<FEATURE>=1` is `BLITZLLVM_<FEATURE>=0` now.

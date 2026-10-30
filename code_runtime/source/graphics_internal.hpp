@@ -974,6 +974,14 @@ namespace bb::gfx {
 	void destroy_swapchain(surface_state& s);
 	void create_vulkan();
 
+	/** Windows besides the one of Graphics: a surface each, on the device that is shared. A handle is 1 or more, 0 is no window. */
+	surface_state* extra_surface(int handle);
+	int            create_extra_surface(const char* title, int width, int height, int resizable, int borderless);
+	void           destroy_extra_surface(int handle);
+	void           destroy_extra_surfaces();
+	bool           show_color_in_extra_surface(int handle, float r, float g, float b);
+	void           test_extra_surfaces(const char* path);
+
 	// The graphics drivers, which are the GPUs.
 	constexpr uint32_t max_gpus = 16;
 	struct gpu_entry {
