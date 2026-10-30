@@ -673,6 +673,8 @@ namespace bb::collision {
 		uint32_t               picks_since_build = 0;
 		uint32_t               cooldown = 0; // Picks that are not given a tree, as the tree was made again and again.
 		bool                   valid = false;
+		// For BLITZLLVM_PICK_STATS: what the tree did.
+		uint64_t               calls = 0, used = 0, builds = 0, overflow = 0, count_changed = 0, cooled = 0, small = 0, disabled = 0, found_total = 0;
 	} pick_tree;
 
 	bool pick_broad_phase_enabled()
@@ -821,6 +823,7 @@ namespace bb::collision {
 		if (pick_tree.items.size) {
 			build_pick_node(0, pick_tree.items.size);
 		}
+		pick_tree.builds++;
 		pick_tree.count             = n;
 		pick_tree.valid             = true;
 		pick_tree.picks_since_build = 0;
@@ -849,6 +852,7 @@ namespace bb::collision {
 					pick_tree.loose[k] = 1;
 					pick_tree.loose_list.push(handle);
 					if (pick_tree.loose_list.size > limit) {
+						pick_tree.overflow++;
 						pick_tree.valid = false;
 						break;
 					}
@@ -858,6 +862,9 @@ namespace bb::collision {
 				pick_tree.picks_since_build++;
 				return true;
 			}
+		}
+		if (pick_tree.valid && (n != pick_tree.count)) {
+			pick_tree.count_changed++;
 		}
 		// Made again straight after it was made is the sign of a scene that changes between all picks, which a tree does not help.
 		bool churn = pick_tree.picks_since_build < 4 && pick_tree.count != 0;
@@ -869,12 +876,38 @@ namespace bb::collision {
 	}
 
 	// Fills out with the entities (by number, in their order) that a pick along the line could hit. False if all of them are to be looked at.
+	// Writes what the tree did into the file that BLITZLLVM_PICK_STATS names, every 1000 picks (to see why a tree helps or not on a machine).
+	void write_pick_stats()
+	{
+		const char* path = bb_env("BLITZLLVM_PICK_STATS");
+		if (!path || !*path) {
+			return;
+		}
+		if (FILE* f = fopen(path, "w")) {
+			fprintf(f, "runtime built %s %s\ncalls %llu used %llu disabled %llu small %llu cooled %llu builds %llu overflow %llu count_changed %llu\nentities %d items %u loose %u always %u found_avg %.1f\n", __DATE__, __TIME__, (unsigned long long)pick_tree.calls,
+			        (unsigned long long)pick_tree.used, (unsigned long long)pick_tree.disabled, (unsigned long long)pick_tree.small, (unsigned long long)pick_tree.cooled, (unsigned long long)pick_tree.builds,
+			        (unsigned long long)pick_tree.overflow, (unsigned long long)pick_tree.count_changed, entity_count(), pick_tree.items.size, pick_tree.loose_list.size, pick_tree.always.size,
+			        pick_tree.used ? double(pick_tree.found_total) / double(pick_tree.used) : 0.0);
+			fclose(f);
+		}
+	}
+
 	bool pick_candidates(vec3 origin, vec3 direction, float radius, buffer<int> const*& out)
 	{
-		if (!pick_broad_phase_enabled() || (entity_count() < 32)) {
+		pick_tree.calls++;
+		if ((pick_tree.calls % 1000) == 1) {
+			write_pick_stats();
+		}
+		if (!pick_broad_phase_enabled()) {
+			pick_tree.disabled++;
+			return false;
+		}
+		if (entity_count() < 32) {
+			pick_tree.small++;
 			return false;
 		}
 		if (!refresh_pick_phase()) {
+			pick_tree.cooled++;
 			return false;
 		}
 		bp_box area;
@@ -925,6 +958,8 @@ namespace bb::collision {
 		std::sort(pick_tree.found.data, pick_tree.found.data + pick_tree.found.size);
 		// An entity that was changed and is one that has no box is in the lists twice.
 		pick_tree.found.size = uint32_t(std::unique(pick_tree.found.data, pick_tree.found.data + pick_tree.found.size) - pick_tree.found.data);
+		pick_tree.used++;
+		pick_tree.found_total += pick_tree.found.size;
 		out = &pick_tree.found;
 		return true;
 	}
