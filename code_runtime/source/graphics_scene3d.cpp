@@ -2844,11 +2844,9 @@ namespace bb::gfx {
 				entity_push more_push = pushes[record.push_index];
 				more_push.material[0] = more_push.material[1] = more_push.material[2] = more_push.material[3] = 1;
 				more_push.params[0]  = 1; // Not lit again.
-				// Under a Dot3 first texture the colors of the vertices are the direction of the light, not a color: the stages of Direct3D 7 hand the result
-				// of the first stage to the next one and the vertices are not looked at again.
-				if (texture && texture->set && texture->blend == 4) {
-					more_push.params[1] = 0;
-				}
+				// The stages of Direct3D 7 hand the result of the stage before to the next one, and the colors of the vertices are not looked at again
+				// (under a Dot3 first texture they are the direction of the light, not a color).
+				more_push.params[1]  = 0;
 				more_push.params[3]  = 0;
 				more_push.mask[2]    = 0;
 				more_push.mask[3]    = (extra->flags & TEXTURE_MASKED) ? 1.0f : 0.0f;
