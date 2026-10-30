@@ -328,3 +328,13 @@ backends, are compared with line by line. Values are written in units of 0.0001 
 with the original through `tools/original_blitz3d.sh run` and with `blitzcc`, then `diff` the files. `CollisionEntity` is written
 as the creation number of the entity, and `CollisionSurface` as the index of the surface on that entity, because the original
 returns pointers for both.
+
+== pick_oracle: a fixed list of picks for the pick code
+
+`pick_oracle.bb` makes a fixed scene of pickable spheres (pick mode 1), polygon meshes (2, they block sight) and boxes (3), and
+does a fixed list of `LinePick` (with and without a radius), `EntityPick`, `EntityVisible` and `CameraPick` calls. Every result and
+every `Picked*` value goes to a text file (`PICK_OUT`, `PICK_ENTITIES`, `PICK_COUNT`), so two compilers, or two pick backends, can
+be compared line by line; the scene as it was built is written too, so a difference in it can not be taken for a difference of the
+picks. The time of all the picks is written to `PICK_OUT` with `.time` added, so with many entities and picks it is a benchmark as
+well (on a real machine, with both compilers). Entities and surfaces are written as numbers (creation number, surface index)
+because the original returns pointers. Note that the original writes its files with CRLF line ends.
