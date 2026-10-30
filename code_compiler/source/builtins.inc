@@ -141,6 +141,7 @@
 		{ "dithertemporal", "bb_dither_temporal", 'v', "i", 1, {}, false },
 		{ "transparencydistancesortmode", "bb_transparency_distance_sort_mode", 'v', "i", 1, {}, false },
 		{ "dithermode", "bb_dither_mode", 'v', "ii", 1, { 0, 1 }, false },
+		{ "perpixellighting", "bb_per_pixel_lighting", 'v', "i", 1, {}, false },
 		{ "antialias", "bb_anti_alias", 'v', "i", 1, {}, false },
 		{ "wbuffer", "bb_w_buffer", 'v', "i", 1, {}, false },
 		{ "hwmultitex", "bb_hw_multi_tex", 'v', "i", 1, {}, false },

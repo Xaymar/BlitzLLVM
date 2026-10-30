@@ -242,6 +242,18 @@ namespace bb::gfx {
 		return gpu;
 	}
 
+	// PerPixelLighting: whether the fragment shader lights (smooth highlights and spot cones) instead of the vertex shader, which is what Direct3D 7 and the
+	// original do. It is a constant of the pipelines, -1 until BLITZLLVM_PER_PIXEL_LIGHTING was read.
+	static int per_pixel_setting = -1;
+
+	bool per_pixel_lighting()
+	{
+		if (per_pixel_setting < 0) {
+			per_pixel_setting = bb_env_bool("BLITZLLVM_PER_PIXEL_LIGHTING", false) ? 1 : 0;
+		}
+		return per_pixel_setting != 0;
+	}
+
 	// With shader_blend the fragment shader is the one that blends itself (Dither 2) and the pipeline does not blend.
 	static VkPipeline build_pipeline_3d(VkShaderModule vs, VkShaderModule fs, int mode, bool wire, VkFormat color_format, bool shader_blend)
 	{
@@ -266,6 +278,7 @@ namespace bb::gfx {
 			float    scale[3];
 			VkBool32 palette;
 			float    bayer_levels; // DitherMode: 0 for noise, else the levels of the Bayer pattern.
+			VkBool32 per_pixel;    // PerPixelLighting: the fragment shader lights.
 		} constants;
 		// Only a target of 8 bits per color or less is dithered here (the packed buffers of 16, 15 and 12 bits by a step of their own, see below):
 		// deeper buffers keep what the shader makes, and the picture that is shown dithers when it turns them into 8 bits (see apply_gamma).
@@ -273,6 +286,7 @@ namespace bb::gfx {
 		// With a Graphics of depth 8 the shader makes the color into the nearest of the palette once it has lit, fogged, dithered (and blended, if it does).
 		constants.palette = (g.buffer_depth == 8) ? VK_TRUE : VK_FALSE;
 		constants.bayer_levels = float(bayer_levels());
+		constants.per_pixel    = per_pixel_lighting() ? VK_TRUE : VK_FALSE;
 		memcpy(constants.factor, factors[mode], sizeof(constants.factor));
 		memcpy(constants.limit, limits, sizeof(limits));
 		// The noise is a step of the target: 255 / (largest value of a channel) times the one of 8 bits, for the buffers of 16, 15 and 12 bits.
@@ -280,7 +294,7 @@ namespace bb::gfx {
 		for (int c = 0; c < 3; c++) {
 			constants.scale[c] = packed ? 255.0f / float((1u << packed->bits[c]) - 1u) : 1.0f;
 		}
-		VkSpecializationMapEntry entries[13] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
+		VkSpecializationMapEntry entries[14] = { { 0, offsetof(decltype(constants), dither), sizeof(VkBool32) } };
 		for (uint32_t i = 0; i < 5; i++) {
 			entries[1 + i] = { 1 + i, uint32_t(offsetof(decltype(constants), factor) + i * sizeof(float)), sizeof(float) };
 		}
@@ -291,10 +305,11 @@ namespace bb::gfx {
 		}
 		entries[11] = { 11, uint32_t(offsetof(decltype(constants), palette)), sizeof(VkBool32) };
 		entries[12] = { 12, uint32_t(offsetof(decltype(constants), bayer_levels)), sizeof(float) };
-		VkSpecializationInfo specialization              = { 13u, entries, sizeof(constants), &constants };
+		entries[13] = { 13, uint32_t(offsetof(decltype(constants), per_pixel)), sizeof(VkBool32) };
+		VkSpecializationInfo specialization              = { 14u, entries, sizeof(constants), &constants };
 		stages[1].pSpecializationInfo                    = &specialization;
-		VkSpecializationMapEntry vertex_entries[2]       = { { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) }, { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) } };
-		VkSpecializationInfo     vertex_specialization   = { 2u, vertex_entries, sizeof(constants), &constants };
+		VkSpecializationMapEntry vertex_entries[3]       = { { 0, uint32_t(offsetof(decltype(constants), limit)), sizeof(float) }, { 1, uint32_t(offsetof(decltype(constants), limit) + sizeof(float)), sizeof(float) }, { 13, uint32_t(offsetof(decltype(constants), per_pixel)), sizeof(VkBool32) } };
+		VkSpecializationInfo     vertex_specialization   = { 3u, vertex_entries, sizeof(constants), &constants };
 		stages[0].pSpecializationInfo                    = &vertex_specialization;
 
 		VkVertexInputBindingDescription   binding       = { 0, sizeof(bb::vertex3d), VK_VERTEX_INPUT_RATE_VERTEX };
@@ -3668,6 +3683,21 @@ void bb::gpu_static_touched(int handle)
 }
 
 extern "C" {
+
+// PerPixelLighting enable: lights every pixel instead of every vertex, so that highlights and spot cones are smooth on coarse meshes. The original
+// lights vertices, so this is off by default (BLITZLLVM_PER_PIXEL_LIGHTING sets the default, read once when the first Graphics3D is made); flat shaded
+// entities (EntityFX 4) always keep the lighting of their first vertex. It can be switched at any time, and takes effect with the next picture.
+void bb_per_pixel_lighting(int32_t enable)
+{
+	int wanted = (enable != 0) ? 1 : 0;
+	if (per_pixel_setting == wanted) {
+		return;
+	}
+	per_pixel_setting = wanted;
+	if (g.created && !g.headless) {
+		rebuild_pipelines_3d(); // It is a constant of the pipelines.
+	}
+}
 
 void bb_camera_project(int32_t camera, float x, float y, float z)
 {

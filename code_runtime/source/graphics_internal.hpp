@@ -959,6 +959,8 @@ namespace bb::gfx {
 	bool blend_interlock();
 	/** Whether Dither 2 blends in the shader when drawing to a target of that format: only for 8 bits per color. */
 	bool blends_in_shader(VkFormat target);
+	/** Whether the fragment shader lights (PerPixelLighting) instead of the vertex shader. */
+	bool per_pixel_lighting();
 	/** Makes the 3D pipelines again, as whether they dither is part of them. */
 	void rebuild_pipelines_3d();
 	void destroy_pipelines_3d();
@@ -1395,6 +1397,7 @@ float bb_projected_y(void);
 float bb_projected_z(void);
 int32_t bb_entity_in_view(int32_t entity, int32_t camera);
 void bb_wire_frame(int32_t on);
+void bb_per_pixel_lighting(int32_t enable);
 int32_t bb_camera_pick(int32_t camera, float x, float y);
 void bb_render_world(float tween);
 void bb_release_surface_gpu(void* gpu);
