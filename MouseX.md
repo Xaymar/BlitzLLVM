@@ -45,7 +45,7 @@ WaitKey
 
 ## Related Commands
 
-[MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ), [MouseZSpeed](MouseZSpeed)
+[MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY)
 
 <div align="center">
 

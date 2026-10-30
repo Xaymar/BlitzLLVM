@@ -39,7 +39,7 @@ Delay 1000
 
 ## Related Commands
 
-[MouseDown](MouseDown), [MouseHit](MouseHit), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ), [MouseZSpeed](MouseZSpeed)
+[MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseY](MouseY)
 
 <div align="center">
 

@@ -453,6 +453,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 ## J
 
 * [JoinNetGame](JoinNetGame)
+* [JoyDeviceConnected](JoyDeviceConnected)
+* [JoyDeviceCount](JoyDeviceCount)
+* [JoyDeviceName](JoyDeviceName)
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)
 * [JoyHit](JoyHit)
@@ -474,6 +477,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 
 ## K
 
+* [KeyboardDeviceConnected](KeyboardDeviceConnected)
+* [KeyboardDeviceCount](KeyboardDeviceCount)
+* [KeyboardDeviceName](KeyboardDeviceName)
 * [KeyDown](KeyDown)
 * [KeyHit](KeyHit)
 * [KeyWait](KeyWait)
@@ -548,6 +554,9 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [ModifyTerrain](ModifyTerrain)
 * [ModifyTreeViewNode](ModifyTreeViewNode)
 * [MoreFiles](MoreFiles)
+* [MouseDeviceConnected](MouseDeviceConnected)
+* [MouseDeviceCount](MouseDeviceCount)
+* [MouseDeviceName](MouseDeviceName)
 * [MouseDown](MouseDown)
 * [MouseHit](MouseHit)
 * [MouseWait](MouseWait)

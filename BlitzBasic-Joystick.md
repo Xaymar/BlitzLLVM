@@ -11,6 +11,9 @@ Back to [BlitzBasic](BlitzBasic) or the [Command Index](Command-Index).
 
 * [FlushJoy](FlushJoy)
 * [GetJoy](GetJoy)
+* [JoyDeviceConnected](JoyDeviceConnected)
+* [JoyDeviceCount](JoyDeviceCount)
+* [JoyDeviceName](JoyDeviceName)
 * [JoyDown](JoyDown)
 * [JoyHat](JoyHat)
 * [JoyHit](JoyHit)

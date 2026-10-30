@@ -29,7 +29,7 @@ The third axis of the joystick, from -1 to 1. On a joystick it is usually the th
 
 ## Related Commands
 
-[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [JoyU](JoyU), [JoyZDir](JoyZDir)
+[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyZDir](JoyZDir)
 
 <div align="center">
 

@@ -29,7 +29,7 @@ The rotation of the joystick around its X axis, from -180 to 180. Most gamepads 
 
 ## Related Commands
 
-[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyRoll](JoyRoll), [JoyType](JoyType), [JoyU](JoyU), [JoyUDir](JoyUDir), [JoyV](JoyV)
+[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyRoll](JoyRoll), [JoyType](JoyType)
 
 <div align="center">
 

@@ -49,7 +49,7 @@ WaitKey
 
 ## Related Commands
 
-[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [JoyU](JoyU), [JoyXDir](JoyXDir)
+[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyXDir](JoyXDir)
 
 <div align="center">
 

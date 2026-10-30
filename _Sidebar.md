@@ -60,7 +60,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (282)</summary>
+<li><details><summary>Commands (291)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -191,9 +191,15 @@
 <li><a href="Include#differences">Include</a></li>
 <li><a href="Input#differences">Input</a></li>
 <li><a href="Int#differences">Int</a></li>
+<li><a href="JoyDeviceConnected#differences">JoyDeviceConnected</a></li>
+<li><a href="JoyDeviceCount#differences">JoyDeviceCount</a></li>
+<li><a href="JoyDeviceName#differences">JoyDeviceName</a></li>
 <li><a href="JoyHat#differences">JoyHat</a></li>
 <li><a href="JoyType#differences">JoyType</a></li>
 <li><a href="JoyWait#differences">JoyWait</a></li>
+<li><a href="KeyboardDeviceConnected#differences">KeyboardDeviceConnected</a></li>
+<li><a href="KeyboardDeviceCount#differences">KeyboardDeviceCount</a></li>
+<li><a href="KeyboardDeviceName#differences">KeyboardDeviceName</a></li>
 <li><a href="KeyDown#differences">KeyDown</a></li>
 <li><a href="LeadingZeros#differences">LeadingZeros</a> 〔BlitzLLVM〕</li>
 <li><a href="Load3DSound#differences">Load3DSound</a></li>
@@ -222,6 +228,9 @@
 <li><a href="Microseconds#differences">Microseconds</a> 〔BlitzLLVM〕</li>
 <li><a href="MinimizeWindow#differences">MinimizeWindow</a></li>
 <li><a href="ModifyTerrain#differences">ModifyTerrain</a></li>
+<li><a href="MouseDeviceConnected#differences">MouseDeviceConnected</a></li>
+<li><a href="MouseDeviceCount#differences">MouseDeviceCount</a></li>
+<li><a href="MouseDeviceName#differences">MouseDeviceName</a></li>
 <li><a href="MouseDown#differences">MouseDown</a></li>
 <li><a href="MouseXSpeed#differences">MouseXSpeed</a></li>
 <li><a href="MouseZ#differences">MouseZ</a></li>
@@ -722,10 +731,13 @@
 <li><a href="TileImage">TileImage</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Joystick">Joystick</a> (21)</summary>
+<li><details><summary><a href="BlitzBasic-Joystick">Joystick</a> (24)</summary>
 <ul>
 <li><a href="FlushJoy">FlushJoy</a></li>
 <li><a href="GetJoy">GetJoy</a></li>
+<li><a href="JoyDeviceConnected">JoyDeviceConnected</a></li>
+<li><a href="JoyDeviceCount">JoyDeviceCount</a></li>
+<li><a href="JoyDeviceName">JoyDeviceName</a></li>
 <li><a href="JoyDown">JoyDown</a></li>
 <li><a href="JoyHat">JoyHat</a></li>
 <li><a href="JoyHit">JoyHit</a></li>
@@ -747,23 +759,29 @@
 <li><a href="WaitJoy">WaitJoy</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Keyboard">Keyboard</a> (6)</summary>
+<li><details><summary><a href="BlitzBasic-Keyboard">Keyboard</a> (9)</summary>
 <ul>
 <li><a href="FlushKeys">FlushKeys</a></li>
 <li><a href="GetKey">GetKey</a></li>
+<li><a href="KeyboardDeviceConnected">KeyboardDeviceConnected</a></li>
+<li><a href="KeyboardDeviceCount">KeyboardDeviceCount</a></li>
+<li><a href="KeyboardDeviceName">KeyboardDeviceName</a></li>
 <li><a href="KeyDown">KeyDown</a></li>
 <li><a href="KeyHit">KeyHit</a></li>
 <li><a href="KeyWait">KeyWait</a></li>
 <li><a href="WaitKey">WaitKey</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="BlitzBasic-Mouse">Mouse</a> (18)</summary>
+<li><details><summary><a href="BlitzBasic-Mouse">Mouse</a> (21)</summary>
 <ul>
 <li><a href="DirectInputEnabled">DirectInputEnabled</a></li>
 <li><a href="EnableDirectInput">EnableDirectInput</a></li>
 <li><a href="FlushMouse">FlushMouse</a></li>
 <li><a href="GetMouse">GetMouse</a></li>
 <li><a href="HWRawInput">HWRawInput</a></li>
+<li><a href="MouseDeviceConnected">MouseDeviceConnected</a></li>
+<li><a href="MouseDeviceCount">MouseDeviceCount</a></li>
+<li><a href="MouseDeviceName">MouseDeviceName</a></li>
 <li><a href="MouseDown">MouseDown</a></li>
 <li><a href="MouseHit">MouseHit</a></li>
 <li><a href="MouseWait">MouseWait</a></li>

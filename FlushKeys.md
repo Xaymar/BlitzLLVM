@@ -39,7 +39,7 @@ WaitKey
 
 ## Related Commands
 
-[GetKey](GetKey), [KeyDown](KeyDown)
+[GetKey](GetKey), [KeyboardDeviceConnected](KeyboardDeviceConnected)
 
 <div align="center">
 

@@ -50,7 +50,7 @@ Wend
 
 ## Related Commands
 
-[JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType), [JoyU](JoyU), [JoyUDir](JoyUDir), [JoyV](JoyV)
+[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyType](JoyType)
 
 <div align="center">
 

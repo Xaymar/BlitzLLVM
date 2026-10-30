@@ -30,7 +30,7 @@ Tells whether a joystick is connected to the port and what kind it is.
 ## Differences
 
 * The original uses 1 for a digital and 2 for an analog joystick. Here a device that SDL recognizes as a gamepad is 1 and everything else is 2.
-* Up to 4 joysticks are found, and only those that are connected when the first joystick command runs. Plugging one in later is not noticed.
+* Up to 4 joysticks get a port, in the order they are found. One that is plugged in later takes the next port that was never used (once all 4 were used, it is not noticed), and one that is removed leaves its port empty (see [JoyDeviceConnected](JoyDeviceConnected)).
 
 ## Examples
 
@@ -52,7 +52,7 @@ WaitKey
 
 ## Related Commands
 
-[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll), [JoyU](JoyU), [JoyUDir](JoyUDir), [JoyV](JoyV)
+[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyRoll](JoyRoll)
 
 <div align="center">
 

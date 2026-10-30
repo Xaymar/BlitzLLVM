@@ -25,7 +25,7 @@ The vertical position of the pointer in the graphics buffer, from 0 at the top t
 
 ## Related Commands
 
-[MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseXSpeed](MouseXSpeed), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ), [MouseZSpeed](MouseZSpeed)
+[MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseYSpeed](MouseYSpeed)
 
 <div align="center">
 

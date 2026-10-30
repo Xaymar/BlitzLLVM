@@ -29,7 +29,7 @@ The rotation around the long axis of the stick, from -180 to 180. On many joysti
 
 ## Related Commands
 
-[JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyType](JoyType), [JoyU](JoyU), [JoyUDir](JoyUDir), [JoyV](JoyV)
+[JoyDeviceConnected](JoyDeviceConnected), [JoyDeviceCount](JoyDeviceCount), [JoyDeviceName](JoyDeviceName), [JoyDown](JoyDown), [JoyHat](JoyHat), [JoyHit](JoyHit), [JoyPitch](JoyPitch), [JoyType](JoyType)
 
 <div align="center">
 

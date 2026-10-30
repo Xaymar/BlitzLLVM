@@ -45,7 +45,7 @@ Wend
 
 ## Related Commands
 
-[MouseDown](MouseDown), [MouseHit](MouseHit), [MouseWait](MouseWait), [MouseX](MouseX), [MouseY](MouseY), [MouseYSpeed](MouseYSpeed), [MouseZ](MouseZ), [MouseZSpeed](MouseZSpeed)
+[MouseDeviceConnected](MouseDeviceConnected), [MouseDeviceCount](MouseDeviceCount), [MouseDeviceName](MouseDeviceName), [MouseDown](MouseDown), [MouseHit](MouseHit), [MouseX](MouseX), [MouseYSpeed](MouseYSpeed), [MouseZSpeed](MouseZSpeed)
 
 <div align="center">
 
