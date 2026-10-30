@@ -510,6 +510,18 @@ namespace bb::gfx {
 
 		// The blend itself reads the depth, to leave alone what 3D did not draw.
 		bool reads_depth = r.masked || r.temporal;
+
+		// What 3D drew was dithered before it was smoothed, and smoothing makes colors between the steps of 8 bits that rounding would flatten
+		// again, so the last pass dithers what it makes (only a target of 8 bits per channel, the others are dithered when they are shown).
+		// The blend of T2x only makes the picture that the resolve then mixes, so that one is not rounded with noise.
+		float dither_for_pass = (target.image->format == VK_FORMAT_R8G8B8A8_UNORM) ? dither_code() : 0.0f;
+		float steps[3]        = { 0, 0, 0 };
+		dither_steps(steps);
+		c.subsample[0] = steps[0];
+		c.subsample[1] = steps[1];
+		c.subsample[2] = steps[2];
+		c.subsample[3] = float(bayer_levels());
+		c.resolve[2]   = r.temporal ? 0.0f : dither_for_pass;
 		if (reads_depth) {
 			barrier(depth.image, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, VK_IMAGE_ASPECT_DEPTH_BIT);
 		}
@@ -537,6 +549,7 @@ namespace bb::gfx {
 			gpu_image& before  = s.out[1 - s.current];
 			transition(now, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 			transition(before, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			c.resolve[2] = 0.0f;
 			begin_pass(now, whole, false);
 			draw_pass(p.blend, s.blend_set, c);
 			transition(now, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -555,6 +568,7 @@ namespace bb::gfx {
 			VkViewport viewport = { float(r.x), float(r.y), float(r.w), float(r.h), 0, 1 };
 			vkCmdSetViewport(g.cmd, 0, 1, &viewport);
 			vkCmdSetScissor(g.cmd, 0, 1, &area);
+			c.resolve[2] = dither_for_pass;
 			draw_pass(p.resolve, s.resolve_set[s.current], c);
 			s.current = 1 - s.current;
 			s.history = true;
