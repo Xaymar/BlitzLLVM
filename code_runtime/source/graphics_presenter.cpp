@@ -388,8 +388,14 @@ namespace bb::gfx {
 			}
 		}
 		SDL_BroadcastCondition(p.cond);
+		// A window that cannot show anything right now (it is covered, or the display is slow to take it) does not hold the program
+		// for longer than a few refreshes.
+		uint64_t until = SDL_GetTicksNS() + 250000000;
 		while (wait && !p.quit && !p.needs_swapchain && (p.presented < number)) {
-			SDL_WaitCondition(p.cond, p.mutex); // A window that cannot show anything right now does not hold the program.
+			int64_t left = int64_t(until - SDL_GetTicksNS());
+			if ((left <= 0) || !SDL_WaitConditionTimeout(p.cond, p.mutex, int32_t(left / 1000000 + 1))) {
+				break;
+			}
 		}
 		SDL_UnlockMutex(p.mutex);
 	}

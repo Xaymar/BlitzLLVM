@@ -395,12 +395,20 @@ int32_t bb_gui_window_buffer(int32_t handle)
 	return presenter_buffer(*s);
 }
 
-// What was drawn into the buffer is shown: handed to the thread of the window, which never makes the program wait.
-void bb_gui_window_show_picture(int32_t handle)
+// What was drawn into the buffer is shown: handed to the thread of the window, which never makes the program wait, unless wait
+// is asked for (FlipCanvas c, 1): then it returns once the picture was shown, or once that took longer than it should.
+void bb_gui_window_show_picture(int32_t handle, int32_t wait)
 {
 	if (surface_state* s = extra_surface(handle); s && s->show) {
-		presenter_handover(*s, false);
+		presenter_handover(*s, wait != 0);
 	}
+}
+
+// The window of SDL that a window of the GUI is, for the requesters of the system to be in front of it; null without one.
+void* bb_gui_window_sdl(int32_t handle)
+{
+	surface_state* s = extra_surface(handle);
+	return s ? s->window : nullptr;
 }
 }
 

@@ -41,7 +41,11 @@ void    bb_gui_window_state(int32_t handle, int32_t state);
 void    bb_gui_window_min_size(int32_t handle, int32_t w, int32_t h);
 void    bb_gui_window_pixel_size(int32_t handle, int32_t* w, int32_t* h);
 int32_t bb_gui_window_buffer(int32_t handle);
-void    bb_gui_window_show_picture(int32_t handle);
+void    bb_gui_window_show_picture(int32_t handle, int32_t wait);
+void*   bb_gui_window_sdl(int32_t handle);
+void*   bb_gui_dialog_window(void); // The window of SDL that a requester of the system is put in front of: the active window, else the one of Graphics, else null.
+int32_t bb_internal_target(int32_t width, int32_t height); // An RGBA8 picture of the runtime's own to draw into (the canvases), no image of the program's.
+void    bb_free_internal_image(int32_t handle);
 }
 
 namespace bb::gui {
@@ -168,9 +172,10 @@ namespace bb::gui {
 		bool minimized = false, maximized = false;
 		int  restore_x = 0, restore_y = 0, restore_w = 0, restore_h = 0;
 
-		// Canvases: the image that is drawn to, and whether it is waiting to be shown.
+		// Canvases: the picture that is drawn to (CanvasBuffer), which FlipCanvas copies into image, the one the window shows. Both
+		// are RGBA8 pictures of the runtime's own, as big as the canvas was when they were made (canvas_w, canvas_h).
 		int canvas_image = 0;
-		int canvas_flipped = 0;
+		int canvas_w = 0, canvas_h = 0;
 	};
 
 	struct menu {
@@ -291,9 +296,10 @@ namespace bb::gui {
 	void update();
 	bool handle_event(void const* sdl_event, int window); // Says whether the gadgets used it. The window is the one of the computer it came from, 0 for the one of Graphics.
 	bool translate(int kind, int* x, int* y, int* source);
-	extern thread_local bool (*modal_handler)(void const* sdl_event); // While a requester is shown it gets everything.
-	extern thread_local void (*overlay_draw)();                       // What is drawn on top of the gadgets, before they are shown.
+	extern thread_local bool (*modal_handler)(void const* sdl_event, int window); // While a requester is shown it gets everything, with the window it came from.
+	extern thread_local void (*overlay_draw)(int window, int w, int h);           // What is drawn on top of the gadgets of a window (0 the desktop of Graphics) of this size, before they are shown.
 	void render();
+	void show_window(int window, bool wait); // Draws one window and shows it now (FlipCanvas); wait returns once it was shown.
 	void ensure_graphics();
 	int  font_size(gadget const& g);
 	int  row_height(gadget const& g);

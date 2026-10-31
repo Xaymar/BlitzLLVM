@@ -271,6 +271,11 @@ foreach(_FILE IN LISTS _SUITE_TESTS)
 		if(_NAME STREQUAL "network" OR _NAME STREQUAL "multiplayer" OR _NAME STREQUAL "network_environment_startup_only")
 			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY RESOURCE_LOCK "suite-network-ports")
 		endif()
+		file(STRINGS "${_FILE}" _USES_PRESENT REGEX "present\\.tmp" LIMIT_COUNT 1)
+		if(_USES_PRESENT)
+			# The picture that was presented goes to the one file tests/suite/present.tmp, which these programs delete and read, so they take turns.
+			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY RESOURCE_LOCK "suite-present")
+		endif()
 		if(_CONFIG STREQUAL "debug")
 			# For the few programs that behave differently in a debug build (Stop is a breakpoint there).
 			set_property(TEST "${_PREFIX}-run-${_NAME}" APPEND PROPERTY ENVIRONMENT "BLITZLLVM_TEST_DEBUG=1")

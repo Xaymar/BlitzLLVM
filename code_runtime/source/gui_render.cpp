@@ -8,6 +8,7 @@
 // window, which is then shown. What is on the desktop is drawn back to front: the window that was active last is last.
 
 #include "environment.h"
+#include "graphics_internal.hpp"
 #include "gui_internal.hpp"
 #include "offscreen_hold.hpp"
 #include "memory.h"
@@ -40,11 +41,52 @@ int32_t bb_save_buffer(int32_t buffer, const char* file, const char* settings);
 }
 
 namespace bb::gui {
-	thread_local void (*overlay_draw)() = nullptr;
+	thread_local void (*overlay_draw)(int window, int w, int h) = nullptr;
 
 	namespace {
 		struct rect {
 			int x = 0, y = 0, w = 0, h = 0;
+		};
+
+		// The gadgets are drawn with the functions that programs draw with, so what the program had set is put back afterwards: its
+		// buffer, with the origin and viewport it had in it, its colors and where Print goes on. Without this a program that draws
+		// into a canvas and waits in between would find its color changed.
+		struct drawing_guard {
+			int     target;
+			uint8_t color[3], clscolor[3];
+			int     origin_x, origin_y, view_x, view_y, view_w, view_h, cursor_x, cursor_y;
+
+			drawing_guard()
+			{
+				bb::gfx::state& s = bb::gfx::g;
+				target            = s.target;
+				memcpy(color, s.color, sizeof(color));
+				memcpy(clscolor, s.clscolor, sizeof(clscolor));
+				origin_x = s.origin_x;
+				origin_y = s.origin_y;
+				view_x   = s.view_x;
+				view_y   = s.view_y;
+				view_w   = s.view_w;
+				view_h   = s.view_h;
+				cursor_x = s.cursor_x;
+				cursor_y = s.cursor_y;
+			}
+
+			~drawing_guard()
+			{
+				bb::gfx::state& s = bb::gfx::g;
+				bb_set_buffer(target);
+				memcpy(s.color, color, sizeof(color));
+				memcpy(s.clscolor, clscolor, sizeof(clscolor));
+				s.origin_x = origin_x;
+				s.origin_y = origin_y;
+				s.view_x   = view_x;
+				s.view_y   = view_y;
+				s.view_w   = view_w;
+				s.view_h   = view_h;
+				s.cursor_x = cursor_x;
+				s.cursor_y = cursor_y;
+			}
 		};
 
 		struct rgb {
@@ -1100,8 +1142,9 @@ namespace bb::gui {
 			return folder;
 		}
 
-		// A window of the computer is drawn into the buffer of that window, which the window then shows by itself.
-		void draw_native_window(int handle)
+		// A window of the computer is drawn into the buffer of that window, which the window then shows by itself. With wait, this
+		// returns once it was shown (FlipCanvas c, 1).
+		void draw_native_window(int handle, bool wait)
 		{
 			gadget* g = gadget_of(handle);
 			if (!g || !g->visible || g->minimized) {
@@ -1113,8 +1156,8 @@ namespace bb::gui {
 			}
 			int pw = 0, ph = 0;
 			bb_gui_window_pixel_size(g->surface, &pw, &ph);
-			rect whole = { 0, 0, pw > 0 ? pw : 1, ph > 0 ? ph : 1 };
-			int  saved = bb_graphics_buffer();
+			rect          whole = { 0, 0, pw > 0 ? pw : 1, ph > 0 ? ph : 1 };
+			drawing_guard guard;
 			overlay_combo = 0;
 			bb_set_buffer(buffer);
 			bb_origin(0, 0);
@@ -1124,15 +1167,32 @@ namespace bb::gui {
 			client_rect(handle, &cx, &cy, &cw, &ch);
 			draw_children(handle, cx, cy, intersect(whole, { cx, cy, cw, ch }));
 			draw_overlays(handle, g->x, g->y, whole);
+			if (overlay_draw) {
+				overlay_draw(handle, whole.w, whole.h); // A requester draws itself here when this is its window.
+			}
 			if (const char* folder = shots_folder()) {
 				char path[1024];
 				snprintf(path, sizeof(path), "%s/window_%d.bmp", folder, g->surface);
 				bb_save_buffer(buffer, path, "");
 			}
-			bb_set_buffer(saved);
-			bb_gui_window_show_picture(g->surface);
+			bb_gui_window_show_picture(g->surface, wait ? 1 : 0);
 		}
 	} // namespace
+
+	// One window is drawn and shown right away, for FlipCanvas: a window of the computer by itself, any other with the desktop of
+	// Graphics that it is on. Waiting is for a window of the computer: the desktop is shown as Flip 0 shows it.
+	void show_window(int window, bool wait)
+	{
+		if (!bb_gui_live()) {
+			return;
+		}
+		gadget* g = gadget_of(window);
+		if (g && g->surface) {
+			draw_native_window(window, wait);
+		} else {
+			render();
+		}
+	}
 
 	void render()
 	{
@@ -1142,6 +1202,7 @@ namespace bb::gui {
 		}
 		needs_draw    = false;
 		overlay_combo = 0;
+		drawing_guard guard;
 		bb_set_buffer(bb_back_buffer());
 		bb_origin(0, 0);
 		rect screen = { 0, 0, w, h };
@@ -1171,14 +1232,14 @@ namespace bb::gui {
 			draw_tool_tip(w, 0, 0);
 		}
 		if (overlay_draw) {
-			overlay_draw();
+			overlay_draw(0, w, h); // A requester draws itself here when its window is on this desktop.
 		}
 		bb_flip(0);
 		// The windows of the computer show their pictures by themselves.
 		for (uint32_t i = 0; desk && (i < desk->kids.size); i++) {
 			gadget* k = gadget_of(desk->kids[i]);
 			if (k && k->surface) {
-				draw_native_window(desk->kids[i]);
+				draw_native_window(desk->kids[i], false);
 			}
 		}
 	}
