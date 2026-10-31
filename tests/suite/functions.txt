@@ -271,7 +271,7 @@ samplerfiltermip	blitz3d	done	SamplerFilterMip%sampler%mode
 samplerlodbias	blitz3d	done	SamplerLodBias%sampler#bias
 samplerlodmax	blitz3d	done	SamplerLodMax%sampler#lod
 samplerlodmin	blitz3d	done	SamplerLodMin%sampler#lod
-settexturesampler	blitz3d	done	SetTextureSampler%texture%sampler
+texturesampler	blitz3d	done	TextureSampler%texture%sampler
 textureready	blitz3d	done	%TextureReady%texture
 imageready	graphics	done	%ImageReady%image
 entityready	blitz3d	done	%EntityReady%entity

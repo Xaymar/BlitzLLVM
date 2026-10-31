@@ -6,13 +6,13 @@
 
 @difference Flag 8 textures get trilinear filtered mip chains, and anisotropic filtering can be turned on with a sampler, which the originals could not.
 
-Textures with flag 8 get a chain of mip maps and are sampled with trilinear filtering, which blends between two levels. The levels are made by averaging 2 by 2 texels, so masked (flag 4) and alpha textures average their alpha as well, which is also what the original did and makes their edges soft from afar. The levels of a texture that is drawn on (`TextureBuffer`) are made again before the texture is next used in a scene. The levels that are stored in a block compressed DDS file are used instead of made ones. The frames of a texture (`LoadAnimTexture`, `CreateTexture` with frames) are the layers of one image and each has levels of its own, so the levels never blend frames (only a block compressed or deep picture loaded with `LoadAnimTexture` stays a sheet, and then they do). Flag 8 alone does not use anisotropic filtering, but a texture can be given it with a sampler ([CreateSampler](CreateSampler), [SamplerAnisotropy](SamplerAnisotropy) and [SetTextureSampler](SetTextureSampler)), which the originals had no way to do:
+Textures with flag 8 get a chain of mip maps and are sampled with trilinear filtering, which blends between two levels. The levels are made by averaging 2 by 2 texels, so masked (flag 4) and alpha textures average their alpha as well, which is also what the original did and makes their edges soft from afar. The levels of a texture that is drawn on (`TextureBuffer`) are made again before the texture is next used in a scene. The levels that are stored in a block compressed DDS file are used instead of made ones. The frames of a texture (`LoadAnimTexture`, `CreateTexture` with frames) are the layers of one image and each has levels of its own, so the levels never blend frames (only a block compressed or deep picture loaded with `LoadAnimTexture` stays a sheet, and then they do). Flag 8 alone does not use anisotropic filtering, but a texture can be given it with a sampler ([CreateSampler](CreateSampler), [SamplerAnisotropy](SamplerAnisotropy) and [TextureSampler](TextureSampler)), which the originals had no way to do:
 
 ```blitzbasic
 tex = LoadTexture("floor.png", 1 + 8)
 sampler = CreateSampler()
 SamplerAnisotropy sampler, 8
-SetTextureSampler tex, sampler
+TextureSampler tex, sampler
 ```
 
 See [Samplers](Samplers) for the rest of the settings.

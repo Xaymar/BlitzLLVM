@@ -35,5 +35,5 @@ Function BenchFilter(t)
 		BenchSampler = CreateSampler()
 		SamplerAnisotropy BenchSampler, 16
 	EndIf
-	SetTextureSampler t, BenchSampler
+	TextureSampler t, BenchSampler
 End Function

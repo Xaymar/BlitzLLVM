@@ -309,7 +309,7 @@
 		{ "getsamplerbordercolorg", "bb_get_sampler_border_color_g", 'f', "i", 1, {}, false },
 		{ "getsamplerbordercolorb", "bb_get_sampler_border_color_b", 'f', "i", 1, {}, false },
 		{ "getsamplerbordercolora", "bb_get_sampler_border_color_a", 'f', "i", 1, {}, false },
-		{ "settexturesampler", "bb_set_texture_sampler", 'v', "ii", 2, {}, false },
+		{ "texturesampler", "bb_set_texture_sampler", 'v', "ii", 2, {}, false },
 		{ "cleartexturefilters", "bb_clear_texture_filters", 'v', "", 0, {}, false },
 		{ "texturewidth", "bb_texture_width", 'i', "i", 1, {}, false },
 		{ "textureready", "bb_texture_ready", 'i', "i", 1, {}, false },

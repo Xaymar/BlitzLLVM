@@ -1391,9 +1391,9 @@ void bb_set_sampler_lod_max(int32_t handle, float lod)
 // A sampler of 0 takes the sampler away, and the flags of the texture pick it again.
 void bb_set_texture_sampler(int32_t texture, int32_t handle)
 {
-	texture_entry* t = need_texture(texture, "SetTextureSampler");
+	texture_entry* t = need_texture(texture, "TextureSampler");
 	if (handle) {
-		need_sampler(handle, "SetTextureSampler");
+		need_sampler(handle, "TextureSampler");
 	}
 	t->sampler = handle;
 	if (g.device && t->set) {

@@ -478,7 +478,7 @@ namespace bb::gfx {
 		int             gutter = 0;             // Atlas: how many pixels of repeated edge colour every tile has around it in the picture. For a view: the same, copied.
 		int             rect[4] = {};           // Where the view is in the atlas, in pixels: x, y, width, height.
 		bool            freed = false;          // FreeTexture was called while something still uses it, so it only goes once nothing does.
-		int             sampler = 0;            // The sampler of SetTextureSampler, or 0 for the one that the flags pick.
+		int             sampler = 0;            // The sampler of TextureSampler, or 0 for the one that the flags pick.
 		cube_data*      cube = nullptr;         // For a cube map: image is the face that is chosen, and set samples the sheet.
 		int             cube_mode = 1;          // SetCubeMode, which is also kept for a texture that is no cube map.
 		gpu_image       image;
@@ -486,7 +486,7 @@ namespace bb::gfx {
 	};
 
 
-	// A sampler made by CreateSampler: how a texture that it is set on (SetTextureSampler) is read. The Vulkan sampler is made when
+	// A sampler made by CreateSampler: how a texture that it is set on (TextureSampler) is read. The Vulkan sampler is made when
 	// something first uses it, and again when a setting changes.
 	struct sampler_entry {
 		bool      used = false;

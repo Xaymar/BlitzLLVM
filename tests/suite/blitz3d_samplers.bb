@@ -7,7 +7,7 @@
 ; GetSamplerAddressModeU GetSamplerAddressModeV GetSamplerAddressModeW GetSamplerLodBias GetSamplerLodMin GetSamplerLodMax
 ; GetSamplerBorderColorR GetSamplerBorderColorG GetSamplerBorderColorB GetSamplerBorderColorA SamplerAnisotropy SamplerAddressModeU SamplerAddressModeV SamplerAddressModeW
 ; SamplerLodBias SamplerLodMin SamplerLodMax
-; SetTextureSampler.
+; TextureSampler.
 Include "check.bb"
 
 a = CreateSampler()
