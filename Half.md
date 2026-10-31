@@ -49,7 +49,7 @@ Print Half(0.1) = 0.1
 
 ## Related Commands
 
-[Double](Double) 〔BlitzLLVM〕, [Float](Float), [Handle](Handle), [Int](Int)
+[EndType](EndType), [Float](Float), [Handle](Handle), [Int](Int)
 
 <div align="center">
 

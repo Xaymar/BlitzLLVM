@@ -6,7 +6,7 @@
 
 Deciding what runs: If, Select and their parts.
 
-Decide which code runs. `If` picks by a condition, `Select` compares one value with several. A condition is true when it is not 0. Block ends are written with a space, `End If` and `End Select`; `EndIf` is also valid, and `EndSelect` is not a keyword.
+Decide which code runs. `If` picks by a condition, `Select` compares one value with several. A condition is true when it is not 0. Block ends can be written with or without a space: `End If` and `EndIf`, `End Select` and `EndSelect`, `End Function` and `EndFunction` mean the same thing.
 
 Back to [Language Features](Language-Features) or the [Command Index](Command-Index).
 

@@ -24,7 +24,7 @@ End Select
 
 ## Description
 
-Compares one expression with the values of each [Case](Case), from the top, and runs the statements of the first case that matches. The statements of other cases are skipped, with no fall through. The optional [Default](Default) must be last and runs when no case matched. The block ends with `End Select`. The expression can be a string, in which case the case values are strings too.
+Compares one expression with the values of each [Case](Case), from the top, and runs the statements of the first case that matches. The statements of other cases are skipped, with no fall through. The optional [Default](Default) must be last and runs when no case matched. The block ends with `End Select` or `EndSelect`. The expression can be a string, in which case the case values are strings too.
 
 ## Examples
 

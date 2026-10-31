@@ -28,6 +28,7 @@ Back to [Language Features](Language-Features) or the [Command Index](Command-In
 
 * [Byte](Byte) 〔BlitzLLVM〕
 * [Double](Double) 〔BlitzLLVM〕
+* [EndType](EndType)
 * [Float](Float)
 * [Half](Half) 〔BlitzLLVM〕
 * [Handle](Handle)

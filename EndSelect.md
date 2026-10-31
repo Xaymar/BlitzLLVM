@@ -14,11 +14,12 @@
 
 ```blitzbasic
 End Select
+EndSelect
 ```
 
 ## Description
 
-Ends a [Select](Select) block. It is written as two words, `End Select`. Without the space it is not a keyword.
+Ends a [Select](Select) block. `End Select` and `EndSelect` mean the same thing.
 
 ## Examples
 

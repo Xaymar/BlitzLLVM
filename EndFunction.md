@@ -14,11 +14,12 @@
 
 ```blitzbasic
 End Function
+EndFunction
 ```
 
 ## Description
 
-Ends a [Function](Function) declaration. It is written as two words, `End Function`. Without the space it is not a keyword.
+Ends a [Function](Function) declaration. `End Function` and `EndFunction` mean the same thing.
 
 ## Examples
 

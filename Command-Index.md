@@ -250,6 +250,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [EndGraphics](EndGraphics)
 * [EndIf](EndIf)
 * [EndSelect](EndSelect)
+* [EndType](EndType)
 * [EntityAlpha](EntityAlpha)
 * [EntityAutoFade](EntityAutoFade)
 * [EntityBlend](EntityBlend)

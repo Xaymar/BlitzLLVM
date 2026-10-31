@@ -51,7 +51,7 @@ Print Double(Long(5000000000)) + 1 = 5000000001
 
 ## Related Commands
 
-[Byte](Byte) 〔BlitzLLVM〕, [Float](Float), [Half](Half) 〔BlitzLLVM〕
+[Byte](Byte) 〔BlitzLLVM〕, [EndType](EndType), [Float](Float)
 
 <div align="center">
 

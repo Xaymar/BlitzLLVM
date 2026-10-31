@@ -17,4 +17,4 @@ Back to [Home](Home) or the [Command Index](Command-Index).
 * [Randomization](Language-Features-Randomization) (4): Random numbers and their seed.
 * [Strings](Language-Features-Strings) (16): Searching, slicing, converting and formatting text.
 * [Time & Date](Language-Features-Time-and-Date) (8): Clocks, the date, delays and timers.
-* [Types](Language-Features-Types) (14): Integers, floats and strings, the short and long notation, and converting between them.
+* [Types](Language-Features-Types) (15): Integers, floats and strings, the short and long notation, and converting between them.

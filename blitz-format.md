@@ -134,7 +134,7 @@ End Select
 For i = 1 To 3 : total = total + Sign(i) * 2 : Next
 ```
 
-Keywords are the words of the language (`If`, `EndIf`, `Wend`, `Mod`, `And`, `Int`...). Names of variables, functions and commands are never changed, and neither is a field that has the name of a keyword (`p\Last`). `capitalized` writes the spelling of the manuals (`If`, `ElseIf`, `EndIf`, `Wend`). Whether `EndIf` is one word or two (`End If`) stays as it was written.
+Keywords are the words of the language (`If`, `EndIf`, `Wend`, `Mod`, `And`, `Int`...). Names of variables, functions and commands are never changed, and neither is a field that has the name of a keyword (`p\Last`). `capitalized` writes the spelling of the manuals (`If`, `ElseIf`, `EndIf`, `Wend`). Whether `EndIf`, `EndSelect` and `EndFunction` are one word or two (`End If`) stays as it was written.
 
 A `-` or `+` in front of a value (`x = -1`, `Case -1`, `Step -1`) is a sign and stays close to its number. After a name that is not a keyword with a space in front and none behind (`Print -1`, `a -1`) it could be a sign or a subtraction, so the spacing around it stays as it was written.
 

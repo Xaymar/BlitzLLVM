@@ -519,11 +519,12 @@
 <li><a href="WaitTimer">WaitTimer</a></li>
 </ul>
 </details></li>
-<li><details><summary>Types (14)</summary>
+<li><details><summary>Types (15)</summary>
 <ul>
 <li><a href="Language-Features-Types">Overview</a></li>
 <li><a href="Byte">Byte</a> 〔BlitzLLVM〕</li>
 <li><a href="Double">Double</a> 〔BlitzLLVM〕</li>
+<li><a href="EndType">EndType</a></li>
 <li><a href="Float">Float</a></li>
 <li><a href="Half">Half</a> 〔BlitzLLVM〕</li>
 <li><a href="Handle">Handle</a></li>

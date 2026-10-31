@@ -38,7 +38,7 @@ Print Float("1.5") + 1
 
 ## Related Commands
 
-[Byte](Byte) 〔BlitzLLVM〕, [Double](Double) 〔BlitzLLVM〕, [Half](Half) 〔BlitzLLVM〕, [Handle](Handle)
+[Double](Double) 〔BlitzLLVM〕, [EndType](EndType), [Half](Half) 〔BlitzLLVM〕, [Handle](Handle)
 
 <div align="center">
 

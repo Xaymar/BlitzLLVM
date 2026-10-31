@@ -54,7 +54,7 @@ Print Byte(-1000.0)
 
 ## Related Commands
 
-[Double](Double) 〔BlitzLLVM〕, [Float](Float), [UByte](UByte) 〔BlitzLLVM〕
+[Double](Double) 〔BlitzLLVM〕, [EndType](EndType), [UByte](UByte) 〔BlitzLLVM〕
 
 <div align="center">
 
