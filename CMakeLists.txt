@@ -115,6 +115,7 @@ add_subdirectory("code_compiler")
 add_subdirectory("code_tools")
 add_subdirectory("code_format")
 add_subdirectory("code_tidy")
+add_subdirectory("code_recompiler")
 
 # The HTML help, in the layout of the Blitz3D help: <prefix>/help in a plain install (the zips), <prefix>/share/doc/blitzllvm/help in the
 # packages. It is generated from the wiki text by tools/wiki/wiki.py (and never committed), which needs Python.

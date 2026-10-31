@@ -38,6 +38,8 @@ target_sources(blitzrt PRIVATE
 	"source/environment.c"
 	"source/runtime.c"
 	"source/runtime_objects.c"
+	"source/blitz32.c"
+	"source/blitz32.h"
 	"source/runtime_strings.c"
 	"source/runtime_system.c"
 	"source/runtime_internal.h"

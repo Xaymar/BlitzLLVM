@@ -42,6 +42,10 @@
 			"description": "The command line options and diagnostics of blitzcc.",
 			"tests": ["^cli-"]
 		},
+		"recompiler": {
+			"description": "blitz-recompiler and the 32 bit support of the runtime that recompiled programs use.",
+			"tests": ["^recompiler-"]
+		},
 		"tools": {
 			"description": "blitz-format, blitz-tidy and the library they share.",
 			"tests": ["^(tools-library|format-|tidy-)"]
@@ -84,6 +88,7 @@
 		{"match": "^tests/cli/", "areas": "cli"},
 		{"match": "^tests/(format|tidy)/", "areas": "tools"},
 		{"match": "^code_(format|tidy|tools)/", "areas": "tools"},
+		{"match": "^(code_recompiler/|tests/recompiler/|code_runtime/source/blitz32\\.[ch]$)", "areas": "recompiler"},
 		{"match": "^code_compiler/userlibs/", "areas": "cli"},
 
 		{"match": "^code_runtime/source/sound\\.c$", "areas": "audio"},
