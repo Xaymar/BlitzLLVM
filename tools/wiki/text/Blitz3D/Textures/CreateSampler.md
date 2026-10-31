@@ -21,7 +21,7 @@ Filters, address modes and the border color, on a texture of two texels (red and
 
 ![Filters, address modes and border colors](media/samplers/samplers_filter_address_border.png)
 
-Mip levels (`SetSamplerLodMin`, `SetSamplerLodMax`, `SetSamplerLodBias`, `SetSamplerFilterMip`) on cubes at three distances, whose texture has a red, a green and a blue level:
+Mip levels (`SetSamplerLodMin`, `SetSamplerLodMax`, `SetSamplerLodBias`, `SamplerFilterMip`) on cubes at three distances, whose texture has a red, a green and a blue level:
 
 ![Mip level settings](media/samplers/samplers_lod.png)
 

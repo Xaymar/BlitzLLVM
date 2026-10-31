@@ -267,7 +267,7 @@ setsampleranisotropy	blitz3d	done	SetSamplerAnisotropy%sampler#anisotropy
 setsamplerbordercolor	blitz3d	done	SetSamplerBorderColor%sampler#r#g#b#a
 samplerfiltermag	blitz3d	done	SamplerFilterMag%sampler%mode
 samplerfiltermin	blitz3d	done	SamplerFilterMin%sampler%mode
-setsamplerfiltermip	blitz3d	done	SetSamplerFilterMip%sampler%mode
+samplerfiltermip	blitz3d	done	SamplerFilterMip%sampler%mode
 setsamplerlodbias	blitz3d	done	SetSamplerLodBias%sampler#bias
 setsamplerlodmax	blitz3d	done	SetSamplerLodMax%sampler#lod
 setsamplerlodmin	blitz3d	done	SetSamplerLodMin%sampler#lod

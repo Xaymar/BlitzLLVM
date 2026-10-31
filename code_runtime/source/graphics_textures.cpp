@@ -1332,8 +1332,8 @@ void bb_set_sampler_filter_mag(int32_t handle, int32_t mode)
 
 void bb_set_sampler_filter_mip(int32_t handle, int32_t mode)
 {
-	sampler_entry* s = need_sampler(handle, "SetSamplerFilterMip");
-	check_mode("SetSamplerFilterMip", mode, 2);
+	sampler_entry* s = need_sampler(handle, "SamplerFilterMip");
+	check_mode("SamplerFilterMip", mode, 2);
 	s->filter_mip = mode;
 	apply_sampler(handle);
 }
