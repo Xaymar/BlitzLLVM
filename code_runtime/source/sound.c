@@ -620,6 +620,9 @@ static void bb_channel_follow(bb_channel* channel, const float* listener, Uint64
 {
 	float source[16];
 	if (!bb_entity_world_matrix(channel->entity, source)) {
+		// The entity was freed (programs emit from a pivot that they free at once): the sound stays where it started, and the handle is let go
+		// so that an entity that gets the same handle later does not move it.
+		channel->entity = 0;
 		return;
 	}
 	bb_motion_update(&channel->motion, source + 12, now);
