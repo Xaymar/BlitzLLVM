@@ -9,6 +9,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const assert = require('assert');
+const { pathToFileURL } = require('url');
 
 const exe = process.argv[2];
 if (!exe) { console.error('usage: lsp_smoke.js <blitz-lsp> [commands.txt]'); process.exit(2); }
@@ -16,6 +17,11 @@ const env = Object.assign({}, process.env);
 if (process.argv[3]) env.BLITZLLVM_COMMANDS = process.argv[3];
 
 const child = spawn(exe, ['--stdio'], { stdio: ['pipe', 'pipe', 'inherit'], env });
+let finished = false;
+// A server that crashed or hangs must fail the test with a message, not wait for the timeout of the test runner.
+child.on('error', (e) => { console.error('could not start', exe, e); process.exit(1); });
+child.on('exit', (code, signal) => { if (!finished) { console.error(`blitz-lsp ended early (code ${code}, signal ${signal})`); process.exit(1); } });
+setTimeout(() => { console.error('timeout: the server did not answer'); child.kill(); process.exit(1); }, 60000).unref();
 let buffer = Buffer.alloc(0);
 const waiting = new Map();
 const notifications = [];
@@ -98,8 +104,8 @@ const applyEdits = (text, edits) => {
   // A program of two files, and another program in the same folder that must not be touched by a rename
   fs.writeFileSync(path.join(dir, 'lib.bb'), 'Global shared = 1\nFunction Helper()\n\tReturn shared\nEnd Function\n');
   fs.writeFileSync(path.join(dir, 'other.bb'), 'Global shared = 2\nPrint shared\n');
-  const uri = 'file://' + file;
-  let result = await request('initialize', { processId: null, rootUri: 'file://' + dir, capabilities: {}, initializationOptions: { warningLevel: 3 } });
+  const uri = pathToFileURL(file).href;
+  let result = await request('initialize', { processId: null, rootUri: pathToFileURL(dir).href, capabilities: {}, initializationOptions: { warningLevel: 3 } });
   for (const c of ['hoverProvider', 'definitionProvider', 'renameProvider', 'documentFormattingProvider', 'documentSymbolProvider', 'codeActionProvider'])
     assert(result.result.capabilities[c], c);
   notify('initialized', {});
@@ -163,7 +169,8 @@ const applyEdits = (text, edits) => {
   result = await request('textDocument/rename', { textDocument: { uri }, position: position(multi, 'shared', 0, 1), newName: 'common' });
   const files = Object.keys(result.result.changes).map((u) => path.basename(u)).sort();
   assert.deepStrictEqual(files, ['lib.bb', 'main.bb'], JSON.stringify(result));
-  assert.strictEqual(result.result.changes['file://' + path.join(dir, 'lib.bb')].length, 2);
+  const libChanges = Object.entries(result.result.changes).find(([u]) => path.basename(u) === 'lib.bb')[1];
+  assert.strictEqual(libChanges.length, 2);
 
   // Formatting
   const messy = 'If  1=1 Then\nPrint   "x"\n   EndIf\n';
@@ -191,5 +198,6 @@ const applyEdits = (text, edits) => {
 
   result = await request('shutdown', null);
   notify('exit', null);
+  finished = true;
   child.on('exit', (code) => { console.log('ok'); process.exit(code === 0 ? 0 : 1); });
 })().catch((e) => { console.error(e); child.kill(); process.exit(1); });
