@@ -557,6 +557,17 @@ foreach(_CASE IN ITEMS fix check recursive diff in_place stdin rules rule_modes 
 	set_tests_properties("tidy-${_CASE}" PROPERTIES LABELS "tidy")
 endforeach()
 
+# blitz-lsp: the language server answers what the Visual Studio Code extension asks of it (tools/vscode/test/lsp_smoke.js). Needs Node.js.
+find_program(NODE_EXECUTABLE NAMES node nodejs)
+if(NODE_EXECUTABLE)
+	add_test(NAME lsp-smoke COMMAND ${NODE_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/vscode/test/lsp_smoke.js" "$<TARGET_FILE:lsp>" "${TEST_DIRECTORY}/suite/functions.txt")
+	set_tests_properties(lsp-smoke PROPERTIES LABELS "tools" TIMEOUT 120)
+endif()
+if(Python3_FOUND)
+	add_test(NAME vscode-grammar COMMAND ${Python3_EXECUTABLE} "${PROJECT_SOURCE_DIR}/../tools/generate_vscode_grammar.py" --check)
+	set_tests_properties(vscode-grammar PROPERTIES LABELS "tools")
+endif()
+
 # Which tests a change has to run (.github/scripts/test-select.py, tests/test_selection.json): the mapping logic, and that every program of the suite is in an area.
 # The comment that lists the results (.github/scripts/test-report.py): what is folded away and what stays visible.
 # The hook that decides which git pushes need no permission prompt (.claude/hooks/check-git-push.py).
