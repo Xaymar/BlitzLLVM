@@ -86,6 +86,7 @@ suite-debug-compile-blitz3d_mipmaps_pixels
 suite-debug-compile-blitz3d_multi_render_original_pixels
 suite-debug-compile-blitz3d_negative_light_pixels
 suite-debug-compile-blitz3d_pick_changes
+suite-debug-compile-blitz3d_pick_large_meshes
 suite-debug-compile-blitz3d_entity_lighting_pixels
 suite-debug-compile-blitz3d_pixels
 suite-debug-compile-blitz3d_samplers
@@ -264,6 +265,8 @@ suite-debug-run-blitz3d_mipmaps_pixels
 suite-debug-run-blitz3d_multi_render_original_pixels
 suite-debug-run-blitz3d_negative_light_pixels
 suite-debug-run-blitz3d_pick_changes
+suite-debug-run-blitz3d_pick_large_meshes
+suite-debug-run-blitz3d_pick_large_meshes-jolt
 suite-debug-run-blitz3d_entity_lighting_pixels
 suite-debug-run-blitz3d_pixels
 suite-debug-run-blitz3d_samplers
