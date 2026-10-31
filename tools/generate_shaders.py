@@ -2031,24 +2031,35 @@ def fragment_shader_oit_resolve(slots):
             entries[i] = [b.emit("Select", f, swap, second[k], first[k]) for k in range(6)]
             entries[i + 1] = [b.emit("Select", f, swap, first[k], second[k]) for k in range(6)]
     zero, one = b.const_float(0.0), b.const_float(1.0)
-    light = [zero, zero, zero]
+    # What the slots let through (the product over all of them does not depend on their order) and what the rest lets through: the sums
+    # hold all layers, so reveal / slots is what is left of the light behind the layers that did not fit.
+    through = one
     taken = [zero, zero, zero, zero]
-    remains = one
     for entry in entries:
-        alpha = entry[4]
-        weight = b.fmul(f, remains, alpha)
-        light = [b.fadd(f, light[k], b.fmul(f, weight, entry[1 + k])) for k in range(3)]
-        remains = b.fmul(f, remains, b.fsub(f, one, alpha))
-        aw = b.fmul(f, alpha, entry[5])
+        through = b.fmul(f, through, b.fsub(f, one, entry[4]))
+        aw = b.fmul(f, entry[4], entry[5])
         taken = [b.fadd(f, taken[k], b.fmul(f, aw, entry[1 + k])) for k in range(3)] + [b.fadd(f, taken[3], aw)]
     sums = b.emit("ImageFetch", v4, b.emit("Image", image_2d, b.load(sampled_2d, accum_tex)), pixel, 2, b.const_int(0))
     reveal = b.extract(b.emit("ImageFetch", v4, b.emit("Image", image_2d, b.load(sampled_2d, reveal_tex)), pixel, 2, b.const_int(0)), 0)
     rest = [b.ext(f, GLSL_FMAX, b.fsub(f, b.extract(sums, k), taken[k]), zero) for k in range(4)]
-    behind = b.ext(f, GLSL_FCLAMP, b.fdiv(f, reveal, b.ext(f, GLSL_FMAX, remains, b.const_float(1e-5))), zero, one)
+    behind = b.ext(f, GLSL_FCLAMP, b.fdiv(f, reveal, b.ext(f, GLSL_FMAX, through, b.const_float(1e-5))), zero, one)
     average = b.fdiv(f, one, b.ext(f, GLSL_FMAX, rest[3], b.const_float(1e-6)))
-    tail = b.fmul(f, remains, b.fsub(f, one, behind))
-    light = [b.fadd(f, light[k], b.fmul(f, tail, b.fmul(f, rest[k], average))) for k in range(3)]
-    covered = b.fsub(f, one, b.fmul(f, remains, behind))
+    tail_color = [b.fmul(f, rest[k], average) for k in range(3)]
+    # The slots are blended from near to far. Every fragment that did not fit lost its slot to a nearer one, so the rest is behind the
+    # nearest slot, but not necessarily behind the others (an opaque layer far away must not hide the layers in front of it): it goes in
+    # right behind the nearest slot.
+    light = [zero, zero, zero]
+    remains = one
+    for index, entry in enumerate(entries):
+        alpha = entry[4]
+        weight = b.fmul(f, remains, alpha)
+        light = [b.fadd(f, light[k], b.fmul(f, weight, entry[1 + k])) for k in range(3)]
+        remains = b.fmul(f, remains, b.fsub(f, one, alpha))
+        if index == 0:
+            tail = b.fmul(f, remains, b.fsub(f, one, behind))
+            light = [b.fadd(f, light[k], b.fmul(f, tail, tail_color[k])) for k in range(3)]
+            remains = b.fmul(f, remains, behind)
+    covered = b.fsub(f, one, remains)
     inverse = b.fdiv(f, one, b.ext(f, GLSL_FMAX, covered, b.const_float(1e-5)))
     b.store(out_color, b.construct(4, b.fmul(f, light[0], inverse), b.fmul(f, light[1], inverse), b.fmul(f, light[2], inverse), covered))
     b.m.code += [Module.inst("Return"), Module.inst("FunctionEnd")]
