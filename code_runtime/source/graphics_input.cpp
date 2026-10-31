@@ -596,46 +596,57 @@ namespace bb::gfx {
 		}
 	}
 
-	// Keeps the pointer where LockMouse asked for it. For a window of the program's own GUI the pointer is confined to
-	// the area of that window (which can move), else to the whole window. Only changes are passed on to the window system.
+	// Keeps the pointer where LockMouse asked for it. For a window or gadget of the program's own GUI the pointer is
+	// confined to the area of it (which can move) in its window, else to the whole window of Graphics. Only changes are
+	// passed on to the window system.
 	static void apply_mouse_lock()
 	{
-		static bool     applied = false;
-		static SDL_Rect last{};
-		if (!g.created || g.headless || !surface().window) {
-			applied = false;
-			return;
-		}
-		SDL_Rect rect{};
-		bool     want = g.mouse_locked;
-		if (want && g.mouse_lock_window) {
-			int32_t x, y, w, h;
-			if (!bb_gui_area(g.mouse_lock_window, &x, &y, &w, &h)) {
-				g.mouse_locked = want = false; // The window is gone, so is the lock.
-				g.mouse_lock_window = 0;
-			} else {
-				float x0, y0, x1, y1;
-				buffer_to_window(float(x), float(y), &x0, &y0);
-				buffer_to_window(float(x + w), float(y + h), &x1, &y1);
-				rect = { int(floorf(x0)), int(floorf(y0)), std::max(1, int(ceilf(x1 - x0))), std::max(1, int(ceilf(y1 - y0))) };
+		static SDL_Window* held = nullptr; // The window that has the pointer held right now.
+		static SDL_Rect    last{};
+		static bool        last_rect = false;
+		SDL_Window*        window    = nullptr;
+		SDL_Rect           rect{};
+		bool               by_rect = false;
+		if (g.mouse_locked && g.created && !g.headless) {
+			window = surface().window;
+			if (g.mouse_lock_window) {
+				int32_t area, x, y, w, h;
+				if (!bb_gui_area(g.mouse_lock_window, &area, &x, &y, &w, &h)) {
+					g.mouse_locked = false; // The window is gone, so is the lock.
+					g.mouse_lock_window = 0;
+				} else {
+					by_rect = true;
+					if (area) {
+						window = static_cast<SDL_Window*>(bb_gui_window_sdl(area));
+						rect   = { x, y, std::max(1, w), std::max(1, h) };
+					} else {
+						float x0, y0, x1, y1;
+						buffer_to_window(float(x), float(y), &x0, &y0);
+						buffer_to_window(float(x + w), float(y + h), &x1, &y1);
+						rect = { int(floorf(x0)), int(floorf(y0)), std::max(1, int(ceilf(x1 - x0))), std::max(1, int(ceilf(y1 - y0))) };
+					}
+				}
 			}
 		}
-		if (!want) {
-			if (applied) {
-				SDL_SetWindowMouseRect(surface().window, nullptr);
-				SDL_SetWindowMouseGrab(surface().window, false);
-				applied = false;
-			}
+		if (!g.mouse_locked || !window) {
+			window = nullptr;
+		}
+		if (held && (held != window)) {
+			SDL_SetWindowMouseRect(held, nullptr);
+			SDL_SetWindowMouseGrab(held, false);
+			held = nullptr;
+		}
+		if (!window) {
 			return;
 		}
-		bool by_rect = g.mouse_lock_window != 0;
-		if (applied && (!by_rect || !memcmp(&rect, &last, sizeof(rect)))) {
+		if (held && (by_rect == last_rect) && (!by_rect || !memcmp(&rect, &last, sizeof(rect)))) {
 			return;
 		}
-		SDL_SetWindowMouseRect(surface().window, by_rect ? &rect : nullptr);
-		SDL_SetWindowMouseGrab(surface().window, true);
-		last    = rect;
-		applied = true;
+		SDL_SetWindowMouseRect(window, by_rect ? &rect : nullptr);
+		SDL_SetWindowMouseGrab(window, true);
+		held      = window;
+		last      = rect;
+		last_rect = by_rect;
 	}
 
 	// Brings in what happened in the window. A program that is suspended (see AutoSuspend) waits here until its window
@@ -904,8 +915,8 @@ void bb_move_mouse(int32_t x, int32_t y, int32_t canvas)
 // UnlockMouse. Without a Graphics window the lock is remembered and applies as soon as there is one.
 void bb_lock_mouse(int32_t window)
 {
-	int32_t x, y, w, h;
-	if (window && !bb_gui_area(window, &x, &y, &w, &h)) {
+	int32_t area, x, y, w, h;
+	if (window && !bb_gui_area(window, &area, &x, &y, &w, &h)) {
 		bb_runtime_error("LockMouse: the window does not exist.");
 		return;
 	}

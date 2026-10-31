@@ -55,8 +55,9 @@ int32_t bb_gui_window_origin(int32_t window, int32_t* x, int32_t* y);
 void    bb_gui_window_event(int32_t window, int32_t kind, int32_t a, int32_t b);
 int32_t bb_gui_window_surface(int32_t gadget);
 void    bb_gui_windows_reopen(void);
+void*   bb_gui_window_sdl(int32_t handle);
 int32_t bb_gui_mouse_in(int32_t canvas, int32_t* x, int32_t* y);
-int32_t bb_gui_area(int32_t handle, int32_t* x, int32_t* y, int32_t* w, int32_t* h);
+int32_t bb_gui_area(int32_t handle, int32_t* surface, int32_t* x, int32_t* y, int32_t* w, int32_t* h);
 int32_t bb_gui_translate(int32_t kind, int32_t* x, int32_t* y, int32_t* source);
 void bb_gui_idle(void);
 }
