@@ -26,7 +26,7 @@ using namespace bb::gfx;
 namespace {
 	constexpr float scrgb_white_nits = 80.0f; // 1.0 in scRGB.
 
-	int   mode         = -1;    // AutoHDR: -1 until BLITZLLVM_AUTOHDR was read.
+	int   mode         = -1;    // AutoHDR: -1 until BLITZLLVM_AUTOHDR was read (2 if it is not set).
 	float white_nits   = -1.0f; // AutoHDRWhite: 0 for the SDR white level of the system. -1 until BLITZLLVM_AUTOHDR_WHITE was read.
 	float peak_nits    = -1.0f; // AutoHDRPeak: 0 for the peak of the display.
 	float expand       = -1.0f; // AutoHDRExpand: how far the highlights are stretched toward the peak with AutoHDR 2, 0 to 1.
@@ -83,7 +83,7 @@ namespace {
 	void read_environment()
 	{
 		if (mode < 0) {
-			mode = std::clamp(bb_env_int("BLITZLLVM_AUTOHDR", 0), 0, 2);
+			mode = std::clamp(bb_env_int("BLITZLLVM_AUTOHDR", 2), 0, 2);
 		}
 		if (white_nits < 0.0f) {
 			white_nits = std::clamp(float(bb_env_double("BLITZLLVM_AUTOHDR_WHITE", 0.0)), 0.0f, 10000.0f);
@@ -92,7 +92,7 @@ namespace {
 			peak_nits = std::clamp(float(bb_env_double("BLITZLLVM_AUTOHDR_PEAK", 0.0)), 0.0f, 10000.0f);
 		}
 		if (expand < 0.0f) {
-			expand = std::clamp(float(bb_env_double("BLITZLLVM_AUTOHDR_EXPAND", 0.5)), 0.0f, 1.0f);
+			expand = std::clamp(float(bb_env_double("BLITZLLVM_AUTOHDR_EXPAND", 1.0)), 0.0f, 1.0f);
 		}
 	}
 
@@ -322,7 +322,7 @@ namespace bb::gfx {
 
 extern "C" {
 
-// AutoHDR mode: 0 shows the window as it always was. 1 shows it in HDR where the display has HDR switched on and the driver offers it
+// AutoHDR mode: 0 shows the window as it always was. It is 2 by default, which does nothing where there is no HDR. 1 shows it in HDR where the display has HDR switched on and the driver offers it
 // (HWHDRSupported): the same picture, with SDR white at the brightness the system has set. 2 also stretches the highlights toward
 // the peak of the display, which is the look of the AutoHDR of Windows. Where there is no HDR it does nothing. Can be set before Graphics.
 void bb_auto_hdr(int32_t value)
@@ -354,7 +354,7 @@ void bb_auto_hdr_peak(float nits)
 	meta_dirty = true;
 }
 
-// AutoHDRExpand: how far the highlights go toward the peak with AutoHDR 2, from 0 (none) to 1 (white reaches the peak).
+// AutoHDRExpand: how far the highlights go toward the peak with AutoHDR 2, from 0 (none) to 1 (white reaches the peak, the default).
 void bb_auto_hdr_expand(float strength)
 {
 	read_environment();
