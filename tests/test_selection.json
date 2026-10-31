@@ -4,7 +4,7 @@
 	"areas": {
 		"language": {
 			"description": "The language itself: arithmetic, strings, types, and the programs the compiler has to refuse or the runtime has to stop.",
-			"tests": ["^suite-(debug-)?(compile|run)-(language|void_function|evaluation_order|numeric|math|strings|handles|runtime|reject-|fail-(dim_overflow|runtimeerror|delete_null|object_deleted_field|object_deleted_insert))"]
+			"tests": ["^suite-(debug-)?(compile|run)-(language|void_function|evaluation_order|numeric|math|strings|handles|runtime|reject-|fail-(dim_overflow|runtimeerror|delete_null|object_deleted_field|object_deleted_insert|object_deleted_param))"]
 		},
 		"files": {
 			"description": "Files, streams and banks.",
