@@ -59,7 +59,7 @@ endmacro()
 macro(expect_out WANT)
 	string(HEX "${WANT}" _WANT_HEX)
 	if(NOT OUT_HEX STREQUAL _WANT_HEX)
-		message(FATAL_ERROR "Expected the output:\n${WANT}\n---- got:\n${OUT}\n---- stderr:\n${ERR}")
+		message(FATAL_ERROR "Expected the output:\n${WANT}\n---- got:\n${OUT}\n---- hex of want:\n${_WANT_HEX}\n---- hex of got:\n${OUT_HEX}\n---- stderr:\n${ERR}")
 	endif()
 endmacro()
 
