@@ -111,6 +111,8 @@ namespace bb::models {
 		float  light_color[3] = { 1, 1, 1 };
 		float  light_range    = 1000;
 		float  light_cone[2]  = { 0, 90 };
+		int    camera = 0;                  // 0 = not a camera, 1 = perspective, 2 = orthographic. A camera of a model is made without a view (CameraProjMode 0), so it does not draw by itself.
+		float  cam_zoom = 1, cam_near = 1, cam_far = 1000;
 		int    mesh_brush = -1;
 		buffer<vertex_info>    vertices;
 		buffer<triangle_group*> groups;

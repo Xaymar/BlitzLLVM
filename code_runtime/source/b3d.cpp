@@ -616,7 +616,7 @@ namespace {
 		for (uint32_t i = 0; i < m.nodes.size; i++) {
 			node_info& n = *m.nodes[i];
 			int        up = n.parent >= 0 ? handles[uint32_t(n.parent)] : parent;
-			int        kind   = n.has_mesh ? MESH : (n.light ? LIGHT : PIVOT);
+			int        kind   = n.has_mesh ? MESH : (n.light ? LIGHT : (n.camera ? CAMERA : PIVOT));
 			int        handle = i == 0 && reuse ? reuse : create_entity(kind, up);
 			if (reuse && (handle == reuse)) {
 				set_entity_kind(handle, kind);
@@ -629,6 +629,13 @@ namespace {
 				memcpy(light->light_color, n.light_color, sizeof(n.light_color));
 				light->light_range = n.light_range;
 				memcpy(light->light_cone, n.light_cone, sizeof(n.light_cone));
+			}
+			if (n.camera) {
+				entity* camera       = get_entity(handle);
+				camera->cam_zoom     = n.cam_zoom;
+				camera->cam_near     = n.cam_near;
+				camera->cam_far      = n.cam_far;
+				camera->cam_projection = 0; // Switched on by CameraProjMode, so that it does not draw over the camera of the program.
 			}
 			if (n.hidden) {
 				get_entity(handle)->hidden = true;

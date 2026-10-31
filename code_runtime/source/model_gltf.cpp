@@ -662,8 +662,66 @@ namespace {
 				n->skin_joint.release();
 				n->skin_weight.release();
 			}
+			if (node->light) {
+				add_light(*node->light, index);
+			}
+			if (node->camera) {
+				add_camera(*node->camera, index);
+			}
 			for (size_t i = 0; i < node->children_count; i++) {
 				add_node(node->children[i], index, depth + 1);
+			}
+		}
+
+		// Lights and cameras of glTF look down their -z, those of Blitz3D along +z: they are entities of their own below the node, turned around.
+		node_info* attachment(const char* name, const char* fallback, int parent)
+		{
+			node_info* n = new node_info();
+			n->parent    = parent;
+			n->rot[0]    = 0; // A half turn about y: w, x, y, z.
+			n->rot[1]    = 0;
+			n->rot[2]    = 1;
+			n->rot[3]    = 0;
+			std::string label = (name && name[0]) ? name : (m.nodes[uint32_t(parent)]->name ? std::string(m.nodes[uint32_t(parent)]->name) + fallback : std::string(fallback + 1));
+			n->name      = duplicate(label);
+			m.nodes.push(n);
+			return n;
+		}
+
+		void add_light(const cgltf_light& light, int parent)
+		{
+			node_info* n = attachment(light.name, " light", parent);
+			n->light     = light.type == cgltf_light_type_directional ? 1 : (light.type == cgltf_light_type_spot ? 3 : 2);
+			for (int c = 0; c < 3; c++) {
+				n->light_color[c] = std::min(std::max(light.color[c], 0.0f), 1.0f);
+			}
+			if (light.range > 0) {
+				n->light_range = light.range;
+			}
+			if (n->light == 3) {
+				// The angles of glTF are from the middle of the cone to its edge, those of Blitz3D are across it.
+				n->light_cone[0] = light.spot_inner_cone_angle * 2 * 180.0f / 3.14159265358979f;
+				n->light_cone[1] = light.spot_outer_cone_angle * 2 * 180.0f / 3.14159265358979f;
+			}
+		}
+
+		void add_camera(const cgltf_camera& camera, int parent)
+		{
+			node_info* n = attachment(camera.name, " camera", parent);
+			if (camera.type == cgltf_camera_type_orthographic) {
+				n->camera   = 2;
+				n->cam_near = std::max(camera.data.orthographic.znear, 1e-4f);
+				n->cam_far  = camera.data.orthographic.zfar > n->cam_near ? camera.data.orthographic.zfar : 1000.0f;
+				// The view is n / zoom wide at the near plane, which is half as wide as glTF says (xmag is the half width).
+				n->cam_zoom = camera.data.orthographic.xmag > 1e-6f ? n->cam_near / camera.data.orthographic.xmag : 1.0f;
+			} else {
+				n->camera   = 1;
+				n->cam_near = std::max(camera.data.perspective.znear, 1e-4f);
+				n->cam_far  = (camera.data.perspective.has_zfar && camera.data.perspective.zfar > n->cam_near) ? camera.data.perspective.zfar : 1000.0f;
+				// glTF gives the vertical angle, and the zoom of Blitz3D is for the width: 1 is 90 degrees. Without an aspect ratio, 4:3 is used.
+				float aspect = (camera.data.perspective.has_aspect_ratio && camera.data.perspective.aspect_ratio > 1e-3f) ? camera.data.perspective.aspect_ratio : 4.0f / 3.0f;
+				float half   = tanf(std::min(std::max(camera.data.perspective.yfov, 1e-3f), 3.1f) * 0.5f) * aspect;
+				n->cam_zoom  = 1.0f / half;
 			}
 		}
 
