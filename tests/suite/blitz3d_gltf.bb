@@ -164,5 +164,27 @@ CloseFile source
 DeleteFile "suite_gltf_cut.glb"
 CheckTrue "Damaged files were survived", True
 
+; Lights and cameras become entities under the node they sit on, turned around so that they look along -Z of the file.
+rig2 = LoadAnimMesh("models/gltf_lights.gltf")
+holder = FindChild(rig2, "holder")
+lampnode = FindChild(rig2, "lamp")
+lamp = FindChild(rig2, "lamp light")
+eye = FindChild(rig2, "eye camera")
+sun = FindChild(rig2, "sun light")
+CheckTrue "The light is made", lamp <> 0
+CheckTrue "The camera is made", eye <> 0
+CheckTrue "The second light is made", sun <> 0
+CheckTrue "The light is under its node", GetParent(lamp) = lampnode
+CheckTrue "The node is under the holder", GetParent(lampnode) = holder
+CheckS "A light is a light", EntityClass(lamp), "Light"
+CheckS "A camera is a camera", EntityClass(eye), "Camera"
+TFormVector 0, 0, 1, lamp, holder
+Check "The light looks along the file's -Z", TFormedZ(), -1, 0.001
+TFormVector 0, 0, 1, eye, holder
+Check "The camera looks along the file's -Z", TFormedZ(), -1, 0.001
+Check "The camera is at the node", EntityX(eye, True), -1, 0.001
+Check "The camera is at the node in z", EntityZ(eye, True), 3, 0.001
+FreeEntity rig2
+
 EndGraphics
 Done "blitz3d_gltf"

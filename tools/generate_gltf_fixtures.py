@@ -229,6 +229,27 @@ def materials(out):
     (out / "gltf_materials.glb").write_bytes(glb(doc, b.data))
 
 
+def lights(out):
+    doc = {
+        "asset": {"version": "2.0", "generator": "generate_gltf_fixtures.py"},
+        "extensionsUsed": ["KHR_lights_punctual"],
+        "scene": 0,
+        "scenes": [{"nodes": [0]}],
+        "nodes": [
+            {"name": "holder", "translation": [1, 2, 3], "children": [1, 2, 3]},
+            {"name": "lamp", "extensions": {"KHR_lights_punctual": {"light": 0}}},
+            {"name": "eye", "camera": 0},
+            {"name": "sun", "extensions": {"KHR_lights_punctual": {"light": 1}}},
+        ],
+        "extensions": {"KHR_lights_punctual": {"lights": [
+            {"type": "spot", "color": [1.0, 0.5, 0.25], "range": 20, "spot": {"innerConeAngle": 0.2, "outerConeAngle": 0.5}},
+            {"type": "point", "color": [0.0, 1.0, 0.0]},
+        ]}},
+        "cameras": [{"type": "perspective", "perspective": {"yfov": 1.0, "aspectRatio": 1.0, "znear": 0.5, "zfar": 50}}],
+    }
+    (out / "gltf_lights.gltf").write_text(json.dumps(doc, indent=1))
+
+
 def main():
     if len(sys.argv) != 2:
         print(__doc__)
@@ -239,6 +260,7 @@ def main():
     textured(out)
     rig(out)
     materials(out)
+    lights(out)
     (out / "gltf_bad.gltf").write_text('{"asset":{"version":"2.0"},"scenes":[{"nodes":[0]}],"nodes":[{"name":"x","mesh":0}],"meshes":[{"primitiv')
     return 0
 
