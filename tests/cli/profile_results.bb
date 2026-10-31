@@ -25,6 +25,6 @@ Local items = 1
 For i = 0 To ProfileItemCount() - 1
 	If ProfileItemName$(i) = "" Then items = 0
 Next
-DebugLog "frame0=" + (ProfileFrameValue("frame") > 0) + " file=" + size + " mine=" + (ProfileFrameValue("MINE") > 1) + " items=" + items + " number=" + (ProfileFrameNumber() > 0)
+DebugLog "frame0=" + (ProfileValue("frame") > 0) + " file=" + size + " mine=" + (ProfileValue("MINE") > 1) + " items=" + items + " number=" + (ProfileFlipCount() > 0)
 DeleteFile file
 End

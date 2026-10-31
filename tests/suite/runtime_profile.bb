@@ -19,15 +19,15 @@ CheckTrue "the commands of profiling can be called in any order", True
 ProfileOutput ""
 ProfileSlow 5
 ProfileSlow 0
-CheckTrue "the number of the last frame is not negative", ProfileFrameNumber() >= 0
+CheckTrue "the number of the last frame is not negative", ProfileFlipCount() >= 0
 ProfileSectionStart "section"
 ProfileSectionEnd "section"
 ProfileSectionEnd "section"
 ProfileSectionStart "frame"
 ProfileSectionEnd "frame"
-CheckTrue "a section is found by its key in any case", ProfileFrameValue("SECTION") >= 0
-CheckTrue "a key that does not exist is 0", ProfileFrameValue("no such item") = 0
-CheckTrue "the time of the last frame is not negative", ProfileFrameValue("frame") >= 0
+CheckTrue "a section is found by its key in any case", ProfileValue("SECTION") >= 0
+CheckTrue "a key that does not exist is 0", ProfileValue("no such item") = 0
+CheckTrue "the time of the last frame is not negative", ProfileValue("frame") >= 0
 CheckTrue "there is a name for every item", ProfileItemName$(0) <> "" And ProfileItemName$(ProfileItemCount() - 1) <> ""
 CheckTrue "no name for an item that does not exist", ProfileItemName$(ProfileItemCount()) = ""
 
