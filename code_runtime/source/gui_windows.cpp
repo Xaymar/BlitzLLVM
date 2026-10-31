@@ -324,8 +324,9 @@ int32_t bb_window_menu(int32_t handle)
 }
 
 // What the computer did with a window of the GUI (graphics_input.cpp): 1 moved it to a, b; 2 sized it to a by b; 3 was asked to
-// close it; 4 gave it the focus; 5 took the focus; 6 minimized it; 7 maximized it; 8 restored it; 9 the mouse came in; 10 it left.
-// The program is told the way BlitzPlus tells: $801 and $802 for the shape, $803 for the close box, $804 for the focus.
+// close it; 4 gave it the focus; 5 took the focus; 6 minimized it; 7 maximized it; 8 restored it; 9 the mouse came in; 10 it left;
+// 11 scales it differently now. The program is told the way BlitzPlus tells: $801 and $802 for the shape, $803 for the close box,
+// $804 for the focus. Places and sizes are in the units of the program, whatever the display scales them by.
 void bb_gui_window_event(int32_t window, int32_t kind, int32_t a, int32_t b)
 {
 	int     handle = gadget_of_surface(window);
@@ -391,6 +392,14 @@ void bb_gui_window_event(int32_t window, int32_t kind, int32_t a, int32_t b)
 		break;
 	case 8:
 		g->minimized = g->maximized = false;
+		dirty();
+		break;
+	case 11:
+		// Another display, another scale: the window keeps its size in the units of the program, so its size in those of the
+		// computer changes, and its gadgets are drawn again at the new scale.
+		if (!g->minimized && !g->maximized) {
+			bb_gui_window_set_shape(g->surface, g->x, g->y, g->w, g->h);
+		}
 		dirty();
 		break;
 	default:

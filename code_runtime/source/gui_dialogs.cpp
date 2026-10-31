@@ -17,9 +17,6 @@
 extern "C" {
 void    bb_graphics_idle(void);
 void    bb_color(int32_t r, int32_t g, int32_t b);
-void    bb_rect(int32_t x, int32_t y, int32_t w, int32_t h, int32_t solid);
-void    bb_gui_text(int32_t x, int32_t y, const char* s, int32_t font, int32_t size);
-void    bb_viewport(int32_t x, int32_t y, int32_t w, int32_t h);
 int32_t bb_load_font(const char* name, int32_t height, int32_t bold, int32_t italic, int32_t underline);
 int32_t bb_gui_live(void);
 }
@@ -79,7 +76,7 @@ namespace bb::gui {
 		void rectangle(box b, int r, int g, int bl)
 		{
 			bb_color(r, g, bl);
-			bb_rect(b.x, b.y, b.w, b.h, 1);
+			gui_fill(b.x, b.y, b.w, b.h);
 		}
 
 		void draw_dialog(int window, int width, int height)
@@ -90,25 +87,25 @@ namespace bb::gui {
 			dialog.w = width;
 			dialog.h = height;
 			box w    = window_box();
-			bb_viewport(0, 0, width, height);
+			gui_clip(0, 0, width, height);
 			rectangle({ w.x - 2, w.y - 2, w.w + 4, w.h + 4 }, 0, 0, 0);
 			rectangle(w, 212, 208, 200);
 			rectangle({ w.x, w.y, w.w, 24 }, 10, 36, 106);
 			bb_color(255, 255, 255);
-			bb_gui_text(w.x + 8, w.y + 6, dialog.kind ? "Font" : "Color", 0, 12);
+			gui_text(w.x + 8, w.y + 6, dialog.kind ? "Font" : "Color", 0, 12);
 			if (!dialog.kind) {
 				static const char* names[3] = { "Red", "Green", "Blue" };
 				for (int i = 0; i < 3; i++) {
 					box b = bar_box(i);
 					bb_color(0, 0, 0);
-					bb_gui_text(w.x + 10, b.y + 2, names[i], 0, 12);
+					gui_text(w.x + 10, b.y + 2, names[i], 0, 12);
 					rectangle({ b.x - 1, b.y - 1, 258, 18 }, 128, 128, 128);
 					rectangle(b, 255, 255, 255);
 					rectangle({ b.x, b.y, dialog.value[i], b.h }, i == 0 ? 200 : 0, i == 1 ? 160 : 0, i == 2 ? 220 : 0);
 					char text[8];
 					snprintf(text, sizeof(text), "%d", dialog.value[i]);
 					bb_color(0, 0, 0);
-					bb_gui_text(b.x + 262, b.y + 2, text, 0, 12);
+					gui_text(b.x + 262, b.y + 2, text, 0, 12);
 				}
 				rectangle({ w.x + 10, w.y + 140, 54, 40 }, dialog.value[0], dialog.value[1], dialog.value[2]);
 			} else {
@@ -124,7 +121,7 @@ namespace bb::gui {
 					} else {
 						bb_color(0, 0, 0);
 					}
-					bb_gui_text(row.x + 4, row.y + 4, text, 0, 12);
+					gui_text(row.x + 4, row.y + 4, text, 0, 12);
 				}
 			}
 			box ok = ok_box(), cancel = cancel_box();
@@ -133,8 +130,8 @@ namespace bb::gui {
 			rectangle(cancel, 128, 128, 128);
 			rectangle({ cancel.x + 1, cancel.y + 1, cancel.w - 2, cancel.h - 2 }, 212, 208, 200);
 			bb_color(0, 0, 0);
-			bb_gui_text(ok.x + 28, ok.y + 6, "OK", 0, 12);
-			bb_gui_text(cancel.x + 10, cancel.y + 6, "Cancel", 0, 12);
+			gui_text(ok.x + 28, ok.y + 6, "OK", 0, 12);
+			gui_text(cancel.x + 10, cancel.y + 6, "Cancel", 0, 12);
 		}
 
 		void set_bar(int i, int x)
@@ -255,8 +252,9 @@ namespace bb::gui {
 					return false;
 				}
 			}
-			if (dialog.surface) {
-				bb_gui_window_pixel_size(dialog.surface, &dialog.w, &dialog.h);
+			if (gadget* g = gadget_of(dialog.window); g && dialog.surface) {
+				dialog.w = g->w; // In the units of the program, which the window is drawn in, whatever the display scales them by.
+				dialog.h = g->h;
 			}
 			ui.modal       = 1;
 			modal_handler  = on_event;

@@ -92,7 +92,7 @@ namespace bb::gfx {
 		}
 	}
 
-	int create_extra_surface(const char* title, int width, int height, int resizable, int borderless)
+	int create_extra_surface(const char* title, int width, int height, int resizable, int borderless, int high_density)
 	{
 		if (g.headless || !g.device || (width < 1) || (height < 1)) {
 			return 0;
@@ -113,6 +113,9 @@ namespace bb::gfx {
 		}
 		if (borderless) {
 			flags |= SDL_WINDOW_BORDERLESS;
+		}
+		if (high_density) {
+			flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY; // Every pixel of a display with more of them than units, for the windows of the GUI.
 		}
 		surface_state* s = new surface_state();
 		extras[handle - 1] = s;
@@ -270,22 +273,96 @@ namespace bb::gfx {
 // The windows of the BlitzPlus GUI (gui_windows.cpp): a top-level CreateWindow is one of these, with a thread that shows its
 // picture. The gadgets stay with the GUI; this is only the window, its picture and what SDL knows about it.
 ////////////////////////////////////////////////////////////////////////////////
+namespace bb::gfx {
+	// The windows of the GUI are as big on a display with a high density of pixels as they would be on one with the usual density:
+	// a program's unit is as many pixels as the scale of the display says (1.5 for Windows at 150 %, 2 for a Retina display), and
+	// the GUI draws its gadgets with that many pixels, sharp. The program sees nothing of it: the sizes and places of gadgets, the
+	// mouse and the buffers of canvases stay in its units; the picture of a canvas is enlarged when the window is drawn.
+	// BLITZLLVM_GUI_SCALE sets the scale for every window instead: 0 (or 1) keeps a unit one pixel, as the original has it.
+	static float forced_gui_scale()
+	{
+		static thread_local float forced = -2.0f;
+		if (forced == -2.0f) {
+			const char* value = bb_env("BLITZLLVM_GUI_SCALE");
+			forced            = (value && *value) ? float(bb_env_double("BLITZLLVM_GUI_SCALE", 0.0)) : -1.0f;
+			if ((forced >= 0.0f) && (forced < 0.5f)) {
+				forced = 1.0f; // Off: a unit is a pixel.
+			}
+			if (forced > 8.0f) {
+				forced = 8.0f;
+			}
+		}
+		return forced;
+	}
+
+	void update_gui_scale(surface_state& s)
+	{
+		float density = s.window ? SDL_GetWindowPixelDensity(s.window) : 1.0f;
+		float natural = s.window ? SDL_GetWindowDisplayScale(s.window) : 1.0f;
+		float forced  = forced_gui_scale();
+		density       = density > 0.0f ? density : 1.0f;
+		s.scale       = forced > 0.0f ? forced : (natural > 0.0f ? natural : 1.0f);
+		s.units       = s.scale / density;
+	}
+
+	float gui_desktop_units()
+	{
+		// The units of the windows that are open, which are on the desktop, else those of the main display.
+		for (int i = 1; i <= max_extra_surfaces; i++) {
+			if (surface_state* s = extra_surface(i); s && s->gui && s->window) {
+				return s->units;
+			}
+		}
+		float forced = forced_gui_scale();
+		if (forced > 0.0f) {
+			return forced;
+		}
+		float scale = SDL_WasInit(SDL_INIT_VIDEO) ? SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) : 1.0f;
+		return scale > 0.0f ? scale : 1.0f;
+	}
+
+	static int in_units(int value, float units)
+	{
+		return int(lroundf(float(value) * units));
+	}
+
+	// The window has the size of the gadget in the units of the program, whatever the display scales it by.
+	static void size_window(surface_state& s, int w, int h)
+	{
+		int cw = 0, ch = 0, sw = in_units(w > 0 ? w : 1, s.units), sh = in_units(h > 0 ? h : 1, s.units);
+		SDL_GetWindowSize(s.window, &cw, &ch);
+		if ((cw != sw) || (ch != sh)) {
+			SDL_SetWindowSize(s.window, sw > 0 ? sw : 1, sh > 0 ? sh : 1);
+		}
+	}
+} // namespace bb::gfx
+
 extern "C" {
 
+// How many units of SDL a unit of the desktop of the GUI is, for the GUI (its desktop is the display in the units of the program).
+float bb_gui_desktop_scale(void)
+{
+	return gui_desktop_units();
+}
+
 // Opens a window for a gadget. flags: 1 the window can be sized, 2 it has no frame, 4 it is a tool window, 8 it starts hidden.
-// 0 where no window can be made (no graphics, or headless): the gadget is then drawn on the desktop as before.
+// 0 where no window can be made (no graphics, or headless): the gadget is then drawn on the desktop as before. The place and
+// the size are in the units of the program, the window is scaled from them (update_gui_scale).
 int32_t bb_gui_window_open(const char* title, int32_t x, int32_t y, int32_t w, int32_t h, int32_t flags)
 {
 	if (!active()) {
 		return 0;
 	}
-	int handle = create_extra_surface(title, w, h, (flags & 1) ? 1 : 0, (flags & 2) ? 1 : 0);
+	float units  = gui_desktop_units();
+	int   handle = create_extra_surface(title, in_units(w, units), in_units(h, units), (flags & 1) ? 1 : 0, (flags & 2) ? 1 : 0, 1);
 	surface_state* s = extra_surface(handle);
 	if (!s) {
 		return 0;
 	}
 	s->gui = true;
-	SDL_SetWindowPosition(s->window, x, y);
+	SDL_SetWindowPosition(s->window, in_units(x, units), in_units(y, units));
+	update_gui_scale(*s);
+	size_window(*s, w, h); // The display the window landed on may scale differently from the guess.
 	SDL_StartTextInput(s->window);
 	if (flags & 4) {
 		SDL_SetWindowParent(s->window, surface().window);
@@ -312,18 +389,17 @@ void bb_gui_window_set_title(int32_t handle, const char* title)
 	}
 }
 
+// In the units of the program: the place is scaled like the desktop, the size like the window.
 void bb_gui_window_set_shape(int32_t handle, int32_t x, int32_t y, int32_t w, int32_t h)
 {
 	if (surface_state* s = extra_surface(handle)) {
-		int cx = 0, cy = 0, cw = 0, ch = 0;
+		float units = gui_desktop_units();
+		int   cx = 0, cy = 0, sx = in_units(x, units), sy = in_units(y, units);
 		SDL_GetWindowPosition(s->window, &cx, &cy);
-		SDL_GetWindowSize(s->window, &cw, &ch);
-		if ((cx != x) || (cy != y)) {
-			SDL_SetWindowPosition(s->window, x, y);
+		if ((cx != sx) || (cy != sy)) {
+			SDL_SetWindowPosition(s->window, sx, sy);
 		}
-		if ((cw != w) || (ch != h)) {
-			SDL_SetWindowSize(s->window, w > 0 ? w : 1, h > 0 ? h : 1);
-		}
+		size_window(*s, w, h);
 	}
 }
 
@@ -366,8 +442,15 @@ void bb_gui_window_state(int32_t handle, int32_t state)
 void bb_gui_window_min_size(int32_t handle, int32_t w, int32_t h)
 {
 	if (surface_state* s = extra_surface(handle)) {
-		SDL_SetWindowMinimumSize(s->window, w > 0 ? w : 0, h > 0 ? h : 0);
+		SDL_SetWindowMinimumSize(s->window, w > 0 ? in_units(w, s->units) : 0, h > 0 ? in_units(h, s->units) : 0);
 	}
+}
+
+// How many pixels a unit of the program is in a window of the GUI, which its gadgets are drawn with.
+float bb_gui_window_scale(int32_t handle)
+{
+	surface_state* s = extra_surface(handle);
+	return s ? s->scale : 1.0f;
 }
 
 // The size of the window in pixels, which is what its picture has to be.

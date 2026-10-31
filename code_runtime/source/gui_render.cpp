@@ -35,6 +35,8 @@ int32_t bb_gui_text_width(int32_t font, const char* s, int32_t length, int32_t s
 void    bb_draw_block(int32_t handle, int32_t x, int32_t y, int32_t frame);
 void    bb_draw_image_rect(int32_t handle, int32_t x, int32_t y, int32_t rx, int32_t ry, int32_t rw, int32_t rh, int32_t frame);
 void    bb_tile_image(int32_t handle, int32_t x, int32_t y, int32_t frame);
+int32_t bb_image_width(int32_t handle);
+int32_t bb_image_height(int32_t handle);
 int32_t bb_millisecs(void);
 int32_t bb_gui_live(void);
 int32_t bb_save_buffer(int32_t buffer, const char* file, const char* settings);
@@ -108,6 +110,55 @@ namespace bb::gui {
 		rect clip;
 		int  overlay_combo = 0;
 
+		// The gadgets are placed and sized in the units of the program; a window of the computer on a display that scales them has
+		// more pixels than that (bb_gui_window_scale), and everything is drawn that many times bigger, sharp: every position is
+		// scaled here, where the drawing functions are called, and nothing else knows. The desktop of the window of Graphics is
+		// not scaled: its pixels are the program's.
+		thread_local float draw_scale = 1.0f;
+
+		int sx(int v)
+		{
+			return int(lroundf(float(v) * draw_scale));
+		}
+
+		// A line of the GUI is a pixel wide in the units of the program, that many pixels at the scale: the line is drawn as often, shifted
+		// across its direction.
+		void line_at(int x1, int y1, int x2, int y2)
+		{
+			int thick = sx(1) > 0 ? sx(1) : 1;
+			bool steep = abs(y2 - y1) >= abs(x2 - x1);
+			for (int i = 0; i < thick; i++) {
+				if (steep) {
+					bb_line(sx(x1) + i, sx(y1), sx(x2) + i, sx(y2));
+				} else {
+					bb_line(sx(x1), sx(y1) + i, sx(x2), sx(y2) + i);
+				}
+			}
+		}
+
+		void oval_at(int x, int y, int w, int h, bool solid)
+		{
+			bb_oval(sx(x), sx(y), sx(x + w) - sx(x), sx(y + h) - sx(y), solid ? 1 : 0);
+		}
+
+		// A part of an image, stretched by the scale.
+		void image_at(int image, int x, int y, int w, int h, int rx, int ry, int rw, int rh)
+		{
+			bb_gui_draw_image(image, sx(x), sx(y), sx(x + w) - sx(x), sx(y + h) - sx(y), rx, ry, rw, rh);
+		}
+
+		void text_px(int x, int y, const char* text, int font, int size)
+		{
+			bb_gui_text_scaled(x, y, text, font, size, draw_scale);
+		}
+
+		// Sets the scale for the drawing of one window, and puts the one before back after it.
+		struct scale_guard {
+			float saved;
+			explicit scale_guard(float scale) : saved(draw_scale) { draw_scale = scale > 0.0f ? scale : 1.0f; }
+			~scale_guard() { draw_scale = saved; }
+		};
+
 		rect intersect(rect a, rect b)
 		{
 			int x1 = a.x > b.x ? a.x : b.x, y1 = a.y > b.y ? a.y : b.y;
@@ -123,7 +174,7 @@ namespace bb::gui {
 		void clip_to(rect r)
 		{
 			clip = r;
-			bb_viewport(r.x, r.y, r.w, r.h);
+			bb_viewport(sx(r.x), sx(r.y), sx(r.x + r.w) - sx(r.x), sx(r.y + r.h) - sx(r.y));
 		}
 
 		void color(rgb c)
@@ -137,7 +188,7 @@ namespace bb::gui {
 				return;
 			}
 			color(c);
-			bb_rect(x, y, w, h, 1);
+			bb_rect(sx(x), sx(y), sx(x + w) - sx(x), sx(y + h) - sx(y), 1);
 		}
 
 		void hline(int x, int y, int w, rgb c)
@@ -192,7 +243,7 @@ namespace bb::gui {
 				return;
 			}
 			color(c);
-			bb_gui_text(x, y, text, g.font, font_size(g));
+			text_px(x, y, text, g.font, font_size(g));
 		}
 
 		void text_run(int x, int y, const char* text, int length, int font, int size, rgb c)
@@ -204,7 +255,7 @@ namespace bb::gui {
 			memcpy(copy, text, size_t(length));
 			copy[length] = 0;
 			color(c);
-			bb_gui_text(x, y, copy, font, size);
+			text_px(x, y, copy, font, size);
 			bb_free(copy);
 		}
 
@@ -267,7 +318,7 @@ namespace bb::gui {
 		{
 			icon_strip* strip = strip_of(g.strip);
 			if (strip && (icon >= 0) && (icon < strip->count)) {
-				bb_draw_image_rect(strip->image, x, y, icon * strip->size, 0, strip->size, strip->size, 0);
+				image_at(strip->image, x, y, strip->size, strip->size, icon * strip->size, 0, strip->size, strip->size);
 			}
 		}
 
@@ -345,19 +396,19 @@ namespace bb::gui {
 					edge(bx, by, 13, 13, true);
 					if (g.state) {
 						color(g.enabled ? black : grey_text);
-						bb_line(bx + 3, by + 6, bx + 5, by + 8);
-						bb_line(bx + 5, by + 8, bx + 10, by + 3);
-						bb_line(bx + 3, by + 7, bx + 5, by + 9);
-						bb_line(bx + 5, by + 9, bx + 10, by + 4);
+						line_at(bx + 3, by + 6, bx + 5, by + 8);
+						line_at(bx + 5, by + 8, bx + 10, by + 3);
+						line_at(bx + 3, by + 7, bx + 5, by + 9);
+						line_at(bx + 5, by + 9, bx + 10, by + 4);
 					}
 				} else {
 					color(g.enabled ? white : face);
-					bb_oval(bx, by, 13, 13, 1);
+					oval_at(bx, by, 13, 13, 1);
 					color(shadow);
-					bb_oval(bx, by, 13, 13, 0);
+					oval_at(bx, by, 13, 13, 0);
 					if (g.state) {
 						color(g.enabled ? black : grey_text);
-						bb_oval(bx + 4, by + 4, 5, 5, 1);
+						oval_at(bx + 4, by + 4, 5, 5, 1);
 					}
 				}
 				text_at(g, x + 19, y + (g.h - size) / 2, text, text_color_of(g));
@@ -701,7 +752,14 @@ namespace bb::gui {
 			rgb c = g.has_color ? rgb { g.color[0], g.color[1], g.color[2] } : face;
 			fill(x, y, g.w, g.h, c);
 			if (g.image) {
-				bb_tile_image(g.image, x, y, 0);
+				// Tiled over the panel, in the units of the program, from its top left.
+				int iw = bb_image_width(g.image), ih = bb_image_height(g.image);
+				for (int ty = 0; (iw > 0) && (ih > 0) && (ty < g.h); ty += ih) {
+					for (int tx = 0; tx < g.w; tx += iw) {
+						int w = tx + iw > g.w ? g.w - tx : iw, h = ty + ih > g.h ? g.h - ty : ih;
+						image_at(g.image, x + tx, y + ty, w, h, 0, 0, w, h);
+					}
+				}
 			}
 			if (g.style & 1) {
 				edge(x, y, g.w, g.h, true);
@@ -712,7 +770,7 @@ namespace bb::gui {
 		{
 			fill(x, y, g.w, g.h, black);
 			if (g.image) {
-				bb_draw_block(g.image, x, y, 0);
+				image_at(g.image, x, y, g.canvas_w, g.canvas_h, 0, 0, g.canvas_w, g.canvas_h); // The picture is in the units of the program.
 			}
 		}
 
@@ -761,10 +819,10 @@ namespace bb::gui {
 			switch (glyph) {
 			case 0: // Close
 				color(black);
-				bb_line(x + 5, y + 4, x + 12, y + 11);
-				bb_line(x + 6, y + 4, x + 13, y + 11);
-				bb_line(x + 12, y + 4, x + 5, y + 11);
-				bb_line(x + 13, y + 4, x + 6, y + 11);
+				line_at(x + 5, y + 4, x + 12, y + 11);
+				line_at(x + 6, y + 4, x + 13, y + 11);
+				line_at(x + 12, y + 4, x + 5, y + 11);
+				line_at(x + 13, y + 4, x + 6, y + 11);
 				break;
 			case 1: // Maximize
 				frame_box(x + 4, y + 3, 10, 9, black);
@@ -825,7 +883,7 @@ namespace bb::gui {
 					char text[256];
 					shown_text(m ? m->text : "", text, sizeof(text));
 					color(m && m->enabled ? black : grey_text);
-					bb_gui_text(x + bx + 8 + (open ? 1 : 0), y + by + (bh - 12) / 2 + (open ? 1 : 0), text, 0, 12);
+					text_px(x + bx + 8 + (open ? 1 : 0), y + by + (bh - 12) / 2 + (open ? 1 : 0), text, 0, 12);
 				}
 			}
 			// The status bar.
@@ -994,13 +1052,13 @@ namespace bb::gui {
 					shown_text(kid->text, text, sizeof(text));
 					rgb c = !kid->enabled ? grey_text : (open ? white : black);
 					color(c);
-					bb_gui_text(px + 24, ry + (rh - 12) / 2, text, 0, 12);
+					text_px(px + 24, ry + (rh - 12) / 2, text, 0, 12);
 					if (kid->checked) {
 						color(c);
-						bb_line(px + 8, ry + rh / 2, px + 11, ry + rh / 2 + 3);
-						bb_line(px + 11, ry + rh / 2 + 3, px + 16, ry + rh / 2 - 3);
-						bb_line(px + 8, ry + rh / 2 + 1, px + 11, ry + rh / 2 + 4);
-						bb_line(px + 11, ry + rh / 2 + 4, px + 16, ry + rh / 2 - 2);
+						line_at(px + 8, ry + rh / 2, px + 11, ry + rh / 2 + 3);
+						line_at(px + 11, ry + rh / 2 + 3, px + 16, ry + rh / 2 - 3);
+						line_at(px + 8, ry + rh / 2 + 1, px + 11, ry + rh / 2 + 4);
+						line_at(px + 11, ry + rh / 2 + 4, px + 16, ry + rh / 2 - 2);
 					}
 					if (kid->kids.size) {
 						arrow(px + pw - 10, ry + rh / 2, 3, c);
@@ -1160,9 +1218,12 @@ namespace bb::gui {
 			if (!buffer) {
 				return;
 			}
+			// The picture has every pixel of the window; the gadgets are drawn in the units of the program, scaled into it.
 			int pw = 0, ph = 0;
 			bb_gui_window_pixel_size(g->surface, &pw, &ph);
-			rect          whole = { 0, 0, pw > 0 ? pw : 1, ph > 0 ? ph : 1 };
+			scale_guard   scale(bb_gui_window_scale(g->surface));
+			int           lw = int(lroundf(float(pw) / draw_scale)), lh = int(lroundf(float(ph) / draw_scale));
+			rect          whole = { 0, 0, lw > 0 ? lw : 1, lh > 0 ? lh : 1 };
 			drawing_guard guard;
 			overlay_combo = 0;
 			bb_set_buffer(buffer);
@@ -1251,6 +1312,24 @@ namespace bb::gui {
 				draw_native_window(desk->kids[i], false);
 			}
 		}
+	}
+
+	// For what else draws into a window while it is drawn (the requesters, gui_dialogs.cpp): at the scale of that window.
+	void gui_fill(int x, int y, int w, int h)
+	{
+		if ((w > 0) && (h > 0)) {
+			bb_rect(sx(x), sx(y), sx(x + w) - sx(x), sx(y + h) - sx(y), 1);
+		}
+	}
+
+	void gui_clip(int x, int y, int w, int h)
+	{
+		clip_to({ x, y, w, h });
+	}
+
+	void gui_text(int x, int y, const char* text, int font, int size)
+	{
+		text_px(x, y, text, font, size);
 	}
 
 	// Called whenever the program waits or asks for input: what changed is shown.
