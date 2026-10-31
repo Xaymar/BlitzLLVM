@@ -1316,8 +1316,8 @@ void bb_free_sampler(int32_t handle)
 
 void bb_set_sampler_filter_min(int32_t handle, int32_t mode)
 {
-	sampler_entry* s = need_sampler(handle, "SetSamplerFilterMin");
-	check_mode("SetSamplerFilterMin", mode, 2);
+	sampler_entry* s = need_sampler(handle, "SamplerFilterMin");
+	check_mode("SamplerFilterMin", mode, 2);
 	s->filter_min = mode;
 	apply_sampler(handle);
 }

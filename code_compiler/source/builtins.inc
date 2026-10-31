@@ -284,7 +284,7 @@
 		{ "setcubemode", "bb_set_cube_mode", 'v', "ii", 2, {}, false },
 		{ "createsampler", "bb_create_sampler", 'i', "", 0, {}, false },
 		{ "freesampler", "bb_free_sampler", 'v', "i", 1, {}, false },
-		{ "setsamplerfiltermin", "bb_set_sampler_filter_min", 'v', "ii", 2, {}, false },
+		{ "samplerfiltermin", "bb_set_sampler_filter_min", 'v', "ii", 2, {}, false },
 		{ "setsamplerfiltermag", "bb_set_sampler_filter_mag", 'v', "ii", 2, {}, false },
 		{ "setsamplerfiltermip", "bb_set_sampler_filter_mip", 'v', "ii", 2, {}, false },
 		{ "setsampleranisotropy", "bb_set_sampler_anisotropy", 'v', "if", 2, {}, false },

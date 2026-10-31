@@ -95,7 +95,7 @@ EXTENSIONS = {
     "movieposition": ("graphics", "#MoviePosition%movie"),
     "createsampler": ("blitz3d", "%CreateSampler"),
     "freesampler": ("blitz3d", "FreeSampler%sampler"),
-    "setsamplerfiltermin": ("blitz3d", "SetSamplerFilterMin%sampler%mode"),
+    "samplerfiltermin": ("blitz3d", "SamplerFilterMin%sampler%mode"),
     "setsamplerfiltermag": ("blitz3d", "SetSamplerFilterMag%sampler%mode"),
     "setsamplerfiltermip": ("blitz3d", "SetSamplerFilterMip%sampler%mode"),
     "setsampleranisotropy": ("blitz3d", "SetSamplerAnisotropy%sampler#anisotropy"),
