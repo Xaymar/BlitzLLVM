@@ -68,7 +68,7 @@ These are on, `0` turns them off, which is useful to compare speed or pictures.
 |---|---|---|
 | `BLITZLLVM_SPATIAL_GRID_SCAN_SHARE` | built in | The share of the meshes in the cells that are in view above which the grid is not used for that look, see [[Spatial-Grid]]. |
 | `BLITZLLVM_SPATIAL_GRID_MAX_MOVED` | built in | How many meshes may move in a frame before the grid is left alone. |
-| `BLITZLLVM_THREADS` | one for each core, at most `8` | How many threads share work that is the same for every element, such as making the clusters that the GPU culls meshes with. The thread that renders counts as one, `1` does the work on that thread alone. |
+| `BLITZLLVM_THREADS` | half of the cores, at most `8` | How many threads share work that is the same for every element, such as making the clusters that the GPU culls meshes with. The thread that renders counts as one, `1` does the work on that thread alone. |
 | `BLITZLLVM_DEVICE_LOSS_COOLDOWN_MS` | `300000` | How many milliseconds without a lost graphics device make the next loss count as the first again; the third loss within it ends the program, see [[Lost-Graphics-Device]]. |
 
 ## Debugging and profiling
