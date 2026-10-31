@@ -72,6 +72,8 @@ suite-debug-compile-blitz3d_entity_static_pixels
 suite-debug-compile-blitz3d_envmaps_pixels
 suite-debug-compile-blitz3d_far_pixels
 suite-debug-compile-blitz3d_fog_sphere_pixels
+suite-debug-compile-blitz3d_gltf
+suite-debug-compile-blitz3d_gltf_pixels
 suite-debug-compile-blitz3d_gpu_culling_pixels
 suite-debug-compile-blitz3d_gpu_draws_pixels
 suite-debug-compile-blitz3d_grid_pixels
@@ -253,6 +255,8 @@ suite-debug-run-blitz3d_entity_static_pixels
 suite-debug-run-blitz3d_envmaps_pixels
 suite-debug-run-blitz3d_far_pixels
 suite-debug-run-blitz3d_fog_sphere_pixels
+suite-debug-run-blitz3d_gltf
+suite-debug-run-blitz3d_gltf_pixels
 suite-debug-run-blitz3d_gpu_culling_pixels
 suite-debug-run-blitz3d_gpu_draws_pixels
 suite-debug-run-blitz3d_grid_pixels
