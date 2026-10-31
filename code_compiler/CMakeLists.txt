@@ -446,6 +446,12 @@ foreach(_SETTING IN ITEMS "baseline" "v2" "v3" "v4" "native" "-avx2" "v3,-fma" "
 endforeach()
 add_test(NAME cpu-host-default COMMAND cpu_test host)
 set_tests_properties(cpu-rules cpu-host-default PROPERTIES LABELS "cpu")
+add_executable(kernels_test "${TEST_DIRECTORY}/cpu/kernels_test.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/kernels.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/cpu.c" "${PROJECT_SOURCE_DIR}/../code_runtime/source/environment.c")
+target_include_directories(kernels_test PRIVATE "${PROJECT_SOURCE_DIR}/../code_runtime/source")
+foreach(_SETTING IN ITEMS "baseline" "v2" "v3" "native")
+	add_test(NAME "kernels-${_SETTING}" COMMAND kernels_test)
+	set_tests_properties("kernels-${_SETTING}" PROPERTIES ENVIRONMENT "BLITZLLVM_CPU=${_SETTING}" LABELS "cpu")
+endforeach()
 
 # The library that blitz-format and blitz-tidy share: Tokens that join back to the source (of every program in tests/), keywords,
 # configuration files, edits and diffs.
