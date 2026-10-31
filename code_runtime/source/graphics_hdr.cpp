@@ -370,4 +370,32 @@ void bb_auto_hdr_metadata(float minimum, float average, float maximum)
 	meta_max     = std::clamp(maximum, 0.0f, 10000.0f);
 	meta_dirty   = true;
 }
+
+// HWHDRSupported: 1 if the display has HDR switched on (and, once there is a window, the driver offers an HDR swapchain for it). Checked every
+// time: the display can be changed or switched while the program runs.
+int32_t bb_hw_hdr_supported(void)
+{
+	system_levels levels = ask_system();
+	if (!levels.hdr) {
+		return 0;
+	}
+	if (g.created && !g.headless) {
+		return surface().hdr_offered ? 1 : 0;
+	}
+	return 1;
+}
+
+// HWHDRPeakNits: the brightest the display shows in nits as the system says (SDR white times the room above it), or 0 if it has no HDR or the
+// system does not say, or there is no window yet.
+float bb_hw_hdr_peak_nits(void)
+{
+	system_levels levels = ask_system();
+	return (levels.hdr && (levels.white > 0.0f) && (levels.headroom > 1.0f)) ? levels.white * levels.headroom : 0.0f;
+}
+
+// HWHDRActive: 1 if the window is shown in HDR now (AutoHDR is on, and it was supported when the swapchain was made).
+int32_t bb_hw_hdr_active(void)
+{
+	return (g.created && !g.headless && surface().hdr) ? 1 : 0;
+}
 }
