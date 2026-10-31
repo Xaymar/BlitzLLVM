@@ -842,3 +842,5 @@
 		{ "windowmaximized", "bb_window_maximized", 'i', "i", 1, { 0 }, false },
 		{ "windowmenu", "bb_window_menu", 'i', "i", 1, { 0 }, false },
 		{ "windowminimized", "bb_window_minimized", 'i', "i", 1, { 0 }, false },
+		{ "windowscale", "bb_window_scale", 'f', "i", 1, { 0 }, false },
+		{ "windowscaling", "bb_window_scaling", 'v', "i", 1, { 0 }, false },

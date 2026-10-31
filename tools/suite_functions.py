@@ -72,6 +72,8 @@ EXTENSIONS = {
     "displaydepth": ("graphics", "%DisplayDepth%display"),
     "displayrefreshrate": ("graphics", "%DisplayRefreshRate%display"),
     "displayscale": ("graphics", "#DisplayScale%display"),
+    "windowscale": ("plusgui", "#WindowScale%window"),
+    "windowscaling": ("plusgui", "WindowScaling%mode"),
     "countdisplaymodes": ("graphics", "%CountDisplayModes%display"),
     "displaymodewidth": ("graphics", "%DisplayModeWidth%display%mode"),
     "displaymodeheight": ("graphics", "%DisplayModeHeight%display%mode"),

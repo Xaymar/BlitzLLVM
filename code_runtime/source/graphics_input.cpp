@@ -264,14 +264,11 @@ namespace bb::gfx {
 		case SDL_EVENT_WINDOW_RESIZED:
 			bb_gui_window_event(handle, 2, in_program_units(event.window.data1, s.units), in_program_units(event.window.data2, s.units));
 			break;
-		case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED: {
-			float scale = s.scale;
-			update_gui_scale(s);
-			if (scale != s.scale) {
+		case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+			if (update_gui_scale(s)) {
 				bb_gui_window_event(handle, 11, 0, 0);
 			}
 			break;
-		}
 		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			bb_gui_window_event(handle, 3, 0, 0);
 			break;

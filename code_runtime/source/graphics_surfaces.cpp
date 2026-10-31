@@ -295,14 +295,21 @@ namespace bb::gfx {
 		return forced;
 	}
 
-	void update_gui_scale(surface_state& s)
+	// Whether the runtime scales the windows (WindowScaling 1, the default) or the program does (0: a unit is a pixel, and
+	// WindowScale tells the program what the display asks for).
+	static thread_local bool gui_scaling = true;
+
+	bool update_gui_scale(surface_state& s)
 	{
 		float density = s.window ? SDL_GetWindowPixelDensity(s.window) : 1.0f;
 		float natural = s.window ? SDL_GetWindowDisplayScale(s.window) : 1.0f;
 		float forced  = forced_gui_scale();
-		density       = density > 0.0f ? density : 1.0f;
-		s.scale       = forced > 0.0f ? forced : (natural > 0.0f ? natural : 1.0f);
-		s.units       = s.scale / density;
+		float display = s.display, scale = s.scale;
+		density        = density > 0.0f ? density : 1.0f;
+		s.display      = forced > 0.0f ? forced : (natural > 0.0f ? natural : 1.0f); // BLITZLLVM_GUI_SCALE stands in for the display.
+		s.scale        = gui_scaling ? s.display : 1.0f;
+		s.units        = s.scale / density;
+		return (display != s.display) || (scale != s.scale);
 	}
 
 	float gui_desktop_units()
@@ -314,6 +321,9 @@ namespace bb::gfx {
 			}
 		}
 		float forced = forced_gui_scale();
+		if (!gui_scaling) {
+			return 1.0f;
+		}
 		if (forced > 0.0f) {
 			return forced;
 		}
@@ -451,6 +461,25 @@ float bb_gui_window_scale(int32_t handle)
 {
 	surface_state* s = extra_surface(handle);
 	return s ? s->scale : 1.0f;
+}
+
+// The scale of the display a window of the GUI is on, whether or not the runtime scales the window by it.
+float bb_gui_window_display_scale(int32_t handle)
+{
+	surface_state* s = extra_surface(handle);
+	return s ? s->display : 1.0f;
+}
+
+// WindowScaling: whether the runtime scales the windows of the GUI by their display (1), or the program does it (0). The
+// windows that are open change at once, and tell their gadgets (kind 11) so that they keep their size in units.
+void bb_gui_scaling(int32_t on)
+{
+	gui_scaling = on != 0;
+	for (int i = 1; i <= max_extra_surfaces; i++) {
+		if (surface_state* s = extra_surface(i); s && s->gui && s->window && update_gui_scale(*s)) {
+			bb_gui_window_event(i, 11, 0, 0);
+		}
+	}
 }
 
 // The size of the window in pixels, which is what its picture has to be.

@@ -755,6 +755,8 @@ updatewindowmenu	plusgui	done	UpdateWindowMenu%window
 windowmaximized	plusgui	done	%WindowMaximized%window
 windowmenu	plusgui	done	%WindowMenu%window
 windowminimized	plusgui	done	%WindowMinimized%window
+windowscale	plusgui	done	#WindowScale%window
+windowscaling	plusgui	done	WindowScaling%mode
 activeobjects	plussystem	done	%ActiveObjects
 autosuspend	plussystem	done	AutoSuspend%enable
 confirm	plussystem	done	%Confirm$text%serious=0
