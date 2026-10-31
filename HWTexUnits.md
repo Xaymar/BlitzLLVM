@@ -25,7 +25,7 @@ _Not documented yet._
 
 ## Related Commands
 
-[HWDither](HWDither), [HWMultiTex](HWMultiTex), [RenderWorld](RenderWorld), [Stats3D](Stats3D)
+[HWDither](HWDither), [HWMultiTex](HWMultiTex), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [RenderWorld](RenderWorld)
 
 <div align="center">
 

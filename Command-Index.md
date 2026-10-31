@@ -401,6 +401,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [GraphicsFormat](GraphicsFormat)
 * [GraphicsHeight](GraphicsHeight)
 * [GraphicsLost](GraphicsLost)
+* [GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency)
 * [GraphicsPalette](GraphicsPalette)
 * [GraphicsWidth](GraphicsWidth)
 
@@ -426,6 +427,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [HtmlViewStatus](HtmlViewStatus) 〔BlitzLLVM〕
 * [HWDither](HWDither)
 * [HWMultiTex](HWMultiTex)
+* [HWOrderIndependentTransparency](HWOrderIndependentTransparency)
 * [HWRawInput](HWRawInput)
 * [HWTexUnits](HWTexUnits)
 

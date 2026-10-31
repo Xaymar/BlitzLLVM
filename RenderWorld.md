@@ -64,7 +64,7 @@ Next
 
 ## Related Commands
 
-[CaptureWorld](CaptureWorld), [ClearWorld](ClearWorld), [HWMultiTex](HWMultiTex), [UpdateWorld](UpdateWorld)
+[CaptureWorld](CaptureWorld), [ClearWorld](ClearWorld), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [UpdateWorld](UpdateWorld)
 
 <div align="center">
 

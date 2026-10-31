@@ -24,7 +24,7 @@ Gives the highest value of [Dither](Dither) that does something on the graphics 
 
 ## Related Commands
 
-[Dither](Dither), [DitherMode](DitherMode), [DitherTemporal](DitherTemporal), [HWMultiTex](HWMultiTex), [HWTexUnits](HWTexUnits)
+[Dither](Dither), [DitherMode](DitherMode), [DitherTemporal](DitherTemporal), [HWMultiTex](HWMultiTex), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [HWTexUnits](HWTexUnits)
 
 <div align="center">
 

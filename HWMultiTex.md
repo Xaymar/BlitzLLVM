@@ -31,7 +31,7 @@ Switches multitexturing on or off, so that a triangle with several textures is d
 
 ## Related Commands
 
-[DitherTemporal](DitherTemporal), [HWDither](HWDither), [HWTexUnits](HWTexUnits), [RenderWorld](RenderWorld)
+[GraphicsOrderIndependentTransparency](GraphicsOrderIndependentTransparency), [HWDither](HWDither), [HWOrderIndependentTransparency](HWOrderIndependentTransparency), [HWTexUnits](HWTexUnits)
 
 <div align="center">
 

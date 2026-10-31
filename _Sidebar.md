@@ -1230,7 +1230,7 @@
 <li><a href="VectorYaw">VectorYaw</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-World">World</a> (18)</summary>
+<li><details><summary><a href="Blitz3D-World">World</a> (20)</summary>
 <ul>
 <li><a href="ActiveTextures">ActiveTextures</a></li>
 <li><a href="AmbientLight">AmbientLight</a></li>
@@ -1240,8 +1240,10 @@
 <li><a href="Dither">Dither</a></li>
 <li><a href="DitherMode">DitherMode</a></li>
 <li><a href="DitherTemporal">DitherTemporal</a></li>
+<li><a href="GraphicsOrderIndependentTransparency">GraphicsOrderIndependentTransparency</a></li>
 <li><a href="HWDither">HWDither</a></li>
 <li><a href="HWMultiTex">HWMultiTex</a></li>
+<li><a href="HWOrderIndependentTransparency">HWOrderIndependentTransparency</a></li>
 <li><a href="HWTexUnits">HWTexUnits</a></li>
 <li><a href="RenderWorld">RenderWorld</a></li>
 <li><a href="Stats3D">Stats3D</a></li>
