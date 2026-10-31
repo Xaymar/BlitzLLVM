@@ -17,6 +17,8 @@
 #include "graphics_internal.hpp"
 #include "environment.h"
 
+#include <algorithm>
+
 using namespace bb::gfx;
 
 extern "C" int bb_test_events_dirty;
@@ -354,6 +356,9 @@ namespace bb::gfx {
 				break;
 			case SDL_EVENT_WINDOW_FOCUS_GAINED:
 				surface().suspended = false;
+				if (g.mouse_locked) {
+					SDL_SetWindowMouseGrab(surface().window, true); // Some systems let go of the pointer with the focus.
+				}
 				bb_event_post(0x2002, 0, 0, 0, 0, 0);
 				break;
 			case SDL_EVENT_WINDOW_MINIMIZED:
@@ -591,6 +596,59 @@ namespace bb::gfx {
 		}
 	}
 
+	// Keeps the pointer where LockMouse asked for it. For a window or gadget of the program's own GUI the pointer is
+	// confined to the area of it (which can move) in its window, else to the whole window of Graphics. Only changes are
+	// passed on to the window system.
+	static void apply_mouse_lock()
+	{
+		static SDL_Window* held = nullptr; // The window that has the pointer held right now.
+		static SDL_Rect    last{};
+		static bool        last_rect = false;
+		SDL_Window*        window    = nullptr;
+		SDL_Rect           rect{};
+		bool               by_rect = false;
+		if (g.mouse_locked && g.created && !g.headless) {
+			window = surface().window;
+			if (g.mouse_lock_window) {
+				int32_t area, x, y, w, h;
+				if (!bb_gui_area(g.mouse_lock_window, &area, &x, &y, &w, &h)) {
+					g.mouse_locked = false; // The window is gone, so is the lock.
+					g.mouse_lock_window = 0;
+				} else {
+					by_rect = true;
+					if (area) {
+						window = static_cast<SDL_Window*>(bb_gui_window_sdl(area));
+						rect   = { x, y, std::max(1, w), std::max(1, h) };
+					} else {
+						float x0, y0, x1, y1;
+						buffer_to_window(float(x), float(y), &x0, &y0);
+						buffer_to_window(float(x + w), float(y + h), &x1, &y1);
+						rect = { int(floorf(x0)), int(floorf(y0)), std::max(1, int(ceilf(x1 - x0))), std::max(1, int(ceilf(y1 - y0))) };
+					}
+				}
+			}
+		}
+		if (!g.mouse_locked || !window) {
+			window = nullptr;
+		}
+		if (held && (held != window)) {
+			SDL_SetWindowMouseRect(held, nullptr);
+			SDL_SetWindowMouseGrab(held, false);
+			held = nullptr;
+		}
+		if (!window) {
+			return;
+		}
+		if (held && (by_rect == last_rect) && (!by_rect || !memcmp(&rect, &last, sizeof(rect)))) {
+			return;
+		}
+		SDL_SetWindowMouseRect(window, by_rect ? &rect : nullptr);
+		SDL_SetWindowMouseGrab(window, true);
+		held      = window;
+		last      = rect;
+		last_rect = by_rect;
+	}
+
 	// Brings in what happened in the window. A program that is suspended (see AutoSuspend) waits here until its window
 	// is in front again, while the window goes on working.
 	void pump()
@@ -605,6 +663,7 @@ namespace bb::gfx {
 		}
 		last = now;
 		drain();
+		apply_mouse_lock();
 		while (g.auto_suspend && surface().suspended && surface().window && !g.offscreen && !extra_surface_focused()) {
 			SDL_WaitEventTimeout(nullptr, 50);
 			drain();
@@ -727,6 +786,7 @@ static void capture_for_speed()
 		g.mouse_py              = float(g.mouse_y);
 		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE, "0");
 		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE, "1");
+		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_CURSOR_VISIBLE, "1"); // Asking for the speed does not hide the pointer.
 		SDL_SetWindowRelativeMouseMode(surface().window, true);
 	}
 }
@@ -842,6 +902,7 @@ void bb_move_mouse(int32_t x, int32_t y, int32_t canvas)
 	if (!g.mouse_relative) {
 		g.mouse_relative = true;
 		g.mouse_dx = g.mouse_dy = 0;
+		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_CURSOR_VISIBLE, "0");
 		SDL_SetWindowRelativeMouseMode(surface().window, true);
 	}
 	g.mouse_px = float(x);
@@ -850,6 +911,31 @@ void bb_move_mouse(int32_t x, int32_t y, int32_t canvas)
 	g.mouse_y  = y;
 	mouse_ref_x = x;
 	mouse_ref_y = y;
+}
+
+// A BlitzLLVM extension: keeps the pointer in the window of Graphics (window 0) or in the window or gadget given, until
+// UnlockMouse. Without a Graphics window the lock is remembered and applies as soon as there is one.
+void bb_lock_mouse(int32_t window)
+{
+	int32_t area, x, y, w, h;
+	if (window && !bb_gui_area(window, &area, &x, &y, &w, &h)) {
+		bb_runtime_error("LockMouse: the window does not exist.");
+		return;
+	}
+	g.mouse_locked      = true;
+	g.mouse_lock_window = window;
+	if (active()) {
+		apply_mouse_lock();
+	}
+}
+
+void bb_unlock_mouse(void)
+{
+	g.mouse_locked      = false;
+	g.mouse_lock_window = 0;
+	if (active()) {
+		apply_mouse_lock();
+	}
 }
 
 void bb_hide_pointer(int32_t canvas)

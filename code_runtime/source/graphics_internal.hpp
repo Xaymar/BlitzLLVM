@@ -55,7 +55,9 @@ int32_t bb_gui_window_origin(int32_t window, int32_t* x, int32_t* y);
 void    bb_gui_window_event(int32_t window, int32_t kind, int32_t a, int32_t b);
 int32_t bb_gui_window_surface(int32_t gadget);
 void    bb_gui_windows_reopen(void);
+void*   bb_gui_window_sdl(int32_t handle);
 int32_t bb_gui_mouse_in(int32_t canvas, int32_t* x, int32_t* y);
+int32_t bb_gui_area(int32_t handle, int32_t* surface, int32_t* x, int32_t* y, int32_t* w, int32_t* h);
 int32_t bb_gui_translate(int32_t kind, int32_t* x, int32_t* y, int32_t* source);
 void bb_gui_idle(void);
 }
@@ -434,6 +436,8 @@ namespace bb::gfx {
 		float   mouse_dx = 0, mouse_dy = 0, mouse_dz = 0; // Movement since it was asked for last.
 		// While a program puts the mouse back in the middle every frame, the mouse is kept in the window, hidden, and only
 		// how far it moved is looked at, as DirectInput does for the original. The position is then made up from that.
+		bool    mouse_locked = false; // LockMouse: the pointer stays in the window, or in mouse_lock_window if not 0.
+		int32_t mouse_lock_window = 0;
 		bool    mouse_relative = false;
 		float   mouse_px = 0, mouse_py = 0;
 		Uint64  mouse_move_tick = 0;
@@ -1361,6 +1365,8 @@ const char* bb_joy_device_name(int32_t port);
 int32_t bb_joy_device_connected(int32_t port);
 void    bb_joy_attach_virtual(int32_t attach);
 void bb_move_mouse(int32_t x, int32_t y, int32_t canvas);
+void bb_lock_mouse(int32_t window);
+void bb_unlock_mouse(void);
 void bb_hide_pointer(int32_t canvas);
 void bb_show_pointer(int32_t canvas);
 int32_t bb_get_joy(int32_t port);
