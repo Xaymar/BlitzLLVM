@@ -262,6 +262,7 @@ Every command from A to Z. See [Home](Home) to browse by dialect and category.
 * [EntityFX](EntityFX)
 * [EntityInView](EntityInView)
 * [EntityLightChannel](EntityLightChannel) 〔BlitzLLVM〕
+* [EntityLighting](EntityLighting)
 * [EntityName](EntityName)
 * [EntityOrder](EntityOrder)
 * [EntityParent](EntityParent)

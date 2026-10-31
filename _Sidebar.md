@@ -60,7 +60,7 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (304)</summary>
+<li><details><summary>Commands (305)</summary>
 <ul>
 <li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
@@ -143,6 +143,7 @@
 <li><a href="EnableDirectInput#differences">EnableDirectInput</a></li>
 <li><a href="EndGraphics#differences">EndGraphics</a></li>
 <li><a href="EntityDepthFade#differences">EntityDepthFade</a> 〔BlitzLLVM〕</li>
+<li><a href="EntityLighting#differences">EntityLighting</a></li>
 <li><a href="EntityStatic#differences">EntityStatic</a> 〔BlitzLLVM〕</li>
 <li><a href="EntityTexture#differences">EntityTexture</a></li>
 <li><a href="Flip#differences">Flip</a></li>
@@ -1004,7 +1005,7 @@
 <li><a href="Windowed3D">Windowed3D</a></li>
 </ul>
 </details></li>
-<li><details><summary><a href="Blitz3D-Entities">Entities</a> (43)</summary>
+<li><details><summary><a href="Blitz3D-Entities">Entities</a> (44)</summary>
 <ul>
 <li><a href="AlignToVector">AlignToVector</a></li>
 <li><a href="CopyEntity">CopyEntity</a></li>
@@ -1020,6 +1021,7 @@
 <li><a href="EntityFX">EntityFX</a></li>
 <li><a href="EntityInView">EntityInView</a></li>
 <li><a href="EntityLightChannel">EntityLightChannel</a> 〔BlitzLLVM〕</li>
+<li><a href="EntityLighting">EntityLighting</a></li>
 <li><a href="EntityName">EntityName</a></li>
 <li><a href="EntityOrder">EntityOrder</a></li>
 <li><a href="EntityParent">EntityParent</a></li>
