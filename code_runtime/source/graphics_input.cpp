@@ -786,6 +786,7 @@ static void capture_for_speed()
 		g.mouse_py              = float(g.mouse_y);
 		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SYSTEM_SCALE, "0");
 		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SPEED_SCALE, "1");
+		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_CURSOR_VISIBLE, "1"); // Asking for the speed does not hide the pointer.
 		SDL_SetWindowRelativeMouseMode(surface().window, true);
 	}
 }
@@ -901,6 +902,7 @@ void bb_move_mouse(int32_t x, int32_t y, int32_t canvas)
 	if (!g.mouse_relative) {
 		g.mouse_relative = true;
 		g.mouse_dx = g.mouse_dy = 0;
+		SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_CURSOR_VISIBLE, "0");
 		SDL_SetWindowRelativeMouseMode(surface().window, true);
 	}
 	g.mouse_px = float(x);
