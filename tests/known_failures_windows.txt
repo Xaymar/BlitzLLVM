@@ -382,6 +382,7 @@ suite-debug-run-strings_nul
 suite-debug-run-void_function
 suite-run-blitz3d_negative_light_pixels
 suite-run-blitz3d_textures
+suite-run-graphics_autohdr_pixels
 suite-run-graphics_depth_pixels
 suite-run-graphics_dither_deep_present_pixels
 suite-run-graphics_dither_mode_pixels
