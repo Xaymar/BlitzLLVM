@@ -60,9 +60,8 @@
 <li><a href="Warnings">Warnings</a></li>
 </ul>
 </details></li>
-<li><details><summary>Commands (303)</summary>
+<li><details><summary>Commands (299)</summary>
 <ul>
-<li><a href="ActivateWindow#differences">ActivateWindow</a></li>
 <li><a href="ActiveObjects#differences">ActiveObjects</a></li>
 <li><a href="ActiveWindow#differences">ActiveWindow</a></li>
 <li><a href="AddVertex#differences">AddVertex</a></li>
@@ -115,9 +114,7 @@
 <li><a href="CreateTextArea#differences">CreateTextArea</a></li>
 <li><a href="CreateTexture#differences">CreateTexture</a></li>
 <li><a href="CreateToolBar#differences">CreateToolBar</a></li>
-<li><a href="CreateWindow#differences">CreateWindow</a></li>
 <li><a href="DebugObjects#differences">DebugObjects</a></li>
-<li><a href="Desktop#differences">Desktop</a></li>
 <li><a href="DesktopBuffer#differences">DesktopBuffer</a></li>
 <li><a href="DirectInputEnabled#differences">DirectInputEnabled</a></li>
 <li><a href="DisplayDepth#differences">DisplayDepth</a> 〔BlitzLLVM〕</li>
@@ -268,7 +265,6 @@
 <li><a href="Proceed#differences">Proceed</a></li>
 <li><a href="ProjectedX#differences">ProjectedX</a></li>
 <li><a href="ProjectedZ#differences">ProjectedZ</a></li>
-<li><a href="QueryObject#differences">QueryObject</a></li>
 <li><a href="RawInput#differences">RawInput</a></li>
 <li><a href="RawInputEnabled#differences">RawInputEnabled</a></li>
 <li><a href="ReadPixel#differences">ReadPixel</a></li>

@@ -25,7 +25,7 @@ _Not documented yet._
 
 ## Differences
 
-* The windows are inside the program's own window, so there is no "none of ours is active" state: the answer is always the window that was activated most recently.
+* There is no "none of ours is active" state: the answer is always the window of the program that was activated most recently, by the user or by [ActivateWindow](ActivateWindow).
 
 ## Related Commands
 

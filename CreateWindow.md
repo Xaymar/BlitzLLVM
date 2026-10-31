@@ -46,10 +46,6 @@ The style is a sum of these flags, and 15 is the default:
 
 Windows send events when they move ($801), change size ($802), are closed ($803) or are activated ($804). Closing does not remove a window by itself, your program decides what to do with the $803 event.
 
-## Differences
-
-* All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries. Windows are drawn in the order they were activated.
-
 ## Examples
 
 ```blitzbasic
@@ -66,6 +62,8 @@ Repeat
 	EndIf
 Until asked = 2
 ```
+
+@difference Every window on the desktop is a window of the operating system, with its frame and title bar, so flag 1 only says whether the window has them, and the user moves, sizes, minimizes and maximizes it the way the system does. Menu bars and status bars are drawn by the runtime. Where no window can be made (no display, or `BLITZLLVM_HEADLESS`) the windows are drawn inside the window of `Graphics` instead, in the order they were activated. A program that uses the GUI still gets the window of `Graphics` (1024 by 768 where it did not ask for one); that window is where the mouse and key commands of BlitzBasic look, and closing it posts `$803` with source 0 instead of ending the program.
 
 ## Media
 

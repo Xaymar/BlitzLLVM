@@ -27,7 +27,7 @@ Hides a window as if it were put into the task bar. Its gadgets keep their state
 
 ## Differences
 
-* There is no task bar, so a minimized window simply is not drawn and there is no way for the user to bring it back. Your program has to call `RestoreWindow`.
+* The operating system minimizes the window and brings it back from its task bar; without a window manager nothing happens. Where the windows are drawn inside the window of `Graphics`, a minimized window is a bar at the bottom of that window, which the user clicks to restore it.
 
 ## Examples
 

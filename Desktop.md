@@ -23,10 +23,6 @@ Desktop:Int32
 
 Gives the handle of the desktop, the group that top level windows live in. Pass it as the group of [CreateWindow](CreateWindow). Windows without a group are always on it. With [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) it tells the size of the primary display. [DesktopBuffer](DesktopBuffer) does nothing here.
 
-## Differences
-
-* The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the primary display, with the area under the task bar and start menu. Windows cannot be placed outside of the program's window. Nothing can be drawn on or read from the desktop of the computer, see [DesktopBuffer](DesktopBuffer).
-
 ## Examples
 
 ```blitzbasic
@@ -36,6 +32,7 @@ SetGadgetShape win, (ClientWidth(Desktop()) - 180) / 2, (ClientHeight(Desktop())
 Repeat
 Until WaitEvent() = $803
 ```
+@difference The windows are windows of the operating system on the desktop of the computer, whose size [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell. Nothing can be drawn on or read from the desktop of the computer, see [DesktopBuffer](DesktopBuffer). Where no window can be made, the windows are drawn inside the window of `Graphics` and cannot leave it.
 
 ## Related Commands
 

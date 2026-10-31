@@ -53,9 +53,8 @@ Differences that are not caused by one command.
 
 Commands that differ from the original or are not finished, with the first of the differences from the "Differences" part of their page.
 
-* [ActivateWindow](ActivateWindow#differences): All windows are drawn inside the one window of your program, so activating one moves it in front of the others there instead of in front of other applications.
 * [ActiveObjects](ActiveObjects#differences): Windows and gadgets are not counted here.
-* [ActiveWindow](ActiveWindow#differences): The windows are inside the program's own window, so there is no "none of ours is active" state: the answer is always the window that was activated most recently.
+* [ActiveWindow](ActiveWindow#differences): There is no "none of ours is active" state: the answer is always the window of the program that was activated most recently, by the user or by [ActivateWindow](ActivateWindow).
 * [AddVertex](AddVertex#differences): `w` is ignored.
 * [AnimateMD2](AnimateMD2#differences): The official help gives 1 as the default first frame; frames are counted from 0 and the default is 0, in the engine as well as here.
 * [AntiAlias](AntiAlias#differences): The original handed the setting to the graphics driver, where it did nothing on most hardware of the time.
@@ -106,9 +105,7 @@ Commands that differ from the original or are not finished, with the first of th
 * [CreateTextArea](CreateTextArea#differences): Without wrapping, a bar along the bottom appears once a line does not fit.
 * [CreateTexture](CreateTexture#differences): Flag 4096 (render target) is new.
 * [CreateToolBar](CreateToolBar#differences): The tool tips given with [SetToolBarTips](SetToolBarTips) show below a button after the mouse rested on it for half a second.
-* [CreateWindow](CreateWindow#differences): All windows are drawn inside one SDL window and cannot leave it, there are no separate windows of the operating system and no taskbar entries.
 * [DebugObjects](DebugObjects#differences): The list covers banks, streams, sounds, images, textures, fonts, timers and your own types, but no windows or gadgets.
-* [Desktop](Desktop#differences): The windows are drawn in the program's own window, which has the size you gave `Graphics`, even though [ClientWidth](ClientWidth) and [ClientHeight](ClientHeight) tell the size of the primary display, with the area under the task bar and start menu.
 * [DesktopBuffer](DesktopBuffer#differences): Drawing on, or reading from, the desktop does not work: it is a buffer of one black pixel that starts over every time this is called, so the screen of the computer is never touched and nothing shows behind the windows.
 * [DirectInputEnabled](DirectInputEnabled#differences): There is no DirectInput on this platform.
 * [DisplayDepth](DisplayDepth#differences) 〔BlitzLLVM〕: A display number that does not exist gives 0 (an empty text for the name) instead of stopping the program, because a display can be unplugged while the program runs.
@@ -221,10 +218,10 @@ Commands that differ from the original or are not finished, with the first of th
 * [Long](Long#differences) 〔BlitzLLVM〕: Not in the originals, which have no integers of other sizes.
 * [LoopMovie](LoopMovie#differences) 〔BlitzLLVM〕: A debug build (`-d`) stops the program when the movie does not exist, for example the 0 of a movie that failed to open, other builds ignore the command, see [Debug handle checks](Debug-Handle-Checks).
 * [LoopSound](LoopSound#differences): There is no command to switch looping off again.
-* [MaximizeWindow](MaximizeWindow#differences): The window fills the whole program window, also when it was made without flag 2 and so cannot be resized by the user.
+* [MaximizeWindow](MaximizeWindow#differences): The operating system maximizes the window, also when it was made without flag 2 and so cannot be resized by the user; without a window manager nothing happens.
 * [MeshCullBox](MeshCullBox#differences): The box only affects [EntityInView](EntityInView).
 * [Microseconds](Microseconds#differences) 〔BlitzLLVM〕: The value is a `UInt64`, which no original command returns.
-* [MinimizeWindow](MinimizeWindow#differences): There is no task bar, so a minimized window simply is not drawn and there is no way for the user to bring it back.
+* [MinimizeWindow](MinimizeWindow#differences): The operating system minimizes the window and brings it back from its task bar; without a window manager nothing happens.
 * [ModifyTerrain](ModifyTerrain#differences): The realtime argument has no effect.
 * [MouseChanged](MouseChanged#differences): This is a BlitzLLVM extension: the original has no such command.
 * [MouseDeviceConnected](MouseDeviceConnected#differences): This is a BlitzLLVM extension: the original has no such command.
@@ -259,7 +256,6 @@ Commands that differ from the original or are not finished, with the first of th
 * [Proceed](Proceed#differences): The box is a message box of the operating system.
 * [ProjectedX](ProjectedX#differences): The original returns 0 for X, Y and Z when the point is behind the camera or beyond the far plane.
 * [ProjectedZ](ProjectedZ#differences): In the original this is the distance of the camera's near plane, a constant for every point; it is 0 when the point is not visible.
-* [QueryObject](QueryObject#differences): All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget.
 * [RawInput](RawInput#differences): This is a BlitzLLVM extension: the original has no such command, and gets its mouse speed from DirectInput.
 * [RawInputEnabled](RawInputEnabled#differences): This is a BlitzLLVM extension: the original has no such command.
 * [ReadPixel](ReadPixel#differences): Without a lock the pixel has to be fetched from the graphics card, which makes this slow when it is used for many pixels.

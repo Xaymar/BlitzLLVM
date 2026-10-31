@@ -28,10 +28,6 @@ QueryObject:Int32 object:Int32, query_id:Int32
 
 In the original it gives the Windows handle behind a gadget (query 1 is the HWND, 2 the HWND of the client area, 3 the HFONT), so it can be used with the Windows API.
 
-## Differences
-
-* All gadgets are drawn inside the one window of the program, so queries 1 and 2 give the handle of that window (an HWND on Windows) for every gadget. Fonts (3) have no handle of the operating system and give 0, and so does anything that is not a gadget.
-
 ## Examples
 
 ```blitzbasic
@@ -41,6 +37,7 @@ SetGadgetText win, "Handle " + QueryObject(win, 1)
 Repeat
 Until WaitEvent() = $803
 ```
+@difference Queries 1 and 2 give a number for the window of the operating system that the gadget is in: the same number for every gadget in a window, and it is the runtime's number for the window, not an HWND that the Windows API can use. For the desktop, and for gadgets drawn inside the window of `Graphics`, it is the handle of that window. Fonts (3) have no handle of the operating system and give 0, and so does anything that is not a gadget.
 
 ## Related Commands
 

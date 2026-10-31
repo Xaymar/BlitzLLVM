@@ -27,7 +27,7 @@ Makes a window as big as the desktop. [RestoreWindow](RestoreWindow) brings back
 
 ## Differences
 
-* The window fills the whole program window, also when it was made without flag 2 and so cannot be resized by the user.
+* The operating system maximizes the window, also when it was made without flag 2 and so cannot be resized by the user; without a window manager nothing happens. Where the windows are drawn inside the window of `Graphics`, the window fills that.
 
 ## Examples
 
